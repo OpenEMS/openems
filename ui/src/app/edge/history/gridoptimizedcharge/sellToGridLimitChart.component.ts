@@ -11,7 +11,7 @@ import { Data, TooltipItem } from '../shared';
 
 @Component({
   selector: 'sellToGridLimitChart',
-  templateUrl: '../abstracthistorychart.html'
+  templateUrl: '../abstracthistorychart.html',
 })
 export class SellToGridLimitChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -28,7 +28,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
   constructor(
     protected override service: Service,
     protected override translate: TranslateService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {
     super("gridOptimizedCharge-chart", service, translate);
   }
@@ -79,11 +79,11 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
           datasets.push({
             label: this.translate.instant('General.gridSell'),
             data: sellToGridData,
-            hidden: false
+            hidden: false,
           });
           this.colors.push({
             backgroundColor: 'rgba(0,0,200,0.05)',
-            borderColor: 'rgba(0,0,200,1)'
+            borderColor: 'rgba(0,0,200,1)',
           });
         }
 
@@ -106,11 +106,11 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
             label: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.maximumGridFeedIn'),
             data: sellToGridLimitData,
             hidden: false,
-            borderDash: [3, 3]
+            borderDash: [3, 3],
           });
           this.colors.push({
             backgroundColor: 'rgba(0,0,0,0.05)',
-            borderColor: 'rgba(0,0,0,1)'
+            borderColor: 'rgba(0,0,0,1)',
           });
 
           let batterySellToGridLimitData = result.data[this.component.id + '/_PropertyMaximumSellToGridPower'].map(value => {
@@ -129,11 +129,11 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
             label: "Maximale Netzeinspeisung durch Batteriebeladung",
             data: batterySellToGridLimitData,
             hidden: false,
-            borderDash: [3, 3]
+            borderDash: [3, 3],
           });
           this.colors.push({
             backgroundColor: 'rgba(200,0,0,0.05)',
-            borderColor: 'rgba(200,0,0,1)'
+            borderColor: 'rgba(200,0,0,1)',
           });
         }
 
@@ -152,11 +152,11 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
           datasets.push({
             label: this.translate.instant('General.production'),
             data: productionData,
-            hidden: false
+            hidden: false,
           });
           this.colors.push({
             backgroundColor: 'rgba(45,143,171,0.05)',
-            borderColor: 'rgba(45,143,171,1)'
+            borderColor: 'rgba(45,143,171,1)',
           });
         }
         this.datasets = datasets;

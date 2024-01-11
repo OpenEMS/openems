@@ -35,8 +35,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_POWER} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_POWER}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -47,8 +46,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_POWER_L1} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_POWER_L1}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -59,8 +57,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_POWER_L2} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_POWER_L2}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -71,8 +68,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_POWER_L3} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_POWER_L3}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -83,8 +79,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#REACTIVE_POWER} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#REACTIVE_POWER}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -95,8 +90,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#REACTIVE_POWER_L1} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#REACTIVE_POWER_L1}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -107,8 +101,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#REACTIVE_POWER_L2} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#REACTIVE_POWER_L2}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -119,8 +112,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#REACTIVE_POWER_L3} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#REACTIVE_POWER_L3}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -131,8 +123,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#CURRENT} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#CURRENT}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -143,8 +134,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#CURRENT_L1} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#CURRENT_L1}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -155,8 +145,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#CURRENT_L2} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#CURRENT_L2}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -167,8 +156,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#CURRENT_L3} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#CURRENT_L3}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -179,8 +167,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#VOLTAGE} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#VOLTAGE}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -191,8 +178,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#VOLTAGE_L1} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#VOLTAGE_L1}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -203,8 +189,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#VOLTAGE_L2} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#VOLTAGE_L2}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -215,8 +200,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#VOLTAGE_L3} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#VOLTAGE_L3}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -227,8 +211,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_PRODUCTION_ENERGY} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_PRODUCTION_ENERGY}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -239,8 +222,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_PRODUCTION_ENERGY_L1} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_PRODUCTION_ENERGY_L1}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -251,8 +233,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_PRODUCTION_ENERGY_L2} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_PRODUCTION_ENERGY_L2}.
 	 *
 	 * @param value the value
 	 * @return myself
@@ -263,8 +244,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_PRODUCTION_ENERGY_L3} of this
-	 * {@link ElectricityMeter}.
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_PRODUCTION_ENERGY_L3}.
 	 *
 	 * @param value the value
 	 * @return myself

@@ -7,7 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: ComponentUpdateComponent.SELECTOR,
-  templateUrl: './update.component.html'
+  templateUrl: './update.component.html',
 })
 export class ComponentUpdateComponent implements OnInit {
 
@@ -27,7 +27,7 @@ export class ComponentUpdateComponent implements OnInit {
     protected utils: Utils,
     private websocket: Websocket,
     private service: Service,
-    private translate: TranslateService
+    private translate: TranslateService,
   ) {
   }
 
@@ -54,8 +54,8 @@ export class ComponentUpdateComponent implements OnInit {
           templateOptions: {
             label: property.name,
             description: property.description,
-            required: property.isRequired
-          }
+            required: property.isRequired,
+          },
         };
         // add Property Schema 
         Utils.deepCopy(property.schema, field);

@@ -13,25 +13,25 @@ export namespace History {
       "maintainAspectRatio": false,
       "legend": {
         "labels": {},
-        "position": "bottom"
+        "position": "bottom",
       },
       "elements": {
         "point": {
           "radius": 0,
           "hitRadius": 0,
-          "hoverRadius": 0
+          "hoverRadius": 0,
         },
         "line": {
           "borderWidth": 2,
-          "tension": 0.1
+          "tension": 0.1,
         },
         "rectangle": {
-          "borderWidth": 2
-        }
+          "borderWidth": 2,
+        },
       },
       "hover": {
         "mode": "point",
-        "intersect": true
+        "intersect": true,
       },
       "scales": {
         "yAxes": [
@@ -42,14 +42,14 @@ export namespace History {
               "display": true,
               "labelString": "kW",
               "padding": 5,
-              "fontSize": 11
+              "fontSize": 11,
             },
             "gridLines": {
-              "display": true
+              "display": true,
             },
             "ticks": {
-              "beginAtZero": false
-            }
+              "beginAtZero": false,
+            },
           },
           {
             "id": "right",
@@ -57,18 +57,18 @@ export namespace History {
             "scaleLabel": {
               "display": true,
               "labelString": "%",
-              "padding": 10
+              "padding": 10,
             },
             "gridLines": {
-              "display": false
+              "display": false,
             },
             "ticks": {
               "beginAtZero": true,
               "max": 100,
               "padding": 5,
-              "stepSize": 20
-            }
-          }
+              "stepSize": 20,
+            },
+          },
         ],
         "xAxes": [
           {
@@ -86,22 +86,22 @@ export namespace History {
                 "week": "ll",
                 "month": "MM",
                 "quarter": "[Q]Q - YYYY",
-                "year": "YYYY"
+                "year": "YYYY",
               },
-              "unit": period as TimeUnit
+              "unit": period as TimeUnit,
             },
-            "bounds": "ticks"
-          }
-        ]
+            "bounds": "ticks",
+          },
+        ],
       },
       "tooltips": {
         "mode": "index",
         "intersect": false,
         "axis": "x",
-        "callbacks": {}
+        "callbacks": {},
       },
-      "responsive": true
-    }
+      "responsive": true,
+    },
   });
   export const BAR_CHART_OPTIONS = (period: string): OeChartTester.Dataset.Option => ({
     type: 'option',
@@ -109,25 +109,25 @@ export namespace History {
       "maintainAspectRatio": false,
       "legend": {
         "labels": {},
-        "position": "bottom"
+        "position": "bottom",
       },
       "elements": {
         "point": {
           "radius": 0,
           "hitRadius": 0,
-          "hoverRadius": 0
+          "hoverRadius": 0,
         },
         "line": {
           "borderWidth": 2,
-          "tension": 0.1
+          "tension": 0.1,
         },
         "rectangle": {
-          "borderWidth": 2
-        }
+          "borderWidth": 2,
+        },
       },
       "hover": {
         "mode": "point",
-        "intersect": true
+        "intersect": true,
       },
       "scales": {
         "yAxes": [
@@ -138,22 +138,22 @@ export namespace History {
               "display": true,
               "labelString": "kWh",
               "padding": 5,
-              "fontSize": 11
+              "fontSize": 11,
             },
             "gridLines": {
-              "display": true
+              "display": true,
             },
             "ticks": {
-              "beginAtZero": false
+              "beginAtZero": false,
             },
-            "stacked": true
-          }
+            "stacked": true,
+          },
         ],
         "xAxes": [
           {
             "ticks": {
               "maxTicksLimit": 12,
-              "source": "data"
+              "source": "data",
             },
             "stacked": true,
             "type": "time",
@@ -168,23 +168,23 @@ export namespace History {
                 "week": "ll",
                 "month": "MM",
                 "quarter": "[Q]Q - YYYY",
-                "year": "YYYY"
+                "year": "YYYY",
               },
-              "unit": period as TimeUnit
+              "unit": period as TimeUnit,
             },
             "offset": true,
-            "bounds": "ticks"
-          }
-        ]
+            "bounds": "ticks",
+          },
+        ],
       },
       "tooltips": {
         "mode": "x",
         "intersect": false,
         "axis": "x",
-        "callbacks": {}
+        "callbacks": {},
       },
-      "responsive": true
-    }
+      "responsive": true,
+    },
   });
 
   /** 
@@ -200,8 +200,8 @@ export namespace History {
         '_sum/EssDcChargeEnergy': 15766,
         '_sum/EssDcDischargeEnergy': 7209,
         '_sum/GridSellActiveEnergy': 15615,
-        '_sum/ProductionActiveEnergy': 47597
-      }
+        '_sum/ProductionActiveEnergy': 47597,
+      },
     }),
     dataChannelWithValues: new QueryHistoricTimeseriesDataResponse("0", {
       data: {
@@ -1646,7 +1646,7 @@ export namespace History {
           null,
           null,
           null,
-          null]
+          null],
       },
       timestamps: [
         "2023-07-02T22:00:00Z",
@@ -1936,9 +1936,9 @@ export namespace History {
         "2023-07-03T21:40:00Z",
         "2023-07-03T21:45:00Z",
         "2023-07-03T21:50:00Z",
-        "2023-07-03T21:55:00Z"
-      ]
-    })
+        "2023-07-03T21:55:00Z",
+      ],
+    }),
   });
 
   /** 
@@ -1952,8 +1952,8 @@ export namespace History {
         '_sum/EssDcChargeEnergy': 38671,
         '_sum/EssDcDischargeEnergy': 31809,
         '_sum/GridSellActiveEnergy': 119692,
-        '_sum/ProductionActiveEnergy': 200875
-      }
+        '_sum/ProductionActiveEnergy': 200875,
+      },
     }),
     dataChannelWithValues: new QueryHistoricTimeseriesDataResponse("0", {
       data: {
@@ -2965,7 +2965,7 @@ export namespace History {
           156.1,
           61.5,
           0.6,
-          0]
+          0],
       },
       timestamps: [
         "2023-06-25T22:00:00Z",
@@ -3135,9 +3135,9 @@ export namespace History {
         "2023-07-02T18:00:00Z",
         "2023-07-02T19:00:00Z",
         "2023-07-02T20:00:00Z",
-        "2023-07-02T21:00:00Z"
-      ]
-    })
+        "2023-07-02T21:00:00Z",
+      ],
+    }),
   };
 
   /** 
@@ -3150,8 +3150,8 @@ export namespace History {
         '_sum/EssDcChargeEnergy': 3944328,
         '_sum/EssDcDischargeEnergy': 3394430,
         '_sum/GridSellActiveEnergy': 12738000,
-        '_sum/ProductionActiveEnergy': 22491000
-      }
+        '_sum/ProductionActiveEnergy': 22491000,
+      },
     }),
     energyPerPeriodChannelWithValues:
       new QueryHistoricTimeseriesEnergyPerPeriodResponse("0", {
@@ -3216,7 +3216,7 @@ export namespace History {
             247673,
             157410,
             104249,
-            null
+            null,
           ],
           "_sum/EssDcDischargeEnergy": [
             112818,
@@ -3248,7 +3248,7 @@ export namespace History {
             242102,
             130546,
             59571,
-            null
+            null,
           ],
           "_sum/GridBuyActiveEnergy": [
             16000,
@@ -3280,7 +3280,7 @@ export namespace History {
             72000,
             28000,
             84000,
-            null
+            null,
           ],
           "_sum/GridSellActiveEnergy": [
             603000,
@@ -3312,7 +3312,7 @@ export namespace History {
             776000,
             425000,
             574000,
-            null
+            null,
           ],
           "_sum/ProductionActiveEnergy": [
             908000,
@@ -3344,8 +3344,8 @@ export namespace History {
             1466000,
             808000,
             906000,
-            null
-          ]
+            null,
+          ],
         },
         timestamps: [
           "2023-05-31T22:00:00Z",
@@ -3377,9 +3377,9 @@ export namespace History {
           "2023-06-26T22:00:00Z",
           "2023-06-27T22:00:00Z",
           "2023-06-28T22:00:00Z",
-          "2023-06-29T22:00:00Z"
-        ]
-      })
+          "2023-06-29T22:00:00Z",
+        ],
+      }),
   };
 
   /** 
@@ -3392,8 +3392,8 @@ export namespace History {
         '_sum/EssDcChargeEnergy': 15296815,
         '_sum/EssDcDischargeEnergy': 12898209,
         '_sum/GridSellActiveEnergy': 30703000,
-        '_sum/ProductionActiveEnergy': 68466000
-      }
+        '_sum/ProductionActiveEnergy': 68466000,
+      },
     }),
     energyPerPeriodChannelWithValues:
       new QueryHistoricTimeseriesEnergyPerPeriodResponse("0", {
@@ -3422,7 +3422,7 @@ export namespace History {
             null,
             null,
             null,
-            null
+            null,
           ],
           "_sum/EssDcDischargeEnergy": [
             208491,
@@ -3436,7 +3436,7 @@ export namespace History {
             null,
             null,
             null,
-            null
+            null,
           ],
           "_sum/GridBuyActiveEnergy": [9829000,
             4812000,
@@ -3473,7 +3473,7 @@ export namespace History {
             null,
             null,
             null,
-            null]
+            null],
         },
         timestamps: [
           "2022-12-31T23:00:00Z",
@@ -3487,8 +3487,8 @@ export namespace History {
           "2023-08-31T22:00:00Z",
           "2023-09-30T22:00:00Z",
           "2023-10-31T23:00:00Z",
-          "2023-11-30T23:00:00Z"
-        ]
-      })
+          "2023-11-30T23:00:00Z",
+        ],
+      }),
   };
 }

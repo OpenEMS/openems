@@ -10,7 +10,7 @@ type mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
 
 @Component({
     selector: Controller_ChpSocModalComponent.SELECTOR,
-    templateUrl: './modal.component.html'
+    templateUrl: './modal.component.html',
 })
 export class Controller_ChpSocModalComponent implements OnInit {
 
@@ -23,7 +23,7 @@ export class Controller_ChpSocModalComponent implements OnInit {
 
     public thresholds: RangeValue = {
         lower: null,
-        upper: null
+        upper: null,
     };
 
     constructor(
@@ -31,7 +31,7 @@ export class Controller_ChpSocModalComponent implements OnInit {
         public websocket: Websocket,
         public router: Router,
         protected translate: TranslateService,
-        public modalCtrl: ModalController
+        public modalCtrl: ModalController,
     ) { }
 
     ngOnInit() {
@@ -62,7 +62,7 @@ export class Controller_ChpSocModalComponent implements OnInit {
 
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, this.component.id, [
-                { name: 'mode', value: newMode }
+                { name: 'mode', value: newMode },
             ]).then(() => {
                 this.component.properties.mode = newMode;
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -90,7 +90,7 @@ export class Controller_ChpSocModalComponent implements OnInit {
         if (this.edge != null && (oldLowerThreshold != newLowerThreshold || oldUpperThreshold != newUpperThreshold)) {
             this.edge.updateComponentConfig(this.websocket, this.component.id, [
                 { name: 'lowThreshold', value: newLowerThreshold },
-                { name: 'highThreshold', value: newUpperThreshold }
+                { name: 'highThreshold', value: newUpperThreshold },
             ]).then(() => {
                 this.component.properties['lowThreshold'] = newLowerThreshold;
                 this.component.properties['highThreshold'] = newUpperThreshold;

@@ -1,7 +1,5 @@
 package io.openems.edge.app.integratedsystem;
 
-import static io.openems.edge.core.appmanager.ConfigurationTarget.VALIDATE;
-
 import java.util.ResourceBundle;
 
 import io.openems.common.types.EdgeConfig;
@@ -76,13 +74,14 @@ public final class FeneconHomeComponents {
 								hasEmergencyReserve ? "ENABLE" : "DISABLE") //
 						.addProperty("controlMode", "SMART") //
 						.addProperty("feedPowerEnable",
-								feedInType == FeedInType.EXTERNAL_LIMITATION ? "DISABLE" : "ENABLE") //
+								feedInType == FeedInType.DYNAMIC_LIMITATION ? "ENABLE" : "DISABLE") //
 						.addProperty("feedPowerPara", maxFeedInPower) //
 						.addProperty("modbus.id", modbusIdExternal) //
 						.addProperty("modbusUnitId", 247) //
-						.addProperty("mpptForShadowEnable", shadowManagementDisabled ? "DISABLED" : "ENABLE") //
+						.addProperty("mpptForShadowEnable", shadowManagementDisabled ? "DISABLE" : "ENABLE") //
 						.addProperty("safetyCountry", safetyCountry) //
 						.addProperty("setfeedInPowerSettings", feedInSetting) //
+						.addProperty("rcrEnable", feedInType == FeedInType.EXTERNAL_LIMITATION ? "ENABLE" : "DISABLE") //
 						.build());
 	}
 
@@ -211,20 +210,23 @@ public final class FeneconHomeComponents {
 	 * Creates a default predictor component for a FENECON Home.
 	 * 
 	 * @param bundle the translation bundle
+	 * @param t      the current {@link ConfigurationTarget}
 	 * @return the {@link Component}
 	 */
 	public static EdgeConfig.Component predictor(//
-			final ResourceBundle bundle //
+			final ResourceBundle bundle, //
+			final ConfigurationTarget t //
 	) {
 		return new EdgeConfig.Component("predictor0",
 				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.predictor0.alias"),
 				"Predictor.PersistenceModel", //
 				JsonUtils.buildJsonObject() //
 						.addProperty("enabled", true) //
-						.add("channelAddresses", JsonUtils.buildJsonArray() //
-								.add("_sum/ProductionActivePower") //
-								.add("_sum/ConsumptionActivePower") //
-								.build()) //
+						.onlyIf(t == ConfigurationTarget.ADD, b -> b//
+								.add("channelAddresses", JsonUtils.buildJsonArray() //
+										.add("_sum/ProductionActivePower") //
+										.add("_sum/ConsumptionActivePower") //
+										.build())) //
 						.build());
 	}
 
@@ -315,7 +317,6 @@ public final class FeneconHomeComponents {
 	 * @param chargerId         the id of the charger
 	 * @param chargerAlias      the alias of the charger
 	 * @param batteryInverterId the id of the battery inverter
-	 * @param modbusIdExternal  the id of the external modbus bridge
 	 * @param i                 the index of the pv-port
 	 * @return the {@link Component}
 	 */
@@ -323,7 +324,6 @@ public final class FeneconHomeComponents {
 			final String chargerId, //
 			final String chargerAlias, //
 			final String batteryInverterId, //
-			final String modbusIdExternal, //
 			final int i //
 	) {
 		return new EdgeConfig.Component(chargerId, chargerAlias, //
@@ -331,8 +331,6 @@ public final class FeneconHomeComponents {
 				JsonUtils.buildJsonObject() //
 						.addProperty("enabled", true) //
 						.addProperty("essOrBatteryInverter.id", batteryInverterId) //
-						.addProperty("modbus.id", modbusIdExternal) //
-						.addProperty("modbusUnitId", 247) //
 						.addProperty("pvPort", "PV_" + (i + 1)) //
 						.build());
 	}
@@ -360,12 +358,13 @@ public final class FeneconHomeComponents {
 						.setAppId("App.PvSelfConsumption.GridOptimizedCharge") //
 						.setProperties(JsonUtils.buildJsonObject() //
 								.addProperty(GridOptimizedCharge.Property.SELL_TO_GRID_LIMIT_ENABLED.name(),
-										feedInType != FeedInType.EXTERNAL_LIMITATION) //
-								.onlyIf(t != VALIDATE, //
-										j -> j.addProperty(GridOptimizedCharge.Property.MODE.name(),
-												feedInType != FeedInType.EXTERNAL_LIMITATION ? "AUTOMATIC" : "OFF")) //
-								.addProperty(GridOptimizedCharge.Property.MAXIMUM_SELL_TO_GRID_POWER.name(),
-										maxFeedInPower) //
+										feedInType == FeedInType.DYNAMIC_LIMITATION) //
+								.onlyIf(t == ConfigurationTarget.ADD, //
+										j -> j.addProperty(GridOptimizedCharge.Property.MODE.name(), "AUTOMATIC")) //
+								.onlyIf(feedInType == FeedInType.DYNAMIC_LIMITATION,
+										b -> b.addProperty(
+												GridOptimizedCharge.Property.MAXIMUM_SELL_TO_GRID_POWER.name(),
+												maxFeedInPower)) //
 								.build())
 						.build());
 	}

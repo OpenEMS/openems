@@ -2,7 +2,7 @@ import { Role } from "src/app/shared/type/role";
 
 export class Changelog {
 
-    public static readonly UI_VERSION = "2023.12.0-SNAPSHOT";
+    public static readonly UI_VERSION = "2024.2.0-SNAPSHOT";
 
     public static product(...products: Product[]) {
         return products.map(product => Changelog.link(product.name, product.url)).join(", ") + '. ';

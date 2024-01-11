@@ -91,6 +91,21 @@ public class TranslationUtil {
 	 * @param translationBundle the translation bundle
 	 * @param key               the key of the translation
 	 * @param params            the parameter of the translation
+	 * @return the translated string or the key if the translation was not found or
+	 *         the format is invalid
+	 * @implNote just a namealias to
+	 *           {@link TranslationUtil#getTranslation(ResourceBundle, String, Object...)}
+	 */
+	public static String translate(ResourceBundle translationBundle, String key, Object... params) {
+		return getTranslation(translationBundle, key, params);
+	}
+
+	/**
+	 * Gets the value for the given key from the translationBundle.
+	 *
+	 * @param translationBundle the translation bundle
+	 * @param key               the key of the translation
+	 * @param params            the parameter of the translation
 	 * @return the translated string or null if the translation was not found or the
 	 *         format is invalid
 	 */

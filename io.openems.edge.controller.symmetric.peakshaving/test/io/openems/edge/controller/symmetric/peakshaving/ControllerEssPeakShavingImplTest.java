@@ -26,7 +26,8 @@ public class ControllerEssPeakShavingImplTest {
 	public void test() throws Exception {
 		new ControllerTest(new ControllerEssPeakShavingImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
-				.addComponent(new DummyManagedSymmetricEss(ESS_ID, new DummyPower(0.3, 0.3, 0.1))) //
+				.addComponent(new DummyManagedSymmetricEss(ESS_ID) //
+						.setPower(new DummyPower(0.3, 0.3, 0.1))) //
 				.addComponent(new DummyElectricityMeter(METER_ID)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //

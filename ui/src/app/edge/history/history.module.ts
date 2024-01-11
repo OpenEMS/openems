@@ -1,20 +1,10 @@
 import { NgModule } from '@angular/core';
 
 import { SharedModule } from '../../shared/shared.module';
-import { ChannelthresholdChartOverviewComponent } from './channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
-import { ChannelthresholdSingleChartComponent } from './channelthreshold/singlechart.component';
-import { ChannelthresholdTotalChartComponent } from './channelthreshold/totalchart.component';
-import { ChannelthresholdWidgetComponent } from './channelthreshold/widget.component';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
 import { Common } from './common/common';
-import { ConsumptionChartOverviewComponent } from './consumption/consumptionchartoverview/consumptionchartoverview.component';
-import { ConsumptionEvcsChartComponent } from './consumption/evcschart.component';
-import { ConsumptionMeterChartComponent } from './consumption/meterchart.component';
-import { ConsumptionOtherChartComponent } from './consumption/otherchart.component';
-import { ConsumptionSingleChartComponent } from './consumption/singlechart.component';
-import { ConsumptionTotalChartComponent } from './consumption/totalchart.component';
-import { ConsumptionComponent } from './consumption/widget.component';
+import { Controller } from './Controller/controller.module';
 import { DelayedSellToGridChartComponent } from './delayedselltogrid/chart.component';
 import { DelayedSellToGridChartOverviewComponent } from './delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { DelayedSellToGridWidgetComponent } from './delayedselltogrid/widget.component';
@@ -61,25 +51,15 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
 @NgModule({
   imports: [
     SharedModule,
-    Common
+    Common,
+    Controller,
   ],
   declarations: [
     AsymmetricPeakshavingChartComponent,
     AsymmetricPeakshavingChartOverviewComponent,
     AsymmetricPeakshavingWidgetComponent,
-    ChannelthresholdChartOverviewComponent,
-    ChannelthresholdSingleChartComponent,
-    ChannelthresholdTotalChartComponent,
-    ChannelthresholdWidgetComponent,
     ChpSocChartComponent,
     ChpSocWidgetComponent,
-    ConsumptionChartOverviewComponent,
-    ConsumptionComponent,
-    ConsumptionEvcsChartComponent,
-    ConsumptionMeterChartComponent,
-    ConsumptionOtherChartComponent,
-    ConsumptionSingleChartComponent,
-    ConsumptionTotalChartComponent,
     DelayedSellToGridChartComponent,
     DelayedSellToGridChartOverviewComponent,
     DelayedSellToGridWidgetComponent,
@@ -118,7 +98,7 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     TimeslotPeakshavingChartComponent,
     TimeslotPeakshavingChartOverviewComponent,
     TimeslotPeakshavingWidgetComponent,
-    HistoryParentComponent
-  ]
+    HistoryParentComponent,
+  ],
 })
 export class HistoryModule { }

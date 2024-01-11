@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
@@ -81,7 +82,7 @@ public class SystemLogHandler {
 			// No Tokens exist, but we still receive Notification? -> send unsubscribe
 			try {
 				var dummyGuestUser = new User("internal", "UnsubscribeSystemLogNotification",
-						UUID.randomUUID().toString(), Language.EN, Role.GUEST, false);
+						UUID.randomUUID().toString(), Language.EN, Role.GUEST, false, new JsonObject());
 				this.parent.send(edgeId, dummyGuestUser, SubscribeSystemLogRequest.unsubscribe());
 				this.parent.logInfo(this.log, edgeId, "Was still sending SystemLogNotification. Sent unsubscribe.");
 
@@ -105,7 +106,7 @@ public class SystemLogHandler {
 				// error -> send unsubscribe
 				try {
 					var dummyGuestUser = new User("internal", "UnsubscribeSystemLogNotification",
-							UUID.randomUUID().toString(), Language.EN, Role.GUEST, false);
+							UUID.randomUUID().toString(), Language.EN, Role.GUEST, false, new JsonObject());
 					this.handleSubscribeSystemLogRequest(edgeId, dummyGuestUser, id,
 							SubscribeSystemLogRequest.unsubscribe());
 

@@ -89,7 +89,6 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor24Hours
 
 	@Override
 	protected Prediction24Hours createNewPrediction(ChannelAddress channelAddress) {
-
 		var now = ZonedDateTime.now(this.componentManager.getClock());
 		// From now time to Last 4 weeks
 		var fromDate = now.minus(this.config.numOfWeeks(), ChronoUnit.WEEKS);
@@ -98,7 +97,7 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor24Hours
 
 		// Query database
 		try {
-			queryResult = this.timedata.queryHistoricData("10001", fromDate, now, Sets.newHashSet(channelAddress),
+			queryResult = this.timedata.queryHistoricData(null, fromDate, now, Sets.newHashSet(channelAddress),
 					new Resolution(15, ChronoUnit.MINUTES));
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, e.getMessage());
@@ -133,10 +132,8 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor24Hours
 		// Getting the average predictions
 		var nextOneDayPredictions = getAverage(lastFourSimilarDays);
 
-		Integer[] res = nextOneDayPredictions.stream().toArray(Integer[]::new);
-		System.out.println(res.length);
-
-		return new Prediction24Hours(res);
+		return Prediction24Hours.of(Prediction24Hours.converterForChannelAddress(channelAddress),
+				nextOneDayPredictions.stream().toArray(Integer[]::new));
 	}
 
 	/**

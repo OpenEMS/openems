@@ -32,7 +32,7 @@ export class SetUserAlertingConfigsRequest extends JsonrpcRequest {
         public override readonly params: {
             edgeId: string,
             userSettings: UserSetting[],
-        }
+        },
     ) {
         super(SetUserAlertingConfigsRequest.METHOD, params);
     }

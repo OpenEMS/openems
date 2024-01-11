@@ -30,7 +30,8 @@ public class ControllerAsymmetricPeakShavingImplTest {
 		new ControllerTest(new ControllerAsymmetricPeakShavingImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummyElectricityMeter(METER_ID)) //
-				.addComponent(new DummyManagedSymmetricEss(ESS_ID, new DummyPower(0.3, 0.3, 0.1))) //
+				.addComponent(new DummyManagedSymmetricEss(ESS_ID) //
+						.setPower(new DummyPower(0.3, 0.3, 0.1))) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setMeterId(METER_ID) //
@@ -101,7 +102,8 @@ public class ControllerAsymmetricPeakShavingImplTest {
 		new ControllerTest(new ControllerAsymmetricPeakShavingImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummyElectricityMeter(METER_ID)) //
-				.addComponent(new DummyManagedSymmetricEss(ESS_ID, new DummyPower(0.3, 0.3, 0.1))) //
+				.addComponent(new DummyManagedSymmetricEss(ESS_ID) //
+						.setPower(new DummyPower(0.3, 0.3, 0.1))) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setMeterId(METER_ID) //

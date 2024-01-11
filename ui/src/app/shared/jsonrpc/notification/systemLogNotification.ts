@@ -26,7 +26,7 @@ export class SystemLogNotification extends JsonrpcNotification {
     public constructor(
         public override readonly params: {
             line: SystemLog
-        }
+        },
     ) {
         super(SystemLogNotification.METHOD, params);
     }

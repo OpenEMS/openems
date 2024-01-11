@@ -44,7 +44,7 @@ export class Websocket implements WebsocketInterface {
     private translate: TranslateService,
     private cookieService: CookieService,
     private router: Router,
-    private pagination: Pagination
+    private pagination: Pagination,
   ) {
     service.websocket = this;
 
@@ -90,7 +90,7 @@ export class Websocket implements WebsocketInterface {
             this.status = 'waiting for credentials';
             this.router.navigate(['/login']);
           }
-        }
+        },
       },
       closeObserver: {
         next: (value) => {
@@ -100,8 +100,8 @@ export class Websocket implements WebsocketInterface {
           }
           // trying to connect
           this.status = 'connecting';
-        }
-      }
+        },
+      },
     });
 
     this.socket.pipe(
@@ -109,7 +109,7 @@ export class Websocket implements WebsocketInterface {
       retryWhen((errors) => {
         console.warn(errors);
         return errors.pipe(delay(1000));
-      })
+      }),
 
     ).subscribe(originalMessage => {
       // Receive message from server
@@ -169,10 +169,12 @@ export class Websocket implements WebsocketInterface {
         // received login token -> save in cookie
         this.cookieService.set('token', authenticateResponse.token, { expires: 365, path: '/', sameSite: 'Strict' });
 
+        this.service.currentUser = authenticateResponse.user;
+
         // Metadata
         this.service.metadata.next({
           user: authenticateResponse.user,
-          edges: {}
+          edges: {},
         });
 
         // Resubscribe Channels

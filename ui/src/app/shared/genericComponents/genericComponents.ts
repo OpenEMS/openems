@@ -11,6 +11,7 @@ import { ChartComponent } from './chart/chart';
 import { FlatWidgetComponent } from './flat/flat';
 import { FlatWidgetHorizontalLineComponent } from './flat/flat-widget-horizontal-line/flat-widget-horizontal-line';
 import { FlatWidgetLineComponent } from './flat/flat-widget-line/flat-widget-line';
+import { FlatWidgetLineItemComponent } from './flat/flat-widget-line/flat-widget-line-item/flat-widget-line-item';
 import { FlatWidgetPercentagebarComponent } from './flat/flat-widget-percentagebar/flat-widget-percentagebar';
 import { HelpButtonComponent } from './modal/help-button/help-button';
 import { ModalComponent } from './modal/modal';
@@ -21,7 +22,7 @@ import { ModalLineItemComponent } from './modal/modal-line/modal-line-item/modal
 import { ModalPhasesComponent } from './modal/modal-phases/modal-phases';
 import { ModalValueLineComponent } from './modal/modal-value-line/modal-value-line';
 import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/modal-horizontal-line';
-import { FlatWidgetLineItemComponent } from './flat/flat-widget-line/flat-widget-line-item/flat-widget-line-item';
+import { NotificationComponent } from './shared/notification/notification';
 
 @NgModule({
     imports: [
@@ -30,7 +31,7 @@ import { FlatWidgetLineItemComponent } from './flat/flat-widget-line/flat-widget
         PipeModule,
         ReactiveFormsModule,
         RouterModule,
-        TranslateModule
+        TranslateModule,
     ],
     entryComponents: [
         PickDateComponent,
@@ -46,45 +47,62 @@ import { FlatWidgetLineItemComponent } from './flat/flat-widget-line/flat-widget
         ModalComponent,
         ModalLineItemComponent,
         ModalPhasesComponent,
-        ModalValueLineComponent
+        ModalValueLineComponent,
     ],
     declarations: [
-        PickDateComponent,
+
+        // Flat
         FlatWidgetComponent,
         FlatWidgetLineComponent,
         FlatWidgetHorizontalLineComponent,
         FlatWidgetPercentagebarComponent,
         FlatWidgetLineItemComponent,
-        HelpButtonComponent,
+
+        // Modal
         ModalButtonsComponent,
         ModalInfoLineComponent,
         ModalLineComponent,
         ModalHorizontalLineComponent,
         ModalComponent,
-        ChartComponent,
         ModalLineItemComponent,
         ModalPhasesComponent,
-        ModalValueLineComponent
+        ModalValueLineComponent,
+
+        // Chart
+        ChartComponent,
+
+        // Others
+        PickDateComponent,
+        HelpButtonComponent,
+        NotificationComponent,
     ],
     exports: [
+        // Flat
         FlatWidgetComponent,
         FlatWidgetLineComponent,
         FlatWidgetHorizontalLineComponent,
         FlatWidgetPercentagebarComponent,
         FlatWidgetLineItemComponent,
-        HelpButtonComponent,
+
+        // Modal
         ModalButtonsComponent,
         ModalInfoLineComponent,
         ModalLineComponent,
         ModalHorizontalLineComponent,
         ModalComponent,
-        ChartComponent,
-        PickDateComponent,
         ModalLineItemComponent,
         ModalPhasesComponent,
-        ModalValueLineComponent
+        ModalValueLineComponent,
+
+        // Chart
+        ChartComponent,
+
+        // Others
+        PickDateComponent,
+        HelpButtonComponent,
+        NotificationComponent,
     ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
 
 })
 export class Generic_ComponentsModule { }

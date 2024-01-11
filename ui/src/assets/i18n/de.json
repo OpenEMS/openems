@@ -35,7 +35,9 @@
         "InfoStorageForCharge": "Negative Werte entsprechen Speicher Beladung",
         "InfoStorageForDischarge": "Positive Werte entsprechen Speicher Entladung",
         "Channeltreshold": {
-          "output": "Ausgang"
+          "TITLE": "Schwellenwertcontroller",
+          "output": "Ausgang",
+          "ACTIVE_TIME_OVER_PERIOD": "Aktive Zeit"
         },
         "Singlethreshold": {
           "above": "Über",
@@ -228,19 +230,18 @@
           "switchOnRecShort": "Empfehlung",
           "undefined": "Nicht definiert"
         },
-        "TimeOfUseTariff": {
-          "currentTariff": "Aktueller Bezugsstrompreis",
-          "delayedDischarge": "Entladung verzögert",
-          "STORAGE_DISCHARGE": "Speicherentladung",
-          "State": {
-            "notStarted": "Noch nicht gestartet",
-            "delayed": "Verzögert",
-            "allowsDischarge": "Freigegeben",
-            "standby": "Standby",
-            "CHARGING": "Beladung"
+        "TIME_OF_USE_TARIFF": {
+          "CONTROL_MODE_DESCRIPTION": {
+            "CHARGE_CONSUMPTION": ""
           },
-          "CHARGED": "Beladung",
-          "STORAGE_STATUS": "Speicherstatus"
+          "CHARGE_CONSUMPTION_ACTIVATE": "Aktive Beladung aus dem Netz aktivieren (BETA-Test)",
+          "PRICE": "Aktueller Bezugsstrompreis",
+          "STATE": {
+            "DELAY_DISCHARGE": "Entladung verzögert",
+            "BALANCING": "Eigenverbrauchsoptimierung",
+            "CHARGE": "Beladung aus dem Netz freigegeben"
+          },
+          "CHART_TITLE": "Fahrplan und Vorhersagen (nur sichtbar für Admins)"
         }
       },
       "RETROFITTING": {
@@ -254,7 +255,8 @@
         "INFORMATION_FOR_PlANNED_EXPANSION": "Die Batterie wird voraussichtlich ab {{targetTime}} Uhr am {{targetDate}} beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % Ladezustand zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
         "PREPARING": "Kapazitätserweiterung wird vorbereitet",
         "REACHED_TARGET_SOC": "Bereit zur Kapazitätserweiterung",
-        "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "Die Batterie wird voraussichtlich beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % zu erreichen."
+        "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "Die Batterie wird voraussichtlich beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % zu erreichen.",
+        "TARGET_TIME_SPECIFIED": "Kapazitätserweiterung wird am {{targetDate}} um {{targetTime}} durchgeführt"
       },
       "SYSTEMUPDATE": "Systemupdate"
     },
@@ -626,7 +628,9 @@
         "WAGO_BRIDGE": "WAGO (graue Komponente)"
       },
       "COMMUNICATION_WITH_RELAY": "Kommunikation mit Relais",
-      "IP_ADDRESS_WARNING": "Eine für den Koppler erforderliche IP-Adresse konnte der Netzwerkkonfiguration nicht hinzugefügt werden."
+      "IP_ADDRESS_WARNING": "Eine für den Koppler erforderliche IP-Adresse konnte der Netzwerkkonfiguration nicht hinzugefügt werden.",
+      "START_FUNCTION_TEST": "Funktionstests für die installierten Komponenten gestartet",
+      "FINISH_FUNCTION_TEST": "Funktionstests für die verbauten Komponenten abgeschlossen"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "Mit welcher Stromstärke ist der Zähler abgesichert?",
@@ -657,7 +661,12 @@
       "PEAK_SHAVING": "Lastspitzenkappung",
       "APPS": "Apps",
       "HECKERT": "Ihre gewählte kostenlose App",
-      "ACCEPT": "akzeptieren"
+      "ACCEPT": "akzeptieren",
+      "ALIAS_WITH_LABEL_HOME_DC": "Alias MPPT{{mppt}} PV{{pv}}",
+      "VALUE_WITH_LABEL_HOME_DC": "Wert MPPT{{ mppt }} PV{{ pv }} {{ symbol }}",
+      "ORIENTATION_WITH_LABEL_HOME_DC": "Ausrichtung MPPT{{ mppt }} PV{{ pv }}",
+      "MODULE_TYPE_WITH_LABEL_HOME_DC": "Modultyp MPPT{{ mppt }} PV{{ pv }}",
+      "NUMBER_OF_MODULES_WITH_LABEL_HOME_DC": "Anzahl PV-Module MPPT{{ mppt }} PV{{ pv }}"
     },
     "CONFIGURATION_SYSTEM": {
       "OPEN_INSTRUCTIONS": "Anleitung öffnen",
@@ -704,7 +713,8 @@
       "SHADE_MANAGEMENT_DEACTIVATED": "Schattenmanagement deaktivert",
       "TITLE": "Einspeisemanagement",
       "EXTERNAL_CONTROLLER_RECIEVER": "Rundsteuerempfänger",
-      "PLACE_HOLDER": "Wähle eine Option"
+      "PLACE_HOLDER": "Wähle eine Option",
+      "NO_LIMITATION": "Kein Einspeisemanagement"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "Ort",

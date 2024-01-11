@@ -392,17 +392,13 @@ export class Utils {
    */
   public static CONVERT_TIME_OF_USE_TARIFF_STATE = (translate: TranslateService) => {
     return (value: any): string => {
-      switch (value) {
-        case -1:
-          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.notStarted');
+      switch (Math.round(value)) {
         case 0:
-          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.delayed');
-        case 1:
-          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.allowsDischarge');
-        case 2:
-          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.standby');
+          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
         case 3:
-          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.CHARGING');
+          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE');
+        default: // Usually "1"
+          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING');
       }
     };
   };
@@ -446,7 +442,7 @@ export class Utils {
       view[i] = binary.charCodeAt(i);
     }
     const data: Blob = new Blob([view], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
     });
 
     saveAs(data, filename + '.xlsx');
@@ -496,7 +492,7 @@ export class Utils {
       } else {
         return /* min 0 */ Math.max(0,
         /* max 100 */ Math.min(100,
-          /* calculate autarchy */(1 - buyFromGrid / consumptionActivePower) * 100
+          /* calculate autarchy */(1 - buyFromGrid / consumptionActivePower) * 100,
         ));
       }
 
@@ -545,24 +541,97 @@ export class Utils {
   }
 
   /**
-   * Returns the label based on component factory id.
+   * Converts a value in €/MWh to €Ct./kWh.
    * 
-   * @param component The Component.
-   * @param translate The Translate
-   * @returns the label.
+   * @param price the price value
+   * @returns  the converted price
    */
-  public static getTimeOfUseTariffStorageLabel(component: EdgeConfig.Component, translate: TranslateService): string {
-    if (component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff.Discharge') {
-      return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.STORAGE_DISCHARGE');
+  public static formatPrice(price: number): number {
+    if (price == null || Number.isNaN(price)) {
+      return null;
+    } else if (price == 0) {
+      return 0;
     } else {
-      return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.STORAGE_STATUS');
+      price = (price / 10.0);
+      return Math.round(price * 10000) / 10000.0;
     }
   }
+
+  /**
+   * Calculates the total other consumption.
+   * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption) 
+   * 
+   * @param energyValues the energyValues, retrieved from {@link QueryHistoricTimeseriesEnergyRequest}
+   * @param evcsComponents the evcsComponents
+   * @param consumptionMeterComponents the consumptionMeterComponents
+   * @returns the other consumption
+   */
+  public static calculateOtherConsumptionTotal(energyValues: QueryHistoricTimeseriesEnergyResponse, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number {
+
+    let totalEvcsConsumption: number = 0;
+    let totalMeteredConsumption: number = 0;
+    evcsComponents.forEach(component => {
+      totalEvcsConsumption = this.addSafely(totalEvcsConsumption, energyValues.result.data[component.id + '/ActiveConsumptionEnergy']);
+    });
+
+    consumptionMeterComponents.forEach(meter => {
+      totalMeteredConsumption = this.addSafely(totalMeteredConsumption, energyValues.result.data[meter.id + '/ActiveProductionEnergy']);
+    });
+
+    return Utils.roundSlightlyNegativeValues(
+      Utils.subtractSafely(
+        Utils.subtractSafely(
+          energyValues.result.data['_sum/ConsumptionActiveEnergy'], totalEvcsConsumption),
+        totalMeteredConsumption));
+  }
+
+  /**
+   * Calculates the other consumption.
+   * 
+   * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption)
+   * 
+   * @param channelData the channelData, retrieved from {@link QueryHistoricTimeseriesDataRequest} or {@link QueryHistoricTimeseriesEnergyPerPeriodRequest}
+   * @param evcsComponents the evcsComponents
+   * @param consumptionMeterComponents the consumptionMeterComponents
+   * @returns the other consumption
+   */
+  public static calculateOtherConsumption(channelData: HistoryUtils.ChannelData, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number[] {
+
+    let totalEvcsConsumption: number[] = [];
+    let totalMeteredConsumption: number[] = [];
+
+    evcsComponents.forEach(component => {
+      channelData[component.id + '/ChargePower']?.forEach((value, index) => {
+        totalEvcsConsumption[index] = value;
+      });
+    });
+
+    consumptionMeterComponents.forEach(meter => {
+      channelData[meter.id + '/ActivePower']?.forEach((value, index) => {
+        totalMeteredConsumption[index] = value;
+      });
+    });
+
+    return channelData['ConsumptionActivePower']?.map((value, index) => {
+
+      if (value == null) {
+        return null;
+      }
+      return Utils.roundSlightlyNegativeValues(
+        Utils.subtractSafely(
+          Utils.subtractSafely(
+            value, totalEvcsConsumption[index]),
+          totalMeteredConsumption[index]));
+    });
+  }
 }
+
 export enum YAxisTitle {
   PERCENTAGE,
+  RELAY,
   ENERGY,
-  VOLTAGE
+  VOLTAGE,
+  TIME
 }
 
 export enum ChartAxis {
@@ -585,7 +654,7 @@ export namespace HistoryUtils {
     return [{
       label: translate.instant("Edge.History.noData"),
       data: [],
-      hidden: false
+      hidden: false,
     }];
   }
 
@@ -604,14 +673,14 @@ export namespace HistoryUtils {
     /** suffix to the name */
     nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string,
     /** Convert the values to be displayed in Chart */
-    converter: () => number[],
+    converter: () => any,
     /** If dataset should be hidden on Init */
     hiddenOnInit?: boolean,
     /** default: true, stroke through label for hidden dataset */
     noStrokeThroughLegendIfHidden?: boolean,
     /** color in rgb-Format */
     color: string,
-    /** the stack for barChart */
+    /** the stack for barChart, if not provided datasets are not stacked but overlaying each other */
     stack?: number | number[],
     /** False per default */
     hideLabelInLegend?: boolean,
@@ -621,6 +690,7 @@ export namespace HistoryUtils {
     hideShadow?: boolean,
     /** axisId from yAxes  */
     yAxisId?: ChartAxis,
+    /** overrides global unit for this displayValue */
     customUnit?: YAxisTitle,
     tooltip?: [{
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
@@ -701,5 +771,131 @@ export namespace HistoryUtils {
         return 0;
       }
     };
+  }
+}
+
+export namespace TimeOfUseTariffUtils {
+
+  export type ScheduleChartData = {
+    datasets: ChartDataSets[],
+    colors: any[],
+    labels: Date[]
+  }
+
+  export enum TimeOfUseTariffState {
+    DELAY_DISCHARGE = 0,
+    BALANCING = 1,
+    CHARGE = 3,
+    UNDEFINED = 2,
+  }
+
+  /**
+   * Converts a value in €/MWh to €Ct./kWh.
+   * 
+   * @param price the price value
+   * @returns  the converted price
+   */
+  export function formatPrice(price: number): number {
+    if (price === null || Number.isNaN(price)) {
+      return null;
+    } else if (price === 0) {
+      return 0;
+    } else {
+      price = (price / 10.0);
+      return Math.round(price * 10000) / 10000.0;
+    }
+  }
+
+  /**
+   * Gets the schedule chart data containing datasets, colors and labels.
+   * 
+   * @param size The length of the dataset
+   * @param prices The Time-of-Use-Tariff quarterly price array
+   * @param states The Time-of-Use-Tariff state array
+   * @param timestamps The Time-of-Use-Tariff timestamps array
+   * @param translate The Translate service
+   * @param factoryId The factory id of the component
+   * @returns The ScheduleChartData.
+   */
+  export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[], translate: TranslateService, factoryId: string): ScheduleChartData {
+    let scheduleChartData: ScheduleChartData;
+    let datasets: ChartDataSets[] = [];
+    let colors: any[] = [];
+    let labels: Date[] = [];
+
+    // Initializing States.
+    var barCharge = Array(size).fill(null);
+    var barBalancing = Array(size).fill(null);
+    var barDelayDischarge = Array(size).fill(null);
+
+    for (let index = 0; index < size; index++) {
+      const quarterlyPrice = formatPrice(prices[index]);
+      const state = Math.round(states[index]);
+      labels.push(new Date(timestamps[index]));
+
+      if (state !== null) {
+        switch (state) {
+          case TimeOfUseTariffState.DELAY_DISCHARGE:
+            barDelayDischarge[index] = quarterlyPrice;
+            break;
+          case TimeOfUseTariffState.BALANCING:
+            barBalancing[index] = quarterlyPrice;
+            break;
+          case TimeOfUseTariffState.CHARGE:
+          case TimeOfUseTariffState.UNDEFINED:
+            barCharge[index] = quarterlyPrice;
+            break;
+        }
+      }
+    }
+
+    // Set datasets
+    datasets.push({
+      type: 'bar',
+      label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
+      data: barBalancing,
+      order: 3,
+    });
+    colors.push({
+      // Dark Green
+      backgroundColor: 'rgba(51,102,0,0.8)',
+      borderColor: 'rgba(51,102,0,1)',
+    });
+
+    // Set dataset for Quarterly Prices being charged.
+    if (!barCharge.every(v => v === null)) {
+      datasets.push({
+        type: 'bar',
+        label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE'),
+        data: barCharge,
+        order: 3,
+      });
+      colors.push({
+        // Sky blue
+        backgroundColor: 'rgba(0, 204, 204,0.5)',
+        borderColor: 'rgba(0, 204, 204,0.7)',
+      });
+    }
+
+    // Set dataset for buy from grid
+    datasets.push({
+      type: 'bar',
+      label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
+      data: barDelayDischarge,
+      order: 3,
+    });
+    colors.push({
+      // Black
+      backgroundColor: 'rgba(0,0,0,0.8)',
+      borderColor: 'rgba(0,0,0,0.9)',
+    });
+
+    scheduleChartData = {
+      colors: colors,
+      datasets: datasets,
+      labels: labels,
+    };
+
+    return scheduleChartData;
   }
 }
