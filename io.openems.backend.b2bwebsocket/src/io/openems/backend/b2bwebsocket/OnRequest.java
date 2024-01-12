@@ -52,7 +52,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<GenericJsonrpcResponseSuccess> handleSubscribeEdgesChannelsRequest(WsData wsData,
 			User user, UUID messageId, SubscribeEdgesChannelsRequest request) throws OpenemsNamedException {
-		for (String edgeId : request.getEdgeIds()) {
+		for (var edgeId : request.getEdgeIds()) {
+			if (user.getRole(edgeId).isEmpty()) {
+				this.parent.metadata.getEdgeMetadataForUser(user, edgeId);
+			}
+
 			// assure read permissions of this User for this Edge.
 			user.assertEdgeRoleIsAtLeast(SubscribeEdgesChannelsRequest.METHOD, edgeId, Role.GUEST);
 		}
