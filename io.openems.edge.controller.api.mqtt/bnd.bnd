@@ -5,6 +5,8 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
+	bcpkix;version='1.70',\
+	bcprov;version='1.70',\
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
@@ -13,8 +15,6 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.wrapper.paho-mqttv5,\
 	org.eclipse.paho.mqttv5.client;version='1.2',\
 	org.ops4j.pax.logging.pax-logging-api,\
-	bcprov,\
-	bcpkix
-	
+
 -testpath: \
 	${testpath}

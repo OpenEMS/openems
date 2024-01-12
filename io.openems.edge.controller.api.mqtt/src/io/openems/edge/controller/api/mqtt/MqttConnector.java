@@ -1,5 +1,7 @@
 package io.openems.edge.controller.api.mqtt;
 
+import static io.openems.edge.controller.api.mqtt.MqttUtils.createSslSocketFactory;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
@@ -81,15 +83,17 @@ public class MqttConnector {
 
 		var options = new MqttConnectionOptions();
 		options.setUserName(username);
-		if (password != null) {
+		if (password != null && !password.isBlank()) {
 			options.setPassword(password.getBytes(StandardCharsets.UTF_8));
 		}
 		options.setAutomaticReconnect(true);
 		options.setCleanStart(true);
 		options.setConnectionTimeout(10);
 
-		if (certPem != null && privateKeyPem != null) {
-			options.setSocketFactory(MqttUtils.createSslSocketFactory(certPem, privateKeyPem, trustStorePem));
+		if (certPem != null && !certPem.isBlank() //
+				&& privateKeyPem != null && !privateKeyPem.isBlank() //
+				&& trustStorePem != null && !trustStorePem.isBlank()) {
+			options.setSocketFactory(createSslSocketFactory(certPem, privateKeyPem, trustStorePem));
 		}
 
 		this.connector = new MyConnector(client, options);
