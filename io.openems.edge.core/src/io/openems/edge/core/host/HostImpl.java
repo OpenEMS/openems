@@ -23,6 +23,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Role;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -48,9 +49,6 @@ import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 		})
 public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsComponent, JsonApi {
 
-	@Reference
-	protected ConfigurationAdmin cm;
-
 	protected final OperatingSystem operatingSystem;
 
 	private final DiskSpaceWorker diskSpaceWorker;
@@ -58,6 +56,12 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	private final UsbConfigurationWorker usbConfigurationWorker;
 
 	private final SystemUpdateHandler systemUpdateHandler;
+
+	@Reference
+	protected OpenemsEdgeOem oem;
+
+	@Reference
+	protected ConfigurationAdmin cm;
 
 	protected Config config;
 

@@ -1,10 +1,16 @@
 package io.openems.edge.common.test;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.oem.DummyOpenemsEdgeOem;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 
 public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implements Meta {
+
+	private final OpenemsEdgeOem oem = new DummyOpenemsEdgeOem();
 
 	public DummyMeta(String id) {
 		super(id, //
@@ -18,6 +24,11 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 		return this;
 	}
 
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return Meta.getModbusSlaveTable(accessMode, this.oem);
+	}
+
 	/**
 	 * Set {@link Meta.ChannelId#CURRENCY}.
 	 *
@@ -28,4 +39,5 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 		TestUtils.withValue(this, Meta.ChannelId.CURRENCY, value);
 		return this.self();
 	}
+
 }

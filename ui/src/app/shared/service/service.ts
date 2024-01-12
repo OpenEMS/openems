@@ -65,6 +65,8 @@ export class Service extends AbstractService {
     user: User, edges: { [edgeId: string]: Edge }
   }> = new BehaviorSubject(null);
 
+  public currentUser: User | null = null;
+
   /**
    * Holds reference to Websocket. This is set by Websocket in constructor.
    */
@@ -387,11 +389,11 @@ export class Service extends AbstractService {
     this.spinner.hide(selector);
   }
 
-  public async toast(message: string, level: 'success' | 'warning' | 'danger') {
+  public async toast(message: string, level: 'success' | 'warning' | 'danger', duration?: number) {
     const toast = await this.toaster.create({
       message: message,
       color: level,
-      duration: 2000,
+      duration: duration ?? 2000,
       cssClass: 'container',
     });
     toast.present();

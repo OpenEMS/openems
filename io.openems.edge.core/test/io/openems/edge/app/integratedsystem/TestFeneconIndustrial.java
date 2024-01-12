@@ -1,5 +1,6 @@
 package io.openems.edge.app.integratedsystem;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -8,20 +9,14 @@ import org.junit.Test;
 
 import com.google.gson.JsonObject;
 
-import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk110;
-import io.openems.edge.common.test.DummyUser;
-import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.Apps;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 
 public class TestFeneconIndustrial {
-
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
 
 	private AppManagerTestBundle appManagerTestBundle;
 
@@ -54,7 +49,7 @@ public class TestFeneconIndustrial {
 	private final OpenemsAppInstance createFullIndustrial(final String appId) throws Exception {
 		var fullConfig = fullSettings();
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request(appId, "key", "alias", fullConfig));
 
 		// make sure every dependency got installed

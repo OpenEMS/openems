@@ -490,6 +490,58 @@ public class JsonUtils {
 	}
 
 	/**
+	 * Creates a JsonElement from the {@link Number} value.
+	 *
+	 * @param number the {@link Number}
+	 * @return a {@link JsonPrimitive} or {@link JsonNull}
+	 */
+	public static JsonElement toJson(Number number) {
+		if (number == null) {
+			return JsonNull.INSTANCE;
+		}
+		return new JsonPrimitive(number);
+	}
+
+	/**
+	 * Creates a JsonElement from the {@link Boolean} value.
+	 *
+	 * @param bool the {@link Boolean}
+	 * @return a {@link JsonPrimitive} or {@link JsonNull}
+	 */
+	public static JsonElement toJson(Boolean bool) {
+		if (bool == null) {
+			return JsonNull.INSTANCE;
+		}
+		return new JsonPrimitive(bool);
+	}
+
+	/**
+	 * Creates a JsonElement from the {@link Boolean} value.
+	 *
+	 * @param c the {@link Character}
+	 * @return a {@link JsonPrimitive} or {@link JsonNull}
+	 */
+	public static JsonElement toJson(Character c) {
+		if (c == null) {
+			return JsonNull.INSTANCE;
+		}
+		return new JsonPrimitive(c);
+	}
+
+	/**
+	 * Creates a JsonElement from the {@link Boolean} value.
+	 *
+	 * @param string the {@link String}
+	 * @return a {@link JsonPrimitive} or {@link JsonNull}
+	 */
+	public static JsonElement toJson(String string) {
+		if (string == null) {
+			return JsonNull.INSTANCE;
+		}
+		return new JsonPrimitive(string);
+	}
+
+	/**
 	 * Gets the {@link JsonElement} as {@link JsonPrimitive}.
 	 *
 	 * @param jElement the {@link JsonElement}
@@ -1695,6 +1747,21 @@ public class JsonUtils {
 			return JsonParser.parseString(string);
 		} catch (JsonParseException e) {
 			throw OpenemsError.JSON_PARSE_FAILED.exception(e.getMessage(), StringUtils.toShortString(string, 100));
+		}
+	}
+
+	/**
+	 * Parses a string to a {@link Optional} {@link JsonElement}.
+	 * 
+	 * @param string to be parsed
+	 * @return the {@link Optional} of the result; {@link Optional#empty()} if the
+	 *         value can not be parsed
+	 */
+	public static Optional<JsonElement> parseOptional(String string) {
+		try {
+			return Optional.of(JsonParser.parseString(string));
+		} catch (JsonParseException e) {
+			return Optional.empty();
 		}
 	}
 

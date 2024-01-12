@@ -14,6 +14,7 @@ import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class PredictorPersistenceModelImplTest {
@@ -106,4 +107,21 @@ public class PredictorPersistenceModelImplTest {
 		// System.out.println(Stream.of(prediction.getValues()).map(String::valueOf).collect(Collectors.joining(",\n")));
 	}
 
+	@Test
+	public void testEmpty() throws Exception {
+		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
+				ZoneOffset.UTC);
+		var timedata = new DummyTimedata(TIMEDATA_ID);
+		var sut = new PredictorPersistenceModelImpl();
+
+		new ComponentTest(sut) //
+				.addReference("timedata", timedata) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.activate(MyConfig.create() //
+						.setId(PREDICTOR_ID) //
+						.setChannelAddresses(METER1_ACTIVE_POWER.toString()) //
+						.build());
+
+		assertEquals(Prediction24Hours.EMPTY, sut.get24HoursPrediction(METER1_ACTIVE_POWER));
+	}
 }

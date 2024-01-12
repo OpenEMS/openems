@@ -1,6 +1,7 @@
 package io.openems.backend.b2bwebsocket;
 
-import java.util.HashMap;
+import static java.util.stream.Collectors.toUnmodifiableMap;
+
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -132,18 +133,24 @@ public class Backend2BackendWebsocket extends AbstractOpenemsBackendComponent im
 
 	@Override
 	public String debugLog() {
-		return "[" + this.getName() + "] " + this.server.debugLog();
+		return new StringBuilder() //
+				.append("[").append(this.getName()).append("] ") //
+				.append(this.server != null //
+						? this.server.debugLog() //
+						: "NOT STARTED") //
+				.toString();
 	}
 
 	@Override
 	public Map<String, JsonElement> debugMetrics() {
-		final var metrics = new HashMap<String, JsonElement>();
+		if (this.server == null) {
+			return null;
+		}
 
-		this.server.debugMetrics().forEach((key, value) -> {
-			metrics.put(this.getId() + "/" + key, new JsonPrimitive(value));
-		});
-
-		return metrics;
+		return this.server.debugMetrics().entrySet().stream() //
+				.collect(toUnmodifiableMap(//
+						e -> this.getId() + "/" + e.getKey(), //
+						e -> new JsonPrimitive(e.getValue())));
 	}
 
 }

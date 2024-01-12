@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -14,11 +15,8 @@ import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.test.DummyUser;
-import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.DummyPseudoComponentManager;
 import io.openems.edge.core.appmanager.TranslationUtil;
@@ -26,10 +24,7 @@ import io.openems.edge.core.appmanager.dependency.Tasks;
 
 public class ComponentAggregateTaskImplTest {
 
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
-
 	private ComponentAggregateTask task;
-
 	private DummyPseudoComponentManager componentManager;
 
 	@Before
@@ -62,7 +57,7 @@ public class ComponentAggregateTaskImplTest {
 		);
 
 		this.task.aggregate(config, null);
-		this.task.create(this.user, emptyList());
+		this.task.create(DUMMY_ADMIN, emptyList());
 		final var component = this.componentManager.getComponent(dummyComponentId);
 		assertNotNull(component);
 	}
@@ -81,7 +76,7 @@ public class ComponentAggregateTaskImplTest {
 
 		// not failing even if component already exist
 		this.task.aggregate(config, null);
-		this.task.create(this.user, emptyList());
+		this.task.create(DUMMY_ADMIN, emptyList());
 
 		// not creating the same component twice
 		assertEquals(1, this.componentManager.getAllComponents().size());
@@ -106,7 +101,7 @@ public class ComponentAggregateTaskImplTest {
 
 		// not failing even if component already exist
 		this.task.aggregate(config, null);
-		this.task.create(this.user, emptyList());
+		this.task.create(DUMMY_ADMIN, emptyList());
 
 		// not creating the same component twice
 		assertEquals(1, this.componentManager.getAllComponents().size());
@@ -124,14 +119,14 @@ public class ComponentAggregateTaskImplTest {
 
 		// creating components of 1st config
 		this.task.aggregate(config, null);
-		this.task.create(this.user, emptyList());
+		this.task.create(DUMMY_ADMIN, emptyList());
 		assertEquals(1, this.componentManager.getAllComponents().size());
 
 		this.task.reset();
 
 		// creating components of 2nd config with same properties
 		this.task.aggregate(config, null);
-		this.task.create(this.user, List.of(AppConfiguration.create() //
+		this.task.create(DUMMY_ADMIN, List.of(AppConfiguration.create() //
 				.addTask(Tasks.component(config.components())) //
 				.build()));
 
@@ -152,7 +147,7 @@ public class ComponentAggregateTaskImplTest {
 
 		// creating components of 1st config
 		this.task.aggregate(config.getConfiguration(ComponentAggregateTask.class), null);
-		this.task.create(this.user, emptyList());
+		this.task.create(DUMMY_ADMIN, emptyList());
 		assertEquals(1, this.componentManager.getAllComponents().size());
 
 		// creating components of 2nd config with different properties
@@ -161,7 +156,7 @@ public class ComponentAggregateTaskImplTest {
 						.addProperty("testProperty", "test_updated_value") //
 						.build()) //
 		), null);
-		this.task.create(this.user, List.of(config));
+		this.task.create(DUMMY_ADMIN, List.of(config));
 	}
 
 	@Test(expected = OpenemsNamedException.class)
@@ -176,7 +171,7 @@ public class ComponentAggregateTaskImplTest {
 			this.componentManager.addComponent(config.components().get(0));
 
 			this.task.aggregate(null, config);
-			this.task.delete(this.user, emptyList());
+			this.task.delete(DUMMY_ADMIN, emptyList());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -202,7 +197,7 @@ public class ComponentAggregateTaskImplTest {
 				.build();
 
 		this.task.aggregate(config.getConfiguration(ComponentAggregateTask.class), null);
-		this.task.create(this.user, emptyList());
+		this.task.create(DUMMY_ADMIN, emptyList());
 
 		final var errors = new ArrayList<String>();
 		this.task.validate(errors, config, config.getConfiguration(ComponentAggregateTask.class));
@@ -232,7 +227,7 @@ public class ComponentAggregateTaskImplTest {
 		);
 
 		this.task.aggregate(config, null);
-		this.task.create(this.user, emptyList());
+		this.task.create(DUMMY_ADMIN, emptyList());
 
 		assertFalse(this.task.getCreatedComponents().isEmpty());
 		assertEquals(1, this.task.getCreatedComponents().size());
@@ -251,7 +246,7 @@ public class ComponentAggregateTaskImplTest {
 		this.componentManager.addComponent(config.components().get(0));
 
 		this.task.aggregate(null, config);
-		this.task.delete(this.user, emptyList());
+		this.task.delete(DUMMY_ADMIN, emptyList());
 
 		assertFalse(this.task.getDeletedComponents().isEmpty());
 		assertEquals(1, this.task.getDeletedComponents().size());

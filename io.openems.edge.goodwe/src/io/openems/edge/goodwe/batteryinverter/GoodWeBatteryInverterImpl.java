@@ -32,7 +32,6 @@ import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
-import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -136,7 +135,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 			return;
 		}
 		this.config = config;
-		this.applyConfigIfNotSet(config);
+		this.applyConfigIfNotSet(config, true);
 	}
 
 	@Modified
@@ -146,7 +145,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 			return;
 		}
 		this.config = config;
-		this.applyConfigIfNotSet(config);
+		this.applyConfigIfNotSet(config, true);
 	}
 
 	@Override
@@ -171,10 +170,13 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	 * whether according to the power factor or power and frequency. In addition, it
 	 * consist backup power availability.
 	 *
-	 * @param config Configuration parameters.
+	 * @param config         Configuration parameters.
+	 * @param onConfigUpdate true when called on activate()/modified(), i.e. not in
+	 *                       run()
+	 * 
 	 * @throws OpenemsNamedException on error
 	 */
-	private void applyConfigIfNotSet(Config config) throws OpenemsNamedException {
+	private void applyConfigIfNotSet(Config config, boolean onConfigUpdate) throws OpenemsNamedException {
 
 		// TODO: Set later. SELECT_WORK_MODE mapped after reading the dsp version
 		// (0x00) 'General Mode: Self use' instead of (0x01) 'Off-grid Mode', (0x02)
@@ -183,9 +185,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 		// country setting
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.SAFETY_COUNTRY_CODE), config.safetyCountry());
-
-		// Mppt Shadow enable / disable
-		this.writeToChannel(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE, config.mpptForShadowEnable());
 
 		// Backup Power on / off
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.BACK_UP_ENABLE), config.backupEnable().booleanValue);
@@ -203,79 +202,85 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.QU_CURVE), EnableCurve.DISABLE);
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_CURVE_PU), EnableCurve.DISABLE);
 
-		// Feed-in settings
-		var setFeedInPowerSettings = config.setfeedInPowerSettings();
-		switch (setFeedInPowerSettings) {
-		case UNDEFINED:
-			break;
-		case QU_ENABLE_CURVE:
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.LOCK_IN_POWER_QU), 200);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.LOCK_OUT_POWER_QU), 50);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V1_VOLTAGE), 214);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V1_VALUE), 436);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V2_VOLTAGE), 223);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V2_VALUE), 0);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V3_VOLTAGE), 237);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V3_VALUE), 0);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V4_VOLTAGE), 247);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V4_VALUE), -526);
-			break;
-		case PU_ENABLE_CURVE:
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.A_POINT_POWER), 2000);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.A_POINT_COS_PHI), 0);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.B_POINT_POWER), 2000);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.B_POINT_COS_PHI), 0);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.C_POINT_POWER), 2000);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.C_POINT_COS_PHI), 0);
-			break;
-		case LAGGING_0_80:
-		case LAGGING_0_81:
-		case LAGGING_0_82:
-		case LAGGING_0_83:
-		case LAGGING_0_84:
-		case LAGGING_0_85:
-		case LAGGING_0_86:
-		case LAGGING_0_87:
-		case LAGGING_0_88:
-		case LAGGING_0_89:
-		case LAGGING_0_90:
-		case LAGGING_0_91:
-		case LAGGING_0_92:
-		case LAGGING_0_93:
-		case LAGGING_0_94:
-		case LAGGING_0_95:
-		case LAGGING_0_96:
-		case LAGGING_0_97:
-		case LAGGING_0_98:
-		case LAGGING_0_99:
-		case LEADING_0_80:
-		case LEADING_0_81:
-		case LEADING_0_82:
-		case LEADING_0_83:
-		case LEADING_0_84:
-		case LEADING_0_85:
-		case LEADING_0_86:
-		case LEADING_0_87:
-		case LEADING_0_88:
-		case LEADING_0_89:
-		case LEADING_0_90:
-		case LEADING_0_91:
-		case LEADING_0_92:
-		case LEADING_0_93:
-		case LEADING_0_94:
-		case LEADING_0_95:
-		case LEADING_0_96:
-		case LEADING_0_97:
-		case LEADING_0_98:
-		case LEADING_0_99:
-		case LEADING_1:
-			if (setFeedInPowerSettings.fixedPowerFactor == null) {
-				throw new IllegalArgumentException(
-						"Feed-In-Power-Setting [" + setFeedInPowerSettings + "] has no fixed power factor");
+		if (onConfigUpdate) {
+			// Mppt Shadow enable / disable
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE),
+					config.mpptForShadowEnable().booleanValue);
+
+			// Feed-in settings
+			var setFeedInPowerSettings = config.setfeedInPowerSettings();
+			switch (setFeedInPowerSettings) {
+			case UNDEFINED:
+				break;
+			case QU_ENABLE_CURVE:
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.LOCK_IN_POWER_QU), 200);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.LOCK_OUT_POWER_QU), 50);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V1_VOLTAGE), 214);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V1_VALUE), 436);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V2_VOLTAGE), 223);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V2_VALUE), 0);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V3_VOLTAGE), 237);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V3_VALUE), 0);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V4_VOLTAGE), 247);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V4_VALUE), -526);
+				break;
+			case PU_ENABLE_CURVE:
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.A_POINT_POWER), 2000);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.A_POINT_COS_PHI), 0);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.B_POINT_POWER), 2000);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.B_POINT_COS_PHI), 0);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.C_POINT_POWER), 2000);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.C_POINT_COS_PHI), 0);
+				break;
+			case LAGGING_0_80:
+			case LAGGING_0_81:
+			case LAGGING_0_82:
+			case LAGGING_0_83:
+			case LAGGING_0_84:
+			case LAGGING_0_85:
+			case LAGGING_0_86:
+			case LAGGING_0_87:
+			case LAGGING_0_88:
+			case LAGGING_0_89:
+			case LAGGING_0_90:
+			case LAGGING_0_91:
+			case LAGGING_0_92:
+			case LAGGING_0_93:
+			case LAGGING_0_94:
+			case LAGGING_0_95:
+			case LAGGING_0_96:
+			case LAGGING_0_97:
+			case LAGGING_0_98:
+			case LAGGING_0_99:
+			case LEADING_0_80:
+			case LEADING_0_81:
+			case LEADING_0_82:
+			case LEADING_0_83:
+			case LEADING_0_84:
+			case LEADING_0_85:
+			case LEADING_0_86:
+			case LEADING_0_87:
+			case LEADING_0_88:
+			case LEADING_0_89:
+			case LEADING_0_90:
+			case LEADING_0_91:
+			case LEADING_0_92:
+			case LEADING_0_93:
+			case LEADING_0_94:
+			case LEADING_0_95:
+			case LEADING_0_96:
+			case LEADING_0_97:
+			case LEADING_0_98:
+			case LEADING_0_99:
+			case LEADING_1:
+				if (setFeedInPowerSettings.fixedPowerFactor == null) {
+					throw new IllegalArgumentException(
+							"Feed-In-Power-Setting [" + setFeedInPowerSettings + "] has no fixed power factor");
+				}
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FIXED_POWER_FACTOR),
+						config.setfeedInPowerSettings().fixedPowerFactor);
+				break;
 			}
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FIXED_POWER_FACTOR),
-					config.setfeedInPowerSettings().fixedPowerFactor);
-			break;
 		}
 
 		// Ripple Control Receiver on / off
@@ -428,19 +433,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		channel.setNextWriteValue(value);
 	}
 
-	private void writeToChannel(GoodWe.ChannelId channelId, EnableDisable value)
-			throws IllegalArgumentException, OpenemsNamedException {
-		BooleanWriteChannel channel = this.channel(channelId);
-		switch (value) {
-		case ENABLE:
-			channel.setNextWriteValue(true);
-			break;
-		case DISABLE:
-			channel.setNextWriteValue(false);
-			break;
-		}
-	}
-
 	private void writeToChannel(GoodWe.ChannelId channelId, Integer value)
 			throws IllegalArgumentException, OpenemsNamedException {
 		IntegerWriteChannel channel = this.channel(channelId);
@@ -502,7 +494,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
 
 		// ApplyConfig
-		this.applyConfigIfNotSet(this.config);
+		this.applyConfigIfNotSet(this.config, false);
 
 		// Calculate ActivePower, Energy and Max-AC-Power.
 		this.updatePowerAndEnergyChannels();

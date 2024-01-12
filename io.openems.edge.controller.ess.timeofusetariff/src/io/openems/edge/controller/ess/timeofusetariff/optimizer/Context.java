@@ -1,8 +1,8 @@
 package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
+import java.time.Clock;
 import java.util.List;
 
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
@@ -11,24 +11,36 @@ import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 public record Context(//
+		Clock clock, //
 		PredictorManager predictorManager, //
 		TimeOfUseTariff timeOfUseTariff, //
 		ManagedSymmetricEss ess, //
 		List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves, //
 		List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges, //
 		ControlMode controlMode, //
-		int maxChargePowerFromGrid, //
-		IntegerReadChannel solveDurationChannel) {
+		int essMaxChargePower, int maxChargePowerFromGrid) {
 
 	public static class Builder {
+		private Clock clock;
 		private PredictorManager predictorManager;
 		private TimeOfUseTariff timeOfUseTariff;
 		private ManagedSymmetricEss ess;
 		private List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves;
 		private List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges;
 		private ControlMode controlMode;
+		private int essMaxChargePower;
 		private int maxChargePowerFromGrid;
-		private IntegerReadChannel solveDurationChannel;
+
+		/**
+		 * The {@link Clock}.
+		 * 
+		 * @param clock the {@link Clock}
+		 * @return myself
+		 */
+		public Builder clock(Clock clock) {
+			this.clock = clock;
+			return this;
+		}
 
 		/**
 		 * The {@link PredictorManager}.
@@ -100,6 +112,17 @@ public record Context(//
 		}
 
 		/**
+		 * The essMaxChargePower.
+		 * 
+		 * @param essMaxChargePower the essMaxChargePower
+		 * @return myself
+		 */
+		public Builder essMaxChargePower(int essMaxChargePower) {
+			this.essMaxChargePower = essMaxChargePower;
+			return this;
+		}
+
+		/**
 		 * The maxChargePowerFromGrid.
 		 * 
 		 * @param maxChargePowerFromGrid the maxChargePowerFromGrid
@@ -111,25 +134,14 @@ public record Context(//
 		}
 
 		/**
-		 * The solveDurationChannel.
-		 * 
-		 * @param solveDurationChannel the solveDurationChannel
-		 * @return myself
-		 */
-		public Builder solveDurationChannel(IntegerReadChannel solveDurationChannel) {
-			this.solveDurationChannel = solveDurationChannel;
-			return this;
-		}
-
-		/**
 		 * Builds the {@link Context}.
 		 * 
 		 * @return the {@link Context} record
 		 */
 		public Context build() {
-			return new Context(this.predictorManager, this.timeOfUseTariff, this.ess,
+			return new Context(this.clock, this.predictorManager, this.timeOfUseTariff, this.ess,
 					this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges, this.controlMode,
-					this.maxChargePowerFromGrid, this.solveDurationChannel);
+					this.essMaxChargePower, this.maxChargePowerFromGrid);
 		}
 	}
 

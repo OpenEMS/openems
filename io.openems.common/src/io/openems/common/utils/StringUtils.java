@@ -138,4 +138,19 @@ public class StringUtils {
 		return string != null && string.contains(value);
 	}
 
+	/**
+	 * Returns the 'alternative' if 'original' is null or blank.
+	 *
+	 * @param original    the original value, can be null, empty or filled with
+	 *                    white-space only
+	 * @param alternative the alternative value
+	 * @return either the 'defined' value (not null, not empty, not only
+	 *         white-space), alternatively the 'orElse' value
+	 */
+	public static String definedOrElse(String original, String alternative) {
+		if (original != null && !original.isBlank()) {
+			return original;
+		}
+		return alternative;
+	}
 }
