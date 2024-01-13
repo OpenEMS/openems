@@ -82,6 +82,5 @@ public class PylontechPowercubeM2GenericEssIntegrationTest {
 					.output(STATUS_CHANNEL, Status.IDLE));
 	}
 	
-	@Test
-	public void 
+
 }

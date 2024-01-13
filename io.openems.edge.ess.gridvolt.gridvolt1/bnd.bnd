@@ -1,0 +1,18 @@
+Bundle-Name: OpenEMS Edge io.openems.edge.ess.gridvolt.gridvolt1
+Bundle-Vendor: RVR Energy Technology Ltd.
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.ess.api,\
+	io.openems.edge.battery.api,\
+	io.openems.edge.battery.pylontech,\
+	io.openems.edge.batteryinverter.api,\
+	io.openems.edge.batteryinverter.kaco.blueplanetgridsave
+	
+-testpath: \
+	${testpath}
