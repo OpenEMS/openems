@@ -1,4 +1,4 @@
-papackage io.openems.edge.batteryinverter.cluster;
+package io.openems.edge.batteryinverter.cluster;
 
 import java.util.ArrayList;
 import java.util.List;
