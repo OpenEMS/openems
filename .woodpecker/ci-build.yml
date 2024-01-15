@@ -1,0 +1,153 @@
+variables:
+  - &sftp-settings
+    server: 10.10.112.10
+    username: user
+    password: pass
+    ignore_branch: true
+    port: 2222
+    path: /cache
+    mount:
+      - cache
+
+  - &ssh-settings
+    host: 10.0.0.40
+    user: fenecon-docs
+    username: fenecon-docs
+    key:
+      from_secret: ssh_key_intranet
+
+  - &main-build
+    branch: [main, develop]
+
+  - &message-debian
+    evaluate: 'CI_COMMIT_MESSAGE contains "[DEBIAN]"'
+
+  - &ui-only
+    path:
+      include: [".woodpecker/ci-build.yml", "ui/**"]
+
+  - &java-only
+    path:
+      include: [".woodpecker/ci-build.yml", "io.openems*/**", "**/*gradle*"]
+
+clone:
+  git:
+    when: &every-build
+      - *main-build
+      - *message-debian
+      - path:
+          include: [".woodpecker/ci-build.yml", "ui/**", "io.openems*/**", "**/*gradle*"]
+    image: woodpeckerci/plugin-git
+
+steps:
+  restore-cache:
+    when: *every-build
+    image: appleboy/drone-sftp-cache
+    settings:
+      restore: true
+      <<: *sftp-settings
+    group: restore
+
+  build-ui:
+    when:
+      - *main-build
+      - *message-debian
+      - *ui-only
+    image: openems-build:latest
+    commands:
+      - export OEM=$(case ${CI_COMMIT_BRANCH^^} in *HECKERT*) echo "heckert";; *) echo "fenecon";; esac)
+      - export CACHE=$CI_WORKSPACE/cache
+      - export npm_config_cache=$CACHE/npm
+      - export NG_CLI_CACHE_PATH=$CACHE/angular-cli
+      - export NODE_MODULES_CACHE=$CACHE/node_modules # TODO
+      - export CHROME_BIN=/usr/bin/google-chrome-stable
+      ### start ###
+      - echo "Build for $OEM"
+      - mkdir -p $CACHE
+      - cd ui
+      - npm ci --prefer-offline --cache $npm_config_cache --force
+      - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g angular.json
+      - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g src/themes/fenecon/root/site.webmanifest
+      - node_modules/.bin/ng config cli.cache.path "$NG_CLI_CACHE_PATH"
+      - node_modules/.bin/ng build --base-href /${CI_COMMIT_BRANCH}/ -c "$OEM,$OEM-backend-prod,prod"
+      - node_modules/.bin/ng lint
+      - npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+    group: build
+
+  build-java:
+    when:
+      - *main-build
+      - *message-debian
+      - *java-only
+    image: openems-build:latest
+    commands:
+      - export CACHE=$CI_WORKSPACE/cache
+      - mkdir -p $CACHE
+      - export GRADLE_USER_HOME=$CACHE/gradle
+      - export MAVEN_OPTS=-Dmaven.repo.local=$CACHE/maven
+      - ./gradlew --build-cache build buildEdge buildBackend resolve.EdgeApp resolve.BackendApp --parallel --max-workers=4
+      - git diff --exit-code io.openems.edge.application/EdgeApp.bndrun io.openems.backend.application/BackendApp.bndrun
+    group: build
+
+  build-debian-package:
+    when:
+      - *main-build
+      - *message-debian
+    image: openems-build:latest
+    commands:
+      - export CACHE=$CI_WORKSPACE/cache
+      - mkdir -p $CACHE
+      - export GRADLE_USER_HOME=$CACHE/gradle
+      - export npm_config_cache=$CACHE/npm
+      - export NG_CLI_CACHE_PATH=$CACHE/angular-cli
+      - export NODE_MODULES_CACHE=$CACHE/node_modules
+      - export MAVEN_OPTS=-Dmaven.repo.local=$CACHE/maven
+      - mkdir -p tools/debian/usr/lib/openems/
+      - cp io.openems.edge.application/generated/distributions/executable/EdgeApp.jar tools/debian/usr/lib/openems/openems.jar
+      - tools/build-debian-package.sh
+
+  refresh-dev-deb:
+    when:
+      - *main-build
+      - *message-debian
+    image: appleboy/drone-scp:latest
+    settings:
+      <<: *ssh-settings
+      source:
+        - ./*.deb
+        - ./*.version
+      target: /opt/gitea/data/openems-ui-dev/html/${CI_COMMIT_BRANCH}
+    group: finish
+
+  refresh-dev-ui:
+    when:
+      - *main-build
+      - *ui-only
+    image: appleboy/drone-scp:latest
+    settings:
+      <<: *ssh-settings
+      source: ./ui/target
+      strip_components: 3
+      target: /opt/gitea/data/openems-ui-dev/html/${CI_COMMIT_BRANCH}
+    group: finish
+
+  refresh-location:
+    when:
+      - *main-build
+      - *ui-only
+    image: appleboy/drone-ssh:latest
+    settings:
+      <<: *ssh-settings
+      timeout: 10s
+      script:
+        - /opt/gitea/data/openems-ui-dev/refresh-location.sh ${CI_COMMIT_BRANCH}
+    group: refresh
+
+  rebuild-cache:
+    when:
+      - *main-build
+    image: appleboy/drone-sftp-cache
+    settings:
+      rebuild: true
+      <<: *sftp-settings
+    group: refresh

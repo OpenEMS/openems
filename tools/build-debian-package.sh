@@ -9,7 +9,6 @@ main() {
     print_header
     check_dependencies
     common_update_version_in_code
-    common_build_edge_and_ui_in_parallel
     prepare_deb_template
     build_deb
     create_version_file
@@ -66,13 +65,22 @@ prepare_deb_template() {
     sed --in-place "s/^\(Version: \).*$/\1$VERSION/" tools/debian/DEBIAN/control
 
     echo "## Add OpenEMS Edge"
-    mkdir -p tools/debian/usr/lib/openems/
-    cp io.openems.edge.application/generated/distributions/executable/EdgeApp.jar tools/debian/usr/lib/openems/openems.jar
-
+    if [ -f "tools/debian/usr/lib/openems/openems.jar" ]; then
+        echo "openems.jar exists. Skipping common_build_edge."
+    else
+        mkdir -p tools/debian/usr/lib/openems/
+        echo "openems.jar does not exist. Building common_build_edge."
+        common_build_edge
+    fi
+    
     echo "## Add OpenEMS UI"
-    rm -Rf tools/debian/usr/share/openems-fems/www/*
-    mkdir -p tools/debian/usr/share/openems-fems/www
-    cp -R ui/target/* tools/debian/usr/share/openems-fems/www
+    if [ -f "tools/debian/usr/share/openems-fems/www" ]; then
+        echo "openems.ui exists. Skipping common_build_ui."
+    else
+        mkdir -p tools/debian/usr/share/openems-fems/www
+        echo "openems.ui does not exist. Building common_build_ui."
+        common_build_ui
+    fi
 }
 
 build_deb() {
