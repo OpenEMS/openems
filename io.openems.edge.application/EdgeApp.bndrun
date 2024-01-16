@@ -49,6 +49,7 @@
 	bnd.identity;id='io.openems.edge.batteryinverter.sunspec',\
 	bnd.identity;id='io.openems.edge.bosch.bpts5hybrid',\
 	bnd.identity;id='io.openems.edge.bridge.mbus',\
+	bnd.identity;id='io.openems.edge.bridge.http',\
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
 	bnd.identity;id='io.openems.edge.bridge.onewire',\
 	bnd.identity;id='io.openems.edge.common',\
@@ -209,6 +210,7 @@
 	io.openems.edge.batteryinverter.sunspec;version=snapshot,\
 	io.openems.edge.bosch.bpts5hybrid;version=snapshot,\
 	io.openems.edge.bridge.mbus;version=snapshot,\
+	io.openems.edge.bridge.http;version=snapshot,\
 	io.openems.edge.bridge.modbus;version=snapshot,\
 	io.openems.edge.bridge.onewire;version=snapshot,\
 	io.openems.edge.common;version=snapshot,\
