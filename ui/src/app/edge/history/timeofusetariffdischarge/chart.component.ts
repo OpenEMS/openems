@@ -5,11 +5,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { differenceInDays } from 'date-fns';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
+import { TimeOfUseTariffUtils } from 'src/app/shared/service/utils';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Currency, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem, Unit } from '../shared';
-import { TimeOfUseTariffUtils } from 'src/app/shared/service/utils';
+import { ChronoUnit, Data, TooltipItem } from '../shared';
 
 // TODO rename folder; remove 'Discharge'
 @Component({
@@ -57,7 +57,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
     this.colors = [];
     this.loading = true;
 
-    this.queryHistoricTimeseriesData(this.period.from, this.period.to, { value: 15, unit: Unit.MINUTES }).then(response => {
+    this.queryHistoricTimeseriesData(this.period.from, this.period.to, { value: 15, unit: ChronoUnit.Type.MINUTES }).then(response => {
       this.service.getConfig().then(config => {
         let result = (response as QueryHistoricTimeseriesDataResponse).result;
 

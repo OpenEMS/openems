@@ -7,7 +7,7 @@ import { addDays, endOfWeek, endOfYear, getDate, getMonth, getYear, startOfWeek,
 
 import { Edge } from '../../edge/edge';
 import { DefaultTypes } from '../../service/defaulttypes';
-import { Service, Utils } from '../../shared';
+import { EdgePermission, Service, Utils } from '../../shared';
 
 @Component({
     selector: 'pickdatepopover',
@@ -24,6 +24,7 @@ export class PickDatePopoverComponent implements OnInit {
     public locale: string = 'de';
     public showCustomDate: boolean = false;
 
+    protected periods: string[] = [];
     protected myDpOptions: IAngularMyDpOptions = {
         stylesData: {
             selector: 'dp1',
@@ -57,6 +58,9 @@ export class PickDatePopoverComponent implements OnInit {
         // Restrict user to pick date before ibn-date
         this.myDpOptions.disableUntil = { day: Utils.subtractSafely(getDate(this.edge?.firstSetupProtocol), 1) ?? 1, month: Utils.addSafely(getMonth(this.edge?.firstSetupProtocol), 1) ?? 1, year: this.edge?.firstSetupProtocol?.getFullYear() ?? 2013 },
             this.locale = this.translate.getBrowserLang();
+
+        // Filter out custom due to different on click event
+        this.periods = EdgePermission.getAllowedHistoryPeriods(this.edge).filter(period => period !== DefaultTypes.PeriodString.CUSTOM);
     }
 
     /**
@@ -88,6 +92,12 @@ export class PickDatePopoverComponent implements OnInit {
             }
             case DefaultTypes.PeriodString.YEAR: {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(startOfYear(this.TODAY), endOfYear(this.TODAY)));
+                this.service.periodString = period;
+                this.popoverCtrl.dismiss();
+                break;
+            }
+            case DefaultTypes.PeriodString.TOTAL: {
+                this.setDateRange(new DefaultTypes.HistoryPeriod(this.edge?.firstSetupProtocol, endOfYear(this.TODAY)));
                 this.service.periodString = period;
                 this.popoverCtrl.dismiss();
                 break;

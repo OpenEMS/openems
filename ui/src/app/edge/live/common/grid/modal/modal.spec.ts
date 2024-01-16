@@ -19,7 +19,7 @@ const VIEW_CONTEXT = (properties?: {}): OeFormlyViewTester.Context => ({
 
 describe('Grid - Modal', () => {
   let TEST_CONTEXT: TestContext;
-  beforeEach(() => TEST_CONTEXT = sharedSetup());
+  beforeEach(async () => TEST_CONTEXT = await sharedSetup());
 
   it('generateView()', () => {
     {

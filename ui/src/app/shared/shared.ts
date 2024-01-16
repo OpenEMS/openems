@@ -13,6 +13,7 @@ export { Widget, WidgetFactory, WidgetNature, Widgets } from "./type/widget";
 
 import { Edge } from "./edge/edge";
 import { User } from "./jsonrpc/shared";
+import { DefaultTypes } from "./service/defaulttypes";
 import { Role } from "./type/role";
 import { addIcons } from 'ionicons';
 
@@ -25,6 +26,28 @@ addIcons({
   'oe-production': 'assets/img/icon/production.svg',
   'oe-storage': 'assets/img/icon/storage.svg',
 });
+
+export class EdgePermission {
+
+  /**
+    * Gets the allowed history periods for this edge, used in {@link PickDatePopoverComponent}
+    * 
+    * @param edge the edge
+    * @returns the list of allowed periods for this edge
+    */
+  public static getAllowedHistoryPeriods(edge: Edge) {
+    return Object.values(DefaultTypes.PeriodString).reduce((arr, el) => {
+
+      // hide total, if no first ibn date
+      if (el === DefaultTypes.PeriodString.TOTAL && edge?.firstSetupProtocol === null) {
+        return arr;
+      }
+
+      arr.push(el);
+      return arr;
+    }, []);
+  }
+}
 
 export class UserPermission {
   public static isUserAllowedToSeeOverview(user: User): boolean {

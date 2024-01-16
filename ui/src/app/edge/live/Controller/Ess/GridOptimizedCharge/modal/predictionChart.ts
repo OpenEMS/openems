@@ -3,7 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
-import { ChartOptions, DEFAULT_TIME_CHART_OPTIONS, TooltipItem, Unit } from 'src/app/edge/history/shared';
+import { ChartOptions, ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from 'src/app/edge/history/shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from 'src/app/shared/shared';
 
@@ -49,7 +49,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
         this.loading = true;
         this.colors = [];
 
-        this.queryHistoricTimeseriesData(PredictionChartComponent.DEFAULT_PERIOD.from, PredictionChartComponent.DEFAULT_PERIOD.to, { unit: Unit.MINUTES, value: 5 }).then(response => {
+        this.queryHistoricTimeseriesData(PredictionChartComponent.DEFAULT_PERIOD.from, PredictionChartComponent.DEFAULT_PERIOD.to, { unit: ChronoUnit.Type.MINUTES, value: 5 }).then(response => {
             let result = response.result;
             let datasets = [];
 

@@ -3,7 +3,7 @@
     </ion-icon>
 </ion-button>
 <ion-button *ngIf="translate" (click)="presentPopover($event)" ngClass="secondary-color-contrast">
-    {{service.historyPeriod.value.getText(translate)}}
+    {{service.historyPeriod.value.getText(translate, service)}}
 </ion-button>
 <ion-button [disabled]="!isForwardArrowAllowed" (click)="goForward()">
     <ion-icon class="ion-padding-end" slot="end" name="arrow-forward-outline" ngClass="secondary-color-contrast">
