@@ -251,6 +251,12 @@
 			<version>4.13.2_1</version>
 		</dependency>
 		<dependency>
+			<!-- Bouncycastle for Eclipse Paho MQTTv5 Client -->
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcpkix-jdk15on</artifactId>
+			<version>1.70</version>
+		</dependency>
+		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
 			<version>0.16.5</version>
