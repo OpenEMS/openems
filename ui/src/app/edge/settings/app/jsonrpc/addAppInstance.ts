@@ -3,10 +3,10 @@ import { GetAppInstances } from "./getAppInstances";
 
 /**
  * Adds an OpenemsAppInstance.
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -19,10 +19,10 @@ import { GetAppInstances } from "./getAppInstances";
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

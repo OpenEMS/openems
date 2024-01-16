@@ -29,7 +29,7 @@ export namespace Role {
 
     /**
      * Evaluates whether "Role 1" is equal or more privileged than "Role 2".
-     * 
+     *
      * @param role1     the Role 1
      * @param role2     the Role 2
      * @return true if "Role 1" is equal or more privileged than "Role 2"

@@ -6,7 +6,7 @@ import { Resolution } from "src/app/edge/history/shared";
 
 /**
  * Represents a JSON-RPC Request to query Timeseries Energy data.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

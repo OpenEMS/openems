@@ -2,7 +2,7 @@ import { JsonrpcResponseSuccess } from "../base";
 
 /**
  * Represents a JSON-RPC Response for a {@link AddEdgeToUserRequest}.
- * 
+ *
  * <pre>
  * {
  *  "jsonrpc": "2.0",

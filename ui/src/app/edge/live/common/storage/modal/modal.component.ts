@@ -102,13 +102,13 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                             let expectedStartOfPreparation = new Date(0);
                             expectedStartOfPreparation.setUTCSeconds(epochSeconds ?? 0);
 
-                            // If targetTime not set, not equals 0 or targetTime is no valid time, 
+                            // If targetTime not set, not equals 0 or targetTime is no valid time,
                             // then set targetTime to null
                             if (!targetTime || targetTime == 0 || isNaN(Date.parse(targetTime))) {
                                 targetTime = null;
                             }
 
-                            // Channel "ExpectedStartEpochSeconds" is not set 
+                            // Channel "ExpectedStartEpochSeconds" is not set
                             if ((epochSeconds == null
                                 || epochSeconds == 0)) {
                                 this.isTargetTimeInValid.set(essId, true);

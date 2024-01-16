@@ -152,9 +152,9 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Logs in by sending an authentication JSON-RPC Request and handles the AuthenticateResponse.
-   * 
+   *
    * @param request the JSON-RPC Request
-   * @param lang provided for @demo User. This doesn't change the global language, its just set locally 
+   * @param lang provided for @demo User. This doesn't change the global language, its just set locally
    */
   public login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest): Promise<void> {
     return new Promise<void>((resolve) => {
@@ -234,7 +234,7 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Sends a JSON-RPC Request to a Websocket and promises a callback.
-   * 
+   *
    * @param request the JSON-RPC Request
    */
   public sendRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
@@ -281,9 +281,9 @@ export class Websocket implements WebsocketInterface {
   }
 
   /**
-     * Waits until Websocket is 'online' and then 
+     * Waits until Websocket is 'online' and then
      * sends a safe JSON-RPC Request to a Websocket and promises a callback.
-     * 
+     *
      * @param request the JSON-RPC Request
      */
   public sendSafeRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
@@ -303,7 +303,7 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Sends a JSON-RPC notification to a Websocket.
-   * 
+   *
    * @param notification the JSON-RPC Notification
    */
   public sendNotification(notification: JsonrpcNotification): void {
@@ -315,7 +315,7 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Handle new JSON-RPC Request
-   * 
+   *
    * @param message the JSON-RPC Request
    */
   private onRequest(message: JsonrpcRequest): void {
@@ -324,7 +324,7 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Handle new JSON-RPC Notification
-   * 
+   *
    * @param message the JSON-RPC Notification
    */
   private onNotification(message: JsonrpcNotification): void {
@@ -339,7 +339,7 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Handle Websocket error.
-   * 
+   *
    * @param error the error
    */
   private onError(error: any): void {
@@ -355,7 +355,7 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Handles an EdgeRpcNotification.
-   * 
+   *
    * @param message the EdgeRpcNotification
    */
   private handleEdgeRpcNotification(edgeRpcNotification: EdgeRpcNotification): void {

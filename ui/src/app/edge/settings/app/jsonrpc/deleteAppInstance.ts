@@ -2,10 +2,10 @@ import { JsonrpcRequest } from "../../../../shared/jsonrpc/base";
 
 /**
  * Updates an instance of an {@link OpenemsApp}.
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -16,10 +16,10 @@ import { JsonrpcRequest } from "../../../../shared/jsonrpc/base";
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

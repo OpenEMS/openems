@@ -2,7 +2,7 @@ import { JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
 
 /**
  * Wraps a JSON-RPC Response for a GetScheduleRequest.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

@@ -67,7 +67,7 @@ export class OverViewComponent implements OnInit, OnDestroy {
 
     /**
      * Search on change, triggered by searchbar input-event.
-     * 
+     *
      * @param event from template passed event
      */
     protected searchOnChange(searchParams?: Map<string, ChosenFilter['value']>) {
@@ -115,8 +115,8 @@ export class OverViewComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Updates available edges on scroll-event  
-     * 
+     * Updates available edges on scroll-event
+     *
      * @param infiniteScroll the InfiniteScrollCustomEvent
      */
     doInfinite(infiniteScroll: InfiniteScrollCustomEvent) {
