@@ -79,12 +79,7 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 			yield GoStoppedSubState.OPEN_HV_CONTACTORS;
 		}
 		case OPEN_HV_CONTACTORS -> {
-			if (!battery.getF2bTerminal30c().isDefined()) {
-				context.logWarn(this.log, "F2B Terminal 30C is not defined!");
-				yield GoStoppedSubState.OPEN_HV_CONTACTORS;
-			}
-
-			if (!battery.getF2bTerminal30c().get()) {
+			if (!context.isTerminal30cClosed()) {
 				yield GoStoppedSubState.FINISHED;
 			}
 
@@ -92,7 +87,6 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 				yield GoStoppedSubState.POWER_OFF_F2B_TERMINAL_15_SW_AND_HW;
 			} else {
 				switch (battery.getContactorsDiagnosticStatus()) {
-				case UNDEFINED:
 				case ONE_CONTACTOR_STUCK:// Negative StuckDown (at the same time):
 				case TWO_CONTACTOR_STUCK:// Positive and Negative StuckDown (at the same time):
 					battery._setHvContactorsStuckFailed(true);
@@ -101,6 +95,8 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 					battery.setHvContactor(false);
 					context.logWarn(this.log, "Waiting for Hv Contactors");
 					yield GoStoppedSubState.OPEN_HV_CONTACTORS;
+				case UNDEFINED:
+					yield GoStoppedSubState.POWER_OFF_F2B_TERMINAL_15_SW_AND_HW;
 				}
 			}
 			yield GoStoppedSubState.OPEN_HV_CONTACTORS;
@@ -124,9 +120,9 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 			yield GoStoppedSubState.WAIT_FOURTY_SECONDS;
 		}
 		case F2B_TERMINAL_30C_SWITCH_OFF -> {
-			// TODO watch dog 10 second
+			// TODO watch-dog 10 second
 			battery.setF2bTerminal30c(false);
-			if (battery.getF2bTerminal30c().isDefined() && !battery.getF2bTerminal30c().get()) {
+			if (!context.isTerminal30cClosed()) {
 				yield GoStoppedSubState.FINISHED;
 			}
 			yield GoStoppedSubState.F2B_TERMINAL_30C_SWITCH_OFF;

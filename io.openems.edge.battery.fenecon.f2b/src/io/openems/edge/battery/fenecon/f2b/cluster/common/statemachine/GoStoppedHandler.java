@@ -21,17 +21,8 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
 		final var cluster = context.getParent();
-		if (context.batteries.isEmpty()) {
-			return State.GO_STOPPED;
-		}
 		// Has Faults -> error handling
-		if (cluster.hasFaults() || (cluster.getTimeoutStopBatteries().isDefined()//
-				&& cluster.getTimeoutStopBatteries().get())) {
-			return State.ERROR;
-		}
-
-		if (cluster.hasBatteriesFault()) {
-			cluster._setAtLeastOneBatteryInError(true);
+		if (cluster.hasFaults()) {
 			return State.ERROR;
 		}
 

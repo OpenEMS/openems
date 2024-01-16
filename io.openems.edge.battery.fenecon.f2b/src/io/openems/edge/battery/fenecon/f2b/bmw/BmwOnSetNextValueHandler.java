@@ -11,13 +11,18 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingConsumer;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.f2b.BatteryFeneconF2b;
-import io.openems.edge.battery.fenecon.f2b.DeviceSpecificOnChangeHandler;
+import io.openems.edge.battery.fenecon.f2b.DeviceSpecificOnSetNextValueHandler;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.BatteryFeneconF2bCluster;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.type.TypeUtils;
 
-public class BmwOnChangeHandler implements DeviceSpecificOnChangeHandler<BatteryFeneconF2bBmw> {
+public class BmwOnSetNextValueHandler implements DeviceSpecificOnSetNextValueHandler<BatteryFeneconF2bBmw> {
+
+	public static final BmwOnSetNextValueHandler INSTANCE = new BmwOnSetNextValueHandler();
+
+	private BmwOnSetNextValueHandler() {
+	}
 
 	@Override
 	public Class<BatteryFeneconF2bBmw> getBatteryType() {
@@ -25,17 +30,17 @@ public class BmwOnChangeHandler implements DeviceSpecificOnChangeHandler<Battery
 	}
 
 	@Override
-	public List<OnChangeCallback> getOnChangeCallbacks() {
+	public List<OnSetNextValueCallback> getOnSetNextValueCallbacks() {
 		return List.of(//
-				new OnChangeCallback(BmwOnChangeHandler::requestBalancing,
+				new OnSetNextValueCallback(BmwOnSetNextValueHandler::requestBalancing,
 						List.of(BatteryFeneconF2bBmw.ChannelId.BALANCING_CONDITION, //
 								BatteryFeneconF2bBmw.ChannelId.OCV_REACHED, //
 								BatteryFeneconF2bBmw.ChannelId.BALANCING_STILL_RUNNING, //
 								BatteryFeneconF2bBmw.ChannelId.BALANCING_MIN_CELL_VOLTAGE)), //
-				new OnChangeCallback(BmwOnChangeHandler::requestHeating,
-						List.of(BatteryFeneconF2b.ChannelId.AVG_CELL_TEMPERATURE)), //
-				new OnChangeCallback(BmwOnChangeHandler::updateBmwClusterVoltage,
-						List.of(BatteryFeneconF2b.ChannelId.INTERNAL_VOLTAGE))) //
+				new OnSetNextValueCallback(BmwOnSetNextValueHandler::requestHeating,
+						List.of(BatteryFeneconF2b.ChannelId.AVG_CELL_TEMPERATURE, //
+								Battery.ChannelId.MIN_CELL_TEMPERATURE, //
+								Battery.ChannelId.MAX_CELL_TEMPERATURE))) //
 		;
 	}
 
@@ -76,7 +81,7 @@ public class BmwOnChangeHandler implements DeviceSpecificOnChangeHandler<Battery
 		}
 
 		if (!cluster.areAllBatteriesStarted()) {
-			BmwOnChangeHandler.setDefaultBalancingValues(balancableBatteries);
+			BmwOnSetNextValueHandler.setDefaultBalancingValues(balancableBatteries);
 			return;
 		}
 
@@ -87,14 +92,11 @@ public class BmwOnChangeHandler implements DeviceSpecificOnChangeHandler<Battery
 				.reduce(TypeUtils::averageInt)//
 				.getAsInt();
 		var minCellVoltage = cluster.getMinCellVoltage().get();
-		var maxCellVoltage = cluster.getMaxCellVoltage().get();
 		var soc = cluster.getSoc().get();
-
 		if ((minCellVoltage < 3000) // [mV]
-				|| (maxCellVoltage > 4000) // [mV]
 				|| (soc < 30)// [%]
 				|| (cellAvgtemp < 0) || (cellAvgtemp > 40)) {
-			BmwOnChangeHandler.setDefaultBalancingValues(balancableBatteries);
+			BmwOnSetNextValueHandler.setDefaultBalancingValues(balancableBatteries);
 			return;
 		}
 
@@ -204,7 +206,7 @@ public class BmwOnChangeHandler implements DeviceSpecificOnChangeHandler<Battery
 		if (batteries.stream()//
 				.allMatch(battery -> battery.getAvgCellTemperature().isDefined()//
 						&& battery.getAvgCellTemperature().get() <= 10)//
-				&& cluster.areAllBatteriesStarted()) {
+				&& cluster.isSerialCluster() && cluster.areAllBatteriesStarted()) {
 			method = BatteryFeneconF2bBmw::startHeating;
 		} else {
 			method = BatteryFeneconF2bBmw::stopHeating;
@@ -217,31 +219,5 @@ public class BmwOnChangeHandler implements DeviceSpecificOnChangeHandler<Battery
 				e.printStackTrace();
 			}
 		}
-	}
-
-	/**
-	 * Sets the cluster voltage based on the summation of link voltages before
-	 * batteries started.
-	 * 
-	 * @param batteries the batteries
-	 * @param cluster   the battery cluster
-	 */
-	public static void updateBmwClusterVoltage(List<BatteryFeneconF2b> batteries, BatteryFeneconF2bCluster cluster) {
-		var batteryList = batteries.stream()//
-				.filter(BatteryFeneconF2bBmw.class::isInstance) //
-				.map(BatteryFeneconF2bBmw.class::cast) //
-				.toList();
-		if (cluster.areAllBatteriesStopped()) {
-			cluster._setInternalVoltage(null);
-			return;
-		}
-		Integer batteryVoltage = null;
-		for (var battery : batteryList) {
-			if (!battery.getInternalVoltage().isDefined()) {
-				return;
-			}
-			batteryVoltage = TypeUtils.sum(batteryVoltage, battery.getInternalVoltage().get());
-		}
-		cluster._setInternalVoltage(TypeUtils.divide(batteryVoltage, 10));
 	}
 }

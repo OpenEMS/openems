@@ -31,7 +31,7 @@ public class Context extends AbstractContext<BatteryFeneconF2bBmw> {
 	 *         {@link F2bCanCommunication CAN_ON}
 	 */
 	protected boolean isF2bCanCommunicationOn() {
-		var state = this.getParent().getF2bCanCommunication();
+		final var state = this.getParent().getF2bCanCommunication();
 		return state.isDefined() && state.asEnum() == F2bCanCommunication.CAN_ON;
 	}
 
@@ -42,7 +42,7 @@ public class Context extends AbstractContext<BatteryFeneconF2bBmw> {
 	 * @throws OpenemsNamedException on error
 	 */
 	protected void initializeBatteryCanSignals() throws OpenemsNamedException {
-		var battery = this.getParent();
+		final var battery = this.getParent();
 		battery.setF2bTerminal15Sw(F2bTerminal15Sw.KL_15_ON);
 		battery.setHvContactor(false);
 		battery.setInsulationMeasurement(InsulationMeasurement.DO_NOT_PERFORM_MEASUREMENT);
@@ -69,5 +69,16 @@ public class Context extends AbstractContext<BatteryFeneconF2bBmw> {
 			channels.writechannel().accept(result);
 			return result || a;
 		}, Boolean::logicalOr);
+	}
+
+	/**
+	 * Gets the value of {@link ChannelId#F2B_TERMINAL_30C} and proofs whether
+	 * closed or not.
+	 * 
+	 * @return true if {@link ChannelId#F2B_TERMINAL_30C} is closed
+	 */
+	public boolean isTerminal30cClosed() {
+		final var battery = this.getParent();
+		return battery.getF2bTerminal30c().isDefined() && battery.getF2bTerminal30c().get();
 	}
 }

@@ -17,11 +17,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.f2b.BatteryFeneconF2b;
-import io.openems.edge.battery.fenecon.f2b.bmw.BatteryFeneconF2bBmw;
-import io.openems.edge.battery.fenecon.f2b.bmw.statemachine.StateMachine;
-import io.openems.edge.battery.fenecon.f2b.bmw.statemachine.StateMachine.State;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.battery.fenecon.f2b.cluster.parallel.BatteryFeneconF2bClusterParallel;
+import io.openems.edge.battery.fenecon.f2b.cluster.serial.BatteryFeneconF2bClusterSerial;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -71,14 +68,9 @@ public abstract class AbstractBatteryFeneconF2bCluster extends AbstractOpenemsCo
 	}
 
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled, ConfigurationAdmin cm,
-			StartStopConfig startStop, String... batteryIds) {
+			StartStopConfig startStop) {
 		super.activate(context, id, alias, enabled);
 		this.startStopConfig = startStop;
-
-		// update filter for 'Battery'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Battery", batteryIds)) {
-			return;
-		}
 	}
 
 	@Override
@@ -125,17 +117,24 @@ public abstract class AbstractBatteryFeneconF2bCluster extends AbstractOpenemsCo
 			this.logInfo(this.log, "Battery list is empty, not found any battery to start");
 			return;
 		}
-
 		var notStartedBatteries = this.getNotStartedBatteries();
 		// Start one battery at a time
-		notStartedBatteries.forEach(t -> {
+		notStartedBatteries.forEach(notStartedBattery -> {
 			try {
-				t.setHvContactorUnlocked(false);
-				t.start();
+				notStartedBattery.setHvContactorUnlocked(false);
+				notStartedBattery.start();
 			} catch (OpenemsNamedException e) {
-				this.logError(this.log, "Battery: " + t.id() + " can not start " + e.getMessage());
+				this.logError(this.log, "Battery: " + notStartedBattery.id() + " can not start " + e.getMessage());
 			}
 		});
+	}
+
+	@Override
+	public synchronized boolean isOneBatteryStartedAndOneStopped() {
+		return this.batteries.stream()//
+				.anyMatch(Battery::isStarted)
+				&& this.batteries.stream()//
+						.anyMatch(Battery::isStopped);
 	}
 
 	@Override
@@ -146,14 +145,14 @@ public abstract class AbstractBatteryFeneconF2bCluster extends AbstractOpenemsCo
 		}
 
 		var notStoppedBatteries = this.getNotStoppedBatteries();
-		for (var notStoppedBattery : notStoppedBatteries) {
+		notStoppedBatteries.forEach(notStoppedBattery -> {
 			try {
 				notStoppedBattery.stop();
 			} catch (OpenemsNamedException e) {
 				this.logError(this.log,
 						"Battery : " + notStoppedBattery.id() + " battery can not stop" + e.getMessage());
 			}
-		}
+		});
 	}
 
 	@Override
@@ -183,17 +182,17 @@ public abstract class AbstractBatteryFeneconF2bCluster extends AbstractOpenemsCo
 	}
 
 	@Override
-	public boolean hasBatteriesFault() {
-		return this.batteries.stream()//
-				.anyMatch(battery -> {
-					// TODO update it after it tested
-					Channel<State> stateChannel = battery.channel(BatteryFeneconF2bBmw.ChannelId.STATE_MACHINE);
-					Value<State> state = stateChannel.value();
-					if (battery.hasFaults() || state.isDefined() && state.asEnum() == StateMachine.State.ERROR) {
-						return true;
-					}
-					return false;
-				});
+	public boolean getAndUpdateHasAnyBatteryFault() {
+		final var fault = this.batteries.stream().anyMatch(Battery::hasFaults);
+		this._setAtLeastOneBatteryInError(fault);
+		return fault;
+	}
+
+	@Override
+	public boolean getAndUpdateHasAllBatteriesFault() {
+		final var fault = this.batteries.stream().allMatch(Battery::hasFaults);
+		this._setAllBatteriesAreInFault(fault);
+		return fault;
 	}
 
 	/**
@@ -208,5 +207,15 @@ public abstract class AbstractBatteryFeneconF2bCluster extends AbstractOpenemsCo
 		case START -> StartStop.START;
 		case STOP -> StartStop.STOP;
 		};
+	}
+
+	@Override
+	public boolean isSerialCluster() {
+		return this.getBatteryFeneconF2bCluster() instanceof BatteryFeneconF2bClusterSerial;
+	}
+
+	@Override
+	public boolean isParallelCluster() {
+		return this.getBatteryFeneconF2bCluster() instanceof BatteryFeneconF2bClusterParallel;
 	}
 }

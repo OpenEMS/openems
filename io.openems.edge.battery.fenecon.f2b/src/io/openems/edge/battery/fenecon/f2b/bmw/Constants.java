@@ -42,4 +42,5 @@ public class Constants {
 	public static final int FORCE_CHARGE_UPPER_THRESHOLD = 5;
 	public static final int FORCE_CHARGE_LOWER_THRESHOLD = -5;
 	public static final int REQUIRED_BATTERY_POWER_FOR_HEATING = 1000;
+	public static final int BATTERY_MIN_VOLTAGE_LIMIT = 6200;
 }

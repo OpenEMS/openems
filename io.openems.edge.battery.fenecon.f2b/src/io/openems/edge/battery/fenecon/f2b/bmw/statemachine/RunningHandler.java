@@ -16,7 +16,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 		if (battery.getHvContactorStatus().isDefined()
 				&& battery.getHvContactorStatus().asEnum() != HvContactorStatus.CONTACTORS_CLOSED) {
-			battery._setHvContactorsOpenInRunning(true);
+			battery._setHvContactorsOpenedInRunning(true);
 		}
 
 		// If its not null,a critical error has occurred.

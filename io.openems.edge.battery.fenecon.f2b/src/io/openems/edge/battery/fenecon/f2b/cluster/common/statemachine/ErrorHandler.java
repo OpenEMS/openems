@@ -24,12 +24,14 @@ public class ErrorHandler extends StateHandler<State, Context> {
 	public State runAndGetNextState(Context context) {
 		final var cluster = context.getParent();
 		if (cluster instanceof BatteryFeneconF2bClusterParallel) {
+			if (cluster.areAllBatteriesStopped()) {
+				return State.GO_STOPPED;
+			}
 			return State.ERROR;
 		}
 
-		if (!cluster.hasFaults() && !cluster.hasBatteriesFault()) {
-			cluster._setAtLeastOneBatteryInError(false);
-			cluster._setAtLeastOneBatteryNotRunning(false);
+		if (!cluster.hasFaults() && !cluster.getAndUpdateHasAnyBatteryFault()) {
+			cluster._setOneBatteryNotRunning(false);
 			return State.GO_STOPPED;
 		}
 		return State.ERROR;

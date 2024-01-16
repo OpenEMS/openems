@@ -3,20 +3,18 @@ package io.openems.edge.battery.fenecon.f2b.cluster.common;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
-import io.openems.common.channel.Level;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.f2b.BatteryFeneconF2b;
-import io.openems.edge.battery.fenecon.f2b.DeviceSpecificOnChangeHandler.OnChangeCallback;
+import io.openems.edge.battery.fenecon.f2b.DeviceSpecificOnSetNextValueHandler.OnSetNextValueCallback;
+import io.openems.edge.battery.fenecon.f2b.cluster.serial.BatteryFeneconF2bClusterSerialImpl;
 import io.openems.edge.common.channel.AbstractChannelListenerManager;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent.ChannelId;
 import io.openems.edge.common.type.TypeUtils;
 
 public class ChannelManager extends AbstractChannelListenerManager {
@@ -47,32 +45,31 @@ public class ChannelManager extends AbstractChannelListenerManager {
 		this.calculate(INTEGER_MIN, batteries, Battery.ChannelId.MIN_CELL_VOLTAGE);
 		this.calculate(INTEGER_MAX, batteries, Battery.ChannelId.MAX_CELL_TEMPERATURE);
 		this.calculate(INTEGER_MAX, batteries, Battery.ChannelId.MAX_CELL_VOLTAGE);
-		this.determineState(batteries, OpenemsComponent.ChannelId.STATE);
 
 		// TODO this is not compatible with different types of Batteries
 		var handler = batteries.stream() //
-				.map(BatteryFeneconF2b::getDeviceSpecificOnChangeHandler)//
+				.map(BatteryFeneconF2b::getDeviceSpecificOnSetNextValueHandler)//
 				.filter(Objects::nonNull)//
 				.findFirst().orElse(null);
 
 		if (handler == null) {
 			return;
 		}
-		var onChangeCallbacks = handler.getOnChangeCallbacks();
-		for (var onChangeCallback : onChangeCallbacks) {
-			this.addOnChangeListener(onChangeCallback, batteries, cluster);
+		var onSetNextValueCallbacks = handler.getOnSetNextValueCallbacks();
+		for (var onSetNextValueCallback : onSetNextValueCallbacks) {
+			this.addOnSetNextValueListener(onSetNextValueCallback, batteries, cluster);
 		}
 	}
 
-	protected <T> void addOnChangeListener(OnChangeCallback onChangeCallback, List<BatteryFeneconF2b> batteries,
-			BatteryFeneconF2bCluster cluster) {
-		final BiConsumer<Value<T>, Value<T>> callback = (ignore1, ignore2) -> {
-			onChangeCallback.callback().accept(batteries, cluster);
+	protected <T> void addOnSetNextValueListener(OnSetNextValueCallback onSetNextValueCallback,
+			List<BatteryFeneconF2b> batteries, BatteryFeneconF2bCluster cluster) {
+		final Consumer<Value<T>> callback = (ignore) -> {
+			onSetNextValueCallback.callback().accept(batteries, cluster);
 		};
 
 		for (var battery : batteries) {
-			for (var channelId : onChangeCallback.channelIds()) {
-				this.addOnChangeListener(battery, channelId, callback);
+			for (var channelId : onSetNextValueCallback.channelIds()) {
+				this.addOnSetNextValueListener(battery, channelId, callback);
 			}
 		}
 	}
@@ -101,24 +98,24 @@ public class ChannelManager extends AbstractChannelListenerManager {
 		}
 	}
 
-	private void determineState(List<BatteryFeneconF2b> batteries, ChannelId id) {
-		final BiConsumer<Value<Level>, Value<Level>> callback = (oldValue, newValue) -> {
-			var highestState = Level.OK;
-			for (var battery : batteries) {
-				var state = battery.getState();
-				if (state.getValue() > highestState.getValue()) {
-					highestState = state;
-				}
-			}
+	protected void setBatteryVoltageLimits(List<BatteryFeneconF2b> batteries, //
+			Battery.ChannelId firstChannelId, //
+			Battery.ChannelId secondChannelId, //
+			BiFunction<Integer, Integer, Integer> channelsMethod, //
+			BiFunction<Integer, Integer, Integer> resultMethod, //
+			Consumer<Integer> batteryMethod) {
+		this.setBatteryLimits(batteries, firstChannelId, secondChannelId, channelsMethod, resultMethod, batteryMethod,
+				TypeUtils::abs);
+	}
 
-			this.parent.getStateChannel().setNextValue(highestState);
-			this.parent.getStateChannel().nextProcessImage();
-		};
-
-		this.addOnChangeListener(this.parent, id, callback);
-		for (var battery : batteries) {
-			this.addOnChangeListener(battery, id, callback);
-		}
+	protected void setBatteryCurrentLimits(List<BatteryFeneconF2b> batteries, //
+			Battery.ChannelId firstChannelId, //
+			Battery.ChannelId secondChannelId, //
+			BiFunction<Integer, Integer, Integer> channelsMethod, //
+			BiFunction<Integer, Integer, Integer> resultMethod, //
+			Consumer<Integer> batteryMethod) {
+		this.setBatteryLimits(batteries, firstChannelId, secondChannelId, channelsMethod, resultMethod, batteryMethod,
+				Function.identity());
 	}
 
 	/**
@@ -138,13 +135,19 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	 *                        of second channels result and delta minimum.
 	 * @param batteryMethod   A default {@link Battery} interface method to set the
 	 *                        value on required channel.
+	 * @param mapper          Only to decide whether {@link TypeUtils#abs} method
+	 *                        necessary. The main difference comes from voltage(only
+	 *                        positive) and current(can be negative) values.
 	 */
-	protected void setBatteryLimits(List<BatteryFeneconF2b> batteries, //
+	protected void setBatteryLimits(//
+			List<BatteryFeneconF2b> batteries, //
 			Battery.ChannelId firstChannelId, //
 			Battery.ChannelId secondChannelId, //
 			BiFunction<Integer, Integer, Integer> channelsMethod, //
 			BiFunction<Integer, Integer, Integer> resultMethod, //
-			Consumer<Integer> batteryMethod) {
+			Consumer<Integer> batteryMethod, //
+			Function<Integer, Integer> mapper //
+	) {
 		final Consumer<Value<Integer>> callback = (value) -> {
 			if (!this.parent.isStarted()) {
 				batteryMethod.accept(null);
@@ -157,11 +160,12 @@ public class ChannelManager extends AbstractChannelListenerManager {
 				IntegerReadChannel secondChannel = battery.channel(secondChannelId);
 				var firstChannelValue = firstChannel.getNextValue();
 				var secondChannelValue = secondChannel.getNextValue();
-				if (!firstChannelValue.isDefined() || !secondChannelValue.isDefined()) {
+				if (this.parent instanceof BatteryFeneconF2bClusterSerialImpl
+						&& (!firstChannelValue.isDefined() || !secondChannelValue.isDefined())) {
 					batteryMethod.accept(null);
 					return;
 				}
-				var deltaMin = TypeUtils.abs(//
+				var deltaMin = mapper.apply(//
 						channelsMethod.apply(//
 								firstChannelValue.get(), //
 								secondChannelValue.get()));
@@ -185,4 +189,5 @@ public class ChannelManager extends AbstractChannelListenerManager {
 			this.addOnSetNextValueListener(battery, firstChannelId, callback);
 		}
 	}
+
 }

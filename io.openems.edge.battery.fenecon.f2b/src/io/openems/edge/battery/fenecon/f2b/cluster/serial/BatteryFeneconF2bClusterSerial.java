@@ -3,6 +3,7 @@ package io.openems.edge.battery.fenecon.f2b.cluster.serial;
 import io.openems.common.channel.Level;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.f2b.BatteryFeneconF2b;
+import io.openems.edge.battery.fenecon.f2b.cluster.common.BatteryFeneconF2bCluster;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -11,7 +12,8 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStoppable;
 
-public interface BatteryFeneconF2bClusterSerial extends BatteryFeneconF2b, Battery, OpenemsComponent, StartStoppable {
+public interface BatteryFeneconF2bClusterSerial
+		extends BatteryFeneconF2bCluster, BatteryFeneconF2b, Battery, OpenemsComponent, StartStoppable {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //

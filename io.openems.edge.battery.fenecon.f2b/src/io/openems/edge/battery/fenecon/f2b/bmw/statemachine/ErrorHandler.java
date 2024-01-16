@@ -10,6 +10,7 @@ public class ErrorHandler extends StateHandler<State, Context> {
 	protected void onEntry(Context context) throws OpenemsNamedException {
 		var battery = context.getParent();
 		battery.setHvContactor(false);
+		battery.stop();
 	}
 
 	@Override

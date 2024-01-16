@@ -414,6 +414,6 @@ public interface BatteryFeneconF2b extends Battery {
 	 * @return DeviceSpecificOnChangeHandler which gets a type of any class which
 	 *         extends {@link BatteryFeneconF2b}
 	 */
-	public DeviceSpecificOnChangeHandler<? extends BatteryFeneconF2b> getDeviceSpecificOnChangeHandler();
+	public DeviceSpecificOnSetNextValueHandler<? extends BatteryFeneconF2b> getDeviceSpecificOnSetNextValueHandler();
 
 }
