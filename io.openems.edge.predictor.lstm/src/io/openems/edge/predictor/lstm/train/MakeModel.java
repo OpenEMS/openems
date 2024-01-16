@@ -1,8 +1,10 @@
 package io.openems.edge.predictor.lstm.train;
 
+import java.io.File;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.edge.predictor.lstm.common.DataModification;
 import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.predictor.lstm.common.ReadModels;
@@ -15,8 +17,12 @@ import io.openems.edge.predictor.lstm.util.Engine;
 import io.openems.edge.predictor.lstm.util.Engine.EngineBuilder;
 
 public class MakeModel {
-	private String path = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\";
- //	private Model mod1 = new Model();
+	// private String path =
+	// "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\";
+
+	// String path = file.getAbsolutePath();
+
+	// private Model mod1 = new Model();
 
 	public MakeModel(ArrayList<Double> data, ArrayList<OffsetDateTime> date, HyperParameters hyperParameters) {
 
@@ -24,10 +30,10 @@ public class MakeModel {
 		this.trainSeasonality(data, date, hyperParameters);
 		this.trainTrend(data, date, hyperParameters);
 
-  //		mod1.setSeasonalityModel(temp1.getSeasonalityModle());
-  //		mod1.setTrendModle(temp2.getTrendModle());
+		// mod1.setSeasonalityModel(temp1.getSeasonalityModle());
+		// mod1.setTrendModle(temp2.getTrendModle());
 	}
-	
+
 	public MakeModel() {
 
 	}
@@ -52,11 +58,11 @@ public class MakeModel {
 		values = data;
 		dates = date;
 		windowsSize = hyperParameters.getWindowSizeSeasonality();
-  //		hyperParameters.setModleSuffix();
+		// hyperParameters.setModleSuffix();
 		InterpolationManager inter = new InterpolationManager(values, dates, hyperParameters);
 		ArrayList<ArrayList<ArrayList<Double>>> dataGroupedByMinute = DataModification
 				.modifyFroLongTermPrediction(inter.getInterpolatedData(), dates);
-  //		Model mod = new Model();
+		// Model mod = new Model();
 		/**
 		 * compute model
 		 */
@@ -65,22 +71,27 @@ public class MakeModel {
 			for (int j = 0; j < dataGroupedByMinute.get(i).size(); j++) {
 
 				if (hyperParameters.getCount() == 0) {
-     //					mod = new Model();
+					// mod = new Model();
 
 					weight1 = this.generateInitialWeightMatrix(windowsSize, hyperParameters);
 
 				} else {
-     //					// Reading the exsisting modle
-     //					try {
-     //						mod = (Model) Model.read();
-     //					} catch (ClassNotFoundException e) {
-     //						// TODO Auto-generated catch block
-     //						e.printStackTrace();
-     //					} catch (IOException e) {
-     //						// TODO Auto-generated catch block
-     //						e.printStackTrace();
-     //					}
-					String path = this.path + Integer.toString(hyperParameters.getCount() - 1) + "seasonality.txt";
+					// // Reading the exsisting modle
+					// try {
+					// mod = (Model) Model.read();
+					// } catch (ClassNotFoundException e) {
+					// // TODO Auto-generated catch block
+					// e.printStackTrace();
+					// } catch (IOException e) {
+					// // TODO Auto-generated catch block
+					// e.printStackTrace();
+					// }
+
+					String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
+
+					File file = new File(openemsDirectory + "/models/"
+						+ Integer.toString(hyperParameters.getCount() - 1) + "seasonality.txt");
+					String path = file.getAbsolutePath();
 					ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel = ReadModels
 							.getModelForSeasonality(path, hyperParameters);
 					weight1 = allModel.get(allModel.size() - 1).get(k);
@@ -127,9 +138,9 @@ public class MakeModel {
 		SaveModel.saveModels(weightMatrix, Integer.toString(hyperParameters.getCount()) + "seasonality.txt");
 		System.out.println("Modle saved as : " + "seasonality.txt");
 
-  //		 mod.setSeasonalityModel(weightMatrix);
-  //		 Model.save(mod);
-  //		 return mod;
+		// mod.setSeasonalityModel(weightMatrix);
+		// Model.save(mod);
+		// return mod;
 	}
 
 	/**
@@ -149,40 +160,44 @@ public class MakeModel {
 		ArrayList<ArrayList<Double>> weight1 = new ArrayList<ArrayList<Double>>();
 		values = data;
 		dates = date;
-  //		hyperParameters.setModleSuffix("trend.txt");
+		// hyperParameters.setModleSuffix("trend.txt");
 		InterpolationManager inter = new InterpolationManager(values, dates, hyperParameters);
 		ArrayList<ArrayList<Double>> modifiedData = DataModification
 				.modifyForShortTermPrediction(inter.getInterpolatedData(), dates, hyperParameters);
-  //		Model mod = new Model();
+		// Model mod = new Model();
 		for (int i = 0; i < modifiedData.size(); i++) {
 
 			if (hyperParameters.getCount() == 0) {
 				weight1 = this.generateInitialWeightMatrix(hyperParameters.getWindowSizeTrend(), hyperParameters);
-    //				// Reading the exsisting modle object searilized in TrainSeasonality Method
-    //				try {
-    //					mod = (Model) Model.read();
-    //				} catch (ClassNotFoundException e) {
-    //					// TODO Auto-generated catch block
-    //					e.printStackTrace();
-    //				} catch (IOException e) {
-    //					// TODO Auto-generated catch block
-    //					e.printStackTrace();
-    //				}
+				// // Reading the exsisting modle object searilized in TrainSeasonality Method
+				// try {
+				// mod = (Model) Model.read();
+				// } catch (ClassNotFoundException e) {
+				// // TODO Auto-generated catch block
+				// e.printStackTrace();
+				// } catch (IOException e) {
+				// // TODO Auto-generated catch block
+				// e.printStackTrace();
+				// }
 			} else {
-				String path = this.path + Integer.toString(hyperParameters.getCount() - 1) + "trend.txt";
+				String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
+
+				File file = new File(openemsDirectory + "/models/" + Integer.toString(hyperParameters.getCount() - 1)
+						+ "trend.txt");
+				String path = file.getAbsolutePath();
 				ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel = ReadModels.getModelForSeasonality(path,
 						hyperParameters);
 
 				// Reading the exsisting modle object searilized in TrainSeasonality Method
-    //				try {
-    //					mod = (Model) Model.read();
-    //				} catch (ClassNotFoundException e) {
-    //					// TODO Auto-generated catch block
-    //					e.printStackTrace();
-    //				} catch (IOException e) {
-    //					// TODO Auto-generated catch block
-    //					e.printStackTrace();
-    //				}
+				// try {
+				// mod = (Model) Model.read();
+				// } catch (ClassNotFoundException e) {
+				// // TODO Auto-generated catch block
+				// e.printStackTrace();
+				// } catch (IOException e) {
+				// // TODO Auto-generated catch block
+				// e.printStackTrace();
+				// }
 				weight1 = allModel.get(allModel.size() - 1).get(i);
 
 			}
@@ -259,8 +274,8 @@ public class MakeModel {
 		return initialWeight;
 
 	}
- //	public Model getModle() {
- //		return this.mod1;
- //	}
+	// public Model getModle() {
+	// return this.mod1;
+	// }
 
 }

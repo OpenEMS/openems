@@ -92,10 +92,13 @@ public class UtilityConversion {
 	 */
 
 	public static Integer[] convertDoubleToIntegerArray(ArrayList<Double> data) {
-		return data.stream() //
+
+		Integer[] x = data.stream() //
 				.mapToInt(d -> d.intValue())//
 				.boxed()//
 				.toArray(Integer[]::new);
+
+		return x;
 	}
 
 	/**

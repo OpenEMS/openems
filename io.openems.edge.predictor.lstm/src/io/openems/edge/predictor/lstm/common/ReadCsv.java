@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
+import io.openems.common.OpenemsConstants;
+
 public class ReadCsv {
 
 	public static final String FILENAME = "\\TestFolder\\Consumption_data_Fems_10005.csv";
@@ -33,8 +35,13 @@ public class ReadCsv {
 	public void getDataFromCsv(String fileName) {
 
 		try {
-			String filename = "\\TestFolder\\" + fileName;
-			String path = new File(".").getCanonicalPath() + filename;
+
+			String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
+			// String filename = "\\TestFolder\\" + fileName;
+			File file = new File(openemsDirectory + "/models/" + fileName);
+			String path = file.getAbsolutePath();
+
+			System.out.println(path);
 
 			BufferedReader reader = new BufferedReader(new FileReader(path));
 

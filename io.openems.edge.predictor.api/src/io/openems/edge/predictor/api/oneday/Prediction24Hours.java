@@ -19,7 +19,7 @@ import io.openems.edge.common.type.TypeUtils;
  */
 public class Prediction24Hours {
 
-	public static final int NUMBER_OF_VALUES = 288;// set to 96; changed for test. 
+	public static final int NUMBER_OF_VALUES = 288;// set to 96; changed for test.
 
 	/**
 	 * Holds a {@link Prediction24Hours} with all values null.
@@ -27,6 +27,18 @@ public class Prediction24Hours {
 	public static final Prediction24Hours EMPTY = Prediction24Hours.of();
 
 	private final Integer[] values;
+
+	/**
+	 * Constructs a {@link Prediction24Hours}.
+	 *
+	 * @param values the 96 prediction values
+	 */
+	public Prediction24Hours(Integer... values) {
+		this.values = new Integer[NUMBER_OF_VALUES];
+		for (var i = 0; i < NUMBER_OF_VALUES && i < values.length; i++) {
+			this.values[i] = values[i];
+		}
+	}
 
 	/**
 	 * Sums up the given {@link Prediction24Hours}s. If any source value is null,

@@ -1,5 +1,6 @@
 package io.openems.edge.predictor.lstm.validator;
 
+import java.io.File;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.edge.predictor.lstm.common.DataModification;
 import io.openems.edge.predictor.lstm.common.DataStatistics;
 import io.openems.edge.predictor.lstm.common.HyperParameters;
@@ -19,7 +21,8 @@ import io.openems.edge.predictor.lstm.utilities.MathUtils;
 import io.openems.edge.predictor.lstm.utilities.UtilityConversion;
 
 public class Validation {
-	private String path = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\";
+	// private String path =
+	// "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\";
 
 	public Validation(ArrayList<Double> data, ArrayList<OffsetDateTime> date, HyperParameters hyperParameters) {
 
@@ -56,7 +59,17 @@ public class Validation {
 		maxOfTrainingData = hyperParameters.getScalingMax();
 		ArrayList<ArrayList<ArrayList<Double>>> dataGroupedByMinute = DataModification
 				.modifyFroLongTermPrediction(inter.getInterpolatedData(), dates);
-		String path = this.path + Integer.toString(hyperParameters.getCount()) + "seasonality.txt";
+		String path;
+
+		// String tempPath = new File(".").getCanonicalPath();
+		// path = tempPath + Integer.toString(hyperParameters.getCount()) +
+		// "seasonality.txt";
+		String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
+
+		File file = new File(
+				openemsDirectory + "/models/" + Integer.toString(hyperParameters.getCount() ) + "seasonality.txt");
+		path = file.getAbsolutePath();
+
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels = ReadModels.getModelForSeasonality(path,
 				hyperParameters);
 		for (int h = 0; h < allModels.size(); h++) {
@@ -126,7 +139,13 @@ public class Validation {
 		ArrayList<ArrayList<Double>> modifiedData = DataModification
 				.modifyForShortTermPrediction(inter.getInterpolatedData(), dates, hyperParameters);
 
-		String path = this.path + Integer.toString(hyperParameters.getCount()) + "trend.txt";
+		// path = tempPath + Integer.toString(hyperParameters.getCount()) +
+		// "seasonality.txt";
+		String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
+
+		File file = new File(
+				openemsDirectory + "/models/" + Integer.toString(hyperParameters.getCount()) + "trend.txt");
+		String path = file.getAbsolutePath();
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels = ReadModels.getModelForSeasonality(path,
 				hyperParameters);
 
@@ -155,7 +174,7 @@ public class Validation {
 		List<List<Integer>> optInd = findOptimumIndex(rmsTemp2);
 
 		System.out.println("Optimum Index :" + optInd);
-		ReadModels.updateModel(allModels, optInd, Integer.toString(hyperParameters.getCount()) + "trend.txt");
+		ReadModels.updateModel(allModels, optInd,  Integer.toString(hyperParameters.getCount()) + "trend.txt");
 
 	}
 
@@ -250,7 +269,7 @@ public class Validation {
 		double sum = 0;
 		for (int i = 0; i < minimumIndices.size(); i++) {
 
-			sum = sum+(matrix.get(minimumIndices.get(i).get(0)).get(minimumIndices.get(i).get(1)));
+			sum = sum + (matrix.get(minimumIndices.get(i).get(0)).get(minimumIndices.get(i).get(1)));
 
 		}
 		System.out.println("Average RMS error = " + sum / minimumIndices.size());
@@ -463,17 +482,17 @@ public class Validation {
 	 *         by iteration.
 	 */
 
-	public ArrayList<ArrayList<ArrayList<Double>>> getOldModelsTrend(int itterNumb, String modleSuffix) {
-		ArrayList<ArrayList<ArrayList<Double>>> oldModelsTrend = new ArrayList<ArrayList<ArrayList<Double>>>();
-		for (int i = 0; i < itterNumb; i++) {
-			ArrayList<ArrayList<Double>> previosusBestModelReadModels = ReadModels
-					.getModelForTrend(this.path + Integer.toString(itterNumb) + modleSuffix).get(0);
-			oldModelsTrend.add(previosusBestModelReadModels);
-
-		}
-		return oldModelsTrend;
-
-	}
+//	public ArrayList<ArrayList<ArrayList<Double>>> getOldModelsTrend(int itterNumb, String modleSuffix) {
+//		ArrayList<ArrayList<ArrayList<Double>>> oldModelsTrend = new ArrayList<ArrayList<ArrayList<Double>>>();
+//		for (int i = 0; i < itterNumb; i++) {
+//			ArrayList<ArrayList<Double>> previosusBestModelReadModels = ReadModels
+//					.getModelForTrend(this.path + Integer.toString(itterNumb) + modleSuffix).get(0);
+//			oldModelsTrend.add(previosusBestModelReadModels);
+//
+//		}
+//		return oldModelsTrend;
+//
+//	}
 
 	/**
 	 * Combine seasonality models from previous iterations with a current set of

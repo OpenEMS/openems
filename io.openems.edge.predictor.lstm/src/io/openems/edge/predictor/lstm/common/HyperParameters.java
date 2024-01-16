@@ -18,18 +18,18 @@ public class HyperParameters {
 	private double wfInit = -1;
 	private double rfInit = -1;
 	private int interval = 5;
-	private int epoch = 5;
+	private int epoch = 24;
 	private int trendPoints = 1;
 	private int windowSizeSeasonality = 7;
 	private int windowSizeTrend = 4;
-	private int gdIterration = 700;
+	private int gdIterration = 100;
 	private int count = 0;
 	private double scalingMin = -5000;
 	private double scalingMax = 5000;
 	private boolean trendTrainFlag = false;
 	private boolean trainingSeasonality = false;
 	private boolean trainingTrend = false;
-	//private String modleSuffix = "";
+	// private String modleSuffix = "";
 
 	public void setLearningRateUpperLimit(double rate) {
 		this.learningRateUpperLimit = rate;
@@ -242,14 +242,14 @@ public class HyperParameters {
 		return this.trainingTrend = val;
 	}
 
- //	public String getModleSuffix() {
- //		return this.modleSuffix;
- //
- //	}
- //
- //	public void setModleSuffix(String val) {
- //		this.modleSuffix = val;
- //	}
+	// public String getModleSuffix() {
+	// return this.modleSuffix;
+	//
+	// }
+	//
+	// public void setModleSuffix(String val) {
+	// this.modleSuffix = val;
+	// }
 
 	/**
 	 * Prints the hyperParameters.

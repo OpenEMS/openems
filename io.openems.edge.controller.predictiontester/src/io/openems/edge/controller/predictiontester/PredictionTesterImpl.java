@@ -1,7 +1,5 @@
 package io.openems.edge.controller.predictiontester;
 
-import java.util.Arrays;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -17,7 +15,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 
-
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Controller.io.openems.edge.controller.predictiontester", //
@@ -27,7 +24,7 @@ import io.openems.edge.predictor.api.manager.PredictorManager;
 public class PredictionTesterImpl extends AbstractOpenemsComponent
 		implements PredictionTester, Controller, OpenemsComponent {
 
-	//private Config config = null;
+	// private Config config = null;
 
 	public PredictionTesterImpl() {
 		super(//
@@ -45,7 +42,7 @@ public class PredictionTesterImpl extends AbstractOpenemsComponent
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		//this.config = config;
+		// this.config = config;
 	}
 
 	@Deactivate
@@ -56,9 +53,14 @@ public class PredictionTesterImpl extends AbstractOpenemsComponent
 	@Override
 	public void run() throws OpenemsNamedException {
 		try {
-			Integer[] predictedProduction = predictorManager.get24HoursPrediction(SUM_CONSUMPTION).getValues();
+			Integer[] predicted = predictorManager.get24HoursPrediction(SUM_CONSUMPTION).getValues();
 			System.out.println();
-			System.out.println(predictedProduction == null ? "null data" : Arrays.toString(predictedProduction));
+
+//			for (Integer x : predicted) {
+//				System.out.print(x + ", ");
+//			}
+
+			// System.out.println();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

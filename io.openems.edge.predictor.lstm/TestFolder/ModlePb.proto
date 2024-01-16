@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package io.openems.edge.predictor.lstm.modlepb;
+
+option java_package = "io.openems.edge.predictor.lstm.modlepb";
+
+message ModlePb {
+   int32 batch_track = 1; 
+}

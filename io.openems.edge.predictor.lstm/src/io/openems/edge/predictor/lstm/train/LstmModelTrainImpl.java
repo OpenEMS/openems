@@ -8,6 +8,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -31,6 +34,8 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.predictor.lstm.common.HyperParameters;
+import io.openems.edge.predictor.lstm.common.ReadCsv;
+import io.openems.edge.predictor.lstm.multithread.MultiThreadTrain;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -62,10 +67,16 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 		);
 	}
 
+	ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
 	@Activate
 	protected void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
 		super.activate(context, this.config.id(), this.config.alias(), this.config.enabled());
+
+		scheduler.scheduleAtFixedRate(//
+				new LstmTrain(this.timedata, config.channelAddresses()[0]), //
+				0, 15, TimeUnit.DAYS);
 	}
 
 	@Override
@@ -111,7 +122,21 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 		ArrayList<Double> data = this.getData(querryResult);
 		ArrayList<OffsetDateTime> date = this.getDate(querryResult);
 		System.out.println("....Training.....");
-		new MakeModel((ArrayList<Double>) data, date, hyperParameters);
+
+		// Reading CSV file and looping over 26 fems data 
+		int k=0;
+//		for(int i = 0;i<= 26;i++) {
+//			
+//			k= hyperParameters.getCount();
+//			
+//
+//		String pathValidate = Integer.toString(27) + ".csv";
+//		String pathTrain = Integer.toString(i+1) + ".csv";
+//		ReadCsv obj2 = new ReadCsv(pathValidate);
+//		ReadCsv obj1 = new ReadCsv(pathTrain);
+//		// LstmTrain obj3 = new LstmTrain();
+//		new MultiThreadTrain(obj1.getData(), obj1.getDates(), obj2.getData(), obj2.getDates(), hyperParameters);
+//		}
 
 	}
 

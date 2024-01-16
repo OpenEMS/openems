@@ -31,7 +31,7 @@ public class StandAlonePrediction {
 		ArrayList<Double> accuracyTrend = new ArrayList<Double>();
 		ArrayList<Double> accuracySeasonality = new ArrayList<Double>();
 		HyperParameters hyperParameters = new HyperParameters();
-		for (int m = 7; m <= 7; m++) {
+		for (int m = 8; m <= 8; m++) {
 			ArrayList<Double> predictionFromTrend = new ArrayList<Double>();
 			String pathSeasonality = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\SavedModel.txt";
 			
@@ -39,7 +39,7 @@ public class StandAlonePrediction {
 			fileName.add(csvFileNAme);
 			for (int i = 0; i < 288; i++) {
 				int windowSize = hyperParameters.getWindowSizeSeasonality();
-				ZonedDateTime nowDate = ZonedDateTime.of(2022, 6, 12, 0, 0, 0, 0, ZonedDateTime.now().getZone());
+				ZonedDateTime nowDate = ZonedDateTime.of(2023, 8, 8, 0, 0, 0, 0, ZonedDateTime.now().getZone());
 				nowDate = nowDate.plusMinutes(i * hyperParameters.getInterval());
 				ZonedDateTime until = ZonedDateTime.of(nowDate.getYear(), nowDate.getMonthValue(),
 						nowDate.getDayOfMonth(), nowDate.getHour(), getMinute(nowDate, hyperParameters), 0, 0,

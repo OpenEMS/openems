@@ -26,6 +26,8 @@ public class ReadModels {
 	 */
 	public static ArrayList<ArrayList<ArrayList<Double>>> readDataFile(String filename) {
 		ArrayList<ArrayList<ArrayList<Double>>> dataList = new ArrayList<>();
+		
+		
 
 		try {
 			Scanner scanner = new Scanner(new File(filename));
@@ -176,9 +178,12 @@ public class ReadModels {
 	 *         model data.
 	 */
 
-	public static ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> getModelForSeasonality(String filePath,
+	public static ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> getModelForSeasonality(String filename,
 			HyperParameters hyperParametes) {
-		ArrayList<ArrayList<ArrayList<Double>>> dataList = readDataFile(filePath);
+		
+		
+		ArrayList<ArrayList<ArrayList<Double>>> dataList = readDataFile(filename);
+		
 		allModel = reshape(dataList, hyperParametes);
 		
 		return allModel;
