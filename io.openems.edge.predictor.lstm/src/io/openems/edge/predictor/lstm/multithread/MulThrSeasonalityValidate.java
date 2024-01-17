@@ -26,7 +26,6 @@ public class MulThrSeasonalityValidate implements Runnable {
 		Validation obj = new Validation(this.seasonalityData, this.seasonalityDate, this.hyp);
 		obj.validateSeasonality(this.seasonalityData, this.seasonalityDate, this.hyp);
 
-		// TODO Auto-generated method stub
 
 	}
 

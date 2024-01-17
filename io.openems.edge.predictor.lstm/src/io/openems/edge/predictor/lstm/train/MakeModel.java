@@ -1,6 +1,7 @@
 package io.openems.edge.predictor.lstm.train;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
@@ -68,7 +69,12 @@ public class MakeModel {
 		 */
 
 		for (int i = 0; i < dataGroupedByMinute.size(); i++) {
+
+//			long startTimeFirstLoop = System.currentTimeMillis();
+//			System.out.println("different k : " + k);
+
 			for (int j = 0; j < dataGroupedByMinute.get(i).size(); j++) {
+//				long startTimeSecondLoop = System.currentTimeMillis();
 
 				if (hyperParameters.getCount() == 0) {
 					// mod = new Model();
@@ -87,11 +93,17 @@ public class MakeModel {
 					// e.printStackTrace();
 					// }
 
-					String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
-
-					File file = new File(openemsDirectory + "/models/"
-						+ Integer.toString(hyperParameters.getCount() - 1) + "seasonality.txt");
-					String path = file.getAbsolutePath();
+//					String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
+//
+//					File file = new File(openemsDirectory + "/models/"
+//							+ Integer.toString(hyperParameters.getCount() - 1) + "seasonality.txt");
+//					String path = file.getAbsolutePath();
+					
+					
+					File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
+					String path = file.getAbsolutePath() + File.separator + "models" + File.separator
+							+ Integer.toString(hyperParameters.getCount() - 1) + "seasonality.txt";
+					
 					ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel = ReadModels
 							.getModelForSeasonality(path, hyperParameters);
 					weight1 = allModel.get(allModel.size() - 1).get(k);
@@ -132,8 +144,13 @@ public class MakeModel {
 					e.printStackTrace();
 				}
 				k = k + 1;
+//				long endTimeSecondLoop = System.currentTimeMillis();
+//				long elapsedTime = endTimeSecondLoop - startTimeSecondLoop;
+//				System.out.println("Iteration  inner loop" + (j) + ": " + elapsedTime + " milliseconds");
 			}
-
+//			long endTimeFirstLoop = System.currentTimeMillis();
+//			long elapsedTime = endTimeFirstLoop - startTimeFirstLoop;
+//			System.out.println("Iteration first loop" + (i) + ": " + elapsedTime + " milliseconds");
 		}
 		SaveModel.saveModels(weightMatrix, Integer.toString(hyperParameters.getCount()) + "seasonality.txt");
 		System.out.println("Modle saved as : " + "seasonality.txt");
@@ -182,9 +199,14 @@ public class MakeModel {
 			} else {
 				String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
 
-				File file = new File(openemsDirectory + "/models/" + Integer.toString(hyperParameters.getCount() - 1)
-						+ "trend.txt");
-				String path = file.getAbsolutePath();
+//				File file = new File(
+//						openemsDirectory + "/models/" + Integer.toString(hyperParameters.getCount() - 1) + "trend.txt");
+
+				File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
+				String path = file.getAbsolutePath() + File.separator + "models" + File.separator
+						+ Integer.toString(hyperParameters.getCount() - 1) + "trend.txt";
+
+//				String path = file.getAbsolutePath();
 				ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel = ReadModels.getModelForSeasonality(path,
 						hyperParameters);
 

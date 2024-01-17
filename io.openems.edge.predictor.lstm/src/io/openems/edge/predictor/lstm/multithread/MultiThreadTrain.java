@@ -24,15 +24,15 @@ public class MultiThreadTrain {
 					.runAsync(new MulThrTrendTrain(trainData, trainDate, hyperParameter));
 			CompletableFuture<Void> secondTaskFuture = CompletableFuture
 					.runAsync(new MulThrSeasonalityTrain(trainData, trainDate, hyperParameter));
+			
 			CompletableFuture<Void> thirdTaskFuture = firstTaskFuture
 					.thenRun(new MulThrTrendValidate(validateData, validateDate, hyperParameter));
-
 			CompletableFuture<Void> fourthTaskFuture = secondTaskFuture
 					.thenRun(new MulThrSeasonalityValidate(validateData, validateDate, hyperParameter));
 			k = k + 1;
 
 			try {
-				CompletableFuture.allOf(thirdTaskFuture, fourthTaskFuture).get();
+				CompletableFuture.allOf( thirdTaskFuture, fourthTaskFuture ).get();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

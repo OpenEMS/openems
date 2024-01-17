@@ -4,14 +4,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
 import io.openems.common.OpenemsConstants;
 
 public class ReadCsv {
-
-	public static final String FILENAME = "\\TestFolder\\Consumption_data_Fems_10005.csv";
 
 	private ArrayList<Double> data = new ArrayList<Double>();
 	private ArrayList<OffsetDateTime> dates = new ArrayList<OffsetDateTime>();
@@ -36,10 +35,13 @@ public class ReadCsv {
 
 		try {
 
-			String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
-			// String filename = "\\TestFolder\\" + fileName;
-			File file = new File(openemsDirectory + "/models/" + fileName);
-			String path = file.getAbsolutePath();
+//			String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
+//			// String filename = "\\TestFolder\\" + fileName;
+//			File file = new File(openemsDirectory + "/models/" + fileName);
+//			String path = file.getAbsolutePath();
+
+			File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
+			String path = file.getAbsolutePath() + File.separator + "models" + File.separator + fileName;
 
 			System.out.println(path);
 

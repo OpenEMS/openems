@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import io.openems.common.OpenemsConstants;
@@ -23,12 +24,10 @@ public class SaveModel {
 	public static void saveModels(ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> weightMatrix, String fileName) {
 
 		try {
-			String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
-			//String filename = "\\TestFolder\\" + fileName;
-			File file = new File(openemsDirectory+"\\models\\" + fileName);
-			String path = file.getAbsolutePath();
-			
-			System.out.println(path);
+			File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
+			String path = file.getAbsolutePath() + File.separator + "models" + File.separator + fileName;
+			System.out.println("Path  is : " + path);
+
 			FileWriter fw = new FileWriter(path);
 			BufferedWriter bw = new BufferedWriter(fw);
 

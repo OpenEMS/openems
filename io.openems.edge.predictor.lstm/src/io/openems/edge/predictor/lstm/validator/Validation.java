@@ -1,6 +1,7 @@
 package io.openems.edge.predictor.lstm.validator;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,16 +60,19 @@ public class Validation {
 		maxOfTrainingData = hyperParameters.getScalingMax();
 		ArrayList<ArrayList<ArrayList<Double>>> dataGroupedByMinute = DataModification
 				.modifyFroLongTermPrediction(inter.getInterpolatedData(), dates);
-		String path;
 
 		// String tempPath = new File(".").getCanonicalPath();
 		// path = tempPath + Integer.toString(hyperParameters.getCount()) +
 		// "seasonality.txt";
-		String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
+//		String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
+//
+//		File file = new File(
+//				openemsDirectory + "/models/" + Integer.toString(hyperParameters.getCount()) + "seasonality.txt");
+//		path = file.getAbsolutePath();
 
-		File file = new File(
-				openemsDirectory + "/models/" + Integer.toString(hyperParameters.getCount() ) + "seasonality.txt");
-		path = file.getAbsolutePath();
+		File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
+		String path = file.getAbsolutePath() + File.separator + "models" + File.separator
+				+ Integer.toString(hyperParameters.getCount()) + "seasonality.txt";
 
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels = ReadModels.getModelForSeasonality(path,
 				hyperParameters);
@@ -104,7 +108,7 @@ public class Validation {
 			}
 			rmsTemp2.add(rmsTemp1);
 		}
-		List<List<Integer>> optInd = findOptimumIndex(rmsTemp2);
+		List<List<Integer>> optInd = findOptimumIndex(rmsTemp2, "Seasonlity");
 		System.out.println("Optimum Index :" + optInd);
 		ReadModels.updateModel(allModels, optInd, Integer.toString(hyperParameters.getCount()) + "seasonality.txt");
 	}
@@ -141,11 +145,16 @@ public class Validation {
 
 		// path = tempPath + Integer.toString(hyperParameters.getCount()) +
 		// "seasonality.txt";
-		String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
+//		String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
+//
+//		File file = new File(
+//				openemsDirectory + "/models/" + Integer.toString(hyperParameters.getCount()) + "trend.txt");
+//		String path = file.getAbsolutePath();
 
-		File file = new File(
-				openemsDirectory + "/models/" + Integer.toString(hyperParameters.getCount()) + "trend.txt");
-		String path = file.getAbsolutePath();
+		File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
+		String path = file.getAbsolutePath() + File.separator + "models" + File.separator
+				+ Integer.toString(hyperParameters.getCount()) + "trend.txt";
+
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels = ReadModels.getModelForSeasonality(path,
 				hyperParameters);
 
@@ -171,10 +180,10 @@ public class Validation {
 			rmsTemp2.add(rmsTemp1);
 
 		}
-		List<List<Integer>> optInd = findOptimumIndex(rmsTemp2);
+		List<List<Integer>> optInd = findOptimumIndex(rmsTemp2, "Trend");
 
 		System.out.println("Optimum Index :" + optInd);
-		ReadModels.updateModel(allModels, optInd,  Integer.toString(hyperParameters.getCount()) + "trend.txt");
+		ReadModels.updateModel(allModels, optInd, Integer.toString(hyperParameters.getCount()) + "trend.txt");
 
 	}
 
@@ -272,7 +281,7 @@ public class Validation {
 			sum = sum + (matrix.get(minimumIndices.get(i).get(0)).get(minimumIndices.get(i).get(1)));
 
 		}
-		System.out.println("Average RMS error = " + sum / minimumIndices.size());
+		System.out.println("Average RMS error for  " + var + " = " + sum / minimumIndices.size());
 
 		return minimumIndices;
 	}

@@ -1,5 +1,7 @@
 package io.openems.edge.predictor.lstm.train;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -26,6 +28,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
@@ -34,8 +37,6 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.predictor.lstm.common.HyperParameters;
-import io.openems.edge.predictor.lstm.common.ReadCsv;
-import io.openems.edge.predictor.lstm.multithread.MultiThreadTrain;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -82,6 +83,7 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 	@Override
 	@Deactivate
 	protected void deactivate() {
+		scheduler.shutdown();
 		super.deactivate();
 	}
 
@@ -123,8 +125,8 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 		ArrayList<OffsetDateTime> date = this.getDate(querryResult);
 		System.out.println("....Training.....");
 
-		// Reading CSV file and looping over 26 fems data 
-		int k=0;
+		// Reading CSV file and looping over 26 fems data
+		int k = 0;
 //		for(int i = 0;i<= 26;i++) {
 //			
 //			k= hyperParameters.getCount();

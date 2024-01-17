@@ -2,12 +2,11 @@ package io.openems.edge.predictor.lstm.preprocessing;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
 
 public class Suffle {
 	private double[][] data;
 	private double[] target;
-	
-	
 
 	public Suffle(double[][] data1, double[] target1) {
 		this.data = new double[data1.length][data1[0].length];
@@ -42,7 +41,9 @@ public class Suffle {
 		for (int i = 0; i < this.data.length; i++) {
 			temp.add(i);
 		}
-		Collections.shuffle(temp);
+
+		Random r = new Random(100);
+		Collections.shuffle(temp, r);
 		for (int i = 0; i < this.data.length; i++) {
 
 			suffledData[i] = (this.data[temp.get(i)]);
