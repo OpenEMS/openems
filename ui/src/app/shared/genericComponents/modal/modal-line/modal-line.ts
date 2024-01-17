@@ -19,6 +19,7 @@ export class ModalLineComponent extends AbstractModalLine {
     @Input() protected control:
         { type: 'TOGGLE' } |
         { type: 'INPUT' } |
+        { type: 'INPUT_UNIT', properties: {unit: 'H'} } |
         /* the available select options*/
         { type: 'SELECT', options: { value: string, name: string }[] } |
         /* the properties for range slider*/
