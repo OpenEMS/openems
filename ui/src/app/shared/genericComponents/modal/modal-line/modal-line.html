@@ -26,17 +26,8 @@
                     <ion-input class="regularFont" type="number" style="text-align: right;"
                         [formControlName]="controlName">
                     </ion-input>
-                    <ion-label class="regularFont">&nbsp;W&nbsp;</ion-label>
-                </ion-item>
-            </td>
-          
-            <!-- 'Input' Line, name and changeable value with unit -->
-            <td style="width: 30%" class="align_right" *ngIf="control.type === 'INPUT_UNIT'" [formGroup]="formGroup">
-                <ion-item>
-                    <ion-input class="regularFont" type="number" style="text-align: right;"
-                        [formControlName]="controlName">
-                    </ion-input>
-                    <ion-label class="regularFont">&nbsp;{{control.properties.unit}}&nbsp;</ion-label>
+                    <ion-label class="regularFont">&nbsp;{{control?.properties?.unit ?? 'W' }}&nbsp;
+                    </ion-label>
                 </ion-item>
             </td>
           
