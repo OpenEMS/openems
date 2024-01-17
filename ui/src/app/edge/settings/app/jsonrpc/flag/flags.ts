@@ -7,11 +7,11 @@ export namespace Flags {
 
     /**
      * Gets a flag by its type from an array of flags.
-     * 
+     *
      * @param flags the flags to search for the specific type
      * @param type the FlagType of the flag
      * @returns the flag or undefined if not found
-     * 
+     *
      * @see Flag
      */
     export function getByType<Type extends Flag>(flags: Flag[], type: FlagType<Type>): Type | undefined {

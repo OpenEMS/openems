@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Represents a JSON-RPC Request to execute a system command on OpenEMS Edge.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

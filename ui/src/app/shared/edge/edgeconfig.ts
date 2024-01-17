@@ -107,7 +107,7 @@ export class EdgeConfig {
 
     /**
      * Get Component-IDs of Component instances by the given Factory.
-     * 
+     *
      * @param factoryId the Factory PID.
      */
     public getComponentIdsByFactory(factoryId: string): string[] {
@@ -121,7 +121,7 @@ export class EdgeConfig {
 
     /**
      * Get Factories of Nature.
-     * 
+     *
      * @param natureId the given Nature.
      */
     public getFactoriesByNature(natureId: string): EdgeConfig.Factory[] {
@@ -139,7 +139,7 @@ export class EdgeConfig {
 
     /**
      * Get Factories by Factory-IDs.
-     * 
+     *
      * @param ids the given Factory-IDs.
      */
     public getFactoriesByIds(factoryIds: string[]): EdgeConfig.Factory[] {
@@ -154,7 +154,7 @@ export class EdgeConfig {
 
     /**
      * Get Factories by Factory-IDs pattern.
-     * 
+     *
      * @param ids the given Factory-IDs pattern.
      */
     public getFactoriesByIdsPattern(patterns: RegExp[]): EdgeConfig.Factory[] {
@@ -171,7 +171,7 @@ export class EdgeConfig {
 
     /**
      * Get Component instances by the given Factory.
-     * 
+     *
      * @param factoryId the Factory PID.
      */
     public getComponentsByFactory(factoryId: string): EdgeConfig.Component[] {
@@ -185,7 +185,7 @@ export class EdgeConfig {
 
     /**
      * Get Component-IDs of Components that implement the given Nature.
-     * 
+     *
      * @param nature the given Nature.
      */
     public getComponentIdsImplementingNature(natureId: string): string[] {
@@ -210,7 +210,7 @@ export class EdgeConfig {
 
     /**
      * Get Components that implement the given Nature.
-     * 
+     *
      * @param nature the given Nature.
      */
     public getComponentsImplementingNature(natureId: string): EdgeConfig.Component[] {
@@ -235,7 +235,7 @@ export class EdgeConfig {
 
     /**
      * Get the implemented NatureIds by Factory-ID.
-     * 
+     *
      * @param factoryId the Factory-ID
      */
     public getNatureIdsByFactoryId(factoryId: string): string[] {
@@ -288,7 +288,7 @@ export class EdgeConfig {
 
     /**
      * Is the given Meter of type 'PRODUCTION'?
-     * 
+     *
      * @param component the Meter Component
      * @returns true for PRODUCTION
      */
@@ -320,7 +320,7 @@ export class EdgeConfig {
 
     /**
      * Is the given Meter of type 'CONSUMPTION_METERED'?
-     * 
+     *
      * @param component the Meter Component
      * @returns true for CONSUMPTION_METERED
      */
@@ -338,7 +338,7 @@ export class EdgeConfig {
 
     /**
      * Is the given Meter of type 'GRID'?
-     * 
+     *
      * @param component the Meter Component
      * @returns true for GRID
      */
@@ -572,7 +572,7 @@ export class EdgeConfig {
 
     /**
      * Get the implemented Natures by Component-ID.
-     * 
+     *
      * @param componentId the Component-ID
      */
     public getNatureIdsByComponentId(componentId: string): string[] {
@@ -586,7 +586,7 @@ export class EdgeConfig {
 
     /**
      * Get the Component.
-     * 
+     *
      * @param componentId the Component-ID
      */
     public getComponent(componentId: string): EdgeConfig.Component {
@@ -595,7 +595,7 @@ export class EdgeConfig {
 
     /**
      * Get the Component properties.
-     * 
+     *
      * @param componentId the Component-ID
      */
     public getComponentProperties(componentId: string): { [key: string]: any } {
@@ -609,7 +609,7 @@ export class EdgeConfig {
 
     /**
      * Get Channel.
-     * 
+     *
      * @param address the ChannelAddress
      */
     public getChannel(address: ChannelAddress): EdgeConfig.ComponentChannel {
@@ -665,7 +665,7 @@ export module EdgeConfig {
 
         /**
          * Gets the FactoryProperty definition for a Property-ID.
-         * 
+         *
          * @param propertyId the Property-ID
          */
         static getPropertyForId(factory: Factory, propertyId: string): FactoryProperty {

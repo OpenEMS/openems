@@ -97,7 +97,7 @@ export abstract class AbstractHistoryChart implements OnInit {
 
   /**
    * Fills the chart with required data
-   * 
+   *
    * @param energyPeriodResponse the response of a {@link QueryHistoricTimeseriesEnergyPerPeriodRequest} or {@link QueryHistoricTimeseriesDataResponse}
    * @param energyResponse the response of a {@link QueryHistoricTimeseriesEnergyResponse}
    */
@@ -209,7 +209,7 @@ export abstract class AbstractHistoryChart implements OnInit {
 
   /**
    * Gets the legendOptions for a displayValue
-   * 
+   *
    * @param label the label
    * @param element the displayValue
    * @returns the label, the hidingStyle of the legendLabel: strokeThroughHidingStyle, hideLabelInLegend
@@ -224,7 +224,7 @@ export abstract class AbstractHistoryChart implements OnInit {
 
   /**
    * Gets the color for the legend and chart for a displayValue
-   * 
+   *
    * @param color the color
    * @returns the backgroundColor and borderColor
    */
@@ -237,7 +237,7 @@ export abstract class AbstractHistoryChart implements OnInit {
 
   /**
    * Gets the dataset for a displayValue
-   * 
+   *
    * @param element the displayValue
    * @param label the label
    * @param data the data
@@ -344,7 +344,7 @@ export abstract class AbstractHistoryChart implements OnInit {
 
   /**
    * Sends the Historic Timeseries Data Query and makes sure the result is not empty.
-   * 
+   *
    * @param fromDate the From-Date
    * @param toDate   the To-Date
    * @param edge     the current Edge
@@ -393,7 +393,7 @@ export abstract class AbstractHistoryChart implements OnInit {
   /**
    * Sends the Historic Timeseries Energy per Period Query and makes sure the result is not empty.
    * Symbolizes First substracted from last Datapoint for each period, only used for cumulated channel
-   * 
+   *
    * @param fromDate the From-Date
    * @param toDate   the To-Date
    */
@@ -448,7 +448,7 @@ export abstract class AbstractHistoryChart implements OnInit {
   /**
    * Sends the Historic Timeseries Energy per Period Query and makes sure the result is not empty.
    * Symbolizes First substracted from last Datapoint for each period, only used for cumulated channel
-   * 
+   *
    * @param fromDate the From-Date
    * @param toDate   the To-Date
    */
@@ -489,9 +489,9 @@ export abstract class AbstractHistoryChart implements OnInit {
 
   /**
    * Generates a Tooltip Title string from a 'fromDate' and 'toDate'.
-   * 
+   *
    * @param fromDate the From-Date
-   * @param toDate the To-Date 
+   * @param toDate the To-Date
    * @param date Date from TooltipItem
    * @returns period for Tooltip Header
    */
@@ -685,7 +685,7 @@ export abstract class AbstractHistoryChart implements OnInit {
     options.scales.xAxes[0].bounds = 'ticks';
     options.responsive = true;
 
-    // Overwrite Tooltips -Title -Label 
+    // Overwrite Tooltips -Title -Label
     options.tooltips.callbacks.title = (tooltipItems: TooltipItem[], data: Data): string => {
       let date = new Date(tooltipItems[0].xLabel);
       return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
@@ -838,9 +838,9 @@ export abstract class AbstractHistoryChart implements OnInit {
 
   /**
    * Gets the tooltips label, dependent on YAxisTitle
-   * 
+   *
    * @param title the YAxisTitle
-   * @returns 
+   * @returns
    */
   private static getToolTipsAfterTitleLabel(title: YAxisTitle | null, chartType: 'bar' | 'line', value: number | null, translate: TranslateService): string {
     switch (title) {
@@ -865,9 +865,9 @@ export abstract class AbstractHistoryChart implements OnInit {
 
   /**
    * Gets the tooltips label, dependent on YAxisTitle
-   * 
+   *
    * @param title the YAxisTitle
-   * @returns 
+   * @returns
    */
   private static getToolTipsSuffix(label: any, value: number, format: string, title: YAxisTitle, chartType: 'bar' | 'line', language: string, translate: TranslateService): string {
 
@@ -905,7 +905,7 @@ export abstract class AbstractHistoryChart implements OnInit {
 
   /**
    * Gets the Name for the tooltips label
-   * 
+   *
    * @param baseName the baseName = the value
    * @param unit the unit
    * @param suffix the suffix, a number that will be added to the baseName
@@ -962,12 +962,12 @@ export abstract class AbstractHistoryChart implements OnInit {
 
   /**
    * Start NGX-Spinner
-   * 
+   *
    * Spinner will appear inside html tag only
-   * 
+   *
    * @example <ngx-spinner name="spinnerId"></ngx-spinner>
    * the spinnerId represents a uuidv4() generated id
-   * 
+   *
    */
   public startSpinner() {
     this.service.startSpinner(this.spinnerId);

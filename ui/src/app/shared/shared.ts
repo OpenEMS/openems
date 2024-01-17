@@ -40,7 +40,7 @@ export namespace Currency {
 
   /**
    * Gets the currencylabel for a edgeId
-   * 
+   *
    * @param edgeId the edgeId
    * @returns the Currencylabel dependent on edgeId
    */

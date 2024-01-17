@@ -2,7 +2,7 @@ import { JsonrpcResponseSuccess } from "../base";
 
 /**
  * Represents a JSON-RPC Response for {@link GetUserInformationRequest}.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

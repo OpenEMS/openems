@@ -6,7 +6,7 @@ export interface Cumulated {
 
 /**
  * Wraps a JSON-RPC Response for a queryHistoricTimeseriesEnergy.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

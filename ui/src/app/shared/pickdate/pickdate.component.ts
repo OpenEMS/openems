@@ -121,7 +121,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
 
     /**
      * Sets the current time period.
-     * 
+     *
      * @param fromDate the starting date
      * @param toDate   the end date
      */
@@ -345,7 +345,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
 
     /**
      * Checks if previous time period is allowed to be queried
-     * 
+     *
      * @param service the service
      * @param firstSetupProtocol the date of setting up the edge
      * @returns true, if requested fromDate is not before firstSetupProtocolDate
@@ -373,8 +373,8 @@ export class PickDateComponent implements OnInit, OnDestroy {
 
     /**
      * Checks if next time period is allowed to be queried
-     * 
-     * @param service the service 
+     *
+     * @param service the service
      * @returns true, if requested toDate is not in the future
      */
     public static isNextPeriodAllowed(service: Service): boolean {

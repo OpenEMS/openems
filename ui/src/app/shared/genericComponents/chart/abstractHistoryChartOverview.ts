@@ -75,7 +75,7 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
 
   /**
    * Called on every new data.
-   * 
+   *
    * @param currentData new data for the subscribed Channel-Addresses
    */
   protected onCurrentData(currentData: CurrentData): void { }
@@ -89,7 +89,7 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
 
   /**
    * Gets the ChannelAddresses that should be queried.
-   * 
+   *
    * @param edge the current Edge
    * @param config the EdgeConfig
    */
