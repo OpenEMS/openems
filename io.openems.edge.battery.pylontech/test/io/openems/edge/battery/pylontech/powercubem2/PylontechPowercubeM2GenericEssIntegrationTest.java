@@ -81,4 +81,6 @@ public class PylontechPowercubeM2GenericEssIntegrationTest {
 					.output(START_STOP, StartStop.START)
 					.output(STATUS_CHANNEL, Status.IDLE));
 	}
+	
+
 }
