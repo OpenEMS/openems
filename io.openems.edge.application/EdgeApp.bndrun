@@ -44,7 +44,6 @@
 	bnd.identity;id='io.openems.edge.battery.fenecon.home',\
 	bnd.identity;id='io.openems.edge.battery.pylontech',\
 	bnd.identity;id='io.openems.edge.battery.soltaro',\
-	bnd.identity;id='io.openems.edge.batteryinverter.cluster',\
 	bnd.identity;id='io.openems.edge.batteryinverter.kaco.blueplanetgridsave',\
 	bnd.identity;id='io.openems.edge.batteryinverter.refu88k',\
 	bnd.identity;id='io.openems.edge.batteryinverter.sinexcel',\
@@ -201,7 +200,6 @@
 	io.openems.edge.battery.pylontech;version=snapshot,\
 	io.openems.edge.battery.soltaro;version=snapshot,\
 	io.openems.edge.batteryinverter.api;version=snapshot,\
-	io.openems.edge.batteryinverter.cluster;version=snapshot,\
 	io.openems.edge.batteryinverter.kaco.blueplanetgridsave;version=snapshot,\
 	io.openems.edge.batteryinverter.refu88k;version=snapshot,\
 	io.openems.edge.batteryinverter.sinexcel;version=snapshot,\

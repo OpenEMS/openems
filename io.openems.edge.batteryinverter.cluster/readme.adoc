@@ -1,3 +1,0 @@
-= io.openems.edge.batteryinverter.cluster
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.batteryinverter.cluster[Source Code icon:github[]]

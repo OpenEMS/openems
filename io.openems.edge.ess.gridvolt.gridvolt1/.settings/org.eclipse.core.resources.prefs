@@ -1,9 +1,0 @@
-eclipse.preferences.version=1
-encoding//src/io/openems/edge/ess/gridvolt/gridvolt1/Config.java=UTF-8
-encoding//src/io/openems/edge/ess/gridvolt/gridvolt1/GridVolt1.java=UTF-8
-encoding//src/io/openems/edge/ess/gridvolt/gridvolt1/GridVolt1Impl.java=UTF-8
-encoding//test/io/openems/edge/ess/gridvolt/gridvolt1/MyConfig.java=UTF-8
-encoding//test/io/openems/edge/ess/gridvolt/gridvolt1/MyDeviceTest.java=UTF-8
-encoding/<project>=UTF-8
-encoding/bnd.bnd=UTF-8
-encoding/readme.adoc=UTF-8

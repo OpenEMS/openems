@@ -1,9 +1,0 @@
-eclipse.preferences.version=1
-encoding//src/io/openems/edge/batteryinverter/cluster/BatteryInverterCluster.java=UTF-8
-encoding//src/io/openems/edge/batteryinverter/cluster/BatteryInverterClusterImpl.java=UTF-8
-encoding//src/io/openems/edge/batteryinverter/cluster/Config.java=UTF-8
-encoding//test/io/openems/edge/batteryinverter/cluster/BatteryInverterClusterTest.java=UTF-8
-encoding//test/io/openems/edge/batteryinverter/cluster/MyConfig.java=UTF-8
-encoding/<project>=UTF-8
-encoding/bnd.bnd=UTF-8
-encoding/readme.adoc=UTF-8
