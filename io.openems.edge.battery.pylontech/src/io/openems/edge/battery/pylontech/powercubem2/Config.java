@@ -5,9 +5,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.common.startstop.StartStopConfig;
 
-@ObjectClassDefinition(//
-		name = "Battery Pylontech Powercube M2", //
-		description = "Battery implementation for Pylontech Powercube M2. Not tested for other Pylontech batteries.")
+@ObjectClassDefinition(
+			name = "Battery Pylontech Powercube M2",
+			description = "Battery implementation for Pylontech Powercube M2. Not tested for other Pylontech batteries.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

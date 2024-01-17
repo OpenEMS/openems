@@ -10,7 +10,7 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 
 		var battery = context.getParent();
 
-		switch(battery.getStartStopTarget()) {
+		switch (battery.getStartStopTarget()) {
 		case UNDEFINED: {
 			// Stuck in undefined state
 			return State.UNDEFINED;
@@ -29,7 +29,6 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 			return State.GO_STOPPED;
 		}
 		}
-
 
 		assert false;
 		return State.UNDEFINED; // Should never happen

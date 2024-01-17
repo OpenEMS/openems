@@ -5,7 +5,7 @@ import io.openems.edge.battery.protection.force.ForceCharge;
 import io.openems.edge.battery.protection.force.ForceDischarge;
 import io.openems.edge.common.linecharacteristic.PolyLine;
 
-public class PylontechPowercubeM2BatteryProtectionDefinition implements BatteryProtectionDefinition  {
+public class PylontechPowercubeM2BatteryProtectionDefinition implements BatteryProtectionDefinition {
 
 	/*
 	 * Most values not defined. Those that are defined come from Pylontech engineer
@@ -44,7 +44,7 @@ public class PylontechPowercubeM2BatteryProtectionDefinition implements BatteryP
 	@Override
 	public ForceDischarge.Params getForceDischargeParams() {
 		return new ForceDischarge.Params(3650, 3450, 3449);
-	} 
+	}
 
 	@Override
 	public ForceCharge.Params getForceChargeParams() {
@@ -53,6 +53,7 @@ public class PylontechPowercubeM2BatteryProtectionDefinition implements BatteryP
 
 	@Override
 	public Double getMaxIncreaseAmperePerSecond() {
-		return 5.0; // [A] per second // TODO: This is not provided by Pylontech - check that it functions ok with this limit.
+		return 5.0; // [A] per second // TODO: This is not provided by Pylontech - check that it
+					// functions ok with this limit.
 	}
 }

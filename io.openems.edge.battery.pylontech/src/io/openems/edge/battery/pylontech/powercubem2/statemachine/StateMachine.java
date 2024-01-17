@@ -62,7 +62,7 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 		case STOPPED:
 			return new StoppedHandler();
 		case ERROR:
-			return new ErrorHandler();	
+			return new ErrorHandler();
 		}
 		throw new IllegalArgumentException("Unknown State [" + state + "]");
 

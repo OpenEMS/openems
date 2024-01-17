@@ -23,7 +23,8 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 		switch (this.state) {
 		case WAIT_FOR_SLEEP: {
-			if (!context.isBatteryAwake()) { // If it's already asleep - we're done // TODO: We might get this in an error state
+			if (!context.isBatteryAwake()) { // If it's already asleep - we're done // TODO: We might get this in an
+												// error state
 				this.state = BatteryGotoSleepState.FINISHED;
 			} else {
 				context.setBatteryWakeSleep(false); // if awake - put it to sleep
@@ -34,8 +35,6 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 			return State.STOPPED;
 		}
 		}
-
-
 
 		return State.GO_STOPPED;
 	}

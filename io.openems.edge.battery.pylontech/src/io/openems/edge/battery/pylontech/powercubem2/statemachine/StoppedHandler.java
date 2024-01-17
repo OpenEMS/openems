@@ -7,7 +7,6 @@ import io.openems.edge.common.startstop.StartStop;
 
 public class StoppedHandler extends StateHandler<State, Context> {
 
-
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
 
@@ -17,6 +16,5 @@ public class StoppedHandler extends StateHandler<State, Context> {
 
 		return State.STOPPED;
 	}
-
 
 }

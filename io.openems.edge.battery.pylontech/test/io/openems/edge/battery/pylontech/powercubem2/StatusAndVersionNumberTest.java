@@ -5,7 +5,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import io.openems.edge.battery.pylontech.powercubem2.PylontechPowercubeM2BatteryImpl;
 import io.openems.edge.battery.pylontech.powercubem2.PylontechPowercubeM2Battery.Status;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.startstop.StartStopConfig;
@@ -14,7 +13,10 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 
-
+/**
+ * Test to check that the battery component is correctly calculating the battery version number from registers
+ * and correctly reading the status bit.
+ */
 public class StatusAndVersionNumberTest {
 
 	private static final String BATTERY_ID = "battery0";
