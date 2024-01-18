@@ -1,5 +1,8 @@
 package io.openems.edge.bridge.modbus;
 
+import java.io.File;
+import java.util.Arrays;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -28,6 +31,7 @@ import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import com.fazecast.jSerialComm.SerialPort;
 
 /**
  * Provides a service for connecting to, querying and writing to a Modbus/RTU
@@ -45,7 +49,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 })
 public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		implements BridgeModbus, BridgeModbusSerial, OpenemsComponent, EventHandler {
-
+	
 	/** The configured Port-Name (e.g. '/dev/ttyUSB0' or 'COM3'). */
 	private String portName = "";
 
@@ -85,6 +89,17 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 	}
 
 	private void applyConfig(ConfigSerial config) {
+		File serport = new File(config.portName());
+		if (!serport.exists()) {
+			throw new IllegalArgumentException("The provided path " + config.portName() + " does not exist.");
+		}
+		var ports = SerialPort.getCommPorts();
+		var isSerial = Arrays.stream(ports).filter(val ->serport.getAbsolutePath().equals(val.getSystemPortPath())).findAny();
+		if (isSerial.isEmpty()) {
+			var portNames = Arrays.stream(ports).map(t -> t.getSystemPortPath()).toList();
+			throw new IllegalArgumentException("The provided path " + config.portName() + " is not a serial port. Serial ports available: " + portNames.toString());
+		}
+		
 		this.portName = config.portName();
 		this.baudrate = config.baudRate();
 		this.databits = config.databits();
