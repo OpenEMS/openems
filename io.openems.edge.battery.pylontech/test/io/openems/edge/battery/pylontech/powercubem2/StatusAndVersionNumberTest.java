@@ -26,20 +26,6 @@ public class StatusAndVersionNumberTest {
 	public void testVersionNumber() throws Exception {
 		var battery = new PylontechPowercubeM2BatteryImpl();
 
-		var componentTest = new ComponentTest(battery)
-				.addReference("cm", new DummyConfigurationAdmin())
-				.addReference("componentManager", new DummyComponentManager()) 
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID))
-				.activate(MyConfig.create() //
-						.setId(BATTERY_ID) //
-						.setModbusId(MODBUS_ID) //)
-						.setModbusUnitId(1) //
-						.setStartStop(StartStopConfig.START) //
-						.build())
-				.next(new TestCase("Testing status calculation.")
-
-						);
-
 		// Tests for calculating Version Number
 		assertEquals("V01.06", battery.convertVersionNumber(0x0106));
 		assertEquals("V13.02", battery.convertVersionNumber(0x1302));
@@ -51,19 +37,6 @@ public class StatusAndVersionNumberTest {
 	public void testStatus() throws Exception {
 		var battery = new PylontechPowercubeM2BatteryImpl();
 
-		var componentTest = new ComponentTest(battery)
-				.addReference("cm", new DummyConfigurationAdmin())
-				.addReference("componentManager", new DummyComponentManager()) 
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID))
-				.activate(MyConfig.create() //
-						.setId(BATTERY_ID) //
-						.setModbusId(MODBUS_ID) //
-						.setModbusUnitId(1) //
-						.setStartStop(StartStopConfig.START) //
-						.build())
-				.next(new TestCase("Testing status calculation.")
-
-						);
 		// Tests for calculating status from register
 
 		// Normal states

@@ -1021,13 +1021,11 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 		this.addChannel(channelId);
 		return channelId;
 	}
-
+	
 	/**
 	 * Gets modbus offset for a given pileNumber. pileNumber starts from 1.
-	 * 
-	 * @param pileNumber The pile the offset is for
-	 * @return The Modbus offset for the pile
-	 * @throws OpenemsException
+	 * @param pileNumber	pileNumber The pile the offset is for
+	 * @return				The Modbus offset for the pile
 	 */
 	private int getOffsetForPile(int pileNumber) {
 
