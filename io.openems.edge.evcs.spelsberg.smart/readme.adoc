@@ -1,6 +1,8 @@
-= Spelsberg SMART PRO charging station
+= Spelsberg SMART PRO charging station (BETA)
 
 Implementation of the Spelsberg SMART PRO charging station.
+
+This EVCS component implementation is not yet fully feature tested. Please consider it BETA quality.
 
 
 === Technical Data
@@ -17,8 +19,10 @@ Implementation of the Spelsberg SMART PRO charging station.
 ** Setting charge power/current via OpenEMS Edge EVCS Controller
 ** Calculation of the energy summary for transactions
 ** EVCS status updates
-** Support for automatic phase shifting with firmware 5.33
 ** Validation of Modbus TCP connection
 
+=== Planned Features:
+
+** Support for automatic phase shifting
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.spelsberg.smart[Source Code icon:github[]]
