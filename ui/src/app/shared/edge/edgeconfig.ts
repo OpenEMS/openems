@@ -1,3 +1,4 @@
+import { Name } from '../genericComponents/shared/name';
 import { ChannelAddress } from '../type/channeladdress';
 import { Widgets } from '../type/widget';
 import { Edge } from './edge';
@@ -180,7 +181,7 @@ export class EdgeConfig {
         for (let componentId of componentIds) {
             result.push(this.components[componentId]);
         }
-        return result.sort((c1, c2) => c1.alias.localeCompare(c2.alias));
+        return result.sort((c1, c2) => Name.METER_ALIAS_OR_ID(c1).localeCompare(Name.METER_ALIAS_OR_ID(c2)));
     }
 
     /**
@@ -230,7 +231,7 @@ export class EdgeConfig {
                 result.push(...this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter"));
         }
 
-        return result.sort((c1, c2) => c1.alias.localeCompare(c2.alias));
+        return result.sort((c1, c2) => Name.METER_ALIAS_OR_ID(c1).localeCompare(Name.METER_ALIAS_OR_ID(c2)));
     }
 
     /**
