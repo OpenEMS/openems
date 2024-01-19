@@ -126,6 +126,21 @@ export namespace Currency {
     }
   }
 
+  /**
+   * This method returns the corresponding label based on the user-selected currency in "core.meta."
+   * 
+   * @param currency The currency enum.
+   * @returns the Currencylabel
+   */
+  export function getCurrencyLabelByCurrency(currency: string): Label {
+    switch (currency) {
+      case 'SEK':
+        return Label.OERE_PER_KWH;
+      default:
+        return Label.CENT_PER_KWH;
+    }
+  }
+
   export enum Label {
     OERE_PER_KWH = "Öre/kWh",
     CENT_PER_KWH = "Cent/kWh"

@@ -53,6 +53,7 @@ export type YAxis = {
     ticks: {
         beginAtZero: boolean,
         max?: number,
+        min?: number,
         padding?: number,
         stepSize?: number,
         callback?(value: number | string, index: number, values: number[] | string[]): string | number | null | undefined;

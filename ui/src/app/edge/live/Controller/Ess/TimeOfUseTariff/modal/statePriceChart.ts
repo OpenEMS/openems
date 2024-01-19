@@ -58,7 +58,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
             const result = (response as GetScheduleResponse).result;
             const length = result.schedule.length;
 
-            // Extracting prices and states from the schedule array
+            // Extracting prices, states, timestamps from the schedule array
             const { priceArray, stateArray, timestampArray } = {
                 priceArray: result.schedule.map(entry => entry.price),
                 stateArray: result.schedule.map(entry => entry.state),

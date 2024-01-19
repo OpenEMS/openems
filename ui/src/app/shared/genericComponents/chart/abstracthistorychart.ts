@@ -8,7 +8,7 @@ import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/j
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
 
-import { calculateResolution, ChartOptions, ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS, isLabelVisible, setLabelVisible, TooltipItem } from '../../../edge/history/shared';
+import { calculateResolution, ChartOptions, ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS, isLabelVisible, Resolution, setLabelVisible, TooltipItem } from '../../../edge/history/shared';
 import { JsonrpcResponseError } from '../../jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
@@ -52,7 +52,7 @@ export abstract class AbstractHistoryChart implements OnInit {
   protected errorResponse: JsonrpcResponseError | null = null;
   protected static readonly phaseColors: string[] = ['rgb(255,127,80)', 'rgb(0,0,255)', 'rgb(128,128,0)'];
 
-  private legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
+  protected legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
   private channelData: { data: { [name: string]: number[] } } = { data: {} };
 
   constructor(
@@ -189,12 +189,12 @@ export abstract class AbstractHistoryChart implements OnInit {
 
     if (Array.isArray(element.stack)) {
       for (let stack of element.stack) {
-        datasets.push(AbstractHistoryChart.getDataSet(element, label, data, stack, chartObject));
+        datasets.push(AbstractHistoryChart.getDataSet(element, label, data, stack, chartObject, element.customType));
         colors.push(AbstractHistoryChart.getColors(element.color, chartType));
         legendOptions.push(AbstractHistoryChart.getLegendOptions(label, element));
       }
     } else {
-      datasets.push(AbstractHistoryChart.getDataSet(element, label, data, element.stack, chartObject));
+      datasets.push(AbstractHistoryChart.getDataSet(element, label, data, element.stack, chartObject, element.customType));
       colors.push(AbstractHistoryChart.getColors(element.color, chartType));
       legendOptions.push(AbstractHistoryChart.getLegendOptions(label, element));
     }
@@ -244,7 +244,7 @@ export abstract class AbstractHistoryChart implements OnInit {
    * @param stack the stack
    * @returns a dataset
    */
-  public static getDataSet(element: HistoryUtils.DisplayValues, label: string, data: number[], stack: number, chartObject: HistoryUtils.ChartData): Chart.ChartDataSets {
+  public static getDataSet(element: HistoryUtils.DisplayValues, label: string, data: number[], stack: number, chartObject: HistoryUtils.ChartData, chartType: ChartType): Chart.ChartDataSets {
     let dataset: Chart.ChartDataSets;
 
     dataset = {
@@ -257,6 +257,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       yAxisID: element.yAxisId != null ? element.yAxisId : chartObject.yAxes.find(element => element.yAxisId == ChartAxis.LEFT)?.yAxisId,
       order: element.order ?? Number.MAX_VALUE,
       ...(element.hideShadow && { fill: !element.hideShadow }),
+      ...(element.customType && { type: chartType }),
     };
     return dataset;
   }
@@ -264,7 +265,7 @@ export abstract class AbstractHistoryChart implements OnInit {
   /**
    * Used to loadChart, dependent on the resolution
    */
-  private loadChart() {
+  protected loadChart() {
     this.labels = [];
     this.errorResponse = null;
     let unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).resolution.unit;
@@ -354,10 +355,10 @@ export abstract class AbstractHistoryChart implements OnInit {
    * @param edge     the current Edge
    * @param ws       the websocket
    */
-  protected queryHistoricTimeseriesData(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesDataResponse> {
+  protected queryHistoricTimeseriesData(fromDate: Date, toDate: Date, res?: Resolution): Promise<QueryHistoricTimeseriesDataResponse> {
 
     this.isDataExisting = true;
-    let resolution = calculateResolution(this.service, fromDate, toDate).resolution;
+    let resolution = res ?? calculateResolution(this.service, fromDate, toDate).resolution;
 
     let result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
       this.service.getCurrentEdge().then(edge => {
@@ -808,8 +809,11 @@ export abstract class AbstractHistoryChart implements OnInit {
     });
   };
 
-  private static getYAxisTitle(title: YAxisTitle, translate: TranslateService, chartType: 'bar' | 'line'): string {
+  public static getYAxisTitle(title: YAxisTitle, translate: TranslateService, chartType: 'bar' | 'line', customTitle?: string): string {
+
     switch (title) {
+      case YAxisTitle.CURRENCY:
+        return customTitle + 'kWh';
       case YAxisTitle.RELAY:
 
         if (chartType === ChartType.LINE) {
