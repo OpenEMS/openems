@@ -85,8 +85,12 @@ steps:
       - mkdir -p $CACHE
       - export GRADLE_USER_HOME=$CACHE/gradle
       - export MAVEN_OPTS=-Dmaven.repo.local=$CACHE/maven
-      - ./gradlew --build-cache build buildEdge buildBackend resolve.EdgeApp resolve.BackendApp --parallel --max-workers=4
-      - git diff --exit-code io.openems.edge.application/EdgeApp.bndrun io.openems.backend.application/BackendApp.bndrun
+      ## start ##
+      - source tools/common.sh
+      - common_initialize_environment
+      - common_build_snapshot_version
+      - common_update_version_in_code
+      - common_build_edge --parallel --max-workers 2;
     group: build
 
   build-debian-package:
