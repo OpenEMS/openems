@@ -3,7 +3,7 @@ import { JsonrpcRequest } from '../base';
 
 /**
  * Queries historic timeseries data; exports to Xlsx (Excel) file.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

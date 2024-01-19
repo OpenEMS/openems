@@ -3,7 +3,7 @@ import { GetApps } from "./getApps";
 
 /**
  * Represents a JSON-RPC Request for 'getApps'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -12,7 +12,7 @@ import { GetApps } from "./getApps";
  *   "params": {}
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
  * <pre>

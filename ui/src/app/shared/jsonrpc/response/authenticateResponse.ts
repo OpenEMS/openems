@@ -3,7 +3,7 @@ import { Edges, User } from "../shared";
 
 /**
  * Wraps a JSON-RPC Response for AuthenticateWithPasswordRequest or AuthenticateWithTokenRequest.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

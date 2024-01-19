@@ -3,7 +3,7 @@ import { NetworkInterface } from './shared';
 
 /**
  * Represents a JSON-RPC Request for 'setNetworkConfig': Updates the current network configuration.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

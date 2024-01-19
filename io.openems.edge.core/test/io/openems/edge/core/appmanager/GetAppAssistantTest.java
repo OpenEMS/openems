@@ -1,18 +1,13 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import io.openems.common.session.Language;
-import io.openems.common.session.Role;
-import io.openems.edge.common.test.DummyUser;
-import io.openems.edge.common.user.User;
-
 public class GetAppAssistantTest {
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
 
 	private AppManagerTestBundle testBundle;
 
@@ -47,7 +42,7 @@ public class GetAppAssistantTest {
 	}
 
 	private void testGetAppAssistant(OpenemsApp app) {
-		final var appAssistant = app.getAppAssistant(this.user);
+		final var appAssistant = app.getAppAssistant(DUMMY_ADMIN);
 		assertNotNull(appAssistant);
 		assertNotNull(appAssistant.alias);
 		assertNotNull(appAssistant.name);

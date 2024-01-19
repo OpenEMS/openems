@@ -12,5 +12,4 @@ export class JsonRpcUtils {
         }
         return Array.from(new Set(result));
     }
-
 }

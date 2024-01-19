@@ -344,32 +344,6 @@ public interface Sum extends OpenemsComponent {
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
-		 * Production: Maximum Ever AC Active Power.
-		 *
-		 * <ul>
-		 * <li>Interface: Sum (origin: ElectricityMeter))
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * <li>Range: positive values or '0'
-		 * </ul>
-		 */
-		PRODUCTION_MAX_AC_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
-		/**
-		 * Production: Maximum Ever DC Actual Power.
-		 *
-		 * <ul>
-		 * <li>Interface: Sum (origin: EssDcCharger}))
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * <li>Range: positive values or '0'
-		 * </ul>
-		 */
-		PRODUCTION_MAX_DC_ACTUAL_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
-		/**
 		 * Consumption: Active Power.
 		 *
 		 * <ul>
@@ -656,11 +630,11 @@ public interface Sum extends OpenemsComponent {
 				.channel(25, ChannelId.PRODUCTION_ACTIVE_POWER, ModbusType.FLOAT32) //
 				.channel(27, ChannelId.PRODUCTION_MAX_ACTIVE_POWER, ModbusType.FLOAT32) //
 				.channel(29, ChannelId.PRODUCTION_AC_ACTIVE_POWER, ModbusType.FLOAT32) //
-				.channel(31, ChannelId.PRODUCTION_MAX_AC_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.float32Reserved(31) // ChannelId.PRODUCTION_MAX_AC_ACTIVE_POWER
 				.float32Reserved(33) // ChannelId.PRODUCTION_AC_REACTIVE_POWER
 				.float32Reserved(35) // ChannelId.PRODUCTION_MAX_AC_REACTIVE_POWER
 				.channel(37, ChannelId.PRODUCTION_DC_ACTUAL_POWER, ModbusType.FLOAT32) //
-				.channel(39, ChannelId.PRODUCTION_MAX_DC_ACTUAL_POWER, ModbusType.FLOAT32) //
+				.float32Reserved(39) // ChannelId.PRODUCTION_MAX_DC_ACTUAL_POWER
 				.channel(41, ChannelId.CONSUMPTION_ACTIVE_POWER, ModbusType.FLOAT32) //
 				.channel(43, ChannelId.CONSUMPTION_MAX_ACTIVE_POWER, ModbusType.FLOAT32) //
 				.float32Reserved(45) // ChannelId.CONSUMPTION_REACTIVE_POWER
@@ -1501,84 +1475,6 @@ public interface Sum extends OpenemsComponent {
 	 */
 	public default void _setProductionMaxActivePower(int value) {
 		this.getProductionMaxActivePowerChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#PRODUCTION_MAX_AC_ACTIVE_POWER}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getProductionMaxAcActivePowerChannel() {
-		return this.channel(ChannelId.PRODUCTION_MAX_AC_ACTIVE_POWER);
-	}
-
-	/**
-	 * Gets the Total Maximum Ever AC Production Active Power in [W]. See
-	 * {@link ChannelId#PRODUCTION_MAX_AC_ACTIVE_POWER}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getProductionMaxAcActivePower() {
-		return this.getProductionMaxAcActivePowerChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#PRODUCTION_MAX_AC_ACTIVE_POWER} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setProductionMaxAcActivePower(Integer value) {
-		this.getProductionMaxAcActivePowerChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#PRODUCTION_MAX_AC_ACTIVE_POWER} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setProductionMaxAcActivePower(int value) {
-		this.getProductionMaxAcActivePowerChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#PRODUCTION_MAX_DC_ACTUAL_POWER}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getProductionMaxDcActualPowerChannel() {
-		return this.channel(ChannelId.PRODUCTION_MAX_DC_ACTUAL_POWER);
-	}
-
-	/**
-	 * Gets the Total Maximum Ever DC Production Actual Power in [W]. See
-	 * {@link ChannelId#PRODUCTION_MAX_DC_ACTUAL_POWER}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getProductionMaxDcActualPower() {
-		return this.getProductionMaxDcActualPowerChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#PRODUCTION_MAX_DC_ACTUAL_POWER} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setProductionMaxDcActualPower(Integer value) {
-		this.getProductionMaxDcActualPowerChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#PRODUCTION_MAX_DC_ACTUAL_POWER} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setProductionMaxDcActualPower(int value) {
-		this.getProductionMaxDcActualPowerChannel().setNextValue(value);
 	}
 
 	/**

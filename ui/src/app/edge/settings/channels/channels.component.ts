@@ -51,7 +51,7 @@ export class ChannelsComponent {
 
   /**
    * Subscribes a channel
-   * 
+   *
    * @param componentId the componentId
    * @param channelId the channelId
    */
@@ -82,7 +82,7 @@ export class ChannelsComponent {
   }
   /**
    * Unsubscribes a channel
-   * 
+   *
    * @param channelAddress the channelAddress to be unsubscribed
    */
   protected unsubscribeChannel(channelAddress: ChannelAddress): void {

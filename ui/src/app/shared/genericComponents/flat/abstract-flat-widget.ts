@@ -4,11 +4,13 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Utils } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
 
 import { DataService } from "../shared/dataservice";
 import { Converter } from "../shared/converter";
+import { Websocket } from "../../service/websocket";
+import { Service } from "../../service/service";
 
 @Directive()
 export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
@@ -36,7 +38,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
         @Inject(Service) protected service: Service,
         @Inject(ModalController) protected modalController: ModalController,
         @Inject(TranslateService) protected translate: TranslateService,
-        private dataService: DataService,
+        protected dataService: DataService,
     ) {
     }
 
@@ -51,6 +53,8 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                 // announce initialized
                 this.isInitialized = true;
 
+                this.afterIsInitialized();
+
                 // get the channel addresses that should be subscribed
                 let channelAddresses: Set<ChannelAddress> = new Set(this.getChannelAddresses());
                 let channelIds = this.getChannelIds();
@@ -60,6 +64,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                 this.dataService.getValues(Array.from(channelAddresses), this.edge, this.componentId);
                 this.dataService.currentValue.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
                     this.onCurrentData(value);
+                    this.afterOnCurrentData();
                 });
             });
         });
@@ -75,22 +80,32 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
 
     /**
      * Called on every new data.
-     * 
+     *
      * @param currentData new data for the subscribed Channel-Addresses
-     */
+    */
     protected onCurrentData(currentData: CurrentData) { }
 
     /**
      * Gets the ChannelAddresses that should be subscribed.
-     */
+    */
     protected getChannelAddresses(): ChannelAddress[] {
         return [];
     }
 
     /**
      * Gets the ChannelIds of the current Component that should be subscribed.
-     */
+    */
     protected getChannelIds(): string[] {
         return [];
     }
+
+    /**
+     * Gets called after {@link isInitialized} is true
+     */
+    protected afterIsInitialized() { }
+
+    /**
+     * Gets called after {@link onCurrentData}, every time the currentValue changes
+     */
+    protected afterOnCurrentData() { };
 }

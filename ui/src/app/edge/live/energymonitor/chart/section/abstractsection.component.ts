@@ -193,7 +193,7 @@ export abstract class AbstractSection {
 
     /**
      * Gets the SVG for EnergyFlow
-     * 
+     *
      * @param ratio  the ratio of the value [-1,1] * scale factor
      * @param radius the available radius
      */
@@ -201,7 +201,7 @@ export abstract class AbstractSection {
 
     /**
      * Gets the SVG for EnergyFlowAnimation
-     * 
+     *
      * @param ratio  the ratio of the value [-1,1] * scale factor
      * @param radius the available radius
      */
@@ -209,7 +209,7 @@ export abstract class AbstractSection {
 
     /**
      * Updates the Values for this Section.
-     * 
+     *
      * @param sum the CurrentData.Summary
      */
     public updateCurrentData(sum: DefaultTypes.Summary): void {
@@ -219,14 +219,14 @@ export abstract class AbstractSection {
 
     /**
      * Updates the Values for this Section. Should internally call updateSectionData().
-     * 
+     *
      * @param sum the CurrentData.Summary
      */
     protected abstract _updateCurrentData(sum: DefaultTypes.Summary): void;
 
     /**
      * This method is called on every change of values.
-     * 
+     *
      * @param valueAbsolute the absolute value of the Section
      * @param valueRatio    the relative value of the Section in [-1,1]
      * @param sumRatio      the relative value of the Section compared to the total System.InPower/OutPower [0,1]
@@ -259,7 +259,7 @@ export abstract class AbstractSection {
             .endAngle(this.deg2rad(valueEndAngle));
         this.valuePath = valueArc();
 
-        /* 
+        /*
          * Create the energy flow direction arrow
          */
         if (!sumRatio) {

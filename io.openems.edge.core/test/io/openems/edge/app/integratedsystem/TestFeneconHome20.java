@@ -1,5 +1,6 @@
 package io.openems.edge.app.integratedsystem;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -10,12 +11,8 @@ import org.junit.Test;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.FeedInType;
-import io.openems.edge.common.test.DummyUser;
-import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
 import io.openems.edge.core.appmanager.Apps;
@@ -24,8 +21,6 @@ import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
 public class TestFeneconHome20 {
-
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
 
 	private AppManagerTestBundle appManagerTestBundle;
 
@@ -51,7 +46,7 @@ public class TestFeneconHome20 {
 	public void testCreateAndUpdateHomeFullSettings() throws Exception {
 		var homeInstance = this.createFullHome();
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(this.user,
+		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullSettings()));
 		// expect the same as before
 		// make sure every dependency got installed
@@ -98,7 +93,7 @@ public class TestFeneconHome20 {
 		settings.addProperty("HAS_PV_3", false);
 		settings.addProperty("HAS_PV_4", false);
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(this.user,
+		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", settings));
 
 		for (int i = 0; i < 2; i++) {
@@ -114,10 +109,45 @@ public class TestFeneconHome20 {
 		}
 	}
 
+	@Test
+	public void testShadowManagement() throws Exception {
+		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request("App.FENECON.Home.20", "key", "alias", JsonUtils.buildJsonObject() //
+						.addProperty("SAFETY_COUNTRY", "GERMANY") //
+						.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+						.addProperty("MAX_FEED_IN_POWER", 1000) //
+						.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
+						.addProperty("HAS_EMERGENCY_RESERVE", true) //
+						.addProperty("EMERGENCY_RESERVE_ENABLED", true) //
+						.addProperty("EMERGENCY_RESERVE_SOC", 15) //
+						.addProperty("SHADOW_MANAGEMENT_DISABLED", true) //
+						.build()))
+				.get();
+
+		var batteryInverter = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0");
+		assertEquals("DISABLE",
+				(String) batteryInverter.getComponentContext().getProperties().get("mpptForShadowEnable"));
+
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
+				new UpdateAppInstance.Request(response.instance.instanceId, "alias", JsonUtils.buildJsonObject() //
+						.addProperty("SAFETY_COUNTRY", "GERMANY") //
+						.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+						.addProperty("MAX_FEED_IN_POWER", 1000) //
+						.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
+						.addProperty("HAS_EMERGENCY_RESERVE", true) //
+						.addProperty("EMERGENCY_RESERVE_ENABLED", true) //
+						.addProperty("EMERGENCY_RESERVE_SOC", 15) //
+						.addProperty("SHADOW_MANAGEMENT_DISABLED", false) //
+						.build()));
+		batteryInverter = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0");
+		assertEquals("ENABLE",
+				(String) batteryInverter.getComponentContext().getProperties().get("mpptForShadowEnable"));
+	}
+
 	private final OpenemsAppInstance createFullHome() throws Exception {
 		var fullConfig = fullSettings();
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.FENECON.Home.20", "key", "alias", fullConfig));
 
 		// make sure every dependency got installed

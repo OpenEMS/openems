@@ -1,4 +1,4 @@
-import { Directive, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { Directive, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -9,7 +9,6 @@ import { DefaultTypes } from "../../service/defaulttypes";
 @Directive()
 export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges, OnDestroy {
 
-  @Input() public componentId: string;
   public edge: Edge | null = null;
   public period: DefaultTypes.HistoryPeriod;
   protected showTotal: boolean = true;
@@ -35,7 +34,7 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
         // store important variables publically
         this.edge = edge;
         this.config = config;
-        this.component = config.components[this.componentId];
+        this.component = config.getComponent(this.route.snapshot.params.componentId);
 
         this.period = this.service.historyPeriod.value;
 
@@ -76,7 +75,7 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
 
   /**
    * Called on every new data.
-   * 
+   *
    * @param currentData new data for the subscribed Channel-Addresses
    */
   protected onCurrentData(currentData: CurrentData): void { }
@@ -90,7 +89,7 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
 
   /**
    * Gets the ChannelAddresses that should be queried.
-   * 
+   *
    * @param edge the current Edge
    * @param config the EdgeConfig
    */

@@ -1,12 +1,30 @@
 package io.openems.edge.app.integratedsystem;
 
+import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryInverter;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.acMeterType;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveEnabled;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveSoc;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInSetting;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInType;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasAcMeter;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEmergencyReserve;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.shadowManagementDisabled;
 import static io.openems.edge.core.appmanager.ConfigurationTarget.VALIDATE;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -16,40 +34,39 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.enums.OptionsFactory;
+import io.openems.edge.app.enums.FeedInType;
 import io.openems.edge.app.enums.Parity;
 import io.openems.edge.app.enums.SafetyCountry;
-import io.openems.edge.app.ess.PrepareBatteryExtension;
+import io.openems.edge.app.integratedsystem.FeneconHome.FeneconHomeParameter;
 import io.openems.edge.app.integratedsystem.FeneconHome.Property;
-import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
-import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
-import io.openems.edge.core.appmanager.AppAssistant;
+import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.TranslationUtil;
-import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.formly.enums.InputType;
 
 /**
  * Describes a FENECON Home energy storage system.
@@ -100,37 +117,135 @@ import io.openems.edge.core.appmanager.formly.enums.InputType;
  * </pre>
  */
 @Component(name = "App.FENECON.Home")
-public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
+public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Property, FeneconHomeParameter>
+		implements OpenemsApp {
 
-	public static enum Property implements Nameable {
+	public record FeneconHomeParameter(//
+			ResourceBundle bundle, //
+			FeneconHomeDefaultValues defaultValues //
+	) implements BundleProvider {
+
+	}
+
+	public static enum Property implements Type<Property, FeneconHome, FeneconHomeParameter> {
+		ALIAS(alias()), //
 		// Battery Inverter
-		SAFETY_COUNTRY, //
-		MAX_FEED_IN_POWER, //
-		FEED_IN_SETTING, //
+		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
+				.setRequired(true) //
+				.setDefaultValue((app, property, l, parameter) -> {
+					final var safetyCountry = parameter.defaultValues().safetyCountry();
+					if (safetyCountry == null) {
+						return JsonNull.INSTANCE;
+					}
+					return new JsonPrimitive(safetyCountry.name());
+				}))), //
 
 		// (ger. Rundsteuerempfänger)
-		RIPPLE_CONTROL_RECEIVER_ACTIV, //
+		RIPPLE_CONTROL_RECEIVER_ACTIV(AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabelWithAppPrefix(".rippleControlReceiver.label") //
+				.setTranslatedDescriptionWithAppPrefix(".rippleControlReceiver.description") //
+				.setDefaultValue((app, property, l, parameter) -> {
+					return new JsonPrimitive(parameter.defaultValues().rippleControlReceiverActiv());
+				}) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
+		FEED_IN_TYPE(AppDef.copyOfGeneric(feedInType(FeedInType.EXTERNAL_LIMITATION), def -> def //
+				.wrapField((app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(RIPPLE_CONTROL_RECEIVER_ACTIV).isNull());
+				}))), //
+		MAX_FEED_IN_POWER(AppDef.copyOfGeneric(
+				maxFeedInPower(FEED_IN_TYPE, t -> t.and(Exp.currentModelValue(RIPPLE_CONTROL_RECEIVER_ACTIV).isNull())),
+				def -> def //
+						.setDefaultValue((app, property, l, parameter) -> {
+							return new JsonPrimitive(parameter.defaultValues().maxFeedInPower());
+						}))), //
+		FEED_IN_SETTING(AppDef.copyOfGeneric(feedInSetting(), def -> def //
+				.setDefaultValue((app, property, l, parameter) -> {
+					return new JsonPrimitive(parameter.defaultValues().feedInSetting());
+				}))), //
 
 		// External AC PV
-		HAS_AC_METER, //
-		AC_METER_TYPE, //
+		HAS_AC_METER(AppDef.copyOfGeneric(hasAcMeter(), def -> def //
+				.setDefaultValue((app, property, l, parameter) -> {
+					return new JsonPrimitive(parameter.defaultValues().hasAcMeter());
+				}))), //
+		AC_METER_TYPE(acMeterType(HAS_AC_METER)), //
 
 		// DC PV Charger 1
-		HAS_DC_PV1, //
-		DC_PV1_ALIAS, //
+		HAS_DC_PV1(AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabelWithAppPrefix(".hasDcPV1.label") //
+				.setDefaultValue((app, property, l, parameter) -> {
+					return new JsonPrimitive(parameter.defaultValues().hasCharger1());
+				}) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
+		DC_PV1_ALIAS(AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setLabel("DC-PV 1 Alias") //
+				.setDefaultValue((app, property, l, parameter) -> {
+					return new JsonPrimitive(parameter.defaultValues().charger1Alias());
+				}) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(HAS_DC_PV1).notNull());
+				}))), //
 
 		// DC PV Charger 2
-		HAS_DC_PV2, //
-		DC_PV2_ALIAS, //
+		HAS_DC_PV2(AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabelWithAppPrefix(".hasDcPV2.label") //
+				.setDefaultValue((app, property, l, parameter) -> {
+					return new JsonPrimitive(parameter.defaultValues().hasCharger2());
+				}) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
+		DC_PV2_ALIAS(AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setLabel("DC-PV 2 Alias") //
+				.setDefaultValue((app, property, l, parameter) -> {
+					return new JsonPrimitive(parameter.defaultValues().charger2Alias());
+				}) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(HAS_DC_PV2).notNull());
+				}))), //
 
 		// Emergency Reserve SoC
-		HAS_EMERGENCY_RESERVE, //
-		EMERGENCY_RESERVE_ENABLED, //
-		EMERGENCY_RESERVE_SOC, //
+		HAS_EMERGENCY_RESERVE(AppDef.copyOfGeneric(hasEmergencyReserve(), def -> def //
+				.setDefaultValue((app, property, l, parameter) -> {
+					return new JsonPrimitive(parameter.defaultValues().hasEmergencyReserve());
+				}))), //
+		EMERGENCY_RESERVE_ENABLED(AppDef.copyOfGeneric(emergencyReserveEnabled(HAS_EMERGENCY_RESERVE), def -> def //
+				.setDefaultValue((app, property, l, parameter) -> {
+					return new JsonPrimitive(parameter.defaultValues().emergencyReserveEnabled());
+				}))), //
+		EMERGENCY_RESERVE_SOC(AppDef.copyOfGeneric(emergencyReserveSoc(EMERGENCY_RESERVE_ENABLED), def -> def //
+				.setDefaultValue((app, property, l, parameter) -> {
+					return new JsonPrimitive(parameter.defaultValues().emergencyReserveSoc());
+				}))), //
 
 		// Shadow management
-		SHADOW_MANAGEMENT_DISABLED, //
+		SHADOW_MANAGEMENT_DISABLED(AppDef.copyOfGeneric(shadowManagementDisabled(), def -> def //
+				.setDefaultValue((app, property, l, parameter) -> {
+					return new JsonPrimitive(parameter.defaultValues().shadowManagementDisabled());
+				}))), //
 		;
+
+		private final AppDef<? super FeneconHome, ? super Property, ? super FeneconHomeParameter> def;
+
+		private Property(AppDef<? super FeneconHome, ? super Property, ? super FeneconHomeParameter> def) {
+			this.def = def;
+		}
+
+		@Override
+		public Type<Property, FeneconHome, FeneconHomeParameter> self() {
+			return this;
+		}
+
+		@Override
+		public AppDef<? super FeneconHome, ? super Property, ? super FeneconHomeParameter> def() {
+			return this.def;
+		}
+
+		@Override
+		public Function<GetParameterValues<FeneconHome>, FeneconHomeParameter> getParamter() {
+			return t -> new FeneconHomeParameter(//
+					AbstractOpenemsApp.getTranslationBundle(t.language), //
+					createFeneconHomeDefaultValues(t.app.componentManager, t.app.componentUtil) //
+			);
+		}
 	}
 
 	@Activate
@@ -140,42 +255,37 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fenecon-home-10/") //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 
 	@Override
-	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, //
-			AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, //
+			AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
 			final var essId = "ess0";
 			final var modbusIdInternal = "modbus0";
 			final var modbusIdExternal = "modbus1";
 
-			final var hasEmergencyReserve = EnumUtils.getAsOptionalBoolean(p, Property.HAS_EMERGENCY_RESERVE)
-					.orElse(false);
-			final var emergencyReserveEnabled = EnumUtils.getAsOptionalBoolean(p, Property.EMERGENCY_RESERVE_ENABLED)
-					.orElse(false);
-			final var rippleControlReceiverActive = EnumUtils
-					.getAsOptionalBoolean(p, Property.RIPPLE_CONTROL_RECEIVER_ACTIV).orElse(false);
-			final var shadowManagmentDisabled = EnumUtils.getAsOptionalBoolean(p, Property.SHADOW_MANAGEMENT_DISABLED)
-					.orElse(false);
-			final var hasAcMeter = EnumUtils.getAsOptionalBoolean(p, Property.HAS_AC_METER).orElse(false);
-			// for older versions this property is undefined
-			final var acType = EnumUtils.getAsOptionalEnum(AcMeterType.class, p, Property.AC_METER_TYPE) //
-					.orElse(AcMeterType.SOCOMEC);
+			final var hasEmergencyReserve = this.getBoolean(p, Property.HAS_EMERGENCY_RESERVE);
+			final var emergencyReserveEnabled = this.getBoolean(p, Property.EMERGENCY_RESERVE_ENABLED);
 
-			// Battery-Inverter Settings
-			final var safetyCountry = EnumUtils.getAsEnum(SafetyCountry.class, p, Property.SAFETY_COUNTRY);
-			final int maxFeedInPower;
-			final String feedInSetting = EnumUtils.getAsOptionalString(p, Property.FEED_IN_SETTING).orElse("UNDEFINED");
-			if (!rippleControlReceiverActive) {
-				maxFeedInPower = EnumUtils.getAsInt(p, Property.MAX_FEED_IN_POWER);
-			} else {
-				maxFeedInPower = 0;
-			}
+			final var rippleControlReceiverActive = this.getBoolean(p, Property.RIPPLE_CONTROL_RECEIVER_ACTIV);
+			final var feedInType = rippleControlReceiverActive ? FeedInType.EXTERNAL_LIMITATION
+					: this.getEnum(p, FeedInType.class, Property.FEED_IN_TYPE);
+			final var maxFeedInPower = feedInType == FeedInType.DYNAMIC_LIMITATION
+					? this.getInt(p, Property.MAX_FEED_IN_POWER)
+					: 0;
+
+			final var shadowManagmentDisabled = this.getBoolean(p, Property.SHADOW_MANAGEMENT_DISABLED);
+			final var hasAcMeter = this.getBoolean(p, Property.HAS_AC_METER);
+			// for older versions this property is undefined
+			final var acType = this.getEnum(p, AcMeterType.class, Property.AC_METER_TYPE);
+
+			final var safetyCountry = this.getEnum(p, SafetyCountry.class, Property.SAFETY_COUNTRY);
+			final var feedInSetting = this.getString(p, Property.FEED_IN_SETTING);
 
 			var bundle = AbstractOpenemsApp.getTranslationBundle(l);
 			var components = Lists.newArrayList(//
@@ -230,20 +340,8 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 									.addProperty("modbusUnitId", 1) //
 									.addProperty("batteryStartUpRelay", "io0/Relay4") //
 									.build()),
-					new EdgeConfig.Component("batteryInverter0",
-							TranslationUtil.getTranslation(bundle, this.getAppId() + ".batteryInverter0.alias"),
-							"GoodWe.BatteryInverter", JsonUtils.buildJsonObject() //
-									.addProperty("enabled", true) //
-									.addProperty("modbus.id", modbusIdExternal) //
-									.addProperty("modbusUnitId", 247) //
-									.addProperty("safetyCountry", safetyCountry.name()) //
-									.addProperty("backupEnable", //
-											hasEmergencyReserve ? "ENABLE" : "DISABLE") //
-									.addProperty("feedPowerEnable", rippleControlReceiverActive ? "DISABLE" : "ENABLE") //
-									.addProperty("feedPowerPara", maxFeedInPower) //
-									.addProperty("setfeedInPowerSettings", feedInSetting) //
-									.addProperty("mpptForShadowEnable", shadowManagmentDisabled ? "DISABLE" : "ENABLE") //
-									.build()),
+					batteryInverter(bundle, "batteryInverter0", hasEmergencyReserve, feedInType, maxFeedInPower,
+							modbusIdExternal, shadowManagmentDisabled, safetyCountry, feedInSetting), //
 					new EdgeConfig.Component(essId,
 							TranslationUtil.getTranslation(bundle, this.getAppId() + "." + essId + ".alias"),
 							"Ess.Generic.ManagedSymmetric", JsonUtils.buildJsonObject() //
@@ -265,9 +363,9 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 							.build()) //
 			);
 
-			if (EnumUtils.getAsOptionalBoolean(p, Property.HAS_DC_PV1).orElse(false)) {
-				var alias = EnumUtils.getAsOptionalString(p, Property.DC_PV1_ALIAS).orElse("DC-PV 1");
-				components.add(new EdgeConfig.Component("charger0", alias, "GoodWe.Charger-PV1", //
+			if (this.getBoolean(p, Property.HAS_DC_PV1)) {
+				components.add(new EdgeConfig.Component("charger0", this.getString(p, l, Property.DC_PV1_ALIAS),
+						"GoodWe.Charger-PV1", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("enabled", true) //
 								.addProperty("essOrBatteryInverter.id", "batteryInverter0") //
@@ -276,9 +374,9 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 								.build()));
 			}
 
-			if (EnumUtils.getAsOptionalBoolean(p, Property.HAS_DC_PV2).orElse(false)) {
-				var alias = EnumUtils.getAsOptionalString(p, Property.DC_PV2_ALIAS).orElse("DC-PV 2");
-				components.add(new EdgeConfig.Component("charger1", alias, "GoodWe.Charger-PV2", //
+			if (this.getBoolean(p, Property.HAS_DC_PV2)) {
+				components.add(new EdgeConfig.Component("charger1", this.getString(p, l, Property.DC_PV2_ALIAS),
+						"GoodWe.Charger-PV2", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("enabled", true) //
 								.addProperty("essOrBatteryInverter.id", "batteryInverter0") //
@@ -298,7 +396,7 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 								.build()));
 
 				// use 5(minimum value) as reserveSoc if emergencyReserveEnabled is not enabled
-				var emergencyReserveSoc = EnumUtils.getAsOptionalInt(p, Property.EMERGENCY_RESERVE_SOC).orElse(5);
+				final var emergencyReserveSoc = this.getInt(p, Property.EMERGENCY_RESERVE_SOC);
 				components.add(new EdgeConfig.Component("ctrlEmergencyCapacityReserve0",
 						TranslationUtil.getTranslation(bundle,
 								this.getAppId() + ".ctrlEmergencyCapacityReserve0.alias"),
@@ -323,49 +421,10 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 			schedulerExecutionOrder.add("ctrlEssSurplusFeedToGrid0");
 			schedulerExecutionOrder.add("ctrlBalancing0");
 
-			var dependencies = Lists.newArrayList(new DependencyDeclaration("GRID_OPTIMIZED_CHARGE", //
-					DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
-					DependencyDeclaration.UpdatePolicy.ALWAYS, //
-					DependencyDeclaration.DeletePolicy.IF_MINE, //
-					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
-					DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
-					DependencyDeclaration.AppDependencyConfig.create() //
-							.setAppId("App.PvSelfConsumption.GridOptimizedCharge") //
-							.setProperties(JsonUtils.buildJsonObject() //
-									.addProperty(GridOptimizedCharge.Property.SELL_TO_GRID_LIMIT_ENABLED.name(),
-											!rippleControlReceiverActive) //
-									.onlyIf(t != VALIDATE, //
-											j -> j.addProperty(GridOptimizedCharge.Property.MODE.name(),
-													!rippleControlReceiverActive ? "AUTOMATIC" : "OFF")) //
-									.addProperty(GridOptimizedCharge.Property.MAXIMUM_SELL_TO_GRID_POWER.name(),
-											maxFeedInPower) //
-									.build())
-							.build()),
-					new DependencyDeclaration("SELF_CONSUMPTION_OPTIMIZATION", //
-							DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
-							DependencyDeclaration.UpdatePolicy.NEVER, //
-							DependencyDeclaration.DeletePolicy.IF_MINE, //
-							DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
-							DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
-							DependencyDeclaration.AppDependencyConfig.create() //
-									.setAppId("App.PvSelfConsumption.SelfConsumptionOptimization") //
-									.setProperties(JsonUtils.buildJsonObject() //
-											.addProperty(SelfConsumptionOptimization.Property.ESS_ID.name(), essId) //
-											.addProperty(SelfConsumptionOptimization.Property.METER_ID.name(), "meter0") //
-											.build())
-									.build()),
-					new DependencyDeclaration("PREPARE_BATTERY_EXTENSION", //
-							DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
-							DependencyDeclaration.UpdatePolicy.NEVER, //
-							DependencyDeclaration.DeletePolicy.IF_MINE, //
-							DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
-							DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
-							DependencyDeclaration.AppDependencyConfig.create() //
-									.setAppId("App.Ess.PrepareBatteryExtension") //
-									.setProperties(JsonUtils.buildJsonObject() //
-											.addProperty(PrepareBatteryExtension.Property.TARGET_SOC.name(), 30) //
-											.build())
-									.build()) //
+			var dependencies = Lists.newArrayList(//
+					gridOptimizedCharge(t, feedInType, maxFeedInPower), //
+					selfConsumptionOptimization(t, essId, "meter0"), //
+					prepareBatteryExtension() //
 			);
 
 			if (hasAcMeter) {
@@ -381,171 +440,8 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 	}
 
 	@Override
-	public AppAssistant getAppAssistant(Language language) {
-		final var batteryInverter = this.getBatteryInverter();
-		final var emergencyController = this.componentUtil.getComponent("ctrlEmergencyCapacityReserve0", //
-				"Controller.Ess.EmergencyCapacityReserve");
-		final var emergencyReserveEnabled = emergencyController.map(EdgeConfig.Component::getProperties)
-				.map(t -> t.get("isReserveSocEnabled")).map(JsonElement::getAsBoolean).orElse(false);
-		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
-		return AppAssistant.create(this.getName(language)) //
-				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildSelect(Property.SAFETY_COUNTRY) //
-								.setLabel(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".safetyCountry.label")) //
-								.isRequired(true) //
-								.setOptions(OptionsFactory.of(SafetyCountry.class), language) //
-								.onlyIf(batteryInverter.isPresent(), f -> {
-									final var setting = SafetyCountry.valueOf(batteryInverter.get() //
-											.getProperty("safetyCountry").get().getAsString());
-									f.setDefaultValue(setting.name());
-								}).build())
-						.add(JsonFormlyUtil.buildCheckbox(Property.RIPPLE_CONTROL_RECEIVER_ACTIV) //
-								.setLabel(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".rippleControlReceiver.label"))
-								.setDescription(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".rippleControlReceiver.description"))
-								.setDefaultValue(false) //
-								.onlyIf(batteryInverter.isPresent(), t -> {
-									var defaultValue = batteryInverter.get().getProperty("feedPowerEnable")
-											.map(j -> JsonUtils.getAsOptionalString(j).get()).orElse("ENABLE")
-											.equals("DISABLE");
-									t.setDefaultValue(defaultValue);
-								}).build())
-						.add(JsonFormlyUtil.buildInput(Property.MAX_FEED_IN_POWER) //
-								.setLabel(
-										TranslationUtil.getTranslation(bundle, this.getAppId() + ".feedInLimit.label")) //
-								.isRequired(true) //
-								.onlyShowIf(Exp.currentModelValue(Property.RIPPLE_CONTROL_RECEIVER_ACTIV).isNull())
-								.setInputType(InputType.NUMBER) //
-								.setDefaultValue(0) //
-								.setMin(0) //
-								.onlyPositiveNumbers() //
-								.onlyIf(batteryInverter.isPresent(), f -> {
-									f.setDefaultValue(batteryInverter.get() //
-											.getProperty("feedPowerPara").get());
-								}).build())
-						.add(JsonFormlyUtil.buildSelect(Property.FEED_IN_SETTING) //
-								.setLabel(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".feedInSettings.label")) //
-								.isRequired(true) //
-								.setDefaultValue("UNDEFINED") //
-								.setOptions(this.getFeedInSettingsOptions()) //
-								.onlyIf(batteryInverter.isPresent(), f -> {
-									f.setDefaultValue(batteryInverter.get() //
-											.getProperty("setfeedInPowerSettings") //
-											.get().getAsString());
-								}).build())
-						.add(JsonFormlyUtil.buildCheckbox(Property.HAS_AC_METER) //
-								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".hasAcMeter.label")) //
-								.isRequired(true) //
-								.setDefaultValue(this.componentUtil //
-										.getComponent("meter1", "Meter.Socomec.Threephase") //
-										.isPresent()) //
-								.build())
-						.add(JsonFormlyUtil.buildSelect(Property.AC_METER_TYPE) //
-								.setLabel(
-										TranslationUtil.getTranslation(bundle, this.getAppId() + ".acMeterType.label")) //
-								.setOptions(OptionsFactory.of(AcMeterType.values()), language) //
-								.onlyShowIf(Exp.currentModelValue(Property.HAS_AC_METER).notNull())
-								.setDefaultValue(AcMeterType.SOCOMEC.name()) //
-								.isRequired(true) //
-								.build()) //
-						.add(JsonFormlyUtil.buildCheckbox(Property.HAS_DC_PV1) //
-								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".hasDcPV1.label")) //
-								.isRequired(true) //
-								.setDefaultValue(this.componentUtil //
-										.getComponent("charger0", "GoodWe.Charger-PV1").isPresent())
-								.build())
-						.add(JsonFormlyUtil.buildInput(Property.DC_PV1_ALIAS) //
-								.setLabel("DC-PV 1 Alias") //
-								.setDefaultValue("DC-PV1") //
-								.onlyShowIf(Exp.currentModelValue(Property.HAS_DC_PV1).notNull())
-								.onlyIf(this.componentUtil.getComponent("charger0", "GoodWe.Charger-PV1").isPresent(),
-										j -> j.setDefaultValueWithStringSupplier(() -> {
-											var charger = this.componentUtil //
-													.getComponent("charger0", "GoodWe.Charger-PV1");
-											if (charger.isEmpty()) {
-												return null;
-											}
-											return charger.get().getAlias();
-										}))
-								.build())
-						.add(JsonFormlyUtil.buildCheckbox(Property.HAS_DC_PV2) //
-								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".hasDcPV2.label")) //
-								.isRequired(true) //
-								.setDefaultValue(this.componentUtil //
-										.getComponent("charger1", "GoodWe.Charger-PV2").isPresent())
-								.build())
-						.add(JsonFormlyUtil.buildInput(Property.DC_PV2_ALIAS) //
-								.setLabel("DC-PV 2 Alias") //
-								.setDefaultValue("DC-PV2") //
-								.onlyShowIf(Exp.currentModelValue(Property.HAS_DC_PV2).notNull())
-								.onlyIf(this.componentUtil.getComponent("charger1", "GoodWe.Charger-PV2").isPresent(),
-										j -> j.setDefaultValueWithStringSupplier(() -> {
-											var charger = this.componentUtil //
-													.getComponent("charger1", "GoodWe.Charger-PV2");
-											if (charger.isEmpty()) {
-												return null;
-											}
-											return charger.get().getAlias();
-										}))
-								.build())
-						.add(JsonFormlyUtil.buildCheckbox(Property.HAS_EMERGENCY_RESERVE) //
-								.setLabel(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".emergencyPowerSupply.label")) //
-								.isRequired(true) //
-								.setDefaultValue(emergencyController.isPresent()) //
-								.build())
-						.add(JsonFormlyUtil.buildCheckbox(Property.EMERGENCY_RESERVE_ENABLED) //
-								.setLabel(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".emergencyPowerEnergy.label")) //
-								.setDefaultValue(emergencyReserveEnabled) //
-								.onlyShowIf(Exp.currentModelValue(Property.HAS_EMERGENCY_RESERVE).notNull()).build())
-						.add(JsonFormlyUtil.buildRange(Property.EMERGENCY_RESERVE_SOC) //
-								.setLabel(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".reserveEnergy.label")) //
-								.setMin(5) //
-								.setMax(100) //
-								.setDefaultValue(5) //
-								.onlyShowIf(Exp.currentModelValue(Property.EMERGENCY_RESERVE_ENABLED).notNull())
-								.onlyIf(emergencyReserveEnabled, f -> { //
-									f.setDefaultValue(
-											emergencyController.get().getProperty("reserveSoc").get().getAsNumber());
-								}) //
-								.build())
-						.add(JsonFormlyUtil.buildCheckbox(Property.SHADOW_MANAGEMENT_DISABLED) //
-								.setLabel(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".shadowManagementDisabled.label")) //
-								.setDescription(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".shadowManagementDisabled.description")) //
-								.onlyIf(batteryInverter.isPresent(), t -> {
-									batteryInverter.get().getProperty("mpptForShadowEnable").ifPresent(value -> {
-										t.setDefaultValue(value.getAsString().equals("DISABLE"));
-									});
-								}) //
-								.build())
-						.build()) //
-				.build();
-	}
-
-	private final Optional<EdgeConfig.Component> getBatteryInverter() {
-		var batteryInverter = this.componentManager.getEdgeConfig().getComponent("batteryInverter0");
-		if (batteryInverter.isPresent() //
-				&& !batteryInverter.get().getFactoryId().equals("GoodWe.BatteryInverter")) {
-			batteryInverter = Optional.empty();
-		}
-		return batteryInverter;
-	}
-
-	@Override
 	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.INTEGRATED_SYSTEM };
-	}
-
-	@Override
-	protected Class<Property> getPropertyClass() {
-		return Property.class;
 	}
 
 	@Override
@@ -560,21 +456,89 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 				.build();
 	}
 
-	private List<String> getFeedInSettingsOptions() {
-		var options = new ArrayList<String>(45);
-		options.add("UNDEFINED");
-		options.add("QU_ENABLE_CURVE");
-		options.add("PU_ENABLE_CURVE");
-		// LAGGING_0_99 - LAGGING_0_80
-		for (var i = 99; i >= 80; i--) {
-			options.add("LAGGING_0_" + Integer.toString(i));
+	@Override
+	protected FeneconHome getApp() {
+		return this;
+	}
+
+	@Override
+	protected Property[] propertyValues() {
+		return Property.values();
+	}
+
+	private record FeneconHomeDefaultValues(//
+			SafetyCountry safetyCountry, //
+			boolean rippleControlReceiverActiv, //
+			int maxFeedInPower, //
+			String feedInSetting, //
+			boolean hasAcMeter, //
+			boolean hasCharger1, //
+			String charger1Alias, //
+			boolean hasCharger2, //
+			String charger2Alias, //
+			boolean hasEmergencyReserve, //
+			boolean emergencyReserveEnabled, //
+			int emergencyReserveSoc, //
+			boolean shadowManagementDisabled //
+	) {
+
+	}
+
+	private static FeneconHomeDefaultValues createFeneconHomeDefaultValues(//
+			ComponentManager componentManager, //
+			ComponentUtil componentUtil //
+	) {
+		final var batteryInverter = getBatteryInverter(componentManager);
+
+		final var safetyCountry = batteryInverter.flatMap(t -> t.getProperty("safetyCountry")) //
+				.flatMap(JsonUtils::getAsOptionalString) //
+				.map(SafetyCountry::valueOf) //
+				.orElse(null);
+
+		final var rippleControlReceiverActiv = batteryInverter.flatMap(t -> t.getProperty("rcrEnable")) //
+				.flatMap(JsonUtils::getAsOptionalBoolean) //
+				.orElse(false);
+
+		final var maxFeedInPower = batteryInverter.flatMap(t -> t.getProperty("feedPowerPara")) //
+				.flatMap(JsonUtils::getAsOptionalInt) //
+				.orElse(0);
+
+		final var feedInSetting = batteryInverter.flatMap(t -> t.getProperty("setfeedInPowerSettings")) //
+				.flatMap(JsonUtils::getAsOptionalString) //
+				.orElse("UNDEFINED");
+
+		final var hasAcMeter = componentUtil.getComponent("meter1", "Meter.Socomec.Threephase").isPresent();
+
+		final var charger0 = componentUtil.getComponent("charger0", "GoodWe.Charger-PV1");
+		final var charger1 = componentUtil.getComponent("charger1", "GoodWe.Charger-PV2");
+
+		final var emergencyController = componentUtil.getComponent("ctrlEmergencyCapacityReserve0", //
+				"Controller.Ess.EmergencyCapacityReserve");
+		final var hasEmergencyReserve = emergencyController.isPresent();
+		final var emergencyReserveEnabled = emergencyController.flatMap(t -> t.getProperty("isReserveSocEnabled"))
+				.flatMap(JsonUtils::getAsOptionalBoolean).orElse(false);
+		final var reserveSoc = emergencyController.flatMap(t -> t.getProperty("reserveSoc")) //
+				.flatMap(JsonUtils::getAsOptionalInt) //
+				.orElse(5);
+
+		final var shadowManagementDisabled = batteryInverter.flatMap(t -> t.getProperty("mpptForShadowEnable"))
+				.flatMap(JsonUtils::getAsOptionalString).map(t -> t.equals("DISABLE")).orElse(false);
+
+		return new FeneconHomeDefaultValues(safetyCountry, rippleControlReceiverActiv, maxFeedInPower, feedInSetting,
+				hasAcMeter, charger0.isPresent(),
+				charger0.map(io.openems.common.types.EdgeConfig.Component::getAlias).orElse("DC-PV1"), //
+				charger1.isPresent(),
+				charger1.map(io.openems.common.types.EdgeConfig.Component::getAlias).orElse("DC-PV2"), //
+				hasEmergencyReserve, emergencyReserveEnabled, reserveSoc, shadowManagementDisabled);
+	}
+
+	private static Optional<EdgeConfig.Component> getBatteryInverter(ComponentManager componentManager) {
+		var batteryInverter = componentManager.getEdgeConfig().getComponent("batteryInverter0");
+		if (batteryInverter.isPresent() //
+				&& !batteryInverter.get().getFactoryId().equals("GoodWe.BatteryInverter")) {
+			batteryInverter = Optional.empty();
 		}
-		// LEADING_0_80 - LEADING_0_99
-		for (var i = 80; i < 100; i++) {
-			options.add("LEADING_0_" + Integer.toString(i));
-		}
-		options.add("LEADING_1");
-		return options;
+		return batteryInverter;
 	}
 
 }

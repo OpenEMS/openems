@@ -2,7 +2,7 @@ import { JsonrpcResponseSuccess } from '../../../../shared/jsonrpc/base';
 
 /**
  * Wraps a JSON-RPC Response to "getModbusProtocol" Request
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

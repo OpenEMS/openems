@@ -26,7 +26,7 @@ export class OeFormlyViewTester {
   private static applyField(field: OeFormlyField, context: OeFormlyViewTester.Context): OeFormlyViewTester.Field {
     switch (field.type) {
       /**
-       * OeFormlyField.Line 
+       * OeFormlyField.Line
        */
       case 'children-line':
         let tmp = OeFormlyViewTester.applyLineWithChildren(field, context);
@@ -152,8 +152,8 @@ export class OeFormlyViewTester {
 
   /**
    * Common method for Line and Item as they share some fields and logic.
-   * 
-   * @param field the field 
+   *
+   * @param field the field
    * @param context the test context
    * @returns result or null
    */
@@ -237,7 +237,7 @@ export class OeChartTester {
     let configuration = AbstractHistoryChart.fillChart(chartType, chartData, channelData, channels.energyChannelWithValues);
     let data: OeChartTester.Dataset.Data[] = OeChartTester.convertChartDatasetsToDatasets(configuration.datasets);
     let labels: OeChartTester.Dataset.LegendLabel = OeChartTester.convertChartLabelsToLegendLabels(configuration.labels);
-    let options: OeChartTester.Dataset.Option = OeChartTester.convertChartDataToOptions(chartData, chartType, testContext, channels);
+    let options: OeChartTester.Dataset.Option = OeChartTester.convertChartDataToOptions(chartData, chartType, testContext, channels, testContext.translate.currentLang);
 
     return {
       datasets: {
@@ -250,7 +250,7 @@ export class OeChartTester {
 
   /**
    * Converts chartLabels to legendLabels
-   * 
+   *
    * @param labels the labels
    * @returns legendlabels
    */
@@ -263,7 +263,7 @@ export class OeChartTester {
 
   /**
    * Converts chartData to Dataset
-   * 
+   *
    * @param datasets the datasets
    * @returns data from a chartData dataset
    */
@@ -284,14 +284,14 @@ export class OeChartTester {
 
   /**
    * Converts chartData to chartOptions
-   * 
+   *
    * @param chartObject the chartObject
    * @param chartType the chartType
    * @param testContext the testContext
    * @param channels the channels
    * @returns dataset options
    */
-  public static convertChartDataToOptions(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', testContext: TestContext, channels: OeTester.Types.Channels): OeChartTester.Dataset.Option {
+  public static convertChartDataToOptions(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', testContext: TestContext, channels: OeTester.Types.Channels, locale: string): OeChartTester.Dataset.Option {
 
     let channelData: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse = OeChartTester.getChannelDataByCharttype(chartType, channels);
     let displayValues = chartData.output(channelData.result.data);
@@ -305,7 +305,7 @@ export class OeChartTester {
 
     return {
       type: 'option',
-      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result),
+      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, locale),
     };
   }
 
