@@ -196,9 +196,9 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 						.bit(4, PylontechPowercubeM2Battery.ChannelId.SYSTEM_CURRENT_PROTECTION)
 						.bit(5, PylontechPowercubeM2Battery.ChannelId.SYSTEM_VOLTAGE_PROTECTION)
 						.bit(6, PylontechPowercubeM2Battery.ChannelId.SYSTEM_TEMPERATURE_PROTECTION)
-						.bit(7, PylontechPowercubeM2Battery.ChannelId.SYSTEM_VOLTAGE_ALARM)
-						.bit(8, PylontechPowercubeM2Battery.ChannelId.SYSTEM_CURRENT_ALARM)
-						.bit(9, PylontechPowercubeM2Battery.ChannelId.SYSTEM_TEMPERATURE_ALARM)
+						.bit(7, PylontechPowercubeM2Battery.ChannelId.SYSTEM_VOLTAGE_WARNING)
+						.bit(8, PylontechPowercubeM2Battery.ChannelId.SYSTEM_CURRENT_WARNING)
+						.bit(9, PylontechPowercubeM2Battery.ChannelId.SYSTEM_TEMPERATURE_WARNING)
 						.bit(10, PylontechPowercubeM2Battery.ChannelId.SYSTEM_IDLE_STATUS)
 						.bit(11, PylontechPowercubeM2Battery.ChannelId.SYSTEM_CHARGE_STATUS)
 						.bit(12, PylontechPowercubeM2Battery.ChannelId.SYSTEM_DISCHARGE_STATUS)
@@ -220,20 +220,20 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 								.bit(13, PylontechPowercubeM2Battery.ChannelId.MODULE_UNDER_VOLTAGE_PROTECTION)
 								.bit(14, PylontechPowercubeM2Battery.ChannelId.MODULE_OVER_VOLTAGE_PROTECTION)),
 						m(new BitsWordElement(0x1102, this)
-								.bit(0, PylontechPowercubeM2Battery.ChannelId.BATTERY_CELL_LOW_VOLTAGE_ALARM)
-								.bit(1, PylontechPowercubeM2Battery.ChannelId.BATTERY_CELL_HIGH_VOLTAGE_ALARM)
-								.bit(2, PylontechPowercubeM2Battery.ChannelId.PILE_LOW_VOLTAGE_ALARM)
-								.bit(3, PylontechPowercubeM2Battery.ChannelId.PILE_HIGH_VOLTAGE_ALARM)
-								.bit(4, PylontechPowercubeM2Battery.ChannelId.CHARGE_LOW_TEMPERATURE_ALARM)
-								.bit(5, PylontechPowercubeM2Battery.ChannelId.CHARGE_HIGH_TEMPERATURE_ALARM)
-								.bit(6, PylontechPowercubeM2Battery.ChannelId.DISCHARGE_LOW_TEMPERATURE_ALARM)
-								.bit(7, PylontechPowercubeM2Battery.ChannelId.DISCHARGE_HIGH_TEMPERATURE_ALARM)
-								.bit(8, PylontechPowercubeM2Battery.ChannelId.CHARGE_OVER_CURRENT_ALARM)
-								.bit(9, PylontechPowercubeM2Battery.ChannelId.DISCHARGE_OVER_CURRENT_ALARM)
-								.bit(11, PylontechPowercubeM2Battery.ChannelId.BMS_HIGH_TEMPERATURE_ALARM)
-								.bit(12, PylontechPowercubeM2Battery.ChannelId.MODULE_HIGH_TEMPERATURE_ALARM)
-								.bit(13, PylontechPowercubeM2Battery.ChannelId.MODULE_LOW_VOLTAGE_ALARM)
-								.bit(14, PylontechPowercubeM2Battery.ChannelId.MODULE_HIGH_VOLTAGE_ALARM))),
+								.bit(0, PylontechPowercubeM2Battery.ChannelId.BATTERY_CELL_LOW_VOLTAGE_WARNING)
+								.bit(1, PylontechPowercubeM2Battery.ChannelId.BATTERY_CELL_HIGH_VOLTAGE_WARNING)
+								.bit(2, PylontechPowercubeM2Battery.ChannelId.PILE_LOW_VOLTAGE_WARNING)
+								.bit(3, PylontechPowercubeM2Battery.ChannelId.PILE_HIGH_VOLTAGE_WARNING)
+								.bit(4, PylontechPowercubeM2Battery.ChannelId.CHARGE_LOW_TEMPERATURE_WARNING)
+								.bit(5, PylontechPowercubeM2Battery.ChannelId.CHARGE_HIGH_TEMPERATURE_WARNING)
+								.bit(6, PylontechPowercubeM2Battery.ChannelId.DISCHARGE_LOW_TEMPERATURE_WARNING)
+								.bit(7, PylontechPowercubeM2Battery.ChannelId.DISCHARGE_HIGH_TEMPERATURE_WARNING)
+								.bit(8, PylontechPowercubeM2Battery.ChannelId.CHARGE_OVER_CURRENT_WARNING)
+								.bit(9, PylontechPowercubeM2Battery.ChannelId.DISCHARGE_OVER_CURRENT_WARNING)
+								.bit(11, PylontechPowercubeM2Battery.ChannelId.BMS_HIGH_TEMPERATURE_WARNING)
+								.bit(12, PylontechPowercubeM2Battery.ChannelId.MODULE_HIGH_TEMPERATURE_WARNING)
+								.bit(13, PylontechPowercubeM2Battery.ChannelId.MODULE_LOW_VOLTAGE_WARNING)
+								.bit(14, PylontechPowercubeM2Battery.ChannelId.MODULE_HIGH_VOLTAGE_WARNING))),
 				new FC3ReadRegistersTask(0x1103, Priority.LOW, //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x1103),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
@@ -481,9 +481,9 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 									.bit(4, this.generatePileChannel(pile, "CURRENT_PROTECTION", Level.FAULT))
 									.bit(5, this.generatePileChannel(pile, "VOLTAGE_PROTECTION", Level.FAULT))
 									.bit(6, this.generatePileChannel(pile, "TEMPERATURE_PROTECTION", Level.FAULT))
-									.bit(7, this.generatePileChannel(pile, "VOLTAGE_ALARM", Level.WARNING))
-									.bit(8, this.generatePileChannel(pile, "CURRENT_ALARM", Level.WARNING))
-									.bit(9, this.generatePileChannel(pile, "TEMPERATURE_ALARM", Level.WARNING))
+									.bit(7, this.generatePileChannel(pile, "VOLTAGE_WARNING", Level.WARNING))
+									.bit(8, this.generatePileChannel(pile, "CURRENT_WARNING", Level.WARNING))
+									.bit(9, this.generatePileChannel(pile, "TEMPERATURE_WARNING", Level.WARNING))
 									.bit(10, this.generatePileChannel(pile, "PILE_SYSTEM_IDLE_STATUS",
 											OpenemsType.BOOLEAN))
 									.bit(11, this.generatePileChannel(pile, "PILE_SYSTEM_CHARGE_STATUS",
@@ -521,30 +521,30 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 									.bit(14, this.generatePileChannel(pile, "MODULE_OVER_VOLTAGE_PROTECTION",
 											Level.FAULT))),
 							m(new BitsWordElement(pileOffset + 0x0002, this)
-									.bit(0, this.generatePileChannel(pile, "BATTERY_CELL_LOW_VOLTAGE_ALARM",
+									.bit(0, this.generatePileChannel(pile, "BATTERY_CELL_LOW_VOLTAGE_WARNING",
 											Level.WARNING))
-									.bit(1, this.generatePileChannel(pile, "BATTERY_CELL_HIGH_VOLTAGE_ALARM",
+									.bit(1, this.generatePileChannel(pile, "BATTERY_CELL_HIGH_VOLTAGE_WARNING",
 											Level.WARNING))
-									.bit(2, this.generatePileChannel(pile, "PILE_LOW_VOLTAGE_ALARM", Level.WARNING))
-									.bit(3, this.generatePileChannel(pile, "PILE_HIGH_VOLTAGE_ALARM", Level.WARNING))
-									.bit(4, this.generatePileChannel(pile, "CHARGE_LOW_TEMPERATURE_ALARM",
+									.bit(2, this.generatePileChannel(pile, "PILE_LOW_VOLTAGE_WARNING", Level.WARNING))
+									.bit(3, this.generatePileChannel(pile, "PILE_HIGH_VOLTAGE_WARNING", Level.WARNING))
+									.bit(4, this.generatePileChannel(pile, "CHARGE_LOW_TEMPERATURE_WARNING",
 											Level.WARNING))
-									.bit(5, this.generatePileChannel(pile, "CHARGE_HIGH_TEMPERATURE_ALARM",
+									.bit(5, this.generatePileChannel(pile, "CHARGE_HIGH_TEMPERATURE_WARNING",
 											Level.WARNING))
-									.bit(6, this.generatePileChannel(pile, "DISCHARGE_LOW_TEMPERATURE_ALARM",
+									.bit(6, this.generatePileChannel(pile, "DISCHARGE_LOW_TEMPERATURE_WARNING",
 											Level.WARNING))
-									.bit(7, this.generatePileChannel(pile, "DISCHARGE_HIGH_TEMPERATURE_ALARM",
+									.bit(7, this.generatePileChannel(pile, "DISCHARGE_HIGH_TEMPERATURE_WARNING",
 											Level.WARNING))
-									.bit(8, this.generatePileChannel(pile, "CHARGE_OVER_CURRENT_ALARM", Level.WARNING))
-									.bit(9, this.generatePileChannel(pile, "DISCHARGE_OVER_CURRENT_ALARM",
+									.bit(8, this.generatePileChannel(pile, "CHARGE_OVER_CURRENT_WARNING", Level.WARNING))
+									.bit(9, this.generatePileChannel(pile, "DISCHARGE_OVER_CURRENT_WARNING",
 											Level.WARNING))
 									.bit(11, this.generatePileChannel(pile,
-											"MAIN_CONTROLLER_BMS_HIGH_TEMPERATURE_ALARM", Level.WARNING))
-									.bit(12, this.generatePileChannel(pile, "MODULE_HIGH_TEMPERATURE_ALARM",
+											"MAIN_CONTROLLER_BMS_HIGH_TEMPERATURE_WARNING", Level.WARNING))
+									.bit(12, this.generatePileChannel(pile, "MODULE_HIGH_TEMPERATURE_WARNING",
 											Level.WARNING))
-									.bit(13, this.generatePileChannel(pile, "MODULE_LOW_TEMPERATURE_ALARM",
+									.bit(13, this.generatePileChannel(pile, "MODULE_LOW_TEMPERATURE_WARNING",
 											Level.WARNING))
-									.bit(14, this.generatePileChannel(pile, "MODULE_HIGH_VOLTAGE_ALARM",
+									.bit(14, this.generatePileChannel(pile, "MODULE_HIGH_VOLTAGE_WARNING",
 											Level.WARNING))),
 							m(this.generatePileChannel(pile, "TOTAL_VOLTAGE", OpenemsType.INTEGER), // TODO: Check if it
 																									// is correct to use
