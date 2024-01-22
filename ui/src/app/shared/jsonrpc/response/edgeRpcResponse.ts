@@ -2,7 +2,7 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../base";
 
 /**
  * Wraps a JSON-RPC Response for a EdgeRpcRequest.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -19,7 +19,7 @@ export class EdgeRpcResponse extends JsonrpcResponseSuccess {
         public readonly id: string,
         public readonly params: {
             payload: JsonrpcRequest
-        }
+        },
     ) {
         super(id, params);
     }

@@ -1,26 +1,37 @@
 package io.openems.edge.goodwe.charger.twostring;
 
+import io.openems.edge.goodwe.common.GoodWe;
+
 /**
  * Defines the PV-Port of a GoodWe Charger Two-String.
  */
 public enum PvPort {
 
-	PV_1(35337, 35345, 35103, 35107), //
-	PV_2(35337, 35345, 35107, 35103), //
-	PV_3(35338, 35346, 35111, 35115), //
-	PV_4(35338, 35346, 35115, 35111), //
-	PV_5(35339, 35347, 35304, 35306), //
-	PV_6(35339, 35347, 35306, 35304);
+	PV_1(GoodWe.ChannelId.TWO_S_MPPT1_P, GoodWe.ChannelId.TWO_S_MPPT1_I, GoodWe.ChannelId.TWO_S_PV1_I,
+			GoodWe.ChannelId.TWO_S_PV2_I, GoodWe.ChannelId.TWO_S_PV1_V),
+	PV_2(GoodWe.ChannelId.TWO_S_MPPT1_P, GoodWe.ChannelId.TWO_S_MPPT1_I, GoodWe.ChannelId.TWO_S_PV2_I,
+			GoodWe.ChannelId.TWO_S_PV1_I, GoodWe.ChannelId.TWO_S_PV2_V), //
+	PV_3(GoodWe.ChannelId.TWO_S_MPPT2_P, GoodWe.ChannelId.TWO_S_MPPT2_I, GoodWe.ChannelId.TWO_S_PV3_I,
+			GoodWe.ChannelId.TWO_S_PV4_I, GoodWe.ChannelId.TWO_S_PV3_V), //
+	PV_4(GoodWe.ChannelId.TWO_S_MPPT2_P, GoodWe.ChannelId.TWO_S_MPPT2_I, GoodWe.ChannelId.TWO_S_PV4_I,
+			GoodWe.ChannelId.TWO_S_PV5_I, GoodWe.ChannelId.TWO_S_PV4_V), //
+	PV_5(GoodWe.ChannelId.TWO_S_MPPT3_P, GoodWe.ChannelId.TWO_S_MPPT3_I, GoodWe.ChannelId.TWO_S_PV5_I,
+			GoodWe.ChannelId.TWO_S_PV6_I, GoodWe.ChannelId.TWO_S_PV5_V), //
+	PV_6(GoodWe.ChannelId.TWO_S_MPPT3_P, GoodWe.ChannelId.TWO_S_MPPT3_I, GoodWe.ChannelId.TWO_S_PV6_I,
+			GoodWe.ChannelId.TWO_S_PV5_I, GoodWe.ChannelId.TWO_S_PV6_V); //
 
-	public final int mpptPowerAddress;
-	public final int mpptCurrentAddress;
-	public final int pvStartAddress;
-	public final int relatedPvStartAddress;
+	public final GoodWe.ChannelId mpptPowerChannelId;
+	public final GoodWe.ChannelId mpptCurrentChannelId;
+	public final GoodWe.ChannelId pvCurrentId;
+	public final GoodWe.ChannelId relatedPvCurrent;
+	public final GoodWe.ChannelId pvVoltageId;
 
-	private PvPort(int mpptPowerAddress, int mpptCurrentAddress, int pvStartAddress, int relatedPvStartAddress) {
-		this.mpptPowerAddress = mpptPowerAddress;
-		this.mpptCurrentAddress = mpptCurrentAddress;
-		this.pvStartAddress = pvStartAddress;
-		this.relatedPvStartAddress = relatedPvStartAddress;
+	private PvPort(GoodWe.ChannelId mpptPowerChannelId, GoodWe.ChannelId mpptCurrentChannelId,
+			GoodWe.ChannelId pvCurrentId, GoodWe.ChannelId relatedPvCurrent, GoodWe.ChannelId pvVoltageId) {
+		this.mpptPowerChannelId = mpptPowerChannelId;
+		this.mpptCurrentChannelId = mpptCurrentChannelId;
+		this.pvCurrentId = pvCurrentId;
+		this.relatedPvCurrent = relatedPvCurrent;
+		this.pvVoltageId = pvVoltageId;
 	}
 }

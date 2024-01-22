@@ -6,7 +6,7 @@ export namespace Filter {
 
   /**
    * Dummy/default filter. Always returns true.
-   * 
+   *
    * @param value the value
    * @returns always true
    */
@@ -14,7 +14,7 @@ export namespace Filter {
 
   /**
    * Filter passes only if GridMode is OFF_GRID.
-   * 
+   *
    * @param value the GridMode integer value
    * @returns true if GridMode is OFF_GRID
    */

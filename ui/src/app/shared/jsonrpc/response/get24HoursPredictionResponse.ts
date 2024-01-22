@@ -6,7 +6,7 @@ export class Prediction {
 
 /**
  * Wraps a JSON-RPC Response for a Get24HoursPredictionRequest.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -23,7 +23,7 @@ export class Get24HoursPredictionResponse extends JsonrpcResponseSuccess {
 
     public constructor(
         public readonly id: string,
-        public readonly result: Prediction
+        public readonly result: Prediction,
     ) {
         super(id, result);
     }

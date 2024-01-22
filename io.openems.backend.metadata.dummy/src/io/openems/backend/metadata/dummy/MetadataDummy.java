@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.dummy;
 
+import static java.util.stream.Collectors.joining;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -29,13 +31,12 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.AbstractMetadata;
-import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.common.metadata.UserAlertingSettings;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.SimpleEdgeHandler;
 import io.openems.backend.common.metadata.User;
-import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError;
@@ -73,6 +74,7 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	private final SimpleEdgeHandler edgeHandler = new SimpleEdgeHandler();
 
 	private Language defaultLanguage = Language.DE;
+	private JsonObject settings = new JsonObject();
 
 	@Activate
 	public MetadataDummy(@Reference EventAdmin eventadmin) {
@@ -96,7 +98,8 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	public User authenticate(String username, String password) throws OpenemsNamedException {
 		var name = "User #" + this.nextUserId.incrementAndGet();
 		var token = UUID.randomUUID().toString();
-		var user = new User(username, name, token, this.defaultLanguage, Role.ADMIN, this.hasMultipleEdges());
+		var user = new User(username, name, token, this.defaultLanguage, Role.ADMIN, this.hasMultipleEdges(),
+				this.settings);
 		this.users.put(user.getId(), user);
 		return user;
 	}
@@ -109,7 +112,8 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 			}
 			final var hasMultipleEdges = this.hasMultipleEdges();
 			final User returnUser;
-			if (user.hasMultipleEdges() != hasMultipleEdges) {
+			if (user.hasMultipleEdges() != hasMultipleEdges //
+					|| !user.getSettings().equals(this.settings)) {
 				returnUser = this.createUser(user.getId(), user.getName(), user.getToken(), hasMultipleEdges);
 				this.users.put(token, returnUser);
 			} else {
@@ -122,7 +126,8 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	}
 
 	private User createUser(String username, String name, String token, boolean hasMultipleEdges) {
-		return new User(username, name, token, this.defaultLanguage, Role.ADMIN, this.hasMultipleEdges());
+		return new User(username, name, token, this.defaultLanguage, Role.ADMIN, this.hasMultipleEdges(),
+				this.settings);
 	}
 
 	private boolean hasMultipleEdges() {
@@ -235,7 +240,7 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	}
 
 	@Override
-	public void registerUser(JsonObject jsonObject, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException {
+	public void registerUser(JsonObject jsonObject, String oem) throws OpenemsNamedException {
 		throw new UnsupportedOperationException("DummyMetadata.registerUser() is not implemented");
 	}
 
@@ -271,17 +276,17 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	}
 
 	@Override
-	public List<AlertingSetting> getUserAlertingSettings(String edgeId) {
+	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) {
 		throw new UnsupportedOperationException("DummyMetadata.getUserAlertingSettings() is not implemented");
 	}
 
 	@Override
-	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
+	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
 		throw new UnsupportedOperationException("DummyMetadata.getUserAlertingSettings() is not implemented");
 	}
 
 	@Override
-	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) {
+	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> users) {
 		throw new UnsupportedOperationException("DummyMetadata.setUserAlertingSettings() is not implemented");
 	}
 
@@ -302,7 +307,7 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 			if (searchParams.searchIsOnline()) {
 				pagesStream = pagesStream.filter(edge -> edge.isOnline() == searchParams.isOnline());
 			}
-			if (searchParams.productTypes() != null) {
+			if (searchParams.productTypes() != null && !searchParams.productTypes().isEmpty()) {
 				pagesStream = pagesStream.filter(edge -> searchParams.productTypes().contains(edge.getProducttype()));
 			}
 			// TODO sum state filter
@@ -322,7 +327,7 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 							Role.ADMIN, //
 							myEdge.isOnline(), //
 							myEdge.getLastmessage(), //
-							null, //
+							null, // firstSetupProtocol
 							Level.OK);
 				}).toList();
 	}
@@ -343,9 +348,23 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 				Role.ADMIN, //
 				edge.isOnline(), //
 				edge.getLastmessage(), //
-				null, //
+				null, // firstSetupProtocol
 				Level.OK //
 		);
+	}
+
+	@Override
+	public void logGenericSystemLog(GenericSystemLog systemLog) {
+		this.logInfo(this.log,
+				"%s on %s executed %s [%s]".formatted(systemLog.user().getId(), systemLog.edgeId(), systemLog.teaser(),
+						systemLog.getValues().entrySet().stream() //
+								.map(t -> t.getKey() + "=" + t.getValue()) //
+								.collect(joining(", "))));
+	}
+
+	@Override
+	public void updateUserSettings(User user, JsonObject settings) {
+		this.settings = settings == null ? new JsonObject() : settings;
 	}
 
 }

@@ -23,6 +23,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     public stopOnDestroy: Subject<void> = new Subject<void>();
     public formGroup: FormGroup | null = null;
 
+    /** Should be used to unsubscribe from all subscribed observables at once */
     protected subscription: Subscription = new Subscription();
 
     /** Enum for User Role */
@@ -43,7 +44,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
         @Inject(ModalController) public modalController: ModalController,
         @Inject(TranslateService) protected translate: TranslateService,
         @Inject(FormBuilder) public formBuilder: FormBuilder,
-        public ref: ChangeDetectorRef
+        public ref: ChangeDetectorRef,
     ) {
         ref.detach();
         setInterval(() => {
@@ -108,7 +109,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
 
     /**
      * Called on every new data.
-     * 
+     *
      * @param currentData new data for the subscribed Channel-Addresses
      */
     protected onCurrentData(currentData: CurrentData) {

@@ -1,5 +1,12 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
+import static io.openems.common.utils.StringUtils.definedOrElse;
+import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
+import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.getNext24HourPrices;
+import static io.openems.edge.timeofusetariff.entsoe.ExchangeRateApi.getExchangeRate;
+import static io.openems.edge.timeofusetariff.entsoe.Utils.parseCurrency;
+import static io.openems.edge.timeofusetariff.entsoe.Utils.parsePrices;
+
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
@@ -7,6 +14,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -27,14 +35,16 @@ import org.xml.sax.SAXException;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
-import io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -54,8 +64,14 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	@Reference
 	private Meta meta;
 
+	@Reference
+	private OpenemsEdgeOem oem;
+
 	private Config config = null;
+	private String securityToken = null;
+	private String exchangerateAccesskey = null;
 	private ZonedDateTime updateTimeStamp = null;
+	private ScheduledFuture<?> future = null;
 
 	public TouEntsoeImpl() {
 		super(//
@@ -76,14 +92,24 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 			return;
 		}
 
-		if (config.securityToken() == null || config.securityToken().isBlank()) {
+		this.securityToken = definedOrElse(config.securityToken(), this.oem.getEntsoeToken());
+		if (this.securityToken == null) {
 			this.logError(this.log, "Please configure Security Token to access ENTSO-E");
+			return;
+		}
+
+		this.exchangerateAccesskey = definedOrElse(config.exchangerateAccesskey(), this.oem.getExchangeRateAccesskey());
+		if (this.exchangerateAccesskey == null) {
+			this.logError(this.log, "Please configure personal Access key to access Exchange rate host API");
 			return;
 		}
 		this.config = config;
 
 		// React on updates to Currency.
 		this.meta.getCurrencyChannel().onChange(this.onCurrencyChange);
+
+		// Schedule once
+		this.scheduleTask(0);
 	}
 
 	@Deactivate
@@ -98,12 +124,16 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	 * 
 	 * @param seconds execute task in seconds
 	 */
-	private void scheduleTask(long seconds) {
-		this.executor.schedule(this.task, seconds, TimeUnit.SECONDS);
+	private synchronized void scheduleTask(long seconds) {
+		if (this.future != null) {
+			this.future.cancel(false);
+		}
+		this.future = this.executor.schedule(this.task, seconds, TimeUnit.SECONDS);
 	}
 
 	private final Runnable task = () -> {
-		var token = this.config.securityToken();
+		var token = this.securityToken;
+		var exchangerateAccesskey = this.exchangerateAccesskey;
 		var areaCode = this.config.biddingZone().code;
 		var fromDate = ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS);
 		var toDate = fromDate.plusDays(1);
@@ -111,14 +141,17 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 		try {
 			final var result = EntsoeApi.query(token, areaCode, fromDate, toDate);
-			final var entsoeCurrency = Utils.parseCurrency(result);
+			final var entsoeCurrency = parseCurrency(result);
 			final var globalCurrency = this.meta.getCurrency();
-			final var exchangeRate = globalCurrency.name() == entsoeCurrency //
-					? 1 // No need to fetch exchange rate from API.
-					: Utils.exchangeRateParser(ExchangeRateApi.getExchangeRates(), globalCurrency);
+			if (globalCurrency == Currency.UNDEFINED) {
+				throw new OpenemsException("Global Currency is UNDEFINED. Please configure it in Core.Meta component");
+			}
 
+			final var exchangeRate = globalCurrency.name().equals(entsoeCurrency) //
+					? 1. // No need to fetch exchange rate from API.
+					: getExchangeRate(exchangerateAccesskey, entsoeCurrency, globalCurrency);
 			// Parse the response for the prices
-			this.prices.set(Utils.parsePrices(result, "PT60M", exchangeRate));
+			this.prices.set(parsePrices(result, "PT60M", exchangeRate));
 
 			// store the time stamp
 			this.updateTimeStamp = ZonedDateTime.now();
@@ -151,12 +184,16 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	@Override
 	public TimeOfUsePrices getPrices() {
 		// return empty TimeOfUsePrices if data is not yet available.
-		if (!this.config.enabled() || this.updateTimeStamp == null) {
+		if (this.config == null || !this.config.enabled() || this.updateTimeStamp == null) {
 			return TimeOfUsePrices.empty(ZonedDateTime.now());
 		}
 
-		return TimeOfUseTariffUtils.getNext24HourPrices(Clock.systemDefaultZone() /* can be mocked for testing */,
-				this.prices.get(), this.updateTimeStamp);
+		return getNext24HourPrices(Clock.systemDefaultZone() /* can be mocked for testing */, this.prices.get(),
+				this.updateTimeStamp);
 	}
 
+	@Override
+	public String debugLog() {
+		return generateDebugLog(this, this.meta.getCurrency());
+	}
 }

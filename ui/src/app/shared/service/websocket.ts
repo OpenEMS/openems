@@ -44,7 +44,7 @@ export class Websocket implements WebsocketInterface {
     private translate: TranslateService,
     private cookieService: CookieService,
     private router: Router,
-    private pagination: Pagination
+    private pagination: Pagination,
   ) {
     service.websocket = this;
 
@@ -90,7 +90,7 @@ export class Websocket implements WebsocketInterface {
             this.status = 'waiting for credentials';
             this.router.navigate(['/login']);
           }
-        }
+        },
       },
       closeObserver: {
         next: (value) => {
@@ -100,8 +100,8 @@ export class Websocket implements WebsocketInterface {
           }
           // trying to connect
           this.status = 'connecting';
-        }
-      }
+        },
+      },
     });
 
     this.socket.pipe(
@@ -109,7 +109,7 @@ export class Websocket implements WebsocketInterface {
       retryWhen((errors) => {
         console.warn(errors);
         return errors.pipe(delay(1000));
-      })
+      }),
 
     ).subscribe(originalMessage => {
       // Receive message from server
@@ -152,9 +152,9 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Logs in by sending an authentication JSON-RPC Request and handles the AuthenticateResponse.
-   * 
+   *
    * @param request the JSON-RPC Request
-   * @param lang provided for @demo User. This doesn't change the global language, its just set locally 
+   * @param lang provided for @demo User. This doesn't change the global language, its just set locally
    */
   public login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest): Promise<void> {
     return new Promise<void>((resolve) => {
@@ -169,10 +169,12 @@ export class Websocket implements WebsocketInterface {
         // received login token -> save in cookie
         this.cookieService.set('token', authenticateResponse.token, { expires: 365, path: '/', sameSite: 'Strict' });
 
+        this.service.currentUser = authenticateResponse.user;
+
         // Metadata
         this.service.metadata.next({
           user: authenticateResponse.user,
-          edges: {}
+          edges: {},
         });
 
         // Resubscribe Channels
@@ -232,7 +234,7 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Sends a JSON-RPC Request to a Websocket and promises a callback.
-   * 
+   *
    * @param request the JSON-RPC Request
    */
   public sendRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
@@ -279,9 +281,9 @@ export class Websocket implements WebsocketInterface {
   }
 
   /**
-     * Waits until Websocket is 'online' and then 
+     * Waits until Websocket is 'online' and then
      * sends a safe JSON-RPC Request to a Websocket and promises a callback.
-     * 
+     *
      * @param request the JSON-RPC Request
      */
   public sendSafeRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
@@ -301,7 +303,7 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Sends a JSON-RPC notification to a Websocket.
-   * 
+   *
    * @param notification the JSON-RPC Notification
    */
   public sendNotification(notification: JsonrpcNotification): void {
@@ -313,7 +315,7 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Handle new JSON-RPC Request
-   * 
+   *
    * @param message the JSON-RPC Request
    */
   private onRequest(message: JsonrpcRequest): void {
@@ -322,7 +324,7 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Handle new JSON-RPC Notification
-   * 
+   *
    * @param message the JSON-RPC Notification
    */
   private onNotification(message: JsonrpcNotification): void {
@@ -337,7 +339,7 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Handle Websocket error.
-   * 
+   *
    * @param error the error
    */
   private onError(error: any): void {
@@ -353,7 +355,7 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Handles an EdgeRpcNotification.
-   * 
+   *
    * @param message the EdgeRpcNotification
    */
   private handleEdgeRpcNotification(edgeRpcNotification: EdgeRpcNotification): void {

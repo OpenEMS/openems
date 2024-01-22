@@ -20,7 +20,7 @@
 			<!-- On update: also update gradle.properties file -->
 			<groupId>biz.aQute.bnd.workspace</groupId>
 			<artifactId>biz.aQute.bnd.workspace.gradle.plugin</artifactId>
-			<version>6.4.0</version>
+			<version>7.0.0</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
@@ -46,30 +46,30 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>32.1.2-jre</version>
+			<version>33.0.0-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>failureaccess</artifactId>
-			<version>1.0.1</version>
+			<version>1.0.2</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>logging-interceptor</artifactId>
-			<version>4.11.0</version>
+			<version>4.12.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
-			<version>4.11.0</version>
+			<version>4.12.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.squareup.okhttp3: okhttp -->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio-jvm</artifactId>
-			<version>3.6.0</version>
+			<version>3.7.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
@@ -105,20 +105,7 @@
 			<!-- HikariCP A solid, high-performance, JDBC connection pool at last. -->
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>5.0.1</version>
-		</dependency>
-		<!-- commons -->
-		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
-			<version>1.5</version>
-		</dependency>
-		<dependency>
-			<!-- Apache Commons IO is a library of utilities to assist with developing IO functionality. -->
-			<!-- Changelog: https://commons.apache.org/proper/commons-io/changes-report.html -->
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.14.0</version>
+			<version>5.1.0</version>
 		</dependency>
 		<!-- de -->
 		<dependency>
@@ -126,7 +113,7 @@
 			<!-- Changelog: https://github.com/PgBulkInsert/PgBulkInsert/blob/master/CHANGELOG.md-->
 			<groupId>de.bytefish</groupId>
 			<artifactId>pgbulkinsert</artifactId>
-			<version>8.1.1</version>
+			<version>8.1.2</version>
 		</dependency>
 		<!-- eu -->
 		<dependency>
@@ -165,6 +152,13 @@
 			<artifactId>rxjava</artifactId>
 			<version>3.1.8</version>
 		</dependency>
+		<dependency>
+			<!-- Jenetics - Java Genetic Algorithm Library -->
+			<!-- Release notes: https://github.com/jenetics/jenetics/blob/master/RELEASE_NOTES.md -->
+			<groupId>io.jenetics</groupId>
+			<artifactId>jenetics</artifactId>
+			<version>7.2.0</version>
+		</dependency>
 		<!-- javax -->
 		<dependency>
 			<groupId>javax.jmdns</groupId>
@@ -176,7 +170,7 @@
 			<!-- Used by SDNotify -->
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>5.13.0</version>
+			<version>5.14.0</version>
 		</dependency>
 		<!-- org -->
 		<dependency>
@@ -217,7 +211,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty</artifactId>
-			<version>5.1.2</version>
+			<version>5.1.6</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
@@ -251,7 +245,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/README.md#releases -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>4.9.4</version>
+			<version>5.0.0</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Web Console Service Component Runtime/Declarative Services Plugin -->
@@ -266,16 +260,15 @@
 			<version>4.13.2_1</version>
 		</dependency>
 		<dependency>
-			<!-- Checker Qual: annotations for type-checking by the Checker Framework -->
-			<!-- Changelog: https://github.com/typetools/checker-framework/blob/master/docs/CHANGELOG.md -->
-			<groupId>org.checkerframework</groupId>
-			<artifactId>checker-qual</artifactId>
-			<version>3.39.0</version>
+			<!-- Bouncycastle for Eclipse Paho MQTTv5 Client -->
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcpkix-jdk15on</artifactId>
+			<version>1.70</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.15.7</version>
+			<version>0.16.5</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv5 Client -->
@@ -286,22 +279,22 @@
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-java</artifactId>
-			<version>6.10.0</version>
+			<version>6.12.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-core</artifactId>
-			<version>6.10.0</version>
+			<version>6.12.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-utils</artifactId>
-			<version>6.10.0</version>
+			<version>6.12.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>flux-dsl</artifactId>
-			<version>6.10.0</version>
+			<version>6.12.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.java-websocket</groupId>
@@ -311,7 +304,7 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>1.9.10</version>
+			<version>1.9.22</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>
@@ -322,7 +315,7 @@
 			<!-- HTML processing -->
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.16.1</version>
+			<version>1.17.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -409,7 +402,7 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.6.0</version>
+			<version>42.7.1</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->

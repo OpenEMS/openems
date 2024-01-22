@@ -18,5 +18,9 @@
     "files.watcherExclude": {
         "**/.git/objects/**": true,
         "**/node_modules/**": true
-    }
+    },
+    "files.eol": "\n",
+    "files.insertFinalNewline": true,
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "eslint.format.enable": true
 }

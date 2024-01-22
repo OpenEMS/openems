@@ -2,7 +2,6 @@ package io.openems.edge.app.common.props;
 
 import java.util.stream.Stream;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDef.FieldValuesSupplier;
@@ -40,7 +39,8 @@ public final class CommonProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("alias") //
 				.setDefaultValueToAppName() //
-				.setField(JsonFormlyUtil::buildInputFromNameable));
+				.setField(JsonFormlyUtil::buildInputFromNameable)) //
+				.setRequired(true);
 	}
 
 	/**
@@ -108,8 +108,7 @@ public final class CommonProps {
 				(app, property, l, parameter) -> TranslationUtil.getTranslation(parameter.bundle,
 						"unofficialAppWarning.text1"), //
 				(app, property, l, parameter) -> TranslationUtil.getTranslation(parameter.bundle,
-						"unofficialAppWarning.text2")),
-				def -> def.setAutoGenerateField(!OpenemsConstants.MANUFACTURER.equals("OpenEMS Association e.V.")));
+						"unofficialAppWarning.text2")));
 	}
 
 }

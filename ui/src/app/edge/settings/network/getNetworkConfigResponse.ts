@@ -3,9 +3,9 @@ import { NetworkInterface } from './shared';
 
 /**
  * JSON-RPC Response to "getNetworkConfig" Request.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -32,7 +32,7 @@ export class GetNetworkConfigResponse extends JsonrpcResponseSuccess {
             interfaces: {
                 [name: string]: NetworkInterface
             }
-        }
+        },
     ) {
         super(id, result);
     }

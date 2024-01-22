@@ -93,7 +93,7 @@ public class OnRequestHandler implements Runnable {
 
 		log //
 				.append("for Request ") //
-				.append(StringUtils.toShortString(JsonrpcUtils.simplifyJsonrpcMessage(this.request), 100)); //
+				.append(StringUtils.toShortString(JsonrpcUtils.simplifyJsonrpcMessage(this.request), 200)); //
 		this.parent.logWarn(this.log, log.toString());
 
 		// Get JSON-RPC Response Error

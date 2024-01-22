@@ -9,7 +9,7 @@ type Priority = 'CAR' | 'STORAGE';
 
 @Component({
     selector: 'Evcs_Api_Cluster-modal',
-    templateUrl: './evcsCluster-modal.page.html'
+    templateUrl: './evcsCluster-modal.page.html',
 })
 export class Evcs_Api_ClusterModalComponent implements OnInit {
 
@@ -30,7 +30,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
         noSwipingClass: 'swiper-no-swiping',
         //noSwipingSelector: 'ion-range, ion-toggle',
         initialSlide: 0,
-        speed: 1000
+        speed: 1000,
     };
     public firstEvcs: string;
     public lastEvcs: string;
@@ -43,7 +43,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
         public router: Router,
         private route: ActivatedRoute,
         protected translate: TranslateService,
-        private modalCtrl: ModalController
+        private modalCtrl: ModalController,
     ) {
     }
 
@@ -70,7 +70,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
 
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, this.config.id, [
-                { name: 'evcs.ids', value: newListOrder }
+                { name: 'evcs.ids', value: newListOrder },
             ]).then(response => {
                 this.config.properties.chargeMode = newListOrder;
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -86,10 +86,10 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
         this.modalCtrl.dismiss();
     }
 
-    /**  
+    /**
     * Updates the Charge-Mode of the EVCS-Controller.
-    * 
-    * @param event 
+    *
+    * @param event
     */
     updateChargeMode(event: CustomEvent, currentController: EdgeConfig.Component) {
         let oldChargeMode = currentController.properties.chargeMode;
@@ -106,7 +106,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
 
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, currentController.id, [
-                { name: 'chargeMode', value: newChargeMode }
+                { name: 'chargeMode', value: newChargeMode },
             ]).then(response => {
                 currentController.properties.chargeMode = newChargeMode;
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -135,7 +135,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
 
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, currentController.id, [
-                { name: 'priority', value: newPriority }
+                { name: 'priority', value: newPriority },
             ]).then(response => {
                 currentController.properties.priority = newPriority;
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -159,7 +159,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
 
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, currentController.id, [
-                { name: 'forceChargeMinPower', value: newMinChargePower }
+                { name: 'forceChargeMinPower', value: newMinChargePower },
             ]).then(response => {
                 currentController.properties.forceChargeMinPower = newMinChargePower;
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -182,7 +182,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
 
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, currentController.id, [
-                { name: 'defaultChargeMinPower', value: newMinChargePower }
+                { name: 'defaultChargeMinPower', value: newMinChargePower },
             ]).then(response => {
                 currentController.properties.defaultChargeMinPower = newMinChargePower;
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -200,9 +200,9 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
 
     /**
      * update the state of the toggle which renders the minimum charge power
-     * 
-     * @param event 
-     * @param phases 
+     *
+     * @param event
+     * @param phases
      */
     allowMinimumChargePower(event: CustomEvent, phases: number, currentController: EdgeConfig.Component) {
 
@@ -214,7 +214,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
         }
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, currentController.id, [
-                { name: 'defaultChargeMinPower', value: newMinChargePower }
+                { name: 'defaultChargeMinPower', value: newMinChargePower },
             ]).then(response => {
                 currentController.properties.defaultChargeMinPower = newMinChargePower;
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -228,8 +228,8 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
 
     /**
     * Activates or deactivates the Charging
-    * 
-    * @param event 
+    *
+    * @param event
     */
     enableOrDisableCharging(event: CustomEvent, currentController: EdgeConfig.Component) {
 
@@ -237,7 +237,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
         let newChargingState = !oldChargingState;
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, currentController.id, [
-                { name: 'enabledCharging', value: newChargingState }
+                { name: 'enabledCharging', value: newChargingState },
             ]).then(response => {
                 currentController.properties.enabledCharging = newChargingState;
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -250,10 +250,10 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
     }
     /**
      * Gets the output for the current state or the current charging power
-     * 
-     * @param power 
-     * @param state 
-     * @param plug 
+     *
+     * @param power
+     * @param state
+     * @param plug
      */
     getState(power: Number, state: number, plug: number, currentController: EdgeConfig.Component) {
         if (currentController != null) {
@@ -296,10 +296,10 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
     }
 
     /**
-     * Round to 100 and 
+     * Round to 100 and
      * Round up (ceil)
-     * 
-     * @param i 
+     *
+     * @param i
      */
     formatNumber(i: number) {
         let round = Math.ceil(i / 100) * 100;
@@ -308,8 +308,8 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
 
     /**
      * Get Value or 3
-     * 
-     * @param i 
+     *
+     * @param i
      */
     getValueOrThree(i: number) {
         if (i == null || i == undefined) {
@@ -347,7 +347,7 @@ enum ChargeState {
     ERROR,                    //Error
     AUTHORIZATION_REJECTED,   //Authorization rejected
     ENERGY_LIMIT_REACHED,     //Charge limit reached
-    CHARGING_FINISHED         //Charging has finished  
+    CHARGING_FINISHED         //Charging has finished
 }
 
 enum ChargePlug {

@@ -4,7 +4,7 @@ import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
 
 @Component({
     selector: TimeOfUseTariffDischargeChartOverviewComponent.SELECTOR,
-    templateUrl: './timeofusetariffdischargechartoverview.component.html'
+    templateUrl: './timeofusetariffdischargechartoverview.component.html',
 })
 export class TimeOfUseTariffDischargeChartOverviewComponent implements OnInit {
 
@@ -16,7 +16,7 @@ export class TimeOfUseTariffDischargeChartOverviewComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) { }
 
     ngOnInit() {

@@ -21,12 +21,20 @@ public interface Checkable {
 	public boolean check();
 
 	/**
-	 * Gets the error message if the check was incorrect completed.
+	 * Gets the error message if the check was not successful.
 	 *
 	 * @param language the language of the message
 	 * @return the message
 	 */
 	public String getErrorMessage(Language language);
+
+	/**
+	 * Gets the error message if the check was successful.
+	 *
+	 * @param language the language of the message
+	 * @return the message
+	 */
+	public String getInvertedErrorMessage(Language language);
 
 	/**
 	 * Sets the properties.

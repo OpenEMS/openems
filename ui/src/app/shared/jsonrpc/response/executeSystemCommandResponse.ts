@@ -6,9 +6,9 @@ export interface Cumulated {
 
 /**
  * JSON-RPC Response to "executeSystemCommand" Request.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -27,7 +27,7 @@ export class ExecuteSystemCommandResponse extends JsonrpcResponseSuccess {
         public override readonly result: {
             stdout: string[],
             stderr: string[]
-        }
+        },
     ) {
         super(id, result);
     }

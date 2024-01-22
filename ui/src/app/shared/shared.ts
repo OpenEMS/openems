@@ -22,7 +22,7 @@ addIcons({
   'oe-grid-storage': 'assets/img/icon/gridStorage.svg',
   'oe-offgrid': 'assets/img/icon/offgrid.svg',
   'oe-production': 'assets/img/icon/production.svg',
-  'oe-storage': 'assets/img/icon/storage.svg'
+  'oe-storage': 'assets/img/icon/storage.svg',
 });
 
 export class UserPermission {
@@ -40,7 +40,7 @@ export namespace Currency {
 
   /**
    * Gets the currencylabel for a edgeId
-   * 
+   *
    * @param edgeId the edgeId
    * @returns the Currencylabel dependent on edgeId
    */

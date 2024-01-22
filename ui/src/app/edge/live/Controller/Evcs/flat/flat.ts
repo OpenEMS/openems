@@ -10,7 +10,7 @@ type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER' | 'OFF';
 
 @Component({
   selector: 'Controller_Evcs',
-  templateUrl: './flat.html'
+  templateUrl: './flat.html',
 })
 export class FlatComponent extends AbstractFlatWidget {
 
@@ -54,7 +54,7 @@ export class FlatComponent extends AbstractFlatWidget {
       // channels for modal component, subscribe here for better UX
       new ChannelAddress(this.component.id, 'MinimumHardwarePower'),
       new ChannelAddress(this.component.id, 'MaximumHardwarePower'),
-      new ChannelAddress(this.component.id, 'SetChargePowerLimit')
+      new ChannelAddress(this.component.id, 'SetChargePowerLimit'),
     ];
   }
 
@@ -126,10 +126,10 @@ export class FlatComponent extends AbstractFlatWidget {
 
   /**
  * Returns the state of the EVCS
- * 
- * @param state 
- * @param plug 
- * 
+ *
+ * @param state
+ * @param plug
+ *
  */
   private getState(state: number, plug: number): string {
     if (this.controller != null) {
@@ -176,8 +176,8 @@ export class FlatComponent extends AbstractFlatWidget {
     const modal = await this.modalController.create({
       component: ModalComponent,
       componentProps: {
-        component: this.component
-      }
+        component: this.component,
+      },
     });
     return await modal.present();
   }

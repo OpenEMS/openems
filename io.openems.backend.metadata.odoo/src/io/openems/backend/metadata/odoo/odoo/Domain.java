@@ -123,15 +123,20 @@ public class Domain {
 	}
 
 	@Override
+	public int hashCode() {
+		return Objects.hash(this.field, this.operator, this.value);
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
-		}
-		if (!Domain.class.isInstance(obj)) {
+		} else if (obj instanceof Domain other) {
+			return Objects.equals(this.field, other.field) //
+					&& Objects.equals(this.operator, other.operator) //
+					&& Objects.equals(this.value, other.value);
+		} else {
 			return false;
 		}
-		var other = (Domain) obj;
-		return Objects.equals(this.field, other.field) && Objects.equals(this.operator, other.operator)
-				&& Objects.equals(this.value, other.value);
 	}
 }

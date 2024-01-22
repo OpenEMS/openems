@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Represents a JSON-RPC Request for 'getEdgeConfig'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

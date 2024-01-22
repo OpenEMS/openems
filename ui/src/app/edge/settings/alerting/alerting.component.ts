@@ -19,7 +19,7 @@ type RoleUsersSettings = { role: Role, form: FormGroup, settings: UserSettingOpt
 
 @Component({
   selector: AlertingComponent.SELECTOR,
-  templateUrl: './alerting.component.html'
+  templateUrl: './alerting.component.html',
 })
 export class AlertingComponent implements OnInit {
   protected static readonly SELECTOR = "alerting";
@@ -41,7 +41,7 @@ export class AlertingComponent implements OnInit {
     private websocket: Websocket,
     private service: Service,
     private translate: TranslateService,
-    public formBuilder: FormBuilder
+    public formBuilder: FormBuilder,
   ) { }
 
   public ngOnInit(): void {
@@ -90,19 +90,19 @@ export class AlertingComponent implements OnInit {
       formGroup: new FormGroup({}),
       options: {
         formState: {
-          awesomeIsForced: false
-        }
+          awesomeIsForced: false,
+        },
       },
       model: {
         isActivated: userSettings.delayTime > 0,
-        delayTime: userSettings.delayTime
+        delayTime: userSettings.delayTime,
       },
       fields: [{
         key: 'isActivated',
         type: 'checkbox',
         templateOptions: {
-          label: this.translate.instant('Edge.Config.Alerting.activate')
-        }
+          label: this.translate.instant('Edge.Config.Alerting.activate'),
+        },
       },
       {
         key: 'delayTime',
@@ -111,11 +111,11 @@ export class AlertingComponent implements OnInit {
           label: this.translate.instant('Edge.Config.Alerting.delay'),
           type: 'number',
           required: true,
-          options: delays
+          options: delays,
         },
-        hideExpression: model => !model.isActivated
-      }
-      ]
+        hideExpression: model => !model.isActivated,
+      },
+      ],
     };
   }
 
@@ -169,7 +169,7 @@ export class AlertingComponent implements OnInit {
     roleSetting.settings.push({ userId: userSetting.userId, delayTime: userSetting.delayTime, options: this.getDelayOptions(delay) });
     roleSetting.form.addControl(userSetting.userId, this.formBuilder.group({
       isActivated: new FormControl(activated),
-      delayTime: new FormControl(delay)
+      delayTime: new FormControl(delay),
     }));
   }
 
@@ -240,7 +240,7 @@ export class AlertingComponent implements OnInit {
 
       changedUserSettings.push({
         delayTime: this.currentUserForm.formGroup.controls['delayTime']?.value ?? 0,
-        userId: this.currentUserInformation.userId
+        userId: this.currentUserInformation.userId,
       });
     }
 
@@ -257,7 +257,7 @@ export class AlertingComponent implements OnInit {
               let isActivated = control.value['isActivated'];
               changedUserSettings.push({
                 delayTime: isActivated ? delayTime : 0,
-                userId: user.userId
+                userId: user.userId,
               });
               userOptions.push(user);
             }

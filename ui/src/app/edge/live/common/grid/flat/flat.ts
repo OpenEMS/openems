@@ -5,7 +5,7 @@ import { ModalComponent } from '../modal/modal';
 
 @Component({
   selector: 'grid',
-  templateUrl: './flat.html'
+  templateUrl: './flat.html',
 })
 export class FlatComponent extends AbstractFlatWidget {
 
@@ -23,10 +23,10 @@ export class FlatComponent extends AbstractFlatWidget {
     let channelAddresses: ChannelAddress[] = [
       FlatComponent.GRID_ACTIVE_POWER, FlatComponent.GRID_MODE,
 
-      // TODO should be moved to Modal 
+      // TODO should be moved to Modal
       new ChannelAddress('_sum', 'GridActivePowerL1'),
       new ChannelAddress('_sum', 'GridActivePowerL2'),
-      new ChannelAddress('_sum', 'GridActivePowerL3')
+      new ChannelAddress('_sum', 'GridActivePowerL3'),
     ];
     return channelAddresses;
   }
@@ -41,8 +41,8 @@ export class FlatComponent extends AbstractFlatWidget {
     const modal = await this.modalController.create({
       component: ModalComponent,
       componentProps: {
-        edge: this.edge
-      }
+        edge: this.edge,
+      },
     });
     return await modal.present();
   }

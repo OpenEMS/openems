@@ -17,7 +17,7 @@ import { hasPredefinedKey } from '../permissions';
 
 @Component({
     selector: KeyModalComponent.SELECTOR,
-    templateUrl: './modal.component.html'
+    templateUrl: './modal.component.html',
 })
 export class KeyModalComponent implements OnInit {
 
@@ -49,7 +49,7 @@ export class KeyModalComponent implements OnInit {
         protected modalCtrl: ModalController,
         private router: Router,
         private websocket: Websocket,
-        private translate: TranslateService
+        private translate: TranslateService,
     ) { }
 
 
@@ -57,13 +57,13 @@ export class KeyModalComponent implements OnInit {
         this.form = new FormGroup({});
         this.options = {
             formState: {
-                gotInvalidKeyResponse: false
-            }
+                gotInvalidKeyResponse: false,
+            },
         };
         this.model = {
             useRegisteredKeys: false,
             registeredKey: '',
-            key: ''
+            key: '',
         };
 
         if (this.behaviour === KeyValidationBehaviour.REGISTER) {
@@ -73,8 +73,8 @@ export class KeyModalComponent implements OnInit {
         this.service.startSpinner(this.spinnerId);
         this.edge.sendRequest(this.websocket, new AppCenter.Request({
             payload: new AppCenterGetRegisteredKeys.Request({
-                ...(this.appId && { appId: this.appId })
-            })
+                ...(this.appId && { appId: this.appId }),
+            }),
         })).then(response => {
             const result = (response as AppCenterGetRegisteredKeys.Response).result;
             this.registeredKeys = result.keys;
@@ -89,7 +89,7 @@ export class KeyModalComponent implements OnInit {
                 (selectRegisteredKey.props.options as any[]).push({
                     value: key.keyId,
                     label: key.keyId,
-                    description: desc
+                    description: desc,
                 });
             });
         }).catch(reason => {
@@ -117,7 +117,7 @@ export class KeyModalComponent implements OnInit {
         const descriptionFields = [];
         for (const bundle of bundles) {
             let isCategorySet = false;
-            // if multiple apps are in bundle find category which has all the apps 
+            // if multiple apps are in bundle find category which has all the apps
             // and set the category name as the description
             for (const [catName, apps] of Object.entries(this.getAppsByCategory())) {
                 if (apps.every(app => {
@@ -167,7 +167,7 @@ export class KeyModalComponent implements OnInit {
 
     /**
      * Gets the input fields.
-     * 
+     *
      * @returns the input fields
      */
     private getFields(): FormlyFieldConfig[] {
@@ -176,12 +176,12 @@ export class KeyModalComponent implements OnInit {
             key: 'useRegisteredKeys',
             type: 'checkbox',
             props: {
-                label: this.translate.instant('Edge.Config.App.Key.useRegisteredKey')
+                label: this.translate.instant('Edge.Config.App.Key.useRegisteredKey'),
             },
             hide: this.registeredKeys.length === 0,
             expressions: {
-                'props.disabled': field => field.model.useMasterKey
-            }
+                'props.disabled': field => field.model.useMasterKey,
+            },
         });
 
         fields.push({
@@ -190,13 +190,13 @@ export class KeyModalComponent implements OnInit {
             props: {
                 label: this.translate.instant('Edge.Config.App.Key.registeredKey'),
                 required: true,
-                options: []
+                options: [],
             },
             expressions: {
                 'hide': () => this.registeredKeys.length === 0,
-                'props.disabled': field => !field.model.useRegisteredKeys || field.model.useMasterKey
+                'props.disabled': field => !field.model.useRegisteredKeys || field.model.useMasterKey,
             },
-            wrappers: ['formly-select-extended-wrapper']
+            wrappers: ['formly-select-extended-wrapper'],
         });
 
         fields.push({
@@ -205,13 +205,13 @@ export class KeyModalComponent implements OnInit {
             props: {
                 label: this.translate.instant('Edge.Config.App.Key.key'),
                 required: true,
-                placeholder: 'XXXX-XXXX-XXXX-XXXX'
+                placeholder: 'XXXX-XXXX-XXXX-XXXX',
             },
             expressions: {
-                'props.disabled': field => field.model.useRegisteredKeys || field.model.useMasterKey
+                'props.disabled': field => field.model.useRegisteredKeys || field.model.useMasterKey,
             },
             validators: {
-                validation: ['key']
+                validation: ['key'],
             },
             hooks: {
                 onInit: (field) => {
@@ -222,8 +222,8 @@ export class KeyModalComponent implements OnInit {
                         }
                         field.formControl.setValue(nextInput);
                     });
-                }
-            }
+                },
+            },
         });
 
         if (this.behaviour !== KeyValidationBehaviour.REGISTER
@@ -234,27 +234,27 @@ export class KeyModalComponent implements OnInit {
                     key: 'useMasterKey',
                     type: 'checkbox',
                     props: {
-                        label: this.translate.instant('Edge.Config.App.Key.useMasterKey')
-                    }
+                        label: this.translate.instant('Edge.Config.App.Key.useMasterKey'),
+                    },
                 },
                 {
                     type: 'text',
                     props: {
-                        description: this.translate.instant('Edge.Config.App.Key.MASTER_KEY_HINT')
+                        description: this.translate.instant('Edge.Config.App.Key.MASTER_KEY_HINT'),
                     },
                     expressions: {
-                        hide: '!model.useMasterKey'
-                    }
-                }
+                        hide: '!model.useMasterKey',
+                    },
+                },
             );
         }
 
         fields.push({
             type: 'text',
             props: {
-                description: this.translate.instant('Edge.Config.App.Key.KEY_TYPO_MESSAGE_HINT')
+                description: this.translate.instant('Edge.Config.App.Key.KEY_TYPO_MESSAGE_HINT'),
             },
-            hideExpression: '!formState.gotInvalidKeyResponse'
+            hideExpression: '!formState.gotInvalidKeyResponse',
         });
 
         return fields;
@@ -262,10 +262,10 @@ export class KeyModalComponent implements OnInit {
 
     /**
      * Transformes the input so that the input matches the pattern 'XXXX-XXXX-XXXX-XXXX'.
-     * 
+     *
      * Prevents the user from typing in an invalid key.
-     * Gets automatically called when the user types something in. 
-     * 
+     * Gets automatically called when the user types something in.
+     *
      * @param value the value to transform
      * @returns the transformed value or null if there was no change to the given value
      */
@@ -300,7 +300,7 @@ export class KeyModalComponent implements OnInit {
 
         // join parts so it matches 'XXXX-XXXX-XXXX-XXXX'
         let modifiedValue = numbers.join('-');
-        // readd last 
+        // readd last
         if (hasDashAsLastChar) {
             modifiedValue += '-';
         }
@@ -315,13 +315,13 @@ export class KeyModalComponent implements OnInit {
 
     /**
      * Depending on the behaviour:
-     * 
+     *
      * KeyValidationBehaviour.NAVIGATE:
      *  navigates to the install page of the app and passes the key
-     * 
+     *
      * KeyValidationBehaviour.REGISTER:
      *  registers the entered key for the passed app
-     * 
+     *
      * KeyValidationBehaviour.SELECT:
      *  if a valid key gets selected it gets returned
      */
@@ -370,8 +370,8 @@ export class KeyModalComponent implements OnInit {
             this.edge.sendRequest(this.websocket, new AppCenter.Request({
                 payload: new AppCenterAddRegisterKeyHistory.Request({
                     key: this.getRawAppKey(),
-                    ...(this.appId && { appId: this.appId })
-                })
+                    ...(this.appId && { appId: this.appId }),
+                }),
             })).then(() => {
                 resolve();
             }).catch(reason => {
@@ -382,7 +382,7 @@ export class KeyModalComponent implements OnInit {
 
     /**
      * Gets the selected key.
-     * 
+     *
      * @returns the selected key
      */
     private getSelectedKey() {
@@ -401,7 +401,7 @@ export class KeyModalComponent implements OnInit {
         }
         const appKey = this.getRawAppKey();
         const request = new AppCenter.Request({
-            payload: new AppCenterIsKeyApplicable.Request({ key: appKey, appId: this.appId })
+            payload: new AppCenterIsKeyApplicable.Request({ key: appKey, appId: this.appId }),
         });
 
         this.service.startSpinner(this.spinnerId);
@@ -447,7 +447,7 @@ export class KeyModalComponent implements OnInit {
 
     /**
      * Gets the currently entered key.
-     * 
+     *
      * @returns the entered key
      */
     private getRawAppKey(): string {
@@ -460,7 +460,7 @@ export class KeyModalComponent implements OnInit {
 
     /**
      * Determines if the current selected key is valid.
-     * 
+     *
      * @returns true if the current selected key is valid
      */
     protected isKeyValid(): boolean {

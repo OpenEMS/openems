@@ -2,6 +2,7 @@ package io.openems.edge.io.shelly.shellyplug;
 
 import org.junit.Test;
 
+import io.openems.edge.bridge.http.dummy.DummyBridgeHttp;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
@@ -13,6 +14,7 @@ public class IoShellyPlugImplTest {
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new IoShellyPlugImpl()) //
+				.addReference("httpBridge", new DummyBridgeHttp()) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setPhase(SinglePhase.L1) //

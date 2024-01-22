@@ -1,5 +1,7 @@
 package io.openems.edge.core.appmanager;
 
+import static java.util.Collections.emptyList;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,32 +29,32 @@ public class AppManagerUtilImpl implements AppManagerUtil {
 
 	@Override
 	public List<OpenemsAppInstance> getInstantiatedApps() {
-		return this.getAppManagerImpl().getInstantiatedApps();
+		return Optional.ofNullable(this.getAppManagerImpl()) //
+				.map(AppManagerImpl::getInstantiatedApps) //
+				.orElse(emptyList());
 	}
 
 	@Override
 	public Optional<OpenemsApp> findAppById(String id) {
-		return this.getAppManagerImpl().findAppById(id);
+		return Optional.ofNullable(this.getAppManagerImpl()) //
+				.flatMap(t -> t.findAppById(id));
 	}
 
 	@Override
 	public Optional<OpenemsAppInstance> findInstanceById(UUID id) {
-		return this.getAppManagerImpl().findInstanceById(id);
+		return Optional.ofNullable(this.getAppManagerImpl()) //
+				.flatMap(t -> t.findInstanceById(id));
 	}
 
 	@Override
 	public AppConfiguration getAppConfiguration(ConfigurationTarget target, OpenemsApp app, String alias,
 			JsonObject properties, Language language) throws OpenemsNamedException {
+		final var copy = properties.deepCopy();
 		if (alias != null) {
-			properties.addProperty("ALIAS", alias);
+			copy.addProperty("ALIAS", alias);
 		}
-		try {
-			return app.getAppConfiguration(target, properties, language);
-		} finally {
-			if (alias != null) {
-				properties.remove("ALIAS");
-			}
-		}
+
+		return app.getAppConfiguration(target, copy, language);
 	}
 
 	@Override

@@ -3,6 +3,7 @@ import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/reque
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from 'src/app/shared/shared';
 import { calculateResolution } from './shared';
+import { DateUtils } from 'src/app/shared/utils/dateutils/dateutils';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryWidget {
@@ -13,7 +14,7 @@ export abstract class AbstractHistoryWidget {
     // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     constructor(
-        protected service: Service
+        protected service: Service,
     ) { }
 
     /**
@@ -41,7 +42,7 @@ export abstract class AbstractHistoryWidget {
 
     /**
      * Sends the Historic Timeseries Data Query and makes sure the result is not empty.
-     * 
+     *
      * @param fromDate the From-Date
      * @param toDate   the To-Date
      * @param edge     the current Edge
@@ -54,7 +55,7 @@ export abstract class AbstractHistoryWidget {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
-                        let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses, resolution);
+                        let request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             let result = (response as QueryHistoricTimeseriesDataResponse).result;
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
@@ -85,7 +86,7 @@ export abstract class AbstractHistoryWidget {
 
     /**
      * Gets the ChannelAddresses that should be queried.
-     * 
+     *
      * @param edge the current Edge
      * @param config the EdgeConfig
      */

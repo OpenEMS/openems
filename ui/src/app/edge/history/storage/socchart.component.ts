@@ -10,7 +10,7 @@ import { Data, TooltipItem } from './../shared';
 
 @Component({
     selector: 'socStorageChart',
-    templateUrl: '../abstracthistorychart.html'
+    templateUrl: '../abstracthistorychart.html',
 })
 export class SocStorageChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -24,7 +24,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         super("storage-single-chart", service, translate);
     }
@@ -75,21 +75,21 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                 if (channelAddress.channelId === 'EssSoc') {
                                     datasets.push({
                                         label: (moreThanOneESS ? this.translate.instant('General.TOTAL') : this.translate.instant('General.soc')),
-                                        data: data
+                                        data: data,
                                     });
                                     this.colors.push({
                                         backgroundColor: 'rgba(0,223,0,0.05)',
-                                        borderColor: 'rgba(0,223,0,1)'
+                                        borderColor: 'rgba(0,223,0,1)',
                                     });
                                 }
                                 if (channelAddress.channelId === 'Soc' && moreThanOneESS) {
                                     datasets.push({
                                         label: (channelAddress.componentId == component.alias ? component.id : component.alias),
-                                        data: data
+                                        data: data,
                                     });
                                     this.colors.push({
                                         backgroundColor: 'rgba(128,128,128,0.05)',
-                                        borderColor: 'rgba(128,128,128,1)'
+                                        borderColor: 'rgba(128,128,128,1)',
                                     });
                                 }
                             }
@@ -98,11 +98,11 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                     label:
                                         this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.emergencyReserve"),
                                     data: data,
-                                    borderDash: [3, 3]
+                                    borderDash: [3, 3],
                                 });
                                 this.colors.push({
                                     backgroundColor: 'rgba(1, 1, 1,0)',
-                                    borderColor: 'rgba(1, 1, 1,1)'
+                                    borderColor: 'rgba(1, 1, 1,1)',
                                 });
                             }
                         });
@@ -140,7 +140,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
 
             this.emergencyCapacityReserveComponents
                 .forEach(component =>
-                    channeladdresses.push(new ChannelAddress(component.id, 'ActualReserveSoc'))
+                    channeladdresses.push(new ChannelAddress(component.id, 'ActualReserveSoc')),
                 );
 
             const ess = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss");

@@ -12,13 +12,16 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.timeofusetariff.Tibber.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -26,6 +29,7 @@ import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
@@ -33,6 +37,7 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
@@ -45,9 +50,10 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
     "instanceId": UUID,
     "image": base64,
     "properties":{
-    	"CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID": "ctrlEssTimeOfUseTariffDischarge0",
-    	"TIME_OF_USE_TARIF_ID": "timeOfUseTariff0",
-    	"ACCESS_TOKEN": {token}
+    	"CTRL_ESS_TIME_OF_USE_TARIFF_ID": "ctrlEssTimeOfUseTariff0",
+    	"TIME_OF_USE_TARIFF_PROVIDER_ID": "timeOfUseTariff0",
+    	"ACCESS_TOKEN": {token},
+    	"CONTROL_MODE": {@link ControlMode}
     },
     "appDescriptor": {
     	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
@@ -61,26 +67,30 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 
 	public static enum Property implements Type<Property, Tibber, Type.Parameter.BundleParameter>, Nameable {
 		// Components
-		CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID(AppDef.of(Tibber.class) //
-				.setDefaultValue("ctrlEssTimeOfUseTariffDischarge0")), //
-		TIME_OF_USE_TARIF_ID(AppDef.of(Tibber.class) //
-				.setDefaultValue("timeOfUseTariff0")), //
+		CTRL_ESS_TIME_OF_USE_TARIFF_ID(AppDef.componentId("ctrlEssTimeOfUseTariff0")), //
+		TIME_OF_USE_TARIFF_PROVIDER_ID(AppDef.componentId("timeOfUseTariff0")), //
 
 		// Properties
-		ALIAS(AppDef.of(Tibber.class) //
-				.setDefaultValueToAppName()),
+		ALIAS(CommonProps.alias()), //
 		ACCESS_TOKEN(AppDef.of(Tibber.class) //
 				.setTranslatedLabelWithAppPrefix(".accessToken.label") //
 				.setTranslatedDescriptionWithAppPrefix(".accessToken.description") //
-				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, f) -> //
-				f.setInputType(PASSWORD) //
-						.isRequired(true)) //
+				.setRequired(true) //
+				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, field) -> {
+					field.setInputType(PASSWORD);
+				}) //
 				.setAllowedToSave(false)), //
-		;
+		FILTER(AppDef.of(Tibber.class) //
+				.setTranslatedLabelWithAppPrefix(".filterForHome.label") //
+				.setTranslatedDescriptionWithAppPrefix(".filterForHome.description") //
+				.setDefaultValue((app, property, l, parameter) -> JsonNull.INSTANCE)
+				.setField(JsonFormlyUtil::buildInputFromNameable) //
+				.bidirectional(TIME_OF_USE_TARIFF_PROVIDER_ID, "filter",
+						ComponentManagerSupplier::getComponentManager));
 
-		private final AppDef<Tibber, Property, Type.Parameter.BundleParameter> def;
+		private final AppDef<? super Tibber, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
-		private Property(AppDef<Tibber, Property, Type.Parameter.BundleParameter> def) {
+		private Property(AppDef<? super Tibber, ? super Property, ? super Type.Parameter.BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -90,7 +100,7 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 		}
 
 		@Override
-		public AppDef<Tibber, Property, Type.Parameter.BundleParameter> def() {
+		public AppDef<? super Tibber, ? super Property, ? super Type.Parameter.BundleParameter> def() {
 			return this.def;
 		}
 
@@ -110,36 +120,41 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
-			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
-			final var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, null);
+			final var timeOfUseTariffProviderId = this.getId(t, p, Property.TIME_OF_USE_TARIFF_PROVIDER_ID);
+			final var ctrlEssTimeOfUseTariffId = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIFF_ID);
 
-			final var ctrlEssTimeOfUseTariffDischargeId = this.getId(t, p,
-					Property.CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID, "ctrlEssTimeOfUseTariffDischarge0");
-			final var timeOfUseTariffId = this.getId(t, p, Property.TIME_OF_USE_TARIF_ID, "timeOfUseTariff0");
+			final var alias = this.getString(p, l, Property.ALIAS);
+			final var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, null);
+			final var filter = this.getValueOrDefault(p, Property.FILTER, null);
 
 			if (t == ConfigurationTarget.ADD && (accessToken == null || accessToken.isBlank())) {
 				throw new OpenemsException("Access Token is required!");
 			}
 
-			// TODO ess id may be changed
-			var comp = Lists.newArrayList(//
-					new EdgeConfig.Component(ctrlEssTimeOfUseTariffDischargeId, alias,
-							"Controller.Ess.Time-Of-Use-Tariff.Discharge", JsonUtils.buildJsonObject() //
+			var components = Lists.newArrayList(//
+					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
+							JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
 									.build()), //
-					new EdgeConfig.Component(timeOfUseTariffId, this.getName(l), "TimeOfUseTariff.Tibber",
+					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Tibber",
 							JsonUtils.buildJsonObject() //
 									.addPropertyIfNotNull("accessToken", accessToken) //
+									.addPropertyIfNotNull("filter", filter) //
 									.build())//
 			);
 
-			return new AppConfiguration(comp, Lists.newArrayList(ctrlEssTimeOfUseTariffDischargeId, "ctrlBalancing0"));
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffId, "ctrlBalancing0")) //
+					.addTask(Tasks.persistencePredictor("_sum/UnmanagedConsumptionActivePower")) //
+					.build();
 		};
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 

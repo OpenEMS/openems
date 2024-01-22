@@ -5,7 +5,7 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonr
 
 /**
  * Represents a JSON-RPC Request for 'getAppAssistant'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -16,10 +16,10 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonr
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -41,7 +41,7 @@ export namespace GetAppAssistant {
         public constructor(
             public override readonly params: {
                 appId: string
-            }
+            },
         ) {
             super(METHOD, params);
         }
@@ -51,7 +51,7 @@ export namespace GetAppAssistant {
 
         public constructor(
             public override readonly id: string,
-            public override readonly result: AppAssistant
+            public override readonly result: AppAssistant,
         ) {
             super(id, result);
         }
@@ -103,7 +103,7 @@ export namespace GetAppAssistant {
 
     /**
      * Iterates over the given field an all child fields.
-     * 
+     *
      * @param field the current field to iterate thrue
      * @returns true if any field has 'ALIAS' as their key
      */
@@ -162,7 +162,7 @@ export namespace GetAppAssistant {
 
     /**
      * Converts expression strings of a 'formly-option-group-picker' to functions.
-     * 
+     *
      * e. g.
      * {
      *     group: 'exampleGroup',
@@ -187,7 +187,7 @@ export namespace GetAppAssistant {
      *          }
      *     ]
      * }
-     * 
+     *
      * @param rootFields the root fields
      * @param field the current field
      */
@@ -250,11 +250,11 @@ export namespace GetAppAssistant {
 
     /**
      * Converts a string expression e. g.
-     * 
+     *
      * "model.A < model.B" to "+model.A < +model.B"
-     * 
+     *
      * if the property value of the model is a number.
-     * 
+     *
      * @param field         the field
      * @param expression    the expression to convert
      * @returns the converted expression

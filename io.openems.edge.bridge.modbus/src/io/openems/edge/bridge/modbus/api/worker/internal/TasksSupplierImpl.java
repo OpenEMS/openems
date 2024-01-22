@@ -36,7 +36,7 @@ public class TasksSupplierImpl implements TasksSupplier {
 	 * @param sourceId Component-ID of the source
 	 * @param protocol the ModbusProtocol
 	 */
-	public void addProtocol(String sourceId, ModbusProtocol protocol) {
+	public synchronized void addProtocol(String sourceId, ModbusProtocol protocol) {
 		this.taskManagers.put(sourceId, protocol.getTaskManager());
 	}
 
@@ -45,12 +45,12 @@ public class TasksSupplierImpl implements TasksSupplier {
 	 *
 	 * @param sourceId Component-ID of the source
 	 */
-	public void removeProtocol(String sourceId) {
+	public synchronized void removeProtocol(String sourceId) {
 		this.taskManagers.remove(sourceId);
 	}
 
 	@Override
-	public CycleTasks getCycleTasks(DefectiveComponents defectiveComponents) {
+	public synchronized CycleTasks getCycleTasks(DefectiveComponents defectiveComponents) {
 		Map<String, LinkedList<Task>> tasks = new HashMap<>();
 		// One Low Priority ReadTask
 		{
@@ -122,7 +122,7 @@ public class TasksSupplierImpl implements TasksSupplier {
 	}
 
 	@Override
-	public int getTotalNumberOfTasks() {
+	public synchronized int getTotalNumberOfTasks() {
 		return this.taskManagers.values().stream() //
 				.mapToInt(m -> m.countTasks()) //
 				.sum();

@@ -6,10 +6,10 @@ import java.time.ZoneOffset;
 import org.junit.Test;
 
 import io.openems.common.channel.PersistencePriority;
+import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.TimeLeapClock;
 
 public class ControllerApiMqttImplTest {
 
@@ -30,6 +30,9 @@ public class ControllerApiMqttImplTest {
 						.setUri("ws://localhost:1883") //
 						.setPersistencePriority(PersistencePriority.VERY_LOW) //
 						.setDebugMode(true) //
+						.setCertPem("") //
+						.setPrivateKeyPem("") //
+						.setTrustStorePath("") //
 						.build());
 	}
 

@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Wraps a JSON-RPC Request for a specific Edge-ID.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -23,7 +23,7 @@ export class EdgeRpcRequest extends JsonrpcRequest {
         public override readonly params: {
             edgeId: string,
             payload: JsonrpcRequest
-        }
+        },
     ) {
         super(EdgeRpcRequest.METHOD, params);
     }

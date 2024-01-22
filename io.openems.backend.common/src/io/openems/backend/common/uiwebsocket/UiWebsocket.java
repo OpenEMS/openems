@@ -19,7 +19,7 @@ public interface UiWebsocket {
 	 * Response.
 	 *
 	 * @param websocketId the id of the UI websocket connection
-	 * @param request the JsonrpcRequest
+	 * @param request     the JsonrpcRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
@@ -29,7 +29,7 @@ public interface UiWebsocket {
 	/**
 	 * Send a JSON-RPC Notification to a UI session.
 	 *
-	 * @param websocketId the id of the UI websocket connection
+	 * @param websocketId  the id of the UI websocket connection
 	 * @param notification the JsonrpcNotification
 	 * @throws OpenemsNamedException on error
 	 */
