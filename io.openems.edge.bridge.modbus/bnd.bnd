@@ -6,7 +6,6 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	com.ghgande.j2mod,\
-	com.fazecast.jSerialComm,\
 	io.openems.common,\
 	io.openems.edge.common
 
