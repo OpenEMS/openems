@@ -229,7 +229,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/scr/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.scr</artifactId>
-			<version>2.2.6</version>
+			<version>2.2.10</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Web Management Console -->
