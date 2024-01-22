@@ -91,7 +91,7 @@ export class FlatComponent extends AbstractFlatWidget {
       // ChargeMode
       this.chargeMode = this.controller.properties['chargeMode'];
       // Check if Charging is enabled
-      this.isChargingEnabled = currentData.allComponents[this.controller.id + '_PropertyEnabledCharging'] ? true : false;
+      this.isChargingEnabled = currentData.allComponents[this.controller.id + '/_PropertyEnabledCharging'] === 1 ? true : false;
       // DefaultChargeMinPower
       this.defaultChargeMinPower = this.controller.properties['defaultChargeMinPower'];
       // Prioritization
