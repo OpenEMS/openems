@@ -9,10 +9,9 @@ variables:
     mount:
       - cache
 
-  - &ssh-settings
-    host: 10.0.0.40
+  - &rsync-settings
+    hosts: [ "10.0.0.40" ]
     user: fenecon-docs
-    username: fenecon-docs
     key:
       from_secret: ssh_key_intranet
 
@@ -46,7 +45,6 @@ steps:
     settings:
       restore: true
       <<: *sftp-settings
-    group: restore
 
   build-ui:
     when:
@@ -72,7 +70,7 @@ steps:
       - node_modules/.bin/ng build --base-href /${CI_COMMIT_BRANCH}/ -c "$OEM,$OEM-backend-prod,prod"
       - node_modules/.bin/ng lint
       - npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
-    group: build
+    depends_on: [restore-cache]
 
   build-java:
     when:
@@ -91,7 +89,7 @@ steps:
       - common_build_snapshot_version
       - common_update_version_in_code
       - common_build_edge --parallel --max-workers 2;
-    group: build
+    depends_on: [restore-cache]
 
   build-debian-package:
     when:
@@ -109,49 +107,39 @@ steps:
       - mkdir -p tools/debian/usr/lib/openems/
       - cp io.openems.edge.application/generated/distributions/executable/EdgeApp.jar tools/debian/usr/lib/openems/openems.jar
       - tools/build-debian-package.sh
-
-  refresh-dev-deb:
-    when:
-      - *main-build
-      - *message-debian
-    image: appleboy/drone-scp:latest
-    settings:
-      <<: *ssh-settings
-      source:
-        - ./*.deb
-        - ./*.version
-      target: /opt/gitea/data/openems-ui-dev/html/${CI_COMMIT_BRANCH}
-    group: finish
+    depends_on: [build-ui, build-java]
 
   refresh-dev-ui:
     when:
       - *main-build
       - *ui-only
-    image: appleboy/drone-scp:latest
+    image: drillster/drone-rsync:latest
     settings:
-      <<: *ssh-settings
-      source: ./ui/target
-      strip_components: 3
+      <<: *rsync-settings
+      source: ui/target/
+      recursive: true
+      prescript: /opt/gitea/data/openems-ui-dev/prepare-location.sh ${CI_COMMIT_BRANCH}
       target: /opt/gitea/data/openems-ui-dev/html/${CI_COMMIT_BRANCH}
-    group: finish
+      script: /opt/gitea/data/openems-ui-dev/refresh-location.sh ${CI_COMMIT_BRANCH}
+    depends_on: [build-ui]
 
-  refresh-location:
+  refresh-dev-deb:
     when:
       - *main-build
-      - *ui-only
-    image: appleboy/drone-ssh:latest
+      - *message-debian
+    image: drillster/drone-rsync:latest
     settings:
-      <<: *ssh-settings
-      timeout: 10s
-      script:
-        - /opt/gitea/data/openems-ui-dev/refresh-location.sh ${CI_COMMIT_BRANCH}
-    group: refresh
+      <<: *rsync-settings
+      exclude: ["*"]
+      include: ["fems.deb", "fems.version"]
+      target: /opt/gitea/data/openems-ui-dev/html/${CI_COMMIT_BRANCH}
+    depends_on: [refresh-dev-ui, build-debian-package]
 
   rebuild-cache:
     when:
       - *main-build
-    image: appleboy/drone-sftp-cache
+    image: appleboy/drone-sftp-cache:latest
     settings:
       rebuild: true
       <<: *sftp-settings
-    group: refresh
+    depends_on: [build-ui, build-java, build-debian-package]

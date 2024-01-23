@@ -28,11 +28,11 @@ common_build_snapshot_version() {
         VERSION_DEV_BRANCH="$(git branch --show-current)"
         echo "2"
         VERSION_DEV_COMMIT=""
-        #if [[ $(git diff --stat) != '' ]]; then
+        if [[ $(git diff --stat) != '' ]]; then
             VERSION_DEV_COMMIT="dirty"
-        #else
-        #    VERSION_DEV_COMMIT="$(git rev-parse --short HEAD)"
-        #fi
+        else
+            VERSION_DEV_COMMIT="$(git rev-parse --short HEAD)"
+        fi
         echo "3"
         VERSION_DEV_BUILD_TIME=$(date "+%Y%m%d.%H%M")
         # Compliant with https://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-version
