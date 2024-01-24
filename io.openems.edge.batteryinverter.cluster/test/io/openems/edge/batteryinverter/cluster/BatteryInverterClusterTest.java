@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.test.DummyManagedSymmetricBatteryInverter;
 import io.openems.edge.common.startstop.StartStopConfig;
@@ -16,7 +17,9 @@ public class BatteryInverterClusterTest {
 	private static final String CLUSTER_ID = "ess0";
 	private static final String BATTERY_INVERTER1_ID = "batteryInverter0";
 	private static final String BATTERY_INVERTER2_ID = "batteryInverter1";
-
+	
+	private static final String BATTERY_ID = "battery0";
+	
 	private static final ChannelAddress CLUSTER_GRID_MODE = new ChannelAddress(CLUSTER_ID, SymmetricBatteryInverter.ChannelId.GRID_MODE.id());
 	private static final ChannelAddress INVERTER1_GRID_MODE = new ChannelAddress(BATTERY_INVERTER1_ID, SymmetricBatteryInverter.ChannelId.GRID_MODE.id());
 	private static final ChannelAddress INVERTER2_GRID_MODE = new ChannelAddress(BATTERY_INVERTER2_ID, SymmetricBatteryInverter.ChannelId.GRID_MODE.id());
@@ -40,7 +43,8 @@ public class BatteryInverterClusterTest {
 	private static final ChannelAddress CLUSTER_ACTIVE_DISCHARGE_ENERGY = new ChannelAddress(CLUSTER_ID, SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY.id());
 	private static final ChannelAddress INVERTER1_ACTIVE_DISCHARGE_ENERGY = new ChannelAddress(BATTERY_INVERTER1_ID, SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY.id());
 	private static final ChannelAddress INVERTER2_ACTIVE_DISCHARGE_ENERGY = new ChannelAddress(BATTERY_INVERTER2_ID, SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY.id());
-
+	
+	
 	@Test
 	public void testCluster() throws Exception {
 		new ComponentTest(new BatteryInverterClusterImpl()) //
@@ -113,6 +117,54 @@ public class BatteryInverterClusterTest {
 						.output(CLUSTER_GRID_MODE, GridMode.UNDEFINED) //
 				) //
 		;
+	}
+	
+	
+	@Test
+	public void testPowerSetting() throws Exception {
+		BatteryInverterCluster batteryInverterCluster = new BatteryInverterClusterImpl();
+		DummyManagedSymmetricBatteryInverter inverter1 = new DummyManagedSymmetricBatteryInverter(BATTERY_INVERTER1_ID);
+		DummyManagedSymmetricBatteryInverter inverter2 = new DummyManagedSymmetricBatteryInverter(BATTERY_INVERTER2_ID);
+		DummyBattery battery = new DummyBattery(BATTERY_ID);
+		
+		inverter1._setMaxApparentPower(10000);
+		inverter2._setMaxApparentPower(10000);
+		
+		ComponentTest test = new ComponentTest(batteryInverterCluster) //
+			.addReference("cm", new DummyConfigurationAdmin()) //
+			.addReference("addBatteryInverter", inverter1) //
+			.addReference("addBatteryInverter", inverter2) //
+			.activate(MyConfig.create() //
+				.setId(CLUSTER_ID) //
+				.setBatteryInverterIds(BATTERY_INVERTER1_ID, BATTERY_INVERTER2_ID) //
+				.setStartStop(StartStopConfig.START) //
+				.build());
+		
+		test.next(new TestCase()
+				.input(INVERTER1_MAX_APPARENT_POWER, 10000)
+				.input(INVERTER2_MAX_APPARENT_POWER, 10000));
+		
+		// Test setting active and reactive power
+		batteryInverterCluster.run(battery, 10000, 0);
+		test.next(new TestCase()
+				.output(CLUSTER_MAX_APPARENT_POWER, 20000)
+				.output(INVERTER1_ACTIVE_POWER, 5000)
+				.output(INVERTER2_ACTIVE_POWER, 5000)
+				.output(INVERTER1_REACTIVE_POWER, 0)
+				.output(INVERTER2_REACTIVE_POWER, 0)
+				);
+		
+		// Test setting active and reactive power
+		batteryInverterCluster.run(battery, 0, 10000);
+		test.next(new TestCase()
+				.output(INVERTER1_ACTIVE_POWER, 0)
+				.output(INVERTER2_ACTIVE_POWER, 0)
+				.output(INVERTER1_REACTIVE_POWER, 5000)
+				.output(INVERTER2_REACTIVE_POWER, 5000)
+				);
+		
+		
+		
 	}
 
 }
