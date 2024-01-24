@@ -67,7 +67,6 @@ public class SimulatorTest {
 				.essMaxSocEnergy(22000) //
 				.essInitialEnergy((int) (22000 * 0.1)) //
 				.essMaxEnergyPerPeriod(toEnergy(10000)) //
-				.essMaxChargePerPeriod(toEnergy(5000)) //
 				.maxBuyFromGrid(toEnergy(24_000)) //
 				.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 				.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
@@ -221,14 +220,13 @@ public class SimulatorTest {
 				getEssChargeDischarges(p, schedule));
 	}
 
-	private static Params createParams888d20231106(StateMachine... states) {
+	protected static Params createParams888d20231106(StateMachine... states) {
 		return Params.create() //
 				.time(TIME) //
 				.essTotalEnergy(22000) //
 				.essMinSocEnergy(0) //
 				.essMaxSocEnergy(22000) //
 				.essMaxEnergyPerPeriod(toEnergy(10000)) //
-				.essMaxChargePerPeriod(toEnergy(5000)) //
 				.maxBuyFromGrid(toEnergy(24_000)) //
 				.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 				.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
@@ -244,7 +242,6 @@ public class SimulatorTest {
 				.essMinSocEnergy(0) //
 				.essMaxSocEnergy(22000) //
 				.essMaxEnergyPerPeriod(toEnergy(10000)) //
-				.essMaxChargePerPeriod(toEnergy(5000)) //
 				.maxBuyFromGrid(toEnergy(24_000)) //
 				.productions(stream(interpolateArray(PRODUCTION_12786_20231121)).map(v -> toEnergy(v)).toArray()) //
 				.consumptions(stream(interpolateArray(CONSUMPTION_12786_20231121)).map(v -> toEnergy(v)).toArray()) //

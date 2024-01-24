@@ -1,5 +1,6 @@
 package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
+import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import java.time.ZonedDateTime;
@@ -48,7 +49,6 @@ public record Params(//
 		private int essMaxSocEnergy;
 		private int essInitialEnergy;
 		private int essMaxEnergyPerPeriod;
-		private int essMaxChargePerPeriod;
 		private int maxBuyFromGrid;
 		private int[] productions = new int[0];
 		private int[] consumptions = new int[0];
@@ -83,11 +83,6 @@ public record Params(//
 
 		protected Builder essMaxEnergyPerPeriod(int essMaxEnergyPerPeriod) {
 			this.essMaxEnergyPerPeriod = essMaxEnergyPerPeriod;
-			return this;
-		}
-
-		protected Builder essMaxChargePerPeriod(int essMaxChargePerPeriod) {
-			this.essMaxChargePerPeriod = essMaxChargePerPeriod;
 			return this;
 		}
 
@@ -133,11 +128,13 @@ public record Params(//
 			var numberOfPeriods = min(this.productions.length, min(this.consumptions.length, this.prices.length));
 			var maxPrice = IntStream.range(0, this.prices.length).mapToObj(i -> this.prices[i]).max(Float::compare)
 					.orElse(null);
+			// Set ESS Max-Charge in CHARGE mode to 1/4 of usable energy (i.e. C-Rate 0.25)
+			var essMaxChargePerPeriod = max(0, (this.essMaxSocEnergy - this.essMinSocEnergy) / 4);
 			return new Params(numberOfPeriods, //
 					this.time, //
 					this.essTotalEnergy, this.essMinSocEnergy, this.essMaxSocEnergy, this.essInitialEnergy,
 					this.essMaxEnergyPerPeriod, //
-					this.essMaxChargePerPeriod, this.maxBuyFromGrid, //
+					essMaxChargePerPeriod, this.maxBuyFromGrid, //
 					this.productions, this.consumptions, //
 					this.prices, maxPrice, //
 					this.states, //
@@ -164,7 +161,6 @@ public record Params(//
 				.append(", essMaxSocEnergy=").append(this.essMaxSocEnergy) //
 				.append(", essInitialEnergy=").append(this.essInitialEnergy) //
 				.append(", essMaxEnergyPerPeriod=").append(this.essMaxEnergyPerPeriod) //
-				.append(", essMaxChargePerPeriod=").append(this.essMaxChargePerPeriod) //
 				.append(", maxBuyFromGrid=").append(this.maxBuyFromGrid) //
 				.append(", states=").append(Arrays.toString(this.states)) //
 				.append(", maxPrice=").append(this.maxPrice);

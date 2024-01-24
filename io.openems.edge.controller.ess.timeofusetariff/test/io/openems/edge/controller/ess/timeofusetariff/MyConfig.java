@@ -101,11 +101,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int essMaxChargePower() {
-		return this.builder.essMaxChargePower;
-	}
-
-	@Override
 	public int maxChargePowerFromGrid() {
 		return this.builder.maxChargePowerFromGrid;
 	}

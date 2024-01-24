@@ -126,7 +126,6 @@ public final class Utils {
 				.essMaxSocEnergy(essMaxSocEnergy) //
 				.essInitialEnergy(essSocEnergy) //
 				.essMaxEnergyPerPeriod(toEnergy(max(dischargePower, abs(chargePower)))) //
-				.essMaxChargePerPeriod(toEnergy(context.essMaxChargePower())) //
 				.maxBuyFromGrid(toEnergy(context.maxChargePowerFromGrid())) //
 				.productions(stream(interpolateArray(predictionProduction)).map(v -> toEnergy(v)).toArray()) //
 				.consumptions(stream(interpolateArray(predictionConsumption)).map(v -> toEnergy(v)).toArray()) //
@@ -351,7 +350,7 @@ public final class Utils {
 	 * 
 	 * @param ess                    the {@link ManagedSymmetricEss}
 	 * @param sum                    the {@link Sum}
-	 * @param essMaxChargePower      ESS Max Charge Power in CHARGE State
+	 * @param essMaxChargePower      ESS Max Charge Power in CHARGE State (positive)
 	 * @param maxChargePowerFromGrid the configured max charge from grid power
 	 * @return the set-point or null
 	 */
@@ -678,5 +677,27 @@ public final class Utils {
 							.append("\n"));
 		}
 		System.out.println(b.toString());
+	}
+
+	/**
+	 * Calculates the ESS Max-Charge power during automatic mode.
+	 * 
+	 * @param params the {@link Params}, or null
+	 * @param ess    the {@link ManagedSymmetricEss}
+	 * @return the power in [W]
+	 */
+	public static int essMaxChargePower(Params params, ManagedSymmetricEss ess) {
+		if (params != null) {
+			return params.essMaxChargePerPeriod();
+		}
+		var capacity = ess.getCapacity();
+		if (capacity.isDefined()) {
+			return capacity.get() / 4;
+		}
+		var maxApparentPower = ess.getMaxApparentPower();
+		if (maxApparentPower.isDefined()) {
+			return maxApparentPower.get() / 4;
+		}
+		return 0;
 	}
 }
