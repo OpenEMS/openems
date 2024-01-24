@@ -3,7 +3,7 @@ import { SystemLog } from "../../type/systemlog";
 
 /**
  * Represents a JSON-RPC Notification for sending the current system log.
- *  
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

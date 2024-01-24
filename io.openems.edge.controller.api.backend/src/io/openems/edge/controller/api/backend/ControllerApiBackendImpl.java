@@ -1,5 +1,7 @@
 package io.openems.edge.controller.api.backend;
 
+import static io.openems.common.utils.StringUtils.definedOrElse;
+
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URI;
@@ -36,6 +38,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.common.websocket.AbstractWebsocketClient;
@@ -71,6 +74,9 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 	protected final ApiWorker apiWorker = new ApiWorker(this);
 
 	private final Logger log = LoggerFactory.getLogger(ControllerApiBackendImpl.class);
+
+	@Reference
+	private OpenemsEdgeOem oem;
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	protected ResendHistoricDataWorker resendHistoricDataWorker;
@@ -122,7 +128,7 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 		// Get URI
 		URI uri = null;
 		try {
-			uri = new URI(config.uri());
+			uri = new URI(definedOrElse(config.uri(), this.oem.getBackendApiUrl()));
 		} catch (URISyntaxException e) {
 			this.log.error("URI [" + config.uri() + "] is invalid: " + e.getMessage());
 			return;

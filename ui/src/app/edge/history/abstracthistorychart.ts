@@ -58,7 +58,7 @@ export abstract class AbstractHistoryChart {
 
     /**
      * Gets the ChannelAddresses that should be queried.
-     * 
+     *
      * @param edge the current Edge
      * @param config the EdgeConfig
      */
@@ -67,7 +67,7 @@ export abstract class AbstractHistoryChart {
 
     /**
      * Sends the Historic Timeseries Data Query and makes sure the result is not empty.
-     * 
+     *
      * @param fromDate the From-Date
      * @param toDate   the To-Date
      * @param edge     the current Edge
@@ -112,14 +112,14 @@ export abstract class AbstractHistoryChart {
 
     /**
      * Sends the Historic Timeseries Energy per Period Query and makes sure the result is not empty.
-     * 
+     *
      * @param fromDate the From-Date
      * @param toDate   the To-Date
      * @param channelAddresses       the Channel-Addresses
      */
     protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date, channelAddresses: ChannelAddress[]): Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> {
 
-        // TODO should be removed, edge delivers too much data 
+        // TODO should be removed, edge delivers too much data
         let resolution = calculateResolution(this.service, fromDate, toDate).resolution;
 
         this.errorResponse = null;
@@ -152,9 +152,9 @@ export abstract class AbstractHistoryChart {
 
     /**
      * Generates a Tooltip Title string from a 'fromDate' and 'toDate'.
-     * 
+     *
      * @param fromDate the From-Date
-     * @param toDate the To-Date 
+     * @param toDate the To-Date
      * @param date Date from TooltipItem
      * @returns period for Tooltip Header
      */
@@ -170,9 +170,9 @@ export abstract class AbstractHistoryChart {
 
     /**
      * Creates the default Chart options
-     * 
+     *
      * @Future TODO change into static method and pass the historyPeriods value
-     * 
+     *
      * @returns the ChartOptions
      */
     protected createDefaultChartOptions(): ChartOptions {
@@ -197,7 +197,7 @@ export abstract class AbstractHistoryChart {
 
     /**
      * checks if chart is allowed to be refreshed
-     * 
+     *
      */
     // protected checkAllowanceChartRefresh(): boolean {
     //     let currentDate = new Date();
@@ -273,11 +273,11 @@ export abstract class AbstractHistoryChart {
 
     /**
      * Start NGX-Spinner
-     * 
+     *
      * Spinner will appear inside html tag only
-     * 
+     *
      * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
-     * 
+     *
      * @param selector selector for specific spinner
      */
     public startSpinner() {

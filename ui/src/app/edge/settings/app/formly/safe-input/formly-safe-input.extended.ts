@@ -3,7 +3,7 @@ import { ModalController } from "@ionic/angular";
 import { FieldWrapper, FormlyFieldConfig } from "@ngx-formly/core";
 import { FormlySafeInputModalComponent } from "./formly-safe-input-modal.component";
 import { GetAppAssistant } from "../../jsonrpc/getAppAssistant";
-import { OptionGroupConfig } from "../option-group-picker/optionGroupPickerConfiguration";
+import { OptionGroupConfig, getTitleFromOptionConfig } from "../option-group-picker/optionGroupPickerConfiguration";
 
 @Component({
     selector: 'formly-safe-input-wrapper',
@@ -63,7 +63,7 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
                 this.model[key] = value;
             }
 
-            // set values with current form value when the fields are set via fieldGroup 
+            // set values with current form value when the fields are set via fieldGroup
             // to make sure every value gets set accordingly to the object hierarchy
             if (this.field.fieldGroup) {
                 this.form.setValue(this.form.getRawValue());
@@ -105,13 +105,20 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
         if (!field) {
             return null;
         }
-        const option = ((field.templateOptions ?? field.props).options as OptionGroupConfig[]).map(optionGroup => optionGroup.options)
-            .reduce((acc, val) => acc.concat(val), [])
-            .find(option => option.value === this.model[this.pathToDisplayValue]);
-        if (!option) {
-            return null;
+        const value = this.model[this.pathToDisplayValue];
+        const options = ((field.templateOptions ?? field.props).options as OptionGroupConfig[]).map(optionGroup => optionGroup.options)
+            .reduce((acc, val) => acc.concat(val), []);
+        if (Array.isArray(value)) {
+            return (value as []).map(e => options.find(option => option.value === e))
+                .map(option => getTitleFromOptionConfig(option, this.field))
+                .join(', ');
+        } else {
+            const option = options.find(option => option.value === value);
+            if (!option) {
+                return null;
+            }
+            return getTitleFromOptionConfig(option, this.field);
         }
-        return option.expressions?.title?.(this.field) ?? option.title ?? option.value;
     }
 
 

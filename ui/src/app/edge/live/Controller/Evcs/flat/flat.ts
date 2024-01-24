@@ -126,10 +126,10 @@ export class FlatComponent extends AbstractFlatWidget {
 
   /**
  * Returns the state of the EVCS
- * 
- * @param state 
- * @param plug 
- * 
+ *
+ * @param state
+ * @param plug
+ *
  */
   private getState(state: number, plug: number): string {
     if (this.controller != null) {

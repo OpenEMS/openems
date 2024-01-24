@@ -2,7 +2,7 @@ import { JsonrpcNotification } from "../base";
 
 /**
  * Wraps a JSON-RPC Notification for a specific Edge-ID.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

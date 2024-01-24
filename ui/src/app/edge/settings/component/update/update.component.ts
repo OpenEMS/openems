@@ -57,7 +57,7 @@ export class ComponentUpdateComponent implements OnInit {
             required: property.isRequired,
           },
         };
-        // add Property Schema 
+        // add Property Schema
         Utils.deepCopy(property.schema, field);
         fields.push(field);
         if (component.properties[property.id]) {

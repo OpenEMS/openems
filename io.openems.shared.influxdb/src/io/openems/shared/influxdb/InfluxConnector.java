@@ -32,7 +32,6 @@ import com.influxdb.client.write.Point;
 import com.influxdb.client.write.WriteParameters;
 import com.influxdb.exceptions.BadRequestException;
 
-import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
@@ -75,6 +74,7 @@ public class InfluxConnector {
 	 * @param apiKey        The apiKey; 'username:password' for InfluxDB v1
 	 * @param bucket        The bucket name; 'database/retentionPolicy' for InfluxDB
 	 *                      v1
+	 * @param tag           The InfluxDB tag
 	 * @param isReadOnly    If true, a 'Read-Only-Mode' is activated, where no data
 	 *                      is actually written to the database
 	 * @param poolSize      the number of threads dedicated to handle the tasks
@@ -86,9 +86,9 @@ public class InfluxConnector {
 	 *                      {@link WriteParameters} need to be passed here
 	 */
 	public InfluxConnector(String componentId, QueryLanguageConfig queryLanguage, URI url, String org, String apiKey,
-			String bucket, boolean isReadOnly, int poolSize, int maxQueueSize,
+			String bucket, String tag, boolean isReadOnly, int poolSize, int maxQueueSize,
 			Consumer<BadRequestException> onWriteError, boolean safeWrite, WriteParameters... parameters) {
-		this.queryProxy = QueryProxy.from(queryLanguage);
+		this.queryProxy = QueryProxy.from(queryLanguage, tag);
 		this.url = url;
 		this.org = org;
 		this.apiKey = apiKey;
@@ -135,10 +135,10 @@ public class InfluxConnector {
 	}
 
 	public InfluxConnector(String componentId, QueryLanguageConfig queryLanguage, URI url, String org, String apiKey,
-			String bucket, boolean isReadOnly, int poolSize, int maxQueueSize,
+			String bucket, String tag, boolean isReadOnly, int poolSize, int maxQueueSize,
 			Consumer<BadRequestException> onWriteError, WriteParameters... parameters) {
-		this(componentId, queryLanguage, url, org, apiKey, bucket, isReadOnly, poolSize, maxQueueSize, onWriteError,
-				false, parameters);
+		this(componentId, queryLanguage, url, org, apiKey, bucket, tag, isReadOnly, poolSize, maxQueueSize,
+				onWriteError, false, parameters);
 	}
 
 	public static class InfluxConnection {
@@ -345,6 +345,41 @@ public class InfluxConnector {
 	}
 
 	/**
+	 * Queries the last value for given channel address from now to 100 days in the
+	 * past.
+	 * 
+	 * @param influxEdgeId   the unique, numeric Edge-ID; or Empty to query all
+	 *                       Edges
+	 * @param channelAddress the Channels to query
+	 * @param measurement    the measurement
+	 * @return the values mapped to their channel
+	 * @throws OpenemsNamedException on error
+	 */
+	public SortedMap<ChannelAddress, JsonElement> queryLastData(Optional<Integer> influxEdgeId,
+			ChannelAddress channelAddress, String measurement) throws OpenemsNamedException {
+
+		// Check if channelAddress is not null
+		if (channelAddress == null) {
+			return new TreeMap<>();
+		}
+
+		// Create a set of ChannelAdresses thus we need only one
+		Set<ChannelAddress> channels = Set.of(channelAddress);
+
+		ZonedDateTime now = ZonedDateTime.now();
+
+		// Use actual timestamp for queryFirstValueBefore-call
+		return this.queryProxy.queryFirstValueBefore(//
+				this.bucket, //
+				this.getInfluxConnection(), //
+				measurement, //
+				influxEdgeId, //
+				now, //
+				channels//
+		);
+	}
+
+	/**
 	 * Queries the first valid values before the given date.
 	 * 
 	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
@@ -424,18 +459,20 @@ public class InfluxConnector {
 	 * Builds a {@link Point} which set the
 	 * {@link QueryProxy.AVAILABLE_SINCE_COLUMN_NAME} field to the new value.
 	 * 
+	 * @param tag                     the InfluxDB tag
 	 * @param influxEdgeId            the id of the edge
 	 * @param availableSinceTimestamp the new timestamp in epoch seconds
 	 * @param channel                 the channels
 	 * @return the {@link Point}
 	 */
 	public static Point buildUpdateAvailableSincePoint(//
+			String tag, //
 			int influxEdgeId, //
 			String channel, //
 			long availableSinceTimestamp //
 	) {
 		return Point.measurement(QueryProxy.AVAILABLE_SINCE_MEASUREMENT) //
-				.addTag(OpenemsOEM.INFLUXDB_TAG, String.valueOf(influxEdgeId)) //
+				.addTag(tag, String.valueOf(influxEdgeId)) //
 				.addTag(QueryProxy.CHANNEL_TAG, channel) //
 				.time(0, WritePrecision.S) //
 				.addField(QueryProxy.AVAILABLE_SINCE_COLUMN_NAME, availableSinceTimestamp);

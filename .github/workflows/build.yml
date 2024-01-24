@@ -2,6 +2,10 @@ name: Build OpenEMS
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+      - develop
   
 jobs:
   build-java:

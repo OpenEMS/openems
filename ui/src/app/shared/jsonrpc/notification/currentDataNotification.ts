@@ -3,7 +3,7 @@ import { JsonrpcNotification } from "../base";
 /**
  * Represents a JSON-RPC Notification for sending the current data of all
  * subscribed Channels.
- *  
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

@@ -85,7 +85,7 @@ image::eclipse-io.openems.edge.application.png[io.openems.edge.application proje
 +
 NOTE: Instead of navigating through the projects tree, you can simply use the keyboard shortcut btn:[Ctrl] + btn:[Shift] + btn:[R] to start the "Open Resource" dialog. Enter "EdgeApp.bndrun" there and press btn:[Enter] to open the file.
 +
-The `EdgeApp.bndrun` file declares all the bundles and runtime properties. For now it should not be necessary to edit it, but it hides some useful settings unter the btn:[Source] tab:
+The `EdgeApp.bndrun` file declares all the bundles and runtime properties. For now it should not be necessary to edit it, but it hides some useful settings under the btn:[Source] tab:
 +
 - `org.osgi.service.http.port=8080`: start the Apache Felix Web Console on port `8080`
 - `felix.cm.dir=c:/openems/config`: persist configurations in the folder `c:/openems/config`. Adjust this if you are working on Linux to keep your configurations after restart

@@ -1,13 +1,10 @@
 import { NgModule } from '@angular/core';
 
 import { SharedModule } from '../../shared/shared.module';
-import { ChannelthresholdChartOverviewComponent } from './channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
-import { ChannelthresholdSingleChartComponent } from './channelthreshold/singlechart.component';
-import { ChannelthresholdTotalChartComponent } from './channelthreshold/totalchart.component';
-import { ChannelthresholdWidgetComponent } from './channelthreshold/widget.component';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
 import { Common } from './common/common';
+import { Controller } from './Controller/controller.module';
 import { DelayedSellToGridChartComponent } from './delayedselltogrid/chart.component';
 import { DelayedSellToGridChartOverviewComponent } from './delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { DelayedSellToGridWidgetComponent } from './delayedselltogrid/widget.component';
@@ -55,15 +52,12 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
   imports: [
     SharedModule,
     Common,
+    Controller,
   ],
   declarations: [
     AsymmetricPeakshavingChartComponent,
     AsymmetricPeakshavingChartOverviewComponent,
     AsymmetricPeakshavingWidgetComponent,
-    ChannelthresholdChartOverviewComponent,
-    ChannelthresholdSingleChartComponent,
-    ChannelthresholdTotalChartComponent,
-    ChannelthresholdWidgetComponent,
     ChpSocChartComponent,
     ChpSocWidgetComponent,
     DelayedSellToGridChartComponent,

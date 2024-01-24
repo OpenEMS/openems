@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
@@ -187,7 +188,7 @@ public class DummyApp implements OpenemsApp {
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return this.appDescriptor;
 	}
 

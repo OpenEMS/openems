@@ -60,6 +60,15 @@ public final class SelectGroupBuilder extends FormlyBuilder<SelectGroupBuilder> 
 		return this;
 	}
 
+	public SelectGroupBuilder setMulti(boolean isMulti) {
+		if (isMulti) {
+			this.templateOptions.addProperty("isMulti", true);
+		} else {
+			this.templateOptions.remove("isMulti");
+		}
+		return this;
+	}
+
 	@Override
 	public JsonObject build() {
 		// wrap input field into a popup input

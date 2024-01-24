@@ -41,7 +41,7 @@ export class ModalPhasesComponent extends AbstractModalLine {
 
   /**
    * Converts negative and positive [W] into positive [W]
-   * 
+   *
    * @param value the value form passed value in html
    * @returns converted value
    */

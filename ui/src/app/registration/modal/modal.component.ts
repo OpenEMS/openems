@@ -31,7 +31,7 @@ export class RegistrationModalComponent implements OnInit {
 
   /**
    * Update the form depending on the thrown event (ionChange) value.
-   * 
+   *
    * @param event to get current value and change the form
    */
   updateRegistrationForm(event: CustomEvent) {

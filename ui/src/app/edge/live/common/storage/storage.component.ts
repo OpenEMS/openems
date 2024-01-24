@@ -2,8 +2,8 @@ import { formatNumber } from '@angular/common';
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { CurrentData } from "src/app/shared/shared";
-
 import { DateUtils } from 'src/app/shared/utils/dateutils/dateutils';
+
 import { ChannelAddress, EdgeConfig, Utils } from '../../../../shared/shared';
 import { StorageModalComponent } from './modal/modal.component';
 
@@ -119,6 +119,9 @@ export class StorageComponent extends AbstractFlatWidget {
 
     private getBatteryCapacityExtensionStatus(isRunning: boolean, essIsBlocking: number, essIsCharging: number, essIsDischarging: number, targetTimeSpecified: boolean, targetDate: Date): { color: string, text: string } {
 
+        if (!isRunning) {
+            return null;
+        }
         // Planned Expansion
         if (targetTimeSpecified && targetDate) {
 
@@ -131,17 +134,13 @@ export class StorageComponent extends AbstractFlatWidget {
             };
         }
 
-        if (!isRunning) {
-            return null;
-        }
-
         if (essIsBlocking != null && essIsBlocking == 1) {
             // If ess reached targetSoc
             return { color: 'green', text: this.translate.instant('Edge.Index.RETROFITTING.REACHED_TARGET_SOC') };
 
         } else if ((essIsCharging != null && essIsCharging == 1) || (essIsDischarging != null && essIsDischarging == 1)) {
 
-            // If Ess is charging to or discharging to the targetSoc 
+            // If Ess is charging to or discharging to the targetSoc
             return { color: 'orange', text: this.translate.instant('Edge.Index.RETROFITTING.PREPARING') };
         } else {
             return null;
@@ -178,7 +177,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
     /**
       * Use 'convertChargePower' to convert/map a value
-      * 
+      *
       * @param value takes @Input value or channelAddress for chargePower
       * @returns value
       */
@@ -188,7 +187,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
     /**
      * Use 'convertDischargePower' to convert/map a value
-     * 
+     *
      * @param value takes @Input value or channelAddress for dischargePower
      * @returns value
      */
@@ -198,8 +197,8 @@ export class StorageComponent extends AbstractFlatWidget {
 
     /**
      * Use 'convertPower' to check whether 'charge/discharge' and to be only showed when not negative
-     * 
-     * @param value takes passed value when called 
+     *
+     * @param value takes passed value when called
      * @returns only positive and 0
      */
     public convertPower(value: number, isCharge?: boolean) {
@@ -209,7 +208,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
         let thisValue: number = (value / 1000);
 
-        // Round thisValue to Integer when decimal place equals 0 
+        // Round thisValue to Integer when decimal place equals 0
         if (thisValue > 0) {
             return formatNumber(thisValue, 'de', '1.0-1') + " kW"; // TODO get locale dynamically
 

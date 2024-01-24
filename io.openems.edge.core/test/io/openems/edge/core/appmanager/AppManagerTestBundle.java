@@ -52,9 +52,9 @@ import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
 import io.openems.edge.core.appmanager.validator.CheckHome;
-import io.openems.edge.core.appmanager.validator.CheckRelayCount;
 import io.openems.edge.core.appmanager.validator.Checkable;
 import io.openems.edge.core.appmanager.validator.Validator;
+import io.openems.edge.core.appmanager.validator.relaycount.CheckRelayCount;
 
 public class AppManagerTestBundle {
 
