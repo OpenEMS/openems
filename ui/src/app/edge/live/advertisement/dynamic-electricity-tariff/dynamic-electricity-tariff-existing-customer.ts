@@ -11,9 +11,9 @@ import { Component } from "@angular/core";
       <hr>
       Zeitvariabler Stromtarif wird zu Dynamischer Stromtarif.<br>
       <hr>
-      Erfahren Sie 
+      Erfahren Sie
       <a target="_blank"
-        href="https://fenecon.de/dynamische-stromtarife/">hier</a> 
+        href="https://fenecon.de/dynamische-stromtarife/">hier</a>
       mehr!
     </ion-text>
   </ion-row>

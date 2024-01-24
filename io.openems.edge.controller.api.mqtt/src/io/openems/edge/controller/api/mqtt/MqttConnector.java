@@ -1,5 +1,7 @@
 package io.openems.edge.controller.api.mqtt;
 
+import static io.openems.edge.controller.api.mqtt.MqttUtils.createSslSocketFactory;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
@@ -66,12 +68,14 @@ public class MqttConnector {
 	}
 
 	protected synchronized CompletableFuture<IMqttClient> connect(String serverUri, String clientId, String username,
-			String password) throws IllegalArgumentException, MqttException {
-		return this.connect(serverUri, clientId, username, password, null);
+			String password, String certPem, String privateKeyPem, String trustStorePem)
+			throws IllegalArgumentException, MqttException {
+		return this.connect(serverUri, clientId, username, password, certPem, privateKeyPem, trustStorePem, null);
 	}
 
 	protected synchronized CompletableFuture<IMqttClient> connect(String serverUri, String clientId, String username,
-			String password, MqttCallback callback) throws IllegalArgumentException, MqttException {
+			String password, String certPem, String privateKeyPem, String trustStorePem, MqttCallback callback)
+			throws IllegalArgumentException, MqttException {
 		IMqttClient client = new MqttClient(serverUri, clientId);
 		if (callback != null) {
 			client.setCallback(callback);
@@ -79,12 +83,18 @@ public class MqttConnector {
 
 		var options = new MqttConnectionOptions();
 		options.setUserName(username);
-		if (password != null) {
+		if (password != null && !password.isBlank()) {
 			options.setPassword(password.getBytes(StandardCharsets.UTF_8));
 		}
 		options.setAutomaticReconnect(true);
 		options.setCleanStart(true);
 		options.setConnectionTimeout(10);
+
+		if (certPem != null && !certPem.isBlank() //
+				&& privateKeyPem != null && !privateKeyPem.isBlank() //
+				&& trustStorePem != null && !trustStorePem.isBlank()) {
+			options.setSocketFactory(createSslSocketFactory(certPem, privateKeyPem, trustStorePem));
+		}
 
 		this.connector = new MyConnector(client, options);
 

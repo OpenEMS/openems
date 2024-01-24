@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
 
 /**
  * Represents a JSON-RPC Request to execute a system update on OpenEMS Edge.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

@@ -36,7 +36,7 @@ export class SoltaroVersionCComponent extends AbstractBattery implements OnInit 
                 this.component = this.config.getComponent(this.componentId);
 
                 /*
-                Todo: Subscribe in every single battery - Was not working that way 
+                Todo: Subscribe in every single battery - Was not working that way
                 let channelAddresses = [];
                 for (var channel in this.component.channels) {
                     channelAddresses.push(new ChannelAddress(this.component.id, channel));

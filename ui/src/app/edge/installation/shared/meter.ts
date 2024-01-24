@@ -9,9 +9,9 @@ export namespace Meter {
 
     /**
      * The meter type for the home app.
-     * 
+     *
      * Can be different on edge side.
-     * 
+     *
      * @param meter the meter
      * @returns the type for the home app
      */
@@ -26,8 +26,8 @@ export namespace Meter {
 
     /**
      * The app id of the meter in the edge.
-     * 
-     * @param meter the meter 
+     *
+     * @param meter the meter
      * @returns the app id
      */
     export function toAppId(meter: Meter): string {
@@ -41,7 +41,7 @@ export namespace Meter {
 
     /**
      * Returns the factory id of the meter type selected.
-     * 
+     *
      * @param meter The Meter.
      * @returns the factory id of the meter.
      */
@@ -56,7 +56,7 @@ export namespace Meter {
 
     /**
      * Returns the label of the meter selected as string.
-     * 
+     *
      * @param meter The meter type.
      * @returns the meter label as string.
      */
@@ -71,7 +71,7 @@ export namespace Meter {
 
     /**
      * Returns the website link for Manual of the meter.
-     * 
+     *
      * @param meter The meter type.
      * @returns The link for the manual.
      */

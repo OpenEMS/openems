@@ -66,7 +66,7 @@ export class PreInstallationComponent implements OnInit {
           return;
         }
 
-        // TODO either add lastmessage and role to response or call getEdgeRequest 
+        // TODO either add lastmessage and role to response or call getEdgeRequest
         this.edge = new Edge(
           edge.id,
           edge.comment, edge.producttype, edge.version, Role.INSTALLER, edge.online, null, SumState.OK, null,

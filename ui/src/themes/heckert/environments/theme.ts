@@ -7,7 +7,7 @@ export const theme = {
     edgeShortName: "EMS",
     edgeLongName: "Heckert Solar Symphon-E Energiemanagementsystem",
 
-    // TODO 
+    // TODO
     docsUrlPrefix: "https://docs.fenecon.de/{language}/_/latest/fems/",
     links: {
         COMMON_STORAGE: "ui/standardwidgets.html#_speicher",

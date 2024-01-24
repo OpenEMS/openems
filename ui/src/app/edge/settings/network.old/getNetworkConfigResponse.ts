@@ -3,9 +3,9 @@ import { NetworkInterface } from './shared';
 
 /**
  * JSON-RPC Response to "getNetworkConfig" Request.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

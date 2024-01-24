@@ -10,7 +10,7 @@ export class DateTimeUtils {
 
   /**
    * Normalizes timestamps depending on chosen period
-   * 
+   *
    * @param unit the Chronounit
    * @param energyPerPeriodResponse the timeseries data
    * @returns the adjusted timestamps

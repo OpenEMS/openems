@@ -49,7 +49,7 @@ export class FixDigitalOutputWidgetComponent extends AbstractHistoryWidget imple
     };
 
     protected updateValues() {
-        // Gather result & timestamps to calculate effective active time in % 
+        // Gather result & timestamps to calculate effective active time in %
         this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).then(response => {
             let result = (response as QueryHistoricTimeseriesDataResponse).result;
             this.service.getConfig().then(config => {

@@ -6,9 +6,9 @@ export interface Cumulated {
 
 /**
  * JSON-RPC Response to "executeSystemCommand" Request.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

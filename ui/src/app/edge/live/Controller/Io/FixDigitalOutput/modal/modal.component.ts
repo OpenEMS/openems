@@ -21,10 +21,10 @@ export class Controller_Io_FixDigitalOutputModalComponent {
     public websocket: Websocket,
   ) { }
 
-  /**  
+  /**
    * Updates the 'isOn'-Property of the FixDigitalOutput-Controller.
-   * 
-   * @param event 
+   *
+   * @param event
    */
   updateMode(event: CustomEvent) {
     let oldMode = this.component.properties.isOn;

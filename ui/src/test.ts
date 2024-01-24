@@ -1,6 +1,6 @@
 // TO NOT AUTOFORMAT THIS FILE AS IT WILL BREAK CI BUILD WITH FOLLOWING ERROR:
 //   Error: zone-testing.js is needed for the fakeAsync() test helper but could not be found.
-//   Please make sure that your environment includes zone.js/testing 
+//   Please make sure that your environment includes zone.js/testing
 // (See https://stackoverflow.com/a/68797535/4137113)
 
 // This file is a copy of https://github.com/angular/angular/blob/main/aio/src/test.ts

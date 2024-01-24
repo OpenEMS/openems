@@ -82,7 +82,7 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
 
   /**
    * Called on every new data.
-   * 
+   *
    * @param currentData new data for the subscribed Channel-Addresses
    */
   protected onCurrentData(currentData: CurrentData): void { }
@@ -96,7 +96,7 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
 
   /**
    * Gets the ChannelAddresses that should be queried.
-   * 
+   *
    * @param edge the current Edge
    * @param config the EdgeConfig
    */

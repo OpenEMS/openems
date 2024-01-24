@@ -2,7 +2,7 @@ import { JsonrpcResponseSuccess } from "../base";
 
 /**
  * Wraps a JSON-RPC Response with a Base64 encoded payload.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

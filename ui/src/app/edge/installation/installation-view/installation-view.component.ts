@@ -46,7 +46,7 @@ export class InstallationViewComponent implements OnChanges {
 
   /**
    * Sets the label and icons for the button.
-   * 
+   *
    * @param labelKey Translated labels.
    * @param icon Icon to be displayed
    */

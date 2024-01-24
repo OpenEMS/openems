@@ -266,9 +266,9 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
 
     /**
      * Adds the Modbus bridge and IO component.
-     * 
+     *
      * adds modbus0 and io0 if RTU is selected. otherwise modbus0, modbus3, io0 is added.
-     * 
+     *
      * @param modbusBridgeType Modbus bridge type (TCP or RS485).
      * @param invalidateElementsAfterReadErrors the maximum read errors allowed.
      * @param alias alias for the component.
@@ -334,8 +334,8 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
     }
 
     /**
-     * Returns the Modbus Serial bridge component. 
-     * 
+     * Returns the Modbus Serial bridge component.
+     *
      * @param ioComponentId The component id of the component.
      * @param invalidateElementsAfterReadErrors the maximum read errors allowed.
      * @param alias the alias string
@@ -362,7 +362,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
 
     /**
      * Returns the channel addresses for reading serial numbers of the system.
-     * 
+     *
      * @param towerNr number of towers.
      * @param numberOfModulesPerTower number of modules per tower.
      * @returns The channel addresses.
@@ -440,10 +440,10 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
     }
 
     /**
-     * Adds serial numbers to the model. 
-     * 
+     * Adds serial numbers to the model.
+     *
      * Returns true if adding serial numbers to the model was successful. If not, returns false.
-     * 
+     *
      * @param key the channel address
      * @param model the model.
      * @param serialNumber the serial number from the channel.

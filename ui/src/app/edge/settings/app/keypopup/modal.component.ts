@@ -117,7 +117,7 @@ export class KeyModalComponent implements OnInit {
         const descriptionFields = [];
         for (const bundle of bundles) {
             let isCategorySet = false;
-            // if multiple apps are in bundle find category which has all the apps 
+            // if multiple apps are in bundle find category which has all the apps
             // and set the category name as the description
             for (const [catName, apps] of Object.entries(this.getAppsByCategory())) {
                 if (apps.every(app => {
@@ -167,7 +167,7 @@ export class KeyModalComponent implements OnInit {
 
     /**
      * Gets the input fields.
-     * 
+     *
      * @returns the input fields
      */
     private getFields(): FormlyFieldConfig[] {
@@ -262,10 +262,10 @@ export class KeyModalComponent implements OnInit {
 
     /**
      * Transformes the input so that the input matches the pattern 'XXXX-XXXX-XXXX-XXXX'.
-     * 
+     *
      * Prevents the user from typing in an invalid key.
-     * Gets automatically called when the user types something in. 
-     * 
+     * Gets automatically called when the user types something in.
+     *
      * @param value the value to transform
      * @returns the transformed value or null if there was no change to the given value
      */
@@ -300,7 +300,7 @@ export class KeyModalComponent implements OnInit {
 
         // join parts so it matches 'XXXX-XXXX-XXXX-XXXX'
         let modifiedValue = numbers.join('-');
-        // readd last 
+        // readd last
         if (hasDashAsLastChar) {
             modifiedValue += '-';
         }
@@ -315,13 +315,13 @@ export class KeyModalComponent implements OnInit {
 
     /**
      * Depending on the behaviour:
-     * 
+     *
      * KeyValidationBehaviour.NAVIGATE:
      *  navigates to the install page of the app and passes the key
-     * 
+     *
      * KeyValidationBehaviour.REGISTER:
      *  registers the entered key for the passed app
-     * 
+     *
      * KeyValidationBehaviour.SELECT:
      *  if a valid key gets selected it gets returned
      */
@@ -382,7 +382,7 @@ export class KeyModalComponent implements OnInit {
 
     /**
      * Gets the selected key.
-     * 
+     *
      * @returns the selected key
      */
     private getSelectedKey() {
@@ -447,7 +447,7 @@ export class KeyModalComponent implements OnInit {
 
     /**
      * Gets the currently entered key.
-     * 
+     *
      * @returns the entered key
      */
     private getRawAppKey(): string {
@@ -460,7 +460,7 @@ export class KeyModalComponent implements OnInit {
 
     /**
      * Determines if the current selected key is valid.
-     * 
+     *
      * @returns true if the current selected key is valid
      */
     protected isKeyValid(): boolean {

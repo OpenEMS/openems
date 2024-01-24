@@ -11,7 +11,7 @@ export class IbnUtils {
     /**
      * Adds the IBN data to session storage safely.
      * This mehtod is specifically implemented to deal with "cyclic object value" exception, which is caused due to Object reference.
-     * 
+     *
      * @param ibn The IBN
      */
     public static addIbnToSessionStorage(ibn: AbstractIbn) {
@@ -106,7 +106,7 @@ export class IbnUtils {
 
     /**
      * Converts the subnetmask to a string address.
-     * 
+     *
      * @param cidr the CIDR number
      * @returns the subnetmask as a string
      */

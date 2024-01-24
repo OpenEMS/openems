@@ -5,7 +5,7 @@ import { JsonRpcUtils } from "../jsonrpcutils";
 
 /**
  * Represents a JSON-RPC Request to query Timeseries Energy data.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

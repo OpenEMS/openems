@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Sets the emergency reserve. (In development)
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

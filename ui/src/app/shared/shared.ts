@@ -31,7 +31,7 @@ export class EdgePermission {
 
   /**
     * Gets the allowed history periods for this edge, used in {@link PickDatePopoverComponent}
-    * 
+    *
     * @param edge the edge
     * @returns the list of allowed periods for this edge
     */
@@ -62,7 +62,7 @@ export class UserPermission {
   /**
    * Checks if user is allowed to see {@link HomeServiceAssistentComponent}
    * Producttype needs to be Producttype.HOME or Producttype.HOME_20_30 and globalRole needs to be admin
-   * 
+   *
    * @param user the current user
    * @returns true, if user is at least admin
    */
@@ -82,7 +82,7 @@ export class UserPermission {
   /**
   * Checks if user is allowed to see {@link ServiceAssistantComponent}
   * Producttype needs to be Commercial and globalRole needs to be admin
-  * 
+  *
   * @param user the current user
   * @returns true, if user is at least admin
   */
@@ -113,7 +113,7 @@ export namespace Currency {
 
   /**
    * Gets the currencylabel for a edgeId
-   * 
+   *
    * @param edgeId the edgeId
    * @returns the Currencylabel dependent on edgeId
    */
@@ -128,7 +128,7 @@ export namespace Currency {
 
   /**
    * This method returns the corresponding label based on the user-selected currency in "core.meta."
-   * 
+   *
    * @param currency The currency enum.
    * @returns the Currencylabel
    */

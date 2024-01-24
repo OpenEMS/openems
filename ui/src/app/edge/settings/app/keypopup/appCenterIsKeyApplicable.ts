@@ -4,13 +4,13 @@ import { App } from "./app";
 
 /**
  * Gets if a key can be redeemed.
- * 
+ *
  * <p>
  * Note: This Request needs to be wrapped in a appCenter Request.
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -22,10 +22,10 @@ import { App } from "./app";
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

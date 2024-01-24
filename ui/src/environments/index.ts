@@ -74,11 +74,11 @@ export interface Environment {
         },
         APP_CENTER: {
             /**
-             * Gets the image url of an OpenemsApp. 
-             * 
+             * Gets the image url of an OpenemsApp.
+             *
              * The current order of the displayed image of an app is:
              * Image from edge -> Image from Url -> No image just the app name
-             * 
+             *
              * @param language the currently used language; can be obtained with {@link TranslateService#currentLang}
              * @param appId    the appId of the image
              * @returns the url of the image or null if not provided

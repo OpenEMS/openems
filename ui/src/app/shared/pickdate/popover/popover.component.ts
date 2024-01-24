@@ -65,7 +65,7 @@ export class PickDatePopoverComponent implements OnInit {
 
     /**
      * This is called by the input button on the UI.
-     * 
+     *
      * @param period
      * @param from
      * @param to
@@ -107,7 +107,7 @@ export class PickDatePopoverComponent implements OnInit {
 
     /**
      * Converts a 'Date' to 'IMyDate' format.
-     * 
+     *
      * @param date the 'Date'
      * @returns the 'IMyDate'
      */

@@ -66,7 +66,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             // disable side-menu; show back-button instead
             this.enableSideMenu = false;
         } else {
-            // enable side-menu if back-button is not needed 
+            // enable side-menu if back-button is not needed
             this.enableSideMenu = true;
         }
     }

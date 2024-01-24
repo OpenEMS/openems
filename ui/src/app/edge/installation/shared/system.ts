@@ -34,9 +34,9 @@ export enum SystemId {
 export namespace System {
     /**
      * Returns the Label to be displayed for the System type.
-     * 
+     *
      * Typically used while displaying labels for selection.
-     * 
+     *
      * @param systemType Type of the System.
      * @returns Label for the System type.
      */
@@ -59,7 +59,7 @@ export namespace System {
 
     /**
      * Returns the IBN Object from the System type.
-     * 
+     *
      * @param systemType Type of the System.
      * @param translate the translate service
      * @returns the System IBN Object.
@@ -84,9 +84,9 @@ export namespace System {
 
     /**
      * Returns the String to show for the System selected.
-     * 
+     *
      * @param systemType Type of the System.
-     * @returns the string 
+     * @returns the string
      */
     export function getSystemTypeStringFromSystemType(systemType: SystemType) {
         switch (systemType) {
@@ -106,8 +106,8 @@ export namespace System {
     }
 
     /**
-     * Returns the IBN Object based on the System id. 
-     * 
+     * Returns the IBN Object based on the System id.
+     *
      * @param systemId Id of the System.
      * @param translate the translate service.
      * @returns the IBN object.
@@ -138,7 +138,7 @@ export namespace System {
 
     /**
      * Returns the URL for the System type.
-     * 
+     *
      * @param systemType Type of the System.
      * @returns the url.
      */

@@ -140,7 +140,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
     /**
      * Returns only the desired state data extracted from the whole dataset.
-     * 
+     *
      * @param data The historic data.
      * @param desiredState The desired state data from the whole dataset.
      * @returns the desired state array data.
@@ -167,7 +167,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
     /**
      * Returns the minimum value the chart should be scaled to.
-     * 
+     *
      * @param datasets The chart datasets.
      * @returns the minumum axis value.
      */

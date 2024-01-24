@@ -53,14 +53,14 @@ export abstract class AbstractService extends ErrorHandler {
 
   /**
    * Gets the ChannelAddresses for cumulated values that should be queried.
-   * 
+   *
    * @param edge the current Edge
    */
   abstract getChannelAddresses(edge: Edge, channels: ChannelAddress[]): Promise<ChannelAddress[]>;
 
   /**
    * Sends the Historic Timeseries Data Query and makes sure the result is not empty.
-   * 
+   *
    * @param fromDate the From-Date
    * @param toDate   the To-Date
    * @param edge     the current Edge
@@ -70,24 +70,24 @@ export abstract class AbstractService extends ErrorHandler {
 
   /**
    * Start NGX-Spinner
-   * 
-   * The spinner has a transparent background set 
+   *
+   * The spinner has a transparent background set
    * and the spinner color is the primary environment color
    * Spinner will appear inside html tag only
-   * 
+   *
    * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
-   * 
+   *
    * @param selector selector for specific spinner
    */
   abstract startSpinnerTransparentBackground(selector: string);
 
   /**
    * Start NGX-Spinner
-   * 
+   *
    * Spinner will appear inside html tag only
-   * 
+   *
    * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
-   * 
+   *
    * @param selector selector for specific spinner
    */
   abstract startSpinner(selector: string);
@@ -102,8 +102,8 @@ export abstract class AbstractService extends ErrorHandler {
 
   /**
    * Should advertisement widgets be shown?
-   * 
-   * @param advertWidgets the advertWidgets 
+   *
+   * @param advertWidgets the advertWidgets
    * @returns true if advertWidgets should be shown, false if not
    */
   abstract showAdvertWidgets(advertWidgets: AdvertWidgets);

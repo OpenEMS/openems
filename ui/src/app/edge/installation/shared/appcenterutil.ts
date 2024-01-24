@@ -9,9 +9,9 @@ import { UpdateAppInstance } from "../../settings/app/jsonrpc/updateAppInstance"
 export class AppCenterUtil {
 
     /**
-     * Creates an instance with the given properties 
+     * Creates an instance with the given properties
      * or updates the first found instance of the given appId.
-     * 
+     *
      * @param edge       the edge
      * @param websocket  the websocket connection
      * @param appId      the Id of the app that should get created or updated
@@ -26,7 +26,7 @@ export class AppCenterUtil {
                 .then(result => {
                     // app already installed => update
                     if (result.result.instances.length > 0) {
-                        // take first found instance e. g. a Home can only be instantiated 
+                        // take first found instance e. g. a Home can only be instantiated
                         // once so there should only be one instance available
                         const alreadyExistingInstance = result.result.instances[0];
                         AppCenterUtil.updateApp(edge, websocket, alreadyExistingInstance.instanceId, alias, properties)
@@ -45,7 +45,7 @@ export class AppCenterUtil {
 
     /**
      * Gets the Instance of the matching the given appId and instanceId.
-     * 
+     *
      * @param edge       the edge
      * @param websocket  the websocket connection
      * @param appId      the AppId of the instance
@@ -73,7 +73,7 @@ export class AppCenterUtil {
 
     /**
      * Gets all Instances of the given AppId.
-     * 
+     *
      * @param edge       the edge
      * @param websocket  the websocket connection
      * @param appId      the AppId of the instances
@@ -95,7 +95,7 @@ export class AppCenterUtil {
 
     /**
      * Deinstalls all instances of the given AppId.
-     * 
+     *
      * @param edge       the edge
      * @param websocket  the websocket connection
      * @param appId      the AppId of the instances
@@ -121,7 +121,7 @@ export class AppCenterUtil {
 
     /**
      * Deinstalls all instances that are given.
-     * 
+     *
      * @param edge       the edge
      * @param websocket  the websocket connection
      * @param instanceIds the instanceIds that should get deinstalled
@@ -144,7 +144,7 @@ export class AppCenterUtil {
 
     /**
      * Updates an App Instance.
-     * 
+     *
      * @param edge       the edge
      * @param websocket  the websocket connection
      * @param instanceId the instance that should get updated
@@ -171,7 +171,7 @@ export class AppCenterUtil {
 
     /**
      * Creates an App Instance.
-     * 
+     *
      * @param edge       the edge
      * @param websocket  the websocket connection
      * @param appId      the AppId of the App that should get created
@@ -199,7 +199,7 @@ export class AppCenterUtil {
 
     /**
      * Determines if the appManager can be used to install a system.
-     * 
+     *
      * @param edge to check the version of
      * @returns true if the appManager can be used else false
      */

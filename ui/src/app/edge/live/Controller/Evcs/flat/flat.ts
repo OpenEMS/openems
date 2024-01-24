@@ -123,10 +123,10 @@ export class FlatComponent extends AbstractFlatWidget {
 
   /**
  * Returns the state of the EVCS
- * 
+ *
  * @param state the state
  * @param plug the plug
- * 
+ *
  */
   private getState(enabledCharging: boolean, state: number, plug: number): string {
 
