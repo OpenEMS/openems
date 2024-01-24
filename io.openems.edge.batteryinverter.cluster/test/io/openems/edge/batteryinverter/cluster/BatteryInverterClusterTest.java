@@ -163,6 +163,15 @@ public class BatteryInverterClusterTest {
 				.output(INVERTER2_REACTIVE_POWER, 5000)
 				);
 		
+		// Test setting active and reactive power
+		batteryInverterCluster.run(battery, 0, 30000);
+		test.next(new TestCase()
+				.output(INVERTER1_ACTIVE_POWER, 0)
+				.output(INVERTER2_ACTIVE_POWER, 0)
+				.output(INVERTER1_REACTIVE_POWER, 10000)
+				.output(INVERTER2_REACTIVE_POWER, 10000)
+				);
+		
 		
 		
 	}

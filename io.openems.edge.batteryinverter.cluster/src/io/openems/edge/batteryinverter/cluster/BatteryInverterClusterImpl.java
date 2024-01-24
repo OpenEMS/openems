@@ -160,13 +160,17 @@ public class BatteryInverterClusterImpl extends AbstractOpenemsComponent impleme
 		for (int i = 0; i < managedInverters.size(); i++) {
 
 			ManagedSymmetricBatteryInverter inverter = managedInverters.get(i);
+			Integer inverterMaxPower = inverter.getMaxApparentPower().get();
+			
 			Boolean isLast = (i == (managedInverters.size() -1 )); // Is this the last inverter in the list
 			if (!isLast) {
 
 				Double weight = (double) inverter.getMaxApparentPower().get() / totalMaxApparentPower;
+				
+				
 
-				Integer activePower = (int) (setActivePower * weight); // This truncates the decimal power (rounds down)
-				Integer reactivePower = (int) (setReactivePower * weight); // This truncates the decimal power (rounds down)
+				Integer activePower = Math.min((int) (setActivePower * weight), inverterMaxPower); // This truncates the decimal power (rounds down)
+				Integer reactivePower = Math.min((int) (setReactivePower * weight), inverterMaxPower); // This truncates the decimal power (rounds down)
 
 				inverter.run(battery, activePower, reactivePower);
 
@@ -174,8 +178,8 @@ public class BatteryInverterClusterImpl extends AbstractOpenemsComponent impleme
 				totalReactivePowerSoFar += reactivePower;
 			} else { // If this is the last inverter, assign all remaining power to it.
 
-				Integer activePower = setActivePower - totalActivePowerSoFar;
-				Integer reactivePower = setReactivePower - totalReactivePowerSoFar;
+				Integer activePower = Math.min(setActivePower - totalActivePowerSoFar, inverterMaxPower);
+				Integer reactivePower = Math.min(setReactivePower - totalReactivePowerSoFar, inverterMaxPower);
 
 				inverter.run(battery, activePower, reactivePower);
 
