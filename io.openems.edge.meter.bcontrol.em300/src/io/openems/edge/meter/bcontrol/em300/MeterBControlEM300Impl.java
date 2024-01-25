@@ -22,6 +22,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -31,7 +32,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
 
@@ -53,7 +53,6 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 		super.setModbus(modbus);
 	}
 
-	private MeterType meterType = MeterType.PRODUCTION;
 	private Config config;
 
 	public MeterBControlEM300Impl() {
@@ -71,13 +70,14 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		this.meterType = config.type();
 		this.config = config;
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
 		}
+		// Calculates required Channels from other existing Channels.
+		this.addCalculateChannelListeners();
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public MeterType getMeterType() {
-		return this.meterType;
+		return this.config.type();
 	}
 
 	@Override
@@ -102,10 +102,11 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_POS, new UnsignedDoublewordElement(4),
 								SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_NEG, new UnsignedDoublewordElement(6),
-								SCALE_FACTOR_MINUS_1)),
+								SCALE_FACTOR_MINUS_1),
 
-				new FC3ReadRegistersTask(10, Priority.LOW,
-						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(10))),
+						new DummyRegisterElement(8, 25),
+
+						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(26))),
 
 				new FC3ReadRegistersTask(40, Priority.HIGH,
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L1_POS, new UnsignedDoublewordElement(40),
@@ -115,13 +116,15 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L1_POS, new UnsignedDoublewordElement(44),
 								SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L1_NEG, new UnsignedDoublewordElement(46),
-								SCALE_FACTOR_MINUS_1)),
+								SCALE_FACTOR_MINUS_1),
 
-				new FC3ReadRegistersTask(60, Priority.HIGH,
+						new DummyRegisterElement(48, 59),
+
 						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(60)),
-						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(62))), //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(62)),
 
-				new FC3ReadRegistersTask(80, Priority.HIGH,
+						new DummyRegisterElement(64, 79), //
+
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L2_POS, new UnsignedDoublewordElement(80),
 								SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L2_NEG, new UnsignedDoublewordElement(82),
@@ -130,13 +133,15 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L2_POS, new UnsignedDoublewordElement(84),
 								SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L2_NEG, new UnsignedDoublewordElement(86),
-								SCALE_FACTOR_MINUS_1)),
+								SCALE_FACTOR_MINUS_1),
 
-				new FC3ReadRegistersTask(100, Priority.HIGH,
+						new DummyRegisterElement(88, 99),
+
 						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(100)),
-						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(102))),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(102)),
 
-				new FC3ReadRegistersTask(120, Priority.HIGH,
+						new DummyRegisterElement(104, 119),
+
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L3_POS, new UnsignedDoublewordElement(120),
 								SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L3_NEG, new UnsignedDoublewordElement(122),
@@ -144,28 +149,58 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L3_POS, new UnsignedDoublewordElement(124),
 								SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L3_NEG, new UnsignedDoublewordElement(126),
-								SCALE_FACTOR_MINUS_1)),
+								SCALE_FACTOR_MINUS_1),
 
-				new FC3ReadRegistersTask(140, Priority.HIGH,
+						new DummyRegisterElement(128, 139),
+
 						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(140)),
 						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(142))));
 
 		if (this.config.invert()) {
-			modbusProtocol.addTask(new FC3ReadRegistersTask(512, Priority.LOW, //
-					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(512),
-							SCALE_FACTOR_MINUS_1),
-					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(516),
-							SCALE_FACTOR_MINUS_1)));
+			modbusProtocol.addTasks(//
+					new FC3ReadRegistersTask(512, Priority.LOW, //
+							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+									new UnsignedQuadruplewordElement(512), SCALE_FACTOR_MINUS_1),
+							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+									new UnsignedQuadruplewordElement(516), SCALE_FACTOR_MINUS_1)),
+					new FC3ReadRegistersTask(592, Priority.LOW, //
+							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
+									new UnsignedQuadruplewordElement(592), SCALE_FACTOR_MINUS_1), //
+							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
+									new UnsignedQuadruplewordElement(596), SCALE_FACTOR_MINUS_1)), //
+					new FC3ReadRegistersTask(672, Priority.LOW, //
+							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
+									new UnsignedQuadruplewordElement(672), SCALE_FACTOR_MINUS_1), //
+							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
+									new UnsignedQuadruplewordElement(676), SCALE_FACTOR_MINUS_1)), //
+					new FC3ReadRegistersTask(752, Priority.LOW, //
+							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
+									new UnsignedQuadruplewordElement(752), SCALE_FACTOR_MINUS_1), //
+							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
+									new UnsignedQuadruplewordElement(756), SCALE_FACTOR_MINUS_1)));
 		} else {
-			modbusProtocol.addTask(new FC3ReadRegistersTask(512, Priority.LOW, //
-					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(512),
-							SCALE_FACTOR_MINUS_1),
-					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(516),
-							SCALE_FACTOR_MINUS_1)));
+			modbusProtocol.addTasks(//
+					new FC3ReadRegistersTask(512, Priority.LOW, //
+							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+									new UnsignedQuadruplewordElement(512), SCALE_FACTOR_MINUS_1),
+							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+									new UnsignedQuadruplewordElement(516), SCALE_FACTOR_MINUS_1)),
+					new FC3ReadRegistersTask(592, Priority.LOW, //
+							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
+									new UnsignedQuadruplewordElement(592), SCALE_FACTOR_MINUS_1), //
+							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
+									new UnsignedQuadruplewordElement(596), SCALE_FACTOR_MINUS_1)), //
+					new FC3ReadRegistersTask(672, Priority.LOW, //
+							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
+									new UnsignedQuadruplewordElement(672), SCALE_FACTOR_MINUS_1), //
+							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
+									new UnsignedQuadruplewordElement(676), SCALE_FACTOR_MINUS_1)), //
+					new FC3ReadRegistersTask(752, Priority.LOW, //
+							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
+									new UnsignedQuadruplewordElement(752), SCALE_FACTOR_MINUS_1), //
+							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
+									new UnsignedQuadruplewordElement(756), SCALE_FACTOR_MINUS_1)));
 		}
-
-		// Calculates required Channels from other existing Channels.
-		this.addCalculateChannelListeners();
 
 		return modbusProtocol;
 	}
@@ -245,29 +280,6 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 		CalculatePower.of(this, MeterBControlEM300.ChannelId.REACTIVE_POWER_L3_POS,
 				MeterBControlEM300.ChannelId.REACTIVE_POWER_L3_NEG, ElectricityMeter.ChannelId.REACTIVE_POWER_L3);
 
-		// Average Voltage from current L1, L2 and L3
-		final Consumer<Value<Integer>> calculateAverageVoltage = ignore -> {
-			this._setVoltage(TypeUtils.averageRounded(//
-					this.getVoltageL1Channel().getNextValue().get(), //
-					this.getVoltageL2Channel().getNextValue().get(), //
-					this.getVoltageL3Channel().getNextValue().get() //
-			));
-		};
-		this.getVoltageL1Channel().onSetNextValue(calculateAverageVoltage);
-		this.getVoltageL2Channel().onSetNextValue(calculateAverageVoltage);
-		this.getVoltageL3Channel().onSetNextValue(calculateAverageVoltage);
-
-		// Sum Current from Current L1, L2 and L3
-		final Consumer<Value<Integer>> calculateSumCurrent = ignore -> {
-			this._setCurrent(TypeUtils.sum(//
-					this.getCurrentL1Channel().getNextValue().get(), //
-					this.getCurrentL2Channel().getNextValue().get(), //
-					this.getCurrentL3Channel().getNextValue().get() //
-			));
-		};
-		this.getCurrentL1Channel().onSetNextValue(calculateSumCurrent);
-		this.getCurrentL2Channel().onSetNextValue(calculateSumCurrent);
-		this.getCurrentL3Channel().onSetNextValue(calculateSumCurrent);
 	}
 
 	@Override
