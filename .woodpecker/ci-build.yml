@@ -55,13 +55,13 @@ steps:
     commands:
       - export OEM=$(case ${CI_COMMIT_BRANCH^^} in *HECKERT*) echo "heckert";; *) echo "fenecon";; esac)
       - export CACHE=$CI_WORKSPACE/cache
+      - mkdir -p $CACHE
       - export npm_config_cache=$CACHE/npm
       - export NG_CLI_CACHE_PATH=$CACHE/angular-cli
       - export NODE_MODULES_CACHE=$CACHE/node_modules # TODO
       - export CHROME_BIN=/usr/bin/google-chrome-stable
-      ### start ###
+      ## start ##
       - echo "Build for $OEM"
-      - mkdir -p $CACHE
       - cd ui
       - npm ci --prefer-offline --cache $npm_config_cache --force
       - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g angular.json
@@ -88,7 +88,7 @@ steps:
       - common_initialize_environment
       - common_build_snapshot_version
       - common_update_version_in_code
-      - common_build_edge --parallel --max-workers 2;
+      - common_build_edge --no-daemon --no-build-cache --parallel --max-workers 2;
     depends_on: [restore-cache]
 
   build-debian-package:
@@ -104,6 +104,7 @@ steps:
       - export NG_CLI_CACHE_PATH=$CACHE/angular-cli
       - export NODE_MODULES_CACHE=$CACHE/node_modules
       - export MAVEN_OPTS=-Dmaven.repo.local=$CACHE/maven
+      ## start ##
       - mkdir -p tools/debian/usr/lib/openems/
       - cp io.openems.edge.application/generated/distributions/executable/EdgeApp.jar tools/debian/usr/lib/openems/openems.jar
       - tools/build-debian-package.sh
@@ -133,7 +134,7 @@ steps:
       exclude: ["*"]
       include: ["fems.deb", "fems.version"]
       target: /opt/gitea/data/openems-ui-dev/html/${CI_COMMIT_BRANCH}
-    depends_on: [refresh-dev-ui, build-debian-package]
+    depends_on: [build-debian-package]
 
   rebuild-cache:
     when:
