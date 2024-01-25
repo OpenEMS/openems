@@ -31,7 +31,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content style="height: 100%; font-size: 1em;">
+<ion-content style="font-size: 1em;">
 
   <!-- If FromGroup is used -->
   <form [formGroup]="formGroup" *ngIf="formGroup"
@@ -57,7 +57,7 @@
   </ng-template>
 
   <!-- Submit-Button appears when formControl values are changed, if Smartphone, button placed right bottom, else center bottom -->
-  <ion-fab *ngIf="formGroup?.dirty" style="padding-bottom: 10%;" vertical="bottom"
+  <ion-fab *ngIf="formGroup?.dirty" vertical="bottom" style="position: fixed"
     [horizontal]="this.service.isSmartphoneResolution ? 'end':'center'">
     <ion-fab-button (click)="applyChanges()">
       <ion-icon size="large" name="checkmark-circle-outline">
