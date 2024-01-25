@@ -17,16 +17,20 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.common.channel.Doc;
+import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
+import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.MeterType;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "io.openems.edge.meter.entes.mpr15s22", //
+		name = "Meter.Entes.Mpr15S22", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class Mpr15S22Impl extends AbstractOpenemsModbusComponent implements Mpr15S22, ModbusComponent, OpenemsComponent {
+public class Mpr15S22Impl extends AbstractOpenemsModbusComponent implements Mpr15S22, ElectricityMeter, ModbusComponent, OpenemsComponent {
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -41,6 +45,7 @@ public class Mpr15S22Impl extends AbstractOpenemsModbusComponent implements Mpr1
 	public Mpr15S22Impl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				Mpr15S22.ChannelId.values() //
 		);
@@ -60,15 +65,21 @@ public class Mpr15S22Impl extends AbstractOpenemsModbusComponent implements Mpr1
 	protected void deactivate() {
 		super.deactivate();
 	}
+	
+	@Override
+	public MeterType getMeterType() {
+		return this.config.type();
+	}
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		// TODO implement ModbusProtocol
-		return new ModbusProtocol(this);
+		return new ModbusProtocol(this, //
+				new FC3ReadRegistersTask(1000, Priority.HIGH,
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(1000))));
 	}
 
 	@Override
 	public String debugLog() {
-		return "Hello World";
+		return "L:" + this.getActivePower().asString();
 	}
 }
