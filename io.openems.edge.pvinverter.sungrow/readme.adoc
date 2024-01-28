@@ -1,0 +1,25 @@
+= PV Inverter Sungrow
+
+Implementation of the sungrow pv inverter.
+
+Implemented Natures:
+- ManagedSymmetricPvInverter
+- ElectricityMeter
+
+== Compatibility
+
+?
+
+
+
+== Code Quality
+ 
+Production State: *pilot projects* 
+
+Development State: 
+
+https://en.wikipedia.org/wiki/Software_release_life_cycle[Software release life cycle]: BETA
+
+This implementation is not yet fully feature tested.
+ Please consider it BETA quality
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.pvinverter.sungrow[Source Code icon:github[]]
