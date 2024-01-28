@@ -1,0 +1,20 @@
+= EVTEC bidirectional Charging Station
+
+Implementation of a EVTec bidirectional charging station. 
+
+== Compatibility 
+* EVTec bidirectional charging station
+
+== Application Notes
+
+There is no full integration of bidirectional charging stations. 
+This driver behaves like an EVCS when charging a car and it behaves like a battery, when 
+the car is discharged. 
+
+=== Dependencies
+=== Maturity
+Production State: *-experimental-* 
+
+Open Issues:
+* no full bidirectional charging integration into OpenEMS.
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.evtec[Source Code icon:github[]]
