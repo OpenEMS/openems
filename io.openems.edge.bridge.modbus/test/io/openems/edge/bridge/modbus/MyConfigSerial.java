@@ -124,21 +124,6 @@ public class MyConfigSerial extends AbstractComponentConfig implements ConfigSer
 	public Parity parity() {
 		return this.builder.parity;
 	}
-	
-	@Override
-	public boolean enableTermination() {
-		return this.builder.enableTermination;
-	}
-
-	@Override
-	public int delayBeforeTx() {
-		return this.builder.delayBeforeTx;
-	}
-
-	@Override
-	public int delayAfterTx() {
-		return this.builder.delayAfterTx;
-	}
 
 	@Override
 	public LogVerbosity logVerbosity() {
