@@ -60,15 +60,6 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 
 	/** The configured parity. */
 	private Parity parity;
-	
-	/** Enable internal bus termination. */
-	private boolean enableTermination;
-	
-	/** The configured delay between activating the transmitter and actually sending data in microseconds. */
-	private int delayBeforeTx;
-	
-	/** The configured delay between the end of transmitting data and deactivating transmitter in microseconds. */
-	private int delayAfterTx;
 
 	public BridgeModbusSerialImpl() {
 		super(//
@@ -99,9 +90,6 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		this.databits = config.databits();
 		this.stopbits = config.stopbits();
 		this.parity = config.parity();
-		this.enableTermination = config.enableTermination();
-		this.delayBeforeTx = config.delayBeforeTx();
-		this.delayAfterTx = config.delayAfterTx();
 	}
 
 	@Override
@@ -141,13 +129,6 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 			params.setParity(this.parity.getValue());
 			params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
 			params.setEcho(false);
-			/* RS485 Settings */
-			params.setRs485Mode(true);
-			params.setRs485RxDuringTx(false);
-			params.setRs485TxEnableActiveHigh(true);
-			params.setRs485EnableTermination(this.enableTermination);
-			params.setRs485DelayBeforeTxMicroseconds(this.delayBeforeTx);
-			params.setRs485DelayAfterTxMicroseconds(this.delayAfterTx);
 			var connection = new SerialConnection(params);
 			this._connection = connection;
 		}
