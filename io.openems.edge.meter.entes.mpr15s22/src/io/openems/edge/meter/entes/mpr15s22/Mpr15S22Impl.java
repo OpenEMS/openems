@@ -1,5 +1,9 @@
 package io.openems.edge.meter.entes.mpr15s22;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -17,7 +21,6 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -79,21 +82,26 @@ public class Mpr15S22Impl extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
+				// refere to https://www.entes.eu/uploads/files/MPR-1X_Register_Table_EN.pdf
 				// Measurement registers
 				new FC3ReadRegistersTask(0, Priority.HIGH,
-						m(Mpr15S22.ChannelId.VOLTAGE_L1_N, new UnsignedDoublewordElement(0)), //
-						m(Mpr15S22.ChannelId.VOLTAGE_L2_N, new UnsignedDoublewordElement(2)), //
-						m(Mpr15S22.ChannelId.VOLTAGE_L3_N, new UnsignedDoublewordElement(4))), //
+						m(Mpr15S22.ChannelId.VOLTAGE_L1_N, new UnsignedDoublewordElement(0), SCALE_FACTOR_MINUS_1), //
+						m(Mpr15S22.ChannelId.VOLTAGE_L2_N, new UnsignedDoublewordElement(2), SCALE_FACTOR_MINUS_1), //
+						m(Mpr15S22.ChannelId.VOLTAGE_L3_N, new UnsignedDoublewordElement(4), SCALE_FACTOR_MINUS_1)), //
 				new FC3ReadRegistersTask(8, Priority.HIGH,
-						m(Mpr15S22.ChannelId.VOLTAGE_L1_L2, new UnsignedDoublewordElement(8)), //
-						m(Mpr15S22.ChannelId.VOLTAGE_L2_L3, new UnsignedDoublewordElement(10)), //
-						m(Mpr15S22.ChannelId.VOLTAGE_L3_L1, new UnsignedDoublewordElement(12)), //
-						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(14)), //
-						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(16)), //
-						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(18))), //
+						m(Mpr15S22.ChannelId.VOLTAGE_L1_L2, new UnsignedDoublewordElement(8), SCALE_FACTOR_MINUS_1), //
+						m(Mpr15S22.ChannelId.VOLTAGE_L2_L3, new UnsignedDoublewordElement(10), SCALE_FACTOR_MINUS_1), //
+						m(Mpr15S22.ChannelId.VOLTAGE_L3_L1, new UnsignedDoublewordElement(12), SCALE_FACTOR_MINUS_1), //
+						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(14),
+								SCALE_FACTOR_MINUS_3), //
+						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(16),
+								SCALE_FACTOR_MINUS_3), //
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(18),
+								SCALE_FACTOR_MINUS_3)), //
 				new FC3ReadRegistersTask(22, Priority.HIGH,
-						m(Mpr15S22.ChannelId.NEUTRAL_CURRENT, new UnsignedDoublewordElement(22)), //
-						m(Mpr15S22.ChannelId.MEASURED_FREQUENCY, new UnsignedDoublewordElement(24)), //
+						m(Mpr15S22.ChannelId.NEUTRAL_CURRENT, new UnsignedDoublewordElement(22), SCALE_FACTOR_MINUS_3), //
+						m(Mpr15S22.ChannelId.MEASURED_FREQUENCY, new UnsignedDoublewordElement(24),
+								SCALE_FACTOR_MINUS_2), //
 						m(Mpr15S22.ChannelId.ACTIVE_POWER_L1_N, new FloatDoublewordElement(26)), //
 						m(Mpr15S22.ChannelId.ACTIVE_POWER_L2_N, new FloatDoublewordElement(28)), //
 						m(Mpr15S22.ChannelId.ACTIVE_POWER_L3_N, new FloatDoublewordElement(30))), //
@@ -117,30 +125,39 @@ public class Mpr15S22Impl extends AbstractOpenemsModbusComponent
 						m(Mpr15S22.ChannelId.TOTAL_IMPORT_APPARENT_POWER, new FloatDoublewordElement(66)), //
 						m(Mpr15S22.ChannelId.TOTAL_EXPORT_APPARENT_POWER, new FloatDoublewordElement(68)), //
 						m(Mpr15S22.ChannelId.SUM_APPARENT_POWER, new FloatDoublewordElement(70)), //
-						m(Mpr15S22.ChannelId.POWER_FACTOR_L1, new SignedDoublewordElement(72)), //
-						m(Mpr15S22.ChannelId.POWER_FACTOR_L2, new SignedDoublewordElement(74)), //
-						m(Mpr15S22.ChannelId.POWER_FACTOR_L3, new SignedDoublewordElement(76))), //
+						m(Mpr15S22.ChannelId.POWER_FACTOR_L1, new SignedDoublewordElement(72), SCALE_FACTOR_MINUS_3), //
+						m(Mpr15S22.ChannelId.POWER_FACTOR_L2, new SignedDoublewordElement(74), SCALE_FACTOR_MINUS_3), //
+						m(Mpr15S22.ChannelId.POWER_FACTOR_L3, new SignedDoublewordElement(76), SCALE_FACTOR_MINUS_3)), //
 				new FC3ReadRegistersTask(80, Priority.HIGH,
-						m(Mpr15S22.ChannelId.SUM_POWER_FACTOR, new SignedDoublewordElement(80)), //
-						m(Mpr15S22.ChannelId.COSPHI_L1, new SignedDoublewordElement(82)), //
-						m(Mpr15S22.ChannelId.COSPHI_L2, new SignedDoublewordElement(84)), //
-						m(Mpr15S22.ChannelId.COSPHI_L3, new SignedDoublewordElement(86))), //
+						m(Mpr15S22.ChannelId.SUM_POWER_FACTOR, new SignedDoublewordElement(80), SCALE_FACTOR_MINUS_3), //
+						m(Mpr15S22.ChannelId.COSPHI_L1, new SignedDoublewordElement(82), SCALE_FACTOR_MINUS_3), //
+						m(Mpr15S22.ChannelId.COSPHI_L2, new SignedDoublewordElement(84), SCALE_FACTOR_MINUS_3), //
+						m(Mpr15S22.ChannelId.COSPHI_L3, new SignedDoublewordElement(86), SCALE_FACTOR_MINUS_3)), //
 				new FC3ReadRegistersTask(90, Priority.HIGH,
-						m(Mpr15S22.ChannelId.SUM_COS_PHI, new SignedDoublewordElement(90)), //
+						m(Mpr15S22.ChannelId.SUM_COS_PHI, new SignedDoublewordElement(90), SCALE_FACTOR_MINUS_3), //
 						m(Mpr15S22.ChannelId.ROTATION_FIELD, new SignedDoublewordElement(92))), //
 				new FC3ReadRegistersTask(98, Priority.HIGH,
-						m(Mpr15S22.ChannelId.L1_PHASE_VOLTAGE_ANGLE, new UnsignedDoublewordElement(98)), //
-						m(Mpr15S22.ChannelId.L2_PHASE_VOLTAGE_ANGLE, new UnsignedDoublewordElement(100)), //
-						m(Mpr15S22.ChannelId.L3_PHASE_VOLTAGE_ANGLE, new UnsignedDoublewordElement(102)), //
-						m(Mpr15S22.ChannelId.L4_PHASE_VOLTAGE_ANGLE, new UnsignedDoublewordElement(104)), //
-						m(Mpr15S22.ChannelId.L1_PHASE_CURRENT_ANGLE, new UnsignedDoublewordElement(106)), //
-						m(Mpr15S22.ChannelId.L2_PHASE_CURRENT_ANGLE, new UnsignedDoublewordElement(108)), //
-						m(Mpr15S22.ChannelId.L3_PHASE_CURRENT_ANGLE, new UnsignedDoublewordElement(110))), //
+						m(Mpr15S22.ChannelId.L1_PHASE_VOLTAGE_ANGLE, new UnsignedDoublewordElement(98),
+								SCALE_FACTOR_MINUS_1), //
+						m(Mpr15S22.ChannelId.L2_PHASE_VOLTAGE_ANGLE, new UnsignedDoublewordElement(100),
+								SCALE_FACTOR_MINUS_1), //
+						m(Mpr15S22.ChannelId.L3_PHASE_VOLTAGE_ANGLE, new UnsignedDoublewordElement(102),
+								SCALE_FACTOR_MINUS_1), //
+						m(Mpr15S22.ChannelId.L4_PHASE_VOLTAGE_ANGLE, new UnsignedDoublewordElement(104),
+								SCALE_FACTOR_MINUS_1), //
+						m(Mpr15S22.ChannelId.L1_PHASE_CURRENT_ANGLE, new UnsignedDoublewordElement(106),
+								SCALE_FACTOR_MINUS_1), //
+						m(Mpr15S22.ChannelId.L2_PHASE_CURRENT_ANGLE, new UnsignedDoublewordElement(108),
+								SCALE_FACTOR_MINUS_1), //
+						m(Mpr15S22.ChannelId.L3_PHASE_CURRENT_ANGLE, new UnsignedDoublewordElement(110),
+								SCALE_FACTOR_MINUS_1)), //
 				new FC3ReadRegistersTask(154, Priority.HIGH,
-						m(Mpr15S22.ChannelId.HOUR_METER_NON_RESETABLE, new UnsignedDoublewordElement(154)), //
-						m(Mpr15S22.ChannelId.WORKING_HOUR_COUNTER, new UnsignedDoublewordElement(156)), //
+						m(Mpr15S22.ChannelId.HOUR_METER_NON_RESETABLE, new UnsignedDoublewordElement(154),
+								SCALE_FACTOR_MINUS_3), //
+						m(Mpr15S22.ChannelId.WORKING_HOUR_COUNTER, new UnsignedDoublewordElement(156),
+								SCALE_FACTOR_MINUS_3), //
 						m(Mpr15S22.ChannelId.INPUT_STATUS, new UnsignedDoublewordElement(158)), //
-						m(Mpr15S22.ChannelId.OUTPUT_STATUS, new UnsignedDoublewordElement(160))),
+						m(Mpr15S22.ChannelId.OUTPUT_STATUS, new UnsignedDoublewordElement(160))), //
 
 				// Energy registers
 				new FC3ReadRegistersTask(200, Priority.HIGH,
