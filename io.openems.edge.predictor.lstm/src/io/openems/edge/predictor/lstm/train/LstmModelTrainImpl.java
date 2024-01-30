@@ -1,7 +1,5 @@
 package io.openems.edge.predictor.lstm.train;
 
-import java.io.File;
-import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -28,7 +26,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
@@ -83,13 +80,13 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 	@Override
 	@Deactivate
 	protected void deactivate() {
-		scheduler.shutdown();
+		this.scheduler.shutdown();
 		super.deactivate();
 	}
 
 	protected void train(ChannelAddress channelAddress) {
 
-		HyperParameters hyperParameters = new HyperParameters();
+		HyperParameters hyperParameters = HyperParameters.getInstance();
 
 		// This is reference date specific to fems
 		ZonedDateTime nowDate = ZonedDateTime.of(2023, 10, 01, 0, 0, 0, 0, ZonedDateTime.now().getZone());
@@ -121,24 +118,25 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
 		}
-		ArrayList<Double> data = this.getData(querryResult);
-		ArrayList<OffsetDateTime> date = this.getDate(querryResult);
+  //		ArrayList<Double> data = this.getData(querryResult);
+  //		ArrayList<OffsetDateTime> date = this.getDate(querryResult);
 		System.out.println("....Training.....");
 
 		// Reading CSV file and looping over 26 fems data
-		int k = 0;
-//		for(int i = 0;i<= 26;i++) {
-//			
-//			k= hyperParameters.getCount();
-//			
-//
-//		String pathValidate = Integer.toString(27) + ".csv";
-//		String pathTrain = Integer.toString(i+1) + ".csv";
-//		ReadCsv obj2 = new ReadCsv(pathValidate);
-//		ReadCsv obj1 = new ReadCsv(pathTrain);
-//		// LstmTrain obj3 = new LstmTrain();
-//		new MultiThreadTrain(obj1.getData(), obj1.getDates(), obj2.getData(), obj2.getDates(), hyperParameters);
-//		}
+		// int k = 0;
+		// for(int i = 0;i<= 26;i++) {
+		//
+		// k= hyperParameters.getCount();
+		//
+		//
+		// String pathValidate = Integer.toString(27) + ".csv";
+		// String pathTrain = Integer.toString(i+1) + ".csv";
+		// ReadCsv obj2 = new ReadCsv(pathValidate);
+		// ReadCsv obj1 = new ReadCsv(pathTrain);
+		// // LstmTrain obj3 = new LstmTrain();
+		// new MultiThreadTrain(obj1.getData(), obj1.getDates(), obj2.getData(),
+		// obj2.getDates(), hyperParameters);
+		// }
 
 	}
 

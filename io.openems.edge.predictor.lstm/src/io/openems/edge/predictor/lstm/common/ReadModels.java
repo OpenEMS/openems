@@ -26,8 +26,6 @@ public class ReadModels {
 	 */
 	public static ArrayList<ArrayList<ArrayList<Double>>> readDataFile(String filename) {
 		ArrayList<ArrayList<ArrayList<Double>>> dataList = new ArrayList<>();
-		
-		
 
 		try {
 			Scanner scanner = new Scanner(new File(filename));
@@ -141,15 +139,6 @@ public class ReadModels {
 	 *              model.
 	 */
 
-	public void updateModel(Integer index) {
-		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> finalWeight = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
-		ArrayList<ArrayList<ArrayList<Double>>> optimumWeight = new ArrayList<ArrayList<ArrayList<Double>>>();
-		optimumWeight = allModel.get(index);
-		finalWeight.add(optimumWeight);
-		SaveModel.saveModels(finalWeight);
-
-	}
-
 	/**
 	 * Retrieves a three-dimensional model for trend analysis from a data file. This
 	 * method reads data from the specified file and returns it as a
@@ -172,7 +161,7 @@ public class ReadModels {
 	 * four-dimensional ArrayList structure suitable for seasonality analysis, and
 	 * returns the reshaped model.
 	 *
-	 * @param filePath       The path to the data file containing the model data.
+	 * @param filename       The path to the data file containing the model data.
 	 * @param hyperParametes is the object of class HyperPrameters.
 	 * @return A four-dimensional ArrayList structure representing the reshaped
 	 *         model data.
@@ -180,12 +169,11 @@ public class ReadModels {
 
 	public static ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> getModelForSeasonality(String filename,
 			HyperParameters hyperParametes) {
-		
-		
+
 		ArrayList<ArrayList<ArrayList<Double>>> dataList = readDataFile(filename);
-		
+
 		allModel = reshape(dataList, hyperParametes);
-		
+
 		return allModel;
 
 	}

@@ -81,7 +81,7 @@ public class LstmModelValidatorImpl extends AbstractPredictor24Hours
 
 	protected void validate(ChannelAddress channelAddress) {
 
-		HyperParameters hyperParameters = new HyperParameters();
+		HyperParameters hyperParameters = HyperParameters.getInstance();
 
 		ZonedDateTime nowDate = ZonedDateTime.of(2023, 07, 21, 0, 0, 0, 0, ZonedDateTime.now().getZone());
 		ZonedDateTime until = ZonedDateTime.of(//

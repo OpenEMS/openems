@@ -98,7 +98,7 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		// ArrayList<ArrayList<Double>>();
 		// final ArrayList<ArrayList<Double>> allTargetFro20Days = new
 		// ArrayList<ArrayList<Double>>();
-		HyperParameters hyperParameters = new HyperParameters();
+		HyperParameters hyperParameters = HyperParameters.getInstance();
 		int windowSizeSeasonality = hyperParameters.getWindowSizeSeasonality();
 
 		ZonedDateTime nowDate = ZonedDateTime.of(2023, 10, 21, 0, 0, 0, 0, ZonedDateTime.now().getZone());

@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.predictor.lstm.common.Model;
-import io.openems.edge.predictor.lstm.common.ReadModels;
 
 public class ReadandSaveModleBinTest {
 	/**
@@ -17,7 +16,7 @@ public class ReadandSaveModleBinTest {
 	 * @throws IOException If an I/O error occurs during serialization.
 	 */
 	public static void smb(Model obj, String path) {
-		//Model mod = new Model();
+		// Model mod = new Model();
 		Model.save(obj, path);
 	}
 
@@ -35,28 +34,17 @@ public class ReadandSaveModleBinTest {
 
 	public static Object rmb(String path) throws ClassNotFoundException, IOException {
 
-		//Model mod = new Model();
+		// Model mod = new Model();
 		return Model.read(path);
 
 	}
 
 	@Test
 	public void test() throws ClassNotFoundException, IOException {
-		String pathTrend = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\trend.txt";
-		String pathSeasonality = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\SavedModel.txt";
-		final String pathBin = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\fems.fe";
-		HyperParameters hyperParameters = new HyperParameters();
-		var modleTrend = ReadModels.getModelForSeasonality(pathTrend, hyperParameters);
-		var modleSeasonality = ReadModels.getModelForSeasonality(pathSeasonality, hyperParameters);
-		Model modle = new Model();
-  //		modle.setSeasonalityModel(modleSeasonality);
-  //		modle.setTrendModle(modleTrend);
-  //		modle.setBatchCount(25);
-  //		modle.setAccuracySeasonality(3.55);
-  //		ReadandSaveModleBinTest.smb(modle, pathBin);
-  //		System.out.println(ReadandSaveModleBinTest.rmb(pathBin));
-		Model modle1 = (Model) ReadandSaveModleBinTest.rmb(pathBin);
-		System.out.println(modle1.getSeasonalityModle().size());
+
+		HyperParameters hyperParameters = HyperParameters.getInstance();
+		System.out.println(hyperParameters.getCount());
+
 		fail("Not yet implemented");
 	}
 

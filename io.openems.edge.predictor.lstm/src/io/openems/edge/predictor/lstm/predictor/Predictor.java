@@ -83,6 +83,7 @@ public class Predictor {
 			ArrayList<Double> cta, ArrayList<Double> yta) {
 		double ct = 0;
 		double ctMinusOne = 0;
+		double ytMinusOne = 0;
 		double xt = 0;
 		double it = 0;
 		double ot = 0;
@@ -92,9 +93,10 @@ public class Predictor {
 
 		for (int i = 0; i < standData.size(); i++) {
 			ctMinusOne = cta.get(i);
+			ytMinusOne = yta.get(i);
 			xt = standData.get(i);
-			it = MathUtils.sigmoid(wi.get(i) * xt + rI.get(i) * yt);
-			ot = MathUtils.sigmoid(wo.get(i) * xt + rO.get(i) * yt);
+			it = MathUtils.sigmoid(wi.get(i) * xt + rI.get(i) * ytMinusOne);
+			ot = MathUtils.sigmoid(wo.get(i) * xt + rO.get(i) * ytMinusOne);
 			zt = MathUtils.tanh(wz.get(i) * xt + rZ.get(i) * yt);
 			ct = ctMinusOne + it * zt;
 			yt = ot * MathUtils.tanh(ct);

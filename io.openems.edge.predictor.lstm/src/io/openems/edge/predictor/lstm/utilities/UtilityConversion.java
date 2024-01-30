@@ -139,4 +139,15 @@ public class UtilityConversion {
 		}
 		return toReturn;
 	}
+
+	public static ArrayList<Double> convert2DArrayTo1DArray(ArrayList<ArrayList<Double>> data) {
+
+		ArrayList<Double> converted = new ArrayList<Double>();
+		for (int i = 0; i < data.size(); i++) {
+			for (int j = 0; j < data.get(i).size(); j++) {
+				converted.add(data.get(i).get(j));
+			}
+		}
+		return converted;
+	}
 }

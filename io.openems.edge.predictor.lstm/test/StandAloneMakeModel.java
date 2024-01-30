@@ -19,11 +19,11 @@ public class StandAloneMakeModel {
 	public static void itter() {
 		int k = 0;
 		
-		HyperParameters hyperParameters = new HyperParameters();
+		HyperParameters hyperParameters = HyperParameters.getInstance();
 		for (int i = 0; i < 28; i++) {
-			System.out.println("Batch:" + i + "/" + 28);
+			System.out.println("Batch:" + i + "/" + 30);
 
-			String pathTrain = Integer.toString(i + 1) + ".csv";
+			String pathTrain = Integer.toString(888) + ".csv";
 			String pathValidate = Integer.toString(29) + ".csv";
 
 			for (int j = 0; j < hyperParameters.getEpoch(); j++) {

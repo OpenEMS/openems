@@ -2,6 +2,8 @@ package io.openems.edge.predictor.lstm.util;
 
 import io.openems.edge.predictor.lstm.common.HyperParameters;
 
+//import io.openems.edge.predictor.lstm.common.HyperParameters;
+
 public class AdaptiveLearningRate {
 	/**
 	 * Adjusts the learning rate based on the given percentage.

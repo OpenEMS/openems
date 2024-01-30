@@ -1,35 +1,54 @@
 package io.openems.edge.predictor.lstm.common;
 
+import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 
-public class HyperParameters {
-	private double learningRateUpperLimit = 0.0001;
-	private double learnignRateLowerLimit = 0.0005;
+public class HyperParameters implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	private double learningRateUpperLimit = 0.1;
+	private double learnignRateLowerLimit = 0.05;
 	private double dataSplitTrain = 0.7;
 	private double dataSplitValidate = 0.2;
+
 	private double wiInit = 1;
 	private double woInit = 1;
 	private double wzInit = 1;
 	private double riInit = -1;
 	private double roInit = -1;
 	private double rzInit = -1;
-	private double ytInit = 0;
-	private double ctInit = 0;
+	private double ytInit = 0;// do not change; default value = 0;
+	private double ctInit = 0;// do not change; default value = 0
 	private double wfInit = -1;
 	private double rfInit = -1;
+
 	private int interval = 5;
-	private int epoch = 24;
+	private int batchSize = 1;
+	private int batchTrack = 0;
+	private int epoch = 5;
+	private int epochTrack = 0;
 	private int trendPoints = 1;
-	private int windowSizeSeasonality = 7;
-	private int windowSizeTrend = 4;
-	private int gdIterration = 100;
+	private int windowSizeSeasonality = 7;// do not change on fly
+	private int windowSizeTrend = 4; // do not change on fly
+	private int gdIterration = 1;
 	private int count = 0;
+
 	private double scalingMin = -5000;
 	private double scalingMax = 5000;
 	private boolean trendTrainFlag = false;
 	private boolean trainingSeasonality = false;
 	private boolean trainingTrend = false;
-	// private String modleSuffix = "";
+	private ArrayList<Double> rmsErrorTrend = new ArrayList<Double>();
+	private ArrayList<Double> rmsErrorSeasonality = new ArrayList<Double>();
+	private OffsetDateTime lastTrainedDate = null;
+	private static HyperParameters instance;
+	private int outerLoopCount = 0;
+
+	private HyperParameters() {
+
+	}
 
 	public void setLearningRateUpperLimit(double rate) {
 		this.learningRateUpperLimit = rate;
@@ -242,18 +261,97 @@ public class HyperParameters {
 		return this.trainingTrend = val;
 	}
 
-	// public String getModleSuffix() {
-	// return this.modleSuffix;
-	//
-	// }
-	//
-	// public void setModleSuffix(String val) {
-	// this.modleSuffix = val;
-	// }
+	public void setRmsErrorTrend(double val) {
+		this.rmsErrorTrend.add(val);
+
+	}
+
+	public void setRmsErrorSeasonality(double val) {
+		this.rmsErrorSeasonality.add(val);
+
+	}
+
+	public ArrayList<Double> getRmsErrorSeasonality() {
+		return this.rmsErrorSeasonality;
+	}
+
+	public ArrayList<Double> getRmsErrorTrend() {
+		return this.rmsErrorTrend;
+	}
+
+	public void setEpochTrack(int val) {
+		this.epochTrack = val;
+
+	}
+
+	public int getEpochTrack() {
+		return this.epochTrack;
+	}
+
+	public int getMinimumErrorModelSeasonality() {
+		return this.rmsErrorSeasonality.indexOf(Collections.min(this.rmsErrorSeasonality));
+	}
+
+	public int getMinimumErrorModelTrend() {
+
+		return this.rmsErrorTrend.indexOf(Collections.min(this.rmsErrorTrend));
+	}
+
+	public void setLastTrainedDateTime(OffsetDateTime val) {
+		this.lastTrainedDate = val;
+
+	}
+
+	public OffsetDateTime getLastTrainedDateTime() {
+		return this.lastTrainedDate;
+	}
 
 	/**
-	 * Prints the hyperParameters.
+	 * Gets the singleton instance of the HyperParameters class.
+	 *
+	 * <p>
+	 * The method ensures that only one instance of the HyperParameters class is
+	 * created. If the instance is null, a new instance is created; otherwise, the
+	 * existing instance is returned.
+	 * </p>
+	 *
+	 * @return The singleton instance of the HyperParameters class.
 	 */
+
+	public static HyperParameters getInstance() {
+		if (instance == null) {
+			instance = new HyperParameters();
+		}
+		return instance;
+	}
+
+	public int getOuterLoopCount() {
+		return this.outerLoopCount;
+	}
+
+	public void setOuterLoopCount(int val) {
+		this.outerLoopCount = val;
+	}
+
+	public int getBatchSize() {
+		return this.batchSize;
+	}
+
+	public int getBatchTrack() {
+		return this.batchTrack;
+	}
+
+	public void setBatchTrack(int val) {
+		this.batchTrack = val;
+
+	}
+	
+	/**
+	 * Prints the current values of hyperparameters and related attributes to the console.
+	 *
+	 * 
+	 */
+
 
 	public void printHyperParameters() {
 
@@ -267,10 +365,16 @@ public class HyperParameters {
 		System.out.println("rzInit = " + this.rzInit);
 		System.out.println("ytInit = " + this.ytInit);
 		System.out.println("ctInit = " + this.ctInit);
+		System.out.println("Epoch = " + this.epoch);
 		System.out.println("windowSizeSeasonality = " + this.windowSizeSeasonality);
 		System.out.println("windowSizeTrend = " + this.windowSizeTrend);
 		System.out.println("scalingMin = " + this.scalingMin);
 		System.out.println("scalingMax = " + this.scalingMax);
+		System.out.println("RMS error trend = " + this.getRmsErrorTrend());
+		System.out.println("RMS error Seasonlality =" + this.getRmsErrorSeasonality());
+		System.out.println("Count value = " + this.count);
+		System.out.println("Outer loop Count  = " + this.outerLoopCount);
+		System.out.println("Epoch track = " + this.epochTrack);
 
 	}
 

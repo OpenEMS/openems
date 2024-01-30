@@ -245,7 +245,7 @@ public class RearrangingDataForTrend {
 
 	@Test
 	public void test() throws Exception {
-		HyperParameters hyperparameters = new HyperParameters();
+		HyperParameters hyperparameters =  HyperParameters.getInstance();
 		RearrangingDataForTrend obj = new RearrangingDataForTrend();
 		String path = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\";
 		obj.main(hyperparameters, path);

@@ -67,7 +67,6 @@ public class Engine implements EngineDriver {
 
 			perc = ((double) (i + 1) / this.inputMatrix.length);
 			this.learningRate = rate.scheduler(perc, hyperParameters);
-			// System.out.println(this.learningRate);
 
 			ls = new LstmBuilder(this.inputMatrix[i], this.targetVector[i])// double[]
 

@@ -52,7 +52,7 @@ public class TestingSequenceGenerator {
 		ReadCsv csv = new ReadCsv(csvFileName);
 		ArrayList<Double> data = csv.getData();
 		ArrayList<OffsetDateTime> date = csv.getDates();
-		HyperParameters hyperParameters = new HyperParameters();
+		HyperParameters hyperParameters = HyperParameters.getInstance();
 		//ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> weightMatrix = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
 		InterpolationManager inter = new InterpolationManager(data, date, hyperParameters);
 		//ArrayList<ArrayList<Double>> weight1 = new ArrayList<ArrayList<Double>>();

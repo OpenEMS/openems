@@ -26,7 +26,7 @@ public class SaveModel {
 		try {
 			File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
 			String path = file.getAbsolutePath() + File.separator + "models" + File.separator + fileName;
-			System.out.println("Path  is : " + path);
+			//System.out.println("Path  is : " + path);
 
 			FileWriter fw = new FileWriter(path);
 			BufferedWriter bw = new BufferedWriter(fw);

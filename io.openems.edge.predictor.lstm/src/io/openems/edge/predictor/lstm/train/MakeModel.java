@@ -70,11 +70,7 @@ public class MakeModel {
 
 		for (int i = 0; i < dataGroupedByMinute.size(); i++) {
 
-//			long startTimeFirstLoop = System.currentTimeMillis();
-//			System.out.println("different k : " + k);
-
 			for (int j = 0; j < dataGroupedByMinute.get(i).size(); j++) {
-//				long startTimeSecondLoop = System.currentTimeMillis();
 
 				if (hyperParameters.getCount() == 0) {
 					// mod = new Model();
@@ -82,39 +78,17 @@ public class MakeModel {
 					weight1 = this.generateInitialWeightMatrix(windowsSize, hyperParameters);
 
 				} else {
-					// // Reading the exsisting modle
-					// try {
-					// mod = (Model) Model.read();
-					// } catch (ClassNotFoundException e) {
-					// // TODO Auto-generated catch block
-					// e.printStackTrace();
-					// } catch (IOException e) {
-					// // TODO Auto-generated catch block
-					// e.printStackTrace();
-					// }
 
-//					String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
-//
-//					File file = new File(openemsDirectory + "/models/"
-//							+ Integer.toString(hyperParameters.getCount() - 1) + "seasonality.txt");
-//					String path = file.getAbsolutePath();
-					
-					
 					File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
 					String path = file.getAbsolutePath() + File.separator + "models" + File.separator
 							+ Integer.toString(hyperParameters.getCount() - 1) + "seasonality.txt";
-					
+
 					ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel = ReadModels
 							.getModelForSeasonality(path, hyperParameters);
 					weight1 = allModel.get(allModel.size() - 1).get(k);
 
-					// weight1 = mod.getSeasonalityModle().get(mod.getSeasonalityAllModle().size() -
-					// 1).get(k);
-
 				}
-//				System.out.println(k);
-//				System.out.println("making Model for " + Integer.toString(i) + ":"
-//						+ Integer.toString(j * hyperParameters.getInterval()));
+
 				PreProcessingImpl preprocessing = new PreProcessingImpl(
 						DataModification.scale(dataGroupedByMinute.get(i).get(j), hyperParameters.getScalingMin(),
 								hyperParameters.getScalingMax()),
@@ -144,13 +118,9 @@ public class MakeModel {
 					e.printStackTrace();
 				}
 				k = k + 1;
-//				long endTimeSecondLoop = System.currentTimeMillis();
-//				long elapsedTime = endTimeSecondLoop - startTimeSecondLoop;
-//				System.out.println("Iteration  inner loop" + (j) + ": " + elapsedTime + " milliseconds");
+
 			}
-//			long endTimeFirstLoop = System.currentTimeMillis();
-//			long elapsedTime = endTimeFirstLoop - startTimeFirstLoop;
-//			System.out.println("Iteration first loop" + (i) + ": " + elapsedTime + " milliseconds");
+
 		}
 		SaveModel.saveModels(weightMatrix, Integer.toString(hyperParameters.getCount()) + "seasonality.txt");
 		System.out.println("Modle saved as : " + "seasonality.txt");
@@ -197,16 +167,11 @@ public class MakeModel {
 				// e.printStackTrace();
 				// }
 			} else {
-				String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
-
-//				File file = new File(
-//						openemsDirectory + "/models/" + Integer.toString(hyperParameters.getCount() - 1) + "trend.txt");
 
 				File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
 				String path = file.getAbsolutePath() + File.separator + "models" + File.separator
 						+ Integer.toString(hyperParameters.getCount() - 1) + "trend.txt";
 
-//				String path = file.getAbsolutePath();
 				ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel = ReadModels.getModelForSeasonality(path,
 						hyperParameters);
 
@@ -230,6 +195,7 @@ public class MakeModel {
 					hyperParameters.getScalingMin(), hyperParameters.getScalingMax()),
 					hyperParameters.getWindowSizeTrend());
 			Suffle obj1 = new Suffle(trainData, trainTarget);
+
 			Engine model = new EngineBuilder() //
 					.setInputMatrix(DataModification.normalizeData(obj1.getData())) // removing normalization
 					.setTargetVector(obj1.getTarget()) //

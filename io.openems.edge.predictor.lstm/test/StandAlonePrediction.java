@@ -1,10 +1,15 @@
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
 import org.junit.Test;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.edge.predictor.lstm.common.DataModification;
+import io.openems.edge.predictor.lstm.common.GetObject;
 import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.predictor.lstm.common.ReadCsv;
 import io.openems.edge.predictor.lstm.common.ReadModels;
@@ -12,6 +17,7 @@ import io.openems.edge.predictor.lstm.interpolation.InterpolationManager;
 import io.openems.edge.predictor.lstm.performance.PerformanceMatrix;
 import io.openems.edge.predictor.lstm.predictor.Prediction;
 import io.openems.edge.predictor.lstm.predictor.Predictor;
+import io.openems.edge.predictor.lstm.utilities.UtilityConversion;
 
 public class StandAlonePrediction {
 	/**
@@ -19,81 +25,156 @@ public class StandAlonePrediction {
 	 */
 
 	public void predictionTest() {
-		ArrayList<Double> predicted = new ArrayList<Double>();
-		ArrayList<Double> predictionFromSeasonality = new ArrayList<Double>();
-		ArrayList<Double> allTarget = new ArrayList<Double>();
-		ArrayList<Double> forTrendPrediction = new ArrayList<Double>();
-		ArrayList<OffsetDateTime> dateForTrend = new ArrayList<OffsetDateTime>();
-		ArrayList<Double> target = new ArrayList<Double>();
-		ArrayList<String> fileName = new ArrayList<String>();
-		ArrayList<Double> rmsTrend = new ArrayList<Double>();
-		ArrayList<Double> rmsSeasonality = new ArrayList<Double>();
-		ArrayList<Double> accuracyTrend = new ArrayList<Double>();
-		ArrayList<Double> accuracySeasonality = new ArrayList<Double>();
-		HyperParameters hyperParameters = new HyperParameters();
-		for (int m = 8; m <= 8; m++) {
-			ArrayList<Double> predictionFromTrend = new ArrayList<Double>();
-			String pathSeasonality = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\SavedModel.txt";
-			
-			String csvFileNAme = Integer.toString(m) + ".csv";
-			fileName.add(csvFileNAme);
-			for (int i = 0; i < 288; i++) {
-				int windowSize = hyperParameters.getWindowSizeSeasonality();
-				ZonedDateTime nowDate = ZonedDateTime.of(2023, 8, 8, 0, 0, 0, 0, ZonedDateTime.now().getZone());
-				nowDate = nowDate.plusMinutes(i * hyperParameters.getInterval());
-				ZonedDateTime until = ZonedDateTime.of(nowDate.getYear(), nowDate.getMonthValue(),
-						nowDate.getDayOfMonth(), nowDate.getHour(), getMinute(nowDate, hyperParameters), 0, 0,
-						nowDate.getZone());
-				ZonedDateTime temp = until.minusDays(windowSize - 1);
-				ZonedDateTime fromDate = ZonedDateTime.of(temp.getYear(), temp.getMonthValue(), temp.getDayOfMonth(),
-						nowDate.getHour(), getMinute(nowDate, hyperParameters), 0, 0, temp.getZone());
-				ZonedDateTime targetFrom = until.plusMinutes(hyperParameters.getInterval());
-				ZonedDateTime targetTo = targetFrom.plusHours(24);
-				final ArrayList<Double> data = this.quarryData(fromDate, until, csvFileNAme);
-				target = this.quarryData(targetFrom, targetTo, csvFileNAme);
-				allTarget.addAll(target);
-				forTrendPrediction = this.quarryData(
-						until.minusMinutes(hyperParameters.getInterval() * hyperParameters.getWindowSizeTrend()), until,
-						csvFileNAme);
-				dateForTrend = this.quarryDate(
-						until.minusMinutes(hyperParameters.getInterval() * hyperParameters.getWindowSizeTrend()), until,
-						csvFileNAme);
-				ArrayList<OffsetDateTime> date = this.quarryDate(fromDate, until, csvFileNAme);
-				if (i == 0) {
-					Prediction var = new Prediction(data, date, pathSeasonality, hyperParameters);
-					predictionFromSeasonality = getArranged(
-							getIndex(targetFrom.getHour(), targetFrom.getMinute(), hyperParameters),
-							var.getPredictedValues());
-				}
-				Prediction prediction = new Prediction(data, date, pathSeasonality, hyperParameters);
-				predicted = getArranged(getIndex(targetFrom.getHour(), targetFrom.getMinute(), hyperParameters),
-						prediction.getPredictedValues());
-				final ArrayList<Double> trendPrediction = this.predictTrend(forTrendPrediction, dateForTrend, until,
-						hyperParameters);
-				predictionFromTrend.add(trendPrediction.get(0));
-				for (int l = 0; l < trendPrediction.size(); l++) {
-					predicted.set(l, trendPrediction.get(l));
-				}
-			}
-			System.out.println(csvFileNAme);
-			System.out.println("Target =" + target);
-			System.out.println("Predictedtrend =" + predictionFromTrend);
-			System.out.println("Predictedseasonality =" + predictionFromSeasonality); 
-			System.out.println(predictionFromSeasonality.size());
-			System.out.println(target.size());
-			rmsSeasonality.add(PerformanceMatrix.rmsError(target, predictionFromSeasonality));
-			accuracySeasonality.add(PerformanceMatrix.accuracy(target, predictionFromTrend, 0.2));
-			System.out.println("File Name= " + fileName);
-			System.out.println("Rms Trend = " + rmsTrend);
-			System.out.println("Rms seasonality = " + rmsSeasonality);
-			System.out.println("Accuracy Trend = " + accuracyTrend);
-			System.out.println("Rms seasonality = " + accuracySeasonality);
+		ArrayList<ArrayList<Double>> predictedSeasonality = new ArrayList<ArrayList<Double>>();
+		ArrayList<Double> predictedTrend = new ArrayList<Double>();
+		int predictionFor = 1;
+		String csv = "10010.csv";
+
+		ZonedDateTime globDate = ZonedDateTime.of(2024,1,22, 0, 0, 0, 0, ZonedDateTime.now().getZone());
+//		ArrayList<Double> predicted = new ArrayList<Double>();
+//		ArrayList<Double> predictionFromSeasonality = new ArrayList<Double>();
+//		ArrayList<Double> allTarget = new ArrayList<Double>();
+//		ArrayList<Double> forTrendPrediction = new ArrayList<Double>();
+//		ArrayList<OffsetDateTime> dateForTrend = new ArrayList<OffsetDateTime>();
+//		ArrayList<Double> target = new ArrayList<Double>();
+//		ArrayList<String> fileName = new ArrayList<String>();
+//		ArrayList<Double> rmsTrend = new ArrayList<Double>();
+//		ArrayList<Double> rmsSeasonality = new ArrayList<Double>();
+//		ArrayList<Double> accuracyTrend = new ArrayList<Double>();
+//		ArrayList<Double> accuracySeasonality = new ArrayList<Double>();
+		HyperParameters hyperParameters = HyperParameters.getInstance();
+		try {
+			hyperParameters = (HyperParameters) GetObject.get();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		System.out.println("File Name= " + fileName);
-		System.out.println("Rms Trend = " + rmsTrend);
-		System.out.println("Rms seasonality = " + rmsSeasonality);
-		System.out.println("Accuracy Trend = " + accuracyTrend);
-		System.out.println("Rms seasonality = " + accuracySeasonality);
+
+		// System.out.println("getting one day seasonality prediction");
+
+		for (int i = 0; i < predictionFor; i++) {
+
+			ZonedDateTime nowDate = globDate;
+			nowDate = nowDate.plusHours(24 * i);
+
+			var tempPredicted = (ArrayList<Double>) predictSeasonality(hyperParameters, nowDate, csv);
+			predictedSeasonality.add(tempPredicted);
+
+		}
+		
+		for (int i = 0;i<predictionFor;i++) {
+			ZonedDateTime nowDate = globDate;
+			nowDate = nowDate.plusHours(24 * i);
+			 predictedTrend = predictTrendOneDay(hyperParameters,nowDate,csv);
+			
+			
+		}
+		ArrayList<Double> pre = UtilityConversion.convert2DArrayTo1DArray(predictedSeasonality);
+
+		ZonedDateTime nowDate = globDate;
+		ZonedDateTime until = ZonedDateTime.of(nowDate.getYear(), nowDate.getMonthValue(), nowDate.getDayOfMonth(),
+				nowDate.getHour(), getMinute(nowDate, hyperParameters), 0, 0, nowDate.getZone());
+
+		ZonedDateTime targetFrom = until.plusMinutes(hyperParameters.getInterval());
+		ZonedDateTime targetTo = targetFrom.plusHours(24 * predictionFor);
+
+		ArrayList<Double> target = getTargetData(targetFrom, targetTo, csv, hyperParameters);
+		double rmsSeasonality = PerformanceMatrix.rmsError(target, pre);
+		double rmsTrend = PerformanceMatrix.rmsError(target,predictedTrend);
+
+//		System.out.println("Size Target = " + target.size());
+//		System.out.println("Size Predicted = " + pre.size());
+
+		System.out.println("Target = " + target);
+		System.out.println("Predicted Seasonality = " + pre);
+
+		
+
+		//System.out.println("Target = " + target);
+		System.out.println("Predicted trend = " + predictedTrend);
+		System.out.println("rmsTrend = "+rmsTrend);
+		System.out.println("rms Seasonality= "+ rmsSeasonality);
+		
+//		
+		// PerformanceMatrix obj = new PerformanceMatrix(pre,quarryData(targetFrom,
+		// targetTo, csv),0.2);
+
+		//System.out.println("Rms error = " + rms);
+
+//		System.out.println("PresictedTrend = "+predictedTrend);
+
+		// // HyperParameters hyperParameters = HyperParameters.getInstance();
+//		//for (int m = 2; m <= 2; m++) {
+//			ArrayList<Double> predictionFromTrend = new ArrayList<Double>();
+//			// int minIndex = hyperParameters.getMinimumErrorModelSeasonality();
+//			File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
+//			String pathSeasonality = file.getAbsolutePath() + File.separator + "models" + File.separator
+//					+ Integer.toString(hyperParameters.getMinimumErrorModelSeasonality()) + "seasonality.txt";
+//			// String pathSeasonality =
+//			// "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\models\\SavedModels.txt";
+//
+////			String csvFileNAme = Integer.toString(m) + ".csv";
+////			fileName.add(csvFileNAme);
+//			for (int i = 0; i < 1; i++) {
+//				int windowSize = hyperParameters.getWindowSizeSeasonality();
+//				ZonedDateTime nowDate = ZonedDateTime.of(2023, 8, 25, 0, 0, 0, 0, ZonedDateTime.now().getZone());
+//				nowDate = nowDate.plusMinutes(i * hyperParameters.getInterval());
+//				ZonedDateTime until = ZonedDateTime.of(nowDate.getYear(), nowDate.getMonthValue(),
+//						nowDate.getDayOfMonth(), nowDate.getHour(), getMinute(nowDate, hyperParameters), 0, 0,
+//						nowDate.getZone());
+//				ZonedDateTime temp = until.minusDays(windowSize - 1);
+//				ZonedDateTime fromDate = ZonedDateTime.of(temp.getYear(), temp.getMonthValue(), temp.getDayOfMonth(),
+//						nowDate.getHour(), getMinute(nowDate, hyperParameters), 0, 0, temp.getZone());
+//				ZonedDateTime targetFrom = until.plusMinutes(hyperParameters.getInterval());
+//				ZonedDateTime targetTo = targetFrom.plusHours(24);
+//				final ArrayList<Double> data = this.quarryData(fromDate, until, csvFileNAme);
+//				target = this.quarryData(targetFrom, targetTo, csvFileNAme);
+//				allTarget.addAll(target);
+//				forTrendPrediction = this.quarryData(
+//						until.minusMinutes(hyperParameters.getInterval() * hyperParameters.getWindowSizeTrend()), until,
+//						csvFileNAme);
+//				dateForTrend = this.quarryDate(
+//						until.minusMinutes(hyperParameters.getInterval() * hyperParameters.getWindowSizeTrend()), until,
+//						csvFileNAme);
+//				ArrayList<OffsetDateTime> date = this.quarryDate(fromDate, until, csvFileNAme);
+//				if (i == 0) {
+//					Prediction var = new Prediction(data, date, pathSeasonality, hyperParameters);
+//					predictionFromSeasonality = getArranged(
+//							getIndex(targetFrom.getHour(), targetFrom.getMinute(), hyperParameters),
+//							var.getPredictedValues());
+//				}
+//				Prediction prediction = new Prediction(data, date, pathSeasonality, hyperParameters);
+//				predicted = getArranged(getIndex(targetFrom.getHour(), targetFrom.getMinute(), hyperParameters),
+//						prediction.getPredictedValues());
+//				final ArrayList<Double> trendPrediction = this.predictTrend(forTrendPrediction, dateForTrend, until,
+//						hyperParameters);
+//				predictionFromTrend.add(trendPrediction.get(0));
+//				for (int l = 0; l < trendPrediction.size(); l++) {
+//					predicted.set(l, trendPrediction.get(l));
+//				}
+//			}
+//			System.out.println(csvFileNAme);
+//			System.out.println("Target =" + target);
+//			System.out.println("Predictedtrend =" + predictionFromTrend);
+//			System.out.println("Predictedseasonality =" + predictionFromSeasonality);
+//			System.out.println(predictionFromSeasonality.size());
+//			System.out.println(target.size());
+//			rmsSeasonality.add(PerformanceMatrix.rmsError(target, predictionFromSeasonality));
+//			accuracySeasonality.add(PerformanceMatrix.accuracy(target, predictionFromTrend, 0.2));
+//			System.out.println("File Name= " + fileName);
+//			System.out.println("Rms Trend = " + rmsTrend);
+//			System.out.println("Rms seasonality = " + rmsSeasonality);
+//			System.out.println("Accuracy Trend = " + accuracyTrend);
+//			System.out.println("Rms seasonality = " + accuracySeasonality);
+//		}
+//		System.out.println("File Name= " + fileName);
+//		System.out.println("Rms Trend = " + rmsTrend);
+//		System.out.println("Rms seasonality = " + rmsSeasonality);
+//		System.out.println("Accuracy Trend = " + accuracyTrend);
+//		System.out.println("Rms seasonality = " + accuracySeasonality);
 	}
 
 	/**
@@ -349,7 +430,14 @@ public class StandAlonePrediction {
 	public ArrayList<Double> predictTrend(ArrayList<Double> data, ArrayList<OffsetDateTime> date, ZonedDateTime until,
 			HyperParameters hyperParameters) {
 		// read Model
-		String pathTrend = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\trend.txt";
+
+		File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
+		String pathTrend = file.getAbsolutePath() + File.separator + "models" + File.separator
+				+ Integer.toString(hyperParameters.getMinimumErrorModelTrend()) + "trend.txt";
+
+		// String pathTrend =
+		// "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\models\\trend.txt";
+
 		double pred = 0;
 		ArrayList<Double> trendPrediction = new ArrayList<Double>();
 		ZonedDateTime predictionFor = until.plusMinutes(hyperParameters.getInterval());
@@ -373,6 +461,87 @@ public class StandAlonePrediction {
 			trendPrediction.add(pred);
 		}
 		return trendPrediction;
+	}
+
+	public ArrayList<Double> predictSeasonality(HyperParameters hyperParameters, ZonedDateTime nowDate,
+			String csvFileName) {
+
+		ArrayList<Double> predicted = new ArrayList<Double>();
+
+		File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
+		String pathSeasonality = file.getAbsolutePath() + File.separator + "models" + File.separator
+				+ Integer.toString(hyperParameters.getMinimumErrorModelSeasonality()) + "seasonality.txt";
+
+		// String csvPath = file.getAbsolutePath() + File.separator + "models" +
+		// File.separator +"1.csv";
+
+		ZonedDateTime until = ZonedDateTime.of(nowDate.getYear(), nowDate.getMonthValue(), nowDate.getDayOfMonth(),
+				nowDate.getHour(), getMinute(nowDate, hyperParameters), 0, 0, nowDate.getZone());
+
+		ZonedDateTime targetFrom = until.plusMinutes(hyperParameters.getInterval());
+
+		int windowSize = hyperParameters.getWindowSizeSeasonality();
+
+		nowDate = nowDate.plusMinutes(hyperParameters.getInterval());
+
+		ZonedDateTime temp = until.minusDays(windowSize - 1);
+		ZonedDateTime fromDate = ZonedDateTime.of(temp.getYear(), temp.getMonthValue(), temp.getDayOfMonth(),
+				nowDate.getHour(), getMinute(nowDate, hyperParameters), 0, 0, temp.getZone());
+
+		final ArrayList<Double> data = this.quarryData(fromDate, until, csvFileName);
+		final ArrayList<OffsetDateTime> date = this.quarryDate(fromDate, until, csvFileName);
+
+		Prediction prediction = new Prediction(data, date, pathSeasonality, hyperParameters);
+
+		predicted = getArranged(getIndex(targetFrom.getHour(), targetFrom.getMinute(), hyperParameters),
+				prediction.getPredictedValues());
+
+		return predicted;
+
+	}
+
+	public ArrayList<Double> predictTrendOneDay(HyperParameters hyperParameters, ZonedDateTime nowDate,
+			String csvFileName) {
+
+		// ArrayList<Double> val = new ArrayList<Double>();
+		ArrayList<Double> forTrendPrediction = new ArrayList<Double>();
+		ArrayList<OffsetDateTime> dateForTrend = new ArrayList<OffsetDateTime>();
+		ArrayList<Double> predicted = new ArrayList<Double>();
+		for (int i = 0; i < 60/hyperParameters.getInterval() * 24; i++) {
+
+			ZonedDateTime nowDateTemp = nowDate.plusMinutes(i * hyperParameters.getInterval());
+
+			ZonedDateTime until = ZonedDateTime.of(nowDateTemp.getYear(), nowDateTemp.getMonthValue(), nowDateTemp.getDayOfMonth(),
+					nowDateTemp.getHour(), getMinute(nowDateTemp, hyperParameters), 0, 0, nowDateTemp.getZone());
+
+//			ZonedDateTime temp = until.minusDays(hyperParameters.getWindowSizeTrend() - 1);
+
+//			ZonedDateTime fromDate = ZonedDateTime.of(temp.getYear(), temp.getMonthValue(), temp.getDayOfMonth(),
+//					nowDate.getHour(), getMinute(nowDate, hyperParameters), 0, 0, temp.getZone());
+
+			forTrendPrediction = this.quarryData(
+					until.minusMinutes(hyperParameters.getInterval() * hyperParameters.getWindowSizeTrend()), until,
+					csvFileName);
+			dateForTrend = this.quarryDate(
+					until.minusMinutes(hyperParameters.getInterval() * hyperParameters.getWindowSizeTrend()), until,
+					csvFileName);
+			// ArrayList<OffsetDateTime> date = this.quarryDate(fromDate, until,
+			// csvFileName);
+
+			final ArrayList<Double> trendPrediction = this.predictTrend(forTrendPrediction, dateForTrend, until,
+					hyperParameters);
+			predicted.add(trendPrediction.get(0));
+
+		}
+		return predicted;
+	}
+
+	public ArrayList<Double> getTargetData(ZonedDateTime from, ZonedDateTime to, String csvfileName,
+			HyperParameters hyperParameter) {
+		InterpolationManager obj = new InterpolationManager(this.quarryData(from, to, csvfileName),
+				this.quarryDate(from, to, csvfileName), hyperParameter);
+		return obj.getInterpolatedData();
+
 	}
 
 	/**

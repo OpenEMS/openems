@@ -35,15 +35,15 @@ public class ReadCsv {
 
 		try {
 
-//			String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
-//			// String filename = "\\TestFolder\\" + fileName;
-//			File file = new File(openemsDirectory + "/models/" + fileName);
-//			String path = file.getAbsolutePath();
+   //			String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
+   //			// String filename = "\\TestFolder\\" + fileName;
+   //			File file = new File(openemsDirectory + "/models/" + fileName);
+   //			String path = file.getAbsolutePath();
 
 			File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
 			String path = file.getAbsolutePath() + File.separator + "models" + File.separator + fileName;
 
-			System.out.println(path);
+			//System.out.println(path);
 
 			BufferedReader reader = new BufferedReader(new FileReader(path));
 

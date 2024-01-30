@@ -198,16 +198,21 @@ public class DataModification {
 		return dataGroupedByMinute;
 
 	}
-	
+
 	/**
-	 * Modifies the given time-series data for short-term prediction by performing a series of transformations,
-	 * including grouping based on hours and minutes, changing the dimension of the grouped data, and applying
-	 * windowing to create a third modification.
+	 * Modifies the given time-series data for short-term prediction by performing a
+	 * series of transformations, including grouping based on hours and minutes,
+	 * changing the dimension of the grouped data, and applying windowing to create
+	 * a third modification.
 	 *
-	 * @param data The ArrayList of Double values representing the time-series data.
-	 * @param date The ArrayList of OffsetDateTime objects corresponding to the timestamps of the data.
-	 * @param hyperParameters The hyperparameters configuration for the short-term prediction.
-	 * @return An ArrayList of ArrayLists of Double values representing the third modification of the data.
+	 * @param data            The ArrayList of Double values representing the
+	 *                        time-series data.
+	 * @param date            The ArrayList of OffsetDateTime objects corresponding
+	 *                        to the timestamps of the data.
+	 * @param hyperParameters The hyperparameters configuration for the short-term
+	 *                        prediction.
+	 * @return An ArrayList of ArrayLists of Double values representing the third
+	 *         modification of the data.
 	 */
 
 	public static ArrayList<ArrayList<Double>> modifyForShortTermPrediction(ArrayList<Double> data,
@@ -220,7 +225,6 @@ public class DataModification {
 		ArrayList<ArrayList<Double>> thirdModification = new ArrayList<ArrayList<Double>>();
 
 		// second modification on the data: changing the dimension of the first modified
-		
 
 		for (int i = 0; i < firstModification.size(); i++) {
 			for (int j = 0; j < firstModification.get(i).size(); j++) {
@@ -256,10 +260,10 @@ public class DataModification {
 		return thirdModification;
 
 	}
-	
+
 	/**
-	 * Combines the given ArrayList of ArrayLists of Double values into a single ArrayList by interleaving
-	 * the elements from each inner ArrayList.
+	 * Combines the given ArrayList of ArrayLists of Double values into a single
+	 * ArrayList by interleaving the elements from each inner ArrayList.
 	 *
 	 * @param val The ArrayList of ArrayLists of Double values to be combined.
 	 * @return An ArrayList of Double values representing the combined result.
@@ -282,6 +286,67 @@ public class DataModification {
 		}
 		return reGroupedsecond;
 
+	}
+	/**
+	 * Splits a list of Double values into multiple batches and returns the batches.
+	 * The method divides the original list into a specified number of groups, ensuring that
+	 * each group has an approximately equal number of elements. It handles any remainder
+	 * by distributing the extra elements among the first few groups.
+	 *
+	 * @param originalList   The original list of Double values to be split into batches.
+	 * @param numberOfGroups The desired number of groups to split the list into.
+	 * @return An ArrayList of ArrayLists, where each inner ArrayList represents a batch
+	 *         of Double values.	 
+	 */
+
+	public static ArrayList<ArrayList<Double>> getDataInBatch(ArrayList<Double> originalList, int numberOfGroups) {
+		ArrayList<ArrayList<Double>> splitGroups = new ArrayList<>();
+
+		int originalSize = originalList.size();
+		int groupSize = originalSize / numberOfGroups;
+		int remainder = originalSize % numberOfGroups;
+
+		int currentIndex = 0;
+		for (int i = 0; i < numberOfGroups; i++) {
+			int groupCount = groupSize + (i < remainder ? 1 : 0);
+			ArrayList<Double> group = new ArrayList<>(originalList.subList(currentIndex, currentIndex + groupCount));
+			splitGroups.add(group);
+			currentIndex += groupCount;
+		}
+		return splitGroups;
+	}
+
+	/**
+	 * Splits a list of OffsetDateTime into multiple batches and returns the
+	 * batches. The method divides the original list into a specified number of
+	 * groups, ensuring that each group has an approximately equal number of
+	 * elements. It handles any remainder by distributing the extra elements among
+	 * the first few groups.
+	 *
+	 * @param originalList   The original list of OffsetDateTime to be split into
+	 *                       batches.
+	 * @param numberOfGroups The desired number of groups to split the list into.
+	 * @return An ArrayList of ArrayLists, where each inner ArrayList represents a
+	 *         batch of OffsetDateTime objects.        
+	 */
+	public static ArrayList<ArrayList<OffsetDateTime>> getDateInBatch(ArrayList<OffsetDateTime> originalList,
+			int numberOfGroups) {
+		ArrayList<ArrayList<OffsetDateTime>> splitGroups = new ArrayList<>();
+
+		int originalSize = originalList.size();
+		int groupSize = originalSize / numberOfGroups;
+		int remainder = originalSize % numberOfGroups;
+
+		int currentIndex = 0;
+		for (int i = 0; i < numberOfGroups; i++) {
+			int groupCount = groupSize + (i < remainder ? 1 : 0);
+			ArrayList<OffsetDateTime> group = new ArrayList<>(
+					originalList.subList(currentIndex, currentIndex + groupCount));
+			splitGroups.add(group);
+			currentIndex += groupCount;
+		}
+
+		return splitGroups;
 	}
 
 }

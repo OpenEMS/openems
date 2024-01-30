@@ -50,7 +50,7 @@ public class RearrangingDataForValidation {
 		// ArrayList<ArrayList<Double>> weight1 = new ArrayList<ArrayList<Double>>();
 		ArrayList<ArrayList<Double>> finalGroupedMatrix = new ArrayList<ArrayList<Double>>();
 		ArrayList<ArrayList<Double>> rmsTemp2 = new ArrayList<ArrayList<Double>>();
-  //		hyperParameters.setModleSuffix("trend.txt");
+		// hyperParameters.setModleSuffix("trend.txt");
 
 		double minOfTrainingData = hyperParameters.getScalingMin();
 		double maxOfTrainingData = hyperParameters.getScalingMax();
@@ -428,7 +428,7 @@ public class RearrangingDataForValidation {
 
 	@Test
 	public void test() throws Exception {
-		HyperParameters hyperparameters = new HyperParameters();
+		HyperParameters hyperparameters = HyperParameters.getInstance();
 		RearrangingDataForValidation obj = new RearrangingDataForValidation();
 		String path = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\";
 		obj.main(hyperparameters, path);

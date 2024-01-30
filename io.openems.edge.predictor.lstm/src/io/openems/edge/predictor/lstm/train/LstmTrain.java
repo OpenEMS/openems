@@ -1,5 +1,6 @@
 package io.openems.edge.predictor.lstm.train;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -16,9 +17,11 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.predictor.lstm.common.GetObject;
 import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.predictor.lstm.common.ReadCsv;
-import io.openems.edge.predictor.lstm.multithread.MultiThreadTrain;
+import io.openems.edge.predictor.lstm.common.Saveobject;
+import io.openems.edge.predictor.lstm.multithread.TrainInBatch;
 import io.openems.edge.timedata.api.Timedata;
 
 public class LstmTrain implements Runnable {
@@ -34,7 +37,7 @@ public class LstmTrain implements Runnable {
 	@Override
 	public void run() {
 
-		HyperParameters hyperParameters = new HyperParameters();
+		HyperParameters hyperParameters;
 
 		ZonedDateTime nowDate = ZonedDateTime.of(2023, 07, 21, 0, 0, 0, 0, ZonedDateTime.now().getZone());
 		ZonedDateTime until = ZonedDateTime.of(//
@@ -69,28 +72,36 @@ public class LstmTrain implements Runnable {
 			e.printStackTrace();
 		}
 
-		ArrayList<Double> data = this.getData(querryResult);
-		ArrayList<OffsetDateTime> date = this.getDate(querryResult);
+  //		ArrayList<Double> data = this.getData(querryResult);
+  //		ArrayList<OffsetDateTime> date = this.getDate(querryResult);
 
 		// reading the csv file for as the valodation data
-		int k=0;
-		for (int i = 0; i <= 26; i++) {
-			
-			System.out.println("batch = "+i+"/28");
-			
 
-			String pathValidate = Integer.toString(27) + ".csv";
-			String pathTrain = Integer.toString(i+1) + ".csv";
-			ReadCsv obj2 = new ReadCsv(pathValidate);
-			ReadCsv obj1 = new ReadCsv(pathTrain);
-			hyperParameters.setCount(k);
-
-			new MultiThreadTrain(obj1.getData(), obj1.getDates(), obj2.getData(), obj2.getDates(), hyperParameters);
-			k=hyperParameters.getCount()+1;
+		// HyperParameters hyperParameters;
+		try {
+			hyperParameters = (HyperParameters) GetObject.get();
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Creating new hyperparameter object");
+			hyperParameters = HyperParameters.getInstance();
 		}
-//		
+		int check = hyperParameters.getOuterLoopCount();
+		for (int i = check; i <= 8; i++) {
+			hyperParameters.setOuterLoopCount(i);
 
-		// new MakeModel((ArrayList<Double>) data, date, hyperParameters);
+			String pathTrain = Integer.toString(i + 1) + ".csv";
+			String pathValidate = Integer.toString(27) + ".csv";
+
+			ReadCsv obj1 = new ReadCsv(pathTrain);
+			final ReadCsv obj2 = new ReadCsv(pathValidate);
+
+			new TrainInBatch(obj1.getData(), obj1.getDates(), obj2.getData(), obj2.getDates(), hyperParameters);
+
+			hyperParameters.setEpochTrack(0);
+			hyperParameters.setBatchTrack(0);
+			hyperParameters.setOuterLoopCount(hyperParameters.getOuterLoopCount() + 1);
+			Saveobject.save(hyperParameters);
+		}
 
 	}
 

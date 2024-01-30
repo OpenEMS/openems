@@ -60,16 +60,6 @@ public class Validation {
 		maxOfTrainingData = hyperParameters.getScalingMax();
 		ArrayList<ArrayList<ArrayList<Double>>> dataGroupedByMinute = DataModification
 				.modifyFroLongTermPrediction(inter.getInterpolatedData(), dates);
-
-		// String tempPath = new File(".").getCanonicalPath();
-		// path = tempPath + Integer.toString(hyperParameters.getCount()) +
-		// "seasonality.txt";
-//		String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
-//
-//		File file = new File(
-//				openemsDirectory + "/models/" + Integer.toString(hyperParameters.getCount()) + "seasonality.txt");
-//		path = file.getAbsolutePath();
-
 		File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
 		String path = file.getAbsolutePath() + File.separator + "models" + File.separator
 				+ Integer.toString(hyperParameters.getCount()) + "seasonality.txt";
@@ -108,8 +98,8 @@ public class Validation {
 			}
 			rmsTemp2.add(rmsTemp1);
 		}
-		List<List<Integer>> optInd = findOptimumIndex(rmsTemp2, "Seasonlity");
-		System.out.println("Optimum Index :" + optInd);
+		List<List<Integer>> optInd = findOptimumIndex(rmsTemp2, "Seasonlity", hyperParameters);
+		// System.out.println("Optimum Index :" + optInd);
 		ReadModels.updateModel(allModels, optInd, Integer.toString(hyperParameters.getCount()) + "seasonality.txt");
 	}
 
@@ -143,14 +133,6 @@ public class Validation {
 		ArrayList<ArrayList<Double>> modifiedData = DataModification
 				.modifyForShortTermPrediction(inter.getInterpolatedData(), dates, hyperParameters);
 
-		// path = tempPath + Integer.toString(hyperParameters.getCount()) +
-		// "seasonality.txt";
-//		String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
-//
-//		File file = new File(
-//				openemsDirectory + "/models/" + Integer.toString(hyperParameters.getCount()) + "trend.txt");
-//		String path = file.getAbsolutePath();
-
 		File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
 		String path = file.getAbsolutePath() + File.separator + "models" + File.separator
 				+ Integer.toString(hyperParameters.getCount()) + "trend.txt";
@@ -180,27 +162,26 @@ public class Validation {
 			rmsTemp2.add(rmsTemp1);
 
 		}
-		List<List<Integer>> optInd = findOptimumIndex(rmsTemp2, "Trend");
+		List<List<Integer>> optInd = findOptimumIndex(rmsTemp2, "Trend", hyperParameters);
 
-		System.out.println("Optimum Index :" + optInd);
+		// System.out.println("Optimum Index :" + optInd);
 		ReadModels.updateModel(allModels, optInd, Integer.toString(hyperParameters.getCount()) + "trend.txt");
 
 	}
 
 	/**
-	 * Find the indices of the minimum values in each column of a 2D matrix. This
-	 * method takes a 2D matrix represented as a List of Lists and finds the row
-	 * indices of the minimum values in each column. The result is returned as a
-	 * List of Lists, where each inner list contains two integers: the row index and
-	 * column index of the minimum value.
+	 * Finds the indices corresponding to the minimum values in each column of a matrix.
+	 * Additionally, calculates and updates the average Root Mean Square (RMS) error for a specified variable.
 	 *
-	 * @param matrix A 2D matrix represented as a List of Lists of doubles.
-	 * @return A List of Lists containing the row and column indices of the minimum
-	 *         values in each column. If the input matrix is empty, an empty list is
-	 *         returned.
+	 * @param matrix           The input matrix represented as an ArrayList of ArrayLists of Double values.
+	 * @param var              A string indicating the variable for which to calculate the RMS error
+	 *                         ("Trend" or "Seasonality").
+	 * @param hyperParameters An instance of the HyperParameters class to update RMS error values.
+	 * @return A list of lists containing the indices of minimum values in each column of the matrix.	 
 	 */
 
-	public static List<List<Integer>> findOptimumIndex(ArrayList<ArrayList<Double>> matrix) {
+	public static List<List<Integer>> findOptimumIndex(ArrayList<ArrayList<Double>> matrix, String var,
+			HyperParameters hyperParameters) {
 		List<List<Integer>> minimumIndices = new ArrayList<>();
 
 		if (matrix.isEmpty() || matrix.get(0).isEmpty()) {
@@ -230,7 +211,15 @@ public class Validation {
 			sum = sum + matrix.get(minimumIndices.get(i).get(0)).get(minimumIndices.get(i).get(1));
 
 		}
-		System.out.println("Average RMS error = " + sum / minimumIndices.size());
+		if (var == "Trend") {
+			hyperParameters.setRmsErrorTrend(sum / minimumIndices.size());
+
+		} else {
+			hyperParameters.setRmsErrorSeasonality(sum / minimumIndices.size());
+
+		}
+
+		System.out.println("Average RMS error for  " + var + " = " + sum / minimumIndices.size());
 
 		return minimumIndices;
 	}
@@ -250,41 +239,6 @@ public class Validation {
 	 *         returned.
 	 * 
 	 */
-
-	public static List<List<Integer>> findOptimumIndex(ArrayList<ArrayList<Double>> matrix, String var) {
-		List<List<Integer>> minimumIndices = new ArrayList<>();
-
-		if (matrix.isEmpty() || matrix.get(0).isEmpty()) {
-			return minimumIndices;
-		}
-
-		int numColumns = matrix.get(0).size();
-
-		for (int col = 0; col < numColumns; col++) {
-			double max = matrix.get(0).get(col);
-			List<Integer> maxIndices = new ArrayList<>(Arrays.asList(0, col));
-
-			for (int row = 0; row < matrix.size(); row++) {
-				double value = matrix.get(row).get(col);
-
-				if (value > max) {
-					max = value;
-					maxIndices.set(0, row);
-				}
-			}
-
-			minimumIndices.add(maxIndices);
-		}
-		double sum = 0;
-		for (int i = 0; i < minimumIndices.size(); i++) {
-
-			sum = sum + (matrix.get(minimumIndices.get(i).get(0)).get(minimumIndices.get(i).get(1)));
-
-		}
-		System.out.println("Average RMS error for  " + var + " = " + sum / minimumIndices.size());
-
-		return minimumIndices;
-	}
 
 	/**
 	 * Estimate the optimum weight index from a list of indices. This method takes a
@@ -490,18 +444,6 @@ public class Validation {
 	 *         represents a seasonality model, and the outer ArrayLists group models
 	 *         by iteration.
 	 */
-
-//	public ArrayList<ArrayList<ArrayList<Double>>> getOldModelsTrend(int itterNumb, String modleSuffix) {
-//		ArrayList<ArrayList<ArrayList<Double>>> oldModelsTrend = new ArrayList<ArrayList<ArrayList<Double>>>();
-//		for (int i = 0; i < itterNumb; i++) {
-//			ArrayList<ArrayList<Double>> previosusBestModelReadModels = ReadModels
-//					.getModelForTrend(this.path + Integer.toString(itterNumb) + modleSuffix).get(0);
-//			oldModelsTrend.add(previosusBestModelReadModels);
-//
-//		}
-//		return oldModelsTrend;
-//
-//	}
 
 	/**
 	 * Combine seasonality models from previous iterations with a current set of

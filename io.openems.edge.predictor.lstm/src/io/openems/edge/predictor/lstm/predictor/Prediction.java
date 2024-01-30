@@ -23,9 +23,10 @@ public class Prediction {
 		ArrayList<ArrayList<Double>> dataGroupedByMinute1 = new ArrayList<ArrayList<Double>>();
 		ArrayList<ArrayList<ArrayList<Double>>> dataGroupedByMinute = new ArrayList<ArrayList<ArrayList<Double>>>();
 		ArrayList<Double> dataToPredict = data;
-		final ArrayList<OffsetDateTime> dateToPredict = date;	
+		final ArrayList<OffsetDateTime> dateToPredict = date;
 		// Interpolate
-		InterpolationManager interpolationManager = new InterpolationManager(dataToPredict, dateToPredict,hyperParameters);
+		InterpolationManager interpolationManager = new InterpolationManager(dataToPredict, dateToPredict,
+				hyperParameters);
 		dataToPredict = interpolationManager.getInterpolatedData();
 		// Scaling
 		ArrayList<Double> scaledData = DataModification.scale(dataToPredict, hyperParameters.getScalingMin(),
@@ -99,7 +100,7 @@ public class Prediction {
 						.color(Color.RED)); //
 
 		try {
-			
+
 			String path = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder";
 			plot.save(path + "/prediction", "png");
 		} catch (IOException e) {
