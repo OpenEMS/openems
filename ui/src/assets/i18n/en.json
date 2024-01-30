@@ -540,7 +540,9 @@
       "czech": "Czech Republic",
       "sweden": "Sweden",
       "netherlands": "Netherlands",
-      "switzerland": "Switzerland"
+      "switzerland": "Switzerland",
+      "ireland": "Ireland (Republic of)",
+      "united_kingdom": "United Kingdom"
     },
     "yes": "Yes",
     "no": "No",

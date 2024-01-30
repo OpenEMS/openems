@@ -11,6 +11,8 @@ public enum SafetyCountry implements TranslatableEnum {
 	SWEDEN("sweden"), //
 	CZECH("czech"), //
 	HOLLAND("netherlands"), //
+	IRELAND("ireland"), //
+	UNITED_KINGDOM("united_kingdom"), //
 	;
 
 	private final String translationKey;
