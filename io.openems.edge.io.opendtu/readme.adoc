@@ -1,12 +1,12 @@
-= Shelly WiFi Relay Switch
+= openDTU Hoymiles Microinverter Monitoring
 
-This bundle implements Shelly WiFi Relay Switches.
+This bundle implements Hoymiles Microinverter Monitoring.
 
 Compatible with
-- https://shelly.cloud/products/shelly-25-smart-home-automation-relay/[Shelly 2.5]
-- https://shelly.cloud/products/shelly-plug-s-smart-home-automation-device/[Shelly Plug S]
+- See Description here:
+  https://github.com/tbnobody/OpenDTU
 
 Implemented Natures
 - DigitalOutput
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.shelly[Source Code icon:github[]]
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.opendtu[Source Code icon:github[]]
