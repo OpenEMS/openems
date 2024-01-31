@@ -43,6 +43,7 @@
               *ngIf="currentPage === 'IndexLive' || currentPage === 'IndexHistory' || currentPage === 'EdgeSettings'"
               color="light" fill="solid" shape="round">
               <ng-container [ngSwitch]="sum.state">
+                <ion-icon *ngIf="!isOnline" color="danger" name="cloud-offline-outline"></ion-icon>
                 <ion-icon *ngSwitchCase="0" color="success" name="checkmark-circle-outline"></ion-icon>
                 <ion-icon *ngSwitchCase="1" color="success"
                   [name]="edge.roleIsAtLeast('admin') ? 'information-outline' : 'checkmark-circle-outline'"></ion-icon>
@@ -68,4 +69,4 @@
       </ion-buttons>
     </ion-toolbar>
   </ng-container>
-</ion-header>
+</ion-header>git commit -am

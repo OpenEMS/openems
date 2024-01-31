@@ -22,6 +22,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     public enableSideMenu: boolean;
     public currentPage: 'EdgeSettings' | 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
     public isSystemLogEnabled: boolean = false;
+    public isOnline: boolean = false;
     private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     constructor(
@@ -44,6 +45,9 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         ).subscribe(event => {
             window.scrollTo(0, 0);
             this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
+        });
+        this.service.currentEdge.pipe(takeUntil(this.ngUnsubscribe)).subscribe(edge => {
+            this.isOnline = edge ? edge.isOnline : false;
         });
     }
 
