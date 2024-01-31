@@ -136,7 +136,6 @@ public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent
 	    }
 
 	    try {
-	        // Assuming 'result' is a JsonObject representing the entire JSON response
 	        JsonObject jsonResponse = result.getAsJsonObject();
 	        this.lastJsonResponse = jsonResponse; // Store the response
 
@@ -156,7 +155,7 @@ public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent
 	            // Processing the extracted data
 	            this._setRelay(relayIson);
 	            this._setActivePower(Math.round(power));
-	            this._setActiveProductionEnergy(energy / 60); // Assuming you need to convert to Wh
+	            this._setActiveProductionEnergy(energy / 60);
 	            
 	            int millivolt = (voltage * 1000);
 	            int milliamp = (current * 1000);
