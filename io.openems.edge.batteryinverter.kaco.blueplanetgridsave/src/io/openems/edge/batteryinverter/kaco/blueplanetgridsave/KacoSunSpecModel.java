@@ -193,8 +193,8 @@ public enum KacoSunSpecModel implements SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE, //
-				Unit.SECONDS, //
-				"RMP_TMS_SF", //
+				Unit.MILLISECONDS, //
+				null, //
 				new OptionsEnum[0])), //
 		WPARAM_RMP_DEC_TMM(new PointImpl(//
 				"S64201_WPARAM_RMP_DEC_TMM", //
