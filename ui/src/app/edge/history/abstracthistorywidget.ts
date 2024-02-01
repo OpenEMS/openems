@@ -3,7 +3,7 @@ import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/reque
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from 'src/app/shared/shared';
 import { calculateResolution } from './shared';
-import { DateUtils } from 'src/app/shared/utils/dateutils/dateutils';
+import { DateUtils } from 'src/app/shared/utils/date/dateutils';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryWidget {

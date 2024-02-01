@@ -12,8 +12,8 @@ describe('History EnergyMonitor', () => {
   );
 
   let TEST_CONTEXT: TestContext;
-  beforeEach(() =>
-    TEST_CONTEXT = sharedSetup(),
+  beforeEach(async () =>
+    TEST_CONTEXT = await sharedSetup(),
   );
 
   it('getChartData()', () => {

@@ -8,20 +8,20 @@ import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/j
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
 
-import { startOfMonth } from 'date-fns';
-import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS, isLabelVisible, setLabelVisible, TooltipItem, Unit } from '../../../edge/history/shared';
+import { calculateResolution, ChartOptions, ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS, isLabelVisible, setLabelVisible, TooltipItem } from '../../../edge/history/shared';
 import { JsonrpcResponseError } from '../../jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesEnergyRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
 import { QueryHistoricTimeseriesDataResponse } from '../../jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from '../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { FormatSecondsToDurationPipe } from '../../pipe/formatSecondsToDuration/formatSecondsToDuration.pipe';
 import { ChartAxis, HistoryUtils, YAxisTitle } from '../../service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared";
-import { DateUtils } from '../../utils/dateutils/dateutils';
-import { FormatSecondsToDurationPipe } from '../../pipe/formatSecondsToDuration/formatSecondsToDuration.pipe';
 import { Language } from '../../type/language';
-import { TimeUtils } from '../../utils/timeutils/timeutils';
+import { DateUtils } from '../../utils/date/dateutils';
+import { DateTimeUtils } from '../../utils/datetime/datetime-utils';
+import { TimeUtils } from '../../utils/time/timeutils';
 import { Converter } from '../shared/converter';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
@@ -270,7 +270,7 @@ export abstract class AbstractHistoryChart implements OnInit {
     let unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).resolution.unit;
 
     // Show Barchart if resolution is days or months
-    if (unit == Unit.DAYS || unit == Unit.MONTHS) {
+    if (ChronoUnit.isAtLeast(unit, ChronoUnit.Type.DAYS)) {
       Promise.all([
         this.queryHistoricTimeseriesEnergyPerPeriod(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
         this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
@@ -279,9 +279,7 @@ export abstract class AbstractHistoryChart implements OnInit {
         this.chartObject = this.getChartData();
 
         // TODO after chartjs migration, look for config
-        if (unit === Unit.MONTHS) {
-          energyPeriodResponse.result.timestamps[0] = startOfMonth(DateUtils.stringToDate(energyPeriodResponse.result.timestamps[0]))?.toString() ?? energyPeriodResponse.result.timestamps[0];
-        }
+        energyPeriodResponse = DateTimeUtils.normalizeTimestamps(unit, energyPeriodResponse);
 
         let displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, energyPeriodResponse, energyResponse);
         this.datasets = displayValues.datasets;
@@ -297,6 +295,7 @@ export abstract class AbstractHistoryChart implements OnInit {
           case DefaultTypes.PeriodString.CUSTOM: {
             barWidthPercentage = 0.7;
             categoryGapPercentage = 0.4;
+            break;
           }
           case DefaultTypes.PeriodString.MONTH: {
             if (this.service.isSmartphoneResolution == true) {
@@ -306,8 +305,10 @@ export abstract class AbstractHistoryChart implements OnInit {
               barWidthPercentage = 0.9;
               categoryGapPercentage = 0.8;
             }
+            break;
           }
-          case DefaultTypes.PeriodString.YEAR: {
+          case DefaultTypes.PeriodString.YEAR:
+          case DefaultTypes.PeriodString.TOTAL: {
             if (this.service.isSmartphoneResolution == true) {
               barWidthPercentage = 1;
               categoryGapPercentage = 0.6;
@@ -315,6 +316,7 @@ export abstract class AbstractHistoryChart implements OnInit {
               barWidthPercentage = 0.8;
               categoryGapPercentage = 0.8;
             }
+            break;
           }
         }
         this.datasets.forEach(element => {
@@ -330,6 +332,8 @@ export abstract class AbstractHistoryChart implements OnInit {
         this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
       ])
         .then(([dataResponse, energyResponse]) => {
+
+          dataResponse = DateTimeUtils.normalizeTimestamps(unit, dataResponse);
           this.chartType = 'line';
           this.chartObject = this.getChartData();
           let displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, dataResponse, energyResponse);
@@ -407,7 +411,7 @@ export abstract class AbstractHistoryChart implements OnInit {
         this.service.getConfig().then(async () => {
 
           let channelAddresses = (await this.getChannelAddresses()).energyChannels.filter(element => element != null);
-          let request = new QueryHistoricTimeseriesEnergyPerPeriodRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
+          let request = new QueryHistoricTimeseriesEnergyPerPeriodRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
           if (channelAddresses.length > 0) {
 
             edge.sendRequest(this.service.websocket, request).then(response => {
@@ -459,7 +463,6 @@ export abstract class AbstractHistoryChart implements OnInit {
     let result: Promise<QueryHistoricTimeseriesEnergyResponse> = new Promise<QueryHistoricTimeseriesEnergyResponse>((resolve, reject) => {
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(async () => {
-
           let channelAddresses = (await this.getChannelAddresses()).energyChannels?.filter(element => element != null) ?? [];
           let request = new QueryHistoricTimeseriesEnergyRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses);
           if (channelAddresses.length > 0) {
@@ -497,17 +500,16 @@ export abstract class AbstractHistoryChart implements OnInit {
    */
   protected static toTooltipTitle(fromDate: Date, toDate: Date, date: Date, service: Service): string {
     let unit = calculateResolution(service, fromDate, toDate).resolution.unit;
-    if (unit == Unit.MONTHS) {
-      // Yearly view
-      return date.toLocaleDateString('default', { month: 'long' });
 
-    } else if (unit == Unit.DAYS) {
-      // Monthly view
-      return date.toLocaleDateString('default', { day: '2-digit', month: 'long' });
-
-    } else {
-      // Default
-      return date.toLocaleString('default', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + date.toLocaleTimeString('default', { hour12: false, hour: '2-digit', minute: '2-digit' });
+    switch (unit) {
+      case ChronoUnit.Type.YEARS:
+        return date.toLocaleDateString('default', { year: 'numeric' });
+      case ChronoUnit.Type.MONTHS:
+        return date.toLocaleDateString('default', { month: 'long' });
+      case ChronoUnit.Type.DAYS:
+        return date.toLocaleDateString('default', { day: '2-digit', month: 'long' });
+      default:
+        return date.toLocaleString('default', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + date.toLocaleTimeString('default', { hour12: false, hour: '2-digit', minute: '2-digit' });
     }
   }
 
@@ -515,9 +517,7 @@ export abstract class AbstractHistoryChart implements OnInit {
     translate: TranslateService, legendOptions: { label: string, strokeThroughHidingStyle: boolean }[], channelData: { data: { [name: string]: number[] } }, locale: string): ChartOptions {
 
     let tooltipsLabel: string | null = null;
-
     let options = Utils.deepCopy(<ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS));
-
     chartObject.yAxes.forEach((element) => {
       switch (element.unit) {
 
@@ -675,7 +675,7 @@ export abstract class AbstractHistoryChart implements OnInit {
         )).reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
 
         if (afterTitle) {
-          return afterTitle + ": " + formatNumber(totalValue, 'de', chartObject.tooltip.formatNumber) + ' ' + tooltipsLabel;
+          return afterTitle + ": " + formatNumber(totalValue, 'de', chartObject.tooltip.formatNumber) + ' ' + tooltipsLabel ?? AbstractHistoryChart.getToolTipsAfterTitleLabel(YAxisTitle.ENERGY, chartType, totalValue, translate);
         }
 
         return null;

@@ -7,11 +7,12 @@ import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/reque
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
+import { HistoryUtils } from 'src/app/shared/service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
+import { DateUtils } from 'src/app/shared/utils/date/dateutils';
+import { DateTimeUtils } from 'src/app/shared/utils/datetime/datetime-utils';
 
 import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, TooltipItem } from './shared';
-import { HistoryUtils } from 'src/app/shared/service/utils';
-import { DateUtils } from 'src/app/shared/utils/dateutils/dateutils';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {
@@ -104,7 +105,7 @@ export abstract class AbstractHistoryChart {
                 this.service.stopSpinner(this.spinnerId);
                 this.initializeChart();
             }
-            return response;
+            return DateTimeUtils.normalizeTimestamps(resolution.unit, response);
         });
 
         return result;
@@ -145,7 +146,7 @@ export abstract class AbstractHistoryChart {
                 this.service.stopSpinner(this.spinnerId);
                 this.initializeChart();
             }
-            return response;
+            return DateTimeUtils.normalizeTimestamps(resolution.unit, response);
         });
         return response;
     }
