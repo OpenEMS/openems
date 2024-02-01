@@ -332,9 +332,9 @@ public class UtilsTest {
 		assertEquals("CHARGE but battery is full", //
 				DELAY_DISCHARGE, postprocessSimulatorState(p, -1000, 20_001, 1, 0, 0, CHARGE));
 		assertEquals("CHARGE but price is close to max", //
-				DELAY_DISCHARGE, postprocessSimulatorState(p, 0, 0, 1, 106.96F, 0, CHARGE));
+				DELAY_DISCHARGE, postprocessSimulatorState(p, 0, 0, 1, 102.51F, 0, CHARGE));
 		assertEquals("CHARGE and price is NOT close to max", //
-				CHARGE, postprocessSimulatorState(p, 0, 0, 1, 106.95F, 0, CHARGE));
+				CHARGE, postprocessSimulatorState(p, 0, 0, 1, 102.50F, 0, CHARGE));
 	}
 
 	@Test

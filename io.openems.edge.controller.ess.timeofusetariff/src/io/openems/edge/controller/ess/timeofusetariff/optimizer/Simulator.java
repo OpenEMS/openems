@@ -28,7 +28,7 @@ import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 public class Simulator {
 
 	/** Used to incorporate charge/discharge efficiency. */
-	public static final double EFFICIENCY_FACTOR = 1.15;
+	public static final double EFFICIENCY_FACTOR = 1.2;
 
 	protected static double calculateCost(Params p, StateMachine[] states) {
 		return calculateCost(p, states, null);
