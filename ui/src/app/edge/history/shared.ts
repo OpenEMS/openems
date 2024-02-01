@@ -338,9 +338,9 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
 
 /**
   * Returns true if Chart Label should be visible. Defaults to true.
-  * 
+  *
   * Compares only the first part of the label string - without a value or ChronoUnit.Type.
-  * 
+  *
   * @param label the Chart label
   * @param orElse the default, in case no value was stored yet in Session-Storage
   * @returns true for visible labels; hidden otherwise
@@ -387,7 +387,7 @@ export namespace ChronoUnit {
 
     /**
      * Evaluates whether "ChronoUnit 1" is equal or a bigger period than "ChronoUnit 2".
-     * 
+     *
      * @param unit1     the ChronoUnit 1
      * @param unit2     the ChronoUnit 2
      * @return true if "ChronoUnit 1" is equal or a bigger period than "ChronoUnit 2"

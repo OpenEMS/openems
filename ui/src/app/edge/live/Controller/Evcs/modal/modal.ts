@@ -85,7 +85,7 @@ export class ModalComponent extends AbstractModal {
     this.isConnectionSuccessful = currentData.allComponents[this.component.id + '/State'] !== 3 ? true : false;
     // Do not change values after touching formControls
     if (this.formGroup?.pristine) {
-      this.status = this.getState(currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
+      this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
       this.chargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + "/ChargePower"]);
       this.chargePowerLimit = Utils.CONVERT_TO_WATT(this.formatNumber(currentData.allComponents[this.component.id + "/SetChargePowerLimit"]));
       this.state = currentData.allComponents[this.component.id + "/Status"];
@@ -199,8 +199,9 @@ export class ModalComponent extends AbstractModal {
   * @param plug the plug
   *
   */
-  private getState(state: number, plug: number): string {
-    if (this.controller?.properties.enabledCharging && this.controller.properties.enabledCharging == false) {
+  private getState(enabledCharging: boolean, state: number, plug: number): string {
+
+    if (enabledCharging === false) {
       return this.translate.instant('Edge.Index.Widgets.EVCS.chargingStationDeactivated');
     }
 
