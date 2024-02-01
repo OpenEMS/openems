@@ -111,8 +111,7 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-
-		var modbusProtocol = new ModbusProtocol(this,
+		final var modbusProtocol = new ModbusProtocol(this,
 				new FC3ReadRegistersTask(1000, Priority.HIGH,
 						m(EvcsSpelsbergSmart.ChannelId.CHARGE_POINT_STATE, new UnsignedWordElement(1000)),
 						new DummyRegisterElement(1001),

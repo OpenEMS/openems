@@ -2,7 +2,6 @@ package io.openems.edge.evcs.spelsberg.smart;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.evcs.api.ChargeMode;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
