@@ -31,11 +31,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 			High Risk: High dependence on predictions; Battery is scheduled to charge/discharge completely based on predictions.""")
 	RiskLevel riskLevel() default RiskLevel.MEDIUM;
 
-	// TODO consider making this Capacity-dependent (i.e. C-rate)
-	@AttributeDefinition(name = "Max Charge Power in CHARGE State [W]", description = "ESS Max Charge Power in CHARGE State")
-	int essMaxChargePower() default 5_000;
-
-	// TODO This will eventually be moved globally/to a 'PowerOptimizer" Controller; should be per Phase (fuse)
+	// TODO This will eventually be moved globally/to a 'PowerOptimizer" Controller;
+	// should be per Phase (fuse)
 	@AttributeDefinition(name = "Max Charge Power from the grid [W]", description = "Maximum charge power from the grid")
 	int maxChargePowerFromGrid() default 24_000;
 

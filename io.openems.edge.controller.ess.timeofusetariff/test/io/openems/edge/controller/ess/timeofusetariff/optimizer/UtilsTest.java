@@ -5,6 +5,7 @@ import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsInt;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.common.test.TestUtils.withValue;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
@@ -23,6 +24,7 @@ import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffCont
 import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest.getPredictorManager;
 import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest.getTimeOfUseTariff;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.SimulatorTest.TIME;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.SimulatorTest.createParams888d20231106;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.SimulatorTest.hourlyToQuarterly;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.ESS_MAX_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.SUM_CONSUMPTION;
@@ -36,6 +38,7 @@ import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.cal
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateExecutionLimitSeconds;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateStateChargeEnergy;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.createSchedule;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.essMaxChargePower;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.handleGetScheduleRequest;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.interpolateArray;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.joinConsumptionPredictions;
@@ -70,6 +73,7 @@ import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.ScheduleData;
+import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
@@ -203,7 +207,6 @@ public class UtilsTest {
 				.essTotalEnergy(22000) //
 				.essMinSocEnergy(2_000) //
 				.essMaxSocEnergy(20_000) //
-				.essMaxChargePerPeriod(toEnergy(5000)) //
 				.maxBuyFromGrid(toEnergy(24_000)) //
 				.maxBuyFromGrid(0) //
 				.states(new StateMachine[0]);
@@ -301,7 +304,6 @@ public class UtilsTest {
 				.essMinSocEnergy(2_000) //
 				.essMaxSocEnergy(20_000) //
 				.essMaxEnergyPerPeriod(0) //
-				.essMaxChargePerPeriod(toEnergy(5000)) //
 				.maxBuyFromGrid(toEnergy(24_000)) //
 				.productions() //
 				.consumptions() //
@@ -441,5 +443,25 @@ public class UtilsTest {
 
 		clock.leap(1, ChronoUnit.SECONDS);
 		assertEquals(Duration.ofMinutes(15).plusSeconds(59).toSeconds(), calculateExecutionLimitSeconds(clock));
+	}
+
+	@Test
+	public void testEssMaxChargePower() {
+		final var params = createParams888d20231106(ControlMode.CHARGE_CONSUMPTION.states);
+		final var ess = new DummyManagedSymmetricEss("ess0");
+
+		// No params, initial ESS
+		assertEquals(0, essMaxChargePower(null, ess));
+
+		// No params, ESS with MaxApparentPower
+		withValue(ess, SymmetricEss.ChannelId.MAX_APPARENT_POWER, 1000);
+		assertEquals(250, essMaxChargePower(null, ess));
+
+		// No params, ESS with Capacity
+		withValue(ess, SymmetricEss.ChannelId.CAPACITY, 15000);
+		assertEquals(3750, essMaxChargePower(null, ess));
+
+		// With params (22 kWh)
+		assertEquals(5500, essMaxChargePower(params, ess));
 	}
 }
