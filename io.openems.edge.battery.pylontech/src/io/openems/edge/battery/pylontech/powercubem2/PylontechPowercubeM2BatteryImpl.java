@@ -38,6 +38,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.ComponentManager;
@@ -83,7 +84,7 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 	protected ConfigurationAdmin cm;
 
 	@Reference
-	protected ComponentManager componentManager; // Is this ever initialised?
+	protected ComponentManager componentManager;
 
 	/**
 	 * Manages the {@link State}s of the StateMachine.
@@ -177,22 +178,15 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 						m(PylontechPowercubeM2Battery.ChannelId.PYLONTECH_INTERNAL_VERSION_NUMBER,
 								new UnsignedWordElement(0x100B), ElementToChannelConverter.DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.SYSTEM_NUMBER_OF_PARALLEL_PILES,
-								new UnsignedWordElement(0x100C), ElementToChannelConverter.DIRECT_1_TO_1)), // TODO:
-																											// Reimplement
-																											// once we
-																											// can read
-																											// the
-																											// 'pylon'
-																											// thing
+								new UnsignedWordElement(0x100C), ElementToChannelConverter.DIRECT_1_TO_1)),
 
 				// 3.4 System information
 				new FC3ReadRegistersTask(0x1100, Priority.LOW,
 						m(new UnsignedWordElement(0x1100)).build().onUpdateCallback(value -> {
-							this.handleStatusRegister(value, PylontechPowercubeM2Battery.ChannelId.SYSTEM_STATUS);
+							this.handleStatusRegister(value, PylontechPowercubeM2Battery.ChannelId.BASIC_STATUS);
 						})),
 				new FC3ReadRegistersTask(0x1100, Priority.LOW, m(new BitsWordElement(0x1100, this)
-						.bit(3, PylontechPowercubeM2Battery.ChannelId.SYSTEM_ERROR_PROTECTION) // System Error
-																								// Protection
+						.bit(3, PylontechPowercubeM2Battery.ChannelId.SYSTEM_ERROR_PROTECTION)
 						.bit(4, PylontechPowercubeM2Battery.ChannelId.SYSTEM_CURRENT_PROTECTION)
 						.bit(5, PylontechPowercubeM2Battery.ChannelId.SYSTEM_VOLTAGE_PROTECTION)
 						.bit(6, PylontechPowercubeM2Battery.ChannelId.SYSTEM_TEMPERATURE_PROTECTION)
@@ -237,9 +231,9 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 				new FC3ReadRegistersTask(0x1103, Priority.LOW, //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x1103),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						m(Battery.ChannelId.CURRENT, new SignedDoublewordElement(0x1104), // TODO: Validate
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), // TODO: Important - check this is
-																					// right.
+						m(Battery.ChannelId.CURRENT, new SignedDoublewordElement(0x1104),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+																					
 						m(PylontechPowercubeM2Battery.ChannelId.SYSTEM_TEMPERATURE, new SignedWordElement(0x1106), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1107),
@@ -461,8 +455,7 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 			if (pileOffset < 0) {
 				// TODO: throw error!
 			}
-			final int pileFinal = pile; // Workaround because we needed a 'final' version of pile to pass to
-										// onUpdateCallback
+			final int pileFinal = pile; // Needed to be final to pass to generatePileChannel callback
 
 			this.getModbusProtocol().addTasks(new FC3ReadRegistersTask(pileOffset + 0x0000, Priority.LOW,
 					m(new UnsignedWordElement(pileOffset + 0x0000)).build().onUpdateCallback(value -> {
@@ -470,13 +463,7 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 								this.generatePileChannel(pileFinal, "STATUS", Doc.of(Status.values())));
 					})),
 					new FC3ReadRegistersTask(
-							pileOffset + 0x0000, Priority.LOW, m(new BitsWordElement(pileOffset + 0x0000, this) // TODO:
-																												// Get
-																												// status
-																												// from
-																												// first
-																												// 3
-																												// bits
+							pileOffset + 0x0000, Priority.LOW, m(new BitsWordElement(pileOffset + 0x0000, this) // Get status from first 3 bits
 									.bit(3, this.generatePileChannel(pile, "SYSTEM_ERROR_PROTECTION", Level.FAULT))
 									.bit(4, this.generatePileChannel(pile, "CURRENT_PROTECTION", Level.FAULT))
 									.bit(5, this.generatePileChannel(pile, "VOLTAGE_PROTECTION", Level.FAULT))
@@ -535,7 +522,8 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 											Level.WARNING))
 									.bit(7, this.generatePileChannel(pile, "DISCHARGE_HIGH_TEMPERATURE_WARNING",
 											Level.WARNING))
-									.bit(8, this.generatePileChannel(pile, "CHARGE_OVER_CURRENT_WARNING", Level.WARNING))
+									.bit(8, this.generatePileChannel(pile, "CHARGE_OVER_CURRENT_WARNING",
+											Level.WARNING))
 									.bit(9, this.generatePileChannel(pile, "DISCHARGE_OVER_CURRENT_WARNING",
 											Level.WARNING))
 									.bit(11, this.generatePileChannel(pile,
@@ -546,95 +534,31 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 											Level.WARNING))
 									.bit(14, this.generatePileChannel(pile, "MODULE_HIGH_VOLTAGE_WARNING",
 											Level.WARNING))),
-							m(this.generatePileChannel(pile, "TOTAL_VOLTAGE", OpenemsType.INTEGER), // TODO: Check if it
-																									// is correct to use
-																									// integer type -
-																									// the value should
-																									// be in increments
-																									// of 0.1V
+							m(this.generatePileChannel(pile, "TOTAL_VOLTAGE", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0003), // [V]
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-							m(this.generatePileChannel(pile, "CURRENT", OpenemsType.INTEGER), // TODO: Check if it is
-																								// correct to use
-																								// integer type - the
-																								// value should be in
-																								// increments of 0.1V
+							m(this.generatePileChannel(pile, "CURRENT", OpenemsType.INTEGER), 
 									new SignedDoublewordElement(pileOffset + 0x0004), // [A]
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-							m(this.generatePileChannel(pile, "TEMPERATURE", OpenemsType.INTEGER), // TODO: Check if it
-																									// is correct to use
-																									// integer type -
-																									// the value should
-																									// be in increments
-																									// of 0.1V
+							m(this.generatePileChannel(pile, "TEMPERATURE", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0006), // [oC]
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-							m(this.generatePileChannel(pile, "SOC", OpenemsType.INTEGER), // TODO: Check if it is
-																							// correct to use integer
-																							// type - the value should
-																							// be in increments of 0.1V
+							m(this.generatePileChannel(pile, "SOC", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0007), // [%]
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-							m(this.generatePileChannel(pile, "CYCLE_TIME", OpenemsType.INTEGER), // TODO: Check if it is
-																									// correct to use
-																									// integer type -
-																									// the value should
-																									// be in increments
-																									// of 0.1V
+							m(this.generatePileChannel(pile, "CYCLE_TIME", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0008), // Unsure of unit
 									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(this.generatePileChannel(pile, "MAX_CHARGE_VOLTAGE", OpenemsType.INTEGER), // TODO: Check
-																											// if it is
-																											// correct
-																											// to use
-																											// integer
-																											// type -
-																											// the value
-																											// should be
-																											// in
-																											// increments
-																											// of 0.1V
+							m(this.generatePileChannel(pile, "MAX_CHARGE_VOLTAGE", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0009), // [V}
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-							m(this.generatePileChannel(pile, "MAX_CHARGE_CURRENT", OpenemsType.INTEGER), // TODO: Check
-																											// if it is
-																											// correct
-																											// to use
-																											// integer
-																											// type -
-																											// the value
-																											// should be
-																											// in
-																											// increments
-																											// of 0.1V
+							m(this.generatePileChannel(pile, "MAX_CHARGE_CURRENT", OpenemsType.INTEGER),
 									new UnsignedDoublewordElement(pileOffset + 0x000A), // [A]
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-							m(this.generatePileChannel(pile, "MAX_DISCHARGE_VOLTAGE", OpenemsType.INTEGER), // TODO:
-																											// Check if
-																											// it is
-																											// correct
-																											// to use
-																											// integer
-																											// type -
-																											// the value
-																											// should be
-																											// in
-																											// increments
-																											// of 0.1V
+							m(this.generatePileChannel(pile, "MAX_DISCHARGE_VOLTAGE", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x000C),
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-							m(this.generatePileChannel(pile, "MAX_DISCHARGE_CURRENT", OpenemsType.INTEGER), // TODO:
-																											// Check if
-																											// it is
-																											// correct
-																											// to use
-																											// integer
-																											// type -
-																											// the value
-																											// should be
-																											// in
-																											// increments
-																											// of 0.1V
+							m(this.generatePileChannel(pile, "MAX_DISCHARGE_CURRENT", OpenemsType.INTEGER),
 									new SignedDoublewordElement(pileOffset + 0x000D),
 									ElementToChannelConverter.chain(ElementToChannelConverter.SCALE_FACTOR_MINUS_2,
 											ElementToChannelConverter.KEEP_NEGATIVE_AND_INVERT)),
@@ -650,308 +574,95 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 									.bit(5, this.generatePileChannel(pile, "CURRENT_LIMITING_MODULE_ACTIVE",
 											OpenemsType.BOOLEAN))
 									.bit(6, this.generatePileChannel(pile, "FAN_ACTIVE", OpenemsType.BOOLEAN))),
-							m(this.generatePileChannel(pile, "MAX_CELL_VOLTAGE", OpenemsType.INTEGER), // TODO: Check if
-																										// it is correct
-																										// to use
-																										// integer type
-																										// - the value
-																										// should be in
-																										// increments of
-																										// 0.1V
+							m(this.generatePileChannel(pile, "MAX_CELL_VOLTAGE", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0010),
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
-							m(this.generatePileChannel(pile, "MIN_CELL_VOLTAGE", OpenemsType.INTEGER), // TODO: Check if
-																										// it is correct
-																										// to use
-																										// integer type
-																										// - the value
-																										// should be in
-																										// increments of
-																										// 0.1V
+							m(this.generatePileChannel(pile, "MIN_CELL_VOLTAGE", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0011),
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
-							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MAX_CELL_VOLTAGE", OpenemsType.INTEGER), // TODO:
-																														// Check
-																														// if
-																														// it
-																														// is
-																														// correct
-																														// to
-																														// use
-																														// integer
-																														// type
-																														// -
-																														// the
-																														// value
-																														// should
-																														// be
-																														// in
-																														// increments
-																														// of
-																														// 0.1V
+							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MAX_CELL_VOLTAGE", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0012),
 									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MIN_CELL_VOLTAGE", OpenemsType.INTEGER), // TODO:
-																														// Check
-																														// if
-																														// it
-																														// is
-																														// correct
-																														// to
-																														// use
-																														// integer
-																														// type
-																														// -
-																														// the
-																														// value
-																														// should
-																														// be
-																														// in
-																														// increments
-																														// of
-																														// 0.1V
+							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MIN_CELL_VOLTAGE", OpenemsType.INTEGER), 
 									new UnsignedWordElement(pileOffset + 0x0013),
 									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(this.generatePileChannel(pile, "MAX_CELL_TEMPERATURE", OpenemsType.INTEGER), // TODO:
-																											// Check if
-																											// it is
-																											// correct
-																											// to use
-																											// integer
-																											// type -
-																											// the value
-																											// should be
-																											// in
-																											// increments
-																											// of 0.1V
+							m(this.generatePileChannel(pile, "MAX_CELL_TEMPERATURE", OpenemsType.INTEGER),
 									new SignedWordElement(pileOffset + 0x0014), // [oC]
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-							m(this.generatePileChannel(pile, "MIN_CELL_TEMPERATURE", OpenemsType.INTEGER), // TODO:
-																											// Check if
-																											// it is
-																											// correct
-																											// to use
-																											// integer
-																											// type -
-																											// the value
-																											// should be
-																											// in
-																											// increments
-																											// of 0.1V
+							m(this.generatePileChannel(pile, "MIN_CELL_TEMPERATURE", OpenemsType.INTEGER),
 									new SignedWordElement(pileOffset + 0x0015), // [oC]
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MAX_CELL_TEMPERATURE",
-									OpenemsType.INTEGER), // TODO: Check if it is correct to use integer type - the
-															// value should be in increments of 0.1V
+									OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0016), //
 									ElementToChannelConverter.DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MIN_CELL_TEMPERATURE",
-									OpenemsType.INTEGER), // TODO: Check if it is correct to use integer type - the
-															// value should be in increments of 0.1V
+									OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0017), //
 									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(this.generatePileChannel(pile, "MAX_MODULE_VOLTAGE", OpenemsType.INTEGER), // TODO: Check
-																											// if it is
-																											// correct
-																											// to use
-																											// integer
-																											// type -
-																											// the value
-																											// should be
-																											// in
-																											// increments
-																											// of 0.1V
+							m(this.generatePileChannel(pile, "MAX_MODULE_VOLTAGE", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0018), // [V]
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-							m(this.generatePileChannel(pile, "MIN_MODULE_VOLTAGE", OpenemsType.INTEGER), // TODO: Check
-																											// if it is
-																											// correct
-																											// to use
-																											// integer
-																											// type -
-																											// the value
-																											// should be
-																											// in
-																											// increments
-																											// of 0.1V
+							m(this.generatePileChannel(pile, "MIN_MODULE_VOLTAGE", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0019), // [V]
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
 							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MAX_MODULE_VOLTAGE",
-									OpenemsType.INTEGER), // TODO: Check if it is correct to use integer type - the
-															// value should be in increments of 0.1V
+									OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x001A), //
 									ElementToChannelConverter.DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MAX_MODULE_VOLTAGE",
-									OpenemsType.INTEGER), // TODO: Check if it is correct to use integer type - the
-															// value should be in increments of 0.1V
+									OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x001A), //
 									ElementToChannelConverter.DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MIN_MODULE_VOLTAGE",
-									OpenemsType.INTEGER), // TODO: Check if it is correct to use integer type - the
-															// value should be in increments of 0.1V
+									OpenemsType.INTEGER), 
 									new UnsignedWordElement(pileOffset + 0x001B), //
 									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(this.generatePileChannel(pile, "MAX_MODULE_TEMPERATURE", OpenemsType.INTEGER), // TODO:
-																												// Check
-																												// if it
-																												// is
-																												// correct
-																												// to
-																												// use
-																												// integer
-																												// type
-																												// - the
-																												// value
-																												// should
-																												// be in
-																												// increments
-																												// of
-																												// 0.1V
+							m(this.generatePileChannel(pile, "MAX_MODULE_TEMPERATURE", OpenemsType.INTEGER),
 									new SignedWordElement(pileOffset + 0x001C), // [oC]
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-							m(this.generatePileChannel(pile, "MIN_MODULE_TEMPERATURE", OpenemsType.INTEGER), // TODO:
-																												// Check
-																												// if it
-																												// is
-																												// correct
-																												// to
-																												// use
-																												// integer
-																												// type
-																												// - the
-																												// value
-																												// should
-																												// be in
-																												// increments
-																												// of
-																												// 0.1V
+							m(this.generatePileChannel(pile, "MIN_MODULE_TEMPERATURE", OpenemsType.INTEGER), 
 									new SignedWordElement(pileOffset + 0x001D), // [oC]
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MAX_MODULE_TEMPERATURE",
-									OpenemsType.INTEGER), // TODO: Check if it is correct to use integer type - the
-															// value should be in increments of 0.1V
+									OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x001E), //
 									ElementToChannelConverter.DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MIN_MODULE_TEMPERATURE",
-									OpenemsType.INTEGER), // TODO: Check if it is correct to use integer type - the
-															// value should be in increments of 0.1V
+									OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x001F), //
 									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(this.generatePileChannel(pile, "SOH", OpenemsType.INTEGER), // TODO: Check if it is
-																							// correct to use integer
-																							// type - the value should
-																							// be in increments of 0.1V
+							m(this.generatePileChannel(pile, "SOH", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0020), // [%]
 									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(this.generatePileChannel(pile, "REMAINING_CAPACITY", OpenemsType.INTEGER), // TODO: Check
-																											// if it is
-																											// correct
-																											// to use
-																											// integer
-																											// type -
-																											// the value
-																											// should be
-																											// in
-																											// increments
-																											// of 0.1V
+							m(this.generatePileChannel(pile, "REMAINING_CAPACITY", OpenemsType.INTEGER),
 									new UnsignedDoublewordElement(pileOffset + 0x0021), // [Wh]
 									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(this.generatePileChannel(pile, "CHARGE_CAPACITY", OpenemsType.INTEGER), // TODO: Check if
-																										// it is correct
-																										// to use
-																										// integer type
-																										// - the value
-																										// should be in
-																										// increments of
-																										// 0.1V
+							m(this.generatePileChannel(pile, "CHARGE_CAPACITY", OpenemsType.INTEGER), 
 									new UnsignedDoublewordElement(pileOffset + 0x0023), // [Wh]
 									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(this.generatePileChannel(pile, "DISCHARGE_CAPACITY", OpenemsType.INTEGER), // TODO: Check
-																											// if it is
-																											// correct
-																											// to use
-																											// integer
-																											// type -
-																											// the value
-																											// should be
-																											// in
-																											// increments
-																											// of 0.1V
+							m(this.generatePileChannel(pile, "DISCHARGE_CAPACITY", OpenemsType.INTEGER),
 									new UnsignedDoublewordElement(pileOffset + 0x0025), // [Wh]
 									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(this.generatePileChannel(pile, "DAILY_ACCUMULATED_CHARGE_CAPACITY", OpenemsType.INTEGER), // TODO:
-																														// Check
-																														// if
-																														// it
-																														// is
-																														// correct
-																														// to
-																														// use
-																														// integer
-																														// type
-																														// -
-																														// the
-																														// value
-																														// should
-																														// be
-																														// in
-																														// increments
-																														// of
-																														// 0.1V
+							m(this.generatePileChannel(pile, "DAILY_ACCUMULATED_CHARGE_CAPACITY", OpenemsType.INTEGER),
 									new UnsignedDoublewordElement(pileOffset + 0x0027), // [Wh]
 									ElementToChannelConverter.DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "DAILY_ACCUMULATED_DISCHARGE_CAPACITY",
-									OpenemsType.INTEGER), // TODO: Check if it is correct to use integer type - the
-															// value should be in increments of 0.1V
+									OpenemsType.INTEGER),
 									new UnsignedDoublewordElement(pileOffset + 0x0029), // [Wh]
 									ElementToChannelConverter.DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "HISTORICAL_ACCUMULATED_CHARGE_CAPACITY",
-									OpenemsType.INTEGER), // TODO: Check if it is correct to use integer type - the
-															// value should be in increments of 0.1V
+									OpenemsType.INTEGER),
 									new UnsignedDoublewordElement(pileOffset + 0x002B), // [Wh]
 									ElementToChannelConverter.DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "HISTORICAL_ACCUMULATED_DISCHARGE_CAPACITY",
-									OpenemsType.INTEGER), // TODO: Check if it is correct to use integer type - the
-															// value should be in increments of 0.1V
+									OpenemsType.INTEGER), 
 									new UnsignedDoublewordElement(pileOffset + 0x002D), // [Wh]
 									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(this.generatePileChannel(pile, "REQUEST_FORCE_CHARGE_MARK", OpenemsType.BOOLEAN), // TODO:
-																												// Check
-																												// if it
-																												// is
-																												// correct
-																												// to
-																												// use
-																												// integer
-																												// type
-																												// - the
-																												// value
-																												// should
-																												// be in
-																												// increments
-																												// of
-																												// 0.1V
+							m(this.generatePileChannel(pile, "REQUEST_FORCE_CHARGE_MARK", OpenemsType.BOOLEAN),
 									new UnsignedWordElement(pileOffset + 0x002F), // Yes/no
 									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(this.generatePileChannel(pile, "REQUEST_BALANCE_CHARGE_MARK", OpenemsType.BOOLEAN), // TODO:
-																													// Check
-																													// if
-																													// it
-																													// is
-																													// correct
-																													// to
-																													// use
-																													// integer
-																													// type
-																													// -
-																													// the
-																													// value
-																													// should
-																													// be
-																													// in
-																													// increments
-																													// of
-																													// 0.1V
+							m(this.generatePileChannel(pile, "REQUEST_BALANCE_CHARGE_MARK", OpenemsType.BOOLEAN),
 									new UnsignedWordElement(pileOffset + 0x0030), // Yes / No
 									ElementToChannelConverter.DIRECT_1_TO_1)),
 					new FC3ReadRegistersTask((pileOffset + 0x0032), Priority.LOW, //
@@ -1021,11 +732,12 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 		this.addChannel(channelId);
 		return channelId;
 	}
-	
+
 	/**
 	 * Gets modbus offset for a given pileNumber. pileNumber starts from 1.
-	 * @param pileNumber	pileNumber The pile the offset is for
-	 * @return				The Modbus offset for the pile
+	 * 
+	 * @param pileNumber pileNumber The pile the offset is for
+	 * @return The Modbus offset for the pile
 	 */
 	private int getOffsetForPile(int pileNumber) {
 

@@ -21,7 +21,6 @@ public class RunningHandler extends StateHandler<State, Context> {
 		// Mark as started
 		battery._setStartStop(StartStop.START);
 
-		// TODO: Implement RunningHandler for Pylontech
 		return State.RUNNING;
 	}
 }

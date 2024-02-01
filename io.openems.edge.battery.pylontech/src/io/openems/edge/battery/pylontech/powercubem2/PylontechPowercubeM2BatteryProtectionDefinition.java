@@ -53,7 +53,6 @@ public class PylontechPowercubeM2BatteryProtectionDefinition implements BatteryP
 
 	@Override
 	public Double getMaxIncreaseAmperePerSecond() {
-		return 5.0; // [A] per second // TODO: This is not provided by Pylontech - check that it
-					// functions ok with this limit.
+		return 20.0; // [A] per second // This is not provided by Pylontech. May be unnecessary to provide this value as BMS takes care.
 	}
 }

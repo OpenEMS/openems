@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.pylontech.powercubem2.PylontechPowercubeM2Battery;
-import io.openems.edge.battery.pylontech.powercubem2.PylontechPowercubeM2Battery.Status;
+import io.openems.edge.battery.pylontech.powercubem2.Status;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.statemachine.AbstractContext;
 
@@ -27,7 +27,7 @@ public class Context extends AbstractContext<PylontechPowercubeM2Battery> {
 	 */
 	protected boolean isBatteryAwake() {
 		Status status = this.getParent().getSystemStatus();
-		if (status == Status.CHARGE | status == Status.DISCHARGE | status == Status.IDLE) {
+		if (status == Status.CHARGE || status == Status.DISCHARGE || status == Status.IDLE) {
 			return true;
 		}
 		return false;

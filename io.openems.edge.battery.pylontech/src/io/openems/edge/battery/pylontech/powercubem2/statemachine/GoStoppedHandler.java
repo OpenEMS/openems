@@ -20,11 +20,10 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-
+		
 		switch (this.state) {
 		case WAIT_FOR_SLEEP: {
-			if (!context.isBatteryAwake()) { // If it's already asleep - we're done // TODO: We might get this in an
-												// error state
+			if (!context.isBatteryAwake()) {
 				this.state = BatteryGotoSleepState.FINISHED;
 			} else {
 				context.setBatteryWakeSleep(false); // if awake - put it to sleep

@@ -1,3 +1,9 @@
-= io.openems.edge.battery.pylontech.powercubeM2
+= Battery Pylontech Powercube M2
+
+
+* Implemented Natures
+** Battery
+** OpenemsComponent
+** StartStoppable
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.pylontech.powercubeM2[Source Code icon:github[]]

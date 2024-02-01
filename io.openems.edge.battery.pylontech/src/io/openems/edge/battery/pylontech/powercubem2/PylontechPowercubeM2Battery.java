@@ -1,12 +1,9 @@
 package io.openems.edge.battery.pylontech.powercubem2;
 
-
-
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.common.types.OptionsEnum;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.pylontech.powercubem2.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.Channel;
@@ -16,59 +13,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public interface PylontechPowercubeM2Battery extends Battery, OpenemsComponent, StartStoppable {
-
-	public enum Status implements OptionsEnum {
-		UNDEFINED(-1, "Undefined"), //
-		SLEEP(0, "Sleep"), //
-		CHARGE(1, "Charge"), //
-		DISCHARGE(2, "Discharge"), //
-		IDLE(3, "Idle");
-
-		private final int value;
-		private final String name;
-		private static Map<Integer, Status> map = new HashMap<>();
-
-		private Status(int value, String name) {
-			this.value = value;
-			this.name = name;
-		}
-
-		static {
-			for (Status pageType : Status.values()) {
-				map.put(pageType.value, pageType);
-			}
-		}
-
-		@Override
-		public int getValue() {
-			return this.value;
-		}
-
-		@Override
-		public String getName() {
-			return this.name;
-		}
-
-		/**
-		 * Returns a Status enum for a particular int value.
-		 * 
-		 * @param value (int value that represents a Status
-		 * @return Status enum for the value
-		 */
-		public static Status valueOf(int value) {
-			return (Status) map.get(value);
-		}
-
-		@Override
-		public OptionsEnum getUndefined() {
-			return UNDEFINED;
-		}
-
-	}
 
 	/**
 	 * Gets the target Start/Stop mode from config or StartStop-Channel.
@@ -83,13 +28,16 @@ public interface PylontechPowercubeM2Battery extends Battery, OpenemsComponent, 
 	 * @return a Status enum containing the current system status
 	 */
 	public default Status getSystemStatus() {
-		Channel<Status> systemStatusChannel = this.channel(ChannelId.SYSTEM_STATUS);
+		return this.getSystemStatusChannel().value().asEnum();
+	}
 
-		if (systemStatusChannel.value().isDefined()) {
-			return systemStatusChannel.value().asEnum();
-		}
-
-		return Status.UNDEFINED;
+	/**
+	 * Get the basic status channel.
+	 * 
+	 * @return The BASIC_STATUS channel
+	 */
+	public default Channel<Status> getSystemStatusChannel() {
+		return this.channel(ChannelId.BASIC_STATUS);
 	}
 
 	/**
@@ -118,20 +66,19 @@ public interface PylontechPowercubeM2Battery extends Battery, OpenemsComponent, 
 		// charge/discharge/sleep
 		SLEEP_WAKE_CHANNEL(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)
 				.text("Sleep/wake channel. Send '0xAA' to sleep, '0x55' to wake")),
-		
+
 		/*
-		 * Pylontech's Modbus protocol refers to several states (e.g low temperature) 
-		 * where the battery still functions (at reduced C rate) as 'Alarms'.
-		 * In this implementation we are calling them 'Warnings' as an alarm state is 
-		 * usually something that stops the battery as understood by the OpenEMS 
-		 * community.
+		 * Pylontech's Modbus protocol refers to several states (e.g low temperature)
+		 * where the battery still functions (at reduced C rate) as 'Alarms'. In this
+		 * implementation we are calling them 'Warnings' as an alarm state is usually
+		 * something that stops the battery as understood by the OpenEMS community.
 		 * 
 		 * Pylontech's protocol also defines 'Protection' states. This is where the
 		 * operational range is exceeded and the main contactor is opened (disconnecting
 		 * the battery). For now we are calling these 'Protection'.
 		 */
 		// 3.4 System Information
-		SYSTEM_STATUS(Doc.of(Status.values()).accessMode(AccessMode.READ_ONLY) //
+		BASIC_STATUS(Doc.of(Status.values()).accessMode(AccessMode.READ_ONLY) //
 				.text("System status. 00=Sleep, 01=Charge, 02=Discharge")),
 		SYSTEM_ERROR_PROTECTION(Doc.of(Level.FAULT) //
 				.accessMode(AccessMode.READ_ONLY) //
@@ -186,8 +133,10 @@ public interface PylontechPowercubeM2Battery extends Battery, OpenemsComponent, 
 				Doc.of(Level.WARNING).accessMode(AccessMode.READ_ONLY).text("Battery cell low voltage warning.")),
 		BATTERY_CELL_HIGH_VOLTAGE_WARNING(
 				Doc.of(Level.WARNING).accessMode(AccessMode.READ_ONLY).text("Battery cell high voltage warning.")),
-		PILE_LOW_VOLTAGE_WARNING(Doc.of(Level.WARNING).accessMode(AccessMode.READ_ONLY).text("Pile low voltage warning.")),
-		PILE_HIGH_VOLTAGE_WARNING(Doc.of(Level.WARNING).accessMode(AccessMode.READ_ONLY).text("Pile high voltage warning.")),
+		PILE_LOW_VOLTAGE_WARNING(
+				Doc.of(Level.WARNING).accessMode(AccessMode.READ_ONLY).text("Pile low voltage warning.")),
+		PILE_HIGH_VOLTAGE_WARNING(
+				Doc.of(Level.WARNING).accessMode(AccessMode.READ_ONLY).text("Pile high voltage warning.")),
 		CHARGE_LOW_TEMPERATURE_WARNING(
 				Doc.of(Level.WARNING).accessMode(AccessMode.READ_ONLY).text("Charge low temperature warning.")),
 		CHARGE_HIGH_TEMPERATURE_WARNING(
