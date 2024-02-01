@@ -129,12 +129,11 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 
 				new FC3ReadRegistersTask(1020, Priority.HIGH,
 						m(Evcs.ChannelId.CHARGE_POWER, new UnsignedDoublewordElement(1020)),
-						m(EvcsSpelsbergSmart.ChannelId.POWER_TOTAL, new UnsignedDoublewordElement(1020)),
-						new DummyRegisterElement(1022), new DummyRegisterElement(1023),
+						m(EvcsSpelsbergSmart.ChannelId.POWER_TOTAL, new UnsignedDoublewordElement(1022)),
 						m(EvcsSpelsbergSmart.ChannelId.POWER_L1, new UnsignedDoublewordElement(1024)),
-						new DummyRegisterElement(1026), new DummyRegisterElement(1027),
+						new DummyRegisterElement(1026, 1027),
 						m(EvcsSpelsbergSmart.ChannelId.POWER_L2, new UnsignedDoublewordElement(1028)),
-						new DummyRegisterElement(1030), new DummyRegisterElement(1031),
+						new DummyRegisterElement(1030, 1031),
 						m(EvcsSpelsbergSmart.ChannelId.POWER_L3, new UnsignedDoublewordElement(1032))),
 
 				new FC3ReadRegistersTask(1036, Priority.LOW,
@@ -150,9 +149,9 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 
 				new FC3ReadRegistersTask(1504, Priority.LOW,
 						m(EvcsSpelsbergSmart.ChannelId.CHARGE_START_TIME, new UnsignedDoublewordElement(1504)),
-						new DummyRegisterElement(1506), new DummyRegisterElement(1507),
+						new DummyRegisterElement(1506, 1507),
 						m(EvcsSpelsbergSmart.ChannelId.CHARGE_DURATION_SESSION, new UnsignedDoublewordElement(1508)),
-						new DummyRegisterElement(1510), new DummyRegisterElement(1511),
+						new DummyRegisterElement(1510, 1511),
 						m(EvcsSpelsbergSmart.ChannelId.CHARGE_STOP_TIME, new UnsignedDoublewordElement(1512))),
 
 				new FC3ReadRegistersTask(2000, Priority.LOW,
