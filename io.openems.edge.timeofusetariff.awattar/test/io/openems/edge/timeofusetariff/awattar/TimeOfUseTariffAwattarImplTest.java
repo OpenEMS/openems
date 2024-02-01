@@ -22,11 +22,9 @@ public class TimeOfUseTariffAwattarImplTest {
 		new ComponentTest(awattar) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
+						.setZone(Zone.GERMANY) //
 						.build()) //
 		;
-
-		// Thread.sleep(5000);
-		// System.out.println(sut.getPrices());
 	}
 
 	@Test

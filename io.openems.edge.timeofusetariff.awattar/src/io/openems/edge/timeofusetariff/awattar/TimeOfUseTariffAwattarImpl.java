@@ -48,8 +48,6 @@ import okhttp3.Request;
 public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 		implements TimeOfUseTariff, OpenemsComponent, TimeOfUseTariffAwattar {
 
-	private static final String AWATTAR_API_URL = "https://api.awattar.de/v1/marketdata";
-
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private final AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>> prices = new AtomicReference<>(
 			ImmutableSortedMap.of());
@@ -60,6 +58,7 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
+	private Config config = null;
 	private ZonedDateTime updateTimeStamp = null;
 
 	public TimeOfUseTariffAwattarImpl() {
@@ -77,6 +76,7 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 			return;
 		}
 
+		this.config = config;
 		this.executor.schedule(this.task, 0, TimeUnit.SECONDS);
 	}
 
@@ -93,8 +93,9 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 		 * Update Map of prices
 		 */
 		var client = new OkHttpClient();
+		final var url = this.config.zone().toUrl();
 		var request = new Request.Builder() //
-				.url(AWATTAR_API_URL) //
+				.url(url) //
 				// aWATTar currently does not anymore require an Apikey.
 				// .header("Authorization", Credentials.basic(apikey, "")) //
 				.build();
@@ -165,7 +166,7 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 			var startTimeStamp = ZonedDateTime //
 					.ofInstant(Instant.ofEpochMilli(startTimestampLong), ZoneId.systemDefault())
 					.truncatedTo(ChronoUnit.HOURS);
-
+			
 			// Adding the values in the Map.
 			result.put(startTimeStamp, marketPrice);
 			result.put(startTimeStamp.plusMinutes(15), marketPrice);
