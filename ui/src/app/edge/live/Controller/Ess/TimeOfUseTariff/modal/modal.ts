@@ -31,11 +31,14 @@ export class ModalComponent extends AbstractModal {
     }
 
     protected override onIsInitialized(): void {
-        this.subscription.add(this.formGroup?.get('chargeConsumptionIsActive').valueChanges.subscribe(isActive => {
-            const mode: Mode = isActive ? Mode.CHARGE_CONSUMPTION : Mode.DELAY_DISCHARGE;
-            this.formGroup.controls['controlMode'].setValue(mode);
-            this.formGroup.controls['controlMode'].markAsDirty();
-        }));
+        this.subscription.add(
+            this.formGroup?.get('chargeConsumptionIsActive')
+                .valueChanges
+                .subscribe(isActive => {
+                    const mode: Mode = isActive ? Mode.CHARGE_CONSUMPTION : Mode.DELAY_DISCHARGE;
+                    this.formGroup.controls['controlMode'].setValue(mode);
+                    this.formGroup.controls['controlMode'].markAsDirty();
+                }));
     }
 
     protected override onCurrentData(currentData: CurrentData): void {

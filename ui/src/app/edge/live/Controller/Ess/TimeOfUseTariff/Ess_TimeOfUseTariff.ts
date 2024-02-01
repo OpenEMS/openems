@@ -27,4 +27,4 @@ import { SchedulePowerAndSocChartComponent } from "./modal/powerSocChart";
         FlatComponent,
     ],
 })
-export class Controller_Ess_TimeOfUseTariff_Discharge { }
+export class Controller_Ess_TimeOfUseTariff { }

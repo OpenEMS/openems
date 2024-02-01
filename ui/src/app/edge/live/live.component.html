@@ -117,13 +117,9 @@
                 </Controller_Io_ChannelSingleThresholdComponent>
               </ion-col>
 
-              <!-- Same widget is used for multiple Time-Of-Use-Tariff controllers temporarily, and later to be replaced by just one unified controller -->
-
-              <ion-col
-                *ngSwitchCase="widget.name === 'Controller.Ess.Time-Of-Use-Tariff.Discharge' || widget.name === 'Controller.Ess.Time-Of-Use-Tariff' ? widget.name : '' "
-                size="12" size-lg="6" class="ion-no-padding">
-                <Controller_Ess_TimeOfUseTariff_Discharge [componentId]="widget.componentId">
-                </Controller_Ess_TimeOfUseTariff_Discharge>
+              <ion-col *ngSwitchCase="'Controller.Ess.Time-Of-Use-Tariff'" size="12" size-lg="6" class="ion-no-padding">
+                <Controller_Ess_TimeOfUseTariff [componentId]="widget.componentId">
+                </Controller_Ess_TimeOfUseTariff>
               </ion-col>
 
               <ion-col *ngSwitchCase="'io.openems.edge.io.api.DigitalInput'" size="12" size-lg="6"

@@ -4,6 +4,7 @@ import { ChartDataSets } from 'chart.js';
 import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
+import { ChartType } from '../genericComponents/chart/abstracthistorychart';
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
@@ -541,31 +542,14 @@ export class Utils {
   }
 
   /**
-   * Converts a value in €/MWh to €Ct./kWh.
-   *
-   * @param price the price value
-   * @returns  the converted price
-   */
-  public static formatPrice(price: number): number {
-    if (price == null || Number.isNaN(price)) {
-      return null;
-    } else if (price == 0) {
-      return 0;
-    } else {
-      price = (price / 10.0);
-      return Math.round(price * 10000) / 10000.0;
-    }
-  }
-
-  /**
-   * Calculates the total other consumption.
-   * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption)
-   *
-   * @param energyValues the energyValues, retrieved from {@link QueryHistoricTimeseriesEnergyRequest}
-   * @param evcsComponents the evcsComponents
-   * @param consumptionMeterComponents the consumptionMeterComponents
-   * @returns the other consumption
-   */
+ * Calculates the total other consumption.
+ * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption) 
+ * 
+ * @param energyValues the energyValues, retrieved from {@link QueryHistoricTimeseriesEnergyRequest}
+ * @param evcsComponents the evcsComponents
+ * @param consumptionMeterComponents the consumptionMeterComponents
+ * @returns the other consumption
+ */
   public static calculateOtherConsumptionTotal(energyValues: QueryHistoricTimeseriesEnergyResponse, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number {
 
     let totalEvcsConsumption: number = 0;
@@ -631,7 +615,8 @@ export enum YAxisTitle {
   RELAY,
   ENERGY,
   VOLTAGE,
-  TIME
+  TIME,
+  CURRENCY
 }
 
 export enum ChartAxis {
@@ -692,6 +677,8 @@ export namespace HistoryUtils {
     yAxisId?: ChartAxis,
     /** overrides global unit for this displayValue */
     customUnit?: YAxisTitle,
+    /** overrides global charttype for this dataset */
+    customType?: ChartType,
     tooltip?: [{
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
       stackIds: number[]
@@ -783,10 +770,9 @@ export namespace TimeOfUseTariffUtils {
   }
 
   export enum TimeOfUseTariffState {
-    DELAY_DISCHARGE = 0,
-    BALANCING = 1,
-    CHARGE = 3,
-    UNDEFINED = 2,
+    DelayDischarge = 0,
+    Balancing = 1,
+    Charge = 3,
   }
 
   /**
@@ -830,19 +816,18 @@ export namespace TimeOfUseTariffUtils {
 
     for (let index = 0; index < size; index++) {
       const quarterlyPrice = formatPrice(prices[index]);
-      const state = Math.round(states[index]);
+      const state = states[index];
       labels.push(new Date(timestamps[index]));
 
       if (state !== null) {
         switch (state) {
-          case TimeOfUseTariffState.DELAY_DISCHARGE:
+          case TimeOfUseTariffState.DelayDischarge:
             barDelayDischarge[index] = quarterlyPrice;
             break;
-          case TimeOfUseTariffState.BALANCING:
+          case TimeOfUseTariffState.Balancing:
             barBalancing[index] = quarterlyPrice;
             break;
-          case TimeOfUseTariffState.CHARGE:
-          case TimeOfUseTariffState.UNDEFINED:
+          case TimeOfUseTariffState.Charge:
             barCharge[index] = quarterlyPrice;
             break;
         }
