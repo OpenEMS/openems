@@ -35,6 +35,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	private final int initialDelay; // in Minutes
 	private final Metadata metadata;
 	private final Mailer mailer;
+	private TimedTask recurringTask;
 
 	private MessageSchedulerService mss;
 	private MessageScheduler<OfflineEdgeMessage> msgScheduler;
@@ -63,6 +64,9 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		this.mss.unregister(this);
 		this.msgScheduler = null;
 		this.mss = null;
+	    if (this.recurringTask != null) {
+	        this.timeService.cancel(this.recurringTask);
+	    }
 	}
 
 	@Override
@@ -211,14 +215,44 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	 * @param event Event data
 	 */
 	private void handleMetadataAfterInitialize(EventReader event) {
-		if (this.initialDelay <= 0) {
-			this.checkMetadata();
-		} else {
-			var executeAt = this.timeService.now().plusMinutes(OfflineEdgeHandler.this.initialDelay);
-			this.initMetadata = this.timeService.schedule(executeAt, (now) -> {
-				this.checkMetadata();
-			});
-		}
+	    Runnable checkMetadataTask = () -> {
+	        log.debug("checkMetadataTask: Beginn der Ausführung");
+	        this.checkMetadata();
+	        log.debug("checkMetadataTask: checkMetadata abgeschlossen, plane nächste Ausführung");
+	        rescheduleCheckMetadataTask();
+	    };
+
+	    if (this.initialDelay <= 0) {
+	        log.debug("handleMetadataAfterInitialize: Starte checkMetadataTask sofort");
+	        // Starten Sie die Aufgabe sofort und planen Sie sie dann erneut
+	        checkMetadataTask.run();
+	    } else {
+	        log.debug("handleMetadataAfterInitialize: Plane checkMetadataTask mit initialDelay: " + this.initialDelay);
+	        // Starten Sie die Aufgabe nach einer anfänglichen Verzögerung
+	        this.recurringTask = this.timeService.schedule(
+	            this.timeService.now().plusMinutes(this.initialDelay), 
+	            (now) -> {
+	                log.debug("checkMetadataTask: Beginn der verzögerten Ausführung");
+	                checkMetadataTask.run();
+	            }
+	        );
+	    }
+	}
+	
+
+	private void rescheduleCheckMetadataTask() {
+	    log.debug("rescheduleCheckMetadataTask: Beginn der Planung für nächste Ausführung");
+	    if (this.recurringTask != null) {
+	        log.debug("rescheduleCheckMetadataTask: Storniere vorherige Aufgabe");
+	        this.timeService.cancel(this.recurringTask);
+	    }
+	    this.recurringTask = this.timeService.schedule(
+	        this.timeService.now().plusMinutes(5), 
+	        (now) -> {
+	            log.debug("checkMetadataTask: Beginn der regelmäßigen Ausführung");
+	            this.checkMetadata();
+	        }
+	    );
 	}
 
 	private void handleOnSetOnline(EventReader event) {
