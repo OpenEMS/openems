@@ -10,12 +10,11 @@ export { GridMode } from "./type/general";
 export { SystemLog } from "./type/systemlog";
 export { Widget, WidgetFactory, WidgetNature, Widgets } from "./type/widget";
 
-
+import { addIcons } from 'ionicons';
 import { Edge } from "./edge/edge";
 import { User } from "./jsonrpc/shared";
 import { DefaultTypes } from "./service/defaulttypes";
 import { Role } from "./type/role";
-import { addIcons } from 'ionicons';
 
 addIcons({
   'oe-consumption': 'assets/img/icon/consumption.svg',
