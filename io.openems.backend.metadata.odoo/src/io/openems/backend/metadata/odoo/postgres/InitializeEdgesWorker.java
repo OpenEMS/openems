@@ -24,6 +24,7 @@ public class InitializeEdgesWorker {
 	private final HikariDataSource dataSource;
 	private final Runnable onFinished;
     	private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(1);
+	private boolean isMarkAllEdgesAsOfflineCalled = false;
 
 	/**
 	 * Executor for subscriptions task.
@@ -60,12 +61,16 @@ public class InitializeEdgesWorker {
         });
     }
     
-    private void runCachingEdgesTask(Connection con) {
-        this.parent.logInfo(this.log, "Caching Edges from Postgres [started]");
+private void runCachingEdgesTask(Connection con) {
+    this.parent.logInfo(this.log, "Caching Edges from Postgres [started]");
+    // Überprüfen, ob markAllEdgesAsOffline bereits aufgerufen wurde
+    if (!isMarkAllEdgesAsOfflineCalled) {
         this.markAllEdgesAsOffline(con);
-        this.readAllEdgesFromPostgres(con);
-        this.parent.logInfo(this.log, "Caching Edges from Postgres [finished]");
+        isMarkAllEdgesAsOfflineCalled = true; // Setzen Sie den Zustand, dass es aufgerufen wurde
     }
+    this.readAllEdgesFromPostgres(con);
+    this.parent.logInfo(this.log, "Caching Edges from Postgres [finished]");
+}
 
 	/**
 	 * Stops the {@link InitializeEdgesWorker}.
