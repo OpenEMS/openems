@@ -76,7 +76,7 @@ export namespace Currency {
 
   /**
    * This method returns the corresponding label based on the user-selected currency in "core.meta."
-   * 
+   *
    * @param currency The currency enum.
    * @returns the Currencylabel
    */

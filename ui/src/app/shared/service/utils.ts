@@ -543,8 +543,8 @@ export class Utils {
 
   /**
  * Calculates the total other consumption.
- * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption) 
- * 
+ * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption)
+ *
  * @param energyValues the energyValues, retrieved from {@link QueryHistoricTimeseriesEnergyRequest}
  * @param evcsComponents the evcsComponents
  * @param consumptionMeterComponents the consumptionMeterComponents
