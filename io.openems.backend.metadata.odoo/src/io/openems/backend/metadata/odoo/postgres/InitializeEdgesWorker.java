@@ -66,7 +66,7 @@ private void runCachingEdgesTask(Connection con) {
     // Überprüfen, ob markAllEdgesAsOffline bereits aufgerufen wurde
     if (!isMarkAllEdgesAsOfflineCalled) {
         this.markAllEdgesAsOffline(con);
-        isMarkAllEdgesAsOfflineCalled = true; // Setzen Sie den Zustand, dass es aufgerufen wurde
+        isMarkAllEdgesAsOfflineCalled = true;
     }
     this.readAllEdgesFromPostgres(con);
     this.parent.logInfo(this.log, "Caching Edges from Postgres [finished]");
