@@ -2,7 +2,7 @@ import { formatNumber } from "@angular/common";
 
 import { TranslateService } from "@ngx-translate/core";
 import { CurrentData, EdgeConfig, Utils } from "../../shared";
-import { TimeUtils } from "../../utils/timeutils/timeutils";
+import { TimeUtils } from "../../utils/time/timeutils";
 import { Formatter } from "./formatter";
 
 export type Converter = (value: number | string | null) => string;

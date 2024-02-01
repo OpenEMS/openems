@@ -4,7 +4,9 @@ import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANC
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateCharge;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.essMaxChargePower;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.getEssMinSoc;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.postprocessRunState;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -44,6 +46,8 @@ import io.openems.edge.controller.ess.timeofusetariff.optimizer.Optimizer;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Period;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -119,7 +123,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 				.ctrlEmergencyCapacityReserves(this.ctrlEmergencyCapacityReserves) //
 				.ctrlLimitTotalDischarges(this.ctrlLimitTotalDischarges) //
 				.controlMode(this.config.controlMode()) //
-				.essMaxChargePower(this.config.essMaxChargePower()) //
 				.maxChargePowerFromGrid(this.config.maxChargePowerFromGrid()) //
 				.build());
 	}
@@ -193,7 +196,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	 */
 	private void modeAutomatic() throws OpenemsNamedException {
 		// Evaluate current state
-		final var state = Utils.postprocessRunState(
+		final var state = postprocessRunState(
 				getEssMinSoc(this.ctrlLimitTotalDischarges, this.ctrlEmergencyCapacityReserves), //
 				this.ess.getSoc().get(), //
 				this.getCurrentPeriodState());
@@ -205,14 +208,15 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 
 		// Get and apply ActivePower Less-or-Equals Set-Point
 		var activePower = switch (state) {
-		case CHARGE ->
-			calculateCharge(this.ess, this.sum, this.config.essMaxChargePower(), this.config.maxChargePowerFromGrid());
+		case CHARGE -> calculateCharge(this.ess, this.sum, essMaxChargePower(this.optimizer.getParams(), this.ess),
+				this.config.maxChargePowerFromGrid());
 		case DELAY_DISCHARGE -> 0;
 		case BALANCING -> null;
 		};
 
 		if (activePower != null) {
-			this.ess.setActivePowerLessOrEquals(activePower);
+			this.ess.setActivePowerLessOrEquals(this.ess.getPower().fitValueIntoMinMaxPower(this.id(), this.ess,
+					Phase.ALL, Pwr.ACTIVE, activePower));
 		}
 	}
 
@@ -226,7 +230,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		this.calculateDelayedTime.update(false);
 
 		// Default State Machine.
-		this._setStateMachine(null);
+		this._setStateMachine(BALANCING);
 	}
 
 	/**

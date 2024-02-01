@@ -1,5 +1,7 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 
+import static io.openems.edge.common.channel.ChannelUtils.setWriteValueIfNotRead;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
@@ -174,6 +176,17 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 		if (!this.isSunSpecInitializationCompleted()) {
 			return;
 		}
+
+		/*
+		 * The WparamRmpTms parameter constrains performance changes using a PT1
+		 * behavior. By default, a 1 second (1000 ms) duration is stored here. This
+		 * duration can be reduced to 0.1 second (100 ms) for quicker control behavior.
+		 * While a complete reduction to 0 is technically possible, it may result in
+		 * overcurrent or overvoltage events, especially in situations involving high
+		 * power changes and multiple devices. This feature is beneficial for FFR use
+		 * cases and aids in preventing battery derating.
+		 */
+		setWriteValueIfNotRead(this.getSunSpecChannelOrError(KacoSunSpecModel.S64201.WPARAM_RMP_TMS), 100);
 
 		// Set Display Information
 		this.setDisplayInformation(battery);

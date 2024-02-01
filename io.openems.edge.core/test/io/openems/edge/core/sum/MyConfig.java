@@ -59,7 +59,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	private final Builder builder;
 
 	private MyConfig(Builder builder) {
-		super(Config.class, Sum.SINGLETON_COMPONENT_ID);
+		super(Config.class, Sum.SINGLETON_SERVICE_PID);
 		this.builder = builder;
 	}
 

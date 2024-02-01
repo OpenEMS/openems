@@ -1,9 +1,6 @@
 package io.openems.edge.core.sum;
 
 import static io.openems.edge.meter.api.MeterType.GRID;
-import static org.junit.Assert.assertEquals;
-
-import java.io.IOException;
 
 import org.junit.Test;
 
@@ -51,9 +48,6 @@ public class SumImplTest {
 				.output(GRID_MAX_ACTIVE_POWER, 0) //
 				.output(PRODUCTION_MAX_ACTIVE_POWER, 5555) //
 				.output(CONSUMPTION_MAX_ACTIVE_POWER, 4555));
-		assertEquals(-1000, getProperty(cm, "gridMinActivePower"));
-		assertEquals(5555, getProperty(cm, "productionMaxActivePower"));
-		assertEquals(4555, getProperty(cm, "consumptionMaxActivePower"));
 
 		grid.withActivePower(-2000);
 		pv.withActivePower(6666);
@@ -63,9 +57,6 @@ public class SumImplTest {
 				.output(GRID_MAX_ACTIVE_POWER, 0) //
 				.output(PRODUCTION_MAX_ACTIVE_POWER, 6666) //
 				.output(CONSUMPTION_MAX_ACTIVE_POWER, 4666));
-		assertEquals(-2000, getProperty(cm, "gridMinActivePower"));
-		assertEquals(6666, getProperty(cm, "productionMaxActivePower"));
-		assertEquals(4666, getProperty(cm, "consumptionMaxActivePower"));
 
 		grid.withActivePower(3000);
 		test.next(new TestCase() //
@@ -74,15 +65,5 @@ public class SumImplTest {
 				.output(GRID_MAX_ACTIVE_POWER, 3000) //
 				.output(PRODUCTION_MAX_ACTIVE_POWER, 6666) //
 				.output(CONSUMPTION_MAX_ACTIVE_POWER, 9666));
-		assertEquals(-2000, getProperty(cm, "gridMinActivePower"));
-		assertEquals(3000, getProperty(cm, "gridMaxActivePower"));
-		assertEquals(6666, getProperty(cm, "productionMaxActivePower"));
-		assertEquals(9666, getProperty(cm, "consumptionMaxActivePower"));
-
 	}
-
-	private static int getProperty(DummyConfigurationAdmin cm, String property) throws IOException {
-		return (int) (cm.getConfiguration("Core.Sum").getProperties().get(property));
-	}
-
 }
