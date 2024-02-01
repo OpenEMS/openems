@@ -126,7 +126,6 @@ export class FlatComponent extends AbstractFlatWidget {
  *
  * @param state the state
  * @param plug the plug
- *
  */
   private getState(enabledCharging: boolean, state: number, plug: number): string {
 
