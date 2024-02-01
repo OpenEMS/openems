@@ -224,11 +224,9 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 
 	    if (this.initialDelay <= 0) {
 	        log.debug("handleMetadataAfterInitialize: Starte checkMetadataTask sofort");
-	        // Starten Sie die Aufgabe sofort und planen Sie sie dann erneut
 	        checkMetadataTask.run();
 	    } else {
 	        log.debug("handleMetadataAfterInitialize: Plane checkMetadataTask mit initialDelay: " + this.initialDelay);
-	        // Starten Sie die Aufgabe nach einer anfänglichen Verzögerung
 	        this.recurringTask = this.timeService.schedule(
 	            this.timeService.now().plusMinutes(this.initialDelay), 
 	            (now) -> {
