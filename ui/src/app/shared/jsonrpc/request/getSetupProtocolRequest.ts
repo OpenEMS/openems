@@ -7,7 +7,7 @@ import { JsonrpcRequest } from "../base";
  *   "id": UUID,
  *   "method": "submitSetupProtocol",
  *   "params": {
- *      
+ *
  *   }
  * </pre>
  */

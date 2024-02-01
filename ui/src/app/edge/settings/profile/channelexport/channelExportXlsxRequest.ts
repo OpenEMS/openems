@@ -2,7 +2,7 @@ import { JsonrpcRequest } from '../../../../shared/jsonrpc/base';
 
 /**
  * Exports Channels with current value and metadata to an Excel (xlsx) file.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

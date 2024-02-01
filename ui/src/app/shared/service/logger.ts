@@ -20,7 +20,7 @@ export class Logger {
 
     /**
      * Sends the given message via a websocket request.
-     * 
+     *
      * @param level the log level
      * @param msg the message to be logged
      */
@@ -33,7 +33,7 @@ export class Logger {
 
     /**
      * Log a messag at the DEBUG level.
-     * 
+     *
      * @param msg the message to be logged
      */
     public debug(msg: string) {
@@ -42,7 +42,7 @@ export class Logger {
 
     /**
      * Log a messag at the INFO level.
-     * 
+     *
      * @param msg the message to be logged
      */
     public info(msg: string) {
@@ -51,7 +51,7 @@ export class Logger {
 
     /**
      * Log a messag at the WARNING level.
-     * 
+     *
      * @param msg the message to be logged
      */
     public warn(msg: string) {
@@ -60,7 +60,7 @@ export class Logger {
 
     /**
      * Log a messag at the ERROR level.
-     * 
+     *
      * @param msg the message to be logged
      */
     public error(msg: string) {

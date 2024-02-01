@@ -19,9 +19,9 @@ export namespace Name {
 
   /**
    * Even though every meter should have set the alias, it still occurrs, that it is not set
-   * 
+   *
    * @param meter the meter: {@link EdgeConfig.Component}
-   * @returns the meter alias if existing, else meter id 
+   * @returns the meter alias if existing, else meter id
    */
   export const METER_ALIAS_OR_ID = (meter: EdgeConfig.Component): string => meter.alias ?? meter.id;
 }

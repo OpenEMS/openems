@@ -119,7 +119,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
             } else if (value == 0) {
               return 0;
             } else {
-              // 
+              //
               return value / 1000 * 0.95; // convert to kW
             }
           });

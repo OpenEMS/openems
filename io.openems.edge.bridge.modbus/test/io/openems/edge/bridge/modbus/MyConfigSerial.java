@@ -15,6 +15,9 @@ public class MyConfigSerial extends AbstractComponentConfig implements ConfigSer
 		private int databits;
 		private Stopbit stopbits;
 		private Parity parity;
+		private boolean enableTermination;
+		private int delayBeforeTx;
+		private int delayAfterTx;
 		private LogVerbosity logVerbosity;
 		private int invalidateElementsAfterReadErrors;
 
@@ -48,6 +51,21 @@ public class MyConfigSerial extends AbstractComponentConfig implements ConfigSer
 
 		public Builder setParity(Parity parity) {
 			this.parity = parity;
+			return this;
+		}
+		
+		public Builder setEnableTermination(boolean enableTermination) {
+			this.enableTermination = enableTermination;
+			return this;
+		}
+		
+		public Builder setDelayBeforeTx(int delay) {
+			this.delayBeforeTx = delay;
+			return this;
+		}
+		
+		public Builder setDelayAfterTx(int delay) {
+			this.delayAfterTx = delay;
 			return this;
 		}
 
@@ -105,6 +123,21 @@ public class MyConfigSerial extends AbstractComponentConfig implements ConfigSer
 	@Override
 	public Parity parity() {
 		return this.builder.parity;
+	}
+	
+	@Override
+	public boolean enableTermination() {
+		return this.builder.enableTermination;
+	}
+
+	@Override
+	public int delayBeforeTx() {
+		return this.builder.delayBeforeTx;
+	}
+
+	@Override
+	public int delayAfterTx() {
+		return this.builder.delayAfterTx;
 	}
 
 	@Override

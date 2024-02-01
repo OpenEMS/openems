@@ -46,7 +46,7 @@ export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnIn
         this.updateValues();
     };
 
-    // Gather result & timestamps to calculate effective active time in % 
+    // Gather result & timestamps to calculate effective active time in %
     protected updateValues() {
         this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).then(response => {
             this.service.getConfig().then(config => {

@@ -2,7 +2,7 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../base";
 
 /**
  * Wraps a JSON-RPC Response for a EdgeRpcRequest.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

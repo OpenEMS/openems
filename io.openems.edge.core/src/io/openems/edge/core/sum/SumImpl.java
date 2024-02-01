@@ -1,12 +1,9 @@
 package io.openems.edge.core.sum;
 
-import static io.openems.edge.core.sum.ExtremeEverValue.Range.NEGATIVE;
-import static io.openems.edge.core.sum.ExtremeEverValue.Range.POSTIVE;
+import static io.openems.edge.core.sum.ExtremeEverValues.Range.NEGATIVE;
+import static io.openems.edge.core.sum.ExtremeEverValues.Range.POSTIVE;
 
-import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -66,16 +63,16 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	private final EnergyValuesHandler energyValuesHandler;
 	private final Set<String> ignoreStateComponents = new HashSet<>();
 
-	private final List<ExtremeEverValue> extremeEverValues = List.of(//
-			new ExtremeEverValue(Sum.ChannelId.GRID_MIN_ACTIVE_POWER, "gridMinActivePower", //
-					NEGATIVE, Sum.ChannelId.GRID_ACTIVE_POWER), //
-			new ExtremeEverValue(Sum.ChannelId.GRID_MAX_ACTIVE_POWER, "gridMaxActivePower", //
-					POSTIVE, Sum.ChannelId.GRID_ACTIVE_POWER), //
-			new ExtremeEverValue(Sum.ChannelId.PRODUCTION_MAX_ACTIVE_POWER, "productionMaxActivePower", //
-					POSTIVE, Sum.ChannelId.PRODUCTION_ACTIVE_POWER), //
-			new ExtremeEverValue(Sum.ChannelId.CONSUMPTION_MAX_ACTIVE_POWER, "consumptionMaxActivePower", //
+	private final ExtremeEverValues extremeEverValues = ExtremeEverValues.create(SINGLETON_SERVICE_PID) //
+			.add(Sum.ChannelId.GRID_MIN_ACTIVE_POWER, "gridMinActivePower", //
+					NEGATIVE, Sum.ChannelId.GRID_ACTIVE_POWER) //
+			.add(Sum.ChannelId.GRID_MAX_ACTIVE_POWER, "gridMaxActivePower", //
+					POSTIVE, Sum.ChannelId.GRID_ACTIVE_POWER) //
+			.add(Sum.ChannelId.PRODUCTION_MAX_ACTIVE_POWER, "productionMaxActivePower", //
+					POSTIVE, Sum.ChannelId.PRODUCTION_ACTIVE_POWER) //
+			.add(Sum.ChannelId.CONSUMPTION_MAX_ACTIVE_POWER, "consumptionMaxActivePower", //
 					POSTIVE, Sum.ChannelId.CONSUMPTION_ACTIVE_POWER) //
-	);
+			.build();
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
@@ -116,7 +113,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 
 	private synchronized void applyConfig(ComponentContext context, Config config) {
 		// Read max power values
-		this.extremeEverValues.forEach(v -> v.initializeFromContext(context));
+		this.extremeEverValues.initializeFromContext(context);
 
 		// Parse Ignore States
 		this.ignoreStateComponents.clear();
@@ -439,23 +436,10 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 
 	/**
 	 * Calculates maximum/minimum ever values for respective Channels. Extreme
-	 * values are persisted in the Config of Core.Sum component.
+	 * values are persisted in the Config of Core.Sum component once per day.
 	 */
 	private void updateExtremeEverValues() {
-		var toBeUpdated = this.extremeEverValues.stream() //
-				.map(v -> v.updateFromChannel(this)) //
-				.filter(Objects::nonNull) //
-				.toList();
-		if (!toBeUpdated.isEmpty()) {
-			try {
-				var c = this.cm.getConfiguration(SINGLETON_SERVICE_PID, "?");
-				var properties = c.getProperties();
-				toBeUpdated.forEach(v -> v.updateConfig(properties));
-				c.update(properties);
-			} catch (IOException | SecurityException e) {
-				System.out.println("ERROR: " + e.getMessage());
-			}
-		}
+		this.extremeEverValues.update(this, this.cm);
 	}
 
 	@Override

@@ -56,7 +56,7 @@ export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
 
     let controllers = this.config.getComponentsByFactory("Controller.Evcs");
 
-    // Adds the controllers to the each charging stations 
+    // Adds the controllers to the each charging stations
     controllers.forEach(controller => {
       if (this.evcsIdsInCluster.includes(controller.properties['evcs.id'])) {
         this.evcsMap[controller.properties['evcs.id']] = controller;

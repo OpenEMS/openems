@@ -21,4 +21,4 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
         .filter(component => component.isEnabled && this.config.isProducer(component));
     return [];
   }
-}  
+}

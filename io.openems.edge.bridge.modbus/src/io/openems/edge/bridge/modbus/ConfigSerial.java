@@ -35,6 +35,15 @@ import io.openems.edge.bridge.modbus.api.Stopbit;
 
 	@AttributeDefinition(name = "Parity", description = "The parity - 'none', 'even', 'odd', 'mark' or 'space'")
 	Parity parity() default Parity.NONE;
+	
+	@AttributeDefinition(name = "Enable termination", description = "Sets whether the interface shall enable internal bus termination")
+	boolean enableTermination() default true;
+	
+	@AttributeDefinition(name = "Delay before TX [μs]", description = "Sets the delay between activating the transmitter and actually sending data. There are devices in the field requiring such a delay for start bit detection.", min = "0")
+	int delayBeforeTx() default 1000;
+	
+	@AttributeDefinition(name = "Delay after TX [μs]", description = "Sets the delay between the end of transmitting data and deactivating the transmitter.", min = "0")
+	int delayAfterTx() default 0;
 
 	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
 	LogVerbosity logVerbosity() default LogVerbosity.NONE;

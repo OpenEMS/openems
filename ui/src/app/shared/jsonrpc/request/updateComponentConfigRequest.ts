@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Represents a JSON-RPC Request to update the configuration of an OpenEMS Edge Component.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

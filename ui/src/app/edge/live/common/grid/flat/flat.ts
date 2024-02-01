@@ -23,7 +23,7 @@ export class FlatComponent extends AbstractFlatWidget {
     let channelAddresses: ChannelAddress[] = [
       FlatComponent.GRID_ACTIVE_POWER, FlatComponent.GRID_MODE,
 
-      // TODO should be moved to Modal 
+      // TODO should be moved to Modal
       new ChannelAddress('_sum', 'GridActivePowerL1'),
       new ChannelAddress('_sum', 'GridActivePowerL2'),
       new ChannelAddress('_sum', 'GridActivePowerL3'),

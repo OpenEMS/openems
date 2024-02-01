@@ -40,7 +40,7 @@ NOTE: Properties `id` and `jsonrpc` can be omitted for JSON/REST, as they are no
 
 === GetEdgesStatus
 
-Lists the current status of all accessible Edges.
+Lists the current status of Edges.
 
 ==== Request
 [source,json]
@@ -49,7 +49,9 @@ Lists the current status of all accessible Edges.
   "jsonrpc":"2.0",
   "id":"UUID",
   "method":"getEdgesStatus",
-  "params":{}
+  "params":{
+    "edgeIds: ["edge0", "edge1"]
+  }
 }
 ----
 

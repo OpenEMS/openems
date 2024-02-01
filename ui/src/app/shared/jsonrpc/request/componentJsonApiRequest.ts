@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Wraps a JSON-RPC Request for an OpenEMS Component that implements JsonApi
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
