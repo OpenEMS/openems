@@ -22,12 +22,6 @@ public interface Mpr15S22 extends OpenemsComponent {
 				.unit(Unit.VOLT)), //
 		VOLTAGE_L3_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT)), //
-//		CURRENT_L1(Doc.of(OpenemsType.INTEGER) //
-//				.unit(Unit.AMPERE)), //
-//		CURRENT_L2(Doc.of(OpenemsType.INTEGER) //
-//				.unit(Unit.AMPERE)), //
-//		CURRENT_L3(Doc.of(OpenemsType.INTEGER) //
-//				.unit(Unit.AMPERE)), //
 		CURRENT_L4(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE)), //
 		NEUTRAL_CURRENT(Doc.of(OpenemsType.INTEGER) //
@@ -48,12 +42,6 @@ public interface Mpr15S22 extends OpenemsComponent {
 				.unit(Unit.WATT)), //
 		SUM_ACTIVE_POWER(Doc.of(OpenemsType.FLOAT) //
 				.unit(Unit.WATT)), //
-//		REACTIVE_POWER_L1(Doc.of(OpenemsType.FLOAT) //
-//				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
-//		REACTIVE_POWER_L2(Doc.of(OpenemsType.FLOAT) //
-//				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
-//		REACTIVE_POWER_L3(Doc.of(OpenemsType.FLOAT) //
-//				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		REACTIVE_POWER_L4(Doc.of(OpenemsType.FLOAT) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		QUADRANT_1_TOTAL_REACTIVE_POWER(Doc.of(OpenemsType.FLOAT) //
