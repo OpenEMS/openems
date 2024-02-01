@@ -12,6 +12,7 @@ export { Widget, WidgetFactory, WidgetNature, Widgets } from "./type/widget";
 
 import { User } from "./jsonrpc/shared";
 import { DefaultTypes } from "./service/defaulttypes";
+import { Edge } from "./shared";
 import { Role } from "./type/role";
 
 import { addIcons } from 'ionicons';
@@ -30,7 +31,7 @@ export class EdgePermission {
 
   /**
     * Gets the allowed history periods for this edge, used in {@link PickDatePopoverComponent}
-    * 
+    *
     * @param edge the edge
     * @returns the list of allowed periods for this edge
     */
