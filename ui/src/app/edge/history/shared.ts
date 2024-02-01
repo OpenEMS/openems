@@ -281,7 +281,7 @@ export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResu
 /**
    * Calculates resolution from passed Dates for queryHistoricTime-SeriesData und -EnergyPerPeriod &&
    * Calculates timeFormat from passed Dates for xAxes of chart
-   * 
+   *
    * @param service the Service
    * @param fromDate the From-Date
    * @param toDate the To-Date
@@ -335,9 +335,9 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
 
 /**
   * Returns true if Chart Label should be visible. Defaults to true.
-  * 
+  *
   * Compares only the first part of the label string - without a value or unit.
-  * 
+  *
   * @param label the Chart label
   * @param orElse the default, in case no value was stored yet in Session-Storage
   * @returns true for visible labels; hidden otherwise
@@ -354,7 +354,7 @@ export function isLabelVisible(label: string, orElse?: boolean): boolean {
 
 /**
  * Stores if the Label should be visible or hidden in Session-Storage.
- * 
+ *
  * @param label the Chart label
  * @param visible true to set the Label visibile; false to hide ite
  */

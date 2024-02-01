@@ -63,7 +63,7 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
                 this.model[key] = value;
             }
 
-            // set values with current form value when the fields are set via fieldGroup 
+            // set values with current form value when the fields are set via fieldGroup
             // to make sure every value gets set accordingly to the object hierarchy
             if (this.field.fieldGroup) {
                 this.form.setValue(this.form.getRawValue());

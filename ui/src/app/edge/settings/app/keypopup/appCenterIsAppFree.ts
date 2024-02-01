@@ -2,13 +2,13 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/b
 
 /**
  * Gets if the key is free.
- * 
+ *
  * <p>
  * Note: This Request needs to be wrapped in a appCenter Request.
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -19,10 +19,10 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/b
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

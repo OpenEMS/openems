@@ -56,7 +56,7 @@ export class ComponentInstallComponent implements OnInit {
             description: property.description,
           },
         };
-        // add Property Schema 
+        // add Property Schema
         Utils.deepCopy(property.schema, field);
         fields.push(field);
         if (defaultValue != null) {

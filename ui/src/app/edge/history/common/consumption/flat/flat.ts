@@ -43,7 +43,7 @@ export class FlatComponent extends AbstractFlatWidget {
 
     /**
      * Gets the totalOtherEnergy
-     * 
+     *
      * @param currentData the current data
      * @returns the total other Energy
      */

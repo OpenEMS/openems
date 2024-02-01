@@ -16,9 +16,9 @@ export class WsData {
 
   /**
    * Sends a JSON-RPC request to a Websocket and registers a callback.
-   * 
-   * @param ws 
-   * @param request 
+   *
+   * @param ws
+   * @param request
    */
   public sendRequest(ws: WebSocketSubject<any>, request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
     if (environment.debugMode) {
@@ -53,9 +53,9 @@ export class WsData {
 
   /**
    * Sends a JSON-RPC notification to a Websocket.
-   * 
-   * @param ws 
-   * @param notification 
+   *
+   * @param ws
+   * @param notification
    */
   public sendNotification(ws: WebSocketSubject<any>, notification: JsonrpcNotification) {
     ws.next(notification);
@@ -63,8 +63,8 @@ export class WsData {
 
   /**
    * Handles a JSON-RPC response by resolving the previously registered request Promise.
-   * 
-   * @param response 
+   *
+   * @param response
    */
   public handleJsonrpcResponse(response: JsonrpcResponse) {
     let promise = this.requestPromises[response.id];

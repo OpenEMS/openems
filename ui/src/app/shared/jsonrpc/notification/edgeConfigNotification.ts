@@ -3,7 +3,7 @@ import { JsonrpcNotification } from "../base";
 
 /**
  * Represents a JSON-RPC Notification for new EdgeConfig.
- *  
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

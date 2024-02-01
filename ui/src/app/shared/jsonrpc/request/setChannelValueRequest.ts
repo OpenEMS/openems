@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Sets the write value of a Channel.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

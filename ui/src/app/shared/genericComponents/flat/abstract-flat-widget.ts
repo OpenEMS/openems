@@ -80,7 +80,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
 
     /**
      * Called on every new data.
-     * 
+     *
      * @param currentData new data for the subscribed Channel-Addresses
     */
     protected onCurrentData(currentData: CurrentData) { }

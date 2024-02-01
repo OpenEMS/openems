@@ -3,7 +3,7 @@ import { Flag } from "./flag/flag";
 
 /**
  * Represents a JSON-RPC Request for 'getApps'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -12,7 +12,7 @@ import { Flag } from "./flag/flag";
  *   "params": {}
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
  * <pre>

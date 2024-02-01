@@ -2,10 +2,10 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Represents a JSON-RPC Request to get a Edge.
- * 
+ *
  * <p>
  * This is used by UI to get an Edge.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

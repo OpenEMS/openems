@@ -15,7 +15,7 @@ export module DefaultTypes {
 
   /**
    * CurrentData Summary
-   * 
+   *
    * ratio is [-1,1]
    */
   export interface Summary {
@@ -187,7 +187,7 @@ export module DefaultTypes {
 
     /**
      * Returns a translated weekday name.
-     * 
+     *
      * @param translate the TranslateService
      * @param date the Date
      */
@@ -205,7 +205,7 @@ export module DefaultTypes {
 
     /**
      * Returns a translated month name.
-     * 
+     *
      * @param translate the TranslateService
      * @param date the Date
      */

@@ -3,10 +3,10 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Represents a JSON-RPC Request to get Edges.
- * 
+ *
  * <p>
  * This is used by UI to get Edges for the overview.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

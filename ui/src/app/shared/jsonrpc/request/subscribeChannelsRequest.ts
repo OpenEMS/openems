@@ -3,9 +3,9 @@ import { JsonrpcRequest } from "../base";
 import { JsonRpcUtils } from "../jsonrpcutils";
 
 /**
- * Represents a JSON-RPC Request to subscribe to channels. The actual channel 
+ * Represents a JSON-RPC Request to subscribe to channels. The actual channel
  * data is then sent as JSON-RPC Notification
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

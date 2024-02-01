@@ -5,7 +5,7 @@ export class TimeUtils {
 
   /**
    * Formats a value in seconds to hours and minutes
-   * 
+   *
    * @param value the value
    * @returns a time string with hours and minutes
    */

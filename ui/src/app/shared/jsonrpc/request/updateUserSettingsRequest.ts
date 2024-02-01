@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Represents a JSON-RPC Response for a {@link UpdateUserSettingsRequest}.
- * 
+ *
  * <pre>
  * {
  *   "method": "updateUserSettings",

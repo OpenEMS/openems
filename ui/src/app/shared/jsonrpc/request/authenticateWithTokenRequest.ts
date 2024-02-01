@@ -2,10 +2,10 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Represents a JSON-RPC Request to authenticate with a Token.
- * 
+ *
  * <p>
  * This is used by UI to login with a Token at Edge or Backend.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

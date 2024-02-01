@@ -28,7 +28,7 @@ export class ExecuteSystemUpdate {
 
     /**
      * Starts asking the status of the device.
-     * 
+     *
      * If an update is running the status gets updated till the update is completed.
      * @returns the first received Promise<SystemUpdateState>
      */
@@ -84,7 +84,7 @@ export class ExecuteSystemUpdate {
 
     /**
      * Starts to execute the system update.
-     * Gets resolved after the update is fully completed. 
+     * Gets resolved after the update is fully completed.
      * @returns Promise<SystemUpdateState>
      */
     public executeSystemUpdate(): Promise<SystemUpdateState> {
@@ -116,7 +116,7 @@ export class ExecuteSystemUpdate {
 
     /**
      * Tries to get the status update every 15 seconds until its finished.
-     * 
+     *
      * @returns Promise<SystemUpdateState>
      */
     private update(): Promise<SystemUpdateState> {

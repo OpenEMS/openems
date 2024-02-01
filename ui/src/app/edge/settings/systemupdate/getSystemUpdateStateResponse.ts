@@ -15,9 +15,9 @@ export interface SystemUpdateState {
 
 /**
  * JSON-RPC Response to "getSystemUpdateState" Request.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
