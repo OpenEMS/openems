@@ -15,41 +15,6 @@ import io.openems.edge.common.startstop.StartStoppable;
 
 public interface PylontechPowercubeM2Battery extends Battery, OpenemsComponent, StartStoppable {
 
-	/**
-	 * Gets the target Start/Stop mode from config or StartStop-Channel.
-	 * 
-	 * @return {@link StartStop}
-	 */
-	public StartStop getStartStopTarget();
-
-	/**
-	 * Gets the current system status.
-	 * 
-	 * @return a Status enum containing the current system status
-	 */
-	public default Status getSystemStatus() {
-		return this.getSystemStatusChannel().value().asEnum();
-	}
-
-	/**
-	 * Get the basic status channel.
-	 * 
-	 * @return The BASIC_STATUS channel
-	 */
-	public default Channel<Status> getSystemStatusChannel() {
-		return this.channel(ChannelId.BASIC_STATUS);
-	}
-
-	/**
-	 * Awake/sleep channel.
-	 * 
-	 * @return Channel
-	 *
-	 */
-	public default Channel<Integer> getWakeSleepChannel() {
-		return this.channel(ChannelId.SLEEP_WAKE_CHANNEL);
-	}
-
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// / 3.2 Equipment Information
 		VERSION_STRING(
@@ -262,6 +227,41 @@ public interface PylontechPowercubeM2Battery extends Battery, OpenemsComponent, 
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+	
+	/**
+	 * Gets the target Start/Stop mode from config or StartStop-Channel.
+	 * 
+	 * @return {@link StartStop}
+	 */
+	public StartStop getStartStopTarget();
+
+	/**
+	 * Gets the current system status.
+	 * 
+	 * @return a Status enum containing the current system status
+	 */
+	public default Status getSystemBasicStatus() {
+		return this.getSystemBasicStatusChannel().value().asEnum();
+	}
+
+	/**
+	 * Get the basic status channel.
+	 * 
+	 * @return The BASIC_STATUS channel
+	 */
+	public default Channel<Status> getSystemBasicStatusChannel() {
+		return this.channel(ChannelId.BASIC_STATUS);
+	}
+
+	/**
+	 * Awake/sleep channel.
+	 * 
+	 * @return Channel
+	 *
+	 */
+	public default Channel<Integer> getWakeSleepChannel() {
+		return this.channel(ChannelId.SLEEP_WAKE_CHANNEL);
 	}
 
 }

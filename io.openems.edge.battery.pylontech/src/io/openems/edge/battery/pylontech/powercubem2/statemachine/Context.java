@@ -26,7 +26,7 @@ public class Context extends AbstractContext<PylontechPowercubeM2Battery> {
 	 * @return boolean which says if battery is awake.
 	 */
 	protected boolean isBatteryAwake() {
-		Status status = this.getParent().getSystemStatus();
+		Status status = this.getParent().getSystemBasicStatus();
 		if (status == Status.CHARGE || status == Status.DISCHARGE || status == Status.IDLE) {
 			return true;
 		}
