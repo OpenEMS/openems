@@ -27,4 +27,16 @@ export type Option = {
     value: string,
     title: string,
     disabled: boolean,
+    selected: boolean,
+}
+
+/**
+ * Gets the title of an OptionConfig that should be display.
+ *
+ * @param option the config to get the title from
+ * @param field
+ * @returns the title of the option
+ */
+export function getTitleFromOptionConfig(option: OptionConfig, field: FormlyFieldConfig): string {
+    return option.expressions?.title?.(field) ?? option.title ?? option.value;
 }

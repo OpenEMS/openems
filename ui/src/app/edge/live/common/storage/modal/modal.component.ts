@@ -8,7 +8,7 @@ import { Role } from 'src/app/shared/type/role';
 
 @Component({
     selector: 'storage-modal',
-    templateUrl: './modal.component.html'
+    templateUrl: './modal.component.html',
 })
 export class StorageModalComponent implements OnInit, OnDestroy {
 
@@ -33,12 +33,12 @@ export class StorageModalComponent implements OnInit, OnDestroy {
         public translate: TranslateService,
         public modalCtrl: ModalController,
         public websocket: Websocket,
-        public formBuilder: FormBuilder
+        public formBuilder: FormBuilder,
     ) { }
 
     ngOnInit() {
 
-        // Future Work: Remove when all fems are at least at this version
+        // Future Work: Remove when all ems are at least at this version
         this.controllerIsRequiredEdgeVersion = this.edge.isVersionAtLeast('2023.2.5');
 
         this.isAtLeastInstaller = this.edge.roleIsAtLeast(Role.INSTALLER);
@@ -62,7 +62,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                 new ChannelAddress(controller.id, "_PropertyTargetTimeSpecified"),
                 new ChannelAddress(controller.id, "_PropertyTargetSoc"),
                 new ChannelAddress(controller.id, "_PropertyTargetTimeBuffer"),
-                new ChannelAddress(controller.id, "ExpectedStartEpochSeconds")
+                new ChannelAddress(controller.id, "ExpectedStartEpochSeconds"),
             );
         }
         this.edge.subscribeChannels(this.websocket, "storage", channelAddresses);
@@ -85,8 +85,8 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                                 this.formBuilder.group({
                                     controllerId: new FormControl(controller['id']),
                                     isReserveSocEnabled: new FormControl(isReserveSocEnabled),
-                                    reserveSoc: new FormControl(reserveSoc)
-                                })
+                                    reserveSoc: new FormControl(reserveSoc),
+                                }),
                             );
                         } else if (controller.factoryId == 'Controller.Ess.PrepareBatteryExtension') {
 
@@ -102,13 +102,13 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                             let expectedStartOfPreparation = new Date(0);
                             expectedStartOfPreparation.setUTCSeconds(epochSeconds ?? 0);
 
-                            // If targetTime not set, not equals 0 or targetTime is no valid time, 
+                            // If targetTime not set, not equals 0 or targetTime is no valid time,
                             // then set targetTime to null
                             if (!targetTime || targetTime == 0 || isNaN(Date.parse(targetTime))) {
                                 targetTime = null;
                             }
 
-                            // Channel "ExpectedStartEpochSeconds" is not set 
+                            // Channel "ExpectedStartEpochSeconds" is not set
                             if ((epochSeconds == null
                                 || epochSeconds == 0)) {
                                 this.isTargetTimeInValid.set(essId, true);
@@ -131,8 +131,8 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                                     targetTimeSpecified: new FormControl(targetTimeSpecified),
                                     targetSoc: new FormControl(targetSoc),
                                     targetTimeBuffer: new FormControl(targetTimeBuffer),
-                                    expectedStartOfPreparation: new FormControl(expectedStartOfPreparation)
-                                })
+                                    expectedStartOfPreparation: new FormControl(expectedStartOfPreparation),
+                                }),
                             );
                         }
                     }
@@ -187,7 +187,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                 let value = element.values().next().value;
                 properties.push({
                     name: name,
-                    value: value
+                    value: value,
                 });
             });
 

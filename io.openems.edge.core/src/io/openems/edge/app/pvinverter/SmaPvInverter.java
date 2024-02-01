@@ -14,6 +14,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.Phase;
@@ -34,6 +35,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
@@ -133,13 +135,17 @@ public class SmaPvInverter extends AbstractOpenemsAppWithProps<SmaPvInverter, Pr
 					b -> b.addProperty("modbusUnitId", modbusUnitId) //
 							.addProperty("phase", phase),
 					null);
-			return new AppConfiguration(components);
+
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 

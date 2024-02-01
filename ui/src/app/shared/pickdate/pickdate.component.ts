@@ -6,10 +6,11 @@ import { addDays, addWeeks, endOfWeek, isFuture, subDays, subWeeks } from 'date-
 import { DefaultTypes } from '../service/defaulttypes';
 import { Edge, Service } from '../shared';
 import { PickDatePopoverComponent } from './popover/popover.component';
+import { DateUtils } from '../utils/date/dateutils';
 
 @Component({
     selector: 'pickdate',
-    templateUrl: './pickdate.component.html'
+    templateUrl: './pickdate.component.html',
 })
 export class PickDateComponent implements OnInit, OnDestroy {
 
@@ -25,7 +26,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
     constructor(
         public service: Service,
         public translate: TranslateService,
-        public popoverCtrl: PopoverController
+        public popoverCtrl: PopoverController,
     ) { }
 
     public ngOnInit() {
@@ -50,6 +51,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
     public checkArrowAutomaticForwarding() {
         this.isBackArrowAllowed = PickDateComponent.isPreviousPeriodAllowed(this.service, this.edge?.firstSetupProtocol);
         this.isForwardArrowAllowed = PickDateComponent.isNextPeriodAllowed(this.service);
+
         switch (this.service.periodString) {
             case DefaultTypes.PeriodString.DAY: {
                 if (isFuture(addDays(this.service.historyPeriod.value.from, 1))) {
@@ -106,6 +108,11 @@ export class PickDateComponent implements OnInit, OnDestroy {
                     this.disableArrow = false;
                 }
             }
+            case DefaultTypes.PeriodString.TOTAL: {
+                this.disableArrow = true;
+                break;
+            }
+
             case DefaultTypes.PeriodString.CUSTOM: {
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.value.from - <any>this.service.historyPeriod.value.to) / (1000 * 60 * 60 * 24));
                 dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
@@ -121,7 +128,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
 
     /**
      * Sets the current time period.
-     * 
+     *
      * @param fromDate the starting date
      * @param toDate   the end date
      */
@@ -193,6 +200,12 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 }
                 break;
             }
+
+            case DefaultTypes.PeriodString.TOTAL: {
+                this.setDateRange(new DefaultTypes.HistoryPeriod(this.edge?.firstSetupProtocol ?? DateUtils.stringToDate('03.11.2022 16:04:37'), endOfYear(addYears(this.service.historyPeriod.value.to, 1))));
+                this.disableArrow = true;
+                break;
+            }
             case DefaultTypes.PeriodString.CUSTOM: {
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.value.from - <any>this.service.historyPeriod.value.to) / (1000 * 60 * 60 * 24));
                 dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
@@ -257,7 +270,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
     private forwardToNextDayWhenReached() {
         this.changePeriodTimeout = setTimeout(() => {
             this.setDateRange(new DefaultTypes.HistoryPeriod(new Date(), new Date()));
-            this.service.historyPeriod.value?.getText(this.translate);
+            this.service.historyPeriod.value?.getText(this.translate, this.service);
         }, this.millisecondsUntilnextPeriod());
     }
 
@@ -267,7 +280,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
     private forwardToNextWeekWhenReached() {
         this.changePeriodTimeout = setTimeout(() => {
             this.setDateRange(new DefaultTypes.HistoryPeriod(new Date(), endOfWeek(new Date(), { weekStartsOn: 1 })));
-            this.service.historyPeriod.value?.getText(this.translate);
+            this.service.historyPeriod.value?.getText(this.translate, this.service);
         }, this.millisecondsUntilnextPeriod());
     }
 
@@ -279,7 +292,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
         if (this.millisecondsUntilnextPeriod() < 2147483647) {
             this.changePeriodTimeout = setTimeout(() => {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(new Date(), endOfMonth(new Date())));
-                this.service.historyPeriod.value?.getText(this.translate);
+                this.service.historyPeriod.value?.getText(this.translate, this.service);
             }, this.millisecondsUntilnextPeriod());
         }
     }
@@ -291,7 +304,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
         if (this.millisecondsUntilnextPeriod() < 2147483647) {
             this.changePeriodTimeout = setTimeout(() => {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(new Date(), endOfYear(new Date())));
-                this.service.historyPeriod.value?.getText(this.translate);
+                this.service.historyPeriod.value?.getText(this.translate, this.service);
             }, this.millisecondsUntilnextPeriod());
         }
     }
@@ -334,8 +347,8 @@ export class PickDateComponent implements OnInit, OnDestroy {
             cssClass: 'pickdate-popover',
             componentProps: {
                 setDateRange: this.setDateRange,
-                edge: this.edge
-            }
+                edge: this.edge,
+            },
         });
         await popover.present();
         popover.onDidDismiss().then(() => {
@@ -345,7 +358,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
 
     /**
      * Checks if previous time period is allowed to be queried
-     * 
+     *
      * @param service the service
      * @param firstSetupProtocol the date of setting up the edge
      * @returns true, if requested fromDate is not before firstSetupProtocolDate
@@ -365,6 +378,8 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 return isBefore(firstSetupProtocol, endOfMonth(subWeeks(service.historyPeriod.value.from, 1)));
             case DefaultTypes.PeriodString.YEAR:
                 return isBefore(firstSetupProtocol, endOfYear(subWeeks(service.historyPeriod.value.from, 1)));
+            case DefaultTypes.PeriodString.TOTAL:
+                return false;
             case DefaultTypes.PeriodString.CUSTOM:
                 var timeRange: number = differenceInDays(service.historyPeriod.value.to, service.historyPeriod.value.from);
                 return isBefore(startOfDay(firstSetupProtocol), startOfDay(subDays(service.historyPeriod.value.from, timeRange)));
@@ -373,8 +388,8 @@ export class PickDateComponent implements OnInit, OnDestroy {
 
     /**
      * Checks if next time period is allowed to be queried
-     * 
-     * @param service the service 
+     *
+     * @param service the service
      * @returns true, if requested toDate is not in the future
      */
     public static isNextPeriodAllowed(service: Service): boolean {
@@ -388,6 +403,8 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 return isAfter(new Date(), startOfMonth(addMonths(service.historyPeriod.value.to, 1)));
             case DefaultTypes.PeriodString.YEAR:
                 return isAfter(new Date(), startOfYear(addYears(service.historyPeriod.value.to, 1)));
+            case DefaultTypes.PeriodString.TOTAL:
+                return false;
             case DefaultTypes.PeriodString.CUSTOM:
                 var timeRange: number = differenceInDays(service.historyPeriod.value.to, service.historyPeriod.value.from);
                 return isAfter(startOfDay(new Date()), addDays(service.historyPeriod.value.to, timeRange));

@@ -19,6 +19,28 @@ common_initialize_environment() {
     VERSION_STRING=$(echo $VERSION | cut -s -d'-' -f2)
 }
 
+common_build_snapshot_version() {
+    if [[ "$VERSION" == *"-SNAPSHOT" ]]; then
+        echo "1"
+        # Replace unwanted characters with '.', compliant with Debian version
+        # Ref: https://unix.stackexchange.com/a/23673
+        VERSION_DEV_BRANCH="$(git branch --show-current)"
+        echo "2"
+        VERSION_DEV_COMMIT=""
+        if [[ $(git diff --stat) != '' ]]; then
+            VERSION_DEV_COMMIT="dirty"
+        else
+            VERSION_DEV_COMMIT="$(git rev-parse --short HEAD)"
+        fi
+        echo "3"
+        VERSION_DEV_BUILD_TIME=$(date "+%Y%m%d.%H%M")
+        # Compliant with https://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-version
+        echo "4"
+        VERSION_STRING="$(echo $VERSION_DEV_BRANCH | tr -cs 'a-zA-Z0-9\n' '.').${VERSION_DEV_BUILD_TIME}.${VERSION_DEV_COMMIT}"
+        VERSION="${VERSION/-SNAPSHOT/"-${VERSION_STRING}"}"
+    fi
+}
+
 # Inserts the version number into the Code
 common_update_version_in_code() {
     echo "# Update version in Code"
@@ -51,7 +73,7 @@ common_build_edge_and_ui_in_parallel() {
 # Build OpenEMS Edge
 common_build_edge() {
     echo "# Build OpenEMS Edge"
-    ./gradlew --build-cache build buildEdge resolve.EdgeApp resolve.BackendApp
+    ./gradlew $@ --build-cache build buildEdge resolve.EdgeApp resolve.BackendApp
     git diff --exit-code io.openems.edge.application/EdgeApp.bndrun io.openems.backend.application/BackendApp.bndrun
 }
 

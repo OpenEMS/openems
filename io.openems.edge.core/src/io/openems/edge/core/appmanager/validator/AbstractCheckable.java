@@ -10,7 +10,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 
 public abstract class AbstractCheckable implements Checkable {
 
-	private final ComponentContext componentContext;
+	protected final ComponentContext componentContext;
 
 	public AbstractCheckable(ComponentContext componentContext) {
 		this.componentContext = componentContext;

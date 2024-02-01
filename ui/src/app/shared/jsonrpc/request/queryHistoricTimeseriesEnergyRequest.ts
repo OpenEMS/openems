@@ -5,7 +5,7 @@ import { JsonRpcUtils } from "../jsonrpcutils";
 
 /**
  * Represents a JSON-RPC Request to query Timeseries Energy data.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -27,13 +27,13 @@ export class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
     public constructor(
         private fromDate: Date,
         private toDate: Date,
-        private channels: ChannelAddress[]
+        private channels: ChannelAddress[],
     ) {
         super(QueryHistoricTimeseriesEnergyRequest.METHOD, {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             fromDate: format(fromDate, 'yyyy-MM-dd'),
             toDate: format(toDate, 'yyyy-MM-dd'),
-            channels: JsonRpcUtils.channelsToStringArray(channels)
+            channels: JsonRpcUtils.channelsToStringArray(channels),
         });
         // delete local fields, otherwise they are sent with the JSON-RPC Request
         delete this.fromDate;

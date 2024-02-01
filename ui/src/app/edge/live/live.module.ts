@@ -14,7 +14,7 @@ import { Controller_ChpSocComponent } from './Controller/ChpSoc/ChpSoc';
 import { Controller_ChpSocModalComponent } from './Controller/ChpSoc/modal/modal.component';
 import { Controller_Ess_FixActivePower } from './Controller/Ess/FixActivePower/Ess_FixActivePower';
 import { Controller_Ess_GridOptimizedCharge } from './Controller/Ess/GridOptimizedCharge/Ess_GridOptimizedCharge';
-import { Controller_Ess_TimeOfUseTariff_Discharge } from './Controller/Ess/TimeOfUseTariffDischarge/Ess_TimeOfUseTariff_Discharge';
+import { Controller_Ess_TimeOfUseTariff } from './Controller/Ess/TimeOfUseTariff/Ess_TimeOfUseTariff';
 import { AdministrationComponent } from './Controller/Evcs/administration/administration.component';
 import { Controller_Io_ChannelSingleThresholdComponent } from './Controller/Io/ChannelSingleThreshold/Io_ChannelSingleThreshold';
 import { Controller_Io_ChannelSingleThresholdModalComponent } from './Controller/Io/ChannelSingleThreshold/modal/modal.component';
@@ -52,14 +52,14 @@ import { Controller_Evcs } from './Controller/Evcs/Evcs';
     Common_Selfconsumption,
     Common_Consumption,
     Common_Grid,
-    Controller_Ess_TimeOfUseTariff_Discharge,
     // Controller
     Controller_Ess_FixActivePower,
     Controller_Ess_GridOptimizedCharge,
     Controller_Io_HeatingElement,
     EnergymonitorModule,
     SharedModule,
-    Controller_Evcs
+    Controller_Evcs,
+    Controller_Ess_TimeOfUseTariff,
   ],
   entryComponents: [
     AdministrationComponent,
@@ -77,7 +77,7 @@ import { Controller_Evcs } from './Controller/Evcs/Evcs';
     Evcs_Api_ClusterModalComponent,
     Io_Api_DigitalInput_ModalComponent,
     Io_Api_DigitalInputComponent,
-    StorageModalComponent
+    StorageModalComponent,
   ],
   declarations: [
     AdministrationComponent,
@@ -108,7 +108,7 @@ import { Controller_Evcs } from './Controller/Evcs/Evcs';
     LiveComponent,
     OfflineComponent,
     StorageComponent,
-    StorageModalComponent
-  ]
+    StorageModalComponent,
+  ],
 })
 export class LiveModule { }

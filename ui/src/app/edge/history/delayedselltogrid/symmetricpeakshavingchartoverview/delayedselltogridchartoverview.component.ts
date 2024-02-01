@@ -4,7 +4,7 @@ import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
 
 @Component({
     selector: DelayedSellToGridChartOverviewComponent.SELECTOR,
-    templateUrl: './delayedselltogridchartoverview.component.html'
+    templateUrl: './delayedselltogridchartoverview.component.html',
 })
 export class DelayedSellToGridChartOverviewComponent implements OnInit {
 
@@ -15,7 +15,7 @@ export class DelayedSellToGridChartOverviewComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) { }
 
     ngOnInit() {

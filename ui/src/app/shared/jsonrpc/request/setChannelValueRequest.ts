@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Sets the write value of a Channel.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -25,7 +25,7 @@ export class SetChannelValueRequest extends JsonrpcRequest {
             componentId: string,
             channelId: string,
             value: any
-        }
+        },
     ) {
         super(SetChannelValueRequest.METHOD, params);
     }

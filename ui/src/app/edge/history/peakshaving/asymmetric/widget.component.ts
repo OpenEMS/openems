@@ -5,7 +5,7 @@ import { Edge, Service, EdgeConfig } from 'src/app/shared/shared';
 
 @Component({
     selector: AsymmetricPeakshavingWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: './widget.component.html',
 })
 export class AsymmetricPeakshavingWidgetComponent implements OnInit {
 
@@ -19,7 +19,7 @@ export class AsymmetricPeakshavingWidgetComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) { }
 
     ngOnInit() {

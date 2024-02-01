@@ -48,6 +48,10 @@ public class EdgeRpcRequestHandler {
 			throws OpenemsNamedException {
 		var edgeId = edgeRpcRequest.getEdgeId();
 		var request = edgeRpcRequest.getPayload();
+
+		if (user.getRole(edgeId).isEmpty()) {
+			this.parent.metadata.getEdgeMetadataForUser(user, edgeId);
+		}
 		user.assertEdgeRoleIsAtLeast(EdgeRpcRequest.METHOD, edgeRpcRequest.getEdgeId(), Role.GUEST);
 
 		CompletableFuture<? extends JsonrpcResponseSuccess> resultFuture;

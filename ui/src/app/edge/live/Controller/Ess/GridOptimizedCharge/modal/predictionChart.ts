@@ -3,13 +3,13 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
-import { ChartOptions, DEFAULT_TIME_CHART_OPTIONS, TooltipItem, Unit } from 'src/app/edge/history/shared';
+import { ChartOptions, ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from 'src/app/edge/history/shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from 'src/app/shared/shared';
 
 @Component({
     selector: 'predictionChart',
-    templateUrl: '../../../../../history/abstracthistorychart.html'
+    templateUrl: '../../../../../history/abstracthistorychart.html',
 })
 export class PredictionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -28,7 +28,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         super("prediction-chart", service, translate);
     }
@@ -49,11 +49,11 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
         this.loading = true;
         this.colors = [];
 
-        this.queryHistoricTimeseriesData(PredictionChartComponent.DEFAULT_PERIOD.from, PredictionChartComponent.DEFAULT_PERIOD.to, { unit: Unit.MINUTES, value: 5 }).then(response => {
+        this.queryHistoricTimeseriesData(PredictionChartComponent.DEFAULT_PERIOD.from, PredictionChartComponent.DEFAULT_PERIOD.to, { unit: ChronoUnit.Type.MINUTES, value: 5 }).then(response => {
             let result = response.result;
             let datasets = [];
 
-            // Get the 5 min index of the current time 
+            // Get the 5 min index of the current time
             let hours = new Date().getHours();
             let minutes = new Date().getMinutes();
             let currIndex = Math.trunc((hours * 60 + minutes) / 5);
@@ -128,7 +128,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                         // Calculate how much percentage is needed in every time step (5 min)
                         dataSteps = remainingCapacity / remainingSteps;
 
-                        // Set the data for the datasets 
+                        // Set the data for the datasets
                         let predictedSoc = startSoc - dataSteps;
                         for (let i = currIndex; i <= targetIndex; i++) {
                             // Predicted SoC increases only after charge start time, when channel is not zero (e.g. for older versions).
@@ -142,7 +142,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     }
                 }
 
-                // Add one buffer hour at the end to get more clarity in the chart 
+                // Add one buffer hour at the end to get more clarity in the chart
                 let chartEndIndex = targetIndex + 12;
 
                 // Remove unimportant values that are after the end index
@@ -173,22 +173,22 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     data: socData,
                     hidden: false,
                     yAxisID: 'yAxis2',
-                    position: 'right'
+                    position: 'right',
                 }, {
                     label: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.expectedSoc'),
                     data: predictedSocData,
                     hidden: false,
                     yAxisID: 'yAxis2',
-                    position: 'right'
+                    position: 'right',
                 });
 
-                // Push the depending colors 
+                // Push the depending colors
                 this.colors.push({
                     backgroundColor: 'rgba(189, 195, 199,0.05)',
-                    borderColor: 'rgba(189, 195, 199,1)'
+                    borderColor: 'rgba(189, 195, 199,1)',
                 }, {
                     backgroundColor: 'rgba(0,223,0,0)',
-                    borderColor: 'rgba(0,223,0,1)'
+                    borderColor: 'rgba(0,223,0,1)',
                 });
             }
 
@@ -197,7 +197,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
             this.service.stopSpinner(this.spinnerId);
 
         }).catch(reason => {
-            console.error(reason); // TODO error message 
+            console.error(reason); // TODO error message
             this.initializeChart();
             return;
         });
@@ -207,7 +207,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'EssSoc')
+                new ChannelAddress('_sum', 'EssSoc'),
             ];
             if (this.component != null && this.component.id) {
                 result.push(new ChannelAddress(this.component.id, 'DelayChargeMaximumChargeLimit'));
@@ -236,17 +236,17 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     display: true,
                     labelString: "%",
                     padding: -2,
-                    fontSize: 11
+                    fontSize: 11,
                 },
                 gridLines: {
-                    display: true
+                    display: true,
                 },
                 ticks: {
                     beginAtZero: true,
                     max: 100,
                     padding: -5,
-                    stepSize: 20
-                }
+                    stepSize: 20,
+                },
             });
 
         options.layout = {
@@ -254,8 +254,8 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                 left: 2,
                 right: 2,
                 top: 0,
-                bottom: 0
-            }
+                bottom: 0,
+            },
         };
         //x-axis
         options.scales.xAxes[0].time.unit = "hour";

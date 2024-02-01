@@ -59,8 +59,13 @@
         "curly": "error",
         "comma-dangle": [
           "error",
-          "never"
-        ]
+          "always-multiline"
+        ],
+        "eol-last": [
+          "error",
+          "always"
+        ],
+        "no-trailing-spaces": "error"
       }
     },
     {

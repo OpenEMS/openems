@@ -50,11 +50,20 @@ public class JsonUtils {
 		if (list == null) {
 			return null;
 		}
-		var jab = new JsonArrayBuilder();
-		list.forEach(element -> {
-			jab.add(convert.apply(element));
-		});
+		var jab = new JsonArrayBuilder(list.size());
+		list.forEach(e -> jab.add(convert.apply(e)));
 		return jab.build();
+	}
+
+	/**
+	 * Provide a easy way to generate a JsonArray from a collection of JsonElements.
+	 *
+	 * @param <T>  type of element from list
+	 * @param list to convert
+	 * @return list as JsonArray
+	 */
+	public static <T extends JsonElement> JsonArray generateJsonArray(Collection<T> list) {
+		return generateJsonArray(list, json -> json);
 	}
 
 	/**
@@ -66,6 +75,10 @@ public class JsonUtils {
 
 		protected JsonArrayBuilder() {
 			this(new JsonArray());
+		}
+
+		protected JsonArrayBuilder(int capacity) {
+			this(new JsonArray(capacity));
 		}
 
 		protected JsonArrayBuilder(JsonArray j) {
@@ -403,7 +416,7 @@ public class JsonUtils {
 
 	}
 
-	public static class JsonArrayCollector implements Collector<JsonElement, JsonUtils.JsonArrayBuilder, JsonArray> {
+	public static class JsonArrayCollector implements Collector<JsonElement, JsonArrayBuilder, JsonArray> {
 
 		@Override
 		public Set<Characteristics> characteristics() {
@@ -417,7 +430,7 @@ public class JsonUtils {
 
 		@Override
 		public BiConsumer<JsonArrayBuilder, JsonElement> accumulator() {
-			return JsonUtils.JsonArrayBuilder::add;
+			return JsonArrayBuilder::add;
 		}
 
 		@Override
@@ -474,6 +487,58 @@ public class JsonUtils {
 	 */
 	public static JsonObjectBuilder buildJsonObject(JsonObject j) {
 		return new JsonObjectBuilder(j);
+	}
+
+	/**
+	 * Creates a JsonElement from the {@link Number} value.
+	 *
+	 * @param number the {@link Number}
+	 * @return a {@link JsonPrimitive} or {@link JsonNull}
+	 */
+	public static JsonElement toJson(Number number) {
+		if (number == null) {
+			return JsonNull.INSTANCE;
+		}
+		return new JsonPrimitive(number);
+	}
+
+	/**
+	 * Creates a JsonElement from the {@link Boolean} value.
+	 *
+	 * @param bool the {@link Boolean}
+	 * @return a {@link JsonPrimitive} or {@link JsonNull}
+	 */
+	public static JsonElement toJson(Boolean bool) {
+		if (bool == null) {
+			return JsonNull.INSTANCE;
+		}
+		return new JsonPrimitive(bool);
+	}
+
+	/**
+	 * Creates a JsonElement from the {@link Boolean} value.
+	 *
+	 * @param c the {@link Character}
+	 * @return a {@link JsonPrimitive} or {@link JsonNull}
+	 */
+	public static JsonElement toJson(Character c) {
+		if (c == null) {
+			return JsonNull.INSTANCE;
+		}
+		return new JsonPrimitive(c);
+	}
+
+	/**
+	 * Creates a JsonElement from the {@link Boolean} value.
+	 *
+	 * @param string the {@link String}
+	 * @return a {@link JsonPrimitive} or {@link JsonNull}
+	 */
+	public static JsonElement toJson(String string) {
+		if (string == null) {
+			return JsonNull.INSTANCE;
+		}
+		return new JsonPrimitive(string);
 	}
 
 	/**
@@ -1576,11 +1641,7 @@ public class JsonUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getAsType(OpenemsType type, JsonElement j) throws OpenemsNamedException {
-		if (j == null) {
-			return null;
-		}
-
-		if (j.isJsonNull()) {
+		if ((j == null) || j.isJsonNull()) {
 			return null;
 		}
 
@@ -1686,6 +1747,21 @@ public class JsonUtils {
 			return JsonParser.parseString(string);
 		} catch (JsonParseException e) {
 			throw OpenemsError.JSON_PARSE_FAILED.exception(e.getMessage(), StringUtils.toShortString(string, 100));
+		}
+	}
+
+	/**
+	 * Parses a string to a {@link Optional} {@link JsonElement}.
+	 * 
+	 * @param string to be parsed
+	 * @return the {@link Optional} of the result; {@link Optional#empty()} if the
+	 *         value can not be parsed
+	 */
+	public static Optional<JsonElement> parseOptional(String string) {
+		try {
+			return Optional.of(JsonParser.parseString(string));
+		} catch (JsonParseException e) {
+			return Optional.empty();
 		}
 	}
 
@@ -1820,8 +1896,8 @@ public class JsonUtils {
 	 *
 	 * @return a Collector which collects all the input elements into a JsonArray
 	 */
-	public static Collector<JsonElement, JsonUtils.JsonArrayBuilder, JsonArray> toJsonArray() {
-		return new JsonUtils.JsonArrayCollector();
+	public static Collector<JsonElement, JsonArrayBuilder, JsonArray> toJsonArray() {
+		return new JsonArrayCollector();
 	}
 
 	private static JsonArray toJsonArray(JsonElement jElement) {

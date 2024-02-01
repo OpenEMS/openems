@@ -1,0 +1,7 @@
+= Meter Camille Bauer APLUS
+
+Implementation of a Camille Bauer APLUS meter.
+
+https://camillebauer.com/produkt/aplus/
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.camillebauer.aplus[Source Code icon:github[]]

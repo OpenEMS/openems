@@ -10,7 +10,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.alerting.Message;
-import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.common.metadata.UserAlertingSettings;
 import io.openems.common.utils.JsonUtils;
 
 public class OfflineEdgeMessage extends Message {
@@ -18,9 +18,9 @@ public class OfflineEdgeMessage extends Message {
 	public static final String TEMPLATE = "alerting_email";
 
 	private final ZonedDateTime offlineAt;
-	private final TreeMap<Integer, List<AlertingSetting>> recipients;
+	private final TreeMap<Integer, List<UserAlertingSettings>> recipients;
 
-	private OfflineEdgeMessage(String edgeId, ZonedDateTime offlineAt, TreeMap<Integer, List<AlertingSetting>> map) {
+	private OfflineEdgeMessage(String edgeId, ZonedDateTime offlineAt, TreeMap<Integer, List<UserAlertingSettings>> map) {
 		super(edgeId);
 		this.offlineAt = offlineAt;
 		this.recipients = map;
@@ -41,13 +41,13 @@ public class OfflineEdgeMessage extends Message {
 	 *
 	 * @param setting of user to whom to send the mail to
 	 */
-	public void addRecipient(AlertingSetting setting) {
+	public void addRecipient(UserAlertingSettings setting) {
 		this.recipients.putIfAbsent(setting.getDelayTime(), new ArrayList<>());
 		var settings = this.recipients.get(setting.getDelayTime());
 		settings.add(setting);
 	}
 
-	public List<AlertingSetting> getCurrentRecipients() {
+	public List<UserAlertingSettings> getCurrentRecipients() {
 		return this.recipients.get(this.recipients.firstKey());
 	}
 
@@ -84,7 +84,7 @@ public class OfflineEdgeMessage extends Message {
 
 	@Override
 	public String toString() {
-		var rec = this.getCurrentRecipients().stream().map(AlertingSetting::getUserId).collect(Collectors.joining(","));
+		var rec = this.getCurrentRecipients().stream().map(UserAlertingSettings::getUserId).collect(Collectors.joining(","));
 		return "OfflineEdgeMessage{for=" + this.getEdgeId() + ", to=[" + rec + "], at=" + this.getNotifyStamp() + "}";
 	}
 }

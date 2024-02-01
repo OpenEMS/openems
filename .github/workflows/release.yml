@@ -20,11 +20,17 @@ jobs:
 
       - uses: kiancross/checkstyle-annotations-action@v1
 
-      - name: Validate BackendApp.bndrun and EdgeApp.bndrun
-        run: git diff --exit-code io.openems.backend.application/BackendApp.bndrun  io.openems.edge.application/EdgeApp.bndrun
+      - name: Build all Java packages
+        run: ./gradlew build
 
-      - name: Clean Edge+Backend assets
-        run: ./gradlew cleanEdge cleanBackend
+      - name: Resolve OpenEMS bundles
+        run: ./gradlew resolve
+
+      - name: Validate BackendApp.bndrun
+        run: git diff --exit-code io.openems.backend.application/BackendApp.bndrun
+
+      - name: Validate EdgeApp.bndrun
+        run: git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
 
       - name: Prepare Edge+Backend assets
         run: ./gradlew buildEdge buildBackend
@@ -63,6 +69,9 @@ jobs:
           npm ci --prefer-offline --cache ~/.npm
           node_modules/.bin/ng config cli.cache.path "~/.ng"
           node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
+          node_modules/.bin/ng lint
+          export CHROME_BIN=/usr/bin/google-chrome-stable
+          npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
 
       - name: Prepare UI asset
         run: |

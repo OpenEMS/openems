@@ -25,6 +25,7 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -50,6 +51,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.Case;
 import io.openems.edge.core.appmanager.formly.DefaultValueOptions;
 import io.openems.edge.core.appmanager.formly.Exp;
@@ -352,24 +354,23 @@ public class HardyBarthEvcs extends
 						maxHardwarePowerPerPhase, removeIds, evcsId);
 			}
 
-			final var ips = Lists.newArrayList(//
-					new InterfaceConfiguration("eth0") //
-							.addIp("Evcs", "192.168.25.10/24") //
-			);
-
 			schedulerIds.add("ctrlBalancing0");
-			return new AppConfiguration(//
-					components, //
-					schedulerIds, //
-					ip.startsWith("192.168.25.") ? ips : null, //
-					clusterDependency //
-			);
+
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(schedulerIds)) //
+					.throwingOnlyIf(ip.startsWith("192.168.25."),
+							b -> b.addTask(Tasks.staticIp(new InterfaceConfiguration("eth0") //
+									.addIp("Evcs", "192.168.25.10/24")))) //
+					.addDependencies(clusterDependency) //
+					.build();
 		};
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 

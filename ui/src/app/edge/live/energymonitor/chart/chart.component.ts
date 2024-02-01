@@ -10,7 +10,7 @@ import { StorageSectionComponent } from './section/storage.component';
 
 @Component({
   selector: 'energymonitor-chart',
-  templateUrl: './chart.component.html'
+  templateUrl: './chart.component.html',
 })
 export class EnergymonitorChartComponent implements OnInit, OnDestroy {
 
@@ -45,7 +45,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
-    private service: Service
+    private service: Service,
   ) { }
 
   ngOnInit() {

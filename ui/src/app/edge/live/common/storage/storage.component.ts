@@ -2,14 +2,14 @@ import { formatNumber } from '@angular/common';
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { CurrentData } from "src/app/shared/shared";
-import { Role } from 'src/app/shared/type/role';
+import { DateUtils } from 'src/app/shared/utils/date/dateutils';
 
 import { ChannelAddress, EdgeConfig, Utils } from '../../../../shared/shared';
 import { StorageModalComponent } from './modal/modal.component';
 
 @Component({
     selector: 'storage',
-    templateUrl: './storage.component.html'
+    templateUrl: './storage.component.html',
 })
 export class StorageComponent extends AbstractFlatWidget {
 
@@ -22,11 +22,8 @@ export class StorageComponent extends AbstractFlatWidget {
     public isEmergencyReserveEnabled: boolean[] = [];
     private prepareBatteryExtensionCtrl: { [key: string]: EdgeConfig.Component };
     protected possibleBatteryExtensionMessage: Map<string, { color: string, text: string }> = new Map();
-    protected isAtLeastInstaller: boolean = false;
 
     protected override getChannelAddresses() {
-
-        this.isAtLeastInstaller = this.edge.roleIsAtLeast(Role.INSTALLER);
 
         let channelAddresses: ChannelAddress[] = [
             new ChannelAddress('_sum', 'EssSoc'),
@@ -34,7 +31,7 @@ export class StorageComponent extends AbstractFlatWidget {
             // TODO should be moved to Modal
             new ChannelAddress('_sum', 'EssActivePowerL1'),
             new ChannelAddress('_sum', 'EssActivePowerL2'),
-            new ChannelAddress('_sum', 'EssActivePowerL3')
+            new ChannelAddress('_sum', 'EssActivePowerL3'),
         ];
 
         this.prepareBatteryExtensionCtrl = this.config.getComponentsByFactory("Controller.Ess.PrepareBatteryExtension")
@@ -42,9 +39,10 @@ export class StorageComponent extends AbstractFlatWidget {
             .reduce((result, component) => {
                 return {
                     ...result,
-                    [component.properties['ess.id']]: component
+                    [component.properties['ess.id']]: component,
                 };
             }, {});
+
 
         for (let essId in this.prepareBatteryExtensionCtrl) {
             let controller = this.prepareBatteryExtensionCtrl[essId];
@@ -52,7 +50,9 @@ export class StorageComponent extends AbstractFlatWidget {
                 new ChannelAddress(controller.id, "CtrlIsBlockingEss"),
                 new ChannelAddress(controller.id, "CtrlIsChargingEss"),
                 new ChannelAddress(controller.id, "CtrlIsDischargingEss"),
-                new ChannelAddress(controller.id, "_PropertyIsRunning")
+                new ChannelAddress(controller.id, "_PropertyIsRunning"),
+                new ChannelAddress(controller.id, '_PropertyTargetTimeSpecified'),
+                new ChannelAddress(controller.id, '_PropertyTargetTime'),
             );
         }
 
@@ -63,14 +63,14 @@ export class StorageComponent extends AbstractFlatWidget {
             .reduce((result, component) => {
                 return {
                     ...result,
-                    [component.properties['ess.id']]: component
+                    [component.properties['ess.id']]: component,
                 };
             }, {});
         for (let component of Object.values(this.emergencyReserveComponents)) {
 
             channelAddresses.push(
                 new ChannelAddress(component.id, '_PropertyReserveSoc'),
-                new ChannelAddress(component.id, '_PropertyIsReserveSocEnabled')
+                new ChannelAddress(component.id, '_PropertyIsReserveSocEnabled'),
             );
         }
         // Get Chargers
@@ -80,7 +80,7 @@ export class StorageComponent extends AbstractFlatWidget {
             .filter(component => component.isEnabled);
         for (let component of this.chargerComponents) {
             channelAddresses.push(
-                new ChannelAddress(component.id, 'ActualPower')
+                new ChannelAddress(component.id, 'ActualPower'),
             );
         }
 
@@ -104,22 +104,34 @@ export class StorageComponent extends AbstractFlatWidget {
 
             channelAddresses.push(
                 new ChannelAddress(component.id, 'Soc'),
-                new ChannelAddress(component.id, 'Capacity')
+                new ChannelAddress(component.id, 'Capacity'),
             );
             if (this.config.factories[component.factoryId].natureIds.includes("io.openems.edge.ess.api.AsymmetricEss")) {
                 channelAddresses.push(
                     new ChannelAddress(component.id, 'ActivePowerL1'),
                     new ChannelAddress(component.id, 'ActivePowerL2'),
-                    new ChannelAddress(component.id, 'ActivePowerL3')
+                    new ChannelAddress(component.id, 'ActivePowerL3'),
                 );
             }
         }
         return channelAddresses;
     }
 
-    private getBatteryCapacityExtensionStatus(isRunning: boolean, essIsBlocking: number, essIsCharging: number, essIsDischarging: number): { color: string, text: string } {
+    private getBatteryCapacityExtensionStatus(isRunning: boolean, essIsBlocking: number, essIsCharging: number, essIsDischarging: number, targetTimeSpecified: boolean, targetDate: Date): { color: string, text: string } {
+
         if (!isRunning) {
             return null;
+        }
+        // Planned Expansion
+        if (targetTimeSpecified && targetDate) {
+
+            const date = DateUtils.stringToDate(targetDate.toString());
+            return {
+                color: 'green', text: this.translate.instant('Edge.Index.RETROFITTING.TARGET_TIME_SPECIFIED', {
+                    targetDate: DateUtils.toLocaleDateString(date),
+                    targetTime: date.toLocaleTimeString(),
+                }),
+            };
         }
 
         if (essIsBlocking != null && essIsBlocking == 1) {
@@ -128,7 +140,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
         } else if ((essIsCharging != null && essIsCharging == 1) || (essIsDischarging != null && essIsDischarging == 1)) {
 
-            // If Ess is charging to or discharging to the targetSoc 
+            // If Ess is charging to or discharging to the targetSoc
             return { color: 'orange', text: this.translate.instant('Edge.Index.RETROFITTING.PREPARING') };
         } else {
             return null;
@@ -140,14 +152,15 @@ export class StorageComponent extends AbstractFlatWidget {
         for (let essId in this.prepareBatteryExtensionCtrl) {
             let controller = this.prepareBatteryExtensionCtrl[essId];
 
-
             this.possibleBatteryExtensionMessage.set(
                 essId,
                 this.getBatteryCapacityExtensionStatus(
                     currentData.allComponents[controller.id + '/_PropertyIsRunning'] == 1,
                     currentData.allComponents[controller.id + '/CtrlIsBlockingEss'],
                     currentData.allComponents[controller.id + '/CtrlIsChargingEss'],
-                    currentData.allComponents[controller.id + '/CtrlIsDischargingEss']
+                    currentData.allComponents[controller.id + '/CtrlIsDischargingEss'],
+                    currentData.allComponents[controller.id + '/_PropertyTargetTimeSpecified'],
+                    currentData.allComponents[controller.id + '/_PropertyTargetTime'],
                 ));
         }
 
@@ -164,7 +177,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
     /**
       * Use 'convertChargePower' to convert/map a value
-      * 
+      *
       * @param value takes @Input value or channelAddress for chargePower
       * @returns value
       */
@@ -174,7 +187,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
     /**
      * Use 'convertDischargePower' to convert/map a value
-     * 
+     *
      * @param value takes @Input value or channelAddress for dischargePower
      * @returns value
      */
@@ -184,8 +197,8 @@ export class StorageComponent extends AbstractFlatWidget {
 
     /**
      * Use 'convertPower' to check whether 'charge/discharge' and to be only showed when not negative
-     * 
-     * @param value takes passed value when called 
+     *
+     * @param value takes passed value when called
      * @returns only positive and 0
      */
     public convertPower(value: number, isCharge?: boolean) {
@@ -195,7 +208,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
         let thisValue: number = (value / 1000);
 
-        // Round thisValue to Integer when decimal place equals 0 
+        // Round thisValue to Integer when decimal place equals 0
         if (thisValue > 0) {
             return formatNumber(thisValue, 'de', '1.0-1') + " kW"; // TODO get locale dynamically
 
@@ -217,8 +230,8 @@ export class StorageComponent extends AbstractFlatWidget {
                 component: this.component,
                 essComponents: this.essComponents,
                 chargerComponents: this.chargerComponents,
-                singleComponent: this.component
-            }
+                singleComponent: this.component,
+            },
         });
         return await modal.present();
     }

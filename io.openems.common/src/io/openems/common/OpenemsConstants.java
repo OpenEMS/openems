@@ -1,17 +1,10 @@
 package io.openems.common;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Optional;
-import java.util.Scanner;
 
 import org.osgi.framework.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.SemanticVersion;
-import io.openems.common.utils.StringUtils;
 
 public class OpenemsConstants {
 
@@ -21,7 +14,7 @@ public class OpenemsConstants {
 	 * <p>
 	 * This is the year of the release.
 	 */
-	public static final short VERSION_MAJOR = 2023;
+	public static final short VERSION_MAJOR = 2024;
 
 	/**
 	 * The minor version of OpenEMS.
@@ -29,7 +22,7 @@ public class OpenemsConstants {
 	 * <p>
 	 * This is the month of the release.
 	 */
-	public static final short VERSION_MINOR = 11;
+	public static final short VERSION_MINOR = 3;
 
 	/**
 	 * The patch version of OpenEMS.
@@ -58,71 +51,19 @@ public class OpenemsConstants {
 			OpenemsConstants.VERSION_STRING);
 
 	/**
-	 * The manufacturer of the device that is running OpenEMS.
-	 *
-	 * <p>
-	 * Note: this should be max. 32 ASCII characters long
+	 * The version development branch.
 	 */
-	public static final String MANUFACTURER = OpenemsOEM.MANUFACTURER;
+	public static final String VERSION_DEV_BRANCH = "";
 
 	/**
-	 * The model identifier of the device.
-	 *
-	 * <p>
-	 * Note: this should be max. 32 ASCII characters long
+	 * The version development commit hash.
 	 */
-	public static final String MANUFACTURER_MODEL = "OpenEMS";
+	public static final String VERSION_DEV_COMMIT = "";
 
 	/**
-	 * The options of the device.
-	 *
-	 * <p>
-	 * Note: this should be max. 32 ASCII characters long
+	 * The version development build time.
 	 */
-	public static final String MANUFACTURER_OPTIONS = "";
-
-	/**
-	 * The version of the device.
-	 *
-	 * <p>
-	 * Note: this should be max. 32 ASCII characters long
-	 */
-	public static final String MANUFACTURER_VERSION = "";
-
-	/**
-	 * The serial number of the device.
-	 *
-	 * <p>
-	 * Note: this should be max. 32 ASCII characters long
-	 */
-	public static final String MANUFACTURER_SERIAL_NUMBER = "";
-
-	/**
-	 * The Energy-Management-System serial number of the device.
-	 *
-	 * <p>
-	 * Note: this should be max. 32 ASCII characters long
-	 */
-	public static final String MANUFACTURER_EMS_SERIAL_NUMBER;
-
-	static {
-		Logger log = LoggerFactory.getLogger(OpenemsConstants.class);
-
-		String mesn = "";
-		try (Scanner s = new Scanner(Runtime.getRuntime().exec("hostname").getInputStream())) {
-			mesn = s.hasNext() ? s.next() : "";
-		} catch (IOException ioe) {
-			log.warn("Unable get hostname via OS-Command: " + ioe.getMessage());
-
-			try {
-				mesn = InetAddress.getLocalHost().getHostName();
-			} catch (UnknownHostException uhe) {
-				log.error("Unable get hostname via DNS-Lookup: " + uhe.getMessage());
-			}
-		}
-
-		MANUFACTURER_EMS_SERIAL_NUMBER = StringUtils.toShortString(mesn, 32);
-	}
+	public static final String VERSION_DEV_BUILD_TIME = "";
 
 	/*
 	 * Constants for Component properties

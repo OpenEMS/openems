@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Wraps a JSON-RPC Request for an OpenEMS Component that implements JsonApi
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -23,7 +23,7 @@ export class ComponentJsonApiRequest extends JsonrpcRequest {
         public override readonly params: {
             componentId: string,
             payload: JsonrpcRequest
-        }
+        },
     ) {
         super(ComponentJsonApiRequest.METHOD, params);
     }

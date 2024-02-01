@@ -17,6 +17,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
@@ -35,6 +36,7 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.InputType;
@@ -115,7 +117,10 @@ public class GridOptimizedCharge extends AbstractEnumOpenemsApp<Property> implem
 
 			var schedulerExecutionOrder = Lists.newArrayList("ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0");
 
-			return new AppConfiguration(components, schedulerExecutionOrder);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(schedulerExecutionOrder)) //
+					.build();
 		};
 	}
 
@@ -159,8 +164,9 @@ public class GridOptimizedCharge extends AbstractEnumOpenemsApp<Property> implem
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 

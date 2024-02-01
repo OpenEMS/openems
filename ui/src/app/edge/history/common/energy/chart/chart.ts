@@ -7,7 +7,7 @@ import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
 
 @Component({
   selector: 'energychart',
-  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html'
+  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -15,9 +15,9 @@ export class ChartComponent extends AbstractHistoryChart {
     return ChartComponent.getChartData(this.config, this.chartType, this.translate);
   }
 
-  public static getChartData(config: EdgeConfig, chartType: 'line' | 'bar', translate: TranslateService): HistoryUtils.ChartData {
+  public static getChartData(config: EdgeConfig | null, chartType: 'line' | 'bar', translate: TranslateService): HistoryUtils.ChartData {
     let input: HistoryUtils.InputChannel[] =
-      config.widgets.classes.reduce((arr: HistoryUtils.InputChannel[], key) => {
+      config?.widgets.classes.reduce((arr: HistoryUtils.InputChannel[], key) => {
         let newObj = [];
         switch (key) {
 
@@ -26,7 +26,7 @@ export class ChartComponent extends AbstractHistoryChart {
             newObj.push({
               name: 'Consumption',
               powerChannel: new ChannelAddress('_sum', 'ConsumptionActivePower'),
-              energyChannel: new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
+              energyChannel: new ChannelAddress('_sum', 'ConsumptionActiveEnergy'),
             });
             break;
           case 'Common_Autarchy':
@@ -35,26 +35,26 @@ export class ChartComponent extends AbstractHistoryChart {
               name: 'GridBuy',
               powerChannel: new ChannelAddress('_sum', 'GridActivePower'),
               energyChannel: new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
-              ...(chartType === 'line' && { converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO })
+              ...(chartType === 'line' && { converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO }),
             }, {
               name: 'GridSell',
               powerChannel: new ChannelAddress('_sum', 'GridActivePower'),
               energyChannel: new ChannelAddress('_sum', 'GridSellActiveEnergy'),
-              ...(chartType === 'line' && { converter: HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE })
+              ...(chartType === 'line' && { converter: HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE }),
             });
             break;
           case 'Storage':
             newObj.push({
               name: 'EssSoc',
-              powerChannel: new ChannelAddress('_sum', 'EssSoc')
+              powerChannel: new ChannelAddress('_sum', 'EssSoc'),
             }, {
               name: 'EssCharge',
               powerChannel: new ChannelAddress('_sum', 'EssActivePower'),
-              energyChannel: new ChannelAddress('_sum', 'EssDcChargeEnergy')
+              energyChannel: new ChannelAddress('_sum', 'EssDcChargeEnergy'),
             }, {
               name: 'EssDischarge',
               powerChannel: new ChannelAddress('_sum', 'EssActivePower'),
-              energyChannel: new ChannelAddress('_sum', 'EssDcDischargeEnergy')
+              energyChannel: new ChannelAddress('_sum', 'EssDcDischargeEnergy'),
             });
             break;
           case 'Common_Selfconsumption':
@@ -62,11 +62,11 @@ export class ChartComponent extends AbstractHistoryChart {
             newObj.push({
               name: 'ProductionActivePower',
               powerChannel: new ChannelAddress('_sum', 'ProductionActivePower'),
-              energyChannel: new ChannelAddress('_sum', 'ProductionActiveEnergy')
+              energyChannel: new ChannelAddress('_sum', 'ProductionActiveEnergy'),
             }, {
               name: 'ProductionDcActual',
               powerChannel: new ChannelAddress('_sum', 'ProductionDcActualPower'),
-              energyChannel: new ChannelAddress('_sum', 'ProductionActiveEnergy')
+              energyChannel: new ChannelAddress('_sum', 'ProductionActiveEnergy'),
             });
             break;
         }
@@ -90,7 +90,7 @@ export class ChartComponent extends AbstractHistoryChart {
             color: 'rgb(45,143,171)',
             stack: 0,
             hiddenOnInit: chartType == 'line' ? false : true,
-            order: 1
+            order: 1,
           },
 
           // DirectConsumption, displayed in stack 1 & 2, only one legenItem
@@ -104,7 +104,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 ?.map(value => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(value)),
             color: 'rgb(244,164,96)',
             stack: [1, 2],
-            order: 2
+            order: 2,
           }],
 
           // Charge Power
@@ -121,7 +121,7 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(0,223,0)',
             stack: 1,
-            ...(chartType === 'line' && { order: 6 })
+            ...(chartType === 'line' && { order: 6 }),
           },
 
           // Discharge Power
@@ -138,12 +138,12 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(200,0,0)',
             stack: 2,
-            ...(chartType === 'line' && { order: 5 })
+            ...(chartType === 'line' && { order: 5 }),
           },
 
           // Sell to grid
           {
-            name: translate.instant('General.gridSell'),
+            name: translate.instant('General.gridSellAdvanced'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
               return energyValues.result.data['_sum/GridSellActiveEnergy'];
             },
@@ -152,12 +152,12 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(0,0,200)',
             stack: 1,
-            ...(chartType === 'line' && { order: 4 })
+            ...(chartType === 'line' && { order: 4 }),
           },
 
           // Buy from Grid
           {
-            name: translate.instant('General.gridBuy'),
+            name: translate.instant('General.gridBuyAdvanced'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
               return energyValues.result.data['_sum/GridBuyActiveEnergy'];
             },
@@ -166,7 +166,7 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(0,0,0)',
             stack: 2,
-            ...(chartType === 'line' && { order: 2 })
+            ...(chartType === 'line' && { order: 2 }),
           },
 
           // Consumption
@@ -181,7 +181,7 @@ export class ChartComponent extends AbstractHistoryChart {
             color: 'rgb(253,197,7)',
             stack: 3,
             hiddenOnInit: chartType == 'line' ? false : true,
-            ...(chartType === 'line' && { order: 0 })
+            ...(chartType === 'line' && { order: 0 }),
           },
           ...[chartType === 'line' &&
           {
@@ -193,8 +193,8 @@ export class ChartComponent extends AbstractHistoryChart {
             borderDash: [10, 10],
             yAxisId: ChartAxis.RIGHT,
             stack: 1,
-            customUnit: YAxisTitle.PERCENTAGE
-          }]
+            customUnit: YAxisTitle.PERCENTAGE,
+          }],
         ];
       },
       tooltip: {
@@ -206,7 +206,7 @@ export class ChartComponent extends AbstractHistoryChart {
             return translate.instant('General.consumption');
           }
           return null;
-        }
+        },
       },
       yAxes: [
 
@@ -214,7 +214,7 @@ export class ChartComponent extends AbstractHistoryChart {
         {
           unit: YAxisTitle.ENERGY,
           position: 'left',
-          yAxisId: ChartAxis.LEFT
+          yAxisId: ChartAxis.LEFT,
         },
 
         // Right Yaxis, only shown for line-chart
@@ -223,9 +223,9 @@ export class ChartComponent extends AbstractHistoryChart {
           customTitle: '%',
           position: 'right',
           yAxisId: ChartAxis.RIGHT,
-          displayGrid: false
-        })
-      ]
+          displayGrid: false,
+        }),
+      ],
     };
   }
 

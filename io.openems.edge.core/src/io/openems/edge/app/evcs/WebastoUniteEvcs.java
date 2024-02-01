@@ -18,6 +18,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -41,6 +42,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a Webasto Unite evcs App.
@@ -156,19 +158,19 @@ public class WebastoUniteEvcs extends AbstractOpenemsAppWithProps<WebastoUniteEv
 									.build()) //
 			);
 
-			return new AppConfiguration(//
-					components, //
-					Lists.newArrayList(ctrlEvcsId, "ctrlBalancing0"), //
-					null, //
-					EvcsCluster.dependency(t, this.componentManager, this.componentUtil, maxHardwarePowerPerPhase,
-							evcsId) //
-			);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(ctrlEvcsId, "ctrlBalancing0")) //
+					.addDependencies(EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
+							maxHardwarePowerPerPhase, evcsId)) //
+					.build();
 		};
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 

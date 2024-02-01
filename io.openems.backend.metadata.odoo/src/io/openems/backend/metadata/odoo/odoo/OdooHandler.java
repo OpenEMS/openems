@@ -20,7 +20,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.common.metadata.UserAlertingSettings;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.common.metadata.User;
@@ -35,7 +35,6 @@ import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.backend.metadata.odoo.MyUser;
 import io.openems.backend.metadata.odoo.odoo.Domain.Operator;
 import io.openems.backend.metadata.odoo.odoo.OdooUtils.SuccessResponseAndHeaders;
-import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
@@ -93,22 +92,6 @@ public class OdooHandler {
 					+ "User [" + edgeUser.getUserId() + "] " //
 					+ "Fields [" + Stream.of(fieldValues).map(FieldValue::toString).collect(Collectors.joining(","))
 					+ "]: " + e.getMessage());
-		}
-	}
-
-	/**
-	 * Adds a message in Odoo Chatter ('mail.thread').
-	 *
-	 * @param edge    the Edge
-	 * @param message the message
-	 */
-	public void addChatterMessage(MyEdge edge, String message) {
-		try {
-			OdooUtils.addChatterMessage(this.credentials, Field.EdgeDevice.ODOO_MODEL, edge.getOdooId(), message);
-		} catch (OpenemsException e) {
-			this.parent.logError(this.log, "Unable to add Chatter Message to Edge [" + edge.getId() + "] " //
-					+ "Message [" + message + "]" //
-					+ ": " + e.getMessage());
 		}
 	}
 
@@ -400,7 +383,8 @@ public class OdooHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	public byte[] getOdooSetupProtocolReport(int setupProtocolId) throws OpenemsNamedException {
-		return OdooUtils.getOdooReport(this.credentials, "openems.report_openems_setup_protocol_template", setupProtocolId);
+		return OdooUtils.getOdooReport(this.credentials, "openems.report_openems_setup_protocol_template",
+				setupProtocolId);
 	}
 
 	/**
@@ -415,7 +399,7 @@ public class OdooHandler {
 		var userJson = JsonUtils.getAsJsonObject(setupProtocolJson, "customer");
 		var edgeJson = JsonUtils.getAsJsonObject(setupProtocolJson, "edge");
 		var installerJson = JsonUtils.getAsJsonObject(setupProtocolJson, "installer");
-		var oem = OpenemsOEM.Manufacturer.valueOf(JsonUtils.getAsString(setupProtocolJson, "oem").toUpperCase());
+		var oem = JsonUtils.getAsString(setupProtocolJson, "oem").toUpperCase();
 
 		var edgeId = JsonUtils.getAsString(edgeJson, "id");
 		var foundEdge = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL,
@@ -531,8 +515,7 @@ public class OdooHandler {
 	 * @return the Odoo user id
 	 * @throws OpenemsNamedException on error
 	 */
-	private int createOdooUser(JsonObject userJson, String password, OpenemsOEM.Manufacturer oem)
-			throws OpenemsNamedException {
+	private int createOdooUser(JsonObject userJson, String password, String oem) throws OpenemsNamedException {
 		var customerFields = new HashMap<>(this.updateAddress(userJson));
 		customerFields.putAll(this.updateCompany(userJson));
 
@@ -775,8 +758,7 @@ public class OdooHandler {
 	 * @param oem        OEM name
 	 * @throws OpenemsNamedException on error
 	 */
-	public void registerUser(JsonObject jsonObject, OdooUserRole role, OpenemsOEM.Manufacturer oem)
-			throws OpenemsNamedException {
+	public void registerUser(JsonObject jsonObject, OdooUserRole role, String oem) throws OpenemsNamedException {
 		var emailOpt = JsonUtils.getAsOptionalString(jsonObject, "email");
 		if (!emailOpt.isPresent()) {
 			throw new OpenemsException("No email specified");
@@ -817,7 +799,7 @@ public class OdooHandler {
 	 * @param oem        OEM name
 	 * @throws OpenemsNamedException error
 	 */
-	private void sendRegistrationMail(int odooUserId, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException {
+	private void sendRegistrationMail(int odooUserId, String oem) throws OpenemsNamedException {
 		this.sendRegistrationMail(odooUserId, null, oem);
 	}
 
@@ -828,7 +810,7 @@ public class OdooHandler {
 	 * @param password   password for the user
 	 * @param oem        OEM name
 	 */
-	private void sendRegistrationMail(int odooUserId, String password, OpenemsOEM.Manufacturer oem) {
+	private void sendRegistrationMail(int odooUserId, String password, String oem) {
 		try {
 			OdooUtils.sendAdminJsonrpcRequest(this.credentials, "/openems_backend/sendRegistrationEmail",
 					JsonUtils.buildJsonObject() //
@@ -1118,7 +1100,7 @@ public class OdooHandler {
 	 * @return list of alerting settings
 	 * @throws OpenemsException on error
 	 */
-	public List<AlertingSetting> getUserAlertingSettings(String edgeId) throws OpenemsException {
+	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) throws OpenemsException {
 		return this.requestUserAlertingSettings(edgeId, null);
 	}
 
@@ -1127,15 +1109,15 @@ public class OdooHandler {
 	 *
 	 * @param edgeId ID of Edge
 	 * @param userId ID of User
-	 * @return {@link AlertingSetting} or {@link null} if no settings are stored
+	 * @return {@link UserAlertingSettings} or {@link null} if no settings are stored
 	 * @throws OpenemsException on error
 	 */
-	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
+	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
 		var settings = this.requestUserAlertingSettings(edgeId, userId);
 		return settings.isEmpty() ? null : settings.get(0);
 	}
 
-	private List<AlertingSetting> requestUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
+	private List<UserAlertingSettings> requestUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
 		// Define Fields
 		var edgeUserFields = new Field[] { //
 				Field.EdgeDeviceUserRole.ID, //
@@ -1167,7 +1149,7 @@ public class OdooHandler {
 			usersMap.put(userIds[i], users[i]);
 		}
 		// create result list;
-		var result = new ArrayList<AlertingSetting>(edgeUsers.length);
+		var result = new ArrayList<UserAlertingSettings>(edgeUsers.length);
 		for (var edgeUser : edgeUsers) {
 			var userIdsArr = OdooUtils.getAs(Field.EdgeDeviceUserRole.USER_ODOO_ID, edgeUser, Object[].class);
 			if (userIdsArr.length != 2) {
@@ -1184,7 +1166,7 @@ public class OdooHandler {
 							edgeUser, String.class, null);
 					var lastNotification = OdooUtils.DateTime.stringToDateTime(lastNotificationStr);
 					result.add(
-							new AlertingSetting(edgeUserId, login, Role.getRole(role), lastNotification, timeToWait));
+							new UserAlertingSettings(edgeUserId, login, Role.getRole(role), lastNotification, timeToWait));
 				}
 			}
 		}
@@ -1199,7 +1181,7 @@ public class OdooHandler {
 	 * @param userAlertingSettings list of users
 	 * @throws OpenemsException on error
 	 */
-	public void setUserAlertingSettings(MyUser user, String edgeId, List<AlertingSetting> userAlertingSettings)
+	public void setUserAlertingSettings(MyUser user, String edgeId, List<UserAlertingSettings> userAlertingSettings)
 			throws OpenemsException {
 		// search edge by id
 		var edgeIds = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL,
@@ -1273,6 +1255,22 @@ public class OdooHandler {
 		return JsonUtils.getAsJsonObject(
 				OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/get_edge_with_role",
 						"session_id=" + user.getToken(), request).result);
+	}
+
+	/**
+	 * Updates the settings of a user.
+	 * 
+	 * @param user     the user
+	 * @param settings the settings of the user
+	 */
+	public void updateUserSettings(User user, JsonObject settings) throws OpenemsNamedException {
+		OdooUtils.sendAdminJsonrpcRequest(this.credentials, "/openems_backend/set_user_settings",
+				JsonUtils.buildJsonObject() //
+						.add("params", JsonUtils.buildJsonObject() //
+								.add("settings", settings)//
+								.addProperty("userId", user.getId()) //
+								.build()) //
+						.build());
 	}
 
 }

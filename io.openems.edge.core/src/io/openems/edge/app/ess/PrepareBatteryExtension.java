@@ -16,6 +16,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -37,6 +38,7 @@ import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
@@ -112,8 +114,9 @@ public class PrepareBatteryExtension
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 
@@ -143,7 +146,7 @@ public class PrepareBatteryExtension
 									.addProperty("targetSoc", targetSoc) //
 									.onlyIf(t == ConfigurationTarget.ADD, //
 											b -> b.addProperty("enabled", true) //
-													.addProperty("ess_id", "ess0") //
+													.addProperty("ess.id", "ess0") //
 													.addProperty("isRunning", false) //
 													.addProperty("targetTimeSpecified", false) //
 													.addProperty("targetTimeBuffer", 30) //
@@ -162,7 +165,10 @@ public class PrepareBatteryExtension
 					"ctrlBalancing0" //
 			);
 
-			return new AppConfiguration(components, schedulerIds);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(schedulerIds)) //
+					.build();
 		};
 	}
 

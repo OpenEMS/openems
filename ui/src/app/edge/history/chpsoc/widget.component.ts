@@ -9,7 +9,7 @@ import { calculateActiveTimeOverPeriod } from '../shared';
 
 @Component({
     selector: ChpSocWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: './widget.component.html',
 })
 export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
@@ -24,7 +24,7 @@ export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnIn
 
     constructor(
         public override service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         super(service);
     }
@@ -46,7 +46,7 @@ export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnIn
         this.updateValues();
     };
 
-    // Gather result & timestamps to calculate effective active time in % 
+    // Gather result & timestamps to calculate effective active time in %
     protected updateValues() {
         this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).then(response => {
             this.service.getConfig().then(config => {

@@ -20,7 +20,7 @@ export enum Status {
             height: 100%;
             font-size: 0.9em;
         }
-    `]
+    `],
 })
 export class ModalComponent {
 
@@ -44,7 +44,7 @@ export class ModalComponent {
         public modalController: ModalController,
         private websocket: Websocket,
         private service: Service,
-        private translate: TranslateService
+        private translate: TranslateService,
     ) {
         this.service.getCurrentEdge().then(edge => this.edge = edge);
     }
@@ -64,7 +64,7 @@ export class ModalComponent {
 
             updateComponentArray.push({
                 name: key,
-                value: this.formGroup.value[key]
+                value: this.formGroup.value[key],
             });
         }
 

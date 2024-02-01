@@ -12,11 +12,15 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
+import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.timeofusetariff.Tibber.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -25,6 +29,7 @@ import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
@@ -32,6 +37,7 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
@@ -69,10 +75,18 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 		ACCESS_TOKEN(AppDef.of(Tibber.class) //
 				.setTranslatedLabelWithAppPrefix(".accessToken.label") //
 				.setTranslatedDescriptionWithAppPrefix(".accessToken.description") //
-				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, f) -> //
-				f.setInputType(PASSWORD) //
-						.isRequired(true)) //
-				.setAllowedToSave(false));
+				.setRequired(true) //
+				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, field) -> {
+					field.setInputType(PASSWORD);
+				}) //
+				.setAllowedToSave(false)), //
+		FILTER(AppDef.of(Tibber.class) //
+				.setTranslatedLabelWithAppPrefix(".filterForHome.label") //
+				.setTranslatedDescriptionWithAppPrefix(".filterForHome.description") //
+				.setDefaultValue((app, property, l, parameter) -> JsonNull.INSTANCE)
+				.setField(JsonFormlyUtil::buildInputFromNameable) //
+				.bidirectional(TIME_OF_USE_TARIFF_PROVIDER_ID, "filter",
+						ComponentManagerSupplier::getComponentManager));
 
 		private final AppDef<? super Tibber, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
@@ -110,23 +124,37 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 			final var ctrlEssTimeOfUseTariffId = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIFF_ID);
 
 			final var alias = this.getString(p, l, Property.ALIAS);
-			final var accessToken = this.getString(p, l, Property.ACCESS_TOKEN);
+			final var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, null);
+			final var filter = this.getValueOrDefault(p, Property.FILTER, null);
 
 			if (t == ConfigurationTarget.ADD && (accessToken == null || accessToken.isBlank())) {
 				throw new OpenemsException("Access Token is required!");
 			}
 
-			var comp = TimeOfUseProps.getComponents(t, ctrlEssTimeOfUseTariffId, alias, "TimeOfUseTariff.Tibber",
-					this.getName(l), timeOfUseTariffProviderId,
-					b -> b.addPropertyIfNotNull("accessToken", accessToken));
+			var components = Lists.newArrayList(//
+					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
+							JsonUtils.buildJsonObject() //
+									.addProperty("ess.id", "ess0") //
+									.build()), //
+					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Tibber",
+							JsonUtils.buildJsonObject() //
+									.addPropertyIfNotNull("accessToken", accessToken) //
+									.addPropertyIfNotNull("filter", filter) //
+									.build())//
+			);
 
-			return new AppConfiguration(comp, Lists.newArrayList(ctrlEssTimeOfUseTariffId, "ctrlBalancing0"));
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffId, "ctrlBalancing0")) //
+					.addTask(Tasks.persistencePredictor("_sum/UnmanagedConsumptionActivePower")) //
+					.build();
 		};
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 

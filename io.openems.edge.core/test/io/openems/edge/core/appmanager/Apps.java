@@ -15,23 +15,42 @@ import io.openems.edge.app.TestMultipleIds;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly;
 import io.openems.edge.app.api.ModbusTcpApiReadWrite;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
+import io.openems.edge.app.api.RestJsonApiReadWrite;
 import io.openems.edge.app.ess.FixActivePower;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
+import io.openems.edge.app.evcs.AlpitronicEvcs;
 import io.openems.edge.app.evcs.EvcsCluster;
 import io.openems.edge.app.evcs.HardyBarthEvcs;
 import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.evcs.WebastoNextEvcs;
 import io.openems.edge.app.evcs.WebastoUniteEvcs;
+import io.openems.edge.app.heat.CombinedHeatAndPower;
 import io.openems.edge.app.heat.HeatPump;
+import io.openems.edge.app.heat.HeatingElement;
 import io.openems.edge.app.integratedsystem.FeneconHome;
 import io.openems.edge.app.integratedsystem.FeneconHome20;
 import io.openems.edge.app.integratedsystem.FeneconHome30;
+import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk010;
+import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk011;
+import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk110;
+import io.openems.edge.app.loadcontrol.ManualRelayControl;
+import io.openems.edge.app.loadcontrol.ThresholdControl;
+import io.openems.edge.app.meter.CarloGavazziMeter;
+import io.openems.edge.app.meter.JanitzaMeter;
 import io.openems.edge.app.meter.MicrocareSdm630Meter;
 import io.openems.edge.app.meter.SocomecMeter;
+import io.openems.edge.app.peakshaving.PeakShaving;
+import io.openems.edge.app.peakshaving.PhaseAccuratePeakShaving;
+import io.openems.edge.app.pvinverter.FroniusPvInverter;
+import io.openems.edge.app.pvinverter.KacoPvInverter;
+import io.openems.edge.app.pvinverter.KostalPvInverter;
+import io.openems.edge.app.pvinverter.SmaPvInverter;
+import io.openems.edge.app.pvinverter.SolarEdgePvInverter;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
 import io.openems.edge.app.timeofusetariff.AwattarHourly;
+import io.openems.edge.app.timeofusetariff.EntsoE;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.app.timeofusetariff.Tibber;
 import io.openems.edge.common.component.ComponentManager;
@@ -90,6 +109,36 @@ public class Apps {
 		return app(t, FeneconHome30::new, "App.FENECON.Home.30");
 	}
 
+	/**
+	 * Test method for creating a {@link Isk110}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final Isk110 feneconIsk110(AppManagerTestBundle t) {
+		return app(t, Isk110::new, "App.FENECON.Industrial.S.ISK110");
+	}
+
+	/**
+	 * Test method for creating a {@link Isk010}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final Isk010 feneconIsk010(AppManagerTestBundle t) {
+		return app(t, Isk010::new, "App.FENECON.Industrial.S.ISK010");
+	}
+
+	/**
+	 * Test method for creating a {@link Isk011}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final Isk011 feneconIsk011(AppManagerTestBundle t) {
+		return app(t, Isk011::new, "App.FENECON.Industrial.S.ISK011");
+	}
+
 	// TimeOfUseTariff
 
 	/**
@@ -100,6 +149,16 @@ public class Apps {
 	 */
 	public static final AwattarHourly awattarHourly(AppManagerTestBundle t) {
 		return app(t, AwattarHourly::new, "App.TimeOfUseTariff.Awattar");
+	}
+
+	/**
+	 * Test method for creating a {@link EntsoE}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final EntsoE entsoE(AppManagerTestBundle t) {
+		return app(t, EntsoE::new, "App.TimeOfUseTariff.ENTSO-E");
 	}
 
 	/**
@@ -196,6 +255,16 @@ public class Apps {
 		return app(t, RestJsonApiReadOnly::new, "App.Api.RestJson.ReadOnly");
 	}
 
+	/**
+	 * Test method for creating a {@link RestJsonApiReadWrite}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final RestJsonApiReadWrite restJsonApiReadWrite(AppManagerTestBundle t) {
+		return app(t, RestJsonApiReadWrite::new, "App.Api.RestJson.ReadWrite");
+	}
+
 	// Evcs
 
 	/**
@@ -226,6 +295,16 @@ public class Apps {
 	 */
 	public static final IesKeywattEvcs iesKeywattEvcs(AppManagerTestBundle t) {
 		return app(t, IesKeywattEvcs::new, "App.Evcs.IesKeywatt");
+	}
+
+	/**
+	 * Test method for creating a {@link AlpitronicEvcs}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AlpitronicEvcs alpitronicEvcs(AppManagerTestBundle t) {
+		return app(t, AlpitronicEvcs::new, "App.Evcs.Alpitronic");
 	}
 
 	/**
@@ -270,6 +349,26 @@ public class Apps {
 		return app(t, HeatPump::new, "App.Heat.HeatPump");
 	}
 
+	/**
+	 * Test method for creating a {@link CombinedHeatAndPower}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final CombinedHeatAndPower combinedHeatAndPower(AppManagerTestBundle t) {
+		return app(t, CombinedHeatAndPower::new, "App.Heat.CHP");
+	}
+
+	/**
+	 * Test method for creating a {@link HeatingElement}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final HeatingElement heatingElement(AppManagerTestBundle t) {
+		return app(t, HeatingElement::new, "App.Heat.HeatingElement");
+	}
+
 	// PvSelfConsumption
 
 	/**
@@ -292,6 +391,28 @@ public class Apps {
 		return app(t, SelfConsumptionOptimization::new, "App.PvSelfConsumption.SelfConsumptionOptimization");
 	}
 
+	// Load-Control
+
+	/**
+	 * Test method for creating a {@link ManualRelayControl}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final ManualRelayControl manualRelayControl(AppManagerTestBundle t) {
+		return app(t, ManualRelayControl::new, "App.LoadControl.ManualRelayControl");
+	}
+
+	/**
+	 * Test method for creating a {@link ThresholdControl}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final ThresholdControl thresholdControl(AppManagerTestBundle t) {
+		return app(t, ThresholdControl::new, "App.LoadControl.ThresholdControl");
+	}
+
 	// Meter
 
 	/**
@@ -301,8 +422,27 @@ public class Apps {
 	 * @return the {@link OpenemsApp} instance
 	 */
 	public static final SocomecMeter socomecMeter(AppManagerTestBundle t) {
-		return app(t, (componentManager, componentContext, cm, componentUtil) -> new SocomecMeter(componentManager,
-				componentContext, cm, componentUtil, t.appManagerUtil), "App.Meter.Socomec");
+		return app(t, SocomecMeter::new, "App.Meter.Socomec");
+	}
+
+	/**
+	 * Test method for creating a {@link CarloGavazziMeter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final CarloGavazziMeter carloGavazziMeter(AppManagerTestBundle t) {
+		return app(t, CarloGavazziMeter::new, "App.Meter.CarloGavazzi");
+	}
+
+	/**
+	 * Test method for creating a {@link JanitzaMeter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final JanitzaMeter janitzaMeter(AppManagerTestBundle t) {
+		return app(t, JanitzaMeter::new, "App.Meter.Janitza");
 	}
 
 	/**
@@ -312,10 +452,81 @@ public class Apps {
 	 * @return the {@link OpenemsApp} instance
 	 */
 	public static final MicrocareSdm630Meter microcareSdm630Meter(AppManagerTestBundle t) {
-		return app(t,
-				(componentManager, componentContext, cm, componentUtil) -> new MicrocareSdm630Meter(componentManager,
-						componentContext, cm, componentUtil, t.appManagerUtil),
-				"App.Meter.Microcare.Sdm630");
+		return app(t, MicrocareSdm630Meter::new, "App.Meter.Microcare.Sdm630");
+	}
+
+	// PV-Inverter
+
+	/**
+	 * Test method for creating a {@link FroniusPvInverter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FroniusPvInverter froniusPvInverter(AppManagerTestBundle t) {
+		return app(t, FroniusPvInverter::new, "App.PvInverter.Fronius");
+	}
+
+	/**
+	 * Test method for creating a {@link KacoPvInverter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final KacoPvInverter kacoPvInverter(AppManagerTestBundle t) {
+		return app(t, KacoPvInverter::new, "App.PvInverter.Kaco");
+	}
+
+	/**
+	 * Test method for creating a {@link KostalPvInverter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final KostalPvInverter kostalPvInverter(AppManagerTestBundle t) {
+		return app(t, KostalPvInverter::new, "App.PvInverter.Kostal");
+	}
+
+	/**
+	 * Test method for creating a {@link SmaPvInverter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final SmaPvInverter smaPvInverter(AppManagerTestBundle t) {
+		return app(t, SmaPvInverter::new, "App.PvInverter.Sma");
+	}
+
+	/**
+	 * Test method for creating a {@link SolarEdgePvInverter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final SolarEdgePvInverter solarEdgePvInverter(AppManagerTestBundle t) {
+		return app(t, SolarEdgePvInverter::new, "App.PvInverter.SolarEdge");
+	}
+
+	// PeakShaving
+
+	/**
+	 * Test method for creating a {@link PeakShaving}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final PeakShaving peakShaving(AppManagerTestBundle t) {
+		return app(t, PeakShaving::new, "App.PeakShaving.PeakShaving");
+	}
+
+	/**
+	 * Test method for creating a {@link PhaseAccuratePeakShaving}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final PhaseAccuratePeakShaving phaseAccuratePeakShaving(AppManagerTestBundle t) {
+		return app(t, PhaseAccuratePeakShaving::new, "App.PeakShaving.PhaseAccuratePeakShaving");
 	}
 
 	// ess-controller
@@ -345,10 +556,23 @@ public class Apps {
 				t.componentUtil);
 	}
 
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithAppUtil<T> constructor,
+			String appId) {
+		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
+				t.componentUtil, t.appManagerUtil);
+	}
+
 	private static interface DefaultAppConstructor<A> {
 
 		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
 				ComponentUtil componentUtil);
+
+	}
+
+	private static interface DefaultAppConstructorWithAppUtil<A> {
+
+		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
+				ComponentUtil componentUtil, AppManagerUtil util);
 
 	}
 

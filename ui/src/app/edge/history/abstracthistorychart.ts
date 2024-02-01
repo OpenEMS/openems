@@ -7,11 +7,12 @@ import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/reque
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
+import { HistoryUtils } from 'src/app/shared/service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
+import { DateUtils } from 'src/app/shared/utils/date/dateutils';
+import { DateTimeUtils } from 'src/app/shared/utils/datetime/datetime-utils';
 
 import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, TooltipItem } from './shared';
-import { HistoryUtils } from 'src/app/shared/service/utils';
-import { DateUtils } from 'src/app/shared/utils/dateutils/dateutils';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {
@@ -38,27 +39,27 @@ export abstract class AbstractHistoryChart {
     // Colors for Phase 1-3
     protected phase1Color = {
         backgroundColor: 'rgba(255,127,80,0.05)',
-        borderColor: 'rgba(255,127,80,1)'
+        borderColor: 'rgba(255,127,80,1)',
     };
     protected phase2Color = {
         backgroundColor: 'rgba(0,0,255,0.1)',
-        borderColor: 'rgba(0,0,255,1)'
+        borderColor: 'rgba(0,0,255,1)',
     };
     protected phase3Color = {
         backgroundColor: 'rgba(128,128,0,0.1)',
-        borderColor: 'rgba(128,128,0,1)'
+        borderColor: 'rgba(128,128,0,1)',
     };
 
     constructor(
         public readonly spinnerId: string,
         protected service: Service,
-        protected translate: TranslateService
+        protected translate: TranslateService,
     ) {
     }
 
     /**
      * Gets the ChannelAddresses that should be queried.
-     * 
+     *
      * @param edge the current Edge
      * @param config the EdgeConfig
      */
@@ -67,7 +68,7 @@ export abstract class AbstractHistoryChart {
 
     /**
      * Sends the Historic Timeseries Data Query and makes sure the result is not empty.
-     * 
+     *
      * @param fromDate the From-Date
      * @param toDate   the To-Date
      * @param edge     the current Edge
@@ -92,7 +93,7 @@ export abstract class AbstractHistoryChart {
                         }).catch(error => {
                             this.errorResponse = error;
                             resolve(new QueryHistoricTimeseriesDataResponse(error.id, {
-                                timestamps: [null], data: { null: null }
+                                timestamps: [null], data: { null: null },
                             }));
                         });
                     });
@@ -104,7 +105,7 @@ export abstract class AbstractHistoryChart {
                 this.service.stopSpinner(this.spinnerId);
                 this.initializeChart();
             }
-            return response;
+            return DateTimeUtils.normalizeTimestamps(resolution.unit, response);
         });
 
         return result;
@@ -112,14 +113,14 @@ export abstract class AbstractHistoryChart {
 
     /**
      * Sends the Historic Timeseries Energy per Period Query and makes sure the result is not empty.
-     * 
+     *
      * @param fromDate the From-Date
      * @param toDate   the To-Date
      * @param channelAddresses       the Channel-Addresses
      */
     protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date, channelAddresses: ChannelAddress[]): Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> {
 
-        // TODO should be removed, edge delivers too much data 
+        // TODO should be removed, edge delivers too much data
         let resolution = calculateResolution(this.service, fromDate, toDate).resolution;
 
         this.errorResponse = null;
@@ -129,12 +130,12 @@ export abstract class AbstractHistoryChart {
                 this.service.getConfig().then(config => {
                     edge.sendRequest(this.service.websocket, new QueryHistoricTimeseriesEnergyPerPeriodRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution)).then(response => {
                         resolve(response as QueryHistoricTimeseriesEnergyPerPeriodResponse ?? new QueryHistoricTimeseriesEnergyPerPeriodResponse(response.id, {
-                            timestamps: [null], data: { null: null }
+                            timestamps: [null], data: { null: null },
                         }));
                     }).catch((response) => {
                         this.errorResponse = response;
                         resolve(new QueryHistoricTimeseriesDataResponse("0", {
-                            timestamps: [null], data: { null: null }
+                            timestamps: [null], data: { null: null },
                         }));
                     });
                 });
@@ -145,16 +146,16 @@ export abstract class AbstractHistoryChart {
                 this.service.stopSpinner(this.spinnerId);
                 this.initializeChart();
             }
-            return response;
+            return DateTimeUtils.normalizeTimestamps(resolution.unit, response);
         });
         return response;
     }
 
     /**
      * Generates a Tooltip Title string from a 'fromDate' and 'toDate'.
-     * 
+     *
      * @param fromDate the From-Date
-     * @param toDate the To-Date 
+     * @param toDate the To-Date
      * @param date Date from TooltipItem
      * @returns period for Tooltip Header
      */
@@ -170,9 +171,9 @@ export abstract class AbstractHistoryChart {
 
     /**
      * Creates the default Chart options
-     * 
+     *
      * @Future TODO change into static method and pass the historyPeriods value
-     * 
+     *
      * @returns the ChartOptions
      */
     protected createDefaultChartOptions(): ChartOptions {
@@ -197,7 +198,7 @@ export abstract class AbstractHistoryChart {
 
     /**
      * checks if chart is allowed to be refreshed
-     * 
+     *
      */
     // protected checkAllowanceChartRefresh(): boolean {
     //     let currentDate = new Date();
@@ -273,11 +274,11 @@ export abstract class AbstractHistoryChart {
 
     /**
      * Start NGX-Spinner
-     * 
+     *
      * Spinner will appear inside html tag only
-     * 
+     *
      * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
-     * 
+     *
      * @param selector selector for specific spinner
      */
     public startSpinner() {

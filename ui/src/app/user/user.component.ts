@@ -3,6 +3,7 @@ import { FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { Changelog } from 'src/app/changelog/view/component/changelog.constants';
+
 import { environment } from '../../environments';
 import { GetUserInformationRequest } from '../shared/jsonrpc/request/getUserInformationRequest';
 import { SetUserInformationRequest } from '../shared/jsonrpc/request/setUserInformationRequest';
@@ -16,6 +17,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 type UserInformation = {
   firstname: string,
   lastname: string,
+  companyname?: string,
   email: string,
   phone: string,
   street: string,
@@ -24,7 +26,7 @@ type UserInformation = {
   country: string
 }
 @Component({
-  templateUrl: './user.component.html'
+  templateUrl: './user.component.html',
 })
 export class UserComponent implements OnInit {
 
@@ -41,17 +43,17 @@ export class UserComponent implements OnInit {
     public translate: TranslateService,
     public service: Service,
     private route: ActivatedRoute,
-    private websocket: Websocket
+    private websocket: Websocket,
   ) { }
 
   ngOnInit() {
-    // Set currentLanguage to 
+    // Set currentLanguage to
     this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
     this.service.setCurrentComponent({ languageKey: 'Menu.user' }, this.route);
     this.getUserInformation().then((userInformation) => {
       this.form = {
         formGroup: new FormGroup({}),
-        model: userInformation
+        model: userInformation,
       };
       this.showInformation = true;
     });
@@ -68,9 +70,9 @@ export class UserComponent implements OnInit {
           street: this.form.model.street,
           zip: this.form.model.zip,
           city: this.form.model.city,
-          country: this.form.model.country
-        }
-      }
+          country: this.form.model.country,
+        },
+      },
     };
     this.service.websocket.sendRequest(new SetUserInformationRequest(user)).then(() => {
       this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -86,7 +88,7 @@ export class UserComponent implements OnInit {
       this.getUserInformation().then((userInformation) => {
         this.form = {
           formGroup: new FormGroup({}),
-          model: userInformation
+          model: userInformation,
         };
       });
     }
@@ -95,10 +97,29 @@ export class UserComponent implements OnInit {
   }
 
   public enableAndDisableFormFields(): boolean {
+
+    /** Fields, that are allowed to be edited for company assigned users */
+    const ALLOWED_FIELDS_FOR_COMPANY_USER: string[] = [
+      'firstname', 'lastname',
+    ];
+
+    const hasUserCompany = this.userInformationFields.find(field => field.key === 'companyname').model.companyname;
+
     // Update Fields
-    this.userInformationFields.forEach(element => {
-      element.props.disabled = !element.props.disabled;
-    });
+    this.userInformationFields.reduce((arr, field) => {
+
+      if (hasUserCompany && ALLOWED_FIELDS_FOR_COMPANY_USER.find(key => key === field.key)?.length > 0) {
+        field.props.disabled = !field.props.disabled;
+      }
+
+      if (!hasUserCompany) {
+        field.props.disabled = !field.props.disabled;
+      }
+
+      arr.push(field);
+      return arr;
+    }, []);
+
     return this.isEditModeDisabled = !this.isEditModeDisabled;
   }
 
@@ -108,40 +129,40 @@ export class UserComponent implements OnInit {
     type: "input",
     templateOptions: {
       label: this.translate.instant("Register.Form.firstname"),
-      disabled: true
-    }
+      disabled: true,
+    },
   },
   {
     key: "lastname",
     type: "input",
     templateOptions: {
       label: this.translate.instant("Register.Form.lastname"),
-      disabled: true
-    }
+      disabled: true,
+    },
   },
   {
     key: "street",
     type: "input",
     templateOptions: {
       label: this.translate.instant("Register.Form.street"),
-      disabled: true
-    }
+      disabled: true,
+    },
   },
   {
     key: "zip",
     type: "input",
     templateOptions: {
       label: this.translate.instant("Register.Form.zip"),
-      disabled: true
-    }
+      disabled: true,
+    },
   },
   {
     key: "city",
     type: "input",
     templateOptions: {
       label: this.translate.instant("Register.Form.city"),
-      disabled: true
-    }
+      disabled: true,
+    },
   },
   {
     key: "country",
@@ -149,28 +170,40 @@ export class UserComponent implements OnInit {
     templateOptions: {
       label: this.translate.instant("Register.Form.country"),
       options: COUNTRY_OPTIONS(this.translate),
-      disabled: true
-    }
+      disabled: true,
+    },
   },
   {
     key: "email",
     type: "input",
     templateOptions: {
       label: this.translate.instant("Register.Form.email"),
-      disabled: true
+      disabled: true,
     },
     validators: {
-      validation: [Validators.email]
-    }
+      validation: [Validators.email],
+    },
   },
   {
     key: "phone",
     type: "input",
     templateOptions: {
       label: this.translate.instant("Register.Form.phone"),
-      disabled: true
-    }
-  }];
+      disabled: true,
+    },
+  },
+  {
+    key: "companyname",
+    type: "input",
+    props: {
+      label: this.translate.instant('Register.Form.companyName'),
+      disabled: true,
+    },
+    expressions: {
+      hide: (fields) => !fields.model.companyname,
+    },
+  },
+  ];
 
   public getUserInformation(): Promise<UserInformation> {
 
@@ -183,12 +216,15 @@ export class UserComponent implements OnInit {
             resolve({
               lastname: user.lastname,
               firstname: user.firstname,
+
+              // Show company if available
+              ...(user.company.name && { companyname: user.company.name }),
               email: user.email,
               phone: user.phone,
               street: user.address.street,
               zip: user.address.zip,
               city: user.address.city,
-              country: user.address.country
+              country: user.address.country,
             });
           }).catch(() => {
             resolve({
@@ -199,7 +235,7 @@ export class UserComponent implements OnInit {
               street: "",
               zip: "",
               city: "",
-              country: ""
+              country: "",
             });
           });
           clearInterval(interval);

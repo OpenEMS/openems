@@ -80,9 +80,6 @@ import io.openems.edge.common.type.TypeUtils;
 public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent implements ModbusComponent, OpenemsComponent,
 		Battery, EventHandler, ModbusSlave, StartStoppable, BatteryFeneconHome {
 
-	private static final String SERIAL_NUMBER_PREFIX_BMS = "519100001009";
-	private static final String SERIAL_NUMBER_PREFIX_MODULE = "519110001210";
-
 	protected final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private final Logger log = LoggerFactory.getLogger(BatteryFeneconHomeImpl.class);
@@ -762,7 +759,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 										new UnsignedDoublewordElement(towerOffset + 51),
 										new ElementToChannelConverter(value -> {
 											Integer intValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
-											return buildSerialNumber(SERIAL_NUMBER_PREFIX_BMS, intValue);
+											return buildSerialNumber(this.getBatteryHardwareType().serialNrPrefixBms, intValue);
 										}))));
 			}
 
@@ -854,7 +851,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 									m(channelId, new UnsignedDoublewordElement(moduleOffset + module * 100 + 83),
 											new ElementToChannelConverter(value -> {
 												Integer intValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
-												return buildSerialNumber(SERIAL_NUMBER_PREFIX_MODULE, intValue);
+												return buildSerialNumber(this.getBatteryHardwareType().serialNrPrefixModule, intValue);
 											}))));
 				}
 			}

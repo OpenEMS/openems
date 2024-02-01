@@ -14,6 +14,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -36,6 +37,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a App for KMtronic 8-Channel Relay.
@@ -43,7 +45,7 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
  * <pre>
   {
     "appId":"App.Hardware.KMtronic8Channel",
-    "alias":"",
+    "alias": string,
     "instanceId": UUID,
     "image": base64,
     "properties":{
@@ -127,22 +129,19 @@ public class KMtronic8Channel extends AbstractOpenemsAppWithProps<KMtronic8Chann
 							.build())//
 			);
 
-			final var ips = Lists.newArrayList(//
-					new InterfaceConfiguration("eth0") //
-							.addIp("Relay", "192.168.1.198/28") //
-			);
-
-			return new AppConfiguration(//
-					comp, //
-					null, //
-					ip.startsWith("192.168.1.") ? ips : null //
-			);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(comp)) //
+					.throwingOnlyIf(ip.startsWith("192.168.1."),
+							b -> b.addTask(Tasks.staticIp(new InterfaceConfiguration("eth0") //
+									.addIp("Relay", "192.168.1.198/28")))) //
+					.build();
 		};
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 

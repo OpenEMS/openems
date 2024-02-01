@@ -22,6 +22,9 @@ public class BridgeModbusSerialImplTest {
 						.setParity(Parity.NONE) //
 						.setStopbits(Stopbit.ONE) //
 						.setInvalidateElementsAfterReadErrors(1) //
+						.setEnableTermination(true) //
+						.setDelayBeforeTx(1000) //
+						.setDelayAfterTx(0) //
 						.setLogVerbosity(LogVerbosity.NONE) //
 						.build()) //
 		;

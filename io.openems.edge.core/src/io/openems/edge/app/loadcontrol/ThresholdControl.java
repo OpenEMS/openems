@@ -1,12 +1,19 @@
 package io.openems.edge.app.loadcontrol;
 
+import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.common.props.RelayProps.createPhaseInformation;
+import static io.openems.edge.app.common.props.RelayProps.relayContactDef;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkRelayCount;
 
-import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
@@ -14,29 +21,33 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.PropsUtil;
+import io.openems.edge.app.common.props.RelayProps;
+import io.openems.edge.app.common.props.RelayProps.RelayContactInformation;
+import io.openems.edge.app.common.props.RelayProps.RelayContactInformationProvider;
 import io.openems.edge.app.loadcontrol.ThresholdControl.Property;
+import io.openems.edge.app.loadcontrol.ThresholdControl.ThresholdControlControlParameter;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
-import io.openems.edge.core.appmanager.AbstractOpenemsApp;
-import io.openems.edge.core.appmanager.AppAssistant;
+import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ComponentUtil.PreferredRelay;
-import io.openems.edge.core.appmanager.ComponentUtil.RelayContactInfo;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.DefaultEnum;
-import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.TranslationUtil;
-import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
+import io.openems.edge.core.appmanager.validator.relaycount.CheckRelayCountFilters;
 
 /**
  * Describes a App for a Threshold Controller.
@@ -57,44 +68,85 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.LoadControl.ThresholdControl")
-public class ThresholdControl extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
+@Component(name = "App.LoadControl.ThresholdControl")
+public class ThresholdControl
+		extends AbstractOpenemsAppWithProps<ThresholdControl, Property, ThresholdControlControlParameter>
+		implements OpenemsApp {
 
-	public static enum Property implements DefaultEnum, Nameable {
+	public record ThresholdControlControlParameter(//
+			ResourceBundle bundle, //
+			RelayContactInformation relayContactInformation //
+	) implements BundleProvider, RelayContactInformationProvider {
+
+	}
+
+	public static enum Property implements Type<Property, ThresholdControl, ThresholdControlControlParameter> {
 		// Component-IDs
-		CTRL_IO_CHANNEL_SINGLE_THRESHOLD_ID("ctrlIoChannelSingleThreshold0"), //
+		CTRL_IO_CHANNEL_SINGLE_THRESHOLD_ID(AppDef.componentId("ctrlIoChannelSingleThreshold0")), //
 		// Properties
-		ALIAS("Schwellwertsteuerung"), //
-		OUTPUT_CHANNELS("['io0/Relay1']"), //
+		ALIAS(alias()), //
+		OUTPUT_CHANNELS(AppDef.copyOfGeneric(relayContactDef(true, 1), def -> def//
+				.setTranslatedLabelWithAppPrefix(".outputChannels.label") //
+				.setTranslatedDescriptionWithAppPrefix(".outputChannels.description"))), //
 		;
 
-		private final String defaultValue;
+		private final AppDef<? super ThresholdControl, ? super Property, ? super ThresholdControlControlParameter> def;
 
-		private Property(String defaultValue) {
-			this.defaultValue = defaultValue;
+		private Property(
+				AppDef<? super ThresholdControl, ? super Property, ? super ThresholdControlControlParameter> def) {
+			this.def = def;
 		}
 
 		@Override
-		public String getDefaultValue() {
-			return this.defaultValue;
+		public Type<Property, ThresholdControl, ThresholdControlControlParameter> self() {
+			return this;
+		}
+
+		@Override
+		public AppDef<? super ThresholdControl, ? super Property, ? super ThresholdControlControlParameter> def() {
+			return this.def;
+		}
+
+		@Override
+		public Function<GetParameterValues<ThresholdControl>, ThresholdControlControlParameter> getParamter() {
+			return t -> {
+				final var isHomeInstalled = PropsUtil.isHomeInstalled(t.app.appManagerUtil);
+
+				return new ThresholdControlControlParameter(//
+						createResourceBundle(t.language), //
+						createPhaseInformation(t.app.componentUtil, 2, //
+								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true)), //
+								List.of(PreferredRelay.of(4, new int[] { 1 }), //
+										PreferredRelay.of(8, new int[] { 1 }))) //
+				);
+			};
 		}
 
 	}
 
+	private final AppManagerUtil appManagerUtil;
+
 	@Activate
-	public ThresholdControl(@Reference ComponentManager componentManager, ComponentContext componentContext,
-			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
+	public ThresholdControl(//
+			@Reference ComponentManager componentManager, //
+			ComponentContext componentContext, //
+			@Reference ConfigurationAdmin cm, //
+			@Reference ComponentUtil componentUtil, //
+			@Reference AppManagerUtil appManagerUtil //
+	) {
 		super(componentManager, componentContext, cm, componentUtil);
+		this.appManagerUtil = appManagerUtil;
 	}
 
 	@Override
-	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
 
 			final var ctrlIoChannelSingleThresholdId = this.getId(t, p, Property.CTRL_IO_CHANNEL_SINGLE_THRESHOLD_ID);
 
 			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
-			final var outputChannelAddress = EnumUtils.getAsJsonArray(p, Property.OUTPUT_CHANNELS);
+
+			final var outputChannelAddress = this.getJsonArray(p, Property.OUTPUT_CHANNELS);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlIoChannelSingleThresholdId, alias,
@@ -106,41 +158,16 @@ public class ThresholdControl extends AbstractEnumOpenemsApp<Property> implement
 									.build()) //
 			);
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 
 	@Override
-	public AppAssistant getAppAssistant(Language language) {
-		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
-		var relays = this.componentUtil.getPreferredRelays(1, //
-				new PreferredRelay(4, new int[] { 1 }), //
-				new PreferredRelay(8, new int[] { 1 }));
-		return AppAssistant.create(this.getName(language)) //
-				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNELS) //
-								.isMulti(true) //
-								.setOptions(this.componentUtil.getAllRelayInfos().stream() //
-										.flatMap(r -> r.channels().stream()) //
-										.map(RelayContactInfo::channel) //
-										.toList()) //
-								.onlyIf(relays != null, t -> t.setDefaultValue(//
-										JsonUtils.buildJsonArray() //
-												.add(relays[0]) //
-												.build())) //
-								.isRequired(true) //
-								.setLabel(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".outputChannels.label")) //
-								.setDescription(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".outputChannels.description")) //
-								.build())
-						.build())
-				.build();
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 
@@ -152,17 +179,22 @@ public class ThresholdControl extends AbstractEnumOpenemsApp<Property> implement
 	@Override
 	public ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(checkRelayCount(1));
-	}
-
-	@Override
-	protected Class<Property> getPropertyClass() {
-		return Property.class;
+				.setInstallableCheckableConfigs(checkRelayCount(1, CheckRelayCountFilters.feneconHome(true)));
 	}
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.MULTIPLE;
+	}
+
+	@Override
+	protected ThresholdControl getApp() {
+		return this;
+	}
+
+	@Override
+	protected Property[] propertyValues() {
+		return Property.values();
 	}
 
 }

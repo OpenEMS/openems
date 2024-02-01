@@ -1,5 +1,5 @@
 import { LINE_INFO } from "src/app/shared/edge/edgeconfig.spec";
-import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/tester";
+import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/testing/tester";
 import { sharedSetup, TestContext } from "src/app/shared/test/utils.spec";
 
 import { ModalComponent } from "./modal";
@@ -14,16 +14,16 @@ export function expectView(testContext: TestContext, viewContext: OeFormlyViewTe
 };
 
 describe('SelfConsumption - Modal', () => {
-  let TEST_CONTEXT:TestContext;
-  beforeEach(() => TEST_CONTEXT = sharedSetup());
+  let TEST_CONTEXT: TestContext;
+  beforeEach(async () => TEST_CONTEXT = await sharedSetup());
 
   it('generateView()', () => {
     {
       expectView(TEST_CONTEXT, VIEW_CONTEXT, {
         title: "Eigenverbrauch",
         lines: [
-          LINE_INFO("Der Eigenverbrauch gibt an zu wie viel Prozent die aktuell erzeugte Leistung durch direkten Verbrauch und durch Speicherbeladung selbst genutzt wird.")
-        ]
+          LINE_INFO("Der Eigenverbrauch gibt an zu wie viel Prozent die aktuell erzeugte Leistung durch direkten Verbrauch und durch Speicherbeladung selbst genutzt wird."),
+        ],
       });
     }
   });

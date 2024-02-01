@@ -1,20 +1,23 @@
 import { Inject, Injectable } from "@angular/core";
 
 import { DataService } from "../../shared/genericComponents/shared/dataservice";
-import { QueryHistoricTimeseriesEnergyRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
 import { QueryHistoricTimeseriesEnergyResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChannelAddress, Edge, Service, Websocket } from "../../shared/shared";
-import { DateUtils } from "src/app/shared/utils/dateutils/dateutils";
+import { ChannelAddress, Edge } from "../../shared/shared";
+import { DateUtils } from "src/app/shared/utils/date/dateutils";
+import { QueryHistoricTimeseriesEnergyRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
+import { Websocket } from "src/app/shared/service/websocket";
+import { Service } from "src/app/shared/service/service";
 
 @Injectable()
 export class HistoryDataService extends DataService {
 
   private channelAddresses: { [sourceId: string]: ChannelAddress } = {};
   public queryChannelsTimeout: any | null = null;
+  protected override timestamps: string[] = [];
 
   constructor(
     @Inject(Websocket) protected websocket: Websocket,
-    @Inject(Service) protected service: Service
+    @Inject(Service) protected service: Service,
   ) {
     super();
   }
@@ -39,6 +42,7 @@ export class HistoryDataService extends DataService {
                   allComponents[key] = value;
                 }
                 this.currentValue.next({ allComponents: allComponents });
+                this.timestamps = response.result['timestamps'] ?? [];
               }).catch(err => console.warn(err))
               .finally(() => {
               });

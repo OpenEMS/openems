@@ -17,6 +17,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -39,6 +40,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a Keba evcs App.
@@ -136,24 +138,22 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 							.build())//
 			);
 
-			var ips = Lists.newArrayList(//
-					new InterfaceConfiguration("eth0") //
-							.addIp("Evcs", "192.168.25.10/24") //
-			);
-
-			return new AppConfiguration(//
-					components, //
-					Lists.newArrayList(ctrlEvcsId, "ctrlBalancing0"), //
-					ip.startsWith("192.168.25.") ? ips : null, //
-					EvcsCluster.dependency(t, this.componentManager, this.componentUtil, maxHardwarePowerPerPhase,
-							evcsId) //
-			);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(ctrlEvcsId, "ctrlBalancing0")) //
+					.throwingOnlyIf(ip.startsWith("192.168.25."),
+							b -> b.addTask(Tasks.staticIp(new InterfaceConfiguration("eth0") //
+									.addIp("Evcs", "192.168.25.10/24")))) //
+					.addDependencies(EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
+							maxHardwarePowerPerPhase, evcsId)) //
+					.build();
 		};
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 

@@ -3,7 +3,7 @@ import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/reque
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from 'src/app/shared/shared';
 import { calculateResolution } from './shared';
-import { DateUtils } from 'src/app/shared/utils/dateutils/dateutils';
+import { DateUtils } from 'src/app/shared/utils/date/dateutils';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryWidget {
@@ -14,7 +14,7 @@ export abstract class AbstractHistoryWidget {
     // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     constructor(
-        protected service: Service
+        protected service: Service,
     ) { }
 
     /**
@@ -42,7 +42,7 @@ export abstract class AbstractHistoryWidget {
 
     /**
      * Sends the Historic Timeseries Data Query and makes sure the result is not empty.
-     * 
+     *
      * @param fromDate the From-Date
      * @param toDate   the To-Date
      * @param edge     the current Edge
@@ -86,7 +86,7 @@ export abstract class AbstractHistoryWidget {
 
     /**
      * Gets the ChannelAddresses that should be queried.
-     * 
+     *
      * @param edge the current Edge
      * @param config the EdgeConfig
      */
