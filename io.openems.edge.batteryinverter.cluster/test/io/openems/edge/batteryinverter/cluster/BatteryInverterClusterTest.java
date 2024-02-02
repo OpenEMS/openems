@@ -125,8 +125,7 @@ public class BatteryInverterClusterTest {
 		BatteryInverterCluster batteryInverterCluster = new BatteryInverterClusterImpl();
 		DummyManagedSymmetricBatteryInverter inverter1 = new DummyManagedSymmetricBatteryInverter(BATTERY_INVERTER1_ID);
 		DummyManagedSymmetricBatteryInverter inverter2 = new DummyManagedSymmetricBatteryInverter(BATTERY_INVERTER2_ID);
-		DummyBattery battery = new DummyBattery(BATTERY_ID);
-		
+				
 		inverter1._setMaxApparentPower(10000);
 		inverter2._setMaxApparentPower(10000);
 		
@@ -144,6 +143,8 @@ public class BatteryInverterClusterTest {
 				.input(INVERTER1_MAX_APPARENT_POWER, 10000)
 				.input(INVERTER2_MAX_APPARENT_POWER, 10000));
 		
+		DummyBattery battery = new DummyBattery(BATTERY_ID);
+
 		// Test setting active and reactive power
 		batteryInverterCluster.run(battery, 10000, 0);
 		test.next(new TestCase()

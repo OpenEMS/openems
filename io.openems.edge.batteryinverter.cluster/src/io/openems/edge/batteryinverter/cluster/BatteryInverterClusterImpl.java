@@ -47,10 +47,10 @@ import io.openems.edge.common.type.TypeUtils;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
-	EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class BatteryInverterClusterImpl extends AbstractOpenemsComponent implements BatteryInverterCluster, SymmetricBatteryInverter, ManagedSymmetricBatteryInverter, 
-											OpenemsComponent, StartStoppable, EventHandler {
+public class BatteryInverterClusterImpl extends AbstractOpenemsComponent implements BatteryInverterCluster,
+		SymmetricBatteryInverter, ManagedSymmetricBatteryInverter, OpenemsComponent, StartStoppable, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(BatteryInverterCluster.class);
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
@@ -60,15 +60,14 @@ public class BatteryInverterClusterImpl extends AbstractOpenemsComponent impleme
 	@Reference
 	private ConfigurationAdmin cm;
 
-	@Reference 
+	@Reference
 	protected ComponentManager componentManager;
 
 	private Config config;
 
-
 	@Reference(//
-			policy = ReferencePolicy.DYNAMIC,//
-			policyOption = ReferencePolicyOption.GREEDY,//
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(&(enabled=true)(!(service.factoryPid=BatteryInverter.Cluster)))")
 
@@ -100,7 +99,8 @@ public class BatteryInverterClusterImpl extends AbstractOpenemsComponent impleme
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// TODO: Update filter references for inverters
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "BatteryInverter", config.batteryInverterIds())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "BatteryInverter",
+				config.batteryInverterIds())) {
 			return;
 		}
 
@@ -119,11 +119,11 @@ public class BatteryInverterClusterImpl extends AbstractOpenemsComponent impleme
 		StringBuilder sb = new StringBuilder();
 
 		for (int i = 0; i < this.inverters.size(); i++) {
-			sb.append(inverters.get(i).debugLog());
+			sb.append(this.inverters.get(i).debugLog());
 
-			if (i < inverters.size() - 1) {
-                sb.append("|");
-            }
+			if (i < this.inverters.size() - 1) {
+				sb.append("|");
+			}
 		}
 
 		return sb.toString();
@@ -131,8 +131,7 @@ public class BatteryInverterClusterImpl extends AbstractOpenemsComponent impleme
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable(
-				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+		return new ModbusSlaveTable(OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricBatteryInverter.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricBatteryInverter.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(BatteryInverterClusterImpl.class, accessMode, 300).build());
@@ -140,19 +139,18 @@ public class BatteryInverterClusterImpl extends AbstractOpenemsComponent impleme
 
 	@Override
 	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
-		// Basic strategy is to divide the active and reactive power amongst the inverter in proportion to the maxApparentPower available for each one
+		// Basic strategy is to divide the active and reactive power amongst the
+		// inverter in proportion to the maxApparentPower available for each one
 
-		// Filter and cast to make a list of inverters which are instances of ManagedSymmetricBatteryInverter and isManaged==true
+		// Filter and cast to make a list of inverters which are instances of
+		// ManagedSymmetricBatteryInverter and isManaged==true
 		List<ManagedSymmetricBatteryInverter> managedInverters = this.inverters.stream()
 				.filter(ManagedSymmetricBatteryInverter.class::isInstance)
-				.map(ManagedSymmetricBatteryInverter.class::cast)
-				.filter(ManagedSymmetricBatteryInverter::isManaged)
+				.map(ManagedSymmetricBatteryInverter.class::cast).filter(ManagedSymmetricBatteryInverter::isManaged)
 				.collect(Collectors.toList());
 
-		Integer totalMaxApparentPower = inverters.stream()
-				.mapToInt(inverter -> inverter.getMaxApparentPower().get())
-				.sum();
-
+		Integer totalMaxApparentPower = this.inverters.stream()
+				.mapToInt(inverter -> inverter.getMaxApparentPower().get()).sum();
 
 		Integer totalActivePowerSoFar = 0;
 		Integer totalReactivePowerSoFar = 0;
@@ -161,13 +159,11 @@ public class BatteryInverterClusterImpl extends AbstractOpenemsComponent impleme
 
 			ManagedSymmetricBatteryInverter inverter = managedInverters.get(i);
 			Integer inverterMaxPower = inverter.getMaxApparentPower().get();
-			
-			Boolean isLast = (i == (managedInverters.size() -1 )); // Is this the last inverter in the list
+
+			Boolean isLast = (i == (managedInverters.size() - 1)); // Is this the last inverter in the list
 			if (!isLast) {
 
 				Double weight = (double) inverter.getMaxApparentPower().get() / totalMaxApparentPower;
-				
-				
 
 				Integer activePower = Math.min((int) (setActivePower * weight), inverterMaxPower); // This truncates the decimal power (rounds down)
 				Integer reactivePower = Math.min((int) (setReactivePower * weight), inverterMaxPower); // This truncates the decimal power (rounds down)
@@ -184,7 +180,7 @@ public class BatteryInverterClusterImpl extends AbstractOpenemsComponent impleme
 				inverter.run(battery, activePower, reactivePower);
 
 			}
-		}	
+		}
 	}
 
 	@Override
@@ -253,6 +249,5 @@ public class BatteryInverterClusterImpl extends AbstractOpenemsComponent impleme
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
 		this.startStopTarget.set(value);
 	}
-
 
 }
