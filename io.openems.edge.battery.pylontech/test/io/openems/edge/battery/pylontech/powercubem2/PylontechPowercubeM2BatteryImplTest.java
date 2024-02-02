@@ -8,7 +8,6 @@ import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.common.test.TimeLeapClock;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -53,11 +52,10 @@ public class PylontechPowercubeM2BatteryImplTest {
 
 	@Test
 	public void stopBattery() throws Exception {
-		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 
 		new ComponentTest(new PylontechPowercubeM2BatteryImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
 						.setId(BATTERY_ID) //
@@ -79,11 +77,10 @@ public class PylontechPowercubeM2BatteryImplTest {
 
 	@Test
 	public void faultTest() throws Exception { // TODO: Set faults for this test
-		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 
 		new ComponentTest(new PylontechPowercubeM2BatteryImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
 						.setId(BATTERY_ID) //
