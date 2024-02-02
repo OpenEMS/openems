@@ -1,6 +1,6 @@
 package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
-import static io.openems.common.utils.DateUtils.roundZonedDateTimeDownToMinutes;
+import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Simulator.calculateCost;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateExecutionLimitSeconds;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.createSimulatorParams;
@@ -48,6 +48,9 @@ public class Optimizer extends AbstractImmediateWorker {
 				.sorted((f, g) -> Integer.compare(g.stateBits(), f.stateBits())).findFirst()
 				.orElse(RandomGeneratorFactory.of("Random"));
 		RandomRegistry.random(rgf.create());
+
+		// Run Optimizer thread in LOW PRIORITY
+		this.setPriority(Thread.MIN_PRIORITY);
 	}
 
 	@Override
@@ -71,7 +74,7 @@ public class Optimizer extends AbstractImmediateWorker {
 			var periods = new TreeMap<ZonedDateTime, Period>();
 			calculateCost(this.params, schedule, period -> periods.put(period.time(), period));
 			synchronized (this.periods) {
-				var thisQuarter = roundZonedDateTimeDownToMinutes(ZonedDateTime.now(context.clock()), 15);
+				var thisQuarter = roundDownToQuarter(ZonedDateTime.now(context.clock()));
 				// Do not overwrite the current quarter
 				if (this.periods.containsKey(thisQuarter)) {
 					periods.remove(thisQuarter);
@@ -146,7 +149,7 @@ public class Optimizer extends AbstractImmediateWorker {
 	 */
 	public Period getCurrentPeriod() {
 		synchronized (this.periods) {
-			return this.periods.get(roundZonedDateTimeDownToMinutes(ZonedDateTime.now(), 15));
+			return this.periods.get(roundDownToQuarter(ZonedDateTime.now()));
 		}
 	}
 

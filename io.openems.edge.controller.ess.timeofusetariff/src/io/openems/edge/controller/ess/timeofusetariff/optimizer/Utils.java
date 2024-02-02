@@ -1,7 +1,7 @@
 package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
-import static io.openems.common.utils.DateUtils.roundZonedDateTimeDownToMinutes;
-import static io.openems.common.utils.JsonUtils.getAsOptionalFloat;
+import static io.openems.common.utils.DateUtils.roundDownToQuarter;
+import static io.openems.common.utils.JsonUtils.getAsOptionalDouble;
 import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
 import static io.openems.common.utils.JsonUtils.toJson;
 import static io.openems.edge.common.type.TypeUtils.fitWithin;
@@ -32,7 +32,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -79,7 +78,7 @@ public final class Utils {
 	protected static final long EXECUTION_LIMIT_SECONDS_BUFFER = 30;
 	protected static final long EXECUTION_LIMIT_SECONDS_MINIMUM = 60;
 
-	public record ScheduleData(Float quarterlyPrice, Integer stateMachine, Integer production, Integer consumption,
+	public record ScheduleData(Double quarterlyPrice, Integer stateMachine, Integer production, Integer consumption,
 			Integer soc) {
 	}
 
@@ -94,14 +93,15 @@ public final class Utils {
 	 */
 	public static Params createSimulatorParams(Context context, TreeMap<ZonedDateTime, Period> existingSchedule)
 			throws InvalidValueException {
-		final var time = roundZonedDateTimeDownToMinutes(ZonedDateTime.now(), 15);
+		final var time = roundDownToQuarter(ZonedDateTime.now());
 
 		// Prediction values
-		final var predictionProduction = context.predictorManager() //
-				.get24HoursPrediction(SUM_PRODUCTION).getValues();
 		final var predictionConsumption = joinConsumptionPredictions(4, //
-				context.predictorManager().get24HoursPrediction(SUM_CONSUMPTION).getValues(), //
-				context.predictorManager().get24HoursPrediction(SUM_UNMANAGED_CONSUMPTION).getValues());
+				context.predictorManager().getPrediction(SUM_CONSUMPTION).asArray(), //
+				context.predictorManager().getPrediction(SUM_UNMANAGED_CONSUMPTION).asArray());
+		final var predictionProduction = generateProductionPrediction(//
+				context.predictorManager().getPrediction(SUM_PRODUCTION).asArray(), //
+				predictionConsumption.length);
 
 		// Prices contains the price values and the time it is retrieved.
 		final var prices = context.timeOfUseTariff().getPrices();
@@ -129,10 +129,27 @@ public final class Utils {
 				.maxBuyFromGrid(toEnergy(context.maxChargePowerFromGrid())) //
 				.productions(stream(interpolateArray(predictionProduction)).map(v -> toEnergy(v)).toArray()) //
 				.consumptions(stream(interpolateArray(predictionConsumption)).map(v -> toEnergy(v)).toArray()) //
-				.prices(interpolateArray(prices.getValues())) //
+				.prices(interpolateArray(prices.asArray())) //
 				.states(context.controlMode().states) //
 				.existingSchedule(existingSchedule) //
 				.build();
+	}
+
+	/**
+	 * Postprocesses Production prediction; makes sure length is at least the same
+	 * as Consumption prediction - filling up with zeroes.
+	 * 
+	 * @param prediction the Production prediciton
+	 * @param minLength  the min length (= Consumption prediction length)
+	 * @return new Production prediction
+	 */
+	protected static Integer[] generateProductionPrediction(Integer[] prediction, int minLength) {
+		if (prediction.length >= minLength) {
+			return prediction;
+		}
+		return IntStream.range(0, minLength) //
+				.mapToObj(i -> i > prediction.length - 1 ? 0 : prediction[i]) //
+				.toArray(Integer[]::new);
 	}
 
 	protected static Integer[] joinConsumptionPredictions(int splitAfterIndex, Integer[] totalConsumption,
@@ -208,7 +225,7 @@ public final class Utils {
 	}
 
 	/**
-	 * Interpolate an Array of {@link Float}s.
+	 * Interpolate an Array of {@link Double}s.
 	 * 
 	 * <p>
 	 * Replaces nulls with previous value. If first entry is null, it is set to
@@ -217,24 +234,24 @@ public final class Utils {
 	 * @param values the values
 	 * @return values without nulls
 	 */
-	protected static float[] interpolateArray(Float[] values) {
+	protected static double[] interpolateArray(Double[] values) {
 		var firstNonNull = stream(values) //
 				.filter(Objects::nonNull) //
 				.findFirst();
 		var lastNonNullIndex = IntStream.range(0, values.length) //
 				.filter(i -> values[i] != null) //
-				.reduce((first, second) -> second); //
+				.reduce((first, second) -> second);
 		if (lastNonNullIndex.isEmpty()) {
-			return new float[0];
+			return new double[0];
 		}
-		var result = new float[lastNonNullIndex.getAsInt() + 1];
+		var result = new double[lastNonNullIndex.getAsInt() + 1];
 		if (firstNonNull.isEmpty()) {
 			// all null
 			return result;
 		}
-		float last = firstNonNull.get();
+		double last = firstNonNull.get();
 		for (var i = 0; i < result.length; i++) {
-			float value = orElse(values[i], last);
+			double value = orElse(values[i], last);
 			result[i] = last = value;
 		}
 		return result;
@@ -387,7 +404,7 @@ public final class Utils {
 	 */
 	public static GetScheduleResponse handleGetScheduleRequest(Optimizer optimizer, UUID requestId, Timedata timedata,
 			String componentId, ZonedDateTime now) throws OpenemsNamedException {
-		now = roundZonedDateTimeDownToMinutes(now, 15);
+		now = roundDownToQuarter(now);
 
 		if (optimizer == null) {
 			throw new OpenemsException("Has no Schedule");
@@ -418,7 +435,7 @@ public final class Utils {
 		var pastPredictions = queryResult.entrySet().stream()//
 				.map(Entry::getValue) //
 				.map(d -> new ScheduleData(//
-						getAsOptionalFloat(d.get(channelQuarterlyPrices)).orElse(null), //
+						getAsOptionalDouble(d.get(channelQuarterlyPrices)).orElse(null), //
 						getAsOptionalInt(d.get(channelStateMachine)).orElse(null), //
 						jsonIntToEnergy(d.get(SUM_PRODUCTION)), //
 						jsonIntToEnergy(d.get(SUM_CONSUMPTION)), //
@@ -438,13 +455,13 @@ public final class Utils {
 						period.production(), //
 						period.consumption(), //
 						round((period.essInitial() * 100) / (float) params.essTotalEnergy()))) //
-				.collect(Collectors.toList());
+				.toList();
 
 		// Concatenate past and future predictions
 		final var predictions = Stream.concat(//
 				pastPredictions.stream().limit(12), // Last 3 hours data.
-				futurePredictions.stream().limit(96)) // Future data.
-				.collect(Collectors.toList());
+				futurePredictions.stream()) // Future data.
+				.toList();
 
 		// Create schedule and return GetScheduleResponse
 		var result = createSchedule(predictions, fromDate);
@@ -502,7 +519,7 @@ public final class Utils {
 	 * @return the new state
 	 */
 	public static StateMachine postprocessSimulatorState(Params p, int essChargeDischarge, int essInitialEnergy,
-			int gridEssCharge, float price, int balancingChargeDischarge, StateMachine state) {
+			int gridEssCharge, double price, int balancingChargeDischarge, StateMachine state) {
 		return switch (state) {
 		case BALANCING -> state;
 
@@ -636,8 +653,7 @@ public final class Utils {
 	 */
 	public static long calculateExecutionLimitSeconds(Clock clock) {
 		var now = ZonedDateTime.now(clock);
-		var nextQuarter = roundZonedDateTimeDownToMinutes(now, 15).plusMinutes(15)
-				.minusSeconds(EXECUTION_LIMIT_SECONDS_BUFFER);
+		var nextQuarter = roundDownToQuarter(now).plusMinutes(15).minusSeconds(EXECUTION_LIMIT_SECONDS_BUFFER);
 		var duration = Duration.between(now, nextQuarter).getSeconds();
 		if (duration >= EXECUTION_LIMIT_SECONDS_MINIMUM) {
 			return duration;

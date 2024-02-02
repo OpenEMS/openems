@@ -1,5 +1,6 @@
 package io.openems.edge.predictor.persistencemodel;
 
+import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTION;
 import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
@@ -14,7 +15,6 @@ import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class PredictorPersistenceModelImplTest {
@@ -58,14 +58,15 @@ public class PredictorPersistenceModelImplTest {
 						.setChannelAddresses(METER1_ACTIVE_POWER.toString()) //
 						.build());
 
-		var prediction = sut.get24HoursPrediction(METER1_ACTIVE_POWER);
-		var p = prediction.getValues();
+		var prediction = sut.getPrediction(METER1_ACTIVE_POWER);
+		var p = prediction.asArray();
 
 		assertEquals((Integer) 0, p[0]);
 		assertEquals((Integer) 3, p[20]);
 		assertEquals((Integer) 6, p[21]);
 		assertEquals((Integer) 146, p[22]);
 		assertEquals((Integer) 297, p[23]);
+		assertEquals(190, prediction.valuePerQuarter.size());
 	}
 
 	@Test
@@ -101,10 +102,7 @@ public class PredictorPersistenceModelImplTest {
 
 		clock.leap(39, ChronoUnit.HOURS);
 
-		sut.get24HoursPrediction(METER1_ACTIVE_POWER);
-		// var prediction = sut.get24HoursPrediction(METER1_ACTIVE_POWER);
-
-		// System.out.println(Stream.of(prediction.getValues()).map(String::valueOf).collect(Collectors.joining(",\n")));
+		sut.getPrediction(METER1_ACTIVE_POWER);
 	}
 
 	@Test
@@ -122,6 +120,6 @@ public class PredictorPersistenceModelImplTest {
 						.setChannelAddresses(METER1_ACTIVE_POWER.toString()) //
 						.build());
 
-		assertEquals(Prediction24Hours.EMPTY, sut.get24HoursPrediction(METER1_ACTIVE_POWER));
+		assertEquals(EMPTY_PREDICTION, sut.getPrediction(METER1_ACTIVE_POWER));
 	}
 }

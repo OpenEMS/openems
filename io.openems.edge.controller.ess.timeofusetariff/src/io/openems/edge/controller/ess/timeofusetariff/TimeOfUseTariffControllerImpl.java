@@ -237,11 +237,11 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	 * This is only to visualize data for better debugging.
 	 */
 	private void updateVisualizationChannels() {
-		final Float quarterlyPrice;
+		final Double quarterlyPrice;
 		var period = this.getCurrentPeriod();
 		if (period == null) {
 			// Values are not available.
-			quarterlyPrice = this.timeOfUseTariff.getPrices().getValues()[0];
+			quarterlyPrice = this.timeOfUseTariff.getPrices().getFirst();
 
 		} else {
 			// First period is always the current period.

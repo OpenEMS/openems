@@ -1,6 +1,6 @@
 package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
-import static io.openems.common.utils.DateUtils.roundZonedDateTimeDownToMinutes;
+import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsInt;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
@@ -39,6 +39,7 @@ import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.cal
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateStateChargeEnergy;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.createSchedule;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.essMaxChargePower;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.generateProductionPrediction;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.handleGetScheduleRequest;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.interpolateArray;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.joinConsumptionPredictions;
@@ -48,6 +49,7 @@ import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.pos
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.toEnergy;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.toPower;
 import static java.lang.Integer.MIN_VALUE;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.Arrays.stream;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertArrayEquals;
@@ -76,21 +78,22 @@ import io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.ScheduleDa
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.predictor.api.oneday.Prediction24Hours;
-import io.openems.edge.predictor.api.test.DummyPredictor24Hours;
+import io.openems.edge.predictor.api.prediction.Prediction;
+import io.openems.edge.predictor.api.test.DummyPredictor;
 import io.openems.edge.timedata.test.DummyTimedata;
+import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
 
 public class UtilsTest {
 
 	@Test
 	public void testInterpolateArrayFloat() {
-		assertArrayEquals(new float[] { 123F, 123F, 234F, 234F, 345F }, //
-				interpolateArray(new Float[] { null, 123F, 234F, null, 345F, null }), //
+		assertArrayEquals(new double[] { 123, 123, 234, 234, 345 }, //
+				interpolateArray(new Double[] { null, 123., 234., null, 345., null }), //
 				0.0001F);
 
-		assertArrayEquals(new float[] {}, //
-				interpolateArray(new Float[] { null }), //
+		assertArrayEquals(new double[] {}, //
+				interpolateArray(new Double[] { null }), //
 				0.0001F);
 	}
 
@@ -113,6 +116,13 @@ public class UtilsTest {
 	public void testToPower() {
 		assertEquals(2000, (int) toPower(500));
 		assertNull(toPower(null));
+	}
+
+	@Test
+	public void testGenerateProductionPrediction() {
+		final var arr = new Integer[] { 1, 2, 3 };
+		assertArrayEquals(arr, generateProductionPrediction(arr, 2));
+		assertArrayEquals(new Integer[] { 1, 2, 3, 0 }, generateProductionPrediction(arr, 4));
 	}
 
 	@Test
@@ -250,7 +260,7 @@ public class UtilsTest {
 		final var timeOfUseTariff = getTimeOfUseTariff(ctrl);
 
 		// Simulate historic data
-		var now = roundZonedDateTimeDownToMinutes(ZonedDateTime.now(clock), 15);
+		var now = roundDownToQuarter(ZonedDateTime.now(clock));
 		final var fromDate = now.minusHours(3);
 		var timedata = new DummyTimedata("timedata0");
 		for (var i = 0; i < 12; i++) {
@@ -262,11 +272,12 @@ public class UtilsTest {
 			timedata.add(quarter, SUM_ESS_SOC, PAST_SOC[i]);
 		}
 
-		predictorManager.addPredictor(new DummyPredictor24Hours("predictor0", componentManager,
-				Prediction24Hours.of(SUM_PRODUCTION, PRODUCTION_PREDICTION_QUARTERLY), SUM_PRODUCTION));
-		predictorManager.addPredictor(new DummyPredictor24Hours("predictor0", componentManager,
-				Prediction24Hours.of(SUM_CONSUMPTION, CONSUMPTION_PREDICTION_QUARTERLY), SUM_CONSUMPTION));
-		timeOfUseTariff.setPrices(now, 1F, 1F);
+		final var midnight = now.truncatedTo(DAYS);
+		predictorManager.addPredictor(new DummyPredictor("predictor0", componentManager,
+				Prediction.from(SUM_PRODUCTION, midnight, PRODUCTION_PREDICTION_QUARTERLY), SUM_PRODUCTION));
+		predictorManager.addPredictor(new DummyPredictor("predictor0", componentManager,
+				Prediction.from(SUM_CONSUMPTION, midnight, CONSUMPTION_PREDICTION_QUARTERLY), SUM_CONSUMPTION));
+		timeOfUseTariff.setPrices(TimeOfUsePrices.from(now, 1., 1.));
 
 		var optimizer = getOptimizer(ctrl);
 		optimizer.forever();
@@ -307,7 +318,7 @@ public class UtilsTest {
 				.maxBuyFromGrid(toEnergy(24_000)) //
 				.productions() //
 				.consumptions() //
-				.prices(new float[] { 123F }) //
+				.prices(new double[] { 123 }) //
 				.states(new StateMachine[0]) //
 				.build();
 
@@ -395,11 +406,11 @@ public class UtilsTest {
 	@Test
 	public void testCreateSchedule() {
 		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final var timestamp = roundZonedDateTimeDownToMinutes(ZonedDateTime.now(clock), 15).minusHours(3);
+		final var timestamp = roundDownToQuarter(ZonedDateTime.now(clock)).minusHours(3);
 
 		// Price provider
-		final var quarterlyPrices = DummyTimeOfUseTariffProvider
-				.quarterlyPrices(ZonedDateTime.now(clock), HOURLY_PRICES_SUMMER).getPrices().getValues();
+		final var quarterlyPrices = DummyTimeOfUseTariffProvider.fromHourlyPrices(clock, HOURLY_PRICES_SUMMER)
+				.getPrices().asArray();
 
 		var datas = new ArrayList<ScheduleData>();
 		var size = quarterlyPrices.length;

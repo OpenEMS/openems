@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 
 public record Period(ZonedDateTime time, int production, int consumption, int essInitial, int essMaxCharge,
-		int essMaxDischarge, StateMachine state, int essChargeDischarge, int grid, float price, double cost) {
+		int essMaxDischarge, StateMachine state, int essChargeDischarge, int grid, double price, double cost) {
 
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -72,7 +72,7 @@ public record Period(ZonedDateTime time, int production, int consumption, int es
 				StateMachine.valueOf(matcher.group("state")), //
 				Integer.parseInt(matcher.group("essChargeDischarge")), //
 				Integer.parseInt(matcher.group("grid")), //
-				Float.parseFloat(matcher.group("price")), //
+				Double.parseDouble(matcher.group("price")), //
 				Double.parseDouble(matcher.group("cost")));
 	}
 }

@@ -8,8 +8,6 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-import com.google.common.primitives.Floats;
-
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 
 /**
@@ -76,7 +74,7 @@ public class RunOptimizerFromLogApp {
 				.maxBuyFromGrid(toEnergy(MAX_BUY_FROM_GRID)) //
 				.productions(periods.stream().mapToInt(Period::production).toArray()) //
 				.consumptions(periods.stream().mapToInt(Period::consumption).toArray()) //
-				.prices(Floats.toArray(periods.stream().map(Period::price).toList())) //
+				.prices(periods.stream().mapToDouble(Period::price).toArray()) //
 				.states(CONTROL_MODE.states) //
 				.existingSchedule(new TreeMap<>()) //
 				.build();

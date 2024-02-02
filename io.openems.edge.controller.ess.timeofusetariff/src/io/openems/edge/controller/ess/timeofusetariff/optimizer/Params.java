@@ -6,7 +6,7 @@ import static java.lang.Math.min;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.TreeMap;
-import java.util.stream.IntStream;
+import java.util.stream.DoubleStream;
 
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 
@@ -34,9 +34,9 @@ public record Params(//
 		/** Consumption predictions per Period */
 		int[] consumptions, //
 		/** Prices for one [MWh] per Period */
-		float[] prices, //
+		double[] prices, //
 		/** Max price */
-		Float maxPrice, //
+		Double maxPrice, //
 		/** Allowed Modes */
 		StateMachine[] states, //
 		/** The existing Schedule, i.e. result of previous optimization */
@@ -52,7 +52,7 @@ public record Params(//
 		private int maxBuyFromGrid;
 		private int[] productions = new int[0];
 		private int[] consumptions = new int[0];
-		private float[] prices = new float[0];
+		private double[] prices = new double[0];
 		private StateMachine[] states = new StateMachine[0];
 		private StateMachine[] existingSchedule = new StateMachine[0];
 
@@ -101,7 +101,7 @@ public record Params(//
 			return this;
 		}
 
-		protected Builder prices(float... prices) {
+		protected Builder prices(double... prices) {
 			this.prices = prices;
 			return this;
 		}
@@ -126,8 +126,8 @@ public record Params(//
 
 		public Params build() {
 			var numberOfPeriods = min(this.productions.length, min(this.consumptions.length, this.prices.length));
-			var maxPrice = IntStream.range(0, this.prices.length).mapToObj(i -> this.prices[i]).max(Float::compare)
-					.orElse(null);
+			var maxPrice = this.prices.length == 0 ? null : DoubleStream.of(this.prices).max().getAsDouble();
+
 			// Set ESS Max-Charge in CHARGE mode to 1/4 of usable energy (i.e. C-Rate 0.25)
 			var essMaxChargePerPeriod = max(0, (this.essMaxSocEnergy - this.essMinSocEnergy) / 4);
 			return new Params(numberOfPeriods, //

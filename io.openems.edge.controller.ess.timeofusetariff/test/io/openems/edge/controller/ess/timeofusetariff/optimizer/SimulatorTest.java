@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.DoubleStream;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -288,14 +289,9 @@ public class SimulatorTest {
 	 * @param values hourly values
 	 * @return quarterly values
 	 */
-	protected static float[] hourlyToQuarterly(float[] values) {
-		var result = new float[values.length * 4];
-		for (var i = 0; i < values.length; i++) {
-			result[(i * 4)] = values[i];
-			result[(i * 4) + 1] = values[i];
-			result[(i * 4) + 2] = values[i];
-			result[(i * 4) + 3] = values[i];
-		}
-		return result;
+	protected static double[] hourlyToQuarterly(double[] values) {
+		return DoubleStream.of(values) //
+				.flatMap(v -> DoubleStream.of(v, v, v, v)) //
+				.toArray();
 	}
 }

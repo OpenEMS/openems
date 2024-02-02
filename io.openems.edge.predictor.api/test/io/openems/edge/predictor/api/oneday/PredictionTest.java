@@ -2,29 +2,32 @@ package io.openems.edge.predictor.api.oneday;
 
 import static org.junit.Assert.assertArrayEquals;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.predictor.api.prediction.Prediction;
 
-public class Prediction24HoursTest {
+public class PredictionTest {
 
 	@Test
 	public void testOf() {
+		var now = ZonedDateTime.now();
 		assertArrayEquals(new Integer[] { 1, 5, 7, 0 /* TO_POSITIVE */, 9, null, null }, //
 				Arrays.copyOfRange(//
-						Prediction24Hours.of(//
-								new ChannelAddress("_sum", "ProductionActivePower"), //
+						Prediction.from(//
+								new ChannelAddress("_sum", "ProductionActivePower"), now, //
 								1, 5, 7, -1, 9 //
-						).getValues(), 0, 7));
+						).asArray(), 0, 7));
 
 		assertArrayEquals(new Integer[] { 1, 5, 7, -1 /* NONE */, 9, null, null }, //
 				Arrays.copyOfRange(//
-						Prediction24Hours.of(//
-								new ChannelAddress("foo", "bar"), //
+						Prediction.from(//
+								new ChannelAddress("foo", "bar"), now, //
 								1, 5, 7, -1, 9 //
-						).getValues(), 0, 7));
+						).asArray(), 0, 7));
 	}
 
 }
