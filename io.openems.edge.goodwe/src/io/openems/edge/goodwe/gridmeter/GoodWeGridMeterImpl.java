@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -37,6 +38,8 @@ import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
+import io.openems.edge.common.channel.ChannelUtils;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -60,6 +63,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 				"type=GRID" //
 		})
 @EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implements GoodWeGridMeter, ElectricityMeter,
@@ -70,6 +74,8 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+
+	private Config config;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -99,6 +105,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
+		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -205,6 +212,12 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 					}
 				});
 
+		switch (this.config.goodWeMeterCategory()) {
+		case COMMERCIAL_METER -> this.handleExternalMeter(protocol);
+		case SMART_METER -> {
+		}
+		}
+
 		return protocol;
 	}
 
@@ -231,13 +244,63 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 								this.ignoreZeroAndScaleFactor2))); //
 	}
 
+	private void handleExternalMeter(ModbusProtocol protocol) throws OpenemsException {
+
+		protocol.addTask(//
+				new FC6WriteRegisterTask(47456,
+						m(GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO, new UnsignedWordElement(47456)) //
+				)); //
+
+		protocol.addTask(//
+				new FC3ReadRegistersTask(47456, Priority.LOW, //
+						m(GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO, new UnsignedWordElement(47456)) //
+				)); //
+	}
+
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.calculateEnergy();
-			break;
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
+
+			switch (this.config.goodWeMeterCategory()) {
+			case COMMERCIAL_METER -> this.setExternalMeterValue();
+			case SMART_METER -> {
+			}
+			}
 		}
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.calculateEnergy();
+		}
+	}
+
+	/**
+	 * Set channel for external meter if configured.
+	 */
+	protected void setExternalMeterValue() {
+		final var meterCtRatio = calculateRatio(this.config.externalMeterRatioValueA(),
+				this.config.externalMeterRatioValueB());
+
+		try {
+			ChannelUtils.setWriteValueIfNotRead(this.getExternalMeterRatioChannel(), meterCtRatio);
+		} catch (OpenemsNamedException e) {
+			this.logError(this.log, "Unable to set the ratio for external meter.");
+		}
+	}
+
+	/**
+	 * Calculate a ratio value.
+	 * 
+	 * <p>
+	 * Ignore impossible values.
+	 * 
+	 * @param valueA value A e.g. 3000A
+	 * @param valueB value B e.g. 5A
+	 * @return ratio value e.g. 600
+	 */
+	protected static Integer calculateRatio(int valueA, int valueB) {
+		if (valueA <= 0 || valueB <= 0) {
+			return null;
+		}
+		return valueA / valueB;
 	}
 
 	/**
@@ -374,5 +437,4 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 				ModbusSlaveNatureTable.of(GoodWeGridMeter.class, accessMode, 100).build() //
 		);
 	}
-
 }
