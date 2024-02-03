@@ -1,0 +1,12 @@
+= openDTU Hoymiles Microinverter Monitoring
+
+This bundle implements Hoymiles Microinverter Monitoring.
+
+Compatible with
+- See Description here:
+  https://github.com/tbnobody/OpenDTU
+
+Implemented Natures
+- DigitalOutput
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.opendtu[Source Code icon:github[]]
