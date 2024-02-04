@@ -17,7 +17,7 @@
                 Menu.name
               </ion-label>
               <ion-label>
-                {{ this.form?.model ? (this.form?.model?.firstname + ' ' + this.form?.model?.lastname) : user.name }}
+                {{ this.form?.model ? ((this.form?.model?.firstname ?? '') + ' ' + (this.form?.model?.lastname ?? '')).trim() : user.name }}
                 <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
                 </ion-icon> -->
               </ion-label>
