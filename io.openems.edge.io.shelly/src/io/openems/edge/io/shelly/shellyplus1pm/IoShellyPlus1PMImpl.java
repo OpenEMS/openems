@@ -131,30 +131,27 @@ public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent
 	    }
 
 	    try {
-	        // Assuming 'result' is a JsonObject representing the entire JSON response
 	        JsonObject jsonResponse = result.getAsJsonObject();
 	        // Extracting data from "switch:0"
 	        JsonObject switch0 = jsonResponse.getAsJsonObject("switch:0");
 	        if (switch0 != null) {
 	            boolean relayIson = switch0.get("output").getAsBoolean();
 	            float power = switch0.get("apower").getAsFloat();
-	            int voltage = (int) switch0.get("voltage").getAsFloat(); // Reading voltage
-	            int current = (int) switch0.get("current").getAsFloat(); // Reading voltage
+	            int voltage = (int) switch0.get("voltage").getAsFloat();
+	            int current = (int) switch0.get("current").getAsFloat();
 	            
 	            
 	            JsonObject aenergy = switch0.getAsJsonObject("aenergy");
 	            long energy = aenergy != null ? aenergy.get("total").getAsLong() : 0;
 	            
-	            // Processing the extracted data
 	            this._setRelay(relayIson);
 	            this._setActivePower(Math.round(power));
-	            this._setActiveProductionEnergy(energy / 60); // Assuming you need to convert to Wh
+	            this._setActiveProductionEnergy(energy / 60);
 	            
 	            int millivolt = (voltage * 1000);
 	            int milliamp = (current * 1000);
 
 
-	            // Set current based on the configured phase
 	            if (this.phase != null) {
 	                switch (this.phase) {
 	                    case L1:
