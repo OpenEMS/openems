@@ -30,6 +30,9 @@ import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
 import io.openems.edge.meter.api.SinglePhaseMeter;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -41,14 +44,21 @@ import io.openems.edge.meter.api.SinglePhaseMeter;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent
-		implements IoShellyPlus3EM, DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, EventHandler {
+		implements IoShellyPlus3EM, DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+	
 	private final Logger log = LoggerFactory.getLogger(IoShellyPlus3EMImpl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
 
 	private MeterType meterType = null;
 	private SinglePhase phase = null;
 	private String baseUrl;
+	
+	private volatile Timedata timedata;
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private BridgeHttp httpBridge;
@@ -68,16 +78,14 @@ public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.meterType = config.type();
-		this.baseUrl = "http://" + config.ip();
+	protected void activate(ComponentContext context, Config config) {
+	    super.activate(context, config.id(), config.alias(), config.enabled());
+	    this.meterType = config.type();
+	    this.baseUrl = "http://" + config.ip();
 
-		if (!this.isEnabled()) {
-			return;
-		}
-
-		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", this::processHttpResult);
+	    if (this.isEnabled()) {
+	        this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", this::processHttpResult);
+	    }
 	}
 
 	@Override
@@ -114,6 +122,7 @@ public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent
 		}
 
 		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.calculateEnergy();
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE -> {
 			this.executeWrite(this.getRelayChannel(), 0);
 		}
@@ -144,7 +153,13 @@ public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent
 	            this._setRelay(isOn);
 
 	        }
-
+	        
+	        
+	        JsonObject updateObject = jsonResponse.getAsJsonObject("update");
+	        if (updateObject != null) {
+	            boolean hasUpdate = updateObject.get("has_update").getAsBoolean();
+				this.channel(IoShellyPlus3EM.ChannelId.HAS_UPDATE).setNextValue(hasUpdate);
+	        }
 
 	        JsonArray emeters = jsonResponse.getAsJsonArray("emeters");
 	        for (int i = 0; i < emeters.size(); i++) {
@@ -153,13 +168,16 @@ public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent
 	            Float voltage = emeter.get("voltage").getAsFloat();
 	            Float current = emeter.get("current").getAsFloat();
 	            
-	            this.setValuesForPhase(i + 1, voltage, current, power);
+	            setValuesForPhase(i + 1, voltage, current, power);
 	        }
+	        
+
 
 	    } catch (Exception e) {
 	        this._setRelay(null);
 	        this._setActivePower(null);
 	        this._setActiveProductionEnergy(null);
+	        
 	        this.logDebug(this.log, e.getMessage());
 	    }
 	}
@@ -213,6 +231,29 @@ public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent
 		this.httpBridge.request(url).whenComplete((t, e) -> {
 			this._setSlaveCommunicationFailed(e != null);
 		});
+	}
+	
+	/**
+	 * Calculate the Energy values from ActivePower.
+	 */
+	private void calculateEnergy() {
+		// Calculate Energy
+		final var activePower = this.getActivePower().get();
+		if (activePower == null) {
+			this.calculateProductionEnergy.update(null);
+			this.calculateConsumptionEnergy.update(null);
+		} else if (activePower >= 0) {
+			this.calculateProductionEnergy.update(activePower);
+			this.calculateConsumptionEnergy.update(0);
+		} else {
+			this.calculateProductionEnergy.update(0);
+			this.calculateConsumptionEnergy.update(-activePower);
+		}
+	}
+	
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 
 
