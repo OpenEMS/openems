@@ -1,0 +1,15 @@
+Bundle-Name: OpenEMS Edge Meter Eastron SDM 630 Smart Meter
+Bundle-Vendor: Eastron
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-License: Proprietary (for now)
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
+	io.openems.edge.meter.api
+
+-testpath: \
+	${testpath},\
+	com.ghgande.j2mod

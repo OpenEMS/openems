@@ -1,0 +1,10 @@
+= Eastron SDM 630 Meter
+
+This implementation is functionally compatible with a number of energy meters with the name "SDM 630".
+
+Implemented Natures
+
+- SymmetricMeter
+- AsymmetricMeter
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.eastron.sdm630[Source Code icon:github[]]
