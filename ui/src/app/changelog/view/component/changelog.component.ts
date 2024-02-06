@@ -37,6 +37,22 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2024.2.1',
+        changes: [
+          Changelog.openems('2024.2.0'),
+          Changelog.UI,
+          Changelog.app(App.TIME_OF_USE) + "Optimierung der KI-Performance, Berücksichtigung aller verfügbaren Day-Ahead-Preise, adaptive Beladeleistung abhängig von der Batteriekapazität, uvm.",
+          Changelog.app(App.TIME_OF_USE, App.AWATTAR) + "Preise für Österreich",
+          { roleIsAtLeast: Role.ADMIN, change: "KACO Battery-Inverter 50/92: Verbesserung der Regelgeschwindigkeit" },
+          { roleIsAtLeast: Role.ADMIN, change: "Home 20 & 30: Vorbereitungen für zusätzlichen RS485-Port" },
+          { roleIsAtLeast: Role.ADMIN, change: "Online-Monitoring Live-Energiemonitor: Persistierung maximaler Netzbezug/-einspeisung, Erzeugung, Verbrauch" },
+          { roleIsAtLeast: Role.ADMIN, change: "OpenEMS B-Control EM 300 Zähler: allgemeine Verbesserungen" },
+          { roleIsAtLeast: Role.ADMIN, change: "OpenEMS MQTT-Controller: Unterstützung für TLS-Verschlüsselung" },
+          { roleIsAtLeast: Role.ADMIN, change: "OpenEMS Camille Bauer APLUS Zähler: Test für FFR" },
+          Changelog.library(Library.FASTEXCEL, Library.APACHE_FELIX_HTTP_JETTY, Library.APACHE_FELIX_SCR),
+        ],
+      },
+      {
         version: '2024.1.1',
         changes: [
           Changelog.openems('2024.1.0'),
