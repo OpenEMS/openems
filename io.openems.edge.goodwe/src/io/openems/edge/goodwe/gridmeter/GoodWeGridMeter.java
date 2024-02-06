@@ -1,11 +1,9 @@
 package io.openems.edge.goodwe.gridmeter;
 
-import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -51,10 +49,7 @@ public interface GoodWeGridMeter extends ElectricityMeter, OpenemsComponent {
 		METER_CON_REVERSE_L3(Doc.of(Level.WARNING) //
 				.text("L3 (Phase S) - Connected reverse")), //
 		METER_CON_INCORRECTLY_L3(Doc.of(Level.WARNING) //
-				.text("L3 (Phase S) - Connected incorrectly")),
-		EXTERNAL_METER_RATIO(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)
-				.text("External meter ratio (e.g. the selected CT is 3000A:5A, the CT ratio value is 600")); //
+				.text("L3 (Phase S) - Connected incorrectly")); //
 
 		private final Doc doc;
 
@@ -86,12 +81,4 @@ public interface GoodWeGridMeter extends ElectricityMeter, OpenemsComponent {
 		return this.getHasNoMeterChannel().value();
 	}
 
-	/**
-	 * Gets the Channel for {@link ChannelId#EXTERNAL_METER_RATIO}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerWriteChannel getExternalMeterRatioChannel() {
-		return this.channel(ChannelId.EXTERNAL_METER_RATIO);
-	}
 }

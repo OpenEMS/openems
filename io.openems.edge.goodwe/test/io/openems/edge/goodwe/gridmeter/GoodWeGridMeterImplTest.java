@@ -23,8 +23,6 @@ public class GoodWeGridMeterImplTest {
 			GoodWeGridMeter.ChannelId.METER_CON_INCORRECTLY_L1.id());
 	private static final ChannelAddress METER_CON_REVERSE_L1 = new ChannelAddress(METER_ID,
 			GoodWeGridMeter.ChannelId.METER_CON_REVERSE_L1.id());
-	private static final ChannelAddress EXTERNAL_METER_RATIO = new ChannelAddress(METER_ID,
-			GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO.id());
 
 	@Test
 	public void test() throws Exception {
@@ -36,9 +34,6 @@ public class GoodWeGridMeterImplTest {
 				.activate(MyConfig.create() //
 						.setId(METER_ID) //
 						.setModbusId(MODBUS_ID) //
-						.setGoodWeMeterCategory(GoodWeGridMeterCategory.SMART_METER) //
-						.setExternalMeterRatioValueA(0) //
-						.setExternalMeterRatioValueB(0) //
 						.build()) //
 				.next(new TestCase() //
 						.onBeforeProcessImage(() -> sut.convertMeterConnectStatus(null))
@@ -93,57 +88,4 @@ public class GoodWeGridMeterImplTest {
 
 		assert noResult == 0x000;
 	}
-
-	@Test
-	public void testExternalMeterRatio() throws Exception {
-		new ComponentTest(new GoodWeGridMeterImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
-				.activate(MyConfig.create() //
-						.setId(METER_ID) //
-						.setModbusId(MODBUS_ID) //
-						.setGoodWeMeterCategory(GoodWeGridMeterCategory.COMMERCIAL_METER) //
-						.setExternalMeterRatioValueA(3000) //
-						.setExternalMeterRatioValueB(5) //
-						.build()) //
-				.next(new TestCase() //
-						.output(EXTERNAL_METER_RATIO, 600));
-
-		new ComponentTest(new GoodWeGridMeterImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
-				.activate(MyConfig.create() //
-						.setId(METER_ID) //
-						.setModbusId(MODBUS_ID) //
-						.setGoodWeMeterCategory(GoodWeGridMeterCategory.COMMERCIAL_METER) //
-						.setExternalMeterRatioValueA(500) //
-						.setExternalMeterRatioValueB(5) //
-						.build()) //
-				.next(new TestCase() //
-						.output(EXTERNAL_METER_RATIO, 100));
-
-		new ComponentTest(new GoodWeGridMeterImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
-				.activate(MyConfig.create() //
-						.setId(METER_ID) //
-						.setModbusId(MODBUS_ID) //
-						.setGoodWeMeterCategory(GoodWeGridMeterCategory.SMART_METER) //
-						.setExternalMeterRatioValueA(3000) //
-						.setExternalMeterRatioValueB(5) //
-						.build()) //
-				.next(new TestCase() //
-						.output(EXTERNAL_METER_RATIO, null));
-	}
-
-	@Test
-	public void testCalculateRatio() {
-
-		assertEquals(600, (int) GoodWeGridMeterImpl.calculateRatio(3000, 5));
-		assertEquals(100, (int) GoodWeGridMeterImpl.calculateRatio(500, 5));
-		assertEquals(null, GoodWeGridMeterImpl.calculateRatio(-5, 5));
-		assertEquals(null, GoodWeGridMeterImpl.calculateRatio(3000, 0));
-		assertEquals(null, GoodWeGridMeterImpl.calculateRatio(500, -5));
-	}
-
 }

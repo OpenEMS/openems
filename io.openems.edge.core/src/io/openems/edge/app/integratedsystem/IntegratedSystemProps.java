@@ -108,57 +108,6 @@ public final class IntegratedSystemProps {
 	}
 
 	/**
-	 * Creates a {@link AppDef} for the type of the grid meter.
-	 * 
-	 * @return the created {@link AppDef}
-	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleProvider> gridMeterType() {
-		return AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabel("App.IntegratedSystem.gridMeterType.label") //
-				.setDefaultValue(GoodWeGridMeterCategory.SMART_METER) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(GoodWeGridMeterCategory.class), l);
-				}));
-	}
-
-	private static final AppDef<OpenemsApp, Nameable, BundleProvider> ctRatio(//
-			final Nameable gridMeterType//
-	) {
-		return AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(gridMeterType)
-							.equal(Exp.staticValue(GoodWeGridMeterCategory.COMMERCIAL_METER)));
-					field.setInputType(NUMBER) //
-							.setMin(0) //
-							.onlyPositiveNumbers();
-				}));
-	}
-
-	/**
-	 * Creates a {@link AppDef} for the first value of the CT-Ratio.
-	 * 
-	 * @param gridMeterType the {@link Nameable} for the type of the grid meter
-	 * @return the created {@link AppDef}
-	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleProvider> ctRatioFirst(Nameable gridMeterType) {
-		return AppDef.copyOfGeneric(ctRatio(gridMeterType), def -> def //
-				.setTranslatedLabel("App.IntegratedSystem.ctRatioFirst.label") //
-				.setDefaultValue(200));
-	}
-
-	/**
-	 * Creates a {@link AppDef} for the second value of the CT-Ratio.
-	 * 
-	 * @param gridMeterType the {@link Nameable} for the type of the grid meter
-	 * @return the created {@link AppDef}
-	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleProvider> ctRatioSecond(Nameable gridMeterType) {
-		return AppDef.copyOfGeneric(ctRatio(gridMeterType), def -> def //
-				.setTranslatedLabel("App.IntegratedSystem.ctRatioSecond.label") //
-				.setDefaultValue(5));
-	}
-
-	/**
 	 * Creates a {@link AppDef} for selecting if emergency reserve is existing.
 	 * 
 	 * @return the created {@link AppDef}

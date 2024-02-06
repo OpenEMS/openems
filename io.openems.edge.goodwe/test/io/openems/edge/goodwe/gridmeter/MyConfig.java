@@ -10,9 +10,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private int modbusUnitId;
 		private String modbusId;
-		private GoodWeGridMeterCategory goodWeMeterCategory;
-		private int externalMeterRatioValueA;
-		private int externalMeterRatioValueB;
 
 		private Builder() {
 		}
@@ -29,21 +26,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		protected Builder setModbusUnitId(int modbusUnitId) {
 			this.modbusUnitId = modbusUnitId;
-			return this;
-		}
-
-		protected Builder setGoodWeMeterCategory(GoodWeGridMeterCategory goodWeMeterCategory) {
-			this.goodWeMeterCategory = goodWeMeterCategory;
-			return this;
-		}
-
-		protected Builder setExternalMeterRatioValueA(int externalMeterRatioValueA) {
-			this.externalMeterRatioValueA = externalMeterRatioValueA;
-			return this;
-		}
-
-		protected Builder setExternalMeterRatioValueB(int externalMeterRatioValueB) {
-			this.externalMeterRatioValueB = externalMeterRatioValueB;
 			return this;
 		}
 
@@ -81,21 +63,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String Modbus_target() {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
-	}
-
-	@Override
-	public GoodWeGridMeterCategory goodWeMeterCategory() {
-		return this.builder.goodWeMeterCategory;
-	}
-
-	@Override
-	public int externalMeterRatioValueA() {
-		return this.builder.externalMeterRatioValueA;
-	}
-
-	@Override
-	public int externalMeterRatioValueB() {
-		return this.builder.externalMeterRatioValueB;
 	}
 
 }
