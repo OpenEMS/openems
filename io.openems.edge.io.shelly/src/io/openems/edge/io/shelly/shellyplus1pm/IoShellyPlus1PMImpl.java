@@ -29,6 +29,9 @@ import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
 import io.openems.edge.meter.api.SinglePhaseMeter;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -40,8 +43,13 @@ import io.openems.edge.meter.api.SinglePhaseMeter;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent
-		implements IoShellyPlus1PM, DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, EventHandler {
+		implements IoShellyPlus1PM, DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+	
 	private final Logger log = LoggerFactory.getLogger(IoShellyPlus1PMImpl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
 
@@ -49,6 +57,8 @@ public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent
 	private SinglePhase phase = null;
 	private String baseUrl;
 
+	private volatile Timedata timedata;
+	
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private BridgeHttp httpBridge;
 
@@ -114,8 +124,10 @@ public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent
 		}
 
 		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.calculateEnergy();
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE -> {
 			this.executeWrite(this.getRelayChannel(), 0);
+			
 		}
 		}
 	}
@@ -140,13 +152,9 @@ public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent
 	            int voltage = (int) switch0.get("voltage").getAsFloat();
 	            int current = (int) switch0.get("current").getAsFloat();
 	            
-	            
-	            JsonObject aenergy = switch0.getAsJsonObject("aenergy");
-	            long energy = aenergy != null ? aenergy.get("total").getAsLong() : 0;
-	            
+	            	            
 	            this._setRelay(relayIson);
 	            this._setActivePower(Math.round(power));
-	            this._setActiveProductionEnergy(energy / 60);
 	            
 	            int millivolt = (voltage * 1000);
 	            int milliamp = (current * 1000);
@@ -172,7 +180,6 @@ public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent
 	    } catch (Exception e) {
 	        this._setRelay(null);
 	        this._setActivePower(null);
-	        this._setActiveProductionEnergy(null);
 	        this.logDebug(this.log, e.getMessage());
 	    }
 	}
@@ -200,6 +207,24 @@ public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent
 			this._setSlaveCommunicationFailed(e != null);
 		});
 	}
+	
+	/**
+	 * Calculate the Energy values from ActivePower.
+	 */
+	private void calculateEnergy() {
+		// Calculate Energy
+		final var activePower = this.getActivePower().get();
+		if (activePower == null) {
+			this.calculateProductionEnergy.update(null);
+			this.calculateConsumptionEnergy.update(null);
+		} else if (activePower >= 0) {
+			this.calculateProductionEnergy.update(activePower);
+			this.calculateConsumptionEnergy.update(0);
+		} else {
+			this.calculateProductionEnergy.update(0);
+			this.calculateConsumptionEnergy.update(-activePower);
+		}
+	}
 
 	@Override
 	public MeterType getMeterType() {
@@ -209,6 +234,11 @@ public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent
 	@Override
 	public SinglePhase getPhase() {
 		return this.phase;
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 
 }
