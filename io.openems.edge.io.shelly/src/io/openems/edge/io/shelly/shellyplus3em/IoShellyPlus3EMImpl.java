@@ -168,7 +168,7 @@ public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent
 	            Float voltage = emeter.get("voltage").getAsFloat();
 	            Float current = emeter.get("current").getAsFloat();
 	            
-	            setValuesForPhase(i + 1, voltage, current, power);
+	            this.setValuesForPhase(i + 1, voltage, current, power);
 	        }
 	        
 
