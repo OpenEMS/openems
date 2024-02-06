@@ -13,7 +13,7 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
 
   /**
    * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
-   * 
+   *
    * @param value the value from CurrentData
    * @returns converter function
    */
@@ -33,7 +33,7 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
 
   private _channelAddress: ChannelAddress | null = null;
 
-  /** 
+  /**
    * displayValue is the displayed @Input value in html
    */
   public displayValue: string | null = null;

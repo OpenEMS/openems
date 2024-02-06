@@ -89,9 +89,6 @@ public interface BatteryFeneconF2bBmw extends BatteryFeneconF2b, Battery, Openem
 
 		// Read Channels
 
-		UNDERVOLTAGE_AT_OUTPUT(Doc.of(Level.FAULT)//
-				.accessMode(AccessMode.READ_ONLY)), //
-
 		// ST_DCSW_HVSTO
 		HV_CONTACTOR_STATUS(Doc.of(HvContactorStatus.values())//
 				.accessMode(AccessMode.READ_ONLY)), //
@@ -352,13 +349,12 @@ public interface BatteryFeneconF2bBmw extends BatteryFeneconF2b, Battery, Openem
 		HV_CONTACTORS_STUCK(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Hv Contactors no battery reaction for open/close request")//
 				.persistencePriority(PersistencePriority.HIGH)), //
-		HV_CONTACTORS_OPEN_IN_RUNNING(Doc.of(OpenemsType.BOOLEAN)//
-				.text("Running: Hv Contactors opened while battery in Running State is.")//
-				.persistencePriority(PersistencePriority.HIGH)), //
+		HV_CONTACTORS_OPENED_IN_RUNNING(Doc.of(Level.FAULT)//
+				.text("Hv Contactors opened while battery is in Running State")), //
 		STATE_MACHINE(Doc.of(State.values()) //
-				.text("Current State of State-Machine")), //
+				.text("Current state of State-Machine")), //
 		RUN_FAILED(Doc.of(Level.FAULT) //
-				.text("Running the Logic failed")), //
+				.text("Running the logic failed")), //
 
 		// BMW specific Balancing
 		SET_BALANCING_TARGET_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
@@ -387,6 +383,9 @@ public interface BatteryFeneconF2bBmw extends BatteryFeneconF2b, Battery, Openem
 		BALANCING_CONDITION(Doc.of(OpenemsType.BOOLEAN)//
 				.persistencePriority(PersistencePriority.HIGH)//
 				.accessMode(AccessMode.READ_ONLY)), //
+		NO_BATTERY_COMMUNICATION(Doc.of(Level.FAULT)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.text("Battery communication can not be established")), //
 		;
 
 		private final Doc doc;
@@ -982,22 +981,22 @@ public interface BatteryFeneconF2bBmw extends BatteryFeneconF2b, Battery, Openem
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#HV_CONTACTORS_OPEN_IN_RUNNING}.
+	 * Gets the Channel for {@link ChannelId#HV_CONTACTORS_OPENED_IN_RUNNING}.
 	 *
 	 * @return the Channel
 	 */
-	public default Channel<Boolean> getHvContactorsOpenInRunningChannel() {
-		return this.channel(ChannelId.HV_CONTACTORS_OPEN_IN_RUNNING);
+	public default Channel<Boolean> getHvContactorsOpenedInRunningChannel() {
+		return this.channel(ChannelId.HV_CONTACTORS_OPENED_IN_RUNNING);
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#HV_CONTACTORS_OPEN_IN_RUNNING} Channel.
+	 * {@link ChannelId#HV_CONTACTORS_OPENED_IN_RUNNING} Channel.
 	 *
 	 * @param value the next value
 	 */
-	public default void _setHvContactorsOpenInRunning(Boolean value) {
-		this.getHvContactorsOpenInRunningChannel().setNextValue(value);
+	public default void _setHvContactorsOpenedInRunning(Boolean value) {
+		this.getHvContactorsOpenedInRunningChannel().setNextValue(value);
 	}
 
 	/**
@@ -1336,6 +1335,25 @@ public interface BatteryFeneconF2bBmw extends BatteryFeneconF2b, Battery, Openem
 	 */
 	public default Value<Boolean> getBalancingCondition() {
 		return this.getBalancingConditionChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#NO_BATTERY_COMMUNICATION}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getNoBatteryCommunicationChannel() {
+		return this.channel(ChannelId.NO_BATTERY_COMMUNICATION);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#NO_BATTERY_COMMUNICATION} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setNoBatteryCommunication(boolean value) {
+		this.getNoBatteryCommunicationChannel().setNextValue(value);
 	}
 
 	/**

@@ -2,7 +2,6 @@ package io.openems.edge.battery.fenecon.f2b.bmw.statemachine;
 
 import io.openems.edge.battery.fenecon.f2b.bmw.enums.HvContactorStatus;
 import io.openems.edge.battery.fenecon.f2b.bmw.statemachine.StateMachine.State;
-import io.openems.edge.battery.fenecon.f2b.common.enums.F2bState;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class UndefinedHandler extends StateHandler<State, Context> {
@@ -11,7 +10,8 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 	public State runAndGetNextState(Context context) {
 		final var battery = context.getParent();
 
-		if (battery.getF2bState().isUndefined() || battery.getF2bState() == F2bState.UNDEFINED) {
+		// Initial time can not be set onEntry, keep it like this till it fixed
+		if (battery.getF2bState().isUndefined()) {
 			return State.UNDEFINED;
 		}
 

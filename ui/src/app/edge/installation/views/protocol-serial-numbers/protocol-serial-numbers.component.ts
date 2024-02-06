@@ -126,10 +126,10 @@ export class ProtocolSerialNumbersComponent implements OnInit {
   }
 
   /**
-   * Initializes all fields such as number of tower and modules per tower and 
-   * also indiviaul components fo the system and modules. 
+   * Initializes all fields such as number of tower and modules per tower and
+   * also indiviaul components fo the system and modules.
    * All the information that can be read directly are read directly from the registers.
-   * 
+   *
    * @returns The Settings fields for towers and also individual modules fields.
    */
   public initializeAllFields(): Promise<void> {
@@ -165,7 +165,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
   /**
    * Updates the tower and module information based on manual update.
-   * 
+   *
    * @returns the updated number of towers and modules per tower.
    */
   public saveSettings() {
@@ -174,7 +174,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       return;
     }
 
-    // Model settings consists of Number of towers information in home and number of strings in Commercial, 
+    // Model settings consists of Number of towers information in home and number of strings in Commercial,
     // but towers are used as keys for both individual implementations.
     this.numberOfTowers = this.modelSettings.numberOfTowers;
     this.numberOfModulesPerTower = this.modelSettings.numberOfModulesPerTower;

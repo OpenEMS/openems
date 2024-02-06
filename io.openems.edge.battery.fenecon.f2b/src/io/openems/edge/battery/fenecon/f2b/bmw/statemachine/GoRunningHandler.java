@@ -75,7 +75,7 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 	}
 
 	private GoRunningSubState getNextSubState(Context context) throws OpenemsNamedException {
-		var battery = context.getParent();
+		final var battery = context.getParent();
 		return switch (this.goRunningState.subState) {
 		case ENABLE_CAN_COMMUNICATION -> {
 			if (!battery.getF2bTerminal30c().isDefined()) {
@@ -127,11 +127,10 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 			}
 
 			// Awaiting for battery start unlock
-			if (battery.isHvContactorUnlocked()) {
-				battery.setHvContactor(true);
-			} else {
+			if (!battery.isHvContactorUnlocked()) {
 				yield GoRunningSubState.CLOSE_HV_CONTACTORS;
 			}
+			battery.setHvContactor(true);
 
 			if (battery.getContactorsDiagnosticStatus() == ContactorDiagnosticStatus.ONE_CONTACTOR_STUCK
 					|| battery.getContactorsDiagnosticStatus() == ContactorDiagnosticStatus.TWO_CONTACTOR_STUCK) {

@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Wraps a JSON-RPC Request for a specific Edge-ID.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

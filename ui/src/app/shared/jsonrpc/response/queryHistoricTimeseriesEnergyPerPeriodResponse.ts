@@ -2,7 +2,7 @@ import { JsonrpcResponseSuccess } from "../base";
 
 /**
  * Wraps a JSON-RPC Response for a queryHistoricTimeseriesEnergy.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

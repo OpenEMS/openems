@@ -18,8 +18,8 @@ export class FilterComponent {
   constructor(private translate: TranslateService) { }
 
   /**
-   * Collects the search params for a {@link GetEdgesRequest} 
-   * 
+   * Collects the search params for a {@link GetEdgesRequest}
+   *
    * @param event the event
    * @param filter the chosen filter
    */

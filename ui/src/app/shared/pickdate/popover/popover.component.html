@@ -1,30 +1,24 @@
 <ion-list lines="none" inset="false">
-    <ion-item mode="md" [class.active]="service.periodString === DefaultTypes.PeriodString.DAY"
-        (click)="setPeriod(DefaultTypes.PeriodString.DAY)" class="ion-text-center" lines="none" button>
-        <ion-label translate>
-            Edge.History.day
-        </ion-label>
-    </ion-item>
-    <ion-item mode="md" [class.active]="service.periodString === DefaultTypes.PeriodString.WEEK"
-        (click)="setPeriod(DefaultTypes.PeriodString.WEEK)" class="ion-text-center" lines="none" button>
-        <ion-label translate>
-            Edge.History.week
-        </ion-label>
-    </ion-item>
-    <ion-item mode="md" [class.active]="service.periodString === DefaultTypes.PeriodString.MONTH"
-        (click)="setPeriod(DefaultTypes.PeriodString.MONTH)" class="ion-text-center" lines="none" button>
-        <ion-label translate>
-            Edge.History.month
-        </ion-label>
-    </ion-item>
-
-    <!-- Show Year View for now only in Energy-Monitor-Chart -->
-    <ion-item mode="md" [class.active]="service.periodString === DefaultTypes.PeriodString.YEAR" class="ion-text-center"
-        lines="none" button (click)="setPeriod(DefaultTypes.PeriodString.YEAR)" class="ion-text-center">
-        <ion-label translate>
-            Edge.History.year
-        </ion-label>
-    </ion-item>
+    <ng-container *ngFor="let period of periods">
+        <ion-item [ngSwitch]="period" mode="md" [class.active]="service.periodString === period"
+            (click)="setPeriod(period)" class="ion-text-center" lines="none" button>
+            <ion-label *ngSwitchCase="DefaultTypes.PeriodString.DAY" translate>
+                Edge.History.day
+            </ion-label>
+            <ion-label *ngSwitchCase="DefaultTypes.PeriodString.WEEK" translate>
+                Edge.History.week
+            </ion-label>
+            <ion-label *ngSwitchCase="DefaultTypes.PeriodString.MONTH" translate>
+                Edge.History.month
+            </ion-label>
+            <ion-label *ngSwitchCase="DefaultTypes.PeriodString.YEAR" translate>
+                Edge.History.year
+            </ion-label>
+            <ion-label *ngSwitchCase="DefaultTypes.PeriodString.TOTAL" translate>
+                Edge.History.TOTAL
+            </ion-label>
+        </ion-item>
+    </ng-container>
     <ion-item mode="md" [class.active]="service.periodString === DefaultTypes.PeriodString.CUSTOM"
         (click)="showCustomDate = !showCustomDate; setPeriod(DefaultTypes.PeriodString.CUSTOM)" class="ion-text-center"
         lines="none" button>

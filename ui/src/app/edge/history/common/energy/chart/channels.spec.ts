@@ -187,9 +187,9 @@ export namespace History {
     },
   });
 
-  /** 
+  /**
    * up to 288 datapoints (5 min aggregated values) from a
-   * 
+   *
    * {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}
    * */
   export const DAY: OeTester.Types.Channels = ({
@@ -1941,7 +1941,7 @@ export namespace History {
     }),
   });
 
-  /** 
+  /**
    * up to 164 datapoints(1 hour values) from a {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}
    * */
   export const WEEK: OeTester.Types.Channels = {
@@ -3140,7 +3140,7 @@ export namespace History {
     }),
   };
 
-  /** 
+  /**
   * up to 31 datapoints(1 day values) from a {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}*/
   export const MONTH: OeTester.Types.Channels = {
     energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
@@ -3382,7 +3382,7 @@ export namespace History {
       }),
   };
 
-  /** 
+  /**
   * up to 12 datapoints(1 month values) from a {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}*/
   export const YEAR: OeTester.Types.Channels = {
     energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {

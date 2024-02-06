@@ -4,6 +4,7 @@ import { environment } from 'src/environments';
 import { ChangelogViewComponent } from './changelog/view/view';
 import { EdgeComponent } from './edge/edge.component';
 import { OverviewComponent as ChannelthresholdChartOverviewComponent } from './edge/history/Controller/ChannelThreshold/overview/overview';
+import { OverviewComponent as TimeOfUseTariffOverviewComponent } from './edge/history/Controller/Ess/TimeOfUseTariff/overview/overview';
 import { OverviewComponent as AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
 import { OverviewComponent as ConsumptionChartOverviewComponent } from './edge/history/common/consumption/overview/overview';
 import { OverviewComponent as GridChartOverviewComponent } from './edge/history/common/grid/overview/overview';
@@ -22,7 +23,6 @@ import { SymmetricPeakshavingChartOverviewComponent } from './edge/history/peaks
 import { TimeslotPeakshavingChartOverviewComponent } from './edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component';
 import { SinglethresholdChartOverviewComponent } from './edge/history/singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
 import { StorageChartOverviewComponent } from './edge/history/storage/storagechartoverview/storagechartoverview.component';
-import { TimeOfUseTariffDischargeChartOverviewComponent } from './edge/history/timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { InstallationComponent } from './edge/installation/installation.component';
 import { LiveComponent as EdgeLiveComponent } from './edge/live/live.component';
 import { LiveDataService } from './edge/live/livedataservice';
@@ -88,10 +88,10 @@ const routes: Routes = [
           { path: ':componentId/gridOptimizedChargeChart', component: GridOptimizedChargeChartOverviewComponent },
           { path: ':componentId/heatingelementchart', component: HeatingelementChartOverviewComponent },
           { path: ':componentId/heatpumpchart', component: HeatPumpChartOverviewComponent },
+          { path: ':componentId/scheduleChart', component: TimeOfUseTariffOverviewComponent },
           { path: ':componentId/singlethresholdchart', component: SinglethresholdChartOverviewComponent },
           { path: ':componentId/symmetricpeakshavingchart', component: SymmetricPeakshavingChartOverviewComponent },
           { path: ':componentId/timeslotpeakshavingchart', component: TimeslotPeakshavingChartOverviewComponent },
-          { path: ':componentId/timeOfUseTariffDischargeChart', component: TimeOfUseTariffDischargeChartOverviewComponent },
           { path: 'autarchychart', component: AutarchyChartOverviewComponent },
           { path: 'consumptionchart', component: ConsumptionChartOverviewComponent },
           { path: 'gridchart', component: GridChartOverviewComponent },

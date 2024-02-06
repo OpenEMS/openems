@@ -6,7 +6,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -49,15 +48,12 @@ public class PredictorSimilardayModelImplTest {
 						.setNumOfWeeks(4) //
 						.setChannelAddresses(METER1_ACTIVE_POWER.toString()).build());
 
-		var prediction = sut.get24HoursPrediction(METER1_ACTIVE_POWER);
-		var p = prediction.getValues();
+		var prediction = sut.getPrediction(METER1_ACTIVE_POWER);
+		var p = prediction.asArray();
 
 		assertEquals(predictedValues[0], p[0]);
 		assertEquals(predictedValues[48], p[48]);
 		assertEquals(predictedValues[95], p[95]);
-
-		System.out.println(Arrays.toString(prediction.getValues()));
-
 	}
 
 }

@@ -89,6 +89,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.CURRENT_STATE.getChannelId());
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.WATCHDOG.getChannelId());
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.W_SET_PCT.getChannelId());
+		addChannel.invoke(sut, KacoSunSpecModel.S64201.WPARAM_RMP_TMS.getChannelId());
 
 		test.activate(MyConfig.create() //
 				.setId(BATTERY_INVERTER_ID) //

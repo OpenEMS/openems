@@ -54,7 +54,7 @@ export class Edge {
 
   /**
    * Gets the Config. If not available yet, it requests it via Websocket.
-   * 
+   *
    * @param websocket the Websocket connection
    */
   public getConfig(websocket: Websocket): BehaviorSubject<EdgeConfig> {
@@ -99,7 +99,7 @@ export class Edge {
 
   /**
    * Add Channels to subscription
-   * 
+   *
    * @param websocket the Websocket
    * @param id        a unique ID for this subscription (e.g. the component selector)
    * @param channels  the subscribed Channel-Addresses
@@ -111,7 +111,7 @@ export class Edge {
 
   /**
    * Refreshes Channels subscriptions on websocket reconnect.
-   * 
+   *
    * @param websocket the Websocket
    */
   public subscribeChannelsOnReconnect(websocket: Websocket): void {
@@ -122,11 +122,11 @@ export class Edge {
 
   /**
    * Removes Channels from subscription
-   * 
+   *
    * @param websocket the Websocket
    * @param id        the unique ID for this subscription
    * @deprecated Use `unsubscribeFromChannels` instead.
-   * 
+   *
    * @todo should be removed
    */
   public unsubscribeChannels(websocket: Websocket, id: string): void {
@@ -136,10 +136,10 @@ export class Edge {
 
   /**
    * Unsubscribes from passed channels
-   * 
+   *
    * @param websocket the Websocket
    * @param channels the channels
-   * 
+   *
    * @todo should be renamed to `unsubscribeChannels` after unsubscribeChannels is removed
    */
   public unsubscribeFromChannels(websocket: Websocket, channels: ChannelAddress[]) {
@@ -159,7 +159,7 @@ export class Edge {
 
   /**
    * Subscribe to System-Log
-   * 
+   *
    * @param websocket the Websocket
    */
   public subscribeSystemLog(websocket: Websocket): Promise<JsonrpcResponseSuccess> {
@@ -168,7 +168,7 @@ export class Edge {
 
   /**
    * Unsubscribe from System-Log
-   * 
+   *
    * @param websocket the Websocket
    */
   public unsubscribeSystemLog(websocket: Websocket): Promise<JsonrpcResponseSuccess> {
@@ -177,7 +177,7 @@ export class Edge {
 
   /**
    * Sends a SubscribeChannelsRequest for all Channels in 'this.subscribedChannels'
-   * 
+   *
    * @param websocket the Websocket
    */
   private sendSubscribeChannels(websocket: Websocket): void {
@@ -227,9 +227,9 @@ export class Edge {
 
   /**
    * Creates a configuration for a OpenEMS Edge Component.
-   * 
+   *
    * @param ws          the Websocket
-   * @param factoryPId  the OpenEMS Edge Factory-PID 
+   * @param factoryPId  the OpenEMS Edge Factory-PID
    * @param properties  the properties to be updated.
    */
   public createComponentConfig(ws: Websocket, factoryPid: string, properties: { name: string, value: any }[]): Promise<JsonrpcResponseSuccess> {
@@ -239,9 +239,9 @@ export class Edge {
 
   /**
    * Updates the configuration of a OpenEMS Edge Component.
-   * 
+   *
    * @param ws          the Websocket
-   * @param componentId the OpenEMS Edge Component-ID 
+   * @param componentId the OpenEMS Edge Component-ID
    * @param properties  the properties to be updated.
    */
   public updateComponentConfig(ws: Websocket, componentId: string, properties: { name: string, value: any }[]): Promise<JsonrpcResponseSuccess> {
@@ -251,9 +251,9 @@ export class Edge {
 
   /**
    * Deletes the configuration of a OpenEMS Edge Component.
-   * 
+   *
    * @param ws          the Websocket
-   * @param componentId the OpenEMS Edge Component-ID 
+   * @param componentId the OpenEMS Edge Component-ID
    */
   public deleteComponentConfig(ws: Websocket, componentId: string): Promise<JsonrpcResponseSuccess> {
     let request = new DeleteComponentConfigRequest({ componentId: componentId });
@@ -262,7 +262,7 @@ export class Edge {
 
   /**
    * Sends a JSON-RPC Request. The Request is wrapped in a EdgeRpcRequest.
-   * 
+   *
    * @param ws               the Websocket
    * @param request          the JSON-RPC Request
    * @param responseCallback the JSON-RPC Response callback
@@ -280,8 +280,8 @@ export class Edge {
 
   /**
    * Mark this edge as online or offline
-   * 
-   * @param isOnline 
+   *
+   * @param isOnline
    */
   public setOnline(isOnline: boolean): void {
     this.isOnline = isOnline;
@@ -289,10 +289,10 @@ export class Edge {
 
   /**
    * Returns whether the given version is higher than the Edge' version
-   * 
+   *
    * Example: {{ edge.isVersionAtLeast('2018.9') }}
-   * 
-   * @param version 
+   *
+   * @param version
    */
   public isVersionAtLeast(version: string): boolean {
     return compareVersions(this.version, version) >= 0;
@@ -300,10 +300,10 @@ export class Edge {
 
   /**
    * Determines if the version of the edge is a SNAPSHOT.
-   * 
+   *
    * <p>
    * Version strings are built like `major.minor.patch-branch.date.hash`. So any version string that contains a hyphen is a SNAPSHOT.
-   * 
+   *
    * @returns true if the version of the edge is a SNAPSHOT
    */
   public isSnapshot(): boolean {
@@ -313,7 +313,7 @@ export class Edge {
   /**
    * Evaluates whether the current Role is equal or more privileged than the
    * given Role.
-   * 
+   *
    * @param role     the compared Role
    * @return true if the current Role is equal or more privileged than the given Role
    */
@@ -323,7 +323,7 @@ export class Edge {
 
   /**
    * Gets the Role of the Edge as a human-readable string.
-   * 
+   *
    * @returns the name of the role
    */
   public getRoleString(): string {

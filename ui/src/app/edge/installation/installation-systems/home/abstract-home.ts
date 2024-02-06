@@ -655,7 +655,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
   /**
    * Generates and returns the Specific properties required for Home APP variant.
-   * 
+   *
    * @param safetyCountry Safety Country configured.
    * @param feedInSetting Feed in Setting configured.
    * @returns The Home APP properties of the specific variant.
@@ -1027,7 +1027,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
   /**
    * Adds the specific DC configuration for the Home variant.
-   * 
+   *
    * @param componentConfigurator configuration object.
    * @param baseMode BaseMode
    */

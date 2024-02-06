@@ -143,7 +143,7 @@ export abstract class AbstractIbn {
   // Show view count along with Schritt number on top of page.
   public showViewCount: boolean;
 
-  // Contains default number of battery modules per tower based on system. 
+  // Contains default number of battery modules per tower based on system.
   public readonly defaultNumberOfModules: number;
 
   constructor(public views: View[], public translate: TranslateService) { }
@@ -204,7 +204,7 @@ export abstract class AbstractIbn {
 
   /**
    * Returns the updated ibn after filling Dynamic-Feed-In-Limit fields from the model.
-   * 
+   *
    * @param model the model containing the user input for the Dynamic-Feed-In-Limit fields.
    */
   public abstract setFeedInLimitFields(model: any);
@@ -272,7 +272,7 @@ export abstract class AbstractIbn {
   /**
    * View configuration peak shaving.
    * Adds the peak shaving data specific to commercial-50 systems.
-   * 
+   *
    * @param peakShavingData the peak shaving data.
    */
   public addPeakShavingData(peakShavingData: ComponentData[]): ComponentData[] {
@@ -281,18 +281,18 @@ export abstract class AbstractIbn {
 
   /**
    * Sets the Non abstract fields for the IBN object from session storage or from specific views.
-   * 
+   *
    * for eg: commercial 50 features, modbus bridge type from commercial systems and many more.
-   * 
+   *
    * @param model model information from the view.
    */
   public setNonAbstractFields(model: any) { }
 
   /**
    * Gets the additional Emergency reserve fields.
-   * 
+   *
    * eg: Coupler fields from Commercial 30 Netztrenstelle variant.
-   * 
+   *
    * @param fields fields for the componenet.
    * @returns The fields to be displayed.
    */
@@ -302,7 +302,7 @@ export abstract class AbstractIbn {
 
   /**
    * Adds the emergency reserve model to the IBN.
-   * 
+   *
    * @param model The model.
    */
   public setEmergencyReserve(model: any) {
@@ -311,7 +311,7 @@ export abstract class AbstractIbn {
 
   /**
    * Returns the configuration object with inclusion of ac meter.
-   * 
+   *
    * @param modbusId modbus unit id.
    * @param baseMode Base mode for the configuration. Default is 'UI'.
    * @returns ConfigurationObject.
@@ -344,7 +344,7 @@ export abstract class AbstractIbn {
 
   /**
    * Returns the common fields for all systems in Feed in limitation view.
-   * 
+   *
    * @param totalPvPower The total pv power configured.
    * @returns common fields for feed in limits fields.
    */
@@ -387,7 +387,7 @@ export abstract class AbstractIbn {
 
   /**
    * Returns the additional fields for feed in limitation view.
-   * 
+   *
    * @param fields The common fields already existing.
    */
   public addAdditionalFeedInLimitsFields(fields: FormlyFieldConfig[]) {
@@ -478,7 +478,7 @@ export abstract class AbstractIbn {
 
   /**
    * Returns Setup Protocol with common objects for all systems.
-   * 
+   *
    * @param edge The current Edge object
    * @returns new SetupProtocol with objects added.
    */
@@ -621,7 +621,7 @@ export abstract class AbstractIbn {
 
   /**
    * Adds the serial numbers of the Battery modules and other components installed to the setup protocol given.
-   * 
+   *
    * @param protocol The SetupProtocol with already exisiting elements.
    * @param numberOfModulesPerTower The configured number of moduler per tower for the system.
    * @param subsequentStaticComponents The default number of fixed components per subsequent Towers/Strings.

@@ -16,12 +16,14 @@ public interface BatteryFeneconF2bDummy extends BatteryFeneconF2b, Battery, Star
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.WARNING) //
+		RUN_FAILED(Doc.of(Level.FAULT) //
 				.text("Running the Logic failed")), //
-		MAX_START_ATTEMPTS(Doc.of(Level.WARNING) //
+		MAX_START_ATTEMPTS(Doc.of(Level.FAULT) //
 				.text("The maximum number of start attempts failed")), //
-		MAX_STOP_ATTEMPTS(Doc.of(Level.WARNING) //
+		MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
 				.text("The maximum number of stop attempts failed")), //
+		DUMMY_FAULT(Doc.of(Level.FAULT) //
+				.text("Dummy fault test channel")), //
 		;
 
 		private final Doc doc;

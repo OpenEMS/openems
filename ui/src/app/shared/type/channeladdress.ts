@@ -2,7 +2,7 @@ export class ChannelAddress {
 
     /**
      * Parses a string to a ChannelAddress
-     * 
+     *
      * @param address in the form 'Component-ID/Channel-ID'
      */
     public static fromString(address: string): ChannelAddress {

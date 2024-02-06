@@ -9,7 +9,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.fenecon.f2b.bmw.BatteryFeneconF2bBmwImpl.BatteryValues;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.Constants;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.statemachine.StateMachine.State;
-import io.openems.edge.battery.fenecon.f2b.cluster.serial.BatteryFeneconF2bClusterSerial;
+import io.openems.edge.battery.fenecon.f2b.cluster.parallel.BatteryFeneconF2bClusterParallel;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
 
@@ -20,23 +20,23 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 	@Override
 	protected void onEntry(Context context) throws OpenemsNamedException {
 		this.timeAtEntry = Instant.now(context.clock);
-		context.getParent()._setMaxStartAttemptsFailed(false);
+		final var cluster = context.getParent();
+		cluster._setMaxStartAttemptsFailed(false);
+		if (cluster.isParallelCluster()) {
+			((BatteryFeneconF2bClusterParallel) cluster)._setVoltageDifferenceHigh(false);
+		}
 	}
 
 	@Override
-	public State runAndGetNextState(Context context) throws OpenemsNamedException {
+	public State runAndGetNextState(Context context) {
 		final var cluster = context.getParent();
-		if (context.batteries.isEmpty()) {
-			return State.GO_RUNNING;
-		}
-		// Has Faults -> error handling
-		if (cluster.hasFaults() || (cluster.getTimeoutStartBatteries().isDefined()//
-				&& cluster.getTimeoutStartBatteries().get())) {
+
+		if (cluster.getAndUpdateHasAllBatteriesFault() || cluster.hasFaults()) {
 			return State.ERROR;
 		}
 
-		if (cluster.hasBatteriesFault()) {
-			cluster._setAtLeastOneBatteryInError(true);
+		var hasFault = cluster.getAndUpdateHasAnyBatteryFault();
+		if (hasFault && cluster.isSerialCluster()) {
 			return State.ERROR;
 		}
 
@@ -58,14 +58,12 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 			return State.ERROR;
 		}
 
-		if (cluster instanceof BatteryFeneconF2bClusterSerial) {
-			var defined = context.batteries.stream().allMatch(t -> {
-				return getValues(t, BatteryValues.class).isPresent();
-			});
+		var areBatteryValuesDefined = context.batteries.stream().allMatch(t -> {
+			return getValues(t, BatteryValues.class).isPresent();
+		});
 
-			if (!defined) {
-				return State.GO_RUNNING;
-			}
+		if (!areBatteryValuesDefined && cluster.isSerialCluster()) {
+			return State.GO_RUNNING;
 		}
 
 		for (var battery : cluster.getNotStartedBatteries()) {

@@ -87,7 +87,7 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
             this.stopSpinner();
 
         }).catch(reason => {
-            console.error(reason); // TODO error message 
+            console.error(reason); // TODO error message
             this.initializeChart();
             return;
         });

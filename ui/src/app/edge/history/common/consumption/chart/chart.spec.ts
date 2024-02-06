@@ -1,9 +1,9 @@
 import { ChartConfig, DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
 
 import { sharedSetup, TestContext } from "../../../../../shared/test/utils.spec";
+import { DATA, LABELS } from "../../energy/chart/chart.constants.spec";
 import { History } from "./channels.spec";
 import { expectView } from "./chart.constants.spec";
-import { DATA, LABELS } from "../../energy/chart/chart.constants.spec";
 
 describe('History Consumption', () => {
   const defaultEMS = DummyConfig.from(
@@ -12,8 +12,8 @@ describe('History Consumption', () => {
   );
 
   let TEST_CONTEXT: TestContext;
-  beforeEach(() =>
-    TEST_CONTEXT = sharedSetup(),
+  beforeEach(async () =>
+    TEST_CONTEXT = await sharedSetup(),
   );
 
   it('#getChartData()', () => {

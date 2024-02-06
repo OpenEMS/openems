@@ -1,5 +1,7 @@
 package io.openems.edge.predictor.persistencemodel;
 
+import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTION;
+
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
@@ -33,9 +35,9 @@ import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.predictor.api.oneday.AbstractPredictor24Hours;
-import io.openems.edge.predictor.api.oneday.Prediction24Hours;
-import io.openems.edge.predictor.api.oneday.Predictor24Hours;
+import io.openems.edge.predictor.api.prediction.AbstractPredictor;
+import io.openems.edge.predictor.api.prediction.Prediction;
+import io.openems.edge.predictor.api.prediction.Predictor;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -44,8 +46,7 @@ import io.openems.edge.timedata.api.Timedata;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class PredictorPersistenceModelImpl extends AbstractPredictor24Hours
-		implements Predictor24Hours, OpenemsComponent {
+public class PredictorPersistenceModelImpl extends AbstractPredictor implements Predictor, OpenemsComponent {
 
 	/** Use that many quarters to calculate regression. */
 	private static final int REGRESSION_QUERY_QUARTERS = 2 /* hours */ * 4 /* quarters */;
@@ -86,7 +87,7 @@ public class PredictorPersistenceModelImpl extends AbstractPredictor24Hours
 	}
 
 	@Override
-	protected Prediction24Hours createNewPrediction(ChannelAddress channelAddress) {
+	protected Prediction createNewPrediction(ChannelAddress channelAddress) {
 		var now = ZonedDateTime.now(this.componentManager.getClock());
 		var fromDate = now.minus(24 * 60 + EXTRA_QUERY_QUARTERS * 15, ChronoUnit.MINUTES);
 
@@ -98,11 +99,11 @@ public class PredictorPersistenceModelImpl extends AbstractPredictor24Hours
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, "Historic data is not available: " + e.getMessage());
 			e.printStackTrace();
-			return Prediction24Hours.EMPTY;
+			return EMPTY_PREDICTION;
 		}
 		if (queryResult == null) {
 			this.logError(this.log, "Historic data is not available: query result is null");
-			return Prediction24Hours.EMPTY;
+			return EMPTY_PREDICTION;
 		}
 		// Extract data
 		var data = queryResult.values().stream() //
@@ -118,7 +119,7 @@ public class PredictorPersistenceModelImpl extends AbstractPredictor24Hours
 				}).toList();
 		if (data.isEmpty()) {
 			this.logError(this.log, "Historic data is not available: query result is empty");
-			return Prediction24Hours.EMPTY;
+			return EMPTY_PREDICTION;
 		}
 
 		// Apply regression for ultra-short-term prediction
@@ -131,6 +132,7 @@ public class PredictorPersistenceModelImpl extends AbstractPredictor24Hours
 
 		// Prepare and return result
 		var result = Streams.concat(//
+				// -> Next 24 hours
 				// Ultra-short term prediction (by regression)
 				regression.stream(),
 				// Apply factor
@@ -140,10 +142,20 @@ public class PredictorPersistenceModelImpl extends AbstractPredictor24Hours
 						.map(v -> v == null ? null : (int) Math.round(v * reduceFactor(factor, i.getAndAdd(reduce)))), //
 				// Keep remaining
 				data.stream() //
+						.skip(EXTRA_QUERY_QUARTERS + REGRESSION_APPLY_QUARTERS + SMOOTH_APPLY_QUARTERS), //
+
+				// -> to 48 hours
+				// Apply factor
+				data.stream() //
+						.skip(EXTRA_QUERY_QUARTERS) // no regression, more smoothing
+						.limit(REGRESSION_APPLY_QUARTERS + SMOOTH_APPLY_QUARTERS) //
+						.map(v -> v == null ? null : (int) Math.round(v * reduceFactor(factor, i.getAndAdd(reduce)))), //
+				// Keep remaining
+				data.stream() //
 						.skip(EXTRA_QUERY_QUARTERS + REGRESSION_APPLY_QUARTERS + SMOOTH_APPLY_QUARTERS) //
 		).toArray(Integer[]::new);
 
-		return Prediction24Hours.of(channelAddress, result);
+		return Prediction.from(channelAddress, now, result);
 	}
 
 	/**

@@ -8,7 +8,7 @@ export enum Coupler {
 export namespace Coupler {
     /**
      * Returns the Factory Id of the coupler.
-     * 
+     *
      * @param coupler the coupler selected.
      * @returns the Factory Id of the corresponding Coupler.
      */
@@ -23,7 +23,7 @@ export namespace Coupler {
 
     /**
      * returns the URL of the image of the Coupler.
-     * 
+     *
      * @param coupler the coupler selected.
      * @returns the URL.
      */
@@ -38,7 +38,7 @@ export namespace Coupler {
 
     /**
      * Returns the Label of the corresponding Coupler.
-     * 
+     *
      * @param coupler the coupler selected.
      * @param translate the Translate Service
      * @returns the Label.
@@ -54,7 +54,7 @@ export namespace Coupler {
 
     /**
      * Returns the default alias of the coupler.
-     * 
+     *
      * @param coupler the coupler selected.
      * @param translate the Translate Service
      * @returns the Alias.

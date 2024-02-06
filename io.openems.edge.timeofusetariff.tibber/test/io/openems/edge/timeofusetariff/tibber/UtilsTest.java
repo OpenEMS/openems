@@ -1,11 +1,10 @@
 package io.openems.edge.timeofusetariff.tibber;
 
+import static io.openems.edge.timeofusetariff.tibber.Utils.generateGraphQl;
+import static io.openems.edge.timeofusetariff.tibber.Utils.parsePrices;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import java.time.ZonedDateTime;
-import java.util.SortedMap;
 
 import org.junit.Test;
 
@@ -16,7 +15,7 @@ public class UtilsTest {
 	@Test
 	public void nonEmptyStringTest() throws OpenemsNamedException {
 		// Parsing with custom data
-		SortedMap<ZonedDateTime, Float> prices = Utils.parsePrices("{\n" //
+		var prices = parsePrices("{\n" //
 				+ "  \"data\": {\n" + "    \"viewer\": {\n" //
 				+ "      \"homes\": [\n" //
 				+ "        {\n" //
@@ -134,19 +133,18 @@ public class UtilsTest {
 		// To check if the Map is not empty
 		assertFalse(prices.isEmpty());
 
-		// To check if the a value input from the string is present in map.
-		assertTrue(prices.containsValue(0.1853f * 1000));
-
-		ZonedDateTime firstHour = prices.firstKey();
+		// To check if a value is present in map.
+		assertEquals(0.187 * 1000, prices.getFirst(), 0.001);
 
 		// To check 15 minutes values are taken instead of one hour values.
-		assertTrue(prices.containsKey(firstHour.plusMinutes(15)));
+		var firstHour = prices.pricePerQuarter.firstKey();
+		assertTrue(prices.pricePerQuarter.containsKey(firstHour.plusMinutes(15)));
 	}
 
 	@Test(expected = OpenemsNamedException.class)
 	public void emptyStringTest() throws OpenemsNamedException {
 		// Parsing with empty string
-		Utils.parsePrices("", null);
+		parsePrices("", null);
 	}
 
 	@Test
@@ -171,6 +169,6 @@ public class UtilsTest {
 				      }
 				    }
 				  }
-				}""", Utils.generateGraphQl());
+				}""", generateGraphQl());
 	}
 }

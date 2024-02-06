@@ -81,7 +81,7 @@ export class HeckertAppInstallerComponent implements OnInit {
 
   /**
    * Method that marks the clicked app as selected.
-   * 
+   *
    * @param clickedApp the app that has been clicked
    */
   public selectApp(clickedApp: EmsApp) {
@@ -98,7 +98,7 @@ export class HeckertAppInstallerComponent implements OnInit {
 
   /**
    * Method that shows a confirmation window for the app selection
-   * 
+   *
    * @param clickedApp the app that has been clicked
    */
   async presentAlert(clickedApp: EmsApp) {

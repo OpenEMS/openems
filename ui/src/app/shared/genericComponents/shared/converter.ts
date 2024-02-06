@@ -2,7 +2,7 @@ import { formatNumber } from "@angular/common";
 
 import { TranslateService } from "@ngx-translate/core";
 import { CurrentData, EdgeConfig, EssStateMachine, Utils } from "../../shared";
-import { TimeUtils } from "../../utils/timeutils/timeutils";
+import { TimeUtils } from "../../utils/time/timeutils";
 import { Formatter } from "./formatter";
 
 export type Converter = (value: number | string | null) => string;
@@ -11,7 +11,7 @@ export namespace Converter {
 
   /**
    * 'No-Operation' Converter: just returns the unchanged value as string.
-   * 
+   *
    * @param value the value
    * @returns the value or empty string for null
    */
@@ -51,7 +51,7 @@ export namespace Converter {
 
   /**
    * Converter for Grid-Buy-Power.
-   * 
+   *
    * @param value the ActivePower value (positive, negative or null)
    * @returns formatted positive value; zero for negative; '-' for null
    */
@@ -64,7 +64,7 @@ export namespace Converter {
 
   /**
    * Converter for Grid-Sell-Power.
-   * 
+   *
    * @param value the ActivePower value (positive, negative or null)
    * @returns formatted inverted negative value; zero for positive; '-' for null
    */
@@ -77,7 +77,7 @@ export namespace Converter {
 
   /**
    * Converter for ActivePower; always returns the formatted positive value.
-   * 
+   *
    * @param value the ActivePower value (positive, negative or null)
    * @returns formatted absolute value; '-' for null
    */
@@ -87,11 +87,11 @@ export namespace Converter {
   };
 
   /**
-   * Formats a Power value as Watt [W]. 
-   * 
+   * Formats a Power value as Watt [W].
+   *
    * Value 1000 -> "1.000 W".
    * Value null -> "-".
-   * 
+   *
    * @param value the power value
    * @returns formatted value; '-' for null
    */
@@ -111,11 +111,11 @@ export namespace Converter {
   };
 
   /**
-   * Formats a Voltage value as Volt [V]. 
-   * 
+   * Formats a Voltage value as Volt [V].
+   *
    * Value 1000 -> "1.000 V".
    * Value null -> "-".
-   * 
+   *
    * @param value the voltage value
    * @returns formatted value; '-' for null
    */
@@ -130,11 +130,11 @@ export namespace Converter {
   };
 
   /**
-   * Formats a Current value as Ampere [A]. 
-   * 
+   * Formats a Current value as Ampere [A].
+   *
    * Value 1000 -> "1.000 A".
    * Value null -> "-".
-   * 
+   *
    * @param value the current value
    * @returns formatted value; '-' for null
    */
@@ -188,7 +188,7 @@ export namespace Converter {
 
   /**
    * Hides the actual value, always returns empty string.
-   * 
+   *
    * @param value the value
    * @returns always ""
    */
@@ -198,9 +198,9 @@ export namespace Converter {
 
   /**
    * Calculates the otherPower: the power, that can't be assigned to a consumer
-   * 
+   *
    * @param evcss the evcss
-   * @param consumptionMeters the "CONSUMPTION_METERED" meters 
+   * @param consumptionMeters the "CONSUMPTION_METERED" meters
    * @param currentData the currentData
    * @returns the otherPower
    */

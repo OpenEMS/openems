@@ -26,7 +26,7 @@ export class OeFormlyViewTester {
   private static applyField(field: OeFormlyField, context: OeFormlyViewTester.Context): OeFormlyViewTester.Field {
     switch (field.type) {
       /**
-       * OeFormlyField.Line 
+       * OeFormlyField.Line
        */
       case 'children-line':
         let tmp = OeFormlyViewTester.applyLineWithChildren(field, context);
@@ -152,8 +152,8 @@ export class OeFormlyViewTester {
 
   /**
    * Common method for Line and Item as they share some fields and logic.
-   * 
-   * @param field the field 
+   *
+   * @param field the field
    * @param context the test context
    * @returns result or null
    */
@@ -230,7 +230,7 @@ export class OeChartTester {
     testContext.service.historyPeriod.next({
       from: new Date(channelData.result.timestamps[0] ?? 0),
       to: new Date(channelData.result.timestamps.reverse()[0] ?? 0),
-      getText: () => testContext.service.historyPeriod.value.getText(testContext.translate),
+      getText: () => testContext.service.historyPeriod.value.getText(testContext.translate, testContext.service),
     });
 
     // Fill Data
@@ -250,7 +250,7 @@ export class OeChartTester {
 
   /**
    * Converts chartLabels to legendLabels
-   * 
+   *
    * @param labels the labels
    * @returns legendlabels
    */
@@ -263,7 +263,7 @@ export class OeChartTester {
 
   /**
    * Converts chartData to Dataset
-   * 
+   *
    * @param datasets the datasets
    * @returns data from a chartData dataset
    */
@@ -284,7 +284,7 @@ export class OeChartTester {
 
   /**
    * Converts chartData to chartOptions
-   * 
+   *
    * @param chartObject the chartObject
    * @param chartType the chartType
    * @param testContext the testContext

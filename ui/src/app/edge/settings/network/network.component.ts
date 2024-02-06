@@ -99,7 +99,7 @@ export class NetworkComponent implements OnInit {
       iface.model.ip = null;
       iface.model.subnetmask = null;
     } else {
-      // Ip address and subnetmask entered from regular form will be labelled as 'static'. 
+      // Ip address and subnetmask entered from regular form will be labelled as 'static'.
       addressJson.push({
         label: 'static',
         address: iface.model.ip,
@@ -128,9 +128,9 @@ export class NetworkComponent implements OnInit {
   }
 
   /**
-   * Hide expression dosent work with custom type 'repeat'. 
+   * Hide expression dosent work with custom type 'repeat'.
    * So this is the workaround for that functionality.
-   * 
+   *
    * @param index index of the form from form array.
    * @param value boolean value respresenting to show or hide.
    */
@@ -146,9 +146,9 @@ export class NetworkComponent implements OnInit {
 
   /**
    * Converts the subnetmask to a string address.
-   * 
+   *
    * e. g. Converts "24" to "255.255.255.0"
-   * 
+   *
    * @param cidr the CIDR
    * @returns the subnetmask as a string
    */
@@ -164,7 +164,7 @@ export class NetworkComponent implements OnInit {
 
   /**
    * Generates the interface for the individual networks.
-   * 
+   *
    * @param name string to display on the individual network interface window.
    * @param source contains values for individual network.
    */
@@ -197,7 +197,7 @@ export class NetworkComponent implements OnInit {
 
   /**
    * fills the fields with source.
-   * 
+   *
    * @returns FormlyFieldConfig[].
    */
   private fillFields(addressArray: String[]): FormlyFieldConfig[] {

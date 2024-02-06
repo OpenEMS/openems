@@ -3,7 +3,7 @@ import { environment } from "src/environments";
 
 export class Changelog {
 
-    public static readonly UI_VERSION = "2024.1.1";
+    public static readonly UI_VERSION = "2024.2.1";
 
     public static readonly GENERAL_OPTIMIZATION = "Optimierungen und Fehlerbehebungen";
     public static readonly EDGE = Changelog.GENERAL_OPTIMIZATION + " am " + environment.edgeShortName + ".";
@@ -103,7 +103,7 @@ export class App {
     public static readonly FRONIUS = "Fronius";
     public static readonly SOLAREDGE = "SolarEdge";
 
-    public static readonly TIME_OF_USE = new App("FEMS App Zeitvariabler Stromtarif", 'https://fenecon.de/fenecon-fems/fems-app-zeitvariabler-stromtarif/');
+    public static readonly TIME_OF_USE = new App("FEMS App Dynamischer Stromtarif", 'https://fenecon.de/fenecon-fems/fems-app-dynamischer-stromtarif/');
     public static readonly AWATTAR = "Awattar HOURLY";
     public static readonly TIBBER = "Tibber";
     public static readonly CORRENTLY = "STROMDAO Corrently";

@@ -90,9 +90,9 @@ export function Commercial50BatteryInverterSerialNumberValidator(control: FormCo
  * This validator checks if the value entered is greater than minimum (default) value.
  * Workaround for default min prop in formly field.
  * User has trouble entering value in a field which is initialized with min prop. especially if a minimum value specified is more than one digit.
- * 
+ *
  * @param control the form control containing the value that needs to be validated.
- * @param field the specific field of the form. 
+ * @param field the specific field of the form.
  * @returns sets the validation to true if the condition is met.
  */
 export function DefaultAsMinValueValidator(control: FormControl, field: FormlyFieldConfig): ValidationErrors {

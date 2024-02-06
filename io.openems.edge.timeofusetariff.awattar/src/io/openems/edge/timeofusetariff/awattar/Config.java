@@ -17,5 +17,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
+	@AttributeDefinition(name = "Zone", description = "Zone corresponding to the customer's location")
+	Zone zone() default Zone.GERMANY;
+
 	String webconsole_configurationFactory_nameHint() default "Time-Of-Use Tariff Awattar [{id}]";
 }

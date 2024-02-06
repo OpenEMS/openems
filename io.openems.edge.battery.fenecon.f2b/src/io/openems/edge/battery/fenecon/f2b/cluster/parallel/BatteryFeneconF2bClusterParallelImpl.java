@@ -1,5 +1,13 @@
 package io.openems.edge.battery.fenecon.f2b.cluster.parallel;
 
+import static java.util.Collections.emptyList;
+
+import java.util.List;
+import java.util.Map;
+import java.util.OptionalInt;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -21,7 +29,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.f2b.BatteryFeneconF2b;
-import io.openems.edge.battery.fenecon.f2b.DeviceSpecificOnChangeHandler;
+import io.openems.edge.battery.fenecon.f2b.DeviceSpecificOnSetNextValueHandler;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.AbstractBatteryFeneconF2bCluster;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.BatteryFeneconF2bCluster;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.ChannelManager;
@@ -46,12 +54,13 @@ import io.openems.edge.common.startstop.StartStoppable;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
 public class BatteryFeneconF2bClusterParallelImpl extends AbstractBatteryFeneconF2bCluster
-		implements BatteryFeneconF2bClusterParallel, BatteryFeneconF2bCluster, BatteryFeneconF2b, OpenemsComponent,
-		EventHandler, ModbusSlave, Battery, StartStoppable {
+		implements BatteryFeneconF2bClusterParallel, BatteryFeneconF2bCluster, BatteryFeneconF2b, Battery,
+		OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	private final Logger log = LoggerFactory.getLogger(BatteryFeneconF2bClusterParallelImpl.class);
 	private final ParallelChannelManager channelManager = new ParallelChannelManager(this);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+	private static final int ALLOWED_MAX_VOLTAGE_DIFFERENCE = 4;
 	private boolean hvContactorUnlocked = false;
 
 	@Reference
@@ -90,9 +99,9 @@ public class BatteryFeneconF2bClusterParallelImpl extends AbstractBatteryFenecon
 
 	@Activate
 	protected void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), this.cm, config.startStop(),
-				config.battery_ids());
+		super.activate(context, config.id(), config.alias(), config.enabled(), this.cm, config.startStop());
 
+		// update filter for 'Battery'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Battery", config.battery_ids())) {
 			return;
 		}
@@ -113,31 +122,17 @@ public class BatteryFeneconF2bClusterParallelImpl extends AbstractBatteryFenecon
 	@Override
 	public void startBatteries() throws OpenemsException {
 		super.startBatteries();
-		final var minVoltage = super.batteries.stream() //
-				.filter(BatteryFeneconF2b.class::isInstance) //
-				.map(BatteryFeneconF2b.class::cast) //
-				.map(BatteryFeneconF2b::getInternalVoltage) //
-				.filter(Value::isDefined) //
-				.mapToInt(Value::get) //
-				.min();
-		final var maxVoltage = super.batteries.stream() //
-				.filter(BatteryFeneconF2b.class::isInstance) //
-				.map(BatteryFeneconF2b.class::cast) //
-				.map(BatteryFeneconF2b::getInternalVoltage) //
-				.filter(Value::isDefined) //
-				.mapToInt(Value::get) //
-				.max();
+		final var minVoltage = this.getMinInternalVoltage();
+		final var maxVoltage = this.getMaxInternalVoltage();
+		// In case of not defined values long time waiting, will lead the battery to the
+		// max start time attempt failed
 		if (minVoltage.isEmpty() || maxVoltage.isEmpty() || minVoltage.getAsInt() == 0 || maxVoltage.getAsInt() == 0) {
 			return;
 		}
-		final var voltageDifference = maxVoltage.getAsInt() - minVoltage.getAsInt();
-		if (voltageDifference <= 4) {
-			this.setHvContactorUnlocked(true);
-		} else {
-			this.setHvContactorUnlocked(false);
-			this._setVoltageDifferenceHigh(true);
-			throw new OpenemsException("High voltage difference!");
-		}
+		// Stop batteries
+		this.stopNotStartableBatteries();
+		// Start Batteries
+		this.startStartableBatteries();
 	}
 
 	@Override
@@ -194,7 +189,141 @@ public class BatteryFeneconF2bClusterParallelImpl extends AbstractBatteryFenecon
 	}
 
 	@Override
-	public DeviceSpecificOnChangeHandler<? extends BatteryFeneconF2b> getDeviceSpecificOnChangeHandler() {
+	public DeviceSpecificOnSetNextValueHandler<? extends BatteryFeneconF2b> getDeviceSpecificOnSetNextValueHandler() {
 		return null;
+	}
+
+	@Override
+	public Map<Value<Integer>, BatteryFeneconF2b> getInternalVoltageBatteryMap() {
+		return super.batteries.stream() //
+				.filter(t -> !t.hasFaults())//
+				.collect(Collectors.toMap(BatteryFeneconF2b::getInternalVoltage, //
+						Function.identity()));
+	}
+
+	@Override
+	public OptionalInt getMinInternalVoltage() {
+		return this.getInternalVoltageBatteryMap().entrySet().stream()//
+				.map(Map.Entry::getKey)//
+				.filter(Value::isDefined) //
+				.mapToInt(Value::get) //
+				.min();
+	}
+
+	@Override
+	public OptionalInt getMaxInternalVoltage() {
+		return this.getInternalVoltageBatteryMap().entrySet().stream()//
+				.map(Map.Entry::getKey)//
+				.filter(Value::isDefined) //
+				.mapToInt(Value::get) //
+				.max();
+	}
+
+	@Override
+	public List<BatteryFeneconF2b> getStartableBatteries() {
+		var batteryInternalVoltageList = this.getInternalVoltageBatteryMap().entrySet().stream()//
+				.filter(map -> map.getKey().isDefined())//
+				.toList();
+		var batteryList = batteryInternalVoltageList.stream()//
+				.map(Map.Entry::getValue)//
+				.toList();
+		// batteryList.isEmpty() check need it because of 'Undefined' state, it should
+		// be checked whether all batteries already started
+		if (batteryList.size() <= 1) {
+			return batteryList;
+		}
+
+		final var minVoltage = this.getMinInternalVoltage();
+		final var maxVoltage = this.getMaxInternalVoltage();
+		final var voltageDifference = maxVoltage.getAsInt() - minVoltage.getAsInt();
+		if (voltageDifference <= ALLOWED_MAX_VOLTAGE_DIFFERENCE) {
+			this._setVoltageDifferenceHigh(false);
+			return this.batteries;
+		}
+		this._setVoltageDifferenceHigh(true);
+		return batteryInternalVoltageList.stream().filter(map -> map.getKey().get() < this.getMaxInternalVoltage().getAsInt())//
+				.map(Map.Entry::getValue)//
+				.toList();
+	}
+
+	@Override
+	public List<BatteryFeneconF2b> getNotStartableBatteries() {
+		final var minVoltage = this.getMinInternalVoltage();
+		final var maxVoltage = this.getMaxInternalVoltage();
+		final var voltageDifference = maxVoltage.getAsInt() - minVoltage.getAsInt();
+		if (voltageDifference <= ALLOWED_MAX_VOLTAGE_DIFFERENCE) {
+			return emptyList();
+		}
+		return this.getInternalVoltageBatteryMap().entrySet().stream()//
+				.filter(map -> map.getKey().isDefined())//
+				.filter(map -> map.getKey().get() >= this.getMaxInternalVoltage().getAsInt())//
+				.map(Map.Entry::getValue)//
+				.toList();
+	}
+
+	@Override
+	public void stopNotStartableBatteries() {
+		var notStartableBatteries = this.getNotStartableBatteries();
+		if (notStartableBatteries.isEmpty()) {
+			return;
+		}
+		notStartableBatteries.forEach(notStartableBattery -> {
+			try {
+				notStartableBattery.setHvContactorUnlocked(false);
+				notStartableBattery.stop();
+			} catch (OpenemsNamedException e) {
+				this.logError(this.log, "Battery: " + notStartableBattery.id() + " can not stop " + e.getMessage());
+			}
+		});
+	}
+
+	@Override
+	public void startStartableBatteries() {
+		var startableBatteries = this.getStartableBatteries();
+		if (startableBatteries.isEmpty()) {
+			return;
+		}
+		startableBatteries.forEach(startableBattery -> {
+			try {
+				this.setHvContactorUnlocked(true);
+				startableBattery.start();
+			} catch (OpenemsNamedException e) {
+				this.logError(this.log, "Battery: " + startableBattery.id() + " can not start " + e.getMessage());
+			}
+		});
+	}
+
+	@Override
+	public boolean areStartableBatteriesStarted() {
+		if (this.getStartableBatteries().isEmpty()) {
+			return false;
+		}
+		return this.getStartableBatteries().stream()//
+				.allMatch(Battery::isStarted);
+	}
+
+	@Override
+	public synchronized boolean areAllBatteriesStarted() {
+		return this.areStartableBatteriesStarted();
+	}
+
+	@Override
+	public synchronized boolean areAllBatteriesStopped() {
+		return this.batteries.stream().anyMatch(Battery::isStopped);
+	}
+
+	@Override
+	public List<BatteryFeneconF2b> getNotStartedBatteries() {
+		if (this.batteries.isEmpty()) {
+			return emptyList();
+		}
+		if (this.batteries.stream()//
+				.map(BatteryFeneconF2b::getInternalVoltage)//
+				.anyMatch(Value::isDefined)) {
+			return this.getStartableBatteries().stream()//
+					.filter(t -> !t.isStarted())//
+					.toList();
+		}
+		return this.batteries;
 	}
 }

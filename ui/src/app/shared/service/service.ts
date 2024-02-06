@@ -26,7 +26,7 @@ import { AdvertWidgets } from '../type/widget';
 import { AbstractService } from './abstractservice';
 import { DefaultTypes } from './defaulttypes';
 import { Websocket } from './websocket';
-import { DateUtils } from '../utils/dateutils/dateutils';
+import { DateUtils } from '../utils/date/dateutils';
 
 @Injectable()
 export class Service extends AbstractService {
@@ -284,7 +284,7 @@ export class Service extends AbstractService {
 
   /**
    * Gets the page for the given number.
-   * 
+   *
    * @param page the page number
    * @param query the query to restrict the edgeId
    * @param limit the number of edges to be retrieved
@@ -331,7 +331,7 @@ export class Service extends AbstractService {
 
   /**
    * Updates the currentEdge in metadata
-   * 
+   *
    * @param edgeId the edgeId
    * @returns a empty Promise
    */
@@ -434,7 +434,7 @@ export class Service extends AbstractService {
 
   /**
    * Currently selected history period string
-   * 
+   *
    * initialized as day, is getting changed by pickdate component
    */
   public periodString: DefaultTypes.PeriodString = DefaultTypes.PeriodString.DAY;

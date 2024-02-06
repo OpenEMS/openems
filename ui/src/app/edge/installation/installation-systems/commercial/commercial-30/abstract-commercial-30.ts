@@ -90,7 +90,7 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
 
     /**
      * Returns thhe common serial number fields for commercial systems.
-     * 
+     *
      * @param stringNr Number of Strings configured.
      * @param numberOfModulesPerString Number of Modules per String.
      * @returns the fields.
@@ -171,12 +171,12 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
     /**
      * View Configuration-execute.
      * Returns the common required configuration object for commercial-30 systems with components specific to the system.
-     * 
+     *
      * @param edge the current edge.
      * @param config the EdgeConfig.
      * @param websocket the Websocket connection.
      * @param invalidateElementsAfterReadErrors specifies the number of times to check before invalidating.
-     * 
+     *
      * @returns ComponentConfigurator
      */
     public getCommercial30ComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, invalidateElementsAfterReadErrors: number, service: Service) {

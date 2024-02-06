@@ -9,13 +9,12 @@ export const VIEW_CONTEXT: OeFormlyViewTester.Context = ({});
 export function expectView(testContext: TestContext, viewContext: OeFormlyViewTester.Context, view: OeFormlyViewTester.View): void {
 
   const generatedView = OeFormlyViewTester.apply(ModalComponent.generateView(testContext.translate), viewContext);
-
   expect(generatedView).toEqual(view);
 };
 
 describe('Autarchy - Modal', () => {
   let TEST_CONTEXT: TestContext;
-  beforeEach(() => TEST_CONTEXT = sharedSetup());
+  beforeEach(async () => TEST_CONTEXT = await sharedSetup());
 
   it('generateView()', () => {
     {

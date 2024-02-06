@@ -43,7 +43,7 @@ export abstract class AbstractBattery {
 
     /**
      *  Gets a list of important write channels.
-     *  
+     *
      *  E.g.
      *  [
             {
@@ -59,7 +59,7 @@ export abstract class AbstractBattery {
 
     /**
      *  Gets a list of important system relevant read channels.
-     *  
+     *
      *  E.g.
      *  [
             { channelName: "Soc", register: "0x2103", description: "", requiredInput: "", unit:"%" },
@@ -70,14 +70,14 @@ export abstract class AbstractBattery {
 
     /**
      *  Gets a list of important cell voltage read channels.
-     *  
+     *
      *  E.g.
      *  [
             { channelName: "Voltage", register: "0x2100", description: "", requiredInput: "" },
             { channelName: "Cluster1MinCellVoltage", register: "0x2108", description: "", requiredInput: "" },
             { channelName: "Cluster1MinCellVoltageId", register: "0x2107", description: "", requiredInput: "" },
             { channelName: "MaxCellVoltage", register: "0x2106", description: "", requiredInput: "" },
-            { channelName: "Level1CellUnderVoltageProtection", register: "0x2046", description: "", requiredInput: "" },        
+            { channelName: "Level1CellUnderVoltageProtection", register: "0x2046", description: "", requiredInput: "" },
         ]
      */
     protected abstract getImportantCellVoltageReadChannelDescriptions(): ChannelDescription[];
@@ -85,7 +85,7 @@ export abstract class AbstractBattery {
 
     /*
     *  Gets a list of important cell temperature read channels.
-    *  
+    *
     *  E.g.
     *  [
             { channelName: "MinCellTemperature", register: "0x210C", description: "", requiredInput: "" },
@@ -97,7 +97,7 @@ export abstract class AbstractBattery {
 
     /*
     *  Gets a list of important insulation read channels.
-    *  
+    *
     *  E.g.
     *  [
             { channelName: "StopParameterInsulationProtection", register: "0x2056", description: "", requiredInput: "0" },
@@ -108,7 +108,7 @@ export abstract class AbstractBattery {
 
     /*
     *  Gets a list of additional read channels.
-    *  
+    *
     *  E.g.
     *  [
             {
@@ -123,7 +123,7 @@ export abstract class AbstractBattery {
 
     /**
      *  Gets a list of important cell channels as ChannelChartDescription.
-     *  
+     *
      *  E.g.
      *  {
      *       label: "Minimum cellvoltage", channelName: "Cluster1MinCellVoltage", datasets: [], colorRgb: '45, 171, 91'

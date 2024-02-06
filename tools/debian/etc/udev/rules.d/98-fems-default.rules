@@ -10,3 +10,6 @@ ENV{USB_HUB_TYPE}=="J5", SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProd
 ENV{USB_HUB_TYPE}=="J5", SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", KERNELS=="1-1.2", SYMLINK+="busUSB2"
 ENV{USB_HUB_TYPE}=="J5", SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", KERNELS=="1-1.3", SYMLINK+="busUSB3"
 
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0424", ATTRS{idProduct}=="9514", ENV{USB_HUB_TYPE}="FTDI"
+
+ENV{USB_HUB_TYPE}=="FTDI", SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", SYMLINK+="bus0"

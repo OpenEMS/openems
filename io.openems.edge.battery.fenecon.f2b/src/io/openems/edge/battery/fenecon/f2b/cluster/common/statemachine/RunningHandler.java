@@ -1,6 +1,5 @@
 package io.openems.edge.battery.fenecon.f2b.cluster.common.statemachine;
 
-import io.openems.common.exceptions.InvalidValueException;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.statemachine.StateMachine.State;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
@@ -8,21 +7,27 @@ import io.openems.edge.common.statemachine.StateHandler;
 public class RunningHandler extends StateHandler<State, Context> {
 
 	@Override
-	public State runAndGetNextState(Context context) throws InvalidValueException, IllegalArgumentException {
+	protected void onEntry(Context context) {
+		final var cluster = context.getParent();
+		cluster._setOneBatteryStopped(cluster.isOneBatteryStartedAndOneStopped());
+		cluster._setOneBatteryHasError(cluster.getAndUpdateHasAnyBatteryFault());
+	}
+
+	@Override
+	public State runAndGetNextState(Context context) {
 		final var cluster = context.getParent();
 
 		// Has Faults -> error handling
-		if (cluster.hasFaults()) {
+		if (cluster.getAndUpdateHasAllBatteriesFault() || cluster.hasFaults()) {
 			return State.ERROR;
 		}
 
-		if (cluster.hasBatteriesFault()) {
-			cluster._setAtLeastOneBatteryInError(true);
+		if (cluster.getAndUpdateHasAnyBatteryFault() && cluster.isSerialCluster()) {
 			return State.ERROR;
 		}
 
 		if (!cluster.areAllBatteriesStarted()) {
-			cluster._setAtLeastOneBatteryNotRunning(true);
+			cluster._setOneBatteryNotRunning(true);
 			return State.ERROR;
 		}
 
@@ -32,7 +37,6 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 		// Mark as started
 		cluster._setStartStop(StartStop.START);
-		cluster._setAtLeastOneBatteryNotRunning(false);
 		return State.RUNNING;
 	}
 }

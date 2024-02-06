@@ -47,7 +47,7 @@ export class UserComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    // Set currentLanguage to 
+    // Set currentLanguage to
     this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
     this.service.setCurrentComponent({ languageKey: 'Menu.user' }, this.route);
     this.getUserInformation().then((userInformation) => {

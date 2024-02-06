@@ -6,7 +6,9 @@ import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.f2b.BatteryFeneconF2b;
+import io.openems.edge.battery.fenecon.f2b.cluster.parallel.BatteryFeneconF2bClusterParallel;
 import io.openems.edge.battery.fenecon.f2b.cluster.parallel.BatteryFeneconF2bClusterParallelImpl;
+import io.openems.edge.battery.fenecon.f2b.cluster.serial.BatteryFeneconF2bClusterSerial;
 import io.openems.edge.battery.fenecon.f2b.cluster.serial.BatteryFeneconF2bClusterSerialImpl;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
@@ -18,22 +20,28 @@ import io.openems.edge.common.startstop.StartStoppable;
 public interface BatteryFeneconF2bCluster extends BatteryFeneconF2b, Battery, OpenemsComponent, StartStoppable {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		MAX_START_ATTEMPTS_FAILED(Doc.of(Level.WARNING) //
+		MAX_START_ATTEMPTS_FAILED(Doc.of(Level.FAULT) //
 				.text("The maximum number of start attempts failed")), //
-		MAX_STOP_ATTEMPTS_FAILED(Doc.of(Level.WARNING) //
+		MAX_STOP_ATTEMPTS_FAILED(Doc.of(Level.FAULT) //
 				.text("The maximum number of stop attempts failed")), //
 		TIMEOUT_START_BATTERIES(Doc.of(Level.FAULT) //
 				.text("The maximum start time is passed")), //
 		TIMEOUT_STOP_BATTERIES(Doc.of(Level.FAULT) //
 				.text("The maximum stop time is passed")), //
 		TIMEOUT_WAIT_FOR_BATTERIES_STATUS(Doc.of(Level.FAULT) //
-				.text("The maximum start time is passed; waiting for batteries status!")), //
-		AT_LEAST_ONE_BATTERY_NOT_RUNNING(Doc.of(Level.FAULT) //
-				.text("At least one battery is not running!")),
-		AT_LEAST_ONE_BATTERY_NOT_STOPPED(Doc.of(Level.FAULT) //
-				.text("At least one battery is not stopped!")), //
-		AT_LEAST_ONE_BATTERY_IN_ERROR(Doc.of(Level.FAULT) //
+				.text("Waiting for batteries status!")), //
+		ONE_BATTERY_NOT_RUNNING(Doc.of(Level.WARNING) //
+				.text("One battery is not running!")),
+		ONE_BATTERY_NOT_STOPPED(Doc.of(Level.FAULT) //
+				.text("One battery is not stopped!")), //
+		ONE_BATTERY_STOPPED(Doc.of(Level.WARNING) //
+				.text("One battery is stopped!")), //
+		ONE_BATTERY_HAS_ERROR(Doc.of(Level.WARNING) //
+				.text("One battery has error!")), //
+		AT_LEAST_ONE_BATTERY_IN_ERROR(Doc.of(Level.WARNING) //
 				.text("At least one battery is in error!")), //
+		ALL_BATTERIES_ARE_IN_FAULT(Doc.of(Level.FAULT) //
+				.text("All batteries are in error!")), //
 		;
 
 		private final Doc doc;
@@ -191,61 +199,115 @@ public interface BatteryFeneconF2bCluster extends BatteryFeneconF2b, Battery, Op
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#AT_LEAST_ONE_BATTERY_NOT_RUNNING}.
+	 * Gets the Channel for {@link ChannelId#ONE_BATTERY_NOT_RUNNING}.
 	 * 
 	 * @return the Channel
 	 */
-	public default StateChannel getAtLeastOneBatteryNotRunningChannel() {
-		return this.channel(ChannelId.AT_LEAST_ONE_BATTERY_NOT_RUNNING);
+	public default StateChannel getOneBatteryNotRunningChannel() {
+		return this.channel(ChannelId.ONE_BATTERY_NOT_RUNNING);
 	}
 
 	/**
-	 * Gets the {@link StateChannel} for
-	 * {@link ChannelId#AT_LEAST_ONE_BATTERY_NOT_RUNNING}.
+	 * Gets the {@link StateChannel} for {@link ChannelId#ONE_BATTERY_NOT_RUNNING}.
 	 * 
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Boolean> getAtLeastOneBatteryNotRunning() {
-		return this.getAtLeastOneBatteryNotRunningChannel().value();
+	public default Value<Boolean> getOneBatteryNotRunning() {
+		return this.getOneBatteryNotRunningChannel().value();
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#AT_LEAST_ONE_BATTERY_NOT_RUNNING} Channel.
+	 * {@link ChannelId#ONE_BATTERY_NOT_RUNNING} Channel.
 	 * 
 	 * @param value the next value
 	 */
-	public default void _setAtLeastOneBatteryNotRunning(boolean value) {
-		this.getAtLeastOneBatteryNotRunningChannel().setNextValue(value);
+	public default void _setOneBatteryNotRunning(boolean value) {
+		this.getOneBatteryNotRunningChannel().setNextValue(value);
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#AT_LEAST_ONE_BATTERY_NOT_STOPPED}.
+	 * Gets the Channel for {@link ChannelId#ONE_BATTERY_NOT_STOPPED}.
 	 * 
 	 * @return the Channel
 	 */
-	public default StateChannel getAtLeastOneBatteryNotStoppedChannel() {
-		return this.channel(ChannelId.AT_LEAST_ONE_BATTERY_NOT_STOPPED);
+	public default StateChannel getOneBatteryNotStoppedChannel() {
+		return this.channel(ChannelId.ONE_BATTERY_NOT_STOPPED);
 	}
 
 	/**
-	 * Gets the {@link StateChannel} for
-	 * {@link ChannelId#AT_LEAST_ONE_BATTERY_NOT_STOPPED}.
+	 * Gets the {@link StateChannel} for {@link ChannelId#ONE_BATTERY_NOT_STOPPED}.
 	 * 
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Boolean> getAtLeastOneBatteryNotStopped() {
-		return this.getAtLeastOneBatteryNotStoppedChannel().value();
+	public default Value<Boolean> getOneBatteryNotStopped() {
+		return this.getOneBatteryNotStoppedChannel().value();
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#AT_LEAST_ONE_BATTERY_NOT_STOPPED} Channel.
+	 * {@link ChannelId#ONE_BATTERY_NOT_STOPPED} Channel.
 	 * 
 	 * @param value the next value
 	 */
-	public default void _setAtLeastOneBatteryNotStopped(boolean value) {
-		this.getAtLeastOneBatteryNotStoppedChannel().setNextValue(value);
+	public default void _setOneBatteryNotStopped(boolean value) {
+		this.getOneBatteryNotStoppedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ONE_BATTERY_STOPPED}.
+	 * 
+	 * @return the Channel
+	 */
+	public default StateChannel getOneBatteryStoppedChannel() {
+		return this.channel(ChannelId.ONE_BATTERY_STOPPED);
+	}
+
+	/**
+	 * Gets the {@link StateChannel} for {@link ChannelId#ONE_BATTERY_STOPPED}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getOneBatteryStopped() {
+		return this.getOneBatteryStoppedChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ONE_BATTERY_STOPPED} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setOneBatteryStopped(boolean value) {
+		this.getOneBatteryStoppedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ONE_BATTERY_HAS_ERROR}.
+	 * 
+	 * @return the Channel
+	 */
+	public default StateChannel getOneBatteryHasErrorChannel() {
+		return this.channel(ChannelId.ONE_BATTERY_HAS_ERROR);
+	}
+
+	/**
+	 * Gets the {@link StateChannel} for {@link ChannelId#ONE_BATTERY_HAS_ERROR}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getOneBatteryHasError() {
+		return this.getOneBatteryHasErrorChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ONE_BATTERY_HAS_ERROR} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setOneBatteryHasError(boolean value) {
+		this.getOneBatteryHasErrorChannel().setNextValue(value);
 	}
 
 	/**
@@ -278,6 +340,35 @@ public interface BatteryFeneconF2bCluster extends BatteryFeneconF2b, Battery, Op
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#ALL_BATTERIES_ARE_IN_FAULT}.
+	 * 
+	 * @return the Channel
+	 */
+	public default StateChannel getAllBatteriesAreInFaultChannel() {
+		return this.channel(ChannelId.ALL_BATTERIES_ARE_IN_FAULT);
+	}
+
+	/**
+	 * Gets the {@link StateChannel} for
+	 * {@link ChannelId#ALL_BATTERIES_ARE_IN_FAULT}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getAllBatteriesAreInFault() {
+		return this.getAllBatteriesAreInFaultChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ALL_BATTERIES_ARE_IN_FAULT} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setAllBatteriesAreInFault(boolean value) {
+		this.getAllBatteriesAreInFaultChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the target Start/Stop mode from config or StartStop-Channel.
 	 * 
 	 * @return {@link StartStop}
@@ -297,6 +388,13 @@ public interface BatteryFeneconF2bCluster extends BatteryFeneconF2b, Battery, Op
 	 * @return boolean
 	 */
 	public boolean areAllBatteriesStarted();
+
+	/**
+	 * True on one battery started and one stopped, else false.
+	 * 
+	 * @return boolean
+	 */
+	public boolean isOneBatteryStartedAndOneStopped();
 
 	/**
 	 * Start batteries one of the other. If one battery started, tries to start the
@@ -333,7 +431,18 @@ public interface BatteryFeneconF2bCluster extends BatteryFeneconF2b, Battery, Op
 	 *
 	 * @return true if there is a Fault.
 	 */
-	public boolean hasBatteriesFault();
+	public boolean getAndUpdateHasAnyBatteryFault();
+
+	/**
+	 * Are there any faults reported by all battery components?
+	 *
+	 * <p>
+	 * Evaluates all Batteries {@link StateChannel}s and returns true if any Channel
+	 * with {@link Level#FAULT} is set for all batteries.
+	 *
+	 * @return true all batteries are in Fault.
+	 */
+	public boolean getAndUpdateHasAllBatteriesFault();
 
 	/**
 	 * Gets the main contactor target which set by
@@ -351,5 +460,21 @@ public interface BatteryFeneconF2bCluster extends BatteryFeneconF2b, Battery, Op
 	 * @return itself
 	 */
 	public BatteryFeneconF2bCluster getBatteryFeneconF2bCluster();
+
+	/**
+	 * Is the battery cluster component instance of
+	 * {@link BatteryFeneconF2bClusterSerial}.
+	 * 
+	 * @return true is cluster is {@link BatteryFeneconF2bClusterSerial}
+	 */
+	public boolean isSerialCluster();
+
+	/**
+	 * Is the battery cluster component instance of
+	 * {@link BatteryFeneconF2bClusterParallel}.
+	 * 
+	 * @return true is cluster is {@link BatteryFeneconF2bClusterParallel}
+	 */
+	public boolean isParallelCluster();
 
 }

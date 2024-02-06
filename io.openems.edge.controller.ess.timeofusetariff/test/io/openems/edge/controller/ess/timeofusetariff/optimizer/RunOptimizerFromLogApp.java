@@ -8,8 +8,6 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-import com.google.common.primitives.Floats;
-
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 
 /**
@@ -29,9 +27,7 @@ public class RunOptimizerFromLogApp {
 	private static final int ESS_MAX_SOC = 90;
 
 	/** The ESS Max Power [W]. */
-	private static final int ESS_MAX_POWER = 10000;
-	/** ESS Max Charge Power in CHARGE State [W]. */
-	private static final int ESS_MAX_CHARGE = 5000;
+	private static final int ESS_MAX_POWER = 5000;
 
 	/** The Max Buy-from-Grid Power [W]. */
 	private static final int MAX_BUY_FROM_GRID = 24_000;
@@ -75,11 +71,10 @@ public class RunOptimizerFromLogApp {
 				.essMaxSocEnergy(Math.round(ESS_MAX_SOC / 100F * ESS_CAPACITY)) //
 				.essInitialEnergy(periods.get(0).essInitial()) //
 				.essMaxEnergyPerPeriod(toEnergy(ESS_MAX_POWER)) //
-				.essMaxChargePerPeriod(toEnergy(ESS_MAX_CHARGE)) //
 				.maxBuyFromGrid(toEnergy(MAX_BUY_FROM_GRID)) //
 				.productions(periods.stream().mapToInt(Period::production).toArray()) //
 				.consumptions(periods.stream().mapToInt(Period::consumption).toArray()) //
-				.prices(Floats.toArray(periods.stream().map(Period::price).toList())) //
+				.prices(periods.stream().mapToDouble(Period::price).toArray()) //
 				.states(CONTROL_MODE.states) //
 				.existingSchedule(new TreeMap<>()) //
 				.build();

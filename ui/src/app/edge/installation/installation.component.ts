@@ -93,7 +93,7 @@ export class InstallationComponent implements OnInit {
         this.displayViewAtIndex(viewIndex);
         this.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [this.edge.id] }));
       }).catch(() => {
-        // View with index 0 will always be the Pre-InstallationView, 
+        // View with index 0 will always be the Pre-InstallationView,
         //so if there is non subscribable edge due to being offline or not reachable, the IBN will be directed back to its initial page.
         this.displayViewAtIndex(0);
       });
@@ -189,7 +189,7 @@ export class InstallationComponent implements OnInit {
    */
   private removeUpdateView() {
     // TODO remove when every edge starts with at least the required version
-    // only show update view if the update requests are implemented 
+    // only show update view if the update requests are implemented
     if (!this.edge) {
       return;
     }

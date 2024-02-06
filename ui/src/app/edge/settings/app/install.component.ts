@@ -175,7 +175,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
 
   /**
    * Gets the key to install the current app with.
-   * 
+   *
    * @returns the key or null if the predefined key gets used
    */
   private obtainKey(): Promise<string | null> {
@@ -236,7 +236,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
   /**
    * Displays a error toast with the string supplied from the messageBuilder.
    * If the error is from a Jsonrpc call the error message gets extracted.
-   * 
+   *
    * @param service the service to open the toast with
    * @param messageBuilder the message supplier
    * @returns a method to handle a catch from a promise

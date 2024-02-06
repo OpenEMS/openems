@@ -63,7 +63,7 @@ export class ComponentConfigurator {
     /**
      * Adds a configuration object to be configured
      * and determines its configuration state before.
-     * 
+     *
      * @param configurationObject the ConfigurationObject.
      * @param index Index of component to be added.
      */
@@ -97,7 +97,7 @@ export class ComponentConfigurator {
     /**
      * Starts the configuration process including all
      * configuration objects which have been added via @method add()
-     * 
+     *
      * @returns a promise of type void
      */
     public start(): Promise<void> {
@@ -138,7 +138,7 @@ export class ComponentConfigurator {
      * Returns all configuration objects which have been added to the
      * list of this component configurator instance via @method add()
      * and have the configuration mode 'RemoveAndConfigure'.
-     * 
+     *
      * @returns an array of configuration objects
      */
     public getConfigurationObjectsToBeConfigured(): ConfigurationObject[] {
@@ -155,7 +155,7 @@ export class ComponentConfigurator {
     /**
      * Determines, whether all components added via @method add()
      * have the given @param configurationState
-     * 
+     *
      * @returns a boolean representing the result
      */
     public allHaveConfigurationState(configurationState: ConfigurationState): boolean {
@@ -170,7 +170,7 @@ export class ComponentConfigurator {
     /**
      * Determines, whether any component added via @method add()
      * has the given @param configurationState
-     * 
+     *
      * @returns a boolean representing the result
      */
     public anyHasConfigurationState(configurationState: ConfigurationState): boolean {
@@ -227,7 +227,7 @@ export class ComponentConfigurator {
 
     /**
      * Delete given pre configured components.
-     * 
+     *
      * @param preConfiguredObjects Components to delete
      * @param index Index of component to be deleted
      * @returns Promise
@@ -279,8 +279,8 @@ export class ComponentConfigurator {
     /**
      * Helping function to put the properties together
      * as needed.
-     * 
-     * @param   configurationObject 
+     *
+     * @param   configurationObject
      * @returns the formatted properties
      */
     private generateProperties(configurationObject: ConfigurationObject): { name: string, value: any }[] {
@@ -300,7 +300,7 @@ export class ComponentConfigurator {
     /**
      * Recursive method to configure all components specified in the configuration objects array
      * of this component configurator instance, starting at the given @param index
-     * 
+     *
      * @param   index of the first configuration object to install
      * @returns a promise of type void
      */
@@ -452,8 +452,8 @@ export class ComponentConfigurator {
 
     /**
      * Updates the scheduler.
-     * 
-     * @param config 
+     *
+     * @param config
      */
     private updateScheduler() {
         return new Promise((resolve, reject) => {

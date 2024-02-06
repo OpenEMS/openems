@@ -1,5 +1,8 @@
 package io.openems.edge.predictor.similardaymodel;
 
+import static io.openems.common.utils.DateUtils.roundDownToQuarter;
+import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTION;
+
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -27,9 +30,9 @@ import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.predictor.api.oneday.AbstractPredictor24Hours;
-import io.openems.edge.predictor.api.oneday.Prediction24Hours;
-import io.openems.edge.predictor.api.oneday.Predictor24Hours;
+import io.openems.edge.predictor.api.prediction.AbstractPredictor;
+import io.openems.edge.predictor.api.prediction.Prediction;
+import io.openems.edge.predictor.api.prediction.Predictor;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -38,9 +41,7 @@ import io.openems.edge.timedata.api.Timedata;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-
-public class PredictorSimilardayModelImpl extends AbstractPredictor24Hours
-		implements Predictor24Hours, OpenemsComponent {
+public class PredictorSimilardayModelImpl extends AbstractPredictor implements Predictor, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(PredictorSimilardayModelImpl.class);
 
@@ -88,8 +89,8 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor24Hours
 	}
 
 	@Override
-	protected Prediction24Hours createNewPrediction(ChannelAddress channelAddress) {
-		var now = ZonedDateTime.now(this.componentManager.getClock());
+	protected Prediction createNewPrediction(ChannelAddress channelAddress) {
+		var now = roundDownToQuarter(ZonedDateTime.now(this.componentManager.getClock()));
 		// From now time to Last 4 weeks
 		var fromDate = now.minus(this.config.numOfWeeks(), ChronoUnit.WEEKS);
 
@@ -102,7 +103,7 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor24Hours
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, e.getMessage());
 			e.printStackTrace();
-			return Prediction24Hours.EMPTY;
+			return EMPTY_PREDICTION;
 		}
 
 		// Extract data
@@ -132,7 +133,7 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor24Hours
 		// Getting the average predictions
 		var nextOneDayPredictions = getAverage(lastFourSimilarDays);
 
-		return Prediction24Hours.of(Prediction24Hours.converterForChannelAddress(channelAddress),
+		return Prediction.from(Prediction.converterForChannelAddress(channelAddress), now,
 				nextOneDayPredictions.stream().toArray(Integer[]::new));
 	}
 

@@ -22,7 +22,7 @@ export class HomeServiceAssistentComponent extends AbstractFlatWidget {
   protected cellVoltageDifference: number | null = null;
   protected cellTemperatureDifference: number | null = null;
 
-  protected date: string = this.service?.historyPeriod?.value?.getText(this.translate) ?? "";
+  protected date: string = this.service?.historyPeriod?.value?.getText(this.translate, this.service) ?? "";
 
   protected override getChannelAddresses(): ChannelAddress[] {
     return [

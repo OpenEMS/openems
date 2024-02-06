@@ -82,13 +82,11 @@ import io.openems.edge.common.type.TypeUtils;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
 // TODO Extract AbstractBatteryFeneconF2b
 public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent implements BatteryFeneconF2bBmw,
 		BatteryFeneconF2b, ModbusComponent, OpenemsComponent, Battery, ModbusSlave, StartStoppable, EventHandler {
-
-	private static BmwOnChangeHandler BMW_ON_CHANGE_HANDLER = new BmwOnChangeHandler();
 
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 	private final Logger log = LoggerFactory.getLogger(BatteryFeneconF2bBmwImpl.class);
@@ -460,7 +458,7 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this.heatingManagement();
 			// TODO drop after battery protection implementation
 			this.calculateBatteryValues();
@@ -522,7 +520,7 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 			case COOLING_REQUESTED, URGENT_COOLING_REQUESTED -> this.setCoolingApproval(CoolingApproval.GRANTED);
 			}
 		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
+			this.logError(this.log, "Update cooling failed: " + e.getMessage());
 		}
 	}
 
@@ -561,14 +559,21 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 	 * degree.
 	 */
 	private void heatingManagement() {
-		if (!this.isStarted() //
-				|| !this.getHeatingTarget() //
-				|| !this.getAvgCellTemperature().isDefined() //
-				|| this.getAvgCellTemperature().get() < Constants.HEATING_START_TEMPERATURE) {
-			return;
-		}
-
 		try {
+			if (!this.isStarted() //
+					|| !this.getHeatingTarget() //
+					|| !this.getAvgCellTemperature().isDefined() //
+					|| this.getAvgCellTemperature().get() > Constants.HEATING_START_TEMPERATURE) {
+				// Deactivate heating
+				this.setHeatingReleasedPower(0);
+				if (this.getHeatingPower().isDefined() && this.getHeatingPower().get() == 0) {
+					this.setAllocatesBatteryHeatingPower(HeatingRequest.NOT);
+					this.setPredictedChargingPower(0L);
+					this.setRequestCharging(RequestCharging.NO_CHARGING);
+				}
+				return;
+			}
+
 			// Request heating
 			this.setRequestCharging(RequestCharging.CHARGING_WITH_PRECONDITIONING);
 			this.setPredictedChargingPower(Constants.PREDICTED_CHARGING_POWER);
@@ -583,13 +588,6 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 				this.setAllocatesBatteryHeatingPower(HeatingRequest.BATTERY_HEATING_PRECONDITIONING);
 				this.setHeatingReleasedPower(Constants.RELEASED_POWER);
 				return;
-			}
-			// Deactivate heating
-			this.setHeatingReleasedPower(0);
-			if (this.getHeatingPower().isDefined() && this.getHeatingPower().get() == 0) {
-				this.setAllocatesBatteryHeatingPower(HeatingRequest.NOT);
-				this.setPredictedChargingPower(0L);
-				this.setRequestCharging(RequestCharging.NO_CHARGING);
 			}
 		} catch (OpenemsNamedException e) {
 			this.logWarn(this.log, e.getMessage());
@@ -650,9 +648,16 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 		int chargeMaxCurrentVoltLimit = this.voltageRegulatorCalculateMaxCurrent(data.batteryCurrent(),
 				data.linkVoltageHighRes(), data.batteryChargeMaxVoltage(), TypeUtils::subtract,
 				this::_setChargeMaxCurrentVoltaLimitChannel);
-		int dischargeMaxCurrentVoltLimit = this.voltageRegulatorCalculateMaxCurrent(data.batteryCurrent(),
-				data.linkVoltageHighRes(), data.batteryDischargeMinVoltage(), TypeUtils::sum,
-				this::_setDischargeMaxCurrentVoltLimit);
+		final int dischargeMaxCurrentVoltLimit;
+		if (data.batteryDischargeMinVoltage() < Constants.BATTERY_MIN_VOLTAGE_LIMIT) {
+			dischargeMaxCurrentVoltLimit = this.voltageRegulatorCalculateMaxCurrent(data.batteryCurrent(),
+					data.linkVoltageHighRes(), Constants.BATTERY_MIN_VOLTAGE_LIMIT, TypeUtils::sum,
+					this::_setDischargeMaxCurrentVoltLimit);
+		} else {
+			dischargeMaxCurrentVoltLimit = this.voltageRegulatorCalculateMaxCurrent(data.batteryCurrent(),
+					data.linkVoltageHighRes(), data.batteryDischargeMinVoltage(), TypeUtils::sum,
+					this::_setDischargeMaxCurrentVoltLimit);
+		}
 
 		var batteryPower = TypeUtils.multiply(data.linkVoltageHighRes(), data.batteryCurrent());
 
@@ -782,7 +787,7 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 	}
 
 	@Override
-	public BmwOnChangeHandler getDeviceSpecificOnChangeHandler() {
-		return BMW_ON_CHANGE_HANDLER;
+	public BmwOnSetNextValueHandler getDeviceSpecificOnSetNextValueHandler() {
+		return BmwOnSetNextValueHandler.INSTANCE;
 	}
 }

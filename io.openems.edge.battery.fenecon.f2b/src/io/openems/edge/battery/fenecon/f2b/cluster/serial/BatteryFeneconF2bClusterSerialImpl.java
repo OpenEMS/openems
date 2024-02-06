@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.f2b.BatteryFeneconF2b;
-import io.openems.edge.battery.fenecon.f2b.DeviceSpecificOnChangeHandler;
+import io.openems.edge.battery.fenecon.f2b.DeviceSpecificOnSetNextValueHandler;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.AbstractBatteryFeneconF2bCluster;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.BatteryFeneconF2bCluster;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.ChannelManager;
@@ -50,7 +50,6 @@ public class BatteryFeneconF2bClusterSerialImpl extends AbstractBatteryFeneconF2
 	private final Logger log = LoggerFactory.getLogger(BatteryFeneconF2bClusterSerialImpl.class);
 	private final SerialChannelManager channelManager = new SerialChannelManager(this);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
-
 	private boolean hvContactorUnlocked = true;
 
 	@Reference
@@ -80,18 +79,18 @@ public class BatteryFeneconF2bClusterSerialImpl extends AbstractBatteryFeneconF2
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
 				BatteryFeneconF2b.ChannelId.values(), //
 				BatteryFeneconF2bCluster.ChannelId.values(), //
-				BatteryFeneconF2bClusterSerial.ChannelId.values(), //
-				StartStoppable.ChannelId.values() //
+				BatteryFeneconF2bClusterSerial.ChannelId.values() //
 		);
 	}
 
 	@Activate
 	protected void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), this.cm, config.startStop(),
-				config.battery_ids());
+		super.activate(context, config.id(), config.alias(), config.enabled(), this.cm, config.startStop());
 
+		// update filter for 'Battery'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Battery", config.battery_ids())) {
 			return;
 		}
@@ -163,7 +162,7 @@ public class BatteryFeneconF2bClusterSerialImpl extends AbstractBatteryFeneconF2
 	}
 
 	@Override
-	public DeviceSpecificOnChangeHandler<? extends BatteryFeneconF2b> getDeviceSpecificOnChangeHandler() {
+	public DeviceSpecificOnSetNextValueHandler<? extends BatteryFeneconF2b> getDeviceSpecificOnSetNextValueHandler() {
 		return null;
 	}
 }

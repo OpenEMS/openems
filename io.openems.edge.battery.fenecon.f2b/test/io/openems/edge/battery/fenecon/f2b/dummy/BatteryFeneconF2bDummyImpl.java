@@ -10,7 +10,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.f2b.BatteryFeneconF2b;
-import io.openems.edge.battery.fenecon.f2b.DeviceSpecificOnChangeHandler;
+import io.openems.edge.battery.fenecon.f2b.DeviceSpecificOnSetNextValueHandler;
 import io.openems.edge.battery.fenecon.f2b.dummy.statemachine.Context;
 import io.openems.edge.battery.fenecon.f2b.dummy.statemachine.StateMachine;
 import io.openems.edge.battery.fenecon.f2b.dummy.statemachine.StateMachine.State;
@@ -221,7 +221,7 @@ public class BatteryFeneconF2bDummyImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public DeviceSpecificOnChangeHandler<? extends BatteryFeneconF2b> getDeviceSpecificOnChangeHandler() {
+	public DeviceSpecificOnSetNextValueHandler<? extends BatteryFeneconF2b> getDeviceSpecificOnSetNextValueHandler() {
 		return null;
 	}
 }
