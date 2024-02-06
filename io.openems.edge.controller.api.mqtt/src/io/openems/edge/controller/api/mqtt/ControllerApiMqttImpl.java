@@ -1,6 +1,9 @@
 package io.openems.edge.controller.api.mqtt;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.paho.mqttv5.client.IMqttClient;
 import org.eclipse.paho.mqttv5.common.MqttException;
@@ -45,6 +48,7 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 		implements ControllerApiMqtt, Controller, OpenemsComponent, EventHandler {
 
 	protected static final String COMPONENT_NAME = "Controller.Api.MQTT";
+	private ScheduledExecutorService scheduledExecutorService;
 
 	private final Logger log = LoggerFactory.getLogger(ControllerApiMqttImpl.class);
 	private final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
@@ -71,33 +75,56 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws Exception {
-		this.config = config;
+	    this.config = config;
+	    this.topicPrefix = String.format(ControllerApiMqtt.TOPIC_PREFIX, config.clientId());
 
-		// Publish MQTT messages under the topic "edge/edge0/..."
-		this.topicPrefix = String.format(ControllerApiMqtt.TOPIC_PREFIX, config.clientId());
+	    super.activate(context, config.id(), config.alias(), config.enabled());
 
-		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.mqttConnector.connect(config.uri(), config.clientId(), config.username(), config.password(),
-				config.certPem(), config.privateKeyPem(), config.trustStorePem()).thenAccept(client -> {
-					this.mqttClient = client;
-					this.logInfo(this.log, "Connected to MQTT Broker [" + config.uri() + "]");
-				});
+	    this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+
+	    attemptConnect();
+
+	    this.scheduledExecutorService.scheduleAtFixedRate(this::attemptConnect, 60, 60, TimeUnit.SECONDS);
 	}
+
+	private final Object connectLock = new Object();
+
+	private void attemptConnect() {
+	    synchronized (connectLock) {
+	        try {
+	            if (mqttClient == null || !mqttClient.isConnected()) {
+	                this.mqttConnector.connect(config.uri(), config.clientId(), config.username(), config.password(),
+	                    config.certPem(), config.privateKeyPem(), config.trustStorePem()).thenAccept(client -> {
+	                        mqttClient = client;
+	                        logInfo(this.log, "Connected to MQTT Broker [" + config.uri() + "]");
+	                    }).exceptionally(ex -> {
+	                        log.error("Failed to connect to MQTT broker: " + ex.getMessage(), ex);
+	                        return null;
+	                    });
+	            }
+	        } catch (Exception e) {
+	            log.error("Error attempting to connect to MQTT broker", e);
+	        }
+	    }
+	}
+
+
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
-		super.deactivate();
-		this.mqttConnector.deactivate();
-		this.sendChannelValuesWorker.deactivate();
-		if (this.mqttClient != null) {
-			try {
-				this.mqttClient.close();
-			} catch (MqttException e) {
-				this.logWarn(this.log, "Unable to close connection to MQTT brokwer: " + e.getMessage());
-				e.printStackTrace();
-			}
-		}
+	    super.deactivate();
+	    if (this.scheduledExecutorService != null && !this.scheduledExecutorService.isShutdown()) {
+	        this.scheduledExecutorService.shutdownNow();
+	    }
+	    if (this.mqttClient != null) {
+	        try {
+	            this.mqttClient.disconnect();
+	            this.mqttClient.close();
+	        } catch (MqttException e) {
+	            this.logWarn(this.log, "Unable to close connection to MQTT broker: " + e.getMessage());
+	        }
+	    }
 	}
 
 	@Override
