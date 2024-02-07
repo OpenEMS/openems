@@ -149,13 +149,13 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 				boolean relayIson = JsonUtils.getAsBoolean(switch0, "output");
 				float power = JsonUtils.getAsFloat(switch0, "apower");
 				int voltage = JsonUtils.getAsInt(switch0, "voltage");
-				int current = JsonUtils.getAsInt(switch0, "current");
+				float current = JsonUtils.getAsFloat(switch0, "current");
 
 				this._setRelay(relayIson);
 				this._setActivePower(Math.round(power));
 
 				int millivolt = voltage * 1000;
-				int milliamp = current * 1000;
+				int milliamp = (int) (current * 1000);
 
 				if (this.phase != null) {
 					switch (this.phase) {
@@ -172,6 +172,7 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 					case L2:
 						this._setVoltageL2(millivolt);
 						this._setCurrentL2(milliamp);
+
 						this._setVoltageL1(0);
 						this._setCurrentL1(0);
 						this._setVoltageL3(0);
@@ -182,6 +183,7 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 					case L3:
 						this._setVoltageL3(millivolt);
 						this._setCurrentL3(milliamp);
+
 						this._setVoltageL1(0);
 						this._setCurrentL1(0);
 						this._setVoltageL2(0);
