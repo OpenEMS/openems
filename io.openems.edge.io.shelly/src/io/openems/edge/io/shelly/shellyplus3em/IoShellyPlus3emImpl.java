@@ -44,7 +44,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE,
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE//
 })
-public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent implements IoShellyPlus3EM, DigitalOutput,
+public class IoShellyPlus3emImpl extends AbstractOpenemsComponent implements IoShellyPlus3em, DigitalOutput,
 		SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
@@ -52,7 +52,7 @@ public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent implements IoS
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
-	private final Logger log = LoggerFactory.getLogger(IoShellyPlus3EMImpl.class);
+	private final Logger log = LoggerFactory.getLogger(IoShellyPlus3emImpl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
 
 	private MeterType meterType = null;
@@ -64,15 +64,15 @@ public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent implements IoS
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private BridgeHttp httpBridge;
 
-	public IoShellyPlus3EMImpl() {
+	public IoShellyPlus3emImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
-				IoShellyPlus3EM.ChannelId.values() //
+				IoShellyPlus3em.ChannelId.values() //
 		);
 		this.digitalOutputChannels = new BooleanWriteChannel[] { //
-				this.channel(IoShellyPlus3EM.ChannelId.RELAY) //
+				this.channel(IoShellyPlus3em.ChannelId.RELAY) //
 		};
 
 		ElectricityMeter.calculateSumActivePowerFromPhases(this);
@@ -155,7 +155,7 @@ public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent implements IoS
 			JsonObject updateObject = jsonResponse.getAsJsonObject("update");
 			if (updateObject != null) {
 				boolean hasUpdate = updateObject.get("has_update").getAsBoolean();
-				this.channel(IoShellyPlus3EM.ChannelId.HAS_UPDATE).setNextValue(hasUpdate);
+				this.channel(IoShellyPlus3em.ChannelId.HAS_UPDATE).setNextValue(hasUpdate);
 			}
 
 			JsonArray emeters = jsonResponse.getAsJsonArray("emeters");
