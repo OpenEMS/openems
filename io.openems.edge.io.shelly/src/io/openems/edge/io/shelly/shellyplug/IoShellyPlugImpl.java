@@ -44,21 +44,21 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class IoShellyPlugImpl extends AbstractOpenemsComponent
-		implements IoShellyPlug, DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
+public class IoShellyPlugImpl extends AbstractOpenemsComponent implements IoShellyPlug, DigitalOutput, SinglePhaseMeter,
+		ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
-	
+
 	private final Logger log = LoggerFactory.getLogger(IoShellyPlugImpl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
 
 	private MeterType meterType = null;
 	private SinglePhase phase = null;
 	private String baseUrl;
-	
+
 	private volatile Timedata timedata;
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
@@ -155,7 +155,7 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 			this.logDebug(this.log, e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Calculate the Energy values from ActivePower.
 	 */
@@ -206,7 +206,7 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 	public SinglePhase getPhase() {
 		return this.phase;
 	}
-	
+
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
