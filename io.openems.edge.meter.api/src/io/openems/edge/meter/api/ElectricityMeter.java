@@ -1605,5 +1605,48 @@ public interface ElectricityMeter extends OpenemsComponent {
 			meter.getReactivePowerL3Channel().setNextValue(phase);
 		});
 	}
+	
+	/**
+	 * Initializes Channel listeners to calculate the
+	 * {@link ChannelId#ACTIVE_POWER}-Channel value as the product of
+	 * {@link ChannelId#CURRENT} and {@link ChannelId#VOLTAGE} for each phase.
+	 *
+	 * @param meter the {@link ElectricityMeter}
+	 */
+	public static void PhasesWithVoltAndAmpere(ElectricityMeter meter) {
+	    // For Phase L1
+	    final Consumer<Value<Integer>> calculateActivePowerL1 = ignore -> {
+	        Integer currentL1 = meter.getCurrentL1Channel().getNextValue().get();
+	        Integer voltageL1 = meter.getVoltageL1Channel().getNextValue().get();
+	        if(currentL1 != null && voltageL1 != null) {
+	            meter._setActivePowerL1((int) ((double) currentL1 * voltageL1 / 1_000_000)); // Convert from uW to W
+	        }
+	    };
+	    meter.getCurrentL1Channel().onSetNextValue(calculateActivePowerL1);
+	    meter.getVoltageL1Channel().onSetNextValue(calculateActivePowerL1);
+
+	    // For Phase L2
+	    final Consumer<Value<Integer>> calculateActivePowerL2 = ignore -> {
+	        Integer currentL2 = meter.getCurrentL2Channel().getNextValue().get();
+	        Integer voltageL2 = meter.getVoltageL2Channel().getNextValue().get();
+	        if(currentL2 != null && voltageL2 != null) {
+	            meter._setActivePowerL2((int) ((double) currentL2 * voltageL2 / 1_000_000)); // Convert from uW to W
+	        }
+	    };
+	    meter.getCurrentL2Channel().onSetNextValue(calculateActivePowerL2);
+	    meter.getVoltageL2Channel().onSetNextValue(calculateActivePowerL2);
+
+	    // For Phase L3
+	    final Consumer<Value<Integer>> calculateActivePowerL3 = ignore -> {
+	        Integer currentL3 = meter.getCurrentL3Channel().getNextValue().get();
+	        Integer voltageL3 = meter.getVoltageL3Channel().getNextValue().get();
+	        if(currentL3 != null && voltageL3 != null) {
+	            meter._setActivePowerL3((int) ((double) currentL3 * voltageL3 / 1_000_000)); // Convert from uW to W
+	        }
+	    };
+	    meter.getCurrentL3Channel().onSetNextValue(calculateActivePowerL3);
+	    meter.getVoltageL3Channel().onSetNextValue(calculateActivePowerL3);
+	}
+
 
 }
