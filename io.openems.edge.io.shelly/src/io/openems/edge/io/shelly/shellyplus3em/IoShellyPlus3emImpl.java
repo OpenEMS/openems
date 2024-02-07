@@ -20,6 +20,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -41,7 +43,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		configurationPolicy = ConfigurationPolicy.REQUIRE//
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE,
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE//
 })
 public class IoShellyPlus3emImpl extends AbstractOpenemsComponent implements IoShellyPlus3em, DigitalOutput,
@@ -130,52 +132,50 @@ public class IoShellyPlus3emImpl extends AbstractOpenemsComponent implements IoS
 	}
 
 	private void processHttpResult(JsonElement result, Throwable error) {
+	    this._setSlaveCommunicationFailed(result == null);
+	    if (error != null) {
+	        this._setRelay(null);
+	        this._setActivePower(null);
+	        this._setActiveProductionEnergy(null);
+	        this.logDebug(this.log, error.getMessage());
+	        return;
+	    }
 
-		this._setSlaveCommunicationFailed(result == null);
-		if (error != null) {
-			this._setRelay(null);
-			this._setActivePower(null);
-			this._setActiveProductionEnergy(null);
-			this.logDebug(this.log, error.getMessage());
-			return;
-		}
+	    try {
+	        JsonObject jsonResponse = JsonUtils.getAsJsonObject(result);
 
-		try {
-			JsonObject jsonResponse = result.getAsJsonObject();
+	        JsonArray relays = JsonUtils.getAsJsonArray(jsonResponse, "relays");
+	        if (relays != null && !relays.isEmpty()) {
+	            JsonObject relay = JsonUtils.getAsJsonObject(relays.get(0));
+	            boolean isOn = JsonUtils.getAsBoolean(relay, "ison");
+	            this.getRelayChannel().setNextWriteValue(isOn);
+	            this._setRelay(isOn);
+	        }
 
-			JsonArray relays = jsonResponse.getAsJsonArray("relays");
-			if (relays != null && relays.size() > 0) {
-				JsonObject relay = relays.get(0).getAsJsonObject();
-				boolean isOn = relay.get("ison").getAsBoolean();
-				this.getRelayChannel().setNextWriteValue(isOn);
-				this._setRelay(isOn);
+	        JsonObject updateObject = JsonUtils.getAsJsonObject(jsonResponse, "update");
+	        if (updateObject != null) {
+	            boolean hasUpdate = JsonUtils.getAsBoolean(updateObject, "has_update");
+	            this.channel(IoShellyPlus3em.ChannelId.HAS_UPDATE).setNextValue(hasUpdate);
+	        }
 
-			}
+	        JsonArray emeters = JsonUtils.getAsJsonArray(jsonResponse, "emeters");
+	        for (int i = 0; i < emeters.size(); i++) {
+	            JsonObject emeter = JsonUtils.getAsJsonObject(emeters.get(i));
+	            float power = JsonUtils.getAsFloat(emeter, "power");
+	            float voltage = JsonUtils.getAsFloat(emeter, "voltage");
+	            float current = JsonUtils.getAsFloat(emeter, "current");
 
-			JsonObject updateObject = jsonResponse.getAsJsonObject("update");
-			if (updateObject != null) {
-				boolean hasUpdate = updateObject.get("has_update").getAsBoolean();
-				this.channel(IoShellyPlus3em.ChannelId.HAS_UPDATE).setNextValue(hasUpdate);
-			}
+	            this.setValuesForPhase(i + 1, voltage, current, power);
+	        }
 
-			JsonArray emeters = jsonResponse.getAsJsonArray("emeters");
-			for (int i = 0; i < emeters.size(); i++) {
-				JsonObject emeter = emeters.get(i).getAsJsonObject();
-				float power = emeter.get("power").getAsFloat();
-				float voltage = emeter.get("voltage").getAsFloat();
-				float current = emeter.get("current").getAsFloat();
-
-				this.setValuesForPhase(i + 1, voltage, current, power);
-			}
-
-		} catch (Exception e) {
-			this._setRelay(null);
-			this._setActivePower(null);
-			this._setActiveProductionEnergy(null);
-
-			this.logDebug(this.log, e.getMessage());
-		}
+	    } catch (OpenemsNamedException e) {
+	        this._setRelay(null);
+	        this._setActivePower(null);
+	        this._setActiveProductionEnergy(null);
+	        this.logDebug(this.log, e.getMessage());
+	    }
 	}
+
 
 	private void setValuesForPhase(int phase, Float voltage, Float current, Float power) {
 		int scaledVoltage = Math.round(voltage * 1000);
