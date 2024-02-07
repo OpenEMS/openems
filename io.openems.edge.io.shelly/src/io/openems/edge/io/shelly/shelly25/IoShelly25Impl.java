@@ -39,11 +39,10 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(IoShelly25Impl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
-    private String baseUrl;
+	private String baseUrl;
 
-	
-    @Reference(cardinality = ReferenceCardinality.MANDATORY)
-    private BridgeHttp httpBridge;
+	@Reference(cardinality = ReferenceCardinality.MANDATORY)
+	private BridgeHttp httpBridge;
 
 	public IoShelly25Impl() {
 		super(//
@@ -57,11 +56,11 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 		};
 	}
 
-    @Activate
-    private void activate(ComponentContext context, Config config) {
-        super.activate(context, config.id(), config.alias(), config.enabled());
-        this.baseUrl = "http://" + config.ip();
-    }
+	@Activate
+	private void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.baseUrl = "http://" + config.ip();
+	}
 
 	@Override
 	@Deactivate
@@ -116,55 +115,55 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	/**
 	 * Execute on Cycle Event "Before Process Image".
 	 */
-    private void eventBeforeProcessImage() {
-        for (int i = 0; i < digitalOutputChannels.length; i++) {
-            final int index = i;
-            String url = baseUrl + "/relay/" + index;
-            this.httpBridge.subscribeJsonEveryCycle(url, json -> {
-                try {
-                    boolean isOn = json.getAsJsonObject().get("ison").getAsBoolean();
-                    this.digitalOutputChannels[index].setNextWriteValue(isOn);
-                    this._setSlaveCommunicationFailed(false);
-                } catch (Exception e) {
-                    this.logError(this.log, "Error processing relay state: " + e.getMessage());
-                    this._setSlaveCommunicationFailed(true);
-                }
-            }, throwable -> {
-                this.logError(this.log, "HTTP request failed for relay " + index + ": " + throwable.getMessage());
-                this._setSlaveCommunicationFailed(true);
-            });
-        }
-    }
+	private void eventBeforeProcessImage() {
+		for (int i = 0; i < digitalOutputChannels.length; i++) {
+			final int index = i;
+			String url = baseUrl + "/relay/" + index;
+			this.httpBridge.subscribeJsonEveryCycle(url, json -> {
+				try {
+					boolean isOn = json.getAsJsonObject().get("ison").getAsBoolean();
+					this.digitalOutputChannels[index].setNextWriteValue(isOn);
+					this._setSlaveCommunicationFailed(false);
+				} catch (Exception e) {
+					this.logError(this.log, "Error processing relay state: " + e.getMessage());
+					this._setSlaveCommunicationFailed(true);
+				}
+			}, throwable -> {
+				this.logError(this.log, "HTTP request failed for relay " + index + ": " + throwable.getMessage());
+				this._setSlaveCommunicationFailed(true);
+			});
+		}
+	}
 
 	/**
 	 * Execute on Cycle Event "Execute Write".
 	 */
-    private void eventExecuteWrite() {
-        for (int i = 0; i < digitalOutputChannels.length; i++) {
-            executeWrite(digitalOutputChannels[i], i);
-        }
-    }
+	private void eventExecuteWrite() {
+		for (int i = 0; i < digitalOutputChannels.length; i++) {
+			executeWrite(digitalOutputChannels[i], i);
+		}
+	}
 
-    private void executeWrite(BooleanWriteChannel channel, int index) {
-        var readValue = channel.value().get();
-        var writeValue = channel.getNextWriteValueAndReset();
+	private void executeWrite(BooleanWriteChannel channel, int index) {
+		var readValue = channel.value().get();
+		var writeValue = channel.getNextWriteValueAndReset();
 
-        if (writeValue.isEmpty()) {
-            return;
-        }
+		if (writeValue.isEmpty()) {
+			return;
+		}
 
-        if (Objects.equals(readValue, writeValue.get())) {
-            return;
-        }
+		if (Objects.equals(readValue, writeValue.get())) {
+			return;
+		}
 
-        final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
+		final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
 
-        this.httpBridge.request(url).whenComplete((response, error) -> {
-            if (error != null) {
-                this.logError(this.log, "HTTP request failed: " + error.getMessage());
-                this._setSlaveCommunicationFailed(true);
-            }
-        });
-    }
+		this.httpBridge.request(url).whenComplete((response, error) -> {
+			if (error != null) {
+				this.logError(this.log, "HTTP request failed: " + error.getMessage());
+				this._setSlaveCommunicationFailed(true);
+			}
+		});
+	}
 
 }
