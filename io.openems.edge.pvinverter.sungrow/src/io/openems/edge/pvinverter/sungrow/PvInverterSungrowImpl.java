@@ -139,7 +139,7 @@ public class PvInverterSungrowImpl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER,
 								new SignedDoublewordElement(5032).wordOrder(WordOrder.LSWMSW)), //
 						m(PvInverterSungrow.ChannelId.POWER_FACTOR, new SignedWordElement(5034)), //
-						new DummyRegisterElement(5035, 5036), 
+						new DummyRegisterElement(5035, 5036),
 						// 5035: Frequency, read from another register, 5036: reserved
 						m(PvInverterSungrow.ChannelId.WORK_STATE, new UnsignedWordElement(5037)) //
 				),

@@ -15,10 +15,10 @@ import io.openems.edge.meter.api.MeterType;
 
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
 	String alias() default "";
-	
+
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-	
+
 	@AttributeDefinition(name = "Invert Active Power", description = "If enabled, the active power value is inverted.")
 	boolean invertActivePower() default false;
 
@@ -27,7 +27,7 @@ import io.openems.edge.meter.api.MeterType;
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId() default 1;
-	
+
 	@AttributeDefinition(name = "Meter-Type", description = "Meter-Type of this Meter (Only provides the meter types PRODUCTION).")
 	MeterType type() default MeterType.GRID;
 
