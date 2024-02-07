@@ -162,14 +162,32 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 					case L1:
 						this._setVoltageL1(millivolt);
 						this._setCurrentL1(milliamp);
+						this._setVoltageL2(0);
+						this._setCurrentL2(0);
+						this._setVoltageL3(0);
+						this._setCurrentL3(0);
+						this._setActivePowerL2(0);
+						this._setActivePowerL3(0);
 						break;
 					case L2:
 						this._setVoltageL2(millivolt);
 						this._setCurrentL2(milliamp);
+						this._setVoltageL1(0);
+						this._setCurrentL1(0);
+						this._setVoltageL3(0);
+						this._setCurrentL3(0);
+						this._setActivePowerL1(0);
+						this._setActivePowerL3(0);
 						break;
 					case L3:
 						this._setVoltageL3(millivolt);
 						this._setCurrentL3(milliamp);
+						this._setVoltageL1(0);
+						this._setCurrentL1(0);
+						this._setVoltageL2(0);
+						this._setCurrentL2(0);
+						this._setActivePowerL1(0);
+						this._setActivePowerL2(0);
 						break;
 					}
 				}
