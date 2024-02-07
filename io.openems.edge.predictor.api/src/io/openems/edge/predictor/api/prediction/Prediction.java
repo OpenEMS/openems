@@ -43,7 +43,9 @@ public class Prediction {
 	 */
 	public static Prediction sum(Prediction... predictions) {
 		final var minTime = Stream.of(predictions) //
-				.map(p -> p.valuePerQuarter.firstKey()) //
+				.map(p -> p.valuePerQuarter) //
+				.filter(m -> !m.isEmpty()) //
+				.map(m -> m.firstKey()) //
 				.max(ZonedDateTime::compareTo);
 		if (minTime.isEmpty()) {
 			return EMPTY_PREDICTION;

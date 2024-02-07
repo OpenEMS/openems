@@ -139,6 +139,33 @@ public interface Sum extends OpenemsComponent {
 				.text("Actual AC-side battery discharge power of Energy Storage System. " //
 						+ "Negative values for charge; positive for discharge")),
 		/**
+		 * Ess: Minimum Ever Discharge Power (i.e. Maximum Ever Charge power as negative
+		 * value).
+		 *
+		 * <ul>
+		 * <li>Interface: Sum (origin: SymmetricEss))
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values or '0'
+		 * </ul>
+		 */
+		ESS_MIN_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)),
+		/**
+		 * Ess: Maximum Ever Discharge Power.
+		 *
+		 * <ul>
+		 * <li>Interface: Sum (origin: SymmetricEss)
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: positive values or '0'
+		 * </ul>
+		 */
+		ESS_MAX_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)),
+		/**
 		 * Ess: Capacity.
 		 *
 		 * <ul>

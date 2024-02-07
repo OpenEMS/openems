@@ -2,6 +2,7 @@ package io.openems.edge.core.sum;
 
 import static io.openems.common.OpenemsConstants.PROPERTY_LAST_CHANGE_AT;
 import static io.openems.common.OpenemsConstants.PROPERTY_LAST_CHANGE_BY;
+import static io.openems.edge.common.type.TypeUtils.getAsType;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -18,6 +19,7 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -176,7 +178,14 @@ public class ExtremeEverValues {
 		}
 
 		private synchronized void initializeFromContext(ComponentContext context) {
-			this.configValue = this.actualValue = (int) context.getProperties().get(this.configProperty);
+			int value;
+			try {
+				value = getAsType(OpenemsType.INTEGER, context.getProperties().get(this.configProperty));
+			} catch (Exception e) {
+				value = 0;
+				e.printStackTrace();
+			}
+			this.configValue = this.actualValue = (int) value;
 		}
 
 		private synchronized void updateFromChannel(OpenemsComponent component) {
