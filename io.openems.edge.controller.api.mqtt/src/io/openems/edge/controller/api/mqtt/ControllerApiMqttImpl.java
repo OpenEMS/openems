@@ -52,17 +52,17 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 		implements ControllerApiMqtt, Controller, OpenemsComponent, EventHandler {
 
 	protected static final String COMPONENT_NAME = "Controller.Api.MQTT";
-	private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-	private volatile ScheduledFuture<?> reconnectFuture = null;
-
-	private final Logger log = LoggerFactory.getLogger(ControllerApiMqttImpl.class);
-	private final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
-	private final MqttConnector mqttConnector = new MqttConnector();
-
-	private final AtomicInteger reconnectionAttempt = new AtomicInteger(0);
 	private static final long INITIAL_RECONNECT_DELAY_SECONDS = 5;
 	private static final long MAX_RECONNECT_DELAY_SECONDS = 300; // 5 minutes maximum delay.
 	private static final double RECONNECT_DELAY_MULTIPLIER = 1.5;
+
+	private final Logger log = LoggerFactory.getLogger(ControllerApiMqttImpl.class);
+	private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+	private final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
+	private final MqttConnector mqttConnector = new MqttConnector();
+	private final AtomicInteger reconnectionAttempt = new AtomicInteger(0);
+
+	private volatile ScheduledFuture<?> reconnectFuture = null;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -199,7 +199,8 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 			this.publish(ControllerApiMqtt.TOPIC_EDGE_CONFIG, config.toJson().toString(), //
 					1 /* QOS */, true /* retain */, new MqttProperties() /* no specific properties */);
 
-			// Trigger sending of all channel values, because a Component might have disappeared
+			// Trigger sending of all channel values, because a Component might have
+			// disappeared
 			this.sendChannelValuesWorker.sendValuesOfAllChannelsOnce();
 		}
 	}
