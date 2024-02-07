@@ -17,6 +17,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String certPem;
 		private String privateKeyPem;
 		private String trustStorePem;
+		private long reconnectionAttemptInterval = 60;
 
 		private Builder() {
 		}
@@ -71,9 +72,15 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setReconnectionAttemptInterval(long reconnectionAttemptInterval) {
+			this.reconnectionAttemptInterval = reconnectionAttemptInterval;
+			return this;
+		}
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
+
 	}
 
 	/**
@@ -135,5 +142,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String trustStorePem() {
 		return this.builder.trustStorePem;
+	}
+
+	@Override
+	public long reconnectionAttemptInterval() {
+		return this.builder.reconnectionAttemptInterval;
 	}
 }
