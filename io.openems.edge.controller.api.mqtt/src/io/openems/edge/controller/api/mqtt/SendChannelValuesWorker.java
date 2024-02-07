@@ -104,52 +104,42 @@ public class SendChannelValuesWorker {
 		// Add to send Queue
 		this.executor.execute(new SendTask(this, now, allValues));
 	}
-	
-	private ImmutableTable<String, String, JsonElement> lastValues = ImmutableTable.of();
 
-	private void processChanges(ImmutableTable<String, String, JsonElement> currentData) {
-	    currentData.cellSet().forEach(currentCell -> {
-	        String componentId = currentCell.getRowKey();
-	        String channelId = currentCell.getColumnKey();
-	        JsonElement newValue = currentCell.getValue();
-
-	        // Check if the value has changed
-	        if (!Objects.equals(lastValues.get(componentId, channelId), newValue)) {
-	            // Handle the change: log, trigger event, etc.
-	            System.out.println("Value changed for " + componentId + "/" + channelId + ": " + newValue);
-	        }
-	    });
-
-	    lastValues.cellSet().forEach(lastCell -> {
-	        if (!currentData.contains(lastCell.getRowKey(), lastCell.getColumnKey())) {
-	            // Component or channel was removed
-	            System.out.println("Removed: " + lastCell.getRowKey() + "/" + lastCell.getColumnKey());
-	        }
-	    });
-	}
-
+	/**
+	 * Cycles through all Channels and collects the value.
+	 *
+	 * @param enabledComponents the enabled components
+	 * @return collected data
+	 */
 	private ImmutableTable<String, String, JsonElement> collectData(List<OpenemsComponent> enabledComponents) {
-	    try {
-	        // Collect current data
-	        ImmutableTable<String, String, JsonElement> currentData = enabledComponents.parallelStream()
-	                .flatMap(component -> component.channels().parallelStream())
-	                .filter(channel -> channel.channelDoc().getAccessMode() != AccessMode.WRITE_ONLY &&
-	                        channel.channelDoc().getPersistencePriority().isAtLeast(this.parent.config.persistencePriority()))
-	                .collect(ImmutableTable.toImmutableTable(c -> c.address().getComponentId(),
-	                        c -> c.address().getChannelId(), c -> c.value().asJson()));
-
-	        // Process changes between currentData and lastValues before updating lastValues
-	        processChanges(currentData);
-
-	        // Update lastValues with currentData for the next cycle
-	        lastValues = currentData;
-
-	        return currentData;
-	    } catch (Exception e) {
-	        return ImmutableTable.of();
-	    }
+		try {
+			return enabledComponents.parallelStream() //
+					.flatMap(component -> component.channels().parallelStream()) //
+					.filter(channel -> // Ignore WRITE_ONLY Channels
+					channel.channelDoc().getAccessMode() != AccessMode.WRITE_ONLY //
+							// Ignore Low-Priority Channels
+							&& channel.channelDoc().getPersistencePriority()
+									.isAtLeast(this.parent.config.persistencePriority()))
+					.collect(ImmutableTable.toImmutableTable(c -> c.address().getComponentId(),
+							c -> c.address().getChannelId(), c -> c.value().asJson()));
+			// TODO remove values for disappeared components
+//			final Set<String> enabledComponentIds = enabledComponents.stream() //
+//					.map(c -> c.id()) //
+//					.collect(Collectors.toSet());
+//			this.lastValues.rowMap().entrySet().stream() //
+//					.filter(row -> !enabledComponentIds.contains(row.getKey())) //
+//					.forEach(row -> {
+//						row.getValue().entrySet().parallelStream() //
+//								.forEach(column -> {
+//									this.publish(row.getKey() + "/" + column.getKey(), JsonNull.INSTANCE.toString());
+//								});
+//					});
+		} catch (Exception e) {
+			// ConcurrentModificationException can happen if Channels are dynamically added
+			// or removed
+			return ImmutableTable.of();
+		}
 	}
-
 
 	/*
 	 * From here things run asynchronously.
