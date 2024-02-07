@@ -41,23 +41,24 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		configurationPolicy = ConfigurationPolicy.REQUIRE//
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE,
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE//
 })
-public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent
-		implements IoShellyPlus3EM, DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
+public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent implements IoShellyPlus3EM, DigitalOutput,
+		SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
-	
+
 	private final Logger log = LoggerFactory.getLogger(IoShellyPlus3EMImpl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
 
 	private MeterType meterType = null;
 	private SinglePhase phase = null;
 	private String baseUrl;
-	
+
 	private volatile Timedata timedata;
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
@@ -79,13 +80,13 @@ public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent
 
 	@Activate
 	protected void activate(ComponentContext context, Config config) {
-	    super.activate(context, config.id(), config.alias(), config.enabled());
-	    this.meterType = config.type();
-	    this.baseUrl = "http://" + config.ip();
+		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.meterType = config.type();
+		this.baseUrl = "http://" + config.ip();
 
-	    if (this.isEnabled()) {
-	        this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", this::processHttpResult);
-	    }
+		if (this.isEnabled()) {
+			this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", this::processHttpResult);
+		}
 	}
 
 	@Override
@@ -101,19 +102,18 @@ public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-	    var b = new StringBuilder();
-	    var valueOpt = this.getRelayChannel().value().asOptional();
-	    if (valueOpt.isPresent()) {
-	        b.append(valueOpt.get() ? "ON" : "OFF");
-	    } else {
-	        b.append("Unknown");
-	    }
-	    b.append("|");
-	    b.append(this.getActivePowerChannel().value().asString());
+		var b = new StringBuilder();
+		var valueOpt = this.getRelayChannel().value().asOptional();
+		if (valueOpt.isPresent()) {
+			b.append(valueOpt.get() ? "ON" : "OFF");
+		} else {
+			b.append("Unknown");
+		}
+		b.append("|");
+		b.append(this.getActivePowerChannel().value().asString());
 
-	    return b.toString();
+		return b.toString();
 	}
-
 
 	@Override
 	public void handleEvent(Event event) {
@@ -128,87 +128,79 @@ public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent
 		}
 		}
 	}
-	
-	
+
 	private void processHttpResult(JsonElement result, Throwable error) {
-	    
-	    this._setSlaveCommunicationFailed(result == null);
-	    if (error != null) {
-	        this._setRelay(null);
-	        this._setActivePower(null);
-	        this._setActiveProductionEnergy(null);
-	        this.logDebug(this.log, error.getMessage());
-	        return;
-	    }
 
-	    try {
-	        JsonObject jsonResponse = result.getAsJsonObject();
-	        
+		this._setSlaveCommunicationFailed(result == null);
+		if (error != null) {
+			this._setRelay(null);
+			this._setActivePower(null);
+			this._setActiveProductionEnergy(null);
+			this.logDebug(this.log, error.getMessage());
+			return;
+		}
 
-	        JsonArray relays = jsonResponse.getAsJsonArray("relays");
-	        if (relays != null && relays.size() > 0) {
-	            JsonObject relay = relays.get(0).getAsJsonObject();
-	            boolean isOn = relay.get("ison").getAsBoolean();
-	            this.getRelayChannel().setNextWriteValue(isOn);
-	            this._setRelay(isOn);
+		try {
+			JsonObject jsonResponse = result.getAsJsonObject();
 
-	        }
-	        
-	        
-	        JsonObject updateObject = jsonResponse.getAsJsonObject("update");
-	        if (updateObject != null) {
-	            boolean hasUpdate = updateObject.get("has_update").getAsBoolean();
+			JsonArray relays = jsonResponse.getAsJsonArray("relays");
+			if (relays != null && relays.size() > 0) {
+				JsonObject relay = relays.get(0).getAsJsonObject();
+				boolean isOn = relay.get("ison").getAsBoolean();
+				this.getRelayChannel().setNextWriteValue(isOn);
+				this._setRelay(isOn);
+
+			}
+
+			JsonObject updateObject = jsonResponse.getAsJsonObject("update");
+			if (updateObject != null) {
+				boolean hasUpdate = updateObject.get("has_update").getAsBoolean();
 				this.channel(IoShellyPlus3EM.ChannelId.HAS_UPDATE).setNextValue(hasUpdate);
-	        }
+			}
 
-	        JsonArray emeters = jsonResponse.getAsJsonArray("emeters");
-	        for (int i = 0; i < emeters.size(); i++) {
-	            JsonObject emeter = emeters.get(i).getAsJsonObject();
-	            Float power = emeter.get("power").getAsFloat();
-	            Float voltage = emeter.get("voltage").getAsFloat();
-	            Float current = emeter.get("current").getAsFloat();
-	            
-	            this.setValuesForPhase(i + 1, voltage, current, power);
-	        }
-	        
+			JsonArray emeters = jsonResponse.getAsJsonArray("emeters");
+			for (int i = 0; i < emeters.size(); i++) {
+				JsonObject emeter = emeters.get(i).getAsJsonObject();
+				float power = emeter.get("power").getAsFloat();
+				float voltage = emeter.get("voltage").getAsFloat();
+				float current = emeter.get("current").getAsFloat();
 
+				this.setValuesForPhase(i + 1, voltage, current, power);
+			}
 
-	    } catch (Exception e) {
-	        this._setRelay(null);
-	        this._setActivePower(null);
-	        this._setActiveProductionEnergy(null);
-	        
-	        this.logDebug(this.log, e.getMessage());
-	    }
+		} catch (Exception e) {
+			this._setRelay(null);
+			this._setActivePower(null);
+			this._setActiveProductionEnergy(null);
+
+			this.logDebug(this.log, e.getMessage());
+		}
 	}
-
-
 
 	private void setValuesForPhase(int phase, Float voltage, Float current, Float power) {
-	    Integer scaledVoltage = Math.round(voltage * 1000);
-	    Integer scaledCurrent = Math.round(current * 1000);
-	    Integer scaledPower = Math.round(power);
-	    
-	    switch (phase) {
-	        case 1:
-	            this._setActivePowerL1(scaledPower);
-	            this._setVoltageL1(scaledVoltage);
-	            this._setCurrentL1(scaledCurrent);
-	            break;
-	        case 2:
-	            this._setActivePowerL2(scaledPower);
-	            this._setVoltageL2(scaledVoltage);
-	            this._setCurrentL2(scaledCurrent);
-	            break;
-	        case 3:
-	            this._setActivePowerL3(scaledPower);
-	            this._setVoltageL3(scaledVoltage);
-	            this._setCurrentL3(scaledCurrent);
-	            break;
-	    }
+		int scaledVoltage = Math.round(voltage * 1000);
+		int scaledCurrent = Math.round(current * 1000);
+		int scaledPower = Math.round(power);
+
+		switch (phase) {
+		case 1:
+			this._setActivePowerL1(scaledPower);
+			this._setVoltageL1(scaledVoltage);
+			this._setCurrentL1(scaledCurrent);
+			break;
+		case 2:
+			this._setActivePowerL2(scaledPower);
+			this._setVoltageL2(scaledVoltage);
+			this._setCurrentL2(scaledCurrent);
+			break;
+		case 3:
+			this._setActivePowerL3(scaledPower);
+			this._setVoltageL3(scaledVoltage);
+			this._setCurrentL3(scaledCurrent);
+			break;
+		}
 
 	}
-
 
 	/**
 	 * Execute on Cycle Event "Execute Write".
@@ -232,7 +224,7 @@ public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent
 			this._setSlaveCommunicationFailed(e != null);
 		});
 	}
-	
+
 	/**
 	 * Calculate the Energy values from ActivePower.
 	 */
@@ -250,12 +242,11 @@ public class IoShellyPlus3EMImpl extends AbstractOpenemsComponent
 			this.calculateConsumptionEnergy.update(-activePower);
 		}
 	}
-	
+
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
-
 
 	@Override
 	public MeterType getMeterType() {

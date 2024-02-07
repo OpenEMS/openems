@@ -42,6 +42,19 @@ public interface IoShellyPlus3EM
 		RELAY(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY)),
+
+		/**
+		 * Indicates if an update is available.
+		 *
+		 * <ul>
+		 * <li>Interface: ShellyPlug
+		 * <li>Type: Boolean
+		 * <li>Level: INFO
+		 * </ul>
+		 */
+		HAS_UPDATE(Doc.of(Level.INFO) //
+				.text("A new Firmware Update is available!")),
+
 		/**
 		 * Slave Communication Failed Fault.
 		 *
@@ -51,7 +64,6 @@ public interface IoShellyPlus3EM
 		 * </ul>
 		 */
 		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.FAULT)); //
-	
 
 		private final Doc doc;
 
