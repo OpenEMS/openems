@@ -119,9 +119,9 @@ steps:
       <<: *rsync-settings
       source: ui/target/
       recursive: true
-      prescript: /opt/gitea/data/openems-ui-dev/prepare-location.sh ${CI_COMMIT_BRANCH}
-      target: /opt/gitea/data/openems-ui-dev/html/${CI_COMMIT_BRANCH}
-      script: /opt/gitea/data/openems-ui-dev/refresh-location.sh ${CI_COMMIT_BRANCH}
+      delete: true
+      target: /opt/gitea/develop/fems-ui/html/${CI_COMMIT_BRANCH}
+      script: /opt/gitea/develop/fems-ui/refresh-location.sh ${CI_COMMIT_BRANCH}
     depends_on: [build-ui]
 
   refresh-dev-deb:
@@ -133,7 +133,7 @@ steps:
       <<: *rsync-settings
       exclude: ["*"]
       include: ["fems.deb", "fems.version"]
-      target: /opt/gitea/data/openems-ui-dev/html/${CI_COMMIT_BRANCH}
+      target: /opt/gitea/develop/fems-artifacts/html/${CI_COMMIT_BRANCH}
     depends_on: [build-debian-package]
 
   rebuild-cache:
