@@ -41,7 +41,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		configurationPolicy = ConfigurationPolicy.REQUIRE//
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class IoShellyPlugImpl extends AbstractOpenemsComponent
 		implements IoShellyPlug, DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
