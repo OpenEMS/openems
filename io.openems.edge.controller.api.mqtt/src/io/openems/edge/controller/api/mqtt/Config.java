@@ -44,6 +44,9 @@ import io.openems.common.channel.PersistencePriority;
 	@AttributeDefinition(name = "Persistence Priority", description = "Send only Channels with a Persistence Priority greater-or-equals this.")
 	PersistencePriority persistencePriority() default PersistencePriority.VERY_LOW;
 
+	@AttributeDefinition(name = "Reconnection Attempt Interval", description = "Interval in seconds between reconnection attempts to the MQTT broker")
+	long reconnectionAttemptInterval() default 60;
+
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;
 
