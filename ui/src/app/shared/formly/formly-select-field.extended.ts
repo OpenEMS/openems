@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectorRef, Component } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { FieldWrapper } from "@ngx-formly/core";
 import { FormlySelectFieldModalComponent } from "./formly-select-field-modal.component";
@@ -13,6 +13,7 @@ export class FormlySelectFieldExtendedWrapperComponent extends FieldWrapper {
     // detailed information about an item when selecting them
     constructor(
         private modalController: ModalController,
+        private cdr: ChangeDetectorRef,
     ) {
         super();
 
@@ -45,6 +46,7 @@ export class FormlySelectFieldExtendedWrapperComponent extends FieldWrapper {
                 return;
             }
             this.formControl.setValue(selectedValue);
+            this.cdr.detectChanges();
         });
         return await modal.present();
     }
