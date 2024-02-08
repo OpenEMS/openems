@@ -1,7 +1,7 @@
 package io.openems.edge.bridge.http;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.osgi.service.component.annotations.Component;
@@ -21,13 +21,15 @@ import io.openems.edge.common.event.EdgeEventConstants;
 })
 public class CycleSubscriber implements EventHandler {
 
-	private final List<Consumer<Event>> eventHandler = new LinkedList<>();
+	private final Set<Consumer<Event>> eventHandler = new HashSet<>();
 
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
-			this.eventHandler.forEach(t -> t.accept(event));
+			synchronized (this.eventHandler) {
+				this.eventHandler.forEach(t -> t.accept(event));
+			}
 		}
 		}
 	}
@@ -38,7 +40,9 @@ public class CycleSubscriber implements EventHandler {
 	 * @param eventHandler the handler to execute on every event
 	 */
 	public void subscribe(Consumer<Event> eventHandler) {
-		this.eventHandler.add(eventHandler);
+		synchronized (this.eventHandler) {
+			this.eventHandler.add(eventHandler);
+		}
 	}
 
 	/**
@@ -49,7 +53,9 @@ public class CycleSubscriber implements EventHandler {
 	 *         found returs false
 	 */
 	public boolean unsubscribe(Consumer<Event> eventHandler) {
-		return this.eventHandler.remove(eventHandler);
+		synchronized (this.eventHandler) {
+			return this.eventHandler.remove(eventHandler);
+		}
 	}
 
 }
