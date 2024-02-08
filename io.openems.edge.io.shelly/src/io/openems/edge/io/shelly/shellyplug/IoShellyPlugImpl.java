@@ -8,7 +8,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceScope;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -21,6 +20,7 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
+import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -50,8 +50,10 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 	private SinglePhase phase = null;
 	private String baseUrl;
 
-	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private BridgeHttp httpBridge;
+
+	@Reference
+	private BridgeHttpFactory httpBridgeFactory;
 
 	public IoShellyPlugImpl() {
 		super(//
@@ -73,6 +75,7 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 		this.meterType = config.type();
 		this.phase = config.phase();
 		this.baseUrl = "http://" + config.ip();
+		this.httpBridge = this.httpBridgeFactory.get();
 
 		if (!this.isEnabled()) {
 			return;
@@ -85,6 +88,8 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+		this.httpBridgeFactory.unget(this.httpBridge);
+		this.httpBridge = null;
 	}
 
 	@Override
