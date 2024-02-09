@@ -21,7 +21,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int numOfWeeks() default 4;
 
 	@AttributeDefinition(name = "Channel-Addresses", description = "List of Channel-Addresses this Predictor is used for, e.g. '*/ActivePower', '*/ActualPower'")
-	String[] channelAddresses() default { "_sum/ProductionActivePower", "_sum/ConsumptionActivePower" };
+
+	String channelAddresses() default "_sum/ConsumptionActivePower";
 
 	String webconsole_configurationFactory_nameHint() default "Lstm Model train [{id}]";
 

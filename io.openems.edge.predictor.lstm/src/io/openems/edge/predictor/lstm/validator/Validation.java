@@ -62,7 +62,7 @@ public class Validation {
 				.modifyFroLongTermPrediction(inter.getInterpolatedData(), dates);
 		File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
 		String path = file.getAbsolutePath() + File.separator + "models" + File.separator
-				+ Integer.toString(hyperParameters.getCount()) + "seasonality.txt";
+				+ Integer.toString(hyperParameters.getCount()) + hyperParameters.getModelName() + "seasonality.txt";
 
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels = ReadModels.getModelForSeasonality(path,
 				hyperParameters);
@@ -100,7 +100,8 @@ public class Validation {
 		}
 		List<List<Integer>> optInd = findOptimumIndex(rmsTemp2, "Seasonlity", hyperParameters);
 		// System.out.println("Optimum Index :" + optInd);
-		ReadModels.updateModel(allModels, optInd, Integer.toString(hyperParameters.getCount()) + "seasonality.txt");
+		ReadModels.updateModel(allModels, optInd,
+				Integer.toString(hyperParameters.getCount()) + hyperParameters.getModelName() + "seasonality.txt");
 	}
 
 	/**
@@ -135,7 +136,7 @@ public class Validation {
 
 		File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
 		String path = file.getAbsolutePath() + File.separator + "models" + File.separator
-				+ Integer.toString(hyperParameters.getCount()) + "trend.txt";
+				+ Integer.toString(hyperParameters.getCount()) + hyperParameters.getModelName() + "trend.txt";
 
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels = ReadModels.getModelForSeasonality(path,
 				hyperParameters);
@@ -165,19 +166,24 @@ public class Validation {
 		List<List<Integer>> optInd = findOptimumIndex(rmsTemp2, "Trend", hyperParameters);
 
 		// System.out.println("Optimum Index :" + optInd);
-		ReadModels.updateModel(allModels, optInd, Integer.toString(hyperParameters.getCount()) + "trend.txt");
+		ReadModels.updateModel(allModels, optInd,
+				Integer.toString(hyperParameters.getCount()) + hyperParameters.getModelName() + "trend.txt");
 
 	}
 
 	/**
-	 * Finds the indices corresponding to the minimum values in each column of a matrix.
-	 * Additionally, calculates and updates the average Root Mean Square (RMS) error for a specified variable.
+	 * Finds the indices corresponding to the minimum values in each column of a
+	 * matrix. Additionally, calculates and updates the average Root Mean Square
+	 * (RMS) error for a specified variable.
 	 *
-	 * @param matrix           The input matrix represented as an ArrayList of ArrayLists of Double values.
-	 * @param var              A string indicating the variable for which to calculate the RMS error
-	 *                         ("Trend" or "Seasonality").
-	 * @param hyperParameters An instance of the HyperParameters class to update RMS error values.
-	 * @return A list of lists containing the indices of minimum values in each column of the matrix.	 
+	 * @param matrix          The input matrix represented as an ArrayList of
+	 *                        ArrayLists of Double values.
+	 * @param var             A string indicating the variable for which to
+	 *                        calculate the RMS error ("Trend" or "Seasonality").
+	 * @param hyperParameters An instance of the HyperParameters class to update RMS
+	 *                        error values.
+	 * @return A list of lists containing the indices of minimum values in each
+	 *         column of the matrix.
 	 */
 
 	public static List<List<Integer>> findOptimumIndex(ArrayList<ArrayList<Double>> matrix, String var,
@@ -219,7 +225,8 @@ public class Validation {
 
 		}
 
-		System.out.println("Average RMS error for  " + var + " = " + sum / minimumIndices.size());
+		// System.out.println("Average RMS error for " + var + " = " + sum /
+		// minimumIndices.size());
 
 		return minimumIndices;
 	}

@@ -28,8 +28,8 @@ public class MakeModel {
 	public MakeModel(ArrayList<Double> data, ArrayList<OffsetDateTime> date, HyperParameters hyperParameters) {
 
 		// Trianing seasonality
-		this.trainSeasonality(data, date, hyperParameters);
-		this.trainTrend(data, date, hyperParameters);
+//		this.trainSeasonality(data, date, hyperParameters);
+//		this.trainTrend(data, date, hyperParameters);
 
 		// mod1.setSeasonalityModel(temp1.getSeasonalityModle());
 		// mod1.setTrendModle(temp2.getTrendModle());
@@ -81,7 +81,8 @@ public class MakeModel {
 
 					File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
 					String path = file.getAbsolutePath() + File.separator + "models" + File.separator
-							+ Integer.toString(hyperParameters.getCount() - 1) + "seasonality.txt";
+							+ Integer.toString(hyperParameters.getCount() - 1) + hyperParameters.getModelName()
+							+ "seasonality.txt";
 
 					ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel = ReadModels
 							.getModelForSeasonality(path, hyperParameters);
@@ -114,6 +115,7 @@ public class MakeModel {
 							.build();
 					model.fit(hyperParameters.getGdIterration(), weight1, hyperParameters);
 					weightMatrix.add(model.getWeights());
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -122,7 +124,8 @@ public class MakeModel {
 			}
 
 		}
-		SaveModel.saveModels(weightMatrix, Integer.toString(hyperParameters.getCount()) + "seasonality.txt");
+		SaveModel.saveModels(weightMatrix,
+				Integer.toString(hyperParameters.getCount()) + hyperParameters.getModelName() + "seasonality.txt");
 		System.out.println("Modle saved as : " + "seasonality.txt");
 
 		// mod.setSeasonalityModel(weightMatrix);
@@ -170,7 +173,8 @@ public class MakeModel {
 
 				File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
 				String path = file.getAbsolutePath() + File.separator + "models" + File.separator
-						+ Integer.toString(hyperParameters.getCount() - 1) + "trend.txt";
+						+ Integer.toString(hyperParameters.getCount() - 1) + hyperParameters.getModelName()
+						+ "trend.txt";
 
 				ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel = ReadModels.getModelForSeasonality(path,
 						hyperParameters);
@@ -204,7 +208,8 @@ public class MakeModel {
 			weightMatrix.add(model.getWeights());
 		}
 		// mod.setTrendModle(weightMatrix);
-		SaveModel.saveModels(weightMatrix, Integer.toString(hyperParameters.getCount()) + "trend.txt");
+		SaveModel.saveModels(weightMatrix,
+				Integer.toString(hyperParameters.getCount()) + hyperParameters.getModelName() + "trend.txt");
 		System.out.println("Modle saved as : " + "trend.txt");
 		// return mod;
 	}

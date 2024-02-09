@@ -17,8 +17,10 @@ public class Saveobject {
 	 * 
 	 */
 	public static void save(Object hyperparameter) {
+		HyperParameters hyp = (HyperParameters)hyperparameter;
 		File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
-		String path = file.getAbsolutePath() + File.separator + "models" + File.separator + "FenHp.fems";
+
+		String path = file.getAbsolutePath() + File.separator + "models" + File.separator +hyp.getModelName()+ "FenHp.fems";
 
 		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path))) {
 			oos.writeObject(hyperparameter);

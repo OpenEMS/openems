@@ -12,8 +12,10 @@ public class HyperParametersTest {
 	@Test
 	public void test() {
 		HyperParameters hyperParameters;
+		String modelName = "Consumption";
 		try {
-			hyperParameters = (HyperParameters) GetObject.get();
+			hyperParameters = (HyperParameters) GetObject.get(modelName);
+			hyperParameters = HyperParameters.getInstance();
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
 			System.out.println("Creating new hyperparameter object");

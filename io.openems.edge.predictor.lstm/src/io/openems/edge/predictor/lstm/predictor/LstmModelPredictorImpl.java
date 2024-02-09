@@ -1,5 +1,8 @@
 package io.openems.edge.predictor.lstm.predictor;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -35,6 +38,7 @@ import io.openems.edge.predictor.api.oneday.AbstractPredictor24Hours;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.oneday.Predictor24Hours;
 import io.openems.edge.predictor.lstm.common.DataModification;
+import io.openems.edge.predictor.lstm.common.GetObject;
 import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.predictor.lstm.common.ReadModels;
 import io.openems.edge.predictor.lstm.interpolation.InterpolationManager;
@@ -98,10 +102,23 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		// ArrayList<ArrayList<Double>>();
 		// final ArrayList<ArrayList<Double>> allTargetFro20Days = new
 		// ArrayList<ArrayList<Double>>();
-		HyperParameters hyperParameters = HyperParameters.getInstance();
+		HyperParameters hyperParameters= HyperParameters.getInstance();
+		
+		try {
+			hyperParameters = (HyperParameters) GetObject.get(channelAddress.toString().split("/")[1]);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		int windowSizeSeasonality = hyperParameters.getWindowSizeSeasonality();
 
-		ZonedDateTime nowDate = ZonedDateTime.of(2023, 10, 21, 0, 0, 0, 0, ZonedDateTime.now().getZone());
+		hyperParameters.setTrendPoint(12);//REMOVE IT
+
+		ZonedDateTime nowDate = ZonedDateTime.of(2023, 10, 25, 19, 40, 0, 0, ZonedDateTime.now().getZone());
 
 		ZonedDateTime until = ZonedDateTime.of(nowDate.getYear(), nowDate.getMonthValue(), nowDate.getDayOfMonth(),
 				nowDate.getHour(), getMinute(nowDate, hyperParameters), 0, 0, nowDate.getZone());
@@ -161,7 +178,8 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 
 		System.out.println(openemsDirectory);
 
-		String path = openemsDirectory + "/models/SavedModel.txt";
+		String path = openemsDirectory + "/models/" + hyperParameters.getMinimumErrorModelSeasonality()
+				+ "seasonality.txt";
 
 		// String path =
 		// "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\SavedModel.txt";
@@ -366,17 +384,15 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 	 * @param until           A ZonedDateTime representing the time until which the
 	 * @param date            Corresponding date of the data. prediction
 	 * @param hyperParameters object of class HyperParameter
-	 * @return A double representing the predicted trend value.
+	 * @return A double representing the predicted trend value.c
 	 */
 
 	public ArrayList<Double> predictTrend(ArrayList<Double> data, ArrayList<OffsetDateTime> date, ZonedDateTime until,
 			HyperParameters hyperParameters) {
 
-		String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
-
-		System.out.println(openemsDirectory);
-
-		String pathTrend = openemsDirectory + "/models/Trend.txt";
+		File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
+		String pathTrend = file.getAbsolutePath() + File.separator + "models" + File.separator
+				+ Integer.toString(hyperParameters.getMinimumErrorModelTrend()) + "trend.txt";
 		// read Model
 		// String pathTrend =
 		// "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\trend.txt";
@@ -392,9 +408,10 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		ArrayList<Double> scaledData = DataModification.scale(data, hyperParameters.getScalingMin(),
 				hyperParameters.getScalingMax());
 		for (int i = 0; i < hyperParameters.getTrendPoint(); i++) {
-			predictionFor = predictionFor.plusMinutes(i * hyperParameters.getInterval());
-			int modlelindex = (int) this.decodeDateToColumnIndex(predictionFor, hyperParameters);
-			System.out.println(modlelindex);
+			ZonedDateTime temp = predictionFor.plusMinutes(i * hyperParameters.getInterval());
+			System.out.println(i * hyperParameters.getInterval());
+			int modlelindex = (int) this.decodeDateToColumnIndex(temp, hyperParameters);
+			// System.out.println(modlelindex);
 			double predTemp = Predictor.predict(scaledData, val.get(modlelindex).get(0), val.get(modlelindex).get(1),
 					val.get(modlelindex).get(2), val.get(modlelindex).get(3), val.get(modlelindex).get(4),
 					val.get(modlelindex).get(5), val.get(modlelindex).get(7), val.get(modlelindex).get(6));
@@ -420,6 +437,8 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 	 */
 
 	public double decodeDateToColumnIndex(ZonedDateTime predictionFor, HyperParameters hyperParameters) {
+		System.out.println(predictionFor);
+
 		int hour = predictionFor.getHour();
 		int minute = predictionFor.getMinute();
 		int index = (Integer) hour * (60 / hyperParameters.getInterval()) + minute / hyperParameters.getInterval();

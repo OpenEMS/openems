@@ -10,13 +10,14 @@ import java.util.Collections;
 import io.openems.common.OpenemsConstants;
 
 public class DeletModels {
-	
-	
+
 	/**
-	 * Deletes models based on minimum error criteria, saves the best models as '0trend.txt'
-	 * and '0seasonality.txt', and updates the hyperparameter object accordingly.
+	 * Deletes models based on minimum error criteria, saves the best models as
+	 * '0trend.txt' and '0seasonality.txt', and updates the hyperparameter object
+	 * accordingly.
 	 *
-	 * @param hyper An instance of the HyperParameters class containing model information.	
+	 * @param hyper An instance of the HyperParameters class containing model
+	 *              information.
 	 */
 
 	public static void delet(HyperParameters hyper) {
@@ -25,8 +26,9 @@ public class DeletModels {
 		File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
 		String allModelpath = file.getAbsolutePath() + File.separator + "models" + File.separator;
 		// get the the filename of minimum error models
-		String toSaveSeas = Integer.toString(hyper.getMinimumErrorModelSeasonality()) + "seasonality.txt";
-		String toSaveTrend = Integer.toString(hyper.getMinimumErrorModelTrend()) + "trend.txt";
+		String toSaveSeas = Integer.toString(hyper.getMinimumErrorModelSeasonality()) + hyper.getModelName()
+				+ "seasonality.txt";
+		String toSaveTrend = Integer.toString(hyper.getMinimumErrorModelTrend()) + hyper.getModelName() + "trend.txt";
 		// read minimum error model seasonality
 		final var modelSeasonality = ReadModels.getModelForSeasonality(allModelpath + toSaveSeas, hyper);
 		// read minimum error model
@@ -37,8 +39,8 @@ public class DeletModels {
 
 		// savve the best model as 0Seasonality, 0trend.txt
 
-		SaveModel.saveModels(modelTrend, "0trend.txt");
-		SaveModel.saveModels(modelSeasonality, "0seasonality.txt");
+		SaveModel.saveModels(modelTrend, "0"+hyper.getModelName() + "trend.txt");
+		SaveModel.saveModels(modelSeasonality, "0"+hyper.getModelName() + "seasonality.txt");
 		// read model seasonalityS
 
 		final double minErrorTrend = Collections.min(hyper.getRmsErrorTrend());
@@ -56,7 +58,7 @@ public class DeletModels {
 		File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
 		String allModelpath = file.getAbsolutePath() + File.separator + "models" + File.separator;
 		for (int i = 0; i < hype.getCount(); i++) {
-			String fileName = Integer.toString(i) + modelType + ".txt";
+			String fileName = Integer.toString(i) + hype.getModelName() + modelType + ".txt";
 			String path = allModelpath + fileName;
 			Path fpath = Paths.get(path);
 			try {

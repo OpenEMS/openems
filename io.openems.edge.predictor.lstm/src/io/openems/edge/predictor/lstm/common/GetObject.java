@@ -19,10 +19,11 @@ public class GetObject {
 	 *                                be found.
 	 */
 
-	public static Object get() throws ClassNotFoundException, IOException {
+	public static Object get(String fileName) throws ClassNotFoundException, IOException {
 
 		File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
-		String path = file.getAbsolutePath() + File.separator + "models" + File.separator + "FenHp.fems";
+
+		String path = file.getAbsolutePath() + File.separator + "models" + File.separator + fileName + "FenHp.fems";
 		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path))) {
 
 			return ois.readObject();
@@ -44,20 +45,24 @@ public class GetObject {
 	 * @param fileName The name of the file to save the updated model.
 	 */
 
- //	public static void updateModel(ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel,
- //			List<List<Integer>> index, String fileName) {
- //		ArrayList<ArrayList<ArrayList<Double>>> optimumWeight = new ArrayList<ArrayList<ArrayList<Double>>>();
- //		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> finalWeight = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
- //
- //		for (int i = 0; i < index.size(); i++) {
- //
- //			ArrayList<ArrayList<Double>> temp1 = allModel.get(index.get(i).get(0)).get(index.get(i).get(1));
- //			optimumWeight.add(temp1);
- //
- //		}
- //		finalWeight.add(optimumWeight);
- //		SaveModelBin.saveModels(finalWeight, fileName);		
- //
- //	}
+	// public static void
+	// updateModel(ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel,
+	// List<List<Integer>> index, String fileName) {
+	// ArrayList<ArrayList<ArrayList<Double>>> optimumWeight = new
+	// ArrayList<ArrayList<ArrayList<Double>>>();
+	// ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> finalWeight = new
+	// ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
+	//
+	// for (int i = 0; i < index.size(); i++) {
+	//
+	// ArrayList<ArrayList<Double>> temp1 =
+	// allModel.get(index.get(i).get(0)).get(index.get(i).get(1));
+	// optimumWeight.add(temp1);
+	//
+	// }
+	// finalWeight.add(optimumWeight);
+	// SaveModelBin.saveModels(finalWeight, fileName);
+	//
+	// }
 
 }

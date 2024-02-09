@@ -73,8 +73,9 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 		super.activate(context, this.config.id(), this.config.alias(), this.config.enabled());
 
 		scheduler.scheduleAtFixedRate(//
-				new LstmTrain(this.timedata, config.channelAddresses()[0]), //
+				new LstmTrain(this.timedata, config.channelAddresses()), //
 				0, 15, TimeUnit.DAYS);
+
 	}
 
 	@Override
@@ -118,8 +119,8 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
 		}
-  //		ArrayList<Double> data = this.getData(querryResult);
-  //		ArrayList<OffsetDateTime> date = this.getDate(querryResult);
+		// ArrayList<Double> data = this.getData(querryResult);
+		// ArrayList<OffsetDateTime> date = this.getDate(querryResult);
 		System.out.println("....Training.....");
 
 		// Reading CSV file and looping over 26 fems data

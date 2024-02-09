@@ -13,8 +13,7 @@ public class TrainInBatch {
 	public TrainInBatch(ArrayList<Double> trainData, ArrayList<OffsetDateTime> trainDate,
 			ArrayList<Double> validateData, ArrayList<OffsetDateTime> validateDate, HyperParameters hyperParameter) {
 
-		int epochTrack = hyperParameter.getEpochTrack();
-
+		
 		ArrayList<ArrayList<Double>> batchedData = DataModification.getDataInBatch(trainData,
 				hyperParameter.getBatchSize());
 		ArrayList<ArrayList<OffsetDateTime>> batchedDate = DataModification.getDateInBatch(trainDate,
@@ -24,7 +23,7 @@ public class TrainInBatch {
 
 			int k = hyperParameter.getCount();
 
-			for (int i = epochTrack; i < hyperParameter.getEpoch(); i++) {
+			for (int i = hyperParameter.getEpochTrack(); i < hyperParameter.getEpoch(); i++) {
 				final long startTime = System.currentTimeMillis();
 
 				System.out.println("");
@@ -42,7 +41,7 @@ public class TrainInBatch {
 				CompletableFuture<Void> fourthTaskFuture = secondTaskFuture
 						.thenRun(new MulThrSeasonalityValidate(validateData, validateDate, hyperParameter));
 				k = k + 1;
-				// System.out.println("This is k, AKA count " + k);
+				 System.out.println("This is k, AKA count " + k);
 				try {
 					CompletableFuture.allOf(thirdTaskFuture, fourthTaskFuture).get();
 				} catch (Exception e) {

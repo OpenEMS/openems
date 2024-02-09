@@ -28,9 +28,9 @@ public class StandAlonePrediction {
 		ArrayList<ArrayList<Double>> predictedSeasonality = new ArrayList<ArrayList<Double>>();
 		ArrayList<Double> predictedTrend = new ArrayList<Double>();
 		int predictionFor = 1;
-		String csv = "10010.csv";
+		String csv = "10001.csv";
 
-		ZonedDateTime globDate = ZonedDateTime.of(2024,1,22, 0, 0, 0, 0, ZonedDateTime.now().getZone());
+		ZonedDateTime globDate = ZonedDateTime.of(2024, 1, 21, 0, 0, 0, 0, ZonedDateTime.now().getZone());
 //		ArrayList<Double> predicted = new ArrayList<Double>();
 //		ArrayList<Double> predictionFromSeasonality = new ArrayList<Double>();
 //		ArrayList<Double> allTarget = new ArrayList<Double>();
@@ -43,8 +43,10 @@ public class StandAlonePrediction {
 //		ArrayList<Double> accuracyTrend = new ArrayList<Double>();
 //		ArrayList<Double> accuracySeasonality = new ArrayList<Double>();
 		HyperParameters hyperParameters = HyperParameters.getInstance();
+		String modelName = "Consumption";
+		
 		try {
-			hyperParameters = (HyperParameters) GetObject.get();
+			hyperParameters = (HyperParameters) GetObject.get(modelName);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -52,6 +54,10 @@ public class StandAlonePrediction {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		hyperParameters.setScalingMin(0);
+		hyperParameters.setScalingMax(14000);
+		hyperParameters.setModelName(modelName);
+		hyperParameters.printHyperParameters();
 
 		// System.out.println("getting one day seasonality prediction");
 
@@ -64,13 +70,12 @@ public class StandAlonePrediction {
 			predictedSeasonality.add(tempPredicted);
 
 		}
-		
-		for (int i = 0;i<predictionFor;i++) {
+
+		for (int i = 0; i < predictionFor; i++) {
 			ZonedDateTime nowDate = globDate;
 			nowDate = nowDate.plusHours(24 * i);
-			 predictedTrend = predictTrendOneDay(hyperParameters,nowDate,csv);
-			
-			
+			predictedTrend = predictTrendOneDay(hyperParameters, nowDate, csv);
+
 		}
 		ArrayList<Double> pre = UtilityConversion.convert2DArrayTo1DArray(predictedSeasonality);
 
@@ -83,7 +88,7 @@ public class StandAlonePrediction {
 
 		ArrayList<Double> target = getTargetData(targetFrom, targetTo, csv, hyperParameters);
 		double rmsSeasonality = PerformanceMatrix.rmsError(target, pre);
-		double rmsTrend = PerformanceMatrix.rmsError(target,predictedTrend);
+		double rmsTrend = PerformanceMatrix.rmsError(target, predictedTrend);
 
 //		System.out.println("Size Target = " + target.size());
 //		System.out.println("Size Predicted = " + pre.size());
@@ -91,18 +96,16 @@ public class StandAlonePrediction {
 		System.out.println("Target = " + target);
 		System.out.println("Predicted Seasonality = " + pre);
 
-		
-
-		//System.out.println("Target = " + target);
+		// System.out.println("Target = " + target);
 		System.out.println("Predicted trend = " + predictedTrend);
-		System.out.println("rmsTrend = "+rmsTrend);
-		System.out.println("rms Seasonality= "+ rmsSeasonality);
-		
+		System.out.println("rmsTrend = " + rmsTrend);
+		System.out.println("rms Seasonality= " + rmsSeasonality);
+
 //		
 		// PerformanceMatrix obj = new PerformanceMatrix(pre,quarryData(targetFrom,
 		// targetTo, csv),0.2);
 
-		//System.out.println("Rms error = " + rms);
+		// System.out.println("Rms error = " + rms);
 
 //		System.out.println("PresictedTrend = "+predictedTrend);
 
@@ -430,13 +433,13 @@ public class StandAlonePrediction {
 	public ArrayList<Double> predictTrend(ArrayList<Double> data, ArrayList<OffsetDateTime> date, ZonedDateTime until,
 			HyperParameters hyperParameters) {
 		// read Model
-
 		File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
 		String pathTrend = file.getAbsolutePath() + File.separator + "models" + File.separator
-				+ Integer.toString(hyperParameters.getMinimumErrorModelTrend()) + "trend.txt";
-
+				+ Integer.toString(hyperParameters.getMinimumErrorModelTrend())+hyperParameters.getModelName() + "trend.txt";
+		// read Model
 		// String pathTrend =
-		// "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\models\\trend.txt";
+		// "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\trend.txt";
+		// String pathTrend = "/var/lib/openems/models/Trend.txt";
 
 		double pred = 0;
 		ArrayList<Double> trendPrediction = new ArrayList<Double>();
@@ -448,9 +451,10 @@ public class StandAlonePrediction {
 		ArrayList<Double> scaledData = DataModification.scale(data, hyperParameters.getScalingMin(),
 				hyperParameters.getScalingMax());
 		for (int i = 0; i < hyperParameters.getTrendPoint(); i++) {
-			predictionFor = predictionFor.plusMinutes(i * hyperParameters.getInterval());
-			int modlelindex = (int) this.decodeDateToColumnIndex(predictionFor, hyperParameters);
-			System.out.println(modlelindex);
+			ZonedDateTime temp = predictionFor.plusMinutes(i * hyperParameters.getInterval());
+			System.out.println(temp);
+			int modlelindex = (int) this.decodeDateToColumnIndex(temp, hyperParameters);
+			// System.out.println(modlelindex);
 			double predTemp = Predictor.predict(scaledData, val.get(modlelindex).get(0), val.get(modlelindex).get(1),
 					val.get(modlelindex).get(2), val.get(modlelindex).get(3), val.get(modlelindex).get(4),
 					val.get(modlelindex).get(5), val.get(modlelindex).get(7), val.get(modlelindex).get(6));
@@ -470,7 +474,7 @@ public class StandAlonePrediction {
 
 		File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
 		String pathSeasonality = file.getAbsolutePath() + File.separator + "models" + File.separator
-				+ Integer.toString(hyperParameters.getMinimumErrorModelSeasonality()) + "seasonality.txt";
+				+ Integer.toString(hyperParameters.getMinimumErrorModelSeasonality())+hyperParameters.getModelName() + "seasonality.txt";
 
 		// String csvPath = file.getAbsolutePath() + File.separator + "models" +
 		// File.separator +"1.csv";
@@ -507,12 +511,13 @@ public class StandAlonePrediction {
 		ArrayList<Double> forTrendPrediction = new ArrayList<Double>();
 		ArrayList<OffsetDateTime> dateForTrend = new ArrayList<OffsetDateTime>();
 		ArrayList<Double> predicted = new ArrayList<Double>();
-		for (int i = 0; i < 60/hyperParameters.getInterval() * 24; i++) {
+		for (int i = 0; i < 60 / hyperParameters.getInterval() * 24; i++) {
 
 			ZonedDateTime nowDateTemp = nowDate.plusMinutes(i * hyperParameters.getInterval());
 
-			ZonedDateTime until = ZonedDateTime.of(nowDateTemp.getYear(), nowDateTemp.getMonthValue(), nowDateTemp.getDayOfMonth(),
-					nowDateTemp.getHour(), getMinute(nowDateTemp, hyperParameters), 0, 0, nowDateTemp.getZone());
+			ZonedDateTime until = ZonedDateTime.of(nowDateTemp.getYear(), nowDateTemp.getMonthValue(),
+					nowDateTemp.getDayOfMonth(), nowDateTemp.getHour(), getMinute(nowDateTemp, hyperParameters), 0, 0,
+					nowDateTemp.getZone());
 
 //			ZonedDateTime temp = until.minusDays(hyperParameters.getWindowSizeTrend() - 1);
 
@@ -559,6 +564,7 @@ public class StandAlonePrediction {
 	public double decodeDateToColumnIndex(ZonedDateTime predictionFor, HyperParameters hyperParameters) {
 
 		int hour = predictionFor.getHour();
+
 		int minute = predictionFor.getMinute();
 		int index = (Integer) hour * (60 / hyperParameters.getInterval()) + minute / hyperParameters.getInterval();
 		int modifiedIndex = index - hyperParameters.getWindowSizeTrend();

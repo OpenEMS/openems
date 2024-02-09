@@ -17,10 +17,10 @@ public class DeletModelTest {
 	 * an error stack trace is printed, and the 'hyp' variable remains unchanged. *
 	 * 
 	 */
-	public static void del() {
+	public static void del(String modelName) {
 		HyperParameters hyp = HyperParameters.getInstance();
 		try {
-			hyp = (HyperParameters) GetObject.get();
+			hyp = (HyperParameters) GetObject.get(modelName);
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -33,7 +33,8 @@ public class DeletModelTest {
 
 	@Test
 	public void test() {
-		DeletModelTest.del();
+		String modelName = "COnsumption";
+		DeletModelTest.del(modelName);
 		fail("Not yet implemented");
 	}
 

@@ -29,12 +29,14 @@ public class MultiThreadTest {
 	public static void train() {
 
 		HyperParameters hyperParameters;
+		String modelName = "Consumption";
 		try {
-			hyperParameters = (HyperParameters) GetObject.get();
+			hyperParameters = (HyperParameters) GetObject.get(modelName);
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
 			System.out.println("Creating new hyperparameter object");
 			hyperParameters = HyperParameters.getInstance();
+			hyperParameters.setModelName(modelName);
 		}
 
 		// checking if the training has been completed in previous batch

@@ -24,22 +24,23 @@ public class TrainInBatchTest {
 	public static void trainInBatchtest() {
 
 		HyperParameters hyperParameters;
+		String modelName = "Consumption";
 		try {
-			hyperParameters = (HyperParameters) GetObject.get();
+			hyperParameters = (HyperParameters) GetObject.get(modelName);
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
-			System.out.println("Creating new hyperparameter object");
+//			System.out.println("Creating new hyperparameter object");
 			hyperParameters = HyperParameters.getInstance();
+			hyperParameters.setModelName(modelName);
 		}
 		int check = hyperParameters.getOuterLoopCount();
 
-		System.out.println(
-				"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 		for (int i = check; i <= 26; i++) {
 			hyperParameters.setOuterLoopCount(i);
-			System.out.println("");
+
+//			System.out.println("");
 			final String pathTrain = Integer.toString(i+1) + ".csv";
-			final String pathValidate = Integer.toString(888) + ".csv";
+			final String pathValidate = Integer.toString(27) + ".csv";
 			System.out.println("");
 			hyperParameters.printHyperParameters();
 			System.out.println("");
@@ -51,8 +52,6 @@ public class TrainInBatchTest {
 			final ReadCsv obj2 = new ReadCsv(pathValidate);
 
 			new TrainInBatch(obj1.getData(), obj1.getDates(), obj2.getData(), obj2.getDates(), hyperParameters);
-			System.out.println(
-					"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 
 			hyperParameters.setEpochTrack(0);
 			hyperParameters.setBatchTrack(0);

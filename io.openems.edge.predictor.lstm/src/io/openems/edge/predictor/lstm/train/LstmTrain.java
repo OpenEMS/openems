@@ -30,6 +30,7 @@ public class LstmTrain implements Runnable {
 	private String channelAddress;
 
 	public LstmTrain(Timedata timedata, String channelAddress) {
+		System.out.println("Thread for " + channelAddress);
 		this.timedata = timedata;
 		this.channelAddress = channelAddress;
 	}
@@ -63,6 +64,8 @@ public class LstmTrain implements Runnable {
 
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> querryResult = new TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>();
 
+		System.out.println(this.channelAddress);
+
 		try {
 			querryResult = this.timedata.queryHistoricData(null, fromDate, until,
 					Sets.newHashSet(ChannelAddress.fromString(this.channelAddress)),
@@ -72,21 +75,23 @@ public class LstmTrain implements Runnable {
 			e.printStackTrace();
 		}
 
-  //		ArrayList<Double> data = this.getData(querryResult);
-  //		ArrayList<OffsetDateTime> date = this.getDate(querryResult);
+		// ArrayList<Double> data = this.getData(querryResult);
+		// ArrayList<OffsetDateTime> date = this.getDate(querryResult);
 
 		// reading the csv file for as the valodation data
 
 		// HyperParameters hyperParameters;
+
 		try {
-			hyperParameters = (HyperParameters) GetObject.get();
+			hyperParameters = (HyperParameters) GetObject.get(this.channelAddress.split("/")[1]);
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
 			System.out.println("Creating new hyperparameter object");
 			hyperParameters = HyperParameters.getInstance();
+			hyperParameters.setModelName(this.channelAddress.split("/")[1]);
 		}
 		int check = hyperParameters.getOuterLoopCount();
-		for (int i = check; i <= 8; i++) {
+		for (int i = check; i <= 1; i++) {
 			hyperParameters.setOuterLoopCount(i);
 
 			String pathTrain = Integer.toString(i + 1) + ".csv";

@@ -13,9 +13,9 @@ public class HyperParameters implements Serializable {
 	private double dataSplitTrain = 0.7;
 	private double dataSplitValidate = 0.2;
 
-	private double wiInit = 1;
-	private double woInit = 1;
-	private double wzInit = 1;
+	private double wiInit = -1;
+	private double woInit = -1;
+	private double wzInit = -1;
 	private double riInit = -1;
 	private double roInit = -1;
 	private double rzInit = -1;
@@ -25,26 +25,28 @@ public class HyperParameters implements Serializable {
 	private double rfInit = -1;
 
 	private int interval = 5;
-	private int batchSize = 1;
+	private int batchSize = 5;
 	private int batchTrack = 0;
-	private int epoch = 5;
+	private int epoch = 20;
 	private int epochTrack = 0;
 	private int trendPoints = 1;
-	private int windowSizeSeasonality = 7;// do not change on fly
-	private int windowSizeTrend = 4; // do not change on fly
+	private int windowSizeSeasonality = 8;// do not change on fly
+	private int windowSizeTrend = 8; // do not change on fly
 	private int gdIterration = 1;
 	private int count = 0;
 
-	private double scalingMin = -5000;
-	private double scalingMax = 5000;
+	private double scalingMin = 0;
+	private double scalingMax = 4000;
 	private boolean trendTrainFlag = false;
 	private boolean trainingSeasonality = false;
 	private boolean trainingTrend = false;
+	private boolean log = true;
 	private ArrayList<Double> rmsErrorTrend = new ArrayList<Double>();
 	private ArrayList<Double> rmsErrorSeasonality = new ArrayList<Double>();
 	private OffsetDateTime lastTrainedDate = null;
 	private static HyperParameters instance;
 	private int outerLoopCount = 0;
+	String modelName = "";
 
 	private HyperParameters() {
 
@@ -228,6 +230,10 @@ public class HyperParameters implements Serializable {
 
 	}
 
+	public void setTrendPoint(int var) {
+		this.trendPoints = var;
+	}
+
 	public int getEpoch() {
 
 		return this.epoch;
@@ -345,13 +351,33 @@ public class HyperParameters implements Serializable {
 		this.batchTrack = val;
 
 	}
-	
+
+	public boolean getLogRequest() {
+
+		return this.log;
+	}
+
+	public void setLogRequest(boolean val) {
+		this.log = val;
+
+	}
+
+	public void setModelName(String val) {
+		this.modelName = val;
+
+	}
+
+	public String getModelName() {
+		return this.modelName;
+
+	}
+
 	/**
-	 * Prints the current values of hyperparameters and related attributes to the console.
+	 * Prints the current values of hyperparameters and related attributes to the
+	 * console.
 	 *
 	 * 
 	 */
-
 
 	public void printHyperParameters() {
 
@@ -385,8 +411,9 @@ public class HyperParameters implements Serializable {
 	 * @return 0
 	 */
 
-	public double getMin(ArrayList<Double> data) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+//	public double getMin(ArrayList<Double> data) {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+
 }
