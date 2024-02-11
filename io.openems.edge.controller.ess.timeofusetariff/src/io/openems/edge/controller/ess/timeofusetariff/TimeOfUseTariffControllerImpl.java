@@ -4,6 +4,7 @@ import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANC
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateCharge;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateDelayDischarge;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.essMaxChargePower;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.getEssMinSoc;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.postprocessRunState;
@@ -210,7 +211,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		var activePower = switch (state) {
 		case CHARGE -> calculateCharge(this.ess, this.sum, essMaxChargePower(this.optimizer.getParams(), this.ess),
 				this.config.maxChargePowerFromGrid());
-		case DELAY_DISCHARGE -> 0;
+		case DELAY_DISCHARGE -> calculateDelayDischarge(this.ess);
 		case BALANCING -> null;
 		};
 

@@ -389,6 +389,22 @@ public final class Utils {
 	}
 
 	/**
+	 * Calculates the ActivePower constraint for DELAY_DISCHARGE state.
+	 * 
+	 * @param ess the {@link ManagedSymmetricEss}
+	 * @return the set-point
+	 */
+	public static Integer calculateDelayDischarge(ManagedSymmetricEss ess) {
+		if (ess instanceof HybridEss) {
+			// Limit discharge to DC-PV power
+			return max(0, ess.getActivePower().orElse(0) - ((HybridEss) ess).getDcDischargePower().orElse(0));
+		} else {
+			// Limit discharge to 0
+			return 0;
+		}
+	}
+
+	/**
 	 * Utilizes the previous three hours' data and computes the next 21 hours data
 	 * from the {@link Optimizer} provided, then concatenates them to generate a
 	 * 24-hour {@link GetScheduleResponse}.

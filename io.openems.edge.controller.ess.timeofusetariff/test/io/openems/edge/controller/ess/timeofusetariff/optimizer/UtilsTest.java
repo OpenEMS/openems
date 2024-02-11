@@ -33,6 +33,7 @@ import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.SUM
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.buildInitialPopulation;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateBalancingChargeDischarge;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateCharge;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateDelayDischarge;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateEssMaxCharge;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateEssMaxDischarge;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateExecutionLimitSeconds;
@@ -207,6 +208,29 @@ public class UtilsTest {
 						.withGridActivePower(-2000), //
 				/* essMaxChargePower */ 2_500, //
 				/* maxChargePowerFromGrid */ 24_000).intValue());
+	}
+
+	@Test
+	public void testCalculateDelayDischarge() {
+		// DC-PV
+		assertEquals(500, calculateDelayDischarge(//
+				new DummyHybridEss("ess0") //
+						.withActivePower(-500) //
+						.withDcDischargePower(-1000))
+				.intValue());
+
+		// Never negative
+		assertEquals(0, calculateDelayDischarge(//
+				new DummyHybridEss("ess0") //
+						.withActivePower(-1500) //
+						.withDcDischargePower(-1000))
+				.intValue());
+
+		// AC-PV
+		assertEquals(0, calculateDelayDischarge(//
+				new DummyManagedSymmetricEss("ess0") //
+						.withActivePower(-1500)) //
+				.intValue());
 	}
 
 	@Test
