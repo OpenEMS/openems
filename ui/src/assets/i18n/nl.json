@@ -528,7 +528,8 @@
     "faq": "Veel Gestelde Vragen (FAQ)",
     "language": "Selecteer taal:",
     "openEMS": "Meer over OpenEMS",
-    "patchnotes": "Veranderingen in de monitoring voor deze build"
+    "patchnotes": "Veranderingen in de monitoring voor deze build",
+    "info": "De taal kan om technische redenen niet permanent worden gewijzigd in de lokale online monitoring."
   },
   "Notifications": {
     "authenticationFailed": "Geen verbinding.Autorisatie mislukt.",
