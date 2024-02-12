@@ -531,7 +531,8 @@
     "currentDevelopments": "Développement actuels",
     "developed": "Cet interface utilisateur est développé en tant que logiciel libre.",
     "language": "Sélectionnez la langue:",
-    "openEMS": "Plus au sujet d'OpenEMS"
+    "openEMS": "Plus au sujet d'OpenEMS",
+    "info": "La langue ne peut pas être modifiée de manière permanente dans la surveillance en ligne locale pour des raisons techniques."
   },
   "Notifications": {
     "authenticationFailed": "Pas de connexion, échec d'authentification .",
