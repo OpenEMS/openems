@@ -294,6 +294,15 @@ public interface ComponentUtil {
 	public void removeIdsInSchedulerIfExisting(User user, List<String> removedIds) throws OpenemsNamedException;
 
 	/**
+	 * Directly 1-to-1 sets the given ids as the scheduler ids.
+	 * 
+	 * @param user         the executing user
+	 * @param componentIds the scheduler ids
+	 * @throws OpenemsNamedException when the scheduler can not be updated
+	 */
+	public void setSchedulerComponentIds(User user, List<String> componentIds) throws OpenemsNamedException;
+
+	/**
 	 * Gets the current id's in the scheduler.
 	 *
 	 * @return the id's

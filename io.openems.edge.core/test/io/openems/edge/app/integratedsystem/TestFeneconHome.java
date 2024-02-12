@@ -34,6 +34,9 @@ public class TestFeneconHome {
 					Apps::prepareBatteryExtension //
 			);
 		}, null, new PseudoComponentManagerFactory());
+
+		final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
+		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
 	}
 
 	@Test

@@ -37,6 +37,10 @@ public class TestTibber {
 			return ImmutableList.of(//
 					this.tibber = Apps.tibber(t));
 		}, null, new PseudoComponentManagerFactory());
+
+		final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
+		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
+		this.appManagerTestBundle.addPersistencePredictorAggregateTask();
 	}
 
 	@Test

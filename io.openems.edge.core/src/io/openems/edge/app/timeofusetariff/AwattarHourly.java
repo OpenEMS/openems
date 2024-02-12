@@ -39,6 +39,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
@@ -133,7 +134,8 @@ public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Pr
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffId, "ctrlBalancing0")) //
+					.addTask(Tasks.schedulerByCentralOrder(new SchedulerComponent(ctrlEssTimeOfUseTariffId,
+							"Controller.Ess.Time-Of-Use-Tariff", this.getAppId()))) //
 					.addTask(Tasks.persistencePredictor("_sum/UnmanagedConsumptionActivePower")) //
 					.build();
 		};

@@ -38,6 +38,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
@@ -145,7 +146,8 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffId, "ctrlBalancing0")) //
+					.addTask(Tasks.schedulerByCentralOrder(new SchedulerComponent(ctrlEssTimeOfUseTariffId,
+							"Controller.Ess.Time-Of-Use-Tariff", this.getAppId()))) //
 					.addTask(Tasks.persistencePredictor("_sum/UnmanagedConsumptionActivePower")) //
 					.build();
 		};
