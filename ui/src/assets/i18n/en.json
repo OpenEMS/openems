@@ -6,7 +6,8 @@
     "faq": "Frequently asked questions (FAQ)",
     "language": "Select language:",
     "openEMS": "More about OpenEMS",
-    "patchnotes": "Changes in the monitoring for this build"
+    "patchnotes": "Changes in the monitoring for this build",
+    "info": "The language can not be changed permanently in the local online-monitoring for technical reasons."
   },
   "Edge": {
     "Index": {
