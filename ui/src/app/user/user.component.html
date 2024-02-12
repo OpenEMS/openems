@@ -139,10 +139,8 @@
             </ion-item>
 
             <ion-note class="ion-padding" *ngIf="environment.backend === 'OpenEMS Edge'">
-              <small>
-                The language can not be changed permanently in the local online-monitoring for technical
-                reasons.</small>
-            </ion-note>
+              <small>{{ 'About.info' | translate }}</small>
+            </ion-note> 
           </ion-card-content>
         </ion-card>
       </ion-col>
