@@ -532,7 +532,8 @@
     "faq": "Preguntas frecuentes (FAQ)",
     "language": "Seleccionar idioma:",
     "openEMS": "Acerca de OpenEMS",
-    "patchnotes": "Cambios en la supervisión de esta compilación"
+    "patchnotes": "Cambios en la supervisión de esta compilación",
+    "info": "El idioma no se puede cambiar permanentemente en el monitoreo en línea local por razones técnicas."
   },
   "Notifications": {
     "authenticationFailed": "Sin conexión: error de autenticación.",
