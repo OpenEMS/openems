@@ -171,7 +171,7 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 			return;
 		}
 		final var url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
-		this.httpBridge.request(url).whenComplete((t, e) -> {
+		this.httpBridge.get(url).whenComplete((t, e) -> {
 			this._setSlaveCommunicationFailed(e != null);
 		});
 	}

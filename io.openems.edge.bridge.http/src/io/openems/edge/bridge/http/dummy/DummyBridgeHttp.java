@@ -7,21 +7,21 @@ import io.openems.edge.bridge.http.api.BridgeHttp;
 public class DummyBridgeHttp implements BridgeHttp {
 
 	@Override
-	public void subscribe(Endpoint endpoint) {
+	public void subscribe(CycleEndpoint endpoint) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public CompletableFuture<String> request(String url) {
+	public void subscribeTime(TimeEndpoint endpoint) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public CompletableFuture<String> request(Endpoint endpoint) {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public void setTimeout(int connectTimeout, int readTimeout) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

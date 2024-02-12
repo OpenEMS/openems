@@ -1,24 +1,17 @@
 package io.openems.edge.bridge.http;
 
-import java.util.concurrent.CompletableFuture;
+import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 
 public interface UrlFetcher {
 
 	/**
 	 * Creates a {@link Runnable} to execute a request with the given parameters.
 	 * 
-	 * @param urlString      the url to fetch
-	 * @param connectTimeout the connection timeout
-	 * @param readTimeout    the read timeout
-	 * @param future         the {@link CompletableFuture} to fulfill after the
-	 *                       fetch
+	 * @param endpoint the {@link Endpoint} to fetch
+	 * 
 	 * @return the {@link Runnable} to run to execute the fetch
+	 * @throws Exception on error
 	 */
-	public Runnable createTask(//
-			String urlString, //
-			int connectTimeout, //
-			int readTimeout, //
-			CompletableFuture<String> future //
-	);
+	public String fetchEndpoint(Endpoint endpoint) throws Exception;
 
 }

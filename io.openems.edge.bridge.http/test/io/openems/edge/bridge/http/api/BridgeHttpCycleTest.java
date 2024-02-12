@@ -1,4 +1,4 @@
-package io.openems.edge.bridge.http;
+package io.openems.edge.bridge.http.api;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -15,10 +15,12 @@ import org.junit.Test;
 import org.osgi.service.event.Event;
 
 import io.openems.common.utils.ReflectionUtils;
-import io.openems.edge.bridge.http.api.BridgeHttp;
+import io.openems.edge.bridge.http.BridgeHttpImpl;
+import io.openems.edge.bridge.http.CycleSubscriber;
+import io.openems.edge.bridge.http.DummyUrlFetcher;
 import io.openems.edge.common.event.EdgeEventConstants;
 
-public class BridgeHttpImplTest {
+public class BridgeHttpCycleTest {
 
 	private DummyUrlFetcher fetcher;
 	private CycleSubscriber cycleSubscriber;
@@ -31,8 +33,8 @@ public class BridgeHttpImplTest {
 		ReflectionUtils.setAttribute(BridgeHttpImpl.class, this.bridgeHttp, "cycleSubscriber", this.cycleSubscriber);
 
 		this.fetcher = new DummyUrlFetcher();
-		this.fetcher.addUrlHandler(url -> {
-			return switch (url) {
+		this.fetcher.addUrlHandler(endpoint -> {
+			return switch (endpoint.url()) {
 			case "dummy" -> "success";
 			case "error" -> throw new RuntimeException();
 			default -> null;
@@ -90,8 +92,6 @@ public class BridgeHttpImplTest {
 			}
 		});
 
-		final var waitForTaskFinish = new CompletableFuture<Void>();
-		this.fetcher.setOnTaskFinished(() -> waitForTaskFinish.complete(null));
 		synchronized (lock) {
 			assertEquals(0, callCount.get());
 			this.nextCycle();
@@ -105,14 +105,15 @@ public class BridgeHttpImplTest {
 			this.nextCycle();
 			assertEquals(1, callCount.get());
 		}
+
 		waitUntilContinueHandler.complete(null);
 
-		// wait until last request is finished
-		waitForTaskFinish.get();
+		this.waitUntilCycleRequestAreFinished();
 		synchronized (lock) {
 			this.nextCycle();
 			lock.wait();
 		}
+
 		assertEquals(2, callCount.get());
 	}
 
@@ -130,6 +131,21 @@ public class BridgeHttpImplTest {
 	private void nextCycle() {
 		this.cycleSubscriber
 				.handleEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, new HashMap<>()));
+	}
+
+	private void waitUntilCycleRequestAreFinished() {
+		while (this.isCycleRequestRunning()) {
+			// wait
+		}
+	}
+
+	private boolean isCycleRequestRunning() {
+		for (var endpoint : ((BridgeHttpImpl) this.bridgeHttp).getCycleEndpoints()) {
+			if (endpoint.isRunning()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
