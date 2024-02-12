@@ -536,7 +536,8 @@
     "faq": "Často kladené otázky (FAQ)",
     "language": "Zvolte jazyk:",
     "openEMS": "Více o OpenEMS",
-    "patchnotes": "Změny v monitorování tohoto sestavení"
+    "patchnotes": "Změny v monitorování tohoto sestavení",
+    "info": "Jazyk nemůže být trvale změněn v místním online monitorování z technických důvodů."
   },
   "Notifications": {
     "authenticationFailed": "Žádné připojení: Ověření uživatele selhalo.",
