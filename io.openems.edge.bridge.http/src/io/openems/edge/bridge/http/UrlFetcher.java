@@ -10,8 +10,8 @@ public interface UrlFetcher {
 	 * 
 	 * @param endpoint the {@link Endpoint} to fetch
 	 * 
-	 * @return the {@link Runnable} to run to execute the fetch
-	 * @throws Exception on error
+	 * @return the result of the {@link Endpoint}
+	 * @throws OpenemsNamedException on error
 	 */
 	public String fetchEndpoint(Endpoint endpoint) throws OpenemsNamedException;
 
