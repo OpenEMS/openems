@@ -8,7 +8,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceScope;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
+import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -61,8 +62,9 @@ public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent implements IoS
 
 	private volatile Timedata timedata;
 
-	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
-	private BridgeHttp httpBridge;
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    private BridgeHttpFactory httpBridgeFactory;
+    private BridgeHttp httpBridge;
 
 	public IoShellyPlus1PMImpl() {
 		super(//
@@ -78,25 +80,31 @@ public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent implements IoS
 		SinglePhaseMeter.calculateSinglePhaseFromActivePower(this);
 	}
 
-	@Activate
-	private void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.meterType = config.type();
-		this.phase = config.phase();
-		this.baseUrl = "http://" + config.ip();
+    @Activate
+    protected void activate(ComponentContext context, Config config) {
+        super.activate(context, config.id(), config.alias(), config.enabled());
+        this.meterType = config.type();
+        this.phase = config.phase();
+        this.baseUrl = "http://" + config.ip();
+        this.httpBridge = this.httpBridgeFactory.get();
 
-		if (!this.isEnabled()) {
-			return;
-		}
+        if (!this.isEnabled()) {
+            return;
+        }
 
-		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);
-	}
+        // Assuming your subscription URL or logic might be different
+        this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);
+    }
 
 	@Override
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
-	}
+    @Deactivate
+    protected void deactivate() {
+        if (this.httpBridge != null) {
+            this.httpBridgeFactory.unget(this.httpBridge);
+            this.httpBridge = null;
+        }
+        super.deactivate();
+    }
 
 	@Override
 	public BooleanWriteChannel[] digitalOutputChannels() {
@@ -208,21 +216,28 @@ public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent implements IoS
 	 * @param index   index
 	 */
 	private void executeWrite(BooleanWriteChannel channel, int index) {
-		var readValue = channel.value().get();
-		var writeValue = channel.getNextWriteValueAndReset();
-		if (writeValue.isEmpty()) {
-			// no write value
-			return;
-		}
-		if (Objects.equals(readValue, writeValue.get())) {
-			// read value = write value
-			return;
-		}
-		final var url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
-		this.httpBridge.request(url).whenComplete((t, e) -> {
-			this._setSlaveCommunicationFailed(e != null);
-		});
+	    var readValue = channel.value().get();
+	    var writeValue = channel.getNextWriteValueAndReset();
+	    if (writeValue.isEmpty()) {
+	        // no write value
+	        return;
+	    }
+	    if (Objects.equals(readValue, writeValue.get())) {
+	        // read value equals write value, so no need to write
+	        return;
+	    }
+	    final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
+	    this.httpBridge.get(url).whenComplete((response, error) -> {
+	        if (error != null) {
+	            this.logError(this.log, "HTTP request failed: " + error.getMessage());
+	            this._setSlaveCommunicationFailed(true);
+	        } else {
+	            // Optionally log success or handle response
+	            this._setSlaveCommunicationFailed(false);
+	        }
+	    });
 	}
+
 
 	/**
 	 * Calculate the Energy values from ActivePower.
