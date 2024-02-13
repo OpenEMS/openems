@@ -20,6 +20,7 @@ import io.openems.common.utils.JsonUtils;
  * <pre>
    <code>@Reference</code>
    private BridgeHttpFactory httpBridgeFactory;
+   private BridgeHttp httpBridge;
    
    <code>@Activate</code>
    private void activate() {

@@ -3,9 +3,13 @@ package io.openems.edge.bridge.http.api;
 import static io.openems.edge.bridge.http.time.DelayTimeProviderChain.immediate;
 import static java.util.Collections.emptyMap;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import com.google.gson.JsonElement;
+
 import io.openems.common.function.ThrowingConsumer;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.edge.bridge.http.time.DefaultDelayTimeProvider;
 import io.openems.edge.bridge.http.time.Delay;
@@ -18,9 +22,9 @@ import io.openems.edge.bridge.http.time.DelayTimeProviderChain;
  * <p>
  * The calculation when an endpoint gets called is provided in the
  * {@link DelayTimeProvider}. The
- * {@link DelayTimeProvider#nextRun(boolean, boolean)} gets called instant when
- * the initial mehtod to add the endpoint gets called and then every time after
- * the last endpoint handle was finished.
+ * {@link DelayTimeProvider#nextRun(boolean, boolean)} gets called instantly
+ * when the initial method to add the endpoint gets called and then every time
+ * after the last endpoint handle was finished.
  * 
  * <p>
  * So for e. g. if a fixed Delay of 1 minute gets provided the time will shift
@@ -104,6 +108,29 @@ public interface BridgeHttpTime {
 
 	/**
 	 * Subscribes to an {@link Endpoint} with the delay provided by the
+	 * {@link DelayTimeProvider} and after every endpoint fetch the
+	 * <code>action</code> gets called either with the result or the error at least
+	 * one is not null.
+	 * 
+	 * @param delayTimeProvider the {@link DelayTimeProvider} to provided the delay
+	 *                          between the fetches
+	 * @param endpoint          the {@link Endpoint} to fetch
+	 * @param action            the action to perform; the first is the result of
+	 *                          the endpoint if existing and the second argument is
+	 *                          passed if an error happend. One of the params is
+	 *                          always null and one not
+	 */
+	public default void subscribeTime(//
+			DelayTimeProvider delayTimeProvider, //
+			Endpoint endpoint, //
+			BiConsumer<String, Throwable> action //
+	) {
+		this.subscribeTime(new TimeEndpoint(delayTimeProvider, endpoint, r -> action.accept(r, null),
+				t -> action.accept(null, t)));
+	}
+
+	/**
+	 * Subscribes to an {@link Endpoint} with the delay provided by the
 	 * {@link DelayTimeProviderChain} and after every endpoint fetch either the
 	 * <code>onResult</code> or the <code>onError</code> method gets called.
 	 * 
@@ -175,6 +202,50 @@ public interface BridgeHttpTime {
 			ThrowingConsumer<String, Exception> onResult //
 	) {
 		this.subscribeTime(delay, delay, url, onResult, BridgeHttp.EMPTY_ERROR_HANDLER);
+	}
+
+	/**
+	 * Subscribes to an {@link Endpoint} with the delay provided by the
+	 * {@link DelayTimeProvider} and after every endpoint fetch either the
+	 * <code>onResult</code> or the <code>onError</code> method gets called.
+	 * 
+	 * @param delayTimeProvider the {@link DelayTimeProvider} to provided the delay
+	 *                          between the fetches
+	 * @param endpoint          the {@link Endpoint} to fetch
+	 * @param onResult          the method to call on successful fetch
+	 * @param onError           the method to call if an error happens during
+	 *                          fetching or handling the result
+	 */
+	public default void subscribeJsonTime(//
+			DelayTimeProvider delayTimeProvider, //
+			Endpoint endpoint, //
+			ThrowingConsumer<JsonElement, Exception> onResult, //
+			Consumer<Throwable> onError //
+	) {
+		this.subscribeTime(delayTimeProvider, endpoint, t -> onResult.accept(JsonUtils.parse(t)), onError);
+	}
+
+	/**
+	 * Subscribes to an {@link Endpoint} with the delay provided by the
+	 * {@link DelayTimeProvider} and after every endpoint fetch the
+	 * <code>action</code> gets called either with the result or the error at least
+	 * one is not null.
+	 * 
+	 * @param delayTimeProvider the {@link DelayTimeProvider} to provided the delay
+	 *                          between the fetches
+	 * @param endpoint          the {@link Endpoint} to fetch
+	 * @param action            the action to perform; the first is the result of
+	 *                          the endpoint if existing and the second argument is
+	 *                          passed if an error happend. One of the params is
+	 *                          always null and one not
+	 */
+	public default void subscribeJsonTime(//
+			DelayTimeProvider delayTimeProvider, //
+			Endpoint endpoint, //
+			BiConsumer<JsonElement, Throwable> action //
+	) {
+		this.subscribeTime(delayTimeProvider, endpoint, t -> action.accept(JsonUtils.parse(t), null),
+				e -> action.accept(null, e));
 	}
 
 }

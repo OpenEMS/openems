@@ -91,8 +91,8 @@ public interface BridgeHttpCycle {
 		final var endpoint = new Endpoint(//
 				url, //
 				HttpMethod.GET, //
-				5000, //
-				5000, //
+				BridgeHttp.DEFAULT_CONNECT_TIMEOUT, //
+				BridgeHttp.DEFAULT_READ_TIMEOUT, //
 				null, //
 				emptyMap() //
 		);
@@ -121,8 +121,8 @@ public interface BridgeHttpCycle {
 		final var endpoint = new Endpoint(//
 				url, //
 				HttpMethod.GET, //
-				5000, //
-				5000, //
+				BridgeHttp.DEFAULT_CONNECT_TIMEOUT, //
+				BridgeHttp.DEFAULT_READ_TIMEOUT, //
 				null, //
 				emptyMap() //
 		);
@@ -235,6 +235,28 @@ public interface BridgeHttpCycle {
 			final Consumer<Throwable> onError //
 	) {
 		this.subscribe(cycle, url, t -> result.accept(JsonUtils.parse(t)), onError);
+	}
+
+	/**
+	 * Subscribes to one http endpoint.
+	 * 
+	 * <p>
+	 * Tries to fetch data every n-cycle. If receiving data takes more than n-cycle
+	 * the next get request to the url gets send when the last was finished either
+	 * successfully or with an error.
+	 * 
+	 * @param cycle  the number of cycles to wait between requests
+	 * @param url    the url of the enpoint
+	 * @param action the action to perform; the first is the result of the endpoint
+	 *               if existing and the second argument is passed if an error
+	 *               happend. One of the params is always null and one not
+	 */
+	public default void subscribeJson(//
+			final int cycle, //
+			final String url, //
+			final BiConsumer<JsonElement, Throwable> action //
+	) {
+		this.subscribe(cycle, url, t -> action.accept(JsonUtils.parse(t), null), t -> action.accept(null, t));
 	}
 
 	/**

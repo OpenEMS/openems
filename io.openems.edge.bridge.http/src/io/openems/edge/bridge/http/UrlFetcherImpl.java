@@ -10,7 +10,6 @@ import org.osgi.service.component.annotations.Component;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.api.HttpMethod;
 
 @Component
 public class UrlFetcherImpl implements UrlFetcher {
@@ -22,10 +21,10 @@ public class UrlFetcherImpl implements UrlFetcher {
 		con.setRequestMethod(endpoint.method().name());
 		con.setConnectTimeout(endpoint.connectTimeout());
 		con.setReadTimeout(endpoint.readTimeout());
-		
+
 		endpoint.properties().forEach(con::setRequestProperty);
 
-		if (endpoint.method() == HttpMethod.POST && endpoint.body() != null) {
+		if (endpoint.method().isBodyAllowed() && endpoint.body() != null) {
 			con.setDoOutput(true);
 			try (var os = con.getOutputStream(); //
 					var osw = new OutputStreamWriter(os, "UTF-8")) {
@@ -34,7 +33,7 @@ public class UrlFetcherImpl implements UrlFetcher {
 			}
 		}
 
-		var status = con.getResponseCode();
+		final var status = con.getResponseCode();
 		String body;
 		try (var in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
 			// Read HTTP response

@@ -5,6 +5,29 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+/**
+ * Bridge factory to get an instance of an {@link BridgeHttp}.
+ * 
+ * <p>
+ * Usage:
+ * 
+ * <pre>
+   <code>@Reference</code>
+   private BridgeHttpFactory httpBridgeFactory;
+   private BridgeHttp httpBridge;
+   
+   <code>@Activate</code>
+   private void activate() {
+       this.httpBridge = this.httpBridgeFactory.get();
+   }
+   
+   <code>@Deactivate</code>
+   private void deactivate() {
+       this.httpBridgeFactory.unget(this.httpBridge);
+       this.httpBridge = null;
+   }
+ * </pre>
+ */
 @Component(service = BridgeHttpFactory.class)
 public class BridgeHttpFactory {
 

@@ -1,6 +1,5 @@
 package io.openems.edge.bridge.http;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Set;
@@ -255,7 +254,6 @@ public class BridgeHttpImpl implements BridgeHttp {
 			try {
 				final var nextDelay = endpointCountdown.getTimeEndpoint().delayTimeProvider().nextRun(false,
 						currentRunSuccessful);
-				System.out.println("\n\n SCHEDULE NEW TASK " + nextDelay + ", " + LocalDateTime.now() + " \n\n");
 				final var future = this.pool.schedule(this.createTask(endpointCountdown), nextDelay.amount(),
 						nextDelay.unit());
 				endpointCountdown.setShutdownCurrentTask(() -> future.cancel(false));
