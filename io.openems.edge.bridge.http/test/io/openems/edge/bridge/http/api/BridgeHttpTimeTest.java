@@ -27,7 +27,7 @@ public class BridgeHttpTimeTest {
 		ReflectionUtils.setAttribute(BridgeHttpImpl.class, this.bridgeHttp, "cycleSubscriber", cycleSubscriber);
 
 		this.fetcher = new DummyUrlFetcher();
-		this.fetcher.addUrlHandler(endpoint -> {
+		this.fetcher.addEndpointHandler(endpoint -> {
 			return switch (endpoint.url()) {
 			case "dummy" -> "success";
 			case "error" -> throw new RuntimeException();
@@ -46,7 +46,7 @@ public class BridgeHttpTimeTest {
 
 	@Test(timeout = 1000L)
 	public void testSubscribeTime() throws Exception {
-		this.fetcher.addUrlHandler(endpoint -> {
+		this.fetcher.addEndpointHandler(endpoint -> {
 			if (!endpoint.url().equals("dummy")) {
 				return null;
 			}

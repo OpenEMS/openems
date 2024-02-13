@@ -33,7 +33,7 @@ public class BridgeHttpCycleTest {
 		ReflectionUtils.setAttribute(BridgeHttpImpl.class, this.bridgeHttp, "cycleSubscriber", this.cycleSubscriber);
 
 		this.fetcher = new DummyUrlFetcher();
-		this.fetcher.addUrlHandler(endpoint -> {
+		this.fetcher.addEndpointHandler(endpoint -> {
 			return switch (endpoint.url()) {
 			case "dummy" -> "success";
 			case "error" -> throw new RuntimeException();

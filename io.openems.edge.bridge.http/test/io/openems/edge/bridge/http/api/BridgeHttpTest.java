@@ -45,32 +45,32 @@ public class BridgeHttpTest {
 
 	@Test
 	public void testGet() throws Exception {
-		this.fetcher.addUrlHandler(assertExact("dummy", HttpMethod.GET));
+		this.fetcher.addEndpointHandler(assertExact("dummy", HttpMethod.GET));
 		assertEquals("success", this.bridgeHttp.get("dummy").get());
 	}
 
 	@Test
 	public void testGetJson() throws Exception {
-		this.fetcher.addUrlHandler(assertExactJson("dummy", HttpMethod.GET));
+		this.fetcher.addEndpointHandler(assertExactJson("dummy", HttpMethod.GET));
 		assertEquals(successJson(), this.bridgeHttp.getJson("dummy").get());
 	}
 
 	@Test
 	public void testPut() throws Exception {
-		this.fetcher.addUrlHandler(assertExact("dummy", HttpMethod.PUT));
+		this.fetcher.addEndpointHandler(assertExact("dummy", HttpMethod.PUT));
 		assertEquals("success", this.bridgeHttp.put("dummy").get());
 	}
 
 	@Test
 	public void testPutJson() throws Exception {
-		this.fetcher.addUrlHandler(assertExactJson("dummy", HttpMethod.PUT));
+		this.fetcher.addEndpointHandler(assertExactJson("dummy", HttpMethod.PUT));
 		assertEquals(successJson(), this.bridgeHttp.putJson("dummy").get());
 	}
 
 	@Test
 	public void testPost() throws Exception {
 		final var body = "body";
-		this.fetcher.addUrlHandler(assertExact("dummy", HttpMethod.POST, body));
+		this.fetcher.addEndpointHandler(assertExact("dummy", HttpMethod.POST, body));
 		assertEquals("success", this.bridgeHttp.post("dummy", body).get());
 	}
 
@@ -79,25 +79,25 @@ public class BridgeHttpTest {
 		final var body = JsonUtils.buildJsonObject() //
 				.addProperty("body", true) //
 				.build();
-		this.fetcher.addUrlHandler(assertExactJson("dummy", HttpMethod.POST, body));
+		this.fetcher.addEndpointHandler(assertExactJson("dummy", HttpMethod.POST, body));
 		assertEquals(successJson(), this.bridgeHttp.postJson("dummy", body).get());
 	}
 
 	@Test
 	public void testDelete() throws Exception {
-		this.fetcher.addUrlHandler(assertExact("dummy", HttpMethod.DELETE));
+		this.fetcher.addEndpointHandler(assertExact("dummy", HttpMethod.DELETE));
 		assertEquals("success", this.bridgeHttp.delete("dummy").get());
 	}
 
 	@Test
 	public void testDeleteJson() throws Exception {
-		this.fetcher.addUrlHandler(assertExactJson("dummy", HttpMethod.DELETE));
+		this.fetcher.addEndpointHandler(assertExactJson("dummy", HttpMethod.DELETE));
 		assertEquals(successJson(), this.bridgeHttp.deleteJson("dummy").get());
 	}
 
 	@Test
 	public void testRequest() throws Exception {
-		this.fetcher.addUrlHandler(assertExact("dummy", HttpMethod.DELETE));
+		this.fetcher.addEndpointHandler(assertExact("dummy", HttpMethod.DELETE));
 
 		final var response = this.bridgeHttp
 				.request(new Endpoint("dummy", HttpMethod.DELETE, 12345, 1245, null, emptyMap()));
@@ -107,7 +107,7 @@ public class BridgeHttpTest {
 
 	@Test
 	public void testRequestJson() throws Exception {
-		this.fetcher.addUrlHandler(assertExactJson("dummy", HttpMethod.DELETE));
+		this.fetcher.addEndpointHandler(assertExactJson("dummy", HttpMethod.DELETE));
 
 		final var response = this.bridgeHttp
 				.requestJson(new Endpoint("dummy", HttpMethod.DELETE, 12345, 1245, null, emptyMap()));

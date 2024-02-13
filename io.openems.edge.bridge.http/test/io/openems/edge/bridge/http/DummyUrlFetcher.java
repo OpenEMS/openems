@@ -39,7 +39,7 @@ public class DummyUrlFetcher implements UrlFetcher {
 	 * 
 	 * @param handler the handler
 	 */
-	public void addUrlHandler(ThrowingFunction<Endpoint, String, OpenemsNamedException> handler) {
+	public void addEndpointHandler(ThrowingFunction<Endpoint, String, OpenemsNamedException> handler) {
 		this.urlHandler.add(handler);
 	}
 
