@@ -24,7 +24,7 @@ public class BridgeHttpTest {
 
 	private DummyUrlFetcher fetcher;
 	private CycleSubscriber cycleSubscriber;
-	private BridgeHttp bridgeHttp;
+	private BridgeHttpImpl bridgeHttp;
 
 	@Before
 	public void before() throws Exception {
@@ -35,12 +35,12 @@ public class BridgeHttpTest {
 		this.fetcher = new DummyUrlFetcher();
 		ReflectionUtils.setAttribute(BridgeHttpImpl.class, this.bridgeHttp, "urlFetcher", this.fetcher);
 
-		((BridgeHttpImpl) this.bridgeHttp).activate();
+		this.bridgeHttp.activate();
 	}
 
 	@After
 	public void after() throws Exception {
-		((BridgeHttpImpl) this.bridgeHttp).deactivate();
+		this.bridgeHttp.deactivate();
 	}
 
 	@Test
