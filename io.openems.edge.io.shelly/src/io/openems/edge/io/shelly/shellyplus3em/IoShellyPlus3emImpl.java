@@ -8,7 +8,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -38,93 +37,77 @@ import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(
-        name = "IO.Shelly.Plus3EM",
-        immediate = true,
-        configurationPolicy = ConfigurationPolicy.REQUIRE
-)
-@EventTopics({
-        EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE,
-        EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE
-})
+@Component(name = "IO.Shelly.Plus3EM", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@EventTopics({ EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE })
 public class IoShellyPlus3emImpl extends AbstractOpenemsComponent implements IoShellyPlus3em, DigitalOutput,
-        SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
+		SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
-	
-    private final Logger log = LoggerFactory.getLogger(IoShellyPlus3emImpl.class);
-    private final BooleanWriteChannel[] digitalOutputChannels;
+	private final Logger log = LoggerFactory.getLogger(IoShellyPlus3emImpl.class);
+	private final BooleanWriteChannel[] digitalOutputChannels;
 
-    private MeterType meterType = null;
-    private SinglePhase phase = null;
-    private String baseUrl;
+	private MeterType meterType = null;
+	private SinglePhase phase = null;
+	private String baseUrl;
 
 	private volatile Timedata timedata;
-    
-    @Reference(cardinality = ReferenceCardinality.MANDATORY)
-    private BridgeHttpFactory httpBridgeFactory;
-    private BridgeHttp httpBridge;
 
-    public IoShellyPlus3emImpl() {
-        super(
-                OpenemsComponent.ChannelId.values(),
-                ElectricityMeter.ChannelId.values(),
-                DigitalOutput.ChannelId.values(),
-                IoShellyPlus3em.ChannelId.values()
-        );
-        this.digitalOutputChannels = new BooleanWriteChannel[]{
-                this.channel(IoShellyPlus3em.ChannelId.RELAY)
-        };
+	@Reference()
+	private BridgeHttpFactory httpBridgeFactory;
+	private BridgeHttp httpBridge;
 
-        ElectricityMeter.calculateSumActivePowerFromPhases(this);
-    }
+	public IoShellyPlus3emImpl() {
+		super(OpenemsComponent.ChannelId.values(), ElectricityMeter.ChannelId.values(),
+				DigitalOutput.ChannelId.values(), IoShellyPlus3em.ChannelId.values());
+		this.digitalOutputChannels = new BooleanWriteChannel[] { this.channel(IoShellyPlus3em.ChannelId.RELAY) };
 
-    @Activate
-    protected void activate(ComponentContext context, Config config) {
-        super.activate(context, config.id(), config.alias(), config.enabled());
-        this.meterType = config.type();
-        this.baseUrl = "http://" + config.ip();
-        this.httpBridge = this.httpBridgeFactory.get();
+		ElectricityMeter.calculateSumActivePowerFromPhases(this);
+	}
 
-        if (this.isEnabled()) {
-            this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", this::processHttpResult);
-        }
-    }
+	@Activate
+	protected void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.meterType = config.type();
+		this.baseUrl = "http://" + config.ip();
+		this.httpBridge = this.httpBridgeFactory.get();
 
-    @Deactivate
-    protected void deactivate() {
-        if (this.httpBridge != null) {
-            this.httpBridgeFactory.unget(this.httpBridge);
-            this.httpBridge = null;
-        }
-        super.deactivate();
-    }
+		if (this.isEnabled()) {
+			this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", this::processHttpResult);
+		}
+	}
 
-    @Override
-    public BooleanWriteChannel[] digitalOutputChannels() {
-        return this.digitalOutputChannels;
-    }
+	@Deactivate
+	protected void deactivate() {
+		this.httpBridgeFactory.unget(this.httpBridge);
+		this.httpBridge = null;
+		super.deactivate();
+	}
 
-    @Override
-    public String debugLog() {
-        var b = new StringBuilder();
-        var valueOpt = this.getRelayChannel().value().asOptional();
-        b.append(valueOpt.isPresent() ? (valueOpt.get() ? "ON" : "OFF") : "Unknown");
-        b.append("|");
-        b.append(this.getActivePowerChannel().value().asString());
+	@Override
+	public BooleanWriteChannel[] digitalOutputChannels() {
+		return this.digitalOutputChannels;
+	}
 
-        return b.toString();
-    }
+	@Override
+	public String debugLog() {
+		var b = new StringBuilder();
+		var valueOpt = this.getRelayChannel().value().asOptional();
+		b.append(valueOpt.isPresent() ? (valueOpt.get() ? "ON" : "OFF") : "Unknown");
+		b.append("|");
+		b.append(this.getActivePowerChannel().value().asString());
 
-    @Override
-    public void handleEvent(Event event) {
-        if (!this.isEnabled()) {
-            return;
-        }
+		return b.toString();
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.calculateEnergy();
@@ -210,25 +193,25 @@ public class IoShellyPlus3emImpl extends AbstractOpenemsComponent implements IoS
 	 * @param channel write channel
 	 * @param index   index
 	 */
-    private void executeWrite(BooleanWriteChannel channel, int index) {
-        var readValue = channel.value().get();
-        var writeValue = channel.getNextWriteValueAndReset();
-        if (writeValue.isEmpty()) {
-            return;
-        }
-        if (Objects.equals(readValue, writeValue.get())) {
-            return;
-        }
-        final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
-        this.httpBridge.get(url).whenComplete((t, e) -> {
-            this._setSlaveCommunicationFailed(e != null);
-            if (e == null) {
-                this.logInfo(this.log, "Executed write successfully for URL: " + url);
-            } else {
-                this.logError(this.log, "Failed to execute write for URL: " + url + "; Error: " + e.getMessage());
-            }
-        });
-    }
+	private void executeWrite(BooleanWriteChannel channel, int index) {
+		var readValue = channel.value().get();
+		var writeValue = channel.getNextWriteValueAndReset();
+		if (writeValue.isEmpty()) {
+			return;
+		}
+		if (Objects.equals(readValue, writeValue.get())) {
+			return;
+		}
+		final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
+		this.httpBridge.get(url).whenComplete((t, e) -> {
+			this._setSlaveCommunicationFailed(e != null);
+			if (e == null) {
+				this.logInfo(this.log, "Executed write successfully for URL: " + url);
+			} else {
+				this.logError(this.log, "Failed to execute write for URL: " + url + "; Error: " + e.getMessage());
+			}
+		});
+	}
 
 	/**
 	 * Calculate the Energy values from ActivePower.
