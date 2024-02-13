@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.http;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 
 public interface UrlFetcher {
@@ -12,6 +13,6 @@ public interface UrlFetcher {
 	 * @return the {@link Runnable} to run to execute the fetch
 	 * @throws Exception on error
 	 */
-	public String fetchEndpoint(Endpoint endpoint) throws Exception;
+	public String fetchEndpoint(Endpoint endpoint) throws OpenemsNamedException;
 
 }

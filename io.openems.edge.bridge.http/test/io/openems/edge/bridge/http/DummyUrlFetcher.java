@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingFunction;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 
@@ -19,7 +20,7 @@ public class DummyUrlFetcher implements UrlFetcher {
 	@Override
 	public String fetchEndpoint(//
 			final Endpoint endpoint //
-	) throws Exception {
+	) throws OpenemsNamedException {
 		try {
 			for (var handler : this.urlHandler) {
 				final var result = handler.apply(endpoint);
@@ -27,7 +28,7 @@ public class DummyUrlFetcher implements UrlFetcher {
 					return result;
 				}
 			}
-			throw new Exception();
+			throw new OpenemsException("");
 		} finally {
 			this.onTaskFinished.run();
 		}
