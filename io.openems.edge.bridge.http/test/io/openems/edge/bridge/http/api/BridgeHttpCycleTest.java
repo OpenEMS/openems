@@ -54,7 +54,7 @@ public class BridgeHttpCycleTest {
 	public void test() throws Exception {
 		final var callCount = new AtomicInteger(0);
 		final var future = new CompletableFuture<Void>();
-		this.bridgeHttp.subscribe(3, "dummy", t -> {
+		this.bridgeHttp.subscribeCycle(3, "dummy", t -> {
 			assertEquals("success", t);
 			callCount.incrementAndGet();
 			future.complete(null);

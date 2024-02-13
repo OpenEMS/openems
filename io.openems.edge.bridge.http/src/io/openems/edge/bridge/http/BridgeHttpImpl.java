@@ -151,7 +151,7 @@ public class BridgeHttpImpl implements BridgeHttp {
 	}
 
 	@Override
-	public void subscribe(CycleEndpoint endpoint) {
+	public void subscribeCycle(CycleEndpoint endpoint) {
 		if (!this.cycleEndpoints.offer(new CycleEndpointCountdown(endpoint))) {
 			this.log.warn("Unable to add " + endpoint + "!");
 		}

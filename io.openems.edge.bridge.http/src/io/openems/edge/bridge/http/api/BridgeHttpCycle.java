@@ -33,7 +33,7 @@ import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
  * <p>
  * If an endpoint does not require to be called every cycle it can also be
  * configured with e. g.
- * {@link BridgeHttpCycle#subscribe(int, String, Consumer)} where the first
+ * {@link BridgeHttpCycle#subscribeCycle(int, String, Consumer)} where the first
  * value could be 5 then the request gets triggered every 5th cycle.
  */
 public interface BridgeHttpCycle {
@@ -43,7 +43,7 @@ public interface BridgeHttpCycle {
 			 * Configures how often the url should be fetched.
 			 * 
 			 * <p>
-			 * e. g. if the cycle is 3 the url gets fetched every 3th cycle and also only if
+			 * e. g. if the cycle is 3 the url gets fetched every 3rd cycle and also only if
 			 * the last request was finished either successfully or with a error.
 			 */
 			int cycle, //
@@ -73,7 +73,7 @@ public interface BridgeHttpCycle {
 	 * 
 	 * @param endpoint the {@link CycleEndpoint} configuration
 	 */
-	public void subscribe(CycleEndpoint endpoint);
+	public void subscribeCycle(CycleEndpoint endpoint);
 
 	/**
 	 * Subscribes to one http endpoint.
@@ -87,7 +87,7 @@ public interface BridgeHttpCycle {
 	 * @param url    the url of the enpoint
 	 * @param result the consumer to call on every successful result
 	 */
-	public default void subscribe(int cycle, String url, Consumer<String> result) {
+	public default void subscribeCycle(int cycle, String url, Consumer<String> result) {
 		final var endpoint = new Endpoint(//
 				url, //
 				HttpMethod.GET, //
@@ -96,7 +96,7 @@ public interface BridgeHttpCycle {
 				null, //
 				emptyMap() //
 		);
-		this.subscribe(new CycleEndpoint(cycle, endpoint, result, BridgeHttp.EMPTY_ERROR_HANDLER));
+		this.subscribeCycle(new CycleEndpoint(cycle, endpoint, result, BridgeHttp.EMPTY_ERROR_HANDLER));
 	}
 
 	/**
@@ -112,7 +112,7 @@ public interface BridgeHttpCycle {
 	 * @param result  the consumer to call on every successful result
 	 * @param onError the consumer to call on a error
 	 */
-	public default void subscribe(//
+	public default void subscribeCycle(//
 			final int cycle, //
 			final String url, //
 			final ThrowingConsumer<String, Exception> result, //
@@ -126,7 +126,7 @@ public interface BridgeHttpCycle {
 				null, //
 				emptyMap() //
 		);
-		this.subscribe(new CycleEndpoint(cycle, endpoint, t -> {
+		this.subscribeCycle(new CycleEndpoint(cycle, endpoint, t -> {
 			try {
 				result.accept(t);
 			} catch (Exception e) {
@@ -149,12 +149,12 @@ public interface BridgeHttpCycle {
 	 *               if existing and the second argument is passed if an error
 	 *               happend. One of the params is always null and one not
 	 */
-	public default void subscribe(//
+	public default void subscribeCycle(//
 			final int cycle, //
 			final String url, //
 			final BiConsumer<String, Throwable> action //
 	) {
-		this.subscribe(cycle, url, r -> action.accept(r, null), t -> action.accept(null, t));
+		this.subscribeCycle(cycle, url, r -> action.accept(r, null), t -> action.accept(null, t));
 	}
 
 	/**
@@ -174,7 +174,7 @@ public interface BridgeHttpCycle {
 			final ThrowingConsumer<String, Exception> result, //
 			final Consumer<Throwable> onError //
 	) {
-		this.subscribe(1, url, result, onError);
+		this.subscribeCycle(1, url, result, onError);
 	}
 
 	/**
@@ -194,7 +194,7 @@ public interface BridgeHttpCycle {
 			final String url, //
 			final BiConsumer<String, Throwable> action //
 	) {
-		this.subscribe(1, url, r -> action.accept(r, null), t -> action.accept(null, t));
+		this.subscribeCycle(1, url, r -> action.accept(r, null), t -> action.accept(null, t));
 	}
 
 	/**
@@ -212,7 +212,7 @@ public interface BridgeHttpCycle {
 			final String url, //
 			final Consumer<String> result //
 	) {
-		this.subscribe(1, url, result);
+		this.subscribeCycle(1, url, result);
 	}
 
 	/**
@@ -228,13 +228,13 @@ public interface BridgeHttpCycle {
 	 * @param result  the consumer to call on every successful result
 	 * @param onError the consumer to call on a error
 	 */
-	public default void subscribeJson(//
+	public default void subscribeJsonCycle(//
 			final int cycle, //
 			final String url, //
 			final ThrowingConsumer<JsonElement, Exception> result, //
 			final Consumer<Throwable> onError //
 	) {
-		this.subscribe(cycle, url, t -> result.accept(JsonUtils.parse(t)), onError);
+		this.subscribeCycle(cycle, url, t -> result.accept(JsonUtils.parse(t)), onError);
 	}
 
 	/**
@@ -251,12 +251,12 @@ public interface BridgeHttpCycle {
 	 *               if existing and the second argument is passed if an error
 	 *               happend. One of the params is always null and one not
 	 */
-	public default void subscribeJson(//
+	public default void subscribeJsonCycle(//
 			final int cycle, //
 			final String url, //
 			final BiConsumer<JsonElement, Throwable> action //
 	) {
-		this.subscribe(cycle, url, t -> action.accept(JsonUtils.parse(t), null), t -> action.accept(null, t));
+		this.subscribeCycle(cycle, url, t -> action.accept(JsonUtils.parse(t), null), t -> action.accept(null, t));
 	}
 
 	/**
@@ -276,7 +276,7 @@ public interface BridgeHttpCycle {
 			final ThrowingConsumer<JsonElement, Exception> result, //
 			final Consumer<Throwable> onError //
 	) {
-		this.subscribeJson(1, url, result, onError);
+		this.subscribeJsonCycle(1, url, result, onError);
 	}
 
 	/**
@@ -296,7 +296,7 @@ public interface BridgeHttpCycle {
 			final String url, //
 			final BiConsumer<JsonElement, Throwable> action //
 	) {
-		this.subscribeJson(1, url, r -> action.accept(r, null), t -> action.accept(null, t));
+		this.subscribeJsonCycle(1, url, r -> action.accept(r, null), t -> action.accept(null, t));
 	}
 
 }

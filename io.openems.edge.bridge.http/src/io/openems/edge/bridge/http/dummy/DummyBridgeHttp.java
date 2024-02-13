@@ -7,7 +7,7 @@ import io.openems.edge.bridge.http.api.BridgeHttp;
 public class DummyBridgeHttp implements BridgeHttp {
 
 	@Override
-	public void subscribe(CycleEndpoint endpoint) {
+	public void subscribeCycle(CycleEndpoint endpoint) {
 		// TODO Auto-generated method stub
 
 	}
