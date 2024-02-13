@@ -11,14 +11,14 @@ public class DefaultDelayTimeProvider implements DelayTimeProvider {
 			DelayTimeProviderChain onErrorDelay, //
 			DelayTimeProviderChain onSuccessDelay //
 	) {
-		this.firstRunDelay = firstRunDelay;
-		this.onErrorDelay = onErrorDelay;
+		this.firstRunDelay = firstRunDelay == null ? onSuccessDelay : firstRunDelay;
+		this.onErrorDelay = onErrorDelay == null ? onSuccessDelay : onErrorDelay;
 		this.onSuccessDelay = onSuccessDelay;
 	}
 
 	@Override
 	public Delay nextRun(boolean firstRun, boolean lastRunSuccessful) {
-		if (firstRun && this.firstRunDelay != null) {
+		if (firstRun) {
 			return this.firstRunDelay.getDelay();
 		}
 
