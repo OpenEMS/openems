@@ -1,1 +1,7 @@
 = Deye Battery Inverter
+
+Implemented Natures::
+- SymmetricEss
+- ManagedSymmetricEss
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.sinexcel[Source Code icon:github[]]
