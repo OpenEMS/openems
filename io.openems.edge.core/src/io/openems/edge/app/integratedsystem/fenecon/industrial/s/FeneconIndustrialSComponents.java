@@ -224,7 +224,7 @@ public final class FeneconIndustrialSComponents {
 	public static EdgeConfig.Component io(//
 			final ResourceBundle bundle //
 	) {
-		return new EdgeConfig.Component("io0", translate(bundle, "App.FENECON.Industrial.S.io0"), "IO.Modberry", //
+		return new EdgeConfig.Component("io0", translate(bundle, "App.FENECON.Industrial.S.io0"), "IO.Gpio", //
 				JsonUtils.buildJsonObject() //
 						.addProperty("enabled", true) //
 						.addProperty("gpioPath", "/sys/class") //
