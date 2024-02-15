@@ -20,7 +20,7 @@ public class DelayTimeProviderChain {
 	 * @return a {@link DelayTimeProviderChain} of zero delay
 	 */
 	public static DelayTimeProviderChain immediate() {
-		return new DelayTimeProviderChain(() -> Duration.ofSeconds(0));
+		return new DelayTimeProviderChain(() -> Duration.ZERO);
 	}
 
 	/**
