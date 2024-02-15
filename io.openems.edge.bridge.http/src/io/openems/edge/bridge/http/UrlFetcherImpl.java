@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.http;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -40,13 +42,7 @@ public class UrlFetcherImpl implements UrlFetcher {
 			String body;
 			try (var in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
 				// Read HTTP response
-				var content = new StringBuilder();
-				String line;
-				while ((line = in.readLine()) != null) {
-					content.append(line);
-					content.append(System.lineSeparator());
-				}
-				body = content.toString();
+				body = in.lines().collect(joining(System.lineSeparator()));
 			}
 
 			// Check valid for all?
