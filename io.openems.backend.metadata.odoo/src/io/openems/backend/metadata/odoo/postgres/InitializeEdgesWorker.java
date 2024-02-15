@@ -1,6 +1,8 @@
 package io.openems.backend.metadata.odoo.postgres;
 
 import java.sql.Connection;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
@@ -21,6 +23,8 @@ public class InitializeEdgesWorker {
 	protected final PostgresHandler parent;
 	private final HikariDataSource dataSource;
 	private final Runnable onFinished;
+	private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(1);
+	private boolean isMarkAllEdgesAsOfflineCalled = false;
 
 	/**
 	 * Executor for subscriptions task.
@@ -38,17 +42,35 @@ public class InitializeEdgesWorker {
 	 */
 	public synchronized void start() {
 		this.executor.execute(() -> {
-			try (var con = this.dataSource.getConnection()) {
-				this.parent.logInfo(this.log, "Caching Edges from Postgres [started]");
-				this.markAllEdgesAsOffline(con);
-				this.readAllEdgesFromPostgres(con);
-				this.parent.logInfo(this.log, "Caching Edges from Postgres [finished]");
+			try (Connection con = this.dataSource.getConnection()) {
+				// Erste Ausführung sofort
+				this.runCachingEdgesTask(con);
+
+				// Planen der die periodische Ausführung
+				this.scheduledExecutor.scheduleAtFixedRate(() -> {
+					try (Connection newCon = this.dataSource.getConnection()) {
+						this.runCachingEdgesTask(newCon);
+					} catch (SQLException e) {
+						this.logError("Fehler beim erneuten Verbinden mit Postgres.", e);
+					}
+				}, 30, 30, TimeUnit.MINUTES);
 			} catch (SQLException e) {
-				this.parent.logWarn(this.log, "Caching Edges from Postgres [canceled]");
 				this.logError("Unable to connect do dataSource. ", e);
 			}
 			this.onFinished.run();
 		});
+	}
+
+	private void runCachingEdgesTask(Connection con) {
+		this.parent.logInfo(this.log, "Caching Edges from Postgres [started]");
+		// Überprüfen, ob markAllEdgesAsOffline bereits aufgerufen wurde
+		if (!this.isMarkAllEdgesAsOfflineCalled) {
+			this.markAllEdgesAsOffline(con);
+			this.parent.logInfo(this.log, "Calling Mark-Edges Offline as first run");
+			this.isMarkAllEdgesAsOfflineCalled = true;
+		}
+		this.readAllEdgesFromPostgres(con);
+		this.parent.logInfo(this.log, "Caching Edges from Postgres [finished]");
 	}
 
 	/**
@@ -57,10 +79,11 @@ public class InitializeEdgesWorker {
 	public synchronized void stop() {
 		// Shutdown executor
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.scheduledExecutor, 5);
 	}
 
 	private void markAllEdgesAsOffline(Connection con) {
-		try (var pst = this.psUpdateAllEdgesOffline(con)) {
+		try (PreparedStatement pst = this.psUpdateAllEdgesOffline(con)) {
 			pst.execute();
 		} catch (SQLException e) {
 			this.logError("Unable to mark Edges offline. ", e);
@@ -68,9 +91,8 @@ public class InitializeEdgesWorker {
 	}
 
 	private void readAllEdgesFromPostgres(Connection con) {
-		try (var pst = this.psQueryAllEdges(con); //
-				var rs = pst.executeQuery();) {
-			var counter = 0;
+		try (PreparedStatement pst = this.psQueryAllEdges(con); var rs = pst.executeQuery()) {
+			int counter = 0;
 			while (rs.next()) {
 				this.logCachingProgress(counter, 1000);
 				try {
@@ -93,10 +115,8 @@ public class InitializeEdgesWorker {
 	}
 
 	private void logError(String msg, Throwable error) {
-		this.parent.logError(this.log, new StringBuilder(msg) //
-				.append(error.getClass().getSimpleName()) //
-				.append(": ").append(error.getMessage()) //
-				.toString());
+		this.parent.logError(this.log, new StringBuilder(msg).append(error.getClass().getSimpleName()).append(": ")
+				.append(error.getMessage()).toString());
 		error.printStackTrace();
 	}
 
@@ -108,10 +128,8 @@ public class InitializeEdgesWorker {
 	 * @throws SQLException on error
 	 */
 	private PreparedStatement psQueryAllEdges(Connection connection) throws SQLException {
-		return connection.prepareStatement(//
-				"SELECT " + Field.getSqlQueryFields(EdgeDevice.values()) //
-						+ " FROM " + EdgeDevice.ODOO_TABLE //
-						+ ";");
+		return connection.prepareStatement(
+				"SELECT " + Field.getSqlQueryFields(EdgeDevice.values()) + " FROM " + EdgeDevice.ODOO_TABLE + ";");
 	}
 
 	/**
@@ -122,10 +140,8 @@ public class InitializeEdgesWorker {
 	 * @throws SQLException on error
 	 */
 	private PreparedStatement psUpdateAllEdgesOffline(Connection connection) throws SQLException {
-		return connection.prepareStatement(//
-				"UPDATE " + EdgeDevice.ODOO_TABLE //
-						+ " SET " + Field.EdgeDevice.OPENEMS_IS_CONNECTED.id() + " = FALSE" //
-						+ ";");
+		return connection.prepareStatement("UPDATE " + EdgeDevice.ODOO_TABLE + " SET "
+				+ Field.EdgeDevice.OPENEMS_IS_CONNECTED.id() + " = FALSE" + ";");
 	}
 
 }
