@@ -1,11 +1,12 @@
-package io.openems.edge.deye.gridmeter;
+package io.openems.edge.deye.meter;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -27,17 +28,16 @@ import org.osgi.service.metatype.annotations.Designate;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Deye.Grid-Meter", //
+		name = "Deye.Meter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				"type=GRID" //
+				"type=PRODUCTION" //
 		})
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
-public class DeyeGridMeterImpl extends AbstractOpenemsModbusComponent
-		implements DeyeGridMeter, ElectricityMeter, ModbusComponent, OpenemsComponent {
+public class DeyeMeterImpl extends AbstractOpenemsModbusComponent implements DeyeMeter, ElectricityMeter, ModbusComponent, OpenemsComponent {
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -50,12 +50,12 @@ public class DeyeGridMeterImpl extends AbstractOpenemsModbusComponent
 
 	private Config config;
 
-	public DeyeGridMeterImpl() throws OpenemsException {
+	public DeyeMeterImpl() throws OpenemsException {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
-				DeyeGridMeter.ChannelId.values() //
+				DeyeMeter.ChannelId.values() //
 		);
 
 		// Automatically calculate sum values from L1/L2/L3
@@ -64,8 +64,7 @@ public class DeyeGridMeterImpl extends AbstractOpenemsModbusComponent
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus", config.modbus_id())) {
 			return;
 		}
 		this.config = config;
@@ -79,7 +78,7 @@ public class DeyeGridMeterImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public MeterType getMeterType() {
-		return MeterType.GRID;
+		return MeterType.PRODUCTION;
 	}
 
 	@Override
@@ -89,16 +88,13 @@ public class DeyeGridMeterImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		return new ModbusProtocol(this,
-				new FC3ReadRegistersTask(633, Priority.HIGH,
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(633)),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(634)),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(635))));
+		return new ModbusProtocol(this, new FC3ReadRegistersTask(672, Priority.HIGH,
+				m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedDoublewordElement(672), ElementToChannelConverter.DIRECT_1_TO_1)));
 	}
 
 	@Override
 	public String debugLog() {
-		return "GRID:" + this.getActivePower().asString();
+		return "PRODUCTION:" + this.getActivePower().asString();
 	}
 
 }

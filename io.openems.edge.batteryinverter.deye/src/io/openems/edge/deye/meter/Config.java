@@ -1,12 +1,11 @@
-package io.openems.edge.deye.gridmeter;
+package io.openems.edge.deye.meter;
 
+import io.openems.edge.meter.api.MeterType;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.meter.api.MeterType;
-
-@ObjectClassDefinition(name = "Grid Meter Deye", //
-		description = "Implements the Deye Meter - Grid")
+@ObjectClassDefinition(name = "Production Meter Deye", //
+		description = "Implements the Deye Meter - Production")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
