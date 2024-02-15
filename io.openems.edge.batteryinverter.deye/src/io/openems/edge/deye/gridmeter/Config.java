@@ -18,9 +18,6 @@ import io.openems.edge.meter.api.MeterType;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
-	MeterType type() default MeterType.GRID;
-
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
 
