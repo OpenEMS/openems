@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.http.time;
 
+import java.time.Duration;
+
 public class DefaultDelayTimeProvider implements DelayTimeProvider {
 
 	private final DelayTimeProviderChain firstRunDelay;
@@ -17,7 +19,7 @@ public class DefaultDelayTimeProvider implements DelayTimeProvider {
 	}
 
 	@Override
-	public Delay nextRun(boolean firstRun, boolean lastRunSuccessful) {
+	public Duration nextRun(boolean firstRun, boolean lastRunSuccessful) {
 		if (firstRun) {
 			return this.firstRunDelay.getDelay();
 		}

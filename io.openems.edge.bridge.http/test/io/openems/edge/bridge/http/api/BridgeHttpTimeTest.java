@@ -2,8 +2,8 @@ package io.openems.edge.bridge.http.api;
 
 import static io.openems.edge.bridge.http.time.DelayTimeProviderChain.fixedDelay;
 
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -13,7 +13,6 @@ import io.openems.common.utils.ReflectionUtils;
 import io.openems.edge.bridge.http.BridgeHttpImpl;
 import io.openems.edge.bridge.http.CycleSubscriber;
 import io.openems.edge.bridge.http.DummyUrlFetcher;
-import io.openems.edge.bridge.http.time.Delay;
 
 public class BridgeHttpTimeTest {
 
@@ -55,7 +54,7 @@ public class BridgeHttpTimeTest {
 		});
 
 		final var executedOnce = new CompletableFuture<Void>();
-		this.bridgeHttp.subscribeTime(fixedDelay(new Delay(Long.MAX_VALUE, TimeUnit.HOURS)), "dummy", result -> {
+		this.bridgeHttp.subscribeTime(fixedDelay(Duration.ofHours(99)), "dummy", result -> {
 			executedOnce.complete(null);
 		});
 

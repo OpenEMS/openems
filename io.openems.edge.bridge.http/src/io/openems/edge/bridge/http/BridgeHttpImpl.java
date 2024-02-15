@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -162,7 +163,8 @@ public class BridgeHttpImpl implements BridgeHttp {
 		final var endpointCountdown = new TimeEndpointCountdown(endpoint);
 		this.timeEndpoints.add(endpointCountdown);
 		final var delay = endpoint.delayTimeProvider().nextRun(true, true);
-		final var future = this.pool.schedule(this.createTask(endpointCountdown), delay.amount(), delay.unit());
+		final var future = this.pool.schedule(this.createTask(endpointCountdown), delay.toMillis(),
+				TimeUnit.MILLISECONDS);
 		endpointCountdown.setShutdownCurrentTask(() -> future.cancel(false));
 	}
 
@@ -254,8 +256,9 @@ public class BridgeHttpImpl implements BridgeHttp {
 			try {
 				final var nextDelay = endpointCountdown.getTimeEndpoint().delayTimeProvider().nextRun(false,
 						currentRunSuccessful);
-				final var future = this.pool.schedule(this.createTask(endpointCountdown), nextDelay.amount(),
-						nextDelay.unit());
+
+				final var future = this.pool.schedule(this.createTask(endpointCountdown), nextDelay.toMillis(),
+						TimeUnit.MILLISECONDS);
 				endpointCountdown.setShutdownCurrentTask(() -> future.cancel(false));
 			} catch (Exception e) {
 				if (this.pool.isShutdown()) {

@@ -12,7 +12,6 @@ import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.edge.bridge.http.time.DefaultDelayTimeProvider;
-import io.openems.edge.bridge.http.time.Delay;
 import io.openems.edge.bridge.http.time.DelayTimeProvider;
 import io.openems.edge.bridge.http.time.DelayTimeProviderChain;
 
@@ -27,7 +26,7 @@ import io.openems.edge.bridge.http.time.DelayTimeProviderChain;
  * after the last endpoint handle was finished.
  * 
  * <p>
- * So for e. g. if a fixed Delay of 1 minute gets provided the time will shift
+ * So for e. g. if a fixed delay of 1 minute gets provided the time will shift
  * into the back a little bit every time an endpoint gets called because
  * fetching the endpoint and handling it also takes some time.
  * 
@@ -36,7 +35,7 @@ import io.openems.edge.bridge.http.time.DelayTimeProviderChain;
  * would be:
  * 
  * <pre>
- * final var delayProvider = DelayTimeProviderChain.fixedDelay(new Delay(1L, TimeUnit.MINUTES);
+ * final var delayProvider = DelayTimeProviderChain.fixedDelay(Duration.ofMinutes(1));
  * this.httpBridge.subscribeTime(delayProvider, "http://127.0.0.1/status", t -> {
  * 	// process data
  * }, t -> {
@@ -137,9 +136,10 @@ public interface BridgeHttpTime {
 	 * <p>
 	 * Note: the first fetch gets triggered immediately
 	 * 
-	 * @param onErrorDelay   the {@link Delay} when the last fetch was not
-	 *                       successful
-	 * @param onSuccessDelay the {@link Delay} when the last fetch was successful
+	 * @param onErrorDelay   the {@link DelayTimeProviderChain} when the last fetch
+	 *                       was not successful
+	 * @param onSuccessDelay the {@link DelayTimeProviderChain} when the last fetch
+	 *                       was successful
 	 * @param url            the url to fetch
 	 * @param onResult       the method to call on successful fetch
 	 * @param onError        the method to call if an error happens during fetching
@@ -169,7 +169,7 @@ public interface BridgeHttpTime {
 	 * <p>
 	 * Note: the first fetch gets triggered immediately
 	 * 
-	 * @param delay    the {@link Delay} between each fetch
+	 * @param delay    the {@link DelayTimeProviderChain} between each fetch
 	 * @param url      the url to fetch
 	 * @param onResult the method to call on successful fetch
 	 * @param onError  the method to call if an error happens during fetching or
@@ -192,7 +192,7 @@ public interface BridgeHttpTime {
 	 * <p>
 	 * Note: the first fetch gets triggered immediately
 	 * 
-	 * @param delay    the {@link Delay} between each fetch
+	 * @param delay    the {@link DelayTimeProviderChain} between each fetch
 	 * @param url      the url to fetch
 	 * @param onResult the method to call on successful fetch
 	 */
