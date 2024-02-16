@@ -69,6 +69,12 @@ public final class Utils {
 	/** Keep some buffer to avoid Scheduling errors because of bad predictions. */
 	public static final float ESS_MAX_SOC = 90F;
 
+	/**
+	 * C-Rate (Capacity divided by time) during CHARGE mode. With a C-Rate of 0.5
+	 * the battery gets fully charged within 2 hours.
+	 */
+	public static final float ESS_CHARGE_C_RATE = 0.35F;
+
 	protected static final ChannelAddress SUM_ESS_SOC = new ChannelAddress("_sum", "EssSoc");
 	protected static final ChannelAddress SUM_PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
 	protected static final ChannelAddress SUM_UNMANAGED_CONSUMPTION = new ChannelAddress("_sum",
@@ -720,11 +726,11 @@ public final class Utils {
 	 */
 	public static int essMaxChargePower(Params params, ManagedSymmetricEss ess) {
 		if (params != null) {
-			return params.essMaxChargePerPeriod();
+			return toPower(params.essMaxChargePerPeriod());
 		}
 		var capacity = ess.getCapacity();
 		if (capacity.isDefined()) {
-			return capacity.get() / 4;
+			return round(capacity.get() * ESS_CHARGE_C_RATE);
 		}
 		var maxApparentPower = ess.getMaxApparentPower();
 		if (maxApparentPower.isDefined()) {

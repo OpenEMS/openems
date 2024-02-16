@@ -494,9 +494,9 @@ public class UtilsTest {
 
 		// No params, ESS with Capacity
 		withValue(ess, SymmetricEss.ChannelId.CAPACITY, 15000);
-		assertEquals(3750, essMaxChargePower(null, ess));
+		assertEquals(5250, essMaxChargePower(null, ess));
 
 		// With params (22 kWh)
-		assertEquals(5500, essMaxChargePower(params, ess));
+		assertEquals(7700, essMaxChargePower(params, ess));
 	}
 }

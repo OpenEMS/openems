@@ -1,7 +1,10 @@
 package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
+import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController.PERIODS_PER_HOUR;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.ESS_CHARGE_C_RATE;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.Math.round;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -129,7 +132,8 @@ public record Params(//
 			var maxPrice = this.prices.length == 0 ? null : DoubleStream.of(this.prices).max().getAsDouble();
 
 			// Set ESS Max-Charge in CHARGE mode to 1/4 of usable energy (i.e. C-Rate 0.25)
-			var essMaxChargePerPeriod = max(0, (this.essMaxSocEnergy - this.essMinSocEnergy) / 4);
+			var essMaxChargePerPeriod = round(max(0, this.essMaxSocEnergy - this.essMinSocEnergy) * ESS_CHARGE_C_RATE //
+					/ PERIODS_PER_HOUR);
 			return new Params(numberOfPeriods, //
 					this.time, //
 					this.essTotalEnergy, this.essMinSocEnergy, this.essMaxSocEnergy, this.essInitialEnergy,
