@@ -2,13 +2,11 @@ package io.openems.edge.timeofusetariff.entsoe;
 
 import static io.openems.common.utils.StringUtils.definedOrElse;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
-import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.getNext24HourPrices;
 import static io.openems.edge.timeofusetariff.entsoe.ExchangeRateApi.getExchangeRate;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.parseCurrency;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.parsePrices;
 
 import java.io.IOException;
-import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -31,8 +29,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
-
-import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -58,8 +54,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 	private final Logger log = LoggerFactory.getLogger(TouEntsoeImpl.class);
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-	private final AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>> prices = new AtomicReference<>(
-			ImmutableSortedMap.of());
+	private final AtomicReference<TimeOfUsePrices> prices = new AtomicReference<>(TimeOfUsePrices.EMPTY_PRICES);
 
 	@Reference
 	private Meta meta;
@@ -70,7 +65,6 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	private Config config = null;
 	private String securityToken = null;
 	private String exchangerateAccesskey = null;
-	private ZonedDateTime updateTimeStamp = null;
 	private ScheduledFuture<?> future = null;
 
 	public TouEntsoeImpl() {
@@ -153,9 +147,6 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 			// Parse the response for the prices
 			this.prices.set(parsePrices(result, "PT60M", exchangeRate));
 
-			// store the time stamp
-			this.updateTimeStamp = ZonedDateTime.now();
-
 		} catch (IOException | ParserConfigurationException | SAXException | OpenemsNamedException e) {
 			this.logWarn(this.log, "Unable to Update Entsoe Time-Of-Use Price: " + e.getMessage());
 			e.printStackTrace();
@@ -183,13 +174,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		// return empty TimeOfUsePrices if data is not yet available.
-		if (this.config == null || !this.config.enabled() || this.updateTimeStamp == null) {
-			return TimeOfUsePrices.empty(ZonedDateTime.now());
-		}
-
-		return getNext24HourPrices(Clock.systemDefaultZone() /* can be mocked for testing */, this.prices.get(),
-				this.updateTimeStamp);
+		return TimeOfUsePrices.from(ZonedDateTime.now(), this.prices.get());
 	}
 
 	@Override
