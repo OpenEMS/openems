@@ -1,15 +1,11 @@
 package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
-import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController.PERIODS_PER_HOUR;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.ESS_CHARGE_C_RATE;
-import static java.lang.Math.max;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateParamsChargeEnergyInChargeGrid;
 import static java.lang.Math.min;
-import static java.lang.Math.round;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.TreeMap;
-import java.util.stream.DoubleStream;
 
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 
@@ -28,8 +24,8 @@ public record Params(//
 		int essInitialEnergy, //
 		/** ESS Max Charge/Discharge Energy per Period [Wh] */
 		int essMaxEnergyPerPeriod, //
-		/** ESS Max Charge Energy per Period in CHARGE State [Wh] */
-		int essMaxChargePerPeriod, //
+		/** ESS Charge Energy per Period in CHARGE_GRID State [Wh] */
+		int essChargeInChargeGrid, //
 		/** Max Buy-From-Grid Energy per Period [Wh] */
 		int maxBuyFromGrid,
 		/** Production predictions per Period */
@@ -38,8 +34,6 @@ public record Params(//
 		int[] consumptions, //
 		/** Prices for one [MWh] per Period */
 		double[] prices, //
-		/** Max price */
-		Double maxPrice, //
 		/** Allowed Modes */
 		StateMachine[] states, //
 		/** The existing Schedule, i.e. result of previous optimization */
@@ -129,18 +123,17 @@ public record Params(//
 
 		public Params build() {
 			var numberOfPeriods = min(this.productions.length, min(this.consumptions.length, this.prices.length));
-			var maxPrice = this.prices.length == 0 ? null : DoubleStream.of(this.prices).max().getAsDouble();
+			var essChargeInChargeGrid = calculateParamsChargeEnergyInChargeGrid(this.essMinSocEnergy,
+					this.essMaxSocEnergy, this.productions, this.consumptions);
 
-			// Set ESS Max-Charge in CHARGE mode to 1/4 of usable energy (i.e. C-Rate 0.25)
-			var essMaxChargePerPeriod = round(max(0, this.essMaxSocEnergy - this.essMinSocEnergy) * ESS_CHARGE_C_RATE //
-					/ PERIODS_PER_HOUR);
 			return new Params(numberOfPeriods, //
 					this.time, //
 					this.essTotalEnergy, this.essMinSocEnergy, this.essMaxSocEnergy, this.essInitialEnergy,
 					this.essMaxEnergyPerPeriod, //
-					essMaxChargePerPeriod, this.maxBuyFromGrid, //
+					essChargeInChargeGrid, //
+					this.maxBuyFromGrid, //
 					this.productions, this.consumptions, //
-					this.prices, maxPrice, //
+					this.prices, //
 					this.states, //
 					this.existingSchedule);
 		}
@@ -165,9 +158,9 @@ public record Params(//
 				.append(", essMaxSocEnergy=").append(this.essMaxSocEnergy) //
 				.append(", essInitialEnergy=").append(this.essInitialEnergy) //
 				.append(", essMaxEnergyPerPeriod=").append(this.essMaxEnergyPerPeriod) //
+				.append(", essChargeInChargeGrid=").append(this.essChargeInChargeGrid) //
 				.append(", maxBuyFromGrid=").append(this.maxBuyFromGrid) //
-				.append(", states=").append(Arrays.toString(this.states)) //
-				.append(", maxPrice=").append(this.maxPrice);
+				.append(", states=").append(Arrays.toString(this.states)); //
 		if (full) {
 			b //
 					.append(", productions=").append(Arrays.toString(this.productions)) //

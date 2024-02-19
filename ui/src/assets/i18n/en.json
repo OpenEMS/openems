@@ -235,14 +235,16 @@
           "CONTROL_MODE_DESCRIPTION": {
             "CHARGE_CONSUMPTION": "Participation in BETA-Test: This feature is under active development and will be continuously improved.<br/><br/>By actively charging the battery from grid in periods of low electricity prices, buying energy in periods with high price can be avoided.<br/><br/>ATTENTION: Actively charging the battery from grid beyond the technically necessary maintenance charging, requires an appropriate registration of the storage system. If in doubt, please verify with your installer. By pressing the blue \"Save\" button you confirm that this verification has been done.<br/><br/>Be aware: precondition for German \"Gesetz für den Ausbau erneuerbarer Energien (EEG)\" grant is, that only energy from renewable sources and/or pit gas is stored in the battery. By activating this function, the battery is charged with energy from grid. This energy is, depending on the individual power-supply contract, probably made from fossil sources and/or nuclear power plants. Because of this we can not guarantee, that the battery is only charged with energy from renewable sources and/or pit gas."
           },
-          "CHARGE_CONSUMPTION_ACTIVATE": "Activate charge from the grid (BETA test)",
+          "CHARGE_FROM_GRID_ACTIVATE": "Activate charge from the grid (BETA test)",
           "PRICE": "Current price",
           "STATE": {
             "DELAY_DISCHARGE": "Delayed discharge",
             "BALANCING": "Self-Consumption optmization",
-            "CHARGE": "Charge from grid allowed"
+            "CHARGE_GRID": "Charge from grid allowed"
           },
-          "CHART_TITLE": "Planned Schedule (visible only to admin users)"
+          "CHART_TITLE": "Planned Schedule (BETA test)",
+          "CHART_WARNING_NOTE": "The graphic shows the past three hours as well as the future planned operating mode for the period for which the dynamic grid purchase prices are available. Please note that the planned schedule is subject to continuous recalculation and may change throughout the day.",
+          "POWER_SOC_CHART_TITLE": "Forecasts (Only for Admins)"
         }
       },
       "RETROFITTING": {

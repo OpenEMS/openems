@@ -5,6 +5,7 @@ import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Simulator
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateExecutionLimitSeconds;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.createSimulatorParams;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.logSchedule;
+import static java.lang.Thread.sleep;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -57,47 +58,36 @@ public class Optimizer extends AbstractImmediateWorker {
 	public void forever() throws InterruptedException {
 		this.log.info("# Start next run of Optimizer");
 
+		this.createParams(); // this possibly takes forever
+
 		final var context = this.context.get();
 		final var start = Instant.now(context.clock());
 
 		long executionLimitSeconds;
-		try {
-			this.params = this.createParams();
 
-			// Calculate max execution time till next quarter (with buffer)
-			executionLimitSeconds = calculateExecutionLimitSeconds(context.clock());
+		// Calculate max execution time till next quarter (with buffer)
+		executionLimitSeconds = calculateExecutionLimitSeconds(context.clock());
 
-			// Find best Schedule
-			var schedule = Simulator.getBestSchedule(this.params, executionLimitSeconds);
+		// Find best Schedule
+		var schedule = Simulator.getBestSchedule(this.params, executionLimitSeconds);
 
-			// Re-Simulate and keep best Schedule
-			var periods = new TreeMap<ZonedDateTime, Period>();
-			calculateCost(this.params, schedule, period -> periods.put(period.time(), period));
-			synchronized (this.periods) {
-				var thisQuarter = roundDownToQuarter(ZonedDateTime.now(context.clock()));
-				// Do not overwrite the current quarter
-				if (this.periods.containsKey(thisQuarter)) {
-					periods.remove(thisQuarter);
-				}
-				// Add new entries
-				this.periods.putAll(periods);
-				// Remove outdated entries
-				this.periods.headMap(thisQuarter).clear();
+		// Re-Simulate and keep best Schedule
+		var periods = new TreeMap<ZonedDateTime, Period>();
+		calculateCost(this.params, schedule, period -> periods.put(period.time(), period));
+		synchronized (this.periods) {
+			var thisQuarter = roundDownToQuarter(ZonedDateTime.now(context.clock()));
+			// Do not overwrite the current quarter
+			if (this.periods.containsKey(thisQuarter)) {
+				periods.remove(thisQuarter);
 			}
-
-			// Debug Log best Schedule
-			logSchedule(this.params, periods);
-
-		} catch (InvalidValueException | InterruptedException e) {
-			this.log.error("Error while running Optimizer: " + e.getClass().getSimpleName() + ": " + e.getMessage());
-			e.printStackTrace();
-			synchronized (this.periods) {
-				this.periods.clear();
-			}
-
-			// Recalculate execution/sleep time
-			executionLimitSeconds = calculateExecutionLimitSeconds(context.clock());
+			// Add new entries
+			this.periods.putAll(periods);
+			// Remove outdated entries
+			this.periods.headMap(thisQuarter).clear();
 		}
+
+		// Debug Log best Schedule
+		logSchedule(this.params, periods);
 
 		// Sleep remaining time
 		if (!(context.clock() instanceof TimeLeapClock)) {
@@ -105,38 +95,37 @@ public class Optimizer extends AbstractImmediateWorker {
 					.between(Instant.now(context.clock()), start.plusSeconds(executionLimitSeconds)).getSeconds();
 			if (remainingExecutionLimit > 0) {
 				this.log.info("Sleep [" + remainingExecutionLimit + "s] till next run of Optimizer");
-				Thread.sleep(remainingExecutionLimit * 1000);
-			}
-		}
-	}
-
-	// On first run, we allow multiple retries, till all data is available (e.g. ESS
-	// Capacity)
-	private int allowRetries = 10;
-
-	private Params createParams() throws InvalidValueException, InterruptedException {
-		try {
-			var result = createSimulatorParams(this.context.get(), this.periods);
-			this.allowRetries = 0;
-			return result;
-
-		} catch (InvalidValueException e) {
-			this.log.info("# Error while getting Params. Retries [" + this.allowRetries + "]. " + e.getMessage());
-			e.printStackTrace();
-			if (this.allowRetries > 0) {
-				this.allowRetries--;
-				Thread.sleep(10_000);
-				return this.createParams();
-			} else {
-				throw e;
+				sleep(remainingExecutionLimit * 1000);
 			}
 		}
 	}
 
 	/**
-	 * Gets the current {@link Params}.
+	 * Try forever till all data is available (e.g. ESS Capacity)
 	 * 
-	 * @return the {@link Params}
+	 * @throws InterruptedException during sleep
+	 */
+	private void createParams() throws InterruptedException {
+		while (true) {
+			try {
+				this.params = createSimulatorParams(this.context.get(), this.periods);
+				return;
+
+			} catch (InvalidValueException e) {
+				this.log.info("# Stuck trying to get Params. " + e.getMessage());
+				this.params = null;
+				synchronized (this.periods) {
+					this.periods.clear();
+				}
+				sleep(30_000);
+			}
+		}
+	}
+
+	/**
+	 * Gets the current {@link Params} or null.
+	 * 
+	 * @return the {@link Params} or null
 	 */
 	public Params getParams() {
 		return this.params;

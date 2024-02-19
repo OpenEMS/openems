@@ -154,14 +154,15 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
 		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
+		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
 				// Production
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
 						SUM_PRODUCTION_ACTIVE_POWER),
 				// Consumption
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
@@ -202,14 +203,15 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
 		final var midnight = ZonedDateTime.now(clock).truncatedTo(DAYS);
 		final var cm = new DummyComponentManager(clock);
+		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
 				// Production
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_PRODUCTION_ACTIVE_POWER, midnight, DEFAULT_PRODUCTION_PREDICTION),
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, midnight, DEFAULT_PRODUCTION_PREDICTION),
 						SUM_PRODUCTION_ACTIVE_POWER),
 				// Consumption
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_CONSUMPTION_ACTIVE_POWER, midnight, DEFAULT_CONSUMPTION_PREDICTION),
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, midnight, DEFAULT_CONSUMPTION_PREDICTION),
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
@@ -257,14 +259,15 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
 		final var midnight = ZonedDateTime.now(clock).truncatedTo(DAYS);
 		final var cm = new DummyComponentManager(clock);
+		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
 				// Production
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_PRODUCTION_ACTIVE_POWER, midnight, DEFAULT_PRODUCTION_PREDICTION),
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, midnight, DEFAULT_PRODUCTION_PREDICTION),
 						SUM_PRODUCTION_ACTIVE_POWER),
 				// Consumption
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_CONSUMPTION_ACTIVE_POWER, midnight, DEFAULT_CONSUMPTION_PREDICTION),
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, midnight, DEFAULT_CONSUMPTION_PREDICTION),
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
@@ -327,14 +330,15 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T20:00:00.00Z"), ZoneOffset.UTC);
 		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
+		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
 				// Production
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
 						SUM_PRODUCTION_ACTIVE_POWER),
 				// Consumption
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
@@ -708,14 +712,15 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
 		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
+		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
 				// Production
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
 						SUM_PRODUCTION_ACTIVE_POWER),
 				// Consumption
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
@@ -757,14 +762,15 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
 		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
+		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
 				// Production
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
 						SUM_PRODUCTION_ACTIVE_POWER),
 				// Consumption
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
@@ -804,14 +810,15 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
 		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
+		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
 				// Production
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
 						SUM_PRODUCTION_ACTIVE_POWER),
 				// Consumption
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
@@ -853,14 +860,15 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
 		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
+		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
 				// Production
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
 						SUM_PRODUCTION_ACTIVE_POWER),
 				// Consumption
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
@@ -899,14 +907,15 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
 		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
+		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
 				// Production
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
 						SUM_PRODUCTION_ACTIVE_POWER),
 				// Consumption
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
@@ -952,14 +961,15 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
 		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
+		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
 				// Production
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
 						SUM_PRODUCTION_ACTIVE_POWER),
 				// Consumption
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
@@ -1013,14 +1023,15 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneId.of("Europe/Berlin"));
 		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
+		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
 				// Production
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
 						SUM_PRODUCTION_ACTIVE_POWER),
 				// Consumption
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
@@ -1620,14 +1631,15 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T08:00:00.00Z"), ZoneOffset.UTC);
 		final var midnight = ZonedDateTime.now(clock).truncatedTo(DAYS);
 		final var cm = new DummyComponentManager(clock);
+		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
 				// Production
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_PRODUCTION_ACTIVE_POWER, midnight, DEFAULT_PRODUCTION_PREDICTION),
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, midnight, DEFAULT_PRODUCTION_PREDICTION),
 						SUM_PRODUCTION_ACTIVE_POWER),
 				// Consumption
 				new DummyPredictor(PREDICTOR_ID, cm,
-						Prediction.from(SUM_CONSUMPTION_ACTIVE_POWER, midnight, DEFAULT_CONSUMPTION_PREDICTION),
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, midnight, DEFAULT_CONSUMPTION_PREDICTION),
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		var production = predictorManager.getPrediction(SUM_PRODUCTION_ACTIVE_POWER).asArray();

@@ -15,6 +15,7 @@ import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.predictor.api.prediction.LogVerbosity;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class PredictorPersistenceModelImplTest {
@@ -56,6 +57,7 @@ public class PredictorPersistenceModelImplTest {
 				.activate(MyConfig.create() //
 						.setId(PREDICTOR_ID) //
 						.setChannelAddresses(METER1_ACTIVE_POWER.toString()) //
+						.setLogVerbosity(LogVerbosity.NONE) //
 						.build());
 
 		var prediction = sut.getPrediction(METER1_ACTIVE_POWER);
@@ -98,6 +100,7 @@ public class PredictorPersistenceModelImplTest {
 				.activate(MyConfig.create() //
 						.setId(PREDICTOR_ID) //
 						.setChannelAddresses(METER1_ACTIVE_POWER.toString()) //
+						.setLogVerbosity(LogVerbosity.NONE) //
 						.build());
 
 		clock.leap(39, ChronoUnit.HOURS);
@@ -118,6 +121,7 @@ public class PredictorPersistenceModelImplTest {
 				.activate(MyConfig.create() //
 						.setId(PREDICTOR_ID) //
 						.setChannelAddresses(METER1_ACTIVE_POWER.toString()) //
+						.setLogVerbosity(LogVerbosity.NONE) //
 						.build());
 
 		assertEquals(EMPTY_PREDICTION, sut.getPrediction(METER1_ACTIVE_POWER));

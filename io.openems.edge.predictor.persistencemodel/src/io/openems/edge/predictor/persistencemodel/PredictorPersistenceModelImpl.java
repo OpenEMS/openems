@@ -34,6 +34,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.predictor.api.prediction.AbstractPredictor;
 import io.openems.edge.predictor.api.prediction.Prediction;
@@ -62,6 +63,9 @@ public class PredictorPersistenceModelImpl extends AbstractPredictor implements 
 	private final Logger log = LoggerFactory.getLogger(PredictorPersistenceModelImpl.class);
 
 	@Reference
+	private Sum sum;
+
+	@Reference
 	private Timedata timedata;
 
 	@Reference
@@ -77,7 +81,8 @@ public class PredictorPersistenceModelImpl extends AbstractPredictor implements 
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.channelAddresses());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.channelAddresses(),
+				config.logVerbosity());
 	}
 
 	@Override
@@ -155,7 +160,7 @@ public class PredictorPersistenceModelImpl extends AbstractPredictor implements 
 						.skip(EXTRA_QUERY_QUARTERS + REGRESSION_APPLY_QUARTERS + SMOOTH_APPLY_QUARTERS) //
 		).toArray(Integer[]::new);
 
-		return Prediction.from(channelAddress, now, result);
+		return Prediction.from(this.sum, channelAddress, now, result);
 	}
 
 	/**

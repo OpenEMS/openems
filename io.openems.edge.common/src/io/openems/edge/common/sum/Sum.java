@@ -959,6 +959,45 @@ public interface Sum extends OpenemsComponent {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#ESS_MAX_DISCHARGE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getEssMaxDischargePowerChannel() {
+		return this.channel(ChannelId.ESS_MAX_DISCHARGE_POWER);
+	}
+
+	/**
+	 * Gets the Total Maximum Ever ESS Discharge Power in [W]. See
+	 * {@link ChannelId#ESS_MAX_DISCHARGE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getEssMaxDischargePower() {
+		return this.getEssMaxDischargePowerChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ESS_MIN_DISCHARGE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getEssMinDischargePowerChannel() {
+		return this.channel(ChannelId.ESS_MIN_DISCHARGE_POWER);
+	}
+
+	/**
+	 * Gets the Total Minimum Ever ESS Discharge Power in [W] (i.e. Maximum Ever
+	 * Charge power as negative value). See
+	 * {@link ChannelId#ESS_MIN_DISCHARGE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getEssMinDischargePower() {
+		return this.getEssMinDischargePowerChannel().value();
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#ESS_CAPACITY}.
 	 *
 	 * @return the Channel

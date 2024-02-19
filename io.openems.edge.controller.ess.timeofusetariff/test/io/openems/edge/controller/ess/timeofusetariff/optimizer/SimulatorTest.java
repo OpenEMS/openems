@@ -1,7 +1,7 @@
 package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.CONSUMPTION_12786_20231121;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.CONSUMPTION_888_20231106;
@@ -17,7 +17,6 @@ import static java.lang.Math.abs;
 import static java.util.Arrays.stream;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -26,6 +25,7 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.DoubleStream;
 
 import org.junit.Before;
@@ -42,24 +42,108 @@ public class SimulatorTest {
 
 	@Before
 	public void before() {
-		// Make reproducable results
+		// Make reproducible results
 		System.setProperty("io.jenetics.util.defaultRandomGenerator", "Random");
 		RandomRegistry.random(new Random(123));
 	}
 
-	@Test
-	public void testMaxPrice() {
-		assertEquals(332F, createParams888d20231106().maxPrice(), 0.000F);
+	private static Period calculatePeriodCost(StateMachine state, int production, int consumption, double price,
+			int essInitial) {
+		var result = new AtomicReference<Period>();
+		Simulator.calculatePeriodCost(//
+				Params.create() //
+						.time(TIME) //
+						.essTotalEnergy(22000) //
+						.essMinSocEnergy(0) //
+						.essMaxSocEnergy(20000) //
+						.essInitialEnergy(essInitial) //
+						.essMaxEnergyPerPeriod(3000 /* [Wh/15 Minutes] */) //
+						.maxBuyFromGrid(4000 /* [Wh/15 Minutes] */) //
+						.productions(new int[] { production }) //
+						.consumptions(new int[] { consumption }) //
+						.prices(new double[] { price }) //
+						.states(new StateMachine[] { state }) //
+						.existingSchedule() //
+						.build(),
+				0, new StateMachine[] { state }, new AtomicInteger(essInitial), result::set);
+		return result.get();
+	}
 
-		assertNull(Params.create() //
-				.prices() //
-				.build() //
-				.maxPrice());
+	private static void assertPeriod(String message, Period period, int essChargeDischarge, int grid, double cost) {
+		assertEquals(period.state() + "-essChargeDischarge: " + message, essChargeDischarge,
+				period.essChargeDischarge());
+		assertEquals(period.state() + "-grid: " + message, grid, period.grid());
+		assertEquals(period.state() + "-cost: " + message, cost, period.cost() * 1000000, 0.1);
+	}
+
+	@Test
+	public void testCalculatePeriodCostBalancing() {
+		assertPeriod("Consumption > Production; SoC ok", //
+				calculatePeriodCost(BALANCING, 200, 300, 0.1, 10000), //
+				100, 0, 0);
+		assertPeriod("Consumption > Production; discharge limited by essMaxEnergyPerPeriod", //
+				calculatePeriodCost(BALANCING, 1000, 5000, 0.1, 10000), //
+				3000, 1000, 100);
+		assertPeriod("Consumption > Production; discharge limited by essMinSocEnergy", //
+				calculatePeriodCost(BALANCING, 1000, 5000, 0.1, 2500), //
+				2500, 1500, 150);
+
+		assertPeriod("Production > Consumption; SoC ok", //
+				calculatePeriodCost(BALANCING, 300, 200, 0.1, 10000), //
+				-100, 0, 0);
+		assertPeriod("Production > Consumption; charge limited by essMaxEnergyPerPeriod", //
+				calculatePeriodCost(BALANCING, 5000, 1000, 0.1, 10000), //
+				-3000, -1000, 0);
+		assertPeriod("Production > Consumption; charge limited by essTotalEnergy", //
+				calculatePeriodCost(BALANCING, 5000, 1000, 0.1, 19500), //
+				-2500, -1500, 0);
+	}
+
+	@Test
+	public void testCalculatePeriodCostDelayDischarge() {
+		assertPeriod("Consumption > Production", //
+				calculatePeriodCost(DELAY_DISCHARGE, 200, 300, 0.1, 10000), //
+				0, 100, 10);
+
+		assertPeriod("Production > Consumption; SoC ok", //
+				calculatePeriodCost(DELAY_DISCHARGE, 300, 200, 0.1, 10000), //
+				-100, 0, 0);
+		assertPeriod("Production > Consumption; charge limited by essMaxEnergyPerPeriod", //
+				calculatePeriodCost(DELAY_DISCHARGE, 5000, 1000, 0.1, 10000), //
+				-3000, -1000, 0);
+		assertPeriod("Production > Consumption; charge limited by essTotalEnergy", //
+				calculatePeriodCost(DELAY_DISCHARGE, 5000, 1000, 0.1, 19500), //
+				-2500, -1500, 0);
+	}
+
+	@Test
+	public void testCalculatePeriodCostChargeGrid() {
+		// essMaxChargeInChargeGrid = 2500
+
+		assertPeriod("Consumption > Production", //
+				calculatePeriodCost(CHARGE_GRID, 200, 300, 0.1, 10000), //
+				-2500, 2600 /* 2500 + 100 */, 310);
+
+		assertPeriod("Consumption > Production; charge limited by maxBuyFromGrid", //
+				calculatePeriodCost(CHARGE_GRID, 0, 4500, 0.1, 10000), //
+				-1 /* exceptional charge */, 4501, 450.12);
+
+		assertPeriod("Production > Consumption", //
+				calculatePeriodCost(CHARGE_GRID, 300, 200, 0.1, 10000), //
+				-2600 /* 2500 + 100 */, 2500, 300);
+
+		assertPeriod("Production > Consumption; charge limited by essMaxEnergyPerPeriod", //
+				calculatePeriodCost(CHARGE_GRID, 3000, 900, 0.1, 10000), //
+				-3000 /* 2100 from PV, 900 from grid */, 900, 108);
+
+		assertPeriod("Production > Consumption", //
+				calculatePeriodCost(CHARGE_GRID, 2000, 1700, 0.1, 10000), //
+				-2800 /* 300 from PV, 2500 from grid */, 2500, 300);
 	}
 
 	@Test
 	public void testGetFirstSchedule0() {
-		var existingSchedule = new StateMachine[] { CHARGE, DELAY_DISCHARGE, CHARGE, BALANCING };
+		var existingSchedule = new StateMachine[] { CHARGE_GRID, DELAY_DISCHARGE, CHARGE_GRID, BALANCING };
 
 		var p = Params.create() //
 				.time(TIME) //
@@ -77,7 +161,7 @@ public class SimulatorTest {
 				.build();
 		var s = getBestSchedule(p, //
 				/* executionLimitSeconds */ 30, //
-				/* populationSize */ 1, //
+				/* populationSize */ 2, //
 				/* limit */ 1);
 
 		assertArrayEquals(existingSchedule, Arrays.copyOfRange(s, 0, existingSchedule.length));
@@ -131,7 +215,7 @@ public class SimulatorTest {
 	@Test
 	@Ignore
 	public void testOnlyCharge888d20231106() {
-		var p = createParams888d20231106(CHARGE);
+		var p = createParams888d20231106(CHARGE_GRID);
 		var schedule = getBestSchedule(p, //
 				/* executionLimitSeconds */ 10 * 60);
 

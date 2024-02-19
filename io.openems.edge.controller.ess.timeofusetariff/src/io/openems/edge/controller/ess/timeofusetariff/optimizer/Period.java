@@ -10,8 +10,8 @@ import java.util.regex.Pattern;
 
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 
-public record Period(ZonedDateTime time, int production, int consumption, int essInitial, int essMaxCharge,
-		int essMaxDischarge, StateMachine state, int essChargeDischarge, int grid, double price, double cost) {
+public record Period(ZonedDateTime time, int production, int consumption, int essInitial, StateMachine state,
+		int essChargeDischarge, int grid, double price, double cost) {
 
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -21,27 +21,25 @@ public record Period(ZonedDateTime time, int production, int consumption, int es
 	 * @return header
 	 */
 	public static String header() {
-		return "Time  Production Consumption EssInitial EssMaxCharge EssMaxDischarge State           EssChargeDischarge  Grid Price  Cost";
+		return "Time  Production Consumption EssInitial State             EssChargeDischarge  Grid Price  Cost";
 	}
 
 	/**
 	 * Gets the Period as String.
 	 */
 	public String toString() {
-		return String.format(Locale.ENGLISH, "%s %10d %11d %10d %12d %15d %-15s %18d %5d %.2f %.4f", //
+		return String.format(Locale.ENGLISH, "%s %10d %11d %10d %-17s %18d %5d %.2f %.4f", //
 				this.time.format(FORMATTER), this.production, this.consumption, //
-				this.essInitial, this.essMaxCharge, this.essMaxDischarge, //
+				this.essInitial, //
 				this.state, //
 				this.essChargeDischarge, this.grid, this.price, this.cost);
 	}
 
-	private static final Pattern PATTERN = Pattern.compile("^" //
+	private static final Pattern PATTERN = Pattern.compile("" //
 			+ "(?<time>\\d{2}:\\d{2})" //
 			+ "\\s+(?<production>-?\\d+)" //
 			+ "\\s+(?<consumption>-?\\d+)" //
 			+ "\\s+(?<essInitial>-?\\d+)" //
-			+ "\\s+(?<essMaxCharge>-?\\d+)" //
-			+ "\\s+(?<essMaxDischarge>-?\\d+)" //
 			+ "\\s+(?<state>-?\\w+)" //
 			+ "\\s+(?<essChargeDischarge>-?\\d+)" //
 			+ "\\s+(?<grid>-?\\d+)" //
@@ -67,8 +65,6 @@ public record Period(ZonedDateTime time, int production, int consumption, int es
 				Integer.parseInt(matcher.group("production")), //
 				Integer.parseInt(matcher.group("consumption")), //
 				Integer.parseInt(matcher.group("essInitial")), //
-				Integer.parseInt(matcher.group("essMaxCharge")), //
-				Integer.parseInt(matcher.group("essMaxDischarge")), //
 				StateMachine.valueOf(matcher.group("state")), //
 				Integer.parseInt(matcher.group("essChargeDischarge")), //
 				Integer.parseInt(matcher.group("grid")), //

@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.osgi.service.component.ComponentContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
@@ -17,7 +19,11 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public abstract class AbstractPredictor extends AbstractOpenemsComponent implements Predictor, OpenemsComponent {
 
+	private final Logger log = LoggerFactory.getLogger(AbstractPredictor.class);
+
 	private final Map<ChannelAddress, Prediction> predictions = new HashMap<>();
+
+	private LogVerbosity logVerbosity = LogVerbosity.NONE;
 
 	protected abstract ClockProvider getClockProvider();
 
@@ -35,8 +41,9 @@ public abstract class AbstractPredictor extends AbstractOpenemsComponent impleme
 	}
 
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
-			String[] channelAddresses) throws OpenemsNamedException {
+			String[] channelAddresses, LogVerbosity logVerbosity) throws OpenemsNamedException {
 		super.activate(context, id, alias, enabled);
+		this.logVerbosity = logVerbosity;
 
 		for (var i = 0; i < channelAddresses.length; i++) {
 			this.predictions.put(ChannelAddress.fromString(channelAddresses[i]), EMPTY_PREDICTION);
@@ -58,6 +65,11 @@ public abstract class AbstractPredictor extends AbstractOpenemsComponent impleme
 			this.predictions.put(channelAddress, prediction);
 		} else {
 			// Reuse existing prediction
+		}
+		switch (this.logVerbosity) {
+		case NONE -> {
+		}
+		case REQUESTED_PREDICTIONS -> this.logInfo(this.log, "Prediction for [" + channelAddress + "]: " + prediction);
 		}
 		return prediction;
 	}

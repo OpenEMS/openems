@@ -9,6 +9,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.predictor.api.prediction.AbstractPredictor;
+import io.openems.edge.predictor.api.prediction.LogVerbosity;
 import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.api.prediction.Predictor;
 
@@ -32,7 +33,7 @@ public class DummyPredictor extends AbstractPredictor implements Predictor {
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		super.activate(null, id, "", true, channelAddresses);
+		super.activate(null, id, "", true, channelAddresses, LogVerbosity.NONE);
 		this.clockProvider = clockProvider;
 		this.prediction = prediction;
 	}

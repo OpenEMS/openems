@@ -3,6 +3,8 @@ package io.openems.edge.predictor.similardaymodel;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.predictor.api.prediction.LogVerbosity;
+
 @ObjectClassDefinition(//
 		name = "Predictor Similarday-Model", //
 		description = "Implements Similarday-Model predictor")
@@ -22,6 +24,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Channel-Addresses", description = "List of Channel-Addresses this Predictor is used for, e.g. '*/ActivePower', '*/ActualPower'")
 	String[] channelAddresses() default { "_sum/ProductionActivePower", "_sum/UnmanagedConsumptionActivePower" };
+
+	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
+	LogVerbosity logVerbosity() default LogVerbosity.NONE;
 
 	String webconsole_configurationFactory_nameHint() default "Predictor Similarday-Model [{id}]";
 
