@@ -1,3 +1,5 @@
+#!/bin/bash -e
+#
 # Provides commonly used functions and variables
 
 common_initialize_environment() {
@@ -22,21 +24,17 @@ common_initialize_environment() {
 
 common_build_snapshot_version() {
     if [[ "$VERSION" == *"-SNAPSHOT" ]]; then
-        echo "1"
         # Replace unwanted characters with '.', compliant with Debian version
         # Ref: https://unix.stackexchange.com/a/23673
         VERSION_DEV_BRANCH="$(git branch --show-current)"
-        echo "2"
         VERSION_DEV_COMMIT=""
-        if [[ $(git diff --stat) != '' ]]; then
+        if [[ $(git diff --exit-code --quiet) != 0 ]]; then
             VERSION_DEV_COMMIT="dirty"
         else
             VERSION_DEV_COMMIT="$(git rev-parse --short HEAD)"
         fi
-        echo "3"
         VERSION_DEV_BUILD_TIME=$(date "+%Y%m%d.%H%M")
         # Compliant with https://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-version
-        echo "4"
         VERSION_STRING="$(echo $VERSION_DEV_BRANCH | tr -cs 'a-zA-Z0-9\n' '.').${VERSION_DEV_BUILD_TIME}.${VERSION_DEV_COMMIT}"
         VERSION="${VERSION/-SNAPSHOT/"-${VERSION_STRING}"}"
     fi
@@ -46,22 +44,22 @@ common_build_snapshot_version() {
 common_update_version_in_code() {
     echo "# Update version in Code"
     echo "## Update $SRC_OPENEMS_CONSTANTS"
-    sed --in-place "s/\(VERSION_MAJOR = \)\([0-9]\+\);$/\1$VERSION_MAJOR;/" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s/\(VERSION_MINOR = \)\([0-9]\+\);$/\1$VERSION_MINOR;/" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s/\(VERSION_PATCH = \)\([0-9]\+\);$/\1$VERSION_PATCH;/" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s/\(VERSION_STRING = \)\"\(.*\)\";$/\1\"$VERSION_STRING\";/" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s/\(VERSION_DEV_BRANCH = \)\"\(.*\)\";$/\1\"${VERSION_DEV_BRANCH/\//\\/}\";/" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s/\(VERSION_DEV_COMMIT = \)\"\(.*\)\";$/\1\"$VERSION_DEV_COMMIT\";/" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s/\(VERSION_DEV_BUILD_TIME = \)\"\(.*\)\";$/\1\"$VERSION_DEV_BUILD_TIME\";/" $SRC_OPENEMS_CONSTANTS
+    sed --in-place "s#\(VERSION_MAJOR = \)\([0-9]\+\);#\1$VERSION_MAJOR;#" $SRC_OPENEMS_CONSTANTS
+    sed --in-place "s#\(VERSION_MINOR = \)\([0-9]\+\);#\1$VERSION_MINOR;#" $SRC_OPENEMS_CONSTANTS
+    sed --in-place "s#\(VERSION_PATCH = \)\([0-9]\+\);#\1$VERSION_PATCH;#" $SRC_OPENEMS_CONSTANTS
+    sed --in-place "s#\(VERSION_STRING = \)\"\(.*\)\";#\1\"$VERSION_STRING\";#" $SRC_OPENEMS_CONSTANTS
+    sed --in-place "s#\(VERSION_DEV_BRANCH = \)\"\(.*\)\";#\1\"${VERSION_DEV_BRANCH}\";#" $SRC_OPENEMS_CONSTANTS
+    sed --in-place "s#\(VERSION_DEV_COMMIT = \)\"\(.*\)\";#\1\"$VERSION_DEV_COMMIT\";#" $SRC_OPENEMS_CONSTANTS
+    sed --in-place "s#\(VERSION_DEV_BUILD_TIME = \)\"\(.*\)\";#\1\"$VERSION_DEV_BUILD_TIME\";#" $SRC_OPENEMS_CONSTANTS
 
     echo "## Update $SRC_PACKAGE_JSON"
-    sed --in-place "s/^\(    \"version\": \"\).*\(\".*$\)/\1$VERSION\2/" $SRC_PACKAGE_JSON
+    sed --in-place "s#^\(    \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_JSON
 
     echo "## Update $SRC_PACKAGE_LOCK_JSON"
-    sed --in-place "s/^\(    \"version\": \"\).*\(\".*$\)/\1$VERSION\2/" $SRC_PACKAGE_LOCK_JSON
+    sed --in-place "s#^\(    \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_LOCK_JSON
 
     echo "## Update $SRC_CHANGELOG_CONSTANTS"
-    sed --in-place "s/\(UI_VERSION = \"\).*\(\";\)$/\1$VERSION\2/" $SRC_CHANGELOG_CONSTANTS
+    sed --in-place "s#\(UI_VERSION = \"\).*\(\";\)#\1$VERSION\2#" $SRC_CHANGELOG_CONSTANTS
 }
 
 # Build OpenEMS Edge and UI in parallel
