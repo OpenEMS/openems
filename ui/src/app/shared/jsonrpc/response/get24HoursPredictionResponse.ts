@@ -6,7 +6,7 @@ export class Prediction {
 
 /**
  * Wraps a JSON-RPC Response for a Get24HoursPredictionRequest.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

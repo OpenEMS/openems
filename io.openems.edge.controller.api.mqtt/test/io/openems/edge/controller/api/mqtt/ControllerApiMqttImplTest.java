@@ -30,6 +30,9 @@ public class ControllerApiMqttImplTest {
 						.setUri("ws://localhost:1883") //
 						.setPersistencePriority(PersistencePriority.VERY_LOW) //
 						.setDebugMode(true) //
+						.setCertPem("") //
+						.setPrivateKeyPem("") //
+						.setTrustStorePath("") //
 						.build());
 	}
 

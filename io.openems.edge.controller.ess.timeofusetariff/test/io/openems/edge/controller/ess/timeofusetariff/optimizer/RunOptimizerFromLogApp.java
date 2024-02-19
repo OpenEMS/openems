@@ -2,51 +2,46 @@ package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Simulator.getBestSchedule;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.SimulatorTest.logSchedule;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.toEnergy;
+import static java.lang.Integer.parseInt;
 
 import java.util.Objects;
-import java.util.TreeMap;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
-import com.google.common.primitives.Floats;
-
-import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
+import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 
 /**
  * This little application allows running the Optimizer from an existing log.
  * Just fill the header data and paste the log lines in
  * {@link RunOptimizerFromLogApp#LOG}.
+ * 
+ * <p>
+ * To get the log from a system running with systemd, execute the following
+ * query:
+ * 
+ * <p>
+ * <code>
+ * journalctl -lu openems --since="20 minutes ago" | grep OPTIMIZER
+ * </code>
  */
 public class RunOptimizerFromLogApp {
 
-	/** The ESS Capacity in [Wh]. */
-	private static final int ESS_CAPACITY = 22000;
-
-	/** The ESS configured Min-Soc in [%]. */
-	private static final int ESS_MIN_SOC = 5;
-
-	/** The ESS configured Max-Soc in [%]. */
-	private static final int ESS_MAX_SOC = 90;
-
-	/** The ESS Max Power [W]. */
-	private static final int ESS_MAX_POWER = 10000;
-	/** ESS Max Charge Power in CHARGE State [W]. */
-	private static final int ESS_MAX_CHARGE = 5000;
-
-	/** The Max Buy-from-Grid Power [W]. */
-	private static final int MAX_BUY_FROM_GRID = 24_000;
-
-	/** The {@link ControlMode}. */
-	private static final ControlMode CONTROL_MODE = ControlMode.CHARGE_CONSUMPTION;
-
-	/** The {@link ControlMode}. */
 	private static final long EXECUTION_LIMIT_SECONDS = 30;
 
-	/** Insert the log lines without header. */
+	/** Insert the full log lines including Params header. */
 	private static final String LOG = """
 			""";
 
-	private static final Pattern PATTERN = Pattern.compile("^.*(?<log>\\d{2}:\\d{2}\s+.*$)");
+	private static final Pattern PARAMS_PATTERN = Pattern.compile("^" //
+			+ ".*essTotalEnergy=(?<essTotalEnergy>\\d+)" //
+			+ ".*essMinSocEnergy=(?<essMinSocEnergy>\\d+)" //
+			+ ".*essMaxSocEnergy=(?<essMaxSocEnergy>\\d+)" //
+			+ ".*essInitialEnergy=(?<essInitialEnergy>\\d+)" //
+			+ ".*essMaxEnergyPerPeriod=(?<essMaxEnergyPerPeriod>\\d+)" //
+			+ ".*maxBuyFromGrid=(?<maxBuyFromGrid>\\d+)" //
+			+ ".*states=\\[(?<states>[A-Z_, ]+)\\]" //
+			+ ".*$");
+	private static final Pattern PERIOD_PATTERN = Pattern.compile("^.*(?<log>\\d{2}:\\d{2}\s+.*$)");
 
 	/**
 	 * Run the Application.
@@ -54,9 +49,28 @@ public class RunOptimizerFromLogApp {
 	 * @param args the args
 	 */
 	public static void main(String[] args) {
+		var paramsMatcher = LOG.lines() //
+				.findFirst() //
+				.map(PARAMS_PATTERN::matcher) //
+				.get();
+		paramsMatcher.find();
+		final var essTotalEnergy = parseInt(paramsMatcher.group("essTotalEnergy"));
+		final var essMinSocEnergy = parseInt(paramsMatcher.group("essMinSocEnergy"));
+		final var essMaxSocEnergy = parseInt(paramsMatcher.group("essMaxSocEnergy"));
+		final var essInitialEnergy = parseInt(paramsMatcher.group("essInitialEnergy"));
+		final var essMaxEnergyPerPeriod = parseInt(paramsMatcher.group("essMaxEnergyPerPeriod"));
+		final var maxBuyFromGrid = parseInt(paramsMatcher.group("maxBuyFromGrid"));
+		final var states = Stream.of(paramsMatcher.group("states").split(", ")) //
+				.map(StateMachine::valueOf) //
+				.toArray(StateMachine[]::new);
+
 		var periods = LOG.lines() //
+				.skip(1) //
 				.map(l -> {
-					var matcher = PATTERN.matcher(l);
+					if (l.contains(" Time ")) { // remove header
+						return null;
+					}
+					var matcher = PERIOD_PATTERN.matcher(l);
 					if (!matcher.find()) {
 						return null;
 					}
@@ -70,18 +84,17 @@ public class RunOptimizerFromLogApp {
 		}
 		var params = Params.create() //
 				.time(periods.get(0).time()) //
-				.essTotalEnergy(ESS_CAPACITY) //
-				.essMinSocEnergy(Math.round(ESS_MIN_SOC / 100F * ESS_CAPACITY)) //
-				.essMaxSocEnergy(Math.round(ESS_MAX_SOC / 100F * ESS_CAPACITY)) //
-				.essInitialEnergy(periods.get(0).essInitial()) //
-				.essMaxEnergyPerPeriod(toEnergy(ESS_MAX_POWER)) //
-				.essMaxChargePerPeriod(toEnergy(ESS_MAX_CHARGE)) //
-				.maxBuyFromGrid(toEnergy(MAX_BUY_FROM_GRID)) //
+				.essTotalEnergy(essTotalEnergy) //
+				.essMinSocEnergy(essMinSocEnergy) //
+				.essMaxSocEnergy(essMaxSocEnergy) //
+				.essInitialEnergy(essInitialEnergy) //
+				.essMaxEnergyPerPeriod(essMaxEnergyPerPeriod) //
+				.maxBuyFromGrid(maxBuyFromGrid) //
 				.productions(periods.stream().mapToInt(Period::production).toArray()) //
 				.consumptions(periods.stream().mapToInt(Period::consumption).toArray()) //
-				.prices(Floats.toArray(periods.stream().map(Period::price).toList())) //
-				.states(CONTROL_MODE.states) //
-				.existingSchedule(new TreeMap<>()) //
+				.prices(periods.stream().mapToDouble(Period::price).toArray()) //
+				.states(states) //
+				.existingSchedule() //
 				.build();
 		var schedule = getBestSchedule(params, EXECUTION_LIMIT_SECONDS);
 

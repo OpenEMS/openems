@@ -39,10 +39,10 @@ export class Controller_ChpSocModalComponent implements OnInit {
         this.thresholds['upper'] = this.component.properties['highThreshold'];
     };
 
-    /**  
+    /**
     * Updates the Charge-Mode of the EVCS-Controller.
-    * 
-    * @param event 
+    *
+    * @param event
     */
     updateMode(event: CustomEvent) {
         let oldMode = this.component.properties.mode;

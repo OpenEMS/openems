@@ -4,4 +4,4 @@ import { AbstractHistoryChartOverview } from 'src/app/shared/genericComponents/c
 @Component({
     templateUrl: './overview.html',
 })
-export class OverviewComponent extends AbstractHistoryChartOverview { }  
+export class OverviewComponent extends AbstractHistoryChartOverview { }

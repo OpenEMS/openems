@@ -3,6 +3,7 @@ package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 import java.time.Clock;
 import java.util.List;
 
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
@@ -12,23 +13,24 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 public record Context(//
 		Clock clock, //
+		Sum sum, //
 		PredictorManager predictorManager, //
 		TimeOfUseTariff timeOfUseTariff, //
 		ManagedSymmetricEss ess, //
 		List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves, //
 		List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges, //
 		ControlMode controlMode, //
-		int essMaxChargePower, int maxChargePowerFromGrid) {
+		int maxChargePowerFromGrid) {
 
 	public static class Builder {
 		private Clock clock;
+		private Sum sum;
 		private PredictorManager predictorManager;
 		private TimeOfUseTariff timeOfUseTariff;
 		private ManagedSymmetricEss ess;
 		private List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves;
 		private List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges;
 		private ControlMode controlMode;
-		private int essMaxChargePower;
 		private int maxChargePowerFromGrid;
 
 		/**
@@ -39,6 +41,17 @@ public record Context(//
 		 */
 		public Builder clock(Clock clock) {
 			this.clock = clock;
+			return this;
+		}
+
+		/**
+		 * The {@link Sum}.
+		 * 
+		 * @param sum the {@link Sum}
+		 * @return myself
+		 */
+		public Builder sum(Sum sum) {
+			this.sum = sum;
 			return this;
 		}
 
@@ -112,17 +125,6 @@ public record Context(//
 		}
 
 		/**
-		 * The essMaxChargePower.
-		 * 
-		 * @param essMaxChargePower the essMaxChargePower
-		 * @return myself
-		 */
-		public Builder essMaxChargePower(int essMaxChargePower) {
-			this.essMaxChargePower = essMaxChargePower;
-			return this;
-		}
-
-		/**
 		 * The maxChargePowerFromGrid.
 		 * 
 		 * @param maxChargePowerFromGrid the maxChargePowerFromGrid
@@ -139,9 +141,9 @@ public record Context(//
 		 * @return the {@link Context} record
 		 */
 		public Context build() {
-			return new Context(this.clock, this.predictorManager, this.timeOfUseTariff, this.ess,
+			return new Context(this.clock, this.sum, this.predictorManager, this.timeOfUseTariff, this.ess,
 					this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges, this.controlMode,
-					this.essMaxChargePower, this.maxChargePowerFromGrid);
+					this.maxChargePowerFromGrid);
 		}
 	}
 

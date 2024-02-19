@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from 'src/app/shared/shared';
-import { ModalComponent } from '../modal/modal';
 
+import { ModalComponent } from '../modal/modal';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER' | 'OFF';
 
@@ -42,8 +42,14 @@ export class FlatComponent extends AbstractFlatWidget {
   protected propertyMode: DefaultTypes.ManualOnOff = null;
   protected status: string;
 
-
   protected override getChannelAddresses(): ChannelAddress[] {
+    let controllers = this.config.getComponentsByFactory("Controller.Evcs");
+    for (let controller of controllers) {
+      let properties = controller.properties;
+      if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
+        this.controller = controller;
+      }
+    }
     return [
       new ChannelAddress(this.component.id, 'ChargePower'),
       new ChannelAddress(this.component.id, 'Phases'),
@@ -55,22 +61,15 @@ export class FlatComponent extends AbstractFlatWidget {
       new ChannelAddress(this.component.id, 'MinimumHardwarePower'),
       new ChannelAddress(this.component.id, 'MaximumHardwarePower'),
       new ChannelAddress(this.component.id, 'SetChargePowerLimit'),
+      new ChannelAddress(this.controller.id, '_PropertyEnabledCharging'),
     ];
   }
 
   protected override onCurrentData(currentData: CurrentData) {
 
-    let controllers = this.config.getComponentsByFactory("Controller.Evcs");
-    for (let controller of controllers) {
-      let properties = controller.properties;
-      if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
-        this.controller = controller;
-      }
-    }
-
     this.evcsComponent = this.config.getComponent(this.component.id);
     this.isConnectionSuccessful = currentData.allComponents[this.component.id + '/State'] != 3 ? true : false;
-    this.status = this.getState(currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
+    this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + '/_PropertyEnabledCharging'] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
 
     // Check if Energy since beginning is allowed
     if (currentData.allComponents[this.component.id + '/ChargePower'] > 0 || currentData.allComponents[this.component.id + '/Status'] == 2 || currentData.allComponents[this.component.id + '/Status'] == 7) {
@@ -92,7 +91,7 @@ export class FlatComponent extends AbstractFlatWidget {
       // ChargeMode
       this.chargeMode = this.controller.properties['chargeMode'];
       // Check if Charging is enabled
-      this.isChargingEnabled = this.controller.properties['enabledCharging'] ? true : false;
+      this.isChargingEnabled = currentData.allComponents[this.controller.id + '/_PropertyEnabledCharging'] === 1 ? true : false;
       // DefaultChargeMinPower
       this.defaultChargeMinPower = this.controller.properties['defaultChargeMinPower'];
       // Prioritization
@@ -113,8 +112,6 @@ export class FlatComponent extends AbstractFlatWidget {
     // Phases
     this.phases = currentData.allComponents[this.componentId + '/Phases'];
 
-
-
     this.chargeDischargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + "/ChargePower"]);
     this.chargeTarget = Utils.CONVERT_TO_WATT(this.formatNumber(currentData.allComponents[this.component.id + "/SetChargePowerLimit"]));
     this.energySession = Utils.CONVERT_TO_WATT(currentData.allComponents[this.component.id + "/EnergySession"]);
@@ -126,16 +123,14 @@ export class FlatComponent extends AbstractFlatWidget {
 
   /**
  * Returns the state of the EVCS
- * 
- * @param state 
- * @param plug 
- * 
+ *
+ * @param state the state
+ * @param plug the plug
  */
-  private getState(state: number, plug: number): string {
-    if (this.controller != null) {
-      if (this.controller.properties.enabledCharging != null && this.controller.properties.enabledCharging == false) {
-        return this.translate.instant('Edge.Index.Widgets.EVCS.chargingStationDeactivated');
-      }
+  private getState(enabledCharging: boolean, state: number, plug: number): string {
+
+    if (enabledCharging === false) {
+      return this.translate.instant('Edge.Index.Widgets.EVCS.chargingStationDeactivated');
     }
 
     if (plug == null) {

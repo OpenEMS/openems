@@ -4,7 +4,7 @@ import { JsonRpcUtils } from "../jsonrpcutils";
 
 /**
  * Represents a JSON-RPC Request to query a 24 Hours Prediction.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

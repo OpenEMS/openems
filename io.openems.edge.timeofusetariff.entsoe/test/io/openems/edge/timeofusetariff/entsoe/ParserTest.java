@@ -1,15 +1,10 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
+import static io.openems.edge.timeofusetariff.entsoe.Utils.parseCurrency;
+import static io.openems.edge.timeofusetariff.entsoe.Utils.parsePrices;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Test;
-import org.xml.sax.SAXException;
 
 import io.openems.edge.common.currency.Currency;
 
@@ -546,19 +541,23 @@ public class ParserTest {
 						""";
 
 	@Test
-	public void testParse() throws IOException, ParserConfigurationException, SAXException {
+	public void testParsePrices() throws Exception {
 		var currencyExchangeValue = 1.0;
-		var result = Utils.parsePrices(XML, "PT15M", currencyExchangeValue);
+		{
+			var prices = parsePrices(XML, "PT15M", currencyExchangeValue).asArray();
+			assertEquals(109.93, prices[0], 0.001);
+			assertEquals(65.07, prices[prices.length - 1], 0.001);
+		}
+		{
+			var prices = parsePrices(XML, "PT60M", currencyExchangeValue).asArray();
+			assertEquals(84.15, prices[0], 0.001);
+			assertEquals(86.53, prices[prices.length - 1], 0.001);
+		}
+	}
 
-		assertTrue(result.firstEntry().getValue() == 109.93f);
-		assertTrue(result.lastEntry().getValue() == 65.07f);
-
-		result = Utils.parsePrices(XML, "PT60M", currencyExchangeValue);
-
-		assertFalse(result.firstEntry().getValue() == 109.93f);
-		assertTrue(result.lastEntry().getValue() == 86.53f);
-
-		var res = Utils.parseCurrency(XML);
+	@Test
+	public void testParseCurrency() throws Exception {
+		var res = parseCurrency(XML);
 		assertEquals(res, Currency.EUR.toString());
 	}
 }

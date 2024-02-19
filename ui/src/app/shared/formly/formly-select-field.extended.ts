@@ -9,7 +9,7 @@ import { FormlySelectFieldModalComponent } from "./formly-select-field-modal.com
 })
 export class FormlySelectFieldExtendedWrapperComponent extends FieldWrapper {
 
-    // this wrapper is used to display a select which has more 
+    // this wrapper is used to display a select which has more
     // detailed information about an item when selecting them
     constructor(
         private modalController: ModalController,

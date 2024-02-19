@@ -4,10 +4,11 @@ import { ChartDataSets } from 'chart.js';
 import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
+import { ChartType } from '../genericComponents/chart/abstracthistorychart';
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { ChannelAddress, EdgeConfig } from '../shared';
+import { ChannelAddress, Currency, EdgeConfig } from '../shared';
 
 export class Utils {
 
@@ -77,7 +78,7 @@ export class Utils {
 
   /**
    * Safely gets the absolute value of a value.
-   * 
+   *
    * @param value
    */
   public static absSafely(value: number | null): number | null {
@@ -90,9 +91,9 @@ export class Utils {
 
   /**
    * Safely adds two - possibly 'null' - values: v1 + v2
-   * 
-   * @param v1 
-   * @param v2 
+   *
+   * @param v1
+   * @param v2
    */
   public static addSafely(v1: number, v2: number): number {
     if (v1 == null) {
@@ -105,8 +106,8 @@ export class Utils {
   }
 
   /**
-   *  Subtracts values from each other - possibly null values 
-   * 
+   *  Subtracts values from each other - possibly null values
+   *
    * @param values the values
    * @returns a number, if at least one value is not null, else null
    */
@@ -126,9 +127,9 @@ export class Utils {
 
   /**
    * Safely divides two - possibly 'null' - values: v1 / v2
-   * 
-   * @param v1 
-   * @param v2 
+   *
+   * @param v1
+   * @param v2
    */
   public static divideSafely(v1: number, v2: number): number | null {
     if (v1 == null || v2 == null) {
@@ -142,9 +143,9 @@ export class Utils {
 
   /**
    * Safely multiplies two - possibly 'null' - values: v1 * v2
-   * 
-   * @param v1 
-   * @param v2 
+   *
+   * @param v1
+   * @param v2
    */
   public static multiplySafely(v1: number, v2: number): number {
     if (v1 == null || v2 == null) {
@@ -156,10 +157,10 @@ export class Utils {
 
   /**
    * Safely compares two arrays - possibly 'null'
-   * 
+   *
    * @param v1
-   * @param v2 
-   * @returns 
+   * @param v2
+   * @returns
    */
   public static compareArraysSafely(v1: any[], v2: any[]): boolean {
     if (v1 == null || v2 == null) {
@@ -181,8 +182,8 @@ export class Utils {
 
   /**
    * Safely rounds a - possibly 'null' - value: Math.round(v)
-   * 
-   * @param v 
+   *
+   * @param v
    */
   public static roundSafely(v: number): number {
     if (v == null) {
@@ -194,7 +195,7 @@ export class Utils {
 
   /**
    * Gets the value; or if it is null, gets the 'orElse' value
-   * 
+   *
    * @param v      the value or null
    * @param orElse the default value
    * @returns      the value or the default value
@@ -209,7 +210,7 @@ export class Utils {
 
   /**
    * Matches all filter-strings with all base-strings.
-   * 
+   *
    * @param filters array of filter-strings
    * @param bases   array of base-strings
    * @returns       true if all filter strings exist in any base-strings
@@ -231,7 +232,7 @@ export class Utils {
 
   /**
    * Converts a value in Watt [W] to KiloWatt [kW].
-   * 
+   *
    * @param value the value from passed value in html
    * @returns converted value
    */
@@ -247,7 +248,7 @@ export class Utils {
 
   /**
    * Converts a value in Watt [W] to KiloWatt [kW].
-   * 
+   *
    * @param value the value from passed value in html
    * @returns converted value
    */
@@ -266,7 +267,7 @@ export class Utils {
 
   /**
    * Converts a value in Seconds [s] to Dateformat [kk:mm:ss].
-   * 
+   *
    * @param value the value from passed value in html
    * @returns converted value
    */
@@ -276,7 +277,7 @@ export class Utils {
 
   /**
    * Adds unit percentage [%] to a value.
-   * 
+   *
    * @param value the value from passed value in html
    * @returns converted value
    */
@@ -286,7 +287,7 @@ export class Utils {
 
   /**
    * Converts a value to WattHours [Wh]
-   * 
+   *
    * @param value the value from passed value in html
    * @returns converted value
    */
@@ -296,7 +297,7 @@ export class Utils {
 
   /**
    * Converts a value in WattHours [Wh] to KiloWattHours [kWh]
-   * 
+   *
    * @param value the value from passed value in html
    * @returns converted value
    */
@@ -306,7 +307,7 @@ export class Utils {
 
   /**
    * Converts states 'MANUAL_ON' and 'MANUAL_OFF' to translated strings.
-   * 
+   *
    * @param value the value from passed value in html
    * @returns converted value
    */
@@ -324,7 +325,7 @@ export class Utils {
 
   /**
    * Takes a power value and extracts the information if it represents Charge or Discharge.
-   * 
+   *
    * @param translate the translate service
    * @param power the power
    * @returns an object with charge/discharge information and power value
@@ -340,7 +341,7 @@ export class Utils {
 
   /**
    * Converts states 'MANUAL', 'OFF' and 'AUTOMATIC' to translated strings.
-   * 
+   *
    * @param value the value from passed value in html
    * @returns converted value
    */
@@ -360,7 +361,7 @@ export class Utils {
 
   /**
    * Converts Minute from start of day to daytime in 'HH:mm' format.
-   * 
+   *
    * @returns converted value
    */
   public static CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService) => {
@@ -374,7 +375,7 @@ export class Utils {
 
   /**
    * Converts Price to Cent per kWh [currency / kWh]
-   * 
+   *
    * @param decimal number of decimals after fraction
    * @param label label to be displayed along with price
    * @returns converted value
@@ -385,8 +386,8 @@ export class Utils {
   };
 
   /**
-   * Converts Time-Of-Use-Tariff-State 
-   * 
+   * Converts Time-Of-Use-Tariff-State
+   *
    * @param translate the current language to be translated to
    * @returns converted value
    */
@@ -396,7 +397,7 @@ export class Utils {
         case 0:
           return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
         case 3:
-          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE');
+          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID');
         default: // Usually "1"
           return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING');
       }
@@ -405,7 +406,7 @@ export class Utils {
 
   /**
    * Gets the image path for storage depending on State-of-Charge.
-   * 
+   *
    * @param soc the state-of-charge
    * @returns the image path
    */
@@ -427,7 +428,7 @@ export class Utils {
 
   /**
    * Download a JSONRPC Base64PayloadResponse in Excel (XLSX) file format.
-   *  
+   *
    * @param response the Base64PayloadResponse
    * @param filename the filename without .xlsx suffix
    */
@@ -450,7 +451,7 @@ export class Utils {
 
   /*
   * Calculate the Self-Consumption rate.
-  * 
+  *
   * @param sellToGrid the Sell-To-Grid power (i.e. the inverted GridActivePower)
   * @param productionActivePower  the Production Power
   * @returns  the Self-Consumption rate
@@ -479,7 +480,7 @@ export class Utils {
 
   /**
    * Calculate the Autarchy Rate
-   * 
+   *
    * @param buyFromGrid the Buy-From-Grid power (GridActivePower)
    * @param consumptionActivePower the Consumption Power (ConsumptionActivePower)
    * @returns the Autarchy rate
@@ -503,7 +504,7 @@ export class Utils {
 
   /**
    * Rounds values between 0 and -1kW to 0
-   * 
+   *
    * @param value the value to convert
    */
   public static roundSlightlyNegativeValues(value: number) {
@@ -512,7 +513,7 @@ export class Utils {
 
   /**
    * Shuffles an array
-   * 
+   *
    * @param array the array to be shuffled
    * @returns the shuffled array
    */
@@ -523,7 +524,7 @@ export class Utils {
   /**
    * Checks if multiple array elements exist in the source object.
    * returns true only if all the elements in the array exist in the source Object.
-   * 
+   *
    * @param arrayToCheck The array with elements that needs to be checked.
    * @param source the source Object.
    * @returns the value.
@@ -541,31 +542,14 @@ export class Utils {
   }
 
   /**
-   * Converts a value in €/MWh to €Ct./kWh.
-   * 
-   * @param price the price value
-   * @returns  the converted price
-   */
-  public static formatPrice(price: number): number {
-    if (price == null || Number.isNaN(price)) {
-      return null;
-    } else if (price == 0) {
-      return 0;
-    } else {
-      price = (price / 10.0);
-      return Math.round(price * 10000) / 10000.0;
-    }
-  }
-
-  /**
-   * Calculates the total other consumption.
-   * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption) 
-   * 
-   * @param energyValues the energyValues, retrieved from {@link QueryHistoricTimeseriesEnergyRequest}
-   * @param evcsComponents the evcsComponents
-   * @param consumptionMeterComponents the consumptionMeterComponents
-   * @returns the other consumption
-   */
+ * Calculates the total other consumption.
+ * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption)
+ *
+ * @param energyValues the energyValues, retrieved from {@link QueryHistoricTimeseriesEnergyRequest}
+ * @param evcsComponents the evcsComponents
+ * @param consumptionMeterComponents the consumptionMeterComponents
+ * @returns the other consumption
+ */
   public static calculateOtherConsumptionTotal(energyValues: QueryHistoricTimeseriesEnergyResponse, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number {
 
     let totalEvcsConsumption: number = 0;
@@ -587,9 +571,9 @@ export class Utils {
 
   /**
    * Calculates the other consumption.
-   * 
+   *
    * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption)
-   * 
+   *
    * @param channelData the channelData, retrieved from {@link QueryHistoricTimeseriesDataRequest} or {@link QueryHistoricTimeseriesEnergyPerPeriodRequest}
    * @param evcsComponents the evcsComponents
    * @param consumptionMeterComponents the consumptionMeterComponents
@@ -631,7 +615,8 @@ export enum YAxisTitle {
   RELAY,
   ENERGY,
   VOLTAGE,
-  TIME
+  TIME,
+  CURRENCY
 }
 
 export enum ChartAxis {
@@ -646,7 +631,7 @@ export namespace HistoryUtils {
 
   /**
  * Creates an empty dataset for ChartJS with translated error message.
- * 
+ *
  * @param translate the TranslateService
  * @returns a dataset
  */
@@ -692,6 +677,8 @@ export namespace HistoryUtils {
     yAxisId?: ChartAxis,
     /** overrides global unit for this displayValue */
     customUnit?: YAxisTitle,
+    /** overrides global charttype for this dataset */
+    customType?: ChartType,
     tooltip?: [{
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
       stackIds: number[]
@@ -702,7 +689,7 @@ export namespace HistoryUtils {
 
   /**
  * Data from a subscription to Channel or from a historic data query.
- * 
+ *
  * TODO Lukas refactor
  */
   export type ChannelData = {
@@ -783,15 +770,20 @@ export namespace TimeOfUseTariffUtils {
   }
 
   export enum TimeOfUseTariffState {
-    DELAY_DISCHARGE = 0,
-    BALANCING = 1,
-    CHARGE = 3,
-    UNDEFINED = 2,
+    DelayDischarge = 0,
+    Balancing = 1,
+    ChargeProduction = 2,
+    ChargeGrid = 3,
+  }
+
+  export enum ControlMode {
+    CHARGE_CONSUMPTION = 'CHARGE_CONSUMPTION',
+    DELAY_DISCHARGE = 'DELAY_DISCHARGE'
   }
 
   /**
    * Converts a value in €/MWh to €Ct./kWh.
-   * 
+   *
    * @param price the price value
    * @returns  the converted price
    */
@@ -808,42 +800,40 @@ export namespace TimeOfUseTariffUtils {
 
   /**
    * Gets the schedule chart data containing datasets, colors and labels.
-   * 
+   *
    * @param size The length of the dataset
    * @param prices The Time-of-Use-Tariff quarterly price array
    * @param states The Time-of-Use-Tariff state array
    * @param timestamps The Time-of-Use-Tariff timestamps array
    * @param translate The Translate service
-   * @param factoryId The factory id of the component
+   * @param controlMode The Control mode of the controller.
    * @returns The ScheduleChartData.
    */
-  export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[], translate: TranslateService, factoryId: string): ScheduleChartData {
-    let scheduleChartData: ScheduleChartData;
-    let datasets: ChartDataSets[] = [];
-    let colors: any[] = [];
-    let labels: Date[] = [];
+  export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[], translate: TranslateService, controlMode: ControlMode): ScheduleChartData {
+    const datasets: ChartDataSets[] = [];
+    const colors: any[] = [];
+    const labels: Date[] = [];
 
     // Initializing States.
-    var barCharge = Array(size).fill(null);
+    var barChargeGrid = Array(size).fill(null);
     var barBalancing = Array(size).fill(null);
     var barDelayDischarge = Array(size).fill(null);
 
     for (let index = 0; index < size; index++) {
       const quarterlyPrice = formatPrice(prices[index]);
-      const state = Math.round(states[index]);
+      const state = states[index];
       labels.push(new Date(timestamps[index]));
 
       if (state !== null) {
         switch (state) {
-          case TimeOfUseTariffState.DELAY_DISCHARGE:
+          case TimeOfUseTariffState.DelayDischarge:
             barDelayDischarge[index] = quarterlyPrice;
             break;
-          case TimeOfUseTariffState.BALANCING:
+          case TimeOfUseTariffState.Balancing:
             barBalancing[index] = quarterlyPrice;
             break;
-          case TimeOfUseTariffState.CHARGE:
-          case TimeOfUseTariffState.UNDEFINED:
-            barCharge[index] = quarterlyPrice;
+          case TimeOfUseTariffState.ChargeGrid:
+            barChargeGrid[index] = quarterlyPrice;
             break;
         }
       }
@@ -862,12 +852,12 @@ export namespace TimeOfUseTariffUtils {
       borderColor: 'rgba(51,102,0,1)',
     });
 
-    // Set dataset for Quarterly Prices being charged.
-    if (!barCharge.every(v => v === null)) {
+    // Set dataset for ChargeGrid.
+    if (!barChargeGrid.every(v => v === null) || controlMode == ControlMode.CHARGE_CONSUMPTION) {
       datasets.push({
         type: 'bar',
-        label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE'),
-        data: barCharge,
+        label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
+        data: barChargeGrid,
         order: 3,
       });
       colors.push({
@@ -890,12 +880,50 @@ export namespace TimeOfUseTariffUtils {
       borderColor: 'rgba(0,0,0,0.9)',
     });
 
-    scheduleChartData = {
+    const scheduleChartData: ScheduleChartData = {
       colors: colors,
       datasets: datasets,
       labels: labels,
     };
 
     return scheduleChartData;
+  }
+
+  /**
+   * Retrieves a formatted label based on the provided value and label type.
+   *
+   * @param value The numeric value to be formatted.
+   * @param label The label type to determine the formatting.
+   * @param translate The translation service for translating labels.
+   * @param currencyLabel Optional currency label for {@link TimeOfUseTariffState} labels.
+   * @returns The formatted label, or exits if the value is not valid.
+   */
+  export function getLabel(value: number, label: string, translate: TranslateService, currencyLabel?: Currency.Label): string {
+
+    // Error handling: Return undefined if value is not valid
+    if (value === undefined || value === null || Number.isNaN(Number.parseInt(value.toString()))) {
+      return;
+    }
+
+    const socLabel = translate.instant('General.soc');
+    const dischargeLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
+    const chargeConsumptionLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID');
+    const balancingLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING');
+
+    // Switch case to handle different labels
+    switch (label) {
+      case socLabel:
+        return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+
+      case dischargeLabel:
+      case chargeConsumptionLabel:
+      case balancingLabel:
+        // Show floating point number for values between 0 and 1
+        return label + ": " + formatNumber(value, 'de', '1.0-4') + " " + currencyLabel;
+
+      default:
+        // Power values
+        return label + ": " + formatNumber(value, 'de', '1.0-0') + ' ' + 'W';
+    }
   }
 }

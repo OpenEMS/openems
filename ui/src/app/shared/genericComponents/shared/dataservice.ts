@@ -15,7 +15,7 @@ export abstract class DataService {
 
   /**
    * Gets the values from passed channelAddresses
-   * 
+   *
    * @param channelAddress the channelAddresses to be subscribed
    * @param edge the edge
    * @param componentId the componentId
@@ -24,7 +24,7 @@ export abstract class DataService {
 
   /**
    * Unsubscribes from passed channels
-   * 
+   *
    * @param channels the channels
    */
   public abstract unsubscribeFromChannels(channels: ChannelAddress[]);

@@ -7,7 +7,7 @@ import { expectView } from "./modal.constants.spec";
 
 describe('Consumption - Modal', () => {
   let TEST_CONTEXT;
-  beforeEach(() => TEST_CONTEXT = sharedSetup());
+  beforeEach(async () => TEST_CONTEXT = await sharedSetup());
 
   it('generateView()', () => {
 

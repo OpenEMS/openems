@@ -53,6 +53,7 @@ export type YAxis = {
     ticks: {
         beginAtZero: boolean,
         max?: number,
+        min?: number,
         padding?: number,
         stepSize?: number,
         callback?(value: number | string, index: number, values: number[] | string[]): string | number | null | undefined;
@@ -281,63 +282,65 @@ export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResu
 /**
    * Calculates resolution from passed Dates for queryHistoricTime-SeriesData und -EnergyPerPeriod &&
    * Calculates timeFormat from passed Dates for xAxes of chart
-   * 
+   *
    * @param service the Service
    * @param fromDate the From-Date
    * @param toDate the To-Date
    * @returns resolution and timeformat
    */
-export function calculateResolution(service: Service, fromDate: Date, toDate: Date): { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' } {
+export function calculateResolution(service: Service, fromDate: Date, toDate: Date): { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' | 'year' } {
     let days = Math.abs(differenceInDays(toDate, fromDate));
-    let resolution: { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' };
+    let resolution: { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' | 'year' };
 
     if (days <= 1) {
-        resolution = { resolution: { value: 5, unit: Unit.MINUTES }, timeFormat: 'hour' }; // 5 Minutes
+        resolution = { resolution: { value: 5, unit: ChronoUnit.Type.MINUTES }, timeFormat: 'hour' }; // 5 Minutes
     } else if (days == 2) {
         if (service.isSmartphoneResolution) {
-            resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'hour' }; // 1 Day
+            resolution = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'hour' }; // 1 Day
         } else {
-            resolution = { resolution: { value: 10, unit: Unit.MINUTES }, timeFormat: 'hour' }; // 1 Hour
+            resolution = { resolution: { value: 10, unit: ChronoUnit.Type.MINUTES }, timeFormat: 'hour' }; // 1 Hour
         }
 
     } else if (days <= 4) {
         if (service.isSmartphoneResolution) {
-            resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
+            resolution = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'day' }; // 1 Day
         } else {
-            resolution = { resolution: { value: 1, unit: Unit.HOURS }, timeFormat: 'hour' }; // 1 Hour
+            resolution = { resolution: { value: 1, unit: ChronoUnit.Type.HOURS }, timeFormat: 'hour' }; // 1 Hour
         }
 
     } else if (days <= 6) {
         // >> show Hours
-        resolution = { resolution: { value: 1, unit: Unit.HOURS }, timeFormat: 'day' }; // 1 Day
+        resolution = { resolution: { value: 1, unit: ChronoUnit.Type.HOURS }, timeFormat: 'day' }; // 1 Day
 
     } else if (days <= 31 && service.isSmartphoneResolution) {
         // Smartphone-View: show 31 days in daily view
-        resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
+        resolution = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'day' }; // 1 Day
 
     } else if (days <= 90) {
-        resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
+        resolution = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'day' }; // 1 Day
 
     } else if (days <= 144) {
         // >> show Days
         if (service.isSmartphoneResolution == true) {
-            resolution = { resolution: { value: 1, unit: Unit.MONTHS }, timeFormat: 'month' }; // 1 Month
+            resolution = { resolution: { value: 1, unit: ChronoUnit.Type.MONTHS }, timeFormat: 'month' }; // 1 Month
         } else {
-            resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
+            resolution = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'day' }; // 1 Day
         }
+    } else if (days <= 365) {
+        resolution = { resolution: { value: 1, unit: ChronoUnit.Type.MONTHS }, timeFormat: 'month' }; // 1 Day
 
     } else {
-        // >> show Months
-        resolution = { resolution: { value: 1, unit: Unit.MONTHS }, timeFormat: 'month' }; // 1 Month
+        // >> show Years
+        resolution = { resolution: { value: 1, unit: ChronoUnit.Type.YEARS }, timeFormat: 'year' }; // 1 Month
     }
     return resolution;
 }
 
 /**
   * Returns true if Chart Label should be visible. Defaults to true.
-  * 
-  * Compares only the first part of the label string - without a value or unit.
-  * 
+  *
+  * Compares only the first part of the label string - without a value or ChronoUnit.Type.
+  *
   * @param label the Chart label
   * @param orElse the default, in case no value was stored yet in Session-Storage
   * @returns true for visible labels; hidden otherwise
@@ -354,7 +357,7 @@ export function isLabelVisible(label: string, orElse?: boolean): boolean {
 
 /**
  * Stores if the Label should be visible or hidden in Session-Storage.
- * 
+ *
  * @param label the Chart label
  * @param visible true to set the Label visibile; false to hide ite
  */
@@ -368,15 +371,32 @@ export function setLabelVisible(label: string, visible: boolean | null): void {
 
 export type Resolution = {
     value: number,
-    unit: Unit
+    unit: ChronoUnit.Type
 }
 
-export enum Unit {
-    SECONDS = "Seconds",
-    MINUTES = "Minutes",
-    HOURS = "Hours",
-    DAYS = "Days",
-    MONTHS = "Months",
+export namespace ChronoUnit {
+
+    export enum Type {
+        SECONDS = "Seconds",
+        MINUTES = "Minutes",
+        HOURS = "Hours",
+        DAYS = "Days",
+        MONTHS = "Months",
+        YEARS = "Years"
+    }
+
+    /**
+     * Evaluates whether "ChronoUnit 1" is equal or a bigger period than "ChronoUnit 2".
+     *
+     * @param unit1     the ChronoUnit 1
+     * @param unit2     the ChronoUnit 2
+     * @return true if "ChronoUnit 1" is equal or a bigger period than "ChronoUnit 2"
+     */
+    export function isAtLeast(unit1: Type, unit2: Type) {
+        const currentUnit = Object.values(Type).indexOf(unit1);
+        const unitToCompareTo = Object.values(Type).indexOf(unit2);
+        return currentUnit >= unitToCompareTo;
+    }
 }
 
 export type ChartData = {

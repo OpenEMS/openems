@@ -83,7 +83,7 @@ export class ModalComponent extends AbstractModal {
                     break;
                 case 5:
 
-                // Case 6: 'DISABLED' hides 'state-line', so no Message needed 
+                // Case 6: 'DISABLED' hides 'state-line', so no Message needed
                 case 7: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive');
                     break;
 

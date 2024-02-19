@@ -1,9 +1,12 @@
 package io.openems.edge.timeofusetariff.awattar;
 
+import static io.openems.common.utils.JsonUtils.getAsDouble;
+import static io.openems.common.utils.JsonUtils.getAsJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsLong;
+import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
 
 import java.io.IOException;
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -23,11 +26,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
-import com.google.common.collect.ImmutableSortedMap;
-import com.google.gson.JsonElement;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -35,7 +34,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
-import io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
@@ -48,11 +46,8 @@ import okhttp3.Request;
 public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 		implements TimeOfUseTariff, OpenemsComponent, TimeOfUseTariffAwattar {
 
-	private static final String AWATTAR_API_URL = "https://api.awattar.de/v1/marketdata";
-
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-	private final AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>> prices = new AtomicReference<>(
-			ImmutableSortedMap.of());
+	private final AtomicReference<TimeOfUsePrices> prices = new AtomicReference<>(TimeOfUsePrices.EMPTY_PRICES);
 
 	@Reference
 	private Meta meta;
@@ -60,7 +55,7 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
-	private ZonedDateTime updateTimeStamp = null;
+	private Config config = null;
 
 	public TimeOfUseTariffAwattarImpl() {
 		super(//
@@ -77,6 +72,7 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 			return;
 		}
 
+		this.config = config;
 		this.executor.schedule(this.task, 0, TimeUnit.SECONDS);
 	}
 
@@ -93,8 +89,9 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 		 * Update Map of prices
 		 */
 		var client = new OkHttpClient();
+		final var url = this.config.zone().toUrl();
 		var request = new Request.Builder() //
-				.url(AWATTAR_API_URL) //
+				.url(url) //
 				// aWATTar currently does not anymore require an Apikey.
 				// .header("Authorization", Credentials.basic(apikey, "")) //
 				.build();
@@ -107,10 +104,7 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 			}
 
 			// Parse the response for the prices
-			this.prices.set(TimeOfUseTariffAwattarImpl.parsePrices(response.body().string()));
-
-			// store the time stamp
-			this.updateTimeStamp = ZonedDateTime.now();
+			this.prices.set(parsePrices(response.body().string()));
 
 		} catch (IOException | OpenemsNamedException e) {
 			e.printStackTrace();
@@ -134,45 +128,35 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		// return empty TimeOfUsePrices if data is not yet available.
-		if (this.updateTimeStamp == null) {
-			return TimeOfUsePrices.empty(ZonedDateTime.now());
-		}
-
-		return TimeOfUseTariffUtils.getNext24HourPrices(Clock.systemDefaultZone() /* can be mocked for testing */,
-				this.prices.get(), this.updateTimeStamp);
+		return TimeOfUsePrices.from(ZonedDateTime.now(), this.prices.get());
 	}
 
 	/**
-	 * Parse the aWATTar JSON to the Price Map.
+	 * Parse the aWATTar JSON to {@link TimeOfUsePrices}.
 	 *
 	 * @param jsonData the aWATTar JSON
-	 * @return the Price Map
+	 * @return the {@link TimeOfUsePrices}
 	 * @throws OpenemsNamedException on error
 	 */
-	public static ImmutableSortedMap<ZonedDateTime, Float> parsePrices(String jsonData) throws OpenemsNamedException {
-		var result = new TreeMap<ZonedDateTime, Float>();
-
-		var line = JsonUtils.parseToJsonObject(jsonData);
-		var data = JsonUtils.getAsJsonArray(line, "data");
-
-		for (JsonElement element : data) {
-
-			var marketPrice = JsonUtils.getAsFloat(element, "marketprice");
-			var startTimestampLong = JsonUtils.getAsLong(element, "start_timestamp");
+	public static TimeOfUsePrices parsePrices(String jsonData) throws OpenemsNamedException {
+		var result = new TreeMap<ZonedDateTime, Double>();
+		var data = getAsJsonArray(parseToJsonObject(jsonData), "data");
+		for (var element : data) {
+			var marketPrice = getAsDouble(element, "marketprice");
 
 			// Converting Long time stamp to ZonedDateTime.
 			var startTimeStamp = ZonedDateTime //
-					.ofInstant(Instant.ofEpochMilli(startTimestampLong), ZoneId.systemDefault())
+					.ofInstant(Instant.ofEpochMilli(getAsLong(element, "start_timestamp")), //
+							ZoneId.systemDefault())
 					.truncatedTo(ChronoUnit.HOURS);
-
+			
 			// Adding the values in the Map.
 			result.put(startTimeStamp, marketPrice);
 			result.put(startTimeStamp.plusMinutes(15), marketPrice);
 			result.put(startTimeStamp.plusMinutes(30), marketPrice);
 			result.put(startTimeStamp.plusMinutes(45), marketPrice);
 		}
-		return ImmutableSortedMap.copyOf(result);
+		return TimeOfUsePrices.from(result);
 	}
 
 	@Override
