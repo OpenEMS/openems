@@ -10,20 +10,21 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.alerting.Message;
-import io.openems.backend.common.metadata.UserAlertingSettings;
+import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.common.utils.JsonUtils;
 
 public class OfflineEdgeMessage extends Message {
 
-	public static final String TEMPLATE = "alerting_email";
+	public static final String TEMPLATE = "alerting_offline";
 
 	private final ZonedDateTime offlineAt;
-	private final TreeMap<Integer, List<UserAlertingSettings>> recipients;
+	private final TreeMap<Integer, List<OfflineEdgeAlertingSetting>> recipients;
 
-	private OfflineEdgeMessage(String edgeId, ZonedDateTime offlineAt, TreeMap<Integer, List<UserAlertingSettings>> map) {
+	private OfflineEdgeMessage(String edgeId, ZonedDateTime offlineAt,
+			TreeMap<Integer, List<OfflineEdgeAlertingSetting>> recipients) {
 		super(edgeId);
 		this.offlineAt = offlineAt;
-		this.recipients = map;
+		this.recipients = recipients;
 	}
 
 	public OfflineEdgeMessage(String edgeId, ZonedDateTime offlineAt) {
@@ -41,13 +42,13 @@ public class OfflineEdgeMessage extends Message {
 	 *
 	 * @param setting of user to whom to send the mail to
 	 */
-	public void addRecipient(UserAlertingSettings setting) {
-		this.recipients.putIfAbsent(setting.getDelayTime(), new ArrayList<>());
-		var settings = this.recipients.get(setting.getDelayTime());
+	public void addRecipient(OfflineEdgeAlertingSetting setting) {
+		this.recipients.putIfAbsent(setting.delay(), new ArrayList<>());
+		var settings = this.recipients.get(setting.delay());
 		settings.add(setting);
 	}
 
-	public List<UserAlertingSettings> getCurrentRecipients() {
+	public List<OfflineEdgeAlertingSetting> getCurrentRecipients() {
 		return this.recipients.get(this.recipients.firstKey());
 	}
 
@@ -77,14 +78,17 @@ public class OfflineEdgeMessage extends Message {
 	public JsonObject getParams() {
 		return JsonUtils.buildJsonObject() //
 				.add("recipients", JsonUtils.generateJsonArray(//
-						this.getCurrentRecipients(), s -> new JsonPrimitive(s.getId())))//
+						this.getCurrentRecipients(), s -> new JsonPrimitive(s.userLogin())))//
 				.addProperty("edgeId", this.getEdgeId()) //
 				.build();
 	}
 
 	@Override
 	public String toString() {
-		var rec = this.getCurrentRecipients().stream().map(UserAlertingSettings::getUserId).collect(Collectors.joining(","));
-		return "OfflineEdgeMessage{for=" + this.getEdgeId() + ", to=[" + rec + "], at=" + this.getNotifyStamp() + "}";
+		var rec = this.getCurrentRecipients().stream() //
+				.map(s -> String.valueOf(s.userLogin())) //
+				.collect(Collectors.joining(","));
+		return OfflineEdgeMessage.class.getSimpleName() + "{for=" + this.getEdgeId() + ", to=[" + rec + "], at="
+				+ this.getNotifyStamp() + "}";
 	}
 }
