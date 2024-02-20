@@ -20,10 +20,12 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predict
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.acMeterType;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.ctRatioFirst;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveEnabled;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveSoc;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInSetting;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInType;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.gridMeterType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasAcMeter;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEmergencyReserve;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
@@ -91,6 +93,8 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
       "FEED_IN_TYPE": {@link FeedInType},
       "MAX_FEED_IN_POWER":5000,
       "FEED_IN_SETTING":"PU_ENABLE_CURVE",
+      "GRID_METER_CATEGORY":"SMART_METER",
+      "CT_RATIO_FIRST": 200,
       "HAS_AC_METER": false,
       "AC_METER_TYPE": {@link AcMeterType},
       "HAS_PV_[1-6]":true,
@@ -137,6 +141,9 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 		FEED_IN_TYPE(feedInType()), //
 		MAX_FEED_IN_POWER(maxFeedInPower(FEED_IN_TYPE)), //
 		FEED_IN_SETTING(feedInSetting()), //
+
+		GRID_METER_CATEGORY(gridMeterType()), //
+		CT_RATIO_FIRST(ctRatioFirst(GRID_METER_CATEGORY)), //
 
 		HAS_AC_METER(hasAcMeter()), //
 		AC_METER_TYPE(acMeterType(HAS_AC_METER)), //
@@ -227,6 +234,14 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 					? this.getInt(p, Property.MAX_FEED_IN_POWER)
 					: 0;
 
+			final var gridMeterCategory = this.getEnum(p, GoodWeGridMeterCategory.class, Property.GRID_METER_CATEGORY);
+			final Integer ctRatioFirst;
+			if (gridMeterCategory == GoodWeGridMeterCategory.COMMERCIAL_METER) {
+				ctRatioFirst = this.getInt(p, Property.CT_RATIO_FIRST);
+			} else {
+				ctRatioFirst = null;
+			}
+
 			final var hasAcMeter = this.getBoolean(p, Property.HAS_AC_METER);
 			final var acType = this.getEnum(p, AcMeterType.class, Property.AC_METER_TYPE);
 
@@ -242,7 +257,7 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 							modbusIdExternal, shadowManagementDisabled, safetyCountry, feedInSetting), //
 					ess(bundle, essId, batteryId, batteryInverterId), //
 					io(bundle, modbusIdInternal), //
-					gridMeter(bundle, gridMeterId, modbusIdExternal), //
+					gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst), //
 					modbusInternal(bundle, t, modbusIdInternal), //
 					modbusExternal(bundle, t, modbusIdExternal), //
 					modbusForExternalMeters(bundle, t, modbusIdExternalMeters), //

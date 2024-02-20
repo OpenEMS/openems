@@ -1,7 +1,7 @@
 <ion-input *ngIf="props.type === 'number'; else noNumberInput" placeholder="{{props.placeholder}}"
-    style="width:100%; float:right; text-align: right" [type]="props.type || 'text'" [formControl]="formControl"
-    [min]="props.min"
-    oninput="this.value = this.min ? (!!this.value && this.value < this.min ? this.min : this.value) : this.value">
+    style="width:100%; float:right; text-align: right" 
+    [type]="props.type || 'text'" [formControl]="formControl"
+    [min]="props.min">
 </ion-input>
 <ng-template #noNumberInput>
     <ion-input placeholder="{{props.placeholder}}" style="width:100%; float:right; text-align: right"
