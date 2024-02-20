@@ -1,6 +1,7 @@
 package io.openems.backend.metadata.odoo;
 
-import java.util.stream.Collectors;
+import static java.util.stream.Collectors.joining;
+
 import java.util.stream.Stream;
 
 public interface Field {
@@ -34,13 +35,9 @@ public interface Field {
 	public boolean isQuery();
 
 	private static <T extends Enum<? extends Field>> Stream<Field> getSqlQueryFieldsOf(Class<T> field) {
-		return Stream.of(field.getEnumConstants()).map(v -> {
-			if (v instanceof Field f) {
-				return f;
-			} else {
-				return null;
-			}
-		}).filter(Field::isQuery);
+		return Stream.of(field.getEnumConstants()) //
+				.map(v -> v instanceof Field f ? f : null) //
+				.filter(Field::isQuery);
 	}
 
 	/**
@@ -53,7 +50,7 @@ public interface Field {
 		return Stream.of(fields) //
 				.filter(Field::isQuery) //
 				.map(Field::id) //
-				.collect(Collectors.joining(","));
+				.collect(joining(","));
 	}
 
 	/**
@@ -65,7 +62,8 @@ public interface Field {
 	 * @return list of fields
 	 */
 	public static <T extends Enum<? extends Field>> Field[] getSqlQueryFields(Class<T> field) {
-		return Field.getSqlQueryFieldsOf(field).toArray(Field[]::new);
+		return Field.getSqlQueryFieldsOf(field) //
+				.toArray(Field[]::new);
 	}
 
 	/**
@@ -85,7 +83,9 @@ public interface Field {
 
 	public record GenericField(String id) implements Field {
 		public GenericField(Field... fields) {
-			this(Stream.of(fields).map(Field::name).collect(Collectors.joining(".")));
+			this(Stream.of(fields) //
+					.map(Field::name) //
+					.collect(joining(".")));
 		}
 
 		@Override

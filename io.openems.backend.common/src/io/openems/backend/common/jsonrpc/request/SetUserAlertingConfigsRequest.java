@@ -1,5 +1,11 @@
 package io.openems.backend.common.jsonrpc.request;
 
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.common.utils.JsonUtils.generateJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsInt;
+import static io.openems.common.utils.JsonUtils.getAsJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsString;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +15,6 @@ import com.google.gson.JsonObject;
 import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request for 'getEdgeConfig'.
@@ -55,14 +60,14 @@ public class SetUserAlertingConfigsRequest extends JsonrpcRequest {
 		super(request, SetUserAlertingConfigsRequest.METHOD);
 		var params = request.getParams();
 
-		this.edgeId = JsonUtils.getAsString(params, "edgeId");
-		JsonUtils.getAsJsonArray(params, "userSettings").forEach(user -> {
+		this.edgeId = getAsString(params, "edgeId");
+		getAsJsonArray(params, "userSettings").forEach(user -> {
 			var userJsonObject = user.getAsJsonObject();
 			try {
-				var userLogin = JsonUtils.getAsString(userJsonObject, "userLogin");
-				var offlineEdgeDelay = JsonUtils.getAsInt(userJsonObject, "offlineEdgeDelay");
-				var faultEdgeDelay = JsonUtils.getAsInt(userJsonObject, "faultEdgeDelay");
-				var warningEdgeDelay = JsonUtils.getAsInt(userJsonObject, "warningEdgeDelay");
+				var userLogin = getAsString(userJsonObject, "userLogin");
+				var offlineEdgeDelay = getAsInt(userJsonObject, "offlineEdgeDelay");
+				var faultEdgeDelay = getAsInt(userJsonObject, "faultEdgeDelay");
+				var warningEdgeDelay = getAsInt(userJsonObject, "warningEdgeDelay");
 
 				this.userSettings
 						.add(new UserAlertingSettings(userLogin, offlineEdgeDelay, faultEdgeDelay, warningEdgeDelay));
@@ -92,14 +97,14 @@ public class SetUserAlertingConfigsRequest extends JsonrpcRequest {
 
 	@Override
 	public JsonObject getParams() {
-		return JsonUtils.buildJsonObject() //
+		return buildJsonObject() //
 				.addProperty("edgeId", this.edgeId) //
-				.add("userSettings", JsonUtils.generateJsonArray(this.userSettings, this::toJson)) //
+				.add("userSettings", generateJsonArray(this.userSettings, this::toJson)) //
 				.build();
 	}
 
 	private JsonElement toJson(UserAlertingSettings setting) {
-		return JsonUtils.buildJsonObject() //
+		return buildJsonObject() //
 				.addProperty("userLogin", setting.userLogin()) //
 				.addProperty("offlineEdgeDelay", setting.edgeOfflineDelay()) //
 				.addProperty("faultEdgeDelay", setting.edgeFaultDelay()) //

@@ -14,15 +14,10 @@ public record SumStateAlertingSetting(String edgeId, String userLogin, int fault
 	 */
 	public int getDelay(Level state) {
 		return switch (state) {
-		case OK:
-		case INFO:
-			yield 0;
-		case FAULT:
-			yield this.faultDelay;
-		case WARNING:
-			yield this.warningDelay;
-		default:
-			yield -1;
+		case OK, INFO -> 0;
+		case FAULT -> this.faultDelay;
+		case WARNING -> this.warningDelay;
+		default -> -1;
 		};
 	}
 }

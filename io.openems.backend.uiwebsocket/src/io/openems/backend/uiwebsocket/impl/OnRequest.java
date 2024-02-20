@@ -500,7 +500,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		if (userIsAdmin(user, edgeId)) {
 			var allSettings = this.parent.metadata.getUserAlertingSettings(edgeId);
 
-			var userOpt = allSettings.stream().filter(s -> s.userLogin().equals(user.getId())).findAny();
+			var userOpt = allSettings.stream() //
+					.filter(s -> s.userLogin().equals(user.getId())) //
+					.findAny();
 			if (userOpt.isPresent()) {
 				allSettings.remove(userOpt.get());
 				currentUser = userOpt.get();

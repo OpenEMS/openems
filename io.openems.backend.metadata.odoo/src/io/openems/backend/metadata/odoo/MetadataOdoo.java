@@ -613,7 +613,6 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 		}
 	}
 
-	
 	@Override
 	public void updateUserSettings(User user, JsonObject settings) throws OpenemsNamedException {
 		this.odooHandler.updateUserSettings(user, settings);

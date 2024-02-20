@@ -1,5 +1,8 @@
 package io.openems.backend.common.jsonrpc.response;
 
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.common.utils.JsonUtils.generateJsonArray;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -8,7 +11,6 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Response for 'getAlertingConfig'.
@@ -50,14 +52,14 @@ public class GetUserAlertingConfigsResponse extends JsonrpcResponseSuccess {
 
 	@Override
 	public JsonObject getResult() {
-		return JsonUtils.buildJsonObject() //
+		return buildJsonObject() //
 				.add("currentUserSettings", this.toJson(this.currentUserSettings)) //
-				.add("otherUsersSettings", JsonUtils.generateJsonArray(this.otherUsersSettings, this::toJson)) //
+				.add("otherUsersSettings", generateJsonArray(this.otherUsersSettings, this::toJson)) //
 				.build();
 	}
 
 	private JsonElement toJson(UserAlertingSettings setting) {
-		return JsonUtils.buildJsonObject() //
+		return buildJsonObject() //
 				.addProperty("userLogin", setting.userLogin()) //
 				.addProperty("offlineEdgeDelay", setting.edgeOfflineDelay()) //
 				.addProperty("faultEdgeDelay", setting.edgeFaultDelay()) //

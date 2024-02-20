@@ -61,7 +61,7 @@ public class DummyMetadata implements Metadata {
 	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
-	
+
 	@Override
 	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");

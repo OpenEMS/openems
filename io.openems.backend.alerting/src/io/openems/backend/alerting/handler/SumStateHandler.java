@@ -182,14 +182,9 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	@Override
 	public Consumer<EventReader> getEventHandler(String eventTopic) {
 		return switch (eventTopic) {
-		case Edge.Events.ON_SET_ONLINE:
-			yield this::handleEdgeOnSetOnline;
-
-		case Edge.Events.ON_SET_SUM_STATE:
-			yield this::handleEdgeOnSetSumState;
-
-		default:
-			yield null;
+		case Edge.Events.ON_SET_ONLINE -> this::handleEdgeOnSetOnline;
+		case Edge.Events.ON_SET_SUM_STATE -> this::handleEdgeOnSetSumState;
+		default -> null;
 		};
 	}
 
