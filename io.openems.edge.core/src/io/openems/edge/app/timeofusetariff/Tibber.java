@@ -1,6 +1,7 @@
 package io.openems.edge.app.timeofusetariff;
 
 import static io.openems.edge.core.appmanager.formly.enums.InputType.PASSWORD;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -40,6 +41,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for Tibber.
@@ -173,6 +175,12 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.SINGLE_IN_CATEGORY;
+	}
+
+	@Override
+	protected ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
+				.setCompatibleCheckableConfigs(checkHome());
 	}
 
 	@Override
