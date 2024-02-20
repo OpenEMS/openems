@@ -920,7 +920,7 @@
       "emailNotEqual": "E-Mails are not equal"
     },
     "success": "Registration successful",
-    "createUser": "Create installer account"
+    "createUser": "Create account"
   },
   "Role": {
     "guest": "Guest",
