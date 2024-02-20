@@ -34,6 +34,7 @@ import java.util.UUID;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -182,23 +183,32 @@ public final class Utils {
 	 * @param p the {@link Params}
 	 * @return the {@link Genotype}
 	 */
-	public static List<Genotype<IntegerGene>> buildInitialPopulation(Params p) {
+	public static ImmutableList<Genotype<IntegerGene>> buildInitialPopulation(Params p) {
 		var states = List.of(p.states());
-		return List.of(//
-				Genotype.of(//
+		var b = ImmutableList.<Genotype<IntegerGene>>builder() //
+				// All BALANCING
+				.add(Genotype.of(//
 						IntStream.range(0, p.numberOfPeriods()) //
 								.map(i -> states.indexOf(BALANCING)) //
 								.mapToObj(state -> IntegerChromosome.of(IntegerGene.of(state, 0, p.states().length))) //
-								.toList()), //
-				Genotype.of(//
-						IntStream.range(0, p.numberOfPeriods()) //
-								// Map to state index; not-found maps to '-1', corrected to '0'
-								.map(i -> fitWithin(0, p.states().length, states.indexOf(//
-										p.existingSchedule().length > i //
-												? p.existingSchedule()[i] //
-												: BALANCING))) //
-								.mapToObj(state -> IntegerChromosome.of(IntegerGene.of(state, 0, p.states().length))) //
 								.toList()));
+
+		if (p.existingSchedule().length > 0 //
+				&& Stream.of(p.existingSchedule()) //
+						.anyMatch(s -> s != StateMachine.BALANCING)) {
+			// Existing Schedule if available
+			b.add(Genotype.of(//
+					IntStream.range(0, p.numberOfPeriods()) //
+							// Map to state index; not-found maps to '-1', corrected to '0'
+							.map(i -> fitWithin(0, p.states().length, states.indexOf(//
+									p.existingSchedule().length > i //
+											? p.existingSchedule()[i] //
+											: BALANCING))) //
+							.mapToObj(state -> IntegerChromosome.of(IntegerGene.of(state, 0, p.states().length))) //
+							.toList()));
+		}
+
+		return b.build();
 	}
 
 	protected static boolean paramsAreValid(Params p) {
@@ -389,17 +399,25 @@ public final class Utils {
 	protected static int calculateParamsChargeEnergyInChargeGrid(int essMinSocEnergy, int essMaxSocEnergy,
 			int[] productions, int[] consumptions) {
 		var usableEssEnergy = max(0, essMaxSocEnergy - essMinSocEnergy);
-		var excessConsumptionEnergy = IntStream.range(0, min(productions.length, consumptions.length)) //
+		var excessConsumptionEnergy = max(0, //
+				IntStream.range(0, min(productions.length, consumptions.length)) //
+						.map(i -> consumptions[i] - productions[i]) // calculates excess Consumption Energy per Period
+						.sum());
+		var excessConsumptionEnergyInitial = IntStream.range(0, min(productions.length, consumptions.length)) //
+				.takeWhile(i -> consumptions[i] >= productions[i]) // take only first Periods
 				.map(i -> consumptions[i] - productions[i]) // calculates excess Consumption Energy per Period
 				.sum();
+
 		final int referenceEnergy;
-		if (excessConsumptionEnergy > 1000) {
-			referenceEnergy = min(usableEssEnergy, excessConsumptionEnergy);
+		if (excessConsumptionEnergy > 500) {
+			referenceEnergy = excessConsumptionEnergy;
+		} else if (excessConsumptionEnergyInitial > 500) {
+			referenceEnergy = excessConsumptionEnergyInitial;
 		} else {
-			referenceEnergy = usableEssEnergy; // excessConsumptionEnergy is invalid
+			referenceEnergy = usableEssEnergy;
 		}
 
-		return round(referenceEnergy * ESS_CHARGE_C_RATE / PERIODS_PER_HOUR);
+		return round(min(usableEssEnergy, referenceEnergy) * ESS_CHARGE_C_RATE / PERIODS_PER_HOUR);
 	}
 
 	/**

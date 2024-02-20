@@ -20,6 +20,7 @@ import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRODUCTION
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRODUCTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.STATES;
 import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest.getComponentManager;
+import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest.getContext;
 import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest.getOptimizer;
 import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest.getPredictorManager;
 import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest.getTimeOfUseTariff;
@@ -41,6 +42,7 @@ import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.cal
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateMaxChargeProductionPower;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateParamsChargeEnergyInChargeGrid;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.createSchedule;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.createSimulatorParams;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.generateProductionPrediction;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.handleGetScheduleRequest;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.interpolateArray;
@@ -66,6 +68,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 import org.junit.Test;
 
@@ -86,6 +89,21 @@ import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
 
 public class UtilsTest {
+
+	@Test
+	public void testCreateSimulatorParams() throws Exception {
+		var context = getContext(TimeOfUseTariffControllerImplTest.create());
+		var p = createSimulatorParams(context, new TreeMap<>());
+		assertEquals(0, p.numberOfPeriods());
+		assertEquals(10000, p.essTotalEnergy());
+		assertEquals(0, p.essMinSocEnergy());
+		assertEquals(250, p.essMaxEnergyPerPeriod());
+		assertEquals(6000, p.essInitialEnergy());
+		assertEquals(250, p.essMaxEnergyPerPeriod());
+		assertEquals(1125, p.essChargeInChargeGrid());
+		assertEquals(0, p.maxBuyFromGrid());
+		assertArrayEquals(ControlMode.CHARGE_CONSUMPTION.states, p.states());
+	}
 
 	@Test
 	public void testInterpolateArrayFloat() {
@@ -157,8 +175,13 @@ public class UtilsTest {
 	public void testCalculateParamsMaxChargeEnergyInChargeGrid() {
 		assertEquals(1250, calculateParamsChargeEnergyInChargeGrid(1000, 11000, new int[0], new int[0]));
 
-		assertEquals(250, calculateParamsChargeEnergyInChargeGrid(1000, 11000, new int[] { 0, 100, 200 },
+		assertEquals(250, calculateParamsChargeEnergyInChargeGrid(1000, 11000, //
+				new int[] { 0, 100, 200 }, //
 				new int[] { 1000, 1100 }));
+
+		assertEquals(200, calculateParamsChargeEnergyInChargeGrid(1000, 11000, //
+				new int[] { 0, 100, 200, 300, 400, 500, 600, 700 }, //
+				new int[] { 700, 600, 500, 400, 300, 200, 100, 0 }));
 	}
 
 	@Test
@@ -390,6 +413,26 @@ public class UtilsTest {
 
 	@Test
 	public void testBuildInitialPopulation() {
+		{
+			var lgt = buildInitialPopulation(Params.create() //
+					.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+					.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+					.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
+					.states(ControlMode.CHARGE_CONSUMPTION.states) //
+					.existingSchedule() //
+					.build());
+			assertEquals(1, lgt.size()); // No Schedule -> only pure BALANCING
+		}
+		{
+			var lgt = buildInitialPopulation(Params.create() //
+					.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+					.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+					.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
+					.states(ControlMode.CHARGE_CONSUMPTION.states) //
+					.existingSchedule(BALANCING, BALANCING) //
+					.build());
+			assertEquals(1, lgt.size()); // Existing Schedule is only BALANCING -> only pure BALANCING
+		}
 		{
 			var gt = buildInitialPopulation(Params.create() //
 					.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //

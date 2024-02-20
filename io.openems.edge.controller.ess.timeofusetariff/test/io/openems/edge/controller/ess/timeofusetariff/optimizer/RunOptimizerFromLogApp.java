@@ -21,7 +21,7 @@ import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
  * 
  * <p>
  * <code>
- * journalctl -lu openems --since="20 minutes ago" | grep OPTIMIZER`
+ * journalctl -lu openems --since="20 minutes ago" | grep OPTIMIZER
  * </code>
  */
 public class RunOptimizerFromLogApp {
