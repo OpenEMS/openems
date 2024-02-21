@@ -76,7 +76,7 @@ steps:
       - *main-build
       - *message-debian
       - *ui-only
-    image: openems-build:latest
+    image: openems-build:21.20
     commands:
       - export OEM=$(case ${CI_COMMIT_BRANCH^^} in *HECKERT*) echo "heckert";; *) echo "fenecon";; esac)
       - source $CI_WORKSPACE/.woodpecker-env
@@ -97,7 +97,7 @@ steps:
       - *main-build
       - *message-debian
       - *java-only
-    image: openems-build:latest
+    image: openems-build:21.20
     commands:
       - source $CI_WORKSPACE/.woodpecker-env
       - source $CI_WORKSPACE/.openems-env
@@ -112,7 +112,7 @@ steps:
     when:
       - *main-build
       - *message-debian
-    image: openems-build:latest
+    image: openems-build:21.20
     commands:
       - source $CI_WORKSPACE/.woodpecker-env
       - source $CI_WORKSPACE/.openems-env
