@@ -665,7 +665,11 @@
       "VALUE_WITH_LABEL_HOME_DC": "Wert MPPT{{ mppt }} PV{{ pv }} {{ symbol }}",
       "ORIENTATION_WITH_LABEL_HOME_DC": "Ausrichtung MPPT{{ mppt }} PV{{ pv }}",
       "MODULE_TYPE_WITH_LABEL_HOME_DC": "Modultyp MPPT{{ mppt }} PV{{ pv }}",
-      "NUMBER_OF_MODULES_WITH_LABEL_HOME_DC": "Anzahl PV-Module MPPT{{ mppt }} PV{{ pv }}"
+      "NUMBER_OF_MODULES_WITH_LABEL_HOME_DC": "Anzahl PV-Module MPPT{{ mppt }} PV{{ pv }}",
+      "DEVICE_CONNECTION_CHECKED": "Das Stromspeichersystem ist an das Stromnetz angeschlossen",
+      "ENERGY_FLOW_METER": {
+        "LABEL": "Installierter Netzzähler"
+      }
     },
     "CONFIGURATION_SYSTEM": {
       "OPEN_INSTRUCTIONS": "Anleitung öffnen",
@@ -816,6 +820,15 @@
     },
     "CONFIGURATION_COMMERCIAL_MODBUS_BRIDGE": {
       "HEADER": "Auswahl der Kommunikationsart"
+    },
+    "CONFIGURATION_ENERGY_FLOW_METER": {
+      "TITLE": "Auswahl Energieflussrichtungszähler",
+      "METER": {
+        "WITH_CT": "Home 3-Phasensensor mit Stromwandler 120 A (Standardlieferumfang)",
+        "WITHOUT_CT": "Home 3-Phasensensor ohne Stromwandler (Optional)",
+        "LABEL": "Zähler"
+      },
+      "CONVERTER_RATIO": "Primärstrom (200–5000A)"
     },
     "CONFIGURATION_MPPT_SELECTION_NOTE": "Weitere Erzeuger können im Anschluss über das App Center konfiguriert werden."
   },

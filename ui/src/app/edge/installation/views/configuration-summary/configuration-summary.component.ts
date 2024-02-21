@@ -130,10 +130,12 @@ export class ConfigurationSummaryComponent implements OnInit {
       rows: this.fillData(this.ibn.customer, Category.CUSTOMER),
     });
 
-    tableData.push({
-      header: Category.BATTERY_LOCATION,
-      rows: this.fillData(this.ibn.location, Category.BATTERY_LOCATION),
-    });
+    if(!this.ibn.location.isEqualToCustomerData){
+      tableData.push({
+        header: Category.BATTERY_LOCATION,
+        rows: this.fillData(this.ibn.location, Category.BATTERY_LOCATION),
+      });
+    }
 
     const batteryData: ComponentData[] = this.ibn.addCustomBatteryData();
     batteryData.push({ label: this.translate.instant('Index.TYPE'), value: this.ibn.type });
@@ -158,6 +160,14 @@ export class ConfigurationSummaryComponent implements OnInit {
       tableData.push({
         header: Category.PRODUCER,
         rows: pvData,
+      });
+    }
+
+    const meterData = this.ibn.addCustomMeterData();
+    if(meterData.length > 0){
+      tableData.push({
+        header: Category.GRID_METER_CATEGORY,
+        rows: meterData,
       });
     }
 
@@ -191,12 +201,8 @@ export class ConfigurationSummaryComponent implements OnInit {
   private fillData(data: any, category: Category.CUSTOMER | Category.INSTALLER | Category.BATTERY_LOCATION): ComponentData[] {
     const rows: ComponentData[] = [];
 
-    if ((category !== Category.INSTALLER && data.isCorporateClient) || (category === Category.INSTALLER)) {
+    if ((category === Category.CUSTOMER && data.isCorporateClient) || (category === Category.INSTALLER)) {
       rows.push({ label: this.translate.instant('Register.Form.company'), value: data.companyName });
-    }
-
-    if (category === Category.BATTERY_LOCATION && data.isEqualToCustomerData) {
-      return rows;
     }
 
     rows.push(

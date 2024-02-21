@@ -11,6 +11,7 @@ import { AppCenterUtil } from '../../shared/appcenterutil';
 import { Category } from '../../shared/category';
 import { FeedInSetting, FeedInType, View, WebLinks } from '../../shared/enums';
 import { ComponentData, DcPv, SerialNumberFormData } from '../../shared/ibndatatypes';
+import { Meter } from '../../shared/meter';
 import { SystemId, SystemType } from '../../shared/system';
 import { BaseMode, ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
 import { SafetyCountry } from '../../views/configuration-execute/safety-country';
@@ -91,6 +92,12 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       gtcLink: WebLinks.GTC_LINK,
       warrantyLink: WebLinks.WARRANTY_LINK_HOME,
     };
+
+  // configuration Energu Flow Meter
+  public energyFlowMeter: {
+    meter: Meter.GridMeterCategory;
+    value?: number;
+  };
 
   public mppt: {} = {
     mppt1pv1: true,
@@ -531,6 +538,22 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
     const feedInLimitation = this.feedInLimitation;
     const emergencyReserve = this.emergencyReserve;
+    const energyFlowMeter = this.energyFlowMeter;
+
+    if (energyFlowMeter) {
+      protocol.items.push({
+        category: Category.GRID_METER_CATEGORY,
+        name: this.translate.instant('INSTALLATION.CONFIGURATION_ENERGY_FLOW_METER.METER.LABEL'),
+        value: Meter.toGridMeterCategoryLabelString(energyFlowMeter.meter, this.translate),
+      });
+      if (energyFlowMeter.meter === Meter.GridMeterCategory.COMMERCIAL_METER) {
+        protocol.items.push({
+          category: Category.GRID_METER_CATEGORY,
+          name: this.translate.instant('INSTALLATION.CONFIGURATION_ENERGY_FLOW_METER.CONVERTER_RATIO'),
+          value: energyFlowMeter.value.toString(),
+        });
+      }
+    }
 
     protocol.items.push({
       category: Category.EMERGENCY_RESERVE,
@@ -716,7 +739,6 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       ? SafetyCountry.getSafetyCountry(this.customer.country)
       : SafetyCountry.getSafetyCountry(this.location.country);
 
-
     // Determine feed-in-setting
     let feedInSetting: FeedInSetting;
     const feedInLimitation = this.feedInLimitation;
@@ -777,7 +799,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     });
 
     // meter0
-    componentConfigurator.add({
+    const goodweMeter = {
       factoryId: 'GoodWe.Grid-Meter',
       componentId: 'meter0',
       alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.GRID_METER'),
@@ -785,10 +807,17 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'enabled', value: true },
         { name: 'modbus.id', value: 'modbus1' },
         { name: 'modbusUnitId', value: 247 },
+        { name: 'goodWeMeterCategory', value: this.energyFlowMeter.meter },
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
       baseMode: baseMode,
-    });
+    };
+
+    if(this.energyFlowMeter.meter === Meter.GridMeterCategory.COMMERCIAL_METER){
+      goodweMeter.properties.push({ name: 'externalMeterRatioValueA', value: this.energyFlowMeter.value });
+    }
+
+    componentConfigurator.add(goodweMeter);
 
     // io0
     componentConfigurator.add({
@@ -820,7 +849,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     });
 
     // batteryInverter0
-    let goodweconfig = {
+    const goodweconfig = {
       factoryId: 'GoodWe.BatteryInverter',
       componentId: 'batteryInverter0',
       alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY_INVERTER'),
@@ -1050,5 +1079,25 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         });
       }
     }
+  }
+
+  public override addCustomMeterData(): ComponentData[] {
+    const meterData: ComponentData[] = [];
+    const energyFlowMeter = this.energyFlowMeter;
+
+    if (energyFlowMeter) {
+      meterData.push({
+        label: this.translate.instant('INSTALLATION.CONFIGURATION_ENERGY_FLOW_METER.METER.LABEL'),
+        value: Meter.toGridMeterCategoryLabelString(energyFlowMeter.meter, this.translate),
+      });
+      if (energyFlowMeter.meter === Meter.GridMeterCategory.COMMERCIAL_METER) {
+        meterData.push({
+          label: this.translate.instant('INSTALLATION.CONFIGURATION_ENERGY_FLOW_METER.CONVERTER_RATIO'),
+          value: energyFlowMeter.value.toString(),
+        });
+      }
+    }
+
+    return meterData;
   }
 }

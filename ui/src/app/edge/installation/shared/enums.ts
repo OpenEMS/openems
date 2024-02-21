@@ -120,5 +120,6 @@ export enum View {
     ConfigurationCommercialModbuBridge,
     ConfigurationMpptSelection,
     ConfigurationSystemVariant,
-    ConfigurationSubSystem
+    ConfigurationSubSystem,
+    ConfigurationEnergyFlowMeter,
 }

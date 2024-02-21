@@ -50,6 +50,10 @@
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
                 </configuration-emergency-reserve>
 
+                <configuration-energy-flow-direction-meter *ngSwitchCase="view.ConfigurationEnergyFlowMeter" [ibn]="ibn"
+                    (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
+                </configuration-energy-flow-direction-meter>
+
                 <configuration-line-side-meter-fuse *ngSwitchCase="view.ConfigurationLineSideMeterFuse" [ibn]="ibn"
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
                 </configuration-line-side-meter-fuse>

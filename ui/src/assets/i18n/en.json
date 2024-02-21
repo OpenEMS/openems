@@ -666,7 +666,11 @@
       "VALUE_WITH_LABEL_HOME_DC": "Value MPPT{{ mppt }} PV{{ pv }} {{ symbol }}",
       "ORIENTATION_WITH_LABEL_HOME_DC": "MPPT{{ mppt }} PV{{ pv }} Orientation",
       "MODULE_TYPE_WITH_LABEL_HOME_DC": "Type of modules MPPT{{ mppt }} PV{{ pv }}",
-      "NUMBER_OF_MODULES_WITH_LABEL_HOME_DC": "Numnber of PV modules MPPT{{ mppt }} PV{{ pv }}"
+      "NUMBER_OF_MODULES_WITH_LABEL_HOME_DC": "Numnber of PV modules MPPT{{ mppt }} PV{{ pv }}",
+      "DEVICE_CONNECTION_CHECKED": "The energy storage system is connected to the power grid",
+      "ENERGY_FLOW_METER": {
+        "LABEL": "Installed Grid-Meter"
+      }
     },
     "CONFIGURATION_SYSTEM": {
       "OPEN_INSTRUCTIONS": "Open instructions",
@@ -817,6 +821,15 @@
     },
     "CONFIGURATION_COMMERCIAL_MODBUS_BRIDGE": {
       "HEADER": "Select the type of Communication"
+    },
+    "CONFIGURATION_ENERGY_FLOW_METER": {
+      "TITLE": "Selection of energy flow direction meter",
+      "METER": {
+        "WITH_CT": "Home 3-phase sensor with current transformer 120A (standard scope of delivery)",
+        "WITHOUT_CT": "Home 3-phase sensor without current transformer (optional)",
+        "LABEL": "Meter"
+      },
+      "CONVERTER_RATIO": "Converter ratio (200–5000A)"
     },
     "CONFIGURATION_MPPT_SELECTION_NOTE": "Additional generators can then be configured via the App Center."
   },

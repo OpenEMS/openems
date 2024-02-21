@@ -10,9 +10,9 @@ import { FeedInType, ModbusBridgeType, WebLinks } from '../../shared/enums';
 import { ComponentData } from '../../shared/ibndatatypes';
 import { IbnUtils } from '../../shared/ibnutils';
 import { Meter } from '../../shared/meter';
+import { SubSystemType, SystemType } from '../../shared/system';
 import { ComponentConfigurator, ConfigurationMode, ConfigurationObject } from '../../views/configuration-execute/component-configurator';
 import { AbstractIbn } from '../abstract-ibn';
-import { SubSystemType, SystemType } from '../../shared/system';
 
 export abstract class AbstractCommercialIbn extends AbstractIbn {
     private static readonly SELECTOR = 'Commercial';
@@ -41,10 +41,10 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         category: Category;
         fixedValue?: number;
         otherValue?: number;
-        meterType: Meter;
+        meterType: Meter.GridMeter;
     } = {
             category: Category.LINE_SIDE_METER_FUSE_COMMERCIAL,
-            meterType: Meter.KDK,
+            meterType: Meter.GridMeter.KDK,
         };
 
     public numberOfModulesPerTower: number;
@@ -89,11 +89,11 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 label: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.METER_LABEL'),
                 required: true,
                 options: [
-                    { label: "SOCOMEC", value: Meter.SOCOMEC },
-                    { label: "KDK", value: Meter.KDK },
+                    { label: "SOCOMEC", value: Meter.GridMeter.SOCOMEC },
+                    { label: "KDK", value: Meter.GridMeter.KDK },
                 ],
             },
-            defaultValue: Meter.KDK,
+            defaultValue: Meter.GridMeter.KDK,
         });
         return fields;
     }

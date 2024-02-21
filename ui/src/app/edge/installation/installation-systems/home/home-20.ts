@@ -2,6 +2,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { Category } from "../../shared/category";
 import { FeedInSetting, FeedInType, View } from "../../shared/enums";
 import { DcPv } from "../../shared/ibndatatypes";
+import { Meter } from "../../shared/meter";
 import { SystemId } from "../../shared/system";
 import { SafetyCountry } from "../../views/configuration-execute/safety-country";
 import { AbstractHomeIbn } from "./abstract-home";
@@ -10,6 +11,8 @@ type Home20App = {
     SAFETY_COUNTRY: SafetyCountry,
     FEED_IN_TYPE: FeedInType,
     FEED_IN_SETTING: string,
+    GRID_METER_CATEGORY: Meter.GridMeterCategory,
+    CT_RATIO_FIRST: number,
     MAX_FEED_IN_POWER?: number,
     HAS_PV_1: boolean,
     ALIAS_PV_1?: string,
@@ -62,6 +65,7 @@ export class Home20FeneconIbn extends AbstractHomeIbn {
             View.ProtocolCustomer,
             View.ProtocolSystem,
             View.ConfigurationEmergencyReserve,
+            View.ConfigurationEnergyFlowMeter,
             View.ConfigurationLineSideMeterFuse,
             View.ConfigurationMpptSelection,
             View.ProtocolPv,
@@ -85,6 +89,8 @@ export class Home20FeneconIbn extends AbstractHomeIbn {
             FEED_IN_TYPE: this.feedInLimitation.feedInType,
             ...(this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION && { MAX_FEED_IN_POWER: this.feedInLimitation.maximumFeedInPower }),
             FEED_IN_SETTING: feedInSetting,
+            GRID_METER_CATEGORY: this.energyFlowMeter.meter,
+            ...(this.energyFlowMeter.meter === Meter.GridMeterCategory.COMMERCIAL_METER && { CT_RATIO_FIRST: this.energyFlowMeter.value }),
             HAS_PV_1: dc1.isSelected,
             ...(dc1.isSelected && { ALIAS_PV_1: dc1.alias }),
             HAS_PV_2: dc2.isSelected,

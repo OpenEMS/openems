@@ -25,6 +25,7 @@ import { ProtocolSystemComponent } from "./views/protocol-system/protocol-system
 import { ConfigurationMpptSelectionComponent } from "./views/configuration-mppt-selection/configuration-mppt-selection.component";
 import { ConfigurationSystemVariantComponent } from "./views/configuration-system-variant/configuration-system-variant";
 import { ConfigurationSubSystemComponent } from "./views/configuration-sub-system/configuration-sub-system";
+import { ConfigurationEnergyFlowMeterComponent } from "./views/configuration-energy-flow-direction-meter/configuration-energy-flow-direction-meter.component";
 
 //#region Validators
 export function EmailMatchValidator(control: FormControl): ValidationErrors {
@@ -141,6 +142,7 @@ export function DefaultAsMinValueValidator(control: FormControl, field: FormlyFi
     ConfigurationMpptSelectionComponent,
     ConfigurationSystemVariantComponent,
     ConfigurationSubSystemComponent,
+    ConfigurationEnergyFlowMeterComponent,
   ],
 })
 export class InstallationModule { }

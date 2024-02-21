@@ -86,7 +86,7 @@ export abstract class AbstractIbn {
     category: Category;
     fixedValue?: number;
     otherValue?: number;
-    meterType?: Meter;
+    meterType?: Meter.GridMeter;
   };
 
   // protocol-dynamic-feed-in-limitation
@@ -267,6 +267,15 @@ export abstract class AbstractIbn {
    *
    */
   public addCustomPvData(): ComponentData[] {
+    return [];
+  };
+
+  /**
+   * View Configuration Energy Flow Direction Meter
+   * Adds and returns the Meter information based on Ibn to view in summary.
+   *
+   */
+  public addCustomMeterData(): ComponentData[] {
     return [];
   };
 
