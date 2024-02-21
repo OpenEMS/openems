@@ -1,28 +1,37 @@
 package io.openems.edge.bridge.http.api;
 
+import static java.util.Collections.emptyMap;
+
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import com.google.gson.JsonElement;
 
-import io.openems.common.function.ThrowingConsumer;
+import io.openems.common.function.ThrowingFunction;
 import io.openems.common.utils.JsonUtils;
 
 /**
- * HttpBridge to handle request to a endpoint.
- * 
- * <p>
- * If a request is scheduled every cycle and the request does take longer than
- * one cycle it is not executed multiple times instead it waits until the last
- * request is finished and will be executed with the next cycle.
+ * HttpBridge to handle requests to a {@link Endpoint}.
  * 
  * <p>
  * To get a reference to a bridge object include this in your component:
  * 
  * <pre>
-   <code>@Reference</code>(scope = ReferenceScope.PROTOTYPE_REQUIRED)
+   <code>@Reference</code>
+   private BridgeHttpFactory httpBridgeFactory;
    private BridgeHttp httpBridge;
+   
+   <code>@Activate</code>
+   private void activate() {
+       this.httpBridge = this.httpBridgeFactory.get();
+   }
+   
+   <code>@Deactivate</code>
+   private void deactivate() {
+       this.httpBridgeFactory.unget(this.httpBridge);
+       this.httpBridge = null;
+   }
  * </pre>
  * 
  * <p>
@@ -36,13 +45,15 @@ import io.openems.common.utils.JsonUtils;
  * });
  * </pre>
  * 
- * <p>
- * If an enpoint does not require to be called every cycle it can also be
- * configured with e. g. {@link BridgeHttp#subscribe(int, String, Consumer)}
- * where the first value could be 5 then the request gets triggered every 5th
- * cycle.
+ * @see BridgeHttpCycle for more detailed explanation for requests based on
+ *      cycle
+ * @see BridgeHttpTime for more detailed explanation for requests based on time
+ *      e. g. every hour
  */
-public interface BridgeHttp {
+public interface BridgeHttp extends BridgeHttpCycle, BridgeHttpTime {
+
+	public static int DEFAULT_CONNECT_TIMEOUT = 5000; // 5s
+	public static int DEFAULT_READ_TIMEOUT = 5000; // 5s
 
 	/**
 	 * Default empty error handler.
@@ -51,241 +62,169 @@ public interface BridgeHttp {
 	};
 
 	public record Endpoint(//
-			/**
-			 * Configures how often the url should be fetched.
-			 * 
-			 * <p>
-			 * e. g. if the cycle is 3 the url gets fetched every 3th cycle and also only if
-			 * the last request was finished either successfully or with a error.
-			 */
-			int cycle, //
-			/**
-			 * The url which should be fetched.
-			 */
 			String url, //
-			/**
-			 * The callback to execute on every successful result.
-			 */
-			Consumer<String> result, //
-			/**
-			 * The callback to execute on every error.
-			 */
-			Consumer<Throwable> onError //
+			HttpMethod method, //
+			int connectTimeout, //
+			int readTimeout, //
+			String body, // nullable
+			Map<String, String> properties //
 	) {
-
-		@Override
-		public String toString() {
-			return "Endpoint [cycle=" + this.cycle() + ", url=" + this.url() + "]";
-		}
 
 	}
 
 	/**
-	 * Subscribes to one http endpoint.
+	 * Fetches the url once with {@link HttpMethod#GET}.
 	 * 
-	 * @param endpoint the {@link Endpoint} configuration
+	 * @param url the url to fetch
+	 * @return the result response future
 	 */
-	public void subscribe(Endpoint endpoint);
-
-	/**
-	 * Subscribes to one http endpoint.
-	 * 
-	 * <p>
-	 * Tries to fetch data every n-cycle. If receiving data takes more than n-cycle
-	 * the next get request to the url gets send when the last was finished either
-	 * successfully or with a timeout.
-	 * 
-	 * @param cycle  the number of cycles to wait between requests
-	 * @param url    the url of the enpoint
-	 * @param result the consumer to call on every successful result
-	 */
-	public default void subscribe(int cycle, String url, Consumer<String> result) {
-		this.subscribe(new Endpoint(cycle, url, result, EMPTY_ERROR_HANDLER));
+	public default CompletableFuture<String> get(String url) {
+		final var endpoint = new Endpoint(//
+				url, //
+				HttpMethod.GET, //
+				DEFAULT_CONNECT_TIMEOUT, //
+				DEFAULT_READ_TIMEOUT, //
+				null, //
+				emptyMap() //
+		);
+		return this.request(endpoint);
 	}
 
 	/**
-	 * Subscribes to one http endpoint.
+	 * Fetches the url once with {@link HttpMethod#GET} and expects the result to be
+	 * in json format.
 	 * 
-	 * <p>
-	 * Tries to fetch data every n-cycle. If receiving data takes more than n-cycle
-	 * the next get request to the url gets send when the last was finished either
-	 * successfully or with an error.
-	 * 
-	 * @param cycle   the number of cycles to wait between requests
-	 * @param url     the url of the enpoint
-	 * @param result  the consumer to call on every successful result
-	 * @param onError the consumer to call on a error
+	 * @param url the url to fetch
+	 * @return the result response future
 	 */
-	public default void subscribe(//
-			final int cycle, //
-			final String url, //
-			final ThrowingConsumer<String, Exception> result, //
-			final Consumer<Throwable> onError //
-	) {
-		this.subscribe(new Endpoint(cycle, url, t -> {
-			try {
-				result.accept(t);
-			} catch (Exception e) {
-				onError.accept(e);
-			}
-		}, onError));
+	public default CompletableFuture<JsonElement> getJson(String url) {
+		return mapFuture(this.get(url), JsonUtils::parse);
 	}
 
 	/**
-	 * Subscribes to one http endpoint.
+	 * Fetches the url once with {@link HttpMethod#PUT}.
 	 * 
-	 * <p>
-	 * Tries to fetch data every n-cycle. If receiving data takes more than n-cycle
-	 * the next get request to the url gets send when the last was finished either
-	 * successfully or with an error.
-	 * 
-	 * @param cycle  the number of cycles to wait between requests
-	 * @param url    the url of the enpoint
-	 * @param action the action to perform; the first is the result of the endpoint
-	 *               if existing and the second argument is passed if an error
-	 *               happend. One of the params is always null and one not
+	 * @param url the url to fetch
+	 * @return the result response future
 	 */
-	public default void subscribe(//
-			final int cycle, //
-			final String url, //
-			final BiConsumer<String, Throwable> action //
-	) {
-		this.subscribe(cycle, url, r -> action.accept(r, null), t -> action.accept(null, t));
+	public default CompletableFuture<String> put(String url) {
+		final var endpoint = new Endpoint(//
+				url, //
+				HttpMethod.PUT, //
+				DEFAULT_CONNECT_TIMEOUT, //
+				DEFAULT_READ_TIMEOUT, //
+				null, //
+				emptyMap() //
+		);
+		return this.request(endpoint);
 	}
 
 	/**
-	 * Subscribes to one http endpoint.
+	 * Fetches the url once with {@link HttpMethod#PUT} and expects the result to be
+	 * in json format.
 	 * 
-	 * <p>
-	 * Tries to fetch data every cycle. If receiving data takes more than one cycle
-	 * the next get request to the url gets send when the last was finished either
-	 * successfully or with an error.
-	 * 
-	 * @param url     the url of the enpoint
-	 * @param result  the consumer to call on every successful result
-	 * @param onError the consumer to call on a error
+	 * @param url the url to fetch
+	 * @return the result response future
 	 */
-	public default void subscribeEveryCycle(//
-			final String url, //
-			final ThrowingConsumer<String, Exception> result, //
-			final Consumer<Throwable> onError //
-	) {
-		this.subscribe(1, url, result, onError);
+	public default CompletableFuture<JsonElement> putJson(String url) {
+		return mapFuture(this.put(url), JsonUtils::parse);
 	}
 
 	/**
-	 * Subscribes to one http endpoint.
+	 * Fetches the url once with {@link HttpMethod#POST}.
 	 * 
-	 * <p>
-	 * Tries to fetch data every cycle. If receiving data takes more than one cycle
-	 * the next get request to the url gets send when the last was finished either
-	 * successfully or with an error.
-	 * 
-	 * @param url    the url of the enpoint
-	 * @param action the action to perform; the first is the result of the endpoint
-	 *               if existing and the second argument is passed if an error
-	 *               happend. One of the params is always null and one not
+	 * @param url  the url to fetch
+	 * @param body the request body to send
+	 * @return the result response future
 	 */
-	public default void subscribeEveryCycle(//
-			final String url, //
-			final BiConsumer<String, Throwable> action //
-	) {
-		this.subscribe(1, url, r -> action.accept(r, null), t -> action.accept(null, t));
+	public default CompletableFuture<String> post(String url, String body) {
+		final var endpoint = new Endpoint(//
+				url, //
+				HttpMethod.POST, //
+				DEFAULT_CONNECT_TIMEOUT, //
+				DEFAULT_READ_TIMEOUT, //
+				body, //
+				emptyMap() //
+		);
+		return this.request(endpoint);
 	}
 
 	/**
-	 * Subscribes to one http endpoint.
+	 * Fetches the url once with {@link HttpMethod#POST} and expects the result to
+	 * be in json format.
 	 * 
-	 * <p>
-	 * Tries to fetch data every cycle. If receiving data takes more than one cycle
-	 * the next get request to the url gets send when the last was finished either
-	 * successfully or with an error.
-	 * 
-	 * @param url    the url of the enpoint
-	 * @param result the consumer to call on every successful result
+	 * @param url  the url to fetch
+	 * @param body the request body to send
+	 * @return the result response future
 	 */
-	public default void subscribeEveryCycle(//
-			final String url, //
-			final Consumer<String> result //
-	) {
-		this.subscribe(1, url, result);
+	public default CompletableFuture<JsonElement> postJson(String url, JsonElement body) {
+		return mapFuture(this.post(url, body.toString()), JsonUtils::parse);
 	}
 
 	/**
-	 * Subscribes to one http endpoint.
+	 * Fetches the url once with {@link HttpMethod#DELETE}.
 	 * 
-	 * <p>
-	 * Tries to fetch data every n-cycle. If receiving data takes more than n-cycle
-	 * the next get request to the url gets send when the last was finished either
-	 * successfully or with an error.
-	 * 
-	 * @param cycle   the number of cycles to wait between requests
-	 * @param url     the url of the enpoint
-	 * @param result  the consumer to call on every successful result
-	 * @param onError the consumer to call on a error
+	 * @param url the url to fetch
+	 * @return the result response future
 	 */
-	public default void subscribeJson(//
-			final int cycle, //
-			final String url, //
-			final ThrowingConsumer<JsonElement, Exception> result, //
-			final Consumer<Throwable> onError //
-	) {
-		this.subscribe(cycle, url, t -> result.accept(JsonUtils.parse(t)), onError);
+	public default CompletableFuture<String> delete(String url) {
+		final var endpoint = new Endpoint(//
+				url, //
+				HttpMethod.DELETE, //
+				DEFAULT_CONNECT_TIMEOUT, //
+				DEFAULT_READ_TIMEOUT, //
+				null, //
+				emptyMap() //
+		);
+		return this.request(endpoint);
 	}
 
 	/**
-	 * Subscribes to one http endpoint.
+	 * Fetches the url once with {@link HttpMethod#DELETE} and expects the result to
+	 * be in json format.
 	 * 
-	 * <p>
-	 * Tries to fetch data every cycle. If receiving data takes more than one cycle
-	 * the next get request to the url gets send when the last was finished either
-	 * successfully or with an error.
-	 * 
-	 * @param url     the url of the enpoint
-	 * @param result  the consumer to call on every successful result
-	 * @param onError the consumer to call on a error
+	 * @param url the url to fetch
+	 * @return the result response future
 	 */
-	public default void subscribeJsonEveryCycle(//
-			final String url, //
-			final ThrowingConsumer<JsonElement, Exception> result, //
-			final Consumer<Throwable> onError //
-	) {
-		this.subscribeJson(1, url, result, onError);
-	}
-
-	/**
-	 * Subscribes to one http endpoint.
-	 * 
-	 * <p>
-	 * Tries to fetch data every cycle. If receiving data takes more than one cycle
-	 * the next get request to the url gets send when the last was finished either
-	 * successfully or with an error.
-	 * 
-	 * @param url    the url of the enpoint
-	 * @param action the action to perform; the first is the result of the endpoint
-	 *               if existing and the second argument is passed if an error
-	 *               happend. One of the params is always null and one not
-	 */
-	public default void subscribeJsonEveryCycle(//
-			final String url, //
-			final BiConsumer<JsonElement, Throwable> action //
-	) {
-		this.subscribeJson(1, url, r -> action.accept(r, null), t -> action.accept(null, t));
+	public default CompletableFuture<JsonElement> deleteJson(String url) {
+		return mapFuture(this.delete(url), JsonUtils::parse);
 	}
 
 	/**
 	 * Fetches the url once.
 	 * 
-	 * @param url the url to fetch
+	 * @param endpoint the {@link Endpoint} to fetch
 	 * @return the result response future
 	 */
-	public CompletableFuture<String> request(String url);
+	public CompletableFuture<String> request(Endpoint endpoint);
 
 	/**
-	 * Sets the connect and read timeout.
+	 * Fetches the url once and expects the result to be in json format.
 	 * 
-	 * @param connectTimeout connect timeout
-	 * @param readTimeout    read timeout
+	 * @param endpoint the {@link Endpoint} to fetch
+	 * @return the result response future
 	 */
-	public void setTimeout(int connectTimeout, int readTimeout);
+	public default CompletableFuture<JsonElement> requestJson(Endpoint endpoint) {
+		return mapFuture(this.request(endpoint), JsonUtils::parse);
+	}
+
+	private static <I, R> CompletableFuture<R> mapFuture(//
+			CompletableFuture<I> origin, //
+			ThrowingFunction<I, R, Exception> mapper //
+	) {
+		final var future = new CompletableFuture<R>();
+		origin.whenComplete((t, u) -> {
+			if (u != null) {
+				future.completeExceptionally(u);
+				return;
+			}
+			try {
+				future.complete(mapper.apply(t));
+			} catch (Exception e) {
+				future.completeExceptionally(e);
+			}
+		});
+		return future;
+	}
+
 }
