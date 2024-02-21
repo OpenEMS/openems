@@ -1,10 +1,9 @@
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
-import { ChartDataSets } from 'chart.js';
+import { ChartDataset } from 'chart.js';
 import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
-import { ChartType } from '../genericComponents/chart/abstracthistorychart';
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
@@ -611,6 +610,8 @@ export class Utils {
 }
 
 export enum YAxisTitle {
+  NONE,
+  POWER,
   PERCENTAGE,
   RELAY,
   ENERGY,
@@ -635,7 +636,7 @@ export namespace HistoryUtils {
  * @param translate the TranslateService
  * @returns a dataset
  */
-  export function createEmptyDataset(translate: TranslateService): ChartDataSets[] {
+  export function createEmptyDataset(translate: TranslateService): ChartDataset[] {
     return [{
       label: translate.instant("Edge.History.noData"),
       data: [],
@@ -675,10 +676,15 @@ export namespace HistoryUtils {
     hideShadow?: boolean,
     /** axisId from yAxes  */
     yAxisId?: ChartAxis,
-    /** overrides global unit for this displayValue */
-    customUnit?: YAxisTitle,
-    /** overrides global charttype for this dataset */
-    customType?: ChartType,
+    /** overrides global chartConfig for this dataset */
+    custom?: {
+      /** overrides global unit */
+      unit?: YAxisTitle,
+      /** overrides global charttype */
+      type?: 'line' | 'bar',
+      /** overrides global formatNumber */
+      formatNumber?: string
+    },
     tooltip?: [{
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
       stackIds: number[]
@@ -764,7 +770,7 @@ export namespace HistoryUtils {
 export namespace TimeOfUseTariffUtils {
 
   export type ScheduleChartData = {
-    datasets: ChartDataSets[],
+    datasets: ChartDataset[],
     colors: any[],
     labels: Date[]
   }
@@ -810,7 +816,7 @@ export namespace TimeOfUseTariffUtils {
    * @returns The ScheduleChartData.
    */
   export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[], translate: TranslateService, controlMode: ControlMode): ScheduleChartData {
-    const datasets: ChartDataSets[] = [];
+    const datasets: ChartDataset[] = [];
     const colors: any[] = [];
     const labels: Date[] = [];
 

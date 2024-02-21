@@ -1,13 +1,13 @@
-import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Data } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
-import { ChartOptions, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from 'src/app/edge/history/shared';
+import { DEFAULT_TIME_CHART_OPTIONS } from 'src/app/edge/history/shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Service, Utils } from 'src/app/shared/shared';
 
 import { ChannelChartDescription } from '../../abstractbattery.component';
+import * as Chart from 'chart.js';
 
 @Component({
     selector: 'soltarocellchart',
@@ -104,14 +104,7 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
     }
 
     protected setLabel() {
-        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-        options.scales.yAxes[0].scaleLabel.labelString = 'Spannungen in mV';
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
-            return label + ": " + formatNumber(value, 'de', '1.0-0') + " mV";
-        };
-        options.scales.yAxes[0].ticks.beginAtZero = false;
+        let options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
         this.options = options;
     }
 
