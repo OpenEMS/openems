@@ -37,6 +37,20 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2024.2.2',
+        changes: [
+          Changelog.app(App.TIME_OF_USE) + "Offizielle Freigabe für " + Changelog.product(Product.HOME_20_30),
+          Changelog.product(Product.HOME_10, Product.HOME_20_30) + "Verbesserungen am Inbetriebnahmeassistent",
+          Changelog.app(App.TIME_OF_USE) + "Neue " + Changelog.link("App-Dokumentation", "https://docs.fenecon.de/de/_/latest/fems/fems-app/OEM_App_TOU.html") + ", Darstellung geplanter Fahrplan in Live-Widget, adaptive Berechnung der Beladeleistung aus dem Netz (BETA-Test), verbessertes Verhalten i.V.m. PV-Erzeugung",
+          { roleIsAtLeast: Role.ADMIN, change: "FEMS App EZA-Regler über App Center installierbar" },
+          { roleIsAtLeast: Role.ADMIN, change: "System-Neustart: Vorbereitung für Neustart-Button (benötigt zukünftig mindestens diese Version; UI noch in Entwicklung)" },
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.app(App.TIME_OF_USE) + " kann nur noch mit Home 10, 20 & 30 installiert werden" },
+          { roleIsAtLeast: Role.ADMIN, change: "Neues Werbe-Widget für Home 10, 20 & 30 Systeme" },
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.HOME_20_30) + ": Vorbereitungen für externe RS485-Schnittstelle und 3-Phasensensor ohne Stromwandler" },
+          { roleIsAtLeast: Role.ADMIN, change: "Inbetriebnahmeassistent: kostenlose AC-Erzeuger entfernt; stattdessen Weiterleitung auf App Center nach Abschluss der IBN" },
+        ],
+      },
+      {
         version: '2024.2.1',
         changes: [
           Changelog.openems('2024.2.0'),
