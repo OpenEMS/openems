@@ -15,7 +15,7 @@ common_initialize_environment() {
 
     VERSION_STRING=""
     VERSION="$(cd ui && node -p "require('./package.json').version" && cd ..)"
-    tmp_version=$(echo $VERSION | cut -d'-' -f1)
+    local tmp_version=$(echo $VERSION | cut -d'-' -f1)
     VERSION_MAJOR=$(echo $tmp_version | cut -d'.' -f1)
     VERSION_MINOR=$(echo $tmp_version | cut -d'.' -f2)
     VERSION_PATCH=$(echo $tmp_version | cut -d'.' -f3)
@@ -28,7 +28,8 @@ common_build_snapshot_version() {
         # Ref: https://unix.stackexchange.com/a/23673
         VERSION_DEV_BRANCH="$(git branch --show-current)"
         VERSION_DEV_COMMIT=""
-        if [[ $(git diff --exit-code --quiet) != 0 ]]; then
+        git diff --exit-code --quiet;
+        if [ $? -ne 0 ]; then
             VERSION_DEV_COMMIT="dirty"
         else
             VERSION_DEV_COMMIT="$(git rev-parse --short HEAD)"
@@ -100,4 +101,18 @@ common_build_ui() {
         echo "## Refresh node_modules cache"
         mv -f "ui/node_modules" "${NODE_MODULES_CACHE}"
     fi
+}
+
+common_save_environment() {
+    local file=${1:-build.environment}
+    echo "
+    export VERSION=\"$VERSION\"
+    export VERSION_MAJOR=\"$VERSION_MAJOR\"
+    export VERSION_MINOR=\"$VERSION_MINOR\"
+    export VERSION_PATCH=\"$VERSION_PATCH\"
+    export VERSION_STRING=\"$VERSION_STRING\"
+    export VERSION_DEV_BRANCH=\"$VERSION_DEV_BRANCH\"
+    export VERSION_DEV_COMMIT=\"$VERSION_DEV_COMMIT\"
+    export VERSION_DEV_BUILD_TIME=\"$VERSION_DEV_BUILD_TIME\"
+    " | tee $file
 }

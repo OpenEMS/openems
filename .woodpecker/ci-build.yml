@@ -49,10 +49,14 @@ steps:
 
   prepare-environment:
     when: *every-build
-    image: bash
+    image: bash:openems
     commands:
       - export CACHE=$CI_WORKSPACE/cache
       - mkdir -p $CI_WORKSPACE/cache build/target
+      - source tools/common.sh
+      - common_initialize_environment
+      - common_build_snapshot_version
+      - common_save_environment $CI_WORKSPACE/.openems-env
       - |
         echo "
         # Java
@@ -63,7 +67,8 @@ steps:
         export NG_CLI_CACHE_PATH=$CACHE/angular-cli
         export NODE_MODULES_CACHE=$CACHE/node_modules
         export CHROME_BIN=/usr/bin/google-chrome-stable
-        " | tee $CI_WORKSPACE/.ci-env
+        " > $CI_WORKSPACE/.woodpecker-env
+      - common_update_version_in_code
     depends_on: [restore-cache]
 
   build-ui:
@@ -74,7 +79,8 @@ steps:
     image: openems-build:latest
     commands:
       - export OEM=$(case ${CI_COMMIT_BRANCH^^} in *HECKERT*) echo "heckert";; *) echo "fenecon";; esac)
-      - source $CI_WORKSPACE/.ci-env
+      - source $CI_WORKSPACE/.woodpecker-env
+      - source $CI_WORKSPACE/.openems-env
       ## start ##
       - echo "Build for $OEM"
       - cd ui
@@ -93,12 +99,12 @@ steps:
       - *java-only
     image: openems-build:latest
     commands:
-      - source $CI_WORKSPACE/.ci-env
+      - source $CI_WORKSPACE/.woodpecker-env
+      - source $CI_WORKSPACE/.openems-env
       ## start ##
       - source tools/common.sh
       - common_initialize_environment
-      - common_build_snapshot_version
-      - common_update_version_in_code
+      - echo "Build Version $VERSION"
       - common_build_edge --no-daemon --no-build-cache --parallel --max-workers 2;
     depends_on: [prepare-environment]
 
@@ -108,7 +114,8 @@ steps:
       - *message-debian
     image: openems-build:latest
     commands:
-      - source $CI_WORKSPACE/.ci-env
+      - source $CI_WORKSPACE/.woodpecker-env
+      - source $CI_WORKSPACE/.openems-env
       ## start ##
       - mkdir -p tools/debian/usr/lib/openems/
       - cp build/openems-edge.jar tools/debian/usr/lib/openems/openems.jar
