@@ -91,8 +91,8 @@ export class ProtocolPvComponent implements OnInit {
       key: "shadowManagementDisabled",
       type: "checkbox",
       templateOptions: {
-        label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.SHADE_MANAGEMENT_DEACTIVATE'),
-        description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.SHADE_MANAGEMENT_DESCRIPTION'),
+        label: this.translate.instant('INSTALLATION.PROTOCOL_PV.SHADE_MANAGEMENT_DEACTIVATE'),
+        description: this.translate.instant('INSTALLATION.PROTOCOL_PV.SHADE_MANAGEMENT_DESCRIPTION'),
       },
     });
 
@@ -135,15 +135,15 @@ export class ProtocolPvComponent implements OnInit {
               },
             },
             props: {
-              label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MARKED_AS', { mppt: mppt, pv: strings }),
+              label: this.translate.instant('INSTALLATION.PROTOCOL_PV.MARKED_AS', { mppt: mppt, pv: strings }),
             },
           },
           {
             key: "alias",
             type: "input",
             templateOptions: {
-              label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ALIAS'),
-              description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ALIAS_DESCRIPTION_PV'),
+              label: this.translate.instant('INSTALLATION.PROTOCOL_PV.ALIAS'),
+              description: this.translate.instant('INSTALLATION.PROTOCOL_PV.ALIAS_DESCRIPTION_PV'),
               required: true,
             },
             hideExpression: model => !model.isSelected,
@@ -154,7 +154,7 @@ export class ProtocolPvComponent implements OnInit {
             defaultValue: 1000, // Acts as minimum value through "defaultAsMinimumValue" validator
             templateOptions: {
               type: "number",
-              label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.INSTALLED_POWER'),
+              label: this.translate.instant('INSTALLATION.PROTOCOL_PV.INSTALLED_POWER'),
               required: true,
             },
             validators: {
@@ -166,7 +166,7 @@ export class ProtocolPvComponent implements OnInit {
             key: "orientation",
             type: "select",
             templateOptions: {
-              label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION'),
+              label: this.translate.instant('INSTALLATION.PROTOCOL_PV.ORIENTATION'),
               options: DIRECTIONS_OPTIONS(this.translate),
             },
             hideExpression: model => !model.isSelected,
@@ -175,8 +175,8 @@ export class ProtocolPvComponent implements OnInit {
             key: "moduleType",
             type: "input",
             templateOptions: {
-              label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE'),
-              description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_DESCRIPTION'),
+              label: this.translate.instant('INSTALLATION.PROTOCOL_PV.MODULE_TYPE'),
+              description: this.translate.instant('INSTALLATION.PROTOCOL_PV.MODULE_TYPE_DESCRIPTION'),
             },
             hideExpression: model => !model.isSelected,
           },
@@ -185,7 +185,7 @@ export class ProtocolPvComponent implements OnInit {
             type: "input",
             templateOptions: {
               type: "number",
-              label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES'),
+              label: this.translate.instant('INSTALLATION.PROTOCOL_PV.NUMBER_OF_MODULES'),
             },
             parsers: [Number],
             hideExpression: model => !model.isSelected,

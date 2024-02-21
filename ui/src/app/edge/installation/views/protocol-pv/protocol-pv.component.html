@@ -1,8 +1,8 @@
 <installation-view iconName="clipboard-outline"
-  header="{{ 'INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.TITLE_PV' | translate }}"
+  header="{{ 'INSTALLATION.PROTOCOL_PV.TITLE_PV' | translate }}"
   (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()" *ngIf="forms">
 
   <formly-form *ngFor="let form of forms" [form]="form.formGroup" [fields]="form.fields" [model]="form.model">
   </formly-form>
-
+  
 </installation-view>

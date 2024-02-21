@@ -100,19 +100,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       return;
     }
 
-    // Submit the setup protocol
-    this.isWaiting = true;
-
-    this.submitSetupProtocol().then((protocolId) => {
-      this.service.toast(this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.SENT_SUCCESSFULLY'), 'success');
-      this.ibn.setupProtocolId = protocolId;
-    }).catch((reason) => {
-      this.service.toast(this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.ERROR_SENDING'), 'danger');
-      console.warn(reason);
-    }).finally(() => {
-      this.isWaiting = false;
-      this.nextViewEvent.emit(this.ibn);
-    });
+    this.nextViewEvent.emit(this.ibn);
   }
 
   public setIsWaiting(isWaiting: boolean) {
@@ -210,14 +198,5 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       .forEach((value) => this.duplicateSerialNumbers.push(value.label));;
 
     return serialNumbers;
-  }
-
-  /**
-   * Submits the setup protocol to the backend.
-   *
-   * @returns a promise promising a string that contains the protocol id
-   */
-  public submitSetupProtocol(): Promise<string> {
-    return this.ibn.getProtocol(this.edge, this.websocket);
   }
 }

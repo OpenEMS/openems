@@ -35,33 +35,36 @@ export const theme = {
         SETTINGS_NETWORK_CONFIGURATION: "ui/settings.html#_netzwerkkonfiguration",
         EVCS_CLUSTER: "fems-app/includes/FEMS_App_Multi-Ladepunkt-Management.html",
 
-        warranty: {
-            home: {
+        WARRANTY: {
+            HOME: {
                 EN: "https://fenecon.de/wp-content/uploads/2022/06/V2021.11_EN_Warranty_conditions_FENECON_Home.pdf",
-                DE: "https://fenecon.de/wp-content/uploads/2022/06/V2021.11_DE_Garantiebedingungen_FENECON_Home.pdf",
+                DE: "https://fenecon.de/wp-content/uploads/2023/11/V2023.10_DE_Garantiebedingungen_FENECON_Home_Serie.pdf",
             },
-            commercial: {
+            COMMERCIAL: {
                 EN: "https://fenecon.de/wp-content/uploads/2022/08/V2022.03_EN_Warranty_conditions_for-FENECON-Commercial_30_50.pdf",
                 DE: "https://fenecon.de/wp-content/uploads/2022/07/V2022.03_DE_Garantiebedingungen_FENECON_Commercial_30_50.pdf",
             },
         },
 
-        gtc: {
+        GTC: {
             EN: "https://fenecon.de/page/gtc/",
             DE: "https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/",
         },
 
-        // Currently the links are different with different prefixes. so adding whole url for Socomec.
-        METER_SOCOMEC: 'https://docs.fenecon.de/de/_/latest/_attachments/Benutzerhandbuecher/FEMS_App_Socomec_Zaehler_Benutzerhandbuch.pdf',
+        // Currently the links are different with different prefixes. so adding whole url for meters.
+        METER: {
+            SOCOMEC: 'https://docs.fenecon.de/de/Installationsanleitungen/FEMS_Socomec_Countis_E23_Installationsanleitung.pdf',
+            KDK: 'https://docs.fenecon.de/de/Installationsanleitungen/FEMS_KDK_2PU_CT_Installationsanleitung.pdf',
+        },
 
         MANUALS: {
             HOME: {
-                EN: "https://fenecon.de/wp-content/uploads/2023/06/FENECON-HOME-10-Quick-Installation-Guide-EN.pdf",
-                DE: "https://fenecon.de/download/montage-und-serviceanleitung-feneconhome/?wpdmdl=17765&refresh=62a048d9acf401654671577",
+                HOME_10: "https://docs.fenecon.de/_/de/home/home_10/montage_und_service_anleitung/Montage_und_Serviceanleitung_Home.html",
+                HOME_20_30: "https://docs.fenecon.de/_/de/home/home_20-30/montage_und_service_anleitung/Montage_und_Serviceanleitung_Home_20-30.html",
             },
             COMMERCIAL: {
-                EN: "#",
-                DE: "#",
+                COMMERCIAL_30: "https://docs.fenecon.de/_/de/commercial/commercial_30/montage_und_serviceanleitung/Montage_und_Serviceanleitung_Commercial_30.html",
+                COMMERCIAL_50: "https://docs.fenecon.de/_/de/commercial/commercial_50/montage_und_serviceanleitung/Montage_und_Serviceanleitung_Commercial_50.html",
             },
         },
         APP_CENTER: {

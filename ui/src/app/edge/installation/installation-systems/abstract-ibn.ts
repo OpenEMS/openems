@@ -7,11 +7,11 @@ import { Country } from 'src/app/shared/type/country';
 import { environment } from 'src/environments';
 import { Category } from '../shared/category';
 import { FeedInSetting, FeedInType, View, WebLinks } from '../shared/enums';
-import { AcPv, ComponentData, SerialNumberFormData } from '../shared/ibndatatypes';
+import { ComponentData, SerialNumberFormData } from '../shared/ibndatatypes';
 import { Meter } from '../shared/meter';
 import { FEED_IN_POWER_FACTOR_OPTIONS } from '../shared/options';
-import { SystemId, SystemType } from '../shared/system';
-import { BaseMode, ComponentConfigurator, ConfigurationMode, ConfigurationObject } from '../views/configuration-execute/component-configurator';
+import { System, SystemId, SystemType } from '../shared/system';
+import { ComponentConfigurator } from '../views/configuration-execute/component-configurator';
 import { EmsApp } from '../views/heckert-app-installer/heckert-app-installer.component';
 
 export type SerialNumberData = {
@@ -95,11 +95,6 @@ export abstract class AbstractIbn {
     maximumFeedInPower?: number;
   };
 
-  // protocol-pv
-  public pv?: {
-    ac?: AcPv[];
-  };
-
   // configuration-emergency-reserve
   public emergencyReserve?: {
     isEnabled: boolean;
@@ -118,12 +113,6 @@ export abstract class AbstractIbn {
     gtcLink: WebLinks;
     warrantyLink: WebLinks;
   };
-
-  public manualLinks: {
-    home: WebLinks;
-  } = {
-      home: WebLinks.MANUAL_HOME,
-    };
 
   //Controller-Id's
   public requiredControllerIds: SchedulerId[];
@@ -145,6 +134,9 @@ export abstract class AbstractIbn {
 
   // Contains default number of battery modules per tower based on system.
   public readonly defaultNumberOfModules: number;
+
+  // Label used for device check in configuration summary. It is different for Industrial systems.
+  public readonly isDevicesActiveCheckedLabel: string = this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.DEVICE_ACTIVE_CHECKED');
 
   constructor(public views: View[], public translate: TranslateService) { }
 
@@ -240,44 +232,43 @@ export abstract class AbstractIbn {
   public abstract setRequiredControllers();
 
   /**
+   * Returns the fields that has system variants specific to the 'System Type' selected in previous step.
+   */
+  public abstract getSystemVariantFields(): FormlyFieldConfig[];
+
+  /**
+   * Returns the fields that has sub systems specific to the 'System Type' selected in previous step.
+   */
+  public getSubSystemFields(): FormlyFieldConfig[] {
+    return [];
+  };
+
+  /**
    * View Emergency-reserve
    * Adds and returns the specific battery information based on Ibn to view in summary.
    *
-   * @param batteryData the battery data.
    */
-  public addCustomBatteryData(batteryData: ComponentData[]): ComponentData[] {
-    return batteryData;
+  public addCustomBatteryData(): ComponentData[] {
+    return [];
   };
 
   /**
    * View Dynamic limitation
    * Adds and returns the specific Battery-Inverter information based on Ibn to view in summary.
    *
-   * @param batteryInverterData the battery inverter data.
    */
-  public addCustomBatteryInverterData(batteryInverterData: ComponentData[]): ComponentData[] {
-    return batteryInverterData;
+  public addCustomBatteryInverterData(): ComponentData[] {
+    return [];
   };
 
   /**
    * View Protocol pv Data
    * Adds and returns the PV information based on Ibn to view in summary.
    *
-   * @param pvData the photovoltaic data.
    */
-  public addCustomPvData(pvData: ComponentData[]): ComponentData[] {
-    return pvData;
+  public addCustomPvData(): ComponentData[] {
+    return [];
   };
-
-  /**
-   * View configuration peak shaving.
-   * Adds the peak shaving data specific to commercial-50 systems.
-   *
-   * @param peakShavingData the peak shaving data.
-   */
-  public addPeakShavingData(peakShavingData: ComponentData[]): ComponentData[] {
-    return peakShavingData;
-  }
 
   /**
    * Sets the Non abstract fields for the IBN object from session storage or from specific views.
@@ -307,39 +298,6 @@ export abstract class AbstractIbn {
    */
   public setEmergencyReserve(model: any) {
     this.emergencyReserve = model;
-  }
-
-  /**
-   * Returns the configuration object with inclusion of ac meter.
-   *
-   * @param modbusId modbus unit id.
-   * @param baseMode Base mode for the configuration. Default is 'UI'.
-   * @returns ConfigurationObject.
-   */
-  public addAcPvMeter(modbusId: string, baseMode: BaseMode = BaseMode.UI): ConfigurationObject {
-
-    const acArray: AcPv[] = this.pv.ac;
-    const isAcCreated: boolean = acArray.length >= 1;
-    const acAlias: string = isAcCreated ? acArray[0].alias : '';
-    const acModbusUnitId: number = isAcCreated ? acArray[0].modbusCommunicationAddress : 0;
-    const acMeterType: Meter = isAcCreated ? acArray[0].meterType : Meter.SOCOMEC;
-
-    const configurationObject: ConfigurationObject = {
-      factoryId: Meter.toFactoryId(acMeterType),
-      componentId: 'meter1',
-      alias: acAlias,
-      properties: [
-        { name: 'enabled', value: true },
-        { name: 'type', value: 'PRODUCTION' },
-        { name: 'modbus.id', value: modbusId },
-        { name: 'modbusUnitId', value: acModbusUnitId },
-        { name: 'invert', value: false },
-      ],
-      mode: isAcCreated ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
-      baseMode: baseMode,
-    };
-
-    return configurationObject;
   }
 
   /**
@@ -486,7 +444,6 @@ export abstract class AbstractIbn {
     const installer = this.installer;
     const customer = this.customer;
     const lineSideMeterFuse = this.lineSideMeterFuse;
-    const ac = this.pv.ac ?? [];
 
     const installerObj: any = {
       firstname: installer.firstName,
@@ -557,59 +514,6 @@ export abstract class AbstractIbn {
       value: lineSideMeterFuseValue ? lineSideMeterFuseValue.toString() : '',
     });
 
-    const additionalAcCategory: Category = Category.ADDITIONAL_AC_PRODUCERS;
-    for (let index = 0; index < ac.length; index++) {
-      const element = ac[index];
-      const label = 'AC';
-      const acNr = (index + 1);
-
-      protocol.items.push(
-        {
-          category: additionalAcCategory,
-          name: this.translate.instant('INSTALLATION.ALIAS_WITH_LABEL', { label: label, number: acNr }),
-          value: element.alias,
-        },
-        {
-          category: additionalAcCategory,
-          name: this.translate.instant('INSTALLATION.VALUE_WITH_LABEL', { label: label, number: acNr, symbol: '[Wp]' }),
-          value: element.value ? element.value.toString() : '',
-        });
-
-      element.orientation && protocol.items.push({
-        category: additionalAcCategory,
-        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION_WITH_LABEL', { label: label, number: acNr }),
-        value: element.orientation,
-      });
-
-      element.moduleType && protocol.items.push({
-        category: additionalAcCategory,
-        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_WITH_LABEL', { label: label, number: acNr }),
-        value: element.moduleType,
-      });
-
-      element.modulesPerString && protocol.items.push({
-        category: additionalAcCategory,
-        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES_WITH_LABEL', { label: label, number: acNr }),
-        value: element.modulesPerString
-          ? element.modulesPerString.toString()
-          : '',
-      });
-
-      element.meterType && protocol.items.push({
-        category: additionalAcCategory,
-        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_TYPE_WITH_LABEL', { label: label, number: acNr }),
-        value: Meter.toLabelString(element.meterType),
-      });
-
-      element.modbusCommunicationAddress && protocol.items.push({
-        category: additionalAcCategory,
-        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_WITH_LABEL', { label: label, number: acNr }),
-        value: element.modbusCommunicationAddress
-          ? element.modbusCommunicationAddress.toString()
-          : '',
-      });
-    }
-
     protocol.items.push({
       category: Category.EMS_DETAILS,
       name: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.EDGE_NUMBER', { edgeShortName: environment.edgeShortName }),
@@ -675,5 +579,12 @@ export abstract class AbstractIbn {
         }
       }
     }
+  }
+
+  /**
+     * Loads the appropriate Ibn object.
+     */
+  public setIbn(system: any): AbstractIbn {
+    return System.getSystemObjectFromSystemId(system, this.translate);
   }
 }

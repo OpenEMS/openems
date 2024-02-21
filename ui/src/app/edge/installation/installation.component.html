@@ -26,13 +26,13 @@
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
                 </configuration-system>
 
-                <configuration-commercial *ngSwitchCase="view.ConfigurationCommercial" [ibn]="ibn"
+                <configuration-sub-system *ngSwitchCase="view.ConfigurationSubSystem" [ibn]="ibn"
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
-                </configuration-commercial>
+                </configuration-sub-system>
 
-                <configuration-features-storage-system *ngSwitchCase="view.ConfigurationFeaturesStorageSystem"
-                    [ibn]="ibn" (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
-                </configuration-features-storage-system>
+                <configuration-system-variant *ngSwitchCase="view.ConfigurationSystemVariant" [ibn]="ibn"
+                    (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
+                </configuration-system-variant>
 
                 <protocol-installer *ngSwitchCase="view.ProtocolInstaller" [ibn]="ibn"
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
@@ -50,10 +50,6 @@
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
                 </configuration-emergency-reserve>
 
-                <configuration-peak-shaving *ngSwitchCase="view.ConfigurationPeakShaving" [ibn]="ibn"
-                    (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
-                </configuration-peak-shaving>
-
                 <configuration-line-side-meter-fuse *ngSwitchCase="view.ConfigurationLineSideMeterFuse" [ibn]="ibn"
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
                 </configuration-line-side-meter-fuse>
@@ -69,10 +65,6 @@
                 <protocol-pv *ngSwitchCase="view.ProtocolPv" [ibn]="ibn" (previousViewEvent)="displayPreviousView()"
                     (nextViewEvent)="displayNextView($event)">
                 </protocol-pv>
-
-                <protocol-additional-ac-producers *ngSwitchCase="view.ProtocolAdditionalAcProducers" [ibn]="ibn"
-                    (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
-                </protocol-additional-ac-producers>
 
                 <protocol-feed-in-limitation *ngSwitchCase="view.ProtocolFeedInLimitation" [ibn]="ibn"
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
@@ -93,7 +85,7 @@
                 </configuration-execute>
 
                 <protocol-serial-numbers *ngSwitchCase="view.ProtocolSerialNumbers" [edge]="edge" [ibn]="ibn"
-                    (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView()">
+                    (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
                 </protocol-serial-numbers>
 
                 <completion *ngSwitchCase="view.Completion" [edge]="edge" [ibn]="ibn"

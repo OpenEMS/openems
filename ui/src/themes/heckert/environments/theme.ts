@@ -35,32 +35,36 @@ export const theme = {
         EVCS_CLUSTER: "fems-app/includes/FEMS_App_Multi-Ladepunkt-Management.html",
 
         // Currently we are showing same links as what we shown for Fenecon OEM untill we recieve new links.
-        warranty: {
-            home: {
+        WARRANTY: {
+            HOME: {
                 EN: "https://fenecon.de/wp-content/uploads/2022/06/V2021.11_EN_Warranty_conditions_FENECON_Home.pdf",
                 DE: "https://fenecon.de/wp-content/uploads/2022/06/V2021.11_DE_Garantiebedingungen_FENECON_Home.pdf",
             },
-            commercial: {
+            COMMERCIAL: {
                 EN: "#",
                 DE: "#",
             },
         },
 
-        gtc: {
+        GTC: {
             EN: "https://fenecon.de/page/gtc/",
             DE: "https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/",
         },
 
         // Currently the links are different with different prefixes. so adding whole url.
-        METER_SOCOMEC: 'https://docs.intranet.fenecon.de/feature/OEM/de/_/latest/_attachments/Benutzerhandbuecher/Heckert_App_Socomec_Zaehler_Benutzerhandbuch.pdf',
+        METER: {
+            SOCOMEC: 'https://symphon-e.heckert-solar.com/docs/de/Installationsanleitungen/Symphon-E_Socomec_Countis_E23_Installationsanleitung.pdf',
+            KDK: 'https://docs.fenecon.de/de/Installationsanleitungen/FEMS_KDK_2PU_CT_Installationsanleitung.pdf',
+        },
+
         MANUALS: {
             HOME: {
-                EN: "#",
-                DE: "#",
+                HOME_10: "https://www.heckertsolar.com/wp-content/uploads/2022/06/Montage_und-Serviceanleitung-Symphon-E-1.pdf",
+                HOME_20_30: "#",
             },
             COMMERCIAL: {
-                EN: "#",
-                DE: "#",
+                COMMERCIAL_30: "#",
+                COMMERCIAL_50: "#",
             },
         },
         APP_CENTER: {

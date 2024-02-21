@@ -1,15 +1,34 @@
 <installation-view iconName="checkmark-done-outline" header="{{ 'INSTALLATION.COMPLETION.TITLE' | translate }}"
-  (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()" isLastView="true">
+  (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()" isLastView="true" [isWaiting]="isWaiting">
 
-  <ion-textarea *ngIf="system" readonly auto-grow value="{{ 'INSTALLATION.COMPLETION.SUB_TITLE' | translate:
-  { value: system } }}">
-  </ion-textarea>
+  <p *ngIf="system" style="width: 100%" class="ion-padding">
+    {{'INSTALLATION.COMPLETION.SUB_TITLE' | translate: { value: system } }}
+  </p>
 
-  <ion-item>
-    <ion-button (click)="downloadProtocol()">
-      <ion-label>{{ 'INSTALLATION.COMPLETION.DOWNLOAD' | translate}}</ion-label>
-      <ion-icon name="download-outline" slot="end"></ion-icon>
-    </ion-button>
-  </ion-item>
+  <table class="full_width">
+    <tr>
+      <td style="width: 100%" class="ion-padding">
+        <ion-button size="small" (click)="downloadProtocol()" [disabled]="isWaiting">
+          <ion-label>{{ 'INSTALLATION.COMPLETION.DOWNLOAD' | translate}}</ion-label>
+          <ion-icon name="download-outline" slot="end"></ion-icon>
+        </ion-button>
+      </td>
+    </tr>
+    <tr>
+      <td style="width: 100%" class="ion-padding">
+        <ion-text>
+          {{'INSTALLATION.COMPLETION.NOTE' | translate}}
+        </ion-text>
+      </td>
+    </tr>
+    <tr>
+      <td style="width: 100%" class="ion-padding">
+        <ion-button size="small" (click)="navigate()" [disabled]="isWaiting">
+          <ion-label>Zum APP Center</ion-label>
+          <ion-icon name="arrow-forward-outline" slot="start"></ion-icon>
+        </ion-button>
+      </td>
+    </tr>
+  </table>
 
 </installation-view>

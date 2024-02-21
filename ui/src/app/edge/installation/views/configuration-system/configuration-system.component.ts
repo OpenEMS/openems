@@ -21,6 +21,7 @@ export class ConfigurationSystemComponent implements OnInit {
   protected form: FormGroup;
   protected fields: FormlyFieldConfig[];
   protected model;
+  protected showManual = false;
 
   constructor(private translate: TranslateService) { }
 
@@ -40,21 +41,18 @@ export class ConfigurationSystemComponent implements OnInit {
 
   public getFields(): FormlyFieldConfig[] {
     const fields: FormlyFieldConfig[] = [];
-    let label: ComponentData[] = [];
+    let options: ComponentData[] = [];
 
     switch (environment.theme) {
       case 'Heckert':
-        label = [{ value: SystemType.HECKERT_HOME_10, label: System.getSystemTypeLabel(SystemType.HECKERT_HOME_10) }];
+        options = [{ value: SystemType.HECKERT_HOME, label: SystemType.HECKERT_HOME }];
+        this.showManual = true;
         break;
       case 'FENECON':
       default:
-        label = (
-          [{ value: SystemType.FENECON_HOME_10, label: System.getSystemTypeLabel(SystemType.FENECON_HOME_10) },
-          { value: SystemType.FENECON_HOME_20, label: System.getSystemTypeLabel(SystemType.FENECON_HOME_20) },
-          { value: SystemType.FENECON_HOME_30, label: System.getSystemTypeLabel(SystemType.FENECON_HOME_30) },
-          { value: SystemType.COMMERCIAL_30, label: System.getSystemTypeLabel(SystemType.COMMERCIAL_30) },
-          { value: SystemType.COMMERCIAL_50, label: System.getSystemTypeLabel(SystemType.COMMERCIAL_50) },
-          ]);
+        options = [
+          { value: SystemType.FENECON_HOME, label: SystemType.FENECON_HOME },
+          { value: SystemType.COMMERCIAL, label: SystemType.COMMERCIAL }];
         break;
     }
 
@@ -64,7 +62,7 @@ export class ConfigurationSystemComponent implements OnInit {
       templateOptions: {
         label: this.translate.instant('INSTALLATION.CONFIGURATION_SYSTEM.PRODUCT_NAME'),
         type: 'radio',
-        options: label,
+        options: options,
         required: true,
       },
     });
@@ -76,18 +74,17 @@ export class ConfigurationSystemComponent implements OnInit {
   }
 
   /**
-   * Redirects to the appropriate url for system manual.
+   * Loads the appropriate Ibn object.
    */
-  public openManual() {
-    const system = this.form.controls.type.value;
-    window.open(System.getSystemTypeLink(system));
+  private setIbn(): void {
+    const system: SystemType = this.form.controls.type.value;
+    this.ibn = System.getSystemObjectFromSystemType(system, this.translate);
   }
 
   /**
-   * Loads the appropriate Ibn object.
+   * Redirects to the appropriate url for Heckert system manual.
    */
-  private setIbn() {
-    const system = this.form.controls.type.value;
-    this.ibn = System.getSystemObjectFromSystemType(system, this.translate);
+  protected openManual(): void {
+    window.open(environment.links.MANUALS.HOME.HOME_10);
   }
 }

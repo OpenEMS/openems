@@ -573,9 +573,10 @@
       "DOWNLOAD_ERROR": "Das Protokoll konnte nicht heruntergeladen werden",
       "DOWNLOAD": "IBN-Protokoll herunterladen",
       "SUB_TITLE": "Sie haben den {{ value }} erfolgreich in Betrieb genommen.",
-      "TITLE": "Abschließen"
+      "TITLE": "Abschließen",
+      "NOTE": "Hier geht's weiter zum App Center, um weitere Komponenten zu konfigurieren und Apps zu installieren."
     },
-    "COMPLETE": "abschließen",
+    "COMPLETE": "Zum Online-Monitoring",
     "CONFIGURATION_EMERGENCY_RESERVE": {
       "EMERGENCY_RESERVE_NOTE": "Wenn diese Funktion aktiviert ist, kann der Ladezustand der Batterie nicht unter den eingestellten Wert fallen.",
       "EMERGENCY_RESERVE_VALUE": "Notstrom wert",
@@ -593,7 +594,6 @@
       "BATTERY": "Batterie",
       "COMMUNICATION_WITH_BATTERY_INVERTER": "Kommunikation mit dem Batterie-Wechselrichter",
       "COMMUNICATION_WITH_BATTERY": "Kommunikation mit der Batterie",
-      "CONFIGURATION_SUCCESS": "Konfiguration erfolgreich.",
       "DESCRIPTION_1": "Um sicherzustellen, dass alle Komponenten Ihres Systems korrekt eingerichtet werden,",
       "DESCRIPTION_2": "können die Konfiguration und die nachfolgenden Funktionstests bis zu 10 Minuten in Anspruch nehmen.",
       "EMERGENCY_CAPACITY_RESERVE": "Ansteuerung der Notstromreserve",
@@ -617,7 +617,6 @@
       "SURPLUS_ENERGY_FEEDIN": "Überschusseinspeisung",
       "TITLE": "Konfiguration",
       "WAITING": "Konfiguration läuft...",
-      "WILL_BE_CONFIGURED": "wird konfiguriert / ausgeführt",
       "POWER": "Power",
       "COMMUNICATION_WITH_METER": "Kommunikation mit den Zählern",
       "WAGO_BRIDGE": "Wago Bridge",
@@ -658,9 +657,7 @@
       "PRODUCER": "Erzeuger",
       "SUMMARY": "Zusammenfassung",
       "TIME_OF_INSTALLATION": "Zeitpunkt der Installation",
-      "VALUE_AC": "Wert AC",
       "WARRANTY_TERMS": "Garantiebedingungen",
-      "PEAK_SHAVING": "Lastspitzenkappung",
       "APPS": "Apps",
       "HECKERT": "Ihre gewählte kostenlose App",
       "ACCEPT": "akzeptieren",
@@ -734,10 +731,8 @@
       "TITLE_INSTALLER": "Kontaktdaten Installateur",
       "ZIP": "PLZ"
     },
-    "PROTOCOL_PV_AND_ADDITIONAL_AC": {
-      "ADD": "Erzeuger hinzufügen",
+    "PROTOCOL_PV": {
       "ADDITIONAL_GENERATOR": "Zusätzliche AC-Erzeuger",
-      "ALIAS_DESCRIPTION_ADDITIONAL_AC": "z. B. \"PV Hausdach\"",
       "ALIAS_DESCRIPTION_PV": "wird im Online-Monitoring angezeigt, z. B. \"PV Hausdach\"",
       "ALIAS": "Bezeichnung",
       "DIRECTIONS": {
@@ -752,12 +747,6 @@
       },
       "INSTALLED_POWER": "Installierte leistung [Wₚ]",
       "MARKED_AS": " MPPT {{ mppt }} (beschriftet mit \"PV{{ pv }}\")",
-      "METER_TYPE_WITH_LABEL": "Zählertyp {{ label }}{{ number }}",
-      "METER_TYPE": "Zählertyp",
-      "MODBUS_SOCOMEC_DESCRIPTION": "Der Zähler muss mit den folgenden Parametern konfiguriert werden: Kommunikationsgeschwindigkeit (baud) \"9600\", Kommunikationsparität (PrtY) \"n\", Kommunikations-Stopbit (StoP) \"1\"",
-      "MODBUS_KDK_DESCRIPTION": "Der Zähler muss mit den folgenden Parametern konfiguriert werden: Kommunikationsgeschwindigkeit (baud) \"9600\", Kommunikationsparität (PrtY) \"e\", Kommunikations-Stopbit (StoP) \"1\"",
-      "MODBUS_WITH_LABEL": "Modbus Kommunikationsadresse {{ label }}{{ number }}",
-      "MODBUS": "Modbus Kommunikationsadresse",
       "MODULE_TYPE_DESCRIPTION": "z. B. Hersteller und Leistung",
       "MODULE_TYPE_WITH_LABEL": "Modultyp {{ label }}{{ number }}",
       "MODULE_TYPE": "Modultyp",
@@ -766,16 +755,10 @@
       "OPEN_MANUAL": "Anleitung öffnen",
       "ORIENTATION_WITH_LABEL": "Ausrichtung {{ label }}{{ number }}",
       "ORIENTATION": "Ausrichtung",
-      "SAVE_TO_CONTINUE": "Speichern Sie zuerst Ihre Eingaben um fortzufahren.",
-      "SAVE": "Erzeuger speichern",
       "SHADE_MANAGEMENT_DEACTIVATE": "Schattenmanagement deaktivieren",
       "SHADE_MANAGEMENT_DESCRIPTION": "Nur wenn Optimierer verbaut sind, muss das Schattenmanagement deaktiviert werden",
-      "TITLE_ADDITIONAL_AC": "AC-Erzeuger",
       "TITLE_PV": "DC-PV Installation (Wechselrichtereingänge)",
-      "VALID_DATA": "Geben Sie gültige Daten ein, um zu speichern.",
       "TITLE_DC": "DC-PV-Installation",
-      "AC_NOT_CREATED": "AC zähler nicht erstellt!",
-      "METER_SELECTION_WARNING": "Bitte wählen Sie den Zähler aus, indem Sie den Erzeuger hinzufügen.",
       "DUPLICATE": " MPPT {{ mppt }} doppelt belegt (beschriftet mit \"PV{{ pv }}\")"
     },
     "PROTOCOL_SERIAL_NUMBERS": {
@@ -824,22 +807,7 @@
     "VALUE_WITH_LABEL": "Wert {{ label }}{{ number }} {{ symbol }}",
     "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
     "CONFIGURATION_FEATURES_STORAGE_SYSTEM": {
-      "BALANCING": "Eigenverbrauchsoptimierung",
-      "PEAK_SHAVING_SYMMETRIC": "Lastspitzenkappung",
-      "PEAK_SHAVING_ASYMMETRIC": "Phasengenaue Lastspitzenkappung",
-      "FEATURE_DESCRIPTION": "Die entsprechende App muss vorhanden sein",
-      "HEADER": "Angaben zum Einsatz des Speichers",
-      "PEAK_SHAVING_SYMMETRIC_HEADER": "Einstellungen Lastspitzenkappung",
-      "PEAK_SHAVING_ASYMMETRIC_HEADER": "Einstellungen Phasen Genaue Lastspitzenkappung"
-    },
-    "CONFIGURATION_PEAK_SHAVING": {
-      "DISCHARGE_ABOVE_VALUE": "Beladung unter - Wert [W]",
-      "CHARGE_BELOW_VALUE": "Beladung unter - Wert [W]",
-      "DISCHARGE_ABOVE_DESCRIPTION": "liegt die Netzbezugsleistung oberhalb von diesem Wert, wird die Batterie entladen.",
-      "CHARGE_BELOW_DESCRIPTION": "liegt die Netzbezugsleistung unterhalb von diesem Wert, wird die Batterie wieder beladen.\nDieser Wert darf max. dem Wert \"Entladung über\" entsprechen.",
-      "DESCRIPTION": "Eingetragene Leistungswerte beziehen sich auf einzelne Phasen. Es wird auf die jeweils am stärksten belastete Phase ausgeregelt.",
-      "DISCHARGE_ABOVE_LABEL": "Entladung über",
-      "CHARGE_BELOW_LABEL": "Beladung unter"
+      "BALANCING": "Eigenverbrauchsoptimierung"
     },
     "CLICK_RECOMMENDATION": "Bitte klicken Sie unten auf den \"Hinzufügen\"-Button wenn sie ein {{ edgeShortName }} in Betrieb nehmen wollen.",
     "CONFIGURATION_COMMERCIAL_MODBUS_COMPONENT": {
@@ -848,7 +816,8 @@
     },
     "CONFIGURATION_COMMERCIAL_MODBUS_BRIDGE": {
       "HEADER": "Auswahl der Kommunikationsart"
-    }
+    },
+    "CONFIGURATION_MPPT_SELECTION_NOTE": "Weitere Erzeuger können im Anschluss über das App Center konfiguriert werden."
   },
   "Login": {
     "title": "Login",

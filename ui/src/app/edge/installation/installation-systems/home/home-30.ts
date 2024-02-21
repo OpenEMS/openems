@@ -2,8 +2,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { Category } from "../../shared/category";
 import { FeedInSetting, FeedInType, View } from "../../shared/enums";
 import { DcPv } from "../../shared/ibndatatypes";
-import { Meter } from "../../shared/meter";
-import { SystemId, SystemType } from "../../shared/system";
+import { SystemId } from "../../shared/system";
 import { SafetyCountry } from "../../views/configuration-execute/safety-country";
 import { AbstractHomeIbn } from "./abstract-home";
 
@@ -12,8 +11,6 @@ type Home30App = {
     FEED_IN_TYPE: FeedInType,
     FEED_IN_SETTING: string,
     MAX_FEED_IN_POWER?: number,
-    HAS_AC_METER: boolean,
-    AC_METER_TYPE?: string,
     HAS_PV_1: boolean,
     ALIAS_PV_1?: string,
     HAS_PV_2: boolean,
@@ -34,15 +31,15 @@ type Home30App = {
 
 export class Home30FeneconIbn extends AbstractHomeIbn {
 
-    public override readonly type: SystemType = SystemType.FENECON_HOME_30;
     public override readonly id: SystemId = SystemId.FENECON_HOME_30;
     public override readonly emsBoxLabel = Category.EMS_BOX_LABEL_HOME;
-    public override readonly maxNumberOfPvStrings: number = 6;
-    public override readonly maxFeedInLimit: number = 29999;
-    public override readonly homeAppId: string = 'App.FENECON.Home.30';
     public override readonly homeAppAlias: string = 'FENECON Home 30';
-    public override readonly maxNumberOfTowers: number = 5;
+    public override readonly homeAppId: string = 'App.FENECON.Home.30';
+    public override readonly maxFeedInLimit: number = 29999;
     public override readonly maxNumberOfModulesPerTower: number = 15;
+    public override readonly maxNumberOfPvStrings: number = 6;
+    public override readonly maxNumberOfTowers: number = 4;
+    public override readonly minNumberOfModulesPerTower: number = 5;
     public override readonly relayFactoryId: string = 'IO.KMtronic';
 
     public override mppt: {
@@ -68,6 +65,7 @@ export class Home30FeneconIbn extends AbstractHomeIbn {
             View.PreInstallation,
             View.PreInstallationUpdate,
             View.ConfigurationSystem,
+            View.ConfigurationSystemVariant,
             View.ProtocolInstaller,
             View.ProtocolCustomer,
             View.ProtocolSystem,
@@ -75,7 +73,6 @@ export class Home30FeneconIbn extends AbstractHomeIbn {
             View.ConfigurationLineSideMeterFuse,
             View.ConfigurationMpptSelection,
             View.ProtocolPv,
-            View.ProtocolAdditionalAcProducers,
             View.ProtocolFeedInLimitation,
             View.ConfigurationSummary,
             View.ConfigurationExecute,
@@ -85,11 +82,6 @@ export class Home30FeneconIbn extends AbstractHomeIbn {
     }
 
     public override getHomeAppProperties(safetyCountry: SafetyCountry, feedInSetting: FeedInSetting): Home30App {
-
-        // meter1
-        const acArray = this.pv.ac;
-        const isAcCreated: boolean = acArray.length >= 1;
-        const acMeterType: Meter = isAcCreated ? acArray[0].meterType : Meter.SOCOMEC;
 
         const dc1: DcPv = this.pv.dc[0];
         const dc2: DcPv = this.pv.dc[1];
@@ -103,8 +95,6 @@ export class Home30FeneconIbn extends AbstractHomeIbn {
             FEED_IN_TYPE: this.feedInLimitation.feedInType,
             ...(this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION && { MAX_FEED_IN_POWER: this.feedInLimitation.maximumFeedInPower }),
             FEED_IN_SETTING: feedInSetting,
-            HAS_AC_METER: isAcCreated,
-            ...(isAcCreated && { AC_METER_TYPE: Meter.toAppAcMeterType(acMeterType) }),
             HAS_PV_1: dc1.isSelected,
             ...(dc1.isSelected && { ALIAS_PV_1: dc1.alias }),
             HAS_PV_2: dc2.isSelected,

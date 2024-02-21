@@ -23,8 +23,6 @@ export class ProtocolFeedInLimitationComponent implements OnInit {
   public readonly FeedInType = FeedInType;
   private totalPvPower: number = 0;
 
-  constructor() { }
-
   public ngOnInit() {
     this.showRundSteuerManual = this.ibn.showRundSteuerManual;
     this.form = new FormGroup({});

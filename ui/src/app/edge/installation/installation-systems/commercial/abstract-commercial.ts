@@ -12,16 +12,18 @@ import { IbnUtils } from '../../shared/ibnutils';
 import { Meter } from '../../shared/meter';
 import { ComponentConfigurator, ConfigurationMode, ConfigurationObject } from '../../views/configuration-execute/component-configurator';
 import { AbstractIbn } from '../abstract-ibn';
+import { SubSystemType, SystemType } from '../../shared/system';
 
 export abstract class AbstractCommercialIbn extends AbstractIbn {
     private static readonly SELECTOR = 'Commercial';
 
+    public override readonly type: SystemType = SystemType.COMMERCIAL;
     public override readonly showRundSteuerManual: boolean = false;
     public override showViewCount: boolean = false;
     public modbusBridgeType: ModbusBridgeType;
 
     // configuration-emergency-reserve
-    public override emergencyReserve?= {
+    public override emergencyReserve? = {
         isEnabled: true,
         minValue: 15,
         value: 20,
@@ -29,7 +31,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
     };
 
     // protocol-dynamic-feed-in-limitation
-    public override feedInLimitation?= {
+    public override feedInLimitation? = {
         feedInType: FeedInType.EXTERNAL_LIMITATION,
         maximumFeedInPower: 0,
     };
@@ -42,7 +44,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         meterType: Meter;
     } = {
             category: Category.LINE_SIDE_METER_FUSE_COMMERCIAL,
-            meterType: Meter.SOCOMEC,
+            meterType: Meter.KDK,
         };
 
     public numberOfModulesPerTower: number;
@@ -91,75 +93,41 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                     { label: "KDK", value: Meter.KDK },
                 ],
             },
-            defaultValue: Meter.SOCOMEC,
+            defaultValue: Meter.KDK,
         });
         return fields;
     }
 
     public getFeedInLimitFields() {
 
-        const fields: FormlyFieldConfig[] = [];
-        const pv = this.pv;
-        let totalPvPower = 0;
-
-        for (const ac of pv.ac) {
-            totalPvPower += ac.value ?? 0;
-        }
-
         // Update the feedInlimitation field
-        this.feedInLimitation.maximumFeedInPower = parseInt((totalPvPower * 0.7).toFixed(0), 10);
+        let totalPvPower = 0;
+        this.feedInLimitation.maximumFeedInPower = totalPvPower;
 
-        fields.push({
-            key: "feedInType",
-            type: "select",
-            className: "white-space-initial",
-            templateOptions: {
-                label: "Typ",
-                placeholder: "Select Option",
-                options: [
-                    { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.DYNAMIC_LIMITATION'), value: FeedInType.DYNAMIC_LIMITATION },
-                    { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_LIMITATION'), value: FeedInType.EXTERNAL_LIMITATION },
-                ],
-                required: true,
-            },
-        });
-
-        fields.push({
-            key: 'maximumFeedInPower',
-            type: 'input',
-            templateOptions: {
-                type: 'number',
-                label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
-                description: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_VALUE_DESCRIPTION'),
-                required: true,
-            },
-            parsers: [Number],
-            validators: {
-                validation: ["onlyPositiveInteger"],
-            },
-            // 10 is given as radix parameter.
-            // 2 = binary, 8 = octal, 10 = decimal, 16 = hexadecimal.
-            defaultValue: totalPvPower,
-            hideExpression: model => model.feedInType != FeedInType.DYNAMIC_LIMITATION,
-        });
-        return fields;
+        return super.getCommonFeedInLimitsFields(totalPvPower);
     }
 
-    public override addCustomBatteryInverterData(batteryInverterData: ComponentData[]) {
+    public override addCustomBatteryInverterData() {
+        const batteryInverterData: ComponentData[] = [];
 
-        const feedInLimitation = this.feedInLimitation;
-        feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION
+        this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION
             ? batteryInverterData.push(
                 {
                     label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
-                    value: feedInLimitation.maximumFeedInPower,
+                    value: this.feedInLimitation.maximumFeedInPower,
                 },
             )
-            : batteryInverterData.push(
-                {
-                    label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_CONTROLLER_RECIEVER'),
-                    value: this.translate.instant('General.yes'),
-                });
+            : this.feedInLimitation.feedInType === FeedInType.EXTERNAL_LIMITATION
+                ? batteryInverterData.push(
+                    {
+                        label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_CONTROLLER_RECIEVER'),
+                        value: this.translate.instant('General.yes'),
+                    })
+                : batteryInverterData.push(
+                    {
+                        label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.NO_LIMITATION'),
+                        value: this.translate.instant('General.yes'),
+                    });
 
         return batteryInverterData;
     }
@@ -219,8 +187,6 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
 
     public override getProtocol(edge: Edge, websocket: Websocket): Promise<string> {
         const protocol: SetupProtocol = super.getCommonProtocolItems(edge);
-
-        protocol.items = [];
 
         const feedInLimitation = this.feedInLimitation;
         protocol.items.push(
@@ -464,5 +430,26 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             this.modbusBridgeType = ibnString.modbusBridgeType;
         }
 
+    }
+
+    public override getSubSystemFields(): FormlyFieldConfig[] {
+        const fields: FormlyFieldConfig[] = [];
+        const componentLabel = ([
+            { value: SubSystemType.COMMERCIAL_30, label: SubSystemType.COMMERCIAL_30 },
+            { value: SubSystemType.COMMERCIAL_50, label: SubSystemType.COMMERCIAL_50 },
+        ]);
+
+        fields.push({
+            key: 'subType',
+            type: 'radio',
+            className: 'line-break',
+            templateOptions: {
+                label: this.translate.instant('INSTALLATION.CONFIGURATION_SYSTEM.PRODUCT_NAME'),
+                options: componentLabel,
+                required: true,
+            },
+        });
+
+        return fields;
     }
 }

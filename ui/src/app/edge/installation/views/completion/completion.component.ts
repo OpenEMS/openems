@@ -6,7 +6,8 @@ import { GetSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/getSetup
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
-import { System } from '../../shared/system';
+import { Router } from '@angular/router';
+import { SystemId } from '../../shared/system';
 
 @Component({
   selector: CompletionComponent.SELECTOR,
@@ -14,22 +15,35 @@ import { System } from '../../shared/system';
 })
 export class CompletionComponent implements OnInit {
 
-  private static readonly SELECTOR = "completion";
+  private static readonly SELECTOR = 'completion';
 
   @Input() public ibn: AbstractIbn;
   @Input() public edge: Edge;
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
   @Output() public nextViewEvent: EventEmitter<any> = new EventEmitter();
-  protected system: string | null = null;
+  public system: SystemId | null = null;
+  public isWaiting = false;
 
   constructor(
     private service: Service,
     private websocket: Websocket,
     private translate: TranslateService,
+    private router: Router,
   ) { }
 
   public ngOnInit(): void {
-    this.system = System.getSystemTypeLabel(this.ibn.type);
+    this.system = this.ibn.id;
+    this.isWaiting = true;
+
+    this.ibn.getProtocol(this.edge, this.websocket).then((protocolId) => {
+      this.service.toast(this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.SENT_SUCCESSFULLY'), 'success');
+      this.ibn.setupProtocolId = protocolId;
+    }).catch((reason) => {
+      this.service.toast(this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.ERROR_SENDING'), 'danger');
+      console.warn(reason);
+    }).finally(() => {
+      this.isWaiting = false;
+    });
   }
 
   public onPreviousClicked() {
@@ -41,27 +55,34 @@ export class CompletionComponent implements OnInit {
   }
 
   public downloadProtocol() {
-    let request = new GetSetupProtocolRequest({ setupProtocolId: this.ibn.setupProtocolId });
+    const request = new GetSetupProtocolRequest({ setupProtocolId: this.ibn.setupProtocolId });
 
     this.websocket.sendRequest(request).then((response: Base64PayloadResponse) => {
-      var binary = atob(response.result.payload.replace(/\s/g, ''));
-      var length = binary.length;
-      var buffer = new ArrayBuffer(length);
-      var view = new Uint8Array(buffer);
-      for (var i = 0; i < length; i++) {
+
+      const binary = atob(response.result.payload.replace(/\s/g, ''));
+      const length = binary.length;
+
+      const buffer = new ArrayBuffer(length);
+      const view = new Uint8Array(buffer);
+
+      for (let i = 0; i < length; i++) {
         view[i] = binary.charCodeAt(i);
       }
 
       const data: Blob = new Blob([view], {
-        type: "application/pdf",
+        type: 'application/pdf',
       });
 
-      let fileName = "IBN-" + this.edge.id + "-" + format(new Date(), "dd.MM.yyyy") + ".pdf";
+      const fileName = `IBN-${this.edge.id}-${format(new Date(), 'dd.MM.yyyy')}.pdf`;
 
       saveAs(data, fileName);
-    }).catch((reason) => {
-      this.service.toast(this.translate.instant('INSTALLATION.COMPLETION.DOWNLOAD_ERROR'), "danger");
-      console.log(reason);
+    }).catch((error) => {
+      this.service.toast(this.translate.instant('INSTALLATION.COMPLETION.DOWNLOAD_ERROR'), 'danger');
+      console.error(error);
     });
+  }
+
+  protected navigate() {
+    this.router.navigate(['device/' + (this.edge.id) + '/settings/app']);
   }
 }

@@ -68,7 +68,7 @@ export class InstallationComponent implements OnInit {
         ibn.requiredControllerIds = ibnString.requiredControllerIds ?? [];
         ibn.lineSideMeterFuse = ibnString.lineSideMeterFuse ?? {};
         ibn.feedInLimitation = ibnString.feedInLimitation ?? {};
-        ibn.pv = ibnString.pv ?? {};
+        ibn.serialNumbers = ibnString.serialNumbers ?? {};
 
         ibn.setNonAbstractFields(ibnString);
       }
@@ -172,7 +172,6 @@ export class InstallationComponent implements OnInit {
     if (ibn) {
       this.setIbn(ibn);
       if (sessionStorage) {
-
         IbnUtils.addIbnToSessionStorage(ibn);
       }
     }

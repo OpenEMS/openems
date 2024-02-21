@@ -46,8 +46,8 @@ export class ConfigurationMpptSelectionComponent implements OnInit {
       const mppt = Math.ceil(strings / 2);
       const key: string = 'mppt' + mppt + 'pv' + strings;
       const label: string = strings % 2 // Every second label has a different label.
-        ? this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MARKED_AS', { mppt: mppt, pv: strings })
-        : this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.DUPLICATE', { mppt: mppt, pv: strings });
+        ? this.translate.instant('INSTALLATION.PROTOCOL_PV.MARKED_AS', { mppt: mppt, pv: strings })
+        : this.translate.instant('INSTALLATION.PROTOCOL_PV.DUPLICATE', { mppt: mppt, pv: strings });
       const defaultValue: boolean = this.model[key];
 
       fields.push({

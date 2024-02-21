@@ -3,69 +3,17 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 
-import { Category } from '../../../shared/category';
-import { ComponentData, SerialNumberFormData } from '../../../shared/ibndatatypes';
+import { FeedInType } from '../../../shared/enums';
+import { SerialNumberFormData } from '../../../shared/ibndatatypes';
 import { Meter } from '../../../shared/meter';
-import { SystemType } from '../../../shared/system';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
+import { SchedulerIdBehaviour } from '../../abstract-ibn';
 import { AbstractCommercialIbn } from '../abstract-commercial';
 
 export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
 
-    public commercial50Feature: {
-
-        feature: {
-            type: Category.BALANCING
-        } | {
-            type: Category.PEAK_SHAVING_SYMMETRIC | Category.PEAK_SHAVING_ASYMMETRIC,
-            dischargeAbove: number;
-            chargeBelow: number;
-        }
-    } = {
-            // Initialization
-            feature: {
-                type: Category.BALANCING,
-            },
-        };
-
-    public override readonly type: SystemType = SystemType.COMMERCIAL_50;
-
     public override readonly defaultNumberOfModules: number = 20;
-
-    public override addPeakShavingData(peakShavingData: ComponentData[]) {
-        if (this.commercial50Feature.feature.type !== Category.BALANCING) {
-            peakShavingData.push(
-                {
-                    label: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.DISCHARGE_ABOVE_LABEL'),
-                    value: this.commercial50Feature.feature.dischargeAbove,
-                },
-                {
-                    label: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.CHARGE_BELOW_LABEL'),
-                    value: this.commercial50Feature.feature.chargeBelow,
-                });
-        }
-        return peakShavingData;
-    }
-
-    public override setNonAbstractFields(commercial50Feature: any) {
-
-        // Configuration commercial modbus bridge
-        if ('modbusBridgeType' in commercial50Feature) {
-            super.setNonAbstractFields(commercial50Feature);
-        }
-
-        // Configuration peak shaving
-        if (commercial50Feature.feature) {
-            // ibn string from Session Storage
-            this.commercial50Feature.feature = commercial50Feature.feature;
-        } else {
-            // model From Peak Shaving view.
-            if (this.commercial50Feature.feature.type !== Category.BALANCING) {
-                this.commercial50Feature.feature.chargeBelow = commercial50Feature.chargeBelow;
-                this.commercial50Feature.feature.dischargeAbove = commercial50Feature.dischargeAbove;
-            }
-        }
-    }
+    public override showViewCount: boolean = true;
 
     public override fillSerialNumberForms(
         numberOfTowers: number,
@@ -212,9 +160,10 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
         return fields;
     }
 
-    public getCommercial50ComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, invalidateElementsAfterReadErrors: number, service: Service) {
+    public override getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service?: Service): ComponentConfigurator {
 
         const componentConfigurator: ComponentConfigurator = new ComponentConfigurator(edge, config, websocket);
+        const invalidateElementsAfterReadErrors: number = 3; // static value for commercial-50 systems.
 
         // adds Modbus 0, io0 (also modbus3 for Modbusbridge type TCP )
         super.addModbusBridgeAndIoComponents(this.modbusBridgeType, invalidateElementsAfterReadErrors, this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY_INTERFACE'), componentConfigurator,
@@ -310,9 +259,64 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             mode: ConfigurationMode.RemoveAndConfigure,
         });
 
-        // PV Meter optional
-        componentConfigurator.add(super.addAcPvMeter('modbus2'));
+        if (this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION) {
+            // ctrlGridOptimizedCharge0
+            componentConfigurator.add({
+                factoryId: 'Controller.Ess.GridOptimizedCharge',
+                componentId: 'ctrlGridOptimizedCharge0',
+                alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.GRID_OPTIMIZED_CHARGE'),
+                properties: [
+                    { name: 'enabled', value: true },
+                    { name: 'ess.id', value: 'ess0' },
+                    { name: 'meter.id', value: 'meter0' },
+                    { name: 'sellToGridLimitEnabled', value: true },
+                    {
+                        name: 'maximumSellToGridPower',
+                        value: this.feedInLimitation.maximumFeedInPower,
+                    },
+                    { name: 'delayChargeRiskLevel', value: 'MEDIUM' },
+                    { name: 'mode', value: 'AUTOMATIC' },
+                    { name: 'manualTargetTime', value: '17:00' },
+                    { name: 'debugMode', value: false },
+                    { name: 'sellToGridLimitRampPercentage', value: 2 },
+                ],
+                mode: ConfigurationMode.RemoveAndConfigure,
+            });
+        }
+
+        // ctrlBalancing0
+        componentConfigurator.add({
+            factoryId: 'Controller.Symmetric.Balancing',
+            componentId: 'ctrlBalancing0',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_FEATURES_STORAGE_SYSTEM.BALANCING'),
+            properties: [
+                { name: 'enabled', value: true },
+                { name: 'ess.id', value: 'ess0' },
+                { name: 'meter.id', value: 'meter0' },
+                { name: 'targetGridSetpoint', value: 0 },
+            ],
+            mode: ConfigurationMode.RemoveAndConfigure,
+        });
 
         return componentConfigurator;
+    }
+
+    public setRequiredControllers() {
+        this.requiredControllerIds = [];
+        if (this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION) {
+            this.requiredControllerIds.push({
+                componentId: "ctrlGridOptimizedCharge0",
+                behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE,
+            });
+        }
+
+        this.requiredControllerIds.push({
+            componentId: "ctrlBalancing0",
+            behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE,
+        });
+    }
+
+    public override getSystemVariantFields(): FormlyFieldConfig[] {
+        return [];
     }
 }

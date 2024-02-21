@@ -19,13 +19,13 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
             View.PreInstallation,
             View.PreInstallationUpdate,
             View.ConfigurationSystem,
-            View.ConfigurationCommercial,
+            View.ConfigurationSubSystem,
+            View.ConfigurationSystemVariant,
             View.ProtocolInstaller,
             View.ProtocolCustomer,
             View.ProtocolSystem,
             View.ConfigurationLineSideMeterFuse,
             View.ConfigurationCommercialModbuBridge,
-            View.ProtocolAdditionalAcProducers,
             View.ProtocolFeedInLimitation,
             View.ConfigurationSummary,
             View.ConfigurationExecute,
@@ -38,13 +38,13 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
         this.requiredControllerIds = [];
         if (this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION) {
             this.requiredControllerIds.push({
-                componentId: "ctrlGridOptimizedCharge0"
-                , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE,
+                componentId: "ctrlGridOptimizedCharge0",
+                behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE,
             });
         }
         this.requiredControllerIds.push({
-            componentId: "ctrlBalancing0"
-            , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE,
+            componentId: "ctrlBalancing0",
+            behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE,
         });
     }
 

@@ -570,12 +570,13 @@
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Note that the selection cannot be undone afterwards.",
     "BACK": "Back",
-    "COMPLETE": "complete",
+    "COMPLETE": "To Online-Monitoring",
     "COMPLETION": {
       "DOWNLOAD_ERROR": "The Protocol could not be downloaded",
       "DOWNLOAD": "IBN-Protocol download",
       "SUB_TITLE": "You have successfully commisioned the {{ value }}.",
-      "TITLE": "Set-up complete"
+      "TITLE": "Set-up complete",
+      "NOTE": "Click here to go to the App Center to configure additional components and install apps."
     },
     "CONFIGURATION_EMERGENCY_RESERVE": {
       "EMERGENCY_RESERVE_NOTE": "If this function is activated, the battery charge level cannot fall below the set value.",
@@ -617,7 +618,6 @@
       "SURPLUS_ENERGY_FEEDIN": "Surplus energy feed-in",
       "TITLE": "Configuration",
       "WAITING": "Configuration running...",
-      "WILL_BE_CONFIGURED": "Will be configured / checked",
       "POWER": "Power",
       "COMMUNICATION_WITH_METER": "Communication with the Meter",
       "WAGO_BRIDGE": "Wago Bridge",
@@ -658,9 +658,7 @@
       "PRODUCER": "Generator",
       "SUMMARY": "Summary",
       "TIME_OF_INSTALLATION": "Time of the installation",
-      "VALUE_AC": "Value AC",
       "WARRANTY_TERMS": "Warranty terms",
-      "PEAK_SHAVING": "Peak shaving",
       "APPS": "Apps",
       "HECKERT": "Your chosen free app",
       "ACCEPT": "acceptation",
@@ -734,10 +732,8 @@
       "TITLE_INSTALLER": "Contact data - Installer",
       "ZIP": "ZIP code"
     },
-    "PROTOCOL_PV_AND_ADDITIONAL_AC": {
-      "ADD": "Add generator",
+    "PROTOCOL_PV": {
       "ADDITIONAL_GENERATOR": "Additional AC-Generator",
-      "ALIAS_DESCRIPTION_ADDITIONAL_AC": "e.g. \"PV-Roof\"",
       "ALIAS_DESCRIPTION_PV": "will be displayed in the Online-Monitoring, e.g. \"PV-Roof\"",
       "ALIAS": "Description",
       "DIRECTIONS": {
@@ -752,12 +748,6 @@
       },
       "INSTALLED_POWER": "Installed power[Wₚ]",
       "MARKED_AS": " MPPT {{ mppt }} (marked as \"PV{{ pv }}\")",
-      "METER_TYPE_WITH_LABEL": "Type of the sensor {{ label }}{{ number }}",
-      "METER_TYPE": "Type of the sensor",
-      "MODBUS_SOCOMEC_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity (partY) \"n\", Communication Stopbit (StoP) \"1\"",
-      "MODBUS_KDK_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity (partY) \"e\", Communication Stopbit (StoP) \"1\"",
-      "MODBUS_WITH_LABEL": "Modbus {{ label }}{{ number }}",
-      "MODBUS": "Modbus",
       "MODULE_TYPE_DESCRIPTION": "e.g. Manufuturer and Power",
       "MODULE_TYPE_WITH_LABEL": "Type of modules {{ label }}{{ number }}",
       "MODULE_TYPE": "Type of modules",
@@ -766,16 +756,10 @@
       "OPEN_MANUAL": "Open manual",
       "ORIENTATION_WITH_LABEL": "{{ label }}{{ number }} Orientation",
       "ORIENTATION": "Orientation",
-      "SAVE_TO_CONTINUE": "First save your entries to continue.",
-      "SAVE": "Save generator",
       "SHADE_MANAGEMENT_DEACTIVATE": "Deactivate Shade management",
       "SHADE_MANAGEMENT_DESCRIPTION": "The shade management has to be disabled, only if optimizers are installed.",
-      "TITLE_ADDITIONAL_AC": "AC-Generator",
       "TITLE_PV": "DC-PV installation (Inverter inputs)",
-      "VALID_DATA": "Enter valid data to save.",
       "TITLE_DC": "DC-PV-Installation",
-      "AC_NOT_CREATED": "AC Meter not created!",
-      "METER_SELECTION_WARNING": "Please select the meter by adding generator.",
       "DUPLICATE": " MPPT {{ mppt }} double occupied (marked as \"PV{{ pv }}\")"
     },
     "PROTOCOL_SERIAL_NUMBERS": {
@@ -824,22 +808,7 @@
     "VALUE_WITH_LABEL": "Value {{ label }}{{ number }} {{ symbol }}",
     "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
     "CONFIGURATION_FEATURES_STORAGE_SYSTEM": {
-      "BALANCING": "Self-Consumption optmization",
-      "PEAK_SHAVING_SYMMETRIC": "Peak shaving",
-      "PEAK_SHAVING_ASYMMETRIC": "Phase Accurate Peak shaving",
-      "FEATURE_DESCRIPTION": "The corresponding App must be available",
-      "HEADER": "Information on the use of the Storage system",
-      "PEAK_SHAVING_SYMMETRIC_HEADER": "Peak load shaving settings",
-      "PEAK_SHAVING_ASYMMETRIC_HEADER": "Phases Accurate peak shaving settings"
-    },
-    "CONFIGURATION_PEAK_SHAVING": {
-      "DISCHARGE_ABOVE_VALUE": "Discharging above - Value [W]",
-      "CHARGE_BELOW_VALUE": "Charging below - Value [W]",
-      "DISCHARGE_ABOVE_DESCRIPTION": "If the grid power is above this value, the battery will be discharged.",
-      "CHARGE_BELOW_DESCRIPTION": "if the grid power is below this value, the battery is charged again.\nThis value must not exceed the \"Discharge over\" value.",
-      "DESCRIPTION": "Entered power values refer to individual phases. It is adjusted to the most heavily loaded phase.",
-      "DISCHARGE_ABOVE_LABEL": "Discharge above",
-      "CHARGE_BELOW_LABEL": "Charge below"
+      "BALANCING": "Self-Consumption optmization"
     },
     "CLICK_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a {{ edgeShortName }}.",
     "CONFIGURATION_COMMERCIAL_MODBUS_COMPONENT": {
@@ -848,7 +817,8 @@
     },
     "CONFIGURATION_COMMERCIAL_MODBUS_BRIDGE": {
       "HEADER": "Select the type of Communication"
-    }
+    },
+    "CONFIGURATION_MPPT_SELECTION_NOTE": "Additional generators can then be configured via the App Center."
   },
   "Login": {
     "title": "Login",

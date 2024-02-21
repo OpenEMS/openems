@@ -1,7 +1,18 @@
 <installation-view iconName="settings-outline"
-    header="{{ 'INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.TITLE_PV' | translate }}"
+    header="{{ 'INSTALLATION.PROTOCOL_PV.TITLE_PV' | translate }}"
     (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()" [isNextDisabled]="isNextDisabled">
 
     <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+
+    <ion-card>
+        <ion-card-content>
+            <ion-text>
+                <p style="color: red; font-weight: bold;">
+                    {{'INSTALLATION.PRE_INSTALLATION.NOTE' | translate}}
+                </p>
+                {{'INSTALLATION.CONFIGURATION_MPPT_SELECTION_NOTE' | translate}}
+            </ion-text>
+        </ion-card-content>
+    </ion-card>
 
 </installation-view>

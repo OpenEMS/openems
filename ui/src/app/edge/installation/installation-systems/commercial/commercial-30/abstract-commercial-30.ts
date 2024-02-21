@@ -5,14 +5,13 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/sh
 import { FeedInType } from '../../../shared/enums';
 import { SerialNumberFormData } from '../../../shared/ibndatatypes';
 import { Meter } from '../../../shared/meter';
-import { SystemType } from '../../../shared/system';
+import { SystemId } from '../../../shared/system';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
 import { AbstractCommercialIbn } from '../abstract-commercial';
 
 export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
 
     public override readonly defaultNumberOfModules = 9;
-    public override readonly type: SystemType = SystemType.COMMERCIAL_30;
     public abstract readonly emergencyPower: 'ENABLE' | 'DISABLE';
 
     public override fillSerialNumberForms(
@@ -66,6 +65,26 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
             parsers: [Number],
             defaultValue: numberOfModulesPerTower,
         });
+        return fields;
+    }
+
+    public override getSystemVariantFields(): FormlyFieldConfig[] {
+        const fields: FormlyFieldConfig[] = [];
+        const componentLabel = ([
+            { value: SystemId.COMMERCIAL_30_ANSCHLUSS, label: SystemId.COMMERCIAL_30_ANSCHLUSS },
+            { value: SystemId.COMMERCIAL_30_NETZTRENNSTELLE, label: SystemId.COMMERCIAL_30_NETZTRENNSTELLE },
+        ]);
+
+        fields.push({
+            key: 'system',
+            type: 'radio',
+            className: 'line-break',
+            templateOptions: {
+                options: componentLabel,
+                required: true,
+            },
+        });
+
         return fields;
     }
 
@@ -263,9 +282,6 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
             ],
             mode: ConfigurationMode.RemoveAndConfigure,
         });
-
-        // PV Meter optional
-        componentConfigurator.add(super.addAcPvMeter('modbus2'));
 
         if (this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION) {
             // ctrlGridOptimizedCharge0
