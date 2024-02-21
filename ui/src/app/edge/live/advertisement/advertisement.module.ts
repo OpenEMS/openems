@@ -2,7 +2,8 @@ import { NgModule } from '@angular/core';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 import { AdvertisementComponent } from './advertisement.component';
-import { DynamicElectricityTarifAdvertForExistingCustomerComponent } from './dynamic-electricity-tariff/dynamic-electricity-tariff-existing-customer';
+import { FlatComponent } from './dynamic-electricity-tariff/flat';
+import { ModalComponent } from './dynamic-electricity-tariff/modal';
 
 @NgModule({
     imports: [
@@ -10,7 +11,8 @@ import { DynamicElectricityTarifAdvertForExistingCustomerComponent } from './dyn
     ],
     declarations: [
         AdvertisementComponent,
-        DynamicElectricityTarifAdvertForExistingCustomerComponent,
+        FlatComponent,
+        ModalComponent,
     ],
     exports: [
         AdvertisementComponent,

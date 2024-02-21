@@ -18,8 +18,8 @@
         <ion-slides [options]="slideOpts" class="slides" #slides (ionSlidesDidLoad)="slidesDidLoad(slides)"
             (ionSlideWillChange)="changeSlides()" (ionSlideTransitionStart)="changeNextPrevButtons()">
             <ng-container *ngFor="let widget of advertWidgets.list" [ngSwitch]="widget.name">
-                <ion-slide *ngSwitchCase="'dynamic-electricity-tariff-existing-customer'">
-                    <dynamic-electricity-tariff-existing-customer></dynamic-electricity-tariff-existing-customer>
+                <ion-slide *ngSwitchCase="'dynamic-electricity-tariff'">
+                    <dynamic-electricity-tariff></dynamic-electricity-tariff>
                 </ion-slide>
             </ng-container>
         </ion-slides>

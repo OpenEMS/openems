@@ -12,6 +12,7 @@ variables:
   - &rsync-settings
     hosts: [ "10.0.0.40" ]
     user: fenecon-docs
+    port: 22
     key:
       from_secret: ssh_key_intranet
 
@@ -46,6 +47,30 @@ steps:
       restore: true
       <<: *sftp-settings
 
+  prepare-environment:
+    when: *every-build
+    image: bash:openems
+    commands:
+      - export CACHE=$CI_WORKSPACE/cache
+      - mkdir -p $CI_WORKSPACE/cache build/target
+      - source tools/common.sh
+      - common_initialize_environment
+      - common_build_snapshot_version
+      - common_save_environment $CI_WORKSPACE/.openems-env
+      - |
+        echo "
+        # Java
+        export GRADLE_USER_HOME=$CACHE/gradle
+        export MAVEN_OPTS=-Dmaven.repo.local=$CACHE/maven
+        # Ui
+        export npm_config_cache=$CACHE/npm
+        export NG_CLI_CACHE_PATH=$CACHE/angular-cli
+        export NODE_MODULES_CACHE=$CACHE/node_modules
+        export CHROME_BIN=/usr/bin/google-chrome-stable
+        " > $CI_WORKSPACE/.woodpecker-env
+      - common_update_version_in_code
+    depends_on: [restore-cache]
+
   build-ui:
     when:
       - *main-build
@@ -54,23 +79,18 @@ steps:
     image: openems-build:latest
     commands:
       - export OEM=$(case ${CI_COMMIT_BRANCH^^} in *HECKERT*) echo "heckert";; *) echo "fenecon";; esac)
-      - export CACHE=$CI_WORKSPACE/cache
-      - mkdir -p $CACHE
-      - export npm_config_cache=$CACHE/npm
-      - export NG_CLI_CACHE_PATH=$CACHE/angular-cli
-      - export NODE_MODULES_CACHE=$CACHE/node_modules # TODO
-      - export CHROME_BIN=/usr/bin/google-chrome-stable
+      - source $CI_WORKSPACE/.woodpecker-env
+      - source $CI_WORKSPACE/.openems-env
       ## start ##
       - echo "Build for $OEM"
       - cd ui
       - npm ci --prefer-offline --cache $npm_config_cache --force
-      - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g angular.json
-      - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g src/themes/fenecon/root/site.webmanifest
+      - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g angular.json src/themes/fenecon/root/site.webmanifest
       - node_modules/.bin/ng config cli.cache.path "$NG_CLI_CACHE_PATH"
-      - node_modules/.bin/ng build --base-href /${CI_COMMIT_BRANCH}/ -c "$OEM,$OEM-backend-prod,prod"
       - node_modules/.bin/ng lint
+      - node_modules/.bin/ng build --base-href /${CI_COMMIT_BRANCH}/ -c "$OEM,$OEM-backend-prod,prod"
       - npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
-    depends_on: [restore-cache]
+    depends_on: [prepare-environment]
 
   build-java:
     when:
@@ -79,17 +99,14 @@ steps:
       - *java-only
     image: openems-build:latest
     commands:
-      - export CACHE=$CI_WORKSPACE/cache
-      - mkdir -p $CACHE
-      - export GRADLE_USER_HOME=$CACHE/gradle
-      - export MAVEN_OPTS=-Dmaven.repo.local=$CACHE/maven
+      - source $CI_WORKSPACE/.woodpecker-env
+      - source $CI_WORKSPACE/.openems-env
       ## start ##
       - source tools/common.sh
       - common_initialize_environment
-      - common_build_snapshot_version
-      - common_update_version_in_code
+      - echo "Build Version $VERSION"
       - common_build_edge --no-daemon --no-build-cache --parallel --max-workers 2;
-    depends_on: [restore-cache]
+    depends_on: [prepare-environment]
 
   build-debian-package:
     when:
@@ -97,17 +114,12 @@ steps:
       - *message-debian
     image: openems-build:latest
     commands:
-      - export CACHE=$CI_WORKSPACE/cache
-      - mkdir -p $CACHE
-      - export GRADLE_USER_HOME=$CACHE/gradle
-      - export npm_config_cache=$CACHE/npm
-      - export NG_CLI_CACHE_PATH=$CACHE/angular-cli
-      - export NODE_MODULES_CACHE=$CACHE/node_modules
-      - export MAVEN_OPTS=-Dmaven.repo.local=$CACHE/maven
+      - source $CI_WORKSPACE/.woodpecker-env
+      - source $CI_WORKSPACE/.openems-env
       ## start ##
       - mkdir -p tools/debian/usr/lib/openems/
-      - cp io.openems.edge.application/generated/distributions/executable/EdgeApp.jar tools/debian/usr/lib/openems/openems.jar
-      - tools/build-debian-package.sh
+      - cp build/openems-edge.jar tools/debian/usr/lib/openems/openems.jar
+      - tools/build-debian-package.sh build/target/
     depends_on: [build-ui, build-java]
 
   refresh-dev-ui:
@@ -119,9 +131,9 @@ steps:
       <<: *rsync-settings
       source: ui/target/
       recursive: true
-      prescript: /opt/gitea/data/openems-ui-dev/prepare-location.sh ${CI_COMMIT_BRANCH}
-      target: /opt/gitea/data/openems-ui-dev/html/${CI_COMMIT_BRANCH}
-      script: /opt/gitea/data/openems-ui-dev/refresh-location.sh ${CI_COMMIT_BRANCH}
+      delete: true
+      target: /opt/gitea/develop/fems-ui/html/${CI_COMMIT_BRANCH}
+      script: /opt/gitea/develop/fems-ui/refresh-location.sh ${CI_COMMIT_BRANCH}
     depends_on: [build-ui]
 
   refresh-dev-deb:
@@ -131,9 +143,8 @@ steps:
     image: drillster/drone-rsync:latest
     settings:
       <<: *rsync-settings
-      exclude: ["*"]
-      include: ["fems.deb", "fems.version"]
-      target: /opt/gitea/data/openems-ui-dev/html/${CI_COMMIT_BRANCH}
+      source: build/target/
+      target: /opt/gitea/develop/fems-artifacts/html/${CI_COMMIT_BRANCH}
     depends_on: [build-debian-package]
 
   rebuild-cache:

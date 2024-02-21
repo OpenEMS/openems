@@ -5,6 +5,7 @@ import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import io.openems.edge.app.enums.FeedInType;
@@ -16,6 +17,7 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.builder.InputBuilder;
 import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
 
 public final class IntegratedSystemProps {
@@ -105,6 +107,51 @@ public final class IntegratedSystemProps {
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(getFeedInSettingsOptions());
 				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the type of the grid meter.
+	 * 
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> gridMeterType() {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.IntegratedSystem.gridMeterType.label") //
+				.setDefaultValue(GoodWeGridMeterCategory.SMART_METER) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(OptionsFactory.of(GoodWeGridMeterCategory.class), l);
+				}));
+	}
+
+	private static final AppDef<OpenemsApp, Nameable, BundleProvider> ctRatio(//
+			final Nameable gridMeterType, //
+			final Consumer<InputBuilder> fieldSettings //
+	) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(gridMeterType)
+							.equal(Exp.staticValue(GoodWeGridMeterCategory.COMMERCIAL_METER)));
+					field.setInputType(NUMBER) //
+							.setMin(0) //
+							.onlyPositiveNumbers();
+
+					fieldSettings.accept(field);
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the first value of the CT-Ratio.
+	 * 
+	 * @param gridMeterType the {@link Nameable} for the type of the grid meter
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> ctRatioFirst(Nameable gridMeterType) {
+		return AppDef.copyOfGeneric(ctRatio(gridMeterType, field -> {
+			field.setMin(200) //
+					.setMax(5000);
+		}), def -> def //
+				.setTranslatedLabel("App.IntegratedSystem.ctRatioFirst.label") //
+				.setDefaultValue(200));
 	}
 
 	/**

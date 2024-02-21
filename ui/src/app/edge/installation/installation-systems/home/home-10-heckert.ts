@@ -11,16 +11,17 @@ import { EmsAppId } from '../../views/heckert-app-installer/heckert-app-installe
 import { AbstractHomeIbn } from './abstract-home';
 
 export class Home10HeckertIbn extends AbstractHomeIbn {
-    public override maxNumberOfTowers: number = 4;
-    public override maxNumberOfModulesPerTower: number = 10;
 
-    public override readonly type: SystemType = SystemType.HECKERT_HOME_10;
+    public override readonly type: SystemType = SystemType.HECKERT_HOME;
     public override readonly id: SystemId = SystemId.HECKERT_HOME_10;
     public override readonly emsBoxLabel = Category.EMS_BOX_LABEL_HECKERT;
-    public override maxNumberOfPvStrings: number = 2;
-    public override maxFeedInLimit: number = 29999;
-    public override homeAppId: string = 'App.FENECON.Home';
-    public override homeAppAlias: string = 'FENECON Home';
+    public override readonly homeAppAlias: string = 'FENECON Home';
+    public override readonly homeAppId: string = 'App.FENECON.Home';
+    public override readonly maxFeedInLimit: number = 29999;
+    public override readonly maxNumberOfModulesPerTower: number = 10;
+    public override readonly maxNumberOfPvStrings: number = 2;
+    public override readonly maxNumberOfTowers: number = 3;
+    public override readonly minNumberOfModulesPerTower: number = 10;
 
     // TODO remove when all customers have a key to install the app
     // TODO set key
@@ -37,7 +38,6 @@ export class Home10HeckertIbn extends AbstractHomeIbn {
             View.ConfigurationEmergencyReserve,
             View.ConfigurationLineSideMeterFuse,
             View.ProtocolPv,
-            View.ProtocolAdditionalAcProducers,
             View.ProtocolFeedInLimitation,
             View.HeckertAppInstaller,
             View.ConfigurationSummary,

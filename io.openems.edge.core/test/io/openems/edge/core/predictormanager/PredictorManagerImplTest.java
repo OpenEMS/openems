@@ -15,6 +15,7 @@ import org.junit.Test;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
@@ -61,9 +62,10 @@ public class PredictorManagerImplTest {
 	public void test() throws OpenemsException, Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
 		final var cm = new DummyComponentManager(clock);
+		final var sum = new DummySum();
 		final var midnight = ZonedDateTime.now(clock).truncatedTo(DAYS);
 		var consumptionPredictor = new DummyPredictor(PREDICTOR_ID, cm,
-				Prediction.from(SUM_CONSUMPTION_ACTIVE_POWER, midnight, DEFAULT_CONSUMPTION_PREDICTION),
+				Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, midnight, DEFAULT_CONSUMPTION_PREDICTION),
 				SUM_CONSUMPTION_ACTIVE_POWER);
 
 		var sut = new PredictorManagerImpl();

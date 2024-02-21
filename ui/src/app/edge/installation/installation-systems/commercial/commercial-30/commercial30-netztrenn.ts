@@ -31,7 +31,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
             minValue: 15,
             value: 20,
             isReserveSocEnabled: false,
-            coupler: Coupler.WEIDMUELLER,
+            coupler: Coupler.WAGO,
         };
 
     constructor(translate: TranslateService) {
@@ -39,14 +39,14 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
             View.PreInstallation,
             View.PreInstallationUpdate,
             View.ConfigurationSystem,
-            View.ConfigurationCommercial,
+            View.ConfigurationSubSystem,
+            View.ConfigurationSystemVariant,
             View.ProtocolInstaller,
             View.ProtocolCustomer,
             View.ProtocolSystem,
             View.ConfigurationEmergencyReserve,
             View.ConfigurationLineSideMeterFuse,
             View.ConfigurationCommercialModbuBridge,
-            View.ProtocolAdditionalAcProducers,
             View.ProtocolFeedInLimitation,
             View.ConfigurationSummary,
             View.ConfigurationExecute,
@@ -55,7 +55,8 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         ], translate);
     }
 
-    public override addCustomBatteryData(batteryData: ComponentData[]) {
+    public override addCustomBatteryData() {
+        const batteryData: ComponentData[] = [];
         batteryData.push({
             label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.IS_ACTIVATED'),
             value: this.emergencyReserve.isEnabled ? this.translate.instant('General.yes') : this.translate.instant('General.no'),

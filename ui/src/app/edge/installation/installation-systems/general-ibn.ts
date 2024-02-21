@@ -19,14 +19,12 @@ export class GeneralIbn extends AbstractIbn {
             View.PreInstallation,
             View.PreInstallationUpdate,
             View.ConfigurationSystem,
-            View.ConfigurationCommercial,
             View.ProtocolInstaller,
             View.ProtocolCustomer,
             View.ProtocolSystem,
             View.ConfigurationEmergencyReserve,
             View.ConfigurationLineSideMeterFuse,
             View.ProtocolPv,
-            View.ProtocolAdditionalAcProducers,
             View.ProtocolFeedInLimitation,
             View.HeckertAppInstaller,
             View.ConfigurationSummary,
@@ -36,6 +34,9 @@ export class GeneralIbn extends AbstractIbn {
         ], translate);
     }
 
+    public override getSystemVariantFields(): FormlyFieldConfig[] {
+        throw new Error('This is General Ibn, Method not implemented.');
+    }
     public override getPreSettingInformationFromEdge(edge: Edge, websocket: Websocket): Promise<{ numberOfTowers: number; numberOfModulesPerTower: number; }> {
         throw new Error('This is General Ibn, Method not implemented.');
     }

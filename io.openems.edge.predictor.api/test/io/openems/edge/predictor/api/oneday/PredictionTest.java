@@ -8,6 +8,7 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.predictor.api.prediction.Prediction;
 
 public class PredictionTest {
@@ -15,16 +16,18 @@ public class PredictionTest {
 	@Test
 	public void testOf() {
 		var now = ZonedDateTime.now();
-		assertArrayEquals(new Integer[] { 1, 5, 7, 0 /* TO_POSITIVE */, 9, null, null }, //
+		var sum = new DummySum();
+
+		assertArrayEquals(new Integer[] { 1, 5, 7, 0 /* ValueRange positive */, 9, null, null }, //
 				Arrays.copyOfRange(//
-						Prediction.from(//
+						Prediction.from(sum, //
 								new ChannelAddress("_sum", "ProductionActivePower"), now, //
 								1, 5, 7, -1, 9 //
 						).asArray(), 0, 7));
 
 		assertArrayEquals(new Integer[] { 1, 5, 7, -1 /* NONE */, 9, null, null }, //
 				Arrays.copyOfRange(//
-						Prediction.from(//
+						Prediction.from(sum, //
 								new ChannelAddress("foo", "bar"), now, //
 								1, 5, 7, -1, 9 //
 						).asArray(), 0, 7));

@@ -60,8 +60,7 @@ export enum FeedInType {
 export enum WebLinks {
     GTC_LINK,
     WARRANTY_LINK_HOME,
-    WARRANTY_LINK_COMMERCIAL,
-    MANUAL_HOME
+    WARRANTY_LINK_COMMERCIAL
 }
 
 export namespace WebLinks {
@@ -72,35 +71,25 @@ export namespace WebLinks {
                 switch (lang) {
                     case "de":
                     default:
-                        return environment.links.gtc.DE;
+                        return environment.links.GTC.DE;
                     case "en":
-                        return environment.links.gtc.EN;
+                        return environment.links.GTC.EN;
                 }
-
             case WebLinks.WARRANTY_LINK_HOME:
                 switch (lang) {
                     case "de":
                     default:
-                        return environment.links.warranty.home.DE;
+                        return environment.links.WARRANTY.HOME.DE;
                     case "en":
-                        return environment.links.warranty.home.EN;
+                        return environment.links.WARRANTY.HOME.EN;
                 }
-
             case WebLinks.WARRANTY_LINK_COMMERCIAL:
                 switch (lang) {
                     case "de":
                     default:
-                        return environment.links.warranty.commercial.DE;
+                        return environment.links.WARRANTY.COMMERCIAL.DE;
                     case "en":
-                        return environment.links.warranty.commercial.EN;
-                }
-            case WebLinks.MANUAL_HOME:
-                switch (lang) {
-                    case "de":
-                    default:
-                        return environment.links.MANUALS.HOME.DE;
-                    case "en":
-                        return environment.links.MANUALS.HOME.EN;
+                        return environment.links.WARRANTY.COMMERCIAL.EN;
                 }
         }
     }
@@ -121,7 +110,6 @@ export enum View {
     ConfigurationSystem,
     PreInstallation,
     PreInstallationUpdate,
-    ProtocolAdditionalAcProducers,
     ProtocolCustomer,
     ProtocolFeedInLimitation,
     ProtocolInstaller,
@@ -129,9 +117,9 @@ export enum View {
     ProtocolSerialNumbers,
     ProtocolSystem,
     HeckertAppInstaller,
-    ConfigurationFeaturesStorageSystem,
-    ConfigurationCommercial,
-    ConfigurationPeakShaving,
     ConfigurationCommercialModbuBridge,
-    ConfigurationMpptSelection
+    ConfigurationMpptSelection,
+    ConfigurationSystemVariant,
+    ConfigurationSubSystem,
+    ConfigurationEnergyFlowMeter,
 }

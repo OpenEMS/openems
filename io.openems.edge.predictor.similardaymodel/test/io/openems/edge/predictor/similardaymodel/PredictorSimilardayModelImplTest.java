@@ -13,6 +13,7 @@ import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.predictor.api.prediction.LogVerbosity;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class PredictorSimilardayModelImplTest {
@@ -46,7 +47,9 @@ public class PredictorSimilardayModelImplTest {
 				.activate(MyConfig.create() //
 						.setId(PREDICTOR_ID) //
 						.setNumOfWeeks(4) //
-						.setChannelAddresses(METER1_ACTIVE_POWER.toString()).build());
+						.setChannelAddresses(METER1_ACTIVE_POWER.toString()) //
+						.setLogVerbosity(LogVerbosity.NONE) //
+						.build());
 
 		var prediction = sut.getPrediction(METER1_ACTIVE_POWER);
 		var p = prediction.asArray();

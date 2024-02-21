@@ -1,11 +1,11 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateCharge;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.essMaxChargePower;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.getEssMinSoc;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateChargeGridPower;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateDelayDischargePower;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.getEssMinSocPercentage;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.postprocessRunState;
 
 import java.time.ZonedDateTime;
@@ -66,11 +66,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	/** The hard working Worker. */
 	private final Optimizer optimizer;
 
-	/** Delayed Time is aggregated also after restart of OpenEMS. */
 	private final CalculateActiveTime calculateDelayedTime = new CalculateActiveTime(this,
 			TimeOfUseTariffController.ChannelId.DELAYED_TIME);
-
-	/** Charged Time is aggregated also after restart of OpenEMS. */
 	private final CalculateActiveTime calculateChargedTime = new CalculateActiveTime(this,
 			TimeOfUseTariffController.ChannelId.CHARGED_TIME);
 
@@ -117,6 +114,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		// Prepare Optimizer and Context
 		this.optimizer = new Optimizer(() -> Context.create() //
 				.clock(this.componentManager.getClock()) //
+				.sum(this.sum) //
 				.predictorManager(this.predictorManager) //
 				.timeOfUseTariff(this.timeOfUseTariff) //
 				.ess(this.ess) //
@@ -197,20 +195,21 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	private void modeAutomatic() throws OpenemsNamedException {
 		// Evaluate current state
 		final var state = postprocessRunState(
-				getEssMinSoc(this.ctrlLimitTotalDischarges, this.ctrlEmergencyCapacityReserves), //
+				getEssMinSocPercentage(this.ctrlLimitTotalDischarges, this.ctrlEmergencyCapacityReserves), //
 				this.ess.getSoc().get(), //
+				this.sum.getProductionActivePower().orElse(0), //
 				this.getCurrentPeriodState());
 		this._setStateMachine(state);
 
 		// Update the timer.
-		this.calculateChargedTime.update(state == CHARGE);
+		this.calculateChargedTime.update(state == CHARGE_GRID);
 		this.calculateDelayedTime.update(state == DELAY_DISCHARGE);
 
 		// Get and apply ActivePower Less-or-Equals Set-Point
 		var activePower = switch (state) {
-		case CHARGE -> calculateCharge(this.ess, this.sum, essMaxChargePower(this.optimizer.getParams(), this.ess),
+		case CHARGE_GRID -> calculateChargeGridPower(this.optimizer.getParams(), this.ess, this.sum,
 				this.config.maxChargePowerFromGrid());
-		case DELAY_DISCHARGE -> 0;
+		case DELAY_DISCHARGE -> calculateDelayDischargePower(this.ess);
 		case BALANCING -> null;
 		};
 

@@ -1,6 +1,7 @@
 package io.openems.edge.core.appmanager;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -12,10 +13,6 @@ import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 import io.openems.edge.core.appmanager.dependency.TemporaryApps;
 import io.openems.edge.core.appmanager.dependency.UpdateValues;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
-import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTaskImpl;
-import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTaskImpl;
-import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerAggregateTaskImpl;
-import io.openems.edge.core.appmanager.dependency.aggregatetask.StaticIpAggregateTaskImpl;
 
 public class DummyAppManagerAppHelper implements AppManagerAppHelper {
 
@@ -28,15 +25,20 @@ public class DummyAppManagerAppHelper implements AppManagerAppHelper {
 			ComponentUtil componentUtil, //
 			AppManagerUtil util //
 	) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-		final var componentTask = new ComponentAggregateTaskImpl(componentManager);
-		final var schedulerTask = new SchedulerAggregateTaskImpl(componentTask, componentUtil);
-		final var staticIpTask = new StaticIpAggregateTaskImpl(componentUtil);
-		final var persistencePredictorTask = new PersistencePredictorAggregateTaskImpl(componentManager);
-		this.tasks = List.of(staticIpTask, componentTask, schedulerTask, persistencePredictorTask);
+		this.tasks = new ArrayList<AggregateTask<?>>();
 		this.impl = new AppManagerAppHelperImpl(componentManager, componentUtil);
 
 		ReflectionUtils.setAttribute(AppManagerAppHelperImpl.class, this.impl, "tasks", this.tasks);
 		ReflectionUtils.setAttribute(AppManagerAppHelperImpl.class, this.impl, "appManagerUtil", util);
+	}
+
+	/**
+	 * Adds a {@link AggregateTask} to the current active ones.
+	 * 
+	 * @param task the {@link AggregateTask} to add
+	 */
+	public void addAggregateTask(AggregateTask<?> task) {
+		this.tasks.add(task);
 	}
 
 	public List<AggregateTask<?>> getTasks() {

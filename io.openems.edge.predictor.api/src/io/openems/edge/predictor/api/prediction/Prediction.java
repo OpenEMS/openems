@@ -2,6 +2,7 @@ package io.openems.edge.predictor.api.prediction;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.edge.common.type.TypeUtils.max;
+import static io.openems.edge.common.type.TypeUtils.min;
 import static java.util.Collections.emptySortedMap;
 import static java.util.Collections.unmodifiableSortedMap;
 
@@ -10,11 +11,11 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.sum.Sum;
 
 /**
  * Holds a prediction - one value per 15 minutes.
@@ -43,7 +44,9 @@ public class Prediction {
 	 */
 	public static Prediction sum(Prediction... predictions) {
 		final var minTime = Stream.of(predictions) //
-				.map(p -> p.valuePerQuarter.firstKey()) //
+				.map(p -> p.valuePerQuarter) //
+				.filter(m -> !m.isEmpty()) //
+				.map(m -> m.firstKey()) //
 				.max(ZonedDateTime::compareTo);
 		if (minTime.isEmpty()) {
 			return EMPTY_PREDICTION;
@@ -67,43 +70,35 @@ public class Prediction {
 			}
 			result.put(time, sum);
 		}
-		return Prediction.from(Converter.NONE, result);
+		return Prediction.from(UNLIMITED, result);
 	}
 
-	public static enum Converter {
-		/** No conversion operation. */
-		NONE(Function.identity()),
-		/** Convert negative values to zero. */
-		TO_POSITIVE(v -> max(v, 0));
-
-		/** Conversion function. Input value is guaranteed to be not null. */
-		public final Function<Integer, Integer> function;
-
-		private Converter(Function<Integer, Integer> function) {
-			this.function = function;
-		}
+	private static record ValueRange(Integer min, Integer max) {
 	}
+
+	private static final ValueRange UNLIMITED = new ValueRange(null, null);
 
 	/**
-	 * Gets the default {@link Converter} for the given {@link ChannelAddress}.
+	 * Gets the {@link ValueRange} for the given {@link ChannelAddress}.
 	 * 
+	 * @param sum            the {@link Sum}
 	 * @param channelAddress the {@link ChannelAddress}
-	 * @return a {@link Converter}
+	 * @return a {@link ValueRange}
 	 */
-	public static Converter converterForChannelAddress(ChannelAddress channelAddress) {
+	public static ValueRange getValueRange(Sum sum, ChannelAddress channelAddress) {
 		return switch (channelAddress.toString()) {
-		case //
-				"_sum/ProductionActivePower", //
-				"_sum/ConsumptionActivePower", //
-				"_sum/UnmanagedConsumptionActivePower" ->
-			Converter.TO_POSITIVE;
-
-		default -> Converter.NONE;
+		case "_sum/ProductionActivePower" //
+			-> new ValueRange(0, sum.getProductionMaxActivePower().get());
+		case "_sum/ConsumptionActivePower", "_sum/UnmanagedConsumptionActivePower" //
+			-> new ValueRange(0, sum.getConsumptionMaxActivePower().get());
+		default //
+			-> UNLIMITED;
 		};
 	}
 
 	/**
-	 * Constructs a {@link Prediction} object with no {@link Converter}.
+	 * Constructs a {@link Prediction} object with {@value #UNLIMITED}
+	 * {@link ValueRange}.
 	 * 
 	 * <p>
 	 * Trailing `nulls` are cut out.
@@ -114,24 +109,25 @@ public class Prediction {
 	 * @return a {@link Prediction} object
 	 */
 	public static Prediction from(ZonedDateTime time, Integer... values) {
-		return from(Converter.NONE, time, values);
+		return from(UNLIMITED, time, values);
 	}
 
 	/**
-	 * Constructs a {@link Prediction} object with the default {@link Converter} for
-	 * the given {@link ChannelAddress}.
+	 * Constructs a {@link Prediction} object with the default {@link ValueRange}
+	 * for the given {@link ChannelAddress}.
 	 * 
 	 * <p>
 	 * Trailing `nulls` are cut out.
 	 *
+	 * @param sum            the {@link Sum}
 	 * @param channelAddress the {@link ChannelAddress}
 	 * @param time           the base time of the prediction values, rounded down to
 	 *                       15 minutes
 	 * @param values         the quarterly prediction values.
 	 * @return a {@link Prediction} object
 	 */
-	public static Prediction from(ChannelAddress channelAddress, ZonedDateTime time, Integer... values) {
-		return from(converterForChannelAddress(channelAddress), time, values);
+	public static Prediction from(Sum sum, ChannelAddress channelAddress, ZonedDateTime time, Integer... values) {
+		return from(getValueRange(sum, channelAddress), time, values);
 	}
 
 	/**
@@ -140,14 +136,14 @@ public class Prediction {
 	 * <p>
 	 * Trailing `nulls` are cut out.
 	 *
-	 * @param converter the {@link Converter}
-	 * @param time      the base time of the prediction values, rounded down to 15
-	 *                  minutes
-	 * @param values    the quarterly prediction values.
+	 * @param valueRange the {@link ValueRange}
+	 * @param time       the base time of the prediction values, rounded down to 15
+	 *                   minutes
+	 * @param values     the quarterly prediction values.
 	 * @return a {@link Prediction} object
 	 */
-	public static Prediction from(Converter converter, ZonedDateTime time, Integer... values) {
-		return from(converter, buildMap(time, values));
+	public static Prediction from(ValueRange valueRange, ZonedDateTime time, Integer... values) {
+		return from(valueRange, buildMap(time, values));
 	}
 
 	/**
@@ -162,12 +158,12 @@ public class Prediction {
 	 * <li>Trailing null values are removed
 	 * </ul>
 	 * 
-	 * @param converter the {@link Converter}
-	 * @param map       a {@link SortedMap} of times and prices
+	 * @param valueRange the {@link ValueRange}
+	 * @param map        a {@link SortedMap} of times and prices
 	 * @return a {@link Prediction} object
 	 */
-	public static Prediction from(Converter converter, SortedMap<ZonedDateTime, Integer> map) {
-		map = postprocessMap(converter, map);
+	public static Prediction from(ValueRange valueRange, SortedMap<ZonedDateTime, Integer> map) {
+		map = postprocessMap(valueRange, map);
 		if (map.isEmpty()) {
 			return EMPTY_PREDICTION;
 		}
@@ -257,7 +253,7 @@ public class Prediction {
 		return result;
 	}
 
-	protected static SortedMap<ZonedDateTime, Integer> postprocessMap(Converter converter,
+	protected static SortedMap<ZonedDateTime, Integer> postprocessMap(ValueRange valueRange,
 			SortedMap<ZonedDateTime, Integer> map) {
 		var values = new ArrayList<>(map.values());
 		var lastNonNullIndex = IntStream.range(0, values.size()) //
@@ -270,7 +266,7 @@ public class Prediction {
 				.collect(TreeMap<ZonedDateTime, Integer>::new, //
 						(m, e) -> m.put(//
 								roundDownToQuarter(e.getKey()), //
-								e.getValue() == null ? null : converter.function.apply(e.getValue())), //
+								e.getValue() == null ? null : min(valueRange.max, max(valueRange.min, e.getValue()))), //
 						TreeMap::putAll);
 
 		if (!result.isEmpty()) {

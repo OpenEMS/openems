@@ -3,7 +3,7 @@
 
     <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
 
-    <ion-item *ngIf="form.controls.type.value !== undefined">
+    <ion-item *ngIf="showManual">
         <ion-button (click)="openManual()">
             <ion-label>{{ 'INSTALLATION.CONFIGURATION_SYSTEM.OPEN_INSTRUCTIONS' | translate}}</ion-label>
             <ion-icon name="open-outline" slot="start"></ion-icon>

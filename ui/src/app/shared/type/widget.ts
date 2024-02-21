@@ -61,32 +61,19 @@ export class AdvertWidgets {
         let list: AdvertWidget[] = [];
 
         //Temporarily removing from displaying this advertise.
-        /*
-        if (edge.producttype == ProductType.HOME) {
+        if (edge.producttype == ProductType.HOME || edge.producttype == ProductType.HOME_20_30) {
             list.push({
-                name: 'FeneconHomeExtension',
-                title: 'FENECON Home Erweiterung'
-            })
+                name: 'dynamic-electricity-tariff',
+                title: 'Bis zu 30 % Stromkosten sparen',
+            });
         }
 
+        /*
         list.push({
             name: 'Alerting',
             title: 'Neue Benachrichtigungsfunktion jetzt verfügbar!'
         })
         */
-
-        // Home
-        if (edge?.producttype === ProductType.HOME) {
-
-            // Controller exist already
-            if (config.getComponentIdsByFactory('Controller.Ess.Time-Of-Use-Tariff.Discharge').length > 0
-                || config.getComponentIdsByFactory('Controller.Ess.Time-Of-Use-Tariff').length > 0) {
-                list.push({
-                    name: 'dynamic-electricity-tariff-existing-customer',
-                    title: 'Dynamischer Stromtarif',
-                });
-            }
-        }
 
         list = Utils.shuffleArray(list);
         return new AdvertWidgets(list);
@@ -202,5 +189,6 @@ export class Widgets {
 }
 
 export enum ProductType {
-    HOME = "home"
+    HOME = "home",
+    HOME_20_30 = "Home 20 & 30"
 }

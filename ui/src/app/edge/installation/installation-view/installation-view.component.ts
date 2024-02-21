@@ -32,7 +32,7 @@ export class InstallationViewComponent implements OnChanges {
     if (this.isWaiting) {
       this.setLabelAndIcon(this.translate.instant('INSTALLATION.LOAD'), 'hourglass-outline');
     } else if (this.isLastView) {
-      this.setLabelAndIcon(this.translate.instant('INSTALLATION.COMPLETE'), 'checkmark-done-outline1');
+      this.setLabelAndIcon(this.translate.instant('INSTALLATION.COMPLETE'), 'arrow-forward-outline');
     } else {
       this.setLabelAndIcon(this.translate.instant('INSTALLATION.NEXT'), 'arrow-forward-outline');
     }

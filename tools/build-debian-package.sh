@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/bash -e
 #
 # Creates a Debian package for OpenEMS Edge + UI
 
-set -e
+OUTPUT=$( realpath ${1:-.} )
 
 DEBIAN_UI_LOCATION=tools/debian/usr/share/openems-fems/www
 DEBIAN_EDGE_LOCATION=tools/debian/usr/lib/openems/
@@ -37,8 +37,9 @@ print_header() {
     echo "#"
     echo "# Building Debian Package"
     echo "#"
-    echo "# Theme: ${THEME}"
-    echo "# Version: ${VERSION}"
+    echo -e "# Theme:\t${THEME}"
+    echo -e "# Version:\t${VERSION}"
+    echo -e "# Destination:\t${OUTPUT}"
     echo "#"
 }
 
@@ -75,13 +76,13 @@ prepare_deb_template() {
 
 build_deb() {
     cd tools
-    dpkg-deb -Zxz --build "debian" "../${DEB_FILE}"
+    dpkg-deb -Zxz --build "debian" "${OUTPUT}/${DEB_FILE}"
     echo "## Built ${DEB_FILE}"
     cd ..
 }
 
 create_version_file() {
-    echo $VERSION > $VERSION_FILE
+    echo $VERSION > "${OUTPUT}/${VERSION_FILE}"
 }
 
 clean_deb_template() {

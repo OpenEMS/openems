@@ -29,6 +29,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.predictor.api.prediction.AbstractPredictor;
 import io.openems.edge.predictor.api.prediction.Prediction;
@@ -55,6 +56,9 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 	public static final int PREDCTION_FOR_SEVEN_DAY = 6;
 
 	@Reference
+	private Sum sum;
+
+	@Reference
 	private Timedata timedata;
 
 	@Reference
@@ -74,7 +78,7 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
 		super.activate(context, this.config.id(), this.config.alias(), this.config.enabled(),
-				this.config.channelAddresses());
+				this.config.channelAddresses(), config.logVerbosity());
 	}
 
 	@Override
@@ -133,7 +137,7 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 		// Getting the average predictions
 		var nextOneDayPredictions = getAverage(lastFourSimilarDays);
 
-		return Prediction.from(Prediction.converterForChannelAddress(channelAddress), now,
+		return Prediction.from(Prediction.getValueRange(this.sum, channelAddress), now,
 				nextOneDayPredictions.stream().toArray(Integer[]::new));
 	}
 

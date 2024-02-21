@@ -9,9 +9,7 @@ import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 import { Category } from '../../shared/category';
 import { ComponentData, TableData } from '../../shared/ibndatatypes';
 import { EmsApp, EmsAppId } from '../heckert-app-installer/heckert-app-installer.component';
-import { Meter } from '../../shared/meter';
 import { WebLinks } from '../../shared/enums';
-import { System } from '../../shared/system';
 
 @Component({
   selector: ConfigurationSummaryComponent.SELECTOR,
@@ -91,7 +89,7 @@ export class ConfigurationSummaryComponent implements OnInit {
       key: 'isDevicesActiveChecked',
       type: 'checkbox',
       templateOptions: {
-        label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.DEVICE_ACTIVE_CHECKED'),
+        label: this.ibn.isDevicesActiveCheckedLabel,
         required: true,
       },
     });
@@ -122,128 +120,42 @@ export class ConfigurationSummaryComponent implements OnInit {
       rows: generalData,
     });
 
-    const installer = this.ibn.installer;
     tableData.push({
       header: Category.INSTALLER,
-      rows: [
-        { label: this.translate.instant('Register.Form.company'), value: installer.companyName },
-        { label: this.translate.instant('Register.Form.lastname'), value: installer.lastName },
-        { label: this.translate.instant('Register.Form.firstname'), value: installer.firstName },
-        { label: this.translate.instant('Register.Form.street'), value: installer.street },
-        { label: this.translate.instant('Register.Form.zip'), value: installer.zip },
-        { label: this.translate.instant('Register.Form.city'), value: installer.city },
-        { label: this.translate.instant('Register.Form.country'), value: this.getCountryLabel(installer.country) },
-        { label: this.translate.instant('Register.Form.email'), value: installer.email },
-        { label: this.translate.instant('Register.Form.phone'), value: installer.phone },
-      ],
+      rows: this.fillData(this.ibn.installer, Category.INSTALLER),
     });
 
-    const customer = this.ibn.customer;
-    const customerData: ComponentData[] = customer.isCorporateClient ? [{ label: this.translate.instant('Register.Form.company'), value: customer.companyName }] : [];
     tableData.push({
       header: Category.CUSTOMER,
-      rows: customerData.concat([
-        { label: this.translate.instant('Register.Form.lastname'), value: customer.lastName },
-        { label: this.translate.instant('Register.Form.firstname'), value: customer.firstName },
-        { label: this.translate.instant('Register.Form.street'), value: customer.street },
-        { label: this.translate.instant('Register.Form.zip'), value: customer.zip },
-        { label: this.translate.instant('Register.Form.city'), value: customer.city },
-        { label: this.translate.instant('Register.Form.country'), value: this.getCountryLabel(customer.country) },
-        { label: this.translate.instant('Register.Form.email'), value: customer.email },
-        { label: this.translate.instant('Register.Form.phone'), value: customer.phone },
-      ]),
+      rows: this.fillData(this.ibn.customer, Category.CUSTOMER),
     });
 
-    const location = this.ibn.location;
-    const locationData: ComponentData[] = location.isCorporateClient ? [{ label: this.translate.instant('Register.Form.company'), value: location.companyName }] : [];
-    if (!location.isEqualToCustomerData) {
+    if(!this.ibn.location.isEqualToCustomerData){
       tableData.push({
         header: Category.BATTERY_LOCATION,
-        rows: locationData.concat([
-          { label: this.translate.instant('Register.Form.lastname'), value: location.lastName },
-          { label: this.translate.instant('Register.Form.firstname'), value: location.firstName },
-          { label: this.translate.instant('Register.Form.street'), value: location.street },
-          { label: this.translate.instant('Register.Form.zip'), value: location.zip },
-          { label: this.translate.instant('Register.Form.city'), value: location.city },
-          { label: this.translate.instant('Register.Form.country'), value: this.getCountryLabel(location.country) },
-          { label: this.translate.instant('Register.Form.email'), value: location.email },
-          { label: this.translate.instant('Register.Form.phone'), value: location.phone },
-        ]),
+        rows: this.fillData(this.ibn.location, Category.BATTERY_LOCATION),
       });
     }
 
-    const batteryData: ComponentData[] = [];
-    batteryData.push(
-      { label: this.translate.instant('Index.TYPE'), value: System.getSystemTypeLabel(this.ibn.type) },
-    );
+    const batteryData: ComponentData[] = this.ibn.addCustomBatteryData();
+    batteryData.push({ label: this.translate.instant('Index.TYPE'), value: this.ibn.type });
 
     tableData.push({
       header: Category.BATTERY,
-      rows: this.ibn.addCustomBatteryData(batteryData),
+      rows: batteryData,
     });
 
-    let batteryInverterData: ComponentData[] = [];
-    let safetyCountry;
-    if (location.isEqualToCustomerData) {
-      safetyCountry = customer.country;
-    } else {
-      safetyCountry = location.country;
-    }
-
-    batteryInverterData = this.ibn.addCustomBatteryInverterData(batteryInverterData);
+    const batteryInverterData: ComponentData[] = this.ibn.addCustomBatteryInverterData();
+    const safetyCountry = this.ibn.location.isEqualToCustomerData ? this.ibn.customer.country : this.ibn.location.country;
     batteryInverterData.push({ label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.COUNTRY_SETTING'), value: this.getCountryLabel(safetyCountry) });
+
     tableData.push({
       header: Category.INVERTER,
       rows: batteryInverterData,
     });
 
-    const pv = this.ibn.pv ?? {};
-    let pvData: ComponentData[] = [];
-
     // DC
-    pvData = this.ibn.addCustomPvData(pvData);
-
-    // AC
-    let acNr = 1;
-    const label = 'AC';
-    for (const ac of pv.ac) {
-      pvData = pvData.concat([
-        { label: this.translate.instant('INSTALLATION.ALIAS_WITH_LABEL', { label: label, number: acNr }), value: ac.alias },
-        { label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.VALUE_AC') + acNr, value: ac.value },
-      ]);
-
-      if (ac.orientation) {
-        pvData.push({
-          label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION_WITH_LABEL', { label: label, number: acNr }),
-          value: ac.orientation,
-        });
-      }
-      if (ac.moduleType) {
-        pvData.push({
-          label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_WITH_LABEL', { label: label, number: acNr }),
-          value: ac.moduleType,
-        });
-      }
-      if (ac.modulesPerString) {
-        pvData.push({
-          label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES_WITH_LABEL', { label: label, number: acNr }),
-          value: ac.modulesPerString,
-        });
-      }
-
-      pvData = pvData.concat([
-        {
-          label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_TYPE_WITH_LABEL', { label: label, number: acNr }),
-          value: Meter.toLabelString(ac.meterType),
-        },
-        {
-          label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_WITH_LABEL', { label: label, number: acNr }),
-          value: ac.modbusCommunicationAddress,
-        },
-      ]);
-      acNr++;
-    }
-
+    const pvData = this.ibn.addCustomPvData();
     if (pvData.length > 0) {
       tableData.push({
         header: Category.PRODUCER,
@@ -251,13 +163,11 @@ export class ConfigurationSummaryComponent implements OnInit {
       });
     }
 
-    let peakShavingData: ComponentData[] = [];
-    peakShavingData = this.ibn.addPeakShavingData(peakShavingData);
-
-    if (peakShavingData.length > 0) {
+    const meterData = this.ibn.addCustomMeterData();
+    if(meterData.length > 0){
       tableData.push({
-        header: Category.PEAK_SHAVING,
-        rows: peakShavingData,
+        header: Category.GRID_METER_CATEGORY,
+        rows: meterData,
       });
     }
 
@@ -279,6 +189,34 @@ export class ConfigurationSummaryComponent implements OnInit {
         rows: element.rows,
       };
     });
+  }
+
+  /**
+   * Fills data based on the provided category.
+   *
+   * @param data  The data object containing information to be filled.
+   * @param category The category determining which data fields to include.
+   * @returns An array of ComponentData objects filled based on the provided data and category.
+   */
+  private fillData(data: any, category: Category.CUSTOMER | Category.INSTALLER | Category.BATTERY_LOCATION): ComponentData[] {
+    const rows: ComponentData[] = [];
+
+    if ((category === Category.CUSTOMER && data.isCorporateClient) || (category === Category.INSTALLER)) {
+      rows.push({ label: this.translate.instant('Register.Form.company'), value: data.companyName });
+    }
+
+    rows.push(
+      { label: this.translate.instant('Register.Form.lastname'), value: data.lastName },
+      { label: this.translate.instant('Register.Form.firstname'), value: data.firstName },
+      { label: this.translate.instant('Register.Form.street'), value: data.street },
+      { label: this.translate.instant('Register.Form.zip'), value: data.zip },
+      { label: this.translate.instant('Register.Form.city'), value: data.city },
+      { label: this.translate.instant('Register.Form.country'), value: this.getCountryLabel(data.country) },
+      { label: this.translate.instant('Register.Form.email'), value: data.email },
+      { label: this.translate.instant('Register.Form.phone'), value: data.phone },
+    );
+
+    return rows;
   }
 
   /**

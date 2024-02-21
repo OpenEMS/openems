@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
 import org.junit.Before;
@@ -21,6 +22,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.integratedsystem.TestFeneconHome;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
 import io.openems.edge.core.appmanager.Apps;
@@ -35,12 +37,20 @@ public class TestTibber {
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//
-					this.tibber = Apps.tibber(t));
+					this.tibber = Apps.tibber(t), //
+					Apps.feneconHome(t) //
+			);
 		}, null, new PseudoComponentManagerFactory());
+
+		final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
+		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
+		this.appManagerTestBundle.addPersistencePredictorAggregateTask();
 	}
 
 	@Test
 	public void testRemoveAccessToken() throws Exception {
+		this.installHome();
+
 		final var properties = JsonUtils.buildJsonObject() //
 				.addProperty("ACCESS_TOKEN", "g78aw9ht2n112nb453") //
 				.build();
@@ -63,6 +73,7 @@ public class TestTibber {
 	@Test
 	public void testAddChannelToPredictor() throws Exception {
 		this.createPredictor();
+		this.installHome();
 
 		final var properties = JsonUtils.buildJsonObject() //
 				.addProperty("ACCESS_TOKEN", "g78aw9ht2n112nb453") //
@@ -73,6 +84,15 @@ public class TestTibber {
 		this.assertChannelsInPredictor("_sum/UnmanagedConsumptionActivePower");
 	}
 
+	@Test(expected = OpenemsNamedException.class)
+	public void testOnlyCompatibleWithHome() throws Exception {
+		final var properties = JsonUtils.buildJsonObject() //
+				.addProperty("ACCESS_TOKEN", "g78aw9ht2n112nb453") //
+				.build();
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.tibber.getAppId(), "key", "alias", properties)).get();
+	}
+
 	private void createPredictor() throws Exception {
 		this.appManagerTestBundle.componentManger.handleJsonrpcRequest(DUMMY_ADMIN,
 				new CreateComponentConfigRequest("Predictor.PersistenceModel", List.of(//
@@ -80,6 +100,13 @@ public class TestTibber {
 						new UpdateComponentConfigRequest.Property("channelAddresses", JsonUtils.buildJsonArray()//
 								.build()) //
 				))).get();
+	}
+
+	private void installHome() throws InterruptedException, ExecutionException, OpenemsNamedException {
+		this.appManagerTestBundle.sut
+				.handleAddAppInstanceRequest(DUMMY_ADMIN,
+						new AddAppInstance.Request("App.FENECON.Home", "key", "alias", TestFeneconHome.minSettings()))
+				.get();
 	}
 
 	private void assertChannelsInPredictor(String... channels) throws OpenemsNamedException {

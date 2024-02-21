@@ -33,26 +33,7 @@ export const theme = {
         SETTINGS_NETWORK_CONFIGURATION: null,
         EVCS_CLUSTER: "io.openems.edge.evcs.cluster/readme.adoc",
 
-        warranty: {
-            home: {
-                EN: "#",
-                DE: "#",
-            },
-            commercial: {
-                EN: "#",
-                DE: "#",
-            },
-        },
-
-        gtc: {
-            EN: "#",
-            DE: "#",
-        },
-
-        // Currently the links are different with different prefixes. so adding whole url for Socomec.
-        METER_SOCOMEC: null,
-
-        MANUALS: {
+        WARRANTY: {
             HOME: {
                 EN: "#",
                 DE: "#",
@@ -60,6 +41,27 @@ export const theme = {
             COMMERCIAL: {
                 EN: "#",
                 DE: "#",
+            },
+        },
+
+        GTC: {
+            EN: "#",
+            DE: "#",
+        },
+
+        METER: {
+            SOCOMEC: "#",
+            KDK: "#",
+        },
+
+        MANUALS: {
+            HOME: {
+                HOME_10: "#",
+                HOME_20_30: "#",
+            },
+            COMMERCIAL: {
+                COMMERCIAL_30: "#",
+                COMMERCIAL_50: "#",
             },
         },
         APP_CENTER: {
