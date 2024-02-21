@@ -361,6 +361,10 @@
         "newDevice": "Neues Gerät..."
       },
       "Alerting": {
+        "offlineAlerting": "Offline Benachrichtigung",
+        "faultAlerting": "Fehler Benachrichtigung",
+        "warningAlerting": "Warnungs Benachrichtigung",
+        "deactivated": "Deaktiviert",
         "activate": "Aktivieren",
         "delay": "Verzögerung",
         "save": "Speichern",

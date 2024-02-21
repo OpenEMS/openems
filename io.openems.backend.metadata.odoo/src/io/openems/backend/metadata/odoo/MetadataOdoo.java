@@ -34,6 +34,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
+import io.openems.backend.common.alerting.SumStateAlertingSetting;
+import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.AppCenterMetadata;
 import io.openems.backend.common.metadata.Edge;
@@ -41,7 +44,6 @@ import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
-import io.openems.backend.common.metadata.UserAlertingSettings;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.odoo.OdooHandler;
 import io.openems.backend.metadata.odoo.odoo.OdooUserRole;
@@ -340,8 +342,10 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 			break;
 
 		case Edge.Events.ON_SET_SUM_STATE: {
-			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetSumState.EDGE);
+			var edgeId = reader.getString(Edge.Events.OnSetSumState.EDGE_ID);
 			var sumState = (Level) reader.getProperty(Edge.Events.OnSetSumState.SUM_STATE);
+
+			var edge = this.edgeCache.getEdgeFromEdgeId(edgeId);
 			// Set Sum-State in Odoo/Postgres
 			this.postgresHandler.getPeriodicWriteWorker().onSetSumState(edge, sumState);
 		}
@@ -511,19 +515,33 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	}
 
 	@Override
-	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) throws OpenemsException {
-		return this.odooHandler.getUserAlertingSettings(edgeId);
-	}
-
-	@Override
 	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
 		return this.odooHandler.getUserAlertingSettings(edgeId, userId);
 	}
 
 	@Override
-	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> users)
+	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) throws OpenemsException {
+		return this.odooHandler.getUserAlertingSettings(edgeId);
+	}
+
+	@Override
+	public List<OfflineEdgeAlertingSetting> getEdgeOfflineAlertingSettings(String edgeId) throws OpenemsException {
+		return this.odooHandler.getOfflineAlertingSettings(edgeId);
+	}
+
+	@Override
+	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException {
+		return this.odooHandler.getSumStateAlertingSettings(edgeId);
+	}
+
+	@Override
+	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> settings)
 			throws OpenemsException {
-		this.odooHandler.setUserAlertingSettings((MyUser) user, edgeId, users);
+		if (user instanceof MyUser odooUser) {
+			this.odooHandler.setUserAlertingSettings(odooUser, edgeId, settings);
+		} else {
+			throw new OpenemsException("User information is from foreign source!!");
+		}
 	}
 
 	@Override
@@ -583,6 +601,16 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 				firstSetupProtocol, //
 				sumState //
 		);
+	}
+
+	@Override
+	public Optional<Level> getSumState(String edgeId) {
+		try {
+			return Optional.of(this.odooHandler.getSumState(edgeId));
+		} catch (Exception e) {
+			this.log.warn(e.getMessage());
+			return Optional.empty();
+		}
 	}
 
 	@Override

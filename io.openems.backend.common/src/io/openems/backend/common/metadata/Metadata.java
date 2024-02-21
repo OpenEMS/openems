@@ -14,6 +14,9 @@ import org.osgi.service.event.EventAdmin;
 import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonObject;
 
+import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
+import io.openems.backend.common.alerting.SumStateAlertingSetting;
+import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.event.BackendEventConstants;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
@@ -299,6 +302,16 @@ public interface Metadata {
 	public void updateUserLanguage(User user, Language language) throws OpenemsNamedException;
 
 	/**
+	 * Gets the alerting settings for given edge id and userId.
+	 *
+	 * @param edgeId the Edge ID
+	 * @param userId the User ID
+	 * @return List of {@link UserAlertingSettings}
+	 * @throws OpenemsException on error
+	 */
+	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException;
+
+	/**
 	 * Gets all the alerting settings for given edge id.
 	 *
 	 *
@@ -309,24 +322,35 @@ public interface Metadata {
 	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) throws OpenemsException;
 
 	/**
-	 * Gets the alerting settings for given edge id and userId.
+	 * Gets all the offline-edge-alerting settings for given edge id.
+	 *
 	 *
 	 * @param edgeId the Edge ID
-	 * @param userId the User ID
-	 * @return List of {@link UserRoleDelayTime}
+	 * @return List of {@link OfflineEdgeAlertingSetting}
 	 * @throws OpenemsException on error
 	 */
-	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException;
+	public List<OfflineEdgeAlertingSetting> getEdgeOfflineAlertingSettings(String edgeId) throws OpenemsException;
+
+	/**
+	 * Gets all the sumState-alerting settings for given edge id.
+	 *
+	 *
+	 * @param edgeId the Edge ID
+	 * @return List of {@link SumStateAlertingSetting}
+	 * @throws OpenemsException on error
+	 */
+	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException;
 
 	/**
 	 * Sets the alerting settings for the given list of users.
 	 *
-	 * @param user   {@link User} the current user
-	 * @param edgeId the Edge-ID
-	 * @param users  list of users to update
+	 * @param user     {@link User} the current user
+	 * @param edgeId   the Edge-ID
+	 * @param settings list of updated {@link UserAlertingSettings}
 	 * @throws OpenemsException on error
 	 */
-	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> users) throws OpenemsException;
+	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> settings)
+			throws OpenemsException;
 
 	/**
 	 * Returns an EventAdmin, used by Edge objects.
@@ -354,7 +378,7 @@ public interface Metadata {
 
 	/**
 	 * Gets a map of Edge-IDs with the role of the given user.
-	 * 
+	 *
 	 * @param user              {@link User} the current user
 	 * @param paginationOptions the options of the requesting page
 	 * @return the role to the Edge-IDs
@@ -365,13 +389,21 @@ public interface Metadata {
 
 	/**
 	 * Gets the Role for a edge of the current user.
-	 * 
+	 *
 	 * @param user   {@link User} the current user
 	 * @param edgeId the Edge-ID
 	 * @return the role to the edge
 	 * @throws OpenemsNamedException on error
 	 */
 	public EdgeMetadata getEdgeMetadataForUser(User user, String edgeId) throws OpenemsNamedException;
+
+	/**
+	 * Get the SumState of the edge with the given edgeId.
+	 *
+	 * @param edgeId to search for
+	 * @return sumState as {@link Optional} of {@link Level}
+	 */
+	public Optional<Level> getSumState(String edgeId);
 
 	public interface GenericSystemLog {
 
