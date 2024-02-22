@@ -122,6 +122,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 let values = this.chartObject.output(dataResponse.result.data);
                 this.options.scales.x['time'].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
                 this.options.scales.x.ticks['source'] = 'auto';
+                this.options.scales.x.grid = { offset: false };
                 this.options.plugins.tooltip.mode = 'index';
                 this.options.scales.x.ticks.maxTicksLimit = 30;
                 this.options.scales[ChartAxis.LEFT].min = this.getMinimumAxisValue(this.datasets);

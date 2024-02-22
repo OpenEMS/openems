@@ -13,7 +13,6 @@ export class FlatComponent extends AbstractFlatWidget {
     @Input() public period: DefaultTypes.HistoryPeriod;
 
     protected delayedActiveTimeOverPeriod: number | null = null;
-    protected chargedProductionActiveTimeOverPeriod: number | null = null;
     protected chargedConsumptionActiveTimeOverPeriod: number | null = null;
 
     protected override onCurrentData(currentData: CurrentData) {
