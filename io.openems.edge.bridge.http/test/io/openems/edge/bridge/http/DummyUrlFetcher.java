@@ -2,10 +2,11 @@ package io.openems.edge.bridge.http;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingFunction;
+import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 
 public class DummyUrlFetcher implements UrlFetcher {
 
@@ -13,31 +14,24 @@ public class DummyUrlFetcher implements UrlFetcher {
 		// empty
 	};
 
-	private final List<ThrowingFunction<String, String, OpenemsNamedException>> urlHandler = new LinkedList<>();
+	private final List<ThrowingFunction<Endpoint, String, OpenemsNamedException>> urlHandler = new LinkedList<>();
 	private Runnable onTaskFinished = EMPTY_RUNNABLE;
 
 	@Override
-	public Runnable createTask(//
-			final String urlString, //
-			final int connectTimeout, //
-			final int readTimeout, //
-			final CompletableFuture<String> future //
-	) {
-		return () -> {
-			try {
-				for (var handler : this.urlHandler) {
-					final var result = handler.apply(urlString);
-					if (result != null) {
-						future.complete(result);
-						return;
-					}
+	public String fetchEndpoint(//
+			final Endpoint endpoint //
+	) throws OpenemsNamedException {
+		try {
+			for (var handler : this.urlHandler) {
+				final var result = handler.apply(endpoint);
+				if (result != null) {
+					return result;
 				}
-			} catch (Throwable e) {
-				future.completeExceptionally(e);
-			} finally {
-				this.onTaskFinished.run();
 			}
-		};
+			throw new OpenemsException("");
+		} finally {
+			this.onTaskFinished.run();
+		}
 	}
 
 	/**
@@ -45,7 +39,7 @@ public class DummyUrlFetcher implements UrlFetcher {
 	 * 
 	 * @param handler the handler
 	 */
-	public void addUrlHandler(ThrowingFunction<String, String, OpenemsNamedException> handler) {
+	public void addEndpointHandler(ThrowingFunction<Endpoint, String, OpenemsNamedException> handler) {
 		this.urlHandler.add(handler);
 	}
 
