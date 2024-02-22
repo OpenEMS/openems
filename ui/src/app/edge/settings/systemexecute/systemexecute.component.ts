@@ -15,8 +15,8 @@ const COMMANDS: { [key: string]: CommandFunction; } = {
   'branch': (branch: string, force: boolean) => `echo "wget https://fenecon.de/fems-download/update-fems.sh -O /tmp/update-fems.sh --no-check-certificate && bash -x /tmp/update-fems.sh ${force ? '-f' : ''} ${!!branch ? '-b' : ' '} ${!!branch ? branch : ''} > /tmp/log 2>& 1" | at now`,
   'query-status': () => "ps ax | grep /tmp/update-fems.sh; tail /tmp/log",
   'openems-restart': () => "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; echo 'systemctl restart openems' | at now",
-  'pagekite-log': () => "journalctl -lu fems-pagekite --since=\"2 minutes ago\"",
-  'pagekite-restart': () => "systemctl restart fems-pagekite",
+  'pagekite-log': () => "journalctl -lu fems-remote-service --since=\"2 minutes ago\"",
+  'pagekite-restart': () => "systemctl restart fems-remote-service",
 };
 
 @Component({
