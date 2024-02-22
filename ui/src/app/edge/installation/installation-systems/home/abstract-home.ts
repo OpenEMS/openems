@@ -807,14 +807,16 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'enabled', value: true },
         { name: 'modbus.id', value: 'modbus1' },
         { name: 'modbusUnitId', value: 247 },
-        { name: 'goodWeMeterCategory', value: this.energyFlowMeter.meter },
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
       baseMode: baseMode,
     };
 
-    if(this.energyFlowMeter.meter === Meter.GridMeterCategory.COMMERCIAL_METER){
-      goodweMeter.properties.push({ name: 'externalMeterRatioValueA', value: this.energyFlowMeter.value });
+    if (this.energyFlowMeter) {
+      goodweMeter.properties.push({ name: 'goodWeMeterCategory', value: this.energyFlowMeter.meter });
+      if (this.energyFlowMeter.meter === Meter.GridMeterCategory.COMMERCIAL_METER) {
+        goodweMeter.properties.push({ name: 'externalMeterRatioValueA', value: this.energyFlowMeter.value });
+      }
     }
 
     componentConfigurator.add(goodweMeter);
@@ -1037,6 +1039,11 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     // protocol pv
     if ('pv' in ibnString) {
       this.pv = ibnString.pv;
+    }
+
+    // energyFlowMeter for Home 20 & 30
+    if ('energyFlowMeter' in ibnString) {
+      this.energyFlowMeter = ibnString.energyFlowMeter;
     }
   }
 
