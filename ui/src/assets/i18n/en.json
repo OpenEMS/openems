@@ -235,14 +235,16 @@
           "CONTROL_MODE_DESCRIPTION": {
             "CHARGE_CONSUMPTION": ""
           },
-          "CHARGE_CONSUMPTION_ACTIVATE": "Activate charge from the grid (BETA test)",
+          "CHARGE_FROM_GRID_ACTIVATE": "Activate charge from the grid (BETA test)",
           "PRICE": "Current price",
           "STATE": {
             "DELAY_DISCHARGE": "Delayed discharge",
             "BALANCING": "Self-Consumption optmization",
-            "CHARGE": "Charge from grid allowed"
+            "CHARGE_GRID": "Charge from grid allowed"
           },
-          "CHART_TITLE": "Planned Schedule (visible only to admin users)"
+          "CHART_TITLE": "Planned Schedule (BETA test)",
+          "CHART_WARNING_NOTE": "The graphic shows the past three hours as well as the future planned operating mode for the period for which the dynamic grid purchase prices are available. Please note that the planned schedule is subject to continuous recalculation and may change throughout the day.",
+          "POWER_SOC_CHART_TITLE": "Forecasts (Only for Admins)"
         }
       },
       "RETROFITTING": {
@@ -360,6 +362,10 @@
         "newDevice": "New device..."
       },
       "Alerting": {
+        "offlineAlerting": "Offline Notifications",
+        "faultAlerting": "Fault Notifications",
+        "warningAlerting": "Warning Notifications",
+        "deactivated": "Deactivated",
         "activate": "Activate",
         "delay": "Delay",
         "save": "Save",

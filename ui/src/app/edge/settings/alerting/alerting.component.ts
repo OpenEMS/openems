@@ -1,39 +1,45 @@
+import { User } from 'src/app/shared/jsonrpc/shared';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
-import { SetUserAlertingConfigsRequest } from 'src/app/shared/jsonrpc/request/setUserAlertingConfigsRequest';
+import { SetUserAlertingConfigsRequest, UserSettingRequest } from 'src/app/shared/jsonrpc/request/setUserAlertingConfigsRequest';
 import { GetUserAlertingConfigsRequest } from 'src/app/shared/jsonrpc/request/getUserAlertingConfigsRequest';
-import { GetUserAlertingConfigsResponse, UserSettingResponse } from 'src/app/shared/jsonrpc/response/getUserAlertingConfigsResponse';
-import { User } from 'src/app/shared/jsonrpc/shared';
-import { Role } from 'src/app/shared/type/role';
+import { GetUserAlertingConfigsResponse, AlertingSettingResponse } from 'src/app/shared/jsonrpc/response/getUserAlertingConfigsResponse';
 import { Edge, Service, Utils, Websocket } from 'src/app/shared/shared';
 
-export type UserSetting = { userId: string, delayTime: number }
+export enum AlertingType {
+  offline = 0,
+  fault = 1,
+  warning = 2
+};
 
-type Delay = { value: number, label: string }
-type UserSettingOptions = UserSetting & { options: Delay[] }
-type UserSettingRole = UserSetting & { role: Role };
-type RoleUsersSettings = { role: Role, form: FormGroup, settings: UserSettingOptions[] }
+type DefaultValues = { [K in AlertingType]: Delay[]; };
+type Delay = { value: number, label: string };
+type AlertingSetting = AlertingSettingResponse;
+type DetailedAlertingSetting = AlertingSetting & { isOfflineActive: boolean, isFaultActive: boolean, isWarningActive: boolean };
 
 @Component({
   selector: AlertingComponent.SELECTOR,
   templateUrl: './alerting.component.html',
 })
 export class AlertingComponent implements OnInit {
+  protected AlertingType = AlertingType;
+
   protected static readonly SELECTOR = "alerting";
   public readonly spinnerId: string = AlertingComponent.SELECTOR;
-  protected static readonly DELAYS: number[] = [15, 60, 1440];
+
+  protected readonly defaultValues: DefaultValues;
 
   protected edge: Edge;
   protected user: User;
   protected error: Error;
 
-  protected currentUserInformation: UserSettingRole;
-  protected currentUserForm: { formGroup: FormGroup, model: any, fields: FormlyFieldConfig[], options: FormlyFormOptions };
+  protected currentUserInformation: DetailedAlertingSetting;
+  protected currentUserForm: FormGroup;
 
-  protected otherUserSettings: RoleUsersSettings[];
+  protected otherUserInformation: AlertingSetting[];
+  protected otherUserForm: FormGroup;
 
   public constructor(
     private route: ActivatedRoute,
@@ -42,11 +48,15 @@ export class AlertingComponent implements OnInit {
     private service: Service,
     private translate: TranslateService,
     public formBuilder: FormBuilder,
-  ) { }
+  ) {
+    this.defaultValues = {
+      [AlertingType.offline]: this.asDelayOptions([15, 60, 1440]),
+      [AlertingType.fault]: this.asDelayOptions([15, 60, 1440]),
+      [AlertingType.warning]: this.asDelayOptions([15, 60, 1440]),
+    };
+  }
 
   public ngOnInit(): void {
-    this.service.startSpinner(this.spinnerId);
-
     this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.alerting' }, this.route).then(edge => {
       this.edge = edge;
 
@@ -58,150 +68,112 @@ export class AlertingComponent implements OnInit {
 
       this.sendRequest(request).then(response => {
         const result = response.result;
-        this.findRemoveAndSetCurrentUser(result.userSettings);
-        if (edge?.roleIsAtLeast('admin')) {
-          this.setRemainingUserSettings(result.userSettings);
-        }
+
+        this.setupCurrentUser(result.currentUserSettings);
+        this.setupOtherUsers(result.otherUsersSettings);
       }).catch(error => {
         this.error = error.error;
-      }).finally(() => {
-        this.service.stopSpinner(this.spinnerId);
       });
     });
   }
 
-  private findRemoveAndSetCurrentUser(userSettings: UserSettingResponse[]) {
-    let currentUserIndex = userSettings.findIndex(setting => setting.userId === this.user.id);
-
-    if (currentUserIndex != -1) {
-      this.currentUserInformation = userSettings.splice(currentUserIndex, 1)[0];
-    } else {
-      this.currentUserInformation = { delayTime: 0, userId: this.user.id, role: Role.getRole(this.user.globalRole) };
-    }
-    this.currentUserForm = this.generateFormFor(this.currentUserInformation);
+  private setupCurrentUser(response: AlertingSettingResponse) {
+    this.currentUserInformation = this.asDetailedSettings(response);
+    this.currentUserForm = this.formBuilder.group({
+      isOfflineActive: new FormControl(this.currentUserInformation.isOfflineActive),
+      offlineEdgeDelay: new FormControl(this.currentUserInformation.offlineEdgeDelay),
+      isFaultActive: new FormControl(this.currentUserInformation.isFaultActive),
+      faultEdgeDelay: new FormControl(this.currentUserInformation.faultEdgeDelay),
+      isWarningActive: new FormControl(this.currentUserInformation.isWarningActive),
+      warningEdgeDelay: new FormControl(this.currentUserInformation.warningEdgeDelay),
+    });
   }
 
-  private generateFormFor(userSettings: UserSettingRole): { formGroup: FormGroup, model: any, fields: FormlyFieldConfig[], options: any } {
-    let delays: Delay[] = this.Delays;
-    if (this.isInvalidDelay(userSettings.delayTime)) {
-      delays.push({ value: userSettings.delayTime, label: this.getLabelToDelay(userSettings.delayTime) });
-    }
-    return {
-      formGroup: new FormGroup({}),
-      options: {
-        formState: {
-          awesomeIsForced: false,
-        },
-      },
-      model: {
-        isActivated: userSettings.delayTime > 0,
-        delayTime: userSettings.delayTime,
-      },
-      fields: [{
-        key: 'isActivated',
-        type: 'checkbox',
-        templateOptions: {
-          label: this.translate.instant('Edge.Config.Alerting.activate'),
-        },
-      },
-      {
-        key: 'delayTime',
-        type: 'radio',
-        templateOptions: {
-          label: this.translate.instant('Edge.Config.Alerting.delay'),
-          type: 'number',
-          required: true,
-          options: delays,
-        },
-        hideExpression: model => !model.isActivated,
-      },
-      ],
-    };
-  }
-
-  private setRemainingUserSettings(userSettings: UserSettingResponse[]) {
-    if (!userSettings || userSettings.length === 0) {
+  private setupOtherUsers(response: AlertingSettingResponse[]) {
+    if (!response || response.length == 0) {
       return;
     }
 
-    userSettings = this.sortedAlphabetically(userSettings);
-    let otherUserSettings: RoleUsersSettings[] = [];
+    this.otherUserInformation = [];
+    this.otherUserForm = new FormGroup({});
 
-    userSettings.forEach(userSetting => {
-      let roleSettings = this.findOrGetNew(otherUserSettings, userSetting.role);
-      this.addUserToRoleUserSettings(userSetting, roleSettings);
+    var sorted = this.sortedAlphabetically(response);
+
+    sorted.forEach((r) => {
+      var setting: AlertingSetting = {
+        userLogin: r.userLogin,
+        offlineEdgeDelay: r.offlineEdgeDelay,
+        faultEdgeDelay: r.faultEdgeDelay,
+        warningEdgeDelay: r.warningEdgeDelay,
+      };
+
+      this.otherUserInformation.push(setting);
+
+      this.otherUserForm.addControl(setting.userLogin, //
+        this.formBuilder.group({
+          offlineEdgeDelay: new FormControl(setting.offlineEdgeDelay),
+          faultEdgeDelay: new FormControl(setting.faultEdgeDelay),
+          warningEdgeDelay: new FormControl(setting.warningEdgeDelay),
+        }));
     });
-    this.otherUserSettings = this.sortedByRole(otherUserSettings);
   }
 
-  private sortedAlphabetically(userSettings: UserSettingResponse[]): UserSettingResponse[] {
+  private getValue(setting: AlertingSetting, type: AlertingType): number {
+    switch (type) {
+      case AlertingType.offline:
+        return setting.offlineEdgeDelay;
+      case AlertingType.fault:
+        return setting.faultEdgeDelay;
+      case AlertingType.warning:
+        return setting.warningEdgeDelay;
+      default:
+        return 0;
+    }
+  }
+
+  private getValueOrDefault(setting: AlertingSetting, type: AlertingType) {
+    var val = this.getValue(setting, type);
+    return val <= 0 ? this.defaultValues[type][0].value : val;
+  }
+
+  private asDetailedSettings(setting: AlertingSetting): DetailedAlertingSetting {
+    return {
+      userLogin: setting.userLogin,
+      offlineEdgeDelay: this.getValueOrDefault(setting, AlertingType.offline),
+      warningEdgeDelay: this.getValueOrDefault(setting, AlertingType.warning),
+      faultEdgeDelay: this.getValueOrDefault(setting, AlertingType.fault),
+      isOfflineActive: setting.offlineEdgeDelay > 0,
+      isFaultActive: setting.faultEdgeDelay > 0,
+      isWarningActive: setting.warningEdgeDelay > 0,
+    };
+  }
+
+  protected loadOtherUsers(): void {
+    console.info("TEST");
+  }
+
+  private sortedAlphabetically(userSettings: AlertingSettingResponse[]): AlertingSettingResponse[] {
     return userSettings.sort((userA, userB) => {
-      return userA.userId.localeCompare(userB.userId, undefined, { sensitivity: 'accent' });
+      return userA.userLogin.localeCompare(userB.userLogin, undefined, { sensitivity: 'accent' });
     });
   }
 
-  /**
-   * get entry for role. if no entry is found genarate a new one.
-   * eather way return the value.
-   *
-   * @param from array to search in
-   * @param role the role to search for
-   * @returns the found/created setting
-   */
-  private findOrGetNew(from: RoleUsersSettings[], role: Role): RoleUsersSettings {
-    let roleSettings = from.find(setting => setting.role === role);
-    if (!roleSettings) {
-      roleSettings = { role: role, settings: [], form: new FormGroup({}) };
-      from.push(roleSettings);
-    }
-    return roleSettings;
+  private asDelayOptions(settings: number[]): Delay[] {
+    return settings.map(v => this.asDelayOption(v));
   }
 
-  /**
-   * add a user to a roleUserSetting.
-   *
-   * @param userSetting user to add
-   * @param roleSetting settings to add user to
-   */
-  private addUserToRoleUserSettings(userSetting: UserSettingResponse, roleSetting: RoleUsersSettings) {
-    let activated = userSetting.delayTime > 0;
-    let delay = userSetting.delayTime == 0 ? 15 : userSetting.delayTime;
-    roleSetting.settings.push({ userId: userSetting.userId, delayTime: userSetting.delayTime, options: this.getDelayOptions(delay) });
-    roleSetting.form.addControl(userSetting.userId, this.formBuilder.group({
-      isActivated: new FormControl(activated),
-      delayTime: new FormControl(delay),
-    }));
-  }
-
-  private getDelayOptions(delay: number): Delay[] {
-    let delays: Delay[] = this.Delays;
-    if (this.isInvalidDelay(delay)) {
-      delays.push({ value: delay, label: this.getLabelToDelay(delay) });
-    }
-    return delays;
-  }
-
-  private sortedByRole(roleUsersSettings: RoleUsersSettings[]): RoleUsersSettings[] {
-    return roleUsersSettings.sort((settingA, settingB) => {
-      return Role.isAtLeast(settingA.role, settingB.role) ? 1 : -1;
-    });
+  private asDelayOption(setting: number): Delay {
+    return { value: setting, label: this.getLabelToDelay(setting) };
   }
 
   /**
    * get if given delay is valid
    */
-  protected isInvalidDelay(delay: number): boolean {
-    if (delay === 0) {
+  protected isInvalidDelay(type: AlertingType, delay: number): boolean {
+    if (delay <= 0) {
       return false;
     }
-    return !AlertingComponent.DELAYS.includes(delay);
-  }
-
-  /**
-   * get list of delays with translated labels.
-   */
-  protected get Delays() {
-    return AlertingComponent.DELAYS.map((delay) => { return { value: delay, label: this.getLabelToDelay(delay) }; });
+    return this.defaultValues[type].findIndex(e => e.value === delay) === -1;
   }
 
   /**
@@ -211,7 +183,10 @@ export class AlertingComponent implements OnInit {
    * @param delay to generate label for
    * @returns label as string
    */
-  private getLabelToDelay(delay: number): string {
+  protected getLabelToDelay(delay: number): string {
+    if (delay <= 0) {
+      return this.translate.instant("Edge.Config.Alerting.deactivated");
+    }
     if (delay >= 1440) {
       delay = delay / 1440;
       return delay + ' ' + (delay == 1
@@ -233,49 +208,55 @@ export class AlertingComponent implements OnInit {
     let edgeId: string = this.edge.id;
 
     let dirtyformGroups: FormGroup<any>[] = [];
-    let changedUserSettings: UserSetting[] = [];
+    let changedUserSettings: UserSettingRequest[] = [];
 
-    if (this.currentUserForm.formGroup.dirty) {
-      dirtyformGroups.push(this.currentUserForm.formGroup);
+    if (this.currentUserForm.dirty) {
+      var formGroup = this.currentUserForm;
+      dirtyformGroups.push(formGroup);
+
+      let offlineEdgeDelay = this.currentUserInformation.isOfflineActive ?
+        this.currentUserForm.controls["offlineEdgeDelay"].value : 0;
+      let faultEdgeDelay = this.currentUserInformation.isFaultActive ?
+        this.currentUserForm.controls["faultEdgeDelay"].value : 0;
+      let warningEdgeDelay = this.currentUserInformation.isWarningActive ?
+        this.currentUserForm.controls["warningEdgeDelay"].value : 0;
 
       changedUserSettings.push({
-        delayTime: this.currentUserForm.formGroup.controls['delayTime']?.value ?? 0,
-        userId: this.currentUserInformation.userId,
+        userLogin: this.currentUserInformation.userLogin,
+        offlineEdgeDelay: offlineEdgeDelay,
+        warningEdgeDelay: warningEdgeDelay,
+        faultEdgeDelay: faultEdgeDelay,
       });
     }
 
-    let userOptions: UserSettingOptions[] = [];
-    if (this.otherUserSettings) {
-      for (let setting of this.otherUserSettings) {
-        if (setting.form.dirty) {
-          dirtyformGroups.push(setting.form);
+    let userOptions: AlertingSetting[] = [];
+    if (this.otherUserInformation) {
+      if (this.otherUserForm.dirty) {
+        dirtyformGroups.push(this.otherUserForm);
 
-          for (let user of setting.settings) {
-            let control = setting.form.controls[user.userId];
-            if (control.dirty) {
-              let delayTime = control.value['delayTime'];
-              let isActivated = control.value['isActivated'];
-              changedUserSettings.push({
-                delayTime: isActivated ? delayTime : 0,
-                userId: user.userId,
-              });
-              userOptions.push(user);
-            }
+        for (let user of this.otherUserInformation) {
+          let control = this.otherUserForm.controls[user.userLogin];
+          if (control.dirty) {
+            let offlineEdgeDelay = control.value['offlineEdgeDelay'];
+            let faultEdgeDelay = control.value['faultEdgeDelay'];
+            let warningEdgeDelay = control.value['warningEdgeDelay'];
+            //let isActivated = control.value['isActivated'];
+            changedUserSettings.push({
+              userLogin: user.userLogin,
+              offlineEdgeDelay: offlineEdgeDelay,
+              warningEdgeDelay: warningEdgeDelay,
+              faultEdgeDelay: faultEdgeDelay,
+            });
+            userOptions.push(user);
           }
         }
       }
     }
 
+    console.log(changedUserSettings);
+
     let request = new SetUserAlertingConfigsRequest({ edgeId: edgeId, userSettings: changedUserSettings });
     this.sendRequestAndUpdate(request, dirtyformGroups);
-
-    // reset options for users with a non-default option.
-    var defaultSettingsCount = this.Delays.length;
-    userOptions.forEach(user => {
-      if (user.options.length > defaultSettingsCount) {
-        user.options = this.getDelayOptions(user.delayTime);
-      }
-    });
   }
 
   /**
@@ -285,7 +266,6 @@ export class AlertingComponent implements OnInit {
    * @returns @GetUserAlertingConfigsResponse containing logged in users data, as well as data other users, if user is admin
    */
   private sendRequestAndUpdate(request: GetUserAlertingConfigsRequest | SetUserAlertingConfigsRequest, formGroup: FormGroup<any>[]) {
-    this.service.startSpinner(this.spinnerId);
     this.sendRequest(request)
       .then(() => {
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -296,9 +276,6 @@ export class AlertingComponent implements OnInit {
       .catch((response) => {
         let error = response.error;
         this.errorToast(this.translate.instant('General.changeFailed'), error.message);
-      })
-      .finally(() => {
-        this.service.stopSpinner(this.spinnerId);
       });
   }
 
@@ -309,6 +286,7 @@ export class AlertingComponent implements OnInit {
    */
   private sendRequest(request: GetUserAlertingConfigsRequest | SetUserAlertingConfigsRequest): Promise<GetUserAlertingConfigsResponse> {
     return new Promise((resolve, reject) => {
+      this.service.startSpinner(this.spinnerId);
       this.websocket.sendRequest(request).then(response => {
         resolve(response as GetUserAlertingConfigsResponse);
       }).catch(reason => {
@@ -316,6 +294,8 @@ export class AlertingComponent implements OnInit {
         console.error(error);
         this.errorToast(this.translate.instant('Edge.Config.Alerting.toast.error'), error.message);
         reject(reason);
+      }).finally(() => {
+        this.service.stopSpinner(this.spinnerId);
       });
     });
   }
@@ -332,6 +312,6 @@ export class AlertingComponent implements OnInit {
     if (this.error || !this.currentUserForm) {
       return false;
     }
-    return this.currentUserForm?.formGroup.dirty || this.otherUserSettings?.findIndex(setting => setting.form.dirty) != -1;
+    return this.currentUserForm?.dirty || this.otherUserForm?.dirty;
   }
 }
