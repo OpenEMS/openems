@@ -76,6 +76,11 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 		// Publish MQTT messages under the topic "edge/edge0/..."
 		this.topicPrefix = String.format(ControllerApiMqtt.TOPIC_PREFIX, config.clientId());
 
+		// check for optional prefix and prepend it to the topic prefix
+		String optPrefix = config.optTopicPrefix();
+		if (optPrefix != null && !optPrefix.isBlank())
+			this.topicPrefix = optPrefix + "/" + this.topicPrefix;
+
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.mqttConnector.connect(config.uri(), config.clientId(), config.username(), config.password(),
 				config.certPem(), config.privateKeyPem(), config.trustStorePem()).thenAccept(client -> {

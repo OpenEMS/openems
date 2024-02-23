@@ -25,6 +25,7 @@ public class ControllerApiMqttImplTest {
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setClientId("edge0") //
+						.setOptTopicPrefix("") //
 						.setUsername("guest") //
 						.setPassword("guest") //
 						.setUri("ws://localhost:1883") //
