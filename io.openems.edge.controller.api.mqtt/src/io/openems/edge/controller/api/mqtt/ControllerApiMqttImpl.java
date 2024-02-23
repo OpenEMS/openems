@@ -78,8 +78,9 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 
 		// check for optional prefix and prepend it to the topic prefix
 		String optPrefix = config.optTopicPrefix();
-		if (optPrefix != null && !optPrefix.isBlank())
+		if (optPrefix != null && !optPrefix.isBlank()) {
 			this.topicPrefix = optPrefix + "/" + this.topicPrefix;
+		}
 
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.mqttConnector.connect(config.uri(), config.clientId(), config.username(), config.password(),
