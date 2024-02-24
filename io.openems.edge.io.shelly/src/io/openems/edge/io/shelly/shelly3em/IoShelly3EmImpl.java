@@ -138,7 +138,7 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 		this._setSlaveCommunicationFailed(result == null);
 
 		// Prepare variables
-		Boolean relay = null;
+		Boolean relay0 = null;
 		Integer activePower = null;
 		Integer activePowerL1 = null;
 		Integer activePowerL2 = null;
@@ -150,6 +150,7 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 		Integer currentL2 = null;
 		Integer currentL3 = null;
 		Boolean hasUpdate = false;
+		Boolean overpower = null;
 
 		if (error != null) {
 			this.logDebug(this.log, error.getMessage());
@@ -160,34 +161,43 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 
 				var relays = getAsJsonArray(response, "relays");
 				if (!relays.isEmpty()) {
-					relay = getAsBoolean(getAsJsonObject(relays.get(0)), "ison");
+					var relay = getAsJsonObject(relays.get(0));
+					relay0 = getAsBoolean(relay, "ison");
+					overpower = getAsBoolean(relay, "overpower");
 				}
 
 				var update = getAsJsonObject(response, "update");
 				hasUpdate = getAsBoolean(update, "has_update");
 
+				var totalPower = getAsFloat(response, "total_power");
 				var emeters = getAsJsonArray(response, "emeters");
 				for (int i = 0; i < emeters.size(); i++) {
 					var emeter = getAsJsonObject(emeters.get(i));
 					var power = round(getAsFloat(emeter, "power"));
-					var voltage = round(getAsFloat(emeter, "voltage"));
-					var current = round(getAsFloat(emeter, "current"));
+					var voltage = round(getAsFloat(emeter, "voltage") * 1000);
+					var current = round(getAsFloat(emeter, "current") * 1000);
+					var isValid = getAsBoolean(emeter, "is_valid");
+
+					activePower = round(totalPower);
 
 					switch (i + 1 /* phase */) {
 					case 1 -> {
 						activePowerL1 = power;
 						voltageL1 = voltage;
 						currentL1 = current;
+						this.channel(IoShelly3Em.ChannelId.EMETER1_EXCEPTION).setNextValue(!isValid);
 					}
 					case 2 -> {
 						activePowerL2 = power;
 						voltageL2 = voltage;
 						currentL2 = current;
+						this.channel(IoShelly3Em.ChannelId.EMETER2_EXCEPTION).setNextValue(!isValid);
 					}
 					case 3 -> {
 						activePowerL3 = power;
 						voltageL3 = voltage;
 						currentL3 = current;
+						this.channel(IoShelly3Em.ChannelId.EMETER3_EXCEPTION).setNextValue(!isValid);
 					}
 					}
 				}
@@ -198,7 +208,8 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 		}
 
 		// Actually set Channels
-		this._setRelay(relay);
+		this._setRelay(relay0);
+		this.channel(IoShelly3Em.ChannelId.RELAY_OVERPOWER_EXCEPTION).setNextValue(overpower);
 		this._setActivePower(activePower);
 		this.channel(IoShelly3Em.ChannelId.HAS_UPDATE).setNextValue(hasUpdate);
 
