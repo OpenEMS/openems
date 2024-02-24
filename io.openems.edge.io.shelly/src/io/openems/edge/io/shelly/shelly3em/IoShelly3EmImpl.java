@@ -150,7 +150,7 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 		Integer currentL2 = null;
 		Integer currentL3 = null;
 		Boolean hasUpdate = false;
-		Boolean overpower = null;
+		Boolean overpower = false;
 
 		if (error != null) {
 			this.logDebug(this.log, error.getMessage());
@@ -171,14 +171,14 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 
 				var totalPower = getAsFloat(response, "total_power");
 				var emeters = getAsJsonArray(response, "emeters");
+				activePower = round(totalPower);
+
 				for (int i = 0; i < emeters.size(); i++) {
 					var emeter = getAsJsonObject(emeters.get(i));
 					var power = round(getAsFloat(emeter, "power"));
 					var voltage = round(getAsFloat(emeter, "voltage") * 1000);
 					var current = round(getAsFloat(emeter, "current") * 1000);
 					var isValid = getAsBoolean(emeter, "is_valid");
-
-					activePower = round(totalPower);
 
 					switch (i + 1 /* phase */) {
 					case 1 -> {
