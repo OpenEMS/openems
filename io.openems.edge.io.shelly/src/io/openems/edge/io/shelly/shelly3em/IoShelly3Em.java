@@ -41,7 +41,6 @@ public interface IoShelly3Em extends DigitalOutput, SinglePhaseMeter, Electricit
 		RELAY(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY)),
-
 		/**
 		 * Indicates if an update is available.
 		 *
@@ -52,10 +51,9 @@ public interface IoShelly3Em extends DigitalOutput, SinglePhaseMeter, Electricit
 		 * </ul>
 		 */
 		HAS_UPDATE(Doc.of(Level.INFO) //
-				.text("A new Firmware Update is available!")),
-
+				.text("A new Firmware Update is available.")),
 		/**
-		 * Indicates whether the associated meter is functioning properly
+		 * Indicates whether the associated meter is functioning properly.
 		 *
 		 * <ul>
 		 * <li>Interface: ShellyPlug
@@ -64,10 +62,9 @@ public interface IoShelly3Em extends DigitalOutput, SinglePhaseMeter, Electricit
 		 * </ul>
 		 */
 		EMETER1_EXCEPTION(Doc.of(Level.WARNING) //
-				.text("E-Meter Phase 1 is not valid!")),
-
+				.text("E-Meter Phase 1 is not valid.")),
 		/**
-		 * Indicates whether the associated meter is functioning properly
+		 * Indicates whether the associated meter is functioning properly.
 		 *
 		 * <ul>
 		 * <li>Interface: ShellyPlug
@@ -76,10 +73,9 @@ public interface IoShelly3Em extends DigitalOutput, SinglePhaseMeter, Electricit
 		 * </ul>
 		 */
 		EMETER2_EXCEPTION(Doc.of(Level.WARNING) //
-				.text("E-Meter Phase 2 is not valid!")),
-
+				.text("E-Meter Phase 2 is not valid.")),
 		/**
-		 * Indicates whether the associated meter is functioning properly
+		 * Indicates whether the associated meter is functioning properly.
 		 *
 		 * <ul>
 		 * <li>Interface: ShellyPlug
@@ -88,10 +84,9 @@ public interface IoShelly3Em extends DigitalOutput, SinglePhaseMeter, Electricit
 		 * </ul>
 		 */
 		EMETER3_EXCEPTION(Doc.of(Level.WARNING) //
-				.text("E-Meter Phase 3 is not valid!")),
-
+				.text("E-Meter Phase 3 is not valid.")),
 		/**
-		 * Indicates whether the associated meter is functioning properly
+		 * Indicates whether the associated meter is functioning properly.
 		 *
 		 * <ul>
 		 * <li>Interface: ShellyPlug
@@ -100,10 +95,9 @@ public interface IoShelly3Em extends DigitalOutput, SinglePhaseMeter, Electricit
 		 * </ul>
 		 */
 		EMETERN_EXCEPTION(Doc.of(Level.WARNING) //
-				.text("E-Meter Phase N is not valid!")),
-
+				.text("E-Meter Phase N is not valid.")),
 		/**
-		 * Indicates whether the Relay is in an Overpower Condition
+		 * Indicates whether the Relay is in an Overpower Condition.
 		 *
 		 * <ul>
 		 * <li>Interface: ShellyPlug
@@ -112,8 +106,7 @@ public interface IoShelly3Em extends DigitalOutput, SinglePhaseMeter, Electricit
 		 * </ul>
 		 */
 		RELAY_OVERPOWER_EXCEPTION(Doc.of(Level.WARNING) //
-				.text("Relay is in overpower condition!")),
-
+				.text("Relay is in overpower condition.")),
 		/**
 		 * Slave Communication Failed Fault.
 		 *
