@@ -1,9 +1,7 @@
 package io.openems.edge.meter.eastron.sdm120;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT_IF_TRUE;
-
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 
 import java.nio.ByteOrder;
 
@@ -55,7 +53,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class MeterEastronSdm120Impl extends AbstractOpenemsModbusComponent
-		implements MeterEastronSdm120, SinglePhaseMeter, ElectricityMeter, ModbusComponent, OpenemsComponent,
+		implements MeterEastronSdm120, ElectricityMeter, SinglePhaseMeter, ModbusComponent, OpenemsComponent,
 		ModbusSlave, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
@@ -63,9 +61,10 @@ public class MeterEastronSdm120Impl extends AbstractOpenemsModbusComponent
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
-	private MeterType meterType = null;
+	private MeterType meterType = MeterType.PRODUCTION;
+	private SinglePhase phase;
+	/** Invert power values. */
 	private boolean invert = false;
-	private SinglePhase phase = null;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -93,6 +92,7 @@ public class MeterEastronSdm120Impl extends AbstractOpenemsModbusComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
+		this.phase = config.phase();
 		this.invert = config.invert();
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
@@ -133,13 +133,9 @@ public class MeterEastronSdm120Impl extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(30015 - offset, 30024 - offset),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(30025 - offset)
 								.wordOrder(WordOrder.MSWLSW).byteOrder(ByteOrder.BIG_ENDIAN),
-								INVERT_IF_TRUE(this.invert)),
-						new DummyRegisterElement(30026 - offset, 30070 - offset),
-						m(ElectricityMeter.ChannelId.FREQUENCY,
-								new FloatDoublewordElement(30071 - offset).wordOrder(WordOrder.MSWLSW)
-										.byteOrder(ByteOrder.BIG_ENDIAN),
-								DIRECT_1_TO_1)
-						));
+								INVERT_IF_TRUE(this.invert))
+
+				));
 	}
 
 	@Override
@@ -179,12 +175,12 @@ public class MeterEastronSdm120Impl extends AbstractOpenemsModbusComponent
 		if (activePower == null) {
 			this.calculateProductionEnergy.update(null);
 			this.calculateConsumptionEnergy.update(null);
-		} else if (activePower >= 0) {
-			this.calculateProductionEnergy.update(activePower);
+		} else if (activePower < 0) {
+			this.calculateProductionEnergy.update(-activePower);
 			this.calculateConsumptionEnergy.update(0);
 		} else {
 			this.calculateProductionEnergy.update(0);
-			this.calculateConsumptionEnergy.update(-activePower);
+			this.calculateConsumptionEnergy.update(activePower);
 		}
 	}
 
