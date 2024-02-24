@@ -1,8 +1,9 @@
-package io.openems.edge.meter.microcare.sdm630;
+package io.openems.edge.meter.eastron.sdm630;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.meter.eastron.sdm630.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

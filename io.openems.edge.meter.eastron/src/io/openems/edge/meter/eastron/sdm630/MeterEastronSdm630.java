@@ -1,4 +1,4 @@
-package io.openems.edge.meter.microcare.sdm630;
+package io.openems.edge.meter.eastron.sdm630;
 
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
@@ -7,7 +7,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface MeterMicrocareSdm630 extends ElectricityMeter, OpenemsComponent, ModbusSlave {
+public interface MeterEastronSdm630 extends ElectricityMeter, OpenemsComponent, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		REACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.INTEGER) //
