@@ -12,7 +12,7 @@ import io.openems.backend.common.test.DummyMetadata;
 
 public class AlertingTest {
 
-	private static final int HANDLER_COUNT = 1;
+	private static final int HANDLER_COUNT = 2;
 
 	private static final Config testConf = new Config() {
 
@@ -30,6 +30,16 @@ public class AlertingTest {
 		public int initialDelay() {
 			return 15;
 		}
+
+		@Override
+		public boolean notifyOnOffline() {
+			return true;
+		}
+
+		@Override
+		public boolean notifyOnSumStateChange() {
+			return true;
+		}
 	};
 
 	private static Config conf = new Config() {
@@ -46,6 +56,16 @@ public class AlertingTest {
 		@Override
 		public int initialDelay() {
 			return 15;
+		}
+
+		@Override
+		public boolean notifyOnOffline() {
+			return true;
+		}
+
+		@Override
+		public boolean notifyOnSumStateChange() {
+			return true;
 		}
 	};
 

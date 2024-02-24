@@ -234,14 +234,16 @@
           "CONTROL_MODE_DESCRIPTION": {
             "CHARGE_CONSUMPTION": ""
           },
-          "CHARGE_CONSUMPTION_ACTIVATE": "Aktive Beladung aus dem Netz aktivieren (BETA-Test)",
+          "CHARGE_FROM_GRID_ACTIVATE": "Aktive Beladung aus dem Netz aktivieren (BETA-Test)",
           "PRICE": "Aktueller Bezugsstrompreis",
           "STATE": {
             "DELAY_DISCHARGE": "Entladung verzögert",
             "BALANCING": "Eigenverbrauchsoptimierung",
-            "CHARGE": "Beladung aus dem Netz freigegeben"
+            "CHARGE_GRID": "Beladung aus dem Netz freigegeben"
           },
-          "CHART_TITLE": "Fahrplan und Vorhersagen (nur sichtbar für Admins)"
+          "CHART_TITLE": "Aktueller Fahrplan (BETA-Test)",
+          "CHART_WARNING_NOTE": "Die Grafik zeigt die vergangenen drei Stunden, sowie die zukünftig geplante Betriebsweise für den Zeitraum, für den die dynamischen Netzbezugspreise zur Verfügung stehen. Bitte beachten Sie, dass der Fahrplan kontinuierlich neu berechnet wird und sich somit im Tagesverlauf ändern kann.",
+          "POWER_SOC_CHART_TITLE": "Vorhersagen (Nur für Admins)"
         }
       },
       "RETROFITTING": {
@@ -359,6 +361,10 @@
         "newDevice": "Neues Gerät..."
       },
       "Alerting": {
+        "offlineAlerting": "Offline Benachrichtigung",
+        "faultAlerting": "Fehler Benachrichtigung",
+        "warningAlerting": "Warnungs Benachrichtigung",
+        "deactivated": "Deaktiviert",
         "activate": "Aktivieren",
         "delay": "Verzögerung",
         "save": "Speichern",
