@@ -55,6 +55,66 @@ public interface IoShelly3Em extends DigitalOutput, SinglePhaseMeter, Electricit
 				.text("A new Firmware Update is available!")),
 
 		/**
+		 * Indicates whether the associated meter is functioning properly
+		 *
+		 * <ul>
+		 * <li>Interface: ShellyPlug
+		 * <li>Type: Boolean
+		 * <li>Level: WARN
+		 * </ul>
+		 */
+		EMETER1_EXCEPTION(Doc.of(Level.WARNING) //
+				.text("E-Meter Phase 1 is not valid!")),
+
+		/**
+		 * Indicates whether the associated meter is functioning properly
+		 *
+		 * <ul>
+		 * <li>Interface: ShellyPlug
+		 * <li>Type: Boolean
+		 * <li>Level: WARN
+		 * </ul>
+		 */
+		EMETER2_EXCEPTION(Doc.of(Level.WARNING) //
+				.text("E-Meter Phase 2 is not valid!")),
+
+		/**
+		 * Indicates whether the associated meter is functioning properly
+		 *
+		 * <ul>
+		 * <li>Interface: ShellyPlug
+		 * <li>Type: Boolean
+		 * <li>Level: WARN
+		 * </ul>
+		 */
+		EMETER3_EXCEPTION(Doc.of(Level.WARNING) //
+				.text("E-Meter Phase 3 is not valid!")),
+
+		/**
+		 * Indicates whether the associated meter is functioning properly
+		 *
+		 * <ul>
+		 * <li>Interface: ShellyPlug
+		 * <li>Type: Boolean
+		 * <li>Level: WARN
+		 * </ul>
+		 */
+		EMETERN_EXCEPTION(Doc.of(Level.WARNING) //
+				.text("E-Meter Phase N is not valid!")),
+
+		/**
+		 * Indicates whether the Relay is in an Overpower Condition
+		 *
+		 * <ul>
+		 * <li>Interface: ShellyPlug
+		 * <li>Type: Boolean
+		 * <li>Level: WARN
+		 * </ul>
+		 */
+		RELAY_OVERPOWER_EXCEPTION(Doc.of(Level.WARNING) //
+				.text("Relay is in overpower condition!")),
+
+		/**
 		 * Slave Communication Failed Fault.
 		 *
 		 * <ul>
