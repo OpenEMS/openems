@@ -14,6 +14,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -33,7 +36,6 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SinglePhase;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -60,9 +62,9 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 	private final BooleanWriteChannel[] digitalOutputChannels;
 
 	private MeterType meterType = null;
-	private SinglePhase phase = null;
 	private String baseUrl;
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata;
 
 	@Reference()
@@ -130,7 +132,7 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 			-> this.calculateEnergy();
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-			-> this.executeWrite(this.getRelayChannel(), 0);
+			-> this.executeWrite();
 		}
 	}
 
@@ -149,8 +151,8 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 		Integer currentL1 = null;
 		Integer currentL2 = null;
 		Integer currentL3 = null;
-		Boolean hasUpdate = false;
-		Boolean overpower = false;
+		boolean hasUpdate = false;
+		boolean overpower = false;
 
 		if (error != null) {
 			this.logDebug(this.log, error.getMessage());
@@ -169,10 +171,9 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 				var update = getAsJsonObject(response, "update");
 				hasUpdate = getAsBoolean(update, "has_update");
 
-				var totalPower = getAsFloat(response, "total_power");
-				var emeters = getAsJsonArray(response, "emeters");
-				activePower = round(totalPower);
+				activePower = round(getAsFloat(response, "total_power"));
 
+				var emeters = getAsJsonArray(response, "emeters");
 				for (int i = 0; i < emeters.size(); i++) {
 					var emeter = getAsJsonObject(emeters.get(i));
 					var power = round(getAsFloat(emeter, "power"));
@@ -228,11 +229,10 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Execute on Cycle Event "Execute Write".
-	 * 
-	 * @param channel write channel
-	 * @param index   index
 	 */
-	private void executeWrite(BooleanWriteChannel channel, int index) {
+	private void executeWrite() {
+		var channel = this.getRelayChannel();
+		var index = 0;
 		var readValue = channel.value().get();
 		var writeValue = channel.getNextWriteValueAndReset();
 		if (writeValue.isEmpty()) {
@@ -241,7 +241,7 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 		if (Objects.equals(readValue, writeValue.get())) {
 			return;
 		}
-		final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
+		final var url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
 
 		this.httpBridge.get(url).whenComplete((t, e) -> {
 			this._setSlaveCommunicationFailed(e != null);
@@ -280,10 +280,4 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 	public MeterType getMeterType() {
 		return this.meterType;
 	}
-
-	@Override
-	public SinglePhase getPhase() {
-		return this.phase;
-	}
-
 }
