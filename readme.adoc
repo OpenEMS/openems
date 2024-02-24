@@ -1,8 +1,0 @@
-= openDTU Hoymiles
-
-This bundle implements openDTU for Hoymiles Inverters.
-
-Compatible with
--https://github.com/tbnobody/OpenDTU
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.opendtu[Source Code icon:github[]]
