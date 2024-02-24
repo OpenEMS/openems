@@ -1,6 +1,7 @@
 package io.openems.edge.thermometer.api;
 
 import org.osgi.annotation.versioning.ProviderType;
+import io.openems.common.channel.PersistencePriority;
 
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
@@ -22,9 +23,18 @@ public interface Thermometer extends OpenemsComponent {
 		 * <li>Unit: degree celsius
 		 * </ul>
 		 */
+		HUMIDITY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT)
+				.persistencePriority(PersistencePriority.HIGH)),
 		TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEZIDEGREE_CELSIUS));
+				.unit(Unit.DEZIDEGREE_CELSIUS)
+				.persistencePriority(PersistencePriority.HIGH)),
 
+		TEMPERATURE0(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEZIDEGREE_CELSIUS)
+				.persistencePriority(PersistencePriority.HIGH));
+		
+		
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -62,16 +72,6 @@ public interface Thermometer extends OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setTemperature(Integer value) {
-		this.getTemperatureChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#TEMPERATURE}
-	 * Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setTemperature(int value) {
 		this.getTemperatureChannel().setNextValue(value);
 	}
 
