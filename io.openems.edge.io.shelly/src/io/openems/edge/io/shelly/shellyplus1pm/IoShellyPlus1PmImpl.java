@@ -37,7 +37,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "IO.Shelly.Plus1PM", //
+		name = "IO.Shelly.Plus1Pm", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE//
 )
