@@ -6,7 +6,7 @@ import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.api.MeterType;
 
-public class IoShellyPlus1PMImplTest {
+public class IoShellyPlus1PmImplTest {
 
 	private static final String COMPONENT_ID = "io0";
 
