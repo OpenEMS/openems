@@ -5,6 +5,7 @@ import org.junit.Test;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.meter.api.SinglePhase;
 
 public class IoShellyPlus1PmImplTest {
 
@@ -18,6 +19,7 @@ public class IoShellyPlus1PmImplTest {
 						.setId(COMPONENT_ID) //
 						.setIp("127.0.0.1") //
 						.setType(MeterType.CONSUMPTION_METERED) //
+						.setPhase(SinglePhase.L1) //
 						.build()) //
 		;
 	}
