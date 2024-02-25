@@ -16,7 +16,7 @@ import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 
-public interface IoShellyPlus1PM
+public interface IoShellyPlus1Pm
 		extends DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, EventHandler {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -51,7 +51,6 @@ public interface IoShellyPlus1PM
 		 * </ul>
 		 */
 		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.FAULT)); //
-	
 
 		private final Doc doc;
 
