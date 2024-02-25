@@ -7,7 +7,7 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
 
 @ObjectClassDefinition(//
-		name = "IO Shelly Plus1PM", //
+		name = "IO Shelly Plus1Pm", //
 		description = "Implements the Shelly 2ndGen / Plug WiFi Switch.")
 @interface Config {
 
