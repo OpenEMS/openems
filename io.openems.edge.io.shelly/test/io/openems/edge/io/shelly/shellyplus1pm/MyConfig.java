@@ -21,6 +21,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setPhase(SinglePhase phase) {
+			this.phase = phase;
+			return this;
+		}
+
 		public Builder setIp(String ip) {
 			this.ip = ip;
 			return this;
