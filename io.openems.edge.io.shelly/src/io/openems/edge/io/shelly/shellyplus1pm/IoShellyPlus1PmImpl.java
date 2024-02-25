@@ -17,8 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
@@ -45,7 +45,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent implements IoShellyPlus1PM, DigitalOutput,
+public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoShellyPlus1Pm, DigitalOutput,
 		SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
@@ -53,7 +53,7 @@ public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent implements IoS
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
-	private final Logger log = LoggerFactory.getLogger(IoShellyPlus1PMImpl.class);
+	private final Logger log = LoggerFactory.getLogger(IoShellyPlus1PmImpl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
 
 	private MeterType meterType = null;
@@ -62,49 +62,49 @@ public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent implements IoS
 
 	private volatile Timedata timedata;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY)
-    private BridgeHttpFactory httpBridgeFactory;
-    private BridgeHttp httpBridge;
+	@Reference(cardinality = ReferenceCardinality.MANDATORY)
+	private BridgeHttpFactory httpBridgeFactory;
+	private BridgeHttp httpBridge;
 
-	public IoShellyPlus1PMImpl() {
+	public IoShellyPlus1PmImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
-				IoShellyPlus1PM.ChannelId.values() //
+				IoShellyPlus1Pm.ChannelId.values() //
 		);
 		this.digitalOutputChannels = new BooleanWriteChannel[] { //
-				this.channel(IoShellyPlus1PM.ChannelId.RELAY) //
+				this.channel(IoShellyPlus1Pm.ChannelId.RELAY) //
 		};
 
 		SinglePhaseMeter.calculateSinglePhaseFromActivePower(this);
 	}
 
-    @Activate
-    protected void activate(ComponentContext context, Config config) {
-        super.activate(context, config.id(), config.alias(), config.enabled());
-        this.meterType = config.type();
-        this.phase = config.phase();
-        this.baseUrl = "http://" + config.ip();
-        this.httpBridge = this.httpBridgeFactory.get();
+	@Activate
+	protected void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.meterType = config.type();
+		this.phase = config.phase();
+		this.baseUrl = "http://" + config.ip();
+		this.httpBridge = this.httpBridgeFactory.get();
 
-        if (!this.isEnabled()) {
-            return;
-        }
+		if (!this.isEnabled()) {
+			return;
+		}
 
-        // Assuming your subscription URL or logic might be different
-        this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);
-    }
+		// Assuming your subscription URL or logic might be different
+		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);
+	}
 
 	@Override
-    @Deactivate
-    protected void deactivate() {
-        if (this.httpBridge != null) {
-            this.httpBridgeFactory.unget(this.httpBridge);
-            this.httpBridge = null;
-        }
-        super.deactivate();
-    }
+	@Deactivate
+	protected void deactivate() {
+		if (this.httpBridge != null) {
+			this.httpBridgeFactory.unget(this.httpBridge);
+			this.httpBridge = null;
+		}
+		super.deactivate();
+	}
 
 	@Override
 	public BooleanWriteChannel[] digitalOutputChannels() {
@@ -151,58 +151,56 @@ public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent implements IoS
 		}
 
 		try {
-			JsonObject jsonResponse = JsonUtils.getAsJsonObject(result);
-			JsonObject switch0 = JsonUtils.getAsJsonObject(jsonResponse, "switch:0");
-			if (switch0 != null) {
-				boolean relayIson = JsonUtils.getAsBoolean(switch0, "output");
-				float power = JsonUtils.getAsFloat(switch0, "apower");
-				int voltage = JsonUtils.getAsInt(switch0, "voltage");
-				float current = JsonUtils.getAsFloat(switch0, "current");
+			final var jsonResponse = JsonUtils.getAsJsonObject(result);
+			final var switch0 = JsonUtils.getAsJsonObject(jsonResponse, "switch:0");
+			final var power = JsonUtils.getAsFloat(switch0, "apower");
+			final var voltage = JsonUtils.getAsInt(switch0, "voltage");
+			final var current = JsonUtils.getAsFloat(switch0, "current");
+			final var relayIson = JsonUtils.getAsBoolean(switch0, "output");
 
-				this._setRelay(relayIson);
-				this._setActivePower(Math.round(power));
+			int millivolt = voltage * 1000;
+			int milliamp = (int) (current * 1000);
 
-				int millivolt = voltage * 1000;
-				int milliamp = (int) (current * 1000);
+			this._setRelay(relayIson);
+			this._setActivePower(Math.round(power));
 
-				if (this.phase != null) {
-					switch (this.phase) {
-					case L1:
-						this._setVoltageL1(millivolt);
-						this._setCurrentL1(milliamp);
-						this._setVoltageL2(0);
-						this._setCurrentL2(0);
-						this._setVoltageL3(0);
-						this._setCurrentL3(0);
-						this._setActivePowerL2(0);
-						this._setActivePowerL3(0);
-						break;
-					case L2:
-						this._setVoltageL2(millivolt);
-						this._setCurrentL2(milliamp);
+			if (this.phase != null) {
+				switch (this.phase) {
+				case L1:
+					this._setVoltageL1(millivolt);
+					this._setCurrentL1(milliamp);
+					this._setVoltageL2(0);
+					this._setCurrentL2(0);
+					this._setVoltageL3(0);
+					this._setCurrentL3(0);
+					this._setActivePowerL2(0);
+					this._setActivePowerL3(0);
+					break;
+				case L2:
+					this._setVoltageL2(millivolt);
+					this._setCurrentL2(milliamp);
 
-						this._setVoltageL1(0);
-						this._setCurrentL1(0);
-						this._setVoltageL3(0);
-						this._setCurrentL3(0);
-						this._setActivePowerL1(0);
-						this._setActivePowerL3(0);
-						break;
-					case L3:
-						this._setVoltageL3(millivolt);
-						this._setCurrentL3(milliamp);
+					this._setVoltageL1(0);
+					this._setCurrentL1(0);
+					this._setVoltageL3(0);
+					this._setCurrentL3(0);
+					this._setActivePowerL1(0);
+					this._setActivePowerL3(0);
+					break;
+				case L3:
+					this._setVoltageL3(millivolt);
+					this._setCurrentL3(milliamp);
 
-						this._setVoltageL1(0);
-						this._setCurrentL1(0);
-						this._setVoltageL2(0);
-						this._setCurrentL2(0);
-						this._setActivePowerL1(0);
-						this._setActivePowerL2(0);
-						break;
-					}
+					this._setVoltageL1(0);
+					this._setCurrentL1(0);
+					this._setVoltageL2(0);
+					this._setCurrentL2(0);
+					this._setActivePowerL1(0);
+					this._setActivePowerL2(0);
+					break;
 				}
 			}
-		} catch (Exception e) {
+		} catch (OpenemsNamedException e) {
 			this._setRelay(null);
 			this._setActivePower(null);
 			this.logDebug(this.log, e.getMessage());
@@ -216,28 +214,27 @@ public class IoShellyPlus1PMImpl extends AbstractOpenemsComponent implements IoS
 	 * @param index   index
 	 */
 	private void executeWrite(BooleanWriteChannel channel, int index) {
-	    var readValue = channel.value().get();
-	    var writeValue = channel.getNextWriteValueAndReset();
-	    if (writeValue.isEmpty()) {
-	        // no write value
-	        return;
-	    }
-	    if (Objects.equals(readValue, writeValue.get())) {
-	        // read value equals write value, so no need to write
-	        return;
-	    }
-	    final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
-	    this.httpBridge.get(url).whenComplete((response, error) -> {
-	        if (error != null) {
-	            this.logError(this.log, "HTTP request failed: " + error.getMessage());
-	            this._setSlaveCommunicationFailed(true);
-	        } else {
-	            // Optionally log success or handle response
-	            this._setSlaveCommunicationFailed(false);
-	        }
-	    });
+		var readValue = channel.value().get();
+		var writeValue = channel.getNextWriteValueAndReset();
+		if (writeValue.isEmpty()) {
+			// no write value
+			return;
+		}
+		if (Objects.equals(readValue, writeValue.get())) {
+			// read value equals write value, so no need to write
+			return;
+		}
+		final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
+		this.httpBridge.get(url).whenComplete((response, error) -> {
+			if (error != null) {
+				this.logError(this.log, "HTTP request failed: " + error.getMessage());
+				this._setSlaveCommunicationFailed(true);
+			} else {
+				// Optionally log success or handle response
+				this._setSlaveCommunicationFailed(false);
+			}
+		});
 	}
-
 
 	/**
 	 * Calculate the Energy values from ActivePower.
