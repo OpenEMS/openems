@@ -21,7 +21,7 @@ export class Home10HeckertIbn extends AbstractHomeIbn {
     public override readonly maxNumberOfModulesPerTower: number = 10;
     public override readonly maxNumberOfPvStrings: number = 2;
     public override readonly maxNumberOfTowers: number = 3;
-    public override readonly minNumberOfModulesPerTower: number = 10;
+    public override readonly minNumberOfModulesPerTower: number = 4;
 
     // TODO remove when all customers have a key to install the app
     // TODO set key
