@@ -49,9 +49,15 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	private BridgeHttp httpBridge;
 
 	public IoShelly25Impl() {
-		super(OpenemsComponent.ChannelId.values(), DigitalOutput.ChannelId.values(), IoShelly25.ChannelId.values());
-		this.digitalOutputChannels = new BooleanWriteChannel[] { this.channel(IoShelly25.ChannelId.RELAY_1),
-				this.channel(IoShelly25.ChannelId.RELAY_2), };
+		super( //
+				OpenemsComponent.ChannelId.values(), //
+				DigitalOutput.ChannelId.values(), //
+				IoShelly25.ChannelId.values() //
+		);
+		this.digitalOutputChannels = new BooleanWriteChannel[] { //
+				this.channel(IoShelly25.ChannelId.RELAY_1), //
+				this.channel(IoShelly25.ChannelId.RELAY_2), //
+		};
 	}
 
 	@Activate
