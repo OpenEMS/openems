@@ -92,7 +92,6 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 			return;
 		}
 
-		// Assuming your subscription URL or logic might be different
 		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);
 	}
 
@@ -158,11 +157,15 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 			final var current = JsonUtils.getAsFloat(switch0, "current");
 			final var relayIson = JsonUtils.getAsBoolean(switch0, "output");
 
+			final var sys = JsonUtils.getAsJsonObject(jsonResponse, "sys");
+			final var restart_required = JsonUtils.getAsBoolean(sys, "restart_required");
+
 			int millivolt = voltage * 1000;
 			int milliamp = (int) (current * 1000);
 
 			this._setRelay(relayIson);
 			this._setActivePower(Math.round(power));
+			this.channel(IoShellyPlus1Pm.ChannelId.NEEDS_RESTART).setNextValue(restart_required);
 
 			if (this.phase != null) {
 				switch (this.phase) {
