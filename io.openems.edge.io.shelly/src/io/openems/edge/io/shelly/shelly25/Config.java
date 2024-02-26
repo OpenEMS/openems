@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
 		name = "IO Shelly 2.5", //
-		description = "Implements the Shelly2.5 WiFi Switch.")
+		description = "Implements the Shelly 2.5 WiFi Switch.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
