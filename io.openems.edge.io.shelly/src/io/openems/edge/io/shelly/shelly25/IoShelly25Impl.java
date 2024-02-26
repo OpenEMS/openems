@@ -22,6 +22,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
+
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -49,7 +50,7 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	private BridgeHttp httpBridge;
 
 	public IoShelly25Impl() {
-		super( //
+		super(//
 				OpenemsComponent.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
 				IoShelly25.ChannelId.values() //
@@ -123,7 +124,11 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	private void processHttpResult(JsonElement result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
 		Boolean relay1 = null;
+		Boolean overtemp1 = null;
+		Boolean overpower1 = null;
 		Boolean relay2 = null;
+		Boolean overtemp2 = null;
+		Boolean overpower2 = null;
 
 		try {
 			JsonElement jsonElement = JsonUtils.getAsJsonElement(result);
@@ -131,12 +136,18 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 			for (int i = 0; i < relays.size(); i++) {
 				final var relay = JsonUtils.getAsJsonObject(relays.get(i));
 				final var relayIson = JsonUtils.getAsBoolean(relay, "ison");
+				final var relayOverpower = JsonUtils.getAsBoolean(relay, "overpower");
+				final var relayOvertemp = JsonUtils.getAsBoolean(relay, "overtemperature");
 				this.digitalOutputChannels[i].setNextWriteValue(relayIson);
 
 				if (i == 0) {
 					relay1 = relayIson;
+					overtemp1 = relayOvertemp;
+					overpower1 = relayOverpower;
 				} else if (i == 1) {
 					relay2 = relayIson;
+					overtemp2 = relayOvertemp;
+					overpower2 = relayOverpower;
 				}
 			}
 			this._setSlaveCommunicationFailed(false);
@@ -144,6 +155,10 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 			this.logDebug(this.log, e.getMessage());
 		}
 
+		this.channel(IoShelly25.ChannelId.RELAY_1_OVERTEMP).setNextValue(overtemp1);
+		this.channel(IoShelly25.ChannelId.RELAY_2_OVERTEMP).setNextValue(overtemp2);
+		this.channel(IoShelly25.ChannelId.RELAY_1_OVERPOWER).setNextValue(overpower1);
+		this.channel(IoShelly25.ChannelId.RELAY_2_OVERPOWER).setNextValue(overpower2);
 		this._setRelay1(relay1);
 		this._setRelay2(relay2);
 
@@ -153,8 +168,8 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	 * Execute on Cycle Event "Execute Write".
 	 */
 	private void eventExecuteWrite() {
-		for (int i = 0; i < digitalOutputChannels.length; i++) {
-			executeWrite(digitalOutputChannels[i], i);
+		for (int i = 0; i < this.digitalOutputChannels.length; i++) {
+			this.executeWrite(digitalOutputChannels[i], i);
 		}
 	}
 
