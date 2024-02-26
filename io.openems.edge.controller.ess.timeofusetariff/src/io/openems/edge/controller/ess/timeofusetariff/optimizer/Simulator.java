@@ -86,7 +86,8 @@ public class Simulator {
 		final var essMaxChargeInBalancing = calculateMaxChargeEnergy(//
 				p.essTotalEnergy() /* unlimited in BALANCING */, //
 				p.essMaxEnergyPerPeriod(), essInitial);
-		final var essMaxDischarge = calculateMaxDischargeEnergy(p, essInitial);
+		final var essMaxDischarge = calculateMaxDischargeEnergy(p.essMinSocEnergy(), //
+				p.essMaxEnergyPerPeriod(), essInitial);
 		final var essChargeDischargeInBalancing = calculateBalancingEnergy(essMaxChargeInBalancing, essMaxDischarge,
 				production, consumption);
 		final int essChargeDischarge;

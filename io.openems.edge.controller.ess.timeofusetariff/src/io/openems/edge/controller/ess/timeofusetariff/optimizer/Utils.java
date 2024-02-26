@@ -7,8 +7,6 @@ import static io.openems.common.utils.JsonUtils.toJson;
 import static io.openems.edge.common.type.TypeUtils.fitWithin;
 import static io.openems.edge.common.type.TypeUtils.multiply;
 import static io.openems.edge.common.type.TypeUtils.orElse;
-import static io.openems.edge.common.type.TypeUtils.subtract;
-import static io.openems.edge.common.type.TypeUtils.sum;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController.PERIODS_PER_HOUR;
@@ -53,23 +51,30 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
+import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleResponse;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.timedata.api.Timedata;
 
+/**
+ * Utils for {@link TimeOfUseTariffController}.
+ * 
+ * <p>
+ * All energy values are in [Wh] and positive, unless stated differently.
+ */
 public final class Utils {
 
 	private Utils() {
 	}
 
-	/** Keep some buffer to avoid Scheduling errors because of bad predictions. */
+	/** Keep some buffer to avoid scheduling errors because of bad predictions. */
 	public static final float ESS_MAX_SOC = 90F;
 
 	/**
-	 * C-Rate (Capacity divided by time) during CHARGE mode. With a C-Rate of 0.5
-	 * the battery gets fully charged within 2 hours.
+	 * C-Rate (capacity divided by time) during {@link StateMachine#CHARGE_GRID}.
+	 * With a C-Rate of 0.5 the battery gets fully charged within 2 hours.
 	 */
 	public static final float ESS_CHARGE_C_RATE = 0.5F;
 
@@ -89,10 +94,10 @@ public final class Utils {
 	}
 
 	/**
-	 * Create Params for {@link Simulator}.
+	 * Create {@link Params} for {@link Simulator}.
 	 * 
 	 * @param context          the {@link Context} object
-	 * @param existingSchedule the existing Schedule, i.e. result of previous
+	 * @param existingSchedule the existing schedule, i.e. result of previous
 	 *                         optimization
 	 * @return {@link Params}
 	 * @throws InvalidValueException on error
@@ -140,12 +145,12 @@ public final class Utils {
 	}
 
 	/**
-	 * Postprocesses Production prediction; makes sure length is at least the same
-	 * as Consumption prediction - filling up with zeroes.
+	 * Postprocesses production prediction; makes sure length is at least the same
+	 * as consumption prediction - filling up with zeroes.
 	 * 
-	 * @param prediction the Production prediciton
-	 * @param minLength  the min length (= Consumption prediction length)
-	 * @return new Production prediction
+	 * @param prediction the production prediction
+	 * @param minLength  the min length (= consumption prediction length)
+	 * @return new production prediction
 	 */
 	protected static Integer[] generateProductionPrediction(Integer[] prediction, int minLength) {
 		if (prediction.length >= minLength) {
@@ -167,7 +172,7 @@ public final class Utils {
 	}
 
 	/**
-	 * Builds an initial population with two Genotypes:
+	 * Builds an initial population:
 	 * 
 	 * <ol>
 	 * <li>Schedule with all periods BALANCING
@@ -240,13 +245,13 @@ public final class Utils {
 
 	/**
 	 * Returns the amount of energy that is not available for scheduling because of
-	 * a configured Minimum-SoC.
+	 * a configured minimum SoC.
 	 * 
 	 * @param context     the {@link Context}
 	 * @param essCapacity net {@link SymmetricEss.ChannelId#CAPACITY}
-	 * @return the value in [Wh]; always positive
+	 * @return the value in [Wh]
 	 */
-	private static int getEssMinSocEnergy(Context context, int essCapacity) {
+	protected static int getEssMinSocEnergy(Context context, int essCapacity) {
 		return essCapacity /* [Wh] */ / 100 //
 				* getEssMinSocPercentage(//
 						context.ctrlLimitTotalDischarges(), //
@@ -254,7 +259,7 @@ public final class Utils {
 	}
 
 	/**
-	 * Returns the configured Minimum-SoC, or zero.
+	 * Returns the configured minimum SoC, or zero.
 	 * 
 	 * @param ctrlLimitTotalDischarges      the list of
 	 *                                      {@link ControllerEssLimitTotalDischarge}
@@ -264,13 +269,16 @@ public final class Utils {
 	 */
 	public static int getEssMinSocPercentage(List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges,
 			List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves) {
-		return max(0, // force positive
-				concat(//
-						ctrlLimitTotalDischarges.stream() //
-								.mapToInt(ctrl -> ctrl.getMinSoc().orElse(0)), //
-						ctrlEmergencyCapacityReserves.stream() //
-								.mapToInt(ctrl -> ctrl.getActualReserveSoc().orElse(0)) //
-				).max().orElse(0));
+		return concat(//
+				ctrlLimitTotalDischarges.stream() //
+						.map(ctrl -> ctrl.getMinSoc().get()) //
+						.filter(Objects::nonNull) //
+						.mapToInt(v -> max(0, v)), // only positives
+				ctrlEmergencyCapacityReserves.stream() //
+						.map(ctrl -> ctrl.getActualReserveSoc().get()) //
+						.filter(Objects::nonNull) //
+						.mapToInt(v -> max(0, v))) // only positives
+				.max().orElse(0);
 	}
 
 	/**
@@ -340,61 +348,64 @@ public final class Utils {
 	}
 
 	/**
-	 * Calculates the ESS Max-Charge energy for a period.
+	 * Calculates the ESS max charge energy for a period.
 	 * 
-	 * @param essMaxSocEnergy       ESS energy below a configured Maximium-SoC [Wh]
-	 * @param essMaxEnergyPerPeriod ESS Max Charge/Discharge Energy per Period [Wh]
-	 * @param essInitial            ESS Initially Available Energy (SoC in [Wh]) of
+	 * @param essMaxSocEnergy       ESS energy below a configured maximium SoC [Wh]
+	 * @param essMaxEnergyPerPeriod ESS max charge/discharge energy per period [Wh]
+	 * @param essInitial            ESS initially available energy (SoC in [Wh]) of
 	 *                              the given period
-	 * @return the negative value in [Wh]
+	 * @return the value in [Wh]
 	 */
 	protected static int calculateMaxChargeEnergy(int essMaxSocEnergy, int essMaxEnergyPerPeriod, int essInitial) {
-		return -min(//
-				max(0, essMaxSocEnergy - max(0, essInitial)), // Remaining capacity
-				essMaxEnergyPerPeriod); // Max per Period
+		return IntStream.of(essMaxEnergyPerPeriod, essMaxSocEnergy - essInitial) //
+				.map(v -> max(0, v)) // only positives
+				.min().orElse(0);
 	}
 
 	/**
-	 * Calculates the ESS Max-Discharge energy for a period.
+	 * Calculates the ESS max discharge energy for a period.
 	 * 
-	 * @param p          the {@link Params}
-	 * @param essInitial ESS Initially Available Energy (SoC in [Wh]) of the given
-	 *                   period
-	 * @return the positive value in [Wh]
+	 * @param essMinSocEnergy       ESS energy below a configured minimum SoC [Wh]
+	 * @param essMaxEnergyPerPeriod ESS max charge/discharge energy per period [Wh]
+	 * @param essInitial            ESS initially available energy (SoC in [Wh]) of
+	 *                              the given period
+	 * @return the value in [Wh]
 	 */
-	protected static int calculateMaxDischargeEnergy(Params p, int essInitial) {
-		return min(//
-				p.essMaxEnergyPerPeriod(), // Max per Period
-				max(0, essInitial - p.essMinSocEnergy())); // Min-Soc
+	protected static int calculateMaxDischargeEnergy(int essMinSocEnergy, int essMaxEnergyPerPeriod, int essInitial) {
+		return IntStream.of(essMaxEnergyPerPeriod, essInitial - essMinSocEnergy) //
+				.map(v -> max(0, v)) // only positives
+				.min().orElse(0);
 	}
 
 	/**
-	 * Calculates the Charge/Discharge energy for a period in BALANCING mode.
+	 * Calculates the ESS charge (negative) or discharge (positive) energy for a
+	 * period in {@link StateMachine#BALANCING}.
 	 * 
-	 * @param essMaxCharge    the max charge energy
-	 * @param essMaxDischarge the max discharge neergy
-	 * @param production      the period production
-	 * @param consumption     the period consumption
+	 * @param essMaxCharge    ESS max charge energy
+	 * @param essMaxDischarge ESS max discharge energy
+	 * @param production      Production prediction
+	 * @param consumption     Consumption prediction
 	 * @return the value in [Wh]
 	 */
 	protected static int calculateBalancingEnergy(int essMaxCharge, int essMaxDischarge, int production,
 			int consumption) {
-		return min(max(consumption - production, essMaxCharge), essMaxDischarge);
+		var balance = consumption - production;
+		return fitWithin(-essMaxCharge, essMaxDischarge, balance);
 	}
 
 	/**
-	 * Calculates the ESS Charge Energy for a period in
-	 * {@link StateMachine#CHARGE_GRID} state.
+	 * Calculates the default ESS charge energy per period in
+	 * {@link StateMachine#CHARGE_GRID}.
 	 * 
 	 * <p>
 	 * Applies {@link #ESS_CHARGE_C_RATE} with the minimum of usable ESS energy or
-	 * predicted Consumption energy that cannot be supplied from Production.
+	 * predicted consumption energy that cannot be supplied from production.
 	 * 
-	 * @param essMinSocEnergy ESS energy below a configured Minimum-SoC [Wh]
-	 * @param essMaxSocEnergy ESS energy below a configured Maximium-SoC [Wh]
-	 * @param productions     Production predictions per Period
-	 * @param consumptions    Consumption predictions per Period
-	 * @return the positive value in [Wh]
+	 * @param essMinSocEnergy ESS energy below a configured minimum SoC [Wh]
+	 * @param essMaxSocEnergy ESS energy below a configured maximium SoC [Wh]
+	 * @param productions     Production predictions per period
+	 * @param consumptions    Consumption predictions per period
+	 * @return the value in [Wh]
 	 */
 	protected static int calculateParamsChargeEnergyInChargeGrid(int essMinSocEnergy, int essMaxSocEnergy,
 			int[] productions, int[] consumptions) {
@@ -422,49 +433,23 @@ public final class Utils {
 
 	/**
 	 * Calculates the ESS charge energy for one period in
-	 * {@link StateMachine#CHARGE_GRID} state.
+	 * {@link StateMachine#CHARGE_GRID}.
 	 * 
-	 * @param essMaxCharge     the max ESS charge energy after constraints [Wh],
-	 *                         negative
-	 * @param essChargeInState ESS Charge Energy per Period in CHARGE_GRID state
-	 *                         [Wh], positive
-	 * @param maxBuyFromGrid   Max Buy-From-Grid Energy per Period [Wh], positive
+	 * @param essMaxCharge     ESS max charge energy [Wh]
+	 * @param essChargeInState ESS target charge energy in CHARGE_GRID [Wh]
+	 * @param maxBuyFromGrid   Max buy-from-grid energy [Wh]
 	 * @param production       Production prediction
 	 * @param consumption      Consumption prediction
-	 * @return ESS charge energy (positive)
+	 * @return the value in [Wh]
 	 */
 	protected static int calculateChargeGridEnergy(int essMaxCharge, int essChargeInState, int maxBuyFromGrid,
 			int production, int consumption) {
-		return min(min(//
-				max(//
-						/* limit to max Buy-From-Grid Energy */
-						maxBuyFromGrid + production - consumption,
-						/* force charge with at least '1 W' to make a difference */
-						1),
-				/* limit to max ESS Charge Energy per Period in CHARGE State */
-				essChargeInState),
-				/* limit to max ESS Charge Energy */
-				max(0, -essMaxCharge - max(0, production - consumption)));
-	}
-
-	/**
-	 * Calculates the buy-from-grid energy that is used to charge the ESS.
-	 * 
-	 * @param state                    the {@link StateMachine}
-	 * @param balancingChargeDischarge the ESS charge/discharge energy that would be
-	 *                                 applied in BALANCING (negative for charge)
-	 * @param essChargeDischarge       the scheduled ESS charge/discharge energy for
-	 *                                 this period (negative for charge)
-	 * @return the positive value
-	 */
-	protected static int calculateGridEssCharge(StateMachine state, int balancingChargeDischarge,
-			int essChargeDischarge) {
-		return switch (state) {
-		case BALANCING, DELAY_DISCHARGE //
-			-> 0; // By definition not charging from grid
-		case CHARGE_GRID //
-			-> -essChargeDischarge - min(0, balancingChargeDischarge) /* consider charge only */;
-		};
+		var remainingAfterChargeProduction = essMaxCharge - max(0, production - consumption);
+		var remainingAfterSupplyConsumption = maxBuyFromGrid - max(0, consumption - production);
+		var result = IntStream.of(essChargeInState, remainingAfterChargeProduction, remainingAfterSupplyConsumption) //
+				.map(v -> max(0, v)) // only positives
+				.min().orElse(0);
+		return max(1, result); // always at least one, to make a difference to BALANCING
 	}
 
 	/**
@@ -720,16 +705,19 @@ public final class Utils {
 	 */
 	public static Integer calculateChargeGridPower(Params params, ManagedSymmetricEss ess, Sum sum,
 			int maxChargePowerFromGrid) {
-		// Calculate 'real' grid-power (without current ESS charge/discharge)
-		var gridPower = sum(//
-				sum.getGridActivePower().get(), /* current buy-from/sell-to grid */
-				ess.getActivePower().get() /* current charge/discharge Ess */);
+		var gridActivePower = sum.getGridActivePower().get(); // current buy-from/sell-to grid
+		var essActivePower = ess.getActivePower().get(); // current charge/discharge ESS
+		if (gridActivePower == null || essActivePower == null) {
+			return null; // undefined state
+		}
 
-		var essChargePower = calculateEssChargeInChargeGridPowerFromParams(params, ess);
+		var realGridPower = gridActivePower + essActivePower; // 'real', without current ESS charge/discharge
+		var targetChargePower = calculateEssChargeInChargeGridPowerFromParams(params, ess) //
+				+ min(0, realGridPower) * -1; // add excess production
+		var effectiveGridBuyPower = max(0, realGridPower) + targetChargePower;
+		var chargePower = max(0, targetChargePower - max(0, effectiveGridBuyPower - maxChargePowerFromGrid));
 
-		return min(0, // never positive, i.e. force discharge
-				max(-maxChargePowerFromGrid, // limit to maxChargePowerFromGrid
-						subtract(gridPower, essChargePower))); // add essMaxChargePower to real grid-power
+		return chargePower * -1;
 	}
 
 	/**
@@ -740,8 +728,11 @@ public final class Utils {
 	 * @return the set-point
 	 */
 	public static Integer calculateMaxChargeProductionPower(Sum sum) {
-		return min(0, // never positive, i.e. force discharge
-				multiply(-1, sum.getProductionAcActivePower().orElse(0)));
+		var productionAcActivePower = sum.getProductionAcActivePower().get();
+		if (productionAcActivePower == null || productionAcActivePower < 0) {
+			return 0; // unknown AC production -> do not charge
+		}
+		return -productionAcActivePower;
 	}
 
 	/**
