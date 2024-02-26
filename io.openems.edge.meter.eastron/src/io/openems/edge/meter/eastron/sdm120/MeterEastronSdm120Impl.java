@@ -116,7 +116,7 @@ public class MeterEastronSdm120Impl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		final int offset = 30001; // Adjust this offset based on your actual modbus register start.
+		final int offset = 30001;
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(30001 - offset, Priority.HIGH, //
 						m(new FloatDoublewordElement(30001 - offset)) //
