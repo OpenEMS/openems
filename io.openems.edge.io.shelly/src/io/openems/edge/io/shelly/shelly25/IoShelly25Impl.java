@@ -23,11 +23,20 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
 import com.google.gson.JsonElement;
+
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "IO.Shelly.25", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-@EventTopics({ EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE })
+@Component(//
+		name = "IO.Shelly.25", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+})
+
 public class IoShelly25Impl extends AbstractOpenemsComponent
 		implements IoShelly25, DigitalOutput, OpenemsComponent, EventHandler {
 
@@ -46,18 +55,21 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) {
+	protected void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.baseUrl = "http://" + config.ip();
 		this.httpBridge = this.httpBridgeFactory.get();
+
+		if (this.isEnabled()) {
+			this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", this::processHttpResult);
+		}
+
 	}
 
 	@Deactivate
 	protected void deactivate() {
-		if (this.httpBridge != null) {
-			this.httpBridgeFactory.unget(this.httpBridge);
-			this.httpBridge = null;
-		}
+		this.httpBridgeFactory.unget(this.httpBridge);
+		this.httpBridge = null;
 		super.deactivate();
 	}
 
@@ -74,13 +86,13 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 			String valueText;
 			var valueOpt = channel.value().asOptional();
 			if (valueOpt.isPresent()) {
-				valueText = valueOpt.get() ? "On" : "Off";
+				valueText = valueOpt.get() ? "ON" : "OFF";
 			} else {
 				valueText = "Unknown";
 			}
-			b.append("Relay ").append(i).append(": ").append(valueText);
+			b.append(valueText);
 			if (i < this.digitalOutputChannels.length) {
-				b.append(" | ");
+				b.append("|");
 			}
 			i++;
 		}
@@ -94,43 +106,41 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 		}
 
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.eventBeforeProcessImage();
-			break;
-
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			this.eventExecuteWrite();
-			break;
+		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+			-> this.eventExecuteWrite();
 		}
 	}
 
 	/**
 	 * Execute on Cycle Event "Before Process Image".
 	 */
-	private void eventBeforeProcessImage() {
-		String url = this.baseUrl + "/status";
-		this.httpBridge.get(url).whenComplete((result, error) -> {
-			if (error != null) {
-				this.logError(this.log, "HTTP request failed: " + error.getMessage());
-				this._setSlaveCommunicationFailed(true);
-			} else {
-				try {
-					// Convert the result string to JsonElement using JsonUtils
-					JsonElement jsonElement = JsonUtils.getAsJsonElement(result);
-					final var relays = JsonUtils.getAsJsonArray(jsonElement, "relays");
-					for (int i = 0; i < relays.size(); i++) {
-						final var relay = JsonUtils.getAsJsonObject(relays.get(i));
-						final var relayIson = JsonUtils.getAsBoolean(relay, "ison");
-						// Update the relay state based on the JSON response
-						this.digitalOutputChannels[i].setNextWriteValue(relayIson);
-					}
-					this._setSlaveCommunicationFailed(false);
-				} catch (Exception e) { // Catching generic exception for any parsing or processing errors
-					this.logError(this.log, "Error processing JSON: " + e.getMessage());
-					this._setSlaveCommunicationFailed(true);
+	private void processHttpResult(JsonElement result, Throwable error) {
+		this._setSlaveCommunicationFailed(result == null);
+		Boolean relay1 = null;
+		Boolean relay2 = null;
+
+		try {
+			JsonElement jsonElement = JsonUtils.getAsJsonElement(result);
+			final var relays = JsonUtils.getAsJsonArray(jsonElement, "relays");
+			for (int i = 0; i < relays.size(); i++) {
+				final var relay = JsonUtils.getAsJsonObject(relays.get(i));
+				final var relayIson = JsonUtils.getAsBoolean(relay, "ison");
+				this.digitalOutputChannels[i].setNextWriteValue(relayIson);
+
+				if (i == 0) {
+					relay1 = relayIson;
+				} else if (i == 1) {
+					relay2 = relayIson;
 				}
 			}
-		});
+			this._setSlaveCommunicationFailed(false);
+		} catch (OpenemsNamedException e) {
+			this.logDebug(this.log, e.getMessage());
+		}
+
+		this._setRelay1(relay1);
+		this._setRelay2(relay2);
+
 	}
 
 	/**
