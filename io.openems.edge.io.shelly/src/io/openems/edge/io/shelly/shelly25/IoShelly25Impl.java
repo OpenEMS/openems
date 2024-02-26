@@ -120,6 +120,9 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 
 	/**
 	 * Execute on Cycle Event "Before Process Image".
+	 * 
+	 * @param result The JSON element containing the result of the HTTP request.
+	 * @param error  The throwable error, if any occurred during the HTTP request.
 	 */
 	private void processHttpResult(JsonElement result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
