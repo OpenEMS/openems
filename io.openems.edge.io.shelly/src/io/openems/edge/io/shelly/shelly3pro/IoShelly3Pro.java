@@ -20,7 +20,7 @@ public interface IoShelly3Pro extends DigitalOutput, OpenemsComponent, EventHand
 		 * Holds writes to Relay Output 1 for debugging.
 		 *
 		 * <ul>
-		 * <li>Interface: Shelly3
+		 * <li>Interface: Shelly3Pro
 		 * <li>Type: Boolean
 		 * <li>Range: On/Off
 		 * </ul>
@@ -30,7 +30,7 @@ public interface IoShelly3Pro extends DigitalOutput, OpenemsComponent, EventHand
 		 * Relay Output 1.
 		 *
 		 * <ul>
-		 * <li>Interface: Shelly3
+		 * <li>Interface: Shelly3Pro
 		 * <li>Type: Boolean
 		 * <li>Range: On/Off
 		 * </ul>
@@ -42,7 +42,7 @@ public interface IoShelly3Pro extends DigitalOutput, OpenemsComponent, EventHand
 		 * Holds writes to Relay Output 2 for debugging.
 		 *
 		 * <ul>
-		 * <li>Interface: Shelly3
+		 * <li>Interface: Shelly3Pro
 		 * <li>Type: Boolean
 		 * <li>Range: On/Off
 		 * </ul>
@@ -52,7 +52,7 @@ public interface IoShelly3Pro extends DigitalOutput, OpenemsComponent, EventHand
 		 * Relay Output 2.
 		 *
 		 * <ul>
-		 * <li>Interface: Shelly3
+		 * <li>Interface: Shelly3Pro
 		 * <li>Type: Boolean
 		 * <li>Range: On/Off
 		 * </ul>
@@ -64,7 +64,7 @@ public interface IoShelly3Pro extends DigitalOutput, OpenemsComponent, EventHand
 		 * Holds writes to Relay Output 3 for debugging.
 		 *
 		 * <ul>
-		 * <li>Interface: Shelly3
+		 * <li>Interface: Shelly3Pro
 		 * <li>Type: Boolean
 		 * <li>Range: On/Off
 		 * </ul>
@@ -74,7 +74,7 @@ public interface IoShelly3Pro extends DigitalOutput, OpenemsComponent, EventHand
 		 * Relay Output 3.
 		 *
 		 * <ul>
-		 * <li>Interface: Shelly3
+		 * <li>Interface: Shelly3Pro
 		 * <li>Type: Boolean
 		 * <li>Range: On/Off
 		 * </ul>
@@ -86,7 +86,7 @@ public interface IoShelly3Pro extends DigitalOutput, OpenemsComponent, EventHand
 		 * Slave Communication Failed Fault.
 		 *
 		 * <ul>
-		 * <li>Interface: Shelly3
+		 * <li>Interface: Shelly3Pro
 		 * <li>Type: State
 		 * </ul>
 		 */
