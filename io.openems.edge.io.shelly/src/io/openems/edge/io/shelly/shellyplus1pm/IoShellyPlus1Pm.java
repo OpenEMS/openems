@@ -24,7 +24,7 @@ public interface IoShellyPlus1Pm
 		 * Holds writes to Relay Output for debugging.
 		 *
 		 * <ul>
-		 * <li>Interface: ShellyPlug
+		 * <li>Interface: ShellyPlus1PM
 		 * <li>Type: Boolean
 		 * <li>Range: On/Off
 		 * </ul>
@@ -34,7 +34,7 @@ public interface IoShellyPlus1Pm
 		 * Relay Output.
 		 *
 		 * <ul>
-		 * <li>Interface: ShellyPlug
+		 * <li>Interface: ShellyPlus1PM
 		 * <li>Type: Boolean
 		 * <li>Range: On/Off
 		 * </ul>
@@ -43,10 +43,21 @@ public interface IoShellyPlus1Pm
 				.accessMode(AccessMode.READ_WRITE) //
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY)),
 		/**
+		 * Indicates whether the Shelly needs a restart.
+		 *
+		 * <ul>
+		 * <li>Interface: ShellyPlus1PM
+		 * <li>Type: Boolean
+		 * <li>Level: WARN
+		 * </ul>
+		 */
+		NEEDS_RESTART(Doc.of(Level.INFO) //
+				.text("Shelly suggests a restart.")),
+		/**
 		 * Slave Communication Failed Fault.
 		 *
 		 * <ul>
-		 * <li>Interface: ShellyPlug
+		 * <li>Interface: ShellyPlus1PM
 		 * <li>Type: State
 		 * </ul>
 		 */
