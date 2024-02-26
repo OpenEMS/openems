@@ -1,6 +1,7 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
 import static io.openems.common.utils.XmlUtils.stream;
+import static java.lang.Double.parseDouble;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -17,9 +18,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.google.common.collect.ImmutableSortedMap;
-
 import io.openems.common.utils.XmlUtils;
+import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 
 public class Utils {
 
@@ -28,21 +28,20 @@ public class Utils {
 	private static record QueryResult(ZonedDateTime start, List<Float> prices) {
 		protected static class Builder {
 			private ZonedDateTime start;
-			private List<Float> prices = new ArrayList<>();
+			private List<Double> prices = new ArrayList<>();
 
 			public Builder start(ZonedDateTime start) {
 				this.start = start;
 				return this;
 			}
 
-			public Builder prices(List<Float> prices) {
+			public Builder prices(List<Double> prices) {
 				this.prices.addAll(prices);
 				return this;
 			}
 
-			public ImmutableSortedMap<ZonedDateTime, Float> toMap() {
-
-				var result = new TreeMap<ZonedDateTime, Float>();
+			public TimeOfUsePrices toTimeOfUsePrices() {
+				var result = new TreeMap<ZonedDateTime, Double>();
 				var timestamp = this.start.withZoneSameInstant(ZoneId.systemDefault());
 				var quarterHourIncrements = this.prices.size() * 4;
 
@@ -50,8 +49,7 @@ public class Utils {
 					result.put(timestamp, this.prices.get(i / 4));
 					timestamp = timestamp.plusMinutes(15);
 				}
-
-				return ImmutableSortedMap.copyOf(result);
+				return TimeOfUsePrices.from(result);
 			}
 		}
 
@@ -66,13 +64,13 @@ public class Utils {
 	 * @param xml          The XML string to be parsed.
 	 * @param resolution   PT15M or PT60M
 	 * @param exchangeRate The exchange rate of user currency to EUR.
-	 * @return The {@link ImmutableSortedMap}
+	 * @return The {@link TimeOfUsePrices}
 	 * @throws ParserConfigurationException on error.
 	 * @throws SAXException                 on error
 	 * @throws IOException                  on error
 	 */
-	protected static ImmutableSortedMap<ZonedDateTime, Float> parsePrices(String xml, String resolution,
-			double exchangeRate) throws ParserConfigurationException, SAXException, IOException {
+	protected static TimeOfUsePrices parsePrices(String xml, String resolution, double exchangeRate)
+			throws ParserConfigurationException, SAXException, IOException {
 		var dbFactory = DocumentBuilderFactory.newInstance();
 		var dBuilder = dbFactory.newDocumentBuilder();
 		var is = new InputSource(new StringReader(xml));
@@ -116,11 +114,11 @@ public class Utils {
 							// <price.amount>
 							.filter(n -> n.getNodeName() == "price.amount") //
 							.map(XmlUtils::getContentAsString) //
-							.map(s -> Float.parseFloat(s) * (float) exchangeRate) //
+							.map(s -> parseDouble(s) * exchangeRate) //
 							.toList());
 				});
 
-		return result.toMap();
+		return result.toTimeOfUsePrices();
 	}
 
 	/**

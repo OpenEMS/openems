@@ -201,4 +201,22 @@ public abstract class AbstractWorker {
 		} while (targetTime > System.currentTimeMillis());
 		return duration;
 	}
+
+	/**
+	 * Changes the priority of this thread.
+	 * 
+	 * <p>
+	 * See {@link Thread#setPriority(int)}, {@link Thread#MIN_PRIORITY},
+	 * {@link Thread#NORM_PRIORITY}, {@link Thread#MAX_PRIORITY}}.
+	 *
+	 * @param newPriority priority to set this thread to
+	 * @throws IllegalArgumentException If the priority is not in the range
+	 *                                  {@code MIN_PRIORITY} to
+	 *                                  {@code MAX_PRIORITY}.
+	 * @throws SecurityException        if the current thread cannot modify this
+	 *                                  thread.
+	 */
+	public final void setPriority(int newPriority) {
+		this.thread.setPriority(newPriority);
+	}
 }

@@ -23,6 +23,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 
 import io.openems.backend.alerting.handler.OfflineEdgeHandler;
+import io.openems.backend.alerting.handler.SumStateHandler;
 import io.openems.backend.alerting.scheduler.Scheduler;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.debugcycle.DebugLoggable;
@@ -39,6 +40,7 @@ import io.openems.common.event.EventReader;
 )
 @EventTopics({ //
 		Edge.Events.ON_SET_ONLINE, //
+		Edge.Events.ON_SET_SUM_STATE, //
 		Metadata.Events.AFTER_IS_INITIALIZED //
 })
 public class Alerting extends AbstractOpenemsBackendComponent implements EventHandler, DebugLoggable {
@@ -65,7 +67,7 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 
 	private final Scheduler scheduler;
 
-	protected final List<Handler<?>> handler = new ArrayList<>(1);
+	protected final List<Handler<?>> handler = new ArrayList<>(2);
 
 	protected Alerting(Scheduler scheduler, ThreadPoolExecutor executor) {
 		super("Alerting");
@@ -82,9 +84,17 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 		this.logInfo(this.log, "Activate");
 		this.scheduler.start();
 
-		var handler = new OfflineEdgeHandler(this.scheduler, this.scheduler, this.mailer, this.metadata, //
-				config.initialDelay());
-		this.handler.add(handler);
+		if (config.notifyOnOffline()) {
+			var handler = new OfflineEdgeHandler(this.scheduler, this.scheduler, this.mailer, this.metadata, //
+					config.initialDelay());
+			this.handler.add(handler);
+		}
+
+		if (config.notifyOnSumStateChange()) {
+			var handler = new SumStateHandler(this.scheduler, this.scheduler, this.mailer, this.metadata, //
+					config.initialDelay());
+			this.handler.add(handler);
+		}
 	}
 
 	@Deactivate
