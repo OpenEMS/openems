@@ -172,7 +172,7 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	 */
 	private void eventExecuteWrite() {
 		for (int i = 0; i < this.digitalOutputChannels.length; i++) {
-			this.executeWrite(digitalOutputChannels[i], i);
+			this.executeWrite(this.digitalOutputChannels[i], i);
 		}
 	}
 
