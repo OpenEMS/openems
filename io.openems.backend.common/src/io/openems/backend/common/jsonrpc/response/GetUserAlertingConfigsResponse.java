@@ -1,15 +1,16 @@
 package io.openems.backend.common.jsonrpc.response;
 
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.common.utils.JsonUtils.generateJsonArray;
+
 import java.util.List;
 import java.util.UUID;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.common.metadata.UserAlertingSettings;
+import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.session.Role;
-import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Response for 'getAlertingConfig'.
@@ -19,11 +20,18 @@ import io.openems.common.utils.JsonUtils;
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "result": {
- *      userSettings: [
+ *      "currentUserSettings": {
+ *           "userLogin": "string",
+ *           "faultEdgeDelay": "number",
+ *           "offlineEdgeDelay": "number",
+ *           "warningEdgeDelay": "number"
+ *          }
+ *      "otherUsersSettings?": [
  *          {
- *           userId: string,
- *           role: {@link Role},
- *           delayTime": number
+ *           "userLogin": "string",
+ *           "faultEdgeDelay": "number",
+ *           "offlineEdgeDelay": "number",
+ *           "warningEdgeDelay": "number"
  *          }
  *      ]
  *   }
@@ -32,25 +40,30 @@ import io.openems.common.utils.JsonUtils;
  */
 public class GetUserAlertingConfigsResponse extends JsonrpcResponseSuccess {
 
-	private final List<UserAlertingSettings> settings;
+	private final UserAlertingSettings currentUserSettings;
+	private final List<UserAlertingSettings> otherUsersSettings;
 
-	public GetUserAlertingConfigsResponse(UUID id, List<UserAlertingSettings> settings) {
+	public GetUserAlertingConfigsResponse(UUID id, UserAlertingSettings currentUserSettings, //
+			List<UserAlertingSettings> otherUsersSettings) {
 		super(id);
-		this.settings = settings;
+		this.currentUserSettings = currentUserSettings;
+		this.otherUsersSettings = otherUsersSettings;
 	}
 
 	@Override
 	public JsonObject getResult() {
-		return JsonUtils.buildJsonObject() //
-				.add("userSettings", JsonUtils.generateJsonArray(this.settings, this::toJson)) //
+		return buildJsonObject() //
+				.add("currentUserSettings", this.toJson(this.currentUserSettings)) //
+				.add("otherUsersSettings", generateJsonArray(this.otherUsersSettings, this::toJson)) //
 				.build();
 	}
 
 	private JsonElement toJson(UserAlertingSettings setting) {
-		return JsonUtils.buildJsonObject() //
-				.addProperty("userId", setting.getUserId()) //
-				.add("role", setting.getUserRole().asJson()) //
-				.addProperty("delayTime", setting.getDelayTime()) //
+		return buildJsonObject() //
+				.addProperty("userLogin", setting.userLogin()) //
+				.addProperty("offlineEdgeDelay", setting.edgeOfflineDelay()) //
+				.addProperty("faultEdgeDelay", setting.edgeFaultDelay()) //
+				.addProperty("warningEdgeDelay", setting.edgeWarningDelay()) //
 				.build(); //
 	}
 

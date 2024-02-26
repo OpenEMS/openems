@@ -5,7 +5,6 @@ import static io.openems.edge.controller.ess.timeofusetariff.Mode.AUTOMATIC;
 import static io.openems.edge.controller.ess.timeofusetariff.RiskLevel.MEDIUM;
 
 import java.time.Clock;
-import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
@@ -52,7 +51,7 @@ public class TimeOfUseTariffControllerImplTest {
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("predictorManager", new DummyPredictorManager()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
-				.addReference("timeOfUseTariff", new DummyTimeOfUseTariffProvider(ZonedDateTime.now())) //
+				.addReference("timeOfUseTariff", DummyTimeOfUseTariffProvider.empty(clock)) //
 				.addReference("sum", new DummySum()) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0") //
 						.withSoc(60) //

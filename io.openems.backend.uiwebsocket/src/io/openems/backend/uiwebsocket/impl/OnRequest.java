@@ -9,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.java_websocket.WebSocket;
 
+import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.jsonrpc.request.AddEdgeToUserRequest;
 import io.openems.backend.common.jsonrpc.request.GetSetupProtocolDataRequest;
 import io.openems.backend.common.jsonrpc.request.GetSetupProtocolRequest;
@@ -22,7 +23,6 @@ import io.openems.backend.common.jsonrpc.request.SubscribeEdgesRequest;
 import io.openems.backend.common.jsonrpc.response.AddEdgeToUserResponse;
 import io.openems.backend.common.jsonrpc.response.GetUserAlertingConfigsResponse;
 import io.openems.backend.common.jsonrpc.response.GetUserInformationResponse;
-import io.openems.backend.common.metadata.UserAlertingSettings;
 import io.openems.backend.common.metadata.Metadata.GenericSystemLog;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
@@ -493,16 +493,31 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGetUserAlertingConfigsRequest(User user,
 			GetUserAlertingConfigsRequest request) throws OpenemsException {
 		var edgeId = request.getEdgeId();
-		List<UserAlertingSettings> users;
+
+		UserAlertingSettings currentUser = null;
+		List<UserAlertingSettings> otherUser = List.of();
 
 		if (userIsAdmin(user, edgeId)) {
-			users = this.parent.metadata.getUserAlertingSettings(edgeId);
+			var allSettings = this.parent.metadata.getUserAlertingSettings(edgeId);
+
+			var userOpt = allSettings.stream() //
+					.filter(s -> s.userLogin().equals(user.getId())) //
+					.findAny();
+			if (userOpt.isPresent()) {
+				allSettings.remove(userOpt.get());
+				currentUser = userOpt.get();
+			}
+			otherUser = allSettings;
 		} else {
-			users = List.of(this.parent.metadata.getUserAlertingSettings(edgeId, user.getId()));
+			currentUser = this.parent.metadata.getUserAlertingSettings(edgeId, user.getId());
+		}
+
+		if (currentUser == null) {
+			currentUser = new UserAlertingSettings(edgeId, user.getId());
 		}
 
 		return CompletableFuture.completedFuture(//
-				new GetUserAlertingConfigsResponse(request.getId(), users));
+				new GetUserAlertingConfigsResponse(request.getId(), currentUser, otherUser));
 	}
 
 	/**
@@ -521,7 +536,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		var userSettings = request.getUserSettings();
 
 		var containsOtherUsersSettings = userSettings.stream() //
-				.anyMatch(u -> !Objects.equals(u.getUserId(), userId));
+				.anyMatch(u -> !Objects.equals(u.userLogin(), userId));
 
 		if (containsOtherUsersSettings && !userIsAdmin(user, edgeId)) {
 			throw new OpenemsException(

@@ -1,4 +1,3 @@
-import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -22,7 +21,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
     private currencyLabel: Currency.Label; // Default
 
-    ngOnChanges() {
+    public ngOnChanges() {
         this.currencyLabel = Currency.getCurrencyLabelByEdgeId(this.edge.id);
         this.updateChart();
     };
@@ -36,17 +35,16 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
         super("schedule-chart", service, translate);
     }
 
-    ngOnInit() {
+    public ngOnInit() {
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
     }
 
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.unsubscribeChartRefresh();
     }
 
     protected override updateChart() {
-
         this.autoSubscribeChartRefresh();
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
@@ -66,7 +64,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
             };
 
             let datasets = [];
-            const scheduleChartData = TimeOfUseTariffUtils.getScheduleChartData(length, priceArray, stateArray, timestampArray, this.translate, this.component.factoryId);
+            const scheduleChartData = TimeOfUseTariffUtils.getScheduleChartData(length, priceArray, stateArray, timestampArray, this.translate, this.component.properties.controlMode);
 
             datasets = scheduleChartData.datasets;
             this.colors = scheduleChartData.colors;
@@ -84,8 +82,9 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
     }
 
     protected setLabel() {
-        let options = this.createDefaultChartOptions();
-        const currencyLabel: string = this.currencyLabel;
+        const options = this.createDefaultChartOptions();
+        const translate = this.translate;
+        const currencyLabel: Currency.Label = this.currencyLabel;
 
         //x-axis
         options.scales.xAxes[0].time.unit = "hour";
@@ -99,15 +98,10 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
         options.scales.yAxes[0].ticks.beginAtZero = false; // scale with min and max values.
 
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
+            const label: string = data.datasets[tooltipItem.datasetIndex].label;
+            const value: number = tooltipItem.yLabel;
 
-            // TODO solve before here
-            if (value === undefined || value === null || Number.isNaN(value)) {
-                return;
-            }
-
-            return label + ": " + formatNumber(value, 'de', '1.0-4') + ' ' + currencyLabel;
+            return TimeOfUseTariffUtils.getLabel(value, label, translate, currencyLabel);
         };
         this.options = options;
     }
