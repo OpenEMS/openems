@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
 		name = "IO Shelly Pro 3", //
-		description = "Implements the Shelly Pro 3 Switch.")
+		description = "Implements the Shelly Pro 3 Relais.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
