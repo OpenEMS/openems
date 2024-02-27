@@ -1,13 +1,13 @@
 package io.openems.edge.app.pvinverter;
 
-import static io.openems.edge.app.common.props.CommonProps.alias;
-
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.gson.JsonElement;
@@ -16,7 +16,9 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
-import io.openems.edge.app.enums.OptionsFactory;
+import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.enums.Phase;
 import io.openems.edge.app.pvinverter.SmaPvInverter.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -36,7 +38,6 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
-import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
  * Describes a App for SMA PV-Inverter.
@@ -60,7 +61,7 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.PvInverter.Sma")
+@Component(name = "App.PvInverter.Sma")
 public class SmaPvInverter extends AbstractOpenemsAppWithProps<SmaPvInverter, Property, Parameter.BundleParameter>
 		implements OpenemsApp {
 
@@ -71,23 +72,17 @@ public class SmaPvInverter extends AbstractOpenemsAppWithProps<SmaPvInverter, Pr
 		MODBUS_ID(AppDef.of(SmaPvInverter.class) //
 				.setDefaultValue("modbus0")), //
 		// Properties
-		ALIAS(alias()), //
-		IP(AppDef.copyOfGeneric(CommonPvInverterConfiguration.ip(), def -> def //
+		ALIAS(CommonProps.alias()), //
+		IP(AppDef.copyOfGeneric(PvInverterProps.ip(), def -> def //
 				.setRequired(true))), //
-		PORT(AppDef.copyOfGeneric(CommonPvInverterConfiguration.port(), def -> def //
+		PORT(AppDef.copyOfGeneric(PvInverterProps.port(), def -> def //
 				.setRequired(true))), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(CommonPvInverterConfiguration.modbusUnitId(), def -> def //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(PvInverterProps.modbusUnitId(), def -> def //
 				.setTranslatedDescriptionWithAppPrefix(".modbusUnitId.description") //
 				.setRequired(true))), //
-		PHASE(AppDef.of(SmaPvInverter.class) //
-				.setTranslatedLabelWithAppPrefix(".phase.label") // )
-				.setTranslatedDescriptionWithAppPrefix(".phase.description") //
-				.setDefaultValue(Phase.ALL.name()) //
-				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(Phase.class), l);
-				}) //
-				.bidirectional(PV_INVERTER_ID, "phase", ComponentManagerSupplier::getComponentManager));
+		PHASE(AppDef.copyOfGeneric(PvInverterProps.phase(), def -> def//
+				.bidirectional(PV_INVERTER_ID, "phase", ComponentManagerSupplier::getComponentManager))), //
+		;
 
 		private final AppDef<? super SmaPvInverter, ? super Property, ? super BundleParameter> def;
 
@@ -129,12 +124,18 @@ public class SmaPvInverter extends AbstractOpenemsAppWithProps<SmaPvInverter, Pr
 			final var modbusId = this.getId(t, p, Property.MODBUS_ID);
 			final var pvInverterId = this.getId(t, p, Property.PV_INVERTER_ID);
 
-			final var factoryIdInverter = "PV-Inverter.SMA.SunnyTripower";
-			final var components = CommonPvInverterConfiguration.getComponents(//
-					factoryIdInverter, pvInverterId, modbusId, alias, ip, port,
-					b -> b.addProperty("modbusUnitId", modbusUnitId) //
-							.addProperty("phase", phase),
-					null);
+			final var components = List.of(//
+					new EdgeConfig.Component(pvInverterId, alias, "PV-Inverter.SMA.SunnyTripower", //
+							JsonUtils.buildJsonObject() //
+									.addProperty("modbus.id", modbusId) //
+									.addProperty("modbusUnitId", modbusUnitId) //
+									.addProperty("phase", phase) //
+									.build()), //
+					new EdgeConfig.Component(modbusId, alias, "Bridge.Modbus.Tcp", JsonUtils.buildJsonObject() //
+							.addProperty("ip", ip) //
+							.addProperty("port", port) //
+							.build())//
+			);
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
