@@ -39,6 +39,15 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2024.2.2',
         changes: [
+          Changelog.UI,
+          Changelog.product(Product.HOME_10, Product.HOME_20_30) + "Entladeverhalten bei voller Batterie",
+          Changelog.product(Product.HOME_10, Product.HOME_20_30) + "Verbesserungen am Inbetriebnahmeassistent",
+          Changelog.app(App.TIME_OF_USE) + "(BETA-Test Beladung aus dem Netz): Verbesserungen am Algorithmus",
+        ],
+      },
+      {
+        version: '2024.2.2',
+        changes: [
           Changelog.app(App.TIME_OF_USE) + "Offizielle Freigabe für " + Changelog.product(Product.HOME_20_30),
           Changelog.product(Product.HOME_10, Product.HOME_20_30) + "Verbesserungen am Inbetriebnahmeassistent",
           Changelog.app(App.TIME_OF_USE) + "Neue " + Changelog.link("App-Dokumentation", "https://docs.fenecon.de/de/_/latest/fems/fems-app/OEM_App_TOU.html") + ", Darstellung geplanter Fahrplan in Live-Widget, adaptive Berechnung der Beladeleistung aus dem Netz (BETA-Test), verbessertes Verhalten i.V.m. PV-Erzeugung",

@@ -1,0 +1,36 @@
+l[io.openems.edge.common.component.AbstractOpenemsComponent] INFO : [ess0] Activate DummyManagedSymmetricEss
+k[io.openems.edge.common.component.AbstractOpenemsComponent] INFO : [meter0] Activate DummyElectricityMeter
+w[io.openems.edge.common.component.AbstractOpenemsComponent] INFO : [ctrl0] Activate ControllerFastFrequencyReserveImpl
+ú[io.openems.edge.controller.ess.fastfrequencyreserve.ControllerFastFrequencyReserveImpl] ERROR : [ctrl0] Unable to parse Schedule: Not a JSON Object: "foo"
+w[io.openems.edge.common.component.AbstractOpenemsComponent] INFO : [ctrl0] Activate ControllerFastFrequencyReserveImpl
+¢[io.openems.edge.controller.ess.fastfrequencyreserve.ControllerFastFrequencyReserveImpl] ERROR : [ctrl0] Unable to parse Schedule: JSON ["foo"] is not JSON-Array
+w[io.openems.edge.common.component.AbstractOpenemsComponent] INFO : [ctrl0] Activate ControllerFastFrequencyReserveImpl
+É[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [UNDEFINED] to [PRE_ACTIVATION_STATE]
+â[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [PRE_ACTIVATION_STATE] to [ACTIVATION_TIME]
+Ö[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [ACTIVATION_TIME] to [SUPPORT_DURATION]
+á[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [SUPPORT_DURATION] to [DEACTIVATION_TIME]
+î[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [DEACTIVATION_TIME] to [BUFFERED_TIME_BEFORE_RECOVERY]
+ê[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [BUFFERED_TIME_BEFORE_RECOVERY] to [RECOVERY_TIME]
+Ç[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [RECOVERY_TIME] to [ACTIVATION_TIME]
+Ö[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [ACTIVATION_TIME] to [SUPPORT_DURATION]
+á[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [SUPPORT_DURATION] to [DEACTIVATION_TIME]
+î[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [DEACTIVATION_TIME] to [BUFFERED_TIME_BEFORE_RECOVERY]
+ê[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [BUFFERED_TIME_BEFORE_RECOVERY] to [RECOVERY_TIME]
+Ç[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [RECOVERY_TIME] to [ACTIVATION_TIME]
+Ö[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [ACTIVATION_TIME] to [SUPPORT_DURATION]
+l[io.openems.edge.common.component.AbstractOpenemsComponent] INFO : [ess0] Activate DummyManagedSymmetricEss
+k[io.openems.edge.common.component.AbstractOpenemsComponent] INFO : [meter0] Activate DummyElectricityMeter
+w[io.openems.edge.common.component.AbstractOpenemsComponent] INFO : [ctrl0] Activate ControllerFastFrequencyReserveImpl
+É[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [UNDEFINED] to [PRE_ACTIVATION_STATE]
+â[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [PRE_ACTIVATION_STATE] to [ACTIVATION_TIME]
+Ö[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [ACTIVATION_TIME] to [SUPPORT_DURATION]
+á[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [SUPPORT_DURATION] to [DEACTIVATION_TIME]
+î[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [DEACTIVATION_TIME] to [BUFFERED_TIME_BEFORE_RECOVERY]
+ê[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [BUFFERED_TIME_BEFORE_RECOVERY] to [RECOVERY_TIME]
+Ç[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [RECOVERY_TIME] to [ACTIVATION_TIME]
+Ö[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [ACTIVATION_TIME] to [SUPPORT_DURATION]
+á[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [SUPPORT_DURATION] to [DEACTIVATION_TIME]
+î[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [DEACTIVATION_TIME] to [BUFFERED_TIME_BEFORE_RECOVERY]
+ê[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [BUFFERED_TIME_BEFORE_RECOVERY] to [RECOVERY_TIME]
+Ç[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [RECOVERY_TIME] to [ACTIVATION_TIME]
+Ö[io.openems.edge.common.statemachine.AbstractStateMachine] INFO : Changing StateMachine from [ACTIVATION_TIME] to [SUPPORT_DURATION]
