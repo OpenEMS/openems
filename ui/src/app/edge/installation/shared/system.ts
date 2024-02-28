@@ -12,7 +12,7 @@ import { environment } from "src/environments";
 
 export enum SystemType {
     FENECON_HOME = 'FENECON Home',
-    HECKERT_HOME = 'heckert-home',
+    HECKERT_HOME = 'Symphon-E',
     COMMERCIAL = 'FENECON Commercial',
 }
 

@@ -7,7 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
 import { FormlyIonicModule } from '@ngx-formly/ionic';
 import { TranslateModule } from '@ngx-translate/core';
-import { ChartsModule } from 'ng2-charts';
+import { NgChartsModule } from 'ng2-charts';
 import { NgxSpinnerModule } from "ngx-spinner";
 
 import { appRoutingProviders } from './../app-routing.module';
@@ -57,7 +57,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
 @NgModule({
   imports: [
     BrowserAnimationsModule,
-    ChartsModule,
+    NgChartsModule,
     CommonModule,
     DirectiveModule,
     FormsModule,
@@ -120,7 +120,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
   exports: [
     // modules
     BrowserAnimationsModule,
-    ChartsModule,
+    NgChartsModule,
     CommonModule,
     DirectiveModule,
     FormlyIonicModule,

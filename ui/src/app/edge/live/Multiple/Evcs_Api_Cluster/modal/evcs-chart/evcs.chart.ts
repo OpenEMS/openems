@@ -1,12 +1,10 @@
-import { ChartDataSets } from 'chart.js';
+import * as Chart from 'chart.js';
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { Data } from 'src/app/edge/history/shared';
 import { EdgeConfig, Edge } from 'src/app/shared/shared';
-import { Label } from 'ng2-charts';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import * as Chart from 'chart.js';
 
 @Component({
   selector: EvcsChartComponent.SELECTOR,
@@ -23,9 +21,9 @@ export class EvcsChartComponent implements OnInit, OnChanges {
   private static readonly SELECTOR = "evcsChart";
   public loading: boolean = true;
   public options: BarChartOptions;
-  public labels: Label[];
-  public datasets: ChartDataSets[];
-  public chart: Chart; // This will hold our chart info
+  public labels: any[];
+  public datasets: Chart.ChartDataset[];
+  public chart: Chart.Chart; // This will hold our chart info
 
 
   constructor(

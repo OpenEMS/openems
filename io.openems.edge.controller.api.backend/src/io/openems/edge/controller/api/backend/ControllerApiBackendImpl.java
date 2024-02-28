@@ -27,7 +27,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceScope;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -82,7 +81,8 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 	@Reference
 	private OpenemsEdgeOem oem;
 
-	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
+	@Reference
+	private ResendHistoricDataWorkerFactory resendHistoricDataWorkerFactory;
 	protected ResendHistoricDataWorker resendHistoricDataWorker;
 
 	@Reference
@@ -170,6 +170,7 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 		this.websocket = new WebsocketClient(this, name, uri, httpHeaders, proxy);
 		this.websocket.start();
 
+		this.resendHistoricDataWorker = this.resendHistoricDataWorkerFactory.get();
 		this.resendHistoricDataWorker.setConfig(new ResendHistoricDataWorker.Config(//
 				this.getUnableToSendChannel().address(), //
 				this.getLastSuccessFulResendChannel().address(), //
@@ -184,6 +185,8 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+		this.resendHistoricDataWorkerFactory.unget(this.resendHistoricDataWorker);
+		this.resendHistoricDataWorker = null;
 		this.sendChannelValuesWorker.deactivate();
 		if (this.websocket != null) {
 			this.websocket.stop();

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JAVA_VERSION=17
+JAVA_VERSION=21
 
 NODE_MAJOR=20
 
@@ -14,7 +14,7 @@ ANDROID_PLATFORMS_VERSION=32
 
 docker pull eclipse-temurin:${JAVA_VERSION}-jdk
 
-docker build -t openems-build:latest -f - . <<EOF
+docker build -t openems-build:${JAVA_VERSION}.${NODE_MAJOR} -f - . <<EOF
 FROM eclipse-temurin:${JAVA_VERSION}-jdk
 
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash -

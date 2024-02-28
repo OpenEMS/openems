@@ -9,14 +9,11 @@ import static io.openems.edge.common.test.TestUtils.withValue;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
-import static io.openems.edge.controller.ess.timeofusetariff.TestData.CONSUMPTION_888_20231106;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.HOURLY_PRICES_SUMMER;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PAST_HOURLY_PRICES;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PAST_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PAST_STATES;
-import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRICES_888_20231106;
-import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRODUCTION_888_20231106;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRODUCTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.STATES;
 import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest.getComponentManager;
@@ -26,24 +23,25 @@ import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffCont
 import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest.getTimeOfUseTariff;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.SimulatorTest.TIME;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.SimulatorTest.createParams888d20231106;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.SimulatorTest.hourlyToQuarterly;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.ESS_MAX_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.SUM_CONSUMPTION;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.SUM_ESS_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.SUM_PRODUCTION;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.buildInitialPopulation;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateBalancingEnergy;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateChargeGridEnergy;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateChargeGridPower;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateDelayDischargePower;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateEssChargeInChargeGridPowerFromParams;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateExecutionLimitSeconds;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateGridEssCharge;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateMaxChargeEnergy;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateMaxChargeProductionPower;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateParamsChargeEnergyInChargeGrid;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.createSchedule;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.createSimulatorParams;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.findFirstPeakIndex;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.findFirstValleyIndex;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.generateProductionPrediction;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.getEssMinSocEnergy;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.handleGetScheduleRequest;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.interpolateArray;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.joinConsumptionPredictions;
@@ -53,7 +51,6 @@ import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.pos
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.toEnergy;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.toPower;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static java.util.Arrays.stream;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -68,13 +65,19 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 import org.junit.Test;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.DummySum;
+import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
+import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
+import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest;
@@ -156,38 +159,106 @@ public class UtilsTest {
 	@Test
 	public void testCalculateMaxChargeEnergy() {
 		assertEquals(0, calculateMaxChargeEnergy(0, 0, 0));
-		assertEquals(-400, calculateMaxChargeEnergy(1000, 400, 0));
-		assertEquals(-300, calculateMaxChargeEnergy(1000, 400, 700));
+		assertEquals(400, calculateMaxChargeEnergy(1000, 400, 0));
+		assertEquals(300, calculateMaxChargeEnergy(1000, 400, 700));
 		assertEquals(0, calculateMaxChargeEnergy(1000, 400, 1100));
-		assertEquals(-400, calculateMaxChargeEnergy(1000, 400, -100));
+		assertEquals(400, calculateMaxChargeEnergy(1000, 400, -100));
+	}
+
+	@Test
+	public void testCalculateMaxDischargeEnergy() {
+		assertEquals(300, Utils.calculateMaxDischargeEnergy(100, 300, 1000));
+		assertEquals(200, Utils.calculateMaxDischargeEnergy(100, 300, 300));
+		assertEquals(0, Utils.calculateMaxDischargeEnergy(100, 300, 0));
 	}
 
 	@Test
 	public void testCalculateBalancingEnergy() {
 		assertEquals(0, calculateBalancingEnergy(0, 0, 0, 0));
-		assertEquals(-200, calculateBalancingEnergy(-1000, 1000, 500, 300));
-		assertEquals(200, calculateBalancingEnergy(-1000, 1000, 500, 700));
-		assertEquals(1000, calculateBalancingEnergy(-1000, 1000, 5000, 7000));
-		assertEquals(-1000, calculateBalancingEnergy(-1000, 1000, 5000, 3000));
+		assertEquals(-200, calculateBalancingEnergy(1000, 1000, 500, 300));
+		assertEquals(200, calculateBalancingEnergy(1000, 1000, 500, 700));
+		assertEquals(1000, calculateBalancingEnergy(1000, 1000, 5000, 7000));
+		assertEquals(-1000, calculateBalancingEnergy(1000, 1000, 5000, 3000));
 	}
 
 	@Test
 	public void testCalculateParamsMaxChargeEnergyInChargeGrid() {
-		assertEquals(1250, calculateParamsChargeEnergyInChargeGrid(1000, 11000, new int[0], new int[0]));
+		assertEquals(1250, calculateParamsChargeEnergyInChargeGrid(1000, 11000, new int[0], new int[0], new double[0]));
 
 		assertEquals(250, calculateParamsChargeEnergyInChargeGrid(1000, 11000, //
 				new int[] { 0, 100, 200 }, //
-				new int[] { 1000, 1100 }));
+				new int[] { 1000, 1100 }, //
+				new double[0]));
 
 		assertEquals(200, calculateParamsChargeEnergyInChargeGrid(1000, 11000, //
 				new int[] { 0, 100, 200, 300, 400, 500, 600, 700 }, //
-				new int[] { 700, 600, 500, 400, 300, 200, 100, 0 }));
+				new int[] { 700, 600, 500, 400, 300, 200, 100, 0 }, //
+				new double[] { 123, 124, 125, 126, 123, 122, 121, 120 }));
+
+		assertEquals(199, calculateParamsChargeEnergyInChargeGrid(1000, 11000, //
+				new int[] { 0, 100, 200, 300, 400, 500, 600, 700 }, //
+				new int[] { 700, 600, 500, 1140, 1150, 200, 100, 0 }, //
+				new double[] { 120, 121, 122, 126, 125, 122, 121, 120 }));
+	}
+
+	@Test
+	public void testFindFirstPeakIndex() {
+		assertEquals(0, findFirstPeakIndex(0, new double[0]));
+		assertEquals(0, findFirstPeakIndex(0, new double[] { 1 }));
+		assertEquals(0, findFirstPeakIndex(0, new double[] { 1, 0 }));
+		assertEquals(1, findFirstPeakIndex(0, new double[] { 0, 1, 0 }));
+		assertEquals(1, findFirstPeakIndex(0, new double[] { 0, 1, 0, 1 }));
+		assertEquals(5, findFirstPeakIndex(5, new double[0]));
+	}
+
+	@Test
+	public void testFindFirstValleyIndex() {
+		assertEquals(0, findFirstValleyIndex(0, new double[0]));
+		assertEquals(0, findFirstValleyIndex(0, new double[] { 1 }));
+		assertEquals(1, findFirstValleyIndex(0, new double[] { 1, 0 }));
+		assertEquals(0, findFirstValleyIndex(0, new double[] { 0, 1, 0 }));
+		assertEquals(2, findFirstValleyIndex(1, new double[] { 0, 1, 0, 1 }));
+		assertEquals(5, findFirstValleyIndex(5, new double[0]));
+	}
+
+	@Test
+	public void testCalculateChargeGridEnergy() {
+		assertEquals(1, calculateChargeGridEnergy(0, 0, 0, 0, 0));
+		// essChargeInState wins
+		assertEquals(300, calculateChargeGridEnergy(1000, 300, 1000, 0, 0));
+		// essMaxCharge wins
+		assertEquals(900, calculateChargeGridEnergy(900, 1000, 1000, 0, 100));
+		assertEquals(800, calculateChargeGridEnergy(900, 1000, 1000, 100, 0));
+		// maxBuyFromGrid wins
+		assertEquals(800, calculateChargeGridEnergy(1000, 1000, 900, 0, 100));
+		assertEquals(900, calculateChargeGridEnergy(1000, 1000, 900, 100, 0));
 	}
 
 	@Test
 	public void testCalculateChargeGridPower() {
 		var params = createParams888d20231106(ControlMode.CHARGE_CONSUMPTION.states);
-		assertEquals(-4084, calculateChargeGridPower(params, //
+		assertNull(calculateChargeGridPower(params, //
+				new DummyManagedSymmetricEss("ess0"), //
+				new DummySum(), //
+				/* maxChargePowerFromGrid */ 24_000));
+
+		assertEquals(-10000, calculateChargeGridPower(null, //
+				new DummyManagedSymmetricEss("ess0") //
+						.withCapacity(20_000) //
+						.withActivePower(-6_000), //
+				new DummySum() //
+						.withGridActivePower(10_000), //
+				/* maxChargePowerFromGrid */ 20_000).intValue());
+
+		assertEquals(-11000, calculateChargeGridPower(null, //
+				new DummyManagedSymmetricEss("ess0") //
+						.withCapacity(20_000) //
+						.withActivePower(-6_000), //
+				new DummySum() //
+						.withGridActivePower(5_000), //
+				/* maxChargePowerFromGrid */ 20_000).intValue());
+
+		assertEquals(-2364, calculateChargeGridPower(params, //
 				new DummyManagedSymmetricEss("ess0") //
 						.withActivePower(-1000), //
 				new DummySum() //
@@ -204,7 +275,7 @@ public class UtilsTest {
 						.withGridActivePower(9000), //
 				/* maxChargePowerFromGrid */ 5_000).intValue());
 
-		assertEquals(-6584, calculateChargeGridPower(params, //
+		assertEquals(-4864, calculateChargeGridPower(params, //
 				new DummyHybridEss("ess0") //
 						.withActivePower(-1000) //
 						.withDcDischargePower(-1500), //
@@ -214,19 +285,14 @@ public class UtilsTest {
 	}
 
 	@Test
-	public void testCalculateGridEssCharge() {
-		assertEquals(0, calculateGridEssCharge(BALANCING, -300, -300));
-		assertEquals(0, calculateGridEssCharge(BALANCING, 300, -300));
-
-		assertEquals(200, calculateGridEssCharge(CHARGE_GRID, 300, -200));
-		assertEquals(500, calculateGridEssCharge(CHARGE_GRID, -300, -200));
-	}
-
-	@Test
 	public void testCalculateChargeProduction() {
 		assertEquals(-500, calculateMaxChargeProductionPower(//
 				new DummySum() //
 						.withProductionAcActivePower(500)) //
+				.intValue());
+
+		assertEquals(0, calculateMaxChargeProductionPower(//
+				new DummySum()) //
 				.intValue());
 
 		assertEquals(0, calculateMaxChargeProductionPower(//
@@ -298,6 +364,62 @@ public class UtilsTest {
 				.prices(123F, 124F) //
 				.build()));
 		assertEquals(2, builder.build().numberOfPeriods());
+	}
+
+	private static class MyControllerEssLimitTotalDischarge
+			extends AbstractDummyOpenemsComponent<MyControllerEssLimitTotalDischarge>
+			implements ControllerEssLimitTotalDischarge {
+
+		protected MyControllerEssLimitTotalDischarge(Integer minSoc) {
+			super("ctrl0", //
+					OpenemsComponent.ChannelId.values(), //
+					ControllerEssLimitTotalDischarge.ChannelId.values() //
+			);
+			withValue(this.getMinSocChannel(), minSoc);
+		}
+
+		@Override
+		public void run() throws OpenemsNamedException {
+		}
+
+		@Override
+		protected MyControllerEssLimitTotalDischarge self() {
+			return this;
+		}
+	}
+
+	private static class MyControllerEssEmergencyCapacityReserve
+			extends AbstractDummyOpenemsComponent<MyControllerEssEmergencyCapacityReserve>
+			implements ControllerEssEmergencyCapacityReserve {
+
+		protected MyControllerEssEmergencyCapacityReserve(Integer reserveSoc) {
+			super("ctrl0", //
+					OpenemsComponent.ChannelId.values(), //
+					ControllerEssEmergencyCapacityReserve.ChannelId.values() //
+			);
+			withValue(this.getActualReserveSocChannel(), reserveSoc);
+		}
+
+		@Override
+		public void run() throws OpenemsNamedException {
+		}
+
+		@Override
+		protected MyControllerEssEmergencyCapacityReserve self() {
+			return this;
+		}
+	}
+
+	@Test
+	public void testGetEssMinSocEnergy() {
+		var t1 = new MyControllerEssLimitTotalDischarge(50);
+		var t2 = new MyControllerEssLimitTotalDischarge(null);
+		var t3 = new MyControllerEssEmergencyCapacityReserve(30);
+		assertEquals(5000, getEssMinSocEnergy(new Context(//
+				null, null, null, null, null, //
+				List.of(t3), List.of(t1, t2), //
+				null, 0), //
+				10000));
 	}
 
 	@Test
@@ -412,60 +534,6 @@ public class UtilsTest {
 	}
 
 	@Test
-	public void testBuildInitialPopulation() {
-		{
-			var lgt = buildInitialPopulation(Params.create() //
-					.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.states(ControlMode.CHARGE_CONSUMPTION.states) //
-					.existingSchedule() //
-					.build());
-			assertEquals(1, lgt.size()); // No Schedule -> only pure BALANCING
-		}
-		{
-			var lgt = buildInitialPopulation(Params.create() //
-					.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.states(ControlMode.CHARGE_CONSUMPTION.states) //
-					.existingSchedule(BALANCING, BALANCING) //
-					.build());
-			assertEquals(1, lgt.size()); // Existing Schedule is only BALANCING -> only pure BALANCING
-		}
-		{
-			var gt = buildInitialPopulation(Params.create() //
-					.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.states(ControlMode.CHARGE_CONSUMPTION.states) //
-					.existingSchedule(CHARGE_GRID, DELAY_DISCHARGE, CHARGE_GRID, DELAY_DISCHARGE, BALANCING) //
-					.build()).get(1);
-			assertEquals(2 /* CHARGE_GRID */, gt.get(0).get(0).intValue());
-			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(1).get(0).intValue());
-			assertEquals(2 /* CHARGE_GRID */, gt.get(2).get(0).intValue());
-			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(3).get(0).intValue());
-			assertEquals(0 /* BALANCING */, gt.get(4).get(0).intValue());
-			assertEquals(0 /* BALANCING */, gt.get(5).get(0).intValue()); // default
-		}
-		{
-			var gt = buildInitialPopulation(Params.create() //
-					.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.states(ControlMode.DELAY_DISCHARGE.states) //
-					.existingSchedule(CHARGE_GRID, DELAY_DISCHARGE, CHARGE_GRID, DELAY_DISCHARGE, BALANCING) //
-					.build()).get(1);
-			assertEquals(0 /* fallback to BALANCING */, gt.get(0).get(0).intValue());
-			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(1).get(0).intValue());
-			assertEquals(0 /* fallback to BALANCING */, gt.get(2).get(0).intValue());
-			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(3).get(0).intValue());
-			assertEquals(0 /* BALANCING */, gt.get(4).get(0).intValue());
-			assertEquals(0 /* BALANCING */, gt.get(5).get(0).intValue()); // default
-		}
-	}
-
-	@Test
 	public void testCreateSchedule() {
 		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T00:00:00.00Z"), ZoneOffset.UTC);
 		final var timestamp = roundDownToQuarter(ZonedDateTime.now(clock)).minusHours(3);
@@ -536,6 +604,6 @@ public class UtilsTest {
 		assertEquals(7500, calculateEssChargeInChargeGridPowerFromParams(null, ess));
 
 		// With params (22 kWh; but few Consumption)
-		assertEquals(3584, calculateEssChargeInChargeGridPowerFromParams(params, ess));
+		assertEquals(1864, calculateEssChargeInChargeGridPowerFromParams(params, ess));
 	}
 }

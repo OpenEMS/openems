@@ -1,4 +1,3 @@
-import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -6,7 +5,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from './../shared';
+import { YAxisTitle } from 'src/app/shared/service/utils';
 
 @Component({
     selector: 'chpsocchart',
@@ -28,7 +27,6 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
     ) {
         super("chpsoc-chart", service, translate);
     }
-
 
     ngOnInit() {
         this.startSpinner();
@@ -141,7 +139,10 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
             console.error(reason); // TODO error message
             this.initializeChart();
             return;
-        });
+        }).finally(() => {
+            this.unit = YAxisTitle.PERCENTAGE;
+            this.setOptions(this.options);
+        });;
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
@@ -159,15 +160,7 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
     }
 
     protected setLabel() {
-        let options = this.createDefaultChartOptions();
-        options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
-            return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
-        };
-        options.scales.yAxes[0].ticks.max = 100;
-        this.options = options;
+        this.options = this.createDefaultChartOptions();
     }
 
     public getChartHeight(): number {
