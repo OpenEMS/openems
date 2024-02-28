@@ -1,5 +1,6 @@
 package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
+import static com.google.common.math.Quantiles.percentiles;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.JsonUtils.getAsOptionalDouble;
 import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
@@ -22,24 +23,21 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.random.RandomGeneratorFactory;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
-import io.jenetics.Genotype;
-import io.jenetics.IntegerChromosome;
-import io.jenetics.IntegerGene;
+import io.jenetics.util.RandomRegistry;
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -91,6 +89,42 @@ public final class Utils {
 
 	public record ScheduleData(Double quarterlyPrice, Integer stateMachine, Integer grid, Integer production,
 			Integer consumption, Integer ess, Integer soc) {
+	}
+
+	/**
+	 * Initializes the Jenetics {@link RandomRegistry} for production.
+	 */
+	public static void initializeRandomRegistryForProduction() {
+		initializeRandomRegistry(false);
+	}
+
+	/**
+	 * Initializes the Jenetics {@link RandomRegistry} for JUnit tests.
+	 */
+	public static void initializeRandomRegistryForUnitTest() {
+		initializeRandomRegistry(true);
+	}
+
+	/**
+	 * Initializes the Jenetics {@link RandomRegistry}.
+	 * 
+	 * <p>
+	 * Default RandomGenerator "L64X256MixRandom" might not be available. Choose
+	 * best available.
+	 * 
+	 * @param isUnitTest true for JUnit tests; false in production
+	 */
+	private static void initializeRandomRegistry(boolean isUnitTest) {
+		System.setProperty("io.jenetics.util.defaultRandomGenerator", "Random");
+		var rgf = RandomGeneratorFactory.all() //
+				.filter(RandomGeneratorFactory::isStatistical) //
+				.sorted((f, g) -> Integer.compare(g.stateBits(), f.stateBits())).findFirst()
+				.orElse(RandomGeneratorFactory.of("Random"));
+		if (isUnitTest) {
+			RandomRegistry.random(rgf.create(315));
+		} else {
+			RandomRegistry.random(rgf.create());
+		}
 	}
 
 	/**
@@ -164,56 +198,11 @@ public final class Utils {
 	protected static Integer[] joinConsumptionPredictions(int splitAfterIndex, Integer[] totalConsumption,
 			Integer[] unmanagedConsumption) {
 		return Streams.concat(//
-				Arrays.stream(totalConsumption) //
+				stream(totalConsumption) //
 						.limit(splitAfterIndex), //
-				Arrays.stream(unmanagedConsumption) //
+				stream(unmanagedConsumption) //
 						.skip(splitAfterIndex)) //
 				.toArray(Integer[]::new);
-	}
-
-	/**
-	 * Builds an initial population:
-	 * 
-	 * <ol>
-	 * <li>Schedule with all periods BALANCING
-	 * <li>Schedule from currently existing Schedule, i.e. the bestGenotype of last
-	 * optimization run
-	 * </ol>
-	 * 
-	 * <p>
-	 * NOTE: providing an "all periods BALANCING" Schedule as first Genotype makes
-	 * sure, that this one wins in case there are other results with same cost, e.g.
-	 * when battery never gets empty anyway.
-	 * 
-	 * @param p the {@link Params}
-	 * @return the {@link Genotype}
-	 */
-	public static ImmutableList<Genotype<IntegerGene>> buildInitialPopulation(Params p) {
-		var states = List.of(p.states());
-		var b = ImmutableList.<Genotype<IntegerGene>>builder() //
-				// All BALANCING
-				.add(Genotype.of(//
-						IntStream.range(0, p.numberOfPeriods()) //
-								.map(i -> states.indexOf(BALANCING)) //
-								.mapToObj(state -> IntegerChromosome.of(IntegerGene.of(state, 0, p.states().length))) //
-								.toList()));
-
-		if (p.existingSchedule().length > 0 //
-				&& Stream.of(p.existingSchedule()) //
-						.anyMatch(s -> s != StateMachine.BALANCING)) {
-			// Existing Schedule if available
-			b.add(Genotype.of(//
-					IntStream.range(0, p.numberOfPeriods()) //
-							// Map to state index; not-found maps to '-1', corrected to '0'
-							.map(i -> fitWithin(0, p.states().length, states.indexOf(//
-									p.existingSchedule().length > i //
-											? p.existingSchedule()[i] //
-											: BALANCING))) //
-							.mapToObj(state -> IntegerChromosome.of(IntegerGene.of(state, 0, p.states().length))) //
-							.toList()));
-		}
-
-		return b.build();
 	}
 
 	protected static boolean paramsAreValid(Params p) {
@@ -222,8 +211,8 @@ public final class Utils {
 			System.out.println("No periods are available");
 			return false;
 		}
-		if (Arrays.stream(p.productions()).allMatch(v -> v == 0) //
-				&& Arrays.stream(p.consumptions()).allMatch(v -> v == 0)) {
+		if (stream(p.productions()).allMatch(v -> v == 0) //
+				&& stream(p.consumptions()).allMatch(v -> v == 0)) {
 			// Production and Consumption predictions are all zero
 			System.out.println("Production and Consumption predictions are all zero");
 			return false;
@@ -405,30 +394,86 @@ public final class Utils {
 	 * @param essMaxSocEnergy ESS energy below a configured maximium SoC [Wh]
 	 * @param productions     Production predictions per period
 	 * @param consumptions    Consumption predictions per period
+	 * @param prices          Prices per period
 	 * @return the value in [Wh]
 	 */
 	protected static int calculateParamsChargeEnergyInChargeGrid(int essMinSocEnergy, int essMaxSocEnergy,
-			int[] productions, int[] consumptions) {
+			int[] productions, int[] consumptions, double[] prices) {
+		// Uses the total available energy as reference (= fallback)
 		var usableEssEnergy = max(0, essMaxSocEnergy - essMinSocEnergy);
-		var excessConsumptionEnergy = max(0, //
-				IntStream.range(0, min(productions.length, consumptions.length)) //
-						.map(i -> consumptions[i] - productions[i]) // calculates excess Consumption Energy per Period
-						.sum());
+
+		// Uses the total excess consumption as reference
+		var excessConsumptionEnergy = IntStream.range(0, min(productions.length, consumptions.length)) //
+				.map(i -> consumptions[i] - productions[i]) // calculates excess Consumption Energy per Period
+				.sum();
+
+		// Uses the excess consumption till first production > consumption as reference
 		var excessConsumptionEnergyInitial = IntStream.range(0, min(productions.length, consumptions.length)) //
 				.takeWhile(i -> consumptions[i] >= productions[i]) // take only first Periods
 				.map(i -> consumptions[i] - productions[i]) // calculates excess Consumption Energy per Period
 				.sum();
 
-		final int referenceEnergy;
-		if (excessConsumptionEnergy > 500) {
-			referenceEnergy = excessConsumptionEnergy;
-		} else if (excessConsumptionEnergyInitial > 500) {
-			referenceEnergy = excessConsumptionEnergyInitial;
-		} else {
-			referenceEnergy = usableEssEnergy;
+		// Uses the excess consumption during high price periods as reference
+		var percentileEnergy = -1;
+		{
+			var peakIndex = findFirstPeakIndex(findFirstValleyIndex(0, prices), prices);
+			var firstPrices = stream(prices).limit(peakIndex).toArray();
+			if (firstPrices.length > 0) {
+				var percentilePrice = percentiles().index(95).compute(firstPrices);
+				percentileEnergy = IntStream.range(0, min(productions.length, consumptions.length)) //
+						.limit(peakIndex) //
+						.filter(i -> prices[i] >= percentilePrice) // takes only prices >
+						.map(i -> consumptions[i] - productions[i]) // calculates excess Consumption Energy per Period
+						.sum();
+			}
 		}
 
-		return round(min(usableEssEnergy, referenceEnergy) * ESS_CHARGE_C_RATE / PERIODS_PER_HOUR);
+		return round(min(min(min(//
+				filter(excessConsumptionEnergy), //
+				filter(excessConsumptionEnergyInitial)), //
+				filter(percentileEnergy)), //
+				usableEssEnergy) //
+				* ESS_CHARGE_C_RATE / PERIODS_PER_HOUR);
+	}
+
+	private static int filter(int energy) {
+		if (energy > 1000) {
+			return energy;
+		} else {
+			return Integer.MAX_VALUE;
+		}
+	}
+
+	protected static int findFirstPeakIndex(int fromIndex, double[] values) {
+		if (values.length <= fromIndex) {
+			return fromIndex;
+		} else {
+			var previous = values[fromIndex];
+			for (var i = fromIndex + 1; i < values.length; i++) {
+				var value = values[i];
+				if (value < previous) {
+					return i - 1;
+				}
+				previous = value;
+			}
+		}
+		return values.length - 1;
+	}
+
+	protected static int findFirstValleyIndex(int fromIndex, double[] values) {
+		if (values.length <= fromIndex) {
+			return fromIndex;
+		} else {
+			var previous = values[fromIndex];
+			for (var i = fromIndex + 1; i < values.length; i++) {
+				var value = values[i];
+				if (value > previous) {
+					return i - 1;
+				}
+				previous = value;
+			}
+		}
+		return values.length - 1;
 	}
 
 	/**
