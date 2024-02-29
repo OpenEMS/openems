@@ -19,7 +19,7 @@ dependencies {
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(project.java_source as Integer)
 	}
 }
 
@@ -35,6 +35,7 @@ subprojects {
 	}
 	
 	tasks.withType(JavaCompile) {
+		options.release.set(project.java_target as Integer)
 		options.encoding = 'UTF-8'
 		options.fork = true
 		options.incremental = true

@@ -3,6 +3,8 @@ package io.openems.edge.predictor.persistencemodel;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.predictor.api.prediction.LogVerbosity;
+
 @ObjectClassDefinition(//
 		name = "Predictor Persistence-Model", //
 		description = "")
@@ -22,6 +24,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 			"_sum/ProductionActivePower", //
 			"_sum/UnmanagedConsumptionActivePower", //
 			"_sum/ConsumptionActivePower" };
+
+	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
+	LogVerbosity logVerbosity() default LogVerbosity.NONE;
 
 	String webconsole_configurationFactory_nameHint() default "Predictor Persistence-Model [{id}]";
 

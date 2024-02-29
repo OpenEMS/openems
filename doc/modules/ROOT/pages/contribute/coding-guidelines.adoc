@@ -40,9 +40,14 @@
 
 While IntelliJ also works, Eclipse IDE is the officially supported development environment. It also provides tool support for guided assistance via bndtools.
 
+.Eclipse Version
+
+Some Eclipse default code formatting rules and warning settings change over time. Therefore, 
+always use the latest Version of the Eclipse IDE for Java Developers (4.30.0 +).
+  
 .Eclipse Code formatter
 
-Use `Eclipse [built-in]` Code Formatting Rules
+Use `Eclipse [built-in]` code formatting rules
 
  * Eclipse -> Window -> Preferences -> Java -> Code Style -> Formatter -> ActiveProfile -> select -> `Eclipse [built-in]`
      

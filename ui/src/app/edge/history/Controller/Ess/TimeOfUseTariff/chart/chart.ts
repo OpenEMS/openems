@@ -1,4 +1,3 @@
-import { formatNumber } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { ChronoUnit, Data, Resolution, TooltipItem, calculateResolution } from 'src/app/edge/history/shared';
 import { AbstractHistoryChart, ChartType } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
@@ -54,9 +53,9 @@ export class ChartComponent extends AbstractHistoryChart {
                     stack: 1,
                 },
                 {
-                    name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE'),
+                    name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
                     converter: () => {
-                        return this.getDataset(data, this.TimeOfUseTariffState.Charge);
+                        return this.getDataset(data, this.TimeOfUseTariffState.ChargeGrid);
                     },
                     color: 'rgb(0, 204, 204)',
                     stack: 1,
@@ -121,17 +120,10 @@ export class ChartComponent extends AbstractHistoryChart {
                 this.options.scales.xAxes[0].offset = false;
 
                 this.options.tooltips.callbacks.label = (tooltipItem: TooltipItem, data: Data) => {
-                    let label = data.datasets[tooltipItem.datasetIndex].label;
-                    let value = tooltipItem.value;
-                    let tooltipsLabel = this.currencyLabel;
+                    const label: string = data.datasets[tooltipItem.datasetIndex].label;
+                    const value: number = tooltipItem.value;
 
-                    if (value === undefined || value === null || Number.isNaN(Number.parseInt(value.toString()))) {
-                        return;
-                    }
-
-                    // Show floating point number for values between 0 and 1
-                    // TODO find better workaround for legend labels
-                    return label.split(":")[0] + ": " + formatNumber(value, 'de', '1.0-4') + " " + tooltipsLabel;
+                    return TimeOfUseTariffUtils.getLabel(value, label, this.translate, this.currencyLabel);
                 };
 
                 this.options.scales.yAxes[0].scaleLabel.labelString = this.currencyLabel;
@@ -175,7 +167,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
         const labels = [
             this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
-            this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE'),
+            this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
             this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
         ];
 
