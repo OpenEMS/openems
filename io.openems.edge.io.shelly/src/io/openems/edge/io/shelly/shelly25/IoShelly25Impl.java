@@ -68,12 +68,12 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 
 		if (this.isEnabled()) {
 			this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", (t, u) -> {
-					try {
-						this.processHttpResult(t, u);
-					} catch (OpenemsNamedException e) {
-						e.printStackTrace();
-					}
-				
+				try {
+					this.processHttpResult(t, u);
+				} catch (OpenemsNamedException e) {
+					e.printStackTrace();
+				}
+
 			});
 		}
 
@@ -129,7 +129,9 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	 * 
 	 * @param result The JSON element containing the result of the HTTP request.
 	 * @param error  The throwable error, if any occurred during the HTTP request.
-	 * @throws OpenemsNamedException
+	 * @throws OpenemsNamedException if the processing of the HTTP result fails or
+	 *                               communication with the slave device is
+	 *                               unsuccessful.
 	 */
 	private void processHttpResult(JsonElement result, Throwable error) throws OpenemsNamedException {
 		this._setSlaveCommunicationFailed(result == null);
