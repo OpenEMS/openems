@@ -74,7 +74,7 @@ public class IoShelly3ProImpl extends AbstractOpenemsComponent
 	        String url = this.baseUrl + "/rpc/Switch.GetStatus?id=" + relayIndex;
 	        this.httpBridge.subscribeJsonEveryCycle(url, result -> {
 	            try {
-	            	processHttpResult(result, relayIndex);
+	            	this.processHttpResult(result, relayIndex);
 	            } catch (Exception e) {
 	                logError(this.log, "Error processing HTTP response: " + e.getMessage());
 	                // Handle any exception that occurs during result processing
