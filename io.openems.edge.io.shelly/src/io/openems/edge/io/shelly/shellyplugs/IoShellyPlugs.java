@@ -1,4 +1,4 @@
-package io.openems.edge.io.shelly.shellyplusplugs;
+package io.openems.edge.io.shelly.shellyplugs;
 
 import org.osgi.service.event.EventHandler;
 
@@ -16,7 +16,7 @@ import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 
-public interface IoShellyPlusPlugs
+public interface IoShellyPlugs
 		extends DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, EventHandler {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {

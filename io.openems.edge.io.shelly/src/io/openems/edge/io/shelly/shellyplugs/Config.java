@@ -1,4 +1,4 @@
-package io.openems.edge.io.shelly.shellyplusplugs;
+package io.openems.edge.io.shelly.shellyplugs;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -7,7 +7,7 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
 
 @ObjectClassDefinition(//
-		name = "IO Shelly PlusPlugS", //
+		name = "IO Shelly Plug S", //
 		description = "Implements the Shelly Plus Plug S")
 @interface Config {
 
