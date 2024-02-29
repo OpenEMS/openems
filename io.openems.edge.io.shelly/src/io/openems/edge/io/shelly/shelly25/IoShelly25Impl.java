@@ -68,11 +68,8 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 
 		if (this.isEnabled()) {
 			this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", (t, u) -> {
-				try {
-					this.processHttpResult(t, u);
-				} catch (OpenemsNamedException e) {
-					e.printStackTrace();
-				}
+
+				this.processHttpResult(t, u);
 
 			});
 		}
@@ -133,7 +130,7 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	 *                               communication with the slave device is
 	 *                               unsuccessful.
 	 */
-	private void processHttpResult(JsonElement result, Throwable error) throws OpenemsNamedException {
+	private void processHttpResult(JsonElement result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
 		Boolean relay1 = null;
 		Boolean overtemp1 = null;
@@ -166,10 +163,10 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 			this.logDebug(this.log, e.getMessage());
 		}
 		// Sets the Fault Channels accordingly
-		this.setRelay1Overpower(overpower1);
-		this.setRelay2Overpower(overpower2);
-		this.setRelay1Overtemp(overtemp1);
-		this.setRelay2Overtemp(overtemp2);
+		this._setRelay1Overpower(overpower1);
+		this._setRelay2Overpower(overpower2);
+		this._setRelay1Overtemp(overtemp1);
+		this._setRelay2Overtemp(overtemp2);
 
 		this._setRelay1(relay1);
 		this._setRelay2(relay2);

@@ -188,6 +188,15 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#RELAY_1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setRelay1Overtemp(Boolean value) {
+		this.getRelay1OvertempChannel().setNextValue(value);
+	}
+
+	/**
 	 * Sets the Overtemperature State for Relay 1. See
 	 * {@link ChannelId#RELAY_1_OVERTEMP}.
 	 *
@@ -215,6 +224,15 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 	 */
 	public default Value<Boolean> getRelay2Overtemp() {
 		return this.getRelay2OvertempChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#RELAY_1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setRelay2Overtemp(Boolean value) {
+		this.getRelay2OvertempChannel().setNextValue(value);
 	}
 
 	/**
@@ -248,6 +266,15 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#RELAY_1} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setRelay1Overpower(Boolean value) {
+		this.getRelay1OverpowerChannel().setNextValue(value);
+	}
+
+	/**
 	 * Sets the Overpower State for Relay 1. See
 	 * {@link ChannelId#RELAY_1_OVERPOWER}.
 	 *
@@ -275,6 +302,17 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 	 */
 	public default Value<Boolean> getRelay2Overpower() {
 		return this.getRelay2OverpowerChannel().value();
+	}
+
+	/**
+	 * Sets the Overpower State for Relay 2. See
+	 * {@link ChannelId#RELAY_2_OVERPOWER}.
+	 *
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void _setRelay2Overpower(boolean value) {
+		this.getRelay2OverpowerChannel().setNextValue(value);
 	}
 
 	/**
