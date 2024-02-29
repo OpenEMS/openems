@@ -30,7 +30,8 @@ public class User extends AbstractUser {
 	 */
 	private final boolean hasMultipleEdges;
 
-	public User(String id, String name, String token, Language language, Role globalRole, boolean hasMultipleEdges, JsonObject settings) {
+	public User(String id, String name, String token, Language language, Role globalRole, boolean hasMultipleEdges,
+			JsonObject settings) {
 		this(id, name, token, language, globalRole, new TreeMap<>(), hasMultipleEdges, settings);
 	}
 

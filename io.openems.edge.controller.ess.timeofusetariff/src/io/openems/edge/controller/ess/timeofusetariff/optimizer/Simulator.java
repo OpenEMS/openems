@@ -3,13 +3,14 @@ package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 import static io.jenetics.engine.EvolutionResult.toBestGenotype;
 import static io.jenetics.engine.Limits.byExecutionTime;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.buildInitialPopulation;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateBalancingChargeDischarge;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateEssMaxCharge;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateEssMaxDischarge;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateStateChargeEnergy;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateBalancingEnergy;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateChargeGridEnergy;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateMaxChargeEnergy;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateMaxDischargeEnergy;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.paramsAreValid;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.postprocessSimulatorState;
 import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static java.time.Duration.ofSeconds;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,10 +31,27 @@ public class Simulator {
 	/** Used to incorporate charge/discharge efficiency. */
 	public static final double EFFICIENCY_FACTOR = 1.2;
 
+	/**
+	 * Calculates the cost of a Schedule.
+	 * 
+	 * @param p      the {@link Params}
+	 * @param states the {@link StateMachine} states of the Schedule
+	 * @return the cost, lower is better; always positive
+	 */
 	protected static double calculateCost(Params p, StateMachine[] states) {
 		return calculateCost(p, states, null);
 	}
 
+	/**
+	 * Calculates the cost of a Schedule.
+	 * 
+	 * @param p       the {@link Params}
+	 * @param states  the {@link StateMachine} states of the Schedule
+	 * @param collect a {@link Consumer} to collect the simulation results if
+	 *                required. We are not always collecting results to reduce
+	 *                workload during simulation.
+	 * @return the cost, lower is better; always positive
+	 */
 	protected static double calculateCost(Params p, StateMachine[] states, Consumer<Period> collect) {
 		final var nextEssInitial = new AtomicInteger(p.essInitialEnergy());
 		var sum = 0.;
@@ -43,38 +61,71 @@ public class Simulator {
 		return sum;
 	}
 
+	/**
+	 * Calculates the cost of one Period under the given Schedule.
+	 * 
+	 * @param p              the {@link Params}
+	 * @param i              the index of the current period
+	 * @param states         the {@link StateMachine} states of the Schedule
+	 * @param nextEssInitial the initial SoC-Energy; also used as return value
+	 * @param collect        a {@link Consumer} to collect the simulation results if
+	 *                       required. We are not always collecting results to
+	 *                       reduce workload during simulation.
+	 * @return the cost, lower is better; always positive
+	 */
 	protected static double calculatePeriodCost(Params p, int i, StateMachine[] states,
 			final AtomicInteger nextEssInitial, Consumer<Period> collect) {
+		// Constants
 		final var production = p.productions()[i];
 		final var consumption = p.consumptions()[i];
 		final var state = states[i];
-		final var essInitial = nextEssInitial.get();
-		final var essMaxCharge = calculateEssMaxCharge(p.essMaxSocEnergy(), p.essMaxEnergyPerPeriod(), essInitial);
-		final var essMaxDischarge = calculateEssMaxDischarge(p.essMinSocEnergy(), p.essMaxEnergyPerPeriod(),
-				essInitial);
 		final var price = p.prices()[i];
-		final var balancingChargeDischarge = calculateBalancingChargeDischarge(essMaxCharge, essMaxDischarge,
+		final var essInitial = max(0, nextEssInitial.get()); // always at least '0'
+
+		// Calculate Grid and ESS energy
+		final var essMaxChargeInBalancing = calculateMaxChargeEnergy(//
+				p.essTotalEnergy() /* unlimited in BALANCING */, //
+				p.essMaxEnergyPerPeriod(), essInitial);
+		final var essMaxDischarge = calculateMaxDischargeEnergy(p, essInitial);
+		final var essChargeDischargeInBalancing = calculateBalancingEnergy(essMaxChargeInBalancing, essMaxDischarge,
 				production, consumption);
-		var essChargeDischarge = switch (state) {
-		case BALANCING ->
-			// Apply behaviour of ESS Balancing Controller
-			balancingChargeDischarge;
+		final int essChargeDischarge;
+		final int grid;
+		final int gridEssCharge;
+		final int gridConsumption;
+		switch (state) {
+		case BALANCING:
+			essChargeDischarge = essChargeDischargeInBalancing;
+			grid = consumption - production - essChargeDischarge;
+			gridEssCharge = 0;
+			gridConsumption = grid;
+			break;
 
-		case DELAY_DISCHARGE -> 0;
+		case DELAY_DISCHARGE:
+			essChargeDischarge = min(0, essChargeDischargeInBalancing); // allow charge
+			grid = consumption - production - essChargeDischarge;
+			gridEssCharge = 0;
+			gridConsumption = grid - gridEssCharge;
+			break;
 
-		case CHARGE ->
-			// Charge from grid; max 'maxBuyFromGrid'
-			calculateStateChargeEnergy(p.essMaxChargePerPeriod(), p.maxBuyFromGrid(), consumption, production,
-					essMaxCharge);
-		};
+		case CHARGE_GRID:
+			final var essChargeInChargeGrid = calculateMaxChargeEnergy(//
+					p.essMaxSocEnergy() /* limited in CHARGE_GRID */, //
+					p.essMaxEnergyPerPeriod(), essInitial);
 
-		// Calculate Grid energy
-		var grid = consumption - production - essChargeDischarge;
+			gridConsumption = max(0, consumption - production);
+			gridEssCharge = calculateChargeGridEnergy(essChargeInChargeGrid, p.essChargeInChargeGrid(),
+					p.maxBuyFromGrid(), production, consumption);
+			grid = gridConsumption + gridEssCharge;
+			essChargeDischarge = consumption - production - grid;
+			break;
+
+		default:
+			throw new IllegalArgumentException("Missing handler for State [" + state + "]. This should never happen!");
+		}
 		nextEssInitial.set(essInitial - essChargeDischarge);
-		var gridConsumption = consumption - production //
-				- max(essChargeDischarge, 0) /* consider only ESS discharge, i.e. positive values */;
-		var gridEssCharge = grid - gridConsumption;
 
+		// Calculate Cost
 		double cost;
 		if (grid > 0) {
 			cost = // Cost for direct Consumption
@@ -88,10 +139,10 @@ public class Simulator {
 		}
 		if (collect != null) {
 			var time = p.time().plusMinutes(15 * i);
-			var postprocessedState = postprocessSimulatorState(p, essChargeDischarge, essInitial, gridEssCharge, price,
-					balancingChargeDischarge, state);
-			collect.accept(new Period(time, production, consumption, essInitial, essMaxCharge, essMaxDischarge,
-					postprocessedState, essChargeDischarge, grid, price, cost / 1000000));
+			var postprocessedState = postprocessSimulatorState(p, essChargeDischarge, essInitial,
+					essChargeDischargeInBalancing, state);
+			collect.accept(new Period(time, production, consumption, essInitial, postprocessedState, essChargeDischarge,
+					grid, price, cost / 1000000));
 		}
 		return cost;
 	}
