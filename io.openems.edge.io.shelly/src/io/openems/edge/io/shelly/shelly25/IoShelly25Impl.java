@@ -68,12 +68,12 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 
 		if (this.isEnabled()) {
 			this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", (t, u) -> {
-				try {
-					processHttpResult(t, u);
-				} catch (OpenemsNamedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+					try {
+						this.processHttpResult(t, u);
+					} catch (OpenemsNamedException e) {
+						e.printStackTrace();
+					}
+				
 			});
 		}
 
