@@ -65,15 +65,27 @@ public class IoShelly3ProImpl extends AbstractOpenemsComponent
 
 	@Activate
 	protected void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.baseUrl = "http://" + config.ip();
-		this.httpBridge = this.httpBridgeFactory.get();
+	    super.activate(context, config.id(), config.alias(), config.enabled());
+	    this.baseUrl = "http://" + config.ip();
+	    this.httpBridge = this.httpBridgeFactory.get();
 
-		for (int i = 0; i < 3; i++) {
-			String url = this.baseUrl + "/rpc/Switch.GetStatus?id=" + i;
-			this.httpBridge.subscribeJsonEveryCycle(url, this::processHttpResult);
-		}
+	    for (int i = 0; i < 3; i++) {
+	        final int relayIndex = i;
+	        String url = this.baseUrl + "/rpc/Switch.GetStatus?id=" + relayIndex;
+	        this.httpBridge.subscribeJsonEveryCycle(url, result -> {
+	            try {
+	            	processHttpResult(result, relayIndex);
+	            } catch (Exception e) {
+	                logError(this.log, "Error processing HTTP response: " + e.getMessage());
+	                // Handle any exception that occurs during result processing
+	            }
+	        }, error -> {
+	            logError(this.log, "HTTP request failed: " + error.getMessage());
+	            // Handle the error
+	        });
+	    }
 	}
+
 
 	@Deactivate
 	protected void deactivate() {
@@ -120,40 +132,42 @@ public class IoShelly3ProImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	private void processHttpResult(JsonElement result, Throwable error) {
-		Integer id;
-		Boolean output = null;
+	private void processHttpResult(JsonElement result, int relayIndex) throws OpenemsNamedException {
+	    Integer id = null;
+	    Boolean output = null;
 
-		try {
-			JsonObject switchStatus = JsonUtils.getAsJsonObject(result);
-			id = JsonUtils.getAsInt(switchStatus, "id");
-			output = JsonUtils.getAsBoolean(switchStatus, "output");
+	    try {
+	        JsonObject switchStatus = JsonUtils.getAsJsonObject(result);
+	        id = JsonUtils.getAsInt(switchStatus, "id");
+	        output = JsonUtils.getAsBoolean(switchStatus, "output");
 
-			if (id >= 0 && id < this.digitalOutputChannels.length) {
-				this.digitalOutputChannels[id].setNextWriteValue(output);
-			}
-		} catch (OpenemsNamedException e) {
-			this._setSlaveCommunicationFailed(true);
-			this.logDebug(this.log, e.getMessage());
-			return;
-		}
+	        this.digitalOutputChannels[id].setNextWriteValue(output);
 
-		if (id >= 0 && id < this.digitalOutputChannels.length) {
-			switch (id) {
-			case 0:
-				this._setRelay1(output);
-				break;
-			case 1:
-				this._setRelay2(output);
-				break;
-			case 2:
-				this._setRelay3(output);
-				break;
-			default:
-				break;
-			}
-		}
+	    } catch (OpenemsNamedException e) {
+	        this._setSlaveCommunicationFailed(true);
+	        this.logError(this.log, "Error processing HTTP result: " + e.getMessage());
+	        throw e;
+	    }
+
+	    // Update the state of the corresponding relay based on the ID
+	    if (id != null && output != null) {
+	        switch (id) {
+	            case 0:
+	                this._setRelay1(output);
+	                break;
+	            case 1:
+	                this._setRelay2(output);
+	                break;
+	            case 2:
+	                this._setRelay3(output);
+	                break;
+	            default:
+	                this.logError(this.log, "Unexpected ID value: " + id);
+	                break;
+	        }
+	    }
 	}
+
 
 	/**
 	 * Execute on Cycle Event "Execute Write".
