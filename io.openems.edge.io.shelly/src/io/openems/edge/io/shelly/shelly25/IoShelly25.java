@@ -169,6 +169,126 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#RELAY_1_OVERTEMP}.
+	 *
+	 * @return the Channel
+	 */
+	public default BooleanWriteChannel getRelay1OvertempChannel() {
+		return this.channel(ChannelId.RELAY_1_OVERTEMP);
+	}
+
+	/**
+	 * Gets the Overtemperature State for Relay 1. See
+	 * {@link ChannelId#RELAY_1_OVERTEMP}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getRelay1Overtemp() {
+		return this.getRelay1OvertempChannel().value();
+	}
+
+	/**
+	 * Sets the Overtemperature State for Relay 1. See
+	 * {@link ChannelId#RELAY_1_OVERTEMP}.
+	 *
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setRelay1Overtemp(boolean value) throws OpenemsNamedException {
+		this.getRelay1OvertempChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#RELAY_2_OVERTEMP}.
+	 *
+	 * @return the Channel
+	 */
+	public default BooleanWriteChannel getRelay2OvertempChannel() {
+		return this.channel(ChannelId.RELAY_2_OVERTEMP);
+	}
+
+	/**
+	 * Gets the Overtemperature State for Relay 2. See
+	 * {@link ChannelId#RELAY_2_OVERTEMP}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getRelay2Overtemp() {
+		return this.getRelay2OvertempChannel().value();
+	}
+
+	/**
+	 * Sets the Overtemperature State for Relay 2. See
+	 * {@link ChannelId#RELAY_2_OVERTEMP}.
+	 *
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setRelay2Overtemp(boolean value) throws OpenemsNamedException {
+		this.getRelay2OvertempChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#RELAY_1_OVERPOWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default BooleanWriteChannel getRelay1OverpowerChannel() {
+		return this.channel(ChannelId.RELAY_1_OVERPOWER);
+	}
+
+	/**
+	 * Gets the Overpower State for Relay 1. See
+	 * {@link ChannelId#RELAY_1_OVERPOWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getRelay1Overpower() {
+		return this.getRelay1OverpowerChannel().value();
+	}
+
+	/**
+	 * Sets the Overpower State for Relay 1. See
+	 * {@link ChannelId#RELAY_1_OVERPOWER}.
+	 *
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setRelay1Overpower(boolean value) throws OpenemsNamedException {
+		this.getRelay1OverpowerChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#RELAY_2_OVERPOWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default BooleanWriteChannel getRelay2OverpowerChannel() {
+		return this.channel(ChannelId.RELAY_2_OVERPOWER);
+	}
+
+	/**
+	 * Gets the Overpower State for Relay 2. See
+	 * {@link ChannelId#RELAY_2_OVERPOWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getRelay2Overpower() {
+		return this.getRelay2OverpowerChannel().value();
+	}
+
+	/**
+	 * Sets the Overpower State for Relay 2. See
+	 * {@link ChannelId#RELAY_2_OVERPOWER}.
+	 *
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setRelay2Overpower(boolean value) throws OpenemsNamedException {
+		this.getRelay2OverpowerChannel().setNextWriteValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#RELAY_2}.
 	 *
 	 * @return the Channel

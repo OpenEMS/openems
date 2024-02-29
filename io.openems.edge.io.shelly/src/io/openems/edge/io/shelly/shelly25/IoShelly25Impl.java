@@ -15,6 +15,10 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonElement;
+
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.common.channel.BooleanWriteChannel;
@@ -22,11 +26,6 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
-
-import com.google.gson.JsonElement;
-
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.utils.JsonUtils;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -68,7 +67,14 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 		this.httpBridge = this.httpBridgeFactory.get();
 
 		if (this.isEnabled()) {
-			this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", this::processHttpResult);
+			this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", (t, u) -> {
+				try {
+					processHttpResult(t, u);
+				} catch (OpenemsNamedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			});
 		}
 
 	}
@@ -123,8 +129,9 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	 * 
 	 * @param result The JSON element containing the result of the HTTP request.
 	 * @param error  The throwable error, if any occurred during the HTTP request.
+	 * @throws OpenemsNamedException
 	 */
-	private void processHttpResult(JsonElement result, Throwable error) {
+	private void processHttpResult(JsonElement result, Throwable error) throws OpenemsNamedException {
 		this._setSlaveCommunicationFailed(result == null);
 		Boolean relay1 = null;
 		Boolean overtemp1 = null;
@@ -141,7 +148,6 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 				final var relayIson = JsonUtils.getAsBoolean(relay, "ison");
 				final var relayOverpower = JsonUtils.getAsBoolean(relay, "overpower");
 				final var relayOvertemp = JsonUtils.getAsBoolean(relay, "overtemperature");
-				this.digitalOutputChannels[i].setNextWriteValue(relayIson);
 
 				if (i == 0) {
 					relay1 = relayIson;
@@ -157,11 +163,12 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 		} catch (OpenemsNamedException e) {
 			this.logDebug(this.log, e.getMessage());
 		}
+		// Sets the Fault Channels accordingly
+		this.setRelay1Overpower(overpower1);
+		this.setRelay2Overpower(overpower2);
+		this.setRelay1Overtemp(overtemp1);
+		this.setRelay2Overtemp(overtemp2);
 
-		this.channel(IoShelly25.ChannelId.RELAY_1_OVERTEMP).setNextValue(overtemp1);
-		this.channel(IoShelly25.ChannelId.RELAY_2_OVERTEMP).setNextValue(overtemp2);
-		this.channel(IoShelly25.ChannelId.RELAY_1_OVERPOWER).setNextValue(overpower1);
-		this.channel(IoShelly25.ChannelId.RELAY_2_OVERPOWER).setNextValue(overpower2);
 		this._setRelay1(relay1);
 		this._setRelay2(relay2);
 
@@ -189,7 +196,6 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 		this.httpBridge.get(url).whenComplete((t, e) -> {
 			if (e != null) {
 				this.logError(this.log, "HTTP request failed: " + e.getMessage());
-				this._setSlaveCommunicationFailed(true);
 			}
 		});
 	}
