@@ -1,6 +1,6 @@
 package io.openems.common.utils;
 
-import static io.openems.common.utils.DateUtils.roundZonedDateTimeDownToMinutes;
+import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -17,16 +17,14 @@ import io.openems.common.exceptions.OpenemsException;
 public class DateUtilsTest {
 
 	@Test
-	public void testRoundZonedDateTimeDownToMinutes() throws Exception {
+	public void testRoundDownToQuarter() throws Exception {
 		assertEquals(//
 				ZonedDateTime.of(2023, 1, 2, 3, 0, 0, 0, ZoneId.of("UTC")), //
-				roundZonedDateTimeDownToMinutes(//
-						ZonedDateTime.of(2023, 1, 2, 3, 4, 5, 6, ZoneId.of("UTC")), 15));
+				roundDownToQuarter(ZonedDateTime.of(2023, 1, 2, 3, 4, 5, 6, ZoneId.of("UTC"))));
 
 		assertEquals(//
 				ZonedDateTime.of(2023, 1, 2, 3, 15, 0, 0, ZoneId.of("UTC")), //
-				roundZonedDateTimeDownToMinutes(//
-						ZonedDateTime.of(2023, 1, 2, 3, 16, 17, 18, ZoneId.of("UTC")), 15));
+				roundDownToQuarter(ZonedDateTime.of(2023, 1, 2, 3, 16, 17, 18, ZoneId.of("UTC"))));
 	}
 
 	@Test

@@ -1,24 +1,27 @@
 package io.openems.edge.core.predictormanager;
 
+import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTION;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.predictor.api.oneday.Prediction24Hours;
-import io.openems.edge.predictor.api.oneday.Predictor24Hours;
-import io.openems.edge.predictor.api.test.DummyPredictor24Hours;
+import io.openems.edge.predictor.api.prediction.Prediction;
+import io.openems.edge.predictor.api.prediction.Predictor;
+import io.openems.edge.predictor.api.test.DummyPredictor;
 
 public class PredictorManagerImplTest {
 
@@ -57,26 +60,26 @@ public class PredictorManagerImplTest {
 
 	@Test
 	public void test() throws OpenemsException, Exception {
-		var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		var componentManager = new DummyComponentManager(clock);
-		var consumptionPrediction = Prediction24Hours.of(SUM_CONSUMPTION_ACTIVE_POWER, DEFAULT_CONSUMPTION_PREDICTION);
-		var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, componentManager, consumptionPrediction,
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var cm = new DummyComponentManager(clock);
+		final var sum = new DummySum();
+		final var midnight = ZonedDateTime.now(clock).truncatedTo(DAYS);
+		var consumptionPredictor = new DummyPredictor(PREDICTOR_ID, cm,
+				Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, midnight, DEFAULT_CONSUMPTION_PREDICTION),
 				SUM_CONSUMPTION_ACTIVE_POWER);
 
 		var sut = new PredictorManagerImpl();
 		new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", componentManager) //
-				.addReference("predictors", List.<Predictor24Hours>of(consumptionPredictor)) //
+				.addReference("componentManager", cm) //
+				.addReference("predictors", List.<Predictor>of(consumptionPredictor)) //
 				.activate(MyConfig.create()//
 						.build());
 
-		assertEquals(Prediction24Hours.EMPTY, sut.get24HoursPrediction(new ChannelAddress("_sum", "FooBar")));
+		assertEquals(EMPTY_PREDICTION, sut.getPrediction(new ChannelAddress("_sum", "FooBar")));
 
-		assertArrayEquals(//
-				// First 96 elements only
-				Stream.of(DEFAULT_CONSUMPTION_PREDICTION).limit(96).toArray(Integer[]::new),
-				sut.get24HoursPrediction(SUM_UNMANAGED_CONSUMPTION_ACTIVE_POWER).getValues());
+		assertArrayEquals(DEFAULT_CONSUMPTION_PREDICTION,
+				sut.getPrediction(SUM_UNMANAGED_CONSUMPTION_ACTIVE_POWER).asArray());
 	}
 
 }

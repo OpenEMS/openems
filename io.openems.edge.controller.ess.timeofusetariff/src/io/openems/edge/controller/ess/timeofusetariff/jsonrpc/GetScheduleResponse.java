@@ -20,8 +20,10 @@ import io.openems.common.utils.JsonUtils;
  *      'timestamp':...,
  *      'price':...,
  *      'state':...,
+ *      'grid':...,
  *      'production':...,
  *      'consumption':...,
+ *      'ess':...,
  *      'soc':...,
  *     }]
  *   }

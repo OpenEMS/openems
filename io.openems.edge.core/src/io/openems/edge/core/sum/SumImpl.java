@@ -38,6 +38,7 @@ import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.MetaEvcs;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.VirtualMeter;
 import io.openems.edge.timedata.api.Timedata;
@@ -290,6 +291,11 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				/*
 				 * Electric Vehicle Charging Station
 				 */
+				if (evcs instanceof MetaEvcs) {
+					// ignore this Evcs
+					continue;
+				}
+
 				managedConsumptionActivePower.addValue(evcs.getChargePowerChannel());
 			}
 		}
