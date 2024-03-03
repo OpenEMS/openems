@@ -34,7 +34,6 @@ import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.shadowM
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -76,6 +75,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
@@ -285,14 +285,6 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 				components.add(charger(chargerId, chargerAlias, batteryInverterId, i));
 			}
 
-			List<String> schedulerExecutionOrder = new ArrayList<>();
-			if (hasEmergencyReserve) {
-				schedulerExecutionOrder.add("ctrlEmergencyCapacityReserve0");
-			}
-			schedulerExecutionOrder.add("ctrlGridOptimizedCharge0");
-			schedulerExecutionOrder.add("ctrlEssSurplusFeedToGrid0");
-			schedulerExecutionOrder.add("ctrlBalancing0");
-
 			final var dependencies = Lists.newArrayList(//
 					gridOptimizedCharge(t, feedInType, maxFeedInPower), //
 					selfConsumptionOptimization(t, essId, gridMeterId), //
@@ -303,9 +295,17 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 				dependencies.add(acType.getDependency(modbusIdExternal));
 			}
 
+			final var schedulerComponents = new ArrayList<SchedulerComponent>();
+			if (hasEmergencyReserve) {
+				schedulerComponents.add(new SchedulerComponent("ctrlEmergencyCapacityReserve0",
+						"Controller.Ess.EmergencyCapacityReserve", this.getAppId()));
+			}
+			schedulerComponents.add(new SchedulerComponent("ctrlEssSurplusFeedToGrid0",
+					"Controller.Ess.Hybrid.Surplus-Feed-To-Grid", this.getAppId()));
+
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.scheduler(schedulerExecutionOrder)) //
+					.addTask(Tasks.schedulerByCentralOrder(schedulerComponents)) //
 					.addDependencies(dependencies) //
 					.build();
 		};
