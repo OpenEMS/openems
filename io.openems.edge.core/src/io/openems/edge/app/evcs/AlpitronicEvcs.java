@@ -49,6 +49,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.formly.Case;
 import io.openems.edge.core.appmanager.formly.DefaultValueOptions;
 import io.openems.edge.core.appmanager.formly.Exp;
@@ -239,7 +240,7 @@ public class AlpitronicEvcs extends
 			}
 
 			final var components = new ArrayList<EdgeConfig.Component>();
-			final var schedulerIds = new ArrayList<String>();
+			final var schedulerIds = new ArrayList<SchedulerComponent>();
 			final var addedEvcsIds = new ArrayList<String>();
 
 			final var ip = this.getString(p, l, Property.IP);
@@ -253,7 +254,7 @@ public class AlpitronicEvcs extends
 				final var evcsCtrlIdDef = this.chargePointsDef.get(CTRL_EVCS_ID.apply(i));
 				final var ctrlEvcsId = this.getId(t, p, evcsCtrlIdDef);
 
-				schedulerIds.add(ctrlEvcsId);
+				schedulerIds.add(new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId()));
 				addedEvcsIds.add(evcsId);
 
 				components.add(new EdgeConfig.Component(evcsId, this.getString(p, l, aliasDef),
@@ -273,11 +274,9 @@ public class AlpitronicEvcs extends
 							.addProperty("ip", ip) //
 							.build()));
 
-			schedulerIds.add("ctrlBalancing0");
-
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.scheduler(schedulerIds)) //
+					.addTask(Tasks.schedulerByCentralOrder(schedulerIds)) //
 					.throwingOnlyIf(ip.startsWith("192.168.1."),
 							b -> b.addTask(Tasks.staticIp(new InterfaceConfiguration("eth0") //
 									// range from 192.168.1.96 - 192.168.1.111

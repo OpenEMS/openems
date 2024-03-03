@@ -1,18 +1,18 @@
-import { Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { ChartDataSets } from 'chart.js';
-import { differenceInDays, differenceInMonths } from 'date-fns';
+import * as Chart from 'chart.js';
+import { AbstractHistoryChart as NewAbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
-import { HistoryUtils } from 'src/app/shared/service/utils';
+import { ChartAxis, HistoryUtils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
 import { DateUtils } from 'src/app/shared/utils/date/dateutils';
 import { DateTimeUtils } from 'src/app/shared/utils/datetime/datetime-utils';
 
-import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, TooltipItem } from './shared';
+import { calculateResolution, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution } from './shared';
+import { ChronoUnit, setLabelVisible } from './shared';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {
@@ -30,11 +30,16 @@ export abstract class AbstractHistoryChart {
     // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     public labels: Date[] = [];
-    public datasets: ChartDataSets[] = HistoryUtils.createEmptyDataset(this.translate);
-    public options: ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS;
+    public datasets: Chart.ChartDataset[] = [];
+    public options: Chart.ChartOptions | null = null;
     public colors = [];
     // prevents subscribing more than once
     protected hasSubscribed: boolean = false;
+
+    /** @deprecated*/
+    protected unit: YAxisTitle = YAxisTitle.ENERGY;
+    /** @deprecated*/
+    protected formatNumber: string = '1.0-2';
 
     // Colors for Phase 1-3
     protected phase1Color = {
@@ -159,12 +164,16 @@ export abstract class AbstractHistoryChart {
      * @param date Date from TooltipItem
      * @returns period for Tooltip Header
      */
-    protected toTooltipTitle(fromDate: Date, toDate: Date, date: Date): string {
-        if (this.service.periodString == 'year') {
+    protected static toTooltipTitle(fromDate: Date, toDate: Date, date: Date, service: Service): string {
+        let unit = calculateResolution(service, fromDate, toDate).resolution.unit;
+        if (unit == ChronoUnit.Type.MONTHS) {
             return date.toLocaleDateString('default', { month: 'long' });
-        } else if (this.service.periodString == 'month') {
+
+        } else if (unit == ChronoUnit.Type.DAYS) {
             return date.toLocaleDateString('default', { day: '2-digit', month: 'long' });
+
         } else {
+            // Default
             return date.toLocaleString('default', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + date.toLocaleTimeString('default', { hour12: false, hour: '2-digit', minute: '2-digit' });
         }
     }
@@ -176,23 +185,8 @@ export abstract class AbstractHistoryChart {
      *
      * @returns the ChartOptions
      */
-    protected createDefaultChartOptions(): ChartOptions {
-        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-
-        // Overwrite TooltipsTitle
-        options.tooltips.callbacks.title = (tooltipItems: TooltipItem[], data: Data): string => {
-            let date = new Date(tooltipItems[0].xLabel);
-            return this.toTooltipTitle(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to, date);
-        };
-
-        //x-axis
-        if (differenceInMonths(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) > 1) {
-            options.scales.xAxes[0].time.unit = "month";
-        } else if (differenceInDays(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) >= 5 && differenceInMonths(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) <= 1) {
-            options.scales.xAxes[0].time.unit = "day";
-        } else {
-            options.scales.xAxes[0].time.unit = "hour";
-        }
+    protected createDefaultChartOptions(): Chart.ChartOptions {
+        let options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
         return options;
     }
 
@@ -293,4 +287,148 @@ export abstract class AbstractHistoryChart {
         this.service.stopSpinner(this.spinnerId);
     }
 
+    /**
+     *
+     * Sets chart options
+     *
+     * @deprecated used for charts not using {@link NewAbstractHistoryChart} but {@link AbstractHistoryChart}
+     */
+    public setOptions(options: Chart.ChartOptions): Promise<void> {
+
+        return new Promise<void>((resolve) => {
+            const locale = this.service.translate.currentLang;
+            const yAxis: HistoryUtils.yAxes = { position: 'left', unit: this.unit, yAxisId: ChartAxis.LEFT };
+            const chartObject: HistoryUtils.ChartData = {
+                input: [],
+                output: () => [],
+                yAxes: [yAxis],
+                tooltip: {
+                    formatNumber: this.formatNumber,
+                },
+            };
+            const unit = this.unit;
+            const formatNumber = this.formatNumber;
+            const colors = this.colors;
+            const translate = this.translate;
+            this.service.getConfig().then((conf) => {
+                options.datasets.line.borderWidth = 2;
+
+                /** Hide default displayed yAxis */
+                options.scales['y'] = {
+                    display: false,
+                };
+
+                // Overwrite TooltipsTitle
+                options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
+                    if (tooltipItems?.length === 0) {
+                        return null;
+                    }
+                    let date = DateUtils.stringToDate(tooltipItems[0]?.label);
+                    return AbstractHistoryChart.toTooltipTitle(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to, date, this.service);
+                };
+
+                options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+                    let label = tooltipItem.dataset.label;
+                    let value = tooltipItem.dataset.data[tooltipItem.dataIndex];
+
+                    const customUnit = tooltipItem.dataset.unit ?? null;
+                    return label.split(":")[0] + ": " + NewAbstractHistoryChart.getToolTipsSuffix("", value, formatNumber, customUnit ?? unit, 'line', locale, translate, conf);
+                };
+
+                options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
+                    const color = colors[item.datasetIndex];
+
+                    if (!color) {
+                        return;
+                    }
+
+                    return {
+                        borderColor: color.borderColor,
+                        backgroundColor: color.backgroundColor,
+                    };
+                };
+
+                options.plugins.legend.labels.generateLabels = function (chart: Chart.Chart) {
+                    let chartLegendLabelItems: Chart.LegendItem[] = [];
+                    chart.data.datasets.forEach((dataset, index) => {
+
+                        const color = colors[index];
+
+                        if (!color) {
+                            return;
+                        }
+
+                        // Set colors manually
+                        dataset.backgroundColor = color.backgroundColor ?? dataset.backgroundColor;
+                        dataset.borderColor = color.borderColor ?? dataset.borderColor;
+
+                        chartLegendLabelItems.push({
+                            text: dataset.label,
+                            datasetIndex: index,
+                            fillStyle: color.backgroundColor,
+                            fontColor: getComputedStyle(document.documentElement).getPropertyValue('--ion-color-text'),
+                            hidden: !chart.isDatasetVisible(index),
+                            lineWidth: 2,
+                            ...(dataset['borderDash'] && { lineDash: dataset['borderDash'] }),
+                            strokeStyle: color.borderColor,
+                        });
+                    });
+                    return chartLegendLabelItems;
+                };
+
+                // Remove duplicates from legend, if legendItem with two or more occurrences in legend, use one legendItem to trigger them both
+                options.plugins.legend.onClick = function (event: Chart.ChartEvent, legendItem: Chart.LegendItem, legend) {
+                    let chart: Chart.Chart = this.chart;
+
+                    let legendItems = chart.data.datasets.reduce((arr, ds, i) => {
+                        if (ds.label == legendItem.text) {
+                            arr.push({ label: ds.label, index: i });
+                        }
+                        return arr;
+                    }, []);
+
+                    legendItems.forEach(item => {
+                        // original.call(this, event, legendItem1);
+                        setLabelVisible(item.label, !chart.isDatasetVisible(legendItem.datasetIndex));
+                        var meta = chart.getDatasetMeta(item.index);
+                        // See controller.isDatasetVisible comment
+                        meta.hidden = meta.hidden === null ? !chart.data.datasets[item.index].hidden : null;
+                    });
+
+                    // We hid a dataset ... rerender the chart
+                    chart.update();
+                };
+
+                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, 'line', locale);
+
+                const timeFormat = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
+                options.scales.x['time'].unit = timeFormat;
+                switch (timeFormat) {
+                    case 'hour':
+                        options.scales.x.ticks['source'] = 'auto';//labels,auto
+                        options.scales.x.ticks.maxTicksLimit = 31;
+                        break;
+                    case 'day':
+                    case 'month':
+                        options.scales.x.ticks['source'] = 'data';
+                        break;
+                }
+
+                options.scales.x['stacked'] = true;
+                options.scales[ChartAxis.LEFT]['stacked'] = false;
+
+                NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges('line', options, this.service, chartObject);
+
+                /** Overwrite default yAxisId */
+                this.datasets = this.datasets
+                    .map(el => {
+                        el['yAxisID'] = ChartAxis.LEFT;
+                        return el;
+                    });
+            }).then(() => {
+                this.options = options;
+                resolve();
+            });
+        });
+    }
 }
