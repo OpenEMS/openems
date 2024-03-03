@@ -46,10 +46,20 @@ import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "EVCS.Spelsberg.SMART", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-@EventTopics({ EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE })
+@Component(//
+		name = "Evcs.Spelsberg.SMART", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+})
 public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 		implements EvcsSpelsbergSmart, Evcs, ManagedEvcs, ModbusComponent, OpenemsComponent, EventHandler {
+
+	private final Logger log = LoggerFactory.getLogger(EvcsSpelsbergSmartImpl.class);
+	private final ChargeStateHandler chargeStateHandler = new ChargeStateHandler(this);
+	private final WriteHandler writeHandler = new WriteHandler(this);
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -64,18 +74,14 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 
 	private Config config = null;
 
-	private final Logger log = LoggerFactory.getLogger(EvcsSpelsbergSmartImpl.class);
-
-	private final ChargeStateHandler chargeStateHandler = new ChargeStateHandler(this);
-
-	private final WriteHandler writeHandler = new WriteHandler(this);
-
 	public EvcsSpelsbergSmartImpl() {
-		super(OpenemsComponent.ChannelId.values(), //
+		super(//
+				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
-				EvcsSpelsbergSmart.ChannelId.values());
+				EvcsSpelsbergSmart.ChannelId.values()//
+		);
 	}
 
 	@Activate
@@ -274,13 +280,8 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 			case UNDEFINED -> this._setStatus(Status.UNDEFINED);
 			default -> this._setStatus(Status.UNDEFINED);
 			}
-			;
 
-			if (getLifeBit() == -1) {
-				this._setModbusCommunicationFailed(true);
-			} else {
-				this._setModbusCommunicationFailed(false);
-			}
+			this._setModbusCommunicationFailed(!this.getLifeBit().isDefined());
 		});
 	}
 
@@ -291,13 +292,13 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 		final Consumer<Value<Integer>> setPhasesCallback = ignore -> {
 
 			var phases = 0;
-			if (getChargePowerL1() > 0) {
+			if (this.getChargePowerL1().isDefined() && this.getChargePowerL1().get() > 0) {
 				phases++;
 			}
-			if (getChargePowerL2() > 0) {
+			if (this.getChargePowerL2().isDefined() && this.getChargePowerL2().get() > 0) {
 				phases++;
 			}
-			if (getChargePowerL3() > 0) {
+			if (this.getChargePowerL3().isDefined() && this.getChargePowerL3().get() > 0) {
 				phases++;
 			}
 
@@ -309,10 +310,9 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 
 	private void addPowerConsumptionCallback() {
 		final Consumer<Value<Integer>> setEnergyConsumptionCallback = ignore -> {
-
-			this._setEnergySession(getChargedEnergy());
+			this._setEnergySession(getChargeEnergySession().get());
 		};
 
-		this.getChargedEnergyChannel().onUpdate(setEnergyConsumptionCallback);
+		this.getChargeEnergySessionChannel().onUpdate(setEnergyConsumptionCallback);
 	}
 }

@@ -142,13 +142,12 @@ public interface EvcsSpelsbergSmart extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Power on phase 1 in [W]. See {@link ChannelId#POWER_L1}.
+	 * Gets the Power on phase L1 in [W]. See {@link ChannelId#POWER_L1}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Integer getChargePowerL1() {
-		Channel<Integer> channel = this.getChargePowerL1Channel();
-		return channel.value().orElse(channel.getNextValue().orElse(-1));
+	public default Value<Integer> getChargePowerL1() {
+		return this.getChargePowerL1Channel().value();
 	}
 
 	/**
@@ -161,13 +160,12 @@ public interface EvcsSpelsbergSmart extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Power on phase 2 in [W]. See {@link ChannelId#POWER_L2}.
+	 * Gets the Power on phase L2 in [W]. See {@link ChannelId#POWER_L2}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Integer getChargePowerL2() {
-		Channel<Integer> channel = this.getChargePowerL2Channel();
-		return channel.value().orElse(channel.getNextValue().orElse(-1));
+	public default Value<Integer> getChargePowerL2() {
+		return this.getChargePowerL2Channel().value();
 	}
 
 	/**
@@ -180,13 +178,12 @@ public interface EvcsSpelsbergSmart extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Power on phase 3 in [W]. See {@link ChannelId#POWER_L3}.
+	 * Gets the Power on phase L3 in [W]. See {@link ChannelId#POWER_L3}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Integer getChargePowerL3() {
-		Channel<Integer> channel = this.getChargePowerL3Channel();
-		return channel.value().orElse(channel.getNextValue().orElse(-1));
+	public default Value<Integer> getChargePowerL3() {
+		return this.getChargePowerL3Channel().value();
 	}
 
 	/**
@@ -213,18 +210,18 @@ public interface EvcsSpelsbergSmart extends OpenemsComponent {
 	 *
 	 * @return the Channel
 	 */
-	public default Channel<Integer> getChargedEnergyChannel() {
+	public default Channel<Integer> getChargeEnergySessionChannel() {
 		return this.channel(ChannelId.CHARGE_ENERGY_SESSION);
 	}
 
 	/**
-	 * Gets sum of charged energy for the current session.
+	 * Gets sum of charged energy for the current session. See
+	 * {@link ChannelId#CHARGE_ENERGY_SESSION}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Integer getChargedEnergy() {
-		Channel<Integer> channel = this.getChargedEnergyChannel();
-		return channel.value().orElse(channel.getNextValue().orElse(0));
+	public default Value<Integer> getChargeEnergySession() {
+		return this.getChargeEnergySessionChannel().value();
 	}
 
 	/**
@@ -232,28 +229,26 @@ public interface EvcsSpelsbergSmart extends OpenemsComponent {
 	 *
 	 * @return the Channel
 	 */
-	public default Channel<Integer> getLifeBitChannel() {
+	public default IntegerWriteChannel getLifeBitChannel() {
 		return this.channel(ChannelId.LIFE_BIT);
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#LIFE_BIT}.
+	 * Gets the Life-Bit. See {@link ChannelId#LIFE_BIT}.
 	 *
-	 * @return the Channel
+	 * @return the Channel {@link Value}
 	 */
-	public default Integer getLifeBit() {
-		Channel<Integer> channel = this.getLifeBitChannel();
-		return channel.value().orElse(channel.getNextValue().orElse(-1));
+	public default Value<Integer> getLifeBit() {
+		return this.getLifeBitChannel().value();
 	}
 
 	/**
-	 * Sets the Channel for {@link ChannelId#LIFE_BIT}.
+	 * Sets Life-Bit. See {@link ChannelId#LIFE_BIT}.
 	 * 
 	 * @param value {@link Integer}
 	 * @throws OpenemsNamedException on error.
 	 */
 	public default void setLifeBit(Integer value) throws OpenemsNamedException {
-		IntegerWriteChannel channel = (IntegerWriteChannel) this.getLifeBitChannel();
-		channel.setNextWriteValue(value);
+		this.getLifeBitChannel().setNextWriteValue(value);
 	}
 }
