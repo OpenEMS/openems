@@ -313,8 +313,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		var setBatteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
 		var setChargeMaxCurrent = this.getGoodweType().maxDcCurrent;
 		var setDischargeMaxCurrent = this.getGoodweType().maxDcCurrent;
-		var setChargeMaxVoltage = battery.getChargeMaxVoltage().orElse(210);
-		var setDischargeMinVoltage = battery.getDischargeMinVoltage().orElse(210);
+		var setChargeMaxVoltage = battery.getChargeMaxVoltage().orElse(0);
+		var setDischargeMinVoltage = battery.getDischargeMinVoltage().orElse(0);
 		Integer setSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
 		Integer setOfflineSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
 
@@ -337,9 +337,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 			}
 		}
 
-		/*
-		 * Check correct BMS register values. Goodwe recommends setting the values once
-		 */
 		if (bmsChargeMaxCurrent.isDefined() && !Objects.equals(bmsChargeMaxCurrent.get(), setChargeMaxCurrent)
 				|| bmsDischargeMaxCurrent.isDefined()
 						&& !Objects.equals(bmsDischargeMaxCurrent.get(), setDischargeMaxCurrent)
@@ -367,25 +364,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 			this.writeToChannel(GoodWe.ChannelId.BMS_SOC_UNDER_MIN, setSocUnderMin);
 			this.writeToChannel(GoodWe.ChannelId.BMS_OFFLINE_DISCHARGE_MIN_VOLTAGE, setDischargeMinVoltage); // [150-600]
 			this.writeToChannel(GoodWe.ChannelId.BMS_OFFLINE_SOC_UNDER_MIN, setOfflineSocUnderMin);
-		}
-
-		/*
-		 * Check correct BMS register value for voltage. Handled separately to avoid
-		 * sending other values multiple times if the voltage registers are not written
-		 * immediately
-		 */
-		if (bmsChargeMaxVoltage.isDefined() && !Objects.equals(bmsChargeMaxVoltage.get(), setChargeMaxVoltage)
-				|| bmsDischargeMinVoltage.isDefined()
-						&& !Objects.equals(bmsDischargeMinVoltage.get(), setDischargeMinVoltage)) {
-			// Update is required
-			this.logInfo(this.log, "Update for BMS Registers." //
-					+ " Voltages" //
-					+ " [Discharge " + bmsDischargeMinVoltage.get() + " -> " + setDischargeMinVoltage + "]" //
-					+ " [Charge " + bmsChargeMaxVoltage.get() + " -> " + setChargeMaxVoltage
-					+ "]. This can take up to 10 minutes.");
-
-			this.writeToChannel(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE, setChargeMaxVoltage);
-			this.writeToChannel(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, setDischargeMinVoltage);
 		}
 
 		/*

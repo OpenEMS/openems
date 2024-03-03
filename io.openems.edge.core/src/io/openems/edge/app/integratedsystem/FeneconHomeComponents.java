@@ -138,7 +138,6 @@ public final class FeneconHomeComponents {
 	 * @param modbusIdExternal  the id of the external modbus bridge
 	 * @param gridMeterCategory the type of the Grid-Meter
 	 * @param ctRatioFirst      the first value of the CT-Ratio
-	 * @param ctRatioSecond     the second value of the CT-Ratio
 	 * @return the {@link Component}
 	 */
 	public static EdgeConfig.Component gridMeter(//
@@ -146,8 +145,7 @@ public final class FeneconHomeComponents {
 			final String gridMeterId, //
 			final String modbusIdExternal, //
 			final GoodWeGridMeterCategory gridMeterCategory, //
-			final Integer ctRatioFirst, //
-			final Integer ctRatioSecond //
+			final Integer ctRatioFirst //
 	) {
 		return new EdgeConfig.Component(gridMeterId, //
 				TranslationUtil.getTranslation(bundle, "gridMeterId.label"), "GoodWe.Grid-Meter", //
@@ -158,7 +156,7 @@ public final class FeneconHomeComponents {
 						.addProperty("goodWeMeterCategory", gridMeterCategory) //
 						.onlyIf(gridMeterCategory == GoodWeGridMeterCategory.COMMERCIAL_METER, t -> {
 							t.addProperty("externalMeterRatioValueA", ctRatioFirst);
-							t.addProperty("externalMeterRatioValueB", ctRatioSecond);
+							t.addProperty("externalMeterRatioValueB", 5 /* Default to 5 A */);
 						}) //
 						.build());
 	}

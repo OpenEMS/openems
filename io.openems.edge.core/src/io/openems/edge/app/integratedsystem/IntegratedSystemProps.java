@@ -5,6 +5,7 @@ import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import io.openems.edge.app.enums.FeedInType;
@@ -16,6 +17,7 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.builder.InputBuilder;
 import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
 
 public final class IntegratedSystemProps {
@@ -122,7 +124,8 @@ public final class IntegratedSystemProps {
 	}
 
 	private static final AppDef<OpenemsApp, Nameable, BundleProvider> ctRatio(//
-			final Nameable gridMeterType//
+			final Nameable gridMeterType, //
+			final Consumer<InputBuilder> fieldSettings //
 	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
@@ -131,6 +134,8 @@ public final class IntegratedSystemProps {
 					field.setInputType(NUMBER) //
 							.setMin(0) //
 							.onlyPositiveNumbers();
+
+					fieldSettings.accept(field);
 				}));
 	}
 
@@ -141,21 +146,12 @@ public final class IntegratedSystemProps {
 	 * @return the created {@link AppDef}
 	 */
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> ctRatioFirst(Nameable gridMeterType) {
-		return AppDef.copyOfGeneric(ctRatio(gridMeterType), def -> def //
+		return AppDef.copyOfGeneric(ctRatio(gridMeterType, field -> {
+			field.setMin(200) //
+					.setMax(5000);
+		}), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.ctRatioFirst.label") //
 				.setDefaultValue(200));
-	}
-
-	/**
-	 * Creates a {@link AppDef} for the second value of the CT-Ratio.
-	 * 
-	 * @param gridMeterType the {@link Nameable} for the type of the grid meter
-	 * @return the created {@link AppDef}
-	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleProvider> ctRatioSecond(Nameable gridMeterType) {
-		return AppDef.copyOfGeneric(ctRatio(gridMeterType), def -> def //
-				.setTranslatedLabel("App.IntegratedSystem.ctRatioSecond.label") //
-				.setDefaultValue(5));
 	}
 
 	/**
