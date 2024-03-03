@@ -254,7 +254,7 @@ public class AlpitronicEvcs extends
 				final var evcsCtrlIdDef = this.chargePointsDef.get(CTRL_EVCS_ID.apply(i));
 				final var ctrlEvcsId = this.getId(t, p, evcsCtrlIdDef);
 
-				schedulerIds.add(new SchedulerComponent(ctrlEvcsId, "Evcs.AlpitronicHypercharger", this.getAppId()));
+				schedulerIds.add(new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId()));
 				addedEvcsIds.add(evcsId);
 
 				components.add(new EdgeConfig.Component(evcsId, this.getString(p, l, aliasDef),
