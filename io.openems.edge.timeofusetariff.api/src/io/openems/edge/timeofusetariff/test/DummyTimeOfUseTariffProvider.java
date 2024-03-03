@@ -1,61 +1,64 @@
 package io.openems.edge.timeofusetariff.test;
 
+import java.time.Clock;
 import java.time.ZonedDateTime;
+import java.util.stream.Stream;
 
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 public class DummyTimeOfUseTariffProvider implements TimeOfUseTariff {
 
+	/**
+	 * Builds a {@link DummyTimeOfUseTariffProvider} with empty prices.
+	 *
+	 * @param clock {@Clock} given during test
+	 * @return a {@link DummyTimeOfUseTariffProvider}.
+	 */
+	public static DummyTimeOfUseTariffProvider empty(Clock clock) {
+		return new DummyTimeOfUseTariffProvider(clock, TimeOfUsePrices.EMPTY_PRICES);
+	}
+
+	/**
+	 * Builds a {@link DummyTimeOfUseTariffProvider} from quarterly prices.
+	 *
+	 * @param clock           {@Clock} given during test
+	 * @param quarterlyPrices an array of quarterly prices
+	 * @return a {@link DummyTimeOfUseTariffProvider}.
+	 */
+	public static DummyTimeOfUseTariffProvider fromQuarterlyPrices(Clock clock, Double... quarterlyPrices) {
+		return new DummyTimeOfUseTariffProvider(clock, TimeOfUsePrices.from(ZonedDateTime.now(clock), quarterlyPrices));
+	}
+
+	/**
+	 * Builds a {@link DummyTimeOfUseTariffProvider} from hourly prices.
+	 *
+	 * @param clock        {@Clock} given during test
+	 * @param hourlyPrices an array of hourly prices
+	 * @return a {@link DummyTimeOfUseTariffProvider}.
+	 */
+	public static DummyTimeOfUseTariffProvider fromHourlyPrices(Clock clock, Double... hourlyPrices) {
+		var quarterlyPrices = Stream.of(hourlyPrices) //
+				.flatMap(v -> Stream.of(v, v, v, v)) //
+				.toArray(Double[]::new);
+		return new DummyTimeOfUseTariffProvider(clock, TimeOfUsePrices.from(ZonedDateTime.now(clock), quarterlyPrices));
+	}
+
+	private final Clock clock;
 	private TimeOfUsePrices prices;
 
-	/**
-	 * Builds a {@link DummyTimeOfUseTariffProvider} from hourly prices.
-	 *
-	 * @param hourlyPrices an array of 24 hourly prices.
-	 * @param now          {@ZonedDateTime} given during test.
-	 * @return a {@link DummyTimeOfUseTariffProvider}.
-	 */
-	public static DummyTimeOfUseTariffProvider hourlyPrices(ZonedDateTime now, Float... hourlyPrices) {
-		return new DummyTimeOfUseTariffProvider(now, hourlyPrices);
+	public DummyTimeOfUseTariffProvider(Clock clock, TimeOfUsePrices prices) {
+		this.clock = clock;
+		this.setPrices(prices);
 	}
 
-	/**
-	 * Builds a {@link DummyTimeOfUseTariffProvider} from hourly prices.
-	 *
-	 * @param hourlyPrices an array of hourly prices.
-	 * @param now          {@ZonedDateTime} given during test.
-	 * @return a {@link DummyTimeOfUseTariffProvider}.
-	 */
-	public static DummyTimeOfUseTariffProvider quarterlyPrices(ZonedDateTime now, Float... hourlyPrices) {
-
-		var quarterlyPrices = new Float[96];
-
-		for (var i = 0; i < 24; i++) {
-			quarterlyPrices[(i * 4)] = hourlyPrices[i];
-			quarterlyPrices[(i * 4) + 1] = hourlyPrices[i];
-			quarterlyPrices[(i * 4) + 2] = hourlyPrices[i];
-			quarterlyPrices[(i * 4) + 3] = hourlyPrices[i];
-		}
-
-		return new DummyTimeOfUseTariffProvider(now, quarterlyPrices);
-	}
-
-	public DummyTimeOfUseTariffProvider(ZonedDateTime now, Float... quarterlyPrices) {
-		this.setPrices(now, quarterlyPrices);
-	}
-
-	public void setPrices(ZonedDateTime now, Float... quarterlyPrices) {
-		this.prices = new TimeOfUsePrices(now, quarterlyPrices);
+	public void setPrices(TimeOfUsePrices prices) {
+		this.prices = prices;
 	}
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		// return empty TimeOfUsePrice if the dateTime is empty.
-		if (this.prices.getUpdateTime() == null) {
-			return TimeOfUsePrices.empty(ZonedDateTime.now());
-		}
-		return this.prices;
+		return TimeOfUsePrices.from(ZonedDateTime.now(this.clock), this.prices);
 	}
 
 }

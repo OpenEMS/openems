@@ -7,10 +7,10 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
 import java.util.function.BiFunction;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.timedata.DurationUnit;
 
 public class DateUtils {
 
@@ -34,8 +34,18 @@ public class DateUtils {
 	 * @param minutes the minutes to round down to; max 59
 	 * @return the rounded result
 	 */
-	public static ZonedDateTime roundZonedDateTimeDownToMinutes(ZonedDateTime d, int minutes) {
-		return d.withMinute(d.getMinute() - d.getMinute() % minutes).truncatedTo(ChronoUnit.MINUTES);
+	public static ZonedDateTime roundDownToMinutes(ZonedDateTime d, int minutes) {
+		return d.truncatedTo(DurationUnit.ofMinutes(minutes));
+	}
+
+	/**
+	 * Rounds a {@link ZonedDateTime} down to next quarter (15 minutes).
+	 *
+	 * @param d the {@link ZonedDateTime}
+	 * @return the rounded result
+	 */
+	public static ZonedDateTime roundDownToQuarter(ZonedDateTime d) {
+		return roundDownToMinutes(d, 15);
 	}
 
 	/**

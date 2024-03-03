@@ -1,5 +1,9 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
+import static io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedChargeImpl.DEFAULT_POWER_BUFFER;
+import static java.lang.Math.min;
+import static java.time.temporal.ChronoField.MINUTE_OF_DAY;
+
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,7 +29,6 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 
 public class DelayCharge {
 
@@ -91,7 +94,7 @@ public class DelayCharge {
 			this.parent.logDebug(noValidManualTargetTime.channelDoc().getText());
 		}
 
-		var targetMinute = targetTime.get(ChronoField.MINUTE_OF_DAY);
+		var targetMinute = targetTime.get(MINUTE_OF_DAY);
 		return this.calculateDelayChargeMaxCharge(targetMinute, DelayChargeRiskLevel.MEDIUM);
 	}
 
@@ -153,16 +156,16 @@ public class DelayCharge {
 
 		// Predictions
 		var hourlyPredictionProduction = this.parent.predictorManager
-				.get24HoursPrediction(new ChannelAddress("_sum", "ProductionActivePower"));
+				.getPrediction(new ChannelAddress("_sum", "ProductionActivePower"));
 		var hourlyPredictionConsumption = this.parent.predictorManager
-				.get24HoursPrediction(new ChannelAddress("_sum", "ConsumptionActivePower"));
+				.getPrediction(new ChannelAddress("_sum", "ConsumptionActivePower"));
 
 		var now = ZonedDateTime.now(this.parent.componentManager.getClock());
 		var predictionStartQuarterHour = roundZonedDateTimeDownTo15Minutes(now);
 
 		// Predictions as Integer array
-		var hourlyProduction = hourlyPredictionProduction.getValues();
-		var hourlyConsumption = hourlyPredictionConsumption.getValues();
+		var hourlyProduction = hourlyPredictionProduction.asArray();
+		var hourlyConsumption = hourlyPredictionConsumption.asArray();
 
 		// Displays the production values once, if debug mode is activated.
 		if (this.predictionDebugLog) {
@@ -288,14 +291,14 @@ public class DelayCharge {
 		var remainingTime = DelayCharge.calculateRemainingTime(clock, targetMinute);
 
 		// Predictions
-		Prediction24Hours quarterHourlyPredictionProduction = this.parent.predictorManager
-				.get24HoursPrediction(new ChannelAddress("_sum", "ProductionActivePower"));
-		Prediction24Hours quarterHourlyPredictionConsumption = this.parent.predictorManager
-				.get24HoursPrediction(new ChannelAddress("_sum", "ConsumptionActivePower"));
+		var quarterHourlyPredictionProduction = this.parent.predictorManager
+				.getPrediction(new ChannelAddress("_sum", "ProductionActivePower"));
+		var quarterHourlyPredictionConsumption = this.parent.predictorManager
+				.getPrediction(new ChannelAddress("_sum", "ConsumptionActivePower"));
 
 		// Predictions as Integer array
-		Integer[] quarterHourlyProduction = quarterHourlyPredictionProduction.getValues();
-		Integer[] quarterHourlyConsumption = quarterHourlyPredictionConsumption.getValues();
+		var quarterHourlyProduction = quarterHourlyPredictionProduction.asArray();
+		var quarterHourlyConsumption = quarterHourlyPredictionConsumption.asArray();
 
 		// Max apparent power
 		int maxApparentPower = this.parent.ess.getMaxApparentPower().getOrError();
@@ -306,8 +309,7 @@ public class DelayCharge {
 		var minimumPowerFactor = MINIMUM_POWER_FACTOR;
 
 		boolean delayChargeMinimumReached = this.parent.getDelayChargeStateChannel().getPastValues()
-				.tailMap(LocalDateTime.now(this.parent.componentManager.getClock()).with(ChronoField.MINUTE_OF_DAY, 5),
-						true)
+				.tailMap(LocalDateTime.now(this.parent.componentManager.getClock()).with(MINUTE_OF_DAY, 5), true)
 				.values().stream().filter(Value::isDefined)
 				.filter(channel -> channel.asEnum() == DelayChargeState.ACTIVE_LIMIT).findAny().isPresent();
 
@@ -347,7 +349,7 @@ public class DelayCharge {
 
 		// Reduce limit to MaxApparentPower to avoid very high values in the last
 		// seconds
-		calculatedPower = Math.min(calculatedPower, maxApparentPower);
+		calculatedPower = min(calculatedPower, maxApparentPower);
 
 		/*
 		 * Calculate the average with the last 900 limits
@@ -498,30 +500,28 @@ public class DelayCharge {
 	protected static Optional<Integer> calculateTargetMinute(Integer[] quarterHourlyProduction,
 			Integer[] quarterHourlyConsumption, ZonedDateTime predictionStartQuarterHour) {
 
-		var predictionStartQuarterHourIndex = predictionStartQuarterHour.get(ChronoField.MINUTE_OF_DAY) / 15;
+		var predictionStartQuarterHourIndex = predictionStartQuarterHour.get(MINUTE_OF_DAY) / 15;
 
 		// Last hour when production was greater than consumption.
 		Optional<Integer> lastQuarterHour = Optional.empty();
 
 		// Iterate predictions till midnight
-		for (var i = 0; i < 96 - predictionStartQuarterHourIndex; i++) {
+		for (var i = 0; i < min(96 - predictionStartQuarterHourIndex, quarterHourlyProduction.length); i++) {
 			// to avoid null and negative consumption values.
 			if (quarterHourlyProduction[i] != null && quarterHourlyConsumption[i] != null
 					&& quarterHourlyConsumption[i] >= 0) {
 
 				// Updating last quarter hour if production is higher than consumption plus
 				// power buffer
-				if (quarterHourlyProduction[i] > quarterHourlyConsumption[i]
-						+ ControllerEssGridOptimizedChargeImpl.DEFAULT_POWER_BUFFER) {
+				if (quarterHourlyProduction[i] > quarterHourlyConsumption[i] + DEFAULT_POWER_BUFFER) {
 					lastQuarterHour = Optional.of(i);
 				}
 			}
 		}
-		if (lastQuarterHour.isPresent()) {
-			return Optional.of(
-					predictionStartQuarterHour.plusMinutes(lastQuarterHour.get() * 15).get(ChronoField.MINUTE_OF_DAY));
-		}
-		return Optional.empty();
+
+		return lastQuarterHour.map(t -> {
+			return predictionStartQuarterHour.plusMinutes(t * 15).get(MINUTE_OF_DAY);
+		});
 	}
 
 	/**
@@ -545,8 +545,8 @@ public class DelayCharge {
 		ZonedDateTime now = ZonedDateTime.now(clock);
 		ZonedDateTime predictionStartQuarterHour = DelayCharge.roundZonedDateTimeDownTo15Minutes(now);
 
-		int dailyStartIndex = predictionStartQuarterHour.get(ChronoField.MINUTE_OF_DAY) / 15;
-		int dailyEndIndex = DelayCharge.getAsZonedDateTime(targetMinute, clock).get(ChronoField.MINUTE_OF_DAY) / 15;
+		int dailyStartIndex = predictionStartQuarterHour.get(MINUTE_OF_DAY) / 15;
+		int dailyEndIndex = DelayCharge.getAsZonedDateTime(targetMinute, clock).get(MINUTE_OF_DAY) / 15;
 
 		// Relevant quarter hours
 		int endIndex = dailyEndIndex - dailyStartIndex;
@@ -594,7 +594,7 @@ public class DelayCharge {
 	 * @return the rounded result
 	 */
 	private static ZonedDateTime roundZonedDateTimeDownTo15Minutes(ZonedDateTime d) {
-		var minuteOfDay = d.get(ChronoField.MINUTE_OF_DAY);
+		var minuteOfDay = d.get(MINUTE_OF_DAY);
 		return d.with(ChronoField.NANO_OF_DAY, 0).plus(minuteOfDay / 15 * 15, ChronoUnit.MINUTES);
 	}
 
@@ -605,7 +605,7 @@ public class DelayCharge {
 	 * @return the rounded result
 	 */
 	private static ZonedDateTime roundZonedDateTimeUpTo5Minutes(ZonedDateTime d) {
-		var minuteOfDay = d.get(ChronoField.MINUTE_OF_DAY);
+		var minuteOfDay = d.get(MINUTE_OF_DAY);
 		long roundMinutes = TypeUtils.getAsType(OpenemsType.LONG, Math.ceil(minuteOfDay / 5.0) * 5);
 		return d.with(ChronoField.NANO_OF_DAY, 0).plusMinutes(roundMinutes);
 	}
@@ -630,7 +630,7 @@ public class DelayCharge {
 	 */
 	private static boolean passedTargetMinute(int targetMinute, Clock clock) {
 
-		if (ZonedDateTime.now(clock).get(ChronoField.MINUTE_OF_DAY) >= targetMinute) {
+		if (ZonedDateTime.now(clock).get(MINUTE_OF_DAY) >= targetMinute) {
 			return true;
 		}
 		return false;

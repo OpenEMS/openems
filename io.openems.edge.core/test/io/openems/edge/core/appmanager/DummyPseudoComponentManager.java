@@ -199,30 +199,7 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	) throws OpenemsNamedException {
 		final var foundComponent = this.getPossiblyDisabledComponent(request.getComponentId());
 
-		if (!(foundComponent instanceof DummyOpenemsComponent)) {
-			if (this.configurationAdmin == null) {
-				throw new OpenemsException("Can not update Component Config. ConfigurationAdmin is null!");
-			}
-			try {
-				for (var configuration : this.configurationAdmin.listConfigurations(null)) {
-					final var props = configuration.getProperties();
-					if (props == null) {
-						continue;
-					}
-					if (props.get("id") == null || !props.get("id").equals(request.getComponentId())) {
-						continue;
-					}
-					var properties = new Hashtable<String, JsonElement>();
-					for (var property : request.getProperties()) {
-						properties.put(property.getName(), property.getValue());
-					}
-					configuration.update(properties);
-				}
-				return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
-			} catch (IOException | InvalidSyntaxException e) {
-				throw new OpenemsException("Can not update Component Config.");
-			}
-		} else {
+		if (foundComponent instanceof DummyOpenemsComponent) {
 			final var component = componentOf(//
 					request.getComponentId(), //
 					foundComponent.serviceFactoryPid(), //
@@ -230,9 +207,30 @@ public class DummyPseudoComponentManager implements ComponentManager {
 			);
 			this.components.removeIf(t -> t.id().equals(request.getComponentId()));
 			this.components.add(component);
+			return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 		}
-
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+		if (this.configurationAdmin == null) {
+			throw new OpenemsException("Can not update Component Config. ConfigurationAdmin is null!");
+		}
+		try {
+			for (var configuration : this.configurationAdmin.listConfigurations(null)) {
+				final var props = configuration.getProperties();
+				if (props == null) {
+					continue;
+				}
+				if (props.get("id") == null || !props.get("id").equals(request.getComponentId())) {
+					continue;
+				}
+				var properties = new Hashtable<String, JsonElement>();
+				for (var property : request.getProperties()) {
+					properties.put(property.getName(), property.getValue());
+				}
+				configuration.update(properties);
+			}
+			return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+		} catch (IOException | InvalidSyntaxException e) {
+			throw new OpenemsException("Can not update Component Config.");
+		}
 	}
 
 	private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(//

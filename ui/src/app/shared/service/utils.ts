@@ -1,14 +1,13 @@
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
-import { ChartDataSets } from 'chart.js';
+import { ChartDataset } from 'chart.js';
 import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
-import { ChartType } from '../genericComponents/chart/abstracthistorychart';
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { ChannelAddress, EdgeConfig } from '../shared';
+import { ChannelAddress, Currency, EdgeConfig } from '../shared';
 
 export class Utils {
 
@@ -397,7 +396,7 @@ export class Utils {
         case 0:
           return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
         case 3:
-          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE');
+          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID');
         default: // Usually "1"
           return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING');
       }
@@ -611,6 +610,8 @@ export class Utils {
 }
 
 export enum YAxisTitle {
+  NONE,
+  POWER,
   PERCENTAGE,
   RELAY,
   ENERGY,
@@ -635,7 +636,7 @@ export namespace HistoryUtils {
  * @param translate the TranslateService
  * @returns a dataset
  */
-  export function createEmptyDataset(translate: TranslateService): ChartDataSets[] {
+  export function createEmptyDataset(translate: TranslateService): ChartDataset[] {
     return [{
       label: translate.instant("Edge.History.noData"),
       data: [],
@@ -675,10 +676,15 @@ export namespace HistoryUtils {
     hideShadow?: boolean,
     /** axisId from yAxes  */
     yAxisId?: ChartAxis,
-    /** overrides global unit for this displayValue */
-    customUnit?: YAxisTitle,
-    /** overrides global charttype for this dataset */
-    customType?: ChartType,
+    /** overrides global chartConfig for this dataset */
+    custom?: {
+      /** overrides global unit */
+      unit?: YAxisTitle,
+      /** overrides global charttype */
+      type?: 'line' | 'bar',
+      /** overrides global formatNumber */
+      formatNumber?: string
+    },
     tooltip?: [{
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
       stackIds: number[]
@@ -764,7 +770,7 @@ export namespace HistoryUtils {
 export namespace TimeOfUseTariffUtils {
 
   export type ScheduleChartData = {
-    datasets: ChartDataSets[],
+    datasets: ChartDataset[],
     colors: any[],
     labels: Date[]
   }
@@ -772,7 +778,13 @@ export namespace TimeOfUseTariffUtils {
   export enum TimeOfUseTariffState {
     DelayDischarge = 0,
     Balancing = 1,
-    Charge = 3,
+    ChargeProduction = 2,
+    ChargeGrid = 3,
+  }
+
+  export enum ControlMode {
+    CHARGE_CONSUMPTION = 'CHARGE_CONSUMPTION',
+    DELAY_DISCHARGE = 'DELAY_DISCHARGE'
   }
 
   /**
@@ -800,17 +812,16 @@ export namespace TimeOfUseTariffUtils {
    * @param states The Time-of-Use-Tariff state array
    * @param timestamps The Time-of-Use-Tariff timestamps array
    * @param translate The Translate service
-   * @param factoryId The factory id of the component
+   * @param controlMode The Control mode of the controller.
    * @returns The ScheduleChartData.
    */
-  export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[], translate: TranslateService, factoryId: string): ScheduleChartData {
-    let scheduleChartData: ScheduleChartData;
-    let datasets: ChartDataSets[] = [];
-    let colors: any[] = [];
-    let labels: Date[] = [];
+  export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[], translate: TranslateService, controlMode: ControlMode): ScheduleChartData {
+    const datasets: ChartDataset[] = [];
+    const colors: any[] = [];
+    const labels: Date[] = [];
 
     // Initializing States.
-    var barCharge = Array(size).fill(null);
+    var barChargeGrid = Array(size).fill(null);
     var barBalancing = Array(size).fill(null);
     var barDelayDischarge = Array(size).fill(null);
 
@@ -827,8 +838,8 @@ export namespace TimeOfUseTariffUtils {
           case TimeOfUseTariffState.Balancing:
             barBalancing[index] = quarterlyPrice;
             break;
-          case TimeOfUseTariffState.Charge:
-            barCharge[index] = quarterlyPrice;
+          case TimeOfUseTariffState.ChargeGrid:
+            barChargeGrid[index] = quarterlyPrice;
             break;
         }
       }
@@ -847,12 +858,12 @@ export namespace TimeOfUseTariffUtils {
       borderColor: 'rgba(51,102,0,1)',
     });
 
-    // Set dataset for Quarterly Prices being charged.
-    if (!barCharge.every(v => v === null)) {
+    // Set dataset for ChargeGrid.
+    if (!barChargeGrid.every(v => v === null) || controlMode == ControlMode.CHARGE_CONSUMPTION) {
       datasets.push({
         type: 'bar',
-        label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE'),
-        data: barCharge,
+        label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
+        data: barChargeGrid,
         order: 3,
       });
       colors.push({
@@ -875,12 +886,50 @@ export namespace TimeOfUseTariffUtils {
       borderColor: 'rgba(0,0,0,0.9)',
     });
 
-    scheduleChartData = {
+    const scheduleChartData: ScheduleChartData = {
       colors: colors,
       datasets: datasets,
       labels: labels,
     };
 
     return scheduleChartData;
+  }
+
+  /**
+   * Retrieves a formatted label based on the provided value and label type.
+   *
+   * @param value The numeric value to be formatted.
+   * @param label The label type to determine the formatting.
+   * @param translate The translation service for translating labels.
+   * @param currencyLabel Optional currency label for {@link TimeOfUseTariffState} labels.
+   * @returns The formatted label, or exits if the value is not valid.
+   */
+  export function getLabel(value: number, label: string, translate: TranslateService, currencyLabel?: Currency.Label): string {
+
+    // Error handling: Return undefined if value is not valid
+    if (value === undefined || value === null || Number.isNaN(Number.parseInt(value.toString()))) {
+      return;
+    }
+
+    const socLabel = translate.instant('General.soc');
+    const dischargeLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
+    const chargeConsumptionLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID');
+    const balancingLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING');
+
+    // Switch case to handle different labels
+    switch (label) {
+      case socLabel:
+        return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+
+      case dischargeLabel:
+      case chargeConsumptionLabel:
+      case balancingLabel:
+        // Show floating point number for values between 0 and 1
+        return label + ": " + formatNumber(value, 'de', '1.0-4') + " " + currencyLabel;
+
+      default:
+        // Power values
+        return label + ": " + formatNumber(value, 'de', '1.0-0') + ' ' + 'W';
+    }
   }
 }

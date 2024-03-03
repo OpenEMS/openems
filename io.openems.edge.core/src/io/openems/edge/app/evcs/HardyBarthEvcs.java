@@ -52,6 +52,7 @@ import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.formly.Case;
 import io.openems.edge.core.appmanager.formly.DefaultValueOptions;
 import io.openems.edge.core.appmanager.formly.Exp;
@@ -311,13 +312,13 @@ public class HardyBarthEvcs extends
 				maxHardwarePowerPerPhase = OptionalInt.of(this.getInt(p, Property.MAX_HARDWARE_POWER));
 			}
 
-			final var schedulerIds = new ArrayList<String>();
+			final var schedulerIds = new ArrayList<SchedulerComponent>();
 
 			final var alias = this.getString(p, l, SubPropertyFirstChargepoint.ALIAS);
 			final var ip = this.getString(p, l, SubPropertyFirstChargepoint.IP);
 			final var evcsId = this.getId(t, p, Property.EVCS_ID);
 			final var ctrlEvcsId = this.getId(t, p, Property.CTRL_EVCS_ID);
-			schedulerIds.add(ctrlEvcsId);
+			schedulerIds.add(new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId()));
 
 			final var factorieId = "Evcs.HardyBarth";
 			final var components = Lists.newArrayList(//
@@ -334,7 +335,7 @@ public class HardyBarthEvcs extends
 				final var ipCp2 = this.getString(p, l, SubPropertySecondChargepoint.IP_CP_2);
 				final var evcsIdCp2 = this.getId(t, p, Property.EVCS_ID_CP_2);
 				final var ctrlEvcsIdCp2 = this.getId(t, p, Property.CTRL_EVCS_ID_CP_2);
-				schedulerIds.add(ctrlEvcsIdCp2);
+				schedulerIds.add(new SchedulerComponent(ctrlEvcsIdCp2, "Controller.Evcs", this.getAppId()));
 
 				components.add(new EdgeConfig.Component(evcsIdCp2, aliasCp2, factorieId, JsonUtils.buildJsonObject() //
 						.addProperty("ip", ipCp2) //
@@ -354,11 +355,9 @@ public class HardyBarthEvcs extends
 						maxHardwarePowerPerPhase, removeIds, evcsId);
 			}
 
-			schedulerIds.add("ctrlBalancing0");
-
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.scheduler(schedulerIds)) //
+					.addTask(Tasks.schedulerByCentralOrder(schedulerIds)) //
 					.throwingOnlyIf(ip.startsWith("192.168.25."),
 							b -> b.addTask(Tasks.staticIp(new InterfaceConfiguration("eth0") //
 									.addIp("Evcs", "192.168.25.10/24")))) //
