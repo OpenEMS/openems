@@ -1,9 +1,9 @@
-import { ChartDataSets } from "chart.js";
-import { ChartOptions } from "src/app/edge/history/shared";
+import * as Chart from "chart.js";
+import { ChartDataset } from "chart.js";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { HistoryUtils } from "src/app/shared/service/utils";
-import { CurrentData } from "src/app/shared/shared";
+import { CurrentData, EdgeConfig } from "src/app/shared/shared";
 import { TestContext } from "src/app/shared/test/utils.spec";
 
 import { AbstractHistoryChart } from "../../chart/abstracthistorychart";
@@ -215,14 +215,14 @@ export namespace OeChartTester {
     }
     export type Option = {
       type: 'option',
-      options: ChartOptions
+      options: Chart.ChartOptions
     }
   }
 }
 
 export class OeChartTester {
 
-  public static apply(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', channels: OeTester.Types.Channels, testContext: TestContext): OeChartTester.View {
+  public static apply(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', channels: OeTester.Types.Channels, testContext: TestContext, config: EdgeConfig): OeChartTester.View {
 
     let channelData = OeChartTester.getChannelDataByCharttype(chartType, channels);
 
@@ -237,7 +237,7 @@ export class OeChartTester {
     let configuration = AbstractHistoryChart.fillChart(chartType, chartData, channelData, channels.energyChannelWithValues);
     let data: OeChartTester.Dataset.Data[] = OeChartTester.convertChartDatasetsToDatasets(configuration.datasets);
     let labels: OeChartTester.Dataset.LegendLabel = OeChartTester.convertChartLabelsToLegendLabels(configuration.labels);
-    let options: OeChartTester.Dataset.Option = OeChartTester.convertChartDataToOptions(chartData, chartType, testContext, channels, testContext.translate.currentLang);
+    let options: OeChartTester.Dataset.Option = OeChartTester.convertChartDataToOptions(chartData, chartType, testContext, channels, testContext.translate.currentLang, config);
 
     return {
       datasets: {
@@ -267,7 +267,7 @@ export class OeChartTester {
    * @param datasets the datasets
    * @returns data from a chartData dataset
    */
-  public static convertChartDatasetsToDatasets(datasets: ChartDataSets[]): OeChartTester.Dataset.Data[] {
+  public static convertChartDatasetsToDatasets(datasets: ChartDataset[]): OeChartTester.Dataset.Data[] {
     let fields: OeChartTester.Dataset.Data[] = [];
 
     for (let dataset of datasets) {
@@ -291,7 +291,7 @@ export class OeChartTester {
    * @param channels the channels
    * @returns dataset options
    */
-  public static convertChartDataToOptions(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', testContext: TestContext, channels: OeTester.Types.Channels, locale: string): OeChartTester.Dataset.Option {
+  public static convertChartDataToOptions(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', testContext: TestContext, channels: OeTester.Types.Channels, locale: string, config: EdgeConfig): OeChartTester.Dataset.Option {
 
     let channelData: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse = OeChartTester.getChannelDataByCharttype(chartType, channels);
     let displayValues = chartData.output(channelData.result.data);
@@ -305,7 +305,7 @@ export class OeChartTester {
 
     return {
       type: 'option',
-      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, locale),
+      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, locale, config),
     };
   }
 
