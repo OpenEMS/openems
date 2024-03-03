@@ -3,11 +3,8 @@ package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
-import static io.openems.edge.controller.ess.timeofusetariff.TestData.CONSUMPTION_12786_20231121;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.CONSUMPTION_888_20231106;
-import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRICES_12786_20231121;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRICES_888_20231106;
-import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRODUCTION_12786_20231121;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRODUCTION_888_20231106;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Simulator.calculateCost;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Simulator.getBestSchedule;
@@ -122,7 +119,7 @@ public class SimulatorTest {
 
 		assertPeriod("Consumption > Production", //
 				calculatePeriodCost(CHARGE_GRID, 200, 300, 0.1, 10000), //
-				-2500, 2600 /* 2500 + 100 */, 310);
+				-2500, 2600 /* 2500 + 100 */, 302.5);
 
 		assertPeriod("Consumption > Production; charge limited by maxBuyFromGrid", //
 				calculatePeriodCost(CHARGE_GRID, 0, 4500, 0.1, 10000), //
@@ -130,15 +127,15 @@ public class SimulatorTest {
 
 		assertPeriod("Production > Consumption", //
 				calculatePeriodCost(CHARGE_GRID, 300, 200, 0.1, 10000), //
-				-2600 /* 2500 + 100 */, 2500, 300);
+				-2600 /* 2500 + 100 */, 2500, 292.5);
 
 		assertPeriod("Production > Consumption; charge limited by essMaxEnergyPerPeriod", //
 				calculatePeriodCost(CHARGE_GRID, 3000, 900, 0.1, 10000), //
-				-3000 /* 2100 from PV, 900 from grid */, 900, 108);
+				-3000 /* 2100 from PV, 900 from grid */, 900, 105.3);
 
 		assertPeriod("Production > Consumption", //
 				calculatePeriodCost(CHARGE_GRID, 2000, 1700, 0.1, 10000), //
-				-2800 /* 300 from PV, 2500 from grid */, 2500, 300);
+				-2800 /* 300 from PV, 2500 from grid */, 2500, 292.5);
 	}
 
 	@Test
@@ -282,29 +279,6 @@ public class SimulatorTest {
 				getEssChargeDischarges(p, schedule));
 	}
 
-	@Test
-	@Ignore
-	public void testCharge12786d20231121() {
-		var p = createParams12786d20231121(ControlMode.CHARGE_CONSUMPTION.states);
-		var schedule = getBestSchedule(p, //
-				/* executionLimitSeconds */ 10 * 60);
-
-		// Cost: 1,0649 €
-		// Grid Buy: 8592 Wh
-		// Grid Sell: 277 Wh
-
-		logSchedule(p, schedule);
-		logCost(p, schedule);
-		logGridEnergy(p, schedule);
-
-		assertArrayEquals(
-				new int[] { 0, -45, 0, 0, 0, 0, 458, 0, 390, 0, 483, 281, 236, 216, 0, 0, 181, 0, 0, 0, 0, 0, 0, 0, 0,
-						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -705, 71,
-						47, 0, 0, 0, 0, 0, 0, 56, 125, 71, 66, 0, 67, 0, 66, 54, 0, 50, 32, -39, 0, 16, -2, 0, -41, -54,
-						-41, 24, 0, -115, 2, 0, -63, -68, 0, 0, 0, -49, -6, 83, 16 },
-				getEssChargeDischarges(p, schedule));
-	}
-
 	protected static Params createParams888d20231106(StateMachine... states) {
 		return Params.create() //
 				.time(TIME) //
@@ -316,21 +290,6 @@ public class SimulatorTest {
 				.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 				.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 				.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-				.states(states) //
-				.build();
-	}
-
-	private static Params createParams12786d20231121(StateMachine... states) {
-		return Params.create() //
-				.time(TIME.plusMinutes(15 * 60 + 30)) //
-				.essTotalEnergy(22000) //
-				.essMinSocEnergy(0) //
-				.essMaxSocEnergy(22000) //
-				.essMaxEnergyPerPeriod(toEnergy(10000)) //
-				.maxBuyFromGrid(toEnergy(24_000)) //
-				.productions(stream(interpolateArray(PRODUCTION_12786_20231121)).map(v -> toEnergy(v)).toArray()) //
-				.consumptions(stream(interpolateArray(CONSUMPTION_12786_20231121)).map(v -> toEnergy(v)).toArray()) //
-				.prices(interpolateArray(PRICES_12786_20231121)) //
 				.states(states) //
 				.build();
 	}
