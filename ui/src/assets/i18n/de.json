@@ -7,7 +7,7 @@
     "language": "Sprache wählen:",
     "openEMS": "Mehr zu OpenEMS",
     "patchnotes": "Änderungen im Monitoring zu diesem Build",
-    "info": "Aus technischen Gründen kann die Sprache im lokalen Online-Monitoring nicht dauerhaft geändert werden."
+    "INFO": "Aus technischen Gründen kann die Sprache im lokalen Online-Monitoring nicht dauerhaft geändert werden."
   },
   "Edge": {
     "Index": {
