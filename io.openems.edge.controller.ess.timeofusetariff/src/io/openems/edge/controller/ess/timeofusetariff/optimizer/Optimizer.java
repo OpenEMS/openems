@@ -4,6 +4,7 @@ import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Simulator.calculateCost;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateExecutionLimitSeconds;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.createSimulatorParams;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.initializeRandomRegistryForProduction;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.logSchedule;
 import static java.lang.Thread.sleep;
 
@@ -12,14 +13,12 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.TreeMap;
 import java.util.function.Supplier;
-import java.util.random.RandomGeneratorFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 
-import io.jenetics.util.RandomRegistry;
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.worker.AbstractImmediateWorker;
@@ -39,16 +38,7 @@ public class Optimizer extends AbstractImmediateWorker {
 
 	public Optimizer(Supplier<Context> context) {
 		this.context = context;
-
-		/* Initialize 'Random' */
-		// Default RandomGenerator "L64X256MixRandom" might not be available. Choose
-		// best available.
-		System.setProperty("io.jenetics.util.defaultRandomGenerator", "Random");
-		var rgf = RandomGeneratorFactory.all() //
-				.filter(RandomGeneratorFactory::isStatistical) //
-				.sorted((f, g) -> Integer.compare(g.stateBits(), f.stateBits())).findFirst()
-				.orElse(RandomGeneratorFactory.of("Random"));
-		RandomRegistry.random(rgf.create());
+		initializeRandomRegistryForProduction();
 
 		// Run Optimizer thread in LOW PRIORITY
 		this.setPriority(Thread.MIN_PRIORITY);
