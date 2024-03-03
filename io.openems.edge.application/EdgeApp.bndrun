@@ -132,6 +132,7 @@
 	bnd.identity;id='io.openems.edge.fenecon.pro',\
 	bnd.identity;id='io.openems.edge.goodwe',\
 	bnd.identity;id='io.openems.edge.io.filipowski',\
+	bnd.identity;id='io.openems.edge.io.gpio',\
 	bnd.identity;id='io.openems.edge.io.kmtronic',\
 	bnd.identity;id='io.openems.edge.io.offgridswitch',\
 	bnd.identity;id='io.openems.edge.io.revpi',\
@@ -299,6 +300,7 @@
 	io.openems.edge.goodwe;version=snapshot,\
 	io.openems.edge.io.api;version=snapshot,\
 	io.openems.edge.io.filipowski;version=snapshot,\
+	io.openems.edge.io.gpio;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
 	io.openems.edge.io.offgridswitch;version=snapshot,\
 	io.openems.edge.io.revpi;version=snapshot,\
