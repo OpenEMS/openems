@@ -919,7 +919,7 @@
       "emailNotEqual": "E-Mails stimmen nicht überein"
     },
     "success": "Registrierung erfolgreich",
-    "createUser": "Installateurszugang anlegen"
+    "createUser": "Account anlegen"
   },
   "Role": {
     "guest": "Gast",
