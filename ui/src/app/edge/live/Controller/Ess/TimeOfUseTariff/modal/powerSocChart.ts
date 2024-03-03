@@ -179,7 +179,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
             this.initializeChart();
             return;
         }).finally(async () => {
-            // this.unit = YAxisTitle.POWER;
+            this.unit = YAxisTitle.POWER;
             await this.setOptions(this.options);
             this.applyControllerSpecificOptions();
         });
