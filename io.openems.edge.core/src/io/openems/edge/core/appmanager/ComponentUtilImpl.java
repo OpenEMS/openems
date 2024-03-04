@@ -1,21 +1,16 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static java.util.Collections.emptyList;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.BiFunction;
@@ -28,19 +23,17 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
 
-import com.google.common.collect.Lists;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
@@ -50,6 +43,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
+import io.openems.edge.core.componentmanager.ComponentManagerImpl;
 import io.openems.edge.core.host.NetworkInterface;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 import io.openems.edge.io.api.DigitalOutput;
@@ -58,12 +52,10 @@ import io.openems.edge.io.api.DigitalOutput;
 public class ComponentUtilImpl implements ComponentUtil {
 
 	private final ComponentManager componentManager;
-	private final ConfigurationAdmin cm;
 
 	@Activate
-	public ComponentUtilImpl(@Reference ComponentManager componentManager, @Reference ConfigurationAdmin cm) {
+	public ComponentUtilImpl(@Reference ComponentManager componentManager) {
 		this.componentManager = componentManager;
-		this.cm = cm;
 	}
 
 	/**
@@ -583,7 +575,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 		}
 
 		// get current order
-		var controllerIds = this.getSchedulerIds();
+		var controllerIds = new ArrayList<>(this.getSchedulerIds());
 
 		// remove existing id s in the scheduler and insert them in the right place
 		controllerIds.removeAll(schedulerExecutionOrder);
@@ -597,68 +589,71 @@ public class ComponentUtilImpl implements ComponentUtil {
 		if (removedIds == null || removedIds.isEmpty()) {
 			return;
 		}
-		var controllerIds = this.getSchedulerIds();
+		var controllerIds = new ArrayList<>(this.getSchedulerIds());
 
 		controllerIds.removeAll(removedIds);
 
 		this.setSchedulerComponentIds(user, controllerIds);
 	}
 
-	private void setSchedulerComponentIds(User user, List<String> componentIds) throws OpenemsNamedException {
+	@Override
+	public synchronized void setSchedulerComponentIds(//
+			final User user, //
+			final List<String> componentIds //
+	) throws OpenemsNamedException {
 		try {
-			var scheduler = this.getScheduler();
-			// null is necessary otherwise a new configuration gets created
-			var config = this.cm.getConfiguration(scheduler.getPid(), null);
+			final var scheduler = this.getScheduler();
 
-			var properties = config.getProperties();
-			if (properties == null) {
-				// No configuration existing yet -> create new configuration
-				properties = new Hashtable<>();
-			} else {
-				// configuration exists -> update configuration
-			}
-
-			var existingIds = JsonUtils
-					.getAsJsonArray(scheduler.getProperty("controllers.ids").orElse(new JsonArray()));
+			final var existingIds = getSchedulerIds(scheduler);
 			// check if the ids in the scheduler are the exact same as given
 			if (existingIds.size() == componentIds.size()) {
-				Set<String> newIds = new HashSet<>(componentIds);
-				for (var item : existingIds) {
-					newIds.remove(JsonUtils.getAsString(item));
+				final var schedulerIdIterator = existingIds.iterator();
+				var hasChanges = false;
+				for (var id : componentIds) {
+					final var schedulerId = schedulerIdIterator.next();
+
+					if (!id.equals(schedulerId)) {
+						hasChanges = true;
+						break;
+					}
 				}
-				if (newIds.isEmpty()) {
+
+				if (!hasChanges) {
 					return;
 				}
 			}
 
-			var ids = componentIds.stream().toArray(String[]::new);
-			properties.put("controllers.ids", ids);
+			var ids = componentIds.stream().map(JsonPrimitive::new).collect(toJsonArray());
+			final var request = new UpdateComponentConfigRequest(scheduler.getId(), List.of(//
+					new UpdateComponentConfigRequest.Property("controllers.ids", ids) //
+			));
 
 			if (user != null) {
-				properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_BY, user.getId() + ": " + user.getName());
+				this.componentManager.handleJsonrpcRequest(user, request).get();
+				return;
 			}
-			properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_AT,
-					LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString());
 
-			config.update(properties);
-		} catch (IOException e) {
+			((ComponentManagerImpl) this.componentManager).handleUpdateComponentConfigRequest(user, request).get();
+		} catch (Exception e) {
+			e.printStackTrace();
 			throw new OpenemsException("Could not update Scheduler!");
 		}
 	}
 
 	@Override
 	public List<String> getSchedulerIds() throws OpenemsNamedException {
-		try {
-			final var config = this.cm.getConfiguration(this.getScheduler().getPid(), null);
-			final var properties = config.getProperties();
-			if (properties == null) {
-				return emptyList();
-			}
-			final var ids = properties.get("controllers.ids");
-			return ids == null ? emptyList() : Lists.newArrayList((String[]) ids);
-		} catch (IOException e) {
-			throw new OpenemsException("Unable to get Scheduler configuration!", e);
-		}
+		return getSchedulerIds(this.getScheduler());
+	}
+
+	private static List<String> getSchedulerIds(Component scheduler) throws OpenemsNamedException {
+		return scheduler.getProperty("controllers.ids") //
+				.flatMap(JsonUtils::getAsOptionalJsonArray) //
+				.map(t -> JsonUtils.stream(t) //
+						.map(JsonUtils::getAsOptionalString) //
+						.map(c -> c.orElse(null)) //
+						.filter(Objects::nonNull) //
+						.toList()) //
+				.orElse(emptyList());
 	}
 
 	@Override

@@ -1,16 +1,22 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_OWNER;
 import static io.openems.edge.controller.ess.timeofusetariff.ControlMode.CHARGE_CONSUMPTION;
 import static io.openems.edge.controller.ess.timeofusetariff.Mode.AUTOMATIC;
 import static io.openems.edge.controller.ess.timeofusetariff.RiskLevel.MEDIUM;
 
 import java.time.Clock;
+import java.util.function.Supplier;
 
 import org.junit.Test;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.sum.DummySum;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleRequest;
+import io.openems.edge.controller.ess.timeofusetariff.optimizer.Context;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Optimizer;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
@@ -25,6 +31,13 @@ public class TimeOfUseTariffControllerImplTest {
 	@Test
 	public void test() throws Exception {
 		create();
+	}
+
+	@Test(expected = OpenemsException.class)
+	public void testJsonrpcRequest() throws Exception {
+		var sut = create();
+		// Error: has no params
+		sut.handleJsonrpcRequest(DUMMY_OWNER, new GetScheduleRequest()).get();
 	}
 
 	/**
@@ -64,7 +77,8 @@ public class TimeOfUseTariffControllerImplTest {
 						.setControlMode(CHARGE_CONSUMPTION) //
 						.setEssMaxChargePower(5000) //
 						.setRiskLevel(MEDIUM) //
-						.build());
+						.build()) //
+				.next(new TestCase());
 		return sut;
 	}
 
@@ -120,4 +134,18 @@ public class TimeOfUseTariffControllerImplTest {
 		return (DummyTimeOfUseTariffProvider) field.get(ctrl);
 	}
 
+	/**
+	 * Gets the {@link Context} via Java Reflection.
+	 * 
+	 * @param ctrl the {@link TimeOfUseTariffControllerImplTest}
+	 * @return the object
+	 * @throws Exception on error
+	 */
+	@SuppressWarnings("unchecked")
+	public static Context getContext(TimeOfUseTariffControllerImpl ctrl) throws Exception {
+		var optimizer = getOptimizer(ctrl);
+		var field = Optimizer.class.getDeclaredField("context");
+		field.setAccessible(true);
+		return ((Supplier<Context>) field.get(optimizer)).get();
+	}
 }

@@ -96,9 +96,8 @@
 
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
-        <!--Predicted soc chart-->
-        <ng-container
-            *ngIf="delayChargeState !== DelayChargeState.NO_REMAINING_TIME && delayChargeState !== DelayChargeState.TARGET_MINUTE_NOT_CALCULATED">
+        <!-- Predicted soc chart-->
+        <ng-container>
 
             <!-- Description -->
             <oe-modal-info-line
@@ -106,9 +105,8 @@
             </oe-modal-info-line>
 
             <!-- Chart -->
-            <predictionChart *ngIf="targetEpochSeconds !== null" padding-bottom padding-top [refresh]="refreshChart"
-                [component]="component" [edge]="edge" [targetEpochSeconds]="targetEpochSeconds"
-                [chargeStartEpochSeconds]="chargeStartEpochSeconds">
+            <predictionChart padding-bottom padding-top [refresh]="refreshChart" [component]="component" [edge]="edge"
+                [targetEpochSeconds]="targetEpochSeconds" [chargeStartEpochSeconds]="chargeStartEpochSeconds">
             </predictionChart>
             <oe-modal-horizontal-line></oe-modal-horizontal-line>
         </ng-container>

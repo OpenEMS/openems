@@ -12,6 +12,9 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentConfigu
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorConfiguration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerAggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderAggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerConfiguration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.StaticIpAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.StaticIpConfiguration;
@@ -76,6 +79,30 @@ public class Tasks {
 	 */
 	public static Task<SchedulerConfiguration> scheduler(String... componentOrder) {
 		return createTask(SchedulerAggregateTask.class, new SchedulerConfiguration(componentOrder));
+	}
+
+	/**
+	 * Creates a Task for setting the {@link SchedulerByCentralOrderConfiguration}.
+	 * 
+	 * @param componentOrder the order of the components in the scheduler
+	 * @return the {@link Task} to run when creating the {@link OpenemsAppInstance}
+	 */
+	public static Task<SchedulerByCentralOrderConfiguration> schedulerByCentralOrder(
+			List<SchedulerComponent> componentOrder) {
+		return createTask(SchedulerByCentralOrderAggregateTask.class,
+				new SchedulerByCentralOrderConfiguration(componentOrder));
+	}
+
+	/**
+	 * Creates a Task for setting the {@link SchedulerByCentralOrderConfiguration}.
+	 * 
+	 * @param componentOrder the order of the components in the scheduler
+	 * @return the {@link Task} to run when creating the {@link OpenemsAppInstance}
+	 */
+	public static Task<SchedulerByCentralOrderConfiguration> schedulerByCentralOrder(
+			SchedulerComponent... componentOrder) {
+		return createTask(SchedulerByCentralOrderAggregateTask.class,
+				new SchedulerByCentralOrderConfiguration(componentOrder));
 	}
 
 	/**

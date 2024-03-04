@@ -51,6 +51,10 @@ public class TestEvcsCluster {
 					this.kebaEvcs = Apps.kebaEvcs(t) //
 			);
 		}, null, new PseudoComponentManagerFactory());
+
+		final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
+		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
+		this.appManagerTestBundle.addStaticIpAggregateTask();
 	}
 
 	@Test
