@@ -144,7 +144,9 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 				this.log.warn(ex.getMessage());
 			}
 		} else {
-			oldMsg.setSumState(sumState, this.timeService.now());
+			if (oldMsg.getSumState() != sumState) {
+				oldMsg.setSumState(sumState, this.timeService.now());
+			}
 			if (!oldMsg.isEmpty()) {
 				this.msgScheduler.schedule(oldMsg);
 			}
