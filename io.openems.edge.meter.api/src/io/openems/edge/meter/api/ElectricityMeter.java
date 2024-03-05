@@ -1613,7 +1613,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 *
 	 * @param meter the {@link ElectricityMeter}
 	 */
-	public static void PhasesWithVoltAndAmpere(ElectricityMeter meter) {
+	public static void calculatePhasesWithVoltAndAmpere(ElectricityMeter meter) {
 		// For Phase L1
 		final Consumer<Value<Integer>> calculateActivePowerL1 = ignore -> {
 			Integer currentL1 = meter.getCurrentL1Channel().getNextValue().get();

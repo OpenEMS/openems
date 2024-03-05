@@ -77,7 +77,7 @@ public class SungrowStringInverterImpl extends AbstractOpenemsModbusComponent im
 				ElectricityMeter.ChannelId.values(), //
 				SungrowStringInverter.ChannelId.values() //
 		);
-		ElectricityMeter.PhasesWithVoltAndAmpere(this);
+		ElectricityMeter.calculatePhasesWithVoltAndAmpere(this);
 
 	}
 
