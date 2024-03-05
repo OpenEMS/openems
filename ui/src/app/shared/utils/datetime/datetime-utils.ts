@@ -25,14 +25,14 @@ export class DateTimeUtils {
         energyPerPeriodResponse.result.timestamps[0] = format(formattedDate, 'yyyy-MM-dd HH:mm:ss', { locale: de })?.toString() ?? energyPerPeriodResponse.result.timestamps[0];
 
         // show 12 stacks, even if no data and timestamps
-        let newTimestamps: string[] = [];
+        const newTimestamps: string[] = [];
         const firstTimestamp = DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps[0]);
 
         if (firstTimestamp.getMonth() !== 0) {
           for (let i = 0; i <= (firstTimestamp.getMonth() - 1); i++) {
             newTimestamps.push(new Date(firstTimestamp.getFullYear(), i).toString());
 
-            for (let channel of Object.keys(energyPerPeriodResponse.result.data)) {
+            for (const channel of Object.keys(energyPerPeriodResponse.result.data)) {
               energyPerPeriodResponse.result.data[channel.toString()]?.unshift(null);
             }
           }

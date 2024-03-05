@@ -9,10 +9,10 @@ export class MyErrorHandler implements ErrorHandler {
     ) { }
 
     handleError(error: any) {
-        let logger = this.injector.get(Logger);
+        const logger = this.injector.get(Logger);
         console.error(error);
         if (error.message) {
-            let json = {
+            const json = {
                 error: {
                     message: error.message,
                 },

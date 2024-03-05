@@ -68,8 +68,8 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
                 if (this.component != null) {
                     this.component = config.components[this.component.id];
 
-                    let channelIds = this.getChannelIds();
-                    for (let channelId of channelIds) {
+                    const channelIds = this.getChannelIds();
+                    for (const channelId of channelIds) {
                         channelAddresses.push(new ChannelAddress(this.component.id, channelId));
                     }
                 }
@@ -79,9 +79,9 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
 
                 // call onCurrentData() with latest data
                 edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                    let allComponents = {};
-                    for (let channelAddress of channelAddresses) {
-                        let ca = channelAddress.toString();
+                    const allComponents = {};
+                    for (const channelAddress of channelAddresses) {
+                        const ca = channelAddress.toString();
                         allComponents[ca] = currentData.channel[ca];
                     }
                     this.onCurrentData({ allComponents: allComponents });
@@ -95,7 +95,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
             });
         });
     }
-    protected onIsInitialized() { };
+    protected onIsInitialized() { }
 
     public ngOnDestroy() {
         // Unsubscribe from OpenEMS

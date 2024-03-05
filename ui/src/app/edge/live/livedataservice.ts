@@ -20,7 +20,7 @@ export class LiveDataService extends DataService implements OnDestroy {
 
     public getValues(channelAddresses: ChannelAddress[], edge: Edge, componentId: string) {
 
-        for (let channelAddress of channelAddresses) {
+        for (const channelAddress of channelAddresses) {
             this.subscribedChannelAddresses.push(channelAddress);
         }
 
@@ -32,9 +32,9 @@ export class LiveDataService extends DataService implements OnDestroy {
 
         // call onCurrentData() with latest data
         edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-            let allComponents = this.currentValue.value.allComponents;
-            for (let channelAddress of channelAddresses) {
-                let ca = channelAddress.toString();
+            const allComponents = this.currentValue.value.allComponents;
+            for (const channelAddress of channelAddresses) {
+                const ca = channelAddress.toString();
                 allComponents[ca] = currentData.channel[ca];
             }
 

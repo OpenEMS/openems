@@ -25,7 +25,7 @@ export abstract class AbstractFormlyComponent {
       edge.getConfig(service.websocket)
         .pipe(filter(config => !!config))
         .subscribe((config) => {
-          var view = this.generateView(config, edge.role, this.translate);
+          const view = this.generateView(config, edge.role, this.translate);
 
           this.fields = [{
             type: "input",

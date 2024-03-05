@@ -36,7 +36,7 @@ export class AdministrationComponent implements OnInit {
 
   updateZoeMode(event: CustomEvent) {
     let newValue = this.evcsComponent.properties['minHwCurrent'];
-    let oldValue = this.evcsComponent.properties['minHwCurrent'];
+    const oldValue = this.evcsComponent.properties['minHwCurrent'];
 
     if (event.detail.checked == true) {
       newValue = 10000;

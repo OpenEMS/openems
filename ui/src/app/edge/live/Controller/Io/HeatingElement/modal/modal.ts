@@ -21,15 +21,15 @@ export class ModalComponent extends AbstractModal implements OnInit {
     protected readonly WorkMode = WorkMode;
 
     protected override getChannelAddresses(): ChannelAddress[] {
-        let outputChannelPhaseOne = ChannelAddress.fromString(
+        const outputChannelPhaseOne = ChannelAddress.fromString(
             this.component.properties['outputChannelPhaseL1']);
-        let outputChannelPhaseTwo = ChannelAddress.fromString(
+        const outputChannelPhaseTwo = ChannelAddress.fromString(
             this.component.properties['outputChannelPhaseL2']);
-        let outputChannelPhaseThree = ChannelAddress.fromString(
+        const outputChannelPhaseThree = ChannelAddress.fromString(
             this.component.properties['outputChannelPhaseL3']);
         this.outputChannelArray = [outputChannelPhaseOne, outputChannelPhaseTwo, outputChannelPhaseThree];
 
-        let channelAddresses: ChannelAddress[] = [
+        const channelAddresses: ChannelAddress[] = [
             new ChannelAddress(this.component.id, 'ForceStartAtSecondsOfDay'),
             outputChannelPhaseOne,
             outputChannelPhaseTwo,

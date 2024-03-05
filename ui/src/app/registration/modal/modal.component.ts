@@ -47,23 +47,23 @@ export class RegistrationModalComponent implements OnInit {
       return;
     }
 
-    let password = this.formGroup.value.password;
-    let confirmPassword = this.formGroup.value.confirmPassword;
+    const password = this.formGroup.value.password;
+    const confirmPassword = this.formGroup.value.confirmPassword;
 
     if (password != confirmPassword) {
       this.service.toast(this.translate.instant("Register.errors.passwordNotEqual"), 'danger');
       return;
     }
 
-    let email = this.formGroup.value.email;
-    let confirmEmail = this.formGroup.value.confirmEmail;
+    const email = this.formGroup.value.email;
+    const confirmEmail = this.formGroup.value.confirmEmail;
 
     if (email != confirmEmail) {
       this.service.toast(this.translate.instant("Register.errors.emailNotEqual"), 'danger');
       return;
     }
 
-    let request = new RegisterUserRequest({
+    const request = new RegisterUserRequest({
       user: {
         firstname: this.formGroup.value.firstname,
         lastname: this.formGroup.value.lastname,
@@ -82,7 +82,7 @@ export class RegistrationModalComponent implements OnInit {
       oem: environment.theme,
     });
 
-    let companyName = this.formGroup.value.companyName;
+    const companyName = this.formGroup.value.companyName;
     if (companyName) {
       request.params.user.company = {
         name: companyName,

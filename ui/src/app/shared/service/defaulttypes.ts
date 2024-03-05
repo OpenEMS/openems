@@ -92,7 +92,7 @@ export module DefaultTypes {
     params?: string[]
   }
 
-  export enum PeriodString { DAY = 'day', WEEK = 'week', MONTH = 'month', YEAR = 'year', TOTAL = 'total', CUSTOM = 'custom' };
+  export enum PeriodString { DAY = 'day', WEEK = 'week', MONTH = 'month', YEAR = 'year', TOTAL = 'total', CUSTOM = 'custom' }
 
   export namespace History {
 

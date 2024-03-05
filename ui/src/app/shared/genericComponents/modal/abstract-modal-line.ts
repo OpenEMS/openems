@@ -50,7 +50,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
         } else {
             this._name = value;
         }
-    };
+    }
 
     @Input() public value: number | string;
     @Input() public roleIsAtLeast?: Role = Role.GUEST;
@@ -113,14 +113,14 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
                 this.config = config;
 
                 // get the channel addresses that should be subscribed
-                let channelAddresses: ChannelAddress[] = [...this.getChannelAddresses()];
+                const channelAddresses: ChannelAddress[] = [...this.getChannelAddresses()];
 
                 if (typeof this.name == 'object') {
                     channelAddresses.push(this.name.channel);
                 }
 
-                let channelIds = this.getChannelIds();
-                for (let channelId of channelIds) {
+                const channelIds = this.getChannelIds();
+                for (const channelId of channelIds) {
                     channelAddresses.push(new ChannelAddress(this.component.id, channelId));
                 }
                 if (channelAddresses.length != 0) {
@@ -129,9 +129,9 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
 
                 // call onCurrentData() with latest data
                 edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                    let allComponents = {};
-                    for (let channelAddress of channelAddresses) {
-                        let ca = channelAddress.toString();
+                    const allComponents = {};
+                    for (const channelAddress of channelAddresses) {
+                        const ca = channelAddress.toString();
                         allComponents[ca] = currentData.channel[ca];
                     }
                     this.onCurrentData({ allComponents: allComponents });

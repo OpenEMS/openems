@@ -55,7 +55,7 @@ export namespace UpdateAppInstance {
             public override readonly id: string,
             public override readonly result: {
                 instance: GetAppInstances.AppInstance,
-                warnings: String[]
+                warnings: string[]
             },
         ) {
             super(id, result);

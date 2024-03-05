@@ -86,8 +86,8 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
-        let x = innerRadius - 5 - square.length;
-        let y = (square.length / 2) * (-1);
+        const x = innerRadius - 5 - square.length;
+        const y = (square.length / 2) * (-1);
         return new SvgSquarePosition(x, y);
     }
     protected getImagePath(): string {
@@ -111,9 +111,9 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let p = {
+        const v = Math.abs(ratio);
+        const r = radius;
+        const p = {
             topLeft: { x: v, y: v * -1 },
             middleLeft: { x: 0, y: 0 },
             bottomLeft: { x: v, y: v },
@@ -132,9 +132,9 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     }
 
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let animationWidth = (r * -1) - v;
+        const v = Math.abs(ratio);
+        const r = radius;
+        const animationWidth = (r * -1) - v;
         let p = {
             topLeft: { x: v, y: v * -1 },
             middleLeft: { x: 0, y: 0 },

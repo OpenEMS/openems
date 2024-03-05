@@ -30,7 +30,7 @@ export class AliasUpdateComponent implements OnInit {
             this.edge = edge;
         });
         this.service.getConfig().then(config => {
-            let componentId = this.route.snapshot.params["componentId"];
+            const componentId = this.route.snapshot.params["componentId"];
             this.component = config.components[componentId];
             this.factory = config.factories[this.component.factoryId];
             this.componentIcon = config.getFactoryIcon(this.factory);
@@ -41,7 +41,7 @@ export class AliasUpdateComponent implements OnInit {
     }
 
     updateAlias(alias) {
-        let newAlias = alias;
+        const newAlias = alias;
         if (this.edge != null) {
             if (this.component.id == newAlias) {
                 this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
