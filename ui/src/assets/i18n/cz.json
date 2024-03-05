@@ -53,7 +53,7 @@
     "production": "Výroba",
     "rename": "Přejmenovat",
     "reportValue": "Nahlásit nesprávná data",
-    "reset": "Reset",
+    "reset": "Resetovat",
     "selfConsumption": "Vlastní spotřeba",
     "soc": "Stav nabití",
     "state": "Stát",
@@ -85,7 +85,10 @@
       "november": "Listopad",
       "december": "Prosinec"
     },
-    "save": "Save"
+    "save": "Uložit",
+    "temperature": "Teplota",
+    "subscribed_successfully": "Úspěšně uloženy odebírané kanály",
+    "loaded_subscribed_successfully": "Načtená uložená konfigurace kanálu"
   },
   "Menu": {
     "accessLevel": "Úroveň přístupu",
@@ -112,7 +115,7 @@
     "TYPE": "Typ"
   },
   "Login": {
-    "title": "Login",
+    "title": "Přihlásit se",
     "preamble": "Pro přihlášení jako host zadejte své heslo nebo potvrďte výchozí zadání.",
     "passwordLabel": "Heslo",
     "passwordReset": "Obnovení hesla",
@@ -140,7 +143,7 @@
       "city": "Město",
       "country": "Město",
       "phone": "Telefonní číslo",
-      "email": "E-Mail",
+      "email": "E-Mailem",
       "password": "Heslo",
       "confirmPassword": "Potvrzení hesla",
       "isElectrician": "Potvrzuji, že moje společnost je zapsána v registru instalátorů, a jsem tedy oprávněn připojit a uvést do provozu systém ukládání dat.",
@@ -180,7 +183,9 @@
         "InfoStorageForCharge": "Záporné hodnoty odpovídají zatížení paměti",
         "InfoStorageForDischarge": "Kladné hodnoty odpovídají vybití paměti",
         "Channeltreshold": {
-          "output": "Výstup"
+          "output": "Výstup",
+          "TITLE": "Řadič prahové úrovně kanálu",
+          "ACTIVE_TIME_OVER_PERIOD": "Čas"
         },
         "Singlethreshold": {
           "above": "O",
@@ -266,8 +271,8 @@
             "noLimitActive": "Není aktivní žádný limit načítání",
             "noLimitPossible": "Žádné omezení není možné (omezeno ovládacími prvky s vyšší prioritou)",
             "notDefined": "Není definovaný",
-            "passedEndTime": "Byl překročen čas ukončení omezeného načítání",
-            "storageAlreadyFull": "Paměť je již plná"
+            "storageAlreadyFull": "Paměť je již plná",
+            "passedEndTime": "Překročen časový limit"
           },
           "storageCapacity": "skladovací kapacita (viditelné pouze pro správce)"
         },
@@ -426,8 +431,8 @@
     },
     "Config": {
       "Index": {
-        "addComponents": "Komponenten installieren",
-        "adjustComponents": "Komponenten konfigurieren",
+        "addComponents": "Nainstalujte komponenty",
+        "adjustComponents": "Nakonfigurujte komponenty",
         "bridge": "Připojená zařízení",
         "controller": "Aplikace",
         "dataStorage": "Ukládání dat",
@@ -441,15 +446,15 @@
         "systemExecute": "Spusťte příkaz systému",
         "systemProfile": "Systémový Profil",
         "alerting": "Upozornění",
-        "networkConfiguration": "Network Configuration"
+        "networkConfiguration": "Konfigurace sítě"
       },
       "More": {
         "manualCommand": "Manuální příkaz ",
         "manualpqPowerSpecification": "Specifikace výkonu",
-        "manualpqReset": "Reset",
+        "manualpqReset": "Resetovat",
         "manualpqSubmit": "Zadání",
         "refuInverter": "REFU Střídač",
-        "refuStart": "Start",
+        "refuStart": "Začít",
         "refuStartStop": "Start/Stop střídače",
         "refuStop": "Stop",
         "send": "Odeslat"
@@ -536,7 +541,8 @@
     "faq": "Často kladené otázky (FAQ)",
     "language": "Zvolte jazyk:",
     "openEMS": "Více o OpenEMS",
-    "patchnotes": "Změny v monitorování tohoto sestavení"
+    "patchnotes": "Změny v monitorování tohoto sestavení",
+    "info": "Jazyk nemůže být trvale změněn v místním online monitorování z technických důvodů."
   },
   "Notifications": {
     "authenticationFailed": "Žádné připojení: Ověření uživatele selhalo.",
@@ -544,5 +550,6 @@
     "failed": "Připojení selhalo.",
     "loggedIn": "Přihlášení proběhlo úspěšně.",
     "loggedInAs": "Uživatel přihlášen jako {{ value }}."
-  }
+  },
+  "Debug-Mode": "Ladění režim"
 }

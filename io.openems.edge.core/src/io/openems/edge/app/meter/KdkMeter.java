@@ -83,7 +83,7 @@ public class KdkMeter extends AbstractOpenemsAppWithProps<KdkMeter, Property, Pa
 				})).setAutoGenerateField(false)), //
 		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def //
 				.setRequired(true) //
-				.setDefaultValue(7) //
+				.setDefaultValue(6) //
 				.setAutoGenerateField(false))), //
 		MODBUS_GROUP(AppDef.copyOfGeneric(CommunicationProps.modbusGroup(//
 				MODBUS_ID, MODBUS_ID.def(), MODBUS_UNIT_ID, MODBUS_UNIT_ID.def()))), //

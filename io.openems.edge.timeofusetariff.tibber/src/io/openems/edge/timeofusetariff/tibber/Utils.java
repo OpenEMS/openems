@@ -1,22 +1,27 @@
 package io.openems.edge.timeofusetariff.tibber;
 
+import static io.openems.common.utils.JsonUtils.getAsDouble;
+import static io.openems.common.utils.JsonUtils.getAsJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsOptionalString;
+import static io.openems.common.utils.JsonUtils.getAsString;
+import static io.openems.common.utils.JsonUtils.parseToJsonObject;
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
+import static java.util.stream.Collectors.joining;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSortedMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.JsonUtils;
+import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 
 public class Utils {
 
@@ -27,7 +32,7 @@ public class Utils {
 	}
 
 	/**
-	 * Parse the Tibber JSON to the Price Map.
+	 * Parse the Tibber JSON to {@link TimeOfUsePrices}.
 	 * 
 	 * <p>
 	 * If a filter is supplied, it is checked against 'id' (UUID) and 'appNickname'.
@@ -36,18 +41,20 @@ public class Utils {
 	 *
 	 * @param jsonData the Tibber JSON
 	 * @param filter   filter for 'id' or 'appNickname'; null/blank for no filter
-	 * @return the Price Map
+	 * @return the {@link TimeOfUsePrices}
 	 * @throws OpenemsNamedException on error
 	 */
-	protected static ImmutableSortedMap<ZonedDateTime, Float> parsePrices(String jsonData, String filter)
-			throws OpenemsNamedException {
-		var line = JsonUtils.parseToJsonObject(jsonData);
-		var homes = JsonUtils.getAsJsonObject(line, "data") //
-				.getAsJsonObject("viewer") //
-				.getAsJsonArray("homes");
+	protected static TimeOfUsePrices parsePrices(String jsonData, String filter) throws OpenemsNamedException {
+		var homes = getAsJsonArray(//
+				getAsJsonObject(//
+						getAsJsonObject(//
+								parseToJsonObject(jsonData), //
+								"data"), //
+						"viewer"), //
+				"homes");
 
 		// Parse all homes
-		SortedMap<ZonedDateTime, Float> result = null;
+		TimeOfUsePrices result = null;
 		OpenemsNamedException error = null;
 		var successCount = 0;
 		for (JsonElement home : homes) {
@@ -75,15 +82,15 @@ public class Utils {
 
 		} else if (successCount == 1) {
 			// Parsed exactly one home successfully
-			return ImmutableSortedMap.copyOf(result);
+			return result;
 
 		} else {
 			// successCount > 1
 			LOG.warn("Found multiple 'Homes'. Please configure a specific Home 'ID' or 'appNickname' from: "
 					+ homes.asList().stream() //
-							.map(home -> JsonUtils.getAsOptionalString(home, "id").orElse("") + ":"
-									+ JsonUtils.getAsOptionalString(home, "appNickname").orElse("")) //
-							.collect(Collectors.joining(", ")));
+							.map(home -> getAsOptionalString(home, "id").orElse("") + ":"
+									+ getAsOptionalString(home, "appNickname").orElse("")) //
+							.collect(joining(", ")));
 			throw new FoundMultipleHomesException();
 		}
 	}
@@ -93,49 +100,50 @@ public class Utils {
 	 * 
 	 * @param json   the 'home' JsonObject
 	 * @param filter filter for 'id' or 'appNickname'; null/blank for no filter
-	 * @return the parsed prices; null if filter does not match
+	 * @return the parsed {@link TimeOfUsePrices}; null if filter does not match
 	 * @throws OpenemsNamedException on parse error
 	 */
-	private static SortedMap<ZonedDateTime, Float> parseHome(JsonElement json, String filter)
-			throws OpenemsNamedException {
+	private static TimeOfUsePrices parseHome(JsonElement json, String filter) throws OpenemsNamedException {
 		// Match filter
 		if (filter != null && !filter.isBlank()) {
-			var id = JsonUtils.getAsString(json, "id"); //
-			var appNickname = JsonUtils.getAsOptionalString(json, "appNickname").orElse(""); //
+			var id = getAsString(json, "id"); //
+			var appNickname = getAsOptionalString(json, "appNickname").orElse(""); //
 			if (!filter.equals(id) && !filter.equals(appNickname)) {
 				return null;
 			}
 		}
 
-		var priceInfo = JsonUtils.getAsJsonObject(json, "currentSubscription") //
-				.getAsJsonObject("priceInfo");
+		var priceInfo = getAsJsonObject(//
+				getAsJsonObject(//
+						json, //
+						"currentSubscription"), //
+				"priceInfo");
 
 		// Price info for today and tomorrow.
-		var today = JsonUtils.getAsJsonArray(priceInfo, "today");
-		var tomorrow = JsonUtils.getAsJsonArray(priceInfo, "tomorrow");
+		var today = getAsJsonArray(priceInfo, "today");
+		var tomorrow = getAsJsonArray(priceInfo, "tomorrow");
 
 		// Adding to an array to avoid individual variables for individual for loops.
 		JsonArray[] days = { today, tomorrow };
 
-		var result = new TreeMap<ZonedDateTime, Float>();
+		var result = new TreeMap<ZonedDateTime, Double>();
 
 		// parse the arrays for price and time stamps.
-		for (JsonArray day : days) {
-			for (JsonElement element : day) {
-				// Multiply the price with 1000 to make it EUR/MWh.
-				var marketPrice = JsonUtils.getAsFloat(element, "total") * 1000;
-				var startTimeStamp = ZonedDateTime
-						.parse(JsonUtils.getAsString(element, "startsAt"), DateTimeFormatter.ISO_DATE_TIME)
+		for (var day : days) {
+			for (var element : day) {
+				// Multiply the price with 1000 to make it Currency/MWh.
+				var price = getAsDouble(element, "total") * 1000;
+				var startsAt = ZonedDateTime.parse(getAsString(element, "startsAt"), ISO_DATE_TIME)
 						.withZoneSameInstant(ZoneId.systemDefault());
 
 				// Adding the values in the Map.
-				result.put(startTimeStamp, marketPrice);
-				result.put(startTimeStamp.plusMinutes(15), marketPrice);
-				result.put(startTimeStamp.plusMinutes(30), marketPrice);
-				result.put(startTimeStamp.plusMinutes(45), marketPrice);
+				result.put(startsAt, price);
+				result.put(startsAt.plusMinutes(15), price);
+				result.put(startsAt.plusMinutes(30), price);
+				result.put(startsAt.plusMinutes(45), price);
 			}
 		}
-		return result;
+		return TimeOfUsePrices.from(result);
 	}
 
 	/**

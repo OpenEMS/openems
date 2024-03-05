@@ -119,7 +119,7 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 				.setAutoGenerateField(false)), //
 		MODBUS_UNIT_ID(MeterProps.modbusUnitId() //
 				.setRequired(true) //
-				.setDefaultValue(7) //
+				.setDefaultValue(6) //
 				.setAutoGenerateField(false)), //
 		MODBUS_GROUP(CommunicationProps.modbusGroup(//
 				SELECTED_MODBUS_ID, SELECTED_MODBUS_ID.def(), //

@@ -5,8 +5,6 @@ import { LOCALE_ID } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
-import { setDefaultOptions } from 'date-fns';
-import { de } from "date-fns/locale";
 
 import { Service } from "../shared";
 import { registerTranslateExtension } from "../translate.extension";
@@ -27,9 +25,8 @@ export async function sharedSetup(): Promise<TestContext> {
         ],
     }).compileComponents().then(() => {
         const translateService = TestBed.inject(TranslateService);
-        translateService.addLangs(['en', 'de']);
+        translateService.addLangs(['de']);
         translateService.use('de');
-        setDefaultOptions({ locale: de });
         registerLocaleData(localDE, 'de', localeDeExtra);
     });
 

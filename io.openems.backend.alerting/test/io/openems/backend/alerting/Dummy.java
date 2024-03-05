@@ -11,6 +11,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
@@ -20,14 +23,30 @@ import com.google.gson.JsonElement;
 import io.openems.backend.alerting.scheduler.MessageScheduler;
 import io.openems.backend.alerting.scheduler.MessageSchedulerService;
 import io.openems.backend.alerting.scheduler.MinuteTimer;
-import io.openems.backend.common.metadata.UserAlertingSettings;
+import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
+import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.test.DummyMetadata;
 import io.openems.common.channel.Level;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.TimeLeapClock;
 
 public class Dummy {
+
+	/**
+	 * Dummy ThreadPoolExecutor, that executes tasks in the caller Thread.
+	 *
+	 * @return Dummy {@link ThreadPoolExecutor}
+	 */
+	public static ThreadPoolExecutor executor() {
+		return new ThreadPoolExecutor(1, 1, 0, TimeUnit.MINUTES, new LinkedBlockingQueue<>()) {
+			@Override
+			public void execute(Runnable command) {
+				command.run();
+			}
+		};
+	}
 
 	public static class MailerImpl implements Mailer {
 		public record Mail(ZonedDateTime sentAt, String template) {
@@ -83,18 +102,32 @@ public class Dummy {
 
 	public static class AlertingMetadataImpl extends SimpleMetadataImpl {
 		private Collection<Edge> edges;
-		private Map<String, List<UserAlertingSettings>> alertingSettings;
+		private Map<String, List<OfflineEdgeAlertingSetting>> offlineSettings;
+		private Map<String, List<SumStateAlertingSetting>> sumStateSettings;
 		private Map<String, Level> sumStates = new HashMap<>(10);
 
 		/**
-		 * Initialize Metadata with test data for Alerting.
+		 * Initialize Metadata with test data for Offline-Alerting.
 		 *
 		 * @param edges    to add
 		 * @param settings to add
 		 */
-		public void initialize(Collection<Edge> edges, Map<String, List<UserAlertingSettings>> settings) {
+		public void initializeOffline(Collection<Edge> edges, Map<String, List<OfflineEdgeAlertingSetting>> settings) {
 			this.edges = edges;
-			this.alertingSettings = settings;
+			this.offlineSettings = settings;
+			this.sumStateSettings = Map.of();
+		}
+
+		/**
+		 * Initialize Metadata with test data for SumState-Alerting.
+		 *
+		 * @param edges    to add
+		 * @param settings to add
+		 */
+		public void initializeSumState(Collection<Edge> edges, Map<String, List<SumStateAlertingSetting>> settings) {
+			this.edges = edges;
+			this.sumStateSettings = settings;
+			this.offlineSettings = Map.of();
 		}
 
 		@Override
@@ -113,8 +146,18 @@ public class Dummy {
 		}
 
 		@Override
-		public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) {
-			return this.alertingSettings.get(edgeId);
+		public List<OfflineEdgeAlertingSetting> getEdgeOfflineAlertingSettings(String edgeId) throws OpenemsException {
+			return this.offlineSettings.get(edgeId);
+		}
+
+		@Override
+		public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException {
+			return this.sumStateSettings.get(edgeId);
+		}
+
+		@Override
+		public Optional<Level> getSumState(String edgeId) {
+			return Optional.ofNullable(this.sumStates.get(edgeId));
 		}
 
 		public void setSumState(String edgeId, Level sumState) {
@@ -125,8 +168,12 @@ public class Dummy {
 			return this.edges;
 		}
 
-		public Map<String, List<UserAlertingSettings>> getAlertingSettings() {
-			return this.alertingSettings;
+		public Map<String, List<OfflineEdgeAlertingSetting>> getOfflineSettings() {
+			return this.offlineSettings;
+		}
+
+		public Map<String, List<SumStateAlertingSetting>> getSumStateSettings() {
+			return this.sumStateSettings;
 		}
 	}
 
@@ -209,7 +256,7 @@ public class Dummy {
 		}
 	}
 
-	protected static Config testConfig(int initialDelay) {
+	protected static Config testConfig(int initialDelay, boolean onOffline, boolean onSumState) {
 		return new Config() {
 
 			@Override
@@ -220,6 +267,16 @@ public class Dummy {
 			@Override
 			public String webconsole_configurationFactory_nameHint() {
 				return "Alerting";
+			}
+
+			@Override
+			public boolean notifyOnSumStateChange() {
+				return onSumState;
+			}
+
+			@Override
+			public boolean notifyOnOffline() {
+				return onOffline;
 			}
 
 			@Override

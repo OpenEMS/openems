@@ -300,7 +300,7 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>
 			<artifactId>kotlinx-coroutines-core-jvm</artifactId>
-			<version>1.7.3</version>
+			<version>1.8.0</version>
 		</dependency>
 		<dependency>
 			<!-- HTML processing -->
@@ -393,7 +393,7 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.7.1</version>
+			<version>42.7.2</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
