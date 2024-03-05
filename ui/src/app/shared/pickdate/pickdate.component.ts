@@ -319,23 +319,23 @@ export class PickDateComponent implements OnInit, OnDestroy {
         // + 1000 to reach the next day
         switch (this.service.periodString) {
             case DefaultTypes.PeriodString.DAY: {
-                let currentDayTime = new Date();
-                let endOfDayTime = endOfDay(currentDayTime);
+                const currentDayTime = new Date();
+                const endOfDayTime = endOfDay(currentDayTime);
                 return differenceInMilliseconds(endOfDayTime, currentDayTime) + 1000;
             }
             case DefaultTypes.PeriodString.WEEK: {
-                let currentDayTime = new Date();
-                let endOfWeekTime = endOfWeek(currentDayTime, { weekStartsOn: 1 });
+                const currentDayTime = new Date();
+                const endOfWeekTime = endOfWeek(currentDayTime, { weekStartsOn: 1 });
                 return differenceInMilliseconds(endOfWeekTime, currentDayTime) + 1000;
             }
             case DefaultTypes.PeriodString.MONTH: {
-                let currentDayTime = new Date();
-                let endOfMonthTime = endOfMonth(currentDayTime);
+                const currentDayTime = new Date();
+                const endOfMonthTime = endOfMonth(currentDayTime);
                 return differenceInMilliseconds(endOfMonthTime, currentDayTime) + 1000;
             }
             case DefaultTypes.PeriodString.YEAR: {
-                let currentDayTime = new Date();
-                let endOfYearTime = endOfYear(currentDayTime);
+                const currentDayTime = new Date();
+                const endOfYearTime = endOfYear(currentDayTime);
                 return differenceInMilliseconds(endOfYearTime, currentDayTime) + 1000;
             }
         }

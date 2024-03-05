@@ -29,7 +29,7 @@ export class ModalComponent extends AbstractModal {
 
     protected override getChannelAddresses(): ChannelAddress[] {
         this.refreshChart = false;
-        let channels: ChannelAddress[] = [];
+        const channels: ChannelAddress[] = [];
         if (this.edge.roleIsAtLeast(Role.ADMIN)) {
             this.isAtLeastAdmin = true;
             if ('ess.id' in this.component.properties) {

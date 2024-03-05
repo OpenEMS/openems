@@ -111,11 +111,11 @@ export abstract class AbstractHistoryChart implements OnInit {
       return;
     }
 
-    let channelData: { data: { [name: string]: number[] } } = { data: {} };
+    const channelData: { data: { [name: string]: number[] } } = { data: {} };
 
-    let result = energyPeriodResponse.result;
-    let labels: Date[] = [];
-    for (let timestamp of result.timestamps) {
+    const result = energyPeriodResponse.result;
+    const labels: Date[] = [];
+    for (const timestamp of result.timestamps) {
       labels.push(new Date(timestamp));
     }
 
@@ -146,9 +146,9 @@ export abstract class AbstractHistoryChart implements OnInit {
     });
 
     // Fill datasets, labels and colors
-    let datasets: Chart.ChartDataset[] = [];
-    let displayValues: HistoryUtils.DisplayValues[] = chartObject.output(channelData.data);
-    let legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
+    const datasets: Chart.ChartDataset[] = [];
+    const displayValues: HistoryUtils.DisplayValues[] = chartObject.output(channelData.data);
+    const legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
     displayValues.forEach((element, index) => {
       let nameSuffix = null;
 
@@ -157,18 +157,18 @@ export abstract class AbstractHistoryChart implements OnInit {
         nameSuffix = element.nameSuffix(energyResponse);
       }
 
-      let yAxis = chartObject.yAxes.find(yaxis => yaxis?.yAxisId == (element?.yAxisId ?? chartObject.yAxes[0]?.yAxisId));
+      const yAxis = chartObject.yAxes.find(yaxis => yaxis?.yAxisId == (element?.yAxisId ?? chartObject.yAxes[0]?.yAxisId));
 
       // Filter existing values
       if (element) {
-        let label = AbstractHistoryChart.getTooltipsLabelName(element.name, yAxis?.unit, nameSuffix);
-        let data: number[] | null = element.converter();
+        const label = AbstractHistoryChart.getTooltipsLabelName(element.name, yAxis?.unit, nameSuffix);
+        const data: number[] | null = element.converter();
 
         if (data === null || data === undefined) {
           return;
         }
 
-        let configuration = AbstractHistoryChart.fillData(element, label, chartObject, chartType, data);
+        const configuration = AbstractHistoryChart.fillData(element, label, chartObject, chartType, data);
         datasets.push(...configuration.datasets);
         legendOptions.push(...configuration.legendOptions);
       }
@@ -183,12 +183,12 @@ export abstract class AbstractHistoryChart implements OnInit {
 
   public static fillData(element: HistoryUtils.DisplayValues, label: string, chartObject: HistoryUtils.ChartData, chartType: 'line' | 'bar', data: number[] | null): { datasets: Chart.ChartDataset[], legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] } {
 
-    let legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
-    let datasets: Chart.ChartDataset[] = [];
+    const legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
+    const datasets: Chart.ChartDataset[] = [];
 
     // Enable one dataset to be displayed in multiple stacks
     if (Array.isArray(element.stack)) {
-      for (let stack of element.stack) {
+      for (const stack of element.stack) {
         datasets.push(AbstractHistoryChart.getDataSet(element, label, data, stack, chartObject, element.custom?.type ?? chartType));
         legendOptions.push(AbstractHistoryChart.getLegendOptions(label, element));
       }
@@ -266,7 +266,7 @@ export abstract class AbstractHistoryChart implements OnInit {
   protected loadChart() {
     this.labels = [];
     this.errorResponse = null;
-    let unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).resolution.unit;
+    const unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).resolution.unit;
 
     // Show Barchart if resolution is days or months
     if (ChronoUnit.isAtLeast(unit, ChronoUnit.Type.DAYS)) {
@@ -280,7 +280,7 @@ export abstract class AbstractHistoryChart implements OnInit {
         // TODO after chartjs migration, look for config
         energyPeriodResponse = DateTimeUtils.normalizeTimestamps(unit, energyPeriodResponse);
 
-        let displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, energyPeriodResponse, energyResponse);
+        const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, energyPeriodResponse, energyResponse);
         this.datasets = displayValues.datasets;
         this.legendOptions = displayValues.legendOptions;
         this.labels = displayValues.labels;
@@ -298,7 +298,7 @@ export abstract class AbstractHistoryChart implements OnInit {
           dataResponse = DateTimeUtils.normalizeTimestamps(unit, dataResponse);
           this.chartType = 'line';
           this.chartObject = this.getChartData();
-          let displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, dataResponse, energyResponse);
+          const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, dataResponse, energyResponse);
           this.datasets = displayValues.datasets;
           this.legendOptions = displayValues.legendOptions;
           this.labels = displayValues.labels;
@@ -357,7 +357,7 @@ export abstract class AbstractHistoryChart implements OnInit {
         options.plugins.tooltip.mode = 'index';
 
         if (chartObject) {
-          for (let yAxis of chartObject.yAxes) {
+          for (const yAxis of chartObject.yAxes) {
             options.scales[yAxis.yAxisId]['stacked'] = false;
           }
         }
@@ -378,15 +378,15 @@ export abstract class AbstractHistoryChart implements OnInit {
   protected queryHistoricTimeseriesData(fromDate: Date, toDate: Date, res?: Resolution): Promise<QueryHistoricTimeseriesDataResponse> {
 
     this.isDataExisting = true;
-    let resolution = res ?? calculateResolution(this.service, fromDate, toDate).resolution;
+    const resolution = res ?? calculateResolution(this.service, fromDate, toDate).resolution;
 
-    let result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
+    const result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(async () => {
-          let channelAddresses = (await this.getChannelAddresses()).powerChannels;
-          let request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
+          const channelAddresses = (await this.getChannelAddresses()).powerChannels;
+          const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
           edge.sendRequest(this.service.websocket, request).then(response => {
-            let result = (response as QueryHistoricTimeseriesDataResponse)?.result;
+            const result = (response as QueryHistoricTimeseriesDataResponse)?.result;
             if (Object.keys(result).length != 0) {
               resolve(response as QueryHistoricTimeseriesDataResponse);
             } else {
@@ -425,18 +425,18 @@ export abstract class AbstractHistoryChart implements OnInit {
   protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> {
 
     this.isDataExisting = true;
-    let resolution = calculateResolution(this.service, fromDate, toDate).resolution;
+    const resolution = calculateResolution(this.service, fromDate, toDate).resolution;
 
-    let result: Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> = new Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse>((resolve, reject) => {
+    const result: Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> = new Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse>((resolve, reject) => {
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(async () => {
 
-          let channelAddresses = (await this.getChannelAddresses()).energyChannels.filter(element => element != null);
-          let request = new QueryHistoricTimeseriesEnergyPerPeriodRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
+          const channelAddresses = (await this.getChannelAddresses()).energyChannels.filter(element => element != null);
+          const request = new QueryHistoricTimeseriesEnergyPerPeriodRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
           if (channelAddresses.length > 0) {
 
             edge.sendRequest(this.service.websocket, request).then(response => {
-              let result = (response as QueryHistoricTimeseriesEnergyPerPeriodResponse)?.result;
+              const result = (response as QueryHistoricTimeseriesEnergyPerPeriodResponse)?.result;
               if (Object.keys(result).length != 0) {
                 resolve(response as QueryHistoricTimeseriesEnergyPerPeriodResponse);
               } else {
@@ -481,14 +481,14 @@ export abstract class AbstractHistoryChart implements OnInit {
 
     this.isDataExisting = true;
 
-    let result: Promise<QueryHistoricTimeseriesEnergyResponse> = new Promise<QueryHistoricTimeseriesEnergyResponse>((resolve, reject) => {
+    const result: Promise<QueryHistoricTimeseriesEnergyResponse> = new Promise<QueryHistoricTimeseriesEnergyResponse>((resolve, reject) => {
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(async () => {
-          let channelAddresses = (await this.getChannelAddresses()).energyChannels?.filter(element => element != null) ?? [];
-          let request = new QueryHistoricTimeseriesEnergyRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses);
+          const channelAddresses = (await this.getChannelAddresses()).energyChannels?.filter(element => element != null) ?? [];
+          const request = new QueryHistoricTimeseriesEnergyRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses);
           if (channelAddresses.length > 0) {
             edge.sendRequest(this.service.websocket, request).then(response => {
-              let result = (response as QueryHistoricTimeseriesEnergyResponse)?.result;
+              const result = (response as QueryHistoricTimeseriesEnergyResponse)?.result;
               if (Object.keys(result).length != 0) {
                 resolve(response as QueryHistoricTimeseriesEnergyResponse);
               } else {
@@ -520,7 +520,7 @@ export abstract class AbstractHistoryChart implements OnInit {
    * @returns period for Tooltip Header
    */
   protected static toTooltipTitle(fromDate: Date, toDate: Date, date: Date, service: Service): string {
-    let unit = calculateResolution(service, fromDate, toDate).resolution.unit;
+    const unit = calculateResolution(service, fromDate, toDate).resolution.unit;
 
     switch (unit) {
       case ChronoUnit.Type.YEARS:
@@ -551,7 +551,7 @@ export abstract class AbstractHistoryChart implements OnInit {
 
     let tooltipsLabel: string | null = null;
     let options: Chart.ChartOptions = Utils.deepCopy(<Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS));
-    let displayValues: HistoryUtils.DisplayValues[] = chartObject.output(channelData.data);
+    const displayValues: HistoryUtils.DisplayValues[] = chartObject.output(channelData.data);
 
     const showYAxisTitle: boolean = chartObject.yAxes.length > 1;
     chartObject.yAxes.forEach((element) => {
@@ -563,7 +563,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       if (tooltipItems?.length === 0) {
         return null;
       }
-      let date = DateUtils.stringToDate(tooltipItems[0]?.label);
+      const date = DateUtils.stringToDate(tooltipItems[0]?.label);
       return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
     };
 
@@ -572,11 +572,11 @@ export abstract class AbstractHistoryChart implements OnInit {
     options.scales.x['time'].unit = calculateResolution(service, service.historyPeriod.value.from, service.historyPeriod.value.to).timeFormat;
 
     options.plugins.tooltip.callbacks.label = (item: Chart.TooltipItem<any>) => {
-      let label = item.dataset.label;
-      let value = item.dataset.data[item.dataIndex];
+      const label = item.dataset.label;
+      const value = item.dataset.data[item.dataIndex];
 
-      let displayValue = displayValues.find(element => element.name === label.split(":")[0]);
-      let unit = displayValue?.custom?.unit
+      const displayValue = displayValues.find(element => element.name === label.split(":")[0]);
+      const unit = displayValue?.custom?.unit
         ?? chartObject.yAxes[0]?.unit;
 
       if (value === null) {
@@ -601,17 +601,17 @@ export abstract class AbstractHistoryChart implements OnInit {
 
     options.plugins.legend.labels.generateLabels = function (chart: Chart.Chart) {
 
-      let chartLegendLabelItems: Chart.LegendItem[] = [];
+      const chartLegendLabelItems: Chart.LegendItem[] = [];
       chart.data.datasets.forEach((dataset: Chart.ChartDataset, index) => {
 
-        let legendItem = legendOptions?.find(element => element.label == dataset.label);
+        const legendItem = legendOptions?.find(element => element.label == dataset.label);
         //Remove duplicates like 'directConsumption' from legend
         if (chartLegendLabelItems.filter(element => element['text'] == dataset.label).length > 0) {
 
           return;
         }
 
-        let isHidden = legendItem?.strokeThroughHidingStyle ?? null;
+        const isHidden = legendItem?.strokeThroughHidingStyle ?? null;
 
         displayValues.filter(element => element.name == dataset.label?.split(":")[0]).forEach(() => {
           chartLegendLabelItems.push({
@@ -637,22 +637,22 @@ export abstract class AbstractHistoryChart implements OnInit {
       }
 
       // only way to figure out, which stack is active
-      var tooltipItem = items[0]; // Assuming only one tooltip item is displayed
-      var datasetIndex = tooltipItem.dataIndex;
+      const tooltipItem = items[0]; // Assuming only one tooltip item is displayed
+      const datasetIndex = tooltipItem.dataIndex;
       // Get the dataset object
-      var datasets = items.map(element => element.dataset);
+      const datasets = items.map(element => element.dataset);
 
       // Assuming the dataset is a bar chart using the 'stacked' option
-      var stack = items[0].dataset.stack || datasetIndex;
+      const stack = items[0].dataset.stack || datasetIndex;
 
       // If only one item in stack do not show sum of values
       if (items.length <= 1) {
         return null;
       }
 
-      let afterTitle = typeof chartObject.tooltip?.afterTitle == 'function' ? chartObject.tooltip?.afterTitle(stack) : null;
+      const afterTitle = typeof chartObject.tooltip?.afterTitle == 'function' ? chartObject.tooltip?.afterTitle(stack) : null;
 
-      let totalValue = datasets.filter(el => el.stack == stack).reduce((_total, dataset) => Utils.addSafely(_total, Math.abs(dataset.data[datasetIndex])), 0);
+      const totalValue = datasets.filter(el => el.stack == stack).reduce((_total, dataset) => Utils.addSafely(_total, Math.abs(dataset.data[datasetIndex])), 0);
       if (afterTitle) {
         return afterTitle + ": " + formatNumber(totalValue, 'de', chartObject.tooltip.formatNumber) + ' ' + tooltipsLabel;
       }
@@ -662,9 +662,9 @@ export abstract class AbstractHistoryChart implements OnInit {
 
     // Remove duplicates from legend, if legendItem with two or more occurrences in legend, use one legendItem to trigger them both
     options.plugins.legend.onClick = function (event: Chart.ChartEvent, legendItem: Chart.LegendItem, legend) {
-      let chart: Chart.Chart = this.chart;
+      const chart: Chart.Chart = this.chart;
 
-      let legendItems = chart.data.datasets.reduce((arr, ds, i) => {
+      const legendItems = chart.data.datasets.reduce((arr, ds, i) => {
         if (ds.label == legendItem.text) {
           arr.push({ label: ds.label, index: i });
         }
@@ -674,7 +674,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       legendItems.forEach(item => {
         // original.call(this, event, legendItem1);
         setLabelVisible(item.label, !chart.isDatasetVisible(legendItem.datasetIndex));
-        var meta = chart.getDatasetMeta(item.index);
+        const meta = chart.getDatasetMeta(item.index);
         // See controller.isDatasetVisible comment
         meta.hidden = meta.hidden === null ? !chart.data.datasets[item.index].hidden : null;
       });
@@ -853,7 +853,7 @@ export abstract class AbstractHistoryChart implements OnInit {
         });
       }
     });
-  };
+  }
 
   public static getYAxisTitle(title: YAxisTitle, translate: TranslateService, chartType: 'bar' | 'line', customTitle?: string): string {
 
@@ -999,16 +999,16 @@ export abstract class AbstractHistoryChart implements OnInit {
    */
   private showZeroPlugin = {
     beforeRender: function (chartInstance) {
-      let datasets = chartInstance.config.data.datasets;
+      const datasets = chartInstance.config.data.datasets;
       for (let i = 0; i < datasets.length; i++) {
-        let meta = datasets[i]._meta;
+        const meta = datasets[i]._meta;
         // It counts up every time you change something on the chart so
         // this is a way to get the info on whichever index it's at
-        let metaData = meta[Object.keys(meta)[0]];
-        let bars = metaData.data;
+        const metaData = meta[Object.keys(meta)[0]];
+        const bars = metaData.data;
 
         for (let j = 0; j < bars.length; j++) {
-          let model = bars[j]._model;
+          const model = bars[j]._model;
           if (metaData.type === "horizontalBar" && model.base === model.x) {
             model.x = model.base + 2;
           }

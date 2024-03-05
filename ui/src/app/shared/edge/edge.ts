@@ -86,9 +86,9 @@ export class Edge {
       this.isRefreshConfigBlocked = false;
     }, 1000);
 
-    let request = new GetEdgeConfigRequest();
+    const request = new GetEdgeConfigRequest();
     this.sendRequest(websocket, request).then(response => {
-      let edgeConfigResponse = response as GetEdgeConfigResponse;
+      const edgeConfigResponse = response as GetEdgeConfigResponse;
       this.config.next(new EdgeConfig(this, edgeConfigResponse.result));
     }).catch(reason => {
       console.warn("Unable to refresh config", reason);
@@ -198,11 +198,11 @@ export class Edge {
         this.subscribeChannelsTimeout = null;
 
         // merge channels from currentDataSubscribes
-        let channels: ChannelAddress[] = [];
-        for (let componentId in this.subscribedChannels) {
+        const channels: ChannelAddress[] = [];
+        for (const componentId in this.subscribedChannels) {
           channels.push.apply(channels, this.subscribedChannels[componentId]);
         }
-        let request = new SubscribeChannelsRequest(channels);
+        const request = new SubscribeChannelsRequest(channels);
         this.sendRequest(websocket, request).then(() => {
           this.subscribeChannelsSuccessful = true;
         }).catch(reason => {
@@ -243,7 +243,7 @@ export class Edge {
    * @param properties  the properties to be updated.
    */
   public createComponentConfig(ws: Websocket, factoryPid: string, properties: { name: string, value: any }[]): Promise<JsonrpcResponseSuccess> {
-    let request = new CreateComponentConfigRequest({ factoryPid: factoryPid, properties: properties });
+    const request = new CreateComponentConfigRequest({ factoryPid: factoryPid, properties: properties });
     return this.sendRequest(ws, request);
   }
 
@@ -255,7 +255,7 @@ export class Edge {
    * @param properties  the properties to be updated.
    */
   public updateComponentConfig(ws: Websocket, componentId: string, properties: { name: string, value: any }[]): Promise<JsonrpcResponseSuccess> {
-    let request = new UpdateComponentConfigRequest({ componentId: componentId, properties: properties });
+    const request = new UpdateComponentConfigRequest({ componentId: componentId, properties: properties });
     return this.sendRequest(ws, request);
   }
 
@@ -266,7 +266,7 @@ export class Edge {
    * @param componentId the OpenEMS Edge Component-ID
    */
   public deleteComponentConfig(ws: Websocket, componentId: string): Promise<JsonrpcResponseSuccess> {
-    let request = new DeleteComponentConfigRequest({ componentId: componentId });
+    const request = new DeleteComponentConfigRequest({ componentId: componentId });
     return this.sendRequest(ws, request);
   }
 
@@ -278,7 +278,7 @@ export class Edge {
    * @param responseCallback the JSON-RPC Response callback
    */
   public sendRequest(ws: Websocket, request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
-    let wrap = new EdgeRpcRequest({ edgeId: this.id, payload: request });
+    const wrap = new EdgeRpcRequest({ edgeId: this.id, payload: request });
     return new Promise((resolve, reject) => {
       ws.sendRequest(wrap).then(response => {
         resolve(response['result']['payload']);

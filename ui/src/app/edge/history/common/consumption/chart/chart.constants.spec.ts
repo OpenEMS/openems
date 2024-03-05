@@ -14,4 +14,4 @@ export function expectView(config: EdgeConfig, testContext: TestContext, chartTy
         DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config),
         testContext.translate), chartType, channels, testContext, config)))
     .toEqual(removeFunctions(view));
-};
+}

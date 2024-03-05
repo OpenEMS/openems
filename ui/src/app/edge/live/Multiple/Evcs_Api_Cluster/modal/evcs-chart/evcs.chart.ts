@@ -54,10 +54,10 @@ export class EvcsChartComponent implements OnInit, OnChanges {
     }
     this.loading = true;
     let index = 0;
-    for (let evcsId in this.evcsMap) {
-      let chargePower = this.edge.currentData.value.channel[evcsId + '/ChargePower'];
-      let chargePowerKW = chargePower / 1000.0;
-      let alias = this.evcsConfigMap[evcsId].properties.alias;
+    for (const evcsId in this.evcsMap) {
+      const chargePower = this.edge.currentData.value.channel[evcsId + '/ChargePower'];
+      const chargePowerKW = chargePower / 1000.0;
+      const alias = this.evcsConfigMap[evcsId].properties.alias;
       if (this.datasets[index] == null) {
         this.datasets.push({
           label: alias,
@@ -70,13 +70,13 @@ export class EvcsChartComponent implements OnInit, OnChanges {
         this.datasets[index].data = [chargePowerKW != null ? chargePowerKW : 0];
       }
       index++;
-    };
+    }
     this.loading = false;
   }
 
   getMaxPower() {
     let maxPower: number;
-    let minPower = 22;
+    const minPower = 22;
     let maxHW = this.currentData[this.componentId + '/MaximumHardwarePower'];
     let chargePower = this.currentData[this.componentId + '/ChargePower'];
     maxHW = maxHW == null ? minPower : maxHW / 1000;
@@ -132,7 +132,7 @@ export const DEFAULT_BAR_CHART_OPTIONS: BarChartOptions = {
       label(tooltipItems: BarChartTooltipItem, data: Data): string {
         let value: number = tooltipItems.yLabel; //.toFixed(2);
         value = parseFloat(value.toFixed(2));
-        let label = data.datasets[tooltipItems.datasetIndex].label;
+        const label = data.datasets[tooltipItems.datasetIndex].label;
         return label + ": " + value.toLocaleString('de-DE') + " kW";
       },
     },

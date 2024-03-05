@@ -64,17 +64,17 @@ export namespace GetAppAssistant {
     }
 
     export function postprocess(appAssistant: AppAssistant): AppAssistant {
-        let fields = appAssistant.fields;
+        const fields = appAssistant.fields;
 
         let hasAliasField = false;
-        for (let field of fields) {
+        for (const field of fields) {
             if (eachFieldRecursive(fields, field)) {
                 hasAliasField = true;
             }
         }
         if (!hasAliasField) {
             // insert alias field into appAssistent fields
-            let aliasField = { key: 'ALIAS', type: 'input', templateOptions: { label: 'Alias' }, defaultValue: appAssistant.alias };
+            const aliasField = { key: 'ALIAS', type: 'input', templateOptions: { label: 'Alias' }, defaultValue: appAssistant.alias };
             appAssistant.fields.splice(0, 0, aliasField);
         }
         return appAssistant;
@@ -91,7 +91,7 @@ export namespace GetAppAssistant {
                     if (!fieldGroup) {
                         return;
                     }
-                    for (let f of fieldGroup) {
+                    for (const f of fieldGroup) {
                         recursivIterate(f);
                     }
                 });
@@ -148,7 +148,7 @@ export namespace GetAppAssistant {
             if (!fieldGroup) {
                 return;
             }
-            for (let f of fieldGroup) {
+            for (const f of fieldGroup) {
                 if (eachFieldRecursive(rootFields, f)) {
                     childHasAlias = true;
                 }
@@ -270,7 +270,7 @@ export namespace GetAppAssistant {
             }
 
             const smallestIndex = [' ', ')'].reduce((previous, current) => {
-                let index = part.indexOf(current);
+                const index = part.indexOf(current);
                 if (index === -1) {
                     return previous;
                 }

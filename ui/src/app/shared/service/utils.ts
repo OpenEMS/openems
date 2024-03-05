@@ -64,7 +64,7 @@ export class Utils {
       } else {
         copy = {};
       }
-      for (let attr in obj) {
+      for (const attr in obj) {
         if (obj.hasOwnProperty(attr)) {
           copy[attr] = this.deepCopy(obj[attr], copy[attr]);
         }
@@ -214,10 +214,10 @@ export class Utils {
    * @param bases   array of base-strings
    * @returns       true if all filter strings exist in any base-strings
    */
-  public static matchAll(filters: string[], bases: string[]): Boolean {
-    for (let filter of filters) {
+  public static matchAll(filters: string[], bases: string[]): boolean {
+    for (const filter of filters) {
       let filterMatched = false;
-      for (let base of bases) {
+      for (const base of bases) {
         if (base.includes(filter)) {
           filterMatched = true;
         }
@@ -255,7 +255,7 @@ export class Utils {
     if (value == null) {
       return '-';
     }
-    let thisValue: number = (value / 1000);
+    const thisValue: number = (value / 1000);
 
     if (thisValue >= 0) {
       return formatNumber(thisValue, 'de', '1.0-1') + ' kW';
@@ -335,7 +335,7 @@ export class Utils {
     } else {
       return { name: translate.instant('General.chargePower'), value: power * -1 };
     }
-  };
+  }
 
 
   /**
@@ -365,7 +365,7 @@ export class Utils {
    */
   public static CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService) => {
     return (value: number): string => {
-      var date: Date = new Date();
+      const date: Date = new Date();
       date.setHours(0, 0, 0, 0);
       date.setMinutes(value);
       return date.toLocaleTimeString(translate.getBrowserCultureLang(), { hour: '2-digit', minute: '2-digit' });
@@ -434,11 +434,11 @@ export class Utils {
   public static downloadXlsx(response: Base64PayloadResponse, filename: string) {
     // decode base64 string, remove space for IE compatibility
     // source: https://stackoverflow.com/questions/36036280/base64-representing-pdf-to-blob-javascript/45872086
-    var binary = atob(response.result.payload.replace(/\s/g, ''));
-    var len = binary.length;
-    var buffer = new ArrayBuffer(len);
-    var view = new Uint8Array(buffer);
-    for (var i = 0; i < len; i++) {
+    const binary = atob(response.result.payload.replace(/\s/g, ''));
+    const len = binary.length;
+    const buffer = new ArrayBuffer(len);
+    const view = new Uint8Array(buffer);
+    for (let i = 0; i < len; i++) {
       view[i] = binary.charCodeAt(i);
     }
     const data: Blob = new Blob([view], {
@@ -580,8 +580,8 @@ export class Utils {
    */
   public static calculateOtherConsumption(channelData: HistoryUtils.ChannelData, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number[] {
 
-    let totalEvcsConsumption: number[] = [];
-    let totalMeteredConsumption: number[] = [];
+    const totalEvcsConsumption: number[] = [];
+    const totalMeteredConsumption: number[] = [];
 
     evcsComponents.forEach(component => {
       channelData[component.id + '/ChargePower']?.forEach((value, index) => {

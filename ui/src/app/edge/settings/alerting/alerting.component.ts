@@ -12,7 +12,7 @@ export enum AlertingType {
   offline = 0,
   fault = 1,
   warning = 2
-};
+}
 
 type DefaultValues = { [K in AlertingType]: Delay[]; };
 type Delay = { value: number, label: string };
@@ -64,7 +64,7 @@ export class AlertingComponent implements OnInit {
         this.user = metadata.user;
       });
 
-      let request = new GetUserAlertingConfigsRequest({ edgeId: this.edge.id });
+      const request = new GetUserAlertingConfigsRequest({ edgeId: this.edge.id });
 
       this.sendRequest(request).then(response => {
         const result = response.result;
@@ -97,10 +97,10 @@ export class AlertingComponent implements OnInit {
     this.otherUserInformation = [];
     this.otherUserForm = new FormGroup({});
 
-    var sorted = this.sortedAlphabetically(response);
+    const sorted = this.sortedAlphabetically(response);
 
     sorted.forEach((r) => {
-      var setting: AlertingSetting = {
+      const setting: AlertingSetting = {
         userLogin: r.userLogin,
         offlineEdgeDelay: r.offlineEdgeDelay,
         faultEdgeDelay: r.faultEdgeDelay,
@@ -132,7 +132,7 @@ export class AlertingComponent implements OnInit {
   }
 
   private getValueOrDefault(setting: AlertingSetting, type: AlertingType) {
-    var val = this.getValue(setting, type);
+    const val = this.getValue(setting, type);
     return val <= 0 ? this.defaultValues[type][0].value : val;
   }
 
@@ -205,20 +205,20 @@ export class AlertingComponent implements OnInit {
   }
 
   protected setUsersAlertingConfig() {
-    let edgeId: string = this.edge.id;
+    const edgeId: string = this.edge.id;
 
-    let dirtyformGroups: FormGroup<any>[] = [];
-    let changedUserSettings: UserSettingRequest[] = [];
+    const dirtyformGroups: FormGroup<any>[] = [];
+    const changedUserSettings: UserSettingRequest[] = [];
 
     if (this.currentUserForm.dirty) {
-      var formGroup = this.currentUserForm;
+      const formGroup = this.currentUserForm;
       dirtyformGroups.push(formGroup);
 
-      let offlineEdgeDelay = this.currentUserInformation.isOfflineActive ?
+      const offlineEdgeDelay = this.currentUserInformation.isOfflineActive ?
         this.currentUserForm.controls["offlineEdgeDelay"].value : 0;
-      let faultEdgeDelay = this.currentUserInformation.isFaultActive ?
+      const faultEdgeDelay = this.currentUserInformation.isFaultActive ?
         this.currentUserForm.controls["faultEdgeDelay"].value : 0;
-      let warningEdgeDelay = this.currentUserInformation.isWarningActive ?
+      const warningEdgeDelay = this.currentUserInformation.isWarningActive ?
         this.currentUserForm.controls["warningEdgeDelay"].value : 0;
 
       changedUserSettings.push({
@@ -229,17 +229,17 @@ export class AlertingComponent implements OnInit {
       });
     }
 
-    let userOptions: AlertingSetting[] = [];
+    const userOptions: AlertingSetting[] = [];
     if (this.otherUserInformation) {
       if (this.otherUserForm.dirty) {
         dirtyformGroups.push(this.otherUserForm);
 
-        for (let user of this.otherUserInformation) {
-          let control = this.otherUserForm.controls[user.userLogin];
+        for (const user of this.otherUserInformation) {
+          const control = this.otherUserForm.controls[user.userLogin];
           if (control.dirty) {
-            let offlineEdgeDelay = control.value['offlineEdgeDelay'];
-            let faultEdgeDelay = control.value['faultEdgeDelay'];
-            let warningEdgeDelay = control.value['warningEdgeDelay'];
+            const offlineEdgeDelay = control.value['offlineEdgeDelay'];
+            const faultEdgeDelay = control.value['faultEdgeDelay'];
+            const warningEdgeDelay = control.value['warningEdgeDelay'];
             //let isActivated = control.value['isActivated'];
             changedUserSettings.push({
               userLogin: user.userLogin,
@@ -255,7 +255,7 @@ export class AlertingComponent implements OnInit {
 
     console.log(changedUserSettings);
 
-    let request = new SetUserAlertingConfigsRequest({ edgeId: edgeId, userSettings: changedUserSettings });
+    const request = new SetUserAlertingConfigsRequest({ edgeId: edgeId, userSettings: changedUserSettings });
     this.sendRequestAndUpdate(request, dirtyformGroups);
   }
 
@@ -269,12 +269,12 @@ export class AlertingComponent implements OnInit {
     this.sendRequest(request)
       .then(() => {
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-        for (let group of formGroup.values()) {
+        for (const group of formGroup.values()) {
           group.markAsPristine();
         }
       })
       .catch((response) => {
-        let error = response.error;
+        const error = response.error;
         this.errorToast(this.translate.instant('General.changeFailed'), error.message);
       });
   }
@@ -290,7 +290,7 @@ export class AlertingComponent implements OnInit {
       this.websocket.sendRequest(request).then(response => {
         resolve(response as GetUserAlertingConfigsResponse);
       }).catch(reason => {
-        let error = reason.error;
+        const error = reason.error;
         console.error(error);
         this.errorToast(this.translate.instant('Edge.Config.Alerting.toast.error'), error.message);
         reject(reason);

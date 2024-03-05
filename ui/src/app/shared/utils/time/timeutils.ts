@@ -18,7 +18,7 @@ export class TimeUtils {
 
     const decimalPipe: DecimalPipe = new DecimalPipe(locale ?? Language.DEFAULT.key);
     let minutes = value / 60;
-    let hours = Math.floor(minutes / 60);
+    const hours = Math.floor(minutes / 60);
     minutes -= hours * 60;
 
     if (hours <= 23 && minutes > 0) {

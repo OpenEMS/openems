@@ -16,12 +16,12 @@ export namespace DummyConfig {
             components: <unknown>components?.reduce((acc, c) => ({ ...acc, [c.id]: c }), {}),
             factories: <unknown>components?.map(c => c.factory),
         });
-    };
+    }
 
     export function convertDummyEdgeConfigToRealEdgeConfig(edgeConfig: EdgeConfig): EdgeConfig {
-        let components = Object.values(edgeConfig?.components) ?? null;
+        const components = Object.values(edgeConfig?.components) ?? null;
 
-        let factories = {};
+        const factories = {};
         components.forEach(obj => {
             const component = obj as unknown;
             if (factories[component['factoryId']]) {

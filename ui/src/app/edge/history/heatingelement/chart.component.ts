@@ -48,20 +48,20 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getCurrentEdge().then(() => {
-        let result = (response as QueryHistoricTimeseriesDataResponse).result;
+        const result = (response as QueryHistoricTimeseriesDataResponse).result;
         // convert labels
-        let labels: Date[] = [];
-        for (let timestamp of result.timestamps) {
+        const labels: Date[] = [];
+        for (const timestamp of result.timestamps) {
           labels.push(new Date(timestamp));
         }
         this.labels = labels;
 
         // convert datasets
-        let datasets = [];
-        let level = this.component.id + '/Level';
+        const datasets = [];
+        const level = this.component.id + '/Level';
 
         if (level in result.data) {
-          let levelData = result.data[level].map(value => {
+          const levelData = result.data[level].map(value => {
             if (value == null) {
               return null;
             } else {
@@ -96,13 +96,13 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
       this.unit = YAxisTitle.NONE;
       await this.setOptions(this.options);
       this.applyControllerSpecificOptions(this.options);
-    });;
+    });
   }
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
-      let levels = new ChannelAddress(this.component.id, 'Level');
-      let channeladdresses = [levels];
+      const levels = new ChannelAddress(this.component.id, 'Level');
+      const channeladdresses = [levels];
       resolve(channeladdresses);
     });
   }

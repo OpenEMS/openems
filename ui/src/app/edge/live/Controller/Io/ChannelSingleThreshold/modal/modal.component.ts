@@ -124,7 +124,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
   }
 
   public updateMode(event: CustomEvent) {
-    let oldMode = this.component.properties.mode;
+    const oldMode = this.component.properties.mode;
     let newMode: mode;
 
     switch (event.detail.value) {
@@ -153,7 +153,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
     }
   }
 
-  private convertToChannelAddress(inputMode: inputMode): String {
+  private convertToChannelAddress(inputMode: inputMode): string {
     switch (inputMode) {
       case 'SOC':
         return '_sum/EssSoc';
@@ -186,7 +186,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
       if (this.edge.roleIsAtLeast('owner')) {
         if (this.minimumSwitchingTime.valid && this.threshold.valid && this.switchedLoadPower.valid) {
           if (this.threshold.value > this.switchedLoadPower.value) {
-            let updateComponentArray = [];
+            const updateComponentArray = [];
             Object.keys(this.formGroup.controls).forEach((element, index) => {
               if (this.formGroup.controls[element].dirty) {
                 // catch inputMode and convert it to inputChannelAddress
