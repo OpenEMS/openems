@@ -81,12 +81,8 @@ export class ChartComponent extends AbstractHistoryChart {
         return [
           {
             name: translate.instant('General.production'),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/ProductionActiveEnergy'];
-            },
-            converter: () => {
-              return data['ProductionActivePower'];
-            },
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data['_sum/ProductionActiveEnergy'],
+            converter: () => data['ProductionActivePower'],
             color: 'rgb(45,143,171)',
             stack: 0,
             hiddenOnInit: chartType == 'line' ? false : true,
@@ -110,15 +106,11 @@ export class ChartComponent extends AbstractHistoryChart {
           // Charge Power
           {
             name: translate.instant('General.chargePower'),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/EssDcChargeEnergy'];
-            },
-            converter: () => {
-              return chartType === 'line' ?
-                data['EssCharge']?.map((value, index) => {
-                  return HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(Utils.subtractSafely(value, data['ProductionDcActual']?.[index]));
-                }) : data['EssCharge'];
-            },
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data['_sum/EssDcChargeEnergy'],
+            converter: () => chartType === 'line' //
+              ? data['EssCharge']?.map((value, index) => {
+                return HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(Utils.subtractSafely(value, data['ProductionDcActual']?.[index]));
+              }) : data['EssCharge'],
             color: 'rgb(0,223,0)',
             stack: 1,
             ...(chartType === 'line' && { order: 6 }),
@@ -127,9 +119,7 @@ export class ChartComponent extends AbstractHistoryChart {
           // Discharge Power
           {
             name: translate.instant('General.dischargePower'),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/EssDcDischargeEnergy'];
-            },
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data['_sum/EssDcDischargeEnergy'],
             converter: () => {
               return chartType === 'line' ?
                 data['EssDischarge']?.map((value, index) => {
@@ -144,12 +134,8 @@ export class ChartComponent extends AbstractHistoryChart {
           // Sell to grid
           {
             name: translate.instant('General.gridSellAdvanced'),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/GridSellActiveEnergy'];
-            },
-            converter: () => {
-              return data['GridSell'];
-            },
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data['_sum/GridSellActiveEnergy'],
+            converter: () => data['GridSell'],
             color: 'rgb(0,0,200)',
             stack: 1,
             ...(chartType === 'line' && { order: 4 }),
@@ -158,12 +144,8 @@ export class ChartComponent extends AbstractHistoryChart {
           // Buy from Grid
           {
             name: translate.instant('General.gridBuyAdvanced'),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/GridBuyActiveEnergy'];
-            },
-            converter: () => {
-              return data['GridBuy'];
-            },
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data['_sum/GridBuyActiveEnergy'],
+            converter: () => data['GridBuy'],
             color: 'rgb(0,0,0)',
             stack: 2,
             ...(chartType === 'line' && { order: 2 }),
@@ -172,12 +154,8 @@ export class ChartComponent extends AbstractHistoryChart {
           // Consumption
           {
             name: translate.instant('General.consumption'),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/ConsumptionActiveEnergy'];
-            },
-            converter: () => {
-              return data['Consumption'];
-            },
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data['_sum/ConsumptionActiveEnergy'],
+            converter: () => data['Consumption'],
             color: 'rgb(253,197,7)',
             stack: 3,
             hiddenOnInit: chartType == 'line' ? false : true,
@@ -186,9 +164,7 @@ export class ChartComponent extends AbstractHistoryChart {
           ...[chartType === 'line' &&
           {
             name: translate.instant('General.soc'),
-            converter: () => {
-              return data['EssSoc']?.map(value => Utils.multiplySafely(value, 1000));
-            },
+            converter: () => data['EssSoc']?.map(value => Utils.multiplySafely(value, 1000)),
             color: 'rgb(189, 195, 199)',
             borderDash: [10, 10],
             yAxisId: ChartAxis.RIGHT,
