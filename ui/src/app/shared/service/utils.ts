@@ -65,7 +65,7 @@ export class Utils {
         copy = {};
       }
       for (const attr in obj) {
-        if (obj.hasOwnProperty(attr)) {
+        if (Object.prototype.hasOwnProperty.call(obj, attr)) {
           copy[attr] = this.deepCopy(obj[attr], copy[attr]);
         }
       }

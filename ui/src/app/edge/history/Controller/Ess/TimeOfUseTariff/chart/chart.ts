@@ -119,7 +119,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 this.labels = displayValues.labels;
                 this.setChartLabel();
 
-                const values = this.chartObject.output(dataResponse.result.data);
+                this.chartObject.output(dataResponse.result.data);
                 this.options.scales.x['time'].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
                 this.options.scales.x.ticks['source'] = 'auto';
                 this.options.scales.x.grid = { offset: false };

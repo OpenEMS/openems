@@ -206,6 +206,8 @@ export namespace DummyConfig {
 /**
  * Factories.
  */
+// identifier `Factory` is also used in namespace
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type Factory = {
     id: string
 };
@@ -213,6 +215,8 @@ type Factory = {
 /**
  * Components
  */
+// identifier `Component` is also used in namespace
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type Component = {
     id: string,
     alias: string, // defaults to id

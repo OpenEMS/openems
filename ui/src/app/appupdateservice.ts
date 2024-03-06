@@ -13,11 +13,6 @@ export class CheckForUpdateService {
   ) { }
 
   init() {
-    let userId: string;
-    this.service.metadata.subscribe(entry => {
-      userId = entry?.user?.id ?? null;
-    });
-
     setInterval(async () => {
       const updateFound = await this.update.checkForUpdate();
       console.log(updateFound ? 'A new version is available.' : 'Already on the latest version.');

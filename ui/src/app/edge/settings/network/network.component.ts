@@ -77,13 +77,12 @@ export class NetworkComponent implements OnInit {
     // Converts ["192.168.1.50/24"] -> {label: " ''/'static' ", ip: "192.168.1.50", subnetmask: "255.255.255.0" }
     // Any ip address entered in the array("Statische IP-Adressen hinzufügen") will be labeled with emty string.
     for (const addr of iface.model.addressesList) {
-      if (this.ipRegex.test(addr)) {
-        var ip = addr.split('/');
-        var subnetmask = this.getSubnetmaskAsString(ip[1]);
-      } else {
+      if (!this.ipRegex.test(addr)) {
         this.service.toast(this.translate.instant('Edge.Network.validAddressWarning'), 'danger');
         return;
       }
+      const ip = addr.split('/');
+      const subnetmask = this.getSubnetmaskAsString(ip[1]);
 
       addressJson.push({
         label: '', //TODO with specific labels with specific systems.

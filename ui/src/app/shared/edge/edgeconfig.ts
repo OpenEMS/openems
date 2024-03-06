@@ -193,7 +193,7 @@ export class EdgeConfig {
         const nature = this.natures[natureId];
         if (nature) {
             for (const factoryId of nature.factoryIds) {
-                result.push.apply(result, this.getComponentIdsByFactory(factoryId));
+                result.push(...this.getComponentIdsByFactory(factoryId));
             }
         }
 
@@ -218,7 +218,7 @@ export class EdgeConfig {
         const nature = this.natures[natureId];
         if (nature) {
             for (const factoryId of nature.factoryIds) {
-                result.push.apply(result, this.getComponentsByFactory(factoryId));
+                result.push(...this.getComponentsByFactory(factoryId));
             }
         }
 

@@ -214,7 +214,7 @@ export class Service extends AbstractService {
           fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[];
         }[] = [];
         let request;
-        while (request = this.queryEnergyQueue.pop()) {
+        while ((request = this.queryEnergyQueue.pop())) {
           if (mergedRequests.length == 0) {
             mergedRequests.push(request);
           } else {
