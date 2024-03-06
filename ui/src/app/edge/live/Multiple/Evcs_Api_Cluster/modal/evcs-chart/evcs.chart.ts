@@ -75,14 +75,13 @@ export class EvcsChartComponent implements OnInit, OnChanges {
   }
 
   getMaxPower() {
-    let maxPower: number;
     const minPower = 22;
     let maxHW = this.currentData[this.componentId + '/MaximumHardwarePower'];
     let chargePower = this.currentData[this.componentId + '/ChargePower'];
     maxHW = maxHW == null ? minPower : maxHW / 1000;
     chargePower = chargePower == null ? 0 : chargePower / 1000;
 
-    maxPower = chargePower < minPower || maxPower < minPower ? minPower : maxHW;
+    const maxPower: number = chargePower < minPower || maxHW;
     return Math.round(maxPower);
   }
 }

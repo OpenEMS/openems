@@ -109,6 +109,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                     }
                     this.disableArrow = false;
                 }
+                break;
             }
             case DefaultTypes.PeriodString.TOTAL: {
                 this.disableArrow = true;
@@ -117,7 +118,9 @@ export class PickDateComponent implements OnInit, OnDestroy {
 
             case DefaultTypes.PeriodString.CUSTOM: {
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.value.from - <any>this.service.historyPeriod.value.to) / (1000 * 60 * 60 * 24));
-                dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
+                if (dateDistance == 0) {
+                    dateDistance = 1;
+                }
                 if (isFuture(addDays(this.service.historyPeriod.value.from, dateDistance * 2))) {
                     this.disableArrow = true;
                 } else {
@@ -210,7 +213,9 @@ export class PickDateComponent implements OnInit, OnDestroy {
             }
             case DefaultTypes.PeriodString.CUSTOM: {
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.value.from - <any>this.service.historyPeriod.value.to) / (1000 * 60 * 60 * 24));
-                dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
+                if (dateDistance == 0) {
+                    dateDistance = 1;
+                }
                 if (isFuture(addDays(this.service.historyPeriod.value.to, dateDistance * 2))) {
                     this.disableArrow = true;
                 }
@@ -259,7 +264,9 @@ export class PickDateComponent implements OnInit, OnDestroy {
             }
             case DefaultTypes.PeriodString.CUSTOM: {
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.value.from - <any>this.service.historyPeriod.value.to) / (1000 * 60 * 60 * 24));
-                dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
+                if (dateDistance == 0) {
+                    dateDistance = 1;
+                }
                 this.setDateRange(new DefaultTypes.HistoryPeriod(subDays(this.service.historyPeriod.value.from, dateDistance), subDays(this.service.historyPeriod.value.to, dateDistance)));
                 break;
             }
@@ -383,9 +390,10 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 return isBefore(firstSetupProtocol, endOfYear(subWeeks(service.historyPeriod.value.from, 1)));
             case DefaultTypes.PeriodString.TOTAL:
                 return false;
-            case DefaultTypes.PeriodString.CUSTOM:
-                var timeRange: number = differenceInDays(service.historyPeriod.value.to, service.historyPeriod.value.from);
+            case DefaultTypes.PeriodString.CUSTOM: {
+                const timeRange: number = differenceInDays(service.historyPeriod.value.to, service.historyPeriod.value.from);
                 return isBefore(startOfDay(firstSetupProtocol), startOfDay(subDays(service.historyPeriod.value.from, timeRange)));
+            }
         }
     }
 
@@ -408,9 +416,10 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 return isAfter(new Date(), startOfYear(addYears(service.historyPeriod.value.to, 1)));
             case DefaultTypes.PeriodString.TOTAL:
                 return false;
-            case DefaultTypes.PeriodString.CUSTOM:
-                var timeRange: number = differenceInDays(service.historyPeriod.value.to, service.historyPeriod.value.from);
+            case DefaultTypes.PeriodString.CUSTOM: {
+                const timeRange: number = differenceInDays(service.historyPeriod.value.to, service.historyPeriod.value.from);
                 return isAfter(startOfDay(new Date()), addDays(service.historyPeriod.value.to, timeRange));
+            }
         }
     }
 }

@@ -242,8 +242,7 @@ export abstract class AbstractHistoryChart implements OnInit {
    * @returns a dataset
    */
   public static getDataSet(element: HistoryUtils.DisplayValues, label: string, data: number[], stack: number, chartObject: HistoryUtils.ChartData, chartType: 'line' | 'bar'): Chart.ChartDataset {
-    let dataset: Chart.ChartDataset;
-    dataset = {
+    const dataset: Chart.ChartDataset = {
       label: label,
       data: data,
       hidden: !isLabelVisible(element.name, !(element.hiddenOnInit)),
@@ -315,34 +314,31 @@ export abstract class AbstractHistoryChart implements OnInit {
    */
   public static applyChartTypeSpecificOptionsChanges(chartType: string, options: Chart.ChartOptions, service: Service, chartObject: HistoryUtils.ChartData | null): Chart.ChartOptions {
     switch (chartType) {
-      case 'bar':
+      case 'bar': {
         options.plugins.tooltip.mode = 'x';
         options.scales.x['offset'] = true;
         options.scales.x.ticks['source'] = 'data';
         let barPercentage = 1;
-        let categoryPercentage = 0;
         switch (service.periodString) {
           case DefaultTypes.PeriodString.CUSTOM: {
             barPercentage = 0.7;
-            categoryPercentage = 0.4;
+            break;
           }
           case DefaultTypes.PeriodString.MONTH: {
             if (service.isSmartphoneResolution == true) {
               barPercentage = 1;
-              categoryPercentage = 0.6;
             } else {
               barPercentage = 0.9;
-              categoryPercentage = 0.8;
             }
+            break;
           }
           case DefaultTypes.PeriodString.YEAR: {
             if (service.isSmartphoneResolution == true) {
               barPercentage = 1;
-              categoryPercentage = 0.6;
             } else {
               barPercentage = 0.8;
-              categoryPercentage = 0.8;
             }
+            break;
           }
         }
 
@@ -350,6 +346,7 @@ export abstract class AbstractHistoryChart implements OnInit {
           barPercentage: barPercentage,
         };
         break;
+      }
 
       case 'line':
         options.scales.x['offset'] = false;
@@ -924,20 +921,23 @@ export abstract class AbstractHistoryChart implements OnInit {
     let tooltipsLabel: string | null = null;
     switch (title) {
 
-      case YAxisTitle.RELAY:
+      case YAxisTitle.RELAY: {
         if (chartType === 'line') {
           return Converter.ON_OFF(translate)(value);
         }
         const activeTimeOverPeriodPipe = new FormatSecondsToDurationPipe(new DecimalPipe(language));
         return activeTimeOverPeriodPipe.transform(value);
+      }
 
-      case YAxisTitle.TIME:
+      case YAxisTitle.TIME: {
         const pipe = new FormatSecondsToDurationPipe(new DecimalPipe(language));
         return pipe.transform(value);
-      case YAxisTitle.CURRENCY:
+      }
+      case YAxisTitle.CURRENCY: {
         const currency = config.components['_meta'].properties.currency;
         tooltipsLabel = Currency.getCurrencyLabelByCurrency(currency);
         break;
+      }
       case YAxisTitle.PERCENTAGE:
         tooltipsLabel = AbstractHistoryChart.getToolTipsAfterTitleLabel(title, chartType, value, translate);
         break;
@@ -981,10 +981,10 @@ export abstract class AbstractHistoryChart implements OnInit {
           case YAxisTitle.PERCENTAGE:
             return baseName + ": " + formatNumber(suffix, 'de', "1.0-1") + " %";
           case YAxisTitle.RELAY:
-          case YAxisTitle.TIME:
+          case YAxisTitle.TIME: {
             const pipe = new FormatSecondsToDurationPipe(new DecimalPipe(Language.DE.key));
             return baseName + ": " + pipe.transform(suffix);
-
+          }
         }
       }
     }

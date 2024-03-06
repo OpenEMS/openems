@@ -208,7 +208,7 @@ export class UserComponent implements OnInit {
   public getUserInformation(): Promise<UserInformation> {
 
     return new Promise(resolve => {
-      var interval = setInterval(() => {
+      const interval = setInterval(() => {
         if (this.websocket.status == 'online') {
           this.service.websocket.sendRequest(new GetUserInformationRequest()).then((response: GetUserInformationResponse) => {
             const user = response.result.user;

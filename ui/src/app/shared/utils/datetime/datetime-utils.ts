@@ -18,7 +18,7 @@ export class DateTimeUtils {
   public static normalizeTimestamps(unit: ChronoUnit.Type, energyPerPeriodResponse: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse): QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse {
 
     switch (unit) {
-      case ChronoUnit.Type.MONTHS:
+      case ChronoUnit.Type.MONTHS: {
 
         // Change first timestamp to start of month
         const formattedDate = startOfMonth(DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps[0]));
@@ -40,14 +40,16 @@ export class DateTimeUtils {
 
         energyPerPeriodResponse.result.timestamps = newTimestamps.concat(energyPerPeriodResponse.result.timestamps);
         break;
+      }
 
-      case ChronoUnit.Type.YEARS:
+      case ChronoUnit.Type.YEARS: {
 
         // Change dates to be first day of year
         const formattedDates = energyPerPeriodResponse.result.timestamps.map((timestamp) =>
           startOfYear(DateUtils.stringToDate(timestamp)));
         energyPerPeriodResponse.result.timestamps = formattedDates.map(date => format(date, 'yyyy-MM-dd HH:mm:ss', { locale: de })?.toString());
         break;
+      }
     }
 
     return energyPerPeriodResponse;

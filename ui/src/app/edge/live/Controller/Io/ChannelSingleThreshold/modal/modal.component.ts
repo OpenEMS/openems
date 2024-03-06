@@ -91,7 +91,6 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
           this.threshold.setValue(newThreshold);
           this.threshold.markAsDirty();
         } else if (this.component.properties.threshold < 0) {
-          newThreshold = newThreshold;
           this.threshold.setValue(newThreshold);
           this.threshold.markAsDirty();
         }

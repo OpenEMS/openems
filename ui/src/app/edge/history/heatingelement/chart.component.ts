@@ -108,7 +108,6 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   }
 
   protected applyControllerSpecificOptions(options: ChartOptions) {
-    const translate = this.translate;
     options.scales[ChartAxis.LEFT]['title'].text = 'Level';
     options.scales[ChartAxis.LEFT]['beginAtZero'] = true;
     options.scales[ChartAxis.LEFT].max = 3;

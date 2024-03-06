@@ -28,7 +28,7 @@ export class OeFormlyViewTester {
       /**
        * OeFormlyField.Line
        */
-      case 'children-line':
+      case 'children-line': {
         const tmp = OeFormlyViewTester.applyLineWithChildren(field, context);
 
         // Prepare result
@@ -49,7 +49,7 @@ export class OeFormlyViewTester {
         }
 
         return result;
-
+      }
 
       case "channel-line": {
         const tmp = OeFormlyViewTester.applyLineOrItem(field, context);

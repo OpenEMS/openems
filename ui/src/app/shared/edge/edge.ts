@@ -200,7 +200,7 @@ export class Edge {
         // merge channels from currentDataSubscribes
         const channels: ChannelAddress[] = [];
         for (const componentId in this.subscribedChannels) {
-          channels.push.apply(channels, this.subscribedChannels[componentId]);
+          channels.push(...this.subscribedChannels[componentId]);
         }
         const request = new SubscribeChannelsRequest(channels);
         this.sendRequest(websocket, request).then(() => {

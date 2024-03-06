@@ -107,7 +107,6 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         if ((file == 'history' || file == 'live') && urlArray.length == 3) {
             this.backUrl = false;
             return;
-        } else {
         }
 
         // disable backUrl to first 'index' page from Edge index if there is only one Edge in the system
