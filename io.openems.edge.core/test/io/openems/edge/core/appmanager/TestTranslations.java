@@ -131,6 +131,9 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.fixActivePower(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.fixStateOfCharge(t),true, JsonUtils.buildJsonObject() // 
+					.addProperty("ESS_ID", "ess0") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.powerPlantController(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.prepareBatteryExtension(t), true, new JsonObject()));
 			return this.apps.stream().map(TestTranslation::app).toList();
