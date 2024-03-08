@@ -135,6 +135,7 @@
 	bnd.identity;id='io.openems.edge.io.gpio',\
 	bnd.identity;id='io.openems.edge.io.kmtronic',\
 	bnd.identity;id='io.openems.edge.io.offgridswitch',\
+	bnd.identity;id='io.openems.edge.io.opendtu',\
 	bnd.identity;id='io.openems.edge.io.revpi',\
 	bnd.identity;id='io.openems.edge.io.shelly',\
 	bnd.identity;id='io.openems.edge.io.wago',\
