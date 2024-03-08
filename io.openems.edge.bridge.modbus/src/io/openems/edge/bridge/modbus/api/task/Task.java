@@ -43,6 +43,10 @@ public sealed interface Task extends ManagedTask permits AbstractTask, ReadTask,
 	 */
 	public ModbusComponent getParent();
 
+	public void setSkipCycles(int cycles);
+
+	public int getSkipCycles();
+
 	/**
 	 * This is called on deactivate of the Modbus-Bridge. It can be used to clear
 	 * any references like listeners.

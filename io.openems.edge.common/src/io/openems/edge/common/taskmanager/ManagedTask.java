@@ -9,4 +9,5 @@ public interface ManagedTask {
 	 */
 	public Priority getPriority();
 
+	public int getSkipCycles();
 }

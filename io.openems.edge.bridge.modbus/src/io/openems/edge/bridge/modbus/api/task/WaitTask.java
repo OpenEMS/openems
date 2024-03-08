@@ -17,6 +17,8 @@ public abstract non-sealed class WaitTask implements Task {
 	private final Logger log = LoggerFactory.getLogger(WaitTask.class);
 	private AbstractOpenemsModbusComponent parent = null;
 
+	private int skipCycles = 0;
+
 	@Override
 	public final void setParent(AbstractOpenemsModbusComponent parent) {
 		this.parent = parent;
@@ -45,6 +47,15 @@ public abstract non-sealed class WaitTask implements Task {
 	@Override
 	public final int getLength() {
 		return 0;
+	}
+
+	@Override
+	public void setSkipCycles(int cycles) {
+		this.skipCycles = cycles;
+	}
+	@Override
+	public int getSkipCycles() {
+		return this.skipCycles;
 	}
 
 	@Override

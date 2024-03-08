@@ -82,6 +82,12 @@ public class TasksManager<T extends ManagedTask> {
 		return this.tasks.size();
 	}
 
+	public synchronized int countTasks(long cycleIdx) {
+		return (int)this.tasks.stream()
+				.filter(t -> cycleIdx % (1 + t.getSkipCycles()) == 0)
+				.count();
+	}
+
 	/**
 	 * Gets all Tasks.
 	 *

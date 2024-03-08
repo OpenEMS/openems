@@ -34,6 +34,7 @@ public abstract non-sealed class AbstractTask<//
 	protected final int startAddress;
 	protected final int length;
 	protected final ModbusElement[] elements;
+	private int skipCycles = 0;
 
 	private final Logger log = LoggerFactory.getLogger(AbstractTask.class);
 
@@ -76,6 +77,14 @@ public abstract non-sealed class AbstractTask<//
 
 	public void setParent(AbstractOpenemsModbusComponent parent) {
 		this.parent = parent;
+	}
+
+	public void setSkipCycles(int cycles) {
+		this.skipCycles = cycles;
+	}
+
+	public int getSkipCycles() {
+		return this.skipCycles;
 	}
 
 	public AbstractOpenemsModbusComponent getParent() {

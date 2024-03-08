@@ -78,4 +78,10 @@ public class ModbusProtocol {
 		this.taskManager.getTasks() //
 				.forEach(Task::deactivate);
 	}
+
+	public ModbusProtocol setSkipCycles(int cycles) {
+		this.taskManager.getTasks() //
+				.forEach(t -> t.setSkipCycles(cycles));
+		return this;
+	}
 }

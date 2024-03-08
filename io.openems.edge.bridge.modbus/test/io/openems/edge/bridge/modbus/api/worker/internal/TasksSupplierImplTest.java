@@ -103,4 +103,76 @@ public class TasksSupplierImplTest {
 		assertTrue(tasks.writes().contains(WT_1));
 	}
 
+	@Test
+	public void testSkipCycles() throws OpenemsException {
+		var clock = new TimeLeapClock();
+		var defectiveComponents = new DefectiveComponents(clock);
+
+		// Case 1 without low priority tasks
+		for (int skips = 0; skips < 10; skips++) {
+			var component = new DummyModbusComponent();
+			var protocol = component.getModbusProtocol();
+			protocol.addTasks(RT_H_1, RT_H_2, WT_1);
+			protocol.setSkipCycles(skips);
+			var sut = new TasksSupplierImpl();
+			sut.addProtocol(component.id(), protocol);
+
+			for (int i = 0; i <= skips * 2 + 1; i++) {
+				int cnt = 0;
+				if (i == 0 || i % (skips + 1) == 0) {
+					cnt = 3;
+				}
+				assertEquals(cnt, sut.getTotalNumberOfTasks());
+				// getTotalNumberOfTasks should be called BEFORE getCycleTasks
+				// since getCycleTasks will update index which getTotalNumberOfTasks depends on
+				// System.out.println("cycle skip = " + skips + ", cnt = " + cnt + ", total = " + sut.getTotalNumberOfTasks());
+				var tasks = sut.getCycleTasks(defectiveComponents);
+				assertEquals(cnt, tasks.reads().size() + tasks.writes().size());
+			}
+		}
+
+		// Case 2 with low priority tasks
+		for (int skips = 0; skips < 10; skips++) {
+			var component = new DummyModbusComponent();
+			var protocol = component.getModbusProtocol();
+			protocol.addTasks(RT_H_1, RT_H_2, WT_1, RT_L_1, RT_L_2);
+			protocol.setSkipCycles(skips);
+			var sut = new TasksSupplierImpl();
+			sut.addProtocol(component.id(), protocol);
+
+			var tasks = sut.getCycleTasks(defectiveComponents);
+			assertEquals(4, tasks.reads().size() + tasks.writes().size());
+			assertEquals(RT_L_1, tasks.reads().get(0));
+			assertEquals(RT_H_1, tasks.reads().get(1));
+			assertEquals(RT_H_2, tasks.reads().get(2));
+			assertEquals(WT_1, tasks.writes().get(0));
+			assertFalse(tasks.reads().contains(RT_L_2)); // -> not
+
+			for (int i = 0; i < skips; i++) {
+				tasks = sut.getCycleTasks(defectiveComponents);
+				assertEquals(0, tasks.reads().size() + tasks.writes().size());
+			}
+
+			tasks = sut.getCycleTasks(defectiveComponents);
+			assertEquals(4, tasks.reads().size() + tasks.writes().size());
+			assertEquals(RT_L_2, tasks.reads().get(0));
+			assertEquals(RT_H_1, tasks.reads().get(1));
+			assertEquals(RT_H_2, tasks.reads().get(2));
+			assertEquals(WT_1, tasks.writes().get(0));
+			assertFalse(tasks.reads().contains(RT_L_1)); // -> not
+
+			for (int i = 0; i < skips; i++) {
+				tasks = sut.getCycleTasks(defectiveComponents);
+				assertEquals(0, tasks.reads().size() + tasks.writes().size());
+			}
+
+			tasks = sut.getCycleTasks(defectiveComponents);
+			assertEquals(4, tasks.reads().size() + tasks.writes().size());
+			assertEquals(RT_L_1, tasks.reads().get(0));
+			assertEquals(RT_H_1, tasks.reads().get(1));
+			assertEquals(RT_H_2, tasks.reads().get(2));
+			assertEquals(WT_1, tasks.writes().get(0));
+			assertFalse(tasks.reads().contains(RT_L_2)); // -> not
+		}
+	}
 }

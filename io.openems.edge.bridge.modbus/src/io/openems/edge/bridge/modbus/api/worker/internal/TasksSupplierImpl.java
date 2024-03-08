@@ -30,6 +30,8 @@ public class TasksSupplierImpl implements TasksSupplier {
 	 */
 	private final Queue<Tuple<String, ReadTask>> nextLowPriorityTasks = new LinkedList<>();
 
+	private long cycleIdx = 0;
+
 	/**
 	 * Adds the protocol.
 	 *
@@ -65,6 +67,7 @@ public class TasksSupplierImpl implements TasksSupplier {
 			var list = tasks.computeIfAbsent(id, (ignore) -> new LinkedList<>());
 			taskManager.getTasks().stream() //
 					.filter(t -> t instanceof WriteTask || t.getPriority() == Priority.HIGH) //
+					.filter(t -> this.cycleIdx % (1 + t.getSkipCycles()) == 0)
 					.forEach(list::add);
 		});
 		// Filter out defective components
@@ -83,6 +86,7 @@ public class TasksSupplierImpl implements TasksSupplier {
 				componentTasks.clear();
 			}
 		});
+		this.cycleIdx++;
 		return new CycleTasks(//
 				tasks.values().stream().flatMap(LinkedList::stream) //
 						.filter(ReadTask.class::isInstance).map(ReadTask.class::cast) //
@@ -102,7 +106,14 @@ public class TasksSupplierImpl implements TasksSupplier {
 	private synchronized Tuple<String, ReadTask> getOneLowPriorityReadTask() {
 		var refilledBefore = false;
 		while (true) {
-			var task = this.nextLowPriorityTasks.poll();
+			var tasks = this.nextLowPriorityTasks.stream()
+					.filter(item -> this.cycleIdx % (1 + item.b().getSkipCycles()) == 0)
+					.collect(Collectors.toList());
+			Tuple<String, ReadTask> task = null;
+			if (tasks.size() > 0) {
+				task = tasks.get(0);
+				this.nextLowPriorityTasks.remove(task);
+			}
 			if (task != null) {
 				return task;
 			}
@@ -124,7 +135,7 @@ public class TasksSupplierImpl implements TasksSupplier {
 	@Override
 	public synchronized int getTotalNumberOfTasks() {
 		return this.taskManagers.values().stream() //
-				.mapToInt(m -> m.countTasks()) //
+				.mapToInt(m -> m.countTasks(this.cycleIdx)) //
 				.sum();
 	}
 }
