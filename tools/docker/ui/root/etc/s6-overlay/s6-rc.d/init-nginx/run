@@ -1,0 +1,23 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+# copy default config files if they don't exist
+cp -nrv /defaults/nginx/* /etc/nginx/
+
+# generate template configs
+script=/etc/s6-overlay/s6-rc.d/init-nginx/convert
+templates=/etc/nginx/site-templates
+find $templates -type f -name "*.conf.template" -exec $script {} \;
+
+# generate env file
+env_template="/var/www/html/openems/assets/env.template.js"
+env_file="/var/www/html/openems/assets/env.js"
+eval "cat <<< \"$(<$env_template)\"" 2> /dev/null > $env_file;
+
+# copy pre-generated dhparams or generate if needed
+if [[ ! -f /etc/nginx/dhparams.pem ]]; then
+    cp /defaults/nginx/dhparams.pem.sample /etc/nginx/dhparams.pem
+fi
+if ! grep -q 'PARAMETERS' "/etc/nginx/dhparams.pem"; then
+    curl -o /etc/nginx/dhparams.pem -L "https://ssl-config.mozilla.org/ffdhe4096.txt"
+fi
