@@ -1,4 +1,3 @@
-import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -7,7 +6,6 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from '../shared';
 
 @Component({
   selector: 'sellToGridLimitChart',
@@ -173,6 +171,8 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
       console.error(reason); // TODO error message
       this.initializeChart();
       return;
+    }).finally(async () => {
+      await this.setOptions(this.options);
     });
   }
 
@@ -191,19 +191,11 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
   }
 
   protected setLabel() {
-    let options = this.createDefaultChartOptions();
-    options.scales.yAxes[0].scaleLabel.labelString = "kW";
-    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-      let label = data.datasets[tooltipItem.datasetIndex].label;
-      let value = tooltipItem.yLabel;
-      return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-    };
-    this.options = options;
+    this.options = this.createDefaultChartOptions();
   }
 
   public getChartHeight(): number {
     //return window.innerHeight / 1.3;
     return window.innerHeight / 21 * 9;
   }
-
 }

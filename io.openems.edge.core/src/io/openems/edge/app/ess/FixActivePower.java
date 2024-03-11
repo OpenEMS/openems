@@ -41,6 +41,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 
 /**
  * Describes a fix active power app.
@@ -144,16 +145,11 @@ public class FixActivePower extends AbstractOpenemsAppWithProps<FixActivePower, 
 									.build()) //
 			);
 
-			// TODO improve scheduler configuration
-			final var schedulerIds = Lists.newArrayList(//
-					ctrlFixActivePowerId, //
-					"ctrlPrepareBatteryExtension0", //
-					"ctrlEmergencyCapacityReserve0", //
-					"ctrlGridOptimizedCharge0" //
-			);
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.scheduler(schedulerIds)) //
+					.addTask(Tasks.schedulerByCentralOrder(//
+							new SchedulerComponent(ctrlFixActivePowerId, "Controller.Ess.FixActivePower",
+									this.getAppId()))) //
 					.build();
 		};
 	}
