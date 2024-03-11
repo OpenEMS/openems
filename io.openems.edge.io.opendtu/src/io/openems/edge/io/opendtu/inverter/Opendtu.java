@@ -18,15 +18,12 @@ import io.openems.edge.meter.api.SinglePhaseMeter;
 public interface Opendtu extends SinglePhaseMeter, ElectricityMeter, OpenemsComponent, EventHandler {
 
 	/**
-	 * Provides a channel for setting the Power Limit in percent.
-	 *
-	 * @return A {@link WriteChannel}<{@link Integer}> for the power limit, allowing
-	 *         for the power limit to be set relative to the inverter's maximum
-	 *         capacity. This limit is expressed as a percentage of the maximum
-	 *         power output.
+	 * Channel for setting the Power Limit.
+	 * 
+	 * @return bla ToDo change return
 	 */
 	public default WriteChannel<Integer> setPowerLimit() {
-		return this.channel(ChannelId.RELATIVE_LIMIT);
+		return this.channel(ChannelId.POWER_LIMIT);
 	}
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -44,58 +41,47 @@ public interface Opendtu extends SinglePhaseMeter, ElectricityMeter, OpenemsComp
 		 * Maximum Ever Actual Power.
 		 *
 		 * <ul>
-		 * <li>Interface: Opendtu
+		 * <li>Interface: Ess DC Charger
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: positive or '0'
 		 * <li>Implementation Note: value is automatically derived from ACTUAL_POWER
 		 * </ul>
 		 */
-		MAX_ACTUAL_POWER(Doc.of(OpenemsType.INTEGER) //
+		MAX_ACTUAL_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
-		 * The Limit Status as String of the Power Limit Response.
+		 * Limit Status.
 		 *
 		 * <ul>
-		 * <li>Interface: Opendtu
 		 * <li>Type: String
-		 * <li>Description: Reflects the outcome of the last power limit setting operation; expected values are "Ok", "Pending", "Failure".
+		 * <li>Unit: Not applicable
+		 * <li>Range: "Ok", "Pending" or "Failure"
 		 * </ul>
 		 */
-		LIMIT_STATUS(Doc.of(OpenemsType.STRING) //
-				.text("Limit Status")), //
-		/**
-		 * The relative Limit Power set to an Inverter.
-		 *
-		 * <ul>
-		 * <li>Interface: Opendtu
-		 * <li>Type: Integer
-		 * <li>Unit: %
-		 * <li>Description: Allows setting a relative power limit for the inverter in
-		 * percentage of its maximum capacity.
-		 * </ul>
-		 */
-		RELATIVE_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		/**
-		 * The absolute Limit Power set to an Inverter.
-		 *
-		 * <ul>
-		 * <li>Interface: Opendtu
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * <li>Description: Allows setting an absolute power limit for the inverter in watts.
-		 * </ul>
-		 */
-		ABSOLUTE_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE)), //
+		LIMIT_STATUS(Doc.of(OpenemsType.STRING)//
+				.text("Limit Status")),
 
 		/**
-		 * Power Limit Setting Failed Fault.
+		 * The Relative Limit of the max. Power.
+		 *
+		 * <ul>
+		 * <li>Type: Integer
+		 * <li>Unit: Percent
+		 * <li>Range: 0 to 100
+		 * <li>Access Mode: Read/Write
+		 * <li>Implementation Note: Adjusts the maximum allowable power output relative
+		 * to the inverters max. Power.
+		 * </ul>
+		 */
+		POWER_LIMIT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.PERCENT) //
+				.text("The Relative Limit of the max. Power.").accessMode(AccessMode.READ_WRITE)),
+
+		/**
+		 * Power Limit Fault.
 		 *
 		 * <ul>
 		 * <li>Interface: Opendtu

@@ -2,53 +2,23 @@ package io.openems.edge.io.opendtu.inverter;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.meter.api.SinglePhase;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
-	private final String ip;
-	private final MeterType type;
-	private final String username;
-	private final String password;
-	private final String serialNumberL1;
-	private final String serialNumberL2;
-	private final String serialNumberL3;
-	private final int relativeLimit;
-	private final int absoluteLimit;
-	private final int threshold;
-	private final int delay;
-	private final boolean debugMode;
-
-	private MyConfig(Builder builder) {
-		super(Config.class, builder.id);
-		this.ip = builder.ip;
-		this.type = builder.type;
-		this.username = builder.username;
-		this.password = builder.password;
-		this.serialNumberL1 = builder.serialNumberL1;
-		this.serialNumberL2 = builder.serialNumberL2;
-		this.serialNumberL3 = builder.serialNumberL3;
-		this.relativeLimit = builder.relativeLimit;
-		this.absoluteLimit = builder.absoluteLimit;
-		this.threshold = builder.threshold;
-		this.delay = builder.delay;
-		this.debugMode = builder.debugMode;
-	}
-
-	public static class Builder {
+	protected static class Builder {
 		private String id;
 		private String ip;
 		private MeterType type;
 		private String username;
 		private String password;
-		private String serialNumberL1;
-		private String serialNumberL2;
-		private String serialNumberL3;
-		private int relativeLimit;
-		private int absoluteLimit;
-		private int threshold;
-		private int delay;
-		private boolean debugMode;
+		private String serial;
+		private SinglePhase phase;
+		private int initialPowerLimit;
+
+		private Builder() {
+		}
 
 		public Builder setId(String id) {
 			this.id = id;
@@ -75,119 +45,75 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setSerialNumberL1(String serialNumberL1) {
-			this.serialNumberL1 = serialNumberL1;
+		public Builder setSerial(String serial) {
+			this.serial = serial;
 			return this;
 		}
 
-		public Builder setSerialNumberL2(String serialNumberL2) {
-			this.serialNumberL2 = serialNumberL2;
+		public Builder setPhase(SinglePhase phase) {
+			this.phase = phase;
 			return this;
 		}
 
-		public Builder setSerialNumberL3(String serialNumberL3) {
-			this.serialNumberL3 = serialNumberL3;
-			return this;
-		}
-
-		public Builder setRelativeLimit(int relativeLimit) {
-			this.relativeLimit = relativeLimit;
-			return this;
-		}
-
-		public Builder setAbsoluteLimit(int absoluteLimit) {
-			this.absoluteLimit = absoluteLimit;
-			return this;
-		}
-
-		public Builder setThreshold(int threshold) {
-			this.threshold = threshold;
-			return this;
-		}
-
-		public Builder setDelay(int delay) {
-			this.delay = delay;
-			return this;
-		}
-
-		public Builder setDebugMode(boolean debugMode) {
-			this.debugMode = debugMode;
+		public Builder setInitialPowerLimit(int initialPowerLimit) {
+			this.initialPowerLimit = initialPowerLimit;
 			return this;
 		}
 
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
+
 	}
 
 	/**
-	 * Creates a new instance of the Builder class to construct a {@link MyConfig}
-	 * object.
+	 * Create a Config builder.
 	 *
-	 * @return A new instance of the {@link Builder}, ready for setting
-	 *         configuration properties.
+	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
 		return new Builder();
 	}
 
-	@Override
-	public String ip() {
-		return this.ip;
-	}
+    private final Builder builder;
 
-	@Override
-	public MeterType type() {
-		return this.type;
-	}
+    private MyConfig(Builder builder) {
+        super(Config.class, builder.id);
+        this.builder = builder;
+    }
 
-	@Override
-	public String username() {
-		return this.username;
-	}
+    @Override
+    public String ip() {
+        return this.builder.ip;
+    }
 
-	@Override
-	public String password() {
-		return this.password;
-	}
+    @Override
+    public MeterType type() {
+        return this.builder.type;
+    }
 
-	@Override
-	public String serialNumberL1() {
-		return this.serialNumberL1;
-	}
+    @Override
+    public String username() {
+        return this.builder.username;
+    }
 
-	@Override
-	public String serialNumberL2() {
-		return this.serialNumberL2;
-	}
+    @Override
+    public String password() {
+        return this.builder.password;
+    }
 
-	@Override
-	public String serialNumberL3() {
-		return this.serialNumberL3;
-	}
+    @Override
+    public SinglePhase phase() {
+        return this.builder.phase;
+    }
 
-	@Override
-	public int relativeLimit() {
-		return this.relativeLimit;
-	}
+    @Override
+    public String serialNumber() {
+        return this.builder.serial;
+    }
 
-	@Override
-	public int absoluteLimit() {
-		return this.absoluteLimit;
-	}
-
-	@Override
-	public int threshold() {
-		return this.threshold;
-	}
-
-	@Override
-	public int delay() {
-		return this.delay;
-	}
-
-	@Override
-	public boolean debugMode() {
-		return this.debugMode;
-	}
+    @Override
+    public int initialPowerLimit() {
+        return this.builder.initialPowerLimit;
+    }
 }

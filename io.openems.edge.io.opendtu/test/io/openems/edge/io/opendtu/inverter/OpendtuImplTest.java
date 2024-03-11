@@ -5,8 +5,9 @@ import org.junit.Test;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.meter.api.SinglePhase;
 
-public class IoOpenDtuImplTest {
+public class OpendtuImplTest {
 
 	private static final String COMPONENT_ID = "io0";
 
@@ -18,17 +19,12 @@ public class IoOpenDtuImplTest {
 						.setId(COMPONENT_ID) //
 						.setIp("127.0.0.1") //
 						.setType(MeterType.PRODUCTION) //
+						.setPhase(SinglePhase.L1) //
 						.setUsername("admin") //
 						.setPassword("admin") //
-						.setSerialNumberL1("1234567890L1") //
-						.setSerialNumberL2("1234567890L2") //
-						.setSerialNumberL3("1234567890L3") //
-						.setRelativeLimit(100) //
-						.setAbsoluteLimit(800) //
-						.setThreshold(50) //
-						.setDelay(30) //
-						.setDebugMode(true) //
-						.build()); //
+						.setSerial("834782") //
+						.setInitialPowerLimit(100) //
+						.build()) //
 		;
 	}
 }
