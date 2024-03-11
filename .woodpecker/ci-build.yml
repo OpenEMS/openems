@@ -1,6 +1,7 @@
 variables:
   - &sftp-settings
-    server: 10.10.112.10
+    server:
+      from_secret: cache_server
     username: user
     password: pass
     ignore_branch: true
@@ -10,7 +11,8 @@ variables:
       - cache
 
   - &rsync-settings
-    hosts: [ "10.0.0.40" ]
+    hosts:
+      from_secret: artifact_server
     user: fenecon-docs
     port: 22
     key:
