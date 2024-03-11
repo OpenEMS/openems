@@ -17,7 +17,7 @@ public class OpendtuImplTest {
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setIp("127.0.0.1") //
-						.setType(MeterType.CONSUMPTION_METERED) //
+						.setType(MeterType.PRODUCTION) //
 						.build()) //
 		;
 	}
