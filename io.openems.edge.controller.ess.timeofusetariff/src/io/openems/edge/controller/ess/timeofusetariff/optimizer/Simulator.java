@@ -2,7 +2,7 @@ package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
 import static io.jenetics.engine.EvolutionResult.toBestGenotype;
 import static io.jenetics.engine.Limits.byExecutionTime;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.buildInitialPopulation;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.InitialPopulationUtils.buildInitialPopulation;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateBalancingEnergy;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateChargeGridEnergy;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateMaxChargeEnergy;
@@ -29,7 +29,7 @@ import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 public class Simulator {
 
 	/** Used to incorporate charge/discharge efficiency. */
-	public static final double EFFICIENCY_FACTOR = 1.2;
+	public static final double EFFICIENCY_FACTOR = 1.17;
 
 	/**
 	 * Calculates the cost of a Schedule.
@@ -86,7 +86,8 @@ public class Simulator {
 		final var essMaxChargeInBalancing = calculateMaxChargeEnergy(//
 				p.essTotalEnergy() /* unlimited in BALANCING */, //
 				p.essMaxEnergyPerPeriod(), essInitial);
-		final var essMaxDischarge = calculateMaxDischargeEnergy(p, essInitial);
+		final var essMaxDischarge = calculateMaxDischargeEnergy(p.essMinSocEnergy(), //
+				p.essMaxEnergyPerPeriod(), essInitial);
 		final var essChargeDischargeInBalancing = calculateBalancingEnergy(essMaxChargeInBalancing, essMaxDischarge,
 				production, consumption);
 		final int essChargeDischarge;

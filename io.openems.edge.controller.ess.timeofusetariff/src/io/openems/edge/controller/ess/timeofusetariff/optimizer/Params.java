@@ -124,7 +124,7 @@ public record Params(//
 		public Params build() {
 			var numberOfPeriods = min(this.productions.length, min(this.consumptions.length, this.prices.length));
 			var essChargeInChargeGrid = calculateParamsChargeEnergyInChargeGrid(this.essMinSocEnergy,
-					this.essMaxSocEnergy, this.productions, this.consumptions);
+					this.essMaxSocEnergy, this.productions, this.consumptions, this.prices);
 
 			return new Params(numberOfPeriods, //
 					this.time, //

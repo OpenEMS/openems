@@ -37,6 +37,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.InputType;
@@ -115,11 +116,11 @@ public class GridOptimizedCharge extends AbstractEnumOpenemsApp<Property> implem
 									.build()) //
 			);
 
-			var schedulerExecutionOrder = Lists.newArrayList("ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0");
-
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.scheduler(schedulerExecutionOrder)) //
+					.addTask(Tasks.schedulerByCentralOrder(//
+							new SchedulerComponent(ctrlGridOptimizedChargeId, "Controller.Ess.GridOptimizedCharge",
+									this.getAppId()))) //
 					.build();
 		};
 	}
