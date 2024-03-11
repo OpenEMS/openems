@@ -83,7 +83,15 @@
       "november": "Noviembre",
       "december": "Diciembre"
     },
-    "save": "Ahorrar"
+    "save": "Ahorrar",
+    "TIME": {
+      "HOUR": "Hora",
+      "HOURS": "Horas",
+      "MINUTE": "Minuto",
+      "MINUTES": "Minutos",
+      "DAY": "Día",
+      "DAYS": "Días"
+    }
   },
   "Menu": {
     "accessLevel": "Nivel de acceso",
@@ -475,22 +483,12 @@
         "newConnection": "Nueva conexión...",
         "newDevice": "Nuevo dispositivo..."
       },
-      "Alerting": {
-        "activate": "Activar",
-        "delay": "Retraso",
-        "save": "Guardar",
-        "options": {},
-        "toast": {
-          "success": "Ajustes adoptados",
-          "error": "Error al cargar la configuración"
-        },
-        "interval": {
-          "hours": "Horas",
-          "minute": "Minuto",
-          "minutes": "Minutos",
-          "day": "Día",
-          "days": "Días",
-          "hour": "Hora"
+      "ALERTING": {
+        "ACTIVATE": "Activar",
+        "DELAY": "Retraso",
+        "TOAST": {
+          "SUCCESS": "Ajustes adoptados",
+          "ERROR": "Error al cargar la configuración"
         }
       },
       "App": {

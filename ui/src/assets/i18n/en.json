@@ -361,22 +361,16 @@
         "newConnection": "New connection...",
         "newDevice": "New device..."
       },
-      "Alerting": {
-        "activate": "Activate",
-        "delay": "Delay",
-        "save": "Save",
-        "options": {},
-        "toast": {
-          "success": "Settings applied",
-          "error": "Error loading the settings"
-        },
-        "interval": {
-          "hour": "Hour",
-          "hours": "Hours",
-          "minute": "Minute",
-          "minutes": "Minutes",
-          "day": "Day",
-          "days": "Days"
+      "ALERTING": {
+        "OFFLINE": "Offline Notifications",
+        "FAULT": "Fault Notifications",
+        "WARNING": "Warning Notifications",
+        "DEACTIVATED": "Deactivated",
+        "ACTIVATE": "Activate",
+        "DELAY": "Delay",
+        "TOAST": {
+          "SUCCESS": "Settings applied",
+          "ERROR": "Error loading the settings"
         }
       },
       "App": {
@@ -548,7 +542,15 @@
     "yes": "Yes",
     "no": "No",
     "value": "value",
-    "SUM_STATE": "System state"
+    "SUM_STATE": "System state",
+    "TIME": {
+      "HOUR": "Hour",
+      "HOURS": "Hours",
+      "MINUTE": "Minute",
+      "MINUTES": "Minutes",
+      "DAY": "Day",
+      "DAYS": "Days"
+    }
   },
   "Index": {
     "allConnected": "All connections established.",

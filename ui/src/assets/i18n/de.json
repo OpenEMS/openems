@@ -360,21 +360,16 @@
         "newConnection": "Neue Verbindung...",
         "newDevice": "Neues Gerät..."
       },
-      "Alerting": {
-        "activate": "Aktivieren",
-        "delay": "Verzögerung",
-        "save": "Speichern",
-        "toast": {
-          "success": "Einstellungen übernommen",
-          "error": "Fehler beim Laden der Einstellungen"
-        },
-        "interval": {
-          "hour": "Stunde",
-          "hours": "Stunden",
-          "minute": "Minute",
-          "minutes": "Minuten",
-          "day": "Tag",
-          "days": "Tage"
+      "ALERTING": {
+        "OFFLINE": "Offline Benachrichtigung",
+        "FAULT": "Fehler Benachrichtigung",
+        "WARNING": "Warnungs Benachrichtigung",
+        "DEACTIVATED": "Deaktiviert",
+        "ACTIVATE": "Aktivieren",
+        "DELAY": "Verzögerung",
+        "TOAST": {
+          "SUCCESS": "Einstellungen übernommen",
+          "ERROR": "Fehler beim Laden der Einstellungen"
         }
       },
       "App": {
@@ -547,7 +542,15 @@
     "yes": "Ja",
     "no": "Nein",
     "value": "Wert",
-    "SUM_STATE": "Systemzustand"
+    "SUM_STATE": "Systemzustand",
+    "TIME": {
+      "HOUR": "Stunde",
+      "HOURS": "Stunden",
+      "MINUTE": "Minute",
+      "MINUTES": "Minuten",
+      "DAY": "Tag",
+      "DAYS": "Tage"
+    }
   },
   "Index": {
     "allConnected": "Alle Verbindungen hergestellt.",

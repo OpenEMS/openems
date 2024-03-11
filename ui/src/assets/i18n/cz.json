@@ -85,7 +85,15 @@
       "november": "Listopad",
       "december": "Prosinec"
     },
-    "save": "Save"
+    "save": "Save",
+    "TIME": {
+      "HOUR": "Hodina",
+      "HOURS": "Hodiny",
+      "MINUTE": "Minuta",
+      "MINUTES": "Minuty",
+      "DAY": "Den",
+      "DAYS": "Dny"
+    }
   },
   "Menu": {
     "accessLevel": "Úroveň přístupu",
@@ -477,22 +485,12 @@
         "newConnection": "Nové připojení...",
         "newDevice": "Nové zařízení..."
       },
-      "Alerting": {
-        "activate": "Aktivace",
-        "delay": "Zpoždění",
-        "save": "Uložit",
-        "options": {},
-        "toast": {
-          "success": "Přijatá nastavení",
-          "error": "Chyba při načítání nastavení"
-        },
-        "interval": {
-          "hour": "Hodina",
-          "hours": "Hodiny",
-          "minute": "Minuta",
-          "minutes": "Minuty",
-          "day": "Den",
-          "days": "Dny"
+      "ALERTING": {
+        "ACTIVATE": "Activate",
+        "DELAY": "Delay",
+        "TOAST": {
+          "SUCCESS": "Přijatá nastavení",
+          "ERROR": "Chyba při načítání nastavení"
         }
       },
       "App": {
