@@ -11,11 +11,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String ip;
 		private MeterType type;
-		private String username;
-		private String password;
-		private String serial;
-		private SinglePhase phase;
-		private int initialPowerLimit;
 
 		private Builder() {
 		}
@@ -35,35 +30,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setUsername(String username) {
-			this.username = username;
-			return this;
-		}
-
-		public Builder setPassword(String password) {
-			this.password = password;
-			return this;
-		}
-
-		public Builder setSerial(String serial) {
-			this.serial = serial;
-			return this;
-		}
-
-		public Builder setPhase(SinglePhase phase) {
-			this.phase = phase;
-			return this;
-		}
-
-		public Builder setInitialPowerLimit(int initialPowerLimit) {
-			this.initialPowerLimit = initialPowerLimit;
-			return this;
-		}
-
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
-
 	}
 
 	/**
@@ -75,45 +44,45 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return new Builder();
 	}
 
-    private final Builder builder;
+	private final Builder builder;
 
-    private MyConfig(Builder builder) {
-        super(Config.class, builder.id);
-        this.builder = builder;
-    }
+	private MyConfig(Builder builder) {
+		super(Config.class, builder.id);
+		this.builder = builder;
+	}
 
-    @Override
-    public String ip() {
-        return this.builder.ip;
-    }
+	@Override
+	public String ip() {
+		return this.builder.ip;
+	}
 
-    @Override
-    public MeterType type() {
-        return this.builder.type;
-    }
+	@Override
+	public MeterType type() {
+		return this.builder.type;
+	}
 
-    @Override
-    public String username() {
-        return this.builder.username;
-    }
+	@Override
+	public String username() {
+		return "admin";
+	}
 
-    @Override
-    public String password() {
-        return this.builder.password;
-    }
+	@Override
+	public String password() {
+		return "admin";
+	}
 
-    @Override
-    public SinglePhase phase() {
-        return this.builder.phase;
-    }
+	@Override
+	public SinglePhase phase() {
+		return SinglePhase.L1;
+	}
 
-    @Override
-    public String serialNumber() {
-        return this.builder.serial;
-    }
+	@Override
+	public String serialNumber() {
+		return "932932";
+	}
 
-    @Override
-    public int initialPowerLimit() {
-        return this.builder.initialPowerLimit;
-    }
+	@Override
+	public int initialPowerLimit() {
+		return 100;
+	}
 }
