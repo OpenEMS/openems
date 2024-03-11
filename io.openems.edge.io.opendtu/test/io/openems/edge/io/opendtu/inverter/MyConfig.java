@@ -11,6 +11,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String ip;
 		private MeterType type;
+		private String serialNumber;
+		private SinglePhase phase;
+		private int initialPowerLimit;
+		private String username;
+		private String password;
 
 		private Builder() {
 		}
@@ -30,9 +35,88 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setSerialNumber(String serialNumber) {
+			this.serialNumber = serialNumber;
+			return this;
+		}
+
+		public Builder setPhase(SinglePhase phase) {
+			this.phase = phase;
+			return this;
+		}
+
+		public Builder setInitialPowerLimit(int initialPowerLimit) {
+			this.initialPowerLimit = initialPowerLimit;
+			return this;
+		}
+
+		public Builder setUsername(String username) {
+			this.username = username;
+			return this;
+		}
+
+		public Builder setPassword(String password) {
+			this.password = password;
+			return this;
+		}
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
+	}
+
+	private final String ip;
+	private final MeterType type;
+	private final String serialNumber;
+	private final SinglePhase phase;
+	private final int initialPowerLimit;
+	private final String username;
+	private final String password;
+
+	private MyConfig(Builder builder) {
+		super(Config.class, builder.id);
+		this.ip = builder.ip;
+		this.type = builder.type;
+		this.serialNumber = builder.serialNumber;
+		this.phase = builder.phase;
+		this.initialPowerLimit = builder.initialPowerLimit;
+		this.username = builder.username;
+		this.password = builder.password;
+	}
+
+	@Override
+	public String ip() {
+		return this.ip;
+	}
+
+	@Override
+	public MeterType type() {
+		return this.type;
+	}
+
+	@Override
+	public String username() {
+		return this.username;
+	}
+
+	@Override
+	public String password() {
+		return this.password;
+	}
+
+	@Override
+	public SinglePhase phase() {
+		return this.phase;
+	}
+
+	@Override
+	public String serialNumber() {
+		return this.serialNumber;
+	}
+
+	@Override
+	public int initialPowerLimit() {
+		return this.initialPowerLimit;
 	}
 
 	/**
@@ -42,47 +126,5 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	 */
 	public static Builder create() {
 		return new Builder();
-	}
-
-	private final Builder builder;
-
-	private MyConfig(Builder builder) {
-		super(Config.class, builder.id);
-		this.builder = builder;
-	}
-
-	@Override
-	public String ip() {
-		return this.builder.ip;
-	}
-
-	@Override
-	public MeterType type() {
-		return this.builder.type;
-	}
-
-	@Override
-	public String username() {
-		return "admin";
-	}
-
-	@Override
-	public String password() {
-		return "admin";
-	}
-
-	@Override
-	public SinglePhase phase() {
-		return SinglePhase.L1;
-	}
-
-	@Override
-	public String serialNumber() {
-		return "932932";
-	}
-
-	@Override
-	public int initialPowerLimit() {
-		return 100;
 	}
 }
