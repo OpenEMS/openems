@@ -3,10 +3,11 @@ name: Build OpenEMS Docker Image
 on:
   push:
     branches:
+      - develop
       - main
     tags:
       - "*.*.*"
-
+    
 jobs:
   docker:
     runs-on: ubuntu-latest
@@ -57,7 +58,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: ${{ github.REPOSITORY_OWNER }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
@@ -65,16 +66,16 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.image }}
-            ghcr.io/${{ github.REPOSITORY_OWNER }}/${{ matrix.image }}
+            openems/${{ matrix.image }}
+            ghcr.io/openems/${{ matrix.image }}
           labels: |
-            org.opencontainers.image.authors=${{ github.REPOSITORY_OWNER }}
+            org.opencontainers.image.authors=OpenEMS
             org.opencontainers.image.title=OpenEMS ${{ matrix.image }}
-            org.opencontainers.image.vendor=${{ github.REPOSITORY_OWNER }}
+            org.opencontainers.image.vendor=OpenEMS <openems.io>
           tags: |
-            type=schedule
             type=semver,pattern={{version}}
-            latest
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+            type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v5
