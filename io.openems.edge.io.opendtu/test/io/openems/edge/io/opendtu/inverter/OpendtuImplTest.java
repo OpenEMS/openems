@@ -13,18 +13,20 @@ public class OpendtuImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new OpendtuImpl()) //
-				.addReference("httpBridgeFactory", new DummyBridgeHttpFactory()) //
-				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
-						.setIp("127.0.0.1") //
-						.setType(MeterType.PRODUCTION) //
-						.setPhase(SinglePhase.L1) //
-						.setUsername("admin") //
-						.setPassword("admin") //
-						.setSerial("834782") //
-						.setInitialPowerLimit(100) //
-						.build()) //
-		;
+		DummyBridgeHttpFactory httpBridgeFactory = new DummyBridgeHttpFactory();
+
+		OpendtuImpl opendtuImpl = new OpendtuImpl();
+		ComponentTest componentTest = new ComponentTest(opendtuImpl);
+
+		componentTest.addReference("httpBridgeFactory", httpBridgeFactory);
+		componentTest.activate(MyConfig.create().setId(COMPONENT_ID) //
+				.setIp("127.0.0.1") //
+				.setType(MeterType.PRODUCTION) //
+				.setPhase(SinglePhase.L1) //
+				.setUsername("admin") //
+				.setPassword("admin") //
+				.setSerial("834782") //
+				.setInitialPowerLimit(100) //
+				.build()); //
 	}
 }
