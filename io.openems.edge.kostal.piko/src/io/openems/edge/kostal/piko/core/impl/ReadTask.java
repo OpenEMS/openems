@@ -12,6 +12,7 @@ public class ReadTask implements ManagedTask {
 	private final Priority priority;
 	private final FieldType fieldType;
 	private final int address;
+	private final int skipCycles = 0;
 
 	public ReadTask(OpenemsComponent component, ChannelId channelId, Priority priority, FieldType fieldType,
 			int address) {
@@ -41,6 +42,10 @@ public class ReadTask implements ManagedTask {
 	@Override
 	public Priority getPriority() {
 		return this.priority;
+	}
+
+	public int getSkipCycles() {
+		return this.skipCycles;
 	}
 
 	@Override

@@ -28,6 +28,32 @@ Read-Tasks can have two different priorities, that are defined in the ModbusProt
 - `LOW`: only one task of all defined LOW priority tasks of all components registered on the same bridge is executed per Cycle
 Write-Tasks always have `HIGH` priority, i.e. a set-point is always executed as-soon-as-possible - as long as the Component is not marked as defective
 
+=== Skip cycles
+
+OpenEMS's core cycle time is usually 1 second, but some modbus devices can be very slow. It's possible to lower the core cycle time but the whole system is slowed down.
+
+The function `setSkipCycles` can be applied to each modbus tasks, for example:
+```
+...
+new FC16WriteRegistersTask(40149, //
+    m(EssSmaSunnyIsland.ChannelId.SET_ACTIVE_POWER, new SignedDoublewordElement(40149)), //
+    m(EssSmaSunnyIsland.ChannelId.SET_CONTROL_MODE, new UnsignedDoublewordElement(40151)), //
+    m(EssSmaSunnyIsland.ChannelId.SET_REACTIVE_POWER, new SignedDoublewordElement(40153))).setSkipCycles(1),
+new FC16WriteRegistersTask(43090, //
+    m(EssSmaSunnyIsland.ChannelId.GRID_GUARD_CODE, new UnsignedDoublewordElement(43090))).setSkipCycles(2), //
+...
+```
+The `FC16WriteRegistersTask` task at register address 40149 is set to skip 1 cycle, which means every 2 cycles the register writing task is performed, while the `FC16WriteRegistersTask` task at register address 43090 is performed every 3 cycles.
+
+`setSkipCycles` can also be applied to protocol level, for example:
+```
+@Override
+protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+    return new ModbusProtocol(...).setSkipCycles(2);
+}
+```
+protocol level skip cycle setting will override the settings in each task.
+
 === Channels
 
 Each Modbus Bridge provides Channels for more detailed information:

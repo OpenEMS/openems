@@ -43,8 +43,19 @@ public sealed interface Task extends ManagedTask permits AbstractTask, ReadTask,
 	 */
 	public ModbusComponent getParent();
 
-	public void setSkipCycles(int cycles);
+	/**
+	 * Set skip cycles.
+	 *
+	 * @param cycles the task should be delayed cycles
+	 * @return Task itself
+	 */
+	public Task setSkipCycles(int cycles);
 
+	/**
+	 * Get skip cycles.
+	 *
+	 * @return cycles the task should be delayed cycles
+	 */
 	public int getSkipCycles();
 
 	/**

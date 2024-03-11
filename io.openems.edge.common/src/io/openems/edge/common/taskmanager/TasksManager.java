@@ -82,6 +82,13 @@ public class TasksManager<T extends ManagedTask> {
 		return this.tasks.size();
 	}
 
+	/**
+	 * Gets the number of Tasks.
+	 * Use this function when setSkipCycles is applied
+	 *
+	 * @param cycleIdx current cycle
+	 * @return number of Tasks
+	 */
 	public synchronized int countTasks(long cycleIdx) {
 		return (int)this.tasks.stream()
 				.filter(t -> cycleIdx % (1 + t.getSkipCycles()) == 0)

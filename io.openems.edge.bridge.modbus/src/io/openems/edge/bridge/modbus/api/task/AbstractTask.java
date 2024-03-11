@@ -79,8 +79,9 @@ public abstract non-sealed class AbstractTask<//
 		this.parent = parent;
 	}
 
-	public void setSkipCycles(int cycles) {
+	public AbstractTask setSkipCycles(int cycles) {
 		this.skipCycles = cycles;
+		return this;
 	}
 
 	public int getSkipCycles() {

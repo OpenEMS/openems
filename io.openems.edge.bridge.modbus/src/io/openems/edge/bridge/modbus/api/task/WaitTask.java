@@ -50,9 +50,11 @@ public abstract non-sealed class WaitTask implements Task {
 	}
 
 	@Override
-	public void setSkipCycles(int cycles) {
+	public WaitTask setSkipCycles(int cycles) {
 		this.skipCycles = cycles;
+		return this;
 	}
+
 	@Override
 	public int getSkipCycles() {
 		return this.skipCycles;

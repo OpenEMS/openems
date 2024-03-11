@@ -9,5 +9,10 @@ public interface ManagedTask {
 	 */
 	public Priority getPriority();
 
+	/**
+	 * Get skip cycles.
+	 *
+	 * @return cycles the task should be delayed cycles
+	 */
 	public int getSkipCycles();
 }

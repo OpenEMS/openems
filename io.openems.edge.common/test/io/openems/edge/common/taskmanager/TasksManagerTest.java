@@ -10,6 +10,8 @@ public class TasksManagerTest {
 
 		private final Priority priority;
 
+		private final int skipCycles = 0;
+
 		public Task(Priority priority) {
 			this.priority = priority;
 		}
@@ -17,6 +19,11 @@ public class TasksManagerTest {
 		@Override
 		public Priority getPriority() {
 			return this.priority;
+		}
+
+		@Override
+		public int getSkipCycles() {
+			return this.skipCycles;
 		}
 
 	}
