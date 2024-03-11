@@ -1,5 +1,10 @@
 package io.openems.edge.io.shelly.shellyplus1pm;
 
+import static io.openems.common.utils.JsonUtils.getAsBoolean;
+import static io.openems.common.utils.JsonUtils.getAsFloat;
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static java.lang.Math.round;
+
 import java.util.Objects;
 
 import org.osgi.service.component.ComponentContext;
@@ -19,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.common.channel.BooleanWriteChannel;
@@ -76,8 +80,6 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 		this.digitalOutputChannels = new BooleanWriteChannel[] { //
 				this.channel(IoShellyPlus1Pm.ChannelId.RELAY) //
 		};
-
-		SinglePhaseMeter.calculateSinglePhaseFromActivePower(this);
 	}
 
 	@Activate
@@ -142,71 +144,53 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 
 	private void processHttpResult(JsonElement result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
+
+		Integer power = null;
+		Integer voltage = null;
+		Integer current = null;
+		boolean relay0 = false;
+		boolean restartRequired = false;
+
 		if (error != null) {
-			this._setRelay(null);
-			this._setActivePower(null);
 			this.logDebug(this.log, error.getMessage());
-			return;
-		}
+		} else {
+			try {
+				var jsonResponse = getAsJsonObject(result);
+				var switch0 = getAsJsonObject(jsonResponse, "switch:0");
+				power = round(getAsFloat(switch0, "apower"));
+				voltage = round(getAsFloat(switch0, "voltage") * 1000);
+				current = round(getAsFloat(switch0, "current") * 1000);
+				relay0 = getAsBoolean(switch0, "output");
 
-		try {
-			final var jsonResponse = JsonUtils.getAsJsonObject(result);
-			final var switch0 = JsonUtils.getAsJsonObject(jsonResponse, "switch:0");
-			final var power = JsonUtils.getAsFloat(switch0, "apower");
-			final var voltage = JsonUtils.getAsInt(switch0, "voltage");
-			final var current = JsonUtils.getAsFloat(switch0, "current");
-			final var relayIson = JsonUtils.getAsBoolean(switch0, "output");
+				var sys = getAsJsonObject(jsonResponse, "sys");
+				restartRequired = getAsBoolean(sys, "restart_required");
 
-			final var sys = JsonUtils.getAsJsonObject(jsonResponse, "sys");
-			final var restart_required = JsonUtils.getAsBoolean(sys, "restart_required");
-
-			int millivolt = voltage * 1000;
-			int milliamp = (int) (current * 1000);
-
-			this._setRelay(relayIson);
-			this._setActivePower(Math.round(power));
-			this.channel(IoShellyPlus1Pm.ChannelId.NEEDS_RESTART).setNextValue(restart_required);
-
-			if (this.phase != null) {
-				switch (this.phase) {
-				case L1:
-					this._setVoltageL1(millivolt);
-					this._setCurrentL1(milliamp);
-					this._setVoltageL2(0);
-					this._setCurrentL2(0);
-					this._setVoltageL3(0);
-					this._setCurrentL3(0);
-					this._setActivePowerL2(0);
-					this._setActivePowerL3(0);
-					break;
-				case L2:
-					this._setVoltageL2(millivolt);
-					this._setCurrentL2(milliamp);
-
-					this._setVoltageL1(0);
-					this._setCurrentL1(0);
-					this._setVoltageL3(0);
-					this._setCurrentL3(0);
-					this._setActivePowerL1(0);
-					this._setActivePowerL3(0);
-					break;
-				case L3:
-					this._setVoltageL3(millivolt);
-					this._setCurrentL3(milliamp);
-
-					this._setVoltageL1(0);
-					this._setCurrentL1(0);
-					this._setVoltageL2(0);
-					this._setCurrentL2(0);
-					this._setActivePowerL1(0);
-					this._setActivePowerL2(0);
-					break;
+				if (this.phase != null) {
+					switch (this.phase) {
+					case L1:
+						this._setActivePowerL1(power);
+						this._setVoltageL1(voltage);
+						this._setCurrentL1(current);
+						break;
+					case L2:
+						this._setActivePowerL2(power);
+						this._setVoltageL2(voltage);
+						this._setCurrentL2(current);
+						break;
+					case L3:
+						this._setActivePowerL3(power);
+						this._setVoltageL3(voltage);
+						this._setCurrentL3(current);
+						break;
+					}
 				}
+			} catch (OpenemsNamedException e) {
+				this.logDebug(this.log, e.getMessage());
 			}
-		} catch (OpenemsNamedException e) {
-			this._setRelay(null);
-			this._setActivePower(null);
-			this.logDebug(this.log, e.getMessage());
+
+			this._setRelay(relay0);
+			this._setActivePower(power);
+			this.channel(IoShellyPlus1Pm.ChannelId.NEEDS_RESTART).setNextValue(restartRequired);
 		}
 	}
 
