@@ -9,7 +9,7 @@ import io.openems.edge.meter.api.SinglePhase;
 
 public class OpendtuImplTest {
 
-	private static final String COMPONENT_ID = "io0";
+	private static final String COMPONENT_ID = "opendtu0";
 
 	@Test
 	public void test() throws Exception {
@@ -22,7 +22,7 @@ public class OpendtuImplTest {
 						.setPassword("admin") //
 						.setPhase(SinglePhase.L1) //
 						.setSerialNumber("123456") //
-						.setInitialPowerLimit(100)
+						.setInitialPowerLimit(100) //
 						.setType(MeterType.PRODUCTION) //
 						.build()) //
 		;
