@@ -20,9 +20,10 @@
 			<version>2.9.3</version>
 		</dependency>
 		<dependency>
+			<!-- Changelog: https://github.com/steveohara/j2mod/blob/master/RELEASE_NOTES.md -->
 			<groupId>com.ghgande</groupId>
 			<artifactId>j2mod</artifactId>
-			<version>3.2.0</version>
+			<version>3.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.rzymek</groupId>
