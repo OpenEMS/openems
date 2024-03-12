@@ -20,9 +20,10 @@
 			<version>2.9.3</version>
 		</dependency>
 		<dependency>
+			<!-- Changelog: https://github.com/steveohara/j2mod/blob/master/RELEASE_NOTES.md -->
 			<groupId>com.ghgande</groupId>
 			<artifactId>j2mod</artifactId>
-			<version>3.2.0</version>
+			<version>3.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.rzymek</groupId>
@@ -295,7 +296,7 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>1.9.22</version>
+			<version>1.9.23</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>
