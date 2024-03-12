@@ -32,7 +32,7 @@
 3. **Type the following build commands.**
    
     ```bash
-    docker build -t openems_edge -f tools/docker/edge/Dockerfile
+    docker build . -t openems_edge -f tools/docker/edge/Dockerfile
     ```
 
     *for UI Image see [ui/README.md](../ui/README.md)*

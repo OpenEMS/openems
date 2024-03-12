@@ -16,10 +16,10 @@ see [backend/README.md](../backend/README.md) and [edge/README.md](../edge/READM
     
     *Edge*
     ```bash
-    docker build -t openems_ui-edge -f tools/docker/ui/Dockerfile --build-arg VERSION=openems,openems-edge-docker 
+    docker build . -t openems_ui-edge -f tools/docker/ui/Dockerfile --build-arg VERSION=openems,openems-edge-docker 
     ```
     ---
     *Backend*
     ```bash
-    docker build -t openems_ui-backend -f tools/docker/ui/Dockerfile --build-arg VERSION=openems,openems-backend-docker 
+    docker build . -t openems_ui-backend -f tools/docker/ui/Dockerfile --build-arg VERSION=openems,openems-backend-docker 
     ```
