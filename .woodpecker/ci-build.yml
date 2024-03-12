@@ -1,7 +1,6 @@
 variables:
   - &sftp-settings
-    server:
-      from_secret: cache_server
+    server: ${CACHE_SERVER}
     username: user
     password: pass
     ignore_branch: true
@@ -11,9 +10,9 @@ variables:
       - cache
 
   - &rsync-settings
-    hosts:
-      from_secret: artifact_server
     user: fenecon-docs
+    hosts: 
+      - ${ARTIFACT_SERVER}
     port: 22
     key:
       from_secret: ssh_key_intranet
@@ -107,7 +106,9 @@ steps:
       - source tools/common.sh
       - common_initialize_environment
       - echo "Build Version $VERSION"
-      - common_build_edge --no-daemon --no-build-cache --parallel --max-workers 2;
+      - |
+        ./gradlew checkstyleAll --parallel --max-workers=4 && \
+        common_build_edge --no-build-cache --parallel --max-workers=2;
     depends_on: [prepare-environment]
 
   build-debian-package:
