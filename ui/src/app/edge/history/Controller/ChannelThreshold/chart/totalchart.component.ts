@@ -51,6 +51,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
                 .map(val => Utils.multiplySafely(val, 1000));
             },
             color: colors[Math.min(i % colors.length, (colors.length - 1))],
+            stack: 0,
           });
         }
 

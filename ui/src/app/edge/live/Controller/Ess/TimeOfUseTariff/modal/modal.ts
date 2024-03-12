@@ -1,12 +1,8 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
+import { TimeOfUseTariffUtils } from 'src/app/shared/service/utils';
 import { ChannelAddress, Currency, CurrentData } from 'src/app/shared/shared';
-
-export enum Mode {
-    CHARGE_CONSUMPTION = 'CHARGE_CONSUMPTION',
-    DELAY_DISCHARGE = 'DELAY_DISCHARGE'
-}
 
 @Component({
     templateUrl: './modal.html',
@@ -15,12 +11,13 @@ export class ModalComponent extends AbstractModal {
 
     protected readonly CONVERT_TIME_OF_USE_TARIFF_STATE = this.Utils.CONVERT_TIME_OF_USE_TARIFF_STATE(this.translate);
     protected priceWithCurrency: any;
+    protected controlMode = TimeOfUseTariffUtils.ControlMode;
 
     protected override getFormGroup(): FormGroup {
         return this.formBuilder.group({
             mode: new FormControl(this.component.properties.mode),
             controlMode: new FormControl(this.component.properties.controlMode),
-            chargeConsumptionIsActive: new FormControl(this.component.properties.controlMode === Mode.CHARGE_CONSUMPTION ? true : false),
+            chargeConsumptionIsActive: new FormControl(this.component.properties.controlMode === this.controlMode.CHARGE_CONSUMPTION ? true : false),
         });
     }
 
@@ -35,8 +32,8 @@ export class ModalComponent extends AbstractModal {
             this.formGroup?.get('chargeConsumptionIsActive')
                 .valueChanges
                 .subscribe(isActive => {
-                    const mode: Mode = isActive ? Mode.CHARGE_CONSUMPTION : Mode.DELAY_DISCHARGE;
-                    this.formGroup.controls['controlMode'].setValue(mode);
+                    const controlMode: TimeOfUseTariffUtils.ControlMode = isActive ? this.controlMode.CHARGE_CONSUMPTION : this.controlMode.DELAY_DISCHARGE;
+                    this.formGroup.controls['controlMode'].setValue(controlMode);
                     this.formGroup.controls['controlMode'].markAsDirty();
                 }));
     }

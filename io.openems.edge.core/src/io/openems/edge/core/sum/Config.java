@@ -17,6 +17,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Maximum ever Production power [W]", description = "Includes AC- and DC-side production. Range: positive or zero")
 	int productionMaxActivePower() default 0;
 
+	@AttributeDefinition(name = "Maximum ever ESS Charge power [W]", description = "Range: negative or zero")
+	int essMinDischargePower() default 0;
+
+	@AttributeDefinition(name = "Maximum ever ESS Discharge power [W]", description = "Range: positive or zero")
+	int essMaxDischargePower() default 0;
+
 	@AttributeDefinition(name = "Maximum ever Consumption power [W]", description = "Range: positive or zero")
 	int consumptionMaxActivePower() default 0;
 

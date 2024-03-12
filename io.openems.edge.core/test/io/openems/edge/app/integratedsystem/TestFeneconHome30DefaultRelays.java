@@ -40,6 +40,10 @@ public class TestFeneconHome30DefaultRelays {
 					Apps::thresholdControl //
 			);
 		}, null, new PseudoComponentManagerFactory());
+
+		this.appManagerTestBundle
+				.addSchedulerByCentralOrderAggregateTask(this.appManagerTestBundle.addComponentAggregateTask());
+
 		this.createFullHomeWithDummyIo();
 	}
 

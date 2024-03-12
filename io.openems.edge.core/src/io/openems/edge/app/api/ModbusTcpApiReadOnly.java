@@ -145,6 +145,7 @@ public class ModbusTcpApiReadOnly extends AbstractOpenemsAppWithProps<ModbusTcpA
 					new EdgeConfig.Component(controllerId, this.getName(l), "Controller.Api.ModbusTcp.ReadOnly",
 							JsonUtils.buildJsonObject() //
 									.add("component.ids", componentIds) //
+									.addProperty("port", 502) //
 									.build()));
 
 			return AppConfiguration.create() //

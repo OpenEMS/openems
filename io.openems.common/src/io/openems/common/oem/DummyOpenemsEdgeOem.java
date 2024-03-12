@@ -97,6 +97,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.PeakShaving.PeakShaving", "") //
 			.put("App.PeakShaving.PhaseAccuratePeakShaving", "") //
 			.put("App.Ess.FixActivePower", "") //
+			.put("App.Ess.PowerPlantController", "") //
 			.put("App.Ess.PrepareBatteryExtension", "") //
 			.build();
 

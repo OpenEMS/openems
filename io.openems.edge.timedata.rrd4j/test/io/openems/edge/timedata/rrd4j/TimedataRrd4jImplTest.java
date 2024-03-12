@@ -16,7 +16,6 @@ import org.rrd4j.core.RrdDef;
 import org.rrd4j.core.RrdMemoryBackendFactory;
 
 import io.openems.common.channel.PersistencePriority;
-import io.openems.common.utils.ReflectionUtils;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -28,10 +27,8 @@ public class TimedataRrd4jImplTest {
 	@Test
 	public void test() throws Exception {
 		final var componentManager = new DummyComponentManager();
-		final var worker = new RecordWorker();
-		ReflectionUtils.setAttribute(RecordWorker.class, worker, "componentManager", componentManager);
 		new ComponentTest(new TimedataRrd4jImpl()) //
-				.addReference("worker", worker) //
+				.addReference("workerFactory", new DummyRecordWorkerFactory(componentManager)) //
 				.addReference("readHandler", new Rrd4jReadHandler()) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
