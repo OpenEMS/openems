@@ -4,11 +4,6 @@
 # copy default config files if they don't exist
 cp -nrv /defaults/nginx/* /etc/nginx/
 
-# generate template configs
-script=/etc/s6-overlay/s6-rc.d/init-nginx/convert
-templates=/etc/nginx/site-templates
-find $templates -type f -name "*.conf.template" -exec $script {} \;
-
 # generate env file
 env_template="/var/www/html/openems/assets/env.template.js"
 env_file="/var/www/html/openems/assets/env.js"

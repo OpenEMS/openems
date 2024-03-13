@@ -8,7 +8,7 @@ ARG VERSION
 
 RUN apk update && apk upgrade;
 
-COPY ./ui /src
+COPY ui/ /src/
 
 WORKDIR /src
 
@@ -23,14 +23,14 @@ RUN apk update && apk upgrade
 RUN apk add --no-cache \
     nginx openssl
 	
-## Build ui container
+### Build ui container
 FROM ui_base
 
-COPY --from=build_ui /src/target /var/www/html/openems
-COPY tools/docker/ui/assets/* /var/www/html/openems/assets/
+COPY --from=build_ui /src/target/ /var/www/html/openems/
+COPY tools/docker/ui/assets/ /var/www/html/openems/assets/
 COPY tools/docker/ui/root/ /
 
-RUN find /etc/s6-overlay/s6-rc.d -type f -exec chmod +x {} \;
+RUN find /etc/s6-overlay/s6-rc.d -type f -name 'run' -exec chmod +x {} \;
 
 VOLUME /etc/nginx
 VOLUME /var/log/nginx

@@ -74,7 +74,7 @@
 3. **Type the following build command.**
    
     ```bash
-    docker build . -t openems_backend -f tools/docker/backend/openems/Dockerfile
+    docker build . -t openems_backend -f tools/docker/backend/Dockerfile
     ```
 
     *for UI Image see [ui/README.md](../ui/README.md)*
