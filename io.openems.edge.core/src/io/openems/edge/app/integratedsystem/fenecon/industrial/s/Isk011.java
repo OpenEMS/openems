@@ -192,6 +192,7 @@ public class Isk011 extends AbstractOpenemsAppWithProps<Isk011, Property, Bundle
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create() //
 				.setCanSee(Role.INSTALLER) //
+				.setCanDelete(Role.INSTALLER) //
 				.build();
 	}
 
