@@ -88,10 +88,16 @@ public class Context extends AbstractContext<ControllerEssCycleImpl> {
 	 * @return {@link State} state.
 	 */
 	protected State waitForChangeState(State currentState, State nextState) {
+		final var controller = this.getParent();
+		if (!controller.getProcessFinished().get()) {
+			controller.getProcessFinished().set(true);
+			this.updateLastStateChangeTime();
+		}
 		var now = LocalDateTime.now(this.clock);
 		var standbyTimeInMinutes = Duration.ofMinutes(this.config.standbyTime());
 		if (now.minus(standbyTimeInMinutes.toSeconds(), ChronoUnit.SECONDS)
-				.isAfter(this.getParent().getLastStateChangeTime())) {
+				.isAfter(controller.getLastStateChangeTime())) {
+			controller.getProcessFinished().set(false);
 			return nextState;
 		}
 		this.logInfo(this.log, "Awaiting hysteresis for changing from [" + currentState + "] to [" + nextState + "]");
