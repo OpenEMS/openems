@@ -33,7 +33,24 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
-        version: '2024.2.2',
+        title: 'Online-Monitoring (14.03.2024)',
+        changes: [
+          Changelog.UI,
+          Changelog.product(Product.HOME_10, Product.HOME_20_30) + "Verbesserungen am Inbetriebnahmeassistent",
+          Changelog.app(App.TIME_OF_USE) + "Verbesserung der historischen Ansicht",
+          { roleIsAtLeast: Role.ADMIN, change: "Neue Funktion \"EMS neu starten\" in Einstellungen | System (ab Version 2024.2.2)" },
+          { roleIsAtLeast: Role.ADMIN, change: "Verbesserungen am \"Home Service Assistent\"" },
+          { roleIsAtLeast: Role.ADMIN, change: "Automatische Benachrichtigung bei Systemfehler (erster interner Feldtest)" },
+          // { roleIsAtLeast: Role.ADMIN, change: "Neue App für Service: Ladezustand festlegen" },
+          // { roleIsAtLeast: Role.ADMIN, change: "Nutzer können jetzt selbst die FEMS App Dynamischer Stromtarif wechseln (deinstallieren und neu installieren) - z. B. von Tibber zu Awattar" },
+          // { roleIsAtLeast: Role.ADMIN, change: "Tibber-App: Darstellung von \"xxx\" bei gesetztem Token" },
+          // { roleIsAtLeast: Role.ADMIN, change: "Home 10: Fehlerbehebung bei der Erkennung der Anzahl der Türme" },
+          // { roleIsAtLeast: Role.ADMIN, change: "Einstellungen | Channels: Hinweis, wenn Werte nicht sekündlich aktualisiert werden" },
+          // { roleIsAtLeast: Role.ADMIN, change: "ESS Cycle-Controller: Fehlerbehebungen" },
+        ],
+      },
+      {
+        version: '2024.2.3',
         changes: [
           Changelog.UI,
           Changelog.product(Product.HOME_10, Product.HOME_20_30) + "Entladeverhalten bei voller Batterie",
