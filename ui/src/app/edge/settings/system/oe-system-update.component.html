@@ -5,7 +5,7 @@
         <!-- Edge is Restarting after Update -->
         <ng-container *ngIf="executeUpdate.isEdgeRestarting; else edgeIsOffline">
             <ion-item lines="none">
-                <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.RESTARTING' | translate:
+                <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.EDGE_RESTARTING' | translate:
                     { edge: environment.edgeShortName } }}<br />
                     {{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_TIME'| translate}}</ion-label>
             </ion-item>

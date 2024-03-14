@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { ChangelogModule } from 'src/app/changelog/changelog.module';
+
 import { SharedModule } from './../../shared/shared.module';
 import { AlertingComponent } from './alerting/alerting.component';
 import { AppModule } from './app/app.module';
@@ -16,10 +17,11 @@ import { AliasUpdateComponent } from './profile/aliasupdate.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ServiceAssistantModule } from './serviceassistant/serviceassistant.module';
 import { SettingsComponent } from './settings.component';
+import { MaintenanceComponent } from './system/maintenance/maintenance';
+import { OeSystemUpdateComponent } from './system/oe-system-update.component';
 import { SystemExecuteComponent } from './systemexecute/systemexecute.component';
 import { SystemUpdateOldComponent } from './systemupdate.old/systemupdate.old.component';
-import { OeSystemUpdateComponent } from './systemupdate/oe-system-update.component';
-import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
+import { SystemComponent } from './system/system.component';
 
 @NgModule({
   imports: [
@@ -41,11 +43,12 @@ import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
     ProfileComponent,
     SettingsComponent,
     SystemExecuteComponent,
-    SystemUpdateComponent,
     SystemUpdateOldComponent,
     AlertingComponent,
     HomeServiceAssistentComponent,
     ChartComponent,
+    MaintenanceComponent,
+    SystemComponent,
   ],
   entryComponents: [
   ],

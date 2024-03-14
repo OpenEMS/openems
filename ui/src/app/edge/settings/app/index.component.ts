@@ -8,7 +8,7 @@ import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componen
 import { Role } from 'src/app/shared/type/role';
 import { Environment, environment } from 'src/environments';
 import { Edge, Service, Websocket } from '../../../shared/shared';
-import { ExecuteSystemUpdate } from '../systemupdate/executeSystemUpdate';
+import { ExecuteSystemUpdate } from '../system/executeSystemUpdate';
 import { GetApps } from './jsonrpc/getApps';
 import { AppCenter } from './keypopup/appCenter';
 import { AppCenterGetPossibleApps } from './keypopup/appCenterGetPossibleApps';

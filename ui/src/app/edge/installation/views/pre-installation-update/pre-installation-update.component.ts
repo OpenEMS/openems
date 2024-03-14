@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { SystemUpdateState } from 'src/app/edge/settings/systemupdate/getSystemUpdateStateResponse';
+import { SystemUpdateState } from 'src/app/edge/settings/system/getSystemUpdateStateResponse';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 
 @Component({
