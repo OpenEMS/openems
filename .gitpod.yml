@@ -7,14 +7,14 @@ tasks:
       ./gradlew build buildBackend -x test
       rm /tmp/.gradle-lock
     command: java 
-      -Dfelix.cm.dir=$(pwd)/tools/docker/openems-backend/config.d
+      -Dfelix.cm.dir=$(pwd)/tools/gitpod/openems-backend/config.d
       -jar build/openems-backend.jar
   - init: |
       sleep 10 && while [ -f /tmp/.gradle-lock ]; do sleep 1; done
       ./gradlew build buildEdge -x test
     command: java 
-      -Dfelix.cm.dir=$(pwd)/tools/docker/openems-edge/config.d
-      -Dopenems.data.dir=$(pwd)/tools/docker/openems-edge/data
+      -Dfelix.cm.dir=$(pwd)/tools/gitpod/openems-edge/config.d
+      -Dopenems.data.dir=$(pwd)/tools/gitpod/openems-edge/data
       -jar build/openems-edge.jar
   - init: cd ui && npm install
     command: ng serve 
