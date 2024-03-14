@@ -4,8 +4,9 @@ import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstra
 import { Converter } from 'src/app/shared/genericComponents/shared/converter';
 import { DataService } from 'src/app/shared/genericComponents/shared/dataservice';
 
-import { ChannelAddress, CurrentData, Utils } from '../../../shared/shared';
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../shared/shared';
 import { LiveDataService } from '../../live/livedataservice';
+import { Filter } from 'src/app/shared/genericComponents/shared/filter';
 
 @Component({
   selector: HomeServiceAssistentComponent.SELECTOR,
@@ -21,6 +22,21 @@ export class HomeServiceAssistentComponent extends AbstractFlatWidget {
 
   protected cellVoltageDifference: number | null = null;
   protected cellTemperatureDifference: number | null = null;
+  public chargerComponents: EdgeConfig.Component[] = [];
+  public Filter = Filter;
+
+  protected CONVERT_TO_GRID_METER_CATEGORY = Converter.CONVERT_TO_GRID_METER_CATEGORY(this.translate);
+  public convertToGridMeterCategory: Converter;
+
+  protected override afterIsInitialized() {
+    if (this.config?.components) {
+      this.chargerComponents = Object.values(this.config.components)
+        .filter(component =>
+          component.factoryId === 'GoodWe.Charger-PV1' ||
+          component.factoryId === 'GoodWe.Charger-PV2',
+        );
+    }
+  }
 
   protected date: string = this.service?.historyPeriod?.value?.getText(this.translate, this.service) ?? "";
 
@@ -57,3 +73,4 @@ export class HomeServiceAssistentComponent extends AbstractFlatWidget {
     );
   };
 }
+

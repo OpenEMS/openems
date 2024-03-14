@@ -1,9 +1,11 @@
 import { formatNumber } from "@angular/common";
 
 import { TranslateService } from "@ngx-translate/core";
-import { CurrentData, EdgeConfig, EssStateMachine, Utils } from "../../shared";
+import { BatteryMode, BatteryStateMachine, CurrentData, EdgeConfig, EssStateMachine, GoodWe, GridMode, SafetyCountryCode, Utils } from "../../shared";
+import { Meter } from "src/app/edge/installation/shared/meter";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { Formatter } from "./formatter";
+import { BackupEnable, DredCmd } from "../../type/general";
 
 export type Converter = (value: number | string | null) => string;
 
@@ -49,6 +51,12 @@ export namespace Converter {
     return "-"; // null or string
   };
 
+  export const IF_STRING = (value: number | string | null, callback: (text: string) => string) => {
+    if (typeof value === 'string') {
+      return callback(value);
+    }
+    return "-"; // null or number
+  };
   /**
    * Converter for Grid-Buy-Power.
    *
@@ -159,6 +167,65 @@ export namespace Converter {
     return IF_NUMBER(raw, value => {
       return EssStateMachine[value].toLowerCase();
     });
+  };
+
+  export const CONVERT_TO_BATTERY_STATE: Converter = (raw) => {
+    return IF_NUMBER(raw, value => {
+      return BatteryStateMachine[value].toLowerCase();
+    });
+  };
+
+  export const CONVERT_TO_BATTERY_MODE: Converter = (raw) => {
+    return IF_NUMBER(raw, value => {
+      return BatteryMode[value].toLowerCase();
+    });
+  };
+
+  export const CONVERT_TO_GRID_MODE: Converter = (raw) => {
+    return IF_NUMBER(raw, value => {
+      return GridMode[value].toLowerCase();
+    });
+  };
+
+  export const CONVERT_TO_SAFETY_COUNTRY_CODE: Converter = (raw) => {
+    return IF_NUMBER(raw, value => {
+      return SafetyCountryCode[value].toLowerCase();
+    });
+  };
+
+  export const CONVERT_TO_BACKUP_ENABLE: Converter = (raw) => {
+    return IF_NUMBER(raw, value => {
+      return BackupEnable[value].toLowerCase();
+    });
+  };
+
+  export const CONVERT_TO_DRED_CMD: Converter = (raw) => {
+    return IF_NUMBER(raw, value => {
+      return DredCmd[value].toLowerCase();
+    });
+  };
+
+  export const CONVERT_TO_GOODWE_TYPE: Converter = (raw) => {
+    return IF_NUMBER(raw, value => {
+      if (value in GoodWe) {
+        return GoodWe[value].toLowerCase();
+      }
+      return Converter.HIDE_VALUE(value);
+    });
+  };
+
+  export const CONVERT_TO_GRID_METER_CATEGORY = (translateService: TranslateService): Converter => {
+    return (raw): string => {
+      return IF_STRING(raw, (value) => {
+        const categoryKey = Object.keys(Meter.GridMeterCategory).find(key => Meter.GridMeterCategory[key] === value);
+        if (categoryKey) {
+          return Meter.toGridMeterCategoryLabelString(Meter.GridMeterCategory[categoryKey], translateService);
+        }
+        if (categoryKey === null) {
+          return Converter.HIDE_VALUE(raw);
+        }
+      });
+    };
   };
 
   export const CONVERT_TO_EXTERNAL_RECEIVER_LIMITATION: Converter = (raw) => {

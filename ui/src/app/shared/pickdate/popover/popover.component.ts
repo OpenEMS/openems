@@ -17,6 +17,7 @@ export class PickDatePopoverComponent implements OnInit {
 
     @Input() public setDateRange: (period: DefaultTypes.HistoryPeriod) => void;
     @Input() public edge: Edge | null = null;
+    @Input() public historyPeriods: string[] = [];
 
     private readonly TODAY = new Date();
     private readonly TOMORROW = addDays(new Date(), 1);
@@ -60,7 +61,7 @@ export class PickDatePopoverComponent implements OnInit {
             this.locale = this.translate.getBrowserLang();
 
         // Filter out custom due to different on click event
-        this.periods = EdgePermission.getAllowedHistoryPeriods(this.edge).filter(period => period !== DefaultTypes.PeriodString.CUSTOM);
+        this.periods = EdgePermission.getAllowedHistoryPeriods(this.edge, this.historyPeriods).filter(period => period !== DefaultTypes.PeriodString.CUSTOM);
     }
 
     /**
