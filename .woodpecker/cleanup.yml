@@ -1,0 +1,22 @@
+variables:
+  - &ssh-settings
+    host: ${ARTIFACT_SERVER}
+    username: fenecon-docs
+    key:
+      from_secret: ssh_key_intranet
+
+clone:
+  git:
+    when: 
+      - event: pull_request_closed
+    image: woodpeckerci/plugin-git
+
+steps:
+  cleanup: 
+    when:
+      - event: pull_request_closed
+    image: appleboy/drone-ssh:latest
+    settings:
+      <<: *ssh-settings
+      timeout: 10s
+      script: /opt/gitea/develop/cleanup.sh ${CI_COMMIT_SOURCE_BRANCH}
