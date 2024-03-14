@@ -5,16 +5,13 @@ variables:
     key:
       from_secret: ssh_key_intranet
 
-clone:
-  git:
-    when: 
-      - event: pull_request_closed
-    image: woodpeckerci/plugin-git
+when:
+  event: pull_request_closed
+
+skip_clone: true
 
 steps:
   cleanup: 
-    when:
-      - event: pull_request_closed
     image: appleboy/drone-ssh:latest
     settings:
       <<: *ssh-settings
