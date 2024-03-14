@@ -64,7 +64,4 @@ export class GeneralIbn extends AbstractIbn {
     public override setRequiredControllers() {
         throw new Error('This is General Ibn, Method not implemented.');
     }
-    public override setFeedInLimitFields(model: any) {
-        throw new Error('This is General Ibn, Method not implemented.');
-    }
 }

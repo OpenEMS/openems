@@ -49,9 +49,8 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
 
     public numberOfModulesPerTower: number;
 
-    public setFeedInLimitFields(model: any) {
+    public override setFeedInLimitFields(model: any) {
         this.feedInLimitation.feedInType = model.feedInType;
-        return this.feedInLimitation;
     }
 
     //Configuration Summary

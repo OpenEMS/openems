@@ -195,11 +195,11 @@ export abstract class AbstractIbn {
   public abstract getFeedInLimitFields(): FormlyFieldConfig[];
 
   /**
-   * Returns the updated ibn after filling Dynamic-Feed-In-Limit fields from the model.
+   * sets the Feed-In-Limit fields from the model.
    *
    * @param model the model containing the user input for the Dynamic-Feed-In-Limit fields.
    */
-  public abstract setFeedInLimitFields(model: any);
+  public setFeedInLimitFields(model: any) { }
 
   /**
    * View Configuration-execute.
@@ -510,18 +510,15 @@ export abstract class AbstractIbn {
 
     protocol.items = [];
 
-    let lineSideMeterFuseValue: number;
-    if (lineSideMeterFuse.otherValue) {
-      lineSideMeterFuseValue = lineSideMeterFuse.otherValue;
-    } else {
-      lineSideMeterFuseValue = lineSideMeterFuse.fixedValue;
-    }
+    if (lineSideMeterFuse) {
+      const lineSideMeterFuseValue = lineSideMeterFuse.otherValue ?? lineSideMeterFuse.fixedValue;
 
-    protocol.items.push({
-      category: this.lineSideMeterFuse.category,
-      name: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.VALUE'),
-      value: lineSideMeterFuseValue ? lineSideMeterFuseValue.toString() : '',
-    });
+      protocol.items.push({
+        category: this.lineSideMeterFuse.category,
+        name: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.VALUE'),
+        value: lineSideMeterFuseValue ? lineSideMeterFuseValue.toString() : '',
+      });
+    }
 
     protocol.items.push({
       category: Category.EMS_DETAILS,

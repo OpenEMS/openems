@@ -121,5 +121,5 @@ export enum View {
     ConfigurationMpptSelection,
     ConfigurationSystemVariant,
     ConfigurationSubSystem,
-    ConfigurationEnergyFlowMeter,
+    ConfigurationEnergyFlowMeter
 }

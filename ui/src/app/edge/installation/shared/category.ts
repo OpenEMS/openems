@@ -59,8 +59,8 @@ export namespace Category {
                 return translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_HECKERT');
             case Category.APPS:
                 return translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.APPS');
-                case Category.GRID_METER_CATEGORY:
-                    return translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.ENERGY_FLOW_METER.LABEL');
+            case Category.GRID_METER_CATEGORY:
+                return translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.ENERGY_FLOW_METER.LABEL');
         }
     }
 }

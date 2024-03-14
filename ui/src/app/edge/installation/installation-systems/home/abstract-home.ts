@@ -17,21 +17,6 @@ import { BaseMode, ComponentConfigurator, ConfigurationMode } from '../../views/
 import { SafetyCountry } from '../../views/configuration-execute/safety-country';
 import { AbstractIbn, SchedulerIdBehaviour } from '../abstract-ibn';
 
-type FeneconHome = {
-  SAFETY_COUNTRY: SafetyCountry,
-  RIPPLE_CONTROL_RECEIVER_ACTIV: boolean,
-  MAX_FEED_IN_POWER?: number,
-  FEED_IN_SETTING: string,
-  HAS_DC_PV1: boolean,
-  DC_PV1_ALIAS?: string,
-  HAS_DC_PV2: boolean,
-  DC_PV2_ALIAS?: string,
-  HAS_EMERGENCY_RESERVE: boolean,
-  EMERGENCY_RESERVE_ENABLED?: boolean,
-  EMERGENCY_RESERVE_SOC?: number,
-  SHADOW_MANAGEMENT_DISABLED?: boolean
-}
-
 export abstract class AbstractHomeIbn extends AbstractIbn {
   private static readonly SELECTOR = 'Home';
   public override readonly type: SystemType = SystemType.FENECON_HOME;
@@ -99,10 +84,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     value?: number;
   };
 
-  public mppt: {} = {
-    mppt1pv1: true,
-    mppt2pv2: true,
-  };
+  public abstract mppt: any;
 
   public readonly imageUrl: string = 'assets/img/Home-Typenschild-web.jpg';
   public readonly relayFactoryId: string = 'IO.KMtronic.4Port'; // Default 'Home10' factoryId.
@@ -111,15 +93,24 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
   public override showViewCount: boolean = false;
   public override readonly defaultNumberOfModules: number = 5;
   private numberOfModulesPerTower: number;
+  public readonly maxFeedInLimit: number = 29999;
 
   public abstract readonly emsBoxLabel: Category;
   public abstract readonly maxNumberOfPvStrings: number;
-  public abstract readonly maxFeedInLimit: number;
   public abstract readonly homeAppId: string;
   public abstract readonly homeAppAlias: string;
   public abstract readonly maxNumberOfTowers: number;
   public abstract readonly maxNumberOfModulesPerTower: number;
   public abstract readonly minNumberOfModulesPerTower: number;
+
+  /**
+ * Generates and returns the Specific properties required for Home APP variant.
+ *
+ * @param safetyCountry Safety Country configured.
+ * @param feedInSetting Feed in Setting configured.
+ * @returns The Home APP properties of the specific variant.
+ */
+  public abstract getHomeAppProperties(safetyCountry: SafetyCountry, feedInSetting: FeedInSetting): {};
 
   public override fillSerialNumberForms(
     numberOfTowers: number,
@@ -414,8 +405,6 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     this.feedInLimitation.feedInSetting = model.feedInSetting ?? FeedInSetting.Undefined;
     this.feedInLimitation.fixedPowerFactor = model.fixedPowerFactor ?? FeedInSetting.Undefined;
     this.feedInLimitation.isManualProperlyFollowedAndRead = model.isManualProperlyFollowedAndRead;
-
-    return this.feedInLimitation;
   }
 
   public override setRequiredControllers() {
@@ -697,37 +686,6 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     }];
 
     return fields;
-  }
-
-  /**
-   * Generates and returns the Specific properties required for Home APP variant.
-   *
-   * @param safetyCountry Safety Country configured.
-   * @param feedInSetting Feed in Setting configured.
-   * @returns The Home APP properties of the specific variant.
-   */
-  public getHomeAppProperties(safetyCountry: SafetyCountry, feedInSetting: FeedInSetting): {} {
-
-    const dc1 = this.pv.dc[0];
-    const dc2 = this.pv.dc[1];
-
-    const home10AppProperties: FeneconHome = {
-      SAFETY_COUNTRY: safetyCountry,
-      ...(this.feedInLimitation.feedInType === FeedInType.EXTERNAL_LIMITATION && { RIPPLE_CONTROL_RECEIVER_ACTIV: true }),
-      ...(this.feedInLimitation.feedInType !== FeedInType.EXTERNAL_LIMITATION && { FEED_IN_TYPE: this.feedInLimitation.feedInType }),
-      ...(this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION && { MAX_FEED_IN_POWER: this.feedInLimitation.maximumFeedInPower }),
-      FEED_IN_SETTING: feedInSetting,
-      HAS_DC_PV1: dc1.isSelected,
-      ...(dc1.isSelected && { DC_PV1_ALIAS: dc1.alias }),
-      HAS_DC_PV2: dc2.isSelected,
-      ...(dc2.isSelected && { DC_PV2_ALIAS: dc2.alias }),
-      HAS_EMERGENCY_RESERVE: this.emergencyReserve.isEnabled,
-      ...(this.emergencyReserve.isEnabled && { EMERGENCY_RESERVE_ENABLED: this.emergencyReserve.isReserveSocEnabled }),
-      ...(this.emergencyReserve.isReserveSocEnabled && { EMERGENCY_RESERVE_SOC: this.emergencyReserve.value }),
-      ...(this.batteryInverter?.shadowManagementDisabled && { SHADOW_MANAGEMENT_DISABLED: true }),
-    };
-
-    return home10AppProperties;
   }
 
   public override getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service?: Service) {
