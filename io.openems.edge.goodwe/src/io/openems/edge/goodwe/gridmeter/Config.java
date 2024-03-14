@@ -19,6 +19,15 @@ import io.openems.edge.goodwe.GoodWeConstants;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
+	@AttributeDefinition(name = "Select the grid meter category.", description = "Select grid meter category (Commercial Meter only valid for ETT-Systems e.g. GoodWe 20/30)")
+	GoodWeGridMeterCategory goodWeMeterCategory() default GoodWeGridMeterCategory.SMART_METER;
+
+	@AttributeDefinition(name = "First CT-Ratio Value of external meter (Only for goodWeMeterCategory=COMMERCIAL_METER)", description = "First CT-Ratio Value(eg. \"200\":5 A) of external (eg. Commercial/Business) meter. (Available only for ETT-Systems)")
+	int externalMeterRatioValueA() default 0;
+
+	@AttributeDefinition(name = "Second CT-Ratio Value of external meter (Only for goodWeMeterCategory=COMMERCIAL_METER).", description = "Second CT-Ratio Value(eg. 200:\"5\" A) of external (eg. Commercial/Business) meter. (Available only for ETT-Systems)")
+	int externalMeterRatioValueB() default 5;
+
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
 

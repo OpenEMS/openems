@@ -78,7 +78,7 @@ public class SystemUpdateHandler {
 							result.completeExceptionally(ex);
 							return;
 						}
-						var stdout = response.getStdout();
+						var stdout = response.scr.stdout();
 						if (stdout.length < 1) {
 							result.completeExceptionally(ex /* todo */);
 							return;
@@ -119,7 +119,7 @@ public class SystemUpdateHandler {
 		final var runInBackground = false;
 		final Optional<String> username = Optional.empty();
 		final Optional<String> password = Optional.empty();
-		return this.parent.operatingSystem.handleExecuteCommandRequest(
+		return this.parent.operatingSystem.handleExecuteSystemCommandRequest(
 				new ExecuteSystemCommandRequest(command, runInBackground, timeoutSeconds, username, password));
 	}
 
@@ -181,14 +181,14 @@ public class SystemUpdateHandler {
 			final float totalNumberOfLines = script.split("\r\n|\r|\n").length;
 
 			// Make sure 'at' command is available
-			if (this.executeSystemCommand("which at", SHORT_TIMEOUT).get().getStdout().length == 0) {
+			if (this.executeSystemCommand("which at", SHORT_TIMEOUT).get().scr.stdout().length == 0) {
 				this.updateState.addLog("# Command 'at' is missing");
 
 				{
 					this.updateState.addLog("# Executing 'apt-get update'");
 					var response = this.executeSystemCommand("apt-get update", 3600).get();
 					this.updateState.addLog("'apt-get update'", response);
-					if (response.getExitCode() != 0) {
+					if (response.scr.exitcode() != 0) {
 						throw new Exception("'apt-get update' failed");
 					}
 				}
@@ -196,7 +196,7 @@ public class SystemUpdateHandler {
 					this.updateState.addLog("# Executing 'apt-get install at'");
 					var response = this.executeSystemCommand("apt-get -y install at", 3600).get();
 					this.updateState.addLog("'apt-get install at'", response);
-					if (response.getExitCode() != 0) {
+					if (response.scr.exitcode() != 0) {
 						throw new Exception("'apt-get install at' failed");
 					}
 				}
@@ -215,7 +215,7 @@ public class SystemUpdateHandler {
 						+ "    fi; " //
 						+ "  } >" + logFile.toAbsolutePath() + " 2>&1' " //
 						+ "| at now", SHORT_TIMEOUT).get();
-				if (response.getExitCode() != 0) {
+				if (response.scr.exitcode() != 0) {
 					throw new Exception("Executing update script [" + scriptFile + "] failed");
 				}
 			}

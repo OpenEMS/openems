@@ -27,7 +27,7 @@ public class ComponentUtilImplTest {
 	public void before() throws Exception {
 		this.componentManager = new DummyPseudoComponentManager();
 		this.cm = new DummyConfigurationAdmin();
-		this.componentUtil = new ComponentUtilImpl(this.componentManager, this.cm);
+		this.componentUtil = new ComponentUtilImpl(this.componentManager);
 
 		this.createTestRelay("io0");
 	}
