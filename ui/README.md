@@ -4,7 +4,7 @@ This project was generated with [angular-cli](https://github.com/angular/angular
 
 ## Theme OpenEMS
 
-- OpenEMS Edge - expects a Edge *Controller.Api.Websocket* on default port `8075`
+- OpenEMS Edge - expects a Edge *Controller.Api.Websocket* on default port `8085`
 
    - Serve to port `4200`
    
