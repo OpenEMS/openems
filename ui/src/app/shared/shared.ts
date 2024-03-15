@@ -38,7 +38,7 @@ export class EdgePermission {
    */
   public static getAllowedHistoryPeriods(edge: Edge, historyPeriods?: string[]) {
 
-    if (historyPeriods) {
+    if (historyPeriods?.length > 0) {
       return historyPeriods;
     }
 
