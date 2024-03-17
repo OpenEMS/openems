@@ -9,7 +9,8 @@ import io.openems.edge.meter.api.SinglePhase;
 
 public class OpendtuImplTest {
 
-	private static final String COMPONENT_ID = "opendtu0";
+	public static final String COMPONENT_ID = "opendtu0";
+	public final String inverterSerial = "873249724798";
 
 	@Test
 	public void test() throws Exception {
@@ -21,7 +22,7 @@ public class OpendtuImplTest {
 						.setUsername("admin") //
 						.setPassword("admin") //
 						.setPhase(SinglePhase.L1) //
-						.setSerialNumber("123456") //
+						.setSerialNumber(this.inverterSerial) //
 						.setInitialPowerLimit(100) //
 						.setType(MeterType.PRODUCTION) //
 						.build()) //
