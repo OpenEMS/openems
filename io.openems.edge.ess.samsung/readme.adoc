@@ -1,12 +1,11 @@
-= Shelly WiFi Relay Switch
+= Samsung ESS
 
-This bundle implements Shelly WiFi Relay Switches.
+This bundle implements the Samsung SDI ESS.
 
 Compatible with
-- https://shelly.cloud/products/shelly-25-smart-home-automation-relay/[Shelly 2.5]
-- https://shelly.cloud/products/shelly-plug-s-smart-home-automation-device/[Shelly Plug S]
+- https://www.photovoltaik4all.de/speicher/samsung/samsung-sdi-lithium-ionen-speicher-3-6-kwh/SA23695
 
 Implemented Natures
-- DigitalOutput
+- ElectricityMeter
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.shelly[Source Code icon:github[]]
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.samsung[Source Code icon:github[]]

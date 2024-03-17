@@ -1,5 +1,10 @@
 package io.openems.edge.ess.samsung.ess;
 
+import static io.openems.common.utils.JsonUtils.getAsFloat;
+import static io.openems.common.utils.JsonUtils.getAsInt;
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static java.lang.Math.round;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -16,20 +21,21 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.bridge.http.api.BridgeHttp;
+import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.GridMode;
-import io.openems.edge.io.ess.samsung.common.SamsungApi;
+import io.openems.edge.ess.api.HybridEss;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
-import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.ess.api.HybridEss;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -39,21 +45,36 @@ import io.openems.edge.ess.api.HybridEss;
 
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class SamsungEssImpl extends AbstractOpenemsComponent
 		implements SamsungEss, SymmetricEss, OpenemsComponent, EventHandler, TimedataProvider, HybridEss {
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	private final CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata;
+	private final CalculateEnergyFromPower calculateDcChargeEnergy = new CalculateEnergyFromPower(this,
+			HybridEss.ChannelId.DC_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
+			HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
 
 	private final Logger log = LoggerFactory.getLogger(SamsungEssImpl.class);
-	private SamsungApi samsungApi = null;
+
+	private String baseUrl;
+
+	private Integer latestGridPw = 0;
+	private Integer latestPvPw = 0;
+	private Integer latestPcsPw = 0;
+	private Integer latestConsPw = 0;
+	private Integer latestBatteryStatus = -1;
+	private Integer latestGridStatus = -1;
+
+	@Reference(cardinality = ReferenceCardinality.MANDATORY)
+	private BridgeHttpFactory httpBridgeFactory;
+	private BridgeHttp httpBridge;
 
 	public SamsungEssImpl() {
 		super(//
@@ -69,15 +90,24 @@ public class SamsungEssImpl extends AbstractOpenemsComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.samsungApi = new SamsungApi(config.ip());
+		this.baseUrl = "http://" + config.ip();
+		this.httpBridge = this.httpBridgeFactory.get();
 		this._setCapacity(config.capacity());
 		this._setGridMode(GridMode.ON_GRID);
 
+		if (!this.isEnabled()) {
+			return;
+		}
+
+		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/R3EMSAPP_REAL.ems?file=ESSRealtimeStatus.json",
+				this::fetchAndUpdateEssRealtimeStatus);
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
+		this.httpBridgeFactory.unget(this.httpBridge);
+		this.httpBridge = null;
 		super.deactivate();
 	}
 
@@ -89,69 +119,64 @@ public class SamsungEssImpl extends AbstractOpenemsComponent
 
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.fetchAndUpdateEssRealtimeStatus();
-			break;
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.calculateEnergy();
 			break;
 		}
 	}
 
-	private void fetchAndUpdateEssRealtimeStatus() {
-		try {
-			// Fetch the necessary data from the API
-			JsonObject necessaryData = samsungApi.getEssRealtimeStatus();
+	private void fetchAndUpdateEssRealtimeStatus(JsonElement json, Throwable error) {
 
-			// Populate the appropriate channels with the fetched data
-			double PvPw = necessaryData.get("PvPw").getAsDouble() * 1000;
-			double PcsPw = necessaryData.get("PcsPw").getAsDouble();
-			int btSoc = necessaryData.get("BtSoc").getAsInt();
-			int BtStusCd = necessaryData.get("BtStusCd").getAsInt();
+		if (error != null) {
+			this.logDebug(this.log, error.getMessage());
+		} else {
+			try {
+				var response = getAsJsonObject(json);
+				var essRealtimeStatus = getAsJsonObject(response, "ESSRealtimeStatus");
 
-			// Update the channels
-			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(btSoc);
+				this.latestPvPw = round(getAsFloat(essRealtimeStatus, "PvPw") * 1000);
+				this.latestPcsPw = round(getAsFloat(essRealtimeStatus, "PcsPw"));
+				this.latestGridPw = round(getAsFloat(essRealtimeStatus, "GridPw"));
+				this.latestConsPw = round(getAsFloat(essRealtimeStatus, "ConsPw"));
 
-			switch (BtStusCd) {
-			case 0:
-				// Battery is in Discharge mode
-				if (PcsPw > 0) {
-					this._setDcDischargePower((int) PcsPw);
-				} else {
-					this._setDcDischargePower((int) -PcsPw);
+				this.latestBatteryStatus = getAsInt(essRealtimeStatus, "BtStusCd");
+				this.latestGridStatus = getAsInt(essRealtimeStatus, "GridStusCd");
+
+				this._setSoc(round(getAsInt(essRealtimeStatus, "BtSoc")));
+
+				switch (this.latestBatteryStatus) {
+				case 0:
+					// Battery is in Discharge mode
+					this._setDcDischargePower(this.latestPcsPw);
+					break;
+				case 1:
+					// Battery is in Charge mode
+					this._setDcDischargePower(this.latestPcsPw);
+					break;
+				case 2:
+					// Battery is in Idle mode
+					this._setDcDischargePower(0);
+					break;
+				default:
+					// Handle unknown status codes
+					this.logWarn(this.log, "Unknown Battery Status Code: " + this.latestBatteryStatus);
+					this._setDcDischargePower(0);
+					break;
 				}
-				break;
-			case 1:
-				// Battery is in Charge mode
-				if (PcsPw > 0) {
-					this._setDcDischargePower((int) -PcsPw);
-				} else {
-					this._setDcDischargePower((int) -PcsPw);
-				}
-				break;
-			case 2:
-				// Battery is in Idle mode
-				this._setDcDischargePower(0);
-				break;
-			default:
-				// Handle unknown status codes
-				this.logWarn(log, "Unknown Battery Status Code: " + BtStusCd);
-				break;
+
+			} catch (OpenemsNamedException e) {
+				this.logDebug(this.log, e.getMessage());
 			}
-			// this._setDcDischargePower(dcDischargePower);
-			this._setActivePower((int) (PcsPw - PvPw));
-			this._setSlaveCommunicationFailed(false);
-
-		} catch (OpenemsNamedException e) {
-			this._setSlaveCommunicationFailed(true);
-			this._setActivePower(0);
-			this.log.warn("Failed to fetch ESS Real-time Status", e);
 		}
+
+		this._setActivePower(this.latestPcsPw - this.latestPvPw);
+		this._setSlaveCommunicationFailed(false);
 	}
 
 	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc().asString() //
 				+ "|L:" + this.getActivePower().asString() //
+				+ "|Surplus:" + this.getSurplusPower() + "W" //
 				+ "|" + this.getGridModeChannel().value().asOptionString(); //
 	}
 
@@ -162,54 +187,47 @@ public class SamsungEssImpl extends AbstractOpenemsComponent
 
 	@Override
 	public Integer getSurplusPower() {
-		try {
-			// Fetch the necessary data from the API
-			JsonObject necessaryData = samsungApi.getEssRealtimeStatus();
-
-			// Extract relevant power values and status codes from the JSON object
-			double gridPw = necessaryData.get("GridPw").getAsDouble();
-			double pvPw = necessaryData.get("PvPw").getAsDouble();
-			double pcsPw = necessaryData.get("PcsPw").getAsDouble();
-			double consPw = necessaryData.get("ConsPw").getAsDouble();
-			int gridStatus = necessaryData.get("GridStusCd").getAsInt();
-			int batteryStatus = necessaryData.get("BtStusCd").getAsInt();
-
-			// Adjust the sign of gridPw and pcsPw based on the status codes
-			if (gridStatus == 1) {
-				gridPw = -gridPw;
-			}
-			if (batteryStatus == 0) {
-				pcsPw = -pcsPw;
-			}
-
-			// Calculate surplus power
-			double surplusPower = (gridPw + pvPw) - (pcsPw + consPw);
-			// Return the surplus power or 'null' if there is no surplus power
-			return surplusPower > 0 ? (int) surplusPower : null;
-		} catch (OpenemsNamedException e) {
-			log.warn("Failed to fetch ESS Real-time Status for Surplus Power Calculation", e);
-			return null;
+		// Adjust the sign of gridPw and pcsPw based on the status codes
+		if (this.latestGridStatus == 1) {
+			this.latestGridPw = -this.latestGridPw;
 		}
+		if (this.latestBatteryStatus == 0) {
+			this.latestPcsPw = -this.latestPcsPw;
+		}
+
+		// Calculate surplus power
+		double surplusPower = (this.latestGridPw + this.latestPvPw) - (this.latestPcsPw + this.latestConsPw);
+		// Return the surplus power or 'null' if there is no surplus power
+		return surplusPower > 0 ? (int) surplusPower : null;
 	}
 
 	private void calculateEnergy() {
-		/*
-		 * Calculate AC Energy
-		 */
-		var acActivePower = this.getActivePowerChannel().getNextValue().get();
-		if (acActivePower == null) {
+		// Calculate AC Energy
+		var activePower = this.getActivePowerChannel().getNextValue().get();
+		if (activePower == null) {
 			// Not available
 			this.calculateAcChargeEnergy.update(null);
 			this.calculateAcDischargeEnergy.update(null);
-		} else if (acActivePower > 0) {
-			// Discharge
-			this.calculateAcChargeEnergy.update(0);
-			this.calculateAcDischargeEnergy.update(acActivePower);
+			this.calculateDcChargeEnergy.update(null);
+			this.calculateDcDischargeEnergy.update(null);
 		} else {
-			// Charge
-			this.calculateAcChargeEnergy.update(acActivePower * -1);
-			this.calculateAcDischargeEnergy.update(0);
+			if (activePower > 0) {
+				// Discharge
+				this.calculateAcChargeEnergy.update(0);
+				this.calculateAcDischargeEnergy.update(activePower);
+				this.calculateDcChargeEnergy.update(0);
+				this.calculateDcDischargeEnergy.update(activePower);
+			} else {
+				// Charge
+				this.calculateAcChargeEnergy.update(activePower * -1);
+				this.calculateAcDischargeEnergy.update(0);
+				this.calculateDcChargeEnergy.update(activePower * -1);
+				this.calculateDcDischargeEnergy.update(0);
+			}
 		}
+
+		// Set DC Power explicitly equal to AC Power for clarity
+		this._setDcDischargePower(activePower);
 	}
 
 }
