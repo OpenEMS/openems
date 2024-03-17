@@ -20,8 +20,8 @@ public class DummyBridgeHttp implements BridgeHttp {
 
 	@Override
 	public CompletableFuture<String> request(Endpoint endpoint) {
-		// TODO Auto-generated method stub
-		return null;
+		// Always return a CompletableFuture completed with an empty JSON object
+		return CompletableFuture.completedFuture("{}");
 	}
 
 }
