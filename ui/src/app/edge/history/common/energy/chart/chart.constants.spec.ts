@@ -9,7 +9,7 @@ import { ChartComponent } from "./chart";
 export function expectView(config: EdgeConfig, testContext: TestContext, chartType: 'line' | 'bar', channels: OeTester.Types.Channels, view: OeChartTester.View): void {
   expect(removeFunctions(OeChartTester
     .apply(ChartComponent
-      .getChartData(DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config), chartType, testContext.translate), chartType, channels, testContext)))
+      .getChartData(DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config), chartType, testContext.translate), chartType, channels, testContext, config)))
     .toEqual(removeFunctions(view));
 };
 

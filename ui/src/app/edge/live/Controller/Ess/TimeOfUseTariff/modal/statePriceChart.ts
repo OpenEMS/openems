@@ -1,11 +1,14 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Data } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import * as Chart from 'chart.js';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
-import { TooltipItem } from 'src/app/edge/history/shared';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
-import { TimeOfUseTariffUtils } from 'src/app/shared/service/utils';
+import { ChartAxis, TimeOfUseTariffUtils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
+
+import { calculateResolution } from 'src/app/edge/history/shared';
+import { ColorUtils } from 'src/app/shared/utils/color/color.utils';
 import { GetScheduleRequest } from '../../../../../../shared/jsonrpc/request/getScheduleRequest';
 import { GetScheduleResponse } from '../../../../../../shared/jsonrpc/response/getScheduleResponse';
 
@@ -78,32 +81,61 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
             console.error(reason);
             this.initializeChart();
             return;
+        }).finally(async () => {
+            this.unit = YAxisTitle.CURRENCY;
+            await this.setOptions(this.options);
+            this.applyControllerSpecificOptions(this.options);
         });
     }
 
-    protected setLabel() {
-        const options = this.createDefaultChartOptions();
-        const translate = this.translate;
-        const currencyLabel: Currency.Label = this.currencyLabel;
+    private applyControllerSpecificOptions(options: Chart.ChartOptions) {
 
-        //x-axis
-        options.scales.xAxes[0].time.unit = "hour";
-        options.scales.xAxes[0].stacked = true;
+        options.scales.x['time'].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
+        options.scales.x['ticks'] = { source: 'auto', autoSkip: false };
+        options.scales.x.ticks.maxTicksLimit = 18;
+        options.scales.x['offset'] = false;
+        options.scales.x.ticks.callback = function (value, index, values) {
+            var date = new Date(value);
 
-        //y-axis
-        options.scales.yAxes[0].id = "yAxis1";
-        options.scales.yAxes[0].scaleLabel.padding = -2;
-        options.scales.yAxes[0].scaleLabel.fontSize = 11;
-        options.scales.yAxes[0].ticks.padding = -5;
-        options.scales.yAxes[0].ticks.beginAtZero = false; // scale with min and max values.
-
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            const label: string = data.datasets[tooltipItem.datasetIndex].label;
-            const value: number = tooltipItem.yLabel;
-
-            return TimeOfUseTariffUtils.getLabel(value, label, translate, currencyLabel);
+            // Display the label only if the minutes are zero (full hour)
+            return date.getMinutes() === 0 ? date.getHours() + ':00' : '';
         };
-        this.options = options;
+
+        // options.plugins.
+        options.plugins.tooltip.mode = 'index';
+        options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
+            if (!item) {
+                return;
+            }
+            return {
+                borderColor: ColorUtils.changeOpacityFromRGBA(item.dataset.borderColor, 1),
+                backgroundColor: item.dataset.backgroundColor,
+            };
+        };
+
+        this.datasets = this.datasets.map((el) => {
+            let opacity = el.type === 'line' ? 0.2 : 0.5;
+
+            if (el.backgroundColor && el.borderColor) {
+                el.backgroundColor = ColorUtils.changeOpacityFromRGBA(el.backgroundColor.toString(), opacity);
+                el.borderColor = ColorUtils.changeOpacityFromRGBA(el.borderColor.toString(), 1);
+            }
+            return el;
+        });
+
+        options.plugins.tooltip.callbacks.label = (item: Chart.TooltipItem<any>) => {
+
+            const label = item.dataset.label;
+            const value = item.dataset.data[item.dataIndex];
+
+            return TimeOfUseTariffUtils.getLabel(value, label, this.translate, this.currencyLabel);
+        };
+
+        options.scales[ChartAxis.LEFT]['title'].display = false;
+    }
+
+    protected setLabel() {
+        this.options = this.createDefaultChartOptions();
     }
 
     protected getChannelAddresses(): Promise<ChannelAddress[]> {

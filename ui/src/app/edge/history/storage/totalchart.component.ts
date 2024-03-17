@@ -1,12 +1,13 @@
-import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import * as Chart from 'chart.js';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChartAxis, Utils, YAxisTitle } from 'src/app/shared/service/utils';
+import { ChannelAddress, Edge, EdgeConfig, Service } from 'src/app/shared/shared';
 
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from '../shared';
+import { formatNumber } from '@angular/common';
 
 @Component({
     selector: 'storageTotalChart',
@@ -171,10 +172,14 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                                 });
                             }
                         });
+                    }).finally(async () => {
+                        this.datasets = datasets;
+                        this.unit = YAxisTitle.ENERGY;
+                        await this.setOptions(this.options);
+                        this.applyControllerSpecificChartOptions(this.options);
+                        this.stopSpinner();
+                        this.loading = false;
                     });
-                    this.datasets = datasets;
-                    this.loading = false;
-                    this.stopSpinner();
 
                 }).catch(reason => {
                     console.error(reason); // TODO error message
@@ -230,13 +235,16 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
     }
 
     protected setLabel() {
-        let translate = this.translate; // enables access to TranslateService
-        let options = this.createDefaultChartOptions();
-        options.scales.yAxes[0].scaleLabel.labelString = "kW";
+        this.options = this.createDefaultChartOptions();
+    }
 
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
+    private applyControllerSpecificChartOptions(options: Chart.ChartOptions) {
+        const translate = this.translate;
+
+        options.scales[ChartAxis.LEFT].min = null;
+        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+            let label = tooltipItem.dataset.label;
+            let value = tooltipItem.dataset.data[tooltipItem.dataIndex];
             // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
             if (value < -0.005) {
                 label += ' ' + translate.instant('General.chargePower');
@@ -245,7 +253,6 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         };
-        this.options = options;
     }
 
     public getChartHeight(): number {

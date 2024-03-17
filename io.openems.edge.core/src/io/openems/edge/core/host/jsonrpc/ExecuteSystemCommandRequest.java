@@ -34,6 +34,27 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 	public static final int DEFAULT_TIMEOUT_SECONDS = 5;
 
 	/**
+	 * Holds common parameters for a {@link SystemCommand}.
+	 */
+	public static record SystemCommand(String command, boolean runInBackground, int timeoutSeconds,
+			Optional<String> username, Optional<String> password) {
+
+		private JsonObject toJsonObject() {
+			var result = JsonUtils.buildJsonObject() //
+					.addProperty("command", this.command) //
+					.addProperty("runInBackground", this.runInBackground) //
+					.addProperty("timeoutSeconds", this.timeoutSeconds); //
+			if (this.username.isPresent()) {
+				result.addProperty("username", this.username.get()); //
+			}
+			if (this.password.isPresent()) {
+				result.addProperty("password", this.password.get()); //
+			}
+			return result.build();
+		}
+	}
+
+	/**
 	 * Parses a generic {@link JsonrpcRequest} to a
 	 * {@link ExecuteSystemCommandRequest}.
 	 *
@@ -49,14 +70,9 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 		int timeoutSeconds = JsonUtils.getAsOptionalInt(p, "timeoutSeconds").orElse(DEFAULT_TIMEOUT_SECONDS);
 		var username = JsonUtils.getAsOptionalString(p, "username");
 		var password = JsonUtils.getAsOptionalString(p, "password");
-		return new ExecuteSystemCommandRequest(r.getId(), command, runInBackground, timeoutSeconds, username, password);
+		return new ExecuteSystemCommandRequest(r.getId(),
+				new SystemCommand(command, runInBackground, timeoutSeconds, username, password));
 	}
-
-	private final String command;
-	private final boolean runInBackground;
-	private final int timeoutSeconds;
-	private final Optional<String> username;
-	private final Optional<String> password;
 
 	/**
 	 * Factory without Username + Password; run in background without timeout.
@@ -65,7 +81,8 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 	 * @return the {@link ExecuteSystemCommandRequest}
 	 */
 	public static ExecuteSystemCommandRequest runInBackgroundWithoutAuthentication(String command) {
-		return new ExecuteSystemCommandRequest(UUID.randomUUID(), command, true, 0, Optional.empty(), Optional.empty());
+		return new ExecuteSystemCommandRequest(UUID.randomUUID(),
+				new SystemCommand(command, true, 0, Optional.empty(), Optional.empty()));
 	}
 
 	/**
@@ -79,84 +96,25 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 	 */
 	public static ExecuteSystemCommandRequest withoutAuthentication(String command, boolean runInBackground,
 			int timeoutSeconds) {
-		return new ExecuteSystemCommandRequest(UUID.randomUUID(), command, runInBackground, timeoutSeconds,
-				Optional.empty(), Optional.empty());
+		return new ExecuteSystemCommandRequest(UUID.randomUUID(),
+				new SystemCommand(command, runInBackground, timeoutSeconds, Optional.empty(), Optional.empty()));
 	}
+
+	public final SystemCommand systemCommand;
 
 	public ExecuteSystemCommandRequest(String command, boolean runInBackground, int timeoutSeconds,
 			Optional<String> username, Optional<String> password) {
-		this(UUID.randomUUID(), command, runInBackground, timeoutSeconds, username, password);
+		this(UUID.randomUUID(), new SystemCommand(command, runInBackground, timeoutSeconds, username, password));
 	}
 
-	public ExecuteSystemCommandRequest(UUID id, String command, boolean runInBackground, int timeoutSeconds,
-			Optional<String> username, Optional<String> password) {
-		super(id, METHOD,
-				timeoutSeconds + JsonrpcRequest.DEFAULT_TIMEOUT_SECONDS /* reuse timeoutSeconds with some buffer */);
-		this.command = command;
-		this.runInBackground = runInBackground;
-		this.timeoutSeconds = timeoutSeconds;
-		this.username = username;
-		this.password = password;
+	public ExecuteSystemCommandRequest(UUID id, SystemCommand systemCommand) {
+		super(id, METHOD, systemCommand.timeoutSeconds
+				+ JsonrpcRequest.DEFAULT_TIMEOUT_SECONDS /* reuse timeoutSeconds with some buffer */);
+		this.systemCommand = systemCommand;
 	}
 
 	@Override
 	public JsonObject getParams() {
-		var result = JsonUtils.buildJsonObject() //
-				.addProperty("command", this.command) //
-				.addProperty("runInBackground", this.runInBackground) //
-				.addProperty("timeoutSeconds", this.timeoutSeconds); //
-		if (this.username.isPresent()) {
-			result.addProperty("username", this.username.get()); //
-		}
-		if (this.password.isPresent()) {
-			result.addProperty("password", this.password.get()); //
-		}
-		return result.build();
+		return this.systemCommand.toJsonObject();
 	}
-
-	/**
-	 * Gets the request command.
-	 *
-	 * @return the command
-	 */
-	public String getCommand() {
-		return this.command;
-	}
-
-	/**
-	 * Gets the request isRunInBackground option.
-	 *
-	 * @return the isRunInBackground option
-	 */
-	public boolean isRunInBackground() {
-		return this.runInBackground;
-	}
-
-	/**
-	 * Gets the request timeout.
-	 *
-	 * @return the timeout in seconds
-	 */
-	public int getTimeoutSeconds() {
-		return this.timeoutSeconds;
-	}
-
-	/**
-	 * Gets the request username.
-	 *
-	 * @return the username
-	 */
-	public Optional<String> getUsername() {
-		return this.username;
-	}
-
-	/**
-	 * Gets the request password.
-	 *
-	 * @return the password
-	 */
-	public Optional<String> getPassword() {
-		return this.password;
-	}
-
 }

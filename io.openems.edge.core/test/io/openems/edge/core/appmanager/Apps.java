@@ -17,6 +17,7 @@ import io.openems.edge.app.api.ModbusTcpApiReadWrite;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
 import io.openems.edge.app.api.RestJsonApiReadWrite;
 import io.openems.edge.app.ess.FixActivePower;
+import io.openems.edge.app.ess.PowerPlantController;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
 import io.openems.edge.app.evcs.AlpitronicEvcs;
 import io.openems.edge.app.evcs.EvcsCluster;
@@ -549,6 +550,16 @@ public class Apps {
 	 */
 	public static final PrepareBatteryExtension prepareBatteryExtension(AppManagerTestBundle t) {
 		return app(t, PrepareBatteryExtension::new, "App.Ess.PrepareBatteryExtension");
+	}
+
+	/**
+	 * Test method for creating a {@link PowerPlantController}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final PowerPlantController powerPlantController(AppManagerTestBundle t) {
+		return app(t, PowerPlantController::new, "App.Ess.PowerPlantController");
 	}
 
 	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructor<T> constructor, String appId) {

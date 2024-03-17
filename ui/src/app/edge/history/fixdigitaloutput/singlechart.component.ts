@@ -1,13 +1,13 @@
-import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import * as Chart from 'chart.js';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { YAxisTitle } from 'src/app/shared/service/utils';
 
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from '../shared';
 
 @Component({
   selector: 'fixDigitalOutputSingleChart',
@@ -54,7 +54,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
       this.labels = labels;
 
       // convert datasets
-      let datasets = [];
+      let datasets: Chart.ChartDataset[] = [];
       for (let channel in result.data) {
         let address = ChannelAddress.fromString(channel);
         let data = result.data[channel].map(value => {
@@ -76,11 +76,14 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
       this.datasets = datasets;
       this.loading = false;
       this.stopSpinner();
-
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();
       return;
+    }).finally(async () => {
+      this.unit = YAxisTitle.PERCENTAGE;
+      await this.setOptions(this.options);
+      this.stopSpinner();
     });
   }
 
@@ -93,15 +96,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
   }
 
   protected setLabel() {
-    let options = this.createDefaultChartOptions();
-    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
-    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-      let label = data.datasets[tooltipItem.datasetIndex].label;
-      let value = tooltipItem.yLabel;
-      return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
-    };
-    options.scales.yAxes[0].ticks.max = 100;
-    this.options = options;
+    this.options = this.createDefaultChartOptions();
   }
 
   public getChartHeight(): number {
