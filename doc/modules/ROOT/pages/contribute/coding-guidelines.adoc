@@ -61,7 +61,7 @@ Use Eclipse checkstyle plugin `Eclipse-cs`. Install it with
 
 Configure it with
 
-* Eclipse -> Window -> Preferences -> New -> 
+* Eclipse -> Window -> Preferences -> Checkstyle -> New -> 
 ** Type: `Project Relative Configuration` 
 ** Name: `OpenEMS` 
 ** Location: `/cnf/checkstyle.xml`
