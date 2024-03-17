@@ -3,6 +3,7 @@ import localEN from '@angular/common/locales/en';
 import localES from '@angular/common/locales/es';
 import localFR from '@angular/common/locales/fr';
 import localNL from '@angular/common/locales/nl';
+import localJA from '@angular/common/locales/ja';
 import { TranslateLoader } from "@ngx-translate/core";
 import { Observable, of } from 'rxjs';
 import cz from 'src/assets/i18n/cz.json';
@@ -11,6 +12,7 @@ import en from 'src/assets/i18n/en.json';
 import es from 'src/assets/i18n/es.json';
 import fr from 'src/assets/i18n/fr.json';
 import nl from 'src/assets/i18n/nl.json';
+import ja from 'src/assets/i18n/ja.json';
 
 export class MyTranslateLoader implements TranslateLoader {
 
@@ -31,8 +33,9 @@ export class Language {
     public static readonly NL: Language = new Language("Dutch", "nl", "nl", nl, localNL);
     public static readonly ES: Language = new Language("Spanish", "es", "es", es, localES);
     public static readonly FR: Language = new Language("French", "fr", "fr", fr, localFR);
+    public static readonly JA: Language = new Language("Japanese", "ja", "ja", ja, localJA);
 
-    public static readonly ALL = [Language.DE, Language.EN, Language.CZ, Language.NL, Language.ES, Language.FR];
+    public static readonly ALL = [Language.DE, Language.EN, Language.CZ, Language.NL, Language.ES, Language.FR, Language.JA];
     public static readonly DEFAULT = Language.DE;
 
     public static getByKey(key: string): Language | null {
@@ -55,6 +58,7 @@ export class Language {
             case "nl": return Language.NL;
             case "cz": return Language.CZ;
             case "fr": return Language.FR;
+            case "ja": return Language.JA;
             default: return null;
         }
     }
@@ -67,6 +71,7 @@ export class Language {
             case Language.NL.key: return Language.NL.locale;
             case Language.CZ.key: return Language.CZ.locale;
             case Language.FR.key: return Language.FR.locale;
+            case Language.JA.key: return Language.JA.locale;
             default: return Language.DEFAULT.locale;
         }
     }
