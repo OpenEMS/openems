@@ -17,7 +17,7 @@ export class PickDatePopoverComponent implements OnInit {
 
     @Input() public setDateRange: (period: DefaultTypes.HistoryPeriod) => void;
     @Input() public edge: Edge | null = null;
-    @Input() public historyPeriods: string[] = [];
+    @Input() public historyPeriods: DefaultTypes.PeriodStringValues[] = [];
 
     private readonly TODAY = new Date();
     private readonly TOMORROW = addDays(new Date(), 1);

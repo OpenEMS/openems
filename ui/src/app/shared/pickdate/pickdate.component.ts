@@ -23,7 +23,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
     private changePeriodTimeout = null;
     private edge: Edge | null = null;
 
-    @Input() public historyPeriods: string[] = [];
+    @Input() public historyPeriods: DefaultTypes.PeriodStringValues[] = [];
 
     constructor(
         public service: Service,
