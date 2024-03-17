@@ -68,7 +68,8 @@ public class SchedulerAggregateTaskImpl implements SchedulerAggregateTask {
 
 	@Override
 	public void create(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
-		if (!this.anyChanges()) {
+		if (!this.anyCreateChanges()) {
+			this.delete(user, otherAppConfigurations);
 			return;
 		}
 		this.order = this.componentUtil.insertSchedulerOrder(this.componentUtil.getSchedulerIds(), this.order);
@@ -79,7 +80,7 @@ public class SchedulerAggregateTaskImpl implements SchedulerAggregateTask {
 
 	@Override
 	public void delete(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
-		if (!this.anyChanges()) {
+		if (!this.anyDeleteChanges()) {
 			return;
 		}
 		var otherIds = AppConfiguration
@@ -141,10 +142,12 @@ public class SchedulerAggregateTaskImpl implements SchedulerAggregateTask {
 		}
 	}
 
-	private boolean anyChanges() {
-		return !this.order.isEmpty() //
-				|| !this.removeIds.isEmpty() //
-				|| !this.aggregateTask.getDeletedComponents().isEmpty();
+	private boolean anyCreateChanges() {
+		return !this.order.isEmpty();
+	}
+
+	private boolean anyDeleteChanges() {
+		return !this.removeIds.isEmpty();
 	}
 
 }

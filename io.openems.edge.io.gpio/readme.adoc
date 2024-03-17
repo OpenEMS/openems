@@ -1,0 +1,12 @@
+= GPIO (General Purpose Input/Output)
+
+This bundle implements GPIO (General Purpose Input/Output) ports using LinuxFS communication. 
+Tested mainly on Raspberry Pi based devices.
+
+== ModBerry X500 CM4
+
+The module supports GPIOs of all ModBerry X500 CM4 models. ModBerry is based on the Raspberry Pi Compute Module 4. 
+
+The pin out description is available in the datasheet: https://modberry.techbase.eu/wp-content/uploads/2020/11/ModBerry_500CM4_EN.pdf
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.gpio[Source Code icon:github[]]

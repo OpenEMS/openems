@@ -39,6 +39,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
@@ -157,17 +158,11 @@ public class PrepareBatteryExtension
 									.build()) //
 			);
 
-			final var schedulerIds = Lists.newArrayList(//
-					ctrlPrepareBatteryExtensionId, //
-					"ctrlEmergencyCapacityReserve0", //
-					"ctrlGridOptimizedCharge0", //
-					"ctrlEssSurplusFeedToGrid0", //
-					"ctrlBalancing0" //
-			);
-
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.scheduler(schedulerIds)) //
+					.addTask(Tasks.schedulerByCentralOrder(//
+							new SchedulerComponent(ctrlPrepareBatteryExtensionId,
+									"Controller.Ess.PrepareBatteryExtension", this.getAppId()))) //
 					.build();
 		};
 	}

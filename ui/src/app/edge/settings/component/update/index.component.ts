@@ -43,7 +43,7 @@ export class IndexComponent implements OnInit {
 
   updateFilter(completeFilter: string) {
     // take each space-separated string as an individual and-combined filter
-    let filters = completeFilter.split(' ');
+    let filters = completeFilter.toLowerCase().split(' ');
     let countFilteredEntries = 0;
     for (let entry of this.list) {
       entry.filteredComponents = entry.components.filter(entry =>

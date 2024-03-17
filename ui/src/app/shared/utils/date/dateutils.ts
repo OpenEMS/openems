@@ -72,4 +72,8 @@ export namespace DateUtils {
   export function toLocaleTimeString(date: Date): string {
     return date.toLocaleTimeString();
   }
+
+  export function isFullHour(date: Date) {
+    return date.getMinutes() != 0 ? null : date;
+  }
 }

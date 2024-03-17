@@ -5,9 +5,11 @@ import java.util.concurrent.CompletableFuture;
 
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 
 /**
@@ -31,7 +33,7 @@ public class OperatingSystemWindows implements OperatingSystem {
 	}
 
 	@Override
-	public CompletableFuture<ExecuteSystemCommandResponse> handleExecuteCommandRequest(
+	public CompletableFuture<ExecuteSystemCommandResponse> handleExecuteSystemCommandRequest(
 			ExecuteSystemCommandRequest request) throws NotImplementedException {
 		throw new NotImplementedException("ExecuteSystemCommandRequest is not implemented for Windows");
 	}
@@ -40,6 +42,12 @@ public class OperatingSystemWindows implements OperatingSystem {
 	public String getUsbConfiguration() throws OpenemsNamedException {
 		// not implemented
 		return "";
+	}
+
+	@Override
+	public CompletableFuture<? extends JsonrpcResponseSuccess> handleExecuteSystemRestartRequest(
+			ExecuteSystemRestartRequest request) throws NotImplementedException {
+		throw new NotImplementedException("ExecuteSystemRestartRequest is not implemented for Windows");
 	}
 
 }
