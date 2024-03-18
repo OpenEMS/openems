@@ -88,8 +88,6 @@ public class MeterEastronSdm120Impl extends AbstractOpenemsModbusComponent
 				ElectricityMeter.ChannelId.values(), //
 				MeterEastronSdm120.ChannelId.values() //
 		);
-
-		SinglePhaseMeter.calculateSinglePhaseFromActivePower(this);
 	}
 
 	@Activate
