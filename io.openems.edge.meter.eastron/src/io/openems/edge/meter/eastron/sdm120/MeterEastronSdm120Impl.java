@@ -1,7 +1,7 @@
 package io.openems.edge.meter.eastron.sdm120;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT_IF_TRUE;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SET_ZERO_IF_TRUE;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.chain;
 
