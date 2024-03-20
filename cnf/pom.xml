@@ -61,31 +61,31 @@
 			<!-- Used by com.squareup.okhttp3: okhttp -->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio-jvm</artifactId>
-			<version>3.8.0</version>
+			<version>3.9.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
 			<groupId>com.squareup.retrofit2</groupId>
 			<artifactId>converter-gson</artifactId>
-			<version>2.9.0</version>
+			<version>2.10.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
 			<groupId>com.squareup.retrofit2</groupId>
 			<artifactId>retrofit</artifactId>
-			<version>2.9.0</version>
+			<version>2.10.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
 			<groupId>com.squareup.retrofit2</groupId>
 			<artifactId>converter-scalars</artifactId>
-			<version>2.9.0</version>
+			<version>2.10.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.retrofit2</groupId>
 			<artifactId>adapter-rxjava3</artifactId>
-			<version>2.9.0</version>
+			<version>2.10.0</version>
 		</dependency>
 		<dependency>
 			<!-- JavaBeans Activation Framework -->
