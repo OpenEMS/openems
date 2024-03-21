@@ -1,6 +1,8 @@
 package io.openems.backend.metadata.odoo.postgres;
 
 import java.sql.Connection;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
@@ -21,6 +23,8 @@ public class InitializeEdgesWorker {
 	protected final PostgresHandler parent;
 	private final HikariDataSource dataSource;
 	private final Runnable onFinished;
+	private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(1);
+	private boolean isMarkAllEdgesAsOfflineCalled = false;
 
 	/**
 	 * Executor for subscriptions task.
@@ -39,16 +43,34 @@ public class InitializeEdgesWorker {
 	public synchronized void start() {
 		this.executor.execute(() -> {
 			try (var con = this.dataSource.getConnection()) {
-				this.parent.logInfo(this.log, "Caching Edges from Postgres [started]");
-				this.markAllEdgesAsOffline(con);
-				this.readAllEdgesFromPostgres(con);
-				this.parent.logInfo(this.log, "Caching Edges from Postgres [finished]");
+				// First Execution on Start
+				this.runCachingEdgesTask(con);
+
+				// Plan scheduled Execution
+				this.scheduledExecutor.scheduleAtFixedRate(() -> {
+					try (Connection newCon = this.dataSource.getConnection()) {
+						this.runCachingEdgesTask(newCon);
+					} catch (SQLException e) {
+						this.logError("Error trying to Connect to Postgres: ", e);
+					}
+				}, 30, 30, TimeUnit.MINUTES);
 			} catch (SQLException e) {
-				this.parent.logWarn(this.log, "Caching Edges from Postgres [canceled]");
-				this.logError("Unable to connect do dataSource. ", e);
+				this.logError("Unable to connect do Postgres ", e);
 			}
 			this.onFinished.run();
 		});
+	}
+
+	private void runCachingEdgesTask(Connection con) {
+		this.parent.logInfo(this.log, "Caching Edges from Postgres [started]");
+		// Check if markAllEdgesAsOffline has already been called
+		if (!this.isMarkAllEdgesAsOfflineCalled) {
+			this.markAllEdgesAsOffline(con);
+			this.parent.logInfo(this.log, "Calling Mark-Edges Offline on first run");
+			this.isMarkAllEdgesAsOfflineCalled = true;
+		}
+		this.readAllEdgesFromPostgres(con);
+		this.parent.logInfo(this.log, "Caching Edges from Postgres [finished]");
 	}
 
 	/**
@@ -57,6 +79,7 @@ public class InitializeEdgesWorker {
 	public synchronized void stop() {
 		// Shutdown executor
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.scheduledExecutor, 5);
 	}
 
 	private void markAllEdgesAsOffline(Connection con) {
