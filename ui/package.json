@@ -31,7 +31,7 @@
         "ngx-cookie-service": "^15.0.0",
         "ngx-spinner": "^15.0.1",
         "roboto-fontface": "^0.10.0",
-        "rxjs": "~6.6.7",
+        "rxjs": "~7.8.1",
         "tslib": "^2.5.0",
         "uuid": "^9.0.0",
         "zone.js": "~0.13.0"
