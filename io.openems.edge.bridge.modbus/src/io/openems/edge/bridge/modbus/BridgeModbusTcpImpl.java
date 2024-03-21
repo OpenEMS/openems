@@ -2,13 +2,13 @@ package io.openems.edge.bridge.modbus;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
+import io.openems.edge.common.cycle.Cycle;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.*;
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
@@ -45,6 +45,12 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	/** The configured IP address. */
 	private InetAddress ipAddress = null;
 	private int port;
+	private int interval;
+	private LocalDateTime timer = LocalDateTime.MIN;
+	private boolean skip = false;
+
+	@Reference
+	private Cycle cycle;
 
 	public BridgeModbusTcpImpl() {
 		super(//
@@ -72,6 +78,7 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	private void applyConfig(ConfigTcp config) {
 		this.setIpAddress(InetAddressUtils.parseOrNull(config.ip()));
 		this.port = config.port();
+		this.interval = config.intervalBetweenAccesses();
 	}
 
 	@Override
@@ -126,5 +133,35 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 
 	public void setIpAddress(InetAddress ipAddress) {
 		this.ipAddress = ipAddress;
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		var now = LocalDateTime.now();
+		if (event.getTopic() == EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE) {
+			if (now.isAfter(this.timer)) {
+				this.timer = now.plus(this.interval, ChronoUnit.MILLIS);
+				skip = false;
+			} else {
+				skip = true;
+			}
+		}
+		if (skip) {
+			System.out.println("skip " + event);
+			return;
+		}
+		System.out.println("no skip " + event);
+
+		switch (event.getTopic()) {
+			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+				this.worker.onBeforeProcessImage();
+				break;
+			case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
+				this.worker.onExecuteWrite();
+				break;
+		}
 	}
 }

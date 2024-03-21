@@ -113,6 +113,58 @@ public class BridgeModbusTcpImplTest {
 		}
 	}
 
+	@Test
+	public void testSkips() throws Exception {
+		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(CYCLE_TIME);
+
+		var port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
+		ModbusSlave slave = null;
+		try {
+			/*
+			 * Open Modbus/TCP Slave
+			 */
+			slave = ModbusSlaveFactory.createTCPSlave(port, 1);
+			var processImage = new SimpleProcessImage(UNIT_ID);
+			Register register100 = new SimpleRegister(123);
+			processImage.addRegister(100, register100);
+			slave.addProcessImage(UNIT_ID, processImage);
+			slave.open();
+
+			/*
+			 * Instantiate Modbus-Bridge
+			 */
+			var sut = new BridgeModbusTcpImpl();
+			var device = new MyModbusComponent(DEVICE_ID, sut, UNIT_ID);
+			var test = new ComponentTest(sut) //
+					.addComponent(device) //
+					.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
+					.activate(MyConfigTcp.create() //
+							.setId(MODBUS_ID) //
+							.setIp("127.0.0.1") //
+							.setPort(port) //
+							.setInvalidateElementsAfterReadErrors(1) //
+							.setLogVerbosity(LogVerbosity.NONE) //
+							.setIntervalBetweenAccesses(150)
+							.build());
+
+			test.next(new TestCase() //
+						.onAfterProcessImage(sleep) //
+						.output(REGISTER_100, 123) //
+						.output(MODBUS_COMMUNICATION_FAILED, false)); //
+			register100 = new SimpleRegister(1234);
+			processImage.addRegister(100, register100);
+			test
+				.next(new TestCase() //
+						.onAfterProcessImage(sleep) //
+						.output(REGISTER_100, 123) //
+						.output(MODBUS_COMMUNICATION_FAILED, false)); //
+		} finally {
+			if (slave != null) {
+				slave.close();
+			}
+		}
+	}
+
 	private static class MyModbusComponent extends DummyModbusComponent {
 
 		public MyModbusComponent(String id, AbstractModbusBridge bridge, int unitId) throws OpenemsException {
