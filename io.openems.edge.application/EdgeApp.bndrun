@@ -42,6 +42,7 @@
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
 	bnd.identity;id='io.openems.edge.battery.fenecon.commercial',\
 	bnd.identity;id='io.openems.edge.battery.fenecon.home',\
+	bnd.identity;id='io.openems.edge.battery.pylontech',\
 	bnd.identity;id='io.openems.edge.battery.soltaro',\
 	bnd.identity;id='io.openems.edge.batteryinverter.kaco.blueplanetgridsave',\
 	bnd.identity;id='io.openems.edge.batteryinverter.refu88k',\
@@ -185,7 +186,7 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.corrently',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.entsoe',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
-
+	
 -runbundles: \
 	Java-WebSocket;version='[1.5.4,1.5.5)',\
 	bcpkix;version='[1.70.0,1.70.1)',\
@@ -205,6 +206,7 @@
 	io.openems.edge.battery.bydcommercial;version=snapshot,\
 	io.openems.edge.battery.fenecon.commercial;version=snapshot,\
 	io.openems.edge.battery.fenecon.home;version=snapshot,\
+	io.openems.edge.battery.pylontech;version=snapshot,\
 	io.openems.edge.battery.soltaro;version=snapshot,\
 	io.openems.edge.batteryinverter.api;version=snapshot,\
 	io.openems.edge.batteryinverter.kaco.blueplanetgridsave;version=snapshot,\
