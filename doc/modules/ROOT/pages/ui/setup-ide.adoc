@@ -38,7 +38,7 @@ NOTE: If you receive an error message that the command `npm` could not be found,
 
 . In Visual Studios integrated terminal type...
 +
-`ng serve -c openems-edge-dev`
+`ng serve -c openems-backend-dev`
 +
 NOTE: If you receive an error message, that you have no rights to execute "ng serve", set `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`.
 +
