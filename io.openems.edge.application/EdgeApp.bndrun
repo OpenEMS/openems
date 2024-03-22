@@ -149,6 +149,7 @@
 	bnd.identity;id='io.openems.edge.meter.camillebauer.aplus',\
 	bnd.identity;id='io.openems.edge.meter.carlo.gavazzi.em300',\
 	bnd.identity;id='io.openems.edge.meter.discovergy',\
+	bnd.identity;id='io.openems.edge.meter.entes',\
 	bnd.identity;id='io.openems.edge.meter.janitza',\
 	bnd.identity;id='io.openems.edge.meter.kdk',\
 	bnd.identity;id='io.openems.edge.meter.microcare.sdm630',\
@@ -185,7 +186,7 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.corrently',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.entsoe',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
-
+	bnd.identity;id='io.openems.edge.meter.entes'
 -runbundles: \
 	Java-WebSocket;version='[1.5.4,1.5.5)',\
 	bcpkix;version='[1.70.0,1.70.1)',\
@@ -318,6 +319,7 @@
 	io.openems.edge.meter.camillebauer.aplus;version=snapshot,\
 	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot,\
 	io.openems.edge.meter.discovergy;version=snapshot,\
+	io.openems.edge.meter.entes;version=snapshot,\
 	io.openems.edge.meter.janitza;version=snapshot,\
 	io.openems.edge.meter.kdk;version=snapshot,\
 	io.openems.edge.meter.microcare.sdm630;version=snapshot,\
