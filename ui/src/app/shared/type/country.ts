@@ -7,6 +7,8 @@ export enum Country {
     SWEDEN = 'se',
     CZECH_REPUBLIK = 'cz',
     NETHERLANDS = 'nl',
+    IRELAND = 'ie',
+    UNITED_KINGDOM = 'gb',
 }
 
 export const COUNTRY_OPTIONS = (translate: TranslateService) => {
@@ -17,5 +19,7 @@ export const COUNTRY_OPTIONS = (translate: TranslateService) => {
         { value: Country.SWEDEN, label: translate.instant('General.Country.sweden') },
         { value: Country.NETHERLANDS, label: translate.instant('General.Country.netherlands') },
         { value: Country.CZECH_REPUBLIK, label: translate.instant('General.Country.czech') },
+        { value: Country.IRELAND, label: translate.instant('General.Country.ireland') },
+        { value: Country.UNITED_KINGDOM, label: translate.instant('General.Country.united_kingdom') },
     ];
 };
