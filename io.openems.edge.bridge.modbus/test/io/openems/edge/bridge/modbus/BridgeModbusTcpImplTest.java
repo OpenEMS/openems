@@ -143,8 +143,8 @@ public class BridgeModbusTcpImplTest {
 							.setIp("127.0.0.1") //
 							.setPort(port) //
 							.setInvalidateElementsAfterReadErrors(1) //
-							.setLogVerbosity(LogVerbosity.NONE) //
-							.setIntervalBetweenAccesses(150)
+							.setLogVerbosity(LogVerbosity.DEBUG_LOG) //
+							.setIntervalBetweenAccesses(200)
 							.build());
 
 			test.next(new TestCase() //
@@ -157,7 +157,12 @@ public class BridgeModbusTcpImplTest {
 				.next(new TestCase() //
 						.onAfterProcessImage(sleep) //
 						.output(REGISTER_100, 123) //
-						.output(MODBUS_COMMUNICATION_FAILED, false)); //
+						.output(MODBUS_COMMUNICATION_FAILED, false))
+				.next(new TestCase() //
+						.onAfterProcessImage(sleep) //
+						.output(REGISTER_100, 1234) //
+						.output(MODBUS_COMMUNICATION_FAILED, false))
+			; //
 		} finally {
 			if (slave != null) {
 				slave.close();

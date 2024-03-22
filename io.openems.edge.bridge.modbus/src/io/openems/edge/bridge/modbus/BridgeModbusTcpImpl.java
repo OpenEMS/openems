@@ -4,7 +4,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
+import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 import io.openems.edge.common.cycle.Cycle;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
@@ -24,6 +27,8 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides a service for connecting to, querying and writing to a Modbus/TCP
@@ -45,9 +50,10 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	/** The configured IP address. */
 	private InetAddress ipAddress = null;
 	private int port;
-	private int interval;
-	private LocalDateTime timer = LocalDateTime.MIN;
-	private boolean skip = false;
+	private final Logger log = LoggerFactory.getLogger(BridgeModbusTcpImpl.class);
+	private boolean shouldSkip = false;
+	private int noSkipIdx = 0;
+	private long cycleIdx = 0;
 
 	@Reference
 	private Cycle cycle;
@@ -78,7 +84,11 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	private void applyConfig(ConfigTcp config) {
 		this.setIpAddress(InetAddressUtils.parseOrNull(config.ip()));
 		this.port = config.port();
-		this.interval = config.intervalBetweenAccesses();
+		this.noSkipIdx = config.intervalBetweenAccesses() / cycle.getCycleTime();
+		this.noSkipIdx = Math.max(this.noSkipIdx, 1);
+		this.logCycle("applyConfig: cycleTime=" + cycle.getCycleTime()
+			+ ", interval=" + config.intervalBetweenAccesses()
+			+ ", noSkipIdx=" + this.noSkipIdx);
 	}
 
 	@Override
@@ -135,25 +145,30 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 		this.ipAddress = ipAddress;
 	}
 
+	private boolean isNewCycle(Event event) {
+		return Objects.equals(event.getTopic(), EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE);
+	}
+
+	private void logCycle(String msg) {
+		if (this.getLogVerbosity() == LogVerbosity.DEBUG_LOG) {
+			this.logInfo(this.log, msg);
+		}
+	}
+
 	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled()) {
 			return;
 		}
-		var now = LocalDateTime.now();
-		if (event.getTopic() == EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE) {
-			if (now.isAfter(this.timer)) {
-				this.timer = now.plus(this.interval, ChronoUnit.MILLIS);
-				skip = false;
-			} else {
-				skip = true;
-			}
+
+		if (this.isNewCycle(event)) {
+			shouldSkip = this.cycleIdx % this.noSkipIdx != 0;
+			this.logCycle("handleEvent: Cycle " + this.cycleIdx + (shouldSkip ? " will" : " won't") + " be skipped");
+			this.cycleIdx++;
 		}
-		if (skip) {
-			System.out.println("skip " + event);
+		if (shouldSkip) {
 			return;
 		}
-		System.out.println("no skip " + event);
 
 		switch (event.getTopic()) {
 			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
