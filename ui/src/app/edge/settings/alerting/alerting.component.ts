@@ -8,7 +8,7 @@ import { SetUserAlertingConfigsRequest, UserSettingRequest } from 'src/app/share
 import { GetUserAlertingConfigsRequest } from 'src/app/shared/jsonrpc/request/getUserAlertingConfigsRequest';
 import { GetUserAlertingConfigsResponse, AlertingSettingResponse } from 'src/app/shared/jsonrpc/response/getUserAlertingConfigsResponse';
 import { Edge, Service, Utils, Websocket } from 'src/app/shared/shared';
-import { ArrayUtils } from 'src/app/shared/service/arrayutils';
+import { ArrayUtils } from 'src/app/shared/utils/array/array.utils';
 
 export enum AlertingType {
   OFFLINE,
