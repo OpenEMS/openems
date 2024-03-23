@@ -99,15 +99,17 @@ public class UtilsTest {
 
 	@Test
 	public void testCreateSimulatorParams() throws Exception {
-		var context = getContext(TimeOfUseTariffControllerImplTest.create(CLOCK));
-		var p = createSimulatorParams(context, ImmutableSortedMap.of());
+		final var context = getContext(TimeOfUseTariffControllerImplTest.create(CLOCK));
+		final var p = createSimulatorParams(context, ImmutableSortedMap.of());
+		final var op = p.optimizePeriods().get(0);
 		assertEquals(4, p.optimizePeriods().size());
 		assertEquals(10000, p.essTotalEnergy());
 		assertEquals(0, p.essMinSocEnergy());
-		assertEquals(250, p.optimizePeriods().get(0).essMaxEnergy());
+		assertEquals(250, op.essMaxChargeEnergy());
+		assertEquals(250, op.essMaxDischargeEnergy());
 		assertEquals(6000, p.essInitialEnergy());
-		assertEquals(434, p.optimizePeriods().get(0).essChargeInChargeGrid());
-		assertEquals(2500, p.optimizePeriods().get(0).maxBuyFromGrid());
+		assertEquals(434, op.essChargeInChargeGrid());
+		assertEquals(2500, op.maxBuyFromGrid());
 		assertArrayEquals(ControlMode.CHARGE_CONSUMPTION.states, p.states());
 	}
 
@@ -185,7 +187,8 @@ public class UtilsTest {
 		assertNull(calculateChargeGridPower(params, //
 				new DummyManagedSymmetricEss("ess0"), //
 				new DummySum(), //
-				/* maxChargePowerFromGrid */ 24_000));
+				/* maxChargePowerFromGrid */ 24_000, //
+				/* limitChargePowerFor14aEnWG */ false));
 
 		assertEquals(-10000, calculateChargeGridPower(null, //
 				new DummyManagedSymmetricEss("ess0") //
@@ -193,7 +196,8 @@ public class UtilsTest {
 						.withActivePower(-6_000), //
 				new DummySum() //
 						.withGridActivePower(10_000), //
-				/* maxChargePowerFromGrid */ 20_000).intValue());
+				/* maxChargePowerFromGrid */ 20_000, //
+				/* limitChargePowerFor14aEnWG */ false).intValue());
 
 		assertEquals(-11000, calculateChargeGridPower(null, //
 				new DummyManagedSymmetricEss("ess0") //
@@ -201,14 +205,16 @@ public class UtilsTest {
 						.withActivePower(-6_000), //
 				new DummySum() //
 						.withGridActivePower(5_000), //
-				/* maxChargePowerFromGrid */ 20_000).intValue());
+				/* maxChargePowerFromGrid */ 20_000, //
+				/* limitChargePowerFor14aEnWG */ false).intValue());
 
 		assertEquals(-5860, calculateChargeGridPower(params, //
 				new DummyManagedSymmetricEss("ess0") //
 						.withActivePower(-1000), //
 				new DummySum() //
 						.withGridActivePower(500), //
-				/* maxChargePowerFromGrid */ 24_000).intValue());
+				/* maxChargePowerFromGrid */ 24_000, //
+				/* limitChargePowerFor14aEnWG */ false).intValue());
 
 		// Would be -3584, but limited to 5000 which is already surpassed
 		// TODO if this should actually serve as blackout-protection, a positive value
@@ -218,7 +224,8 @@ public class UtilsTest {
 						.withActivePower(1000), //
 				new DummySum() //
 						.withGridActivePower(9000), //
-				/* maxChargePowerFromGrid */ 5_000).intValue());
+				/* maxChargePowerFromGrid */ 5_000, //
+				/* limitChargePowerFor14aEnWG */ false).intValue());
 
 		assertEquals(-8360, calculateChargeGridPower(params, //
 				new DummyHybridEss("ess0") //
@@ -226,7 +233,8 @@ public class UtilsTest {
 						.withDcDischargePower(-1500), //
 				new DummySum() //
 						.withGridActivePower(-2000), //
-				/* maxChargePowerFromGrid */ 24_000).intValue());
+				/* maxChargePowerFromGrid */ 24_000, //
+				/* limitChargePowerFor14aEnWG */ false).intValue());
 	}
 
 	@Test
@@ -363,7 +371,7 @@ public class UtilsTest {
 		assertEquals(5000, getEssMinSocEnergy(new Context(//
 				null, null, null, null, null, //
 				List.of(t3), List.of(t1, t2), //
-				null, 0), //
+				null, 0, false), //
 				10000));
 	}
 
@@ -412,7 +420,8 @@ public class UtilsTest {
 				.setEssTotalEnergy(22000) //
 				.setEssMinSocEnergy(2_000) //
 				.setEssMaxSocEnergy(20_000) //
-				.setEssMaxEnergy(0) //
+				.setEssMaxChargeEnergy(0) //
+				.setEssMaxDischargeEnergy(0) //
 				.seMaxBuyFromGrid(toEnergy(24_000)) //
 				.setProductions() //
 				.setConsumptions() //

@@ -32,8 +32,8 @@ public class ScheduleDatasTest {
 	protected static final ZonedDateTime TIME = ZonedDateTime.of(2000, 1, 1, 0, 15, 0, 0, ZoneId.of("UTC"));
 
 	protected static final ScheduleDatas SCHEDULE_DATAS = new ScheduleDatas(22_000, ImmutableList.of(//
-			new ScheduleData(TIME, null, 100, 200, 1234, 222, 333, 78.9, DELAY_DISCHARGE, 987, 654),
-			new ScheduleData(TIME.plusMinutes(15), null, 100, 200, 4567, 444, 333, 12.3, CHARGE_GRID, 987, 654)));
+			new ScheduleData(TIME, null, 100, 200, 300, 1234, 222, 333, 78.9, DELAY_DISCHARGE, 987, 654),
+			new ScheduleData(TIME.plusMinutes(15), null, 100, 200, 300, 4567, 444, 333, 12.3, CHARGE_GRID, 987, 654)));
 
 	@Test
 	public void testIsEmpty() {
@@ -50,9 +50,9 @@ public class ScheduleDatasTest {
 	public void testToLogString() {
 		assertEquals(
 				"""
-						OPTIMIZER Time  OptimizeBy EssMaxEnergy MaxBuyFromGrid EssInitial Production Consumption  Price State           EssChargeDischarge  Grid
-						OPTIMIZER 00:15 -                   100            200       1234        222         333  78.90 DELAY_DISCHARGE                987   654
-						OPTIMIZER 00:30 -                   100            200       4567        444         333  12.30 CHARGE_GRID                    987   654
+						OPTIMIZER Time  OptimizeBy EssMaxChargeEnergy EssMaxDischargeEnergy MaxBuyFromGrid EssInitial Production Consumption  Price State           EssChargeDischarge  Grid
+						OPTIMIZER 00:15 -                         100                   200            300       1234        222         333  78.90 DELAY_DISCHARGE                987   654
+						OPTIMIZER 00:30 -                         100                   200            300       4567        444         333  12.30 CHARGE_GRID                    987   654
 						""",
 				SCHEDULE_DATAS.toLogString("OPTIMIZER "));
 	}
@@ -107,7 +107,7 @@ public class ScheduleDatasTest {
 		var sds = ScheduleDatas.fromSchedule(optimizer);
 		assertEquals(
 				"""
-						Time  OptimizeBy EssMaxEnergy MaxBuyFromGrid EssInitial Production Consumption  Price State           EssChargeDischarge  Grid
+						Time  OptimizeBy EssMaxChargeEnergy EssMaxDischargeEnergy MaxBuyFromGrid EssInitial Production Consumption  Price State           EssChargeDischarge  Grid
 						""",
 				sds.toLogString(""));
 	}
@@ -117,15 +117,15 @@ public class ScheduleDatasTest {
 		var sds = ScheduleDatas.fromSchedule(22_000, ImmutableSortedMap.of(//
 				TIME, //
 				new Simulator.Period(//
-						new OptimizePeriod(TIME, 1, 2, 3, 4, 5, 6., ImmutableList.of(//
-								new QuarterPeriod(TIME, 1, 2, 3, 4, 5, 6))),
+						new OptimizePeriod(TIME, 1, 2, 3, 4, 5, 6, 7., ImmutableList.of(//
+								new QuarterPeriod(TIME, 1, 2, 3, 4, 5, 6, 7))),
 						StateMachine.BALANCING, 10_000,
 						new EnergyFlow(0, 0, 1000 /* ess */, 500 /* grid */, 0, 0, 0, 0, 0, 0)) //
 		));
 		assertEquals(
 				"""
-						OPTIMIZER Time  OptimizeBy EssMaxEnergy MaxBuyFromGrid EssInitial Production Consumption  Price State           EssChargeDischarge  Grid
-						OPTIMIZER 00:15 QUARTER               1              3      10000          4           5   6.00 BALANCING                     1000   500
+						OPTIMIZER Time  OptimizeBy EssMaxChargeEnergy EssMaxDischargeEnergy MaxBuyFromGrid EssInitial Production Consumption  Price State           EssChargeDischarge  Grid
+						OPTIMIZER 00:15 QUARTER                     1                     2              4      10000          5           6   7.00 BALANCING                     1000   500
 						""",
 				sds.toLogString("OPTIMIZER "));
 	}

@@ -72,8 +72,6 @@ public class IntegrationTests {
 			throw new IllegalArgumentException("No Periods");
 		}
 		var sd = sds.stream().findFirst().get();
-		final var essMaxEnergy = sd.essMaxEnergy();
-		final var maxBuyFromGrid = sd.maxBuyFromGrid();
 
 		return Params.create() //
 				.setTime(time) //
@@ -81,8 +79,9 @@ public class IntegrationTests {
 				.setEssMinSocEnergy(essMinSocEnergy) //
 				.setEssMaxSocEnergy(essMaxSocEnergy) //
 				.setEssInitialEnergy(essInitialEnergy) //
-				.setEssMaxEnergy(essMaxEnergy) //
-				.seMaxBuyFromGrid(maxBuyFromGrid) //
+				.setEssMaxChargeEnergy(sd.essMaxChargeEnergy()) //
+				.setEssMaxDischargeEnergy(sd.essMaxDischargeEnergy()) //
+				.seMaxBuyFromGrid(sd.maxBuyFromGrid()) //
 				.setProductions(sds.stream().mapToInt(ScheduleData::production).toArray()) //
 				.setConsumptions(sds.stream().mapToInt(ScheduleData::consumption).toArray()) //
 				.setPrices(sds.stream().mapToDouble(ScheduleData::price).toArray()) //

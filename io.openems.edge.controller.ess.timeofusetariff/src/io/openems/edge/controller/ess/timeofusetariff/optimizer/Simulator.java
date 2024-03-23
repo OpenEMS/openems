@@ -65,8 +65,9 @@ public class Simulator {
 			var op = p.optimizePeriods().get(i);
 			// Convert mixed OptimizePeriods to pure quarterly
 			for (var qp : op.quarterPeriods()) {
-				var quarterlyOp = new OptimizePeriod(qp.time(), qp.essMaxEnergy(), qp.essChargeInChargeGrid(),
-						qp.maxBuyFromGrid(), qp.production(), qp.consumption(), qp.price(), ImmutableList.of(qp));
+				var quarterlyOp = new OptimizePeriod(qp.time(), qp.essMaxChargeEnergy(), qp.essMaxDischargeEnergy(),
+						qp.essChargeInChargeGrid(), qp.maxBuyFromGrid(), qp.production(), qp.consumption(), qp.price(),
+						ImmutableList.of(qp));
 				simulatePeriod(p, quarterlyOp, state, nextEssInitial, period -> result.put(period.op().time(), period));
 			}
 		}

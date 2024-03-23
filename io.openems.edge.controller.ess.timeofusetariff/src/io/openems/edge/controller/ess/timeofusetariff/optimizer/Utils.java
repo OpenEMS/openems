@@ -6,7 +6,6 @@ import static io.openems.edge.common.type.TypeUtils.orElse;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController.PERIODS_PER_HOUR;
-import static java.lang.Math.abs;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.round;
@@ -66,6 +65,9 @@ public final class Utils {
 
 	/** Keep some buffer to avoid scheduling errors because of bad predictions. */
 	public static final float ESS_MAX_SOC = 90F;
+
+	/** Limit Charge Power for §14a EnWG. */
+	public static final int ESS_LIMIT_14A_ENWG = -4200;
 
 	/**
 	 * C-Rate (capacity divided by time) during {@link StateMachine#CHARGE_GRID}.
@@ -156,6 +158,9 @@ public final class Utils {
 		// Power Values for scheduling battery for individual periods.
 		var maxDischargePower = context.sum().getEssMaxDischargePower().orElse(1000 /* at least 1000 */);
 		var maxChargePower = context.sum().getEssMaxDischargePower().orElse(-1000 /* at least 1000 */);
+		if (context.limitChargePowerFor14aEnWG()) {
+			maxChargePower = max(ESS_LIMIT_14A_ENWG, maxChargePower); // Apply §14a EnWG limit
+		}
 
 		return Params.create() //
 				.setTime(time) //
@@ -163,7 +168,8 @@ public final class Utils {
 				.setEssMinSocEnergy(essMinSocEnergy) //
 				.setEssMaxSocEnergy(essMaxSocEnergy) //
 				.setEssInitialEnergy(essSocEnergy) //
-				.setEssMaxEnergy(toEnergy(min(maxDischargePower, abs(maxChargePower)))) //
+				.setEssMaxChargeEnergy(toEnergy(Math.abs(maxChargePower))) //
+				.setEssMaxDischargeEnergy(toEnergy(maxDischargePower)) //
 				.seMaxBuyFromGrid(toEnergy(context.maxChargePowerFromGrid())) //
 				.setProductions(stream(interpolateArray(predictionProduction)).map(v -> toEnergy(v)).toArray()) //
 				.setConsumptions(stream(interpolateArray(predictionConsumption)).map(v -> toEnergy(v)).toArray()) //
@@ -538,14 +544,16 @@ public final class Utils {
 	 * Calculates the Max-ActivePower constraint for
 	 * {@link StateMachine#CHARGE_GRID}.
 	 * 
-	 * @param params                 the {@link Params}
-	 * @param ess                    the {@link ManagedSymmetricEss}
-	 * @param sum                    the {@link Sum}
-	 * @param maxChargePowerFromGrid the configured max charge from grid power
+	 * @param params                     the {@link Params}
+	 * @param ess                        the {@link ManagedSymmetricEss}
+	 * @param sum                        the {@link Sum}
+	 * @param maxChargePowerFromGrid     the configured max charge from grid power
+	 * @param limitChargePowerFor14aEnWG Limit Charge Power for §14a EnWG
 	 * @return the set-point or null
 	 */
 	public static Integer calculateChargeGridPower(Params params, ManagedSymmetricEss ess, Sum sum,
-			int maxChargePowerFromGrid) {
+			int maxChargePowerFromGrid, boolean limitChargePowerFor14aEnWG) {
+		// TODO limitChargePowerFor14aEnWG
 		var gridActivePower = sum.getGridActivePower().get(); // current buy-from/sell-to grid
 		var essActivePower = ess.getActivePower().get(); // current charge/discharge ESS
 		if (gridActivePower == null || essActivePower == null) {
@@ -557,6 +565,10 @@ public final class Utils {
 				+ min(0, realGridPower) * -1; // add excess production
 		var effectiveGridBuyPower = max(0, realGridPower) + targetChargePower;
 		var chargePower = max(0, targetChargePower - max(0, effectiveGridBuyPower - maxChargePowerFromGrid));
+
+		if (limitChargePowerFor14aEnWG) {
+			chargePower = max(ESS_LIMIT_14A_ENWG, chargePower);
+		}
 
 		return chargePower * -1;
 	}

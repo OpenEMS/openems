@@ -14,7 +14,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private ControlMode controlMode;
 		private int essMaxChargePower;
 		private int maxChargePowerFromGrid;
-		private boolean maxChargePowerFromGrid14aEnWG;
+		private boolean limitChargePowerFor14aEnWG;
 		private RiskLevel riskLevel;
 
 		private Builder() {
@@ -50,11 +50,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setMaxChargePowerFromGrid14aEnWG(boolean maxChargePowerFromGrid14aEnWG) {
-			this.maxChargePowerFromGrid14aEnWG = maxChargePowerFromGrid14aEnWG;
-			return this;
-		}
-
 		public Builder setMaxChargePowerFromGrid(int maxChargePowerFromGrid) {
 			this.maxChargePowerFromGrid = maxChargePowerFromGrid;
 			return this;
@@ -62,6 +57,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setRiskLevel(RiskLevel riskLevel) {
 			this.riskLevel = riskLevel;
+			return this;
+		}
+
+		public Builder setLimitChargePowerFor14aEnWG(boolean limitChargePowerFor14aEnWG) {
+			this.limitChargePowerFor14aEnWG = limitChargePowerFor14aEnWG;
 			return this;
 		}
 
@@ -112,8 +112,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public boolean maxChargePowerFromGrid14aEnWG() {
-		return this.builder.maxChargePowerFromGrid14aEnWG;
+	public boolean limitChargePowerFor14aEnWG() {
+		return this.builder.limitChargePowerFor14aEnWG;
 	}
 
 	@Override

@@ -20,7 +20,8 @@ public record Context(//
 		List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves, //
 		List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges, //
 		ControlMode controlMode, //
-		int maxChargePowerFromGrid) {
+		int maxChargePowerFromGrid, //
+		boolean limitChargePowerFor14aEnWG) {
 
 	public static class Builder {
 		private Clock clock;
@@ -32,6 +33,7 @@ public record Context(//
 		private List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges;
 		private ControlMode controlMode;
 		private int maxChargePowerFromGrid;
+		private boolean limitChargePowerFor14aEnWG;
 
 		/**
 		 * The {@link Clock}.
@@ -136,6 +138,17 @@ public record Context(//
 		}
 
 		/**
+		 * Always apply §14a EnWG limit of 4.2 kW.
+		 * 
+		 * @param limitChargePowerFor14aEnWG boolean
+		 * @return myself
+		 */
+		public Builder setLimitChargePowerFor14aEnWG(boolean limitChargePowerFor14aEnWG) {
+			this.limitChargePowerFor14aEnWG = limitChargePowerFor14aEnWG;
+			return this;
+		}
+
+		/**
 		 * Builds the {@link Context}.
 		 * 
 		 * @return the {@link Context} record
@@ -143,7 +156,7 @@ public record Context(//
 		public Context build() {
 			return new Context(this.clock, this.sum, this.predictorManager, this.timeOfUseTariff, this.ess,
 					this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges, this.controlMode,
-					this.maxChargePowerFromGrid);
+					this.maxChargePowerFromGrid, this.limitChargePowerFor14aEnWG);
 		}
 	}
 
