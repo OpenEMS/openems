@@ -199,6 +199,15 @@ public class UtilsTest {
 				/* maxChargePowerFromGrid */ 20_000, //
 				/* limitChargePowerFor14aEnWG */ false).intValue());
 
+		assertEquals(-4200, calculateChargeGridPower(null, //
+				new DummyManagedSymmetricEss("ess0") //
+						.withCapacity(20_000) //
+						.withActivePower(-6_000), //
+				new DummySum() //
+						.withGridActivePower(10_000), //
+				/* maxChargePowerFromGrid */ 20_000, //
+				/* limitChargePowerFor14aEnWG */ true).intValue());
+		
 		assertEquals(-11000, calculateChargeGridPower(null, //
 				new DummyManagedSymmetricEss("ess0") //
 						.withCapacity(20_000) //
