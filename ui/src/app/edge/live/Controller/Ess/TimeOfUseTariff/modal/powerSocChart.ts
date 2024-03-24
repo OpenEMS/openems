@@ -3,12 +3,11 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
-import { DEFAULT_TIME_CHART_OPTIONS } from 'src/app/edge/history/shared';
 import { AbstractHistoryChart as NewAbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { ChartConstants } from 'src/app/shared/genericComponents/chart/chart.constants';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisTitle } from 'src/app/shared/service/utils';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from 'src/app/shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 import { GetScheduleRequest } from '../../../../../../shared/jsonrpc/request/getScheduleRequest';
 import { GetScheduleResponse } from '../../../../../../shared/jsonrpc/response/getScheduleResponse';
@@ -75,8 +74,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 label: this.translate.instant('General.gridBuy'),
                 data: gridBuyArray,
                 hidden: true,
-                yAxisID: 'yAxis1',
-                position: 'right',
                 order: 1,
             });
             this.colors.push({
@@ -89,8 +86,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 label: this.translate.instant('General.gridSell'),
                 data: gridSellArray,
                 hidden: true,
-                yAxisID: 'yAxis1',
-                position: 'right',
                 order: 1,
             });
             this.colors.push({
@@ -103,8 +98,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 label: this.translate.instant('General.production'),
                 data: productionArray,
                 hidden: false,
-                yAxisID: 'yAxis1',
-                position: 'right',
                 order: 1,
             });
             this.colors.push({
@@ -117,8 +110,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 label: this.translate.instant('General.consumption'),
                 data: consumptionArray,
                 hidden: false,
-                yAxisID: 'yAxis1',
-                position: 'right',
                 order: 1,
             });
             this.colors.push({
@@ -131,8 +122,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 label: this.translate.instant('General.chargePower'),
                 data: essChargeArray,
                 hidden: true,
-                yAxisID: 'yAxis1',
-                position: 'right',
                 order: 1,
             });
             this.colors.push({
@@ -145,8 +134,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 label: this.translate.instant('General.dischargePower'),
                 data: essDischargeArray,
                 hidden: true,
-                yAxisID: 'yAxis1',
-                position: 'right',
                 order: 1,
             });
             this.colors.push({
@@ -195,15 +182,15 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
         this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, 'line', locale, true, scaleOptionsLeft);
         this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, 'line', locale, true);
 
-        this.datasets = this.datasets.map((el, index, arr) => {
+        this.datasets = this.datasets.map((el: Chart.ChartDataset) => {
 
-            // align last element to right yAxis
-            if ((arr.length - 1) === index) {
+            // align particular dataset element to right yAxis
+            if (el.label === this.translate.instant('General.soc')) {
                 el['yAxisID'] = ChartAxis.RIGHT;
-                el['yAxisId'] = ChartAxis.RIGHT;
             }
             return el;
         });
+
         this.options.scales.x['ticks'] = { source: 'auto', autoSkip: false };
         this.options.scales.x.ticks.callback = function (value, index, values) {
             var date = new Date(value);
@@ -216,16 +203,15 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
     };
 
     protected setLabel() {
-        const options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+        this.options = this.createDefaultChartOptions();
         const translate = this.translate;
-        options.plugins.tooltip.callbacks.label = function (item: Chart.TooltipItem<any>) {
+        this.options.plugins.tooltip.callbacks.label = function (item: Chart.TooltipItem<any>) {
 
             const label = item.dataset.label;
             const value = item.dataset.data[item.dataIndex];
 
             return TimeOfUseTariffUtils.getLabel(value, label, translate);
         };
-        this.options = options;
     }
 
     protected getChannelAddresses(): Promise<ChannelAddress[]> {
@@ -233,8 +219,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
     }
 
     public getChartHeight(): number {
-        return this.service.isSmartphoneResolution
-            ? window.innerHeight / 3
-            : window.innerHeight / 4;
+        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
     }
 }
