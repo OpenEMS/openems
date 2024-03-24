@@ -57,6 +57,12 @@ public class Utils {
 		TimeOfUsePrices result = null;
 		OpenemsNamedException error = null;
 		var successCount = 0;
+
+		if (homes.size() == 1) {
+			// If there's only one home, filter is set to null so that it is ignored while parsing.
+			filter = null;
+		}
+		
 		for (JsonElement home : homes) {
 			try {
 				var subResult = parseHome(home, filter);
