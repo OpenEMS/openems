@@ -84,7 +84,7 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	private void applyConfig(ConfigTcp config) {
 		this.setIpAddress(InetAddressUtils.parseOrNull(config.ip()));
 		this.port = config.port();
-		this.noSkipIdx = config.intervalBetweenAccesses() / cycle.getCycleTime();
+		this.noSkipIdx = (int)Math.ceil(config.intervalBetweenAccesses() * 1.0 / cycle.getCycleTime());
 		this.noSkipIdx = Math.max(this.noSkipIdx, 1);
 		this.logCycle("applyConfig: cycleTime=" + cycle.getCycleTime()
 			+ ", interval=" + config.intervalBetweenAccesses()

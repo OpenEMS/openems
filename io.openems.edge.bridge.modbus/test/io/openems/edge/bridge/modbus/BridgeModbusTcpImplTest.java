@@ -114,7 +114,7 @@ public class BridgeModbusTcpImplTest {
 	}
 
 	@Test
-	public void testSkips() throws Exception {
+	public void testSkipInterval() throws Exception {
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(CYCLE_TIME);
 
 		var port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
@@ -125,44 +125,104 @@ public class BridgeModbusTcpImplTest {
 			 */
 			slave = ModbusSlaveFactory.createTCPSlave(port, 1);
 			var processImage = new SimpleProcessImage(UNIT_ID);
-			Register register100 = new SimpleRegister(123);
-			processImage.addRegister(100, register100);
 			slave.addProcessImage(UNIT_ID, processImage);
 			slave.open();
 
-			/*
-			 * Instantiate Modbus-Bridge
-			 */
-			var sut = new BridgeModbusTcpImpl();
-			var device = new MyModbusComponent(DEVICE_ID, sut, UNIT_ID);
-			var test = new ComponentTest(sut) //
-					.addComponent(device) //
-					.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
-					.activate(MyConfigTcp.create() //
-							.setId(MODBUS_ID) //
-							.setIp("127.0.0.1") //
-							.setPort(port) //
-							.setInvalidateElementsAfterReadErrors(1) //
-							.setLogVerbosity(LogVerbosity.DEBUG_LOG) //
-							.setIntervalBetweenAccesses(200)
-							.build());
+			int NUM_TESTS, MAX_INTERVAL;
 
-			test.next(new TestCase() //
+			// interval = 0, should not change original modbus behavior
+			NUM_TESTS = 1;
+			for (int i = 0; i < NUM_TESTS; i++) {
+				var sut = new BridgeModbusTcpImpl();
+				var device = new MyModbusComponent(DEVICE_ID, sut, UNIT_ID);
+				var test = new ComponentTest(sut) //
+						.addComponent(device) //
+						.addReference("cycle", new DummyCycle(CYCLE_TIME));
+
+				test.activate(MyConfigTcp.create() //
+						.setId(MODBUS_ID) //
+						.setIp("127.0.0.1") //
+						.setPort(port) //
+						.setInvalidateElementsAfterReadErrors(1) //
+						.setLogVerbosity(LogVerbosity.DEBUG_LOG) //
+						.setIntervalBetweenAccesses(0)
+						.build());
+
+				processImage.addRegister(100, new SimpleRegister(11));
+				test.next(new TestCase() //
 						.onAfterProcessImage(sleep) //
-						.output(REGISTER_100, 123) //
+						.output(REGISTER_100, 11) //
 						.output(MODBUS_COMMUNICATION_FAILED, false)); //
-			register100 = new SimpleRegister(1234);
-			processImage.addRegister(100, register100);
-			test
-				.next(new TestCase() //
+
+				processImage.addRegister(100, new SimpleRegister(22));
+				test.next(new TestCase() //
 						.onAfterProcessImage(sleep) //
-						.output(REGISTER_100, 123) //
-						.output(MODBUS_COMMUNICATION_FAILED, false))
-				.next(new TestCase() //
+						.output(REGISTER_100, 22) //
+						.output(MODBUS_COMMUNICATION_FAILED, false)); //
+				test.next(new TestCase() //
 						.onAfterProcessImage(sleep) //
-						.output(REGISTER_100, 1234) //
-						.output(MODBUS_COMMUNICATION_FAILED, false))
-			; //
+						.output(REGISTER_100, 22) //
+						.output(MODBUS_COMMUNICATION_FAILED, false)); //
+
+				// Important! Otherwise, new sut cannot connect to the slave (only 1 slave thread)
+				sut.deactivate();
+			}
+			// 0 <= interval < MAX_INTERVAL
+			NUM_TESTS = 7;
+			MAX_INTERVAL = CYCLE_TIME * 3;
+			for (int i = 0; i < NUM_TESTS; i++) {
+				var sut = new BridgeModbusTcpImpl();
+				var device = new MyModbusComponent(DEVICE_ID, sut, UNIT_ID);
+				var test = new ComponentTest(sut) //
+						.addComponent(device) //
+						.addReference("cycle", new DummyCycle(CYCLE_TIME));
+
+				int interval = MAX_INTERVAL * i / NUM_TESTS;
+				int skips = (int)Math.ceil(interval * 1.0 / CYCLE_TIME) - 1;
+
+				System.out.println("Interval=" + interval + ", skips=" + skips);
+
+				test.activate(MyConfigTcp.create()
+						.setId(MODBUS_ID)
+						.setIp("127.0.0.1")
+						.setPort(port)
+						.setInvalidateElementsAfterReadErrors(1)
+						.setLogVerbosity(LogVerbosity.DEBUG_LOG)
+						.setIntervalBetweenAccesses(interval)
+						.build());
+
+				processImage.addRegister(100, new SimpleRegister(111));
+				test.next(new TestCase()
+						.onAfterProcessImage(sleep)
+						.output(REGISTER_100, 111)
+						.output(MODBUS_COMMUNICATION_FAILED, false));
+
+				processImage.addRegister(100, new SimpleRegister(222));
+				for (int j = 0; j < skips; j++) {
+					test.next(new TestCase()
+							.onAfterProcessImage(sleep)
+							.output(REGISTER_100, 111)
+							.output(MODBUS_COMMUNICATION_FAILED, false));
+				}
+				test.next(new TestCase()
+						.onAfterProcessImage(sleep)
+						.output(REGISTER_100, 222)
+						.output(MODBUS_COMMUNICATION_FAILED, false));
+
+				processImage.addRegister(100, new SimpleRegister(333));
+				for (int j = 0; j < skips; j++) {
+					test.next(new TestCase()
+							.onAfterProcessImage(sleep)
+							.output(REGISTER_100, 222)
+							.output(MODBUS_COMMUNICATION_FAILED, false));
+				}
+				test.next(new TestCase()
+						.onAfterProcessImage(sleep)
+						.output(REGISTER_100, 333)
+						.output(MODBUS_COMMUNICATION_FAILED, false));
+
+				sut.deactivate();
+			}
 		} finally {
 			if (slave != null) {
 				slave.close();
