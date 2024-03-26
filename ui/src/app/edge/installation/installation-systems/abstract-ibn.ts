@@ -12,7 +12,6 @@ import { Meter } from '../shared/meter';
 import { FEED_IN_POWER_FACTOR_OPTIONS } from '../shared/options';
 import { System, SystemId, SystemType } from '../shared/system';
 import { ComponentConfigurator } from '../views/configuration-execute/component-configurator';
-import { EmsApp } from '../views/heckert-app-installer/heckert-app-installer.component';
 
 export type SerialNumberData = {
   formGroup: FormGroup;
@@ -116,9 +115,6 @@ export abstract class AbstractIbn {
 
   //Controller-Id's
   public requiredControllerIds: SchedulerId[];
-
-  // Heckert-app-installer
-  public selectedFreeApp?: EmsApp;
 
   // Configuration-summary
   public setupProtocol?: SetupProtocol;

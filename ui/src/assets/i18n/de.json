@@ -584,7 +584,8 @@
       "DOWNLOAD": "IBN-Protokoll herunterladen",
       "SUB_TITLE": "Sie haben den {{ value }} erfolgreich in Betrieb genommen.",
       "TITLE": "Abschließen",
-      "NOTE": "Hier geht's weiter zum App Center, um weitere Komponenten zu konfigurieren und Apps zu installieren."
+      "NOTE": "Hier geht's weiter zum App Center, um weitere Komponenten zu konfigurieren und Apps zu installieren.",
+      "HECKERT_NOTE": "Eine kostenlose App steht nun im App-Center für Sie bereit zur Installation."
     },
     "COMPLETE": "Zum Online-Monitoring",
     "CONFIGURATION_EMERGENCY_RESERVE": {
@@ -668,8 +669,6 @@
       "SUMMARY": "Zusammenfassung",
       "TIME_OF_INSTALLATION": "Zeitpunkt der Installation",
       "WARRANTY_TERMS": "Garantiebedingungen",
-      "APPS": "Apps",
-      "HECKERT": "Ihre gewählte kostenlose App",
       "ACCEPT": "akzeptieren",
       "ALIAS_WITH_LABEL_HOME_DC": "Alias MPPT{{mppt}} PV{{pv}}",
       "VALUE_WITH_LABEL_HOME_DC": "Wert MPPT{{ mppt }} PV{{ pv }} {{ symbol }}",

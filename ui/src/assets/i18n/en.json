@@ -587,7 +587,8 @@
       "DOWNLOAD": "IBN-Protocol download",
       "SUB_TITLE": "You have successfully commisioned the {{ value }}.",
       "TITLE": "Set-up complete",
-      "NOTE": "Click here to go to the App Center to configure additional components and install apps."
+      "NOTE": "Click here to go to the App Center to configure additional components and install apps.",
+      "HECKERT_NOTE": "A free app is now available for you to install in the app center."
     },
     "CONFIGURATION_EMERGENCY_RESERVE": {
       "EMERGENCY_RESERVE_NOTE": "If this function is activated, the battery charge level cannot fall below the set value.",
@@ -670,8 +671,6 @@
       "SUMMARY": "Summary",
       "TIME_OF_INSTALLATION": "Time of the installation",
       "WARRANTY_TERMS": "Warranty terms",
-      "APPS": "Apps",
-      "HECKERT": "Your chosen free app",
       "ACCEPT": "acceptation",
       "ALIAS_WITH_LABEL_HOME_DC": "Alias MPPT{{mppt}} PV{{pv}}",
       "VALUE_WITH_LABEL_HOME_DC": "Value MPPT{{ mppt }} PV{{ pv }} {{ symbol }}",

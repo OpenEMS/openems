@@ -17,7 +17,6 @@ import { ConfigurationSubSystemComponent } from "./views/configuration-sub-syste
 import { ConfigurationSummaryComponent } from "./views/configuration-summary/configuration-summary.component";
 import { ConfigurationSystemVariantComponent } from "./views/configuration-system-variant/configuration-system-variant";
 import { ConfigurationSystemComponent } from "./views/configuration-system/configuration-system.component";
-import { HeckertAppInstallerComponent } from "./views/heckert-app-installer/heckert-app-installer.component";
 import { PreInstallationUpdateComponent } from "./views/pre-installation-update/pre-installation-update.component";
 import { PreInstallationComponent } from "./views/pre-installation/pre-installation.component";
 import { ProtocolCustomerComponent } from "./views/protocol-customer/protocol-customer.component";
@@ -137,7 +136,6 @@ export function DefaultAsMinValueValidator(control: FormControl, field: FormlyFi
     ProtocolPvComponent,
     ConfigurationSummaryComponent,
     ProtocolSerialNumbersComponent,
-    HeckertAppInstallerComponent,
     ConfigurationCommercialModbuBridgeComponent,
     ConfigurationMpptSelectionComponent,
     ConfigurationSystemVariantComponent,

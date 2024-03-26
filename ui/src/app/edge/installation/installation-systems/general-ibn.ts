@@ -26,7 +26,6 @@ export class GeneralIbn extends AbstractIbn {
             View.ConfigurationLineSideMeterFuse,
             View.ProtocolPv,
             View.ProtocolFeedInLimitation,
-            View.HeckertAppInstaller,
             View.ConfigurationSummary,
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,

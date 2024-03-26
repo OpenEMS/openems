@@ -18,7 +18,6 @@ export enum Category {
     PRODUCER,
     EMS_BOX_LABEL_HOME,
     EMS_BOX_LABEL_HECKERT,
-    APPS,
     GRID_METER_CATEGORY
 }
 
@@ -57,8 +56,6 @@ export namespace Category {
                 return translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_HOME', { edgeShortName: environment.edgeShortName });
             case Category.EMS_BOX_LABEL_HECKERT:
                 return translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_HECKERT');
-            case Category.APPS:
-                return translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.APPS');
             case Category.GRID_METER_CATEGORY:
                 return translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.ENERGY_FLOW_METER.LABEL');
         }

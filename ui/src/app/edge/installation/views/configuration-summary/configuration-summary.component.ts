@@ -7,9 +7,8 @@ import { environment } from 'src/environments';
 import { COUNTRY_OPTIONS } from '../../../../shared/type/country';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 import { Category } from '../../shared/category';
-import { ComponentData, TableData } from '../../shared/ibndatatypes';
-import { EmsApp, EmsAppId } from '../heckert-app-installer/heckert-app-installer.component';
 import { WebLinks } from '../../shared/enums';
+import { ComponentData, TableData } from '../../shared/ibndatatypes';
 
 @Component({
   selector: ConfigurationSummaryComponent.SELECTOR,
@@ -130,7 +129,7 @@ export class ConfigurationSummaryComponent implements OnInit {
       rows: this.fillData(this.ibn.customer, Category.CUSTOMER),
     });
 
-    if(!this.ibn.location.isEqualToCustomerData){
+    if (!this.ibn.location.isEqualToCustomerData) {
       tableData.push({
         header: Category.BATTERY_LOCATION,
         rows: this.fillData(this.ibn.location, Category.BATTERY_LOCATION),
@@ -164,22 +163,11 @@ export class ConfigurationSummaryComponent implements OnInit {
     }
 
     const meterData = this.ibn.addCustomMeterData();
-    if(meterData.length > 0){
+    if (meterData.length > 0) {
       tableData.push({
         header: Category.GRID_METER_CATEGORY,
         rows: meterData,
       });
-    }
-
-    if (environment.theme === 'Heckert') {
-      const selectedFreeApp: EmsApp = this.ibn.selectedFreeApp;
-
-      if (selectedFreeApp.id !== EmsAppId.None) {
-        tableData.push({
-          header: Category.APPS,
-          rows: [{ label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.HECKERT'), value: selectedFreeApp.alias }],
-        });
-      }
     }
 
     // Deepcopy to local tableData to the this.tabledata by repalcing category with translated string.

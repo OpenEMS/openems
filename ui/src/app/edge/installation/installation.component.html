@@ -76,10 +76,6 @@
 
                 <!-- Configuration and Protocol -->
 
-                <heckert-app-installer *ngSwitchCase="view.HeckertAppInstaller" [ibn]="ibn"
-                    (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView()">
-                </heckert-app-installer>
-
                 <configuration-summary *ngSwitchCase="view.ConfigurationSummary" [edge]="edge" [ibn]="ibn"
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView()">
                 </configuration-summary>
