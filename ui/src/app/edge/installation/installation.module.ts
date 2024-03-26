@@ -9,11 +9,14 @@ import { KeyMaskDirective } from "./keymask";
 import { CompletionComponent } from "./views/completion/completion.component";
 import { ConfigurationCommercialModbuBridgeComponent } from "./views/configuration-commercial-modbusbridge/configuration-commercial-modbusbridge";
 import { ConfigurationEmergencyReserveComponent } from "./views/configuration-emergency-reserve/configuration-emergency-reserve.component";
+import { ConfigurationEnergyFlowMeterComponent } from "./views/configuration-energy-flow-direction-meter/configuration-energy-flow-direction-meter.component";
 import { ConfigurationExecuteComponent } from "./views/configuration-execute/configuration-execute.component";
 import { ConfigurationLineSideMeterFuseComponent } from "./views/configuration-line-side-meter-fuse/configuration-line-side-meter-fuse.component";
+import { ConfigurationMpptSelectionComponent } from "./views/configuration-mppt-selection/configuration-mppt-selection.component";
+import { ConfigurationSubSystemComponent } from "./views/configuration-sub-system/configuration-sub-system";
 import { ConfigurationSummaryComponent } from "./views/configuration-summary/configuration-summary.component";
+import { ConfigurationSystemVariantComponent } from "./views/configuration-system-variant/configuration-system-variant";
 import { ConfigurationSystemComponent } from "./views/configuration-system/configuration-system.component";
-import { HeckertAppInstallerComponent } from "./views/heckert-app-installer/heckert-app-installer.component";
 import { PreInstallationUpdateComponent } from "./views/pre-installation-update/pre-installation-update.component";
 import { PreInstallationComponent } from "./views/pre-installation/pre-installation.component";
 import { ProtocolCustomerComponent } from "./views/protocol-customer/protocol-customer.component";
@@ -22,10 +25,6 @@ import { ProtocolInstallerComponent } from "./views/protocol-installer/protocol-
 import { ProtocolPvComponent } from "./views/protocol-pv/protocol-pv.component";
 import { ProtocolSerialNumbersComponent } from "./views/protocol-serial-numbers/protocol-serial-numbers.component";
 import { ProtocolSystemComponent } from "./views/protocol-system/protocol-system.component";
-import { ConfigurationMpptSelectionComponent } from "./views/configuration-mppt-selection/configuration-mppt-selection.component";
-import { ConfigurationSystemVariantComponent } from "./views/configuration-system-variant/configuration-system-variant";
-import { ConfigurationSubSystemComponent } from "./views/configuration-sub-system/configuration-sub-system";
-import { ConfigurationEnergyFlowMeterComponent } from "./views/configuration-energy-flow-direction-meter/configuration-energy-flow-direction-meter.component";
 
 //#region Validators
 export function EmailMatchValidator(control: FormControl): ValidationErrors {
@@ -137,7 +136,6 @@ export function DefaultAsMinValueValidator(control: FormControl, field: FormlyFi
     ProtocolPvComponent,
     ConfigurationSummaryComponent,
     ProtocolSerialNumbersComponent,
-    HeckertAppInstallerComponent,
     ConfigurationCommercialModbuBridgeComponent,
     ConfigurationMpptSelectionComponent,
     ConfigurationSystemVariantComponent,

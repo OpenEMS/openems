@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from 'src/environments';
@@ -10,7 +10,7 @@ import { App, Changelog, Library, OpenemsComponent, Product } from './changelog.
   selector: 'changelog',
   templateUrl: './changelog.component.html',
 })
-export class ChangelogComponent implements OnInit {
+export class ChangelogComponent {
 
   public environment = environment;
 
@@ -21,10 +21,6 @@ export class ChangelogComponent implements OnInit {
     public service: Service,
     private route: ActivatedRoute,
   ) { }
-
-  ngOnInit() {
-    this.service.setCurrentComponent({ languageKey: 'Menu.changelog' }, this.route);
-  }
 
   public readonly roleIsAtLeast = Role.isAtLeast;
   public numberToRole(role: number): string {
@@ -37,7 +33,30 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
-        version: '2024.2.2',
+        version: '2024.3.1',
+        changes: [
+          Changelog.UI + "Optimierung der historischen Ansicht für mobile Endgeräte",
+          Changelog.UI + "Anzeige der EMS-Nr. im Seitentitel, \"Footer\"-Leiste zur Anzeige der EMS-Nr. und -Version",
+          Changelog.product(Product.HOME_10, Product.HOME_20_30) + "Verbesserungen am Inbetriebnahmeassistent",
+          Changelog.app(App.TIME_OF_USE) + "Verbesserung der Ansicht für Live und Historie und an der KI-Performance, verbessertes Verhalten im Frühling, Kompatibilität mit §14a EnWG",
+          Changelog.app(App.TIME_OF_USE, App.TIBBER) + "Verbessertes Behandlung von Fehlern",
+          "Neue Funktion \"EMS neu starten\" in Einstellungen | System (ab Version 2024.2.2)",
+          Changelog.app(App.PV_INVERTER, App.KACO) + "Konfigurationsmöglichkeit für Modbus-Unit-ID",
+          Changelog.app(App.POWER_TO_HEAT, App.HEIZSTAB) + "Optimierung der historischen Ansicht",
+          { roleIsAtLeast: Role.ADMIN, change: "Verbesserungen am \"Home Service Assistent\"" },
+          // { roleIsAtLeast: Role.ADMIN, change: "Automatische Benachrichtigung bei Systemfehler (erster interner Feldtest)" },
+          { roleIsAtLeast: Role.ADMIN, change: "IBN-Assistent für Heckert: Weiterleitung zum App Center für Installation der kostenlosen App" },
+          { roleIsAtLeast: Role.ADMIN, change: "Neue App für Service: Ladezustand festlegen (wie Batterieerweiterung, aber ohne Anzeige im UI des Kunden)" },
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.app(App.TIME_OF_USE, App.TIBBER) + "Darstellung von \"xxx\" bei gesetztem Token, Verbesserung der 'Homes'-Option" },
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.app(App.TIME_OF_USE) + "Nutzer können jetzt eigenständig die App wechseln (deinstallieren und neu installieren) - z. B. von Tibber zu Awattar" },
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.HOME_10) + "Fehlerbehebung bei der Erkennung der Anzahl der Türme, automatische Deaktivierung des Schattenmanagements" },
+          { roleIsAtLeast: Role.ADMIN, change: "Einstellungen | Channels: Hinweis, wenn Werte nicht sekündlich aktualisiert werden" },
+          { roleIsAtLeast: Role.ADMIN, change: "ESS Cycle-Controller: Fehlerbehebungen" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Hinweis wenn noch uneingelöste Keys vorhanden sind" },
+        ],
+      },
+      {
+        version: '2024.2.3',
         changes: [
           Changelog.UI,
           Changelog.product(Product.HOME_10, Product.HOME_20_30) + "Entladeverhalten bei voller Batterie",

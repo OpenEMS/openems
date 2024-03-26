@@ -8,9 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -18,7 +15,7 @@ import io.openems.backend.alerting.Dummy.AlertingMetadataImpl;
 import io.openems.backend.alerting.Dummy.MailerImpl;
 import io.openems.backend.alerting.Dummy.TimeLeapMinuteTimer;
 import io.openems.backend.alerting.scheduler.Scheduler;
-import io.openems.backend.common.metadata.UserAlertingSettings;
+import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.common.event.EventBuilder;
 
@@ -35,8 +32,8 @@ public class OfflineEdgeAlertingTest {
 		private Alerting alerting;
 		private Scheduler scheduler;
 
-		private HashMap<Integer, Edge> edges;
-		private Map<String, List<UserAlertingSettings>> settings;
+		private HashMap<String, Edge> edges;
+		private Map<String, List<OfflineEdgeAlertingSetting>> settings;
 
 		public TestEnvironment() {
 			final var instant = Instant.now();
@@ -50,51 +47,45 @@ public class OfflineEdgeAlertingTest {
 			this.settings = new HashMap<>(5);
 			this.edges = new HashMap<>(5);
 
-			this.createEdge(1, false, null);
-			this.createEdge(2, true, now);
-			this.createEdge(3, true, now, //
-					new SimpleAlertingSetting("user01", 0), // never
-					new SimpleAlertingSetting("user02", 0)); // never
-			this.createEdge(4, true, now, //
-					new SimpleAlertingSetting("user01", 30), // 30m after offline
-					new SimpleAlertingSetting("user02", 60)); // 60m after offline
-			this.createEdge(5, false, now.minusHours(12), //
-					new SimpleAlertingSetting("user02", 60), // after initialization
-					new SimpleAlertingSetting("user03", 1440));// 12h after initialization
-			this.createEdge(6, false, now.minusMonths(1), //
-					new SimpleAlertingSetting("user01", 30)); // never (to long offline)
-			this.createEdge(7, true, now, //
-					new SimpleAlertingSetting("user04", 60)); // 60m after offline
+			this.createEdge("edge01", false, null);
+			this.createEdge("edge02", true, now);
+			this.createEdge("edge03", true, now, //
+					new SimpleAlertingSetting("user01", 0), //
+					new SimpleAlertingSetting("user02", 0));
+			this.createEdge("edge04", true, now, //
+					new SimpleAlertingSetting("user01", 30), //
+					new SimpleAlertingSetting("user02", 60));
+			this.createEdge("edge05", false, now.minusHours(12), //
+					new SimpleAlertingSetting("user02", 60), //
+					new SimpleAlertingSetting("user03", 1440));
+			this.createEdge("edge06", false, now.minusMonths(1), //
+					new SimpleAlertingSetting("user01", 30));
+			this.createEdge("edge07", true, now, //
+					new SimpleAlertingSetting("user04", 60));
 
-			this.meta.initialize(this.edges.values(), this.settings);
+			this.meta.initializeOffline(this.edges.values(), this.settings);
 			this.scheduler = new Scheduler(this.timer);
 
-			var executor = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>()) {
-				@Override
-				public void execute(Runnable command) {
-					command.run();
-				}
-			};
-			this.alerting = new Alerting(this.scheduler, executor);
+			this.alerting = new Alerting(this.scheduler, Dummy.executor());
 			this.alerting.mailer = this.mailer;
 			this.alerting.metadata = this.meta;
 		}
 
-		public void createEdge(int id, boolean online, ZonedDateTime lastMessage, SimpleAlertingSetting... settings) {
-			var edgeName = "edge%d".formatted(id);
-			var edge = new Edge(this.meta, edgeName, null, null, null, lastMessage);
+		public void createEdge(String id, boolean online, ZonedDateTime lastMessage,
+				SimpleAlertingSetting... settings) {
+			var edge = new Edge(this.meta, id, null, null, null, lastMessage);
 			edge.setOnline(online);
 			this.edges.put(id, edge);
 
-			var list = new ArrayList<UserAlertingSettings>(5);
+			var list = new ArrayList<OfflineEdgeAlertingSetting>(5);
 			for (var set : settings) {
-				list.add(new UserAlertingSettings(id, set.user, null, lastMessage, set.delay));
+				list.add(new OfflineEdgeAlertingSetting(id, set.user, set.delay, lastMessage));
 			}
 
 			this.settings.put(edge.getId(), list);
 		}
 
-		public void setOnline(int edgeId, boolean value) {
+		public void setOnline(String edgeId, boolean value) {
 			var edge = this.edges.get(edgeId);
 			edge.setOnline(value);
 			edge.setLastmessage(this.timer.now());
@@ -112,7 +103,7 @@ public class OfflineEdgeAlertingTest {
 	public void integrationTest() {
 		var env = new TestEnvironment();
 
-		var config = Dummy.testConfig(15);
+		var config = Dummy.testConfig(15, true, false);
 		env.alerting.activate(config);
 
 		assertEquals(0, env.scheduler.getScheduledMsgsCount());
@@ -127,16 +118,16 @@ public class OfflineEdgeAlertingTest {
 		/* edge05[user02] */
 		assertEquals(1, env.mailer.getMailsCount());
 
-		env.setOnline(2, false);
+		env.setOnline("edge02", false);
 
 		/* edge05[user03] */
 		assertEquals(1, env.scheduler.getScheduledMsgsCount());
 		/* edge05[user02] */
 		assertEquals(1, env.mailer.getMailsCount());
 
-		env.setOnline(3, false);
-		env.setOnline(4, false);
-		env.setOnline(7, false);
+		env.setOnline("edge03", false);
+		env.setOnline("edge04", false);
+		env.setOnline("edge07", false);
 		env.timer.leap(1); /* inaccuracy */
 
 		/* edge05[user03], edge03[user01,user02], edge07[user04] */
@@ -151,7 +142,7 @@ public class OfflineEdgeAlertingTest {
 		/* edge05[user02] edge03[user02] */
 		assertEquals(2, env.mailer.getMailsCount());
 
-		env.setOnline(7, true);
+		env.setOnline("edge07", true);
 		env.timer.leap(30);
 
 		/* edge05[user03] */
@@ -173,10 +164,10 @@ public class OfflineEdgeAlertingTest {
 	}
 
 	@Test
-	public void deactiveTest() {
+	public void deactivateTest() {
 		var env = new TestEnvironment();
 		/* All off */
-		var config = Dummy.testConfig(5);
+		var config = Dummy.testConfig(5, true, false);
 		env.alerting.activate(config);
 
 		assertEquals(0, env.scheduler.getScheduledMsgsCount());
@@ -186,10 +177,14 @@ public class OfflineEdgeAlertingTest {
 		env.timer.leap(config.initialDelay());
 		env.timer.leap(3); /* inaccuracy + initial mails on next cycle */
 
+		/* edge05[user03] */
 		assertEquals(1, env.scheduler.getScheduledMsgsCount());
+		/* edge05[user02] */
 		assertEquals(1, env.mailer.getMailsCount());
 
 		env.alerting.deactivate();
+
+		env.timer.leap(1440);
 
 		assertEquals(0, env.scheduler.getScheduledMsgsCount());
 		assertEquals(1, env.mailer.getMailsCount());

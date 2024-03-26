@@ -268,7 +268,7 @@ public class Edge {
 		public static final String ON_SET_SUM_STATE = Events.TOPIC_BASE + "ON_SET_SUM_STATE";
 
 		public static final class OnSetSumState {
-			public static final String EDGE = "Edge:Edge";
+			public static final String EDGE_ID = "EdgeId:String";
 			public static final String SUM_STATE = "SumState:Level";
 		}
 

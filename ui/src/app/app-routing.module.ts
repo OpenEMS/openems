@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { environment } from 'src/environments';
+
 import { ChangelogViewComponent } from './changelog/view/view';
 import { EdgeComponent } from './edge/edge.component';
 import { OverviewComponent as ChannelthresholdChartOverviewComponent } from './edge/history/Controller/ChannelThreshold/overview/overview';
@@ -46,7 +47,7 @@ import { SettingsComponent as EdgeSettingsComponent } from './edge/settings/sett
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './edge/settings/systemexecute/systemexecute.component';
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { SystemUpdateOldComponent as EdgeSettingsSystemUpdateOldComponent } from './edge/settings/systemupdate.old/systemupdate.old.component';
-import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
+import { SystemComponent as EdgeSettingsSystemComponent } from './edge/settings/system/system.component';
 import { LoginComponent } from './index/login.component';
 import { OverViewComponent } from './index/overview/overview.component';
 import { DataService } from './shared/genericComponents/shared/dataservice';
@@ -63,7 +64,7 @@ const routes: Routes = [
   { path: 'overview/installation', component: InstallationComponent },
 
   { path: 'user', component: UserComponent },
-  { path: 'changelog', component: ChangelogViewComponent },
+  { path: 'changelog', component: ChangelogViewComponent, data: { navbarTitleToBeTranslated: 'Menu.changelog' } },
 
   // Edge Pages
   {
@@ -117,8 +118,8 @@ const routes: Routes = [
       { path: 'settings/servcieAssistant', component: EdgeSettingsServiceAssistant },
       { path: 'settings/systemexecute', component: EdgeSettingsSystemExecuteComponent },
       { path: 'settings/systemlog', component: EdgeSettingsSystemLogComponent },
-      { path: 'settings/systemupdate', component: EdgeSettingsSystemUpdateComponent },
-      { path: 'settings/systemupdate.old', component: EdgeSettingsSystemUpdateOldComponent },
+      { path: 'settings/system', component: EdgeSettingsSystemComponent, data: { navbarTitleToBeTranslated: 'Edge.Config.Index.SYSTEM' } },
+      { path: 'settings/system.old', component: EdgeSettingsSystemUpdateOldComponent },
       { path: 'settings/app', data: { navbarTitle: environment.edgeShortName + ' Apps' }, component: EdgeSettingsAppIndex },
       { path: 'settings/app/install/:appId', component: EdgeSettingsAppInstall },
       { path: 'settings/app/update/:appId', component: EdgeSettingsAppUpdate },

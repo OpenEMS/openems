@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { PersistencePriority } from 'src/app/shared/edge/edgeconfig';
 import { SetChannelValueRequest } from 'src/app/shared/jsonrpc/request/setChannelValueRequest';
+import { environment } from 'src/environments';
 
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
-import { environment } from 'src/environments';
 
 export type ComponentChannels = {
   [componentId: string]: ChannelAddress[];
@@ -25,7 +26,8 @@ export class ChannelsComponent {
   protected channelsToBeSubscribed: ChannelAddress[] = [];
   private channels: ChannelAddress[] = [];
   protected componentChannels: ComponentChannels[] = [];
-  protected componentChannelConfig: Map<String, EdgeConfig.ComponentChannel> = new Map();
+  protected componentChannelConfig: Map<String, EdgeConfig.ComponentChannel & { showPersistencePriority: boolean }> = new Map();
+
   constructor(
     private service: Service,
     private websocket: Websocket,
@@ -63,14 +65,20 @@ export class ChannelsComponent {
       this.componentChannels[componentId] = [address];
     }
     this.channelsToBeSubscribed.push(address);
-    this.componentChannelConfig.set(address.toString(), this.config.getChannel(address));
+    this.componentChannelConfig.set(address.toString(), { ...this.config.getChannel(address), ...{ showPersistencePriority: false } });
 
     if (this.config) {
+      const globalPersistencePriority = this.config.getComponentsByFactory("Controller.Api.Backend")?.[0]?.properties['persistencePriority'] ?? PersistencePriority.DEFAULT_GLOBAL_PRIORITY;
+
       let channelConfig = this.config.getChannel(address);
       if (channelConfig) {
         if (channelConfig.accessMode == "WO") {
           // do not subscribe Write-Only Channels
           return;
+        }
+
+        if (PersistencePriority.isAtLeast(channelConfig.persistencePriority, globalPersistencePriority)) {
+          this.componentChannelConfig.set(address.toString(), { ...this.config.getChannel(address), ...{ showPersistencePriority: true } });
         }
       }
     }

@@ -80,7 +80,15 @@
       "november": "November",
       "december": "December"
     },
-    "save": "Opslaan"
+    "save": "Opslaan",
+    "TIME": {
+      "HOUR": "Uur",
+      "HOURS": "Uur",
+      "MINUTE": "Minuut",
+      "MINUTES": "Minuten",
+      "DAY": "Dag",
+      "DAYS": "Dagen"
+    }
   },
   "Menu": {
     "accessLevel": "Toegangsniveau",
@@ -471,22 +479,12 @@
         "newConnection": "Nieuwe verbinding...",
         "newDevice": "Nieuw apparaat…"
       },
-      "Alerting": {
-        "activate": "Activeer",
-        "delay": "Vertraging",
-        "save": "Save",
-        "options": {},
-        "toast": {
-          "success": "Goedgekeurde instellingen",
-          "error": "Fout bij het laden van de instellingen"
-        },
-        "interval": {
-          "hours": "Uur",
-          "minute": "Minuut",
-          "minutes": "Minuten",
-          "day": "Dag",
-          "days": "Dagen",
-          "hour": "Uur"
+      "ALERTING": {
+        "ACTIVATE": "Activeer",
+        "DELAY": "Vertraging",
+        "TOAST": {
+          "SUCCESS": "Goedgekeurde instellingen",
+          "ERROR": "Fout bij het laden van de instellingen"
         }
       },
       "App": {

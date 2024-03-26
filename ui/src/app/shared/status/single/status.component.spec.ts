@@ -1,11 +1,12 @@
 import { TestBed } from "@angular/core/testing";
 import { ModalController } from "@ionic/angular";
+
+import { PersistencePriority } from "../../edge/edgeconfig";
 import { DummyService } from "../../service/test/dummyservice";
 import { DummyWebsocket } from "../../service/test/dummywebsocket";
 import { EdgeConfig, Service, Websocket } from "../../shared";
 import { DummyModalController } from "../../test/DummyModalController";
 import { StatusSingleComponent } from "./status.component";
-
 
 describe('StatusComponent', () => {
     const testComponent = new EdgeConfig.Component("test", {}, {
@@ -15,6 +16,7 @@ describe('StatusComponent', () => {
             type: "BOOLEAN",
             unit: "W",
             level: "OK",
+            persistencePriority: PersistencePriority.HIGH,
         },
     });
     let statusComponent: StatusSingleComponent;

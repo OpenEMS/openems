@@ -156,6 +156,7 @@ public class FeneconEdgeOemImpl implements OpenemsEdgeOem {
 			.put("App.PeakShaving.PhaseAccuratePeakShaving",
 					"https://fenecon.de/fenecon-fems/fems-app-phasengenaue-lastspitzenkappung/") //
 			.put("App.Ess.FixActivePower", "") //
+			.put("App.Ess.FixStateOfCharge", "") //
 			.put("App.Ess.PowerPlantController", "") //
 			.put("App.Ess.PrepareBatteryExtension", "") //
 			.build();

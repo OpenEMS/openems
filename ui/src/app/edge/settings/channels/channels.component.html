@@ -140,6 +140,13 @@
                         </ion-button>
                       </ng-template>
                     </ion-item>
+                    <ion-item lines="none" *ngIf="channelConfig.showPersistencePriority">
+                      <ion-note style="white-space: initial;">
+                        <ion-text color="warning">
+                          Warnung:
+                        </ion-text> Channelwert wird nicht sekündlich zum Online-Monitoring übertragen
+                      </ion-note>
+                    </ion-item>
                   </ion-card-content>
                 </ng-container>
 

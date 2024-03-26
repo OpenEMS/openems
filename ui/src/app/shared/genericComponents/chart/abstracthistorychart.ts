@@ -3,10 +3,11 @@ import { ChangeDetectorRef, Directive, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
+import { calculateResolution, ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, Resolution, setLabelVisible } from 'src/app/edge/history/shared';
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import 'chartjs-adapter-date-fns';
-import { DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, calculateResolution, ChronoUnit, Resolution, setLabelVisible } from 'src/app/edge/history/shared';
+import { v4 as uuidv4 } from 'uuid';
+
 import { JsonrpcResponseError } from '../../jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
@@ -14,15 +15,17 @@ import { QueryHistoricTimeseriesEnergyRequest } from '../../jsonrpc/request/quer
 import { QueryHistoricTimeseriesDataResponse } from '../../jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from '../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { FormatSecondsToDurationPipe } from '../../pipe/formatSecondsToDuration/formatSecondsToDuration.pipe';
-import { HistoryUtils, ChartAxis, YAxisTitle } from '../../service/utils';
-import { EdgeConfig, Edge, Service, Utils, ChannelAddress, Currency } from '../../shared';
+import { ChartAxis, HistoryUtils, YAxisTitle } from '../../service/utils';
+import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Utils } from '../../shared';
 import { Language } from '../../type/language';
 import { ColorUtils } from '../../utils/color/color.utils';
 import { DateUtils } from '../../utils/date/dateutils';
 import { DateTimeUtils } from '../../utils/datetime/datetime-utils';
 import { TimeUtils } from '../../utils/time/timeutils';
 import { Converter } from '../shared/converter';
-import { v4 as uuidv4 } from 'uuid';
+import { ChartConstants as ChartConstants } from './chart.constants';
+
+import 'chartjs-adapter-date-fns';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 
@@ -544,13 +547,16 @@ export abstract class AbstractHistoryChart implements OnInit {
    * @returns options
    */
   public static getOptions(chartObject: HistoryUtils.ChartData, chartType: 'line' | 'bar', service: Service,
-    translate: TranslateService, legendOptions: { label: string, strokeThroughHidingStyle: boolean }[], channelData: { data: { [name: string]: number[] } }, locale: string, config: EdgeConfig): Chart.ChartOptions {
+    translate: TranslateService, legendOptions: { label: string, strokeThroughHidingStyle: boolean }[], channelData: { data: { [name: string]: number[] } }, locale: string, config: EdgeConfig, datasets: Chart.ChartDataset[]): Chart.ChartOptions {
 
     let tooltipsLabel: string | null = null;
     let options: Chart.ChartOptions = Utils.deepCopy(<Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS));
+    let displayValues: HistoryUtils.DisplayValues[] = chartObject.output(channelData.data);
 
+    const showYAxisTitle: boolean = chartObject.yAxes.length > 1;
     chartObject.yAxes.forEach((element) => {
-      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale);
+      const scaleOptions: { min: number, max: number, stepSize: number } | null = ChartConstants.getScaleOptions(datasets, element);
+      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale, showYAxisTitle, scaleOptions);
     });
 
     options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
@@ -586,7 +592,6 @@ export abstract class AbstractHistoryChart implements OnInit {
 
     options.scales.x['time'].unit = calculateResolution(service, service.historyPeriod.value.from, service.historyPeriod.value.to).timeFormat;
 
-    let displayValues = chartObject.output(channelData.data);
     options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
       return {
         borderColor: ColorUtils.changeOpacityFromRGBA(item.dataset.borderColor, 1),
@@ -695,58 +700,59 @@ export abstract class AbstractHistoryChart implements OnInit {
    * @param locale the current locale
    * @returns the chart options {@link Chart.ChartOptions}
    */
-  public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: 'line' | 'bar', locale: string): Chart.ChartOptions {
+  public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: 'line' | 'bar', locale: string, showYAxisTitle?: boolean, data?: { min: number, max: number, stepSize: number }): Chart.ChartOptions {
+
+    const baseConfig = {
+      title: {
+        text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
+        display: showYAxisTitle,
+        padding: 5,
+        font: {
+          size: 11,
+        },
+      },
+      position: element.position,
+      grid: {
+        display: element.displayGrid ?? true,
+      },
+      ...(data?.min !== null && { min: data.min }),
+      ...(data?.max !== null && { max: data.max }),
+
+      ticks: {
+        color: getComputedStyle(document.documentElement).getPropertyValue('--ion-color-text'),
+        padding: 5,
+        maxTicksLimit: ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
+        ...(data?.stepSize && { stepSize: data.stepSize }),
+      },
+    };
+
     switch (element.unit) {
 
       case YAxisTitle.RELAY:
         if (chartType === 'line') {
           options.scales[element.yAxisId] = {
-            position: element.position,
+            ...baseConfig,
             min: 0,
             max: 1,
             beginAtZero: true,
-
-            title: {
-              text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
-              display: true,
-              padding: 10,
-              font: {
-                size: 11,
-              },
-            },
-
-            grid: {
-              display: element.displayGrid ?? true,
-            },
             ticks: {
-              color: getComputedStyle(document.documentElement).getPropertyValue('--ion-color-text'),
+              ...baseConfig.ticks,
               // Two states are possible
               callback: function (value, index, ticks) {
                 return Converter.ON_OFF(translate)(value);
               },
               padding: 5,
-              stepSize: 20,
             },
           };
         }
 
         if (chartType === 'bar') {
           options.scales[element.yAxisId] = {
-            position: element.position,
+            ...baseConfig,
             min: 0,
             beginAtZero: true,
-            title: {
-              text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
-              display: true,
-              padding: 5,
-              font: {
-                size: 11,
-              },
-            },
-            grid: {
-              display: element.displayGrid ?? true,
-            },
             ticks: {
+              ...baseConfig.ticks,
               callback: function (value, index, values) {
 
                 if (typeof value !== 'number') {
@@ -761,44 +767,26 @@ export abstract class AbstractHistoryChart implements OnInit {
         break;
       case YAxisTitle.PERCENTAGE:
         options.scales[element.yAxisId] = {
+          ...baseConfig,
           stacked: true,
           beginAtZero: true,
           max: 100,
           min: 0,
           type: 'linear',
-          title: {
-            text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
-            display: true,
-            font: {
-              size: 11,
-            },
-          },
-          position: element.position,
-          grid: {
-            display: element.displayGrid ?? true,
-          },
           ticks: {
+            ...baseConfig.ticks,
             padding: 5,
-            stepSize: 20,
+            stepSize: 25,
           },
         };
         break;
 
       case YAxisTitle.TIME:
         options.scales[element.yAxisId] = {
+          ...baseConfig,
           min: 0,
-          position: element.position,
-          title: {
-            text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
-            display: true,
-            font: {
-              size: 11,
-            },
-          },
-          grid: {
-            display: element.displayGrid ?? true,
-          },
           ticks: {
+            ...baseConfig.ticks,
             callback: function (value, index, values) {
 
               if (typeof value === 'number') {
@@ -811,58 +799,16 @@ export abstract class AbstractHistoryChart implements OnInit {
       case YAxisTitle.POWER:
       case YAxisTitle.ENERGY:
       case YAxisTitle.VOLTAGE:
-        options.scales[element.yAxisId] = {
-          title: {
-            text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
-            display: true,
-            padding: 5,
-            font: {
-              size: 11,
-            },
-          },
-          position: element.position,
-          grid: {
-            display: element.displayGrid ?? true,
-          },
-          ticks: {},
-        };
+      case YAxisTitle.NONE:
+        options.scales[element.yAxisId] = baseConfig;
         break;
       case YAxisTitle.CURRENCY:
         options.scales[element.yAxisId] = {
-          title: {
-            text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
-            display: true,
-            padding: 5,
-            font: {
-              size: 11,
-            },
-          },
-          position: element.position,
-          grid: {
-            display: element.displayGrid ?? true,
-          },
+          ...baseConfig,
           beginAtZero: false,
           ticks: {
             source: 'auto',
           },
-        };
-        break;
-      case YAxisTitle.NONE:
-        options.scales[element.yAxisId] = {
-          title: {
-            text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
-            display: true,
-            padding: 5,
-            font: {
-              size: 11,
-            },
-          },
-          position: element.position,
-          grid: {
-            display: element.displayGrid ?? true,
-          },
-          beginAtZero: false,
-          ticks: {},
         };
         break;
     }
@@ -875,7 +821,7 @@ export abstract class AbstractHistoryChart implements OnInit {
    */
   protected setChartLabel() {
     const locale = this.service.translate.currentLang;
-    this.options = AbstractHistoryChart.getOptions(this.chartObject, this.chartType, this.service, this.translate, this.legendOptions, this.channelData, locale, this.config);
+    this.options = AbstractHistoryChart.getOptions(this.chartObject, this.chartType, this.service, this.translate, this.legendOptions, this.channelData, locale, this.config, this.datasets);
     this.loading = false;
     this.stopSpinner();
   }

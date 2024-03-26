@@ -34,10 +34,9 @@ export class Home20FeneconIbn extends AbstractHomeIbn {
     public override readonly emsBoxLabel = Category.EMS_BOX_LABEL_HOME;
     public override readonly homeAppAlias: string = 'FENECON Home 20';
     public override readonly homeAppId: string = 'App.FENECON.Home.20';
-    public override readonly maxFeedInLimit: number = 20000;
     public override readonly maxNumberOfModulesPerTower: number = 15;
     public override readonly maxNumberOfPvStrings: number = 4;
-    public override readonly maxNumberOfTowers: number = 4;
+    public override readonly maxNumberOfTowers: number = 5;
     public override readonly minNumberOfModulesPerTower: number = 5;
     public override readonly relayFactoryId: string = 'IO.KMtronic';
 

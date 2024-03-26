@@ -1,6 +1,6 @@
 variables:
   - &sftp-settings
-    server: 10.10.112.10
+    server: ${CACHE_SERVER}
     username: user
     password: pass
     ignore_branch: true
@@ -10,8 +10,9 @@ variables:
       - cache
 
   - &rsync-settings
-    hosts: [ "10.0.0.40" ]
     user: fenecon-docs
+    hosts: 
+      - ${ARTIFACT_SERVER}
     port: 22
     key:
       from_secret: ssh_key_intranet
@@ -29,6 +30,10 @@ variables:
   - &java-only
     path:
       include: [".woodpecker/ci-build.yml", "io.openems*/**", "**/*gradle*"]
+
+when:
+  event:
+    - push
 
 clone:
   git:
@@ -67,7 +72,7 @@ steps:
         export NG_CLI_CACHE_PATH=$CACHE/angular-cli
         export NODE_MODULES_CACHE=$CACHE/node_modules
         export CHROME_BIN=/usr/bin/google-chrome-stable
-        " > $CI_WORKSPACE/.woodpecker-env
+        " > $CI_WORKSPACE/.woodpecker-env        
       - common_update_version_in_code
     depends_on: [restore-cache]
 
@@ -105,7 +110,9 @@ steps:
       - source tools/common.sh
       - common_initialize_environment
       - echo "Build Version $VERSION"
-      - common_build_edge --no-daemon --no-build-cache --parallel --max-workers 2;
+      - |
+        ./gradlew checkstyleAll --parallel --max-workers=4 && \
+        common_build_edge --no-build-cache --parallel --max-workers=2;        
     depends_on: [prepare-environment]
 
   build-debian-package:

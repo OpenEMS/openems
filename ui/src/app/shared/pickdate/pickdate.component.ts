@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { addMonths, addYears, differenceInDays, differenceInMilliseconds, endOfDay, endOfMonth, endOfYear, isAfter, isBefore, startOfDay, startOfMonth, startOfWeek, startOfYear, subMonths, subYears } from 'date-fns';
@@ -22,6 +22,8 @@ export class PickDateComponent implements OnInit, OnDestroy {
 
     private changePeriodTimeout = null;
     private edge: Edge | null = null;
+
+    @Input() public historyPeriods: DefaultTypes.PeriodStringValues[] = [];
 
     constructor(
         public service: Service,
@@ -348,6 +350,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
             componentProps: {
                 setDateRange: this.setDateRange,
                 edge: this.edge,
+                historyPeriods: this.historyPeriods,
             },
         });
         await popover.present();

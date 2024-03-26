@@ -7,7 +7,7 @@
   <ion-grid *ngIf="!error; else error_view">
     <!-- Current User View -->
     <ion-row class="ion-justify-content-center">
-      <ion-col size="12" size-md="6" *ngIf="edge">
+      <ion-col size="12" size-md="6" *ngIf="currentUserInformation as cUser">
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" name="settings-outline" color="primary"></ion-icon>
@@ -16,7 +16,7 @@
             </ion-label>
             <oe-help-button key="SETTINGS_ALERTING"></oe-help-button>
           </ion-item>
-          <ion-card-content *ngIf="currentUserInformation">
+          <ion-card-content>
             <form>
               <formly-form [model]="currentUserForm.model" [fields]="currentUserForm.fields"
                 [options]="currentUserForm.options" [form]="currentUserForm.formGroup">
@@ -28,26 +28,19 @@
     </ion-row>
 
     <!-- Other Users View -->
-    <ng-container *ngIf="edge?.roleIsAtLeast('admin') && otherUserSettings">
-      <ion-row class="ion-justify-content-center" *ngFor="let info of otherUserSettings">
+    <ng-container *ngIf="otherUserInformation as oUser">
+      <ion-row class="ion-justify-content-center">
         <ion-col size="12" size-md="6">
           <ion-card>
             <ion-item lines="full" color="light">
               <ion-icon slot="start" name="person-outline" color="primary"></ion-icon>
               <ion-label>
-                <span translate>Menu.otherUser</span>{{' - '}}
-                <span [ngSwitch]="info.role">
-                  <span *ngSwitchCase="'admin'" translate>Role.admin</span>
-                  <span *ngSwitchCase="'installer'" translate>Role.installer</span>
-                  <span *ngSwitchCase="'owner'" translate>Role.owner</span>
-                  <span *ngSwitchCase="'guest'" translate>Role.guest</span>
-                  <span *ngSwitchDefault translate>General.fault</span>
-                </span>
+                <span translate>Menu.otherUser</span>
               </ion-label>
             </ion-item>
 
             <ion-card-content>
-              <form [formGroup]="info.form">
+              <form [formGroup]="otherUserForm">
                 <ion-item>
                   <ion-grid>
                     <ion-row>
@@ -58,12 +51,12 @@
                       </ion-col>
                       <ion-col size="3">
                         <ion-label class="wrap-text">
-                          <span translate>Edge.Config.Alerting.activate</span>
+                          <span translate>Edge.Config.ALERTING.ACTIVATE</span>
                         </ion-label>
                       </ion-col>
                       <ion-col size="3">
                         <ion-label class="wrap-text">
-                          <span translate>Edge.Config.Alerting.delay</span>
+                          <span translate>Edge.Config.ALERTING.DELAY</span>
                         </ion-label>
                       </ion-col>
                     </ion-row>
@@ -71,22 +64,23 @@
                 </ion-item>
                 <ion-item>
                   <ion-grid>
-                    <ion-row *ngFor="let user of info.settings; let i = index;" [formGroupName]="user.userId"
+                    <ion-row *ngFor="let user of oUser; let i = index;" [formGroupName]="user.userLogin"
                       style="align-items: center;" [ngClass]="(i % 2 === 0) ? '' : 'even-row'">
                       <ion-col size="6">
                         <ion-label>
-                          {{user.userId}}
+                          {{user.userLogin}}
                         </ion-label>
                       </ion-col>
                       <ion-col size="3">
-                        <ion-checkbox formControlName="isActivated" style="margin: 0;">
+                        <ion-checkbox formControlName="isOfflineActive" style="margin: 0;">
                         </ion-checkbox>
                       </ion-col>
                       <ion-col size="3">
-                        <ion-select class="custom-options" interface="popover" formControlName="delayTime"
+                        <ion-select class="custom-options" interface="popover" formControlName="offlineEdgeDelay"
                           style="max-width: 100% !important; margin: 0; padding: 0;"
-                          *ngIf="info.form.value[user.userId].isActivated">
-                          <ion-select-option *ngFor="let option of user.options" [value]="option.value">
+                          *ngIf="otherUserForm.controls[user.userLogin].value['isOfflineActive']">
+                          <ion-select-option *ngFor="let option of defaultValues[AlertingType.OFFLINE]"
+                            [value]="option.value">
                             {{option.label}}
                           </ion-select-option>
                         </ion-select>

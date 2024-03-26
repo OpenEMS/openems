@@ -116,10 +116,9 @@ export enum View {
     ProtocolPv,
     ProtocolSerialNumbers,
     ProtocolSystem,
-    HeckertAppInstaller,
     ConfigurationCommercialModbuBridge,
     ConfigurationMpptSelection,
     ConfigurationSystemVariant,
     ConfigurationSubSystem,
-    ConfigurationEnergyFlowMeter,
+    ConfigurationEnergyFlowMeter
 }

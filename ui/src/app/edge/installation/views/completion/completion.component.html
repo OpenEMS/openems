@@ -21,6 +21,13 @@
         </ion-text>
       </td>
     </tr>
+    <tr *ngIf="showHeckertNote">
+      <td style="width: 100%" class="ion-padding">
+        <ion-text>
+          {{'INSTALLATION.COMPLETION.HECKERT_NOTE' | translate}}
+        </ion-text>
+      </td>
+    </tr>
     <tr>
       <td style="width: 100%" class="ion-padding">
         <ion-button size="small" (click)="navigate()" [disabled]="isWaiting">

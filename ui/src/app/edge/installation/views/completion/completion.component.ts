@@ -8,6 +8,7 @@ import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 import { Router } from '@angular/router';
 import { SystemId } from '../../shared/system';
+import { environment } from 'src/environments';
 
 @Component({
   selector: CompletionComponent.SELECTOR,
@@ -23,6 +24,7 @@ export class CompletionComponent implements OnInit {
   @Output() public nextViewEvent: EventEmitter<any> = new EventEmitter();
   public system: SystemId | null = null;
   public isWaiting = false;
+  protected readonly showHeckertNote: boolean = environment.theme === 'Heckert';
 
   constructor(
     private service: Service,

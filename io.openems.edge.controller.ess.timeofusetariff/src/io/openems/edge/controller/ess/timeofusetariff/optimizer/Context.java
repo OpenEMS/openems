@@ -20,7 +20,8 @@ public record Context(//
 		List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves, //
 		List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges, //
 		ControlMode controlMode, //
-		int maxChargePowerFromGrid) {
+		int maxChargePowerFromGrid, //
+		boolean limitChargePowerFor14aEnWG) {
 
 	public static class Builder {
 		private Clock clock;
@@ -32,6 +33,7 @@ public record Context(//
 		private List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges;
 		private ControlMode controlMode;
 		private int maxChargePowerFromGrid;
+		private boolean limitChargePowerFor14aEnWG;
 
 		/**
 		 * The {@link Clock}.
@@ -39,7 +41,7 @@ public record Context(//
 		 * @param clock the {@link Clock}
 		 * @return myself
 		 */
-		public Builder clock(Clock clock) {
+		public Builder setClock(Clock clock) {
 			this.clock = clock;
 			return this;
 		}
@@ -50,7 +52,7 @@ public record Context(//
 		 * @param sum the {@link Sum}
 		 * @return myself
 		 */
-		public Builder sum(Sum sum) {
+		public Builder setSum(Sum sum) {
 			this.sum = sum;
 			return this;
 		}
@@ -61,7 +63,7 @@ public record Context(//
 		 * @param predictorManager the {@link PredictorManager}
 		 * @return myself
 		 */
-		public Builder predictorManager(PredictorManager predictorManager) {
+		public Builder setPredictorManager(PredictorManager predictorManager) {
 			this.predictorManager = predictorManager;
 			return this;
 		}
@@ -72,7 +74,7 @@ public record Context(//
 		 * @param timeOfUseTariff the {@link TimeOfUseTariff}
 		 * @return myself
 		 */
-		public Builder timeOfUseTariff(TimeOfUseTariff timeOfUseTariff) {
+		public Builder setTimeOfUseTariff(TimeOfUseTariff timeOfUseTariff) {
 			this.timeOfUseTariff = timeOfUseTariff;
 			return this;
 		}
@@ -83,7 +85,7 @@ public record Context(//
 		 * @param ess the {@link ManagedSymmetricEss}
 		 * @return myself
 		 */
-		public Builder ess(ManagedSymmetricEss ess) {
+		public Builder setEss(ManagedSymmetricEss ess) {
 			this.ess = ess;
 			return this;
 		}
@@ -95,7 +97,7 @@ public record Context(//
 		 *                                      {@link ControllerEssEmergencyCapacityReserve}
 		 * @return myself
 		 */
-		public Builder ctrlEmergencyCapacityReserves(
+		public Builder setCtrlEmergencyCapacityReserves(
 				List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves) {
 			this.ctrlEmergencyCapacityReserves = ctrlEmergencyCapacityReserves;
 			return this;
@@ -108,7 +110,7 @@ public record Context(//
 		 *                                 {@link ControllerEssLimitTotalDischarge}
 		 * @return myself
 		 */
-		public Builder ctrlLimitTotalDischarges(List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges) {
+		public Builder setCtrlLimitTotalDischarges(List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges) {
 			this.ctrlLimitTotalDischarges = ctrlLimitTotalDischarges;
 			return this;
 		}
@@ -119,7 +121,7 @@ public record Context(//
 		 * @param controlMode the {@link ControlMode}
 		 * @return myself
 		 */
-		public Builder controlMode(ControlMode controlMode) {
+		public Builder setControlMode(ControlMode controlMode) {
 			this.controlMode = controlMode;
 			return this;
 		}
@@ -130,8 +132,19 @@ public record Context(//
 		 * @param maxChargePowerFromGrid the maxChargePowerFromGrid
 		 * @return myself
 		 */
-		public Builder maxChargePowerFromGrid(int maxChargePowerFromGrid) {
+		public Builder setMaxChargePowerFromGrid(int maxChargePowerFromGrid) {
 			this.maxChargePowerFromGrid = maxChargePowerFromGrid;
+			return this;
+		}
+
+		/**
+		 * Always apply §14a EnWG limit of 4.2 kW.
+		 * 
+		 * @param limitChargePowerFor14aEnWG boolean
+		 * @return myself
+		 */
+		public Builder setLimitChargePowerFor14aEnWG(boolean limitChargePowerFor14aEnWG) {
+			this.limitChargePowerFor14aEnWG = limitChargePowerFor14aEnWG;
 			return this;
 		}
 
@@ -143,7 +156,7 @@ public record Context(//
 		public Context build() {
 			return new Context(this.clock, this.sum, this.predictorManager, this.timeOfUseTariff, this.ess,
 					this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges, this.controlMode,
-					this.maxChargePowerFromGrid);
+					this.maxChargePowerFromGrid, this.limitChargePowerFor14aEnWG);
 		}
 	}
 

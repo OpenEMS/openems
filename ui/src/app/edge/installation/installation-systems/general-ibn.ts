@@ -26,7 +26,6 @@ export class GeneralIbn extends AbstractIbn {
             View.ConfigurationLineSideMeterFuse,
             View.ProtocolPv,
             View.ProtocolFeedInLimitation,
-            View.HeckertAppInstaller,
             View.ConfigurationSummary,
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,
@@ -62,9 +61,6 @@ export class GeneralIbn extends AbstractIbn {
         throw new Error('This is General Ibn, Method not implemented.');
     }
     public override setRequiredControllers() {
-        throw new Error('This is General Ibn, Method not implemented.');
-    }
-    public override setFeedInLimitFields(model: any) {
         throw new Error('This is General Ibn, Method not implemented.');
     }
 }

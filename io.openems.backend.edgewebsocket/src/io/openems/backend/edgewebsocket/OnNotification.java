@@ -146,7 +146,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			if (d.has("_sum/State") && d.get("_sum/State").isJsonPrimitive()) {
 				var sumState = Level.fromJson(d, "_sum/State").orElse(Level.FAULT);
 				EventBuilder.from(this.parent.eventAdmin, Events.ON_SET_SUM_STATE)
-						.addArg(Events.OnSetSumState.EDGE, edge) //
+						.addArg(Events.OnSetSumState.EDGE_ID, edgeId) //
 						.addArg(Events.OnSetSumState.SUM_STATE, sumState) //
 						.send();
 			}
