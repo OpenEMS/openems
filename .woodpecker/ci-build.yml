@@ -31,6 +31,10 @@ variables:
     path:
       include: [".woodpecker/ci-build.yml", "io.openems*/**", "**/*gradle*"]
 
+when:
+  event:
+    - push
+
 clone:
   git:
     when: &every-build
@@ -68,7 +72,7 @@ steps:
         export NG_CLI_CACHE_PATH=$CACHE/angular-cli
         export NODE_MODULES_CACHE=$CACHE/node_modules
         export CHROME_BIN=/usr/bin/google-chrome-stable
-        " > $CI_WORKSPACE/.woodpecker-env
+        " > $CI_WORKSPACE/.woodpecker-env        
       - common_update_version_in_code
     depends_on: [restore-cache]
 
@@ -108,7 +112,7 @@ steps:
       - echo "Build Version $VERSION"
       - |
         ./gradlew checkstyleAll --parallel --max-workers=4 && \
-        common_build_edge --no-build-cache --parallel --max-workers=2;
+        common_build_edge --no-build-cache --parallel --max-workers=2;        
     depends_on: [prepare-environment]
 
   build-debian-package:
