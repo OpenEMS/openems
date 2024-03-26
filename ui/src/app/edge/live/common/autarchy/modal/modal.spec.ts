@@ -10,7 +10,7 @@ export function expectView(testContext: TestContext, viewContext: OeFormlyViewTe
 
   const generatedView = OeFormlyViewTester.apply(ModalComponent.generateView(testContext.translate), viewContext);
   expect(generatedView).toEqual(view);
-};
+}
 
 describe('Autarchy - Modal', () => {
   let TEST_CONTEXT: TestContext;

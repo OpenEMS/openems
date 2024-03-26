@@ -41,12 +41,12 @@ export class FlatComponent extends AbstractFlatWidget {
     protected exportToXlxs() {
         this.service.getCurrentEdge().then(edge => {
             edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to)).then(response => {
-                let r = response as Base64PayloadResponse;
-                var binary = atob(r.result.payload.replace(/\s/g, ''));
-                var len = binary.length;
-                var buffer = new ArrayBuffer(len);
-                var view = new Uint8Array(buffer);
-                for (var i = 0; i < len; i++) {
+                const r = response as Base64PayloadResponse;
+                const binary = atob(r.result.payload.replace(/\s/g, ''));
+                const len = binary.length;
+                const buffer = new ArrayBuffer(len);
+                const view = new Uint8Array(buffer);
+                for (let i = 0; i < len; i++) {
                     view[i] = binary.charCodeAt(i);
                 }
                 const data: Blob = new Blob([view], {
@@ -54,8 +54,8 @@ export class FlatComponent extends AbstractFlatWidget {
                 });
 
                 let fileName = "Export-" + edge.id + "-";
-                let dateFrom = this.service.historyPeriod.value.from;
-                let dateTo = this.service.historyPeriod.value.to;
+                const dateFrom = this.service.historyPeriod.value.from;
+                const dateTo = this.service.historyPeriod.value.to;
                 if (isSameDay(dateFrom, dateTo)) {
                     fileName += format(dateFrom, "dd.MM.yyyy");
                 } else if (isSameMonth(dateFrom, dateTo)) {

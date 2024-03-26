@@ -119,7 +119,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 this.labels = displayValues.labels;
                 this.setChartLabel();
 
-                let values = this.chartObject.output(dataResponse.result.data);
+                this.chartObject.output(dataResponse.result.data);
                 this.options.scales.x['time'].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
                 this.options.scales.x.ticks['source'] = 'auto';
                 this.options.scales.x.grid = { offset: false };
@@ -144,7 +144,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
                 this.options.scales[ChartAxis.LEFT]['title'].text = this.currencyLabel;
                 this.datasets = this.datasets.map((el) => {
-                    let opacity = el.type === 'line' ? 0.2 : 0.5;
+                    const opacity = el.type === 'line' ? 0.2 : 0.5;
 
                     el.backgroundColor = ColorUtils.changeOpacityFromRGBA(el.backgroundColor.toString(), opacity);
                     el.borderColor = ColorUtils.changeOpacityFromRGBA(el.borderColor.toString(), 1);
@@ -163,12 +163,12 @@ export class ChartComponent extends AbstractHistoryChart {
      * @returns the desired state array data.
      */
     private getDataset(data: HistoryUtils.ChannelData, desiredState): any[] {
-        var prices = data['QuarterlyPrice']
+        const prices = data['QuarterlyPrice']
             .map(val => TimeOfUseTariffUtils.formatPrice(Utils.multiplySafely(val, 1000)));
-        var states = data['StateMachine']
+        const states = data['StateMachine']
             .map(val => Utils.multiplySafely(val, 1000));
-        var length = prices.length;
-        var dataset = Array(length).fill(null);
+        const length = prices.length;
+        const dataset = Array(length).fill(null);
 
         for (let index = 0; index < length; index++) {
             const quarterlyPrice = prices[index];

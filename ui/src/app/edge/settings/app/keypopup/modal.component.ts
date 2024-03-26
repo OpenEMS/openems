@@ -279,10 +279,10 @@ export class KeyModalComponent implements OnInit {
         }
 
         // remove last dash
-        let hasDashAsLastChar = trimmed.substring(trimmed.length - 1, trimmed.length) == "-";
+        const hasDashAsLastChar = trimmed.substring(trimmed.length - 1, trimmed.length) == "-";
         trimmed = trimmed.replace(/-/g, '');
 
-        let numbers = [];
+        const numbers = [];
 
         // push single parts into array
         numbers.push(trimmed.substring(0, 4));
@@ -469,7 +469,7 @@ export class KeyModalComponent implements OnInit {
             return true;
         }
         return this.lastValidKey !== null && this.getRawAppKey() === this.lastValidKey.result.additionalInfo.keyId;
-    };
+    }
 
 }
 

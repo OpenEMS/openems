@@ -41,11 +41,11 @@ export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
     applyChanges() {
         if (this.edge != null) {
             if (this.edge.roleIsAtLeast('owner')) {
-                let peakShavingPower = this.formGroup.controls['peakShavingPower'];
-                let rechargePower = this.formGroup.controls['rechargePower'];
+                const peakShavingPower = this.formGroup.controls['peakShavingPower'];
+                const rechargePower = this.formGroup.controls['rechargePower'];
                 if (peakShavingPower.valid && rechargePower.valid) {
                     if (peakShavingPower.value >= rechargePower.value) {
-                        let updateComponentArray = [];
+                        const updateComponentArray = [];
                         Object.keys(this.formGroup.controls).forEach((element, index) => {
                             if (this.formGroup.controls[element].dirty) {
                                 updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });

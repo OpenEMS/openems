@@ -19,7 +19,7 @@ export class HelpButtonComponent {
             return;
 
         }
-        let link = environment.links[key];;
+        const link = environment.links[key];
         if (link === null || link === "") {
             this.link = null;
 

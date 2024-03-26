@@ -34,7 +34,7 @@ export async function sharedSetup(): Promise<TestContext> {
         translate: TestBed.inject(TranslateService),
         service: TestBed.inject(Service),
     };
-};
+}
 
 export function removeFunctions(obj: any): any {
     if (typeof obj !== 'object' || obj === null) {

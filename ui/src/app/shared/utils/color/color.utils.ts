@@ -29,8 +29,8 @@ export namespace ColorUtils {
       return null;
     }
 
-    var rgba = color.split('(').pop().split(')')[0];
-    var rgb = rgba.split(',').slice(0, -1).join(',');
+    const rgba = color.split('(').pop().split(')')[0];
+    const rgb = rgba.split(',').slice(0, -1).join(',');
 
     return 'rgba(' + rgb + ',' + (opacity ?? 0) + ')';
   }

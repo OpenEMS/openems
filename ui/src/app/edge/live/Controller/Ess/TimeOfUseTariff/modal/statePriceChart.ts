@@ -27,7 +27,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
     public ngOnChanges() {
         this.currencyLabel = Currency.getCurrencyLabelByEdgeId(this.edge.id);
         this.updateChart();
-    };
+    }
 
     constructor(
         protected override service: Service,
@@ -95,7 +95,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
         options.scales.x.ticks.maxTicksLimit = 18;
         options.scales.x['offset'] = false;
         options.scales.x.ticks.callback = function (value, index, values) {
-            var date = new Date(value);
+            const date = new Date(value);
 
             // Display the label only if the minutes are zero (full hour)
             return date.getMinutes() === 0 ? date.getHours() + ':00' : '';
@@ -114,7 +114,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
         };
 
         this.datasets = this.datasets.map((el) => {
-            let opacity = el.type === 'line' ? 0.2 : 0.5;
+            const opacity = el.type === 'line' ? 0.2 : 0.5;
 
             if (el.backgroundColor && el.borderColor) {
                 el.backgroundColor = ColorUtils.changeOpacityFromRGBA(el.backgroundColor.toString(), opacity);

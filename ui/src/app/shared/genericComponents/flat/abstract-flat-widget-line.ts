@@ -55,7 +55,7 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
 
   public ngOnChanges() {
     this.setValue(this.value);
-  };
+  }
 
   protected setValue(value: any) {
     this.displayValue = this.converter(value);

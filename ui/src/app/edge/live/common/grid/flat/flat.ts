@@ -20,7 +20,7 @@ export class FlatComponent extends AbstractFlatWidget {
   public gridMode: number;
 
   protected override getChannelAddresses(): ChannelAddress[] {
-    let channelAddresses: ChannelAddress[] = [
+    const channelAddresses: ChannelAddress[] = [
       FlatComponent.GRID_ACTIVE_POWER, FlatComponent.GRID_MODE,
 
       // TODO should be moved to Modal
@@ -32,7 +32,7 @@ export class FlatComponent extends AbstractFlatWidget {
   }
   protected override onCurrentData(currentData: CurrentData) {
     this.gridMode = currentData.allComponents[FlatComponent.GRID_MODE.toString()];
-    let gridActivePower = currentData.allComponents[FlatComponent.GRID_ACTIVE_POWER.toString()];
+    const gridActivePower = currentData.allComponents[FlatComponent.GRID_ACTIVE_POWER.toString()];
     this.gridBuyPower = gridActivePower;
     this.gridSellPower = Utils.multiplySafely(gridActivePower, -1);
   }

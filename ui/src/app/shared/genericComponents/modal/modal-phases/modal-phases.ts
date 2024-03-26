@@ -22,9 +22,9 @@ export class ModalPhasesComponent extends AbstractModalLine {
   protected readonly TextIndentation = TextIndentation;
 
   protected override getChannelAddresses(): ChannelAddress[] {
-    let channelAddresses: ChannelAddress[] = [];
+    const channelAddresses: ChannelAddress[] = [];
 
-    for (let phase of this.phases) {
+    for (const phase of this.phases) {
       channelAddresses.push(
         ChannelAddress.fromString(this.component.id + '/ActivePower' + phase.key),
       );
@@ -33,8 +33,8 @@ export class ModalPhasesComponent extends AbstractModalLine {
   }
 
   protected override onCurrentData(currentData: CurrentData): void {
-    for (let phase of this.phases) {
-      let powerPerPhase = currentData.allComponents[this.component.id + '/ActivePower' + phase.key];
+    for (const phase of this.phases) {
+      const powerPerPhase = currentData.allComponents[this.component.id + '/ActivePower' + phase.key];
       phase.name = this.translate.instant('General.phase') + " " + phase.key + this.setTranslatedName(powerPerPhase);
     }
   }

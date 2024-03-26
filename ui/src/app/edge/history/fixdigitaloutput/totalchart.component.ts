@@ -18,7 +18,7 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
 
   ngOnChanges() {
     this.updateChart();
-  };
+  }
 
   constructor(
     protected override service: Service,
@@ -43,20 +43,20 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-      let result = (response as QueryHistoricTimeseriesDataResponse).result;
+      const result = (response as QueryHistoricTimeseriesDataResponse).result;
       // convert labels
-      let labels: Date[] = [];
-      for (let timestamp of result.timestamps) {
+      const labels: Date[] = [];
+      for (const timestamp of result.timestamps) {
         labels.push(new Date(timestamp));
       }
       this.labels = labels;
 
 
-      let datasets = [];
+      const datasets = [];
       // convert datasets
       Object.keys(result.data).forEach((channel, index) => {
-        let address = ChannelAddress.fromString(channel);
-        let data = result.data[channel]?.map((value) => {
+        const address = ChannelAddress.fromString(channel);
+        const data = result.data[channel]?.map((value) => {
           if (value == null) {
             return null;
           } else {
@@ -104,7 +104,7 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
   protected getChannelAddresses(): Promise<ChannelAddress[]> {
     return new Promise((resolve, reject) => {
       this.service.getConfig().then(config => {
-        let channeladdresses = [];
+        const channeladdresses = [];
         // find all FixIoControllers
         config.getComponentsByFactory('Controller.Io.FixDigitalOutput').forEach(component => {
           const outputChannel = ChannelAddress.fromString(config.getComponentProperties(component.id)['outputChannelAddress']);

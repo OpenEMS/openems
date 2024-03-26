@@ -151,7 +151,7 @@ export class IndexComponent implements OnInit, OnDestroy {
     this.installedApps.appCategories = [];
     this.availableApps.appCategories = [];
 
-    var sortedApps = [];
+    const sortedApps = [];
     this.apps.forEach(app => {
       app.categorys.forEach(category => {
         if (this.selectedBundle >= 0 && this.key) {
@@ -165,7 +165,7 @@ export class IndexComponent implements OnInit, OnDestroy {
             return false;
           }
         }
-        var cat = this.categories.find(c => c.val.name === category.name);
+        const cat = this.categories.find(c => c.val.name === category.name);
         if (!cat.isChecked) {
           return false;
         }
@@ -192,7 +192,7 @@ export class IndexComponent implements OnInit, OnDestroy {
 
   private pushIntoCategory(app: GetApps.App, list: AppList): void {
     app.categorys.forEach(category => {
-      var catList = list.appCategories.find(l => l.category.name === category.name);
+      let catList = list.appCategories.find(l => l.category.name === category.name);
       if (catList === undefined) {
         catList = { category: category, apps: [] };
         list.appCategories.push(catList);

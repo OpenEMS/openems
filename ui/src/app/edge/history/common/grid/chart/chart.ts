@@ -18,7 +18,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
   public static getChartData(config: EdgeConfig, chartType: 'line' | 'bar', translate: TranslateService, showPhases: boolean): HistoryUtils.ChartData {
 
-    let input: DefaultTypes.History.InputChannel[] = [
+    const input: DefaultTypes.History.InputChannel[] = [
       {
         name: 'GridSell',
         powerChannel: ChannelAddress.fromString('_sum/GridActivePower'),
@@ -46,7 +46,7 @@ export class ChartComponent extends AbstractHistoryChart {
       input: input,
       output: (data: DefaultTypes.History.ChannelData) => {
 
-        let datasets: DefaultTypes.History.DisplayValues[] = [
+        const datasets: DefaultTypes.History.DisplayValues[] = [
           {
             name: translate.instant('General.gridSellAdvanced'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {

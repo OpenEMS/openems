@@ -6,11 +6,11 @@ import { PickDateComponent } from "./pickdate.component";
 
 export function expectPreviousPeriod(testContext: TestContext, firstSetupProtocol: Date, expectToBe: boolean): void {
   expect(PickDateComponent.isPreviousPeriodAllowed(testContext.service, firstSetupProtocol)).toBe(expectToBe);
-};
+}
 
 export function expectNextPeriod(testContext: TestContext, expectToBe: boolean): void {
   expect(PickDateComponent.isNextPeriodAllowed(testContext.service)).toBe(expectToBe);
-};
+}
 
 describe('Pickdate', () => {
 

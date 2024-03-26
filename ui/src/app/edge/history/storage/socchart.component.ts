@@ -45,22 +45,22 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
-                    let result = response.result;
+                    const result = response.result;
                     // convert labels
-                    let labels: Date[] = [];
-                    for (let timestamp of result.timestamps) {
+                    const labels: Date[] = [];
+                    for (const timestamp of result.timestamps) {
                         labels.push(new Date(timestamp));
                     }
                     this.labels = labels;
 
                     // convert datasets
-                    let datasets = [];
-                    let moreThanOneESS = Object.keys(result.data).length > 1 ? true : false;
+                    const datasets = [];
+                    const moreThanOneESS = Object.keys(result.data).length > 1 ? true : false;
                     this.getChannelAddresses(edge, config)
                         .then(channelAddresses => {
                             channelAddresses.forEach(channelAddress => {
-                                let component = config.getComponent(channelAddress.componentId);
-                                let data = result.data[channelAddress.toString()]?.map(value => {
+                                const component = config.getComponent(channelAddress.componentId);
+                                const data = result.data[channelAddress.toString()]?.map(value => {
                                     if (value == null) {
                                         return null;
                                     } else if (value > 100 || value < 0) {

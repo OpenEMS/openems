@@ -26,7 +26,7 @@ export class ModalComponent extends AbstractFormlyComponent {
     const consumptionMeters: EdgeConfig.Component[] | null = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
       .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
 
-    let lines: OeFormlyField[] = [];
+    const lines: OeFormlyField[] = [];
 
     // Total
     lines.push({
@@ -98,7 +98,7 @@ export class ModalComponent extends AbstractFormlyComponent {
     lines.push({ type: 'horizontal-line' });
 
     // OtherPower
-    let channelsToSubscribe: ChannelAddress[] = [new ChannelAddress('_sum', 'ConsumptionActivePower')];
+    const channelsToSubscribe: ChannelAddress[] = [new ChannelAddress('_sum', 'ConsumptionActivePower')];
 
     evcss.forEach(evcs => channelsToSubscribe.push(new ChannelAddress(evcs.id, 'ChargePower')));
     consumptionMeters.forEach(meter => {

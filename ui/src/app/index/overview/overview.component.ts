@@ -95,7 +95,7 @@ export class OverViewComponent implements OnInit, OnDestroy {
                 )
                 .subscribe(metadata => {
 
-                    let edgeIds = Object.keys(metadata.edges);
+                    const edgeIds = Object.keys(metadata.edges);
                     this.noEdges = edgeIds.length === 0;
                     this.loggedInUserCanInstall = Role.isAtLeast(metadata.user.globalRole, "installer");
 
@@ -103,7 +103,7 @@ export class OverViewComponent implements OnInit, OnDestroy {
                     // - Direct local access to Edge
                     // - No installer (i.e. guest or owner) and access to only one Edge
                     if (environment.backend == 'OpenEMS Edge' || (!this.loggedInUserCanInstall && edgeIds.length == 1)) {
-                        let edge = metadata.edges[edgeIds[0]];
+                        const edge = metadata.edges[edgeIds[0]];
                         setTimeout(() => {
                             this.router.navigate(['/device', edge.id]);
                         }, 100);
@@ -145,7 +145,7 @@ export class OverViewComponent implements OnInit, OnDestroy {
                 return;
             }
 
-            let searchParamsObj = {};
+            const searchParamsObj = {};
             if (this.searchParams && this.searchParams.size > 0) {
                 for (const [key, value] of this.searchParams) {
                     searchParamsObj[key] = value;

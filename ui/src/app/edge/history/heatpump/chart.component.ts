@@ -44,20 +44,20 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
         this.loading = true;
         this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            let result = response.result;
+            const result = response.result;
             // convert labels
-            let labels: Date[] = [];
-            for (let timestamp of result.timestamps) {
+            const labels: Date[] = [];
+            for (const timestamp of result.timestamps) {
                 labels.push(new Date(timestamp));
             }
             this.labels = labels;
 
             // convert datasets
-            let datasets = [];
+            const datasets = [];
 
             if (this.component.id + '/Status' in result.data) {
 
-                let stateTimeData = result.data[this.component.id + '/Status'].map(value => {
+                const stateTimeData = result.data[this.component.id + '/Status'].map(value => {
                     if (value == null) {
                         return null;
                     } else {
@@ -96,7 +96,7 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
     }
 
     private applyControllerSpecificOptions(options: Chart.ChartOptions) {
-        let translate = this.translate;
+        const translate = this.translate;
         options.scales[ChartAxis.LEFT]['title'].text = this.translate.instant('General.state');
         options.scales[ChartAxis.LEFT].ticks.callback = function (label, index, labels) {
             switch (label) {
@@ -114,8 +114,8 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
         };
 
         options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
-            let label = tooltipItem.dataset.label;
-            let value = tooltipItem.dataset.data[tooltipItem.dataIndex];
+            const label = tooltipItem.dataset.label;
+            const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
             let toolTipValue;
             switch (value) {
                 case -1:
