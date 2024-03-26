@@ -6,7 +6,7 @@ export { Utils } from "./service/utils";
 export { Websocket } from "./service/websocket";
 export { ChannelAddress } from "./type/channeladdress";
 export { CurrentData } from "./type/currentdata";
-export { GridMode, SafetyCountryCode, BackupEnable, DredCmd, BatteryMode, GoodWe, BatteryStateMachine } from "./type/general";
+export { BackupEnable, BatteryMode, BatteryStateMachine, DredCmd, GoodWe, GridMode, SafetyCountryCode } from "./type/general";
 export { SystemLog } from "./type/systemlog";
 export { Widget, WidgetFactory, WidgetNature, Widgets } from "./type/widget";
 
@@ -125,7 +125,7 @@ export class UserPermission {
   */
   public static isAllowedToSeeSystemRestart(user: User, edge: Edge) {
     const isAllowed = edge?.isVersionAtLeast('2024.2.2');
-    return Role.isAtLeast(user?.globalRole, Role.ADMIN) && isAllowed;
+    return Role.isAtLeast(user?.globalRole, Role.OWNER) && isAllowed;
   }
 }
 
