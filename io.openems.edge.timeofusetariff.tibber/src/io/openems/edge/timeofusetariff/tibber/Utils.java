@@ -6,11 +6,16 @@ import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsOptionalString;
 import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
+import static io.openems.edge.timeofusetariff.tibber.TimeOfUseTariffTibberImpl.CLIENT_ERROR_CODE;
+import static io.openems.edge.timeofusetariff.tibber.TimeOfUseTariffTibberImpl.TOO_MANY_REQUESTS_CODE;
 import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 import static java.util.stream.Collectors.joining;
 
+import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Random;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
@@ -26,6 +31,9 @@ import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 public class Utils {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
+
+	private static final int RETRY_AFTER_RATE_LIMIT_EXCEEDED_HOURS = 12;
+	private static final int RETRY_AFTER_UNABLE_TO_UPDATE_PRICES_MINUTES = 5;
 
 	private Utils() {
 
@@ -59,10 +67,11 @@ public class Utils {
 		var successCount = 0;
 
 		if (homes.size() == 1) {
-			// If there's only one home, filter is set to null so that it is ignored while parsing.
+			// If there's only one home, filter is set to null so that it is ignored while
+			// parsing.
 			filter = null;
 		}
-		
+
 		for (JsonElement home : homes) {
 			try {
 				var subResult = parseHome(home, filter);
@@ -150,6 +159,38 @@ public class Utils {
 			}
 		}
 		return TimeOfUsePrices.from(result);
+	}
+
+	/**
+	 * Calculates the delay until the next scheduled task run based on the HTTP
+	 * status code and update availability.
+	 * 
+	 * @param httpStatusCode       The HTTP status code received from the request.
+	 * @param filterIsRequired     A boolean indicating whether filter is required.
+	 * @param unableToUpdatePrices A boolean indicating whether the prices couldn't
+	 *                             be updated.
+	 * @return The delay in seconds until the next scheduled task run.
+	 */
+	protected static long calculateDelay(int httpStatusCode, boolean filterIsRequired, boolean unableToUpdatePrices) {
+
+		final var now = ZonedDateTime.now();
+		final ZonedDateTime nextRun;
+
+		if (!filterIsRequired && !unableToUpdatePrices) {
+			// next price update at next hour for successful response
+			nextRun = now.truncatedTo(ChronoUnit.HOURS).plusHours(1);
+		} else if (httpStatusCode == TOO_MANY_REQUESTS_CODE) {
+			LOG.warn("Rate limit exceeded. Retrying after " + RETRY_AFTER_RATE_LIMIT_EXCEEDED_HOURS + " hours.");
+			nextRun = now.plusHours(RETRY_AFTER_RATE_LIMIT_EXCEEDED_HOURS);
+		} else if (filterIsRequired || httpStatusCode == CLIENT_ERROR_CODE) {
+			return 0;
+		} else {
+			nextRun = now.plusMinutes(RETRY_AFTER_UNABLE_TO_UPDATE_PRICES_MINUTES).truncatedTo(ChronoUnit.MINUTES);
+			LOG.warn("Unable to Update the prices, Retrying again at: " + nextRun);
+		}
+
+		return Duration.between(now, nextRun.plusSeconds(new Random().nextInt(60))) // randomly add a few seconds
+				.getSeconds();
 	}
 
 	/**
