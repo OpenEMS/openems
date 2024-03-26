@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
 import { Subject, timer } from 'rxjs';
@@ -44,7 +43,6 @@ export class AppComponent implements OnInit, OnDestroy {
     public toastController: ToastController,
     public websocket: Websocket,
     private globalRouteChangeHandler: GlobalRouteChangeHandler,
-    private titleService: Title,
     private meta: Meta,
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
@@ -63,7 +61,6 @@ export class AppComponent implements OnInit, OnDestroy {
       this.environment.debugMode = JSON.parse(localStorage.getItem("DEBUGMODE"));
     }
 
-    this.titleService.setTitle(environment.edgeShortName);
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
       const toast = await this.toastController.create({
         message: notification.message,
