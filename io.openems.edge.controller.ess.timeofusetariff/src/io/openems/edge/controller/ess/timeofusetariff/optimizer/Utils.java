@@ -398,13 +398,15 @@ public final class Utils {
 
 		// Process past data
 		final var fromDate = now.minusHours(3);
+		final var toDate = now.minusMinutes(15);
+		
 		try {
-			var queryResult = timedata.queryHistoricData(null, fromDate, now, //
+			var queryResult = timedata.queryHistoricData(null, fromDate, toDate, //
 					Set.of(channelQuarterlyPrices, channelStateMachine, //
 							SUM_GRID, SUM_PRODUCTION, SUM_CONSUMPTION, SUM_ESS_DISCHARGE_POWER, SUM_ESS_SOC),
 					new Resolution(15, ChronoUnit.MINUTES));
 			ScheduleData.fromHistoricDataQuery(//
-					fromDate, params.essTotalEnergy(), channelQuarterlyPrices, channelStateMachine, queryResult) //
+					params.essTotalEnergy(), channelQuarterlyPrices, channelStateMachine, queryResult) //
 					.forEach(b::add);
 		} catch (Exception e) {
 			LOG.warn("Unable to read historic data: " + e.getMessage());

@@ -413,7 +413,7 @@ public class UtilsTest {
 		// JsonUtils.prettyPrint(result);
 
 		var schedule = getAsJsonArray(result, "schedule");
-		assertEquals(12, schedule.size());
+		assertEquals(11, schedule.size());
 		{
 			var period = getAsJsonObject(schedule.get(0));
 			assertEquals(PAST_HOURLY_PRICES[0], getAsFloat(period, "price"), 0.00F);
