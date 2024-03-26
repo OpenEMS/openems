@@ -1,4 +1,4 @@
-Bundle-Name: OpenEMS Edge Meter Microcare SDM 630 Smart Meter
+Bundle-Name: OpenEMS Edge Meter Eastron SDM 630 Smart Meter
 Bundle-Vendor: Microcare (Destrier Electronics Pty Ltd)
 Bundle-Version: 1.0.0.${tstamp}
 Bundle-License: Proprietary (for now)
