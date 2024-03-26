@@ -32,6 +32,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   protected isSystemOutage = false;
   protected isUserAllowedToSeeOverview: boolean = false;
+  protected isUserAllowedToSeeFooter: boolean = false;
 
   constructor(
     private platform: Platform,
@@ -50,6 +51,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
       this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
+      this.isUserAllowedToSeeFooter = UserPermission.isUserAllowedToSeeFooter(metadata.user);
     });
   }
 

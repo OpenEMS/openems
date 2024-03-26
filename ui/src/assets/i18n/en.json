@@ -439,7 +439,10 @@
       "advancedMode": "Advanced Mode",
       "submit": "Submit"
     },
-    "title": "{{ edgeShortName }}"
+    "title": "{{ edgeShortName }}",
+    "FOOTER": {
+      "REFRESHED_LAST": "updated {{period}} ago"
+    }
   },
   "General": {
     "active": "Active",
