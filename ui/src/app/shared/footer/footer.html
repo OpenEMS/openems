@@ -11,9 +11,11 @@
             {{displayValues.id}}
           </span>
           |
-          <span *ngIf="(service.metadata | async)?.user?.globalRole as role">
-            Version {{(displayValues.version | version:role)}}
-          </span>
+          <ng-container *ngIf="(service.metadata | async)?.user?.globalRole as role">
+            <a routerLink="/device/{{edge.id}}/settings/system" style="color: var(--ion-color-primary-contrast)">
+              Version {{(displayValues.version | version:role)}}
+            </a>
+          </ng-container>
         </ion-col>
       </ion-row>
     </ion-grid>
