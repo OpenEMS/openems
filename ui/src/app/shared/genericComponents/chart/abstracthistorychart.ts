@@ -715,8 +715,8 @@ export abstract class AbstractHistoryChart implements OnInit {
       grid: {
         display: element.displayGrid ?? true,
       },
-      ...(data?.min !== null && { min: data.min }),
-      ...(data?.max !== null && { max: data.max }),
+      ...(data?.min != null && { min: data.min }),
+      ...(data?.max != null && { max: data.max }),
 
       ticks: {
         color: getComputedStyle(document.documentElement).getPropertyValue('--ion-color-text'),

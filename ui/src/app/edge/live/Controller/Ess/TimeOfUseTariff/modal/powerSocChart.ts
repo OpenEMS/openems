@@ -11,6 +11,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/sh
 
 import { GetScheduleRequest } from '../../../../../../shared/jsonrpc/request/getScheduleRequest';
 import { GetScheduleResponse } from '../../../../../../shared/jsonrpc/response/getScheduleResponse';
+import { Controller_Ess_TimeOfUseTariff } from '../Ess_TimeOfUseTariff';
 
 @Component({
     selector: 'powerSocChart',
@@ -55,18 +56,19 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
             new ComponentJsonApiRequest({ componentId: this.component.id, payload: new GetScheduleRequest() }),
         ).then(response => {
             const result = (response as GetScheduleResponse).result;
+            const schedule = Controller_Ess_TimeOfUseTariff.filterScheduleData(this.edge, result.schedule);
             const datasets = [];
 
             // Extracting prices and states from the schedule array
             const { gridBuyArray, gridSellArray, productionArray, consumptionArray, essDischargeArray, essChargeArray, socArray, labels } = {
-                gridBuyArray: result.schedule.map(entry => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.grid)),
-                gridSellArray: result.schedule.map(entry => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.grid)),
-                productionArray: result.schedule.map(entry => entry.production),
-                consumptionArray: result.schedule.map(entry => entry.consumption),
-                essDischargeArray: result.schedule.map(entry => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.ess)),
-                essChargeArray: result.schedule.map(entry => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.ess)),
-                socArray: result.schedule.map(entry => entry.soc),
-                labels: result.schedule.map(entry => new Date(entry.timestamp)),
+                gridBuyArray: schedule.map(entry => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.grid)),
+                gridSellArray: schedule.map(entry => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.grid)),
+                productionArray: schedule.map(entry => entry.production),
+                consumptionArray: schedule.map(entry => entry.consumption),
+                essDischargeArray: schedule.map(entry => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.ess)),
+                essChargeArray: schedule.map(entry => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.ess)),
+                socArray: schedule.map(entry => entry.soc),
+                labels: schedule.map(entry => new Date(entry.timestamp)),
             };
 
             datasets.push({
