@@ -2,6 +2,7 @@ import { Component, HostBinding, OnInit } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { filter } from "rxjs/operators";
 
+import { environment } from '../../../environments';
 import { User } from "../jsonrpc/shared";
 import { Edge, Service } from "../shared";
 import { Role } from "../type/role";
@@ -34,8 +35,6 @@ import { Role } from "../type/role";
 })
 export class FooterComponent implements OnInit {
 
-  protected readonly VERSION_PREFIX = "Version ";
-
   protected user: User | null = null;
   protected edge: Edge | null = null;
   protected displayValues: { version: string, id: string, comment: string } | null = null;
@@ -56,20 +55,22 @@ export class FooterComponent implements OnInit {
       this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe((metadata) => {
         this.user = metadata.user;
 
+        let title = environment.edgeShortName;
         if (edge) {
-          this.displayValues = this.getDisplayValues(edge);
+          this.displayValues = FooterComponent.getDisplayValues(edge);
 
           if (this.user.hasMultipleEdges) {
-            this.title.setTitle(edge.id);
+            title += " | " + edge.id;
           }
         }
 
+        this.title.setTitle(title);
         this.isAtLeastOwner = Role.isAtLeast(this.user.globalRole, Role.OWNER);
       });
     });
   }
 
-  private getDisplayValues(edge: Edge): { version: string; id: string; comment: string; } {
+  private static getDisplayValues(edge: Edge): { version: string; id: string; comment: string; } {
     return {
       comment: edge?.comment,
       id: edge.id,

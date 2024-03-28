@@ -15,7 +15,6 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.jenetics.Genotype;
@@ -65,8 +64,9 @@ public class Simulator {
 			var op = p.optimizePeriods().get(i);
 			// Convert mixed OptimizePeriods to pure quarterly
 			for (var qp : op.quarterPeriods()) {
-				var quarterlyOp = new OptimizePeriod(qp.time(), qp.essMaxEnergy(), qp.essChargeInChargeGrid(),
-						qp.maxBuyFromGrid(), qp.production(), qp.consumption(), qp.price(), ImmutableList.of(qp));
+				var quarterlyOp = new OptimizePeriod(qp.time(), qp.essMaxChargeEnergy(), qp.essMaxDischargeEnergy(),
+						qp.essChargeInChargeGrid(), qp.maxBuyFromGrid(), qp.production(), qp.consumption(), qp.price(),
+						op.quarterPeriods());
 				simulatePeriod(p, quarterlyOp, state, nextEssInitial, period -> result.put(period.op().time(), period));
 			}
 		}
