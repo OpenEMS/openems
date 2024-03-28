@@ -12,129 +12,191 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class UtilsTest {
 
+	private static String JSON_DATA = """
+									{
+									  "data": {
+									    "viewer": {
+									      "homes": [
+									        {
+									          "id": "foo-bar",
+									          "appNickname": "my-alias",
+									          "address": {
+									            "country": "DE"
+									          },
+									          "currentSubscription": {
+									            "priceInfo": {
+									              "current": {
+									                "total": 0.2466,
+									                "energy": 0.0563,
+									                "tax": 0.1903,
+									                "startsAt": "2024-03-22T09:00:00.000+01:00"
+									              },
+									              "today": [
+									                {
+									                  "total": 0.2466,
+									                  "energy": 0.0563,
+									                  "tax": 0.1903,
+									                  "startsAt": "2024-03-22T00:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2417,
+									                  "energy": 0.0522,
+									                  "tax": 0.1895,
+									                  "startsAt": "2024-03-22T01:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2387,
+									                  "energy": 0.0497,
+									                  "tax": 0.189,
+									                  "startsAt": "2024-03-22T02:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2413,
+									                  "energy": 0.0518,
+									                  "tax": 0.1895,
+									                  "startsAt": "2024-03-22T03:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2424,
+									                  "energy": 0.0528,
+									                  "tax": 0.1896,
+									                  "startsAt": "2024-03-22T04:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2509,
+									                  "energy": 0.0599,
+									                  "tax": 0.191,
+									                  "startsAt": "2024-03-22T05:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2678,
+									                  "energy": 0.0741,
+									                  "tax": 0.1937,
+									                  "startsAt": "2024-03-22T06:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2598,
+									                  "energy": 0.0674,
+									                  "tax": 0.1924,
+									                  "startsAt": "2024-03-22T07:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2606,
+									                  "energy": 0.0681,
+									                  "tax": 0.1925,
+									                  "startsAt": "2024-03-22T08:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2466,
+									                  "energy": 0.0563,
+									                  "tax": 0.1903,
+									                  "startsAt": "2024-03-22T09:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2412,
+									                  "energy": 0.0518,
+									                  "tax": 0.1894,
+									                  "startsAt": "2024-03-22T10:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2389,
+									                  "energy": 0.0498,
+									                  "tax": 0.1891,
+									                  "startsAt": "2024-03-22T11:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2388,
+									                  "energy": 0.0498,
+									                  "tax": 0.189,
+									                  "startsAt": "2024-03-22T12:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2409,
+									                  "energy": 0.0515,
+									                  "tax": 0.1894,
+									                  "startsAt": "2024-03-22T13:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2419,
+									                  "energy": 0.0524,
+									                  "tax": 0.1895,
+									                  "startsAt": "2024-03-22T14:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2509,
+									                  "energy": 0.06,
+									                  "tax": 0.1909,
+									                  "startsAt": "2024-03-22T15:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2711,
+									                  "energy": 0.0769,
+									                  "tax": 0.1942,
+									                  "startsAt": "2024-03-22T16:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2855,
+									                  "energy": 0.089,
+									                  "tax": 0.1965,
+									                  "startsAt": "2024-03-22T17:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.3243,
+									                  "energy": 0.1216,
+									                  "tax": 0.2027,
+									                  "startsAt": "2024-03-22T18:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.3208,
+									                  "energy": 0.1187,
+									                  "tax": 0.2021,
+									                  "startsAt": "2024-03-22T19:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2926,
+									                  "energy": 0.095,
+									                  "tax": 0.1976,
+									                  "startsAt": "2024-03-22T20:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2775,
+									                  "energy": 0.0822,
+									                  "tax": 0.1953,
+									                  "startsAt": "2024-03-22T21:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.275,
+									                  "energy": 0.0802,
+									                  "tax": 0.1948,
+									                  "startsAt": "2024-03-22T22:00:00.000+01:00"
+									                },
+									                {
+									                  "total": 0.2718,
+									                  "energy": 0.0775,
+									                  "tax": 0.1943,
+									                  "startsAt": "2024-03-22T23:00:00.000+01:00"
+									                }
+									              ],
+									              "tomorrow": []
+									            }
+									          }
+									        }
+									      ]
+									    }
+									  }
+									}
+									""";
+
 	@Test
 	public void nonEmptyStringTest() throws OpenemsNamedException {
 		// Parsing with custom data
-		var prices = parsePrices("{\n" //
-				+ "  \"data\": {\n" + "    \"viewer\": {\n" //
-				+ "      \"homes\": [\n" //
-				+ "        {\n" //
-				+ "          \"id\": \"foo-bar\",\n" //
-				+ "          \"appNickname\": \"my-alias\",\n" //
-				+ "          \"currentSubscription\": {\n" //
-				+ "            \"priceInfo\": {\n" //
-				+ "              \"today\": [\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.187,\n"
-				+ "                  \"startsAt\": \"2021-11-15T00:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1841,\n"
-				+ "                  \"startsAt\": \"2021-11-15T01:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.18,\n"
-				+ "                  \"startsAt\": \"2021-11-15T02:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1747,\n"
-				+ "                  \"startsAt\": \"2021-11-15T03:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.179,\n"
-				+ "                  \"startsAt\": \"2021-11-15T04:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1809,\n"
-				+ "                  \"startsAt\": \"2021-11-15T05:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1795,\n"
-				+ "                  \"startsAt\": \"2021-11-15T06:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1848,\n"
-				+ "                  \"startsAt\": \"2021-11-15T07:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1868,\n"
-				+ "                  \"startsAt\": \"2021-11-15T08:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1876,\n"
-				+ "                  \"startsAt\": \"2021-11-15T09:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1874,\n"
-				+ "                  \"startsAt\": \"2021-11-15T10:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1874,\n"
-				+ "                  \"startsAt\": \"2021-11-15T11:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1875,\n"
-				+ "                  \"startsAt\": \"2021-11-15T12:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1878,\n"
-				+ "                  \"startsAt\": \"2021-11-15T13:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1868,\n"
-				+ "                  \"startsAt\": \"2021-11-15T14:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1853,\n"
-				+ "                  \"startsAt\": \"2021-11-15T15:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1848,\n"
-				+ "                  \"startsAt\": \"2021-11-15T16:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1829,\n"
-				+ "                  \"startsAt\": \"2021-11-15T17:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1835,\n"
-				+ "                  \"startsAt\": \"2021-11-15T18:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1846,\n"
-				+ "                  \"startsAt\": \"2021-11-15T19:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1851,\n"
-				+ "                  \"startsAt\": \"2021-11-15T20:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1854,\n"
-				+ "                  \"startsAt\": \"2021-11-15T21:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1853,\n"
-				+ "                  \"startsAt\": \"2021-11-15T22:00:00.000+01:00\"\n" //
-				+ "                },\n" //
-				+ "                {\n" //
-				+ "                  \"total\": 0.1831,\n"
-				+ "                  \"startsAt\": \"2021-11-15T23:00:00.000+01:00\"\n" //
-				+ "                }\n" //
-				+ "              ],\n" //
-				+ "              \"tomorrow\": []\n" //
-				+ "            }\n" //
-				+ "          }\n" //
-				+ "        }\n" //
-				+ "      ]\n" //
-				+ "    }\n" //
-				+ "  }\n" //
-				+ "}", null); //
+		var prices = parsePrices(JSON_DATA, null); //
 
 		// To check if the Map is not empty
 		assertFalse(prices.isEmpty());
 
 		// To check if a value is present in map.
-		assertEquals(0.187 * 1000, prices.getFirst(), 0.001);
+		assertEquals(0.2466 * 1000, prices.getFirst(), 0.001);
 
 		// To check 15 minutes values are taken instead of one hour values.
 		var firstHour = prices.pricePerQuarter.firstKey();
@@ -170,5 +232,18 @@ public class UtilsTest {
 				    }
 				  }
 				}""", generateGraphQl());
+	}
+
+	@Test
+	public void singleHomeParseTest() throws OpenemsNamedException {
+		// Parsing with custom filter. Since the test is single home, the filter should
+		// be ignored
+		var prices = parsePrices(JSON_DATA, "tibber@openems.com"); //
+
+		// To check if the Map is not empty
+		assertFalse(prices.isEmpty());
+
+		// To check if a value is present in map.
+		assertEquals(0.2466 * 1000, prices.getFirst(), 0.001);
 	}
 }

@@ -40,6 +40,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
+import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
@@ -93,11 +94,18 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 									}) //
 									.orElse(null);
 						}))), //
+		MULTIPLE_HOMES_CHECK(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".multipleHomesCheck.label") //
+				.setDefaultValue(false) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable))),
 		FILTER(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".filterForHome.label") //
 				.setTranslatedDescriptionWithAppPrefix(".filterForHome.description") //
 				.setDefaultValue((app, property, l, parameter) -> JsonNull.INSTANCE)
-				.setField(JsonFormlyUtil::buildInputFromNameable) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(MULTIPLE_HOMES_CHECK).notNull()
+							.or(Exp.currentModelValue(property).notNull()));
+				}) //
 				.bidirectional(TIME_OF_USE_TARIFF_PROVIDER_ID, "filter",
 						ComponentManagerSupplier::getComponentManager)));
 
