@@ -167,6 +167,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 });
 
                 this.options.scales.x['offset'] = false;
+                this.options['animation'] = false;
             });
     }
 
