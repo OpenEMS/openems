@@ -1,7 +1,7 @@
 import { compareVersions } from 'compare-versions';
 import { BehaviorSubject, Subject } from 'rxjs';
-
 import { SumState } from 'src/app/index/shared/sumState';
+
 import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
 import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
@@ -14,7 +14,7 @@ import { SubscribeChannelsRequest } from '../jsonrpc/request/subscribeChannelsRe
 import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
 import { UpdateComponentConfigRequest } from '../jsonrpc/request/updateComponentConfigRequest';
 import { GetEdgeConfigResponse } from '../jsonrpc/response/getEdgeConfigResponse';
-import { ArrayUtils } from '../service/arrayutils';
+import { ArrayUtils } from '../utils/array/array.utils';
 import { Websocket } from '../service/websocket';
 import { ChannelAddress } from '../type/channeladdress';
 import { Role } from '../type/role';
@@ -131,6 +131,16 @@ export class Edge {
    */
   public unsubscribeChannels(websocket: Websocket, id: string): void {
     delete this.subscribedChannels[id];
+    this.sendSubscribeChannels(websocket);
+  }
+
+  /**
+   * Removes all Channels from subscription
+   *
+   * @param websocket the Websocket
+   */
+  public unsubscribeAllChannels(websocket: Websocket) {
+    this.subscribedChannels = {};
     this.sendSubscribeChannels(websocket);
   }
 

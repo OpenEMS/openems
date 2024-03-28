@@ -43,6 +43,7 @@ public final class AllowedChannels {
 				.put("ctrlIoHeatPump0/Status", DataType.LONG) //
 				.putAll(multiChannels("ess", 0, 17, "Soc", DataType.LONG)) //
 				.putAll(multiChannels("ess", 0, 17, "ActivePower", DataType.LONG)) //
+				.putAll(multiChannels("ess", 0, 17, "ReactivePower", DataType.LONG)) //
 				.put("ctrlIoHeatingElement0/Level", DataType.LONG) //
 				.put("ctrlGridOptimizedCharge0/DelayChargeMaximumChargeLimit", DataType.LONG) //
 				.putAll(multiChannels("charger", 0, 10, "ActualPower", DataType.LONG)) //
@@ -56,6 +57,18 @@ public final class AllowedChannels {
 				.put("ctrlEssTimeOfUseTariff0/QuarterlyPrices", DataType.DOUBLE) //
 				.put("ctrlEssTimeOfUseTariff0/StateMachine", DataType.LONG) //
 				.putAll(multiChannels("evcs", 0, 10, "ChargePower", DataType.LONG)) //
+				.putAll(multiChannels("ctrlTimeslotPeakshaving", 0, 10, "StateMachine", DataType.LONG)) //
+				.putAll(multiChannels("ctrlTimeslotPeakshaving", 0, 10, "_PropertyRechargePower", DataType.LONG)) //
+				.putAll(multiChannels("ctrlTimeslotPeakshaving", 0, 10, "_PropertyPeakShavingPower", DataType.LONG)) //
+				// both for symmetric and asymmetric
+				.put("ctrlPeakShaving0/_PropertyPeakShavingPower", DataType.LONG) //
+				.put("ctrlPeakShaving0/_PropertyRechargePower", DataType.LONG) //
+				.putAll(multiChannels("ctrlApiModbusTcp", 0, 3, "Ess0SetActivePowerEquals", DataType.LONG)) //
+				.putAll(multiChannels("ctrlApiModbusTcp", 0, 3, "Ess0SetReactivePowerEquals", DataType.LONG)) //
+				.putAll(multiChannels("ctrlApiModbusTcp", 0, 3, "Ess0SetActivePowerLessOrEquals", DataType.LONG)) //
+				.putAll(multiChannels("ctrlApiModbusTcp", 0, 3, "Ess0SetReactivePowerLessOrEquals", DataType.LONG)) //
+				.putAll(multiChannels("ctrlApiModbusTcp", 0, 3, "Ess0SetReactivePowerGreaterOrEquals", DataType.LONG)) //
+				.putAll(multiChannels("ctrlApiModbusTcp", 0, 3, "Ess0SetActivePowerGreaterOrEquals", DataType.LONG)) //
 				.build();
 
 		ALLOWED_CUMULATED_CHANNELS = ImmutableMap.<String, DataType>builder() //
@@ -94,6 +107,10 @@ public final class AllowedChannels {
 				.put("ctrlIoHeatPump0/RecommendationStateTime", DataType.LONG) //
 				.put("ctrlIoHeatPump0/ForceOnStateTime", DataType.LONG) //
 				.put("ctrlIoHeatPump0/LockStateTime", DataType.LONG) //
+				.putAll(multiChannels("ess", 0, 17, "ActiveChargeEnergy", DataType.LONG)) //
+				.putAll(multiChannels("ess", 0, 17, "ActiveDischargeEnergy", DataType.LONG)) //
+				.putAll(multiChannels("ctrlApiModbusTcp", 0, 3, "CumulatedActiveTime", DataType.LONG)) //
+				.putAll(multiChannels("ctrlApiModbusTcp", 0, 3, "CumulatedInactiveTime", DataType.LONG)) //
 				.build();
 	}
 

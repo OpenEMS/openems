@@ -322,7 +322,8 @@
         "systemExecute": "Execute system command",
         "systemProfile": "System Profile",
         "alerting": "Alerting",
-        "networkConfiguration": "Network Configuration"
+        "networkConfiguration": "Network Configuration",
+        "SYSTEM": "System"
       },
       "PROFILE": {
         "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Error while downloading the Modbus Protocol"
@@ -361,26 +362,16 @@
         "newConnection": "New connection...",
         "newDevice": "New device..."
       },
-      "Alerting": {
-        "offlineAlerting": "Offline Notifications",
-        "faultAlerting": "Fault Notifications",
-        "warningAlerting": "Warning Notifications",
-        "deactivated": "Deactivated",
-        "activate": "Activate",
-        "delay": "Delay",
-        "save": "Save",
-        "options": {},
-        "toast": {
-          "success": "Settings applied",
-          "error": "Error loading the settings"
-        },
-        "interval": {
-          "hour": "Hour",
-          "hours": "Hours",
-          "minute": "Minute",
-          "minutes": "Minutes",
-          "day": "Day",
-          "days": "Days"
+      "ALERTING": {
+        "OFFLINE": "Offline Notifications",
+        "FAULT": "Fault Notifications",
+        "WARNING": "Warning Notifications",
+        "DEACTIVATED": "Deactivated",
+        "ACTIVATE": "Activate",
+        "DELAY": "Delay",
+        "TOAST": {
+          "SUCCESS": "Settings applied",
+          "ERROR": "Error loading the settings"
         }
       },
       "App": {
@@ -388,6 +379,7 @@
         "NAME_WITH_EDGE_NAME": "{{ edgeShortName }} App Center",
         "header": "The App Manager is currently in a first test version.",
         "updateAvailable": "There is a new {{ edgeShortName }} version available! Please update the {{ edgeShortName }} so that all new {{ edgeShortName }} Apps are displayed in the App Center.",
+        "UNUSED_REGISTERED_KEY_AVAILABLE": "There's still an App available for installation! You can install it by clicking the 'redeem license key' button.",
         "installed": "Installed",
         "available": "Available",
         "incompatible": "Incompatible",
@@ -447,7 +439,10 @@
       "advancedMode": "Advanced Mode",
       "submit": "Submit"
     },
-    "title": "{{ edgeShortName }}"
+    "title": "{{ edgeShortName }}",
+    "FOOTER": {
+      "REFRESHED_LAST": "updated {{period}} ago"
+    }
   },
   "General": {
     "active": "Active",
@@ -475,6 +470,8 @@
     "directConsumption": "Direct consumption",
     "dischargePower": "Discharge power",
     "fault": "Fault",
+    "FAILED": "failed",
+    "WILL_BE_EXECUTED": "will be executed",
     "grid": "Grid",
     "gridBuy": "Buy from grid",
     "gridBuyAdvanced": "Buy",
@@ -552,7 +549,17 @@
     "yes": "Yes",
     "no": "No",
     "value": "value",
-    "SUM_STATE": "System state"
+    "SUM_STATE": "System state",
+    "SYSTEM": "system",
+    "RESTART": "Restart",
+    "TIME": {
+      "HOUR": "Hour",
+      "HOURS": "Hours",
+      "MINUTE": "Minute",
+      "MINUTES": "Minutes",
+      "DAY": "Day",
+      "DAYS": "Days"
+    }
   },
   "Index": {
     "allConnected": "All connections established.",
@@ -663,8 +670,6 @@
       "SUMMARY": "Summary",
       "TIME_OF_INSTALLATION": "Time of the installation",
       "WARRANTY_TERMS": "Warranty terms",
-      "APPS": "Apps",
-      "HECKERT": "Your chosen free app",
       "ACCEPT": "acceptation",
       "ALIAS_WITH_LABEL_HOME_DC": "Alias MPPT{{mppt}} PV{{pv}}",
       "VALUE_WITH_LABEL_HOME_DC": "Value MPPT{{ mppt }} PV{{ pv }} {{ symbol }}",
@@ -918,11 +923,17 @@
       "NEW_VERSION_INSTALLING": "Install latest version",
       "NEW_VERSION": "Latest version:",
       "OFFLINE": "The {{ edgeShortName }} is offline.",
-      "RESTARTING": "The {{ edge }} is restarting...",
+      "EDGE_RESTARTING": "The {{ edge }} is restarting...",
       "UPDATE_NOT_POSSIBLE": "System cannot be updated!",
       "UPDATE_PROGRESS": "Update in progress.",
       "UPDATE_SEARCH": "Checking for updates...",
-      "UPDATE_TIME": "(This can take up to 10 minutes)"
+      "UPDATE_TIME": "(This can take up to 10 minutes)",
+      "EMS_RESTARTING": "Restart {{edgeShortName}}",
+      "RESTART_FAILED": "Restart of {{system}} failed.",
+      "RESTARTING": "Restarting {{system}}. (This can take up to {{minutes}} minutes)",
+      "RESTARTED": "{{system}} restarting successful.",
+      "RESTART_CONFIRMATION": "Would you like to restart {{system}}?",
+      "RESTART_WARNING": "Communication is interrupted while {{system}} is restarting. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state."
     }
   },
   "CHANNELS": {

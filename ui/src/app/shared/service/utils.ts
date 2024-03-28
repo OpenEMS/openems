@@ -622,7 +622,8 @@ export enum YAxisTitle {
 
 export enum ChartAxis {
   LEFT = 'left',
-  RIGHT = 'right'
+  RIGHT = 'right',
+  RIGHT_2 = 'right2',
 }
 export namespace HistoryUtils {
 
@@ -689,8 +690,11 @@ export namespace HistoryUtils {
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
       stackIds: number[]
     }],
-    /** The smaller the number, the further forward it is displayed */
-    order?: number
+    /**
+     * The drawing order of dataset. Also affects order for stacking, tooltip and legend.
+     * @default Number.MAX_VALUE
+     */
+    order?: number,
   }
 
   /**
@@ -811,19 +815,21 @@ export namespace TimeOfUseTariffUtils {
    * @param prices The Time-of-Use-Tariff quarterly price array
    * @param states The Time-of-Use-Tariff state array
    * @param timestamps The Time-of-Use-Tariff timestamps array
+   * @param gridBuy The Time-of-Use-Tariff gridBuy array
+   * @param socArray The Time-of0Use-Tariff soc Array.
    * @param translate The Translate service
    * @param controlMode The Control mode of the controller.
    * @returns The ScheduleChartData.
    */
-  export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[], translate: TranslateService, controlMode: ControlMode): ScheduleChartData {
+  export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[], gridBuy: number[], socArray: number[], translate: TranslateService, controlMode: ControlMode): ScheduleChartData {
     const datasets: ChartDataset[] = [];
     const colors: any[] = [];
     const labels: Date[] = [];
 
     // Initializing States.
-    var barChargeGrid = Array(size).fill(null);
-    var barBalancing = Array(size).fill(null);
-    var barDelayDischarge = Array(size).fill(null);
+    const barChargeGrid = Array(size).fill(null);
+    const barBalancing = Array(size).fill(null);
+    const barDelayDischarge = Array(size).fill(null);
 
     for (let index = 0; index < size; index++) {
       const quarterlyPrice = formatPrice(prices[index]);
@@ -850,7 +856,7 @@ export namespace TimeOfUseTariffUtils {
       type: 'bar',
       label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
       data: barBalancing,
-      order: 3,
+      order: 1,
     });
     colors.push({
       // Dark Green
@@ -864,7 +870,7 @@ export namespace TimeOfUseTariffUtils {
         type: 'bar',
         label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
         data: barChargeGrid,
-        order: 3,
+        order: 1,
       });
       colors.push({
         // Sky blue
@@ -878,12 +884,40 @@ export namespace TimeOfUseTariffUtils {
       type: 'bar',
       label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
       data: barDelayDischarge,
-      order: 3,
+      order: 1,
     });
     colors.push({
       // Black
       backgroundColor: 'rgba(0,0,0,0.8)',
       borderColor: 'rgba(0,0,0,0.9)',
+    });
+
+    // State of charge data
+    datasets.push({
+      type: 'line',
+      label: translate.instant('General.soc'),
+      data: socArray,
+      hidden: false,
+      yAxisID: ChartAxis.RIGHT,
+      borderDash: [10, 10],
+      order: 0,
+    });
+    colors.push({
+      backgroundColor: 'rgba(189, 195, 199,0.2)',
+      borderColor: 'rgba(189, 195, 199,1)',
+    });
+
+    datasets.push({
+      type: 'line',
+      label: translate.instant('General.gridBuy'),
+      data: gridBuy,
+      hidden: true,
+      yAxisID: ChartAxis.RIGHT_2,
+      order: 2,
+    });
+    colors.push({
+      backgroundColor: 'rgba(0,0,0, 0.2)',
+      borderColor: 'rgba(0,0,0, 1)',
     });
 
     const scheduleChartData: ScheduleChartData = {
@@ -915,6 +949,7 @@ export namespace TimeOfUseTariffUtils {
     const dischargeLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
     const chargeConsumptionLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID');
     const balancingLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING');
+    const gridBuyLabel = translate.instant('General.gridBuy');
 
     // Switch case to handle different labels
     switch (label) {
@@ -927,9 +962,22 @@ export namespace TimeOfUseTariffUtils {
         // Show floating point number for values between 0 and 1
         return label + ": " + formatNumber(value, 'de', '1.0-4') + " " + currencyLabel;
 
+      case gridBuyLabel:
+        return label + ": " + formatNumber(value, 'de', '1.0-0') + " kW";
+
       default:
         // Power values
         return label + ": " + formatNumber(value, 'de', '1.0-0') + ' ' + 'W';
     }
+  }
+
+  /**
+   * Retrieves the height for a chart based on the current resolution.
+   *
+   * @param isSmartphoneResolution indicates whether the current resolution is considered to be smartphone resolution.
+   * @returns The height of the chart.
+   */
+  export function getChartHeight(isSmartphoneResolution: boolean): number {
+    return isSmartphoneResolution ? window.innerHeight / 3 : window.innerHeight / 4;
   }
 }

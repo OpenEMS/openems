@@ -45,42 +45,31 @@ public final class DbDataUtils {
 			return null;
 		}
 
-		// currently only works for days and months otherwise just return the table
+		// currently only works for days, months and years otherwise just return the
+		// table
 		if (resolution.getUnit() != ChronoUnit.DAYS //
-				&& resolution.getUnit() != ChronoUnit.MONTHS) {
+				&& resolution.getUnit() != ChronoUnit.MONTHS //
+				&& resolution.getUnit() != ChronoUnit.YEARS) {
 			return table;
 		}
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> normalizedTable = new TreeMap<>();
 
 		var start = fromDate;
 		while (start.isBefore(toDate)) {
-			ZonedDateTime end = null;
-			switch (resolution.getUnit()) {
-			case CENTURIES:
-			case DECADES:
-			case ERAS:
-			case FOREVER:
-			case HALF_DAYS:
-			case HOURS:
-			case MICROS:
-			case MILLENNIA:
-			case MILLIS:
-			case MINUTES:
-			case NANOS:
-			case SECONDS:
-			case WEEKS:
-			case YEARS:
+			ZonedDateTime end = switch (resolution.getUnit()) {
+			case CENTURIES, DECADES, ERAS, FOREVER, //
+					HALF_DAYS, HOURS, MICROS, MILLENNIA, //
+					MILLIS, MINUTES, NANOS, SECONDS, WEEKS -> {
 				// No specific handling required
-				break;
-			case DAYS:
-				end = start.plusDays(resolution.getValue()) //
-						.truncatedTo(DurationUnit.ofDays(1));
-				break;
-			case MONTHS:
-				end = start.plusMonths(resolution.getValue()) //
-						.withDayOfMonth(1);
-				break;
+				yield null;
 			}
+			case DAYS -> start.plusDays(resolution.getValue()) //
+					.truncatedTo(DurationUnit.ofDays(1));
+			case MONTHS -> start.plusMonths(resolution.getValue()) //
+					.withDayOfMonth(1);
+			case YEARS -> start.plusYears(resolution.getValue()) //
+					.withDayOfYear(1);
+			};
 
 			SortedMap<ChannelAddress, JsonElement> foundData = null;
 			for (var data : table.entrySet()) {

@@ -1806,7 +1806,7 @@ public class JsonUtils {
 	 *         {@link GsonBuilder#setPrettyPrinting()}
 	 */
 	public static String prettyToString(JsonElement j) {
-		return new GsonBuilder().setPrettyPrinting().create().toJson(j);
+		return new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(j);
 	}
 
 	/**

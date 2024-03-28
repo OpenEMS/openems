@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { ChartConstants } from 'src/app/shared/genericComponents/chart/chart.constants';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChartAxis, HistoryUtils, YAxisTitle } from 'src/app/shared/service/utils';
 
@@ -189,7 +190,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
   }
 
   private applyControllerSpecificOptions() {
-    const yAxis: HistoryUtils.yAxes = {
+    const yAxisRight: HistoryUtils.yAxes = {
       unit: YAxisTitle.PERCENTAGE,
       position: 'right',
       yAxisId: ChartAxis.RIGHT,
@@ -197,7 +198,13 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
     };
 
     const locale = this.service.translate.currentLang;
-    this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, yAxis, this.translate, 'line', locale);
+    const showYAxisTitle = true;
+
+    const yAxisLeft: HistoryUtils.yAxes = { position: 'left', unit: YAxisTitle.ENERGY, yAxisId: ChartAxis.LEFT };
+    [yAxisRight, yAxisLeft].forEach(yAxis => {
+      const scaleOptions = ChartConstants.getScaleOptions(this.datasets, yAxis);
+      this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, yAxis, this.translate, 'line', locale, showYAxisTitle, scaleOptions);
+    });
 
     this.datasets = this.datasets.map((el, index, arr) => {
 
