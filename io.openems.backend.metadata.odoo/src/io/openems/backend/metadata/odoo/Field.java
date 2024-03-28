@@ -222,7 +222,6 @@ public interface Field {
 		DEVICE_ODOO_ID("device_id", false), //
 		USER_ODOO_ID("user_id", true), //
 		ROLE("role", false), //
-		TIME_TO_WAIT("time_to_wait", true), //
 		LAST_NOTIFICATION("last_notification", true), //
 		; //
 
