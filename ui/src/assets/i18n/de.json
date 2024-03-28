@@ -361,25 +361,16 @@
         "newConnection": "Neue Verbindung...",
         "newDevice": "Neues Gerät..."
       },
-      "Alerting": {
-        "offlineAlerting": "Offline Benachrichtigung",
-        "faultAlerting": "Fehler Benachrichtigung",
-        "warningAlerting": "Warnungs Benachrichtigung",
-        "deactivated": "Deaktiviert",
-        "activate": "Aktivieren",
-        "delay": "Verzögerung",
-        "save": "Speichern",
-        "toast": {
-          "success": "Einstellungen übernommen",
-          "error": "Fehler beim Laden der Einstellungen"
-        },
-        "interval": {
-          "hour": "Stunde",
-          "hours": "Stunden",
-          "minute": "Minute",
-          "minutes": "Minuten",
-          "day": "Tag",
-          "days": "Tage"
+      "ALERTING": {
+        "OFFLINE": "Offline Benachrichtigung",
+        "FAULT": "Fehler Benachrichtigung",
+        "WARNING": "Warnungs Benachrichtigung",
+        "DEACTIVATED": "Deaktiviert",
+        "ACTIVATE": "Aktivieren",
+        "DELAY": "Verzögerung",
+        "TOAST": {
+          "SUCCESS": "Einstellungen übernommen",
+          "ERROR": "Fehler beim Laden der Einstellungen"
         }
       },
       "App": {
@@ -677,8 +668,6 @@
       "SUMMARY": "Zusammenfassung",
       "TIME_OF_INSTALLATION": "Zeitpunkt der Installation",
       "WARRANTY_TERMS": "Garantiebedingungen",
-      "APPS": "Apps",
-      "HECKERT": "Ihre gewählte kostenlose App",
       "ACCEPT": "akzeptieren",
       "ALIAS_WITH_LABEL_HOME_DC": "Alias MPPT{{mppt}} PV{{pv}}",
       "VALUE_WITH_LABEL_HOME_DC": "Wert MPPT{{ mppt }} PV{{ pv }} {{ symbol }}",

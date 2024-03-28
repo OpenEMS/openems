@@ -9,7 +9,7 @@ import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
  *   "id": "UUID",
  *   "method": "getUserAlertingConfigs",
  *   "params": {
- *      "edgeId": "string"
+ *      "edgeId": "string",
  *   }
  * }
  * </pre>

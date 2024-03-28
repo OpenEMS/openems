@@ -107,7 +107,8 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 									LocalTime.parse(matcher.group("time"), FORMATTER) //
 											.atDate(LocalDate.MIN).atZone(ZoneId.of("UTC")), //
 									null /* ignore */, //
-									parseInt(matcher.group("essMaxEnergy")), //
+									parseInt(matcher.group("essMaxChargeEnergy")), //
+									parseInt(matcher.group("essMaxDischargeEnergy")), //
 									parseInt(matcher.group("maxBuyFromGrid")), //
 									parseInt(matcher.group("essInitial")), //
 									parseInt(matcher.group("production")), //
@@ -123,7 +124,8 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 	private static final Pattern PATTERN = Pattern.compile("" //
 			+ "(?<time>\\d{2}:\\d{2})" //
 			+ "\\s+(?<optimizeBy>-?[\\w-]+)" //
-			+ "\\s+(?<essMaxEnergy>-?\\d+)" //
+			+ "\\s+(?<essMaxChargeEnergy>-?\\d+)" //
+			+ "\\s+(?<essMaxDischargeEnergy>-?\\d+)" //
 			+ "\\s+(?<maxBuyFromGrid>-?\\d+)" //
 			+ "\\s+(?<essInitial>-?\\d+)" //
 			+ "\\s+(?<production>-?\\d+)" //
@@ -140,13 +142,14 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 	 */
 	public String toLogString(String prefix) {
 		var b = new StringBuilder(prefix) //
-				.append("Time  OptimizeBy EssMaxEnergy MaxBuyFromGrid EssInitial Production Consumption  Price State           EssChargeDischarge  Grid\n");
+				.append("Time  OptimizeBy EssMaxChargeEnergy EssMaxDischargeEnergy MaxBuyFromGrid EssInitial Production Consumption  Price State           EssChargeDischarge  Grid\n");
 		this.entries.forEach(e -> b //
 				.append(prefix) //
-				.append(String.format(Locale.ENGLISH, "%s %-10s %12d %14d %10d %10d %11d %6.2f %-17s %16d %5d\n", //
+				.append(String.format(Locale.ENGLISH, "%s %-10s %18d %21d %14d %10d %10d %11d %6.2f %-17s %16d %5d\n", //
 						e.time().format(FORMATTER), //
 						e.length() == null ? "-" : e.length().name(), //
-						e.essMaxEnergy(), //
+						e.essMaxChargeEnergy(), //
+						e.essMaxDischargeEnergy(), //
 						e.maxBuyFromGrid(), //
 						e.essInitial(), //
 						e.production(), //
@@ -206,8 +209,10 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 			ZonedDateTime time,
 			/** Record was optimized by QUARTER/HOUR */
 			Length length,
-			/** ESS Max Charge/Discharge Energy [Wh] */
-			int essMaxEnergy, //
+			/** ESS Max Charge Energy [Wh] */
+			int essMaxChargeEnergy, //
+			/** ESS Max Discharge Energy [Wh] */
+			int essMaxDischargeEnergy, //
 			/** Max Buy-From-Grid Energy [Wh] */
 			int maxBuyFromGrid,
 			/** ESS Initially Available Energy (SoC in [Wh]) */
@@ -252,6 +257,7 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 							return new ScheduleData(//
 									e.getKey(), //
 									null /* ignore */, //
+									0 /* ignore */, //
 									0 /* ignore */, //
 									0 /* ignore */, //
 									round(getAsInt(getter.apply(SUM_ESS_SOC)) / 100F * essTotalEnergy), //

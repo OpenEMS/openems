@@ -20,7 +20,6 @@ export class ChartComponent extends AbstractHistoryChart {
       config?.widgets.classes.reduce((arr: HistoryUtils.InputChannel[], key) => {
         let newObj = [];
         switch (key) {
-
           case 'Energymonitor':
           case 'Consumption':
             newObj.push({

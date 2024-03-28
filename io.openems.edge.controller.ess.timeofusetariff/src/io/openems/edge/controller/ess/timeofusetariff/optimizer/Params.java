@@ -65,8 +65,10 @@ public record Params(//
 	public static record QuarterPeriod(//
 			/** Start-Timestamp of the Period */
 			ZonedDateTime time,
-			/** ESS Max Charge/Discharge Energy [Wh] */
-			int essMaxEnergy, //
+			/** ESS Max Charge Energy [Wh] */
+			int essMaxChargeEnergy, //
+			/** ESS Max Discharge Energy [Wh] */
+			int essMaxDischargeEnergy, //
 			/** ESS Charge Energy in CHARGE_GRID State [Wh] */
 			int essChargeInChargeGrid, //
 			/** Max Buy-From-Grid Energy [Wh] */
@@ -86,7 +88,8 @@ public record Params(//
 		private int essMinSocEnergy;
 		private int essMaxSocEnergy;
 		private int essInitialEnergy;
-		private int essMaxEnergy;
+		private int essMaxChargeEnergy;
+		private int essMaxDischargeEnergy;
 		private int maxBuyFromGrid;
 		private int[] productions = new int[0];
 		private int[] consumptions = new int[0];
@@ -119,8 +122,13 @@ public record Params(//
 			return this;
 		}
 
-		protected Builder setEssMaxEnergy(int essMaxEnergy) {
-			this.essMaxEnergy = essMaxEnergy;
+		protected Builder setEssMaxChargeEnergy(int essMaxChargeEnergy) {
+			this.essMaxChargeEnergy = essMaxChargeEnergy;
+			return this;
+		}
+
+		protected Builder setEssMaxDischargeEnergy(int essMaxDischargeEnergy) {
+			this.essMaxDischargeEnergy = essMaxDischargeEnergy;
 			return this;
 		}
 
@@ -160,8 +168,9 @@ public record Params(//
 			var noOfPeriods = min(this.productions.length, min(this.consumptions.length, this.prices.length));
 
 			final Function<Integer, QuarterPeriod> toQuarterPeriod = (i) -> new QuarterPeriod(
-					this.time.plusMinutes(i * 15), this.essMaxEnergy, essChargeInChargeGrid, this.maxBuyFromGrid,
-					this.productions[i], this.consumptions[i], this.prices[i]);
+					this.time.plusMinutes(i * 15), this.essMaxChargeEnergy, this.essMaxDischargeEnergy,
+					essChargeInChargeGrid, this.maxBuyFromGrid, this.productions[i], this.consumptions[i],
+					this.prices[i]);
 			final Function<Integer, Integer> count = (i) -> min(i + 4, noOfPeriods) - i;
 			final Function<Integer, IntStream> range = (i) -> IntStream.range(i, min(i + 4, noOfPeriods));
 

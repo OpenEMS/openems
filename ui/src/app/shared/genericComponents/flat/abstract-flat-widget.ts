@@ -52,9 +52,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
 
                 // announce initialized
                 this.isInitialized = true;
-
                 this.afterIsInitialized();
-
                 // get the channel addresses that should be subscribed
                 let channelAddresses: Set<ChannelAddress> = new Set(this.getChannelAddresses());
                 let channelIds = this.getChannelIds();

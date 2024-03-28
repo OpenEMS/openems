@@ -61,7 +61,7 @@ export class PickDatePopoverComponent implements OnInit {
             this.locale = this.translate.getBrowserLang();
 
         // Filter out custom due to different on click event
-        this.periods = EdgePermission.getAllowedHistoryPeriods(this.edge).filter(period => period !== DefaultTypes.PeriodString.CUSTOM);
+        this.periods = EdgePermission.getAllowedHistoryPeriods(this.edge, this.historyPeriods).filter(period => period !== DefaultTypes.PeriodString.CUSTOM);
     }
 
     /**

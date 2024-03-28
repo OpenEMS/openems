@@ -57,6 +57,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
+import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ObjectUtils;
 import io.openems.common.utils.PasswordUtils;
 
@@ -423,6 +424,7 @@ public class OdooHandler {
 		final var edgeJson = getAsJsonObject(setupProtocolJson, "edge");
 		final var installerJson = getAsJsonObject(setupProtocolJson, "installer");
 		final var oem = getAsString(setupProtocolJson, "oem").toUpperCase();
+
 		final var edgeId = getAsString(edgeJson, "id");
 		final var foundEdge = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL,
 				new Domain(Field.EdgeDevice.NAME, Operator.EQ, edgeId));

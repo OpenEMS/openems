@@ -7,7 +7,6 @@ import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.cal
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateDelayDischargePower;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.getEssMinSocPercentage;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.postprocessRunState;
-import static java.lang.Math.min;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -121,9 +120,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 				.setCtrlEmergencyCapacityReserves(this.ctrlEmergencyCapacityReserves) //
 				.setCtrlLimitTotalDischarges(this.ctrlLimitTotalDischarges) //
 				.setControlMode(this.config.controlMode()) //
-				.setMaxChargePowerFromGrid(this.config.maxChargePowerFromGrid14aEnWG() //
-						? min(4200, this.config.maxChargePowerFromGrid()) // Always apply §14a limit
-						: this.config.maxChargePowerFromGrid()) //
+				.setMaxChargePowerFromGrid(this.config.maxChargePowerFromGrid()) //
+				.setLimitChargePowerFor14aEnWG(this.config.limitChargePowerFor14aEnWG()) //
 				.build());
 	}
 
@@ -210,7 +208,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		// Get and apply ActivePower Less-or-Equals Set-Point
 		var activePower = switch (state) {
 		case CHARGE_GRID -> calculateChargeGridPower(this.optimizer.getParams(), this.ess, this.sum,
-				this.config.maxChargePowerFromGrid());
+				this.config.maxChargePowerFromGrid(), this.config.limitChargePowerFor14aEnWG());
 		case DELAY_DISCHARGE -> calculateDelayDischargePower(this.ess);
 		case BALANCING -> null;
 		};

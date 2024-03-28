@@ -52,7 +52,8 @@ public class SimulatorTest {
 				.setEssMinSocEnergy(0) //
 				.setEssMaxSocEnergy(20000) //
 				.setEssInitialEnergy(essInitial) //
-				.setEssMaxEnergy(3000 /* [Wh/15 Minutes] */) //
+				.setEssMaxChargeEnergy(3000 /* [Wh/15 Minutes] */) //
+				.setEssMaxDischargeEnergy(3000 /* [Wh/15 Minutes] */) //
 				.seMaxBuyFromGrid(4000 /* [Wh/15 Minutes] */) //
 				.setProductions(new int[] { production }) //
 				.setConsumptions(new int[] { consumption }) //
@@ -148,7 +149,8 @@ public class SimulatorTest {
 				.setEssMinSocEnergy(0) //
 				.setEssMaxSocEnergy(22000) //
 				.setEssInitialEnergy((int) (22000 * 0.1)) //
-				.setEssMaxEnergy(toEnergy(10000)) //
+				.setEssMaxChargeEnergy(toEnergy(10000)) //
+				.setEssMaxDischargeEnergy(toEnergy(10000)) //
 				.seMaxBuyFromGrid(toEnergy(24_000)) //
 				.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 				.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
@@ -176,7 +178,8 @@ public class SimulatorTest {
 				.setEssTotalEnergy(22000) //
 				.setEssMinSocEnergy(0) //
 				.setEssMaxSocEnergy(22000) //
-				.setEssMaxEnergy(toEnergy(10000)) //
+				.setEssMaxChargeEnergy(toEnergy(10000)) //
+				.setEssMaxDischargeEnergy(toEnergy(10000)) //
 				.seMaxBuyFromGrid(toEnergy(24_000)) //
 				.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 				.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //

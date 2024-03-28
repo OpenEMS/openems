@@ -5,8 +5,8 @@ import { addMonths, addYears, differenceInDays, differenceInMilliseconds, endOfD
 import { addDays, addWeeks, endOfWeek, isFuture, subDays, subWeeks } from 'date-fns/esm';
 import { DefaultTypes } from '../service/defaulttypes';
 import { Edge, Service } from '../shared';
-import { DateUtils } from '../utils/date/dateutils';
 import { PickDatePopoverComponent } from './popover/popover.component';
+import { DateUtils } from '../utils/date/dateutils';
 
 @Component({
     selector: 'pickdate',
@@ -350,6 +350,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
             componentProps: {
                 setDateRange: this.setDateRange,
                 edge: this.edge,
+                historyPeriods: this.historyPeriods,
             },
         });
         await popover.present();

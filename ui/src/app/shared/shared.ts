@@ -10,12 +10,11 @@ export { GridMode } from "./type/general";
 export { SystemLog } from "./type/systemlog";
 export { Widget, WidgetFactory, WidgetNature, Widgets } from "./type/widget";
 
+import { addIcons } from 'ionicons';
+import { Edge } from "./edge/edge";
 import { User } from "./jsonrpc/shared";
 import { DefaultTypes } from "./service/defaulttypes";
-import { Edge } from "./shared";
 import { Role } from "./type/role";
-
-import { addIcons } from 'ionicons';
 
 addIcons({
   'oe-consumption': 'assets/img/icon/consumption.svg',
@@ -85,7 +84,7 @@ export class UserPermission {
   */
   public static isAllowedToSeeSystemRestart(user: User, edge: Edge) {
     const isAllowed = edge?.isVersionAtLeast('2024.2.2');
-    return Role.isAtLeast(user?.globalRole, Role.ADMIN) && isAllowed;
+    return Role.isAtLeast(user?.globalRole, Role.OWNER) && isAllowed;
   }
 }
 

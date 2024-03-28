@@ -1,18 +1,18 @@
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { AbstractHistoryChart as NewAbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { ChartConstants } from 'src/app/shared/genericComponents/chart/chart.constants';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
-import { ChartAxis, HistoryUtils, YAxisTitle } from 'src/app/shared/service/utils';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
+import { ChartAxis, HistoryUtils, Utils, YAxisTitle } from 'src/app/shared/service/utils';
+import { ChannelAddress, Edge, EdgeConfig, Service } from 'src/app/shared/shared';
 import { DateUtils } from 'src/app/shared/utils/date/dateutils';
 import { DateTimeUtils } from 'src/app/shared/utils/datetime/datetime-utils';
 
-import { calculateResolution, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution } from './shared';
-import { ChronoUnit, setLabelVisible } from './shared';
+import { calculateResolution, ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, setLabelVisible } from './shared';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {
@@ -399,8 +399,6 @@ export abstract class AbstractHistoryChart {
                     chart.update();
                 };
 
-                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, 'line', locale);
-
                 const timeFormat = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
                 options.scales.x['time'].unit = timeFormat;
                 switch (timeFormat) {
@@ -414,10 +412,13 @@ export abstract class AbstractHistoryChart {
                         break;
                 }
 
+                const scaleOptions: { min: number, max: number, stepSize: number } | null = ChartConstants.getScaleOptions(this.datasets, yAxis);
+                // Only one yAxis defined
+                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, 'line', locale, false, scaleOptions);
+
                 options.scales.x['stacked'] = true;
                 options.scales[ChartAxis.LEFT]['stacked'] = false;
-
-                NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges('line', options, this.service, chartObject);
+                options = NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges('line' + this.spinnerId, options, this.service, chartObject);
 
                 /** Overwrite default yAxisId */
                 this.datasets = this.datasets

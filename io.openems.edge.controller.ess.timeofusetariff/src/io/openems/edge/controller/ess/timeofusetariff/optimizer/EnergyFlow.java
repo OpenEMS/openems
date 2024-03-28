@@ -77,7 +77,7 @@ public record EnergyFlow(//
 		// Apply Minimum-SoC / Maximum-SoC
 		ess = fitWithin(-essMaxCharge, essMaxDischarge, ess);
 		// Apply ESS Max Charge/Discharge Energy
-		ess = fitWithin(-op.essMaxEnergy(), op.essMaxEnergy(), ess);
+		ess = fitWithin(-op.essMaxChargeEnergy(), op.essMaxDischargeEnergy(), ess);
 
 		var grid = op.consumption() - op.production() - ess;
 		var productionToConsumption = min(op.production(), op.consumption());

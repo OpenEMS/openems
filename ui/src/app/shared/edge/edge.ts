@@ -14,7 +14,7 @@ import { SubscribeChannelsRequest } from '../jsonrpc/request/subscribeChannelsRe
 import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
 import { UpdateComponentConfigRequest } from '../jsonrpc/request/updateComponentConfigRequest';
 import { GetEdgeConfigResponse } from '../jsonrpc/response/getEdgeConfigResponse';
-import { ArrayUtils } from '../service/arrayutils';
+import { ArrayUtils } from '../utils/array/array.utils';
 import { Websocket } from '../service/websocket';
 import { ChannelAddress } from '../type/channeladdress';
 import { Role } from '../type/role';

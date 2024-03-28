@@ -45,7 +45,8 @@ public class EnergyFlowTest {
 				.setEssMinSocEnergy(1000) //
 				.setEssTotalEnergy(22000) //
 				.setEssMaxSocEnergy(20000) //
-				.setEssMaxEnergy(5000) //
+				.setEssMaxChargeEnergy(5000) //
+				.setEssMaxDischargeEnergy(5000) //
 				.seMaxBuyFromGrid(4000) //
 				.setPrices(0);
 
@@ -87,7 +88,8 @@ public class EnergyFlowTest {
 		return execute(function, 10000, P //
 				.setProductions(2500) //
 				.setConsumptions(500) //
-				.setEssMaxEnergy(900));
+				.setEssMaxChargeEnergy(900) //
+				.setEssMaxDischargeEnergy(900));
 	}
 
 	private static EnergyFlow dischargeMoreThanEssMaxEnergy(
@@ -95,7 +97,8 @@ public class EnergyFlowTest {
 		return execute(function, 10000, P //
 				.setProductions(500) //
 				.setConsumptions(2500) //
-				.setEssMaxEnergy(900));
+				.setEssMaxChargeEnergy(900) //
+				.setEssMaxDischargeEnergy(900));
 	}
 
 	private static void testBalancingCharge(TriFunction<Params, OptimizePeriod, Integer, EnergyFlow> function) {
