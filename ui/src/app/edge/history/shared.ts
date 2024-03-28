@@ -314,50 +314,62 @@ export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResu
    */
 export function calculateResolution(service: Service, fromDate: Date, toDate: Date): { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' | 'year' } {
     let days = Math.abs(differenceInDays(toDate, fromDate));
-    let resolution: { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' | 'year' };
+    let result: { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' | 'year' };
 
     if (days <= 1) {
-        resolution = { resolution: { value: 5, unit: ChronoUnit.Type.MINUTES }, timeFormat: 'hour' }; // 5 Minutes
+        if (service.isSmartphoneResolution) {
+            result = { resolution: { value: 20, unit: ChronoUnit.Type.MINUTES }, timeFormat: 'hour' }; // 1 Day
+        } else {
+            result = { resolution: { value: 5, unit: ChronoUnit.Type.MINUTES }, timeFormat: 'hour' }; // 5 Minutes
+        }
     } else if (days == 2) {
         if (service.isSmartphoneResolution) {
-            resolution = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'hour' }; // 1 Day
+            result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'hour' }; // 1 Day
         } else {
-            resolution = { resolution: { value: 10, unit: ChronoUnit.Type.MINUTES }, timeFormat: 'hour' }; // 1 Hour
+            result = { resolution: { value: 10, unit: ChronoUnit.Type.MINUTES }, timeFormat: 'hour' }; // 1 Hour
         }
 
     } else if (days <= 4) {
         if (service.isSmartphoneResolution) {
-            resolution = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'day' }; // 1 Day
+            result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'day' }; // 1 Day
         } else {
-            resolution = { resolution: { value: 1, unit: ChronoUnit.Type.HOURS }, timeFormat: 'hour' }; // 1 Hour
+            result = { resolution: { value: 1, unit: ChronoUnit.Type.HOURS }, timeFormat: 'hour' }; // 1 Hour
         }
 
     } else if (days <= 6) {
-        // >> show Hours
-        resolution = { resolution: { value: 1, unit: ChronoUnit.Type.HOURS }, timeFormat: 'day' }; // 1 Day
+
+
+        if (service.isSmartphoneResolution) {
+            result = { resolution: { value: 8, unit: ChronoUnit.Type.HOURS }, timeFormat: 'day' }; // 1 Day
+        } else {
+            // >> show Hours
+            result = { resolution: { value: 1, unit: ChronoUnit.Type.HOURS }, timeFormat: 'day' }; // 1 Day
+        }
+
 
     } else if (days <= 31 && service.isSmartphoneResolution) {
         // Smartphone-View: show 31 days in daily view
-        resolution = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'day' }; // 1 Day
+        result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'day' }; // 1 Day
 
     } else if (days <= 90) {
-        resolution = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'day' }; // 1 Day
+        result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'day' }; // 1 Day
 
     } else if (days <= 144) {
         // >> show Days
         if (service.isSmartphoneResolution == true) {
-            resolution = { resolution: { value: 1, unit: ChronoUnit.Type.MONTHS }, timeFormat: 'month' }; // 1 Month
+            result = { resolution: { value: 1, unit: ChronoUnit.Type.MONTHS }, timeFormat: 'month' }; // 1 Month
         } else {
-            resolution = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'day' }; // 1 Day
+            result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'day' }; // 1 Day
         }
     } else if (days <= 365) {
-        resolution = { resolution: { value: 1, unit: ChronoUnit.Type.MONTHS }, timeFormat: 'month' }; // 1 Day
+        result = { resolution: { value: 1, unit: ChronoUnit.Type.MONTHS }, timeFormat: 'month' }; // 1 Day
 
     } else {
         // >> show Years
-        resolution = { resolution: { value: 1, unit: ChronoUnit.Type.YEARS }, timeFormat: 'year' }; // 1 Month
+        result = { resolution: { value: 1, unit: ChronoUnit.Type.YEARS }, timeFormat: 'year' }; // 1 Month
     }
-    return resolution;
+
+    return result;
 }
 
 /**
