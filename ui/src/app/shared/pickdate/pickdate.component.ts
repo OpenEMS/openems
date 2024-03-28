@@ -1,12 +1,12 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { addMonths, addYears, differenceInDays, differenceInMilliseconds, endOfDay, endOfMonth, endOfYear, isAfter, isBefore, startOfDay, startOfMonth, startOfWeek, startOfYear, subMonths, subYears } from 'date-fns';
 import { addDays, addWeeks, endOfWeek, isFuture, subDays, subWeeks } from 'date-fns/esm';
 import { DefaultTypes } from '../service/defaulttypes';
 import { Edge, Service } from '../shared';
-import { PickDatePopoverComponent } from './popover/popover.component';
 import { DateUtils } from '../utils/date/dateutils';
+import { PickDatePopoverComponent } from './popover/popover.component';
 
 @Component({
     selector: 'pickdate',
@@ -22,6 +22,8 @@ export class PickDateComponent implements OnInit, OnDestroy {
 
     private changePeriodTimeout = null;
     private edge: Edge | null = null;
+
+    @Input() public historyPeriods: DefaultTypes.PeriodStringValues[] = [];
 
     constructor(
         public service: Service,

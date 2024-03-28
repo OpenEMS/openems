@@ -37,7 +37,7 @@ export class EdgePermission {
    * @param historyPeriods the historyPeriods i.e 'day', 'week' or 'custom'
    * @returns the list of allowed periods for this edge
    */
-  public static getAllowedHistoryPeriods(edge: Edge, historyPeriods?: string[]) {
+  public static getAllowedHistoryPeriods(edge: Edge, historyPeriods?: DefaultTypes.PeriodStringValues[]) {
 
     if (historyPeriods?.length > 0) {
       return historyPeriods;
