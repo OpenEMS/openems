@@ -46,6 +46,7 @@ public class TimeOfUseTariffTibberImpl extends AbstractOpenemsComponent
 		implements TimeOfUseTariff, OpenemsComponent, TimeOfUseTariffTibber {
 
 	private static final String TIBBER_API_URL = "https://api.tibber.com/v1-beta/gql";
+	private static final int TOO_MANY_REQUESTS_CODE = 429;
 
 	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffTibberImpl.class);
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -122,20 +123,49 @@ public class TimeOfUseTariffTibberImpl extends AbstractOpenemsComponent
 			e.printStackTrace();
 		}
 
+		this.scheduleNextRun(httpStatusCode, filterIsRequired, unableToUpdatePrices);
+	};
+
+	/**
+	 * Sets the values of specific channels based on the provided parameters.
+	 * 
+	 * @param httpStatusCode       The HTTP status code received from the API.
+	 * @param filterIsRequired     A boolean indicating whether filter is required.
+	 * @param unableToUpdatePrices A boolean indicating whether prices couldn't be
+	 *                             updated.
+	 */
+	private void setChannelValues(int httpStatusCode, boolean filterIsRequired, boolean unableToUpdatePrices) {
 		this.channel(TimeOfUseTariffTibber.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
 		this.channel(TimeOfUseTariffTibber.ChannelId.FILTER_IS_REQUIRED).setNextValue(filterIsRequired);
 		this.channel(TimeOfUseTariffTibber.ChannelId.UNABLE_TO_UPDATE_PRICES).setNextValue(unableToUpdatePrices);
+	}
 
-		/*
-		 * Schedule next price update at next hour; or try again after 5 minutes
-		 */
+	/**
+	 * Determines the next run time and schedules the task accordingly. If the HTTP
+	 * status code indicates a rate limit exceeded error (429), it schedules the
+	 * next run after 12 hours. For other errors or inability to update prices, it
+	 * retries after 5 minutes. Otherwise, it schedules the next run at the next
+	 * hour.
+	 * 
+	 * @param httpStatusCode       The HTTP status code received from the request.
+	 * @param filterIsRequired     A boolean indicating whether filter is required.
+	 * @param unableToUpdatePrices A boolean indicating inability to update prices.
+	 */
+	private void scheduleNextRun(int httpStatusCode, boolean filterIsRequired, boolean unableToUpdatePrices) {
+		this.setChannelValues(httpStatusCode, filterIsRequired, unableToUpdatePrices);
+
 		var now = ZonedDateTime.now();
 		final ZonedDateTime nextRun;
-		if (unableToUpdatePrices) {
+		if (httpStatusCode == TOO_MANY_REQUESTS_CODE) {
+			// Log the fact that rate limit has been exceeded
+			this.logWarn(this.log, "Rate limit exceeded. Retrying after 12 hours.");
+			nextRun = now.plusHours(12);
+		} else if (unableToUpdatePrices) {
 			// If the prices are not updated, try again in 5 minutes.
 			nextRun = now.plusMinutes(5).truncatedTo(ChronoUnit.MINUTES);
 			this.logWarn(this.log, "Unable to Update the prices, Trying again at: " + nextRun);
 		} else {
+			// next price update at next hour
 			nextRun = now.truncatedTo(ChronoUnit.HOURS).plusHours(1);
 		}
 
@@ -143,7 +173,7 @@ public class TimeOfUseTariffTibberImpl extends AbstractOpenemsComponent
 				Duration.between(now, nextRun.plusSeconds(new Random().nextInt(60))) // randomly add a few seconds
 						.getSeconds(),
 				TimeUnit.SECONDS);
-	};
+	}
 
 	@Override
 	public TimeOfUsePrices getPrices() {
