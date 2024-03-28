@@ -695,7 +695,32 @@ export abstract class AbstractHistoryChart implements OnInit {
    * @param locale the current locale
    * @returns the chart options {@link Chart.ChartOptions}
    */
-  public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: 'line' | 'bar', locale: string): Chart.ChartOptions {
+  public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: 'line' | 'bar', locale: string, showYAxisTitle?: boolean, data?: { min: number, max: number, stepSize: number }): Chart.ChartOptions {
+
+    const baseConfig = {
+      title: {
+        text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
+        display: showYAxisTitle,
+        padding: 5,
+        font: {
+          size: 11,
+        },
+      },
+      position: element.position,
+      grid: {
+        display: element.displayGrid ?? true,
+      },
+      ...(data?.min != null && { min: data.min }),
+      ...(data?.max != null && { max: data.max }),
+
+      ticks: {
+        color: getComputedStyle(document.documentElement).getPropertyValue('--ion-color-text'),
+        padding: 5,
+        maxTicksLimit: ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
+        ...(data?.stepSize && { stepSize: data.stepSize }),
+      },
+    };
+
     switch (element.unit) {
 
       case YAxisTitle.RELAY:

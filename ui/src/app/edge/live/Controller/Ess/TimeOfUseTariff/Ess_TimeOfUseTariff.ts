@@ -1,10 +1,13 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
+import { compareVersions } from "compare-versions";
+import { isBefore } from "date-fns";
+import { Edge } from "src/app/shared/shared";
 import { SharedModule } from "src/app/shared/shared.module";
 import { FlatComponent } from "./flat/flat";
 import { ModalComponent } from "./modal/modal";
-import { ScheduleStateAndPriceChartComponent } from "./modal/statePriceChart";
 import { SchedulePowerAndSocChartComponent } from "./modal/powerSocChart";
+import { ScheduleStateAndPriceChartComponent } from "./modal/statePriceChart";
 
 @NgModule({
     imports: [
@@ -27,4 +30,5 @@ import { SchedulePowerAndSocChartComponent } from "./modal/powerSocChart";
         FlatComponent,
     ],
 })
-export class Controller_Ess_TimeOfUseTariff { }
+export class Controller_Ess_TimeOfUseTariff {
+}

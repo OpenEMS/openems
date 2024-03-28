@@ -12,6 +12,7 @@ import { calculateResolution } from 'src/app/edge/history/shared';
 import { ColorUtils } from 'src/app/shared/utils/color/color.utils';
 import { GetScheduleRequest } from '../../../../../../shared/jsonrpc/request/getScheduleRequest';
 import { GetScheduleResponse } from '../../../../../../shared/jsonrpc/response/getScheduleResponse';
+import { Controller_Ess_TimeOfUseTariff } from '../Ess_TimeOfUseTariff';
 
 @Component({
     selector: 'statePriceChart',
@@ -58,18 +59,18 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
             new ComponentJsonApiRequest({ componentId: this.component.id, payload: new GetScheduleRequest() }),
         ).then(response => {
             const result = (response as GetScheduleResponse).result;
-            const length = result.schedule.length;
+            const schedule = result.schedule;
 
             // Extracting prices, states, timestamps from the schedule array
             const { priceArray, stateArray, timestampArray, gridBuyArray, socArray } = {
-                priceArray: result.schedule.map(entry => entry.price),
-                stateArray: result.schedule.map(entry => entry.state),
-                timestampArray: result.schedule.map(entry => entry.timestamp),
-                gridBuyArray: result.schedule.map(entry => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.grid)),
-                socArray: result.schedule.map(entry => entry.soc),
+                priceArray: schedule.map(entry => entry.price),
+                stateArray: schedule.map(entry => entry.state),
+                timestampArray: schedule.map(entry => entry.timestamp),
+                gridBuyArray: schedule.map(entry => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.grid)),
+                socArray: schedule.map(entry => entry.soc),
             };
 
-            const scheduleChartData = TimeOfUseTariffUtils.getScheduleChartData(length, priceArray, stateArray, timestampArray, gridBuyArray, socArray, this.translate, this.component.properties.controlMode);
+            const scheduleChartData = TimeOfUseTariffUtils.getScheduleChartData(schedule.length, priceArray, stateArray, timestampArray, gridBuyArray, socArray, this.translate, this.component.properties.controlMode);
 
             this.colors = scheduleChartData.colors;
             this.labels = scheduleChartData.labels;
