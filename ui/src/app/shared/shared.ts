@@ -30,12 +30,19 @@ addIcons({
 export class EdgePermission {
 
   /**
-    * Gets the allowed history periods for this edge, used in {@link PickDatePopoverComponent}
-    *
-    * @param edge the edge
-    * @returns the list of allowed periods for this edge
-    */
-  public static getAllowedHistoryPeriods(edge: Edge) {
+   * Gets the allowed history periods for this edge, used in {@link PickDatePopoverComponent}
+   * and if histroyPeriods exist, it gets the correspondent periods accordingly
+   *
+   * @param edge the edge
+   * @param historyPeriods the historyPeriods i.e 'day', 'week' or 'custom'
+   * @returns the list of allowed periods for this edge
+   */
+  public static getAllowedHistoryPeriods(edge: Edge, historyPeriods?: string[]) {
+
+    if (historyPeriods?.length > 0) {
+      return historyPeriods;
+    }
+
     return Object.values(DefaultTypes.PeriodString).reduce((arr, el) => {
 
       // hide total, if no first ibn date
