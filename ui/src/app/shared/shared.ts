@@ -57,6 +57,17 @@ export class EdgePermission {
 }
 
 export class UserPermission {
+
+  /**
+   * Checks if user is allowed to see  {@link FooterComponent}
+   *
+   * @param user the current user
+   * @returns true, if user is at least {@link Role.GUEST}
+   */
+  public static isUserAllowedToSeeFooter(user: User): boolean {
+    return Role.isAtLeast(user.globalRole, Role.GUEST);
+  }
+
   public static isUserAllowedToSeeOverview(user: User): boolean {
 
     if (Role.isAtLeast(user.globalRole, Role.INSTALLER)) {

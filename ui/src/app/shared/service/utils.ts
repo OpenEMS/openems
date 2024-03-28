@@ -690,8 +690,11 @@ export namespace HistoryUtils {
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
       stackIds: number[]
     }],
-    /** The smaller the number, the further forward it is displayed */
-    order?: number
+    /**
+     * The drawing order of dataset. Also affects order for stacking, tooltip and legend.
+     * @default Number.MAX_VALUE
+     */
+    order?: number,
   }
 
   /**

@@ -76,6 +76,22 @@ export class Language {
         }
     }
 
+    /**
+     * Gets the i18n locale with passed key
+     *
+     * @param language the language
+     * @returns the i18n locale
+     */
+    public static geti18nLocaleByKey(language: string) {
+        const lang = this.getByBrowserLang(language?.toLowerCase());
+
+        if (!lang) {
+            console.warn(`Key ${language} not part of ${Language.ALL.map(lang => lang.title + ":" + lang.key)}`);
+        }
+
+        return lang?.i18nLocaleKey ?? Language.DEFAULT.i18nLocaleKey;
+    }
+
     constructor(
         public readonly title: string,
         public readonly key: string,

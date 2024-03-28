@@ -447,7 +447,10 @@
       "advancedMode": "erweiterte Ansicht",
       "submit": "Anwenden"
     },
-    "title": "{{ edgeShortName }}"
+    "title": "{{ edgeShortName }}",
+    "FOOTER": {
+      "REFRESHED_LAST": "vor {{period}} aktualisiert"
+    }
   },
   "General": {
     "active": "Aktiv",
