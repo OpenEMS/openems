@@ -17,6 +17,7 @@ import io.openems.edge.app.api.ModbusTcpApiReadWrite;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
 import io.openems.edge.app.api.RestJsonApiReadWrite;
 import io.openems.edge.app.ess.FixActivePower;
+import io.openems.edge.app.ess.FixStateOfCharge;
 import io.openems.edge.app.ess.PowerPlantController;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
 import io.openems.edge.app.evcs.AlpitronicEvcs;
@@ -542,6 +543,16 @@ public class Apps {
 		return app(t, FixActivePower::new, "App.Ess.FixActivePower");
 	}
 
+	/**
+	 * Test method for creating a {@link FixStateOfCharge}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FixStateOfCharge fixStateOfCharge(AppManagerTestBundle t) {
+		return app(t, FixStateOfCharge::new, "App.Ess.FixStateOfCharge");
+	}
+	
 	/**
 	 * Test method for creating a {@link PrepareBatteryExtension}.
 	 * 
