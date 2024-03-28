@@ -27,11 +27,11 @@ import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.ChannelCategory;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.EdgeConfig.ActualEdgeConfig.Builder;
 import io.openems.common.types.EdgeConfig.Component.JsonFormat;
 import io.openems.common.utils.JsonUtils;
 
@@ -63,6 +63,13 @@ public class EdgeConfig {
 				public ChannelCategory getCategory();
 
 				/**
+				 * Gets the {@link PersistencePriority} of the Channel.
+				 *
+				 * @return the {@link PersistencePriority}
+				 */
+				public PersistencePriority getPersistencePriority();
+
+				/**
 				 * Gets the {@link ChannelDetail} as {@link JsonObject}.
 				 *
 				 * @return the {@link JsonObject}
@@ -75,7 +82,10 @@ public class EdgeConfig {
 			 */
 			public static class ChannelDetailOpenemsType implements ChannelDetail {
 
-				public ChannelDetailOpenemsType() {
+				private final PersistencePriority persistencePriority;
+
+				public ChannelDetailOpenemsType(PersistencePriority persistencePriority) {
+					this.persistencePriority = persistencePriority;
 				}
 
 				@Override
@@ -87,6 +97,11 @@ public class EdgeConfig {
 				public JsonObject toJson() {
 					return new JsonObject();
 				}
+
+				@Override
+				public PersistencePriority getPersistencePriority() {
+					return this.persistencePriority;
+				}
 			}
 
 			/**
@@ -95,9 +110,11 @@ public class EdgeConfig {
 			public static class ChannelDetailEnum implements ChannelDetail {
 
 				private final Map<String, JsonElement> options;
+				private final PersistencePriority persistencePriority;
 
-				public ChannelDetailEnum(Map<String, JsonElement> options) {
+				public ChannelDetailEnum(Map<String, JsonElement> options, PersistencePriority persistencePriority) {
 					this.options = options;
+					this.persistencePriority = persistencePriority;
 				}
 
 				@Override
@@ -124,6 +141,11 @@ public class EdgeConfig {
 							.add("options", options) //
 							.build();
 				}
+
+				@Override
+				public PersistencePriority getPersistencePriority() {
+					return this.persistencePriority;
+				}
 			}
 
 			/**
@@ -132,9 +154,11 @@ public class EdgeConfig {
 			public static class ChannelDetailState implements ChannelDetail {
 
 				private final Level level;
+				private final PersistencePriority persistencePriority;
 
-				public ChannelDetailState(Level level) {
+				public ChannelDetailState(Level level, PersistencePriority persistencePriority) {
 					this.level = level;
+					this.persistencePriority = persistencePriority;
 				}
 
 				/**
@@ -157,6 +181,11 @@ public class EdgeConfig {
 							.addProperty("level", this.level.name()) //
 							.build();
 				}
+
+				@Override
+				public PersistencePriority getPersistencePriority() {
+					return this.persistencePriority;
+				}
 			}
 
 			/**
@@ -170,6 +199,9 @@ public class EdgeConfig {
 			public static Channel fromJson(String channelId, JsonElement json) throws OpenemsNamedException {
 				final var type = JsonUtils.getAsEnum(OpenemsType.class, json, "type");
 				var accessModeAbbrOpt = JsonUtils.getAsOptionalString(json, "accessMode");
+				var persistencePriority = JsonUtils
+						.getAsOptionalEnum(PersistencePriority.class, json, "persistencePriority")
+						.orElse(PersistencePriority.DEFAULT_PERSISTENCE_PRIORITY);
 				var accessMode = AccessMode.READ_ONLY;
 				if (accessModeAbbrOpt.isPresent()) {
 					var accessModeAbbr = accessModeAbbrOpt.get();
@@ -193,7 +225,7 @@ public class EdgeConfig {
 				ChannelDetail detail = null;
 				switch (category) {
 				case OPENEMS_TYPE: {
-					detail = new ChannelDetailOpenemsType();
+					detail = new ChannelDetailOpenemsType(persistencePriority);
 					break;
 				}
 
@@ -205,13 +237,13 @@ public class EdgeConfig {
 							values.put(entry.getKey(), entry.getValue());
 						}
 					}
-					detail = new ChannelDetailEnum(values);
+					detail = new ChannelDetailEnum(values, persistencePriority);
 					break;
 				}
 
 				case STATE: {
 					var level = JsonUtils.getAsEnum(Level.class, json, "level");
-					detail = new ChannelDetailState(level);
+					detail = new ChannelDetailState(level, persistencePriority);
 					break;
 				}
 
@@ -304,6 +336,7 @@ public class EdgeConfig {
 						.addProperty("text", this.text) //
 						.addProperty("unit", this.unit.symbol) //
 						.addProperty("category", this.detail.getCategory().name()) //
+						.addProperty("persistencePriority", this.detail.getPersistencePriority()) //
 						.build();
 			}
 		}

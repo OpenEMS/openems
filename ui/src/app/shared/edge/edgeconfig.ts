@@ -622,6 +622,27 @@ export class EdgeConfig {
     }
 }
 
+export enum PersistencePriority {
+    VERY_LOW = "VERY_LOW", //
+    LOW = "LOW", //
+    MEDIUM = "MEDIUM", //
+    HIGH = "HIGH", //
+    VERY_HIGH = "VERY_HIGH", //
+}
+
+export namespace PersistencePriority {
+
+    export const DEFAULT_CHANNEL_PRIORITY: string = PersistencePriority.VERY_LOW;
+    export const DEFAULT_GLOBAL_PRIORITY: string = PersistencePriority.HIGH;
+
+    export function isAtLeast(prio1: string, prio2: string) {
+        if (typeof prio1 !== 'string' || typeof prio2 !== 'string') {
+            return false;
+        }
+        return Object.keys(PersistencePriority).indexOf(prio1) <= Object.keys(PersistencePriority).indexOf(prio2);
+    }
+}
+
 export module EdgeConfig {
     export class ComponentChannel {
         public readonly type: "BOOLEAN" | "SHORT" | "INTEGER" | "LONG" | "FLOAT" | "DOUBLE" | "STRING";
@@ -629,6 +650,7 @@ export module EdgeConfig {
         public readonly unit: string;
         public readonly category: "OPENEMS_TYPE" | "ENUM" | "STATE";
         public readonly level: "INFO" | "OK" | "WARNING" | "FAULT";
+        public readonly persistencePriority: PersistencePriority;
     }
 
     export class Component {

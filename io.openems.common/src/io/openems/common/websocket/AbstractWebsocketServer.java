@@ -67,11 +67,10 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	/**
 	 * Construct an {@link AbstractWebsocketServer}.
 	 *
-	 * @param name          to identify this server
-	 * @param port          to listen on
-	 * @param poolSize      number of threads dedicated to handle the tasks
-	 * @param debugMode     activate a regular debug log about the state of the
-	 *                      tasks
+	 * @param name      to identify this server
+	 * @param port      to listen on
+	 * @param poolSize  number of threads dedicated to handle the tasks
+	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
 	protected AbstractWebsocketServer(String name, int port, int poolSize, DebugMode debugMode) {
 		super(name);

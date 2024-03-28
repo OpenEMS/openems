@@ -210,16 +210,16 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					for (OptionsEnum option : d.getOptions()) {
 						values.put(option.getName(), new JsonPrimitive(option.getValue()));
 					}
-					detail = new EdgeConfig.Component.Channel.ChannelDetailEnum(values);
+					detail = new EdgeConfig.Component.Channel.ChannelDetailEnum(values, doc.getPersistencePriority());
 					break;
 				}
 				case OPENEMS_TYPE:
-					detail = new ChannelDetailOpenemsType();
+					detail = new ChannelDetailOpenemsType(doc.getPersistencePriority());
 					break;
 				case STATE:
 					var d = (StateChannelDoc) doc;
 					var level = d.getLevel();
-					detail = new ChannelDetailState(level);
+					detail = new ChannelDetailState(level, doc.getPersistencePriority());
 					break;
 				}
 				result.put(channelId.id(), new EdgeConfig.Component.Channel(//
