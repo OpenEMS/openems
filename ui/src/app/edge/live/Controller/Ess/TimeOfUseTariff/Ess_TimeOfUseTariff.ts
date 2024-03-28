@@ -1,8 +1,5 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
-import { compareVersions } from "compare-versions";
-import { isBefore } from "date-fns";
-import { Edge } from "src/app/shared/shared";
 import { SharedModule } from "src/app/shared/shared.module";
 import { FlatComponent } from "./flat/flat";
 import { ModalComponent } from "./modal/modal";
