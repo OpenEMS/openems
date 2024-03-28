@@ -321,7 +321,8 @@
         "systemExecute": "System-Befehl ausführen",
         "systemProfile": "Anlagenprofil",
         "alerting": "Benachrichtigung",
-        "networkConfiguration": "Netzwerkkonfiguration"
+        "networkConfiguration": "Netzwerkkonfiguration",
+        "SYSTEM": "System"
       },
       "PROFILE": {
         "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Fehler beim Herunterladen des Modbus-Protokolls"
@@ -551,7 +552,17 @@
     "yes": "Ja",
     "no": "Nein",
     "value": "Wert",
-    "SUM_STATE": "Systemzustand"
+    "SUM_STATE": "Systemzustand",
+    "SYSTEM": "System",
+    "RESTART": "Neu starten",
+    "TIME": {
+      "HOUR": "Stunde",
+      "HOURS": "Stunden",
+      "MINUTE": "Minute",
+      "MINUTES": "Minuten",
+      "DAY": "Tag",
+      "DAYS": "Tage"
+    }
   },
   "Index": {
     "allConnected": "Alle Verbindungen hergestellt.",
@@ -916,11 +927,17 @@
       "NEW_VERSION_INSTALLING": "Neueste Version installieren",
       "NEW_VERSION": "Neueste Version:",
       "OFFLINE": "Das {{ edgeShortName }} ist offline.",
-      "RESTARTING": "Das {{ edge }} wird neu gestartet...",
+      "EDGE_RESTARTING": "Das {{ edge }} wird neu gestartet...",
       "UPDATE_NOT_POSSIBLE": "System kann nicht geupdatet werden!",
       "UPDATE_PROGRESS": "Update wird ausgeführt...",
       "UPDATE_SEARCH": "Suche nach Updates...",
-      "UPDATE_TIME": "(Dies kann bis zu 10 min dauern)"
+      "UPDATE_TIME": "(Dies kann bis zu 10 min dauern)",
+      "EMS_RESTARTING": "{{edgeShortName}} neu starten",
+      "RESTARTING": "{{system}} wird neu gestartet (Dies kann bis zu {{minutes}} Minuten dauern)",
+      "RESTARTED": "{{system}} neu starten war erfolgreich.",
+      "RESTART_FAILED": "{{system}}-Neustart fehlgeschlagen.",
+      "RESTART_CONFIRMATION": "Möchten Sie {{system}} neu starten?",
+      "RESTART_WARNING": "Während {{system}} neu startet ist die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet."
     }
   },
   "CHANNELS": {

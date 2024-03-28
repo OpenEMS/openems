@@ -58,6 +58,17 @@ export class UserPermission {
 
     return user.hasMultipleEdges;
   }
+
+  /**
+  * Checks if user is allowed to see {@link SystemRestartComponent}
+  *
+  * @param user the current user
+  * @returns true, if user is at least {@link Role.ADMIN} and edge version is at least 2024.2.2
+  */
+  public static isAllowedToSeeSystemRestart(user: User, edge: Edge) {
+    const isAllowed = edge?.isVersionAtLeast('2024.2.2');
+    return Role.isAtLeast(user?.globalRole, Role.ADMIN) && isAllowed;
+  }
 }
 
 export namespace Currency {
