@@ -237,7 +237,7 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 		 * @param period         the {@link Period}
 		 * @return a Stream of {@link ScheduleData}
 		 */
-		public static Stream<ScheduleData> fromHistoricDataQuery(ZonedDateTime fromDate, int essTotalEnergy,
+		public static Stream<ScheduleData> fromHistoricDataQuery(int essTotalEnergy,
 				ChannelAddress channelQuarterlyPrices, ChannelAddress channelStateMachine,
 				SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult)
 				throws IllegalArgumentException {
