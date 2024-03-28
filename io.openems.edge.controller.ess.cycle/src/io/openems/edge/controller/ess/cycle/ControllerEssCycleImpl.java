@@ -2,6 +2,7 @@ package io.openems.edge.controller.ess.cycle;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -37,6 +38,7 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 		implements ControllerEssCycle, Controller, OpenemsComponent {
 
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+	private final AtomicBoolean processFinished = new AtomicBoolean(false);
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssCycleImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
@@ -138,4 +140,9 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 	public void setLastStateChangeTime(LocalDateTime time) {
 		this.lastStateChangeTime = time;
 	}
+
+	public AtomicBoolean getProcessFinished() {
+		return this.processFinished;
+	}
+
 }
