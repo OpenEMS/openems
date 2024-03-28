@@ -1,17 +1,22 @@
 package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateParamsChargeEnergyInChargeGrid;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.ParamsUtils.calculateChargeEnergyInChargeGrid;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.ParamsUtils.calculatePeriodLengthHourFromIndex;
 import static java.lang.Math.min;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.TreeMap;
+import java.util.function.Function;
+import java.util.regex.Pattern;
+import java.util.stream.IntStream;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 
 public record Params(//
-		/** Total number of periods. All arrays have at least this many entries */
-		int numberOfPeriods,
 		/** Start-Timestamp of the Schedule */
 		ZonedDateTime time,
 		/** ESS Total Energy (Capacity) [Wh] */
@@ -22,22 +27,50 @@ public record Params(//
 		int essMaxSocEnergy, //
 		/** ESS Initially Available Energy (SoC in [Wh]) */
 		int essInitialEnergy, //
-		/** ESS Max Charge/Discharge Energy per Period [Wh] */
-		int essMaxEnergyPerPeriod, //
-		/** ESS Charge Energy per Period in CHARGE_GRID State [Wh] */
-		int essChargeInChargeGrid, //
-		/** Max Buy-From-Grid Energy per Period [Wh] */
-		int maxBuyFromGrid,
-		/** Production predictions per Period */
-		int[] productions, //
-		/** Consumption predictions per Period */
-		int[] consumptions, //
-		/** Prices for one [MWh] per Period */
-		double[] prices, //
 		/** Allowed Modes */
 		StateMachine[] states, //
 		/** The existing Schedule, i.e. result of previous optimization */
-		StateMachine[] existingSchedule) {
+		ImmutableSortedMap<ZonedDateTime, StateMachine> existingSchedule, //
+		/** Periods for the Optimizer, representing QUARTER or HOUR. */
+		ImmutableList<OptimizePeriod> optimizePeriods //
+) {
+	public static record OptimizePeriod(//
+			/** Start-Timestamp of the Period */
+			ZonedDateTime time,
+			/** ESS Max Charge/Discharge Energy [Wh] */
+			int essMaxEnergy, //
+			/** ESS Charge Energy in CHARGE_GRID State [Wh] */
+			int essChargeInChargeGrid, //
+			/** Max Buy-From-Grid Energy [Wh] */
+			int maxBuyFromGrid,
+			/** Production prediction */
+			int production, //
+			/** Consumption prediction */
+			int consumption, //
+			/** Price [1/MWh] */
+			double price, //
+			/** Raw Periods, representing one QUARTER. */
+			ImmutableList<QuarterPeriod> quarterPeriods //
+	) {
+	}
+
+	public static record QuarterPeriod(//
+			/** Start-Timestamp of the Period */
+			ZonedDateTime time,
+			/** ESS Max Charge/Discharge Energy [Wh] */
+			int essMaxEnergy, //
+			/** ESS Charge Energy in CHARGE_GRID State [Wh] */
+			int essChargeInChargeGrid, //
+			/** Max Buy-From-Grid Energy [Wh] */
+			int maxBuyFromGrid,
+			/** Production prediction */
+			int production, //
+			/** Consumption predictions */
+			int consumption, //
+			/** Price [1/MWh] */
+			double price //
+	) {
+	}
 
 	public static class Builder {
 		private ZonedDateTime time;
@@ -45,97 +78,118 @@ public record Params(//
 		private int essMinSocEnergy;
 		private int essMaxSocEnergy;
 		private int essInitialEnergy;
-		private int essMaxEnergyPerPeriod;
+		private int essMaxEnergy;
 		private int maxBuyFromGrid;
 		private int[] productions = new int[0];
 		private int[] consumptions = new int[0];
 		private double[] prices = new double[0];
 		private StateMachine[] states = new StateMachine[0];
-		private StateMachine[] existingSchedule = new StateMachine[0];
+		private ImmutableSortedMap<ZonedDateTime, StateMachine> existingSchedule;
 
-		protected Builder time(ZonedDateTime time) {
+		protected Builder setTime(ZonedDateTime time) {
 			this.time = time;
 			return this;
 		}
 
-		protected Builder essTotalEnergy(int essTotalEnergy) {
+		protected Builder setEssTotalEnergy(int essTotalEnergy) {
 			this.essTotalEnergy = essTotalEnergy;
 			return this;
 		}
 
-		protected Builder essMinSocEnergy(int essMinSocEnergy) {
+		protected Builder setEssMinSocEnergy(int essMinSocEnergy) {
 			this.essMinSocEnergy = essMinSocEnergy;
 			return this;
 		}
 
-		protected Builder essMaxSocEnergy(int essMaxSocEnergy) {
+		protected Builder setEssMaxSocEnergy(int essMaxSocEnergy) {
 			this.essMaxSocEnergy = essMaxSocEnergy;
 			return this;
 		}
 
-		protected Builder essInitialEnergy(int essInitialEnergy) {
+		protected Builder setEssInitialEnergy(int essInitialEnergy) {
 			this.essInitialEnergy = essInitialEnergy;
 			return this;
 		}
 
-		protected Builder essMaxEnergyPerPeriod(int essMaxEnergyPerPeriod) {
-			this.essMaxEnergyPerPeriod = essMaxEnergyPerPeriod;
+		protected Builder setEssMaxEnergy(int essMaxEnergy) {
+			this.essMaxEnergy = essMaxEnergy;
 			return this;
 		}
 
-		protected Builder maxBuyFromGrid(int maxBuyFromGrid) {
+		protected Builder seMaxBuyFromGrid(int maxBuyFromGrid) {
 			this.maxBuyFromGrid = maxBuyFromGrid;
 			return this;
 		}
 
-		protected Builder productions(int... productions) {
+		protected Builder setProductions(int... productions) {
 			this.productions = productions;
 			return this;
 		}
 
-		protected Builder consumptions(int... consumptions) {
+		protected Builder setConsumptions(int... consumptions) {
 			this.consumptions = consumptions;
 			return this;
 		}
 
-		protected Builder prices(double... prices) {
+		protected Builder setPrices(double... prices) {
 			this.prices = prices;
 			return this;
 		}
 
-		protected Builder states(StateMachine... states) {
+		protected Builder setStates(StateMachine... states) {
 			this.states = states;
 			return this;
 		}
 
-		protected Builder existingSchedule(TreeMap<ZonedDateTime, Period> existingSchedule) {
-			return this.existingSchedule(existingSchedule //
-					.tailMap(this.time) // synchronize values with current time
-					.values().stream() //
-					.map(Period::state) //
-					.toArray(StateMachine[]::new));
-		}
-
-		protected Builder existingSchedule(StateMachine... existingSchedule) {
-			this.existingSchedule = existingSchedule;
+		protected Builder setExistingSchedule(ImmutableSortedMap<ZonedDateTime, StateMachine> existingSchedule) {
+			this.existingSchedule = existingSchedule.tailMap(this.time);
 			return this;
 		}
 
-		public Params build() {
-			var numberOfPeriods = min(this.productions.length, min(this.consumptions.length, this.prices.length));
-			var essChargeInChargeGrid = calculateParamsChargeEnergyInChargeGrid(this.essMinSocEnergy,
-					this.essMaxSocEnergy, this.productions, this.consumptions, this.prices);
+		private ImmutableList<OptimizePeriod> generatePeriods() {
+			var essChargeInChargeGrid = calculateChargeEnergyInChargeGrid(this.essMinSocEnergy, this.essMaxSocEnergy,
+					this.productions, this.consumptions, this.prices);
+			var noOfPeriods = min(this.productions.length, min(this.consumptions.length, this.prices.length));
 
-			return new Params(numberOfPeriods, //
-					this.time, //
-					this.essTotalEnergy, this.essMinSocEnergy, this.essMaxSocEnergy, this.essInitialEnergy,
-					this.essMaxEnergyPerPeriod, //
-					essChargeInChargeGrid, //
-					this.maxBuyFromGrid, //
-					this.productions, this.consumptions, //
-					this.prices, //
-					this.states, //
-					this.existingSchedule);
+			final Function<Integer, QuarterPeriod> toQuarterPeriod = (i) -> new QuarterPeriod(
+					this.time.plusMinutes(i * 15), this.essMaxEnergy, essChargeInChargeGrid, this.maxBuyFromGrid,
+					this.productions[i], this.consumptions[i], this.prices[i]);
+			final Function<Integer, Integer> count = (i) -> min(i + 4, noOfPeriods) - i;
+			final Function<Integer, IntStream> range = (i) -> IntStream.range(i, min(i + 4, noOfPeriods));
+
+			var periodLengthHourFromIndex = calculatePeriodLengthHourFromIndex(this.time);
+			var result = ImmutableList.<OptimizePeriod>builder();
+
+			// Quarters
+			for (var i = 0; i < min(periodLengthHourFromIndex, noOfPeriods); i++) {
+				result.add(new OptimizePeriod(//
+						this.time.plusMinutes(i * 15), this.essMaxEnergy, essChargeInChargeGrid, this.maxBuyFromGrid,
+						this.productions[i], this.consumptions[i], this.prices[i], //
+						ImmutableList.of(toQuarterPeriod.apply(i))));
+			}
+
+			// Hours
+			for (var i = periodLengthHourFromIndex; i < noOfPeriods; i += 4) {
+				var factor = count.apply(i);
+				result.add(new OptimizePeriod(//
+						this.time.plusHours(i), //
+						factor * this.essMaxEnergy, //
+						factor * essChargeInChargeGrid, //
+						factor * this.maxBuyFromGrid, //
+						range.apply(i).map(j -> this.productions[j]).sum(),
+						range.apply(i).map(j -> this.consumptions[j]).sum(),
+						range.apply(i).mapToDouble(j -> this.prices[j]).average().getAsDouble(), //
+						range.apply(i) //
+								.mapToObj(j -> toQuarterPeriod.apply(j)) //
+								.collect(toImmutableList())));
+			}
+			return result.build();
+		}
+
+		public Params build() {
+			return new Params(this.time, this.essTotalEnergy, this.essMinSocEnergy, this.essMaxSocEnergy,
+					this.essInitialEnergy, this.states, //
+					this.existingSchedule, this.generatePeriods());
 		}
 	}
 
@@ -145,30 +199,29 @@ public record Params(//
 
 	@Override
 	public String toString() {
-		return this.toString(true);
+		return this.toLogString();
 	}
 
-	protected String toString(boolean full) {
-		StringBuilder b = new StringBuilder();
-		b.append("Params [") //
-				.append("numberOfPeriods=").append(this.numberOfPeriods) //
-				.append(", time=").append(this.time) //
+	public static final Pattern PARAMS_PATTERN = Pattern.compile("^" //
+			+ ".*time=(?<time>\\S+)," //
+			+ ".*essTotalEnergy=(?<essTotalEnergy>\\d+)" //
+			+ ".*essMinSocEnergy=(?<essMinSocEnergy>\\d+)" //
+			+ ".*essMaxSocEnergy=(?<essMaxSocEnergy>\\d+)" //
+			+ ".*essInitialEnergy=(?<essInitialEnergy>\\d+)" //
+			+ ".*states=\\[(?<states>[A-Z_, ]+)\\]" //
+			+ ".*$");
+
+	protected String toLogString() {
+		return new StringBuilder() //
+				.append("Params") //
+				.append(" [time=").append(this.time) //
 				.append(", essTotalEnergy=").append(this.essTotalEnergy) //
 				.append(", essMinSocEnergy=").append(this.essMinSocEnergy) //
 				.append(", essMaxSocEnergy=").append(this.essMaxSocEnergy) //
 				.append(", essInitialEnergy=").append(this.essInitialEnergy) //
-				.append(", essMaxEnergyPerPeriod=").append(this.essMaxEnergyPerPeriod) //
-				.append(", essChargeInChargeGrid=").append(this.essChargeInChargeGrid) //
-				.append(", maxBuyFromGrid=").append(this.maxBuyFromGrid) //
-				.append(", states=").append(Arrays.toString(this.states)); //
-		if (full) {
-			b //
-					.append(", productions=").append(Arrays.toString(this.productions)) //
-					.append(", consumptions=").append(Arrays.toString(this.consumptions)) //
-					.append(", prices=").append(Arrays.toString(this.prices)) //
-					.append(", existingSchedule=").append(Arrays.toString(this.existingSchedule)); //
-		}
-		return b.append("]").toString();
+				.append(", states=").append(Arrays.toString(this.states)) //
+				.append("]") //
+				.toString();
 	}
 
 }

@@ -29,8 +29,9 @@ public class RunOptimizerFromLogApp {
 	 * Run the Application.
 	 * 
 	 * @param args the args
+	 * @throws Exception on error
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		var params = IntegrationTests.parseParams(LOG);
 		var schedule = getBestSchedule(params, EXECUTION_LIMIT_SECONDS);
 

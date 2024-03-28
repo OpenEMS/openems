@@ -1,11 +1,6 @@
 package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
-import static com.google.common.math.Quantiles.percentiles;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
-import static io.openems.common.utils.JsonUtils.getAsOptionalDouble;
-import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
-import static io.openems.common.utils.JsonUtils.toJson;
-import static io.openems.edge.common.type.TypeUtils.fitWithin;
 import static io.openems.edge.common.type.TypeUtils.multiply;
 import static io.openems.edge.common.type.TypeUtils.orElse;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
@@ -15,7 +10,6 @@ import static java.lang.Math.abs;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.round;
-import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 import static java.util.Arrays.stream;
 import static java.util.stream.IntStream.concat;
 
@@ -24,18 +18,19 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.random.RandomGeneratorFactory;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Streams;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 
 import io.jenetics.util.RandomRegistry;
 import io.openems.common.exceptions.InvalidValueException;
@@ -43,7 +38,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
@@ -51,6 +45,9 @@ import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTota
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleResponse;
+import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.ScheduleDatas;
+import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.ScheduleDatas.ScheduleData;
+import io.openems.edge.controller.ess.timeofusetariff.optimizer.Simulator.Period;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -76,20 +73,18 @@ public final class Utils {
 	 */
 	public static final float ESS_CHARGE_C_RATE = 0.5F;
 
-	protected static final ChannelAddress SUM_GRID = new ChannelAddress("_sum", "GridActivePower");
-	protected static final ChannelAddress SUM_PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
-	protected static final ChannelAddress SUM_UNMANAGED_CONSUMPTION = new ChannelAddress("_sum",
+	public static final ChannelAddress SUM_PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
+	public static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "ConsumptionActivePower");
+	public static final ChannelAddress SUM_GRID = new ChannelAddress("_sum", "GridActivePower");
+	public static final ChannelAddress SUM_UNMANAGED_CONSUMPTION = new ChannelAddress("_sum",
 			"UnmanagedConsumptionActivePower");
-	protected static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "ConsumptionActivePower");
-	protected static final ChannelAddress SUM_ESS_DISCHARGE_POWER = new ChannelAddress("_sum", "EssDischargePower");
-	protected static final ChannelAddress SUM_ESS_SOC = new ChannelAddress("_sum", "EssSoc");
+	public static final ChannelAddress SUM_ESS_DISCHARGE_POWER = new ChannelAddress("_sum", "EssDischargePower");
+	public static final ChannelAddress SUM_ESS_SOC = new ChannelAddress("_sum", "EssSoc");
 
 	protected static final long EXECUTION_LIMIT_SECONDS_BUFFER = 30;
 	protected static final long EXECUTION_LIMIT_SECONDS_MINIMUM = 60;
 
-	public record ScheduleData(Double quarterlyPrice, Integer stateMachine, Integer grid, Integer production,
-			Integer consumption, Integer ess, Integer soc) {
-	}
+	private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
 
 	/**
 	 * Initializes the Jenetics {@link RandomRegistry} for production.
@@ -136,8 +131,8 @@ public final class Utils {
 	 * @return {@link Params}
 	 * @throws InvalidValueException on error
 	 */
-	public static Params createSimulatorParams(Context context, TreeMap<ZonedDateTime, Period> existingSchedule)
-			throws InvalidValueException {
+	public static Params createSimulatorParams(Context context,
+			ImmutableSortedMap<ZonedDateTime, StateMachine> existingSchedule) throws InvalidValueException {
 		final var time = roundDownToQuarter(ZonedDateTime.now());
 
 		// Prediction values
@@ -163,18 +158,18 @@ public final class Utils {
 		var maxChargePower = context.sum().getEssMaxDischargePower().orElse(-1000 /* at least 1000 */);
 
 		return Params.create() //
-				.time(time) //
-				.essTotalEnergy(essTotalEnergy) //
-				.essMinSocEnergy(essMinSocEnergy) //
-				.essMaxSocEnergy(essMaxSocEnergy) //
-				.essInitialEnergy(essSocEnergy) //
-				.essMaxEnergyPerPeriod(toEnergy(min(maxDischargePower, abs(maxChargePower)))) //
-				.maxBuyFromGrid(toEnergy(context.maxChargePowerFromGrid())) //
-				.productions(stream(interpolateArray(predictionProduction)).map(v -> toEnergy(v)).toArray()) //
-				.consumptions(stream(interpolateArray(predictionConsumption)).map(v -> toEnergy(v)).toArray()) //
-				.prices(interpolateArray(prices.asArray())) //
-				.states(context.controlMode().states) //
-				.existingSchedule(existingSchedule) //
+				.setTime(time) //
+				.setEssTotalEnergy(essTotalEnergy) //
+				.setEssMinSocEnergy(essMinSocEnergy) //
+				.setEssMaxSocEnergy(essMaxSocEnergy) //
+				.setEssInitialEnergy(essSocEnergy) //
+				.setEssMaxEnergy(toEnergy(min(maxDischargePower, abs(maxChargePower)))) //
+				.seMaxBuyFromGrid(toEnergy(context.maxChargePowerFromGrid())) //
+				.setProductions(stream(interpolateArray(predictionProduction)).map(v -> toEnergy(v)).toArray()) //
+				.setConsumptions(stream(interpolateArray(predictionConsumption)).map(v -> toEnergy(v)).toArray()) //
+				.setPrices(interpolateArray(prices.asArray())) //
+				.setStates(context.controlMode().states) //
+				.setExistingSchedule(existingSchedule) //
 				.build();
 	}
 
@@ -206,26 +201,23 @@ public final class Utils {
 	}
 
 	protected static boolean paramsAreValid(Params p) {
-		if (p.numberOfPeriods() == 0) {
+		if (p.optimizePeriods().isEmpty()) {
 			// No periods are available
-			System.out.println("No periods are available");
+			LOG.warn("No periods are available");
 			return false;
 		}
-		if (stream(p.productions()).allMatch(v -> v == 0) //
-				&& stream(p.consumptions()).allMatch(v -> v == 0)) {
+		if (p.optimizePeriods().stream() //
+				.allMatch(pp -> pp.production() == 0 && pp.consumption() == 0)) {
 			// Production and Consumption predictions are all zero
-			System.out.println("Production and Consumption predictions are all zero");
+			LOG.warn("Production and Consumption predictions are all zero");
 			return false;
 		}
-		var pricesAreAllTheSame = true;
-		for (var i = 1; i < p.prices().length; i++) {
-			if (p.prices()[0] != p.prices()[i]) {
-				pricesAreAllTheSame = false;
-			}
-		}
-		if (pricesAreAllTheSame) {
+		if (p.optimizePeriods().stream() //
+				.mapToDouble(Params.OptimizePeriod::price) //
+				.distinct() //
+				.count() <= 1) {
 			// Prices are all the same
-			System.out.println("Prices are all the same");
+			LOG.info("Prices are all the same");
 			return false;
 		}
 
@@ -336,114 +328,6 @@ public final class Utils {
 		return result;
 	}
 
-	/**
-	 * Calculates the ESS max charge energy for a period.
-	 * 
-	 * @param essMaxSocEnergy       ESS energy below a configured maximium SoC [Wh]
-	 * @param essMaxEnergyPerPeriod ESS max charge/discharge energy per period [Wh]
-	 * @param essInitial            ESS initially available energy (SoC in [Wh]) of
-	 *                              the given period
-	 * @return the value in [Wh]
-	 */
-	protected static int calculateMaxChargeEnergy(int essMaxSocEnergy, int essMaxEnergyPerPeriod, int essInitial) {
-		return IntStream.of(essMaxEnergyPerPeriod, essMaxSocEnergy - essInitial) //
-				.map(v -> max(0, v)) // only positives
-				.min().orElse(0);
-	}
-
-	/**
-	 * Calculates the ESS max discharge energy for a period.
-	 * 
-	 * @param essMinSocEnergy       ESS energy below a configured minimum SoC [Wh]
-	 * @param essMaxEnergyPerPeriod ESS max charge/discharge energy per period [Wh]
-	 * @param essInitial            ESS initially available energy (SoC in [Wh]) of
-	 *                              the given period
-	 * @return the value in [Wh]
-	 */
-	protected static int calculateMaxDischargeEnergy(int essMinSocEnergy, int essMaxEnergyPerPeriod, int essInitial) {
-		return IntStream.of(essMaxEnergyPerPeriod, essInitial - essMinSocEnergy) //
-				.map(v -> max(0, v)) // only positives
-				.min().orElse(0);
-	}
-
-	/**
-	 * Calculates the ESS charge (negative) or discharge (positive) energy for a
-	 * period in {@link StateMachine#BALANCING}.
-	 * 
-	 * @param essMaxCharge    ESS max charge energy
-	 * @param essMaxDischarge ESS max discharge energy
-	 * @param production      Production prediction
-	 * @param consumption     Consumption prediction
-	 * @return the value in [Wh]
-	 */
-	protected static int calculateBalancingEnergy(int essMaxCharge, int essMaxDischarge, int production,
-			int consumption) {
-		var balance = consumption - production;
-		return fitWithin(-essMaxCharge, essMaxDischarge, balance);
-	}
-
-	/**
-	 * Calculates the default ESS charge energy per period in
-	 * {@link StateMachine#CHARGE_GRID}.
-	 * 
-	 * <p>
-	 * Applies {@link #ESS_CHARGE_C_RATE} with the minimum of usable ESS energy or
-	 * predicted consumption energy that cannot be supplied from production.
-	 * 
-	 * @param essMinSocEnergy ESS energy below a configured minimum SoC [Wh]
-	 * @param essMaxSocEnergy ESS energy below a configured maximium SoC [Wh]
-	 * @param productions     Production predictions per period
-	 * @param consumptions    Consumption predictions per period
-	 * @param prices          Prices per period
-	 * @return the value in [Wh]
-	 */
-	protected static int calculateParamsChargeEnergyInChargeGrid(int essMinSocEnergy, int essMaxSocEnergy,
-			int[] productions, int[] consumptions, double[] prices) {
-		// Uses the total available energy as reference (= fallback)
-		var usableEssEnergy = max(0, essMaxSocEnergy - essMinSocEnergy);
-
-		// Uses the total excess consumption as reference
-		var excessConsumptionEnergy = IntStream.range(0, min(productions.length, consumptions.length)) //
-				.map(i -> consumptions[i] - productions[i]) // calculates excess Consumption Energy per Period
-				.sum();
-
-		// Uses the excess consumption till first production > consumption as reference
-		var excessConsumptionEnergyInitial = IntStream.range(0, min(productions.length, consumptions.length)) //
-				.takeWhile(i -> consumptions[i] >= productions[i]) // take only first Periods
-				.map(i -> consumptions[i] - productions[i]) // calculates excess Consumption Energy per Period
-				.sum();
-
-		// Uses the excess consumption during high price periods as reference
-		var percentileEnergy = -1;
-		{
-			var peakIndex = findFirstPeakIndex(findFirstValleyIndex(0, prices), prices);
-			var firstPrices = stream(prices).limit(peakIndex).toArray();
-			if (firstPrices.length > 0) {
-				var percentilePrice = percentiles().index(95).compute(firstPrices);
-				percentileEnergy = IntStream.range(0, min(productions.length, consumptions.length)) //
-						.limit(peakIndex) //
-						.filter(i -> prices[i] >= percentilePrice) // takes only prices >
-						.map(i -> consumptions[i] - productions[i]) // calculates excess Consumption Energy per Period
-						.sum();
-			}
-		}
-
-		return round(min(min(min(//
-				filter(excessConsumptionEnergy), //
-				filter(excessConsumptionEnergyInitial)), //
-				filter(percentileEnergy)), //
-				usableEssEnergy) //
-				* ESS_CHARGE_C_RATE / PERIODS_PER_HOUR);
-	}
-
-	private static int filter(int energy) {
-		if (energy > 1000) {
-			return energy;
-		} else {
-			return Integer.MAX_VALUE;
-		}
-	}
-
 	protected static int findFirstPeakIndex(int fromIndex, double[] values) {
 		if (values.length <= fromIndex) {
 			return fromIndex;
@@ -477,27 +361,6 @@ public final class Utils {
 	}
 
 	/**
-	 * Calculates the ESS charge energy for one period in
-	 * {@link StateMachine#CHARGE_GRID}.
-	 * 
-	 * @param essMaxCharge     ESS max charge energy [Wh]
-	 * @param essChargeInState ESS target charge energy in CHARGE_GRID [Wh]
-	 * @param maxBuyFromGrid   Max buy-from-grid energy [Wh]
-	 * @param production       Production prediction
-	 * @param consumption      Consumption prediction
-	 * @return the value in [Wh]
-	 */
-	protected static int calculateChargeGridEnergy(int essMaxCharge, int essChargeInState, int maxBuyFromGrid,
-			int production, int consumption) {
-		var remainingAfterChargeProduction = essMaxCharge - max(0, production - consumption);
-		var remainingAfterSupplyConsumption = maxBuyFromGrid - max(0, consumption - production);
-		var result = IntStream.of(essChargeInState, remainingAfterChargeProduction, remainingAfterSupplyConsumption) //
-				.map(v -> max(0, v)) // only positives
-				.min().orElse(0);
-		return max(1, result); // always at least one, to make a difference to BALANCING
-	}
-
-	/**
 	 * Utilizes the previous three hours' data and computes the next 21 hours data
 	 * from the {@link Optimizer} provided, then concatenates them to generate a
 	 * 24-hour {@link GetScheduleResponse}.
@@ -515,103 +378,38 @@ public final class Utils {
 			String componentId, ZonedDateTime now) throws OpenemsNamedException {
 		now = roundDownToQuarter(now);
 
-		if (optimizer == null) {
+		final var schedule = optimizer.getSchedule();
+		if (schedule == null) {
 			throw new OpenemsException("Has no Schedule");
-		}
-		final var periods = optimizer.getPeriods();
-		if (periods == null) {
-			throw new OpenemsException("Has no scheduled Periods");
 		}
 		final var params = optimizer.getParams();
 		if (params == null) {
 			throw new OpenemsException("Has no Params");
 		}
-
-		// Define channel addresses
 		final var channelQuarterlyPrices = new ChannelAddress(componentId, "QuarterlyPrices");
 		final var channelStateMachine = new ChannelAddress(componentId, "StateMachine");
+		final var b = ImmutableList.<ScheduleData>builder();
 
-		// Query historic data
+		// Process past data
 		final var fromDate = now.minusHours(3);
-		var queryResult = timedata.queryHistoricData(null, fromDate, now, //
-				Set.of(channelQuarterlyPrices, channelStateMachine, //
-						SUM_GRID, SUM_PRODUCTION, SUM_CONSUMPTION, SUM_ESS_DISCHARGE_POWER, SUM_ESS_SOC),
-				new Resolution(15, ChronoUnit.MINUTES));
-		if (queryResult == null) {
-			queryResult = new TreeMap<>();
+		try {
+			var queryResult = timedata.queryHistoricData(null, fromDate, now, //
+					Set.of(channelQuarterlyPrices, channelStateMachine, //
+							SUM_GRID, SUM_PRODUCTION, SUM_CONSUMPTION, SUM_ESS_DISCHARGE_POWER, SUM_ESS_SOC),
+					new Resolution(15, ChronoUnit.MINUTES));
+			ScheduleData.fromHistoricDataQuery(//
+					fromDate, params.essTotalEnergy(), channelQuarterlyPrices, channelStateMachine, queryResult) //
+					.forEach(b::add);
+		} catch (Exception e) {
+			LOG.warn("Unable to read historic data: " + e.getMessage());
 		}
 
-		// Process past predictions
-		var pastPredictions = queryResult.entrySet().stream()//
-				.map(Entry::getValue) //
-				.map(d -> new ScheduleData(//
-						getAsOptionalDouble(d.get(channelQuarterlyPrices)).orElse(null), //
-						getAsOptionalInt(d.get(channelStateMachine)).orElse(null), //
-						jsonIntToEnergy(d.get(SUM_GRID)), //
-						jsonIntToEnergy(d.get(SUM_PRODUCTION)), //
-						jsonIntToEnergy(d.get(SUM_CONSUMPTION)), //
-						jsonIntToEnergy(d.get(SUM_ESS_DISCHARGE_POWER)), //
-						getAsOptionalInt(d.get(SUM_ESS_SOC)).orElse(null))) //
-				.toList();
-		if (pastPredictions.isEmpty()) {
-			IntStream.range(0, 3 /* hours */ * 4 /* quarters */) //
-					.mapToObj(i -> new ScheduleData(null, null, null, null, null, null, null)) //
-					.toList();
-		}
+		// Process future schedule
+		optimizer.getSchedule().values().stream() //
+				.flatMap(ScheduleData::fromPeriod) //
+				.forEach(b::add);
 
-		// Process future predictions
-		final var futurePredictions = periods.stream()//
-				.map(period -> new ScheduleData(//
-						period.price(), //
-						period.state().getValue(), //
-						period.grid(), //
-						period.production(), //
-						period.consumption(), //
-						period.essChargeDischarge(), //
-						round((period.essInitial() * 100) / (float) params.essTotalEnergy()))) // SoC
-				.toList();
-
-		// Concatenate past and future predictions
-		final var predictions = Stream.concat(//
-				pastPredictions.stream().limit(12), // Last 3 hours data.
-				futurePredictions.stream()) // Future data.
-				.toList();
-
-		// Create schedule and return GetScheduleResponse
-		var result = createSchedule(predictions, fromDate);
-
-		return new GetScheduleResponse(requestId, result);
-	}
-
-	/**
-	 * Generates a 24-hour schedule as a {@link JsonArray}. The resulting schedule
-	 * includes timestamped entries of predicted 'state', 'price', 'production',
-	 * 'consumption', 'soc' for each 15-minute interval.
-	 * 
-	 * @param datas     the list of {@link ScheduleData}s
-	 * @param timestamp the timestamp of the first entry in the schedule
-	 * @return the schedule data as a {@link JsonArray}
-	 */
-	public static JsonArray createSchedule(List<ScheduleData> datas, ZonedDateTime timestamp) {
-		var schedule = JsonUtils.buildJsonArray();
-
-		// Create the JSON object for each ScheduleData and add it to the schedule array
-		for (int index = 0; index < datas.size(); index++) {
-			var data = datas.get(index);
-			schedule.add(JsonUtils.buildJsonObject() //
-					// Calculate the timestamp for the current entry, adding 15 minutes for each
-					.add("timestamp", toJson(timestamp.plusMinutes(15 * index).format(ISO_INSTANT))) //
-					.add("price", toJson(data.quarterlyPrice())) //
-					.add("state", toJson(data.stateMachine())) //
-					.add("grid", toJson(toPower(data.grid()))) //
-					.add("production", toJson(toPower(data.production()))) //
-					.add("consumption", toJson(toPower(data.consumption()))) //
-					.add("ess", toJson(toPower(data.ess()))) //
-					.add("soc", toJson(data.soc())) //
-					.build());
-		}
-
-		return schedule.build();
+		return new GetScheduleResponse(requestId, fromDate, new ScheduleDatas(params.essTotalEnergy(), b.build()));
 	}
 
 	/**
@@ -639,17 +437,14 @@ public final class Utils {
 	 * NOTE: heavy computation is ok here, because this method is called only at the
 	 * end with the best Schedule.
 	 * 
-	 * @param p                        the {@link Params}
-	 * @param essChargeDischarge       the scheduled ESS charge/discharge energy for
-	 *                                 this period
-	 * @param essInitialEnergy         the initial ESS energy in this period
-	 * @param balancingChargeDischarge the ESS energy that would be required for
-	 *                                 BALANCING
-	 * @param state                    the initial state
+	 * @param p                the {@link Params}
+	 * @param essInitialEnergy the initial ESS energy in this period
+	 * @param state            the initial state
+	 * @param ef               the {@link EnergyFlow}
 	 * @return the new state
 	 */
-	public static StateMachine postprocessSimulatorState(Params p, int essChargeDischarge, int essInitialEnergy,
-			int balancingChargeDischarge, StateMachine state) {
+	public static StateMachine postprocessSimulatorState(Params p, int essInitialEnergy, StateMachine state,
+			EnergyFlow ef) {
 		return switch (state) {
 		case BALANCING -> state;
 
@@ -658,9 +453,8 @@ public final class Utils {
 			if (essInitialEnergy <= p.essMinSocEnergy()) {
 				// but battery is already empty (at Min-Soc)
 				yield BALANCING;
-			} else if (essChargeDischarge < 0 && essChargeDischarge == balancingChargeDischarge) {
-				// but actually selling to grid (i.e. production > consumption) -> could have
-				// been BALANCING
+			} else if (ef.productionToEss() > 0) {
+				// but actually charging -> could have been BALANCING
 				yield BALANCING;
 			}
 			yield state;
@@ -668,8 +462,8 @@ public final class Utils {
 
 		case CHARGE_GRID -> {
 			// CHARGE_GRID,...
-			if (essChargeDischarge >= 0 || essChargeDischarge == balancingChargeDischarge) {
-				// but actually not charging (i.e. no production)
+			if (ef.gridToEss() == 0) {
+				// but actually not charging
 				yield BALANCING;
 			} else if (essInitialEnergy > p.essMaxSocEnergy()) {
 				// but battery is above limit
@@ -725,7 +519,9 @@ public final class Utils {
 
 	protected static int calculateEssChargeInChargeGridPowerFromParams(Params params, ManagedSymmetricEss ess) {
 		if (params != null) {
-			return toPower(params.essChargeInChargeGrid());
+			for (var period : params.optimizePeriods()) {
+				return toPower(period.essChargeInChargeGrid()); // take first period
+			}
 		}
 		var capacity = ess.getCapacity();
 		if (capacity.isDefined()) {
@@ -803,16 +599,8 @@ public final class Utils {
 	 * @param power the power value
 	 * @return the energy value
 	 */
-	protected static int toEnergy(int power) {
+	public static int toEnergy(int power) {
 		return power / PERIODS_PER_HOUR;
-	}
-
-	private static Integer jsonIntToEnergy(JsonElement j) {
-		var i = getAsOptionalInt(j);
-		if (i.isPresent()) {
-			return toEnergy(i.get());
-		}
-		return null;
 	}
 
 	/**
@@ -835,26 +623,33 @@ public final class Utils {
 	 * @param params  the {@link Params}
 	 * @param periods the map of {@link Period}s
 	 */
-	protected static void logSchedule(Params params, TreeMap<ZonedDateTime, Period> periods) {
-		var b = new StringBuilder() //
-				.append("OPTIMIZER ") //
-				.append(params.toString(false)) //
-				.append("\n") //
-				.append("OPTIMIZER ") //
-				.append(Period.header()) //
-				.append("\n");
-		if (periods.values().isEmpty()) {
-			b //
-					.append("OPTIMIZER ") //
-					.append("-> EMPTY\n");
-		} else {
-			periods.values().stream() //
-					.map(Period::toString) //
-					.forEach(s -> b //
-							.append("OPTIMIZER ") //
-							.append(s) //
-							.append("\n"));
+	protected static void logSchedule(Params params, ImmutableSortedMap<ZonedDateTime, Period> periods) {
+		System.out.println("OPTIMIZER " + params.toLogString());
+		System.out.println(ScheduleDatas.fromSchedule(params.essTotalEnergy(), periods).toLogString("OPTIMIZER "));
+	}
+
+	/**
+	 * Updates the active Schedule with a new Schedule.
+	 * 
+	 * <p>
+	 * <ul>
+	 * <li>Period of the currently active Quarter is never changed
+	 * <li>Old Periods are removed from the Schedule
+	 * <li>Remaining Schedules are updated from new Schedule
+	 * </ul>
+	 * 
+	 * @param now         the current {@link ZonedDateTime}
+	 * @param schedule    the active Schedule
+	 * @param newSchedule the new Schedule
+	 */
+	public static void updateSchedule(ZonedDateTime now, TreeMap<ZonedDateTime, Period> schedule,
+			ImmutableSortedMap<ZonedDateTime, Period> newSchedule) {
+		var thisQuarter = roundDownToQuarter(now);
+		var current = schedule.get(thisQuarter);
+		schedule.clear();
+		schedule.putAll(newSchedule);
+		if (current != null) {
+			schedule.put(thisQuarter, current);
 		}
-		System.out.println(b.toString());
 	}
 }
