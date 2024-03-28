@@ -235,6 +235,7 @@ public class FixStateOfCharge extends AbstractOpenemsAppWithProps<FixStateOfChar
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create() //
 				.setCanSee(Role.ADMIN) //
+				.setCanDelete(Role.ADMIN) //
 				.build();
 	}
 
