@@ -558,7 +558,15 @@ public final class Utils {
 		var effectiveGridBuyPower = max(0, realGridPower) + targetChargePower;
 		var chargePower = max(0, targetChargePower - max(0, effectiveGridBuyPower - maxChargePowerFromGrid));
 
-		return chargePower * -1;
+		// Invert to negative for CHARGE
+		chargePower *= -1;
+
+		// Apply §14a EnWG limit
+		if (limitChargePowerFor14aEnWG) {
+			chargePower = max(ESS_LIMIT_14A_ENWG, chargePower);
+		}
+
+		return chargePower;
 	}
 
 	/**
