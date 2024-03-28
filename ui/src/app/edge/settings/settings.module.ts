@@ -19,9 +19,9 @@ import { ServiceAssistantModule } from './serviceassistant/serviceassistant.modu
 import { SettingsComponent } from './settings.component';
 import { MaintenanceComponent } from './system/maintenance/maintenance';
 import { OeSystemUpdateComponent } from './system/oe-system-update.component';
+import { SystemComponent } from './system/system.component';
 import { SystemExecuteComponent } from './systemexecute/systemexecute.component';
 import { SystemUpdateOldComponent } from './systemupdate.old/systemupdate.old.component';
-import { SystemComponent } from './system/system.component';
 
 @NgModule({
   imports: [
@@ -31,17 +31,20 @@ import { SystemComponent } from './system/system.component';
     ChangelogModule,
   ],
   declarations: [
+    AlertingComponent,
     AliasUpdateComponent,
     ChannelsComponent,
     ComponentInstallComponent,
     ComponentInstallIndexComponent,
     ComponentUpdateComponent,
     ComponentUpdateIndexComponent,
+    MaintenanceComponent,
     NetworkComponent,
     NetworkOldComponent,
     OeSystemUpdateComponent,
     ProfileComponent,
     SettingsComponent,
+    SystemComponent,
     SystemExecuteComponent,
     SystemUpdateOldComponent,
     AlertingComponent,

@@ -138,7 +138,7 @@ public record Context(//
 		}
 
 		/**
-		 * Always apply §14a EnWG limit of 4.2 kW.
+		 * Always apply 14a EnWG limit of 4.2 kW.
 		 * 
 		 * @param limitChargePowerFor14aEnWG boolean
 		 * @return myself

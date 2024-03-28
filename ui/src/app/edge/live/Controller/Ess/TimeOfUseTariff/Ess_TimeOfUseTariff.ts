@@ -32,6 +32,7 @@ import { ScheduleStateAndPriceChartComponent } from "./modal/statePriceChart";
 })
 export class Controller_Ess_TimeOfUseTariff {
 
+    // TODO remove once there is no 2024.3.1 version anymore with Time-of-Use-Tariff
     public static filterScheduleData(edge: Edge, schedule: {
         timestamp: string;
         price: number;
@@ -42,10 +43,7 @@ export class Controller_Ess_TimeOfUseTariff {
         ess: number,
         soc: number,
     }[]) {
-        if(
-            compareVersions(edge.version, "2024.3.2-project.fems888.20240326.2147.e0dd082") == 0 ||
-            compareVersions(edge.version, "2024.3.1") == 0
-            ) {
+        if(compareVersions(edge.version, "2024.3.1") == 0) {
             var lastTimestamp = new Date(schedule[0].timestamp);
             for(var i = 1; i<schedule.length; i++) {
                 var timestamp = new Date(schedule[i].timestamp);

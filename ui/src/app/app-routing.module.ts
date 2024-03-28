@@ -44,10 +44,10 @@ import { AliasUpdateComponent } from './edge/settings/profile/aliasupdate.compon
 import { ProfileComponent as EdgeSettingsProfileComponent } from './edge/settings/profile/profile.component';
 import { ServiceAssistantComponent as EdgeSettingsServiceAssistant } from './edge/settings/serviceassistant/serviceassistant.component';
 import { SettingsComponent as EdgeSettingsComponent } from './edge/settings/settings.component';
+import { SystemComponent as EdgeSettingsSystemComponent } from './edge/settings/system/system.component';
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './edge/settings/systemexecute/systemexecute.component';
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { SystemUpdateOldComponent as EdgeSettingsSystemUpdateOldComponent } from './edge/settings/systemupdate.old/systemupdate.old.component';
-import { SystemComponent as EdgeSettingsSystemComponent } from './edge/settings/system/system.component';
 import { LoginComponent } from './index/login.component';
 import { OverViewComponent } from './index/overview/overview.component';
 import { DataService } from './shared/genericComponents/shared/dataservice';
