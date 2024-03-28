@@ -34,9 +34,15 @@ public record Params(//
 		/** Periods for the Optimizer, representing QUARTER or HOUR. */
 		ImmutableList<OptimizePeriod> optimizePeriods //
 ) {
+	public static enum Length {
+		HOUR, QUARTER
+	}
+
 	public static record OptimizePeriod(//
 			/** Start-Timestamp of the Period */
-			ZonedDateTime time,
+			ZonedDateTime time, //
+			/** Length of the Period */
+			Length length,
 			/** ESS Max Charge Energy [Wh] */
 			int essMaxChargeEnergy, //
 			/** ESS Max Discharge Energy [Wh] */
@@ -174,9 +180,9 @@ public record Params(//
 			// Quarters
 			for (var i = 0; i < min(periodLengthHourFromIndex, noOfPeriods); i++) {
 				result.add(new OptimizePeriod(//
-						this.time.plusMinutes(i * 15), this.essMaxChargeEnergy, this.essMaxDischargeEnergy,
-						essChargeInChargeGrid, this.maxBuyFromGrid, this.productions[i], this.consumptions[i],
-						this.prices[i], //
+						this.time.plusMinutes(i * 15), Length.QUARTER, this.essMaxChargeEnergy,
+						this.essMaxDischargeEnergy, essChargeInChargeGrid, this.maxBuyFromGrid, this.productions[i],
+						this.consumptions[i], this.prices[i], //
 						ImmutableList.of(toQuarterPeriod.apply(i))));
 			}
 
@@ -185,6 +191,7 @@ public record Params(//
 				var factor = count.apply(i);
 				result.add(new OptimizePeriod(//
 						this.time.plusHours(i), //
+						Length.HOUR, //
 						factor * this.essMaxChargeEnergy, //
 						factor * this.essMaxDischargeEnergy, //
 						factor * essChargeInChargeGrid, //

@@ -23,6 +23,7 @@ import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.ScheduleDatas.ScheduleData;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.EnergyFlow;
+import io.openems.edge.controller.ess.timeofusetariff.optimizer.Params.Length;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Params.OptimizePeriod;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Params.QuarterPeriod;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Simulator;
@@ -117,7 +118,7 @@ public class ScheduleDatasTest {
 		var sds = ScheduleDatas.fromSchedule(22_000, ImmutableSortedMap.of(//
 				TIME, //
 				new Simulator.Period(//
-						new OptimizePeriod(TIME, 1, 2, 3, 4, 5, 6, 7., ImmutableList.of(//
+						new OptimizePeriod(TIME, Length.QUARTER, 1, 2, 3, 4, 5, 6, 7., ImmutableList.of(//
 								new QuarterPeriod(TIME, 1, 2, 3, 4, 5, 6, 7))),
 						StateMachine.BALANCING, 10_000,
 						new EnergyFlow(0, 0, 1000 /* ess */, 500 /* grid */, 0, 0, 0, 0, 0, 0)) //

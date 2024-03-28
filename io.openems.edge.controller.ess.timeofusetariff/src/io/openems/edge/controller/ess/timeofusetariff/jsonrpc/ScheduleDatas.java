@@ -42,6 +42,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Optimizer;
+import io.openems.edge.controller.ess.timeofusetariff.optimizer.Params.Length;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Simulator.Period;
 
 /**
@@ -203,10 +204,6 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 		return result.build();
 	}
 
-	private static enum Length {
-		HOUR, QUARTER
-	}
-
 	public record ScheduleData(//
 			/** Timestamp of the record */
 			ZonedDateTime time,
@@ -295,7 +292,7 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 						var factor = 1F / qps.size();
 						return new ScheduleData(//
 								qp.time(), //
-								qps.size() == 1 ? Length.QUARTER : Length.HOUR, //
+								op.length(), //
 								qp.essMaxChargeEnergy(), //
 								qp.essMaxDischargeEnergy(), //
 								qp.maxBuyFromGrid(), //
