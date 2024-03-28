@@ -78,6 +78,7 @@ subprojects {
 			reports {
 				xml.required = false
 				html.required = false
+				sarif.required = false
 			}
 			minHeapSize = "256m"
 			maxHeapSize = "1g"
@@ -100,6 +101,17 @@ task cleanEdge() {
 			if (proj.tasks.findAll { it.name == 'clean' }) {
 				dependsOn(proj.clean)
 			}
+		}
+	}
+}
+
+task checkstyleAll() {
+	group 'OpenEMS-Build'
+	description 'Checkstyle all bundles'
+
+	subprojects.each { proj ->
+		if (proj.tasks.findAll { it.name == 'checkstyleMain' }) {
+			dependsOn(proj.checkstyleMain)
 		}
 	}
 }
