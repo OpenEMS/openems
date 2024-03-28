@@ -622,7 +622,8 @@ export enum YAxisTitle {
 
 export enum ChartAxis {
   LEFT = 'left',
-  RIGHT = 'right'
+  RIGHT = 'right',
+  RIGHT_2 = 'right2',
 }
 export namespace HistoryUtils {
 
@@ -915,6 +916,7 @@ export namespace TimeOfUseTariffUtils {
     const dischargeLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
     const chargeConsumptionLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID');
     const balancingLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING');
+    const gridBuyLabel = translate.instant('General.gridBuy');
 
     // Switch case to handle different labels
     switch (label) {
@@ -926,6 +928,9 @@ export namespace TimeOfUseTariffUtils {
       case balancingLabel:
         // Show floating point number for values between 0 and 1
         return label + ": " + formatNumber(value, 'de', '1.0-4') + " " + currencyLabel;
+
+      case gridBuyLabel:
+        return label + ": " + formatNumber(value, 'de', '1.0-0') + " kW";
 
       default:
         // Power values
