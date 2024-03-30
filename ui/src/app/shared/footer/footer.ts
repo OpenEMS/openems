@@ -1,6 +1,7 @@
 import { Component, HostBinding, OnInit } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { filter } from "rxjs/operators";
+import { Router, NavigationEnd } from '@angular/router';
 
 import { environment } from '../../../environments';
 import { User } from "../jsonrpc/shared";
@@ -39,6 +40,7 @@ export class FooterComponent implements OnInit {
   protected edge: Edge | null = null;
   protected displayValues: { version: string, id: string, comment: string } | null = null;
   protected isAtLeastOwner: boolean | null = null;
+  protected showFooter: boolean = true;
 
   @HostBinding('attr.data-isSmartPhone')
   public isSmartPhone: boolean = this.service.isSmartphoneResolution;
@@ -46,6 +48,7 @@ export class FooterComponent implements OnInit {
   constructor(
     protected service: Service,
     private title: Title,
+    private router: Router,
   ) { }
 
   ngOnInit() {
@@ -64,6 +67,9 @@ export class FooterComponent implements OnInit {
           }
         }
 
+        this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
+          this.showFooter = !this.router.url.includes('/history');
+        });
         this.title.setTitle(title);
         this.isAtLeastOwner = Role.isAtLeast(this.user.globalRole, Role.OWNER);
       });
