@@ -181,6 +181,22 @@ public class BridgeHttpImpl implements BridgeHttp {
 		});
 		return future;
 	}
+	
+	@Override
+	public CompletableFuture<byte[]> requestRaw(Endpoint endpoint) {
+	    final CompletableFuture<byte[]> future = new CompletableFuture<>();
+	    this.pool.execute(() -> {
+	        try {
+	            // Assuming `fetchEndpointRaw` is a method in `UrlFetcher` that returns a byte array
+	            final byte[] result = this.urlFetcher.fetchEndpointRaw(endpoint);
+	            future.complete(result);
+	        } catch (Exception e) {
+	            future.completeExceptionally(e);
+	        }
+	    });
+	    return future;
+	}
+
 
 	private void handleEvent(Event event) {
 		switch (event.getTopic()) {

@@ -47,4 +47,13 @@ public class DummyUrlFetcher implements UrlFetcher {
 		this.onTaskFinished = onTaskFinished == null ? EMPTY_RUNNABLE : onTaskFinished;
 	}
 
+	@Override
+	public byte[] fetchEndpointRaw(Endpoint endpoint) throws OpenemsNamedException {
+	    // Simulated response data
+	    byte[] simulatedResponse = "simulated response".getBytes();
+	    // Optionally, trigger any task finished actions.
+	    this.onTaskFinished.run();
+	    return simulatedResponse;
+	}
+
 }

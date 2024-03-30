@@ -15,4 +15,14 @@ public interface UrlFetcher {
 	 */
 	public String fetchEndpoint(Endpoint endpoint) throws OpenemsNamedException;
 
+	/**
+	 * Executes an HTTP request for the given endpoint and returns the raw response
+	 * body as a byte array.
+	 * 
+	 * @param endpoint the {@link Endpoint} to fetch
+	 * @return the raw response body as a byte array
+	 * @throws OpenemsNamedException on error
+	 */
+	public byte[] fetchEndpointRaw(Endpoint endpoint) throws OpenemsNamedException;
+
 }

@@ -1,0 +1,21 @@
+Bundle-Name: OpenEMS Edge Meter Tibber Pulse
+Bundle-Vendor: Haller Johannes
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+    ${buildpath},\
+    bcprov,\
+    io.openems.edge.common,\
+    io.openems.edge.meter.api,\
+    io.openems.edge.timedata.api,\
+    io.openems.common,\
+    org.openmuc.jsml,\
+    org.apache.commons.codec,\
+    io.openems.edge.bridge.http
+
+-testpath: \
+    ${testpath},\
+    io.openems.common,\
+    io.openems.edge.meter.api,\
+    io.openems.edge.bridge.http

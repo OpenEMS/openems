@@ -1,0 +1,20 @@
+= Meter Tibber Pulse
+
+Implementation of a Tibber Pulse as Grid Meter.
+
+== How to Set Up Pulse:
+
+
+Since the device has no port available in normal mode and all traffic is encrypted,go back to Setup-Mode. This mode can easily be entered by unplugging the device, plug it and repeat this once. As soon as the green LED lights up, the device opens an access point named „Tibber Bridge“. The password is printed on the QR-Code on the device itself.
+
+This time do not use the tibber app to connect but you Smartphone or Laptop instead. It gets a connection and an IP address assigned from the Tibber Bridge. The Tibber Pulse Bridge itself has the IP 10.133.70.1 and provides a web interface. The credentials are „admin“ and the password printed on the Plug (only can be seen if unplugged).
+
+Open the IP 10.133.70.1 in a Web-Browser and provide the Credentials User: "admin" and Password: "XX12-X123".
+
+Search for the key: "webserver_force_enable" and set it to "true". Scroll down to the end of the Page and click "Store params to flash".
+
+Now again set up the Pulse Bridge with the Tibber App and continue using it. The IP needed is then assigned from your local DHCP-Server.
+
+Done !
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.tibber[Source Code icon:github[]]
