@@ -292,7 +292,7 @@ export class AlertingComponent implements OnInit {
       }).catch(reason => {
         let error = reason.error;
         console.error(error);
-        this.errorToast(this.translate.instant('Edge.Config.Alerting.toast.error'), error.message);
+        this.errorToast(this.translate.instant('Edge.Config.ALERTING.TOAST.ERROR'), error.message);
         reject(reason);
       }).finally(() => {
         this.service.stopSpinner(this.spinnerId);
