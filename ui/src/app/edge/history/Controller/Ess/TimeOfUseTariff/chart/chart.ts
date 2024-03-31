@@ -40,37 +40,37 @@ export class ChartComponent extends AbstractHistoryChart {
                     name: 'Soc',
                     powerChannel: ChannelAddress.fromString('_sum/EssSoc'),
                 },
+                {
+                    name: 'GridBuy',
+                    powerChannel: ChannelAddress.fromString('_sum/GridActivePower'),
+                    converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO,
+                },
             ],
             output: (data: HistoryUtils.ChannelData) => {
                 return [{
                     name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
-                    converter: () => {
-                        return this.getDataset(data, this.TimeOfUseTariffState.Balancing);
-                    },
+                    converter: () => this.getDataset(data, this.TimeOfUseTariffState.Balancing),
                     color: 'rgb(51,102,0)',
                     stack: 1,
+                    order: 1,
                 },
                 {
                     name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
-                    converter: () => {
-                        return this.getDataset(data, this.TimeOfUseTariffState.ChargeGrid);
-                    },
+                    converter: () => this.getDataset(data, this.TimeOfUseTariffState.ChargeGrid),
                     color: 'rgb(0, 204, 204)',
                     stack: 1,
+                    order: 1,
                 },
                 {
                     name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
-                    converter: () => {
-                        return this.getDataset(data, this.TimeOfUseTariffState.DelayDischarge);
-                    },
+                    converter: () => this.getDataset(data, this.TimeOfUseTariffState.DelayDischarge),
                     color: 'rgb(0,0,0)',
                     stack: 1,
+                    order: 1,
                 },
                 {
                     name: this.translate.instant('General.soc'),
-                    converter: () => {
-                        return data['Soc']?.map(value => Utils.multiplySafely(value, 1000));
-                    },
+                    converter: () => data['Soc']?.map(value => Utils.multiplySafely(value, 1000)),
                     color: 'rgb(189, 195, 199)',
                     borderDash: [10, 10],
                     yAxisId: ChartAxis.RIGHT,
@@ -80,6 +80,18 @@ export class ChartComponent extends AbstractHistoryChart {
                         formatNumber: '1.0-0',
                     },
                     order: 0,
+                },
+                {
+                    name: this.translate.instant('General.gridBuy'),
+                    converter: () => data['GridBuy'],
+                    color: 'rgb(0,0,0)',
+                    yAxisId: ChartAxis.RIGHT_2,
+                    custom: {
+                        type: 'line',
+                        formatNumber: '1.0-0',
+                    },
+                    hiddenOnInit: true,
+                    order: 2,
                 },
                 ];
             },
@@ -97,6 +109,12 @@ export class ChartComponent extends AbstractHistoryChart {
                 yAxisId: ChartAxis.RIGHT,
                 displayGrid: false,
             },
+            {
+                unit: YAxisTitle.POWER,
+                position: 'right',
+                yAxisId: ChartAxis.RIGHT_2,
+                displayGrid: false,
+            },
             ],
         };
     }
@@ -106,20 +124,17 @@ export class ChartComponent extends AbstractHistoryChart {
         this.errorResponse = null;
 
         const unit: Resolution = { unit: ChronoUnit.Type.MINUTES, value: 15 };
-        let displayValues;
-
         this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to, unit)
             .then((dataResponse) => {
                 this.chartType = 'line';
                 this.chartObject = this.getChartData();
 
-                displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, dataResponse);
+                const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, dataResponse);
                 this.datasets = displayValues.datasets;
                 this.legendOptions = displayValues.legendOptions;
                 this.labels = displayValues.labels;
                 this.setChartLabel();
 
-                let values = this.chartObject.output(dataResponse.result.data);
                 this.options.scales.x['time'].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
                 this.options.scales.x.ticks['source'] = 'auto';
                 this.options.scales.x.grid = { offset: false };
@@ -144,7 +159,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
                 this.options.scales[ChartAxis.LEFT]['title'].text = this.currencyLabel;
                 this.datasets = this.datasets.map((el) => {
-                    let opacity = el.type === 'line' ? 0.2 : 0.5;
+                    const opacity = el.type === 'line' ? 0.2 : 0.5;
 
                     el.backgroundColor = ColorUtils.changeOpacityFromRGBA(el.backgroundColor.toString(), opacity);
                     el.borderColor = ColorUtils.changeOpacityFromRGBA(el.borderColor.toString(), 1);
@@ -152,6 +167,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 });
 
                 this.options.scales.x['offset'] = false;
+                this.options['animation'] = false;
             });
     }
 
@@ -163,12 +179,12 @@ export class ChartComponent extends AbstractHistoryChart {
      * @returns the desired state array data.
      */
     private getDataset(data: HistoryUtils.ChannelData, desiredState): any[] {
-        var prices = data['QuarterlyPrice']
+        const prices = data['QuarterlyPrice']
             .map(val => TimeOfUseTariffUtils.formatPrice(Utils.multiplySafely(val, 1000)));
-        var states = data['StateMachine']
+        const states = data['StateMachine']
             .map(val => Utils.multiplySafely(val, 1000));
-        var length = prices.length;
-        var dataset = Array(length).fill(null);
+        const length = prices.length;
+        const dataset = Array(length).fill(null);
 
         for (let index = 0; index < length; index++) {
             const quarterlyPrice = prices[index];

@@ -24,7 +24,7 @@ export class SettingsComponent implements OnInit {
   }
 
   public ngOnInit() {
-    this.service.setCurrentComponent({ languageKey: 'Menu.edgeSettings' }, this.route).then(edge => {
+    this.service.getCurrentEdge().then(edge => {
       this.edge = edge;
       this.canSeeAppCenter = canSeeAppCenter(this.edge);
     });

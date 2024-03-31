@@ -42,7 +42,7 @@ export class FormlyWrapperDefaultValueWithCasesComponent extends FieldWrapper im
             if (this.formControl.value) {
                 return;
             }
-            let value = this.model[item.field];
+            const value = this.model[item.field];
             if (!value) {
                 return;
             }

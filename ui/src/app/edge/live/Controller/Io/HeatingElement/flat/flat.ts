@@ -34,7 +34,7 @@ export class FlatComponent extends AbstractFlatWidget {
                 this.component.properties['outputChannelPhaseL3']),
         );
 
-        let channelAddresses: ChannelAddress[] = [
+        const channelAddresses: ChannelAddress[] = [
             new ChannelAddress(this.component.id, 'ForceStartAtSecondsOfDay'),
             ...this.outputChannelArray,
             new ChannelAddress(this.component.id, 'Status'),

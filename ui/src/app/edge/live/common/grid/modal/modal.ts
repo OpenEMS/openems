@@ -20,7 +20,7 @@ export class ModalComponent extends AbstractFormlyComponent {
   public static generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView {
 
     // Grid-Mode
-    let lines: OeFormlyField[] = [{
+    const lines: OeFormlyField[] = [{
       type: 'channel-line',
       name: translate.instant("General.offGrid"),
       channel: '_sum/GridMode',
@@ -28,7 +28,7 @@ export class ModalComponent extends AbstractFormlyComponent {
       converter: Converter.HIDE_VALUE,
     }];
 
-    var gridMeters = Object.values(config.components).filter(component => config?.isTypeGrid(component));
+    const gridMeters = Object.values(config.components).filter(component => config?.isTypeGrid(component));
 
     // Sum Channels (if more than one meter)
     if (gridMeters.length > 1) {
@@ -50,7 +50,7 @@ export class ModalComponent extends AbstractFormlyComponent {
     }
 
     // Individual Meters
-    for (var meter of gridMeters) {
+    for (const meter of gridMeters) {
       if (gridMeters.length == 1) {
         // Two lines if there is only one meter (= same visualization as with Sum Channels)
         lines.push(
@@ -113,7 +113,7 @@ export class ModalComponent extends AbstractFormlyComponent {
   }
 
   private static generatePhasesLineItems(role: Role, phase: string, component: EdgeConfig.Component) {
-    let children: OeFormlyField[] = [];
+    const children: OeFormlyField[] = [];
     if (Role.isAtLeast(role, Role.INSTALLER)) {
       children.push({
         type: 'item',
