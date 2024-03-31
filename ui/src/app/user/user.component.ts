@@ -60,7 +60,7 @@ export class UserComponent implements OnInit {
   }
 
   public applyChanges() {
-    let user = {
+    const user = {
       user: {
         lastname: this.form.model.lastname,
         firstname: this.form.model.firstname,
@@ -208,10 +208,10 @@ export class UserComponent implements OnInit {
   public getUserInformation(): Promise<UserInformation> {
 
     return new Promise(resolve => {
-      var interval = setInterval(() => {
+      const interval = setInterval(() => {
         if (this.websocket.status == 'online') {
           this.service.websocket.sendRequest(new GetUserInformationRequest()).then((response: GetUserInformationResponse) => {
-            let user = response.result.user;
+            const user = response.result.user;
 
             resolve({
               lastname: user.lastname,

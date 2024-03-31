@@ -24,10 +24,11 @@ import { JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
  */
 export class GetScheduleResponse extends JsonrpcResponseSuccess {
 
+
     public constructor(
         public override readonly id: string,
         public override readonly result: {
-            schedule: [{
+            schedule: {
                 timestamp: string;
                 price: number;
                 state: number;
@@ -36,7 +37,7 @@ export class GetScheduleResponse extends JsonrpcResponseSuccess {
                 consumption: number,
                 ess: number,
                 soc: number,
-            }]
+            }[]
         },
     ) {
         super(id, result);

@@ -25,7 +25,7 @@ public class StartChargeHandler extends StateHandler<State, Context> {
 			return context.waitForChangeState(State.START_CHARGE, State.CONTINUE_WITH_DISCHARGE);
 		}
 
-		if (ess.getSoc().get() >= config.maxSoc()) {
+		if (ess.getSoc().get() > config.maxSoc()) {
 			return context.waitForChangeState(State.START_CHARGE, State.CONTINUE_WITH_DISCHARGE);
 		}
 
@@ -38,10 +38,5 @@ public class StartChargeHandler extends StateHandler<State, Context> {
 				+ "out of " + config.totalCycleNumber() + "]");
 
 		return State.START_CHARGE;
-	}
-
-	@Override
-	protected void onExit(Context context) {
-		context.updateLastStateChangeTime();
 	}
 }

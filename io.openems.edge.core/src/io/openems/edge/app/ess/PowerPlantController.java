@@ -142,6 +142,7 @@ public class PowerPlantController extends AbstractOpenemsAppWithProps<PowerPlant
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create() //
 				.setCanSee(Role.ADMIN) //
+				.setCanDelete(Role.ADMIN) //
 				.build();
 	}
 

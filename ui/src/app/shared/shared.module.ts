@@ -36,6 +36,7 @@ import { FormlyFieldCheckboxWithImageComponent } from './formly/formly-field-che
 import { HeaderComponent } from './header/header.component';
 import { Service } from './service/service';
 import { Websocket } from './shared';
+import { FooterComponent } from './footer/footer';
 
 export function IpValidator(control: FormControl): ValidationErrors {
   return /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(control.value) ? null : { 'ip': true };
@@ -116,6 +117,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     PanelWrapperComponent,
     FormlyFieldWithLoadingAnimationComponent,
     FormlyFieldCheckboxWithImageComponent,
+    FooterComponent,
   ],
   exports: [
     // modules
@@ -140,6 +142,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     HistoryDataErrorComponent,
     PercentageBarComponent,
     FormlyFieldWithLoadingAnimationComponent,
+    FooterComponent,
   ],
   providers: [
     appRoutingProviders,

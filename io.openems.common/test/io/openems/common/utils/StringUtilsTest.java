@@ -64,4 +64,21 @@ public class StringUtilsTest {
 		assertEquals("bar", definedOrElse("	", "bar"));
 	}
 
+	@Test
+	public void testParseNumberFromNameNull() throws Exception {
+		assertTrue(StringUtils.parseNumberFromName(null).isEmpty());
+	}
+
+	@Test
+	public void testParseNumberFromNameInvalidString() throws Exception {
+		assertTrue(StringUtils.parseNumberFromName("edge").isEmpty());
+	}
+
+	@Test
+	public void testParseNumberFromNameValidString() throws Exception {
+		final var parsedNumber = StringUtils.parseNumberFromName("edge404");
+		assertTrue(parsedNumber.isPresent());
+		assertEquals(404, parsedNumber.getAsInt());
+	}
+
 }
