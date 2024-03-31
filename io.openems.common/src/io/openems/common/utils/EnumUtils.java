@@ -14,6 +14,30 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 public class EnumUtils {
 
 	/**
+	 * Gets the Enum instance from the given value.
+	 * 
+	 * <p>
+	 * This is a null-safe wrapper around {@link Enum#valueOf(Class, String)}.
+	 * 
+	 * @param <ENUM>   the type
+	 * @param enumType the class of the {@link Enum}
+	 * @param name     the name of the constant to return
+	 * @return the enum constant of the specified enum class with the specified
+	 *         name; null if there is no matching Enum constant
+	 */
+	public static <ENUM extends Enum<ENUM>> ENUM toEnum(Class<ENUM> enumType, String name) {
+		if (name == null || name.isBlank()) {
+			return null;
+		}
+		try {
+			return Enum.valueOf(enumType, name.toUpperCase());
+		} catch (IllegalArgumentException e) {
+			// handled below
+		}
+		return null;
+	}
+
+	/**
 	 * Converts the Enum {@link CaseFormat#UPPER_UNDERSCORE} name to
 	 * {@link CaseFormat#UPPER_CAMEL}-case.
 	 * 

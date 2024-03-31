@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.formly.builder.CheckboxBuilder;
+import io.openems.edge.core.appmanager.formly.builder.DateTimeBuilder;
 import io.openems.edge.core.appmanager.formly.builder.FieldGroupBuilder;
 import io.openems.edge.core.appmanager.formly.builder.InputBuilder;
 import io.openems.edge.core.appmanager.formly.builder.RangeBuilder;
@@ -145,7 +146,17 @@ public class JsonFormlyUtil {
 	public static RangeBuilder buildRangeFromNameable(Nameable nameable) {
 		return new RangeBuilder(nameable);
 	}
-
+	
+	/**
+	 * Creates a JsonObject Formly DateTime Builder for the given enum.
+	 *
+	 * @param nameable the {@link Nameable} property
+	 * @return a {@link DateTimeBuilder}
+	 */
+	public static DateTimeBuilder buildDateTimeFromNameable(Nameable nameable) {
+		return new DateTimeBuilder(nameable);
+	}
+	
 	/**
 	 * Creates a JsonObject Formly Repeat Builder for the given enum.
 	 *

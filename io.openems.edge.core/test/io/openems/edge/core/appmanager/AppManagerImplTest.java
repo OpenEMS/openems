@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Hashtable;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -300,18 +299,13 @@ public class AppManagerImplTest {
 					this.stromdao = Apps.stromdaoCorrently(t) //
 			);
 		});
-
-		final var config = this.appManagerTestBundle.cm.getConfiguration(
-				this.appManagerTestBundle.componentManger.getEdgeConfig().getComponent("scheduler0").get().getPid(),
-				null);
-		final var props = new Hashtable<String, Object>();
-		props.put("controllers.ids", new String[] { "ctrlPrepareBatteryExtension0", "ctrlGridOptimizedCharge0",
-				"ctrlEssSurplusFeedToGrid0", "ctrlBalancing0" });
-		config.update(props);
 	}
 
 	@Test
 	public void testAppValidateWorker() throws OpenemsException, Exception {
+		final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
+		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
+
 		assertEquals(this.appManagerTestBundle.sut.instantiatedApps.size(), 4);
 
 		this.appManagerTestBundle.assertNoValidationErrors();

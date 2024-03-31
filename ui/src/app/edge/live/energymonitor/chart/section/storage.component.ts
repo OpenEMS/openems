@@ -144,8 +144,8 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
-        let x = (square.length / 2) * (-1);
-        let y = innerRadius - 5 - square.length;
+        const x = (square.length / 2) * (-1);
+        const y = innerRadius - 5 - square.length;
         return new SvgSquarePosition(x, y);
     }
 
@@ -168,9 +168,9 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     protected setElementHeight() { }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let p = {
+        const v = Math.abs(ratio);
+        const r = radius;
+        const p = {
             topLeft: { x: v * -1, y: v },
             bottomLeft: { x: v * -1, y: r },
             topRight: { x: v, y: v },
@@ -189,9 +189,9 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     }
 
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let animationWidth = r - v;
+        const v = Math.abs(ratio);
+        const r = radius;
+        const animationWidth = r - v;
         let p = {
             topLeft: { x: v * -1, y: v },
             bottomLeft: { x: v * -1, y: r },

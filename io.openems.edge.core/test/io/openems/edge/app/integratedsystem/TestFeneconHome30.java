@@ -36,6 +36,9 @@ public class TestFeneconHome30 {
 					Apps::prepareBatteryExtension //
 			);
 		}, null, new PseudoComponentManagerFactory());
+
+		final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
+		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
 	}
 
 	@Test
@@ -122,21 +125,21 @@ public class TestFeneconHome30 {
 
 		assertNotNull(homeInstance);
 
-		this.appManagerTestBundle.assertExactSchedulerOrder("Initial Home 30 scheduler order",
+		this.appManagerTestBundle.scheduler.assertExactSchedulerOrder("Initial Home 30 scheduler order",
 				"ctrlPrepareBatteryExtension0", "ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0",
 				"ctrlBalancing0");
 
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, homeInstance.alias, fullSettings()));
 
-		this.appManagerTestBundle.assertExactSchedulerOrder("Update Home 30 to add emergency reserve",
+		this.appManagerTestBundle.scheduler.assertExactSchedulerOrder("Update Home 30 to add emergency reserve",
 				"ctrlPrepareBatteryExtension0", "ctrlEmergencyCapacityReserve0", "ctrlGridOptimizedCharge0",
 				"ctrlEssSurplusFeedToGrid0", "ctrlBalancing0");
 
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN, new UpdateAppInstance.Request(
 				homeInstance.instanceId, homeInstance.alias, fullSettingsWithoutEmergencyReserve()));
 
-		this.appManagerTestBundle.assertExactSchedulerOrder("Update Home 30 to remove EmergencyReserve Controller",
+		this.appManagerTestBundle.scheduler.assertExactSchedulerOrder("Update Home 30 to remove EmergencyReserve Controller",
 				"ctrlPrepareBatteryExtension0", "ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0",
 				"ctrlBalancing0");
 	}
@@ -264,7 +267,7 @@ public class TestFeneconHome30 {
 		assertNotNull(homeInstance);
 		appManagerTestBundle.assertNoValidationErrors();
 
-		appManagerTestBundle.assertExactSchedulerOrder("Failed setting initial Home 30 Scheduler configuration",
+		appManagerTestBundle.scheduler.assertExactSchedulerOrder("Failed setting initial Home 30 Scheduler configuration",
 				"ctrlPrepareBatteryExtension0", "ctrlEmergencyCapacityReserve0", "ctrlGridOptimizedCharge0",
 				"ctrlEssSurplusFeedToGrid0", "ctrlBalancing0");
 		return homeInstance;

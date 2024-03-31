@@ -6,7 +6,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from './../shared';
+import * as Chart from 'chart.js';
 
 @Component({
     selector: 'gridChart',
@@ -19,7 +19,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected override service: Service,
@@ -46,19 +46,19 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
 
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
 
-            let result = response.result;
+            const result = response.result;
             // convert labels
-            let labels: Date[] = [];
-            for (let timestamp of result.timestamps) {
+            const labels: Date[] = [];
+            for (const timestamp of result.timestamps) {
                 labels.push(new Date(timestamp));
             }
             this.labels = labels;
 
             // convert datasets
-            let datasets = [];
+            const datasets = [];
 
             if ('_sum/GridActivePower' in result.data) {
-                let gridData = result.data['_sum/GridActivePower'].map(value => {
+                const gridData = result.data['_sum/GridActivePower'].map(value => {
                     if (value == null) {
                         return null;
                     } else if (value == 0) {
@@ -83,7 +83,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                     /**
                      * Buy From Grid
                      */
-                    let gridData = result.data['_sum/GridActivePowerL1'].map(value => {
+                    const gridData = result.data['_sum/GridActivePowerL1'].map(value => {
                         if (value == null) {
                             return null;
                         } else if (value == 0) {
@@ -103,7 +103,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                     /**
                      * Buy From Grid
                      */
-                    let gridData = result.data['_sum/GridActivePowerL2'].map(value => {
+                    const gridData = result.data['_sum/GridActivePowerL2'].map(value => {
                         if (value == null) {
                             return null;
                         } else if (value == 0) {
@@ -123,7 +123,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                     /**
                      * Buy From Grid
                      */
-                    let gridData = result.data['_sum/GridActivePowerL3'].map(value => {
+                    const gridData = result.data['_sum/GridActivePowerL3'].map(value => {
                         if (value == null) {
                             return null;
                         } else if (value == 0) {
@@ -153,7 +153,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let result: ChannelAddress[] = [
+            const result: ChannelAddress[] = [
                 new ChannelAddress('_sum', 'GridActivePower'),
                 new ChannelAddress('_sum', 'GridActivePowerL1'),
                 new ChannelAddress('_sum', 'GridActivePowerL2'),
@@ -164,12 +164,11 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
     }
 
     protected setLabel() {
-        let translate = this.translate; // enables access to TranslateService
-        let options = this.createDefaultChartOptions();
-        options.scales.yAxes[0].scaleLabel.labelString = "kW";
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
+        const translate = this.translate; // enables access to TranslateService
+        const options = this.createDefaultChartOptions();
+        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+            let label = tooltipItem.dataset.label;
+            const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
             // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
             if (value < -0.005) {
                 if (label.includes(translate.instant('General.phase'))) {

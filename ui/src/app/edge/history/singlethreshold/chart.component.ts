@@ -2,12 +2,13 @@ import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import * as Chart from 'chart.js';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChartAxis, YAxisTitle } from 'src/app/shared/service/utils';
 
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from '../shared';
 
 @Component({
   selector: 'singlethresholdChart',
@@ -20,7 +21,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
   ngOnChanges() {
     this.updateChart();
-  };
+  }
 
   constructor(
     protected override service: Service,
@@ -47,9 +48,9 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getConfig().then(config => {
-        let outputChannel: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
-        let inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
-        let result = (response as QueryHistoricTimeseriesDataResponse).result;
+        const outputChannel: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+        const inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
+        const result = (response as QueryHistoricTimeseriesDataResponse).result;
         let yAxisID;
 
         // set yAxis for % values (if there are no other % values: use left yAxis, if there are: use right yAxis - for percent values)
@@ -60,19 +61,19 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
         }
 
         // convert labels
-        let labels: Date[] = [];
-        for (let timestamp of result.timestamps) {
+        const labels: Date[] = [];
+        for (const timestamp of result.timestamps) {
           labels.push(new Date(timestamp));
         }
         this.labels = labels;
-        let datasets = [];
+        const datasets = [];
 
         // convert datasets
-        for (let channel in result.data) {
+        for (const channel in result.data) {
           if ((typeof outputChannel === 'string' && channel == outputChannel)
             || (typeof outputChannel !== 'string' && outputChannel.includes(channel))) {
-            let address = ChannelAddress.fromString(channel);
-            let data = result.data[channel].map(value => {
+            const address = ChannelAddress.fromString(channel);
+            const data = result.data[channel].map(value => {
               if (value == null) {
                 return null;
               } else {
@@ -93,7 +94,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
           }
           if (channel == inputChannel) {
             let inputLabel: string = null;
-            let address = ChannelAddress.fromString(channel);
+            const address = ChannelAddress.fromString(channel);
             switch (address.channelId) {
               case 'GridActivePower':
                 inputLabel = this.translate.instant('General.grid');
@@ -143,6 +144,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
                 hidden: false,
                 yAxisID: yAxisID,
                 position: 'right',
+                unit: YAxisTitle.PERCENTAGE,
               });
 
               this.colors.push({
@@ -173,8 +175,11 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
         console.error(reason); // TODO error message
         this.initializeChart();
         return;
+      }).finally(async () => {
+        this.unit = YAxisTitle.PERCENTAGE;
+        await this.setOptions(this.options);
+        this.addControllerSpecificOptions(this.options);
       });
-
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();
@@ -185,8 +190,8 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
       const inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
-      let result: ChannelAddress[] = [inputChannel];
-      let outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+      const result: ChannelAddress[] = [inputChannel];
+      const outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
       if (typeof outputChannelAddress === 'string') {
         result.push(ChannelAddress.fromString(outputChannelAddress));
       } else {
@@ -197,64 +202,69 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
   }
 
   protected setLabel(config: EdgeConfig) {
-    let inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
-    let outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
-    let outputChannel: ChannelAddress;
-    if (typeof outputChannelAddress === 'string') {
-      outputChannel = ChannelAddress.fromString(outputChannelAddress);
-    } else {
-      outputChannel = ChannelAddress.fromString(outputChannelAddress[0]);
-    }
-    let labelString;
-    let options = this.createDefaultChartOptions();
-    let translate = this.translate;
+    this.options = this.createDefaultChartOptions();
+  }
 
-    if (inputChannel.channelId == 'EssSoc') {
-      labelString = '%';
-      options.scales.yAxes[0].id = "yAxis1";
-      options.scales.yAxes[0].scaleLabel.labelString = labelString;
-    } else if (inputChannel.channelId == 'GridActivePower' || inputChannel.channelId == 'ProductionActivePower') {
-      labelString = 'kW';
-      options.scales.yAxes[0].id = "yAxis1";
-      options.scales.yAxes[0].scaleLabel.labelString = labelString;
-    } else {
-      labelString = config.getChannel(inputChannel)['unit'];
-      options.scales.yAxes[0].id = "yAxis1";
-      options.scales.yAxes[0].scaleLabel.labelString = labelString;
-    }
+  protected addControllerSpecificOptions(options: Chart.ChartOptions) {
 
-    if (inputChannel.channelId != 'EssSoc') {
-      // adds second y-axis to chart
-      options.scales.yAxes.push({
-        id: 'yAxis2',
-        position: 'right',
-        scaleLabel: {
-          display: true,
-          labelString: "%",
-        },
-        gridLines: {
-          display: false,
-        },
-        ticks: {
-          beginAtZero: true,
-          max: 100,
-          padding: -5,
-          stepSize: 20,
-        },
-      });
-    }
-    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-      let label = data.datasets[tooltipItem.datasetIndex].label;
-      let value = tooltipItem.yLabel;
-      if (label == outputChannel.channelId || label == translate.instant('General.soc')) {
-        return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-      } else if (label == translate.instant('General.grid') || label == translate.instant('General.production')) {
-        return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+    this.service.getConfig().then(config => {
+
+      const inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
+      const outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+      let outputChannel: ChannelAddress;
+      if (typeof outputChannelAddress === 'string') {
+        outputChannel = ChannelAddress.fromString(outputChannelAddress);
       } else {
-        return label + ": " + formatNumber(value, 'de', '1.0-2') + " " + labelString;
+        outputChannel = ChannelAddress.fromString(outputChannelAddress[0]);
       }
-    };
-    this.options = options;
+
+      let labelString;
+
+      if (inputChannel.channelId == 'EssSoc') {
+        labelString = '%';
+        this.unit = YAxisTitle.PERCENTAGE;
+        options.scales[ChartAxis.LEFT]['title'].text = labelString;
+      } else if (inputChannel.channelId == 'GridActivePower' || inputChannel.channelId == 'ProductionActivePower') {
+        labelString = 'kW';
+        this.unit = YAxisTitle.ENERGY;
+        options.scales[ChartAxis.LEFT]['title'].text = labelString;
+      } else {
+        labelString = config.getChannel(inputChannel)['unit'];
+        options.scales[ChartAxis.LEFT]['title'].text = labelString;
+      }
+
+      if (inputChannel.channelId != 'EssSoc') {
+        // adds second y-axis to chart
+        options.scales[ChartAxis.RIGHT] = {
+          max: 100,
+          position: 'right',
+          title: {
+            text: '%',
+            display: true,
+          },
+          ticks: {
+            padding: -5,
+            stepSize: 20,
+          },
+        };
+      }
+
+      const translate = this.translate;
+      options.plugins.tooltip.callbacks.label = function (item: Chart.TooltipItem<any>) {
+        const label = item.dataset.label;
+        const value = item.dataset.data[item.dataIndex];
+        if (label == outputChannel.channelId || label == translate.instant('General.soc')) {
+          return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+        } else if (label == translate.instant('General.grid') || label == translate.instant('General.production')) {
+          return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+        } else {
+          return label + ": " + formatNumber(value, 'de', '1.0-2') + " " + labelString;
+        }
+      };
+
+      this.options = options;
+    });
+
   }
 
   public getChartHeight(): number {

@@ -11,8 +11,8 @@
   "Edge": {
     "Index": {
       "EmergencyReserve": {
-        "InfoForEmergencyReserveSlider": "By activating the emergency power reserve, the value can be freely selected between 5% and 100%.",
-        "emergencyReserve": "Emergencyreserve"
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "By activating the emergency power reserve, the value can be freely selected between 5% and 100%.",
+        "EMERGENCY_RESERVE": "Emergencyreserve"
       },
       "Energymonitor": {
         "activePower": "Active power",
@@ -322,7 +322,8 @@
         "systemExecute": "Execute system command",
         "systemProfile": "System Profile",
         "alerting": "Alerting",
-        "networkConfiguration": "Network Configuration"
+        "networkConfiguration": "Network Configuration",
+        "SYSTEM": "System"
       },
       "PROFILE": {
         "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Error while downloading the Modbus Protocol"
@@ -361,26 +362,16 @@
         "newConnection": "New connection...",
         "newDevice": "New device..."
       },
-      "Alerting": {
-        "offlineAlerting": "Offline Notifications",
-        "faultAlerting": "Fault Notifications",
-        "warningAlerting": "Warning Notifications",
-        "deactivated": "Deactivated",
-        "activate": "Activate",
-        "delay": "Delay",
-        "save": "Save",
-        "options": {},
-        "toast": {
-          "success": "Settings applied",
-          "error": "Error loading the settings"
-        },
-        "interval": {
-          "hour": "Hour",
-          "hours": "Hours",
-          "minute": "Minute",
-          "minutes": "Minutes",
-          "day": "Day",
-          "days": "Days"
+      "ALERTING": {
+        "OFFLINE": "Offline Notifications",
+        "FAULT": "Fault Notifications",
+        "WARNING": "Warning Notifications",
+        "DEACTIVATED": "Deactivated",
+        "ACTIVATE": "Activate",
+        "DELAY": "Delay",
+        "TOAST": {
+          "SUCCESS": "Settings applied",
+          "ERROR": "Error loading the settings"
         }
       },
       "App": {
@@ -388,6 +379,7 @@
         "NAME_WITH_EDGE_NAME": "{{ edgeShortName }} App Center",
         "header": "The App Manager is currently in a first test version.",
         "updateAvailable": "There is a new {{ edgeShortName }} version available! Please update the {{ edgeShortName }} so that all new {{ edgeShortName }} Apps are displayed in the App Center.",
+        "UNUSED_REGISTERED_KEY_AVAILABLE": "There's still an App available for installation! You can install it by clicking the 'redeem license key' button.",
         "installed": "Installed",
         "available": "Available",
         "incompatible": "Incompatible",
@@ -447,7 +439,10 @@
       "advancedMode": "Advanced Mode",
       "submit": "Submit"
     },
-    "title": "{{ edgeShortName }}"
+    "title": "{{ edgeShortName }}",
+    "FOOTER": {
+      "REFRESHED_LAST": "updated {{period}} ago"
+    }
   },
   "General": {
     "active": "Active",
@@ -475,6 +470,8 @@
     "directConsumption": "Direct consumption",
     "dischargePower": "Discharge power",
     "fault": "Fault",
+    "FAILED": "failed",
+    "WILL_BE_EXECUTED": "will be executed",
     "grid": "Grid",
     "gridBuy": "Buy from grid",
     "gridBuyAdvanced": "Buy",
@@ -552,7 +549,17 @@
     "yes": "Yes",
     "no": "No",
     "value": "value",
-    "SUM_STATE": "System state"
+    "SUM_STATE": "System state",
+    "SYSTEM": "system",
+    "RESTART": "Restart",
+    "TIME": {
+      "HOUR": "Hour",
+      "HOURS": "Hours",
+      "MINUTE": "Minute",
+      "MINUTES": "Minutes",
+      "DAY": "Day",
+      "DAYS": "Days"
+    }
   },
   "Index": {
     "allConnected": "All connections established.",
@@ -574,12 +581,13 @@
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Note that the selection cannot be undone afterwards.",
     "BACK": "Back",
-    "COMPLETE": "complete",
+    "COMPLETE": "To Online-Monitoring",
     "COMPLETION": {
       "DOWNLOAD_ERROR": "The Protocol could not be downloaded",
       "DOWNLOAD": "IBN-Protocol download",
       "SUB_TITLE": "You have successfully commisioned the {{ value }}.",
-      "TITLE": "Set-up complete"
+      "TITLE": "Set-up complete",
+      "NOTE": "Click here to go to the App Center to configure additional components and install apps."
     },
     "CONFIGURATION_EMERGENCY_RESERVE": {
       "EMERGENCY_RESERVE_NOTE": "If this function is activated, the battery charge level cannot fall below the set value.",
@@ -621,7 +629,6 @@
       "SURPLUS_ENERGY_FEEDIN": "Surplus energy feed-in",
       "TITLE": "Configuration",
       "WAITING": "Configuration running...",
-      "WILL_BE_CONFIGURED": "Will be configured / checked",
       "POWER": "Power",
       "COMMUNICATION_WITH_METER": "Communication with the Meter",
       "WAGO_BRIDGE": "Wago Bridge",
@@ -662,17 +669,17 @@
       "PRODUCER": "Generator",
       "SUMMARY": "Summary",
       "TIME_OF_INSTALLATION": "Time of the installation",
-      "VALUE_AC": "Value AC",
       "WARRANTY_TERMS": "Warranty terms",
-      "PEAK_SHAVING": "Peak shaving",
-      "APPS": "Apps",
-      "HECKERT": "Your chosen free app",
       "ACCEPT": "acceptation",
       "ALIAS_WITH_LABEL_HOME_DC": "Alias MPPT{{mppt}} PV{{pv}}",
       "VALUE_WITH_LABEL_HOME_DC": "Value MPPT{{ mppt }} PV{{ pv }} {{ symbol }}",
       "ORIENTATION_WITH_LABEL_HOME_DC": "MPPT{{ mppt }} PV{{ pv }} Orientation",
       "MODULE_TYPE_WITH_LABEL_HOME_DC": "Type of modules MPPT{{ mppt }} PV{{ pv }}",
-      "NUMBER_OF_MODULES_WITH_LABEL_HOME_DC": "Numnber of PV modules MPPT{{ mppt }} PV{{ pv }}"
+      "NUMBER_OF_MODULES_WITH_LABEL_HOME_DC": "Numnber of PV modules MPPT{{ mppt }} PV{{ pv }}",
+      "DEVICE_CONNECTION_CHECKED": "The energy storage system is connected to the power grid",
+      "ENERGY_FLOW_METER": {
+        "LABEL": "Installed Grid-Meter"
+      }
     },
     "CONFIGURATION_SYSTEM": {
       "OPEN_INSTRUCTIONS": "Open instructions",
@@ -738,10 +745,8 @@
       "TITLE_INSTALLER": "Contact data - Installer",
       "ZIP": "ZIP code"
     },
-    "PROTOCOL_PV_AND_ADDITIONAL_AC": {
-      "ADD": "Add generator",
+    "PROTOCOL_PV": {
       "ADDITIONAL_GENERATOR": "Additional AC-Generator",
-      "ALIAS_DESCRIPTION_ADDITIONAL_AC": "e.g. \"PV-Roof\"",
       "ALIAS_DESCRIPTION_PV": "will be displayed in the Online-Monitoring, e.g. \"PV-Roof\"",
       "ALIAS": "Description",
       "DIRECTIONS": {
@@ -756,12 +761,6 @@
       },
       "INSTALLED_POWER": "Installed power[Wₚ]",
       "MARKED_AS": " MPPT {{ mppt }} (marked as \"PV{{ pv }}\")",
-      "METER_TYPE_WITH_LABEL": "Type of the sensor {{ label }}{{ number }}",
-      "METER_TYPE": "Type of the sensor",
-      "MODBUS_SOCOMEC_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity (partY) \"n\", Communication Stopbit (StoP) \"1\"",
-      "MODBUS_KDK_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity (partY) \"e\", Communication Stopbit (StoP) \"1\"",
-      "MODBUS_WITH_LABEL": "Modbus {{ label }}{{ number }}",
-      "MODBUS": "Modbus",
       "MODULE_TYPE_DESCRIPTION": "e.g. Manufuturer and Power",
       "MODULE_TYPE_WITH_LABEL": "Type of modules {{ label }}{{ number }}",
       "MODULE_TYPE": "Type of modules",
@@ -770,16 +769,10 @@
       "OPEN_MANUAL": "Open manual",
       "ORIENTATION_WITH_LABEL": "{{ label }}{{ number }} Orientation",
       "ORIENTATION": "Orientation",
-      "SAVE_TO_CONTINUE": "First save your entries to continue.",
-      "SAVE": "Save generator",
       "SHADE_MANAGEMENT_DEACTIVATE": "Deactivate Shade management",
       "SHADE_MANAGEMENT_DESCRIPTION": "The shade management has to be disabled, only if optimizers are installed.",
-      "TITLE_ADDITIONAL_AC": "AC-Generator",
       "TITLE_PV": "DC-PV installation (Inverter inputs)",
-      "VALID_DATA": "Enter valid data to save.",
       "TITLE_DC": "DC-PV-Installation",
-      "AC_NOT_CREATED": "AC Meter not created!",
-      "METER_SELECTION_WARNING": "Please select the meter by adding generator.",
       "DUPLICATE": " MPPT {{ mppt }} double occupied (marked as \"PV{{ pv }}\")"
     },
     "PROTOCOL_SERIAL_NUMBERS": {
@@ -828,22 +821,7 @@
     "VALUE_WITH_LABEL": "Value {{ label }}{{ number }} {{ symbol }}",
     "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
     "CONFIGURATION_FEATURES_STORAGE_SYSTEM": {
-      "BALANCING": "Self-Consumption optmization",
-      "PEAK_SHAVING_SYMMETRIC": "Peak shaving",
-      "PEAK_SHAVING_ASYMMETRIC": "Phase Accurate Peak shaving",
-      "FEATURE_DESCRIPTION": "The corresponding App must be available",
-      "HEADER": "Information on the use of the Storage system",
-      "PEAK_SHAVING_SYMMETRIC_HEADER": "Peak load shaving settings",
-      "PEAK_SHAVING_ASYMMETRIC_HEADER": "Phases Accurate peak shaving settings"
-    },
-    "CONFIGURATION_PEAK_SHAVING": {
-      "DISCHARGE_ABOVE_VALUE": "Discharging above - Value [W]",
-      "CHARGE_BELOW_VALUE": "Charging below - Value [W]",
-      "DISCHARGE_ABOVE_DESCRIPTION": "If the grid power is above this value, the battery will be discharged.",
-      "CHARGE_BELOW_DESCRIPTION": "if the grid power is below this value, the battery is charged again.\nThis value must not exceed the \"Discharge over\" value.",
-      "DESCRIPTION": "Entered power values refer to individual phases. It is adjusted to the most heavily loaded phase.",
-      "DISCHARGE_ABOVE_LABEL": "Discharge above",
-      "CHARGE_BELOW_LABEL": "Charge below"
+      "BALANCING": "Self-Consumption optmization"
     },
     "CLICK_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a {{ edgeShortName }}.",
     "CONFIGURATION_COMMERCIAL_MODBUS_COMPONENT": {
@@ -852,7 +830,17 @@
     },
     "CONFIGURATION_COMMERCIAL_MODBUS_BRIDGE": {
       "HEADER": "Select the type of Communication"
-    }
+    },
+    "CONFIGURATION_ENERGY_FLOW_METER": {
+      "TITLE": "Selection of energy flow direction meter",
+      "METER": {
+        "WITH_CT": "Home 3-phase sensor with current transformer 120A (standard scope of delivery)",
+        "WITHOUT_CT": "Home 3-phase sensor without current transformer (optional)",
+        "LABEL": "Meter"
+      },
+      "CONVERTER_RATIO": "Converter ratio (200–5000A)"
+    },
+    "CONFIGURATION_MPPT_SELECTION_NOTE": "Additional generators can then be configured via the App Center."
   },
   "Login": {
     "title": "Login",
@@ -920,7 +908,7 @@
       "emailNotEqual": "E-Mails are not equal"
     },
     "success": "Registration successful",
-    "createUser": "Create installer account"
+    "createUser": "Create account"
   },
   "Role": {
     "guest": "Guest",
@@ -935,11 +923,17 @@
       "NEW_VERSION_INSTALLING": "Install latest version",
       "NEW_VERSION": "Latest version:",
       "OFFLINE": "The {{ edgeShortName }} is offline.",
-      "RESTARTING": "The {{ edge }} is restarting...",
+      "EDGE_RESTARTING": "The {{ edge }} is restarting...",
       "UPDATE_NOT_POSSIBLE": "System cannot be updated!",
       "UPDATE_PROGRESS": "Update in progress.",
       "UPDATE_SEARCH": "Checking for updates...",
-      "UPDATE_TIME": "(This can take up to 10 minutes)"
+      "UPDATE_TIME": "(This can take up to 10 minutes)",
+      "EMS_RESTARTING": "Restart {{edgeShortName}}",
+      "RESTART_FAILED": "Restart of {{system}} failed.",
+      "RESTARTING": "Restarting {{system}}. (This can take up to {{minutes}} minutes)",
+      "RESTARTED": "{{system}} restarting successful.",
+      "RESTART_CONFIRMATION": "Would you like to restart {{system}}?",
+      "RESTART_WARNING": "Communication is interrupted while {{system}} is restarting. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state."
     }
   },
   "CHANNELS": {

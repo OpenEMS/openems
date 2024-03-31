@@ -22,7 +22,7 @@ public class StaticIpAggregateTaskImplTest {
 	public void setUp() throws Exception {
 		this.componentManager = new DummyPseudoComponentManager();
 		this.cm = new DummyConfigurationAdmin();
-		this.componentUtil = new ComponentUtilImpl(this.componentManager, this.cm);
+		this.componentUtil = new ComponentUtilImpl(this.componentManager);
 		this.componentManager.setConfigurationAdmin(this.cm);
 		this.task = new StaticIpAggregateTaskImpl(this.componentUtil);
 		this.task.reset();
