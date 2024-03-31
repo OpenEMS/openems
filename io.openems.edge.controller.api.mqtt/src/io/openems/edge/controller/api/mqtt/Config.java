@@ -24,7 +24,7 @@ import io.openems.common.channel.PersistencePriority;
 	String clientId() default "edge0";
 
 	@AttributeDefinition(name = "Topic prefix", description = "Optional topic prefix (<topic_prefix>/edge/<edge_id>/...)")
-	String optTopicPrefix();
+	String topicPrefix() default "";
 
 	@AttributeDefinition(name = "Username", description = "Username for authentication at MQTT broker")
 	String username();

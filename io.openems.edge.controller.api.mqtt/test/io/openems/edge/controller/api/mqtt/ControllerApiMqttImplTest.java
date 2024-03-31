@@ -1,5 +1,8 @@
 package io.openems.edge.controller.api.mqtt;
 
+import static io.openems.edge.controller.api.mqtt.ControllerApiMqttImpl.createTopicPrefix;
+import static org.junit.Assert.assertEquals;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
 
@@ -25,7 +28,7 @@ public class ControllerApiMqttImplTest {
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setClientId("edge0") //
-						.setOptTopicPrefix("") //
+						.setTopicPrefix("") //
 						.setUsername("guest") //
 						.setPassword("guest") //
 						.setUri("ws://localhost:1883") //
@@ -37,4 +40,19 @@ public class ControllerApiMqttImplTest {
 						.build());
 	}
 
+	@Test
+	public void testCreateTopicPrefix() throws Exception {
+		assertEquals("foo/bar/edge/edge0/", createTopicPrefix(MyConfig.create() //
+				.setClientId("edge0") //
+				.setTopicPrefix("foo/bar") //
+				.build()));
+		assertEquals("edge/edge0/", createTopicPrefix(MyConfig.create() //
+				.setClientId("edge0") //
+				.setTopicPrefix("") //
+				.build()));
+		assertEquals("edge/edge0/", createTopicPrefix(MyConfig.create() //
+				.setClientId("edge0") //
+				.setTopicPrefix(null) //
+				.build()));
+	}
 }

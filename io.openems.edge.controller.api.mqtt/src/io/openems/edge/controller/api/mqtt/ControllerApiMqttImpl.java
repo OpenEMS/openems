@@ -74,10 +74,9 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 		this.config = config;
 
 		// Publish MQTT messages under the topic "edge/edge0/..."
-		this.topicPrefix = String.format(ControllerApiMqtt.TOPIC_PREFIX, config.clientId());
+		this.topicPrefix = createTopicPrefix(config);
 
-		// check for optional prefix and prepend it to the topic prefix
-		String optPrefix = config.optTopicPrefix();
+		String optPrefix = config.topicPrefix();
 		if (optPrefix != null && !optPrefix.isBlank()) {
 			this.topicPrefix = optPrefix + "/" + this.topicPrefix;
 		}
@@ -88,6 +87,26 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 					this.mqttClient = client;
 					this.logInfo(this.log, "Connected to MQTT Broker [" + config.uri() + "]");
 				});
+	}
+
+	/**
+	 * Creates the topc prefix in the format "<topic_prefix>/edge/<edge_id>/".
+	 * 
+	 * @param config the {@link Config}
+	 * @return the prefix
+	 */
+	protected static String createTopicPrefix(Config config) {
+		final var b = new StringBuilder();
+		if (config.topicPrefix() != null && !config.topicPrefix().isBlank()) {
+			b //
+					.append(config.topicPrefix()) //
+					.append("/");
+		}
+		b //
+				.append("edge/") //
+				.append(config.clientId()) //
+				.append("/");
+		return b.toString();
 	}
 
 	@Override
