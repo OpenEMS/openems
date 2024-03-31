@@ -46,7 +46,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     maximumFeedInPower?: number;
     feedInSetting?: FeedInSetting;
     fixedPowerFactor?: FeedInSetting;
-    isManualProperlyFollowedAndRead?: Boolean;
+    isManualProperlyFollowedAndRead?: boolean;
   } = {
       feedInType: FeedInType.DYNAMIC_LIMITATION,
       maximumFeedInPower: 0,
@@ -292,7 +292,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       ).subscribe((currentData) => {
         let anyNullOrUndefined: boolean = false;
         for (const key in channelAddresses) {
-          if (channelAddresses.hasOwnProperty(key)) {
+          if (key in channelAddresses) {
             const channelAddress: ChannelAddress = channelAddresses[key];
             const serialNumber: string = currentData.channel[channelAddress.componentId + '/' + channelAddress.channelId];
 
@@ -885,7 +885,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     });
 
     // ctrlGridOptimizedCharge0
-    let gridOptimizedCharge = {
+    const gridOptimizedCharge = {
       factoryId: 'Controller.Ess.GridOptimizedCharge',
       componentId: 'ctrlGridOptimizedCharge0',
       alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.GRID_OPTIMIZED_CHARGE'),

@@ -21,7 +21,7 @@ export class ProtocolPvComponent implements OnInit {
 
   public constructor(private translate: TranslateService) { }
 
-  public forms: Array<dcForm> = new Array();
+  public forms: Array<dcForm> = [];
 
   public ngOnInit() {
 
@@ -60,7 +60,7 @@ export class ProtocolPvComponent implements OnInit {
   public onNextClicked() {
 
     // Iterate over forms and prohibit onNextClicked if forms are not valid
-    for (let form of this.forms) {
+    for (const form of this.forms) {
       if (form.formGroup.invalid) {
         return;
       }

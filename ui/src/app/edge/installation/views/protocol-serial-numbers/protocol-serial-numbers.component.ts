@@ -143,7 +143,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
    */
   private readSerialNumbersFromRegisters(): Promise<Object>[] {
 
-    let result: Promise<Object>[] = [];
+    const result: Promise<Object>[] = [];
     for (let i = 0; i < this.numberOfTowers; i++) {
       result.push(this.ibn.getSerialNumbersFromEdge(i, this.edge, this.websocket, this.numberOfModulesPerTower));
     }
@@ -195,7 +195,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
     // Based on the Id's collect the Labels to display in the alert.
     serialNumbers.filter(obj => duplicateValues.includes(obj.value))
-      .forEach((value) => this.duplicateSerialNumbers.push(value.label));;
+      .forEach((value) => this.duplicateSerialNumbers.push(value.label));
 
     return serialNumbers;
   }

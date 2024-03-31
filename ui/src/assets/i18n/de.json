@@ -11,8 +11,8 @@
   "Edge": {
     "Index": {
       "EmergencyReserve": {
-        "InfoForEmergencyReserveSlider": "Durch Aktivieren kann eine Notstromreserve zwischen 5 % und 100 % der Batteriekapazität eingestellt werden.",
-        "emergencyReserve": "Notstromreserve"
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Durch Aktivieren kann eine Notstromreserve zwischen 5 % und 100 % der Batteriekapazität eingestellt werden.",
+        "EMERGENCY_RESERVE": "Notstromreserve"
       },
       "Energymonitor": {
         "activePower": "Ausgabeleistung",

@@ -44,12 +44,12 @@ export class Controller_Ess_TimeOfUseTariff {
         soc: number,
     }[]) {
         if(compareVersions(edge.version, "2024.3.1") == 0) {
-            var lastTimestamp = new Date(schedule[0].timestamp);
-            for(var i = 1; i<schedule.length; i++) {
-                var timestamp = new Date(schedule[i].timestamp);
+            let lastTimestamp = new Date(schedule[0].timestamp);
+            for(let i = 1; i<schedule.length; i++) {
+                const timestamp = new Date(schedule[i].timestamp);
                 if(isBefore(timestamp, lastTimestamp)) {
                     const ref = i - 4;
-                    for(var j of [
+                    for(const j of [
                         ref + 1, ref + 2, ref + 3, ref + 4,
                         ref + 6, ref + 7, ref + 8, ref + 9,
                         ref + 11, ref + 12, ref + 13, ref + 14,

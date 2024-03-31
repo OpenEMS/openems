@@ -64,7 +64,7 @@ export class IbnUtils {
 
             // Set the ip in the model of the interface
             // or return if it already exists
-            var address = ip.split('/');
+            const address = ip.split('/');
 
             if ('addresses' in iface.model) {
                 for (const addr of iface.model.addresses) {
@@ -111,9 +111,9 @@ export class IbnUtils {
      * @returns the subnetmask as a string
      */
     private static getSubnetmaskAsString(cidr: any): string {
-        var mask = [];
-        for (var i = 0; i < 4; i++) {
-            var n = Math.min(cidr, 8);
+        const mask = [];
+        for (let i = 0; i < 4; i++) {
+            const n = Math.min(cidr, 8);
             mask.push(256 - Math.pow(2, 8 - n));
             cidr -= n;
         }

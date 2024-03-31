@@ -65,7 +65,7 @@ export enum WebLinks {
 
 export namespace WebLinks {
     export function getLink(link: WebLinks): string {
-        var lang: string = Language.getByKey(localStorage.LANGUAGE).key ?? Language.DEFAULT.key;
+        const lang: string = Language.getByKey(localStorage.LANGUAGE).key ?? Language.DEFAULT.key;
         switch (link) {
             case WebLinks.GTC_LINK:
                 switch (lang) {

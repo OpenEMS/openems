@@ -53,7 +53,7 @@ export class ExecuteSystemUpdate {
             // if the version is a SNAPSHOT always set the udpate state
             // to updated with the current SNAPSHOT version
             if (this.edge.isSnapshot() && !this.edge.roleIsAtLeast(Role.ADMIN)) {
-                let updateState = { updated: { version: this.edge.version } };
+                const updateState = { updated: { version: this.edge.version } };
                 this.setSystemUpdateState(updateState);
                 this.stopRefreshSystemUpdateState();
                 resolve(updateState);
@@ -63,7 +63,7 @@ export class ExecuteSystemUpdate {
                         componentId: "_host",
                         payload: new GetSystemUpdateStateRequest(),
                     })).then(response => {
-                        let result = (response as GetSystemUpdateStateResponse).result;
+                        const result = (response as GetSystemUpdateStateResponse).result;
 
                         this.setSystemUpdateState(result);
                         // Stop regular check if there is no Update available
@@ -96,7 +96,7 @@ export class ExecuteSystemUpdate {
                     payload: new ExecuteSystemUpdateRequest({ isDebug: environment.debugMode }),
                 })).then(response => {
                     // Finished System Update (without restart of OpenEMS Edge)
-                    let systemUpdateState = (response as GetSystemUpdateStateResponse).result;
+                    const systemUpdateState = (response as GetSystemUpdateStateResponse).result;
                     this.setSystemUpdateState(systemUpdateState);
                 }).catch(reason => {
                     reject(reason);
@@ -135,7 +135,7 @@ export class ExecuteSystemUpdate {
                         if (!error["error"]) {
                             return;
                         }
-                        let errorMessage = error["error"]["message"] as string;
+                        const errorMessage = error["error"]["message"] as string;
                         if (!errorMessage) {
                             return;
                         }

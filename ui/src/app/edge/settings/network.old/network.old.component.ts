@@ -14,7 +14,7 @@ export interface InterfaceForm {
   form: FormGroup,
   model: NetworkInterface,
   fields: FormlyFieldConfig[]
-};
+}
 
 @Component({
   selector: NetworkOldComponent.SELECTOR,
@@ -39,9 +39,9 @@ export class NetworkOldComponent implements OnInit {
 
       edge.sendRequest(this.websocket,
         new ComponentJsonApiRequest({ componentId: "_host", payload: new GetNetworkConfigRequest() })).then(response => {
-          let result = (response as GetNetworkConfigResponse).result;
-          for (let name of Object.keys(result.interfaces)) {
-            let iface = result.interfaces[name];
+          const result = (response as GetNetworkConfigResponse).result;
+          for (const name of Object.keys(result.interfaces)) {
+            const iface = result.interfaces[name];
             this.interfaces.push(this.generateInterface(name, iface));
           }
         }).catch(reason => {
@@ -57,7 +57,7 @@ export class NetworkOldComponent implements OnInit {
       iface.model.dns = null;
     }
 
-    let request = {
+    const request = {
       interfaces: {},
     };
     request.interfaces[iface.name] = iface.model;

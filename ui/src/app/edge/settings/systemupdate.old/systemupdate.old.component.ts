@@ -33,7 +33,7 @@ class Package {
   public resetVersions() {
     this.setVersions(null, null);
   }
-};
+}
 
 @Component({
   selector: SystemUpdateOldComponent.SELECTOR,
@@ -48,7 +48,7 @@ export class SystemUpdateOldComponent implements OnInit, OnDestroy {
 
   public edge: Edge = null;
   private ngUnsubscribe = new Subject<void>();
-  public isCurrentlyInstalling: Boolean = null;
+  public isCurrentlyInstalling: boolean = null;
 
   public logLines: {
     time: string,
@@ -89,7 +89,7 @@ export class SystemUpdateOldComponent implements OnInit, OnDestroy {
   private updateVersions() {
     this.log("INFO", "Lese Versionen von FEMS");
 
-    let command = ""
+    const command = ""
       // Read currently installed version
       + "dpkg-query --showformat='" + this.package.name + " current:${Version}\\n' --show " + this.package.name + "; "
       // Read latest version
@@ -109,7 +109,7 @@ export class SystemUpdateOldComponent implements OnInit, OnDestroy {
           command: command,
         }),
       })).then(response => {
-        let result = (response as ExecuteSystemCommandResponse).result;
+        const result = (response as ExecuteSystemCommandResponse).result;
         this.log("INFO", "Versionen gelesen: "
           + result.stdout.join(", ") + " | "
           + result.stderr.join(", ")
@@ -130,7 +130,7 @@ export class SystemUpdateOldComponent implements OnInit, OnDestroy {
         }
 
         // Is currently installing packages?
-        let isCurrentlyInstallingLog = result.stdout[result.stdout.length - 1];
+        const isCurrentlyInstallingLog = result.stdout[result.stdout.length - 1];
         if (isCurrentlyInstallingLog && parseInt(isCurrentlyInstallingLog) > 2) {
           this.isCurrentlyInstalling = true;
         } else {
@@ -184,8 +184,8 @@ export class SystemUpdateOldComponent implements OnInit, OnDestroy {
           }),
 
         })).then(response => {
-          let result = (response as ExecuteSystemCommandResponse).result;
-          for (let stdout of result.stdout) {
+          const result = (response as ExecuteSystemCommandResponse).result;
+          for (const stdout of result.stdout) {
             this.log("OTHER", stdout);
           }
 
@@ -205,7 +205,7 @@ export class SystemUpdateOldComponent implements OnInit, OnDestroy {
         return 'gray';
       case 'ERROR':
         return 'red';
-    };
+    }
     return 'black';
   }
 

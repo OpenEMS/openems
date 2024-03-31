@@ -50,7 +50,7 @@ export class ProtocolSystemComponent implements OnInit {
 
   public generateFields(): FormlyFieldConfig[] {
 
-    let fields: FormlyFieldConfig[] = [];
+    const fields: FormlyFieldConfig[] = [];
 
     fields.push({
       key: "isEqualToCustomerData",

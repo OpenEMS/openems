@@ -23,7 +23,7 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected override service: Service,
@@ -49,16 +49,16 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
         this.loading = true;
         this.colors = [];
         this.queryHistoricTimeseriesData(SoltaroCellChartComponent.DEFAULT_PERIOD.from, SoltaroCellChartComponent.DEFAULT_PERIOD.to).then(response => {
-            let result = response.result;
+            const result = response.result;
             // convert labels
-            let labels: Date[] = [];
-            for (let timestamp of result.timestamps) {
+            const labels: Date[] = [];
+            for (const timestamp of result.timestamps) {
                 labels.push(new Date(timestamp));
             }
             this.labels = labels;
 
             // convert datasets
-            let datasets = [];
+            const datasets = [];
 
             this.channels.forEach(channel => {
                 if (this.battery + '/' + channel.channelName in result.data) {
@@ -95,7 +95,7 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
 
     protected getChannelAddresses(): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let result: ChannelAddress[] = [];
+            const result: ChannelAddress[] = [];
             this.channels.forEach(channel => {
                 result.push(new ChannelAddress(this.battery, channel.channelName));
             });
@@ -104,7 +104,7 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
     }
 
     protected setLabel() {
-        let options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+        const options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
         this.options = options;
     }
 
