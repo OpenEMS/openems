@@ -85,7 +85,12 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Creates the topc prefix in the format "<topic_prefix>/edge/<edge_id>/".
+	 * Creates the topic prefix in either format.
+	 * 
+	 * <ul>
+	 * <li>topic_prefix/edge/edge_id/
+	 * <li>edge/edge_id/
+	 * </ul>
 	 * 
 	 * @param config the {@link Config}
 	 * @return the prefix
