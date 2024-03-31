@@ -2,7 +2,6 @@ package io.openems.edge.meter.eastron.sdm120;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.meter.eastron.sdm120.MyConfig.Builder;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
 

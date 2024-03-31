@@ -2,10 +2,7 @@ package io.openems.edge.meter.eastron.sdm120;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT_IF_TRUE;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SET_ZERO_IF_TRUE;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.chain;
-
-import java.nio.ByteOrder;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -30,7 +27,6 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
-import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -63,10 +59,6 @@ public class MeterEastronSdm120Impl extends AbstractOpenemsModbusComponent
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
-	private MeterType meterType = null;
-	private boolean invert = false;
-	private SinglePhase phase = null;
-
 	@Reference
 	private ConfigurationAdmin cm;
 
@@ -86,14 +78,18 @@ public class MeterEastronSdm120Impl extends AbstractOpenemsModbusComponent
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
+				SinglePhaseMeter.ChannelId.values(), //
 				MeterEastronSdm120.ChannelId.values() //
 		);
+
+		SinglePhaseMeter.calculateSinglePhaseFromActivePower(this);
+		SinglePhaseMeter.calculateSinglePhaseFromReactivePower(this);
+		SinglePhaseMeter.calculateSinglePhaseFromCurrent(this);
+		SinglePhaseMeter.calculateSinglePhaseFromVoltage(this);
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		this.meterType = config.type();
-		this.invert = config.invert();
 		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
@@ -109,65 +105,30 @@ public class MeterEastronSdm120Impl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public MeterType getMeterType() {
-		return this.meterType;
+		return this.config.type();
 	}
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		final var offset = 30001;
+		final var invert = this.config.invert();
+
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(30001 - offset, Priority.HIGH, //
-						m(new FloatDoublewordElement(30001 - offset)) //
-								.m(ElectricityMeter.ChannelId.VOLTAGE, SCALE_FACTOR_3) //
-								.m(ElectricityMeter.ChannelId.VOLTAGE_L1, chain(//
-										SCALE_FACTOR_3, //
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
-								.m(ElectricityMeter.ChannelId.VOLTAGE_L2, chain(//
-										SCALE_FACTOR_3, //
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
-								.m(ElectricityMeter.ChannelId.VOLTAGE_L3, chain(//
-										SCALE_FACTOR_3, //
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3))) //
-								.build(), //
+						m(ElectricityMeter.ChannelId.VOLTAGE, new FloatDoublewordElement(30001 - offset),
+								SCALE_FACTOR_3), //
 						new DummyRegisterElement(30003 - offset, 30006 - offset), //
-						m(new FloatDoublewordElement(30007 - offset)) //
-								.m(ElectricityMeter.ChannelId.CURRENT, SCALE_FACTOR_3) //
-								.m(ElectricityMeter.ChannelId.CURRENT_L1,
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1)) //
-								.m(ElectricityMeter.ChannelId.CURRENT_L2,
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2)) //
-								.m(ElectricityMeter.ChannelId.CURRENT_L3,
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3)) //
-								.build(), //
+						m(ElectricityMeter.ChannelId.CURRENT, new FloatDoublewordElement(30007 - offset),
+								chain(SCALE_FACTOR_3, INVERT_IF_TRUE(invert))), //
 						new DummyRegisterElement(30009 - offset, 30012 - offset), //
-						m(new FloatDoublewordElement(30013 - offset)) //
-								.m(ElectricityMeter.ChannelId.ACTIVE_POWER, INVERT_IF_TRUE(this.invert)) //
-								.m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, chain(//
-										INVERT_IF_TRUE(this.invert),
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
-								.m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, chain(//
-										INVERT_IF_TRUE(this.invert),
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
-								.m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, chain(//
-										INVERT_IF_TRUE(this.invert),
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3))) //
-								.build(), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(30013 - offset),
+								INVERT_IF_TRUE(invert)), //
 						new DummyRegisterElement(30015 - offset, 30024 - offset), //
-						m(new FloatDoublewordElement(30025 - offset)) //
-								.m(ElectricityMeter.ChannelId.REACTIVE_POWER, INVERT_IF_TRUE(this.invert)) //
-								.m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, chain(//
-										INVERT_IF_TRUE(this.invert),
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
-								.m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, chain(//
-										INVERT_IF_TRUE(this.invert),
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
-								.m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, chain(//
-										INVERT_IF_TRUE(this.invert),
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3))) //
-								.build(),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(30025 - offset),
+								INVERT_IF_TRUE(invert)), //
 						new DummyRegisterElement(30027 - offset, 30070 - offset), //
-						m(ElectricityMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(30071 - offset) //
-								.wordOrder(WordOrder.MSWLSW).byteOrder(ByteOrder.BIG_ENDIAN), SCALE_FACTOR_3)));
+						m(ElectricityMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(30071 - offset),
+								SCALE_FACTOR_3)));
 	}
 
 	@Override
@@ -179,7 +140,8 @@ public class MeterEastronSdm120Impl extends AbstractOpenemsModbusComponent
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				ElectricityMeter.getModbusSlaveNatureTable(accessMode) //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
+				SinglePhaseMeter.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
 
@@ -218,6 +180,6 @@ public class MeterEastronSdm120Impl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public SinglePhase getPhase() {
-		return this.phase;
+		return this.config.phase();
 	}
 }
