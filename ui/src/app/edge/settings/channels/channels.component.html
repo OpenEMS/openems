@@ -15,6 +15,7 @@
             <ion-list>
               <ion-item lines="none">
                 <ion-select style="white-space: initial;width: 100%;" #selectedComponentId interface="alert"
+                  (ionChange)="componentSelected = $event.detail.value"
                   [placeholder]="'CHANNELS.Component'| translate">
                   <ion-select-option style=" white-space: normal !important;"
                     *ngFor="let entry of (config.components | keys)" [value]="entry.key">
@@ -23,12 +24,13 @@
               </ion-item>
               <ion-item lines="none">
                 <ion-select style="white-space: initial;width: 100%;" #selectedChannelId interface="alert"
+                  [disabled]="!componentSelected"
                   [placeholder]="'CHANNELS.CHANNEL'| translate">
-                  <ng-container *ngIf="selectedComponentId && selectedComponentId.value">
+                  <ng-container *ngIf="componentSelected">
                     <ion-select-option
-                      *ngFor="let entry of (config.components[selectedComponentId.value].channels | keys)"
-                      [value]="entry.key">
-                      {{ entry.key }}</ion-select-option>
+                      *ngFor="let entry of (config.components[componentSelected]?.channels | keys)" [value]="entry.key">
+                      {{ entry.key }}
+                    </ion-select-option>
                   </ng-container>
                 </ion-select>
               </ion-item>
