@@ -96,7 +96,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                 if (channelAddress.channelId === 'ActualReserveSoc') {
                                     datasets.push({
                                         label:
-                                            this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.emergencyReserve"),
+                                            this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.EMERGENCY_RESERVE"),
                                         data: data,
                                         borderDash: [3, 3],
 

@@ -185,22 +185,22 @@ export class AlertingComponent implements OnInit {
    */
   protected getLabelToDelay(delay: number): string {
     if (delay <= 0) {
-      return this.translate.instant("Edge.Config.Alerting.deactivated");
+      return this.translate.instant("Edge.Config.ALERTING.DEACTIVATED");
     }
     if (delay >= 1440) {
       delay = delay / 1440;
       return delay + ' ' + (delay == 1
-        ? this.translate.instant("Edge.Config.Alerting.interval.day")
-        : this.translate.instant("Edge.Config.Alerting.interval.days"));
+        ? this.translate.instant("General.TIME.DAY")
+        : this.translate.instant("General.TIME.DAYS"));
     } else if (delay >= 60) {
       delay = delay / 60;
       return delay + ' ' + (delay == 1
-        ? this.translate.instant("Edge.Config.Alerting.interval.hour")
-        : this.translate.instant("Edge.Config.Alerting.interval.hours"));
+        ? this.translate.instant("General.TIME.HOUR")
+        : this.translate.instant("General.TIME.HOURS"));
     } else {
       return delay + ' ' + (delay == 1
-        ? this.translate.instant("Edge.Config.Alerting.interval.minute")
-        : this.translate.instant("Edge.Config.Alerting.interval.minutes"));
+        ? this.translate.instant("General.TIME.MINUTE")
+        : this.translate.instant("General.TIME.MINUTES"));
     }
   }
 
@@ -292,7 +292,7 @@ export class AlertingComponent implements OnInit {
       }).catch(reason => {
         let error = reason.error;
         console.error(error);
-        this.errorToast(this.translate.instant('Edge.Config.Alerting.toast.error'), error.message);
+        this.errorToast(this.translate.instant('Edge.Config.ALERTING.TOAST.ERROR'), error.message);
         reject(reason);
       }).finally(() => {
         this.service.stopSpinner(this.spinnerId);
