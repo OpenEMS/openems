@@ -17,7 +17,7 @@ import ja from 'src/assets/i18n/ja.json';
 export class MyTranslateLoader implements TranslateLoader {
 
     public getTranslation(key: string): Observable<any> {
-        var language = Language.getByKey(key);
+        const language = Language.getByKey(key);
         if (language) {
             return of(language.json);
         }
@@ -39,7 +39,7 @@ export class Language {
     public static readonly DEFAULT = Language.DE;
 
     public static getByKey(key: string): Language | null {
-        for (let language of Language.ALL) {
+        for (const language of Language.ALL) {
 
             if (language.key == key) {
                 return language;

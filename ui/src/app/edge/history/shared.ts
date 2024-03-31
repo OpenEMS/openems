@@ -285,7 +285,7 @@ export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions 
         axis: 'x',
         callbacks: {
             title(tooltipItems: Chart.TooltipItem<any>[], data: Data): string {
-                let date = DateUtils.stringToDate(tooltipItems[0]?.label);
+                const date = DateUtils.stringToDate(tooltipItems[0]?.label);
                 return date.toLocaleDateString() + " " + date.toLocaleTimeString();
             },
         },
@@ -293,15 +293,15 @@ export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions 
 };
 
 export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResult: QueryHistoricTimeseriesDataResponse['result']) {
-    let startDate = startOfDay(new Date(queryResult.timestamps[0]));
-    let endDate = new Date(queryResult.timestamps[queryResult.timestamps.length - 1]);
+    const startDate = startOfDay(new Date(queryResult.timestamps[0]));
+    const endDate = new Date(queryResult.timestamps[queryResult.timestamps.length - 1]);
     let activeSum = 0;
     queryResult.data[channel.toString()].forEach(value => {
         activeSum += value;
     });
-    let activePercent = activeSum / queryResult.timestamps.length;
+    const activePercent = activeSum / queryResult.timestamps.length;
     return (differenceInMinutes(endDate, startDate) * activePercent) * 60;
-};
+}
 
 /**
    * Calculates resolution from passed Dates for queryHistoricTime-SeriesData und -EnergyPerPeriod &&
@@ -313,7 +313,7 @@ export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResu
    * @returns resolution and timeformat
    */
 export function calculateResolution(service: Service, fromDate: Date, toDate: Date): { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' | 'year' } {
-    let days = Math.abs(differenceInDays(toDate, fromDate));
+    const days = Math.abs(differenceInDays(toDate, fromDate));
     let result: { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' | 'year' };
 
     if (days <= 1) {
@@ -382,8 +382,8 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
   * @returns true for visible labels; hidden otherwise
   */
 export function isLabelVisible(label: string, orElse?: boolean): boolean {
-    let labelWithoutUnit = "LABEL_" + label.split(":")[0];
-    let value = sessionStorage.getItem(labelWithoutUnit);
+    const labelWithoutUnit = "LABEL_" + label.split(":")[0];
+    const value = sessionStorage.getItem(labelWithoutUnit);
     if (orElse != null && value == null) {
         return orElse;
     } else {
@@ -401,7 +401,7 @@ export function setLabelVisible(label: string, visible: boolean | null): void {
     if (visible == null) {
         return;
     }
-    let labelWithoutUnit = "LABEL_" + label.split(":")[0];
+    const labelWithoutUnit = "LABEL_" + label.split(":")[0];
     sessionStorage.setItem(labelWithoutUnit, visible ? 'true' : 'false');
 }
 

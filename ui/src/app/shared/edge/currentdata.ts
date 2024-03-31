@@ -15,7 +15,7 @@ export class CurrentData {
   }
 
   private getSummary(c: { [channelAddress: string]: any }): DefaultTypes.Summary {
-    let result: DefaultTypes.Summary = {
+    const result: DefaultTypes.Summary = {
       system: {
         totalPower: null,
         autarchy: null,

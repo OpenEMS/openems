@@ -27,7 +27,7 @@ export class HistoryDataErrorComponent {
 type ErrorType = 'TEMPORARY' | 'TOO_LONG' | null;
 
 function toType(response: JsonrpcResponseError | null): ErrorType {
-    let message = response?.error?.message;
+    const message = response?.error?.message;
     if (message === undefined) {
         return null;
     }

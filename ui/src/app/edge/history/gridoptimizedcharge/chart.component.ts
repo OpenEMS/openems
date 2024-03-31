@@ -48,22 +48,22 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getCurrentEdge().then(() => {
-        let result = (response as QueryHistoricTimeseriesDataResponse).result;
+        const result = (response as QueryHistoricTimeseriesDataResponse).result;
 
         // convert labels
-        let labels: Date[] = [];
-        for (let timestamp of result.timestamps) {
+        const labels: Date[] = [];
+        for (const timestamp of result.timestamps) {
           labels.push(new Date(timestamp));
         }
         this.labels = labels;
 
         // convert datasets
-        let datasets = [];
+        const datasets = [];
 
         // Delay Charge Limit data
         if (this.component.id + '/DelayChargeMaximumChargeLimit' in result.data) {
 
-          let delayChargeData = result.data[this.component.id + '/DelayChargeMaximumChargeLimit'].map(value => {
+          const delayChargeData = result.data[this.component.id + '/DelayChargeMaximumChargeLimit'].map(value => {
             if (value == null) {
               return null;
             } else if (value <= 0) {
@@ -86,7 +86,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
 
         // Sell to grid limit - Minimum charge limit data
         if (this.component.id + '/SellToGridLimitMinimumChargeLimit' in result.data) {
-          let sellToGridLimitData = result.data[this.component.id + '/SellToGridLimitMinimumChargeLimit'].map(value => {
+          const sellToGridLimitData = result.data[this.component.id + '/SellToGridLimitMinimumChargeLimit'].map(value => {
             if (value == null) {
               return null;
             } else if (value == 0) {
@@ -122,7 +122,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
             effectivePower = result.data['_sum/EssActivePower'];
           }
 
-          let chargeData = effectivePower.map(value => {
+          const chargeData = effectivePower.map(value => {
             if (value == null) {
               return null;
             } else if (value < 0) {
@@ -146,7 +146,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
 
           // State of charge data
           if ('_sum/EssSoc' in result.data) {
-            let socData = result.data['_sum/EssSoc'].map(value => {
+            const socData = result.data['_sum/EssSoc'].map(value => {
               if (value == null) {
                 return null;
               } else if (value > 100 || value < 0) {
@@ -220,7 +220,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
   protected getChannelAddresses(): Promise<ChannelAddress[]> {
 
     return new Promise((resolve) => {
-      let result: ChannelAddress[] = [
+      const result: ChannelAddress[] = [
         new ChannelAddress('_sum', 'EssActivePower'),
         new ChannelAddress('_sum', 'ProductionDcActualPower'),
         new ChannelAddress('_sum', 'EssSoc'),

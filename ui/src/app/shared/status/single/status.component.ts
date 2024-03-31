@@ -30,7 +30,7 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.service.getConfig().then(config => {
             this.config = config;
-            let categorizedComponentIds: string[] = [];
+            const categorizedComponentIds: string[] = [];
             this.components = config.listActiveComponents(categorizedComponentIds);
             this.components.forEach(categorizedComponent => {
                 categorizedComponent.components.forEach(component => {

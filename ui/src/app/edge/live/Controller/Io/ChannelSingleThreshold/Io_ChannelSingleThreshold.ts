@@ -31,7 +31,7 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
   public switchConverter = Utils.CONVERT_WATT_TO_KILOWATT;
 
   protected override getChannelAddresses() {
-    let outputChannelAddress: string | string[] = this.component.properties['outputChannelAddress'];
+    const outputChannelAddress: string | string[] = this.component.properties['outputChannelAddress'];
     if (typeof outputChannelAddress === 'string') {
       this.outputChannel = ChannelAddress.fromString(outputChannelAddress);
     } else {
