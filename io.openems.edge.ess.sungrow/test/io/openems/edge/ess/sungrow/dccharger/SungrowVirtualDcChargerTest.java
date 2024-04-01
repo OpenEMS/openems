@@ -13,7 +13,6 @@ public class SungrowVirtualDcChargerTest {
 	public void test() throws Exception {
 		new ComponentTest(new SungrowVirtualDcCharger()) //
 				.addReference("cm", new DummyConfigurationAdmin()) // #
-				.addReference("setCore", new SungrowVirtualDcCharger()) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setCoreId("core0") //
