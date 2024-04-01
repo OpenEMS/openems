@@ -34,6 +34,7 @@
 * Add comments to code that is difficult to understand
 * Prefer functional programming (e.g. use Lambda expressions)
 * Add JUnit tests.
+* Run ./gradlew :io.openems.edge.io.shelly:clean in the root Directory of openEMS to check the tests of your module.
 * Run ./tools/prepare-commit.sh script
 
 === Tool support
