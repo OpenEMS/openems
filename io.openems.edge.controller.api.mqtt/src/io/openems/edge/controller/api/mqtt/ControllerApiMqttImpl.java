@@ -227,8 +227,10 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 			return; // Already connected
 		}
 		try {
-			this.mqttConnector.connect(this.config.uri(), this.config.clientId(), this.config.username(), this.config.password(),
-					this.config.certPem(), this.config.privateKeyPem(), this.config.trustStorePem()).thenAccept(client -> {
+			this.mqttConnector
+					.connect(this.config.uri(), this.config.clientId(), this.config.username(), this.config.password(),
+							this.config.certPem(), this.config.privateKeyPem(), this.config.trustStorePem())
+					.thenAccept(client -> {
 						this.mqttClient = client;
 						this.logInfo(this.log, "Connected to MQTT Broker [" + this.config.uri() + "]");
 						this.reconnectionAttempt.set(0); // Reset on successful connection.
@@ -247,7 +249,8 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 		long delay = this.calculateNextDelay();
 		// Ensure the executor service is not shut down
 		if (!this.scheduledExecutorService.isShutdown()) {
-			this.reconnectFuture = this.scheduledExecutorService.schedule(this::attemptConnect, delay, TimeUnit.SECONDS);
+			this.reconnectFuture = this.scheduledExecutorService.schedule(this::attemptConnect, delay,
+					TimeUnit.SECONDS);
 		}
 	}
 
