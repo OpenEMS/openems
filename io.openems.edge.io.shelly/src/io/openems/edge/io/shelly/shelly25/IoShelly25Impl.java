@@ -61,19 +61,14 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	protected void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.baseUrl = "http://" + config.ip();
 		this.httpBridge = this.httpBridgeFactory.get();
 
 		if (this.isEnabled()) {
-			this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", (t, u) -> {
-
-				this.processHttpResult(t, u);
-
-			});
+			this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", this::processHttpResult);
 		}
-
 	}
 
 	@Deactivate
@@ -121,6 +116,16 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 		}
 	}
 
+	record RelayState(Boolean relayIsOn, Boolean overtemp, Boolean overpower) {
+	}
+
+	private static RelayState parseRelay(JsonElement relay) throws OpenemsNamedException {
+		Boolean relayIsOn = JsonUtils.getAsBoolean(relay, "ison");
+		Boolean overtemp = JsonUtils.getAsBoolean(relay, "overtemperature");
+		Boolean overpower = JsonUtils.getAsBoolean(relay, "overpower");
+		return new RelayState(relayIsOn, overtemp, overpower);
+	}
+
 	/**
 	 * Execute on Cycle Event "Before Process Image".
 	 * 
@@ -132,44 +137,33 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	 */
 	private void processHttpResult(JsonElement result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
-		Boolean relay1 = null;
-		Boolean overtemp1 = null;
-		Boolean overpower1 = null;
-		Boolean relay2 = null;
-		Boolean overtemp2 = null;
-		Boolean overpower2 = null;
+		RelayState relay1State = null;
+		RelayState relay2State = null;
 
 		try {
 			JsonElement jsonElement = JsonUtils.getAsJsonElement(result);
 			final var relays = JsonUtils.getAsJsonArray(jsonElement, "relays");
-			for (int i = 0; i < relays.size(); i++) {
-				final var relay = JsonUtils.getAsJsonObject(relays.get(i));
-				final var relayIson = JsonUtils.getAsBoolean(relay, "ison");
-				final var relayOverpower = JsonUtils.getAsBoolean(relay, "overpower");
-				final var relayOvertemp = JsonUtils.getAsBoolean(relay, "overtemperature");
 
+			for (int i = 0; i < 2; i++) {
 				if (i == 0) {
-					relay1 = relayIson;
-					overtemp1 = relayOvertemp;
-					overpower1 = relayOverpower;
+					relay1State = parseRelay(JsonUtils.getAsJsonObject(relays.get(0)));
 				} else if (i == 1) {
-					relay2 = relayIson;
-					overtemp2 = relayOvertemp;
-					overpower2 = relayOverpower;
+					relay2State = parseRelay(JsonUtils.getAsJsonObject(relays.get(1)));
 				}
 			}
 			this._setSlaveCommunicationFailed(false);
 		} catch (OpenemsNamedException e) {
 			this.logDebug(this.log, e.getMessage());
 		}
-		// Sets the Fault Channels accordingly
-		this._setRelay1Overpower(overpower1);
-		this._setRelay2Overpower(overpower2);
-		this._setRelay1Overtemp(overtemp1);
-		this._setRelay2Overtemp(overtemp2);
 
-		this._setRelay1(relay1);
-		this._setRelay2(relay2);
+		this._setRelay1(relay1State.relayIsOn());
+		this._setRelay2(relay2State.relayIsOn());
+
+		this._setRelay1Overtemp(relay1State.overtemp());
+		this._setRelay2Overtemp(relay2State.overtemp());
+
+		this._setRelay1Overpower(relay1State.overpower());
+		this._setRelay2Overpower(relay2State.overpower());
 
 	}
 

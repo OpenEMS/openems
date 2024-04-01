@@ -43,7 +43,7 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_1)),
 
 		/**
-		 * Indicates whether the associated meter is functioning properly.
+		 * Indicates whether the associated Relay is in Overtemp-State.
 		 *
 		 * <ul>
 		 * <li>Interface: Shelly25
