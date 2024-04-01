@@ -57,6 +57,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
+import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ObjectUtils;
 import io.openems.common.utils.PasswordUtils;
 
@@ -178,10 +179,18 @@ public class OdooHandler {
 				new FieldValue<>(Field.EdgeDeviceUserRole.DEVICE_ODOO_ID, edgeId), //
 				new FieldValue<>(Field.EdgeDeviceUserRole.ROLE, userRole.getOdooRole()) //
 		);
-		if (userRole.equals(OdooUserRole.OWNER)) {
-			fields.add(new FieldValue<>(Field.EdgeDeviceUserRole.TIME_TO_WAIT, 60));
-		}
 		OdooUtils.create(this.credentials, Field.EdgeDeviceUserRole.ODOO_MODEL, fields.toArray(FieldValue[]::new));
+
+		// create initial configuration for alerting settings for owner
+		if (!userRole.equals(OdooUserRole.OWNER)) {
+			return;
+		}
+		final var alertingFields = Lists.newArrayList(//
+				new FieldValue<>(Field.AlertingSetting.USER_ODOO_ID, userId), //
+				new FieldValue<>(Field.AlertingSetting.DEVICE_ODOO_ID, edgeId), //
+				new FieldValue<>(Field.AlertingSetting.OFFLINE_DELAY, 60) //
+		);
+		OdooUtils.create(this.credentials, Field.AlertingSetting.ODOO_MODEL, alertingFields.toArray(FieldValue[]::new));
 	}
 
 	/**
@@ -411,32 +420,32 @@ public class OdooHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	public int submitSetupProtocol(MyUser user, JsonObject setupProtocolJson) throws OpenemsNamedException {
-		var userJson = getAsJsonObject(setupProtocolJson, "customer");
-		var edgeJson = getAsJsonObject(setupProtocolJson, "edge");
-		var installerJson = getAsJsonObject(setupProtocolJson, "installer");
-		var oem = getAsString(setupProtocolJson, "oem").toUpperCase();
+		final var userJson = getAsJsonObject(setupProtocolJson, "customer");
+		final var edgeJson = getAsJsonObject(setupProtocolJson, "edge");
+		final var installerJson = getAsJsonObject(setupProtocolJson, "installer");
+		final var oem = getAsString(setupProtocolJson, "oem").toUpperCase();
 
-		var edgeId = getAsString(edgeJson, "id");
-		var foundEdge = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL,
+		final var edgeId = getAsString(edgeJson, "id");
+		final var foundEdge = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL,
 				new Domain(Field.EdgeDevice.NAME, Operator.EQ, edgeId));
 		if (foundEdge.length != 1) {
 			throw new OpenemsException("Edge not found for id [" + edgeId + "]");
 		}
 
-		var password = PasswordUtils.generateRandomPassword(8);
-		var odooUserId = this.createOdooUser(userJson, password, oem);
+		final var password = PasswordUtils.generateRandomPassword(8);
+		final var odooUserId = this.createOdooUser(userJson, password, oem);
 
-		var customerId = this.getOdooPartnerId(odooUserId);
-		var installerId = this.getOdooPartnerId(user);
+		final var customerId = this.getOdooPartnerId(odooUserId);
+		final var installerId = this.getOdooPartnerId(user);
 		this.assignEdgeToUser(odooUserId, foundEdge[0], OdooUserRole.OWNER);
 
-		var protocolId = this.createSetupProtocol(setupProtocolJson, foundEdge[0], customerId, installerId);
+		final var protocolId = this.createSetupProtocol(setupProtocolJson, foundEdge[0], customerId, installerId);
 
 		this.updateEdgeComment(userJson, edgeId, foundEdge[0]);
 
-		var installer = OdooUtils.readOne(this.credentials, Field.Partner.ODOO_MODEL, installerId,
+		final var installer = OdooUtils.readOne(this.credentials, Field.Partner.ODOO_MODEL, installerId,
 				Field.Partner.IS_COMPANY);
-		var isCompany = (boolean) installer.get("is_company");
+		final var isCompany = (boolean) installer.get("is_company");
 		if (!isCompany) {
 			Map<String, Object> fieldsToUpdate = new HashMap<>();
 			getAsOptionalString(installerJson, "firstname") //

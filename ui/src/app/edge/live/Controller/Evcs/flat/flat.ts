@@ -43,14 +43,7 @@ export class FlatComponent extends AbstractFlatWidget {
   protected status: string;
 
   protected override getChannelAddresses(): ChannelAddress[] {
-    let controllers = this.config.getComponentsByFactory("Controller.Evcs");
-    for (let controller of controllers) {
-      let properties = controller.properties;
-      if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
-        this.controller = controller;
-      }
-    }
-    return [
+    const result = [
       new ChannelAddress(this.component.id, 'ChargePower'),
       new ChannelAddress(this.component.id, 'Phases'),
       new ChannelAddress(this.component.id, 'Plug'),
@@ -61,8 +54,17 @@ export class FlatComponent extends AbstractFlatWidget {
       new ChannelAddress(this.component.id, 'MinimumHardwarePower'),
       new ChannelAddress(this.component.id, 'MaximumHardwarePower'),
       new ChannelAddress(this.component.id, 'SetChargePowerLimit'),
-      new ChannelAddress(this.controller.id, '_PropertyEnabledCharging'),
     ];
+
+    const controllers = this.config.getComponentsByFactory("Controller.Evcs");
+    for (const controller of controllers) {
+      const properties = controller.properties;
+      if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
+        this.controller = controller;
+        result.push(new ChannelAddress(controller.id, '_PropertyEnabledCharging'));
+      }
+    }
+    return result;
   }
 
   protected override onCurrentData(currentData: CurrentData) {
@@ -162,7 +164,7 @@ export class FlatComponent extends AbstractFlatWidget {
   }
 
   formatNumber(i: number) {
-    let round = Math.ceil(i / 100) * 100;
+    const round = Math.ceil(i / 100) * 100;
     return round;
   }
 

@@ -18,7 +18,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected override service: Service,
@@ -44,22 +44,22 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
         this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getConfig().then(config => {
-                let meterIdActivePower = config.getComponent(this.componentId).properties['meter.id'] + '/ActivePower';
-                let sellToGridPowerLimit = this.componentId + '/_PropertySellToGridPowerLimit';
-                let continuousSellToGridPower = this.componentId + '/_PropertyContinuousSellToGridPower';
-                let result = response.result;
+                const meterIdActivePower = config.getComponent(this.componentId).properties['meter.id'] + '/ActivePower';
+                const sellToGridPowerLimit = this.componentId + '/_PropertySellToGridPowerLimit';
+                const continuousSellToGridPower = this.componentId + '/_PropertyContinuousSellToGridPower';
+                const result = response.result;
                 // convert labels
-                let labels: Date[] = [];
-                for (let timestamp of result.timestamps) {
+                const labels: Date[] = [];
+                for (const timestamp of result.timestamps) {
                     labels.push(new Date(timestamp));
                 }
                 this.labels = labels;
 
                 // convert datasets
-                let datasets = [];
+                const datasets = [];
 
                 if (meterIdActivePower in result.data) {
-                    let data = result.data[meterIdActivePower].map(value => {
+                    const data = result.data[meterIdActivePower].map(value => {
                         if (value == null) {
                             return null;
                         } else if (value < 0) {
@@ -79,7 +79,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                     });
                 }
                 if (sellToGridPowerLimit in result.data) {
-                    let data = result.data[sellToGridPowerLimit].map(value => {
+                    const data = result.data[sellToGridPowerLimit].map(value => {
                         if (value == null) {
                             return null;
                         } else if (value == 0) {
@@ -100,7 +100,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                     });
                 }
                 if (continuousSellToGridPower in result.data) {
-                    let data = result.data[continuousSellToGridPower].map(value => {
+                    const data = result.data[continuousSellToGridPower].map(value => {
                         if (value == null) {
                             return null;
                         } else if (value == 0) {
@@ -132,7 +132,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                     } else {
                         effectivePower = result.data['_sum/EssActivePower'];
                     }
-                    let chargeData = effectivePower.map(value => {
+                    const chargeData = effectivePower.map(value => {
                         if (value == null) {
                             return null;
                         } else if (value < 0) {
@@ -153,7 +153,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                     /*
                      * Storage Discharge
                      */
-                    let dischargeData = effectivePower.map(value => {
+                    const dischargeData = effectivePower.map(value => {
                         if (value == null) {
                             return null;
                         } else if (value > 0) {
@@ -194,7 +194,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let result: ChannelAddress[] = [
+            const result: ChannelAddress[] = [
                 new ChannelAddress(this.componentId, '_PropertySellToGridPowerLimit'),
                 new ChannelAddress(this.componentId, '_PropertyContinuousSellToGridPower'),
                 new ChannelAddress(config.getComponent(this.componentId).properties['meter.id'], 'ActivePower'),

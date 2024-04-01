@@ -15,13 +15,10 @@ FROM ghcr.io/linuxserver/baseimage-alpine:edge AS base_container
 
 ARG JAVA_VERSION
 
-RUN wget -O /etc/apk/keys/adoptium.rsa.pub https://packages.adoptium.net/artifactory/api/security/keypair/public/repositories/apk  && \
-    echo 'https://packages.adoptium.net/artifactory/apk/alpine/main' >> /etc/apk/repositories
-
 RUN apk update && apk upgrade
 
 RUN apk add --no-cache \
-    temurin-${JAVA_VERSION}-jre
+    openjdk${JAVA_VERSION}-jre
 
 ### Build backend container
 FROM base_container

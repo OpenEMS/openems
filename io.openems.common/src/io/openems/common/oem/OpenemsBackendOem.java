@@ -1,5 +1,7 @@
 package io.openems.common.oem;
 
+import io.openems.common.session.AbstractUser;
+
 public interface OpenemsBackendOem {
 
 	/**
@@ -21,5 +23,17 @@ public interface OpenemsBackendOem {
 	 */
 	public default String getInfluxdbTag() {
 		return "edge";
+	}
+
+	/**
+	 * Anonymize edge comment, dependent on user id.
+	 * 
+	 * @param user    the current user
+	 * @param comment the edge comment
+	 * @param edgeId  the edge id
+	 * @return the edge comment
+	 */
+	public default String anonymizeEdgeComment(AbstractUser user, String comment, String edgeId) {
+		return comment;
 	}
 }

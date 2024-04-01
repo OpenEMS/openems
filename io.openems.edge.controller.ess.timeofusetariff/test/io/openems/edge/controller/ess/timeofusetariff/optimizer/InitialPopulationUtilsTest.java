@@ -10,8 +10,12 @@ import static io.openems.edge.controller.ess.timeofusetariff.optimizer.InitialPo
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.SimulatorTest.hourlyToQuarterly;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.interpolateArray;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.toEnergy;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.UtilsTest.prepareExistingSchedule;
 import static java.util.Arrays.stream;
 import static org.junit.Assert.assertEquals;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
@@ -19,35 +23,41 @@ import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 
 public class InitialPopulationUtilsTest {
 
+	public static final ZonedDateTime TIME = ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
+
 	@Test
 	public void testBuildInitialPopulation() {
 		{
 			var lgt = buildInitialPopulation(Params.create() //
-					.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.states(ControlMode.CHARGE_CONSUMPTION.states) //
-					.existingSchedule() //
+					.setTime(TIME) //
+					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+					.setPrices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
+					.setStates(ControlMode.CHARGE_CONSUMPTION.states) //
+					.setExistingSchedule(prepareExistingSchedule(TIME)) //
 					.build());
 			assertEquals(5, lgt.size()); // No Schedule -> only pure BALANCING + CHARGE_GRID
 		}
 		{
 			var lgt = buildInitialPopulation(Params.create() //
-					.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.states(ControlMode.CHARGE_CONSUMPTION.states) //
-					.existingSchedule(BALANCING, BALANCING) //
+					.setTime(TIME) //
+					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+					.setPrices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
+					.setStates(ControlMode.CHARGE_CONSUMPTION.states) //
+					.setExistingSchedule(prepareExistingSchedule(TIME, BALANCING, BALANCING)) //
 					.build());
 			assertEquals(5, lgt.size()); // Existing Schedule is only BALANCING -> only pure BALANCING + CHARGE_GRID
 		}
 		{
 			var gt = buildInitialPopulation(Params.create() //
-					.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.states(ControlMode.CHARGE_CONSUMPTION.states) //
-					.existingSchedule(CHARGE_GRID, DELAY_DISCHARGE, CHARGE_GRID, DELAY_DISCHARGE, BALANCING) //
+					.setTime(TIME) //
+					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+					.setPrices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
+					.setStates(ControlMode.CHARGE_CONSUMPTION.states) //
+					.setExistingSchedule(prepareExistingSchedule(TIME, //
+							CHARGE_GRID, DELAY_DISCHARGE, CHARGE_GRID, DELAY_DISCHARGE, BALANCING)) //
 					.build()).get(1);
 			assertEquals(2 /* CHARGE_GRID */, gt.get(0).get(0).intValue());
 			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(1).get(0).intValue());
@@ -58,11 +68,13 @@ public class InitialPopulationUtilsTest {
 		}
 		{
 			var gt = buildInitialPopulation(Params.create() //
-					.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.states(ControlMode.DELAY_DISCHARGE.states) //
-					.existingSchedule(CHARGE_GRID, DELAY_DISCHARGE, CHARGE_GRID, DELAY_DISCHARGE, BALANCING) //
+					.setTime(TIME) //
+					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+					.setPrices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
+					.setStates(ControlMode.DELAY_DISCHARGE.states) //
+					.setExistingSchedule(prepareExistingSchedule(TIME, //
+							CHARGE_GRID, DELAY_DISCHARGE, CHARGE_GRID, DELAY_DISCHARGE, BALANCING)) //
 					.build()).get(1);
 			assertEquals(0 /* fallback to BALANCING */, gt.get(0).get(0).intValue());
 			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(1).get(0).intValue());

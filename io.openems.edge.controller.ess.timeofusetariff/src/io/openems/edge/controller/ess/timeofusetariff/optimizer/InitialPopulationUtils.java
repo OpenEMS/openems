@@ -5,11 +5,12 @@ import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.findFirstPeakIndex;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.findFirstValleyIndex;
-import static java.util.Arrays.stream;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.math.Quantiles;
@@ -17,8 +18,8 @@ import com.google.common.math.Quantiles;
 import io.jenetics.Genotype;
 import io.jenetics.IntegerChromosome;
 import io.jenetics.IntegerGene;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
+import io.openems.edge.controller.ess.timeofusetariff.optimizer.Params.OptimizePeriod;
 
 public class InitialPopulationUtils {
 
@@ -44,43 +45,57 @@ public class InitialPopulationUtils {
 	 */
 	public static ImmutableList<Genotype<IntegerGene>> buildInitialPopulation(Params p) {
 		var states = List.of(p.states());
+		if (!states.contains(BALANCING)) {
+			throw new IllegalArgumentException("State option BALANCING is always required!");
+		}
+
 		var b = ImmutableList.<Genotype<IntegerGene>>builder(); //
 
 		// All BALANCING
 		b.add(Genotype.of(//
-				IntStream.range(0, p.numberOfPeriods()) //
+				IntStream.range(0, p.optimizePeriods().size()) //
 						.map(i -> states.indexOf(BALANCING)) //
 						.mapToObj(state -> IntegerChromosome.of(IntegerGene.of(state, 0, p.states().length))) //
 						.toList()));
 
-		if (p.existingSchedule().length > 0 //
-				&& Stream.of(p.existingSchedule()) //
-						.anyMatch(s -> s != BALANCING)) {
+		if (p.existingSchedule().values().stream() //
+				.anyMatch(s -> s != BALANCING)) {
 			// Existing Schedule if available
 			b.add(Genotype.of(//
-					IntStream.range(0, p.numberOfPeriods()) //
-							// Map to state index; not-found maps to '-1', corrected to '0'
-							.map(i -> TypeUtils.fitWithin(0, p.states().length, states.indexOf(//
-									p.existingSchedule().length > i //
-											? p.existingSchedule()[i] //
-											: BALANCING))) //
-							.mapToObj(state -> IntegerChromosome.of(IntegerGene.of(state, 0, p.states().length))) //
+					p.optimizePeriods().stream() //
+							.map(op -> Optional.ofNullable(p.existingSchedule().get(op.time())).orElse(BALANCING))
+							.map(state -> IntegerChromosome.of(IntegerGene.of(//
+									toIndex(states, state), 0, p.states().length))) //
 							.toList()));
 		}
 
 		// Suggest different combinations of CHARGE_GRID and DELAY_CHARGE
 		{
-			var peakIndex = findFirstPeakIndex(findFirstValleyIndex(0, p.prices()), p.prices());
-			var firstPrices = stream(p.prices()).limit(peakIndex).toArray();
+			var prices = p.optimizePeriods().stream() //
+					.mapToDouble(OptimizePeriod::price) //
+					.toArray();
+			var peakIndex = findFirstPeakIndex(findFirstValleyIndex(0, prices), prices);
+			var firstPrices = Arrays.stream(prices).limit(peakIndex).toArray();
+			final BiConsumer<Integer, Integer> addInitialGenotype = (chargeGridPercentile,
+					delayDischargePercentile) -> b.add(generateInitialGenotype(p.optimizePeriods().size(), firstPrices,
+							states, chargeGridPercentile, delayDischargePercentile));
 			if (firstPrices.length > 0 && states.contains(CHARGE_GRID) && states.contains(DELAY_DISCHARGE)) {
-				b.add(generateInitialGenotype(p.numberOfPeriods(), firstPrices, states, 5, 50));
-				b.add(generateInitialGenotype(p.numberOfPeriods(), firstPrices, states, 5, 75));
-				b.add(generateInitialGenotype(p.numberOfPeriods(), firstPrices, states, 10, 50));
-				b.add(generateInitialGenotype(p.numberOfPeriods(), firstPrices, states, 10, 75));
+				addInitialGenotype.accept(5, 50);
+				addInitialGenotype.accept(5, 75);
+				addInitialGenotype.accept(10, 50);
+				addInitialGenotype.accept(10, 75);
 			}
 		}
 
 		return b.build();
+	}
+
+	private static int toIndex(List<StateMachine> states, StateMachine state) {
+		var result = states.indexOf(state);
+		if (result != -1) {
+			return result;
+		}
+		return states.indexOf(BALANCING);
 	}
 
 	private static Genotype<IntegerGene> generateInitialGenotype(int numberOfPeriods, double[] prices,
@@ -100,7 +115,7 @@ public class InitialPopulationUtils {
 											? DELAY_DISCHARGE //
 											: BALANCING;
 						}) //
-						.map(state -> IntegerChromosome.of(IntegerGene.of(states.indexOf(state), 0, states.size()))) //
+						.map(state -> IntegerChromosome.of(IntegerGene.of(toIndex(states, state), 0, states.size()))) //
 						.toList());
 	}
 
