@@ -118,12 +118,9 @@ public class SungrowStringInverterImpl extends AbstractOpenemsModbusComponent im
 
 	private MeterType meterType = MeterType.GRID;
 
-	private boolean invertActivePower;
-
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
-		this.invertActivePower = config.invertActivePower();
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -137,8 +134,6 @@ public class SungrowStringInverterImpl extends AbstractOpenemsModbusComponent im
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		ElementToChannelConverter converter = this.invertActivePower ? ElementToChannelConverter.INVERT
-				: ElementToChannelConverter.DIRECT_1_TO_1;
 
 		return new ModbusProtocol(this, new FC4ReadInputRegistersTask(4989, Priority.HIGH,
 
@@ -202,7 +197,7 @@ public class SungrowStringInverterImpl extends AbstractOpenemsModbusComponent im
 						ElementToChannelConverter.SCALE_FACTOR_2), //
 				new DummyRegisterElement(5024, 5029),
 				m(ElectricityMeter.ChannelId.ACTIVE_POWER,
-						new UnsignedDoublewordElement(5030).wordOrder(WordOrder.LSWMSW), converter),
+						new UnsignedDoublewordElement(5030).wordOrder(WordOrder.LSWMSW)),
 				m(ElectricityMeter.ChannelId.REACTIVE_POWER,
 						new SignedDoublewordElement(5032).wordOrder(WordOrder.LSWMSW)), //
 				m(SungrowStringInverter.ChannelId.POWER_FACTOR, new SignedWordElement(5034)), //

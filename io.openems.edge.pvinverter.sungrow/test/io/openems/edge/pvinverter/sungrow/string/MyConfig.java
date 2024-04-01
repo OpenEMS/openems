@@ -10,7 +10,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private String modbusId = null;
-		private Boolean invertValues;
 		private int modbusUnitId;
 
 		private Builder() {
@@ -28,11 +27,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setModbusUnitId(int modbusUnitId) {
 			this.modbusUnitId = modbusUnitId;
-			return this;
-		}
-
-		public Builder invertValues(boolean invertValues) {
-			this.invertValues = invertValues;
 			return this;
 		}
 
@@ -75,11 +69,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public MeterType type() {
 		return MeterType.PRODUCTION;
-	}
-
-	@Override
-	public boolean invertActivePower() {
-		return this.builder.invertValues;
 	}
 
 }
