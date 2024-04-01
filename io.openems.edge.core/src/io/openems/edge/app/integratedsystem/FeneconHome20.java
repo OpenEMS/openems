@@ -323,6 +323,7 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create() //
 				.setCanSee(Role.INSTALLER) //
+				.setCanDelete(Role.INSTALLER) //
 				.build();
 	}
 

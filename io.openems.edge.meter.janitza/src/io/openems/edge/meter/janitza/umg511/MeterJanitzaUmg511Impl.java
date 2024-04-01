@@ -120,7 +120,8 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(3873), //
 								INVERT_IF_TRUE(this.invert))), //
 				new FC3ReadRegistersTask(3925, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(3925)), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(3925), //
+								INVERT_IF_TRUE(this.invert)), //
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(3927), //
 								INVERT_IF_TRUE(this.invert))), //
 				new FC3ReadRegistersTask(3995, Priority.LOW, //

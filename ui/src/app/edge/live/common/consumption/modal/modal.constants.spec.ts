@@ -10,4 +10,4 @@ export function expectView(config: EdgeConfig, viewContext: OeFormlyViewTester.C
   const generatedView = OeFormlyViewTester.apply(ModalComponent.generateView(DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config), testContext.translate), viewContext);
 
   expect(generatedView).toEqual(view);
-};
+}

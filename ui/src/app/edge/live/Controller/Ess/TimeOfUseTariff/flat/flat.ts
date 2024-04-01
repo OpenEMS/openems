@@ -31,8 +31,8 @@ export class FlatComponent extends AbstractFlatWidget implements OnInit {
     }
 
     protected override onCurrentData(currentData: CurrentData): void {
-        var quarterlyPrice = currentData.allComponents[this.component.id + '/QuarterlyPrices'];
-        var currencyLabel: string = Currency.getCurrencyLabelByEdgeId(this.edge.id);
+        const quarterlyPrice = currentData.allComponents[this.component.id + '/QuarterlyPrices'];
+        const currencyLabel: string = Currency.getCurrencyLabelByEdgeId(this.edge.id);
         this.priceWithCurrency = Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(quarterlyPrice);
     }
 }
