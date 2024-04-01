@@ -2,29 +2,24 @@ package io.openems.edge.io.shelly.shellypro3em;
 
 import org.junit.Test;
 
-import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.meter.api.MeterType;
 
 public class IoShelly3EmImplTest {
 
-	private static final String METER_ID = "io0";
-	private static final String MODBUS_ID = "modbus0";
-
-	private static IoShellyPro3EmImpl meter;
+	private static final String COMPONENT_ID = "io0";
 
 	@Test
-	public void setup() throws Exception {
-		meter = new IoShellyPro3EmImpl();
-		new ComponentTest(meter) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+	public void test() throws Exception {
+		new ComponentTest(new IoShellyPro3EmImpl()) //
+				.addReference("httpBridgeFactory", new DummyBridgeHttpFactory()) //
 				.activate(MyConfig.create() //
-						.setId(METER_ID) //
-						.setModbusId(MODBUS_ID) //
-						.setType(MeterType.GRID) //
-						.build()); //
+						.setId(COMPONENT_ID) //
+						.setIp("127.0.0.1") //
+						.setType(MeterType.CONSUMPTION_METERED) //
+						.build()) //
+		;
 	}
 
 }

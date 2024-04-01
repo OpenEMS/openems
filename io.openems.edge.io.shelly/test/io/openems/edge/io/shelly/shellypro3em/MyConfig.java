@@ -1,7 +1,6 @@
 package io.openems.edge.io.shelly.shellypro3em;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.meter.api.MeterType;
 
 @SuppressWarnings("all")
@@ -9,8 +8,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String modbusId;
-		private int modbusUnitId;
+		private String ip;
 		private MeterType type;
 
 		private Builder() {
@@ -21,8 +19,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setModbusId(String modbusId) {
-			this.modbusId = modbusId;
+		public Builder setIp(String ip) {
+			this.ip = ip;
 			return this;
 		}
 
@@ -53,23 +51,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String modbus_id() {
-		return this.builder.modbusId;
-	}
-
-	@Override
-	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
-	}
-
-	@Override
-	public int modbusUnitId() {
-		return this.builder.modbusUnitId;
+	public String ip() {
+		return this.builder.ip;
 	}
 
 	@Override
 	public MeterType type() {
 		return this.builder.type;
 	}
-
 }

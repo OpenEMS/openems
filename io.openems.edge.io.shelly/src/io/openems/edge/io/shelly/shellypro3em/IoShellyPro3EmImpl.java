@@ -1,9 +1,9 @@
 package io.openems.edge.io.shelly.shellypro3em;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+import static io.openems.common.utils.JsonUtils.getAsFloat;
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static java.lang.Math.round;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -17,21 +17,18 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ModbusComponent;
-import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
-import io.openems.edge.bridge.modbus.api.element.WordOrder;
-import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.bridge.http.api.BridgeHttp;
+import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.timedata.api.Timedata;
@@ -45,45 +42,64 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
-public class IoShellyPro3EmImpl extends AbstractOpenemsModbusComponent implements IoShellyPro3Em, ElectricityMeter,
-		ModbusComponent, OpenemsComponent, ModbusSlave, TimedataProvider, EventHandler {
+public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
+		implements IoShellyPro3Em, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
-	@Reference
-	private ConfigurationAdmin cm;
+	private final Logger log = LoggerFactory.getLogger(IoShellyPro3EmImpl.class);
+
+	private MeterType meterType = null;
+	private String baseUrl;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
-	private Config config = null;
+	@Reference()
+	private BridgeHttpFactory httpBridgeFactory;
+	private BridgeHttp httpBridge;
 
 	public IoShellyPro3EmImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				ModbusComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				IoShellyPro3Em.ChannelId.values() //
 		);
+
+		ElectricityMeter.calculateSumActivePowerFromPhases(this);
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
+	protected void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.meterType = config.type();
+		this.baseUrl = "http://" + config.ip();
+		this.httpBridge = this.httpBridgeFactory.get();
+
+		if (this.isEnabled()) {
+			this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/rpc/EM.GetStatus?id=0", this::processHttpResult);
 		}
-		this.config = config;
+	}
+
+	@Deactivate
+	protected void deactivate() {
+		this.httpBridgeFactory.unget(this.httpBridge);
+		this.httpBridge = null;
+		super.deactivate();
+	}
+
+	@Override
+	public String debugLog() {
+		var b = new StringBuilder();
+		b.append(this.getActivePowerChannel().value().asString());
+
+		return b.toString();
 	}
 
 	@Override
@@ -91,94 +107,74 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsModbusComponent implement
 		if (!this.isEnabled()) {
 			return;
 		}
+
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.calculateEnergy();
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+			-> this.calculateEnergy();
 		}
 	}
 
-	@Override
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
-	}
+	private void processHttpResult(JsonElement result, Throwable error) {
+		this._setSlaveCommunicationFailed(result == null);
 
-	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		return new ModbusProtocol(this,
+		Integer activePower = null;
+		Integer activePowerL1 = null;
+		Integer activePowerL2 = null;
+		Integer activePowerL3 = null;
+		Integer voltageL1 = null;
+		Integer voltageL2 = null;
+		Integer voltageL3 = null;
+		Integer currentL1 = null;
+		Integer currentL2 = null;
+		Integer currentL3 = null;
+		boolean phase_sequence = false;
 
-				new FC4ReadInputRegistersTask(1011, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.CURRENT, //
-								new FloatDoublewordElement(1011).wordOrder(WordOrder.LSWMSW), SCALE_FACTOR_3)),
+		if (error != null) {
+			this.logDebug(this.log, error.getMessage());
 
-				new FC4ReadInputRegistersTask(1013, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER, //
-								new FloatDoublewordElement(1013).wordOrder(WordOrder.LSWMSW), DIRECT_1_TO_1)),
+		} else {
+			try {
+				var response = getAsJsonObject(result);
 
-				new FC4ReadInputRegistersTask(1015, Priority.HIGH, //
-						m(IoShellyPro3Em.ChannelId.TOTAL_APPARENT_POWER, //
-								new FloatDoublewordElement(1015).wordOrder(WordOrder.LSWMSW), DIRECT_1_TO_1)),
+				phase_sequence = response.get("errors").getAsJsonArray().contains(new JsonPrimitive("phase_sequence"));
 
-				new FC4ReadInputRegistersTask(1020, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.VOLTAGE_L1, //
-								new FloatDoublewordElement(1020).wordOrder(WordOrder.LSWMSW), SCALE_FACTOR_3)),
+				// Total Active Power
+				activePower = round(getAsFloat(response, "total_act_power"));
 
-				new FC4ReadInputRegistersTask(1022, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.CURRENT_L1, //
-								new FloatDoublewordElement(1022).wordOrder(WordOrder.LSWMSW), SCALE_FACTOR_3)),
+				// Phase A
+				activePowerL1 = round(getAsFloat(response, "a_act_power"));
+				voltageL1 = round(getAsFloat(response, "a_voltage") * 1000);
+				currentL1 = round(getAsFloat(response, "a_current") * 1000);
 
-				new FC4ReadInputRegistersTask(1024, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, //
-								new FloatDoublewordElement(1024).wordOrder(WordOrder.LSWMSW), DIRECT_1_TO_1)),
+				// Phase B
+				activePowerL2 = round(getAsFloat(response, "b_act_power"));
+				voltageL2 = round(getAsFloat(response, "b_voltage") * 1000);
+				currentL2 = round(getAsFloat(response, "b_current") * 1000);
 
-				new FC4ReadInputRegistersTask(1026, Priority.HIGH, //
-						m(IoShellyPro3Em.ChannelId.APPARENT_POWER_L1, //
-								new FloatDoublewordElement(1026).wordOrder(WordOrder.LSWMSW), DIRECT_1_TO_1)),
+				// Phase C
+				activePowerL3 = round(getAsFloat(response, "c_active_power"));
+				voltageL3 = round(getAsFloat(response, "c_voltage") * 1000);
+				currentL3 = round(getAsFloat(response, "c_current") * 1000);
 
-				new FC4ReadInputRegistersTask(1028, Priority.HIGH, //
-						m(IoShellyPro3Em.ChannelId.COS_PHI_L1, //
-								new FloatDoublewordElement(1028).wordOrder(WordOrder.LSWMSW), DIRECT_1_TO_1)),
+			} catch (OpenemsNamedException e) {
+				this.logDebug(this.log, e.getMessage());
+			}
+		}
 
-				new FC4ReadInputRegistersTask(1040, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.VOLTAGE_L2, //
-								new FloatDoublewordElement(1040).wordOrder(WordOrder.LSWMSW), SCALE_FACTOR_3)),
+		this._setActivePower(activePower);
+		this.channel(IoShellyPro3Em.ChannelId.PHASE_SEQUENCE_ERROR).setNextValue(phase_sequence);
 
-				new FC4ReadInputRegistersTask(1042, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.CURRENT_L2, //
-								new FloatDoublewordElement(1042).wordOrder(WordOrder.LSWMSW), SCALE_FACTOR_3)),
+		this._setActivePowerL1(activePowerL1);
+		this._setVoltageL1(voltageL1);
+		this._setCurrentL1(currentL1);
 
-				new FC4ReadInputRegistersTask(1044, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, //
-								new FloatDoublewordElement(1044).wordOrder(WordOrder.LSWMSW), DIRECT_1_TO_1)),
+		this._setActivePowerL2(activePowerL2);
+		this._setVoltageL2(voltageL2);
+		this._setCurrentL2(currentL2);
 
-				new FC4ReadInputRegistersTask(1046, Priority.HIGH, //
-						m(IoShellyPro3Em.ChannelId.APPARENT_POWER_L2, //
-								new FloatDoublewordElement(1046).wordOrder(WordOrder.LSWMSW), DIRECT_1_TO_1)),
-
-				new FC4ReadInputRegistersTask(1048, Priority.HIGH, //
-						m(IoShellyPro3Em.ChannelId.COS_PHI_L2, //
-								new FloatDoublewordElement(1048).wordOrder(WordOrder.LSWMSW), DIRECT_1_TO_1)),
-
-				new FC4ReadInputRegistersTask(1060, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.VOLTAGE_L3, //
-								new FloatDoublewordElement(1060).wordOrder(WordOrder.LSWMSW), SCALE_FACTOR_3)),
-
-				new FC4ReadInputRegistersTask(1062, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.CURRENT_L3, //
-								new FloatDoublewordElement(1062).wordOrder(WordOrder.LSWMSW), SCALE_FACTOR_3)),
-
-				new FC4ReadInputRegistersTask(1064, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, //
-								new FloatDoublewordElement(1064).wordOrder(WordOrder.LSWMSW), DIRECT_1_TO_1)),
-
-				new FC4ReadInputRegistersTask(1066, Priority.HIGH, //
-						m(IoShellyPro3Em.ChannelId.APPARENT_POWER_L3, //
-								new FloatDoublewordElement(1066).wordOrder(WordOrder.LSWMSW), DIRECT_1_TO_1)),
-
-				new FC4ReadInputRegistersTask(1028, Priority.HIGH, //
-						m(IoShellyPro3Em.ChannelId.COS_PHI_L1, //
-								new FloatDoublewordElement(1028).wordOrder(WordOrder.LSWMSW), DIRECT_1_TO_1)
-
-				));
+		this._setActivePowerL3(activePowerL3);
+		this._setVoltageL3(voltageL3);
+		this._setCurrentL3(currentL3);
 	}
 
 	/**
@@ -200,25 +196,12 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsModbusComponent implement
 	}
 
 	@Override
-	public String debugLog() {
-		return "L:" + this.getActivePower().asString();
-	}
-
-	@Override
-	public MeterType getMeterType() {
-		return this.config.type();
-	}
-
-	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
 
 	@Override
-	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable(//
-				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				ElectricityMeter.getModbusSlaveNatureTable(accessMode) //
-		);
+	public MeterType getMeterType() {
+		return this.meterType;
 	}
 }
