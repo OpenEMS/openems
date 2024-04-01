@@ -87,7 +87,7 @@
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" name="information-outline"></ion-icon>
             <ion-text text-nowrap>
-              <a routerLink="/device/{{ edge.id }}/settings/systemupdate{{ edge.isVersionAtLeast('2021.19.1') ? '' : '.old' }}"
+              <a routerLink="/device/{{ edge.id }}/settings/system{{ edge.isVersionAtLeast('2021.19.1') ? '' : '.old' }}"
                 text-nowrap translate>{{ 'Edge.Config.App.updateAvailable' | translate: {
                 edgeShortName: environment.edgeShortName } }}</a>
             </ion-text>
@@ -96,12 +96,20 @@
       </ion-col>
       <ng-container *ngIf="canEnterKey">
         <ion-col size="12" size-md="6" size-xl="2">
-          <ion-card style="cursor: pointer;" (click)="redeemKey()">
-            <ion-item lines="full" color="primary">
+          <ion-card id="redeemKeyCard" style="cursor: pointer;" (click)="redeemKey()">
+            <ion-item lines="full" color="primary" id="bottom-start">
               <ion-icon slot="start" size="large" name="key-outline"></ion-icon>
               <ion-text text-nowrap translate>Edge.Config.App.Key.useKey</ion-text>
+              <ion-badge *ngIf="numberOfUnusedRegisteredKeys !== 0" slot="end"
+                color="secondary">{{numberOfUnusedRegisteredKeys}}</ion-badge>
             </ion-item>
           </ion-card>
+          <ion-popover #hasKeyPopover [isOpen]="showPopover" side="bottom" alignment="center">
+            <ng-template>
+              <ion-content class="ion-padding" text-nowrap
+                translate>Edge.Config.App.UNUSED_REGISTERED_KEY_AVAILABLE</ion-content>
+            </ng-template>
+          </ion-popover>
         </ion-col>
         <ion-col size="12" size-md="6" size-xl="2">
           <ion-card style="cursor: pointer;" (click)="registerKey()">

@@ -22,7 +22,7 @@ export class ChartOptionsComponent {
     ) { }
 
     async presentPopover(ev: any) {
-        let componentProps = {};
+        const componentProps = {};
         if (this.showPhases !== null) {
             componentProps['showPhases'] = this.showPhases;
         }

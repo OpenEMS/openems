@@ -21,18 +21,18 @@ export class OeFormlyViewTester {
         .map(line => OeFormlyViewTester.applyField(line, context))
         .filter(line => line),
     };
-  };
+  }
 
   private static applyField(field: OeFormlyField, context: OeFormlyViewTester.Context): OeFormlyViewTester.Field {
     switch (field.type) {
       /**
        * OeFormlyField.Line
        */
-      case 'children-line':
-        let tmp = OeFormlyViewTester.applyLineWithChildren(field, context);
+      case 'children-line': {
+        const tmp = OeFormlyViewTester.applyLineWithChildren(field, context);
 
         // Prepare result
-        let result: OeFormlyViewTester.Field.ChildrenLine = {
+        const result: OeFormlyViewTester.Field.ChildrenLine = {
           type: field.type,
           name: tmp.value,
         };
@@ -49,10 +49,10 @@ export class OeFormlyViewTester {
         }
 
         return result;
-
+      }
 
       case "channel-line": {
-        let tmp = OeFormlyViewTester.applyLineOrItem(field, context);
+        const tmp = OeFormlyViewTester.applyLineOrItem(field, context);
         if (tmp == null) {
           return null; // filter did not pass
         }
@@ -66,7 +66,7 @@ export class OeFormlyViewTester {
         }
 
         // Prepare result
-        let result: OeFormlyViewTester.Field.ChannelLine = {
+        const result: OeFormlyViewTester.Field.ChannelLine = {
           type: field.type,
           name: name,
         };
@@ -98,7 +98,7 @@ export class OeFormlyViewTester {
         const name: string = field.name;
 
         // Prepare result
-        let result: OeFormlyViewTester.Field.ValueLine = {
+        const result: OeFormlyViewTester.Field.ValueLine = {
           type: field.type,
           name: name,
         };
@@ -118,7 +118,7 @@ export class OeFormlyViewTester {
        * OeFormlyField.Item
        */
       case "item": {
-        let tmp = OeFormlyViewTester.applyLineOrItem(field, context);
+        const tmp = OeFormlyViewTester.applyLineOrItem(field, context);
         if (tmp == null) {
           return null; // filter did not pass
         }
@@ -162,7 +162,7 @@ export class OeFormlyViewTester {
    /* filter did not pass */ | null {
 
     // Read value from channels
-    let rawValue = field.channel && field.channel in context ? context[field.channel] : null;
+    const rawValue = field.channel && field.channel in context ? context[field.channel] : null;
 
     // Apply filter
     if (field.filter && field.filter(rawValue) === false) {
@@ -170,7 +170,7 @@ export class OeFormlyViewTester {
     }
 
     // Apply converter
-    let value: string = field.converter
+    const value: string = field.converter
       ? field.converter(rawValue)
       : rawValue === null ? null : "" + rawValue;
 
@@ -224,7 +224,7 @@ export class OeChartTester {
 
   public static apply(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', channels: OeTester.Types.Channels, testContext: TestContext, config: EdgeConfig): OeChartTester.View {
 
-    let channelData = OeChartTester.getChannelDataByCharttype(chartType, channels);
+    const channelData = OeChartTester.getChannelDataByCharttype(chartType, channels);
 
     // Set historyPeriod manually with passed timestamps
     testContext.service.historyPeriod.next({
@@ -234,10 +234,10 @@ export class OeChartTester {
     });
 
     // Fill Data
-    let configuration = AbstractHistoryChart.fillChart(chartType, chartData, channelData, channels.energyChannelWithValues);
-    let data: OeChartTester.Dataset.Data[] = OeChartTester.convertChartDatasetsToDatasets(configuration.datasets);
-    let labels: OeChartTester.Dataset.LegendLabel = OeChartTester.convertChartLabelsToLegendLabels(configuration.labels);
-    let options: OeChartTester.Dataset.Option = OeChartTester.convertChartDataToOptions(chartData, chartType, testContext, channels, testContext.translate.currentLang, config);
+    const configuration = AbstractHistoryChart.fillChart(chartType, chartData, channelData, channels.energyChannelWithValues);
+    const data: OeChartTester.Dataset.Data[] = OeChartTester.convertChartDatasetsToDatasets(configuration.datasets);
+    const labels: OeChartTester.Dataset.LegendLabel = OeChartTester.convertChartLabelsToLegendLabels(configuration.labels);
+    const options: OeChartTester.Dataset.Option = OeChartTester.convertChartDataToOptions(chartData, chartType, testContext, channels, testContext.translate.currentLang, config, configuration.datasets);
 
     return {
       datasets: {
@@ -246,7 +246,7 @@ export class OeChartTester {
         options: options,
       },
     };
-  };
+  }
 
   /**
    * Converts chartLabels to legendLabels
@@ -268,9 +268,9 @@ export class OeChartTester {
    * @returns data from a chartData dataset
    */
   public static convertChartDatasetsToDatasets(datasets: ChartDataset[]): OeChartTester.Dataset.Data[] {
-    let fields: OeChartTester.Dataset.Data[] = [];
+    const fields: OeChartTester.Dataset.Data[] = [];
 
-    for (let dataset of datasets) {
+    for (const dataset of datasets) {
       fields.push(
         {
           type: 'data',
@@ -291,21 +291,21 @@ export class OeChartTester {
    * @param channels the channels
    * @returns dataset options
    */
-  public static convertChartDataToOptions(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', testContext: TestContext, channels: OeTester.Types.Channels, locale: string, config: EdgeConfig): OeChartTester.Dataset.Option {
+  public static convertChartDataToOptions(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', testContext: TestContext, channels: OeTester.Types.Channels, locale: string, config: EdgeConfig, datasets: Chart.ChartDataset[]): OeChartTester.Dataset.Option {
 
-    let channelData: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse = OeChartTester.getChannelDataByCharttype(chartType, channels);
-    let displayValues = chartData.output(channelData.result.data);
-    let legendOptions: any[] = [];
+    const channelData: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse = OeChartTester.getChannelDataByCharttype(chartType, channels);
+    const displayValues = chartData.output(channelData.result.data);
+    const legendOptions: any[] = [];
 
     displayValues.forEach(displayValue => {
-      let yAxis = chartData.yAxes.find(yaxis => yaxis?.yAxisId == (displayValue?.yAxisId ?? chartData.yAxes[0].yAxisId));
-      let label = AbstractHistoryChart.getTooltipsLabelName(displayValue.name, yAxis?.unit, typeof displayValue.nameSuffix == 'function' ? displayValue.nameSuffix(channels.energyChannelWithValues) : null);
+      const yAxis = chartData.yAxes.find(yaxis => yaxis?.yAxisId == (displayValue?.yAxisId ?? chartData.yAxes[0].yAxisId));
+      const label = AbstractHistoryChart.getTooltipsLabelName(displayValue.name, yAxis?.unit, typeof displayValue.nameSuffix == 'function' ? displayValue.nameSuffix(channels.energyChannelWithValues) : null);
       legendOptions.push(AbstractHistoryChart.getLegendOptions(label, displayValue));
     });
 
     return {
       type: 'option',
-      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, locale, config),
+      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, locale, config, datasets),
     };
   }
 

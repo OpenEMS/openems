@@ -1,5 +1,7 @@
 package io.openems.backend.uiwebsocket.impl;
 
+import static java.util.Collections.emptyMap;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -242,6 +244,13 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			case "executeSystemUpdate" -> {
 				this.parent.metadata.logGenericSystemLog(new LogUpdateSystem(edgeId, user));
 			}
+			case "executeSystemRestart" -> {
+				final var executeSystemCommandRequest = componentRequest.getPayload();
+				final var p = executeSystemCommandRequest.getParams();
+				this.parent.metadata.logGenericSystemLog(new LogRestartSystem(edgeId, user, //
+						JsonUtils.getAsOptionalString(p, "type").orElse(null) //
+				));
+			}
 			}
 
 			yield null;
@@ -311,7 +320,30 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		@Override
 		public Map<String, String> getValues() {
-			return Map.of();
+			return emptyMap();
+		}
+
+	}
+
+	private record LogRestartSystem(//
+			String edgeId, // non-null
+			User user, // non-null
+			String type // null-able
+	) implements GenericSystemLog {
+
+		@Override
+		public String teaser() {
+			return "Systemrestart";
+		}
+
+		@Override
+		public Map<String, String> getValues() {
+			if (this.type == null) {
+				return emptyMap();
+			}
+			return Map.of(//
+					"type", this.type //
+			);
 		}
 
 	}

@@ -47,7 +47,7 @@ export class EdgeComponent implements OnInit, OnDestroy {
         if (!this.edge) {
             return;
         }
-        this.edge.unsubscribeChannels(this.websocket, '');
+        this.edge.unsubscribeAllChannels(this.websocket);
+        this.service.currentEdge.next(null);
     }
-
 }

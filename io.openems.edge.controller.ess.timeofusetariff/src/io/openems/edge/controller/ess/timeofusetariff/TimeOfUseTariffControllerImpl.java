@@ -43,7 +43,6 @@ import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTota
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleRequest;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Context;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Optimizer;
-import io.openems.edge.controller.ess.timeofusetariff.optimizer.Period;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
@@ -113,15 +112,16 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 
 		// Prepare Optimizer and Context
 		this.optimizer = new Optimizer(() -> Context.create() //
-				.clock(this.componentManager.getClock()) //
-				.sum(this.sum) //
-				.predictorManager(this.predictorManager) //
-				.timeOfUseTariff(this.timeOfUseTariff) //
-				.ess(this.ess) //
-				.ctrlEmergencyCapacityReserves(this.ctrlEmergencyCapacityReserves) //
-				.ctrlLimitTotalDischarges(this.ctrlLimitTotalDischarges) //
-				.controlMode(this.config.controlMode()) //
-				.maxChargePowerFromGrid(this.config.maxChargePowerFromGrid()) //
+				.setClock(this.componentManager.getClock()) //
+				.setSum(this.sum) //
+				.setPredictorManager(this.predictorManager) //
+				.setTimeOfUseTariff(this.timeOfUseTariff) //
+				.setEss(this.ess) //
+				.setCtrlEmergencyCapacityReserves(this.ctrlEmergencyCapacityReserves) //
+				.setCtrlLimitTotalDischarges(this.ctrlLimitTotalDischarges) //
+				.setControlMode(this.config.controlMode()) //
+				.setMaxChargePowerFromGrid(this.config.maxChargePowerFromGrid()) //
+				.setLimitChargePowerFor14aEnWG(this.config.limitChargePowerFor14aEnWG()) //
 				.build());
 	}
 
@@ -175,14 +175,14 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		this.updateVisualizationChannels();
 	}
 
-	private Period getCurrentPeriod() {
-		return this.optimizer.getCurrentPeriod();
+	private StateMachine getCurrentStateMachine() {
+		return this.optimizer.getCurrentStateMachine();
 	}
 
 	private StateMachine getCurrentPeriodState() {
-		var period = this.getCurrentPeriod();
-		if (period != null) {
-			return period.state();
+		var state = this.getCurrentStateMachine();
+		if (state != null) {
+			return state;
 		}
 		return BALANCING; // Default Fallback
 	}
@@ -208,7 +208,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		// Get and apply ActivePower Less-or-Equals Set-Point
 		var activePower = switch (state) {
 		case CHARGE_GRID -> calculateChargeGridPower(this.optimizer.getParams(), this.ess, this.sum,
-				this.config.maxChargePowerFromGrid());
+				this.config.maxChargePowerFromGrid(), this.config.limitChargePowerFor14aEnWG());
 		case DELAY_DISCHARGE -> calculateDelayDischargePower(this.ess);
 		case BALANCING -> null;
 		};
@@ -237,14 +237,19 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	 */
 	private void updateVisualizationChannels() {
 		final Double quarterlyPrice;
-		var period = this.getCurrentPeriod();
+		var period = this.getCurrentStateMachine();
 		if (period == null) {
 			// Values are not available.
 			quarterlyPrice = this.timeOfUseTariff.getPrices().getFirst();
 
 		} else {
-			// First period is always the current period.
-			quarterlyPrice = period.price();
+			var params = this.optimizer.getParams();
+			if (params != null) {
+				// First period is always the current period.
+				quarterlyPrice = params.optimizePeriods().get(0).price();
+			} else {
+				quarterlyPrice = null;
+			}
 		}
 
 		// Set the channels
@@ -284,7 +289,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	public String debugLog() {
 		var b = new StringBuilder() //
 				.append(this.getStateMachine()); //
-		if (this.getCurrentPeriod() == null) {
+		if (this.getCurrentStateMachine() == null) {
 			b.append("|No Schedule available");
 		}
 		return b.toString();
