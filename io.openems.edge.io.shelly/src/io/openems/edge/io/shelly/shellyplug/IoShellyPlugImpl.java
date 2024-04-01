@@ -59,12 +59,11 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent implements IoShel
 	private SinglePhase phase = null;
 	private String baseUrl;
 
-
 	private volatile Timedata timedata;
 
-  @Reference
-  private BridgeHttpFactory httpBridgeFactory;
-  private BridgeHttp httpBridge;
+	@Reference
+	private BridgeHttpFactory httpBridgeFactory;
+	private BridgeHttp httpBridge;
 
 	public IoShellyPlugImpl() {
 		super(//
