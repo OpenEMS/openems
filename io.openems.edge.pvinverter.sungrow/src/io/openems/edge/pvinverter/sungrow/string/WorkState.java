@@ -1,4 +1,4 @@
-package io.openems.edge.pvinverter.sungrow;
+package io.openems.edge.pvinverter.sungrow.string;
 
 import io.openems.common.types.OptionsEnum;
 

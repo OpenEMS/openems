@@ -1,17 +1,13 @@
 package io.openems.edge.ess.sungrow.dccharger;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String modbusId = null;
-		private String coreId = null;
-		private int modbusUnitId; // Make modbusUnitId private
-		private boolean readOnly;
+		private String coreId;
 
 		private Builder() {
 		}
@@ -21,30 +17,19 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setModbusId(String modbusId) {
-			this.modbusId = modbusId;
-			return this;
-		}
-
-		public Builder setModbusUnitId(int modbusUnitId) {
-			this.modbusUnitId = modbusUnitId;
-			return this;
-		}
-		
-		public Builder setCoreId(String id) {
-			this.coreId = this.coreId;
+		public Builder setCoreId(String coreId) {
+			this.coreId = coreId;
 			return this;
 		}
 
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
-
 	}
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -62,6 +47,5 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public String core_id() {
 		return this.builder.coreId;
 	}
-
 
 }

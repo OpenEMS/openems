@@ -7,7 +7,6 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.pvinverter.sungrow.WorkState;
 
 public interface SungrowStringInverter extends OpenemsComponent {
 

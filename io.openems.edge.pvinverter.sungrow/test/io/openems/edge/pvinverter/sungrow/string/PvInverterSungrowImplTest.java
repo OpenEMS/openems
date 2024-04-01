@@ -1,4 +1,4 @@
-package io.openems.edge.pvinverter.sungrow;
+package io.openems.edge.pvinverter.sungrow.string;
 
 import org.junit.Test;
 
@@ -13,7 +13,7 @@ public class PvInverterSungrowImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new PvInverterSungrowImpl()) //
+		new ComponentTest(new SungrowStringInverterImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
