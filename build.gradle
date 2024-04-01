@@ -19,7 +19,7 @@ dependencies {
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(project.java_source as Integer)
 	}
 }
 
@@ -35,6 +35,7 @@ subprojects {
 	}
 	
 	tasks.withType(JavaCompile) {
+		options.release.set(project.java_target as Integer)
 		options.encoding = 'UTF-8'
 		options.fork = true
 		options.incremental = true
@@ -77,6 +78,7 @@ subprojects {
 			reports {
 				xml.required = false
 				html.required = false
+				sarif.required = false
 			}
 			minHeapSize = "256m"
 			maxHeapSize = "1g"
@@ -99,6 +101,17 @@ task cleanEdge() {
 			if (proj.tasks.findAll { it.name == 'clean' }) {
 				dependsOn(proj.clean)
 			}
+		}
+	}
+}
+
+task checkstyleAll() {
+	group 'OpenEMS-Build'
+	description 'Checkstyle all bundles'
+
+	subprojects.each { proj ->
+		if (proj.tasks.findAll { it.name == 'checkstyleMain' }) {
+			dependsOn(proj.checkstyleMain)
 		}
 	}
 }

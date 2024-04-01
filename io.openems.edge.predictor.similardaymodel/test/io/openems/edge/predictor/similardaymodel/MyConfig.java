@@ -1,6 +1,7 @@
 package io.openems.edge.predictor.similardaymodel;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.predictor.api.prediction.LogVerbosity;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -9,6 +10,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String[] channelAddresses;
 		private int numOfWeeks;
+		private LogVerbosity logVerbosity;
 
 		private Builder() {
 		}
@@ -25,6 +27,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setNumOfWeeks(int numOfWeeks) {
 			this.numOfWeeks = numOfWeeks;
+			return this;
+		}
+
+		public Builder setLogVerbosity(LogVerbosity logVerbosity) {
+			this.logVerbosity = logVerbosity;
 			return this;
 		}
 
@@ -59,4 +66,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.channelAddresses;
 	}
 
+	@Override
+	public LogVerbosity logVerbosity() {
+		return this.builder.logVerbosity;
+	}
 }

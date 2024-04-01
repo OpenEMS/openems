@@ -100,7 +100,7 @@ public class GetApps {
 			return availableApps.stream() //
 					.filter(app -> {
 						final var permissions = app.getAppPermissions();
-						if (!userRole.isAtLeast(permissions.canSee)) {
+						if (!userRole.isAtLeast(permissions.canSee())) {
 							return false;
 						}
 						return true;

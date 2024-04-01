@@ -101,6 +101,8 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 		this.config = config;
 		this.topicPrefix = String.format(ControllerApiMqtt.TOPIC_PREFIX, config.clientId());
 	}
+		this.topicPrefix = createTopicPrefix(config);
+
 
 	private synchronized void scheduleReconnect() {
 		if (reconnectFuture != null && !reconnectFuture.isDone()) {
@@ -147,6 +149,31 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 				* Math.pow(RECONNECT_DELAY_MULTIPLIER, reconnectionAttempt.getAndIncrement()));
 		delay = Math.min(delay, MAX_RECONNECT_DELAY_SECONDS); // Ensure delay does not exceed maximum
 		return delay;
+	}
+
+	/**
+	 * Creates the topic prefix in either format.
+	 * 
+	 * <ul>
+	 * <li>topic_prefix/edge/edge_id/
+	 * <li>edge/edge_id/
+	 * </ul>
+	 * 
+	 * @param config the {@link Config}
+	 * @return the prefix
+	 */
+	protected static String createTopicPrefix(Config config) {
+		final var b = new StringBuilder();
+		if (config.topicPrefix() != null && !config.topicPrefix().isBlank()) {
+			b //
+					.append(config.topicPrefix()) //
+					.append("/");
+		}
+		b //
+				.append("edge/") //
+				.append(config.clientId()) //
+				.append("/");
+		return b.toString();
 	}
 
 	@Override

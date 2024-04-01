@@ -1,11 +1,14 @@
-import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Data } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import * as Chart from 'chart.js';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
-import { ChartOptions, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from 'src/app/edge/history/shared';
+import { AbstractHistoryChart as NewAbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { ChartConstants } from 'src/app/shared/genericComponents/chart/chart.constants';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from 'src/app/shared/shared';
+import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisTitle } from 'src/app/shared/service/utils';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
+
 import { GetScheduleRequest } from '../../../../../../shared/jsonrpc/request/getScheduleRequest';
 import { GetScheduleResponse } from '../../../../../../shared/jsonrpc/response/getScheduleResponse';
 
@@ -19,9 +22,9 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
     @Input() public override edge: Edge;
     @Input() public component: EdgeConfig.Component;
 
-    ngOnChanges() {
+    public ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected override service: Service,
@@ -32,12 +35,12 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
         super("powerSoc-chart", service, translate);
     }
 
-    ngOnInit() {
+    public ngOnInit() {
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
     }
 
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.unsubscribeChartRefresh();
     }
 
@@ -52,23 +55,50 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
             new ComponentJsonApiRequest({ componentId: this.component.id, payload: new GetScheduleRequest() }),
         ).then(response => {
             const result = (response as GetScheduleResponse).result;
+            const schedule = result.schedule;
             const datasets = [];
 
             // Extracting prices and states from the schedule array
-            const { productionArray, consumptionArray, socArray, labels } = {
-                productionArray: result.schedule.map(entry => entry.production),
-                consumptionArray: result.schedule.map(entry => entry.consumption),
-                socArray: result.schedule.map(entry => entry.soc),
-                labels: result.schedule.map(entry => new Date(entry.timestamp)),
+            const { gridBuyArray, gridSellArray, productionArray, consumptionArray, essDischargeArray, essChargeArray, socArray, labels } = {
+                gridBuyArray: schedule.map(entry => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.grid)),
+                gridSellArray: schedule.map(entry => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.grid)),
+                productionArray: schedule.map(entry => entry.production),
+                consumptionArray: schedule.map(entry => entry.consumption),
+                essDischargeArray: schedule.map(entry => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.ess)),
+                essChargeArray: schedule.map(entry => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.ess)),
+                socArray: schedule.map(entry => entry.soc),
+                labels: schedule.map(entry => new Date(entry.timestamp)),
             };
+
+            datasets.push({
+                type: 'line',
+                label: this.translate.instant('General.gridBuy'),
+                data: gridBuyArray,
+                hidden: true,
+                order: 1,
+            });
+            this.colors.push({
+                backgroundColor: 'rgba(0,0,0, 0.2)',
+                borderColor: 'rgba(0,0,0, 1)',
+            });
+
+            datasets.push({
+                type: 'line',
+                label: this.translate.instant('General.gridSell'),
+                data: gridSellArray,
+                hidden: true,
+                order: 1,
+            });
+            this.colors.push({
+                backgroundColor: 'rgba(0,0,200, 0.2)',
+                borderColor: 'rgba(0,0,200, 1)',
+            });
 
             datasets.push({
                 type: 'line',
                 label: this.translate.instant('General.production'),
                 data: productionArray,
                 hidden: false,
-                yAxisID: 'yAxis1',
-                position: 'right',
                 order: 1,
             });
             this.colors.push({
@@ -81,13 +111,35 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 label: this.translate.instant('General.consumption'),
                 data: consumptionArray,
                 hidden: false,
-                yAxisID: 'yAxis1',
-                position: 'right',
                 order: 1,
             });
             this.colors.push({
                 backgroundColor: 'rgba(253,197,7,0.2)',
                 borderColor: 'rgba(253,197,7,1)',
+            });
+
+            datasets.push({
+                type: 'line',
+                label: this.translate.instant('General.chargePower'),
+                data: essChargeArray,
+                hidden: true,
+                order: 1,
+            });
+            this.colors.push({
+                backgroundColor: 'rgba(0,223,0, 0.2)',
+                borderColor: 'rgba(0,223,0, 1)',
+            });
+
+            datasets.push({
+                type: 'line',
+                label: this.translate.instant('General.dischargePower'),
+                data: essDischargeArray,
+                hidden: true,
+                order: 1,
+            });
+            this.colors.push({
+                backgroundColor: 'rgba(200,0,0, 0.2)',
+                borderColor: 'rgba(200,0,0, 1)',
             });
 
             // State of charge data
@@ -96,16 +148,15 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 label: this.translate.instant('General.soc'),
                 data: socArray,
                 hidden: false,
-                yAxisID: 'yAxis2',
-                position: 'right',
+                yAxisID: ChartAxis.RIGHT,
                 borderDash: [10, 10],
                 order: 1,
+                unit: YAxisTitle.PERCENTAGE,
             });
             this.colors.push({
                 backgroundColor: 'rgba(189, 195, 199,0.2)',
                 borderColor: 'rgba(189, 195, 199,1)',
             });
-
 
             this.datasets = datasets;
             this.loading = false;
@@ -116,68 +167,52 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
             console.error(reason);
             this.initializeChart();
             return;
+        }).finally(async () => {
+            this.unit = YAxisTitle.POWER;
+            await this.setOptions(this.options);
+            this.applyControllerSpecificOptions();
         });
     }
 
-    protected setLabel() {
-        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-        let translate = this.translate;
+    private applyControllerSpecificOptions() {
+        const rightYAxis: HistoryUtils.yAxes = { position: 'right', unit: YAxisTitle.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
+        const leftYAxis: HistoryUtils.yAxes = { position: 'left', unit: YAxisTitle.ENERGY, yAxisId: ChartAxis.LEFT };
+        const locale = this.service.translate.currentLang;
 
-        //x-axis
-        options.scales.xAxes[0].time.unit = "hour";
+        const scaleOptionsLeft = ChartConstants.getScaleOptions(this.datasets, leftYAxis);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, 'line', locale, true, scaleOptionsLeft);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, 'line', locale, true);
 
-        //y-axis
-        options.scales.yAxes[0].id = "yAxis1";
-        options.scales.yAxes[0].scaleLabel.padding = -2;
-        options.scales.yAxes[0].scaleLabel.fontSize = 11;
-        options.scales.yAxes[0].ticks.padding = -5;
-        options.scales.yAxes[0].ticks.beginAtZero = false; // scale with min and max values.
+        this.datasets = this.datasets.map((el: Chart.ChartDataset) => {
 
-        // Adds second y-axis to chart
-        options.scales.yAxes.push({
-            id: 'yAxis2',
-            position: 'right',
-            scaleLabel: {
-                display: true,
-                labelString: "%",
-                padding: -2,
-                fontSize: 11,
-            },
-            gridLines: {
-                display: false,
-            },
-            ticks: {
-                beginAtZero: true,
-                max: 100,
-                padding: -5,
-                stepSize: 20,
-            },
+            // align particular dataset element to right yAxis
+            if (el.label === this.translate.instant('General.soc')) {
+                el['yAxisID'] = ChartAxis.RIGHT;
+            }
+            return el;
         });
-        options.layout = {
-            padding: {
-                left: 2,
-                right: 2,
-                top: 0,
-                bottom: 0,
-            },
+
+        this.options.scales.x['ticks'] = { source: 'auto', autoSkip: false };
+        this.options.scales.x.ticks.callback = function (value, index, values) {
+            const date = new Date(value);
+
+            // Display the label only if the minutes are zero (full hour)
+            return date.getMinutes() === 0 ? date.getHours() + ':00' : '';
         };
 
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
+        this.options.scales[ChartAxis.RIGHT].grid.display = false;
+    }
 
-            // TODO solve before here
-            if (value === undefined || value === null || Number.isNaN(value)) {
-                return;
-            }
+    protected setLabel() {
+        this.options = this.createDefaultChartOptions();
+        const translate = this.translate;
+        this.options.plugins.tooltip.callbacks.label = function (item: Chart.TooltipItem<any>) {
 
-            if (label === translate.instant('General.soc')) {
-                return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-            }
+            const label = item.dataset.label;
+            const value = item.dataset.data[item.dataIndex];
 
-            return label + ": " + formatNumber(value, 'de', '1.0-0') + ' ' + 'W';
+            return TimeOfUseTariffUtils.getLabel(value, label, translate);
         };
-        this.options = options;
     }
 
     protected getChannelAddresses(): Promise<ChannelAddress[]> {
@@ -185,8 +220,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
     }
 
     public getChartHeight(): number {
-        return this.service.isSmartphoneResolution
-            ? window.innerHeight / 3
-            : window.innerHeight / 4;
+        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
     }
 }

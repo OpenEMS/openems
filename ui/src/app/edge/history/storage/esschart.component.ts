@@ -1,4 +1,3 @@
-import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -6,7 +5,6 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'storageESSChart',
@@ -51,19 +49,19 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
-                    let result = response.result;
+                    const result = response.result;
                     // convert labels
-                    let labels: Date[] = [];
-                    for (let timestamp of result.timestamps) {
+                    const labels: Date[] = [];
+                    for (const timestamp of result.timestamps) {
                         labels.push(new Date(timestamp));
                     }
                     this.labels = labels;
 
                     // convert datasets
-                    let datasets = [];
+                    const datasets = [];
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         channelAddresses.forEach(channelAddress => {
-                            let data = result.data[channelAddress.toString()]?.map(value => {
+                            const data = result.data[channelAddress.toString()]?.map(value => {
                                 if (value == null) {
                                     return null;
                                 } else {
@@ -109,11 +107,12 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                                 }
                             }
                         });
+                    }).finally(async () => {
+                        this.datasets = datasets;
+                        this.loading = false;
+                        this.stopSpinner();
+                        await this.setOptions(this.options);
                     });
-                    this.datasets = datasets;
-                    this.loading = false;
-                    this.stopSpinner();
-
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
@@ -134,11 +133,11 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
-        let component = config.getComponent(this.componentId);
-        let factoryID = component.factoryId;
-        let factory = config.factories[factoryID];
+        const component = config.getComponent(this.componentId);
+        const factoryID = component.factoryId;
+        const factory = config.factories[factoryID];
         return new Promise((resolve, reject) => {
-            let result: ChannelAddress[] = [
+            const result: ChannelAddress[] = [
                 new ChannelAddress(this.componentId, 'ActivePower'),
             ];
             if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
@@ -153,28 +152,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     }
 
     protected setLabel() {
-        let translate = this.translate; // enables access to TranslateService
-        let options = this.createDefaultChartOptions();
-        options.scales.yAxes[0].scaleLabel.labelString = "kW";
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
-            // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
-            if (value < -0.005) {
-                if (label.includes(translate.instant('General.phase'))) {
-                    label += ' ' + translate.instant('General.chargePower');
-                } else {
-                    label = translate.instant('General.chargePower');
-                }
-            } else if (value > 0.005) {
-                if (label.includes(translate.instant('General.phase'))) {
-                    label += ' ' + translate.instant('General.dischargePower');
-                } else {
-                    label = translate.instant('General.dischargePower');
-                }
-            }
-            return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        };
+        const options = this.createDefaultChartOptions();
         this.options = options;
     }
 

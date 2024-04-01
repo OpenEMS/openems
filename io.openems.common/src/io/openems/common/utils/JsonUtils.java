@@ -1,5 +1,7 @@
 package io.openems.common.utils;
 
+import static io.openems.common.utils.EnumUtils.toEnum;
+
 import java.net.Inet4Address;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -1804,7 +1806,7 @@ public class JsonUtils {
 	 *         {@link GsonBuilder#setPrettyPrinting()}
 	 */
 	public static String prettyToString(JsonElement j) {
-		return new GsonBuilder().setPrettyPrinting().create().toJson(j);
+		return new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(j);
 	}
 
 	/**
@@ -2069,18 +2071,6 @@ public class JsonUtils {
 		}
 		if (jPrimitive.isString()) {
 			return jPrimitive.getAsString();
-		}
-		return null;
-	}
-
-	private static <E extends Enum<E>> E toEnum(Class<E> enumType, String name) {
-		if (name == null || name.isBlank()) {
-			return null;
-		}
-		try {
-			return Enum.valueOf(enumType, name.toUpperCase());
-		} catch (IllegalArgumentException e) {
-			// handled below
 		}
 		return null;
 	}

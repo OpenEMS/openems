@@ -3,6 +3,7 @@ package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 import java.time.Clock;
 import java.util.List;
 
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
@@ -12,16 +13,19 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 public record Context(//
 		Clock clock, //
+		Sum sum, //
 		PredictorManager predictorManager, //
 		TimeOfUseTariff timeOfUseTariff, //
 		ManagedSymmetricEss ess, //
 		List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves, //
 		List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges, //
 		ControlMode controlMode, //
-		int maxChargePowerFromGrid) {
+		int maxChargePowerFromGrid, //
+		boolean limitChargePowerFor14aEnWG) {
 
 	public static class Builder {
 		private Clock clock;
+		private Sum sum;
 		private PredictorManager predictorManager;
 		private TimeOfUseTariff timeOfUseTariff;
 		private ManagedSymmetricEss ess;
@@ -29,6 +33,7 @@ public record Context(//
 		private List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges;
 		private ControlMode controlMode;
 		private int maxChargePowerFromGrid;
+		private boolean limitChargePowerFor14aEnWG;
 
 		/**
 		 * The {@link Clock}.
@@ -36,8 +41,19 @@ public record Context(//
 		 * @param clock the {@link Clock}
 		 * @return myself
 		 */
-		public Builder clock(Clock clock) {
+		public Builder setClock(Clock clock) {
 			this.clock = clock;
+			return this;
+		}
+
+		/**
+		 * The {@link Sum}.
+		 * 
+		 * @param sum the {@link Sum}
+		 * @return myself
+		 */
+		public Builder setSum(Sum sum) {
+			this.sum = sum;
 			return this;
 		}
 
@@ -47,7 +63,7 @@ public record Context(//
 		 * @param predictorManager the {@link PredictorManager}
 		 * @return myself
 		 */
-		public Builder predictorManager(PredictorManager predictorManager) {
+		public Builder setPredictorManager(PredictorManager predictorManager) {
 			this.predictorManager = predictorManager;
 			return this;
 		}
@@ -58,7 +74,7 @@ public record Context(//
 		 * @param timeOfUseTariff the {@link TimeOfUseTariff}
 		 * @return myself
 		 */
-		public Builder timeOfUseTariff(TimeOfUseTariff timeOfUseTariff) {
+		public Builder setTimeOfUseTariff(TimeOfUseTariff timeOfUseTariff) {
 			this.timeOfUseTariff = timeOfUseTariff;
 			return this;
 		}
@@ -69,7 +85,7 @@ public record Context(//
 		 * @param ess the {@link ManagedSymmetricEss}
 		 * @return myself
 		 */
-		public Builder ess(ManagedSymmetricEss ess) {
+		public Builder setEss(ManagedSymmetricEss ess) {
 			this.ess = ess;
 			return this;
 		}
@@ -81,7 +97,7 @@ public record Context(//
 		 *                                      {@link ControllerEssEmergencyCapacityReserve}
 		 * @return myself
 		 */
-		public Builder ctrlEmergencyCapacityReserves(
+		public Builder setCtrlEmergencyCapacityReserves(
 				List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves) {
 			this.ctrlEmergencyCapacityReserves = ctrlEmergencyCapacityReserves;
 			return this;
@@ -94,7 +110,7 @@ public record Context(//
 		 *                                 {@link ControllerEssLimitTotalDischarge}
 		 * @return myself
 		 */
-		public Builder ctrlLimitTotalDischarges(List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges) {
+		public Builder setCtrlLimitTotalDischarges(List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges) {
 			this.ctrlLimitTotalDischarges = ctrlLimitTotalDischarges;
 			return this;
 		}
@@ -105,7 +121,7 @@ public record Context(//
 		 * @param controlMode the {@link ControlMode}
 		 * @return myself
 		 */
-		public Builder controlMode(ControlMode controlMode) {
+		public Builder setControlMode(ControlMode controlMode) {
 			this.controlMode = controlMode;
 			return this;
 		}
@@ -116,8 +132,19 @@ public record Context(//
 		 * @param maxChargePowerFromGrid the maxChargePowerFromGrid
 		 * @return myself
 		 */
-		public Builder maxChargePowerFromGrid(int maxChargePowerFromGrid) {
+		public Builder setMaxChargePowerFromGrid(int maxChargePowerFromGrid) {
 			this.maxChargePowerFromGrid = maxChargePowerFromGrid;
+			return this;
+		}
+
+		/**
+		 * Always apply 14a EnWG limit of 4.2 kW.
+		 * 
+		 * @param limitChargePowerFor14aEnWG boolean
+		 * @return myself
+		 */
+		public Builder setLimitChargePowerFor14aEnWG(boolean limitChargePowerFor14aEnWG) {
+			this.limitChargePowerFor14aEnWG = limitChargePowerFor14aEnWG;
 			return this;
 		}
 
@@ -127,9 +154,9 @@ public record Context(//
 		 * @return the {@link Context} record
 		 */
 		public Context build() {
-			return new Context(this.clock, this.predictorManager, this.timeOfUseTariff, this.ess,
+			return new Context(this.clock, this.sum, this.predictorManager, this.timeOfUseTariff, this.ess,
 					this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges, this.controlMode,
-					this.maxChargePowerFromGrid);
+					this.maxChargePowerFromGrid, this.limitChargePowerFor14aEnWG);
 		}
 	}
 

@@ -12,7 +12,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceScope;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -41,7 +40,8 @@ import io.openems.edge.timedata.api.Timeranges;
 public final class TimedataRrd4jImpl extends AbstractOpenemsComponent
 		implements TimedataRrd4j, Timedata, OpenemsComponent, EventHandler {
 
-	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
+	@Reference
+	private RecordWorkerFactory workerFactory;
 	private RecordWorker worker;
 
 	@Reference
@@ -62,6 +62,7 @@ public final class TimedataRrd4jImpl extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.debugMode = config.debugMode();
 
+		this.worker = this.workerFactory.get();
 		this.worker.setConfig(new RecordWorker.Config(//
 				this.id(), //
 				config.isReadOnly(), //
@@ -78,6 +79,8 @@ public final class TimedataRrd4jImpl extends AbstractOpenemsComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+		this.workerFactory.unget(this.worker);
+		this.worker = null;
 	}
 
 	@Override

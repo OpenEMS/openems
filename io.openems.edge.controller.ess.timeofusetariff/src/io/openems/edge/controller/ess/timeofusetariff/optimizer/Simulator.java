@@ -2,21 +2,21 @@ package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
 import static io.jenetics.engine.EvolutionResult.toBestGenotype;
 import static io.jenetics.engine.Limits.byExecutionTime;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.buildInitialPopulation;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateBalancingChargeDischarge;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateEssMaxCharge;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateEssMaxDischarge;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateStateChargeEnergy;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.InitialPopulationUtils.buildInitialPopulation;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.paramsAreValid;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.postprocessSimulatorState;
 import static java.lang.Math.max;
 import static java.time.Duration.ofSeconds;
 
+import java.time.ZonedDateTime;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedMap;
 
 import io.jenetics.Genotype;
 import io.jenetics.IntegerChromosome;
@@ -24,74 +24,99 @@ import io.jenetics.IntegerGene;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionResult;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
+import io.openems.edge.controller.ess.timeofusetariff.optimizer.Params.Length;
+import io.openems.edge.controller.ess.timeofusetariff.optimizer.Params.OptimizePeriod;
 
 public class Simulator {
 
 	/** Used to incorporate charge/discharge efficiency. */
-	public static final double EFFICIENCY_FACTOR = 1.2;
+	public static final double EFFICIENCY_FACTOR = 1.17;
 
-	protected static double calculateCost(Params p, StateMachine[] states) {
-		return calculateCost(p, states, null);
+	public record Period(OptimizePeriod op, StateMachine state, int essInitial, EnergyFlow ef) {
 	}
 
-	protected static double calculateCost(Params p, StateMachine[] states, Consumer<Period> collect) {
+	/**
+	 * Simulates a Schedule and calculates the cost.
+	 * 
+	 * @param p        the {@link Params}
+	 * @param schedule the {@link StateMachine} states of the Schedule
+	 * @return the cost, lower is better; always positive
+	 */
+	protected static double calculateCost(Params p, StateMachine[] schedule) {
 		final var nextEssInitial = new AtomicInteger(p.essInitialEnergy());
 		var sum = 0.;
-		for (var i = 0; i < p.numberOfPeriods(); i++) {
-			sum += calculatePeriodCost(p, i, states, nextEssInitial, collect);
+		for (var i = 0; i < p.optimizePeriods().size(); i++) {
+			sum += simulatePeriod(p, p.optimizePeriods().get(i), schedule[i], nextEssInitial, null);
 		}
 		return sum;
 	}
 
-	protected static double calculatePeriodCost(Params p, int i, StateMachine[] states,
+	/**
+	 * Simulates a Schedule in quarterly periods.
+	 * 
+	 * @param p        the {@link Params}
+	 * @param schedule the {@link StateMachine} states of the Schedule
+	 * @return a Map of {@link Period}s
+	 */
+	protected static ImmutableSortedMap<ZonedDateTime, Period> simulate(Params p, StateMachine[] schedule) {
+		final var nextEssInitial = new AtomicInteger(p.essInitialEnergy());
+		var result = ImmutableSortedMap.<ZonedDateTime, Period>naturalOrder();
+		for (var i = 0; i < p.optimizePeriods().size(); i++) {
+			var state = schedule[i];
+			var op = p.optimizePeriods().get(i);
+			var length = op.quarterPeriods().size() == 1 ? Length.QUARTER : Length.HOUR;
+			// Convert mixed OptimizePeriods to pure quarterly
+			for (var qp : op.quarterPeriods()) {
+				var quarterlyOp = new OptimizePeriod(qp.time(), length, qp.essMaxChargeEnergy(),
+						qp.essMaxDischargeEnergy(), qp.essChargeInChargeGrid(), qp.maxBuyFromGrid(), qp.production(),
+						qp.consumption(), qp.price(), ImmutableList.of(qp));
+				simulatePeriod(p, quarterlyOp, state, nextEssInitial, period -> result.put(period.op().time(), period));
+			}
+		}
+		return result.build();
+	}
+
+	/**
+	 * Calculates the cost of one Period under the given Schedule.
+	 * 
+	 * @param p              the {@link Params}
+	 * @param op             the current {@link OptimizePeriod}
+	 * @param state          the {@link StateMachine} of the current period
+	 * @param nextEssInitial the initial SoC-Energy; also used as return value
+	 * @param collect        a {@link Consumer} to collect the simulation results if
+	 *                       required. We are not always collecting results to
+	 *                       reduce workload during simulation.
+	 * @return the cost, lower is better; always positive
+	 */
+	protected static double simulatePeriod(Params p, OptimizePeriod op, StateMachine state,
 			final AtomicInteger nextEssInitial, Consumer<Period> collect) {
-		final var production = p.productions()[i];
-		final var consumption = p.consumptions()[i];
-		final var state = states[i];
-		final var essInitial = nextEssInitial.get();
-		final var essMaxCharge = calculateEssMaxCharge(p.essMaxSocEnergy(), p.essMaxEnergyPerPeriod(), essInitial);
-		final var essMaxDischarge = calculateEssMaxDischarge(p.essMinSocEnergy(), p.essMaxEnergyPerPeriod(),
-				essInitial);
-		final var price = p.prices()[i];
-		final var balancingChargeDischarge = calculateBalancingChargeDischarge(essMaxCharge, essMaxDischarge,
-				production, consumption);
-		var essChargeDischarge = switch (state) {
-		case BALANCING ->
-			// Apply behaviour of ESS Balancing Controller
-			balancingChargeDischarge;
+		// Constants
+		final var essInitial = max(0, nextEssInitial.get()); // always at least '0'
 
-		case DELAY_DISCHARGE -> 0;
-
-		case CHARGE ->
-			// Charge from grid; max 'maxBuyFromGrid'
-			calculateStateChargeEnergy(p.essMaxChargePerPeriod(), p.maxBuyFromGrid(), consumption, production,
-					essMaxCharge);
+		// Calculate Energy-Flow
+		final var ef = switch (state) {
+		case BALANCING -> EnergyFlow.withBalancing(p, op, essInitial);
+		case DELAY_DISCHARGE -> EnergyFlow.withDelayDischarge(p, op, essInitial);
+		case CHARGE_GRID -> EnergyFlow.withChargeGrid(p, op, essInitial);
 		};
 
-		// Calculate Grid energy
-		var grid = consumption - production - essChargeDischarge;
-		nextEssInitial.set(essInitial - essChargeDischarge);
-		var gridConsumption = consumption - production //
-				- max(essChargeDischarge, 0) /* consider only ESS discharge, i.e. positive values */;
-		var gridEssCharge = grid - gridConsumption;
+		nextEssInitial.set(essInitial - ef.ess());
 
+		// Calculate Cost
 		double cost;
-		if (grid > 0) {
+		if (ef.grid() > 0) {
 			cost = // Cost for direct Consumption
-					gridConsumption * price
+					ef.gridToConsumption() * op.price()
 							// Cost for future Consumption after storage
-							+ gridEssCharge * price * EFFICIENCY_FACTOR;
+							+ ef.gridToEss() * op.price() * EFFICIENCY_FACTOR;
 
 		} else {
 			// Sell-to-Grid
 			cost = 0.;
 		}
 		if (collect != null) {
-			var time = p.time().plusMinutes(15 * i);
-			var postprocessedState = postprocessSimulatorState(p, essChargeDischarge, essInitial, gridEssCharge, price,
-					balancingChargeDischarge, state);
-			collect.accept(new Period(time, production, consumption, essInitial, essMaxCharge, essMaxDischarge,
-					postprocessedState, essChargeDischarge, grid, price, cost / 1000000));
+			var postprocessedState = postprocessSimulatorState(p, essInitial, state, ef);
+			collect.accept(new Period(op, postprocessedState, essInitial, ef));
 		}
 		return cost;
 	}
@@ -111,14 +136,14 @@ public class Simulator {
 			Integer limit) {
 		// Return pure BALANCING Schedule if no predictions are available
 		if (!paramsAreValid(p)) {
-			return IntStream.range(0, p.numberOfPeriods()) //
-					.mapToObj(period -> StateMachine.BALANCING) //
+			return p.optimizePeriods().stream() //
+					.map(op -> StateMachine.BALANCING) //
 					.toArray(StateMachine[]::new);
 		}
 
-		var gtf = Genotype.of(IntegerChromosome.of(IntegerGene.of(0, p.states().length)), p.numberOfPeriods()); //
+		var gtf = Genotype.of(IntegerChromosome.of(IntegerGene.of(0, p.states().length)), p.optimizePeriods().size()); //
 		var eval = (Function<Genotype<IntegerGene>, Double>) (gt) -> {
-			var modes = new StateMachine[p.numberOfPeriods()];
+			var modes = new StateMachine[p.optimizePeriods().size()];
 			for (var i = 0; i < modes.length; i++) {
 				modes[i] = p.states()[gt.get(i).get(0).intValue()];
 			}
@@ -139,7 +164,7 @@ public class Simulator {
 		}
 		var bestGt = stream //
 				.collect(toBestGenotype());
-		return IntStream.range(0, p.numberOfPeriods()) //
+		return IntStream.range(0, p.optimizePeriods().size()) //
 				.mapToObj(period -> p.states()[bestGt.get(period).get(0).intValue()]) //
 				.toArray(StateMachine[]::new);
 	}

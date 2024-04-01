@@ -14,7 +14,7 @@ public enum ControlMode {
 	CHARGE_CONSUMPTION(//
 			StateMachine.BALANCING, //
 			StateMachine.DELAY_DISCHARGE, //
-			StateMachine.CHARGE //
+			StateMachine.CHARGE_GRID //
 	);
 
 	public final StateMachine[] states;

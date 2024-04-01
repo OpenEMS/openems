@@ -1,11 +1,12 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import * as Chart from 'chart.js';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChartAxis } from 'src/app/shared/service/utils';
 
 import { ChannelAddress, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from './../shared';
 
 @Component({
     selector: 'heatpumpchart',
@@ -43,20 +44,20 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
         this.loading = true;
         this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            let result = response.result;
+            const result = response.result;
             // convert labels
-            let labels: Date[] = [];
-            for (let timestamp of result.timestamps) {
+            const labels: Date[] = [];
+            for (const timestamp of result.timestamps) {
                 labels.push(new Date(timestamp));
             }
             this.labels = labels;
 
             // convert datasets
-            let datasets = [];
+            const datasets = [];
 
             if (this.component.id + '/Status' in result.data) {
 
-                let stateTimeData = result.data[this.component.id + '/Status'].map(value => {
+                const stateTimeData = result.data[this.component.id + '/Status'].map(value => {
                     if (value == null) {
                         return null;
                     } else {
@@ -76,12 +77,15 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
             }
             this.datasets = datasets;
             this.loading = false;
-            this.stopSpinner();
 
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();
             return;
+        }).finally(async () => {
+            await this.setOptions(this.options);
+            this.applyControllerSpecificOptions(this.options);
+            this.stopSpinner();
         });
     }
 
@@ -91,12 +95,10 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
         });
     }
 
-    protected setLabel() {
-        let options = this.createDefaultChartOptions();
-        let translate = this.translate;
-        options.scales.yAxes[0].id = 'yAxis1';
-        options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.state');
-        options.scales.yAxes[0].ticks.callback = function (label, index, labels) {
+    private applyControllerSpecificOptions(options: Chart.ChartOptions) {
+        const translate = this.translate;
+        options.scales[ChartAxis.LEFT]['title'].text = this.translate.instant('General.state');
+        options.scales[ChartAxis.LEFT].ticks.callback = function (label, index, labels) {
             switch (label) {
                 case -1:
                     return translate.instant('Edge.Index.Widgets.HeatPump.undefined');
@@ -110,11 +112,10 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
                     return translate.instant('Edge.Index.Widgets.HeatPump.switchOnComShort');
             }
         };
-        options.scales.yAxes[0].ticks.max = 3;
-        options.scales.yAxes[0].ticks.stepSize = 1;
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
+
+        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+            const label = tooltipItem.dataset.label;
+            const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
             let toolTipValue;
             switch (value) {
                 case -1:
@@ -139,7 +140,14 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
             }
             return label + ": " + toolTipValue; // TODO get locale dynamically
         };
+
+        options.scales[ChartAxis.LEFT].max = 3;
+        options.scales[ChartAxis.LEFT]['beginAtZero'] = true;
         this.options = options;
+    }
+
+    protected setLabel() {
+        this.options = this.createDefaultChartOptions();
     }
 
     public getChartHeight(): number {

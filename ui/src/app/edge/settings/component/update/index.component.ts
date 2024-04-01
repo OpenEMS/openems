@@ -4,7 +4,7 @@ import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
 import { EdgeConfig, Service, Utils } from '../../../../shared/shared';
 
 interface MyCategorizedComponents extends CategorizedComponents {
-  isNatureClicked?: Boolean,
+  isNatureClicked?: boolean,
   filteredComponents?: EdgeConfig.Component[]
 }
 
@@ -31,9 +31,9 @@ export class IndexComponent implements OnInit {
     this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.adjustComponents' }, this.route);
     this.service.getConfig().then(config => {
       this.config = config;
-      let categorizedComponentIds: string[] = [];
+      const categorizedComponentIds: string[] = [];
       this.list = config.listActiveComponents(categorizedComponentIds);
-      for (let entry of this.list) {
+      for (const entry of this.list) {
         entry.isNatureClicked = false;
         entry.filteredComponents = entry.components;
       }
@@ -43,9 +43,9 @@ export class IndexComponent implements OnInit {
 
   updateFilter(completeFilter: string) {
     // take each space-separated string as an individual and-combined filter
-    let filters = completeFilter.split(' ');
+    const filters = completeFilter.toLowerCase().split(' ');
     let countFilteredEntries = 0;
-    for (let entry of this.list) {
+    for (const entry of this.list) {
       entry.filteredComponents = entry.components.filter(entry =>
         // Search for filter strings in Component-ID, -Alias and Factory-ID
         Utils.matchAll(filters, [

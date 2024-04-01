@@ -34,6 +34,9 @@ public class TestFeneconHome {
 					Apps::prepareBatteryExtension //
 			);
 		}, null, new PseudoComponentManagerFactory());
+
+		final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
+		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
 	}
 
 	@Test
@@ -257,6 +260,26 @@ public class TestFeneconHome {
 				.addProperty("HAS_EMERGENCY_RESERVE", true) //
 				.addProperty("EMERGENCY_RESERVE_ENABLED", true) //
 				.addProperty("EMERGENCY_RESERVE_SOC", 15) //
+				.addProperty("SHADOW_MANAGEMENT_DISABLED", false) //
+				.build();
+	}
+
+	/**
+	 * Gets a {@link JsonObject} with the minimum settings for a
+	 * {@link FeneconHome}.
+	 * 
+	 * @return the settings object
+	 */
+	public static final JsonObject minSettings() {
+		return JsonUtils.buildJsonObject() //
+				.addProperty("SAFETY_COUNTRY", "GERMANY") //
+				.addProperty("RIPPLE_CONTROL_RECEIVER_ACTIV", false) //
+				.addProperty("MAX_FEED_IN_POWER", 1000) //
+				.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
+				.addProperty("HAS_AC_METER", false) //
+				.addProperty("HAS_DC_PV1", false) //
+				.addProperty("HAS_DC_PV2", false) //
+				.addProperty("HAS_EMERGENCY_RESERVE", false) //
 				.addProperty("SHADOW_MANAGEMENT_DISABLED", false) //
 				.build();
 	}
