@@ -12,6 +12,7 @@ public interface IoShellyPro3Em extends OpenemsComponent {
 		/**
 		 * Phase Sequence Error.
 		 *
+		 * <p>
 		 * Represents an error indicating if the sequence of zero-crossing events is Phase A
 		 * followed by Phase C followed by Phase B. The regular succession of these
 		 * zero-crossing events is Phase A followed by Phase B followed by Phase C.

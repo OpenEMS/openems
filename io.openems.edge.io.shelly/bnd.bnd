@@ -12,7 +12,6 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.io.api,\
 	io.openems.edge.meter.api,\
 	io.openems.edge.timedata.api,\
-	io.openems.edge.bridge.modbus
 
 -testpath: \
 	${testpath}

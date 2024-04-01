@@ -127,7 +127,7 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
 		Integer currentL1 = null;
 		Integer currentL2 = null;
 		Integer currentL3 = null;
-		boolean phase_sequence = false;
+		boolean phaseSequence = false;
 
 		if (error != null) {
 			this.logDebug(this.log, error.getMessage());
@@ -136,7 +136,7 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
 			try {
 				var response = getAsJsonObject(result);
 
-				phase_sequence = response.get("errors").getAsJsonArray().contains(new JsonPrimitive("phase_sequence"));
+				phaseSequence = response.get("errors").getAsJsonArray().contains(new JsonPrimitive("phase_sequence"));
 
 				// Total Active Power
 				activePower = round(getAsFloat(response, "total_act_power"));
@@ -162,7 +162,7 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
 		}
 
 		this._setActivePower(activePower);
-		this.channel(IoShellyPro3Em.ChannelId.PHASE_SEQUENCE_ERROR).setNextValue(phase_sequence);
+		this.channel(IoShellyPro3Em.ChannelId.PHASE_SEQUENCE_ERROR).setNextValue(phaseSequence);
 
 		this._setActivePowerL1(activePowerL1);
 		this._setVoltageL1(voltageL1);
