@@ -87,8 +87,8 @@ export class SystemExecuteComponent implements OnInit {
     if (!this.form.valid) {
       command = "";
     } else {
-      let m = this.model;
-      let cmd = COMMANDS[m.predefined];
+      const m = this.model;
+      const cmd = COMMANDS[m.predefined];
       switch (m.predefined) {
         case "ping":
           command = cmd(m.ping.ip);
@@ -102,17 +102,17 @@ export class SystemExecuteComponent implements OnInit {
   }
 
   public submit() {
-    let username = this.form.controls['username'];
-    let password = this.form.controls['password'];
-    let timeoutSeconds = this.form.controls['timeoutSeconds'];
-    let runInBackground = this.form.controls['runInBackground'];
-    let command = this.form.controls['command'];
+    const username = this.form.controls['username'];
+    const password = this.form.controls['password'];
+    const timeoutSeconds = this.form.controls['timeoutSeconds'];
+    const runInBackground = this.form.controls['runInBackground'];
+    const command = this.form.controls['command'];
 
     this.service.getCurrentEdge().then(edge => {
       this.loading = true;
       this.stdout = [];
       this.stderr = [];
-      let executeSystemCommandRequest = new ExecuteSystemCommandRequest({
+      const executeSystemCommandRequest = new ExecuteSystemCommandRequest({
         username: username.value,
         password: password.value,
         timeoutSeconds: timeoutSeconds.value,
@@ -125,7 +125,7 @@ export class SystemExecuteComponent implements OnInit {
           componentId: "_host",
           payload: executeSystemCommandRequest,
         })).then(response => {
-          let result = (response as ExecuteSystemCommandResponse).result;
+          const result = (response as ExecuteSystemCommandResponse).result;
           this.loading = false;
           if (result.stdout.length == 0) {
             this.stdout = [""];
