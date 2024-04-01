@@ -249,11 +249,7 @@ formly-input-section {
         width: 25% !important;
 
         .alert-button-group {
-            justify-content: center;
-            display: grid;
-            grid-template-columns: auto auto;
-            column-gap: 35%;
-
+            justify-content: space-between;
             .alert-button {
                 color: $primary-color;
                 font-size: small;

@@ -64,8 +64,8 @@ export class Utils {
       } else {
         copy = {};
       }
-      for (let attr in obj) {
-        if (obj.hasOwnProperty(attr)) {
+      for (const attr in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, attr)) {
           copy[attr] = this.deepCopy(obj[attr], copy[attr]);
         }
       }
@@ -214,10 +214,10 @@ export class Utils {
    * @param bases   array of base-strings
    * @returns       true if all filter strings exist in any base-strings
    */
-  public static matchAll(filters: string[], bases: string[]): Boolean {
-    for (let filter of filters) {
+  public static matchAll(filters: string[], bases: string[]): boolean {
+    for (const filter of filters) {
       let filterMatched = false;
-      for (let base of bases) {
+      for (const base of bases) {
         if (base.includes(filter)) {
           filterMatched = true;
         }
@@ -255,7 +255,7 @@ export class Utils {
     if (value == null) {
       return '-';
     }
-    let thisValue: number = (value / 1000);
+    const thisValue: number = (value / 1000);
 
     if (thisValue >= 0) {
       return formatNumber(thisValue, 'de', '1.0-1') + ' kW';
@@ -335,7 +335,7 @@ export class Utils {
     } else {
       return { name: translate.instant('General.chargePower'), value: power * -1 };
     }
-  };
+  }
 
 
   /**
@@ -365,7 +365,7 @@ export class Utils {
    */
   public static CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService) => {
     return (value: number): string => {
-      var date: Date = new Date();
+      const date: Date = new Date();
       date.setHours(0, 0, 0, 0);
       date.setMinutes(value);
       return date.toLocaleTimeString(translate.getBrowserCultureLang(), { hour: '2-digit', minute: '2-digit' });
@@ -434,11 +434,11 @@ export class Utils {
   public static downloadXlsx(response: Base64PayloadResponse, filename: string) {
     // decode base64 string, remove space for IE compatibility
     // source: https://stackoverflow.com/questions/36036280/base64-representing-pdf-to-blob-javascript/45872086
-    var binary = atob(response.result.payload.replace(/\s/g, ''));
-    var len = binary.length;
-    var buffer = new ArrayBuffer(len);
-    var view = new Uint8Array(buffer);
-    for (var i = 0; i < len; i++) {
+    const binary = atob(response.result.payload.replace(/\s/g, ''));
+    const len = binary.length;
+    const buffer = new ArrayBuffer(len);
+    const view = new Uint8Array(buffer);
+    for (let i = 0; i < len; i++) {
       view[i] = binary.charCodeAt(i);
     }
     const data: Blob = new Blob([view], {
@@ -580,8 +580,8 @@ export class Utils {
    */
   public static calculateOtherConsumption(channelData: HistoryUtils.ChannelData, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number[] {
 
-    let totalEvcsConsumption: number[] = [];
-    let totalMeteredConsumption: number[] = [];
+    const totalEvcsConsumption: number[] = [];
+    const totalMeteredConsumption: number[] = [];
 
     evcsComponents.forEach(component => {
       channelData[component.id + '/ChargePower']?.forEach((value, index) => {
@@ -622,7 +622,8 @@ export enum YAxisTitle {
 
 export enum ChartAxis {
   LEFT = 'left',
-  RIGHT = 'right'
+  RIGHT = 'right',
+  RIGHT_2 = 'right2',
 }
 export namespace HistoryUtils {
 
@@ -689,8 +690,11 @@ export namespace HistoryUtils {
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
       stackIds: number[]
     }],
-    /** The smaller the number, the further forward it is displayed */
-    order?: number
+    /**
+     * The drawing order of dataset. Also affects order for stacking, tooltip and legend.
+     * @default Number.MAX_VALUE
+     */
+    order?: number,
   }
 
   /**
@@ -811,19 +815,21 @@ export namespace TimeOfUseTariffUtils {
    * @param prices The Time-of-Use-Tariff quarterly price array
    * @param states The Time-of-Use-Tariff state array
    * @param timestamps The Time-of-Use-Tariff timestamps array
+   * @param gridBuy The Time-of-Use-Tariff gridBuy array
+   * @param socArray The Time-of0Use-Tariff soc Array.
    * @param translate The Translate service
    * @param controlMode The Control mode of the controller.
    * @returns The ScheduleChartData.
    */
-  export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[], translate: TranslateService, controlMode: ControlMode): ScheduleChartData {
+  export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[], gridBuy: number[], socArray: number[], translate: TranslateService, controlMode: ControlMode): ScheduleChartData {
     const datasets: ChartDataset[] = [];
     const colors: any[] = [];
     const labels: Date[] = [];
 
     // Initializing States.
-    var barChargeGrid = Array(size).fill(null);
-    var barBalancing = Array(size).fill(null);
-    var barDelayDischarge = Array(size).fill(null);
+    const barChargeGrid = Array(size).fill(null);
+    const barBalancing = Array(size).fill(null);
+    const barDelayDischarge = Array(size).fill(null);
 
     for (let index = 0; index < size; index++) {
       const quarterlyPrice = formatPrice(prices[index]);
@@ -850,7 +856,7 @@ export namespace TimeOfUseTariffUtils {
       type: 'bar',
       label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
       data: barBalancing,
-      order: 3,
+      order: 1,
     });
     colors.push({
       // Dark Green
@@ -864,7 +870,7 @@ export namespace TimeOfUseTariffUtils {
         type: 'bar',
         label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
         data: barChargeGrid,
-        order: 3,
+        order: 1,
       });
       colors.push({
         // Sky blue
@@ -878,12 +884,40 @@ export namespace TimeOfUseTariffUtils {
       type: 'bar',
       label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
       data: barDelayDischarge,
-      order: 3,
+      order: 1,
     });
     colors.push({
       // Black
       backgroundColor: 'rgba(0,0,0,0.8)',
       borderColor: 'rgba(0,0,0,0.9)',
+    });
+
+    // State of charge data
+    datasets.push({
+      type: 'line',
+      label: translate.instant('General.soc'),
+      data: socArray,
+      hidden: false,
+      yAxisID: ChartAxis.RIGHT,
+      borderDash: [10, 10],
+      order: 0,
+    });
+    colors.push({
+      backgroundColor: 'rgba(189, 195, 199,0.2)',
+      borderColor: 'rgba(189, 195, 199,1)',
+    });
+
+    datasets.push({
+      type: 'line',
+      label: translate.instant('General.gridBuy'),
+      data: gridBuy,
+      hidden: true,
+      yAxisID: ChartAxis.RIGHT_2,
+      order: 2,
+    });
+    colors.push({
+      backgroundColor: 'rgba(0,0,0, 0.2)',
+      borderColor: 'rgba(0,0,0, 1)',
     });
 
     const scheduleChartData: ScheduleChartData = {
@@ -915,6 +949,7 @@ export namespace TimeOfUseTariffUtils {
     const dischargeLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
     const chargeConsumptionLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID');
     const balancingLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING');
+    const gridBuyLabel = translate.instant('General.gridBuy');
 
     // Switch case to handle different labels
     switch (label) {
@@ -927,9 +962,22 @@ export namespace TimeOfUseTariffUtils {
         // Show floating point number for values between 0 and 1
         return label + ": " + formatNumber(value, 'de', '1.0-4') + " " + currencyLabel;
 
+      case gridBuyLabel:
+        return label + ": " + formatNumber(value, 'de', '1.0-0') + " kW";
+
       default:
         // Power values
         return label + ": " + formatNumber(value, 'de', '1.0-0') + ' ' + 'W';
     }
+  }
+
+  /**
+   * Retrieves the height for a chart based on the current resolution.
+   *
+   * @param isSmartphoneResolution indicates whether the current resolution is considered to be smartphone resolution.
+   * @returns The height of the chart.
+   */
+  export function getChartHeight(isSmartphoneResolution: boolean): number {
+    return isSmartphoneResolution ? window.innerHeight / 3 : window.innerHeight / 4;
   }
 }

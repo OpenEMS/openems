@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { PersistencePriority } from 'src/app/shared/edge/edgeconfig';
 import { SetChannelValueRequest } from 'src/app/shared/jsonrpc/request/setChannelValueRequest';
+import { environment } from 'src/environments';
 
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
-import { environment } from 'src/environments';
 
 export type ComponentChannels = {
   [componentId: string]: ChannelAddress[];
@@ -25,7 +26,8 @@ export class ChannelsComponent {
   protected channelsToBeSubscribed: ChannelAddress[] = [];
   private channels: ChannelAddress[] = [];
   protected componentChannels: ComponentChannels[] = [];
-  protected componentChannelConfig: Map<String, EdgeConfig.ComponentChannel> = new Map();
+  protected componentChannelConfig: Map<string, EdgeConfig.ComponentChannel & { showPersistencePriority: boolean }> = new Map();
+
   constructor(
     private service: Service,
     private websocket: Websocket,
@@ -56,21 +58,27 @@ export class ChannelsComponent {
    * @param channelId the channelId
    */
   protected subscribeChannel(componentId: string, channelId: string): void {
-    let address = new ChannelAddress(componentId, channelId);
+    const address = new ChannelAddress(componentId, channelId);
     if (this.componentChannels[componentId]?.filter(element => element.channelId == address.channelId)?.length === 0) {
       this.componentChannels[componentId].push(address);
     } else {
       this.componentChannels[componentId] = [address];
     }
     this.channelsToBeSubscribed.push(address);
-    this.componentChannelConfig.set(address.toString(), this.config.getChannel(address));
+    this.componentChannelConfig.set(address.toString(), { ...this.config.getChannel(address), ...{ showPersistencePriority: false } });
 
     if (this.config) {
-      let channelConfig = this.config.getChannel(address);
+      const globalPersistencePriority = this.config.getComponentsByFactory("Controller.Api.Backend")?.[0]?.properties['persistencePriority'] ?? PersistencePriority.DEFAULT_GLOBAL_PRIORITY;
+
+      const channelConfig = this.config.getChannel(address);
       if (channelConfig) {
         if (channelConfig.accessMode == "WO") {
           // do not subscribe Write-Only Channels
           return;
+        }
+
+        if (PersistencePriority.isAtLeast(channelConfig.persistencePriority, globalPersistencePriority)) {
+          this.componentChannelConfig.set(address.toString(), { ...this.config.getChannel(address), ...{ showPersistencePriority: true } });
         }
       }
     }
@@ -122,7 +130,7 @@ export class ChannelsComponent {
    *  and navigates to the new route
    */
   private saveChannels(): void {
-    let data = Object.entries(this.channelsToBeSubscribed).map(([componentId, channels]) => {
+    const data = Object.entries(this.channelsToBeSubscribed).map(([componentId, channels]) => {
       return channels.toString();
     }).toString();
     this.router.navigate(['device/' + (this.edge.id) + '/settings/channels/'], { queryParams: { save: data } });
@@ -132,20 +140,20 @@ export class ChannelsComponent {
    * Saves channels for the current edge in localstorage
    */
   protected localSave() {
-    let dataStr = JSON.stringify(this.channelsToBeSubscribed);
+    const dataStr = JSON.stringify(this.channelsToBeSubscribed);
     localStorage.setItem(ChannelsComponent.URL_PREFIX + "-" + this.edge.id, dataStr);
     this.service.toast("Successfully saved subscribed channels", "success");
   }
 
   protected loadSavedChannels() {
     this.service.startSpinner(ChannelsComponent.SELECTOR);
-    let address = this.route.snapshot.queryParamMap.get('save');
-    let storedValue = localStorage.getItem(ChannelsComponent.URL_PREFIX + "-" + this.edge.id);
+    const address = this.route.snapshot.queryParamMap.get('save');
+    const storedValue = localStorage.getItem(ChannelsComponent.URL_PREFIX + "-" + this.edge.id);
     if (address) {
       this.channels = address.split(',')?.map(element => ChannelAddress.fromString(element));
       this.channels.map(el => this.subscribeChannel(el.componentId, el.channelId));
     } else if (storedValue) {
-      let savedData = JSON.parse(storedValue);
+      const savedData = JSON.parse(storedValue);
       savedData.map(el => this.subscribeChannel(el.componentId, el.channelId));
       this.service.toast("Successfully loaded saved channels", "success");
     }

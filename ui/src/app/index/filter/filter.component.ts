@@ -25,7 +25,7 @@ export class FilterComponent {
    */
   public searchOnChange(event, filter: Filter): void {
 
-    let value = event.target.value;
+    const value = event.target.value;
 
     // If no value provided
     if (!value) {

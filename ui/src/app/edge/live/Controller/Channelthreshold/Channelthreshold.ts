@@ -23,7 +23,7 @@ export class Controller_ChannelthresholdComponent extends AbstractFlatWidget {
     return [this.outputChannel];
   }
   protected override onCurrentData(currentData: CurrentData) {
-    let channel = currentData.allComponents[this.outputChannel.toString()];
+    const channel = currentData.allComponents[this.outputChannel.toString()];
     if (channel != null) {
       if (channel == 1) {
         this.icon.name = "radio-button-on-outline";
