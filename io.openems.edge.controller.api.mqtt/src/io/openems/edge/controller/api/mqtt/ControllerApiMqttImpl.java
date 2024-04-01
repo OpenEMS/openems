@@ -16,7 +16,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -30,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -51,18 +49,18 @@ import io.openems.edge.timedata.api.Timedata;
 public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 		implements ControllerApiMqtt, Controller, OpenemsComponent, EventHandler {
 
-	protected static final String COMPONENT_NAME = "Controller.Api.MQTT";
+	private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+	private volatile ScheduledFuture<?> reconnectFuture = null;
+	private final AtomicInteger reconnectionAttempt = new AtomicInteger(0);
 	private static final long INITIAL_RECONNECT_DELAY_SECONDS = 5;
 	private static final long MAX_RECONNECT_DELAY_SECONDS = 300; // 5 minutes maximum delay.
 	private static final double RECONNECT_DELAY_MULTIPLIER = 1.5;
 
+	protected static final String COMPONENT_NAME = "Controller.Api.MQTT";
+
 	private final Logger log = LoggerFactory.getLogger(ControllerApiMqttImpl.class);
-	private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 	private final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
 	private final MqttConnector mqttConnector = new MqttConnector();
-	private final AtomicInteger reconnectionAttempt = new AtomicInteger(0);
-
-	private volatile ScheduledFuture<?> reconnectFuture = null;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -84,71 +82,19 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) {
-		applyConfig(config);
-		super.activate(context, config.id(), config.alias(), config.enabled());
-		scheduleReconnect();
-	}
-
-	@Modified
-	private void modified(ComponentContext context, Config config) {
-		applyConfig(config);
-		super.modified(context, config.id(), this.topicPrefix, config.enabled());
-		scheduleReconnect();
-	}
-
-	private void applyConfig(Config config) {
+	private void activate(ComponentContext context, Config config) throws Exception {
 		this.config = config;
-		this.topicPrefix = String.format(ControllerApiMqtt.TOPIC_PREFIX, config.clientId());
-	}
+
+		// Publish MQTT messages under the topic "edge/edge0/..."
 		this.topicPrefix = createTopicPrefix(config);
 
-
-	private synchronized void scheduleReconnect() {
-		if (reconnectFuture != null && !reconnectFuture.isDone()) {
-			reconnectFuture.cancel(false);
-		}
-
-		attemptConnect();
-	}
-
-	private void attemptConnect() {
-		if (mqttClient != null && mqttClient.isConnected()) {
-			return; // Already connected
-		}
-		try {
-			if (mqttClient == null || !mqttClient.isConnected()) {
-				this.mqttConnector.connect(config.uri(), config.clientId(), config.username(), config.password(),
-						config.certPem(), config.privateKeyPem(), config.trustStorePem()).thenAccept(client -> {
-							mqttClient = client;
-							logInfo(this.log, "Connected to MQTT Broker [" + config.uri() + "]");
-							reconnectionAttempt.set(0); // Reset on successful connection.
-						}).exceptionally(ex -> {
-							log.error("Failed to connect to MQTT broker: " + ex.getMessage(), ex);
-							scheduleNextAttempt(); // Schedule the next attempt with an increased delay.
-							return null;
-						});
-			}
-		} catch (Exception e) {
-			log.error("Error attempting to connect to MQTT broker", e);
-			scheduleNextAttempt(); // Schedule the next attempt with an increased delay.
-		}
-	}
-
-	private void scheduleNextAttempt() {
-		long delay = calculateNextDelay();
-		// Ensure the executor service is not shut down
-		if (!scheduledExecutorService.isShutdown()) {
-			reconnectFuture = scheduledExecutorService.schedule(this::attemptConnect, delay, TimeUnit.SECONDS);
-		}
-	}
-
-	private long calculateNextDelay() {
-		// Implement the adaptive delay calculation here
-		long delay = (long) (INITIAL_RECONNECT_DELAY_SECONDS
-				* Math.pow(RECONNECT_DELAY_MULTIPLIER, reconnectionAttempt.getAndIncrement()));
-		delay = Math.min(delay, MAX_RECONNECT_DELAY_SECONDS); // Ensure delay does not exceed maximum
-		return delay;
+		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.mqttConnector.connect(config.uri(), config.clientId(), config.username(), config.password(),
+				config.certPem(), config.privateKeyPem(), config.trustStorePem()).thenAccept(client -> {
+					this.mqttClient = client;
+					this.logInfo(this.log, "Connected to MQTT Broker [" + config.uri() + "]");
+				});
+		this.scheduleReconnect();
 	}
 
 	/**
@@ -178,19 +124,17 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 
 	@Override
 	@Deactivate
-	protected synchronized void deactivate() {
+	protected void deactivate() {
 		super.deactivate();
-		ThreadPoolUtils.shutdownAndAwaitTermination(scheduledExecutorService, 0);
-		disconnectMqttClient();
-	}
-
-	private void disconnectMqttClient() {
+		if (this.scheduledExecutorService != null && !this.scheduledExecutorService.isShutdown()) {
+			this.scheduledExecutorService.shutdownNow();
+		}
 		if (this.mqttClient != null) {
 			try {
-				this.mqttClient.disconnect();
 				this.mqttClient.close();
 			} catch (MqttException e) {
-				logWarn(this.log, "Unable to close connection to MQTT broker: " + e.getMessage());
+				this.logWarn(this.log, "Unable to close connection to MQTT broker: " + e.getMessage());
+				e.printStackTrace();
 			}
 		}
 	}
@@ -269,4 +213,49 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 		var msg = new MqttMessage(message.getBytes(StandardCharsets.UTF_8), qos, retained, properties);
 		return this.publish(subTopic, msg);
 	}
+
+	private synchronized void scheduleReconnect() {
+		if (this.reconnectFuture != null && !this.reconnectFuture.isDone()) {
+			this.reconnectFuture.cancel(false);
+		}
+
+		this.attemptConnect();
+	}
+
+	private void attemptConnect() {
+		if (this.mqttClient != null && this.mqttClient.isConnected()) {
+			return; // Already connected
+		}
+		try {
+			this.mqttConnector.connect(this.config.uri(), this.config.clientId(), this.config.username(), this.config.password(),
+					this.config.certPem(), this.config.privateKeyPem(), this.config.trustStorePem()).thenAccept(client -> {
+						this.mqttClient = client;
+						this.logInfo(this.log, "Connected to MQTT Broker [" + this.config.uri() + "]");
+						this.reconnectionAttempt.set(0); // Reset on successful connection.
+					}).exceptionally(ex -> {
+						this.log.error("Failed to connect to MQTT broker: " + ex.getMessage(), ex);
+						this.scheduleNextAttempt(); // Schedule the next attempt with an increased delay.
+						return null;
+					});
+		} catch (Exception e) {
+			this.log.error("Error attempting to connect to MQTT broker", e);
+			this.scheduleNextAttempt(); // Schedule the next attempt with an increased delay.
+		}
+	}
+
+	private void scheduleNextAttempt() {
+		long delay = this.calculateNextDelay();
+		// Ensure the executor service is not shut down
+		if (!this.scheduledExecutorService.isShutdown()) {
+			this.reconnectFuture = this.scheduledExecutorService.schedule(this::attemptConnect, delay, TimeUnit.SECONDS);
+		}
+	}
+
+	private long calculateNextDelay() {
+		long delay = (long) (INITIAL_RECONNECT_DELAY_SECONDS
+				* Math.pow(RECONNECT_DELAY_MULTIPLIER, this.reconnectionAttempt.getAndIncrement()));
+		delay = Math.min(delay, MAX_RECONNECT_DELAY_SECONDS); // Ensure delay does not exceed maximum
+		return delay;
+	}
+
 }
