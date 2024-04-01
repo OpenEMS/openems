@@ -187,8 +187,11 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 		}
 		final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
 		this.httpBridge.get(url).whenComplete((t, e) -> {
-			if (e != null) {
-				this.logError(this.log, "HTTP request failed: " + e.getMessage());
+			this._setSlaveCommunicationFailed(e != null);
+			if (e == null) {
+				this.logInfo(this.log, "Executed write successfully for URL: " + url);
+			} else {
+				this.logError(this.log, "Failed to execute write for URL: " + url + "; Error: " + e.getMessage());
 			}
 		});
 	}
