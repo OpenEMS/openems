@@ -204,8 +204,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 		if (onConfigUpdate) {
 			// Mppt Shadow enable / disable
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE),
-					config.mpptForShadowEnable().booleanValue);
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE), false);
 
 			// Feed-in settings
 			var setFeedInPowerSettings = config.setfeedInPowerSettings();

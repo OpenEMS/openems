@@ -57,7 +57,7 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
                 this.mode = this.translate.instant('General.automatic');
         }
 
-        let outputChannelValue = currentData.allComponents[this.outputChannel.toString()];
+        const outputChannelValue = currentData.allComponents[this.outputChannel.toString()];
 
         switch (outputChannelValue) {
             case 0:
