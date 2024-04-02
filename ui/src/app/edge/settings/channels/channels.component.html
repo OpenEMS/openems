@@ -26,7 +26,7 @@
                 <ion-select style="white-space: initial;width: 100%;" #selectedChannelId interface="alert"
                   [disabled]="!componentSelected"
                   [placeholder]="'CHANNELS.CHANNEL'| translate">
-                  <ng-container *ngIf="componentSelected">
+                  <ng-container *ngIf="selectedComponentId">
                     <ion-select-option
                       *ngFor="let entry of (config.components[componentSelected]?.channels | keys)" [value]="entry.key">
                       {{ entry.key }}
