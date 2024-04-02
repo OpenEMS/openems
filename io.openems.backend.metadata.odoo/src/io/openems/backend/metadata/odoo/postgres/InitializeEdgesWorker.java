@@ -30,6 +30,9 @@ public class InitializeEdgesWorker {
 		this.onFinished = onFinished;
 	}
 
+	/**
+	 * Starts the {@link InitializeEdgesWorker}.
+	 */
 	public synchronized void start() {
 		try (var con = this.dataSource.getConnection()) {
 			// Immediately mark all edges as offline before any scheduled tasks
