@@ -16,9 +16,9 @@ export class ChartComponent extends AbstractHistoryChart {
   }
 
   public static getChartData(config: EdgeConfig | null, chartType: 'line' | 'bar', translate: TranslateService): HistoryUtils.ChartData {
-    let input: HistoryUtils.InputChannel[] =
+    const input: HistoryUtils.InputChannel[] =
       config?.widgets.classes.reduce((arr: HistoryUtils.InputChannel[], key) => {
-        let newObj = [];
+        const newObj = [];
         switch (key) {
           case 'Energymonitor':
           case 'Consumption':

@@ -172,7 +172,7 @@ export class MaintenanceComponent implements OnInit {
     async presentAlert(type: Type) {
         const translate = this.translate;
         const system = type === Type.HARD ? environment.edgeShortName : 'OpenEMS';
-        let alert = this.alertCtrl.create({
+        const alert = this.alertCtrl.create({
             subHeader: translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION', { system: system }),
             message: translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: system }),
             buttons: [{

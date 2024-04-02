@@ -43,8 +43,3 @@ describe('StatusComponent', () => {
         });
     });
 });
-
-// TODO dummy classes for needed services
-class Dummy {
-
-}

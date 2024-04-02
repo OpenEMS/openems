@@ -28,7 +28,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
     public ngOnChanges() {
         this.currencyLabel = Currency.getCurrencyLabelByEdgeId(this.edge.id);
         this.updateChart();
-    };
+    }
 
     constructor(
         protected override service: Service,

@@ -169,8 +169,8 @@
   "Edge": {
     "Index": {
       "EmergencyReserve": {
-        "InfoForEmergencyReserveSlider": "Aktivací nouzové rezervy výkonu lze libovolně zvolit hodnotu mezi 5 % a 100 %.",
-        "emergencyReserve": "pohotovostní rezerva"
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Aktivací nouzové rezervy výkonu lze libovolně zvolit hodnotu mezi 5 % a 100 %.",
+        "EMERGENCY_RESERVE": "pohotovostní rezerva"
       },
       "Energymonitor": {
         "activePower": "Činný výkon",
