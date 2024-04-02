@@ -8,7 +8,7 @@ export interface CategorizedComponents {
         icon: string
     },
     components: EdgeConfig.Component[]
-};
+}
 
 export interface CategorizedFactories {
     category: {
@@ -16,7 +16,7 @@ export interface CategorizedFactories {
         icon: string
     },
     factories: EdgeConfig.Factory[]
-};
+}
 
 export class EdgeConfig {
 
@@ -27,8 +27,8 @@ export class EdgeConfig {
         }
 
         // initialize Components
-        for (let componentId in this.components) {
-            let component = this.components[componentId];
+        for (const componentId in this.components) {
+            const component = this.components[componentId];
             component.id = componentId;
             if ('enabled' in component.properties) {
                 component.isEnabled = component.properties['enabled'];
@@ -38,16 +38,16 @@ export class EdgeConfig {
         }
 
         // initialize Factorys
-        for (let factoryId in this.factories) {
-            let factory = this.factories[factoryId];
+        for (const factoryId in this.factories) {
+            const factory = this.factories[factoryId];
             factory.id = factoryId;
             factory.componentIds = [];
 
             // Fill 'natures' map
-            for (let natureId of factory.natureIds) {
+            for (const natureId of factory.natureIds) {
                 if (!(natureId in this.natures)) {
-                    let parts = natureId.split(".");
-                    let name = parts[parts.length - 1];
+                    const parts = natureId.split(".");
+                    const name = parts[parts.length - 1];
                     this.natures[natureId] = {
                         id: natureId,
                         name: name,
@@ -61,12 +61,12 @@ export class EdgeConfig {
         if (Object.keys(this.components).length != 0 && Object.keys(this.factories).length == 0) {
             console.warn("Factory definitions are missing.");
         } else {
-            for (let componentId in this.components) {
-                let component = this.components[componentId];
+            for (const componentId in this.components) {
+                const component = this.components[componentId];
                 if (component.factoryId === "") {
                     continue; // Singleton components have no factory-PID
                 }
-                let factory = this.factories[component.factoryId];
+                const factory = this.factories[component.factoryId];
                 if (!factory) {
                     console.warn("Factory definition [" + component.factoryId + "] for [" + componentId + "] is missing.");
                     continue;
@@ -111,7 +111,7 @@ export class EdgeConfig {
      * @param factoryId the Factory PID.
      */
     public getComponentIdsByFactory(factoryId: string): string[] {
-        let factory = this.factories[factoryId];
+        const factory = this.factories[factoryId];
         if (factory) {
             return factory.componentIds;
         } else {
@@ -125,10 +125,10 @@ export class EdgeConfig {
      * @param natureId the given Nature.
      */
     public getFactoriesByNature(natureId: string): EdgeConfig.Factory[] {
-        let result = [];
-        let nature = this.natures[natureId];
+        const result = [];
+        const nature = this.natures[natureId];
         if (nature) {
-            for (let factoryId of nature.factoryIds) {
+            for (const factoryId of nature.factoryIds) {
                 if (factoryId in this.factories) {
                     result.push(this.factories[factoryId]);
                 }
@@ -143,8 +143,8 @@ export class EdgeConfig {
      * @param ids the given Factory-IDs.
      */
     public getFactoriesByIds(factoryIds: string[]): EdgeConfig.Factory[] {
-        let result = [];
-        for (let factoryId of factoryIds) {
+        const result = [];
+        for (const factoryId of factoryIds) {
             if (factoryId in this.factories) {
                 result.push(this.factories[factoryId]);
             }
@@ -158,9 +158,9 @@ export class EdgeConfig {
      * @param ids the given Factory-IDs pattern.
      */
     public getFactoriesByIdsPattern(patterns: RegExp[]): EdgeConfig.Factory[] {
-        let result = [];
-        for (let pattern of patterns) {
-            for (let factoryId in this.factories) {
+        const result = [];
+        for (const pattern of patterns) {
+            for (const factoryId in this.factories) {
                 if (pattern.test(factoryId)) {
                     result.push(this.factories[factoryId]);
                 }
@@ -175,9 +175,9 @@ export class EdgeConfig {
      * @param factoryId the Factory PID.
      */
     public getComponentsByFactory(factoryId: string): EdgeConfig.Component[] {
-        let componentIds = this.getComponentIdsByFactory(factoryId);
-        let result: EdgeConfig.Component[] = [];
-        for (let componentId of componentIds) {
+        const componentIds = this.getComponentIdsByFactory(factoryId);
+        const result: EdgeConfig.Component[] = [];
+        for (const componentId of componentIds) {
             result.push(this.components[componentId]);
         }
         return result;
@@ -189,11 +189,11 @@ export class EdgeConfig {
      * @param nature the given Nature.
      */
     public getComponentIdsImplementingNature(natureId: string): string[] {
-        let result: string[] = [];
-        let nature = this.natures[natureId];
+        const result: string[] = [];
+        const nature = this.natures[natureId];
         if (nature) {
-            for (let factoryId of nature.factoryIds) {
-                result.push.apply(result, this.getComponentIdsByFactory(factoryId));
+            for (const factoryId of nature.factoryIds) {
+                result.push(...this.getComponentIdsByFactory(factoryId));
             }
         }
 
@@ -214,11 +214,11 @@ export class EdgeConfig {
      * @param nature the given Nature.
      */
     public getComponentsImplementingNature(natureId: string): EdgeConfig.Component[] {
-        let result: EdgeConfig.Component[] = [];
-        let nature = this.natures[natureId];
+        const result: EdgeConfig.Component[] = [];
+        const nature = this.natures[natureId];
         if (nature) {
-            for (let factoryId of nature.factoryIds) {
-                result.push.apply(result, this.getComponentsByFactory(factoryId));
+            for (const factoryId of nature.factoryIds) {
+                result.push(...this.getComponentsByFactory(factoryId));
             }
         }
 
@@ -239,7 +239,7 @@ export class EdgeConfig {
      * @param factoryId the Factory-ID
      */
     public getNatureIdsByFactoryId(factoryId: string): string[] {
-        let factory = this.factories[factoryId];
+        const factory = this.factories[factoryId];
         if (factory) {
             return factory.natureIds;
         } else {
@@ -278,7 +278,7 @@ export class EdgeConfig {
             return true;
         }
         // Do we have a Meter with type PRODUCTION?
-        for (let component of this.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")) {
+        for (const component of this.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")) {
             if (component.isEnabled && this.isProducer(component)) {
                 return true;
             }
@@ -365,7 +365,7 @@ export class EdgeConfig {
      * Lists all available Factories, grouped by category.
      */
     public listAvailableFactories(): CategorizedFactories[] {
-        let allFactories = [
+        const allFactories = [
             {
                 category: { title: 'Simulatoren', icon: 'flask-outline' },
                 factories: Object.values(this.factories).filter(factory => factory.id.startsWith('Simulator.')),
@@ -495,10 +495,10 @@ export class EdgeConfig {
             },
         ];
 
-        let ignoreFactoryIds: string[] = [];
-        let result: CategorizedFactories[] = [];
+        const ignoreFactoryIds: string[] = [];
+        const result: CategorizedFactories[] = [];
         allFactories.forEach(item => {
-            let factories =
+            const factories =
                 // create one flat array
                 [].concat(...item.factories)
                     // remove Factories from list that have already been listed before
@@ -535,11 +535,11 @@ export class EdgeConfig {
      * Lists all active Components, grouped by category.
      */
     public listActiveComponents(ignoreComponentIds: string[]): CategorizedComponents[] {
-        let allComponents = [];
-        let factories = this.listAvailableFactories();
-        for (let entry of factories) {
-            let components = [];
-            for (let factory of entry.factories) {
+        const allComponents = [];
+        const factories = this.listAvailableFactories();
+        for (const entry of factories) {
+            const components = [];
+            for (const factory of entry.factories) {
                 components.push(this.getComponentsByFactory(factory.id));
                 // components.concat(...this.getComponentsByFactory(factory.id));
             }
@@ -548,9 +548,9 @@ export class EdgeConfig {
                 components: components,
             });
         }
-        let result: CategorizedComponents[] = [];
+        const result: CategorizedComponents[] = [];
         allComponents.forEach(item => {
-            let components =
+            const components =
                 // create one flat array
                 [].concat(...item.components)
                     // remove Components from list that have already been listed before
@@ -576,11 +576,11 @@ export class EdgeConfig {
      * @param componentId the Component-ID
      */
     public getNatureIdsByComponentId(componentId: string): string[] {
-        let component = this.components[componentId];
+        const component = this.components[componentId];
         if (!component) {
             return [];
         }
-        let factoryId = component.factoryId;
+        const factoryId = component.factoryId;
         return this.getNatureIdsByFactoryId(factoryId);
     }
 
@@ -599,7 +599,7 @@ export class EdgeConfig {
      * @param componentId the Component-ID
      */
     public getComponentProperties(componentId: string): { [key: string]: any } {
-        let component = this.components[componentId];
+        const component = this.components[componentId];
         if (component) {
             return component.properties;
         } else {
@@ -613,7 +613,7 @@ export class EdgeConfig {
      * @param address the ChannelAddress
      */
     public getChannel(address: ChannelAddress): EdgeConfig.ComponentChannel {
-        let component = this.components[address.componentId];
+        const component = this.components[address.componentId];
         if (component) {
             return component.channels[address.channelId];
         } else {
@@ -691,7 +691,7 @@ export module EdgeConfig {
          * @param propertyId the Property-ID
          */
         static getPropertyForId(factory: Factory, propertyId: string): FactoryProperty {
-            for (let property of factory.properties) {
+            for (const property of factory.properties) {
                 if (property.id === propertyId) {
                     return property;
                 }

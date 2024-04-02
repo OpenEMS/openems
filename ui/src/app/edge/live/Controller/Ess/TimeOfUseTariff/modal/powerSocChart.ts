@@ -24,7 +24,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
     public ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected override service: Service,
@@ -194,14 +194,14 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
         this.options.scales.x['ticks'] = { source: 'auto', autoSkip: false };
         this.options.scales.x.ticks.callback = function (value, index, values) {
-            var date = new Date(value);
+            const date = new Date(value);
 
             // Display the label only if the minutes are zero (full hour)
             return date.getMinutes() === 0 ? date.getHours() + ':00' : '';
         };
 
         this.options.scales[ChartAxis.RIGHT].grid.display = false;
-    };
+    }
 
     protected setLabel() {
         this.options = this.createDefaultChartOptions();

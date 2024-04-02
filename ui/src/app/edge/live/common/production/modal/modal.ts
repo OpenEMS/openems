@@ -16,7 +16,7 @@ export class ModalComponent extends AbstractModal {
     public isAsymmetric: boolean = false;
 
     protected override getChannelAddresses() {
-        let channelAddresses: ChannelAddress[] = [];
+        const channelAddresses: ChannelAddress[] = [];
 
         // Get Chargers
         this.chargerComponents =

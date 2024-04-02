@@ -42,11 +42,11 @@ export class DelayedSellToGridModalComponent implements OnInit {
     applyChanges() {
         if (this.edge != null) {
             if (this.edge.roleIsAtLeast('owner')) {
-                let continuousSellToGridPower = this.formGroup.controls['continuousSellToGridPower'];
-                let sellToGridPowerLimit = this.formGroup.controls['sellToGridPowerLimit'];
+                const continuousSellToGridPower = this.formGroup.controls['continuousSellToGridPower'];
+                const sellToGridPowerLimit = this.formGroup.controls['sellToGridPowerLimit'];
                 if (continuousSellToGridPower.valid && sellToGridPowerLimit.valid) {
                     if (sellToGridPowerLimit.value > continuousSellToGridPower.value) {
-                        let updateComponentArray = [];
+                        const updateComponentArray = [];
                         Object.keys(this.formGroup.controls).forEach((element, index) => {
                             if (this.formGroup.controls[element].dirty) {
                                 updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });

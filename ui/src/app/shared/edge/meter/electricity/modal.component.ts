@@ -21,8 +21,8 @@ export class ElectricityMeterComponent extends AbstractModalLine implements OnIn
     ];
 
     protected override getChannelAddresses(): ChannelAddress[] {
-        let channelAddresses: ChannelAddress[] = [];
-        for (let phase of [1, 2, 3]) {
+        const channelAddresses: ChannelAddress[] = [];
+        for (const phase of [1, 2, 3]) {
             channelAddresses.push(
                 new ChannelAddress(this.component.id, 'CurrentL' + phase),
                 new ChannelAddress(this.component.id, 'VoltageL' + phase),
@@ -34,7 +34,7 @@ export class ElectricityMeterComponent extends AbstractModalLine implements OnIn
 
     protected override onCurrentData(currentData: CurrentData): void {
         this.phases.forEach((phase) => {
-            var power = currentData.allComponents[this.component.id + '/ActivePower' + phase.key];
+            const power = currentData.allComponents[this.component.id + '/ActivePower' + phase.key];
             phase.name = "Phase " + phase.key;
             phase.power = Utils.absSafely(power);
             phase.current = currentData.allComponents[this.component.id + '/Current' + phase.key];

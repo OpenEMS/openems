@@ -56,9 +56,9 @@ export class FlatComponent extends AbstractFlatWidget {
       new ChannelAddress(this.component.id, 'SetChargePowerLimit'),
     ];
 
-    let controllers = this.config.getComponentsByFactory("Controller.Evcs");
-    for (let controller of controllers) {
-      let properties = controller.properties;
+    const controllers = this.config.getComponentsByFactory("Controller.Evcs");
+    for (const controller of controllers) {
+      const properties = controller.properties;
       if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
         this.controller = controller;
         result.push(new ChannelAddress(controller.id, '_PropertyEnabledCharging'));
@@ -164,7 +164,7 @@ export class FlatComponent extends AbstractFlatWidget {
   }
 
   formatNumber(i: number) {
-    let round = Math.ceil(i / 100) * 100;
+    const round = Math.ceil(i / 100) * 100;
     return round;
   }
 
