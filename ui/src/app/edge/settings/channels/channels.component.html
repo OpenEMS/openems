@@ -28,7 +28,7 @@
                   [placeholder]="'CHANNELS.CHANNEL'| translate">
                   <ng-container *ngIf="selectedComponentId?.value">
                     <ion-select-option
-                      *ngFor="let entry of (config.components[selectedComponentId?.value]?.channels | keys)" 
+                      *ngFor="let entry of (config.components[selectedComponentId?.value]?.channels | keys)"
                       [value]="entry.key">
                       {{ entry.key }}</ion-select-option>
                   </ng-container>
