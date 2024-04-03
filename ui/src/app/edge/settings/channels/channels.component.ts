@@ -21,7 +21,6 @@ export class ChannelsComponent {
   private static readonly URL_PREFIX = "channels";
   protected readonly spinnerId = ChannelsComponent.SELECTOR;
   protected readonly environment = environment;
-  protected componentSelected = null;
   protected edge: Edge = null;
   protected config: EdgeConfig = null;
   protected channelsToBeSubscribed: ChannelAddress[] = [];
