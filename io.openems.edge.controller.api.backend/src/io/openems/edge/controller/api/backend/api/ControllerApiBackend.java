@@ -1,21 +1,25 @@
-package io.openems.edge.controller.api.backend;
+package io.openems.edge.controller.api.backend.api;
 
-import org.ops4j.pax.logging.spi.PaxAppender;
+import java.util.concurrent.CompletableFuture;
+
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.JsonApi;
+import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.Controller;
 
-public interface ControllerApiBackend extends Controller, JsonApi, OpenemsComponent, PaxAppender, EventHandler {
+public interface ControllerApiBackend extends Controller, OpenemsComponent, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		API_WORKER_LOG(Doc.of(OpenemsType.STRING) //
@@ -77,5 +81,16 @@ public interface ControllerApiBackend extends Controller, JsonApi, OpenemsCompon
 	 * @return true if it is connected
 	 */
 	public boolean isConnected();
+
+	/**
+	 * Sends the request to the connected backend.
+	 * 
+	 * @param user    the user
+	 * @param request the request to send
+	 * @return the result future
+	 * @throws OpenemsNamedException on error
+	 */
+	public CompletableFuture<? extends JsonrpcResponseSuccess> sendRequest(User user, JsonrpcRequest request)
+			throws OpenemsNamedException;
 
 }

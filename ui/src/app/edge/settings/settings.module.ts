@@ -11,6 +11,7 @@ import { IndexComponent as ComponentUpdateIndexComponent } from './component/upd
 import { ComponentUpdateComponent } from './component/update/update.component';
 import { ChartComponent } from './homeassistent/chart/chart';
 import { HomeServiceAssistentComponent } from './homeassistent/homeassistent';
+import { JsonrpcTestComponent } from './jsonrpctest/jsonrpctest';
 import { NetworkOldComponent } from './network.old/network.old.component';
 import { NetworkComponent } from './network/network.component';
 import { AliasUpdateComponent } from './profile/aliasupdate.component';
@@ -40,6 +41,7 @@ import { SystemUpdateOldComponent } from './systemupdate.old/systemupdate.old.co
     ComponentUpdateComponent,
     ComponentUpdateIndexComponent,
     HomeServiceAssistentComponent,
+    JsonrpcTestComponent,
     MaintenanceComponent,
     NetworkComponent,
     NetworkOldComponent,

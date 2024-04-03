@@ -19,8 +19,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.ops4j.pax.logging.spi.PaxAppender;
-import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -40,7 +38,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
-import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.ThreadPoolUtils;
@@ -50,28 +47,30 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.jsonapi.JsonApi;
+import io.openems.edge.common.jsonapi.EdgeKeys;
+import io.openems.edge.common.jsonapi.Key;
 import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.api.backend.api.ControllerApiBackend;
 import io.openems.edge.controller.api.common.ApiWorker;
+import io.openems.edge.controller.api.common.handler.ComponentConfigRequestHandler;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Controller.Api.Backend", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				"org.ops4j.pax.logging.appender.name=Controller.Api.Backend", //
-		} //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CONFIG_UPDATE //
 })
 public class ControllerApiBackendImpl extends AbstractOpenemsComponent
-		implements ControllerApiBackend, Controller, JsonApi, OpenemsComponent, PaxAppender, EventHandler {
+		implements ControllerApiBackend, Controller, OpenemsComponent, EventHandler {
 
 	protected static final String COMPONENT_NAME = "Controller.Api.Backend";
+
+	public static final Key<WebsocketClient> WEBSOCKET_CLIENT_KEY = new Key<>("websocketClient", WebsocketClient.class);
 
 	protected final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
 	protected final ApiWorker apiWorker = new ApiWorker(this);
@@ -80,21 +79,22 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 
 	@Reference
 	private OpenemsEdgeOem oem;
+	@Reference
+	protected ComponentManager componentManager;
+	@Reference
+	protected Cycle cycle;
 
 	@Reference
 	private ResendHistoricDataWorkerFactory resendHistoricDataWorkerFactory;
 	protected ResendHistoricDataWorker resendHistoricDataWorker;
 
 	@Reference
-	protected ComponentManager componentManager;
-
-	@Reference
-	protected Cycle cycle;
+	private BackendOnRequest.Factory requestHandlerFactory;
+	protected BackendOnRequest requestHandler;
 
 	protected WebsocketClient websocket = null;
 	protected Config config;
 	/** Used for SubscribeSystemLogRequests. */
-	private boolean isSystemLogSubscribed = false;
 	private ScheduledExecutorService executor;
 
 	public ControllerApiBackendImpl() {
@@ -103,19 +103,16 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 				Controller.ChannelId.values(), //
 				ControllerApiBackend.ChannelId.values() //
 		);
-		this.apiWorker.setLogChannel(this.getApiWorkerLogChannel());
 	}
 
-	/**
-	 * Activation method.
-	 * 
-	 * @param context the {@link ComponentContext}
-	 * @param config  the {@link Config}
-	 */
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
+
+		this.apiWorker.setLogChannel(this.getApiWorkerLogChannel());
+		this.resendHistoricDataWorker = this.resendHistoricDataWorkerFactory.get();
+		this.requestHandler = this.requestHandlerFactory.get();
 
 		if (!this.isEnabled()) {
 			return;
@@ -179,11 +176,18 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 				t -> this.websocket.sendMessage(t) //
 		));
 		this.resendHistoricDataWorker.activate(this.id(), false);
+
+		this.requestHandler.setOnCall(call -> {
+			call.put(WEBSOCKET_CLIENT_KEY, this.websocket);
+			call.put(ComponentConfigRequestHandler.API_WORKER_KEY, this.apiWorker);
+			call.put(EdgeKeys.IS_FROM_BACKEND_KEY, true);
+		});
+		this.requestHandler.setDebug(config.debugMode());
 	}
 
 	@Override
 	@Deactivate
-	protected void deactivate() {
+	protected synchronized void deactivate() {
 		super.deactivate();
 		this.resendHistoricDataWorkerFactory.unget(this.resendHistoricDataWorker);
 		this.resendHistoricDataWorker = null;
@@ -214,55 +218,33 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 		super.logError(log, message);
 	}
 
-	/**
-	 * Activates/deactivates subscription to System-Log.
-	 *
-	 * <p>
-	 * If activated, all System-Log events are sent via
-	 * {@link SystemLogNotification}s.
-	 *
-	 * @param isSystemLogSubscribed true to activate
-	 */
-	protected void setSystemLogSubscribed(boolean isSystemLogSubscribed) {
-		this.isSystemLogSubscribed = isSystemLogSubscribed;
-	}
-
-	@Override
-	public void doAppend(PaxLoggingEvent event) {
-		if (!this.isSystemLogSubscribed) {
-			return;
-		}
-		var ws = this.websocket;
-		if (ws == null) {
-			return;
-		}
-		var notification = SystemLogNotification.fromPaxLoggingEvent(event);
-		ws.sendMessage(notification);
-	}
-
 	@Override
 	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.sendChannelValuesWorker.collectData();
-			break;
-
-		case EdgeEventConstants.TOPIC_CONFIG_UPDATE:
-			// Send new EdgeConfig
-			var config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
-			var message = new EdgeConfigNotification(config);
-			var ws = this.websocket;
-			if (ws == null) {
+		try {
+			if (!this.isEnabled()) {
 				return;
 			}
-			ws.sendMessage(message);
+			switch (event.getTopic()) {
+			case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+				this.sendChannelValuesWorker.collectData();
+				break;
 
-			// Trigger sending of all channel values, because a Component might have
-			// disappeared
-			this.sendChannelValuesWorker.sendValuesOfAllChannelsOnce();
+			case EdgeEventConstants.TOPIC_CONFIG_UPDATE:
+				// Send new EdgeConfig
+				var config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
+				var message = new EdgeConfigNotification(config);
+				var ws = this.websocket;
+				if (ws == null) {
+					return;
+				}
+				ws.sendMessage(message);
+
+				// Trigger sending of all channel values, because a Component might have
+				// disappeared
+				this.sendChannelValuesWorker.sendValuesOfAllChannelsOnce();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -301,9 +283,8 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
+	public CompletableFuture<? extends JsonrpcResponseSuccess> sendRequest(User user, JsonrpcRequest request)
 			throws OpenemsNamedException {
-		// delegates request to actual backend
 		return this.websocket.sendRequest(request);
 	}
 

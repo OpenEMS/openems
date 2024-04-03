@@ -10,7 +10,6 @@ import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.pos
 
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -26,21 +25,20 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.session.Role;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.JsonApi;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.EdgeKeys;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleRequest;
+import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleResponse;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Context;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Optimizer;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils;
@@ -60,7 +58,7 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
-		implements TimeOfUseTariffController, Controller, OpenemsComponent, TimedataProvider, JsonApi {
+		implements TimeOfUseTariffController, Controller, OpenemsComponent, TimedataProvider, ComponentJsonApi {
 
 	/** The hard working Worker. */
 	private final Optimizer optimizer;
@@ -262,13 +260,13 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
-			throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.GUEST);
-		return switch (request.getMethod()) {
-		case GetScheduleRequest.METHOD -> this.handleGetScheduleRequest(user, GetScheduleRequest.from(request));
-		default -> throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
-		};
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(GetScheduleRequest.METHOD, call -> {
+			return this.handleGetScheduleRequest(//
+					call.get(EdgeKeys.USER_KEY), //
+					GetScheduleRequest.from(call.getRequest()) //
+			);
+		});
 	}
 
 	/**
@@ -279,10 +277,10 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGetScheduleRequest(User user,
-			GetScheduleRequest request) throws OpenemsNamedException {
-		return CompletableFuture.completedFuture(Utils.handleGetScheduleRequest(this.optimizer, request.getId(),
-				this.timedata, this.id(), ZonedDateTime.now(this.componentManager.getClock())));
+	protected GetScheduleResponse handleGetScheduleRequest(User user, GetScheduleRequest request)
+			throws OpenemsNamedException {
+		return Utils.handleGetScheduleRequest(this.optimizer, request.getId(), this.timedata, this.id(),
+				ZonedDateTime.now(this.componentManager.getClock()));
 	}
 
 	@Override

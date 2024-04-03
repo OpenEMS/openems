@@ -52,6 +52,7 @@ import { LoginComponent } from './index/login.component';
 import { OverViewComponent } from './index/overview/overview.component';
 import { DataService } from './shared/genericComponents/shared/dataservice';
 import { UserComponent } from './user/user.component';
+import { JsonrpcTestComponent } from './edge/settings/jsonrpctest/jsonrpctest';
 
 const routes: Routes = [
 
@@ -126,6 +127,7 @@ const routes: Routes = [
       { path: 'settings/app/single/:appId', component: EdgeSettingsAppSingle },
       { path: 'settings/alerting', component: EdgeSettingsAlerting },
       { path: 'settings/homeServiceAssistent', component: HomeServiceAssistentComponent, data: { navbarTitle: 'Home-Assistent' } },
+      { path: 'settings/jsonrpctest', component: JsonrpcTestComponent },
     ],
   },
 

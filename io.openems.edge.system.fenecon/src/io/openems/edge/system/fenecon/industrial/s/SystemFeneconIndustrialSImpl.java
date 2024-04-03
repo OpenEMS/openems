@@ -4,7 +4,6 @@ import static io.openems.common.types.ChannelAddress.fromString;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -29,8 +28,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.fenecon.f2b.BatteryFeneconF2b;
@@ -40,10 +37,11 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.jsonapi.JsonApi;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.EdgeGuards;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.common.user.User;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.system.fenecon.industrial.s.coolingunit.statemachine.CoolingUnitContext;
 import io.openems.edge.system.fenecon.industrial.s.coolingunit.statemachine.CoolingUnitStateMachine;
@@ -63,7 +61,7 @@ import io.openems.edge.system.fenecon.industrial.s.statemachine.StateMachine.Sta
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 })
 public class SystemFeneconIndustrialSImpl extends AbstractOpenemsComponent
-		implements SystemFeneconIndustrialS, OpenemsComponent, StartStoppable, EventHandler, JsonApi {
+		implements SystemFeneconIndustrialS, OpenemsComponent, StartStoppable, EventHandler, ComponentJsonApi {
 
 	private final Logger log = LoggerFactory.getLogger(SystemFeneconIndustrialSImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
@@ -303,27 +301,23 @@ public class SystemFeneconIndustrialSImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
-			throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.INSTALLER);
-		switch (request.getMethod()) {
-		case EmergencyStopAcknowledgeRequest.METHOD -> {
-			return this.acknowledgeEmergencyStop(user, request);
-		}
-		}
-		return null;
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(EmergencyStopAcknowledgeRequest.METHOD, endpoint -> {
+			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.INSTALLER));
+		}, call -> {
+			this.acknowledgeEmergencyStop();
+
+			return new GenericJsonrpcResponseSuccess(call.getRequest().getId());
+		});
 	}
 
 	private final AtomicBoolean allowAcknowledge = new AtomicBoolean(false);
 
-	private CompletableFuture<? extends JsonrpcResponseSuccess> acknowledgeEmergencyStop(User user,
-			JsonrpcRequest request) throws OpenemsNamedException {
+	private void acknowledgeEmergencyStop() throws OpenemsNamedException {
 		try {
 			WriteChannel<Boolean> outputChannel = this.componentManager
 					.getChannel(this.parsedConfig.acknowledgeEmergencyStopChannel());
 			outputChannel.setNextWriteValue(true);
-			return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
-
 		} catch (Exception e) {
 			this.logError(this.log, e.getClass().getSimpleName() + ": " + e.getMessage());
 			throw e;
