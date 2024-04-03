@@ -18,8 +18,7 @@
                   [placeholder]="'CHANNELS.Component'| translate">
                   <ion-select-option style=" white-space: normal !important;"
                     *ngFor="let entry of (config.components | keys)" [value]="entry.key">
-                    {{ entry.value.id }} ({{ entry.value.alias }})
-                  </ion-select-option>
+                    {{ entry.value.id }} ({{ entry.value.alias }})</ion-select-option>
                 </ion-select>
               </ion-item>
               <ion-item lines="none">
