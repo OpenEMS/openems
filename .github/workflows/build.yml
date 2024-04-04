@@ -4,7 +4,8 @@ on:
     types: [opened, synchronize, reopened]
   push:
     branches:
-      - '**'
+      - main
+      - develop
   
 jobs:
   build-java:
