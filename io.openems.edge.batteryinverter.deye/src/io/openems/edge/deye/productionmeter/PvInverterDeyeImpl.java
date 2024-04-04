@@ -77,7 +77,9 @@ public class PvInverterDeyeImpl extends AbstractOpenemsModbusComponent
 				ElectricityMeter.ChannelId.values(), //
 				ManagedSymmetricPvInverter.ChannelId.values(), //
 				PvInverterDeye.ChannelId.values() //
+
 		);
+		PvInverterDeye.calculateSumActivePowerFromPhases(this);
 	}
 
 	@Activate
@@ -104,9 +106,12 @@ public class PvInverterDeyeImpl extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(607, Priority.LOW, //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedWordElement(607)))//
-		);
+				new FC3ReadRegistersTask(672, Priority.LOW, //
+						m(PvInverterDeye.ChannelId.ACTIVE_POWER_STRING_1, new UnsignedWordElement(672)),
+						m(PvInverterDeye.ChannelId.ACTIVE_POWER_STRING_2, new UnsignedWordElement(673)),
+						m(PvInverterDeye.ChannelId.ACTIVE_POWER_STRING_3, new UnsignedWordElement(674)),
+						m(PvInverterDeye.ChannelId.ACTIVE_POWER_STRING_4, new UnsignedWordElement(675)//
+						)));
 	}
 
 	@Override
