@@ -1,7 +1,6 @@
 package io.openems.edge.core.appmanager;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -105,16 +104,15 @@ public class ResolveDependencies implements Runnable {
 
 					try {
 						LOG.info(String.format("Resolving dependency with installing %s!", config.appId));
-						var future = appManagerImpl.handleAddAppInstanceRequest(user, //
+						appManagerImpl.handleAddAppInstanceRequest(user, //
 								new AddAppInstance.Request(//
 										config.appId, "key", //
 										config.alias, //
 										config.initialProperties),
 								true);
-						future.get();
 						resolveDependencies(user, appManagerImpl, appManagerUtil);
 						return;
-					} catch (OpenemsNamedException | InterruptedException | ExecutionException e) {
+					} catch (OpenemsNamedException e) {
 						e.printStackTrace();
 					}
 				}

@@ -1,9 +1,12 @@
 package io.openems.edge.core.appmanager.dependency;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+
 import java.util.UUID;
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.AppManager;
 
@@ -33,6 +36,22 @@ public class Dependency {
 				.addProperty("key", this.key) //
 				.addProperty("instanceId", this.instanceId.toString()) //
 				.build();
+	}
+
+	/**
+	 * Returns a {@link JsonSerializer} for a {@link Dependency}.
+	 * 
+	 * @return the created {@link JsonSerializer}
+	 */
+	public static JsonSerializer<Dependency> serializer() {
+		return jsonObjectSerializer(Dependency.class, //
+				json -> new Dependency(//
+						json.getString("key"), //
+						json.getStringPath("instanceId").getAsUuid()), //
+				obj -> JsonUtils.buildJsonObject() //
+						.addProperty("key", obj.key) //
+						.addProperty("instanceId", obj.instanceId.toString()) //
+						.build());
 	}
 
 }
