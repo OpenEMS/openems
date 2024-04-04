@@ -8,6 +8,7 @@ import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -82,6 +83,10 @@ public interface EvcsKebaKeContact extends ManagedEvcs, Evcs, OpenemsComponent, 
 				.unit(Unit.ON_OFF) //
 				.text("State of the potential free Enable input X1. When using the input, "
 						+ "please pay attention to the information in the installation manual.")), //
+		X2_PHASE_SWITCH(Doc.of(OpenemsType.INTEGER) //
+				.text("Used phases by external phase switch")), //
+		X2_PHASE_SWITCH_SOURCE(Doc.of(OpenemsType.INTEGER) //
+				.text("Specified communication channel of x2")), //
 		/*
 		 * Report 3
 		 */
@@ -154,6 +159,44 @@ public interface EvcsKebaKeContact extends ManagedEvcs, Evcs, OpenemsComponent, 
 				Evcs.getModbusSlaveNatureTable(accessMode), //
 				ManagedEvcs.getModbusSlaveNatureTable(accessMode), //
 				this.getModbusSlaveNatureTable(accessMode));
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#X2_PHASE_SWITCH}.
+	 *
+	 * @return the Channel as an IntegerReadChannel
+	 */
+	default IntegerReadChannel getX2PhaseSwitchChannel() {
+		return this.channel(ChannelId.X2_PHASE_SWITCH);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#X2_PHASE_SWITCH}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	default void _setX2PhaseSwitch(int value) {
+		this.getX2PhaseSwitchChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#X2_PHASE_SWITCH_SOURCE}.
+	 *
+	 * @return the Channel as an IntegerReadChannel
+	 */
+	default IntegerReadChannel getX2PhaseSwitchSourceChannel() {
+		return this.channel(ChannelId.X2_PHASE_SWITCH_SOURCE);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#X2_PHASE_SWITCH_SOURCE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	default void _setX2PhaseSwitchSource(int value) {
+		this.getX2PhaseSwitchSourceChannel().setNextValue(value);
 	}
 
 	/**

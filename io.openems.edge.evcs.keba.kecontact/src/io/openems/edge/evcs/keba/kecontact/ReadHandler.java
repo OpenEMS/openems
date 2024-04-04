@@ -160,6 +160,33 @@ public class ReadHandler implements Consumer<String> {
 					this.setBoolean(EvcsKebaKeContact.ChannelId.INPUT, jsonMessage, "Input");
 					this.setInt(EvcsKebaKeContact.ChannelId.MAX_CURR, jsonMessage, "Curr HW");
 					this.setInt(EvcsKebaKeContact.ChannelId.CURR_USER, jsonMessage, "Curr user");
+					
+					this.setInt(EvcsKebaKeContact.ChannelId.X2_PHASE_SWITCH, jsonMessage, "X2 phaseSwitch");
+					this.setInt(EvcsKebaKeContact.ChannelId.X2_PHASE_SWITCH, jsonMessage, "X2 phaseSwitch source");
+
+					// Check configuration for phase switch activation and parse the "X2
+					// phaseSwitch" status
+					boolean isPhaseSwitchConfiguredActive = this.parent.phaseSwitchActive();
+					JsonElement x2PhaseSwitchElement = jsonMessage.get("X2 phaseSwitch"); //
+					Integer x2PhaseSwitchStatus = x2PhaseSwitchElement != null && x2PhaseSwitchElement.isJsonPrimitive()
+							? x2PhaseSwitchElement.getAsInt()
+							: null; //
+
+					if (isPhaseSwitchConfiguredActive && (x2PhaseSwitchStatus != null && x2PhaseSwitchStatus == 0)) {
+						// If configured active in Config but reported inactive from Keba, attempt to activate commands via UDP
+						boolean isSetControlChannelSuccess = this.parent.send("x2src 4");
+						if (isSetControlChannelSuccess && this.parent.send("x2 1")) {
+							this.log.info("Phase switch activation via UDP successful.");
+						} else {
+							this.log.error("Failed to activate phase switch via UDP.");
+						}
+					} else if (!isPhaseSwitchConfiguredActive) {
+						this.log.debug("Phase switch activation not enabled in configuration.");
+					} else if (x2PhaseSwitchStatus != null && x2PhaseSwitchStatus != 0) {
+						this.log.debug("Phase switch is already active or status is currently unknown.");
+					} else {
+						this.log.warn("Could not parse 'X2 phaseSwitch' status from the message.");
+					}
 
 				} else if (id.equals("3")) {
 					/*
