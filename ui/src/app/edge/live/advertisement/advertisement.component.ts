@@ -1,9 +1,11 @@
-import { AfterContentChecked, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { IonSlides, ModalController } from '@ionic/angular';
+import { AfterContentChecked, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ModalController } from '@ionic/angular';
 import { AdvertWidgets } from 'src/app/shared/type/widget';
 import { environment } from 'src/environments';
-import { Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { register } from 'swiper/element/bundle';
+import { Service } from '../../../shared/shared';
+
+register();
 
 @Component({
   selector: 'advertisement',
@@ -14,29 +16,16 @@ export class AdvertisementComponent implements OnInit, AfterContentChecked, OnDe
 
   @Input() public advertWidgets: AdvertWidgets;
 
-  @ViewChild('slides', { static: true }) public slides: IonSlides;
+  @ViewChild('swiper') public swiperRef: ElementRef | undefined;
 
-  public edge: Edge;
-  public config: EdgeConfig;
-  public environment = environment;
-  public activeIndex: number;
   public title: string;
   public imageUrl: string = "assets/img/fems-app.png";
 
-  public enableBtn: boolean = false;
-  public disablePrevBtn: boolean = null;
-  public disableNextBtn: boolean = null;
-
-  protected slideOpts = {
-    allowTouchMove: false,
-    initialSlide: 0,
-    preventClicks: false,
-    preventClicksPropagation: false,
-    speed: 5000,
-  };
+  protected enableBtn: boolean = false;
+  protected disablePrevBtn: boolean | null = null;
+  protected disableNextBtn: boolean | null = null;
 
   constructor(
-    private route: ActivatedRoute,
     public modalCtrl: ModalController,
     public service: Service,
     private cdref: ChangeDetectorRef,
@@ -47,69 +36,45 @@ export class AdvertisementComponent implements OnInit, AfterContentChecked, OnDe
   }
 
   ngOnInit() {
-
-    // Slide to random first view
-    this.slides.getActiveIndex().then(index => {
-      this.title = this.advertWidgets.list[index].title ?? environment.edgeShortName + ' - App';
-    });
-
-    this.service.setCurrentComponent('', this.route).then(edge => {
-      this.edge = edge;
-    });
-
-    // enables or disables nav buttons generally
-    this.slides.length().then(length => {
-      if (length > 1) {
-        this.enableBtn = true;
-        this.disablePrevBtn = true;
-        this.disableNextBtn = false;
-      }
-    });
+    this.setSlideConfig();
   }
 
   ngOnDestroy() {
-    this.slides.stopAutoplay();
+    this.swiperRef?.nativeElement.swiper.autoplay.stop();
   }
 
-  slidesDidLoad(slider: IonSlides) {
-    slider.startAutoplay();
+  /**
+   * Sets the slide config like title and disables prev and next button
+   */
+  protected setSlideConfig() {
+
+    // Slide to random first view
+    const index = this.swiperRef?.nativeElement.swiper.activeIndex ?? 0;
+    this.title = this.advertWidgets.list[index].title ?? environment.edgeShortName + ' - App';
+
+    this.changeNextPrevButtons();
   }
 
-  changeSlides() {
-    this.slides.getActiveIndex().then((index: number) => {
-      this.activeIndex = index;
-    });
-    this.slides.update().then(() => {
-      this.title = this.advertWidgets.list[this.activeIndex].title ?? environment.edgeShortName + ' - App';
-    });
-  }
+  private changeNextPrevButtons() {
 
-  changeNextPrevButtons() {
+    // enables or disables nav buttons generally
+    const length = this.swiperRef?.nativeElement.swiper.slides.length ?? 0;
+    this.enableBtn = length > 1;
 
     // If more than one slide
     if (this.enableBtn) {
-      this.slides.getSwiper().then(swiper => {
-        if (swiper.isBeginning) {
-          // Show only nextButton for first slide
-          this.disablePrevBtn = true;
-          this.disableNextBtn = false;
-        } else if (swiper.isEnd) {
-          // Show only previousButton for last slide
-          this.disablePrevBtn = false;
-          this.disableNextBtn = true;
-        } else {
-          this.disablePrevBtn = false;
-          this.disableNextBtn = false;
-        }
-      });
+      const isBeginning = this.swiperRef?.nativeElement.swiper.isBeginning || false;
+      const isEnd = this.swiperRef?.nativeElement.swiper.isEnd || false;
+      this.disablePrevBtn = isBeginning;
+      this.disableNextBtn = isEnd;
     }
   }
 
-  swipeNext() {
-    this.slides.slideNext();
+  protected swipeNext() {
+    this.swiperRef?.nativeElement.swiper.slideNext();
   }
 
-  swipePrevious() {
-    this.slides.slidePrev();
+  protected swipePrevious() {
+    this.swiperRef?.nativeElement.swiper.slidePrev();
   }
 }

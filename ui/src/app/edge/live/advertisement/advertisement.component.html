@@ -15,13 +15,12 @@
         </ion-buttons>
     </ion-item>
     <ion-card-content>
-        <ion-slides [options]="slideOpts" class="slides" #slides (ionSlidesDidLoad)="slidesDidLoad(slides)"
-            (ionSlideWillChange)="changeSlides()" (ionSlideTransitionStart)="changeNextPrevButtons()">
+        <swiper-container autoplay="true" speed="5000" #swiper (swiperslidechange)="setSlideConfig()">
             <ng-container *ngFor="let widget of advertWidgets.list" [ngSwitch]="widget.name">
-                <ion-slide *ngSwitchCase="'dynamic-electricity-tariff'">
+                <swiper-slide *ngSwitchCase="'dynamic-electricity-tariff'">
                     <dynamic-electricity-tariff></dynamic-electricity-tariff>
-                </ion-slide>
+                </swiper-slide>
             </ng-container>
-        </ion-slides>
+        </swiper-container>
     </ion-card-content>
 </ion-card>
