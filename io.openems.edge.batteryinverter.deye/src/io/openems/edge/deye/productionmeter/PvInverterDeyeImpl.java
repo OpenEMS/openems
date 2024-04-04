@@ -1,11 +1,8 @@
 package io.openems.edge.deye.productionmeter;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.OpenemsType;
-import io.openems.edge.battery.api.Battery;
-import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -14,10 +11,12 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -35,10 +34,11 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Deye.Meter", //
+		name = "PV-Inverter.Deye", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
@@ -48,11 +48,12 @@ import org.osgi.service.metatype.annotations.Designate;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class DeyeMeterImpl extends AbstractOpenemsModbusComponent implements DeyeMeter, ElectricityMeter, ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider {
+public class PvInverterDeyeImpl extends AbstractOpenemsModbusComponent
+		implements PvInverterDeye, ManagedSymmetricPvInverter, ElectricityMeter, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
+
+	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this, ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this, ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
-
-	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this, ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -66,15 +67,16 @@ public class DeyeMeterImpl extends AbstractOpenemsModbusComponent implements Dey
 		super.setModbus(modbus);
 	}
 
-	private Config config;
+	protected Config config;
 
-	public DeyeMeterImpl() throws OpenemsException {
+	public PvInverterDeyeImpl() throws OpenemsException {
 		super(//
 
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
-				DeyeMeter.ChannelId.values() //
+				ManagedSymmetricPvInverter.ChannelId.values(), //
+				PvInverterDeye.ChannelId.values() //
 		);
 	}
 
@@ -84,22 +86,19 @@ public class DeyeMeterImpl extends AbstractOpenemsModbusComponent implements Dey
 			return;
 		}
 		this.config = config;
+		this._setMaxApparentPower(config.maxActivePower());
+
+		// Stop if component is disabled
+		if (!config.enabled()) {
+			return;
+		}
+
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-	}
-
-	@Override
-	public MeterType getMeterType() {
-		return MeterType.PRODUCTION;
-	}
-
-	@Override
-	public void retryModbusCommunication() {
-
 	}
 
 	@Override
@@ -111,53 +110,47 @@ public class DeyeMeterImpl extends AbstractOpenemsModbusComponent implements Dey
 	}
 
 	@Override
-	public String debugLog() {
-		return "PRODUCTION:" + this.getActivePower().asString();
-	}
-
-	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled()) {
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.updateChannels();
+		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
+			try {
+				this.setPvLimitHandler.run();
+
+				this.channel(PvInverterDeye.ChannelId.PV_LIMIT_FAILED).setNextValue(false);
+			} catch (OpenemsError.OpenemsNamedException e) {
+				this.channel(PvInverterDeye.ChannelId.PV_LIMIT_FAILED).setNextValue(true);
+			}
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.calculateEnergy();
+			this.calculateProductionEnergy.update(this.getActivePower().get());
 			break;
 		}
 	}
 
-	private void updateChannels() {
-
-		Integer simulatedActivePower = Integer.valueOf(1000);
-
-		// Apply Active Power Limit
-
-		this._setActivePower(simulatedActivePower);
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.PRODUCTION;
 	}
 
-	/**
-	 * Calculate the Energy values from ActivePower.
-	 */
-	private void calculateEnergy() {
-		// Calculate Energy
-		var activePower = Integer.valueOf(1000);
-		if (activePower == null) {
-			// Not available
-			this.calculateProductionEnergy.update(null);
-			this.calculateConsumptionEnergy.update(null);
-		} else if (activePower > 0) {
-			// Production
-			this.calculateProductionEnergy.update(activePower);
-			this.calculateConsumptionEnergy.update(0);
-		} else {
-			// Consumption (or in this context: "Negative Production")
-			this.calculateProductionEnergy.update(0);
-			this.calculateConsumptionEnergy.update(activePower * -1);
-		}
+	@Override
+	public String debugLog() {
+		return "L:" + this.getActivePower().asString();
+	}
+
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode));
 	}
 
 	@Override
