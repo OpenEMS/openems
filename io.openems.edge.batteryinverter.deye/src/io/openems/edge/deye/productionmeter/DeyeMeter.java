@@ -1,4 +1,4 @@
-package io.openems.edge.deye.meter;
+package io.openems.edge.deye.productionmeter;
 
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Doc;

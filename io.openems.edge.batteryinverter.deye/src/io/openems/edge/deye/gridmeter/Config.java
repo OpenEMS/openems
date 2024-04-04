@@ -3,8 +3,6 @@ package io.openems.edge.deye.gridmeter;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.meter.api.MeterType;
-
 @ObjectClassDefinition(name = "Grid Meter Deye", //
 		description = "Implements the Deye Meter - Grid")
 @interface Config {

@@ -1,10 +1,9 @@
-package io.openems.edge.deye.meter;
+package io.openems.edge.deye.productionmeter;
 
-import io.openems.edge.meter.api.MeterType;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition(name = "Production Meter Deye", //
+@ObjectClassDefinition(name = "Production Meter Deye Ouida", //
 		description = "Implements the Deye Meter - Production")
 @interface Config {
 
