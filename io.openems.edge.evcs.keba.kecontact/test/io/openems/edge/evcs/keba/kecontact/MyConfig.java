@@ -11,6 +11,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String ip;
 		private boolean debugMode;
 		private boolean useDisplay;
+		private boolean phaseSwitchActive;
 
 		private Builder() {
 		}
@@ -37,6 +38,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setUseDisplay(boolean useDisplay) {
 			this.useDisplay = useDisplay;
+			return this;
+		}
+		
+		public Builder setphaseSwitchActive(boolean phaseSwitchActive) {
+			this.phaseSwitchActive = this.phaseSwitchActive;
 			return this;
 		}
 
@@ -79,5 +85,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean useDisplay() {
 		return this.builder.useDisplay;
+	}
+
+	@Override
+	public boolean phaseSwitchActive() {
+		return this.builder.phaseSwitchActive;
 	}
 }
