@@ -38,8 +38,6 @@ import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.keba.kecontact.core.EvcsKebaKeContactCore;
 
-// Implement 4140W min for 3 phases !
-
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Evcs.Keba.KeContact", //
@@ -69,6 +67,8 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 
 	private Boolean lastConnectionLostState = false;
 	private InetAddress ip = null;
+	private Instant lastPhaseChangeTime = Instant.MIN;
+	private static final long PHASE_SWITCH_COOLDOWN_SECONDS = 310;
 
 	public EvcsKebaKeContactImpl() {
 		super(//
@@ -220,16 +220,14 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		return this.config.phaseSwitchActive();
 	}
 
-	private Instant lastPhaseChangeTime = Instant.MIN;
-
 	@Override
 	public boolean applyChargePowerLimit(int power) throws OpenemsException {
 		Instant now = Instant.now(this.componentManager.getClock());
 		this.log.debug("Applying charge power limit: [Power: " + power + "W] at [" + now + "]");
 
-		// Phase switch cooldown: 300 seconds (5 minutes) + 10 second Time to make sure
-		// not to overwhelm KEBA :D
-		boolean isPhaseSwitchCooldownOver = this.lastPhaseChangeTime.plusSeconds(310).isBefore(now);
+		// Phase switch cooldown: 310 seconds
+		boolean isPhaseSwitchCooldownOver = this.lastPhaseChangeTime.plusSeconds(PHASE_SWITCH_COOLDOWN_SECONDS)
+				.isBefore(now);
 		this.log.debug("Phase switch cooldown over: " + isPhaseSwitchCooldownOver);
 
 		var phases = this.getPhasesAsInt();
@@ -238,25 +236,34 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		var current = this.calculateCurrent(power, phases);
 		this.log.debug("Calculated current for charging: " + current + "mA");
 
-		// Check if switching to 3 phases is possible and cooldown period has passed
-		if (this.shouldSwitchToThreePhases(power, phases) && isPhaseSwitchCooldownOver) {
-			this.log.info("Attempting to switch to 3 phases for power: " + power + "W");
-			boolean switchSuccess = this.switchToThreePhases(now);
+		// Determine if switching phases is necessary
+		boolean switchToThreePhasesCondition = this.shouldSwitchToThreePhases(power, phases)
+				&& isPhaseSwitchCooldownOver;
+		boolean switchToOnePhaseCondition = this.shouldSwitchBackToOnePhase(power, phases) && isPhaseSwitchCooldownOver;
+
+		if (switchToThreePhasesCondition || switchToOnePhaseCondition) {
+			boolean switchSuccess = this.switchPhases(switchToThreePhasesCondition, now);
 			if (!switchSuccess) {
-				this.log.info("Phase switch to 3 phases failed. Exiting.");
+				this.log.info("Phase switch failed. Exiting.");
 				return false; // Early exit if phase switch failed
 			}
 		} else if (!isPhaseSwitchCooldownOver) {
-			Duration timeUntilNextSwitch = Duration.between(now, this.lastPhaseChangeTime.plusSeconds(310));
+			Duration timeUntilNextSwitch = Duration.between(now,
+					this.lastPhaseChangeTime.plusSeconds(PHASE_SWITCH_COOLDOWN_SECONDS));
 			long secondsUntilNextSwitch = timeUntilNextSwitch.getSeconds();
 			this.log.info("Phase switch cooldown period has not passed. Time before next switch: "
 					+ secondsUntilNextSwitch + " seconds.");
 		}
 
+		// Send command to set current
 		boolean sendSuccess = this.send("currtime " + current + " 1");
 		this.log.debug("Command to set current sent. Success: " + sendSuccess);
 
 		return sendSuccess;
+	}
+
+	private boolean shouldSwitchBackToOnePhase(int power, int phases) {
+		return power < 4140 && phases == 3;
 	}
 
 	private int calculateCurrent(int power, int phases) {
@@ -280,13 +287,14 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		return shouldSwitch;
 	}
 
-	private boolean switchToThreePhases(Instant now) {
-		if (this.send("x2 1")) {
-			this.lastPhaseChangeTime = now;
-			this.log.info("Switched to 3 phases successfully.");
+	private boolean switchPhases(boolean toThreePhases, Instant now) {
+		String command = toThreePhases ? "x2 1" : "x2 0";
+		if (this.send(command)) {
+			this.lastPhaseChangeTime = now; // Update the cooldown timer regardless of the phase switch direction
+			this.log.info("Switched to " + (toThreePhases ? "3 phases" : "1 phase") + " successfully.");
 			return true;
 		} else {
-			this.log.warn("Failed to switch to 3 phases.");
+			this.log.warn("Failed to switch to " + (toThreePhases ? "3 phases" : "1 phase") + ".");
 			return false;
 		}
 	}
