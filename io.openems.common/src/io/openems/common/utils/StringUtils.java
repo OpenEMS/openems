@@ -1,5 +1,6 @@
 package io.openems.common.utils;
 
+import java.util.OptionalInt;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
@@ -91,8 +92,11 @@ public class StringUtils {
 
 	private static final Predicate<String> DETECT_INTEGER_PATTERN = //
 			Pattern.compile("^[-+]?[0-9]+$").asPredicate();
+
 	private static final Predicate<String> DETECT_FLOAT_PATTERN = //
 			Pattern.compile("^[-+]?[0-9]*\\.[0-9]+$").asPredicate();
+
+	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	/**
 	 * Checks if the given string matches an Integer pattern, i.e. if could be
@@ -152,5 +156,31 @@ public class StringUtils {
 			return original;
 		}
 		return alternative;
+	}
+
+	/**
+	 * Parses the number of an Edge from its name string.
+	 *
+	 * <p>
+	 * e.g. translates "edge0" to "0".
+	 *
+	 * @param name the edge name
+	 * @return the number or empty optional if there is no number in the name or if
+	 *         the name is null
+	 */
+	public static OptionalInt parseNumberFromName(String name) {
+		if (name == null) {
+			return OptionalInt.empty();
+		}
+		try {
+			var matcher = NAME_NUMBER_PATTERN.matcher(name);
+			if (matcher.find()) {
+				var nameNumberString = matcher.group(1);
+				return OptionalInt.of(Integer.parseInt(nameNumberString));
+			}
+		} catch (NullPointerException e) {
+			/* ignore */
+		}
+		return OptionalInt.empty();
 	}
 }

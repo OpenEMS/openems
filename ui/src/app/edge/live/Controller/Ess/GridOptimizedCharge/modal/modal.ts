@@ -29,7 +29,7 @@ export class ModalComponent extends AbstractModal {
 
     protected override getChannelAddresses(): ChannelAddress[] {
         this.refreshChart = false;
-        let channels: ChannelAddress[] = [];
+        const channels: ChannelAddress[] = [];
         if (this.edge.roleIsAtLeast(Role.ADMIN)) {
             this.isAtLeastAdmin = true;
             if ('ess.id' in this.component.properties) {
@@ -81,9 +81,7 @@ export class ModalComponent extends AbstractModal {
                     break;
                 case 4: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitPossible');
                     break;
-                case 5:
-
-                // Case 6: 'DISABLED' hides 'state-line', so no Message needed
+                case 5: // Case 6: 'DISABLED' hides 'state-line', so no Message needed
                 case 7: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive');
                     break;
 

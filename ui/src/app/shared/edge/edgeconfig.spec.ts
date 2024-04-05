@@ -16,12 +16,12 @@ export namespace DummyConfig {
             components: <unknown>components?.reduce((acc, c) => ({ ...acc, [c.id]: c }), {}),
             factories: <unknown>components?.map(c => c.factory),
         });
-    };
+    }
 
     export function convertDummyEdgeConfigToRealEdgeConfig(edgeConfig: EdgeConfig): EdgeConfig {
-        let components = Object.values(edgeConfig?.components) ?? null;
+        const components = Object.values(edgeConfig?.components) ?? null;
 
-        let factories = {};
+        const factories = {};
         components.forEach(obj => {
             const component = obj as unknown;
             if (factories[component['factoryId']]) {
@@ -206,6 +206,8 @@ export namespace DummyConfig {
 /**
  * Factories.
  */
+// identifier `Factory` is also used in namespace
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type Factory = {
     id: string
 };
@@ -213,6 +215,8 @@ type Factory = {
 /**
  * Components
  */
+// identifier `Component` is also used in namespace
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type Component = {
     id: string,
     alias: string, // defaults to id
