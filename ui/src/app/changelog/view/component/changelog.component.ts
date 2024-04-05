@@ -33,9 +33,9 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
-        version: 'x.y.z',
+        version: '2024.5.0',
         changes: [
-          Changelog.link("OpenEMS Releases", 'https://github.com/OpenEMS/openems/releases'),
+          Changelog.link("OpenEMS Releases", 'https://github.com/connectorio/openems/releases'),
         ],
       },
     ];
