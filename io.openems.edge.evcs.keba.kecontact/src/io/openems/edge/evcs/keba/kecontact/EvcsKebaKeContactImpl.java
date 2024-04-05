@@ -239,7 +239,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		// Determine if switching phases is necessary
 		boolean switchToThreePhasesCondition = this.shouldSwitchToThreePhases(power, phases)
 				&& isPhaseSwitchCooldownOver;
-		boolean switchToOnePhaseCondition = this.shouldSwitchBackToOnePhase(power, phases) && isPhaseSwitchCooldownOver;
+		boolean switchToOnePhaseCondition = this.shouldSwitchToOnePhase(power, phases) && isPhaseSwitchCooldownOver;
 
 		if (switchToThreePhasesCondition || switchToOnePhaseCondition) {
 			boolean switchSuccess = this.switchPhases(switchToThreePhasesCondition, now);
@@ -262,7 +262,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		return sendSuccess;
 	}
 
-	private boolean shouldSwitchBackToOnePhase(int power, int phases) {
+	boolean shouldSwitchToOnePhase(int power, int phases) {
 		return power < 4140 && phases == 3;
 	}
 
@@ -280,7 +280,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		return current;
 	}
 
-	private boolean shouldSwitchToThreePhases(int power, int phases) {
+	boolean shouldSwitchToThreePhases(int power, int phases) {
 		boolean shouldSwitch = power > 4140 && phases != 3;
 		this.log.debug("Should switch to 3 phases: " + shouldSwitch + " [Power: " + power + "W, Current phases: "
 				+ phases + "]");
