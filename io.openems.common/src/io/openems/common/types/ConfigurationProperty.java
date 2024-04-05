@@ -21,7 +21,7 @@ public class ConfigurationProperty<T> {
 
 	/**
 	 * Creates a {@link ConfigurationProperty} object from a value.
-	 * 
+	 *
 	 * @param <T>   the type of the value
 	 * @param value the value
 	 * @return the {@link ConfigurationProperty}
@@ -32,7 +32,7 @@ public class ConfigurationProperty<T> {
 
 	/**
 	 * Creates a {@link ConfigurationProperty} object with 'null' value.
-	 * 
+	 *
 	 * @param <T> the type of the value
 	 * @return the {@link ConfigurationProperty}
 	 */
@@ -42,7 +42,7 @@ public class ConfigurationProperty<T> {
 
 	/**
 	 * Creates a {@link ConfigurationProperty} object with 'not set' value.
-	 * 
+	 *
 	 * @param <T> the type of the value
 	 * @return the {@link ConfigurationProperty}
 	 */
@@ -53,7 +53,7 @@ public class ConfigurationProperty<T> {
 	/**
 	 * Creates a {@link ConfigurationProperty} object from a {@link JsonElement}
 	 * value.
-	 * 
+	 *
 	 * @param <T>      the type of the value
 	 * @param element  the {@link JsonElement} value
 	 * @param function conversion function from {@link JsonElement} to type T
@@ -64,7 +64,8 @@ public class ConfigurationProperty<T> {
 			ThrowingFunction<JsonElement, T, OpenemsNamedException> function) throws OpenemsNamedException {
 		if (!element.isPresent()) {
 			return ConfigurationProperty.asNotSet();
-		} else if (element.get().isJsonNull()) {
+		}
+		if (element.get().isJsonNull()) {
 			return ConfigurationProperty.asNull();
 		} else {
 			return ConfigurationProperty.of(function.apply(element.get()));

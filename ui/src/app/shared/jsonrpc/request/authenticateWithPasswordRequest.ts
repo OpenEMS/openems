@@ -2,10 +2,10 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Represents a JSON-RPC Request to authenticate with a Password.
- * 
+ *
  * <p>
  * This is used by UI to login with username + password at Edge or Backend.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -20,13 +20,13 @@ import { JsonrpcRequest } from "../base";
  */
 export class AuthenticateWithPasswordRequest extends JsonrpcRequest {
 
-    static METHOD: string = "authenticateWithPassword";
+    public static METHOD: string = "authenticateWithPassword";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             username?: string,
             password: string
-        }
+        },
     ) {
         super(AuthenticateWithPasswordRequest.METHOD, params);
     }

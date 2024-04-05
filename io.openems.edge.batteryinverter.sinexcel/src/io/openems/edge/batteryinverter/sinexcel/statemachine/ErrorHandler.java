@@ -4,8 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.batteryinverter.sinexcel.Sinexcel;
-import io.openems.edge.batteryinverter.sinexcel.SinexcelImpl;
+import io.openems.edge.batteryinverter.sinexcel.BatteryInverterSinexcel;
 import io.openems.edge.batteryinverter.sinexcel.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.statemachine.StateHandler;
@@ -24,8 +23,7 @@ public class ErrorHandler extends StateHandler<State, Context> {
 		this.setClearFailureCommand(context);
 
 		// Try to stop systems
-		final SinexcelImpl inverter = context.getParent();
-		inverter.softStart(false);
+		final var inverter = context.getParent();
 		inverter.setStopInverter();
 	}
 
@@ -41,7 +39,8 @@ public class ErrorHandler extends StateHandler<State, Context> {
 	}
 
 	private void setClearFailureCommand(Context context) throws OpenemsNamedException {
-		BooleanWriteChannel setClearFailureCmd = context.getParent().channel(Sinexcel.ChannelId.CLEAR_FAILURE_COMMAND);
+		BooleanWriteChannel setClearFailureCmd = context.getParent()
+				.channel(BatteryInverterSinexcel.ChannelId.CLEAR_FAILURE);
 		setClearFailureCmd.setNextWriteValue(true); // 1: true, other: illegal
 	}
 }

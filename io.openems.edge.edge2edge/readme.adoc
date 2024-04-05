@@ -1,0 +1,32 @@
+= Edge-2-Edge
+
+Enables Edge-to-Edge connection of devices from a slave OpenEMS Edge via Modbus. This requires `Controller Api Modbus/TCP Read-Write` to be active on the slave system, e.g. via the https://fenecon.de/produkte/fems/fems-app-modbus-tcp-schreibzugriff/[FEMS App Modbus/TCP Schreibzugriff] for a FENECON Energy Storage System.
+
+== Implementations:
+
+- Edge2Edge.Ess
+
+== Example application
+
+* Setup a 'Slave' OpenEMS Edge instance, that controls one or more energy storage systems
+** Component-ID of the energy storage system or the ESS-Cluster is `ess0`
+** Activate `Controller Api Modbus/TCP Read-Write` and add `ess0` to the configured `component_ids`
+
+NOTE: At this point you can open OpenEMS UI and check the system profile under settings. Click on the `ctrlApiModbusTcp0` component and download the generated Modbus/TCP register table. You should find `ess0` listed there. An example Excel file can be found here: https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.api.modbus/doc
+
+NOTE: This is the setup you will find after purchasing a "FEMS App Modbus/TCP Schreibzugriff" for a FENECON Energy Storage System
+
+* Setup a 'Master' OpenEMS Edge instance.
+** Configure `Bridge Modbus/TCP`:
+*** `id`: `modbus0`
+*** `ip`: IP-Address of the Slave instance
+
+** Configure `Edge-2-Edge ESS`:
+*** `id`: `ess0`
+*** `remoteAccessMode`: `AccessMode.READ_WRITE` (for default Read-Only access this would be `AccessMode.READ_ONLY`)
+*** `remoteComponentId`: `ess0`
+*** `modbus_id`: `modbus0`
+
+** Now you are able to access the remote energy storage system as if it was connected locally, e.g. configure a `Controller Ess Fix Active Power` on `ess0` to set a fixed charge or discharge command.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.edge2edge[Source Code icon:github[]]

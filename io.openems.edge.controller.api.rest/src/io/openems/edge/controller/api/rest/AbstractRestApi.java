@@ -19,7 +19,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.ApiWorker;
-import io.openems.edge.controller.api.rest.readonly.RestApiReadOnlyImpl;
+import io.openems.edge.controller.api.rest.readonly.ControllerApiRestReadOnlyImpl;
 import io.openems.edge.timedata.api.Timedata;
 
 public abstract class AbstractRestApi extends AbstractOpenemsComponent
@@ -29,7 +29,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 
 	protected final ApiWorker apiWorker = new ApiWorker(this);
 
-	private final Logger log = LoggerFactory.getLogger(RestApiReadOnlyImpl.class);
+	private final Logger log = LoggerFactory.getLogger(ControllerApiRestReadOnlyImpl.class);
 	private final String implementationName;
 
 	private Server server = null;
@@ -43,7 +43,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 
 	/**
 	 * Activate the {@link AbstractRestApi}.
-	 * 
+	 *
 	 * @param context            the {@link ComponentContext}
 	 * @param id                 the ID
 	 * @param alias              the Alias
@@ -85,6 +85,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -123,7 +124,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 
 	/**
 	 * Gets the Timedata service.
-	 * 
+	 *
 	 * @return the service
 	 * @throws OpenemsException if the timeservice is not available
 	 */
@@ -131,21 +132,21 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 
 	/**
 	 * Gets the UserService.
-	 * 
+	 *
 	 * @return the service
 	 */
 	protected abstract UserService getUserService();
 
 	/**
 	 * Gets the ComponentManager.
-	 * 
+	 *
 	 * @return the service
 	 */
 	protected abstract ComponentManager getComponentManager();
 
 	/**
 	 * Gets the AccessMode.
-	 * 
+	 *
 	 * @return the {@link AccessMode}
 	 */
 	protected abstract AccessMode getAccessMode();

@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CaseFormat;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -26,6 +27,7 @@ import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.ChannelCategory;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -61,6 +63,13 @@ public class EdgeConfig {
 				public ChannelCategory getCategory();
 
 				/**
+				 * Gets the {@link PersistencePriority} of the Channel.
+				 *
+				 * @return the {@link PersistencePriority}
+				 */
+				public PersistencePriority getPersistencePriority();
+
+				/**
 				 * Gets the {@link ChannelDetail} as {@link JsonObject}.
 				 *
 				 * @return the {@link JsonObject}
@@ -73,7 +82,10 @@ public class EdgeConfig {
 			 */
 			public static class ChannelDetailOpenemsType implements ChannelDetail {
 
-				public ChannelDetailOpenemsType() {
+				private final PersistencePriority persistencePriority;
+
+				public ChannelDetailOpenemsType(PersistencePriority persistencePriority) {
+					this.persistencePriority = persistencePriority;
 				}
 
 				@Override
@@ -85,6 +97,11 @@ public class EdgeConfig {
 				public JsonObject toJson() {
 					return new JsonObject();
 				}
+
+				@Override
+				public PersistencePriority getPersistencePriority() {
+					return this.persistencePriority;
+				}
 			}
 
 			/**
@@ -93,9 +110,11 @@ public class EdgeConfig {
 			public static class ChannelDetailEnum implements ChannelDetail {
 
 				private final Map<String, JsonElement> options;
+				private final PersistencePriority persistencePriority;
 
-				public ChannelDetailEnum(Map<String, JsonElement> options) {
+				public ChannelDetailEnum(Map<String, JsonElement> options, PersistencePriority persistencePriority) {
 					this.options = options;
+					this.persistencePriority = persistencePriority;
 				}
 
 				@Override
@@ -122,6 +141,11 @@ public class EdgeConfig {
 							.add("options", options) //
 							.build();
 				}
+
+				@Override
+				public PersistencePriority getPersistencePriority() {
+					return this.persistencePriority;
+				}
 			}
 
 			/**
@@ -130,9 +154,11 @@ public class EdgeConfig {
 			public static class ChannelDetailState implements ChannelDetail {
 
 				private final Level level;
+				private final PersistencePriority persistencePriority;
 
-				public ChannelDetailState(Level level) {
+				public ChannelDetailState(Level level, PersistencePriority persistencePriority) {
 					this.level = level;
+					this.persistencePriority = persistencePriority;
 				}
 
 				/**
@@ -155,6 +181,11 @@ public class EdgeConfig {
 							.addProperty("level", this.level.name()) //
 							.build();
 				}
+
+				@Override
+				public PersistencePriority getPersistencePriority() {
+					return this.persistencePriority;
+				}
 			}
 
 			/**
@@ -166,8 +197,11 @@ public class EdgeConfig {
 			 * @throws OpenemsNamedException on error
 			 */
 			public static Channel fromJson(String channelId, JsonElement json) throws OpenemsNamedException {
-				var type = JsonUtils.getAsEnum(OpenemsType.class, json, "type");
+				final var type = JsonUtils.getAsEnum(OpenemsType.class, json, "type");
 				var accessModeAbbrOpt = JsonUtils.getAsOptionalString(json, "accessMode");
+				var persistencePriority = JsonUtils
+						.getAsOptionalEnum(PersistencePriority.class, json, "persistencePriority")
+						.orElse(PersistencePriority.DEFAULT_PERSISTENCE_PRIORITY);
 				var accessMode = AccessMode.READ_ONLY;
 				if (accessModeAbbrOpt.isPresent()) {
 					var accessModeAbbr = accessModeAbbrOpt.get();
@@ -179,13 +213,19 @@ public class EdgeConfig {
 					}
 				}
 				var text = JsonUtils.getAsOptionalString(json, "text").orElse("");
-				Unit unit = JsonUtils.getAsOptionalEnum(Unit.class, json, "unit").orElse(Unit.NONE);
-				ChannelCategory category = JsonUtils.getAsOptionalEnum(ChannelCategory.class, json, "category")
+				var unitOpt = JsonUtils.getAsOptionalString(json, "unit");
+				final Unit unit;
+				if (unitOpt.isPresent()) {
+					unit = Unit.fromSymbolOrElse(unitOpt.get(), Unit.NONE);
+				} else {
+					unit = Unit.NONE;
+				}
+				var category = JsonUtils.getAsOptionalEnum(ChannelCategory.class, json, "category")
 						.orElse(ChannelCategory.OPENEMS_TYPE);
 				ChannelDetail detail = null;
 				switch (category) {
 				case OPENEMS_TYPE: {
-					detail = new ChannelDetailOpenemsType();
+					detail = new ChannelDetailOpenemsType(persistencePriority);
 					break;
 				}
 
@@ -197,13 +237,13 @@ public class EdgeConfig {
 							values.put(entry.getKey(), entry.getValue());
 						}
 					}
-					detail = new ChannelDetailEnum(values);
+					detail = new ChannelDetailEnum(values, persistencePriority);
 					break;
 				}
 
 				case STATE: {
-					Level level = JsonUtils.getAsEnum(Level.class, json, "level");
-					detail = new ChannelDetailState(level);
+					var level = JsonUtils.getAsEnum(Level.class, json, "level");
+					detail = new ChannelDetailState(level, persistencePriority);
 					break;
 				}
 
@@ -294,8 +334,9 @@ public class EdgeConfig {
 						.addProperty("type", this.type.name()) //
 						.addProperty("accessMode", this.accessMode.getAbbreviation()) //
 						.addProperty("text", this.text) //
-						.addProperty("unit", this.unit.getSymbol()) //
+						.addProperty("unit", this.unit.symbol) //
 						.addProperty("category", this.detail.getCategory().name()) //
+						.addProperty("persistencePriority", this.detail.getPersistencePriority()) //
 						.build();
 			}
 		}
@@ -319,7 +360,7 @@ public class EdgeConfig {
 
 		/**
 		 * Constructor with NO_SERVICE_PID.
-		 * 
+		 *
 		 * @param id         the Component-ID
 		 * @param alias      the Alias
 		 * @param factoryId  the Factory-ID
@@ -332,9 +373,10 @@ public class EdgeConfig {
 		}
 
 		/**
-		 * Constructor with NO_SERVICE_PID, properties as JsonObject and no channels
-		 * 
+		 * Constructor with NO_SERVICE_PID, properties as JsonObject and no channels.
+		 *
 		 * @param id         the Component-ID
+		 * @param alias      the Alias
 		 * @param factoryId  the Factory-ID
 		 * @param properties the configuration properties
 		 */
@@ -408,7 +450,7 @@ public class EdgeConfig {
 		 * @return the Property
 		 */
 		public JsonElement getPropertyOrError(String propertyId) throws InvalidValueException {
-			JsonElement property = this.properties.get(propertyId);
+			var property = this.properties.get(propertyId);
 			if (property != null) {
 				return property;
 			}
@@ -545,7 +587,10 @@ public class EdgeConfig {
 			var jPropertiesOpt = JsonUtils.getAsOptionalJsonObject(json, "properties");
 			if (jPropertiesOpt.isPresent()) {
 				for (Entry<String, JsonElement> entry : jPropertiesOpt.get().entrySet()) {
-					properties.put(entry.getKey(), entry.getValue());
+					if (!ignorePropertyKey(entry.getKey())
+							&& !ignoreComponentPropertyKey(componentId, entry.getKey())) {
+						properties.put(entry.getKey(), entry.getValue());
+					}
 				}
 			}
 			var channels = new TreeMap<String, Channel>();
@@ -758,44 +803,43 @@ public class EdgeConfig {
 									.build()) //
 							.build();
 
-				} else {
-					// generate schema from AttributeDefinition Type
-					switch (ad.getType()) {
-					case AttributeDefinition.STRING:
-					case AttributeDefinition.CHARACTER:
-						return JsonUtils.buildJsonObject() //
-								.addProperty("type", "input") //
-								.add("templateOptions", JsonUtils.buildJsonObject() //
-										.addProperty("type", "text") //
-										.build()) //
-								.build();
+				}
+				// generate schema from AttributeDefinition Type
+				switch (ad.getType()) {
+				case AttributeDefinition.STRING:
+				case AttributeDefinition.CHARACTER:
+					return JsonUtils.buildJsonObject() //
+							.addProperty("type", "input") //
+							.add("templateOptions", JsonUtils.buildJsonObject() //
+									.addProperty("type", "text") //
+									.build()) //
+							.build();
 
-					case AttributeDefinition.LONG:
-					case AttributeDefinition.INTEGER:
-					case AttributeDefinition.SHORT:
-					case AttributeDefinition.DOUBLE:
-					case AttributeDefinition.FLOAT:
-					case AttributeDefinition.BYTE:
-						return JsonUtils.buildJsonObject() //
-								.addProperty("type", "input") //
-								.add("templateOptions", JsonUtils.buildJsonObject() //
-										.addProperty("type", "number") //
-										.build()) //
-								.build();
+				case AttributeDefinition.LONG:
+				case AttributeDefinition.INTEGER:
+				case AttributeDefinition.SHORT:
+				case AttributeDefinition.DOUBLE:
+				case AttributeDefinition.FLOAT:
+				case AttributeDefinition.BYTE:
+					return JsonUtils.buildJsonObject() //
+							.addProperty("type", "input") //
+							.add("templateOptions", JsonUtils.buildJsonObject() //
+									.addProperty("type", "number") //
+									.build()) //
+							.build();
 
-					case AttributeDefinition.PASSWORD:
-						return JsonUtils.buildJsonObject() //
-								.addProperty("type", "input") //
-								.add("templateOptions", JsonUtils.buildJsonObject() //
-										.addProperty("type", "password") //
-										.build()) //
-								.build();
+				case AttributeDefinition.PASSWORD:
+					return JsonUtils.buildJsonObject() //
+							.addProperty("type", "input") //
+							.add("templateOptions", JsonUtils.buildJsonObject() //
+									.addProperty("type", "password") //
+									.build()) //
+							.build();
 
-					case AttributeDefinition.BOOLEAN:
-						return JsonUtils.buildJsonObject() //
-								.addProperty("type", "toggle") //
-								.build();
-					}
+				case AttributeDefinition.BOOLEAN:
+					return JsonUtils.buildJsonObject() //
+							.addProperty("type", "toggle") //
+							.build();
 				}
 
 				return schema;
@@ -812,8 +856,7 @@ public class EdgeConfig {
 				var id = JsonUtils.getAsString(json, "id");
 				var name = JsonUtils.getAsString(json, "name");
 				var description = JsonUtils.getAsString(json, "description");
-				OpenemsType type = JsonUtils.getAsOptionalEnum(OpenemsType.class, json, "type")
-						.orElse(OpenemsType.STRING);
+				var type = JsonUtils.getAsOptionalEnum(OpenemsType.class, json, "type").orElse(OpenemsType.STRING);
 				var isRequired = JsonUtils.getAsBoolean(json, "isRequired");
 				boolean isPassword = JsonUtils.getAsOptionalBoolean(json, "isPassword").orElse(false);
 				var defaultValue = JsonUtils.getOptionalSubElement(json, "defaultValue").orElse(JsonNull.INSTANCE);
@@ -1066,29 +1109,189 @@ public class EdgeConfig {
 		}
 	}
 
-	private final TreeMap<String, Component> components = new TreeMap<>();
-	private final TreeMap<String, Factory> factories = new TreeMap<>();
+	public static class ActualEdgeConfig {
 
-	public EdgeConfig() {
+		public static class Builder {
+			private final TreeMap<String, Component> components = new TreeMap<>();
+			private final TreeMap<String, Factory> factories = new TreeMap<>();
+
+			/**
+			 * Adds a {@link Component}.
+			 *
+			 * @param id        the Component-ID
+			 * @param component the {@link Component}
+			 * @return myself
+			 */
+			public Builder addComponent(String id, Component component) {
+				this.components.put(id, component);
+				return this;
+			}
+
+			/**
+			 * Removes a {@link Component}.
+			 *
+			 * @param id the Component-ID
+			 */
+			public void removeComponent(String id) {
+				this.components.remove(id);
+			}
+
+			/**
+			 * Gets a {@link Component} by its Component-ID.
+			 *
+			 * @param componentId the Component-ID
+			 * @return the {@link Component} as {@link Optional}
+			 */
+			public Optional<Component> getComponent(String componentId) {
+				return Optional.ofNullable(this.components.get(componentId));
+			}
+
+			/**
+			 * Gets the {@link Component}s in the builder.
+			 * 
+			 * @return components
+			 */
+			public TreeMap<String, Component> getComponents() {
+				return this.components;
+			}
+
+			/**
+			 * Add a Factory.
+			 *
+			 * @param id      the Factory-ID
+			 * @param factory the {@link Factory}
+			 * @return myself
+			 */
+			public Builder addFactory(String id, Factory factory) {
+				this.factories.put(id, factory);
+				return this;
+			}
+
+			/**
+			 * Gets the {@link Factory}s in the builder.
+			 * 
+			 * @return components
+			 */
+			public TreeMap<String, Factory> getFactories() {
+				return this.factories;
+			}
+
+			/**
+			 * Builds the {@link ActualEdgeConfig}.
+			 * 
+			 * @return {@link ActualEdgeConfig}
+			 */
+			public ActualEdgeConfig build() {
+				return new ActualEdgeConfig(ImmutableSortedMap.copyOf(this.getComponents()),
+						ImmutableSortedMap.copyOf(this.getFactories()));
+			}
+
+			/**
+			 * Builds the {@link EdgeConfig}.
+			 * 
+			 * @return {@link EdgeConfig}
+			 */
+			public EdgeConfig buildEdgeConfig() {
+				return new EdgeConfig(this.build());
+			}
+		}
+
+		/**
+		 * Creates an empty {@link ActualEdgeConfig}.
+		 * 
+		 * @return {@link ActualEdgeConfig}
+		 */
+		public static ActualEdgeConfig empty() {
+			return ActualEdgeConfig.create().build();
+		}
+
+		/**
+		 * Create a {@link ActualEdgeConfig.Builder} builder.
+		 * 
+		 * @return a {@link Builder}
+		 */
+		public static ActualEdgeConfig.Builder create() {
+			return new Builder();
+		}
+
+		private final ImmutableSortedMap<String, Component> components;
+		private final ImmutableSortedMap<String, Factory> factories;
+
+		private ActualEdgeConfig(ImmutableSortedMap<String, Component> components,
+				ImmutableSortedMap<String, Factory> factories) {
+			this.components = components;
+			this.factories = factories;
+		}
 	}
 
 	/**
-	 * Adds a {@link Component} to the {@link EdgeConfig}.
-	 *
-	 * @param id        the Component-ID
-	 * @param component the {@link Component}
+	 * Creates an empty {@link EdgeConfig}.
+	 * 
+	 * @return {@link EdgeConfig}
 	 */
-	public void addComponent(String id, Component component) {
-		this.components.put(id, component);
+	public static EdgeConfig empty() {
+		return ActualEdgeConfig.create().buildEdgeConfig();
 	}
 
 	/**
-	 * Removes a {@link Component} from the {@link EdgeConfig}.
-	 *
-	 * @param id the Component-ID
+	 * Creates an {@link EdgeConfig} from a {@link JsonObject}.
+	 * 
+	 * @param json the {@link JsonObject}
+	 * @return {@link EdgeConfig}
 	 */
-	public void removeComponent(String id) {
-		this.components.remove(id);
+	public static EdgeConfig fromJson(JsonObject json) {
+		return new EdgeConfig(json);
+	}
+
+	// Either _actual or _json is always set; possibly both.
+	/**
+	 * Do not use directly. Use {@link #getActual()} instead.
+	 */
+	private volatile ActualEdgeConfig _actual = null;
+	/**
+	 * Do not use directly. Use {@link #toJson()} instead.
+	 */
+	private volatile JsonObject _json = null;
+
+	/**
+	 * Build from {@link ActualEdgeConfig} using a {@link Builder}.
+	 * 
+	 * @param actual the {@link ActualEdgeConfig}
+	 */
+	private EdgeConfig(ActualEdgeConfig actual) {
+		this._actual = actual;
+	}
+
+	private EdgeConfig(JsonObject json) {
+		this._json = json;
+	}
+
+	/**
+	 * Gets the {@link ActualEdgeConfig}. Either by parsing it from {@link #json} or
+	 * by returning from cache.
+	 * 
+	 * @return {@link ActualEdgeConfig}; empty on JSON parse error
+	 */
+	private synchronized ActualEdgeConfig getActual() {
+		if (this._actual != null) {
+			return this._actual; // exists in cache
+		}
+
+		var builder = ActualEdgeConfig.create();
+		try {
+			for (Entry<String, JsonElement> entry : JsonUtils.getAsJsonObject(this._json, "components").entrySet()) {
+				builder.addComponent(entry.getKey(), Component.fromJson(entry.getKey(), entry.getValue()));
+			}
+			for (Entry<String, JsonElement> entry : JsonUtils.getAsJsonObject(this._json, "factories").entrySet()) {
+				builder.addFactory(entry.getKey(), Factory.fromJson(entry.getKey(), entry.getValue()));
+			}
+			this._actual = builder.build();
+			return this._actual;
+
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
+			return ActualEdgeConfig.empty();
+		}
 	}
 
 	/**
@@ -1098,7 +1301,7 @@ public class EdgeConfig {
 	 * @return the {@link Component} as {@link Optional}
 	 */
 	public Optional<Component> getComponent(String componentId) {
-		return Optional.ofNullable(this.components.get(componentId));
+		return Optional.ofNullable(this.getActual().components.get(componentId));
 	}
 
 	/**
@@ -1106,9 +1309,10 @@ public class EdgeConfig {
 	 *
 	 * @param componentId the Component-ID
 	 * @return the {@link Component}
+	 * @throws InvalidValueException on error
 	 */
 	public Component getComponentOrError(String componentId) throws InvalidValueException {
-		Component component = this.components.get(componentId);
+		var component = this.getActual().components.get(componentId);
 		if (component != null) {
 			return component;
 		}
@@ -1116,23 +1320,12 @@ public class EdgeConfig {
 	}
 
 	/**
-	 * Add a Factory.
-	 *
-	 * @param id      the Factory-ID
-	 * @param factory the {@link Factory}
-	 * @return true if this operation changed the {@link EdgeConfig}
-	 */
-	public boolean addFactory(String id, Factory factory) {
-		return this.factories.put(id, factory) != null;
-	}
-
-	/**
 	 * Gets the {@link Component}s.
 	 *
 	 * @return the {@link Component}s
 	 */
-	public TreeMap<String, Component> getComponents() {
-		return this.components;
+	public ImmutableSortedMap<String, Component> getComponents() {
+		return this.getActual().components;
 	}
 
 	/**
@@ -1140,8 +1333,8 @@ public class EdgeConfig {
 	 *
 	 * @return the {@link Factory}s
 	 */
-	public TreeMap<String, Factory> getFactories() {
-		return this.factories;
+	public ImmutableSortedMap<String, Factory> getFactories() {
+		return this.getActual().factories;
 	}
 
 	/**
@@ -1152,7 +1345,7 @@ public class EdgeConfig {
 	 */
 	public List<String> getComponentIdsByFactory(String factoryId) {
 		List<String> result = new ArrayList<>();
-		for (Entry<String, Component> componentEntry : this.components.entrySet()) {
+		for (Entry<String, Component> componentEntry : this.getComponents().entrySet()) {
 			if (factoryId.equals(componentEntry.getValue().factoryId)) {
 				result.add(componentEntry.getKey());
 			}
@@ -1168,33 +1361,9 @@ public class EdgeConfig {
 	 */
 	public List<Component> getComponentsByFactory(String factoryId) {
 		List<Component> result = new ArrayList<>();
-		for (Entry<String, Component> componentEntry : this.components.entrySet()) {
+		for (Entry<String, Component> componentEntry : this.getComponents().entrySet()) {
 			if (factoryId.equals(componentEntry.getValue().factoryId)) {
 				result.add(componentEntry.getValue());
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Get Component-IDs of Components that implement the given Nature.
-	 *
-	 * @param nature the given Nature.
-	 * @return a List of Component-IDs.
-	 */
-	public List<String> getComponentsImplementingNature(String nature) {
-		List<String> result = new ArrayList<>();
-		for (Entry<String, Component> componentEntry : this.components.entrySet()) {
-			var factoryId = componentEntry.getValue().factoryId;
-			var factory = this.factories.get(factoryId);
-			if (factory == null) {
-				continue;
-			}
-			for (String thisNature : factory.natureIds) {
-				if (nature.equals(thisNature)) {
-					result.add(componentEntry.getKey());
-					break;
-				}
 			}
 		}
 		return result;
@@ -1216,11 +1385,14 @@ public class EdgeConfig {
 	 *
 	 * @return configuration as a JSON Object
 	 */
-	public JsonObject toJson() {
-		return JsonUtils.buildJsonObject() //
-				.add("components", this.componentsToJson(JsonFormat.COMPLETE)) //
-				.add("factories", this.factoriesToJson()) //
-				.build();
+	public synchronized JsonObject toJson() {
+		if (this._json == null) {
+			this._json = JsonUtils.buildJsonObject() //
+					.add("components", this.componentsToJson(JsonFormat.COMPLETE)) //
+					.add("factories", this.factoriesToJson()) //
+					.build();
+		}
+		return this._json;
 	}
 
 	/**
@@ -1236,11 +1408,11 @@ public class EdgeConfig {
 	 * @return Components as a JSON Object
 	 */
 	public JsonObject componentsToJson(JsonFormat jsonFormat) {
-		var components = new JsonObject();
+		var b = JsonUtils.buildJsonObject();
 		for (Entry<String, Component> entry : this.getComponents().entrySet()) {
-			components.add(entry.getKey(), entry.getValue().toJson(jsonFormat));
+			b.add(entry.getKey(), entry.getValue().toJson(jsonFormat));
 		}
-		return components;
+		return b.build();
 	}
 
 	/**
@@ -1257,25 +1429,11 @@ public class EdgeConfig {
 	 * @return Factories as a JSON Object
 	 */
 	public JsonObject factoriesToJson() {
-		var factories = new JsonObject();
+		var b = JsonUtils.buildJsonObject();
 		for (Entry<String, Factory> entry : this.getFactories().entrySet()) {
-			factories.add(entry.getKey(), entry.getValue().toJson());
+			b.add(entry.getKey(), entry.getValue().toJson());
 		}
-		return factories;
-	}
-
-	/**
-	 * Is the given Channel-Address a StateChannel?.
-	 *
-	 * @param channelAddress the {@link ChannelAddress}
-	 * @return true if it is a StateChannel
-	 */
-	public boolean isStateChannel(ChannelAddress channelAddress) {
-		var component = this.components.get(channelAddress.getComponentId());
-		if (component == null) {
-			return false;
-		}
-		return component.isStateChannel(channelAddress.getChannelId());
+		return b.build();
 	}
 
 	/**
@@ -1286,77 +1444,11 @@ public class EdgeConfig {
 	 *         StateChannel.
 	 */
 	public Optional<Component.Channel> getStateChannel(ChannelAddress channelAddress) {
-		var component = this.components.get(channelAddress.getComponentId());
-		if (component == null) {
+		var component = this.getComponent(channelAddress.getComponentId());
+		if (component.isEmpty()) {
 			return Optional.empty();
 		}
-		return component.getStateChannel(channelAddress.getChannelId());
-	}
-
-	/**
-	 * Creates an EdgeConfig from a JSON Object.
-	 *
-	 * @param json the configuration in JSON format
-	 * @return the EdgeConfig
-	 * @throws OpenemsNamedException on error
-	 */
-	public static EdgeConfig fromJson(JsonObject json) throws OpenemsNamedException {
-		var result = new EdgeConfig();
-		if (json.has("things") && json.has("meta")) {
-			return EdgeConfig.fromOldJsonFormat(json);
-		}
-
-		for (Entry<String, JsonElement> entry : JsonUtils.getAsJsonObject(json, "components").entrySet()) {
-			result.addComponent(entry.getKey(), Component.fromJson(entry.getKey(), entry.getValue()));
-		}
-
-		for (Entry<String, JsonElement> entry : JsonUtils.getAsJsonObject(json, "factories").entrySet()) {
-			result.addFactory(entry.getKey(), Factory.fromJson(entry.getKey(), entry.getValue()));
-		}
-
-		return result;
-	}
-
-	@Deprecated
-	private static EdgeConfig fromOldJsonFormat(JsonObject json) throws OpenemsNamedException {
-		var result = new EdgeConfig();
-
-		var things = JsonUtils.getAsJsonObject(json, "things");
-		for (Entry<String, JsonElement> entry : things.entrySet()) {
-			var config = JsonUtils.getAsJsonObject(entry.getValue());
-			var id = JsonUtils.getAsString(config, "id");
-			var servicePid = "NO";
-			var alias = JsonUtils.getAsOptionalString(config, "alias").orElse(id);
-			var clazz = JsonUtils.getAsString(config, "class");
-			var properties = new TreeMap<String, JsonElement>();
-			for (Entry<String, JsonElement> property : config.entrySet()) {
-				switch (property.getKey()) {
-				case "id":
-				case "alias":
-				case "class":
-					// ignore
-					break;
-				default:
-					if (property.getValue().isJsonPrimitive()) {
-						// ignore everything but JSON-Primitives
-						properties.put(property.getKey(), property.getValue());
-					}
-				}
-			}
-			var channels = new TreeMap<String, Component.Channel>();
-			result.addComponent(id, new EdgeConfig.Component(servicePid, id, alias, clazz, properties, channels));
-		}
-
-		var metas = JsonUtils.getAsJsonObject(json, "meta");
-		for (Entry<String, JsonElement> entry : metas.entrySet()) {
-			var meta = JsonUtils.getAsJsonObject(entry.getValue());
-			var id = JsonUtils.getAsString(meta, "class");
-			var implement = JsonUtils.getAsStringArray(JsonUtils.getAsJsonArray(meta, "implements"));
-			Factory.Property[] properties = {};
-			result.addFactory(id, new EdgeConfig.Factory(id, id, "", properties, implement));
-		}
-
-		return result;
+		return component.get().getStateChannel(channelAddress.getChannelId());
 	}
 
 	/**
@@ -1366,17 +1458,34 @@ public class EdgeConfig {
 	 * @return true if it should get ignored
 	 */
 	public static boolean ignorePropertyKey(String key) {
-		switch (key) {
-		case OpenemsConstants.PROPERTY_COMPONENT_ID:
-		case OpenemsConstants.PROPERTY_OSGI_COMPONENT_ID:
-		case OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME:
-		case OpenemsConstants.PROPERTY_FACTORY_PID:
-		case OpenemsConstants.PROPERTY_PID:
-		case "webconsole.configurationFactory.nameHint":
-		case "event.topics":
-			return true;
-		default:
-			return false;
-		}
+		return switch (key) {
+		case OpenemsConstants.PROPERTY_COMPONENT_ID, OpenemsConstants.PROPERTY_OSGI_COMPONENT_ID,
+				OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME, OpenemsConstants.PROPERTY_FACTORY_PID,
+				OpenemsConstants.PROPERTY_PID, "webconsole.configurationFactory.nameHint", "event.topics" ->
+			true;
+
+		default -> false;
+		};
+	}
+
+	/**
+	 * Internal Method to decide whether a configuration property should be ignored.
+	 *
+	 * @param componentId the Component-ID
+	 * @param key         the property key
+	 * @return true if it should get ignored
+	 */
+	public static boolean ignoreComponentPropertyKey(String componentId, String key) {
+		return switch (componentId) {
+		// Filter for _sum component
+		case "_sum" -> switch (key) {
+		case "productionMaxActivePower", "consumptionMaxActivePower", "gridMinActivePower", "gridMaxActivePower" ->
+			true;
+
+		default -> false;
+		};
+
+		default -> false;
+		};
 	}
 }

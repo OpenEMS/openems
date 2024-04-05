@@ -17,7 +17,7 @@ public class Mutex {
 
 	/**
 	 * Wait for a {@link #release()}.
-	 * 
+	 *
 	 * @throws InterruptedException on wait error
 	 */
 	public void await() throws InterruptedException {
@@ -29,7 +29,7 @@ public class Mutex {
 
 	/**
 	 * Wait for a {@link #release()} with a timeout.
-	 * 
+	 *
 	 * @param timeout the timeout value
 	 * @param unit    the timeout {@link TimeUnit}
 	 * @throws InterruptedException on wait error

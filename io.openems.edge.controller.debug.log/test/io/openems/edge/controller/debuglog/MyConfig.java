@@ -1,20 +1,18 @@
 package io.openems.edge.controller.debuglog;
 
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = "ctrlJsonLogic0";
-		private String rule = null;
-		public boolean showAlias;
-		public String[] additionalChannels;
-		public String[] ignoreComponents;
-		public boolean condensedOutput;
+		private String id;
+		private boolean showAlias;
+		private String[] additionalChannels;
+		private String[] ignoreComponents;
+		private boolean condensedOutput;
 
 		private Builder() {
-
 		}
 
 		public Builder setId(String id) {
@@ -26,7 +24,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.showAlias = showAlias;
 			return this;
 		}
-		
+
 		public Builder setAdditionalChannels(String[] additionalChannels) {
 			this.additionalChannels = additionalChannels;
 			return this;

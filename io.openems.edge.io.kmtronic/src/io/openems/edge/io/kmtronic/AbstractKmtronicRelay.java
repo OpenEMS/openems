@@ -1,6 +1,5 @@
 package io.openems.edge.io.kmtronic;
 
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -23,8 +22,9 @@ public abstract class AbstractKmtronicRelay extends AbstractOpenemsModbusCompone
 		implements DigitalOutput, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -41,7 +41,7 @@ public abstract class AbstractKmtronicRelay extends AbstractOpenemsModbusCompone
 		);
 		this.digitalOutputChannels = Stream.of(kmtronicChannelIds) //
 				.filter(channelId -> channelId.doc().getAccessMode() == AccessMode.READ_WRITE) //
-				.map(channelId -> this.channel(channelId)) //
+				.map(this::channel) //
 				.toArray(BooleanWriteChannel[]::new);
 	}
 
@@ -52,11 +52,11 @@ public abstract class AbstractKmtronicRelay extends AbstractOpenemsModbusCompone
 
 	@Override
 	public String debugLog() {
-		StringBuilder b = new StringBuilder();
-		int i = 1;
+		var b = new StringBuilder();
+		var i = 1;
 		for (WriteChannel<Boolean> channel : this.digitalOutputChannels) {
 			String valueText;
-			Optional<Boolean> valueOpt = channel.value().asOptional();
+			var valueOpt = channel.value().asOptional();
 			if (valueOpt.isPresent()) {
 				valueText = valueOpt.get() ? "x" : "-";
 			} else {

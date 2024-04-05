@@ -1,5 +1,5 @@
-<oe-flat-widget [img]="storageItem" [title]="'General.storageSystem'| translate" (click)="presentModal()"
-    *ngIf="isInitialized">
+<oe-flat-widget [class]="storageIconStyle" [icon]="{name: 'oe-storage', color: 'success'}"
+    [title]="'General.storageSystem'| translate" (click)="presentModal()" *ngIf="isInitialized">
     <ng-container *ngFor="let component of essComponents, let i = index">
 
         <!-- Show Alias if there are more than one ESS -->
@@ -17,7 +17,8 @@
                 <ng-container *ngIf="isEmergencyReserveEnabled[component.id]">
                     <svg>
                         <rect y="2" rx="5" ry="5" width="1%"
-                            [attr.x]="reserve['currentReserveSoc'] + '%'" height="16" style="fill:black;" />
+                            [attr.x]="(reserve['currentReserveSoc'] > 98 ? 98 : reserve['currentReserveSoc'])  + '%'"
+                            height="16" style="fill:black;" />
                     </svg>
                 </ng-container>
             </oe-flat-widget-percentagebar>
@@ -47,6 +48,13 @@
                 [channelAddress]="component.id + '/DcDischargePower'" [converter]="convertDischargePower">
             </oe-flat-widget-line>
         </ng-template>
+
+        <ng-container *ngIf="possibleBatteryExtensionMessage.get(component.id) as message">
+            <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
+            <oe-flat-widget-line [name]="message.text" leftColumnWidth="100"
+                [style.color]="message.color"></oe-flat-widget-line>
+        </ng-container>
+
 
         <oe-flat-widget-horizontal-line [components]="essComponents" [index]="i">
         </oe-flat-widget-horizontal-line>

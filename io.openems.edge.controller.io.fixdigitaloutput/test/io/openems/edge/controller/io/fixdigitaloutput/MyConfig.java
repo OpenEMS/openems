@@ -1,14 +1,14 @@
 package io.openems.edge.controller.io.fixdigitaloutput;
 
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		public boolean isOn;
-		public String outputChannelAddress;
+		private boolean isOn;
+		private String outputChannelAddress;
 
 		private Builder() {
 		}
@@ -35,7 +35,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

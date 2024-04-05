@@ -2,12 +2,11 @@ package io.openems.backend.metadata.odoo.odoo;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.session.Role;
 
 public enum OdooUserRole {
-
 	ADMIN("admin"), //
 	INSTALLER("installer", OdooUserGroup.PORTAL), //
 	OWNER("owner", OdooUserGroup.PORTAL), //
@@ -16,7 +15,7 @@ public enum OdooUserRole {
 	private final String odooRole;
 	private final OdooUserGroup[] odooGroups;
 
-	OdooUserRole(String odooRole, OdooUserGroup... odooGroups) {
+	private OdooUserRole(String odooRole, OdooUserGroup... odooGroups) {
 		this.odooRole = odooRole;
 		this.odooGroups = odooGroups;
 	}
@@ -47,7 +46,7 @@ public enum OdooUserRole {
 	public List<Integer> toOdooIds() {
 		return Arrays.stream(this.odooGroups) //
 				.map(OdooUserGroup::getGroupId) //
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	/**
@@ -58,17 +57,26 @@ public enum OdooUserRole {
 	 * @throws OpenemsException if role does not exist
 	 */
 	public static OdooUserRole getRole(String role) throws OpenemsException {
-		role = role.toLowerCase();
-
-		if (role.equals("admin")) {
-			return OdooUserRole.ADMIN;
-		} else if (role.equals("installer")) {
-			return OdooUserRole.INSTALLER;
-		} else if (role.equals("owner")) {
-			return OdooUserRole.OWNER;
-		} else {
-			throw new OpenemsException("Role [" + role + "] does not exist");
+		for (OdooUserRole our : OdooUserRole.values()) {
+			if (our.odooRole.equalsIgnoreCase(role)) {
+				return our;
+			}
 		}
+		throw new OpenemsException("Role [" + role + "] does not exist");
+	}
+
+	/**
+	 * Get the {@link OdooUserRole} for the given {@link Role}.
+	 *
+	 * @param role given {@link Role}
+	 * @return The {@link OdooUserRole}
+	 * @throws OpenemsException if role does not exist
+	 */
+	public static OdooUserRole getRole(Role role) throws OpenemsException {
+		if (role != null) {
+			return getRole(role.name());
+		}
+		throw new OpenemsException("Role [null] is invalid");
 	}
 
 }

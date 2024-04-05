@@ -1,9 +1,9 @@
-<div [formGroup]="formGroup">
+<div [formGroup]="formGroup" style="padding-top: 2%;">
     <ion-segment [formControlName]="controlName">
         <ng-container *ngFor="let button of buttons">
-            <ion-segment-button [value]="button.value">
+            <ion-segment-button [value]="button.value" (click)="button.callback">
                 <ion-label>{{ button.name }}</ion-label>
-                <ion-icon style="width:40px" [name]="button.icon.name || 'power-outline'"
+                <ion-icon style="width:40px" *ngIf="button.icon" [name]="button.icon.name || 'power-outline'"
                     [color]="button.icon.color || 'success'" [size]="button.icon.size || 'medium'">
                 </ion-icon>
             </ion-segment-button>

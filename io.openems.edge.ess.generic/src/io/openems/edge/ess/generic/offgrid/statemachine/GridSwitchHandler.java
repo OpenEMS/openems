@@ -1,14 +1,17 @@
 package io.openems.edge.ess.generic.offgrid.statemachine;
 
+import java.time.Duration;
+import java.time.Instant;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.batteryinverter.api.OffGridBatteryInverter.TargetGridMode;
 import io.openems.edge.common.statemachine.StateHandler;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState;
-import io.openems.edge.ess.offgrid.api.OffGridSwitch;
-import io.openems.edge.ess.offgrid.api.OffGridSwitch.Contactor;
 
 /**
  * Reads the State of the Grid-Switch relays.
- * 
+ *
  * <ul>
  * <li>If system is currently connected to grid: START_BATTERY_IN_ON_GRID
  * <li>If system is currently disconnected from grid: START_BATTERY_IN_OFF_GRID
@@ -16,41 +19,63 @@ import io.openems.edge.ess.offgrid.api.OffGridSwitch.Contactor;
  */
 public class GridSwitchHandler extends StateHandler<OffGridState, Context> {
 
+	private Instant lastStateChange;
+
+	@Override
+	protected void onEntry(Context context) throws OpenemsNamedException {
+		this.lastStateChange = Instant.now(context.componentManager.getClock());
+	}
+
 	@Override
 	protected OffGridState runAndGetNextState(Context context) throws OpenemsNamedException {
-		final OffGridSwitch offGridSwitch = context.offGridSwitch;
+		final var offGridSwitch = context.offGridSwitch;
+		final var inverter = context.batteryInverter;
 
-		if (!offGridSwitch.getMainContactor().isPresent() || !offGridSwitch.getGroundingContactor().isPresent()) {
+		if (!context.isChannelsDefined()) {
 			// Wait till MainContactor and GroundingContactor are defined.
 			return OffGridState.GRID_SWITCH;
 		}
 
-		Contactor mainContactor = offGridSwitch.getMainContactor().get();
-		Contactor groundingContactor = offGridSwitch.getGroundingContactor().get();
 		switch (offGridSwitch.getGridMode()) {
 		case UNDEFINED:
 			// Wait till GridStatus is defined.
 			return OffGridState.GRID_SWITCH;
-
 		case ON_GRID:
-			if (mainContactor == Contactor.CLOSE && groundingContactor == Contactor.OPEN) {
-				// Correct contactor state for ON-GRID
-				return OffGridState.START_BATTERY_IN_ON_GRID;
+			if (context.isFromOffToOnGrid()) {
+				this.changeFromOffToOnGrid(context);
+			} else {
+				// Inverter grid mode should set, before setting the
+				// relays in required position
+				inverter.setTargetGridMode(TargetGridMode.GO_ON_GRID);
+				if (context.isOnGridContactorsSet()) {
+					return OffGridState.START_BATTERY_IN_ON_GRID;
+				}
+				context.setContactorsForOnGrid();
 			}
-			offGridSwitch.setMainContactor(Contactor.CLOSE);
-			offGridSwitch.setGroundingContactor(Contactor.OPEN);
 			return OffGridState.GRID_SWITCH;
-
 		case OFF_GRID:
-			if (mainContactor == Contactor.OPEN && groundingContactor == Contactor.CLOSE) {
-				// Correct relays state for OFF-GRID
+			inverter.setTargetGridMode(TargetGridMode.GO_OFF_GRID);
+			if (context.isOffGridContactorsSet()) {
 				return OffGridState.START_BATTERY_IN_OFF_GRID;
 			}
-			offGridSwitch.setMainContactor(Contactor.OPEN);
-			offGridSwitch.setGroundingContactor(Contactor.CLOSE);
+			context.setContactorsForOffGrid();
 			return OffGridState.GRID_SWITCH;
-
 		}
 		return OffGridState.GRID_SWITCH;
+	}
+
+	private void changeFromOffToOnGrid(Context context) throws OpenemsNamedException {
+		var inverter = context.batteryInverter;
+		var ess = context.getParent();
+		if (inverter.isStopped()) {
+			context.setFromOffToOnGrid(false);
+		}
+
+		if (Instant.now(context.componentManager.getClock()).minus(Duration.ofSeconds(60))
+				.isAfter(this.lastStateChange)) {
+			this.lastStateChange = Instant.now(context.componentManager.getClock());
+			inverter.stop();
+		}
+		ess._setGridMode(GridMode.UNDEFINED);
 	}
 }

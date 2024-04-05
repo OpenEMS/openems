@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -197,31 +198,32 @@ class UAdapterState {
 	public UAdapterState(OneWireState newOneWireState) {
 
 		// get a pointer to the OneWire state object
-		oneWireState = newOneWireState;
+		this.oneWireState = newOneWireState;
 
 		// set the defaults
-		ubaud = BAUD_9600;
-		uSpeedMode = USPEED_FLEX;
-		revision = 0;
-		inCommandMode = true;
-		streamBits = true;
-		streamBytes = true;
-		streamSearches = true;
-		streamResets = false;
-		programVoltageAvailable = false;
-		longAlarmCheck = false;
-		lastAlarmCount = 0;
+		this.ubaud = BAUD_9600;
+		this.uSpeedMode = USPEED_FLEX;
+		this.revision = 0;
+		this.inCommandMode = true;
+		this.streamBits = true;
+		this.streamBytes = true;
+		this.streamSearches = true;
+		this.streamResets = false;
+		this.programVoltageAvailable = false;
+		this.longAlarmCheck = false;
+		this.lastAlarmCount = 0;
 
 		// create the three speed logical parameter settings
-		uParameters = new UParameterSettings[4];
-		uParameters[0] = new UParameterSettings();
-		uParameters[1] = new UParameterSettings();
-		uParameters[2] = new UParameterSettings();
-		uParameters[3] = new UParameterSettings();
+		this.uParameters = new UParameterSettings[4];
+		this.uParameters[0] = new UParameterSettings();
+		this.uParameters[1] = new UParameterSettings();
+		this.uParameters[2] = new UParameterSettings();
+		this.uParameters[3] = new UParameterSettings();
 
 		// adjust flex time
-		uParameters[DSPortAdapter.SPEED_FLEX].pullDownSlewRate = UParameterSettings.SLEWRATE_0p83Vus;
-		uParameters[DSPortAdapter.SPEED_FLEX].write1LowTime = UParameterSettings.WRITE1TIME_12us;
-		uParameters[DSPortAdapter.SPEED_FLEX].sampleOffsetTime = UParameterSettings.SAMPLEOFFSET_TIME_10us;
+		this.uParameters[DSPortAdapter.SPEED_FLEX].pullDownSlewRate = UParameterSettings.SLEWRATE_0p83Vus;
+		this.uParameters[DSPortAdapter.SPEED_FLEX].write1LowTime = UParameterSettings.WRITE1TIME_12us;
+		this.uParameters[DSPortAdapter.SPEED_FLEX].sampleOffsetTime = UParameterSettings.SAMPLEOFFSET_TIME_10us;
 	}
 }
+// CHECKSTYLE:ON

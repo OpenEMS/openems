@@ -8,7 +8,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Exports Channels with current value and metadata to an Excel (xlsx) file.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -27,14 +27,14 @@ public class ChannelExportXlsxRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link ChannelExportXlsxRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link ChannelExportXlsxRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static ChannelExportXlsxRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		String componentId = JsonUtils.getAsString(p, "componentId");
+		var p = r.getParams();
+		var componentId = JsonUtils.getAsString(p, "componentId");
 		return new ChannelExportXlsxRequest(r, componentId);
 	}
 
@@ -59,7 +59,7 @@ public class ChannelExportXlsxRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the Component-ID.
-	 * 
+	 *
 	 * @return Component-ID
 	 */
 	public String getComponentId() {

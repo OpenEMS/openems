@@ -7,7 +7,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 /**
  * Wraps a JSON-RPC Request to query the Modbus Protocol from Modbus/TCP
  * Api-Controller.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

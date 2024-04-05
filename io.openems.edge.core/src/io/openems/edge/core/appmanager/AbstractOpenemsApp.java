@@ -1,159 +1,82 @@
 package io.openems.edge.core.appmanager;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.LinkedList;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.ComponentContext;
 
-import com.google.common.base.Objects;
-import com.google.gson.JsonArray;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.ThrowingBiFunction;
 import io.openems.common.function.ThrowingFunction;
-import io.openems.common.types.EdgeConfig;
+import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.user.User;
+import io.openems.edge.core.appmanager.validator.CheckCardinality;
+import io.openems.edge.core.appmanager.validator.Checkable;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
-public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implements OpenemsApp {
+public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
+		implements OpenemsApp, ComponentUtilSupplier, ComponentManagerSupplier {
 
-	private final ComponentManager componentManager;
-	private final ComponentContext componentContext;
+	protected final ComponentManager componentManager;
+	protected final ConfigurationAdmin cm;
+	protected final ComponentContext componentContext;
+	protected final ComponentUtil componentUtil;
 
-	protected AbstractOpenemsApp(ComponentManager componentManager, ComponentContext componentContext) {
+	protected AbstractOpenemsApp(ComponentManager componentManager, ComponentContext componentContext,
+			ConfigurationAdmin cm, ComponentUtil componentUtil) {
 		this.componentManager = componentManager;
 		this.componentContext = componentContext;
-	}
-
-	@Override
-	public String getAppId() {
-		return this.componentContext.getProperties().get(ComponentConstants.COMPONENT_NAME).toString();
-	}
-
-	protected static class AppConfiguration {
-		public final List<Component> components;
-		public final List<String> schedulerExecutionOrder;
-
-		public AppConfiguration(List<Component> components, List<String> schedulerExecutionOrder) {
-			this.components = components;
-			this.schedulerExecutionOrder = schedulerExecutionOrder;
-		}
-	}
-
-	protected abstract Class<PROPERTY> getPropertyClass();
-
-	/**
-	 * Provides a factory for {@link AppConfiguration}s.
-	 * 
-	 * @return a {@link Function} that creates a {@link AppConfiguration} from a
-	 *         JsonObject config.
-	 */
-	protected abstract ThrowingFunction<EnumMap<PROPERTY, JsonElement>, AppConfiguration, OpenemsNamedException> appConfigurationFactory();
-
-	@Override
-	public void validate(JsonObject properties) throws OpenemsException {
-		var errors = this.getValidationErrors(properties);
-		if (!errors.isEmpty()) {
-			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
-		}
+		this.cm = cm;
+		this.componentUtil = componentUtil;
 	}
 
 	/**
-	 * Validate the App configuration.
-	 * 
-	 * @param jProperties a JsonObject holding the App properties
-	 * @return a list of validation errors. Empty list says 'no errors'
+	 * Provides a factory for {@link AppConfiguration AppConfigurations}.
+	 *
+	 * @return a {@link ThrowingFunction} that creates a {@link AppConfiguration}
+	 *         from a {@link Map} of configuration properties for a given
+	 *         {@link ConfigurationTarget} in the specified language.
 	 */
-	private List<String> getValidationErrors(JsonObject jProperties) {
-		final var errors = new ArrayList<String>();
-
-		final var properties = this.convertToEnumMap(errors, jProperties);
-		final var appConfiguration = this.getAppConfiguration(errors, properties);
-		if (appConfiguration == null) {
-			return errors;
-		}
-
-		final var edgeConfig = this.componentManager.getEdgeConfig();
-
-		this.validateComponentConfigurations(errors, edgeConfig, appConfiguration);
-		this.validateScheduler(errors, edgeConfig, appConfiguration);
-
-		return errors;
-	}
-
-	/**
-	 * Validates the execution order in the Scheduler.
-	 * 
-	 * @param errors                   a collection of validation errors
-	 * @param actualEdgeConfig         the currently active {@link EdgeConfig}
-	 * @param expectedAppConfiguration the expected {@link AppConfiguration}
-	 */
-	private void validateScheduler(ArrayList<String> errors, EdgeConfig actualEdgeConfig,
-			AppConfiguration expectedAppConfiguration) {
-		var schedulerComponents = actualEdgeConfig.getComponentsByFactory("Scheduler.AllAlphabetically");
-		if (schedulerComponents.isEmpty()) {
-			errors.add("Scheduler is missing");
-			return;
-		}
-		if (schedulerComponents.size() > 1) {
-			errors.add("More than one Scheduler configured");
-			return;
-		}
-
-		var schedulerComponent = schedulerComponents.get(0);
-		var controllerIdsElement = schedulerComponent.getProperty("controllers.ids").orElse(new JsonArray());
-		JsonArray controllerIds;
-		try {
-			controllerIds = JsonUtils.getAsJsonArray(controllerIdsElement);
-		} catch (OpenemsNamedException e) {
-			errors.add("Undefined error in Scheduler: " + e.getMessage());
-			return;
-		}
-
-		// Prepare Queue
-		var controllers = new LinkedList<String>();
-		controllers.addAll(expectedAppConfiguration.schedulerExecutionOrder);
-		var nextControllerId = controllers.poll();
-
-		// Remove found Controllers from Queue in order
-		for (var controllerIdElement : controllerIds) {
-			String controllerId;
-			try {
-				controllerId = JsonUtils.getAsString(controllerIdElement);
-			} catch (OpenemsNamedException e) {
-				errors.add("Undefined error in Scheduler: " + e.getMessage());
-				continue;
-			}
-
-			if (controllerId.equals(nextControllerId)) {
-				nextControllerId = controllers.poll();
-			}
-		}
-		if (nextControllerId != null) {
-			errors.add("Controller [" + nextControllerId + "] is not/wrongly configured in Scheduler");
-		}
-	}
+	protected abstract ThrowingTriFunction<//
+			ConfigurationTarget, //
+			Map<PROPERTY, JsonElement>, //
+			Language, //
+			AppConfiguration, //
+			OpenemsNamedException> appPropertyConfigurationFactory();
 
 	/**
 	 * Gets the {@link AppConfiguration} for the given properties.
-	 * 
-	 * @param errors     a collection of validation errors
-	 * @param properties the configured App properties
+	 *
+	 * @param errors              a collection of validation errors
+	 * @param configurationTarget the target of the configuration
+	 * @param language            the language of the configuration
+	 * @param properties          the configured App properties
 	 * @return the {@link AppConfiguration} or null
 	 */
-	private AppConfiguration getAppConfiguration(ArrayList<String> errors, EnumMap<PROPERTY, JsonElement> properties) {
+	private AppConfiguration configuration(ArrayList<String> errors, ConfigurationTarget configurationTarget,
+			Language language, Map<PROPERTY, JsonElement> properties) {
 		try {
-			return this.appConfigurationFactory().apply(properties);
+			return this.appPropertyConfigurationFactory().apply(configurationTarget, properties, language);
 		} catch (OpenemsNamedException e) {
 			errors.add(e.getMessage());
 			return null;
@@ -161,126 +84,301 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	}
 
 	/**
-	 * Convert JsonObject with Properties to EnumMap.
-	 * 
+	 * Convert JsonObject with Properties to Map.
+	 *
 	 * @param errors     a collection of validation errors
 	 * @param properties the configured App properties
-	 * @return a typed {@link EnumMap} of Properties
+	 * @return a typed {@link Map} of Properties
 	 */
-	private EnumMap<PROPERTY, JsonElement> convertToEnumMap(ArrayList<String> errors, JsonObject properties) {
-		var clazz = this.getPropertyClass();
-		var result = new EnumMap<PROPERTY, JsonElement>(clazz);
-		var unknownProperties = new ArrayList<String>();
-		for (Entry<String, JsonElement> entry : properties.entrySet()) {
-			final PROPERTY key;
-			try {
-				key = Enum.valueOf(clazz, entry.getKey());
-			} catch (IllegalArgumentException e) {
+	private Map<PROPERTY, JsonElement> convertToMap(List<String> errors, JsonObject properties) {
+		final var nameableByName = Arrays.stream(this.propertyValues()) //
+				.collect(Collectors.toMap(t -> t.name(), Function.identity()));
+		final var resultMap = ImmutableMap.<PROPERTY, JsonElement>builder();
+		final var unknownProperties = new ArrayList<String>();
+		for (var entry : properties.entrySet()) {
+			final var name = entry.getKey();
+			if (!nameableByName.containsKey(name)) {
+				if ("ALIAS".equals(name)) {
+					// ignore alias if passed but not used
+					continue;
+				}
 				unknownProperties.add(entry.getKey());
 				continue;
 			}
-			result.put(key, entry.getValue());
+			// TODO maybe type validation of value
+			resultMap.put(nameableByName.get(entry.getKey()), entry.getValue());
 		}
 		if (!unknownProperties.isEmpty()) {
-			errors.add("Unknown Configuration Property" //
+			errors.add("Unknown Configuration Propert" //
 					+ (unknownProperties.size() > 1 ? "ies" : "y") + ":" //
 					+ unknownProperties.stream().collect(Collectors.joining(",")));
 		}
-		return result;
+		return resultMap.build();
+	}
+
+	@Override
+	public AppConfiguration getAppConfiguration(ConfigurationTarget target, JsonObject config, Language language)
+			throws OpenemsNamedException {
+		var errors = new ArrayList<String>();
+		var enumMap = this.convertToMap(target != ConfigurationTarget.TEST ? errors : new ArrayList<>(), config);
+		var configuration = this.configuration(errors, target, language, enumMap);
+
+		if (!errors.isEmpty()) {
+			throw new OpenemsException(this.getAppId() + ": " + errors.stream().collect(Collectors.joining("|")));
+		}
+		return configuration;
+	}
+
+	@Override
+	public String getAppId() {
+		return this.componentContext.getProperties().get(ComponentConstants.COMPONENT_NAME).toString();
 	}
 
 	/**
-	 * Compare actual and expected Components.
-	 * 
-	 * @param errors                   a collection of validation errors
-	 * @param actualEdgeConfig         the currently active {@link EdgeConfig}
-	 * @param expectedAppConfiguration the expected {@link AppConfiguration}
+	 * Gets the id of the map with the given default id
+	 *
+	 * <p>
+	 * e. g. defaultId: "ess0" => the next available id with the base-name "ess" and
+	 * the the next available number
+	 *
+	 * @param t         the configuration target
+	 * @param map       the configuration map
+	 * @param p         the Property which stores the id
+	 * @param defaultId the defaultId to be used
+	 * @return the found id
 	 */
-	private void validateComponentConfigurations(ArrayList<String> errors, EdgeConfig actualEdgeConfig,
-			AppConfiguration expectedAppConfiguration) {
-		var missingComponents = new ArrayList<String>();
-		for (Component expectedComponent : expectedAppConfiguration.components) {
-			var componentId = expectedComponent.getId();
+	protected String getId(ConfigurationTarget t, Map<PROPERTY, JsonElement> map, PROPERTY p, String defaultId) {
+		if (t == ConfigurationTarget.TEST) {
+			return JsonUtils.getAsOptionalString(map.get(p)) //
+					.map(id -> id + p.name() + ":" + defaultId) //
+					.orElse(p.name());
+		}
+		return this.getValueOrDefault(map, p, defaultId);
+	}
 
-			// Get Actual Component Configuration
-			Component actualComponent;
-			try {
-				actualComponent = actualEdgeConfig.getComponentOrError(componentId);
-			} catch (InvalidValueException e) {
-				missingComponents.add(componentId);
+	@Override
+	public final ValidatorConfig getValidatorConfig() {
+		Map<String, Object> properties = new TreeMap<>();
+		properties.put("openemsApp", this);
+
+		// add check for cardinality for every app
+		var validator = this.getValidateBuilder().build();
+
+		validator.getInstallableCheckableConfigs()
+				.add(new ValidatorConfig.CheckableConfig(CheckCardinality.COMPONENT_NAME, properties));
+
+		return validator;
+	}
+
+	protected ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create();
+	}
+
+	/**
+	 * Gets the value of the property in the map or the defaulValue if the property
+	 * was not found.
+	 *
+	 * @param map          the configuration map
+	 * @param property     the property to be searched for
+	 * @param defaultValue the default value
+	 * @return the String value
+	 */
+	protected String getValueOrDefault(Map<PROPERTY, JsonElement> map, PROPERTY property, String defaultValue) {
+		var element = map.get(property);
+		if (element != null) {
+			return JsonUtils.getAsOptionalString(element).orElse(defaultValue);
+		}
+		return defaultValue;
+	}
+
+	/**
+	 * Checks if the given property is in the Property class included.
+	 *
+	 * @param property the enum property
+	 * @return true if it is included else false
+	 */
+	public boolean hasProperty(String property) {
+		return Arrays.stream(this.propertyValues()) //
+				.anyMatch(t -> t.name().equals(property));
+	}
+
+	/**
+	 * The returning function gets called during app add or update. The returned
+	 * {@link Checkable}s are executed after setting the network configuration.
+	 *
+	 * <p>
+	 * e. g. the function can return a {@link Checkable} for checking if a device is
+	 * reachable via network.
+	 * </p>
+	 *
+	 * @return a factory function which returns {@link Checkable}s
+	 */
+	protected ThrowingBiFunction<//
+			ConfigurationTarget, // ADD, UPDATE, VALIDATE, DELETE or TEST
+			Map<PROPERTY, JsonElement>, // configuration properties
+			Map<String, Map<String, ?>>, // return value of the function
+			OpenemsNamedException> // Exception on error
+			installationValidation() {
+		return null;
+	}
+
+	/**
+	 * Creates a copy of the original configuration and fills up properties which
+	 * are binded bidirectional.
+	 * 
+	 * <p>
+	 * e. g. a property in a component is the same as one configured in the app so
+	 * it directly gets stored in the component configuration and not twice to avoid
+	 * miss matching errors.
+	 * 
+	 * @param original the original configuration
+	 * @param app      the app to get the properties from
+	 * @return a copy of the original one with the filled up properties
+	 */
+	public static JsonObject fillUpProperties(//
+			final OpenemsApp app, //
+			final JsonObject original //
+	) {
+		final var copy = original.deepCopy();
+		for (var prop : app.getProperties()) {
+			if (copy.has(prop.name)) {
 				continue;
 			}
-
-			var componentErrors = new ArrayList<String>();
-
-			// Validate the Component Factory (i.e. is the Component of the correct type)
-			if (!Objects.equal(expectedComponent.getFactoryId(), actualComponent.getFactoryId())) {
-				componentErrors.add("Factory-ID: " //
-						+ "expected '" + expectedComponent.getFactoryId() + "', " //
-						+ "got '" + actualComponent.getFactoryId() + "'");
+			if (prop.bidirectionalValue == null) {
+				continue;
 			}
-
-			for (Entry<String, JsonElement> entry : expectedComponent.getProperties().entrySet()) {
-				String key = entry.getKey();
-				JsonElement expectedProperty = entry.getValue();
-				JsonElement actualProperty;
-				try {
-					actualProperty = actualComponent.getPropertyOrError(key);
-				} catch (InvalidValueException e) {
-					componentErrors.add("Property '" + key + "': " //
-							+ "expected '" + expectedProperty.toString() + "', " //
-							+ "but property does not exist");
-					continue;
-				}
-
-				if (!equals(expectedProperty, actualProperty)) {
-					componentErrors.add("Property '" + key + "': " //
-							+ "expected '" + expectedProperty.toString() + "', " //
-							+ "got '" + actualProperty.toString() + "'");
-				}
+			var value = prop.bidirectionalValue.apply(copy);
+			if (value == null) {
+				continue;
 			}
-
-			if (!componentErrors.isEmpty()) {
-				errors.add(componentId + ": " //
-						+ componentErrors.stream().collect(Collectors.joining("; ")));
-			}
+			// add value to configuration
+			copy.add(prop.name, value);
 		}
+		return copy;
+	}
 
-		if (!missingComponents.isEmpty()) {
-			errors.add("Missing Component" //
-					+ (missingComponents.size() > 1 ? "s" : "") + ":" //
-					+ missingComponents.stream().collect(Collectors.joining(",")));
+	@Override
+	public OpenemsAppPermissions getAppPermissions() {
+		return OpenemsAppPermissions.create().build();
+	}
+
+	@Override
+	public String getName(Language language) {
+		return AbstractOpenemsApp.getTranslation(language, this.getAppId() + ".Name");
+	}
+
+	@Override
+	public String getShortName(Language language) {
+		return AbstractOpenemsApp.getNullableTranslation(language, this.getAppId() + ".Name.short");
+	}
+
+	@Override
+	public String getImage() {
+		var imageName = this.getClass().getSimpleName() + ".png";
+		var image = base64OfImage(this.getClass().getResource(imageName));
+		if (image != null) {
+			return image;
 		}
+		return null;
+	}
+
+	@Override
+	public OpenemsAppPropertyDefinition[] getProperties() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public AppAssistant getAppAssistant(User user) {
+		return this.getAppAssistant(user.getLanguage());
+	}
+
+	protected AppAssistant getAppAssistant(Language l) {
+		return AppAssistant.create(this.getName(l)) //
+				.build();
+	}
+
+	protected abstract PROPERTY[] propertyValues();
+
+	protected final PROPERTY getPropertyByName(String name) {
+		return Arrays.stream(this.propertyValues()) //
+				.filter(t -> t.name().equals(name)) //
+				.findFirst().orElse(null); //
+	}
+
+	protected static String getTranslation(Language language, String key) {
+		return TranslationUtil.getTranslation(getTranslationBundle(language), key);
+	}
+
+	protected static String getNullableTranslation(Language language, String key) {
+		return TranslationUtil.getNullableTranslation(getTranslationBundle(language), key);
 	}
 
 	/**
-	 * Validates if the 'actual' matches the 'expected' value.
+	 * Gets the {@link ResourceBundle} based on the given {@link Language}.
 	 * 
-	 * @param expected the expected value
-	 * @param actual   the actual value
-	 * @return true if they match
+	 * @param language the {@link Language} of the translations
+	 * @return the {@link ResourceBundle}
 	 */
-	protected static boolean equals(JsonElement expected, JsonElement actual) {
-		if (Objects.equal(expected, actual)) {
-			return true;
+	public static ResourceBundle getTranslationBundle(Language language) {
+		if (language == null) {
+			language = Language.DEFAULT;
 		}
-		if ((expected == null && actual != null) || (expected != null && actual == null)) {
-			return false;
+		// TODO add language support
+		switch (language) {
+		case CZ:
+		case ES:
+		case FR:
+		case NL:
+			language = Language.EN;
+			break;
+		case DE:
+		case EN:
+			break;
 		}
-		// both are not null
+		return ResourceBundle.getBundle("io.openems.edge.core.appmanager.translation", language.getLocal());
+	}
 
-		if (!expected.isJsonPrimitive() || !actual.isJsonPrimitive()) {
-			return false;
-		}
-		// both are JsonPrimitives
-		var e = expected.getAsJsonPrimitive();
-		var a = actual.getAsJsonPrimitive();
+	/**
+	 * Gets the {@link ResourceBundle} based on the given {@link Language}.
+	 * 
+	 * <p>
+	 * Used in {@link OpenemsApps} to create their {@link Type#getParamter()}.
+	 * 
+	 * @param l the {@link Language} of the translations
+	 * @return the {@link ResourceBundle}
+	 * @implNote just a name alias to
+	 *           {@link AbstractOpenemsApp#getTranslationBundle(Language)}
+	 */
+	public static ResourceBundle createResourceBundle(Language l) {
+		return getTranslationBundle(l);
+	}
 
-		if (e.getAsString().equals(a.getAsString())) {
-			// compare 'toString'
-			return true;
+	protected static final String base64OfImage(URL url) {
+		if (url == null) {
+			return null;
 		}
-		return false;
+		final var prefix = "data:image/png;base64,";
+		try (var is = url.openStream()) {
+			return prefix + Base64.getEncoder().encodeToString(is.readAllBytes());
+		} catch (IOException e) {
+			// image not found
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	protected static final Component getComponentWithFactoryId(List<Component> components, String factoryId) {
+		return components.stream().filter(t -> t.getFactoryId().equals(factoryId)).findFirst().orElse(null);
+	}
+
+	@Override
+	public ComponentManager getComponentManager() {
+		return this.componentManager;
+	}
+
+	@Override
+	public ComponentUtil getComponentUtil() {
+		return this.componentUtil;
 	}
 
 }

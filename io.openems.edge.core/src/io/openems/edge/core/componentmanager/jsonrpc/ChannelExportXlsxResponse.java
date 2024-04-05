@@ -6,10 +6,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.dhatim.fastexcel.Workbook;
 import org.dhatim.fastexcel.Worksheet;
@@ -29,9 +27,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 /**
  * Represents a JSON-RPC Response for 'channelExportXlsxRequest'.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -58,29 +56,28 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 	}
 
 	protected static byte[] generatePayload(OpenemsComponent component) throws OpenemsException {
-		byte[] payload = new byte[0];
 		Worksheet ws = null;
 		try {
-			try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+			try (var os = new ByteArrayOutputStream()) {
 				Workbook wb = null;
 				try {
 					wb = new Workbook(os, "OpenEMS Modbus-Register Export", "1.0");
 					ws = wb.newWorksheet("Modbus-Registers");
 
 					// Add headers
-					int row = addSheetHeader(wb, ws, component);
+					var row = addSheetHeader(wb, ws, component);
 
 					ws.setAutoFilter(row, COL_CHANNEL_ID, COL_ACCESS);
 
 					// Create Sheet
 					List<Channel<?>> channels = component.channels().stream() //
-							.sorted((c1, c2) -> c1.channelId().name().compareTo(c2.channelId().name()))
-							.collect(Collectors.toList()); //
+							.sorted((c1, c2) -> c1.channelId().name().compareTo(c2.channelId().name())) //
+							.toList(); //
 					for (Channel<?> channel : channels) {
 						/*
 						 * create descriptive text
 						 */
-						String description = "";
+						var description = "";
 						if (channel instanceof EnumReadChannel) {
 							try {
 								description += channel.value().asOptionString();
@@ -115,12 +112,12 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 							break;
 						}
 
-						ws.value(row, COL_UNIT, channel.channelDoc().getUnit().getSymbol());
+						ws.value(row, COL_UNIT, channel.channelDoc().getUnit().symbol);
 						ws.value(row, COL_DESCRIPTION, description);
 						ws.value(row, COL_ACCESS, channel.channelDoc().getAccessMode().getAbbreviation());
 
 						// Source
-						final Object readSource = channel.getMetaInfo();
+						final var readSource = channel.getMetaInfo();
 						if (readSource != null) {
 							ws.value(row, COL_SOURCE, readSource.toString());
 						}
@@ -133,8 +130,7 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 					}
 				}
 				os.flush();
-				payload = os.toByteArray();
-				return payload;
+				return os.toByteArray();
 			}
 		} catch (IOException e) {
 			throw new OpenemsException("Unable to generate Xlsx payload: " + e.getMessage());
@@ -142,7 +138,7 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 	}
 
 	private static int addSheetHeader(Workbook wb, Worksheet ws, OpenemsComponent component) {
-		int row = 0;
+		var row = 0;
 		addHeader(wb, ws, row++, "Export created on", ZonedDateTime.now().format(DATE_TIME_FORMATTER));
 		addHeader(wb, ws, row++, "Version", OpenemsConstants.VERSION.toString());
 		addHeader(wb, ws, row++, "", "");
@@ -151,12 +147,11 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 		addHeader(wb, ws, row++, "Service-ID", component.servicePid());
 		addHeader(wb, ws, row++, "Implementation", reducePackageName(component.getClass()));
 
-		Map<Inheritance, Collection<String>> inheritances = getInheritanceViaReflection(component.getClass(), null)
-				.asMap();
+		var inheritances = getInheritanceViaReflection(component.getClass(), null).asMap();
 		for (Entry<Inheritance, Collection<String>> entry : inheritances.entrySet()) {
-			Inheritance inheritance = entry.getKey();
-			Collection<String> names = entry.getValue();
-			boolean first = true;
+			var inheritance = entry.getKey();
+			var names = entry.getValue();
+			var first = true;
 			for (String name : names) {
 				if (first) {
 					addHeader(wb, ws, row++, CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, inheritance.name()),

@@ -34,7 +34,7 @@ public class SubscribeEdgesChannelsRequest extends JsonrpcRequest {
 
 	/**
 	 * Builds a {@link SubscribeEdgesChannelsRequest} from a {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the {@link JsonrpcRequest}
 	 * @return the {@link SubscribeEdgesChannelsRequest}
 	 * @throws OpenemsNamedException on error
@@ -57,7 +57,7 @@ public class SubscribeEdgesChannelsRequest extends JsonrpcRequest {
 
 	/**
 	 * Builds a {@link SubscribeEdgesChannelsRequest} from a {@link JsonObject}.
-	 * 
+	 *
 	 * @param j the {@link JsonObject}
 	 * @return the {@link SubscribeEdgesChannelsRequest}
 	 * @throws OpenemsNamedException on error
@@ -82,7 +82,7 @@ public class SubscribeEdgesChannelsRequest extends JsonrpcRequest {
 
 	/**
 	 * Adds an Edge-ID.
-	 * 
+	 *
 	 * @param edgeId the Edge-ID.
 	 */
 	public void addEdgeId(String edgeId) {
@@ -91,7 +91,7 @@ public class SubscribeEdgesChannelsRequest extends JsonrpcRequest {
 
 	/**
 	 * Removes an Edge-ID.
-	 * 
+	 *
 	 * @param edgeId the Edge-ID
 	 */
 	public void removeEdgeId(String edgeId) {
@@ -104,7 +104,7 @@ public class SubscribeEdgesChannelsRequest extends JsonrpcRequest {
 
 	/**
 	 * Adds a Channel.
-	 * 
+	 *
 	 * @param address the {@link ChannelAddress}
 	 */
 	public void addChannel(ChannelAddress address) {

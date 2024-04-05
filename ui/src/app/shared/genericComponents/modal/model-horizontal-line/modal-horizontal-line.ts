@@ -5,12 +5,12 @@ import { Component, Input } from "@angular/core";
  */
 @Component({
     selector: 'oe-modal-horizontal-line',
-    templateUrl: './modal-horizontal-line.html'
+    templateUrl: './modal-horizontal-line.html',
 })
-export class ModalHorizontalLine {
+export class ModalHorizontalLineComponent {
 
     /** Components-Array to iterate over */
-    @Input() components: any[];
+    @Input() protected components: any[];
     /** index is an iterator */
-    @Input() index: number;
+    @Input() protected index: number;
 }

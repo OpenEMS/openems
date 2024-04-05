@@ -1,7 +1,6 @@
 package io.openems.edge.controller.api.websocket;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -19,16 +18,16 @@ import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 public class SystemLogHandler {
 
 	private final Logger log = LoggerFactory.getLogger(SystemLogHandler.class);
-	private final WebsocketApi parent;
+	private final ControllerApiWebsocketImpl parent;
 	private final Set<String> subscriptions = new HashSet<>();
 
-	public SystemLogHandler(WebsocketApi parent) {
+	public SystemLogHandler(ControllerApiWebsocketImpl parent) {
 		this.parent = parent;
 	}
 
 	/**
 	 * Handles a {@link SubscribeSystemLogRequest}.
-	 * 
+	 *
 	 * @param token   the UI session token
 	 * @param request the {@link SubscribeSystemLogRequest}
 	 * @return a reply
@@ -36,7 +35,7 @@ public class SystemLogHandler {
 	 */
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String token,
 			SubscribeSystemLogRequest request) throws OpenemsNamedException {
-		if (request.getSubscribe()) {
+		if (request.isSubscribe()) {
 			/*
 			 * Start subscription
 			 */
@@ -55,7 +54,7 @@ public class SystemLogHandler {
 	/**
 	 * Handles a PaxLoggingEvent and sends a SystemLogNotification to all subscribed
 	 * UI sessions.
-	 * 
+	 *
 	 * @param event the event
 	 */
 	public void handlePaxLoggingEvent(PaxLoggingEvent event) {
@@ -63,10 +62,10 @@ public class SystemLogHandler {
 			if (this.subscriptions.isEmpty()) {
 				return;
 			}
-			EdgeRpcNotification notification = new EdgeRpcNotification(WebsocketApi.EDGE_ID,
+			var notification = new EdgeRpcNotification(ControllerApiWebsocket.EDGE_ID,
 					SystemLogNotification.fromPaxLoggingEvent(event));
-			for (Iterator<String> iter = this.subscriptions.iterator(); iter.hasNext();) {
-				String token = iter.next();
+			for (var iter = this.subscriptions.iterator(); iter.hasNext();) {
+				var token = iter.next();
 				try {
 					this.parent.getWsDataForTokenOrError(token).send(notification);
 				} catch (OpenemsNamedException e) {

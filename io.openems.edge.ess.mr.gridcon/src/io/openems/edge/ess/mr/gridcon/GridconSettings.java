@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 package io.openems.edge.ess.mr.gridcon;
 
 import io.openems.edge.ess.mr.gridcon.enums.Mode;
@@ -75,3 +76,4 @@ public class GridconSettings {
 	}
 
 }
+// CHECKSTYLE:ON

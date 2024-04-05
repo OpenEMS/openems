@@ -1,5 +1,7 @@
 package io.openems.edge.fenecon.dess.ess;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,8 +16,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -48,10 +50,11 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Component(//
 		name = "Fenecon.Dess.Ess", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implements FeneconDessEss, AsymmetricEss,
 		SymmetricEss, HybridEss, ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider {
 
@@ -65,11 +68,10 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 			HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
 	private final List<FeneconDessCharger> chargers = new ArrayList<>();
 
-	private Config config;
-
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -77,6 +79,8 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
+
+	private Config config;
 
 	public FeneconDessEssImpl() {
 		super(//
@@ -96,7 +100,7 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), FeneconDessConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id())) {
@@ -104,6 +108,7 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -120,11 +125,9 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(10143)), //
 						new DummyRegisterElement(10144, 10150),
 						m(FeneconDessEss.ChannelId.ORIGINAL_ACTIVE_CHARGE_ENERGY,
-								new UnsignedDoublewordElement(10151).wordOrder(WordOrder.MSWLSW),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+								new UnsignedDoublewordElement(10151).wordOrder(WordOrder.MSWLSW), SCALE_FACTOR_3), //
 						m(FeneconDessEss.ChannelId.ORIGINAL_ACTIVE_DISCHARGE_ENERGY,
-								new UnsignedDoublewordElement(10153).wordOrder(WordOrder.MSWLSW),
-								ElementToChannelConverter.SCALE_FACTOR_3)), //
+								new UnsignedDoublewordElement(10153).wordOrder(WordOrder.MSWLSW), SCALE_FACTOR_3)), //
 				new FC3ReadRegistersTask(11133, Priority.HIGH, //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(11133), DELTA_10000), //
 						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L1, new UnsignedWordElement(11134), DELTA_10000)), //
@@ -195,7 +198,7 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 		/*
 		 * Calculate AC Energy
 		 */
-		Integer acActivePower = this.getActivePowerChannel().getNextValue().get();
+		var acActivePower = this.getActivePowerChannel().getNextValue().get();
 		if (acActivePower == null) {
 			// Not available
 			this.calculateAcChargeEnergy.update(null);
@@ -212,7 +215,7 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 		/*
 		 * Calculate DC Power and Energy
 		 */
-		Integer dcDischargePower = acActivePower;
+		var dcDischargePower = acActivePower;
 		for (EssDcCharger charger : this.chargers) {
 			dcDischargePower = TypeUtils.subtract(dcDischargePower,
 					charger.getActualPowerChannel().getNextValue().get());

@@ -11,7 +11,7 @@ interface MyCategorizedFactories extends CategorizedFactories {
 
 @Component({
   selector: IndexComponent.SELECTOR,
-  templateUrl: './index.component.html'
+  templateUrl: './index.component.html',
 })
 export class IndexComponent implements OnInit {
 
@@ -24,15 +24,15 @@ export class IndexComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private service: Service,
-    private translate: TranslateService
+    private translate: TranslateService,
   ) {
   }
 
   ngOnInit() {
-    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.addComponents'), this.route);
+    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.addComponents' }, this.route);
     this.service.getConfig().then(config => {
       this.list = config.listAvailableFactories();
-      for (let entry of this.list) {
+      for (const entry of this.list) {
         entry.isClicked = false;
         entry.filteredFactories = entry.factories;
       }
@@ -42,15 +42,15 @@ export class IndexComponent implements OnInit {
 
   updateFilter(completeFilter: string) {
     // take each space-separated string as an individual and-combined filter
-    let filters = completeFilter.split(' ');
+    const filters = completeFilter.toLowerCase().split(' ');
     let countFilteredEntries = 0;
-    for (let entry of this.list) {
+    for (const entry of this.list) {
       entry.filteredFactories = entry.factories.filter(entry =>
         // Search for filter strings in Factory-ID, -Name and Description
         Utils.matchAll(filters, [
           entry.id.toLowerCase(),
           entry.name.toLowerCase(),
-          entry.description.toLowerCase()
+          entry.description.toLowerCase(),
         ]),
       );
       countFilteredEntries += entry.filteredFactories.length;

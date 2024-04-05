@@ -19,12 +19,10 @@ import io.openems.edge.common.sum.GridMode;
 @ProviderType
 public interface SymmetricEss extends OpenemsComponent {
 
-	public static final String POWER_DOC_TEXT = "Negative values for Charge; positive for Discharge";
-
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * State of Charge.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
@@ -37,13 +35,13 @@ public interface SymmetricEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Capacity.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
 		 * <li>Unit: Wh
 		 * </ul>
-		 * 
+		 *
 		 * @since 2019.5.0
 		 */
 		CAPACITY(Doc.of(OpenemsType.INTEGER) //
@@ -51,7 +49,7 @@ public interface SymmetricEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Grid-Mode.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess
 		 * <li>Type: Integer/Enum
@@ -62,7 +60,7 @@ public interface SymmetricEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Active Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Symmetric
 		 * <li>Type: Integer
@@ -73,27 +71,25 @@ public interface SymmetricEss extends OpenemsComponent {
 		ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
+				.text("Negative values for Charge; positive for Discharge") //
 		),
 		/**
 		 * Reactive Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Symmetric
 		 * <li>Type: Integer
 		 * <li>Unit: var
-		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
 		REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
 		),
 		/**
 		 * Holds the currently maximum possible apparent power. This value is commonly
 		 * defined by the inverter limitations.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Managed Symmetric Ess
 		 * <li>Type: Integer
@@ -106,7 +102,7 @@ public interface SymmetricEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Active Charge Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Symmetric
 		 * <li>Type: Integer
@@ -114,11 +110,11 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Active Discharge Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Symmetric
 		 * <li>Type: Integer
@@ -126,18 +122,18 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Min Cell Voltage.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Symmetric
 		 * <li>Type: Integer
 		 * <li>Unit: mV
 		 * <li>Range: > 0
 		 * </ul>
-		 * 
+		 *
 		 * @since 2019.12.0
 		 */
 		MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
@@ -145,14 +141,14 @@ public interface SymmetricEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Max Cell Voltage.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Symmetric
 		 * <li>Type: Integer
 		 * <li>Unit: mV
 		 * <li>Range: > 0
 		 * </ul>
-		 * 
+		 *
 		 * @since 2019.17.0
 		 */
 		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
@@ -160,14 +156,14 @@ public interface SymmetricEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Min Cell Temperature.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Symmetric
 		 * <li>Type: Integer
 		 * <li>Unit: °C
 		 * <li>Range: -273 to positive infinity
 		 * </ul>
-		 * 
+		 *
 		 * @since 2019.17.0
 		 */
 		MIN_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
@@ -175,14 +171,14 @@ public interface SymmetricEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Max Cell Temperature.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Symmetric
 		 * <li>Type: Integer
 		 * <li>Unit: °C
 		 * <li>Range: -273 to positive infinity
 		 * </ul>
-		 * 
+		 *
 		 * @since 2019.17.0
 		 */
 		MAX_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
@@ -202,6 +198,13 @@ public interface SymmetricEss extends OpenemsComponent {
 
 	}
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(SymmetricEss.class, accessMode, 100) //
 				.channel(0, ChannelId.SOC, ModbusType.UINT16) //
@@ -285,7 +288,7 @@ public interface SymmetricEss extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#GRID_MODE}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default Channel<GridMode> getGridModeChannel() {
@@ -294,7 +297,7 @@ public interface SymmetricEss extends OpenemsComponent {
 
 	/**
 	 * Is the Energy Storage System On-Grid? See {@link ChannelId#GRID_MODE}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default GridMode getGridMode() {
@@ -304,7 +307,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#GRID_MODE}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setGridMode(GridMode value) {
@@ -313,7 +316,7 @@ public interface SymmetricEss extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getActivePowerChannel() {
@@ -323,7 +326,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	/**
 	 * Gets the Active Power in [W]. Negative values for Charge; positive for
 	 * Discharge. See {@link ChannelId#ACTIVE_POWER}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getActivePower() {
@@ -333,7 +336,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setActivePower(Integer value) {
@@ -343,7 +346,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setActivePower(int value) {
@@ -352,7 +355,7 @@ public interface SymmetricEss extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#REACTIVE_POWER}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getReactivePowerChannel() {
@@ -361,7 +364,7 @@ public interface SymmetricEss extends OpenemsComponent {
 
 	/**
 	 * Gets the Reactive Power in [var]. See {@link ChannelId#REACTIVE_POWER}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getReactivePower() {
@@ -371,7 +374,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setReactivePower(Integer value) {
@@ -381,7 +384,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setReactivePower(int value) {
@@ -390,7 +393,7 @@ public interface SymmetricEss extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_APPARENT_POWER}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getMaxApparentPowerChannel() {
@@ -400,7 +403,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	/**
 	 * Gets the Maximum Apparent Power in [VA], range "&gt;= 0". See
 	 * {@link ChannelId#MAX_APPARENT_POWER}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getMaxApparentPower() {
@@ -410,7 +413,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_APPARENT_POWER} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxApparentPower(Integer value) {
@@ -420,7 +423,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_APPARENT_POWER} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxApparentPower(int value) {
@@ -437,7 +440,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Active Charge Energy in [Wh]. See
+	 * Gets the Active Charge Energy in [Wh_Σ]. See
 	 * {@link ChannelId#ACTIVE_CHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
@@ -476,7 +479,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Active Discharge Energy in [Wh]. See
+	 * Gets the Active Discharge Energy in [Wh_Σ]. See
 	 * {@link ChannelId#ACTIVE_DISCHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}

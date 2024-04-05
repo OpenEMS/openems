@@ -19,8 +19,8 @@ public class OnError implements io.openems.common.websocket.OnError {
 	public void run(WebSocket ws, Exception ex) throws OpenemsException {
 		WsData wsData = ws.getAttachment();
 		var edgeIdOpt = wsData.getEdgeId();
-		this.parent.logWarn(this.log, "Edge [" + edgeIdOpt.orElse("UNKNOWN") + "] websocket error. "
-				+ ex.getClass().getSimpleName() + ": " + ex.getMessage());
+		this.parent.logWarn(this.log, edgeIdOpt.orElse(null),
+				"Websocket error. " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
 		ex.printStackTrace();
 	}
 

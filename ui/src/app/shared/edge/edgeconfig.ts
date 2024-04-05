@@ -8,7 +8,7 @@ export interface CategorizedComponents {
         icon: string
     },
     components: EdgeConfig.Component[]
-};
+}
 
 export interface CategorizedFactories {
     category: {
@@ -16,7 +16,7 @@ export interface CategorizedFactories {
         icon: string
     },
     factories: EdgeConfig.Factory[]
-};
+}
 
 export class EdgeConfig {
 
@@ -27,31 +27,31 @@ export class EdgeConfig {
         }
 
         // initialize Components
-        for (let componentId in this.components) {
-            let component = this.components[componentId];
+        for (const componentId in this.components) {
+            const component = this.components[componentId];
             component.id = componentId;
             if ('enabled' in component.properties) {
-                component.isEnabled = component.properties['enabled']
+                component.isEnabled = component.properties['enabled'];
             } else {
                 component.isEnabled = true;
             }
         }
 
         // initialize Factorys
-        for (let factoryId in this.factories) {
-            let factory = this.factories[factoryId];
+        for (const factoryId in this.factories) {
+            const factory = this.factories[factoryId];
             factory.id = factoryId;
             factory.componentIds = [];
 
             // Fill 'natures' map
-            for (let natureId of factory.natureIds) {
+            for (const natureId of factory.natureIds) {
                 if (!(natureId in this.natures)) {
-                    let parts = natureId.split(".");
-                    let name = parts[parts.length - 1];
+                    const parts = natureId.split(".");
+                    const name = parts[parts.length - 1];
                     this.natures[natureId] = {
                         id: natureId,
                         name: name,
-                        factoryIds: []
+                        factoryIds: [],
                     };
                 }
                 this.natures[natureId].factoryIds.push(factoryId);
@@ -61,12 +61,12 @@ export class EdgeConfig {
         if (Object.keys(this.components).length != 0 && Object.keys(this.factories).length == 0) {
             console.warn("Factory definitions are missing.");
         } else {
-            for (let componentId in this.components) {
-                let component = this.components[componentId];
+            for (const componentId in this.components) {
+                const component = this.components[componentId];
                 if (component.factoryId === "") {
                     continue; // Singleton components have no factory-PID
                 }
-                let factory = this.factories[component.factoryId];
+                const factory = this.factories[component.factoryId];
                 if (!factory) {
                     console.warn("Factory definition [" + component.factoryId + "] for [" + componentId + "] is missing.");
                     continue;
@@ -94,7 +94,7 @@ export class EdgeConfig {
     /**
      * Nature-PID -> Component-IDs.
      */
-    public readonly natures: { [id: string]: EdgeConfig.Nature } = {}
+    public readonly natures: { [id: string]: EdgeConfig.Nature } = {};
 
     /**
      * UI-Widgets.
@@ -107,11 +107,11 @@ export class EdgeConfig {
 
     /**
      * Get Component-IDs of Component instances by the given Factory.
-     * 
+     *
      * @param factoryId the Factory PID.
      */
     public getComponentIdsByFactory(factoryId: string): string[] {
-        let factory = this.factories[factoryId];
+        const factory = this.factories[factoryId];
         if (factory) {
             return factory.componentIds;
         } else {
@@ -121,16 +121,16 @@ export class EdgeConfig {
 
     /**
      * Get Factories of Nature.
-     * 
+     *
      * @param natureId the given Nature.
      */
     public getFactoriesByNature(natureId: string): EdgeConfig.Factory[] {
-        let result = [];
-        let nature = this.natures[natureId];
+        const result = [];
+        const nature = this.natures[natureId];
         if (nature) {
-            for (let factoryId of nature.factoryIds) {
+            for (const factoryId of nature.factoryIds) {
                 if (factoryId in this.factories) {
-                    result.push(this.factories[factoryId])
+                    result.push(this.factories[factoryId]);
                 }
             }
         }
@@ -139,14 +139,14 @@ export class EdgeConfig {
 
     /**
      * Get Factories by Factory-IDs.
-     * 
+     *
      * @param ids the given Factory-IDs.
      */
     public getFactoriesByIds(factoryIds: string[]): EdgeConfig.Factory[] {
-        let result = [];
-        for (let factoryId of factoryIds) {
+        const result = [];
+        for (const factoryId of factoryIds) {
             if (factoryId in this.factories) {
-                result.push(this.factories[factoryId])
+                result.push(this.factories[factoryId]);
             }
         }
         return result;
@@ -154,13 +154,13 @@ export class EdgeConfig {
 
     /**
      * Get Factories by Factory-IDs pattern.
-     * 
+     *
      * @param ids the given Factory-IDs pattern.
      */
     public getFactoriesByIdsPattern(patterns: RegExp[]): EdgeConfig.Factory[] {
-        let result = [];
-        for (let pattern of patterns) {
-            for (let factoryId in this.factories) {
+        const result = [];
+        for (const pattern of patterns) {
+            for (const factoryId in this.factories) {
                 if (pattern.test(factoryId)) {
                     result.push(this.factories[factoryId]);
                 }
@@ -171,13 +171,13 @@ export class EdgeConfig {
 
     /**
      * Get Component instances by the given Factory.
-     * 
+     *
      * @param factoryId the Factory PID.
      */
     public getComponentsByFactory(factoryId: string): EdgeConfig.Component[] {
-        let componentIds = this.getComponentIdsByFactory(factoryId);
-        let result: EdgeConfig.Component[] = [];
-        for (let componentId of componentIds) {
+        const componentIds = this.getComponentIdsByFactory(factoryId);
+        const result: EdgeConfig.Component[] = [];
+        for (const componentId of componentIds) {
             result.push(this.components[componentId]);
         }
         return result;
@@ -185,43 +185,61 @@ export class EdgeConfig {
 
     /**
      * Get Component-IDs of Components that implement the given Nature.
-     * 
+     *
      * @param nature the given Nature.
      */
     public getComponentIdsImplementingNature(natureId: string): string[] {
-        let result: string[] = [];
-        let nature = this.natures[natureId];
+        const result: string[] = [];
+        const nature = this.natures[natureId];
         if (nature) {
-            for (let factoryId of nature.factoryIds) {
-                result.push.apply(result, this.getComponentIdsByFactory(factoryId));
+            for (const factoryId of nature.factoryIds) {
+                result.push(...this.getComponentIdsByFactory(factoryId));
             }
         }
+
+        // Backwards compatibilty
+        // TODO drop after full migration to ElectricityMeter
+        switch (natureId) {
+            // ElectricityMeter replaces SymmetricMeter (and AsymmetricMeter implicitely)
+            case "io.openems.edge.meter.api.ElectricityMeter":
+                result.push(...this.getComponentIdsImplementingNature("io.openems.edge.meter.api.SymmetricMeter"));
+        }
+
         return result;
     }
 
     /**
      * Get Components that implement the given Nature.
-     * 
+     *
      * @param nature the given Nature.
      */
     public getComponentsImplementingNature(natureId: string): EdgeConfig.Component[] {
-        let result: EdgeConfig.Component[] = [];
-        let nature = this.natures[natureId];
+        const result: EdgeConfig.Component[] = [];
+        const nature = this.natures[natureId];
         if (nature) {
-            for (let factoryId of nature.factoryIds) {
-                result.push.apply(result, this.getComponentsByFactory(factoryId));
+            for (const factoryId of nature.factoryIds) {
+                result.push(...this.getComponentsByFactory(factoryId));
             }
         }
+
+        // Backwards compatibilty
+        // TODO drop after full migration to ElectricityMeter
+        switch (natureId) {
+            // ElectricityMeter replaces SymmetricMeter (and AsymmetricMeter implicitely)
+            case "io.openems.edge.meter.api.ElectricityMeter":
+                result.push(...this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter"));
+        }
+
         return result;
     }
 
     /**
      * Get the implemented NatureIds by Factory-ID.
-     * 
+     *
      * @param factoryId the Factory-ID
      */
     public getNatureIdsByFactoryId(factoryId: string): string[] {
-        let factory = this.factories[factoryId];
+        const factory = this.factories[factoryId];
         if (factory) {
             return factory.natureIds;
         } else {
@@ -244,7 +262,7 @@ export class EdgeConfig {
      * Determines if Edge has a Meter device
      */
     public hasMeter(): boolean {
-        if (this.getComponentIdsImplementingNature('io.openems.edge.meter.api.SymmetricMeter').length > 0) {
+        if (this.getComponentIdsImplementingNature('io.openems.edge.meter.api.ElectricityMeter').length > 0) {
             return true;
         } else {
             return false;
@@ -260,27 +278,9 @@ export class EdgeConfig {
             return true;
         }
         // Do we have a Meter with type PRODUCTION?
-        for (let component of this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")) {
-            if (component.isEnabled) {
-                // TODO make sure 'type' is provided for all Meters
-                if (component.properties['type'] == "PRODUCTION") {
-                    return true;
-                }
-                // TODO remove, once all Edges are at least version 2019.15
-                switch (component.factoryId) {
-                    case 'Fenecon.Mini.PvMeter':
-                    case 'Fenecon.Dess.PvMeter':
-                    case 'Fenecon.Pro.PvMeter':
-                    case 'Kostal.Piko.Charger':
-                    case 'Kaco.BlueplanetHybrid10.PvInverter':
-                    case 'PV-Inverter.Solarlog':
-                    case 'PV-Inverter.KACO.blueplanet':
-                    case 'PV-Inverter.SunSpec':
-                    case 'SolarEdge.PV-Inverter':
-                    case 'Simulator.PvInverter':
-                    case 'Simulator.ProductionMeter.Acting':
-                        return true;
-                }
+        for (const component of this.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")) {
+            if (component.isEnabled && this.isProducer(component)) {
+                return true;
             }
         }
         return false;
@@ -288,37 +288,39 @@ export class EdgeConfig {
 
     /**
      * Is the given Meter of type 'PRODUCTION'?
-     * 
+     *
      * @param component the Meter Component
      * @returns true for PRODUCTION
      */
     public isProducer(component: EdgeConfig.Component) {
         if (component.properties['type'] == "PRODUCTION") {
             return true;
-        } else {
-            // TODO properties in OSGi Component annotations are not transmitted correctly with Apache Felix SCR
-            switch (component.factoryId) {
-                case 'Fenecon.Mini.PvMeter':
-                case 'Fenecon.Dess.PvMeter':
-                case 'Fenecon.Pro.PvMeter':
-                case 'Kostal.Piko.Charger':
-                case 'Kaco.BlueplanetHybrid10.PvInverter':
-                case 'PV-Inverter.Solarlog':
-                case 'PV-Inverter.KACO.blueplanet':
-                case 'PV-Inverter.SunSpec':
-                case 'PV-Inverter.SMA.SunnyTripower':
-                case 'SolarEdge.PV-Inverter':
-                case 'Simulator.PvInverter':
-                case 'Simulator.ProductionMeter.Acting':
-                    return true;
-            }
         }
+        // TODO properties in OSGi Component annotations are not transmitted correctly with Apache Felix SCR
+        switch (component.factoryId) {
+            case 'Fenecon.Dess.PvMeter':
+            case 'Fenecon.Mini.PvMeter':
+            case 'Fenecon.Pro.PvMeter':
+            case 'Kaco.BlueplanetHybrid10.PvInverter':
+            case 'Kostal.Piko.Charger':
+            case 'PV-Inverter.Fronius':
+            case 'PV-Inverter.KACO.blueplanet':
+            case 'PV-Inverter.Kostal':
+            case 'PV-Inverter.SMA.SunnyTripower':
+            case 'PV-Inverter.Solarlog':
+            case 'PV-Inverter.SunSpec':
+            case 'Simulator.ProductionMeter.Acting':
+            case 'Simulator.PvInverter':
+            case 'SolarEdge.PV-Inverter':
+                return true;
+        }
+
         return false;
     }
 
     /**
      * Is the given Meter of type 'CONSUMPTION_METERED'?
-     * 
+     *
      * @param component the Meter Component
      * @returns true for CONSUMPTION_METERED
      */
@@ -335,20 +337,46 @@ export class EdgeConfig {
     }
 
     /**
+     * Is the given Meter of type 'GRID'?
+     *
+     * @param component the Meter Component
+     * @returns true for GRID
+     */
+    public isTypeGrid(component: EdgeConfig.Component) {
+        if (component.properties["type"] == "GRID") {
+            return true;
+        }
+
+        switch (component.factoryId) {
+            case 'GoodWe.Grid-Meter':
+            case 'Kaco.BlueplanetHybrid10.GridMeter':
+            case 'Fenecon.Dess.GridMeter':
+            case 'Fenecon.Mini.GridMeter':
+            case 'Kostal.Piko.GridMeter':
+            case 'SolarEdge.Grid-Meter':
+            case 'Simulator.GridMeter.Acting':
+            case 'Simulator.GridMeter.Reacting':
+                return true;
+        }
+        return false;
+    }
+
+    /**
      * Lists all available Factories, grouped by category.
      */
     public listAvailableFactories(): CategorizedFactories[] {
-        let allFactories = [
+        const allFactories = [
             {
                 category: { title: 'Simulatoren', icon: 'flask-outline' },
-                factories: Object.values(this.factories).filter(factory => factory.id.startsWith('Simulator.'))
+                factories: Object.values(this.factories).filter(factory => factory.id.startsWith('Simulator.')),
             },
             {
                 category: { title: 'Zähler', icon: 'speedometer-outline' },
                 factories: [
-                    this.getFactoriesByNature("io.openems.edge.meter.api.SymmetricMeter"),
+                    this.getFactoriesByNature("io.openems.edge.meter.api.SymmetricMeter"), // TODO replaced by ElectricityMeter
+                    this.getFactoriesByNature("io.openems.edge.meter.api.ElectricityMeter"),
                     this.getFactoriesByNature("io.openems.edge.ess.dccharger.api.EssDcCharger"),
-                ]
+                ],
             },
             {
                 category: { title: 'Speichersysteme', icon: 'battery-charging-outline' },
@@ -356,7 +384,7 @@ export class EdgeConfig {
                     this.getFactoriesByNature("io.openems.edge.ess.api.SymmetricEss"),
                     this.getFactoriesByNature("io.openems.edge.battery.api.Battery"),
                     this.getFactoriesByNature("io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter"),
-                ]
+                ],
             },
             {
                 category: { title: 'Speichersystem-Steuerung', icon: 'options-outline' },
@@ -366,13 +394,13 @@ export class EdgeConfig {
                         /Controller\.Ess.*/,
                         /Controller\.Symmetric.*/,
                     ]),
-                ]
+                ],
             },
             {
                 category: { title: 'E-Auto-Ladestation', icon: 'car-outline' },
                 factories: [
                     this.getFactoriesByNature("io.openems.edge.evcs.api.Evcs"),
-                ]
+                ],
             },
             {
                 category: { title: 'E-Auto-Ladestation-Steuerung', icon: 'options-outline' },
@@ -380,14 +408,14 @@ export class EdgeConfig {
                     this.getFactoriesByIds([
                         'Controller.Evcs',
                     ]),
-                ]
+                ],
             },
             {
                 category: { title: 'I/Os', icon: 'log-in-outline' },
                 factories: [
                     this.getFactoriesByNature("io.openems.edge.io.api.DigitalOutput"),
                     this.getFactoriesByNature("io.openems.edge.io.api.DigitalInput"),
-                ]
+                ],
             },
             {
                 category: { title: 'I/O-Steuerung', icon: 'options-outline' },
@@ -398,13 +426,13 @@ export class EdgeConfig {
                         'Controller.IO.HeatingElement',
                         'Controller.Io.HeatPump.SgReady',
                     ]),
-                ]
+                ],
             },
             {
                 category: { title: 'Temperatursensoren', icon: 'thermometer-outline' },
                 factories: [
                     this.getFactoriesByNature("io.openems.edge.thermometer.api.Thermometer"),
-                ]
+                ],
             },
             {
                 category: { title: 'Externe Schnittstellen', icon: 'megaphone-outline' },
@@ -417,8 +445,19 @@ export class EdgeConfig {
                         'Controller.Api.MQTT',
                         'Controller.Api.Rest.ReadOnly',
                         'Controller.Api.Rest.ReadWrite',
-                    ])
-                ]
+                    ]),
+                ],
+            },
+            {
+                category: { title: 'Cloud-Schnittstellen', icon: 'cloud-outline' },
+                factories: [
+                    this.getFactoriesByIdsPattern([
+                        /TimeOfUseTariff\.*/,
+                    ]),
+                    this.getFactoriesByIds([
+                        'Controller.Api.Backend',
+                    ]),
+                ],
             },
             {
                 category: { title: 'Geräte-Schnittstellen', icon: 'swap-horizontal-outline' },
@@ -428,38 +467,38 @@ export class EdgeConfig {
                         'Bridge.Onewire',
                         'Bridge.Modbus.Serial',
                         'Bridge.Modbus.Tcp',
-                    ])
-                ]
+                        'Kaco.BlueplanetHybrid10.Core',
+                    ]),
+                ],
             },
             {
                 category: { title: 'Standard-Komponenten', icon: 'resize-outline' },
                 factories: [
                     this.getFactoriesByIds([
-                        'Controller.Api.Backend',
                         'Controller.Debug.Log',
                         'Controller.Debug.DetailedLog',
                     ]),
                     this.getFactoriesByNature("io.openems.edge.timedata.api.Timedata"),
                     this.getFactoriesByNature("io.openems.edge.predictor.api.oneday.Predictor24Hours"),
                     this.getFactoriesByNature("io.openems.edge.scheduler.api.Scheduler"),
-                ]
+                ],
             },
             {
                 category: { title: 'Spezial-Controller', icon: 'repeat-outline' },
                 factories: [
                     this.getFactoriesByNature("io.openems.edge.controller.api.Controller"),
-                ]
+                ],
             },
             {
                 category: { title: 'Weitere', icon: 'radio-button-off-outline' },
-                factories: Object.values(this.factories)
-            }
+                factories: Object.values(this.factories),
+            },
         ];
 
-        let ignoreFactoryIds: string[] = [];
-        let result: CategorizedFactories[] = [];
+        const ignoreFactoryIds: string[] = [];
+        const result: CategorizedFactories[] = [];
         allFactories.forEach(item => {
-            let factories =
+            const factories =
                 // create one flat array
                 [].concat(...item.factories)
                     // remove Factories from list that have already been listed before
@@ -472,7 +511,7 @@ export class EdgeConfig {
                 });
                 result.push({ category: item.category, factories: factories.sort((a, b) => a.id.localeCompare(b.id)) });
             }
-        })
+        });
         return result;
     }
 
@@ -487,8 +526,8 @@ export class EdgeConfig {
                 if (factory == availableFactory) {
                     result = availableFactories.category.icon;
                 }
-            })
-        })
+            });
+        });
         return result;
     }
 
@@ -496,22 +535,22 @@ export class EdgeConfig {
      * Lists all active Components, grouped by category.
      */
     public listActiveComponents(ignoreComponentIds: string[]): CategorizedComponents[] {
-        let allComponents = [];
-        let factories = this.listAvailableFactories();
-        for (let entry of factories) {
-            let components = [];
-            for (let factory of entry.factories) {
+        const allComponents = [];
+        const factories = this.listAvailableFactories();
+        for (const entry of factories) {
+            const components = [];
+            for (const factory of entry.factories) {
                 components.push(this.getComponentsByFactory(factory.id));
                 // components.concat(...this.getComponentsByFactory(factory.id));
             }
             allComponents.push({
                 category: entry.category,
-                components: components
+                components: components,
             });
         }
-        let result: CategorizedComponents[] = [];
+        const result: CategorizedComponents[] = [];
         allComponents.forEach(item => {
-            let components =
+            const components =
                 // create one flat array
                 [].concat(...item.components)
                     // remove Components from list that have already been listed before
@@ -524,30 +563,30 @@ export class EdgeConfig {
                 components.forEach(component => {
                     ignoreComponentIds.push(component.id);
                 });
-                result.push({ category: item.category, components: components })
+                result.push({ category: item.category, components: components });
             }
-        })
+        });
         return result;
     }
 
 
     /**
      * Get the implemented Natures by Component-ID.
-     * 
+     *
      * @param componentId the Component-ID
      */
     public getNatureIdsByComponentId(componentId: string): string[] {
-        let component = this.components[componentId];
+        const component = this.components[componentId];
         if (!component) {
             return [];
         }
-        let factoryId = component.factoryId;
+        const factoryId = component.factoryId;
         return this.getNatureIdsByFactoryId(factoryId);
     }
 
     /**
      * Get the Component.
-     * 
+     *
      * @param componentId the Component-ID
      */
     public getComponent(componentId: string): EdgeConfig.Component {
@@ -556,11 +595,11 @@ export class EdgeConfig {
 
     /**
      * Get the Component properties.
-     * 
+     *
      * @param componentId the Component-ID
      */
     public getComponentProperties(componentId: string): { [key: string]: any } {
-        let component = this.components[componentId];
+        const component = this.components[componentId];
         if (component) {
             return component.properties;
         } else {
@@ -570,16 +609,37 @@ export class EdgeConfig {
 
     /**
      * Get Channel.
-     * 
+     *
      * @param address the ChannelAddress
      */
     public getChannel(address: ChannelAddress): EdgeConfig.ComponentChannel {
-        let component = this.components[address.componentId];
+        const component = this.components[address.componentId];
         if (component) {
             return component.channels[address.channelId];
         } else {
             return null;
         }
+    }
+}
+
+export enum PersistencePriority {
+    VERY_LOW = "VERY_LOW", //
+    LOW = "LOW", //
+    MEDIUM = "MEDIUM", //
+    HIGH = "HIGH", //
+    VERY_HIGH = "VERY_HIGH", //
+}
+
+export namespace PersistencePriority {
+
+    export const DEFAULT_CHANNEL_PRIORITY: string = PersistencePriority.VERY_LOW;
+    export const DEFAULT_GLOBAL_PRIORITY: string = PersistencePriority.HIGH;
+
+    export function isAtLeast(prio1: string, prio2: string) {
+        if (typeof prio1 !== 'string' || typeof prio2 !== 'string') {
+            return false;
+        }
+        return Object.keys(PersistencePriority).indexOf(prio1) <= Object.keys(PersistencePriority).indexOf(prio2);
     }
 }
 
@@ -589,6 +649,8 @@ export module EdgeConfig {
         public readonly accessMode: "RO" | "RW" | "WO";
         public readonly unit: string;
         public readonly category: "OPENEMS_TYPE" | "ENUM" | "STATE";
+        public readonly level: "INFO" | "OK" | "WARNING" | "FAULT";
+        public readonly persistencePriority: PersistencePriority;
     }
 
     export class Component {
@@ -599,7 +661,7 @@ export module EdgeConfig {
         constructor(
             public readonly factoryId: string = "",
             public readonly properties: { [key: string]: any } = {},
-            public readonly channels: { [channelId: string]: ComponentChannel } = {}
+            public readonly channels: { [channelId: string]: ComponentChannel } = {},
         ) { }
     }
 
@@ -620,16 +682,16 @@ export module EdgeConfig {
             public readonly name: string,
             public readonly description: string,
             public readonly natureIds: string[] = [],
-            public readonly properties: FactoryProperty[] = []
+            public readonly properties: FactoryProperty[] = [],
         ) { }
 
         /**
          * Gets the FactoryProperty definition for a Property-ID.
-         * 
+         *
          * @param propertyId the Property-ID
          */
         static getPropertyForId(factory: Factory, propertyId: string): FactoryProperty {
-            for (let property of factory.properties) {
+            for (const property of factory.properties) {
                 if (property.id === propertyId) {
                     return property;
                 }

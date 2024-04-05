@@ -1,7 +1,6 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
-  "defaultProject": "app",
   "newProjectRoot": "projects",
   "projects": {
     "app": {
@@ -47,7 +46,8 @@
               "extractLicenses": true,
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": false
+              "sourceMap": false,
+              "serviceWorker": true
             },
             "openems": {
               "assets": [
@@ -76,6 +76,10 @@
             "openems-backend-dev": {
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/backend-dev.ts"
                 }
@@ -83,6 +87,10 @@
             },
             "openems-backend-prod": {
               "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/backend-prod.ts"
@@ -92,6 +100,10 @@
             "openems-edge-dev": {
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/edge-dev.ts"
                 }
@@ -100,13 +112,45 @@
             "openems-edge-prod": {
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/edge-prod.ts"
                 }
               ]
             },
+            "openems-edge-docker": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/openems/environments/edge-docker.ts"
+                }
+              ]
+            },
+            "openems-backend-docker": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/openems/environments/backend-docker.ts"
+                }
+              ]
+            },
             "openems-gitpod": {
               "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/gitpod.ts"
@@ -137,13 +181,36 @@
               "browserTarget": "app:build:openems,openems-gitpod"
             }
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "src/test.ts",
+            "polyfills": "src/polyfills.ts",
+            "tsConfig": "tsconfig.spec.json",
+            "karmaConfig": "karma.conf.js",
+            "scripts": []
+          },
+          "configurations": {
+            "local": {
+              "karmaConfig": "karma.conf.local.js"
+            }
+          }
         }
       }
     }
   },
   "cli": {
-    "analytics": false,
-    "defaultCollection": "@ionic/angular-toolkit"
+    "analytics": false
   },
   "schematics": {
     "@ionic/angular-toolkit:component": {

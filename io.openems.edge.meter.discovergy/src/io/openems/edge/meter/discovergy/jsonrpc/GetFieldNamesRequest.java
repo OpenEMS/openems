@@ -8,7 +8,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request for 'getMeters'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -26,13 +26,13 @@ public class GetFieldNamesRequest extends JsonrpcRequest {
 
 	/**
 	 * Create {@link GetFieldNamesRequest} from a template {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link GetFieldNamesRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static GetFieldNamesRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		String meterId = JsonUtils.getAsString(r.getParams(), "meterId");
+		var meterId = JsonUtils.getAsString(r.getParams(), "meterId");
 		return new GetFieldNamesRequest(r, meterId);
 	}
 
@@ -50,7 +50,7 @@ public class GetFieldNamesRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the Meter-ID.
-	 * 
+	 *
 	 * @return Meter-ID
 	 */
 	public String getMeterId() {

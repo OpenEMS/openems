@@ -8,6 +8,8 @@ import java.util.Comparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.edge.common.component.ComponentManager;
+
 /**
  * This Worker constantly checks for heap-dump files in /usr/lib/openems
  * directory. Those get created on OutOfMemory-Errors. All but the latest
@@ -26,10 +28,10 @@ public class OutOfMemoryHeapDumpWorker extends ComponentManagerWorker {
 
 	@Override
 	protected void forever() {
-		boolean foundhprof = false;
+		var foundhprof = false;
 
-		File currentWorkingDir = Paths.get("").toAbsolutePath().toFile();
-		File[] files = currentWorkingDir.listFiles();
+		var currentWorkingDir = Paths.get("").toAbsolutePath().toFile();
+		var files = currentWorkingDir.listFiles();
 		// From the docs: 'files' is null if this abstract pathname does not denote a
 		// directory, or if an I/O error occurs.
 		if (files != null) {
@@ -37,7 +39,7 @@ public class OutOfMemoryHeapDumpWorker extends ComponentManagerWorker {
 			Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
 
 			for (File file : files) {
-				String filename = file.getName();
+				var filename = file.getName();
 
 				// delete 'core' files
 				if (filename.equals("core")) {

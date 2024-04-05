@@ -8,7 +8,8 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.backend.common,\
 	io.openems.common,\
 	io.openems.shared.influxdb,\
-	io.openems.wrapper.influxdb-java
+	io.openems.wrapper.influxdb-client-core,\
+	io.openems.wrapper.influxdb-client-java,\
 
 -testpath: \
 	${testpath}

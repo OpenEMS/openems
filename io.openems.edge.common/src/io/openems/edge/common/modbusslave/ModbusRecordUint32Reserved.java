@@ -8,7 +8,7 @@ public class ModbusRecordUint32Reserved extends ModbusRecordUint32 {
 
 	@Override
 	public String toString() {
-		return "ModbusRecordUint32Reserved [type=" + getType() + "]";
+		return "ModbusRecordUint32Reserved [type=" + this.getType() + "]";
 	}
 
 }

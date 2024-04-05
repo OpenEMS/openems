@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -156,8 +157,9 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	public static final byte DC_PIN_STATE_FLAG = 4;
 
 	/**
-	 * PROTECTION REGISTER FLAG: Resetting this flag will disable charging regardless
-	 * of cell or pack conditions. Accessed with <CODE>getFlag()/setFlag()</CODE>.
+	 * PROTECTION REGISTER FLAG: Resetting this flag will disable charging
+	 * regardless of cell or pack conditions. Accessed with
+	 * <CODE>getFlag()/setFlag()</CODE>.
 	 */
 	public static final byte CHARGE_ENABLE_FLAG = 2;
 
@@ -234,9 +236,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * Default constructor
 	 */
 	public OneWireContainer30() {
-		super();
-
-		internalResistor = true;
+		this.internalResistor = true;
 	}
 
 	/**
@@ -250,7 +250,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	public OneWireContainer30(DSPortAdapter sourceAdapter, byte[] newAddress) {
 		super(sourceAdapter, newAddress);
 
-		internalResistor = true;
+		this.internalResistor = true;
 	}
 
 	/**
@@ -264,7 +264,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	public OneWireContainer30(DSPortAdapter sourceAdapter, long newAddress) {
 		super(sourceAdapter, newAddress);
 
-		internalResistor = true;
+		this.internalResistor = true;
 	}
 
 	/**
@@ -278,7 +278,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	public OneWireContainer30(DSPortAdapter sourceAdapter, String newAddress) {
 		super(sourceAdapter, newAddress);
 
-		internalResistor = true;
+		this.internalResistor = true;
 	}
 
 	/**
@@ -288,6 +288,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @return representation of the 1-Wire device name
 	 *
 	 */
+	@Override
 	public String getName() {
 		return "DS2760";
 	}
@@ -298,6 +299,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @return representation of the alternate names for this device
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "1-Cell Li-Ion Battery Monitor";
 	}
@@ -307,12 +309,14 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @return representation of the function description
 	 */
+	@Override
 	public String getDescription() {
-		return "The DS2760 is a data acquisition, information storage, and safety"
-				+ " protection device tailored for cost-sensitive battery pack applications."
-				+ " This low-power device integrates precise temperature, voltage, and"
-				+ " current measurement , nonvolatile data storage, and Li-Ion protection"
-				+ " into the small footprint of either a TSSOP packet or flip-chip.";
+		return """
+				The DS2760 is a data acquisition, information storage, and safety \
+				protection device tailored for cost-sensitive battery pack applications. \
+				This low-power device integrates precise temperature, voltage, and \
+				current measurement , nonvolatile data storage, and Li-Ion protection \
+				into the small footprint of either a TSSOP packet or flip-chip.""";
 	}
 
 	/**
@@ -321,14 +325,15 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * MemoryBank}, {@link com.dalsemi.onewire.container.PagedMemoryBank
 	 * PagedMemoryBank}, and {@link com.dalsemi.onewire.container.OTPMemoryBank
 	 * OTPMemoryBank}.
-	 * 
+	 *
 	 * @return <CODE>Enumeration</CODE> of memory banks
 	 */
+	@Override
 	public Enumeration<MemoryBank> getMemoryBanks() {
-		Vector<MemoryBank> bank_vector = new Vector<>(1);
+		var bank_vector = new Vector<MemoryBank>(1);
 
 		// EEPROM main bank
-		MemoryBankEEPROMblock mn = new MemoryBankEEPROMblock(this);
+		var mn = new MemoryBankEEPROMblock(this);
 
 		bank_vector.addElement(mn);
 
@@ -341,7 +346,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * to the device.
 	 */
 	public synchronized void setResistorInternal() {
-		internalResistor = true;
+		this.internalResistor = true;
 	}
 
 	/**
@@ -352,7 +357,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @param Rsens resistance in ohms
 	 */
 	public synchronized void setResistorExternal(double Rsens) {
-		internalResistor = false;
+		this.internalResistor = false;
 		this.Rsens = Rsens;
 	}
 
@@ -372,23 +377,23 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @throws OneWireException   Could not find part
 	 */
 	public byte readByte(int memAddr) throws OneWireIOException, OneWireException {
-		byte[] buffer = new byte[3];
+		var buffer = new byte[3];
 
-		doSpeed();
-		adapter.reset();
+		this.doSpeed();
+		this.adapter.reset();
 
-		if (adapter.select(address)) {
+		if (this.adapter.select(this.address)) {
 
 			/* setup the read */
 			buffer[0] = READ_DATA_COMMAND;
 			buffer[1] = (byte) memAddr;
 			buffer[2] = (byte) 0xFF;
 
-			adapter.dataBlock(buffer, 0, 3);
+			this.adapter.dataBlock(buffer, 0, 3);
 
 			return buffer[2];
-		} else
-			throw new OneWireException("OneWireContainer30-Device not found.");
+		}
+		throw new OneWireException("OneWireContainer30-Device not found.");
 	}
 
 	/**
@@ -408,18 +413,19 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @throws OneWireException   Could not find part
 	 */
 	public void readBytes(int memAddr, byte[] buffer, int start, int len) throws OneWireIOException, OneWireException {
-		doSpeed();
-		adapter.reset();
+		this.doSpeed();
+		this.adapter.reset();
 
-		if (adapter.select(address)) {
-			for (int i = start; i < start + len; i++)
-				buffer[i] = (byte) 0x0ff;
-
-			adapter.putByte(READ_DATA_COMMAND);
-			adapter.putByte(memAddr & 0x0ff);
-			adapter.dataBlock(buffer, start, len);
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer30-Device not found.");
+		}
+		for (var i = start; i < start + len; i++) {
+			buffer[i] = (byte) 0x0ff;
+		}
+
+		this.adapter.putByte(READ_DATA_COMMAND);
+		this.adapter.putByte(memAddr & 0x0ff);
+		this.adapter.dataBlock(buffer, start, len);
 	}
 
 	/**
@@ -438,25 +444,20 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @throws OneWireException   Could not find part
 	 */
 	public void writeByte(int memAddr, byte data) throws OneWireIOException, OneWireException {
-		byte[] buffer = new byte[3];
+		var buffer = new byte[3];
 
-		doSpeed();
-		adapter.reset();
+		this.doSpeed();
+		this.adapter.reset();
 
-		if (adapter.select(address)) {
-
-			/* first perform the write */
-			buffer[0] = WRITE_DATA_COMMAND;
-			buffer[1] = (byte) memAddr;
-			buffer[2] = data;
-
-			adapter.dataBlock(buffer, 0, 3);
-
-			// don't read it back for verification...some addresses
-			// have some R-only bits and some RW bits. let the user
-			// verify if they want to
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer30-Device not found.");
+		}
+		/* first perform the write */
+		buffer[0] = WRITE_DATA_COMMAND;
+		buffer[1] = (byte) memAddr;
+		buffer[2] = data;
+
+		this.adapter.dataBlock(buffer, 0, 3);
 	}
 
 	/**
@@ -472,48 +473,49 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @throws OneWireException   Could not find part
 	 */
 	public byte[] readEEPROMBlock(int blockNumber) throws OneWireIOException, OneWireException {
-		byte[] buffer = new byte[18];
-		byte[] result = new byte[16];
+		var buffer = new byte[18];
+		var result = new byte[16];
 
 		// calculate the address (32 and 48 are valid addresses)
-		byte memAddr = (byte) (32 + (blockNumber * 16));
+		var memAddr = (byte) (32 + blockNumber * 16);
 
 		/* check for valid parameters */
-		if ((blockNumber != 0) & (blockNumber != 1))
+		if (blockNumber != 0 && blockNumber != 1) {
 			throw new IllegalArgumentException(
 					"OneWireContainer30-Block number " + blockNumber + " is not a valid EEPROM block.");
+		}
 
 		/* perform the recall/read and verification */
-		doSpeed();
-		adapter.reset();
+		this.doSpeed();
+		this.adapter.reset();
 
-		if (adapter.select(address)) {
-
-			/* first recall the memory to shadow ram */
-			buffer[0] = RECALL_DATA_COMMAND;
-			buffer[1] = memAddr;
-
-			adapter.dataBlock(buffer, 0, 2);
-
-			/* now read the shadow ram */
-			adapter.reset();
-			adapter.select(address);
-
-			buffer[0] = READ_DATA_COMMAND;
-
-			// buffer[1] should still hold memAddr
-			for (int i = 0; i < 16; i++)
-				buffer[i + 2] = (byte) 0xff;
-
-			adapter.dataBlock(buffer, 0, 18);
-
-			// keep this result
-			System.arraycopy(buffer, 2, result, 0, 16);
-
-			// user can re-read for verification
-			return result;
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer30-Device not found.");
+		}
+		/* first recall the memory to shadow ram */
+		buffer[0] = RECALL_DATA_COMMAND;
+		buffer[1] = memAddr;
+
+		this.adapter.dataBlock(buffer, 0, 2);
+
+		/* now read the shadow ram */
+		this.adapter.reset();
+		this.adapter.select(this.address);
+
+		buffer[0] = READ_DATA_COMMAND;
+
+		// buffer[1] should still hold memAddr
+		for (var i = 0; i < 16; i++) {
+			buffer[i + 2] = (byte) 0xff;
+		}
+
+		this.adapter.dataBlock(buffer, 0, 18);
+
+		// keep this result
+		System.arraycopy(buffer, 2, result, 0, 16);
+
+		// user can re-read for verification
+		return result;
 	}
 
 	/**
@@ -529,66 +531,72 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @throws OneWireException   Could not find part
 	 */
 	public void writeEEPROMBlock(int blockNumber, byte[] data) throws OneWireIOException, OneWireException {
-		byte[] buffer = new byte[18];
+		var buffer = new byte[18];
 
 		// the first block is at address 32 and the second is at address 48
-		byte memAddr = (byte) (32 + (blockNumber * 16));
+		var memAddr = (byte) (32 + blockNumber * 16);
 
 		/* check for valid parameters */
-		if (data.length < 16)
+		if (data.length < 16) {
 			throw new IllegalArgumentException("OneWireContainer30-Data block must consist of 16 bytes.");
+		}
 
-		if ((blockNumber != 0) && (blockNumber != 1))
+		if (blockNumber != 0 && blockNumber != 1) {
 			throw new IllegalArgumentException(
 					"OneWireContainer30-Block number " + blockNumber + " is not a valid EEPROM block.");
+		}
 
 		// if the EEPROM block is locked throw a OneWireIOException
-		if (((blockNumber == 0) && (getFlag(EEPROM_REGISTER, EEPROM_BLOCK_0_LOCK_FLAG)))
-				|| ((blockNumber == 1) && (getFlag(EEPROM_REGISTER, EEPROM_BLOCK_1_LOCK_FLAG))))
+		if (blockNumber == 0 && this.getFlag(EEPROM_REGISTER, EEPROM_BLOCK_0_LOCK_FLAG)
+				|| blockNumber == 1 && this.getFlag(EEPROM_REGISTER, EEPROM_BLOCK_1_LOCK_FLAG)) {
 			throw new OneWireIOException("OneWireContainer30-Cant write data to locked EEPROM block.");
+		}
 
 		/* perform the write/verification and copy */
-		doSpeed();
-		adapter.reset();
+		this.doSpeed();
+		this.adapter.reset();
 
-		if (adapter.select(address)) {
-
-			/* first write to shadow rom */
-			buffer[0] = WRITE_DATA_COMMAND;
-			buffer[1] = memAddr;
-
-			for (int i = 0; i < 16; i++)
-				buffer[i + 2] = data[i];
-
-			adapter.dataBlock(buffer, 0, 18);
-
-			/* read the shadow ram back for verification */
-			adapter.reset();
-			adapter.select(address);
-
-			buffer[0] = READ_DATA_COMMAND;
-
-			// buffer[1] should still hold memAddr
-			for (int i = 0; i < 16; i++)
-				buffer[i + 2] = (byte) 0xff;
-
-			adapter.dataBlock(buffer, 0, 18);
-
-			// verify data
-			for (int i = 0; i < 16; i++)
-				if (buffer[i + 2] != data[i])
-					throw new OneWireIOException("OneWireContainer30-Error writing EEPROM block" + blockNumber + ".");
-
-			/* now perform the copy to EEPROM */
-			adapter.reset();
-			adapter.select(address);
-
-			buffer[0] = COPY_DATA_COMMAND;
-
-			// buffer[1] should still hold memAddr
-			adapter.dataBlock(buffer, 0, 2);
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer30-Device not found.");
+		}
+		/* first write to shadow rom */
+		buffer[0] = WRITE_DATA_COMMAND;
+		buffer[1] = memAddr;
+
+		for (var i = 0; i < 16; i++) {
+			buffer[i + 2] = data[i];
+		}
+
+		this.adapter.dataBlock(buffer, 0, 18);
+
+		/* read the shadow ram back for verification */
+		this.adapter.reset();
+		this.adapter.select(this.address);
+
+		buffer[0] = READ_DATA_COMMAND;
+
+		// buffer[1] should still hold memAddr
+		for (var i = 0; i < 16; i++) {
+			buffer[i + 2] = (byte) 0xff;
+		}
+
+		this.adapter.dataBlock(buffer, 0, 18);
+
+		// verify data
+		for (var i = 0; i < 16; i++) {
+			if (buffer[i + 2] != data[i]) {
+				throw new OneWireIOException("OneWireContainer30-Error writing EEPROM block" + blockNumber + ".");
+			}
+		}
+
+		/* now perform the copy to EEPROM */
+		this.adapter.reset();
+		this.adapter.select(this.address);
+
+		buffer[0] = COPY_DATA_COMMAND;
+
+		// buffer[1] should still hold memAddr
+		this.adapter.dataBlock(buffer, 0, 2);
 	}
 
 	/**
@@ -603,22 +611,23 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	public void lockBlock(int blockNumber) throws OneWireIOException, OneWireException {
 
 		// compute the byte location
-		byte memAddr = (byte) (32 + (blockNumber * 16));
+		var memAddr = (byte) (32 + blockNumber * 16);
 
 		/* check if the block is valid */
-		if ((blockNumber != 0) & (blockNumber != 1))
+		if (blockNumber != 0 && blockNumber != 1) {
 			throw new IllegalArgumentException(
 					"OneWireContainer30-Block " + blockNumber + " is not a valid EEPROM block.");
+		}
 
 		/* perform the lock */
-		doSpeed();
-		adapter.reset();
+		this.doSpeed();
+		this.adapter.reset();
 
-		if (adapter.select(address)) {
-			adapter.putByte(LOCK_COMMAND);
-			adapter.putByte(memAddr);
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer30-Device not found.");
+		}
+		this.adapter.putByte(LOCK_COMMAND);
+		this.adapter.putByte(memAddr);
 	}
 
 	/**
@@ -644,10 +653,11 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	public boolean getFlag(int memAddr, byte flagToGet) throws OneWireIOException, OneWireException {
 
 		// read the byte and perform a simple mask to determine if that byte is on
-		byte data = readByte(memAddr);
+		var data = this.readByte(memAddr);
 
-		if ((data & flagToGet) != 0)
+		if ((data & flagToGet) != 0) {
 			return true;
+		}
 
 		return false;
 	}
@@ -672,17 +682,19 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 
 		// the desired default value for the status register flags has to be
 		// set in a separate register for some reason, so I treat it specially.
-		if (memAddr == STATUS_REGISTER)
+		if (memAddr == STATUS_REGISTER) {
 			memAddr = 49;
+		}
 
-		byte data = readByte(memAddr);
+		var data = this.readByte(memAddr);
 
-		if (flagValue)
+		if (flagValue) {
 			data = (byte) (data | flagToSet);
-		else
-			data = (byte) (data & ~(flagToSet));
+		} else {
+			data = (byte) (data & ~flagToSet);
+		}
 
-		writeByte(memAddr, data);
+		this.writeByte(memAddr, data);
 	}
 
 	/**
@@ -698,7 +710,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	public double getCurrent(byte[] state) throws OneWireIOException, OneWireException {
 
 		// grab the data
-		int data = ((state[14] << 8) | (state[15] & 0x00ff));
+		var data = state[14] << 8 | state[15] & 0x00ff;
 
 		data = data >> 3;
 
@@ -706,12 +718,11 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 
 		// when the internal resistor is used, the device calculates it for you
 		// the resolution is .625 mA
-		if (internalResistor)
-			result = (data * .625) / 1000;
-
-		// otherwise convert to Amperes
-		else
-			result = data * .000015625 / Rsens;
+		if (this.internalResistor) {
+			result = data * .625 / 1000;
+		} else {
+			result = data * .000015625 / this.Rsens;
+		}
 
 		return result;
 	}
@@ -735,14 +746,15 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 		int data;
 
 		// if the internal resistor is used, it can be stored as is (in mAH)
-		if (internalResistor)
+		if (this.internalResistor) {
 			data = (int) (remainingCapacity * 4);
-		else
-			data = (int) (remainingCapacity * Rsens / .00626);
+		} else {
+			data = (int) (remainingCapacity * this.Rsens / .00626);
+		}
 
 		// break into bytes and store
-		writeByte(16, (byte) (data >> 8));
-		writeByte(17, (byte) (data & 0xff));
+		this.writeByte(16, (byte) (data >> 8));
+		this.writeByte(17, (byte) (data & 0xff));
 	}
 
 	/**
@@ -756,18 +768,17 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @throws OneWireException   Could not find part
 	 */
 	public double getRemainingCapacity(byte[] state) throws OneWireIOException, OneWireException {
-		double result = 0;
+		var result = 0D;
 
 		// grab the data
-		int data = ((state[16] & 0xff) << 8) | (state[17] & 0xff);
+		var data = (state[16] & 0xff) << 8 | state[17] & 0xff;
 
 		// if the internal resistor is being used the part calculates it for us
-		if (internalResistor)
+		if (this.internalResistor) {
 			result = data / 4.0;
-
-		// this equation can be found on the data sheet
-		else
-			result = data * .00626 / Rsens;
+		} else {
+			result = data * .00626 / this.Rsens;
+		}
 
 		return result;
 	}
@@ -787,7 +798,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 
 		// since bit 0 is read-only and bits 2-7 are don't cares,
 		// we don't need to read location 8 first, we can just write
-		writeByte(8, (byte) (on ? 0x40 : 0x00));
+		this.writeByte(8, (byte) (on ? 0x40 : 0x00));
 	}
 
 	/**
@@ -799,7 +810,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @throws OneWireException   Could not find part
 	 */
 	public boolean getLatchState() throws OneWireIOException, OneWireException {
-		return ((readByte(8) & 0x40) == 0x40);
+		return (this.readByte(8) & 0x40) == 0x40;
 	}
 
 	/**
@@ -811,9 +822,9 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @throws OneWireException   Could not find part
 	 */
 	public void clearConditions() throws OneWireIOException, OneWireException {
-		byte protect_reg = readByte(0);
+		var protect_reg = this.readByte(0);
 
-		writeByte(0, (byte) (protect_reg & 0x0f));
+		this.writeByte(0, (byte) (protect_reg & 0x0f));
 	}
 
 	/////////////////////////////////////////////////////////////////////
@@ -832,6 +843,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @return number of channels
 	 */
+	@Override
 	public int getNumberADChannels() {
 		return 2;
 	}
@@ -841,6 +853,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @return <CODE>true</CODE> if has high/low trips
 	 */
+	@Override
 	public boolean hasADAlarms() {
 		return false;
 	}
@@ -853,8 +866,9 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @return available ranges
 	 */
+	@Override
 	public double[] getADRanges(int channel) {
-		double[] result = new double[1];
+		var result = new double[1];
 
 		result[0] = 5.0;
 
@@ -871,10 +885,11 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @return available resolutions
 	 */
+	@Override
 	public double[] getADResolutions(int channel, double range) {
-		double[] result = new double[1];
+		var result = new double[1];
 
-		result[0] = getADResolution(channel, null);
+		result[0] = this.getADResolution(channel, null);
 
 		return result;
 	}
@@ -885,6 +900,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @return <CODE>true</CODE> if can do multi-channel voltage reads
 	 */
+	@Override
 	public boolean canADMultiChannelRead() {
 		return false;
 	}
@@ -905,6 +921,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find device
 	 */
+	@Override
 	public void doADConvert(int channel, byte[] state) throws OneWireIOException, OneWireException {
 
 		// this actually should be an airball as well...
@@ -929,6 +946,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Device does not support multi-channel reading
 	 */
+	@Override
 	public void doADConvert(boolean[] doConvert, byte[] state) throws OneWireIOException, OneWireException {
 		throw new OneWireException("This device does not support multi-channel reading");
 	}
@@ -947,6 +965,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Device does not support multi-channel reading
 	 */
+	@Override
 	public double[] getADVoltage(byte[] state) throws OneWireIOException, OneWireException {
 		throw new OneWireException("This device does not support multi-channel reading");
 	}
@@ -968,15 +987,16 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @throws OneWireIOException Error reading data
 	 * @throws OneWireException   Could not find device
 	 */
+	@Override
 	public double getADVoltage(int channel, byte[] state) throws OneWireIOException, OneWireException {
-		if (channel < 0 || channel > 1)
+		if (channel < 0 || channel > 1) {
 			throw new OneWireException("Invalid channel");
+		}
 
 		int data;
-		double result = 0.0;
 
 		// the measurement is put in two bytes, (MSB) and (LSB).
-		data = (state[12 + channel * 2] << 8) | (state[13 + channel * 2] & 0x00ff);
+		data = state[12 + channel * 2] << 8 | state[13 + channel * 2] & 0x00ff;
 
 		if (channel == 0) {
 			// the voltage measurement channel
@@ -990,10 +1010,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 			data = data >> 3;
 		}
 
-		// that raw measurement is in 'resolution' units -> convert to volts
-		result = data * getADResolution(channel, state);
-
-		return result;
+		return data * this.getADResolution(channel, state);
 	}
 
 	// --------
@@ -1016,6 +1033,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @throws OneWireException Device does not support A/D alarms
 	 */
+	@Override
 	public double getADAlarm(int channel, int alarmType, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not have AD alarms");
 	}
@@ -1036,6 +1054,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @throws OneWireException Device does not support A/D alarms
 	 */
+	@Override
 	public boolean getADAlarmEnable(int channel, int alarmType, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not have AD alarms");
 	}
@@ -1056,6 +1075,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @throws OneWireException Device does not support A/D alarms
 	 */
+	@Override
 	public boolean hasADAlarmed(int channel, int alarmType, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not have AD alarms");
 	}
@@ -1072,18 +1092,18 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @return A/D resolution of channel in volts
 	 */
+	@Override
 	public double getADResolution(int channel, byte[] state) {
 		if (channel == 0) {
 			return 0.00488; // its always the same!
+		}
+		if (this.internalResistor) {
+			// 0.625 mV units
+			return 0.000625d;
 		} else {
-			// if internal resistor is used
-			if (internalResistor)
-				// 0.625 mV units
-				return 0.000625d;
-			else
-				// external resistor is used
-				// 15.625 uV units
-				return .000015625d;
+			// external resistor is used
+			// 15.625 uV units
+			return .000015625d;
 		}
 	}
 
@@ -1099,6 +1119,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @return A/D input voltage range
 	 */
+	@Override
 	public double getADRange(int channel, byte[] state) {
 		return 5.0; // so is this one!
 	}
@@ -1124,6 +1145,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @throws OneWireException Device does not support A/D alarms
 	 */
+	@Override
 	public void setADAlarm(int channel, int alarmType, double alarm, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not have AD alarms");
 	}
@@ -1145,6 +1167,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @throws OneWireException Device does not support A/D alarms
 	 */
+	@Override
 	public void setADAlarmEnable(int channel, int alarmType, boolean alarmEnable, byte[] state)
 			throws OneWireException {
 		throw new OneWireException("This device does not have AD alarms");
@@ -1163,6 +1186,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @param state      current state of the device returned from
 	 *                   <CODE>readDevice()</CODE>
 	 */
+	@Override
 	public void setADResolution(int channel, double resolution, byte[] state) {
 
 		// airball! no resolutions to set!
@@ -1182,6 +1206,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @param state   current state of the device returned from
 	 *                <CODE>readDevice()</CODE>
 	 */
+	@Override
 	public void setADRange(int channel, double range, byte[] state) {
 
 		// yet another airball--YAAB...only one range on this part
@@ -1196,6 +1221,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @return <CODE>true</CODE> if has high/low temperature trip alarms
 	 */
+	@Override
 	public boolean hasTemperatureAlarms() {
 		return false;
 	}
@@ -1205,6 +1231,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @return <CODE>true</CODE> if has selectable temperature resolution
 	 */
+	@Override
 	public boolean hasSelectableTemperatureResolution() {
 		return false;
 	}
@@ -1214,8 +1241,9 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @return available temperature resolutions in degrees C
 	 */
+	@Override
 	public double[] getTemperatureResolutions() {
-		double[] result = new double[1];
+		var result = new double[1];
 
 		result[0] = 0.125;
 
@@ -1229,6 +1257,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @throws OneWireException Device does not support temperature alarms
 	 */
+	@Override
 	public double getTemperatureAlarmResolution() throws OneWireException {
 		throw new OneWireException("This device does not have temperature alarms");
 	}
@@ -1238,6 +1267,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @return maximum temperature in degrees C
 	 */
+	@Override
 	public double getMaxTemperature() {
 		return 85.0;
 	}
@@ -1247,6 +1277,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @return minimum temperature in degrees C
 	 */
+	@Override
 	public double getMinTemperature() {
 		return -40.0;
 	}
@@ -1263,6 +1294,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find device
 	 */
+	@Override
 	public void doTemperatureConvert(byte[] state) throws OneWireIOException, OneWireException {
 
 		// for the same reason we don't have to do an AD conversion,
@@ -1283,19 +1315,16 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @return temperature in degrees C from the last
 	 *         <CODE>doTemperatureConvert()</CODE>
 	 */
+	@Override
 	public double getTemperature(byte[] state) {
-		double temperature;
 		int data;
 
 		// the MSB is at 24, the LSB at 25 and the format is so that when
 		// attached, the whole thing must be shifted right 5 (Signed)
-		data = (state[24] << 8) | (state[25] & 0x00ff);
+		data = state[24] << 8 | state[25] & 0x00ff;
 		data = data >> 5;
 
-		// that raw measurement is in .125 degree units
-		temperature = data / 8.0;
-
-		return temperature;
+		return data / 8.0;
 	}
 
 	/**
@@ -1310,6 +1339,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @throws OneWireException Device does not support temperature alarms
 	 */
+	@Override
 	public double getTemperatureAlarm(int alarmType, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not have temperature alarms");
 	}
@@ -1322,6 +1352,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 *
 	 * @return temperature resolution in degrees C
 	 */
+	@Override
 	public double getTemperatureResolution(byte[] state) {
 		return 0.125;
 	}
@@ -1343,6 +1374,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Device does not support temperature alarms
 	 */
+	@Override
 	public void setTemperatureAlarm(int alarmType, double alarmValue, byte[] state)
 			throws OneWireException, OneWireIOException {
 		throw new OneWireException("This device does not have temperature alarms");
@@ -1359,6 +1391,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find device
 	 */
+	@Override
 	public void setTemperatureResolution(double resolution, byte[] state) throws OneWireException, OneWireIOException {
 
 		// airball, there can be only ONE resolution!
@@ -1383,21 +1416,21 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @throws OneWireIOException Error reading data
 	 * @throws OneWireException   Could not find device
 	 */
+	@Override
 	public byte[] readDevice() throws OneWireIOException, OneWireException {
-		byte[] result = new byte[32];
+		var result = new byte[32];
 
 		/* perform the read twice to ensure a good transmission */
-		doSpeed();
-		adapter.reset();
+		this.doSpeed();
+		this.adapter.reset();
 
-		if (adapter.select(address)) {
-
-			/* do the first read */
-			adapter.putByte(READ_DATA_COMMAND);
-			adapter.putByte(0);
-			adapter.getBlock(result, 0, 32);
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer30-Device not found.");
+		}
+		/* do the first read */
+		this.adapter.putByte(READ_DATA_COMMAND);
+		this.adapter.putByte(0);
+		this.adapter.getBlock(result, 0, 32);
 
 		return result;
 	}
@@ -1412,6 +1445,7 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find device
 	 */
+	@Override
 	public void writeDevice(byte[] state) throws OneWireIOException, OneWireException {
 
 		/*
@@ -1423,3 +1457,4 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 		// drain this....let's just make everything happen in real time
 	}
 }
+// CHECKSTYLE:ON

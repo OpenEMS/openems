@@ -10,20 +10,21 @@ public class CsvUtils {
 
 	/**
 	 * Reads a CSV file from a JAR file.
-	 * 
+	 *
 	 * @param clazz     a class in the same java package as the file
 	 * @param filename  the name of the file in the java package
 	 * @param csvFormat the CSV-Format
 	 * @param factor    a multiplication factor to apply on the read number
+	 * @return a {@link DataContainer}
 	 * @throws IOException           on error
 	 * @throws NumberFormatException on error
 	 */
 	public static DataContainer readCsvFileFromResource(Class<?> clazz, String filename, CsvFormat csvFormat,
 			float factor) throws NumberFormatException, IOException {
-		DataContainer result = new DataContainer();
-		boolean isTitleLine = true;
+		var result = new DataContainer();
+		var isTitleLine = true;
 		String line = null;
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(clazz.getResourceAsStream(filename)))) {
+		try (var br = new BufferedReader(new InputStreamReader(clazz.getResourceAsStream(filename)))) {
 			while ((line = br.readLine()) != null) {
 				if (isTitleLine) {
 					// read titles
@@ -40,19 +41,20 @@ public class CsvUtils {
 
 	/**
 	 * Reads a CSV file.
-	 * 
+	 *
 	 * @param path      the path + filename of the CSV file
 	 * @param csvFormat the CSV-Format
 	 * @param factor    a multiplication factor to apply on the read number
+	 * @return a {@link DataContainer}
 	 * @throws IOException           on error
 	 * @throws NumberFormatException on error
 	 */
 	public static DataContainer readCsvFile(File path, CsvFormat csvFormat, float factor)
 			throws NumberFormatException, IOException {
-		DataContainer result = new DataContainer();
-		boolean isTitleLine = true;
+		var result = new DataContainer();
+		var isTitleLine = true;
 		String line = null;
-		try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+		try (var br = new BufferedReader(new FileReader(path))) {
 			while ((line = br.readLine()) != null) {
 				if (isTitleLine) {
 					// read titles
@@ -69,18 +71,19 @@ public class CsvUtils {
 
 	/**
 	 * Reads a CSV file.
-	 * 
+	 *
 	 * @param csv       the CSV content
 	 * @param csvFormat the CSV-Format
 	 * @param factor    a multiplication factor to apply on the read number
+	 * @return a {@link DataContainer}
 	 * @throws IOException           on error
 	 * @throws NumberFormatException on error
 	 */
 	public static DataContainer parseCsv(String csv, CsvFormat csvFormat, float factor)
 			throws NumberFormatException, IOException {
-		DataContainer result = new DataContainer();
-		boolean isTitleLine = true;
-		String[] lines = csv.split("\\r?\\n");
+		var result = new DataContainer();
+		var isTitleLine = true;
+		var lines = csv.split("\\r?\\n");
 		for (String line : lines) {
 			if (isTitleLine) {
 				isTitleLine = false;
@@ -101,10 +104,10 @@ public class CsvUtils {
 	}
 
 	private static void readRecord(DataContainer result, CsvFormat csvFormat, float factor, String line) {
-		String[] values = line.split(csvFormat.lineSeparator);
-		Float[] floatValues = new Float[values.length];
-		for (int i = 0; i < values.length; i++) {
-			String value = values[i];
+		var values = line.split(csvFormat.lineSeparator);
+		var floatValues = new Float[values.length];
+		for (var i = 0; i < values.length; i++) {
+			var value = values[i];
 			if (value == null || value.isEmpty()) {
 				value = null;
 			} else {
@@ -119,7 +122,7 @@ public class CsvUtils {
 
 	/**
 	 * Returns true if the given value is a number.
-	 * 
+	 *
 	 * @param strNum a value to be evaluated
 	 * @return true for numbers
 	 */

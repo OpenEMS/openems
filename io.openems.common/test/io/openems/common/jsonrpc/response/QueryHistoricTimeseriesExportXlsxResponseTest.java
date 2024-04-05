@@ -7,6 +7,8 @@ import java.io.OutputStream;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Base64;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -62,13 +64,20 @@ public class QueryHistoricTimeseriesExportXlsxResponseTest {
 
 		final byte[] result;
 
-		try (var os = new ByteArrayOutputStream()) {
-			var workbook = new Workbook(os, "Historic data", null);
+		try (//
+				var os = new ByteArrayOutputStream();
+				var workbook = new Workbook(os, "Historic data", null) //
+		) {
 			var ws = workbook.newWorksheet("Export");
 
-			XlsxUtils.addBasicInfo(ws, "0", fromDate, toDate);
-			XlsxUtils.addEnergyData(ws, energyData);
-			XlsxUtils.addPowerData(ws, powerData);
+			Locale currentLocale = new Locale("en", "EN");
+
+			var translationBundle = ResourceBundle.getBundle("io.openems.common.jsonrpc.response.translation",
+					currentLocale);
+
+			XlsxUtils.addBasicInfo(ws, "0", fromDate, toDate, translationBundle);
+			XlsxUtils.addEnergyData(ws, energyData, translationBundle);
+			XlsxUtils.addPowerData(ws, powerData, translationBundle);
 
 			workbook.finish();
 			os.flush();

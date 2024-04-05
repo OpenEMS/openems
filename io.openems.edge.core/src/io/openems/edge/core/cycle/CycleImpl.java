@@ -55,9 +55,9 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 	 * Holds the Schedulers and their relative cycleTime. They are sorted ascending
 	 * by their cycleTimes.
 	 */
-	protected final TreeSet<Scheduler> schedulers = new TreeSet<Scheduler>(Comparator.comparing(Scheduler::id));
+	protected final TreeSet<Scheduler> schedulers = new TreeSet<>(Comparator.comparing(Scheduler::id));
 
-	private Config config = null;;
+	private Config config = null;
 
 	@Reference(//
 			policy = ReferencePolicy.DYNAMIC, //
@@ -87,30 +87,29 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		this.config = config;
+		this.worker.activate(this.id());
+
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}
-		this.worker.activate(SINGLETON_SERVICE_PID);
 	}
 
+	@Modified
+	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		super.modified(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
+		this.config = config;
+		this.worker.modified(this.id());
+
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
+		}
+	}
+
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
 		this.worker.deactivate();
-	}
-
-	@Modified
-	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.modified(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
-		Config oldConfig = this.config;
-		this.config = config;
-		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
-			return;
-		}
-		// make sure the worker starts if it had been stopped
-		if (oldConfig.cycleTime() <= 0 && oldConfig.cycleTime() != config.cycleTime()) {
-			this.worker.triggerNextRun();
-		}
 	}
 
 	@Override
@@ -125,12 +124,11 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 
 	@Override
 	public int getCycleTime() {
-		Config config = this.config;
+		var config = this.config;
 		if (config != null) {
 			return config.cycleTime();
-		} else {
-			return Cycle.DEFAULT_CYCLE_TIME;
 		}
+		return Cycle.DEFAULT_CYCLE_TIME;
 	}
 
 }

@@ -1,6 +1,5 @@
 package io.openems.common.jsonrpc.notification;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -8,7 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
-import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Notification for sending the current data of all
@@ -28,29 +27,17 @@ public class CurrentDataNotification extends JsonrpcNotification {
 
 	public static final String METHOD = "currentData";
 
-	private final Map<ChannelAddress, JsonElement> data = new HashMap<>();
+	private final Map<String, JsonElement> data;
 
-	public CurrentDataNotification() {
+	public CurrentDataNotification(Map<String, JsonElement> data) {
 		super(CurrentDataNotification.METHOD);
-	}
-
-	/**
-	 * Add a Channel value.
-	 * 
-	 * @param channel the {@link ChannelAddress}
-	 * @param value   the value as {@link JsonElement}
-	 */
-	public void add(ChannelAddress channel, JsonElement value) {
-		this.data.put(channel, value);
+		this.data = data;
 	}
 
 	@Override
 	public JsonObject getParams() {
-		var p = new JsonObject();
-		for (Entry<ChannelAddress, JsonElement> entry : this.data.entrySet()) {
-			p.add(entry.getKey().toString(), entry.getValue());
-		}
-		return p;
+		return this.data.entrySet().stream() //
+				.collect(JsonUtils.toJsonObject(Entry::getKey, Entry::getValue));
 	}
 
 }

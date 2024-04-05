@@ -17,41 +17,37 @@ public class StopBatteryHandler extends StateHandler<State, Context> {
 	protected void onEntry(Context context) throws OpenemsNamedException {
 		this.lastAttempt = Instant.MIN;
 		this.attemptCounter = 0;
-		GenericManagedEss ess = context.getParent();
+		var ess = context.getParent();
 		ess._setMaxBatteryStopAttemptsFault(false);
 	}
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		GenericManagedEss ess = context.getParent();
+		var ess = context.getParent();
 
 		if (context.battery.isStopped()) {
 			return State.STOPPED;
 		}
 
-		boolean isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
+		var isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
 				.getSeconds() > GenericManagedEss.RETRY_COMMAND_SECONDS;
-		if (isMaxStartTimePassed) {
-			// First try - or waited long enough for next try
-
-			if (this.attemptCounter > GenericManagedEss.RETRY_COMMAND_MAX_ATTEMPTS) {
-				// Too many tries
-				ess._setMaxBatteryStopAttemptsFault(true);
-				return State.UNDEFINED;
-
-			} else {
-				// Trying to stop Battery
-				context.battery.stop();
-
-				this.lastAttempt = Instant.now();
-				this.attemptCounter++;
-				return State.STOP_BATTERY;
-
-			}
-
-		} else {
+		if (!isMaxStartTimePassed) {
 			// Still waiting...
 			return State.STOP_BATTERY;
+		}
+		if (this.attemptCounter > GenericManagedEss.RETRY_COMMAND_MAX_ATTEMPTS) {
+			// Too many tries
+			ess._setMaxBatteryStopAttemptsFault(true);
+			return State.UNDEFINED;
+
+		} else {
+			// Trying to stop Battery
+			context.battery.stop();
+
+			this.lastAttempt = Instant.now();
+			this.attemptCounter++;
+			return State.STOP_BATTERY;
+
 		}
 	}
 

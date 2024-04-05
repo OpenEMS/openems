@@ -11,36 +11,115 @@
 
 /* Core CSS required for Ionic components to work properly */
 @import "~@ionic/angular/css/core.css";
-
+@import "~@ionic/angular/css/display.css";
+@import "~@ionic/angular/css/flex-utils.css";
+@import "~@ionic/angular/css/float-elements.css";
 /* Basic CSS for apps built with Ionic */
 @import "~@ionic/angular/css/normalize.css";
-@import "~@ionic/angular/css/structure.css";
-@import "~@ionic/angular/css/typography.css";
-@import "~@ionic/angular/css/display.css";
-
 /* Optional CSS utils that can be commented out */
 @import "~@ionic/angular/css/padding.css";
-@import "~@ionic/angular/css/float-elements.css";
+@import "~@ionic/angular/css/structure.css";
 @import "~@ionic/angular/css/text-alignment.css";
 @import "~@ionic/angular/css/text-transformation.css";
-@import "~@ionic/angular/css/flex-utils.css";
+@import "~@ionic/angular/css/typography.css";
+/* ngx-spinner */
+@import "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css";
 @import "variables";
+
+.custom-ion-popover {
+
+    white-space: inherit;
+
+    // Overwrites default width of popover
+    --min-width: min-content;
+}
+
+.hide-empty-list-header {
+
+    // Guarantees evenly space between list-items
+    ion-list {
+        padding: 0;
+    }
+
+    ion-list-header {
+        display: none;
+    }
+
+}
+
+formly-wrapper-ion-form-field,
+formly-input-serial-number,
+formly-field-ion-radio {
+    ion-label {
+        line-height: 1.2;
+        font-size: 0.6em;
+
+        span {
+            white-space: initial;
+
+            small {
+                white-space: initial;
+            }
+        }
+
+        slot {
+            white-space: initial;
+        }
+    }
+}
+
+.custom-spinner {
+    ion-spinner {
+        left: 0 !important;
+    }
+}
+
+.line-break {
+
+    formly-wrapper-ion-form-field>ion-item>ion-label>span>small,
+    formly-field-ion-radio>ion-list>ion-radio-group>ion-item>ion-label {
+        white-space: pre-line !important;
+        line-height: 1.6 !important;
+    }
+}
+
+// Removes the ripple effect while using the custom box.
+.custom-checkbox {
+    --ripple-color: transparent;
+    --background-hover: transparent;
+}
+
+.command-textbox {
+    font-family: monospace;
+    color: rgb(52, 52, 52);
+}
+
+.margin-top {
+    ion-item {
+        margin-top: 2%;
+    }
+}
 
 .active {
     color: $primary-color;
 }
+
 .primary-color {
     fill: $primary-color;
 }
+
 .primary-color-contrast {
     fill: $primary-color-contrast;
 }
+
 .secondary-color {
     fill: $secondary-color;
 }
+
 .secondary-color-contrast {
     fill: $secondary-color-contrast;
 }
+
 html.ios {
     --ion-default-font: -apple-system, BlinkMacSystemFont, $font-family;
 }
@@ -62,6 +141,15 @@ html.md {
     justify-content: center !important;
     align-items: center !important;
     height: 100%;
+    padding: 0 1% 1% 0;
+
+    .swiper-wrapper {
+        align-items: center;
+    }
+}
+
+.white-space-initial {
+    white-space: initial !important;
 }
 
 ion-label {
@@ -136,27 +224,33 @@ formly-input-section {
     flex: auto; // use all remaining space in a row
 }
 
+// style to color table rows with translusent background
+.even-row {
+    background-color: rgba(var(--ion-color-primary-rgb), 0.2);
+}
+
 // Added styles for alertController, because alertController doesn't take ionic default style
-.alertController{
-    .alert-head{
+.alertController {
+    .alert-head {
         text-align: center !important;
-        .alert-sub-title{
+
+        .alert-sub-title {
             font-size: large;
             font-weight: bold;
             color: $primary-color;
         }
     }
-            .alert-message{
-                text-align: center;
-            }
-    .alert-wrapper{
+
+    .alert-message {
+        text-align: center;
+    }
+
+    .alert-wrapper {
         width: 25% !important;
-        .alert-button-group{
-            justify-content: center;
-            display: grid;
-            grid-template-columns: auto auto;
-            column-gap: 35%;
-            .alert-button{
+
+        .alert-button-group {
+            justify-content: space-between;
+            .alert-button {
                 color: $primary-color;
                 font-size: small;
             }
@@ -166,14 +260,17 @@ formly-input-section {
 
 :root {
 
-    /*
-     * Used in HeatingElement, because ion-picker is not accessible via ion-datetime tag
-     */
+    // Used in IBN, dynamicFeedInLimitation
+    formly-field-ion-select {
+        ion-select::part(text) {
+            white-space: initial !important;
+        }
+    }
+
+    // Used in GridOptimizedCharge & Heatingelement, because ion-picker is not accessible via ion-datetime tag
     ion-picker {
-        max-width: 200px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        justify-content: center !important;
+        max-width: 100% !important;
     }
 
     // CSS class is here because ion-label is inside ion-item tag, CSS within ion-item doesn't work with global.scss
@@ -181,15 +278,6 @@ formly-input-section {
     ion-label.regularFont {
         font-family: $font-family;
         font-size: 14px;
-    }
-
-    // use in HeatingElementWidget Line:80
-    // CSS class is here because ion-picker is not accessible via ion-datetime tag
-    ion-picker {
-        max-width: 200px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 
     // CSS class is here because ion-label is inside ion-item tag, CSS within ion-item doesn't work with global.scss
@@ -214,8 +302,102 @@ formly-input-section {
         font-family: $font-family;
         font-size: 14px;
     }
-    
-    ion-toggle{
+
+    ion-toggle {
         --background-checked: var(--ion-color-primary-tint);
     }
+
+    ion-spinner {
+        transform: scale(1.5);
+        left: 25%;
+        width: 50%;
+        color: var(--ion-color-primary);
+    }
+
+    // Used for notification component
+    .text-overflow-break {
+        line-break: anywhere;
+    }
+}
+
+// auto height for modals
+ion-modal.auto-height {
+    &.bottom {
+        align-items: flex-end;
+    }
+
+    --height: auto;
+
+    .ion-page {
+        position: relative;
+        display: block;
+        contain: content;
+
+        .inner-content {
+            max-height: 80vh;
+            overflow: auto;
+            padding: 10px;
+        }
+    }
+}
+
+ion-modal.full-width {
+    --width: 100%;
+}
+
+/** SVG Variables **/
+:root {
+    --storage-segment-0: block;
+    --storage-segment-1: block;
+    --storage-segment-2: block;
+    --storage-segment-3: block;
+    --storage-segment-4: none;
+}
+
+.storage-0 {
+    --storage-segment-0: none;
+    --storage-segment-1: none;
+    --storage-segment-2: none;
+    --storage-segment-3: none;
+    --storage-segment-4: none;
+}
+
+.storage-20 {
+    --storage-segment-0: block;
+    --storage-segment-1: none;
+    --storage-segment-2: none;
+    --storage-segment-3: none;
+    --storage-segment-4: none;
+}
+
+.storage-40 {
+    --storage-segment-0: block;
+    --storage-segment-1: block;
+    --storage-segment-2: none;
+    --storage-segment-3: none;
+    --storage-segment-4: none;
+}
+
+.storage-60 {
+    --storage-segment-0: block;
+    --storage-segment-1: block;
+    --storage-segment-2: block;
+    --storage-segment-3: none;
+    --storage-segment-4: none;
+}
+
+.storage-80 {
+    --storage-segment-0: block;
+    --storage-segment-1: block;
+    --storage-segment-2: block;
+    --storage-segment-3: block;
+    --storage-segment-4: none;
+}
+
+.storage-100 {
+    --storage-segment-0: block;
+    --storage-segment-1: block;
+    --storage-segment-2: block;
+    --storage-segment-3: block;
+    --storage-segment-4: block;
 }

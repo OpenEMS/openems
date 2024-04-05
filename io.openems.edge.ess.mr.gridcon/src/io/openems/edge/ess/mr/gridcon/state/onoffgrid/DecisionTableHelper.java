@@ -1,3 +1,5 @@
+// CHECKSTYLE:OFF
+
 package io.openems.edge.ess.mr.gridcon.state.onoffgrid;
 
 public class DecisionTableHelper {
@@ -124,3 +126,4 @@ public class DecisionTableHelper {
 	}
 
 }
+// CHECKSTYLE:ON

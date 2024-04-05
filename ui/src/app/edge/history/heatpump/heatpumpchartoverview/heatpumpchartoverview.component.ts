@@ -1,13 +1,13 @@
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { Service, Edge, EdgeConfig } from '../../../../shared/shared';
+import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
 
 @Component({
     selector: HeatPumpChartOverviewComponent.SELECTOR,
-    templateUrl: './heatpumpchartoverview.component.html'
+    templateUrl: './heatpumpchartoverview.component.html',
 })
-export class HeatPumpChartOverviewComponent {
+export class HeatPumpChartOverviewComponent implements OnInit {
 
     private static readonly SELECTOR = "heatpump-chart-overview";
 
@@ -27,8 +27,8 @@ export class HeatPumpChartOverviewComponent {
                 this.service.getConfig().then(config => {
                     this.edge = edge;
                     this.component = config.getComponent(this.route.snapshot.params.componentId);
-                })
-            })
-        })
+                });
+            });
+        });
     }
 }

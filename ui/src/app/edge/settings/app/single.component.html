@@ -1,0 +1,58 @@
+<header></header>
+<ion-content style="height: 100%">
+
+  <ngx-spinner [name]="spinnerId"></ngx-spinner>
+
+  <ion-grid *ngIf="form" style="height: 100%">
+    <ion-row class="ion-justify-content-center" style="height: 100%">
+
+      <ion-col size="12" size-xl="3">
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <ion-card>
+            <ion-card-content>
+              <div style="display: flex; align-items: center;justify-content: center;" class="ion-margin">
+                <img *ngIf="app.image; else noImage" [src]="app.image" />
+                <ng-template #noImage>
+                  <img *ngIf="app.imageUrl; else noImageUrl" [src]="app.imageUrl" (error)="app.imageUrl = null" />
+                  <ng-template #noImageUrl>
+                    <div style="max-width: 100%;">
+                      <h1 style="text-align: center; white-space: initial;">
+                        {{app.name}}
+                      </h1>
+                    </div>
+                  </ng-template>
+                </ng-template>
+              </div>
+              <!-- This button will be invisible until the feature gets implemented -->
+              <div *ngIf="false">
+                <ion-button style="width: 100%;" disabled translate>Edge.Config.App.buyApp</ion-button>
+              </div>
+              <div *ngIf="!(isPreInstalledApp || isFreeApp)">
+                <ion-button style="width: 100%;" (click)="registerKey(app.appId)" translate>
+                  Edge.Config.App.Key.registerKey</ion-button>
+              </div>
+              <div>
+                <ion-button style="width: 100%;" [disabled]="app.instanceIds.length === 0"
+                  [routerLink]="['../../update', app.appId]" [queryParams]="{name: app.name}" translate>
+                  Edge.Config.App.modifyApp</ion-button>
+              </div>
+              <div *ngIf="!isPreInstalledApp">
+                <ion-button style="width: 100%;" [disabled]="(app.cardinality !== 'MULTIPLE' && app.instanceIds.length !== 0) 
+                  || app.status.name !== 'INSTALLABLE' 
+                  || !(canEnterKey || hasPredefinedKey)" (click)="installApp(app.appId)"
+                  translate>Edge.Config.App.createApp
+                </ion-button>
+              </div>
+            </ion-card-content>
+
+          </ion-card>
+        </form>
+      </ion-col>
+      <ion-col size="12" size-xl="7" *ngIf="descriptor?.websiteUrl">
+        <iframe [src]="descriptor.sanitizedWebsiteUrl" style=" width: 100%;" [ngStyle]="iFrameStyle()" name="appInfo"
+          title="App-Info"></iframe>
+      </ion-col>
+
+    </ion-row>
+  </ion-grid>
+</ion-content>

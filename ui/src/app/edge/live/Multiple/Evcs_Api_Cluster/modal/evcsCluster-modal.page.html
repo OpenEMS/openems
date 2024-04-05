@@ -10,6 +10,7 @@
                 </ion-label>
             </ion-title>
             <ion-buttons slot="end">
+                <oe-help-button key="EVCS_CLUSTER"></oe-help-button>
                 <ion-button (click)="cancel()">
                     <ion-icon name="close-outline"></ion-icon>
                 </ion-button>
@@ -83,7 +84,7 @@
                                 <ng-container *ngIf="evcsId as evcs_id">
                                     <ion-header>
                                         <ion-toolbar ion-background="transparent">
-                                            <ion-icon *ngIf="evcs_id != prioritizedEvcsList[0] || evcsAmount > 1"
+                                            <ion-icon *ngIf="evcs_id !== prioritizedEvcsList[0] || evcsAmount > 1"
                                                 size="large" slot="start" name="arrow-dropleft-outline">
                                             </ion-icon>
                                             <ion-title style="text-align: center">
@@ -95,11 +96,11 @@
                                                 </ion-label>
                                             </ion-title>
                                             <ion-icon
-                                                *ngIf="evcs_id != prioritizedEvcsList[prioritizedEvcsList.length-1]"
+                                                *ngIf="evcs_id !== prioritizedEvcsList[prioritizedEvcsList.length-1]"
                                                 size="large" slot="end" name="arrow-dropright-outline"></ion-icon>
                                         </ion-toolbar>
                                     </ion-header>
-                                    <ion-label class="normalFontSize" *ngIf="currentData[evcs_id + '/State'] != 3">
+                                    <ion-label class="normalFontSize" *ngIf="currentData[evcs_id + '/State'] !== 3">
 
                                         <ion-item padding-bottom padding-top class="normalFontSize" lines="full">
                                             <table class="full_width">
@@ -108,16 +109,18 @@
                                                         Edge.Index.Widgets.EVCS.chargingPower
                                                     </td>
                                                     <td style="width:50%" class="align_right">
-                                                        {{ getState(currentData[evcs_id + "/ChargePower"] | number:'1.0-0',
-                                                            currentData[evcs_id + "/Status"], 
-                                                            currentData[evcs_id + "/Plug"], evcsCtrl)}}
+                                                        {{ getState(currentData[evcs_id + "/ChargePower"] |
+                                                        number:'1.0-0',
+                                                        currentData[evcs_id + "/Status"],
+                                                        currentData[evcs_id + "/Plug"], evcsCtrl)}}
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style="width: 50%" translate>
                                                         Edge.Index.Widgets.EVCS.energySinceBeginning</td>
                                                     <td style="width:50%" class="align_right">
-                                                        {{ (currentData[evcs_id + "/EnergySession"] * 0.1) | number:'1.0-0' }}
+                                                        {{ (currentData[evcs_id + "/EnergySession"] * 0.1) |
+                                                        number:'1.0-0' }}
                                                         Wh
                                                     </td>
                                                 </tr>
@@ -158,9 +161,9 @@
 
                                                                 <ion-segment-button value="FORCE_CHARGE">
                                                                     <ion-item lines="none">
-                                                                        <ion-img style="width:30px"
-                                                                            src="assets/img/gridStorage.png">
-                                                                        </ion-img>
+                                                                        <ion-icon style="width:30px"
+                                                                            name="oe-grid-storage">
+                                                                        </ion-icon>
                                                                         <ion-label translate>
                                                                             General.Manually
                                                                         </ion-label>
@@ -194,7 +197,7 @@
                                             <ion-item>
                                                 <table class="full_width" class="ion-text-wrap">
                                                     <!--Excess Power settings-->
-                                                    <tr *ngIf="evcsCtrl.properties.chargeMode == 'EXCESS_POWER'"
+                                                    <tr *ngIf="evcsCtrl.properties.chargeMode === 'EXCESS_POWER'"
                                                         style="margin-top: 20px;">
                                                         <td>
                                                             <table>
@@ -206,14 +209,14 @@
                                                                         <ion-toggle class="swiper-no-swiping"
                                                                             style="margin: 2px;"
                                                                             (ionChange)="allowMinimumChargePower($event, currentData[evcs_id + '/Phases'], evcsCtrl)"
-                                                                            [checked]="evcsCtrl.properties.defaultChargeMinPower != 0">
+                                                                            [checked]="evcsCtrl.properties.defaultChargeMinPower !== 0">
                                                                         </ion-toggle>
                                                                     </td>
                                                                 </tr>
                                                             </table>
                                                             <ion-range class="swiper-no-swiping"
                                                                 style="z-index: 10000; page-break-inside: auto"
-                                                                *ngIf="evcsCtrl.properties.defaultChargeMinPower != 0"
+                                                                *ngIf="evcsCtrl.properties.defaultChargeMinPower !== 0"
                                                                 (ionChange)="updateDefaultMinPower($event, evcsCtrl)"
                                                                 min="{{ formatNumber(currentData[evcs_id + '/MinimumHardwarePower']) }}"
                                                                 max="{{ formatNumber(currentData[evcs_id + '/MaximumHardwarePower']) }}"
@@ -221,11 +224,13 @@
                                                                 step="100" debounce="1000"
                                                                 value="{{evcsCtrl.properties.defaultChargeMinPower}}">
                                                                 <ion-label slot="start">
-                                                                    {{ formatNumber(currentData[evcs_id + '/MinimumHardwarePower']) | number:'1.0-0'}}
+                                                                    {{ formatNumber(currentData[evcs_id +
+                                                                    '/MinimumHardwarePower']) | number:'1.0-0'}}
                                                                     &nbsp;W
                                                                 </ion-label>
                                                                 <ion-label slot="end">
-                                                                    {{ formatNumber(currentData[evcs_id + '/MaximumHardwarePower']) | number:'1.0-0'}}&nbsp;W
+                                                                    {{ formatNumber(currentData[evcs_id +
+                                                                    '/MaximumHardwarePower']) | number:'1.0-0'}}&nbsp;W
                                                                 </ion-label>
                                                             </ion-range>
 
@@ -257,7 +262,7 @@
                                                         </td>
                                                     </tr>
                                                     <!--Force Charge settings-->
-                                                    <tr *ngIf="evcsCtrl.properties.chargeMode == 'FORCE_CHARGE'">
+                                                    <tr *ngIf="evcsCtrl.properties.chargeMode === 'FORCE_CHARGE'">
                                                         <td>
                                                             <table>
                                                                 <tr>
@@ -274,10 +279,12 @@
                                                                 step="100" debounce="1000"
                                                                 value="{{evcsCtrl.properties.forceChargeMinPower * getValueOrThree(currentData[evcs_id + '/Phases'])}}">
                                                                 <ion-label slot="start">
-                                                                    {{ formatNumber(currentData[evcs_id + '/MinimumHardwarePower']) | number:'1.0-0'}}&nbsp;W
+                                                                    {{ formatNumber(currentData[evcs_id +
+                                                                    '/MinimumHardwarePower']) | number:'1.0-0'}}&nbsp;W
                                                                 </ion-label>
                                                                 <ion-label slot="end">
-                                                                    {{ formatNumber(currentData[evcs_id + '/MaximumHardwarePower']) | number:'1.0-0'}}&nbsp;W
+                                                                    {{ formatNumber(currentData[evcs_id +
+                                                                    '/MaximumHardwarePower']) | number:'1.0-0'}}&nbsp;W
                                                                 </ion-label>
                                                             </ion-range>
                                                             <ion-label translate class="ion-text-wrap">
@@ -298,7 +305,7 @@
                                         </ng-container>
                                     </ion-label>
                                     <ion-item class="normalFontSize" style="padding-top: 20px"
-                                        *ngIf="currentData[evcs_id + '/State'] == 3">
+                                        *ngIf="currentData[evcs_id + '/State'] === 3">
                                         <tr>
                                             <td translate>
                                                 Edge.Index.Widgets.EVCS.NoConnection.description

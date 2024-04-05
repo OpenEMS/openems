@@ -1,15 +1,16 @@
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ModalController } from '@ionic/angular';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: HeatpumpWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: './widget.component.html',
 })
-export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
+export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;
@@ -18,15 +19,15 @@ export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements On
 
     public component: EdgeConfig.Component | null = null;
 
-    public activeTimeOverPeriodForceOn: number | null = null
-    public activeTimeOverPeriodRegular: number | null = null
-    public activeTimeOverPeriodRecommendation: number | null = null
-    public activeTimeOverPeriodLock: number | null = null
+    public activeTimeOverPeriodForceOn: number | null = null;
+    public activeTimeOverPeriodRegular: number | null = null;
+    public activeTimeOverPeriodRecommendation: number | null = null;
+    public activeTimeOverPeriodLock: number | null = null;
 
     public edge: Edge = null;
 
     constructor(
-        public service: Service,
+        public override service: Service,
         private route: ActivatedRoute,
         public modalCtrl: ModalController,
     ) {
@@ -48,13 +49,13 @@ export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements On
 
     ngOnChanges() {
         this.updateValues();
-    };
+    }
 
     protected updateValues() {
         this.service.getConfig().then(config => {
             this.getChannelAddresses(this.edge, config).then(channels => {
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
-                    let result = response.result;
+                    const result = response.result;
                     if (this.componentId + '/ForceOnStateTime' in result.data) {
                         this.activeTimeOverPeriodForceOn = result.data[this.componentId + '/ForceOnStateTime'];
                     }
@@ -67,14 +68,14 @@ export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements On
                     if (this.componentId + '/LockStateTime' in result.data) {
                         this.activeTimeOverPeriodLock = result.data[this.componentId + '/LockStateTime'];
                     }
-                })
+                });
             });
-        })
+        });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let channels: ChannelAddress[] = [
+            const channels: ChannelAddress[] = [
                 new ChannelAddress(this.componentId, 'ForceOnStateTime'),
                 new ChannelAddress(this.componentId, 'RegularStateTime'),
                 new ChannelAddress(this.componentId, 'RecommendationStateTime'),

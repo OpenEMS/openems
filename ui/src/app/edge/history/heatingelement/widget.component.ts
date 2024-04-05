@@ -1,15 +1,16 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: HeatingelementWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: './widget.component.html',
 })
-export class HeatingelementWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
+export class HeatingelementWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;
@@ -18,14 +19,14 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
 
     public component: EdgeConfig.Component = null;
 
-    public activeTimeOverPeriodLevel1: number = null;
-    public activeTimeOverPeriodLevel2: number = null;
-    public activeTimeOverPeriodLevel3: number = null;
+    public activeTimeOverPeriodLevel1: number | null = null;
+    public activeTimeOverPeriodLevel2: number | null = null;
+    public activeTimeOverPeriodLevel3: number | null = null;
 
     public edge: Edge = null;
 
     constructor(
-        public service: Service,
+        public override service: Service,
         private route: ActivatedRoute,
     ) {
         super(service);
@@ -41,70 +42,34 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
         this.updateValues();
-    };
+    }
+
+    public getCumulativeValue(channeladdress: string, response: QueryHistoricTimeseriesDataResponse) {
+        const array = response.result.data[channeladdress];
+        const firstValue = array.find(el => el != null) ?? 0;
+        const lastValue = array.slice().reverse().find(el => el != null) ?? 0;
+        return lastValue - firstValue;
+    }
 
     protected updateValues() {
-        this.queryHistoricTimeseriesData(this.service.historyPeriod.from, this.service.historyPeriod.to).then(response => {
-            let result = (response as QueryHistoricTimeseriesDataResponse).result;
-
-            let level1Time = result.data[this.componentId + '/Level1Time'];
-            let level2Time = result.data[this.componentId + '/Level2Time'];
-            let level3Time = result.data[this.componentId + '/Level3Time'];
-
-            let lastValueLevel1 = null;
-            let lastValueLevel2 = null;
-            let lastValueLevel3 = null;
-
-            let sumLevel1 = 0;
-            let sumLevel2 = 0;
-            let sumLevel3 = 0;
-
-            for (let value of level1Time.slice().reverse()) {
-                if (value == null) {
-                    continue;
-                }
-                if (lastValueLevel1 == null || value > lastValueLevel1) {
-                    sumLevel1 += value;
-                }
-                lastValueLevel1 = value;
-            }
-            this.activeTimeOverPeriodLevel1 = sumLevel1;
-
-            for (let value of level2Time.slice().reverse()) {
-                if (value == null) {
-                    continue;
-                }
-                if (lastValueLevel2 == null || value > lastValueLevel2) {
-                    sumLevel2 += value;
-                }
-                lastValueLevel2 = value;
-            }
-            this.activeTimeOverPeriodLevel2 = sumLevel2;
-
-            for (let value of level3Time.slice().reverse()) {
-                if (value == null) {
-                    continue;
-                }
-                if (lastValueLevel3 == null || value > lastValueLevel3) {
-                    sumLevel3 += value;
-                }
-                lastValueLevel3 = value;
-            }
-            this.activeTimeOverPeriodLevel3 = sumLevel3;
+        this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).then(response => {
+            this.activeTimeOverPeriodLevel1 = this.getCumulativeValue(this.componentId + '/Level1CumulatedTime', response);
+            this.activeTimeOverPeriodLevel2 = this.getCumulativeValue(this.componentId + '/Level2CumulatedTime', response);
+            this.activeTimeOverPeriodLevel3 = this.getCumulativeValue(this.componentId + '/Level3CumulatedTime', response);
         });
-    };
+    }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let channeladdresses = [
-                new ChannelAddress(this.componentId, 'Level1Time'),
-                new ChannelAddress(this.componentId, 'Level2Time'),
-                new ChannelAddress(this.componentId, 'Level3Time'),
+            const channeladdresses = [
+                new ChannelAddress(this.componentId, 'Level1CumulatedTime'),
+                new ChannelAddress(this.componentId, 'Level2CumulatedTime'),
+                new ChannelAddress(this.componentId, 'Level3CumulatedTime'),
             ];
             resolve(channeladdresses);
         });

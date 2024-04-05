@@ -1,121 +1,176 @@
 <header></header>
 <ion-content>
+  <ngx-spinner [name]="spinnerId"></ngx-spinner>
   <ion-grid *ngIf="config">
+
     <ion-row class="ion-justify-content-center">
-      <ng-container *ngIf="edge && edge.currentData | async as currentData">
-        <ion-col *ngFor="let address of subscribedChannels" size="12" size-md="6">
-
-          <ion-card>
-            <ion-item color="light" lines="full">
-              <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
-              <ion-label>Channel {{ address.toString() }}</ion-label>
-              <!-- TODO translate  -->
-              <ion-button (click)="unsubscribeChannel(address)" slot="end" color="light">
-                <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-              </ion-button>
-            </ion-item>
-
-            <ion-card-content *ngIf="config.getChannel(address) as channelConfig">
-              <!-- show meta information -->
-              <ion-item>
-                <ion-label>Meta</ion-label>
-                <ion-text class="ion-text-wrap" color="medium">
-                  Type: {{ channelConfig.type.toLowerCase() }}
-                  / Access-Mode: {{ channelConfig.accessMode }}
-                  <span *ngIf="channelConfig.text">/ Text:{{ channelConfig.text }}</span>
-                </ion-text>
-              </ion-item>
-
-              <!-- show Channel value (if it is not a Write-Only Channel) -->
-              <ion-item *ngIf="channelConfig.accessMode != 'WO'">
-                <ion-label>Value</ion-label>
-                <ion-text>
-                  <!-- show current value of Channel-->
-                  {{ currentData.channel[address.toString()] }} {{ channelConfig.unit }}
-                  <!-- show value as string for enum values -->
-                  <ng-container *ngIf="channelConfig.category == 'ENUM'">
-                    <ng-container *ngFor="let option of (channelConfig.options | keys)">
-                      <span *ngIf="option.value == currentData.channel[address.toString()]">
-                        ({{ option.key }})
-                      </span>
-                    </ng-container>
-                  </ng-container>
-                  <!-- show active/inactive string for StateChannels -->
-                  <ng-container *ngIf="channelConfig.category == 'STATE'">
-                    <span *ngIf="currentData.channel[address.toString()] == 1">(State is SET)</span>
-                    <span *ngIf="currentData.channel[address.toString()] == 0">(State is not set)</span>
-                  </ng-container>
-                  <!-- show active/inactive string for StateChannels -->
-                  <ng-container *ngIf="channelConfig.category == 'OPENEMS_TYPE' && channelConfig.type == 'BOOLEAN'">
-                    <span *ngIf="currentData.channel[address.toString()] == 1">(On)</span>
-                    <span *ngIf="currentData.channel[address.toString()] == 0">(Off)</span>
-                  </ng-container>
-                </ion-text>
-              </ion-item>
-
-              <!-- show input field to write value for RW/RO channels -->
-              <ion-item *ngIf="['RW', 'WO'].includes(channelConfig.accessMode)">
-                <ion-label>Set value</ion-label>
-                <ng-container *ngIf="channelConfig.type == 'BOOLEAN'; else no_boolean">
-                  <!-- show Toggle for boolean value  -->
-                  <ion-toggle #valueToggle></ion-toggle>
-                  <ion-button (click)="setChannelValue(address, valueToggle.checked)" slot="end" color="light">
-                    <ion-icon slot="icon-only" name="send-outline"></ion-icon>
-                  </ion-button>
-                </ng-container>
-                <ng-template #no_boolean>
-                  <ion-input placeholder="value" #value></ion-input>
-                  <ion-button (click)="setChannelValue(address, value.value)" slot="end" color="light">
-                    <ion-icon slot="icon-only" name="send-outline"></ion-icon>
-                  </ion-button>
-                </ng-template>
-              </ion-item>
-            </ion-card-content>
-          </ion-card>
-
-        </ion-col>
-      </ng-container>
-
-      <ion-col size="12" size-md="6">
+      <ion-col size="12" size-md="4">
         <ion-card>
           <ion-item color="light" lines="full">
             <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
-            <ion-label>Add Channel</ion-label>
-            <!-- TODO translate  -->
+            <ion-label translate>CHANNELS.ADD_CHANNEL</ion-label>
           </ion-item>
-
           <ion-card-content>
-            <ion-item>
-              <ion-label>Component</ion-label>
-              <ion-select interface="alert" #selectedComponentId>
-                <ion-select-option *ngFor="let entry of (config.components | keys)" [value]="entry.key">
-                  {{ entry.value.id }} ({{ entry.value.alias }})</ion-select-option>
-              </ion-select>
-            </ion-item>
 
-            <ion-item [hidden]="!(selectedComponentId && selectedComponentId.value)">
-              <!-- <ion-label>{{ config.components[selectedComponentId.value].channels | json }}</ion-label> -->
-              <ion-label>Channel</ion-label>
-              <ion-select interface="alert" #selectedChannelId>
-                <ng-container *ngIf="selectedComponentId && selectedComponentId.value">
-                  <ion-select-option
-                    *ngFor="let entry of (config.components[selectedComponentId.value].channels | keys)"
-                    [value]="entry.key">
-                    {{ entry.key }}</ion-select-option>
-                </ng-container>
-              </ion-select>
-            </ion-item>
+            <ion-list>
+              <ion-item lines="none">
+                <ion-select style="white-space: initial;width: 100%;" #selectedComponentId interface="alert"
+                  [placeholder]="'CHANNELS.Component'| translate">
+                  <ion-select-option style=" white-space: normal !important;"
+                    *ngFor="let entry of (config.components | keys)" [value]="entry.key">
+                    {{ entry.value.id }} ({{ entry.value.alias }})</ion-select-option>
+                </ion-select>
+              </ion-item>
+              <ion-item lines="none">
+                <ion-select style="white-space: initial;width: 100%;" #selectedChannelId interface="alert"
+                  [placeholder]="'CHANNELS.CHANNEL'| translate">
+                  <ng-container *ngIf="selectedComponentId && selectedComponentId.value">
+                    <ion-select-option
+                      *ngFor="let entry of (config.components[selectedComponentId.value].channels | keys)"
+                      [value]="entry.key">
+                      {{ entry.key }}</ion-select-option>
+                  </ng-container>
+                </ion-select>
+              </ion-item>
+            </ion-list>
 
-            <ion-button
+            <ion-button style="white-space: initial; line-break: strict;"
               *ngIf="selectedComponentId && selectedComponentId.value && selectedChannelId && selectedChannelId.value"
               expand="block"
-              (click)="subscribeChannel(selectedComponentId.value, selectedChannelId.value); selectedComponentId.value = null">
-              Add
-              {{ selectedComponentId.value }}/{{ selectedChannelId.value }}</ion-button>
+              (click)="subscribeChannel(selectedComponentId.value, selectedChannelId.value); selectedComponentId.value = null;selectedChannelId.value = null"><span
+                translate>CHANNELS.ADD</span>
+            </ion-button>
           </ion-card-content>
         </ion-card>
       </ion-col>
+      <ion-col size="12" size-md="4">
+        <ion-card>
+          <ion-item color="light" lines="full">
+            <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
+            <ion-label translate>CHANNELS.SAVE</ion-label>
+          </ion-item>
 
+          <ion-card-content>
+            <ion-button *ngIf="edge.id" expand="block" (click)="localSave()"><span
+                translate>CHANNELS.SAVE</span></ion-button>
+            <ion-label [translateParams]="{edgeShortName: environment.edgeShortName}"
+              translate>CHANNELS.SAVE_DESCRIPTION
+            </ion-label>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ng-container *ngIf="!isLoading && componentChannels&& edge?.currentData | async as currentData">
+        <ion-col *ngFor="let component of (componentChannels | keyvalue)" size="12" size-md="4">
+          <ion-card>
+            <ion-item color="light" lines="full">
+              <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
+              <ion-label>{{component.key}}</ion-label>
+            </ion-item>
+            <ion-card-content>
+              <ion-list>
+                <ng-container *ngFor="let channelAddress of componentChannels[component.key]">
+                  <ion-card-content *ngIf="componentChannelConfig.get(channelAddress.toString()) as channelConfig">
+                    <ion-item lines="inset">
+                      <ion-label style="white-space:initial"><span translate>CHANNELS.CHANNEL</span>:
+                        {{channelAddress.channelId}}</ion-label>
+                      <ion-button (click)="unsubscribeChannel(channelAddress)" slot="end" color="light" size="small">
+                        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                      </ion-button>
+                    </ion-item>
+                    <!-- show meta information -->
+                    <ion-item>
+                      <div style="display: block; width: 30%;">
+                        Meta&nbsp;
+                      </div>
+                      <ion-text style="display: block; width: 100%;align-items: end;" color="medium">
+                        Type: {{ channelConfig.type.toLowerCase() }}
+                        / Access-Mode: {{ channelConfig.accessMode }}
+                        <span>&nbsp;</span>
+                        <span *ngIf="channelConfig.text">/ Text:{{ channelConfig.text }}</span>
+                      </ion-text>
+
+                    </ion-item>
+
+                    <!-- show Channel value (if it is not a Write-Only Channel) -->
+                    <ion-item *ngIf="channelConfig.accessMode !== 'WO'">
+                      <ion-label translate>CHANNELS.VALUE</ion-label>
+                      <ion-text>
+                        <!-- show current value of Channel-->
+                        {{ currentData.channel[channelAddress.toString()] }}&nbsp;{{ channelConfig.unit }}
+                        <!-- show value as string for enum values -->
+                        <ng-container *ngIf="channelConfig.category === 'ENUM'">
+                          <ng-container *ngFor="let option of (channelConfig.options | keys)">
+                            <span *ngIf="option.value === currentData.channel[channelAddress.toString()]">
+                              ({{ option.key }})
+                            </span>
+                          </ng-container>
+                        </ng-container>
+                        <!-- show active/inactive string for StateChannels -->
+                        <ng-container *ngIf="channelConfig.category === 'STATE'">
+                          <span *ngIf="currentData.channel[channelAddress.toString()] === 1">(State is SET)</span>
+                          <span *ngIf="currentData.channel[channelAddress.toString()] === 0">(State is not set)</span>
+                        </ng-container>
+                        <!-- show active/inactive string for StateChannels -->
+                        <ng-container
+                          *ngIf="channelConfig.category === 'OPENEMS_TYPE' && channelConfig.type === 'BOOLEAN'">
+                          <span *ngIf="currentData.channel[channelAddress.toString()] === 1">(On)</span>
+                          <span *ngIf="currentData.channel[channelAddress.toString()] === 0">(Off)</span>
+                        </ng-container>
+                      </ion-text>
+                    </ion-item>
+                    <!-- show input field to write value for RW/RO channels -->
+                    <ion-item *ngIf="['RW', 'WO'].includes(channelConfig.accessMode)">
+                      <ion-label translate>CHANNELS.SET_VALUE</ion-label>
+                      <ng-container *ngIf="channelConfig.type === 'BOOLEAN'; else no_boolean">
+                        <!-- show Toggle for boolean value  -->
+                        <ion-toggle #valueToggle></ion-toggle>
+                        <ion-button (click)="setChannelValue(channelAddress, valueToggle.checked)" slot="end"
+                          color="light">
+                          <ion-icon slot="icon-only" name="send-outline"></ion-icon>
+                        </ion-button>
+                      </ng-container>
+                      <ng-template #no_boolean>
+                        <ion-input placeholder="value" #channelValue></ion-input>
+                        <ion-button (click)="setChannelValue(channelAddress, channelValue.value)" slot="end"
+                          color="light">
+                          <ion-icon slot="icon-only" name="send-outline"></ion-icon>
+                        </ion-button>
+                      </ng-template>
+                    </ion-item>
+                    <ion-item lines="none" *ngIf="channelConfig.showPersistencePriority">
+                      <ion-note style="white-space: initial;">
+                        <ion-text color="warning">
+                          Warnung:
+                        </ion-text> Channelwert wird nicht sekündlich zum Online-Monitoring übertragen
+                      </ion-note>
+                    </ion-item>
+                  </ion-card-content>
+                </ng-container>
+
+                <ion-item lines="none">
+                  <ion-label color="primary" translate>CHANNELS.MORE_CHANNELS</ion-label>
+                  <ion-select interface="alert" #selectedChannelId>
+                    <ng-container *ngIf="component.key">
+                      <ion-select-option *ngFor="let entry of (config.components[component.key].channels | keys)"
+                        [value]="entry.key">
+                        {{ entry.key }}</ion-select-option>
+                    </ng-container>
+                  </ion-select>
+                </ion-item>
+                <ion-button *ngIf="selectedChannelId?.value" expand="block"
+                  (click)="subscribeChannel(component.key, selectedChannelId.value); selectedChannelId.value = null"
+                  translate>
+                  CHANNELS.ADD</ion-button>
+
+              </ion-list>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+
+      </ng-container>
     </ion-row>
   </ion-grid>
 </ion-content>

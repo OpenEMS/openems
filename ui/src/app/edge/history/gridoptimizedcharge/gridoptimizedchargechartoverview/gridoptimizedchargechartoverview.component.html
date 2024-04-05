@@ -3,6 +3,7 @@
         <ion-toolbar color="primary">
             <ion-title>{{ component.alias }}</ion-title>
             <ion-buttons slot="end">
+                <oe-help-button key="CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE"></oe-help-button>
                 <ion-button routerLink="/device/{{edge.id}}/history/">
                     <ion-icon name="close"></ion-icon>
                 </ion-button>
@@ -23,7 +24,7 @@
                     </td>
                 </tr>
             </table>
-            <gridOptimizedChargeChart [component]="component" [period]="service.historyPeriod">
+            <gridOptimizedChargeChart [component]="component" [period]="service.historyPeriod.value">
             </gridOptimizedChargeChart>
         </ion-card-content>
         <!-- Info Text -->
@@ -47,7 +48,7 @@
                     </td>
                 </tr>
             </table>
-            <sellToGridLimitChart [component]="component" [period]="service.historyPeriod">
+            <sellToGridLimitChart [component]="component" [period]="service.historyPeriod.value">
             </sellToGridLimitChart>
         </ion-card-content>
         <!-- Info Text -->

@@ -20,7 +20,6 @@ public abstract class AbstractChannelListenerManager {
 		protected final CALLBACK callback;
 
 		public Listener(OpenemsComponent component, ChannelId channelId, CALLBACK callback) {
-			super();
 			this.component = component;
 			this.channelId = channelId;
 			this.callback = callback;
@@ -55,16 +54,18 @@ public abstract class AbstractChannelListenerManager {
 			Channel<?> channel = listener.component.channel(listener.channelId);
 			channel.removeOnSetNextValueCallback(listener.callback);
 		}
+		this.onSetNextValueListeners.clear();
 		for (OnChangeListener<?> listener : this.onChangeListeners) {
 			Channel<?> channel = listener.component.channel(listener.channelId);
 			channel.removeOnChangeCallback(listener.callback);
 		}
+		this.onChangeListeners.clear();
 	}
 
 	/**
 	 * Adds a Listener. Also applies the callback once to make sure it applies
 	 * already existing values.
-	 * 
+	 *
 	 * @param <T>       the Channel value type
 	 * @param component the Component
 	 * @param channelId the ChannelId
@@ -72,7 +73,7 @@ public abstract class AbstractChannelListenerManager {
 	 */
 	protected <T> void addOnSetNextValueListener(OpenemsComponent component, ChannelId channelId,
 			Consumer<Value<T>> callback) {
-		this.onSetNextValueListeners.add(new OnSetNextValueListener<T>(component, channelId, callback));
+		this.onSetNextValueListeners.add(new OnSetNextValueListener<>(component, channelId, callback));
 		Channel<T> channel = component.channel(channelId);
 		channel.onSetNextValue(callback);
 		callback.accept(channel.getNextValue());
@@ -81,7 +82,7 @@ public abstract class AbstractChannelListenerManager {
 	/**
 	 * Adds a Listener. Also applies the callback once to make sure it applies
 	 * already existing values.
-	 * 
+	 *
 	 * @param <T>       the Channel value type
 	 * @param component the Component
 	 * @param channelId the ChannelId
@@ -89,7 +90,7 @@ public abstract class AbstractChannelListenerManager {
 	 */
 	protected <T> void addOnChangeListener(OpenemsComponent component, ChannelId channelId,
 			BiConsumer<Value<T>, Value<T>> callback) {
-		this.onChangeListeners.add(new OnChangeListener<T>(component, channelId, callback));
+		this.onChangeListeners.add(new OnChangeListener<>(component, channelId, callback));
 		Channel<T> channel = component.channel(channelId);
 		channel.onChange(callback);
 		callback.accept(null, channel.getNextValue());

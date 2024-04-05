@@ -40,12 +40,12 @@ public class Data {
 	private final List<Constraint> constraints = new CopyOnWriteArrayList<>();
 	private final Coefficients coefficients = new Coefficients();
 
-	private boolean symmetricMode = PowerComponent.DEFAULT_SYMMETRIC_MODE;
+	private boolean symmetricMode = EssPower.DEFAULT_SYMMETRIC_MODE;
 	private Consumer<Boolean> onStaticConstraintsFailed = null;
 
 	/**
 	 * Adds a callback for onStaticConstraintsFailed event.
-	 * 
+	 *
 	 * @param onStaticConstraintsFailed the Callback
 	 */
 	public void onStaticConstraintsFailed(Consumer<Boolean> onStaticConstraintsFailed) {
@@ -53,8 +53,8 @@ public class Data {
 	}
 
 	/**
-	 * Adds a {@link ManagedSymmetricEss}. Called by {@link PowerComponentImpl}.
-	 * 
+	 * Adds a {@link ManagedSymmetricEss}. Called by {@link EssPowerImpl}.
+	 *
 	 * @param ess the {@link ManagedSymmetricEss}
 	 */
 	protected synchronized void addEss(ManagedSymmetricEss ess) {
@@ -63,8 +63,8 @@ public class Data {
 	}
 
 	/**
-	 * Removes a {@link ManagedSymmetricEss}. Called by {@link PowerComponentImpl}.
-	 * 
+	 * Removes a {@link ManagedSymmetricEss}. Called by {@link EssPowerImpl}.
+	 *
 	 * @param ess the {@link ManagedSymmetricEss}
 	 */
 	protected synchronized void removeEss(ManagedSymmetricEss ess) {
@@ -74,7 +74,7 @@ public class Data {
 
 	/**
 	 * Activates Symmetric-Mode.
-	 * 
+	 *
 	 * @param symmetricMode Symmetric-Mode enabled?
 	 */
 	public synchronized void setSymmetricMode(boolean symmetricMode) {
@@ -90,10 +90,8 @@ public class Data {
 
 		// Create inverters and add them to list
 		for (ManagedSymmetricEss ess : this.esss) {
-			EssType essType = EssType.getEssType(ess);
-			for (Inverter inverter : Inverter.of(this.symmetricMode, ess, essType)) {
-				this.inverters.add(inverter);
-			}
+			var essType = EssType.getEssType(ess);
+			Collections.addAll(this.inverters, Inverter.of(this.symmetricMode, ess, essType));
 		}
 
 		// Re-Initialize Coefficients
@@ -134,7 +132,7 @@ public class Data {
 
 	/**
 	 * Adds a simple Constraint with only one Coefficient.
-	 * 
+	 *
 	 * @param description  a description for the Constraint
 	 * @param essId        the component Id of a {@link ManagedSymmetricEss}
 	 * @param phase        the {@link Phase}
@@ -156,7 +154,7 @@ public class Data {
 
 	/**
 	 * Get the Coefficients of the linear solver.
-	 * 
+	 *
 	 * @return the {@link Coefficients}
 	 */
 	public Coefficients getCoefficients() {
@@ -165,7 +163,7 @@ public class Data {
 
 	/**
 	 * Get the Coefficient of the linear solver for the given parameters.
-	 * 
+	 *
 	 * @param essId the Component-ID of a {@link ManagedSymmetricEss}
 	 * @param phase the {@link Phase}
 	 * @param pwr   the {@link Pwr}
@@ -177,7 +175,7 @@ public class Data {
 
 	/**
 	 * Gets Constraints for all Inverters.
-	 * 
+	 *
 	 * @return List of Constraints
 	 * @throws OpenemsException on error
 	 */
@@ -187,7 +185,7 @@ public class Data {
 
 	/**
 	 * Gets Constraints with the 'enabledInverters' only.
-	 * 
+	 *
 	 * @param enabledInverters Collection of enabled {@link Inverter}s
 	 * @return List of {@link Constraint}s
 	 * @throws OpenemsException on error
@@ -200,7 +198,7 @@ public class Data {
 
 	/**
 	 * Gets Constraints without the 'disabledInverters'.
-	 * 
+	 *
 	 * @param disabledInverters Collection of disabled inverters
 	 * @return List of Constraints
 	 * @throws OpenemsException on error

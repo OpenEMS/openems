@@ -10,7 +10,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 /**
  * Manages the States of the StateMachine.
- * 
+ *
  * @param <STATE>   the {@link State} type, e.g. typically an enum
  * @param <CONTEXT> the context type, i.e. a class wrapping a State-Machine
  *                  context
@@ -28,11 +28,11 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 
 	/**
 	 * Initialize the State-Machine and set an initial State.
-	 * 
+	 *
 	 * <p>
-	 * TODO Note that for the initialState the {@link StateHandler#onEntry(Object)
+	 * TODO Note that for the initialState the {@link StateHandler#onEntry(Object)}
 	 * method is not called in the beginning.
-	 * 
+	 *
 	 * @param initialState the initial State
 	 */
 	public AbstractStateMachine(STATE initialState) {
@@ -45,12 +45,28 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 	}
 
 	/**
+	 * Gets a message that is suitable for a continuous Debug log. Returns the name
+	 * of the current state in Camel-Case by default.
+	 *
+	 * @return the debug log output
+	 */
+	public String debugLog() {
+		var log = this.stateHandlers //
+				.get(this.state) //
+				.debugLog();
+		if (log != null) {
+			return log;
+		}
+		return this.state.asCamelCase();
+	}
+
+	/**
 	 * Gets the {@link StateHandler} for each State.
-	 * 
+	 *
 	 * <p>
 	 * This method is called once for every available State during construction of
 	 * the StateMachine in order to initialize an internal list of StateHandlers.
-	 * 
+	 *
 	 * @param state the State
 	 * @return the {@link StateHandler} for the given State
 	 */
@@ -58,7 +74,7 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 
 	/**
 	 * Gets the previously activate State.
-	 * 
+	 *
 	 * @return the State
 	 */
 	public STATE getPreviousState() {
@@ -67,7 +83,7 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 
 	/**
 	 * Gets the currently activate State.
-	 * 
+	 *
 	 * @return the State
 	 */
 	public STATE getCurrentState() {
@@ -76,10 +92,10 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 
 	/**
 	 * Forcibly change the next State from outside. Use with care!
-	 * 
+	 *
 	 * <p>
 	 * Note that transition events will get called.
-	 * 
+	 *
 	 * @param state the next State
 	 */
 	public void forceNextState(STATE state) {
@@ -90,7 +106,8 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 
 	/**
 	 * Execute the StateMachine.
-	 * 
+	 *
+	 * @param context the Context object
 	 * @throws OpenemsNamedException on error
 	 */
 	public void run(CONTEXT context) throws OpenemsNamedException {
@@ -110,7 +127,7 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 			try {
 				// Call the State Handler and receive next State.
 				nextState = this.stateHandlers //
-						.get(state) //
+						.get(this.state) //
 						.runAndGetNextState(context);
 			} catch (OpenemsNamedException e) {
 				exception = e;

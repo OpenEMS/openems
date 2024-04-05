@@ -1,14 +1,14 @@
 package io.openems.edge.core.host;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.common.host.Host;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		public String networkConfiguration = null;
-		public String usbConfiguration = null;
+		private String networkConfiguration;
+		private String usbConfiguration;
 
 		private Builder() {
 		}
@@ -30,7 +30,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

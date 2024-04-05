@@ -19,7 +19,7 @@ public class ChannelMetaInfo {
 
 	@Override
 	public String toString() {
-		StringBuilder b = new StringBuilder();
+		var b = new StringBuilder();
 		b.append("0x").append(Integer.toHexString(this.address));
 		return b.toString();
 	}
@@ -37,10 +37,10 @@ public class ChannelMetaInfo {
 		if (obj == null) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
-		ChannelMetaInfo other = (ChannelMetaInfo) obj;
+		var other = (ChannelMetaInfo) obj;
 		return this.address == other.address;
 	}
 

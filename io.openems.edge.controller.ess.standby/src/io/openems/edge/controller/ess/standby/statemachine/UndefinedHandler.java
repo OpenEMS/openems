@@ -21,12 +21,13 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 	/**
 	 * Checks if the logic should be run today.
 	 * 
+	 * @param context the {@link Context}
 	 * @return true if today is within {@link Config#startDate()} and
 	 *         {@link Config#endDate()} and is the configured
 	 *         {@link Config#dayOfWeek()}
 	 */
 	private boolean isActiveDay(Context context) {
-		LocalDate today = LocalDate.now(context.clock);
+		var today = LocalDate.now(context.clock);
 		if (today.isBefore(context.configuredStartDate)) {
 			return false;
 		}

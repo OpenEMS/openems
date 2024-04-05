@@ -1,73 +1,73 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { formatNumber } from '@angular/common';
-import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { TranslateService } from '@ngx-translate/core';
+
+import type { ChartOptions } from 'chart.js';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChartAxis, YAxisTitle } from 'src/app/shared/service/utils';
+
+import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
 
 @Component({
   selector: 'heatingelementChart',
-  templateUrl: '../abstracthistorychart.html'
+  templateUrl: '../abstracthistorychart.html',
 })
-export class HeatingelementChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class HeatingelementChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
   @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public component: EdgeConfig.Component;
 
-
   ngOnChanges() {
     this.updateChart();
-  };
+  }
 
   constructor(
-    protected service: Service,
-    protected translate: TranslateService,
+    protected override service: Service,
+    protected override translate: TranslateService,
     private route: ActivatedRoute,
   ) {
-    super(service, translate);
+    super("heatingelement-chart", service, translate);
   }
 
   ngOnInit() {
-    this.spinnerId = 'heatingelement-chart';
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.service.setCurrentComponent('', this.route);
-    this.setLabel()
+    this.setLabel();
   }
 
   ngOnDestroy() {
-    this.unsubscribeChartRefresh()
+    this.unsubscribeChartRefresh();
   }
 
   protected updateChart() {
     this.autoSubscribeChartRefresh();
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getCurrentEdge().then(() => {
-        let result = (response as QueryHistoricTimeseriesDataResponse).result;
+        const result = (response as QueryHistoricTimeseriesDataResponse).result;
         // convert labels
-        let labels: Date[] = [];
-        for (let timestamp of result.timestamps) {
+        const labels: Date[] = [];
+        for (const timestamp of result.timestamps) {
           labels.push(new Date(timestamp));
         }
         this.labels = labels;
 
         // convert datasets
-        let datasets = [];
-        let level = this.component.id + '/Level';
+        const datasets = [];
+        const level = this.component.id + '/Level';
 
         if (level in result.data) {
-          let levelData = result.data[level].map(value => {
+          const levelData = result.data[level].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else {
-              return value
+              return value;
             }
-          })
+          });
           datasets.push({
             label: 'Level',
             data: levelData,
@@ -75,44 +75,48 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
           this.colors.push({
             backgroundColor: 'rgba(200,0,0,0.05)',
             borderColor: 'rgba(200,0,0,1)',
-          })
+          });
         }
         this.datasets = datasets;
         this.loading = false;
-        this.service.stopSpinner(this.spinnerId);
+        this.stopSpinner();
+
       }).catch(reason => {
         console.error(reason); // TODO error message
         this.initializeChart();
         return;
       });
+
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();
       return;
+    }).finally(async () => {
+      this.formatNumber = '1.0-1';
+      this.unit = YAxisTitle.NONE;
+      await this.setOptions(this.options);
+      this.applyControllerSpecificOptions(this.options);
     });
   }
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
-      let levels = new ChannelAddress(this.component.id, 'Level')
-      let channeladdresses = [levels];
+      const levels = new ChannelAddress(this.component.id, 'Level');
+      const channeladdresses = [levels];
       resolve(channeladdresses);
     });
   }
 
-  protected setLabel() {
-    let options = this.createDefaultChartOptions();
-    options.scales.yAxes[0].id = 'yAxis1'
-    options.scales.yAxes[0].scaleLabel.labelString = 'Level';
-    options.scales.yAxes[0].ticks.beginAtZero = true;
-    options.scales.yAxes[0].ticks.max = 3;
-    options.scales.yAxes[0].ticks.stepSize = 1;
-    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-      let label = data.datasets[tooltipItem.datasetIndex].label;
-      let value = tooltipItem.yLabel;
-      return label + ": " + formatNumber(value, 'de', '1.0-1'); // TODO get locale dynamically
-    }
+  protected applyControllerSpecificOptions(options: ChartOptions) {
+    options.scales[ChartAxis.LEFT]['title'].text = 'Level';
+    options.scales[ChartAxis.LEFT]['beginAtZero'] = true;
+    options.scales[ChartAxis.LEFT].max = 3;
+    options.scales[ChartAxis.LEFT].ticks['stepSize'] = 1;
     this.options = options;
+  }
+
+  protected setLabel() {
+    this.options = this.createDefaultChartOptions();
   }
 
   public getChartHeight(): number {

@@ -1,10 +1,10 @@
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
-import { Component, OnDestroy } from '@angular/core';
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
-import { TranslateService } from '@ngx-translate/core';
-import { trigger, state, style, animate, transition } from '@angular/animations';
-import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
 
 @Component({
     selector: '[gridsection]',
@@ -17,10 +17,10 @@ import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
             })),
             state('hide', style({
                 opacity: 0.1,
-                transform: 'translateX(17%)'
+                transform: 'translateX(17%)',
             })),
             transition('show => hide', animate('650ms')),
-            transition('hide => show', animate('0ms'))
+            transition('hide => show', animate('0ms')),
         ]),
         trigger('GridSell', [
             state('show', style({
@@ -29,14 +29,14 @@ import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
             })),
             state('hide', style({
                 opacity: 0.4,
-                transform: 'translateX(-17%)'
+                transform: 'translateX(-17%)',
             })),
             transition('show => hide', animate('650ms ease-out')),
-            transition('hide => show', animate('0ms ease-in'))
-        ])
-    ]
+            transition('hide => show', animate('0ms ease-in')),
+        ]),
+    ],
 })
-export class GridSectionComponent extends AbstractSection implements OnDestroy {
+export class GridSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
     private unitpipe: UnitvaluePipe;
     // animation variable to stop animation on destroy
@@ -76,11 +76,11 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
     }
 
     get stateNameBuy() {
-        return this.showBuyAnimation ? 'show' : 'hide'
+        return this.showBuyAnimation ? 'show' : 'hide';
     }
 
     get stateNameSell() {
-        return this.showSellAnimation ? 'show' : 'hide'
+        return this.showSellAnimation ? 'show' : 'hide';
     }
 
     protected getStartAngle(): number {
@@ -104,7 +104,7 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
             let arrowIndicate: number;
             if (sum.grid.buyActivePower > 49) {
                 arrowIndicate = Utils.multiplySafely(
-                    Utils.divideSafely(sum.grid.buyActivePower, sum.system.totalPower), -1)
+                    Utils.divideSafely(sum.grid.buyActivePower, sum.system.totalPower), -1);
             } else {
                 arrowIndicate = 0;
             }
@@ -120,7 +120,7 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
             }
             let arrowIndicate: number;
             if (sum.grid.sellActivePower > 49) {
-                arrowIndicate = Utils.divideSafely(sum.grid.sellActivePower, sum.system.totalPower)
+                arrowIndicate = Utils.divideSafely(sum.grid.sellActivePower, sum.system.totalPower);
             } else {
                 arrowIndicate = 0;
             }
@@ -130,28 +130,28 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
                 sum.grid.powerRatio,
                 arrowIndicate);
         } else {
-            this.name = this.translate.instant('General.grid')
+            this.name = this.translate.instant('General.grid');
             super.updateSectionData(0, null, null);
         }
 
         // set grid mode
         this.gridMode = sum.grid.gridMode;
         if (this.square) {
-            this.square.image.image = "assets/img/" + this.getImagePath()
+            this.square.image.image = "assets/img/" + this.getImagePath();
         }
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
-        let x = (innerRadius - 5) * (-1);
-        let y = (square.length / 2) * (-1);
+        const x = (innerRadius - 5) * (-1);
+        const y = (square.length / 2) * (-1);
         return new SvgSquarePosition(x, y);
     }
 
     protected getImagePath(): string {
         if (this.gridMode == 2) {
-            return "offgrid.png"
+            return "icon/offgrid.svg";
         } else {
-            return "grid.png"
+            return "icon/grid.svg";
         }
     }
 
@@ -167,21 +167,21 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
     }
 
     protected setElementHeight() {
-        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3)
-        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3)
+        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3);
+        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3);
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let p = {
+        const v = Math.abs(ratio);
+        const r = radius;
+        const p = {
             bottomRight: { x: v * -1, y: v },
             bottomLeft: { x: r * -1, y: v },
             topRight: { x: v * -1, y: v * -1 },
             topLeft: { x: r * -1, y: v * -1 },
             middleLeft: { x: r * -1 + v, y: 0 },
-            middleRight: { x: 0, y: 0 }
-        }
+            middleRight: { x: 0, y: 0 },
+        };
         if (ratio > 0) {
             // towards left
             p.topLeft.x = p.topLeft.x + v;
@@ -193,17 +193,17 @@ export class GridSectionComponent extends AbstractSection implements OnDestroy {
     }
 
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let animationWidth = r * -1 + v;
+        const v = Math.abs(ratio);
+        const r = radius;
+        const animationWidth = r * -1 + v;
         let p = {
             bottomRight: { x: v * -1, y: v },
             bottomLeft: { x: r * -1, y: v },
             topRight: { x: v * -1, y: v * -1 },
             topLeft: { x: r * -1, y: v * -1 },
             middleLeft: { x: r * -1 + v, y: 0 },
-            middleRight: { x: 0, y: 0 }
-        }
+            middleRight: { x: 0, y: 0 },
+        };
 
         if (ratio > 0) {
             // towards left

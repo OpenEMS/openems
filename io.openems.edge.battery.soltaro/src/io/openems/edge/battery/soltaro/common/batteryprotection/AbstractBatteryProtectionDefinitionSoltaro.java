@@ -9,23 +9,23 @@ public abstract class AbstractBatteryProtectionDefinitionSoltaro implements Batt
 
 	@Override
 	public final int getInitialBmsMaxEverChargeCurrent() {
-		return 80; // [A]
+		return 100; // [A]
 	}
 
 	@Override
 	public final int getInitialBmsMaxEverDischargeCurrent() {
-		return 80; // [A]
+		return 100; // [A]
 	}
 
 	@Override
 	public final PolyLine getDischargeVoltageToPercent() {
 		return PolyLine.create() //
-				.addPoint(2900, 0) //
-				.addPoint(Math.nextUp(2900), 0.01) //
-				.addPoint(2920, 0.01) //
-				.addPoint(3000, 1) //
-				.addPoint(3700, 1) //
-				.addPoint(Math.nextUp(3700), 0) //
+				.addPoint(3040, 0) //
+				.addPoint(Math.nextUp(3040), 0.01) //
+				.addPoint(3050, 0.01) //
+				.addPoint(3150, 1) //
+				.addPoint(3615, 1) //
+				.addPoint(Math.nextUp(3615), 1) //
 				.build();
 	}
 
@@ -60,7 +60,8 @@ public abstract class AbstractBatteryProtectionDefinitionSoltaro implements Batt
 
 	@Override
 	public final ForceCharge.Params getForceChargeParams() {
-		return new ForceCharge.Params(2850, 2910, 3000);
+		return new ForceCharge.Params(3031, 3100, 3130);
+
 	}
 
 	@Override

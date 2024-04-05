@@ -2,25 +2,32 @@ package io.openems.backend.common.metadata;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.osgi.annotation.versioning.ProviderType;
+import org.osgi.service.event.EventAdmin;
 
 import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonObject;
 
+import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
+import io.openems.backend.common.alerting.SumStateAlertingSetting;
+import io.openems.backend.common.alerting.UserAlertingSettings;
+import io.openems.backend.common.event.BackendEventConstants;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
+import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
+import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
+import io.openems.common.session.Language;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component.Channel;
-import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetail;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
 
 @ProviderType
@@ -36,20 +43,6 @@ public interface Metadata {
 	 * @return true if it is initialized
 	 */
 	public boolean isInitialized();
-
-	/**
-	 * See {@link #isInitialized()}.
-	 *
-	 * @param callback the callback on 'isInitialized'
-	 */
-	public void addOnIsInitializedListener(Runnable callback);
-
-	/**
-	 * See {@link #isInitialized()}.
-	 *
-	 * @param callback the callback on 'isInitialized'
-	 */
-	public void removeOnIsInitializedListener(Runnable callback);
 
 	/**
 	 * Authenticates the User by username and password.
@@ -78,12 +71,22 @@ public interface Metadata {
 	public void logout(User user);
 
 	/**
+	 * Handles operations with Edge.
+	 *
+	 * <p>
+	 * To be completed. This should eventually replace Edge.
+	 *
+	 * @return an {@link EdgeHandler}
+	 */
+	public EdgeHandler edge();
+
+	/**
 	 * Gets the Edge-ID for an API-Key, i.e. authenticates the API-Key.
 	 *
 	 * @param apikey the API-Key
 	 * @return the Edge-ID or Empty
 	 */
-	public abstract Optional<String> getEdgeIdForApikey(String apikey);
+	public Optional<String> getEdgeIdForApikey(String apikey);
 
 	/**
 	 * Get an Edge by its unique Edge-ID.
@@ -91,7 +94,7 @@ public interface Metadata {
 	 * @param edgeId the Edge-ID
 	 * @return the Edge as Optional
 	 */
-	public abstract Optional<Edge> getEdge(String edgeId);
+	public Optional<Edge> getEdge(String edgeId);
 
 	/**
 	 * Get an Edge by its unique Edge-ID. Throws an Exception if there is no Edge
@@ -115,7 +118,7 @@ public interface Metadata {
 	 * @param setupPassword to find Edge
 	 * @return Edge as a Optional
 	 */
-	public abstract Optional<Edge> getEdgeBySetupPassword(String setupPassword);
+	public Optional<Edge> getEdgeBySetupPassword(String setupPassword);
 
 	/**
 	 * Gets the User for the given User-ID.
@@ -123,14 +126,23 @@ public interface Metadata {
 	 * @param userId the User-ID
 	 * @return the {@link User}, or Empty
 	 */
-	public abstract Optional<User> getUser(String userId);
+	public Optional<User> getUser(String userId);
 
 	/**
-	 * Gets all Edges.
+	 * Gets all Offline-Edges.
 	 *
 	 * @return collection of Edges.
 	 */
-	public abstract Collection<Edge> getAllEdges();
+	public Collection<Edge> getAllOfflineEdges();
+
+	/**
+	 * Updates the user settings.
+	 * 
+	 * @param user     the user
+	 * @param settings the user settings
+	 * @throws OpenemsNamedException on error
+	 */
+	public void updateUserSettings(User user, JsonObject settings) throws OpenemsNamedException;
 
 	/**
 	 * Assigns Edge with given setupPassword to the logged in user and returns it.
@@ -181,10 +193,10 @@ public interface Metadata {
 		// Sort active State-Channels by Level and Component-ID
 		var states = new HashMap<Level, HashMultimap<String, Channel>>();
 		for (Entry<ChannelAddress, Channel> entry : activeStateChannels.entrySet()) {
-			ChannelDetail detail = entry.getValue().getDetail();
+			var detail = entry.getValue().getDetail();
 			if (detail instanceof ChannelDetailState) {
 				var level = ((ChannelDetailState) detail).getLevel();
-				HashMultimap<String, Channel> channelsByComponent = states.get(level);
+				var channelsByComponent = states.get(level);
 				if (channelsByComponent == null) {
 					channelsByComponent = HashMultimap.create();
 					states.put(level, channelsByComponent);
@@ -252,6 +264,16 @@ public interface Metadata {
 	public byte[] getSetupProtocol(User user, int setupProtocolId) throws OpenemsNamedException;
 
 	/**
+	 * Return the Setup Protocol data as a JsonObject.
+	 *
+	 * @param user   {@link User} the current user
+	 * @param edgeId the {@link Edge} ID to get the data
+	 * @return Setup Protocol as a JsonObject
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonObject getSetupProtocolData(User user, String edgeId) throws OpenemsNamedException;
+
+	/**
 	 * Submit the installation assistant protocol.
 	 *
 	 * @param user       {@link User} the current user
@@ -264,10 +286,11 @@ public interface Metadata {
 	/**
 	 * Register a user.
 	 *
-	 * @param jsonObject {@link JsonObject} that represents an user
+	 * @param user {@link JsonObject} that represents an user
+	 * @param oem  OEM name
 	 * @throws OpenemsNamedException on error
 	 */
-	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException;
+	public void registerUser(JsonObject user, String oem) throws OpenemsNamedException;
 
 	/**
 	 * Update language from given user.
@@ -277,5 +300,147 @@ public interface Metadata {
 	 * @throws OpenemsNamedException on error
 	 */
 	public void updateUserLanguage(User user, Language language) throws OpenemsNamedException;
+
+	/**
+	 * Gets the alerting settings for given edge id and userId.
+	 *
+	 * @param edgeId the Edge ID
+	 * @param userId the User ID
+	 * @return List of {@link UserAlertingSettings}
+	 * @throws OpenemsException on error
+	 */
+	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException;
+
+	/**
+	 * Gets all the alerting settings for given edge id.
+	 *
+	 *
+	 * @param edgeId the Edge ID
+	 * @return List of {@link UserAlertingSettings}
+	 * @throws OpenemsException on error
+	 */
+	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) throws OpenemsException;
+
+	/**
+	 * Gets all the offline-edge-alerting settings for given edge id.
+	 *
+	 *
+	 * @param edgeId the Edge ID
+	 * @return List of {@link OfflineEdgeAlertingSetting}
+	 * @throws OpenemsException on error
+	 */
+	public List<OfflineEdgeAlertingSetting> getEdgeOfflineAlertingSettings(String edgeId) throws OpenemsException;
+
+	/**
+	 * Gets all the sumState-alerting settings for given edge id.
+	 *
+	 *
+	 * @param edgeId the Edge ID
+	 * @return List of {@link SumStateAlertingSetting}
+	 * @throws OpenemsException on error
+	 */
+	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException;
+
+	/**
+	 * Sets the alerting settings for the given list of users.
+	 *
+	 * @param user     {@link User} the current user
+	 * @param edgeId   the Edge-ID
+	 * @param settings list of updated {@link UserAlertingSettings}
+	 * @throws OpenemsException on error
+	 */
+	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> settings)
+			throws OpenemsException;
+
+	/**
+	 * Returns an EventAdmin, used by Edge objects.
+	 *
+	 * @return {@link EventAdmin}
+	 */
+	public EventAdmin getEventAdmin();
+
+	/**
+	 * Defines Events a Metadata can throw.
+	 */
+	public static final class Events {
+		private static final String TOPIC_BASE = BackendEventConstants.TOPIC_BASE + "metadata/";
+
+		public static final String AFTER_IS_INITIALIZED = Events.TOPIC_BASE + "TOPIC_AFTER_IS_INITIALIZED";
+	}
+
+	/**
+	 * Get serial number for the given {@link Edge}.
+	 *
+	 * @param edge {@link Edge} to search for serial number
+	 * @return Serial number or empty {@link Optional}
+	 */
+	public Optional<String> getSerialNumberForEdge(Edge edge);
+
+	/**
+	 * Gets a map of Edge-IDs with the role of the given user.
+	 *
+	 * @param user              {@link User} the current user
+	 * @param paginationOptions the options of the requesting page
+	 * @return the role to the Edge-IDs
+	 * @throws OpenemsNamedException on error
+	 */
+	public List<EdgeMetadata> getPageDevice(User user, PaginationOptions paginationOptions)
+			throws OpenemsNamedException;
+
+	/**
+	 * Gets the Role for a edge of the current user.
+	 *
+	 * @param user   {@link User} the current user
+	 * @param edgeId the Edge-ID
+	 * @return the role to the edge
+	 * @throws OpenemsNamedException on error
+	 */
+	public EdgeMetadata getEdgeMetadataForUser(User user, String edgeId) throws OpenemsNamedException;
+
+	/**
+	 * Get the SumState of the edge with the given edgeId.
+	 *
+	 * @param edgeId to search for
+	 * @return sumState as {@link Optional} of {@link Level}
+	 */
+	public Optional<Level> getSumState(String edgeId);
+
+	public interface GenericSystemLog {
+
+		/**
+		 * Gets the edgeId of the target log.
+		 * 
+		 * @return the edgeId
+		 */
+		public String edgeId();
+
+		/**
+		 * Gets the user which triggered the log.
+		 * 
+		 * @return the user
+		 */
+		public User user();
+
+		/**
+		 * Gets a short string which represents the whole log.
+		 * 
+		 * @return the teaser string
+		 */
+		public String teaser();
+
+		/**
+		 * Gets a map of values of the log.
+		 * 
+		 * @return the map
+		 */
+		public Map<String, String> getValues();
+	}
+
+	/**
+	 * Handles a Systemlog-Message.
+	 * 
+	 * @param systemLog the log
+	 */
+	public void logGenericSystemLog(GenericSystemLog systemLog);
 
 }

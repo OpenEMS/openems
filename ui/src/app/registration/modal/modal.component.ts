@@ -4,22 +4,25 @@ import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { RegisterUserRequest } from 'src/app/shared/jsonrpc/request/registerUserRequest';
 import { Service, Websocket } from 'src/app/shared/shared';
+import { COUNTRY_OPTIONS } from 'src/app/shared/type/country';
+import { environment } from 'src/environments';
 
 @Component({
   selector: 'registration-modal',
-  templateUrl: './modal.component.html'
+  templateUrl: './modal.component.html',
 })
 export class RegistrationModalComponent implements OnInit {
 
-  formGroup: FormGroup;
-  activeSegment: string = "owner";
+  protected formGroup: FormGroup;
+  protected activeSegment: string = "installer";
+  protected readonly countries = COUNTRY_OPTIONS(this.translate);
 
   constructor(
     private formBuilder: FormBuilder,
     public modalCtrl: ModalController,
     private translate: TranslateService,
     private service: Service,
-    private websocket: Websocket
+    private websocket: Websocket,
   ) { }
 
   ngOnInit() {
@@ -28,7 +31,7 @@ export class RegistrationModalComponent implements OnInit {
 
   /**
    * Update the form depending on the thrown event (ionChange) value.
-   * 
+   *
    * @param event to get current value and change the form
    */
   updateRegistrationForm(event: CustomEvent) {
@@ -44,15 +47,23 @@ export class RegistrationModalComponent implements OnInit {
       return;
     }
 
-    let password = this.formGroup.value.password;
-    let confirmPassword = this.formGroup.value.confirmPassword;
+    const password = this.formGroup.value.password;
+    const confirmPassword = this.formGroup.value.confirmPassword;
 
     if (password != confirmPassword) {
       this.service.toast(this.translate.instant("Register.errors.passwordNotEqual"), 'danger');
       return;
     }
 
-    let request = new RegisterUserRequest({
+    const email = this.formGroup.value.email;
+    const confirmEmail = this.formGroup.value.confirmEmail;
+
+    if (email != confirmEmail) {
+      this.service.toast(this.translate.instant("Register.errors.emailNotEqual"), 'danger');
+      return;
+    }
+
+    const request = new RegisterUserRequest({
       user: {
         firstname: this.formGroup.value.firstname,
         lastname: this.formGroup.value.lastname,
@@ -64,21 +75,22 @@ export class RegistrationModalComponent implements OnInit {
           street: this.formGroup.value.street,
           zip: this.formGroup.value.zip,
           city: this.formGroup.value.city,
-          country: this.formGroup.value.country
+          country: this.formGroup.value.country,
         },
-        role: this.activeSegment
-      }
+        role: this.activeSegment,
+      },
+      oem: environment.theme,
     });
 
-    let companyName = this.formGroup.value.companyName;
+    const companyName = this.formGroup.value.companyName;
     if (companyName) {
       request.params.user.company = {
-        name: companyName
-      }
+        name: companyName,
+      };
     }
 
     this.websocket.sendRequest(request)
-      .then(res => {
+      .then(() => {
         this.service.toast(this.translate.instant("Register.success"), 'success');
         this.modalCtrl.dismiss();
       })
@@ -103,6 +115,7 @@ export class RegistrationModalComponent implements OnInit {
         country: new FormControl("", Validators.required),
         phone: new FormControl("", Validators.required),
         email: new FormControl("", [Validators.required, Validators.email]),
+        confirmEmail: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
         confirmPassword: new FormControl("", Validators.required),
       });
@@ -116,6 +129,7 @@ export class RegistrationModalComponent implements OnInit {
         country: new FormControl("", Validators.required),
         phone: new FormControl("", Validators.required),
         email: new FormControl("", [Validators.required, Validators.email]),
+        confirmEmail: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
         confirmPassword: new FormControl("", Validators.required),
       });

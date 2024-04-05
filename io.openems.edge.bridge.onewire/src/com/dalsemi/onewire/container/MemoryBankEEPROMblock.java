@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -135,29 +136,32 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	public MemoryBankEEPROMblock(OneWireContainer30 ibutton) {
 
 		// keep reference to ibutton where memory bank is
-		ib = ibutton;
+		this.ib = ibutton;
 
 		// initialize attributes of this memory bank - DEFAULT: Main memory DS1985 w/o
 		// lock stuff
-		numberPages = 2;
-		size = 32;
-		pageLength = 16;
-		maxPacketDataLength = 13;
+		this.numberPages = 2;
+		this.size = 32;
+		this.pageLength = 16;
+		this.maxPacketDataLength = 13;
 
 		try {
-			lockPage0 = ib.getFlag(OneWireContainer30.EEPROM_REGISTER, OneWireContainer30.EEPROM_BLOCK_0_LOCK_FLAG);
-			lockPage1 = ib.getFlag(OneWireContainer30.EEPROM_REGISTER, OneWireContainer30.EEPROM_BLOCK_1_LOCK_FLAG);
+			this.lockPage0 = this.ib.getFlag(OneWireContainer30.EEPROM_REGISTER,
+					OneWireContainer30.EEPROM_BLOCK_0_LOCK_FLAG);
+			this.lockPage1 = this.ib.getFlag(OneWireContainer30.EEPROM_REGISTER,
+					OneWireContainer30.EEPROM_BLOCK_1_LOCK_FLAG);
 		} catch (Exception ioe) {
 			ioe.printStackTrace();
 		}
 
-		writeVerification = false;
-		startPhysicalAddress = 32;
-		doSetSpeed = true;
+		this.writeVerification = false;
+		this.startPhysicalAddress = 32;
+		this.doSetSpeed = true;
 
 		// create the ffblock (used for faster 0xFF fills)
-		for (int i = 0; i < 32; i++)
-			ffBlock[i] = (byte) 0xFF;
+		for (var i = 0; i < 32; i++) {
+			this.ffBlock[i] = (byte) 0xFF;
+		}
 	}
 
 	// --------
@@ -169,6 +173,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 *
 	 * @return String containing the memory bank description
 	 */
+	@Override
 	public String getBankDescription() {
 		return "EEPROM memory for DS2760";
 	}
@@ -180,6 +185,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 *
 	 * @return 'true' if current memory bank is general purpose
 	 */
+	@Override
 	public boolean isGeneralPurposeMemory() {
 		return true;
 	}
@@ -189,11 +195,12 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 *
 	 * @return 'true' if current memory bank is read/write
 	 */
+	@Override
 	public boolean isReadWrite() {
-		if (lockPage0 && lockPage1)
+		if (this.lockPage0 && this.lockPage1) {
 			return false;
-		else
-			return true;
+		}
+		return true;
 	}
 
 	/**
@@ -202,6 +209,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 *
 	 * @return 'true' if current memory bank can only be written once
 	 */
+	@Override
 	public boolean isWriteOnce() {
 		return false;
 	}
@@ -211,11 +219,12 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 *
 	 * @return 'true' if current memory bank can only be read
 	 */
+	@Override
 	public boolean isReadOnly() {
-		if (lockPage0 && lockPage1)
+		if (this.lockPage0 && this.lockPage1) {
 			return true;
-		else
-			return false;
+		}
+		return false;
 	}
 
 	/**
@@ -224,6 +233,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 *
 	 * @return 'true' if current memory bank non volatile.
 	 */
+	@Override
 	public boolean isNonVolatile() {
 		return true;
 	}
@@ -235,6 +245,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @return 'true' if writing to the current memory bank pages requires a
 	 *         'ProgramPulse'.
 	 */
+	@Override
 	public boolean needsProgramPulse() {
 		return false;
 	}
@@ -246,6 +257,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @return 'true' if writing to the current memory bank pages requires
 	 *         'PowerDelivery'.
 	 */
+	@Override
 	public boolean needsPowerDelivery() {
 		return false;
 	}
@@ -256,8 +268,9 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 *
 	 * @return physical starting address of this logical bank.
 	 */
+	@Override
 	public int getStartPhysicalAddress() {
-		return startPhysicalAddress;
+		return this.startPhysicalAddress;
 	}
 
 	/**
@@ -265,8 +278,9 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 *
 	 * @return memory bank size in bytes.
 	 */
+	@Override
 	public int getSize() {
-		return size;
+		return this.size;
 	}
 
 	// --------
@@ -278,8 +292,9 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 *
 	 * @return number of pages in current memory bank
 	 */
+	@Override
 	public int getNumberPages() {
-		return numberPages;
+		return this.numberPages;
 	}
 
 	/**
@@ -287,20 +302,22 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 *
 	 * @return page length in bytes in current memory bank
 	 */
+	@Override
 	public int getPageLength() {
-		return pageLength;
+		return this.pageLength;
 	}
 
 	/**
 	 * Query to get Maximum data page length in bytes for a packet read or written
 	 * in the current memory bank. See the 'ReadPagePacket()' and
-	 * 'WritePagePacket()' methods. This method is only useful if the current
-	 * memory bank is general purpose memory.
+	 * 'WritePagePacket()' methods. This method is only useful if the current memory
+	 * bank is general purpose memory.
 	 *
 	 * @return max packet page length in bytes in current memory bank
 	 */
+	@Override
 	public int getMaxPacketDataLength() {
-		return maxPacketDataLength;
+		return this.maxPacketDataLength;
 	}
 
 	/**
@@ -310,6 +327,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 *
 	 * @return 'true' if current memory bank can be read with self generated CRC.
 	 */
+	@Override
 	public boolean hasPageAutoCRC() {
 		return false;
 	}
@@ -331,6 +349,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @see #readPagePacket(int,boolean,byte[],int,byte[]) readPagePacket(extra)
 	 * @since 1-Wire API 0.01
 	 */
+	@Override
 	public boolean hasExtraInfo() {
 		return false;
 	}
@@ -342,6 +361,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @return number of bytes in Extra Information read when reading pages in the
 	 *         current memory bank.
 	 */
+	@Override
 	public int getExtraInfoLength() {
 		return 0;
 	}
@@ -353,6 +373,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 *
 	 * @return string describing extra information.
 	 */
+	@Override
 	public String getExtraInfoDescription() {
 		return null;
 	}
@@ -363,8 +384,9 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @param doReadVerf true (default) verify write in 'write' false, don't verify
 	 *                   write (used on Write-Once bit manipulation)
 	 */
+	@Override
 	public void setWriteVerification(boolean doReadVerf) {
-		writeVerification = doReadVerf;
+		this.writeVerification = doReadVerf;
 	}
 
 	// --------
@@ -377,6 +399,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 *
 	 * @return 'true' if current memory bank pages can be redirected to a new page.
 	 */
+	@Override
 	public boolean canRedirectPage() {
 		return false;
 	}
@@ -387,6 +410,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 *
 	 * @return 'true' if current memory bank pages can be redirected to a new page.
 	 */
+	@Override
 	public boolean canLockPage() {
 		return true;
 	}
@@ -398,6 +422,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @return 'true' if current memory bank pages can be locked from being
 	 *         redirected to a new page.
 	 */
+	@Override
 	public boolean canLockRedirectPage() {
 		return false;
 	}
@@ -428,80 +453,86 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void read(int startAddr, boolean readContinue, byte[] readBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
 		int i;
-		byte[] buffer = new byte[18];
+		var buffer = new byte[18];
 
-		if ((startAddr + len) > 32)
+		if (startAddr + len > 32) {
 			throw new OneWireException("Read exceeds memory bank end");
+		}
 
 		// calculate the address (32 and 48 are valid addresses)
 		byte memAddr;
-		if (startAddr < 16)
-			memAddr = (byte) startPhysicalAddress;
-		else
-			memAddr = (byte) (startPhysicalAddress + 16);
+		if (startAddr < 16) {
+			memAddr = (byte) this.startPhysicalAddress;
+		} else {
+			memAddr = (byte) (this.startPhysicalAddress + 16);
+		}
 
 		/* perform the recall/read and verification */
-		ib.doSpeed();
-		ib.adapter.reset();
+		this.ib.doSpeed();
+		this.ib.adapter.reset();
 
-		if (ib.adapter.select(ib.address)) {
+		if (!this.ib.adapter.select(this.ib.address)) {
+			throw new OneWireException("OneWireContainer30-Device not found.");
+		}
+		/* first recall the memory to shadow ram */
+		buffer[0] = RECALL_DATA_COMMAND;
+		buffer[1] = memAddr;
 
-			/* first recall the memory to shadow ram */
+		this.ib.adapter.dataBlock(buffer, 0, 2);
+
+		/* now read the shadow ram */
+		this.ib.adapter.reset();
+		this.ib.adapter.select(this.ib.address);
+
+		buffer[0] = READ_DATA_COMMAND;
+
+		// buffer[1] should still hold memAddr
+		System.arraycopy(this.ffBlock, 0, buffer, 2, 16);
+
+		this.ib.adapter.dataBlock(buffer, 0, 18);
+
+		// user can re-read for verification
+		if (startAddr < 16 && startAddr + len < 16) {
+			for (i = startAddr; i < startAddr + len; i++) {
+				readBuf[offset + i - startAddr] = buffer[i + 2];
+			}
+		} else if (startAddr >= 16) {
+			for (i = startAddr; i < startAddr + len; i++) {
+				readBuf[offset + i - startAddr] = buffer[i - startAddr + 2 + startAddr - 16];
+			}
+		} else {
+			for (i = startAddr; i < 16; i++) {
+				readBuf[offset + i - startAddr] = buffer[i + 2];
+			}
+
+			this.ib.adapter.reset();
+			this.ib.adapter.select(this.ib.address);
+
 			buffer[0] = RECALL_DATA_COMMAND;
-			buffer[1] = memAddr;
+			buffer[1] = (byte) (memAddr + 16);
 
-			ib.adapter.dataBlock(buffer, 0, 2);
+			this.ib.adapter.dataBlock(buffer, 0, 2);
 
 			/* now read the shadow ram */
-			ib.adapter.reset();
-			ib.adapter.select(ib.address);
+			this.ib.adapter.reset();
+			this.ib.adapter.select(this.ib.address);
 
 			buffer[0] = READ_DATA_COMMAND;
 
 			// buffer[1] should still hold memAddr
-			System.arraycopy(ffBlock, 0, buffer, 2, 16);
+			System.arraycopy(this.ffBlock, 0, buffer, 2, 16);
 
-			ib.adapter.dataBlock(buffer, 0, 18);
+			this.ib.adapter.dataBlock(buffer, 0, 18);
 
 			// user can re-read for verification
-			if ((startAddr < 16) && (startAddr + len < 16)) {
-				for (i = startAddr; i < (startAddr + len); i++)
-					readBuf[offset + i - startAddr] = buffer[i + 2];
-			} else if (startAddr >= 16) {
-				for (i = startAddr; i < (startAddr + len); i++)
-					readBuf[offset + i - startAddr] = buffer[i - startAddr + 2 + (startAddr - 16)];
-			} else {
-				for (i = startAddr; i < 16; i++)
-					readBuf[offset + i - startAddr] = buffer[i + 2];
-
-				ib.adapter.reset();
-				ib.adapter.select(ib.address);
-
-				buffer[0] = RECALL_DATA_COMMAND;
-				buffer[1] = (byte) (memAddr + 16);
-
-				ib.adapter.dataBlock(buffer, 0, 2);
-
-				/* now read the shadow ram */
-				ib.adapter.reset();
-				ib.adapter.select(ib.address);
-
-				buffer[0] = READ_DATA_COMMAND;
-
-				// buffer[1] should still hold memAddr
-				System.arraycopy(ffBlock, 0, buffer, 2, 16);
-
-				ib.adapter.dataBlock(buffer, 0, 18);
-
-				// user can re-read for verification
-				for (i = 16; i < (startAddr + len); i++)
-					readBuf[i + offset - startAddr] = buffer[i - 14];
+			for (i = 16; i < startAddr + len; i++) {
+				readBuf[i + offset - startAddr] = buffer[i - 14];
 			}
-		} else
-			throw new OneWireException("OneWireContainer30-Device not found.");
+		}
 	}
 
 	/**
@@ -524,115 +555,123 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void write(int startAddr, byte[] writeBuf, int offset, int len) throws OneWireIOException, OneWireException {
-		byte[] buffer = new byte[18];
-		byte[] memory = new byte[32];
+		var buffer = new byte[18];
+		var memory = new byte[32];
 		int modify;
 		int i;
 
-		if (startAddr + len > 32)
+		if (startAddr + len > 32) {
 			throw new OneWireException("Write exceeds memory bank end");
+		}
 
 		// the first block is at address 32 and the second is at address 48
 		byte memAddr;
-		if (startAddr < 16)
-			memAddr = (byte) startPhysicalAddress;
-		else
-			memAddr = (byte) (startPhysicalAddress + 16);
+		if (startAddr < 16) {
+			memAddr = (byte) this.startPhysicalAddress;
+		} else {
+			memAddr = (byte) (this.startPhysicalAddress + 16);
+		}
 
 		// if the EEPROM block is locked throw a OneWireIOException
-		if ((lockPage0 && (memAddr == 32)) || (lockPage1 && (memAddr == 48)))
+		if (this.lockPage0 && memAddr == 32 || this.lockPage1 && memAddr == 48) {
 			throw new OneWireIOException("OneWireContainer30-Cant write data to locked EEPROM block.");
+		}
 
 		// read memory that is already there
-		read(0, false, memory, 0, 32);
+		this.read(0, false, memory, 0, 32);
 
 		System.arraycopy(writeBuf, offset, memory, startAddr, len);
 
 		/* perform the write/verification and copy */
-		ib.doSpeed();
-		ib.adapter.reset();
+		this.ib.doSpeed();
+		this.ib.adapter.reset();
 
-		if (ib.adapter.select(ib.address)) {
-			/* first write to shadow rom */
-			buffer[0] = WRITE_DATA_COMMAND;
-			buffer[1] = memAddr;
-
-			if (memAddr == 32) {
-				System.arraycopy(memory, 0, buffer, 2, 16);
-				modify = 0;
-			} else {
-				System.arraycopy(memory, 16, buffer, 2, 16);
-				modify = 16;
-			}
-
-			ib.adapter.dataBlock(buffer, 0, 18);
-
-			/* read the shadow ram back for verification */
-			ib.adapter.reset();
-			ib.adapter.select(ib.address);
-
-			buffer[0] = READ_DATA_COMMAND;
-
-			// buffer[1] should still hold memAddr
-			System.arraycopy(ffBlock, 0, buffer, 2, 16);
-
-			ib.adapter.dataBlock(buffer, 0, 18);
-
-			// verify data
-			for (i = 0; i < 16; i++)
-				if (buffer[i + 2] != memory[i + modify])
-					throw new OneWireIOException("Error writing EEPROM memory bank");
-
-			/* now perform the copy to EEPROM */
-			ib.adapter.reset();
-			ib.adapter.select(ib.address);
-
-			buffer[0] = COPY_DATA_COMMAND;
-
-			// buffer[1] should still hold memAddr
-			ib.adapter.dataBlock(buffer, 0, 2);
-
-			if ((startAddr < 16) && ((startAddr + len) >= 16)) {
-				memAddr = 48;
-				ib.adapter.reset();
-
-				if (ib.adapter.select(ib.address)) {
-					/* first write to shadow rom */
-					buffer[0] = WRITE_DATA_COMMAND;
-					buffer[1] = memAddr;
-
-					System.arraycopy(memory, 16, buffer, 2, 16);
-
-					ib.adapter.dataBlock(buffer, 0, 18);
-
-					/* read the shadow ram back for verification */
-					ib.adapter.reset();
-					ib.adapter.select(ib.address);
-
-					buffer[0] = READ_DATA_COMMAND;
-
-					// buffer[1] should still hold memAddr
-					System.arraycopy(ffBlock, 0, buffer, 2, 16);
-
-					ib.adapter.dataBlock(buffer, 0, 18);
-
-					// verify data
-					for (i = 0; i < 16; i++)
-						if (buffer[i + 2] != memory[i + 16])
-							throw new OneWireIOException("Error writing EEPROM memory bank");
-
-					/* now perform the copy to EEPROM */
-					ib.adapter.reset();
-					ib.adapter.select(ib.address);
-
-					buffer[0] = COPY_DATA_COMMAND;
-
-					ib.adapter.dataBlock(buffer, 0, 2);
-				}
-			}
-		} else
+		if (!this.ib.adapter.select(this.ib.address)) {
 			throw new OneWireException("OneWireContainer30-Device not found.");
+		}
+		/* first write to shadow rom */
+		buffer[0] = WRITE_DATA_COMMAND;
+		buffer[1] = memAddr;
+
+		if (memAddr == 32) {
+			System.arraycopy(memory, 0, buffer, 2, 16);
+			modify = 0;
+		} else {
+			System.arraycopy(memory, 16, buffer, 2, 16);
+			modify = 16;
+		}
+
+		this.ib.adapter.dataBlock(buffer, 0, 18);
+
+		/* read the shadow ram back for verification */
+		this.ib.adapter.reset();
+		this.ib.adapter.select(this.ib.address);
+
+		buffer[0] = READ_DATA_COMMAND;
+
+		// buffer[1] should still hold memAddr
+		System.arraycopy(this.ffBlock, 0, buffer, 2, 16);
+
+		this.ib.adapter.dataBlock(buffer, 0, 18);
+
+		// verify data
+		for (i = 0; i < 16; i++) {
+			if (buffer[i + 2] != memory[i + modify]) {
+				throw new OneWireIOException("Error writing EEPROM memory bank");
+			}
+		}
+
+		/* now perform the copy to EEPROM */
+		this.ib.adapter.reset();
+		this.ib.adapter.select(this.ib.address);
+
+		buffer[0] = COPY_DATA_COMMAND;
+
+		// buffer[1] should still hold memAddr
+		this.ib.adapter.dataBlock(buffer, 0, 2);
+
+		if (startAddr < 16 && startAddr + len >= 16) {
+			memAddr = 48;
+			this.ib.adapter.reset();
+
+			if (this.ib.adapter.select(this.ib.address)) {
+				/* first write to shadow rom */
+				buffer[0] = WRITE_DATA_COMMAND;
+				buffer[1] = memAddr;
+
+				System.arraycopy(memory, 16, buffer, 2, 16);
+
+				this.ib.adapter.dataBlock(buffer, 0, 18);
+
+				/* read the shadow ram back for verification */
+				this.ib.adapter.reset();
+				this.ib.adapter.select(this.ib.address);
+
+				buffer[0] = READ_DATA_COMMAND;
+
+				// buffer[1] should still hold memAddr
+				System.arraycopy(this.ffBlock, 0, buffer, 2, 16);
+
+				this.ib.adapter.dataBlock(buffer, 0, 18);
+
+				// verify data
+				for (i = 0; i < 16; i++) {
+					if (buffer[i + 2] != memory[i + 16]) {
+						throw new OneWireIOException("Error writing EEPROM memory bank");
+					}
+				}
+
+				/* now perform the copy to EEPROM */
+				this.ib.adapter.reset();
+				this.ib.adapter.select(this.ib.address);
+
+				buffer[0] = COPY_DATA_COMMAND;
+
+				this.ib.adapter.dataBlock(buffer, 0, 2);
+			}
+		}
 	}
 
 	// --------
@@ -660,9 +699,10 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPage(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
-		read(page * pageLength, readContinue, readBuf, offset, pageLength);
+		this.read(page * this.pageLength, readContinue, readBuf, offset, this.pageLength);
 	}
 
 	/**
@@ -688,6 +728,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPage(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
 		throw new OneWireException("Read extra information not supported on this memory bank");
@@ -714,6 +755,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public int readPagePacket(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
 		throw new OneWireException("Read extra information not supported on this memory bank");
@@ -739,16 +781,17 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public int readPagePacket(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
-		byte[] raw_buf = new byte[pageLength];
+		var raw_buf = new byte[this.pageLength];
 
 		// read entire page with read page CRC
-		read((page * pageLength), readContinue, raw_buf, 0, pageLength);
+		this.read(page * this.pageLength, readContinue, raw_buf, 0, this.pageLength);
 
 		// check if length is realistic
-		if ((raw_buf[0] & 0x00FF) > maxPacketDataLength) {
-			forceVerify();
+		if ((raw_buf[0] & 0x00FF) > this.maxPacketDataLength) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Invalid length in packet");
 		}
@@ -761,11 +804,10 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 
 			// return the length
 			return raw_buf[0];
-		} else {
-			forceVerify();
-
-			throw new OneWireIOException("Invalid CRC16 in packet read");
 		}
+		this.forceVerify();
+
+		throw new OneWireIOException("Invalid CRC16 in packet read");
 	}
 
 	/**
@@ -780,27 +822,29 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void writePagePacket(int page, byte[] writeBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
 
 		// make sure length does not exceed max
-		if (len > maxPacketDataLength)
+		if (len > this.maxPacketDataLength) {
 			throw new OneWireIOException("Length of packet requested exceeds page size");
+		}
 
 		// construct the packet to write
-		byte[] raw_buf = new byte[len + 3];
+		var raw_buf = new byte[len + 3];
 
 		raw_buf[0] = (byte) len;
 
 		System.arraycopy(writeBuf, offset, raw_buf, 1, len);
 
-		int crc = CRC16.compute(raw_buf, 0, len + 1, page);
+		var crc = CRC16.compute(raw_buf, 0, len + 1, page);
 
 		raw_buf[len + 1] = (byte) (~crc & 0xFF);
-		raw_buf[len + 2] = (byte) (((~crc & 0xFFFF) >>> 8) & 0xFF);
+		raw_buf[len + 2] = (byte) ((~crc & 0xFFFF) >>> 8 & 0xFF);
 
 		// write the packet, return result
-		write(page * pageLength, raw_buf, 0, len + 3);
+		this.write(page * this.pageLength, raw_buf, 0, len + 3);
 	}
 
 	/**
@@ -819,6 +863,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
 		throw new OneWireException("Read page with CRC not supported in this memory bank");
@@ -843,6 +888,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
 		throw new OneWireException("Read page with CRC not supported in this memory bank");
@@ -861,29 +907,30 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void lockPage(int page) throws OneWireIOException, OneWireException {
-		if (page > 1)
+		if (page > 1) {
 			throw new OneWireException("Page does not exist to lock");
+		}
 
-		ib.setFlag(OneWireContainer30.EEPROM_REGISTER, OneWireContainer30.EEPROM_LOCK_ENABLE_FLAG, true);
+		this.ib.setFlag(OneWireContainer30.EEPROM_REGISTER, OneWireContainer30.EEPROM_LOCK_ENABLE_FLAG, true);
 
 		if (page == 0) {
-			ib.setFlag(OneWireContainer30.EEPROM_REGISTER, OneWireContainer30.EEPROM_BLOCK_0_LOCK_FLAG, true);
+			this.ib.setFlag(OneWireContainer30.EEPROM_REGISTER, OneWireContainer30.EEPROM_BLOCK_0_LOCK_FLAG, true);
 		} else if (page == 1) {
-			ib.setFlag(OneWireContainer30.EEPROM_REGISTER, OneWireContainer30.EEPROM_BLOCK_1_LOCK_FLAG, true);
+			this.ib.setFlag(OneWireContainer30.EEPROM_REGISTER, OneWireContainer30.EEPROM_BLOCK_1_LOCK_FLAG, true);
 		}
 
 		// read back to verify
-		if (!isPageLocked(page)) {
-			forceVerify();
+		if (!this.isPageLocked(page)) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Read back from write incorrect, could not lock page");
-		} else {
-			if (page == 0) {
-				lockPage0 = true;
-			} else if (page == 1) {
-				lockPage1 = true;
-			}
+		}
+		if (page == 0) {
+			this.lockPage0 = true;
+		} else if (page == 1) {
+			this.lockPage1 = true;
 		}
 	}
 
@@ -897,16 +944,18 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public boolean isPageLocked(int page) throws OneWireIOException, OneWireException {
-		boolean flag = false;
+		var flag = false;
 
-		if (page > 1)
+		if (page > 1) {
 			throw new OneWireException("Page does not exist to be locked");
+		}
 
 		if (page == 0) {
-			flag = ib.getFlag(OneWireContainer30.EEPROM_REGISTER, OneWireContainer30.EEPROM_BLOCK_0_LOCK_FLAG);
+			flag = this.ib.getFlag(OneWireContainer30.EEPROM_REGISTER, OneWireContainer30.EEPROM_BLOCK_0_LOCK_FLAG);
 		} else if (page == 1) {
-			flag = ib.getFlag(OneWireContainer30.EEPROM_REGISTER, OneWireContainer30.EEPROM_BLOCK_1_LOCK_FLAG);
+			flag = this.ib.getFlag(OneWireContainer30.EEPROM_REGISTER, OneWireContainer30.EEPROM_BLOCK_1_LOCK_FLAG);
 		}
 
 		return flag;
@@ -923,6 +972,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void redirectPage(int page, int newPage) throws OneWireIOException, OneWireException {
 		throw new OneWireException("This memory bank does not support redirection.");
 	}
@@ -948,19 +998,21 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @see #redirectPage(int,int) redirectPage
 	 * @since 1-Wire API 0.01
 	 */
+	@Override
 	public int getRedirectedPage(int page) throws OneWireIOException, OneWireException {
 		throw new OneWireException("This memory bank does not support redirection.");
 	}
 
 	/**
-	 * Lock the redirection option for the specified page in the current memory bank.
-	 * Not supported by all devices. See the method 'canLockRedirectPage()'.
+	 * Lock the redirection option for the specified page in the current memory
+	 * bank. Not supported by all devices. See the method 'canLockRedirectPage()'.
 	 *
 	 * @param page number of page to redirect
 	 *
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void lockRedirectPage(int page) throws OneWireIOException, OneWireException {
 		throw new OneWireException("This memory bank does not support redirection.");
 	}
@@ -976,6 +1028,7 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public boolean isRedirectPageLocked(int page) throws OneWireIOException, OneWireException {
 		throw new OneWireException("This memory bank does not support redirection.");
 	}
@@ -995,13 +1048,13 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 		synchronized (this) {
 
 			// only check the speed
-			if (doSetSpeed) {
+			if (this.doSetSpeed) {
 
 				// attempt to set the correct speed and verify device present
-				ib.doSpeed();
+				this.ib.doSpeed();
 
 				// no exceptions so clear flag
-				doSetSpeed = false;
+				this.doSetSpeed = false;
 			}
 		}
 	}
@@ -1012,8 +1065,9 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	 */
 	public void forceVerify() {
 		synchronized (this) {
-			doSetSpeed = true;
+			this.doSetSpeed = true;
 		}
 	}
 
 }
+// CHECKSTYLE:ON

@@ -1,19 +1,19 @@
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { EdgeConfig, Edge, Websocket, Service } from 'src/app/shared/shared';
-import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
+import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 @Component({
     selector: 'aliasupdate',
-    templateUrl: './aliasupdate.component.html'
+    templateUrl: './aliasupdate.component.html',
 })
-export class AliasUpdateComponent {
+export class AliasUpdateComponent implements OnInit {
 
     private edge: Edge;
 
     public component: EdgeConfig.Component = null;
-    public formGroup: FormGroup = null;
+    public formGroup: FormGroup | null = null;
     public factory: EdgeConfig.Factory = null;
     public componentIcon: string = null;
 
@@ -26,28 +26,28 @@ export class AliasUpdateComponent {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.renameComponents'), this.route).then(edge => {
+        this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.renameComponents' }, this.route).then(edge => {
             this.edge = edge;
         });
         this.service.getConfig().then(config => {
-            let componentId = this.route.snapshot.params["componentId"];
+            const componentId = this.route.snapshot.params["componentId"];
             this.component = config.components[componentId];
             this.factory = config.factories[this.component.factoryId];
             this.componentIcon = config.getFactoryIcon(this.factory);
             this.formGroup = this.formBuilder.group({
-                alias: new FormControl(this.component.alias)
-            })
-        })
+                alias: new FormControl(this.component.alias),
+            });
+        });
     }
 
     updateAlias(alias) {
-        let newAlias = alias;
+        const newAlias = alias;
         if (this.edge != null) {
             if (this.component.id == newAlias) {
                 this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
             } else {
                 this.edge.updateComponentConfig(this.websocket, this.component.id, [
-                    { name: 'alias', value: newAlias }
+                    { name: 'alias', value: newAlias },
                 ]).then(() => {
                     this.formGroup.markAsPristine();
                     this.service.toast(this.translate.instant('General.changeAccepted'), 'success');

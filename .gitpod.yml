@@ -7,14 +7,14 @@ tasks:
       ./gradlew build buildBackend -x test
       rm /tmp/.gradle-lock
     command: java 
-      -Dfelix.cm.dir=$(pwd)/tools/docker/openems-backend/config.d
+      -Dfelix.cm.dir=$(pwd)/tools/gitpod/openems-backend/config.d
       -jar build/openems-backend.jar
   - init: |
       sleep 10 && while [ -f /tmp/.gradle-lock ]; do sleep 1; done
       ./gradlew build buildEdge -x test
     command: java 
-      -Dfelix.cm.dir=$(pwd)/tools/docker/openems-edge/config.d
-      -Dopenems.data.dir=$(pwd)/tools/docker/openems-edge/data
+      -Dfelix.cm.dir=$(pwd)/tools/gitpod/openems-edge/config.d
+      -Dopenems.data.dir=$(pwd)/tools/gitpod/openems-edge/data
       -jar build/openems-edge.jar
   - init: cd ui && npm install
     command: ng serve 
@@ -22,38 +22,60 @@ tasks:
       --host 0.0.0.0
       --disable-host-check
   - init: |
-      mkdir /workspace/odoo && cd /workspace/odoo
-      git clone --depth=1 -b feature/gitpod https://github.com/OpenEMS/odoo-openems.git openems
-      git clone --depth=1 -b 12.0 https://github.com/OCA/partner-contact
-      git clone --depth=1 -b 12.0 https://github.com/OCA/web.git
-      ln -s ./partner-contact/partner_firstname ./partner_firstname
-      ln -s ./web/web_m2x_options ./web_m2x_options
-    command: odoo -d v12 --addons-path=/workspace/odoo -i base,partner_firstname,web_m2x_options,stock,openems
+      mkdir -p /workspace/odoo
+      cd /workspace/odoo
+      mkdir -p addons-available addons-enabled
+      cd addons-available
+      git clone --depth=1 -b 16.0 https://github.com/OCA/partner-contact
+      git clone --depth=1 -b 16.0 https://github.com/OCA/web.git
+      git clone --depth=1 -b 16.0 https://github.com/OpenEMS/odoo-openems.git
+      cd ../addons-enabled
+      ln -s ../addons-available/partner-contact/partner_firstname
+      ln -s ../addons-available/web/web_m2x_options
+      ln -s ../addons-available/odoo-openems/openems
+    command: odoo -d prod --addons-path=/workspace/odoo/addons-enabled -i base,partner_firstname,web_m2x_options,stock,openems
 
 ports:
-  # Backend
-  - port: 8075 # Backend-to-Backend JSON/REST Api
-    onOpen: ignore
-  - port: 8076 # Backend-to-Backend JSON/Websocket Api
-    onOpen: ignore
-  - port: 8079 # Apache Felix Web Console
-    onOpen: ignore
-  - port: 8081 # Edge-Websocket
-    onOpen: ignore
-  - port: 8082 # UI-Websocket
-    onOpen: ignore
-  # Edge
-  - port: 8080 # Apache Felix Web Console
-    onOpen: ignore
-  - port: 8084 # JSON/REST Api
-    onOpen: ignore
-  - port: 8085 # JSON/Websocket Api
-    onOpen: ignore
-  # UI
-  - port: 4200
+  - name: OpenEMS UI
+    description: OpenEMS User-Interface. Login admin:admin
+    port: 4200
+    onOpen: open-browser 
+  - name: OpenEMS Backend - Odoo. Login admin:admin
+    description: Odoo - Open Source ERP und CRM
+    port: 8069
     onOpen: open-browser
-  # Odoo
-  - port: 8069
-    onOpen: open-browser
-  - port: 5432
+  - name: OpenEMS Backend - Apache Felix Web Console
+    description: Configure Backend OSGi components via `/system/console/configMgr`
+    port: 8079
+    onOpen: ignore
+  - name: OpenEMS Edge - Apache Felix Web Console
+    description: Configure Edge OSGi components via `/system/console/configMgr`
+    port: 8080
+    onOpen: ignore
+  - name: OpenEMS Backend - Backend-to-Backend JSON/REST Api
+    description: Cloud-side JSON/REST Api
+    port: 8075
+    onOpen: ignore
+  - name: OpenEMS Backend - Backend-to-Backend JSON/Websocket Api
+    description: Cloud-side JSON/Websocket Api
+    port: 8076
+    onOpen: ignore
+  - name: OpenEMS Backend - Odoo XML-RPC Api
+    port: 5432
+    onOpen: ignore
+  - name: OpenEMS Backend - Edge-Websocket
+    description: OpenEMS Edges connect here 
+    port: 8081
+    onOpen: ignore
+  - name: OpenEMS Backend - UI-Websocket
+    description: OpenEMS UIs connect here 
+    port: 8082
+    onOpen: ignore
+  - name: OpenEMS Edge - JSON/REST Api
+    description: Local JSON/REST Api
+    port: 8084
+    onOpen: ignore
+  - name: OpenEMS Edge - JSON/Websocket Api
+    description: Local JSON/Websocket Api
+    port: 8085
     onOpen: ignore

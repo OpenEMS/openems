@@ -13,13 +13,13 @@ public class WeightsUtil {
 
 	/**
 	 * Sets the weight of each Inverter according to the SoC of its ESS.
-	 * 
+	 *
 	 * @param inverters a List of inverters
 	 * @param esss      list of {@link ManagedSymmetricEss}s
 	 */
 	public static void updateWeightsFromSoc(List<Inverter> inverters, List<ManagedSymmetricEss> esss) {
 		for (Inverter inv : inverters) {
-			int weight = DEFAULT_WEIGHT;
+			var weight = DEFAULT_WEIGHT;
 			for (ManagedSymmetricEss ess : esss) {
 				if (inv.getEssId().equals(ess.id())) {
 					weight = ess.getSoc().orElse(DEFAULT_WEIGHT);
@@ -32,13 +32,13 @@ public class WeightsUtil {
 
 	/**
 	 * Sorts the list of Inverters by their weights descending.
-	 * 
+	 *
 	 * @param inverters a List of inverters
 	 */
 	public static void sortByWeights(List<Inverter> inverters) {
 		Collections.sort(inverters, (e1, e2) -> {
 			// first: sort by weight
-			int weightCompare = Integer.compare(e2.getWeight(), e1.getWeight());
+			var weightCompare = Integer.compare(e2.getWeight(), e1.getWeight());
 			if (weightCompare != 0) {
 				return weightCompare;
 			}
@@ -49,20 +49,20 @@ public class WeightsUtil {
 
 	/**
 	 * Adjust the sorting of Inverters by weights.
-	 * 
+	 *
 	 * <p>
 	 * This is different to 'invertersSortByWeights()' in that it tries to avoid
 	 * resorting the entire list all the time. Instead it only adjusts the list
 	 * slightly.
-	 * 
+	 *
 	 * @param inverters a List of inverters
 	 */
 	public static void adjustSortingByWeights(List<Inverter> inverters) {
-		for (int i = 1; i < inverters.size(); i++) {
-			for (int j = 0; j < inverters.size() - i; j++) {
-				int weight1 = inverters.get(j).getWeight();
-				int weight2 = inverters.get(j + 1).getWeight();
-				int threshold = (int) (Math.min(weight1, weight2) * SORT_FACTOR);
+		for (var i = 1; i < inverters.size(); i++) {
+			for (var j = 0; j < inverters.size() - i; j++) {
+				var weight1 = inverters.get(j).getWeight();
+				var weight2 = inverters.get(j + 1).getWeight();
+				var threshold = (int) (Math.min(weight1, weight2) * SORT_FACTOR);
 				if (weight1 < weight2 - threshold) {
 					Collections.swap(inverters, j, j + 1);
 				}

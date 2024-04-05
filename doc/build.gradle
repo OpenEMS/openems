@@ -1,20 +1,22 @@
-apply plugin: 'com.github.node-gradle.node'
+plugins {
+	id 'com.github.node-gradle.node'
+}
 
 node {
-    nodeModulesDir = file("${projectDir}/build")
+	nodeModulesDir = file("${projectDir}/build")
 }
 
 /*
  * Build Antora docs
  */
 task buildAntoraDocs(type: NodeTask) {
-    dependsOn npmInstall
-    script = file("build/node_modules/@antora/cli/bin/antora")
-    args = ["site.yml"]
-    doLast {
-        copy {
-            from "build/.nojekyll", "build/CNAME"
-            into "build/www"
-        }
-    }
+	dependsOn npmInstall
+	script = file("build/node_modules/@antora/cli/bin/antora")
+	args = ["site.yml"]
+	doLast {
+		copy {
+			from "build/.nojekyll", "build/CNAME"
+			into "build/www"
+		}
+	}
 }

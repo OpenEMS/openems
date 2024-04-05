@@ -1,19 +1,19 @@
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { Service, Utils, EdgeConfig, Edge } from '../../../../shared/shared';
+import { Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
 
 @Component({
     selector: FixDigitalOutputChartOverviewComponent.SELECTOR,
-    templateUrl: './fixdigitaloutputchartoverview.component.html'
+    templateUrl: './fixdigitaloutputchartoverview.component.html',
 })
-export class FixDigitalOutputChartOverviewComponent {
+export class FixDigitalOutputChartOverviewComponent implements OnInit {
 
     private static readonly SELECTOR = "fixdigitaloutput-chart-overview";
 
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;
 
-    public showTotal: boolean = null;
+    public showTotal: boolean = false;
     public fixDigitalOutputComponents: string[] = [];
 
     // reference to the Utils method to access via html
@@ -30,15 +30,15 @@ export class FixDigitalOutputChartOverviewComponent {
                 this.edge = edge;
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
                 config.getComponentsByFactory('Controller.Io.FixDigitalOutput').forEach(component => {
-                    this.fixDigitalOutputComponents.push(component.id)
-                })
+                    this.fixDigitalOutputComponents.push(component.id);
+                });
                 if (this.fixDigitalOutputComponents.length > 1) {
                     this.showTotal = false;
                 } else if (this.fixDigitalOutputComponents.length == 1) {
                     this.showTotal = null;
                 }
-            })
-        })
+            });
+        });
 
     }
 

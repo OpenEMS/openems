@@ -1,19 +1,19 @@
 package io.openems.edge.controller.io.channelsinglethreshold;
 
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		public Mode mode;
-		public String inputChannelAddress;
-		public int threshold;
-		public int switchedLoadPower;
-		public int minimumSwitchingTime;
-		public boolean invert;
-		public String[] outputChannelAddress;
+		private Mode mode;
+		private String inputChannelAddress;
+		private int threshold;
+		private int switchedLoadPower;
+		private int minimumSwitchingTime;
+		private boolean invert;
+		private String[] outputChannelAddress;
 
 		private Builder() {
 		}
@@ -65,7 +65,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

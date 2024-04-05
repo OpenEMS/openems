@@ -20,8 +20,8 @@ public interface AsymmetricEss extends SymmetricEss {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
-		 * Active Power L1
-		 * 
+		 * Active Power L1.
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
 		 * <li>Type: Integer
@@ -32,11 +32,13 @@ public interface AsymmetricEss extends SymmetricEss {
 		ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
-		),
+				.text("""
+						AC-side power of Energy Storage System on phase L1. \
+						Includes excess DC-PV production for hybrid inverters. \
+						Negative values for charge; positive for discharge""")),
 		/**
-		 * Active Power L2
-		 * 
+		 * Active Power L2.
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
 		 * <li>Type: Integer
@@ -47,11 +49,13 @@ public interface AsymmetricEss extends SymmetricEss {
 		ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
-		),
+				.text("""
+						AC-side power of Energy Storage System on phase L2. \
+						Includes excess DC-PV production for hybrid inverters. \
+						Negative values for charge; positive for discharge""")),
 		/**
-		 * Active Power L3
-		 * 
+		 * Active Power L3.
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
 		 * <li>Type: Integer
@@ -62,11 +66,13 @@ public interface AsymmetricEss extends SymmetricEss {
 		ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
-		),
+				.text("""
+						AC-side power of Energy Storage System on phase L3. \
+						Includes excess DC-PV production for hybrid inverters. \
+						Negative values for charge; positive for discharge""")),
 		/**
-		 * Reactive Power L1
-		 * 
+		 * Reactive Power L1.
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
 		 * <li>Type: Integer
@@ -76,12 +82,10 @@ public interface AsymmetricEss extends SymmetricEss {
 		 */
 		REACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
-		),
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Reactive Power L2
-		 * 
+		 * Reactive Power L2.
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
 		 * <li>Type: Integer
@@ -91,12 +95,10 @@ public interface AsymmetricEss extends SymmetricEss {
 		 */
 		REACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
-		),
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Reactive Power L3
-		 * 
+		 * Reactive Power L3.
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
 		 * <li>Type: Integer
@@ -106,9 +108,8 @@ public interface AsymmetricEss extends SymmetricEss {
 		 */
 		REACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
-		);
+				.persistencePriority(PersistencePriority.HIGH)) //
+		;
 
 		private final Doc doc;
 
@@ -122,6 +123,13 @@ public interface AsymmetricEss extends SymmetricEss {
 		}
 	}
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(AsymmetricEss.class, accessMode, 100) //
 				.channel(0, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
@@ -367,8 +375,8 @@ public interface AsymmetricEss extends SymmetricEss {
 	/**
 	 * Initializes Channel listeners to set the Active- and Reactive-Power Channel
 	 * value as the sum of L1 + L2 + L3.
-	 * 
-	 * @param ess
+	 *
+	 * @param ess the {@link AsymmetricEss}
 	 */
 	public static void initializePowerSumChannels(AsymmetricEss ess) {
 		// Active Power

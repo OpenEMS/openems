@@ -15,6 +15,9 @@ public class BoschBpts5HybridCoreImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.activate(MyConfig.create() //
 						.setId(CORE_ID) //
+						// Always set disabled, because the connection is directly established on
+						// activate otherwise, which makes the JUnit test fail.
+						.setEnabled(false) //
 						.setIpaddress("127.0.0.1") //
 						.setInterval(2) //
 						.build()) //

@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.batteryinverter.api.OffGridBatteryInverter;
 import io.openems.edge.batteryinverter.api.OffGridBatteryInverter.TargetGridMode;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.common.sum.GridMode;
@@ -20,41 +19,38 @@ public class StartBatteryInverterInOnGridHandler extends StateHandler<OffGridSta
 	protected void onEntry(Context context) throws OpenemsNamedException {
 		this.lastAttempt = Instant.MIN;
 		this.attemptCounter = 0;
-		GenericManagedEss ess = context.getParent();
+		var ess = context.getParent();
 		ess._setMaxBatteryInverterStartAttemptsFault(false);
 	}
 
 	@Override
 	public OffGridState runAndGetNextState(Context context) throws OpenemsNamedException {
-		final GenericManagedEss ess = context.getParent();
-		final OffGridBatteryInverter inverter = context.batteryInverter;
+		final var ess = context.getParent();
+		final var inverter = context.batteryInverter;
 
 		if (context.batteryInverter.isStarted()) {
 			return OffGridState.STARTED_IN_ON_GRID;
 		}
 
-		boolean isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
+		var isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
 				.getSeconds() > GenericManagedEss.RETRY_COMMAND_SECONDS;
-		if (isMaxStartTimePassed) {
-			// First try - or waited long enough for next try
-
-			if (this.attemptCounter > GenericManagedEss.RETRY_COMMAND_MAX_ATTEMPTS) {
-				// Too many tries
-				ess._setMaxBatteryInverterStartAttemptsFault(true);
-				return OffGridState.UNDEFINED;
-
-			} else {
-				// Trying to start Battery
-				inverter.setTargetGridMode(TargetGridMode.GO_ON_GRID);
-				inverter.start();
-				ess._setGridMode(GridMode.ON_GRID);
-
-				this.lastAttempt = Instant.now();
-				this.attemptCounter++;
-				return OffGridState.START_BATTERY_INVERTER_IN_ON_GRID;
-			}
-		} else {
+		if (!isMaxStartTimePassed) {
 			// Still waiting...
+			return OffGridState.START_BATTERY_INVERTER_IN_ON_GRID;
+		}
+		if (this.attemptCounter > GenericManagedEss.RETRY_COMMAND_MAX_ATTEMPTS) {
+			// Too many tries
+			ess._setMaxBatteryInverterStartAttemptsFault(true);
+			return OffGridState.UNDEFINED;
+
+		} else {
+			// Trying to start Battery
+			inverter.setTargetGridMode(TargetGridMode.GO_ON_GRID);
+			inverter.start();
+			ess._setGridMode(GridMode.ON_GRID);
+
+			this.lastAttempt = Instant.now();
+			this.attemptCounter++;
 			return OffGridState.START_BATTERY_INVERTER_IN_ON_GRID;
 		}
 	}

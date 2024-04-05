@@ -1,6 +1,5 @@
 package io.openems.edge.batteryinverter.refu88k.statemachine;
 
-import io.openems.edge.batteryinverter.refu88k.RefuStore88k;
 import io.openems.edge.batteryinverter.refu88k.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
@@ -8,7 +7,7 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		RefuStore88k inverter = context.getParent();
+		var inverter = context.getParent();
 
 		switch (inverter.getStartStopTarget()) {
 		case UNDEFINED:

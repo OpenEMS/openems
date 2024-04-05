@@ -1,18 +1,17 @@
 package io.openems.common.jsonrpc.response;
 
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.AuthenticateWithPasswordRequest;
 import io.openems.common.jsonrpc.request.AuthenticateWithTokenRequest;
+import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.AbstractUser;
-import io.openems.common.session.Role;
-import io.openems.common.types.SemanticVersion;
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -26,79 +25,23 @@ import io.openems.common.utils.JsonUtils;
  *   "result": {
  *     "token": String,
  *     "user": {@link AbstractUser#toJsonObject()}
- *     "edges": {@link EdgeMetadata#toJson(java.util.Collection)}
  *   }
  * }
  * </pre>
  */
 public class AuthenticateResponse extends JsonrpcResponseSuccess {
 
-	public static class EdgeMetadata {
-
-		/**
-		 * Converts a collection of EdgeMetadatas to a JsonArray.
-		 *
-		 * <pre>
-		 * [{
-		 *   "id": String,
-		 *   "comment": String,
-		 *   "producttype: String,
-		 *   "version: String,
-		 *   "role: "admin" | "installer" | "owner" | "guest",
-		 *   "isOnline: boolean
-		 * }]
-		 * </pre>
-		 *
-		 * @param metadatas the EdgeMetadatas
-		 * @return a JsonArray
-		 */
-		public static JsonArray toJson(Collection<EdgeMetadata> metadatas) {
-			var result = new JsonArray();
-			for (EdgeMetadata metadata : metadatas) {
-				result.add(metadata.toJsonObject());
-			}
-			return result;
-		}
-
-		private final String id;
-		private final String comment;
-		private final String producttype;
-		private final SemanticVersion version;
-		private final Role role;
-		private final boolean isOnline;
-
-		public EdgeMetadata(String id, String comment, String producttype, SemanticVersion version, Role role,
-				boolean isOnline) {
-			this.id = id;
-			this.comment = comment;
-			this.producttype = producttype;
-			this.version = version;
-			this.role = role;
-			this.isOnline = isOnline;
-		}
-
-		protected JsonObject toJsonObject() {
-			return JsonUtils.buildJsonObject() //
-					.addProperty("id", this.id) //
-					.addProperty("comment", this.comment) //
-					.addProperty("producttype", this.producttype) //
-					.addProperty("version", this.version.toString()) //
-					.add("role", this.role.asJson()) //
-					.addProperty("isOnline", this.isOnline) //
-					.build();
-		}
-	}
-
 	private final String token;
 	private final AbstractUser user;
 	private final List<EdgeMetadata> edges;
-	private final String language;
+	private final Language language;
 
-	public AuthenticateResponse(UUID id, String token, AbstractUser user, List<EdgeMetadata> edges) {
-		this(id, token, user, edges, null);
+	public AuthenticateResponse(UUID id, String token, AbstractUser user, Language language) {
+		this(id, token, user, Collections.emptyList(), language);
 	}
 
-	public AuthenticateResponse(UUID id, String token, AbstractUser user, List<EdgeMetadata> edges, String language) {
+	// TODO: remove after UI is updated to new version
+	public AuthenticateResponse(UUID id, String token, AbstractUser user, List<EdgeMetadata> edges, Language language) {
 		super(id);
 		this.token = token;
 		this.user = user;
@@ -117,7 +60,9 @@ public class AuthenticateResponse extends JsonrpcResponseSuccess {
 				.add("user", JsonUtils.buildJsonObject() //
 						.addProperty("id", this.user.getId()) //
 						.addProperty("name", this.user.getName()) //
-						.addProperty("language", this.language) //
+						.addProperty("language", this.language.name())//
+						.addProperty("hasMultipleEdges", this.user.hasMultipleEdges())//
+						.add("settings", this.user.getSettings()) //
 						.add("globalRole", this.user.getGlobalRole().asJson()) //
 						.build()) //
 				.add("edges", EdgeMetadata.toJson(this.edges)) //

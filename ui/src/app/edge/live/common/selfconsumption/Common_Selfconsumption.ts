@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { Flat } from './flat/flat';
-import { Modal } from './modal/modal';
+import { FlatComponent } from './flat/flat';
+import { ModalComponent } from './modal/modal';
 
 @NgModule({
   imports: [
@@ -10,15 +10,15 @@ import { Modal } from './modal/modal';
     SharedModule,
   ],
   entryComponents: [
-    Flat,
-    Modal,
+    FlatComponent,
+    ModalComponent,
   ],
   declarations: [
-    Flat,
-    Modal,
+    FlatComponent,
+    ModalComponent,
   ],
   exports: [
-    Flat
-  ]
+    FlatComponent,
+  ],
 })
 export class Common_Selfconsumption { }

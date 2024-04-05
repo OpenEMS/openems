@@ -1,5 +1,4 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -8,9 +7,9 @@ import { CategorizedComponents, EdgeConfig } from '../../edge/edgeconfig';
 
 @Component({
     selector: StatusSingleComponent.SELECTOR,
-    templateUrl: './status.component.html'
+    templateUrl: './status.component.html',
 })
-export class StatusSingleComponent {
+export class StatusSingleComponent implements OnInit, OnDestroy {
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
 
@@ -23,7 +22,6 @@ export class StatusSingleComponent {
     private static readonly SELECTOR = "statussingle";
 
     constructor(
-        private route: ActivatedRoute,
         public modalCtrl: ModalController,
         public service: Service,
         private websocket: Websocket,
@@ -32,30 +30,30 @@ export class StatusSingleComponent {
     ngOnInit() {
         this.service.getConfig().then(config => {
             this.config = config;
-            let categorizedComponentIds: string[] = []
+            const categorizedComponentIds: string[] = [];
             this.components = config.listActiveComponents(categorizedComponentIds);
             this.components.forEach(categorizedComponent => {
                 categorizedComponent.components.forEach(component => {
                     // sets all arrow buttons to standard position (folded)
                     component['showProperties'] = false;
                     this.subscribedInfoChannels.push(
-                        new ChannelAddress(component.id, 'State')
-                    )
-                })
-            })
+                        new ChannelAddress(component.id, 'State'),
+                    );
+                });
+            });
             //need to subscribe on currentedge because component is opened by app.component
             this.service.currentEdge.pipe(takeUntil(this.stopOnDestroy)).subscribe(edge => {
                 this.edge = edge;
                 edge.subscribeChannels(this.websocket, StatusSingleComponent.SELECTOR, this.subscribedInfoChannels);
-            })
-        })
+            });
+        });
     }
 
     public subscribeInfoChannels(component: EdgeConfig.Component) {
         Object.keys(component.channels).forEach(channel => {
             if (component.channels[channel]['level']) {
-                this.subscribedInfoChannels.push(new ChannelAddress(component.id, channel))
-                this.onInfoChannels.push(new ChannelAddress(component.id, channel))
+                this.subscribedInfoChannels.push(new ChannelAddress(component.id, channel));
+                this.onInfoChannels.push(new ChannelAddress(component.id, channel));
             }
         });
         if (this.edge) {
@@ -71,9 +69,9 @@ export class StatusSingleComponent {
                     this.subscribedInfoChannels.splice(index, 1);
                 }
             });
-        })
+        });
         //clear onInfoChannels Array
-        this.onInfoChannels = this.onInfoChannels.filter((channel) => channel.componentId != component.id)
+        this.onInfoChannels = this.onInfoChannels.filter((channel) => channel.componentId != component.id);
         if (this.edge) {
             this.edge.subscribeChannels(this.websocket, StatusSingleComponent.SELECTOR, this.subscribedInfoChannels);
         }

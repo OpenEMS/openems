@@ -10,7 +10,7 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -28,13 +28,15 @@ import io.openems.edge.evcs.api.EvcsPower;
 		configurationPolicy = ConfigurationPolicy.OPTIONAL, //
 		property = { //
 				"enabled=true", //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 		})
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
+})
 public class EvcsPowerComponent extends AbstractOpenemsComponent implements OpenemsComponent, EvcsPower {
 
-	public final static String SINGLETON_SERVICE_PID = "Evcs.SlowPowerIncreaseFilter";
-	public final static String SINGLETON_COMPONENT_ID = "_evcsSlowPowerIncreaseFilter";
+	public static final String SINGLETON_SERVICE_PID = "Evcs.SlowPowerIncreaseFilter";
+	public static final String SINGLETON_COMPONENT_ID = "_evcsSlowPowerIncreaseFilter";
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -49,26 +51,29 @@ public class EvcsPowerComponent extends AbstractOpenemsComponent implements Open
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+	private void activate(ComponentContext context, Map<String, Object> properties, Config config) {
 		super.activate(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
+		this.updateConfig(config);
+
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}
-		this.updateConfig(config);
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
 	}
 
 	@Modified
-	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.modified(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
+		this.updateConfig(config);
+
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}
-		this.updateConfig(config);
+	}
+
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
 	}
 
 	private void updateConfig(Config config) {
@@ -84,7 +89,7 @@ public class EvcsPowerComponent extends AbstractOpenemsComponent implements Open
 	public RampFilter getRampFilter() {
 		return this.rampFilter;
 	}
-	
+
 	@Override
 	public float getIncreaseRate() {
 		return this.increaseRate;

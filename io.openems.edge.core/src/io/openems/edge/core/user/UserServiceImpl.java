@@ -12,6 +12,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.edge.common.user.ManagedUser;
 import io.openems.edge.common.user.User;
@@ -38,14 +39,17 @@ public class UserServiceImpl implements UserService {
 	@Activate
 	void activate(Config config) {
 		this.users.add(//
-				new ManagedUser("admin", "Admin", Role.ADMIN, config.adminPassword(), config.adminSalt()));
+				new ManagedUser("admin", "Admin", Language.DEFAULT, Role.ADMIN, config.adminPassword(),
+						config.adminSalt()));
 		this.users.add(//
-				new ManagedUser("installer", "Installer", Role.INSTALLER, config.installerPassword(),
+				new ManagedUser("installer", "Installer", Language.DEFAULT, Role.INSTALLER, config.installerPassword(),
 						config.installerSalt()));
 		this.users.add(//
-				new ManagedUser("owner", "Owner", Role.OWNER, config.ownerPassword(), config.ownerSalt()));
+				new ManagedUser("owner", "Owner", Language.DEFAULT, Role.OWNER, config.ownerPassword(),
+						config.ownerSalt()));
 		this.users.add(//
-				new ManagedUser("guest", "Guest", Role.GUEST, config.guestPassword(), config.guestSalt()));
+				new ManagedUser("guest", "Guest", Language.DEFAULT, Role.GUEST, config.guestPassword(),
+						config.guestSalt()));
 	}
 
 	@Deactivate
@@ -60,14 +64,13 @@ public class UserServiceImpl implements UserService {
 				if (user.validatePassword(password)) {
 					this.log.info("Authentication successful for user[" + username + "].");
 					return Optional.of(user);
-				} else {
-					this.log.info("Authentication failed for user[" + username + "]: wrong password");
-					return Optional.empty();
 				}
+				this.log.info("Authentication failed for user[" + username + "]: wrong password");
+				return Optional.empty();
 			}
 		}
 		// Try authenticating with password only
-		return authenticate(password);
+		return this.authenticate(password);
 	}
 
 	@Override

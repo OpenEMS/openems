@@ -25,12 +25,18 @@
                 {{ edge.producttype }}
               </ion-item>
               <ion-item>
-                <ion-label>{{ environment.edgeShortName }} Version</ion-label>
-                <a routerLinkActive="active" routerLink="/changelog">{{ edge.version }}</a>
+                <ion-label style="white-space: initial;">{{ environment.edgeShortName }} Version</ion-label>
+                <a style="white-space: initial; display: inline-block; max-width: 50%; text-align: right;"
+                  routerLinkActive="active" routerLink="/changelog">{{ edge.version |
+                  version:edge.role }}</a>
               </ion-item>
               <ion-item>
                 <ion-label>Rolle</ion-label>
                 {{ edge.getRoleString() }}
+              </ion-item>
+              <ion-item lines="none" *ngIf="edge.firstSetupProtocol">
+                <ion-label translate>Index.FIRST_SETUP_PROTOCOL</ion-label>
+                {{ edge.firstSetupProtocol | date:'dd.MM.YYYY HH:mm' }}
               </ion-item>
             </ion-list>
           </ion-card-content>
@@ -40,7 +46,7 @@
     </ion-row>
     <ion-row class="ion-justify-content-center">
 
-      <ion-col size="12" size-md="6" *ngIf="components != null">
+      <ion-col size="12" size-md="6" *ngIf="components !== null">
         <ion-card>
           <ion-item color="light" lines="full">
             <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
@@ -93,13 +99,37 @@
                       <ng-container *ngFor="let factoryId of [item.factoryId]" [ngSwitch]="factoryId">
                         <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp.ReadOnly'">
                           <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
+                          <oe-help-button key="CONTROLLER_API_MODBUSTCP_READ">
+                            <span translate>
+                              General.manual
+                            </span>
+                          </oe-help-button>
                         </ion-text>
                         <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'">
                           <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
+                          <oe-help-button key="CONTROLLER_API_MODBUSTCP_READWRITE">
+                            <span translate>
+                              General.manual
+                            </span>
+                          </oe-help-button>
+                        </ion-text>
+                        <ion-text *ngSwitchCase="'Controller.Api.Rest.ReadOnly'">
+                          <oe-help-button key="CONTROLLER_API_REST_READ">
+                            <span translate>
+                              General.manual
+                            </span>
+                          </oe-help-button>
+                        </ion-text>
+                        <ion-text *ngSwitchCase="'Controller.Api.Rest.ReadWrite'">
+                          <oe-help-button key="CONTROLLER_API_REST_READWRITE">
+                            <span translate>
+                              General.manual
+                            </span>
+                          </oe-help-button>
                         </ion-text>
                       </ng-container>
                       <!-- Additional information for all Components -->
-                      <ng-container *ngIf="edge.roleIsAtLeast('admin')">
+                      <ng-container *ngIf="edge.roleIsAtLeast('admin') && edge.isVersionAtLeast('2021.10.10')">
                         <ion-button (click)="getChannelExport(item.id)">Export Channels</ion-button>
                       </ng-container>
                     </ng-container>

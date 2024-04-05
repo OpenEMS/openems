@@ -1,0 +1,73 @@
+= Live-Demo on Gitpod
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../assets/images
+
+link:https://gitpod.io/#https://github.com/OpenEMS/openems[Live-Demo on Gitpod] is a full OpenEMS demo System based on Docker images in a Cloud-IDE. The demo contains the following simulated services:
+
+* OpenEMS UI
+* OpenEMS Backend
+* OpenEMS Edge
+* Odoo (with link:https://github.com/OpenEMS/odoo-openems[OpenEMS Odoo-Module])
+* Postgres Database
+
+== Start Gitpod Workspace
+
+. Open the following link in a browser to start the Gitpod workspace: link:https://gitpod.io/#https://github.com/OpenEMS/openems[Gitpod Workspace]
++
+NOTE: This runs the workspace based on the latest OpenEMS Release branch. To run a specific branch, add the branch name to the URL; e.g. to run the current `develop` branch, open the following link: https://gitpod.io/#https://github.com/OpenEMS/openems/tree/develop
++
+.Gitpod Workspace starting up
+image::gitpod-docker-build.png[Gitpod Workspace starting up]
+. Once the Workspace started up completely, you are getting redirected to a Visual Studio Code instance in your browser
++
+.Visual Studio Code inside Gitpod Workspace
+image::gitpod-vscode-redirect.png[Visual Studio Code inside Gitpod Workspace]
+
+. In the **TERMINAL** view you will find four _Gitpod Tasks_, that compile and run the different parts of OpenEMS:
+  
+.. _Gitpod Task 1: java_ Compiles and runs OpenEMS Backend
+.. _Gitpod Task 2: java_ Compiles and runs an OpenEMS Edge instance
+.. _Gitpod Task 3: ng serve..._ Compiles and runs the OpenEMS UI (connecting to OpenEMS Backend)
+.. _Gitpod Task 4: python3_ Runs Odoo with the OpenEMS Module
+
+. After every service has been started, a few new browser tabs will open for the most important web interfaces
++
+NOTE: Possibly your browser blocks opening of Pop-up-Windows. Be sure to accept Pop-up-Windows in your Gitpod Workspace once the browser asks you.
+
+== Access Services
+
+The Gitpod Workspace shows all started services in the _Remote Explorer_ view:
+
+.All opened Ports in Visual Studio Code
+image::gitpod-vscode-ports.png[All opened Ports in Visual Studio Code]
+
+|===
+| Port | Service | Note
+| 4200 | OpenEMS UI | Can be opened in browser
+| 5432 | Postgres Database | Only for API access, e.g. via pgAdmin
+| 8075 | OpenEMS Backend JSON/REST Api | Only for API access
+| 8076 | OpenEMS Backend JSON/Websocket Api | Only for API access
+| 8079 | Apache Felix Web Console for OpenEMS Backend | Can be opened in browser
+| 8080 | Apache Felix Web Console for OpenEMS Edge | Can be opened in browser
+| 8081 | OpenEMS Backend Edge-Websocket | Only for API access, this is where OpenEMS Edge connects to
+| 8082 | OpenEMS Backend UI-Websocket | Only for API access, this is where OpenEMS UI connects to
+| 8084 | OpenEMS Edge JSON/REST Api | Only for API access
+| 8085 | OpenEMS Edge JSON/Websocket Api | Only for API access
+|===
+
+=== OpenEMS UI
+
+. After the OpenEMS UI is opened on port 4200 you can login:
+
+.. Username *admin*
+.. Password *admin*
++
+.OpenEMS Login via Odoo authentication
+image::gitpod-openems-login.png[OpenEMS Login via Odoo authentication]

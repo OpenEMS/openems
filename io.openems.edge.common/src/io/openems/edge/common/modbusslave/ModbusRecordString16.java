@@ -7,9 +7,9 @@ import io.openems.edge.common.type.TypeUtils;
 
 public class ModbusRecordString16 extends ModbusRecordConstant {
 
-	public final static byte[] UNDEFINED_VALUE = new byte[32];
+	public static final byte[] UNDEFINED_VALUE = new byte[32];
 
-	public final static int BYTE_LENGTH = 32;
+	public static final int BYTE_LENGTH = 32;
 
 	private final String value;
 
@@ -20,27 +20,38 @@ public class ModbusRecordString16 extends ModbusRecordConstant {
 
 	@Override
 	public String toString() {
-		return "ModbusRecordString16 [value=" + this.value + ", type=" + getType() + "]";
+		return "ModbusRecordString16 [value=" + this.value + ", type=" + this.getType() + "]";
 	}
 
+	/**
+	 * Convert to byte array.
+	 * 
+	 * @param value the value
+	 * @return the byte array
+	 */
 	public static byte[] toByteArray(String value) {
-		byte[] result = new byte[BYTE_LENGTH];
-		byte[] converted = value.getBytes(StandardCharsets.US_ASCII);
+		var result = new byte[BYTE_LENGTH];
+		var converted = value.getBytes(StandardCharsets.US_ASCII);
 		System.arraycopy(converted, 0, result, 0, Math.min(BYTE_LENGTH, converted.length));
 		return result;
 	}
 
+	/**
+	 * Convert to byte array.
+	 * 
+	 * @param value the value
+	 * @return the byte array
+	 */
 	public static byte[] toByteArray(Object value) {
 		if (value == null) {
 			return UNDEFINED_VALUE;
-		} else {
-			return toByteArray((String) TypeUtils.getAsType(OpenemsType.STRING, value));
 		}
+		return toByteArray((String) TypeUtils.getAsType(OpenemsType.STRING, value));
 	}
 
 	@Override
 	public String getValueDescription() {
-		return this.value != null ? this.value : "";
+		return this.value != null ? "\"" + this.value.toString() + "\"" : "";
 	}
 
 }

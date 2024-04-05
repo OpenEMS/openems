@@ -34,7 +34,7 @@ public abstract class JsonrpcResponseSuccess extends JsonrpcResponse {
 	public static JsonrpcResponseSuccess from(JsonObject j) throws OpenemsNamedException {
 		var response = JsonrpcResponse.from(j);
 		if (!(response instanceof JsonrpcResponseSuccess)) {
-			OpenemsError.GENERIC.exception("Expected a JSON-RPC Success Response");
+			throw OpenemsError.GENERIC.exception("Expected a JSON-RPC Success Response");
 		}
 		return (JsonrpcResponseSuccess) response;
 	}
@@ -52,7 +52,7 @@ public abstract class JsonrpcResponseSuccess extends JsonrpcResponse {
 
 	/**
 	 * Gets the result of this {@link JsonrpcResponseSuccess}.
-	 * 
+	 *
 	 * @return a JsonObject with the 'result' property of the response
 	 */
 	public abstract JsonObject getResult();

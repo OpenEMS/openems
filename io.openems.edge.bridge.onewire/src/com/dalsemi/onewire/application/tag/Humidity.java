@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
@@ -42,13 +43,12 @@ public class Humidity extends TaggedDevice implements TaggedSensor {
 	 * Creates an object for the device.
 	 */
 	public Humidity() {
-		super();
 	}
 
 	/**
 	 * Creates an object for the device with the supplied address and device type
 	 * connected to the supplied port adapter.
-	 * 
+	 *
 	 * @param adapter    The adapter serving the sensor.
 	 * @param netAddress The 1-Wire network address of the sensor.
 	 */
@@ -61,21 +61,23 @@ public class Humidity extends TaggedDevice implements TaggedSensor {
 	 *
 	 * @return String humidity in %RH
 	 */
+	@Override
 	public String readSensor() throws OneWireException {
-		HumidityContainer hc = (HumidityContainer) DeviceContainer;
+		var hc = (HumidityContainer) this.DeviceContainer;
 
 		// read the device first to get the state
-		byte[] state = hc.readDevice();
+		var state = hc.readDevice();
 
 		// convert humidity
 		hc.doHumidityConvert(state);
 
 		// construct the return string
-		String return_string = (int) roundDouble(hc.getHumidity(state)) + "%";
-		if (hc.isRelative())
-			return_string += "RH";
+		var return_string = new StringBuilder().append((int) this.roundDouble(hc.getHumidity(state))).append("%");
+		if (hc.isRelative()) {
+			return_string.append("RH");
+		}
 
-		return return_string;
+		return return_string.toString();
 	}
 
 	/**
@@ -87,6 +89,7 @@ public class Humidity extends TaggedDevice implements TaggedSensor {
 	 * @return double rounded to the nearest digit in the "ones" position.
 	 */
 	private double roundDouble(double d) {
-		return (double) ((int) (d + ((d > 0) ? 0.5 : -0.5)));
+		return (int) (d + (d > 0 ? 0.5 : -0.5));
 	}
 }
+// CHECKSTYLE:ON

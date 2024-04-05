@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000,2001 Maxim Integrated Products, All Rights Reserved.
@@ -49,17 +50,17 @@ public class TAGParser {
 	 * @param adapter What port adapter will serve the devices created.
 	 */
 	public TAGParser(DSPortAdapter adapter) {
-		parser = XML.createSAXParser();
-		handler = new TAGHandler();
+		this.parser = XML.createSAXParser();
+		this.handler = new TAGHandler();
 
 		try {
-			handler.setAdapter(adapter);
+			this.handler.setAdapter(adapter);
 		} catch (Exception e) {
 			System.out.println(e);
 		}
 
-		parser.setDocumentHandler(handler);
-		parser.setErrorHandler(handler);
+		this.parser.setDocumentHandler(this.handler);
+		this.parser.setErrorHandler(this.handler);
 	}
 
 	/**
@@ -72,13 +73,11 @@ public class TAGParser {
 	 * @throws IOException  If an I/O error occurs while reading <var>in</var>.
 	 */
 	public Vector<TaggedDevice> parse(InputStream in) throws SAXException, IOException {
-		InputSource insource = new InputSource(in);
+		var insource = new InputSource(in);
 
-		parser.parse(insource);
+		this.parser.parse(insource);
 
-		Vector<TaggedDevice> v = handler.getTaggedDeviceList();
-
-		return v;
+		return this.handler.getTaggedDeviceList();
 	}
 
 	/**
@@ -89,9 +88,7 @@ public class TAGParser {
 	 */
 	public Vector<TaggedDevice> getBranches() {
 
-		Vector<TaggedDevice> v = handler.getAllBranches();
-
-		return v;
+		return this.handler.getAllBranches();
 	}
 
 	/**
@@ -102,14 +99,13 @@ public class TAGParser {
 	 */
 	public Vector<OWPath> getOWPaths() {
 
-		Vector<OWPath> v = handler.getAllBranchPaths();
-
-		return v;
+		return this.handler.getAllBranchPaths();
 	}
 
 	/** Field parser */
-	private SAXParser parser;
+	private final SAXParser parser;
 
 	/** Field handler */
-	private TAGHandler handler;
+	private final TAGHandler handler;
 }
+// CHECKSTYLE:ON

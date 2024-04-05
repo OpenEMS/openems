@@ -1,11 +1,11 @@
-import { ActivatedRoute } from '@angular/router';
 import { Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { Edge, Service, EdgeConfig } from 'src/app/shared/shared';
+import { Edge, EdgeConfig, Service } from 'src/app/shared/shared';
 
 @Component({
     selector: SymmetricPeakshavingWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: './widget.component.html',
 })
 export class SymmetricPeakshavingWidgetComponent implements OnInit {
 
@@ -31,7 +31,5 @@ export class SymmetricPeakshavingWidgetComponent implements OnInit {
         });
     }
 
-    ngOnDestroy() {
-    }
 }
 

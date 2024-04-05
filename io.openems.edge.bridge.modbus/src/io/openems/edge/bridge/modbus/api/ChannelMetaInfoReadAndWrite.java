@@ -20,7 +20,7 @@ public class ChannelMetaInfoReadAndWrite extends ChannelMetaInfo {
 
 	@Override
 	public String toString() {
-		StringBuilder b = new StringBuilder();
+		var b = new StringBuilder();
 		b.append("READ:0x").append(Integer.toHexString(this.address));
 		b.append(" | WRITE:0x").append(Integer.toHexString(this.writeAddress));
 		return b.toString();
@@ -39,10 +39,10 @@ public class ChannelMetaInfoReadAndWrite extends ChannelMetaInfo {
 		if (obj == null) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
-		ChannelMetaInfoReadAndWrite other = (ChannelMetaInfoReadAndWrite) obj;
+		var other = (ChannelMetaInfoReadAndWrite) obj;
 		return this.address == other.address && this.writeAddress == other.writeAddress;
 	}
 

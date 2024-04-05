@@ -1,12 +1,12 @@
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { Service, EdgeConfig, Edge } from '../../../../../shared/shared';
+import { Edge, EdgeConfig, Service } from '../../../../../shared/shared';
 
 @Component({
     selector: SymmetricPeakshavingChartOverviewComponent.SELECTOR,
-    templateUrl: './symmetricpeakshavingchartoverview.component.html'
+    templateUrl: './symmetricpeakshavingchartoverview.component.html',
 })
-export class SymmetricPeakshavingChartOverviewComponent {
+export class SymmetricPeakshavingChartOverviewComponent implements OnInit {
 
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;
@@ -23,7 +23,7 @@ export class SymmetricPeakshavingChartOverviewComponent {
             this.service.getConfig().then(config => {
                 this.edge = edge;
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
-            })
-        })
+            });
+        });
     }
 }

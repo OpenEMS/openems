@@ -14,9 +14,9 @@ import io.openems.edge.common.modbusslave.ModbusRecord;
 
 /**
  * Wraps a JSON-RPC Response to "getModbusProtocol" Request.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -44,9 +44,9 @@ public class GetModbusProtocolResponse extends JsonrpcResponseSuccess {
 
 	@Override
 	public JsonObject getResult() {
-		JsonArray table = new JsonArray();
+		var table = new JsonArray();
 		for (Entry<Integer, ModbusRecord> entry : this.tableRecords.entrySet()) {
-			ModbusRecord record = entry.getValue();
+			var record = entry.getValue();
 			table.add(JsonUtils.buildJsonObject() //
 					.addProperty("ref", entry.getKey()) //
 					.addProperty("name", record.getName()) //
@@ -56,7 +56,7 @@ public class GetModbusProtocolResponse extends JsonrpcResponseSuccess {
 					.addProperty("access", record.getAccessMode().getAbbreviation()) //
 					.build());
 		}
-		JsonObject j = new JsonObject();
+		var j = new JsonObject();
 		j.add("table", table);
 		return j;
 	}

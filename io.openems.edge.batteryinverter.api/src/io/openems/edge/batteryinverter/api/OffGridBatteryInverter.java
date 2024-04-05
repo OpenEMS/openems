@@ -22,10 +22,10 @@ public interface OffGridBatteryInverter
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Off-Grid-Frequency.
-		 * 
+		 *
 		 * <p>
 		 * In Off-Grid Mode the Battery-Inverter should generate this frequency.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: {@link OffGridBatteryInverter}
 		 * <li>Type: Integer
@@ -39,7 +39,7 @@ public interface OffGridBatteryInverter
 
 		/**
 		 * Inverter-State.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: {@link OffGridBatteryInverter}
 		 * <li>Type: Boolean
@@ -112,7 +112,7 @@ public interface OffGridBatteryInverter
 	/**
 	 * Sets an Off Grid Frequency set point in [Hz]. See
 	 * {@link ChannelId#SET_ACTIVE_POWER_EQUALS}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -121,21 +121,31 @@ public interface OffGridBatteryInverter
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#STATE_ON}.
-	 * 
+	 * Gets the Channel for {@link ChannelId#INVERTER_STATE}.
+	 *
 	 * @return the Channel
 	 */
-	public default BooleanReadChannel getBatteryInverterStateChannel() {
+	public default BooleanReadChannel getInverterStateChannel() {
 		return this.channel(ChannelId.INVERTER_STATE);
 	}
 
 	/**
-	 * Gets the {@link StateChannel} for {@link ChannelId#STATE_ON}.
-	 * 
+	 * Gets the {@link StateChannel} for {@link ChannelId#INVERTER_STATE}.
+	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Boolean> getBatteryInverterState() {
-		return this.getBatteryInverterStateChannel().value();
+	public default Value<Boolean> getInverterState() {
+		return this.getInverterStateChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#INVERTER_STATE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setInverterState(Boolean value) {
+		this.getInverterStateChannel().setNextValue(value);
 	}
 
 	public static enum TargetGridMode {
@@ -145,7 +155,7 @@ public interface OffGridBatteryInverter
 	/**
 	 * Tells the Battery-Inverter to go to ON_GRID or OFF_GRID mode. Be sure to call
 	 * this method before you call {@link #start()}.
-	 * 
+	 *
 	 * @param targetGridMode the {@link TargetGridMode}
 	 */
 	public void setTargetGridMode(TargetGridMode targetGridMode);

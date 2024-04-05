@@ -2,12 +2,12 @@ Bundle-Name: Java-OCA-OCPP
 Bundle-Description: A client and server library of Open Charge-Point Protocol from openchargealliance.org
 Bundle-DocURL: https://github.com/ChargeTimeEU/Java-OCA-OCPP
 Bundle-License: https://opensource.org/licenses/MIT
-Bundle-Version: 1.0.1
+Bundle-Version: 1.1.0
 
 Include-Resource: \
-	@v1_6-1.0.1.jar, \
-	@OCPP-J-1.0.1.jar, \
-	@common-1.0.jar
+	@v1_6-1.1.0.jar, \
+	@OCPP-J-1.0.2.jar, \
+	@common-1.0.2.jar
 
 -dsannotations: *
 
@@ -20,6 +20,7 @@ Import-Package: \
     javax.xml.transform,\
     org.java_websocket,\
     org.java_websocket.drafts,\
+    org.java_websocket.exceptions,\
     org.java_websocket.handshake,\
     org.java_websocket.protocols,\
     org.java_websocket.server,\

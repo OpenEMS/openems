@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -132,7 +133,6 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 * @see #OneWireContainer28(DSPortAdapter,String)
 	 */
 	public OneWireContainer28() {
-		super();
 	}
 
 	/**
@@ -209,6 +209,7 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 *
 	 * @return this <code>OneWireContainer28</code> name
 	 */
+	@Override
 	public String getName() {
 		return "DS18B20";
 	}
@@ -220,6 +221,7 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 *
 	 * @return this <code>OneWireContainer28</code> alternate names
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "DS1820B, DS18B20X";
 	}
@@ -230,10 +232,13 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 *
 	 * @return <code>OneWireContainer28</code> functional description
 	 */
+	@Override
 	public String getDescription() {
-		return "Digital thermometer measures temperatures from " + "-55C to 125C in 0.75 seconds (max).  +/- 0.5C "
-				+ "accuracy between -10C and 85C. Thermometer "
-				+ "resolution is programmable at 9, 10, 11, and 12 bits. ";
+		return """
+				Digital thermometer measures temperatures from \
+				-55C to 125C in 0.75 seconds (max).  +/- 0.5C \
+				accuracy between -10C and 85C. Thermometer \
+				resolution is programmable at 9, 10, 11, and 12 bits.""";
 	}
 
 	// --------
@@ -249,6 +254,7 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 * @see #getTemperatureAlarm
 	 * @see #setTemperatureAlarm
 	 */
+	@Override
 	public boolean hasTemperatureAlarms() {
 		return true;
 	}
@@ -263,6 +269,7 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 * @see #getTemperatureResolutions
 	 * @see #setTemperatureResolution
 	 */
+	@Override
 	public boolean hasSelectableTemperatureResolution() {
 		return true;
 	}
@@ -278,13 +285,14 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 * @see #getTemperatureResolution
 	 * @see #setTemperatureResolution
 	 */
+	@Override
 	public double[] getTemperatureResolutions() {
-		double[] resolutions = new double[4];
+		var resolutions = new double[4];
 
-		resolutions[0] = (double) 0.5; // 9-bit
-		resolutions[1] = (double) 0.25; // 10-bit
-		resolutions[2] = (double) 0.125; // 11-bit
-		resolutions[3] = (double) 0.0625; // 12-bit
+		resolutions[0] = 0.5; // 9-bit
+		resolutions[1] = 0.25; // 10-bit
+		resolutions[2] = 0.125; // 11-bit
+		resolutions[3] = 0.0625; // 12-bit
 
 		return resolutions;
 	}
@@ -300,6 +308,7 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 * @see #setTemperatureAlarm
 	 *
 	 */
+	@Override
 	public double getTemperatureAlarmResolution() {
 		return 1.0;
 	}
@@ -312,6 +321,7 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 *
 	 * @see #getMinTemperature
 	 */
+	@Override
 	public double getMaxTemperature() {
 		return 125.0;
 	}
@@ -324,6 +334,7 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 *
 	 * @see #getMaxTemperature
 	 */
+	@Override
 	public double getMinTemperature() {
 		return -55.0;
 	}
@@ -348,59 +359,59 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 *
 	 * @see #getTemperature
 	 */
+	@Override
 	public void doTemperatureConvert(byte[] state) throws OneWireIOException, OneWireException {
-		int msDelay = 750; // in milliseconds
+		var msDelay = 750; // in milliseconds
 
 		// select the device
-		if (adapter.select(address)) {
-
-			// Setup Power Delivery
-			adapter.setPowerDuration(DSPortAdapter.DELIVERY_INFINITE);
-			adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
-			// send the convert temperature command
-			adapter.putByte(CONVERT_TEMPERATURE_COMMAND);
-
-			// calculate duration of delay according to resolution desired
-			switch (state[4]) {
-
-			case RESOLUTION_9_BIT:
-				msDelay = 94;
-				break;
-			case RESOLUTION_10_BIT:
-				msDelay = 188;
-				break;
-			case RESOLUTION_11_BIT:
-				msDelay = 375;
-				break;
-			case RESOLUTION_12_BIT:
-				msDelay = 750;
-				break;
-			default:
-				msDelay = 750;
-			} // switch
-
-			// delay for specified amount of time
-			try {
-				Thread.sleep(msDelay);
-			} catch (InterruptedException e) {
-			}
-
-			// Turn power back to normal.
-			adapter.setPowerNormal();
-
-			// check to see if the temperature conversion is over
-			if (adapter.getByte() != 0xFF)
-				throw new OneWireIOException("OneWireContainer28-temperature conversion not complete");
-
-			// BH added call to recallE2 to get new converted temperature into "state"
-			// variable
-			adapter.select(address);
-			state = recallE2();
-		} else {
+		if (!this.adapter.select(this.address)) {
 
 			// device must not have been present
 			throw new OneWireIOException("OneWireContainer28-device not present");
 		}
+		// Setup Power Delivery
+		this.adapter.setPowerDuration(DSPortAdapter.DELIVERY_INFINITE);
+		this.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
+		// send the convert temperature command
+		this.adapter.putByte(CONVERT_TEMPERATURE_COMMAND);
+
+		// calculate duration of delay according to resolution desired
+		switch (state[4]) {
+
+		case RESOLUTION_9_BIT:
+			msDelay = 94;
+			break;
+		case RESOLUTION_10_BIT:
+			msDelay = 188;
+			break;
+		case RESOLUTION_11_BIT:
+			msDelay = 375;
+			break;
+		case RESOLUTION_12_BIT:
+			msDelay = 750;
+			break;
+		default:
+			msDelay = 750;
+		} // switch
+
+		// delay for specified amount of time
+		try {
+			Thread.sleep(msDelay);
+		} catch (InterruptedException e) {
+		}
+
+		// Turn power back to normal.
+		this.adapter.setPowerNormal();
+
+		// check to see if the temperature conversion is over
+		if (this.adapter.getByte() != 0xFF) {
+			throw new OneWireIOException("OneWireContainer28-temperature conversion not complete");
+		}
+
+		// BH added call to recallE2 to get new converted temperature into "state"
+		// variable
+		this.adapter.select(this.address);
+		state = this.recallE2();
 	}
 
 	// --------
@@ -426,6 +437,7 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 *
 	 * @see #doTemperatureConvert
 	 */
+	@Override
 	public double getTemperature(byte[] state) throws OneWireIOException {
 
 		// Take these three steps:
@@ -443,13 +455,13 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 		// 0xFF5E = -10.125C
 		// 0xFE6F = -25.0625C
 		// 0xFC90 = -55.0C
-		double theTemperature = (double) 0.0;
+		var theTemperature = 0.0;
 		int inttemperature = state[1]; // inttemperature is automatically sign extended here.
 
-		inttemperature = (inttemperature << 8) | (state[0] & 0xFF); // this converts 2 bytes into integer
-		theTemperature = (double) ((double) inttemperature / (double) 16); // converts integer to a double
+		inttemperature = inttemperature << 8 | state[0] & 0xFF; // this converts 2 bytes into integer
+		theTemperature = (double) inttemperature / (double) 16; // converts integer to a double
 
-		return (theTemperature);
+		return theTemperature;
 	}
 
 	/**
@@ -466,8 +478,9 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 * @see #hasTemperatureAlarms
 	 * @see #setTemperatureAlarm
 	 */
+	@Override
 	public double getTemperatureAlarm(int alarmType, byte[] state) {
-		return (double) state[alarmType == ALARM_LOW ? 3 : 2];
+		return state[alarmType == ALARM_LOW ? 3 : 2];
 	}
 
 	/**
@@ -487,26 +500,27 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 * @see #getTemperatureResolutions
 	 * @see #setTemperatureResolution
 	 */
+	@Override
 	public double getTemperatureResolution(byte[] state) {
-		double tempres = (double) 0.0;
+		var tempres = 0.0;
 
 		// calculate temperature resolution according to configuration byte
 		switch (state[4]) {
 
 		case RESOLUTION_9_BIT:
-			tempres = (double) 0.5;
+			tempres = 0.5;
 			break;
 		case RESOLUTION_10_BIT:
-			tempres = (double) 0.25;
+			tempres = 0.25;
 			break;
 		case RESOLUTION_11_BIT:
-			tempres = (double) 0.125;
+			tempres = 0.125;
 			break;
 		case RESOLUTION_12_BIT:
-			tempres = (double) 0.0625;
+			tempres = 0.0625;
 			break;
 		default:
-			tempres = (double) 0.0;
+			tempres = 0.0;
 		} // switch
 
 		return tempres;
@@ -529,15 +543,18 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 * @see #hasTemperatureAlarms
 	 * @see #getTemperatureAlarm
 	 */
+	@Override
 	public void setTemperatureAlarm(int alarmType, double alarmValue, byte[] state)
 			throws OneWireException, OneWireIOException {
-		if ((alarmType != ALARM_LOW) && (alarmType != ALARM_HIGH))
+		if (alarmType != ALARM_LOW && alarmType != ALARM_HIGH) {
 			throw new IllegalArgumentException("Invalid alarm type.");
+		}
 
-		if (alarmValue > 125.0 || alarmValue < -55.0)
+		if (alarmValue > 125.0 || alarmValue < -55.0) {
 			throw new IllegalArgumentException("Value for alarm not in accepted range.  Must be -55 C <-> +125 C.");
+		}
 
-		state[(alarmType == ALARM_LOW) ? 3 : 2] = (byte) alarmValue;
+		state[alarmType == ALARM_LOW ? 3 : 2] = (byte) alarmValue;
 	}
 
 	/**
@@ -560,23 +577,28 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 * @see #getTemperatureResolution
 	 * @see #getTemperatureResolutions
 	 */
+	@Override
 	public void setTemperatureResolution(double resolution, byte[] state) throws OneWireException {
-		byte configbyte = RESOLUTION_12_BIT;
+		var configbyte = RESOLUTION_12_BIT;
 
 		synchronized (this) {
 
 			// calculate configbyte from given resolution
-			if (resolution == 0.5)
+			if (resolution == 0.5) {
 				configbyte = RESOLUTION_9_BIT;
+			}
 
-			if (resolution == 0.25)
+			if (resolution == 0.25) {
 				configbyte = RESOLUTION_10_BIT;
+			}
 
-			if (resolution == 0.125)
+			if (resolution == 0.125) {
 				configbyte = RESOLUTION_11_BIT;
+			}
 
-			if (resolution == 0.0625)
+			if (resolution == 0.0625) {
 				configbyte = RESOLUTION_12_BIT;
+			}
 
 			state[4] = configbyte;
 		}
@@ -591,7 +613,7 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 *
 	 * @return <code>OneWireContainer28</code> state information. Device state looks
 	 *         like this:
-	 * 
+	 *
 	 *         <pre>
 	 *   0 : temperature LSB
 	 *   1 : temperature MSB
@@ -615,13 +637,9 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 *
 	 * @see #writeDevice
 	 */
+	@Override
 	public byte[] readDevice() throws OneWireIOException, OneWireException {
-
-		byte[] data;
-
-		data = recallE2();
-
-		return data;
+		return this.recallE2();
 	}
 
 	/**
@@ -643,18 +661,19 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 *
 	 * @see #readDevice
 	 */
+	@Override
 	public void writeDevice(byte[] state) throws OneWireIOException, OneWireException {
-		byte[] temp = new byte[3];
+		var temp = new byte[3];
 
 		temp[0] = state[2];
 		temp[1] = state[3];
 		temp[2] = state[4];
 
 		// Write it to the Scratchpad.
-		writeScratchpad(temp);
+		this.writeScratchpad(temp);
 
 		// Place in memory.
-		copyScratchpad();
+		this.copyScratchpad();
 	}
 
 	// --------
@@ -680,20 +699,21 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 		byte[] result_block;
 
 		// select the device
-		if (adapter.select(address)) {
+		if (this.adapter.select(this.address)) {
 
 			// create a block to send that reads the scratchpad
-			byte[] send_block = new byte[10];
+			var send_block = new byte[10];
 
 			// read scratchpad command
-			send_block[0] = (byte) READ_SCRATCHPAD_COMMAND;
+			send_block[0] = READ_SCRATCHPAD_COMMAND;
 
 			// now add the read bytes for data bytes and crc8
-			for (int i = 1; i < 10; i++)
+			for (var i = 1; i < 10; i++) {
 				send_block[i] = (byte) 0xFF;
+			}
 
 			// send the block
-			adapter.dataBlock(send_block, 0, send_block.length);
+			this.adapter.dataBlock(send_block, 0, send_block.length);
 
 			// now, send_block contains the 9-byte Scratchpad plus READ_SCRATCHPAD_COMMAND
 			// byte
@@ -701,15 +721,15 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 			// byte)
 			result_block = new byte[9];
 
-			for (int i = 0; i < 9; i++) {
+			for (var i = 0; i < 9; i++) {
 				result_block[i] = send_block[i + 1];
 			}
 
 			// see if CRC8 is correct
-			if (CRC8.compute(send_block, 1, 9) == 0)
-				return (result_block);
-			else
-				throw new OneWireIOException("OneWireContainer28-Error reading CRC8 from device.");
+			if (CRC8.compute(send_block, 1, 9) == 0) {
+				return result_block;
+			}
+			throw new OneWireIOException("OneWireContainer28-Error reading CRC8 from device.");
 		}
 
 		// device must not have been present
@@ -740,7 +760,7 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	public void writeScratchpad(byte[] data) throws OneWireIOException, OneWireException {
 
 		// setup buffer to write to scratchpad
-		byte[] writeBuffer = new byte[4];
+		var writeBuffer = new byte[4];
 
 		writeBuffer[0] = WRITE_SCRATCHPAD_COMMAND;
 		writeBuffer[1] = data[0];
@@ -748,26 +768,23 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 		writeBuffer[3] = data[2];
 
 		// send command block to device
-		if (adapter.select(address)) {
-			adapter.dataBlock(writeBuffer, 0, writeBuffer.length);
-		} else {
+		if (!this.adapter.select(this.address)) {
 
 			// device must not have been present
 			throw new OneWireIOException("OneWireContainer28-Device not found on 1-Wire Network");
 		}
+		this.adapter.dataBlock(writeBuffer, 0, writeBuffer.length);
 
 		// double check by reading scratchpad
 		byte[] readBuffer;
 
-		readBuffer = readScratchpad();
+		readBuffer = this.readScratchpad();
 
-		if ((readBuffer[2] != data[0]) || (readBuffer[3] != data[1]) || (readBuffer[4] != data[2])) {
+		if (readBuffer[2] != data[0] || readBuffer[3] != data[1] || readBuffer[4] != data[2]) {
 
 			// writing to scratchpad failed
 			throw new OneWireIOException("OneWireContainer28-Error writing to scratchpad");
 		}
-
-		return;
 	}
 
 	// -------------------------------------------------------------------------
@@ -789,40 +806,37 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 		// first, let's read the scratchpad to compare later.
 		byte[] readfirstbuffer;
 
-		readfirstbuffer = readScratchpad();
+		readfirstbuffer = this.readScratchpad();
 
 		// second, let's copy the scratchpad.
-		if (adapter.select(address)) {
-
-			// apply the power delivery
-			adapter.setPowerDuration(DSPortAdapter.DELIVERY_INFINITE);
-			adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
-
-			// send the convert temperature command
-			adapter.putByte(COPY_SCRATCHPAD_COMMAND);
-
-			// sleep for 10 milliseconds to allow copy to take place.
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-			}
-			;
-
-			// Turn power back to normal.
-			adapter.setPowerNormal();
-		} else {
+		if (!this.adapter.select(this.address)) {
 
 			// device must not have been present
 			throw new OneWireIOException("OneWireContainer28-Device not found on 1-Wire Network");
 		}
+		// apply the power delivery
+		this.adapter.setPowerDuration(DSPortAdapter.DELIVERY_INFINITE);
+		this.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
+
+		// send the convert temperature command
+		this.adapter.putByte(COPY_SCRATCHPAD_COMMAND);
+
+		// sleep for 10 milliseconds to allow copy to take place.
+		try {
+			Thread.sleep(10);
+		} catch (InterruptedException e) {
+		}
+
+		// Turn power back to normal.
+		this.adapter.setPowerNormal();
 
 		// third, let's read the scratchpad again with the recallE2 command and compare.
 		byte[] readlastbuffer;
 
-		readlastbuffer = recallE2();
+		readlastbuffer = this.recallE2();
 
-		if ((readfirstbuffer[2] != readlastbuffer[2]) || (readfirstbuffer[3] != readlastbuffer[3])
-				|| (readfirstbuffer[4] != readlastbuffer[4])) {
+		if (readfirstbuffer[2] != readlastbuffer[2] || readfirstbuffer[3] != readlastbuffer[3]
+				|| readfirstbuffer[4] != readlastbuffer[4]) {
 
 			// copying to scratchpad failed
 			throw new OneWireIOException("OneWireContainer28-Error copying scratchpad to E2 memory.");
@@ -851,15 +865,15 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 		byte[] ScratchBuff;
 
 		// select the device
-		if (adapter.select(address)) {
+		if (this.adapter.select(this.address)) {
 
 			// send the Recall E-squared memory command
-			adapter.putByte(RECALL_E2MEMORY_COMMAND);
+			this.adapter.putByte(RECALL_E2MEMORY_COMMAND);
 
 			// read scratchpad
-			ScratchBuff = readScratchpad();
+			ScratchBuff = this.readScratchpad();
 
-			return (ScratchBuff);
+			return ScratchBuff;
 		}
 
 		// device must not have been present
@@ -884,26 +898,26 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 *                            adapter
 	 */
 	public boolean isExternalPowerSupplied() throws OneWireIOException, OneWireException {
-		int intresult = 0;
-		boolean result = false;
+		var intresult = 0;
+		var result = false;
 
 		// select the device
-		if (adapter.select(address)) {
-
-			// send the "Read Power Supply" memory command
-			adapter.putByte(READ_POWER_SUPPLY_COMMAND);
-
-			// read results
-			intresult = adapter.getByte();
-		} else {
+		if (!this.adapter.select(this.address)) {
 
 			// device must not have been present
 			throw new OneWireIOException("OneWireContainer28-Device not found on 1-Wire Network");
 		}
+		// send the "Read Power Supply" memory command
+		this.adapter.putByte(READ_POWER_SUPPLY_COMMAND);
 
-		if (intresult != 0x00)
+		// read results
+		intresult = this.adapter.getByte();
+
+		if (intresult != 0x00) {
 			result = true; // reads 0xFF for true and 0x00 for false
+		}
 
 		return result;
 	}
 }
+// CHECKSTYLE:ON

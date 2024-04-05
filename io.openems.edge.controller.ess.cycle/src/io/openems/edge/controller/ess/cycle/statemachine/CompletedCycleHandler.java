@@ -1,34 +1,33 @@
 package io.openems.edge.controller.ess.cycle.statemachine;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine.State;
 
 public class CompletedCycleHandler extends StateHandler<State, Context> {
 
 	@Override
-	public State runAndGetNextState(Context context) throws IllegalArgumentException, OpenemsNamedException {
-		int completedCycles = context.getParent().getCompletedCycles().orElse(0) + 1;
-		context.getParent()._setCompletedCycles(completedCycles);
+	public State runAndGetNextState(Context context) {
+		final var controller = context.getParent();
+		final var ess = context.ess;
+		final var config = context.config;
 
-		if (completedCycles == context.config.totalCycleNumber()) {
+		var completedCycles = controller.getCompletedCycles().orElse(0) + 1;
+		controller._setCompletedCycles(completedCycles);
+
+		if (completedCycles >= config.totalCycleNumber()) {
 			return State.FINAL_SOC;
 		}
 
-		switch (context.previousState) {
-		case CONTINUE_WITH_CHARGE:
-			return State.START_DISCHARGE;
-		case CONTINUE_WITH_DISCHARGE:
-			return State.START_CHARGE;
-
-		case COMPLETED_CYCLE:
-		case FINAL_SOC:
-		case FINISHED:
-		case START_CHARGE:
-		case START_DISCHARGE:
-		case UNDEFINED:
-			break;
+		return switch (config.cycleOrder()) {
+		case START_WITH_CHARGE -> State.START_CHARGE;
+		case START_WITH_DISCHARGE -> State.START_DISCHARGE;
+		case AUTO -> {
+			int soc = ess.getSoc().get();
+			if (soc < 50) {
+				yield State.START_DISCHARGE;
+			}
+			yield State.START_CHARGE;
 		}
-		return State.COMPLETED_CYCLE;
+		};
 	}
 }

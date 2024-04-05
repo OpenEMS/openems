@@ -28,10 +28,10 @@ import { JsonrpcRequest } from "../base";
  */
 export class SetUserInformationRequest extends JsonrpcRequest {
 
-    static METHOD: string = "setUserInformation";
+    private static METHOD: string = "setUserInformation";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             user: {
                 firstname: string,
                 lastname: string,
@@ -42,12 +42,9 @@ export class SetUserInformationRequest extends JsonrpcRequest {
                     zip: string,
                     city: string,
                     country: string
-                },
-                company: {
-                    name: string
                 }
             }
-        }
+        },
     ) {
         super(SetUserInformationRequest.METHOD, params);
     }

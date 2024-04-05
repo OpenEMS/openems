@@ -61,17 +61,35 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 		this.serverUri = serverUri;
 		this.ws = new WebSocketClient(serverUri, draft, httpHeaders) {
 
+			private void logInfo(String message) {
+				AbstractWebsocketClient.this.logInfo(AbstractWebsocketClient.this.log, message);
+			}
+
 			@Override
 			public void onOpen(ServerHandshake handshake) {
-				var jHandshake = WebsocketUtils.handshakeToJsonObject(handshake);
-				AbstractWebsocketClient.this.execute(
-						new OnOpenHandler(AbstractWebsocketClient.this, AbstractWebsocketClient.this.ws, jHandshake));
+				try {
+					var jHandshake = WebsocketUtils.handshakeToJsonObject(handshake);
+					AbstractWebsocketClient.this.execute(new OnOpenHandler(AbstractWebsocketClient.this,
+							AbstractWebsocketClient.this.ws, jHandshake));
+
+				} catch (Exception e) {
+					AbstractWebsocketClient.this.handleInternalErrorSync(e,
+							WebsocketUtils.getWsDataString(AbstractWebsocketClient.this.ws));
+				}
 			}
 
 			@Override
 			public void onMessage(String stringMessage) {
+				final JsonrpcMessage message;
 				try {
-					var message = JsonrpcMessage.from(stringMessage);
+					message = JsonrpcMessage.from(stringMessage);
+				} catch (OpenemsNamedException e) {
+					AbstractWebsocketClient.this.handleInternalErrorAsync(e,
+							WebsocketUtils.getWsDataString(AbstractWebsocketClient.this.ws));
+					return;
+				}
+
+				try {
 					if (message instanceof JsonrpcRequest) {
 						AbstractWebsocketClient.this.execute(new OnRequestHandler(AbstractWebsocketClient.this,
 								AbstractWebsocketClient.this.ws, (JsonrpcRequest) message, response -> {
@@ -85,32 +103,44 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 					} else if (message instanceof JsonrpcNotification) {
 						AbstractWebsocketClient.this.execute(new OnNotificationHandler(AbstractWebsocketClient.this,
 								AbstractWebsocketClient.this.ws, (JsonrpcNotification) message));
-
 					}
-				} catch (OpenemsNamedException e) {
-					AbstractWebsocketClient.this.handleInternalErrorAsync(e);
+
+				} catch (Exception e) {
+					AbstractWebsocketClient.this.handleInternalErrorSync(e,
+							WebsocketUtils.getWsDataString(AbstractWebsocketClient.this.ws));
 				}
 			}
 
 			@Override
 			public void onError(Exception ex) {
-				AbstractWebsocketClient.this
-						.execute(new OnErrorHandler(AbstractWebsocketClient.this, AbstractWebsocketClient.this.ws, ex));
+				try {
+					AbstractWebsocketClient.this.execute(
+							new OnErrorHandler(AbstractWebsocketClient.this, AbstractWebsocketClient.this.ws, ex));
+
+				} catch (Exception e) {
+					AbstractWebsocketClient.this.handleInternalErrorSync(e,
+							WebsocketUtils.getWsDataString(AbstractWebsocketClient.this.ws));
+				}
 			}
 
 			@Override
 			public void onClose(int code, String reason, boolean remote) {
-				AbstractWebsocketClient.this.execute(new OnCloseHandler(AbstractWebsocketClient.this,
-						AbstractWebsocketClient.this.ws, code, reason, remote));
+				try {
+					AbstractWebsocketClient.this.execute(new OnCloseHandler(AbstractWebsocketClient.this,
+							AbstractWebsocketClient.this.ws, code, reason, remote));
 
-				AbstractWebsocketClient.this.log.info(
+				} catch (Exception e) {
+					AbstractWebsocketClient.this.handleInternalErrorSync(e,
+							WebsocketUtils.getWsDataString(AbstractWebsocketClient.this.ws));
+				}
+
+				this.logInfo(
 						"Websocket [" + serverUri.toString() + "] closed. Code [" + code + "] Reason [" + reason + "]");
 				AbstractWebsocketClient.this.reconnectorWorker.triggerNextRun();
 			}
 		};
-		// Disable lost connection detection
 		// https://github.com/TooTallNate/Java-WebSocket/wiki/Lost-connection-detection
-		this.ws.setConnectionLostTimeout(0);
+		this.ws.setConnectionLostTimeout(100);
 
 		// initialize WsData
 		var wsData = AbstractWebsocketClient.this.createWsData();
@@ -130,9 +160,9 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	 */
 	@Override
 	public void start() {
-		this.log.info("Opening connection [" + this.getName() + "] to websocket server [" + this.serverUri + "]");
-		this.ws.connect();
+		this.logInfo(this.log, "Opening connection to websocket server [" + this.serverUri + "]");
 		this.reconnectorWorker.activate(this.getName());
+		this.reconnectorWorker.triggerNextRun();
 	}
 
 	/**
@@ -141,8 +171,9 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	 * @throws InterruptedException on waiting error
 	 */
 	public void startBlocking() throws InterruptedException {
-		this.log.info("Opening connection [" + this.getName() + "] websocket server [" + this.serverUri + "]");
+		this.logInfo(this.log, "Opening connection to websocket server [" + this.serverUri + "]");
 		this.ws.connectBlocking();
+		this.reconnectorWorker.activate(this.getName());
 	}
 
 	/**
@@ -150,7 +181,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	 */
 	@Override
 	public void stop() {
-		this.log.info("Closing connection [" + this.getName() + "] to websocket server [" + this.serverUri + "]");
+		this.logInfo(this.log, "Closing connection to websocket server [" + this.serverUri + "]");
 		// shutdown reconnector
 		this.reconnectorWorker.deactivate();
 		// close websocket
@@ -159,15 +190,16 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 	@Override
 	protected OnInternalError getOnInternalError() {
-		return (ex, wsDataString) -> {
-			this.log.warn("OnInternalError for " + wsDataString + ". " + ex.getClass() + ": " + ex.getMessage());
-			ex.printStackTrace();
+		return (t, wsDataString) -> {
+			this.logError(this.log,
+					"OnInternalError for " + wsDataString + ". " + t.getClass() + ": " + t.getMessage());
+			t.printStackTrace();
 		};
 	}
 
 	/**
 	 * Sends a {@link JsonrpcMessage}.
-	 * 
+	 *
 	 * @param message the {@link JsonrpcMessage}
 	 * @throws OpenemsException on error, e.g. if the websocket is not connected
 	 */
@@ -194,8 +226,9 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 		try {
 			this.sendMessageOrError(message);
 			return true;
+
 		} catch (OpenemsException e) {
-			this.log.warn(e.getMessage());
+			this.logWarn(this.log, e.getMessage());
 			return false;
 		}
 	}

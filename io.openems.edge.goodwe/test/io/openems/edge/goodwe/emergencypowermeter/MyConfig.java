@@ -1,18 +1,17 @@
 package io.openems.edge.goodwe.emergencypowermeter;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
-		private String id = null;
-		public int modbusUnitId;
-		public String modbusId;
+		private String id;
+		private int modbusUnitId;
+		private String modbusId;
 
 		private Builder() {
-
 		}
 
 		protected Builder setId(String id) {
@@ -37,7 +36,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

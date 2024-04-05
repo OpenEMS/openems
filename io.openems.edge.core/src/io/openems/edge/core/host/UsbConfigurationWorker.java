@@ -3,10 +3,8 @@ package io.openems.edge.core.host;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Dictionary;
 import java.util.Hashtable;
 
-import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +29,8 @@ public class UsbConfigurationWorker extends AbstractWorker {
 	@Override
 	protected void forever() {
 		try {
-			String actualUsbConfiguration = this.parent.operatingSystem.getUsbConfiguration();
-			String persistedUsbConfiguration = this.parent.config.usbConfiguration();
+			var actualUsbConfiguration = this.parent.operatingSystem.getUsbConfiguration();
+			var persistedUsbConfiguration = this.parent.config.usbConfiguration();
 
 			if (!actualUsbConfiguration.equals(persistedUsbConfiguration)) {
 				this.persistUsbConfiguration(actualUsbConfiguration);
@@ -46,14 +44,14 @@ public class UsbConfigurationWorker extends AbstractWorker {
 
 	/**
 	 * Reconfigure Parent to persist the actual network configuration.
-	 * 
+	 *
 	 * @param networkConfiguration the actual network configuration
 	 * @throws IOException on error
 	 */
 	private void persistUsbConfiguration(String networkConfiguration) throws IOException {
-		String factoryPid = this.parent.serviceFactoryPid();
-		final Configuration config = this.parent.cm.getConfiguration(factoryPid, null);
-		Dictionary<String, Object> properties = config.getProperties();
+		var factoryPid = this.parent.serviceFactoryPid();
+		final var config = this.parent.cm.getConfiguration(factoryPid, null);
+		var properties = config.getProperties();
 		if (properties == null) {
 			// No 'Host' configuration existing yet -> create new configuration
 			properties = new Hashtable<>();

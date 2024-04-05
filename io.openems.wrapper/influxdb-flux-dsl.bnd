@@ -1,0 +1,24 @@
+Bundle-Name: influxdb-flux-dsl
+Bundle-Description: The Java InfluxDB 2.0 Flux DSL
+Bundle-DocURL: https://github.com/influxdata/influxdb-client-java
+Bundle-License: https://opensource.org/licenses/MIT
+Bundle-Version: 7.0.0
+
+Include-Resource: \
+	@flux-dsl-7.0.0.jar,\
+
+Export-Package: \
+	com.influxdb.query,\
+	com.influxdb.query.dsl,\
+	com.influxdb.query.dsl.functions,\
+	com.influxdb.query.dsl.functions.properties,\
+	com.influxdb.query.dsl.functions.restriction,\
+
+Import-Package: \
+	*
+	
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false

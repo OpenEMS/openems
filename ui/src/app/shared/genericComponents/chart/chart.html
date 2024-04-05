@@ -1,0 +1,25 @@
+<ng-container *ngIf="edge">
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-title>{{title}}</ion-title>
+      <ion-buttons slot="end">
+        <ion-button routerLink="/device/{{edge.id}}/history">
+          <ion-icon name="close-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+      <ion-buttons slot="start" *ngIf="showPopover">
+        <ion-button (click)="presentPopover()">
+          <ion-icon name="options-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+    <ion-toolbar color="primary">
+      <ion-buttons class="ion-justify-content-center">
+        <pickdate></pickdate>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content style="position: absolute;height: 87%; width: 100%; padding-bottom: 10%">
+    <ng-content></ng-content>
+  </ion-content>
+</ng-container>

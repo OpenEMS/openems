@@ -28,9 +28,25 @@ public interface BridgeMbus {
 		}
 	}
 
+	/**
+	 * Add a Task.
+	 * 
+	 * @param sourceId the Source-ID
+	 * @param task     the {@link MbusTask}
+	 */
 	public void addTask(String sourceId, MbusTask task);
 
+	/**
+	 * Get the {@link MBusConnection}.
+	 * 
+	 * @return the {@link MBusConnection}
+	 */
 	public MBusConnection getmBusConnection();
 
+	/**
+	 * Remove the task with the given Source-ID.
+	 * 
+	 * @param sourceId the Source-ID
+	 */
 	public void removeTask(String sourceId);
 }

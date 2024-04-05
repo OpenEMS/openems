@@ -1,24 +1,29 @@
-import { Component } from '@angular/core';
-import { Title } from '@angular/platform-browser';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
+
+import { Meta } from '@angular/platform-browser';
 import { environment } from '../environments';
-import { Service, Websocket } from './shared/shared';
-import { LanguageTag } from './shared/translate/language';
+import { GlobalRouteChangeHandler } from './shared/service/globalRouteChangeHandler';
+import { Service, UserPermission, Websocket } from './shared/shared';
+import { Language } from './shared/type/language';
 
 @Component({
   selector: 'app-root',
-  templateUrl: 'app.component.html'
+  templateUrl: 'app.component.html',
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
 
   public environment = environment;
   public backUrl: string | boolean = '/';
   public enableSideMenu: boolean;
   public isSystemLogEnabled: boolean = false;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
+
+  protected isUserAllowedToSeeOverview: boolean = false;
+  protected isUserAllowedToSeeFooter: boolean = false;
 
   constructor(
     private platform: Platform,
@@ -28,19 +33,24 @@ export class AppComponent {
     public service: Service,
     public toastController: ToastController,
     public websocket: Websocket,
-    private titleService: Title
+    private globalRouteChangeHandler: GlobalRouteChangeHandler,
+    private meta: Meta,
   ) {
-    service.setLang(LanguageTag[localStorage.LANGUAGE] ?? this.service.browserLangToLangTag(navigator.language));
+    service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
+
+    this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
+      this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
+      this.isUserAllowedToSeeFooter = UserPermission.isUserAllowedToSeeFooter(metadata.user);
+    });
   }
 
   ngOnInit() {
 
     // Checks if sessionStorage is not null, undefined or empty string
-    if (sessionStorage.getItem("DEBUGMODE")) {
-      this.environment.debugMode = JSON.parse(sessionStorage.getItem("DEBUGMODE"));
+    if (localStorage.getItem("DEBUGMODE")) {
+      this.environment.debugMode = JSON.parse(localStorage.getItem("DEBUGMODE"));
     }
 
-    this.titleService.setTitle(environment.edgeShortName);
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
       const toast = await this.toastController.create({
         message: notification.message,
@@ -50,13 +60,19 @@ export class AppComponent {
           {
             text: 'Ok',
             role: 'cancel',
-          }
-        ]
+          },
+        ],
       });
       toast.present();
     });
 
     this.platform.ready().then(() => {
+
+      // OEM colors exist only after ionic is initialized, so the notch color has to be set here
+      const notchColor = getComputedStyle(document.documentElement).getPropertyValue('--ion-color-background');
+      this.meta.updateTag(
+        { name: 'theme-color', content: notchColor },
+      );
       this.service.deviceHeight = this.platform.height();
       this.service.deviceWidth = this.platform.width();
       this.checkSmartphoneResolution(true);
@@ -64,8 +80,8 @@ export class AppComponent {
         this.service.deviceHeight = this.platform.height();
         this.service.deviceWidth = this.platform.width();
         this.checkSmartphoneResolution(false);
-      })
-    })
+      });
+    });
   }
 
   private checkSmartphoneResolution(init: boolean): void {

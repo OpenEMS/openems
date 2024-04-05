@@ -1,9 +1,10 @@
 package io.openems.edge.batteryinverter.sinexcel;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.batteryinverter.sinexcel.Config;
+import io.openems.edge.batteryinverter.sinexcel.enums.CountryCode;
+import io.openems.edge.batteryinverter.sinexcel.enums.EnableDisable;
 import io.openems.edge.common.startstop.StartStopConfig;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -12,7 +13,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id = null;
 		private String modbusId = null;
 		private StartStopConfig startStopConfig = null;
-		private int modbusUnitId;
+		private CountryCode countryCode = null;
+		private EnableDisable emergencyPower = null;
 
 		private Builder() {
 		}
@@ -32,6 +34,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setCountryCode(CountryCode countryCode) {
+			this.countryCode = countryCode;
+			return this;
+		}
+
+		public Builder setEmergencyPower(EnableDisable emergencyPower) {
+			this.emergencyPower = emergencyPower;
+			return this;
+		}
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -39,7 +51,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -61,6 +73,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String modbus_id() {
 		return this.builder.modbusId;
+	}
+
+	@Override
+	public CountryCode countryCode() {
+		return this.builder.countryCode;
+	}
+
+	@Override
+	public EnableDisable emergencyPower() {
+		return this.builder.emergencyPower;
 	}
 
 	@Override

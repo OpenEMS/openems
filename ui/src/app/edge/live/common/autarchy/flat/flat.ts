@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
-import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
-import { Modal } from '../modal/modal';
+import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
+import { ModalComponent } from '../modal/modal';
 
 @Component({
   selector: 'Common_Autarchy',
-  templateUrl: './flat.html'
+  templateUrl: './flat.html',
 })
-export class Flat extends AbstractFlatWidget {
+export class FlatComponent extends AbstractFlatWidget {
 
   public percentageValue: number;
 
@@ -19,33 +19,15 @@ export class Flat extends AbstractFlatWidget {
   }
 
   protected override onCurrentData(currentData: CurrentData) {
-    this.percentageValue = this.calculateAutarchy(
+    this.percentageValue = Utils.calculateAutarchy(
       currentData.allComponents['_sum/GridActivePower'],
-      currentData.allComponents['_sum/ConsumptionActivePower']
+      currentData.allComponents['_sum/ConsumptionActivePower'],
     );
-  }
-
-  private calculateAutarchy(buyFromGrid: number, consumptionActivePower: number): number | null {
-    if (buyFromGrid != null && consumptionActivePower != null) {
-      if (consumptionActivePower <= 0) {
-        /* avoid divide by zero; consumption == 0 -> autarchy 100 % */
-        return 100;
-
-      } else {
-        return /* min 0 */ Math.max(0,
-        /* max 100 */ Math.min(100,
-          /* calculate autarchy */(1 - buyFromGrid / consumptionActivePower) * 100
-        ));
-      }
-
-    } else {
-      return null;
-    }
   }
 
   async presentModal() {
     const modal = await this.modalController.create({
-      component: Modal,
+      component: ModalComponent,
     });
     return await modal.present();
   }

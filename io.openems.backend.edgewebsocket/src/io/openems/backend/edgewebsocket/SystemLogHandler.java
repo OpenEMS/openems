@@ -1,24 +1,24 @@
 package io.openems.backend.edgewebsocket;
 
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
+import com.google.gson.JsonObject;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.DeprecatedJsonrpcNotification;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
-import io.openems.common.types.SemanticVersion;
-import io.openems.common.utils.JsonUtils;
+import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 
 public class SystemLogHandler {
 
@@ -28,7 +28,7 @@ public class SystemLogHandler {
 	/**
 	 * Edge-ID to Session-Token.
 	 */
-	private final Multimap<String, String> subscriptions = HashMultimap.create();
+	private final ConcurrentHashMap<String, Set<UUID>> subscriptions = new ConcurrentHashMap<>();
 
 	public SystemLogHandler(EdgeWebsocketImpl parent) {
 		this.parent = parent;
@@ -37,56 +37,33 @@ public class SystemLogHandler {
 	/**
 	 * Handles a {@link SubscribeSystemLogRequest}.
 	 *
-	 * @param edgeId  the Edge-ID
-	 * @param user    the {@link User}
-	 * @param token   the UI session token
-	 * @param request the {@link SubscribeSystemLogRequest}
+	 * @param edgeId      the Edge-ID
+	 * @param user        the {@link User}
+	 * @param websocketId the id of the UI websocket connection
+	 * @param request     the {@link SubscribeSystemLogRequest}
 	 * @return a reply
 	 * @throws OpenemsNamedException on error
 	 */
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
-			String token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
-		if (request.getSubscribe()) {
-			/*
-			 * Start subscription
-			 */
-			boolean wasSubscriptionForThisEdgeExisting;
-			synchronized (this.subscriptions) {
-				// search existing subscription
-				wasSubscriptionForThisEdgeExisting = this.subscriptions.containsKey(edgeId);
+			UUID websocketId, SubscribeSystemLogRequest request) throws OpenemsNamedException {
+		if (request.isSubscribe()) {
+			// Add subscription
+			this.addSubscriptionId(edgeId, websocketId);
 
-				// add subscription to list
-				this.subscriptions.put(edgeId, token);
-			}
-
-			if (wasSubscriptionForThisEdgeExisting) {
-				// announce success
-				return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
-			} else {
-				// send subscribe to Edge
-				return this.sendSubscribe(edgeId, user, request, true);
-				// return this.parent.send(edgeId, request);
-			}
+			// Always forward subscribe to Edge
+			return this.parent.send(edgeId, user, request);
 
 		} else {
-			/*
-			 * End subscription
-			 */
-			boolean isAnySubscriptionForThisEdgeLeft;
-			synchronized (this.subscriptions) {
-				this.subscriptions.remove(edgeId, token);
+			// Remove subscription
+			this.removeSubscriptionId(edgeId, websocketId);
 
-				isAnySubscriptionForThisEdgeLeft = this.subscriptions.containsKey(edgeId);
-			}
-
-			if (isAnySubscriptionForThisEdgeLeft) {
-				// announce success
+			if (this.getSubscribedWebsocketIds(edgeId) != null) {
+				// Remaining Tokens left for this Edge -> announce success
 				return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 
 			} else {
-				// send unsubscribe to Edge
-				return this.sendSubscribe(edgeId, user, request, false);
-				// return this.parent.send(edgeId, request);
+				// No remaining Tokens left for this Edge -> send unsubscribe
+				return this.parent.send(edgeId, user, request);
 			}
 		}
 	}
@@ -94,74 +71,96 @@ public class SystemLogHandler {
 	/**
 	 * Handles a {@link SystemLogNotification}, i.e. the replies to
 	 * {@link SubscribeSystemLogRequest}.
-	 * 
+	 *
 	 * @param edgeId       the Edge-ID
-	 * @param user         the {@link User}
 	 * @param notification the {@link SystemLogNotification}
 	 */
-	public void handleSystemLogNotification(String edgeId, User user, SystemLogNotification notification) {
-		Collection<String> tokens;
-		synchronized (this.subscriptions) {
-			tokens = this.subscriptions.get(edgeId);
+	public void handleSystemLogNotification(String edgeId, SystemLogNotification notification) {
+		final var ids = this.getSubscribedWebsocketIds(edgeId);
+
+		if (ids == null) {
+			// No Tokens exist, but we still receive Notification? -> send unsubscribe
+			try {
+				var dummyGuestUser = new User("internal", "UnsubscribeSystemLogNotification",
+						UUID.randomUUID().toString(), Language.EN, Role.GUEST, false, new JsonObject());
+				this.parent.send(edgeId, dummyGuestUser, SubscribeSystemLogRequest.unsubscribe());
+				this.parent.logInfo(this.log, edgeId, "Was still sending SystemLogNotification. Sent unsubscribe.");
+
+			} catch (OpenemsNamedException e) {
+				this.parent.logWarn(this.log, edgeId,
+						"Was still sending SystemLogNotification. Unable to send unsubscribe: " + e.getMessage());
+			}
+			return;
 		}
 
-		for (String token : tokens) {
+		// Forward Notification to each Session token
+		for (var id : ids) {
 			try {
-				this.parent.uiWebsocket.send(token, new EdgeRpcNotification(edgeId, notification));
+				// TODO use events
+				if (this.parent.uiWebsocket != null) {
+					this.parent.uiWebsocket.send(id, new EdgeRpcNotification(edgeId, notification));
+				}
+
 			} catch (OpenemsNamedException | NullPointerException e) {
-				this.log.warn("Unable to handle SystemLogNotification from [" + edgeId + "]: " + e.getMessage());
-				this.unsubscribe(edgeId, user, token);
+				this.parent.logWarn(this.log, edgeId, "Unable to handle SystemLogNotification: " + e.getMessage());
+				// error -> send unsubscribe
+				try {
+					var dummyGuestUser = new User("internal", "UnsubscribeSystemLogNotification",
+							UUID.randomUUID().toString(), Language.EN, Role.GUEST, false, new JsonObject());
+					this.handleSubscribeSystemLogRequest(edgeId, dummyGuestUser, id,
+							SubscribeSystemLogRequest.unsubscribe());
+
+				} catch (OpenemsNamedException e1) {
+					this.parent.logWarn(this.log, edgeId, "Unable to send unsubscribe: " + e1.getMessage());
+				}
 			}
 		}
 	}
 
 	/**
-	 * Unsubscribe from System-Log.
-	 *
-	 * @param edgeId the Edge-ID#
-	 * @param user   the {@link User}; possibly null
-	 * @param token  the UI token
+	 * Adds a subscription Token for the given Edge-ID.
+	 * 
+	 * @param edgeId      the Edge-ID
+	 * @param websocketId the id of the UI websocket connection
 	 */
-	private void unsubscribe(String edgeId, User user, String token) {
-		boolean isAnySubscriptionForThisEdgeLeft;
-		synchronized (this.subscriptions) {
-			this.subscriptions.remove(edgeId, token);
-
-			isAnySubscriptionForThisEdgeLeft = this.subscriptions.containsKey(edgeId);
-		}
-
-		if (isAnySubscriptionForThisEdgeLeft) {
-			return;
-		}
-
-		// send unsubscribe to Edge
-		try {
-			this.parent.send(edgeId, user, SubscribeSystemLogRequest.unsubscribe());
-		} catch (OpenemsNamedException e) {
-			this.log.error("Unable to Unsubscribe from Edge [" + edgeId + "]");
-			e.printStackTrace();
-		}
+	protected void addSubscriptionId(String edgeId, UUID websocketId) {
+		this.subscriptions.compute(edgeId, (key, tokens) -> {
+			if (tokens == null) {
+				// Create new Set for this Edge-ID
+				tokens = new HashSet<>();
+			}
+			tokens.add(websocketId);
+			return tokens;
+		});
 	}
 
-	@Deprecated
-	private CompletableFuture<JsonrpcResponseSuccess> sendSubscribe(String edgeId, User user,
-			SubscribeSystemLogRequest request, boolean subscribe) throws OpenemsNamedException {
-		// handling deprecated: remove after full migration
-		var edgeOpt = this.parent.metadata.getEdge(edgeId);
-		if (edgeOpt.isPresent()) {
-			if (!edgeOpt.get().getVersion().isAtLeast(new SemanticVersion(2018, 11, 0))) {
-				this.parent.send(edgeId, new DeprecatedJsonrpcNotification(JsonUtils.buildJsonObject() //
-						.add("messageId", JsonUtils.buildJsonObject() //
-								.addProperty("ui", request.getId().toString()) //
-								.addProperty("backend", request.getId().toString()).build()) //
-						.add("log", JsonUtils.buildJsonObject() //
-								.addProperty("mode", subscribe ? "subscribe" : "unsubscribe") //
-								.build()) //
-						.build()));
-				return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	/**
+	 * Removes a subscription Token from the given Edge-ID.
+	 * 
+	 * @param edgeId      the Edge-ID
+	 * @param websocketId the id of the UI websocket connection
+	 */
+	protected void removeSubscriptionId(String edgeId, UUID websocketId) {
+		this.subscriptions.compute(edgeId, (key, tokens) -> {
+			if (tokens == null) {
+				// There was no entry for this Edge-ID
+				return null;
 			}
-		}
-		// current version
-		return this.parent.send(edgeId, user, request);
+			tokens.remove(websocketId);
+			if (tokens.isEmpty()) {
+				return null;
+			}
+			return tokens;
+		});
+	}
+
+	/**
+	 * Gets all subscription Tokens for the given Edge-ID.
+	 * 
+	 * @param edgeId the Edge-ID
+	 * @return a Set of Tokens; or null
+	 */
+	protected Set<UUID> getSubscribedWebsocketIds(String edgeId) {
+		return this.subscriptions.get(edgeId);
 	}
 }

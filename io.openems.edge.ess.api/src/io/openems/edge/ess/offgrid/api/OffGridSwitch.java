@@ -20,7 +20,7 @@ public interface OffGridSwitch extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Main-Contactor connects the inverter to the public grid.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: {@link OffGridSwitch}
 		 * <li>Type: Boolean
@@ -32,7 +32,7 @@ public interface OffGridSwitch extends OpenemsComponent {
 
 		/**
 		 * Grounding-Contactor connects the inverter grounding in off-grid to neutral.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: {@link OffGridSwitch}
 		 * <li>Type: Boolean
@@ -44,7 +44,7 @@ public interface OffGridSwitch extends OpenemsComponent {
 
 		/**
 		 * Grid Mode.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: {@link OffGridSwitch}
 		 * <li>Type: {@link GridMode}
@@ -68,7 +68,7 @@ public interface OffGridSwitch extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAIN_CONTACTOR}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default Channel<Boolean> getMainContactorChannel() {
@@ -78,26 +78,20 @@ public interface OffGridSwitch extends OpenemsComponent {
 	/**
 	 * Gets the Main Contactor relay state. It is Normally-Closed.
 	 * {@link ChannelId#MAIN_CONTACTOR}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Optional<Contactor> getMainContactor() {
-		Value<Boolean> value = this.getMainContactorChannel().value();
-		if (value.isDefined()) {
-			if (value.get()) {
-				return Optional.of(Contactor.OPEN);
-			} else {
-				return Optional.of(Contactor.CLOSE);
-			}
-		} else {
-			return Optional.empty();
-		}
+		var mainContactor = this.getMainContactorChannel().value();
+		return mainContactor.asOptional().map(value -> {
+			return value ? Contactor.OPEN : Contactor.CLOSE;
+		});
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#MAIN_CONTACTOR}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMainContactor(Boolean value) {
@@ -106,7 +100,7 @@ public interface OffGridSwitch extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#GROUNDING_CONTACTOR}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default Channel<Boolean> getGroundingContactorChannel() {
@@ -116,26 +110,20 @@ public interface OffGridSwitch extends OpenemsComponent {
 	/**
 	 * Gets the Grounding Contactor relay state. It is Normally-Open.
 	 * {@link ChannelId#GROUNDING_CONTACTOR}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Optional<Contactor> getGroundingContactor() {
-		Value<Boolean> value = this.getGroundingContactorChannel().value();
-		if (value.isDefined()) {
-			if (value.get()) {
-				return Optional.of(Contactor.CLOSE);
-			} else {
-				return Optional.of(Contactor.OPEN);
-			}
-		} else {
-			return Optional.empty();
-		}
+		var groundingContactor = this.getGroundingContactorChannel().value();
+		return groundingContactor.asOptional().map(value -> {
+			return value ? Contactor.CLOSE : Contactor.OPEN;
+		});
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#GROUNDING_CONTACTOR} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setGroundingContactor(Boolean value) {
@@ -144,7 +132,7 @@ public interface OffGridSwitch extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#GRID_MODE}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default Channel<GridMode> getGridModeChannel() {
@@ -153,7 +141,7 @@ public interface OffGridSwitch extends OpenemsComponent {
 
 	/**
 	 * {@link ChannelId#GRID_MODE}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default GridMode getGridMode() {
@@ -163,7 +151,7 @@ public interface OffGridSwitch extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#GRID_MODE}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setGridMode(GridMode value) {
@@ -189,12 +177,12 @@ public interface OffGridSwitch extends OpenemsComponent {
 
 	/**
 	 * Set the Main-Contactor, which connects the inverter to the public grid.
-	 * 
+	 *
 	 * <ul>
 	 * <li>OPEN: disconnect inverter from public grid
 	 * <li>CLOSE: connect inverter to public grid
 	 * </ul>
-	 * 
+	 *
 	 * @param operation {@link Contactor} operation
 	 * @throws IllegalArgumentException on error
 	 * @throws OpenemsNamedException    on error
@@ -204,12 +192,12 @@ public interface OffGridSwitch extends OpenemsComponent {
 	/**
 	 * Sets the Grounding-Contactor, which connects the inverter grounding in
 	 * off-grid to neutral.
-	 * 
+	 *
 	 * <ul>
 	 * <li>OPEN: disconnects inverter grounding from neutral
 	 * <li>CLOSE: connects in inverter grounding to neutral
 	 * </ul>
-	 * 
+	 *
 	 * @param operation {@link Contactor} operation
 	 * @throws IllegalArgumentException on error
 	 * @throws OpenemsNamedException    on error

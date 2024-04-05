@@ -1,32 +1,94 @@
 package io.openems.backend.uiwebsocket.impl;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonElement;
+
+import io.openems.backend.common.edgewebsocket.EdgeCache;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.notification.CurrentDataNotification;
+import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
+import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
+	private static class SubscribedChannels {
+
+		private static final Logger LOG = LoggerFactory.getLogger(SubscribedChannels.class);
+
+		private int lastRequestCount = Integer.MIN_VALUE;
+		private final Map<String, SortedSet<String>> subscribedChannels = new HashMap<>();
+
+		private Set<String> currentDataMissingChannelValues = Collections.emptySet();
+
+		/**
+		 * Applies a SubscribeChannelsRequest.
+		 *
+		 * @param edgeId  the Edge-ID
+		 * @param request the {@link SubscribeChannelsRequest}
+		 */
+		public synchronized void handleSubscribeChannelsRequest(String edgeId, SubscribeChannelsRequest request) {
+			if (this.lastRequestCount < request.getCount()) {
+				this.subscribedChannels.put(edgeId, request.getChannels());
+			}
+		}
+
+		/**
+		 * Gets the values for subscribed Channels.
+		 * 
+		 * @param edgeId    the Edge-ID
+		 * @param edgeCache the {@link EdgeCache}
+		 * @return a map of channel values
+		 */
+		public Map<String, JsonElement> getChannelValues(String edgeId, EdgeCache edgeCache) {
+			var subscribedChannels = this.subscribedChannels.get(edgeId);
+			if (subscribedChannels == null || subscribedChannels.isEmpty()) {
+				return Collections.emptyMap();
+			}
+
+			var result = edgeCache.getChannelValues(subscribedChannels);
+			if (!result.b().isEmpty()) {
+				if (!result.b().equals(this.currentDataMissingChannelValues)) {
+					LOG.info("[" + edgeId + "] Channels missing in Current-Data: [" + String.join(", ", result.b())
+							+ "]");
+				}
+				this.currentDataMissingChannelValues = result.b();
+			}
+			return result.a();
+		}
+
+		protected void dispose() {
+			this.subscribedChannels.clear();
+		}
+	}
+
+	private final Logger log = LoggerFactory.getLogger(WsData.class);
+
+	private final UUID id = UUID.randomUUID();
+
 	private final WebsocketServer parent;
-	private final Map<String, SubscribedChannelsWorker> subscribedChannelsWorkers = new HashMap<>();
+	private final SubscribedChannels subscribedChannels = new SubscribedChannels();
 	private Optional<String> userId = Optional.empty();
 	private Optional<String> token = Optional.empty();
 
+	private Set<String> subscribedEdges = new HashSet<>();
+
 	public WsData(WebsocketServer parent) {
 		this.parent = parent;
-	}
-
-	@Override
-	public synchronized void dispose() {
-		for (SubscribedChannelsWorker subscribedChannelsWorker : this.subscribedChannelsWorkers.values()) {
-			subscribedChannelsWorker.dispose();
-		}
 	}
 
 	/**
@@ -35,7 +97,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	public void logout() {
 		this.unsetToken();
 		this.unsetUserId();
-		this.dispose();
+		this.subscribedChannels.dispose();
 	}
 
 	public synchronized void setUserId(String userId) {
@@ -107,21 +169,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 		throw OpenemsError.BACKEND_UI_TOKEN_MISSING.exception();
 	}
 
-	/**
-	 * Gets the SubscribedChannelsWorker to take care of subscribe to CurrentData.
-	 *
-	 * @param edgeId the Edge-ID
-	 * @return the SubscribedChannelsWorker
-	 */
-	public synchronized SubscribedChannelsWorker getSubscribedChannelsWorker(String edgeId) {
-		var result = this.subscribedChannelsWorkers.get(edgeId);
-		if (result == null) {
-			result = new SubscribedChannelsWorker(this.parent.parent, edgeId, this);
-			this.subscribedChannelsWorkers.put(edgeId, result);
-		}
-		return result;
-	}
-
 	@Override
 	public String toString() {
 		String tokenString;
@@ -133,10 +180,64 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return "UiWebsocket.WsData [userId=" + this.userId.orElse("UNKNOWN") + ", token=" + tokenString + "]";
 	}
 
-	@Override
-	protected ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
-			TimeUnit unit) {
-		return this.parent.scheduleWithFixedDelay(command, initialDelay, delay, unit);
+	/**
+	 * Applies a SubscribeChannelsRequest.
+	 *
+	 * @param edgeId  the Edge-ID
+	 * @param request the {@link SubscribeChannelsRequest}
+	 */
+	public synchronized void handleSubscribeChannelsRequest(String edgeId, SubscribeChannelsRequest request) {
+		this.subscribedChannels.handleSubscribeChannelsRequest(edgeId, request);
+	}
+
+	/**
+	 * Applies a SubscribeEdgesRequest.
+	 * 
+	 * @param edgeIds the edges to subscribe
+	 */
+	public void handleSubscribeEdgesRequest(Set<String> edgeIds) {
+		// TODO maybe only add and remove on explicit request
+		this.subscribedEdges = edgeIds;
+	}
+
+	/**
+	 * Sends the subscribed Channels to the UI session.
+	 * 
+	 * @param edgeId    the Edge-ID
+	 * @param edgeCache the {@link EdgeCache} for the Edge-ID
+	 */
+	public void sendSubscribedChannels(String edgeId, EdgeCache edgeCache) {
+		if (!this.isEdgeSubscribed(edgeId)) {
+			return;
+		}
+		var values = this.subscribedChannels.getChannelValues(edgeId, edgeCache);
+		if (values.isEmpty()) {
+			return;
+		}
+		try {
+			this.send(//
+					new EdgeRpcNotification(edgeId, //
+							new CurrentDataNotification(values)));
+
+		} catch (OpenemsException e) {
+			// Log & stop subscribes
+			this.parent.logWarn(this.log, "Unable to send CurrentDataNotification: " + e.getMessage());
+			this.subscribedChannels.dispose();
+		}
+	}
+
+	/**
+	 * Is the given Edge subscribed by this UI session?.
+	 * 
+	 * @param edgeId the Edge-ID
+	 * @return true if subscribed
+	 */
+	public boolean isEdgeSubscribed(String edgeId) {
+		return this.subscribedEdges.contains(edgeId);
+	}
+
+	public UUID getId() {
+		return this.id;
 	}
 
 }

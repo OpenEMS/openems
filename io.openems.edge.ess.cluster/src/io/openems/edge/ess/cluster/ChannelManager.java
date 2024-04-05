@@ -1,5 +1,8 @@
 package io.openems.edge.ess.cluster;
 
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.groupingBy;
+
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -8,14 +11,16 @@ import java.util.function.Function;
 import io.openems.edge.common.channel.AbstractChannelListenerManager;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
+import io.openems.edge.ess.api.CalculateSoc;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 
 public class ChannelManager extends AbstractChannelListenerManager {
-
 	private final EssClusterImpl parent;
 
 	public ChannelManager(EssClusterImpl parent) {
@@ -24,7 +29,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 
 	/**
 	 * Called on Component activate().
-	 * 
+	 *
 	 * @param esss the List of {@link SymmetricEss}
 	 */
 	protected void activate(List<SymmetricEss> esss) {
@@ -35,15 +40,12 @@ public class ChannelManager extends AbstractChannelListenerManager {
 		this.calculate(INTEGER_SUM, esss, SymmetricEss.ChannelId.ACTIVE_POWER);
 		this.calculate(INTEGER_SUM, esss, SymmetricEss.ChannelId.REACTIVE_POWER);
 		this.calculate(INTEGER_SUM, esss, SymmetricEss.ChannelId.MAX_APPARENT_POWER);
-
 		this.calculate(LONG_SUM, esss, SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
 		this.calculate(LONG_SUM, esss, SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
-
 		this.calculate(INTEGER_MIN, esss, SymmetricEss.ChannelId.MIN_CELL_VOLTAGE);
 		this.calculate(INTEGER_MAX, esss, SymmetricEss.ChannelId.MAX_CELL_VOLTAGE);
 		this.calculate(INTEGER_MIN, esss, SymmetricEss.ChannelId.MIN_CELL_TEMPERATURE);
 		this.calculate(INTEGER_MAX, esss, SymmetricEss.ChannelId.MAX_CELL_TEMPERATURE);
-
 		// AsymmetricEss
 		this.calculate(INTEGER_SUM, esss, AsymmetricEss.ChannelId.ACTIVE_POWER_L1, //
 				DIVIDE_BY_THREE, SymmetricEss.ChannelId.ACTIVE_POWER);
@@ -57,21 +59,22 @@ public class ChannelManager extends AbstractChannelListenerManager {
 				DIVIDE_BY_THREE, SymmetricEss.ChannelId.REACTIVE_POWER);
 		this.calculate(INTEGER_SUM, esss, AsymmetricEss.ChannelId.REACTIVE_POWER_L3, //
 				DIVIDE_BY_THREE, SymmetricEss.ChannelId.REACTIVE_POWER);
-
 		// ManagedSymmetricEss
 		this.calculate(INTEGER_SUM, esss, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
 		this.calculate(INTEGER_SUM, esss, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
+		// StartStoppable
+		this.calculateStartStop(esss);
 	}
 
 	/**
 	 * Calculate effective Grid-Mode of {@link SymmetricEss}.
-	 * 
+	 *
 	 * @param esss the List of {@link SymmetricEss}
 	 */
 	private void calculateGridMode(List<SymmetricEss> esss) {
 		final BiConsumer<Value<Integer>, Value<Integer>> callback = (oldValue, newValue) -> {
-			int onGrids = 0;
-			int offGrids = 0;
+			var onGrids = 0;
+			var offGrids = 0;
 			for (SymmetricEss ess : esss) {
 				switch (ess.getGridMode()) {
 				case OFF_GRID:
@@ -84,7 +87,6 @@ public class ChannelManager extends AbstractChannelListenerManager {
 					break;
 				}
 			}
-
 			final GridMode result;
 			if (esss.size() == onGrids) {
 				result = GridMode.ON_GRID;
@@ -95,64 +97,69 @@ public class ChannelManager extends AbstractChannelListenerManager {
 			}
 			this.parent._setGridMode(result);
 		};
-
 		for (SymmetricEss ess : esss) {
 			this.addOnChangeListener(ess, SymmetricEss.ChannelId.GRID_MODE, callback);
 		}
 	}
 
 	/**
+	 * Calculate effective StartStop status of {@link SymmetricEss}.
+	 *
+	 * @param esss the List of {@link SymmetricEss}
+	 */
+	private void calculateStartStop(List<SymmetricEss> esss) {
+		final var startStoppableEss = esss.stream() //
+				.filter(StartStoppable.class::isInstance) //
+				.map(StartStoppable.class::cast) //
+				.toList();
+		final BiConsumer<Value<Integer>, Value<Integer>> callback = (oldValue, newValue) -> {
+			final var essMap = startStoppableEss.stream() //
+					.collect(groupingBy(StartStoppable::getStartStop));
+
+			var result = StartStop.UNDEFINED;
+			if (!startStoppableEss.isEmpty()) {
+				if (essMap.getOrDefault(StartStop.START, emptyList()).size() == startStoppableEss.size()) {
+					result = StartStop.START;
+				}
+				if (essMap.getOrDefault(StartStop.STOP, emptyList()).size() == startStoppableEss.size()) {
+					result = StartStop.STOP;
+				}
+			}
+			this.parent._setStartStop(result);
+		};
+		startStoppableEss.forEach(ess -> {
+			this.addOnChangeListener(ess, StartStoppable.ChannelId.START_STOP, callback);
+		});
+	}
+
+	/**
 	 * Calculate weighted State-Of-Charge of {@link SymmetricEss}.
-	 * 
+	 *
 	 * @param esss the List of {@link SymmetricEss}
 	 */
 	private void calculateSoc(List<SymmetricEss> esss) {
 		final BiConsumer<Value<Integer>, Value<Integer>> callback = (oldValue, newValue) -> {
-			Integer socCapacity = null;
-			Integer totalCapacity = null;
-			for (SymmetricEss ess : esss) {
-				Value<Integer> capacity = ess.getCapacity();
-				Value<Integer> soc = ess.getSoc();
-				if (!capacity.isDefined() || !soc.isDefined()) {
-					continue;
-				}
-				socCapacity = TypeUtils.sum(socCapacity, soc.get() * capacity.get());
-				totalCapacity = TypeUtils.sum(totalCapacity, capacity.get());
-			}
-
-			if (socCapacity != null && totalCapacity != null) {
-				this.parent._setSoc(Math.round(socCapacity / Float.valueOf(totalCapacity)));
-			}
+			this.parent._setSoc(new CalculateSoc() //
+					.add(esss) //
+					.calculate());
 		};
-
 		this.addOnChangeListener(this.parent, SymmetricEss.ChannelId.CAPACITY, callback);
 		for (SymmetricEss ess : esss) {
 			this.addOnChangeListener(ess, SymmetricEss.ChannelId.SOC, callback);
+			this.addOnChangeListener(ess, SymmetricEss.ChannelId.CAPACITY, callback);
 		}
 	}
 
-	private final static Function<Integer, Integer> DIVIDE_BY_THREE = (value) -> {
-		return TypeUtils.divide(value, 3);
-	};
-	private final static BiFunction<Integer, Integer, Integer> INTEGER_MIN = (result, value) -> {
-		return TypeUtils.min(result, value);
-	};
-
-	private final static BiFunction<Integer, Integer, Integer> INTEGER_MAX = (result, value) -> {
-		return TypeUtils.max(result, value);
-	};
-
-	private final static BiFunction<Integer, Integer, Integer> INTEGER_SUM = (result, value) -> {
-		return TypeUtils.sum(result, value);
-	};
-
-	private final static BiFunction<Long, Long, Long> LONG_SUM = (result, value) -> {
-		return TypeUtils.sum(result, value);
-	};
+	private static final Function<Integer, Integer> DIVIDE_BY_THREE = value -> TypeUtils.divide(value, 3);
+	private static final BiFunction<Integer, Integer, Integer> INTEGER_MIN = TypeUtils::min;
+	private static final BiFunction<Integer, Integer, Integer> INTEGER_MAX = TypeUtils::max;
+	private static final BiFunction<Integer, Integer, Integer> INTEGER_SUM = TypeUtils::sum;
+	private static final BiFunction<Long, Long, Long> LONG_SUM = TypeUtils::sum;
 
 	/**
 	 * Aggregate Channels of {@link SymmetricEss}s.
-	 * 
+	 *
+	 * @param <T>        the Channel Type
 	 * @param aggregator the aggregator function
 	 * @param esss       the List of {@link SymmetricEss}
 	 * @param channelId  the SymmetricEss.ChannelId
@@ -165,11 +172,9 @@ public class ChannelManager extends AbstractChannelListenerManager {
 				Channel<T> channel = ess.channel(channelId);
 				result = aggregator.apply(result, channel.getNextValue().get());
 			}
-
 			Channel<T> channel = this.parent.channel(channelId);
 			channel.setNextValue(result);
 		};
-
 		for (SymmetricEss ess : esss) {
 			this.addOnChangeListener(ess, channelId, callback);
 		}
@@ -177,7 +182,8 @@ public class ChannelManager extends AbstractChannelListenerManager {
 
 	/**
 	 * Aggregate Channels of {@link ManagedSymmetricEss}s.
-	 * 
+	 *
+	 * @param <T>        the Channel Type
 	 * @param aggregator the aggregator function
 	 * @param esss       the List of {@link SymmetricEss}
 	 * @param channelId  the SymmetricEss.ChannelId
@@ -192,11 +198,9 @@ public class ChannelManager extends AbstractChannelListenerManager {
 					result = aggregator.apply(result, channel.getNextValue().get());
 				}
 			}
-
 			Channel<T> channel = this.parent.channel(channelId);
 			channel.setNextValue(result);
 		};
-
 		for (SymmetricEss ess : esss) {
 			if (ess instanceof ManagedSymmetricEss) {
 				this.addOnChangeListener((ManagedSymmetricEss) ess, channelId, callback);
@@ -206,11 +210,13 @@ public class ChannelManager extends AbstractChannelListenerManager {
 
 	/**
 	 * Aggregate Channels of {@link AsymmetricEss}s.
-	 * 
+	 *
+	 * @param <T>                 the Channel Type
 	 * @param aggregator          the aggregator function
 	 * @param esss                the List of {@link SymmetricEss}
 	 * @param asymmetricChannelId the AsymmetricEss.ChannelId
-	 * @param asymmetricChannelId the fallback SymmetricEss.ChannelId; used for
+	 * @param divideFunction      the applied divide function
+	 * @param symmetricChannelId  the fallback SymmetricEss.ChannelId; used for
 	 *                            SymmetricEss and divided by 3
 	 */
 	private <T> void calculate(BiFunction<T, T, T> aggregator, List<SymmetricEss> esss,
@@ -228,11 +234,9 @@ public class ChannelManager extends AbstractChannelListenerManager {
 					result = aggregator.apply(result, divideFunction.apply(channel.getNextValue().get()));
 				}
 			}
-
 			Channel<Integer> channel = this.parent.channel(asymmetricChannelId);
 			channel.setNextValue(result);
 		};
-
 		for (SymmetricEss ess : esss) {
 			if (ess instanceof AsymmetricEss) {
 				this.addOnChangeListener((AsymmetricEss) ess, asymmetricChannelId, callback);
@@ -241,41 +245,4 @@ public class ChannelManager extends AbstractChannelListenerManager {
 			}
 		}
 	}
-//	/**
-//	 * Aggregate Channels of {@link AsymmetricEss}s.
-//	 * 
-//	 * @param aggregator          the aggregator function
-//	 * @param esss                the List of {@link SymmetricEss}
-//	 * @param asymmetricChannelId the AsymmetricEss.ChannelId
-//	 * @param asymmetricChannelId the fallback SymmetricEss.ChannelId; used for
-//	 *                            SymmetricEss and divided by 3
-//	 */
-//	private void calculate(BiFunction<Integer, Integer, Integer> aggregator, List<SymmetricEss> esss,
-//			AsymmetricEss.ChannelId asymmetricChannelId, SymmetricEss.ChannelId symmetricChannelId) {
-//		final BiConsumer<Value<Integer>, Value<Integer>> callback = (oldValue, newValue) -> {
-//			Integer result = null;
-//			for (SymmetricEss ess : esss) {
-//				if (ess instanceof AsymmetricEss) {
-//					Channel<Integer> channel = ((AsymmetricEss) ess).channel(asymmetricChannelId);
-//					result = aggregator.apply(result, channel.getNextValue().get());
-//				} else {
-//					// SymmetricEss
-//					Channel<Integer> channel = ess.channel(symmetricChannelId);
-//					result = aggregator.apply(result, TypeUtils.divide(channel.getNextValue().get(), 3));
-//				}
-//			}
-//			
-//			Channel<Integer> channel = this.parent.channel(asymmetricChannelId);
-//			channel.setNextValue(result);
-//		};
-//		
-//		for (SymmetricEss ess : esss) {
-//			if (ess instanceof AsymmetricEss) {
-//				this.addOnChangeListener((AsymmetricEss) ess, asymmetricChannelId, callback);
-//			} else {
-//				this.addOnChangeListener(ess, symmetricChannelId, callback);
-//			}
-//		}
-//	}
-
 }

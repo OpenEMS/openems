@@ -45,7 +45,6 @@ tmp/
 *.swp
 *~.nib
 local.properties
-.settings/
 .loadpath
 .recommenders
 
@@ -119,6 +118,7 @@ local.properties
 *.zip
 *.tar.gz
 *.rar
+/*.deb
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
@@ -198,9 +198,7 @@ typings/
 
 ### Gradle ###
 .gradle
-**/build/
-# do not ignore '/doc/build' directory
-!*doc/build/
+/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -220,12 +218,15 @@ gradle-app.setting
 # docs
 /doc/build/package-lock.json
 
-# tools (docker) build Directories
-/tools/docker/openems-backend/build
-/tools/docker/openems-edge/build
-/tools/docker/openems-ui/build
+# tools (gitpod) build Directories
+/tools/gitpod/openems-backend/build
+/tools/gitpod/openems-edge/build
+/tools/gitpod/openems-ui/build
 .atom-build.yml
 
 # OpenEMS temp files
 io.openems.edge.controller.api.mqtt/edge0
 io.openems.edge.application/c:/
+
+### Debian ###
+!tools/debian/**

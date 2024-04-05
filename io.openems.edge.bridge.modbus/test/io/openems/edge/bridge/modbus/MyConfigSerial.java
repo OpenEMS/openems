@@ -1,22 +1,25 @@
 package io.openems.edge.bridge.modbus;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfigSerial extends AbstractComponentConfig implements ConfigSerial {
 
 	protected static class Builder {
-		private String id = null;
-		public String portName;
-		public int baudRate;
-		public int databits;
-		public Stopbit stopbits;
-		public Parity parity;
-		public LogVerbosity logVerbosity;
-		public int invalidateElementsAfterReadErrors;
+		private String id;
+		private String portName;
+		private int baudRate;
+		private int databits;
+		private Stopbit stopbits;
+		private Parity parity;
+		private boolean enableTermination;
+		private int delayBeforeTx;
+		private int delayAfterTx;
+		private LogVerbosity logVerbosity;
+		private int invalidateElementsAfterReadErrors;
 
 		private Builder() {
 		}
@@ -50,6 +53,21 @@ public class MyConfigSerial extends AbstractComponentConfig implements ConfigSer
 			this.parity = parity;
 			return this;
 		}
+		
+		public Builder setEnableTermination(boolean enableTermination) {
+			this.enableTermination = enableTermination;
+			return this;
+		}
+		
+		public Builder setDelayBeforeTx(int delay) {
+			this.delayBeforeTx = delay;
+			return this;
+		}
+		
+		public Builder setDelayAfterTx(int delay) {
+			this.delayAfterTx = delay;
+			return this;
+		}
 
 		public Builder setLogVerbosity(LogVerbosity logVerbosity) {
 			this.logVerbosity = logVerbosity;
@@ -68,7 +86,7 @@ public class MyConfigSerial extends AbstractComponentConfig implements ConfigSer
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -105,6 +123,21 @@ public class MyConfigSerial extends AbstractComponentConfig implements ConfigSer
 	@Override
 	public Parity parity() {
 		return this.builder.parity;
+	}
+	
+	@Override
+	public boolean enableTermination() {
+		return this.builder.enableTermination;
+	}
+
+	@Override
+	public int delayBeforeTx() {
+		return this.builder.delayBeforeTx;
+	}
+
+	@Override
+	public int delayAfterTx() {
+		return this.builder.delayAfterTx;
 	}
 
 	@Override

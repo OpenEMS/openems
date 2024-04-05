@@ -8,7 +8,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 
 /**
  * Gets the current network configuration.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -24,7 +24,7 @@ public class GetNetworkConfigRequest extends JsonrpcRequest {
 
 	/**
 	 * Parses a generic {@link JsonrpcRequest} to a {@link GetNetworkConfigRequest}.
-	 * 
+	 *
 	 * @param r the {@link JsonrpcRequest}
 	 * @return the {@link GetNetworkConfigRequest}
 	 * @throws OpenemsNamedException on error

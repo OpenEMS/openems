@@ -4,6 +4,8 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.TimeZone;
 import java.util.TreeSet;
 
 import com.google.gson.JsonArray;
@@ -13,7 +15,6 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.DateUtils;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -31,10 +32,14 @@ import io.openems.common.utils.JsonUtils;
  *   "id": "UUID",
  *   "method": "queryHistoricTimeseriesEnergy",
  *   "params": {
- *     "timezone": Number,
  *     "fromDate": YYYY-MM-DD,
  *     "toDate": YYYY-MM-DD,
- *     "channels": ChannelAddress[]
+ *     "channels": ChannelAddress[],
+ *     "timezone": String,
+ *     "resolution": {
+ *       "value": Number,
+ *       "unit": {@link ChronoUnit}
+ *     }
  *   }
  * }
  * </pre>
@@ -54,10 +59,18 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 	 */
 	public static QueryHistoricTimeseriesEnergyRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		var p = r.getParams();
-		var timezoneDiff = JsonUtils.getAsInt(p, "timezone");
-		var timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
-		var fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
-		var toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
+
+		var jTimezone = JsonUtils.getAsPrimitive(p, "timezone");
+		final ZoneId timezone;
+		if (jTimezone.isNumber()) {
+			// For UI version before 2022.4.0
+			timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(JsonUtils.getAsInt(jTimezone) * -1));
+		} else {
+			timezone = TimeZone.getTimeZone(JsonUtils.getAsString(p, "timezone")).toZoneId();
+		}
+
+		var fromDate = JsonUtils.getAsZonedDateWithZeroTime(p, "fromDate", timezone);
+		var toDate = JsonUtils.getAsZonedDateWithZeroTime(p, "toDate", timezone).plusDays(1);
 		var result = new QueryHistoricTimeseriesEnergyRequest(r, fromDate, toDate);
 		var channels = JsonUtils.getAsJsonArray(p, "channels");
 		for (JsonElement channel : channels) {
@@ -69,7 +82,6 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 
 	private static final DateTimeFormatter FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
-	private final int timezoneDiff;
 	private final ZonedDateTime fromDate;
 	private final ZonedDateTime toDate;
 	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
@@ -78,8 +90,6 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 			throws OpenemsNamedException {
 		super(request, QueryHistoricTimeseriesEnergyRequest.METHOD);
 
-		DateUtils.assertSameTimezone(fromDate, toDate);
-		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 	}
@@ -88,8 +98,6 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 			throws OpenemsNamedException {
 		super(QueryHistoricTimeseriesEnergyRequest.METHOD);
 
-		DateUtils.assertSameTimezone(fromDate, toDate);
-		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 	}
@@ -104,7 +112,7 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 		for (ChannelAddress address : this.channels) {
 			channels.add(address.toString());
 		}
-		return JsonUtils.buildJsonObject().addProperty("timezone", this.timezoneDiff) //
+		return JsonUtils.buildJsonObject() //
 				.addProperty("fromDate", QueryHistoricTimeseriesEnergyRequest.FORMAT.format(this.fromDate)) //
 				.addProperty("toDate", QueryHistoricTimeseriesEnergyRequest.FORMAT.format(this.toDate)) //
 				.add("channels", channels) //

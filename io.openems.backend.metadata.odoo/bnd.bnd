@@ -9,7 +9,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.backend.common,\
 	io.openems.common,\
 	io.openems.wrapper.aXMLRPC,\
-	org.postgresql.jdbc,\
-
+	org.postgresql.jdbc, \
+	
 -testpath: \
 	${testpath}

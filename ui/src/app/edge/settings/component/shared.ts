@@ -4,5 +4,5 @@ export const IGNORE_NATURES = [
   "io.openems.edge.bridge.modbus.api.BridgeModbusSerial",
   "io.openems.edge.bridge.modbus.api.BridgeModbusTcp",
   "io.openems.edge.common.jsonapi.JsonApi",
-  "org.osgi.service.cm.ConfigurationListener"
+  "org.osgi.service.cm.ConfigurationListener",
 ];

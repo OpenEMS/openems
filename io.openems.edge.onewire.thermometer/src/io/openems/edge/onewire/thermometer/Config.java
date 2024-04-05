@@ -3,7 +3,7 @@ package io.openems.edge.onewire.thermometer;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "OneWire Thermometer", //
 		description = "Implements the OneWire Thermometer.")
 @interface Config {

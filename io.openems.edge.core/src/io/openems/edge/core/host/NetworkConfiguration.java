@@ -19,9 +19,9 @@ public class NetworkConfiguration {
 
 	/**
 	 * Return this NetworkConfiguration as a JSON object.
-	 * 
+	 *
 	 * <p>
-	 * 
+	 *
 	 * <pre>
 	 * {
 	 *   "interfaces": {
@@ -30,16 +30,20 @@ public class NetworkConfiguration {
 	 *       "linkLocalAddressing"?: boolean,
 	 *       "gateway"?: string,
 	 *       "dns"?: string,
-	 *       "addresses"?: string[]
+	 *       "addresses": [{ 
+	 *         "label": string, 
+	 *         "address": string, 
+	 *         "subnetmask": string 
+	 *       }]
 	 *     }
 	 *   }
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @return this configuration as JSON
 	 */
 	public JsonObject toJson() {
-		JsonObject interfaces = new JsonObject();
+		var interfaces = new JsonObject();
 		for (Entry<String, NetworkInterface<?>> entry : this.interfaces.entrySet()) {
 			interfaces.add(entry.getKey(), entry.getValue().toJson());
 		}
@@ -50,7 +54,7 @@ public class NetworkConfiguration {
 
 	/**
 	 * Gets the network interfaces configuration.
-	 * 
+	 *
 	 * @return a map of network interfaces per name
 	 */
 	public TreeMap<String, NetworkInterface<?>> getInterfaces() {

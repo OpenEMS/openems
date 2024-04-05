@@ -5,11 +5,12 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 
 /**
  * Updates the User Language.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -22,33 +23,6 @@ import io.openems.common.utils.JsonUtils;
  * </pre>
  */
 public class UpdateUserLanguageRequest extends JsonrpcRequest {
-
-	public static enum Language {
-		EN, //
-		DE, //
-		CZ, //
-		NL, //
-		ES, //
-		FR;
-
-		/**
-		 * Get {@link Language} for given key of the language or throws an exception.
-		 * The given key is removed all leading and trailing whitespaces and converts
-		 * all characters to upper case.
-		 *
-		 * @param languageKey to get the {@link Language}
-		 * @return the founded {@link Language} or throws an exception
-		 * @throws OpenemsException on error
-		 */
-		public static Language from(String languageKey) throws OpenemsException {
-			try {
-				return Language.valueOf(languageKey.trim().toUpperCase());
-			} catch (IllegalArgumentException ex) {
-				throw new OpenemsException("Language [" + languageKey + "] not supported");
-			}
-		}
-
-	}
 
 	public static final String METHOD = "updateUserLanguage";
 

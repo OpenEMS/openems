@@ -10,7 +10,7 @@ public class ChannelMetaInfoBit extends ChannelMetaInfo {
 	/**
 	 * Holds the index of the bit inside the Register if applicable.
 	 */
-	private final int bit;
+	protected final int bit;
 
 	public ChannelMetaInfoBit(int address, int bit) {
 		super(address);
@@ -19,7 +19,7 @@ public class ChannelMetaInfoBit extends ChannelMetaInfo {
 
 	@Override
 	public String toString() {
-		StringBuilder b = new StringBuilder();
+		var b = new StringBuilder();
 		b.append("0x").append(Integer.toHexString(this.address));
 		if (this.bit >= 0) {
 			b.append("|bit").append(String.format("%02d", this.bit));
@@ -40,10 +40,10 @@ public class ChannelMetaInfoBit extends ChannelMetaInfo {
 		if (obj == null) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
-		ChannelMetaInfoBit other = (ChannelMetaInfoBit) obj;
+		var other = (ChannelMetaInfoBit) obj;
 		return this.address == other.address && this.bit == other.bit;
 	}
 

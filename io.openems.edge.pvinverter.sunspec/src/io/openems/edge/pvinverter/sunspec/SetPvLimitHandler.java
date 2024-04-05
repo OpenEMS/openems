@@ -5,19 +5,17 @@ import java.time.Instant;
 import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.function.ThrowingRunnable;
+import io.openems.common.function.ThrowingConsumer;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S123_WMaxLim_Ena;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
-public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException> {
+public class SetPvLimitHandler implements ThrowingConsumer<Optional<Integer>, OpenemsNamedException> {
 
-	private final static float COMPARE_THRESHOLD = 0.0001F;
+	private static final float COMPARE_THRESHOLD = 0.0001F;
 
 	private final AbstractSunSpecPvInverter parent;
 
@@ -27,13 +25,15 @@ public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException
 
 	private Instant lastWMaxLimPctTime = Instant.MIN;
 
+	/**
+	 * Handles a PV-Inverter power limitation request.
+	 * 
+	 * @param activePowerLimitOpt an Optional power limit; empty value sets the
+	 *                            allowed inverter power to 100 %, i.e. no limit
+	 * @throws OpenemsNamedException on error
+	 */
 	@Override
-	public void run() throws OpenemsNamedException {
-		// Get ActivePowerLimit that should be applied
-		IntegerWriteChannel activePowerLimitChannel = this.parent
-				.channel(ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
-		Optional<Integer> activePowerLimitOpt = activePowerLimitChannel.getNextWriteValueAndReset();
-
+	public void accept(Optional<Integer> activePowerLimitOpt) throws OpenemsNamedException {
 		FloatWriteChannel wMaxLimPctChannel;
 		FloatReadChannel wRtgChannel;
 		EnumWriteChannel wMaxLimEnaChannel;
@@ -53,10 +53,9 @@ public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException
 			if (activePowerLimitOpt.isPresent()) {
 				// and power should be limited -> forward error
 				throw e;
-			} else {
-				// and no power limitation is required -> ignore error and exit
-				return;
 			}
+			// and no power limitation is required -> ignore error and exit
+			return;
 		}
 
 		float wMaxLimPct;

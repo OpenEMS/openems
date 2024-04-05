@@ -9,7 +9,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Executes a System Update.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -28,14 +28,14 @@ public class ExecuteSystemUpdateRequest extends JsonrpcRequest {
 	/**
 	 * Parses a generic {@link JsonrpcRequest} to a
 	 * {@link ExecuteSystemUpdateRequest}.
-	 * 
+	 *
 	 * @param r the {@link JsonrpcRequest}
 	 * @return the {@link ExecuteSystemUpdateRequest}
 	 * @throws OpenemsNamedException on error
 	 */
 	public static ExecuteSystemUpdateRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		boolean isDebug = JsonUtils.getAsBoolean(p, "isDebug");
+		var p = r.getParams();
+		var isDebug = JsonUtils.getAsBoolean(p, "isDebug");
 		return new ExecuteSystemUpdateRequest(r, isDebug);
 	}
 

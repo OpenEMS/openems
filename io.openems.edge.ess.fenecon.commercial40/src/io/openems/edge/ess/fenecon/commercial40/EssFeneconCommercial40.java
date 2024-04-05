@@ -1,7 +1,5 @@
 package io.openems.edge.ess.fenecon.commercial40;
 
-import java.util.Optional;
-
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.AccessMode;
@@ -16,7 +14,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.fenecon.commercial40.charger.EssDcChargerFeneconCommercial40;
+import io.openems.edge.ess.fenecon.commercial40.charger.EssFeneconCommercial40Pv;
 import io.openems.edge.timedata.api.TimedataProvider;
 
 public interface EssFeneconCommercial40
@@ -24,31 +22,31 @@ public interface EssFeneconCommercial40
 
 	/**
 	 * Gets the Modbus Unit-ID.
-	 * 
+	 *
 	 * @return the Unit-ID
 	 */
 	public Integer getUnitId();
 
 	/**
 	 * Gets the Modbus-Bridge Component-ID, i.e. "modbus0".
-	 * 
+	 *
 	 * @return the Component-ID
 	 */
 	public String getModbusBridgeId();
 
 	/**
 	 * Registers a Charger with this ESS.
-	 * 
+	 *
 	 * @param charger the Charger
 	 */
-	public void addCharger(EssDcChargerFeneconCommercial40 charger);
+	public void addCharger(EssFeneconCommercial40Pv charger);
 
 	/**
 	 * Unregisters a Charger from this ESS.
-	 * 
+	 *
 	 * @param charger the Charger
 	 */
-	public void removeCharger(EssDcChargerFeneconCommercial40 charger);
+	public void removeCharger(EssFeneconCommercial40Pv charger);
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// EnumReadChannels
@@ -83,50 +81,47 @@ public interface EssFeneconCommercial40
 
 		// IntegerReadChannels
 		ORIGINAL_ALLOWED_CHARGE_POWER(new IntegerDoc() //
-				.onInit(channel -> { //
+				.onChannelUpdate((self, newValue) -> {
 					// on each Update to the channel -> set the ALLOWED_CHARGE_POWER value with a
 					// delta of max 500
-					channel.onUpdate(newValue -> {
-						IntegerReadChannel currentValueChannel = channel.getComponent()
-								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
-						Optional<Integer> originalValue = newValue.asOptional();
-						Optional<Integer> currentValue = currentValueChannel.value().asOptional();
-						int value;
-						if (!originalValue.isPresent() && !currentValue.isPresent()) {
-							value = 0;
-						} else if (originalValue.isPresent() && !currentValue.isPresent()) {
-							value = originalValue.get();
-						} else if (!originalValue.isPresent() && currentValue.isPresent()) {
-							value = currentValue.get();
-						} else {
-							value = Math.max(originalValue.get(), currentValue.get() - 500);
-						}
-						currentValueChannel.setNextValue(value);
-					});
+					IntegerReadChannel currentValueChannel = self
+							.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
+					var originalValue = newValue.asOptional();
+					var currentValue = currentValueChannel.value().asOptional();
+					final int value;
+					if (!originalValue.isPresent() && !currentValue.isPresent()) {
+						value = 0;
+					} else if (originalValue.isPresent() && !currentValue.isPresent()) {
+						value = originalValue.get();
+					} else if (!originalValue.isPresent() && currentValue.isPresent()) {
+						value = currentValue.get();
+					} else {
+						value = Math.max(originalValue.get(), currentValue.get() - 500);
+					}
+					currentValueChannel.setNextValue(value);
 				})), //
 
 		ORIGINAL_ALLOWED_DISCHARGE_POWER(new IntegerDoc() //
-				.onInit(channel -> { //
+				.onChannelUpdate((self, newValue) -> {
 					// on each Update to the channel -> set the ALLOWED_DISCHARGE_POWER value with a
 					// delta of max 500
-					channel.onUpdate(newValue -> {
-						IntegerReadChannel currentValueChannel = channel.getComponent()
-								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
-						Optional<Integer> originalValue = newValue.asOptional();
-						Optional<Integer> currentValue = currentValueChannel.value().asOptional();
-						int value;
-						if (!originalValue.isPresent() && !currentValue.isPresent()) {
-							value = 0;
-						} else if (originalValue.isPresent() && !currentValue.isPresent()) {
-							value = originalValue.get();
-						} else if (!originalValue.isPresent() && currentValue.isPresent()) {
-							value = currentValue.get();
-						} else {
-							value = Math.min(originalValue.get(), currentValue.get() + 500);
-						}
-						currentValueChannel.setNextValue(value);
-					});
+					IntegerReadChannel currentValueChannel = self
+							.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
+					var originalValue = newValue.asOptional();
+					var currentValue = currentValueChannel.value().asOptional();
+					final int value;
+					if (!originalValue.isPresent() && !currentValue.isPresent()) {
+						value = 0;
+					} else if (originalValue.isPresent() && !currentValue.isPresent()) {
+						value = originalValue.get();
+					} else if (!originalValue.isPresent() && currentValue.isPresent()) {
+						value = currentValue.get();
+					} else {
+						value = Math.min(originalValue.get(), currentValue.get() + 500);
+					}
+					currentValueChannel.setNextValue(value);
 				})), //
+
 		PROTOCOL_VERSION(Doc.of(OpenemsType.INTEGER)), //
 		BATTERY_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //
@@ -135,9 +130,9 @@ public interface EssFeneconCommercial40
 		BATTERY_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		AC_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		AC_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		GRID_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
@@ -190,9 +185,9 @@ public interface EssFeneconCommercial40
 				.unit(Unit.MILLIAMPERE)), //
 		BATTERY_STRING_CYCLES(Doc.of(OpenemsType.INTEGER)), //
 		BATTERY_STRING_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		BATTERY_STRING_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		BATTERY_STRING_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		BATTERY_STRING_MAX_CELL_VOLTAGE_NO(Doc.of(OpenemsType.INTEGER)), //

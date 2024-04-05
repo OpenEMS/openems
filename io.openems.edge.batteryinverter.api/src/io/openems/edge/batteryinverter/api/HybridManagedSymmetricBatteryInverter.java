@@ -24,7 +24,7 @@ public interface HybridManagedSymmetricBatteryInverter
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * DC Discharge Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: HybridManagedSymmetricBatteryInverter
 		 * <li>Type: Integer
@@ -44,7 +44,7 @@ public interface HybridManagedSymmetricBatteryInverter
 		),
 		/**
 		 * DC Charge Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: HybridEss
 		 * <li>Type: Long
@@ -52,12 +52,12 @@ public interface HybridManagedSymmetricBatteryInverter
 		 * </ul>
 		 */
 		DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH) //
 		),
 		/**
 		 * DC Discharge Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: HybridEss
 		 * <li>Type: Long
@@ -65,7 +65,7 @@ public interface HybridManagedSymmetricBatteryInverter
 		 * </ul>
 		 */
 		DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH) //
 		);
 
@@ -75,6 +75,7 @@ public interface HybridManagedSymmetricBatteryInverter
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -83,7 +84,7 @@ public interface HybridManagedSymmetricBatteryInverter
 	/**
 	 * Gets the DC-PV Power, i.e. the sum of the {@link EssDcCharger}s of this
 	 * {@link HybridManagedSymmetricBatteryInverter}.
-	 * 
+	 *
 	 * @return the DC-PV power, or 'null' if there is no {@link EssDcCharger}
 	 */
 	public Integer getDcPvPower();
@@ -91,18 +92,18 @@ public interface HybridManagedSymmetricBatteryInverter
 	/**
 	 * Gets the Surplus Power of the {@link EssDcCharger}s of this
 	 * {@link HybridManagedSymmetricBatteryInverter}.
-	 * 
+	 *
 	 * <p>
 	 * This value is usually calculated from the
 	 * {@link EssDcCharger#getActualPower()} when the battery is full
-	 * 
+	 *
 	 * @return the surplus power, or 'null' if there is no surplus power
 	 */
 	public Integer getSurplusPower();
 
 	/**
 	 * Gets the Channel for {@link ChannelId#DC_DISCHARGE_POWER}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getDcDischargePowerChannel() {
@@ -112,7 +113,7 @@ public interface HybridManagedSymmetricBatteryInverter
 	/**
 	 * Gets the DC Discharge Power in [W]. Negative values for Charge; positive for
 	 * Discharge. See {@link ChannelId#DC_DISCHARGE_POWER}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getDcDischargePower() {
@@ -122,7 +123,7 @@ public interface HybridManagedSymmetricBatteryInverter
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#DC_DISCHARGE_POWER} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setDcDischargePower(Integer value) {
@@ -139,7 +140,7 @@ public interface HybridManagedSymmetricBatteryInverter
 	}
 
 	/**
-	 * Gets the DC Charge Energy in [Wh]. See {@link ChannelId#DC_CHARGE_ENERGY}.
+	 * Gets the DC Charge Energy in [Wh_Σ]. See {@link ChannelId#DC_CHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -177,7 +178,7 @@ public interface HybridManagedSymmetricBatteryInverter
 	}
 
 	/**
-	 * Gets the DC Discharge Energy in [Wh]. See
+	 * Gets the DC Discharge Energy in [Wh_Σ]. See
 	 * {@link ChannelId#DC_DISCHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}

@@ -1,28 +1,28 @@
 package io.openems.edge.battery.soltaro.cluster.versionb;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.battery.soltaro.common.enums.BatteryState;
 import io.openems.edge.battery.soltaro.common.enums.ModuleType;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		private String modbusId = null;
-		public int modbusUnitId;
-		public int numberOfSlaves;
-		public ModuleType moduleType;
-		public int watchdog;
-		public BatteryState batteryState;
-		public int[] racks;
-		public int errorLevel2Delay;
-		public int maxStartAppempts;
-		public int maxStartTime;
-		public int pendingTolerance;
-		public int startUnsuccessfulDelay;
-		public int minimalCellVoltage;
+		private String id;
+		private String modbusId;
+		private int modbusUnitId;
+		private int numberOfSlaves;
+		private ModuleType moduleType;
+		private int watchdog;
+		private BatteryState batteryState;
+		private int[] racks;
+		private int errorLevel2Delay;
+		private int maxStartAppempts;
+		private int maxStartTime;
+		private int pendingTolerance;
+		private int startUnsuccessfulDelay;
+		private int minimalCellVoltage;
 
 		private Builder() {
 		}

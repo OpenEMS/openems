@@ -57,8 +57,8 @@ public class EdgeConfigDiff {
 		if (!diffComponents.entriesDiffering().isEmpty()) {
 			for (Entry<String, ValueDifference<EdgeConfig.Component>> differingComponent : diffComponents
 					.entriesDiffering().entrySet()) {
-				EdgeConfig.Component newComponent = differingComponent.getValue().leftValue();
-				EdgeConfig.Component oldComponent = differingComponent.getValue().rightValue();
+				var newComponent = differingComponent.getValue().leftValue();
+				var oldComponent = differingComponent.getValue().rightValue();
 
 				MapDifference<String, JsonElement> diffProperties = Maps.difference(newComponent.getProperties(),
 						oldComponent.getProperties());
@@ -75,7 +75,10 @@ public class EdgeConfigDiff {
 				if (!diffProperties.entriesOnlyOnLeft().isEmpty()) {
 					// created
 					for (Entry<String, JsonElement> newEntry : diffProperties.entriesOnlyOnLeft().entrySet()) {
-						properties.put(newEntry.getKey(), new OldNewProperty(JsonNull.INSTANCE, newEntry.getValue()));
+						if (newEntry.getValue() != null && newEntry.getValue() != JsonNull.INSTANCE) {
+							properties.put(newEntry.getKey(),
+									new OldNewProperty(JsonNull.INSTANCE, newEntry.getValue()));
+						}
 					}
 				}
 				if (!diffProperties.entriesDiffering().isEmpty()) {
@@ -192,12 +195,12 @@ public class EdgeConfigDiff {
 	 * @param properties  the properties
 	 */
 	private void addCreated(String componentId, Component component, Map<String, JsonElement> properties) {
-		ComponentDiff.OldNewProperty lastChangeBy = new ComponentDiff.OldNewProperty(JsonNull.INSTANCE,
+		var lastChangeBy = new ComponentDiff.OldNewProperty(JsonNull.INSTANCE,
 				component.getProperty(OpenemsConstants.PROPERTY_LAST_CHANGE_BY)
 						.orElse(new JsonPrimitive("Apache Felix Webconsole")));
-		ComponentDiff.OldNewProperty lastChangeAt = new ComponentDiff.OldNewProperty(JsonNull.INSTANCE,
+		var lastChangeAt = new ComponentDiff.OldNewProperty(JsonNull.INSTANCE,
 				component.getProperty(OpenemsConstants.PROPERTY_LAST_CHANGE_AT).orElse(JsonNull.INSTANCE));
-		ComponentDiff diff = new ComponentDiff(component, Change.CREATED, lastChangeBy, lastChangeAt);
+		var diff = new ComponentDiff(component, Change.CREATED, lastChangeBy, lastChangeAt);
 		for (Entry<String, JsonElement> entry : properties.entrySet()) {
 			diff.add(entry.getKey(), new ComponentDiff.OldNewProperty(JsonNull.INSTANCE, entry.getValue()));
 		}
@@ -212,14 +215,14 @@ public class EdgeConfigDiff {
 	 * @param properties  the properties
 	 */
 	private void addDeleted(String componentId, Component component, Map<String, JsonElement> properties) {
-		ComponentDiff.OldNewProperty lastChangeBy = new ComponentDiff.OldNewProperty(
+		var lastChangeBy = new ComponentDiff.OldNewProperty(
 				component.getProperty(OpenemsConstants.PROPERTY_LAST_CHANGE_BY)
 						.orElse(new JsonPrimitive("Apache Felix Webconsole")),
 				JsonNull.INSTANCE);
-		ComponentDiff.OldNewProperty lastChangeAt = new ComponentDiff.OldNewProperty(
+		var lastChangeAt = new ComponentDiff.OldNewProperty(
 				component.getProperty(OpenemsConstants.PROPERTY_LAST_CHANGE_AT).orElse(JsonNull.INSTANCE),
 				JsonNull.INSTANCE);
-		ComponentDiff diff = new ComponentDiff(component, Change.DELETED, lastChangeBy, lastChangeAt);
+		var diff = new ComponentDiff(component, Change.DELETED, lastChangeBy, lastChangeAt);
 		for (Entry<String, JsonElement> entry : properties.entrySet()) {
 			diff.add(entry.getKey(), new ComponentDiff.OldNewProperty(entry.getValue(), JsonNull.INSTANCE));
 		}
@@ -234,12 +237,11 @@ public class EdgeConfigDiff {
 	 * @param properties  the properties
 	 */
 	private void addUpdated(String componentId, Component component, Map<String, OldNewProperty> properties) {
-		ComponentDiff.OldNewProperty lastChangeBy = new ComponentDiff.OldNewProperty(JsonNull.INSTANCE,
+		var lastChangeBy = new ComponentDiff.OldNewProperty(JsonNull.INSTANCE,
 				component.getProperty(OpenemsConstants.PROPERTY_LAST_CHANGE_BY)
 						.orElse(new JsonPrimitive("Apache Felix Webconsole")));
-		ComponentDiff.OldNewProperty lastChangeAt = new ComponentDiff.OldNewProperty(JsonNull.INSTANCE,
-				JsonNull.INSTANCE);
-		ComponentDiff diff = new ComponentDiff(component, Change.UPDATED, lastChangeBy, lastChangeAt);
+		var lastChangeAt = new ComponentDiff.OldNewProperty(JsonNull.INSTANCE, JsonNull.INSTANCE);
+		var diff = new ComponentDiff(component, Change.UPDATED, lastChangeBy, lastChangeAt);
 		for (Entry<String, OldNewProperty> property : properties.entrySet()) {
 			diff.add(property.getKey(), property.getValue());
 		}
@@ -253,20 +255,21 @@ public class EdgeConfigDiff {
 	 */
 	public String getAsHtml() {
 		var b = new StringBuilder();
-		b.append("<table border=\"1\" style=\"border-collapse: collapse\"" //
-				+ "	<thead>" //
-				+ "		<tr>" //
-				+ "			<th>Change</th>" //
-				+ "			<th>Component</th>" //
-				+ "			<th>Name</th>"//
-				+ "			<th>Old Value</th>"//
-				+ "			<th>New Value</th>"//
-				+ "		</tr>" //
-				+ "	</thead>" //
-				+ "	<tbody>");
+		b.append("""
+				<table border="1" style="border-collapse: collapse"\
+					<thead>\
+						<tr>\
+							<th>Change</th>\
+							<th>Component</th>\
+							<th>Name</th>\
+							<th>Old Value</th>\
+							<th>New Value</th>\
+						</tr>\
+					</thead>\
+					<tbody>""");
 		for (Entry<String, ComponentDiff> componentEntry : this.components.entrySet()) {
-			String componentId = componentEntry.getKey();
-			ComponentDiff component = componentEntry.getValue();
+			var componentId = componentEntry.getKey();
+			var component = componentEntry.getValue();
 			b.append("<tr>");
 			// Change column
 			b.append(String.format("<td rowspan=\"%s\" style=\"vertical-align: top\">%s</td>",
@@ -319,8 +322,8 @@ public class EdgeConfigDiff {
 	public String getAsText() {
 		var b = new StringBuilder();
 		for (Entry<String, ComponentDiff> componentEntry : this.components.entrySet()) {
-			final ComponentDiff component = componentEntry.getValue();
-			String change = component.properties.entrySet().stream() //
+			final var component = componentEntry.getValue();
+			var change = component.properties.entrySet().stream() //
 					.filter(e -> {
 						switch (e.getKey()) {
 						case "_lastChangeAt":

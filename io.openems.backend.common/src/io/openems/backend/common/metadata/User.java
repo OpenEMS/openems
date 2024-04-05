@@ -3,12 +3,16 @@ package io.openems.backend.common.metadata;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import com.google.gson.JsonObject;
 import java.util.NavigableMap;
+import java.util.TreeMap;
 
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.response.AuthenticateResponse.EdgeMetadata;
+import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.AbstractUser;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 
 /**
@@ -21,13 +25,21 @@ public class User extends AbstractUser {
 	 */
 	private final String token;
 
-	private final String language;
+	/**
+	 * True, if the current User can see multiple edges.
+	 */
+	private final boolean hasMultipleEdges;
 
-	public User(String id, String name, String token, Role globalRole, NavigableMap<String, Role> roles,
-			String language) {
-		super(id, name, globalRole, roles);
+	public User(String id, String name, String token, Language language, Role globalRole, boolean hasMultipleEdges,
+			JsonObject settings) {
+		this(id, name, token, language, globalRole, new TreeMap<>(), hasMultipleEdges, settings);
+	}
+
+	public User(String id, String name, String token, Language language, Role globalRole,
+			NavigableMap<String, Role> roles, boolean hasMultipleEdges, JsonObject settings) {
+		super(id, name, language, globalRole, roles, settings);
+		this.hasMultipleEdges = hasMultipleEdges;
 		this.token = token;
-		this.language = language;
 	}
 
 	/**
@@ -37,31 +49,6 @@ public class User extends AbstractUser {
 	 */
 	public String getToken() {
 		return this.token;
-	}
-
-	/**
-	 * Gets the user language.
-	 *
-	 * @return the language
-	 */
-	public String getLanguage() {
-		return this.language;
-	}
-
-	/**
-	 * Gets the information whether the Users Role for the given Edge is equal or
-	 * more privileged than the given Role.
-	 *
-	 * @param edgeId the Edge-Id
-	 * @param role   the compared Role
-	 * @return true if the Users Role privileges are equal or higher
-	 */
-	public boolean roleIsAtLeast(String edgeId, Role role) {
-		var thisRoleOpt = this.getRole(edgeId);
-		if (!thisRoleOpt.isPresent()) {
-			return false;
-		}
-		return true;
 	}
 
 	/**
@@ -77,7 +64,7 @@ public class User extends AbstractUser {
 	public Role assertEdgeRoleIsAtLeast(String resource, String edgeId, Role role) throws OpenemsNamedException {
 		var thisRoleOpt = this.getRole(edgeId);
 		if (!thisRoleOpt.isPresent()) {
-			throw OpenemsError.COMMON_ROLE_UNDEFINED.exception(this.getId());
+			throw OpenemsError.COMMON_ROLE_UNDEFINED.exception(resource, this.getId());
 		}
 		var thisRole = thisRoleOpt.get();
 		if (!thisRole.isAtLeast(role)) {
@@ -107,10 +94,19 @@ public class User extends AbstractUser {
 						edge.getProducttype(), // Product-Type
 						edge.getVersion(), // Version
 						role, // Role
-						edge.isOnline() // Online-State
+						edge.isOnline(), // Online-State
+						edge.getLastmessage(), // Last-Message Timestamp
+						null, //
+						Level.OK //
 				));
 			}
 		}
 		return metadatas;
 	}
+
+	@Override
+	public boolean hasMultipleEdges() {
+		return this.hasMultipleEdges;
+	}
+
 }

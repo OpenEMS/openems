@@ -101,11 +101,12 @@ public enum KacoSunSpecModel implements SunSpecModel {
 				"S64201_WATCHDOG", //
 				"Watchdog", //
 				"Enable Watchdog", //
-				"Register must be written with the desired watchdog timeout in seconds." //
-						+ "Watchdog timer is reset on every write access to the value written " //
-						+ "to the register. 0 means watchdog is disabled. It is recommended to" //
-						+ "re-write the register at least once before half of the watchdog timeout" //
-						+ "has elapsed.", //
+				"""
+						Register must be written with the desired watchdog timeout in seconds. \
+						Watchdog timer is reset on every write access to the value written \
+						to the register. 0 means watchdog is disabled. It is recommended to \
+						re-write the register at least once before half of the watchdog timeout \
+						has elapsed.""", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE, //
@@ -192,8 +193,8 @@ public enum KacoSunSpecModel implements SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE, //
-				Unit.SECONDS, //
-				"RMP_TMS_SF", //
+				Unit.MILLISECONDS, //
+				null, //
 				new OptionsEnum[0])), //
 		WPARAM_RMP_DEC_TMM(new PointImpl(//
 				"S64201_WPARAM_RMP_DEC_TMM", //

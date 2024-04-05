@@ -15,10 +15,9 @@ public class SlowCharge2Handler extends StateHandler<State, Context> {
 		if (allowedChargePower == 0) {
 			// no more charging allowed
 			return State.FINISHED;
-		} else {
-			// stay in this State
-			return State.SLOW_CHARGE_2;
 		}
+		// stay in this State
+		return State.SLOW_CHARGE_2;
 	}
 
 }

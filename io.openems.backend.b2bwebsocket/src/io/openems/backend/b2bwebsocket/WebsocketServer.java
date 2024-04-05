@@ -6,14 +6,14 @@ import io.openems.common.websocket.AbstractWebsocketServer;
 
 public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
-	private final B2bWebsocket parent;
+	private final Backend2BackendWebsocket parent;
 	private final OnOpen onOpen;
 	private final OnRequest onRequest;
 	private final OnNotification onNotification;
 	private final OnError onError;
 	private final OnClose onClose;
 
-	public WebsocketServer(B2bWebsocket parent, String name, int port, int poolSize, boolean debugMode) {
+	public WebsocketServer(Backend2BackendWebsocket parent, String name, int port, int poolSize, DebugMode debugMode) {
 		super(name, port, poolSize, debugMode);
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
@@ -61,5 +61,10 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	@Override
 	protected void logWarn(Logger log, String message) {
 		this.parent.logWarn(log, message);
+	}
+
+	@Override
+	protected void logError(Logger log, String message) {
+		this.parent.logError(log, message);
 	}
 }

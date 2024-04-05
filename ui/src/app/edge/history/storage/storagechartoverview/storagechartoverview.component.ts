@@ -1,12 +1,12 @@
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { EdgeConfig, Service, Utils, Edge } from '../../../../shared/shared';
+import { Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
 
 @Component({
     selector: StorageChartOverviewComponent.SELECTOR,
-    templateUrl: './storagechartoverview.component.html'
+    templateUrl: './storagechartoverview.component.html',
 })
-export class StorageChartOverviewComponent {
+export class StorageChartOverviewComponent implements OnInit {
 
     public edge: Edge = null;
 
@@ -16,7 +16,7 @@ export class StorageChartOverviewComponent {
     public chargerComponents: EdgeConfig.Component[] = null;
 
     public showPhases: boolean = false;
-    public showTotal: boolean = null;
+    public showTotal: boolean = false;
     public isOnlyChart = null;
 
     // reference to the Utils method to access via html
@@ -42,8 +42,8 @@ export class StorageChartOverviewComponent {
                 } else {
                     this.isOnlyChart = false;
                 }
-            })
-        })
+            });
+        });
     }
 
     onNotifyPhases(showPhases: boolean): void {

@@ -1,19 +1,19 @@
-import { Component, Input } from '@angular/core';
-import { Edge, EdgeConfig, Service, Websocket } from '../../../../../../shared/shared';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { Subject } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { Edge, EdgeConfig, Service, Websocket } from '../../../../../../shared/shared';
 
 @Component({
     selector: 'asymmetricpeakshaving-modal',
-    templateUrl: './modal.component.html'
+    templateUrl: './modal.component.html',
 })
-export class Controller_Asymmetric_PeakShavingModalComponent {
+export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
 
-    @Input() component: EdgeConfig.Component;
-    @Input() edge: Edge;
-    @Input() mostStressedPhase: Subject<{ name: 'L1' | 'L2' | 'L3' | '', value: number }>;
+    @Input() protected component: EdgeConfig.Component;
+    @Input() protected edge: Edge;
+    @Input() protected mostStressedPhase: Subject<{ name: 'L1' | 'L2' | 'L3' | '', value: number }>;
 
     public formGroup: FormGroup;
     public loading: boolean = false;
@@ -30,13 +30,13 @@ export class Controller_Asymmetric_PeakShavingModalComponent {
         this.formGroup = this.formBuilder.group({
             peakShavingPower: new FormControl(this.component.properties.peakShavingPower, Validators.compose([
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
-                Validators.required
+                Validators.required,
             ])),
             rechargePower: new FormControl(this.component.properties.rechargePower, Validators.compose([
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
-                Validators.required
-            ]))
-        })
+                Validators.required,
+            ])),
+        });
     }
 
     applyChanges() {
@@ -44,12 +44,12 @@ export class Controller_Asymmetric_PeakShavingModalComponent {
             if (this.edge.roleIsAtLeast('owner')) {
                 if (this.formGroup.controls['peakShavingPower'].valid && this.formGroup.controls['rechargePower'].valid) {
                     if (this.formGroup.controls['peakShavingPower'].value >= this.formGroup.controls['rechargePower'].value) {
-                        let updateComponentArray = [];
+                        const updateComponentArray = [];
                         Object.keys(this.formGroup.controls).forEach((element, index) => {
                             if (this.formGroup.controls[element].dirty) {
-                                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });
                             }
-                        })
+                        });
                         this.loading = true;
                         this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
                             this.component.properties.peakShavingPower = this.formGroup.value.peakShavingPower;
@@ -62,8 +62,8 @@ export class Controller_Asymmetric_PeakShavingModalComponent {
                             this.loading = false;
                             this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                             console.warn(reason);
-                        })
-                        this.formGroup.markAsPristine()
+                        });
+                        this.formGroup.markAsPristine();
                     } else {
                         this.service.toast(this.translate.instant('Edge.Index.Widgets.Peakshaving.relationError'), 'danger');
                     }

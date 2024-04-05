@@ -1,6 +1,5 @@
 package io.openems.edge.common.sum;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
@@ -21,13 +20,13 @@ import io.openems.edge.common.modbusslave.ModbusType;
  */
 public interface Sum extends OpenemsComponent {
 
-	public final static String SINGLETON_SERVICE_PID = "Core.Sum";
-	public final static String SINGLETON_COMPONENT_ID = "_sum";
+	public static final String SINGLETON_SERVICE_PID = "Core.Sum";
+	public static final String SINGLETON_COMPONENT_ID = "_sum";
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Ess: Average State of Charge.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum (origin: Ess)
 		 * <li>Type: Integer
@@ -37,10 +36,11 @@ public interface Sum extends OpenemsComponent {
 		 */
 		ESS_SOC(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)),
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Range 0..100")), //
 		/**
 		 * Ess: Active Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricEss)
 		 * <li>Type: Integer
@@ -51,25 +51,25 @@ public interface Sum extends OpenemsComponent {
 		ESS_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH) //
-				.text(OpenemsConstants.POWER_DOC_TEXT)),
+				.text("""
+						AC-side power of Energy Storage System. \
+						Includes excess DC-PV production for hybrid inverters. \
+						Negative values for charge; positive for discharge""")),
 		/**
 		 * Reactive Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Symmetric
 		 * <li>Type: Integer
 		 * <li>Unit: var
-		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
 		ESS_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.persistencePriority(PersistencePriority.VERY_HIGH) //
-				.text(OpenemsConstants.POWER_DOC_TEXT) //
-		),
+				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
 		 * Ess: Active Power L1.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricEss / AsymmetricEss)
 		 * <li>Type: Integer
@@ -80,10 +80,13 @@ public interface Sum extends OpenemsComponent {
 		ESS_ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH) //
-				.text(OpenemsConstants.POWER_DOC_TEXT)),
+				.text("""
+						AC-side power of Energy Storage System on phase L1. \
+						Includes excess DC-PV production for hybrid inverters. \
+						Negative values for charge; positive for discharge""")),
 		/**
 		 * Ess: Active Power L2.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricEss / AsymmetricEss)
 		 * <li>Type: Integer
@@ -94,10 +97,13 @@ public interface Sum extends OpenemsComponent {
 		ESS_ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH) //
-				.text(OpenemsConstants.POWER_DOC_TEXT)),
+				.text("""
+						AC-side power of Energy Storage System on phase L2. \
+						Includes excess DC-PV production for hybrid inverters. \
+						Negative values for charge; positive for discharge""")),
 		/**
 		 * Ess: Active Power L3.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricEss / AsymmetricEss)
 		 * <li>Type: Integer
@@ -108,10 +114,13 @@ public interface Sum extends OpenemsComponent {
 		ESS_ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH) //
-				.text(OpenemsConstants.POWER_DOC_TEXT)),
+				.text("""
+						AC-side power of Energy Storage System on phase L3. \
+						Includes excess DC-PV production for hybrid inverters. \
+						Negative values for charge; positive for discharge""")),
 		/**
 		 * Ess: Discharge Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricEss)
 		 * <li>Type: Integer
@@ -127,10 +136,38 @@ public interface Sum extends OpenemsComponent {
 		ESS_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH) //
-				.text(OpenemsConstants.POWER_DOC_TEXT)),
+				.text("Actual AC-side battery discharge power of Energy Storage System. " //
+						+ "Negative values for charge; positive for discharge")),
+		/**
+		 * Ess: Minimum Ever Discharge Power (i.e. Maximum Ever Charge power as negative
+		 * value).
+		 *
+		 * <ul>
+		 * <li>Interface: Sum (origin: SymmetricEss))
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values or '0'
+		 * </ul>
+		 */
+		ESS_MIN_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)),
+		/**
+		 * Ess: Maximum Ever Discharge Power.
+		 *
+		 * <ul>
+		 * <li>Interface: Sum (origin: SymmetricEss)
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: positive values or '0'
+		 * </ul>
+		 */
+		ESS_MAX_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)),
 		/**
 		 * Ess: Capacity.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum (origin: Ess)
 		 * <li>Type: Integer
@@ -144,9 +181,9 @@ public interface Sum extends OpenemsComponent {
 
 		/**
 		 * Grid: Active Power.
-		 * 
+		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter))
+		 * <li>Interface: Sum (origin: ElectricityMeter))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Consumption (power that is 'leaving the
@@ -157,12 +194,13 @@ public interface Sum extends OpenemsComponent {
 		GRID_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH) //
-				.text(OpenemsConstants.POWER_DOC_TEXT)),
+				.text("Grid exchange power. " //
+						+ "Negative values for sell-to-grid; positive for buy-from-grid")),
 		/**
 		 * Grid: Active Power L1.
-		 * 
+		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter / AsymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Consumption (power that is 'leaving the
@@ -173,12 +211,13 @@ public interface Sum extends OpenemsComponent {
 		GRID_ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH) //
-				.text(OpenemsConstants.POWER_DOC_TEXT)),
+				.text("Grid exchange power on phase L1. " //
+						+ "Negative values for sell-to-grid; positive for buy-from-grid")),
 		/**
 		 * Grid: Active Power L2.
-		 * 
+		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter / AsymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Consumption (power that is 'leaving the
@@ -189,12 +228,13 @@ public interface Sum extends OpenemsComponent {
 		GRID_ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH) //
-				.text(OpenemsConstants.POWER_DOC_TEXT)),
+				.text("Grid exchange power on phase L2. " //
+						+ "Negative values for sell-to-grid; positive for buy-from-grid")),
 		/**
 		 * Grid: Active Power L3.
-		 * 
+		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter / AsymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Consumption (power that is 'leaving the
@@ -205,12 +245,13 @@ public interface Sum extends OpenemsComponent {
 		GRID_ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH) //
-				.text(OpenemsConstants.POWER_DOC_TEXT)),
+				.text("Grid exchange power on phase L3. " //
+						+ "Negative values for sell-to-grid; positive for buy-from-grid")),
 		/**
 		 * Grid: Minimum Ever Active Power.
-		 * 
+		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter))
+		 * <li>Interface: Sum (origin: ElectricityMeter))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values or '0'
@@ -221,9 +262,9 @@ public interface Sum extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.VERY_HIGH)),
 		/**
 		 * Grid: Maximum Ever Active Power.
-		 * 
+		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: positive values or '0'
@@ -234,9 +275,9 @@ public interface Sum extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.VERY_HIGH)),
 		/**
 		 * Production: Active Power.
-		 * 
+		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter and ESS DC Charger)
+		 * <li>Interface: Sum (origin: ElectricityMeter and ESS DC Charger)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: should be only positive
@@ -244,12 +285,13 @@ public interface Sum extends OpenemsComponent {
 		 */
 		PRODUCTION_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Total production; always positive")),
 		/**
 		 * Production: AC Active Power.
-		 * 
+		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: should be only positive
@@ -257,12 +299,13 @@ public interface Sum extends OpenemsComponent {
 		 */
 		PRODUCTION_AC_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Production from AC source")),
 		/**
 		 * Production: AC Active Power L1.
-		 * 
+		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter / AsymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: should be only positive
@@ -270,12 +313,13 @@ public interface Sum extends OpenemsComponent {
 		 */
 		PRODUCTION_AC_ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Production from AC source on phase L1")),
 		/**
 		 * Production: AC Active Power L2.
-		 * 
+		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter / AsymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: should be only positive
@@ -283,12 +327,13 @@ public interface Sum extends OpenemsComponent {
 		 */
 		PRODUCTION_AC_ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Production from AC source on phase L2")),
 		/**
 		 * Production: AC Active Power L3.
-		 * 
+		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter / AsymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: should be only positive
@@ -296,10 +341,11 @@ public interface Sum extends OpenemsComponent {
 		 */
 		PRODUCTION_AC_ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Production from AC source on phase L3")),
 		/**
 		 * Production: DC Actual Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum (origin: EssDcCharger)
 		 * <li>Type: Integer
@@ -309,12 +355,13 @@ public interface Sum extends OpenemsComponent {
 		 */
 		PRODUCTION_DC_ACTUAL_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Production from DC source")),
 		/**
 		 * Production: Maximum Ever Active Power.
-		 * 
+		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter))
+		 * <li>Interface: Sum (origin: ElectricityMeter))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: positive values or '0'
@@ -324,34 +371,8 @@ public interface Sum extends OpenemsComponent {
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
-		 * Production: Maximum Ever AC Active Power.
-		 * 
-		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter))
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * <li>Range: positive values or '0'
-		 * </ul>
-		 */
-		PRODUCTION_MAX_AC_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
-		/**
-		 * Production: Maximum Ever DC Actual Power.
-		 * 
-		 * <ul>
-		 * <li>Interface: Sum (origin: EssDcCharger}))
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * <li>Range: positive values or '0'
-		 * </ul>
-		 */
-		PRODUCTION_MAX_DC_ACTUAL_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
-		/**
 		 * Consumption: Active Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum
 		 * <li>Type: Integer
@@ -366,7 +387,7 @@ public interface Sum extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
 		 * Consumption: Active Power L1.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum
 		 * <li>Type: Integer
@@ -381,7 +402,7 @@ public interface Sum extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
 		 * Consumption: Active Power L2.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum
 		 * <li>Type: Integer
@@ -396,7 +417,7 @@ public interface Sum extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
 		 * Consumption: Active Power L3.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum
 		 * <li>Type: Integer
@@ -411,7 +432,7 @@ public interface Sum extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
 		 * Consumption: Maximum Ever Active Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricEss))
 		 * <li>Type: Integer
@@ -423,12 +444,30 @@ public interface Sum extends OpenemsComponent {
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
+		 * Unmanaged Consumption: Active Power.
+		 *
+		 * <ul>
+		 * <li>Interface: Sum
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: should be only positive
+		 * <li>Note: this value represents the part of the Consumption that is not
+		 * actively managed by OpenEMS, i.e. it is calculated as
+		 * ({@link #CONSUMPTION_ACTIVE_POWER}) minus charge power for an electric
+		 * vehicle charging station, etc. This value is used for forecasting of
+		 * consumption.
+		 * </ul>
+		 */
+		UNMANAGED_CONSUMPTION_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+		/**
 		 * Grid-Mode.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricEss))
 		 * <li>Type: Integer
-		 * <li>Values: '0' = UNDEFINED, '1' = ON GRID, '2' = OFF GRID
+		 * <li>Values: '-1' = UNDEFINED, '1' = On-Grid, '2' = Off-Grid
 		 * </ul>
 		 */
 		GRID_MODE(Doc.of(GridMode.values()) //
@@ -436,7 +475,7 @@ public interface Sum extends OpenemsComponent {
 
 		/**
 		 * Ess: Max Apparent Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Max Apparent Power (origin: SymmetricEss))
 		 * <li>Type: Integer
@@ -448,123 +487,122 @@ public interface Sum extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
 		 * Ess: Active Charge Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricEss)
 		 * <li>Type: Long
-		 * <li>Unit: Wh
+		 * <li>Unit: Wh_Σ
 		 * </ul>
 		 */
 		ESS_ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
 		 * Ess: Active Discharge Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum (origin: SymmetricEss)
 		 * <li>Type: Long
-		 * <li>Unit: Wh
+		 * <li>Unit: Wh_Σ
 		 * </ul>
 		 */
 		ESS_ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
 		 * Ess: DC Discharge Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum (origin: HybridEss)
 		 * <li>Type: Long
-		 * <li>Unit: Wh
+		 * <li>Unit: Wh_Σ
 		 * </ul>
 		 */
 		ESS_DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
 		 * Ess: DC Charge Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum (origin: HybridEss)
 		 * <li>Type: Long
-		 * <li>Unit: Wh
+		 * <li>Unit: Wh_Σ
 		 * </ul>
 		 */
 		ESS_DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
 		 * Grid: Buy-from-grid Energy ("Production").
-		 * 
+		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
-		 * <li>Unit: Wh
+		 * <li>Unit: Wh_Σ
 		 * </ul>
 		 */
 		GRID_BUY_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
 		 * Grid: Sell-to-grid Energy ("Consumption").
-		 * 
+		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Long
-		 * <li>Unit: Wh
+		 * <li>Unit: Wh_Σ
 		 * </ul>
 		 */
 		GRID_SELL_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
 		 * Production: Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Type: Long
-		 * <li>Unit: Wh
+		 * <li>Unit: Wh_Σ
 		 * </ul>
 		 */
 		PRODUCTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
 		 * Production: AC Energy.
-		 * 
+		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Long
-		 * <li>Unit: Wh
+		 * <li>Unit: Wh_Σ
 		 * </ul>
 		 */
 		PRODUCTION_AC_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
 		 * Production: DC Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Sum (origin: EssDcCharger)
 		 * <li>Type: Long
-		 * <li>Unit: Wh
+		 * <li>Unit: Wh_Σ
 		 * </ul>
 		 */
-		// TODO rename to Actual_Energy
 		PRODUCTION_DC_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
 		 * Consumption: Energy.
-		 * 
+		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Long
-		 * <li>Unit: Wh
+		 * <li>Unit: Wh_Σ
 		 * </ul>
 		 */
 		CONSUMPTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
 		 * Is there any Component Info/Warning/Fault that is getting ignored/hidden
@@ -579,6 +617,7 @@ public interface Sum extends OpenemsComponent {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -586,13 +625,20 @@ public interface Sum extends OpenemsComponent {
 
 	/**
 	 * Update all Channel-Values of this Sum-Component.
-	 * 
+	 *
 	 * <p>
 	 * This method is called by the 'Cycle' just before the
 	 * TOPIC_CYCLE_AFTER_PROCESS_IMAGE event.
 	 */
 	public void updateChannelsBeforeProcessImage();
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(Sum.class, accessMode, 220) //
 				.channel(0, ChannelId.ESS_SOC, ModbusType.UINT16) //
@@ -611,11 +657,11 @@ public interface Sum extends OpenemsComponent {
 				.channel(25, ChannelId.PRODUCTION_ACTIVE_POWER, ModbusType.FLOAT32) //
 				.channel(27, ChannelId.PRODUCTION_MAX_ACTIVE_POWER, ModbusType.FLOAT32) //
 				.channel(29, ChannelId.PRODUCTION_AC_ACTIVE_POWER, ModbusType.FLOAT32) //
-				.channel(31, ChannelId.PRODUCTION_MAX_AC_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.float32Reserved(31) // ChannelId.PRODUCTION_MAX_AC_ACTIVE_POWER
 				.float32Reserved(33) // ChannelId.PRODUCTION_AC_REACTIVE_POWER
 				.float32Reserved(35) // ChannelId.PRODUCTION_MAX_AC_REACTIVE_POWER
 				.channel(37, ChannelId.PRODUCTION_DC_ACTUAL_POWER, ModbusType.FLOAT32) //
-				.channel(39, ChannelId.PRODUCTION_MAX_DC_ACTUAL_POWER, ModbusType.FLOAT32) //
+				.float32Reserved(39) // ChannelId.PRODUCTION_MAX_DC_ACTUAL_POWER
 				.channel(41, ChannelId.CONSUMPTION_ACTIVE_POWER, ModbusType.FLOAT32) //
 				.channel(43, ChannelId.CONSUMPTION_MAX_ACTIVE_POWER, ModbusType.FLOAT32) //
 				.float32Reserved(45) // ChannelId.CONSUMPTION_REACTIVE_POWER
@@ -643,6 +689,7 @@ public interface Sum extends OpenemsComponent {
 				.channel(109, ChannelId.CONSUMPTION_ACTIVE_POWER_L2, ModbusType.FLOAT32) //
 				.channel(111, ChannelId.CONSUMPTION_ACTIVE_POWER_L3, ModbusType.FLOAT32) //
 				.channel(113, ChannelId.ESS_DISCHARGE_POWER, ModbusType.FLOAT32) //
+				.channel(115, ChannelId.GRID_MODE, ModbusType.ENUM16) //
 				.build();
 	}
 
@@ -909,6 +956,45 @@ public interface Sum extends OpenemsComponent {
 	 */
 	public default void _setEssDischargePower(int value) {
 		this.getEssDischargePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ESS_MAX_DISCHARGE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getEssMaxDischargePowerChannel() {
+		return this.channel(ChannelId.ESS_MAX_DISCHARGE_POWER);
+	}
+
+	/**
+	 * Gets the Total Maximum Ever ESS Discharge Power in [W]. See
+	 * {@link ChannelId#ESS_MAX_DISCHARGE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getEssMaxDischargePower() {
+		return this.getEssMaxDischargePowerChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ESS_MIN_DISCHARGE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getEssMinDischargePowerChannel() {
+		return this.channel(ChannelId.ESS_MIN_DISCHARGE_POWER);
+	}
+
+	/**
+	 * Gets the Total Minimum Ever ESS Discharge Power in [W] (i.e. Maximum Ever
+	 * Charge power as negative value). See
+	 * {@link ChannelId#ESS_MIN_DISCHARGE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getEssMinDischargePower() {
+		return this.getEssMinDischargePowerChannel().value();
 	}
 
 	/**
@@ -1458,84 +1544,6 @@ public interface Sum extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#PRODUCTION_MAX_AC_ACTIVE_POWER}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getProductionMaxAcActivePowerChannel() {
-		return this.channel(ChannelId.PRODUCTION_MAX_AC_ACTIVE_POWER);
-	}
-
-	/**
-	 * Gets the Total Maximum Ever AC Production Active Power in [W]. See
-	 * {@link ChannelId#PRODUCTION_MAX_AC_ACTIVE_POWER}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getProductionMaxAcActivePower() {
-		return this.getProductionMaxAcActivePowerChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#PRODUCTION_MAX_AC_ACTIVE_POWER} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setProductionMaxAcActivePower(Integer value) {
-		this.getProductionMaxAcActivePowerChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#PRODUCTION_MAX_AC_ACTIVE_POWER} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setProductionMaxAcActivePower(int value) {
-		this.getProductionMaxAcActivePowerChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#PRODUCTION_MAX_DC_ACTUAL_POWER}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getProductionMaxDcActualPowerChannel() {
-		return this.channel(ChannelId.PRODUCTION_MAX_DC_ACTUAL_POWER);
-	}
-
-	/**
-	 * Gets the Total Maximum Ever DC Production Actual Power in [W]. See
-	 * {@link ChannelId#PRODUCTION_MAX_DC_ACTUAL_POWER}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getProductionMaxDcActualPower() {
-		return this.getProductionMaxDcActualPowerChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#PRODUCTION_MAX_DC_ACTUAL_POWER} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setProductionMaxDcActualPower(Integer value) {
-		this.getProductionMaxDcActualPowerChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#PRODUCTION_MAX_DC_ACTUAL_POWER} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setProductionMaxDcActualPower(int value) {
-		this.getProductionMaxDcActualPowerChannel().setNextValue(value);
-	}
-
-	/**
 	 * Gets the Channel for {@link ChannelId#CONSUMPTION_ACTIVE_POWER}.
 	 *
 	 * @return the Channel
@@ -1572,6 +1580,35 @@ public interface Sum extends OpenemsComponent {
 	 */
 	public default void _setConsumptionActivePower(int value) {
 		this.getConsumptionActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#UNMANAGED_CONSUMPTION_ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getUnmanagedConsumptionActivePowerChannel() {
+		return this.channel(ChannelId.UNMANAGED_CONSUMPTION_ACTIVE_POWER);
+	}
+
+	/**
+	 * Gets the Unmanaged Consumption Active Power in [W]. See
+	 * {@link ChannelId#UNMANAGED_CONSUMPTION_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getUnmanagedConsumptionActivePower() {
+		return this.getUnmanagedConsumptionActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#UNMANAGED_CONSUMPTION_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setUnmanagedConsumptionActivePower(Integer value) {
+		this.getUnmanagedConsumptionActivePowerChannel().setNextValue(value);
 	}
 
 	/**
@@ -1740,7 +1777,7 @@ public interface Sum extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Sum of all Energy Storage Systems Maximum Apparent Power in [Wh].
+	 * Gets the Sum of all Energy Storage Systems Maximum Apparent Power in [VA].
 	 * See {@link ChannelId#ESS_MAX_APPARENT_POWER}.
 	 *
 	 * @return the Channel {@link Value}
@@ -1808,8 +1845,8 @@ public interface Sum extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Sum of all Energy Storage Systems Active Charge Energy in [Wh]. See
-	 * {@link ChannelId#ESS_ACTIVE_CHARGE_ENERGY}.
+	 * Gets the Sum of all Energy Storage Systems Active Charge Energy in [Wh_Σ].
+	 * See {@link ChannelId#ESS_ACTIVE_CHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -1847,7 +1884,7 @@ public interface Sum extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Sum of all Energy Storage Systems Active Discharge Energy in [Wh].
+	 * Gets the Sum of all Energy Storage Systems Active Discharge Energy in [Wh_Σ].
 	 * See {@link ChannelId#ESS_ACTIVE_DISCHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
@@ -1886,7 +1923,7 @@ public interface Sum extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Total Grid Buy Active Energy in [Wh]. See
+	 * Gets the Total Grid Buy Active Energy in [Wh_Σ]. See
 	 * {@link ChannelId#GRID_BUY_ACTIVE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
@@ -1925,7 +1962,7 @@ public interface Sum extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Total Grid Sell Active Energy in [Wh]. See
+	 * Gets the Total Grid Sell Active Energy in [Wh_Σ]. See
 	 * {@link ChannelId#GRID_SELL_ACTIVE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
@@ -1964,7 +2001,7 @@ public interface Sum extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Total Production Active Energy in [Wh]. See
+	 * Gets the Total Production Active Energy in [Wh_Σ]. See
 	 * {@link ChannelId#PRODUCTION_ACTIVE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
@@ -2003,7 +2040,7 @@ public interface Sum extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Total AC Production Active Energy in [Wh]. See
+	 * Gets the Total AC Production Active Energy in [Wh_Σ]. See
 	 * {@link ChannelId#PRODUCTION_AC_ACTIVE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
@@ -2042,7 +2079,7 @@ public interface Sum extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Total DC Production Active Energy in [Wh]. See
+	 * Gets the Total DC Production Active Energy in [Wh_Σ]. See
 	 * {@link ChannelId#PRODUCTION_DC_ACTIVE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
@@ -2081,7 +2118,7 @@ public interface Sum extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Total Consumption Active Energy in [Wh]. See
+	 * Gets the Total Consumption Active Energy in [Wh_Σ]. See
 	 * {@link ChannelId#CONSUMPTION_ACTIVE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}

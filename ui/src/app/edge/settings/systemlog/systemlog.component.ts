@@ -8,7 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: SystemLogComponent.SELECTOR,
-  templateUrl: './systemlog.component.html'
+  templateUrl: './systemlog.component.html',
 })
 export class SystemLogComponent implements OnInit, OnDestroy {
 
@@ -30,12 +30,12 @@ export class SystemLogComponent implements OnInit, OnDestroy {
     protected utils: Utils,
     private websocket: Websocket,
     private service: Service,
-    private translate: TranslateService
+    private translate: TranslateService,
   ) {
   }
 
   ngOnInit() {
-    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.liveLog'), this.route);
+    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.liveLog' }, this.route);
     this.subscribe();
   }
 
@@ -59,7 +59,7 @@ export class SystemLogComponent implements OnInit, OnDestroy {
         level: "----",
         color: "black",
         message: "",
-        source: ""
+        source: "",
       });
     }
 
@@ -74,7 +74,7 @@ export class SystemLogComponent implements OnInit, OnDestroy {
 
       // subscribe to notifications
       edge.systemLog.pipe(
-        takeUntil(this.ngUnsubscribe)
+        takeUntil(this.ngUnsubscribe),
       ).subscribe(line => {
         // add line
         this.lines.unshift({
@@ -83,16 +83,16 @@ export class SystemLogComponent implements OnInit, OnDestroy {
           level: line.level,
           source: line.source,
           message: line.message,
-        })
+        });
 
         // remove old lines
         if (this.lines.length > this.MAX_LOG_ENTRIES) {
           this.lines.length = this.MAX_LOG_ENTRIES;
         }
       });
-    })
+    });
     this.isSubscribed = true;
-  };
+  }
 
   private getColor(level): string {
     switch (level) {
@@ -104,7 +104,7 @@ export class SystemLogComponent implements OnInit, OnDestroy {
         return 'gray';
       case 'ERROR':
         return 'red';
-    };
+    }
     return 'black';
   }
 
@@ -115,5 +115,5 @@ export class SystemLogComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
     this.ngUnsubscribe = new Subject<void>();
-  };
+  }
 }

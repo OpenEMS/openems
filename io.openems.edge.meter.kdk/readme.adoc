@@ -1,0 +1,11 @@
+= Meter KDK 420506PRO20-U (2PU CT) Professional meter
+
+Implementation of a KDK meter.
+
+== https://en.wikipedia.org/wiki/Software_release_life_cycle[Software release life cycle]: Stable release
+
+== Compatibility
+
+** https://www.kdk-dornscheidt.de/produkte/420506pro20-ct/[KDK 420506PRO20-U (2PU CT) Professional meter]
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.kdk[Source Code icon:github[]]

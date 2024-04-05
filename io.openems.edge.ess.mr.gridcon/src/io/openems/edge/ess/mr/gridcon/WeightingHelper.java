@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 package io.openems.edge.ess.mr.gridcon;
 
 import io.openems.edge.battery.api.Battery;
@@ -5,7 +6,8 @@ import io.openems.edge.battery.api.Battery;
 public class WeightingHelper {
 
 	/**
-	 * Calculates the weighting for Gridcon depending on connected batteries and given active power.
+	 * Calculates the weighting for Gridcon depending on connected batteries and
+	 * given active power.
 	 * 
 	 * @param activePower
 	 * @param b1
@@ -100,3 +102,4 @@ public class WeightingHelper {
 		return weightingMode;
 	}
 }
+// CHECKSTYLE:ON

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -137,26 +138,27 @@ class MemoryBankAD implements PagedMemoryBank {
 	public MemoryBankAD(OneWireContainer ibutton) {
 
 		// keep reference to ibutton where memory bank is
-		ib = ibutton;
+		this.ib = ibutton;
 
 		// create the ffblock (used for faster 0xFF fills)
-		ffBlock = new byte[50];
+		this.ffBlock = new byte[50];
 
-		for (int i = 0; i < 50; i++)
-			ffBlock[i] = (byte) 0xFF;
+		for (var i = 0; i < 50; i++) {
+			this.ffBlock[i] = (byte) 0xFF;
+		}
 
 		// defaults for Page0 of DS2450
-		bankDescription = "A/D Conversion read-out";
-		generalPurposeMemory = false;
-		startPhysicalAddress = 0;
-		readWrite = false;
-		writeOnce = false;
-		readOnly = true;
-		nonVolatile = false;
-		writeVerification = true;
+		this.bankDescription = "A/D Conversion read-out";
+		this.generalPurposeMemory = false;
+		this.startPhysicalAddress = 0;
+		this.readWrite = false;
+		this.writeOnce = false;
+		this.readOnly = true;
+		this.nonVolatile = false;
+		this.writeVerification = true;
 
 		// indicate speed has not been set
-		doSetSpeed = true;
+		this.doSetSpeed = true;
 	}
 
 	// --------
@@ -168,8 +170,9 @@ class MemoryBankAD implements PagedMemoryBank {
 	 *
 	 * @return String containing the memory bank description
 	 */
+	@Override
 	public String getBankDescription() {
-		return bankDescription;
+		return this.bankDescription;
 	}
 
 	/**
@@ -179,8 +182,9 @@ class MemoryBankAD implements PagedMemoryBank {
 	 *
 	 * @return 'true' if current memory bank is general purpose
 	 */
+	@Override
 	public boolean isGeneralPurposeMemory() {
-		return generalPurposeMemory;
+		return this.generalPurposeMemory;
 	}
 
 	/**
@@ -188,8 +192,9 @@ class MemoryBankAD implements PagedMemoryBank {
 	 *
 	 * @return 'true' if current memory bank is read/write
 	 */
+	@Override
 	public boolean isReadWrite() {
-		return readWrite;
+		return this.readWrite;
 	}
 
 	/**
@@ -198,8 +203,9 @@ class MemoryBankAD implements PagedMemoryBank {
 	 *
 	 * @return 'true' if current memory bank can only be written once
 	 */
+	@Override
 	public boolean isWriteOnce() {
-		return writeOnce;
+		return this.writeOnce;
 	}
 
 	/**
@@ -207,8 +213,9 @@ class MemoryBankAD implements PagedMemoryBank {
 	 *
 	 * @return 'true' if current memory bank can only be read
 	 */
+	@Override
 	public boolean isReadOnly() {
-		return readOnly;
+		return this.readOnly;
 	}
 
 	/**
@@ -217,8 +224,9 @@ class MemoryBankAD implements PagedMemoryBank {
 	 *
 	 * @return 'true' if current memory bank non volatile.
 	 */
+	@Override
 	public boolean isNonVolatile() {
-		return nonVolatile;
+		return this.nonVolatile;
 	}
 
 	/**
@@ -228,6 +236,7 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @return 'true' if writing to the current memory bank pages requires a
 	 *         'ProgramPulse'.
 	 */
+	@Override
 	public boolean needsProgramPulse() {
 		return false;
 	}
@@ -239,6 +248,7 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @return 'true' if writing to the current memory bank pages requires
 	 *         'PowerDelivery'.
 	 */
+	@Override
 	public boolean needsPowerDelivery() {
 		return false;
 	}
@@ -249,8 +259,9 @@ class MemoryBankAD implements PagedMemoryBank {
 	 *
 	 * @return physical starting address of this logical bank.
 	 */
+	@Override
 	public int getStartPhysicalAddress() {
-		return startPhysicalAddress;
+		return this.startPhysicalAddress;
 	}
 
 	/**
@@ -258,6 +269,7 @@ class MemoryBankAD implements PagedMemoryBank {
 	 *
 	 * @return memory bank size in bytes.
 	 */
+	@Override
 	public int getSize() {
 		return PAGE_LENGTH;
 	}
@@ -268,8 +280,9 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @param doReadVerf true (default) verify write in 'write' false, don't verify
 	 *                   write (used on Write-Once bit manipulation)
 	 */
+	@Override
 	public void setWriteVerification(boolean doReadVerf) {
-		writeVerification = doReadVerf;
+		this.writeVerification = doReadVerf;
 	}
 
 	/**
@@ -277,6 +290,7 @@ class MemoryBankAD implements PagedMemoryBank {
 	 *
 	 * @return number of pages in current memory bank
 	 */
+	@Override
 	public int getNumberPages() {
 		return 1;
 	}
@@ -286,6 +300,7 @@ class MemoryBankAD implements PagedMemoryBank {
 	 *
 	 * @return page length in bytes in current memory bank
 	 */
+	@Override
 	public int getPageLength() {
 		return PAGE_LENGTH;
 	}
@@ -293,11 +308,12 @@ class MemoryBankAD implements PagedMemoryBank {
 	/**
 	 * Query to get Maximum data page length in bytes for a packet read or written
 	 * in the current memory bank. See the 'ReadPagePacket()' and
-	 * 'WritePagePacket()' methods. This method is only useful if the current
-	 * memory bank is general purpose memory.
+	 * 'WritePagePacket()' methods. This method is only useful if the current memory
+	 * bank is general purpose memory.
 	 *
 	 * @return max packet page length in bytes in current memory bank
 	 */
+	@Override
 	public int getMaxPacketDataLength() {
 		return PAGE_LENGTH - 3;
 	}
@@ -309,6 +325,7 @@ class MemoryBankAD implements PagedMemoryBank {
 	 *
 	 * @return 'true' if current memory bank can be read with self generated CRC.
 	 */
+	@Override
 	public boolean hasPageAutoCRC() {
 		return true;
 	}
@@ -330,6 +347,7 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @see #readPagePacket(int,boolean,byte[],int,byte[]) readPagePacket(extra)
 	 * @since 1-Wire API 0.01
 	 */
+	@Override
 	public boolean hasExtraInfo() {
 		return false;
 	}
@@ -341,6 +359,7 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @return number of bytes in Extra Information read when reading pages in the
 	 *         current memory bank.
 	 */
+	@Override
 	public int getExtraInfoLength() {
 		return 0;
 	}
@@ -352,6 +371,7 @@ class MemoryBankAD implements PagedMemoryBank {
 	 *
 	 * @return string describing extra information.
 	 */
+	@Override
 	public String getExtraInfoDescription() {
 		return null;
 	}
@@ -382,28 +402,32 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void read(int startAddr, boolean readContinue, byte[] readBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
 
 		// check if read exceeds memory
-		if ((startAddr + len) > PAGE_LENGTH)
+		if (startAddr + len > PAGE_LENGTH) {
 			throw new OneWireException("Read exceeds memory bank end");
+		}
 
 		// no regular read memory so must use readPageCRC
-		int start_pg = startAddr / PAGE_LENGTH;
-		int end_pg = ((startAddr + len) / PAGE_LENGTH) - 1;
+		var start_pg = startAddr / PAGE_LENGTH;
+		var end_pg = (startAddr + len) / PAGE_LENGTH - 1;
 
-		if (((startAddr + len) % PAGE_LENGTH) > 0)
+		if ((startAddr + len) % PAGE_LENGTH > 0) {
 			end_pg++;
+		}
 
-		byte[] raw_buf = new byte[(end_pg - start_pg + 1) * PAGE_LENGTH];
+		var raw_buf = new byte[(end_pg - start_pg + 1) * PAGE_LENGTH];
 
 		// loop to read the pages
-		for (int pg = start_pg; pg <= end_pg; pg++)
-			readPageCRC(pg, !(pg == start_pg), raw_buf, (pg - start_pg) * PAGE_LENGTH);
+		for (var pg = start_pg; pg <= end_pg; pg++) {
+			this.readPageCRC(pg, !(pg == start_pg), raw_buf, (pg - start_pg) * PAGE_LENGTH);
+		}
 
 		// extract out the data
-		System.arraycopy(raw_buf, (startAddr % PAGE_LENGTH), readBuf, offset, len);
+		System.arraycopy(raw_buf, startAddr % PAGE_LENGTH, readBuf, offset, len);
 	}
 
 	/**
@@ -426,30 +450,32 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void write(int startAddr, byte[] writeBuf, int offset, int len) throws OneWireIOException, OneWireException {
-		byte[] raw_buf = new byte[7];
+		var raw_buf = new byte[7];
 		int cnt = 0, start_addr, addr, end_addr, lastcrc;
 
 		// return if nothing to do
-		if (len == 0)
+		if (len == 0) {
 			return;
+		}
 
 		// attempt to put device at max desired speed
-		checkSpeed();
+		this.checkSpeed();
 
 		// select the device
-		if (!ib.adapter.select(ib.address)) {
-			forceVerify();
+		if (!this.ib.adapter.select(this.ib.address)) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Device select failed");
 		}
 
 		// build packet
 		raw_buf[cnt++] = WRITE_MEMORY_COMMAND;
-		start_addr = startAddr + startPhysicalAddress;
+		start_addr = startAddr + this.startPhysicalAddress;
 		end_addr = start_addr + len;
 		raw_buf[cnt++] = (byte) (start_addr & 0xFF);
-		raw_buf[cnt++] = (byte) (((start_addr & 0xFFFF) >>> 8) & 0xFF);
+		raw_buf[cnt++] = (byte) ((start_addr & 0xFFFF) >>> 8 & 0xFF);
 
 		// loop for each byte to write
 		for (addr = start_addr; addr < end_addr; addr++) {
@@ -458,24 +484,24 @@ class MemoryBankAD implements PagedMemoryBank {
 			raw_buf[cnt++] = writeBuf[offset + addr - start_addr];
 
 			// initialize crc16
-			lastcrc = CRC16.compute(raw_buf, 0, cnt, (addr == start_addr) ? 0 : addr);
+			lastcrc = CRC16.compute(raw_buf, 0, cnt, addr == start_addr ? 0 : addr);
 
 			// add the read crc and echo byte to block
-			System.arraycopy(ffBlock, 0, raw_buf, cnt, 3);
+			System.arraycopy(this.ffBlock, 0, raw_buf, cnt, 3);
 
 			// perform the block
-			ib.adapter.dataBlock(raw_buf, 0, cnt + 3);
+			this.ib.adapter.dataBlock(raw_buf, 0, cnt + 3);
 
 			// check the CRC
 			if (CRC16.compute(raw_buf, cnt, 2, lastcrc) != 0x0000B001) {
-				forceVerify();
+				this.forceVerify();
 
 				throw new OneWireIOException("Invalid CRC16 read from device");
 			}
 
 			// check echo
 			if (raw_buf[cnt + 2] != writeBuf[offset + addr - start_addr]) {
-				forceVerify();
+				this.forceVerify();
 
 				throw new OneWireIOException("Write byte echo was invalid");
 			}
@@ -510,11 +536,12 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPage(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
 
 		// read page with read page CRC
-		readPageCRC(page, readContinue, readBuf, offset);
+		this.readPageCRC(page, readContinue, readBuf, offset);
 	}
 
 	/**
@@ -540,6 +567,7 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPage(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
 
@@ -575,16 +603,18 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public int readPagePacket(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
-		byte[] raw_buf = new byte[PAGE_LENGTH];
+		var raw_buf = new byte[PAGE_LENGTH];
 
 		// read entire page with read page CRC
-		readPageCRC(page, readContinue, raw_buf, 0);
+		this.readPageCRC(page, readContinue, raw_buf, 0);
 
 		// check if length is realistic
-		if (raw_buf[0] > (PAGE_LENGTH - 3))
+		if (raw_buf[0] > PAGE_LENGTH - 3) {
 			throw new OneWireIOException("Invalid length in packet");
+		}
 
 		// verify the CRC is correct
 		if (CRC16.compute(raw_buf, 0, raw_buf[0] + 3, page) == 0x0000B001) {
@@ -594,11 +624,10 @@ class MemoryBankAD implements PagedMemoryBank {
 
 			// return the length
 			return raw_buf[0];
-		} else {
-			forceVerify();
-
-			throw new OneWireIOException("Invalid CRC16 in packet read");
 		}
+		this.forceVerify();
+
+		throw new OneWireIOException("Invalid CRC16 in packet read");
 	}
 
 	/**
@@ -623,6 +652,7 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public int readPagePacket(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
 
@@ -642,27 +672,29 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void writePagePacket(int page, byte[] writeBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
 
 		// make sure length does not exceed max
-		if (len > PAGE_LENGTH - 3)
+		if (len > PAGE_LENGTH - 3) {
 			throw new OneWireIOException("Length of packet requested exceeds page size");
+		}
 
 		// construct the packet to write
-		byte[] raw_buf = new byte[len + 3];
+		var raw_buf = new byte[len + 3];
 
 		raw_buf[0] = (byte) len;
 
 		System.arraycopy(writeBuf, offset, raw_buf, 1, len);
 
-		int crc = CRC16.compute(raw_buf, 0, len + 1, page);
+		var crc = CRC16.compute(raw_buf, 0, len + 1, page);
 
 		raw_buf[len + 1] = (byte) (~crc & 0xFF);
-		raw_buf[len + 2] = (byte) (((~crc & 0xFFFF) >>> 8) & 0xFF);
+		raw_buf[len + 2] = (byte) ((~crc & 0xFFFF) >>> 8 & 0xFF);
 
 		// write the packet, return result
-		write(page * PAGE_LENGTH, raw_buf, 0, len + 3);
+		this.write(page * PAGE_LENGTH, raw_buf, 0, len + 3);
 	}
 
 	/**
@@ -681,21 +713,23 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
-		byte[] raw_buf = new byte[5 + PAGE_LENGTH];
+		var raw_buf = new byte[5 + PAGE_LENGTH];
 		int len;
 
 		// attempt to put device at max desired speed
-		if (!readContinue)
-			checkSpeed();
+		if (!readContinue) {
+			this.checkSpeed();
+		}
 
 		// see if need to access the device
 		if (!readContinue) {
 
 			// select the device
-			if (!ib.adapter.select(ib.address)) {
-				forceVerify();
+			if (!this.ib.adapter.select(this.ib.address)) {
+				this.forceVerify();
 
 				throw new OneWireIOException("Device select failed");
 			}
@@ -703,26 +737,26 @@ class MemoryBankAD implements PagedMemoryBank {
 			// build start reading memory block with: command, address
 			len = raw_buf.length;
 
-			System.arraycopy(ffBlock, 0, raw_buf, 0, len);
+			System.arraycopy(this.ffBlock, 0, raw_buf, 0, len);
 
 			raw_buf[0] = READ_MEMORY_COMMAND;
 
-			int addr = page * PAGE_LENGTH + startPhysicalAddress;
+			var addr = page * PAGE_LENGTH + this.startPhysicalAddress;
 
 			raw_buf[1] = (byte) (addr & 0xFF);
-			raw_buf[2] = (byte) (((addr & 0xFFFF) >>> 8) & 0xFF);
+			raw_buf[2] = (byte) ((addr & 0xFFFF) >>> 8 & 0xFF);
 		} else {
 			len = PAGE_LENGTH + 2;
 
-			System.arraycopy(ffBlock, 0, raw_buf, 0, len);
+			System.arraycopy(this.ffBlock, 0, raw_buf, 0, len);
 		}
 
 		// do the block
-		ib.adapter.dataBlock(raw_buf, 0, len);
+		this.ib.adapter.dataBlock(raw_buf, 0, len);
 
 		// check the CRC
 		if (CRC16.compute(raw_buf, 0, len, 0) != 0x0000B001) {
-			forceVerify();
+			this.forceVerify();
 
 			throw new OneWireIOException("Invalid CRC16 read from device");
 		}
@@ -750,6 +784,7 @@ class MemoryBankAD implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
 
@@ -772,13 +807,13 @@ class MemoryBankAD implements PagedMemoryBank {
 		synchronized (this) {
 
 			// only check the speed
-			if (doSetSpeed) {
+			if (this.doSetSpeed) {
 
 				// attempt to set the correct speed and verify device present
-				ib.doSpeed();
+				this.ib.doSpeed();
 
 				// no exceptions so clear flag
-				doSetSpeed = false;
+				this.doSetSpeed = false;
 			}
 		}
 	}
@@ -789,7 +824,8 @@ class MemoryBankAD implements PagedMemoryBank {
 	 */
 	public void forceVerify() {
 		synchronized (this) {
-			doSetSpeed = true;
+			this.doSetSpeed = true;
 		}
 	}
 }
+// CHECKSTYLE:ON

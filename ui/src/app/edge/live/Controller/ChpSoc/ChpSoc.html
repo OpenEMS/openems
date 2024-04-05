@@ -1,14 +1,14 @@
 <oe-flat-widget button (click)="presentModal()" *ngIf="isInitialized" [title]="component.alias" [icon]="{name:
     'flame-outline'}">
     <oe-flat-widget-line [name]="'General.mode'| translate" [value]="mode"></oe-flat-widget-line>
-    <oe-flat-widget-line *ngIf="icon.name == '', else noValue" [name]="'General.state' | translate" [value]="state">
+    <oe-flat-widget-line *ngIf="icon.name === '', else noValue" [name]="'General.state' | translate" [value]="state">
     </oe-flat-widget-line>
 
     <ng-template #noValue>
         <oe-flat-widget-line [icon]="{name: icon.name}" [name]="'General.state' | translate"></oe-flat-widget-line>
     </ng-template>
 
-    <oe-flat-widget-percentagebar *ngIf="this.modeChannelValue == 'AUTOMATIC'">
+    <oe-flat-widget-percentagebar *ngIf="this.modeChannelValue === 'AUTOMATIC'">
         <svg>
             <use href="#container"></use>
             <rect attr.x="{{ lowThresholdValue }}%" y="2" rx="5" ry="5"

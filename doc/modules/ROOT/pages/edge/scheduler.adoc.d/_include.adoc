@@ -1,6 +1,0 @@
-
-include::io.openems.edge.scheduler.allalphabetically.adoc[leveloffset=+1]
-
-include::io.openems.edge.scheduler.daily.adoc[leveloffset=+1]
-
-include::io.openems.edge.scheduler.fixedorder.adoc[leveloffset=+1]

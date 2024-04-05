@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
@@ -80,7 +81,7 @@ import com.dalsemi.onewire.container.OneWireContainer;
  *
  * <H3>Usage</H3>
  * <H4>Example</H4> Write to a 1-Wire file on device 'owd':
- * 
+ *
  * <PRE>
  *  <CODE>
  *   // create a 1-Wire file at root
@@ -158,15 +159,15 @@ public class OWFileOutputStream extends OutputStream {
 	 *                                    write access to the file.
 	 */
 	public OWFileOutputStream(OneWireContainer owd, String name) throws OWFileNotFoundException {
-		OneWireContainer[] devices = new OneWireContainer[1];
+		var devices = new OneWireContainer[1];
 		devices[0] = owd;
-		fd = new OWFileDescriptor(devices, name);
+		this.fd = new OWFileDescriptor(devices, name);
 
 		try {
-			fd.create(false, false, false, -1, -1);
+			this.fd.create(false, false, false, -1, -1);
 		} catch (OWFileNotFoundException e) {
-			fd.free();
-			fd = null;
+			this.fd.free();
+			this.fd = null;
 			throw new OWFileNotFoundException(e.toString());
 		}
 	}
@@ -191,13 +192,13 @@ public class OWFileOutputStream extends OutputStream {
 	 *                                    for any other reason
 	 */
 	public OWFileOutputStream(OneWireContainer[] owd, String name) throws OWFileNotFoundException {
-		fd = new OWFileDescriptor(owd, name);
+		this.fd = new OWFileDescriptor(owd, name);
 
 		try {
-			fd.create(false, false, false, -1, -1);
+			this.fd.create(false, false, false, -1, -1);
 		} catch (OWFileNotFoundException e) {
-			fd.free();
-			fd = null;
+			this.fd.free();
+			this.fd = null;
 			throw new OWFileNotFoundException(e.toString());
 		}
 	}
@@ -229,13 +230,13 @@ public class OWFileOutputStream extends OutputStream {
 	 *                                    write access to the file.
 	 */
 	public OWFileOutputStream(OneWireContainer owd, String name, boolean append) throws OWFileNotFoundException {
-		fd = new OWFileDescriptor(owd, name);
+		this.fd = new OWFileDescriptor(owd, name);
 
 		try {
-			fd.create(append, false, false, -1, -1);
+			this.fd.create(append, false, false, -1, -1);
 		} catch (OWFileNotFoundException e) {
-			fd.free();
-			fd = null;
+			this.fd.free();
+			this.fd = null;
 			throw new OWFileNotFoundException(e.toString());
 		}
 	}
@@ -267,13 +268,13 @@ public class OWFileOutputStream extends OutputStream {
 	 *                                    write access to the file.
 	 */
 	public OWFileOutputStream(OneWireContainer[] owd, String name, boolean append) throws OWFileNotFoundException {
-		fd = new OWFileDescriptor(owd, name);
+		this.fd = new OWFileDescriptor(owd, name);
 
 		try {
-			fd.create(append, false, false, -1, -1);
+			this.fd.create(append, false, false, -1, -1);
 		} catch (OWFileNotFoundException e) {
-			fd.free();
-			fd = null;
+			this.fd.free();
+			this.fd = null;
 			throw new OWFileNotFoundException(e.toString());
 		}
 	}
@@ -303,14 +304,14 @@ public class OWFileOutputStream extends OutputStream {
 	 */
 	public OWFileOutputStream(OWFile file) throws OWFileNotFoundException {
 		try {
-			fd = file.getFD();
+			this.fd = file.getFD();
 		} catch (IOException e) {
-			fd.free();
-			fd = null;
+			this.fd.free();
+			this.fd = null;
 			throw new OWFileNotFoundException(e.toString());
 		}
 
-		fd.open();
+		this.fd.open();
 	}
 
 	/**
@@ -326,10 +327,11 @@ public class OWFileOutputStream extends OutputStream {
 	 *                              access to the file descriptor.
 	 */
 	public OWFileOutputStream(OWFileDescriptor fdObj) {
-		if (fdObj == null)
+		if (fdObj == null) {
 			throw new NullPointerException("1-Wire FileDescriptor provided is null");
+		}
 
-		fd = fdObj;
+		this.fd = fdObj;
 	}
 
 	// --------
@@ -343,11 +345,12 @@ public class OWFileOutputStream extends OutputStream {
 	 * @param b the byte to be written.
 	 * @exception IOException if an I/O error occurs.
 	 */
+	@Override
 	public void write(int b) throws IOException {
-		if (fd != null)
-			fd.write(b);
-		else
+		if (this.fd == null) {
 			throw new IOException("1-Wire FileDescriptor is null");
+		}
+		this.fd.write(b);
 	}
 
 	/**
@@ -357,11 +360,12 @@ public class OWFileOutputStream extends OutputStream {
 	 * @param b the data.
 	 * @exception IOException if an I/O error occurs.
 	 */
+	@Override
 	public void write(byte b[]) throws IOException {
-		if (fd != null)
-			fd.write(b, 0, b.length);
-		else
+		if (this.fd == null) {
 			throw new IOException("1-Wire FileDescriptor is null");
+		}
+		this.fd.write(b, 0, b.length);
 	}
 
 	/**
@@ -373,11 +377,12 @@ public class OWFileOutputStream extends OutputStream {
 	 * @param len the number of bytes to write.
 	 * @exception IOException if an I/O error occurs.
 	 */
+	@Override
 	public void write(byte b[], int off, int len) throws IOException {
-		if (fd != null)
-			fd.write(b, off, len);
-		else
+		if (this.fd == null) {
 			throw new IOException("1-Wire FileDescriptor is null");
+		}
+		this.fd.write(b, off, len);
 	}
 
 	/**
@@ -387,13 +392,14 @@ public class OWFileOutputStream extends OutputStream {
 	 *
 	 * @exception IOException if an I/O error occurs.
 	 */
+	@Override
 	public void close() throws IOException {
-		if (fd != null)
-			fd.close();
-		else
+		if (this.fd == null) {
 			throw new IOException("1-Wire FileDescriptor is null");
+		}
+		this.fd.close();
 
-		fd = null;
+		this.fd = null;
 	}
 
 	/**
@@ -407,10 +413,10 @@ public class OWFileOutputStream extends OutputStream {
 	 * @see com.dalsemi.onewire.application.file.OWFileDescriptor
 	 */
 	public OWFileDescriptor getFD() throws IOException {
-		if (fd != null)
-			return fd;
-		else
-			throw new IOException("1-Wire FileDescriptor is null");
+		if (this.fd != null) {
+			return this.fd;
+		}
+		throw new IOException("1-Wire FileDescriptor is null");
 	}
 
 	/**
@@ -423,7 +429,9 @@ public class OWFileOutputStream extends OutputStream {
 	 */
 	@Override
 	public void finalize() throws IOException {
-		if (fd != null)
-			fd.close();
+		if (this.fd != null) {
+			this.fd.close();
+		}
 	}
 }
+// CHECKSTYLE:ON

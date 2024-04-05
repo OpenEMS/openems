@@ -15,7 +15,6 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
-import io.openems.edge.batteryinverter.api.OffGridBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -31,7 +30,6 @@ import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.symmetric.ChannelManager;
-import io.openems.edge.ess.offgrid.api.OffGridEss;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
@@ -43,11 +41,11 @@ import io.openems.edge.ess.power.api.Relationship;
  */
 public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTERY extends Battery, BATTERY_INVERTER extends ManagedSymmetricBatteryInverter>
 		extends AbstractOpenemsComponent implements GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
-		OffGridEss, OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
+		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	/**
 	 * Helper wrapping class to handle everything related to Channels.
-	 * 
+	 *
 	 * @return the {@link ChannelManager}
 	 */
 	protected abstract AbstractChannelManager<ESS, BATTERY, BATTERY_INVERTER> getChannelManager();
@@ -88,6 +86,7 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 		this.getChannelManager().activate(this.getComponentManager(), this.getBattery(), this.getBatteryInverter());
 	}
 
+	@Override
 	protected void deactivate() {
 		this.getChannelManager().deactivate();
 		super.deactivate();
@@ -111,42 +110,40 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 	 */
 	protected abstract void handleStateMachine();
 
-	protected StringBuilder genericDebugLog() {
+	protected void genericDebugLog(StringBuilder sb) {
 		// Get DC-PV-Power for Hybrid ESS
 		Integer dcPvPower = null;
-		BATTERY_INVERTER batteryInverter = this.getBatteryInverter();
+		var batteryInverter = this.getBatteryInverter();
 		if (batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
 			dcPvPower = ((HybridManagedSymmetricBatteryInverter) batteryInverter).getDcPvPower();
 		}
 
-		StringBuilder result = new StringBuilder() //
-				.append("SoC:").append(this.getSoc().asString()) //
+		sb //
+				.append("|SoC:").append(this.getSoc().asString()) //
 				.append("|L:").append(this.getActivePower().asString());
 
 		// For HybridEss show actual Battery charge power and PV production power
 		if (dcPvPower != null) {
-			HybridEss me = (HybridEss) this;
-			result //
+			HybridEss me = this;
+			sb //
 					.append("|Battery:").append(me.getDcDischargePower().asString()) //
 					.append("|PV:").append(dcPvPower);
 		}
 
 		// Show max AC export/import active power:
 		// minimum of MaxAllowedCharge/DischargePower and MaxApparentPower
-		result //
+		sb //
 				.append("|Allowed:") //
-				.append(TypeUtils.min(//
+				.append(TypeUtils.max(//
 						this.getAllowedChargePower().get(), TypeUtils.multiply(this.getMaxApparentPower().get(), -1)))
 				.append(";") //
 				.append(TypeUtils.min(//
 						this.getAllowedDischargePower().get(), this.getMaxApparentPower().get()));
-
-		return result;
 	}
 
 	/**
 	 * Forwards the power request to the {@link SymmetricBatteryInverter}.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -156,7 +153,7 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 
 	/**
 	 * Retrieves PowerPrecision from {@link SymmetricBatteryInverter}.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -166,19 +163,18 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 
 	/**
 	 * Retrieves StaticConstraints from {@link SymmetricBatteryInverter}.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
 
-		List<Constraint> result = new ArrayList<Constraint>();
+		List<Constraint> result = new ArrayList<>();
 
 		// Get BatteryInverterConstraints
-		BatteryInverterConstraint[] constraints = this.getBatteryInverter().getStaticConstraints();
+		var constraints = this.getBatteryInverter().getStaticConstraints();
 
-		for (int i = 0; i < constraints.length; i++) {
-			BatteryInverterConstraint c = constraints[i];
+		for (BatteryInverterConstraint c : constraints) {
 			result.add(this.getPower().createSimpleConstraint(c.description, this, c.phase, c.pwr, c.relationship,
 					c.value));
 		}
@@ -195,12 +191,11 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 
 	@Override
 	public Integer getSurplusPower() {
-		BATTERY_INVERTER batteryInverter = this.getBatteryInverter();
+		var batteryInverter = this.getBatteryInverter();
 		if (batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
 			return ((HybridManagedSymmetricBatteryInverter) batteryInverter).getSurplusPower();
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 	@Override
@@ -212,17 +207,7 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 		);
 	}
 
-	@Override
-	public boolean isOffGridPossible() {
-		BATTERY_INVERTER batteryInverter = this.getBatteryInverter();
-		if (batteryInverter instanceof OffGridBatteryInverter) {
-			return batteryInverter.isOffGridPossible();
-		} else {
-			return false;
-		}
-	}
-
-	protected final AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
+	protected final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 
 	@Override
 	public StartStop getStartStopTarget() {

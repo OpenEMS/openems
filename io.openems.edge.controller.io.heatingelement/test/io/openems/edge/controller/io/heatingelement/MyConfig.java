@@ -1,13 +1,15 @@
 package io.openems.edge.controller.io.heatingelement;
 
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.controller.io.heatingelement.enums.Level;
+import io.openems.edge.controller.io.heatingelement.enums.Mode;
+import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String inputChannelAddress;
 		private String outputChannelPhaseL1;
 		private String outputChannelPhaseL2;
 		private String outputChannelPhaseL3;
@@ -25,11 +27,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setId(String id) {
 			this.id = id;
-			return this;
-		}
-
-		public Builder setInputChannelAddress(String inputChannelAddress) {
-			this.inputChannelAddress = inputChannelAddress;
 			return this;
 		}
 
@@ -88,6 +85,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		}
 	}
 
+	/**
+	 * Create a Config builder.
+	 *
+	 * @return a {@link Builder}
+	 */
 	public static Builder create() {
 		return new Builder();
 	}

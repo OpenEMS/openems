@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
-import io.openems.edge.fenecon.mini.ess.FeneconMiniEss;
 import io.openems.edge.fenecon.mini.ess.PcsMode;
 import io.openems.edge.fenecon.mini.ess.SetupMode;
 import io.openems.edge.fenecon.mini.ess.statemachine.StateMachine.State;
@@ -16,7 +15,7 @@ public class ActivateDebugMode3Handler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		FeneconMiniEss ess = context.getParent();
+		var ess = context.getParent();
 
 		if (ess.getPcsMode() != PcsMode.DEBUG) {
 			context.logInfo(this.log, "Wait for PCS-Mode DEBUG");

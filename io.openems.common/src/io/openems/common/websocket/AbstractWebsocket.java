@@ -86,26 +86,34 @@ public abstract class AbstractWebsocket<T extends WsData> {
 	 *
 	 * @param command the {@link Runnable}
 	 */
-	protected abstract void execute(Runnable command);
+	protected abstract void execute(Runnable command) throws Exception;
 
 	/**
 	 * Handles an internal Error asynchronously.
-	 *
-	 * @param e the {@link Exception} to be handled
+	 * 
+	 * @param t            the {@link Throwable} to be handled
+	 * @param wsDataString the toString() content of the WsData attachment of the
+	 *                     WebSocket
 	 */
-	protected void handleInternalErrorAsync(Exception e) {
-		this.execute(new OnInternalErrorHandler(this.getOnInternalError(), e));
+	protected void handleInternalErrorAsync(Throwable t, String wsDataString) {
+		try {
+			this.execute(new OnInternalErrorHandler(this.getOnInternalError(), t, wsDataString));
+
+		} catch (Throwable t1) {
+			this.handleInternalErrorSync(t, wsDataString);
+			this.handleInternalErrorSync(t1, wsDataString);
+		}
 	}
 
 	/**
 	 * Handles an internal Error synchronously.
 	 *
-	 * @param e            the {@link Exception}to be handled
+	 * @param t            the {@link Throwable} to be handled
 	 * @param wsDataString the toString() content of the WsData attachment of the
 	 *                     WebSocket
 	 */
-	protected void handleInternalErrorSync(Exception e, String wsDataString) {
-		this.getOnInternalError().run(e, wsDataString);
+	protected void handleInternalErrorSync(Throwable t, String wsDataString) {
+		this.getOnInternalError().run(t, wsDataString);
 	}
 
 	/**
@@ -123,5 +131,13 @@ public abstract class AbstractWebsocket<T extends WsData> {
 	 * @param message the message
 	 */
 	protected abstract void logWarn(Logger log, String message);
+
+	/**
+	 * Log a error message.
+	 *
+	 * @param log     a Logger instance
+	 * @param message the message
+	 */
+	protected abstract void logError(Logger log, String message);
 
 }

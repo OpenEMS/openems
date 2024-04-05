@@ -6,7 +6,6 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -14,13 +13,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
@@ -30,10 +27,10 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
  * This Worker checks if certain OpenEMS-Components are configured and - if not
  * - configures them. It is used to make sure a set of standard components are
  * always activated by default on a deployed energy management system.
- * 
+ *
  * <p>
  * Example 1: Add JSON/REST-Api Controller by default:
- * 
+ *
  * <pre>
  * if (existingConfigs.stream().noneMatch(c -> //
  * // Check if either "Controller.Api.Rest.ReadOnly" or
@@ -49,10 +46,10 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
  * 	));
  * }
  * </pre>
- * 
+ *
  * <p>
  * Example 2: Add Modbus/TCP-Api Controller by default:
- * 
+ *
  * <pre>
  * if (existingConfigs.stream().noneMatch(c -> //
  * // Check if either "Controller.Api.Rest.ReadOnly" or
@@ -87,13 +84,13 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 
 	/**
 	 * Creates all default configurations.
-	 * 
+	 *
 	 * @param existingConfigs already existing {@link Config}s
 	 * @return true on error, false if default configuration was successfully
 	 *         applied
 	 */
 	private boolean createDefaultConfigurations(List<Config> existingConfigs) {
-		final AtomicBoolean defaultConfigurationFailed = new AtomicBoolean(false);
+		final var defaultConfigurationFailed = new AtomicBoolean(false);
 
 		/*
 		 * Create Default Logging configuration
@@ -102,7 +99,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 		"org.ops4j.pax.logging".equals(c.pid) && c.properties.get("log4j2.rootLogger.level") != null)) {
 			// Adding Configuration manually, because this is not a OpenEMS Configuration
 			try {
-				Hashtable<String, Object> log4j = new Hashtable<>();
+				var log4j = new Hashtable<String, Object>();
 				log4j.put("log4j2.appender.console.type", "Console");
 				log4j.put("log4j2.appender.console.name", "console");
 				log4j.put("log4j2.appender.console.layout.type", "PatternLayout");
@@ -114,7 +111,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 				log4j.put("log4j2.rootLogger.level", "INFO");
 				log4j.put("log4j2.rootLogger.appenderRef.console.ref", "console");
 				log4j.put("log4j2.rootLogger.appenderRef.paxosgi.ref", "paxosgi");
-				Configuration config = this.parent.cm.getConfiguration("org.ops4j.pax.logging", null);
+				var config = this.parent.cm.getConfiguration("org.ops4j.pax.logging", null);
 				config.update(log4j);
 			} catch (IOException e) {
 				this.parent.logError(this.log, "Unable to create Default Logging configuration: " + e.getMessage());
@@ -128,7 +125,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 
 	@Override
 	protected void forever() {
-		List<Config> existingConfigs = this.readConfigs();
+		var existingConfigs = this.readConfigs();
 
 		boolean defaultConfigurationFailed;
 		try {
@@ -148,14 +145,14 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 
 	/**
 	 * Reads all currently active configurations.
-	 * 
+	 *
 	 * @return a list of currently active {@link Config}s
 	 */
 	private List<Config> readConfigs() {
-		List<Config> result = new ArrayList<Config>();
+		List<Config> result = new ArrayList<>();
 		try {
-			ConfigurationAdmin cm = this.parent.cm;
-			Configuration[] configs = cm.listConfigurations(null); // NOTE: here we are not filtering for enabled=true
+			var cm = this.parent.cm;
+			var configs = cm.listConfigurations(null); // NOTE: here we are not filtering for enabled=true
 			if (configs != null) {
 				for (Configuration config : configs) {
 					result.add(Config.from(config));
@@ -170,7 +167,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 
 	/**
 	 * Creates a Component configuration.
-	 * 
+	 *
 	 * @param defaultConfigurationFailed the result of the last configuration,
 	 *                                   updated on error
 	 * @param factoryPid                 the Factory-PID
@@ -183,8 +180,8 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 					"Creating Component configuration [" + factoryPid + "]: " + properties.stream() //
 							.map(p -> p.getName() + ":" + p.getValue().toString()) //
 							.collect(Collectors.joining(", ")));
-			CompletableFuture<JsonrpcResponseSuccess> response = this.parent.handleCreateComponentConfigRequest(
-					null /* no user */, new CreateComponentConfigRequest(factoryPid, properties));
+			var response = this.parent.handleCreateComponentConfigRequest(null /* no user */,
+					new CreateComponentConfigRequest(factoryPid, properties));
 			response.get(60, TimeUnit.SECONDS);
 
 		} catch (OpenemsNamedException | InterruptedException | ExecutionException | TimeoutException e) {
@@ -197,7 +194,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 
 	/**
 	 * Updates a Component configuration.
-	 * 
+	 *
 	 * @param defaultConfigurationFailed the result of the last configuration,
 	 *                                   updated on error
 	 * @param componentId                the Component-ID
@@ -211,8 +208,8 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 							.map(p -> p.getName() + ":" + p.getValue().toString()) //
 							.collect(Collectors.joining(", ")));
 
-			CompletableFuture<JsonrpcResponseSuccess> response = this.parent.handleUpdateComponentConfigRequest(
-					null /* no user */, new UpdateComponentConfigRequest(componentId, properties));
+			var response = this.parent.handleUpdateComponentConfigRequest(null /* no user */,
+					new UpdateComponentConfigRequest(componentId, properties));
 			response.get(60, TimeUnit.SECONDS);
 
 		} catch (OpenemsNamedException | InterruptedException | ExecutionException | TimeoutException e) {
@@ -225,7 +222,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 
 	/**
 	 * Deletes a Component configuration.
-	 * 
+	 *
 	 * @param defaultConfigurationFailed the result of the last configuration,
 	 *                                   updated on error
 	 * @param componentId                the Component-ID
@@ -234,8 +231,8 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 		try {
 			this.parent.logInfo(this.log, "Deleting Component [" + componentId + "]");
 
-			CompletableFuture<JsonrpcResponseSuccess> response = this.parent.handleDeleteComponentConfigRequest(
-					null /* no user */, new DeleteComponentConfigRequest(componentId));
+			var response = this.parent.handleDeleteComponentConfigRequest(null /* no user */,
+					new DeleteComponentConfigRequest(componentId));
 			response.get(60, TimeUnit.SECONDS);
 
 		} catch (OpenemsNamedException | InterruptedException | ExecutionException | TimeoutException e) {
@@ -250,18 +247,18 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 	 */
 	protected static class Config {
 		protected static Config from(Configuration config) throws OpenemsException {
-			Dictionary<String, Object> properties = config.getProperties();
+			var properties = config.getProperties();
 			if (properties == null) {
 				throw new OpenemsException(config.getPid() + ": Properties is 'null'");
 			}
-			Object componentIdObj = properties.get("id");
+			var componentIdObj = properties.get("id");
 			String componentId;
 			if (componentIdObj != null) {
 				componentId = componentIdObj.toString();
 			} else {
 				componentId = null;
 			}
-			String pid = config.getPid();
+			var pid = config.getPid();
 			return new Config(config.getFactoryPid(), componentId, pid, properties);
 		}
 

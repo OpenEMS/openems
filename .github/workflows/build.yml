@@ -1,86 +1,101 @@
 name: Build OpenEMS
-on: [push]
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+      - develop
+  
 jobs:
-  build-code:
+  build-java:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Setup Java 11
-        uses: actions/setup-java@v1
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
         with:
-          java-version: '11'
+          distribution: 'temurin'
+          java-version: '21'
+          cache: gradle
 
-      - name: Setup Cache for Java/Gradle
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-gradle-
-
-      - name: Setup Cache for Java/Maven
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-
-      - name: Setup Cache for Node.js
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-node-
+      - uses: kiancross/checkstyle-annotations-action@v1
 
       - name: Build all Java packages
         run: ./gradlew build
 
-      - name: Resolve OpenEMS Backend bundles
-        run: ./gradlew resolve.BackendApp
+      - name: Resolve OpenEMS bundles
+        run: ./gradlew resolve
 
       - name: Validate BackendApp.bndrun
         run: git diff --exit-code io.openems.backend.application/BackendApp.bndrun
 
-      - name: Resolve OpenEMS Edge bundles
-        run: ./gradlew resolve.EdgeApp
-
       - name: Validate EdgeApp.bndrun
         run: git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
+
+      #
+      # Generate Code-coverage-report
+      #
+      - name: Generate JaCoCo Code-coverage-report
+        run: ./gradlew jacocoTestReport
+        
+      - name: Summarize JaCoCo Report
+        id: jacoco
+        uses: cicirello/jacoco-badge-generator@v2
+        with:
+          jacoco-csv-file: 'io.openems.*/generated/reports/jacoco/**/*.csv'
+          generate-coverage-badge: false
+
+      - name: Create JaCoCo Badge
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          coverage=$(echo "scale=2; ${{ steps.jacoco.outputs.coverage }} * 100" | bc | cut -c1-4);
+
+          color=red;
+          if (( $(echo "$coverage > 90" | bc -l) )); then
+            color=success;
+          elif (( $(echo "$coverage > 80" | bc -l) )); then
+            color=green;
+          elif (( $(echo "$coverage > 60" | bc -l) )); then
+            color=yellow;
+          fi;
+
+          mkdir -p ./jacoco
+          echo $PR_NUMBER > ./jacoco/jacoco_report_number
+          echo '![Code Coverage]'"(https://img.shields.io/badge/Code%20Coverage-${coverage}%25-${color}?style=flat)" > ./jacoco/jacoco_report_badge
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jacoco_report
+          path: jacoco/
+
+  build-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16'
+
+      - name: Setup Cache for Node.js
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ~/.ng
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
 
       - name: Build OpenEMS UI
         run: |
           cd ui
+          npm install 
           npm ci --prefer-offline --cache ~/.npm
-          node_modules/@angular/cli/bin/ng build -c "openems,openems-edge-prod,prod"
-
-      #
-      # Is this a Tag? Prepare release assets and create a draft release
-      #
-      - name: Prepare Edge+Backend assets
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          ./gradlew buildEdge buildBackend
-
-      - name: Prepare UI asset
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: edgarrc/action-7z@v1
-        with:
-          args: 7z a openems-ui.zip ./ui/target/*
-
-      - name: Create draft Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
-        with:
-          draft: true
-          files: |
-            build/openems-edge.jar
-            build/openems-backend.jar
-            openems-ui.zip
+          node_modules/.bin/ng config cli.cache.path "~/.ng"
+          node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
+          node_modules/.bin/ng lint
+          export CHROME_BIN=/usr/bin/google-chrome-stable
+          npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI

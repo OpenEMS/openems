@@ -1,6 +1,5 @@
 package io.openems.common.websocket;
 
-import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
 
 import io.openems.common.exceptions.NotImplementedException;
@@ -25,7 +24,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 
 		/**
 		 * Sets the {@link OnOpen} callback.
-		 * 
+		 *
 		 * @param onOpen the callback
 		 * @return the {@link Builder}
 		 */
@@ -36,7 +35,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 
 		/**
 		 * Sets the {@link OnRequest} callback.
-		 * 
+		 *
 		 * @param onRequest the callback
 		 * @return the {@link Builder}
 		 */
@@ -47,7 +46,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 
 		/**
 		 * Sets the {@link OnNotification} callback.
-		 * 
+		 *
 		 * @param onNotification the callback
 		 * @return the {@link Builder}
 		 */
@@ -58,7 +57,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 
 		/**
 		 * Sets the {@link OnError} callback.
-		 * 
+		 *
 		 * @param onError the callback
 		 * @return the {@link Builder}
 		 */
@@ -69,7 +68,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 
 		/**
 		 * Sets the {@link OnClose} callback.
-		 * 
+		 *
 		 * @param onClose the callback
 		 * @return the {@link Builder}
 		 */
@@ -95,7 +94,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 	private final DummyWebsocketServer.Builder builder;
 
 	private DummyWebsocketServer(DummyWebsocketServer.Builder builder) {
-		super("DummyWebsocketServer", 0 /* auto-select port */, 1 /* pool size */, false);
+		super("DummyWebsocketServer", 0 /* auto-select port */, 1 /* pool size */, DebugMode.OFF);
 		this.builder = builder;
 	}
 
@@ -136,25 +135,12 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 
 	@Override
 	protected void logWarn(Logger log, String message) {
-		log.info(message);
+		log.warn(message);
 	}
 
-	/**
-	 * Starts the {@link WebSocketServer} and waits.
-	 *
-	 * @return the dynamically assigned Port.
-	 * @throws InterruptedException on error
-	 */
-	public int startBlocking() throws InterruptedException {
-		this.start();
-
-		// block until Port is not anymore zero
-		int port;
-		do {
-			Thread.sleep(500);
-			port = this.getPort();
-		} while (port == 0);
-		return port;
+	@Override
+	protected void logError(Logger log, String message) {
+		log.error(message);
 	}
 
 	@Override

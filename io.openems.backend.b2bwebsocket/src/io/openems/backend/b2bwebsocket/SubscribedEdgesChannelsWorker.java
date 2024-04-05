@@ -9,9 +9,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-
 import io.openems.backend.b2bwebsocket.jsonrpc.notification.EdgesCurrentDataNotification;
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -43,9 +40,9 @@ public class SubscribedEdgesChannelsWorker {
 
 	private int lastRequestCount = Integer.MIN_VALUE;
 
-	private final B2bWebsocket parent;
+	private final Backend2BackendWebsocket parent;
 
-	public SubscribedEdgesChannelsWorker(B2bWebsocket parent, WsData wsData) {
+	public SubscribedEdgesChannelsWorker(Backend2BackendWebsocket parent, WsData wsData) {
 		this.parent = parent;
 		this.wsData = wsData;
 	}
@@ -130,9 +127,9 @@ public class SubscribedEdgesChannelsWorker {
 			// assure read permissions of this User for this Edge.
 			user.assertEdgeRoleIsAtLeast("EdgesCurrentDataNotification", edgeId, Role.GUEST);
 
-			for (ChannelAddress channel : this.channels) {
-				Optional<JsonElement> value = this.parent.timeData.getChannelValue(edgeId, channel);
-				result.addValue(edgeId, channel, value.orElse(JsonNull.INSTANCE));
+			var data = this.parent.edgeWebsocket.getChannelValues(edgeId, this.channels);
+			for (var entry : data.entrySet()) {
+				result.addValue(edgeId, entry.getKey(), entry.getValue());
 			}
 		}
 		return result;

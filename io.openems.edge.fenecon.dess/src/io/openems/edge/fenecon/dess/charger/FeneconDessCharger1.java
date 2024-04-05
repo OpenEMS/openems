@@ -10,8 +10,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -28,19 +28,21 @@ import io.openems.edge.timedata.api.TimedataProvider;
 @Component(//
 		name = "Fenecon.Dess.Charger1", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class FeneconDessCharger1 extends AbstractFeneconDessCharger
 		implements FeneconDessCharger, EssDcCharger, ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider {
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -50,11 +52,10 @@ public class FeneconDessCharger1 extends AbstractFeneconDessCharger
 	private FeneconDessEss ess;
 
 	public FeneconDessCharger1() {
-		super();
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config1 config) throws OpenemsException {
+	private void activate(ComponentContext context, Config1 config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm,
 				"Modbus", this.ess.getModbusBridgeId())) {
 			return;
@@ -68,6 +69,7 @@ public class FeneconDessCharger1 extends AbstractFeneconDessCharger
 		this.ess.addCharger(this);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		this.ess.removeCharger(this);

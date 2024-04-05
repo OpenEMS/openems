@@ -53,7 +53,7 @@ public class GetEdgesStatusResponse extends JsonrpcResponseSuccess {
 	public JsonObject getResult() {
 		var j = new JsonObject();
 		for (Entry<String, EdgeInfo> entry : this.edgeInfos.entrySet()) {
-			EdgeInfo edge = entry.getValue();
+			var edge = entry.getValue();
 			j.add(entry.getKey(), JsonUtils.buildJsonObject() //
 					.addProperty("online", edge.online) //
 					.build());

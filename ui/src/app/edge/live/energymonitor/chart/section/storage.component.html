@@ -1,19 +1,21 @@
 <svg:path [attr.d]="outlinePath" fill="#f4f4f4" stroke="LightGray"></svg:path>
-<svg:path *ngIf="isEnabled" [attr.d]="valuePath" [attr.fill]="color" stroke="LightGray"></svg:path>
+<svg:path *ngIf="isEnabled" [attr.d]="valuePath" fill="var(--ion-color-success)" stroke="LightGray"></svg:path>
 <svg:g *ngIf="isEnabled && energyFlow">
     <svg:defs>
         <svg:linearGradient [attr.id]="sectionId" [attr.x1]="energyFlow.gradient.x1" [attr.y1]="energyFlow.gradient.y1"
             [attr.x2]="energyFlow.gradient.x2" [attr.y2]="energyFlow.gradient.y2">
-            <svg:stop offset="0%" stop-color="white" />
-            <svg:stop offset="100%" [attr.stop-color]="color" />
+            <svg:stop offset="0%" stop-color="var(--ion-color-background)" />
+            <svg:stop offset="100%" stop-color="var(--ion-color-success)" />
         </svg:linearGradient>
     </svg:defs>
     <svg:polygon [attr.points]="energyFlow.points" attr.fill="{{ fillRef }}" />
     <ng-container *ngIf="chargeAnimationTrigger">
-        <svg:polygon [@Charge]="stateNameCharge" [attr.points]="energyFlow.animationPoints" style="fill:white" />
+        <svg:polygon [@Charge]="stateNameCharge" [attr.points]="energyFlow.animationPoints"
+            style="fill:var(--ion-color-background)" />
     </ng-container>
     <ng-container *ngIf="dischargeAnimationTrigger">
-        <svg:polygon [@Discharge]="stateNameDischarge" [attr.points]="energyFlow.animationPoints" style="fill:white" />
+        <svg:polygon [@Discharge]="stateNameDischarge" [attr.points]="energyFlow.animationPoints"
+            style="fill:var(--ion-color-background)" />
     </ng-container>
 </svg:g>
 <svg:g *ngIf="isEnabled && squarePosition && square"
@@ -23,6 +25,8 @@
         <ng-container *ngIf="valueText; else no_text">{{valueText}}</ng-container>
         <ng-template #no_text>-</ng-template>
     </svg:text>
-    <svg:image [attr.x]="square.image.x" [attr.y]="square.image.y" [attr.width]="square.image.length"
-        [attr.height]="square.image.length" [attr.xlink:href]="square.image.image"></svg:image>
+    <svg:use [class]="svgStyle" style="color: var(--ion-color-success)" [attr.x]="square.image.x"
+        [attr.y]="square.image.y" [attr.width]="square.image.length" [attr.height]="square.image.length"
+        [attr.href]="square.image.image + '#root'">
+    </svg:use>
 </svg:g>

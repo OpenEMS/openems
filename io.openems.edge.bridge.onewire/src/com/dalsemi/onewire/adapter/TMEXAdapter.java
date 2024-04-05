@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999 - 2007 Maxim Integrated Products, All Rights Reserved.
@@ -196,20 +197,22 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws ClassNotFoundException
 	 */
 	public TMEXAdapter() throws ClassNotFoundException {
-		String nativeDLLName = "IBTMJAVA.dll";
+		var nativeDLLName = "IBTMJAVA.dll";
 		if (System.getProperty("os.arch").indexOf("64") != -1) {
 			nativeDLLName = "ibtmjava64.dll";
 		}
 		// check if native driver got loaded
-		if (!driverLoaded)
+		if (!driverLoaded) {
 			throw new ClassNotFoundException("native driver '" + nativeDLLName + "' not loaded");
+		}
 
 		// set default port type
-		portType = getDefaultTypeNumber();
+		this.portType = getDefaultTypeNumber();
 
 		// attempt to set the portType, will throw exception if does not exist
-		if (!setPortType_Native(portType))
+		if (!this.setPortType_Native(this.portType)) {
 			throw new ClassNotFoundException("TMEX adapter type does not exist");
+		}
 	}
 
 	/**
@@ -222,20 +225,22 @@ public class TMEXAdapter extends DSPortAdapter {
 	public TMEXAdapter(int newPortType) throws ClassNotFoundException {
 
 		// set default port type
-		portType = newPortType;
+		this.portType = newPortType;
 
-		String nativeDLLName = "IBTMJAVA.dll";
+		var nativeDLLName = "IBTMJAVA.dll";
 		if (System.getProperty("os.arch").indexOf("64") != -1) {
 			nativeDLLName = "ibtmjava64.dll";
 		}
 
 		// check if native driver got loaded
-		if (!driverLoaded)
+		if (!driverLoaded) {
 			throw new ClassNotFoundException("native driver '" + nativeDLLName + "' not loaded");
+		}
 
 		// attempt to set the portType, will throw exception if does not exist
-		if (!setPortType_Native(portType))
+		if (!this.setPortType_Native(this.portType)) {
 			throw new ClassNotFoundException("TMEX adapter type does not exist");
+		}
 	}
 
 	/**
@@ -243,7 +248,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 */
 	@Override
 	protected void finalize() {
-		cleanup_Native();
+		this.cleanup_Native();
 	}
 
 	// --------
@@ -257,6 +262,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>String</code> representation of the port adapter.
 	 */
+	@Override
 	public native String getAdapterName();
 
 	/**
@@ -265,6 +271,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>String</code> description of the port type required.
 	 */
+	@Override
 	public native String getPortTypeDescription();
 
 	/**
@@ -272,8 +279,9 @@ public class TMEXAdapter extends DSPortAdapter {
 	 *
 	 * @return version string
 	 */
+	@Override
 	public String getClassVersion() {
-		return new String("0.02, native: " + getVersion_Native());
+		return ("0.02, native: " + this.getVersion_Native());
 	}
 
 	// --------
@@ -288,14 +296,16 @@ public class TMEXAdapter extends DSPortAdapter {
 	 *
 	 * @return enumeration of type <code>String</code> that contains the port names
 	 */
+	@Override
 	public Enumeration<String> getPortNames() {
-		Vector<String> portVector = new Vector<>();
-		String header = getPortNameHeader_Native();
+		var portVector = new Vector<String>();
+		var header = this.getPortNameHeader_Native();
 
-		for (int i = 0; i < 16; i++)
-			portVector.addElement(new String(header + Integer.toString(i)));
+		for (var i = 0; i < 16; i++) {
+			portVector.addElement((header + Integer.toString(i)));
+		}
 
-		return (portVector.elements());
+		return portVector.elements();
 	}
 
 	/**
@@ -314,6 +324,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 *                            with port.
 	 * @throws OneWireException   If port does not exist
 	 */
+	@Override
 	public native boolean selectPort(String portName) throws OneWireIOException, OneWireException;
 
 	/**
@@ -323,6 +334,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 *
 	 * @throws OneWireException If port does not exist
 	 */
+	@Override
 	public native void freePort() throws OneWireException;
 
 	/**
@@ -332,6 +344,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 *
 	 * @throws OneWireException if valid port not yet selected
 	 */
+	@Override
 	public native String getPortName() throws OneWireException;
 
 	// --------
@@ -347,6 +360,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public native boolean adapterDetected() throws OneWireIOException, OneWireException;
 
 	/**
@@ -363,6 +377,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public native String getAdapterVersion() throws OneWireIOException, OneWireException;
 
 	/**
@@ -381,6 +396,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 *                            adapter
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public String getAdapterAddress() throws OneWireIOException, OneWireException {
 		return "<na>"; // ??? implement later
 	}
@@ -403,6 +419,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public native boolean canOverdrive() throws OneWireIOException, OneWireException;
 
 	/**
@@ -414,6 +431,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public native boolean canHyperdrive() throws OneWireIOException, OneWireException;
 
 	/**
@@ -425,6 +443,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public native boolean canFlex() throws OneWireIOException, OneWireException;
 
 	/**
@@ -436,6 +455,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public native boolean canProgram() throws OneWireIOException, OneWireException;
 
 	/**
@@ -447,6 +467,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public native boolean canDeliverPower() throws OneWireIOException, OneWireException;
 
 	/**
@@ -461,6 +482,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public native boolean canDeliverSmartPower() throws OneWireIOException, OneWireException;
 
 	/**
@@ -472,6 +494,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public native boolean canBreak() throws OneWireIOException, OneWireException;
 
 	// --------
@@ -488,12 +511,13 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean findFirstDevice() throws OneWireIOException, OneWireException {
 
 		// reset the internal rom buffer
-		resetSearch = true;
+		this.resetSearch = true;
 
-		return findNextDevice();
+		return this.findNextDevice();
 	}
 
 	/**
@@ -506,24 +530,23 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean findNextDevice() throws OneWireIOException, OneWireException {
 		boolean retval;
 
 		while (true) {
-			retval = romSearch_Native(skipResetOnSearch, resetSearch, doAlarmSearch, RomDta);
+			retval = this.romSearch_Native(this.skipResetOnSearch, this.resetSearch, this.doAlarmSearch, this.RomDta);
 
-			if (retval) {
-				resetSearch = false;
-
-				// check if this is an OK family type
-				if (isValidFamily(RomDta))
-					return true;
-
-				// Else, loop to the top and do another search.
-			} else {
-				resetSearch = true;
+			if (!retval) {
+				this.resetSearch = true;
 
 				return false;
+			}
+			this.resetSearch = false;
+
+			// check if this is an OK family type
+			if (this.isValidFamily(this.RomDta)) {
+				return true;
 			}
 		}
 	}
@@ -538,8 +561,9 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @param address An array to be filled with the current iButton address.
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public void getAddress(byte[] address) {
-		System.arraycopy(RomDta, 0, address, 0, 8);
+		System.arraycopy(this.RomDta, 0, address, 0, 8);
 	}
 
 	/**
@@ -556,6 +580,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 *
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public native boolean isPresent(byte[] address) throws OneWireIOException, OneWireException;
 
 	/**
@@ -573,6 +598,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 *
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public native boolean isAlarming(byte[] address) throws OneWireIOException, OneWireException;
 
 	/**
@@ -595,6 +621,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @see com.dalsemi.onewire.adapter.DSPortAdapter#isPresent(byte[] address)
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public native boolean select(byte[] address) throws OneWireIOException, OneWireException;
 
 	// --------
@@ -609,8 +636,9 @@ public class TMEXAdapter extends DSPortAdapter {
 	 *
 	 * @see #setNoResetSearch
 	 */
+	@Override
 	public void setSearchOnlyAlarmingDevices() {
-		doAlarmSearch = true;
+		this.doAlarmSearch = true;
 	}
 
 	/**
@@ -618,8 +646,9 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * This feature is chiefly used with the DS2409 1-Wire coupler. The normal reset
 	 * before each search can be restored with the 'setSearchAllDevices()' method.
 	 */
+	@Override
 	public void setNoResetSearch() {
-		skipResetOnSearch = true;
+		this.skipResetOnSearch = true;
 	}
 
 	/**
@@ -630,9 +659,10 @@ public class TMEXAdapter extends DSPortAdapter {
 	 *
 	 * @see #setNoResetSearch
 	 */
+	@Override
 	public void setSearchAllDevices() {
-		doAlarmSearch = false;
-		skipResetOnSearch = false;
+		this.doAlarmSearch = false;
+		this.skipResetOnSearch = false;
 	}
 
 	// --------
@@ -659,6 +689,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 *
 	 * @throws OneWireException on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public native boolean beginExclusive(boolean blocking) throws OneWireException;
 
 	/**
@@ -666,6 +697,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * dynamically marks the end of a critical section and should be used when
 	 * exclusive control is no longer needed.
 	 */
+	@Override
 	public native void endExclusive();
 
 	// --------
@@ -680,9 +712,11 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void putBit(boolean bitValue) throws OneWireIOException, OneWireException {
-		if (dataBit_Native(bitValue) != bitValue)
+		if (this.dataBit_Native(bitValue) != bitValue) {
 			throw new OneWireIOException("Error during putBit()");
+		}
 	}
 
 	/**
@@ -693,8 +727,9 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean getBit() throws OneWireIOException, OneWireException {
-		return dataBit_Native(true);
+		return this.dataBit_Native(true);
 	}
 
 	/**
@@ -705,9 +740,11 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void putByte(int byteValue) throws OneWireIOException, OneWireException {
-		if (dataByte_Native(byteValue & 0x00FF) != ((0x00FF) & byteValue))
+		if (this.dataByte_Native(byteValue & 0x00FF) != (0x00FF & byteValue)) {
 			throw new OneWireIOException("Error during putByte(), echo was incorrect ");
+		}
 	}
 
 	/**
@@ -718,8 +755,9 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public int getByte() throws OneWireIOException, OneWireException {
-		return dataByte_Native(0x00FF);
+		return this.dataByte_Native(0x00FF);
 	}
 
 	/**
@@ -732,10 +770,11 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public byte[] getBlock(int len) throws OneWireIOException, OneWireException {
-		byte[] barr = new byte[len];
+		var barr = new byte[len];
 
-		getBlock(barr, 0, len);
+		this.getBlock(barr, 0, len);
 
 		return barr;
 	}
@@ -750,8 +789,9 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void getBlock(byte[] arr, int len) throws OneWireIOException, OneWireException {
-		getBlock(arr, 0, len);
+		this.getBlock(arr, 0, len);
 	}
 
 	/**
@@ -765,6 +805,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public native void getBlock(byte[] arr, int off, int len) throws OneWireIOException, OneWireException;
 
 	/**
@@ -780,6 +821,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public native void dataBlock(byte dataBlock[], int off, int len) throws OneWireIOException, OneWireException;
 
 	/**
@@ -801,6 +843,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public native int reset() throws OneWireIOException, OneWireException;
 
 	// --------
@@ -832,11 +875,13 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void setPowerDuration(int timeFactor) throws OneWireIOException, OneWireException {
 
 		// Right now we only support infinite pull up.
-		if (timeFactor != DELIVERY_INFINITE)
+		if (timeFactor != DELIVERY_INFINITE) {
 			throw new OneWireException("No support for other than infinite power duration");
+		}
 	}
 
 	/**
@@ -866,6 +911,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public native boolean startPowerDelivery(int changeCondition) throws OneWireIOException, OneWireException;
 
 	/**
@@ -889,9 +935,11 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void setProgramPulseDuration(int timeFactor) throws OneWireIOException, OneWireException {
-		if (timeFactor != DELIVERY_EPROM)
+		if (timeFactor != DELIVERY_EPROM) {
 			throw new OneWireException("Only support EPROM length program pulse duration");
+		}
 	}
 
 	/**
@@ -922,6 +970,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter or the
 	 *                            adapter does not support this operation
 	 */
+	@Override
 	public native boolean startProgramPulse(int changeCondition) throws OneWireIOException, OneWireException;
 
 	/**
@@ -933,6 +982,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter or the
 	 *                            adapter does not support this operation
 	 */
+	@Override
 	public native void startBreak() throws OneWireIOException, OneWireException;
 
 	/**
@@ -946,6 +996,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter or the
 	 *                            adapter does not support this operation
 	 */
+	@Override
 	public native void setPowerNormal() throws OneWireIOException, OneWireException;
 
 	// --------
@@ -975,6 +1026,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter or the
 	 *                            adapter does not support this operation
 	 */
+	@Override
 	public native void setSpeed(int desiredSpeed) throws OneWireIOException, OneWireException;
 
 	/**
@@ -994,6 +1046,7 @@ public class TMEXAdapter extends DSPortAdapter {
 	 *         <li>>3 future speeds
 	 *         </ul>
 	 */
+	@Override
 	public native int getSpeed();
 
 	// --------
@@ -1012,10 +1065,10 @@ public class TMEXAdapter extends DSPortAdapter {
 	public boolean setTMEXPortType(int newPortType) {
 
 		// set default port type
-		portType = newPortType;
+		this.portType = newPortType;
 
 		// attempt to set the portType, return result
-		return setPortType_Native(portType);
+		return this.setPortType_Native(this.portType);
 	}
 
 	// --------
@@ -1127,9 +1180,9 @@ public class TMEXAdapter extends DSPortAdapter {
 	 */
 	static {
 		driverLoaded = false;
-		String nativeTMEXDLLName = "IBFS32.DLL";
-		String nativeDLLName = "ibtmjava.dll";
-		String loadLibraryString = "ibtmjava";
+		var nativeTMEXDLLName = "IBFS32.DLL";
+		var nativeDLLName = "ibtmjava.dll";
+		var loadLibraryString = "ibtmjava";
 		if (System.getProperty("os.arch").indexOf("64") != -1) {
 			nativeTMEXDLLName = "IBFS64.DLL";
 			nativeDLLName = "ibtmjava64.dll";
@@ -1141,10 +1194,10 @@ public class TMEXAdapter extends DSPortAdapter {
 
 			// check if TMEX native drivers installed
 			int index = 0, last_index = 0;
-			String search_path = System.getProperty("java.library.path");
+			var search_path = System.getProperty("java.library.path");
 			String path;
 			File file;
-			boolean tmex_loaded = false;
+			var tmex_loaded = false;
 
 			System.out.println(search_path);
 			// check for a path to search
@@ -1170,8 +1223,9 @@ public class TMEXAdapter extends DSPortAdapter {
 				} while (index > -1);
 			}
 			// jdk must not support "java.library.path" so assume it is loaded
-			else
+			else {
 				tmex_loaded = true;
+			}
 
 			if (tmex_loaded) {
 				try {
@@ -1184,8 +1238,10 @@ public class TMEXAdapter extends DSPortAdapter {
 						System.err.println("Native drivers not found, download 1-Wire Drivers from www.ibutton.com");
 					}
 				}
-			} else
+			} else {
 				System.err.println("Native drivers not found, download 1-Wire Drivers from www.ibutton.com");
+			}
 		}
 	}
 }
+// CHECKSTYLE:ON

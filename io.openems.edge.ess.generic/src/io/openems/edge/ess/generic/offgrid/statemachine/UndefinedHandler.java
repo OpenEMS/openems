@@ -1,15 +1,16 @@
 package io.openems.edge.ess.generic.offgrid.statemachine;
 
+import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
-import io.openems.edge.ess.generic.common.GenericManagedEss;
 import io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState;
 
 public class UndefinedHandler extends StateHandler<OffGridState, Context> {
 
 	@Override
 	public OffGridState runAndGetNextState(Context context) {
-		GenericManagedEss ess = context.getParent();
-		
+		var ess = context.getParent();
+		ess._setStartStop(StartStop.UNDEFINED);
+
 		switch (ess.getStartStopTarget()) {
 		case UNDEFINED:
 			// Stuck in UNDEFINED State

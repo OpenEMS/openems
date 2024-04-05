@@ -29,7 +29,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Enddate", description = "for example: 31.12.1998")
 	String endDate();
 
-	@AttributeDefinition(name = "Daily Starttime", description = "for example: 06:46")
+	@AttributeDefinition(name = "Daily Starttime", description = "for example: 6:46")
 	String startTime();
 
 	@AttributeDefinition(name = "Daily Endtime", description = "for example: 17:05")

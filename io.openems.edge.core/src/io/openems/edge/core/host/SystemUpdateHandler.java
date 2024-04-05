@@ -15,7 +15,6 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
@@ -28,12 +27,7 @@ import io.openems.edge.core.host.jsonrpc.GetSystemUpdateStateResponse;
 import io.openems.edge.core.host.jsonrpc.GetSystemUpdateStateResponse.UpdateState;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 
-/**
- * This Worker reads the actual network configuration and stores it in the Host
- * configuration.
- */
 public class SystemUpdateHandler {
 
 	private static final int SHORT_TIMEOUT = 10; // [s]
@@ -63,39 +57,39 @@ public class SystemUpdateHandler {
 
 	/**
 	 * Handles a {@link GetSystemUpdateStateRequest}.
-	 * 
+	 *
 	 * @param request the {@link GetSystemUpdateStateRequest}
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
 	protected CompletableFuture<JsonrpcResponseSuccess> handleGetSystemUpdateStateRequest(
 			GetSystemUpdateStateRequest request) throws OpenemsNamedException {
-		final CompletableFuture<JsonrpcResponseSuccess> result = new CompletableFuture<JsonrpcResponseSuccess>();
+		final var params = this.parent.oem.getSystemUpdateParams();
+		final var result = new CompletableFuture<JsonrpcResponseSuccess>();
 
 		if (this.updateState.isRunning()) {
 			result.complete(GetSystemUpdateStateResponse.isRunning(request.getId(), this.updateState));
 
 		} else {
 			// Read currently installed version
-			this.executeSystemCommand("dpkg-query --showformat='${Version}' --show fems", SHORT_TIMEOUT)
-					.whenComplete((response, ex) -> {
+			this.executeSystemCommand("dpkg-query --showformat='${Version}' --show " + params.packageName(), //
+					SHORT_TIMEOUT).whenComplete((response, ex) -> {
 						if (ex != null) {
 							result.completeExceptionally(ex);
 							return;
 						}
-						String[] stdout = response.getStdout();
+						var stdout = response.scr.stdout();
 						if (stdout.length < 1) {
 							result.completeExceptionally(ex /* todo */);
 							return;
 						}
-						String currentVersion = stdout[0];
+						var currentVersion = stdout[0];
 
 						// Read latest version
 						try {
-							String latestVersion = this.download(OpenemsOEM.SYSTEM_UPDATE_LATEST_VERSION_URL).trim();
+							var latestVersion = this.download(params.latestVersionUrl()).trim();
 							result.complete(
 									GetSystemUpdateStateResponse.from(request.getId(), currentVersion, latestVersion));
-							return;
 
 						} catch (IOException e) {
 							result.completeExceptionally(e);
@@ -107,11 +101,11 @@ public class SystemUpdateHandler {
 	}
 
 	private String download(String url) throws IOException {
-		OkHttpClient client = new OkHttpClient();
-		Request r = new Request.Builder() //
+		var client = new OkHttpClient();
+		var r = new Request.Builder() //
 				.url(url) //
 				.build();
-		try (Response resp = client.newCall(r).execute()) {
+		try (var resp = client.newCall(r).execute()) {
 			if (!resp.isSuccessful()) {
 				throw new IOException(resp.message());
 			}
@@ -122,17 +116,17 @@ public class SystemUpdateHandler {
 
 	private CompletableFuture<ExecuteSystemCommandResponse> executeSystemCommand(String command, int timeoutSeconds)
 			throws OpenemsNamedException {
-		final boolean runInBackground = false;
+		final var runInBackground = false;
 		final Optional<String> username = Optional.empty();
 		final Optional<String> password = Optional.empty();
-		return this.parent.operatingSystem.handleExecuteCommandRequest(
+		return this.parent.operatingSystem.handleExecuteSystemCommandRequest(
 				new ExecuteSystemCommandRequest(command, runInBackground, timeoutSeconds, username, password));
 	}
 
 	/**
 	 * Handles a {@link ExecuteSystemUpdateRequest} and makes sure the update is
 	 * executed only once.
-	 * 
+	 *
 	 * @param request the {@link ExecuteSystemUpdateRequest}
 	 * @return the {@link JsonrpcResponseSuccess}
 	 * @throws OpenemsNamedException on error
@@ -142,34 +136,33 @@ public class SystemUpdateHandler {
 		if (this.updateState.isRunning()) {
 			throw new OpenemsException("System Update is already running");
 
-		} else {
-			this.updateState.reset();
-			this.updateState.setRunning(true);
-			this.updateState.setDebugMode(request.isDebug());
-
-			CompletableFuture<JsonrpcResponseSuccess> result = new CompletableFuture<JsonrpcResponseSuccess>();
-			this.executor.execute(() -> {
-				GetSystemUpdateStateResponse response = GetSystemUpdateStateResponse.isRunning(request.getId(),
-						this.updateState);
-				try {
-					this.executeUpdate(result);
-					this.updateState.setPercentCompleted(100);
-					this.updateState.addLog("# Finished successfully");
-					result.complete(response);
-
-				} catch (Exception e) {
-					this.updateState.addLog("# Finished with error");
-					this.parent.logError(this.log, "Error while executing System Update: " + e.getMessage());
-					e.printStackTrace();
-					result.completeExceptionally(new OpenemsException(e.getMessage() + "\n" + response.toString()));
-				}
-				this.updateState.setRunning(false);
-			});
-			return result;
 		}
+		this.updateState.reset();
+		this.updateState.setRunning(true);
+		this.updateState.setDebugMode(request.isDebug());
+
+		var result = new CompletableFuture<JsonrpcResponseSuccess>();
+		this.executor.execute(() -> {
+			var response = GetSystemUpdateStateResponse.isRunning(request.getId(), this.updateState);
+			try {
+				this.executeUpdate(result);
+				this.updateState.setPercentCompleted(100);
+				this.updateState.addLog("# Finished successfully");
+				result.complete(response);
+
+			} catch (Exception e) {
+				this.updateState.addLog("# Finished with error");
+				this.parent.logError(this.log, "Error while executing System Update: " + e.getMessage());
+				e.printStackTrace();
+				result.completeExceptionally(new OpenemsException(e.getMessage() + "\n" + response.toString()));
+			}
+			this.updateState.setRunning(false);
+		});
+		return result;
 	}
 
 	private void executeUpdate(CompletableFuture<JsonrpcResponseSuccess> result) throws Exception {
+		final var params = this.parent.oem.getSystemUpdateParams();
 		Path logFile = null;
 		Path scriptFile = null;
 		try {
@@ -177,33 +170,33 @@ public class SystemUpdateHandler {
 			this.updateState.addLog("# Creating Logfile [" + logFile + "]");
 
 			// Download Update Script to temporary file
-			this.updateState.addLog("# Downloading update script [" + OpenemsOEM.SYSTEM_UPDATE_SCRIPT_URL + "]");
+			this.updateState.addLog("# Downloading update script " //
+					+ "[" + params.updateScriptUrl() + "]");
 			scriptFile = Files.createTempFile("system-update-script-", null);
-			String script = //
+			var script = //
 					"export PS4='" + MARKER_BASH_TRACE + "${LINENO} '; \n" //
-							+ this.download(OpenemsOEM.SYSTEM_UPDATE_SCRIPT_URL);
+							+ this.download(params.updateScriptUrl());
 			Files.write(scriptFile, script.getBytes(StandardCharsets.US_ASCII));
 
 			final float totalNumberOfLines = script.split("\r\n|\r|\n").length;
 
 			// Make sure 'at' command is available
-			if (this.executeSystemCommand("which at", SHORT_TIMEOUT).get().getStdout().length == 0) {
+			if (this.executeSystemCommand("which at", SHORT_TIMEOUT).get().scr.stdout().length == 0) {
 				this.updateState.addLog("# Command 'at' is missing");
 
 				{
 					this.updateState.addLog("# Executing 'apt-get update'");
-					ExecuteSystemCommandResponse response = this.executeSystemCommand("apt-get update", 3600).get();
+					var response = this.executeSystemCommand("apt-get update", 3600).get();
 					this.updateState.addLog("'apt-get update'", response);
-					if (response.getExitCode() != 0) {
+					if (response.scr.exitcode() != 0) {
 						throw new Exception("'apt-get update' failed");
 					}
 				}
 				{
 					this.updateState.addLog("# Executing 'apt-get install at'");
-					ExecuteSystemCommandResponse response = this.executeSystemCommand("apt-get -y install at", 3600)
-							.get();
+					var response = this.executeSystemCommand("apt-get -y install at", 3600).get();
 					this.updateState.addLog("'apt-get install at'", response);
-					if (response.getExitCode() != 0) {
+					if (response.scr.exitcode() != 0) {
 						throw new Exception("'apt-get install at' failed");
 					}
 				}
@@ -212,9 +205,9 @@ public class SystemUpdateHandler {
 			// Execute Update Script
 			{
 				this.updateState.addLog("# Executing update script [" + scriptFile + "]");
-				ExecuteSystemCommandResponse response = this.executeSystemCommand("echo '" //
+				var response = this.executeSystemCommand("echo '" //
 						+ "  {" //
-						+ "    bash -ex " + scriptFile.toString() + "; " //
+						+ "    bash -ex " + scriptFile.toString() + " " + params.updateScriptParams() + "; " //
 						+ "    if [ $? -eq 0 ]; then " //
 						+ "      echo \"" + MARKER_FINISHED_SUCCESSFULLY + "\"; " //
 						+ "    else " //
@@ -222,18 +215,18 @@ public class SystemUpdateHandler {
 						+ "    fi; " //
 						+ "  } >" + logFile.toAbsolutePath() + " 2>&1' " //
 						+ "| at now", SHORT_TIMEOUT).get();
-				if (response.getExitCode() != 0) {
+				if (response.scr.exitcode() != 0) {
 					throw new Exception("Executing update script [" + scriptFile + "] failed");
 				}
 			}
 
 			// Read log output
-			boolean keepReading = true;
+			var keepReading = true;
 
-			try (final BufferedReader reader = new BufferedReader(
+			try (final var reader = new BufferedReader(
 					new InputStreamReader(new FileInputStream(logFile.toFile()), StandardCharsets.ISO_8859_1))) {
 				while (keepReading) {
-					final String line = reader.readLine();
+					final var line = reader.readLine();
 					if (line == null) {
 						// wait until there is more of the file for us to read
 						Thread.sleep(500);
@@ -245,11 +238,11 @@ public class SystemUpdateHandler {
 						/*
 						 * Update percent completed + reformat commands
 						 */
-						String lineWithNumber = line.substring(MARKER_BASH_TRACE.length());
-						int lengthOfNumber = lineWithNumber.indexOf(" ");
+						var lineWithNumber = line.substring(MARKER_BASH_TRACE.length());
+						var lengthOfNumber = lineWithNumber.indexOf(" ");
 						// Parse number of line and calculate percent completed
-						int numberOfLine = Integer.parseInt(lineWithNumber.substring(0, lengthOfNumber));
-						this.updateState.setPercentCompleted(Math.round((numberOfLine * 100) / totalNumberOfLines));
+						var numberOfLine = Integer.parseInt(lineWithNumber.substring(0, lengthOfNumber));
+						this.updateState.setPercentCompleted(Math.round(numberOfLine * 100 / totalNumberOfLines));
 						// Strip number of line and prefix with '#'
 						log = "# " + lineWithNumber.substring(lengthOfNumber);
 

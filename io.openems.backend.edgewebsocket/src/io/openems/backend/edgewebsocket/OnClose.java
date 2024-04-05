@@ -30,6 +30,7 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 			if (edgeOpt.isPresent()) {
 				var isOnline = this.parent.isOnline(edgeId);
 				edgeOpt.get().setOnline(isOnline);
+
 			}
 
 		} else {
@@ -41,9 +42,12 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 		if (code == CloseFrame.TRY_AGAIN_LATER) {
 			// This happens when Metadata service is not yet initialized. No need to log
 			// message.
+		} else if (code == CloseFrame.ABNORMAL_CLOSE) {
+			// "The connection was closed because the other endpoint did not respond with a
+			// pong in time. For more information check:
+			// https://github.com/TooTallNate/Java-WebSocket/wiki/Lost-connection-detection"
 		} else {
-			this.parent.logInfo(this.log,
-					"Edge [" + edgeId + "] disconnected. Code [" + code + "] Reason [" + reason + "]");
+			this.parent.logInfo(this.log, edgeId, "Disconnected. Code [" + code + "] Reason [" + reason + "]");
 		}
 	}
 

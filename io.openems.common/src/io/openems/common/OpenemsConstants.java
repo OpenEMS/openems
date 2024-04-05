@@ -14,7 +14,7 @@ public class OpenemsConstants {
 	 * <p>
 	 * This is the year of the release.
 	 */
-	public static final short VERSION_MAJOR = 2022;
+	public static final short VERSION_MAJOR = 2024;
 
 	/**
 	 * The minor version of OpenEMS.
@@ -22,7 +22,7 @@ public class OpenemsConstants {
 	 * <p>
 	 * This is the month of the release.
 	 */
-	public final static short VERSION_MINOR = 3;
+	public static final short VERSION_MINOR = 5;
 
 	/**
 	 * The patch version of OpenEMS.
@@ -31,7 +31,7 @@ public class OpenemsConstants {
 	 * This is always `0` for OpenEMS open source releases and reserved for private
 	 * distributions.
 	 */
-	public final static short VERSION_PATCH = 0;
+	public static final short VERSION_PATCH = 0;
 
 	/**
 	 * The additional version string.
@@ -51,54 +51,19 @@ public class OpenemsConstants {
 			OpenemsConstants.VERSION_STRING);
 
 	/**
-	 * The manufacturer of the device that is running OpenEMS.
-	 *
-	 * <p>
-	 * Note: this should be max. 32 ASCII characters long
+	 * The version development branch.
 	 */
-	public static final String MANUFACTURER = OpenemsOEM.MANUFACTURER;
+	public static final String VERSION_DEV_BRANCH = "";
 
 	/**
-	 * The model identifier of the device.
-	 *
-	 * <p>
-	 * Note: this should be max. 32 ASCII characters long
+	 * The version development commit hash.
 	 */
-	public static final String MANUFACTURER_MODEL = "OpenEMS";
+	public static final String VERSION_DEV_COMMIT = "";
 
 	/**
-	 * The options of the device.
-	 *
-	 * <p>
-	 * Note: this should be max. 32 ASCII characters long
+	 * The version development build time.
 	 */
-	public static final String MANUFACTURER_OPTIONS = "";
-
-	/**
-	 * The version of the device.
-	 *
-	 * <p>
-	 * Note: this should be max. 32 ASCII characters long
-	 */
-	public static final String MANUFACTURER_VERSION = "";
-
-	/**
-	 * The serial number of the device.
-	 *
-	 * <p>
-	 * Note: this should be max. 32 ASCII characters long
-	 */
-	public static final String MANUFACTURER_SERIAL_NUMBER = "";
-
-	/**
-	 * The Energy-Management-System serial number of the device.
-	 *
-	 * <p>
-	 * Note: this should be max. 32 ASCII characters long
-	 */
-	public static final String MANUFACTURER_EMS_SERIAL_NUMBER = "";
-
-	public static final String POWER_DOC_TEXT = "Negative values for Consumption; positive for Production";
+	public static final String VERSION_DEV_BUILD_TIME = "";
 
 	/*
 	 * Constants for Component properties

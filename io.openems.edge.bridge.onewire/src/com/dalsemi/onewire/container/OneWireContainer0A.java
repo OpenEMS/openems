@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -43,7 +44,7 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * <P>
  * This iButton is primarily used as a read/write portable memory device.
  * </P>
- * 
+ *
  * <H3>Features</H3>
  * <UL>
  * <LI>16384 bits (2048 bytes) of read/write nonvolatile memory
@@ -55,14 +56,14 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * +70@htmlonly &#176C @endhtmlonly
  * <LI>Over 10 years of data retention
  * </UL>
- * 
+ *
  * <H3>Memory</H3>
- * 
+ *
  * <P>
  * The memory can be accessed through the objects that are returned from the
  * {@link #getMemoryBanks() getMemoryBanks} method.
  * </P>
- * 
+ *
  * The following is a list of the MemoryBank instances that are returned:
  *
  * <UL>
@@ -87,9 +88,9 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * payload
  * </UL>
  * </UL>
- * 
+ *
  * <H3>Usage</H3>
- * 
+ *
  * <DL>
  * <DD>See the usage example in
  * {@link com.dalsemi.onewire.container.OneWireContainer OneWireContainer} to
@@ -104,7 +105,7 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * <DD><A HREF="http://pdfserv.maxim-ic.com/arpdf/DS1995.pdf">
  * http://pdfserv.maxim-ic.com/arpdf/DS1995.pdf</A>
  * </DL>
- * 
+ *
  * @see com.dalsemi.onewire.container.MemoryBank
  * @see com.dalsemi.onewire.container.PagedMemoryBank
  *
@@ -129,7 +130,6 @@ public class OneWireContainer0A extends OneWireContainer {
 	 *      super.setupContainer()
 	 */
 	public OneWireContainer0A() {
-		super();
 	}
 
 	/**
@@ -201,6 +201,7 @@ public class OneWireContainer0A extends OneWireContainer {
 	 *
 	 * @return iButton or 1-Wire device name
 	 */
+	@Override
 	public String getName() {
 		return "DS1995";
 	}
@@ -211,6 +212,7 @@ public class OneWireContainer0A extends OneWireContainer {
 	 *
 	 * @return device description
 	 */
+	@Override
 	public String getDescription() {
 		return "16384 bit read/write nonvolatile memory partitioned " + "into sixty-four pages of 256 bits each.";
 	}
@@ -229,6 +231,7 @@ public class OneWireContainer0A extends OneWireContainer {
 	 * @see com.dalsemi.onewire.adapter.DSPortAdapter#SPEED_FLEX
 	 *      DSPortAdapter.SPEED_FLEX
 	 */
+	@Override
 	public int getMaxSpeed() {
 		return DSPortAdapter.SPEED_OVERDRIVE;
 	}
@@ -239,19 +242,20 @@ public class OneWireContainer0A extends OneWireContainer {
 	 * MemoryBank}, {@link com.dalsemi.onewire.container.PagedMemoryBank
 	 * PagedMemoryBank}, and {@link com.dalsemi.onewire.container.OTPMemoryBank
 	 * OTPMemoryBank}.
-	 * 
+	 *
 	 * @return <CODE>Enumeration</CODE> of memory banks
 	 */
+	@Override
 	public Enumeration<MemoryBank> getMemoryBanks() {
-		Vector<MemoryBank> bank_vector = new Vector<>(2);
+		var bank_vector = new Vector<MemoryBank>(2);
 
 		// scratchpad
-		MemoryBankScratch scratch = new MemoryBankScratch(this);
+		var scratch = new MemoryBankScratch(this);
 
 		bank_vector.addElement(scratch);
 
 		// NVRAM
-		MemoryBankNV nv = new MemoryBankNV(this, scratch);
+		var nv = new MemoryBankNV(this, scratch);
 
 		nv.numberPages = 64;
 		nv.size = 2048;
@@ -261,3 +265,4 @@ public class OneWireContainer0A extends OneWireContainer {
 		return bank_vector.elements();
 	}
 }
+// CHECKSTYLE:ON

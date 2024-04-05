@@ -10,6 +10,7 @@ import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -23,8 +24,8 @@ public interface EssDcCharger extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
-		 * Maximum Ever Actual Power
-		 * 
+		 * Maximum Ever Actual Power.
+		 *
 		 * <ul>
 		 * <li>Interface: Ess DC Charger
 		 * <li>Type: Integer
@@ -37,8 +38,8 @@ public interface EssDcCharger extends OpenemsComponent {
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Actual Power
-		 * 
+		 * Actual Power.
+		 *
 		 * <ul>
 		 * <li>Interface: Ess DC Charger
 		 * <li>Type: Integer
@@ -46,31 +47,27 @@ public interface EssDcCharger extends OpenemsComponent {
 		 * <li>Range: positive
 		 * </ul>
 		 */
-		ACTUAL_POWER(Doc.of(OpenemsType.INTEGER) //
+		ACTUAL_POWER(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.onInit(channel -> {
-					channel.onSetNextValue(value -> {
-						/*
-						 * Fill Max Actual Power channel
-						 */
-						if (value.asOptional().isPresent()) {
-							int newValue = (int) (Integer) value.get();
-							Channel<Integer> maxActualPowerChannel = channel.getComponent()
-									.channel(ChannelId.MAX_ACTUAL_POWER);
-							int maxActualPower = maxActualPowerChannel.value().orElse(0);
-							int maxNextActualPower = maxActualPowerChannel.getNextValue().orElse(0);
-							if (newValue > Math.max(maxActualPower, maxNextActualPower)) {
-								// avoid getting called too often -> round to 100
-								newValue = IntUtils.roundToPrecision(newValue, Round.AWAY_FROM_ZERO, 100);
-								maxActualPowerChannel.setNextValue(newValue);
-							}
+				.onChannelSetNextValue((self, value) -> {
+					/*
+					 * Fill Max Actual Power channel
+					 */
+					value.ifPresent(newValue -> {
+						Channel<Integer> maxActualPowerChannel = self.channel(ChannelId.MAX_ACTUAL_POWER);
+						int maxActualPower = maxActualPowerChannel.value().orElse(0);
+						int maxNextActualPower = maxActualPowerChannel.getNextValue().orElse(0);
+						if (newValue > Math.max(maxActualPower, maxNextActualPower)) {
+							// avoid getting called too often -> round to 100
+							newValue = IntUtils.roundToPrecision(newValue, Round.AWAY_FROM_ZERO, 100);
+							maxActualPowerChannel.setNextValue(newValue);
 						}
 					});
 				})),
 		/**
-		 * Actual Energy
-		 * 
+		 * Actual Energy.
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Symmetric
 		 * <li>Type: Integer
@@ -78,7 +75,32 @@ public interface EssDcCharger extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTUAL_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)), //
+
+		/**
+		 * Voltage.
+		 *
+		 * <ul>
+		 * <li>Interface: Ess DC Charger
+		 * <li>Type: Integer
+		 * <li>Unit: mV
+		 * </ul>
+		 */
+		VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
+		/**
+		 * Current.
+		 *
+		 * <ul>
+		 * <li>Interface: Ess DC Charger
+		 * <li>Type: Integer
+		 * <li>Unit: mA
+		 * </ul>
+		 */
+		CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE) //
 				.persistencePriority(PersistencePriority.HIGH)); //
 
 		private final Doc doc;
@@ -87,6 +109,7 @@ public interface EssDcCharger extends OpenemsComponent {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -179,7 +202,7 @@ public interface EssDcCharger extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Actual Energy in [Wh]. See {@link ChannelId#ACTUAL_ENERGY}.
+	 * Gets the Actual Energy in [Wh_Σ]. See {@link ChannelId#ACTUAL_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -207,10 +230,91 @@ public interface EssDcCharger extends OpenemsComponent {
 		this.getActualEnergyChannel().setNextValue(value);
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#VOLTAGE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getVoltageChannel() {
+		return this.channel(ChannelId.VOLTAGE);
+	}
+
+	/**
+	 * Gets the Voltage in [mV]. See {@link ChannelId#VOLTAGE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getVoltage() {
+		return this.getVoltageChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setVoltage(Integer value) {
+		this.getVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setVoltage(int value) {
+		this.getVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CURRENT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getCurrentChannel() {
+		return this.channel(ChannelId.CURRENT);
+	}
+
+	/**
+	 * Gets the Current in [mA]. See {@link ChannelId#CURRENT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getCurrent() {
+		return this.getCurrentChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setCurrent(Integer value) {
+		this.getCurrentChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setCurrent(int value) {
+		this.getCurrentChannel().setNextValue(value);
+	}
+
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(SymmetricEss.class, accessMode, 100) //
 				.channel(0, ChannelId.ACTUAL_POWER, ModbusType.FLOAT32) //
 				.channel(2, ChannelId.ACTUAL_ENERGY, ModbusType.FLOAT64) //
+				.channel(6, ChannelId.VOLTAGE, ModbusType.FLOAT32) //
+				.channel(8, ChannelId.CURRENT, ModbusType.FLOAT32) //
 				.build();
 	}
 }

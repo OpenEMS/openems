@@ -11,7 +11,7 @@ public interface WriteChannel<T> extends Channel<T> {
 
 	/**
 	 * Updates the 'next' write value of Channel.
-	 * 
+	 *
 	 * @param value the typed value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -27,11 +27,11 @@ public interface WriteChannel<T> extends Channel<T> {
 
 	/**
 	 * Updates the 'next' write value of Channel from an Object value.
-	 * 
+	 *
 	 * <p>
 	 * Use this method if the value is not yet in the correct Type. Otherwise use
 	 * {@link WriteChannel#setNextWriteValue(Object)} directly.
-	 * 
+	 *
 	 * @param value the value as an Object
 	 * @throws OpenemsNamedException    on error
 	 * @throws IllegalArgumentException on error
@@ -56,19 +56,19 @@ public interface WriteChannel<T> extends Channel<T> {
 
 	/**
 	 * Internal method. Do not call directly.
-	 * 
-	 * @param value
+	 *
+	 * @param value the value
 	 */
 	@Deprecated
 	public void _setNextWriteValue(T value);
 
 	/**
 	 * Gets the next write value and resets it.
-	 * 
-	 * @return
+	 *
+	 * @return the next write value
 	 */
 	public default Optional<T> getNextWriteValueAndReset() {
-		Optional<T> valueOpt = this.getNextWriteValue();
+		var valueOpt = this.getNextWriteValue();
 		if (valueOpt.isPresent()) {
 			this._setNextWriteValue(null);
 		}
@@ -77,7 +77,7 @@ public interface WriteChannel<T> extends Channel<T> {
 
 	/**
 	 * Gets the next write value.
-	 * 
+	 *
 	 * @return the next write value; not-present if no write value had been set
 	 */
 	public Optional<T> getNextWriteValue();
@@ -85,12 +85,19 @@ public interface WriteChannel<T> extends Channel<T> {
 	/**
 	 * Add an onSetNextWrite callback. It is called when a 'next write value' was
 	 * set.
-	 * 
+	 *
 	 * <p>
 	 * The callback can throw an {@link OpenemsNamedException}.
+	 * 
+	 * @param callback the callback
 	 */
 	public void onSetNextWrite(ThrowingConsumer<T, OpenemsNamedException> callback);
 
+	/**
+	 * Gets the onSetNextWrite callbacks.
+	 * 
+	 * @return a List of callbacks
+	 */
 	public List<ThrowingConsumer<T, OpenemsNamedException>> getOnSetNextWrites();
 
 }

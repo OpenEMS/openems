@@ -13,10 +13,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.slf4j.Logger;
@@ -34,22 +30,24 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseError;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.JsonUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class RestHandler extends AbstractHandler {
 
 	private final Logger log = LoggerFactory.getLogger(RestHandler.class);
 
-	private final B2bRest parent;
+	private final Backend2BackendRest parent;
 
-	public RestHandler(B2bRest parent) {
+	public RestHandler(Backend2BackendRest parent) {
 		this.parent = parent;
 	}
 
 	@Override
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
+			throws IOException {
 		try {
-			User user = this.authenticate(request);
+			var user = this.authenticate(request);
 
 			List<String> targets = Arrays.asList(//
 					target.substring(1) // remove leading '/'
@@ -59,7 +57,7 @@ public class RestHandler extends AbstractHandler {
 				throw new OpenemsException("Missing arguments to handle request");
 			}
 
-			String thisTarget = targets.get(0);
+			var thisTarget = targets.get(0);
 			switch (thisTarget) {
 			case "jsonrpc":
 				this.handleJsonRpc(user, baseRequest, request, response);
@@ -78,11 +76,11 @@ public class RestHandler extends AbstractHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	private User authenticate(HttpServletRequest request) throws OpenemsNamedException {
-		String authHeader = request.getHeader("Authorization");
+		var authHeader = request.getHeader("Authorization");
 		if (authHeader != null) {
 			var st = new StringTokenizer(authHeader);
 			if (st.hasMoreTokens()) {
-				String basic = st.nextToken();
+				var basic = st.nextToken();
 				if (basic.equalsIgnoreCase("Basic")) {
 					String credentials;
 					try {
@@ -90,7 +88,7 @@ public class RestHandler extends AbstractHandler {
 					} catch (UnsupportedEncodingException e) {
 						throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 					}
-					int p = credentials.indexOf(":");
+					var p = credentials.indexOf(":");
 					if (p != -1) {
 						var username = credentials.substring(0, p).trim();
 						var password = credentials.substring(p + 1).trim();

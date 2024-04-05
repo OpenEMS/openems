@@ -9,32 +9,25 @@
         <table class="full_width">
           <tr>
             <td style="width:65%" translate>
-              Edge.History.activeDuration<span>&nbsp;Level 1</span></td>
-            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel1 / 60 > 59">
-              {{ activeTimeOverPeriodLevel1 * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+              Edge.History.activeDuration<span>&nbsp;Level 1</span>
             </td>
-            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel1 / 60 < 59">
-              {{ activeTimeOverPeriodLevel1 * 1000 | date:'m':'UTC' }}&nbsp;m
+            <td style="width:35%" class="align_right">
+              {{ activeTimeOverPeriodLevel1 | formatSecondsToDuration }}
             </td>
           </tr>
           <tr>
             <td style="width:65%" translate>
-              Edge.History.activeDuration<span>&nbsp;Level 2</span></td>
-            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel2 / 60 > 59">
-              {{ activeTimeOverPeriodLevel2 * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+              Edge.History.activeDuration<span>&nbsp;Level 2</span>
             </td>
-            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel2 / 60 < 59">
-              {{ activeTimeOverPeriodLevel2 * 1000 | date:'m':'UTC' }}&nbsp;m
+            <td style="width:35%" class="align_right">
+              {{ activeTimeOverPeriodLevel2 | formatSecondsToDuration }}
             </td>
           </tr>
           <tr>
             <td style="width:65%" translate>
               Edge.History.activeDuration<span>&nbsp;Level 3</span></td>
-            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel3 / 60 > 59">
-              {{ activeTimeOverPeriodLevel3 * 1000 | date:'H:mm':'UTC' }}&nbsp;h
-            </td>
-            <td style="width:35%" class="align_right" *ngIf="activeTimeOverPeriodLevel3 / 60 < 59">
-              {{ activeTimeOverPeriodLevel3 * 1000 | date:'m':'UTC' }}&nbsp;m
+            <td style="width:35%" class="align_right">
+              {{ activeTimeOverPeriodLevel3 | formatSecondsToDuration }}
             </td>
           </tr>
         </table>

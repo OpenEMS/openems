@@ -1,37 +1,27 @@
 package io.openems.edge.batteryinverter.sinexcel.enums;
 
-import io.openems.common.types.OptionsEnum;
+public enum GridCodeSelection {
+	SA1741("SA1741", 0), //
+	VDE("VDE", 1), //
+	AUSTRALIAN("Australian", 2), //
+	G99("G99", 3), //
+	HAWAIIAN("Hawaiian", 4), //
+	EN50549("EN50549", 5), //
+	AUSTRIA_TYPEA("Austria Type A", 6);//
 
-public enum GridCodeSelection implements OptionsEnum {
-	UNDEFINED(-1, "Undefined"), //
-	SA1741(0, "SA1741"), //
-	VDE(1, "VDE"), //
-	AUSTRALIAN(2, "Australian"), //
-	G99(3, "G99"), //
-	HAWAIIAN(4, "Hawaiian"), //
-	EN50549(5, "EN50549"), //
-	AUSTRIA_TYPEA(6, "Austria Type A");//
-
-	private final int value;
 	private final String name;
+	private final int value;
 
-	private GridCodeSelection(int value, String name) {
-		this.value = value;
+	private GridCodeSelection(String name, int value) {
 		this.name = name;
+		this.value = value;
 	}
 
-	@Override
-	public int getValue() {
-		return this.value;
-	}
-
-	@Override
 	public String getName() {
 		return this.name;
 	}
 
-	@Override
-	public OptionsEnum getUndefined() {
-		return UNDEFINED;
+	public int getValue() {
+		return this.value;
 	}
 }

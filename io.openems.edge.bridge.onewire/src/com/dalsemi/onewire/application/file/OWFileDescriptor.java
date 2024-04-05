@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
@@ -140,12 +141,6 @@ public class OWFileDescriptor {
 	/** Field feStartPage - Start Page specified in the File Entry */
 	private int feStartPage;
 
-	/** Field feParentPage - Parent page of current File Entry Page */
-	private int feParentPage;
-
-	/** Field feParentOffset - Offset into Parent page */
-	private int feParentOffset;
-
 	// --------
 	// file read/write info
 	// --------
@@ -231,7 +226,7 @@ public class OWFileDescriptor {
 	private byte[] tempPage;
 
 	/** Field initName - image of blank directory entry, used in parsing */
-	private byte[] initName = { 0x20, 0x20, 0x20, 0x20, EXT_UNKNOWN };
+	private final byte[] initName = { 0x20, 0x20, 0x20, 0x20, EXT_UNKNOWN };
 
 	/** Field smallBuf - small buffer */
 	private byte[] smallBuf;
@@ -252,8 +247,9 @@ public class OWFileDescriptor {
 	 */
 	public OWFileDescriptor() {
 		// \\//\\//\\//\\//\\//\\//\\//
-		if (doDebugMessages)
+		if (doDebugMessages) {
 			System.out.println("===Invalid Constructor OWFileDescriptor ");
+		}
 	}
 
 	/**
@@ -265,14 +261,15 @@ public class OWFileDescriptor {
 	 *                descriptor
 	 */
 	protected OWFileDescriptor(OneWireContainer owd, String newPath) {
-		OneWireContainer[] devices = new OneWireContainer[1];
+		var devices = new OneWireContainer[1];
 		devices[0] = owd;
 
 		// \\//\\//\\//\\//\\//\\//\\//
-		if (doDebugMessages)
+		if (doDebugMessages) {
 			System.out.println("===Constructor OWFileDescriptor with device: " + devices[0].getAddressAsString()
 					+ " and path: " + newPath);
-		setupFD(devices, newPath);
+		}
+		this.setupFD(devices, newPath);
 	}
 
 	/**
@@ -285,10 +282,11 @@ public class OWFileDescriptor {
 	 */
 	protected OWFileDescriptor(OneWireContainer[] owd, String newPath) {
 		// \\//\\//\\//\\//\\//\\//\\//
-		if (doDebugMessages)
+		if (doDebugMessages) {
 			System.out.println("===Constructor OWFileDescriptor with device: " + owd[0].getAddressAsString()
 					+ " and path: " + newPath);
-		setupFD(owd, newPath);
+		}
+		this.setupFD(owd, newPath);
 	}
 
 	/**
@@ -305,109 +303,115 @@ public class OWFileDescriptor {
 			// keep reference to container, adapter, and name
 			this.owd = owd;
 
-			if (newPath != null)
+			if (newPath != null) {
 				this.rawPath = newPath.toUpperCase();
-			else
+			} else {
 				this.rawPath = "";
+			}
 
 			// check the hash to see if already have a MemoryCache for this device
-			address = Long.valueOf(owd[0].getAddressAsLong());
-			cache = (MemoryCache) memoryCacheHash.get(address);
+			this.address = Long.valueOf(owd[0].getAddressAsLong());
+			this.cache = memoryCacheHash.get(this.address);
 
-			if (cache == null) {
+			if (this.cache == null) {
 				// create a new cache
-				cache = new MemoryCache(owd);
+				this.cache = new MemoryCache(owd);
 
 				// add to hash
-				memoryCacheHash.put(address, cache);
+				memoryCacheHash.put(this.address, this.cache);
 			}
 
 			// indicate this fd uses this cache, used later in cleanup
-			cache.addOwner(this);
+			this.cache.addOwner(this);
 
 			// get info on device through cache
-			totalPages = cache.getNumberPages();
-			rootTotalPages = cache.getNumberPagesInBank(0);
-			maxDataLen = cache.getMaxPacketDataLength();
-			openedToWrite = false;
+			this.totalPages = this.cache.getNumberPages();
+			this.rootTotalPages = this.cache.getNumberPagesInBank(0);
+			this.maxDataLen = this.cache.getMaxPacketDataLength();
+			this.openedToWrite = false;
 
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
-				System.out.println("=cache has totalPages = " + totalPages + " with max data " + maxDataLen);
+			if (doDebugMessages) {
+				System.out.println("=cache has totalPages = " + this.totalPages + " with max data " + this.maxDataLen);
+			}
 
 			// construct the page bufs
-			lastPageData = new byte[maxDataLen];
-			tempPage = new byte[lastPageData.length];
-			feData = new byte[lastPageData.length];
-			dmBuf = new byte[lastPageData.length];
-			smallBuf = new byte[10];
-			addrBuf = new byte[8];
+			this.lastPageData = new byte[this.maxDataLen];
+			this.tempPage = new byte[this.lastPageData.length];
+			this.feData = new byte[this.lastPageData.length];
+			this.dmBuf = new byte[this.lastPageData.length];
+			this.smallBuf = new byte[10];
+			this.addrBuf = new byte[8];
 
 			// guese at the number of bytes to represent a page number
 			// since have not read the root directory yet this may change
-			LEN_PAGE_PTR = (totalPages > 256) ? 2 : 1;
-			LEN_FILE_ENTRY = LEN_FILENAME + LEN_PAGE_PTR * 2;
-			LEN_CONTROL_DATA = 6 + LEN_PAGE_PTR;
+			this.LEN_PAGE_PTR = this.totalPages > 256 ? 2 : 1;
+			this.LEN_FILE_ENTRY = LEN_FILENAME + this.LEN_PAGE_PTR * 2;
+			this.LEN_CONTROL_DATA = 6 + this.LEN_PAGE_PTR;
 
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
-				System.out.println(
-						"=Number of page bytes = " + LEN_PAGE_PTR + " with directory entry size of " + LEN_FILE_ENTRY);
+			if (doDebugMessages) {
+				System.out.println("=Number of page bytes = " + this.LEN_PAGE_PTR + " with directory entry size of "
+						+ this.LEN_FILE_ENTRY);
+			}
 
 			// decide what type of bitmap we will have
-			if (cache.handlePageBitmap())
-				bitmapType = BM_CACHE;
-			else if (totalPages <= 32) {
-				bitmapType = BM_LOCAL;
-
-				// make PageBitMap max size of first page of directory
-				pbm = new byte[maxDataLen];
-				pbmByteOffset = 3;
-				pbmBitOffset = 0;
+			if (this.cache.handlePageBitmap()) {
+				this.bitmapType = BM_CACHE;
 			} else {
-				bitmapType = BM_FILE;
+				if (this.totalPages <= 32) {
+					this.bitmapType = BM_LOCAL;
 
-				// make PageBitMap correct size number of pages in fs
-				pbm = new byte[totalPages / 8 + LEN_PAGE_PTR];
-				pbmByteOffset = 0;
-				pbmBitOffset = 0;
+					// make PageBitMap max size of first page of directory
+					this.pbm = new byte[this.maxDataLen];
+					this.pbmByteOffset = 3;
+				} else {
+					this.bitmapType = BM_FILE;
+
+					// make PageBitMap correct size number of pages in fs
+					this.pbm = new byte[this.totalPages / 8 + this.LEN_PAGE_PTR];
+					this.pbmByteOffset = 0;
+				}
+				this.pbmBitOffset = 0;
 			}
-			pbmStartPage = -1;
+			this.pbmStartPage = -1;
 
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
-				System.out.println("=Page BitMap type is " + bitmapType + " with bit offset of " + pbmBitOffset);
+			if (doDebugMessages) {
+				System.out.println(
+						"=Page BitMap type is " + this.bitmapType + " with bit offset of " + this.pbmBitOffset);
+			}
 
 			// parse the path into a Vector
-			verbosePath = new Vector<byte[]>(3);
+			this.verbosePath = new Vector<>(3);
 
 			// done could not parse the skip compressing
-			if (!parsePath(rawPath, verbosePath))
+			if (!this.parsePath(this.rawPath, this.verbosePath)) {
 				return;
+			}
 
 			// create a compressed path (take out "." and "..")
-			path = new Vector<byte[]>(verbosePath.size());
+			this.path = new Vector<>(this.verbosePath.size());
 
 			byte[] element;
 
-			for (int element_num = 0; element_num < verbosePath.size(); element_num++) {
-				element = (byte[]) verbosePath.elementAt(element_num);
+			for (var element_num = 0; element_num < this.verbosePath.size(); element_num++) {
+				element = this.verbosePath.elementAt(element_num);
 
 				// ".."
-				if ((element[0] == '.') && (element[1] == '.')) {
+				if (element[0] == '.' && element[1] == '.') {
 
 					// remove last entry in path
-					if (path.size() > 0)
-						path.removeElementAt(path.size() - 1);
-					else {
-						path = null;
+					if (this.path.size() <= 0) {
+						this.path = null;
 						break;
 					}
+					this.path.removeElementAt(this.path.size() - 1);
 				}
 
 				// not "." (so ignore entries ".")
 				else if (element[0] != '.') {
-					path.addElement(element);
+					this.path.addElement(element);
 				}
 			}
 		}
@@ -425,8 +429,8 @@ public class OWFileDescriptor {
 	 *         otherwise.
 	 */
 	public boolean valid() {
-		synchronized (cache) {
-			return (cache != null);
+		synchronized (this.cache) {
+			return this.cache != null;
 		}
 	}
 
@@ -463,16 +467,17 @@ public class OWFileDescriptor {
 	public void sync() throws OWSyncFailedException {
 
 		// \\//\\//\\//\\//\\//\\//\\//
-		if (doDebugMessages)
+		if (doDebugMessages) {
 			System.out.println("===sync");
+		}
 
 		try {
-			synchronized (cache) {
+			synchronized (this.cache) {
 				// clear last page read flag
-				cache.clearLastPageRead();
+				this.cache.clearLastPageRead();
 
 				// flush the writes to the device
-				cache.sync();
+				this.cache.sync();
 			}
 		} catch (OneWireIOException e) {
 			throw new OWSyncFailedException(e.toString());
@@ -510,35 +515,39 @@ public class OWFileDescriptor {
 	 */
 	protected void open() throws OWFileNotFoundException {
 		String last_error = null;
-		int cnt = 0;
+		var cnt = 0;
 
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===open");
+			}
 
 			// clear last page read flag in the cache
-			cache.clearLastPageRead();
+			this.cache.clearLastPageRead();
 
 			// reset the file position
-			lastPage = -1;
+			this.lastPage = -1;
 
 			// check if had an invalid path
-			if (path == null)
+			if (this.path == null) {
 				throw new OWFileNotFoundException("Invalid path");
+			}
 
 			// check if have an empty path
-			if (path.size() == 0)
+			if (this.path.size() == 0) {
 				throw new OWFileNotFoundException("Invalid path, no elements");
+			}
 
 			// check to see if this file entry has been found
-			if (feStartPage <= 0) {
+			if (this.feStartPage <= 0) {
 
 				// loop up to 2 times if getting 1-Wire IO exceptions
 				do {
 					try {
-						if (verifyPath(path.size()))
+						if (this.verifyPath(this.path.size())) {
 							return;
+						}
 					} catch (OneWireException e) {
 						last_error = e.toString();
 					}
@@ -574,10 +583,11 @@ public class OWFileDescriptor {
 	 * @throws IOException if an I/O error occurs
 	 */
 	protected void close() throws IOException {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===close");
+			}
 
 			// \\//\\//\\//\\//\\//\\//\\//
 			if (doDebugMessages) {
@@ -587,13 +597,13 @@ public class OWFileDescriptor {
 
 			// sync the cache to the device
 			try {
-				sync();
+				this.sync();
 			} catch (OWSyncFailedException e) {
 				throw new IOException(e.toString());
 			}
 
 			// free the resources for this fd
-			free();
+			this.free();
 		}
 	}
 
@@ -618,54 +628,59 @@ public class OWFileDescriptor {
 		byte[] element;
 		boolean element_found;
 
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println(
 						"===create, append=" + append + " isDirectory=" + isDirectory + " makeParents=" + makeParents);
+			}
 
 			// clear last page read flag in the cache
-			cache.clearLastPageRead();
+			this.cache.clearLastPageRead();
 
 			// reset the file position
-			lastPage = -1;
+			this.lastPage = -1;
 
 			// check if had an invalid path
-			if (path == null)
+			if (this.path == null) {
 				throw new OWFileNotFoundException("Invalid path");
+			}
 
 			// check if have an empty path
-			if (path.size() == 0)
+			if (this.path.size() == 0) {
 				throw new OWFileNotFoundException("Invalid path, no elements");
+			}
 
 			// make sure last element in path is a directory (or unknown) if making
 			// directory
 			if (isDirectory || makeParents) {
-				element = (byte[]) path.elementAt(path.size() - 1);
+				element = this.path.elementAt(this.path.size() - 1);
 
-				if (((element[4] & 0x7F) != EXT_UNKNOWN) && ((element[4] & 0x7F) != EXT_DIRECTORY))
+				if ((element[4] & 0x7F) != EXT_UNKNOWN && (element[4] & 0x7F) != EXT_DIRECTORY) {
 					throw new OWFileNotFoundException("Invalid path, directory has an extension");
+				}
 			}
 
 			// check if file is already opened to write
 			if (!isDirectory) {
-				if (cache.isOpenedToWrite(owd[0].getAddressAsString() + getPath(), true))
+				if (this.cache.isOpenedToWrite(this.owd[0].getAddressAsString() + this.getPath(), true)) {
 					throw new OWFileNotFoundException("File already opened to write");
+				}
 
-				openedToWrite = true;
+				this.openedToWrite = true;
 			}
 
 			// loop through the path elements, creating directories/file as needed
-			feStartPage = 0;
-			boolean file_exists = false;
+			this.feStartPage = 0;
+			var file_exists = false;
 			byte[] prev_element = { (byte) 0x52, (byte) 0x4F, (byte) 0x4F, (byte) 0x54 };
-			int prev_element_start = 0;
+			var prev_element_start = 0;
 
-			for (int element_num = 0; element_num < path.size(); element_num++) {
-				element = (byte[]) path.elementAt(element_num);
+			for (var element_num = 0; element_num < this.path.size(); element_num++) {
+				element = this.path.elementAt(element_num);
 
 				try {
-					element_found = findElement(feStartPage, element, 0);
+					element_found = this.findElement(this.feStartPage, element, 0);
 				} catch (OneWireException e) {
 					throw new OWFileNotFoundException(e.toString());
 				}
@@ -674,39 +689,38 @@ public class OWFileDescriptor {
 					if (isDirectory) {
 
 						// convert unknown entry to directory
-						if ((byte) element[4] == (byte) EXT_UNKNOWN)
-							element[4] = (byte) EXT_DIRECTORY;
+						if (element[4] == EXT_UNKNOWN) {
+							element[4] = EXT_DIRECTORY;
+						}
 
-						if ((element_num != (path.size() - 1)) && !makeParents)
+						if (element_num != this.path.size() - 1 && !makeParents) {
 							throw new OWFileNotFoundException("Invalid path, parent not found");
-
-						createEntry(element, startPage, numberPages, prev_element, prev_element_start);
+						}
 					} else {
 
 						// convert unknown entry to file with 0 extension
-						if ((byte) element[4] == (byte) EXT_UNKNOWN)
+						if (element[4] == EXT_UNKNOWN) {
 							element[4] = 0;
+						}
 
-						if (element_num == (path.size() - 1)) {
-
-							// this is the file (end of path)
-							createEntry(element, startPage, numberPages, prev_element, prev_element_start);
-						} else {
+						if (element_num != this.path.size() - 1) {
 							// remove the entry in the cache before throwing exception
-							cache.removeWriteOpen(owd[0].getAddressAsString() + getPath());
+							this.cache.removeWriteOpen(this.owd[0].getAddressAsString() + this.getPath());
 							throw new OWFileNotFoundException("Path not found");
 						}
 					}
-				} else if (element_num == (path.size() - 1)) {
+					this.createEntry(element, startPage, numberPages, prev_element, prev_element_start);
+				} else if (element_num == this.path.size() - 1) {
 					// last element
 					if (isDirectory) {
-						if (startPage != -1)
+						if (startPage != -1) {
 							throw new OWFileNotFoundException("Destination File exists");
+						}
 					} else {
 						// check if last element is a directory and should be a file
-						if ((element[4] == (byte) EXT_DIRECTORY) && (!isDirectory)) {
+						if (element[4] == EXT_DIRECTORY && !isDirectory) {
 							// remove the entry in the cache before throwing exception
-							cache.removeWriteOpen(owd[0].getAddressAsString() + getPath());
+							this.cache.removeWriteOpen(this.owd[0].getAddressAsString() + this.getPath());
 							throw new OWFileNotFoundException("Filename provided is a directory!");
 						}
 						file_exists = true;
@@ -714,62 +728,69 @@ public class OWFileDescriptor {
 				}
 
 				// get pointers to the next element
-				feStartPage = Convert.toInt(feData, feOffset + LEN_FILENAME, LEN_PAGE_PTR);
-				feNumPages = Convert.toInt(feData, feOffset + LEN_FILENAME + LEN_PAGE_PTR, LEN_PAGE_PTR);
+				this.feStartPage = Convert.toInt(this.feData, this.feOffset + LEN_FILENAME, this.LEN_PAGE_PTR);
+				this.feNumPages = Convert.toInt(this.feData, this.feOffset + LEN_FILENAME + this.LEN_PAGE_PTR,
+						this.LEN_PAGE_PTR);
 				prev_element = element;
-				prev_element_start = feStartPage;
+				prev_element_start = this.feStartPage;
 
 				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
-					System.out.println("=feStartPage " + feStartPage + " feNumPages " + feNumPages);
+				if (doDebugMessages) {
+					System.out.println("=feStartPage " + this.feStartPage + " feNumPages " + this.feNumPages);
+				}
 			}
 
 			// if is a file and it already exists, free all but the first data page
 			if (file_exists) {
 
 				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
+				if (doDebugMessages) {
 					System.out.println("=file exists");
+				}
 
 				// check for readonly
-				if (!canWrite())
+				if (!this.canWrite()) {
 					throw new OWFileNotFoundException("File is read only (access is denied)");
+				}
 
 				try {
 
 					// read the first file page
-					lastLen = cache.readPagePacket(feStartPage, lastPageData, 0);
+					this.lastLen = this.cache.readPagePacket(this.feStartPage, this.lastPageData, 0);
 
 					// write over this with an 'empty' page
-					Convert.toByteArray(0, smallBuf, 0, LEN_PAGE_PTR);
-					cache.writePagePacket(feStartPage, smallBuf, 0, LEN_PAGE_PTR);
+					Convert.toByteArray(0, this.smallBuf, 0, this.LEN_PAGE_PTR);
+					this.cache.writePagePacket(this.feStartPage, this.smallBuf, 0, this.LEN_PAGE_PTR);
 
 					// loop to read the rest of the pages and 'free' them
-					int next_page = Convert.toInt(lastPageData, lastLen - LEN_PAGE_PTR, LEN_PAGE_PTR);
+					var next_page = Convert.toInt(this.lastPageData, this.lastLen - this.LEN_PAGE_PTR,
+							this.LEN_PAGE_PTR);
 
 					while (next_page != 0) {
 
 						// free the page
-						readBitMap();
-						freePage(next_page);
-						writeBitMap();
+						this.readBitMap();
+						this.freePage(next_page);
+						this.writeBitMap();
 
 						// read the file page
-						lastLen = cache.readPagePacket(next_page, lastPageData, 0);
+						this.lastLen = this.cache.readPagePacket(next_page, this.lastPageData, 0);
 
 						// get the next page pointer
-						next_page = Convert.toInt(lastPageData, lastLen - LEN_PAGE_PTR, LEN_PAGE_PTR);
+						next_page = Convert.toInt(this.lastPageData, this.lastLen - this.LEN_PAGE_PTR,
+								this.LEN_PAGE_PTR);
 					}
 
 					// update the directory entry to free the pages
-					feNumPages = 1;
-					lastLen = cache.readPagePacket(fePage, lastPageData, 0);
+					this.feNumPages = 1;
+					this.lastLen = this.cache.readPagePacket(this.fePage, this.lastPageData, 0);
 
-					Convert.toByteArray(feNumPages, lastPageData, feOffset + LEN_FILENAME + LEN_PAGE_PTR, LEN_PAGE_PTR);
-					cache.writePagePacket(fePage, lastPageData, 0, lastLen);
+					Convert.toByteArray(this.feNumPages, this.lastPageData,
+							this.feOffset + LEN_FILENAME + this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
+					this.cache.writePagePacket(this.fePage, this.lastPageData, 0, this.lastLen);
 
 					// set the lastPage pointer to the current page
-					lastPage = feStartPage;
+					this.lastPage = this.feStartPage;
 				} catch (OneWireException e) {
 					throw new OWFileNotFoundException(e.toString());
 				}
@@ -789,218 +810,239 @@ public class OWFileDescriptor {
 	protected void format() throws OneWireException, OneWireIOException {
 		int i, j, len, next_page, cnt, cdcnt = 0, device_map_pages, dm_bytes = 0;
 
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// clear last page read flag in the cache
-			cache.clearLastPageRead();
+			this.cache.clearLastPageRead();
 
 			// check for device with no memory
-			if (totalPages == 0)
+			if (this.totalPages == 0) {
 				throw new OneWireException("1-Wire Filesystem does not have memory");
+			}
 
-			for (i = 0; i < feData.length; i++)
-				feData[i] = 0;
+			for (i = 0; i < this.feData.length; i++) {
+				this.feData[i] = 0;
+			}
 
 			// create the directory page
 			// Directory Marker 'DM'
-			feData[cdcnt] = (LEN_PAGE_PTR == 1) ? (byte) 0x0A : (byte) 0x0B;
-			feData[cdcnt++] |= (owd.length == 1) ? (byte) 0xA0 : 0xB0;
+			this.feData[cdcnt] = this.LEN_PAGE_PTR == 1 ? (byte) 0x0A : (byte) 0x0B;
+			this.feData[cdcnt++] |= this.owd.length == 1 ? (byte) 0xA0 : 0xB0;
 
 			// Map Address 'MA', skip for now
-			cdcnt += LEN_PAGE_PTR;
+			cdcnt += this.LEN_PAGE_PTR;
 
 			// decide what type of bitmap we will have
-			if (cache.handlePageBitmap()) {
-				bitmapType = BM_CACHE;
-				feData[cdcnt++] = 0;
+			if (this.cache.handlePageBitmap()) {
+				this.bitmapType = BM_CACHE;
+				this.feData[cdcnt++] = 0;
 
-				Convert.toByteArray(cache.getBitMapPageNumber(), feData, cdcnt, LEN_PAGE_PTR);
-				cdcnt += LEN_PAGE_PTR;
-				Convert.toByteArray(cache.getBitMapNumberOfPages(), feData, cdcnt, LEN_PAGE_PTR);
+				Convert.toByteArray(this.cache.getBitMapPageNumber(), this.feData, cdcnt, this.LEN_PAGE_PTR);
+				cdcnt += this.LEN_PAGE_PTR;
+				Convert.toByteArray(this.cache.getBitMapNumberOfPages(), this.feData, cdcnt, this.LEN_PAGE_PTR);
 			}
 			// regular bitmap
 			else {
 				// check for Device Map file
-				if (owd.length > 1) {
+				if (this.owd.length > 1) {
 					// calculate the number of pages need so leave space
-					dm_bytes = (owd.length - 1) * 8;
-					device_map_pages = dm_bytes / (maxDataLen - LEN_PAGE_PTR);
-					if ((dm_bytes % (maxDataLen - LEN_PAGE_PTR)) > 0)
+					dm_bytes = (this.owd.length - 1) * 8;
+					device_map_pages = dm_bytes / (this.maxDataLen - this.LEN_PAGE_PTR);
+					if (dm_bytes % (this.maxDataLen - this.LEN_PAGE_PTR) > 0) {
 						device_map_pages++;
-				} else
+					}
+				} else {
 					device_map_pages = 0;
+				}
 
 				// local
-				if (totalPages <= 32) {
-					bitmapType = BM_LOCAL;
+				if (this.totalPages <= 32) {
+					this.bitmapType = BM_LOCAL;
 
 					// make PageBitMap max size of first page of directory
-					pbm = new byte[maxDataLen];
-					pbmByteOffset = 3;
-					pbmBitOffset = 0;
+					this.pbm = new byte[this.maxDataLen];
+					this.pbmByteOffset = 3;
+					this.pbmBitOffset = 0;
 					// 'BC'
-					feData[cdcnt++] = (owd.length > 1) ? (byte) 0x82 : (byte) 0x80;
+					this.feData[cdcnt++] = this.owd.length > 1 ? (byte) 0x82 : (byte) 0x80;
 
 					// check if this will fit on the ROOT device
-					if (device_map_pages >= rootTotalPages)
+					if (device_map_pages >= this.rootTotalPages) {
 						throw new OneWireException(
 								"ROOT 1-Wire device does not have memory to support this many SATELLITE devices");
+					}
 
 					// set local page bitmap
-					for (i = 0; i <= device_map_pages; i++)
-						Bit.arrayWriteBit(PAGE_USED, i, cdcnt, feData);
+					for (i = 0; i <= device_map_pages; i++) {
+						Bit.arrayWriteBit(PAGE_USED, i, cdcnt, this.feData);
+					}
 
 					// put dummy directory on each SATELLITE device
-					if (owd.length > 1) {
+					if (this.owd.length > 1) {
 						// create the dummy directory
-						tempPage[0] = feData[0];
-						tempPage[LEN_PAGE_PTR] = 0;
-						tempPage[1] = (byte) 0x01;
-						tempPage[LEN_PAGE_PTR + 1] = (byte) 0x80;
-						for (j = 2; j <= 5; j++)
-							tempPage[LEN_PAGE_PTR + j] = (byte) 0xFF;
-						for (j = 6; j <= 7; j++)
-							tempPage[LEN_PAGE_PTR + j] = (byte) 0x00;
+						this.tempPage[0] = this.feData[0];
+						this.tempPage[this.LEN_PAGE_PTR] = 0;
+						this.tempPage[1] = (byte) 0x01;
+						this.tempPage[this.LEN_PAGE_PTR + 1] = (byte) 0x80;
+						for (j = 2; j <= 5; j++) {
+							this.tempPage[this.LEN_PAGE_PTR + j] = (byte) 0xFF;
+						}
+						for (j = 6; j <= 7; j++) {
+							this.tempPage[this.LEN_PAGE_PTR + j] = (byte) 0x00;
+						}
 
 						// create link back to the MASTER
-						System.arraycopy(owd[0].getAddress(), 0, smallBuf, 0, 8);
-						smallBuf[8] = 0;
-						smallBuf[9] = 0;
+						System.arraycopy(this.owd[0].getAddress(), 0, this.smallBuf, 0, 8);
+						this.smallBuf[8] = 0;
+						this.smallBuf[9] = 0;
 
 						// write dummy directory on each SATELLITE device and mark in bitmap
-						for (i = 1; i < owd.length; i++) {
+						for (i = 1; i < this.owd.length; i++) {
 							// dummy directory
-							cache.writePagePacket(cache.getPageOffsetForDevice(i), tempPage, 0, LEN_PAGE_PTR * 2 + 6);
-							Bit.arrayWriteBit(PAGE_USED, cache.getPageOffsetForDevice(i), cdcnt, feData);
+							this.cache.writePagePacket(this.cache.getPageOffsetForDevice(i), this.tempPage, 0,
+									this.LEN_PAGE_PTR * 2 + 6);
+							Bit.arrayWriteBit(PAGE_USED, this.cache.getPageOffsetForDevice(i), cdcnt, this.feData);
 
 							// MASTER device map link
-							cache.writePagePacket(cache.getPageOffsetForDevice(i) + 1, smallBuf, 0, LEN_PAGE_PTR + 8);
-							Bit.arrayWriteBit(PAGE_USED, cache.getPageOffsetForDevice(i) + 1, cdcnt, feData);
+							this.cache.writePagePacket(this.cache.getPageOffsetForDevice(i) + 1, this.smallBuf, 0,
+									this.LEN_PAGE_PTR + 8);
+							Bit.arrayWriteBit(PAGE_USED, this.cache.getPageOffsetForDevice(i) + 1, cdcnt, this.feData);
 						}
 					}
 				}
 				// file
 				else {
-					bitmapType = BM_FILE;
-					pbmByteOffset = 0;
-					pbmBitOffset = 0;
+					this.bitmapType = BM_FILE;
+					this.pbmByteOffset = 0;
+					this.pbmBitOffset = 0;
 
 					// calculate the number of bitmap pages needed
-					int pbm_bytes = (totalPages / 8);
-					int pgs = pbm_bytes / (maxDataLen - LEN_PAGE_PTR);
+					var pbm_bytes = this.totalPages / 8;
+					var pgs = pbm_bytes / (this.maxDataLen - this.LEN_PAGE_PTR);
 
-					if ((pbm_bytes % (maxDataLen - LEN_PAGE_PTR)) > 0)
+					if (pbm_bytes % (this.maxDataLen - this.LEN_PAGE_PTR) > 0) {
 						pgs++;
+					}
 
 					// check if this will fit on the ROOT device
-					if ((device_map_pages + pgs) >= rootTotalPages)
+					if (device_map_pages + pgs >= this.rootTotalPages) {
 						throw new OneWireException(
 								"ROOT 1-Wire device does not have memory to support this many SATELLITE devices");
+					}
 
 					// 'BC' set the page number of the bitmap file
-					feData[cdcnt++] = (owd.length > 1) ? (byte) 0x02 : (byte) 0x00;
+					this.feData[cdcnt++] = this.owd.length > 1 ? (byte) 0x02 : (byte) 0x00;
 
 					// page address and number of pages for bitmap file
-					if (LEN_PAGE_PTR == 1) {
-						feData[cdcnt++] = 0;
-						feData[cdcnt++] = 0;
+					if (this.LEN_PAGE_PTR == 1) {
+						this.feData[cdcnt++] = 0;
+						this.feData[cdcnt++] = 0;
 					}
-					Convert.toByteArray(device_map_pages + 1, feData, cdcnt, LEN_PAGE_PTR);
-					cdcnt += LEN_PAGE_PTR;
-					Convert.toByteArray(pgs, feData, cdcnt, LEN_PAGE_PTR);
+					Convert.toByteArray(device_map_pages + 1, this.feData, cdcnt, this.LEN_PAGE_PTR);
+					cdcnt += this.LEN_PAGE_PTR;
+					Convert.toByteArray(pgs, this.feData, cdcnt, this.LEN_PAGE_PTR);
 
 					// clear the bitmap
-					for (i = 0; i < pbm.length; i++)
-						pbm[i] = 0;
+					for (i = 0; i < this.pbm.length; i++) {
+						this.pbm[i] = 0;
+					}
 
 					// set the pages used by the directory and bitmap file and device map
-					for (i = 0; i <= (pgs + device_map_pages); i++)
-						Bit.arrayWriteBit(PAGE_USED, pbmBitOffset + i, pbmByteOffset, pbm);
+					for (i = 0; i <= pgs + device_map_pages; i++) {
+						Bit.arrayWriteBit(PAGE_USED, this.pbmBitOffset + i, this.pbmByteOffset, this.pbm);
+					}
 
 					// put dummy directory on each SATELLITE device
-					if (owd.length > 1) {
+					if (this.owd.length > 1) {
 						// create the dummy directory
-						tempPage[0] = feData[0];
-						tempPage[LEN_PAGE_PTR] = 0;
-						tempPage[1] = (byte) 0x01;
-						tempPage[LEN_PAGE_PTR + 1] = (byte) 0x80;
-						for (j = 2; j <= 5; j++)
-							tempPage[LEN_PAGE_PTR + j] = (byte) 0xFF;
-						for (j = 6; j <= 7; j++)
-							tempPage[LEN_PAGE_PTR + j] = (byte) 0x00;
+						this.tempPage[0] = this.feData[0];
+						this.tempPage[this.LEN_PAGE_PTR] = 0;
+						this.tempPage[1] = (byte) 0x01;
+						this.tempPage[this.LEN_PAGE_PTR + 1] = (byte) 0x80;
+						for (j = 2; j <= 5; j++) {
+							this.tempPage[this.LEN_PAGE_PTR + j] = (byte) 0xFF;
+						}
+						for (j = 6; j <= 7; j++) {
+							this.tempPage[this.LEN_PAGE_PTR + j] = (byte) 0x00;
+						}
 
 						// create link back to the MASTER
-						System.arraycopy(owd[0].getAddress(), 0, smallBuf, 0, 8);
-						smallBuf[8] = 0;
-						smallBuf[9] = 0;
+						System.arraycopy(this.owd[0].getAddress(), 0, this.smallBuf, 0, 8);
+						this.smallBuf[8] = 0;
+						this.smallBuf[9] = 0;
 
 						// write dummy directory on each SATELLITE device and mark in bitmap
-						for (i = 1; i < owd.length; i++) {
+						for (i = 1; i < this.owd.length; i++) {
 							// dummy directory
-							cache.writePagePacket(cache.getPageOffsetForDevice(i), tempPage, 0, LEN_PAGE_PTR * 2 + 6);
-							Bit.arrayWriteBit(PAGE_USED, pbmBitOffset + cache.getPageOffsetForDevice(i), pbmByteOffset,
-									pbm);
+							this.cache.writePagePacket(this.cache.getPageOffsetForDevice(i), this.tempPage, 0,
+									this.LEN_PAGE_PTR * 2 + 6);
+							Bit.arrayWriteBit(PAGE_USED, this.pbmBitOffset + this.cache.getPageOffsetForDevice(i),
+									this.pbmByteOffset, this.pbm);
 
 							// MASTER device map link
-							cache.writePagePacket(cache.getPageOffsetForDevice(i) + 1, smallBuf, 0, LEN_PAGE_PTR + 8);
-							Bit.arrayWriteBit(PAGE_USED, pbmBitOffset + cache.getPageOffsetForDevice(i) + 1,
-									pbmByteOffset, pbm);
+							this.cache.writePagePacket(this.cache.getPageOffsetForDevice(i) + 1, this.smallBuf, 0,
+									this.LEN_PAGE_PTR + 8);
+							Bit.arrayWriteBit(PAGE_USED, this.pbmBitOffset + this.cache.getPageOffsetForDevice(i) + 1,
+									this.pbmByteOffset, this.pbm);
 						}
 					}
 
 					// write the bitmap file
 					cnt = 0;
-					for (i = device_map_pages + 1; i <= (pgs + device_map_pages); i++) {
+					for (i = device_map_pages + 1; i <= pgs + device_map_pages; i++) {
 						// calculate length to write for this page
-						if ((pbm_bytes - cnt) > (maxDataLen - LEN_PAGE_PTR))
-							len = maxDataLen - LEN_PAGE_PTR;
-						else
+						if (pbm_bytes - cnt > this.maxDataLen - this.LEN_PAGE_PTR) {
+							len = this.maxDataLen - this.LEN_PAGE_PTR;
+						} else {
 							len = pbm_bytes - cnt;
+						}
 
 						// copy bitmap data to temp
-						System.arraycopy(pbm, pbmByteOffset + cnt, tempPage, 0, len);
+						System.arraycopy(this.pbm, this.pbmByteOffset + cnt, this.tempPage, 0, len);
 
 						// set the next page marker
-						next_page = (i == (pgs + device_map_pages)) ? 0 : (i + 1);
+						next_page = i == pgs + device_map_pages ? 0 : i + 1;
 
-						Convert.toByteArray(next_page, tempPage, len, LEN_PAGE_PTR);
+						Convert.toByteArray(next_page, this.tempPage, len, this.LEN_PAGE_PTR);
 
 						// write the page
-						cache.writePagePacket(i, tempPage, 0, len + LEN_PAGE_PTR);
+						this.cache.writePagePacket(i, this.tempPage, 0, len + this.LEN_PAGE_PTR);
 
 						cnt += len;
 					}
 				}
 
 				// write Device Map file
-				if (owd.length > 1) {
+				if (this.owd.length > 1) {
 					// set the start page 'MA'
-					Convert.toByteArray(1, feData, 1, LEN_PAGE_PTR);
+					Convert.toByteArray(1, this.feData, 1, this.LEN_PAGE_PTR);
 
 					// bitmap already taken care of, just put right after directory
 					// create the device map data to write
-					byte[] dmf = new byte[dm_bytes];
-					for (i = 1; i < owd.length; i++)
-						System.arraycopy(owd[i].getAddress(), 0, dmf, (i - 1) * 8, 8);
+					var dmf = new byte[dm_bytes];
+					for (i = 1; i < this.owd.length; i++) {
+						System.arraycopy(this.owd[i].getAddress(), 0, dmf, (i - 1) * 8, 8);
+					}
 
 					// write the pages
 					cnt = 0;
 					for (i = 1; i <= device_map_pages; i++) {
 						// calculate length to write for this page
-						if ((dm_bytes - cnt) > (maxDataLen - LEN_PAGE_PTR))
-							len = maxDataLen - LEN_PAGE_PTR;
-						else
+						if (dm_bytes - cnt > this.maxDataLen - this.LEN_PAGE_PTR) {
+							len = this.maxDataLen - this.LEN_PAGE_PTR;
+						} else {
 							len = dm_bytes - cnt;
+						}
 
 						// copy bitmap data to temp
-						System.arraycopy(dmf, cnt, tempPage, 0, len);
+						System.arraycopy(dmf, cnt, this.tempPage, 0, len);
 
 						// set the next page marker
-						next_page = (i == device_map_pages) ? 0 : (i + 1);
+						next_page = i == device_map_pages ? 0 : i + 1;
 
-						Convert.toByteArray(next_page, tempPage, len, LEN_PAGE_PTR);
+						Convert.toByteArray(next_page, this.tempPage, len, this.LEN_PAGE_PTR);
 
 						// write the page
-						cache.writePagePacket(i, tempPage, 0, len + LEN_PAGE_PTR);
+						this.cache.writePagePacket(i, this.tempPage, 0, len + this.LEN_PAGE_PTR);
 
 						cnt += len;
 					}
@@ -1008,14 +1050,15 @@ public class OWFileDescriptor {
 			}
 
 			// write the directory page
-			cache.writePagePacket(0, feData, 0, LEN_CONTROL_DATA + LEN_PAGE_PTR);
+			this.cache.writePagePacket(0, this.feData, 0, this.LEN_CONTROL_DATA + this.LEN_PAGE_PTR);
 
 			// update bitmap if implemented in cache
-			if (cache.handlePageBitmap())
-				markPageUsed(0);
+			if (this.cache.handlePageBitmap()) {
+				this.markPageUsed(0);
+			}
 
-			fePage = 0;
-			feLen = LEN_CONTROL_DATA + LEN_PAGE_PTR;
+			this.fePage = 0;
+			this.feLen = this.LEN_CONTROL_DATA + this.LEN_PAGE_PTR;
 		}
 	}
 
@@ -1037,68 +1080,74 @@ public class OWFileDescriptor {
 	protected int read(byte b[], int off, int len) throws IOException {
 		int read_count = 0, page_data_read, next_page = 0;
 
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===read(byte[],int,int)  with len " + len);
+			}
 
 			// clear last page read flag in the cache
-			cache.clearLastPageRead();
+			this.cache.clearLastPageRead();
 
 			// check for no pages read
-			if (lastPage == -1) {
+			if (this.lastPage == -1) {
 				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
+				if (doDebugMessages) {
 					System.out.println("=first read");
+				}
 
-				lastPage = feStartPage;
-				lastOffset = 0;
-				filePosition = 0;
+				this.lastPage = this.feStartPage;
+				this.lastOffset = 0;
+				this.filePosition = 0;
 
 				// read the lastPage into the lastPageData buffer
-				fetchPage();
+				this.fetchPage();
 			}
 
 			// loop to read pages needed or end of file found
 			do {
 
 				// check if need to fetch another page
-				if ((lastOffset + LEN_PAGE_PTR) >= lastLen) {
+				if (this.lastOffset + this.LEN_PAGE_PTR >= this.lastLen) {
 
 					// any more pages?
-					next_page = Convert.toInt(lastPageData, lastLen - LEN_PAGE_PTR, LEN_PAGE_PTR);
+					next_page = Convert.toInt(this.lastPageData, this.lastLen - this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
 
-					if (next_page == 0)
+					if (next_page == 0) {
 						break;
+					}
 
 					// get the next page
-					lastPage = next_page;
+					this.lastPage = next_page;
 
-					fetchPage();
+					this.fetchPage();
 				}
 
 				// calculate the data available/needed to read from this page
-				if (len >= (lastLen - lastOffset - LEN_PAGE_PTR))
-					page_data_read = (lastLen - lastOffset - LEN_PAGE_PTR);
-				else
+				if (len >= this.lastLen - this.lastOffset - this.LEN_PAGE_PTR) {
+					page_data_read = this.lastLen - this.lastOffset - this.LEN_PAGE_PTR;
+				} else {
 					page_data_read = len;
+				}
 
 				// get the data from the page (if buffer not null)
-				if (b != null)
-					System.arraycopy(lastPageData, lastOffset, b, off, page_data_read);
+				if (b != null) {
+					System.arraycopy(this.lastPageData, this.lastOffset, b, off, page_data_read);
+				}
 
 				// adjust counters
 				read_count += page_data_read;
 				off += page_data_read;
 				len -= page_data_read;
-				lastOffset += page_data_read;
-				filePosition += page_data_read;
-				next_page = Convert.toInt(lastPageData, lastLen - LEN_PAGE_PTR, LEN_PAGE_PTR);
-			} while ((len != 0) && (next_page != 0));
+				this.lastOffset += page_data_read;
+				this.filePosition += page_data_read;
+				next_page = Convert.toInt(this.lastPageData, this.lastLen - this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
+			} while (len != 0 && next_page != 0);
 
 			// check for end of file
-			if ((read_count == 0) && (len != 0))
+			if (read_count == 0 && len != 0) {
 				return -1;
+			}
 
 			// return number of bytes read
 			return read_count;
@@ -1114,17 +1163,18 @@ public class OWFileDescriptor {
 	 * @exception IOException if an I/O error occurs.
 	 */
 	protected int read() throws IOException {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===read()");
+			}
 
-			int len = read(smallBuf, 0, 1);
+			var len = this.read(this.smallBuf, 0, 1);
 
-			if (len == 1)
-				return (int) (smallBuf[0] & 0x00FF);
-			else
-				return -1;
+			if (len == 1) {
+				return this.smallBuf[0] & 0x00FF;
+			}
+			return -1;
 		}
 	}
 
@@ -1139,12 +1189,13 @@ public class OWFileDescriptor {
 	 * @exception IOException if an I/O error occurs.
 	 */
 	protected long skip(long n) throws IOException {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===skip " + n);
+			}
 
-			return read(null, 0, (int) n);
+			return this.read(null, 0, (int) n);
 		}
 	}
 
@@ -1157,12 +1208,12 @@ public class OWFileDescriptor {
 	 * @exception IOException if an I/O error occurs.
 	 */
 	protected int available() throws IOException {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// check for no pages read
-			if (lastPage == -1)
+			if (this.lastPage == -1) {
 				return 0;
-			else
-				return (lastLen - lastOffset - 1);
+			}
+			return this.lastLen - this.lastOffset - 1;
 		}
 	}
 
@@ -1178,14 +1229,15 @@ public class OWFileDescriptor {
 	 * @exception IOException if an I/O error occurs.
 	 */
 	protected void write(int b) throws IOException {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===write(int) " + b);
+			}
 
-			smallBuf[0] = (byte) b;
+			this.smallBuf[0] = (byte) b;
 
-			write(smallBuf, 0, 1);
+			this.write(this.smallBuf, 0, 1);
 		}
 	}
 
@@ -1199,61 +1251,65 @@ public class OWFileDescriptor {
 	 * @exception IOException if an I/O error occurs.
 	 */
 	protected void write(byte b[], int off, int len) throws IOException {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
 			if (doDebugMessages) {
 				System.out.print("===write(byte[],int,int) with data (" + len + ") :");
-				debugDump(b, off, len);
+				this.debugDump(b, off, len);
 			}
 
 			// check for something to do
-			if (len == 0)
+			if (len == 0) {
 				return;
+			}
 
 			// clear last page read flag in the cache
-			cache.clearLastPageRead();
+			this.cache.clearLastPageRead();
 
 			// check for no pages read
-			if (lastPage == -1) {
+			if (this.lastPage == -1) {
 				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
+				if (doDebugMessages) {
 					System.out.println("=first write");
+				}
 
-				lastPage = feStartPage;
-				lastOffset = 0;
-				filePosition = 0;
+				this.lastPage = this.feStartPage;
+				this.lastOffset = 0;
+				this.filePosition = 0;
 			}
 
 			try {
 				// read the last page
-				lastLen = cache.readPagePacket(lastPage, lastPageData, 0);
+				this.lastLen = this.cache.readPagePacket(this.lastPage, this.lastPageData, 0);
 
 				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
-					System.out.println("===write, readpagePacket " + lastPage + " got len " + lastLen);
+				if (doDebugMessages) {
+					System.out.println("===write, readpagePacket " + this.lastPage + " got len " + this.lastLen);
+				}
 
 				int write_len;
 
 				do {
 
 					// check if room to write
-					if (lastLen >= maxDataLen) {
+					if (this.lastLen >= this.maxDataLen) {
 
 						// \\//\\//\\//\\//\\//\\//\\//
-						if (doDebugMessages)
+						if (doDebugMessages) {
 							System.out.print("=Need new page");
+						}
 
 						// get another page to write
 						// get the pagebitmap
-						readBitMap();
+						this.readBitMap();
 
 						// get the next available page
-						int new_page = getFirstFreePage(false);
+						var new_page = this.getFirstFreePage(false);
 
 						// verify got a free page
 						if (new_page < 0) {
 							try {
-								sync();
+								this.sync();
 							} catch (OWSyncFailedException e) {
 								// DRAIN
 							}
@@ -1262,58 +1318,61 @@ public class OWFileDescriptor {
 						}
 
 						// mark page used
-						markPageUsed(new_page);
+						this.markPageUsed(new_page);
 
 						// put blank data page in new page
-						Convert.toByteArray(0, tempPage, 0, LEN_PAGE_PTR);
-						cache.writePagePacket(new_page, tempPage, 0, LEN_PAGE_PTR);
+						Convert.toByteArray(0, this.tempPage, 0, this.LEN_PAGE_PTR);
+						this.cache.writePagePacket(new_page, this.tempPage, 0, this.LEN_PAGE_PTR);
 
 						// change next page pointer in last page
-						Convert.toByteArray(new_page, lastPageData, lastLen - LEN_PAGE_PTR, LEN_PAGE_PTR);
+						Convert.toByteArray(new_page, this.lastPageData, this.lastLen - this.LEN_PAGE_PTR,
+								this.LEN_PAGE_PTR);
 
 						// put data page back in place with new next page pointer
-						cache.writePagePacket(lastPage, lastPageData, 0, lastLen);
+						this.cache.writePagePacket(this.lastPage, this.lastPageData, 0, this.lastLen);
 
 						// write the page bitmap
-						writeBitMap();
+						this.writeBitMap();
 
 						// update the directory entry to include this new page
-						lastLen = cache.readPagePacket(fePage, lastPageData, 0);
+						this.lastLen = this.cache.readPagePacket(this.fePage, this.lastPageData, 0);
 
-						Convert.toByteArray(++feNumPages, lastPageData, feOffset + LEN_FILENAME + LEN_PAGE_PTR,
-								LEN_PAGE_PTR);
-						cache.writePagePacket(fePage, lastPageData, 0, lastLen);
+						Convert.toByteArray(++this.feNumPages, this.lastPageData,
+								this.feOffset + LEN_FILENAME + this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
+						this.cache.writePagePacket(this.fePage, this.lastPageData, 0, this.lastLen);
 
 						// make 'lastPage' the new empty page
-						lastPageData[0] = 0;
-						lastPage = new_page;
-						lastLen = LEN_PAGE_PTR;
+						this.lastPageData[0] = 0;
+						this.lastPage = new_page;
+						this.lastLen = this.LEN_PAGE_PTR;
 					}
 
 					// calculate how much of the data can write to lastPage
-					if (len > (maxDataLen - lastLen))
-						write_len = maxDataLen - lastLen;
-					else
+					if (len > this.maxDataLen - this.lastLen) {
+						write_len = this.maxDataLen - this.lastLen;
+					} else {
 						write_len = len;
+					}
 
 					// \\//\\//\\//\\//\\//\\//\\//
-					if (doDebugMessages)
-						System.out.println("===write, len " + len + " maxDataLen " + maxDataLen + " lastLen " + lastLen
-								+ " write_len " + write_len + " off " + off);
+					if (doDebugMessages) {
+						System.out.println("===write, len " + len + " maxDataLen " + this.maxDataLen + " lastLen "
+								+ this.lastLen + " write_len " + write_len + " off " + off);
+					}
 
 					// copy the data
-					System.arraycopy(b, off, lastPageData, lastLen - LEN_PAGE_PTR, write_len);
+					System.arraycopy(b, off, this.lastPageData, this.lastLen - this.LEN_PAGE_PTR, write_len);
 
 					// update the counters
 					len -= write_len;
 					off += write_len;
-					lastLen += write_len;
+					this.lastLen += write_len;
 
 					// set the next page pointer to end of file marker '0'
-					Convert.toByteArray(0, lastPageData, lastLen - LEN_PAGE_PTR, LEN_PAGE_PTR);
+					Convert.toByteArray(0, this.lastPageData, this.lastLen - this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
 
 					// write the data
-					cache.writePagePacket(lastPage, lastPageData, 0, lastLen);
+					this.cache.writePagePacket(this.lastPage, this.lastPageData, 0, this.lastLen);
 				} while (len > 0);
 			} catch (OneWireException e) {
 				throw new IOException(e.toString());
@@ -1334,12 +1393,13 @@ public class OWFileDescriptor {
 	 *         or the empty string if this pathname's name sequence is empty
 	 */
 	protected String getName() {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===getName()");
+			}
 
-			return pathToString(path, path.size() - 1, path.size(), true);
+			return this.pathToString(this.path, this.path.size() - 1, this.path.size(), true);
 		}
 	}
 
@@ -1358,18 +1418,20 @@ public class OWFileDescriptor {
 	 *         parent
 	 */
 	protected String getParent() {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
-				System.out.println("===getParent(), path is null=" + (path == null));
+			if (doDebugMessages) {
+				System.out.println("===getParent(), path is null=" + (this.path == null));
+			}
 
-			if (path == null)
+			if (this.path == null) {
 				throw new NullPointerException("path is not valid");
+			}
 
-			if (path.size() >= 1)
-				return pathToString(path, 0, path.size() - 1, false);
-			else
-				return null;
+			if (this.path.size() >= 1) {
+				return this.pathToString(this.path, 0, this.path.size() - 1, false);
+			}
+			return null;
 		}
 	}
 
@@ -1381,15 +1443,17 @@ public class OWFileDescriptor {
 	 * @return The string form of this abstract pathname
 	 */
 	protected String getPath() {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
-				System.out.println("===getPath(), path is null=" + (path == null));
+			if (doDebugMessages) {
+				System.out.println("===getPath(), path is null=" + (this.path == null));
+			}
 
-			if (path == null)
+			if (this.path == null) {
 				throw new NullPointerException("path is not valid");
+			}
 
-			return pathToString(verbosePath, 0, verbosePath.size(), false);
+			return this.pathToString(this.verbosePath, 0, this.verbosePath.size(), false);
 		}
 	}
 
@@ -1399,20 +1463,21 @@ public class OWFileDescriptor {
 	 * @return true if the file exists and false otherwise
 	 */
 	protected boolean exists() {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===exists()");
+			}
 
 			// clear last page read flag in the cache
-			cache.clearLastPageRead();
+			this.cache.clearLastPageRead();
 
 			// check if this is the root
-			if (path != null && path.size() == 0) {
+			if (this.path != null && this.path.size() == 0) {
 				// force a check of the Filesystem if never been read
-				if (pbmStartPage == -1) {
+				if (this.pbmStartPage == -1) {
 					try {
-						readBitMap();
+						this.readBitMap();
 					} catch (OneWireException e) {
 						return false;
 					}
@@ -1423,7 +1488,7 @@ public class OWFileDescriptor {
 
 			// attempt to open the file/directory
 			try {
-				open();
+				this.open();
 
 				return true;
 			} catch (OWFileNotFoundException e) {
@@ -1438,12 +1503,13 @@ public class OWFileDescriptor {
 	 * @return true if this file exists, false otherwise
 	 */
 	protected boolean canRead() {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===canRead()");
+			}
 
-			return exists();
+			return this.exists();
 		}
 	}
 
@@ -1453,18 +1519,20 @@ public class OWFileDescriptor {
 	 * @return true if this file exists and is not read only, false otherwise
 	 */
 	protected boolean canWrite() {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===canWrite()");
+			}
 
-			if (exists()) {
-				if (isFile())
-					return ((feData[feOffset + LEN_FILENAME - 1] & 0x80) == 0);
-				else
-					return true;
-			} else
+			if (!this.exists()) {
 				return false;
+			}
+			if (this.isFile()) {
+				return (this.feData[this.feOffset + LEN_FILENAME - 1] & 0x80) == 0;
+			} else {
+				return true;
+			}
 		}
 	}
 
@@ -1474,15 +1542,16 @@ public class OWFileDescriptor {
 	 * @return true if this file exists and it is a directory, false otherwise
 	 */
 	protected boolean isDirectory() {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===isDirectory()");
+			}
 
-			if (exists())
-				return !isFile();
-			else
-				return false;
+			if (this.exists()) {
+				return !this.isFile();
+			}
+			return false;
 		}
 	}
 
@@ -1492,19 +1561,21 @@ public class OWFileDescriptor {
 	 * @return true if this file exists and is a file, false otherwise
 	 */
 	protected boolean isFile() {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===isFile()");
+			}
 
 			// check if this is the root
-			if (path.size() == 0)
+			if (this.path.size() == 0) {
 				return false;
+			}
 
-			if (exists())
-				return ((feData[feOffset + LEN_FILENAME - 1] & 0x7F) != 0x7F);
-			else
-				return false;
+			if (this.exists()) {
+				return (this.feData[this.feOffset + LEN_FILENAME - 1] & 0x7F) != 0x7F;
+			}
+			return false;
 		}
 	}
 
@@ -1514,19 +1585,20 @@ public class OWFileDescriptor {
 	 * @return true if this is a directory and is marked as hidden, false otherwise
 	 */
 	protected boolean isHidden() {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===isHidden()");
+			}
 
-			if (exists()) {
+			if (this.exists()) {
 
 				// look at hidden flag in parent (if it has one)
-				if (path.size() > 0) {
-					if (isDirectory()) {
-						byte[] fl = (byte[]) path.elementAt(path.size() - 1);
+				if (this.path.size() > 0) {
+					if (this.isDirectory()) {
+						var fl = this.path.elementAt(this.path.size() - 1);
 
-						return ((fl[LEN_FILENAME - 1] & 0x80) != 0);
+						return (fl[LEN_FILENAME - 1] & 0x80) != 0;
 					}
 				}
 			}
@@ -1543,15 +1615,16 @@ public class OWFileDescriptor {
 	 * @return estimated length of file in bytes
 	 */
 	protected long length() {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===length()");
+			}
 
-			if (exists())
-				return (feNumPages * (maxDataLen - LEN_PAGE_PTR));
-			else
-				return 0;
+			if (this.exists()) {
+				return this.feNumPages * (this.maxDataLen - this.LEN_PAGE_PTR);
+			}
+			return 0;
 		}
 	}
 
@@ -1562,81 +1635,86 @@ public class OWFileDescriptor {
 	 * @return true if the file/directory was successfully deleted or false if not
 	 */
 	protected boolean delete() {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// clear last page read flag in the cache
-			cache.clearLastPageRead();
+			this.cache.clearLastPageRead();
 
-			if (isFile()) {
+			if (this.isFile()) {
 
 				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
+				if (doDebugMessages) {
 					System.out.println("===delete() is a file");
+				}
 
 				try {
 
 					// remove the directory entry
-					System.arraycopy(feData, feOffset + LEN_FILE_ENTRY, feData, feOffset,
-							feLen - feOffset - LEN_FILE_ENTRY);
+					System.arraycopy(this.feData, this.feOffset + this.LEN_FILE_ENTRY, this.feData, this.feOffset,
+							this.feLen - this.feOffset - this.LEN_FILE_ENTRY);
 
-					feLen -= LEN_FILE_ENTRY;
+					this.feLen -= this.LEN_FILE_ENTRY;
 
-					cache.writePagePacket(fePage, feData, 0, feLen);
+					this.cache.writePagePacket(this.fePage, this.feData, 0, this.feLen);
 
 					// loop to remove all of the file pages 'free' only if not EPROM
-					if (bitmapType != BM_CACHE) {
+					if (this.bitmapType != BM_CACHE) {
 
 						// loop to read the rest of the pages and 'free' them
-						int next_page = feStartPage;
+						var next_page = this.feStartPage;
 
 						while (next_page != 0) {
 
 							// free the page
-							readBitMap();
-							freePage(next_page);
-							writeBitMap();
+							this.readBitMap();
+							this.freePage(next_page);
+							this.writeBitMap();
 
 							// read the file page
-							lastLen = cache.readPagePacket(next_page, lastPageData, 0);
+							this.lastLen = this.cache.readPagePacket(next_page, this.lastPageData, 0);
 
 							// get the next page pointer
-							next_page = Convert.toInt(lastPageData, lastLen - LEN_PAGE_PTR, LEN_PAGE_PTR);
+							next_page = Convert.toInt(this.lastPageData, this.lastLen - this.LEN_PAGE_PTR,
+									this.LEN_PAGE_PTR);
 						}
 
 						// update
-						lastPage = -1;
-						feStartPage = -1;
+						this.lastPage = -1;
+						this.feStartPage = -1;
 					}
 
 					return true;
 				} catch (OneWireException e) {
 					return false;
 				}
-			} else if (isDirectory()) {
+			}
+			if (this.isDirectory()) {
 
 				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
+				if (doDebugMessages) {
 					System.out.println("===delete() is a directory");
+				}
 
 				try {
 
 					// read the first page of the directory to see if empty
-					int len = cache.readPagePacket(feStartPage, tempPage, 0);
+					var len = this.cache.readPagePacket(this.feStartPage, this.tempPage, 0);
 
-					if (len != LEN_CONTROL_DATA + LEN_PAGE_PTR)
+					if (len != this.LEN_CONTROL_DATA + this.LEN_PAGE_PTR) {
 						return false;
+					}
 
 					// remove the directory entry
-					System.arraycopy(feData, feOffset + LEN_CONTROL_DATA, feData, feOffset,
-							feLen - feOffset - LEN_CONTROL_DATA);
+					System.arraycopy(this.feData, this.feOffset + this.LEN_CONTROL_DATA, this.feData, this.feOffset,
+							this.feLen - this.feOffset - this.LEN_CONTROL_DATA);
 
-					feLen -= LEN_CONTROL_DATA;
+					this.feLen -= this.LEN_CONTROL_DATA;
 
-					cache.writePagePacket(fePage, feData, 0, feLen);
+					this.cache.writePagePacket(this.fePage, this.feData, 0, this.feLen);
 
 					// free the page
-					readBitMap();
-					freePage(feStartPage);
-					writeBitMap();
+					this.readBitMap();
+					this.freePage(this.feStartPage);
+					this.writeBitMap();
 
 					return true;
 				} catch (OneWireException e) {
@@ -1645,8 +1723,9 @@ public class OWFileDescriptor {
 			} else {
 
 				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
+				if (doDebugMessages) {
 					System.out.println("===delete() is neither file or directory so fail");
+				}
 
 				return false;
 			}
@@ -1675,91 +1754,101 @@ public class OWFileDescriptor {
 	 *         pathname does not denote a directory, or if an I/O error occurs.
 	 */
 	protected String[] list() {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===list() string");
+			}
 
 			// clear last page read flag in the cache
-			cache.clearLastPageRead();
+			this.cache.clearLastPageRead();
 
-			if (isDirectory()) {
-				Vector<String> entries = new Vector<>(1);
-
-				try {
-
-					// \\//\\//\\//\\//\\//\\//\\//
-					if (doDebugMessages)
-						System.out.println("=feStartPage " + feStartPage);
-
-					// loop though the entries and collect string reps
-					int next_page = feStartPage;
-					StringBuffer build_buffer = new StringBuffer();
-					int offset = LEN_CONTROL_DATA, len, i, page;
-
-					do {
-						page = next_page;
-
-						// read the page
-						len = cache.readPagePacket(page, tempPage, 0);
-
-						// loop through the entries
-						for (; offset < (len - LEN_PAGE_PTR); offset += LEN_FILE_ENTRY) {
-							build_buffer.setLength(0);
-
-							for (i = 0; i < 4; i++) {
-								if ((byte) tempPage[offset + i] != (byte) 0x20)
-									build_buffer.append((char) tempPage[offset + i]);
-								else
-									break;
-							}
-
-							if ((byte) (tempPage[offset + 4] & 0x7F) != (byte) EXT_DIRECTORY)
-								build_buffer.append("." + Integer.toString((int) (tempPage[offset + 4] & 0x7F)));
-
-							// \\//\\//\\//\\//\\//\\//\\//
-							if (doDebugMessages)
-								System.out.println("=entry= " + build_buffer.toString());
-
-							// only add if not hidden directory
-							if ((byte) tempPage[offset + 4] != (byte) 0xFF)
-								// add to the vector of strings
-								entries.addElement(build_buffer.toString());
-						}
-
-						// get next page pointer to read
-						next_page = Convert.toInt(tempPage, len - LEN_PAGE_PTR, LEN_PAGE_PTR);
-						offset = 0;
-
-						// check for looping Filesystem
-						if (entries.size() > totalPages)
-							return null;
-
-						// \\//\\//\\//\\//\\//\\//\\//
-						if (doDebugMessages)
-							System.out.println("=next page = " + next_page);
-					} while (next_page != 0);
-				} catch (OneWireException e) {
-
-					// DRAIN
-					// \\//\\//\\//\\//\\//\\//\\//
-					if (doDebugMessages)
-						System.out.println("= " + e);
-				}
-
-				// return the entries as an array of strings
-				String[] strs = new String[entries.size()];
-				for (int i = 0; i < strs.length; i++)
-					strs[i] = (String) entries.elementAt(i);
-				return strs;
-			} else {
+			if (!this.isDirectory()) {
 
 				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
+				if (doDebugMessages) {
 					System.out.println("=not a directory so no list");
+				}
 
 				return null;
 			}
+			var entries = new Vector<String>(1);
+
+			try {
+
+				// \\//\\//\\//\\//\\//\\//\\//
+				if (doDebugMessages) {
+					System.out.println("=feStartPage " + this.feStartPage);
+				}
+
+				// loop though the entries and collect string reps
+				var next_page = this.feStartPage;
+				var build_buffer = new StringBuilder();
+				int offset = this.LEN_CONTROL_DATA, len, i, page;
+
+				do {
+					page = next_page;
+
+					// read the page
+					len = this.cache.readPagePacket(page, this.tempPage, 0);
+
+					// loop through the entries
+					for (; offset < len - this.LEN_PAGE_PTR; offset += this.LEN_FILE_ENTRY) {
+						build_buffer.setLength(0);
+
+						for (i = 0; i < 4; i++) {
+							if (this.tempPage[offset + i] != (byte) 0x20) {
+								build_buffer.append((char) this.tempPage[offset + i]);
+							} else {
+								break;
+							}
+						}
+
+						if ((byte) (this.tempPage[offset + 4] & 0x7F) != EXT_DIRECTORY) {
+							build_buffer.append("." + Integer.toString(this.tempPage[offset + 4] & 0x7F));
+						}
+
+						// \\//\\//\\//\\//\\//\\//\\//
+						if (doDebugMessages) {
+							System.out.println("=entry= " + build_buffer.toString());
+						}
+
+						// only add if not hidden directory
+						if (this.tempPage[offset + 4] != (byte) 0xFF) {
+							// add to the vector of strings
+							entries.addElement(build_buffer.toString());
+						}
+					}
+
+					// get next page pointer to read
+					next_page = Convert.toInt(this.tempPage, len - this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
+					offset = 0;
+
+					// check for looping Filesystem
+					if (entries.size() > this.totalPages) {
+						return null;
+					}
+
+					// \\//\\//\\//\\//\\//\\//\\//
+					if (doDebugMessages) {
+						System.out.println("=next page = " + next_page);
+					}
+				} while (next_page != 0);
+			} catch (OneWireException e) {
+
+				// DRAIN
+				// \\//\\//\\//\\//\\//\\//\\//
+				if (doDebugMessages) {
+					System.out.println("= " + e);
+				}
+			}
+
+			// return the entries as an array of strings
+			var strs = new String[entries.size()];
+			for (var i = 0; i < strs.length; i++) {
+				strs[i] = entries.elementAt(i);
+			}
+			return strs;
 		}
 	}
 
@@ -1775,32 +1864,34 @@ public class OWFileDescriptor {
 	 *                              <code>null</code>
 	 */
 	protected boolean renameTo(OWFile dest) {
-		if (dest == null)
+		if (dest == null) {
 			throw new NullPointerException("Destination file is null");
+		}
 
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// make sure exists (also getting the file entry info)
-			if (!exists())
+			if (!this.exists()) {
 				return false;
+			}
 
 			try {
 				// get the file descriptor of the destination
-				OWFileDescriptor dest_fd = dest.getFD();
+				var dest_fd = dest.getFD();
 
 				// create the new entry pointing to the old file
-				dest_fd.create(false, isDirectory(), false, feStartPage, feNumPages);
+				dest_fd.create(false, this.isDirectory(), false, this.feStartPage, this.feNumPages);
 
 				// delete the old entry
-				feLen = cache.readPagePacket(fePage, feData, 0);
-				System.arraycopy(feData, feOffset + LEN_FILE_ENTRY, feData, feOffset,
-						feLen - feOffset - LEN_FILE_ENTRY);
-				feLen -= LEN_FILE_ENTRY;
-				cache.writePagePacket(fePage, feData, 0, feLen);
+				this.feLen = this.cache.readPagePacket(this.fePage, this.feData, 0);
+				System.arraycopy(this.feData, this.feOffset + this.LEN_FILE_ENTRY, this.feData, this.feOffset,
+						this.feLen - this.feOffset - this.LEN_FILE_ENTRY);
+				this.feLen -= this.LEN_FILE_ENTRY;
+				this.cache.writePagePacket(this.fePage, this.feData, 0, this.feLen);
 
 				// open this file to make sure all file entry pointers get reset
-				feStartPage = -1;
+				this.feStartPage = -1;
 				try {
-					open();
+					this.open();
 				} catch (OWFileNotFoundException e) {
 					// DRAIN
 				}
@@ -1825,23 +1916,25 @@ public class OWFileDescriptor {
 	 *         <code>false</code> otherwise
 	 */
 	protected boolean setReadOnly() {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===setReadOnly()");
+			}
 
-			if (isFile()) {
+			if (this.isFile()) {
 
 				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
+				if (doDebugMessages) {
 					System.out.println("=is a file");
+				}
 
 				// mark the readonly bit in the file entry page
-				feData[feOffset + LEN_FILENAME - 1] |= 0x80;
+				this.feData[this.feOffset + LEN_FILENAME - 1] |= 0x80;
 
 				try {
 					// write new setting to cache
-					cache.writePagePacket(fePage, feData, 0, feLen);
+					this.cache.writePagePacket(this.fePage, this.feData, 0, this.feLen);
 				} catch (OneWireException e) {
 					return false;
 				}
@@ -1859,13 +1952,14 @@ public class OWFileDescriptor {
 	 * @param readlimit limit to keep track of the current position
 	 */
 	protected void mark(int readlimit) {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
-				System.out.println("===mark() with readlimit=" + readlimit + " current pos=" + filePosition);
+			if (doDebugMessages) {
+				System.out.println("===mark() with readlimit=" + readlimit + " current pos=" + this.filePosition);
+			}
 
-			markPosition = filePosition;
-			markLimit = readlimit;
+			this.markPosition = this.filePosition;
+			this.markLimit = readlimit;
 		}
 	}
 
@@ -1875,19 +1969,21 @@ public class OWFileDescriptor {
 	 * @throws IOException when a read error occurs
 	 */
 	protected void reset() throws IOException {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
-				System.out.println("===reset() current pos=" + filePosition);
+			if (doDebugMessages) {
+				System.out.println("===reset() current pos=" + this.filePosition);
+			}
 
-			if ((filePosition - markPosition) > markLimit)
+			if (this.filePosition - this.markPosition > this.markLimit) {
 				throw new IOException("File read beyond mark readlimit");
+			}
 
 			// reset the file
-			lastPage = -1;
+			this.lastPage = -1;
 
 			// skip to the mark position
-			skip(markPosition);
+			this.skip(this.markPosition);
 		}
 	}
 
@@ -1903,16 +1999,17 @@ public class OWFileDescriptor {
 	 * @throws OneWireException when an IO exception occurs
 	 */
 	protected void markPageUsed(int page) throws OneWireException {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===markPageUsed " + page);
+			}
 
-			if (bitmapType == BM_CACHE)
-				cache.markPageUsed(page);
-			else {
+			if (this.bitmapType == BM_CACHE) {
+				this.cache.markPageUsed(page);
+			} else {
 				// mark page used in cached bitmap of used pages
-				Bit.arrayWriteBit(PAGE_USED, pbmBitOffset + page, pbmByteOffset, pbm);
+				Bit.arrayWriteBit(PAGE_USED, this.pbmBitOffset + page, this.pbmByteOffset, this.pbm);
 			}
 		}
 	}
@@ -1928,19 +2025,19 @@ public class OWFileDescriptor {
 	 * @throws OneWireException when an IO error occurs
 	 */
 	protected boolean freePage(int page) throws OneWireException {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.print("===freePage " + page);
-
-			if (bitmapType == BM_CACHE)
-				return cache.freePage(page);
-			else {
-				// mark page used in cached bitmap of used pages
-				Bit.arrayWriteBit(PAGE_NOT_USED, pbmBitOffset + page, pbmByteOffset, pbm);
-
-				return true;
 			}
+
+			if (this.bitmapType == BM_CACHE) {
+				return this.cache.freePage(page);
+			}
+			// mark page used in cached bitmap of used pages
+			Bit.arrayWriteBit(PAGE_NOT_USED, this.pbmBitOffset + page, this.pbmByteOffset, this.pbm);
+
+			return true;
 		}
 	}
 
@@ -1955,18 +2052,18 @@ public class OWFileDescriptor {
 	 * @throws OneWireException when an IO exception occurs
 	 */
 	protected int getFirstFreePage(boolean counterPage) throws OneWireException {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.print("===getFirstFreePage, counter " + counterPage);
-
-			if (bitmapType == BM_CACHE)
-				return cache.getFirstFreePage();
-			else {
-				lastFreePage = 0;
-
-				return getNextFreePage(counterPage);
 			}
+
+			if (this.bitmapType == BM_CACHE) {
+				return this.cache.getFirstFreePage();
+			}
+			this.lastFreePage = 0;
+
+			return this.getNextFreePage(counterPage);
 		}
 	}
 
@@ -1981,40 +2078,42 @@ public class OWFileDescriptor {
 	 * @throws OneWireException when an IO exception occurs
 	 */
 	protected int getNextFreePage(boolean counterPage) throws OneWireException {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===getNextFreePage ");
-
-			if (bitmapType == BM_CACHE)
-				return cache.getNextFreePage();
-			else {
-				for (int pg = lastFreePage; pg < totalPages; pg++) {
-					if (Bit.arrayReadBit(pbmBitOffset + pg, pbmByteOffset, pbm) == PAGE_NOT_USED) {
-						// check if need a counter page
-						if (counterPage) {
-							// counter page has extra info with COUNTER or MAC
-							PagedMemoryBank pmb = getMemoryBankForPage(pg);
-							if (pmb.hasExtraInfo() && (pg != 8)) {
-								String ex_info = pmb.getExtraInfoDescription();
-								if ((ex_info.indexOf("counter") > -1) || (ex_info.indexOf("MAC") > -1))
-									return pg;
-							}
-							continue;
-						}
-
-						// \\//\\//\\//\\//\\//\\//\\//
-						if (doDebugMessages)
-							System.out.println("=free page is " + pg);
-
-						lastFreePage = pg + 1;
-
-						return pg;
-					}
-				}
-
-				return -1;
 			}
+
+			if (this.bitmapType == BM_CACHE) {
+				return this.cache.getNextFreePage();
+			}
+			for (var pg = this.lastFreePage; pg < this.totalPages; pg++) {
+				if (Bit.arrayReadBit(this.pbmBitOffset + pg, this.pbmByteOffset, this.pbm) == PAGE_NOT_USED) {
+					// check if need a counter page
+					if (counterPage) {
+						// counter page has extra info with COUNTER or MAC
+						var pmb = this.getMemoryBankForPage(pg);
+						if (pmb.hasExtraInfo() && pg != 8) {
+							var ex_info = pmb.getExtraInfoDescription();
+							if (ex_info.indexOf("counter") > -1 || ex_info.indexOf("MAC") > -1) {
+								return pg;
+							}
+						}
+						continue;
+					}
+
+					// \\//\\//\\//\\//\\//\\//\\//
+					if (doDebugMessages) {
+						System.out.println("=free page is " + pg);
+					}
+
+					this.lastFreePage = pg + 1;
+
+					return pg;
+				}
+			}
+
+			return -1;
 		}
 	}
 
@@ -2027,32 +2126,34 @@ public class OWFileDescriptor {
 	 * @throws OneWireException when an IO exception occurs
 	 */
 	protected int getFreeMemory() throws OneWireException {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===getFreeMemory()");
+			}
 
 			// clear last page read flag in the cache
-			cache.clearLastPageRead();
+			this.cache.clearLastPageRead();
 
-			if (bitmapType == BM_CACHE)
-				return (cache.getNumberFreePages() * (maxDataLen - LEN_PAGE_PTR));
-			else {
-				// read the bitmap
-				readBitMap();
-
-				int free_pages = 0;
-				for (int pg = 0; pg < totalPages; pg++) {
-					if (Bit.arrayReadBit(pbmBitOffset + pg, pbmByteOffset, pbm) == PAGE_NOT_USED)
-						free_pages++;
-				}
-
-				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
-					System.out.println("=num free pages = " + free_pages);
-
-				return (free_pages * (maxDataLen - LEN_PAGE_PTR));
+			if (this.bitmapType == BM_CACHE) {
+				return this.cache.getNumberFreePages() * (this.maxDataLen - this.LEN_PAGE_PTR);
 			}
+			// read the bitmap
+			this.readBitMap();
+
+			var free_pages = 0;
+			for (var pg = 0; pg < this.totalPages; pg++) {
+				if (Bit.arrayReadBit(this.pbmBitOffset + pg, this.pbmByteOffset, this.pbm) == PAGE_NOT_USED) {
+					free_pages++;
+				}
+			}
+
+			// \\//\\//\\//\\//\\//\\//\\//
+			if (doDebugMessages) {
+				System.out.println("=num free pages = " + free_pages);
+			}
+
+			return free_pages * (this.maxDataLen - this.LEN_PAGE_PTR);
 		}
 	}
 
@@ -2062,58 +2163,61 @@ public class OWFileDescriptor {
 	 * @throws OneWireException when an IO error occurs
 	 */
 	protected void writeBitMap() throws OneWireException {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===writeBitMap() ");
+			}
 
 			// clear last page read flag in the cache
-			cache.clearLastPageRead();
+			this.cache.clearLastPageRead();
 
-			if (bitmapType == BM_LOCAL) {
+			if (this.bitmapType == BM_LOCAL) {
 				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
+				if (doDebugMessages) {
 					System.out.println("=local ");
+				}
 
-				int pg_len = cache.readPagePacket(0, tempPage, 0);
+				var pg_len = this.cache.readPagePacket(0, this.tempPage, 0);
 
 				// check to see if the bitmap has changed
-				for (int i = 3; i < 7; i++) {
-					if ((tempPage[i] & 0x00FF) != (pbm[i] & 0x00FF)) {
-						System.arraycopy(pbm, 3, tempPage, 3, 4);
-						cache.writePagePacket(0, tempPage, 0, pg_len);
+				for (var i = 3; i < 7; i++) {
+					if ((this.tempPage[i] & 0x00FF) != (this.pbm[i] & 0x00FF)) {
+						System.arraycopy(this.pbm, 3, this.tempPage, 3, 4);
+						this.cache.writePagePacket(0, this.tempPage, 0, pg_len);
 						break;
 					}
 				}
-			} else if (bitmapType == BM_FILE) {
+			} else if (this.bitmapType == BM_FILE) {
 				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
+				if (doDebugMessages) {
 					System.out.println("=file ");
+				}
 
 				// FILE type page bitmap (got start page from validateFileSystem)
-				int offset = 0, pg = pbmStartPage, len;
+				int offset = 0, pg = this.pbmStartPage, len;
 
 				// loop through all of the pages in the bitmap
-				for (int pg_cnt = 0; pg_cnt < pbmNumPages; pg_cnt++) {
+				for (var pg_cnt = 0; pg_cnt < this.pbmNumPages; pg_cnt++) {
 					// read the current bitmap just to get the next page pointer and length
-					len = cache.readPagePacket(pg, tempPage, 0);
+					len = this.cache.readPagePacket(pg, this.tempPage, 0);
 
 					// check to see if this bitmap segment has changed
-					for (int i = 0; i < (len - LEN_PAGE_PTR); i++) {
-						if ((tempPage[i] & 0x00FF) != (pbm[i + offset] & 0x00FF)) {
+					for (var i = 0; i < len - this.LEN_PAGE_PTR; i++) {
+						if ((this.tempPage[i] & 0x00FF) != (this.pbm[i + offset] & 0x00FF)) {
 							// copy new bitmap value to it
-							System.arraycopy(pbm, offset, tempPage, 0, len - LEN_PAGE_PTR);
+							System.arraycopy(this.pbm, offset, this.tempPage, 0, len - this.LEN_PAGE_PTR);
 
 							// write back to device
-							cache.writePagePacket(pg, tempPage, 0, len);
+							this.cache.writePagePacket(pg, this.tempPage, 0, len);
 
 							break;
 						}
 					}
 
 					// get next page number to read
-					pg = Convert.toInt(tempPage, len - LEN_PAGE_PTR, LEN_PAGE_PTR);
-					offset += (len - LEN_PAGE_PTR);
+					pg = Convert.toInt(this.tempPage, len - this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
+					offset += len - this.LEN_PAGE_PTR;
 				}
 			}
 		}
@@ -2127,42 +2231,45 @@ public class OWFileDescriptor {
 	protected void readBitMap() throws OneWireException {
 		int len;
 
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.out.println("===readBitMap() ");
+			}
 
 			// clear last page read flag in the cache
-			cache.clearLastPageRead();
+			this.cache.clearLastPageRead();
 
 			// check to see if the directory has been read to know where the page bitmap is
-			if (pbmStartPage == -1) {
-				fePage = 0;
-				feLen = cache.readPagePacket(fePage, feData, 0);
-				validateFileSystem();
+			if (this.pbmStartPage == -1) {
+				this.fePage = 0;
+				this.feLen = this.cache.readPagePacket(this.fePage, this.feData, 0);
+				this.validateFileSystem();
 			}
 
 			// depending on the type of the page bitmap, read it
-			if (bitmapType == BM_LOCAL) {
+			if (this.bitmapType == BM_LOCAL) {
 
 				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
+				if (doDebugMessages) {
 					System.out.println("=local ");
+				}
 
-				cache.readPagePacket(0, pbm, 0);
-			} else if (bitmapType == BM_FILE) {
+				this.cache.readPagePacket(0, this.pbm, 0);
+			} else if (this.bitmapType == BM_FILE) {
 
 				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
+				if (doDebugMessages) {
 					System.out.println("=file ");
+				}
 
 				// FILE type page bitmap (got start page from validateFileSystem)
-				int offset = 0, pg = pbmStartPage;
+				int offset = 0, pg = this.pbmStartPage;
 
-				for (int pg_cnt = 0; pg_cnt < pbmNumPages; pg_cnt++) {
-					len = cache.readPagePacket(pg, pbm, offset);
-					pg = Convert.toInt(pbm, offset + len - LEN_PAGE_PTR, LEN_PAGE_PTR);
-					offset += (len - LEN_PAGE_PTR);
+				for (var pg_cnt = 0; pg_cnt < this.pbmNumPages; pg_cnt++) {
+					len = this.cache.readPagePacket(pg, this.pbm, offset);
+					pg = Convert.toInt(this.pbm, offset + len - this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
+					offset += len - this.LEN_PAGE_PTR;
 
 					// \\//\\//\\//\\//\\//\\//\\//
 					if (doDebugMessages) {
@@ -2174,7 +2281,7 @@ public class OWFileDescriptor {
 				// \\//\\//\\//\\//\\//\\//\\//
 				if (doDebugMessages) {
 					System.out.println("=pbm is ");
-					debugDump(pbm, 0, pbm.length);
+					this.debugDump(this.pbm, 0, this.pbm.length);
 				}
 			}
 		}
@@ -2187,19 +2294,19 @@ public class OWFileDescriptor {
 	 * @exception OneWireException if an I/O error occurs.
 	 */
 	protected int[] getPageList() throws OneWireException {
-		int[] page_list = new int[feNumPages + 10];
+		var page_list = new int[this.feNumPages + 10];
 		int cnt = 0, len;
-		int next_page = feStartPage;
+		var next_page = this.feStartPage;
 
 		// clear last page read flag in the cache
-		cache.clearLastPageRead();
+		this.cache.clearLastPageRead();
 
 		// loop to read all of the pages
 		do {
 			// check list for size limit
 			if (cnt >= page_list.length) {
 				// grow this list by 10
-				int[] temp = new int[page_list.length + 10];
+				var temp = new int[page_list.length + 10];
 				System.arraycopy(page_list, 0, temp, 0, page_list.length);
 				page_list = temp;
 			}
@@ -2208,18 +2315,19 @@ public class OWFileDescriptor {
 			page_list[cnt++] = next_page;
 
 			// read the file page
-			len = cache.readPagePacket(next_page, tempPage, 0);
+			len = this.cache.readPagePacket(next_page, this.tempPage, 0);
 
 			// get the next page pointer
-			next_page = Convert.toInt(tempPage, len - LEN_PAGE_PTR, LEN_PAGE_PTR);
+			next_page = Convert.toInt(this.tempPage, len - this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
 
 			// check for looping pages
-			if (cnt > totalPages)
+			if (cnt > this.totalPages) {
 				throw new OneWireException("Error in Filesystem, looping pointers");
+			}
 		} while (next_page != 0);
 
 		// create the return array
-		int[] rt_array = new int[cnt];
+		var rt_array = new int[cnt];
 		System.arraycopy(page_list, 0, rt_array, 0, cnt);
 
 		return rt_array;
@@ -2234,7 +2342,7 @@ public class OWFileDescriptor {
 	 * @exception IOException if the file doesn't exist
 	 */
 	protected int getStartPage() throws IOException {
-		return feStartPage;
+		return this.feStartPage;
 	}
 
 	/**
@@ -2242,7 +2350,7 @@ public class OWFileDescriptor {
 	 * the Filesystem spans memory banks on the same or different devices.
 	 */
 	protected PagedMemoryBank getMemoryBankForPage(int page) {
-		return cache.getMemoryBankForPage(page);
+		return this.cache.getMemoryBankForPage(page);
 	}
 
 	/**
@@ -2251,7 +2359,7 @@ public class OWFileDescriptor {
 	 * different devices.
 	 */
 	protected int getLocalPage(int page) {
-		return cache.getLocalPage(page);
+		return this.cache.getLocalPage(page);
 	}
 
 	// --------
@@ -2269,33 +2377,36 @@ public class OWFileDescriptor {
 	 * @return string representation of the specified path
 	 */
 	private String pathToString(Vector<byte[]> tempPath, int beginIndex, int endIndex, boolean single) {
-		if (beginIndex < 0)
+		if (beginIndex < 0) {
 			return null;
-
-		byte[] name;
-		StringBuffer build_buffer = new StringBuffer((single ? "" : OWFile.separator));
-
-		for (int element = beginIndex; element < endIndex; element++) {
-			name = (byte[]) tempPath.elementAt(element);
-
-			if (!single && (element != beginIndex))
-				build_buffer.append(OWFile.separatorChar);
-
-			for (int i = 0; i < 4; i++) {
-				if ((byte) name[i] != (byte) 0x20)
-					build_buffer.append((char) name[i]);
-				else
-					break;
-			}
-
-			if (((byte) (name[4] & 0x7F) != (byte) EXT_DIRECTORY) && ((byte) name[4] != (byte) EXT_UNKNOWN))
-				build_buffer.append("." + Integer.toString((int) name[4] & 0x7F));
 		}
 
-		if (build_buffer.length() == 0)
+		byte[] name;
+		var build_buffer = new StringBuilder(single ? "" : OWFile.separator);
+
+		for (var element = beginIndex; element < endIndex; element++) {
+			name = tempPath.elementAt(element);
+
+			if (!single && element != beginIndex) {
+				build_buffer.append(OWFile.separatorChar);
+			}
+
+			for (var i = 0; i < 4; i++) {
+				if (name[i] == (byte) 0x20) {
+					break;
+				}
+				build_buffer.append((char) name[i]);
+			}
+
+			if ((byte) (name[4] & 0x7F) != EXT_DIRECTORY && name[4] != EXT_UNKNOWN) {
+				build_buffer.append("." + Integer.toString(name[4] & 0x7F));
+			}
+		}
+
+		if (build_buffer.length() == 0) {
 			return null;
-		else
-			return build_buffer.toString();
+		}
+		return build_buffer.toString();
 	}
 
 	/**
@@ -2310,26 +2421,27 @@ public class OWFileDescriptor {
 	private boolean verifyPath(int depth) throws OneWireException {
 		byte[] element;
 
-		feStartPage = 0;
+		this.feStartPage = 0;
 
 		// \\//\\//\\//\\//\\//\\//\\//
-		if (doDebugMessages)
+		if (doDebugMessages) {
 			System.out.println("===verifyPath() depth=" + depth);
+		}
 
-		for (int element_num = 0; element_num < depth; element_num++) {
-			element = (byte[]) path.elementAt(element_num);
+		for (var element_num = 0; element_num < depth; element_num++) {
+			element = this.path.elementAt(element_num);
 
 			// remember where the parent entry is
-			feParentPage = feStartPage;
-			feParentOffset = feOffset;
-
+			var feParentPage = this.feStartPage;
 			// attempt to find the element starting at the last entry
-			if (!findElement(feStartPage, element, 0))
+			if (!this.findElement(this.feStartPage, element, 0)) {
 				return false;
+			}
 
 			// get the next entry start
-			feStartPage = Convert.toInt(feData, feOffset + LEN_FILENAME, LEN_PAGE_PTR);
-			feNumPages = Convert.toInt(feData, feOffset + LEN_FILENAME + LEN_PAGE_PTR, LEN_PAGE_PTR);
+			this.feStartPage = Convert.toInt(this.feData, this.feOffset + LEN_FILENAME, this.LEN_PAGE_PTR);
+			this.feNumPages = Convert.toInt(this.feData, this.feOffset + LEN_FILENAME + this.LEN_PAGE_PTR,
+					this.LEN_PAGE_PTR);
 		}
 
 		return true;
@@ -2349,58 +2461,63 @@ public class OWFileDescriptor {
 	 * @throws OneWireException when an IO error occurs
 	 */
 	private boolean findElement(int startPage, byte[] element, int offset) throws OneWireException {
-		int next_page = startPage;
+		var next_page = startPage;
 
 		// \\//\\//\\//\\//\\//\\//\\//
 		if (doDebugMessages) {
 			System.out.print("===findElement() start page=" + startPage + " element:");
-			debugDump(element, offset, 5);
+			this.debugDump(element, offset, 5);
 		}
 
 		// clear last page read flag in the cache
-		cache.clearLastPageRead();
+		this.cache.clearLastPageRead();
 
 		// read the 1-Wire device to find a file/directory reference
-		feOffset = LEN_CONTROL_DATA;
+		this.feOffset = this.LEN_CONTROL_DATA;
 
 		do {
-			fePage = next_page;
+			this.fePage = next_page;
 
 			// read the page
-			feLen = cache.readPagePacket(fePage, feData, 0);
+			this.feLen = this.cache.readPagePacket(this.fePage, this.feData, 0);
 
 			// if just read root directory, check filesystem
-			if (fePage == 0)
-				readBitMap();
+			if (this.fePage == 0) {
+				this.readBitMap();
+			}
 
 			// loop through the entries
-			for (; feOffset < (feLen - LEN_PAGE_PTR); feOffset += LEN_FILE_ENTRY) {
+			for (; this.feOffset < this.feLen - this.LEN_PAGE_PTR; this.feOffset += this.LEN_FILE_ENTRY) {
 				// compare with current element
-				if (elementEquals(element, offset, feData, feOffset)) {
+				if (this.elementEquals(element, offset, this.feData, this.feOffset)) {
 
 					// copy over any read-only or hidden flag in element name
-					if ((feData[feOffset + LEN_FILENAME - 1] & 0x80) != 0)
+					if ((this.feData[this.feOffset + LEN_FILENAME - 1] & 0x80) != 0) {
 						element[offset + LEN_FILENAME - 1] |= 0x80;
+					}
 
 					// \\//\\//\\//\\//\\//\\//\\//
-					if (doDebugMessages)
-						System.out.println("=found on page " + fePage + " at offset " + feOffset);
+					if (doDebugMessages) {
+						System.out.println("=found on page " + this.fePage + " at offset " + this.feOffset);
+					}
 
 					return true;
 				}
 			}
 
 			// get next page pointer to read
-			next_page = Convert.toInt(feData, feLen - LEN_PAGE_PTR, LEN_PAGE_PTR);
+			next_page = Convert.toInt(this.feData, this.feLen - this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
 
 			// reset loop start
-			if (next_page != 0)
-				feOffset = 0;
+			if (next_page != 0) {
+				this.feOffset = 0;
+			}
 		} while (next_page != 0);
 
 		// \\//\\//\\//\\//\\//\\//\\//
-		if (doDebugMessages)
+		if (doDebugMessages) {
 			System.out.println("=NOT found");
+		}
 
 		// end of directory and no entry found
 		return false;
@@ -2420,25 +2537,27 @@ public class OWFileDescriptor {
 		// \\//\\//\\//\\//\\//\\//\\//
 		if (doDebugMessages) {
 			System.out.print("===elementEquals()  ");
-			debugDump(file1, offset1, 5);
+			this.debugDump(file1, offset1, 5);
 			System.out.print("=to                 ");
-			debugDump(file2, offset2, 5);
+			this.debugDump(file2, offset2, 5);
 		}
 
-		for (int i = 0; i < 4; i++) {
-			if ((byte) file1[offset1 + i] != (byte) file2[offset2 + i])
+		for (var i = 0; i < 4; i++) {
+			if (file1[offset1 + i] != file2[offset2 + i]) {
 				return false;
+			}
 		}
 
 		// check if type is inknown (either a file with 000 extension or directory)
 		if (file1[offset1 + 4] == EXT_UNKNOWN) {
-			if ((file2[offset2 + 4] & 0x7F) == 0)
+			if ((file2[offset2 + 4] & 0x7F) == 0) {
 				file1[offset1 + 4] = 0;
-			else if ((file2[offset2 + 4] & 0x7F) == EXT_DIRECTORY)
+			} else if ((file2[offset2 + 4] & 0x7F) == EXT_DIRECTORY) {
 				file1[offset1 + 4] = EXT_DIRECTORY;
+			}
 		}
 
-		return ((byte) (file1[offset1 + 4] & 0x7F) == (byte) (file2[offset2 + 4] & 0x7F));
+		return (byte) (file1[offset1 + 4] & 0x7F) == (byte) (file2[offset2 + 4] & 0x7F);
 	}
 
 	/**
@@ -2451,11 +2570,12 @@ public class OWFileDescriptor {
 		try {
 
 			// \\//\\//\\//\\//\\//\\//\\//
-			if (doDebugMessages)
-				System.out.println("===fetchPage() " + lastPage);
+			if (doDebugMessages) {
+				System.out.println("===fetchPage() " + this.lastPage);
+			}
 
-			lastLen = cache.readPagePacket(lastPage, lastPageData, 0);
-			lastOffset = 0;
+			this.lastLen = this.cache.readPagePacket(this.lastPage, this.lastPageData, 0);
+			this.lastOffset = 0;
 		} catch (OneWireException e) {
 			throw new IOException(e.toString());
 		}
@@ -2482,27 +2602,28 @@ public class OWFileDescriptor {
 		if (doDebugMessages) {
 			System.out.print("===createEntry() ");
 			System.out.print("=prevEntryStart " + prevEntryStart + " ");
-			debugDump(newEntry, 0, 5);
-			debugDump(feData, 0, feLen);
+			this.debugDump(newEntry, 0, 5);
+			this.debugDump(this.feData, 0, this.feLen);
 		}
 
 		// clear last page read flag in the cache
-		cache.clearLastPageRead();
+		this.cache.clearLastPageRead();
 
 		int new_page;
 
 		try {
 
 			// check if room in current page
-			if ((feLen + LEN_FILE_ENTRY) <= maxDataLen) {
+			if (this.feLen + this.LEN_FILE_ENTRY <= this.maxDataLen) {
 
 				// add to current page
 				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
-					System.out.println("=add to current dir page " + fePage);
+				if (doDebugMessages) {
+					System.out.println("=add to current dir page " + this.fePage);
+				}
 
 				// get the pagebitmap
-				readBitMap();
+				this.readBitMap();
 
 				// check if this is just a new entry pointing to an old file
 				if (startPage != -1) {
@@ -2512,99 +2633,88 @@ public class OWFileDescriptor {
 					// get a new file to represent the new file/directory location
 
 					// get the next available page
-					new_page = getFirstFreePage((newEntry[4] == (byte) 102) || (newEntry[4] == (byte) 101));
+					new_page = this.getFirstFreePage(newEntry[4] == (byte) 102 || newEntry[4] == (byte) 101);
 
 					// verify got a free page
 					if (new_page < 0) {
 						try {
-							sync();
+							this.sync();
 						} catch (OWSyncFailedException e) {
 							// DRAIN
 						}
 
 						// if extension is 101 or 102, it could be there is not COUNTER pages
-						if ((newEntry[4] == (byte) 102) || (newEntry[4] == (byte) 101))
+						if (newEntry[4] == (byte) 102 || newEntry[4] == (byte) 101) {
 							throw new OWFileNotFoundException(
 									"Out of space on 1-Wire device, or no secure pages available");
-						else
-							throw new OWFileNotFoundException("Out of space on 1-Wire device");
+						}
+						throw new OWFileNotFoundException("Out of space on 1-Wire device");
 					}
 				}
 
 				// get next page pointer
-				int npp = Convert.toInt(feData, feLen - LEN_PAGE_PTR, LEN_PAGE_PTR);
+				var npp = Convert.toInt(this.feData, this.feLen - this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
 
 				// copy the file name into
-				System.arraycopy(newEntry, 0, feData, feLen - LEN_PAGE_PTR, LEN_FILENAME);
-				Convert.toByteArray(new_page, feData, feLen - LEN_PAGE_PTR + LEN_FILENAME, LEN_PAGE_PTR);
-				Convert.toByteArray(((numberPages == -1) ? 1 : numberPages), feData,
-						feLen - LEN_PAGE_PTR + LEN_FILENAME + LEN_PAGE_PTR, LEN_PAGE_PTR);
+				System.arraycopy(newEntry, 0, this.feData, this.feLen - this.LEN_PAGE_PTR, LEN_FILENAME);
+				Convert.toByteArray(new_page, this.feData, this.feLen - this.LEN_PAGE_PTR + LEN_FILENAME,
+						this.LEN_PAGE_PTR);
+				Convert.toByteArray(numberPages == -1 ? 1 : numberPages, this.feData,
+						this.feLen - this.LEN_PAGE_PTR + LEN_FILENAME + this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
 
-				feOffset = feLen - LEN_PAGE_PTR;
-				feLen = feLen + LEN_FILE_ENTRY;
+				this.feOffset = this.feLen - this.LEN_PAGE_PTR;
+				this.feLen = this.feLen + this.LEN_FILE_ENTRY;
 
 				// restore next page pointer
-				Convert.toByteArray(npp, feData, feLen - LEN_PAGE_PTR, LEN_PAGE_PTR);
+				Convert.toByteArray(npp, this.feData, this.feLen - this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
 
 				// check if this is not a rename operation
 				if (startPage == -1) {
 					// no rename, so write the new file/directory starting data
 
 					// mark page used
-					markPageUsed(new_page);
+					this.markPageUsed(new_page);
 
 					// put blank data page or directory entry in new page
 					if ((newEntry[4] & 0x7F) == EXT_DIRECTORY) {
 						// Directory Marker 'DM'
-						tempPage[0] = (LEN_PAGE_PTR == 1) ? (byte) 0x0A : (byte) 0x0B;
-						tempPage[0] |= (owd.length == 1) ? (byte) 0xA0 : 0xB0;
+						this.tempPage[0] = this.LEN_PAGE_PTR == 1 ? (byte) 0x0A : (byte) 0x0B;
+						this.tempPage[0] |= this.owd.length == 1 ? (byte) 0xA0 : 0xB0;
 
 						// dummy byte
-						tempPage[1] = 0;
+						this.tempPage[1] = 0;
 
-						System.arraycopy(prevEntry, 0, tempPage, 2, 4);
-						Convert.toByteArray(prevEntryStart, tempPage, 6, LEN_PAGE_PTR);
+						System.arraycopy(prevEntry, 0, this.tempPage, 2, 4);
+						Convert.toByteArray(prevEntryStart, this.tempPage, 6, this.LEN_PAGE_PTR);
 						// set next page pointer to end
-						Convert.toByteArray(0, tempPage, 6 + LEN_PAGE_PTR, LEN_PAGE_PTR);
-						cache.writePagePacket(new_page, tempPage, 0, 6 + LEN_PAGE_PTR * 2);
+						Convert.toByteArray(0, this.tempPage, 6 + this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
+						this.cache.writePagePacket(new_page, this.tempPage, 0, 6 + this.LEN_PAGE_PTR * 2);
 					} else {
-						Convert.toByteArray(0, smallBuf, 0, LEN_PAGE_PTR);
-						cache.writePagePacket(new_page, smallBuf, 0, LEN_PAGE_PTR);
+						Convert.toByteArray(0, this.smallBuf, 0, this.LEN_PAGE_PTR);
+						this.cache.writePagePacket(new_page, this.smallBuf, 0, this.LEN_PAGE_PTR);
 					}
 				}
 
 				// put new directory page in place
-				cache.writePagePacket(fePage, feData, 0, feLen);
-
-				// set the page bitmap
-				writeBitMap();
-
-				// if the new entry is not a directory
-				if ((newEntry[4] & 0x7F) != EXT_DIRECTORY) {
-
-					// setup the pointers for writing
-					filePosition = 0;
-					lastPage = new_page;
-					lastOffset = 0;
-					lastLen = 1;
-				}
+				this.cache.writePagePacket(this.fePage, this.feData, 0, this.feLen);
 			} else {
 				// need a new directory page
 
 				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
+				if (doDebugMessages) {
 					System.out.println("=need a new dir page ");
+				}
 
 				// get the pagebitmap
-				readBitMap();
+				this.readBitMap();
 
 				// get new page for directory
-				int new_dir_page = getFirstFreePage(false);
+				var new_dir_page = this.getFirstFreePage(false);
 
 				// verify got a free page
 				if (new_dir_page < 0) {
 					try {
-						sync();
+						this.sync();
 					} catch (OWSyncFailedException e) {
 						// DRAIN
 					}
@@ -2613,7 +2723,7 @@ public class OWFileDescriptor {
 				}
 
 				// mark page used
-				markPageUsed(new_dir_page);
+				this.markPageUsed(new_dir_page);
 
 				// check if this is just a new entry pointing to an old file
 				if (startPage != -1) {
@@ -2623,40 +2733,40 @@ public class OWFileDescriptor {
 					// get a new file to represent the new file/directory location
 
 					// get new page for the file
-					new_page = getNextFreePage((newEntry[4] == (byte) 102) || (newEntry[4] == (byte) 101));
+					new_page = this.getNextFreePage(newEntry[4] == (byte) 102 || newEntry[4] == (byte) 101);
 
 					// verify got a free page
 					if (new_page < 0) {
 						try {
-							sync();
+							this.sync();
 						} catch (OWSyncFailedException e) {
 							// DRAIN
 						}
 
 						// if extension is 101 or 102, it could be there is not COUNTER pages
-						if ((newEntry[4] == (byte) 102) || (newEntry[4] == (byte) 101))
+						if (newEntry[4] == (byte) 102 || newEntry[4] == (byte) 101) {
 							throw new OWFileNotFoundException(
 									"Out of space on 1-Wire device, or no secure pages available");
-						else
-							throw new OWFileNotFoundException("Out of space on 1-Wire device");
+						}
+						throw new OWFileNotFoundException("Out of space on 1-Wire device");
 					}
 
 					// mark page used
-					markPageUsed(new_page);
+					this.markPageUsed(new_page);
 				}
 
 				// create the new directory entry page
-				System.arraycopy(newEntry, 0, lastPageData, 0, LEN_FILENAME);
-				Convert.toByteArray(new_page, lastPageData, LEN_FILENAME, LEN_PAGE_PTR);
-				Convert.toByteArray(((numberPages == -1) ? 1 : numberPages), lastPageData, LEN_FILENAME + LEN_PAGE_PTR,
-						LEN_PAGE_PTR);
-				feOffset = 0;
+				System.arraycopy(newEntry, 0, this.lastPageData, 0, LEN_FILENAME);
+				Convert.toByteArray(new_page, this.lastPageData, LEN_FILENAME, this.LEN_PAGE_PTR);
+				Convert.toByteArray(numberPages == -1 ? 1 : numberPages, this.lastPageData,
+						LEN_FILENAME + this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
+				this.feOffset = 0;
 
 				// set next page pointer to end
-				Convert.toByteArray(0, lastPageData, LEN_FILE_ENTRY, LEN_PAGE_PTR);
+				Convert.toByteArray(0, this.lastPageData, this.LEN_FILE_ENTRY, this.LEN_PAGE_PTR);
 
 				// put new directory page in place
-				cache.writePagePacket(new_dir_page, lastPageData, 0, LEN_FILE_ENTRY + LEN_PAGE_PTR);
+				this.cache.writePagePacket(new_dir_page, this.lastPageData, 0, this.LEN_FILE_ENTRY + this.LEN_PAGE_PTR);
 
 				// check if this is not a rename operation
 				if (startPage == -1) {
@@ -2665,52 +2775,53 @@ public class OWFileDescriptor {
 					// write the new file/directory page
 					if ((newEntry[4] & 0x7F) == EXT_DIRECTORY) {
 						// Directory Marker 'DM'
-						tempPage[0] = (LEN_PAGE_PTR == 1) ? (byte) 0x0A : (byte) 0x0B;
-						tempPage[0] |= (owd.length == 1) ? (byte) 0xA0 : 0xB0;
+						this.tempPage[0] = this.LEN_PAGE_PTR == 1 ? (byte) 0x0A : (byte) 0x0B;
+						this.tempPage[0] |= this.owd.length == 1 ? (byte) 0xA0 : 0xB0;
 
 						// dummy byte
-						tempPage[1] = 0;
+						this.tempPage[1] = 0;
 
-						System.arraycopy(prevEntry, 0, tempPage, 2, 4);
-						Convert.toByteArray(prevEntryStart, tempPage, 6, LEN_PAGE_PTR);
+						System.arraycopy(prevEntry, 0, this.tempPage, 2, 4);
+						Convert.toByteArray(prevEntryStart, this.tempPage, 6, this.LEN_PAGE_PTR);
 						// set next page pointer to end
-						Convert.toByteArray(0, tempPage, 6 + LEN_PAGE_PTR, LEN_PAGE_PTR);
-						cache.writePagePacket(new_page, tempPage, 0, 6 + LEN_PAGE_PTR * 2);
+						Convert.toByteArray(0, this.tempPage, 6 + this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
+						this.cache.writePagePacket(new_page, this.tempPage, 0, 6 + this.LEN_PAGE_PTR * 2);
 					} else {
-						Convert.toByteArray(0, smallBuf, 0, LEN_PAGE_PTR);
-						cache.writePagePacket(new_page, smallBuf, 0, LEN_PAGE_PTR);
+						Convert.toByteArray(0, this.smallBuf, 0, this.LEN_PAGE_PTR);
+						this.cache.writePagePacket(new_page, this.smallBuf, 0, this.LEN_PAGE_PTR);
 					}
 				}
 
 				// update the page pointer in the old directory page
-				Convert.toByteArray(new_dir_page, feData, feLen - LEN_PAGE_PTR, LEN_PAGE_PTR);
+				Convert.toByteArray(new_dir_page, this.feData, this.feLen - this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
 
 				// put new directory page in place
-				cache.writePagePacket(fePage, feData, 0, feLen);
+				this.cache.writePagePacket(this.fePage, this.feData, 0, this.feLen);
 
 				// set file entry info to the new directory page
-				fePage = new_dir_page;
-				feOffset = 0;
-				feLen = LEN_FILE_ENTRY + LEN_PAGE_PTR;
-				System.arraycopy(lastPageData, 0, feData, 0, feLen);
+				this.fePage = new_dir_page;
+				this.feOffset = 0;
+				this.feLen = this.LEN_FILE_ENTRY + this.LEN_PAGE_PTR;
+				System.arraycopy(this.lastPageData, 0, this.feData, 0, this.feLen);
 
 				// \\//\\//\\//\\//\\//\\//\\//
 				if (doDebugMessages) {
-					System.out.println("=NEW fePage=" + fePage + " feOffset " + feOffset + " feLen " + feLen);
-					debugDump(feData, 0, feLen);
+					System.out.println(
+							"=NEW fePage=" + this.fePage + " feOffset " + this.feOffset + " feLen " + this.feLen);
+					this.debugDump(this.feData, 0, this.feLen);
 				}
+			}
+			// set the page bitmap
+			this.writeBitMap();
 
-				// set the page bitmap
-				writeBitMap();
+			// if the new entry is not a directory
+			if ((newEntry[4] & 0x7F) != EXT_DIRECTORY) {
 
-				// if the new entry is a directory
-				if ((newEntry[4] & 0x7F) != EXT_DIRECTORY) {
-					// set file position info
-					filePosition = 0;
-					lastPage = new_page;
-					lastOffset = 0;
-					lastLen = 1;
-				}
+				// setup the pointers for writing
+				this.filePosition = 0;
+				this.lastPage = new_page;
+				this.lastOffset = 0;
+				this.lastLen = 1;
 			}
 		} catch (OneWireException e) {
 			throw new OWFileNotFoundException(e.toString());
@@ -2726,129 +2837,141 @@ public class OWFileDescriptor {
 	private void validateFileSystem() throws OneWireException {
 
 		// \\//\\//\\//\\//\\//\\//\\//
-		if (doDebugMessages)
+		if (doDebugMessages) {
 			System.out.println("===validateFileSystem()");
+		}
 
 		// clear last page read flag in the cache
-		cache.clearLastPageRead();
+		this.cache.clearLastPageRead();
 
 		// check for SATELLITE
-		LEN_PAGE_PTR = ((feData[0] & 0x000F) == 0x0B) ? 2 : 1;
-		if (((feData[0] & 0x00F0) == 0xB0) && ((feData[1 + LEN_PAGE_PTR] & 0x0002) == 0)) {
+		this.LEN_PAGE_PTR = (this.feData[0] & 0x000F) == 0x0B ? 2 : 1;
+		if ((this.feData[0] & 0x00F0) == 0xB0 && (this.feData[1 + this.LEN_PAGE_PTR] & 0x0002) == 0) {
 			// read the DM page
-			int len = cache.readPagePacket(Convert.toInt(feData, 1, LEN_PAGE_PTR), dmBuf, 0);
+			var len = this.cache.readPagePacket(Convert.toInt(this.feData, 1, this.LEN_PAGE_PTR), this.dmBuf, 0);
 
-			if (len >= (8 + LEN_PAGE_PTR)) {
-				// copy address to temp buff (or piece of address number)
-				System.arraycopy(dmBuf, 0, addrBuf, 0, 8);
-
-				// get ref to adapter to create the new MASTER container
-				DSPortAdapter adapter = owd[0].getAdapter();
-				owd = new OneWireContainer[1];
-				owd[0] = adapter.getDeviceContainer(addrBuf);
-
-				// check for overdrive
-				if ((adapter.getSpeed() == DSPortAdapter.SPEED_OVERDRIVE)
-						&& (owd[0].getMaxSpeed() == DSPortAdapter.SPEED_OVERDRIVE))
-					owd[0].setSpeed(DSPortAdapter.SPEED_OVERDRIVE, false);
-
-				// free the current cache
-				cache.removeOwner(this);
-				if (cache.noOwners()) {
-					// remove the cache from the hash
-					memoryCacheHash.remove(address);
-					cache = null;
-				}
-
-				// recreate the cache and setup
-				setupFD(owd, rawPath);
-
-				// get the new root dir
-				fePage = 0;
-				feLen = cache.readPagePacket(0, feData, 0);
-
-				// make sure this is not a SATELLITE also (could be recursively bad!)
-				LEN_PAGE_PTR = ((feData[0] & 0x000F) == 0x0B) ? 2 : 1;
-				if (((feData[0] & 0x000F) == 0x0B) && ((feData[1 + LEN_PAGE_PTR] & 0x0002) == 0))
-					throw new OneWireIOException(
-							"Invalid filesystem, this is a satellite device, pointing to another satellite?");
-
-				// call this recursively
-				validateFileSystem();
-				return;
-			} else
+			if (len < 8 + this.LEN_PAGE_PTR) {
 				throw new OneWireIOException(
 						"Invalid filesystem, this is a satellite device with invalid MASTER reference");
+			}
+			// copy address to temp buff (or piece of address number)
+			System.arraycopy(this.dmBuf, 0, this.addrBuf, 0, 8);
+
+			// get ref to adapter to create the new MASTER container
+			var adapter = this.owd[0].getAdapter();
+			this.owd = new OneWireContainer[1];
+			this.owd[0] = adapter.getDeviceContainer(this.addrBuf);
+
+			// check for overdrive
+			if (adapter.getSpeed() == DSPortAdapter.SPEED_OVERDRIVE
+					&& this.owd[0].getMaxSpeed() == DSPortAdapter.SPEED_OVERDRIVE) {
+				this.owd[0].setSpeed(DSPortAdapter.SPEED_OVERDRIVE, false);
+			}
+
+			// free the current cache
+			this.cache.removeOwner(this);
+			if (this.cache.noOwners()) {
+				// remove the cache from the hash
+				memoryCacheHash.remove(this.address);
+				this.cache = null;
+			}
+
+			// recreate the cache and setup
+			this.setupFD(this.owd, this.rawPath);
+
+			// get the new root dir
+			this.fePage = 0;
+			this.feLen = this.cache.readPagePacket(0, this.feData, 0);
+
+			// make sure this is not a SATELLITE also (could be recursively bad!)
+			this.LEN_PAGE_PTR = (this.feData[0] & 0x000F) == 0x0B ? 2 : 1;
+			if ((this.feData[0] & 0x000F) == 0x0B && (this.feData[1 + this.LEN_PAGE_PTR] & 0x0002) == 0) {
+				throw new OneWireIOException(
+						"Invalid filesystem, this is a satellite device, pointing to another satellite?");
+			}
+
+			// call this recursively
+			this.validateFileSystem();
+			return;
 		}
 
 		// check for MASTER
-		if (((feData[0] & 0x00F0) == 0xB0) && ((feData[1 + LEN_PAGE_PTR] & 0x0002) == 0x0002)) {
+		if ((this.feData[0] & 0x00F0) == 0xB0 && (this.feData[1 + this.LEN_PAGE_PTR] & 0x0002) == 0x0002) {
 			// read the DM file
-			int page = Convert.toInt(feData, 1, LEN_PAGE_PTR);
+			var page = Convert.toInt(this.feData, 1, this.LEN_PAGE_PTR);
 
 			// make sure is valid page
-			if ((page == 0) || (page >= totalPages))
+			if (page == 0 || page >= this.totalPages) {
 				throw new OneWireIOException("Invalid Filesystem, Device Map page number not valid.");
+			}
 
 			// check for incorrect or incomplete device list (member owd)
-			int num_devices = verifyDeviceMap(page, 0, false);
+			var num_devices = this.verifyDeviceMap(page, 0, false);
 			if (num_devices > 0) {
 				// create a new list
-				verifyDeviceMap(page, num_devices, (owd[0].getAdapter().getSpeed() == DSPortAdapter.SPEED_OVERDRIVE));
+				this.verifyDeviceMap(page, num_devices,
+						this.owd[0].getAdapter().getSpeed() == DSPortAdapter.SPEED_OVERDRIVE);
 
 				// free the current cache
-				cache.removeOwner(this);
-				if (cache.noOwners()) {
+				this.cache.removeOwner(this);
+				if (this.cache.noOwners()) {
 					// remove the cache from the hash
-					memoryCacheHash.remove(address);
-					cache = null;
+					memoryCacheHash.remove(this.address);
+					this.cache = null;
 				}
 
 				// recreate the cache and setup
-				setupFD(owd, rawPath);
+				this.setupFD(this.owd, this.rawPath);
 
 				// continue on with the root dir
-				fePage = 0;
-				feLen = cache.readPagePacket(0, feData, 0);
+				this.fePage = 0;
+				this.feLen = this.cache.readPagePacket(0, this.feData, 0);
 			}
 		}
 
 		// check and verify that this is a valid directory
-		if (((totalPages <= 256) && ((feData[0] & 0x000F) != 0x0A))
-				|| ((totalPages > 256) && ((feData[0] & 0x000F) != 0x0B)))
+		if (this.totalPages <= 256 && (this.feData[0] & 0x000F) != 0x0A
+				|| this.totalPages > 256 && (this.feData[0] & 0x000F) != 0x0B) {
 			throw new OneWireIOException("Invalid Filesystem marker found, number of pages incorrect");
+		}
 
-		if (((owd.length == 1) && ((feData[0] & 0x00F0) != 0x00A0))
-				|| ((owd.length > 1) && ((feData[0] & 0x00F0) != 0x00B0)))
+		if (this.owd.length == 1 && (this.feData[0] & 0x00F0) != 0x00A0
+				|| this.owd.length > 1 && (this.feData[0] & 0x00F0) != 0x00B0) {
 			throw new OneWireIOException("Invalid Filesystem marker found, multi-device marker incorrect");
+		}
 
 		// check where page bitmap is
-		if ((feData[1 + LEN_PAGE_PTR] & 0x0080) != 0) {
-			bitmapType = BM_LOCAL;
-			pbmByteOffset = 2 + LEN_PAGE_PTR;
-			pbmBitOffset = 0;
-			pbmStartPage = 0; // used as flag to see if filesystem has been validated
-		} else if (bitmapType != BM_CACHE) {
-			bitmapType = BM_FILE;
-			pbmStartPage = Convert.toInt(feData, LEN_CONTROL_DATA - LEN_PAGE_PTR * 2, LEN_PAGE_PTR);
-			pbmNumPages = Convert.toInt(feData, LEN_CONTROL_DATA - LEN_PAGE_PTR, LEN_PAGE_PTR);
-			pbmByteOffset = 0;
-			pbmBitOffset = 0;
+		if ((this.feData[1 + this.LEN_PAGE_PTR] & 0x0080) != 0) {
+			this.bitmapType = BM_LOCAL;
+			this.pbmByteOffset = 2 + this.LEN_PAGE_PTR;
+			this.pbmBitOffset = 0;
+			this.pbmStartPage = 0; // used as flag to see if filesystem has been validated
+		} else if (this.bitmapType != BM_CACHE) {
+			this.bitmapType = BM_FILE;
+			this.pbmStartPage = Convert.toInt(this.feData, this.LEN_CONTROL_DATA - this.LEN_PAGE_PTR * 2,
+					this.LEN_PAGE_PTR);
+			this.pbmNumPages = Convert.toInt(this.feData, this.LEN_CONTROL_DATA - this.LEN_PAGE_PTR, this.LEN_PAGE_PTR);
+			this.pbmByteOffset = 0;
+			this.pbmBitOffset = 0;
 
 			// make sure the number of pages in a FILE BM is correct
-			int pbm_bytes = (totalPages / 8);
-			int pgs = pbm_bytes / (maxDataLen - LEN_PAGE_PTR);
-			if ((pbm_bytes % (maxDataLen - LEN_PAGE_PTR)) > 0)
+			var pbm_bytes = this.totalPages / 8;
+			var pgs = pbm_bytes / (this.maxDataLen - this.LEN_PAGE_PTR);
+			if (pbm_bytes % (this.maxDataLen - this.LEN_PAGE_PTR) > 0) {
 				pgs++;
+			}
 
-			if (pbmNumPages != pgs)
+			if (this.pbmNumPages != pgs) {
 				throw new OneWireIOException("Invalid Filesystem, incorrect number of pages in remote bitmap file!");
-		} else
-			pbmStartPage = 0;
+			}
+		} else {
+			this.pbmStartPage = 0;
+		}
 
 		// \\//\\//\\//\\//\\//\\//\\//
-		if (doDebugMessages)
-			System.out.println("= is valid, pbmStartPage=" + pbmStartPage);
+		if (doDebugMessages) {
+			System.out.println("= is valid, pbmStartPage=" + this.pbmStartPage);
+		}
 	}
 
 	/**
@@ -2870,46 +2993,47 @@ public class OWFileDescriptor {
 	 */
 	protected int verifyDeviceMap(int startPage, int numberOfContainers, boolean setOverdrive) throws OneWireException {
 		int len, data_len;
-		int ow_cnt = 1;
-		int addr_offset = 0;
-		int pg_offset = 0;
+		var ow_cnt = 1;
+		var addr_offset = 0;
+		var pg_offset = 0;
 		int copy_len;
 		DSPortAdapter adapter = null;
 
 		// flag to indicate the device list 'owd' list is valid
-		boolean list_valid = true;
+		var list_valid = true;
 
 		// first page to read
-		int page = startPage;
+		var page = startPage;
 
 		// clear last page read flag in the cache
-		cache.clearLastPageRead();
+		this.cache.clearLastPageRead();
 
 		// check to see if need to create a new array for the new list of containers
 		if (numberOfContainers > 0) {
 			// get reference to the adapter for use in creating containers
-			adapter = owd[0].getAdapter();
+			adapter = this.owd[0].getAdapter();
 
-			OneWireContainer master_owc = owd[0];
-			owd = new OneWireContainer[numberOfContainers + 1];
-			owd[0] = master_owc;
+			var master_owc = this.owd[0];
+			this.owd = new OneWireContainer[numberOfContainers + 1];
+			this.owd[0] = master_owc;
 		}
 
 		// loop to read the Device Map file
 		do {
 			// read the first file page
-			len = cache.readPagePacket(page, dmBuf, 0);
-			data_len = len - LEN_PAGE_PTR;
+			len = this.cache.readPagePacket(page, this.dmBuf, 0);
+			data_len = len - this.LEN_PAGE_PTR;
 
 			// loop through the device addresses in the device map file
 			while (pg_offset < data_len) {
-				if ((data_len - pg_offset) >= (8 - addr_offset))
+				if (data_len - pg_offset >= 8 - addr_offset) {
 					copy_len = 8 - addr_offset;
-				else
+				} else {
 					copy_len = data_len - pg_offset;
+				}
 
 				// copy address to temp buff (or piece of address number)
-				System.arraycopy(dmBuf, pg_offset, addrBuf, addr_offset, copy_len);
+				System.arraycopy(this.dmBuf, pg_offset, this.addrBuf, addr_offset, copy_len);
 
 				// increment offsets
 				addr_offset += copy_len;
@@ -2919,17 +3043,17 @@ public class OWFileDescriptor {
 				if (addr_offset >= 8) {
 					// check if creating OneWireContainers
 					if (numberOfContainers > 0) {
-						owd[ow_cnt] = adapter.getDeviceContainer(addrBuf);
+						this.owd[ow_cnt] = adapter.getDeviceContainer(this.addrBuf);
 
 						// set new container to correct speed
-						if (setOverdrive && (owd[ow_cnt].getMaxSpeed() == DSPortAdapter.SPEED_OVERDRIVE))
-							owd[ow_cnt].setSpeed(DSPortAdapter.SPEED_OVERDRIVE, false);
-					} else {
-						// not creating containers so just check if correct
-						if (owd.length <= ow_cnt)
-							list_valid = false;
-						else if (Address.toLong(addrBuf) != owd[ow_cnt].getAddressAsLong())
-							list_valid = false;
+						if (setOverdrive && this.owd[ow_cnt].getMaxSpeed() == DSPortAdapter.SPEED_OVERDRIVE) {
+							this.owd[ow_cnt].setSpeed(DSPortAdapter.SPEED_OVERDRIVE, false);
+						}
+					} else // not creating containers so just check if correct
+					if (this.owd.length <= ow_cnt) {
+						list_valid = false;
+					} else if (Address.toLong(this.addrBuf) != this.owd[ow_cnt].getAddressAsLong()) {
+						list_valid = false;
 					}
 
 					ow_cnt++;
@@ -2938,13 +3062,13 @@ public class OWFileDescriptor {
 			}
 
 			// get the next page
-			page = Convert.toInt(dmBuf, data_len, LEN_PAGE_PTR);
+			page = Convert.toInt(this.dmBuf, data_len, this.LEN_PAGE_PTR);
 
 			pg_offset = 0;
 		} while (page != 0);
 
 		// verify correct number of devices found
-		return (list_valid) ? 0 : ow_cnt - 1;
+		return list_valid ? 0 : ow_cnt - 1;
 	}
 
 	/**
@@ -2963,8 +3087,9 @@ public class OWFileDescriptor {
 			name_len = 0;
 
 			// check if this is the last field
-			if ((index == -1) && (last_index < rawPath.length()))
+			if (index == -1 && last_index < rawPath.length()) {
 				index = rawPath.length();
+			}
 
 			// not done
 			if (index > 0) {
@@ -2980,7 +3105,7 @@ public class OWFileDescriptor {
 				// create byte array for field
 				name = new byte[LEN_FILENAME];
 
-				System.arraycopy(initName, 0, name, 0, LEN_FILENAME);
+				System.arraycopy(this.initName, 0, name, 0, LEN_FILENAME);
 
 				// check if this is: ".", "..", or "name.number"
 				period_index = field.indexOf(".", 0);
@@ -2998,74 +3123,74 @@ public class OWFileDescriptor {
 					name_len = field.length();
 
 					// check if last field
-					if (index != rawPath.length())
+					if (index != rawPath.length()) {
 						name[4] = EXT_DIRECTORY;
+					}
 
 					// \\//\\//\\//\\//\\//\\//\\//
 					if (doDebugMessages) {
 						System.out.print("=Parse, directory: ");
-						debugDump(name, 0, 5);
+						this.debugDump(name, 0, 5);
+					}
+				} else // assume that if first char is '.' then must be '.' or '..' directory refs
+				if (period_index == 0) {
+
+					// check for valid length
+					if (field.length() > 2) {
+
+						// \\//\\//\\//\\//\\//\\//\\//
+						if (doDebugMessages) {
+							System.out.println("=Parse ERROR, '.' field length > 2 ");
+						}
+
+						return false;
+					}
+
+					System.arraycopy(field.getBytes(), 0, name, 0, field.length());
+					name[4] = EXT_DIRECTORY;
+					name_len = field.length();
+
+					// \\//\\//\\//\\//\\//\\//\\//
+					if (doDebugMessages) {
+						System.out.print("=Parse, directory: ");
+						this.debugDump(name, 0, 5);
 					}
 				} else {
 
-					// assume that if first char is '.' then must be '.' or '..' directory refs
-					if (period_index == 0) {
+					// is name.number file
+					name_len = period_index;
 
-						// check for valid length
-						if (field.length() > 2) {
+					// get name part
+					System.arraycopy(field.getBytes(), 0, name, 0, period_index);
 
-							// \\//\\//\\//\\//\\//\\//\\//
-							if (doDebugMessages)
-								System.out.println("=Parse ERROR, '.' field length > 2 ");
+					// get the name part
+					try {
+						name[4] = (byte) Integer.parseInt(field.substring(period_index + 1));
+					} catch (NumberFormatException e) {
+						return false;
+					}
 
-							return false;
-						}
+					// \\//\\//\\//\\//\\//\\//\\//
+					if (doDebugMessages) {
+						System.out.print("=Parse, file: ");
+						this.debugDump(name, 0, 5);
+					}
 
-						System.arraycopy(field.getBytes(), 0, name, 0, field.length());
-						name[4] = EXT_DIRECTORY;
-						name_len = field.length();
-
-						// \\//\\//\\//\\//\\//\\//\\//
-						if (doDebugMessages) {
-							System.out.print("=Parse, directory: ");
-							debugDump(name, 0, 5);
-						}
-					} else {
-
-						// is name.number file
-						name_len = period_index;
-
-						// get name part
-						System.arraycopy(field.getBytes(), 0, name, 0, period_index);
-
-						// get the name part
-						try {
-							name[4] = (byte) Integer.parseInt(field.substring(period_index + 1, field.length()));
-						} catch (NumberFormatException e) {
-							return false;
-						}
+					// check if invalid field or extension
+					if (index != rawPath.length() || (name[4] & 0x00FF) > 102) {
 
 						// \\//\\//\\//\\//\\//\\//\\//
 						if (doDebugMessages) {
-							System.out.print("=Parse, file: ");
-							debugDump(name, 0, 5);
+							System.out.println("=Parse ERROR, extension > 102 or spaces detected");
 						}
 
-						// check if invalid field or extension
-						if ((index != rawPath.length()) || ((name[4] & 0x00FF) > 102)) {
-
-							// \\//\\//\\//\\//\\//\\//\\//
-							if (doDebugMessages)
-								System.out.println("=Parse ERROR, extension > 102 or spaces detected");
-
-							return false;
-						}
+						return false;
 					}
 				}
 
 				// make sure file name is exceptable
 				for (i = 0; i < name_len; i++) {
-					if (((name[i] & 0x00FF) < 0x21) || ((name[i] & 0x00FF) > 0x7E)) {
+					if ((name[i] & 0x00FF) < 0x21 || (name[i] & 0x00FF) > 0x7E) {
 						return false;
 					}
 				}
@@ -3098,17 +3223,16 @@ public class OWFileDescriptor {
 	 *
 	 */
 	protected boolean createNewFile() throws IOException {
-		if (exists())
+		if (this.exists()) {
 			return false;
-		else {
-			try {
-				create(false, false, false, -1, -1);
-			} catch (OWFileNotFoundException e) {
-				throw new IOException(e.toString());
-			}
-
-			return true;
 		}
+		try {
+			this.create(false, false, false, -1, -1);
+		} catch (OWFileNotFoundException e) {
+			throw new IOException(e.toString());
+		}
+
+		return true;
 	}
 
 	/**
@@ -3123,16 +3247,18 @@ public class OWFileDescriptor {
 	 * @return A hash code for this abstract pathname
 	 */
 	protected int getHashCode() {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			int i, j, hash = 0;
-			String this_path = owd[0].getAddressAsString() + getPath();
-			byte[] path_bytes = this_path.getBytes();
+			var this_path = this.owd[0].getAddressAsString() + this.getPath();
+			var path_bytes = this_path.getBytes();
 
-			for (i = 0; i < (path_bytes.length / 4); i++)
+			for (i = 0; i < path_bytes.length / 4; i++) {
 				hash ^= Convert.toInt(path_bytes, i * 4, 4);
+			}
 
-			for (j = 0; j < (path_bytes.length % 4); j++)
-				hash ^= (int) (path_bytes[i * 4 + j] & 0x00FF);
+			for (j = 0; j < path_bytes.length % 4; j++) {
+				hash ^= path_bytes[i * 4 + j] & 0x00FF;
+			}
 
 			return hash;
 		}
@@ -3146,7 +3272,7 @@ public class OWFileDescriptor {
 	 *
 	 */
 	protected OneWireContainer[] getOneWireContainers() {
-		return owd;
+		return this.owd;
 	}
 
 	/**
@@ -3154,24 +3280,26 @@ public class OWFileDescriptor {
 	 *
 	 */
 	protected void free() {
-		synchronized (cache) {
+		synchronized (this.cache) {
 			// if opened to write then remove the block
-			if (openedToWrite)
-				cache.removeWriteOpen(owd[0].getAddressAsString() + getPath());
+			if (this.openedToWrite) {
+				this.cache.removeWriteOpen(this.owd[0].getAddressAsString() + this.getPath());
+			}
 
 			// remove this owner from the list
-			cache.removeOwner(this);
+			this.cache.removeOwner(this);
 
 			// if not more owners then free the cache
-			if (cache.noOwners()) {
+			if (this.cache.noOwners()) {
 				// remove the cache from the hash
-				memoryCacheHash.remove(address);
+				memoryCacheHash.remove(this.address);
 
-				cache = null;
+				this.cache = null;
 
 				// \\//\\//\\//\\//\\//\\//\\//
-				if (doDebugMessages)
-					System.out.println("=released cache for " + Address.toString(address.longValue()));
+				if (doDebugMessages) {
+					System.out.println("=released cache for " + Address.toString(this.address.longValue()));
+				}
 			}
 		}
 	}
@@ -3184,10 +3312,11 @@ public class OWFileDescriptor {
 	 * @param len    length to dump
 	 */
 	private void debugDump(byte[] buf, int offset, int len) {
-		for (int i = offset; i < (offset + len); i++) {
-			System.out.print(Integer.toHexString((int) buf[i] & 0x00FF) + " ");
+		for (var i = offset; i < offset + len; i++) {
+			System.out.print(Integer.toHexString(buf[i] & 0x00FF) + " ");
 		}
 
 		System.out.println();
 	}
 }
+// CHECKSTYLE:ON

@@ -3,6 +3,9 @@ package io.openems.common.session;
 import java.util.Collections;
 import java.util.NavigableMap;
 import java.util.Optional;
+import java.util.TreeMap;
+
+import com.google.gson.JsonObject;
 
 /**
  * Represents a User; shared by OpenEMS Backend
@@ -27,15 +30,28 @@ public abstract class AbstractUser {
 	private final Role globalRole;
 
 	/**
+	 * The {@link Language}.
+	 */
+	private Language language = Language.DEFAULT;
+
+	/**
+	 * The user specific settings.
+	 */
+	private final JsonObject settings;
+
+	/**
 	 * Roles per Edge-ID.
 	 */
-	private final NavigableMap<String, Role> roles;
+	private final NavigableMap<String, Role> roles = new TreeMap<>();
 
-	protected AbstractUser(String id, String name, Role globalRole, NavigableMap<String, Role> roles) {
+	protected AbstractUser(String id, String name, Language language, Role globalRole, NavigableMap<String, Role> roles,
+			JsonObject settings) {
 		this.id = id;
 		this.name = name;
+		this.language = language;
 		this.globalRole = globalRole;
-		this.roles = roles;
+		this.roles.putAll(roles);
+		this.settings = settings == null ? new JsonObject() : settings;
 	}
 
 	public String getId() {
@@ -44,6 +60,24 @@ public abstract class AbstractUser {
 
 	public String getName() {
 		return this.name;
+	}
+
+	/**
+	 * Gets the user language.
+	 *
+	 * @return the language
+	 */
+	public Language getLanguage() {
+		return this.language;
+	}
+
+	/**
+	 * Sets the user language.
+	 * 
+	 * @param language the {@link Language}
+	 */
+	public void setLanguage(Language language) {
+		this.language = language;
 	}
 
 	/**
@@ -83,5 +117,21 @@ public abstract class AbstractUser {
 	public void setRole(String edgeId, Role role) {
 		this.roles.put(edgeId, role);
 	}
+
+	/**
+	 * Gets the settings for this user.
+	 *
+	 * @return the Role
+	 */
+	public JsonObject getSettings() {
+		return this.settings;
+	}
+
+	/**
+	 * Gets the Number of Devices, that the user is allowed to see.
+	 * 
+	 * @return the numberOfDevices
+	 */
+	public abstract boolean hasMultipleEdges();
 
 }

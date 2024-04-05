@@ -1,17 +1,17 @@
 package io.openems.edge.fenecon.mini.ess;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.ess.api.SinglePhase;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		public boolean readonly;
-		public SinglePhase phase;
-		public String modbusId;
+		private String id;
+		private boolean readonly;
+		private SinglePhase phase;
+		private String modbusId;
 
 		private Builder() {
 
@@ -44,7 +44,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

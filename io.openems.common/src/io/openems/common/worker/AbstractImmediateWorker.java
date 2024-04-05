@@ -25,5 +25,5 @@ public abstract class AbstractImmediateWorker extends AbstractWorker {
 	}
 
 	@Override
-	protected abstract void forever() throws InterruptedException;
+	protected abstract void forever() throws Throwable;
 }

@@ -4,7 +4,9 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.TreeSet;
 
 import com.google.gson.JsonArray;
@@ -13,8 +15,8 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.DateUtils;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -26,11 +28,14 @@ import io.openems.common.utils.JsonUtils;
  *   "id": "UUID",
  *   "method": "queryHistoricTimeseriesData",
  *   "params": {
- *     "timezone": Number,
  *     "fromDate": YYYY-MM-DD,
  *     "toDate": YYYY-MM-DD,
  *     "channels": ChannelAddress[],
- *     "resolution"?: Number
+ *     "timezone": String,
+ *     "resolution"?: {
+ *       "value": Number,
+ *       "unit": {@link ChronoUnit}
+ *     }
  *   }
  * }
  * </pre>
@@ -49,11 +54,35 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 	 */
 	public static QueryHistoricTimeseriesDataRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		var p = r.getParams();
-		var timezoneDiff = JsonUtils.getAsInt(p, "timezone");
-		var timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
-		var fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
-		var toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
-		var resolution = JsonUtils.getAsOptionalInt(p, "resolution").orElse(null);
+
+		var jTimezone = JsonUtils.getAsPrimitive(p, "timezone");
+		final ZoneId timezone;
+		if (jTimezone.isNumber()) {
+			// For UI version before 2022.4.0
+			timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(JsonUtils.getAsInt(jTimezone) * -1));
+		} else {
+			timezone = TimeZone.getTimeZone(JsonUtils.getAsString(p, "timezone")).toZoneId();
+		}
+
+		var fromDate = JsonUtils.getAsZonedDateWithZeroTime(p, "fromDate", timezone);
+		var toDate = JsonUtils.getAsZonedDateWithZeroTime(p, "toDate", timezone).plusDays(1);
+
+		var jResolutionOpt = JsonUtils.getOptionalSubElement(p, "resolution");
+		final Optional<Resolution> resolution;
+		if (jResolutionOpt.isPresent()) {
+			var jResolution = jResolutionOpt.get();
+			if (jResolution.isJsonPrimitive()) {
+				// For UI version before 2022.4.0
+				resolution = Optional.of(new Resolution(JsonUtils.getAsInt(jResolution), ChronoUnit.SECONDS));
+			} else {
+				var value = JsonUtils.getAsInt(jResolution, "value");
+				var unit = JsonUtils.getAsString(jResolution, "unit");
+				resolution = Optional.of(new Resolution(value, unit));
+			}
+		} else {
+			resolution = Optional.empty();
+		}
+
 		var result = new QueryHistoricTimeseriesDataRequest(r, fromDate, toDate, resolution);
 		var channels = JsonUtils.getAsJsonArray(p, "channels");
 		for (JsonElement channel : channels) {
@@ -65,33 +94,28 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 
 	private static final DateTimeFormatter FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
-	private final int timezoneDiff;
 	private final ZonedDateTime fromDate;
 	private final ZonedDateTime toDate;
 	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
 
 	/**
-	 * Resolution of the data in seconds or null for automatic.
+	 * Resolution of the data or empty for automatic.
 	 */
-	private final Integer resolution;
+	private final Optional<Resolution> resolution;
 
 	private QueryHistoricTimeseriesDataRequest(JsonrpcRequest request, ZonedDateTime fromDate, ZonedDateTime toDate,
-			Integer resolution) throws OpenemsNamedException {
+			Optional<Resolution> resolution) throws OpenemsNamedException {
 		super(request, QueryHistoricTimeseriesDataRequest.METHOD);
 
-		DateUtils.assertSameTimezone(fromDate, toDate);
-		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 		this.resolution = resolution;
 	}
 
-	public QueryHistoricTimeseriesDataRequest(ZonedDateTime fromDate, ZonedDateTime toDate, Integer resolution)
-			throws OpenemsNamedException {
+	public QueryHistoricTimeseriesDataRequest(ZonedDateTime fromDate, ZonedDateTime toDate,
+			Optional<Resolution> resolution) throws OpenemsNamedException {
 		super(QueryHistoricTimeseriesDataRequest.METHOD);
 
-		DateUtils.assertSameTimezone(fromDate, toDate);
-		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 		this.resolution = resolution;
@@ -107,13 +131,20 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 		for (ChannelAddress address : this.channels) {
 			channels.add(address.toString());
 		}
-		return JsonUtils.buildJsonObject() //
-				.addProperty("timezone", this.timezoneDiff) //
+
+		var params = JsonUtils.buildJsonObject() //
 				.addProperty("fromDate", QueryHistoricTimeseriesDataRequest.FORMAT.format(this.fromDate)) //
 				.addProperty("toDate", QueryHistoricTimeseriesDataRequest.FORMAT.format(this.toDate)) //
-				.add("channels", channels) //
-				.addPropertyIfNotNull("resolution", this.resolution) //
-				.build();
+				.add("channels", channels);
+
+		this.resolution.ifPresent(resolution -> {
+			params.add("resolution", JsonUtils.buildJsonObject() //
+					.addProperty("unit", resolution.getUnit().name()) //
+					.addProperty("value", resolution.getValue()) //
+					.build());
+		});
+
+		return params.build();
 	}
 
 	/**
@@ -144,12 +175,12 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 	}
 
 	/**
-	 * Gets the requested Resolution in [s].
+	 * Gets the requested Resolution.
 	 *
 	 * @return Resolution
 	 */
-	public Optional<Integer> getResolution() {
-		return Optional.ofNullable(this.resolution);
+	public Optional<Resolution> getResolution() {
+		return this.resolution;
 	}
 
 }

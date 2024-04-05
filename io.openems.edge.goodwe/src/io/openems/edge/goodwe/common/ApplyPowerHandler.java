@@ -15,7 +15,7 @@ public class ApplyPowerHandler {
 	/**
 	 * Apply the desired Active-Power Set-Point by setting the appropriate
 	 * EMS_POWER_SET and EMS_POWER_MODE settings.
-	 * 
+	 *
 	 * @param goodWe          the GoodWe - either Battery-Inverter or ESS
 	 * @param setActivePower  the Active-Power Set-Point
 	 * @param controlMode     the {@link ControlMode} to handle the different
@@ -90,30 +90,18 @@ public class ApplyPowerHandler {
 	private static Result handleSmartMode(AbstractGoodWe goodWe, int activePowerSetPoint, int pvProduction,
 			int gridActivePower, int essActivePower, int maxAcImport, int maxAcExport) throws OpenemsNamedException {
 
-		// Is Balancing to zero active?
-		int diffBalancing = activePowerSetPoint - (gridActivePower + essActivePower);
-
 		// Is Surplus-Feed-In active?
-		final Integer surplusPower = goodWe.getSurplusPower();
-		int diffSurplus = Integer.MAX_VALUE;
+		final var surplusPower = goodWe.getSurplusPower();
+		var diffSurplus = Integer.MAX_VALUE;
 		if (surplusPower != null && surplusPower > 0 && activePowerSetPoint != 0) {
 			diffSurplus = activePowerSetPoint - surplusPower;
 		}
 
-		// Is charging from AC at maximum?
-		// PV = 10.000
-		// Max AC import = 3.000
-		// ActivePowerSetPoint = 3.000
-		int diffMaxAcImport = activePowerSetPoint - maxAcImport;
+		// Is Balancing to zero active?
+		var diffBalancing = activePowerSetPoint - (gridActivePower + essActivePower);
 
-		// Is discharging from AC at maximum?
-		// PV = 0
-		// Max AC import = 8.000
-		// ActivePowerSetPoint = 8.000
-		int diffMaxAcExport = activePowerSetPoint - maxAcExport;
+		if (diffBalancing > -1 && diffBalancing < 1 || diffSurplus > -1 && diffSurplus < 1) {
 
-		if ((diffBalancing > -1 && diffBalancing < 1) || (diffSurplus > -1 && diffSurplus < 1)
-				|| (diffMaxAcImport > -1 && diffMaxAcImport < 1) || (diffMaxAcExport > -1 && diffMaxAcExport < 1)) {
 			// avoid rounding errors
 			return handleInternalMode();
 		}
@@ -124,21 +112,20 @@ public class ApplyPowerHandler {
 	private static Result handleRemoteMode(int activePowerSetPoint, int pvProduction) {
 		// TODO PV curtail: (surplus power == setpoint && battery soc == 100% => PV
 		// curtail)
-		if (activePowerSetPoint >= 0) {
-			if (pvProduction >= activePowerSetPoint) {
-				// Set-Point is positive && less than PV-Production -> feed PV partly to grid +
-				// charge battery
-				// On Surplus Feed-In PV == Set-Point => CHARGE_BAT 0
-				return new Result(EmsPowerMode.CHARGE_BAT, pvProduction - activePowerSetPoint);
-
-			} else {
-				// Set-Point is positive && bigger than PV-Production -> feed all PV to grid +
-				// discharge battery
-				return new Result(EmsPowerMode.DISCHARGE_BAT, activePowerSetPoint - pvProduction);
-
-			}
-		} else {
+		if (activePowerSetPoint < 0) {
 			return new Result(EmsPowerMode.CHARGE_BAT, activePowerSetPoint * -1 + pvProduction);
+		}
+		if (pvProduction >= activePowerSetPoint) {
+			// Set-Point is positive && less than PV-Production -> feed PV partly to grid +
+			// charge battery
+			// On Surplus Feed-In PV == Set-Point => CHARGE_BAT 0
+			return new Result(EmsPowerMode.CHARGE_BAT, pvProduction - activePowerSetPoint);
+
+		} else {
+			// Set-Point is positive && bigger than PV-Production -> feed all PV to grid +
+			// discharge battery
+			return new Result(EmsPowerMode.DISCHARGE_BAT, activePowerSetPoint - pvProduction);
+
 		}
 	}
 
@@ -146,13 +133,13 @@ public class ApplyPowerHandler {
 	 * Check current {@link ControlMode} is set to SMART and PID filter is enabled.
 	 * If true warning channel SMART_MODE_NOT_WORKING_WITH_PID_FILTER set to true,
 	 * otherwise to false.
-	 * 
-	 * @param goodWe      the GoodWe - either Battery-Inverter or ESS
-	 * @param controlMode the {@link ControlMode} to check SMART mode
-	 * @param pidEnabled  if PID filter is enabled
+	 *
+	 * @param goodWe       the GoodWe - either Battery-Inverter or ESS
+	 * @param controlMode  the {@link ControlMode} to check SMART mode
+	 * @param isPidEnabled if PID filter is enabled
 	 */
 	private void checkControlModeWithActivePid(AbstractGoodWe goodWe, ControlMode controlMode, boolean isPidEnabled) {
-		boolean enableWarning = false;
+		var enableWarning = false;
 		if (controlMode.equals(ControlMode.SMART) && isPidEnabled) {
 			enableWarning = true;
 		}
@@ -163,7 +150,7 @@ public class ApplyPowerHandler {
 	/**
 	 * Check if configured {@link ControlMode} is possible - depending on if a
 	 * GoodWe Smart Meter is connected or not.
-	 * 
+	 *
 	 * @param goodWe      the GoodWe - either Battery-Inverter or ESS
 	 * @param controlMode the {@link ControlMode} to check SMART mode
 	 */
@@ -171,7 +158,7 @@ public class ApplyPowerHandler {
 		EnumReadChannel meterCommunicateStatusChannel = goodWe.channel(GoodWe.ChannelId.METER_COMMUNICATE_STATUS);
 		MeterCommunicateStatus meterCommunicateStatus = meterCommunicateStatusChannel.value().asEnum();
 
-		boolean enableWarning = false;
+		var enableWarning = false;
 		switch (meterCommunicateStatus) {
 		case UNDEFINED:
 			// We don't know if GoodWe Smart Meter is connected. Either not read yet (on

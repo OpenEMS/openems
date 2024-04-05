@@ -14,7 +14,7 @@ public interface JsonApi {
 
 	/**
 	 * Handles a JSON-RPC Request.
-	 * 
+	 *
 	 * @param user    the authenticated {@link User}
 	 * @param request the JSON-RPC Request
 	 * @return a Future JSON-RPC Success Response; null response results in a

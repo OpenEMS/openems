@@ -15,9 +15,9 @@ public class SlowChargeUtils {
 	private static final float MAX_POWER_LIMIT_FACTOR = 0.5f;
 
 	/**
-	 * Calculates and applies the charging power for {@link State#SLOW_CHARGE_1} and
-	 * {@link State#SLOW_CHARGE_2}.
-	 * 
+	 * Calculates and applies the charging power for
+	 * {@link StateMachine#SLOW_CHARGE_1} and {@link StateMachine#SLOW_CHARGE_2}.
+	 *
 	 * @param context the Context
 	 * @throws IllegalArgumentException on error
 	 * @throws OpenemsNamedException    on error
@@ -27,7 +27,7 @@ public class SlowChargeUtils {
 		// Charge by keeping the grid to zero (just like in Balancing Controller)
 		int gridPower = context.sum.getGridActivePower().getOrError();
 		int essPower = context.ess.getActivePower().getOrError();
-		int setPower = gridPower + essPower;
+		var setPower = gridPower + essPower;
 		if (setPower > 0) {
 			// do not discharge
 			setPower = 0;
@@ -35,11 +35,11 @@ public class SlowChargeUtils {
 
 		// Fit within minimum and maximum power limits
 		int maxApparentPower = context.ess.getMaxApparentPower().getOrError();
-		int minPower = Math.round(maxApparentPower * -1 * MIN_POWER_LIMIT_FACTOR);
+		var minPower = Math.round(maxApparentPower * -1 * MIN_POWER_LIMIT_FACTOR);
 		if (setPower > minPower) {
 			setPower = minPower;
 		}
-		int maxPower = Math.round(maxApparentPower * -1 * MAX_POWER_LIMIT_FACTOR);
+		var maxPower = Math.round(maxApparentPower * -1 * MAX_POWER_LIMIT_FACTOR);
 		if (setPower < maxPower) {
 			setPower = maxPower;
 		}

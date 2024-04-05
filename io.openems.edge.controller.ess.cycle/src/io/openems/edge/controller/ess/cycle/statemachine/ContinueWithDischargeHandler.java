@@ -6,36 +6,36 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine.State;
+import io.openems.edge.ess.api.PowerConstraint;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
 public class ContinueWithDischargeHandler extends StateHandler<State, Context> {
 
 	private final Logger log = LoggerFactory.getLogger(ContinueWithDischargeHandler.class);
 
 	@Override
-	public State runAndGetNextState(Context context) throws IllegalArgumentException, OpenemsNamedException {
-		if (context.config.minSoc() == 0) {
-			if (context.maxDischargePower == 0) {
-				// Wait for hysteresis
-				if (context.waitForChangeState(State.CONTINUE_WITH_DISCHARGE, State.COMPLETED_CYCLE)) {
-					return State.COMPLETED_CYCLE;
-				} else {
-					return State.CONTINUE_WITH_DISCHARGE;
-				}
-			}
-		} else if (context.ess.getSoc().orElse(0) <= context.config.minSoc()) {
-			// Wait for hysteresis
-			if (context.waitForChangeState(State.CONTINUE_WITH_DISCHARGE, State.COMPLETED_CYCLE)) {
-				return State.COMPLETED_CYCLE;
-			} else {
-				return State.CONTINUE_WITH_DISCHARGE;
-			}
+	public State runAndGetNextState(Context context) throws OpenemsNamedException {
+		final var controller = context.getParent();
+		final var ess = context.ess;
+		final var config = context.config;
+
+		if (config.minSoc() == 0 && context.allowedDischargePower == 0) {
+			return context.waitForChangeState(State.CONTINUE_WITH_DISCHARGE, State.COMPLETED_CYCLE);
 		}
 
-		int power = context.getDischargePower();
+		if (ess.getSoc().get() < config.minSoc()) {
+			return context.waitForChangeState(State.CONTINUE_WITH_DISCHARGE, State.COMPLETED_CYCLE);
+		}
+
+		var power = context.getAcPower(ess, config.hybridEssMode(), config.power());
+		PowerConstraint.apply(ess, controller.id(), //
+				Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, power);
+
 		context.logInfo(this.log, "CONTINUE DISCHARGE with [" + power + " W]" //
-				+ " Current Cycle [ " + context.getParent().getCompletedCycles() + "] " //
-				+ "out of " + context.config.totalCycleNumber() + "]");
-		context.ess.setActivePowerGreaterOrEquals(power);
+				+ " Current Cycle [ " + controller.getCompletedCycles() + "] " //
+				+ "out of " + config.totalCycleNumber() + "]");
 
 		return State.CONTINUE_WITH_DISCHARGE;
 	}

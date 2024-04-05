@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Represents a JSON-RPC Request to update the configuration of an OpenEMS Edge Component.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -20,16 +20,16 @@ import { JsonrpcRequest } from "../base";
  */
 export class UpdateComponentConfigRequest extends JsonrpcRequest {
 
-    static METHOD: string = "updateComponentConfig";
+    private static METHOD: string = "updateComponentConfig";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             componentId: string,
             properties: {
                 name: string,
                 value: any
             }[]
-        }
+        },
     ) {
         super(UpdateComponentConfigRequest.METHOD, params);
     }

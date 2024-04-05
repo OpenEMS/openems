@@ -13,7 +13,7 @@ public class DictionaryUtils {
 
 	/**
 	 * Get the Dictionary value as String.
-	 * 
+	 *
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
 	 * @return the value as {@link String}
@@ -24,7 +24,7 @@ public class DictionaryUtils {
 
 	/**
 	 * Get the Dictionary value as Optional String.
-	 * 
+	 *
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
 	 * @return the value as {@link Optional} {@link String}
@@ -35,7 +35,7 @@ public class DictionaryUtils {
 
 	/**
 	 * Get the Dictionary value as Integer.
-	 * 
+	 *
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
 	 * @return the value as {@link Integer}
@@ -46,7 +46,7 @@ public class DictionaryUtils {
 
 	/**
 	 * Get the Dictionary value as Optional Integer.
-	 * 
+	 *
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
 	 * @return the value as {@link Optional} {@link Integer}
@@ -57,7 +57,7 @@ public class DictionaryUtils {
 
 	/**
 	 * Get the Dictionary value as Boolean.
-	 * 
+	 *
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
 	 * @return the value as {@link Integer}
@@ -68,7 +68,7 @@ public class DictionaryUtils {
 
 	/**
 	 * Get the Dictionary value as Optional Boolean.
-	 * 
+	 *
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
 	 * @return the value as {@link Optional} {@link Integer}

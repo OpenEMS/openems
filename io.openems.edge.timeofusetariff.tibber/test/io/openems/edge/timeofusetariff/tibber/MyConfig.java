@@ -1,13 +1,14 @@
 package io.openems.edge.timeofusetariff.tibber;
 
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
 		private String id;
-		public String accessToken;
+		private String accessToken;
+		private String filter;
 
 		private Builder() {
 		}
@@ -22,6 +23,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setFilter(String filter) {
+			this.filter = filter;
+			return this;
+		}
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -29,7 +35,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -46,6 +52,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String accessToken() {
 		return this.builder.accessToken;
+	}
+
+	@Override
+	public String filter() {
+		return this.builder.filter;
 	}
 
 }

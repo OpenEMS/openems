@@ -6,7 +6,9 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map.Entry;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.UUID;
@@ -18,8 +20,8 @@ import org.dhatim.fastexcel.Worksheet;
 
 import com.google.gson.JsonElement;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.session.Language;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 
@@ -41,24 +43,28 @@ import io.openems.common.utils.JsonUtils;
 public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResponse {
 
 	protected static class Channel {
-		public static ChannelAddress GRID_ACTIVE_POWER = new ChannelAddress("_sum", "GridActivePower");
-		public static ChannelAddress GRID_BUY_ACTIVE_ENERGY = new ChannelAddress("_sum", "GridBuyActiveEnergy");
-		public static ChannelAddress GRID_SELL_ACTIVE_ENERGY = new ChannelAddress("_sum", "GridSellActiveEnergy");
-		public static ChannelAddress PRODUCTION_ACTIVE_POWER = new ChannelAddress("_sum", "ProductionActivePower");
-		public static ChannelAddress PRODUCTION_ACTIVE_ENERGY = new ChannelAddress("_sum", "ProductionActiveEnergy");
-		public static ChannelAddress CONSUMPTION_ACTIVE_POWER = new ChannelAddress("_sum", "ConsumptionActivePower");
-		public static ChannelAddress CONSUMPTION_ACTIVE_ENERGY = new ChannelAddress("_sum", "ConsumptionActiveEnergy");
-		public static ChannelAddress ESS_DISCHARGE_POWER = new ChannelAddress("_sum", "EssDischargePower");
-		public static ChannelAddress ESS_DC_CHARGE_ENERGY = new ChannelAddress("_sum", "EssDcChargeEnergy");
-		public static ChannelAddress ESS_DC_DISCHARGE_ENERGY = new ChannelAddress("_sum", "EssDcDischargeEnergy");
-		public static ChannelAddress ESS_SOC = new ChannelAddress("_sum", "EssSoc");
+		public static final ChannelAddress GRID_ACTIVE_POWER = new ChannelAddress("_sum", "GridActivePower");
+		public static final ChannelAddress GRID_BUY_ACTIVE_ENERGY = new ChannelAddress("_sum", "GridBuyActiveEnergy");
+		public static final ChannelAddress GRID_SELL_ACTIVE_ENERGY = new ChannelAddress("_sum", "GridSellActiveEnergy");
+		public static final ChannelAddress PRODUCTION_ACTIVE_POWER = new ChannelAddress("_sum",
+				"ProductionActivePower");
+		public static final ChannelAddress PRODUCTION_ACTIVE_ENERGY = new ChannelAddress("_sum",
+				"ProductionActiveEnergy");
+		public static final ChannelAddress CONSUMPTION_ACTIVE_POWER = new ChannelAddress("_sum",
+				"ConsumptionActivePower");
+		public static final ChannelAddress CONSUMPTION_ACTIVE_ENERGY = new ChannelAddress("_sum",
+				"ConsumptionActiveEnergy");
+		public static final ChannelAddress ESS_DISCHARGE_POWER = new ChannelAddress("_sum", "EssDischargePower");
+		public static final ChannelAddress ESS_DC_CHARGE_ENERGY = new ChannelAddress("_sum", "EssDcChargeEnergy");
+		public static final ChannelAddress ESS_DC_DISCHARGE_ENERGY = new ChannelAddress("_sum", "EssDcDischargeEnergy");
+		public static final ChannelAddress ESS_SOC = new ChannelAddress("_sum", "EssSoc");
 	}
 
 	/**
 	 * All Power Channels, i.e. Channels that are exported per channel and
 	 * timestamp.
 	 */
-	public static Set<ChannelAddress> POWER_CHANNELS = Stream.of(//
+	public static final Set<ChannelAddress> POWER_CHANNELS = Stream.of(//
 			Channel.GRID_ACTIVE_POWER, //
 			Channel.PRODUCTION_ACTIVE_POWER, //
 			Channel.CONSUMPTION_ACTIVE_POWER, //
@@ -69,7 +75,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 	/**
 	 * All Energy Channels, i.e. exported with one value per channel.
 	 */
-	public static Set<ChannelAddress> ENERGY_CHANNELS = Stream.of(//
+	public static final Set<ChannelAddress> ENERGY_CHANNELS = Stream.of(//
 			Channel.GRID_BUY_ACTIVE_ENERGY, //
 			Channel.GRID_SELL_ACTIVE_ENERGY, //
 			Channel.PRODUCTION_ACTIVE_ENERGY, //
@@ -91,18 +97,18 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 	 * @param toDate         the end date of the export
 	 * @param historicData   the power data per channel and timestamp
 	 * @param historicEnergy the energy data, one value per channel
+	 * @param language       the {@link Language}
 	 * @throws IOException           on error
 	 * @throws OpenemsNamedException on error
 	 */
 	public QueryHistoricTimeseriesExportXlsxResponse(UUID id, String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> historicData,
-			SortedMap<ChannelAddress, JsonElement> historicEnergy) throws IOException, OpenemsNamedException {
-		super(id, XlsxUtils.generatePayload(edgeId, fromDate, toDate, historicData, historicEnergy));
+			SortedMap<ChannelAddress, JsonElement> historicEnergy, Language language)
+			throws IOException, OpenemsNamedException {
+		super(id, XlsxUtils.generatePayload(edgeId, fromDate, toDate, historicData, historicEnergy, language));
 	}
 
 	protected static class XlsxUtils {
-
-		public static final String NOT_AVAILABLE = "nicht vorhanden";
 
 		private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 		private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter
@@ -117,21 +123,30 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 		 * @param toDate     the end date of the export
 		 * @param powerData  the power data per channel and timestamp
 		 * @param energyData the energy data, one value per channel
+		 * @param language   the {@link Language}
 		 * @return the Excel file as byte-array.
 		 * @throws IOException           on error
 		 * @throws OpenemsNamedException on error
 		 */
 		private static byte[] generatePayload(String edgeId, ZonedDateTime fromDate, ZonedDateTime toDate,
 				SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> powerData,
-				SortedMap<ChannelAddress, JsonElement> energyData) throws IOException, OpenemsNamedException {
+				SortedMap<ChannelAddress, JsonElement> energyData, Language language)
+				throws IOException, OpenemsNamedException {
 			byte[] payload = {};
-			try (var os = new ByteArrayOutputStream()) {
-				var wb = new Workbook(os, OpenemsConstants.MANUFACTURER_MODEL, null);
+			try (//
+					var os = new ByteArrayOutputStream();
+					var wb = new Workbook(os, "", null) //
+			) {
 				var ws = wb.newWorksheet("Export");
 
-				XlsxUtils.addBasicInfo(ws, edgeId, fromDate, toDate);
-				XlsxUtils.addEnergyData(ws, energyData);
-				XlsxUtils.addPowerData(ws, powerData);
+				Locale currentLocale = language.getLocal();
+
+				var translationBundle = ResourceBundle.getBundle("io.openems.common.jsonrpc.response.translation",
+						currentLocale);
+
+				XlsxUtils.addBasicInfo(ws, edgeId, fromDate, toDate, translationBundle);
+				XlsxUtils.addEnergyData(ws, energyData, translationBundle);
+				XlsxUtils.addPowerData(ws, powerData, translationBundle);
 
 				wb.finish();
 				os.flush();
@@ -145,17 +160,20 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 		/**
 		 * Adds basic information like the Edge-ID, date of creation,...
 		 *
-		 * @param ws       the {@link Worksheet}
-		 * @param edgeId   the edgeId number
-		 * @param fromDate the fromdate the excel exported from
-		 * @param toDate   the todate the excel exported to
+		 * @param ws                the {@link Worksheet}
+		 * @param edgeId            the edgeId number
+		 * @param fromDate          the fromdate the excel exported from
+		 * @param toDate            the todate the excel exported to
+		 * @param translationBundle the {@link ResourceBundle} for translations
 		 */
-		protected static void addBasicInfo(Worksheet ws, String edgeId, ZonedDateTime fromDate, ZonedDateTime toDate) {
-			XlsxUtils.addStringValueBold(ws, 0, 0, "FEMS-Nr.");
+		protected static void addBasicInfo(Worksheet ws, String edgeId, ZonedDateTime fromDate, ZonedDateTime toDate,
+				ResourceBundle translationBundle) {
+
+			XlsxUtils.addStringValueBold(ws, 0, 0, "Nr.");
 			XlsxUtils.addStringValue(ws, 0, 1, edgeId);
-			XlsxUtils.addStringValueBold(ws, 1, 0, "Export erstellt am");
+			XlsxUtils.addStringValueBold(ws, 1, 0, translationBundle.getString("exportCreatedOn"));
 			XlsxUtils.addStringValue(ws, 1, 1, ZonedDateTime.now().format(XlsxUtils.DATE_TIME_FORMATTER));
-			XlsxUtils.addStringValueBold(ws, 2, 0, "Export Zeitraum");
+			XlsxUtils.addStringValueBold(ws, 2, 0, translationBundle.getString("exportPeriod"));
 
 			var fromDateString = fromDate.format(XlsxUtils.DATE_FORMATTER);
 			var toDateString = toDate.format(XlsxUtils.DATE_FORMATTER);
@@ -174,55 +192,58 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 		/**
 		 * Adds the energy data header and values.
 		 *
-		 * @param ws   the {@link Worksheet}
-		 * @param data the energy data map
+		 * @param ws                the {@link Worksheet}
+		 * @param data              the energy data map
+		 * @param translationBundle the {@link ResourceBundle} for translations
 		 * @throws OpenemsNamedException on error
 		 */
-		protected static void addEnergyData(Worksheet ws, SortedMap<ChannelAddress, JsonElement> data)
-				throws OpenemsNamedException {
+		protected static void addEnergyData(Worksheet ws, SortedMap<ChannelAddress, JsonElement> data,
+				ResourceBundle translationBundle) throws OpenemsNamedException {
 			// Grid buy energy
-			XlsxUtils.addStringValueBold(ws, 4, 1, "Netzbezug [kWh]");
-			XlsxUtils.addKwhValueIfnotNull(ws, 5, 1, data.get(Channel.GRID_BUY_ACTIVE_ENERGY));
+			XlsxUtils.addStringValueBold(ws, 4, 1, translationBundle.getString("gridBuy") + " [kWh]");
+			XlsxUtils.addKwhValueIfnotNull(ws, 5, 1, data.get(Channel.GRID_BUY_ACTIVE_ENERGY), translationBundle);
 
 			// Grid sell energy
-			XlsxUtils.addStringValueBold(ws, 4, 2, "Netzeinspeisung [kWh]");
-			XlsxUtils.addKwhValueIfnotNull(ws, 5, 2, data.get(Channel.GRID_SELL_ACTIVE_ENERGY));
+			XlsxUtils.addStringValueBold(ws, 4, 2, translationBundle.getString("gridFeedIn") + " [kWh]");
+			XlsxUtils.addKwhValueIfnotNull(ws, 5, 2, data.get(Channel.GRID_SELL_ACTIVE_ENERGY), translationBundle);
 
 			// Production energy
-			XlsxUtils.addStringValueBold(ws, 4, 3, "Erzeugung [kWh]");
-			XlsxUtils.addKwhValueIfnotNull(ws, 5, 3, data.get(Channel.PRODUCTION_ACTIVE_ENERGY));
+			XlsxUtils.addStringValueBold(ws, 4, 3, translationBundle.getString("production") + " [kWh]");
+			XlsxUtils.addKwhValueIfnotNull(ws, 5, 3, data.get(Channel.PRODUCTION_ACTIVE_ENERGY), translationBundle);
 
 			// Charge energy
-			XlsxUtils.addStringValueBold(ws, 4, 4, "Speicher Beladung [kWh]");
-			XlsxUtils.addKwhValueIfnotNull(ws, 5, 4, data.get(Channel.ESS_DC_CHARGE_ENERGY));
+			XlsxUtils.addStringValueBold(ws, 4, 4, translationBundle.getString("storageCharging") + " [kWh]");
+			XlsxUtils.addKwhValueIfnotNull(ws, 5, 4, data.get(Channel.ESS_DC_CHARGE_ENERGY), translationBundle);
 
 			// Charge energy
-			XlsxUtils.addStringValueBold(ws, 4, 5, "Speicher Entladung [kWh]");
-			XlsxUtils.addKwhValueIfnotNull(ws, 5, 5, data.get(Channel.ESS_DC_DISCHARGE_ENERGY));
+			XlsxUtils.addStringValueBold(ws, 4, 5, translationBundle.getString("storageDischarging") + " [kWh]");
+			XlsxUtils.addKwhValueIfnotNull(ws, 5, 5, data.get(Channel.ESS_DC_DISCHARGE_ENERGY), translationBundle);
 
 			// Consumption energy
-			XlsxUtils.addStringValueBold(ws, 4, 6, "Verbrauch [kWh]");
-			XlsxUtils.addKwhValueIfnotNull(ws, 5, 6, data.get(Channel.CONSUMPTION_ACTIVE_ENERGY));
+			XlsxUtils.addStringValueBold(ws, 4, 6, translationBundle.getString("consumption") + " [kWh]");
+			XlsxUtils.addKwhValueIfnotNull(ws, 5, 6, data.get(Channel.CONSUMPTION_ACTIVE_ENERGY), translationBundle);
 		}
 
 		/**
 		 * Adds the power data header and values.
 		 *
-		 * @param ws   the {@link Worksheet}
-		 * @param data the power data map
+		 * @param ws                the {@link Worksheet}
+		 * @param data              the power data map
+		 * @param translationBundle the {@link ResourceBundle} for translations
 		 * @throws OpenemsNamedException on error
 		 */
 		protected static void addPowerData(Worksheet ws,
-				SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data) throws OpenemsNamedException {
+				SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data, ResourceBundle translationBundle)
+				throws OpenemsNamedException {
 			// Adding the headers
-			XlsxUtils.addStringValueBold(ws, 7, 0, "Datum/Uhrzeit");
-			XlsxUtils.addStringValueBold(ws, 7, 1, "Netzbezug [W]");
-			XlsxUtils.addStringValueBold(ws, 7, 2, "Netzeinspeisung [W]");
-			XlsxUtils.addStringValueBold(ws, 7, 3, "Erzeugung [W]");
-			XlsxUtils.addStringValueBold(ws, 7, 4, "Speicher Beladung [W]");
-			XlsxUtils.addStringValueBold(ws, 7, 5, "Speicher Entladung [W]");
-			XlsxUtils.addStringValueBold(ws, 7, 6, "Verbrauch [W]");
-			XlsxUtils.addStringValueBold(ws, 7, 7, "Ladezustand [%]");
+			XlsxUtils.addStringValueBold(ws, 7, 0, translationBundle.getString("date/time"));
+			XlsxUtils.addStringValueBold(ws, 7, 1, translationBundle.getString("gridBuy") + " [W]");
+			XlsxUtils.addStringValueBold(ws, 7, 2, translationBundle.getString("gridFeedIn") + " [W]");
+			XlsxUtils.addStringValueBold(ws, 7, 3, translationBundle.getString("production") + " [W]");
+			XlsxUtils.addStringValueBold(ws, 7, 4, translationBundle.getString("storageCharging") + " [W]");
+			XlsxUtils.addStringValueBold(ws, 7, 5, translationBundle.getString("storageDischarging") + " [W]");
+			XlsxUtils.addStringValueBold(ws, 7, 6, translationBundle.getString("consumption") + " [W]");
+			XlsxUtils.addStringValueBold(ws, 7, 7, translationBundle.getString("stateOfCharge") + " [%]");
 
 			var rowCount = 8;
 
@@ -309,19 +330,20 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 		 * value is rounded to 100 Wh and formatted as [kWh]. If the value is 'null',
 		 * {@value #NOT_AVAILABLE} is added instead.
 		 *
-		 * @param ws          the {@link Worksheet}
-		 * @param row         row number
-		 * @param col         column number
-		 * @param jsonElement the value
+		 * @param ws                the {@link Worksheet}
+		 * @param row               row number
+		 * @param col               column number
+		 * @param jsonElement       the value
+		 * @param translationBundle the {@link ResourceBundle}
 		 * @throws OpenemsNamedException on error
 		 */
-		protected static void addKwhValueIfnotNull(Worksheet ws, int row, int col, JsonElement jsonElement)
-				throws OpenemsNamedException {
+		protected static void addKwhValueIfnotNull(Worksheet ws, int row, int col, JsonElement jsonElement,
+				ResourceBundle translationBundle) throws OpenemsNamedException {
 			if (XlsxUtils.isNotNull(jsonElement)) {
 				XlsxUtils.addStringValueRightAligned(ws, row, col,
 						String.format("%.1f", JsonUtils.getAsFloat(jsonElement) / 1000));
 			} else {
-				XlsxUtils.addStringValueItalic(ws, row, col, XlsxUtils.NOT_AVAILABLE);
+				XlsxUtils.addStringValueItalic(ws, row, col, translationBundle.getString("notAvailable"));
 			}
 		}
 

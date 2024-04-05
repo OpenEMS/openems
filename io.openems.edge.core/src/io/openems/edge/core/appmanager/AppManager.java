@@ -12,15 +12,14 @@ import io.openems.edge.common.jsonapi.JsonApi;
  */
 public interface AppManager extends OpenemsComponent, JsonApi {
 
-	public static final String SINGLETON_SERVICE_PID = "Core.AppManager";
-	public static final String SINGLETON_COMPONENT_ID = "_appManager";
-
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		WRONG_APP_CONFIGURATION(Doc.of(Level.WARNING) //
 				.text("App-Manager configuration is wrong")), //
 		DEFECTIVE_APP(Doc.of(Level.INFO) //
 				// TODO should be a WARNING eventually
 				.text("Defective App detected")), //
+		APPS_NOT_SYNCED_WITH_BACKEND(Doc.of(Level.INFO) //
+				.text("The currently installed apps are not the same as logged in the backend")), //
 		;
 
 		private final Doc doc;
@@ -29,28 +28,24 @@ public interface AppManager extends OpenemsComponent, JsonApi {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
 	}
 
-	/**
-	 * Gets the Channel for {@link ChannelId#WRONG_APP_CONFIGURATION}.
-	 *
-	 * @return the Channel
-	 */
-	public default StateChannel getWrongAppConfigurationChannel() {
-		return this.channel(ChannelId.WRONG_APP_CONFIGURATION);
-	}
+	public static final String SINGLETON_SERVICE_PID = "Core.AppManager";
+
+	public static final String SINGLETON_COMPONENT_ID = "_appManager";
 
 	/**
-	 * Gets the Wrong-App-Configuration Warning State. See
-	 * {@link ChannelId#WRONG_APP_CONFIGURATION}.
+	 * Internal method to set the 'nextValue' on {@link ChannelId#DEFECTIVE_APP}
+	 * Channel.
 	 *
-	 * @return the Channel {@link Value}
+	 * @param value the next value
 	 */
-	public default Value<Boolean> getWrongAppConfiguration() {
-		return this.getWrongAppConfigurationChannel().value();
+	public default void _setDefectiveApp(boolean value) {
+		this.getDefectiveAppChannel().setNextValue(value);
 	}
 
 	/**
@@ -64,12 +59,13 @@ public interface AppManager extends OpenemsComponent, JsonApi {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#DEFECTIVE_APP}.
-	 *
-	 * @return the Channel
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#APPS_NOT_SYNCED_WITH_BACKEND} Channel.
+	 * 
+	 * @param value the next value
 	 */
-	public default StateChannel getDefectiveAppChannel() {
-		return this.channel(ChannelId.DEFECTIVE_APP);
+	public default void _setAppsNotSyncedWithBackend(boolean value) {
+		this.getAppsNotSyncedWithBackendChannel().setNextValue(value);
 	}
 
 	/**
@@ -82,13 +78,50 @@ public interface AppManager extends OpenemsComponent, JsonApi {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#DEFECTIVE_APP}
-	 * Channel.
+	 * Gets the Channel for {@link ChannelId#DEFECTIVE_APP}.
 	 *
-	 * @param value the next value
+	 * @return the Channel
 	 */
-	public default void _setDefectiveApp(boolean value) {
-		this.getDefectiveAppChannel().setNextValue(value);
+	public default StateChannel getDefectiveAppChannel() {
+		return this.channel(ChannelId.DEFECTIVE_APP);
+	}
+
+	/**
+	 * Gets the Wrong-App-Configuration Warning State. See
+	 * {@link ChannelId#WRONG_APP_CONFIGURATION}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getWrongAppConfiguration() {
+		return this.getWrongAppConfigurationChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#WRONG_APP_CONFIGURATION}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getWrongAppConfigurationChannel() {
+		return this.channel(ChannelId.WRONG_APP_CONFIGURATION);
+	}
+
+	/**
+	 * Gets the Apps-Not-Synced-With-Backend Warning State. See
+	 * {@link ChannelId#APPS_NOT_SYNCED_WITH_BACKEND}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getAppsNotSyncedWithBackend() {
+		return this.getAppsNotSyncedWithBackendChannel().value();
+	}
+
+	/**
+	 * Gets the channel for {@link ChannelId#APPS_NOT_SYNCED_WITH_BACKEND}.
+	 * 
+	 * @return the Channel
+	 */
+	public default StateChannel getAppsNotSyncedWithBackendChannel() {
+		return this.channel(ChannelId.APPS_NOT_SYNCED_WITH_BACKEND);
 	}
 
 }

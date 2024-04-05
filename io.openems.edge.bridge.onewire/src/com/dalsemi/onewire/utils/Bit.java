@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -45,13 +46,14 @@ public class Bit {
 	 * @param buf    byte array to manipulate
 	 */
 	public static void arrayWriteBit(int state, int index, int offset, byte[] buf) {
-		int nbyt = (index >>> 3);
-		int nbit = index - (nbyt << 3);
+		var nbyt = index >>> 3;
+		var nbit = index - (nbyt << 3);
 
-		if (state == 1)
-			buf[nbyt + offset] |= (0x01 << nbit);
-		else
+		if (state == 1) {
+			buf[nbyt + offset] |= 0x01 << nbit;
+		} else {
 			buf[nbyt + offset] &= ~(0x01 << nbit);
+		}
 	}
 
 	/**
@@ -64,9 +66,10 @@ public class Bit {
 	 * @return bit state 1 or 0
 	 */
 	public static int arrayReadBit(int index, int offset, byte[] buf) {
-		int nbyt = (index >>> 3);
-		int nbit = index - (nbyt << 3);
+		var nbyt = index >>> 3;
+		var nbit = index - (nbyt << 3);
 
-		return ((buf[nbyt + offset] >>> nbit) & 0x01);
+		return buf[nbyt + offset] >>> nbit & 0x01;
 	}
 }
+// CHECKSTYLE:ON

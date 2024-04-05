@@ -23,19 +23,19 @@ public class ReadTask implements ManagedTask {
 	}
 
 	public OpenemsComponent getComponent() {
-		return component;
+		return this.component;
 	}
 
 	public ChannelId getChannelId() {
-		return channelId;
+		return this.channelId;
 	}
 
 	public FieldType getFieldType() {
-		return fieldType;
+		return this.fieldType;
 	}
 
 	public int getAddress() {
-		return address;
+		return this.address;
 	}
 
 	@Override
@@ -45,8 +45,8 @@ public class ReadTask implements ManagedTask {
 
 	@Override
 	public String toString() {
-		return "ReadTask [channelId=" + channelId + ", priority=" + priority + ", fieldType=" + fieldType + ", address="
-				+ address + "]";
+		return "ReadTask [channelId=" + this.channelId + ", priority=" + this.priority + ", fieldType=" + this.fieldType
+				+ ", address=" + this.address + "]";
 	}
 
 }

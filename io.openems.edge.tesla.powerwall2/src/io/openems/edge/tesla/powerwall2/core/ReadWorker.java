@@ -26,8 +26,8 @@ import io.openems.common.worker.AbstractCycleWorker;
 
 public class ReadWorker extends AbstractCycleWorker {
 
-	private final String URL_SYSTEM_STATUS_SOE = "/system_status/soe";
-	private final String URL_METERS_AGGREGATES = "/meters/aggregates";
+	private static final String URL_SYSTEM_STATUS_SOE = "/system_status/soe";
+	private static final String URL_METERS_AGGREGATES = "/meters/aggregates";
 
 	private final TeslaPowerwall2CoreImpl parent;
 	private final String baseUrl;
@@ -40,15 +40,18 @@ public class ReadWorker extends AbstractCycleWorker {
 		/*
 		 * Disable SSL certificate checking
 		 */
-		SSLContext context = SSLContext.getInstance("TLSv1.2");
-		TrustManager[] trustManager = new TrustManager[] { new X509TrustManager() {
+		var context = SSLContext.getInstance("TLSv1.2");
+		TrustManager[] trustManager = { new X509TrustManager() {
+			@Override
 			public X509Certificate[] getAcceptedIssuers() {
 				return new X509Certificate[0];
 			}
 
+			@Override
 			public void checkClientTrusted(X509Certificate[] certificate, String str) {
 			}
 
+			@Override
 			public void checkServerTrusted(X509Certificate[] certificate, String str) {
 			}
 		} };
@@ -58,19 +61,19 @@ public class ReadWorker extends AbstractCycleWorker {
 
 	@Override
 	protected void forever() throws Throwable {
-		final AtomicBoolean communicationError = new AtomicBoolean(false);
+		final var communicationError = new AtomicBoolean(false);
 
 		this.parent.getBattery().ifPresent(battery -> {
 
 			try {
-				JsonObject soe = this.getResponse(URL_SYSTEM_STATUS_SOE);
+				var soe = this.getResponse(URL_SYSTEM_STATUS_SOE);
 				battery._setSoc(Math.round(JsonUtils.getAsFloat(soe, "percentage")));
 
-				JsonObject agg = this.getResponse(URL_METERS_AGGREGATES);
-				JsonObject aggBattery = JsonUtils.getAsJsonObject(agg, "battery");
-				float essActivePower = JsonUtils.getAsFloat(aggBattery, "instant_power");
+				var agg = this.getResponse(URL_METERS_AGGREGATES);
+				var aggBattery = JsonUtils.getAsJsonObject(agg, "battery");
+				var essActivePower = JsonUtils.getAsFloat(aggBattery, "instant_power");
 				battery._setActivePower(Math.round(essActivePower));
-				float essReactivePower = JsonUtils.getAsFloat(aggBattery, "instant_reactive_power");
+				var essReactivePower = JsonUtils.getAsFloat(aggBattery, "instant_reactive_power");
 				battery._setReactivePower(Math.round(essReactivePower));
 				switch (battery.getPhase()) {
 				case L1:
@@ -112,20 +115,18 @@ public class ReadWorker extends AbstractCycleWorker {
 
 	/**
 	 * Gets the JSON response of a HTTPS GET Request.
-	 * 
+	 *
 	 * @param path the api path
 	 * @return the JsonObject
 	 * @throws OpenemsNamedException on error
 	 */
 	private JsonObject getResponse(String path) throws OpenemsNamedException {
 		try {
-			URL url = new URL(this.baseUrl + path);
-			HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-			connection.setHostnameVerifier((hostname, session) -> {
-				return true;
-			});
-			try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-				String content = reader.lines().collect(Collectors.joining());
+			var url = new URL(this.baseUrl + path);
+			var connection = (HttpsURLConnection) url.openConnection();
+			connection.setHostnameVerifier((hostname, session) -> true);
+			try (var reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+				var content = reader.lines().collect(Collectors.joining());
 				return JsonUtils.parseToJsonObject(content);
 			}
 		} catch (IOException e) {

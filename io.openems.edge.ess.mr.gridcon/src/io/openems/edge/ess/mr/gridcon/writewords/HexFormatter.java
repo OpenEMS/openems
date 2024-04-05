@@ -2,6 +2,7 @@ package io.openems.edge.ess.mr.gridcon.writewords;
 
 public class HexFormatter {
 
+	// CHECKSTYLE:OFF
 	public static String format(Float f, boolean switchQuarters) {
 		return toTwoQuarterGroup(getFloatToHexString(f), switchQuarters);
 	}
@@ -13,6 +14,7 @@ public class HexFormatter {
 	public static String formatShort(Short i, boolean switchQuarters) {
 		return toOneQuarterGroup(getShortToHexString(i));
 	}
+	// CHECKSTYLE:ON
 
 	static String toOneQuarterGroup(String toFormat) {
 		toFormat = addLeadingZeros(toFormat, 4);

@@ -1,23 +1,29 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<groupId>local</groupId>
 	<artifactId>central</artifactId>
 	<version>0.0.0</version>
-
 	<packaging>pom</packaging>
-
 	<dependencies>
+		<!-- biz -->
+		<dependency>
+			<!-- Bnd Gradle Plugin For The Bnd Workspace -->
+			<!-- On update: also update gradle.properties file -->
+			<groupId>biz.aQute.bnd.workspace</groupId>
+			<artifactId>biz.aQute.bnd.workspace.gradle.plugin</artifactId>
+			<version>7.0.0</version>
+		</dependency>
 		<!-- com -->
 		<dependency>
 			<groupId>com.fazecast</groupId>
 			<artifactId>jSerialComm</artifactId>
-			<version>2.5.1</version>
+			<version>2.9.3</version>
 		</dependency>
 		<dependency>
+			<!-- Changelog: https://github.com/steveohara/j2mod/blob/master/RELEASE_NOTES.md -->
 			<groupId>com.ghgande</groupId>
 			<artifactId>j2mod</artifactId>
-			<version>2.5.5</version>
+			<version>3.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.rzymek</groupId>
@@ -27,53 +33,59 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.9.0</version>
+			<version>2.10.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>31.1-jre</version>
+			<version>33.1.0-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>failureaccess</artifactId>
-			<version>1.0.1</version>
+			<version>1.0.2</version>
 		</dependency>
 		<dependency>
-			<!-- Used by org.influxdb: influxdb-java -->
-			<groupId>com.squareup.moshi</groupId>
-			<artifactId>moshi</artifactId>
-			<version>1.12.0</version>
-		</dependency>
-		<dependency>
-			<!-- Used by org.influxdb: influxdb-java -->
+			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>logging-interceptor</artifactId>
-			<version>3.14.9</version>
+			<version>4.12.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by org.influxdb: influxdb-java -->
+			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
-			<version>3.14.9</version>
+			<version>4.12.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.squareup.okhttp3: okhttp -->
 			<groupId>com.squareup.okio</groupId>
-			<artifactId>okio</artifactId>
-			<version>1.17.2</version>
+			<artifactId>okio-jvm</artifactId>
+			<version>3.9.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by org.influxdb: influxdb-java -->
+			<!-- Used by com.influxdb: influxdb-client -->
 			<groupId>com.squareup.retrofit2</groupId>
-			<artifactId>converter-moshi</artifactId>
-			<version>2.9.0</version>
+			<artifactId>converter-gson</artifactId>
+			<version>2.11.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by org.influxdb: influxdb-java -->
+			<!-- Used by com.influxdb: influxdb-client -->
 			<groupId>com.squareup.retrofit2</groupId>
 			<artifactId>retrofit</artifactId>
-			<version>2.9.0</version>
+			<version>2.11.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by com.influxdb: influxdb-client -->
+			<groupId>com.squareup.retrofit2</groupId>
+			<artifactId>converter-scalars</artifactId>
+			<version>2.11.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by com.influxdb: influxdb -->
+			<groupId>com.squareup.retrofit2</groupId>
+			<artifactId>adapter-rxjava3</artifactId>
+			<version>2.11.0</version>
 		</dependency>
 		<dependency>
 			<!-- JavaBeans Activation Framework -->
@@ -85,44 +97,59 @@
 			<!-- HikariCP A solid, high-performance, JDBC connection pool at last. -->
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>5.0.1</version>
+			<version>5.1.0</version>
 		</dependency>
-		<!-- commons -->
+		<!-- de -->
 		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
-			<version>1.4</version>
+			<!-- PgBulkInsert is a Java library for Bulk Inserts to PostgreSQL using the Binary COPY Protocol. -->
+			<!-- Changelog: https://github.com/PgBulkInsert/PgBulkInsert/blob/master/CHANGELOG.md-->
+			<groupId>de.bytefish</groupId>
+			<artifactId>pgbulkinsert</artifactId>
+			<version>8.1.3</version>
 		</dependency>
 		<!-- eu -->
 		<dependency>
 			<!-- Used by io.openems.edge.evcs.ocpp. -->
 			<groupId>eu.chargetime.ocpp</groupId>
 			<artifactId>common</artifactId>
-			<version>1.0</version>
+			<version>1.0.2</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.edge.evcs.ocpp. -->
 			<groupId>eu.chargetime.ocpp</groupId>
 			<artifactId>OCPP-J</artifactId>
-			<version>1.0.1</version>
+			<version>1.0.2</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.edge.evcs.ocpp. -->
 			<groupId>eu.chargetime.ocpp</groupId>
 			<artifactId>v1_6</artifactId>
-			<version>1.0.1</version>
+			<version>1.1.0</version>
 		</dependency>
 		<!-- fr -->
 		<dependency>
 			<groupId>fr.turri</groupId>
 			<artifactId>aXMLRPC</artifactId>
-			<version>1.12.0</version>
+			<version>1.14.0</version>
 		</dependency>
 		<!-- info -->
 		<dependency>
 			<groupId>info.faljse</groupId>
 			<artifactId>SDNotify</artifactId>
-			<version>1.3</version>
+			<version>1.5</version>
+		</dependency>
+		<!-- io -->
+		<dependency>
+			<groupId>io.reactivex.rxjava3</groupId>
+			<artifactId>rxjava</artifactId>
+			<version>3.1.8</version>
+		</dependency>
+		<dependency>
+			<!-- Jenetics - Java Genetic Algorithm Library -->
+			<!-- Release notes: https://github.com/jenetics/jenetics/blob/master/RELEASE_NOTES.md -->
+			<groupId>io.jenetics</groupId>
+			<artifactId>jenetics</artifactId>
+			<version>7.2.0</version>
 		</dependency>
 		<!-- javax -->
 		<dependency>
@@ -135,7 +162,7 @@
 			<!-- Used by SDNotify -->
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>5.10.0</version>
+			<version>5.14.0</version>
 		</dependency>
 		<!-- org -->
 		<dependency>
@@ -148,35 +175,48 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/configadmin/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.configadmin</artifactId>
-			<version>1.9.22</version>
+			<version>1.9.26</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix EventAdmin -->
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/eventadmin/impl/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.eventadmin</artifactId>
-			<version>1.6.2</version>
+			<version>1.6.4</version>
+		</dependency>
+		<dependency>
+			<!-- Apache Felix File Install -->
+			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/fileinstall/doc/changelog.txt -->
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.fileinstall</artifactId>
+			<version>3.7.4</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Framework -->
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/framework/doc/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.framework</artifactId>
-			<version>7.0.3</version>
-		</dependency>
-		<dependency>
-			<!-- Apache Felix Inventory -->
-			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/inventory/changelog.txt -->
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.inventory</artifactId>
-			<version>1.1.0</version>
+			<version>7.0.5</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix HTTP Service -->
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty</artifactId>
-			<version>4.1.14</version>
+			<version>5.1.10</version>
+		</dependency>
+		<dependency>
+			<!-- Apache Felix Servlet API -->
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.http.servlet-api</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		<dependency>
+			<!-- Apache Felix Inventory -->
+			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/inventory/changelog.txt -->
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.inventory</artifactId>
+			<version>2.0.0</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Metatype Service -->
@@ -190,24 +230,37 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/scr/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.scr</artifactId>
-			<version>2.1.30</version>
+			<version>2.2.10</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Web Management Console -->
-			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/changelog.txt -->
+			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/README.md#releases -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>4.7.2</version>
+			<version>5.0.0</version>
 		</dependency>
 		<dependency>
+			<!-- Apache Felix Web Console Service Component Runtime/Declarative Services Plugin -->
+			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole-plugins/ds/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole.plugins.ds</artifactId>
-			<version>2.1.0</version>
+			<version>2.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.servicemix.bundles</groupId>
+			<artifactId>org.apache.servicemix.bundles.junit</artifactId>
+			<version>4.13.2_1</version>
+		</dependency>
+		<dependency>
+			<!-- Bouncycastle for Eclipse Paho MQTTv5 Client -->
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcpkix-jdk15on</artifactId>
+			<version>1.70</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.12.14</version>
+			<version>0.17.0</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv5 Client -->
@@ -216,20 +269,55 @@
 			<version>1.2.5</version>
 		</dependency>
 		<dependency>
-			<groupId>org.influxdb</groupId>
-			<artifactId>influxdb-java</artifactId>
-			<version>2.22</version>
+			<groupId>com.influxdb</groupId>
+			<artifactId>influxdb-client-java</artifactId>
+			<version>7.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.influxdb</groupId>
+			<artifactId>influxdb-client-core</artifactId>
+			<version>7.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.influxdb</groupId>
+			<artifactId>influxdb-client-utils</artifactId>
+			<version>7.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.influxdb</groupId>
+			<artifactId>flux-dsl</artifactId>
+			<version>7.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.java-websocket</groupId>
 			<artifactId>Java-WebSocket</artifactId>
-			<version>1.5.2</version>
+			<version>1.5.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jetbrains.kotlin</groupId>
+			<artifactId>kotlin-osgi-bundle</artifactId>
+			<version>1.9.23</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jetbrains.kotlinx</groupId>
+			<artifactId>kotlinx-coroutines-core-jvm</artifactId>
+			<version>1.8.0</version>
 		</dependency>
 		<dependency>
 			<!-- HTML processing -->
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.14.3</version>
+			<version>1.17.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>osgi.annotation</artifactId>
+			<version>8.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>osgi.core</artifactId>
+			<version>8.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -237,9 +325,34 @@
 			<version>1.10.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.msgpack</groupId>
-			<artifactId>msgpack-core</artifactId>
-			<version>0.9.0</version>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.cm</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.component</artifactId>
+			<version>1.5.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.component.annotations</artifactId>
+			<version>1.5.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.event</artifactId>
+			<version>1.4.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.metatype</artifactId>
+			<version>1.4.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.metatype.annotations</artifactId>
+			<version>1.4.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openmuc</groupId>
@@ -249,17 +362,17 @@
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
-			<version>2.0.14</version>
+			<version>2.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-log4j2</artifactId>
-			<version>2.0.14</version>
+			<version>2.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.service.jdbc</artifactId>
-			<version>1.0.1</version>
+			<version>1.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -269,29 +382,31 @@
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.util.promise</artifactId>
-			<version>1.2.0</version>
+			<version>1.3.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by Apache Felix Web Management Console -->
+			<groupId>org.owasp.encoder</groupId>
+			<artifactId>encoder</artifactId>
+			<version>1.2.3</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.3.3</version>
+			<version>42.7.3</version>
+		</dependency>
+		<dependency>
+			<!-- Used by com.influxdb: influxdb -->
+			<groupId>org.reactivestreams</groupId>
+			<artifactId>reactive-streams</artifactId>
+			<version>1.0.4</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.edge.timedata.rrd4j -->
 			<groupId>org.rrd4j</groupId>
 			<artifactId>rrd4j</artifactId>
-			<version>3.8.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.36</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-			<version>1.7.36</version>
+			<version>3.9</version>
 		</dependency>
 	</dependencies>
 </project>

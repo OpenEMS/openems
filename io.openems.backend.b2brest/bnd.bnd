@@ -5,11 +5,11 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
+	Java-WebSocket,\
 	io.openems.backend.common,\
 	io.openems.common,\
-	Java-WebSocket;version='1.4.1',\
-	javax.servlet-api,\
-	org.apache.felix.http.jetty
+	org.apache.felix.http.jetty,\
+	org.apache.felix.http.servlet-api,\
 
 -testpath: \
 	${testpath}

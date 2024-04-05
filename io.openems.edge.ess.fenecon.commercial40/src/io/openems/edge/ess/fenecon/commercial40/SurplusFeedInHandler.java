@@ -13,10 +13,9 @@ import io.openems.common.utils.DoubleUtils;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.ess.fenecon.commercial40.charger.EssDcChargerFeneconCommercial40;
+import io.openems.edge.ess.fenecon.commercial40.charger.EssFeneconCommercial40Pv;
 
 public class SurplusFeedInHandler {
 
@@ -37,11 +36,10 @@ public class SurplusFeedInHandler {
 		this.parent = parent;
 	}
 
-	protected Integer run(List<EssDcChargerFeneconCommercial40> chargers, Config config,
-			ComponentManager componentManager) {
-		LocalTime offTime = LocalTime.parse(config.surplusFeedInOffTime());
+	protected Integer run(List<EssFeneconCommercial40Pv> chargers, Config config, ComponentManager componentManager) {
+		var offTime = LocalTime.parse(config.surplusFeedInOffTime());
 
-		boolean areSurplusConditionsMet = this.areSurplusConditionsMet(this.parent, chargers, config);
+		var areSurplusConditionsMet = this.areSurplusConditionsMet(this.parent, chargers, config);
 
 		if (chargers.isEmpty()) {
 			// Is no Charger set (i.e. is this not a Commercial 40-40 "DC")
@@ -73,20 +71,19 @@ public class SurplusFeedInHandler {
 				this.setState(SurplusFeedInStateMachine.GOING_DEACTIVATED);
 				this.startedGoingDeactivated = LocalDateTime.now();
 			}
-			int pvPower = this.getPvPower(chargers);
-			int power = pvPower + this.getIncreasePower(config, pvPower);
+			var pvPower = this.getPvPower(chargers);
+			var power = pvPower + this.getIncreasePower(config, pvPower);
 			this.applyPvPowerLimit(chargers, config, true);
 			return power;
 		}
 
 		case GOING_DEACTIVATED: {
-			long goingDeactivatedSinceMinutes = Duration.between(this.startedGoingDeactivated, LocalDateTime.now())
+			var goingDeactivatedSinceMinutes = Duration.between(this.startedGoingDeactivated, LocalDateTime.now())
 					.toMinutes();
 			// slowly reduce the surplus-feed-in-power from 100 to 0 %
-			int pvPower = this.getPvPower(chargers);
-			double factor = DoubleUtils.normalize(goingDeactivatedSinceMinutes, 0, GOING_DEACTIVATED_MINUTES, 0, 1,
-					true);
-			int power = Math.max((int) ((pvPower + this.getIncreasePower(config, pvPower)) * factor),
+			var pvPower = this.getPvPower(chargers);
+			var factor = DoubleUtils.normalize(goingDeactivatedSinceMinutes, 0, GOING_DEACTIVATED_MINUTES, 0, 1, true);
+			var power = Math.max((int) ((pvPower + this.getIncreasePower(config, pvPower)) * factor),
 					this.getIncreasePower(config, pvPower));
 			if (goingDeactivatedSinceMinutes > GOING_DEACTIVATED_MINUTES) {
 				this.setState(SurplusFeedInStateMachine.PASSED_OFF_TIME);
@@ -109,20 +106,20 @@ public class SurplusFeedInHandler {
 
 	/**
 	 * Gets the PV-Power. Zero if not available.
-	 * 
+	 *
 	 * @param chargers the DC Chargers
 	 * @return pv power
 	 */
-	private int getPvPower(List<EssDcChargerFeneconCommercial40> chargers) {
-		int pvPower = 0;
+	private int getPvPower(List<EssFeneconCommercial40Pv> chargers) {
+		var pvPower = 0;
 		for (EssDcCharger charger : chargers) {
 			pvPower += charger.getActualPower().orElse(0);
 		}
 		return pvPower;
 	}
 
-	private boolean areSurplusConditionsMet(EssFeneconCommercial40Impl ess,
-			List<EssDcChargerFeneconCommercial40> chargers, Config config) {
+	private boolean areSurplusConditionsMet(EssFeneconCommercial40Impl ess, List<EssFeneconCommercial40Pv> chargers,
+			Config config) {
 		if (chargers.isEmpty()) {
 			return false;
 		}
@@ -140,10 +137,10 @@ public class SurplusFeedInHandler {
 			return false;
 		}
 
-		int maxVoltage = 0;
-		for (EssDcChargerFeneconCommercial40 charger : chargers) {
+		var maxVoltage = 0;
+		for (EssFeneconCommercial40Pv charger : chargers) {
 			int thisVoltage = ((IntegerReadChannel) charger
-					.channel(EssDcChargerFeneconCommercial40.ChannelId.PV_DCDC_INPUT_VOLTAGE)).value().orElse(0);
+					.channel(EssFeneconCommercial40Pv.ChannelId.PV_DCDC_INPUT_VOLTAGE)).value().orElse(0);
 			if (thisVoltage > maxVoltage) {
 				maxVoltage = thisVoltage;
 			}
@@ -157,11 +154,11 @@ public class SurplusFeedInHandler {
 		return true;
 	}
 
-	private void applyPvPowerLimit(List<EssDcChargerFeneconCommercial40> chargers, Config config, boolean limitPv) {
+	private void applyPvPowerLimit(List<EssFeneconCommercial40Pv> chargers, Config config, boolean limitPv) {
 		/*
 		 * Limit PV production power
 		 */
-		int pvPowerLimit = NO_PV_LIMIT;
+		var pvPowerLimit = NO_PV_LIMIT;
 		if (limitPv) {
 			// Limit PV-Power to maximum apparent power of inverter
 			// this avoids filling the battery faster than we can empty it
@@ -174,16 +171,16 @@ public class SurplusFeedInHandler {
 			} else {
 				// Otherwise reduce to MAX_APPARENT_POWER multiplied with PV_LIMIT_FACTOR;
 				// minimally MIN_PV_LIMIT
-				Value<Integer> maxApparentPower = this.parent.getMaxApparentPower();
+				var maxApparentPower = this.parent.getMaxApparentPower();
 				if (maxApparentPower.isDefined()) {
 					pvPowerLimit = Math.max(Math.round(maxApparentPower.get() * PV_LIMIT_FACTOR), MIN_PV_LIMIT);
 				}
 			}
 		}
 
-		for (EssDcChargerFeneconCommercial40 charger : chargers) {
+		for (EssFeneconCommercial40Pv charger : chargers) {
 			IntegerWriteChannel setPvPowerLimit = charger
-					.channel(EssDcChargerFeneconCommercial40.ChannelId.SET_PV_POWER_LIMIT);
+					.channel(EssFeneconCommercial40Pv.ChannelId.SET_PV_POWER_LIMIT);
 			try {
 				setPvPowerLimit.setNextWriteValue(pvPowerLimit);
 			} catch (OpenemsNamedException e) {
@@ -212,7 +209,7 @@ public class SurplusFeedInHandler {
 		}
 		// increase power is PV-Power + 10 % (INCREASE_POWER_FACTOR); limited by
 		// MAX_INCREASE_POWER
-		int increasePower = (int) (pvPower * config.surplusFeedInIncreasePowerFactor());
+		var increasePower = (int) (pvPower * config.surplusFeedInIncreasePowerFactor());
 		return Math.min(increasePower, config.surplusFeedInMaxIncreasePowerFactor());
 	}
 }

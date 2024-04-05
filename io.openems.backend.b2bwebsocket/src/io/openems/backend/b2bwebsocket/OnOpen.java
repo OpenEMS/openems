@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
@@ -17,9 +16,9 @@ import io.openems.common.utils.JsonUtils;
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 	private final Logger log = LoggerFactory.getLogger(OnClose.class);
-	private final B2bWebsocket parent;
+	private final Backend2BackendWebsocket parent;
 
-	public OnOpen(B2bWebsocket parent) {
+	public OnOpen(Backend2BackendWebsocket parent) {
 		this.parent = parent;
 	}
 
@@ -28,13 +27,13 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		try {
 			// Read "Authorization" header for Simple HTTP authentication. Source:
 			// https://stackoverflow.com/questions/16000517/how-to-get-password-from-http-basic-authentication
-			final var authorization = JsonUtils.getAsString(handshake, "Authorization");
+			final var authorization = JsonUtils.getAsString(handshake, "authorization");
 			if (authorization == null || !authorization.toLowerCase().startsWith("basic")) {
 				throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 			}
 
-			String base64Credentials = authorization.substring("Basic".length()).trim();
-			byte[] credDecoded = Base64.getDecoder().decode(base64Credentials);
+			var base64Credentials = authorization.substring("Basic".length()).trim();
+			var credDecoded = Base64.getDecoder().decode(base64Credentials);
 			var credentials = new String(credDecoded, StandardCharsets.UTF_8);
 			// credentials = username:password
 			final var values = credentials.split(":", 2);
@@ -43,7 +42,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			}
 			var username = values[0];
 			var password = values[1];
-			User user = this.parent.metadata.authenticate(username, password);
+			var user = this.parent.metadata.authenticate(username, password);
 
 			WsData wsData = ws.getAttachment();
 			wsData.setUser(user);

@@ -9,7 +9,7 @@ public enum SystemState implements OptionsEnum {
 	START(2, "START"), //
 	FAULT(3, "FAULT"), //
 	OFF_GRID_PV(4, "Off-Grid PV");
-	
+
 	private final int value;
 	private final String name;
 

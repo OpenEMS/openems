@@ -16,14 +16,13 @@ import com.google.gson.JsonObject;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.JsonUtils.JsonArrayBuilder;
 import io.openems.edge.core.host.SystemUpdateHandler;
 
 /**
- * JSON-RPC Response to "getSystemUpdateState" Request.
- * 
+ * JSON-RPC Response to {@link GetSystemUpdateStateRequest}.
+ *
  * <p>
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -110,7 +109,7 @@ public class GetSystemUpdateStateResponse extends JsonrpcResponseSuccess {
 
 		private final AtomicBoolean isRunning = new AtomicBoolean(false);
 		private final AtomicInteger percentCompleted = new AtomicInteger(0);
-		private List<String> logs = new ArrayList<>();
+		private final List<String> logs = new ArrayList<>();
 		private boolean debugMode = false;
 
 		public UpdateState() {
@@ -135,7 +134,7 @@ public class GetSystemUpdateStateResponse extends JsonrpcResponseSuccess {
 
 		/**
 		 * Adds a line to the log.
-		 * 
+		 *
 		 * @param line the line
 		 */
 		public void addLog(String line) {
@@ -149,48 +148,48 @@ public class GetSystemUpdateStateResponse extends JsonrpcResponseSuccess {
 
 		/**
 		 * Adds a {@link Exception} to the log.
-		 * 
+		 *
 		 * @param e the {@link Exception}
 		 */
 		public void addLog(Exception e) {
-			StringWriter sw = new StringWriter();
-			PrintWriter pw = new PrintWriter(sw);
+			var sw = new StringWriter();
+			var pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
 			this.addLog(pw.toString());
 		}
 
 		/**
 		 * Adds a {@link ExecuteSystemCommandResponse} with a label to the log.
-		 * 
+		 *
 		 * @param label    the label
 		 * @param response the {@link ExecuteSystemCommandResponse}
 		 */
 		public void addLog(String label, ExecuteSystemCommandResponse response) {
 			synchronized (this.log) {
-				String[] stdout = response.getStdout();
+				var stdout = response.scr.stdout();
 				if (stdout.length > 0) {
 					this.addLog(label + ": STDOUT");
-					for (String line : stdout) {
+					for (var line : stdout) {
 						this.addLog(label + ": " + line);
 					}
 				}
-				String[] stderr = response.getStderr();
+				var stderr = response.scr.stderr();
 				if (stderr.length > 0) {
 					this.addLog(label + ": STDERR");
-					for (String line : stderr) {
+					for (var line : stderr) {
 						this.addLog(label + ": " + line);
 					}
 				}
-				if (response.getExitCode() == 0) {
+				if (response.scr.exitcode() == 0) {
 					this.addLog(label + ": FINISHED SUCCESSFULLY");
 				} else {
-					this.addLog(label + ": FINISHED WITH ERROR CODE [" + response.getExitCode() + "]");
+					this.addLog(label + ": FINISHED WITH ERROR CODE [" + response.scr.exitcode() + "]");
 				}
 			}
 		}
 
 		protected JsonObject toJsonObject() {
-			JsonArrayBuilder logs = JsonUtils.buildJsonArray();
+			var logs = JsonUtils.buildJsonArray();
 			synchronized (this.log) {
 				for (String log : this.logs) {
 					logs.add(log);
@@ -233,7 +232,7 @@ public class GetSystemUpdateStateResponse extends JsonrpcResponseSuccess {
 
 	/**
 	 * Builds a {@link GetSystemUpdateStateResponse} for {@link Running} state.
-	 * 
+	 *
 	 * @param id          the request ID
 	 * @param updateState the {@link UpdateState}
 	 * @return the {@link GetSystemUpdateStateResponse}
@@ -245,7 +244,7 @@ public class GetSystemUpdateStateResponse extends JsonrpcResponseSuccess {
 	/**
 	 * Builds a {@link GetSystemUpdateStateResponse} for {@link Unknown},
 	 * {@link Updated} or {@link Available} state.
-	 * 
+	 *
 	 * @param id             the request ID
 	 * @param currentVersion the current version
 	 * @param latestVersion  the latest version
@@ -262,9 +261,8 @@ public class GetSystemUpdateStateResponse extends JsonrpcResponseSuccess {
 		}
 		if (current.isAtLeast(latest)) {
 			return new GetSystemUpdateStateResponse(id, new Updated(current));
-		} else {
-			return new GetSystemUpdateStateResponse(id, new Available(current, latest));
 		}
+		return new GetSystemUpdateStateResponse(id, new Available(current, latest));
 	}
 
 	private GetSystemUpdateStateResponse(UUID id, SystemUpdateState state) {

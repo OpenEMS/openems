@@ -1,37 +1,37 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import * as Chart from 'chart.js';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChartAxis, YAxisTitle } from 'src/app/shared/service/utils';
+
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'storageSingleChart',
-    templateUrl: '../abstracthistorychart.html'
+    templateUrl: '../abstracthistorychart.html',
 })
-export class StorageSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class StorageSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public showPhases: boolean;
 
     ngOnChanges() {
         this.updateChart();
-    };
-
-    constructor(
-        protected service: Service,
-        protected translate: TranslateService,
-        private route: ActivatedRoute,
-    ) {
-        super(service, translate);
     }
 
+    constructor(
+        protected override service: Service,
+        protected override translate: TranslateService,
+        private route: ActivatedRoute,
+    ) {
+        super("storage-single-chart", service, translate);
+    }
 
     ngOnInit() {
-        this.spinnerId = "storage-single-chart";
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
@@ -41,22 +41,22 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.colors = [];
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
-                    let result = response.result;
+                    const result = response.result;
                     // convert labels
-                    let labels: Date[] = [];
-                    for (let timestamp of result.timestamps) {
+                    const labels: Date[] = [];
+                    for (const timestamp of result.timestamps) {
                         labels.push(new Date(timestamp));
                     }
                     this.labels = labels;
 
                     // convert datasets
-                    let datasets = [];
+                    const datasets = [];
 
                     // calculate total charge and discharge
                     let effectivePower = [];
@@ -80,124 +80,118 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                         effectivePowerL3 = result.data['_sum/EssActivePowerL3'];
                     }
 
-                    let totalData = effectivePower.map(value => {
+                    const totalData = effectivePower.map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else {
                             return value / 1000; // convert to kW
                         }
-                    })
+                    });
 
-                    let totalDataL1 = effectivePowerL1.map(value => {
+                    const totalDataL1 = effectivePowerL1.map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else {
-                            return value / 1000 // convert to kW
+                            return value / 1000; // convert to kW
                         }
-                    })
+                    });
 
-                    let totalDataL2 = effectivePowerL2.map(value => {
+                    const totalDataL2 = effectivePowerL2.map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else {
-                            return value / 1000 // convert to kW
+                            return value / 1000; // convert to kW
                         }
-                    })
+                    });
 
-                    let totalDataL3 = effectivePowerL3.map(value => {
+                    const totalDataL3 = effectivePowerL3.map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else {
-                            return value / 1000 // convert to kW
+                            return value / 1000; // convert to kW
                         }
-                    })
+                    });
 
-                    this.getChannelAddresses(edge, config).then(channelAddresses => {
+                    this.getChannelAddresses(edge, config).then(async channelAddresses => {
                         channelAddresses.forEach(channelAddress => {
-                            let data = result.data[channelAddress.toString()].map(value => {
+                            const data = result.data[channelAddress.toString()]?.map(value => {
                                 if (value == null) {
-                                    return null
+                                    return null;
                                 } else {
                                     return value / 1000; // convert to kW
                                 }
-                            })
+                            });
                             if (!data) {
                                 return;
                             } else {
                                 if (channelAddress.channelId == "EssActivePower") {
                                     datasets.push({
                                         label: this.translate.instant('General.chargeDischarge'),
-                                        data: totalData
+                                        data: totalData,
                                     });
                                     this.colors.push({
                                         backgroundColor: 'rgba(0,223,0,0.05)',
                                         borderColor: 'rgba(0,223,0,1)',
-                                    })
+                                    });
                                 }
                                 if ('_sum/EssActivePowerL1' && '_sum/EssActivePowerL2' && '_sum/EssActivePowerL3' in result.data && this.showPhases == true) {
                                     if (channelAddress.channelId == 'EssActivePowerL1') {
                                         datasets.push({
                                             label: this.translate.instant('General.phase') + ' ' + 'L1',
-                                            data: totalDataL1
+                                            data: totalDataL1,
                                         });
                                         this.colors.push(this.phase1Color);
                                     } if (channelAddress.channelId == 'EssActivePowerL2') {
                                         datasets.push({
                                             label: this.translate.instant('General.phase') + ' ' + 'L2',
-                                            data: totalDataL2
+                                            data: totalDataL2,
                                         });
                                         this.colors.push(this.phase2Color);
                                     } if (channelAddress.channelId == 'EssActivePowerL3') {
                                         datasets.push({
                                             label: this.translate.instant('General.phase') + ' ' + 'L3',
-                                            data: totalDataL3
+                                            data: totalDataL3,
                                         });
                                         this.colors.push(this.phase3Color);
                                     }
                                 }
                             }
                         });
+                        this.datasets = datasets;
                     });
-                    this.datasets = datasets;
-                    this.loading = false;
-                    this.service.stopSpinner(this.spinnerId);
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
                     return;
                 });
+
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
                 return;
             });
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();
             return;
+        }).finally(async () => {
+            this.unit = YAxisTitle.ENERGY;
+            await this.setOptions(this.options);
+            this.applyControllerSpecificChartOptions(this.options);
+            this.loading = false;
+            this.stopSpinner();
         });
+
     }
 
-    protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
-        return new Promise((resolve) => {
-            let result: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'EssActivePower'),
-                new ChannelAddress('_sum', 'ProductionDcActualPower'),
-                new ChannelAddress('_sum', 'EssActivePowerL1'),
-                new ChannelAddress('_sum', 'EssActivePowerL2'),
-                new ChannelAddress('_sum', 'EssActivePowerL3'),
-            ];
-            resolve(result);
-        })
-    }
+    private applyControllerSpecificChartOptions(options: Chart.ChartOptions) {
+        const translate = this.translate;
 
-    protected setLabel() {
-        let translate = this.translate; // enables access to TranslateService
-        let options = this.createDefaultChartOptions();
-        options.scales.yAxes[0].scaleLabel.labelString = "kW";
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
+        options.scales[ChartAxis.LEFT].min = null;
+        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+            let label = tooltipItem.dataset.label;
+            const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
             // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
             if (value < -0.005) {
                 if (label.includes(translate.instant('General.phase'))) {
@@ -213,8 +207,30 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                 }
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
+
+        // Data doesnt have all datapoints for period
+        // original logic has not been touched
+        options.scales.x.ticks['source'] = 'auto';
+
         this.options = options;
+    }
+
+    protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
+        return new Promise((resolve) => {
+            const result: ChannelAddress[] = [
+                new ChannelAddress('_sum', 'EssActivePower'),
+                new ChannelAddress('_sum', 'ProductionDcActualPower'),
+                new ChannelAddress('_sum', 'EssActivePowerL1'),
+                new ChannelAddress('_sum', 'EssActivePowerL2'),
+                new ChannelAddress('_sum', 'EssActivePowerL3'),
+            ];
+            resolve(result);
+        });
+    }
+
+    protected setLabel() {
+        this.options = this.createDefaultChartOptions();
     }
 
     public getChartHeight(): number {

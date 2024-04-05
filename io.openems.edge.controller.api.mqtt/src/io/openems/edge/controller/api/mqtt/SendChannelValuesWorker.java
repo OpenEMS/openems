@@ -30,7 +30,7 @@ import io.openems.edge.common.component.OpenemsComponent;
  * Method {@link #collectData()} is called Synchronously with the Core.Cycle to
  * collect values of Channels. Sending of values is then delegated to an
  * asynchronous task.
- * 
+ *
  * <p>
  * The logic tries to send changed values once per Cycle and all values once
  * every {@link #SEND_VALUES_OF_ALL_CHANNELS_AFTER_SECONDS}.
@@ -49,17 +49,17 @@ public class SendChannelValuesWorker {
 	}
 
 	private final Logger log = LoggerFactory.getLogger(SendChannelValuesWorker.class);
-	private final MqttApiControllerImpl parent;
+	private final ControllerApiMqttImpl parent;
 
 	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS,
 			new ArrayBlockingQueue<>(1), //
-			new ThreadFactoryBuilder().setNameFormat(MqttApiControllerImpl.COMPONENT_NAME + ":SendWorker-%d").build(), //
+			new ThreadFactoryBuilder().setNameFormat(ControllerApiMqttImpl.COMPONENT_NAME + ":SendWorker-%d").build(), //
 			new ThreadPoolExecutor.DiscardOldestPolicy());
 
 	/**
 	 * If true: next 'send' sends all channel values.
 	 */
-	private AtomicBoolean sendValuesOfAllChannels = new AtomicBoolean(true);
+	private final AtomicBoolean sendValuesOfAllChannels = new AtomicBoolean(true);
 
 	/**
 	 * Keeps the last timestamp when all channel values were sent.
@@ -71,7 +71,7 @@ public class SendChannelValuesWorker {
 	 */
 	private Table<String, String, JsonElement> lastAllValues = ImmutableTable.of();
 
-	protected SendChannelValuesWorker(MqttApiControllerImpl parent) {
+	protected SendChannelValuesWorker(ControllerApiMqttImpl parent) {
 		this.parent = parent;
 	}
 
@@ -95,11 +95,11 @@ public class SendChannelValuesWorker {
 	 * triggers asynchronous sending.
 	 */
 	public synchronized void collectData() {
-		Instant now = Instant.now(this.parent.componentManager.getClock());
+		var now = Instant.now(this.parent.componentManager.getClock());
 
 		// Update the values of all channels
-		final List<OpenemsComponent> enabledComponents = this.parent.componentManager.getEnabledComponents();
-		final ImmutableTable<String, String, JsonElement> allValues = this.collectData(enabledComponents);
+		final var enabledComponents = this.parent.componentManager.getEnabledComponents();
+		final var allValues = this.collectData(enabledComponents);
 
 		// Add to send Queue
 		this.executor.execute(new SendTask(this, now, allValues));
@@ -107,7 +107,7 @@ public class SendChannelValuesWorker {
 
 	/**
 	 * Cycles through all Channels and collects the value.
-	 * 
+	 *
 	 * @param enabledComponents the enabled components
 	 * @return collected data
 	 */
@@ -175,16 +175,18 @@ public class SendChannelValuesWorker {
 
 			} else {
 				// Actually use the kept 'lastSentValues'
+				// CHECKSTYLE:OFF
 				lastAllValues = this.parent.lastAllValues;
+				// CHECKSTYLE:ON
 			}
 
 			// Send changed values
-			boolean allSendSuccessful = true;
+			var allSendSuccessful = true;
 			List<String> sendTopics = new ArrayList<>();
 			for (Entry<String, Map<String, JsonElement>> row : this.allValues.rowMap().entrySet()) {
 				for (Entry<String, JsonElement> column : row.getValue().entrySet()) {
 					if (!Objects.equals(column.getValue(), lastAllValues.get(row.getKey(), column.getKey()))) {
-						String subtopic = row.getKey() + "/" + column.getKey();
+						var subtopic = row.getKey() + "/" + column.getKey();
 						sendTopics.add(subtopic);
 						if (!this.publish(row.getKey() + "/" + column.getKey(), column.getValue().toString())) {
 							allSendSuccessful = false;
@@ -194,7 +196,7 @@ public class SendChannelValuesWorker {
 			}
 
 			// Update lastUpdate timestamp
-			this.publish(MqttApiController.TOPIC_CHANNEL_LAST_UPDATE, String.valueOf(this.timestamp));
+			this.publish(ControllerApiMqtt.TOPIC_CHANNEL_LAST_UPDATE, String.valueOf(this.timestamp));
 
 			// Successful?
 			if (allSendSuccessful) {
@@ -215,14 +217,14 @@ public class SendChannelValuesWorker {
 
 		/**
 		 * Publish a Channel value message.
-		 * 
+		 *
 		 * @param subTopic the Channel Subtopic
 		 * @param value    the value Json.toString()
 		 * @return true if sent successfully; false otherwise
 		 */
 		private boolean publish(String subTopic, String value) {
 			return this.parent.parent.publish(//
-					/* topic */ MqttApiController.TOPIC_CHANNEL_PREFIX + subTopic, //
+					/* topic */ ControllerApiMqtt.TOPIC_CHANNEL_PREFIX + subTopic, //
 					/* message */ value.toString(), //
 					MQTT_QOS, MQTT_RETAIN, MQTT_PROPERTIES //
 			);

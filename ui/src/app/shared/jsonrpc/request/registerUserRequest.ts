@@ -19,17 +19,18 @@ import { JsonrpcRequest } from "../base";
  *       "email": string,
  *       "password": string,
  *       "confirmPassword": string,
- *     }
+ *     },
+ *     "oem" : string
  *   }
  * }
  * </pre>
  */
 export class RegisterUserRequest extends JsonrpcRequest {
 
-    static METHOD: string = "registerUser";
+    private static METHOD: string = "registerUser";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             user: {
                 firstname: string,
                 lastname: string,
@@ -47,8 +48,9 @@ export class RegisterUserRequest extends JsonrpcRequest {
                     name: string
                 },
                 role: string
-            }
-        }
+            },
+            oem: string
+        },
     ) {
         super(RegisterUserRequest.METHOD, params);
     }

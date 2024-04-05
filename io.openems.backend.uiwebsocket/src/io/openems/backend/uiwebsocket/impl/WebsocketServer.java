@@ -1,8 +1,6 @@
 package io.openems.backend.uiwebsocket.impl;
 
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
+import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +20,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	private final OnError onError;
 	private final OnClose onClose;
 
-	public WebsocketServer(UiWebsocketImpl parent, String name, int port, int poolSize, boolean debugMode) {
+	public WebsocketServer(UiWebsocketImpl parent, String name, int port, int poolSize, DebugMode debugMode) {
 		super(name, port, poolSize, debugMode);
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
@@ -63,8 +61,8 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	}
 
 	@Override
-	protected JsonrpcMessage handleNonJsonrpcMessage(String stringMessage, OpenemsNamedException lastException)
-			throws OpenemsNamedException {
+	protected JsonrpcMessage handleNonJsonrpcMessage(WebSocket ws, String stringMessage,
+			OpenemsNamedException lastException) throws OpenemsNamedException {
 		this.log.info("UiWs. handleNonJsonrpcMessage: " + stringMessage);
 		throw new OpenemsException("UiWs. handleNonJsonrpcMessage", lastException);
 	}
@@ -80,8 +78,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	}
 
 	@Override
-	protected ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
-			TimeUnit unit) {
-		return super.scheduleWithFixedDelay(command, initialDelay, delay, unit);
+	protected void logError(Logger log, String message) {
+		this.parent.logError(log, message);
 	}
 }

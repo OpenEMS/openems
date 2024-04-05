@@ -29,7 +29,7 @@ public class AbstractCycleWorkerTest {
 
 		Thread.sleep(100);
 
-		Assert.assertEquals(10, counter.get());
+		Assert.assertEquals(11, counter.get());
 
 		worker.deactivate();
 	}

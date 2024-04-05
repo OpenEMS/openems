@@ -78,7 +78,7 @@ public class SubscribeSystemLogRequest extends JsonrpcRequest {
 	 *
 	 * @return true for subscribe, false for unsubscribe
 	 */
-	public boolean getSubscribe() {
+	public boolean isSubscribe() {
 		return this.subscribe;
 	}
 

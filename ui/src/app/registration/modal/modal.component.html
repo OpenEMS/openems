@@ -10,11 +10,11 @@
 </ion-header>
 
 <ion-segment [(ngModel)]="activeSegment" (ionChange)="updateRegistrationForm($event)">
-    <ion-segment-button value="owner">
-        <ion-label translate>Register.segment.user</ion-label>
-    </ion-segment-button>
     <ion-segment-button value="installer">
         <ion-label translate>Register.segment.installer</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="owner">
+        <ion-label translate>Register.segment.user</ion-label>
     </ion-segment-button>
 </ion-segment>
 
@@ -24,75 +24,81 @@
             <!-- owner form -->
             <div *ngSwitchCase="'owner'">
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.firstname<span>*</span></ion-label>
+                    <ion-label position="floating" translate>Register.Form.firstname<span>*</span></ion-label>
                     <ion-input formControlName="firstname" type="input"
-                        [placeholder]="'Register.form.firstname' | translate"></ion-input>
+                        [placeholder]="'Register.Form.firstname' | translate"></ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.lastname<span>*</span></ion-label>
+                    <ion-label position="floating" translate>Register.Form.lastname<span>*</span></ion-label>
                     <ion-input formControlName="lastname" type="input"
-                        [placeholder]="'Register.form.lastname' | translate">
+                        [placeholder]="'Register.Form.lastname' | translate">
                     </ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.street<span>*</span></ion-label>
-                    <ion-input formControlName="street" type="input" [placeholder]="'Register.form.street' | translate">
+                    <ion-label position="floating" translate>Register.Form.street<span>*</span></ion-label>
+                    <ion-input formControlName="street" type="input" [placeholder]="'Register.Form.street' | translate">
                     </ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.zip<span>*</span></ion-label>
-                    <ion-input formControlName="zip" type="input" [placeholder]="'Register.form.zip' | translate">
+                    <ion-label position="floating" translate>Register.Form.zip<span>*</span></ion-label>
+                    <ion-input formControlName="zip" type="input" [placeholder]="'Register.Form.zip' | translate">
                     </ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.city<span>*</span></ion-label>
-                    <ion-input formControlName="city" type="input" [placeholder]="'Register.form.city' | translate">
+                    <ion-label position="floating" translate>Register.Form.city<span>*</span></ion-label>
+                    <ion-input formControlName="city" type="input" [placeholder]="'Register.Form.city' | translate">
                     </ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.country<span>*</span></ion-label>
+                    <ion-label position="floating" translate>Register.Form.country<span>*</span></ion-label>
                     <ion-select formControlName="country">
-                        <ion-select-option value="de">Deutschland</ion-select-option>
-                        <ion-select-option value="at">Österreich</ion-select-option>
-                        <ion-select-option value="ch">Schweiz</ion-select-option>
+                        <ng-container *ngFor="let country of countries">
+                            <ion-select-option [value]="country.value">{{country.label}}</ion-select-option>
+                        </ng-container>
                     </ion-select>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.phone<span>*</span></ion-label>
-                    <ion-input formControlName="phone" type="input" [placeholder]="'Register.form.phone' | translate">
+                    <ion-label position="floating" translate>Register.Form.phone<span>*</span></ion-label>
+                    <ion-input formControlName="phone" type="input" [placeholder]="'Register.Form.phone' | translate">
                     </ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.email<span>*</span></ion-label>
-                    <ion-input formControlName="email" type="input" [placeholder]="'Register.form.email' | translate">
+                    <ion-label position="floating" translate>Register.Form.email<span>*</span></ion-label>
+                    <ion-input formControlName="email" type="input" [placeholder]="'Register.Form.email' | translate">
                     </ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.password<span>*</span></ion-label>
+                    <ion-label position="floating" translate>Register.Form.confirmEmail<span>*</span></ion-label>
+                    <ion-input formControlName="confirmEmail" type="input"
+                        [placeholder]="'Register.Form.confirmEmail' | translate">
+                    </ion-input>
+                </ion-item>
+                <ion-item>
+                    <ion-label position="floating" translate>Register.Form.password<span>*</span></ion-label>
                     <ion-input formControlName="password" type="password"
-                        [placeholder]="'Register.form.password' | translate"></ion-input>
+                        [placeholder]="'Register.Form.password' | translate"></ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.confirmPassword<span>*</span></ion-label>
+                    <ion-label position="floating" translate>Register.Form.confirmPassword<span>*</span></ion-label>
                     <ion-input formControlName="confirmPassword" type="password"
-                        [placeholder]="'Register.form.confirmPassword' | translate">
+                        [placeholder]="'Register.Form.confirmPassword' | translate">
                     </ion-input>
                 </ion-item>
 
                 <ion-item>
                     <ion-label style="white-space: pre-wrap;"
-                        [innerHTML]="'Register.form.user.acceptPrivacyPolicy' | translate">
+                        [innerHTML]="'Register.Form.user.acceptPrivacyPolicy' | translate">
                     </ion-label>
                     <ion-checkbox slot="start" formControlName="acceptPrivacyPolicy"></ion-checkbox>
                 </ion-item>
                 <ion-item>
-                    <ion-label style="white-space: pre-wrap;" [innerHTML]="'Register.form.acceptAgb' | translate">
+                    <ion-label style="white-space: pre-wrap;" [innerHTML]="'Register.Form.acceptAgb' | translate">
                     </ion-label>
                     <ion-checkbox slot="start" formControlName="acceptAgb"></ion-checkbox>
                 </ion-item>
                 <ion-item>
                     <ion-label style="white-space: pre-wrap;"
-                        [innerHTML]="'Register.form.subscribeNewsletter' | translate">
+                        [innerHTML]="'Register.Form.subscribeNewsletter' | translate">
                     </ion-label>
                     <ion-checkbox slot="start" formControlName="subscribeNewsletter"></ion-checkbox>
                 </ion-item>
@@ -100,85 +106,91 @@
             <!-- installer form -->
             <div *ngSwitchCase="'installer'">
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.companyName<span>*</span></ion-label>
+                    <ion-label position="floating" translate>Register.Form.companyName<span>*</span></ion-label>
                     <ion-input formControlName="companyName" type="input"
-                        [placeholder]="'Register.form.companyName' | translate"></ion-input>
+                        [placeholder]="'Register.Form.companyName' | translate"></ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.firstname<span>*</span></ion-label>
+                    <ion-label position="floating" translate>Register.Form.firstname<span>*</span></ion-label>
                     <ion-input formControlName="firstname" type="input"
-                        [placeholder]="'Register.form.firstname' | translate"></ion-input>
+                        [placeholder]="'Register.Form.firstname' | translate"></ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.lastname<span>*</span></ion-label>
+                    <ion-label position="floating" translate>Register.Form.lastname<span>*</span></ion-label>
                     <ion-input formControlName="lastname" type="input"
-                        [placeholder]="'Register.form.lastname' | translate">
+                        [placeholder]="'Register.Form.lastname' | translate">
                     </ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.street<span>*</span></ion-label>
-                    <ion-input formControlName="street" type="input" [placeholder]="'Register.form.street' | translate">
+                    <ion-label position="floating" translate>Register.Form.street<span>*</span></ion-label>
+                    <ion-input formControlName="street" type="input" [placeholder]="'Register.Form.street' | translate">
                     </ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.zip<span>*</span></ion-label>
-                    <ion-input formControlName="zip" type="input" [placeholder]="'Register.form.zip' | translate">
+                    <ion-label position="floating" translate>Register.Form.zip<span>*</span></ion-label>
+                    <ion-input formControlName="zip" type="input" [placeholder]="'Register.Form.zip' | translate">
                     </ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.city<span>*</span></ion-label>
-                    <ion-input formControlName="city" type="input" [placeholder]="'Register.form.city' | translate">
+                    <ion-label position="floating" translate>Register.Form.city<span>*</span></ion-label>
+                    <ion-input formControlName="city" type="input" [placeholder]="'Register.Form.city' | translate">
                     </ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.country<span>*</span></ion-label>
+                    <ion-label position="floating" translate>Register.Form.country<span>*</span></ion-label>
                     <ion-select formControlName="country">
-                        <ion-select-option value="de">Deutschland</ion-select-option>
-                        <ion-select-option value="at">Österreich</ion-select-option>
-                        <ion-select-option value="ch">Schweiz</ion-select-option>
+                        <ng-container *ngFor="let country of countries">
+                            <ion-select-option [value]="country.value">{{country.label}}</ion-select-option>
+                        </ng-container>
                     </ion-select>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.phone<span>*</span></ion-label>
-                    <ion-input formControlName="phone" type="input" [placeholder]="'Register.form.phone' | translate">
+                    <ion-label position="floating" translate>Register.Form.phone<span>*</span></ion-label>
+                    <ion-input formControlName="phone" type="input" [placeholder]="'Register.Form.phone' | translate">
                     </ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.email<span>*</span></ion-label>
-                    <ion-input formControlName="email" type="input" [placeholder]="'Register.form.email' | translate">
+                    <ion-label position="floating" translate>Register.Form.email<span>*</span></ion-label>
+                    <ion-input formControlName="email" type="input" [placeholder]="'Register.Form.email' | translate">
                     </ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.password<span>*</span></ion-label>
+                    <ion-label position="floating" translate>Register.Form.confirmEmail<span>*</span></ion-label>
+                    <ion-input formControlName="confirmEmail" type="input"
+                        [placeholder]="'Register.Form.confirmEmail' | translate">
+                    </ion-input>
+                </ion-item>
+                <ion-item>
+                    <ion-label position="floating" translate>Register.Form.password<span>*</span></ion-label>
                     <ion-input formControlName="password" type="password"
-                        [placeholder]="'Register.form.password' | translate"></ion-input>
+                        [placeholder]="'Register.Form.password' | translate"></ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="floating" translate>Register.form.confirmPassword<span>*</span></ion-label>
+                    <ion-label position="floating" translate>Register.Form.confirmPassword<span>*</span></ion-label>
                     <ion-input formControlName="confirmPassword" type="password"
-                        [placeholder]="'Register.form.confirmPassword' | translate">
+                        [placeholder]="'Register.Form.confirmPassword' | translate">
                     </ion-input>
                 </ion-item>
 
                 <ion-item>
-                    <ion-label style="white-space: pre-wrap;" [innerHTML]="'Register.form.isElectrician'| translate">
+                    <ion-label style="white-space: pre-wrap;" [innerHTML]="'Register.Form.isElectrician'| translate">
                     </ion-label>
                     <ion-checkbox slot="start" formControlName="isElectrician"></ion-checkbox>
                 </ion-item>
                 <ion-item>
                     <ion-label style="white-space: pre-wrap;"
-                        [innerHTML]="'Register.form.installer.acceptPrivacyPolicy' | translate">
+                        [innerHTML]="'Register.Form.installer.acceptPrivacyPolicy' | translate">
                     </ion-label>
                     <ion-checkbox slot="start" formControlName="acceptPrivacyPolicy"></ion-checkbox>
                 </ion-item>
                 <ion-item>
-                    <ion-label style="white-space: pre-wrap;" [innerHTML]="'Register.form.acceptAgb' | translate">
+                    <ion-label style="white-space: pre-wrap;" [innerHTML]="'Register.Form.acceptAgb' | translate">
                     </ion-label>
                     <ion-checkbox slot="start" formControlName="acceptAgb"></ion-checkbox>
                 </ion-item>
                 <ion-item>
                     <ion-label style="white-space: pre-wrap;"
-                        [innerHTML]="'Register.form.subscribeNewsletter' | translate">
+                        [innerHTML]="'Register.Form.subscribeNewsletter' | translate">
                     </ion-label>
                     <ion-checkbox slot="start" formControlName="subscribeNewsletter"></ion-checkbox>
                 </ion-item>

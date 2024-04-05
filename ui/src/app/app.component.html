@@ -1,6 +1,6 @@
 <ion-app>
   <ion-content>
-    <ng-container *ngIf="websocket.status == 'connecting' || websocket.status == 'failed'">
+    <ng-container *ngIf="websocket.status === 'connecting' || websocket.status === 'failed'">
       <ion-grid>
         <ion-row class="ion-justify-content-center">
           <ion-col size="12" size-md="6">
@@ -61,10 +61,8 @@
 
           <!-- Show Link to Overview if more than one Edge is accessible or the globalRole is at least installer -->
           <ng-container *ngIf="(service.metadata | async) as service">
-            <ng-container
-              *ngIf="environment.backend == 'OpenEMS Backend'
-              && ((service.edges | keys).length > 1 || (service.user.globalRole == 'installer' || service.user.globalRole == 'admin'))">
-              <ion-item lines="full" routerLinkActive="active" routerLink="/index" (click)="menu.close()">
+            <ng-container *ngIf="isUserAllowedToSeeOverview">
+              <ion-item lines="full" routerLinkActive="active" routerLink="/overview" (click)="menu.close()">
                 <ion-label translate>Menu.overview </ion-label>
               </ion-item>
             </ng-container>
@@ -79,4 +77,6 @@
       </ion-content>
     </ion-menu>
   </ion-content>
+
+  <oe-footer *ngIf="isUserAllowedToSeeFooter"></oe-footer>
 </ion-app>

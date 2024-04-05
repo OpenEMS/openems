@@ -32,8 +32,8 @@
                 <grid></grid>
               </ion-col>
 
-              <ion-col *ngSwitchCase="'Production'" size="12" size-lg="6" class="ion-no-padding">
-                <production></production>
+              <ion-col *ngSwitchCase="'Common_Production'" size="12" size-lg="6" class="ion-no-padding">
+                <Common_Production></Common_Production>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Consumption'" size="12" size-lg="6" class="ion-no-padding">
@@ -50,10 +50,10 @@
 
               <ng-container *ngIf="config.components[widget.componentId].factoryId as factoryId">
                 <ng-container
-                  *ngIf="factoryId != 'Evcs.Cluster.PeakShaving' && factoryId != 'Evcs.Cluster.SelfConsumption'">
+                  *ngIf="factoryId !== 'Evcs.Cluster.PeakShaving' && factoryId !== 'Evcs.Cluster.SelfConsumption'">
                   <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12" size-lg="6" class="ion-no-padding">
-                    <Controller_Evcs [componentId]="widget.componentId">
-                    </Controller_Evcs>
+                    <Controller_Evcs [componentId]="widget.componentId"></Controller_Evcs>
+
                   </ion-col>
                 </ng-container>
               </ng-container>
@@ -117,10 +117,9 @@
                 </Controller_Io_ChannelSingleThresholdComponent>
               </ion-col>
 
-              <ion-col *ngSwitchCase="'Controller.Ess.Time-Of-Use-Tariff.Discharge'" size="12" size-lg="6"
-                class="ion-no-padding">
-                <Controller_Ess_TimeOfUseTariff_Discharge [componentId]="widget.componentId">
-                </Controller_Ess_TimeOfUseTariff_Discharge>
+              <ion-col *ngSwitchCase="'Controller.Ess.Time-Of-Use-Tariff'" size="12" size-lg="6" class="ion-no-padding">
+                <Controller_Ess_TimeOfUseTariff [componentId]="widget.componentId">
+                </Controller_Ess_TimeOfUseTariff>
               </ion-col>
 
               <ion-col *ngSwitchCase="'io.openems.edge.io.api.DigitalInput'" size="12" size-lg="6"
@@ -134,13 +133,10 @@
 
               <ion-col size="12" *ngSwitchCase="'Controller.Ess.GridOptimizedCharge'" size-lg="6"
                 class="ion-no-padding">
-                <gridoptimizedcharge [componentId]="widget.componentId"></gridoptimizedcharge>
+                <Controller_Ess_GridOptimizedCharge [componentId]="widget.componentId">
+                </Controller_Ess_GridOptimizedCharge>
               </ion-col>
             </ng-container>
-
-            <!-- <ion-col size="12" size-lg="12">
-            <info></info>
-          </ion-col> -->
 
           </ion-row>
         </ion-grid>

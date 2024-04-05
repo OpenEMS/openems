@@ -17,15 +17,15 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
 	private final Logger log = LoggerFactory.getLogger(WebsocketClient.class);
 
-	private final BackendApiImpl parent;
+	private final ControllerApiBackendImpl parent;
 	private final OnOpen onOpen;
 	private final OnRequest onRequest;
 	private final OnNotification onNotification;
 	private final OnError onError;
 	private final OnClose onClose;
 
-	protected WebsocketClient(BackendApiImpl parent, String name, URI serverUri, Map<String, String> httpHeaders,
-			Proxy proxy) {
+	protected WebsocketClient(ControllerApiBackendImpl parent, String name, URI serverUri,
+			Map<String, String> httpHeaders, Proxy proxy) {
 		super(name, serverUri, httpHeaders, proxy);
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
@@ -33,8 +33,9 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 		this.onNotification = new OnNotification(parent);
 		this.onError = new OnError(parent);
 		this.onClose = (ws, code, reason, remote) -> {
-			this.log.error("Disconnected from OpenEMS Backend [" + serverUri.toString() + //
-			(proxy != AbstractWebsocketClient.NO_PROXY ? " via Proxy" : "") + "]");
+			this.log.error("Disconnected from OpenEMS Backend [" + serverUri.toString() //
+					+ (proxy != AbstractWebsocketClient.NO_PROXY ? " via Proxy" : "") + "]");
+			this.parent.getUnableToSendChannel().setNextValue(true);
 		};
 	}
 
@@ -65,7 +66,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
 	@Override
 	protected WsData createWsData() {
-		return new WsData(this);
+		return new WsData();
 	}
 
 	@Override
@@ -76,6 +77,11 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	@Override
 	protected void logWarn(Logger log, String message) {
 		this.parent.logWarn(log, message);
+	}
+
+	@Override
+	protected void logError(Logger log, String message) {
+		this.parent.logError(log, message);
 	}
 
 	public boolean isConnected() {
@@ -89,7 +95,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
 	/**
 	 * Schedules a command using the {@link ScheduledExecutorService}.
-	 * 
+	 *
 	 * @param command      a {@link Runnable}
 	 * @param initialDelay the initial delay
 	 * @param delay        the delay

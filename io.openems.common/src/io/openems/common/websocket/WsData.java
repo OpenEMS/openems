@@ -3,8 +3,6 @@ package io.openems.common.websocket;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
@@ -33,6 +31,7 @@ public abstract class WsData {
 	/**
 	 * Holds Futures for JSON-RPC Requests.
 	 */
+	// TODO add timeout to requestFutures
 	private final ConcurrentHashMap<UUID, CompletableFuture<JsonrpcResponseSuccess>> requestFutures = new ConcurrentHashMap<>();
 
 	/**
@@ -40,7 +39,10 @@ public abstract class WsData {
 	 * blocked resources.
 	 */
 	public void dispose() {
-		// nothing here
+		// Complete all pending requests
+		this.requestFutures.values()
+				.forEach(r -> r.completeExceptionally(new OpenemsException("Websocket connection closed.")));
+		this.requestFutures.clear();
 	}
 
 	/**
@@ -144,16 +146,4 @@ public abstract class WsData {
 	 */
 	@Override
 	public abstract String toString();
-
-	/**
-	 * Execute a {@link Runnable}.
-	 *
-	 * @param command      the {@link Runnable}
-	 * @param initialDelay the initial delay
-	 * @param delay        the delay value
-	 * @param unit         the delay {@link TimeUnit}
-	 * @return the {@link ScheduledFuture} of the {@link Runnable} command
-	 */
-	protected abstract ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
-			TimeUnit unit);
 }

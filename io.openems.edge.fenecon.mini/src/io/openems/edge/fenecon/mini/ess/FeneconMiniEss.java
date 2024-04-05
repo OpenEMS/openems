@@ -294,7 +294,7 @@ public interface FeneconMiniEss extends ManagedSinglePhaseEss, ManagedAsymmetric
 
 		SYSTEM_ERROR(Doc.of(Level.FAULT) //
 				.onInit(new StateChannel.TriggerOnAny(SystemErrorChannelId.values()))
-				.text("System-Error. More information at: https://www1.fenecon.de/2020/12/14/fenecon-mini-system-error")), //
+				.text("System-Error. More information at: https://fenecon.de/fenecon-mini-system-error")), //
 		SERVICE_INFO(Doc.of(Level.INFO) //
 				.onInit(new StateChannel.TriggerOnAny(ServiceInfoChannelId.values())) //
 				.text("Service-Info")), //

@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoBlueplanetGridsave;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.BatteryInverterKacoBlueplanetGridsave;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201RequestedState;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
@@ -22,7 +22,7 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		KacoBlueplanetGridsave inverter = context.getParent();
+		var inverter = context.getParent();
 
 		switch (inverter.getCurrentState()) {
 		case OFF:
@@ -44,28 +44,24 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 			// Not yet running...
 		}
 
-		boolean isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
-				.getSeconds() > KacoBlueplanetGridsave.RETRY_COMMAND_SECONDS;
-		if (isMaxStartTimePassed) {
-			// First try - or waited long enough for next try
-
-			if (this.attemptCounter > KacoBlueplanetGridsave.RETRY_COMMAND_MAX_ATTEMPTS) {
-				// Too many tries
-				inverter._setMaxStopAttempts(true);
-				return State.UNDEFINED;
-
-			} else {
-				// Trying to switch off
-				inverter.setRequestedState(S64201RequestedState.OFF);
-				this.lastAttempt = Instant.now();
-				this.attemptCounter++;
-				return State.GO_STOPPED;
-
-			}
-
-		} else {
+		var isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
+				.getSeconds() > BatteryInverterKacoBlueplanetGridsave.RETRY_COMMAND_SECONDS;
+		if (!isMaxStartTimePassed) {
 			// Still waiting...
 			return State.GO_STOPPED;
+		}
+		if (this.attemptCounter > BatteryInverterKacoBlueplanetGridsave.RETRY_COMMAND_MAX_ATTEMPTS) {
+			// Too many tries
+			inverter._setMaxStopAttempts(true);
+			return State.UNDEFINED;
+
+		} else {
+			// Trying to switch off
+			inverter.setRequestedState(S64201RequestedState.OFF);
+			this.lastAttempt = Instant.now();
+			this.attemptCounter++;
+			return State.GO_STOPPED;
+
 		}
 	}
 

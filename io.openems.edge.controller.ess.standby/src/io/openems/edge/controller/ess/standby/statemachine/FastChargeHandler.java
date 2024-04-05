@@ -27,7 +27,7 @@ public class FastChargeHandler extends StateHandler<State, Context> {
 	@Override
 	public State runAndGetNextState(Context context) throws IllegalArgumentException, OpenemsNamedException {
 		int maxApparentPower = context.ess.getMaxApparentPower().getOrError();
-		int setPower = maxApparentPower * -1; // Charge
+		var setPower = maxApparentPower * -1; // Charge
 
 		// Apply power constraint
 		context.ess.setActivePowerEqualsWithPid(setPower);
@@ -37,10 +37,9 @@ public class FastChargeHandler extends StateHandler<State, Context> {
 				.toMinutes() >= MAX_STATE_DURATION_MINUTES) {
 			// time passed
 			return State.SLOW_CHARGE_2;
-		} else {
-			// stay in this State
-			return State.FAST_CHARGE;
 		}
+		// stay in this State
+		return State.FAST_CHARGE;
 	}
 
 }

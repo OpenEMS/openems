@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
@@ -61,7 +62,7 @@ import com.dalsemi.onewire.container.OneWireContainer;
  *
  * <H3>Usage</H3>
  * <H4>Example</H4> Read from a 1-Wire file on device 'owd':
- * 
+ *
  * <PRE>
  *  <CODE>
  *   // get an input stream to the 1-Wire file
@@ -118,21 +119,21 @@ public class OWFileInputStream extends InputStream {
 	 *                                    other reason cannot be opened for reading.
 	 */
 	public OWFileInputStream(OneWireContainer owd, String name) throws OWFileNotFoundException {
-		fd = new OWFileDescriptor(owd, name);
+		this.fd = new OWFileDescriptor(owd, name);
 
 		// open the file
 		try {
-			fd.open();
+			this.fd.open();
 		} catch (OWFileNotFoundException e) {
-			fd.free();
-			fd = null;
+			this.fd.free();
+			this.fd = null;
 			throw new OWFileNotFoundException(e.toString());
 		}
 
 		// make sure this is not directory
-		if (!fd.isFile()) {
-			fd.free();
-			fd = null;
+		if (!this.fd.isFile()) {
+			this.fd.free();
+			this.fd = null;
 			throw new OWFileNotFoundException("Not a file");
 		}
 	}
@@ -157,21 +158,21 @@ public class OWFileInputStream extends InputStream {
 	 *                                    other reason cannot be opened for reading.
 	 */
 	public OWFileInputStream(OneWireContainer[] owd, String name) throws OWFileNotFoundException {
-		fd = new OWFileDescriptor(owd, name);
+		this.fd = new OWFileDescriptor(owd, name);
 
 		// open the file
 		try {
-			fd.open();
+			this.fd.open();
 		} catch (OWFileNotFoundException e) {
-			fd.free();
-			fd = null;
+			this.fd.free();
+			this.fd = null;
 			throw new OWFileNotFoundException(e.toString());
 		}
 
 		// make sure this is not directory
-		if (!fd.isFile()) {
-			fd.free();
-			fd = null;
+		if (!this.fd.isFile()) {
+			this.fd.free();
+			this.fd = null;
 			throw new OWFileNotFoundException("Not a file");
 		}
 	}
@@ -195,26 +196,26 @@ public class OWFileInputStream extends InputStream {
 	public OWFileInputStream(OWFile file) throws OWFileNotFoundException {
 		// get the file descriptor
 		try {
-			fd = file.getFD();
+			this.fd = file.getFD();
 		} catch (IOException e) {
-			fd.free();
-			fd = null;
+			this.fd.free();
+			this.fd = null;
 			throw new OWFileNotFoundException(e.toString());
 		}
 
 		// open the file
 		try {
-			fd.open();
+			this.fd.open();
 		} catch (OWFileNotFoundException e) {
-			fd.free();
-			fd = null;
+			this.fd.free();
+			this.fd = null;
 			throw new OWFileNotFoundException(e.toString());
 		}
 
 		// make sure it is not a directory
-		if (!fd.isFile()) {
-			fd.free();
-			fd = null;
+		if (!this.fd.isFile()) {
+			this.fd.free();
+			this.fd = null;
 			throw new OWFileNotFoundException("Not a file");
 		}
 	}
@@ -230,10 +231,11 @@ public class OWFileInputStream extends InputStream {
 	 * @param fdObj the file descriptor to be opened for reading.
 	 */
 	public OWFileInputStream(OWFileDescriptor fdObj) {
-		if (fdObj == null)
+		if (fdObj == null) {
 			throw new NullPointerException("OWFile provided is null");
+		}
 
-		fd = fdObj;
+		this.fd = fdObj;
 	}
 
 	// --------
@@ -248,11 +250,12 @@ public class OWFileInputStream extends InputStream {
 	 *         reached.
 	 * @exception IOException if an I/O error occurs.
 	 */
+	@Override
 	public int read() throws IOException {
-		if (fd != null)
-			return fd.read();
-		else
-			throw new IOException("1-Wire FileDescriptor is null");
+		if (this.fd != null) {
+			return this.fd.read();
+		}
+		throw new IOException("1-Wire FileDescriptor is null");
 	}
 
 	/**
@@ -264,11 +267,12 @@ public class OWFileInputStream extends InputStream {
 	 *         there is no more data because the end of the file has been reached.
 	 * @exception IOException if an I/O error occurs.
 	 */
+	@Override
 	public int read(byte b[]) throws IOException {
-		if (fd != null)
-			return fd.read(b, 0, b.length);
-		else
-			throw new IOException("1-Wire FileDescriptor is null");
+		if (this.fd != null) {
+			return this.fd.read(b, 0, b.length);
+		}
+		throw new IOException("1-Wire FileDescriptor is null");
 	}
 
 	/**
@@ -282,11 +286,12 @@ public class OWFileInputStream extends InputStream {
 	 *         there is no more data because the end of the file has been reached.
 	 * @exception IOException if an I/O error occurs.
 	 */
+	@Override
 	public int read(byte b[], int off, int len) throws IOException {
-		if (fd != null)
-			return fd.read(b, off, len);
-		else
-			throw new IOException("1-Wire FileDescriptor is null");
+		if (this.fd != null) {
+			return this.fd.read(b, off, len);
+		}
+		throw new IOException("1-Wire FileDescriptor is null");
 	}
 
 	/**
@@ -299,11 +304,12 @@ public class OWFileInputStream extends InputStream {
 	 * @return the actual number of bytes skipped.
 	 * @exception IOException if an I/O error occurs.
 	 */
+	@Override
 	public long skip(long n) throws IOException {
-		if (fd != null)
-			return fd.skip(n);
-		else
-			throw new IOException("1-Wire FileDescriptor is null");
+		if (this.fd != null) {
+			return this.fd.skip(n);
+		}
+		throw new IOException("1-Wire FileDescriptor is null");
 	}
 
 	/**
@@ -314,11 +320,12 @@ public class OWFileInputStream extends InputStream {
 	 *         without blocking.
 	 * @exception IOException if an I/O error occurs.
 	 */
+	@Override
 	public int available() throws IOException {
-		if (fd != null)
-			return fd.available();
-		else
-			throw new IOException("1-Wire FileDescriptor is null");
+		if (this.fd != null) {
+			return this.fd.available();
+		}
+		throw new IOException("1-Wire FileDescriptor is null");
 	}
 
 	/**
@@ -327,13 +334,14 @@ public class OWFileInputStream extends InputStream {
 	 *
 	 * @exception IOException if an I/O error occurs.
 	 */
+	@Override
 	public void close() throws IOException {
-		if (fd != null)
-			fd.close();
-		else
+		if (this.fd == null) {
 			throw new IOException("1-Wire FileDescriptor is null");
+		}
+		this.fd.close();
 
-		fd = null;
+		this.fd = null;
 	}
 
 	/**
@@ -346,10 +354,10 @@ public class OWFileInputStream extends InputStream {
 	 * @see com.dalsemi.onewire.application.file.OWFileDescriptor
 	 */
 	public final OWFileDescriptor getFD() throws IOException {
-		if (fd != null)
-			return fd;
-		else
-			throw new IOException("1-Wire FileDescriptor is null");
+		if (this.fd != null) {
+			return this.fd;
+		}
+		throw new IOException("1-Wire FileDescriptor is null");
 	}
 
 	/**
@@ -361,8 +369,8 @@ public class OWFileInputStream extends InputStream {
 	 */
 	@Override
 	public void finalize() throws IOException {
-		if (fd != null) {
-			fd.close();
+		if (this.fd != null) {
+			this.fd.close();
 		}
 	}
 
@@ -395,9 +403,11 @@ public class OWFileInputStream extends InputStream {
 	 *                  position becomes invalid.
 	 * @see java.io.InputStream#reset()
 	 */
+	@Override
 	public void mark(int readlimit) {
-		if (fd != null)
-			fd.mark(readlimit);
+		if (this.fd != null) {
+			this.fd.mark(readlimit);
+		}
 	}
 
 	/**
@@ -448,9 +458,11 @@ public class OWFileInputStream extends InputStream {
 	 * @see java.io.InputStream#mark(int)
 	 * @see java.io.IOException
 	 */
+	@Override
 	public void reset() throws IOException {
-		if (fd != null)
-			fd.reset();
+		if (this.fd != null) {
+			this.fd.reset();
+		}
 	}
 
 	/**
@@ -463,7 +475,9 @@ public class OWFileInputStream extends InputStream {
 	 * @see java.io.InputStream#mark(int)
 	 * @see java.io.InputStream#reset()
 	 */
+	@Override
 	public boolean markSupported() {
 		return true;
 	}
 }
+// CHECKSTYLE:ON

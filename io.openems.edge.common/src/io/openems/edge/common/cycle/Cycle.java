@@ -11,15 +11,15 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public interface Cycle extends OpenemsComponent {
 
-	public final static String SINGLETON_SERVICE_PID = "Core.Cycle";
-	public final static String SINGLETON_COMPONENT_ID = "_cycle";
+	public static final String SINGLETON_SERVICE_PID = "Core.Cycle";
+	public static final String SINGLETON_COMPONENT_ID = "_cycle";
 
 	public static final int DEFAULT_CYCLE_TIME = 1000; // in [ms]
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Actual, measured Cycle-Time in [ms].
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Cycle
 		 * <li>Type: Integer
@@ -29,7 +29,7 @@ public interface Cycle extends OpenemsComponent {
 				.unit(Unit.MILLISECONDS)),
 		/**
 		 * A configured Controller is not executed because it is disabled.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Cycle
 		 * <li>Type: State
@@ -43,6 +43,7 @@ public interface Cycle extends OpenemsComponent {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -118,7 +119,7 @@ public interface Cycle extends OpenemsComponent {
 
 	/**
 	 * Gets the duration of one global OpenEMS Cycle in [ms].
-	 * 
+	 *
 	 * @return the duration in milliseconds
 	 */
 	public int getCycleTime();

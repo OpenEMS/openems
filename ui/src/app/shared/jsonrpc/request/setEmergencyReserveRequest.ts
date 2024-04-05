@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Sets the emergency reserve. (In development)
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -16,12 +16,12 @@ import { JsonrpcRequest } from "../base";
  */
 export class SetEmergencyReserveRequest extends JsonrpcRequest {
 
-    static METHOD: string = "setEmergencyReserve";
+    private static METHOD: string = "setEmergencyReserve";
 
     public constructor(
         public readonly params: {
             value: number
-        }
+        },
     ) {
         super(SetEmergencyReserveRequest.METHOD, params);
     }

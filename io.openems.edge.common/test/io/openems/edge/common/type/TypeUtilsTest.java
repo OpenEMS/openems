@@ -1,6 +1,7 @@
 package io.openems.edge.common.type;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.Optional;
 
@@ -12,6 +13,21 @@ import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.value.Value;
 
 public class TypeUtilsTest {
+
+	@Test
+	public void testAverageInt() {
+		// int values input, avg - rounding previous value
+		assertEquals(Integer.valueOf(0), TypeUtils.averageInt(0, 0, 1));
+
+		// int values
+		assertEquals(Integer.valueOf(10), TypeUtils.averageInt(5, 10, 15));
+
+		// int values input, avg - rounding to next value
+		assertEquals(Integer.valueOf(11), TypeUtils.averageInt(10, 11));
+
+		// null values
+		assertEquals(null, TypeUtils.averageInt(null, null));
+	}
 
 	@Test
 	public void testAverage() {
@@ -47,6 +63,15 @@ public class TypeUtilsTest {
 	}
 
 	@Test
+	public void testFitWithin() {
+		assertEquals(10, TypeUtils.fitWithin(5, 15, 10));
+		assertEquals(5.0, TypeUtils.fitWithin(2.5, 7.5, 5.0), 0.0);
+		assertEquals(0F, TypeUtils.fitWithin(0F, 100F, -99.005F), 0F);
+		assertEquals(100F, TypeUtils.fitWithin(0F, 100F, 100.005F), 0F);
+		assertEquals(50F, TypeUtils.fitWithin(0F, 100F, 50F), 0F);
+	}
+
+	@Test
 	public void testMin() {
 		assertEquals(25, (int) TypeUtils.min(null, 25, null, 40, null));
 		assertEquals(null, TypeUtils.min((Double) null, null, null));
@@ -55,24 +80,49 @@ public class TypeUtilsTest {
 	}
 
 	@Test
+	public void testSumDouble() {
+		assertNull(TypeUtils.sum((Double) null, null));
+		assertEquals(4.0, TypeUtils.sum(1.5, 2.5), 0.1);
+	}
+
+	@Test
+	public void testSubtractDouble() {
+		assertNull(TypeUtils.subtract((Double) null, null));
+		assertEquals(2.0, TypeUtils.subtract(4.5, 2.5), 0.1);
+		assertEquals(4.5, TypeUtils.subtract(4.5, null), 0.1);
+	}
+
+	@Test
 	public void testGetAsType() {
 		/*
 		 * Extract values
 		 */
 		{
-			Short expected = Short.valueOf((short) 123);
-			assertEquals(expected, getAsShort(new Value<Integer>(null, 123)));
+			var expected = Short.valueOf((short) 123);
+			assertEquals(expected, getAsShort(new Value<>(null, 123)));
 			assertEquals(expected, getAsShort(Optional.of(123)));
+			assertNull(getAsShort(Optional.empty()));
 			assertEquals(expected, getAsShort(MyOptionsEnum.E123));
 			assertEquals(Short.valueOf((short) 0), getAsShort(MyEnum.E123));
 			assertEquals(expected, getAsShort(new Integer[] { 123 }));
-			assertEquals(null, getAsShort(new Integer[0]));
+			assertNull(getAsShort(new Integer[0]));
+		}
+		/*
+		 * Special floating point numbers
+		 */
+		{
+			assertNull(getAsFloat(Float.NaN));
+			assertNull(getAsFloat(Float.NEGATIVE_INFINITY));
+			assertNull(getAsFloat(Float.POSITIVE_INFINITY));
+			assertNull(getAsDouble(Double.NaN));
+			assertNull(getAsDouble(Double.NEGATIVE_INFINITY));
+			assertNull(getAsDouble(Double.POSITIVE_INFINITY));
 		}
 		/*
 		 * To BOOLEAN
 		 */
 		{
-			assertEquals(null, getAsBoolean(null));
+			assertNull(getAsBoolean(null));
 			assertEquals(true, getAsBoolean(Boolean.TRUE));
 			assertEquals(false, getAsBoolean(Boolean.FALSE));
 			assertEquals(true, getAsBoolean(Short.valueOf((short) 1)));
@@ -85,7 +135,7 @@ public class TypeUtilsTest {
 			assertEquals(false, getAsBoolean(Float.valueOf(0)));
 			assertEquals(true, getAsBoolean(Double.valueOf(1)));
 			assertEquals(false, getAsBoolean(Double.valueOf(0)));
-			assertEquals(null, getAsBoolean(""));
+			assertNull(getAsBoolean(""));
 			assertEquals(false, getAsBoolean("fAlSe"));
 			assertEquals(true, getAsBoolean("tRuE"));
 			assertException(() -> getAsBoolean("foo"));
@@ -95,10 +145,10 @@ public class TypeUtilsTest {
 		 * To SHORT
 		 */
 		{
-			Short expected = Short.valueOf((short) 123);
-			assertEquals(null, getAsShort(null));
+			assertNull(getAsShort(null));
 			assertEquals(Short.valueOf((short) 1), getAsShort(Boolean.TRUE));
 			assertEquals(Short.valueOf((short) 0), getAsShort(Boolean.FALSE));
+			var expected = Short.valueOf((short) 123);
 			assertEquals(expected, getAsShort(expected));
 			assertException(() -> getAsShort(Integer.valueOf(Short.MAX_VALUE + 1)));
 			assertException(() -> getAsShort(Integer.valueOf(Short.MIN_VALUE - 1)));
@@ -112,7 +162,7 @@ public class TypeUtilsTest {
 			assertException(() -> getAsShort(Double.valueOf(Short.MAX_VALUE + 1)));
 			assertException(() -> getAsShort(Double.valueOf(Short.MIN_VALUE - 1)));
 			assertEquals(expected, getAsShort(Double.valueOf(123)));
-			assertEquals(null, getAsShort(""));
+			assertNull(getAsShort(""));
 			assertException(() -> getAsShort("foo"));
 			assertEquals(expected, getAsShort("123"));
 			assertException(() -> getAsShort(new Object()));
@@ -122,10 +172,10 @@ public class TypeUtilsTest {
 		 * To INTEGER
 		 */
 		{
-			Integer expected = Integer.valueOf(123);
-			assertEquals(null, getAsInteger(null));
+			assertNull(getAsInteger(null));
 			assertEquals(Integer.valueOf(0), getAsInteger(Boolean.FALSE));
 			assertEquals(Integer.valueOf(1), getAsInteger(Boolean.TRUE));
+			var expected = Integer.valueOf(123);
 			assertEquals(expected, getAsInteger(Short.valueOf((short) 123)));
 			assertEquals(expected, getAsInteger(123));
 			assertException(() -> getAsInteger(Long.valueOf(Long.valueOf(Integer.MAX_VALUE) + 1)));
@@ -137,7 +187,7 @@ public class TypeUtilsTest {
 			assertException(() -> getAsInteger(Double.valueOf(Double.valueOf(Integer.MAX_VALUE) + 1000)));
 			assertException(() -> getAsInteger(Double.valueOf(Double.valueOf(Integer.MIN_VALUE) - 1000)));
 			assertEquals(expected, getAsInteger(Double.valueOf(123)));
-			assertEquals(null, getAsInteger(""));
+			assertNull(getAsInteger(""));
 			assertException(() -> getAsInteger("foo"));
 			assertEquals(expected, getAsInteger("123"));
 			assertException(() -> getAsInteger(new Object()));
@@ -147,16 +197,16 @@ public class TypeUtilsTest {
 		 * To LONG
 		 */
 		{
-			Long expected = Long.valueOf(123);
-			assertEquals(null, getAsLong(null));
+			assertNull(getAsLong(null));
 			assertEquals(Long.valueOf(0), getAsLong(Boolean.FALSE));
 			assertEquals(Long.valueOf(1), getAsLong(Boolean.TRUE));
+			var expected = Long.valueOf(123);
 			assertEquals(expected, getAsLong(Short.valueOf((short) 123)));
 			assertEquals(expected, getAsLong(123));
 			assertEquals(expected, getAsLong(Long.valueOf(123)));
 			assertEquals(expected, getAsLong(Float.valueOf(123)));
 			assertEquals(expected, getAsLong(Double.valueOf(123)));
-			assertEquals(null, getAsLong(""));
+			assertNull(getAsLong(""));
 			assertException(() -> getAsLong("foo"));
 			assertEquals(expected, getAsLong("123"));
 			assertException(() -> getAsLong(new Object()));
@@ -166,16 +216,16 @@ public class TypeUtilsTest {
 		 * To FLOAT
 		 */
 		{
-			Float expected = Float.valueOf(123);
-			assertEquals(null, getAsFloat(null));
+			assertNull(getAsFloat(null));
 			assertEquals(Float.valueOf(0), getAsFloat(Boolean.FALSE));
 			assertEquals(Float.valueOf(1), getAsFloat(Boolean.TRUE));
+			var expected = Float.valueOf(123);
 			assertEquals(expected, getAsFloat(Short.valueOf((short) 123)));
 			assertEquals(expected, getAsFloat(123));
 			assertEquals(expected, getAsFloat(Long.valueOf(123)));
 			assertEquals(expected, getAsFloat(Float.valueOf(123)));
 			assertEquals(expected, getAsFloat(Double.valueOf(123)));
-			assertEquals(null, getAsFloat(""));
+			assertNull(getAsFloat(""));
 			assertException(() -> getAsFloat("foo"));
 			assertEquals(expected, getAsFloat("123"));
 			assertException(() -> getAsFloat(new Object()));
@@ -186,16 +236,16 @@ public class TypeUtilsTest {
 		 * To DOUBLE
 		 */
 		{
-			Double expected = Double.valueOf(123);
-			assertEquals(null, getAsDouble(null));
+			assertNull(getAsDouble(null));
 			assertEquals(Double.valueOf(0), getAsDouble(Boolean.FALSE));
 			assertEquals(Double.valueOf(1), getAsDouble(Boolean.TRUE));
+			var expected = Double.valueOf(123);
 			assertEquals(expected, getAsDouble(Short.valueOf((short) 123)));
 			assertEquals(expected, getAsDouble(123));
 			assertEquals(expected, getAsDouble(Long.valueOf(123)));
 			assertEquals(expected, getAsDouble(Float.valueOf(123)));
 			assertEquals(expected, getAsDouble(Double.valueOf(123)));
-			assertEquals(null, getAsDouble(""));
+			assertNull(getAsDouble(""));
 			assertException(() -> getAsDouble("foo"));
 			assertEquals(expected, getAsDouble("123"));
 			assertException(() -> getAsDouble(new Object()));
@@ -205,7 +255,7 @@ public class TypeUtilsTest {
 		 * To STRING
 		 */
 		{
-			assertEquals(null, getAsString(null));
+			assertNull(getAsString(null));
 			assertEquals("", getAsString(""));
 			assertEquals("[Hello, [World, !]]", getAsString(new Object[] { "Hello", new Object[] { "World", "!" } }));
 			assertEquals("[true, false]", getAsString(new boolean[] { true, false }));
@@ -219,7 +269,7 @@ public class TypeUtilsTest {
 		}
 	}
 
-	private void assertException(ThrowingRunnable<Exception> runnable) {
+	private static void assertException(ThrowingRunnable<Exception> runnable) {
 		try {
 			runnable.run();
 			assertEquals("Expecting an Exception!", true, false);
@@ -228,31 +278,31 @@ public class TypeUtilsTest {
 		}
 	}
 
-	private Boolean getAsBoolean(Object value) {
+	private static Boolean getAsBoolean(Object value) {
 		return TypeUtils.getAsType(OpenemsType.BOOLEAN, value);
 	}
 
-	private Short getAsShort(Object value) {
+	private static Short getAsShort(Object value) {
 		return TypeUtils.getAsType(OpenemsType.SHORT, value);
 	}
 
-	private Integer getAsInteger(Object value) {
+	private static Integer getAsInteger(Object value) {
 		return TypeUtils.getAsType(OpenemsType.INTEGER, value);
 	}
 
-	private Long getAsLong(Object value) {
+	private static Long getAsLong(Object value) {
 		return TypeUtils.getAsType(OpenemsType.LONG, value);
 	}
 
-	private Float getAsFloat(Object value) {
+	private static Float getAsFloat(Object value) {
 		return TypeUtils.getAsType(OpenemsType.FLOAT, value);
 	}
 
-	private Double getAsDouble(Object value) {
+	private static Double getAsDouble(Object value) {
 		return TypeUtils.getAsType(OpenemsType.DOUBLE, value);
 	}
 
-	private String getAsString(Object value) {
+	private static String getAsString(Object value) {
 		return TypeUtils.getAsType(OpenemsType.STRING, value);
 	}
 

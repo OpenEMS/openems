@@ -1,7 +1,7 @@
 package io.openems.edge.goodwe.batteryinverter;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
@@ -11,19 +11,19 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		public ControlMode controlMode;
-		public String modbusId;
-		public int modbusUnitId;
-		public SafetyCountry safetyCountry;
-		public EnableDisable mpptForShadowEnable;
-		public EnableDisable backupEnable;
-		public EnableDisable feedPowerEnable;
-		public int feedPowerPara;
-		public FeedInPowerSettings feedInPowerSettings;
+		private String id;
+		private ControlMode controlMode;
+		private String modbusId;
+		private int modbusUnitId;
+		private SafetyCountry safetyCountry;
+		private EnableDisable mpptForShadowEnable;
+		private EnableDisable backupEnable;
+		private EnableDisable feedPowerEnable;
+		private int feedPowerPara;
+		private FeedInPowerSettings feedInPowerSettings;
+		private EnableDisable rcrEnable = EnableDisable.DISABLE;
 
 		private Builder() {
-
 		}
 
 		public Builder setId(String id) {
@@ -76,6 +76,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setRcrEnable(EnableDisable rcrEnable) {
+			this.rcrEnable = rcrEnable;
+			return this;
+		}
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -83,7 +88,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -147,4 +152,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.controlMode;
 	}
 
+	@Override
+	public EnableDisable rcrEnable() {
+		return this.builder.rcrEnable;
+	}
 }

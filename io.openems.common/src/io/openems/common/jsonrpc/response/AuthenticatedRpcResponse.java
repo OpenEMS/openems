@@ -26,7 +26,7 @@ public class AuthenticatedRpcResponse extends JsonrpcResponseSuccess {
 	/**
 	 * Parses a {@link JsonrpcResponseSuccess} to a
 	 * {@link AuthenticatedRpcResponse}.
-	 * 
+	 *
 	 * @param r the {@link JsonrpcResponseSuccess}
 	 * @return the {@link AuthenticatedRpcResponse}
 	 * @throws OpenemsNamedException on error

@@ -5,11 +5,11 @@ import { Component, Input } from "@angular/core";
  */
 @Component({
     selector: 'oe-flat-widget-horizontal-line',
-    templateUrl: './flat-widget-horizontal-line.html'
+    templateUrl: './flat-widget-horizontal-line.html',
 })
-export class FlatWidgetHorizontalLine {
+export class FlatWidgetHorizontalLineComponent {
     /** Components-Array to iterate over */
-    @Input() components: any[];
+    @Input() protected components: any[] | null = null;
     /** index is an iterator */
-    @Input() index: number;
+    @Input() protected index: number | null = null;
 }

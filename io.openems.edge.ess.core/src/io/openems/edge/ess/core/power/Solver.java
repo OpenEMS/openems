@@ -44,7 +44,7 @@ public class Solver {
 	private final Data data;
 	private final Optimizers optimizers = new Optimizers();
 
-	private boolean debugMode = PowerComponent.DEFAULT_DEBUG_MODE;
+	private boolean debugMode = EssPower.DEFAULT_DEBUG_MODE;
 	private OnSolved onSolvedCallback = (isSolved, duration, strategy) -> {
 	};
 
@@ -55,22 +55,22 @@ public class Solver {
 
 		/**
 		 * Solves the problem, while setting all DisabledInverters to EQUALS zero.
-		 * 
+		 *
 		 * @param disabledInverters a list of disabled inverters
 		 * @return a solution
 		 * @throws NoFeasibleSolutionException if not solvable
 		 * @throws UnboundedSolutionException  if not solvable
 		 * @throws OpenemsException
 		 */
-		this.solveWithDisabledInverters = (disabledInverters) -> {
-			List<Constraint> constraints = this.data.getConstraintsWithoutDisabledInverters(disabledInverters);
+		this.solveWithDisabledInverters = disabledInverters -> {
+			var constraints = this.data.getConstraintsWithoutDisabledInverters(disabledInverters);
 			return ConstraintSolver.solve(this.data.getCoefficients(), constraints);
 		};
 	}
 
 	/**
 	 * Adds a callback for onSolved event.
-	 * 
+	 *
 	 * @param onSolvedCallback the Callback
 	 */
 	public void onSolved(OnSolved onSolvedCallback) {
@@ -79,7 +79,7 @@ public class Solver {
 
 	/**
 	 * Tests whether the Problem is solvable under the current Constraints.
-	 * 
+	 *
 	 * @throws OpenemsException on error
 	 */
 	public void isSolvableOrError() throws OpenemsException {
@@ -94,7 +94,7 @@ public class Solver {
 
 	/**
 	 * Tests whether the Problem is solvable under the current Constraints.
-	 * 
+	 *
 	 * @return true if the problem is solvable
 	 */
 	public boolean isSolvable() {
@@ -108,25 +108,25 @@ public class Solver {
 
 	/**
 	 * Solve and optimize the equation system.
-	 * 
+	 *
 	 * <p>
 	 * When finished, this method calls the applyPower() methods of
 	 * {@link ManagedSymmetricEss} or {@link ManagedAsymmetricEss}.
-	 * 
+	 *
 	 * @param strategy the {@link SolverStrategy} to follow
 	 */
 	public void solve(SolverStrategy strategy) {
 		// measure duration
-		final long startTime = System.nanoTime();
+		final var startTime = System.nanoTime();
 
 		// No Inverters -> nothing to do
 		if (this.data.getInverters().isEmpty()) {
 			this.onSolvedCallback.accept(true, 0, SolverStrategy.NONE);
 			return;
 		}
-		List<Inverter> allInverters = this.data.getInverters();
+		var allInverters = this.data.getInverters();
 
-		SolveSolution solution = new SolveSolution(SolverStrategy.NONE, null);
+		var solution = new SolveSolution(SolverStrategy.NONE, null);
 
 		List<Constraint> allConstraints = new ArrayList<>();
 		TargetDirection targetDirection = null;
@@ -157,8 +157,8 @@ public class Solver {
 
 			// Gets the target-Inverters, i.e. the Inverters that are minimally required to
 			// solve the Problem.
-			List<Inverter> targetInverters = this.optimizers.reduceNumberOfUsedInverters.apply(allInverters,
-					targetDirection, this.solveWithDisabledInverters);
+			var targetInverters = this.optimizers.reduceNumberOfUsedInverters.apply(allInverters, targetDirection,
+					this.solveWithDisabledInverters);
 
 			switch (strategy) {
 			case UNDEFINED:
@@ -199,10 +199,10 @@ public class Solver {
 		}
 
 		// finish time measure (in milliseconds)
-		int duration = (int) (System.nanoTime() - startTime) / 1_000_000;
+		var duration = (int) (System.nanoTime() - startTime) / 1_000_000;
 
 		// announce success/failure
-		boolean isSolved = solution.getPoints() != null;
+		var isSolved = solution.getPoints() != null;
 		this.onSolvedCallback.accept(isSolved, duration, solution.getSolvedBy());
 
 		// Apply final Solution to Inverters
@@ -225,7 +225,7 @@ public class Solver {
 	/**
 	 * Tries different solving strategies in order. 'ALL_CONSTRAINTS' is always
 	 * tried last if everything else failed. Returns as soon as a result is found.
-	 * 
+	 *
 	 * @param targetDirection the target direction
 	 * @param allInverters    a list of all inverters
 	 * @param targetInverters a list of target inverters
@@ -267,15 +267,14 @@ public class Solver {
 		solution = ConstraintSolver.solve(this.data.getCoefficients(), allConstraints);
 		if (solution != null) {
 			return new SolveSolution(SolverStrategy.ALL_CONSTRAINTS, solution);
-		} else {
-			return new SolveSolution(SolverStrategy.NONE, null);
 		}
+		return new SolveSolution(SolverStrategy.NONE, null);
 	}
 
 	private Map<Inverter, PowerTuple> getZeroSolution(List<Inverter> allInverters) {
 		Map<Inverter, PowerTuple> result = new HashMap<>();
 		for (Inverter inv : allInverters) {
-			PowerTuple powerTuple = new PowerTuple();
+			var powerTuple = new PowerTuple();
 			for (Pwr pwr : Pwr.values()) {
 				powerTuple.setValue(pwr, 0);
 			}
@@ -286,9 +285,8 @@ public class Solver {
 
 	/**
 	 * Send the final solution to each Inverter.
-	 * 
-	 * @param finalSolution  a map of inverters to PowerTuples
-	 * @param allConstraints all Constraints
+	 *
+	 * @param finalSolution a map of inverters to PowerTuples
 	 */
 	private void applySolution(Map<Inverter, PowerTuple> finalSolution) {
 		// store last value inside Inverter
@@ -307,9 +305,9 @@ public class Solver {
 			PowerTuple invL2 = null;
 			PowerTuple invL3 = null;
 			for (Entry<Inverter, PowerTuple> entry : finalSolution.entrySet()) {
-				Inverter i = entry.getKey();
+				var i = entry.getKey();
 				if (Objects.equals(ess.id(), i.getEssId())) {
-					PowerTuple pt = entry.getValue();
+					var pt = entry.getValue();
 					switch (i.getPhase()) {
 					case ALL:
 						inv = pt;
@@ -342,7 +340,7 @@ public class Solver {
 					invL3 = new PowerTuple();
 				}
 
-				ManagedAsymmetricEss e = (ManagedAsymmetricEss) ess;
+				var e = (ManagedAsymmetricEss) ess;
 				// set debug channels on Ess
 				e._setDebugSetActivePower(invL1.getActivePower() + invL2.getActivePower() + invL3.getActivePower());
 				e._setDebugSetReactivePower(

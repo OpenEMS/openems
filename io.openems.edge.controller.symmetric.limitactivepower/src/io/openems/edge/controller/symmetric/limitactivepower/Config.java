@@ -3,7 +3,7 @@ package io.openems.edge.controller.symmetric.limitactivepower;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Limit Active Power Symmetric", //
 		description = "Defines charge and discharge limits for a symmetric energy storage system.")
 @interface Config {

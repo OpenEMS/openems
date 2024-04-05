@@ -3,9 +3,9 @@ import { NetworkInterface } from './shared';
 
 /**
  * JSON-RPC Response to "getNetworkConfig" Request.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -17,7 +17,7 @@ import { NetworkInterface } from './shared';
  *         "linkLocalAddressing": boolean,
  *         "gateway": string,
  *         "dns": string,
- *         "addresses": string[]
+ *         "addresses": IpAddress[]
  *       }
  *     }
  *   }
@@ -27,12 +27,12 @@ import { NetworkInterface } from './shared';
 export class GetNetworkConfigResponse extends JsonrpcResponseSuccess {
 
     public constructor(
-        public readonly id: string,
-        public readonly result: {
+        public override readonly id: string,
+        public override readonly result: {
             interfaces: {
                 [name: string]: NetworkInterface
             }
-        }
+        },
     ) {
         super(id, result);
     }

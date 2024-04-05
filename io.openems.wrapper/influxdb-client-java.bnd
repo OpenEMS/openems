@@ -1,0 +1,26 @@
+Bundle-Name: influxdb-client-java
+Bundle-Description: The Java InfluxDB 2.0 Client Java
+Bundle-DocURL: https://github.com/influxdata/influxdb-client-java
+Bundle-License: https://opensource.org/licenses/MIT
+Bundle-Version: 7.0.0
+
+Include-Resource: \
+	@influxdb-client-java-7.0.0.jar,\
+
+Export-Package: \
+	com.influxdb.client,\
+	com.influxdb.client.domain,\
+	com.influxdb.client.internal,\
+	com.influxdb.client.service,\
+	com.influxdb.client.write,\
+	com.influxdb.client.write.events,\
+	com.influxdb.client.write.internal,\
+
+Import-Package: \
+	*
+	
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false

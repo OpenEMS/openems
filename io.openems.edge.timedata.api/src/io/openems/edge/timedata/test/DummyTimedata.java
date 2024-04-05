@@ -2,6 +2,7 @@ package io.openems.edge.timedata.test;
 
 import java.time.ZonedDateTime;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
@@ -13,34 +14,35 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.Timeranges;
 
 /**
  * Provides a simple, simulated {@link Timedata} component that can be used
  * together with the OpenEMS Component test framework.
  */
-public class DummyTimedata extends AbstractOpenemsComponent implements Timedata {
+public class DummyTimedata extends AbstractDummyOpenemsComponent<DummyTimedata> implements Timedata {
 
 	private final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data = new TreeMap<>();
 
 	public DummyTimedata(String id) {
-		super(//
+		super(id, //
 				OpenemsComponent.ChannelId.values(), //
-				Timedata.ChannelId.values() //
-		);
-		for (Channel<?> channel : this.channels()) {
-			channel.nextProcessImage();
-		}
-		super.activate(null, id, "", true);
+				Timedata.ChannelId.values());
+	}
+
+	@Override
+	protected DummyTimedata self() {
+		return this;
 	}
 
 	/**
 	 * Adds a value to the Dummy Timedata.
-	 * 
+	 *
 	 * @param timestamp      the {@link ZonedDateTime}
 	 * @param channelAddress the {@link ChannelAddress}
 	 * @param value          the value as {@link Integer}
@@ -51,13 +53,13 @@ public class DummyTimedata extends AbstractOpenemsComponent implements Timedata 
 
 	/**
 	 * Adds a value to the Dummy Timedata.
-	 * 
+	 *
 	 * @param timestamp      the {@link ZonedDateTime}
 	 * @param channelAddress the {@link ChannelAddress}
 	 * @param value          the value as {@link JsonElement}
 	 */
 	public void add(ZonedDateTime timestamp, ChannelAddress channelAddress, JsonElement value) {
-		SortedMap<ChannelAddress, JsonElement> perTime = this.data.get(timestamp);
+		var perTime = this.data.get(timestamp);
 		if (perTime == null) {
 			perTime = new TreeMap<>();
 			this.data.put(timestamp, perTime);
@@ -67,7 +69,7 @@ public class DummyTimedata extends AbstractOpenemsComponent implements Timedata 
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = new TreeMap<>();
 		for (Entry<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> entry : this.data.subMap(fromDate, toDate)
@@ -84,22 +86,38 @@ public class DummyTimedata extends AbstractOpenemsComponent implements Timedata 
 	@Override
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
-		// TODO Auto-generated method stub
 		throw new NotImplementedException("DummyTimedata.queryHistoricEnergy() is not implemented");
 	}
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
-		// TODO Auto-generated method stub
 		throw new NotImplementedException("DummyTimedata.queryHistoricEnergyPerPeriod() is not implemented");
 	}
 
 	@Override
+	public SortedMap<Long, SortedMap<ChannelAddress, JsonElement>> queryResendData(ZonedDateTime fromDate,
+			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		throw new NotImplementedException("DummyTimedata.queryResendData() is not implemented");
+	}
+
+	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
-		// TODO Auto-generated method stub
-		throw new IllegalArgumentException("DummyTimedata.getLatestValue() is not implemented");
+		var result = this.data.entrySet() //
+				.stream() //
+				.sorted((o1, o2) -> o2.getKey().compareTo(o1.getKey())).map(Entry::getValue) //
+				.map(t -> t.get(channelAddress)) //
+				.filter(Objects::nonNull) //
+				.map(t -> (Object) t.getAsInt()) //
+				.findFirst();
+		return CompletableFuture.completedFuture(result);
+	}
+
+	@Override
+	public Timeranges getResendTimeranges(ChannelAddress notSendChannel, long lastResendTimestamp)
+			throws OpenemsNamedException {
+		throw new NotImplementedException("DummyTimedata.getTimeranges() is not implemented");
 	}
 
 }

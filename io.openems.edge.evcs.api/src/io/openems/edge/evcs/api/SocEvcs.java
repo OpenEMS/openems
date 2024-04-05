@@ -16,10 +16,10 @@ public interface SocEvcs extends Evcs {
 
 		/**
 		 * Current SoC.
-		 * 
+		 *
 		 * <p>
 		 * The current state of charge of the car
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: SocEvcs
 		 * <li>Readable
@@ -84,10 +84,11 @@ public interface SocEvcs extends Evcs {
 	}
 
 	/**
-	 * Returns the modbus table for this nature.
-	 * 
-	 * @param accessMode accessMode
-	 * @return nature table
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(SocEvcs.class, accessMode, 50) //

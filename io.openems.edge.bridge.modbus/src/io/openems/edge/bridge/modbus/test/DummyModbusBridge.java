@@ -1,20 +1,26 @@
 package io.openems.edge.bridge.modbus.test;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ghgande.j2mod.modbus.io.ModbusTransaction;
+
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public class DummyModbusBridge extends AbstractOpenemsComponent
-		implements BridgeModbusTcp, BridgeModbus, OpenemsComponent {
+public class DummyModbusBridge extends AbstractModbusBridge implements BridgeModbusTcp, BridgeModbus, OpenemsComponent {
 
 	private final Map<String, ModbusProtocol> protocols = new HashMap<>();
+
+	private InetAddress ipAddress = null;
 
 	public DummyModbusBridge(String id) {
 		super(//
@@ -25,7 +31,19 @@ public class DummyModbusBridge extends AbstractOpenemsComponent
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		super.activate(null, id, "", true);
+		super.activate(null, id, "", true, LogVerbosity.NONE, 2);
+	}
+
+	/**
+	 * Sets the IP-Address.
+	 * 
+	 * @param ipAddress an IP-Address.
+	 * @return myself
+	 * @throws UnknownHostException on parse error
+	 */
+	public DummyModbusBridge withIpAddress(String ipAddress) throws UnknownHostException {
+		this.ipAddress = InetAddress.getByName(ipAddress);
+		return this;
 	}
 
 	@Override
@@ -40,7 +58,20 @@ public class DummyModbusBridge extends AbstractOpenemsComponent
 
 	@Override
 	public InetAddress getIpAddress() {
-		return null;
+		if (this.ipAddress != null) {
+			return this.ipAddress;
+		}
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
+	@Override
+	public ModbusTransaction getNewModbusTransaction() throws OpenemsException {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
+	@Override
+	public void closeModbusConnection() {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
 }

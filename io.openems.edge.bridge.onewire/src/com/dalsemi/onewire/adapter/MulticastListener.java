@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -50,9 +51,9 @@ public class MulticastListener implements Runnable {
 	/** multicast socket to receive datagram packets on */
 	private MulticastSocket socket = null;
 	/** the message we're expecting to receive on the multicast socket */
-	private byte[] expectedMessage;
+	private final byte[] expectedMessage;
 	/** the message we should reply with when we get the expected message */
-	private byte[] returnMessage;
+	private final byte[] returnMessage;
 
 	/** boolean to stop the thread from listening for messages */
 	private volatile boolean listenerStopped = false;
@@ -62,14 +63,15 @@ public class MulticastListener implements Runnable {
 	/**
 	 * Creates a multicast listener on the specified multicast port, bound to the
 	 * specified multicast group. Whenever the byte[] pattern specified by
-	 * "expectedMessage" is received, the byte[] pattern specified by "returnMessage"
-	 * is sent to the sender of the "expected message".
+	 * "expectedMessage" is received, the byte[] pattern specified by
+	 * "returnMessage" is sent to the sender of the "expected message".
 	 *
 	 * @param multicastPort   Port to bind this listener to.
 	 * @param multicastGroup  Group to bind this listener to.
 	 * @param expectedMessage the message to look for
 	 * @param returnMessage   the message to reply with
 	 */
+	@SuppressWarnings("deprecation")
 	public MulticastListener(int multicastPort, String multicastGroup, byte[] expectedMessage, byte[] returnMessage)
 			throws IOException, UnknownHostException {
 		this.expectedMessage = expectedMessage;
@@ -84,47 +86,49 @@ public class MulticastListener implements Runnable {
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 
 		// create multicast socket
-		socket = new MulticastSocket(multicastPort);
+		this.socket = new MulticastSocket(multicastPort);
 		// set timeout at 3 seconds
-		socket.setSoTimeout(timeoutInSeconds * 1000);
+		this.socket.setSoTimeout(timeoutInSeconds * 1000);
 		// join the multicast group
-		InetAddress group = InetAddress.getByName(multicastGroup);
-		socket.joinGroup(group);
+		var group = InetAddress.getByName(multicastGroup);
+		this.socket.joinGroup(group);
 	}
 
 	/**
 	 * Run method waits for Multicast packets with the specified contents and
 	 * replies with the specified message.
 	 */
+	@Override
 	public void run() {
-		byte[] receiveBuffer = new byte[expectedMessage.length];
+		var receiveBuffer = new byte[this.expectedMessage.length];
 
-		listenerRunning = true;
-		while (!listenerStopped) {
+		this.listenerRunning = true;
+		while (!this.listenerStopped) {
 			try {
 				// packet for receiving messages
-				DatagramPacket inPacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+				var inPacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
 				// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-				if (DEBUG)
+				if (DEBUG) {
 					System.out.println("DEBUG: waiting for multicast packet");
+				}
 				// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 				// blocks for message until timeout occurs
-				socket.receive(inPacket);
+				this.socket.receive(inPacket);
 
 				// check to see if the received data matches the expected message
-				int length = inPacket.getLength();
+				var length = inPacket.getLength();
 
 				// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 				if (DEBUG) {
 					System.out.println("DEBUG: packet.length=" + length);
-					System.out.println("DEBUG: expecting=" + expectedMessage.length);
+					System.out.println("DEBUG: expecting=" + this.expectedMessage.length);
 				}
 				// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 
-				if (length == expectedMessage.length) {
-					boolean dataMatch = true;
-					for (int i = 0; dataMatch && i < length; i++) {
-						dataMatch = (expectedMessage[i] == receiveBuffer[i]);
+				if (length == this.expectedMessage.length) {
+					var dataMatch = true;
+					for (var i = 0; dataMatch && i < length; i++) {
+						dataMatch = this.expectedMessage[i] == receiveBuffer[i];
 					}
 					// check to see if we received the expected message
 					if (dataMatch) {
@@ -134,30 +138,32 @@ public class MulticastListener implements Runnable {
 						}
 						// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 						// packet for sending messages
-						DatagramPacket outPacket = new DatagramPacket(returnMessage, returnMessage.length,
+						var outPacket = new DatagramPacket(this.returnMessage, this.returnMessage.length,
 								inPacket.getAddress(), inPacket.getPort());
 						// send return message
-						socket.send(outPacket);
+						this.socket.send(outPacket);
 					}
 				}
 			} catch (IOException ioe) {
 				/* drain */}
 		}
-		listenerRunning = false;
+		this.listenerRunning = false;
 	}
 
 	/**
 	 * Waits for datagram listener to finish, with a timeout.
 	 */
 	public void stopListener() {
-		listenerStopped = true;
-		int i = 0;
-		int timeout = timeoutInSeconds * 100;
-		while (listenerRunning && i++ < timeout)
+		this.listenerStopped = true;
+		var i = 0;
+		var timeout = timeoutInSeconds * 100;
+		while (this.listenerRunning && i++ < timeout) {
 			try {
 				Thread.sleep(10);
 			} catch (Exception e) {
-				;
+
 			}
+		}
 	}
 }
+// CHECKSTYLE:ON

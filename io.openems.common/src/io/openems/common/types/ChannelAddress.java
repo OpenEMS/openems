@@ -8,10 +8,16 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 
 	private final String componentId;
 	private final String channelId;
+	private final String toString;
 
 	public ChannelAddress(String componentId, String channelId) {
+		this(componentId, channelId, new StringBuilder(componentId).append("/").append(channelId).toString());
+	}
+
+	private ChannelAddress(String componentId, String channelId, String toString) {
 		this.componentId = componentId;
 		this.channelId = channelId;
+		this.toString = toString;
 	}
 
 	/**
@@ -34,7 +40,7 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 
 	@Override
 	public String toString() {
-		return this.componentId + "/" + this.channelId;
+		return this.toString;
 	}
 
 	/**
@@ -49,7 +55,7 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 			var addressArray = address.split("/");
 			var componentId = addressArray[0];
 			var channelId = addressArray[1];
-			return new ChannelAddress(componentId, channelId);
+			return new ChannelAddress(componentId, channelId, address);
 		} catch (Exception e) {
 			throw OpenemsError.COMMON_NO_VALID_CHANNEL_ADDRESS.exception(address);
 		}
@@ -70,10 +76,7 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
-			return false;
-		}
-		if (this.getClass() != obj.getClass()) {
+		if ((obj == null) || (this.getClass() != obj.getClass())) {
 			return false;
 		}
 		var other = (ChannelAddress) obj;
@@ -99,16 +102,18 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 	 * @return an integer value representing the degree of matching
 	 */
 	public static int match(ChannelAddress source, ChannelAddress pattern) {
-		int componentIdMatch = StringUtils.matchWildcard(source.componentId, pattern.componentId);
-		int channelIdMatch = StringUtils.matchWildcard(source.channelId, pattern.channelId);
+		var componentIdMatch = StringUtils.matchWildcard(source.componentId, pattern.componentId);
+		var channelIdMatch = StringUtils.matchWildcard(source.channelId, pattern.channelId);
 		if (componentIdMatch < 0 || channelIdMatch < 0) {
 			return -1;
-		} else if (componentIdMatch == 0 && channelIdMatch == 0) {
+		}
+		if (componentIdMatch == 0 && channelIdMatch == 0) {
 			return 0;
 		}
 		if (componentIdMatch == 0) {
 			return Integer.MAX_VALUE / 2 + channelIdMatch;
-		} else if (channelIdMatch == 0) {
+		}
+		if (channelIdMatch == 0) {
 			return Integer.MAX_VALUE / 2 + componentIdMatch;
 		} else {
 			return componentIdMatch + channelIdMatch;

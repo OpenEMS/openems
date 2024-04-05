@@ -2,7 +2,7 @@ import { JsonrpcResponseSuccess } from "../base";
 
 /**
  * Represents a JSON-RPC Response for a {@link AddEdgeToUserRequest}.
- * 
+ *
  * <pre>
  * {
  *  "jsonrpc": "2.0",
@@ -14,7 +14,8 @@ import { JsonrpcResponseSuccess } from "../base";
  *          producttype: string,
  *          version: string,
  *          isOnline: boolean
- *      }
+ *      },
+ *      serialNumber: string
  *  }
  * }
  * </pre>
@@ -22,16 +23,17 @@ import { JsonrpcResponseSuccess } from "../base";
 export class AddEdgeToUserResponse extends JsonrpcResponseSuccess {
 
     public constructor(
-        public readonly id: string,
-        public readonly result: {
+        public override readonly id: string,
+        public override readonly result: {
             edge: {
                 id: string,
                 comment: string,
                 producttype: string,
                 version: string,
                 online: boolean
-            }
-        }
+            },
+            serialNumber: string
+        },
     ) {
         super(id, result);
     }

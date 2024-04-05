@@ -1,7 +1,7 @@
-<ng-container *ngIf="index != null && components != null, else simpleLine">
+<ng-container *ngIf="index !== null && components !== null, else simpleLine">
 
     <!-- Shows a horizontal line on all but the last component of an array -->
-    <ng-container *ngIf="index != (components.length - 1), then simpleLine">
+    <ng-container *ngIf="index !== (components.length - 1), then simpleLine">
     </ng-container>
 </ng-container>
 

@@ -1,12 +1,12 @@
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, Websocket } from '../../../shared/shared';
-import { Component } from '@angular/core';
 
 @Component({
   selector: EnergymonitorComponent.SELECTOR,
-  templateUrl: './energymonitor.component.html'
+  templateUrl: './energymonitor.component.html',
 })
-export class EnergymonitorComponent {
+export class EnergymonitorComponent implements OnInit, OnDestroy {
 
   private static readonly SELECTOR = "energymonitor";
 
@@ -15,7 +15,7 @@ export class EnergymonitorComponent {
   constructor(
     private service: Service,
     private websocket: Websocket,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) { }
 
   ngOnInit() {
@@ -29,7 +29,7 @@ export class EnergymonitorComponent {
         // Production
         new ChannelAddress('_sum', 'ProductionActivePower'), new ChannelAddress('_sum', 'ProductionDcActualPower'), new ChannelAddress('_sum', 'ProductionAcActivePower'), new ChannelAddress('_sum', 'ProductionMaxActivePower'),
         // Consumption
-        new ChannelAddress('_sum', 'ConsumptionActivePower'), new ChannelAddress('_sum', 'ConsumptionMaxActivePower')
+        new ChannelAddress('_sum', 'ConsumptionActivePower'), new ChannelAddress('_sum', 'ConsumptionMaxActivePower'),
       ]);
     });
   }

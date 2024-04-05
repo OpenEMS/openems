@@ -1,5 +1,26 @@
 {
     "typescript.tsdk": "./node_modules/typescript/lib",
     "editor.formatOnSave": true,
-    "cSpell.enabled": false
+    "cSpell.enabled": false,
+    "i18n-ally.localesPaths": "src/assets/i18n",
+    "i18n-ally.dirStructure": "file",
+    "i18n-ally.keystyle": "nested",
+    "formatFiles.excludedFolders": [
+        "node_modules",
+        ".vscode",
+        ".git",
+        "dist",
+        ".chrome",
+        ".angular",
+        "target"
+    ],
+    "formatFiles.excludePattern": "**/{*.svg,*.png,*.ico,package-lock.json}",
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/node_modules/**": true
+    },
+    "files.eol": "\n",
+    "files.insertFinalNewline": true,
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "eslint.format.enable": true
 }

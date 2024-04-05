@@ -51,7 +51,7 @@ image::system-architecture.png[OpenEMS system architecture]
 The source code is available online at https://openems.io[openems.io] and on https://github.com/OpenEMS/openems[GitHub icon:github[]]. 
 New versions are released every month and https://github.com/OpenEMS/openems/releases[tagged icon:github[]] accordingly. 
 Version numbers are built using the pattern `year.month.0`, e.g. version `2022.1.0` is the release of January 2022. The patch version is always `0` and reserved for private distributions.  
-Git development follows the https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow[Gitflow Workflow], so the https://github.com/OpenEMS/openems/tree/master/[master branch icon:github[]] always holds the stable release, while active development is happening on the https://github.com/OpenEMS/openems/tree/develop[develop branch icon:github[]] or in separate feature branches.
+Git development follows the https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow[Gitflow Workflow], so the https://github.com/OpenEMS/openems/tree/main/[main branch icon:github[]] always holds the stable release, while active development is happening on the https://github.com/OpenEMS/openems/tree/develop[develop branch icon:github[]] or in separate feature branches.
 
 For Edge and Backend Java development we recommend the https://www.eclipse.org/ide/[Eclipse IDE icon:external-link[]].
 For the UI (TypeScript + Angular.io) we recommend https://code.visualstudio.com/[Visual Studio Code icon:external-link[]]. 

@@ -47,20 +47,20 @@ public class AuthenticatedRpcRequest<USER extends AbstractUser> extends JsonrpcR
 	 *                    {@link JsonObject} structure to a {@link AbstractUser}
 	 *
 	 *                    <pre>
-	 * {
-	 *   "id": string,
-	 *   "name": string,
-	 *   "role": {@link Role}
-	 * }
+	 *     {
+	 *       "id": string,
+	 *       "name": string,
+	 *       "role": {@link Role}
+	 *     }
 	 *                    </pre>
-	 * 
+	 *
 	 * @return the {@link AuthenticatedRpcRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static <USER extends AbstractUser> AuthenticatedRpcRequest<USER> from(JsonrpcRequest r,
 			ThrowingFunction<JsonObject, USER, OpenemsNamedException> userFactory) throws OpenemsNamedException {
 		var p = r.getParams();
-		USER user = userFactory.apply(JsonUtils.getAsJsonObject(p, "user"));
+		var user = userFactory.apply(JsonUtils.getAsJsonObject(p, "user"));
 		JsonrpcRequest payload = GenericJsonrpcRequest.from(JsonUtils.getAsJsonObject(p, "payload"));
 		return new AuthenticatedRpcRequest<>(r, Optional.empty(), user, payload);
 	}
@@ -122,6 +122,7 @@ public class AuthenticatedRpcRequest<USER extends AbstractUser> extends JsonrpcR
 				.add("user", JsonUtils.buildJsonObject() //
 						.addProperty("id", this.user.getId()) //
 						.addProperty("name", this.user.getName()) //
+						.addPropertyIfNotNull("language", this.user.getLanguage()) //
 						.add("role", role.asJson()) //
 						.build()) //
 				.add("payload", this.payload.toJsonObject()) //

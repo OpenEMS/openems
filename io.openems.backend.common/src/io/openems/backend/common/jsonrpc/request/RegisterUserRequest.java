@@ -18,20 +18,26 @@ public class RegisterUserRequest extends JsonrpcRequest {
 	 */
 	public static RegisterUserRequest from(JsonrpcRequest request) throws OpenemsNamedException {
 		var params = request.getParams();
-
-		return new RegisterUserRequest(request, JsonUtils.getAsJsonObject(params, "user"));
+		var user = JsonUtils.getAsJsonObject(params, "user");
+		var oem = JsonUtils.getAsString(params, "oem");
+		return new RegisterUserRequest(request, user, oem);
 	}
 
-	private final JsonObject jsonObject;
+	private final JsonObject user;
+	private final String oem;
 
-	private RegisterUserRequest(JsonrpcRequest request, JsonObject jsonObject) {
+	private RegisterUserRequest(JsonrpcRequest request, JsonObject jsonObject, String oem) {
 		super(request, RegisterUserRequest.METHOD);
-		this.jsonObject = jsonObject;
+		this.user = jsonObject;
+		this.oem = oem;
 	}
 
 	@Override
 	public JsonObject getParams() {
-		return this.jsonObject;
+		return JsonUtils.buildJsonObject() //
+				.add("user", this.user) //
+				.addProperty("oem", this.oem) //
+				.build();
 	}
 
 	/**
@@ -39,8 +45,11 @@ public class RegisterUserRequest extends JsonrpcRequest {
 	 *
 	 * @return the {@link JsonObject}
 	 */
-	public JsonObject getJsonObject() {
-		return this.jsonObject;
+	public JsonObject getUser() {
+		return this.user;
 	}
 
+	public String getOem() {
+		return this.oem;
+	}
 }

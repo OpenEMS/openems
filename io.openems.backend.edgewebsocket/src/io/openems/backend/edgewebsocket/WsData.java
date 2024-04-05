@@ -3,12 +3,10 @@ package io.openems.backend.edgewebsocket;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import io.openems.backend.common.metadata.Edge;
-import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.edgewebsocket.EdgeCache;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
@@ -16,113 +14,66 @@ import io.openems.common.utils.StringUtils;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
-	private final WebsocketServer parent;
-	private final CompletableFuture<Boolean> isAuthenticated = new CompletableFuture<>();
-	private Optional<String> apikey = Optional.empty();
+	/**
+	 * Edge-ID is set only if the connection was authenticated (i.e. apikey was
+	 * correct).
+	 */
 	private Optional<String> edgeId = Optional.empty();
 
-	public WsData(WebsocketServer parent) {
-		this.parent = parent;
-	}
+	private final CompletableFuture<Void> isAuthenticated = new CompletableFuture<>();
+	public final EdgeCache edgeCache = new EdgeCache();
 
-	public void setAuthenticated(boolean isAuthenticated) {
-		this.isAuthenticated.complete(isAuthenticated);
-	}
-
-	public CompletableFuture<Boolean> isAuthenticated() {
-		return this.isAuthenticated;
+	/**
+	 * Asserts that the Edge-ID is available (i.e. properly authenticated).
+	 *
+	 * @param message a identification message on error
+	 * @return the Edge-ID
+	 * @throws OpenemsException on error
+	 */
+	public String assertEdgeId(JsonrpcMessage message) throws OpenemsException {
+		var edgeIdOpt = this.edgeId;
+		if (edgeIdOpt.isPresent()) {
+			return edgeIdOpt.get();
+		}
+		throw new OpenemsException(
+				"Edge-ID is not set. Unable to handle " + StringUtils.toShortString(message.toString(), 100));
 	}
 
 	/**
-	 * Asserts that the User is authenticated within a timeout.
-	 * 
+	 * Asserts that the Edge-ID is available (i.e. properly authenticated) within a
+	 * timeout.
+	 *
 	 * @param message a identification message on error
 	 * @param timeout the timeout length
 	 * @param unit    the {@link TimeUnit} of the timeout
+	 * @return the Edge-ID
 	 * @throws OpenemsNamedException on error
 	 */
-	public void assertAuthenticatedWithTimeout(JsonrpcMessage message, long timeout, TimeUnit unit)
-			throws OpenemsException {
+	public String assertEdgeIdWithTimeout(JsonrpcMessage message, long timeout, TimeUnit unit) throws OpenemsException {
 		try {
-			boolean isAuthenticated = this.isAuthenticated.get(timeout, unit);
-			if (!isAuthenticated) {
-				throw new OpenemsException(
-						"Connection with Edge [" + this.getId() + "] is not authenticated. Unable to handle "
-								+ StringUtils.toShortString(message.toString(), 100));
-			}
+			this.isAuthenticated.get(timeout, unit);
+			return this.edgeId.get();
+
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			throw new OpenemsException(
-					"Timeout while evaluating if connection with Edge [" + this.getId() + "] is authenticated.");
+					"Timeout while evaluating if connection with Edge [" + this.edgeId + "] is authenticated.");
 		}
-
-	}
-
-	public synchronized void setApikey(String apikey) {
-		this.apikey = Optional.ofNullable(apikey);
-	}
-
-	public synchronized Optional<String> getApikey() {
-		return this.apikey;
 	}
 
 	public synchronized void setEdgeId(String edgeId) {
-		this.edgeId = Optional.ofNullable(edgeId);
+		this.edgeId = Optional.of(edgeId);
+		this.isAuthenticated.complete(null);
 	}
 
 	public synchronized Optional<String> getEdgeId() {
 		return this.edgeId;
 	}
 
-	/**
-	 * Gets the Edge.
-	 *
-	 * @param metadata the Metadata service
-	 * @return the Edge or Optional.Empty if the Edge-ID was not set or it is not
-	 *         available from Metadata service
-	 */
-	public synchronized Optional<Edge> getEdge(Metadata metadata) {
-		var edgeId = this.getEdgeId();
-		if (edgeId.isPresent()) {
-			return metadata.getEdge(edgeId.get());
-		}
-		return Optional.empty();
-	}
-
-	/**
-	 * Asserts that the Edge-ID is present.
-	 * 
-	 * @param message a identification message on error
-	 * @return the Edge-ID
-	 * @throws OpenemsException on error
-	 */
-	public String assertEdgeId(JsonrpcMessage message) throws OpenemsException {
-		if (this.edgeId.isPresent()) {
-			return this.edgeId.get();
-		}
-		throw new OpenemsException(
-				"EdgeId is not set. Unable to handle " + StringUtils.toShortString(message.toString(), 100));
-	}
-
 	@Override
 	public String toString() {
 		return "EdgeWebsocket.WsData [" //
-				+ "apikey=" + this.apikey.orElse("UNKNOWN") + ", " //
 				+ "edgeId=" + this.edgeId.orElse("UNKNOWN") //
 				+ "]";
 	}
 
-	/**
-	 * Gets an Id of this Edge - either the Edge-ID or the Apikey or "UNKNOWN".
-	 *
-	 * @return the Id
-	 */
-	private String getId() {
-		return this.edgeId.orElse(this.apikey.orElse("UNKNOWN"));
-	}
-
-	@Override
-	protected ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
-			TimeUnit unit) {
-		return this.parent.scheduleWithFixedDelay(command, initialDelay, delay, unit);
-	}
 }

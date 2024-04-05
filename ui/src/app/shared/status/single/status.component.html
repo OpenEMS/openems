@@ -1,6 +1,6 @@
 <ion-header>
     <ion-toolbar class="ion-justify-content-center" color="primary">
-        <ion-title translate>General.systemState</ion-title>
+        <ion-title translate>General.SYSTEM_STATE</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
@@ -37,11 +37,11 @@
                             </ion-item>
                         </ion-item-group>
                         <ng-container *ngFor="let item of category.components">
-                            <ion-item lines="none" *ngIf="item.id != '_sum'">
+                            <ion-item lines="none" *ngIf="item.id !== '_sum'">
                                 <ion-label class="ion-text-wrap">
                                     <ion-text color="primary">
                                         <h3>{{ item.alias }}
-                                            <span *ngIf="item.id != item.alias"> {{ item.id }}</span>
+                                            <span *ngIf="item.id !== item.alias"> {{ item.id }}</span>
                                             <small *ngIf="!item.isEnabled"> (<span
                                                     translate>General.componentInactive</span>) </small>
                                         </h3>
@@ -52,10 +52,11 @@
                                     <ng-container *ngIf="item['showProperties']">
                                         <ng-container *ngFor="let address of subscribedInfoChannels">
                                             <ng-container
-                                                *ngIf="address.componentId == item.id && address.channelId != 'State'">
-                                                <ng-container *ngIf="currentData.channel[address.toString()] == 1">
+                                                *ngIf="address.componentId === item.id && address.channelId !== 'State'">
+                                                <ng-container *ngIf="currentData.channel[address.toString()] === 1">
+                                                    <!-- State-Channel is active -->
                                                     <ion-label class="ion-text-wrap"
-                                                        *ngIf="item.channels[address.channelId]['text'].length != 0">
+                                                        *ngIf="item.channels[address.channelId]['text'].length !== 0">
                                                         <ng-container
                                                             [ngSwitch]="item.channels[address.channelId]['level']">
                                                             <ion-text *ngSwitchCase="'INFO'" color="success" translate>
@@ -72,7 +73,7 @@
                                                         {{ item.channels[address.channelId]['text'] }}
                                                     </ion-label>
                                                     <ion-label class="ion-text-wrap"
-                                                        *ngIf="item.channels[address.channelId]['text'].length == 0">
+                                                        *ngIf="item.channels[address.channelId]['text'].length === 0">
                                                         <ng-container
                                                             [ngSwitch]="item.channels[address.channelId]['level']">
                                                             <ion-text *ngSwitchCase="'INFO'" color="success" translate>
@@ -94,12 +95,12 @@
                                     </ng-container>
                                 </ion-label>
                                 <ion-icon style="cursor: pointer"
-                                    *ngIf="currentData.channel[item.id+'/State'] != null && currentData.channel[item.id+'/State'] > 0 && !item['showProperties']"
+                                    *ngIf="(currentData.channel[item.id+'/State'] ?? -1) > 0 && !item['showProperties']"
                                     name="arrow-down-circle-outline" color="primary"
                                     (click)="item['showProperties'] = !item['showProperties']; subscribeInfoChannels(item)">
                                 </ion-icon>
 
-                                <ion-icon style="cursor: pointer" *ngIf="item['showProperties'] == true"
+                                <ion-icon style="cursor: pointer" *ngIf="item['showProperties']"
                                     name="arrow-up-circle-outline" color="primary"
                                     (click)="item['showProperties'] = !item['showProperties']; unsubscribeInfoChannels(item)">
                                 </ion-icon>

@@ -3,7 +3,7 @@ package io.openems.edge.io.kmtronic.four;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "IO KMtronic 4-Port Relay Board", //
 		description = "Implements the KMtronic 4-Port Relay Board.")
 @interface Config {

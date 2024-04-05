@@ -1,19 +1,18 @@
 package io.openems.edge.controller.api.rest.readwrite;
 
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = "ctrlApiRest0";
-		public int port;
-		public int connectionlimit;
-		public int apiTimeout;
-		public boolean debugMode;
+		private String id;
+		private int port;
+		private int connectionlimit;
+		private int apiTimeout;
+		private boolean debugMode;
 
 		private Builder() {
-
 		}
 
 		public Builder setId(String id) {

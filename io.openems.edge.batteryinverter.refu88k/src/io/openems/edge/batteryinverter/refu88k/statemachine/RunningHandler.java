@@ -4,8 +4,7 @@ import java.time.LocalDateTime;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
-import io.openems.edge.batteryinverter.refu88k.RefuStore88k;
-import io.openems.edge.batteryinverter.refu88k.RefuStore88kChannelId;
+import io.openems.edge.batteryinverter.refu88k.BatteryInverterRefuStore88k;
 import io.openems.edge.batteryinverter.refu88k.enums.VArPctEna;
 import io.openems.edge.batteryinverter.refu88k.enums.WMaxLimEna;
 import io.openems.edge.batteryinverter.refu88k.statemachine.StateMachine.State;
@@ -21,7 +20,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		RefuStore88k inverter = context.getParent();
+		var inverter = context.getParent();
 
 		if (inverter.hasFaults()) {
 			return State.UNDEFINED;
@@ -53,61 +52,59 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 	/**
 	 * Applies the Active and Reactive Power Set-Points.
-	 * 
+	 *
 	 * @param context the {@link Context}
 	 * @throws OpenemsNamedException on error
 	 */
-
 	private void applyPower(Context context) throws OpenemsNamedException {
-		RefuStore88k inverter = context.getParent();
-		doGridConnectedHandling(context, context.setActivePower, context.setReactivePower);
+		var inverter = context.getParent();
+		this.doGridConnectedHandling(context, context.setActivePower, context.setReactivePower);
 
 		IntegerReadChannel maxApparentPowerChannel = inverter
 				.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER);
 		int maxApparentPower = maxApparentPowerChannel.value().getOrError();
 
-		int wSetPct = 0;
-		int varSetPct = 0;
+		var wSetPct = 0;
+		var varSetPct = 0;
 
 		// Calculate Active Power as a percentage of WMAX
-		wSetPct = ((1000 * context.setActivePower) / maxApparentPower);
+		wSetPct = 1000 * context.setActivePower / maxApparentPower;
 		// Calculate Reactive Power as a percentage of WMAX
-		varSetPct = ((100 * context.setReactivePower) / maxApparentPower);
+		varSetPct = 100 * context.setReactivePower / maxApparentPower;
 
-		IntegerWriteChannel wMaxLimPctChannel = inverter.channel(RefuStore88kChannelId.W_MAX_LIM_PCT);
-		EnumWriteChannel wMaxLim_EnaChannel = inverter.channel(RefuStore88kChannelId.W_MAX_LIM_ENA);
-
-		IntegerWriteChannel varMaxLimPctChannel = inverter.channel(RefuStore88kChannelId.VAR_W_MAX_PCT);
-		EnumWriteChannel varMaxLim_EnaChannel = inverter.channel(RefuStore88kChannelId.VAR_PCT_ENA);
-
+		IntegerWriteChannel wMaxLimPctChannel = inverter.channel(BatteryInverterRefuStore88k.ChannelId.W_MAX_LIM_PCT);
 		wMaxLimPctChannel.setNextWriteValue(wSetPct);
-		wMaxLim_EnaChannel.setNextWriteValue(WMaxLimEna.ENABLED);
 
+		EnumWriteChannel wMaxLimEnaChannel = inverter.channel(BatteryInverterRefuStore88k.ChannelId.W_MAX_LIM_ENA);
+		wMaxLimEnaChannel.setNextWriteValue(WMaxLimEna.ENABLED);
+
+		IntegerWriteChannel varMaxLimPctChannel = inverter.channel(BatteryInverterRefuStore88k.ChannelId.VAR_W_MAX_PCT);
 		varMaxLimPctChannel.setNextWriteValue(varSetPct);
-		varMaxLim_EnaChannel.setNextWriteValue(VArPctEna.ENABLED);
+
+		EnumWriteChannel varMaxLimEnaChannel = inverter.channel(BatteryInverterRefuStore88k.ChannelId.VAR_PCT_ENA);
+		varMaxLimEnaChannel.setNextWriteValue(VArPctEna.ENABLED);
 	}
 
 	/**
+	 * Checks if power is required from the system.
 	 * 
-	 * Checks if power is required from the system!
-	 * 
-	 * @throws OpenemsNamedException
-	 * 
+	 * @param context       the {@link Context}
+	 * @param activePower   the active power setpoint
+	 * @param reactivePower the reactive power setpoint
 	 */
-
 	private void doGridConnectedHandling(Context context, int activePower, int reactivePower)
 			throws OpenemsNamedException {
-		RefuStore88k inverter = context.getParent();
+		var inverter = context.getParent();
 
 		if (activePower == 0 && reactivePower == 0) {
-			if (timeNoPower == null) {
-				timeNoPower = LocalDateTime.now();
+			if (this.timeNoPower == null) {
+				this.timeNoPower = LocalDateTime.now();
 			}
-			if ((timeNoPower.plusSeconds(context.config.timeLimitNoPower())).isBefore(LocalDateTime.now())) {
+			if (this.timeNoPower.plusSeconds(context.config.timeLimitNoPower()).isBefore(LocalDateTime.now())) {
 				inverter.enterStartedMode();
 			}
 		} else {
-			timeNoPower = null;
+			this.timeNoPower = null;
 			inverter.enterThrottledMpptMode();
 		}
 	}

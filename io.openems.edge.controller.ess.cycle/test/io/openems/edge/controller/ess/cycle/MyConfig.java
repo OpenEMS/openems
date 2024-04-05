@@ -1,7 +1,7 @@
 package io.openems.edge.controller.ess.cycle;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -15,6 +15,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int maxSoc;
 		private int minSoc;
 		private int power;
+		private Mode mode;
+		private HybridEssMode hybridEssMode;
 		private int totalCycleNumber;
 		private int finalSoc;
 
@@ -61,6 +63,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setMode(Mode mode) {
+			this.mode = mode;
+			return this;
+		}
+
+		public Builder setHybridEssMode(HybridEssMode hybridEssMode) {
+			this.hybridEssMode = hybridEssMode;
+			return this;
+		}
+
 		public Builder setTotalCycleNumber(int totalCycleNumber) {
 			this.totalCycleNumber = totalCycleNumber;
 			return this;
@@ -70,7 +82,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.finalSoc = finalSoc;
 			return this;
 		}
-	
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -78,7 +90,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -125,6 +137,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int power() {
 		return this.builder.power;
+	}
+
+	@Override
+	public Mode mode() {
+		return this.builder.mode;
+	}
+
+	@Override
+	public HybridEssMode hybridEssMode() {
+		return this.builder.hybridEssMode;
 	}
 
 	@Override

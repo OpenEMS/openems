@@ -1,32 +1,17 @@
 package io.openems.edge.batteryinverter.sinexcel.enums;
 
-import io.openems.common.types.OptionsEnum;
+public enum EnableDisable {
 
-public enum EnableDisable implements OptionsEnum {
-	UNDEFINED(-1, "Undefined"), //
-	DISABLE(0, "Disable"), //
-	ENABLE(1, "Enable"); //
+	ENABLE("Enable"), //
+	DISABLE("Disable");
 
-	private final int value;
-	private final String name;
+	private final String value;
 
-	private EnableDisable(int value, String name) {
+	private EnableDisable(String value) {
 		this.value = value;
-		this.name = name;
 	}
 
-	@Override
-	public int getValue() {
+	public String getValue() {
 		return this.value;
-	}
-
-	@Override
-	public String getName() {
-		return this.name;
-	}
-
-	@Override
-	public OptionsEnum getUndefined() {
-		return UNDEFINED;
 	}
 }

@@ -1,25 +1,82 @@
-<table class="full_width" style="line-height: 1.4;">
-    <tr>
+<table class="full_width" style="line-height: 1.4; margin-top: 0.5%" *ngIf="isAllowedToBeSeen && show">
+    <tr *ngIf="textIndent" [style.text-indent]="textIndent">
 
         <!-- Name of Parameter on the left side -->
-        <td style="width:45%; padding-left: 5%;" class="align_left">
-            <ng-container *ngIf="name">{{ name }}</ng-container>
+        <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_left">
+            <ng-container *ngIf="displayName">{{ displayName }}</ng-container>
         </td>
 
         <!-- Value of Parameter on the right side -->
-        <td style="width:45%; padding-right: 5%" class="align_right" *ngIf="displayValue">
+        <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_right" *ngIf="displayValue">
             <!-- 'Normal' line, name and value  -->
             <ng-container>{{ displayValue }}</ng-container>
         </td>
 
-        <!-- 'Input' Line, name and changeable value -->
-        <td style="width: 30%; padding-right: 5%;" class="align_right" *ngIf="formGroup" [formGroup]="formGroup">
-            <ion-item>
-                <ion-input class="regularFont" type="number" style="text-align: right;" [formControlName]="controlName">
-                </ion-input>
-                <ion-label class="regularFont">&nbsp;W&nbsp;</ion-label>
-            </ion-item>
+        <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_right" *ngIf="button">
+            <!-- 'Normal' line, name and value  -->
+            <ion-icon [name]="button.icon?.name ??'help-circle-outline'" [color]="button.icon?.color ??'light'"
+                [size]="button.icon?.size ??'medium'">
+            </ion-icon>
         </td>
 
+        <ng-container *ngIf="formGroup && control">
+            <!-- 'Input' Line, name and changeable value -->
+            <td style="width: 30%" class="align_right" *ngIf="control.type === 'INPUT'" [formGroup]="formGroup">
+                <ion-item>
+                    <ion-input class="regularFont" type="number" style="text-align: right;"
+                        [formControlName]="controlName">
+                    </ion-input>
+                    <ion-label class="regularFont">&nbsp;{{control?.properties?.unit ?? 'W' }}&nbsp;
+                    </ion-label>
+                </ion-item>
+            </td>
+          
+            <!-- 'TOGGLE' Line, provides toggle option -->
+            <td *ngIf="control.type === 'TOGGLE'" [formGroup]="formGroup"
+                [style]="this.service.isSmartphoneResolution ? 'transform: scale(0.7)': ''" class="align_right">
+                <ion-toggle [formControlName]="controlName">
+                </ion-toggle>
+            </td>
+
+            <!-- 'SELECT' Line, provides select dropdown -->
+            <td *ngIf="control.type === 'SELECT'" [formGroup]="formGroup">
+                <ng-container *ngIf="control.options">
+                    <ion-select interface="popover" [formControlName]="controlName" [okText]="'General.ok'| translate"
+                        [cancelText]="'General.cancel'| translate" style="text-align:end">
+
+                        <ion-select-option *ngFor="let option of control.options" [value]="option.value">
+                            {{option.name}}
+                        </ion-select-option>
+                    </ion-select>
+                </ng-container>
+            </td>
+        </ng-container>
+
+        <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+
+        <ng-template #contentTpl>
+            <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_right">
+                <!-- 'Normal' line, name and value  -->
+                <ng-content></ng-content>
+            </td>
+        </ng-template>
+    </tr>
+    <tr *ngIf="formGroup">
+
+        <!-- 'RANGE' Line, provides a range button from min to max -->
+        <td style="width: 100%" *ngIf="control?.type === 'RANGE'">
+            <ng-container [formGroup]="formGroup">
+                <ion-range style="width: 100%" color="dark" pin="true" [min]="control.properties.min ?? 1"
+                    [max]="control.properties.max ?? 100" [step]="control.properties.step ?? 1"
+                    style="padding-top: 8px;" [formControlName]="controlName" debounce="500">
+                    <ion-label slot="start">
+                        {{ control.properties.min | unitvalue:control.properties.unit}}
+                    </ion-label>
+                    <ion-label slot="end">
+                        {{ control.properties.max | unitvalue:control.properties.unit}}
+                    </ion-label>
+                </ion-range>
+            </ng-container>
+        </td>
     </tr>
 </table>

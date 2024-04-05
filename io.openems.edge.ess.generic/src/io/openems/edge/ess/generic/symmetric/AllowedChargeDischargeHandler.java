@@ -5,9 +5,9 @@ import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.generic.common.AbstractAllowedChargeDischargeHandler;
 
-public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischargeHandler<GenericManagedSymmetricEss> {
+public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischargeHandler<EssGenericManagedSymmetric> {
 
-	public AllowedChargeDischargeHandler(GenericManagedSymmetricEss parent) {
+	public AllowedChargeDischargeHandler(EssGenericManagedSymmetric parent) {
 		super(parent);
 	}
 
@@ -16,11 +16,11 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 		this.calculateAllowedChargeDischargePower(clockProvider, battery);
 
 		// Battery limits
-		int batteryAllowedChargePower = Math.round(this.lastBatteryAllowedChargePower);
-		int batteryAllowedDischargePower = Math.round(this.lastBatteryAllowedDischargePower);
+		var batteryAllowedChargePower = Math.round(this.lastBatteryAllowedChargePower);
+		var batteryAllowedDischargePower = Math.round(this.lastBatteryAllowedDischargePower);
 
 		// PV-Production (for HybridEss)
-		int pvProduction = Math.max(//
+		var pvProduction = Math.max(//
 				TypeUtils.orElse(//
 						TypeUtils.subtract(this.parent.getActivePower().get(), this.parent.getDcDischargePower().get()), //
 						0),

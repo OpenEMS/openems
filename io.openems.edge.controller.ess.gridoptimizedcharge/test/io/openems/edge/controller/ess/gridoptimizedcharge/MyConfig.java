@@ -1,21 +1,21 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		public String essId;
-		public String meterId;
-		public int maximumSellToGridPower;
-		public Mode mode;
-		public String manualTargetTime;
-		public boolean sellToGridLimitEnabled;
-		public int sellToGridLimitRampPercentage;
-		public DelayChargeRiskLevel delayChargeRiskLevel;
+		private String essId;
+		private String meterId;
+		private int maximumSellToGridPower;
+		private Mode mode;
+		private String manualTargetTime;
+		private boolean sellToGridLimitEnabled;
+		private int sellToGridLimitRampPercentage;
+		private DelayChargeRiskLevel delayChargeRiskLevel;
 
 		public Builder setId(String id) {
 			this.id = id;
@@ -69,7 +69,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

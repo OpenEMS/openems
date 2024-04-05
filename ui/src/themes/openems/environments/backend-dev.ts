@@ -1,15 +1,13 @@
 import { Environment } from "src/environments";
+import { theme } from "./theme";
 
 export const environment: Environment = {
-    theme: "OpenEMS",
+    ...theme, ...{
 
-    uiTitle: "OpenEMS UI",
-    edgeShortName: "OpenEMS",
-    edgeLongName: "Open Energy Management System",
+        backend: 'OpenEMS Backend',
+        url: "ws://" + location.hostname + ":8082",
 
-    backend: 'OpenEMS Backend',
-    url: "ws://" + location.hostname + ":8082",
-
-    production: false,
-    debugMode: true,
+        production: false,
+        debugMode: true,
+    },
 };

@@ -4,7 +4,10 @@ import io.openems.common.types.OptionsEnum;
 
 public enum ChargingType implements OptionsEnum {
 
-	UNDEFINED(-1, "Undefined"), CCS(0, "CCS"), CHADEMO(1, "Chademo"), AC(2, "AC");
+	UNDEFINED(-1, "Undefined"), //
+	CCS(0, "CCS"), //
+	CHADEMO(1, "Chademo"), //
+	AC(2, "AC");
 
 	private final int value;
 	private final String name;
@@ -16,12 +19,12 @@ public enum ChargingType implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

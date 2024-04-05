@@ -15,6 +15,13 @@ public class MbusTask {
 		this.bridgeMbus = bridgeMbus;
 	}
 
+	/**
+	 * Get the Request.
+	 * 
+	 * @return a {@link VariableDataStructure}
+	 * @throws InterruptedIOException on error
+	 * @throws IOException            on error
+	 */
 	public VariableDataStructure getRequest() throws InterruptedIOException, IOException {
 		return this.bridgeMbus.getmBusConnection().read(this.openemsMbusComponent.getPrimaryAddress());
 	}

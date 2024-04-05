@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
+import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+
 import { ChannelAddress, CurrentData, Utils } from '../../../../../shared/shared';
 import { Controller_Symmetric_TimeSlot_PeakShavingModalComponent } from './modal/modal.component';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 
 @Component({
     selector: 'Controller_Symmetric_TimeSlot_PeakShaving',
-    templateUrl: './Symmetric_TimeSlot.html'
+    templateUrl: './Symmetric_TimeSlot.html',
 })
 export class Controller_Symmetric_TimeSlot_PeakShavingComponent extends AbstractFlatWidget {
 
@@ -14,14 +15,14 @@ export class Controller_Symmetric_TimeSlot_PeakShavingComponent extends Abstract
     public rechargePower: number;
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
-    protected getChannelAddresses() {
+    protected override getChannelAddresses() {
         return [
             new ChannelAddress(this.component.properties['meter.id'], 'ActivePower'),
             new ChannelAddress(this.componentId, '_PropertyPeakShavingPower'),
-            new ChannelAddress(this.componentId, '_PropertyRechargePower')
-        ]
+            new ChannelAddress(this.componentId, '_PropertyRechargePower'),
+        ];
     }
-    protected onCurrentData(currentData: CurrentData) {
+    protected override onCurrentData(currentData: CurrentData) {
 
         // activePower is 0 for negative Values
         this.activePower = currentData.allComponents[this.component.properties['meter.id'] + '/ActivePower'] >= 0
@@ -34,14 +35,14 @@ export class Controller_Symmetric_TimeSlot_PeakShavingComponent extends Abstract
             component: Controller_Symmetric_TimeSlot_PeakShavingModalComponent,
             componentProps: {
                 component: this.component,
-                edge: this.edge
-            }
+                edge: this.edge,
+            },
         });
         modal.onDidDismiss().then(() => {
             this.service.getConfig().then(config => {
                 this.component = config.components[this.componentId];
-            })
-        })
+            });
+        });
         return await modal.present();
     }
 }

@@ -11,8 +11,8 @@ import io.openems.edge.common.jsonapi.JsonApi;
 
 public interface Host extends OpenemsComponent, JsonApi {
 
-	public final static String SINGLETON_SERVICE_PID = "Core.Host";
-	public final static String SINGLETON_COMPONENT_ID = "_host";
+	public static final String SINGLETON_SERVICE_PID = "Core.Host";
+	public static final String SINGLETON_COMPONENT_ID = "_host";
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		DISK_IS_FULL(Doc.of(Level.INFO) //
@@ -26,6 +26,7 @@ public interface Host extends OpenemsComponent, JsonApi {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
