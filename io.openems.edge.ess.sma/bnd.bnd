@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge ESS SMA SunnyIsland 6.0H and Sunny Island 4.4M
 
-
-
 -buildpath: \
 	${buildpath},\
 	com.ghgande.j2mod,\

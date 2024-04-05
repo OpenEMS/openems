@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Meter KDK 2PU CT
 
-
-
 -buildpath: \
 	${buildpath},\
 	com.ghgande.j2mod,\

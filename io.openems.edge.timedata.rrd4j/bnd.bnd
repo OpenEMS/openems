@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Timedata RRD4J
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge ESS Refu88K
 
-
-
 -buildpath: \
 	${buildpath},\
 	com.ghgande.j2mod,\

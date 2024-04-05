@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Meter Ziehl EFR4001IP
 
-
-
 -buildpath: \
 	${buildpath},\
 	com.ghgande.j2mod,\

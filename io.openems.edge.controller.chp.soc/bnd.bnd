@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Controller CHP SOC
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

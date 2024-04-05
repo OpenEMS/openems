@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge SolarEdge
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

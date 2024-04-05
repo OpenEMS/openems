@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Controller PV-Inverter Sell-to-Grid Limit
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

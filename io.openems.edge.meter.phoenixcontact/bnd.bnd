@@ -1,8 +1,6 @@
 Bundle-Name: OpenEMS Edge Meter Phoenix Contact
 Bundle-Description: This implementation covers Phoenix Contact meter EEM-MA370-24DC and EEM-MB370-24DC
 
-
-
 -buildpath: \
 	${buildpath},\
 	com.ghgande.j2mod,\

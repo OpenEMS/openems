@@ -1,7 +1,6 @@
 Bundle-Name: OpenEMS Edge Controller ESS Standby
 
 
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

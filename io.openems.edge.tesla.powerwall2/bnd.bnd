@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Tesla Powerwall 2
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Controller IO Analog
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

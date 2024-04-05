@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Controller Symmetric Random
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

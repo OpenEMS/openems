@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Simulator
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

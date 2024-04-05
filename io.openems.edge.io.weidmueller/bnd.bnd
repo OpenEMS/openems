@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge IO Weidmüller Fieldbus Coupler UR20
 
-
-
 -buildpath: \
 	${buildpath},\
 	com.ghgande.j2mod,\

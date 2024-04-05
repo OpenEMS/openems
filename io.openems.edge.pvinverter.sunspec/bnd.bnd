@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge PV Inverter SunSpec
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

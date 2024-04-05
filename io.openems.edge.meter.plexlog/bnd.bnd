@@ -1,8 +1,6 @@
 Bundle-Name: OpenEMS Edge Meter Plexlog Datalogger
 Bundle-Description: This implementation covers Plexlog Datalogger
 
-
-
 -buildpath: \
 	${buildpath},\
 	com.ghgande.j2mod,\

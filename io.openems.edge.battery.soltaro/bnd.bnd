@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Soltaro Battery  
 
-
-
 -buildpath: \
 	${buildpath},\
 	com.ghgande.j2mod,\

@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Controller Asymmetric Phase-Rectification
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

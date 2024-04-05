@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge PV Inverter Kostal
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

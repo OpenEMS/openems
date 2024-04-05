@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Edge-2-Edge
 
-
-
 -buildpath: \
 	${buildpath},\
 	com.ghgande.j2mod,\

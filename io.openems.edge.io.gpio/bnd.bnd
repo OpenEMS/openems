@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge IO GPIO
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
