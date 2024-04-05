@@ -54,7 +54,7 @@ check_dependencies() {
         exit 1
     fi
 
-    if [ $(dpkg -l | grep -c git-flow) -eq 0 ]; then
+    if [[ $(git flow config > /dev/null 2>&1) -ne 0 ]]; then
         echo "# Missing git-flow"
         echo "apt install git-flow"
         echo "git flow init"
