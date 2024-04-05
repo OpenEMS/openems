@@ -21,6 +21,8 @@
 -releaserepo: Release
 -baselinerepo: Release
 
+-pom: true
+
 # Always use contracts
 -contract: *
 
