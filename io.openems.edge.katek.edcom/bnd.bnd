@@ -1,7 +1,7 @@
 Bundle-Name: Katek EDCOM Library
 Bundle-Vendor: Katek Memmingen GmbH, FENECON GmbH
 Bundle-License: https://opensource.org/licenses/LGPL-3.0
-Bundle-Version: 1.0.0.${tstamp}
+
 
 -buildpath: \
 	${buildpath},\

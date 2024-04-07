@@ -1,7 +1,7 @@
 Bundle-Name: OpenEMS Edge KACO blueplanet hybrid 10.0 TL3
 Bundle-Vendor: KACO new energy GmbH, FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
-Bundle-Version: 1.0.0.${tstamp}
+
 
 -buildpath: \
 	${buildpath},\

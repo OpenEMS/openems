@@ -1,7 +1,7 @@
 Bundle-Name: OpenEMS Edge Meter Schneider Electric Acti9 Smartlink SI D
 Bundle-Vendor: FE-Partner AG
 Bundle-License: https://opensource.org/licenses/EPL-2.0
-Bundle-Version: 1.0.0.${tstamp}
+
 
 -buildpath: \
 	${buildpath},\

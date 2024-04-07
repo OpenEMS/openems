@@ -18,10 +18,22 @@
 		pretty = true; \
 		local = ${build}/release
 
--releaserepo: Release
 -baselinerepo: Release
 
--pom: true
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.SNAPSHOT
+
+-resolvedebug: 2
+
+-include: ${if;${def;release};\
+  ${.}/release.bnd;\
+  ${.}/snapshot.bnd\
+}
+
+# Reproducible build - do not put headers which insert build timestamp, other than we wish
+-noextraheaders: true
+-reproducible: true
 
 # Always use contracts
 -contract: *

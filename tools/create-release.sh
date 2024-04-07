@@ -12,7 +12,7 @@ main() {
     start_release
     common_update_version_in_code
     update_changelog
-    common_build_edge_and_ui_in_parallel
+    common_build_edge_and_ui_in_parallel release -Drelease=true
     finish_release
     prepare_next_snapshot
     push_to_remote

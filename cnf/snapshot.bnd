@@ -1,0 +1,8 @@
+-snapshot: ${tstamp}
+
+-releaserepo: Release
+
+#-pom: \
+#  groupid=io.openems, \
+#  version=${if;${def;-snapshot};${versionmask;===;${@version}}-${def;-snapshot};${versionmask;===s;${@version}}}
+
