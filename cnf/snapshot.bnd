@@ -1,0 +1,9 @@
+mavenRemoteRelease: remote;${-snapshot}, pom;path=JAR, sources
+-snapshot: ${tstamp}
+
+# trigger maven deploy
+-maven-release: ${if;${def;mavenPublishRepository};${mavenRemoteRelease}}
+
+-pom: \
+	groupid=io.openems, \
+	version=${versionmask;===;${@version}}-SNAPSHOT

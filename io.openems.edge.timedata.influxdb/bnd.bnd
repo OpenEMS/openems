@@ -1,7 +1,4 @@
 Bundle-Name: OpenEMS Edge Timedata InfluxDB
-Bundle-Vendor: FENECON GmbH
-Bundle-License: https://opensource.org/licenses/EPL-2.0
-Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
@@ -17,4 +14,4 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.wrapper.influxdb-client-utils,\
 	io.openems.wrapper.okhttp,\
 	org.jetbrains.kotlin.osgi-bundle,\
-	com.squareup.okio,\
+	com.squareup.okio

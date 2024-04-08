@@ -65,13 +65,13 @@ common_update_version_in_code() {
 # Build OpenEMS Edge and UI in parallel
 common_build_edge_and_ui_in_parallel() {
     # TODO use 'parallel' tool for reliable implementation
-    common_build_edge
-    common_build_ui
+    common_build_edge $@
+    common_build_ui $@
 }
 
 # Build OpenEMS Edge
 common_build_edge() {
-    echo "# Build OpenEMS Edge"
+    echo "# Build OpenEMS Edge ${@}"
     ./gradlew $@ --build-cache build buildEdge resolve.EdgeApp resolve.BackendApp
     git diff --exit-code io.openems.edge.application/EdgeApp.bndrun io.openems.backend.application/BackendApp.bndrun
 }

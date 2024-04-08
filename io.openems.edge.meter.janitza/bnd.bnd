@@ -1,8 +1,5 @@
 Bundle-Name: OpenEMS Edge Meter Janitza
 Bundle-Description: This implementation covers Janitza UMG 604, Janitza UMG 96RM-E and Janitza UMG 511 meters 
-Bundle-Vendor: FENECON GmbH
-Bundle-License: https://opensource.org/licenses/EPL-2.0
-Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\

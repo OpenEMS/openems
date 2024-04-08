@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Adstec StoraXe
 Bundle-Vendor: FE-Partner AG
-Bundle-License: https://opensource.org/licenses/EPL-2.0
-Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\

@@ -1,0 +1,12 @@
+mavenRemoteRelease: remote, pom;path=JAR, sources, javadoc, \
+	${if;${is;${env;GPG_PASSPHRASE;UNSET};UNSET};;sign\\;passphrase="${first;${env;GPG_PASSPHRASE};DEFAULT}"}
+# snapshot instruction must not be set, otherwise it causes bnd to deploy into snapshot repository
+# -snapshot
+
+# trigger maven deploy
+-maven-release: ${if;${def;mavenPublishRepository};${mavenRemoteRelease}}
+
+# trigger maven deploy
+-pom: \
+	groupid=io.openems, \
+	version=${versionmask;===;${@version}}

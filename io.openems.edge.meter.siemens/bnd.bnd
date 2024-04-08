@@ -1,8 +1,6 @@
 Bundle-Name: OpenEMS Edge Meter Siemens
 Bundle-Description: This implementation covers Siemens PAC1600/PAC2200/PAC3200/PAC4200
 Bundle-Vendor: Ernst KNOLL Feinmechanik GmbH (PAC2200/PAC3200/PAC4200) / Universität Bayreuth Lehrstuhl Elektrische Energiesysteme (PAC1600)
-Bundle-License: https://opensource.org/licenses/EPL-2.0
-Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
