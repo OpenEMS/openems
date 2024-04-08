@@ -45,12 +45,12 @@ public class EvcsKebaKeContactImplTest {
 	    this.evcs._setPhases(Phases.THREE_PHASE);
 
 	    // Expected min/max range after phase switching
-	    int expectedMin = 1380; // The real minimum power for one to three phases
-	    int expectedMax = 11040; // The real maximum power with phase switching
+	    Integer expectedMin = 1380; // The real minimum power for one to three phases
+	    Integer expectedMax = 11040; // The real maximum power with phase switching
 
 	    // Validate the adjusted min/max power limits after phase switching
-	    assertEquals("Adjusted Min Power should be " + expectedMin, (Integer)expectedMin, this.evcs.getMinimumHardwarePower().get());
-	    assertEquals("Adjusted Max Power should be " + expectedMax, (Integer)expectedMax, this.evcs.getMaximumHardwarePower().get());
+	    assertEquals("Adjusted Min Power should be " + expectedMin, expectedMin, this.evcs.getMinimumHardwarePower().get());
+	    assertEquals("Adjusted Max Power should be " + expectedMax, expectedMax, this.evcs.getMaximumHardwarePower().get());
 	}
 
 
@@ -67,12 +67,12 @@ public class EvcsKebaKeContactImplTest {
 	    assertEquals("Should switch to three phases", Phases.THREE_PHASE, this.evcs.getPhases());
 
 	    // Expected min/max power range after accommodating the increased power demand
-	    int expectedMin = 1380; // Min power remains the same as one phase
-	    int expectedMax = 22080; // Max power with phase switching for an EVCS capable of 32A
+	    Integer expectedMin = 1380; // Min power remains the same as one phase
+	    Integer expectedMax = 22080; // Max power with phase switching for an EVCS capable of 32A
 
 	    // Validate the adjusted min/max power limits
-	    assertEquals("Adjusted Min Power should be " + expectedMin, (Integer)expectedMin, this.evcs.getMinimumHardwarePower().get());
-	    assertEquals("Adjusted Max Power should be " + expectedMax, (Integer)expectedMax, this.evcs.getMaximumHardwarePower().get());
+	    assertEquals("Adjusted Min Power should be " + expectedMin, expectedMin, this.evcs.getMinimumHardwarePower().get());
+	    assertEquals("Adjusted Max Power should be " + expectedMax, expectedMax, this.evcs.getMaximumHardwarePower().get());
 	}
 
 
