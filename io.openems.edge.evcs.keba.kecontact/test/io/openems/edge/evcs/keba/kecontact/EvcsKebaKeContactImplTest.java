@@ -34,6 +34,9 @@ public class EvcsKebaKeContactImplTest {
 						.setUseDisplay(false) //
 						.setphaseSwitchActive(true) //
 						.build()); //
+
+		assertEquals("Phase should be initially set to ONE_PHASE", Phases.ONE_PHASE, this.evcs.getPhases());
+
 	}
 
 	@Test
