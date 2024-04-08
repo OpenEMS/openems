@@ -1,19 +1,12 @@
-publishrepo: ${if;${env;OSSRH_USERNAME};SonatypeNexus}
+mavenRemoteRelease: remote, pom;path=JAR, sources, javadoc, \
+	${if;${is;${env;GPG_PASSPHRASE;UNSET};UNSET};;sign\\;passphrase="${first;${env;GPG_PASSPHRASE};DEFAULT}"}
+# snapshot instruction must not be set, otherwise it causes bnd to deploy into snapshot repository
+# -snapshot
 
-#-connection-settings.publish: ${if;${publishrepo};${.}/ossrh-settings.xml}
--maven-release: pom;path=JAR,javadoc;path="${target}/docs/javadoc",${if;${is;${env;GPG_PASSPHRASE;UNSET};UNSET};;sign\\;passphrase="${first;${env;GPG_PASSPHRASE};DEFAULT}"}
+# trigger maven deploy
+-maven-release: ${if;${def;mavenPublishRepository};${mavenRemoteRelease}}
 
--plugin.repositories.nexus: \
-	aQute.bnd.repository.maven.provider.MavenBndRepository; \
-		name='SonatypeNexus'; \
-		snapshotUrl="https://oss.sonatype.org/content/repositories/snapshots/"; \
-		releaseUrl="https://oss.sonatype.org/service/local/staging/deploy/maven2/"; \
-		noupdateOnRelease=true
-
-# NO SNAPSHOT!
-# -snapshot:
+# trigger maven deploy
 -pom: \
 	groupid=io.openems, \
 	version=${versionmask;===;${@version}}
-
--releaserepo: Release,${publishrepo}

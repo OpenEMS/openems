@@ -24,12 +24,12 @@ Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.SNAPSHOT
 
--resolvedebug: 2
-
 -include: ${if;${def;release};\
   ${.}/release.bnd;\
   ${.}/snapshot.bnd\
 }
+
+-releaserepo: Release,${def;mavenPublishRepository;RemoteMavenRepository,LocalMavenRepository}
 
 # Reproducible build - do not put headers which insert build timestamp, other than we wish
 -noextraheaders: true
@@ -90,3 +90,16 @@ testpath: \
 
 javac.source: 17
 javac.target: 17
+
+_remoteMavenSnapshotRepository=${def;remoteMavenSnapshotRepository;https://oss.sonatype.org/content/repositories/snapshots/}
+_remoteMavenReleaseRepository=${def;remoteMavenReleaseRepository;https://oss.sonatype.org/service/local/staging/deploy/maven2/}
+-plugin.repositories.mavenRemote: \
+	aQute.bnd.repository.maven.provider.MavenBndRepository; \
+		name='RemoteMavenRepository'; \
+		snapshotUrl="${_remoteMavenSnapshotRepository}"; \
+		releaseUrl="${_remoteMavenReleaseRepository}"; \
+		noupdateOnRelease=true
+-plugin.repositories.mavenLocal: \
+	aQute.bnd.repository.maven.provider.MavenBndRepository; \
+		name='MavenLocalRepository'; \
+		noupdateOnRelease=true
