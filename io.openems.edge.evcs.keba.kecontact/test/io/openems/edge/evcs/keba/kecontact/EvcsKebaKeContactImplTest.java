@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.keba.kecontact.core.EvcsKebaKeContactCoreImpl;
 import io.openems.edge.evcs.test.DummyEvcsPower;
@@ -23,6 +24,7 @@ public class EvcsKebaKeContactImplTest {
 		this.evcs = new EvcsKebaKeContactImpl();
 		new ComponentTest(this.evcs) //
 				.addReference("evcsPower", new DummyEvcsPower()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("kebaKeContactCore", new EvcsKebaKeContactCoreImpl()) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
