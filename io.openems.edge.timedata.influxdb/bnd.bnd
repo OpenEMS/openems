@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Timedata InfluxDB
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
@@ -16,4 +14,4 @@ Bundle-Name: OpenEMS Edge Timedata InfluxDB
 	io.openems.wrapper.influxdb-client-utils,\
 	io.openems.wrapper.okhttp,\
 	org.jetbrains.kotlin.osgi-bundle,\
-	com.squareup.okio,\
+	com.squareup.okio

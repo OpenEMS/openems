@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Meter B-Control EM300
 
-
-
 -buildpath: \
 	${buildpath},\
 	com.ghgande.j2mod,\

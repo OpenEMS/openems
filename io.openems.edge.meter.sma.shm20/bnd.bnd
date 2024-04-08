@@ -1,8 +1,6 @@
 Bundle-Name: OpenEMS Edge Meter SMA SHM 2.0 Integrated Meter
 Bundle-Vendor: Martin Gruening
 
-Bundle-License: https://opensource.org/licenses/EPL-2.0
-
 -buildpath: \
 	${buildpath},\
 	com.ghgande.j2mod,\

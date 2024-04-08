@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Meter Discovergy
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Controller Electric Vehicle Charging Station Fix Active-Power
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

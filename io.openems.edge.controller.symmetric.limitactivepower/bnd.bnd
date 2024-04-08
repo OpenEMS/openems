@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Controller Symmetric Limit ActivePower
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

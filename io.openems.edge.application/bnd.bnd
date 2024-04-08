@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
@@ -9,4 +7,3 @@ Bundle-Name: OpenEMS Edge
 
 -testpath: \
 	${testpath}
-	

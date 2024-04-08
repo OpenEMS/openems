@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Controller IO Heating Element
 
-Bundle-Version:	1.0.0.${tstamp}
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

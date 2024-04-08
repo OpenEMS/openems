@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Backend Odoo Impl
 
-
-
 -buildpath: \
 	${buildpath},\
 	com.zaxxer.HikariCP,\
@@ -9,6 +7,6 @@ Bundle-Name: OpenEMS Backend Odoo Impl
 	io.openems.common,\
 	io.openems.wrapper.aXMLRPC,\
 	org.postgresql.jdbc, \
-	
+
 -testpath: \
 	${testpath}

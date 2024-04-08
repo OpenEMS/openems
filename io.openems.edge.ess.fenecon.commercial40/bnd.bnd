@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge ESS FENECON Commercial40
 
-
-
 -buildpath: \
 	${buildpath},\
 	com.ghgande.j2mod,\

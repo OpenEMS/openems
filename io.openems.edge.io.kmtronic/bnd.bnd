@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge IO KMtronic
 
-
-
 -buildpath: \
 	${buildpath},\
 	com.ghgande.j2mod,\

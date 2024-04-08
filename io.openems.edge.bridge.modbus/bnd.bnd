@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Bridge Modbus
 
-
-
 -buildpath: \
 	${buildpath},\
 	com.ghgande.j2mod,\

@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Shared InfluxDB
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
@@ -12,5 +10,4 @@ Bundle-Name: OpenEMS Edge Shared InfluxDB
 
 -testpath: \
 	${testpath},\
-	io.openems.wrapper.influxdb-client-utils,\
-	
+	io.openems.wrapper.influxdb-client-utils

@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge EVCS Core
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

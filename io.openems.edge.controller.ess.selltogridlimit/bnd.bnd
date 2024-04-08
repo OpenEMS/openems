@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Controller Ess Sell-To-Grid Limit
 
-Bundle-Version:	1.0.0.${tstamp}
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

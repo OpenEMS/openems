@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Controller Api MQTT
 
-
-
 -buildpath: \
 	${buildpath},\
 	bcpkix;version='1.70',\

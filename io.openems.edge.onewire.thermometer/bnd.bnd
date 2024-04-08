@@ -1,7 +1,4 @@
 Bundle-Name: OpenEMS Edge OneWire Thermometer
-Bundle-License: https://opensource.org/licenses/EPL-2.0
-Bundle-Vendor: FENECON GmbH
-
 
 -buildpath: \
 	${buildpath},\

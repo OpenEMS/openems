@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Battery-Inverter KACO blueplanet gridsave
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

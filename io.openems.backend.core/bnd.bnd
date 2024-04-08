@@ -1,6 +1,4 @@
 Bundle-Name: OpenEMS Backend Core
-
-Bundle-Version:	1.0.0.${tstamp}
 Bundle-Description: Supportive services that are used throughout OpenEMS Backend
 
 -buildpath: \

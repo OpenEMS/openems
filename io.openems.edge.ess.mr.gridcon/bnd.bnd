@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge ESS MR Gridcon
 
-
-
 -buildpath: \
 	${buildpath},\
 	com.ghgande.j2mod,\

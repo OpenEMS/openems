@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Backend-to-Backend REST-Api
 
-
-
 -buildpath: \
 	${buildpath},\
 	Java-WebSocket,\

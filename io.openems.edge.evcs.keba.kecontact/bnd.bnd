@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge EVCS KEBA KeContact
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

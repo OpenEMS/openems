@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Controller Asymmetric Cos-Phi
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

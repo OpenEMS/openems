@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge EVCS Go-e Charger Home
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

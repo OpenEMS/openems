@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Controller Ess Linear Power Band
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

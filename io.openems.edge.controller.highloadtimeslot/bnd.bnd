@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Controller HighLoadTimeslot
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

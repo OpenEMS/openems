@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Time-Of-Use Tariff Awattar
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

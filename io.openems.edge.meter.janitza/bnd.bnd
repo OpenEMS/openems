@@ -1,8 +1,6 @@
 Bundle-Name: OpenEMS Edge Meter Janitza
 Bundle-Description: This implementation covers Janitza UMG 604, Janitza UMG 96RM-E and Janitza UMG 511 meters 
 
-
-
 -buildpath: \
 	${buildpath},\
 	com.ghgande.j2mod,\

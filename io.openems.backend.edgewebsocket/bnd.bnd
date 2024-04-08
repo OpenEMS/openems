@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Backend EdgeWebsocket Impl
 
-
-
 -buildpath: \
 	${buildpath},\
 	Java-WebSocket,\

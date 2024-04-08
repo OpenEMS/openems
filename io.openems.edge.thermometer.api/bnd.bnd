@@ -1,8 +1,5 @@
 Bundle-Name: OpenEMS Edge Thermometer Api
-
-
-Bundle-Description:\
-	A Thermometer measures temperature.
+Bundle-Description: A Thermometer measures temperature.
 
 -buildpath: \
 	${buildpath},\

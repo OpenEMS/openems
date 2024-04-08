@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Backend Timedata Aggregated InfluxDB
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.backend.common,\

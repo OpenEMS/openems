@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Controller Api
 
-
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\

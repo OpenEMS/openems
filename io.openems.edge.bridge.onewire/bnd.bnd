@@ -1,7 +1,5 @@
 Bundle-Name: OpenEMS Edge Bridge OneWire
 
-
-
 Export-Package: \
 	com.dalsemi.onewire,\
 	com.dalsemi.onewire.adapter,\
