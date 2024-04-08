@@ -35,7 +35,7 @@ public class EvcsKebaKeContactImplTest {
 						.setphaseSwitchActive(true) //
 						.build()); //
 
-		assertEquals("Phase should be initially set to ONE_PHASE", Phases.ONE_PHASE, this.evcs.getPhases());
+		assertEquals("Phase should be initially set to ONE_PHASE", 1, this.evcs.getPhasesAsInt());
 
 	}
 
@@ -45,7 +45,7 @@ public class EvcsKebaKeContactImplTest {
 
 		// Initialize the EVCS with one phase and a specific charging power
 		System.out.println("Setting phases to ONE_PHASE and charging power to 3680W");
-		this.evcs._setPhases(Phases.ONE_PHASE);
+		this.evcs._setPhases(1);
 		this.evcs._setChargePower(3680); // EVCS charging 3680W on one phase
 
 		// Verify initial min/max power based on one phase
@@ -55,7 +55,7 @@ public class EvcsKebaKeContactImplTest {
 
 		// Simulate phase switching to three phases
 		System.out.println("Simulating phase switch to THREE_PHASE");
-		this.evcs._setPhases(Phases.THREE_PHASE);
+		this.evcs._setPhases(3);
 
 		// Expected min/max range after phase switching
 		Integer expectedMin = 1380; // The real minimum power for one to three phases
@@ -75,9 +75,9 @@ public class EvcsKebaKeContactImplTest {
 
 		// Initialize the EVCS with one phase and a specific charging power
 		System.out.println("Setting phases to ONE_PHASE and charging power to 3680W");
-		this.evcs._setPhases(Phases.ONE_PHASE);
-		assertEquals("Phase should be ONE_PHASE before applying charge power limit", Phases.ONE_PHASE,
-				this.evcs.getPhases());
+		this.evcs._setPhases(1);
+		assertEquals("Phase should be ONE_PHASE before applying charge power limit", 1,
+				this.evcs.getPhasesAsInt());
 		this.evcs._setChargePower(3680); // Start with 3680W on one phase
 
 		// Increase target power demand to 5000W, should trigger phase switching logic
@@ -87,7 +87,7 @@ public class EvcsKebaKeContactImplTest {
 		// Verify if phase switching to three phases occurred to meet the new power
 		// demand
 		System.out.println("Verifying if phase switching to THREE_PHASE occurred");
-		assertEquals("Should switch to three phases", Phases.THREE_PHASE, this.evcs.getPhases());
+		assertEquals("Should switch to three phases", Phases.THREE_PHASE, this.evcs.getPhasesAsInt());
 
 		// Expected min/max power range after accommodating the increased power demand
 		Integer expectedMin = 1380; // Min power remains the same as one phase
