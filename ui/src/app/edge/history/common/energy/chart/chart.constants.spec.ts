@@ -11,7 +11,7 @@ export function expectView(config: EdgeConfig, testContext: TestContext, chartTy
     .apply(ChartComponent
       .getChartData(DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config), chartType, testContext.translate), chartType, channels, testContext, config)))
     .toEqual(removeFunctions(view));
-};
+}
 
 export const DATASET = (data: OeChartTester.Dataset.Data, labels: OeChartTester.Dataset.LegendLabel, options: OeChartTester.Dataset.Option) => ({
   data: data,
