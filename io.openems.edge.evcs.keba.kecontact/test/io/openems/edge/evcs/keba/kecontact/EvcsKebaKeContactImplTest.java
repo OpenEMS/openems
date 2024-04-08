@@ -38,15 +38,20 @@ public class EvcsKebaKeContactImplTest {
 
 	@Test
 	public void testAdjustPowerLimitsOnPhaseSwitching() {
+		System.out.println("Starting testAdjustPowerLimitsOnPhaseSwitching");
+
 		// Initialize the EVCS with one phase and a specific charging power
+		System.out.println("Setting phases to ONE_PHASE and charging power to 3680W");
 		this.evcs._setPhases(Phases.ONE_PHASE);
 		this.evcs._setChargePower(3680); // EVCS charging 3680W on one phase
 
 		// Verify initial min/max power based on one phase
+		System.out.println("Verifying initial min/max power");
 		assertEquals("Initial Min Power", (Integer) 1380, this.evcs.getMinimumHardwarePower().get());
 		assertEquals("Initial Max Power", (Integer) 3680, this.evcs.getMaximumHardwarePower().get());
 
 		// Simulate phase switching to three phases
+		System.out.println("Simulating phase switch to THREE_PHASE");
 		this.evcs._setPhases(Phases.THREE_PHASE);
 
 		// Expected min/max range after phase switching
@@ -54,6 +59,7 @@ public class EvcsKebaKeContactImplTest {
 		Integer expectedMax = 11040; // The real maximum power with phase switching
 
 		// Validate the adjusted min/max power limits after phase switching
+		System.out.println("Validating adjusted min/max power limits");
 		assertEquals("Adjusted Min Power should be " + expectedMin, expectedMin,
 				this.evcs.getMinimumHardwarePower().get());
 		assertEquals("Adjusted Max Power should be " + expectedMax, expectedMax,
@@ -62,15 +68,20 @@ public class EvcsKebaKeContactImplTest {
 
 	@Test
 	public void testHandlingIncreasedPowerDemandWithPhaseSwitching() throws OpenemsException {
+		System.out.println("Starting testHandlingIncreasedPowerDemandWithPhaseSwitching");
+
 		// Initialize the EVCS with one phase and a specific charging power
+		System.out.println("Setting phases to ONE_PHASE and charging power to 3680W");
 		this.evcs._setPhases(Phases.ONE_PHASE);
 		this.evcs._setChargePower(3680); // Start with 3680W on one phase
 
-		// Increase target power demand to 5000W, shoul trigger phase switching logic
+		// Increase target power demand to 5000W, should trigger phase switching logic
+		System.out.println("Applying charge power limit of 5000W, expecting phase switch");
 		this.evcs.applyChargePowerLimit(5000);
 
 		// Verify if phase switching to three phases occurred to meet the new power
 		// demand
+		System.out.println("Verifying if phase switching to THREE_PHASE occurred");
 		assertEquals("Should switch to three phases", Phases.THREE_PHASE, this.evcs.getPhases());
 
 		// Expected min/max power range after accommodating the increased power demand
@@ -78,6 +89,7 @@ public class EvcsKebaKeContactImplTest {
 		Integer expectedMax = 22080; // Max power with phase switching for an EVCS capable of 32A
 
 		// Validate the adjusted min/max power limits
+		System.out.println("Validating adjusted min/max power limits after increased demand");
 		assertEquals("Adjusted Min Power should be " + expectedMin, expectedMin,
 				this.evcs.getMinimumHardwarePower().get());
 		assertEquals("Adjusted Max Power should be " + expectedMax, expectedMax,
