@@ -19,6 +19,9 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
           cache: gradle
+          server-id: 'https://oss.sonatype.org'
+          server-username: CI_DEPLOY_USERNAME
+          server-password: CI_DEPLOY_PASSWORD
 
       - uses: kiancross/checkstyle-annotations-action@v1
 
@@ -34,7 +37,6 @@ jobs:
       - name: Validate EdgeApp.bndrun
         run: git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
 
-      #
       # Generate Code-coverage-report
       #
       - name: Generate JaCoCo Code-coverage-report
@@ -65,6 +67,14 @@ jobs:
           mkdir -p ./jacoco
           echo $PR_NUMBER > ./jacoco/jacoco_report_number
           echo '![Code Coverage]'"(https://img.shields.io/badge/Code%20Coverage-${coverage}%25-${color}?style=flat)" > ./jacoco/jacoco_report_badge
+
+      - name: Deploy Edge+Backend assets
+        if: success() && github.event_name == 'push' && github.ref_name == 'develop'
+        run: ./gradlew buildEdge buildBackend release -DmavenPublishRepository=RemoteMavenRepository
+        env:
+          CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
+          CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
+
       - uses: actions/upload-artifact@v4
         with:
           name: jacoco_report

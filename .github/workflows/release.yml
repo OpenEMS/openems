@@ -17,6 +17,10 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
           cache: gradle
+          server-id: 'https://oss.sonatype.org'
+          server-username: CI_RELEASE_USERNAME
+          server-password: CI_RELEASE_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
 
       - uses: kiancross/checkstyle-annotations-action@v1
 
@@ -32,8 +36,12 @@ jobs:
       - name: Validate EdgeApp.bndrun
         run: git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
 
-      - name: Prepare Edge+Backend assets
-        run: ./gradlew buildEdge buildBackend
+      - name: Prepare and deploy Edge+Backend assets
+        run: ./gradlew buildEdge buildBackend release -DmavenPublishRepository=RemoteMavenRepository -Drelease=true
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          CI_RELEASE_USERNAME: ${{ secrets.CI_RELEASE_USERNAME }}
+          CI_RELEASE_PASSWORD: ${{ secrets.CI_RELEASE_PASSWORD }}
 
       - name: Save build-artifacts
         uses: actions/upload-artifact@v4
