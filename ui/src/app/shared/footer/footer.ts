@@ -10,7 +10,6 @@ import { Role } from "../type/role";
 @Component({
   selector: 'oe-footer',
   styles: [`
-
     :host[data-isSmartPhone=true] {
       position: relative;
     }
@@ -19,16 +18,16 @@ import { Role } from "../type/role";
       position: sticky;
       bottom: 0;
       width: 100%;
-
       font-size: 14px !important;
-      ion-row: {
-        text-align: center;
-      }
+    }
 
-      ion-item: {
-        --min-height: initial !important;
-        font-size: inherit;
-      }
+    ion-row {
+      text-align: center;
+    }
+
+    ion-item {
+      --min-height: initial !important;
+      font-size: inherit;
     }
   `],
   templateUrl: 'footer.html',
