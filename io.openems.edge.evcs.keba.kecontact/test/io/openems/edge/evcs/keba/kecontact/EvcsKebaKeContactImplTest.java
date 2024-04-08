@@ -76,6 +76,8 @@ public class EvcsKebaKeContactImplTest {
 		// Initialize the EVCS with one phase and a specific charging power
 		System.out.println("Setting phases to ONE_PHASE and charging power to 3680W");
 		this.evcs._setPhases(Phases.ONE_PHASE);
+		assertEquals("Phase should be ONE_PHASE before applying charge power limit", Phases.ONE_PHASE,
+				this.evcs.getPhases());
 		this.evcs._setChargePower(3680); // Start with 3680W on one phase
 
 		// Increase target power demand to 5000W, should trigger phase switching logic
