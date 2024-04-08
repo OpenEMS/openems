@@ -22,6 +22,8 @@ public interface PvInverterDeye extends ElectricityMeter, ModbusComponent, Opene
 		ACTIVE_POWER_STRING_2(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
 		ACTIVE_POWER_STRING_3(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
 		ACTIVE_POWER_STRING_4(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
+		
+		ACTIVE_POWER_GENERATOR(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
 
 		LAST_UPDATE_TIME(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.SECONDS)), //
@@ -92,12 +94,14 @@ public interface PvInverterDeye extends ElectricityMeter, ModbusComponent, Opene
 					meter.getActivePowerS1Channel().getNextValue().get(), //
 					meter.getActivePowerS2Channel().getNextValue().get(), //
 					meter.getActivePowerS3Channel().getNextValue().get(), //
-					meter.getActivePowerS4Channel().getNextValue().get())); //
+					meter.getActivePowerS4Channel().getNextValue().get(),
+					meter.getActivePowerGen().getNextValue().get())); //
 		};
 		meter.getActivePowerS1Channel().onSetNextValue(calculate);
 		meter.getActivePowerS2Channel().onSetNextValue(calculate);
 		meter.getActivePowerS3Channel().onSetNextValue(calculate);
 		meter.getActivePowerS4Channel().onSetNextValue(calculate);
+		meter.getActivePowerGen().onSetNextValue(calculate);
 	}
 
 	public default IntegerReadChannel getActivePowerS1Channel() {
@@ -114,5 +118,9 @@ public interface PvInverterDeye extends ElectricityMeter, ModbusComponent, Opene
 
 	public default IntegerReadChannel getActivePowerS4Channel() {
 		return this.channel(ChannelId.ACTIVE_POWER_STRING_4);
+	}
+	
+	public default IntegerReadChannel getActivePowerGen() {
+		return this.channel(ChannelId.ACTIVE_POWER_GENERATOR);
 	}
 }

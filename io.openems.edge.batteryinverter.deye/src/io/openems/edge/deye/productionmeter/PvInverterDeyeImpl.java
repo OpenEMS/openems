@@ -110,8 +110,9 @@ public class PvInverterDeyeImpl extends AbstractOpenemsModbusComponent
 						m(PvInverterDeye.ChannelId.ACTIVE_POWER_STRING_1, new UnsignedWordElement(672)),
 						m(PvInverterDeye.ChannelId.ACTIVE_POWER_STRING_2, new UnsignedWordElement(673)),
 						m(PvInverterDeye.ChannelId.ACTIVE_POWER_STRING_3, new UnsignedWordElement(674)),
-						m(PvInverterDeye.ChannelId.ACTIVE_POWER_STRING_4, new UnsignedWordElement(675)//
-						)));
+						m(PvInverterDeye.ChannelId.ACTIVE_POWER_STRING_4, new UnsignedWordElement(675))),
+				new FC3ReadRegistersTask(667, Priority.LOW, //
+								m(PvInverterDeye.ChannelId.ACTIVE_POWER_GENERATOR, new UnsignedWordElement(667))));
 	}
 
 	@Override
