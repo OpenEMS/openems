@@ -21,7 +21,6 @@ public class EvcsKebaKeContactImplTest {
 	@Before
 	public void setUp() throws Exception {
 		this.evcs = new EvcsKebaKeContactImpl();
-		// Initialize your object with necessary settings
 		new ComponentTest(this.evcs) //
 				.addReference("evcsPower", new DummyEvcsPower()) //
 				.addReference("kebaKeContactCore", new EvcsKebaKeContactCoreImpl()) //
