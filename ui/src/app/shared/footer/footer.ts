@@ -21,11 +21,11 @@ import { Role } from "../type/role";
       width: 100%;
 
       font-size: 14px !important;
-      ion-row: {
+      ion-row {
         text-align: center;
       }
 
-      ion-item: {
+      ion-item {
         --min-height: initial !important;
         font-size: inherit;
       }
