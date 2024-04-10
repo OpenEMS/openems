@@ -104,7 +104,7 @@ public interface PvInverterDeye extends ElectricityMeter, ModbusComponent, Opene
 					meter.getActivePowerS2Channel().getNextValue().get(), //
 					meter.getActivePowerS3Channel().getNextValue().get(), //
 					meter.getActivePowerS4Channel().getNextValue().get(),
-					generatorPower)); //
+					generatorPowerToSet)); //
 		};
 		meter.getActivePowerS1Channel().onSetNextValue(calculate);
 		meter.getActivePowerS2Channel().onSetNextValue(calculate);
