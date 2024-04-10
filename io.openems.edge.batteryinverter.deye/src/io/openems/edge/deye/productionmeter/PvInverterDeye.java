@@ -90,12 +90,21 @@ public interface PvInverterDeye extends ElectricityMeter, ModbusComponent, Opene
 	 */
 	public static void calculateSumActivePowerFromPhases(PvInverterDeye meter) {
 		final Consumer<Value<Integer>> calculate = ignore -> {
+			final Integer generatorPower = meter.getActivePowerGen().getNextValue().get();
+			Integer generatorPowerToSet = 0;
+			
+			if(generatorPower > 65536) {
+				generatorPowerToSet = 0;
+			} else {
+				generatorPowerToSet = generatorPower;
+			}
+			
 			meter._setActivePower(TypeUtils.sum(//
 					meter.getActivePowerS1Channel().getNextValue().get(), //
 					meter.getActivePowerS2Channel().getNextValue().get(), //
 					meter.getActivePowerS3Channel().getNextValue().get(), //
 					meter.getActivePowerS4Channel().getNextValue().get(),
-					meter.getActivePowerGen().getNextValue().get())); //
+					generatorPower)); //
 		};
 		meter.getActivePowerS1Channel().onSetNextValue(calculate);
 		meter.getActivePowerS2Channel().onSetNextValue(calculate);
