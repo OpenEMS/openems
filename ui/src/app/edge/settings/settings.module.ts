@@ -52,8 +52,6 @@ import { SystemUpdateOldComponent } from './systemupdate.old/systemupdate.old.co
     SystemExecuteComponent,
     SystemUpdateOldComponent,
   ],
-  entryComponents: [
-  ],
   exports: [
     OeSystemUpdateComponent,
   ],
