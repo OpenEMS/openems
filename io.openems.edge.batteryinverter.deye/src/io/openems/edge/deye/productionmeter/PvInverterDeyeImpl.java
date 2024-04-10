@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "PV-Inverter.Deye", //
+		name = "Deye.Production-Meter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //

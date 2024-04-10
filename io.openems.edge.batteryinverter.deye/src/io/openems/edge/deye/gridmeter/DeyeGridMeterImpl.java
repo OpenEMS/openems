@@ -77,8 +77,6 @@ public class DeyeGridMeterImpl extends AbstractOpenemsModbusComponent
 				DeyeGridMeter.ChannelId.values() //
 		);
 
-		// Automatically calculate sum values from L1/L2/L3
-		ElectricityMeter.calculateSumActivePowerFromPhases(this);
 	}
 
 	@Activate
@@ -104,10 +102,8 @@ public class DeyeGridMeterImpl extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this,
-				new FC3ReadRegistersTask(633, Priority.HIGH,
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(633)),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(634)),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(635))));
+				new FC3ReadRegistersTask(625, Priority.HIGH,
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(625))));
 	}
 
 	@Override
