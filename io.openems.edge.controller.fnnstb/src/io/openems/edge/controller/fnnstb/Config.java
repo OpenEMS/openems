@@ -6,7 +6,10 @@ import org.osgi.service.metatype.annotations.AttributeType;
 
 @ObjectClassDefinition(//
 		name = "Controller Fnn stb", //
-		description = "")
+		description = "The network operator has the authority to ensure favorable network/ Grid performance in managing energy consumption. Basically by \"Dimming\" the Consumption based on the signal. "
+				+ "This signal can be from either a relay(input/ output signal) or pay load from the MQTT broker.\n"
+				+ "This controller subscribes to the MQTT broker, parses the paylaod(signal), then based on the signal value "
+				+ "sets a constraint on ESS (energy storage system) to restrict charging from the grid.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

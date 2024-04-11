@@ -1,3 +1,34 @@
-= io.openems.edge.controller.fnnstb
+= Controller fnnstb
+
+The network operator has the authority to ensure favorable network/ Grid performance in managing energy consumption. Basically by "Dimming" the Consumption based on the signal. This signal can be from either a relay(input/ output signal) or pay load from the MQTT broker.
+
+This controller takes the signal from the MQTT broker, parses it, then based on the signal sets a constraint on ESS (energy storage system) to restrict charging from the grid.
+
+For testing purposes, ensure you have an MQTT broker installed. Currently, I've installed the Mosquitto MQTT broker from this  "https://mosquitto.org/download/" link.
+
+After installation, verify that the service is running. In Windows, you can do this by typing "services" in the search bar, locating "Mosquitto Broker," and ensuring it's running. If not, start it by clicking "Start Service." Alternatively, open Command Prompt as an administrator, navigate to the directory where Mosquitto is installed, and run the command "net start mosquitto". Verify that you receive the message "The requested service has already been started."
+
+== Subscribe and Publish commands
+
+=== For Command Prompt (CMD):
+
+==== To subscribe:
+
+mosquitto_sub -h localhost -t test/topic
+
+==== To publish:
+
+mosquitto_pub -h localhost -t test/topic -m "{"Signal":"True"}"
+
+
+=== For Windows Subsystem for Linux (WSL):
+
+==== To subscribe:
+
+cmd.exe /C mosquitto_sub.exe -h localhost -t test/topic
+
+==== To publish:
+
+cmd.exe /C mosquitto_pub.exe -h localhost -t test/topic -m "{"Signal":"True"}"
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.fnnstb[Source Code icon:github[]]

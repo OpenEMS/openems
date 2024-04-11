@@ -40,9 +40,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CONFIG_UPDATE, //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS }//
+		EdgeEventConstants.TOPIC_CONFIG_UPDATE }//
 )
 public class ControllerFnnstbImpl extends AbstractOpenemsComponent
 		implements ControllerFnnstb, Controller, OpenemsComponent, EventHandler {
@@ -86,7 +84,6 @@ public class ControllerFnnstbImpl extends AbstractOpenemsComponent
 			this.client = this.connectionManager.getClient();
 		} catch (MqttException me) {
 			me.printStackTrace();
-			// this.log.error("Error during MQTT connection: {}", me.printStackTrace());
 		}
 	}
 
@@ -103,7 +100,13 @@ public class ControllerFnnstbImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		// Nothing here
+		if (this.signalValue) {
+			try {
+				this.ess.setActivePowerGreaterOrEquals(-4200);
+			} catch (OpenemsNamedException e) {
+				this.log.error("Error setting active power: {}", e.getMessage());
+			}
+		}
 	}
 
 	@Override
@@ -113,15 +116,6 @@ public class ControllerFnnstbImpl extends AbstractOpenemsComponent
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CONFIG_UPDATE -> this.subscriber(this.client, this.topicName);
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
-			if (this.signalValue) {
-				try {
-					this.ess.setActivePowerGreaterOrEquals(420000);
-				} catch (OpenemsNamedException e) {
-					this.log.error("Error setting active power: {}", e.getMessage());
-				}
-			}
-		}
 		}
 	}
 
@@ -177,7 +171,5 @@ public class ControllerFnnstbImpl extends AbstractOpenemsComponent
 		Gson gson = new Gson();
 		JsonObject jsonObject = gson.fromJson(payload, JsonObject.class);
 		this.signalValue = jsonObject.get("signal").getAsBoolean();
-
 	}
-
 }
