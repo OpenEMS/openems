@@ -1,18 +1,16 @@
-package io.openems.edge.sma.enums;
+package io.openems.edge.ess.sma.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum OperationHealth implements OptionsEnum {
+public enum SetControlMode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	ERROR(35, "Error"), //
-	OFF(303, "Off"), //
-	OK(307, "Ok"), //
-	WARN(455, "Warning");
+	START(802, "START"), //
+	STOP(803, "STOP");
 
 	private final int value;
 	private final String name;
 
-	private OperationHealth(int value, String name) {
+	private SetControlMode(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}

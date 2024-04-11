@@ -1,8 +1,8 @@
-package io.openems.edge.sma.sunnyisland;
+package io.openems.edge.ess.sma.stpxx3se.battery;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.sma.stpxx3se.battery.MyConfig.Builder;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -11,8 +11,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String modbusId;
 		private int modbusUnitId;
-		private Phase phase;
-		private boolean readOnlyMode;
+		private int chargeMaxVoltage;
+		private int dischargeMinVoltage;
 
 		private Builder() {
 		}
@@ -27,21 +27,27 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setPhase(Phase phase) {
-			this.phase = phase;
+		public Builder setModbusUnitId(int modbusUnitId) {
+			this.modbusUnitId = modbusUnitId;
+			return this;
+		}
+		
+		public Builder setChargeMaxVoltage(int chargeMaxVoltage) {
+			this.chargeMaxVoltage = chargeMaxVoltage;
 			return this;
 		}
 
-		public Builder setReadOnlyMode(boolean readOnlyMode) {
-			this.readOnlyMode = readOnlyMode;
+		public Builder setDischargeMinVoltage(int dischargeMinVoltage) {
+			this.dischargeMinVoltage = dischargeMinVoltage;
 			return this;
 		}
 
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
-	}
 
+	}
+	
 	/**
 	 * Create a Config builder.
 	 *
@@ -50,9 +56,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public static Builder create() {
 		return new Builder();
 	}
-
+	
 	private final Builder builder;
-
+	
 	private MyConfig(Builder builder) {
 		super(Config.class, builder.id);
 		this.builder = builder;
@@ -60,7 +66,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String modbus_id() {
-		return this.builder.modbusId;
+		return builder.modbusId;
+	}
+
+	@Override
+	public int modbusUnitId() {
+		return builder.modbusUnitId;
 	}
 
 	@Override
@@ -69,18 +80,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int modbusUnitId() {
-		return this.builder.modbusUnitId;
+	public int chargeMaxVoltage() {
+		return this.builder.chargeMaxVoltage;
 	}
 
 	@Override
-	public Phase phase() {
-		return this.builder.phase;
+	public int dischargeMinVoltage() {
+		return this.builder.dischargeMinVoltage;
 	}
-
-	@Override
-	public boolean readOnlyMode() {
-		return this.builder.readOnlyMode;
-	}
-
 }

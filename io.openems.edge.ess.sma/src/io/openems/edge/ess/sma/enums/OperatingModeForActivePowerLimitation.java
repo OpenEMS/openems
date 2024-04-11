@@ -1,4 +1,4 @@
-package io.openems.edge.sma.enums;
+package io.openems.edge.ess.sma.enums;
 
 import io.openems.common.types.OptionsEnum;
 
