@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { JsonrpcRequest } from 'src/app/shared/jsonrpc/base';
+import { UpdateUserSettingsRequest } from 'src/app/shared/jsonrpc/request/updateUserSettingsRequest';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 
@@ -26,6 +27,18 @@ export class JsonrpcTestComponent implements OnInit {
 
   public ngOnInit(): void {
     this.service.setCurrentComponent('Jsonrpc Test', this.route).then(edge => {
+
+      const currentUserSettings = this.service.currentUser.settings;
+      if (!currentUserSettings['jsonrpcTest']) {
+        currentUserSettings['jsonrpcTest'] = true;
+        this.websocket.sendRequest(
+          new UpdateUserSettingsRequest({ settings: currentUserSettings })).then(() => {
+            this.service.toast('Added \'jsonrpcTest\' permanently.', 'success');
+          }).catch(() => {
+            this.service.toast('Failed adding \'jsonrpcTest\' permanently.', 'danger');
+          });
+      }
+
       this.edge = edge;
       edge.sendRequest(this.websocket, new JsonrpcRequest("routes", {})).then(response => {
         this.endpoints = (response.result['endpoints'] as EndpointResponse[]).map(endpoint => {

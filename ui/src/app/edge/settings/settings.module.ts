@@ -11,7 +11,6 @@ import { IndexComponent as ComponentUpdateIndexComponent } from './component/upd
 import { ComponentUpdateComponent } from './component/update/update.component';
 import { ChartComponent } from './homeassistent/chart/chart';
 import { HomeServiceAssistentComponent } from './homeassistent/homeassistent';
-import { JsonrpcTestComponent } from './jsonrpctest/jsonrpctest';
 import { NetworkOldComponent } from './network.old/network.old.component';
 import { NetworkComponent } from './network/network.component';
 import { AliasUpdateComponent } from './profile/aliasupdate.component';
@@ -23,10 +22,12 @@ import { OeSystemUpdateComponent } from './system/oe-system-update.component';
 import { SystemComponent } from './system/system.component';
 import { SystemExecuteComponent } from './systemexecute/systemexecute.component';
 import { SystemUpdateOldComponent } from './systemupdate.old/systemupdate.old.component';
+import { JsonrpcTestModule } from './jsonrpctest/jsonrpctest.module';
 
 @NgModule({
   imports: [
     AppModule,
+    JsonrpcTestModule,
     SharedModule,
     ServiceAssistantModule,
     ChangelogModule,
@@ -41,7 +42,6 @@ import { SystemUpdateOldComponent } from './systemupdate.old/systemupdate.old.co
     ComponentUpdateComponent,
     ComponentUpdateIndexComponent,
     HomeServiceAssistentComponent,
-    JsonrpcTestComponent,
     MaintenanceComponent,
     NetworkComponent,
     NetworkOldComponent,

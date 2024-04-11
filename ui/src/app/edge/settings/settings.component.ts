@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { environment } from 'src/environments';
 import { Edge, Service, UserPermission, Utils } from '../../shared/shared';
 import { canSeeAppCenter } from './app/permissions';
-import { canSeeJsonrpcTest } from './jsonrpctest/permission';
+import { JsonrpcTestPermission } from './jsonrpctest/jsonrpctest.permission';
 
 @Component({
   selector: 'settings',
@@ -33,7 +33,7 @@ export class SettingsComponent implements OnInit {
       this.edge = edge;
       const user = this.service.metadata?.value?.user;
       this.canSeeAppCenter = canSeeAppCenter(this.edge);
-      this.canSeeJsonrpcTest = canSeeJsonrpcTest(user, edge);
+      this.canSeeJsonrpcTest = JsonrpcTestPermission.canSee(user, edge);
       this.canSeeHomeAssistent = UserPermission.isUserAllowedToSeeHomeAssistent(user, edge);
       this.canSeeCommercialAssistent = UserPermission.isUserAllowedToSeeCommercialServiceAssistent(user, edge);
     });
