@@ -1,15 +1,10 @@
 package io.openems.edge.bridge.modbus;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
-import io.openems.edge.bridge.modbus.api.task.AbstractTask;
-import io.openems.edge.common.cycle.Cycle;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -62,8 +57,6 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	private int noSkipIdx = 0;
 	private long cycleIdx = 0;
 
-	private int coreCycleTime = 1000;
-
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -93,15 +86,16 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	private void applyConfig(ConfigTcp config) {
 		this.setIpAddress(InetAddressUtils.parseOrNull(config.ip()));
 		this.port = config.port();
+        int coreCycleTime = 1000;
         try {
 			// the default cycleTime is not persisted and won't be returned, only modified cycleTime will!
-			this.coreCycleTime = (int) (Integer) this.cm.getConfiguration("Core.Cycle").getProperties().get("cycleTime");
+			coreCycleTime = (int) (Integer) this.cm.getConfiguration("Core.Cycle").getProperties().get("cycleTime");
         } catch (Exception e) {
-			this.coreCycleTime = 1000;
+			this.logCycle("cycleTime reading failed, use default value " + coreCycleTime);
         }
-        this.noSkipIdx = (int)Math.ceil(config.intervalBetweenAccesses() * 1.0 / this.coreCycleTime);
+        this.noSkipIdx = (int)Math.ceil(config.intervalBetweenAccesses() * 1.0 / coreCycleTime);
 		this.noSkipIdx = Math.max(this.noSkipIdx, 1);
-		this.logCycle("applyConfig: cycleTime=" + this.coreCycleTime
+		this.logCycle("applyConfig: cycleTime=" + coreCycleTime
 			+ ", interval=" + config.intervalBetweenAccesses()
 			+ ", noSkipIdx=" + this.noSkipIdx);
 	}
