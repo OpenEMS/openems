@@ -59,17 +59,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String modbus_id() {
-		return builder.modbusId;
+		return this.builder.modbusId;
 	}
 
 	@Override
 	public int modbusUnitId() {
-		return builder.modbusUnitId;
+		return this.builder.modbusUnitId;
 	}
 
 	@Override
 	public boolean readOnly() {
-		return builder.readOnly;
+		return this.builder.readOnly;
 	}
 
 	@Override

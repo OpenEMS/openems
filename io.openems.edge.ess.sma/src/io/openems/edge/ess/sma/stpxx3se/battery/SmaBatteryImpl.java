@@ -38,7 +38,7 @@ import io.openems.edge.ess.sma.sunnyisland.EssSmaSunnyIsland;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Ess.Sma.StpSe.Battery", //
+		name = "Ess.SMA.STP-SE.Battery", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

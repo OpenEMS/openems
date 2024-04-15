@@ -44,7 +44,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Ess.Sma.StpSe.Inverter", immediate = true, //
+		name = "Ess.Sma.STP-SE.Inverter", immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter

@@ -33,7 +33,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Ess.Sma.StpSe.DcCharger", //
+		name = "Ess.Sma.STP-SE.DcCharger", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

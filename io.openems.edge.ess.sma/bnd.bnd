@@ -7,13 +7,13 @@ Bundle-Version: 1.0.0.${tstamp}
 	${buildpath},\
 	com.ghgande.j2mod,\
 	io.openems.common,\
+	io.openems.edge.battery.api,\
+	io.openems.edge.batteryinverter.api,\
+	io.openems.edge.batteryinverter.sunspec,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
 	io.openems.edge.ess.api,\
 	io.openems.edge.timedata.api,\
-	io.openems.edge.batteryinverter.api,\
-	io.openems.edge.battery.api,\
-	io.openems.edge.batteryinverter.sunspec
 
 -testpath: \
 	${testpath}
