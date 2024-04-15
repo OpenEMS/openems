@@ -73,23 +73,21 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		// execute the task
 		var result = this.execute.apply(task);
 
-		switch (result) {
-		case OK -> {
+		// NOTE: with Java 21 LTS this can be refactored to a pattern matching switch
+		// statement
+		if (result instanceof ExecuteState.Ok) {
 			// no exception & at least one sub-task executed
 			this.markComponentAsDefective(task.getParent(), false);
-		}
 
-		case ERROR -> {
+		} else if (result instanceof ExecuteState.NoOp) {
+			// did not execute anything
+
+		} else if (result instanceof ExecuteState.Error) {
 			this.markComponentAsDefective(task.getParent(), true);
 
 			// invalidate elements of this task
 			this.invalidate.accept(task.getElements());
 		}
-
-		case NO_OP -> {
-		}
-		}
-
 	}
 
 	/**

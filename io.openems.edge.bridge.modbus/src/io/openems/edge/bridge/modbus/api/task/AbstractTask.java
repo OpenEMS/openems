@@ -3,6 +3,7 @@ package io.openems.edge.bridge.modbus.api.task;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ public abstract non-sealed class AbstractTask<//
 		RESPONSE extends ModbusResponse> implements Task {
 
 	protected final String name;
+	protected final Consumer<ExecuteState> onExecute;
 	protected final Class<RESPONSE> responseClazz;
 	protected final int startAddress;
 	protected final int length;
@@ -39,8 +41,10 @@ public abstract non-sealed class AbstractTask<//
 
 	private AbstractOpenemsModbusComponent parent = null; // this is always set by ModbusProtocol.addTask()
 
-	public AbstractTask(String name, Class<RESPONSE> responseClazz, int startAddress, ModbusElement... elements) {
+	public AbstractTask(String name, Consumer<ExecuteState> onExecute, Class<RESPONSE> responseClazz, int startAddress,
+			ModbusElement... elements) {
 		this.name = name;
+		this.onExecute = onExecute;
 		this.responseClazz = responseClazz;
 		this.startAddress = startAddress;
 		this.elements = elements;
@@ -87,7 +91,7 @@ public abstract non-sealed class AbstractTask<//
 	 * WriteTask.
 	 *
 	 * @param bridge the Modbus-Bridge
-	 * @return the number of executed Sub-Tasks
+	 * @return the {@link ExecuteState}
 	 */
 	public abstract ExecuteState execute(AbstractModbusBridge bridge);
 

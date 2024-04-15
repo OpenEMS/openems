@@ -119,7 +119,7 @@ public class SystemFeneconIndustrialLImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		// Envicool AC Modbus Registers
 		return new ModbusProtocol(this, //
 				new FC2ReadInputsTask(4, Priority.LOW, //

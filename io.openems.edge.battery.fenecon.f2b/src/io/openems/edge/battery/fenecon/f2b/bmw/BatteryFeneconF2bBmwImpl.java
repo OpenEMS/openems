@@ -158,7 +158,7 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		var protocol = new ModbusProtocol(this, //
 				new FC16WriteRegistersTask(1, //
 						m(BatteryFeneconF2b.ChannelId.F2B_CAN_COMMUNICATION, new UnsignedWordElement(1)), //

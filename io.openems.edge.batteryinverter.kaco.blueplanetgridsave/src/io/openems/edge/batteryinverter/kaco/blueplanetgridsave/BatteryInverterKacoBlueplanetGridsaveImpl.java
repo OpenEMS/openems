@@ -135,7 +135,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 	// .put(SunSpecModel.S_160, Priority.LOW) //
 
 	@Activate
-	public BatteryInverterKacoBlueplanetGridsaveImpl() throws OpenemsException {
+	public BatteryInverterKacoBlueplanetGridsaveImpl() {
 		super(//
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //
@@ -448,7 +448,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 	}
 
 	@Override
-	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
+	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) {
 		super.addBlock(startAddress, model, priority);
 
 		// Mark S_64203 as available
