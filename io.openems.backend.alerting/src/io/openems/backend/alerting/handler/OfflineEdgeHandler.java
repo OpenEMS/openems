@@ -29,6 +29,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	// Definition of unrealistically high values for messages sent simultaneously
 	public static final int MAX_SIMULTANEOUS_MSGS = 500;
 	public static final int MAX_SIMULTANEOUS_EDGES = 1000;
+	public static final int EDGE_REBOOT_MINUTES = 5;
 
 	private final Logger log = LoggerFactory.getLogger(OfflineEdgeHandler.class);
 
@@ -69,6 +70,9 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	public void send(ZonedDateTime sentAt, List<OfflineEdgeMessage> pack) {
 		// Ensure Edge is still offline before sending mail.
 		pack.removeIf((msg) -> !this.isEdgeOffline(msg.getEdgeId()));
+		if (pack.isEmpty()) {
+			return;
+		}
 
 		var params = JsonUtils.generateJsonArray(pack, OfflineEdgeMessage::getParams);
 
@@ -139,7 +143,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	private boolean isValidEdge(Edge edge) {
 		var invalid = edge.getLastmessage() == null // was never online
 				|| edge.getLastmessage() //
-						.isBefore(ZonedDateTime.now().minusWeeks(1)); // already offline for a week
+						.isBefore(this.timeService.now().minusWeeks(1)); // already offline for a week
 		return !invalid;
 	}
 
@@ -152,7 +156,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	protected OfflineEdgeMessage getEdgeMessage(Edge edge) {
 		if (edge == null || edge.getId() == null) {
 			this.log.warn("Called method getEdgeMessage with " //
-					+ edge == null ? "Edge{null}" : "Edge{id=null}");
+					+ (edge == null ? "Edge{null}" : "Edge{id=null}"));
 			return null;
 		}
 		try {
@@ -233,7 +237,11 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 				if (isOnline) {
 					this.tryRemoveEdge(edge);
 				} else {
-					this.tryAddEdge(edge);
+					this.timeService.schedule(this.timeService.now().plusMinutes(EDGE_REBOOT_MINUTES), t -> {
+						if (edge.isOffline()) {
+							this.tryAddEdge(edge);
+						}
+					});
 				}
 			}
 		} else {

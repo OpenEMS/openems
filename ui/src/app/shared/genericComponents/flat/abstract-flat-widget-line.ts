@@ -7,10 +7,18 @@ import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared"
 import { v4 as uuidv4 } from 'uuid';
 
 import { DataService } from "../shared/dataservice";
+import { Filter } from "../shared/filter";
 
 @Directive()
 export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
 
+  /**
+   * Use `filter` to remove a line depending on a value.
+   *
+   * @param value the current data value
+   * @returns converter function
+   */
+  @Input() public filter: Filter = Filter.NO_FILTER;
   /**
    * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
    *
@@ -32,6 +40,7 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   }
 
   private _channelAddress: ChannelAddress | null = null;
+  protected show: boolean = true;
 
   /**
    * displayValue is the displayed @Input value in html
@@ -55,10 +64,13 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
 
   public ngOnChanges() {
     this.setValue(this.value);
-  };
+  }
 
   protected setValue(value: any) {
     this.displayValue = this.converter(value);
+    if (this.filter) {
+      this.show = this.filter(value);
+    }
   }
 
   protected subscribe(channelAddress: ChannelAddress) {

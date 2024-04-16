@@ -52,13 +52,11 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
 
                 // announce initialized
                 this.isInitialized = true;
-
                 this.afterIsInitialized();
-
                 // get the channel addresses that should be subscribed
-                let channelAddresses: Set<ChannelAddress> = new Set(this.getChannelAddresses());
-                let channelIds = this.getChannelIds();
-                for (let channelId of channelIds) {
+                const channelAddresses: Set<ChannelAddress> = new Set(this.getChannelAddresses());
+                const channelIds = this.getChannelIds();
+                for (const channelId of channelIds) {
                     channelAddresses.add(new ChannelAddress(this.componentId, channelId));
                 }
                 this.dataService.getValues(Array.from(channelAddresses), this.edge, this.componentId);
@@ -68,7 +66,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                 });
             });
         });
-    };
+    }
 
     public ngOnDestroy() {
         this.dataService.unsubscribeFromChannels(this.getChannelAddresses());
@@ -107,5 +105,5 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     /**
      * Gets called after {@link onCurrentData}, every time the currentValue changes
      */
-    protected afterOnCurrentData() { };
+    protected afterOnCurrentData() { }
 }

@@ -9,7 +9,7 @@ export namespace DateUtils {
    */
   export function maxDate(...dates: Date[]) {
 
-    if (dates.length === 0 || dates.every(element => typeof element === null)) {
+    if (dates.length === 0 || dates.every(element => element === null)) {
       return null;
     }
 
@@ -26,7 +26,7 @@ export namespace DateUtils {
    */
   export function minDate(...dates: Date[]) {
 
-    if (dates.length === 0 || dates.every(element => typeof element === null)) {
+    if (dates.length === 0 || dates.every(element => element === null)) {
       return null;
     }
 

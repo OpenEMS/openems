@@ -210,16 +210,16 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					for (OptionsEnum option : d.getOptions()) {
 						values.put(option.getName(), new JsonPrimitive(option.getValue()));
 					}
-					detail = new EdgeConfig.Component.Channel.ChannelDetailEnum(values);
+					detail = new EdgeConfig.Component.Channel.ChannelDetailEnum(values, doc.getPersistencePriority());
 					break;
 				}
 				case OPENEMS_TYPE:
-					detail = new ChannelDetailOpenemsType();
+					detail = new ChannelDetailOpenemsType(doc.getPersistencePriority());
 					break;
 				case STATE:
 					var d = (StateChannelDoc) doc;
 					var level = d.getLevel();
-					detail = new ChannelDetailState(level);
+					detail = new ChannelDetailState(level, doc.getPersistencePriority());
 					break;
 				}
 				result.put(channelId.id(), new EdgeConfig.Component.Channel(//
@@ -322,7 +322,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 				var factory = builder.getFactories().get(factoryPid);
 
 				// Read all Properties
-				var propertyMap = convertProperties(properties, factory);
+				var propertyMap = convertProperties(componentId, properties, factory);
 
 				// Read all Channels
 				var channels = this.getChannels(componentId);
@@ -371,6 +371,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 
 		// get configuration properties
 		var properties = convertProperties(//
+				componentId, //
 				component.getComponentContext().getProperties(), //
 				builder.getFactories().get(factoryPid));
 
@@ -577,13 +578,14 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 
 	/**
 	 * Convert properties to a String/JsonElement Map.
-	 *
-	 * @param properties the component properties
-	 * @param factory    the {@link EdgeConfig.Factory}
+	 * 
+	 * @param componentId the Component-ID
+	 * @param properties  the component properties
+	 * @param factory     the {@link EdgeConfig.Factory}
 	 * @return converted properties
 	 */
-	private static TreeMap<String, JsonElement> convertProperties(Dictionary<String, Object> properties,
-			EdgeConfig.Factory factory) {
+	private static TreeMap<String, JsonElement> convertProperties(String componentId,
+			Dictionary<String, Object> properties, EdgeConfig.Factory factory) {
 		var result = new TreeMap<String, JsonElement>();
 
 		/*
@@ -593,7 +595,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 			for (EdgeConfig.Factory.Property property : factory.getProperties()) {
 				var key = property.getId();
 
-				if (EdgeConfig.ignorePropertyKey(key)) {
+				if (EdgeConfig.ignorePropertyKey(key) || EdgeConfig.ignoreComponentPropertyKey(componentId, key)) {
 					// Ignore this Property
 					continue;
 				}
