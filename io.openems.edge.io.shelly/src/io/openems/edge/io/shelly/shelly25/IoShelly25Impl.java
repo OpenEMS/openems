@@ -91,7 +91,7 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 			String valueText;
 			var valueOpt = channel.value().asOptional();
 			if (valueOpt.isPresent()) {
-				valueText = valueOpt.get() ? "ON" : "OFF";
+				valueText = valueOpt.get() ? "x" : "-";
 			} else {
 				valueText = "Unknown";
 			}
