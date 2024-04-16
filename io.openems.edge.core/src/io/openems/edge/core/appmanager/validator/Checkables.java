@@ -41,7 +41,7 @@ public final class Checkables {
 	 * Creates a {@link CheckableConfig} which checks if any installed relay has at
 	 * least the given amount of ports available.
 	 * 
-	 * @param count the number of available ports
+	 * @param count   the number of available ports
 	 * @param filters additional relay filter
 	 * @return the {@link CheckableConfig}
 	 */
