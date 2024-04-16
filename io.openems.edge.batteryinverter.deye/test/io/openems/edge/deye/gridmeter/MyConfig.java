@@ -8,10 +8,9 @@ import io.openems.edge.common.startstop.StartStopConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		private StartStopConfig startStopConfig = null;
-		private String modbusId = null;
-		private boolean activateWatchdog;
+		private String id;
+		private String modbusId;
+		private int modbusUnitId;
 
 		private Builder() {
 		}
@@ -21,18 +20,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setStartStopConfig(StartStopConfig startStopConfig) {
-			this.startStopConfig = startStopConfig;
-			return this;
-		}
 
 		public Builder setModbusId(String modbusId) {
 			this.modbusId = modbusId;
-			return this;
-		}
-
-		public Builder setActivateWatchdog(boolean activateWatchdog) {
-			this.activateWatchdog = activateWatchdog;
 			return this;
 		}
 
@@ -63,13 +53,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int modbusUnitId() {
-		return 0;
-	}
-
-	@Override
 	public String Modbus_target() {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
-
+	@Override
+	public int modbusUnitId() {
+		return this.builder.modbusUnitId;
+	}
 }
