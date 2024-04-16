@@ -69,6 +69,8 @@ public class KacoPvInverter extends AbstractOpenemsAppWithProps<KacoPvInverter, 
 		ALIAS(CommonProps.alias()), //
 		IP(PvInverterProps.ip()), //
 		PORT(PvInverterProps.port()), //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(PvInverterProps.modbusUnitId(), def -> def //
+				.setDefaultValue(1))), //
 		;
 
 		private final AppDef<? super KacoPvInverter, ? super Property, ? super BundleParameter> def;
@@ -108,11 +110,13 @@ public class KacoPvInverter extends AbstractOpenemsAppWithProps<KacoPvInverter, 
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var ip = this.getString(p, Property.IP);
 			final var port = this.getInt(p, Property.PORT);
+			final var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
 
 			final var components = List.of(//
 					new EdgeConfig.Component(pvInverterId, alias, "PV-Inverter.KACO.blueplanet", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("modbus.id", modbusId) //
+									.addProperty("modbusUnitId", modbusUnitId) //
 									.build()), //
 					new EdgeConfig.Component(modbusId, alias, "Bridge.Modbus.Tcp", JsonUtils.buildJsonObject() //
 							.addProperty("ip", ip) //

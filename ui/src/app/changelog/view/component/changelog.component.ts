@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from 'src/environments';
@@ -10,7 +10,7 @@ import { Changelog } from './changelog.constants';
   selector: 'changelog',
   templateUrl: './changelog.component.html',
 })
-export class ChangelogComponent implements OnInit {
+export class ChangelogComponent {
 
   public environment = environment;
 
@@ -21,10 +21,6 @@ export class ChangelogComponent implements OnInit {
     public service: Service,
     private route: ActivatedRoute,
   ) { }
-
-  ngOnInit() {
-    this.service.setCurrentComponent({ languageKey: 'Menu.changelog' }, this.route);
-  }
 
   public readonly roleIsAtLeast = Role.isAtLeast;
   public numberToRole(role: number): string {

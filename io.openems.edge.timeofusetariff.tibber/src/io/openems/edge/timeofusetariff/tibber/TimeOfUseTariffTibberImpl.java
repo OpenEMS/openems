@@ -1,12 +1,10 @@
 package io.openems.edge.timeofusetariff.tibber;
 
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
+import static io.openems.edge.timeofusetariff.tibber.Utils.calculateDelay;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -46,6 +44,8 @@ public class TimeOfUseTariffTibberImpl extends AbstractOpenemsComponent
 		implements TimeOfUseTariff, OpenemsComponent, TimeOfUseTariffTibber {
 
 	private static final String TIBBER_API_URL = "https://api.tibber.com/v1-beta/gql";
+	protected static final int CLIENT_ERROR_CODE = 400;
+	protected static final int TOO_MANY_REQUESTS_CODE = 429;
 
 	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffTibberImpl.class);
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -96,7 +96,7 @@ public class TimeOfUseTariffTibberImpl extends AbstractOpenemsComponent
 						.addProperty("query", Utils.generateGraphQl()) //
 						.build().toString(), MediaType.parse("application/json"))) //
 				.build();
-		int httpStatusCode = 0;
+		var httpStatusCode = 0;
 		var filterIsRequired = false;
 		var unableToUpdatePrices = false;
 
@@ -122,28 +122,51 @@ public class TimeOfUseTariffTibberImpl extends AbstractOpenemsComponent
 			e.printStackTrace();
 		}
 
-		this.channel(TimeOfUseTariffTibber.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
-		this.channel(TimeOfUseTariffTibber.ChannelId.FILTER_IS_REQUIRED).setNextValue(filterIsRequired);
-		this.channel(TimeOfUseTariffTibber.ChannelId.UNABLE_TO_UPDATE_PRICES).setNextValue(unableToUpdatePrices);
+		this.setChannelValues(httpStatusCode, filterIsRequired);
 
-		/*
-		 * Schedule next price update at next hour; or try again after 5 minutes
-		 */
-		var now = ZonedDateTime.now();
-		final ZonedDateTime nextRun;
-		if (unableToUpdatePrices) {
-			// If the prices are not updated, try again in 5 minutes.
-			nextRun = now.plusMinutes(5).truncatedTo(ChronoUnit.MINUTES);
-			this.logWarn(this.log, "Unable to Update the prices, Trying again at: " + nextRun);
-		} else {
-			nextRun = now.truncatedTo(ChronoUnit.HOURS).plusHours(1);
+		var delay = calculateDelay(httpStatusCode, filterIsRequired, unableToUpdatePrices);
+		if (delay != 0) {
+			this.executor.schedule(this.task, delay, TimeUnit.SECONDS);
+		}
+	};
+
+	/**
+	 * Sets the values of specific channels based on the provided parameters.
+	 * 
+	 * @param httpStatusCode   The HTTP status code received from the API.
+	 * @param filterIsRequired A boolean indicating whether filter is required.
+	 */
+	private void setChannelValues(int httpStatusCode, boolean filterIsRequired) {
+		var authenticationFailed = false;
+		var serverError = false;
+		var timeout = false;
+
+		switch (httpStatusCode) {
+		case CLIENT_ERROR_CODE:
+			authenticationFailed = true;
+			this.logWarn(this.log, "Authentication failed, please try again with valid token.");
+			break;
+
+		case TOO_MANY_REQUESTS_CODE:
+			timeout = true;
+			break;
+
+		default:
+			if (httpStatusCode >= 200 && httpStatusCode < 300) {
+				// No error
+			} else {
+				serverError = true;
+				this.logWarn(this.log, "An unexpected error occurred on the server. Please try again later");
+			}
+			break;
 		}
 
-		this.executor.schedule(this.task, //
-				Duration.between(now, nextRun.plusSeconds(new Random().nextInt(60))) // randomly add a few seconds
-						.getSeconds(),
-				TimeUnit.SECONDS);
-	};
+		this.channel(TimeOfUseTariffTibber.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
+		this.channel(TimeOfUseTariffTibber.ChannelId.FILTER_IS_REQUIRED).setNextValue(filterIsRequired);
+		this.channel(TimeOfUseTariffTibber.ChannelId.STATUS_TIMEOUT).setNextValue(timeout);
+		this.channel(TimeOfUseTariffTibber.ChannelId.STATUS_AUTHENTICATION_FAILED).setNextValue(authenticationFailed);
+		this.channel(TimeOfUseTariffTibber.ChannelId.STATUS_SERVER_ERROR).setNextValue(serverError);
+	}
 
 	@Override
 	public TimeOfUsePrices getPrices() {

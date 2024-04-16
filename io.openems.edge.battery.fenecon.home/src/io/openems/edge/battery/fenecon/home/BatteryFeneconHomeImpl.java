@@ -3,6 +3,7 @@ package io.openems.edge.battery.fenecon.home;
 import static io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent.BitConverter.INVERT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -54,6 +55,7 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
+import io.openems.edge.common.channel.ChannelUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 import io.openems.edge.common.component.ComponentManager;
@@ -315,6 +317,10 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 								.bit(7, BatteryFeneconHome.ChannelId.RACK_SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE) //
 								.bit(8, BatteryFeneconHome.ChannelId.RACK_SYSTEM_SHORT_CIRCUIT)), //
 						m(BatteryFeneconHome.ChannelId.UPPER_VOLTAGE, new UnsignedWordElement(528))), //
+				new FC3ReadRegistersTask(18000, Priority.LOW, //
+						m(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION, new UnsignedWordElement(18000))), //
+				new FC3ReadRegistersTask(16000, Priority.LOW, //
+						m(BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION, new UnsignedWordElement(16000))), //
 				new FC3ReadRegistersTask(14000, Priority.LOW, //
 						m(BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION, new UnsignedWordElement(14000))), //
 				new FC3ReadRegistersTask(12000, Priority.LOW, //
@@ -440,22 +446,11 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 
 	@Override
 	public StartStop getStartStopTarget() {
-		switch (this.config.startStop()) {
-		case AUTO:
-			// read StartStop-Channel
-			return this.startStopTarget.get();
-
-		case START:
-			// force START
-			return StartStop.START;
-
-		case STOP:
-			// force STOP
-			return StartStop.STOP;
-		}
-
-		assert false;
-		return StartStop.UNDEFINED; // can never happen
+		return switch (this.config.startStop()) {
+		case AUTO -> this.startStopTarget.get();
+		case START -> StartStop.START;
+		case STOP -> StartStop.STOP;
+		};
 	}
 
 	/**
@@ -465,43 +460,46 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 * Recalculate the number of towers and modules. Unfortunately the battery may
 	 * report too small wrong values in the beginning, so we need to recalculate on
 	 * every change.
+	 * 
+	 * <p>
+	 * As an alternative, these channels may also be introduced in a record, and the
+	 * associated channel value could be read with the aid of
+	 * {@link ChannelUtils#getValues}. However, startup time is once again involved
+	 * in this process. This indicates that the last callback will have been made
+	 * before the record is set. Furthermore, there is no certainty that the
+	 * "software version channel value change" will occur, making it unlikely for
+	 * this to trigger a callback.
 	 */
 	protected synchronized void updateNumberOfTowersAndModules() {
 		Channel<Integer> numberOfModulesPerTowerChannel = this
 				.channel(BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER);
 		var numberOfModulesPerTowerOpt = numberOfModulesPerTowerChannel.value();
-		Channel<Integer> tower2BmsSoftwareVersionChannel = this
-				.channel(BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION);
-		var tower2BmsSoftwareVersion = tower2BmsSoftwareVersionChannel.value();
-		Channel<Integer> tower3BmsSoftwareVersionChannel = this
-				.channel(BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION);
-		var tower3BmsSoftwareVersion = tower3BmsSoftwareVersionChannel.value();
 
 		// Were all required registers read?
-		if (!numberOfModulesPerTowerOpt.isDefined() || !tower3BmsSoftwareVersion.isDefined()
-				|| !tower2BmsSoftwareVersion.isDefined()) {
+		if (!numberOfModulesPerTowerOpt.isDefined()) {
 			return;
 		}
 
 		// Evaluate the total number of towers by reading the software versions of
 		// towers 2 and 3: they are '0' when the respective tower is not available.
-		final int numberOfTowers;
-		if (!Objects.equals(tower3BmsSoftwareVersion.get(), 0)) {
-			numberOfTowers = 3;
-		} else if (!Objects.equals(tower2BmsSoftwareVersion.get(), 0)) {
-			numberOfTowers = 2;
-		} else {
-			numberOfTowers = 1;
-		}
+		final var softwareVersionlist = List.of(//
+				BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION, //
+				BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION, //
+				BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION, //
+				BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION, //
+				BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION//
+		);
+
+		final var numberOfTowers = this.calculateTowerNumberFromSoftwareVersion(softwareVersionlist);
 
 		// Write 'TOWER_NUMBER' Debug Channel
 		Channel<?> numberOfTowersChannel = this.channel(BatteryFeneconHome.ChannelId.NUMBER_OF_TOWERS);
 		numberOfTowersChannel.setNextValue(numberOfTowers);
 
-		var moduleMaxVoltage = this.getBatteryHardwareType().moduleMaxVoltage;
-		var moduleMinVoltage = this.getBatteryHardwareType().moduleMinVoltage;
-		var capacityPerModule = this.getBatteryHardwareType().capacityPerModule;
-		int numberOfModulesPerTower = numberOfModulesPerTowerOpt.get();
+		final var moduleMaxVoltage = this.getBatteryHardwareType().moduleMaxVoltage;
+		final var moduleMinVoltage = this.getBatteryHardwareType().moduleMinVoltage;
+		final var capacityPerModule = this.getBatteryHardwareType().capacityPerModule;
+		final int numberOfModulesPerTower = numberOfModulesPerTowerOpt.get();
 
 		// Set Battery Channels
 		this._setChargeMaxVoltage(Math.round(numberOfModulesPerTower * moduleMaxVoltage));
@@ -517,6 +515,22 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 		}
 	}
 
+	private int calculateTowerNumberFromSoftwareVersion(List<BatteryFeneconHome.ChannelId> channelIdList) {
+		var numberOftowers = 1;
+		for (var channelId : channelIdList) {
+			if (channelId == null) {
+				return numberOftowers;
+			}
+			Channel<Integer> channel = this.channel(channelId);
+			var softwareVersion = channel.value();
+			if (softwareVersion.isDefined() && !Objects.equals(softwareVersion.get(), 0)
+					&& !Objects.equals(softwareVersion.get(), 256)) {
+				numberOftowers++;
+			}
+		}
+		return numberOftowers;
+	}
+
 	private int lastNumberOfTowers = 0;
 	private int lastNumberOfModulesPerTower = 0;
 
@@ -524,7 +538,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 * Initialize channels per towers and modules.
 	 *
 	 * @param numberOfTowers          the number of towers
-	 * @param numberOfModulesPerTower the number of modulers per tower
+	 * @param numberOfModulesPerTower the number of modules per tower
 	 * @throws OpenemsException on error
 	 */
 	private synchronized void initializeTowerModulesChannels(int numberOfTowers, int numberOfModulesPerTower)
@@ -759,7 +773,8 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 										new UnsignedDoublewordElement(towerOffset + 51),
 										new ElementToChannelConverter(value -> {
 											Integer intValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
-											return buildSerialNumber(this.getBatteryHardwareType().serialNrPrefixBms, intValue);
+											return buildSerialNumber(this.getBatteryHardwareType().serialNrPrefixBms,
+													intValue);
 										}))));
 			}
 
@@ -851,7 +866,8 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 									m(channelId, new UnsignedDoublewordElement(moduleOffset + module * 100 + 83),
 											new ElementToChannelConverter(value -> {
 												Integer intValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
-												return buildSerialNumber(this.getBatteryHardwareType().serialNrPrefixModule, intValue);
+												return buildSerialNumber(
+														this.getBatteryHardwareType().serialNrPrefixModule, intValue);
 											}))));
 				}
 			}

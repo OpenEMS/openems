@@ -52,7 +52,7 @@ export interface Environment {
             readonly COMMERCIAL: {
                 readonly EN: string,
                 readonly DE: string,
-            }
+            },
         }
 
         readonly GTC: {
@@ -87,7 +87,7 @@ export interface Environment {
              * @returns the url of the image or null if not provided
              */
             APP_IMAGE: (language: string, appId: string) => string | null;
-        }
+        },
     },
     readonly PRODUCT_TYPES: (translate: TranslateService) => Filter
 }

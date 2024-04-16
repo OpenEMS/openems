@@ -14,7 +14,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.drafts.Draft;
+import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
+import org.java_websocket.extensions.permessage_deflate.PerMessageDeflateExtension;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
@@ -63,15 +66,15 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	private final WebSocketServer ws;
 	private final DebugMode debugMode;
 	private final Collection<WebSocket> connections = ConcurrentHashMap.newKeySet();
+	private final Draft perMessageDeflateDraft = new Draft_6455(new PerMessageDeflateExtension());
 
 	/**
 	 * Construct an {@link AbstractWebsocketServer}.
 	 *
-	 * @param name          to identify this server
-	 * @param port          to listen on
-	 * @param poolSize      number of threads dedicated to handle the tasks
-	 * @param debugMode     activate a regular debug log about the state of the
-	 *                      tasks
+	 * @param name      to identify this server
+	 * @param port      to listen on
+	 * @param poolSize  number of threads dedicated to handle the tasks
+	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
 	protected AbstractWebsocketServer(String name, int port, int poolSize, DebugMode debugMode) {
 		super(name);
@@ -81,7 +84,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 		this.port = port;
 		this.ws = new WebSocketServer(new InetSocketAddress(port),
 				/* AVAILABLE_PROCESSORS */ Runtime.getRuntime().availableProcessors(), //
-				/* drafts, no filter */ Collections.emptyList(), //
+				/* enable perMessageDeflate */ Collections.singletonList(this.perMessageDeflateDraft), //
 				this.connections) {
 
 			@Override

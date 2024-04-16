@@ -47,8 +47,8 @@ export class UpdateAppComponent implements OnInit {
 
   public ngOnInit() {
     this.service.startSpinner(this.spinnerId);
-    let appId = this.route.snapshot.params["appId"];
-    let appName = this.route.snapshot.queryParams['name'];
+    const appId = this.route.snapshot.params["appId"];
+    const appName = this.route.snapshot.queryParams['name'];
     this.service.setCurrentComponent(appName, this.route).then(edge => {
       this.edge = edge;
       edge.sendRequest(this.websocket,
@@ -56,17 +56,17 @@ export class UpdateAppComponent implements OnInit {
           componentId: '_appManager',
           payload: new GetAppInstances.Request({ appId: appId }),
         })).then(getInstancesResponse => {
-          let recInstances = (getInstancesResponse as GetAppInstances.Response).result.instances;
+          const recInstances = (getInstancesResponse as GetAppInstances.Response).result.instances;
 
           edge.sendRequest(this.websocket,
             new ComponentJsonApiRequest({
               componentId: '_appManager',
               payload: new GetAppAssistant.Request({ appId: appId }),
             })).then(getAppAssistantResponse => {
-              let appAssistant = (getAppAssistantResponse as GetAppAssistant.Response).result;
+              const appAssistant = (getAppAssistantResponse as GetAppAssistant.Response).result;
               this.appName = appAssistant.name;
               this.instances = [];
-              for (let instance of recInstances) {
+              for (const instance of recInstances) {
                 const form = new FormGroup({});
                 const model = {
                   'ALIAS': instance.alias,
@@ -92,9 +92,9 @@ export class UpdateAppComponent implements OnInit {
     this.service.startSpinnerTransparentBackground(instance.instanceId);
     instance.isUpdating = true;
     // remove alias field from properties
-    let alias = instance.form.value['ALIAS'];
+    const alias = instance.form.value['ALIAS'];
     const clonedFields = {};
-    for (let item in instance.form.value) {
+    for (const item in instance.form.value) {
       if (item != 'ALIAS') {
         clonedFields[item] = instance.form.value[item];
       }
