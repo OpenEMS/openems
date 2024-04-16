@@ -139,7 +139,8 @@ public class TestFeneconHome30 {
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN, new UpdateAppInstance.Request(
 				homeInstance.instanceId, homeInstance.alias, fullSettingsWithoutEmergencyReserve()));
 
-		this.appManagerTestBundle.scheduler.assertExactSchedulerOrder("Update Home 30 to remove EmergencyReserve Controller",
+		this.appManagerTestBundle.scheduler.assertExactSchedulerOrder(
+				"Update Home 30 to remove EmergencyReserve Controller", //
 				"ctrlPrepareBatteryExtension0", "ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0",
 				"ctrlBalancing0");
 	}
@@ -267,7 +268,8 @@ public class TestFeneconHome30 {
 		assertNotNull(homeInstance);
 		appManagerTestBundle.assertNoValidationErrors();
 
-		appManagerTestBundle.scheduler.assertExactSchedulerOrder("Failed setting initial Home 30 Scheduler configuration",
+		appManagerTestBundle.scheduler.assertExactSchedulerOrder(
+				"Failed setting initial Home 30 Scheduler configuration", //
 				"ctrlPrepareBatteryExtension0", "ctrlEmergencyCapacityReserve0", "ctrlGridOptimizedCharge0",
 				"ctrlEssSurplusFeedToGrid0", "ctrlBalancing0");
 		return homeInstance;

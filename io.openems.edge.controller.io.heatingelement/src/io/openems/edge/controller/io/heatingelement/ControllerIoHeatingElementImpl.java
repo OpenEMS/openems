@@ -77,7 +77,7 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	/** Holds the minimum time the phases should be switch on in [Ws]. */
 	private long minimumTotalPhaseTime;
 	/** Current Level. */
-	private Level currentLevel = Level.UNDEFINED;
+	private Level currentLevel = Level.LEVEL_0;
 	/** Last Level change time, used for the hysteresis. */
 	private LocalDateTime lastLevelChange = LocalDateTime.MIN;
 	private Config config;
@@ -219,8 +219,7 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		targetLevel = this.applyHysteresis(targetLevel);
 
 		Status runState;
-		runState = targetLevel.equals(Level.LEVEL_0) || targetLevel.equals(Level.UNDEFINED) ? Status.INACTIVE
-				: Status.ACTIVE;
+		runState = targetLevel.equals(Level.LEVEL_0) ? Status.INACTIVE : Status.ACTIVE;
 
 		var now = LocalTime.now(this.componentManager.getClock());
 		var configuredEndTime = DateUtils.parseLocalTimeOrError(this.config.endTime());
@@ -281,8 +280,6 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 				return config.minTime() * 3600 * 2;
 			case LEVEL_3:
 				return config.minTime() * 3600 * 3;
-			case UNDEFINED:
-				return 0;
 			}
 		case NONE:
 			return 0;
@@ -309,7 +306,6 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		var endTime = DateUtils.parseLocalTimeOrError(this.config.endTime());
 		switch (this.config.defaultLevel()) {
 		case LEVEL_0:
-		case UNDEFINED:
 		case LEVEL_1:
 			// keep value
 			break;
@@ -337,7 +333,6 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 
 		// Set phases accordingly
 		switch (level) {
-		case UNDEFINED:
 		case LEVEL_0:
 			this.phase1.switchOff();
 			this.phase2.switchOff();
@@ -445,7 +440,6 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 
 		switch (this.currentLevel) {
 		case LEVEL_0:
-		case UNDEFINED:
 			break;
 		case LEVEL_1:
 			level1Active = true;

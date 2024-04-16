@@ -29,13 +29,13 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
 
     protected override onCurrentData(currentData: CurrentData) {
 
-        let activePowerArray: number[] = [
+        const activePowerArray: number[] = [
             currentData.allComponents[this.meterId + '/ActivePowerL1'],
             currentData.allComponents[this.meterId + '/ActivePowerL2'],
             currentData.allComponents[this.meterId + '/ActivePowerL3'],
         ];
 
-        let name: string[] = ['L1', 'L2', 'L3'];
+        const name: string[] = ['L1', 'L2', 'L3'];
 
         this.mostStressedPhase.next({
 

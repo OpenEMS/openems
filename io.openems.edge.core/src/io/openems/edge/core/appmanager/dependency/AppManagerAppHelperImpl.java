@@ -777,9 +777,16 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	}
 
 	private UpdateValues deleteAppInternal(User user, OpenemsAppInstance instance) throws OpenemsNamedException {
-
 		final var language = user == null ? null : user.getLanguage();
 		final var bundle = getTranslationBundle(language);
+
+		final var app = this.appManagerUtil.findAppById(instance.appId).orElse(null);
+		if (app != null && user != null) {
+			final var permissions = app.getAppPermissions();
+			if (user.getRole().isLessThan(permissions.canDelete())) {
+				throw new OpenemsException("Access denied for User with Role '" + user.getRole().name() + "'");
+			}
+		}
 
 		BiFunction<OpenemsAppInstance, OpenemsAppInstance, Boolean> includeInstance = (p, i) -> {
 			if (p != null) {
