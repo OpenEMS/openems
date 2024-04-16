@@ -1,17 +1,20 @@
-package io.openems.edge.deye.common;
+package io.openems.edge.deye.ess;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum SetWorkState implements OptionsEnum {
+public enum SystemState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	STOP(4, "Stop"), //
-	STANDBY(32, "Standby"), //
-	START(64, "Start"); //
+	STARTING(2, "Stop"), //
+	PV_CHARGE(4, "PV-Charge"), //
+	STANDBY(8, "Standby"), //
+	START(16, "Start"), //
+	FAULT(32, "Fault"), //
+	DEBUG(64, "Debug");
 
 	private final int value;
 	private final String name;
 
-	private SetWorkState(int value, String name) {
+	private SystemState(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}

@@ -1,4 +1,4 @@
-package io.openems.edge.deye.common;
+package io.openems.edge.deye.ess;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -24,7 +24,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String modbus_id() default "modbus0";
 
 	@AttributeDefinition(name = "Modbus-Unit-ID", description = "Unit ID of Modbus bridge.")
-	int unit_id() default 0;
+	int unit_id() default 1;
 
 	@AttributeDefinition(name = "Power limit on PowerDecreaseCausedByOvertemperature error; '0' to disable power limit logic", description = "")
 	int powerLimitOnPowerDecreaseCausedByOvertemperatureChannel() default 20_000;

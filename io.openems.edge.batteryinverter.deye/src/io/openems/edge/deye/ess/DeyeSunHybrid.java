@@ -1,4 +1,4 @@
-package io.openems.edge.deye.common;
+package io.openems.edge.deye.ess;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
