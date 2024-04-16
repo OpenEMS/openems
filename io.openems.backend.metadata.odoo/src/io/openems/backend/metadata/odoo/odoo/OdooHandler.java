@@ -57,7 +57,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
-import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ObjectUtils;
 import io.openems.common.utils.PasswordUtils;
 
