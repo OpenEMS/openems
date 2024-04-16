@@ -88,7 +88,15 @@
     "save": "Uložit",
     "temperature": "Teplota",
     "subscribed_successfully": "Úspěšně uloženy odebírané kanály",
-    "loaded_subscribed_successfully": "Načtená uložená konfigurace kanálu"
+    "loaded_subscribed_successfully": "Načtená uložená konfigurace kanálu",
+    "TIME": {
+      "HOUR": "Hodina",
+      "HOURS": "Hodiny",
+      "MINUTE": "Minuta",
+      "MINUTES": "Minuty",
+      "DAY": "Den",
+      "DAYS": "Dny"
+    }
   },
   "Menu": {
     "accessLevel": "Úroveň přístupu",
@@ -161,8 +169,8 @@
   "Edge": {
     "Index": {
       "EmergencyReserve": {
-        "InfoForEmergencyReserveSlider": "Aktivací nouzové rezervy výkonu lze libovolně zvolit hodnotu mezi 5 % a 100 %.",
-        "emergencyReserve": "pohotovostní rezerva"
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Aktivací nouzové rezervy výkonu lze libovolně zvolit hodnotu mezi 5 % a 100 %.",
+        "EMERGENCY_RESERVE": "pohotovostní rezerva"
       },
       "Energymonitor": {
         "activePower": "Činný výkon",
@@ -482,22 +490,12 @@
         "newConnection": "Nové připojení...",
         "newDevice": "Nové zařízení..."
       },
-      "Alerting": {
-        "activate": "Aktivace",
-        "delay": "Zpoždění",
-        "save": "Uložit",
-        "options": {},
-        "toast": {
-          "success": "Přijatá nastavení",
-          "error": "Chyba při načítání nastavení"
-        },
-        "interval": {
-          "hour": "Hodina",
-          "hours": "Hodiny",
-          "minute": "Minuta",
-          "minutes": "Minuty",
-          "day": "Den",
-          "days": "Dny"
+      "ALERTING": {
+        "ACTIVATE": "Activate",
+        "DELAY": "Delay",
+        "TOAST": {
+          "SUCCESS": "Přijatá nastavení",
+          "ERROR": "Chyba při načítání nastavení"
         }
       },
       "App": {

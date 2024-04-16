@@ -1,0 +1,23 @@
+<ion-footer *ngIf="!service.isSmartphoneResolution">
+  <ion-item color="primary" *ngIf="user && edge && displayValues" lines="none">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="12">
+          <span *ngIf="isAtLeastOwner && user.hasMultipleEdges">
+            {{displayValues.comment}}
+            |
+          </span>
+          <span>
+            {{displayValues.id}}
+          </span>
+          |
+          <ng-container *ngIf="(service.metadata | async)?.user?.globalRole as role">
+            <a routerLink="/device/{{edge.id}}/settings/system" style="color: var(--ion-color-primary-contrast)">
+              Version {{(displayValues.version | version:role)}}
+            </a>
+          </ng-container>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-item>
+</ion-footer>

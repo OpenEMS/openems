@@ -60,14 +60,20 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 
 	/** The configured parity. */
 	private Parity parity;
-	
+
 	/** Enable internal bus termination. */
 	private boolean enableTermination;
-	
-	/** The configured delay between activating the transmitter and actually sending data in microseconds. */
+
+	/**
+	 * The configured delay between activating the transmitter and actually sending
+	 * data in microseconds.
+	 */
 	private int delayBeforeTx;
-	
-	/** The configured delay between the end of transmitting data and deactivating transmitter in microseconds. */
+
+	/**
+	 * The configured delay between the end of transmitting data and deactivating
+	 * transmitter in microseconds.
+	 */
 	private int delayAfterTx;
 
 	public BridgeModbusSerialImpl() {

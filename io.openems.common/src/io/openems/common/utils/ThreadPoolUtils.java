@@ -74,12 +74,12 @@ public class ThreadPoolUtils {
 	 * @param executor the executor
 	 * @return a Map of key to value
 	 */
-	public static Map<String, Number> debugMetrics(ThreadPoolExecutor executor) {
-		return Map.<String, Number>of(//
-				"PoolSize", executor.getPoolSize(), //
-				"MaxPoolSize", executor.getMaximumPoolSize(), //
-				"Active", executor.getActiveCount(), //
-				"Pending", executor.getQueue().size(), //
+	public static Map<String, Long> debugMetrics(ThreadPoolExecutor executor) {
+		return Map.<String, Long>of(//
+				"PoolSize", Long.valueOf(executor.getPoolSize()), //
+				"MaxPoolSize", Long.valueOf(executor.getMaximumPoolSize()), //
+				"Active", Long.valueOf(executor.getActiveCount()), //
+				"Pending", Long.valueOf(executor.getQueue().size()), //
 				"Completed", executor.getCompletedTaskCount() //
 		);
 	}
