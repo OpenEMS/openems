@@ -126,7 +126,7 @@ steps:
       ## start ##
       - mkdir -p tools/debian/usr/lib/openems/
       - cp build/openems-edge.jar tools/debian/usr/lib/openems/openems.jar
-      - tools/build-debian-package.sh build/target/
+      - bash -x tools/build-debian-package.sh build/target/
     depends_on: [build-ui, build-java]
 
   refresh-dev-ui:
