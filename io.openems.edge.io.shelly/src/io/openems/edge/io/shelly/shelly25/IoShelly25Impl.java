@@ -87,7 +87,7 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	public String debugLog() {
 		var b = new StringBuilder();
 		var i = 1;
-		for (BooleanWriteChannel channel : this.digitalOutputChannels) {
+		for (var channel : this.digitalOutputChannels) {
 			String valueText;
 			var valueOpt = channel.value().asOptional();
 			if (valueOpt.isPresent()) {
