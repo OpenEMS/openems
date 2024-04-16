@@ -4,8 +4,8 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "ESS FENECON Commercial 40 DC Charger PV2", //
-		description = "Implements the FENECON Commercial 40 DC Charger.")
+		name = "Deye Sun DC Charger PV1", //
+		description = "Implements the Deye Sun DC Charger.")
 @interface ConfigPv2 {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

@@ -25,7 +25,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 @Designate(ocd = ConfigPv2.class, factory = true)
 @Component(//
-		name = "Ess.Fenecon.Commercial40.PV2", //
+		name = "Deye.Sun.PV2", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
