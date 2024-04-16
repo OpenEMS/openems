@@ -33,8 +33,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -47,10 +45,9 @@ import org.slf4j.LoggerFactory;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class DeyeGridMeterImpl extends AbstractOpenemsModbusComponent
-		implements DeyeGridMeter, ElectricityMeter, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
+public class DeyeGridMeterImpl extends AbstractOpenemsModbusComponent implements DeyeGridMeter, ElectricityMeter,
+		ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
-	private final Logger log = LoggerFactory.getLogger(DeyeGridMeterImpl.class);
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
@@ -64,6 +61,7 @@ public class DeyeGridMeterImpl extends AbstractOpenemsModbusComponent
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
+
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
@@ -101,9 +99,8 @@ public class DeyeGridMeterImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		return new ModbusProtocol(this,
-				new FC3ReadRegistersTask(625, Priority.HIGH,
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(625))));
+		return new ModbusProtocol(this, new FC3ReadRegistersTask(625, Priority.HIGH,
+				m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(625))));
 	}
 
 	@Override
