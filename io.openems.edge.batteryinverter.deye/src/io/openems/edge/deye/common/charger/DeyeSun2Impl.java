@@ -32,8 +32,8 @@ import org.osgi.service.metatype.annotations.Designate;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class DeyeSun2Impl extends AbstractEssDeyePv implements DeyeSunPv,
-		EssDcCharger, ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider {
+public class DeyeSun2Impl extends AbstractEssDeyePv
+		implements DeyeSunPv, EssDcCharger, ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider {
 
 	@Reference
 	private ConfigurationAdmin cm;

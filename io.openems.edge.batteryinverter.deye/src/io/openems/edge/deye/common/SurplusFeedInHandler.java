@@ -6,7 +6,6 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.deye.common.charger.DeyeSunImpl;
 import io.openems.edge.deye.common.charger.DeyeSunPv;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import org.slf4j.Logger;
@@ -118,14 +117,12 @@ public class SurplusFeedInHandler {
 		return pvPower;
 	}
 
-	private boolean areSurplusConditionsMet(DeyeSunHybridImpl ess, List<DeyeSunPv> chargers,
-			Config config) {
+	private boolean areSurplusConditionsMet(DeyeSunHybridImpl ess, List<DeyeSunPv> chargers, Config config) {
 		if (chargers.isEmpty()) {
 			return false;
 		}
 
-		IntegerReadChannel allowedChargeChannel = ess
-				.channel(DeyeSunHybrid.ChannelId.ORIGINAL_ALLOWED_CHARGE_POWER);
+		IntegerReadChannel allowedChargeChannel = ess.channel(DeyeSunHybrid.ChannelId.ORIGINAL_ALLOWED_CHARGE_POWER);
 		IntegerReadChannel allowedDischargeChannel = ess
 				.channel(DeyeSunHybrid.ChannelId.ORIGINAL_ALLOWED_DISCHARGE_POWER);
 		if (
@@ -139,8 +136,8 @@ public class SurplusFeedInHandler {
 
 		var maxVoltage = 0;
 		for (DeyeSunPv charger : chargers) {
-			int thisVoltage = ((IntegerReadChannel) charger
-					.channel(DeyeSunPv.ChannelId.PV_DCDC_INPUT_VOLTAGE)).value().orElse(0);
+			int thisVoltage = ((IntegerReadChannel) charger.channel(DeyeSunPv.ChannelId.PV_DCDC_INPUT_VOLTAGE)).value()
+					.orElse(0);
 			if (thisVoltage > maxVoltage) {
 				maxVoltage = thisVoltage;
 			}
@@ -179,8 +176,7 @@ public class SurplusFeedInHandler {
 		}
 
 		for (DeyeSunPv charger : chargers) {
-			IntegerWriteChannel setPvPowerLimit = charger
-					.channel(DeyeSunPv.ChannelId.SET_PV_POWER_LIMIT);
+			IntegerWriteChannel setPvPowerLimit = charger.channel(DeyeSunPv.ChannelId.SET_PV_POWER_LIMIT);
 			try {
 				setPvPowerLimit.setNextWriteValue(pvPowerLimit);
 			} catch (OpenemsNamedException e) {

@@ -22,7 +22,7 @@ public interface PvInverterDeye extends ElectricityMeter, ModbusComponent, Opene
 		ACTIVE_POWER_STRING_2(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
 		ACTIVE_POWER_STRING_3(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
 		ACTIVE_POWER_STRING_4(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		
+
 		ACTIVE_POWER_GENERATOR(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
 
 		LAST_UPDATE_TIME(Doc.of(OpenemsType.INTEGER) //
@@ -62,10 +62,10 @@ public interface PvInverterDeye extends ElectricityMeter, ModbusComponent, Opene
 				.unit(Unit.KILOWATT)),
 		WATCH_DOG_TAG(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		STATUS(Doc.of(Status.values())),
 
 		PV_LIMIT_FAILED(Doc.of(Level.FAULT) //
 				.text("PV-Limit failed"));
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -76,7 +76,6 @@ public interface PvInverterDeye extends ElectricityMeter, ModbusComponent, Opene
 		public Doc doc() {
 			return this.doc;
 		}
-
 
 	}
 
@@ -126,7 +125,7 @@ public interface PvInverterDeye extends ElectricityMeter, ModbusComponent, Opene
 	public default IntegerReadChannel getActivePowerS4Channel() {
 		return this.channel(ChannelId.ACTIVE_POWER_STRING_4);
 	}
-	
+
 	public default IntegerReadChannel getActivePowerGen() {
 		return this.channel(ChannelId.ACTIVE_POWER_GENERATOR);
 	}
