@@ -81,31 +81,29 @@ public interface PvInverterDeye extends ElectricityMeter, ModbusComponent, Opene
 	}
 
 	/**
-	 * Initializes Channel listeners to calculate the
-	 * {@link ElectricityMeter.ChannelId#ACTIVE_POWER}-Channel value as the sum of
-	 * {@link ElectricityMeter.ChannelId#ACTIVE_POWER_L1}, {@link ElectricityMeter.ChannelId#ACTIVE_POWER_L2} and
-	 * {@link ElectricityMeter.ChannelId#ACTIVE_POWER_L3}.
+	 * Updates the total active power of the meter by summing the individual phase
+	 * powers and adjusting for generator power. This method assumes all necessary
+	 * values are always present and uses a simple fallback for any missing data.
 	 *
 	 * @param meter the {@link ElectricityMeter}
+	 * @param meter the {@link PvInverterDeye} instance being updated
 	 */
 	public static void calculateSumActivePowerFromPhases(PvInverterDeye meter) {
 		final Consumer<Value<Integer>> calculate = ignore -> {
-			final Integer generatorPower = meter.getActivePowerGen().getNextValue().get();
-			Integer generatorPowerToSet = 0;
-			
-			if(generatorPower > 65536) {
-				generatorPowerToSet = 0;
-			} else {
-				generatorPowerToSet = generatorPower;
-			}
-			
-			meter._setActivePower(TypeUtils.sum(//
-					meter.getActivePowerS1Channel().getNextValue().get(), //
-					meter.getActivePowerS2Channel().getNextValue().get(), //
-					meter.getActivePowerS3Channel().getNextValue().get(), //
-					meter.getActivePowerS4Channel().getNextValue().get(),
-					generatorPowerToSet)); //
+			// Adjust generator power if it overflows
+			Integer generatorPower = meter.getActivePowerGen().getNextValue().orElse(0);
+			Integer adjustedGeneratorPower = (generatorPower > 32768) ? generatorPower - 65536 : generatorPower;
+
+			// Sum phase powers and include adjusted generator power
+			Integer totalPower = TypeUtils.sum(meter.getActivePowerS1Channel().getNextValue().orElse(0),
+					meter.getActivePowerS2Channel().getNextValue().orElse(0),
+					meter.getActivePowerS3Channel().getNextValue().orElse(0),
+					meter.getActivePowerS4Channel().getNextValue().orElse(0), adjustedGeneratorPower);
+
+			meter._setActivePower(totalPower);
 		};
+
+		// Attach the calculation method to each relevant channel
 		meter.getActivePowerS1Channel().onSetNextValue(calculate);
 		meter.getActivePowerS2Channel().onSetNextValue(calculate);
 		meter.getActivePowerS3Channel().onSetNextValue(calculate);
