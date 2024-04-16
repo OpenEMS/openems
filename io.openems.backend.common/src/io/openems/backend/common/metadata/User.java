@@ -3,9 +3,10 @@ package io.openems.backend.common.metadata;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-import com.google.gson.JsonObject;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+
+import com.google.gson.JsonObject;
 
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
