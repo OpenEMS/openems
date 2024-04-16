@@ -7,14 +7,12 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -24,8 +22,6 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.deye.common.charger.DeyeSunPv;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -55,12 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -73,7 +63,7 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 })
 public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent implements DeyeSunHybrid, ManagedSymmetricEss,
-		SymmetricEss, HybridEss, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
+		SymmetricEss, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
 
 	protected static final int MAX_APPARENT_POWER = 40000;
 
@@ -97,10 +87,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent implements
 	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
 			HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
 
-	private final List<DeyeSunPv> chargers = new ArrayList<>();
-
-	private final SurplusFeedInHandler surplusFeedInHandler = new SurplusFeedInHandler(this);
-
+	
 	@Reference
 	private ComponentManager componentManager;
 
@@ -170,16 +157,6 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent implements
 	@Override
 	public String getModbusBridgeId() {
 		return this.config.modbus_id();
-	}
-
-	@Override
-	public void addCharger(DeyeSunPv charger) {
-
-	}
-
-	@Override
-	public void removeCharger(DeyeSunPv charger) {
-
 	}
 
 	@Override
@@ -321,27 +298,9 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent implements
 				} catch (OpenemsException e) {
 					this.logError(this.log, e.getMessage());
 				}
-				/*
-				 * Apply limit on Charger
-				 */
-				if (this.chargers.size() > 0) {
-					IntegerWriteChannel setPvPowerLimit = this.chargers.get(0)
-							.channel(DeyeSunPv.ChannelId.SET_PV_POWER_LIMIT);
-					try {
-						setPvPowerLimit.setNextWriteValue(
-								this.config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel());
-					} catch (OpenemsNamedException e) {
-						this.logError(this.log, e.getMessage());
-					}
-				}
 
 			}
 		}
-	}
-
-	@Override
-	public Integer getSurplusPower() {
-		return this.surplusFeedInHandler.run(this.chargers, this.config, this.componentManager);
 	}
 
 	@Override
@@ -372,11 +331,6 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent implements
 		 * Calculate DC Power and Energy
 		 */
 		var dcDischargePower = acActivePower;
-		for (DeyeSunPv charger : this.chargers) {
-			dcDischargePower = TypeUtils.subtract(dcDischargePower,
-					charger.getActualPowerChannel().getNextValue().get());
-		}
-		this._setDcDischargePower(dcDischargePower);
 
 		if (dcDischargePower == null) {
 			// Not available

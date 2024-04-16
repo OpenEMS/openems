@@ -11,7 +11,6 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.deye.common.charger.DeyeSunPv;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -34,20 +33,6 @@ public interface DeyeSunHybrid
 	 */
 	public String getModbusBridgeId();
 
-	/**
-	 * Registers a Charger with this ESS.
-	 *
-	 * @param charger the Charger
-	 */
-	public void addCharger(DeyeSunPv charger);
-
-	/**
-	 * Unregisters a Charger from this ESS.
-	 *
-	 * @param charger the Charger
-	 */
-	public void removeCharger(DeyeSunPv charger);
-
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// EnumReadChannels
 		SERIAL_NUMBER(Doc.of(OpenemsType.STRING) //
@@ -55,7 +40,6 @@ public interface DeyeSunHybrid
 				.accessMode(AccessMode.READ_ONLY)),
 		SURPLUS_FEED_IN_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
-		SURPLUS_FEED_IN_STATE_MACHINE(Doc.of(SurplusFeedInStateMachine.values())),
 
 		// Gen Port Use Channels
 		// AC 1/28/2024
