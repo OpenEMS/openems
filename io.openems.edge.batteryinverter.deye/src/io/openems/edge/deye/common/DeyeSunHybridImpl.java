@@ -64,7 +64,7 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Deye.BatteryInverter1", //
+		name = "Deye.BatteryInverter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
 		name = "Deye.BatteryInverter", //
-		description = "Deye.BatteryInverter")
+		description = "Implements the Deye Battery Inverter")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -50,5 +50,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Surplus Feed-In: PV-Limit on PowerDecreaseCausedByOvertemperature", description = "")
 	int surplusFeedInPvLimitOnPowerDecreaseCausedByOvertemperature() default 5_000;
 
-	String webconsole_configurationFactory_nameHint() default "Deye [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Deye Battery Inverter [{id}]";
 }
