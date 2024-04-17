@@ -22,6 +22,7 @@ import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
 import io.openems.edge.goodwe.common.enums.MeterCommunicateStatus;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
 
+@SuppressWarnings("deprecation")
 public class GoodWeBatteryInverterImplTest {
 
 	private static final String MODBUS_ID = "modbus0";
@@ -73,12 +74,12 @@ public class GoodWeBatteryInverterImplTest {
 	private static final ChannelAddress CHARGER_6_VOLTAGE = new ChannelAddress(CHARGER_6_ID, "Voltage");
 	private static final ChannelAddress CHARGER_6_CURRENT = new ChannelAddress(CHARGER_6_ID, "Current");
 
-	private static final ChannelAddress TWO_S_MPPT1_P = new ChannelAddress(BATTERY_INVERTER_ID, "TwoSMppt1P");
-	private static final ChannelAddress TWO_S_MPPT1_I = new ChannelAddress(BATTERY_INVERTER_ID, "TwoSMppt1I");
-	private static final ChannelAddress TWO_S_MPPT2_P = new ChannelAddress(BATTERY_INVERTER_ID, "TwoSMppt2P");
-	private static final ChannelAddress TWO_S_MPPT2_I = new ChannelAddress(BATTERY_INVERTER_ID, "TwoSMppt2I");
-	private static final ChannelAddress TWO_S_MPPT3_P = new ChannelAddress(BATTERY_INVERTER_ID, "TwoSMppt3P");
-	private static final ChannelAddress TWO_S_MPPT3_I = new ChannelAddress(BATTERY_INVERTER_ID, "TwoSMppt3I");
+	private static final ChannelAddress MPPT1_P = new ChannelAddress(BATTERY_INVERTER_ID, "Mppt1P");
+	private static final ChannelAddress MPPT1_I = new ChannelAddress(BATTERY_INVERTER_ID, "Mppt1I");
+	private static final ChannelAddress MPPT2_P = new ChannelAddress(BATTERY_INVERTER_ID, "Mppt2P");
+	private static final ChannelAddress MPPT2_I = new ChannelAddress(BATTERY_INVERTER_ID, "Mppt2I");
+	private static final ChannelAddress MPPT3_P = new ChannelAddress(BATTERY_INVERTER_ID, "Mppt3P");
+	private static final ChannelAddress MPPT3_I = new ChannelAddress(BATTERY_INVERTER_ID, "Mppt3I");
 	private static final ChannelAddress TWO_S_PV1_I = new ChannelAddress(BATTERY_INVERTER_ID, "TwoSPv1I");
 	private static final ChannelAddress TWO_S_PV1_V = new ChannelAddress(BATTERY_INVERTER_ID, "TwoSPv1V");
 	private static final ChannelAddress TWO_S_PV2_I = new ChannelAddress(BATTERY_INVERTER_ID, "TwoSPv2I");
@@ -516,8 +517,8 @@ public class GoodWeBatteryInverterImplTest {
 						.setControlMode(ControlMode.SMART) //
 						.build()) //
 				.next(new TestCase() //
-						.input(TWO_S_MPPT1_I, 20) //
-						.input(TWO_S_MPPT1_P, 2000) //
+						.input(MPPT1_I, 20) //
+						.input(MPPT1_P, 2000) //
 						.input(TWO_S_PV1_I, 10) //
 						.input(TWO_S_PV2_I, 10) //
 						.input(TWO_S_PV1_V, 240) //
@@ -540,8 +541,8 @@ public class GoodWeBatteryInverterImplTest {
 
 				// Chargers with different current values
 				.next(new TestCase() //
-						.input(TWO_S_MPPT1_I, 20) //
-						.input(TWO_S_MPPT1_P, 2000) //
+						.input(MPPT1_I, 20) //
+						.input(MPPT1_P, 2000) //
 						.input(TWO_S_PV1_I, 5) //
 						.input(TWO_S_PV2_I, 15) //
 						.output(CHARGER_ACTUAL_POWER, 1000) //
@@ -551,8 +552,8 @@ public class GoodWeBatteryInverterImplTest {
 						.output(CHARGER_2_ACTUAL_POWER, 1500)) //
 
 				.next(new TestCase() //
-						.input(TWO_S_MPPT1_I, 20) //
-						.input(TWO_S_MPPT1_P, 2000) //
+						.input(MPPT1_I, 20) //
+						.input(MPPT1_P, 2000) //
 						.input(TWO_S_PV1_I, 20) //
 						.input(TWO_S_PV2_I, 0) //
 						.output(CHARGER_ACTUAL_POWER, 500) //
@@ -588,8 +589,8 @@ public class GoodWeBatteryInverterImplTest {
 						.setControlMode(ControlMode.SMART) //
 						.build()) //
 				.next(new TestCase() //
-						.input(TWO_S_MPPT2_I, 20) //
-						.input(TWO_S_MPPT2_P, 2000) //
+						.input(MPPT2_I, 20) //
+						.input(MPPT2_P, 2000) //
 						.input(TWO_S_PV3_I, 10) //
 						.input(TWO_S_PV4_I, 10) //
 						.input(TWO_S_PV3_V, 240) //
@@ -612,8 +613,8 @@ public class GoodWeBatteryInverterImplTest {
 
 				// Chargers with different current values
 				.next(new TestCase() //
-						.input(TWO_S_MPPT2_I, 20) //
-						.input(TWO_S_MPPT2_P, 2000) //
+						.input(MPPT2_I, 20) //
+						.input(MPPT2_P, 2000) //
 						.input(TWO_S_PV3_I, 5) //
 						.input(TWO_S_PV4_I, 15) //
 						.output(CHARGER_3_ACTUAL_POWER, 1000) //
@@ -623,8 +624,8 @@ public class GoodWeBatteryInverterImplTest {
 						.output(CHARGER_4_ACTUAL_POWER, 1500)) //
 
 				.next(new TestCase() //
-						.input(TWO_S_MPPT2_I, 20) //
-						.input(TWO_S_MPPT2_P, 2000) //
+						.input(MPPT2_I, 20) //
+						.input(MPPT2_P, 2000) //
 						.input(TWO_S_PV3_I, 20) //
 						.input(TWO_S_PV4_I, 0) //
 						.output(CHARGER_3_ACTUAL_POWER, 500) //
@@ -660,8 +661,8 @@ public class GoodWeBatteryInverterImplTest {
 						.setControlMode(ControlMode.SMART) //
 						.build()) //
 				.next(new TestCase() //
-						.input(TWO_S_MPPT3_I, 20) //
-						.input(TWO_S_MPPT3_P, 2000) //
+						.input(MPPT3_I, 20) //
+						.input(MPPT3_P, 2000) //
 						.input(TWO_S_PV5_I, 10) //
 						.input(TWO_S_PV6_I, 10) //
 						.input(TWO_S_PV5_V, 240) //
@@ -684,8 +685,8 @@ public class GoodWeBatteryInverterImplTest {
 
 				// Chargers with different current values
 				.next(new TestCase() //
-						.input(TWO_S_MPPT3_I, 20) //
-						.input(TWO_S_MPPT3_P, 2000) //
+						.input(MPPT3_I, 20) //
+						.input(MPPT3_P, 2000) //
 						.input(TWO_S_PV5_I, 5) //
 						.input(TWO_S_PV6_I, 15) //
 						.output(CHARGER_5_ACTUAL_POWER, 1000) //
@@ -695,8 +696,8 @@ public class GoodWeBatteryInverterImplTest {
 						.output(CHARGER_6_ACTUAL_POWER, 1500)) //
 
 				.next(new TestCase() //
-						.input(TWO_S_MPPT3_I, 20) //
-						.input(TWO_S_MPPT3_P, 2000) //
+						.input(MPPT3_I, 20) //
+						.input(MPPT3_P, 2000) //
 						.input(TWO_S_PV5_I, 20) //
 						.input(TWO_S_PV6_I, 0) //
 						.output(CHARGER_5_ACTUAL_POWER, 500) //

@@ -54,6 +54,7 @@ import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
+@SuppressWarnings("deprecation")
 public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		implements GoodWe, OpenemsComponent, TimedataProvider, EventHandler {
 
@@ -1369,19 +1370,20 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.TWO_S_PV6_I, new UnsignedWordElement(35307),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(35308, 35336),
-						m(GoodWe.ChannelId.TWO_S_MPPT1_P, new UnsignedWordElement(35337)),
-						m(GoodWe.ChannelId.TWO_S_MPPT2_P, new UnsignedWordElement(35338)),
-						m(GoodWe.ChannelId.TWO_S_MPPT3_P, new UnsignedWordElement(35339)),
+						m(GoodWe.ChannelId.MPPT1_P, new UnsignedWordElement(35337)),
+						m(GoodWe.ChannelId.MPPT2_P, new UnsignedWordElement(35338)),
+						m(GoodWe.ChannelId.MPPT3_P, new UnsignedWordElement(35339)),
 						new DummyRegisterElement(35340, 35344), // Power MPPT4 - MPPT8
-						m(GoodWe.ChannelId.TWO_S_MPPT1_I, new UnsignedWordElement(35345), //
+						m(GoodWe.ChannelId.MPPT1_I, new UnsignedWordElement(35345), //
 								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(GoodWe.ChannelId.TWO_S_MPPT2_I, new UnsignedWordElement(35346), //
+						m(GoodWe.ChannelId.MPPT2_I, new UnsignedWordElement(35346), //
 								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(GoodWe.ChannelId.TWO_S_MPPT3_I, new UnsignedWordElement(35347), //
+						m(GoodWe.ChannelId.MPPT3_I, new UnsignedWordElement(35347), //
 								ElementToChannelConverter.SCALE_FACTOR_2)) //
 		);
 	}
 
+	// TODO: Can be removed when GoodWeChargerTwoStringImpl has been deleted
 	private void setMultipleStringChannels() {
 
 		this.chargers.stream() //

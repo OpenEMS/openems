@@ -105,9 +105,9 @@ public interface GoodWe extends OpenemsComponent {
 		 *
 		 * MPPT1
 		 */
-		TWO_S_MPPT1_P(Doc.of(OpenemsType.INTEGER) //
+		MPPT1_P(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
-		TWO_S_MPPT1_I(Doc.of(OpenemsType.INTEGER) //
+		MPPT1_I(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIAMPERE)), //
 		TWO_S_PV1_V(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT)), //
@@ -120,9 +120,9 @@ public interface GoodWe extends OpenemsComponent {
 		/*
 		 * MPPT2
 		 */
-		TWO_S_MPPT2_P(Doc.of(OpenemsType.INTEGER) //
+		MPPT2_P(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
-		TWO_S_MPPT2_I(Doc.of(OpenemsType.INTEGER) //
+		MPPT2_I(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIAMPERE)), //
 		TWO_S_PV3_V(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT)), //
@@ -135,9 +135,9 @@ public interface GoodWe extends OpenemsComponent {
 		/*
 		 * MPPT3
 		 */
-		TWO_S_MPPT3_P(Doc.of(OpenemsType.INTEGER) //
+		MPPT3_P(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
-		TWO_S_MPPT3_I(Doc.of(OpenemsType.INTEGER) //
+		MPPT3_I(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIAMPERE)), //
 		TWO_S_PV5_V(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT)), //
