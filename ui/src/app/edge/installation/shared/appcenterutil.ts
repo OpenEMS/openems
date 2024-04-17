@@ -35,7 +35,7 @@ export class AppCenterUtil {
                     } else {
                         AppCenterUtil.createAppInstance(edge, websocket, appId, alias, properties, key)
                             .then(response => {
-                                let result = response as AddAppInstance.Response;
+                                const result = response as AddAppInstance.Response;
                                 resolve(result.result.instance);
                             }).catch(error => reject(error));
                     }
@@ -56,7 +56,7 @@ export class AppCenterUtil {
         return new Promise<GetAppInstances.AppInstance>((resolve, reject) => {
             AppCenterUtil.getAppInstances(edge, websocket, appId)
                 .then(response => {
-                    let matchingIds = response.result.instances.filter(instance => {
+                    const matchingIds = response.result.instances.filter(instance => {
                         return instance.instanceId == instanceId;
                     });
                     if (matchingIds.length == 0) {
@@ -109,7 +109,7 @@ export class AppCenterUtil {
                         resolve(response);
                         return;
                     }
-                    let instanceIds: string[] = [];
+                    const instanceIds: string[] = [];
                     response.result.instances.forEach(instance => { instanceIds.push(instance.instanceId); });
                     this.removeInstances(edge, websocket, instanceIds)
                         .then(response => resolve(response))
@@ -128,7 +128,7 @@ export class AppCenterUtil {
      * @returns a Promise that resolves after every instance got deinstalled
      */
     public static removeInstances(edge: Edge, websocket: Websocket, instanceIds: string[]): Promise<any[]> {
-        let promises: Promise<any>[] = [];
+        const promises: Promise<any>[] = [];
         instanceIds.forEach(instanceId => {
             promises.push(edge.sendRequest(websocket,
                 new ComponentJsonApiRequest({

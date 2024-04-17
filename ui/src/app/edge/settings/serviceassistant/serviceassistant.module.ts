@@ -9,8 +9,6 @@ import { SoltaroVersionCComponent } from "./soltarosingle/soltaroC.component";
     imports: [
         SharedModule,
     ],
-    entryComponents: [
-    ],
     declarations: [
         ServiceAssistantComponent,
         SoltaroCellChartComponent,

@@ -8,7 +8,6 @@ import { RouteReuseStrategy } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { FORMLY_CONFIG } from '@ngx-formly/core';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
-import { AngularMyDatePickerModule } from 'angular-mydatepicker';
 import { CookieService } from 'ngx-cookie-service';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -30,6 +29,7 @@ import { StatusSingleComponent } from './shared/status/single/status.component';
 import { registerTranslateExtension } from './shared/translate.extension';
 import { Language, MyTranslateLoader } from './shared/type/language';
 import { UserModule } from './user/user.module';
+import { AngularMyDatePickerModule } from '@nodro7/angular-mydatepicker';
 
 @NgModule({
   declarations: [
@@ -38,10 +38,6 @@ import { UserModule } from './user/user.module';
     PickDatePopoverComponent,
     StatusSingleComponent,
     SystemLogComponent,
-  ],
-  entryComponents: [
-    ChartOptionsPopoverComponent,
-    PickDatePopoverComponent,
   ],
   imports: [
     AngularMyDatePickerModule,

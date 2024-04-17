@@ -1,7 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { AbstractHistoryChart as NewAbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
-import { ChartConstants } from 'src/app/shared/genericComponents/chart/chart.constants';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
@@ -82,17 +81,17 @@ export abstract class AbstractHistoryChart {
     protected queryHistoricTimeseriesData(fromDate: Date, toDate: Date, res?: Resolution): Promise<QueryHistoricTimeseriesDataResponse> {
 
         // Take custom resolution if passed
-        let resolution = res ?? calculateResolution(this.service, fromDate, toDate).resolution;
+        const resolution = res ?? calculateResolution(this.service, fromDate, toDate).resolution;
 
         this.errorResponse = null;
 
-        let result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
+        const result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
                     this.setLabel(config);
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
 
-                        let request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
+                        const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             resolve(response as QueryHistoricTimeseriesDataResponse);
                         }).catch(error => {
@@ -126,11 +125,11 @@ export abstract class AbstractHistoryChart {
     protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date, channelAddresses: ChannelAddress[]): Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> {
 
         // TODO should be removed, edge delivers too much data
-        let resolution = calculateResolution(this.service, fromDate, toDate).resolution;
+        const resolution = calculateResolution(this.service, fromDate, toDate).resolution;
 
         this.errorResponse = null;
 
-        let response: Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> = new Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse>((resolve, reject) => {
+        const response: Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> = new Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse>((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
                     edge.sendRequest(this.service.websocket, new QueryHistoricTimeseriesEnergyPerPeriodRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution)).then(response => {
@@ -165,7 +164,7 @@ export abstract class AbstractHistoryChart {
      * @returns period for Tooltip Header
      */
     protected static toTooltipTitle(fromDate: Date, toDate: Date, date: Date, service: Service): string {
-        let unit = calculateResolution(service, fromDate, toDate).resolution.unit;
+        const unit = calculateResolution(service, fromDate, toDate).resolution.unit;
         if (unit == ChronoUnit.Type.MONTHS) {
             return date.toLocaleDateString('default', { month: 'long' });
 
@@ -186,7 +185,7 @@ export abstract class AbstractHistoryChart {
      * @returns the ChartOptions
      */
     protected createDefaultChartOptions(): Chart.ChartOptions {
-        let options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+        const options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
         return options;
     }
 
@@ -323,13 +322,13 @@ export abstract class AbstractHistoryChart {
                     if (tooltipItems?.length === 0) {
                         return null;
                     }
-                    let date = DateUtils.stringToDate(tooltipItems[0]?.label);
+                    const date = DateUtils.stringToDate(tooltipItems[0]?.label);
                     return AbstractHistoryChart.toTooltipTitle(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to, date, this.service);
                 };
 
                 options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
-                    let label = tooltipItem.dataset.label;
-                    let value = tooltipItem.dataset.data[tooltipItem.dataIndex];
+                    const label = tooltipItem.dataset.label;
+                    const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
 
                     const customUnit = tooltipItem.dataset.unit ?? null;
                     return label.split(":")[0] + ": " + NewAbstractHistoryChart.getToolTipsSuffix("", value, formatNumber, customUnit ?? unit, 'line', locale, translate, conf);
@@ -349,7 +348,7 @@ export abstract class AbstractHistoryChart {
                 };
 
                 options.plugins.legend.labels.generateLabels = function (chart: Chart.Chart) {
-                    let chartLegendLabelItems: Chart.LegendItem[] = [];
+                    const chartLegendLabelItems: Chart.LegendItem[] = [];
                     chart.data.datasets.forEach((dataset, index) => {
 
                         const color = colors[index];
@@ -378,9 +377,9 @@ export abstract class AbstractHistoryChart {
 
                 // Remove duplicates from legend, if legendItem with two or more occurrences in legend, use one legendItem to trigger them both
                 options.plugins.legend.onClick = function (event: Chart.ChartEvent, legendItem: Chart.LegendItem, legend) {
-                    let chart: Chart.Chart = this.chart;
+                    const chart: Chart.Chart = this.chart;
 
-                    let legendItems = chart.data.datasets.reduce((arr, ds, i) => {
+                    const legendItems = chart.data.datasets.reduce((arr, ds, i) => {
                         if (ds.label == legendItem.text) {
                             arr.push({ label: ds.label, index: i });
                         }
@@ -390,7 +389,7 @@ export abstract class AbstractHistoryChart {
                     legendItems.forEach(item => {
                         // original.call(this, event, legendItem1);
                         setLabelVisible(item.label, !chart.isDatasetVisible(legendItem.datasetIndex));
-                        var meta = chart.getDatasetMeta(item.index);
+                        const meta = chart.getDatasetMeta(item.index);
                         // See controller.isDatasetVisible comment
                         meta.hidden = meta.hidden === null ? !chart.data.datasets[item.index].hidden : null;
                     });
@@ -412,9 +411,8 @@ export abstract class AbstractHistoryChart {
                         break;
                 }
 
-                const scaleOptions: { min: number, max: number, stepSize: number } | null = ChartConstants.getScaleOptions(this.datasets, yAxis);
                 // Only one yAxis defined
-                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, 'line', locale, false, scaleOptions);
+                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, 'line', locale, false);
 
                 options.scales.x['stacked'] = true;
                 options.scales[ChartAxis.LEFT]['stacked'] = false;

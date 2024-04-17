@@ -54,7 +54,7 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
         // Wait for Websocket
         if (this.websocket.status == 'waiting for credentials') {
           this.service.startSpinner('loginspinner');
-          let lang = this.route.snapshot.queryParamMap.get('lang') ?? null;
+          const lang = this.route.snapshot.queryParamMap.get('lang') ?? null;
           if (lang) {
             localStorage.DEMO_LANGUAGE = lang;
           }

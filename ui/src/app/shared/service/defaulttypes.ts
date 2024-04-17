@@ -91,7 +91,7 @@ export module DefaultTypes {
     params?: string[]
   }
 
-  export enum PeriodString { DAY = 'day', WEEK = 'week', MONTH = 'month', YEAR = 'year', TOTAL = 'total', CUSTOM = 'custom' };
+  export enum PeriodString { DAY = 'day', WEEK = 'week', MONTH = 'month', YEAR = 'year', TOTAL = 'total', CUSTOM = 'custom' }
 
   /** Values of {@link DefaultTypes.PeriodString} */
   export type PeriodStringValues = Exclude<`${DefaultTypes.PeriodString}`, "custom">;

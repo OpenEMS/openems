@@ -85,7 +85,7 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		var modbusProtocol = new ModbusProtocol(this,
 				// Consumption and Production Energy
 				new FC3ReadRegistersTask(30581, Priority.HIGH, //

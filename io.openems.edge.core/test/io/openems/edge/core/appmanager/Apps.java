@@ -552,7 +552,7 @@ public class Apps {
 	public static final FixStateOfCharge fixStateOfCharge(AppManagerTestBundle t) {
 		return app(t, FixStateOfCharge::new, "App.Ess.FixStateOfCharge");
 	}
-	
+
 	/**
 	 * Test method for creating a {@link PrepareBatteryExtension}.
 	 * 

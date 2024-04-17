@@ -162,8 +162,8 @@
   "Edge": {
     "Index": {
       "EmergencyReserve": {
-        "InfoForEmergencyReserveSlider": "Door de noodstroomreserve te activeren, kan de waarde vrij worden gekozen tussen 5% en 100%.",
-        "emergencyReserve": "noodreserve"
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Door de noodstroomreserve te activeren, kan de waarde vrij worden gekozen tussen 5% en 100%.",
+        "EMERGENCY_RESERVE": "noodreserve"
       },
       "Energymonitor": {
         "activePower": "Actief vermogen",

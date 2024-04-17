@@ -141,7 +141,7 @@ public class RefuBeckhoffEssImpl extends AbstractOpenemsModbusComponent implemen
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		ModbusProtocol protocol = new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(0x100, Priority.HIGH, //
 						m(RefuBeckhoffEss.ChannelId.SYSTEM_STATE, new UnsignedWordElement(0x100)), //

@@ -92,5 +92,5 @@
     </ion-toolbar>
   </ion-footer>
 
-  <oe-footer *ngIf="isUserAllowedToSeeFooter"></oe-footer>
+  <oe-footer *ngIf="isUserAllowedToSeeFooter && !isHistoryDetailView"></oe-footer>
 </ion-app>

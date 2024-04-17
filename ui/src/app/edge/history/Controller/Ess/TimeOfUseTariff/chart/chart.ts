@@ -14,7 +14,6 @@ export class ChartComponent extends AbstractHistoryChart {
 
     @Input() public override component: EdgeConfig.Component;
 
-    private TimeOfUseTariffState = TimeOfUseTariffUtils.TimeOfUseTariffState;
     private currencyLabel: Currency.Label; // Default
 
     protected override getChartData(): HistoryUtils.ChartData {
@@ -49,21 +48,21 @@ export class ChartComponent extends AbstractHistoryChart {
             output: (data: HistoryUtils.ChannelData) => {
                 return [{
                     name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
-                    converter: () => this.getDataset(data, this.TimeOfUseTariffState.Balancing),
+                    converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.Balancing),
                     color: 'rgb(51,102,0)',
                     stack: 1,
                     order: 1,
                 },
                 {
                     name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
-                    converter: () => this.getDataset(data, this.TimeOfUseTariffState.ChargeGrid),
+                    converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.ChargeGrid),
                     color: 'rgb(0, 204, 204)',
                     stack: 1,
                     order: 1,
                 },
                 {
                     name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
-                    converter: () => this.getDataset(data, this.TimeOfUseTariffState.DelayDischarge),
+                    converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.DelayDischarge),
                     color: 'rgb(0,0,0)',
                     stack: 1,
                     order: 1,

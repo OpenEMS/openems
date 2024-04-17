@@ -92,7 +92,7 @@ public class PvInverterKacoBlueplanetImpl extends AbstractSunSpecPvInverter
 		super.setModbus(modbus);
 	}
 
-	public PvInverterKacoBlueplanetImpl() throws OpenemsException {
+	public PvInverterKacoBlueplanetImpl() {
 		super(//
 				ACTIVE_MODELS, //
 				true /* enable manuel calculation of ActiveProductionEnergy */, //

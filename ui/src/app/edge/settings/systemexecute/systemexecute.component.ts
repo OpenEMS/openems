@@ -12,7 +12,7 @@ type CommandFunction = (...args: (string | boolean | number)[]) => string;
 
 const COMMANDS: { [key: string]: CommandFunction; } = {
   'ping': (ip: string) => `ping -c4 ${ip}`,
-  'branch': (branch: string, force: boolean) => `echo "wget https://fenecon.de/fems-download/update-fems.sh -O /tmp/update-fems.sh --no-check-certificate && bash -x /tmp/update-fems.sh ${force ? '-f' : ''} ${!!branch ? '-b' : ' '} ${!!branch ? branch : ''} > /tmp/log 2>& 1" | at now`,
+  'branch': (branch: string, force: boolean) => `echo "wget https://fenecon.de/fems-download/update-fems.sh -O /tmp/update-fems.sh --no-check-certificate && bash -x /tmp/update-fems.sh ${force ? '-f' : ''} ${branch ? '-b' : ' '} ${branch ? branch : ''} > /tmp/log 2>& 1" | at now`,
   'query-status': () => "ps ax | grep /tmp/update-fems.sh; tail /tmp/log",
   'openems-restart': () => "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; echo 'systemctl restart openems' | at now",
   'pagekite-log': () => "journalctl -lu fems-remote-service --since=\"2 minutes ago\"",
@@ -143,15 +143,16 @@ export class SystemExecuteComponent implements OnInit {
     if (!this.form.valid) {
       command = "";
     } else {
-      let m = this.model;
-      let cmd = COMMANDS[m.predefined];
+      const m = this.model;
+      const cmd = COMMANDS[m.predefined];
       switch (m.predefined) {
         case "ping":
           command = cmd(m.ping.ip);
           break;
         case "branch":
-          let finalBranchName = m.branch.name === 'other' ? m.branch.free : m.branch.name;
-          command = cmd(finalBranchName, m.branch.force as boolean);
+          command = cmd(
+            m.branch.name === 'other' ? m.branch.free : m.branch.name,
+            m.branch.force as boolean);
           break;
         case "openems-restart":
         case "pagekite-log":
@@ -165,17 +166,17 @@ export class SystemExecuteComponent implements OnInit {
   }
 
   public submit() {
-    let username = this.form.controls['username'];
-    let password = this.form.controls['password'];
-    let timeoutSeconds = this.form.controls['timeoutSeconds'];
-    let runInBackground = this.form.controls['runInBackground'];
-    let command = this.form.controls['command'];
+    const username = this.form.controls['username'];
+    const password = this.form.controls['password'];
+    const timeoutSeconds = this.form.controls['timeoutSeconds'];
+    const runInBackground = this.form.controls['runInBackground'];
+    const command = this.form.controls['command'];
 
     this.service.getCurrentEdge().then(edge => {
       this.loading = true;
       this.stdout = [];
       this.stderr = [];
-      let executeSystemCommandRequest = new ExecuteSystemCommandRequest({
+      const executeSystemCommandRequest = new ExecuteSystemCommandRequest({
         username: username.value,
         password: password.value,
         timeoutSeconds: timeoutSeconds.value,
@@ -188,7 +189,7 @@ export class SystemExecuteComponent implements OnInit {
           componentId: "_host",
           payload: executeSystemCommandRequest,
         })).then(response => {
-          let result = (response as ExecuteSystemCommandResponse).result;
+          const result = (response as ExecuteSystemCommandResponse).result;
           this.loading = false;
           if (result.stdout.length == 0) {
             this.stdout = [""];

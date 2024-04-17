@@ -587,7 +587,10 @@ public class EdgeConfig {
 			var jPropertiesOpt = JsonUtils.getAsOptionalJsonObject(json, "properties");
 			if (jPropertiesOpt.isPresent()) {
 				for (Entry<String, JsonElement> entry : jPropertiesOpt.get().entrySet()) {
-					properties.put(entry.getKey(), entry.getValue());
+					if (!ignorePropertyKey(entry.getKey())
+							&& !ignoreComponentPropertyKey(componentId, entry.getKey())) {
+						properties.put(entry.getKey(), entry.getValue());
+					}
 				}
 			}
 			var channels = new TreeMap<String, Channel>();
@@ -1455,17 +1458,34 @@ public class EdgeConfig {
 	 * @return true if it should get ignored
 	 */
 	public static boolean ignorePropertyKey(String key) {
-		switch (key) {
-		case OpenemsConstants.PROPERTY_COMPONENT_ID:
-		case OpenemsConstants.PROPERTY_OSGI_COMPONENT_ID:
-		case OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME:
-		case OpenemsConstants.PROPERTY_FACTORY_PID:
-		case OpenemsConstants.PROPERTY_PID:
-		case "webconsole.configurationFactory.nameHint":
-		case "event.topics":
-			return true;
-		default:
-			return false;
-		}
+		return switch (key) {
+		case OpenemsConstants.PROPERTY_COMPONENT_ID, OpenemsConstants.PROPERTY_OSGI_COMPONENT_ID,
+				OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME, OpenemsConstants.PROPERTY_FACTORY_PID,
+				OpenemsConstants.PROPERTY_PID, "webconsole.configurationFactory.nameHint", "event.topics" ->
+			true;
+
+		default -> false;
+		};
+	}
+
+	/**
+	 * Internal Method to decide whether a configuration property should be ignored.
+	 *
+	 * @param componentId the Component-ID
+	 * @param key         the property key
+	 * @return true if it should get ignored
+	 */
+	public static boolean ignoreComponentPropertyKey(String componentId, String key) {
+		return switch (componentId) {
+		// Filter for _sum component
+		case "_sum" -> switch (key) {
+		case "productionMaxActivePower", "consumptionMaxActivePower", "gridMinActivePower", "gridMaxActivePower" ->
+			true;
+
+		default -> false;
+		};
+
+		default -> false;
+		};
 	}
 }

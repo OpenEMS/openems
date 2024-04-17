@@ -7,9 +7,6 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -280,11 +277,9 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 					"Creating Component configuration [" + factoryPid + "]: " + properties.stream() //
 							.map(p -> p.getName() + ":" + p.getValue().toString()) //
 							.collect(Collectors.joining(", ")));
-			var response = this.parent.handleCreateComponentConfigRequest(null /* no user */,
+			this.parent.handleCreateComponentConfigRequest(null /* no user */,
 					new CreateComponentConfigRequest(factoryPid, properties));
-			response.get(60, TimeUnit.SECONDS);
-
-		} catch (OpenemsNamedException | InterruptedException | ExecutionException | TimeoutException e) {
+		} catch (OpenemsNamedException e) {
 			this.parent.logError(this.log,
 					"Unable to create Component configuration for Factory [" + factoryPid + "]: " + e.getMessage());
 			e.printStackTrace();
@@ -308,11 +303,9 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 							.map(p -> p.getName() + ":" + p.getValue().toString()) //
 							.collect(Collectors.joining(", ")));
 
-			var response = this.parent.handleUpdateComponentConfigRequest(null /* no user */,
+			this.parent.handleUpdateComponentConfigRequest(null /* no user */,
 					new UpdateComponentConfigRequest(componentId, properties));
-			response.get(60, TimeUnit.SECONDS);
-
-		} catch (OpenemsNamedException | InterruptedException | ExecutionException | TimeoutException e) {
+		} catch (OpenemsNamedException e) {
 			this.parent.logError(this.log,
 					"Unable to update Component configuration for Component [" + componentId + "]: " + e.getMessage());
 			e.printStackTrace();
@@ -331,11 +324,9 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 		try {
 			this.parent.logInfo(this.log, "Deleting Component [" + componentId + "]");
 
-			var response = this.parent.handleDeleteComponentConfigRequest(null /* no user */,
+			this.parent.handleDeleteComponentConfigRequest(null /* no user */,
 					new DeleteComponentConfigRequest(componentId));
-			response.get(60, TimeUnit.SECONDS);
-
-		} catch (OpenemsNamedException | InterruptedException | ExecutionException | TimeoutException e) {
+		} catch (OpenemsNamedException e) {
 			this.parent.logError(this.log, "Unable to delete Component [" + componentId + "]: " + e.getMessage());
 			e.printStackTrace();
 			defaultConfigurationFailed.set(true);

@@ -89,7 +89,7 @@ export class ComponentConfigurator {
     }
 
     private refreshAllConfigurationStates() {
-        for (let configurationObject of this.configurationObjects) {
+        for (const configurationObject of this.configurationObjects) {
             this.refreshConfigurationState(configurationObject);
         }
     }
@@ -105,8 +105,8 @@ export class ComponentConfigurator {
             // first update scheduler to make sure it is created
             this.updateScheduler().then(() => {
                 // execute app install callbacks
-                let installApp = new Promise<void>((resolve, reject) => {
-                    let allPromises: Promise<any>[] = [];
+                const installApp = new Promise<void>((resolve, reject) => {
+                    const allPromises: Promise<any>[] = [];
                     this.installAppCallbacks.forEach(callback => {
                         allPromises.push(callback());
                     });
@@ -115,7 +115,7 @@ export class ComponentConfigurator {
                 });
 
                 this.refreshAllConfigurationStates();
-                let updateComponents = new Promise((resolve, reject) => {
+                const updateComponents = new Promise((resolve, reject) => {
                     this.clear().then(response => {
                         this.configureNext(0).then(() =>
                             //this.stopFunctionTests(); TODO
@@ -142,9 +142,9 @@ export class ComponentConfigurator {
      * @returns an array of configuration objects
      */
     public getConfigurationObjectsToBeConfigured(): ConfigurationObject[] {
-        let configurationObjectsToBeInstalled: ConfigurationObject[] = [];
+        const configurationObjectsToBeInstalled: ConfigurationObject[] = [];
 
-        for (let configurationObject of this.configurationObjects) {
+        for (const configurationObject of this.configurationObjects) {
             if (configurationObject.mode !== ConfigurationMode.RemoveOnly) {
                 configurationObjectsToBeInstalled.push(configurationObject);
             }
@@ -159,7 +159,7 @@ export class ComponentConfigurator {
      * @returns a boolean representing the result
      */
     public allHaveConfigurationState(configurationState: ConfigurationState): boolean {
-        for (let configurationObject of this.configurationObjects) {
+        for (const configurationObject of this.configurationObjects) {
             if (configurationObject.configState !== configurationState) {
                 return false;
             }
@@ -174,7 +174,7 @@ export class ComponentConfigurator {
      * @returns a boolean representing the result
      */
     public anyHasConfigurationState(configurationState: ConfigurationState): boolean {
-        for (let configurationObject of this.configurationObjects) {
+        for (const configurationObject of this.configurationObjects) {
             if (configurationObject.componentId.startsWith("_")) {
                 // ignore core components
                 continue;
@@ -187,7 +187,7 @@ export class ComponentConfigurator {
     }
 
     public allHaveFunctionState(desiredFunctionState: FunctionState): boolean {
-        for (let configurationObject of this.configurationObjects) {
+        for (const configurationObject of this.configurationObjects) {
             const functionState: FunctionState = configurationObject.functionState;
             if (functionState && functionState !== desiredFunctionState) {
                 return false;
@@ -234,7 +234,7 @@ export class ComponentConfigurator {
      */
     private clearComponent(preConfiguredObjects: Array<ConfigurationObject>, index: number): Promise<void> {
         return new Promise((resolve, reject) => {
-            let configurationObject = preConfiguredObjects[index];
+            const configurationObject = preConfiguredObjects[index];
 
             let delay = DELAY_CLEAR;
             if (configurationObject.baseMode === BaseMode.AppManager) {
@@ -306,7 +306,7 @@ export class ComponentConfigurator {
      */
     private configureNext(index: number): Promise<void> {
         return new Promise((resolve, reject) => {
-            let configurationObject = this.configurationObjects[index];
+            const configurationObject = this.configurationObjects[index];
 
             configurationObject.configState = ConfigurationState.Configuring;
 
@@ -351,7 +351,7 @@ export class ComponentConfigurator {
                 resolve();
                 return;
             }
-            let properties: { name: string, value: any }[] = this.generateProperties(configurationObject);
+            const properties: { name: string, value: any }[] = this.generateProperties(configurationObject);
 
             // When in UpdateOnly-Mode the component gets updated and
             // the Promise resolved. When the configuration fails, the Promise gets rejected.
@@ -397,9 +397,9 @@ export class ComponentConfigurator {
                     this.channelMappings.push(channelMapping);
 
                     // Get all channel addresses
-                    let channelAddresses: ChannelAddress[] = [];
+                    const channelAddresses: ChannelAddress[] = [];
 
-                    for (let subscription of this.channelMappings) {
+                    for (const subscription of this.channelMappings) {
                         channelAddresses.push(subscription.channelAddress);
                     }
 
@@ -407,11 +407,11 @@ export class ComponentConfigurator {
                     this.edge.subscribeChannels(this.websocket, "component-configurator", channelAddresses);
 
                     // Subscribe to the new channel
-                    let subscription: Subscription = this.edge.currentData.pipe(
+                    const subscription: Subscription = this.edge.currentData.pipe(
                         filter(currentData => currentData !== null),
                     ).subscribe((currentData) => {
-                        let channelAddress: ChannelAddress = channelMapping.channelAddress;
-                        let channelValue: number = currentData.channel[channelAddress.componentId + "/" + channelAddress.channelId];
+                        const channelAddress: ChannelAddress = channelMapping.channelAddress;
+                        const channelValue: number = currentData.channel[channelAddress.componentId + "/" + channelAddress.channelId];
 
                         let functionState;
 
@@ -444,7 +444,7 @@ export class ComponentConfigurator {
     }
 
     private stopFunctionTests() {
-        for (let subscription of this.subscriptions) {
+        for (const subscription of this.subscriptions) {
             subscription.unsubscribe();
         }
         this.edge.unsubscribeChannels(this.websocket, "component-configurator");
@@ -457,11 +457,11 @@ export class ComponentConfigurator {
      */
     private updateScheduler() {
         return new Promise((resolve, reject) => {
-            let scheduler: EdgeConfig.Component = this.config.getComponent("scheduler0");
-            let ibn = JSON.parse(sessionStorage.ibn);
+            const scheduler: EdgeConfig.Component = this.config.getComponent("scheduler0");
+            const ibn = JSON.parse(sessionStorage.ibn);
 
-            let requiredControllerIds: SchedulerId[] = ibn.requiredControllerIds;
-            let controllerIds: string[] = [];
+            const requiredControllerIds: SchedulerId[] = ibn.requiredControllerIds;
+            const controllerIds: string[] = [];
             requiredControllerIds.forEach(value => {
                 if (AppCenterUtil.isAppManagerAvailable(this.edge) && value.behaviour === SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER) {
                     return;
@@ -483,10 +483,10 @@ export class ComponentConfigurator {
                     return;
                 }
                 // If the scheduler exists, it gets updated
-                let existingControllerIds: string[] = scheduler.properties["controllers.ids"];
+                const existingControllerIds: string[] = scheduler.properties["controllers.ids"];
                 let newControllerIds: string[] = [];
 
-                for (let requiredControllerId of controllerIds) {
+                for (const requiredControllerId of controllerIds) {
                     if (!existingControllerIds.find(existingControllerId => requiredControllerId === existingControllerId)) {
                         newControllerIds.push(requiredControllerId);
                     }

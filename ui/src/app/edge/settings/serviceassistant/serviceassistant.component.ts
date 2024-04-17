@@ -36,9 +36,9 @@ export class ServiceAssistantComponent implements OnInit, OnDestroy {
         this.config = config;
         this.batteries = config.getComponentsImplementingNature("io.openems.edge.battery.api.Battery");
 
-        let channelAddresses = [];
+        const channelAddresses = [];
         this.batteries.forEach(battery => {
-          for (var channel in config.components[battery.id].channels) {
+          for (const channel in config.components[battery.id].channels) {
             channelAddresses.push(new ChannelAddress(battery.id, channel));
           }
           this.edge.subscribeChannels(this.websocket, ServiceAssistantComponent.SELECTOR, channelAddresses);

@@ -1,4 +1,3 @@
-import { formatNumber } from "@angular/common";
 
 import { TranslateService } from "@ngx-translate/core";
 import { BatteryMode, BatteryStateMachine, CurrentData, EdgeConfig, EssStateMachine, GoodWe, GridMode, SafetyCountryCode, Utils } from "../../shared";
@@ -22,26 +21,6 @@ export namespace Converter {
       return "";
     }
     return "" + value;
-  };
-
-
-  const FORMAT_WATT = (value: number) => {
-    // TODO apply correct locale
-    return formatNumber(value, 'de', '1.0-0') + " W";
-  };
-
-  const FORMAT_MILLI_VOLT = (value: number) => {
-    return formatNumber(value, 'de', '1.0-0') + " mV";
-  };
-
-  const FORMAT_VOLT = (value: number) => {
-    // TODO apply correct locale
-    return formatNumber(value, 'de', '1.0-0') + " V";
-  };
-
-  const FORMAT_AMPERE = (value: number) => {
-    // TODO apply correct locale
-    return formatNumber(value, 'de', '1.1-1') + " A";
   };
 
   export const IF_NUMBER = (value: number | string | null, callback: (number: number) => string) => {
@@ -134,7 +113,7 @@ export namespace Converter {
 
   export const VOLTAGE_TO_VOLT: Converter = (raw) => {
     return IF_NUMBER(raw, value =>
-      FORMAT_VOLT(value));
+      Formatter.FORMAT_VOLT(value));
   };
 
   /**
@@ -148,7 +127,7 @@ export namespace Converter {
    */
   export const CURRENT_IN_MILLIAMPERE_TO_AMPERE: Converter = (raw) => {
     return IF_NUMBER(raw, value =>
-      FORMAT_AMPERE(value / 1000));
+      Formatter.FORMAT_AMPERE(value / 1000));
   };
 
   export const ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO: Converter = (raw) => {
@@ -160,7 +139,7 @@ export namespace Converter {
 
   export const CURRENT_TO_AMPERE: Converter = (raw) => {
     return IF_NUMBER(raw, value =>
-      FORMAT_AMPERE(value));
+      Formatter.FORMAT_AMPERE(value));
   };
 
   export const CONVERT_TO_ESS_STATE: Converter = (raw) => {

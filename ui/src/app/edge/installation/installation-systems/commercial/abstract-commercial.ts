@@ -100,7 +100,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
     public getFeedInLimitFields() {
 
         // Update the feedInlimitation field
-        let totalPvPower = 0;
+        const totalPvPower = 0;
         this.feedInLimitation.maximumFeedInPower = totalPvPower;
 
         return super.getCommonFeedInLimitsFields(totalPvPower);
@@ -349,7 +349,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             let isResolved = false;
             const channelAddresses: ChannelAddress[] = this.getChannels(towerNr, numberOfModulesPerTower);
             const subscriptionId = AbstractCommercialIbn.SELECTOR + '-tower' + towerNr;
-            let model: Object = {};
+            const model: Object = {};
 
             // Subject to stop the subscription to currentData
             const stopOnRequest: Subject<void> = new Subject<void>();

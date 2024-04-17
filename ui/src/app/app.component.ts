@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
-import { Subject, timer } from 'rxjs';
+import { Subject, Subscription, timer } from 'rxjs';
 import { filter, retry, switchMap, takeUntil } from 'rxjs/operators';
 
 import { Meta } from '@angular/platform-browser';
@@ -28,10 +28,12 @@ export class AppComponent implements OnInit, OnDestroy {
   public enableSideMenu: boolean;
   public isSystemLogEnabled: boolean = false;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
+  private subscription: Subscription = new Subscription();
 
   protected isSystemOutage = false;
   protected isUserAllowedToSeeOverview: boolean = false;
   protected isUserAllowedToSeeFooter: boolean = false;
+  protected isHistoryDetailView: boolean = false;
 
   constructor(
     private platform: Platform,
@@ -47,10 +49,19 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
 
-    this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
-      this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
-      this.isUserAllowedToSeeFooter = UserPermission.isUserAllowedToSeeFooter(metadata.user);
-    });
+
+    this.subscription.add(
+      this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
+        this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
+        this.isUserAllowedToSeeFooter = UserPermission.isUserAllowedToSeeFooter(metadata.user);
+      }));
+
+    this.subscription.add(
+      this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((e: NavigationEnd) => {
+        // Hide footer for history detail views
+        const segments = e.url.split('/');
+        this.isHistoryDetailView = segments.slice(0, -1).includes('history');
+      }));
   }
 
   ngOnInit() {
@@ -140,5 +151,6 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+    this.subscription.unsubscribe();
   }
 }

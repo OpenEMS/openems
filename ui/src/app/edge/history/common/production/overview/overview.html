@@ -33,4 +33,15 @@
       </productionChargerChart>
     </ng-container>
   </ng-template>
+
+  <ion-fab style="position: fixed;" horizontal="end" vertical="bottom" class="ion-no-padding">
+
+    <ion-fab-button size="small" closeIcon="chevron-down-outline">
+      <ion-icon name="options-outline"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-list side="top" style="right: 0;bottom:0; align-items: flex-end;">
+      <ion-button size="small" color="primary" [routerLink]="['./installation']" routerLinkActive="active" translate
+        [translateParams]="{edgeShortName: ''}">Details</ion-button>
+    </ion-fab-list>
+  </ion-fab>
 </oe-chart>

@@ -358,7 +358,8 @@ public final class FeneconHomeComponents {
 	 * @param i                 the index of the pv-port
 	 * @return the {@link Component}
 	 */
-	public static EdgeConfig.Component charger(//
+	@Deprecated(since = "2024.2.2", forRemoval = true)
+	public static EdgeConfig.Component chargerOld(//
 			final String chargerId, //
 			final String chargerAlias, //
 			final String batteryInverterId, //
@@ -370,6 +371,30 @@ public final class FeneconHomeComponents {
 						.addProperty("enabled", true) //
 						.addProperty("essOrBatteryInverter.id", batteryInverterId) //
 						.addProperty("pvPort", "PV_" + (i + 1)) //
+						.build());
+	}
+
+	/**
+	 * Creates a default charger component for a FENECON Home 20/30.
+	 * 
+	 * @param chargerId         the id of the charger
+	 * @param chargerAlias      the alias of the charger
+	 * @param batteryInverterId the id of the battery inverter
+	 * @param mpptPort          the zero-based index of the mppt-port
+	 * @return the {@link Component}
+	 */
+	public static EdgeConfig.Component charger(//
+			final String chargerId, //
+			final String chargerAlias, //
+			final String batteryInverterId, //
+			final int mpptPort //
+	) {
+		return new EdgeConfig.Component(chargerId, chargerAlias, //
+				"GoodWe.Charger.Mppt.Two-String", //
+				JsonUtils.buildJsonObject() //
+						.addProperty("enabled", true) //
+						.addProperty("essOrBatteryInverter.id", batteryInverterId) //
+						.addProperty("mpptPort", "MPPT_" + (mpptPort + 1)) //
 						.build());
 	}
 

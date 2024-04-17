@@ -237,7 +237,7 @@ export abstract class AbstractIbn {
    */
   public getSubSystemFields(): FormlyFieldConfig[] {
     return [];
-  };
+  }
 
   /**
    * View Emergency-reserve
@@ -246,7 +246,7 @@ export abstract class AbstractIbn {
    */
   public addCustomBatteryData(): ComponentData[] {
     return [];
-  };
+  }
 
   /**
    * View Dynamic limitation
@@ -255,7 +255,7 @@ export abstract class AbstractIbn {
    */
   public addCustomBatteryInverterData(): ComponentData[] {
     return [];
-  };
+  }
 
   /**
    * View Protocol pv Data
@@ -264,7 +264,7 @@ export abstract class AbstractIbn {
    */
   public addCustomPvData(): ComponentData[] {
     return [];
-  };
+  }
 
   /**
    * View Configuration Energy Flow Direction Meter
@@ -273,7 +273,7 @@ export abstract class AbstractIbn {
    */
   public addCustomMeterData(): ComponentData[] {
     return [];
-  };
+  }
 
   /**
    * Sets the Non abstract fields for the IBN object from session storage or from specific views.

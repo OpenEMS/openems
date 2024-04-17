@@ -14,10 +14,10 @@ export class KeyMaskDirective {
             trimmed = trimmed.substr(0, 19);
         }
 
-        let hasDashAsLastChar = trimmed.substr(trimmed.length - 1, 1) == "-";
+        const hasDashAsLastChar = trimmed.substr(trimmed.length - 1, 1) == "-";
         trimmed = trimmed.replace(/-/g, '');
 
-        let numbers = [];
+        const numbers = [];
 
         numbers.push(trimmed.substr(0, 4));
         if (trimmed.substr(4, 4) !== '') {

@@ -186,7 +186,7 @@ public class EnfasBmsImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(1, Priority.HIGH, //
 						m(EnfasBms.ChannelId.MODULE_0_AVG_CELL_VOLTAGE, new UnsignedWordElement(1)),

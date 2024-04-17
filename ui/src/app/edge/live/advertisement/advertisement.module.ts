@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 import { AdvertisementComponent } from './advertisement.component';
@@ -17,5 +17,6 @@ import { ModalComponent } from './dynamic-electricity-tariff/modal';
     exports: [
         AdvertisementComponent,
     ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AdvertisementModule { }

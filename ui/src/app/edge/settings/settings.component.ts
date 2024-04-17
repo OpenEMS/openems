@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { environment } from 'src/environments';
 import { Edge, Service, UserPermission, Utils } from '../../shared/shared';
 import { canSeeAppCenter } from './app/permissions';
+import { JsonrpcTestPermission } from './jsonrpctest/jsonrpctest.permission';
 
 @Component({
   selector: 'settings',
@@ -14,6 +15,7 @@ export class SettingsComponent implements OnInit {
   public environment = environment;
 
   public canSeeAppCenter: boolean | undefined;
+  public canSeeJsonrpcTest: boolean | undefined;
 
   protected canSeeHomeAssistent: boolean = false;
   protected canSeeCommercialAssistent: boolean = false;
@@ -29,9 +31,11 @@ export class SettingsComponent implements OnInit {
   public ngOnInit() {
     this.service.getCurrentEdge().then(edge => {
       this.edge = edge;
+      const user = this.service.metadata?.value?.user;
       this.canSeeAppCenter = canSeeAppCenter(this.edge);
-      this.canSeeHomeAssistent = UserPermission.isUserAllowedToSeeHomeAssistent(this.service.metadata?.value?.user, edge);
-      this.canSeeCommercialAssistent = UserPermission.isUserAllowedToSeeCommercialServiceAssistent(this.service.metadata?.value?.user, edge);
+      this.canSeeJsonrpcTest = JsonrpcTestPermission.canSee(user, edge);
+      this.canSeeHomeAssistent = UserPermission.isUserAllowedToSeeHomeAssistent(user, edge);
+      this.canSeeCommercialAssistent = UserPermission.isUserAllowedToSeeCommercialServiceAssistent(user, edge);
     });
   }
 }

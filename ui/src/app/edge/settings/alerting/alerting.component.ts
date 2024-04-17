@@ -1,12 +1,12 @@
-import { User } from 'src/app/shared/jsonrpc/shared';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { ActivatedRoute } from '@angular/router';
+import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
-import { SetUserAlertingConfigsRequest, UserSettingRequest } from 'src/app/shared/jsonrpc/request/setUserAlertingConfigsRequest';
 import { GetUserAlertingConfigsRequest } from 'src/app/shared/jsonrpc/request/getUserAlertingConfigsRequest';
-import { GetUserAlertingConfigsResponse, AlertingSettingResponse } from 'src/app/shared/jsonrpc/response/getUserAlertingConfigsResponse';
+import { SetUserAlertingConfigsRequest, UserSettingRequest } from 'src/app/shared/jsonrpc/request/setUserAlertingConfigsRequest';
+import { AlertingSettingResponse, GetUserAlertingConfigsResponse } from 'src/app/shared/jsonrpc/response/getUserAlertingConfigsResponse';
+import { User } from 'src/app/shared/jsonrpc/shared';
 import { Edge, Service, Utils, Websocket } from 'src/app/shared/shared';
 import { ArrayUtils } from 'src/app/shared/utils/array/array.utils';
 
@@ -14,7 +14,7 @@ export enum AlertingType {
   OFFLINE,
   FAULT,
   WARNING
-};
+}
 
 type DefaultValues = { [K in AlertingType]: Delay[]; };
 type Delay = { value: number, label: string };
@@ -43,7 +43,7 @@ export class AlertingComponent implements OnInit {
   protected error: Error;
 
   protected currentUserInformation: DetailedAlertingSetting;
-  protected currentUserForm: { formGroup: FormGroup, model: any, fields: FormlyFieldConfig[], options: FormlyFormOptions };;
+  protected currentUserForm: { formGroup: FormGroup, model: any, fields: FormlyFieldConfig[], options: FormlyFormOptions };
 
   protected otherUserInformation: AlertingSetting[];
   protected otherUserForm: FormGroup;
@@ -65,7 +65,7 @@ export class AlertingComponent implements OnInit {
         this.user = metadata.user;
       });
 
-      let request = new GetUserAlertingConfigsRequest({ edgeId: this.edge.id });
+      const request = new GetUserAlertingConfigsRequest({ edgeId: this.edge.id });
 
       this.sendRequest(request).then(response => {
         const result = response.result;
@@ -84,7 +84,7 @@ export class AlertingComponent implements OnInit {
   }
 
   private generateForm(settings: DetailedAlertingSetting): { formGroup: FormGroup, model: any, fields: FormlyFieldConfig[], options: any } {
-    let delays: Delay[] = this.defaultValues[AlertingType.OFFLINE];
+    const delays: Delay[] = this.defaultValues[AlertingType.OFFLINE];
     if (!this.isValidDelay(AlertingType.OFFLINE, settings.offlineEdgeDelay)) {
       delays.push({ value: settings.offlineEdgeDelay, label: this.getLabelToDelay(settings.offlineEdgeDelay) });
     }
@@ -132,7 +132,7 @@ export class AlertingComponent implements OnInit {
     const sorted = ArrayUtils.sortedAlphabetically(response, e => e.userLogin);
 
     sorted.forEach((r) => {
-      var setting: AlertingSetting = {
+      const setting: AlertingSetting = {
         userLogin: r.userLogin,
         offlineEdgeDelay: r.offlineEdgeDelay,
         faultEdgeDelay: r.faultEdgeDelay,
@@ -165,7 +165,7 @@ export class AlertingComponent implements OnInit {
   }
 
   private getValueOrDefault(setting: AlertingSetting, type: AlertingType) {
-    let val = this.getValue(setting, type);
+    const val = this.getValue(setting, type);
     return val <= 0 ? this.defaultValues[type][0].value : val;
   }
 
@@ -237,11 +237,11 @@ export class AlertingComponent implements OnInit {
       const formGroup = this.currentUserForm.formGroup;
       dirtyformGroups.push(formGroup);
 
-      let offlineEdgeDelay = formGroup.controls['isOfflineActive'].value ?
+      const offlineEdgeDelay = formGroup.controls['isOfflineActive'].value ?
         formGroup.controls['offlineEdgeDelay'].value : 0;
-      let faultEdgeDelay = this.currentUserInformation.isFaultActive ?
+      const faultEdgeDelay = this.currentUserInformation.isFaultActive ?
         this.currentUserInformation.faultEdgeDelay : 0;
-      let warningEdgeDelay = this.currentUserInformation.isWarningActive ?
+      const warningEdgeDelay = this.currentUserInformation.isWarningActive ?
         this.currentUserInformation.warningEdgeDelay : 0;
 
       changedUserSettings.push({

@@ -193,7 +193,7 @@ export class InstallationComponent implements OnInit {
       return;
     }
     if (!this.edge.isVersionAtLeast('2021.19.1')) {
-      let indexOfUpdate = this.ibn.views.indexOf(View.PreInstallationUpdate);
+      const indexOfUpdate = this.ibn.views.indexOf(View.PreInstallationUpdate);
       if (indexOfUpdate != -1) {
         this.ibn.views.splice(indexOfUpdate, 1);
       }

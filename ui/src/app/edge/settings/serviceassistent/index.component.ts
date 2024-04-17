@@ -57,9 +57,9 @@ export class ServiceAssistentComponent implements OnInit, OnDestroy {
         this.config = config;
         this.batteries = config.getComponentsImplementingNature("io.openems.edge.battery.api.Battery");
 
-        let channelAddresses = [];
+        const channelAddresses = [];
         this.batteries.forEach(battery => {
-          for (var channel in config.components[battery.id].channels) {
+          for (const channel in config.components[battery.id].channels) {
             channelAddresses.push(new ChannelAddress(battery.id, channel));
           }
         });
@@ -80,11 +80,11 @@ export class ServiceAssistentComponent implements OnInit, OnDestroy {
       }
     });
 
-    let address = new ChannelAddress(componentId, channelId);
+    const address = new ChannelAddress(componentId, channelId);
     this.subscribedChannels.push(address);
 
     if (this.config) {
-      let channelConfig = this.config.getChannel(address);
+      const channelConfig = this.config.getChannel(address);
       if (channelConfig) {
         if (channelConfig.accessMode == "WO") {
           // do not subscribe Write-Only Channels
