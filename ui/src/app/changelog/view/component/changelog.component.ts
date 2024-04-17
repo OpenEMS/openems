@@ -33,6 +33,17 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2024.4.1',
+        changes: [
+          Changelog.UI + "Fehlerbehebung Darstellung im lokalen Monitoring (Zugriff über IP-Adresse im Heimnetzwerk), Verbesserungen an der \"Footer\"-Leiste, Optimierung der historischen Ansicht für mobile Endgeräte",
+          Changelog.app(App.PV_INVERTER, App.SMA) + "Fehlerbehebung bei Modellen mit neuerem SunSpec-Protokoll (SMA Sunny Tripower mit SunSpec Model 7xx)",
+          Changelog.app(App.TIME_OF_USE) + Changelog.GENERAL_OPTIMIZATION,
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.HOME_20_30) + "Vorbereitung zur Änderung der PV-Anzeige von einzelnen Strings auf gesammte MPPT Informationen, da aus technischen Gründen keine zuverlässigen Werte je String berechnet werden können. Umstellung erfordert jeweils manuelle Anpassung der historischen Daten durch FEMS-Team." },
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.COMMERCIAL_50) + "Anpassung an State-Machine für KACO Batteriewechselrichter. Ersetzt MAX_START_ATTEMPTS durch MAX_START_TIMEOUT. Neuer Fehlerstatus GRID_DISCONNECTION" },
+          { roleIsAtLeast: Role.ADMIN, change: "Online-Monitoring-Demo: Verbesserung und automatische Anonymisierung. http://portal.fenecon.de/m/demo" },
+        ],
+      },
+      {
         version: '2024.3.1',
         changes: [
           Changelog.UI + "Optimierung der historischen Ansicht für mobile Endgeräte",
