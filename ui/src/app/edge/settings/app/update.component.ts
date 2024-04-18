@@ -138,7 +138,7 @@ export class UpdateAppComponent implements OnInit {
       })).then(response => {
         this.instances.splice(this.instances.indexOf(instance), 1);
         this.service.toast(this.translate.instant('Edge.Config.App.successDelete'), 'success');
-        const navigationExtras = { state: { installedAnApp: true } };
+        const navigationExtras = { state: { appInstanceChange: true } };
         this.router.navigate(['device/' + (this.edge.id) + '/settings/app/'], navigationExtras);
       })
       .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant('Edge.Config.App.failDelete', { error: error })))

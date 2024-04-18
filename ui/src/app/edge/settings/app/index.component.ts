@@ -87,8 +87,8 @@ export class IndexComponent implements OnInit, OnDestroy {
       switchMap(() => this.route.url),
     ).subscribe(() => {
       const navigationExtras = this.router.getCurrentNavigation()?.extras as NavigationExtras;
-      const installedAnApp = navigationExtras?.state?.installedAnApp;
-      if (installedAnApp != null && installedAnApp) {
+      const appInstanceChange = navigationExtras?.state?.appInstanceChange;
+      if (appInstanceChange != null && appInstanceChange) {
         this.init();
       }
     });
