@@ -5,7 +5,6 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	com.ghgande.j2mod,\
 	io.openems.common,\
 	io.openems.edge.bridge.http,\
 	io.openems.edge.common,\
