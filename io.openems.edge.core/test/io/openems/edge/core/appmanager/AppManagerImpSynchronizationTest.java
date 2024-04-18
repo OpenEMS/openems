@@ -66,7 +66,7 @@ public class AppManagerImpSynchronizationTest {
 
 		// create config for scheduler
 		cm.getOrCreateEmptyConfiguration(componentManager.getEdgeConfig().getComponent("scheduler0").get().getPid());
-		final var componentUtil = new ComponentUtilImpl(componentManager, cm);
+		final var componentUtil = new ComponentUtilImpl(componentManager);
 		final var appManagerUtil = new AppManagerUtilImpl(componentManager);
 		final var validator = new DummyValidator();
 

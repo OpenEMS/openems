@@ -31,6 +31,7 @@ import io.openems.edge.common.host.Host;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemUpdateRequest;
 import io.openems.edge.core.host.jsonrpc.GetNetworkConfigRequest;
 import io.openems.edge.core.host.jsonrpc.GetNetworkConfigResponse;
@@ -54,7 +55,6 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	private final DiskSpaceWorker diskSpaceWorker;
 	private final NetworkConfigurationWorker networkConfigurationWorker;
 	private final UsbConfigurationWorker usbConfigurationWorker;
-
 	private final SystemUpdateHandler systemUpdateHandler;
 
 	@Reference
@@ -143,7 +143,6 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.OWNER);
-
 		switch (request.getMethod()) {
 
 		case GetNetworkConfigRequest.METHOD:
@@ -160,6 +159,9 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 
 		case ExecuteSystemCommandRequest.METHOD:
 			return this.handleExecuteCommandRequest(user, ExecuteSystemCommandRequest.from(request));
+
+		case ExecuteSystemRestartRequest.METHOD:
+			return this.handleExecuteSystemRestartRequest(user, ExecuteSystemRestartRequest.from(request));
 
 		default:
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
@@ -243,7 +245,21 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleExecuteCommandRequest(User user,
 			ExecuteSystemCommandRequest request) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("handleExecuteCommandRequest", Role.ADMIN);
-		return this.operatingSystem.handleExecuteCommandRequest(request);
+		return this.operatingSystem.handleExecuteSystemCommandRequest(request);
+	}
+
+	/**
+	 * Handles a {@link ExecuteSystemRestartRequest}.
+	 *
+	 * @param user    the User
+	 * @param request the {@link ExecuteSystemRestartRequest}
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<? extends JsonrpcResponseSuccess> handleExecuteSystemRestartRequest(User user,
+			ExecuteSystemRestartRequest request) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast("handleExecuteSystemRestartRequest", Role.OWNER);
+		return this.operatingSystem.handleExecuteSystemRestartRequest(request);
 	}
 
 	@Override

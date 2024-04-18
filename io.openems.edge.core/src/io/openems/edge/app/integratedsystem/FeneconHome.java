@@ -20,7 +20,6 @@ import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.shadowM
 import static io.openems.edge.core.appmanager.ConfigurationTarget.VALIDATE;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -65,6 +64,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
@@ -410,17 +410,6 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 								.build()));
 			}
 
-			/*
-			 * Set Execution Order for Scheduler.
-			 */
-			List<String> schedulerExecutionOrder = new ArrayList<>();
-			if (hasEmergencyReserve) {
-				schedulerExecutionOrder.add("ctrlEmergencyCapacityReserve0");
-			}
-			schedulerExecutionOrder.add("ctrlGridOptimizedCharge0");
-			schedulerExecutionOrder.add("ctrlEssSurplusFeedToGrid0");
-			schedulerExecutionOrder.add("ctrlBalancing0");
-
 			var dependencies = Lists.newArrayList(//
 					gridOptimizedCharge(t, feedInType, maxFeedInPower), //
 					selfConsumptionOptimization(t, essId, "meter0"), //
@@ -431,9 +420,17 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 				dependencies.add(acType.getDependency(modbusIdExternal));
 			}
 
+			final var schedulerComponents = new ArrayList<SchedulerComponent>();
+			if (hasEmergencyReserve) {
+				schedulerComponents.add(new SchedulerComponent("ctrlEmergencyCapacityReserve0",
+						"Controller.Ess.EmergencyCapacityReserve", this.getAppId()));
+			}
+			schedulerComponents.add(new SchedulerComponent("ctrlEssSurplusFeedToGrid0",
+					"Controller.Ess.Hybrid.Surplus-Feed-To-Grid", this.getAppId()));
+
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.scheduler(schedulerExecutionOrder)) //
+					.addTask(Tasks.schedulerByCentralOrder(schedulerComponents)) //
 					.addDependencies(dependencies) //
 					.build();
 		};
@@ -453,6 +450,7 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create() //
 				.setCanSee(Role.INSTALLER) //
+				.setCanDelete(Role.INSTALLER) //
 				.build();
 	}
 

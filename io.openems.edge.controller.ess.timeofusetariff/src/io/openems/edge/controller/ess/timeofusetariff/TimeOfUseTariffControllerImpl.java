@@ -1,11 +1,11 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateCharge;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.essMaxChargePower;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.getEssMinSoc;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateChargeGridPower;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateDelayDischargePower;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.getEssMinSocPercentage;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.postprocessRunState;
 
 import java.time.ZonedDateTime;
@@ -43,7 +43,6 @@ import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTota
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleRequest;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Context;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Optimizer;
-import io.openems.edge.controller.ess.timeofusetariff.optimizer.Period;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
@@ -66,11 +65,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	/** The hard working Worker. */
 	private final Optimizer optimizer;
 
-	/** Delayed Time is aggregated also after restart of OpenEMS. */
 	private final CalculateActiveTime calculateDelayedTime = new CalculateActiveTime(this,
 			TimeOfUseTariffController.ChannelId.DELAYED_TIME);
-
-	/** Charged Time is aggregated also after restart of OpenEMS. */
 	private final CalculateActiveTime calculateChargedTime = new CalculateActiveTime(this,
 			TimeOfUseTariffController.ChannelId.CHARGED_TIME);
 
@@ -116,14 +112,16 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 
 		// Prepare Optimizer and Context
 		this.optimizer = new Optimizer(() -> Context.create() //
-				.clock(this.componentManager.getClock()) //
-				.predictorManager(this.predictorManager) //
-				.timeOfUseTariff(this.timeOfUseTariff) //
-				.ess(this.ess) //
-				.ctrlEmergencyCapacityReserves(this.ctrlEmergencyCapacityReserves) //
-				.ctrlLimitTotalDischarges(this.ctrlLimitTotalDischarges) //
-				.controlMode(this.config.controlMode()) //
-				.maxChargePowerFromGrid(this.config.maxChargePowerFromGrid()) //
+				.setClock(this.componentManager.getClock()) //
+				.setSum(this.sum) //
+				.setPredictorManager(this.predictorManager) //
+				.setTimeOfUseTariff(this.timeOfUseTariff) //
+				.setEss(this.ess) //
+				.setCtrlEmergencyCapacityReserves(this.ctrlEmergencyCapacityReserves) //
+				.setCtrlLimitTotalDischarges(this.ctrlLimitTotalDischarges) //
+				.setControlMode(this.config.controlMode()) //
+				.setMaxChargePowerFromGrid(this.config.maxChargePowerFromGrid()) //
+				.setLimitChargePowerFor14aEnWG(this.config.limitChargePowerFor14aEnWG()) //
 				.build());
 	}
 
@@ -177,14 +175,14 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		this.updateVisualizationChannels();
 	}
 
-	private Period getCurrentPeriod() {
-		return this.optimizer.getCurrentPeriod();
+	private StateMachine getCurrentStateMachine() {
+		return this.optimizer.getCurrentStateMachine();
 	}
 
 	private StateMachine getCurrentPeriodState() {
-		var period = this.getCurrentPeriod();
-		if (period != null) {
-			return period.state();
+		var state = this.getCurrentStateMachine();
+		if (state != null) {
+			return state;
 		}
 		return BALANCING; // Default Fallback
 	}
@@ -197,20 +195,21 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	private void modeAutomatic() throws OpenemsNamedException {
 		// Evaluate current state
 		final var state = postprocessRunState(
-				getEssMinSoc(this.ctrlLimitTotalDischarges, this.ctrlEmergencyCapacityReserves), //
+				getEssMinSocPercentage(this.ctrlLimitTotalDischarges, this.ctrlEmergencyCapacityReserves), //
 				this.ess.getSoc().get(), //
+				this.sum.getProductionActivePower().orElse(0), //
 				this.getCurrentPeriodState());
 		this._setStateMachine(state);
 
 		// Update the timer.
-		this.calculateChargedTime.update(state == CHARGE);
+		this.calculateChargedTime.update(state == CHARGE_GRID);
 		this.calculateDelayedTime.update(state == DELAY_DISCHARGE);
 
 		// Get and apply ActivePower Less-or-Equals Set-Point
 		var activePower = switch (state) {
-		case CHARGE -> calculateCharge(this.ess, this.sum, essMaxChargePower(this.optimizer.getParams(), this.ess),
-				this.config.maxChargePowerFromGrid());
-		case DELAY_DISCHARGE -> 0;
+		case CHARGE_GRID -> calculateChargeGridPower(this.optimizer.getParams(), this.ess, this.sum,
+				this.config.maxChargePowerFromGrid(), this.config.limitChargePowerFor14aEnWG());
+		case DELAY_DISCHARGE -> calculateDelayDischargePower(this.ess);
 		case BALANCING -> null;
 		};
 
@@ -237,15 +236,20 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	 * This is only to visualize data for better debugging.
 	 */
 	private void updateVisualizationChannels() {
-		final Float quarterlyPrice;
-		var period = this.getCurrentPeriod();
+		final Double quarterlyPrice;
+		var period = this.getCurrentStateMachine();
 		if (period == null) {
 			// Values are not available.
-			quarterlyPrice = this.timeOfUseTariff.getPrices().getValues()[0];
+			quarterlyPrice = this.timeOfUseTariff.getPrices().getFirst();
 
 		} else {
-			// First period is always the current period.
-			quarterlyPrice = period.price();
+			var params = this.optimizer.getParams();
+			if (params != null) {
+				// First period is always the current period.
+				quarterlyPrice = params.optimizePeriods().get(0).price();
+			} else {
+				quarterlyPrice = null;
+			}
 		}
 
 		// Set the channels
@@ -285,7 +289,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	public String debugLog() {
 		var b = new StringBuilder() //
 				.append(this.getStateMachine()); //
-		if (this.getCurrentPeriod() == null) {
+		if (this.getCurrentStateMachine() == null) {
 			b.append("|No Schedule available");
 		}
 		return b.toString();

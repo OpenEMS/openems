@@ -1,12 +1,12 @@
 import { JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
 
-import { Role } from "../../type/role";
-
-export interface UserSettingResponse {
-    userId: string,
-    role: Role,
-    delayTime: number;
+export interface AlertingSettingResponse {
+    userLogin: string,
+    offlineEdgeDelay: number,
+    warningEdgeDelay: number,
+    faultEdgeDelay: number;
 }
+
 /**
  * JSON-RPC Response to "GetUserAlertingConfigsRequest" Request.
  *
@@ -17,11 +17,18 @@ export interface UserSettingResponse {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "result": {
- *      "userSettings?": [
+ *      "currentUserSettings": {
+ *           "userLogin": "string",
+ *           "faultEdgeDelay": "number",
+ *           "offlineEdgeDelay": "number",
+ *           "warningEdgeDelay": "number"
+ *          }
+ *      "otherUsersSettings?": [
  *          {
- *           "userId": "string",
- *           "role": "shared.Role"
- *           "timeToWait": "number"
+ *           "userLogin": "string",
+ *           "faultEdgeDelay": "number",
+ *           "offlineEdgeDelay": "number",
+ *           "warningEdgeDelay": "number"
  *          }
  *      ]
  *   }
@@ -33,7 +40,8 @@ export class GetUserAlertingConfigsResponse extends JsonrpcResponseSuccess {
     public constructor(
         public override readonly id: string,
         public override readonly result: {
-            userSettings: UserSettingResponse[]
+            currentUserSettings: AlertingSettingResponse,
+            otherUsersSettings: AlertingSettingResponse[]
         },
     ) {
         super(id, result);

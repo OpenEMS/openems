@@ -1,12 +1,10 @@
-import { ChartDataSets } from 'chart.js';
+import * as Chart from 'chart.js';
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { Data } from 'src/app/edge/history/shared';
 import { EdgeConfig, Edge } from 'src/app/shared/shared';
-import { Label } from 'ng2-charts';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import * as Chart from 'chart.js';
 
 @Component({
   selector: EvcsChartComponent.SELECTOR,
@@ -23,9 +21,9 @@ export class EvcsChartComponent implements OnInit, OnChanges {
   private static readonly SELECTOR = "evcsChart";
   public loading: boolean = true;
   public options: BarChartOptions;
-  public labels: Label[];
-  public datasets: ChartDataSets[];
-  public chart: Chart; // This will hold our chart info
+  public labels: any[];
+  public datasets: Chart.ChartDataset[];
+  public chart: Chart.Chart; // This will hold our chart info
 
 
   constructor(
@@ -56,10 +54,10 @@ export class EvcsChartComponent implements OnInit, OnChanges {
     }
     this.loading = true;
     let index = 0;
-    for (let evcsId in this.evcsMap) {
-      let chargePower = this.edge.currentData.value.channel[evcsId + '/ChargePower'];
-      let chargePowerKW = chargePower / 1000.0;
-      let alias = this.evcsConfigMap[evcsId].properties.alias;
+    for (const evcsId in this.evcsMap) {
+      const chargePower = this.edge.currentData.value.channel[evcsId + '/ChargePower'];
+      const chargePowerKW = chargePower / 1000.0;
+      const alias = this.evcsConfigMap[evcsId].properties.alias;
       if (this.datasets[index] == null) {
         this.datasets.push({
           label: alias,
@@ -72,19 +70,18 @@ export class EvcsChartComponent implements OnInit, OnChanges {
         this.datasets[index].data = [chargePowerKW != null ? chargePowerKW : 0];
       }
       index++;
-    };
+    }
     this.loading = false;
   }
 
   getMaxPower() {
-    let maxPower: number;
-    let minPower = 22;
+    const minPower = 22;
     let maxHW = this.currentData[this.componentId + '/MaximumHardwarePower'];
     let chargePower = this.currentData[this.componentId + '/ChargePower'];
     maxHW = maxHW == null ? minPower : maxHW / 1000;
     chargePower = chargePower == null ? 0 : chargePower / 1000;
 
-    maxPower = chargePower < minPower || maxPower < minPower ? minPower : maxHW;
+    const maxPower: number = chargePower < minPower || maxHW;
     return Math.round(maxPower);
   }
 }
@@ -134,7 +131,7 @@ export const DEFAULT_BAR_CHART_OPTIONS: BarChartOptions = {
       label(tooltipItems: BarChartTooltipItem, data: Data): string {
         let value: number = tooltipItems.yLabel; //.toFixed(2);
         value = parseFloat(value.toFixed(2));
-        let label = data.datasets[tooltipItems.datasetIndex].label;
+        const label = data.datasets[tooltipItems.datasetIndex].label;
         return label + ": " + value.toLocaleString('de-DE') + " kW";
       },
     },

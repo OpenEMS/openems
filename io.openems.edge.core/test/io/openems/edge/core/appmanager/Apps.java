@@ -17,6 +17,8 @@ import io.openems.edge.app.api.ModbusTcpApiReadWrite;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
 import io.openems.edge.app.api.RestJsonApiReadWrite;
 import io.openems.edge.app.ess.FixActivePower;
+import io.openems.edge.app.ess.FixStateOfCharge;
+import io.openems.edge.app.ess.PowerPlantController;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
 import io.openems.edge.app.evcs.AlpitronicEvcs;
 import io.openems.edge.app.evcs.EvcsCluster;
@@ -31,9 +33,6 @@ import io.openems.edge.app.heat.HeatingElement;
 import io.openems.edge.app.integratedsystem.FeneconHome;
 import io.openems.edge.app.integratedsystem.FeneconHome20;
 import io.openems.edge.app.integratedsystem.FeneconHome30;
-import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk010;
-import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk011;
-import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk110;
 import io.openems.edge.app.loadcontrol.ManualRelayControl;
 import io.openems.edge.app.loadcontrol.ThresholdControl;
 import io.openems.edge.app.meter.CarloGavazziMeter;
@@ -107,36 +106,6 @@ public class Apps {
 	 */
 	public static final FeneconHome30 feneconHome30(AppManagerTestBundle t) {
 		return app(t, FeneconHome30::new, "App.FENECON.Home.30");
-	}
-
-	/**
-	 * Test method for creating a {@link Isk110}.
-	 * 
-	 * @param t the {@link AppManagerTestBundle}
-	 * @return the {@link OpenemsApp} instance
-	 */
-	public static final Isk110 feneconIsk110(AppManagerTestBundle t) {
-		return app(t, Isk110::new, "App.FENECON.Industrial.S.ISK110");
-	}
-
-	/**
-	 * Test method for creating a {@link Isk010}.
-	 * 
-	 * @param t the {@link AppManagerTestBundle}
-	 * @return the {@link OpenemsApp} instance
-	 */
-	public static final Isk010 feneconIsk010(AppManagerTestBundle t) {
-		return app(t, Isk010::new, "App.FENECON.Industrial.S.ISK010");
-	}
-
-	/**
-	 * Test method for creating a {@link Isk011}.
-	 * 
-	 * @param t the {@link AppManagerTestBundle}
-	 * @return the {@link OpenemsApp} instance
-	 */
-	public static final Isk011 feneconIsk011(AppManagerTestBundle t) {
-		return app(t, Isk011::new, "App.FENECON.Industrial.S.ISK011");
 	}
 
 	// TimeOfUseTariff
@@ -542,6 +511,16 @@ public class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link FixStateOfCharge}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FixStateOfCharge fixStateOfCharge(AppManagerTestBundle t) {
+		return app(t, FixStateOfCharge::new, "App.Ess.FixStateOfCharge");
+	}
+
+	/**
 	 * Test method for creating a {@link PrepareBatteryExtension}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -549,6 +528,16 @@ public class Apps {
 	 */
 	public static final PrepareBatteryExtension prepareBatteryExtension(AppManagerTestBundle t) {
 		return app(t, PrepareBatteryExtension::new, "App.Ess.PrepareBatteryExtension");
+	}
+
+	/**
+	 * Test method for creating a {@link PowerPlantController}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final PowerPlantController powerPlantController(AppManagerTestBundle t) {
+		return app(t, PowerPlantController::new, "App.Ess.PowerPlantController");
 	}
 
 	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructor<T> constructor, String appId) {

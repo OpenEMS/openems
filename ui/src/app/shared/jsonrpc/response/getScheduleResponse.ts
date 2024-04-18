@@ -12,8 +12,10 @@ import { JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
  *     	"timestamp": string,
  *      "price": number,
  *      "state": number,
+ *      "grid": number,
  *      "production": number,
  *      "consumption": number,
+ *      "ess": number,
  *      "soc": number,
  *     }]
  *   }
@@ -22,17 +24,20 @@ import { JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
  */
 export class GetScheduleResponse extends JsonrpcResponseSuccess {
 
+
     public constructor(
         public override readonly id: string,
         public override readonly result: {
-            schedule: [{
+            schedule: {
                 timestamp: string;
                 price: number;
                 state: number;
+                grid: number;
                 production: number,
                 consumption: number,
-                soc: number
-            }]
+                ess: number,
+                soc: number,
+            }[]
         },
     ) {
         super(id, result);

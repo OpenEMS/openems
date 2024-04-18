@@ -3,9 +3,10 @@ package io.openems.backend.common.metadata;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-import com.google.gson.JsonObject;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+
+import com.google.gson.JsonObject;
 
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
@@ -30,7 +31,8 @@ public class User extends AbstractUser {
 	 */
 	private final boolean hasMultipleEdges;
 
-	public User(String id, String name, String token, Language language, Role globalRole, boolean hasMultipleEdges, JsonObject settings) {
+	public User(String id, String name, String token, Language language, Role globalRole, boolean hasMultipleEdges,
+			JsonObject settings) {
 		this(id, name, token, language, globalRole, new TreeMap<>(), hasMultipleEdges, settings);
 	}
 

@@ -178,6 +178,7 @@ public class Edge {
 
 			EventBuilder.from(this.parent.getEventAdmin(), Events.ON_SET_VERSION) //
 					.addArg(Events.OnSetVersion.EDGE, this) //
+					.addArg(Events.OnSetVersion.OLD_VERSION, oldVersion) //
 					.addArg(Events.OnSetVersion.VERSION, version) //
 					.send();
 		}
@@ -255,6 +256,7 @@ public class Edge {
 
 		public static final class OnSetVersion {
 			public static final String EDGE = "Edge:Edge";
+			public static final String OLD_VERSION = "OldVersion:SemanticVersion";
 			public static final String VERSION = "Version:SemanticVersion";
 		}
 
@@ -268,7 +270,7 @@ public class Edge {
 		public static final String ON_SET_SUM_STATE = Events.TOPIC_BASE + "ON_SET_SUM_STATE";
 
 		public static final class OnSetSumState {
-			public static final String EDGE = "Edge:Edge";
+			public static final String EDGE_ID = "EdgeId:String";
 			public static final String SUM_STATE = "SumState:Level";
 		}
 

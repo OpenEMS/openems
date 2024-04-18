@@ -40,6 +40,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
@@ -153,7 +154,8 @@ public class IesKeywattEvcs extends AbstractOpenemsAppWithProps<IesKeywattEvcs, 
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.scheduler(ctrlEvcsId, "ctrlBalancing0")) //
+					.addTask(Tasks.schedulerByCentralOrder(
+							new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId()))) //
 					.addDependencies(EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
 							maxHardwarePowerPerPhase, evcsId)) //
 					.build();

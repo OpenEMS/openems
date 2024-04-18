@@ -11,6 +11,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int gridMinActivePower;
 		private int gridMaxActivePower;
 		private int productionMaxActivePower;
+		private int essMinDischargePower;
+		private int essMaxDischargePower;
 		private int consumptionMaxActivePower;
 		private String[] ignoreStateComponents;
 
@@ -29,6 +31,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setProductionMaxActivePower(int productionMaxActivePower) {
 			this.productionMaxActivePower = productionMaxActivePower;
+			return this;
+		}
+
+		public Builder setEssMinDischargePower(int setEssMinDischargePower) {
+			this.essMinDischargePower = setEssMinDischargePower;
+			return this;
+		}
+
+		public Builder setEssMaxDischargePower(int setEssMaxDischargePower) {
+			this.essMaxDischargePower = setEssMaxDischargePower;
 			return this;
 		}
 
@@ -71,6 +83,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int gridMaxActivePower() {
 		return this.builder.gridMaxActivePower;
+	}
+
+	@Override
+	public int essMinDischargePower() {
+		return this.builder.essMinDischargePower;
+	}
+
+	@Override
+	public int essMaxDischargePower() {
+		return this.builder.essMaxDischargePower;
 	}
 
 	@Override

@@ -20,10 +20,10 @@ export class TotalChartComponent extends AbstractHistoryChart {
     const controller: string[] = config?.getComponentIdsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController")
       .concat(config.getComponentIdsByFactory("Controller.ChannelThreshold"));
 
-    let components: { [controllerId: string]: string } = {};
-    let input: HistoryUtils.InputChannel[] = [];
+    const components: { [controllerId: string]: string } = {};
+    const input: HistoryUtils.InputChannel[] = [];
 
-    for (let controllerId of controller) {
+    for (const controllerId of controller) {
       const powerChannel = ChannelAddress.fromString(config.getComponentProperties(controllerId)['outputChannelAddress']);
       components[controllerId] = powerChannel.channelId;
       input.push({ name: controllerId, powerChannel: powerChannel, energyChannel: new ChannelAddress(controllerId, 'CumulatedActiveTime') });
@@ -33,7 +33,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
       input: input,
       output: (data: HistoryUtils.ChannelData) => {
 
-        let output: HistoryUtils.DisplayValues[] = [];
+        const output: HistoryUtils.DisplayValues[] = [];
 
         const colors: string[] = ['rgb(0,0,139)', 'rgb(0,191,255)', 'rgb(0,0,56)', 'rgb(77,77,174)'];
 
@@ -51,6 +51,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
                 .map(val => Utils.multiplySafely(val, 1000));
             },
             color: colors[Math.min(i % colors.length, (colors.length - 1))],
+            stack: 0,
           });
         }
 
