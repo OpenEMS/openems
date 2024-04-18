@@ -23,15 +23,16 @@ export abstract class AbstractHome10Ibn extends AbstractHomeIbn {
   public override readonly homeAppId: string = 'App.FENECON.Home';
   public override readonly maxNumberOfModulesPerTower: number = 10;
   public override readonly maxNumberOfPvStrings: number = 2;
+  public override readonly maxNumberOfMppt: number = -1;
   public override readonly maxNumberOfTowers: number = 3;
   public override readonly minNumberOfModulesPerTower: number = 4;
 
   public override mppt: {
-    mppt1pv1: boolean;
-    mppt2pv2: boolean;
+    mppt1: boolean;
+    mppt2: boolean;
   } = {
-      mppt1pv1: true,
-      mppt2pv2: true,
+      mppt1: true,
+      mppt2: true,
     };
 
   public override getHomeAppProperties(safetyCountry: SafetyCountry, feedInSetting: FeedInSetting): {} {

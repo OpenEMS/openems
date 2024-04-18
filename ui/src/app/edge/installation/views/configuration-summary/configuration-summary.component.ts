@@ -201,8 +201,11 @@ export class ConfigurationSummaryComponent implements OnInit {
       { label: this.translate.instant('Register.Form.city'), value: data.city },
       { label: this.translate.instant('Register.Form.country'), value: this.getCountryLabel(data.country) },
       { label: this.translate.instant('Register.Form.email'), value: data.email },
-      { label: this.translate.instant('Register.Form.phone'), value: data.phone },
     );
+
+    if (data.phone) {
+      rows.push({ label: this.translate.instant('Register.Form.phone'), value: data.phone });
+    }
 
     return rows;
   }
