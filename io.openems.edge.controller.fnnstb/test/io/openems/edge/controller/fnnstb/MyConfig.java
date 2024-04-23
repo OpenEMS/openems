@@ -98,6 +98,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.uri;
 	}
 
+	@Override
 	public String topicName() {
 		return this.builder.topicName;
 	}

@@ -176,9 +176,9 @@ public class ControllerFnnstbImpl extends AbstractOpenemsComponent
 		Gson gson = new Gson();
 		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 
-		switch (getPayloadType(jsonObject)) {
-		case SIGNAL -> parseSignal(jsonObject);
-		case NODES -> parseNodes(jsonObject);
+		switch (this.getPayloadType(jsonObject)) {
+		case SIGNAL -> this.parseSignal(jsonObject);
+		case NODES -> this.parseNodes(jsonObject);
 		}
 	}
 
@@ -192,31 +192,29 @@ public class ControllerFnnstbImpl extends AbstractOpenemsComponent
 
 	private void parseSignal(JsonObject jsonObject) {
 		this.signalValue = jsonObject.get("signal").getAsBoolean();
-		log.info("Signal: " + this.signalValue);
+		this.log.info("Signal: " + this.signalValue);
 	}
 
 	private void parseNodes(JsonObject jsonObject) {
 		JsonObject totwObject = jsonObject.getAsJsonObject("totw");
-		Node totwNode = parseNode(totwObject, "totw");
+		Node totwNode = this.parseNode(totwObject, "totw");
 
-		log.info("totw" + ":");
-		log.info("  mag_f: " + totwNode.magF);
-		log.info("  t: " + totwNode.t);
-		log.info("  units_multiplier: " + totwNode.unitsMultiplier);
+		this.log.info("totw" + ":");
+		this.log.info("  mag_f: " + totwNode.magF);
+		this.log.info("  t: " + totwNode.t);
+		this.log.info("  units_multiplier: " + totwNode.unitsMultiplier);
 
 		JsonObject hzObject = jsonObject.getAsJsonObject("hz");
-		Node hzNode = parseNode(hzObject, "hz");
+		Node hzNode = this.parseNode(hzObject, "hz");
 
-		log.info("hz" + ":");
-		log.info("  mag_f: " + hzNode.magF);
-		log.info("  t: " + hzNode.t);
-		log.info("  units_multiplier: " + hzNode.unitsMultiplier);
+		this.log.info("hz" + ":");
+		this.log.info("  mag_f: " + hzNode.magF);
+		this.log.info("  t: " + hzNode.t);
+		this.log.info("  units_multiplier: " + hzNode.unitsMultiplier);
 	}
 
 	/**
-	 * Parses a JsonObject representing a node in the JSON structure.
-	 *
-	 * Example JSON :
+	 * Parses a JsonObject representing a node in the JSON structure. Example JSON :
 	 * 
 	 * <pre>
 	 * {
@@ -235,6 +233,7 @@ public class ControllerFnnstbImpl extends AbstractOpenemsComponent
 	 *
 	 * @param node     The JsonObject representing the node to parse.
 	 * @param nodeName The name of the node being parsed.
+	 * @return Node type of node
 	 */
 	private Node parseNode(JsonObject node, String nodeName) {
 		double magF = node.get("mag_f").getAsDouble();
