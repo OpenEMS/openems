@@ -149,7 +149,7 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 					.ofInstant(Instant.ofEpochMilli(getAsLong(element, "start_timestamp")), //
 							ZoneId.systemDefault())
 					.truncatedTo(ChronoUnit.HOURS);
-			
+
 			// Adding the values in the Map.
 			result.put(startTimeStamp, marketPrice);
 			result.put(startTimeStamp.plusMinutes(15), marketPrice);

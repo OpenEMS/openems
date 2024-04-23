@@ -1254,7 +1254,7 @@ public class EdgeConfig {
 	private volatile JsonObject _json = null;
 
 	/**
-	 * Build from {@link ActualEdgeConfig} using a {@link Builder}.
+	 * Build from {@link ActualEdgeConfig}.
 	 * 
 	 * @param actual the {@link ActualEdgeConfig}
 	 */

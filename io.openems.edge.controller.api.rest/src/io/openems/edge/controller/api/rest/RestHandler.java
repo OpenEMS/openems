@@ -1,8 +1,9 @@
 package io.openems.edge.controller.api.rest;
 
-import java.io.BufferedReader;
+import static io.openems.common.utils.JsonUtils.parseToJsonObject;
+import static java.util.stream.Collectors.joining;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Base64;
@@ -14,7 +15,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
 
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError;
@@ -364,11 +363,12 @@ public class RestHandler extends AbstractHandler {
 	 */
 	private static JsonObject parseJson(Request baseRequest) throws OpenemsException {
 		try {
-			return JsonParser.parseString(//
-					new BufferedReader(new InputStreamReader(baseRequest.getInputStream())) //
-							.lines() //
-							.collect(Collectors.joining("\n"))) //
-					.getAsJsonObject();
+			try (var br = baseRequest.getReader()) {
+				return parseToJsonObject(br //
+						.lines() //
+						.collect(joining("\n")));
+			}
+
 		} catch (Exception e) {
 			throw new OpenemsException("Unable to parse: " + e.getMessage());
 		}
