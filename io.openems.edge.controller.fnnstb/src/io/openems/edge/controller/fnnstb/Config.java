@@ -36,6 +36,9 @@ import org.osgi.service.metatype.annotations.AttributeType;
 	@AttributeDefinition(name = "Uri", description = "The connection Uri to MQTT broker.")
 	String uri() default "tcp://localhost:1883";
 
+	@AttributeDefinition(name = "Topic Name", description = "The name of the topic.")
+	String topicName() default "AnOut_mxVal_f";
+
 	@AttributeDefinition(name = "Certificate", description = "The client certificate in PEM format")
 	String certPem();
 

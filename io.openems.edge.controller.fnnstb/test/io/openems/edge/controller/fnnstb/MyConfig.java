@@ -11,6 +11,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String essId;
 		private String uri;
+		private String topicName;
 		private String clientId;
 		private String username;
 		private String password;
@@ -33,6 +34,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setUri(String uri) {
 			this.uri = uri;
+			return this;
+		}
+
+		public Builder setTopicName(String topicName) {
+			this.topicName = topicName;
 			return this;
 		}
 
@@ -90,6 +96,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String uri() {
 		return this.builder.uri;
+	}
+
+	public String topicName() {
+		return this.builder.topicName;
 	}
 
 	@Override

@@ -45,13 +45,19 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 public class ControllerFnnstbImpl extends AbstractOpenemsComponent
 		implements ControllerFnnstb, Controller, OpenemsComponent, EventHandler {
 
-	private final String topicName = "AnOut_mxVal_f";
 	private final Logger log = LoggerFactory.getLogger(ControllerFnnstbImpl.class);
 
 	private Config config = null;
 	private MqttClient client;
 	private MqttConnectionManager connectionManager;
 	protected boolean signalValue = false;
+
+	record Node(double magF, long t, int unitsMultiplier) {
+	}
+
+	private enum PayloadType {
+		SIGNAL, NODES
+	}
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -115,7 +121,7 @@ public class ControllerFnnstbImpl extends AbstractOpenemsComponent
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CONFIG_UPDATE -> this.subscriber(this.client, this.topicName);
+		case EdgeEventConstants.TOPIC_CONFIG_UPDATE -> this.subscriber(this.client, this.config.topicName());
 		}
 	}
 
@@ -157,7 +163,6 @@ public class ControllerFnnstbImpl extends AbstractOpenemsComponent
 			public void messageArrived(String topicName, MqttMessage message) throws Exception {
 				var payload = new String(message.getPayload());
 				ControllerFnnstbImpl.this.parseMessage(payload);
-
 			}
 
 			@Override
@@ -167,9 +172,74 @@ public class ControllerFnnstbImpl extends AbstractOpenemsComponent
 		});
 	}
 
-	protected void parseMessage(String payload) {
+	protected void parseMessage(String jsonString) {
 		Gson gson = new Gson();
-		JsonObject jsonObject = gson.fromJson(payload, JsonObject.class);
+		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+
+		switch (getPayloadType(jsonObject)) {
+		case SIGNAL -> parseSignal(jsonObject);
+		case NODES -> parseNodes(jsonObject);
+		}
+	}
+
+	private PayloadType getPayloadType(JsonObject jsonObject) {
+		if (jsonObject.has("signal")) {
+			return PayloadType.SIGNAL;
+		} else {
+			return PayloadType.NODES;
+		}
+	}
+
+	private void parseSignal(JsonObject jsonObject) {
 		this.signalValue = jsonObject.get("signal").getAsBoolean();
+		log.info("Signal: " + this.signalValue);
+	}
+
+	private void parseNodes(JsonObject jsonObject) {
+		JsonObject totwObject = jsonObject.getAsJsonObject("totw");
+		Node totwNode = parseNode(totwObject, "totw");
+
+		log.info("totw" + ":");
+		log.info("  mag_f: " + totwNode.magF);
+		log.info("  t: " + totwNode.t);
+		log.info("  units_multiplier: " + totwNode.unitsMultiplier);
+
+		JsonObject hzObject = jsonObject.getAsJsonObject("hz");
+		Node hzNode = parseNode(hzObject, "hz");
+
+		log.info("hz" + ":");
+		log.info("  mag_f: " + hzNode.magF);
+		log.info("  t: " + hzNode.t);
+		log.info("  units_multiplier: " + hzNode.unitsMultiplier);
+	}
+
+	/**
+	 * Parses a JsonObject representing a node in the JSON structure.
+	 *
+	 * Example JSON :
+	 * 
+	 * <pre>
+	 * {
+	 *    "totw": {
+	 *        "mag_f": 123.456,
+	 *        "t": 1234567890,
+	 *        "units_multiplier": 1
+	 *    },
+	 *    "hz": {
+	 *        "mag_f": 50.0,
+	 *        "t": 1234567890,
+	 *        "units_multiplier": 1
+	 *    }
+	 * }
+	 * </pre>
+	 *
+	 * @param node     The JsonObject representing the node to parse.
+	 * @param nodeName The name of the node being parsed.
+	 */
+	private Node parseNode(JsonObject node, String nodeName) {
+		double magF = node.get("mag_f").getAsDouble();
+		long t = node.get("t").getAsLong();
+		int unitsMultiplier = node.get("units_multiplier").getAsInt();
+		return new Node(magF, t, unitsMultiplier);
 	}
 }

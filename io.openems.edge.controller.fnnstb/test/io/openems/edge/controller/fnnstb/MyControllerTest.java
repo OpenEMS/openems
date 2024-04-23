@@ -20,7 +20,7 @@ public class MyControllerTest {
 	 * 00:00:00 , ZoneOffset.UTC); new ComponentTest(new ControllerFnnstbImpl()) //
 	 * .addReference("componentManager", new DummyComponentManager(clock)) //
 	 * .addComponent(new DummySum()) // .activate(MyConfig.create() //
-	 * .setId(CTRL_ID) // .setClientId("edge0") //
+	 * .setId(CTRL_ID) // .setClientId("edge0") // .setTopicname("AnOut_mxVal_f")
 	 * .setEssId("ess0").setUsername("guest") // .setPassword("guest") //
 	 * .setUri("ws://localhost:1883") // .setCertPem("") // .setPrivateKeyPem("") //
 	 * .setTrustStorePath("") // .build()); }
