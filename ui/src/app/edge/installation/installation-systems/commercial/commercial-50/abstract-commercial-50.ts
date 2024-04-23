@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';

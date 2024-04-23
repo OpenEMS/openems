@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 
 import { TranslateService } from "@ngx-translate/core";
 import { BatteryMode, BatteryStateMachine, CurrentData, EdgeConfig, EssStateMachine, GoodWe, GridMode, SafetyCountryCode, Utils } from "../../shared";

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Subscription } from "rxjs";
 import { filter } from "rxjs/operators";
 import { ChannelAddress, Edge, EdgeConfig, Websocket } from "src/app/shared/shared";

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { History } from "src/app/edge/history/common/energy/chart/channels.spec";
 import { DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
 import { OeTester } from "src/app/shared/genericComponents/shared/testing/common";

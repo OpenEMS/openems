@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { NgModule } from "@angular/core";
 import { FormControl, ValidationErrors } from "@angular/forms";
 import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";

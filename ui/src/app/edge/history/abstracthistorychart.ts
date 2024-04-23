@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { AbstractHistoryChart as NewAbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';

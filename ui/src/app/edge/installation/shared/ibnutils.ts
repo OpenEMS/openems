@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Interface } from "src/app/shared/interface/interface";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { Edge, Websocket } from "src/app/shared/shared";

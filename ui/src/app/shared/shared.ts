@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 export { Edge } from "./edge/edge";
 export { EdgeConfig } from "./edge/edgeconfig";
 export { Logger } from "./service/logger";

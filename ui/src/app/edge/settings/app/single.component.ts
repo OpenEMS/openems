@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';

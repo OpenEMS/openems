@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { FeedInSetting, FeedInType } from "../../shared/enums";
 import { SafetyCountry } from "../../views/configuration-execute/safety-country";
 import { AbstractHomeIbn } from "./abstract-home";

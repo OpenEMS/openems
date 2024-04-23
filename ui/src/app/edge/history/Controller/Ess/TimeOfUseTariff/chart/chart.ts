@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input } from '@angular/core';
 import * as Chart from 'chart.js';
 import { calculateResolution, ChronoUnit, Resolution } from 'src/app/edge/history/shared';

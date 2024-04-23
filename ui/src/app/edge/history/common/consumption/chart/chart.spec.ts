@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
 import { OeTester } from "src/app/shared/genericComponents/shared/testing/common";
 

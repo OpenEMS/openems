@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { AfterContentChecked, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { AdvertWidgets } from 'src/app/shared/type/widget';

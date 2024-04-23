@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { TranslateService } from "@ngx-translate/core";
 import { Category } from "src/app/edge/installation/shared/category";
 
