@@ -109,7 +109,7 @@
 	org.apache.felix.inventory;version='[2.0.0,2.0.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
 	org.apache.felix.scr;version='[2.2.10,2.2.11)',\
-	org.apache.felix.webconsole;version='[5.0.0,5.0.1)',\
+	org.apache.felix.webconsole;version='[5.0.2,5.0.3)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
 	org.jetbrains.kotlin.osgi-bundle;version='[1.9.23,1.9.24)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
