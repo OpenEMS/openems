@@ -399,7 +399,7 @@ public final class Utils {
 		// Process past data
 		final var fromDate = now.minusHours(3);
 		final var toDate = now.minusMinutes(15);
-		
+
 		try {
 			var queryResult = timedata.queryHistoricData(null, fromDate, toDate, //
 					Set.of(channelQuarterlyPrices, channelStateMachine, //

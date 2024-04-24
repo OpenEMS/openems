@@ -30,7 +30,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	public static final int MAX_SIMULTANEOUS_MSGS = 500;
 	public static final int MAX_SIMULTANEOUS_EDGES = 1000;
 	public static final int EDGE_REBOOT_MINUTES = 5;
-	
+
 	private final Logger log = LoggerFactory.getLogger(OfflineEdgeHandler.class);
 
 	private final int initialDelay; // in Minutes
@@ -42,7 +42,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 
 	private TimedTask initMetadata;
 	private TimedExecutor timeService;
-	
+
 	public OfflineEdgeHandler(MessageSchedulerService mss, TimedExecutor timeService, Mailer mailer, Metadata metadata,
 			int initialDelay) {
 		this.mailer = mailer;
@@ -256,7 +256,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 			yield this::handleOnSetOnline;
 
 		case Metadata.Events.AFTER_IS_INITIALIZED:
-			yield this::handleMetadataAfterInitialize; 
+			yield this::handleMetadataAfterInitialize;
 
 		default:
 			yield null;
