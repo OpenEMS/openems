@@ -1,11 +1,16 @@
 package io.openems.edge.goodwe.batteryinverter;
 
+import static io.openems.edge.goodwe.batteryinverter.GoodWeBatteryInverterImpl.doSetBmsVoltage;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -706,5 +711,38 @@ public class GoodWeBatteryInverterImplTest {
 						.output(CHARGER_5_ACTUAL_POWER, 2000) //
 						.output(CHARGER_6_ACTUAL_POWER, 0) //
 				);
+	}
+
+	@Test
+	public void testDoSetBmsVoltage() {
+		final var battery = new DummyBattery("battery0");
+		final var bmsChargeMaxVoltage = new Value<Integer>(null, 123);
+		final var bmsDischargeMinVoltage = new Value<Integer>(null, 456);
+
+		// No battery values
+		assertFalse(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1, bmsDischargeMinVoltage, 1));
+		battery //
+				.withChargeMaxCurrent(234) //
+				.withDischargeMaxCurrent(234);
+
+		// Battery full
+		battery //
+				.withChargeMaxCurrent(0); //
+		assertFalse(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1, bmsDischargeMinVoltage, 1));
+
+		// Battery empty
+		battery //
+				.withDischargeMaxCurrent(0); //
+		assertFalse(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1, bmsDischargeMinVoltage, 1));
+
+		// Values are already set
+		battery //
+				.withChargeMaxCurrent(234) //
+				.withDischargeMaxCurrent(234);
+		assertFalse(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 123, bmsDischargeMinVoltage, 456));
+
+		// Values should be updated
+		assertTrue(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1, bmsDischargeMinVoltage, 456));
+		assertTrue(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 123, bmsDischargeMinVoltage, 1));
 	}
 }
