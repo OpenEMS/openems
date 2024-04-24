@@ -83,7 +83,6 @@ export class OverViewComponent implements OnInit, OnDestroy {
 
         this.loadNextPage().then((edges) => {
             this.filteredEdges = edges;
-            this.page++;
         });
     }
 
