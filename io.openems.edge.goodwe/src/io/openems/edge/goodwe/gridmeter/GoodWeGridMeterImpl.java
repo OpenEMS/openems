@@ -176,18 +176,11 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 								this.ignoreZeroAndScaleFactor1)));
 
 		// Handles different DSP versions
-		readElementOnce(protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(35016))
-				.thenAccept(dspVersion -> {
-					try {
-						if (dspVersion >= 4 || dspVersion == 0) {
-							this.handleDspVersion4(protocol);
-						}
-
-					} catch (OpenemsException e) {
-						this.logError(this.log, "Unable to add task for modbus protocol");
-						e.printStackTrace();
-					}
-				});
+		readElementOnce(protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(35016)).thenAccept(dspVersion -> {
+			if (dspVersion >= 4 || dspVersion == 0) {
+				this.handleDspVersion4(protocol);
+			}
+		});
 
 		switch (this.config.goodWeMeterCategory()) {
 		case COMMERCIAL_METER -> this.handleExternalMeter(protocol);
@@ -202,9 +195,8 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	 * Adds Registers that are available from DSP version 4.
 	 * 
 	 * @param protocol the {@link ModbusProtocol}
-	 * @throws OpenemsException on error
 	 */
-	private void handleDspVersion4(ModbusProtocol protocol) throws OpenemsException {
+	private void handleDspVersion4(ModbusProtocol protocol) {
 		protocol.addTask(//
 				new FC3ReadRegistersTask(36052, Priority.LOW, //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(36052),

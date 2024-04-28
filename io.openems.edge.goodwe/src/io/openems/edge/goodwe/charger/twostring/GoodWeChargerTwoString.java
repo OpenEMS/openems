@@ -8,6 +8,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.goodwe.charger.GoodWeCharger;
 
+@Deprecated
 public interface GoodWeChargerTwoString extends OpenemsComponent, EssDcCharger, GoodWeCharger {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
