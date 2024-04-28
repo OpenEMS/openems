@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { DecimalPipe, formatNumber } from '@angular/common';
 import { ChangeDetectorRef, Directive, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ChannelAddress } from '../type/channeladdress';
 import { Widgets } from '../type/widget';
 import { Edge } from './edge';

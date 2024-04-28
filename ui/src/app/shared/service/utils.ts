@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { ChartDataset } from 'chart.js';

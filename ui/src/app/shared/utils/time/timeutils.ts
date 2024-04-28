@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { DecimalPipe } from "@angular/common";
 
 import { Language } from "../../type/language";

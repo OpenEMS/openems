@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { TranslateService } from "@ngx-translate/core";

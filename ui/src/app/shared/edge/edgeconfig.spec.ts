@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { TimeUnit } from "chart.js";
 import { SumState } from "src/app/index/shared/sumState";
 
