@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -20,25 +19,26 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
+import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
-import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.EdgeKeys;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.user.User;
 
 /**
  * Simulates a ComponentManager for the OpenEMS Component test framework.
  */
-public class DummyComponentManager implements ComponentManager {
+public class DummyComponentManager implements ComponentManager, ComponentJsonApi {
 
 	private final List<OpenemsComponent> components = new ArrayList<>();
 	private final Clock clock;
@@ -167,38 +167,29 @@ public class DummyComponentManager implements ComponentManager {
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
-			throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.GUEST);
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(GetEdgeConfigRequest.METHOD, call -> {
+			return new GetEdgeConfigResponse(call.getRequest().getId(), this.getEdgeConfig());
+		});
 
-		switch (request.getMethod()) {
+		builder.handleRequest(CreateComponentConfigRequest.METHOD, call -> {
+			final var request = CreateComponentConfigRequest.from(call.getRequest());
+			this.handleCreateComponentConfigRequest(call.get(EdgeKeys.USER_KEY), request);
 
-		case GetEdgeConfigRequest.METHOD:
-			return this.handleGetEdgeConfigRequest(user, GetEdgeConfigRequest.from(request));
-		case CreateComponentConfigRequest.METHOD:
-			return this.handleCreateComponentConfigRequest(user, CreateComponentConfigRequest.from(request));
-		case UpdateComponentConfigRequest.METHOD:
-			return this.handleUpdateComponentConfigRequest(user, UpdateComponentConfigRequest.from(request));
+			return new GenericJsonrpcResponseSuccess(request.getId());
+		});
 
-		default:
-			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
-		}
+		builder.handleRequest(UpdateComponentConfigRequest.METHOD, call -> {
+			final var request = UpdateComponentConfigRequest.from(call.getRequest());
+			this.handleUpdateComponentConfigRequest(call.get(EdgeKeys.USER_KEY), request);
+
+			return new GenericJsonrpcResponseSuccess(request.getId());
+		});
 	}
 
-	/**
-	 * Handles a {@link CreateComponentConfigRequest}.
-	 * 
-	 * <p>
-	 * Only creates the Configuration with the given Properties. Does not actually
-	 * add the component the the dummy component list.
-	 * 
-	 * @param user    the executing user
-	 * @param request the {@link CreateComponentConfigRequest}
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
-			CreateComponentConfigRequest request) throws OpenemsNamedException {
+	@Override
+	public void handleCreateComponentConfigRequest(User user, CreateComponentConfigRequest request)
+			throws OpenemsNamedException {
 		if (this.configurationAdmin == null) {
 			throw new OpenemsException("Can not create Component Config. ConfigurationAdmin is null!");
 		}
@@ -218,27 +209,11 @@ public class DummyComponentManager implements ComponentManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
-	/**
-	 * Handles a {@link GetEdgeConfigRequest}.
-	 *
-	 * @param user    the {@link User}
-	 * @param request the {@link GetEdgeConfigRequest}
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(User user,
-			GetEdgeConfigRequest request) throws OpenemsNamedException {
-		var config = this.getEdgeConfig();
-		var response = new GetEdgeConfigResponse(request.getId(), config);
-		return CompletableFuture.completedFuture(response);
-	}
-
-	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(User user,
-			UpdateComponentConfigRequest request) throws OpenemsNamedException {
+	@Override
+	public void handleUpdateComponentConfigRequest(User user, UpdateComponentConfigRequest request)
+			throws OpenemsNamedException {
 		if (this.configurationAdmin == null) {
 			throw new OpenemsException("Can not update Component Config. ConfigurationAdmin is null!");
 		}
@@ -257,7 +232,29 @@ public class DummyComponentManager implements ComponentManager {
 				}
 				configuration.update(properties);
 			}
-			return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+		} catch (IOException | InvalidSyntaxException e) {
+			throw new OpenemsException("Can not update Component Config.");
+		}
+	}
+
+	@Override
+	public void handleDeleteComponentConfigRequest(User user, DeleteComponentConfigRequest request)
+			throws OpenemsNamedException {
+		if (this.configurationAdmin == null) {
+			throw new OpenemsException("Can not delete Component Config. ConfigurationAdmin is null!");
+		}
+
+		try {
+			for (var configuration : this.configurationAdmin.listConfigurations(null)) {
+				final var props = configuration.getProperties();
+				if (props == null) {
+					continue;
+				}
+				if (props.get("id") == null || !props.get("id").equals(request.getComponentId())) {
+					continue;
+				}
+				configuration.delete();
+			}
 		} catch (IOException | InvalidSyntaxException e) {
 			throw new OpenemsException("Can not update Component Config.");
 		}
