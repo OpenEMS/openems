@@ -10,6 +10,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -40,7 +41,7 @@ import io.openems.edge.timedata.rrd4j.version.VersionHandler;
 )
 public class Rrd4jSupplier {
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(Rrd4jSupplier.class);
 
 	@Reference
 	private VersionHandler versionHandler;
@@ -48,15 +49,29 @@ public class Rrd4jSupplier {
 	private final KeyLock keyLock = new KeyLock();
 	private final RrdBackendFactory factory;
 
+	// channelAddress, rrdDbId => file path
+	private final BiFunction<ChannelAddress, String, String> fileValidator;
+
 	protected Rrd4jSupplier(//
-			final RrdBackendFactory factory //
+			final RrdBackendFactory factory, //
+			final BiFunction<ChannelAddress, String, String> fileValidator //
 	) {
 		this.factory = factory;
+		this.fileValidator = fileValidator;
 	}
 
 	@Activate
 	public Rrd4jSupplier() {
-		this(new RrdRandomAccessFileBackendFactory());
+		this(//
+				new RrdRandomAccessFileBackendFactory(), //
+				(t, u) -> {
+					final var file = getDbFile(t, u);
+					if (!file.exists()) {
+						return null;
+					}
+					return file.toURI().toString();
+				} //
+		);
 	}
 
 	/**
@@ -148,8 +163,8 @@ public class Rrd4jSupplier {
 			final ChannelAddress channelAddress, //
 			final String rrdDbId //
 	) {
-		var file = getDbFile(channelAddress, rrdDbId);
-		if (!file.exists()) {
+		final var filePath = this.fileValidator.apply(channelAddress, rrdDbId);
+		if (filePath == null) {
 			return null;
 		}
 		try {
@@ -158,7 +173,7 @@ public class Rrd4jSupplier {
 					// .setPool(RrdDbPool.getInstance()) //
 					// ^^ is not used anymore because of caching
 					// problems when overwriting the old database file
-					.setPath(file.toURI()) //
+					.setPath(filePath) //
 					.build();
 		} catch (IOException e) {
 			this.log.error("Unable to open existing RrdDb", e);
@@ -334,24 +349,19 @@ public class Rrd4jSupplier {
 						"Requested resolution [" + resolution + "] is not dividable by RRD4j Step [" + step + "]");
 			}
 			var merge = (int) (resolution / step);
-			var buffer = new double[merge];
-			for (var i = 1; i < input.length; i += merge) {
+			for (int i = 0; i < result.length; i++) {
+				var buffer = new double[merge];
 				for (var j = 0; j < merge; j++) {
-					if (i + j < input.length) {
-						buffer[j] = input[i + j];
+					final var inputIndex = (i * merge) + j;
+					if (inputIndex < input.length) {
+						buffer[j] = input[inputIndex];
 					} else {
 						buffer[j] = Double.NaN;
 					}
 				}
 
-				// put in result; avoid index rounding error
-				var resultIndex = (i - 1) / merge;
-				if (resultIndex >= result.length) {
-					break;
-				}
-				result[resultIndex] = TypeUtils.average(buffer);
+				result[i] = TypeUtils.average(buffer);
 			}
-
 		} else if (step > resolution) {
 			// Split each entry to multiple values
 			var resultTimestamp = 0;
