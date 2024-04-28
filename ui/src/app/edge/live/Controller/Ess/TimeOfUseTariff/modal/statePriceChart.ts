@@ -69,7 +69,8 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
                 socArray: schedule.map(entry => entry.soc),
             };
 
-            const scheduleChartData = TimeOfUseTariffUtils.getScheduleChartData(schedule.length, priceArray, stateArray, timestampArray, gridBuyArray, socArray, this.translate, this.component.properties.controlMode);
+            const scheduleChartData = Controller_Ess_TimeOfUseTariff.getScheduleChartData(schedule.length, priceArray,
+                stateArray, timestampArray, gridBuyArray, socArray, this.translate, this.component.properties.controlMode);
 
             this.colors = scheduleChartData.colors;
             this.labels = scheduleChartData.labels;
@@ -78,10 +79,12 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
             this.loading = false;
             this.setLabel();
             this.stopSpinner();
+
         }).catch((reason) => {
             console.error(reason);
             this.initializeChart();
             return;
+
         }).finally(async () => {
             this.unit = YAxisTitle.CURRENCY;
             await this.setOptions(this.options);
@@ -152,6 +155,8 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
         this.options.scales[ChartAxis.LEFT]['title'].text = this.currencyLabel;
         this.options.scales[ChartAxis.RIGHT].grid.display = false;
+        this.options.scales[ChartAxis.RIGHT_2].suggestedMin = 0;
+        this.options.scales[ChartAxis.RIGHT_2].suggestedMax = 1;
         this.options.scales[ChartAxis.RIGHT_2].grid.display = false;
         this.options['animation'] = false;
     }
