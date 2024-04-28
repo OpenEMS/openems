@@ -1,7 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { AbstractHistoryChart as NewAbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
-import { ChartConstants } from 'src/app/shared/genericComponents/chart/chart.constants';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
@@ -412,9 +411,8 @@ export abstract class AbstractHistoryChart {
                         break;
                 }
 
-                const scaleOptions: { min: number, max: number, stepSize: number } | null = ChartConstants.getScaleOptions(this.datasets, yAxis);
                 // Only one yAxis defined
-                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, 'line', locale, false, scaleOptions);
+                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, 'line', locale, false);
 
                 options.scales.x['stacked'] = true;
                 options.scales[ChartAxis.LEFT]['stacked'] = false;
