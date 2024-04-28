@@ -181,7 +181,7 @@ public class BatteryFeneconCommercialImpl extends AbstractOpenemsModbusComponent
 	});
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				// Versions
 				new FC3ReadRegistersTask(0, Priority.LOW, //

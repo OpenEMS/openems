@@ -4,6 +4,7 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -124,7 +125,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	private final ElementToChannelConverter ignoreZeroAndInvert = IgnoreZeroConverter.from(this, INVERT);
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		var protocol = new ModbusProtocol(this, //
 
 				// States
@@ -175,7 +176,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 								this.ignoreZeroAndScaleFactor1)));
 
 		// Handles different DSP versions
-		ModbusUtils.readELementOnce(protocol, new UnsignedWordElement(35016), true) //
+		readElementOnce(protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(35016))
 				.thenAccept(dspVersion -> {
 					try {
 						if (dspVersion >= 4 || dspVersion == 0) {
@@ -220,7 +221,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 								this.ignoreZeroAndScaleFactor2))); //
 	}
 
-	private void handleExternalMeter(ModbusProtocol protocol) throws OpenemsException {
+	private void handleExternalMeter(ModbusProtocol protocol) {
 
 		protocol.addTask(//
 				new FC6WriteRegisterTask(47456,
