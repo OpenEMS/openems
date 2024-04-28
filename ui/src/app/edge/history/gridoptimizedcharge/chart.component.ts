@@ -158,9 +158,10 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
               label: this.translate.instant('General.soc'),
               data: socData,
               hidden: false,
-              yAxisID: 'yAxis2',
+              yAxisID: ChartAxis.RIGHT,
               position: 'right',
               borderDash: [10, 10],
+              unit: YAxisTitle.PERCENTAGE,
             });
             this.colors.push({
               backgroundColor: 'rgba(189, 195, 199,0.05)',
@@ -189,17 +190,12 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
   }
 
   private applyControllerSpecificOptions() {
-    const yAxisRight: HistoryUtils.yAxes = {
-      unit: YAxisTitle.PERCENTAGE,
-      position: 'right',
-      yAxisId: ChartAxis.RIGHT,
-      displayGrid: false,
-    };
+    const yAxisRight: HistoryUtils.yAxes = { unit: YAxisTitle.PERCENTAGE, position: 'right', yAxisId: ChartAxis.RIGHT, displayGrid: false };
+    const yAxisLeft: HistoryUtils.yAxes = { position: 'left', unit: YAxisTitle.ENERGY, yAxisId: ChartAxis.LEFT };
 
     const locale = this.service.translate.currentLang;
     const showYAxisTitle = true;
 
-    const yAxisLeft: HistoryUtils.yAxes = { position: 'left', unit: YAxisTitle.ENERGY, yAxisId: ChartAxis.LEFT };
     [yAxisRight, yAxisLeft].forEach(yAxis => {
       this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, yAxis, this.translate, 'line', locale, showYAxisTitle);
     });
