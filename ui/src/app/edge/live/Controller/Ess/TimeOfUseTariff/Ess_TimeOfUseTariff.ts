@@ -11,12 +11,6 @@ import { ScheduleStateAndPriceChartComponent } from "./modal/statePriceChart";
         BrowserModule,
         SharedModule,
     ],
-    entryComponents: [
-        FlatComponent,
-        ModalComponent,
-        ScheduleStateAndPriceChartComponent,
-        SchedulePowerAndSocChartComponent,
-    ],
     declarations: [
         FlatComponent,
         ModalComponent,

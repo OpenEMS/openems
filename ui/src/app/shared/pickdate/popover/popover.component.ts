@@ -1,13 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { CalAnimation, IAngularMyDpOptions, IMyDate, IMyDateRangeModel } from 'angular-mydatepicker';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { addDays, endOfWeek, endOfYear, getDate, getMonth, getYear, startOfWeek, startOfYear } from 'date-fns/esm';
 
 import { Edge } from '../../edge/edge';
 import { DefaultTypes } from '../../service/defaulttypes';
 import { EdgePermission, Service, Utils } from '../../shared';
+import { CalAnimation, IAngularMyDpOptions, IMyDate, IMyDateRangeModel } from '@nodro7/angular-mydatepicker';
 
 @Component({
     selector: 'pickdatepopover',

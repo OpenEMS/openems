@@ -6,9 +6,6 @@ import { VarDirective } from './ngvar';
     imports: [
         BrowserModule,
     ],
-    entryComponents: [
-        VarDirective,
-    ],
     declarations: [
         VarDirective,
     ],
