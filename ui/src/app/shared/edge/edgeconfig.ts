@@ -635,11 +635,18 @@ export namespace PersistencePriority {
     export const DEFAULT_CHANNEL_PRIORITY: string = PersistencePriority.VERY_LOW;
     export const DEFAULT_GLOBAL_PRIORITY: string = PersistencePriority.HIGH;
 
-    export function isAtLeast(prio1: string, prio2: string) {
+    /**
+     * Checks if given prio1 is less than prio2
+     *
+     * @param prio1 the prio that will be compared
+     * @param prio2 the prio to compare it to
+     * @returns true if prio1 is less than prio2
+     */
+    export function isLessThan(prio1: string, prio2: string): boolean {
         if (typeof prio1 !== 'string' || typeof prio2 !== 'string') {
             return false;
         }
-        return Object.keys(PersistencePriority).indexOf(prio1) <= Object.keys(PersistencePriority).indexOf(prio2);
+        return Object.keys(PersistencePriority).indexOf(prio1) < Object.keys(PersistencePriority).indexOf(prio2);
     }
 }
 
