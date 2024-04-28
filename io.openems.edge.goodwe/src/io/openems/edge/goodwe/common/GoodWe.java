@@ -194,7 +194,7 @@ public interface GoodWe extends OpenemsComponent {
 		V_BATTERY1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT)), //
 		I_BATTERY1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)), //
+				.unit(Unit.AMPERE)), //
 		P_BATTERY1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		BATTERY_MODE(Doc.of(BatteryMode.values())), //
