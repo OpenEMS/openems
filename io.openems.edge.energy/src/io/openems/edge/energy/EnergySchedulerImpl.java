@@ -58,8 +58,8 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 	@Reference
 	private PredictorManager predictorManager;
 
-	@Reference
-	private TimeOfUseTariff timeOfUseTariff;
+	@Reference(policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile TimeOfUseTariff timeOfUseTariff;
 
 	@Reference
 	private Sum sum;
@@ -80,6 +80,9 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 		);
 		// Prepare Optimizer and Context
 		this.optimizer = new Optimizer(() -> {
+			if (this.timeOfUseTariff == null) {
+				throw new OpenemsException("TimeOfUseTariff is not available");
+			}
 			var ctrl = this.schedulables.stream() //
 					.filter(TimeOfUseTariffControllerImpl.class::isInstance) //
 					.map(TimeOfUseTariffControllerImpl.class::cast) //
