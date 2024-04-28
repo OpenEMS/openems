@@ -6,7 +6,6 @@ import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateAutomaticMode;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -22,11 +21,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.session.Role;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;

@@ -81,13 +81,13 @@ public class TestScheduler {
 		this.setSchedulerIds(user, ids.toArray(String[]::new));
 	}
 
-	public void setSchedulerIds(User user, String... ids)
-			throws OpenemsNamedException, InterruptedException, ExecutionException {
-		this.componentManager.handleJsonrpcRequest(user, new UpdateComponentConfigRequest("scheduler0", List.of(//
-				new UpdateComponentConfigRequest.Property("controllers.ids", Arrays.stream(ids) //
-						.map(JsonPrimitive::new) //
-						.collect(toJsonArray())) //
-		))).get();
+	public void setSchedulerIds(User user, String... ids) throws OpenemsNamedException {
+		this.componentManager.handleUpdateComponentConfigRequest(user,
+				new UpdateComponentConfigRequest("scheduler0", List.of(//
+						new UpdateComponentConfigRequest.Property("controllers.ids", Arrays.stream(ids) //
+								.map(JsonPrimitive::new) //
+								.collect(toJsonArray())) //
+				)));
 	}
 
 }

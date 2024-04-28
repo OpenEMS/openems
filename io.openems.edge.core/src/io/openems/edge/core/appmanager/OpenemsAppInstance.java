@@ -1,11 +1,17 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.JsonUtils.toJsonArray;
+import static java.util.Collections.emptyList;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.dependency.Dependency;
 
@@ -27,7 +33,7 @@ public class OpenemsAppInstance {
 		this.alias = alias;
 		this.instanceId = Objects.requireNonNull(instanceId);
 		this.properties = properties;
-		this.dependencies = dependencies;
+		this.dependencies = dependencies == null ? emptyList() : dependencies;
 	}
 
 	@Override
@@ -48,20 +54,38 @@ public class OpenemsAppInstance {
 	}
 
 	/**
+	 * Returns a {@link JsonSerializer} for a {@link OpenemsAppInstance}.
+	 * 
+	 * @return the created {@link JsonSerializer}
+	 */
+	public static JsonSerializer<OpenemsAppInstance> serializer() {
+		return jsonObjectSerializer(OpenemsAppInstance.class, //
+				json -> new OpenemsAppInstance(//
+						json.getString("appId"), //
+						json.getString("alias"), //
+						json.getStringPath("instanceId").getAsUuid(), //
+						json.getJsonObject("properties"), //
+						// TODO add optional methods
+						json.getList("dependencies", Dependency.serializer())), //
+				obj -> JsonUtils.buildJsonObject() //
+						.addProperty("appId", obj.appId) //
+						.addProperty("alias", obj.alias != null ? obj.alias : "") //
+						.addProperty("instanceId", obj.instanceId.toString()) //
+						.add("properties", obj.properties == null ? new JsonObject() : obj.properties) //
+						.onlyIf(obj.dependencies != null && !obj.dependencies.isEmpty(), b -> b //
+								.add("dependencies", obj.dependencies.stream() //
+										.map(Dependency.serializer()::serialize) //
+										.collect(toJsonArray()))) //
+						.build());
+	}
+
+	/**
 	 * Gets this {@link OpenemsAppInstance} as {@link JsonObject}.
 	 *
 	 * @return the {@link JsonObject}
 	 */
-	public JsonObject toJsonObject() {
-		return JsonUtils.buildJsonObject() //
-				.addProperty("appId", this.appId) //
-				.addProperty("alias", this.alias != null ? this.alias : "") //
-				.addProperty("instanceId", this.instanceId.toString()) //
-				// TODO define if the field is editable
-				.add("properties", this.properties == null ? new JsonObject() : this.properties) //
-				.onlyIf(this.dependencies != null && !this.dependencies.isEmpty(), j -> j.add("dependencies", //
-						this.dependencies.stream().map(Dependency::toJsonObject).collect(JsonUtils.toJsonArray())))
-				.build();
+	public JsonElement toJsonObject() {
+		return serializer().serialize(this);
 	}
 
 }

@@ -49,7 +49,7 @@ public class TestFeneconHome20 {
 	public void testCreateAndUpdateHomeFullSettings() throws Exception {
 		var homeInstance = this.createFullHome();
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullSettings()));
 		// expect the same as before
 		// make sure every dependency got installed
@@ -96,7 +96,7 @@ public class TestFeneconHome20 {
 		settings.addProperty("HAS_PV_3", false);
 		settings.addProperty("HAS_PV_4", false);
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", settings));
 
 		for (int i = 0; i < 2; i++) {
@@ -124,15 +124,14 @@ public class TestFeneconHome20 {
 						.addProperty("EMERGENCY_RESERVE_ENABLED", true) //
 						.addProperty("EMERGENCY_RESERVE_SOC", 15) //
 						.addProperty("SHADOW_MANAGEMENT_DISABLED", true) //
-						.build()))
-				.get();
+						.build()));
 
 		var batteryInverter = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0");
 		assertEquals("DISABLE",
 				(String) batteryInverter.getComponentContext().getProperties().get("mpptForShadowEnable"));
 
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
-				new UpdateAppInstance.Request(response.instance.instanceId, "alias", JsonUtils.buildJsonObject() //
+				new UpdateAppInstance.Request(response.instance().instanceId, "alias", JsonUtils.buildJsonObject() //
 						.addProperty("SAFETY_COUNTRY", "GERMANY") //
 						.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
 						.addProperty("MAX_FEED_IN_POWER", 1000) //

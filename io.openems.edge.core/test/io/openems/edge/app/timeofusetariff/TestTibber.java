@@ -58,15 +58,15 @@ public class TestTibber {
 				.addProperty("ACCESS_TOKEN", "g78aw9ht2n112nb453") //
 				.build();
 		var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request(this.tibber.getAppId(), "key", "alias", properties)).get();
+				new AddAppInstance.Request(this.tibber.getAppId(), "key", "alias", properties));
 
 		// in response its set because the access token in the component is not empty
-		assertEquals("xxx", response.instance.properties.get("ACCESS_TOKEN").getAsString());
+		assertEquals("xxx", response.instance().properties.get("ACCESS_TOKEN").getAsString());
 
 		// in the actual instance there shouldn't be an access token, instead it should
 		// only be taken directly from the component
 		final var instance = this.appManagerTestBundle.appManagerUtil
-				.findInstanceByIdOrError(response.instance.instanceId);
+				.findInstanceByIdOrError(response.instance().instanceId);
 		assertFalse(instance.properties.has("ACCESS_TOKEN"));
 
 		final var apps = this.appManagerTestBundle.getAppsFromConfig();
@@ -89,7 +89,7 @@ public class TestTibber {
 				.addProperty("ACCESS_TOKEN", "g78aw9ht2n112nb453") //
 				.build();
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request(this.tibber.getAppId(), "key", "alias", properties)).get();
+				new AddAppInstance.Request(this.tibber.getAppId(), "key", "alias", properties));
 
 		this.assertChannelsInPredictor("_sum/UnmanagedConsumptionActivePower");
 	}
@@ -100,7 +100,7 @@ public class TestTibber {
 				.addProperty("ACCESS_TOKEN", "g78aw9ht2n112nb453") //
 				.build();
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request(this.tibber.getAppId(), "key", "alias", properties)).get();
+				new AddAppInstance.Request(this.tibber.getAppId(), "key", "alias", properties));
 	}
 
 	@Test
@@ -110,22 +110,21 @@ public class TestTibber {
 				.addProperty("ACCESS_TOKEN", "g78aw9ht2n112nb453") //
 				.build();
 		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request(this.tibber.getAppId(), "key", "alias", properties)).get();
+				new AddAppInstance.Request(this.tibber.getAppId(), "key", "alias", properties));
 
 		final var accessTokenProp = Arrays.stream(this.tibber.getProperties()) //
 				.filter(t -> t.name.equals(Tibber.Property.ACCESS_TOKEN.name())) //
 				.findAny().orElse(null);
-		var value = accessTokenProp.bidirectionalValue.apply(response.instance.properties);
+		var value = accessTokenProp.bidirectionalValue.apply(response.instance().properties);
 
 		assertEquals("xxx", value.getAsString());
 
-		this.appManagerTestBundle.componentManger.handleJsonrpcRequest(DUMMY_ADMIN,
-				new UpdateComponentConfigRequest(response.instance.properties
+		this.appManagerTestBundle.componentManger.handleUpdateComponentConfigRequest(DUMMY_ADMIN,
+				new UpdateComponentConfigRequest(response.instance().properties
 						.get(Tibber.Property.TIME_OF_USE_TARIFF_PROVIDER_ID.name()).getAsString(),
-						List.of(new UpdateComponentConfigRequest.Property("accessToken", ""))))
-				.get();
+						List.of(new UpdateComponentConfigRequest.Property("accessToken", ""))));
 
-		value = accessTokenProp.bidirectionalValue.apply(response.instance.properties);
+		value = accessTokenProp.bidirectionalValue.apply(response.instance().properties);
 
 		assertEquals(JsonNull.INSTANCE, value);
 	}
@@ -163,19 +162,17 @@ public class TestTibber {
 	}
 
 	private void createPredictor() throws Exception {
-		this.appManagerTestBundle.componentManger.handleJsonrpcRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
 				new CreateComponentConfigRequest("Predictor.PersistenceModel", List.of(//
 						new UpdateComponentConfigRequest.Property("id", "predictor0"), //
 						new UpdateComponentConfigRequest.Property("channelAddresses", JsonUtils.buildJsonArray()//
 								.build()) //
-				))).get();
+				)));
 	}
 
 	private void installHome() throws InterruptedException, ExecutionException, OpenemsNamedException {
-		this.appManagerTestBundle.sut
-				.handleAddAppInstanceRequest(DUMMY_ADMIN,
-						new AddAppInstance.Request("App.FENECON.Home", "key", "alias", TestFeneconHome.minSettings()))
-				.get();
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", TestFeneconHome.minSettings()));
 	}
 
 	private void assertChannelsInPredictor(String... channels) throws OpenemsNamedException {

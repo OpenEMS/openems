@@ -358,7 +358,7 @@ public final class FeneconHomeComponents {
 	 * @param i                 the index of the pv-port
 	 * @return the {@link Component}
 	 */
-	@Deprecated(since = "2024.2.2", forRemoval = true)
+	// @Deprecated(since = "2024.2.2", forRemoval = true)
 	public static EdgeConfig.Component chargerOld(//
 			final String chargerId, //
 			final String chargerAlias, //
