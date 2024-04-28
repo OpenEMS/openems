@@ -19,15 +19,14 @@ import { Role } from "../type/role";
       bottom: 0;
       width: 100%;
       font-size: 14px !important;
-    }
+      ion-row {
+        text-align: center;
+      }
 
-    ion-row {
-      text-align: center;
-    }
-
-    ion-item {
-      --min-height: initial !important;
-      font-size: inherit;
+      ion-item {
+        --min-height: initial !important;
+        font-size: inherit;
+      }
     }
   `],
   templateUrl: 'footer.html',
