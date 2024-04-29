@@ -84,7 +84,9 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 				this.channel(IoShellyPlusPlugs.ChannelId.RELAY) //
 		};
 
-		ElectricityMeter.calculateSumActivePowerFromPhases(this);
+		SinglePhaseMeter.calculateSinglePhaseFromActivePower(this);
+		SinglePhaseMeter.calculateSinglePhaseFromCurrent(this);
+		SinglePhaseMeter.calculateSinglePhaseFromVoltage(this);
 	}
 
 	@Activate
@@ -141,15 +143,9 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 
 		Boolean relayStatus = null;
 		Boolean updatesAvailable = false;
-		Integer activePowerL1 = null;
-		Integer activePowerL2 = null;
-		Integer activePowerL3 = null;
-		Integer voltageL1 = null;
-		Integer voltageL2 = null;
-		Integer voltageL3 = null;
-		Integer currentL1 = null;
-		Integer currentL2 = null;
-		Integer currentL3 = null;
+		Integer activePower = null;
+		Integer current = null;
+		Integer voltage = null;
 
 		if (error != null) {
 			this.logWarn(this.log, error.getMessage());
@@ -158,32 +154,14 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 			try {
 				var response = getAsJsonObject(result);
 				var sysInfo = getAsJsonObject(response, "sys");
-				var relays = getAsJsonObject(response, "switch:0");
-				var current = round(getAsFloat(relays, "current") * 1000);
-				var voltage = round(getAsFloat(relays, "voltage") * 1000);
 				var update = getAsJsonObject(sysInfo, "available_updates");
-
-				relayStatus = getAsBoolean(relays, "output");
-				var activePower = round(getAsFloat(relays, "apower"));
 				updatesAvailable = update != null && !update.entrySet().isEmpty();
 
-				switch (this.phase) {
-				case L1:
-					voltageL1 = voltage;
-					currentL1 = current;
-					activePowerL1 = activePower;
-					break;
-				case L2:
-					voltageL2 = voltage;
-					currentL2 = current;
-					activePowerL2 = activePower;
-					break;
-				case L3:
-					voltageL3 = voltage;
-					currentL3 = current;
-					activePowerL3 = activePower;
-					break;
-				}
+				var relays = getAsJsonObject(response, "switch:0");
+				activePower = round(getAsFloat(relays, "apower"));
+				current = round(getAsFloat(relays, "current") * 1000);
+				voltage = round(getAsFloat(relays, "voltage") * 1000);
+				relayStatus = getAsBoolean(relays, "output");
 
 			} catch (Exception e) {
 				this.logWarn(this.log, e.getMessage());
@@ -191,15 +169,9 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 		}
 
 		this._setRelay(relayStatus);
-		this._setVoltageL1(voltageL1);
-		this._setCurrentL1(currentL1);
-		this._setActivePowerL1(activePowerL1);
-		this._setVoltageL2(voltageL2);
-		this._setCurrentL2(currentL2);
-		this._setActivePowerL2(activePowerL2);
-		this._setVoltageL3(voltageL3);
-		this._setCurrentL3(currentL3);
-		this._setActivePowerL3(activePowerL3);
+		this._setActivePower(activePower);
+		this._setCurrent(current);
+		this._setVoltage(voltage);
 		this.channel(IoShellyPlusPlugs.ChannelId.HAS_UPDATE).setNextValue(updatesAvailable);
 	}
 
