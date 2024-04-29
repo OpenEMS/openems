@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';

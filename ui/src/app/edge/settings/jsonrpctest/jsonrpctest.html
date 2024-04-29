@@ -1,0 +1,191 @@
+<ng-template #type let-value="value" let-indentation="indentation">
+    <!-- {{value | json}} -->
+    <!-- {{indentation}} -->
+    <a [ngSwitch]="value.type">
+        <a *ngSwitchCase="'object'">
+            &#123;
+            <br>
+            <a *ngFor="let item of value.properties | keyvalue">
+                <!-- {{item | json}} -->
+                <a *ngFor="let i of [].constructor(indentation)">
+                    &nbsp;
+                </a>
+                "{{item.key}}":
+                <template [ngTemplateOutlet]="type"
+                    [ngTemplateOutletContext]="{value: item.value, indentation: indentation + 4}"></template>,
+                    <br>
+            </a>
+            <a *ngFor="let i of [].constructor(indentation - 4)">
+                &nbsp;
+            </a>
+            &#125;
+        </a>
+        <a *ngSwitchCase="'string'">
+            string
+        </a>
+        <a *ngSwitchCase="'array'">
+            <template *ngIf="value.elementType" [ngTemplateOutlet]="type"
+            [ngTemplateOutletContext]="{value: value.elementType, indentation: indentation + 4}"></template>
+            []
+        </a>
+    </a>
+</ng-template>
+
+<header></header>
+<ion-content>
+    <ion-grid>
+        <ion-row class="ion-justify-content-center">
+            <ion-col size="12" size-xl="8">
+                <ng-container *ngFor="let endpoint of endpoints">
+                    <!-- <ion-card lines="none"> -->
+                    <ion-accordion-group>
+                        <ion-accordion>
+                            <ion-item slot="header" lines="bottom">
+                                <ion-label style="white-space: initial">
+                                    <span *ngFor="let parent of endpoint.parent" style="opacity: 30%;">
+                                        {{parent.method}} ➔
+                                    </span>
+                                    {{ endpoint.method }}
+                                    <a *ngFor="let tag of endpoint.tags">
+                                        <ion-chip> {{tag.name}} </ion-chip>
+                                    </a>
+                                </ion-label>
+                            </ion-item>
+                            <ion-card-content slot="content">
+                                <ion-grid>
+                                    <ion-row>
+                                        <ion-col size="12" *ngIf="endpoint.description">
+                                            <div [innerHTML]="endpoint.description">
+                                            </div>
+                                        </ion-col>
+                                    </ion-row>
+                                    <ion-row *ngFor="let guard of endpoint.guards">
+                                        <ion-col size="12">
+                                            <ion-chip> {{guard.name}} </ion-chip> {{guard.description}}
+                                        </ion-col>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-col size="6" *ngIf="endpoint.request.json">
+                                            <div>
+                                                Request
+                                            </div>
+                                            <template [ngTemplateOutlet]="type"
+                                                [ngTemplateOutletContext]="{value: endpoint.request.json, indentation: 4}"></template>
+                                            <!-- <pre><code>{{endpoint.request}}</code></pre> -->
+                                        </ion-col>
+                                        <ion-col size="6" *ngIf="endpoint.response.json">
+                                            <div>
+                                                Response
+                                            </div>
+                                            <template [ngTemplateOutlet]="type"
+                                                [ngTemplateOutletContext]="{value: endpoint.response.json, indentation: 4}"></template>
+
+                                        </ion-col>
+                                    </ion-row>
+                                    <ion-row *ngIf="endpoint.request.examples && endpoint.response.examples">
+                                        <ion-col size="12">
+                                            Examples
+                                        </ion-col>
+                                        <ion-col size="6" *ngIf="endpoint.request.json">
+                                            <ion-item>
+                                                <ion-select label="Example Request"
+                                                    placeholder="Select example Request..."
+                                                    [(ngModel)]="endpoint.request.selectedExample" interface="popover"
+                                                    *ngFor="let example of endpoint.request.examples">
+                                                    <ion-select-option [value]="example.key">
+                                                        {{example.key}}
+                                                    </ion-select-option>
+                                                </ion-select>
+                                            </ion-item>
+                                            <div *ngFor="let example of endpoint.request.examples">
+                                                <div *ngIf="example.key === endpoint.request.selectedExample">
+                                                    <pre><code>{{example.value | json}}</code></pre>
+                                                </div>
+                                            </div>
+                                        </ion-col>
+                                        <ion-col size="6" *ngIf="endpoint.response.json">
+                                            <ion-item>
+                                                <ion-select label="Example Response"
+                                                    placeholder="Select example Response..."
+                                                    [(ngModel)]="endpoint.response.selectedExample" interface="popover"
+                                                    *ngFor="let example of endpoint.response.examples">
+                                                    <ion-select-option [value]="example.key">
+                                                        {{example.key}}
+                                                    </ion-select-option>
+                                                </ion-select>
+                                            </ion-item>
+                                            <div *ngFor="let example of endpoint.response.examples">
+                                                <div *ngIf="example.key === endpoint.response.selectedExample">
+                                                    <pre><code>{{example.value | json}}</code></pre>
+                                                </div>
+                                            </div>
+                                        </ion-col>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-col size="12">
+                                            <ion-toolbar>
+                                                <ion-button slot="end"
+                                                    (click)="endpoint.tryRequest = !endpoint.tryRequest">Try
+                                                    now!</ion-button>
+                                            </ion-toolbar>
+                                        </ion-col>
+                                    </ion-row>
+                                    <div *ngIf="endpoint.tryRequest">
+                                        <ion-label>
+                                            Request
+                                        </ion-label>
+                                        <ion-row>
+                                            <ion-col size="6">
+                                                <ion-segment [(ngModel)]="endpoint.requestMethod">
+                                                    <ion-segment-button value="raw">
+                                                        <ion-label>Raw</ion-label>
+                                                    </ion-segment-button>
+                                                    <ion-segment-button value="form">
+                                                        <ion-label>Form</ion-label>
+                                                    </ion-segment-button>
+                                                </ion-segment>
+                                            </ion-col>
+                                        </ion-row>
+                                        <ion-row [ngSwitch]="endpoint.requestMethod">
+                                            <ion-col>
+                                                <div *ngSwitchCase="'raw'">
+                                                    <ion-item>
+                                                        <ion-textarea label="Request" auto-grow="true" type="text"
+                                                            [(ngModel)]="endpoint.modelRaw"></ion-textarea>
+                                                    </ion-item>
+                                                </div>
+                                                <div *ngSwitchCase="'form'">
+                                                    Form
+                                                </div>
+                                            </ion-col>
+                                        </ion-row>
+                                        <ion-row>
+                                            <ion-col size="12">
+                                                <ion-toolbar>
+                                                    <ion-button slot="end" (click)="request(endpoint)"
+                                                        [disabled]="endpoint.fetch?.loading">
+                                                        Run!
+                                                    </ion-button>
+                                                </ion-toolbar>
+                                            </ion-col>
+                                        </ion-row>
+                                        <ion-label>
+                                            Response
+                                        </ion-label>
+                                        <ion-row>
+                                            <ion-col size="12">
+                                                <ngx-spinner [name]="endpoint.method"></ngx-spinner>
+                                                <pre><code>{{endpoint.fetch?.response}}</code></pre>
+                                            </ion-col>
+                                        </ion-row>
+                                    </div>
+                                </ion-grid>
+                            </ion-card-content>
+                        </ion-accordion>
+                    </ion-accordion-group>
+                    <!-- </ion-card> -->
+                </ng-container>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

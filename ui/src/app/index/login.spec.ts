@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { LoginComponent } from "./login.component";
 
 describe('Login', () => {

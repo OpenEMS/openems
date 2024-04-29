@@ -14,16 +14,6 @@ import { VersionPipe } from './version/version.pipe';
     imports: [
         BrowserModule,
     ],
-    entryComponents: [
-        UnitvaluePipe,
-        SignPipe,
-        FormatSecondsToDurationPipe,
-        KeysPipe,
-        IsclassPipe,
-        ClassnamePipe,
-        VersionPipe,
-        TypeofPipe,
-    ],
     declarations: [
         UnitvaluePipe,
         SignPipe,

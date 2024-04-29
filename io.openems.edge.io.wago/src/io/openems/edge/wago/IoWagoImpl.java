@@ -270,7 +270,7 @@ public class IoWagoImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		if (this.protocol == null) {
 			this.protocol = new ModbusProtocol(this);
 		}

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ChartDataset } from "chart.js";
 import { History } from "src/app/edge/history/common/energy/chart/channels.spec";
 

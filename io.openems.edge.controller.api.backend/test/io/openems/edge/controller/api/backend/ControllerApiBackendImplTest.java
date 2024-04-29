@@ -40,6 +40,7 @@ public class ControllerApiBackendImplTest {
 					.addReference("componentManager", new DummyComponentManager(clock)) //
 					.addReference("cycle", new DummyCycle(1000)) //
 					.addReference("resendHistoricDataWorkerFactory", new DummyResendHistoricDataWorkerFactory()) //
+					.addReference("requestHandlerFactory", new DummyBackendOnRequestFactory()) //
 					.addReference("oem", new DummyOpenemsEdgeOem()) //
 					.addComponent(new DummySum()) //
 					.activate(MyConfig.create() //

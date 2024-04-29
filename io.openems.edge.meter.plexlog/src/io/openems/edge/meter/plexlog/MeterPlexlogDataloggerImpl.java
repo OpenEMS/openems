@@ -75,7 +75,7 @@ public class MeterPlexlogDataloggerImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		final var modbusProtocol = new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(0, Priority.HIGH, //
 						this.m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0)), //
