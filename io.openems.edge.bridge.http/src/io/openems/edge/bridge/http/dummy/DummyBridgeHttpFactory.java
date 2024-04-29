@@ -11,16 +11,25 @@ import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 
 public class DummyBridgeHttpFactory extends BridgeHttpFactory {
 
+	public final DummyBridgeHttp bridge = new DummyBridgeHttp();
+
 	public DummyBridgeHttpFactory() throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		super();
-		ReflectionUtils.setAttribute(BridgeHttpFactory.class, this, "csoBridgeHttp", new DummyBridgeHttpCso());
+		ReflectionUtils.setAttribute(BridgeHttpFactory.class, this, "csoBridgeHttp",
+				new DummyBridgeHttpCso(this.bridge));
 	}
 
 	private static class DummyBridgeHttpCso implements ComponentServiceObjects<BridgeHttp> {
 
+		private final DummyBridgeHttp bridge;
+
+		public DummyBridgeHttpCso(DummyBridgeHttp bridge) {
+			this.bridge = bridge;
+		}
+
 		@Override
 		public BridgeHttp getService() {
-			return new DummyBridgeHttp();
+			return this.bridge;
 		}
 
 		@Override
