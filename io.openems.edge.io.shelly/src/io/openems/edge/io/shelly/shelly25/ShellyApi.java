@@ -1,4 +1,4 @@
-package io.openems.edge.io.shelly.common;
+package io.openems.edge.io.shelly.shelly25;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,6 +13,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 
+// TODO replace with HttpBridge
 /**
  * Implements the local Shelly REST Api.
  *

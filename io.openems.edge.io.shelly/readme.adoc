@@ -3,10 +3,9 @@
 This bundle implements Shelly WiFi Relay Switches.
 
 Compatible with
-- https://shelly.cloud/products/shelly-25-smart-home-automation-relay/[Shelly 2.5]
-- https://shelly.cloud/products/shelly-plug-s-smart-home-automation-device/[Shelly Plug S]
-
-Implemented Natures
-- DigitalOutput
+- https://www.shelly.com/de/products/shop/1xs25[Shelly 2.5]
+- https://www.shelly.com/en/products/shop/shelly-3-em[Shelly 3EM]
+- Shelly Plug S
+- https://www.shelly.com/de/products/shop/shelly-plus-plug-s-1[Shelly Plus Plug S]
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.shelly[Source Code icon:github[]]

@@ -1,4 +1,4 @@
-package io.openems.edge.io.shelly.shellyplugs;
+package io.openems.edge.io.shelly.shellyplusplugs;
 
 import org.junit.Test;
 
@@ -13,7 +13,7 @@ public class IoShellyPlugImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new IoShellyPlugsImpl()) //
+		new ComponentTest(new IoShellyPlusPlugsImpl()) //
 				.addReference("httpBridgeFactory", new DummyBridgeHttpFactory()) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //

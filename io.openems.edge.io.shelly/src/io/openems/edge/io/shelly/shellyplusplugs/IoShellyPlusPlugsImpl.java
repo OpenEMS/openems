@@ -1,8 +1,9 @@
-package io.openems.edge.io.shelly.shellyplugs;
+package io.openems.edge.io.shelly.shellyplusplugs;
 
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 import static java.lang.Math.round;
 
 import java.util.Objects;
@@ -14,6 +15,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -48,7 +51,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class IoShellyPlugsImpl extends AbstractOpenemsComponent implements IoShellyPlugs, DigitalOutput,
+public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements IoShellyPlusPlugs, DigitalOutput,
 		SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
@@ -56,29 +59,32 @@ public class IoShellyPlugsImpl extends AbstractOpenemsComponent implements IoShe
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
-	private final Logger log = LoggerFactory.getLogger(IoShellyPlugsImpl.class);
+	private final Logger log = LoggerFactory.getLogger(IoShellyPlusPlugsImpl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
 
 	private MeterType meterType = null;
 	private SinglePhase phase = null;
 	private String baseUrl;
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY)
 	private BridgeHttpFactory httpBridgeFactory;
 	private BridgeHttp httpBridge;
 
-	public IoShellyPlugsImpl() {
+	public IoShellyPlusPlugsImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
-				IoShellyPlugs.ChannelId.values() //
+				IoShellyPlusPlugs.ChannelId.values() //
 		);
 		this.digitalOutputChannels = new BooleanWriteChannel[] { //
-				this.channel(IoShellyPlugs.ChannelId.RELAY) //
+				this.channel(IoShellyPlusPlugs.ChannelId.RELAY) //
 		};
+
+		ElectricityMeter.calculateSumActivePowerFromPhases(this);
 	}
 
 	@Activate
@@ -113,17 +119,7 @@ public class IoShellyPlugsImpl extends AbstractOpenemsComponent implements IoShe
 
 	@Override
 	public String debugLog() {
-		var b = new StringBuilder();
-		var valueOpt = this.getRelayChannel().value().asOptional();
-		if (valueOpt.isPresent()) {
-			b.append(valueOpt.get() ? "ON" : "OFF");
-		} else {
-			b.append("Unknown");
-		}
-		b.append("|");
-		b.append(this.getActivePowerChannel().value().asString());
-
-		return b.toString();
+		return generateDebugLog(this.getRelayChannel(), this.getActivePowerChannel());
 	}
 
 	@Override
@@ -145,7 +141,9 @@ public class IoShellyPlugsImpl extends AbstractOpenemsComponent implements IoShe
 
 		Boolean relayStatus = null;
 		Boolean updatesAvailable = false;
-		Integer activePower = null;
+		Integer activePowerL1 = null;
+		Integer activePowerL2 = null;
+		Integer activePowerL3 = null;
 		Integer voltageL1 = null;
 		Integer voltageL2 = null;
 		Integer voltageL3 = null;
@@ -154,7 +152,7 @@ public class IoShellyPlugsImpl extends AbstractOpenemsComponent implements IoShe
 		Integer currentL3 = null;
 
 		if (error != null) {
-			this.logDebug(this.log, error.getMessage());
+			this.logWarn(this.log, error.getMessage());
 
 		} else {
 			try {
@@ -166,41 +164,43 @@ public class IoShellyPlugsImpl extends AbstractOpenemsComponent implements IoShe
 				var update = getAsJsonObject(sysInfo, "available_updates");
 
 				relayStatus = getAsBoolean(relays, "output");
-				activePower = round(getAsFloat(relays, "apower"));
+				var activePower = round(getAsFloat(relays, "apower"));
 				updatesAvailable = update != null && !update.entrySet().isEmpty();
 
 				switch (this.phase) {
 				case L1:
 					voltageL1 = voltage;
 					currentL1 = current;
-					this._setActivePowerL1(activePower);
+					activePowerL1 = activePower;
 					break;
 				case L2:
 					voltageL2 = voltage;
 					currentL2 = current;
-					this._setActivePowerL2(activePower);
+					activePowerL2 = activePower;
 					break;
 				case L3:
 					voltageL3 = voltage;
 					currentL3 = current;
-					this._setActivePowerL3(activePower);
+					activePowerL3 = activePower;
 					break;
 				}
 
 			} catch (Exception e) {
-				this.logDebug(this.log, e.getMessage());
+				this.logWarn(this.log, e.getMessage());
 			}
 		}
 
 		this._setRelay(relayStatus);
-		this._setActivePower(activePower);
 		this._setVoltageL1(voltageL1);
 		this._setCurrentL1(currentL1);
+		this._setActivePowerL1(activePowerL1);
 		this._setVoltageL2(voltageL2);
 		this._setCurrentL2(currentL2);
+		this._setActivePowerL2(activePowerL2);
 		this._setVoltageL3(voltageL3);
 		this._setCurrentL3(currentL3);
-		this.channel(IoShellyPlugs.ChannelId.HAS_UPDATE).setNextValue(updatesAvailable);
+		this._setActivePowerL3(activePowerL3);
+		this.channel(IoShellyPlusPlugs.ChannelId.HAS_UPDATE).setNextValue(updatesAvailable);
 	}
 
 	/**
@@ -208,7 +208,6 @@ public class IoShellyPlugsImpl extends AbstractOpenemsComponent implements IoShe
 	 */
 	private void executeWrite() {
 		var channel = this.getRelayChannel();
-		var index = 0;
 		var readValue = channel.value().get();
 		var writeValue = channel.getNextWriteValueAndReset();
 		if (writeValue.isEmpty()) {
@@ -217,12 +216,13 @@ public class IoShellyPlugsImpl extends AbstractOpenemsComponent implements IoShe
 		if (Objects.equals(readValue, writeValue.get())) {
 			return;
 		}
+		var index = 0;
 		final var url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
 
 		this.httpBridge.get(url).whenComplete((t, e) -> {
 			this._setSlaveCommunicationFailed(e != null);
 			if (e == null) {
-				this.logInfo(this.log, "Executed write successfully for URL: " + url);
+				this.logDebug(this.log, "Executed write successfully for URL: " + url);
 			} else {
 				this.logError(this.log, "Failed to execute write for URL: " + url + "; Error: " + e.getMessage());
 			}

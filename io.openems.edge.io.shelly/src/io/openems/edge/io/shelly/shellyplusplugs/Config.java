@@ -1,4 +1,4 @@
-package io.openems.edge.io.shelly.shellyplugs;
+package io.openems.edge.io.shelly.shellyplusplugs;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -7,7 +7,7 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
 
 @ObjectClassDefinition(//
-		name = "IO Shelly Plug S", //
+		name = "IO Shelly Plus Plug S", //
 		description = "Implements the Shelly Plus Plug S")
 @interface Config {
 
@@ -29,5 +29,5 @@ import io.openems.edge.meter.api.SinglePhase;
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.CONSUMPTION_METERED;
 
-	String webconsole_configurationFactory_nameHint() default "IO Shelly PlusPlugS [{id}]";
+	String webconsole_configurationFactory_nameHint() default "IO Shelly Plus Plug S [{id}]";
 }
