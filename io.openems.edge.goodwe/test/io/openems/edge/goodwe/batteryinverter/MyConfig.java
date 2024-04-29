@@ -10,7 +10,7 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
-	protected static class Builder {
+	public static class Builder {
 		private String id;
 		private ControlMode controlMode;
 		private String modbusId;

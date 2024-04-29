@@ -129,6 +129,38 @@ public class TestTibber {
 		assertEquals(JsonNull.INSTANCE, value);
 	}
 
+	@Test
+	public void testUnsetFilterValue() throws Exception {
+		this.installHome();
+		final var properties = JsonUtils.buildJsonObject() //
+				.addProperty(Tibber.Property.ACCESS_TOKEN.name(), "g78aw9ht2n112nb453") //
+				.addProperty(Tibber.Property.MULTIPLE_HOMES_CHECK.name(), true) //
+				.addProperty(Tibber.Property.FILTER.name(), "randomInitialFilter") //
+				.build();
+		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.tibber.getAppId(), "key", "alias", properties));
+
+		final var filterProp = Arrays.stream(this.tibber.getProperties()) //
+				.filter(t -> t.name.equals(Tibber.Property.FILTER.name())) //
+				.findAny().orElseThrow();
+		var value = filterProp.bidirectionalValue.apply(response.instance().properties);
+
+		assertEquals("randomInitialFilter", value.getAsString());
+
+		this.appManagerTestBundle.componentManger.handleUpdateComponentConfigRequest(DUMMY_ADMIN,
+				new UpdateComponentConfigRequest(
+						response.instance().properties.get(Tibber.Property.TIME_OF_USE_TARIFF_PROVIDER_ID.name())
+								.getAsString(),
+						List.of(new UpdateComponentConfigRequest.Property(Tibber.Property.ACCESS_TOKEN.name(),
+								"g78aw9ht2n112nb453"))));
+
+		value = filterProp.bidirectionalValue.apply(response.instance().properties);
+
+		assertTrue(value.isJsonPrimitive());
+		assertTrue(value.getAsJsonPrimitive().isString());
+		assertEquals("", value.getAsString());
+	}
+
 	private void createPredictor() throws Exception {
 		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
 				new CreateComponentConfigRequest("Predictor.PersistenceModel", List.of(//

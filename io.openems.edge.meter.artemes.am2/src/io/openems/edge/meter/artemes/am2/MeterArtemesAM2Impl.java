@@ -85,7 +85,7 @@ public class MeterArtemesAM2Impl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this,
 				new FC4ReadInputRegistersTask(0x0000, Priority.HIGH,
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0x0000)),

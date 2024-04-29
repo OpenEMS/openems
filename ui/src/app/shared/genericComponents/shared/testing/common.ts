@@ -27,9 +27,9 @@ export namespace OeTester {
       options: {
         "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": {}, "line": {} }, "plugins": { "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": '' } }, "tooltip": { "intersect": false, "mode": "index", "callbacks": {} } }, "scales": {
           "x": { "stacked": true, "offset": false, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } }, "left": {
-            ...options["left"].scale, ...(chartType === 'line' ? { stacked: false } : {}), "title": { "text": "kW", "display": false, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
+            ...options["left"]?.scale, ...(chartType === 'line' ? { stacked: false } : {}), "title": { "text": "kW", "display": false, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
             "ticks": {
-              ...options["left"].ticks,
+              ...options["left"]?.ticks,
               "color": '',
               "padding": 5,
               "maxTicksLimit": ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
@@ -44,9 +44,9 @@ export namespace OeTester {
         "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 1 }, "line": {} }, "plugins": { "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": '' } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {} } }, "scales": {
           "x": { "stacked": true, "offset": true, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } },
           "left": {
-            ...options["left"].scale, ...(chartType === 'line' ? { stacked: false } : {}), "title": { "text": "kWh", "display": false, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
+            ...options["left"]?.scale, ...(chartType === 'line' ? { stacked: false } : {}), "title": { "text": "kWh", "display": false, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
             "ticks": {
-              ...options["left"].ticks,
+              ...options["left"]?.ticks,
               "color": '',
               "padding": 5,
               "maxTicksLimit": ChartConstants.NUMBER_OF_Y_AXIS_TICKS,

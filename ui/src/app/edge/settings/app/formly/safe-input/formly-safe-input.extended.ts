@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { FieldWrapper, FormlyFieldConfig } from "@ngx-formly/core";

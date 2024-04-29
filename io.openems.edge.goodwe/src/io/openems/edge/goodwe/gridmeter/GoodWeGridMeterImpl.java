@@ -4,6 +4,7 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -124,7 +125,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	private final ElementToChannelConverter ignoreZeroAndInvert = IgnoreZeroConverter.from(this, INVERT);
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		var protocol = new ModbusProtocol(this, //
 
 				// States
@@ -175,18 +176,11 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 								this.ignoreZeroAndScaleFactor1)));
 
 		// Handles different DSP versions
-		ModbusUtils.readELementOnce(protocol, new UnsignedWordElement(35016), true) //
-				.thenAccept(dspVersion -> {
-					try {
-						if (dspVersion >= 4 || dspVersion == 0) {
-							this.handleDspVersion4(protocol);
-						}
-
-					} catch (OpenemsException e) {
-						this.logError(this.log, "Unable to add task for modbus protocol");
-						e.printStackTrace();
-					}
-				});
+		readElementOnce(protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(35016)).thenAccept(dspVersion -> {
+			if (dspVersion >= 4 || dspVersion == 0) {
+				this.handleDspVersion4(protocol);
+			}
+		});
 
 		switch (this.config.goodWeMeterCategory()) {
 		case COMMERCIAL_METER -> this.handleExternalMeter(protocol);
@@ -201,9 +195,8 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	 * Adds Registers that are available from DSP version 4.
 	 * 
 	 * @param protocol the {@link ModbusProtocol}
-	 * @throws OpenemsException on error
 	 */
-	private void handleDspVersion4(ModbusProtocol protocol) throws OpenemsException {
+	private void handleDspVersion4(ModbusProtocol protocol) {
 		protocol.addTask(//
 				new FC3ReadRegistersTask(36052, Priority.LOW, //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(36052),
@@ -220,7 +213,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 								this.ignoreZeroAndScaleFactor2))); //
 	}
 
-	private void handleExternalMeter(ModbusProtocol protocol) throws OpenemsException {
+	private void handleExternalMeter(ModbusProtocol protocol) {
 
 		protocol.addTask(//
 				new FC6WriteRegisterTask(47456,

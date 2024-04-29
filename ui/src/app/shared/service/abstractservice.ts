@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ErrorHandler } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';

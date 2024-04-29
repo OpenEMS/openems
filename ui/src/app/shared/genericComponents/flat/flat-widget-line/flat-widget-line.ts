@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
 import { AbstractFlatWidgetLine } from "../abstract-flat-widget-line";

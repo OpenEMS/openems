@@ -42,8 +42,6 @@ import { SystemExecuteComponent } from './systemexecute/systemexecute.component'
     SystemComponent,
     SystemExecuteComponent,
   ],
-  entryComponents: [
-  ],
   exports: [
     OeSystemUpdateComponent,
   ],

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 import { AbstractModalLine } from "../abstract-modal-line";
 import { ButtonLabel } from "../modal-button/modal-button";

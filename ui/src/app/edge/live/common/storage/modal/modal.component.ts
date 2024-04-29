@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
