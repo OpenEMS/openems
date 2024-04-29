@@ -205,9 +205,6 @@ public class IoShellyPlugsImpl extends AbstractOpenemsComponent implements IoShe
 
 	/**
 	 * Execute on Cycle Event "Execute Write".
-	 * 
-	 * @param channel write channel
-	 * @param index   index
 	 */
 	private void executeWrite() {
 		var channel = this.getRelayChannel();
