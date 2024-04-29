@@ -1,5 +1,10 @@
 package io.openems.edge.io.shelly.shellyplugs;
 
+import static io.openems.common.utils.JsonUtils.getAsBoolean;
+import static io.openems.common.utils.JsonUtils.getAsFloat;
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static java.lang.Math.round;
+
 import java.util.Objects;
 
 import org.osgi.service.component.ComponentContext;
@@ -17,9 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.common.channel.BooleanWriteChannel;
@@ -37,7 +40,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "IO.Shelly.PlugS", //
+		name = "IO.Shelly.Plus.PlugS", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE//
 )
@@ -76,8 +79,6 @@ public class IoShellyPlugsImpl extends AbstractOpenemsComponent implements IoShe
 		this.digitalOutputChannels = new BooleanWriteChannel[] { //
 				this.channel(IoShellyPlugs.ChannelId.RELAY) //
 		};
-
-		SinglePhaseMeter.calculateSinglePhaseFromActivePower(this);
 	}
 
 	@Activate
@@ -127,85 +128,79 @@ public class IoShellyPlugsImpl extends AbstractOpenemsComponent implements IoShe
 
 	@Override
 	public void handleEvent(Event event) {
-		this.calculateEnergy();
 		if (!this.isEnabled()) {
 			return;
 		}
 
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE -> {
-			this.executeWrite(this.getRelayChannel(), 0);
-
-		}
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+			-> this.calculateEnergy();
+		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+			-> this.executeWrite();
 		}
 	}
 
 	private void processHttpResult(JsonElement result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
+
+		Boolean relayStatus = null;
+		Boolean updatesAvailable = false;
+		Integer activePower = null;
+		Integer voltageL1 = null;
+		Integer voltageL2 = null;
+		Integer voltageL3 = null;
+		Integer currentL1 = null;
+		Integer currentL2 = null;
+		Integer currentL3 = null;
+
 		if (error != null) {
-			this._setRelay(null);
-			this._setActivePower(null);
 			this.logDebug(this.log, error.getMessage());
-			return;
-		}
 
-		try {
-			JsonObject jsonResponse = JsonUtils.getAsJsonObject(result);
-			JsonObject switch0 = JsonUtils.getAsJsonObject(jsonResponse, "switch:0");
-			if (switch0 != null) {
-				boolean relayIson = JsonUtils.getAsBoolean(switch0, "output");
-				float power = JsonUtils.getAsFloat(switch0, "apower");
-				int voltage = JsonUtils.getAsInt(switch0, "voltage");
-				float current = JsonUtils.getAsFloat(switch0, "current");
+		} else {
+			try {
+				var response = getAsJsonObject(result);
+				var sysInfo = getAsJsonObject(response, "sys");
+				var relays = getAsJsonObject(response, "switch:0");
+				var current = round(getAsFloat(relays, "current") * 1000);
+				var voltage = round(getAsFloat(relays, "voltage") * 1000);
+				var update = getAsJsonObject(sysInfo, "available_updates");
 
-				this._setRelay(relayIson);
-				this._setActivePower(Math.round(power));
+				relayStatus = getAsBoolean(relays, "output");
+				activePower = round(getAsFloat(relays, "apower"));
+				updatesAvailable = update != null && !update.entrySet().isEmpty();
 
-				int millivolt = voltage * 1000;
-				int milliamp = (int) (current * 1000);
-
-				if (this.phase != null) {
-					switch (this.phase) {
-					case L1:
-						this._setVoltageL1(millivolt);
-						this._setCurrentL1(milliamp);
-						this._setVoltageL2(0);
-						this._setCurrentL2(0);
-						this._setVoltageL3(0);
-						this._setCurrentL3(0);
-						this._setActivePowerL2(0);
-						this._setActivePowerL3(0);
-						break;
-					case L2:
-						this._setVoltageL2(millivolt);
-						this._setCurrentL2(milliamp);
-
-						this._setVoltageL1(0);
-						this._setCurrentL1(0);
-						this._setVoltageL3(0);
-						this._setCurrentL3(0);
-						this._setActivePowerL1(0);
-						this._setActivePowerL3(0);
-						break;
-					case L3:
-						this._setVoltageL3(millivolt);
-						this._setCurrentL3(milliamp);
-
-						this._setVoltageL1(0);
-						this._setCurrentL1(0);
-						this._setVoltageL2(0);
-						this._setCurrentL2(0);
-						this._setActivePowerL1(0);
-						this._setActivePowerL2(0);
-						break;
-					}
+				switch (this.phase) {
+				case L1:
+					voltageL1 = voltage;
+					currentL1 = current;
+					this._setActivePowerL1(activePower);
+					break;
+				case L2:
+					voltageL2 = voltage;
+					currentL2 = current;
+					this._setActivePowerL2(activePower);
+					break;
+				case L3:
+					voltageL3 = voltage;
+					currentL3 = current;
+					this._setActivePowerL3(activePower);
+					break;
 				}
+
+			} catch (Exception e) {
+				this.logDebug(this.log, e.getMessage());
 			}
-		} catch (Exception e) {
-			this._setRelay(null);
-			this._setActivePower(null);
-			this.logDebug(this.log, e.getMessage());
 		}
+
+		this._setRelay(relayStatus);
+		this._setActivePower(activePower);
+		this._setVoltageL1(voltageL1);
+		this._setCurrentL1(currentL1);
+		this._setVoltageL2(voltageL2);
+		this._setCurrentL2(currentL2);
+		this._setVoltageL3(voltageL3);
+		this._setCurrentL3(currentL3);
+		this.channel(IoShellyPlugs.ChannelId.HAS_UPDATE).setNextValue(updatesAvailable);
 	}
 
 	/**
@@ -214,7 +209,9 @@ public class IoShellyPlugsImpl extends AbstractOpenemsComponent implements IoShe
 	 * @param channel write channel
 	 * @param index   index
 	 */
-	private void executeWrite(BooleanWriteChannel channel, int index) {
+	private void executeWrite() {
+		var channel = this.getRelayChannel();
+		var index = 0;
 		var readValue = channel.value().get();
 		var writeValue = channel.getNextWriteValueAndReset();
 		if (writeValue.isEmpty()) {
@@ -223,7 +220,8 @@ public class IoShellyPlugsImpl extends AbstractOpenemsComponent implements IoShe
 		if (Objects.equals(readValue, writeValue.get())) {
 			return;
 		}
-		final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
+		final var url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
+
 		this.httpBridge.get(url).whenComplete((t, e) -> {
 			this._setSlaveCommunicationFailed(e != null);
 			if (e == null) {
