@@ -6,8 +6,9 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyUserService;
 import io.openems.edge.common.test.TestUtils;
+import io.openems.edge.controller.api.rest.DummyJsonRpcRestHandlerFactory;
+import io.openems.edge.controller.api.rest.JsonRpcRestHandler;
 import io.openems.edge.controller.test.ControllerTest;
-import io.openems.edge.timedata.test.DummyTimedata;
 
 public class ControllerApiRestReadOnlyImplTest {
 
@@ -20,7 +21,7 @@ public class ControllerApiRestReadOnlyImplTest {
 		new ControllerTest(new ControllerApiRestReadOnlyImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("userService", new DummyUserService()) //
-				.addReference("timedata", new DummyTimedata("timedata0")) //
+				.addReference("restHandlerFactory", new DummyJsonRpcRestHandlerFactory(JsonRpcRestHandler::new)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEnabled(false) // do not actually start server

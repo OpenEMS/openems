@@ -54,7 +54,7 @@ public class Edge2EdgeEssImpl extends AbstractEdge2Edge implements ManagedSymmet
 		super.setModbus(modbus);
 	}
 
-	public Edge2EdgeEssImpl() throws OpenemsException {
+	public Edge2EdgeEssImpl() {
 		super(//
 				Lists.newArrayList(//
 						OpenemsComponent::getModbusSlaveNatureTable, //

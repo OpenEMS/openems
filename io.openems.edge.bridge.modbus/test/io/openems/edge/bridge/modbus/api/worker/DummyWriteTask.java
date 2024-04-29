@@ -11,7 +11,7 @@ public class DummyWriteTask extends AbstractDummyTask implements WriteTask {
 
 	@Override
 	public String toString() {
-		return "DummyWriteTask [name=" + this.name + ", delay=" + this.delay + "]";
+		return "DummyWriteTask [name=" + this.name + ", delay=" + this.getDelay() + "]";
 	}
 
 	@Override

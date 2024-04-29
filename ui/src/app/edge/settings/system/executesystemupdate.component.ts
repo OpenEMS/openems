@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';

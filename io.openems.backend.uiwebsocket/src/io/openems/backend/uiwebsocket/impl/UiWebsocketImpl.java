@@ -13,6 +13,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -27,6 +29,7 @@ import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edgewebsocket.EdgeCache;
 import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
+import io.openems.backend.common.jsonrpc.SimulationEngine;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.common.timedata.TimedataManager;
@@ -66,6 +69,9 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 
 	@Reference
 	protected volatile TimedataManager timedataManager;
+	
+	@Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.OPTIONAL)
+	protected volatile SimulationEngine simulation;
 
 	public UiWebsocketImpl() {
 		super("Ui.Websocket");

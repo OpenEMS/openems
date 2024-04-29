@@ -10,11 +10,10 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.controller.api,\
 	io.openems.edge.controller.ess.emergencycapacityreserve,\
 	io.openems.edge.controller.ess.limittotaldischarge,\
+	io.openems.edge.energy.api,\
 	io.openems.edge.ess.api,\
-	io.openems.edge.predictor.api,\
 	io.openems.edge.timedata.api,\
 	io.openems.edge.timeofusetariff.api,\
-	io.openems.wrapper.jenetics,\
 
 -testpath: \
 	${testpath},\

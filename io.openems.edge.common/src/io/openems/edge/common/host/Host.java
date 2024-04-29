@@ -7,9 +7,8 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.JsonApi;
 
-public interface Host extends OpenemsComponent, JsonApi {
+public interface Host extends OpenemsComponent {
 
 	public static final String SINGLETON_SERVICE_PID = "Core.Host";
 	public static final String SINGLETON_COMPONENT_ID = "_host";

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 

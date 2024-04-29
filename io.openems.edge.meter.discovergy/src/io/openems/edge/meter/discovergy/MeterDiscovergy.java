@@ -6,10 +6,9 @@ import io.openems.common.channel.Level;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface MeterDiscovergy extends ElectricityMeter, OpenemsComponent, EventHandler, JsonApi {
+public interface MeterDiscovergy extends ElectricityMeter, OpenemsComponent, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/*

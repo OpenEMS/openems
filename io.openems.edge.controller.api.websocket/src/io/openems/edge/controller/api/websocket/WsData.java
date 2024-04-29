@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.CurrentDataNotification;
@@ -140,21 +139,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 */
 	public Optional<User> getUser() {
 		return this.user;
-	}
-
-	/**
-	 * Throws an exception if the User is not authenticated.
-	 *
-	 * @param resource a resource identifier; used for the exception
-	 * @return the current {@link User}
-	 * @throws OpenemsNamedException if the current Role privileges are less
-	 */
-	public User assertUserIsAuthenticated(String resource) throws OpenemsNamedException {
-		if (this.getUser().isPresent()) {
-			return this.getUser().get();
-		}
-		throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED
-				.exception("Session [" + this.getSessionToken() + "]. Ignoring [" + resource + "]");
 	}
 
 	@Override
