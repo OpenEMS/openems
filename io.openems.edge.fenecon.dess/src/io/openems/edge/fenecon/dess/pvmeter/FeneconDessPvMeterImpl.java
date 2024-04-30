@@ -89,7 +89,7 @@ public class FeneconDessPvMeterImpl extends AbstractOpenemsModbusComponent imple
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(11144, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(11144), DELTA_10000)), //

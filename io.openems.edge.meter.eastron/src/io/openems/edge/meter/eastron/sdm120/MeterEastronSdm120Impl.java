@@ -109,7 +109,7 @@ public class MeterEastronSdm120Impl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		final var offset = 30001;
 		final var invert = this.config.invert();
 

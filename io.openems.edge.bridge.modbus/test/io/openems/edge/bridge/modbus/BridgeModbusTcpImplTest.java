@@ -22,7 +22,6 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyCycle;
 import io.openems.edge.common.test.TestUtils;
 
 public class BridgeModbusTcpImplTest {
@@ -61,7 +60,6 @@ public class BridgeModbusTcpImplTest {
 			var device = new MyModbusComponent(DEVICE_ID, sut, UNIT_ID);
 			var test = new ComponentTest(sut) //
 					.addComponent(device) //
-					.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 					.activate(MyConfigTcp.create() //
 							.setId(MODBUS_ID) //
 							.setIp("127.0.0.1") //
@@ -135,11 +133,10 @@ public class BridgeModbusTcpImplTest {
 		}
 
 		@Override
-		protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+		protected ModbusProtocol defineModbusProtocol() {
 			return new ModbusProtocol(this, //
 					new FC3ReadRegistersTask(100, Priority.HIGH, //
-							m(ChannelId.REGISTER_100, new UnsignedWordElement(100) //
-							))); //
+							m(ChannelId.REGISTER_100, new UnsignedWordElement(100)))); //
 		}
 
 	}

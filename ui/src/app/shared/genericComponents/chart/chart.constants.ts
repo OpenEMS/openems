@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ChartDataset } from "chart.js";
 
 import { ArrayUtils } from "../../utils/array/array.utils";

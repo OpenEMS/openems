@@ -4,6 +4,7 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -17,11 +18,9 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ChannelMetaInfoReadAndWrite;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -55,6 +54,7 @@ import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
+@SuppressWarnings("deprecation")
 public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		implements GoodWe, OpenemsComponent, TimedataProvider, EventHandler {
 
@@ -100,7 +100,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected final ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected final ModbusProtocol defineModbusProtocol() {
 		var protocol = new ModbusProtocol(this, //
 
 				new FC3ReadRegistersTask(35001, Priority.LOW, //
@@ -1183,7 +1183,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		 * Register 35011: GoodWeType as String (Not supported for GoodWe 20 & 30)
 		 * Register 35003: Serial number as String (Fallback for GoodWe 20 & 30)
 		 */
-		ModbusUtils.readELementOnce(protocol, new StringWordElement(35011, 5), true) //
+		readElementOnce(protocol, ModbusUtils::retryOnNull, new StringWordElement(35011, 5)) //
 				.thenAccept(value -> {
 
 					/*
@@ -1201,29 +1201,24 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 					/*
 					 * Evaluate GoodweType from serial number
 					 */
-					try {
-						ModbusUtils.readELementOnce(protocol, new StringWordElement(35003, 8), true) //
-								.thenAccept(serialNr -> {
-									final var hardwareType = getGoodWeTypeFromSerialNr(serialNr);
-									try {
-										this._setGoodweType(hardwareType);
-										if (hardwareType == GoodWeType.FENECON_FHI_20_DAH
-												|| hardwareType == GoodWeType.FENECON_FHI_29_9_DAH) {
-											this.handleMultipleStringChargers(protocol);
-										}
-
-									} catch (OpenemsException e) {
-										this.logError(this.log, "Unable to add charger tasks for modbus protocol");
+					readElementOnce(protocol, ModbusUtils::retryOnNull, new StringWordElement(35003, 8)) //
+							.thenAccept(serialNr -> {
+								final var hardwareType = getGoodWeTypeFromSerialNr(serialNr);
+								try {
+									this._setGoodweType(hardwareType);
+									if (hardwareType == GoodWeType.FENECON_FHI_20_DAH
+											|| hardwareType == GoodWeType.FENECON_FHI_29_9_DAH) {
+										this.handleMultipleStringChargers(protocol);
 									}
-								});
-					} catch (OpenemsException e) {
-						this.logError(this.log, "Unable to read element for serial number");
-						e.printStackTrace();
-					}
+
+								} catch (OpenemsException e) {
+									this.logError(this.log, "Unable to add charger tasks for modbus protocol");
+								}
+							});
 				});
 
 		// Handles different DSP versions
-		ModbusUtils.readELementOnce(protocol, new UnsignedWordElement(35016), true) //
+		readElementOnce(protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(35016)) //
 				.thenAccept(dspVersion -> {
 					try {
 
@@ -1375,19 +1370,20 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.TWO_S_PV6_I, new UnsignedWordElement(35307),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(35308, 35336),
-						m(GoodWe.ChannelId.TWO_S_MPPT1_P, new UnsignedWordElement(35337)),
-						m(GoodWe.ChannelId.TWO_S_MPPT2_P, new UnsignedWordElement(35338)),
-						m(GoodWe.ChannelId.TWO_S_MPPT3_P, new UnsignedWordElement(35339)),
+						m(GoodWe.ChannelId.MPPT1_P, new UnsignedWordElement(35337)),
+						m(GoodWe.ChannelId.MPPT2_P, new UnsignedWordElement(35338)),
+						m(GoodWe.ChannelId.MPPT3_P, new UnsignedWordElement(35339)),
 						new DummyRegisterElement(35340, 35344), // Power MPPT4 - MPPT8
-						m(GoodWe.ChannelId.TWO_S_MPPT1_I, new UnsignedWordElement(35345), //
+						m(GoodWe.ChannelId.MPPT1_I, new UnsignedWordElement(35345), //
 								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(GoodWe.ChannelId.TWO_S_MPPT2_I, new UnsignedWordElement(35346), //
+						m(GoodWe.ChannelId.MPPT2_I, new UnsignedWordElement(35346), //
 								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(GoodWe.ChannelId.TWO_S_MPPT3_I, new UnsignedWordElement(35347), //
+						m(GoodWe.ChannelId.MPPT3_I, new UnsignedWordElement(35347), //
 								ElementToChannelConverter.SCALE_FACTOR_2)) //
 		);
 	}
 
+	// TODO: Can be removed when GoodWeChargerTwoStringImpl has been deleted
 	private void setMultipleStringChannels() {
 
 		this.chargers.stream() //
@@ -1907,7 +1903,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		);
 	}
 
-	protected ModbusElement getSocModbusElement(int address) throws NotImplementedException {
+	protected ModbusElement getSocModbusElement(int address) {
 		if (this instanceof HybridEss) {
 			return m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(address), new ElementToChannelConverter(
 					// element -> channel
@@ -1923,11 +1919,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 					},
 					// channel -> element
 					value -> value));
-		}
-		if (this instanceof HybridManagedSymmetricBatteryInverter) {
-			return new DummyRegisterElement(address);
+
 		} else {
-			throw new NotImplementedException("Wrong implementation of AbstractGoodWe");
+			return new DummyRegisterElement(address);
 		}
 	}
 

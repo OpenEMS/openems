@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ActivatedRoute } from '@angular/router';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { parse } from 'date-fns';

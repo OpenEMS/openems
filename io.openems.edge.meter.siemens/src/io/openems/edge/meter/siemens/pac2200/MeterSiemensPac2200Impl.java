@@ -95,8 +95,7 @@ public class MeterSiemensPac2200Impl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-
+	protected ModbusProtocol defineModbusProtocol() {
 		var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(1, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(1), SCALE_FACTOR_3),

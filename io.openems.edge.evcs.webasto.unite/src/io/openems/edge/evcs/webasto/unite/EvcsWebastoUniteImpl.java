@@ -114,7 +114,7 @@ public class EvcsWebastoUniteImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		/*
 		 * The Webasto Unite does not support reading Multiple Registers in one task
 		 * with "gaps" in between. Therefore, this modbus protocol consists of many

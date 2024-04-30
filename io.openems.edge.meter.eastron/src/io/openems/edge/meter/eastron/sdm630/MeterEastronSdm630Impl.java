@@ -105,7 +105,7 @@ public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent imple
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		final var offset = 30001;
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(30001 - offset, Priority.HIGH,
