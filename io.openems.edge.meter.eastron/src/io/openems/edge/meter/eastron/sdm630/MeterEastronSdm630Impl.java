@@ -41,6 +41,7 @@ import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
+// NOTE: we stick with the name `Meter.Microcare.SDM630` for backwards compatibility
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Meter.Microcare.SDM630", //
