@@ -11,6 +11,7 @@ public class GoodWeChargerTwoStringImplTest {
 	private static final String ESS_ID = "ess0";
 	private static final String CHARGER_ID = "charger0";
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new GoodWeChargerTwoStringImpl()) //

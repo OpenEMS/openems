@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Directive, Inject, Input, OnChanges, OnDestroy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";

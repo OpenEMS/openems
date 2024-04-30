@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ActivatedRoute } from '@angular/router';
 import { CategorizedFactories } from 'src/app/shared/edge/edgeconfig';
 import { Component, OnInit } from '@angular/core';

@@ -83,7 +83,7 @@ public class MeterZiehlEfr4001IpImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		final var startingRegister = 0x00B0; // 0x0000 for EFR4000IP
 		final var startingRegisterFeedIn = 0x0156; // 0x0084 for EFR4000IP
 		var modbusProtocol = new ModbusProtocol(this, //

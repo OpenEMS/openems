@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, EventEmitter, Output } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { TKeyValue } from "src/app/shared/service/defaulttypes";

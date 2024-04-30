@@ -36,6 +36,7 @@ import { IndexComponent as EdgeSettingsComponentInstallIndexComponentComponent }
 import { ComponentInstallComponent as EdgeSettingsComponentInstallComponentComponent } from './edge/settings/component/install/install.component';
 import { IndexComponent as EdgeSettingsComponentUpdateIndexComponentComponent } from './edge/settings/component/update/index.component';
 import { ComponentUpdateComponent as EdgeSettingsComponentUpdateComponentComponent } from './edge/settings/component/update/update.component';
+import { JsonrpcTestComponent } from './edge/settings/jsonrpctest/jsonrpctest';
 import { NetworkComponent as EdgeSettingsNetworkComponent } from './edge/settings/network/network.component';
 import { AliasUpdateComponent } from './edge/settings/profile/aliasupdate.component';
 import { ProfileComponent as EdgeSettingsProfileComponent } from './edge/settings/profile/profile.component';
@@ -116,6 +117,7 @@ const routes: Routes = [
       { path: 'settings/app/update/:appId', component: EdgeSettingsAppUpdate },
       { path: 'settings/app/single/:appId', component: EdgeSettingsAppSingle },
       { path: 'settings/alerting', component: EdgeSettingsAlerting },
+      { path: 'settings/jsonrpctest', component: JsonrpcTestComponent },
     ],
   },
 

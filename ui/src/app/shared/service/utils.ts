@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { ChartDataset } from 'chart.js';
@@ -773,22 +774,10 @@ export namespace HistoryUtils {
 
 export namespace TimeOfUseTariffUtils {
 
-  export type ScheduleChartData = {
-    datasets: ChartDataset[],
-    colors: any[],
-    labels: Date[]
-  }
-
-  export enum TimeOfUseTariffState {
+  export enum State {
     DelayDischarge = 0,
     Balancing = 1,
-    ChargeProduction = 2,
     ChargeGrid = 3,
-  }
-
-  export enum ControlMode {
-    CHARGE_CONSUMPTION = 'CHARGE_CONSUMPTION',
-    DELAY_DISCHARGE = 'DELAY_DISCHARGE'
   }
 
   /**
@@ -806,127 +795,6 @@ export namespace TimeOfUseTariffUtils {
       price = (price / 10.0);
       return Math.round(price * 10000) / 10000.0;
     }
-  }
-
-  /**
-   * Gets the schedule chart data containing datasets, colors and labels.
-   *
-   * @param size The length of the dataset
-   * @param prices The Time-of-Use-Tariff quarterly price array
-   * @param states The Time-of-Use-Tariff state array
-   * @param timestamps The Time-of-Use-Tariff timestamps array
-   * @param gridBuy The Time-of-Use-Tariff gridBuy array
-   * @param socArray The Time-of0Use-Tariff soc Array.
-   * @param translate The Translate service
-   * @param controlMode The Control mode of the controller.
-   * @returns The ScheduleChartData.
-   */
-  export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[], gridBuy: number[], socArray: number[], translate: TranslateService, controlMode: ControlMode): ScheduleChartData {
-    const datasets: ChartDataset[] = [];
-    const colors: any[] = [];
-    const labels: Date[] = [];
-
-    // Initializing States.
-    const barChargeGrid = Array(size).fill(null);
-    const barBalancing = Array(size).fill(null);
-    const barDelayDischarge = Array(size).fill(null);
-
-    for (let index = 0; index < size; index++) {
-      const quarterlyPrice = formatPrice(prices[index]);
-      const state = states[index];
-      labels.push(new Date(timestamps[index]));
-
-      if (state !== null) {
-        switch (state) {
-          case TimeOfUseTariffState.DelayDischarge:
-            barDelayDischarge[index] = quarterlyPrice;
-            break;
-          case TimeOfUseTariffState.Balancing:
-            barBalancing[index] = quarterlyPrice;
-            break;
-          case TimeOfUseTariffState.ChargeGrid:
-            barChargeGrid[index] = quarterlyPrice;
-            break;
-        }
-      }
-    }
-
-    // Set datasets
-    datasets.push({
-      type: 'bar',
-      label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
-      data: barBalancing,
-      order: 1,
-    });
-    colors.push({
-      // Dark Green
-      backgroundColor: 'rgba(51,102,0,0.8)',
-      borderColor: 'rgba(51,102,0,1)',
-    });
-
-    // Set dataset for ChargeGrid.
-    if (!barChargeGrid.every(v => v === null) || controlMode == ControlMode.CHARGE_CONSUMPTION) {
-      datasets.push({
-        type: 'bar',
-        label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
-        data: barChargeGrid,
-        order: 1,
-      });
-      colors.push({
-        // Sky blue
-        backgroundColor: 'rgba(0, 204, 204,0.5)',
-        borderColor: 'rgba(0, 204, 204,0.7)',
-      });
-    }
-
-    // Set dataset for buy from grid
-    datasets.push({
-      type: 'bar',
-      label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
-      data: barDelayDischarge,
-      order: 1,
-    });
-    colors.push({
-      // Black
-      backgroundColor: 'rgba(0,0,0,0.8)',
-      borderColor: 'rgba(0,0,0,0.9)',
-    });
-
-    // State of charge data
-    datasets.push({
-      type: 'line',
-      label: translate.instant('General.soc'),
-      data: socArray,
-      hidden: false,
-      yAxisID: ChartAxis.RIGHT,
-      borderDash: [10, 10],
-      order: 0,
-    });
-    colors.push({
-      backgroundColor: 'rgba(189, 195, 199,0.2)',
-      borderColor: 'rgba(189, 195, 199,1)',
-    });
-
-    datasets.push({
-      type: 'line',
-      label: translate.instant('General.gridBuy'),
-      data: gridBuy,
-      hidden: true,
-      yAxisID: ChartAxis.RIGHT_2,
-      order: 2,
-    });
-    colors.push({
-      backgroundColor: 'rgba(0,0,0, 0.2)',
-      borderColor: 'rgba(0,0,0, 1)',
-    });
-
-    const scheduleChartData: ScheduleChartData = {
-      colors: colors,
-      datasets: datasets,
-      labels: labels,
-    };
-
-    return scheduleChartData;
   }
 
   /**
@@ -962,12 +830,10 @@ export namespace TimeOfUseTariffUtils {
         // Show floating point number for values between 0 and 1
         return label + ": " + formatNumber(value, 'de', '1.0-4') + " " + currencyLabel;
 
-      case gridBuyLabel:
-        return label + ": " + formatNumber(value, 'de', '1.0-0') + " kW";
-
       default:
+      case gridBuyLabel:
         // Power values
-        return label + ": " + formatNumber(value, 'de', '1.0-0') + ' ' + 'W';
+        return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
     }
   }
 

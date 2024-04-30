@@ -28,6 +28,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
@@ -544,6 +545,48 @@ public class Rrd4jReadHandler {
 
 			try (var database = this.rrd4jSupplier.getExistingUpdatedRrdDb(rrdDbId, channelAddress,
 					channel.channelDoc().getUnit())) {
+				if (database == null) {
+					return Optional.empty();
+				}
+
+				// search for last value in robin
+				final var robin = database.getArchive(0).getRobin(0);
+				for (int i = robin.getSize() - 1; i >= 0; i--) {
+					final var value = robin.getValue(i);
+					if (Double.isNaN(value)) {
+						continue;
+					}
+					return Optional.of(value);
+				}
+
+				return Optional.empty();
+			} catch (Exception e) {
+				return Optional.empty();
+			}
+		});
+	}
+
+	/**
+	 * Gets the latest known value for the given {@link ChannelAddress} of a not
+	 * existing channel.
+	 * 
+	 * <p>
+	 * Gets the latest known value even if the ChannelAddress is not longer
+	 * existing.
+	 *
+	 * @param rrdDbId        the id of the rrdb
+	 * @param channelAddress the ChannelAddress to be queried
+	 * @param unit           unit
+	 * @return the latest known value or Empty
+	 */
+	public CompletableFuture<Optional<Object>> getLatestValueOfNotExistingChannel(//
+			final String rrdDbId, //
+			final ChannelAddress channelAddress, //
+			final Unit unit //
+	) {
+		return CompletableFuture.supplyAsync(() -> {
+
+			try (var database = this.rrd4jSupplier.getExistingUpdatedRrdDb(rrdDbId, channelAddress, unit)) {
 				if (database == null) {
 					return Optional.empty();
 				}

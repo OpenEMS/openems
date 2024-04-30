@@ -2,26 +2,28 @@
 
 ```mermaid
 graph LR
-Undefined -->|target START| GoRunning
+Undefined --> |hasFault| Error
+Undefined --> |isStarted or Grid Connected| Running
+Undefined --> |isStopped or Off, Standby, Pre-charge| Stopped
+Undefined --> |else| Go_Stopped
 
-GoRunning -->|not timeout| GoRunning
-GoRunning -->|isRunning| Running
-GoRunning -->|timeout| Undefined
+Go_Stopped --> |Off or Standby or Pre-charge| Stopped
+Go_Stopped --> |hasFault or timeout| Error
+Go_Stopped --> |try for 240 second| Go_Stopped
 
-Running -->|isRunning && everythingOk| Running
-Running -->|otherwise| Undefined
+Stopped --> |targetStart| Go_Running
+Stopped --> |hasFault| Error
 
-Undefined -->|target STOP| GoStopped
-GoStopped -->|isStopped| Stopped
-GoStopped -->|not timeout| GoStopped
-GoStopped -->|timeout| Undefined
+Go_Running --> |targetStop| Go_Stopped
+Go_Running --> |hasFault or timeout| Error
+Go_Running --> |try for 240 second| Go_Running
+Go_Running --> |Grid Connected or Throttled| Running
 
-Stopped -->|isStopped && everythingOk| Stopped
-Stopped -->|otherwise| Undefined
+Running --> |hasFault| Error
+Running --> |targetStop| Go_Stopped 
 
-Undefined -->|hasFault| ErrorHandling
-ErrorHandling -->|not timeout| ErrorHandling
-ErrorHandling -->|eventually| Undefined
+Error --> |!hasFault| Stopped
+Error --> |hasFault| Error
 ```
 
 View using Mermaid, e.g. https://mermaid-js.github.io/mermaid-live-editor
