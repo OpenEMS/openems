@@ -1,4 +1,4 @@
-package io.openems.edge.meter.microcare.sdm630;
+package io.openems.edge.meter.eastron.sdm630;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;

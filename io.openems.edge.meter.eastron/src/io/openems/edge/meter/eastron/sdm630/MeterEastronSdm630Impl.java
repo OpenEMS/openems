@@ -1,4 +1,4 @@
-package io.openems.edge.meter.microcare.sdm630;
+package io.openems.edge.meter.eastron.sdm630;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
@@ -41,6 +41,7 @@ import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
+// NOTE: we stick with the name `Meter.Microcare.SDM630` for backwards compatibility
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Meter.Microcare.SDM630", //
@@ -50,7 +51,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent implements MeterMicrocareSdm630,
+public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent implements MeterEastronSdm630,
 		ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
@@ -72,12 +73,12 @@ public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent imp
 		super.setModbus(modbus);
 	}
 
-	public MeterMicrocareSdm630Impl() {
+	public MeterEastronSdm630Impl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
-				MeterMicrocareSdm630.ChannelId.values() //
+				MeterEastronSdm630.ChannelId.values() //
 		);
 
 		// Automatically calculate sum values from L1/L2/L3
@@ -179,11 +180,11 @@ public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent imp
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								DIRECT_1_TO_1),
 						new DummyRegisterElement(30073 - offset, 30076 - offset), //
-						m(MeterMicrocareSdm630.ChannelId.REACTIVE_PRODUCTION_ENERGY,
+						m(MeterEastronSdm630.ChannelId.REACTIVE_PRODUCTION_ENERGY,
 								new FloatDoublewordElement(30077 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(MeterMicrocareSdm630.ChannelId.REACTIVE_CONSUMPTION_ENERGY,
+						m(MeterEastronSdm630.ChannelId.REACTIVE_CONSUMPTION_ENERGY,
 								new FloatDoublewordElement(30079 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3)));
