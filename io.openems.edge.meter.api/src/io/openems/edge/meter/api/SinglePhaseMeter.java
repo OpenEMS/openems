@@ -1,5 +1,9 @@
 package io.openems.edge.meter.api;
 
+import static io.openems.edge.meter.api.SinglePhase.L1;
+import static io.openems.edge.meter.api.SinglePhase.L2;
+import static io.openems.edge.meter.api.SinglePhase.L3;
+
 import java.util.function.Function;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -45,7 +49,7 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 	 * @param meter the {@link SinglePhaseMeter}
 	 */
 	public static void calculateSinglePhaseFromActivePower(SinglePhaseMeter meter) {
-		SinglePhaseMeter.calculateSinglePhaseFromActivePower(meter, SinglePhaseMeter::getPhase);
+		calculateSinglePhaseFromActivePower(meter, SinglePhaseMeter::getPhase);
 	}
 
 	/**
@@ -70,9 +74,9 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 			Function<METER, SinglePhase> phaseProvider) {
 		meter.getActivePowerChannel().onSetNextValue(value -> {
 			var phase = phaseProvider.apply(meter);
-			meter.getActivePowerL1Channel().setNextValue(phase == SinglePhase.L1 ? value : null);
-			meter.getActivePowerL2Channel().setNextValue(phase == SinglePhase.L2 ? value : null);
-			meter.getActivePowerL3Channel().setNextValue(phase == SinglePhase.L3 ? value : null);
+			meter.getActivePowerL1Channel().setNextValue(phase == L1 ? value : null);
+			meter.getActivePowerL2Channel().setNextValue(phase == L2 ? value : null);
+			meter.getActivePowerL3Channel().setNextValue(phase == L3 ? value : null);
 		});
 	}
 
@@ -88,7 +92,7 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 	 * @param meter the {@link SinglePhaseMeter}
 	 */
 	public static void calculateSinglePhaseFromReactivePower(SinglePhaseMeter meter) {
-		SinglePhaseMeter.calculateSinglePhaseFromReactivePower(meter, SinglePhaseMeter::getPhase);
+		calculateSinglePhaseFromReactivePower(meter, SinglePhaseMeter::getPhase);
 	}
 
 	/**
@@ -111,11 +115,11 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 	 */
 	public static <METER extends ElectricityMeter> void calculateSinglePhaseFromReactivePower(METER meter,
 			Function<METER, SinglePhase> phaseProvider) {
-		meter.getActivePowerChannel().onSetNextValue(value -> {
+		meter.getReactivePowerChannel().onSetNextValue(value -> {
 			var phase = phaseProvider.apply(meter);
-			meter.getReactivePowerL1Channel().setNextValue(phase == SinglePhase.L1 ? value : null);
-			meter.getReactivePowerL2Channel().setNextValue(phase == SinglePhase.L2 ? value : null);
-			meter.getReactivePowerL3Channel().setNextValue(phase == SinglePhase.L3 ? value : null);
+			meter.getReactivePowerL1Channel().setNextValue(phase == L1 ? value : null);
+			meter.getReactivePowerL2Channel().setNextValue(phase == L2 ? value : null);
+			meter.getReactivePowerL3Channel().setNextValue(phase == L3 ? value : null);
 		});
 	}
 
@@ -131,7 +135,7 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 	 * @param meter the {@link SinglePhaseMeter}
 	 */
 	public static void calculateSinglePhaseFromCurrent(SinglePhaseMeter meter) {
-		SinglePhaseMeter.calculateSinglePhaseFromCurrent(meter, SinglePhaseMeter::getPhase);
+		calculateSinglePhaseFromCurrent(meter, SinglePhaseMeter::getPhase);
 	}
 
 	/**
@@ -155,9 +159,9 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 			Function<METER, SinglePhase> phaseProvider) {
 		meter.getCurrentChannel().onSetNextValue(value -> {
 			var phase = phaseProvider.apply(meter);
-			meter.getCurrentL1Channel().setNextValue(phase == SinglePhase.L1 ? value : null);
-			meter.getCurrentL2Channel().setNextValue(phase == SinglePhase.L2 ? value : null);
-			meter.getCurrentL3Channel().setNextValue(phase == SinglePhase.L3 ? value : null);
+			meter.getCurrentL1Channel().setNextValue(phase == L1 ? value : null);
+			meter.getCurrentL2Channel().setNextValue(phase == L2 ? value : null);
+			meter.getCurrentL3Channel().setNextValue(phase == L3 ? value : null);
 		});
 	}
 
@@ -173,7 +177,7 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 	 * @param meter the {@link SinglePhaseMeter}
 	 */
 	public static void calculateSinglePhaseFromVoltage(SinglePhaseMeter meter) {
-		SinglePhaseMeter.calculateSinglePhaseFromVoltage(meter, SinglePhaseMeter::getPhase);
+		calculateSinglePhaseFromVoltage(meter, SinglePhaseMeter::getPhase);
 	}
 
 	/**
@@ -197,9 +201,9 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 			Function<METER, SinglePhase> phaseProvider) {
 		meter.getVoltageChannel().onSetNextValue(value -> {
 			var phase = phaseProvider.apply(meter);
-			meter.getVoltageL1Channel().setNextValue(phase == SinglePhase.L1 ? value : null);
-			meter.getVoltageL2Channel().setNextValue(phase == SinglePhase.L2 ? value : null);
-			meter.getVoltageL3Channel().setNextValue(phase == SinglePhase.L3 ? value : null);
+			meter.getVoltageL1Channel().setNextValue(phase == L1 ? value : null);
+			meter.getVoltageL2Channel().setNextValue(phase == L2 ? value : null);
+			meter.getVoltageL3Channel().setNextValue(phase == L3 ? value : null);
 		});
 	}
 
