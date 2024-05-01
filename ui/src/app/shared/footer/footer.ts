@@ -25,7 +25,7 @@ import { Role } from "../type/role";
         text-align: center;
       }
 
-      :is(ion-item) { /* Update the selector here */
+      :is(ion-item) {
         --min-height: initial !important;
         font-size: inherit;
       }
