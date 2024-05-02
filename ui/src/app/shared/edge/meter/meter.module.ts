@@ -14,8 +14,6 @@ import { EssChargerComponent } from "./esscharger/modal.component";
         PipeModule,
         Generic_ComponentsModule,
     ],
-    entryComponents: [
-    ],
     declarations: [
         ElectricityMeterComponent,
         EssChargerComponent,

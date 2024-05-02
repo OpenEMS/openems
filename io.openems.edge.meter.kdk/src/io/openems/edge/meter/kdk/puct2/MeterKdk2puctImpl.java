@@ -100,7 +100,7 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(0x4007, Priority.LOW, //
 						m(MeterKdk2puct.ChannelId.SOFTWARE_VERSION, new FloatDoublewordElement(0x4007))),

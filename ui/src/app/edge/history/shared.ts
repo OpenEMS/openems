@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import * as Chart from 'chart.js';
 import { differenceInDays, differenceInMinutes, startOfDay } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -318,7 +319,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
 
     if (days <= 1) {
         if (service.isSmartphoneResolution) {
-            result = { resolution: { value: 20, unit: ChronoUnit.Type.MINUTES }, timeFormat: 'hour' }; // 1 Day
+            result = { resolution: { value: 15, unit: ChronoUnit.Type.MINUTES }, timeFormat: 'hour' }; // 1 Day
         } else {
             result = { resolution: { value: 5, unit: ChronoUnit.Type.MINUTES }, timeFormat: 'hour' }; // 5 Minutes
         }

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Directive, Inject, OnDestroy } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from 'uuid';

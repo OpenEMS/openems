@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -37,8 +36,6 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
@@ -52,7 +49,10 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.JsonApi;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.EdgeGuards;
+import io.openems.edge.common.jsonapi.EdgeKeys;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxRequest;
 import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxResponse;
@@ -65,7 +65,7 @@ import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxResponse;
 				"enabled=true" //
 		})
 public class ComponentManagerImpl extends AbstractOpenemsComponent
-		implements ComponentManager, OpenemsComponent, JsonApi, ConfigurationListener {
+		implements ComponentManager, OpenemsComponent, ConfigurationListener, ComponentJsonApi {
 
 	private final List<ComponentManagerWorker> workers = new ArrayList<>();
 	private final EdgeConfigWorker edgeConfigWorker;
@@ -215,6 +215,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			// filter invalid
 			e.printStackTrace();
 			return Collections.emptyList();
+		} catch (RuntimeException e) {
+			e.printStackTrace();
+			return Collections.emptyList();
 		}
 	}
 
@@ -282,30 +285,64 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
-			throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.GUEST);
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(GetEdgeConfigRequest.METHOD, endpoint -> {
+			endpoint.setDescription("""
+					Handles a GetEdgeConfigRequest.
+					""") //
+					.setGuards(EdgeGuards.roleIsAtleast(Role.GUEST));
+		}, t -> {
+			return this.handleGetEdgeConfigRequest(t.get(EdgeKeys.USER_KEY), //
+					GetEdgeConfigRequest.from(t.getRequest()));
+		});
 
-		switch (request.getMethod()) {
+		builder.handleRequest(CreateComponentConfigRequest.METHOD, endpoint -> {
+			endpoint.setDescription("""
+					Handles a CreateComponentConfigRequest.
+					""") //
+					.setGuards(EdgeGuards.roleIsAtleastFromBackend(Role.INSTALLER), //
+							EdgeGuards.roleIsAtleastNotFromBackend(Role.ADMIN));
+		}, t -> {
+			this.handleCreateComponentConfigRequest(t.get(EdgeKeys.USER_KEY), //
+					CreateComponentConfigRequest.from(t.getRequest()));
 
-		case GetEdgeConfigRequest.METHOD:
-			return this.handleGetEdgeConfigRequest(user, GetEdgeConfigRequest.from(request));
+			return new GenericJsonrpcResponseSuccess(t.getRequest().getId());
+		});
 
-		case CreateComponentConfigRequest.METHOD:
-			return this.handleCreateComponentConfigRequest(user, CreateComponentConfigRequest.from(request));
+		builder.handleRequest(UpdateComponentConfigRequest.METHOD, endpoint -> {
+			endpoint.setDescription("""
+					Handles a UpdateComponentConfigRequest.
+					""") //
+					.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+		}, t -> {
+			this.handleUpdateComponentConfigRequest(t.get(EdgeKeys.USER_KEY), //
+					UpdateComponentConfigRequest.from(t.getRequest()));
 
-		case UpdateComponentConfigRequest.METHOD:
-			return this.handleUpdateComponentConfigRequest(user, UpdateComponentConfigRequest.from(request));
+			return new GenericJsonrpcResponseSuccess(t.getRequest().getId());
+		});
 
-		case DeleteComponentConfigRequest.METHOD:
-			return this.handleDeleteComponentConfigRequest(user, DeleteComponentConfigRequest.from(request));
+		builder.handleRequest(DeleteComponentConfigRequest.METHOD, endpoint -> {
+			endpoint.setDescription("""
+					Handles a DeleteComponentConfigRequest.
+					""") //
+					.setGuards(EdgeGuards.roleIsAtleastFromBackend(Role.INSTALLER), //
+							EdgeGuards.roleIsAtleastNotFromBackend(Role.ADMIN));
+		}, t -> {
+			this.handleDeleteComponentConfigRequest(t.get(EdgeKeys.USER_KEY), //
+					DeleteComponentConfigRequest.from(t.getRequest()));
 
-		case ChannelExportXlsxRequest.METHOD:
-			return this.handleChannelExportXlsxRequest(user, ChannelExportXlsxRequest.from(request));
+			return new GenericJsonrpcResponseSuccess(t.getRequest().getId());
+		});
 
-		default:
-			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
-		}
+		builder.handleRequest(ChannelExportXlsxRequest.METHOD, endpoint -> {
+			endpoint.setDescription("""
+					Handles a ChannelExportXlsxRequest.
+					""") //
+					.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
+		}, t -> {
+			return this.handleChannelExportXlsxRequest(t.get(EdgeKeys.USER_KEY), //
+					ChannelExportXlsxRequest.from(t.getRequest()));
+		});
 	}
 
 	/**
@@ -316,23 +353,15 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(User user,
-			GetEdgeConfigRequest request) throws OpenemsNamedException {
+	private GetEdgeConfigResponse handleGetEdgeConfigRequest(User user, GetEdgeConfigRequest request)
+			throws OpenemsNamedException {
 		var config = this.getEdgeConfig();
-		var response = new GetEdgeConfigResponse(request.getId(), config);
-		return CompletableFuture.completedFuture(response);
+		return new GetEdgeConfigResponse(request.getId(), config);
 	}
 
-	/**
-	 * Handles a {@link CreateComponentConfigRequest}.
-	 *
-	 * @param user    the {@link User}
-	 * @param request the {@link CreateComponentConfigRequest}
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	public CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
-			CreateComponentConfigRequest request) throws OpenemsNamedException {
+	@Override
+	public void handleCreateComponentConfigRequest(User user, CreateComponentConfigRequest request)
+			throws OpenemsNamedException {
 		// Get Component-ID from Request
 		String componentId = null;
 		for (Property property : request.getProperties()) {
@@ -395,20 +424,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			e.printStackTrace();
 			throw OpenemsError.EDGE_UNABLE_TO_CREATE_CONFIG.exception(request.getFactoryPid(), e.getMessage());
 		}
-
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
-	/**
-	 * Handles a {@link UpdateComponentConfigRequest}.
-	 *
-	 * @param user    the {@link User}
-	 * @param request the {@link UpdateComponentConfigRequest}
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	public CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(User user,
-			UpdateComponentConfigRequest request) throws OpenemsNamedException {
+	@Override
+	public void handleUpdateComponentConfigRequest(User user, UpdateComponentConfigRequest request)
+			throws OpenemsNamedException {
 		var config = this.getExistingConfigForId(request.getComponentId());
 
 		// Create map with changed configuration attributes
@@ -451,20 +471,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			e.printStackTrace();
 			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.getComponentId(), e.getMessage());
 		}
-
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
-	/**
-	 * Handles a {@link DeleteComponentConfigRequest}.
-	 *
-	 * @param user    the {@link User}
-	 * @param request the {@link DeleteComponentConfigRequest}
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	public CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(User user,
-			DeleteComponentConfigRequest request) throws OpenemsNamedException {
+	@Override
+	public void handleDeleteComponentConfigRequest(User user, DeleteComponentConfigRequest request)
+			throws OpenemsNamedException {
 		var config = this.getExistingConfigForId(request.getComponentId());
 
 		try {
@@ -473,8 +484,6 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			e.printStackTrace();
 			throw OpenemsError.EDGE_UNABLE_TO_DELETE_CONFIG.exception(request.getComponentId(), e.getMessage());
 		}
-
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
 	/**
@@ -485,14 +494,13 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	protected CompletableFuture<JsonrpcResponseSuccess> handleChannelExportXlsxRequest(User user,
-			ChannelExportXlsxRequest request) throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("ChannelExportXlsxRequest", Role.ADMIN);
+	protected ChannelExportXlsxResponse handleChannelExportXlsxRequest(User user, ChannelExportXlsxRequest request)
+			throws OpenemsNamedException {
 		var component = this.getComponent(request.getComponentId());
 		if (component == null) {
 			throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(request.getComponentId());
 		}
-		return CompletableFuture.completedFuture(new ChannelExportXlsxResponse(request.getId(), component));
+		return new ChannelExportXlsxResponse(request.getId(), component);
 	}
 
 	/**

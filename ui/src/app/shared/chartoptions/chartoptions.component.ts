@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ChartOptionsPopoverComponent } from './popover/popover.component';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
