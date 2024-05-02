@@ -191,7 +191,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	}
 
 	/**
-	 * Stops the server
+	 * Stops the server.
 	 */
 	public synchronized void stopServer() {
 		AbstractWebsocketServer.this.stopping = true;
