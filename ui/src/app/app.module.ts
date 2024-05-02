@@ -49,7 +49,7 @@ import { AngularMyDatePickerModule } from '@nodro7/angular-mydatepicker';
     EdgeSettingsModule,
     IndexModule,
     InstallationModule,
-    IonicModule.forRoot(),
+    IonicModule.forRoot({ innerHTMLTemplatesEnabled: true }),
     HttpClientModule,
     SharedModule,
     TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader } }),
