@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,6 +17,7 @@ import org.java_websocket.drafts.Draft;
 import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.java_websocket.extensions.permessage_deflate.PerMessageDeflateExtension;
+import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
@@ -36,6 +36,7 @@ import io.openems.common.utils.StringUtils;
 import io.openems.common.utils.ThreadPoolUtils;
 
 public abstract class AbstractWebsocketServer<T extends WsData> extends AbstractWebsocket<T> {
+	private boolean stopping = false;
 
 	public static enum DebugMode {
 		OFF, SIMPLE, DETAILED;
@@ -111,19 +112,13 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				try {
 					JsonrpcMessage message;
 					try {
-						try {
-							message = JsonrpcMessage.from(stringMessage);
-
-						} catch (OpenemsNamedException e) {
-							// handle deprecated non-JSON-RPC messages
-							message = AbstractWebsocketServer.this.handleNonJsonrpcMessage(ws, stringMessage, e);
-						}
-						if (message == null) {
-							// silently ignore 'null'
-							return;
-						}
+						message = JsonrpcMessage.from(stringMessage);
 					} catch (OpenemsNamedException e) {
-						AbstractWebsocketServer.this.handleInternalErrorAsync(e, WebsocketUtils.getWsDataString(ws));
+						// handle deprecated non-JSON-RPC messages
+						message = AbstractWebsocketServer.this.handleNonJsonrpcMessage(ws, stringMessage, e);
+					}
+					if (message == null) {
+						// silently ignore 'null'
 						return;
 					}
 
@@ -150,12 +145,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 			@Override
 			public void onError(WebSocket ws, Exception ex) {
 				try {
-					if (ws == null) {
-						AbstractWebsocketServer.this.handleInternalErrorAsync(ex, WebsocketUtils.getWsDataString(ws));
-					} else {
-						AbstractWebsocketServer.this.execute(new OnErrorHandler(AbstractWebsocketServer.this, ws, ex));
-					}
-
+					AbstractWebsocketServer.this.execute(new OnErrorHandler(AbstractWebsocketServer.this, ws, ex));
 				} catch (Throwable t) {
 					AbstractWebsocketServer.this.handleInternalErrorSync(t, WebsocketUtils.getWsDataString(ws));
 				}
@@ -173,31 +163,18 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 			}
 
 			@Override
-			protected boolean removeConnection(WebSocket ws) {
+			protected synchronized boolean removeConnection(WebSocket ws) {
 				return AbstractWebsocketServer.this.connections.remove(ws);
-
-				// TODO overridden method also does:
-				// if (isclosed.get() && connections.isEmpty()) {
-				// selectorthread.interrupt();
-				// }
 			}
 
 			@Override
-			protected boolean addConnection(WebSocket ws) {
-				return AbstractWebsocketServer.this.connections.add(ws);
-
-				// TODO overridden method also does:
-				// if (!isclosed.get()) {
-				// synchronized (connections) {
-				// return this.connections.add(ws);
-				// }
-				// } else {
-				// // This case will happen when a new connection gets ready while the server is
-				// // already stopping.
-				// ws.close(CloseFrame.GOING_AWAY);
-				// return true;// for consistency sake we will make sure that both onOpen will
-				// be called
-				// }
+			protected synchronized boolean addConnection(WebSocket ws) {
+				if (!stopping) {
+					return AbstractWebsocketServer.this.connections.add(ws);
+				} else {
+					ws.close(CloseFrame.GOING_AWAY);
+					return true; // Ensure onOpen will be called for consistency
+				}
 			}
 
 			@Override
@@ -211,6 +188,11 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 
 		// Debug-Mode
 		this.debugMode = debugMode == null ? DebugMode.OFF : debugMode;
+	}
+
+	public synchronized void stopServer() {
+		stopping = true;
+		stop();
 	}
 
 	/**
@@ -354,6 +336,12 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	@Override
 	public void stop() {
 		// Shutdown executors
+		stopping = true;
+
+		for (WebSocket ws : this.connections) {
+			ws.close(CloseFrame.GOING_AWAY);
+		}
+
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 
 		var tries = 3;
