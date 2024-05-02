@@ -169,7 +169,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 
 			@Override
 			protected synchronized boolean addConnection(WebSocket ws) {
-				if (!stopping) {
+				if (!AbstractWebsocketServer.this.stopping) {
 					return AbstractWebsocketServer.this.connections.add(ws);
 				} else {
 					ws.close(CloseFrame.GOING_AWAY);
@@ -190,9 +190,12 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 		this.debugMode = debugMode == null ? DebugMode.OFF : debugMode;
 	}
 
+	/**
+	 * Stops the server
+	 */
 	public synchronized void stopServer() {
-		stopping = true;
-		stop();
+		AbstractWebsocketServer.this.stopping = true;
+		this.stop();
 	}
 
 	/**
@@ -336,7 +339,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	@Override
 	public void stop() {
 		// Shutdown executors
-		stopping = true;
+		this.stopping = true;
 
 		for (WebSocket ws : this.connections) {
 			ws.close(CloseFrame.GOING_AWAY);
