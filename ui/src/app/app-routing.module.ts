@@ -38,6 +38,7 @@ import { ComponentInstallComponent as EdgeSettingsComponentInstallComponentCompo
 import { IndexComponent as EdgeSettingsComponentUpdateIndexComponentComponent } from './edge/settings/component/update/index.component';
 import { ComponentUpdateComponent as EdgeSettingsComponentUpdateComponentComponent } from './edge/settings/component/update/update.component';
 import { HomeServiceAssistentComponent } from './edge/settings/homeassistent/homeassistent';
+import { JsonrpcTestComponent } from './edge/settings/jsonrpctest/jsonrpctest';
 import { NetworkOldComponent as EdgeSettingsNetworkOldComponent } from './edge/settings/network.old/network.old.component';
 import { NetworkComponent as EdgeSettingsNetworkComponent } from './edge/settings/network/network.component';
 import { AliasUpdateComponent } from './edge/settings/profile/aliasupdate.component';
@@ -52,7 +53,6 @@ import { LoginComponent } from './index/login.component';
 import { OverViewComponent } from './index/overview/overview.component';
 import { DataService } from './shared/genericComponents/shared/dataservice';
 import { UserComponent } from './user/user.component';
-import { JsonrpcTestComponent } from './edge/settings/jsonrpctest/jsonrpctest';
 
 const routes: Routes = [
 

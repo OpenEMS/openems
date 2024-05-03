@@ -67,25 +67,25 @@
 			<!-- Used by com.influxdb: influxdb-client -->
 			<groupId>com.squareup.retrofit2</groupId>
 			<artifactId>converter-gson</artifactId>
-			<version>2.10.0</version>
+			<version>2.11.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
 			<groupId>com.squareup.retrofit2</groupId>
 			<artifactId>retrofit</artifactId>
-			<version>2.10.0</version>
+			<version>2.11.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
 			<groupId>com.squareup.retrofit2</groupId>
 			<artifactId>converter-scalars</artifactId>
-			<version>2.10.0</version>
+			<version>2.11.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.retrofit2</groupId>
 			<artifactId>adapter-rxjava3</artifactId>
-			<version>2.10.0</version>
+			<version>2.11.0</version>
 		</dependency>
 		<dependency>
 			<!-- JavaBeans Activation Framework -->
@@ -229,7 +229,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/README.md#releases -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>5.0.0</version>
+			<version>5.0.2</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Web Console Service Component Runtime/Declarative Services Plugin -->
@@ -252,7 +252,7 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.17.0</version>
+			<version>0.18.0</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv5 Client -->

@@ -518,7 +518,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 		for (SunSpecPoint point : points) {
 			Optional<Channel<?>> c = this.getSunSpecChannel(point);
 			if (c.isPresent()) {
-				c.get().onUpdate(value -> {
+				c.get().onSetNextValue(value -> {
 					this.channel(targetChannel).setNextValue(converter.elementToChannel(value.get()));
 				});
 				return;
