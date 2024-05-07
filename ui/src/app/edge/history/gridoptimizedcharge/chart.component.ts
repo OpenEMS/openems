@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -47,22 +48,22 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getCurrentEdge().then(() => {
-        let result = (response as QueryHistoricTimeseriesDataResponse).result;
+        const result = (response as QueryHistoricTimeseriesDataResponse).result;
 
         // convert labels
-        let labels: Date[] = [];
-        for (let timestamp of result.timestamps) {
+        const labels: Date[] = [];
+        for (const timestamp of result.timestamps) {
           labels.push(new Date(timestamp));
         }
         this.labels = labels;
 
         // convert datasets
-        let datasets = [];
+        const datasets = [];
 
         // Delay Charge Limit data
         if (this.component.id + '/DelayChargeMaximumChargeLimit' in result.data) {
 
-          let delayChargeData = result.data[this.component.id + '/DelayChargeMaximumChargeLimit'].map(value => {
+          const delayChargeData = result.data[this.component.id + '/DelayChargeMaximumChargeLimit'].map(value => {
             if (value == null) {
               return null;
             } else if (value <= 0) {
@@ -85,7 +86,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
 
         // Sell to grid limit - Minimum charge limit data
         if (this.component.id + '/SellToGridLimitMinimumChargeLimit' in result.data) {
-          let sellToGridLimitData = result.data[this.component.id + '/SellToGridLimitMinimumChargeLimit'].map(value => {
+          const sellToGridLimitData = result.data[this.component.id + '/SellToGridLimitMinimumChargeLimit'].map(value => {
             if (value == null) {
               return null;
             } else if (value == 0) {
@@ -121,7 +122,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
             effectivePower = result.data['_sum/EssActivePower'];
           }
 
-          let chargeData = effectivePower.map(value => {
+          const chargeData = effectivePower.map(value => {
             if (value == null) {
               return null;
             } else if (value < 0) {
@@ -145,7 +146,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
 
           // State of charge data
           if ('_sum/EssSoc' in result.data) {
-            let socData = result.data['_sum/EssSoc'].map(value => {
+            const socData = result.data['_sum/EssSoc'].map(value => {
               if (value == null) {
                 return null;
               } else if (value > 100 || value < 0) {
@@ -158,9 +159,10 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
               label: this.translate.instant('General.soc'),
               data: socData,
               hidden: false,
-              yAxisID: 'yAxis2',
+              yAxisID: ChartAxis.RIGHT,
               position: 'right',
               borderDash: [10, 10],
+              unit: YAxisTitle.PERCENTAGE,
             });
             this.colors.push({
               backgroundColor: 'rgba(189, 195, 199,0.05)',
@@ -189,15 +191,15 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
   }
 
   private applyControllerSpecificOptions() {
-    const yAxis: HistoryUtils.yAxes = {
-      unit: YAxisTitle.PERCENTAGE,
-      position: 'right',
-      yAxisId: ChartAxis.RIGHT,
-      displayGrid: false,
-    };
+    const yAxisRight: HistoryUtils.yAxes = { unit: YAxisTitle.PERCENTAGE, position: 'right', yAxisId: ChartAxis.RIGHT, displayGrid: false };
+    const yAxisLeft: HistoryUtils.yAxes = { position: 'left', unit: YAxisTitle.ENERGY, yAxisId: ChartAxis.LEFT };
 
     const locale = this.service.translate.currentLang;
-    this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, yAxis, this.translate, 'line', locale);
+    const showYAxisTitle = true;
+
+    [yAxisRight, yAxisLeft].forEach(yAxis => {
+      this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, yAxis, this.translate, 'line', locale, showYAxisTitle);
+    });
 
     this.datasets = this.datasets.map((el, index, arr) => {
 
@@ -213,7 +215,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
   protected getChannelAddresses(): Promise<ChannelAddress[]> {
 
     return new Promise((resolve) => {
-      let result: ChannelAddress[] = [
+      const result: ChannelAddress[] = [
         new ChannelAddress('_sum', 'EssActivePower'),
         new ChannelAddress('_sum', 'ProductionDcActualPower'),
         new ChannelAddress('_sum', 'EssSoc'),

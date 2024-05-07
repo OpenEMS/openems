@@ -11,8 +11,8 @@
   "Edge": {
     "Index": {
       "EmergencyReserve": {
-        "InfoForEmergencyReserveSlider": "緊急電力予備を有効にすることで、値は5％から100％まで自由に選択することができます。",
-        "emergencyReserve": "緊急予備"
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "緊急電力予備を有効にすることで、値は5％から100％まで自由に選択することができます。",
+        "EMERGENCY_RESERVE": "緊急予備"
       },
       "Energymonitor": {
         "activePower": "アクティブパワー",

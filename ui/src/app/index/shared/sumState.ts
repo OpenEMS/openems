@@ -52,7 +52,7 @@ export class SumStateComponent implements OnInit {
   constructor(private service: Service) { }
 
   ngOnInit() {
-    let user = this.service.metadata?.value?.user ?? null;
+    const user = this.service.metadata?.value?.user ?? null;
 
     if (user) {
       this.isAtLeastInstaller = Role.isAtLeast(user.globalRole, Role.INSTALLER);

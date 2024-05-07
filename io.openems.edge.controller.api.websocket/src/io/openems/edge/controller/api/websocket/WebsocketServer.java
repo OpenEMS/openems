@@ -10,7 +10,6 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	private final ControllerApiWebsocketImpl parent;
 	private final OnOpen onOpen;
-	private final OnRequest onRequest;
 	private final OnNotification onNotification;
 	private final OnError onError;
 	private final OnClose onClose;
@@ -20,7 +19,6 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 		super(name, port, poolSize, debugMode);
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
-		this.onRequest = new OnRequest(parent);
 		this.onNotification = new OnNotification(parent);
 		this.onError = new OnError(parent);
 		this.onClose = new OnClose(parent);
@@ -38,7 +36,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	@Override
 	protected OnRequest getOnRequest() {
-		return this.onRequest;
+		return this.parent.onRequest;
 	}
 
 	@Override

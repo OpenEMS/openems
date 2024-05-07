@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
@@ -42,11 +43,11 @@ export class Controller_Io_HeatpumpModalComponent implements OnInit {
       automaticRecommendationSurplusPower: new FormControl(this.component.properties.automaticRecommendationSurplusPower),
       minimumSwitchingTime: new FormControl(this.component.properties.minimumSwitchingTime),
     });
-  };
+  }
 
   public updateControllerMode(event: CustomEvent) {
-    let oldMode = this.component.properties['mode'];
-    let newMode = event.detail.value;
+    const oldMode = this.component.properties['mode'];
+    const newMode = event.detail.value;
 
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, this.component.id, [
@@ -77,7 +78,7 @@ export class Controller_Io_HeatpumpModalComponent implements OnInit {
     if (this.edge != null) {
       if (this.edge.roleIsAtLeast('owner')) {
         if (this.formGroup.controls['automaticRecommendationSurplusPower'].value < this.formGroup.controls['automaticForceOnSurplusPower'].value) {
-          let updateComponentArray = [];
+          const updateComponentArray = [];
           Object.keys(this.formGroup.controls).forEach((element, index) => {
             if (this.formGroup.controls[element].dirty) {
               updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });

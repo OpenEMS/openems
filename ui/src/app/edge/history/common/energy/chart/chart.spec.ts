@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { History } from "src/app/edge/history/common/energy/chart/channels.spec";
 import { DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
 
@@ -32,11 +33,11 @@ describe('History EnergyMonitor', () => {
               DATA('Ladezustand', History.DAY.dataChannelWithValues.result.data['_sum/EssSoc']),
             ],
             labels: LABELS(History.DAY.dataChannelWithValues.result.timestamps),
-            options: History.LINE_CHART_OPTIONS('hour', 'line'),
+            options: History.LINE_CHART_OPTIONS('hour', 'line', {
+              ['right']: { ticks: { stepSize: 20 }, scale: null },
+            }),
           },
-
         });
-
     }
     {
 
@@ -54,7 +55,7 @@ describe('History EnergyMonitor', () => {
               DATA('Ladezustand', History.WEEK.dataChannelWithValues.result.data['_sum/EssSoc']),
             ],
             labels: LABELS(History.WEEK.dataChannelWithValues.result.timestamps),
-            options: History.LINE_CHART_OPTIONS('day', 'line'),
+            options: History.LINE_CHART_OPTIONS('day', 'line', { ['right']: { ticks: { stepSize: 20 }, scale: null } }),
           },
         });
     }
@@ -77,7 +78,7 @@ describe('History EnergyMonitor', () => {
               DATA('Verbrauch: 9.976,1 kWh', [320.342, 346.615, 341.433, 333.054, 358.458, 347.872, 289.283, null, 556.51, 311.366, 314.722, 355.556, 381.671, 384.558, 366.19, 349.336, 303.696, 288.727, 357.434, 388.659, 402.625, null, 713.771, 320.238, 332.099, null, 756.429, 384.136, 371.322, null]),
             ],
             labels: LABELS(History.MONTH.energyPerPeriodChannelWithValues.result.timestamps),
-            options: History.BAR_CHART_OPTIONS('day', 'bar'),
+            options: History.BAR_CHART_OPTIONS('day', 'bar', {}),
           },
         });
     }
@@ -100,7 +101,7 @@ describe('History EnergyMonitor', () => {
               DATA('Verbrauch: 58.573,4 kWh', [11634.885, 8207.927, 8976.354, 8311.835, 10341.804, 9976.102, 975.807, null, null, null, null, null]),
             ],
             labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues.result.timestamps),
-            options: History.BAR_CHART_OPTIONS('month', 'bar'),
+            options: History.BAR_CHART_OPTIONS('month', 'bar', {}),
           },
         });
     }
@@ -112,7 +113,8 @@ describe('History EnergyMonitor', () => {
           datasets: {
             data: [],
             labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues.result.timestamps),
-            options: History.BAR_CHART_OPTIONS('month', 'bar'),
+            options: History.BAR_CHART_OPTIONS('month', 'bar', {
+            }),
           },
         });
     }
@@ -135,7 +137,7 @@ describe('History EnergyMonitor', () => {
               DATA('Verbrauch: 58.573,4 kWh', [11634.885, 8207.927, 8976.354, 8311.835, 10341.804, 9976.102, 975.807, null, null, null, null, null]),
             ],
             labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues.result.timestamps),
-            options: History.BAR_CHART_OPTIONS('month', 'bar'),
+            options: History.BAR_CHART_OPTIONS('month', 'bar', {}),
           },
         });
     }
@@ -155,7 +157,7 @@ describe('History EnergyMonitor', () => {
               DATA('Verbrauch: 58.573,4 kWh', [11634.885, 8207.927, 8976.354, 8311.835, 10341.804, 9976.102, 975.807, null, null, null, null, null]),
             ],
             labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues.result.timestamps),
-            options: History.BAR_CHART_OPTIONS('month', 'bar'),
+            options: History.BAR_CHART_OPTIONS('month', 'bar', {}),
           },
         });
     }
@@ -175,7 +177,7 @@ describe('History EnergyMonitor', () => {
               DATA('Verbrauch: 58.573,4 kWh', [11634.885, 8207.927, 8976.354, 8311.835, 10341.804, 9976.102, 975.807, null, null, null, null, null]),
             ],
             labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues.result.timestamps),
-            options: History.BAR_CHART_OPTIONS('month', 'bar'),
+            options: History.BAR_CHART_OPTIONS('month', 'bar', {}),
           },
         });
     }

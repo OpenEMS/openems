@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -19,7 +20,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected override service: Service,
@@ -46,11 +47,11 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
-                    let result = response.result;
+                    const result = response.result;
                     this.colors = [];
                     // convert labels
-                    let labels: Date[] = [];
-                    for (let timestamp of result.timestamps) {
+                    const labels: Date[] = [];
+                    for (const timestamp of result.timestamps) {
                         labels.push(new Date(timestamp));
                     }
                     this.labels = labels;
@@ -64,7 +65,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                     } else {
                         effectivePower = result.data['_sum/EssActivePower'];
                     }
-                    let totalData = effectivePower.map(value => {
+                    const totalData = effectivePower.map(value => {
                         if (value == null) {
                             return null;
                         } else {
@@ -73,19 +74,19 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                     });
 
                     // convert datasets
-                    let datasets = [];
+                    const datasets = [];
 
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         channelAddresses.forEach(channelAddress => {
-                            let component = config.getComponent(channelAddress.componentId);
-                            let data = result.data[channelAddress.toString()]?.map(value => {
+                            const component = config.getComponent(channelAddress.componentId);
+                            const data = result.data[channelAddress.toString()]?.map(value => {
                                 if (value == null) {
                                     return null;
                                 } else {
                                     return value / 1000; // convert to kW
                                 }
                             });
-                            let chargerData = result.data[channelAddress.toString()].map(value => {
+                            const chargerData = result.data[channelAddress.toString()].map(value => {
                                 if (value == null) {
                                     return null;
                                 } else {
@@ -202,7 +203,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let result: ChannelAddress[] = [
+            const result: ChannelAddress[] = [
                 new ChannelAddress('_sum', 'EssActivePower'),
                 new ChannelAddress('_sum', 'ProductionDcActualPower'),
                 new ChannelAddress('_sum', 'EssActivePowerL1'),
@@ -212,8 +213,8 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
             config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
                 .filter(component => !component.factoryId.includes("Ess.Cluster"))
                 .forEach(component => {
-                    let factoryID = component.factoryId;
-                    let factory = config.factories[factoryID];
+                    const factoryID = component.factoryId;
+                    const factory = config.factories[factoryID];
                     result.push(new ChannelAddress(component.id, 'ActivePower'));
                     if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
                         result.push(
@@ -223,7 +224,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                         );
                     }
                 });
-            let charger = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
+            const charger = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
             if (config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
                 .filter(component => !component.factoryId.includes("Ess.Cluster")).length != 1 && charger.length > 0) {
                 charger.forEach(component => {
@@ -244,7 +245,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
         options.scales[ChartAxis.LEFT].min = null;
         options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
             let label = tooltipItem.dataset.label;
-            let value = tooltipItem.dataset.data[tooltipItem.dataIndex];
+            const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
             // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
             if (value < -0.005) {
                 label += ' ' + translate.instant('General.chargePower');

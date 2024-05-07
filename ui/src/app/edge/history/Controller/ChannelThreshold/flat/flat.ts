@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
 
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
@@ -21,10 +22,10 @@ export class FlatComponent extends AbstractFlatWidget {
 
         this.controllers = this.config.getComponentsByFactory('Controller.ChannelThreshold').concat(this.config.getComponentsImplementingNature('io.openems.impl.controller.channelthreshold.ChannelThresholdController'));
 
-        let channelAddresses: ChannelAddress[] = [];
+        const channelAddresses: ChannelAddress[] = [];
 
-        for (let controller of this.controllers) {
-            let output: ChannelAddress | null = ChannelAddress.fromString(controller.properties['outputChannelAddress']);
+        for (const controller of this.controllers) {
+            const output: ChannelAddress | null = ChannelAddress.fromString(controller.properties['outputChannelAddress']);
             this.displayName.set(controller.id, this.getDisplayName(controller, output));
             channelAddresses.push(new ChannelAddress(controller.id, 'CumulatedActiveTime'));
         }

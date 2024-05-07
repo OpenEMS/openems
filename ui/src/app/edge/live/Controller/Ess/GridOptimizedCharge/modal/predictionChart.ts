@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -24,7 +25,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected override service: Service,
@@ -51,13 +52,13 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
         this.colors = [];
 
         this.queryHistoricTimeseriesData(PredictionChartComponent.DEFAULT_PERIOD.from, PredictionChartComponent.DEFAULT_PERIOD.to, { unit: ChronoUnit.Type.MINUTES, value: 5 }).then(async response => {
-            let result = response.result;
-            let datasets = [];
+            const result = response.result;
+            const datasets = [];
 
             // Get the 5 min index of the current time
-            let hours = new Date().getHours();
-            let minutes = new Date().getMinutes();
-            let currIndex = Math.trunc((hours * 60 + minutes) / 5);
+            const hours = new Date().getHours();
+            const minutes = new Date().getMinutes();
+            const currIndex = Math.trunc((hours * 60 + minutes) / 5);
 
             // Add one buffer hour at the beginning to see at least one hour of the past soc
             let startIndex = currIndex - 12;
@@ -66,7 +67,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
             // Calculate soc and predicted soc data
             if ('_sum/EssSoc' in result.data) {
 
-                let socData = result.data['_sum/EssSoc'].map(value => {
+                const socData = result.data['_sum/EssSoc'].map(value => {
                     if (value == null) {
                         return null;
                     } else if (value > 100 || value < 0) {
@@ -85,17 +86,17 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     }
                 }
 
-                let targetTime = new Date(0);
+                const targetTime = new Date(0);
                 targetTime.setUTCSeconds(this.targetEpochSeconds);
 
                 // Predicted charge start only used, if a value is present. There's no Channel for it in older Openems Versions.
-                let isChargeStartPresent = this.chargeStartEpochSeconds != null;
-                let chargeStartTime = new Date(0);
+                const isChargeStartPresent = this.chargeStartEpochSeconds != null;
+                const chargeStartTime = new Date(0);
                 let chargeStartIndex = 0;
                 if (isChargeStartPresent) {
                     chargeStartTime.setUTCSeconds(this.chargeStartEpochSeconds);
-                    let chargeStartHours = chargeStartTime.getHours();
-                    let chargeStartMinutes = chargeStartTime.getMinutes();
+                    const chargeStartHours = chargeStartTime.getHours();
+                    const chargeStartMinutes = chargeStartTime.getMinutes();
 
                     // Calculate the index of the chargeStart
                     chargeStartIndex = Math.trunc((chargeStartHours * 60 + chargeStartMinutes) / 5);
@@ -103,19 +104,19 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
                 let dataSteps = 0;
                 let targetIndex = 0;
-                let predictedSocData = Array(288).fill(null);
+                const predictedSocData = Array(288).fill(null);
 
                 // Calculate the predicted soc data
                 if (startSoc != null && targetTime != null) {
 
-                    let targetHours = targetTime.getHours();
-                    let targetMinutes = targetTime.getMinutes();
+                    const targetHours = targetTime.getHours();
+                    const targetMinutes = targetTime.getMinutes();
 
                     // Calculate the index of the target minute
                     targetIndex = Math.trunc((targetHours * 60 + targetMinutes) / 5);
 
                     // Remaining capacity in %
-                    let remainingCapacity = 100 - startSoc;
+                    const remainingCapacity = 100 - startSoc;
 
                     // Calculate how much time is left in 5 min steps
                     let remainingSteps = 0;
@@ -144,7 +145,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                 }
 
                 // Add one buffer hour at the end to get more clarity in the chart
-                let chartEndIndex = targetIndex + 12;
+                const chartEndIndex = targetIndex + 12;
 
                 // Remove unimportant values that are after the end index
                 if (chartEndIndex < result.data['_sum/EssSoc'].length - 1) {
@@ -161,8 +162,8 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                 }
 
                 // Convert labels
-                let labels: Date[] = [];
-                for (let timestamp of result.timestamps) {
+                const labels: Date[] = [];
+                for (const timestamp of result.timestamps) {
                     labels.push(new Date(timestamp));
                 }
                 this.labels = labels;
@@ -209,7 +210,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
     private applyControllerSpecificOptions() {
         this.options.scales[ChartAxis.LEFT]['position'] = 'right';
         this.options.scales.x.ticks.callback = function (value, index, values) {
-            var date = new Date(value);
+            const date = new Date(value);
 
             // Display the label only if the minutes are zero (full hour)
             return date.getMinutes() === 0 ? date.getHours() + ':00' : '';
@@ -219,7 +220,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
     protected getChannelAddresses(): Promise<ChannelAddress[]> {
 
         return new Promise((resolve) => {
-            let result: ChannelAddress[] = [
+            const result: ChannelAddress[] = [
                 new ChannelAddress('_sum', 'EssSoc'),
             ];
             if (this.component != null && this.component.id) {

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 import { FieldWrapper } from '@ngx-formly/core';
@@ -42,7 +43,7 @@ export class FormlyWrapperDefaultValueWithCasesComponent extends FieldWrapper im
             if (this.formControl.value) {
                 return;
             }
-            let value = this.model[item.field];
+            const value = this.model[item.field];
             if (!value) {
                 return;
             }

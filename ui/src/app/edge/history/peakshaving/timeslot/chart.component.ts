@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -44,11 +45,11 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
         this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getConfig().then(config => {
-                let meterIdActivePower = config.getComponent(this.componentId).properties['meter.id'] + '/ActivePower';
-                let peakshavingPower = this.componentId + '/_PropertyPeakShavingPower';
-                let rechargePower = this.componentId + '/_PropertyRechargePower';
-                let stateMachine = this.componentId + '/StateMachine';
-                let result = response.result;
+                const meterIdActivePower = config.getComponent(this.componentId).properties['meter.id'] + '/ActivePower';
+                const peakshavingPower = this.componentId + '/_PropertyPeakShavingPower';
+                const rechargePower = this.componentId + '/_PropertyRechargePower';
+                const stateMachine = this.componentId + '/StateMachine';
+                const result = response.result;
 
 
                 Object.keys(result.data).forEach(key => {
@@ -62,17 +63,17 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                 });
 
                 // convert labels
-                let labels: Date[] = [];
-                for (let timestamp of result.timestamps) {
+                const labels: Date[] = [];
+                for (const timestamp of result.timestamps) {
                     labels.push(new Date(timestamp));
                 }
                 this.labels = labels;
 
                 // convert datasets
-                let datasets = [];
+                const datasets = [];
 
                 if (meterIdActivePower in result.data) {
-                    let data = result.data[meterIdActivePower].map(value => {
+                    const data = result.data[meterIdActivePower].map(value => {
                         if (value == null) {
                             return null;
                         } else if (value == 0) {
@@ -92,7 +93,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                     });
                 }
                 if (rechargePower in result.data) {
-                    let data = result.data[rechargePower].map(value => {
+                    const data = result.data[rechargePower].map(value => {
                         if (value == null) {
                             return null;
                         } else if (value == 0) {
@@ -113,7 +114,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                     });
                 }
                 if (peakshavingPower in result.data) {
-                    let data = result.data[peakshavingPower].map(value => {
+                    const data = result.data[peakshavingPower].map(value => {
                         if (value == null) {
                             return null;
                         } else if (value == 0) {
@@ -145,7 +146,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                     } else {
                         effectivePower = result.data['_sum/EssActivePower'];
                     }
-                    let chargeData = effectivePower.map(value => {
+                    const chargeData = effectivePower.map(value => {
                         if (value == null) {
                             return null;
                         } else if (value < 0) {
@@ -166,7 +167,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                     /*
                      * Storage Discharge
                      */
-                    let dischargeData = effectivePower.map(value => {
+                    const dischargeData = effectivePower.map(value => {
                         if (value == null) {
                             return null;
                         } else if (value > 0) {
@@ -202,12 +203,12 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
         }).finally(async () => {
             this.unit = YAxisTitle.ENERGY;
             await this.setOptions(this.options);
-        });;
+        });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let result: ChannelAddress[] = [
+            const result: ChannelAddress[] = [
                 new ChannelAddress(this.componentId, '_PropertyRechargePower'),
                 new ChannelAddress(this.componentId, '_PropertyPeakShavingPower'),
                 new ChannelAddress(this.componentId, 'StateMachine'),

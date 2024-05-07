@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
@@ -35,20 +36,20 @@ export class ComponentUpdateComponent implements OnInit {
     this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.adjustComponents' }, this.route).then(edge => {
       this.edge = edge;
     });
-    let componentId = this.route.snapshot.params["componentId"];
+    const componentId = this.route.snapshot.params["componentId"];
     this.service.getConfig().then(config => {
       this.componentId = componentId;
-      let component = config.components[componentId];
+      const component = config.components[componentId];
       this.factory = config.factories[component.factoryId];
       this.componentIcon = config.getFactoryIcon(this.factory);
-      let fields: FormlyFieldConfig[] = [];
-      let model = {};
-      for (let property of this.factory.properties) {
+      const fields: FormlyFieldConfig[] = [];
+      const model = {};
+      for (const property of this.factory.properties) {
         if (property.id === 'id') {
           continue; // ignore Component-ID
         }
-        let property_id = property.id.replace('.', '_');
-        let field: FormlyFieldConfig = {
+        const property_id = property.id.replace('.', '_');
+        const field: FormlyFieldConfig = {
           key: property_id,
           type: 'input',
           templateOptions: {
@@ -79,11 +80,11 @@ export class ComponentUpdateComponent implements OnInit {
   }
 
   public submit() {
-    let properties: { name: string, value: any }[] = [];
-    for (let controlKey in this.form.controls) {
-      let control = this.form.controls[controlKey];
+    const properties: { name: string, value: any }[] = [];
+    for (const controlKey in this.form.controls) {
+      const control = this.form.controls[controlKey];
       if (control.dirty) {
-        let property_id = controlKey.replace('_', '.');
+        const property_id = controlKey.replace('_', '.');
         properties.push({ name: property_id, value: control.value });
       }
     }

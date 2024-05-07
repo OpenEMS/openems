@@ -1,0 +1,39 @@
+<oe-flat-widget
+    [title]="'SETTINGS.SYSTEM_UPDATE.EMS_RESTARTING' | translate: {edgeShortName: environment.edgeShortName}"
+    [icon]="{name: 'hammer-outline', color:'primary', size: 'medium'}" *ngIf="edge" class="ion-padding-top">
+    <ng-container *ngFor="let option of options">
+        <ion-row *ngIf="option.info">
+            <ion-col>
+                <ion-label>
+                    {{option.info}}
+                </ion-label>
+            </ion-col>
+        </ion-row>
+
+        <ion-row class="ion-justify-content-end">
+            <ion-col *ngIf="option.message">
+                <ion-label color="{{option.color}}">
+                    {{option.message}}
+                </ion-label>
+            </ion-col>
+
+            <ng-container *ngIf="(systemRestartState | async)?.state !== SystemRestartState.INITIAL">
+                <ion-col>
+                    <ng-container [ngSwitch]="(systemRestartState | async)?.state">
+                        <ng-container *ngIf="(systemRestartState | async)?.key === option.key">
+                            <div *ngSwitchCase="SystemRestartState.RESTARTING" style="height: 3vh">
+                                <ngx-spinner [name]="spinnerId + option.key"></ngx-spinner>
+                            </div>
+                        </ng-container>
+                    </ng-container>
+                </ion-col>
+            </ng-container>
+
+            <ion-col *ngIf="!option.button.disabled">
+                <ion-item class="ion-float-right" lines="none" style="justify-content: end; ">
+                    <ion-button (click)="option.button.callback()">{{option.button.label}}</ion-button>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+    </ng-container>
+</oe-flat-widget>

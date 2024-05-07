@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -19,7 +20,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected override service: Service,
@@ -44,20 +45,20 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
         this.colors = [];
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            let result = response.result;
+            const result = response.result;
             // convert labels
-            let labels: Date[] = [];
-            for (let timestamp of result.timestamps) {
+            const labels: Date[] = [];
+            for (const timestamp of result.timestamps) {
                 labels.push(new Date(timestamp));
             }
             this.labels = labels;
 
             // convert datasets
-            let datasets = [];
+            const datasets = [];
 
             Object.keys(result.data).forEach((channel) => {
-                let address = ChannelAddress.fromString(channel);
-                let chargerData = result.data[channel].map(value => {
+                const address = ChannelAddress.fromString(channel);
+                const chargerData = result.data[channel].map(value => {
                     if (value == null) {
                         return null;
                     } else {
@@ -91,7 +92,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let result: ChannelAddress[] = [
+            const result: ChannelAddress[] = [
                 new ChannelAddress(this.componentId, 'ActualPower'),
             ];
             resolve(result);

@@ -139,7 +139,7 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		// Cannot read the gaps, therefore there are so many tasks
 		var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(1000, Priority.HIGH,

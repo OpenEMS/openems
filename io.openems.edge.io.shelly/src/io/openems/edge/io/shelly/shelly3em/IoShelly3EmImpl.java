@@ -4,6 +4,7 @@ import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 import static java.lang.Math.round;
 
 import java.util.Objects;
@@ -109,17 +110,7 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		var b = new StringBuilder();
-		var valueOpt = this.getRelayChannel().value().asOptional();
-		b.append(valueOpt.isPresent() //
-				? (valueOpt.get() //
-						? "ON" //
-						: "OFF") //
-				: "Unknown");
-		b.append("|");
-		b.append(this.getActivePowerChannel().value().asString());
-
-		return b.toString();
+		return generateDebugLog(this.getRelayChannel(), this.getActivePowerChannel());
 	}
 
 	@Override

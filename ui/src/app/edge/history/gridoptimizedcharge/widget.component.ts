@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -47,14 +48,14 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
 
     ngOnChanges() {
         this.updateValues();
-    };
+    }
 
     protected updateValues() {
 
         this.service.getConfig().then(config => {
             this.getChannelAddresses(this.edge, config).then(channels => {
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
-                    let result = response.result;
+                    const result = response.result;
                     if (this.componentId + '/DelayChargeTime' in result.data) {
                         this.activeTimeDelayCharge = result.data[this.componentId + '/DelayChargeTime'];
                     }
@@ -75,7 +76,7 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let channeladdresses = [
+            const channeladdresses = [
                 new ChannelAddress(this.componentId, 'DelayChargeTime'),
                 new ChannelAddress(this.componentId, 'SellToGridLimitTime'),
                 new ChannelAddress(this.componentId, 'AvoidLowChargingTime'),

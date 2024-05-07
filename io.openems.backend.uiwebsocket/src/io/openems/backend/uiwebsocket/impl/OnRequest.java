@@ -1,5 +1,7 @@
 package io.openems.backend.uiwebsocket.impl;
 
+import static java.util.Collections.emptyMap;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -18,6 +20,7 @@ import io.openems.backend.common.jsonrpc.request.GetUserInformationRequest;
 import io.openems.backend.common.jsonrpc.request.RegisterUserRequest;
 import io.openems.backend.common.jsonrpc.request.SetUserAlertingConfigsRequest;
 import io.openems.backend.common.jsonrpc.request.SetUserInformationRequest;
+import io.openems.backend.common.jsonrpc.request.SimulationRequest;
 import io.openems.backend.common.jsonrpc.request.SubmitSetupProtocolRequest;
 import io.openems.backend.common.jsonrpc.request.SubscribeEdgesRequest;
 import io.openems.backend.common.jsonrpc.response.AddEdgeToUserResponse;
@@ -222,6 +225,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			this.handleSubscribeChannelsRequest(wsData, edgeId, user, SubscribeChannelsRequest.from(request));
 		case SubscribeSystemLogRequest.METHOD ->
 			this.handleSubscribeSystemLogRequest(wsData, edgeId, user, SubscribeSystemLogRequest.from(request));
+		case SimulationRequest.METHOD ->
+			this.handleSimulationRequest(edgeId, user, SimulationRequest.from(request));
+			
 		case ComponentJsonApiRequest.METHOD -> {
 			final var componentRequest = ComponentJsonApiRequest.from(request);
 			if (!"_host".equals(componentRequest.getComponentId())) {
@@ -241,6 +247,13 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			}
 			case "executeSystemUpdate" -> {
 				this.parent.metadata.logGenericSystemLog(new LogUpdateSystem(edgeId, user));
+			}
+			case "executeSystemRestart" -> {
+				final var executeSystemCommandRequest = componentRequest.getPayload();
+				final var p = executeSystemCommandRequest.getParams();
+				this.parent.metadata.logGenericSystemLog(new LogRestartSystem(edgeId, user, //
+						JsonUtils.getAsOptionalString(p, "type").orElse(null) //
+				));
 			}
 			}
 
@@ -269,6 +282,25 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			}
 		});
 		return result;
+	}
+
+	/**
+	 * Handles a {@link GetSimulationRequest}.
+	 * 
+	 * @param edgeId the Edge-ID
+	 * @param user the {@link User} - no specific level required
+	 * @param request the {@link GetSimulationRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleSimulationRequest(String edgeId, User user, SimulationRequest request) throws OpenemsNamedException {
+		
+		final var simulation = this.parent.simulation;
+		if (simulation == null) {
+			throw new OpenemsException("simulation unavailable");
+		}
+		
+		return simulation.handleRequest(edgeId, user, request);
 	}
 
 	private record LogSystemExecuteCommend(//
@@ -311,7 +343,30 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		@Override
 		public Map<String, String> getValues() {
-			return Map.of();
+			return emptyMap();
+		}
+
+	}
+
+	private record LogRestartSystem(//
+			String edgeId, // non-null
+			User user, // non-null
+			String type // null-able
+	) implements GenericSystemLog {
+
+		@Override
+		public String teaser() {
+			return "Systemrestart";
+		}
+
+		@Override
+		public Map<String, String> getValues() {
+			if (this.type == null) {
+				return emptyMap();
+			}
+			return Map.of(//
+					"type", this.type //
+			);
 		}
 
 	}

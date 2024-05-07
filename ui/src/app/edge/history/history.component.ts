@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -73,7 +74,7 @@ export class HistoryComponent implements OnInit {
   }
 
   updateOnWindowResize() {
-    let ref = /* fix proportions */ Math.min(window.innerHeight - 150,
+    const ref = /* fix proportions */ Math.min(window.innerHeight - 150,
       /* handle grid breakpoints */(window.innerWidth < 768 ? window.innerWidth - 150 : window.innerWidth - 400));
     this.socChartHeight =
       /* minimum size */ Math.max(150,

@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import com.ghgande.j2mod.modbus.msg.ReadInputRegistersRequest;
@@ -8,6 +9,7 @@ import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
@@ -20,7 +22,12 @@ public class FC4ReadInputRegistersTask
 		extends AbstractReadRegistersTask<ReadInputRegistersRequest, ReadInputRegistersResponse> {
 
 	public FC4ReadInputRegistersTask(int startAddress, Priority priority, ModbusElement... elements) {
-		super("FC4ReadInputRegisters", ReadInputRegistersResponse.class, startAddress, priority, elements);
+		this(FunctionUtils::doNothing, startAddress, priority, elements);
+	}
+
+	public FC4ReadInputRegistersTask(Consumer<ExecuteState> onExecute, int startAddress, Priority priority,
+			ModbusElement... elements) {
+		super("FC4ReadInputRegisters", onExecute, ReadInputRegistersResponse.class, startAddress, priority, elements);
 	}
 
 	@Override

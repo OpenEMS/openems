@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { AbstractControl } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 
@@ -64,17 +65,17 @@ export namespace GetAppAssistant {
     }
 
     export function postprocess(appAssistant: AppAssistant): AppAssistant {
-        let fields = appAssistant.fields;
+        const fields = appAssistant.fields;
 
         let hasAliasField = false;
-        for (let field of fields) {
+        for (const field of fields) {
             if (eachFieldRecursive(fields, field)) {
                 hasAliasField = true;
             }
         }
         if (!hasAliasField) {
             // insert alias field into appAssistent fields
-            let aliasField = { key: 'ALIAS', type: 'input', templateOptions: { label: 'Alias' }, defaultValue: appAssistant.alias };
+            const aliasField = { key: 'ALIAS', type: 'input', templateOptions: { label: 'Alias' }, defaultValue: appAssistant.alias };
             appAssistant.fields.splice(0, 0, aliasField);
         }
         return appAssistant;
@@ -91,156 +92,13 @@ export namespace GetAppAssistant {
                     if (!fieldGroup) {
                         return;
                     }
-                    for (let f of fieldGroup) {
+                    for (const f of fieldGroup) {
                         recursivIterate(f);
                     }
                 });
             }
             recursivIterate(f);
             return f;
-        });
-    }
-
-    /**
-     * Iterates over the given field an all child fields.
-     *
-     * @param field the current field to iterate thrue
-     * @returns true if any field has 'ALIAS' as their key
-     */
-    function eachFieldRecursive(rootFields: FormlyFieldConfig[], field: FormlyFieldConfig) {
-        // 'defaultValue' false for checkboxes
-        if (field.type === 'checkbox' && !('defaultValue' in field)) {
-            field['defaultValue'] = false;
-        }
-        // this is needed to still show the input as the default style defined by us
-        if (field.wrappers?.includes('formly-wrapper-default-of-cases')
-            || field.wrappers?.includes('formly-safe-input-wrapper')
-            || field.wrappers?.includes('input-with-unit')) {
-            field.wrappers?.push('form-field');
-        }
-
-        if (field.validators) {
-            for (const [key, value] of Object.entries(field.validators)) {
-                let expressionString: string = value["expressionString"];
-                if (expressionString) {
-                    expressionString = GetAppAssistant.convertStringExpressions(rootFields, field, expressionString);
-                    const func = Function('model', 'formState', 'field', 'control', 'initialModel', `return ${expressionString};`);
-                    field.validators[key]["expression"] = (control: AbstractControl, f: FormlyFieldConfigWithInitialModel) => {
-                        return func(f.model, f.options.formState, f, control, f.initialModel);
-                    };
-                }
-                let messageExpressionString: string = value['messageString'];
-                if (messageExpressionString) {
-                    messageExpressionString = GetAppAssistant.convertStringExpressions(rootFields, field, messageExpressionString);
-                    const func = Function('model', 'formState', 'field', 'control', 'initialModel', `return ${messageExpressionString};`);
-                    field.validators[key]["message"] = (error: any, f: FormlyFieldConfigWithInitialModel) => {
-                        return func(f.model, f.options.formState, f, f.formControl, f.initialModel);
-                    };
-                }
-            }
-        }
-
-        convertFormlyOptionGroupPicker(rootFields, field);
-        convertFormlyReorderArray(rootFields, field);
-
-        let childHasAlias = false;
-        [field.fieldGroup, field.templateOptions?.fields ?? field.props?.fields].forEach(fieldGroup => {
-            if (!fieldGroup) {
-                return;
-            }
-            for (let f of fieldGroup) {
-                if (eachFieldRecursive(rootFields, f)) {
-                    childHasAlias = true;
-                }
-            }
-        });
-        if (field.key == 'ALIAS') {
-            return true;
-        }
-        return childHasAlias;
-    }
-
-    /**
-     * Converts expression strings of a 'formly-option-group-picker' to functions.
-     *
-     * e. g.
-     * {
-     *     group: 'exampleGroup',
-     *     options: [
-     *          {
-     *              value: 'io0/Relay1',
-     *              expressions: {
-     *                  disabledString: "model.OUPUT_CHANNLE_1 !== 'io0/Relay1'"
-     *              }
-     *          }
-     *     ]
-     * }
-     * gets converted to:
-     * {
-     *     group: 'exampleGroup',
-     *     options: [
-     *          {
-     *              value: 'io0/Relay1',
-     *              expressions: {
-     *                  disabled: (field: FormlyFieldConfigWithInitialModel) => f.model.OUPUT_CHANNLE_1 !== 'io0/Relay1'
-     *              }
-     *          }
-     *     ]
-     * }
-     *
-     * @param rootFields the root fields
-     * @param field the current field
-     */
-    function convertFormlyOptionGroupPicker(rootFields: FormlyFieldConfig[], field: FormlyFieldConfig) {
-        if (field.type !== 'formly-option-group-picker') {
-            return;
-        }
-        (field.templateOptions ?? field.props).options?.forEach((optionGroup) => {
-            if (!optionGroup) {
-                return;
-            }
-            (optionGroup['options'] as any[]).forEach((option) => {
-                for (const [key, value] of Object.entries(option?.expressions ?? {})) {
-                    if (!key.endsWith("String")) {
-                        continue;
-                    }
-
-                    const expressionString: string = value as string;
-                    if (expressionString) {
-                        const convertedExpression = GetAppAssistant.convertStringExpressions(rootFields, field, expressionString);
-                        const func = Function('model', 'formState', 'field', 'control', 'initialModel', `return ${convertedExpression};`);
-                        option['expressions'][key.substring(0, key.indexOf("String"))] = (f: FormlyFieldConfigWithInitialModel) => {
-                            return func(f.model, f.options.formState, f, f.formControl, f.initialModel);
-                        };
-                    }
-                }
-            });
-        });
-    }
-
-    function convertFormlyReorderArray(rootFields: FormlyFieldConfig[], field: FormlyFieldConfig) {
-        if (field.type !== 'reorder-array') {
-            return;
-        }
-        (field.templateOptions ?? field.props).selectOptions?.forEach((selectOption) => {
-            if (!selectOption) {
-                return;
-            }
-
-            for (const [key, value] of Object.entries(selectOption?.expressions ?? {})) {
-                if (!key.endsWith("String")) {
-                    continue;
-                }
-
-                const expressionString: string = value as string;
-                if (expressionString) {
-                    const convertedExpression = GetAppAssistant.convertStringExpressions(rootFields, field, expressionString);
-                    const func = Function('model', 'formState', 'field', 'control', 'initialModel', `return ${convertedExpression};`);
-                    selectOption['expressions'][key.substring(0, key.indexOf("String"))] = (f: FormlyFieldConfigWithInitialModel) => {
-                        return func(f.model, f.options.formState, f, f.formControl, f.initialModel);
-                    };
-                }
-            }
         });
     }
 
@@ -270,7 +128,7 @@ export namespace GetAppAssistant {
             }
 
             const smallestIndex = [' ', ')'].reduce((previous, current) => {
-                let index = part.indexOf(current);
+                const index = part.indexOf(current);
                 if (index === -1) {
                     return previous;
                 }
@@ -340,5 +198,149 @@ export namespace GetAppAssistant {
     }
 
 }
+
+/**
+ * Iterates over the given field an all child fields.
+ *
+ * @param field the current field to iterate thrue
+ * @returns true if any field has 'ALIAS' as their key
+ */
+function eachFieldRecursive(rootFields: FormlyFieldConfig[], field: FormlyFieldConfig) {
+    // 'defaultValue' false for checkboxes
+    if (field.type === 'checkbox' && !('defaultValue' in field)) {
+        field['defaultValue'] = false;
+    }
+    // this is needed to still show the input as the default style defined by us
+    if (field.wrappers?.includes('formly-wrapper-default-of-cases')
+        || field.wrappers?.includes('formly-safe-input-wrapper')
+        || field.wrappers?.includes('input-with-unit')) {
+        field.wrappers?.push('form-field');
+    }
+
+    if (field.validators) {
+        for (const [key, value] of Object.entries(field.validators)) {
+            let expressionString: string = value["expressionString"];
+            if (expressionString) {
+                expressionString = GetAppAssistant.convertStringExpressions(rootFields, field, expressionString);
+                const func = Function('model', 'formState', 'field', 'control', 'initialModel', `return ${expressionString};`);
+                field.validators[key]["expression"] = (control: AbstractControl, f: FormlyFieldConfigWithInitialModel) => {
+                    return func(f.model, f.options.formState, f, control, f.initialModel);
+                };
+            }
+            let messageExpressionString: string = value['messageString'];
+            if (messageExpressionString) {
+                messageExpressionString = GetAppAssistant.convertStringExpressions(rootFields, field, messageExpressionString);
+                const func = Function('model', 'formState', 'field', 'control', 'initialModel', `return ${messageExpressionString};`);
+                field.validators[key]["message"] = (error: any, f: FormlyFieldConfigWithInitialModel) => {
+                    return func(f.model, f.options.formState, f, f.formControl, f.initialModel);
+                };
+            }
+        }
+    }
+
+    convertFormlyOptionGroupPicker(rootFields, field);
+    convertFormlyReorderArray(rootFields, field);
+
+    let childHasAlias = false;
+    [field.fieldGroup, field.templateOptions?.fields ?? field.props?.fields].forEach(fieldGroup => {
+        if (!fieldGroup) {
+            return;
+        }
+        for (const f of fieldGroup) {
+            if (eachFieldRecursive(rootFields, f)) {
+                childHasAlias = true;
+            }
+        }
+    });
+    if (field.key == 'ALIAS') {
+        return true;
+    }
+    return childHasAlias;
+}
+
+/**
+ * Converts expression strings of a 'formly-option-group-picker' to functions.
+ *
+ * e. g.
+ * {
+ *     group: 'exampleGroup',
+ *     options: [
+ *          {
+ *              value: 'io0/Relay1',
+ *              expressions: {
+ *                  disabledString: "model.OUPUT_CHANNLE_1 !== 'io0/Relay1'"
+ *              }
+ *          }
+ *     ]
+ * }
+ * gets converted to:
+ * {
+ *     group: 'exampleGroup',
+ *     options: [
+ *          {
+ *              value: 'io0/Relay1',
+ *              expressions: {
+ *                  disabled: (field: FormlyFieldConfigWithInitialModel) => f.model.OUPUT_CHANNLE_1 !== 'io0/Relay1'
+ *              }
+ *          }
+ *     ]
+ * }
+ *
+ * @param rootFields the root fields
+ * @param field the current field
+ */
+function convertFormlyOptionGroupPicker(rootFields: FormlyFieldConfig[], field: FormlyFieldConfig) {
+    if (field.type !== 'formly-option-group-picker') {
+        return;
+    }
+    (field.templateOptions ?? field.props).options?.forEach((optionGroup) => {
+        if (!optionGroup) {
+            return;
+        }
+        (optionGroup['options'] as any[]).forEach((option) => {
+            for (const [key, value] of Object.entries(option?.expressions ?? {})) {
+                if (!key.endsWith("String")) {
+                    continue;
+                }
+
+                const expressionString: string = value as string;
+                if (expressionString) {
+                    const convertedExpression = GetAppAssistant.convertStringExpressions(rootFields, field, expressionString);
+                    const func = Function('model', 'formState', 'field', 'control', 'initialModel', `return ${convertedExpression};`);
+                    option['expressions'][key.substring(0, key.indexOf("String"))] = (f: FormlyFieldConfigWithInitialModel) => {
+                        return func(f.model, f.options.formState, f, f.formControl, f.initialModel);
+                    };
+                }
+            }
+        });
+    });
+}
+
+function convertFormlyReorderArray(rootFields: FormlyFieldConfig[], field: FormlyFieldConfig) {
+    if (field.type !== 'reorder-array') {
+        return;
+    }
+    (field.templateOptions ?? field.props).selectOptions?.forEach((selectOption) => {
+        if (!selectOption) {
+            return;
+        }
+
+        for (const [key, value] of Object.entries(selectOption?.expressions ?? {})) {
+            if (!key.endsWith("String")) {
+                continue;
+            }
+
+            const expressionString: string = value as string;
+            if (expressionString) {
+                const convertedExpression = GetAppAssistant.convertStringExpressions(rootFields, field, expressionString);
+                const func = Function('model', 'formState', 'field', 'control', 'initialModel', `return ${convertedExpression};`);
+                selectOption['expressions'][key.substring(0, key.indexOf("String"))] = (f: FormlyFieldConfigWithInitialModel) => {
+                    return func(f.model, f.options.formState, f, f.formControl, f.initialModel);
+                };
+            }
+        }
+    });
+}
+
 
 type FormlyFieldConfigWithInitialModel = FormlyFieldConfig & { initialModel: {} }

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -49,23 +50,23 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getCurrentEdge().then(() => {
-        let result = (response as QueryHistoricTimeseriesDataResponse).result;
+        const result = (response as QueryHistoricTimeseriesDataResponse).result;
 
         // convert labels
-        let labels: Date[] = [];
-        for (let timestamp of result.timestamps) {
+        const labels: Date[] = [];
+        for (const timestamp of result.timestamps) {
           labels.push(new Date(timestamp));
         }
         this.labels = labels;
 
         // convert datasets
-        let datasets = [];
+        const datasets = [];
 
         /*
         * Sell To Grid
         */
         if (this.gridMeter + '/ActivePower' in result.data) {
-          let sellToGridData = result.data[this.gridMeter + '/ActivePower'].map(value => {
+          const sellToGridData = result.data[this.gridMeter + '/ActivePower'].map(value => {
             if (value == null) {
               return null;
             } else if (value < 0) {
@@ -90,7 +91,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
         */
         if (this.component.id + '/_PropertyMaximumSellToGridPower' in result.data) {
 
-          let sellToGridLimitData = result.data[this.component.id + '/_PropertyMaximumSellToGridPower'].map(value => {
+          const sellToGridLimitData = result.data[this.component.id + '/_PropertyMaximumSellToGridPower'].map(value => {
             if (value == null) {
               return null;
             } else if (value == 0) {
@@ -111,7 +112,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
             borderColor: 'rgba(0,0,0,1)',
           });
 
-          let batterySellToGridLimitData = result.data[this.component.id + '/_PropertyMaximumSellToGridPower'].map(value => {
+          const batterySellToGridLimitData = result.data[this.component.id + '/_PropertyMaximumSellToGridPower'].map(value => {
             if (value == null) {
               return null;
             } else if (value == 0) {
@@ -140,7 +141,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
         */
         if ('_sum/ProductionActivePower' in result.data) {
 
-          let productionData = result.data['_sum/ProductionActivePower'].map(value => {
+          const productionData = result.data['_sum/ProductionActivePower'].map(value => {
             if (value == null) {
               return null;
             } else {
@@ -179,7 +180,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
   protected getChannelAddresses(): Promise<ChannelAddress[]> {
 
     return new Promise((resolve) => {
-      let result: ChannelAddress[] = [new ChannelAddress('_sum', 'ProductionActivePower')];
+      const result: ChannelAddress[] = [new ChannelAddress('_sum', 'ProductionActivePower')];
       if (this.component != null && this.gridMeter != null) {
         result.push(new ChannelAddress(this.gridMeter, 'ActivePower'));
       }

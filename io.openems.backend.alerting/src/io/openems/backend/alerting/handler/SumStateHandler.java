@@ -108,7 +108,7 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	protected SumStateMessage getEdgeMessage(Edge edge, Level sumState) throws OpenemsException {
 		if (edge == null || edge.getId() == null) {
 			this.log.warn("Called method SumStateHandler.getEdgeMessage with " //
-					+ edge == null ? "Edge{null}" : "Edge{id=null}");
+					+ (edge == null ? "Edge{null}" : "Edge{id=null}"));
 			return null;
 		} else if (edge.isOffline()) {
 			this.log.warn("Called method SumStateHandler.getEdgeMessage with offline" //
