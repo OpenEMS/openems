@@ -184,7 +184,6 @@ public class Solver {
 			case OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL:
 				solution = this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints,
 						SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL, //
-						SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL, //
 						SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER,
 						SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET);
 				break;
