@@ -1,6 +1,8 @@
 // @ts-strict-ignore
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { Edge, Service, Websocket } from 'src/app/shared/shared';
+import { AlertController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
+import { Edge, presentAlert, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 import { ExecuteSystemUpdate } from './executeSystemUpdate';
 import { SystemUpdateState } from './getSystemUpdateStateResponse';
@@ -11,21 +13,31 @@ import { SystemUpdateState } from './getSystemUpdateStateResponse';
 })
 export class OeSystemUpdateComponent implements OnInit, OnDestroy {
 
-  private static readonly SELECTOR = "oe-system-update";
-  public readonly spinnerId: string = OeSystemUpdateComponent.SELECTOR;
-
+  @Output() public stateChanged: EventEmitter<SystemUpdateState> = new EventEmitter();
   @Input() public executeUpdateInstantly: boolean = false;
   @Input() public edge: Edge;
   public readonly environment = environment;
+  public readonly spinnerId: string = OeSystemUpdateComponent.SELECTOR;
+
   protected executeUpdate: ExecuteSystemUpdate = null;
-
   protected isWaiting: boolean;
+  protected confirmationAlert: Function = () => presentAlert(this.alertCtrl, this.translate, {
+    message: this.translate.instant('SETTINGS.SYSTEM_UPDATE.CONFIRMATION_WARNING', { system: environment.edgeShortName }),
+    subHeader: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION', { system: environment.edgeShortName }),
+    buttons: [{
+      text: this.translate.instant('Edge.Index.SYSTEMUPDATE'),
+      handler: () => this.executeSystemUpdate(),
+    }],
+  });
 
-  @Output() public stateChanged: EventEmitter<SystemUpdateState> = new EventEmitter();
+  private static readonly SELECTOR = "oe-system-update";
 
   constructor(
     private websocket: Websocket,
-    private service: Service) { }
+    private service: Service,
+    private alertCtrl: AlertController,
+    private translate: TranslateService,
+  ) { }
 
   ngOnInit() {
     this.executeUpdate = new ExecuteSystemUpdate(this.edge, this.websocket);

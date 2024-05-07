@@ -940,7 +940,9 @@
       "RESTARTED": "{{system}} neu starten war erfolgreich.",
       "RESTART_FAILED": "{{system}}-Neustart fehlgeschlagen.",
       "RESTART_CONFIRMATION": "Möchten Sie {{system}} neu starten?",
-      "RESTART_WARNING": "Während {{system}} neu startet ist die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet."
+      "RESTART_WARNING": "Während {{system}} neu startet ist die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet.",
+      "CONFIRMATION_INFO": "Möchten Sie ihr {{edgeShortName}} aktualisieren?",
+      "CONFIRMATION_WARNING": "Im Anschluss an das Systemupdate wird sich die Software neustarten, und die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet."
     }
   },
   "CHANNELS": {

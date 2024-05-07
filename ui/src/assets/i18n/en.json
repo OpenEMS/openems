@@ -943,7 +943,9 @@
       "RESTARTING": "Restarting {{system}}. (This can take up to {{minutes}} minutes)",
       "RESTARTED": "{{system}} restarting successful.",
       "RESTART_CONFIRMATION": "Would you like to restart {{system}}?",
-      "RESTART_WARNING": "Communication is interrupted while {{system}} is restarting. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state."
+      "RESTART_WARNING": "Communication is interrupted while {{system}} is restarting. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state.",
+      "CONFIRMATION_INFO": "Would you like to update your {{edgeShortName}}?",
+      "CONFIRMATION_WARNING": "The software will restart after the system update. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state."
     }
   },
   "CHANNELS": {
