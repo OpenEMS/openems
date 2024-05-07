@@ -16,7 +16,7 @@
     "@ngx-formly/core": "^6.3.0",
     "@ngx-formly/ionic": "^6.3.0",
     "@ngx-formly/schematics": "^6.3.0",
-    "@ngx-translate/core": "^14.0.0",
+    "@ngx-translate/core": "^15.0.0",
     "@nodro7/angular-mydatepicker": "^0.14.0",
     "chart.js": "^4.4.2",
     "chartjs-adapter-date-fns": "^3.0.0",
