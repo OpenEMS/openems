@@ -22,10 +22,10 @@ export class OeSystemUpdateComponent implements OnInit, OnDestroy {
   protected executeUpdate: ExecuteSystemUpdate = null;
   protected isWaiting: boolean;
   protected confirmationAlert: Function = () => presentAlert(this.alertCtrl, this.translate, {
-    message: this.translate.instant('SETTINGS.SYSTEM_UPDATE.CONFIRMATION_WARNING', { system: environment.edgeShortName }),
-    subHeader: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION', { system: environment.edgeShortName }),
+    message: this.translate.instant('SETTINGS.SYSTEM_UPDATE.WARNING', { system: environment.edgeShortName }),
+    subHeader: this.translate.instant('SETTINGS.SYSTEM_UPDATE.SUB_HEADER'),
     buttons: [{
-      text: this.translate.instant('Edge.Index.SYSTEMUPDATE'),
+      text: this.translate.instant('SETTINGS.SYSTEM_UPDATE.UPDATE_EXECUTE'),
       handler: () => this.executeSystemUpdate(),
     }],
   });
