@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
@@ -50,14 +51,14 @@ export abstract class AbstractHistoryWidget {
     */
     protected queryHistoricTimeseriesData(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesDataResponse> {
 
-        let resolution = calculateResolution(this.service, fromDate, toDate).resolution;
+        const resolution = calculateResolution(this.service, fromDate, toDate).resolution;
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
-                        let request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
+                        const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
                         edge.sendRequest(this.service.websocket, request).then(response => {
-                            let result = (response as QueryHistoricTimeseriesDataResponse).result;
+                            const result = (response as QueryHistoricTimeseriesDataResponse).result;
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
                                 resolve(response as QueryHistoricTimeseriesDataResponse);
                             } else {

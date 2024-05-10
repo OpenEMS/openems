@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { DefaultTypes } from "../service/defaulttypes";
 import { Utils } from "../service/utils";
 
@@ -15,7 +16,7 @@ export class CurrentData {
   }
 
   private getSummary(c: { [channelAddress: string]: any }): DefaultTypes.Summary {
-    let result: DefaultTypes.Summary = {
+    const result: DefaultTypes.Summary = {
       system: {
         totalPower: null,
         autarchy: null,

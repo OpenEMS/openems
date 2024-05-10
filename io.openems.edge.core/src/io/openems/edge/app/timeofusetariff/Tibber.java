@@ -13,10 +13,9 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
@@ -40,6 +39,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
+import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
@@ -75,21 +75,37 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		ACCESS_TOKEN(AppDef.of(Tibber.class) //
+		ACCESS_TOKEN(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".accessToken.label") //
 				.setTranslatedDescriptionWithAppPrefix(".accessToken.description") //
 				.setRequired(true) //
 				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, field) -> {
 					field.setInputType(PASSWORD);
 				}) //
-				.setAllowedToSave(false)), //
-		FILTER(AppDef.of(Tibber.class) //
+				.bidirectional(TIME_OF_USE_TARIFF_PROVIDER_ID, "accessToken",
+						ComponentManagerSupplier::getComponentManager, t -> {
+							return JsonUtils.getAsOptionalString(t) //
+									.map(s -> {
+										if (s.isEmpty()) {
+											return null;
+										}
+										return new JsonPrimitive("xxx");
+									}) //
+									.orElse(null);
+						}))), //
+		MULTIPLE_HOMES_CHECK(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".multipleHomesCheck.label") //
+				.setDefaultValue(false) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable))),
+		FILTER(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".filterForHome.label") //
 				.setTranslatedDescriptionWithAppPrefix(".filterForHome.description") //
-				.setDefaultValue((app, property, l, parameter) -> JsonNull.INSTANCE)
-				.setField(JsonFormlyUtil::buildInputFromNameable) //
+				.setDefaultValue("") //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(MULTIPLE_HOMES_CHECK).notNull());
+				}) //
 				.bidirectional(TIME_OF_USE_TARIFF_PROVIDER_ID, "filter",
-						ComponentManagerSupplier::getComponentManager));
+						ComponentManagerSupplier::getComponentManager)));
 
 		private final AppDef<? super Tibber, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
@@ -128,21 +144,20 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, null);
-			final var filter = this.getValueOrDefault(p, Property.FILTER, null);
+			final var multipleHomesCheck = this.getBoolean(p, Property.MULTIPLE_HOMES_CHECK);
+			final var filter = multipleHomesCheck ? this.getString(p, Property.FILTER) : "";
 
-			if (t == ConfigurationTarget.ADD && (accessToken == null || accessToken.isBlank())) {
-				throw new OpenemsException("Access Token is required!");
-			}
-
-			var components = Lists.newArrayList(//
+			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
 							JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
 									.build()), //
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Tibber",
 							JsonUtils.buildJsonObject() //
-									.addPropertyIfNotNull("accessToken", accessToken) //
-									.addPropertyIfNotNull("filter", filter) //
+									.onlyIf(accessToken != null && !accessToken.equals("xxx"), b -> {
+										b.addProperty("accessToken", accessToken);
+									}) //
+									.addProperty("filter", filter) //
 									.build())//
 			);
 

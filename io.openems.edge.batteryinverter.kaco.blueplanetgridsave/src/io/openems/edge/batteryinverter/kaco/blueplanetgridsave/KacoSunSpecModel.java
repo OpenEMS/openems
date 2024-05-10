@@ -341,8 +341,8 @@ public enum KacoSunSpecModel implements SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
-				Unit.HERTZ, //
-				"HZ_SF", //
+				Unit.MILLIHERTZ, //
+				"mHZ_SF", //
 				new OptionsEnum[0])), //
 		RESERVED_36(new ReservedPointImpl("S64201_RESERVED_36")), //
 		RESERVED_37(new ReservedPointImpl("S64201_RESERVED_37")), //

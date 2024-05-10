@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
@@ -63,10 +64,10 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
     }
 
     doReorder(ev: any) {
-        let oldListOrder = this.prioritizedEvcsList;
+        const oldListOrder = this.prioritizedEvcsList;
         this.prioritizedEvcsList = ev.detail.complete(this.prioritizedEvcsList);
 
-        let newListOrder = this.prioritizedEvcsList;
+        const newListOrder = this.prioritizedEvcsList;
 
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, this.config.id, [
@@ -92,7 +93,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
     * @param event
     */
     updateChargeMode(event: CustomEvent, currentController: EdgeConfig.Component) {
-        let oldChargeMode = currentController.properties.chargeMode;
+        const oldChargeMode = currentController.properties.chargeMode;
         let newChargeMode: ChargeMode;
 
         switch (event.detail.value) {
@@ -121,7 +122,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
      * Changed the Priority between the components of the charging session
      */
     priorityChanged(event: CustomEvent, currentController: EdgeConfig.Component) {
-        let oldPriority = currentController.properties.priority;
+        const oldPriority = currentController.properties.priority;
         let newPriority: Priority;
 
         switch (event.detail.value) {
@@ -153,7 +154,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
      * @param event
      */
     updateForceMinPower(event: CustomEvent, currentController: EdgeConfig.Component, numberOfPhases: number) {
-        let oldMinChargePower = currentController.properties.forceChargeMinPower;
+        const oldMinChargePower = currentController.properties.forceChargeMinPower;
         let newMinChargePower = event.detail.value;
         newMinChargePower /= numberOfPhases;
 
@@ -177,8 +178,8 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
      * @param event
      */
     updateDefaultMinPower(event: CustomEvent, currentController: EdgeConfig.Component) {
-        let oldMinChargePower = currentController.properties.defaultChargeMinPower;
-        let newMinChargePower = event.detail.value;
+        const oldMinChargePower = currentController.properties.defaultChargeMinPower;
+        const newMinChargePower = event.detail.value;
 
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, currentController.id, [
@@ -194,7 +195,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
         }
     }
 
-    currentLimitChanged(event: CustomEvent, property: String) {
+    currentLimitChanged(event: CustomEvent, property: string) {
 
     }
 
@@ -206,7 +207,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
      */
     allowMinimumChargePower(event: CustomEvent, phases: number, currentController: EdgeConfig.Component) {
 
-        let oldMinChargePower = currentController.properties.defaultChargeMinPower;
+        const oldMinChargePower = currentController.properties.defaultChargeMinPower;
 
         let newMinChargePower = 0;
         if (oldMinChargePower == null || oldMinChargePower == 0) {
@@ -233,8 +234,8 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
     */
     enableOrDisableCharging(event: CustomEvent, currentController: EdgeConfig.Component) {
 
-        let oldChargingState = currentController.properties.enabledCharging;
-        let newChargingState = !oldChargingState;
+        const oldChargingState = currentController.properties.enabledCharging;
+        const newChargingState = !oldChargingState;
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, currentController.id, [
                 { name: 'enabledCharging', value: newChargingState },
@@ -255,7 +256,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
      * @param state
      * @param plug
      */
-    getState(power: Number, state: number, plug: number, currentController: EdgeConfig.Component) {
+    getState(power: number, state: number, plug: number, currentController: EdgeConfig.Component) {
         if (currentController != null) {
             if (currentController.properties.enabledCharging != null && currentController.properties.enabledCharging == false) {
                 return this.translate.instant('Edge.Index.Widgets.EVCS.chargingStationDeactivated');
@@ -302,7 +303,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
      * @param i
      */
     formatNumber(i: number) {
-        let round = Math.ceil(i / 100) * 100;
+        const round = Math.ceil(i / 100) * 100;
         return round;
     }
 
@@ -324,9 +325,9 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
         return this.sumOfChannel("ChargePower");
     }
 
-    private sumOfChannel(channel: String): number {
+    private sumOfChannel(channel: string): number {
 
-        let sum = 0;/*
+        const sum = 0;/*
     this.evcsMap.forEach(station => {
       let channelValue = this.edge.currentData.value.channel[station.id + "/" + channel];
       if (channelValue != null) {

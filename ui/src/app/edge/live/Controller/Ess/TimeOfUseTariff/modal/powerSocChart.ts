@@ -1,13 +1,13 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
-import { DEFAULT_TIME_CHART_OPTIONS } from 'src/app/edge/history/shared';
 import { AbstractHistoryChart as NewAbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
-import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisTitle } from 'src/app/shared/service/utils';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from 'src/app/shared/shared';
+import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisTitle } from 'src/app/shared/service/utils';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 import { GetScheduleRequest } from '../../../../../../shared/jsonrpc/request/getScheduleRequest';
 import { GetScheduleResponse } from '../../../../../../shared/jsonrpc/response/getScheduleResponse';
@@ -24,7 +24,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
     public ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected override service: Service,
@@ -55,27 +55,26 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
             new ComponentJsonApiRequest({ componentId: this.component.id, payload: new GetScheduleRequest() }),
         ).then(response => {
             const result = (response as GetScheduleResponse).result;
+            const schedule = result.schedule;
             const datasets = [];
 
             // Extracting prices and states from the schedule array
             const { gridBuyArray, gridSellArray, productionArray, consumptionArray, essDischargeArray, essChargeArray, socArray, labels } = {
-                gridBuyArray: result.schedule.map(entry =>  HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.grid)),
-                gridSellArray: result.schedule.map(entry =>  HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.grid)),
-                productionArray: result.schedule.map(entry => entry.production),
-                consumptionArray: result.schedule.map(entry => entry.consumption),
-                essDischargeArray: result.schedule.map(entry =>  HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.ess)),
-                essChargeArray: result.schedule.map(entry =>  HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.ess)),
-                socArray: result.schedule.map(entry => entry.soc),
-                labels: result.schedule.map(entry => new Date(entry.timestamp)),
+                gridBuyArray: schedule.map(entry => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.grid), 1000),
+                gridSellArray: schedule.map(entry => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.grid), 1000),
+                productionArray: schedule.map(entry => entry.production, 1000),
+                consumptionArray: schedule.map(entry => entry.consumption, 1000),
+                essDischargeArray: schedule.map(entry => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.ess), 1000),
+                essChargeArray: schedule.map(entry => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.ess), 1000),
+                socArray: schedule.map(entry => entry.soc),
+                labels: schedule.map(entry => new Date(entry.timestamp)),
             };
 
             datasets.push({
                 type: 'line',
                 label: this.translate.instant('General.gridBuy'),
-                data: gridBuyArray,
+                data: gridBuyArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
-                yAxisID: 'yAxis1',
-                position: 'right',
                 order: 1,
             });
             this.colors.push({
@@ -86,10 +85,8 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
             datasets.push({
                 type: 'line',
                 label: this.translate.instant('General.gridSell'),
-                data: gridSellArray,
+                data: gridSellArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
-                yAxisID: 'yAxis1',
-                position: 'right',
                 order: 1,
             });
             this.colors.push({
@@ -100,10 +97,8 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
             datasets.push({
                 type: 'line',
                 label: this.translate.instant('General.production'),
-                data: productionArray,
+                data: productionArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: false,
-                yAxisID: 'yAxis1',
-                position: 'right',
                 order: 1,
             });
             this.colors.push({
@@ -114,10 +109,8 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
             datasets.push({
                 type: 'line',
                 label: this.translate.instant('General.consumption'),
-                data: consumptionArray,
+                data: consumptionArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: false,
-                yAxisID: 'yAxis1',
-                position: 'right',
                 order: 1,
             });
             this.colors.push({
@@ -128,11 +121,10 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
             datasets.push({
                 type: 'line',
                 label: this.translate.instant('General.chargePower'),
-                data: essChargeArray,
+                data: essChargeArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
-                yAxisID: 'yAxis1',
-                position: 'right',
                 order: 1,
+                unit: YAxisTitle.POWER,
             });
             this.colors.push({
                 backgroundColor: 'rgba(0,223,0, 0.2)',
@@ -142,11 +134,10 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
             datasets.push({
                 type: 'line',
                 label: this.translate.instant('General.dischargePower'),
-                data: essDischargeArray,
+                data: essDischargeArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
-                yAxisID: 'yAxis1',
-                position: 'right',
                 order: 1,
+                unit: YAxisTitle.POWER,
             });
             this.colors.push({
                 backgroundColor: 'rgba(200,0,0, 0.2)',
@@ -179,7 +170,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
             this.initializeChart();
             return;
         }).finally(async () => {
-            this.unit = YAxisTitle.POWER;
             await this.setOptions(this.options);
             this.applyControllerSpecificOptions();
         });
@@ -187,40 +177,44 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
     private applyControllerSpecificOptions() {
         const rightYAxis: HistoryUtils.yAxes = { position: 'right', unit: YAxisTitle.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
+        const leftYAxis: HistoryUtils.yAxes = { position: 'left', unit: YAxisTitle.POWER, yAxisId: ChartAxis.LEFT };
         const locale = this.service.translate.currentLang;
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, 'line', locale);
 
-        this.datasets = this.datasets.map((el, index, arr) => {
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, 'line', locale, true);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, 'line', locale, true);
 
-            // align last element to right yAxis
-            if ((arr.length - 1) === index) {
+        this.datasets = this.datasets.map((el: Chart.ChartDataset) => {
+
+            // align particular dataset element to right yAxis
+            if (el.label === this.translate.instant('General.soc')) {
                 el['yAxisID'] = ChartAxis.RIGHT;
-                el['yAxisId'] = ChartAxis.RIGHT;
             }
             return el;
         });
+
         this.options.scales.x['ticks'] = { source: 'auto', autoSkip: false };
         this.options.scales.x.ticks.callback = function (value, index, values) {
-            var date = new Date(value);
+            const date = new Date(value);
 
             // Display the label only if the minutes are zero (full hour)
             return date.getMinutes() === 0 ? date.getHours() + ':00' : '';
         };
 
         this.options.scales[ChartAxis.RIGHT].grid.display = false;
-    };
+        this.options.scales[ChartAxis.LEFT].suggestedMin = 0;
+        this.options.scales[ChartAxis.LEFT].suggestedMax = 1;
+    }
 
     protected setLabel() {
-        const options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+        this.options = this.createDefaultChartOptions();
         const translate = this.translate;
-        options.plugins.tooltip.callbacks.label = function (item: Chart.TooltipItem<any>) {
+        this.options.plugins.tooltip.callbacks.label = function (item: Chart.TooltipItem<any>) {
 
             const label = item.dataset.label;
             const value = item.dataset.data[item.dataIndex];
 
             return TimeOfUseTariffUtils.getLabel(value, label, translate);
         };
-        this.options = options;
     }
 
     protected getChannelAddresses(): Promise<ChannelAddress[]> {
@@ -228,8 +222,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
     }
 
     public getChartHeight(): number {
-        return this.service.isSmartphoneResolution
-            ? window.innerHeight / 3
-            : window.innerHeight / 4;
+        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
     }
 }

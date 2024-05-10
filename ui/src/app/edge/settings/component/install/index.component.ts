@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ActivatedRoute } from '@angular/router';
 import { CategorizedFactories } from 'src/app/shared/edge/edgeconfig';
 import { Component, OnInit } from '@angular/core';
@@ -32,7 +33,7 @@ export class IndexComponent implements OnInit {
     this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.addComponents' }, this.route);
     this.service.getConfig().then(config => {
       this.list = config.listAvailableFactories();
-      for (let entry of this.list) {
+      for (const entry of this.list) {
         entry.isClicked = false;
         entry.filteredFactories = entry.factories;
       }
@@ -42,9 +43,9 @@ export class IndexComponent implements OnInit {
 
   updateFilter(completeFilter: string) {
     // take each space-separated string as an individual and-combined filter
-    let filters = completeFilter.toLowerCase().split(' ');
+    const filters = completeFilter.toLowerCase().split(' ');
     let countFilteredEntries = 0;
-    for (let entry of this.list) {
+    for (const entry of this.list) {
       entry.filteredFactories = entry.factories.filter(entry =>
         // Search for filter strings in Factory-ID, -Name and Description
         Utils.matchAll(filters, [

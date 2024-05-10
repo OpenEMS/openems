@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { TranslateService } from '@ngx-translate/core';
 import { endOfMonth, endOfYear, format, getDay, getMonth, getYear, isSameDay, isSameMonth, isSameYear, startOfMonth, startOfYear, subDays } from 'date-fns';
 
@@ -92,7 +93,10 @@ export module DefaultTypes {
     params?: string[]
   }
 
-  export enum PeriodString { DAY = 'day', WEEK = 'week', MONTH = 'month', YEAR = 'year', TOTAL = 'total', CUSTOM = 'custom' };
+  export enum PeriodString { DAY = 'day', WEEK = 'week', MONTH = 'month', YEAR = 'year', TOTAL = 'total', CUSTOM = 'custom' }
+
+  /** Values of {@link DefaultTypes.PeriodString} */
+  export type PeriodStringValues = Exclude<`${DefaultTypes.PeriodString}`, "custom">;
 
   export namespace History {
 

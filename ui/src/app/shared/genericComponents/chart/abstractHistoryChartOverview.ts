@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Directive, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -46,15 +47,15 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
         this.updateValues();
       });
     });
-  };
+  }
 
   public updateValues() {
-    let channelAddresses = this.getChannelAddresses();
+    const channelAddresses = this.getChannelAddresses();
     this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
-      let result = response.result;
-      let allComponents = {};
-      for (let channelAddress of channelAddresses) {
-        let ca = channelAddress.toString();
+      const result = response.result;
+      const allComponents = {};
+      for (const channelAddress of channelAddresses) {
+        const ca = channelAddress.toString();
         allComponents[ca] = result.data[ca];
       }
       this.onCurrentData({ allComponents: allComponents });

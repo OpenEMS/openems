@@ -274,7 +274,7 @@ public class SchedulerByCentralOrderAggregateTaskImplTest {
 	@Test
 	public void testValidate() throws Exception {
 		this.testBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request("appId", "key", "alias", JsonUtils.buildJsonObject().build())).get();
+				new AddAppInstance.Request("appId", "key", "alias", JsonUtils.buildJsonObject().build()));
 
 		final var schedulerConfig = new SchedulerByCentralOrderConfiguration(//
 				new SchedulerComponent("id0", "factoryId", "appId") //
@@ -292,7 +292,7 @@ public class SchedulerByCentralOrderAggregateTaskImplTest {
 	@Test
 	public void testValidateMissingIds() throws Exception {
 		this.testBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request("appId", "key", "alias", JsonUtils.buildJsonObject().build())).get();
+				new AddAppInstance.Request("appId", "key", "alias", JsonUtils.buildJsonObject().build()));
 
 		// remove ids from scheduler
 		this.testBundle.scheduler.setSchedulerIds(DUMMY_ADMIN);
@@ -313,11 +313,9 @@ public class SchedulerByCentralOrderAggregateTaskImplTest {
 	@Test
 	public void testValidateWronglyConfiguredIds() throws Exception {
 		this.testBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request("appId", "key", "alias", JsonUtils.buildJsonObject().build())).get();
-		this.testBundle.sut
-				.handleAddAppInstanceRequest(DUMMY_ADMIN,
-						new AddAppInstance.Request("appId2", "key", "alias", JsonUtils.buildJsonObject().build()))
-				.get();
+				new AddAppInstance.Request("appId", "key", "alias", JsonUtils.buildJsonObject().build()));
+		this.testBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request("appId2", "key", "alias", JsonUtils.buildJsonObject().build()));
 
 		this.testBundle.scheduler.setSchedulerIds(DUMMY_ADMIN, "id1", "id0");
 

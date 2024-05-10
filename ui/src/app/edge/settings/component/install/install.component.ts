@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
@@ -34,20 +35,20 @@ export class ComponentInstallComponent implements OnInit {
     this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.addComponents' }, this.route).then(edge => {
       this.edge = edge;
     });
-    let factoryId = this.route.snapshot.params["factoryId"];
+    const factoryId = this.route.snapshot.params["factoryId"];
     this.service.getConfig().then(config => {
       this.factoryId = factoryId;
       this.factory = config.factories[factoryId];
-      let fields: FormlyFieldConfig[] = [];
-      let model = {};
-      for (let property of this.factory.properties) {
-        let property_id = property.id.replace('.', '_');
+      const fields: FormlyFieldConfig[] = [];
+      const model = {};
+      for (const property of this.factory.properties) {
+        const property_id = property.id.replace('.', '_');
         let defaultValue = property.defaultValue;
         // if the type is an array and there is no defaultValue then set the defaultValue to an empty array
         if (property.schema["type"] === 'repeat' && defaultValue === null) {
           defaultValue = [];
         }
-        let field: FormlyFieldConfig = {
+        const field: FormlyFieldConfig = {
           key: property_id,
           type: 'input',
           templateOptions: {
@@ -64,16 +65,16 @@ export class ComponentInstallComponent implements OnInit {
 
           // Set the next free Component-ID as defaultValue
           if (property_id == 'id' && property.schema["type"] !== 'repeat') {
-            let thisMatch = defaultValue.match(/^(.*)(\d+)$/);
+            const thisMatch = defaultValue.match(/^(.*)(\d+)$/);
             if (thisMatch) {
-              let thisPrefix = thisMatch[1];
+              const thisPrefix = thisMatch[1];
               let highestSuffix = Number.parseInt(thisMatch[2]);
-              for (let componentId of Object.keys(config.components)) {
-                let componentMatch = componentId.match(/^(.*)(\d+)$/);
+              for (const componentId of Object.keys(config.components)) {
+                const componentMatch = componentId.match(/^(.*)(\d+)$/);
                 if (componentMatch) {
-                  let componentPrefix = componentMatch[1];
+                  const componentPrefix = componentMatch[1];
                   if (componentPrefix === thisPrefix) {
-                    let componentSuffix = Number.parseInt(componentMatch[2]);
+                    const componentSuffix = Number.parseInt(componentMatch[2]);
                     highestSuffix = Math.max(highestSuffix, componentSuffix + 1);
                   }
                 }
@@ -94,14 +95,14 @@ export class ComponentInstallComponent implements OnInit {
       this.service.toast("Please fill mandatory fields!", "danger");
       return;
     }
-    let properties: { name: string, value: any }[] = [];
-    for (let controlKey in this.form.controls) {
-      let control = this.form.controls[controlKey];
+    const properties: { name: string, value: any }[] = [];
+    for (const controlKey in this.form.controls) {
+      const control = this.form.controls[controlKey];
       if (control.value === null) {
         // ignore 'null' values
         continue;
       }
-      let property_id = controlKey.replace('_', '.');
+      const property_id = controlKey.replace('_', '.');
       properties.push({ name: property_id, value: control.value });
     }
 

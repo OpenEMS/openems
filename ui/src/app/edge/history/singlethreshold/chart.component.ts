@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -21,7 +22,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
   ngOnChanges() {
     this.updateChart();
-  };
+  }
 
   constructor(
     protected override service: Service,
@@ -48,9 +49,9 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getConfig().then(config => {
-        let outputChannel: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
-        let inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
-        let result = (response as QueryHistoricTimeseriesDataResponse).result;
+        const outputChannel: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+        const inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
+        const result = (response as QueryHistoricTimeseriesDataResponse).result;
         let yAxisID;
 
         // set yAxis for % values (if there are no other % values: use left yAxis, if there are: use right yAxis - for percent values)
@@ -61,19 +62,19 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
         }
 
         // convert labels
-        let labels: Date[] = [];
-        for (let timestamp of result.timestamps) {
+        const labels: Date[] = [];
+        for (const timestamp of result.timestamps) {
           labels.push(new Date(timestamp));
         }
         this.labels = labels;
-        let datasets = [];
+        const datasets = [];
 
         // convert datasets
-        for (let channel in result.data) {
+        for (const channel in result.data) {
           if ((typeof outputChannel === 'string' && channel == outputChannel)
             || (typeof outputChannel !== 'string' && outputChannel.includes(channel))) {
-            let address = ChannelAddress.fromString(channel);
-            let data = result.data[channel].map(value => {
+            const address = ChannelAddress.fromString(channel);
+            const data = result.data[channel].map(value => {
               if (value == null) {
                 return null;
               } else {
@@ -94,7 +95,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
           }
           if (channel == inputChannel) {
             let inputLabel: string = null;
-            let address = ChannelAddress.fromString(channel);
+            const address = ChannelAddress.fromString(channel);
             switch (address.channelId) {
               case 'GridActivePower':
                 inputLabel = this.translate.instant('General.grid');
@@ -190,8 +191,8 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
       const inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
-      let result: ChannelAddress[] = [inputChannel];
-      let outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+      const result: ChannelAddress[] = [inputChannel];
+      const outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
       if (typeof outputChannelAddress === 'string') {
         result.push(ChannelAddress.fromString(outputChannelAddress));
       } else {
@@ -209,8 +210,8 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
     this.service.getConfig().then(config => {
 
-      let inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
-      let outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+      const inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
+      const outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
       let outputChannel: ChannelAddress;
       if (typeof outputChannelAddress === 'string') {
         outputChannel = ChannelAddress.fromString(outputChannelAddress);
@@ -249,10 +250,10 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
         };
       }
 
-      let translate = this.translate;
+      const translate = this.translate;
       options.plugins.tooltip.callbacks.label = function (item: Chart.TooltipItem<any>) {
-        let label = item.dataset.label;
-        let value = item.dataset.data[item.dataIndex];
+        const label = item.dataset.label;
+        const value = item.dataset.data[item.dataIndex];
         if (label == outputChannel.channelId || label == translate.instant('General.soc')) {
           return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
         } else if (label == translate.instant('General.grid') || label == translate.instant('General.production')) {

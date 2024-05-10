@@ -1,8 +1,10 @@
+// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { environment } from 'src/environments';
 import { Edge, Service, Utils } from '../../shared/shared';
 import { canSeeAppCenter } from './app/permissions';
+import { canSeeJsonrpcTest } from './jsonrpctest/permission';
 
 @Component({
   selector: 'settings',
@@ -14,6 +16,8 @@ export class SettingsComponent implements OnInit {
   public environment = environment;
 
   public canSeeAppCenter: boolean | undefined;
+  public canSeeJsonrpcTest: boolean | undefined;
+
   protected isEdgeBackend: boolean = environment.backend === 'OpenEMS Edge';
 
   constructor(
@@ -24,9 +28,11 @@ export class SettingsComponent implements OnInit {
   }
 
   public ngOnInit() {
-    this.service.setCurrentComponent({ languageKey: 'Menu.edgeSettings' }, this.route).then(edge => {
+    this.service.getCurrentEdge().then(edge => {
       this.edge = edge;
+      const user = this.service.metadata?.value?.user;
       this.canSeeAppCenter = canSeeAppCenter(this.edge);
+      this.canSeeJsonrpcTest = canSeeJsonrpcTest(user, edge);
     });
   }
 }

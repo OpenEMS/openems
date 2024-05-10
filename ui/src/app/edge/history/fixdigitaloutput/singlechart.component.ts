@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -45,19 +46,19 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-      let result = (response as QueryHistoricTimeseriesDataResponse).result;
+      const result = (response as QueryHistoricTimeseriesDataResponse).result;
       // convert labels
-      let labels: Date[] = [];
-      for (let timestamp of result.timestamps) {
+      const labels: Date[] = [];
+      for (const timestamp of result.timestamps) {
         labels.push(new Date(timestamp));
       }
       this.labels = labels;
 
       // convert datasets
-      let datasets: Chart.ChartDataset[] = [];
-      for (let channel in result.data) {
-        let address = ChannelAddress.fromString(channel);
-        let data = result.data[channel].map(value => {
+      const datasets: Chart.ChartDataset[] = [];
+      for (const channel in result.data) {
+        const address = ChannelAddress.fromString(channel);
+        const data = result.data[channel].map(value => {
           if (value == null) {
             return null;
           } else {
@@ -90,7 +91,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
       const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
-      let channeladdresses = [outputChannel];
+      const channeladdresses = [outputChannel];
       resolve(channeladdresses);
     });
   }

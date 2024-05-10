@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
@@ -42,7 +43,7 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
 
     ngOnChanges() {
         this.updateValues();
-    };
+    }
 
     protected updateValues() {
         this.service.getConfig().then(config => {
@@ -58,7 +59,7 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let channels: ChannelAddress[] = [];
+            const channels: ChannelAddress[] = [];
             channels.push(
                 new ChannelAddress('_sum', 'EssDcChargeEnergy'),
                 new ChannelAddress('_sum', 'EssDcDischargeEnergy'),

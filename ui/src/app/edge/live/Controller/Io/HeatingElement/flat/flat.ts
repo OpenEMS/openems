@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
@@ -34,7 +35,7 @@ export class FlatComponent extends AbstractFlatWidget {
                 this.component.properties['outputChannelPhaseL3']),
         );
 
-        let channelAddresses: ChannelAddress[] = [
+        const channelAddresses: ChannelAddress[] = [
             new ChannelAddress(this.component.id, 'ForceStartAtSecondsOfDay'),
             ...this.outputChannelArray,
             new ChannelAddress(this.component.id, 'Status'),

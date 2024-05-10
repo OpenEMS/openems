@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -46,7 +47,7 @@ export class NetworkComponent implements OnInit {
         new ComponentJsonApiRequest({ componentId: '_host', payload: new GetNetworkConfigRequest() })).then(response => {
 
           const result = (response as GetNetworkConfigResponse).result;
-          for (let name of Object.keys(result.interfaces)) {
+          for (const name of Object.keys(result.interfaces)) {
             const iface = result.interfaces[name];
 
             if (this.edge.roleIsAtLeast(Role.ADMIN)) {
@@ -77,13 +78,12 @@ export class NetworkComponent implements OnInit {
     // Converts ["192.168.1.50/24"] -> {label: " ''/'static' ", ip: "192.168.1.50", subnetmask: "255.255.255.0" }
     // Any ip address entered in the array("Statische IP-Adressen hinzufügen") will be labeled with emty string.
     for (const addr of iface.model.addressesList) {
-      if (this.ipRegex.test(addr)) {
-        var ip = addr.split('/');
-        var subnetmask = this.getSubnetmaskAsString(ip[1]);
-      } else {
+      if (!this.ipRegex.test(addr)) {
         this.service.toast(this.translate.instant('Edge.Network.validAddressWarning'), 'danger');
         return;
       }
+      const ip = addr.split('/');
+      const subnetmask = this.getSubnetmaskAsString(ip[1]);
 
       addressJson.push({
         label: '', //TODO with specific labels with specific systems.
@@ -110,7 +110,7 @@ export class NetworkComponent implements OnInit {
     // updates the addresses array with latest values.
     iface.model.addresses = addressJson;
 
-    let request = {
+    const request = {
       interfaces: {},
     };
     request.interfaces[iface.name] = iface.model;
@@ -153,9 +153,9 @@ export class NetworkComponent implements OnInit {
    * @returns the subnetmask as a string
    */
   protected getSubnetmaskAsString(subnetmask: number): string {
-    var result = [];
-    for (var i = 0; i < 4; i++) {
-      var n = Math.min(subnetmask, 8);
+    const result = [];
+    for (let i = 0; i < 4; i++) {
+      const n = Math.min(subnetmask, 8);
       result.push(256 - Math.pow(2, 8 - n));
       subnetmask -= n;
     }
@@ -169,7 +169,7 @@ export class NetworkComponent implements OnInit {
    * @param source contains values for individual network.
    */
   private generateInterface(name: string, source: any): void {
-    let addressArray: string[] = [];
+    const addressArray: string[] = [];
 
     // extracts the addresses json values to form values.
     if (source.addresses) {
@@ -200,7 +200,7 @@ export class NetworkComponent implements OnInit {
    *
    * @returns FormlyFieldConfig[].
    */
-  private fillFields(addressArray: String[]): FormlyFieldConfig[] {
+  private fillFields(addressArray: string[]): FormlyFieldConfig[] {
     const fields: FormlyFieldConfig[] = [
       {
         key: 'dhcp',

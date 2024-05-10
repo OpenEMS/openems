@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
@@ -27,12 +28,12 @@ export class Controller_Io_FixDigitalOutputModalComponent {
    * @param event
    */
   updateMode(event: CustomEvent) {
-    let oldMode = this.component.properties.isOn;
+    const oldMode = this.component.properties.isOn;
 
     // ion-segment button only supports string as type
     // https://ionicframework.com/docs/v4/api/segment-button
 
-    let newMode = (event.detail.value.toLowerCase() === 'true');
+    const newMode = (event.detail.value.toLowerCase() === 'true');
 
     this.edge.updateComponentConfig(this.websocket, this.component.id, [
       { name: 'isOn', value: newMode },

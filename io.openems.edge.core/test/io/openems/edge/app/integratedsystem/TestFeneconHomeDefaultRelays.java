@@ -90,7 +90,7 @@ public class TestFeneconHomeDefaultRelays {
 
 	private final OpenemsAppInstance createFullHomeWithDummyIo() throws Exception {
 		final var instance = TestFeneconHome.createFullHome(this.appManagerTestBundle, DUMMY_ADMIN);
-		this.appManagerTestBundle.componentManger.handleJsonrpcRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.componentManger.handleDeleteComponentConfigRequest(DUMMY_ADMIN,
 				new DeleteComponentConfigRequest("io0"));
 		final var dummyRelay = new DummyInputOutput("io0", "RELAY", 1, 4);
 		this.appManagerTestBundle.cm.getOrCreateEmptyConfiguration(dummyRelay.id());

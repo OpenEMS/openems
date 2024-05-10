@@ -1,4 +1,5 @@
 import { TimeUnit } from "chart.js";
+import { ChartConstants } from "src/app/shared/genericComponents/chart/chart.constants";
 import { OeTester } from "src/app/shared/genericComponents/shared/testing/common";
 import { OeChartTester } from "src/app/shared/genericComponents/shared/testing/tester";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
@@ -7,16 +8,42 @@ import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/re
 
 export namespace History {
 
-  export const LINE_CHART_OPTIONS = (period: string, chartType: 'line' | 'bar'): OeChartTester.Dataset.Option => ({
+  export const LINE_CHART_OPTIONS = (period: string, chartType: 'line' | 'bar', options: { [key: string]: { scale: { min: number, max: number }, ticks: { stepSize: number } } }): OeChartTester.Dataset.Option => ({
     type: 'option',
     options: {
-      "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": {}, "line": {} }, "plugins": { "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": '' } }, "tooltip": { "intersect": false, "mode": "index", "callbacks": {} } }, "scales": { "x": { "stacked": true, "offset": false, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } }, "left": { ...(chartType === 'line' ? { stacked: false } : {}), "title": { "text": "kW", "display": true, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true }, "ticks": {} }, "right": { ...(chartType === 'line' ? { stacked: false } : {}), "beginAtZero": true, "max": 100, "min": 0, "type": "linear", "title": { "text": "%", "display": true, "font": { "size": 11 } }, "position": "right", "grid": { "display": false }, "ticks": { "padding": 5, "stepSize": 20 } } },
+      "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": {}, "line": {} }, "plugins": { "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": '' } }, "tooltip": { "intersect": false, "mode": "index", "callbacks": {} } }, "scales": {
+        "x": { "stacked": true, "offset": false, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } },
+        "left": {
+          ...options["left"]?.scale, ...(chartType === 'line' ? { stacked: false } : {}), "title": { "text": "kW", "display": true, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
+          "ticks": { ...options["left"]?.ticks, "color": '', "padding": 5, "maxTicksLimit": ChartConstants.NUMBER_OF_Y_AXIS_TICKS },
+        },
+        "right": {
+          ...options["right"]?.scale, ...(chartType === 'line' ? { stacked: false } : {}), "beginAtZero": true, "max": 100, "min": 0, "type": "linear", "title": { "text": "%", "display": true, "font": { "size": 11 }, "padding": 5 }, "position": "right", "grid": { "display": false },
+          "ticks": {
+            ...options["right"]?.ticks,
+            "color": '',
+            "padding": 5,
+            "maxTicksLimit": ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
+          },
+        },
+      },
     },
   });
-  export const BAR_CHART_OPTIONS = (period: string, chartType: 'line' | 'bar'): OeChartTester.Dataset.Option => ({
+  export const BAR_CHART_OPTIONS = (period: string, chartType: 'line' | 'bar', options: { [key: string]: { scale: { min?: number, max?: number }, ticks: { stepSize?: number } } }): OeChartTester.Dataset.Option => ({
     type: 'option',
     options: {
-      "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 1 }, "line": {} }, "plugins": { "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": '' } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {} } }, "scales": { "x": { "stacked": true, "offset": true, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } }, "left": { ...(chartType === 'line' ? { stacked: false } : {}), "title": { "text": "kWh", "display": true, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true }, "ticks": {} } },
+      "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 1 }, "line": {} }, "plugins": { "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": '' } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {} } }, "scales": {
+        "x": { "stacked": true, "offset": true, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } },
+        "left": {
+          ...options["left"]?.scale, ...(chartType === 'line' ? { stacked: false } : {}), "title": { "text": "kWh", "display": true, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
+          "ticks": {
+            ...options["left"]?.ticks,
+            "color": '',
+            "padding": 5,
+            "maxTicksLimit": ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
+          },
+        },
+      },
     },
   });
 

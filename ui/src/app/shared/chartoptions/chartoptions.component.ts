@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ChartOptionsPopoverComponent } from './popover/popover.component';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
@@ -22,7 +23,7 @@ export class ChartOptionsComponent {
     ) { }
 
     async presentPopover(ev: any) {
-        let componentProps = {};
+        const componentProps = {};
         if (this.showPhases !== null) {
             componentProps['showPhases'] = this.showPhases;
         }
