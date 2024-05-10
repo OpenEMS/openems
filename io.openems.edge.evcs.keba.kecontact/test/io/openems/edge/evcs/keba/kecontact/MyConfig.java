@@ -41,8 +41,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 		
-		public Builder setphaseSwitchActive(boolean phaseSwitchActive) {
-			this.phaseSwitchActive = this.phaseSwitchActive;
+		public Builder setPhaseSwitchActive(boolean phaseSwitchActive) {
+			this.phaseSwitchActive = phaseSwitchActive;
 			return this;
 		}
 
