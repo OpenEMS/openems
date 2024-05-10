@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Subject } from "rxjs";
 

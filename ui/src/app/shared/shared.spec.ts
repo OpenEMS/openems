@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { SumState } from "../index/shared/sumState";
 import { Edge, EdgePermission } from "./shared";
 import { Role } from "./type/role";

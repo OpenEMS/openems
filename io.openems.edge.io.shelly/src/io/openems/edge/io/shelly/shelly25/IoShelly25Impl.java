@@ -22,7 +22,6 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
-import io.openems.edge.io.shelly.common.ShellyApi;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//

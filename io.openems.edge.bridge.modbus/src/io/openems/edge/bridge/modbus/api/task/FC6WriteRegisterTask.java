@@ -1,9 +1,12 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import java.util.function.Consumer;
+
 import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterRequest;
 import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterResponse;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.AbstractSingleWordElement;
 
@@ -11,7 +14,12 @@ public class FC6WriteRegisterTask extends
 		AbstractWriteTask.Single<WriteSingleRegisterRequest, WriteSingleRegisterResponse, AbstractSingleWordElement<?, ?>> {
 
 	public FC6WriteRegisterTask(int startAddress, AbstractSingleWordElement<?, ?> element) {
-		super("FC6WriteRegister", WriteSingleRegisterResponse.class, startAddress, element);
+		this(FunctionUtils::doNothing, startAddress, element);
+	}
+
+	public FC6WriteRegisterTask(Consumer<ExecuteState> onExecute, int startAddress,
+			AbstractSingleWordElement<?, ?> element) {
+		super("FC6WriteRegister", onExecute, WriteSingleRegisterResponse.class, startAddress, element);
 	}
 
 	@Override

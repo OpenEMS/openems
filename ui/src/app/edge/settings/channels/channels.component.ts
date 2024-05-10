@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -77,7 +78,7 @@ export class ChannelsComponent {
           return;
         }
 
-        if (PersistencePriority.isAtLeast(channelConfig.persistencePriority, globalPersistencePriority)) {
+        if (PersistencePriority.isLessThan(channelConfig.persistencePriority, globalPersistencePriority)) {
           this.componentChannelConfig.set(address.toString(), { ...this.config.getChannel(address), ...{ showPersistencePriority: true } });
         }
       }

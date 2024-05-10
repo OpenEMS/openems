@@ -153,7 +153,7 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(30051, Priority.LOW, //
 						m(EssSmaSunnyIsland.ChannelId.DEVICE_CLASS, new UnsignedDoublewordElement(30051)), //

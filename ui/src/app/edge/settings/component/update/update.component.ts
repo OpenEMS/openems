@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';

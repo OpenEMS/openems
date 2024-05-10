@@ -5,12 +5,11 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.JsonApi;
 
 /**
  * A Service that manages OpenEMS Apps.
  */
-public interface AppManager extends OpenemsComponent, JsonApi {
+public interface AppManager extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		WRONG_APP_CONFIGURATION(Doc.of(Level.WARNING) //

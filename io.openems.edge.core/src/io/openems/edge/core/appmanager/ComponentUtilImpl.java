@@ -41,9 +41,8 @@ import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.host.Host;
-import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
-import io.openems.edge.core.componentmanager.ComponentManagerImpl;
+import io.openems.edge.core.host.HostImpl;
 import io.openems.edge.core.host.NetworkInterface;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 import io.openems.edge.io.api.DigitalOutput;
@@ -548,8 +547,8 @@ public class ComponentUtilImpl implements ComponentUtil {
 
 	@Override
 	public void updateInterfaces(User user, List<NetworkInterface<?>> interfaces) throws OpenemsNamedException {
-		JsonApi host = this.componentManager.getComponent(Host.SINGLETON_COMPONENT_ID);
-		host.handleJsonrpcRequest(user, new SetNetworkConfigRequest(interfaces));
+		HostImpl host = this.componentManager.getComponent(Host.SINGLETON_COMPONENT_ID);
+		host.handleSetNetworkConfigRequest(user, new SetNetworkConfigRequest(interfaces));
 
 		// wait until its updated
 		do {
@@ -628,12 +627,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 					new UpdateComponentConfigRequest.Property("controllers.ids", ids) //
 			));
 
-			if (user != null) {
-				this.componentManager.handleJsonrpcRequest(user, request).get();
-				return;
-			}
-
-			((ComponentManagerImpl) this.componentManager).handleUpdateComponentConfigRequest(user, request).get();
+			this.componentManager.handleUpdateComponentConfigRequest(user, request);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new OpenemsException("Could not update Scheduler!");

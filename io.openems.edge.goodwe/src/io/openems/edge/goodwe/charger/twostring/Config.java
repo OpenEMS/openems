@@ -7,6 +7,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "GoodWe Charger Two-String", //
 		description = "Implements a GoodWe PV string (for an MPPT of two strings).")
 
+@Deprecated
 @interface Config {
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "charger0";

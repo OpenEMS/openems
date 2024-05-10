@@ -105,6 +105,7 @@
 	bnd.identity;id='io.openems.edge.controller.symmetric.timeslotpeakshaving',\
 	bnd.identity;id='io.openems.edge.core',\
 	bnd.identity;id='io.openems.edge.edge2edge',\
+	bnd.identity;id='io.openems.edge.energy',\
 	bnd.identity;id='io.openems.edge.ess.adstec.storaxe',\
 	bnd.identity;id='io.openems.edge.ess.byd.container',\
 	bnd.identity;id='io.openems.edge.ess.cluster',\
@@ -149,9 +150,9 @@
 	bnd.identity;id='io.openems.edge.meter.camillebauer.aplus',\
 	bnd.identity;id='io.openems.edge.meter.carlo.gavazzi.em300',\
 	bnd.identity;id='io.openems.edge.meter.discovergy',\
+	bnd.identity;id='io.openems.edge.meter.eastron',\
 	bnd.identity;id='io.openems.edge.meter.janitza',\
 	bnd.identity;id='io.openems.edge.meter.kdk',\
-	bnd.identity;id='io.openems.edge.meter.microcare.sdm630',\
 	bnd.identity;id='io.openems.edge.meter.phoenixcontact',\
 	bnd.identity;id='io.openems.edge.meter.plexlog',\
 	bnd.identity;id='io.openems.edge.meter.pqplus',\
@@ -195,7 +196,7 @@
 	com.fazecast.jSerialComm;version='[2.10.4,2.10.5)',\
 	com.ghgande.j2mod;version='[3.2.1,3.2.2)',\
 	com.google.gson;version='[2.10.1,2.10.2)',\
-	com.google.guava;version='[33.1.0,33.1.1)',\
+	com.google.guava;version='[33.2.0,33.2.1)',\
 	com.google.guava.failureaccess;version='[1.0.2,1.0.3)',\
 	com.squareup.okio;version='[3.9.0,3.9.1)',\
 	com.sun.jna;version='[5.14.0,5.14.1)',\
@@ -271,6 +272,8 @@
 	io.openems.edge.controller.symmetric.timeslotpeakshaving;version=snapshot,\
 	io.openems.edge.core;version=snapshot,\
 	io.openems.edge.edge2edge;version=snapshot,\
+	io.openems.edge.energy;version=snapshot,\
+	io.openems.edge.energy.api;version=snapshot,\
 	io.openems.edge.ess.adstec.storaxe;version=snapshot,\
 	io.openems.edge.ess.api;version=snapshot,\
 	io.openems.edge.ess.byd.container;version=snapshot,\
@@ -319,9 +322,9 @@
 	io.openems.edge.meter.camillebauer.aplus;version=snapshot,\
 	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot,\
 	io.openems.edge.meter.discovergy;version=snapshot,\
+	io.openems.edge.meter.eastron;version=snapshot,\
 	io.openems.edge.meter.janitza;version=snapshot,\
 	io.openems.edge.meter.kdk;version=snapshot,\
-	io.openems.edge.meter.microcare.sdm630;version=snapshot,\
 	io.openems.edge.meter.phoenixcontact;version=snapshot,\
 	io.openems.edge.meter.plexlog;version=snapshot,\
 	io.openems.edge.meter.pqplus;version=snapshot,\
@@ -392,7 +395,7 @@
 	org.apache.felix.configadmin;version='[1.9.26,1.9.27)',\
 	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)',\
 	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)',\
-	org.apache.felix.http.jetty;version='[5.1.10,5.1.11)',\
+	org.apache.felix.http.jetty;version='[5.1.12,5.1.13)',\
 	org.apache.felix.http.servlet-api;version='[3.0.0,3.0.1)',\
 	org.apache.felix.inventory;version='[2.0.0,2.0.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
