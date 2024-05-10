@@ -68,71 +68,81 @@ public class EvcsKebaKeContactImplTest {
 		// method and the sendCommand would be passed in a Consumer/Function
 	}
 
-//	@Test
-//	public void testHandlingIncreasedPowerDemandWithPhaseSwitching() throws OpenemsException {
-//		System.out.println("Starting testHandlingIncreasedPowerDemandWithPhaseSwitching");
-//
-//		// Initialize the EVCS with one phase and a specific charging power
-//		System.out.println("Setting phases to ONE_PHASE and charging power to 3680W");
-//		this.evcs._setPhases(1);
-//		assertEquals("Phase should be ONE_PHASE before applying charge power limit", 1, this.evcs.getPhasesAsInt());
-//		this.evcs._setChargePower(3680); // Start with 3680W on one phase
-//
-//		// Increase target power demand to 5000W, should trigger phase switching logic
-//		System.out.println("Applying charge power limit of 5000W, expecting phase switch");
-//		this.evcs.applyChargePowerLimit(5000);
-//
-//		// Verify if phase switching to three phases occurred to meet the new power
-//		// demand
-//		System.out.println("Verifying if phase switching to THREE_PHASE occurred");
-//		assertEquals("Should switch to three phases", Phases.THREE_PHASE, this.evcs.getPhasesAsInt());
-//
-//		// Expected min/max power range after accommodating the increased power demand
-//		Integer expectedMin = 1380; // Min power remains the same as one phase
-//		Integer expectedMax = 22080; // Max power with phase switching for an EVCS capable of 32A
-//
-//		// Validate the adjusted min/max power limits
-//		System.out.println("Validating adjusted min/max power limits after increased demand");
-//		assertEquals("Adjusted Min Power should be " + expectedMin, expectedMin,
-//				this.evcs.getMinimumHardwarePower().get());
-//		assertEquals("Adjusted Max Power should be " + expectedMax, expectedMax,
-//				this.evcs.getMaximumHardwarePower().get());
-//	}
+	// @Test
+	// public void testHandlingIncreasedPowerDemandWithPhaseSwitching() throws
+	// OpenemsException {
+	// System.out.println("Starting
+	// testHandlingIncreasedPowerDemandWithPhaseSwitching");
+	//
+	// // Initialize the EVCS with one phase and a specific charging power
+	// System.out.println("Setting phases to ONE_PHASE and charging power to
+	// 3680W");
+	// this.evcs._setPhases(1);
+	// assertEquals("Phase should be ONE_PHASE before applying charge power limit",
+	// 1, this.evcs.getPhasesAsInt());
+	// this.evcs._setChargePower(3680); // Start with 3680W on one phase
+	//
+	// // Increase target power demand to 5000W, should trigger phase switching
+	// logic
+	// System.out.println("Applying charge power limit of 5000W, expecting phase
+	// switch");
+	// this.evcs.applyChargePowerLimit(5000);
+	//
+	// // Verify if phase switching to three phases occurred to meet the new power
+	// // demand
+	// System.out.println("Verifying if phase switching to THREE_PHASE occurred");
+	// assertEquals("Should switch to three phases", Phases.THREE_PHASE,
+	// this.evcs.getPhasesAsInt());
+	//
+	// // Expected min/max power range after accommodating the increased power
+	// demand
+	// Integer expectedMin = 1380; // Min power remains the same as one phase
+	// Integer expectedMax = 22080; // Max power with phase switching for an EVCS
+	// capable of 32A
+	//
+	// // Validate the adjusted min/max power limits
+	// System.out.println("Validating adjusted min/max power limits after increased
+	// demand");
+	// assertEquals("Adjusted Min Power should be " + expectedMin, expectedMin,
+	// this.evcs.getMinimumHardwarePower().get());
+	// assertEquals("Adjusted Max Power should be " + expectedMax, expectedMax,
+	// this.evcs.getMaximumHardwarePower().get());
+	// }
 
-//	@Test
-//	public void testShouldSwitchToThreePhases() {
-//		// Scenario: High power demand on single phase
-//		int highPowerDemand = 5000; // Watts
-//		int currentPhases = 1;
-//		assertTrue("EVCS should switch to three phases for high power demand",
-//				this.evcs.shouldSwitchToThreePhases(highPowerDemand, currentPhases));
-//	}
-//
-//	@Test
-//	public void testShouldNotSwitchToThreePhases() {
-//		// Scenario: Low power demand does not require three phases
-//		int lowPowerDemand = 3000; // Watts
-//		int currentPhases = 1;
-//		assertFalse("EVCS should not switch to three phases for low power demand",
-//				this.evcs.shouldSwitchToThreePhases(lowPowerDemand, currentPhases));
-//	}
-//
-//	@Test
-//	public void testShouldSwitchToOnePhase() {
-//		// Scenario: Low power demand on three phases
-//		int lowPowerDemand = 2000; // Watts
-//		int currentPhases = 3;
-//		assertTrue("EVCS should switch to one phase for low power demand",
-//				this.evcs.shouldSwitchToOnePhase(lowPowerDemand, currentPhases));
-//	}
-//
-//	@Test
-//	public void testShouldNotSwitchToOnePhase() {
-//		// Scenario: High power demand does not benefit from reducing to one phase
-//		int highPowerDemand = 7000; // Watts
-//		int currentPhases = 3;
-//		assertFalse("EVCS should not switch to one phase for high power demand",
-//				this.evcs.shouldSwitchToOnePhase(highPowerDemand, currentPhases));
-//	}
+	// @Test
+	// public void testShouldSwitchToThreePhases() {
+	// // Scenario: High power demand on single phase
+	// int highPowerDemand = 5000; // Watts
+	// int currentPhases = 1;
+	// assertTrue("EVCS should switch to three phases for high power demand",
+	// this.evcs.shouldSwitchToThreePhases(highPowerDemand, currentPhases));
+	// }
+	//
+	// @Test
+	// public void testShouldNotSwitchToThreePhases() {
+	// // Scenario: Low power demand does not require three phases
+	// int lowPowerDemand = 3000; // Watts
+	// int currentPhases = 1;
+	// assertFalse("EVCS should not switch to three phases for low power demand",
+	// this.evcs.shouldSwitchToThreePhases(lowPowerDemand, currentPhases));
+	// }
+	//
+	// @Test
+	// public void testShouldSwitchToOnePhase() {
+	// // Scenario: Low power demand on three phases
+	// int lowPowerDemand = 2000; // Watts
+	// int currentPhases = 3;
+	// assertTrue("EVCS should switch to one phase for low power demand",
+	// this.evcs.shouldSwitchToOnePhase(lowPowerDemand, currentPhases));
+	// }
+	//
+	// @Test
+	// public void testShouldNotSwitchToOnePhase() {
+	// // Scenario: High power demand does not benefit from reducing to one phase
+	// int highPowerDemand = 7000; // Watts
+	// int currentPhases = 3;
+	// assertFalse("EVCS should not switch to one phase for high power demand",
+	// this.evcs.shouldSwitchToOnePhase(highPowerDemand, currentPhases));
+	// }
 
 }

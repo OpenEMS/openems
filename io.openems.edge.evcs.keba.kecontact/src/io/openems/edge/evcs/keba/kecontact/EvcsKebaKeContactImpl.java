@@ -263,7 +263,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		}
 
 		// TODO: Maybe send previous value during phase switching and wait for it.
-		
+
 		// Send command to set current
 		boolean sendSuccess = this.send("currtime " + current + " 1");
 		this.log.debug("Command to set current sent. Success: " + sendSuccess);
@@ -271,9 +271,9 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		return sendSuccess;
 	}
 
-//	protected static boolean shouldSwitchToOnePhase(int power, int phases) {
-//		return power < 4140 && phases == 3;
-//	}
+	// protected static boolean shouldSwitchToOnePhase(int power, int phases) {
+	// return power < 4140 && phases == 3;
+	// }
 
 	private int calculateCurrent(int power, int phases) {
 		var current = Math.round((power * 1000) / phases / 230f);
@@ -293,25 +293,27 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		// Maybe a logic would be OK, that charges with the minimum only at the
 		// beginning of the session.
 
-//		int current = Math.round((power * 1000) / (phases * 230f));
-//		this.log.debug("Initial calculated current: " + current + "mA for power: " + power + "W, phases: " + phases);
-//
-//		// Ensure the current is within KEBA's acceptable range
-//		current = Math.min(Math.max(current, 6000), 63_000);
-//		if (current == 6000 && power > 0) {
-//			// Adjust current for powers just over the threshold for 1-phase charging
-//			current = Math.max(current, 6000);
-//		}
-//		this.log.debug("Adjusted current within KEBA's range: " + current + "mA");
+		// int current = Math.round((power * 1000) / (phases * 230f));
+		// this.log.debug("Initial calculated current: " + current + "mA for power: " +
+		// power + "W, phases: " + phases);
+		//
+		// // Ensure the current is within KEBA's acceptable range
+		// current = Math.min(Math.max(current, 6000), 63_000);
+		// if (current == 6000 && power > 0) {
+		// // Adjust current for powers just over the threshold for 1-phase charging
+		// current = Math.max(current, 6000);
+		// }
+		// this.log.debug("Adjusted current within KEBA's range: " + current + "mA");
 		return current;
 	}
 
-//	boolean shouldSwitchToThreePhases(int power, int phases) {
-//		boolean shouldSwitch = power > 4140 && phases != 3;
-//		this.log.debug("Should switch to 3 phases: " + shouldSwitch + " [Power: " + power + "W, Current phases: "
-//				+ phases + "]");
-//		return shouldSwitch;
-//	}
+	// boolean shouldSwitchToThreePhases(int power, int phases) {
+	// boolean shouldSwitch = power > 4140 && phases != 3;
+	// this.log.debug("Should switch to 3 phases: " + shouldSwitch + " [Power: " +
+	// power + "W, Current phases: "
+	// + phases + "]");
+	// return shouldSwitch;
+	// }
 
 	private boolean switchPhases(Phases prefferedPhases, Instant now) {
 
