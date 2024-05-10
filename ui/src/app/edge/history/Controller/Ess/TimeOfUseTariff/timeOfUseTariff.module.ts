@@ -10,9 +10,6 @@ import { ChartComponent } from "./chart/chart";
         BrowserModule,
         SharedModule,
     ],
-    entryComponents: [
-        FlatComponent,
-    ],
     declarations: [
         FlatComponent,
         OverviewComponent,

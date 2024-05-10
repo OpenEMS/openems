@@ -50,12 +50,12 @@ public class DummyModbusComponent extends AbstractOpenemsModbusComponent impleme
 		super.activate(context, id, "", true, unitId, cm, "Modbus", bridge.id());
 	}
 
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this);
 	}
 
 	@Override
-	public ModbusProtocol getModbusProtocol() throws OpenemsException {
+	public ModbusProtocol getModbusProtocol() {
 		return super.getModbusProtocol();
 	}
 

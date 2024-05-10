@@ -57,6 +57,7 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 		SINGLE_PHASE(S_101, S_111), //
 		SPLIT_PHASE(S_102, S_112), //
 		THREE_PHASE(S_103, S_113);
+		// TODO evaluate S701_ACType if block 701 is used
 
 		private final List<DefaultSunSpecModel> blocks;
 
@@ -75,14 +76,14 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 
 	public AbstractSunSpecPvInverter(Map<SunSpecModel, Priority> activeModels,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
-			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsException {
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		this(activeModels, false, firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
 	public AbstractSunSpecPvInverter(Map<SunSpecModel, Priority> activeModels,
 			boolean calculateActiveProductionEnergyManually,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
-			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsException {
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);
 		this.calculateActiveProductionEnergyManually = calculateActiveProductionEnergyManually;
 		this._setActiveConsumptionEnergy(0);
@@ -322,7 +323,7 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 	}
 
 	@Override
-	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
+	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) {
 		super.addBlock(startAddress, model, priority);
 
 		// Can we evaluate the InverterType from this Block?

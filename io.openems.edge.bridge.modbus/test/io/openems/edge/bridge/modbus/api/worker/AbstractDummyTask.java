@@ -1,11 +1,14 @@
 package io.openems.edge.bridge.modbus.api.worker;
 
+import java.util.function.Consumer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.msg.ModbusRequest;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 
@@ -15,20 +18,26 @@ public abstract class AbstractDummyTask extends AbstractTask<ModbusRequest, Modb
 
 	private final Logger log = LoggerFactory.getLogger(AbstractDummyTask.class);
 
-	protected long delay;
+	private long delay;
+	private Exception defect = null;
 
-	private Runnable onExecuteCallback;
-	private boolean isDefective = false;
+	protected AbstractDummyTask(String name, long delay) {
+		this(name, FunctionUtils::doNothing, delay);
+	}
 
-	public AbstractDummyTask(String name, long delay) {
-		super(name, ModbusResponse.class, 0);
+	protected AbstractDummyTask(String name, Consumer<ExecuteState> onExecute, long delay) {
+		super(name, onExecute, ModbusResponse.class, 0);
 		this.name = name;
 		this.delay = delay;
 	}
 
-	public void setDefective(boolean isDefective, long delay) {
-		this.isDefective = isDefective;
+	public void setDefective(Exception defect, long delay) {
+		this.defect = defect;
 		this.delay = delay;
+	}
+
+	protected long getDelay() {
+		return this.delay;
 	}
 
 	@Override
@@ -41,29 +50,16 @@ public abstract class AbstractDummyTask extends AbstractTask<ModbusRequest, Modb
 		return "";
 	}
 
-	/**
-	 * Callback on Execute.
-	 * 
-	 * @param onExecuteCallback the callback {@link Runnable}
-	 */
-	public void onExecute(Runnable onExecuteCallback) {
-		this.onExecuteCallback = onExecuteCallback;
-	}
-
 	@Override
 	public ExecuteState execute(AbstractModbusBridge bridge) {
-		if (this.onExecuteCallback != null) {
-			this.onExecuteCallback.run();
-		}
-
 		try {
 			Thread.sleep(this.delay);
 		} catch (InterruptedException e) {
 			this.log.warn(e.getMessage());
 		}
 
-		if (this.isDefective) {
-			return ExecuteState.ERROR;
+		if (this.defect != null) {
+			return new ExecuteState.Error(this.defect);
 		}
 		return ExecuteState.OK;
 	}

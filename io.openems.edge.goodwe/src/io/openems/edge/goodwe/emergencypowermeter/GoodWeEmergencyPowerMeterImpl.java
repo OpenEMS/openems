@@ -100,7 +100,7 @@ public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponen
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 
 				// Power of each backup up phase

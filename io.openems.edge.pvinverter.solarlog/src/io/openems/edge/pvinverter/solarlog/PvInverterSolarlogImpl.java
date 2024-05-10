@@ -114,7 +114,7 @@ public class PvInverterSolarlogImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(3500, Priority.HIGH,
 						m(PvInverterSolarlog.ChannelId.LAST_UPDATE_TIME,
