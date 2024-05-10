@@ -118,7 +118,7 @@ const routes: Routes = [
       { path: 'settings/profile/:componentId', component: AliasUpdateComponent },
       { path: 'settings/servcieAssistant', component: EdgeSettingsServiceAssistant },
       { path: 'settings/systemexecute', component: EdgeSettingsSystemExecuteComponent },
-      { path: 'settings/systemlog', component: EdgeSettingsSystemLogComponent },
+      { path: 'settings/systemlog', component: EdgeSettingsSystemLogComponent, data: { navbarTitleToBeTranslated: 'Edge.Config.Index.liveLog' } },
       { path: 'settings/system', component: EdgeSettingsSystemComponent, data: { navbarTitleToBeTranslated: 'Edge.Config.Index.SYSTEM' } },
       { path: 'settings/system.old', component: EdgeSettingsSystemUpdateOldComponent },
       { path: 'settings/app', data: { navbarTitle: environment.edgeShortName + ' Apps' }, component: EdgeSettingsAppIndex },
