@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Inject, Injectable } from "@angular/core";
 
 import { DataService } from "../../shared/genericComponents/shared/dataservice";

@@ -19,7 +19,7 @@ export class SetEmergencyReserveRequest extends JsonrpcRequest {
     private static METHOD: string = "setEmergencyReserve";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             value: number
         },
     ) {

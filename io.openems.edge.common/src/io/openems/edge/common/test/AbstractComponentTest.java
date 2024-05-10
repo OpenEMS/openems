@@ -528,6 +528,17 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		return this.self();
 	}
 
+	/**
+	 * Calls the 'deactivate()' method of the 'system-under-test'.
+	 *
+	 * @return itself, to use as a builder
+	 * @throws Exception on error
+	 */
+	public SELF deactivate() throws Exception {
+		this.callDeactivate();
+		return this.self();
+	}
+
 	private int getConfigChangeCount() throws IOException, InvalidSyntaxException {
 		var result = 0;
 		for (Object object : this.references) {

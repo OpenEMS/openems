@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import * as Chart from 'chart.js';
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
