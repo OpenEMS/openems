@@ -10,7 +10,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String essId;
 		private String meterId;
 		private int peakShavingPower;
+		private boolean enableRecharge;
 		private int rechargePower;
+		private boolean isStandalone;
 
 		private Builder() {
 		}
@@ -34,9 +36,19 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.peakShavingPower = peakShavingPower;
 			return this;
 		}
+		
+		public Builder setEnableRecharge(boolean enableRecharge) {
+			this.enableRecharge = enableRecharge;
+			return this;
+		}
 
 		public Builder setRechargePower(int rechargePower) {
 			this.rechargePower = rechargePower;
+			return this;
+		}
+		
+		public Builder setIsStandalone(boolean isStandalone) {
+			this.isStandalone = isStandalone;
 			return this;
 		}
 
@@ -75,10 +87,20 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public int peakShavingPower() {
 		return this.builder.peakShavingPower;
 	}
+	
+	@Override
+	public boolean enableRecharge() {
+		return this.builder.enableRecharge;
+	}
 
 	@Override
 	public int rechargePower() {
 		return this.builder.rechargePower;
+	}
+	
+	@Override
+	public boolean isStandalone() {
+		return this.builder.isStandalone;
 	}
 
 }

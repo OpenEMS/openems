@@ -25,9 +25,16 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Peak-Shaving power", description = "Grid purchase power above this value is considered a peak and shaved to this value.")
 	int peakShavingPower();
+	
+	@AttributeDefinition(name = "Enable recharge", description = "If the controller should recharge on low consumption periods.",  defaultValue = "true")
+	boolean enableRecharge();
 
 	@AttributeDefinition(name = "Recharge power", description = "If grid purchase power is below this value battery is recharged.")
 	int rechargePower();
+	
+	@AttributeDefinition(name = "Standalone", description = "If the controller should set the ess to 0 when there is no peak and no recharge.", defaultValue = "true")
+	boolean isStandalone();
+
 
 	String webconsole_configurationFactory_nameHint() default "Controller Peak-Shaving Symmetric [{id}]";
 }
