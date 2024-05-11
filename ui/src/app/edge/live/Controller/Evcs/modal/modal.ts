@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ChangeDetectorRef, Component, Inject } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -162,7 +163,7 @@ export class ModalComponent extends AbstractModal {
      */
   protected updateForceMinPower(event: CustomEvent, currentController: EdgeConfig.Component, numberOfPhases: number) {
 
-    let newMinChargePower = event.detail.value / numberOfPhases;
+    const newMinChargePower = event.detail.value / numberOfPhases;
     this.formGroup.controls['forceChargeMinPower'].markAsDirty();
     this.formGroup.controls['forceChargeMinPower'].setValue(newMinChargePower);
   }
@@ -173,12 +174,12 @@ export class ModalComponent extends AbstractModal {
   protected updateRenaultZoeConfig() {
     if (this.controller && this.evcsComponent.properties['minHwCurrent'] == 10000) {
 
-      let oldMinChargePower = this.controller.properties.forceChargeMinPower;
-      let maxAllowedChargePower = 10 /* Ampere */ * 230; /* Volt */
+      const oldMinChargePower = this.controller.properties.forceChargeMinPower;
+      const maxAllowedChargePower = 10 /* Ampere */ * 230; /* Volt */
 
       if (oldMinChargePower < maxAllowedChargePower) {
         if (this.edge != null) {
-          let newMinChargePower = maxAllowedChargePower;
+          const newMinChargePower = maxAllowedChargePower;
           this.edge.updateComponentConfig(this.websocket, this.controller.id, [
             { name: 'forceChargeMinPower', value: newMinChargePower },
           ]).then(() => {
@@ -234,7 +235,7 @@ export class ModalComponent extends AbstractModal {
   }
 
   protected formatNumber(i: number) {
-    let round = Math.ceil(i / 100) * 100;
+    const round = Math.ceil(i / 100) * 100;
     return round;
   }
 

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, EventEmitter, Output } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { TKeyValue } from "src/app/shared/service/defaulttypes";
@@ -25,7 +26,7 @@ export class FilterComponent {
    */
   public searchOnChange(event, filter: Filter): void {
 
-    let value = event.target.value;
+    const value = event.target.value;
 
     // If no value provided
     if (!value) {

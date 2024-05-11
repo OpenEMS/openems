@@ -21,6 +21,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.edge.common.channel.calculate.CalculateAverage;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.channel.calculate.CalculateLongSum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -38,9 +39,11 @@ import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.MetaEvcs;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.VirtualMeter;
 import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -72,6 +75,10 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					POSTIVE, Sum.ChannelId.PRODUCTION_ACTIVE_POWER) //
 			.add(Sum.ChannelId.CONSUMPTION_MAX_ACTIVE_POWER, "consumptionMaxActivePower", //
 					POSTIVE, Sum.ChannelId.CONSUMPTION_ACTIVE_POWER) //
+			.add(Sum.ChannelId.ESS_MIN_DISCHARGE_POWER, "essMinDischargePower", //
+					NEGATIVE, Sum.ChannelId.ESS_DISCHARGE_POWER) //
+			.add(Sum.ChannelId.ESS_MAX_DISCHARGE_POWER, "essMaxDischargePower", //
+					POSTIVE, Sum.ChannelId.ESS_DISCHARGE_POWER) //
 			.build();
 
 	@Override
@@ -165,6 +172,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		final var gridActivePowerL1 = new CalculateIntegerSum();
 		final var gridActivePowerL2 = new CalculateIntegerSum();
 		final var gridActivePowerL3 = new CalculateIntegerSum();
+		final var gridBuyPrice = new CalculateAverage();
 		final var gridBuyActiveEnergy = new CalculateLongSum();
 		final var gridSellActiveEnergy = new CalculateLongSum();
 
@@ -223,6 +231,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				} else {
 					essDcChargeEnergy.addValue(ess.getActiveChargeEnergyChannel());
 					essDcDischargeEnergy.addValue(ess.getActiveDischargeEnergyChannel());
+					essDcDischargePower.addValue(ess.getActivePowerChannel());
 				}
 
 			} else if (component instanceof ElectricityMeter meter) {
@@ -290,7 +299,18 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				/*
 				 * Electric Vehicle Charging Station
 				 */
+				if (evcs instanceof MetaEvcs) {
+					// ignore this Evcs
+					continue;
+				}
+
 				managedConsumptionActivePower.addValue(evcs.getChargePowerChannel());
+
+			} else if (component instanceof TimeOfUseTariff tou) {
+				/*
+				 * Time-of-Use-Tariff
+				 */
+				gridBuyPrice.addValue(tou.getPrices().getFirst());
 			}
 		}
 
@@ -337,6 +357,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this._setGridActivePowerL2(gridActivePowerL2Sum);
 		var gridActivePowerL3Sum = gridActivePowerL3.calculate();
 		this._setGridActivePowerL3(gridActivePowerL3Sum);
+		this._setGridBuyPrice(gridBuyPrice.calculate());
 
 		var gridBuyActiveEnergySum = gridBuyActiveEnergy.calculate();
 		gridBuyActiveEnergySum = this.energyValuesHandler.setValue(Sum.ChannelId.GRID_BUY_ACTIVE_ENERGY,

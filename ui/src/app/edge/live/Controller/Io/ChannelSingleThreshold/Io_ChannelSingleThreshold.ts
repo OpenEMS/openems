@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
@@ -31,7 +32,7 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
   public switchConverter = Utils.CONVERT_WATT_TO_KILOWATT;
 
   protected override getChannelAddresses() {
-    let outputChannelAddress: string | string[] = this.component.properties['outputChannelAddress'];
+    const outputChannelAddress: string | string[] = this.component.properties['outputChannelAddress'];
     if (typeof outputChannelAddress === 'string') {
       this.outputChannel = ChannelAddress.fromString(outputChannelAddress);
     } else {

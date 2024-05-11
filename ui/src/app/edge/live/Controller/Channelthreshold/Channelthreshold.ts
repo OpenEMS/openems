@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { Icon } from 'src/app/shared/type/widget';
@@ -23,7 +24,7 @@ export class Controller_ChannelthresholdComponent extends AbstractFlatWidget {
     return [this.outputChannel];
   }
   protected override onCurrentData(currentData: CurrentData) {
-    let channel = currentData.allComponents[this.outputChannel.toString()];
+    const channel = currentData.allComponents[this.outputChannel.toString()];
     if (channel != null) {
       if (channel == 1) {
         this.icon.name = "radio-button-on-outline";

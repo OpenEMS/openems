@@ -1,9 +1,11 @@
-import { formatNumber } from '@angular/common';
+// @ts-strict-ignore
 import { Component, Input } from '@angular/core';
-import { ChronoUnit, Data, Resolution, TooltipItem, calculateResolution } from 'src/app/edge/history/shared';
-import { AbstractHistoryChart, ChartType } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import * as Chart from 'chart.js';
+import { calculateResolution, ChronoUnit, Resolution } from 'src/app/edge/history/shared';
+import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, Currency, EdgeConfig } from "src/app/shared/shared";
+import { ColorUtils } from 'src/app/shared/utils/color/color.utils';
 
 @Component({
     selector: 'scheduleChart',
@@ -13,21 +15,16 @@ export class ChartComponent extends AbstractHistoryChart {
 
     @Input() public override component: EdgeConfig.Component;
 
-    private TimeOfUseTariffState = TimeOfUseTariffUtils.TimeOfUseTariffState;
     private currencyLabel: Currency.Label; // Default
 
     protected override getChartData(): HistoryUtils.ChartData {
-        const components: EdgeConfig.Component[] = this.config.getComponentsByFactory('Controller.Ess.Time-Of-Use-Tariff');
-
-        // Assiging the component to be able to use the id.
-        // There will always be only one controller enabled for Time-of-Use-Tariff. So finding the controller which is enabled.
-        this.component = components.length > 1
-            ? components.find(component => component.isEnabled)
-            : components[0];
+        // Assigning the component to be able to use the id.
+        const componentId: string = this.config.getComponentIdsByFactory('Controller.Ess.Time-Of-Use-Tariff')[0];
+        this.component = this.config.components[componentId];
 
         const currency = this.config.components['_meta'].properties.currency;
         this.currencyLabel = Currency.getCurrencyLabelByCurrency(currency);
-        this.chartType = ChartType.BAR;
+        this.chartType = 'bar';
 
         return {
             input: [
@@ -43,49 +40,66 @@ export class ChartComponent extends AbstractHistoryChart {
                     name: 'Soc',
                     powerChannel: ChannelAddress.fromString('_sum/EssSoc'),
                 },
+                {
+                    name: 'GridBuy',
+                    powerChannel: ChannelAddress.fromString('_sum/GridActivePower'),
+                    converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO,
+                },
             ],
             output: (data: HistoryUtils.ChannelData) => {
                 return [{
                     name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
-                    converter: () => {
-                        return this.getDataset(data, this.TimeOfUseTariffState.Balancing);
-                    },
+                    converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.Balancing),
                     color: 'rgb(51,102,0)',
                     stack: 1,
+                    order: 1,
                 },
                 {
-                    name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE'),
-                    converter: () => {
-                        return this.getDataset(data, this.TimeOfUseTariffState.Charge);
-                    },
+                    name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
+                    converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.ChargeGrid),
                     color: 'rgb(0, 204, 204)',
                     stack: 1,
+                    order: 1,
                 },
                 {
                     name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
-                    converter: () => {
-                        return this.getDataset(data, this.TimeOfUseTariffState.DelayDischarge);
-                    },
+                    converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.DelayDischarge),
                     color: 'rgb(0,0,0)',
                     stack: 1,
+                    order: 1,
                 },
                 {
                     name: this.translate.instant('General.soc'),
-                    converter: () => {
-                        return data['Soc']?.map(value => Utils.multiplySafely(value, 1000));
-                    },
+                    converter: () => data['Soc']?.map(value => Utils.multiplySafely(value, 1000)),
                     color: 'rgb(189, 195, 199)',
                     borderDash: [10, 10],
                     yAxisId: ChartAxis.RIGHT,
-                    customType: ChartType.LINE,
-                    customUnit: YAxisTitle.PERCENTAGE,
-                }];
+                    custom: {
+                        type: 'line',
+                        unit: YAxisTitle.PERCENTAGE,
+                        formatNumber: '1.0-0',
+                    },
+                    order: 0,
+                },
+                {
+                    name: this.translate.instant('General.gridBuy'),
+                    converter: () => data['GridBuy'],
+                    color: 'rgb(0,0,0)',
+                    yAxisId: ChartAxis.RIGHT_2,
+                    custom: {
+                        type: 'line',
+                        formatNumber: '1.0-0',
+                    },
+                    hiddenOnInit: true,
+                    order: 2,
+                },
+                ];
             },
             tooltip: {
-                formatNumber: '1.1-2',
+                formatNumber: '1.1-4',
             },
             yAxes: [{
-                unit: YAxisTitle.ENERGY,
+                unit: YAxisTitle.CURRENCY,
                 position: 'left',
                 yAxisId: ChartAxis.LEFT,
             },
@@ -94,7 +108,14 @@ export class ChartComponent extends AbstractHistoryChart {
                 position: 'right',
                 yAxisId: ChartAxis.RIGHT,
                 displayGrid: false,
-            }],
+            },
+            {
+                unit: YAxisTitle.POWER,
+                position: 'right',
+                yAxisId: ChartAxis.RIGHT_2,
+                displayGrid: false,
+            },
+            ],
         };
     }
 
@@ -103,38 +124,50 @@ export class ChartComponent extends AbstractHistoryChart {
         this.errorResponse = null;
 
         const unit: Resolution = { unit: ChronoUnit.Type.MINUTES, value: 15 };
-
         this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to, unit)
             .then((dataResponse) => {
+                this.chartType = 'line';
+                this.chartObject = this.getChartData();
+
                 const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, dataResponse);
                 this.datasets = displayValues.datasets;
-                this.colors = displayValues.colors;
                 this.legendOptions = displayValues.legendOptions;
                 this.labels = displayValues.labels;
                 this.setChartLabel();
-            }).finally(() => {
-                this.options.scales.xAxes[0].time.unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
-                this.options.scales.xAxes[0].ticks.source = 'auto';
-                this.options.tooltips.mode = 'index';
-                this.options.scales.xAxes[0].ticks.maxTicksLimit = 31;
-                this.options.scales.yAxes[0].ticks.min = this.getMinimumAxisValue(this.datasets);
-                this.options.scales.xAxes[0].offset = false;
 
-                this.options.tooltips.callbacks.label = (tooltipItem: TooltipItem, data: Data) => {
-                    let label = data.datasets[tooltipItem.datasetIndex].label;
-                    let value = tooltipItem.value;
-                    let tooltipsLabel = this.currencyLabel;
+                this.options.scales.x['time'].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
+                this.options.scales.x.ticks['source'] = 'auto';
+                this.options.scales.x.grid = { offset: false };
+                this.options.plugins.tooltip.mode = 'index';
+                this.options.scales.x.ticks.maxTicksLimit = 30;
+                this.options.scales[ChartAxis.LEFT].min = this.getMinimumAxisValue(this.datasets);
 
-                    if (value === undefined || value === null || Number.isNaN(Number.parseInt(value.toString()))) {
-                        return;
-                    }
+                this.options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
+                    return {
+                        borderColor: ColorUtils.changeOpacityFromRGBA(item.dataset.borderColor, 1),
+                        backgroundColor: item.dataset.backgroundColor,
+                    };
+                };
+                this.options.scales.x['bounds'] = 'ticks';
 
-                    // Show floating point number for values between 0 and 1
-                    // TODO find better workaround for legend labels
-                    return label.split(":")[0] + ": " + formatNumber(value, 'de', '1.0-4') + " " + tooltipsLabel;
+                this.options.plugins.tooltip.callbacks.label = (item: Chart.TooltipItem<any>) => {
+                    const label = item.dataset.label;
+                    const value = item.dataset.data[item.dataIndex];
+
+                    return TimeOfUseTariffUtils.getLabel(value, label, this.translate, this.currencyLabel);
                 };
 
-                this.options.scales.yAxes[0].scaleLabel.labelString = this.currencyLabel;
+                this.options.scales[ChartAxis.LEFT]['title'].text = this.currencyLabel;
+                this.datasets = this.datasets.map((el) => {
+                    const opacity = el.type === 'line' ? 0.2 : 0.5;
+
+                    el.backgroundColor = ColorUtils.changeOpacityFromRGBA(el.backgroundColor.toString(), opacity);
+                    el.borderColor = ColorUtils.changeOpacityFromRGBA(el.borderColor.toString(), 1);
+                    return el;
+                });
+
+                this.options.scales.x['offset'] = false;
+                this.options['animation'] = false;
             });
     }
 
@@ -146,12 +179,12 @@ export class ChartComponent extends AbstractHistoryChart {
      * @returns the desired state array data.
      */
     private getDataset(data: HistoryUtils.ChannelData, desiredState): any[] {
-        var prices = data['QuarterlyPrice']
+        const prices = data['QuarterlyPrice']
             .map(val => TimeOfUseTariffUtils.formatPrice(Utils.multiplySafely(val, 1000)));
-        var states = data['StateMachine']
+        const states = data['StateMachine']
             .map(val => Utils.multiplySafely(val, 1000));
-        var length = prices.length;
-        var dataset = Array(length).fill(null);
+        const length = prices.length;
+        const dataset = Array(length).fill(null);
 
         for (let index = 0; index < length; index++) {
             const quarterlyPrice = prices[index];
@@ -171,11 +204,11 @@ export class ChartComponent extends AbstractHistoryChart {
      * @param datasets The chart datasets.
      * @returns the minumum axis value.
      */
-    private getMinimumAxisValue(datasets: Chart.ChartDataSets[]): number {
+    private getMinimumAxisValue(datasets: Chart.ChartDataset[]): number {
 
         const labels = [
             this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
-            this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE'),
+            this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
             this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
         ];
 

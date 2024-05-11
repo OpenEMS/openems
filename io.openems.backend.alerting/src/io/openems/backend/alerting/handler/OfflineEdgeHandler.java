@@ -16,7 +16,7 @@ import io.openems.backend.alerting.scheduler.MessageScheduler;
 import io.openems.backend.alerting.scheduler.MessageSchedulerService;
 import io.openems.backend.alerting.scheduler.TimedExecutor;
 import io.openems.backend.alerting.scheduler.TimedExecutor.TimedTask;
-import io.openems.backend.common.metadata.UserAlertingSettings;
+import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
@@ -29,6 +29,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	// Definition of unrealistically high values for messages sent simultaneously
 	public static final int MAX_SIMULTANEOUS_MSGS = 500;
 	public static final int MAX_SIMULTANEOUS_EDGES = 1000;
+	public static final int EDGE_REBOOT_MINUTES = 5;
 
 	private final Logger log = LoggerFactory.getLogger(OfflineEdgeHandler.class);
 
@@ -69,6 +70,9 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	public void send(ZonedDateTime sentAt, List<OfflineEdgeMessage> pack) {
 		// Ensure Edge is still offline before sending mail.
 		pack.removeIf((msg) -> !this.isEdgeOffline(msg.getEdgeId()));
+		if (pack.isEmpty()) {
+			return;
+		}
 
 		var params = JsonUtils.generateJsonArray(pack, OfflineEdgeMessage::getParams);
 
@@ -139,7 +143,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	private boolean isValidEdge(Edge edge) {
 		var invalid = edge.getLastmessage() == null // was never online
 				|| edge.getLastmessage() //
-						.isBefore(ZonedDateTime.now().minusWeeks(1)); // already offline for a week
+						.isBefore(this.timeService.now().minusWeeks(1)); // already offline for a week
 		return !invalid;
 	}
 
@@ -152,17 +156,17 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	protected OfflineEdgeMessage getEdgeMessage(Edge edge) {
 		if (edge == null || edge.getId() == null) {
 			this.log.warn("Called method getEdgeMessage with " //
-					+ edge == null ? "Edge{null}" : "Edge{id=null}");
+					+ (edge == null ? "Edge{null}" : "Edge{id=null}"));
 			return null;
 		}
 		try {
-			var alertingSettings = this.metadata.getUserAlertingSettings(edge.getId());
+			var alertingSettings = this.metadata.getEdgeOfflineAlertingSettings(edge.getId());
 			if (alertingSettings == null || alertingSettings.isEmpty()) {
 				return null;
 			}
 			var message = new OfflineEdgeMessage(edge.getId(), edge.getLastmessage());
 			for (var setting : alertingSettings) {
-				if (setting.getDelayTime() > 0 && this.shouldReceiveMail(edge, setting)) {
+				if (setting.delay() > 0 && this.shouldReceiveMail(edge, setting)) {
 					message.addRecipient(setting);
 				}
 			}
@@ -175,15 +179,15 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		return null;
 	}
 
-	private boolean shouldReceiveMail(Edge edge, UserAlertingSettings setting) {
-		final var lastMailRecievedAt = setting.getLastNotification();
+	private boolean shouldReceiveMail(Edge edge, OfflineEdgeAlertingSetting setting) {
+		final var lastMailRecievedAt = setting.lastNotification();
 		final var edgeOfflineSince = edge.getLastmessage();
 
 		var hasNotRecievedMailYet = true;
 		var neverRecievedAnyMail = lastMailRecievedAt == null;
 
 		if (!neverRecievedAnyMail) {
-			var nextMailRecieveAt = edgeOfflineSince.plus(setting.getDelayTime(), ChronoUnit.MINUTES);
+			var nextMailRecieveAt = edgeOfflineSince.plus(setting.delay(), ChronoUnit.MINUTES);
 			hasNotRecievedMailYet = nextMailRecieveAt.isAfter(lastMailRecievedAt);
 		}
 
@@ -233,7 +237,11 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 				if (isOnline) {
 					this.tryRemoveEdge(edge);
 				} else {
-					this.tryAddEdge(edge);
+					this.timeService.schedule(this.timeService.now().plusMinutes(EDGE_REBOOT_MINUTES), t -> {
+						if (edge.isOffline()) {
+							this.tryAddEdge(edge);
+						}
+					});
 				}
 			}
 		} else {

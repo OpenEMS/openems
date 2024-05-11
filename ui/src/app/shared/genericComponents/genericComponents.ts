@@ -33,22 +33,6 @@ import { NotificationComponent } from './shared/notification/notification';
         RouterModule,
         TranslateModule,
     ],
-    entryComponents: [
-        PickDateComponent,
-        FlatWidgetComponent,
-        FlatWidgetLineComponent,
-        FlatWidgetHorizontalLineComponent,
-        FlatWidgetPercentagebarComponent,
-        FlatWidgetLineItemComponent,
-        ModalButtonsComponent,
-        ModalInfoLineComponent,
-        ModalLineComponent,
-        ModalHorizontalLineComponent,
-        ModalComponent,
-        ModalLineItemComponent,
-        ModalPhasesComponent,
-        ModalValueLineComponent,
-    ],
     declarations: [
 
         // Flat

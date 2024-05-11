@@ -5,55 +5,51 @@ import static io.openems.edge.controller.ess.timeofusetariff.Mode.AUTOMATIC;
 import static io.openems.edge.controller.ess.timeofusetariff.RiskLevel.MEDIUM;
 
 import java.time.Clock;
-import java.time.ZonedDateTime;
+import java.time.Instant;
+import java.time.ZoneOffset;
 
 import org.junit.Test;
 
+import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.controller.ess.timeofusetariff.optimizer.Optimizer;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.predictor.api.test.DummyPredictorManager;
 import io.openems.edge.timedata.test.DummyTimedata;
 import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
 
 public class TimeOfUseTariffControllerImplTest {
 
+	public static final Clock CLOCK = new TimeLeapClock(Instant.parse("2020-03-04T14:19:00.00Z"), ZoneOffset.UTC);
+
 	private static final String CTRL_ID = "ctrl0";
 
 	@Test
 	public void test() throws Exception {
-		create();
+		create(CLOCK);
 	}
 
 	/**
-	 * Creates a {@link TimeOfUseTariffControllerImplTest} instance.
-	 * 
-	 * @return the object
-	 * @throws Exception on error
-	 */
-	public static TimeOfUseTariffControllerImpl create() throws Exception {
-		return create(Clock.systemDefaultZone());
-	}
-
-	/**
-	 * Creates a {@link TimeOfUseTariffControllerImplTest} instance.
+	 * Creates a {@link TimeOfUseTariffControllerImpl} instance.
 	 * 
 	 * @param clock a {@link Clock}
 	 * @return the object
 	 * @throws Exception on error
 	 */
 	public static TimeOfUseTariffControllerImpl create(Clock clock) throws Exception {
+		var componentManager = new DummyComponentManager(clock);
+		var sum = new DummySum();
+		var timeOfUseTariff = DummyTimeOfUseTariffProvider.empty(clock);
+
 		var sut = new TimeOfUseTariffControllerImpl();
 		new ControllerTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager(clock)) //
-				.addReference("predictorManager", new DummyPredictorManager()) //
+				.addReference("componentManager", componentManager) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
-				.addReference("timeOfUseTariff", new DummyTimeOfUseTariffProvider(ZonedDateTime.now())) //
-				.addReference("sum", new DummySum()) //
+				.addReference("timeOfUseTariff", timeOfUseTariff) //
+				.addReference("sum", sum) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0") //
 						.withSoc(60) //
 						.withCapacity(10000)) //
@@ -64,61 +60,11 @@ public class TimeOfUseTariffControllerImplTest {
 						.setMode(AUTOMATIC) //
 						.setControlMode(CHARGE_CONSUMPTION) //
 						.setEssMaxChargePower(5000) //
+						.setMaxChargePowerFromGrid(10000) //
+						.setLimitChargePowerFor14aEnWG(false) //
 						.setRiskLevel(MEDIUM) //
-						.build());
+						.build()) //
+				.next(new TestCase());
 		return sut;
 	}
-
-	/**
-	 * Gets the {@link Optimizer} via Java Reflection.
-	 * 
-	 * @param ctrl the {@link TimeOfUseTariffControllerImplTest}
-	 * @return the object
-	 * @throws Exception on error
-	 */
-	public static Optimizer getOptimizer(TimeOfUseTariffControllerImpl ctrl) throws Exception {
-		var field = TimeOfUseTariffControllerImpl.class.getDeclaredField("optimizer");
-		field.setAccessible(true);
-		return (Optimizer) field.get(ctrl);
-	}
-
-	/**
-	 * Gets the {@link DummyPredictorManager} via Java Reflection.
-	 * 
-	 * @param ctrl the {@link TimeOfUseTariffControllerImplTest}
-	 * @return the object
-	 * @throws Exception on error
-	 */
-	public static DummyPredictorManager getPredictorManager(TimeOfUseTariffControllerImpl ctrl) throws Exception {
-		var field = TimeOfUseTariffControllerImpl.class.getDeclaredField("predictorManager");
-		field.setAccessible(true);
-		return (DummyPredictorManager) field.get(ctrl);
-	}
-
-	/**
-	 * Gets the {@link DummyComponentManager} via Java Reflection.
-	 * 
-	 * @param ctrl the {@link TimeOfUseTariffControllerImplTest}
-	 * @return the object
-	 * @throws Exception on error
-	 */
-	public static DummyComponentManager getComponentManager(TimeOfUseTariffControllerImpl ctrl) throws Exception {
-		var field = TimeOfUseTariffControllerImpl.class.getDeclaredField("componentManager");
-		field.setAccessible(true);
-		return (DummyComponentManager) field.get(ctrl);
-	}
-
-	/**
-	 * Gets the {@link DummyTimeOfUseTariffProvider} via Java Reflection.
-	 * 
-	 * @param ctrl the {@link TimeOfUseTariffControllerImplTest}
-	 * @return the object
-	 * @throws Exception on error
-	 */
-	public static DummyTimeOfUseTariffProvider getTimeOfUseTariff(TimeOfUseTariffControllerImpl ctrl) throws Exception {
-		var field = TimeOfUseTariffControllerImpl.class.getDeclaredField("timeOfUseTariff");
-		field.setAccessible(true);
-		return (DummyTimeOfUseTariffProvider) field.get(ctrl);
-	}
-
 }

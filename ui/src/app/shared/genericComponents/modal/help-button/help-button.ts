@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 import { Service } from "src/app/shared/shared";
 import { environment } from 'src/environments';
@@ -19,7 +20,7 @@ export class HelpButtonComponent {
             return;
 
         }
-        let link = environment.links[key];;
+        const link = environment.links[key];
         if (link === null || link === "") {
             this.link = null;
 

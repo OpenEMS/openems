@@ -5,6 +5,7 @@ import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.battery;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryInverter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.charger;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.chargerOld;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEmergencyCapacityReserve;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEssSurplusFeedToGrid;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.emergencyMeter;
@@ -13,16 +14,19 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridMet
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.io;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.power;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.acMeterType;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.ctRatioFirst;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveEnabled;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveSoc;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInSetting;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInType;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.gridMeterType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasAcMeter;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEmergencyReserve;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
@@ -31,7 +35,6 @@ import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.shadowM
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -73,8 +76,10 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
 
 /**
  * Describes a FENECON Home 30 energy storage system.
@@ -90,10 +95,14 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
       "FEED_IN_TYPE": {@link FeedInType},
       "MAX_FEED_IN_POWER":5000,
       "FEED_IN_SETTING":"PU_ENABLE_CURVE",
+      "GRID_METER_CATEGORY":"SMART_METER",
+      "CT_RATIO_FIRST": 200,
       "HAS_AC_METER": false,
       "AC_METER_TYPE": {@link AcMeterType},
-      "HAS_PV_[1-6]":true,
-      "PV_ALIAS_[1-6]":"PV [1-6]",
+      "HAS_PV_[1-6]":true, // deprecated
+      "PV_ALIAS_[1-6]":"PV [1-6]", // deprecated
+      "HAS_MPPT_[1-3]":true,
+      "MPPT_ALIAS_[1-3]":"MPPT [1-3]",
       "HAS_EMERGENCY_RESERVE":true,
       "EMERGENCY_RESERVE_ENABLED":true,
       "EMERGENCY_RESERVE_SOC":20,
@@ -137,6 +146,9 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 		MAX_FEED_IN_POWER(maxFeedInPower(FEED_IN_TYPE)), //
 		FEED_IN_SETTING(feedInSetting()), //
 
+		GRID_METER_CATEGORY(gridMeterType()), //
+		CT_RATIO_FIRST(ctRatioFirst(GRID_METER_CATEGORY)), //
+
 		HAS_AC_METER(hasAcMeter()), //
 		AC_METER_TYPE(acMeterType(HAS_AC_METER)), //
 
@@ -170,9 +182,17 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 
 	}
 
+	@Deprecated
 	private static final int MAX_NUMBER_OF_PV = 6;
+	@Deprecated
 	private static final IntFunction<String> HAS_PV = value -> "HAS_PV_" + (value + 1);
+	@Deprecated
 	private static final IntFunction<String> PV_ALIAS = value -> "ALIAS_PV_" + (value + 1);
+
+	private static final int MAX_NUMBER_OF_MPPT = 3;
+	private static final IntFunction<String> HAS_MPPT = value -> "HAS_MPPT_" + (value + 1);
+	private static final IntFunction<String> MPPT_ALIAS = value -> "ALIAS_MPPT_" + (value + 1);
+
 	private final Map<String, PropertyParent> pvDefs = new TreeMap<>();
 
 	@Activate
@@ -184,13 +204,24 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 	) {
 		super(componentManager, componentContext, cm, componentUtil);
 
+		BooleanExpression anyOldPvSelected = null;
 		for (int i = 0; i < MAX_NUMBER_OF_PV; i++) {
 			final var oneBased = i + 1;
 			final var hasPv = new ParentPropertyImpl(HAS_PV.apply(i), AppDef.copyOfGeneric(defaultDef(), def -> def //
 					.setTranslatedLabel("App.IntegratedSystem.hasPv.label", oneBased, (oneBased + 1) / 2) //
 					.setDefaultValue(false) //
-					.setField(JsonFormlyUtil::buildCheckboxFromNameable) //
 			));
+			hasPv.def().setField(t -> JsonFormlyUtil.buildCheckboxFromNameable(t),
+					(app, property, l, parameter, field) -> {
+						field.onlyShowIf(Exp.currentModelValue(hasPv).notNull());
+					});
+
+			if (anyOldPvSelected == null) {
+				anyOldPvSelected = Exp.currentModelValue(hasPv).isNull();
+			} else {
+				anyOldPvSelected = anyOldPvSelected.and(Exp.currentModelValue(hasPv).isNull());
+			}
+
 			final var pvAlias = new ParentPropertyImpl(PV_ALIAS.apply(i), AppDef.copyOfGeneric(defaultDef(), def -> def //
 					.setTranslatedLabel("App.IntegratedSystem.pvAlias.label", oneBased) //
 					.setDefaultValueString((app, property, l, parameter) -> TranslationUtil
@@ -199,6 +230,30 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 						field.onlyShowIf(Exp.currentModelValue(hasPv).notNull());
 					}) //
 			));
+
+			this.pvDefs.put(hasPv.name(), hasPv);
+			this.pvDefs.put(pvAlias.name(), pvAlias);
+		}
+		final var tempAnyOldPvSelected = anyOldPvSelected;
+
+		for (int i = 0; i < MAX_NUMBER_OF_MPPT; i++) {
+			final var oneBased = i + 1;
+			final var hasPv = new ParentPropertyImpl(HAS_MPPT.apply(i), AppDef.copyOfGeneric(defaultDef(), def -> def //
+					.setTranslatedLabel("App.IntegratedSystem.hasMppt.label", oneBased) //
+					.setDefaultValue(false) //
+					.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
+						field.onlyShowIf(tempAnyOldPvSelected);
+					}) //
+			));
+			final var pvAlias = new ParentPropertyImpl(MPPT_ALIAS.apply(i),
+					AppDef.copyOfGeneric(defaultDef(), def -> def //
+							.setTranslatedLabel("App.IntegratedSystem.mpptAlias.label", oneBased) //
+							.setDefaultValueString((app, property, l, parameter) -> TranslationUtil.getTranslation(
+									parameter.bundle(), "App.IntegratedSystem.mpptAlias.alias", oneBased)) //
+							.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+								field.onlyShowIf(Exp.currentModelValue(hasPv).notNull());
+							}) //
+					));
 
 			this.pvDefs.put(hasPv.name(), hasPv);
 			this.pvDefs.put(pvAlias.name(), pvAlias);
@@ -215,6 +270,7 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 			final var batteryInverterId = "batteryInverter0";
 			final var modbusIdInternal = "modbus0";
 			final var modbusIdExternal = "modbus1";
+			final var modbusIdExternalMeters = "modbus2";
 			final var gridMeterId = "meter0";
 
 			final var safetyCountry = this.getEnum(p, SafetyCountry.class, Property.SAFETY_COUNTRY);
@@ -224,6 +280,14 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 			final var maxFeedInPower = feedInType == FeedInType.DYNAMIC_LIMITATION
 					? this.getInt(p, Property.MAX_FEED_IN_POWER)
 					: 0;
+
+			final var gridMeterCategory = this.getEnum(p, GoodWeGridMeterCategory.class, Property.GRID_METER_CATEGORY);
+			final Integer ctRatioFirst;
+			if (gridMeterCategory == GoodWeGridMeterCategory.COMMERCIAL_METER) {
+				ctRatioFirst = this.getInt(p, Property.CT_RATIO_FIRST);
+			} else {
+				ctRatioFirst = null;
+			}
 
 			final var hasAcMeter = this.getBoolean(p, Property.HAS_AC_METER);
 			final var acType = this.getEnum(p, AcMeterType.class, Property.AC_METER_TYPE);
@@ -240,9 +304,10 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 							modbusIdExternal, shadowManagementDisabled, safetyCountry, feedInSetting), //
 					ess(bundle, essId, batteryId, batteryInverterId), //
 					io(bundle, modbusIdInternal), //
-					gridMeter(bundle, gridMeterId, modbusIdExternal), //
+					gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst), //
 					modbusInternal(bundle, t, modbusIdInternal), //
 					modbusExternal(bundle, t, modbusIdExternal), //
+					modbusForExternalMeters(bundle, t, modbusIdExternalMeters), //
 					predictor(bundle, t), //
 					ctrlEssSurplusFeedToGrid(bundle, essId), //
 					power() //
@@ -261,16 +326,18 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 				}
 				final var chargerId = "charger" + i;
 				final var chargerAlias = this.getString(p, this.pvDefs.get(PV_ALIAS.apply(i)));
-				components.add(charger(chargerId, chargerAlias, batteryInverterId, i));
+				components.add(chargerOld(chargerId, chargerAlias, batteryInverterId, i));
 			}
 
-			List<String> schedulerExecutionOrder = new ArrayList<>();
-			if (hasEmergencyReserve) {
-				schedulerExecutionOrder.add("ctrlEmergencyCapacityReserve0");
+			for (int i = 0; i < MAX_NUMBER_OF_MPPT; i++) {
+				final var hasMppt = this.getBoolean(p, this.pvDefs.get(HAS_MPPT.apply(i)));
+				if (!hasMppt) {
+					continue;
+				}
+				final var chargerId = "charger" + (10 + i);
+				final var chargerAlias = this.getString(p, this.pvDefs.get(MPPT_ALIAS.apply(i)));
+				components.add(charger(chargerId, chargerAlias, batteryInverterId, i));
 			}
-			schedulerExecutionOrder.add("ctrlGridOptimizedCharge0");
-			schedulerExecutionOrder.add("ctrlEssSurplusFeedToGrid0");
-			schedulerExecutionOrder.add("ctrlBalancing0");
 
 			final var dependencies = Lists.newArrayList(//
 					gridOptimizedCharge(t, feedInType, maxFeedInPower), //
@@ -282,9 +349,17 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 				dependencies.add(acType.getDependency(modbusIdExternal));
 			}
 
+			final var schedulerComponents = new ArrayList<SchedulerComponent>();
+			if (hasEmergencyReserve) {
+				schedulerComponents.add(new SchedulerComponent("ctrlEmergencyCapacityReserve0",
+						"Controller.Ess.EmergencyCapacityReserve", this.getAppId()));
+			}
+			schedulerComponents.add(new SchedulerComponent("ctrlEssSurplusFeedToGrid0",
+					"Controller.Ess.Hybrid.Surplus-Feed-To-Grid", this.getAppId()));
+
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.scheduler(schedulerExecutionOrder)) //
+					.addTask(Tasks.schedulerByCentralOrder(schedulerComponents)) //
 					.addDependencies(dependencies) //
 					.build();
 		};
@@ -306,6 +381,7 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create() //
 				.setCanSee(Role.INSTALLER) //
+				.setCanDelete(Role.INSTALLER) //
 				.build();
 	}
 
@@ -332,6 +408,11 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 		for (int i = 0; i < MAX_NUMBER_OF_PV; i++) {
 			builder.add(this.pvDefs.get(HAS_PV.apply(i)));
 			builder.add(this.pvDefs.get(PV_ALIAS.apply(i)));
+		}
+
+		for (int i = 0; i < MAX_NUMBER_OF_MPPT; i++) {
+			builder.add(this.pvDefs.get(HAS_MPPT.apply(i)));
+			builder.add(this.pvDefs.get(MPPT_ALIAS.apply(i)));
 		}
 
 		builder.add(Property.HAS_EMERGENCY_RESERVE);

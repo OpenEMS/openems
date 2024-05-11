@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { TimeUtils } from "./timeutils";
 
 describe('TimeUtils', () => {

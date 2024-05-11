@@ -2,10 +2,10 @@ Bundle-Name: retrofit-converter-gson
 Bundle-Description:  A type-safe HTTP client for Android and Java  
 Bundle-DocURL: https://github.com/google/gson
 Bundle-License: https://opensource.org/licenses/Apache-2.0
-Bundle-Version: 2.9.0
+Bundle-Version: 2.11.0
 
 Include-Resource: \
-	@converter-gson-2.9.0.jar,\
+	@converter-gson-2.11.0.jar,\
 
 Export-Package: \
 	retrofit2.converter.gson,\

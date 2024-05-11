@@ -1,13 +1,14 @@
+// @ts-strict-ignore
 import { Component, Input, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { CalAnimation, IAngularMyDpOptions, IMyDate, IMyDateRangeModel } from 'angular-mydatepicker';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { addDays, endOfWeek, endOfYear, getDate, getMonth, getYear, startOfWeek, startOfYear } from 'date-fns/esm';
 
 import { Edge } from '../../edge/edge';
 import { DefaultTypes } from '../../service/defaulttypes';
 import { EdgePermission, Service, Utils } from '../../shared';
+import { CalAnimation, IAngularMyDpOptions, IMyDate, IMyDateRangeModel } from '@nodro7/angular-mydatepicker';
 
 @Component({
     selector: 'pickdatepopover',
@@ -17,6 +18,7 @@ export class PickDatePopoverComponent implements OnInit {
 
     @Input() public setDateRange: (period: DefaultTypes.HistoryPeriod) => void;
     @Input() public edge: Edge | null = null;
+    @Input() public historyPeriods: DefaultTypes.PeriodStringValues[] = [];
 
     private readonly TODAY = new Date();
     private readonly TOMORROW = addDays(new Date(), 1);
@@ -60,7 +62,7 @@ export class PickDatePopoverComponent implements OnInit {
             this.locale = this.translate.getBrowserLang();
 
         // Filter out custom due to different on click event
-        this.periods = EdgePermission.getAllowedHistoryPeriods(this.edge).filter(period => period !== DefaultTypes.PeriodString.CUSTOM);
+        this.periods = EdgePermission.getAllowedHistoryPeriods(this.edge, this.historyPeriods).filter(period => period !== DefaultTypes.PeriodString.CUSTOM);
     }
 
     /**

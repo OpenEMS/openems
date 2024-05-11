@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { formatNumber } from '@angular/common';
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
@@ -25,7 +26,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
     protected override getChannelAddresses() {
 
-        let channelAddresses: ChannelAddress[] = [
+        const channelAddresses: ChannelAddress[] = [
             new ChannelAddress('_sum', 'EssSoc'),
 
             // TODO should be moved to Modal
@@ -44,8 +45,8 @@ export class StorageComponent extends AbstractFlatWidget {
             }, {});
 
 
-        for (let essId in this.prepareBatteryExtensionCtrl) {
-            let controller = this.prepareBatteryExtensionCtrl[essId];
+        for (const essId in this.prepareBatteryExtensionCtrl) {
+            const controller = this.prepareBatteryExtensionCtrl[essId];
             channelAddresses.push(
                 new ChannelAddress(controller.id, "CtrlIsBlockingEss"),
                 new ChannelAddress(controller.id, "CtrlIsChargingEss"),
@@ -66,7 +67,7 @@ export class StorageComponent extends AbstractFlatWidget {
                     [component.properties['ess.id']]: component,
                 };
             }, {});
-        for (let component of Object.values(this.emergencyReserveComponents)) {
+        for (const component of Object.values(this.emergencyReserveComponents)) {
 
             channelAddresses.push(
                 new ChannelAddress(component.id, '_PropertyReserveSoc'),
@@ -78,7 +79,7 @@ export class StorageComponent extends AbstractFlatWidget {
         this.chargerComponents = this.config
             .getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
             .filter(component => component.isEnabled);
-        for (let component of this.chargerComponents) {
+        for (const component of this.chargerComponents) {
             channelAddresses.push(
                 new ChannelAddress(component.id, 'ActualPower'),
             );
@@ -91,7 +92,7 @@ export class StorageComponent extends AbstractFlatWidget {
                 .getNatureIdsByFactoryId(component.factoryId)
                 .includes("io.openems.edge.ess.api.MetaEss"));
 
-        for (let component of this.config
+        for (const component of this.config
             .getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
             .filter(component => component.isEnabled && !this.config
                 .getNatureIdsByFactoryId(component.factoryId)
@@ -149,8 +150,8 @@ export class StorageComponent extends AbstractFlatWidget {
 
     protected override onCurrentData(currentData: CurrentData) {
 
-        for (let essId in this.prepareBatteryExtensionCtrl) {
-            let controller = this.prepareBatteryExtensionCtrl[essId];
+        for (const essId in this.prepareBatteryExtensionCtrl) {
+            const controller = this.prepareBatteryExtensionCtrl[essId];
 
             this.possibleBatteryExtensionMessage.set(
                 essId,
@@ -165,11 +166,11 @@ export class StorageComponent extends AbstractFlatWidget {
         }
 
         // Check total State_of_Charge for dynamical icon in widget-header
-        let soc = currentData.allComponents['_sum/EssSoc'];
+        const soc = currentData.allComponents['_sum/EssSoc'];
         this.storageIconStyle = 'storage-' + Utils.getStorageSocSegment(soc);
 
-        for (let essId in this.emergencyReserveComponents) {
-            let controller = this.emergencyReserveComponents[essId];
+        for (const essId in this.emergencyReserveComponents) {
+            const controller = this.emergencyReserveComponents[essId];
             controller['currentReserveSoc'] = currentData.allComponents[controller.id + '/_PropertyReserveSoc'];
             this.isEmergencyReserveEnabled[essId] = currentData.allComponents[controller.id + "/_PropertyIsReserveSocEnabled"] == 1 ? true : false;
         }
@@ -206,7 +207,7 @@ export class StorageComponent extends AbstractFlatWidget {
             return '-';
         }
 
-        let thisValue: number = (value / 1000);
+        const thisValue: number = (value / 1000);
 
         // Round thisValue to Integer when decimal place equals 0
         if (thisValue > 0) {

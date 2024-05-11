@@ -41,6 +41,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 
 /**
  * Describes a Keba evcs App.
@@ -140,7 +141,8 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.scheduler(ctrlEvcsId, "ctrlBalancing0")) //
+					.addTask(Tasks.schedulerByCentralOrder(
+							new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId()))) //
 					.throwingOnlyIf(ip.startsWith("192.168.25."),
 							b -> b.addTask(Tasks.staticIp(new InterfaceConfiguration("eth0") //
 									.addIp("Evcs", "192.168.25.10/24")))) //

@@ -9,7 +9,7 @@ export namespace DateUtils {
    */
   export function maxDate(...dates: Date[]) {
 
-    if (dates.length === 0 || dates.every(element => typeof element === null)) {
+    if (dates.length === 0 || dates.every(element => element === null)) {
       return null;
     }
 
@@ -26,7 +26,7 @@ export namespace DateUtils {
    */
   export function minDate(...dates: Date[]) {
 
-    if (dates.length === 0 || dates.every(element => typeof element === null)) {
+    if (dates.length === 0 || dates.every(element => element === null)) {
       return null;
     }
 
@@ -71,5 +71,9 @@ export namespace DateUtils {
    */
   export function toLocaleTimeString(date: Date): string {
     return date.toLocaleTimeString();
+  }
+
+  export function isFullHour(date: Date) {
+    return date.getMinutes() != 0 ? null : date;
   }
 }

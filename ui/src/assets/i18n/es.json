@@ -83,7 +83,15 @@
       "november": "Noviembre",
       "december": "Diciembre"
     },
-    "save": "Ahorrar"
+    "save": "Ahorrar",
+    "TIME": {
+      "HOUR": "Hora",
+      "HOURS": "Horas",
+      "MINUTE": "Minuto",
+      "MINUTES": "Minutos",
+      "DAY": "Día",
+      "DAYS": "Días"
+    }
   },
   "Menu": {
     "accessLevel": "Nivel de acceso",
@@ -153,8 +161,8 @@
   "Edge": {
     "Index": {
       "EmergencyReserve": {
-        "InfoForEmergencyReserveSlider": "Al activar la reserva de energía de emergencia, el valor puede seleccionarse libremente entre el 5% y el 100%.",
-        "emergencyReserve": "reserva de emergencia"
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Al activar la reserva de energía de emergencia, el valor puede seleccionarse libremente entre el 5% y el 100%.",
+        "EMERGENCY_RESERVE": "reserva de emergencia"
       },
       "Energymonitor": {
         "activePower": "Potencia de salida",
@@ -471,22 +479,12 @@
         "newConnection": "Nueva conexión...",
         "newDevice": "Nuevo dispositivo..."
       },
-      "Alerting": {
-        "activate": "Activar",
-        "delay": "Retraso",
-        "save": "Guardar",
-        "options": {},
-        "toast": {
-          "success": "Ajustes adoptados",
-          "error": "Error al cargar la configuración"
-        },
-        "interval": {
-          "hours": "Horas",
-          "minute": "Minuto",
-          "minutes": "Minutos",
-          "day": "Día",
-          "days": "Días",
-          "hour": "Hora"
+      "ALERTING": {
+        "ACTIVATE": "Activar",
+        "DELAY": "Retraso",
+        "TOAST": {
+          "SUCCESS": "Ajustes adoptados",
+          "ERROR": "Error al cargar la configuración"
         }
       },
       "App": {

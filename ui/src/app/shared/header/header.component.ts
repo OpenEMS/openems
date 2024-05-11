@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { MenuController, ModalController } from '@ionic/angular';
@@ -59,8 +60,8 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     updateEnableSideMenu(url: string) {
-        let urlArray = url.split('/');
-        let file = urlArray.pop();
+        const urlArray = url.split('/');
+        const file = urlArray.pop();
 
         if (file == 'user' || file == 'settings' || file == 'changelog' || urlArray.length > 3) {
             // disable side-menu; show back-button instead
@@ -81,7 +82,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
 
         // set backUrl for user when an Edge had been selected before
-        let currentEdge: Edge = this.service.currentEdge.value;
+        const currentEdge: Edge = this.service.currentEdge.value;
         if (url === '/user' && currentEdge != null) {
             this.backUrl = '/device/' + currentEdge.id + "/live";
             return;
@@ -99,15 +100,14 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             return;
         }
 
-        let urlArray = url.split('/');
+        const urlArray = url.split('/');
         let backUrl: string | boolean = '/';
-        let file = urlArray.pop();
+        const file = urlArray.pop();
 
         // disable backUrl for History & EdgeIndex Component ++ Enable Segment Navigation
         if ((file == 'history' || file == 'live') && urlArray.length == 3) {
             this.backUrl = false;
             return;
-        } else {
         }
 
         // disable backUrl to first 'index' page from Edge index if there is only one Edge in the system
@@ -137,7 +137,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     updateCurrentPage(url: string) {
-        let urlArray = url.split('/');
+        const urlArray = url.split('/');
         let file = urlArray.pop();
         if (urlArray.length >= 4) {
             file = urlArray[3];

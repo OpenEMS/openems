@@ -1,14 +1,14 @@
+// @ts-strict-ignore
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
-import { ChartDataSets } from 'chart.js';
+import { ChartDataset } from 'chart.js';
 import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
-import { ChartType } from '../genericComponents/chart/abstracthistorychart';
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { ChannelAddress, EdgeConfig } from '../shared';
+import { ChannelAddress, Currency, EdgeConfig } from '../shared';
 
 export class Utils {
 
@@ -65,8 +65,8 @@ export class Utils {
       } else {
         copy = {};
       }
-      for (let attr in obj) {
-        if (obj.hasOwnProperty(attr)) {
+      for (const attr in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, attr)) {
           copy[attr] = this.deepCopy(obj[attr], copy[attr]);
         }
       }
@@ -215,10 +215,10 @@ export class Utils {
    * @param bases   array of base-strings
    * @returns       true if all filter strings exist in any base-strings
    */
-  public static matchAll(filters: string[], bases: string[]): Boolean {
-    for (let filter of filters) {
+  public static matchAll(filters: string[], bases: string[]): boolean {
+    for (const filter of filters) {
       let filterMatched = false;
-      for (let base of bases) {
+      for (const base of bases) {
         if (base.includes(filter)) {
           filterMatched = true;
         }
@@ -256,7 +256,7 @@ export class Utils {
     if (value == null) {
       return '-';
     }
-    let thisValue: number = (value / 1000);
+    const thisValue: number = (value / 1000);
 
     if (thisValue >= 0) {
       return formatNumber(thisValue, 'de', '1.0-1') + ' kW';
@@ -336,7 +336,7 @@ export class Utils {
     } else {
       return { name: translate.instant('General.chargePower'), value: power * -1 };
     }
-  };
+  }
 
 
   /**
@@ -366,7 +366,7 @@ export class Utils {
    */
   public static CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService) => {
     return (value: number): string => {
-      var date: Date = new Date();
+      const date: Date = new Date();
       date.setHours(0, 0, 0, 0);
       date.setMinutes(value);
       return date.toLocaleTimeString(translate.getBrowserCultureLang(), { hour: '2-digit', minute: '2-digit' });
@@ -397,7 +397,7 @@ export class Utils {
         case 0:
           return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
         case 3:
-          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE');
+          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID');
         default: // Usually "1"
           return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING');
       }
@@ -435,11 +435,11 @@ export class Utils {
   public static downloadXlsx(response: Base64PayloadResponse, filename: string) {
     // decode base64 string, remove space for IE compatibility
     // source: https://stackoverflow.com/questions/36036280/base64-representing-pdf-to-blob-javascript/45872086
-    var binary = atob(response.result.payload.replace(/\s/g, ''));
-    var len = binary.length;
-    var buffer = new ArrayBuffer(len);
-    var view = new Uint8Array(buffer);
-    for (var i = 0; i < len; i++) {
+    const binary = atob(response.result.payload.replace(/\s/g, ''));
+    const len = binary.length;
+    const buffer = new ArrayBuffer(len);
+    const view = new Uint8Array(buffer);
+    for (let i = 0; i < len; i++) {
       view[i] = binary.charCodeAt(i);
     }
     const data: Blob = new Blob([view], {
@@ -581,8 +581,8 @@ export class Utils {
    */
   public static calculateOtherConsumption(channelData: HistoryUtils.ChannelData, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number[] {
 
-    let totalEvcsConsumption: number[] = [];
-    let totalMeteredConsumption: number[] = [];
+    const totalEvcsConsumption: number[] = [];
+    const totalMeteredConsumption: number[] = [];
 
     evcsComponents.forEach(component => {
       channelData[component.id + '/ChargePower']?.forEach((value, index) => {
@@ -611,6 +611,8 @@ export class Utils {
 }
 
 export enum YAxisTitle {
+  NONE,
+  POWER,
   PERCENTAGE,
   RELAY,
   ENERGY,
@@ -621,7 +623,8 @@ export enum YAxisTitle {
 
 export enum ChartAxis {
   LEFT = 'left',
-  RIGHT = 'right'
+  RIGHT = 'right',
+  RIGHT_2 = 'right2',
 }
 export namespace HistoryUtils {
 
@@ -635,7 +638,7 @@ export namespace HistoryUtils {
  * @param translate the TranslateService
  * @returns a dataset
  */
-  export function createEmptyDataset(translate: TranslateService): ChartDataSets[] {
+  export function createEmptyDataset(translate: TranslateService): ChartDataset[] {
     return [{
       label: translate.instant("Edge.History.noData"),
       data: [],
@@ -675,16 +678,24 @@ export namespace HistoryUtils {
     hideShadow?: boolean,
     /** axisId from yAxes  */
     yAxisId?: ChartAxis,
-    /** overrides global unit for this displayValue */
-    customUnit?: YAxisTitle,
-    /** overrides global charttype for this dataset */
-    customType?: ChartType,
+    /** overrides global chartConfig for this dataset */
+    custom?: {
+      /** overrides global unit */
+      unit?: YAxisTitle,
+      /** overrides global charttype */
+      type?: 'line' | 'bar',
+      /** overrides global formatNumber */
+      formatNumber?: string
+    },
     tooltip?: [{
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
       stackIds: number[]
     }],
-    /** The smaller the number, the further forward it is displayed */
-    order?: number
+    /**
+     * The drawing order of dataset. Also affects order for stacking, tooltip and legend.
+     * @default Number.MAX_VALUE
+     */
+    order?: number,
   }
 
   /**
@@ -763,16 +774,10 @@ export namespace HistoryUtils {
 
 export namespace TimeOfUseTariffUtils {
 
-  export type ScheduleChartData = {
-    datasets: ChartDataSets[],
-    colors: any[],
-    labels: Date[]
-  }
-
-  export enum TimeOfUseTariffState {
+  export enum State {
     DelayDischarge = 0,
     Balancing = 1,
-    Charge = 3,
+    ChargeGrid = 3,
   }
 
   /**
@@ -793,94 +798,52 @@ export namespace TimeOfUseTariffUtils {
   }
 
   /**
-   * Gets the schedule chart data containing datasets, colors and labels.
+   * Retrieves a formatted label based on the provided value and label type.
    *
-   * @param size The length of the dataset
-   * @param prices The Time-of-Use-Tariff quarterly price array
-   * @param states The Time-of-Use-Tariff state array
-   * @param timestamps The Time-of-Use-Tariff timestamps array
-   * @param translate The Translate service
-   * @param factoryId The factory id of the component
-   * @returns The ScheduleChartData.
+   * @param value The numeric value to be formatted.
+   * @param label The label type to determine the formatting.
+   * @param translate The translation service for translating labels.
+   * @param currencyLabel Optional currency label for {@link TimeOfUseTariffState} labels.
+   * @returns The formatted label, or exits if the value is not valid.
    */
-  export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[], translate: TranslateService, factoryId: string): ScheduleChartData {
-    let scheduleChartData: ScheduleChartData;
-    let datasets: ChartDataSets[] = [];
-    let colors: any[] = [];
-    let labels: Date[] = [];
+  export function getLabel(value: number, label: string, translate: TranslateService, currencyLabel?: Currency.Label): string {
 
-    // Initializing States.
-    var barCharge = Array(size).fill(null);
-    var barBalancing = Array(size).fill(null);
-    var barDelayDischarge = Array(size).fill(null);
-
-    for (let index = 0; index < size; index++) {
-      const quarterlyPrice = formatPrice(prices[index]);
-      const state = states[index];
-      labels.push(new Date(timestamps[index]));
-
-      if (state !== null) {
-        switch (state) {
-          case TimeOfUseTariffState.DelayDischarge:
-            barDelayDischarge[index] = quarterlyPrice;
-            break;
-          case TimeOfUseTariffState.Balancing:
-            barBalancing[index] = quarterlyPrice;
-            break;
-          case TimeOfUseTariffState.Charge:
-            barCharge[index] = quarterlyPrice;
-            break;
-        }
-      }
+    // Error handling: Return undefined if value is not valid
+    if (value === undefined || value === null || Number.isNaN(Number.parseInt(value.toString()))) {
+      return;
     }
 
-    // Set datasets
-    datasets.push({
-      type: 'bar',
-      label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
-      data: barBalancing,
-      order: 3,
-    });
-    colors.push({
-      // Dark Green
-      backgroundColor: 'rgba(51,102,0,0.8)',
-      borderColor: 'rgba(51,102,0,1)',
-    });
+    const socLabel = translate.instant('General.soc');
+    const dischargeLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
+    const chargeConsumptionLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID');
+    const balancingLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING');
+    const gridBuyLabel = translate.instant('General.gridBuy');
 
-    // Set dataset for Quarterly Prices being charged.
-    if (!barCharge.every(v => v === null)) {
-      datasets.push({
-        type: 'bar',
-        label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE'),
-        data: barCharge,
-        order: 3,
-      });
-      colors.push({
-        // Sky blue
-        backgroundColor: 'rgba(0, 204, 204,0.5)',
-        borderColor: 'rgba(0, 204, 204,0.7)',
-      });
+    // Switch case to handle different labels
+    switch (label) {
+      case socLabel:
+        return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+
+      case dischargeLabel:
+      case chargeConsumptionLabel:
+      case balancingLabel:
+        // Show floating point number for values between 0 and 1
+        return label + ": " + formatNumber(value, 'de', '1.0-4') + " " + currencyLabel;
+
+      default:
+      case gridBuyLabel:
+        // Power values
+        return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
     }
+  }
 
-    // Set dataset for buy from grid
-    datasets.push({
-      type: 'bar',
-      label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
-      data: barDelayDischarge,
-      order: 3,
-    });
-    colors.push({
-      // Black
-      backgroundColor: 'rgba(0,0,0,0.8)',
-      borderColor: 'rgba(0,0,0,0.9)',
-    });
-
-    scheduleChartData = {
-      colors: colors,
-      datasets: datasets,
-      labels: labels,
-    };
-
-    return scheduleChartData;
+  /**
+   * Retrieves the height for a chart based on the current resolution.
+   *
+   * @param isSmartphoneResolution indicates whether the current resolution is considered to be smartphone resolution.
+   * @returns The height of the chart.
+   */
+  export function getChartHeight(isSmartphoneResolution: boolean): number {
+    return isSmartphoneResolution ? window.innerHeight / 3 : window.innerHeight / 4;
   }
 }

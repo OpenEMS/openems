@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { SubscribeEdgesRequest } from "src/app/shared/jsonrpc/request/subscribeEdgesRequest";
@@ -47,7 +48,7 @@ export class EdgeComponent implements OnInit, OnDestroy {
         if (!this.edge) {
             return;
         }
-        this.edge.unsubscribeChannels(this.websocket, '');
+        this.edge.unsubscribeAllChannels(this.websocket);
+        this.service.currentEdge.next(null);
     }
-
 }

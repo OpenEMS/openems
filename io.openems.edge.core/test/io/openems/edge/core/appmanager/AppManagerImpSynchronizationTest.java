@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
@@ -66,7 +65,7 @@ public class AppManagerImpSynchronizationTest {
 
 		// create config for scheduler
 		cm.getOrCreateEmptyConfiguration(componentManager.getEdgeConfig().getComponent("scheduler0").get().getPid());
-		final var componentUtil = new ComponentUtilImpl(componentManager, cm);
+		final var componentUtil = new ComponentUtilImpl(componentManager);
 		final var appManagerUtil = new AppManagerUtilImpl(componentManager);
 		final var validator = new DummyValidator();
 
@@ -142,8 +141,7 @@ public class AppManagerImpSynchronizationTest {
 	public void testSimulateAfterInstallaion() throws Exception {
 		this.appManager.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.PvInverter.SolarEdge", "key", "alias", JsonUtils.buildJsonObject() //
-						.build()))
-				.get();
+						.build()));
 
 		assertTrue(this.appManager.lockModifyingApps.tryLock());
 		assertTrue(this.appManager.waitingForModified);
@@ -156,8 +154,7 @@ public class AppManagerImpSynchronizationTest {
 	public void testSimulateLockWaitingForModification() throws Exception {
 		this.appManager.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.PvInverter.SolarEdge", "key", "alias", JsonUtils.buildJsonObject() //
-						.build()))
-				.get();
+						.build()));
 
 		assertTrue(this.appManager.waitingForModified);
 
@@ -166,9 +163,8 @@ public class AppManagerImpSynchronizationTest {
 				return this.appManager.handleAddAppInstanceRequest(DUMMY_ADMIN,
 						new AddAppInstance.Request("App.PvInverter.SolarEdge", "key", "alias",
 								JsonUtils.buildJsonObject() //
-										.build()))
-						.get();
-			} catch (InterruptedException | ExecutionException | OpenemsNamedException e) {
+										.build()));
+			} catch (OpenemsNamedException e) {
 				throw new RuntimeException(e);
 			}
 		});

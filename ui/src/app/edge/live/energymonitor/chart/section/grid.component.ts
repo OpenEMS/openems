@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -142,8 +143,8 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
-        let x = (innerRadius - 5) * (-1);
-        let y = (square.length / 2) * (-1);
+        const x = (innerRadius - 5) * (-1);
+        const y = (square.length / 2) * (-1);
         return new SvgSquarePosition(x, y);
     }
 
@@ -172,9 +173,9 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let p = {
+        const v = Math.abs(ratio);
+        const r = radius;
+        const p = {
             bottomRight: { x: v * -1, y: v },
             bottomLeft: { x: r * -1, y: v },
             topRight: { x: v * -1, y: v * -1 },
@@ -193,9 +194,9 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     }
 
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let animationWidth = r * -1 + v;
+        const v = Math.abs(ratio);
+        const r = radius;
+        const animationWidth = r * -1 + v;
         let p = {
             bottomRight: { x: v * -1, y: v },
             bottomLeft: { x: r * -1, y: v },

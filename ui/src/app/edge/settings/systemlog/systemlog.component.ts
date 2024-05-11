@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ActivatedRoute } from '@angular/router';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { parse } from 'date-fns';
@@ -92,7 +93,7 @@ export class SystemLogComponent implements OnInit, OnDestroy {
       });
     });
     this.isSubscribed = true;
-  };
+  }
 
   private getColor(level): string {
     switch (level) {
@@ -104,7 +105,7 @@ export class SystemLogComponent implements OnInit, OnDestroy {
         return 'gray';
       case 'ERROR':
         return 'red';
-    };
+    }
     return 'black';
   }
 
@@ -115,5 +116,5 @@ export class SystemLogComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
     this.ngUnsubscribe = new Subject<void>();
-  };
+  }
 }

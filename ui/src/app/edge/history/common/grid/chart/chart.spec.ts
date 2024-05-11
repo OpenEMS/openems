@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { History } from "src/app/edge/history/common/energy/chart/channels.spec";
 import { DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
 import { OeTester } from "src/app/shared/genericComponents/shared/testing/common";
@@ -27,7 +28,7 @@ describe('History Grid', () => {
               DATA('Bezug: 0,9 kWh', [null, null, null, 0.031, 0.018, 0, 0.02, 0.016, 0.015, 0.014, 0.009, 0.02, 0.025, 0.025, 0.025, 0.021, 0.012, 0.009, 0.01, 0.011, 0.005, 0.003, 0, 0.015, 0.018, 0.023, 0, 0, 0, 0.002, 0.002, 0.003, 0.015, 0.008, 0.022, 0.027, 0.016, 0.003, 0.002, 0, 0.028, 0.027, 0.017, 0.001, 0, 0, 0, null, null, null, null, 0.011, 0.01, 0.004, 0.006, 0.007, 0.018, 0.008, 0.012, 0.009, 0.004, 0.013, 0.015, 0.012, 0, 0, 0, 0.002, 0, 0.005, 0.001, 0.03, 0.062, 0, 0, 0, 0, 0, 0, 0, 0, 0.015, 0.005, 0.004, 0.007, 0, 0, 0, 0, 0, 0, 0, 0.005, 0, 0, 0, 0, 0, 0, 0.021, 0, 0, 0, 0, 0, 0.003, 0, 0.004, 0, 0, 0.032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]),
             ],
             labels: LABELS(History.DAY.dataChannelWithValues.result.timestamps),
-            options: OeTester.ChartOptions.LINE_CHART_OPTIONS('hour'),
+            options: OeTester.ChartOptions.LINE_CHART_OPTIONS('hour', 'line', {}),
           },
         }, false);
     }
@@ -41,9 +42,8 @@ describe('History Grid', () => {
               DATA('Bezug: 2,4 kWh', [0, 0.011916666666666666, 0.01633333333333333, 0.00609090909090909, 0.015333333333333334, 0.011666666666666665, 0.0024166666666666664, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.02425, 0.004416666666666667, 0.0035833333333333333, 0, 0, 0, 0.04441666666666667, 0, 0.013111111111111112, 0.001, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0011666666666666668, 0, 0, 0, 0.0015833333333333333, 0.013333333333333334, 0.020416666666666666, 0.01125, 0.019727272727272725, 0.012444444444444445, 0.009583333333333334, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.007666666666666667, 0, 0.0023333333333333335, 0.0125, 0.01609090909090909, 0.02016666666666667, 0.014083333333333333, 0.006363636363636363, 0.01955555555555556, 0.04841666666666666, 0.011166666666666667, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.014222222222222221, 0.00225, 0, 0.0036666666666666666, 0.032916666666666664, 0.014666666666666666, 0.0135, 0.017363636363636362, 0.013333333333333334, 0.022083333333333333, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0009166666666666666, 0, 0.0021666666666666666, 0, 0, 0, 0.0005, 0.04841666666666666, 0, 0.005555555555555556, 0.02716666666666667, 0.017333333333333333, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0023333333333333335, 0.008333333333333333, 0.003, 0.015916666666666666, 0.00325, 0, 0.004333333333333333, 0.001, 0, 0, 0.019545454545454546, 0.0017777777777777776, 0.006416666666666667, 0.017666666666666667, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0058, 0.005625, 0, 0]),
             ],
             labels: LABELS(History.WEEK.dataChannelWithValues.result.timestamps),
-            options: OeTester.ChartOptions.LINE_CHART_OPTIONS('day'),
+            options: OeTester.ChartOptions.LINE_CHART_OPTIONS('day', 'line', {}),
           },
-
         }, false);
     }
     {
@@ -56,13 +56,13 @@ describe('History Grid', () => {
               DATA('Bezug: 773 kWh', [16, 6, 3, 3, 5, 48, 4, null, 5, 26, 17, 62, 8, 66, 13, 21, 4, 3, 18, 27, 29, null, 118, 85, 2, null, 72, 28, 84, null]),
             ],
             labels: LABELS(History.MONTH.energyPerPeriodChannelWithValues.result.timestamps),
-            options: OeTester.ChartOptions.BAR_CHART_OPTIONS('day'),
+            options: OeTester.ChartOptions.BAR_CHART_OPTIONS('day', 'bar', {}),
           },
 
         }, false);
     }
     {
-      // Line - Chart
+      // BAR - Chart
       expectView(defaultEMS, TEST_CONTEXT, 'bar', History.YEAR,
         {
           datasets: {
@@ -71,7 +71,7 @@ describe('History Grid', () => {
               DATA('Bezug: 23.209 kWh', [9829, 4812, 2915, 2036, 2712, 773, 94, null, null, null, null, null]),
             ],
             labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues.result.timestamps),
-            options: OeTester.ChartOptions.BAR_CHART_OPTIONS('month'),
+            options: OeTester.ChartOptions.BAR_CHART_OPTIONS('month', 'bar', {}),
           },
         }, false);
     }

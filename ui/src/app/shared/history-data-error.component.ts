@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 
@@ -27,7 +28,7 @@ export class HistoryDataErrorComponent {
 type ErrorType = 'TEMPORARY' | 'TOO_LONG' | null;
 
 function toType(response: JsonrpcResponseError | null): ErrorType {
-    let message = response?.error?.message;
+    const message = response?.error?.message;
     if (message === undefined) {
         return null;
     }

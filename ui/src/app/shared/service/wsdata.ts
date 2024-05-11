@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { WebSocketSubject } from "rxjs/webSocket";
 import { environment } from "src/environments";
 import { JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";
@@ -34,7 +35,7 @@ export class WsData {
     // create Promise
     let promiseResolve: (value?: JsonrpcResponseSuccess | PromiseLike<JsonrpcResponseSuccess>) => void;
     let promiseReject: (reason?: any) => void;
-    let promise = new Promise<JsonrpcResponseSuccess>((resolve, reject) => {
+    const promise = new Promise<JsonrpcResponseSuccess>((resolve, reject) => {
       promiseResolve = resolve;
       promiseReject = reject;
     });
@@ -67,7 +68,7 @@ export class WsData {
    * @param response
    */
   public handleJsonrpcResponse(response: JsonrpcResponse) {
-    let promise = this.requestPromises[response.id];
+    const promise = this.requestPromises[response.id];
     if (promise) {
       // this was a response on a request
       if (response instanceof JsonrpcResponseSuccess) {

@@ -34,6 +34,9 @@ public class TestFeneconHome {
 					Apps::prepareBatteryExtension //
 			);
 		}, null, new PseudoComponentManagerFactory());
+
+		final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
+		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
 	}
 
 	@Test
@@ -61,7 +64,7 @@ public class TestFeneconHome {
 
 		var homeInstance = this.createFullHome();
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullConfig));
 		// expect the same as before
 		// make sure every dependency got installed
@@ -116,7 +119,7 @@ public class TestFeneconHome {
 				.addProperty("SHADOW_MANAGEMENT_DISABLED", false) //
 				.build();
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", configNoMeter));
 		// expect the same as before
 		// make sure every dependency got installed
@@ -154,7 +157,7 @@ public class TestFeneconHome {
 		final var properties = fullSettings();
 		properties.addProperty("RIPPLE_CONTROL_RECEIVER_ACTIV", true);
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", properties)).get();
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", properties));
 
 		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
 				.getComponentContext().getProperties();
@@ -168,7 +171,7 @@ public class TestFeneconHome {
 		final var properties = fullSettings();
 		properties.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION.name());
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", properties)).get();
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", properties));
 
 		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
 				.getComponentContext().getProperties();
@@ -182,7 +185,7 @@ public class TestFeneconHome {
 		final var properties = fullSettings();
 		properties.addProperty("FEED_IN_TYPE", FeedInType.NO_LIMITATION.name());
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", properties)).get();
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", properties));
 
 		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
 				.getComponentContext().getProperties();
@@ -208,9 +211,9 @@ public class TestFeneconHome {
 		var fullConfig = fullSettings();
 
 		final var response = appManagerTestBundle.sut.handleAddAppInstanceRequest(user,
-				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", fullConfig)).get();
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", fullConfig));
 
-		assertEquals(4, response.instance.dependencies.size());
+		assertEquals(4, response.instance().dependencies.size());
 
 		// make sure every dependency got installed
 		assertEquals(appManagerTestBundle.sut.getInstantiatedApps().size(), 5);
@@ -257,6 +260,26 @@ public class TestFeneconHome {
 				.addProperty("HAS_EMERGENCY_RESERVE", true) //
 				.addProperty("EMERGENCY_RESERVE_ENABLED", true) //
 				.addProperty("EMERGENCY_RESERVE_SOC", 15) //
+				.addProperty("SHADOW_MANAGEMENT_DISABLED", false) //
+				.build();
+	}
+
+	/**
+	 * Gets a {@link JsonObject} with the minimum settings for a
+	 * {@link FeneconHome}.
+	 * 
+	 * @return the settings object
+	 */
+	public static final JsonObject minSettings() {
+		return JsonUtils.buildJsonObject() //
+				.addProperty("SAFETY_COUNTRY", "GERMANY") //
+				.addProperty("RIPPLE_CONTROL_RECEIVER_ACTIV", false) //
+				.addProperty("MAX_FEED_IN_POWER", 1000) //
+				.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
+				.addProperty("HAS_AC_METER", false) //
+				.addProperty("HAS_DC_PV1", false) //
+				.addProperty("HAS_DC_PV2", false) //
+				.addProperty("HAS_EMERGENCY_RESERVE", false) //
 				.addProperty("SHADOW_MANAGEMENT_DISABLED", false) //
 				.build();
 	}

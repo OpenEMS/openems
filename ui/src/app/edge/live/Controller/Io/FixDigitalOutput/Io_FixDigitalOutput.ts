@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
@@ -19,7 +20,7 @@ export class Controller_Io_FixDigitalOutputComponent extends AbstractFlatWidget 
   }
 
   protected override onCurrentData(currentData: CurrentData) {
-    let channel = currentData.allComponents[this.outputChannel];
+    const channel = currentData.allComponents[this.outputChannel];
     if (channel != null) {
       if (channel == 1) {
         this.state = this.translate.instant('General.on');

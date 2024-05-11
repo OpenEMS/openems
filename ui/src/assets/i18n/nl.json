@@ -80,7 +80,15 @@
       "november": "November",
       "december": "December"
     },
-    "save": "Opslaan"
+    "save": "Opslaan",
+    "TIME": {
+      "HOUR": "Uur",
+      "HOURS": "Uur",
+      "MINUTE": "Minuut",
+      "MINUTES": "Minuten",
+      "DAY": "Dag",
+      "DAYS": "Dagen"
+    }
   },
   "Menu": {
     "accessLevel": "Toegangsniveau",
@@ -150,8 +158,8 @@
   "Edge": {
     "Index": {
       "EmergencyReserve": {
-        "InfoForEmergencyReserveSlider": "Door de noodstroomreserve te activeren, kan de waarde vrij worden gekozen tussen 5% en 100%.",
-        "emergencyReserve": "noodreserve"
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Door de noodstroomreserve te activeren, kan de waarde vrij worden gekozen tussen 5% en 100%.",
+        "EMERGENCY_RESERVE": "noodreserve"
       },
       "Energymonitor": {
         "activePower": "Actief vermogen",
@@ -467,22 +475,12 @@
         "newConnection": "Nieuwe verbinding...",
         "newDevice": "Nieuw apparaat…"
       },
-      "Alerting": {
-        "activate": "Activeer",
-        "delay": "Vertraging",
-        "save": "Save",
-        "options": {},
-        "toast": {
-          "success": "Goedgekeurde instellingen",
-          "error": "Fout bij het laden van de instellingen"
-        },
-        "interval": {
-          "hours": "Uur",
-          "minute": "Minuut",
-          "minutes": "Minuten",
-          "day": "Dag",
-          "days": "Dagen",
-          "hour": "Uur"
+      "ALERTING": {
+        "ACTIVATE": "Activeer",
+        "DELAY": "Vertraging",
+        "TOAST": {
+          "SUCCESS": "Goedgekeurde instellingen",
+          "ERROR": "Fout bij het laden van de instellingen"
         }
       },
       "App": {

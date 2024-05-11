@@ -1,4 +1,4 @@
-import { formatNumber } from '@angular/common';
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -6,7 +6,6 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'storageChargerChart',
@@ -21,7 +20,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected override service: Service,
@@ -46,20 +45,20 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
         this.colors = [];
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            let result = response.result;
+            const result = response.result;
             // convert labels
-            let labels: Date[] = [];
-            for (let timestamp of result.timestamps) {
+            const labels: Date[] = [];
+            for (const timestamp of result.timestamps) {
                 labels.push(new Date(timestamp));
             }
             this.labels = labels;
 
             // convert datasets
-            let datasets = [];
+            const datasets = [];
 
             Object.keys(result.data).forEach((channel) => {
-                let address = ChannelAddress.fromString(channel);
-                let chargerData = result.data[channel].map(value => {
+                const address = ChannelAddress.fromString(channel);
+                const chargerData = result.data[channel].map(value => {
                     if (value == null) {
                         return null;
                     } else {
@@ -86,12 +85,14 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
             console.error(reason); // TODO error message
             this.initializeChart();
             return;
+        }).finally(async () => {
+            await this.setOptions(this.options);
         });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let result: ChannelAddress[] = [
+            const result: ChannelAddress[] = [
                 new ChannelAddress(this.componentId, 'ActualPower'),
             ];
             resolve(result);
@@ -99,14 +100,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     }
 
     protected setLabel() {
-        let options = this.createDefaultChartOptions();
-        options.scales.yAxes[0].scaleLabel.labelString = "kW";
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
-            return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        };
-        this.options = options;
+        this.options = this.createDefaultChartOptions();
     }
 
     public getChartHeight(): number {

@@ -29,6 +29,9 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,9 +44,11 @@ import com.influxdb.client.write.WriteParameters;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.debugcycle.DebugLoggable;
+import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.timedata.InternalTimedataException;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.backend.timedata.aggregatedinflux.AllowedChannels.ChannelType;
+import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.AbstractDataNotification;
@@ -54,6 +59,7 @@ import io.openems.common.oem.OpenemsBackendOem;
 import io.openems.common.timedata.DurationUnit;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.SemanticVersion;
 import io.openems.shared.influxdb.DbDataUtils;
 import io.openems.shared.influxdb.InfluxConnector;
 
@@ -62,7 +68,10 @@ import io.openems.shared.influxdb.InfluxConnector;
 		name = "Timedata.AggregatedInfluxDB", //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class AggregatedInflux extends AbstractOpenemsBackendComponent implements Timedata, DebugLoggable {
+@EventTopics({ //
+		Edge.Events.ON_SET_VERSION //
+})
+public class AggregatedInflux extends AbstractOpenemsBackendComponent implements Timedata, DebugLoggable, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -128,6 +137,20 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 	@Deactivate
 	private void deactivate() {
 		this.influxConnector.deactivate();
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		final var reader = new EventReader(event);
+		switch (event.getTopic()) {
+		case Edge.Events.ON_SET_VERSION -> {
+			this.handleEdgeVersionUpdateEvent(//
+					reader.<Edge>getProperty(Edge.Events.OnSetVersion.EDGE).getId(), //
+					reader.getProperty(Edge.Events.OnSetVersion.OLD_VERSION), //
+					reader.getProperty(Edge.Events.OnSetVersion.VERSION) //
+			);
+		}
+		}
 	}
 
 	@Override
@@ -364,6 +387,11 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 						influxEdgeId, AllowedChannels.isChannelDefined(channel.toString()) ? "" : "un",
 						channel.toString());
 			}
+			// TODO remove
+			// available since is in milliseconds
+			if (availableSince > 999_999_999_999L) {
+				availableSince /= 1_000;
+			}
 			if (seconds < availableSince) {
 				return "AvailableSince %5d for channel %s too early got: %d, needed %d".formatted(//
 						influxEdgeId, channel.toString(), availableSince, seconds);
@@ -420,6 +448,30 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 	@Override
 	public Map<String, JsonElement> debugMetrics() {
 		return null;
+	}
+
+	private void handleEdgeVersionUpdateEvent(//
+			final String edgeId, //
+			final SemanticVersion lastVersion, //
+			final SemanticVersion currentVersion //
+	) {
+		// Version ZERO indicates that this edge got connected for the first time
+		if (!lastVersion.equals(SemanticVersion.ZERO)) {
+			return;
+		}
+		Integer influxEdgeId;
+		try {
+			influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
+		} catch (OpenemsException e) {
+			return;
+		}
+
+		for (var channel : AllowedChannels.ALLOWED_AVERAGE_CHANNELS.keySet()) {
+			this.setAvailableSince(influxEdgeId, channel, 0);
+		}
+		for (var channel : AllowedChannels.ALLOWED_CUMULATED_CHANNELS.keySet()) {
+			this.setAvailableSince(influxEdgeId, channel, 0);
+		}
 	}
 
 }

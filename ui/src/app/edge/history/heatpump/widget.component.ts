@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
@@ -49,13 +50,13 @@ export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements On
 
     ngOnChanges() {
         this.updateValues();
-    };
+    }
 
     protected updateValues() {
         this.service.getConfig().then(config => {
             this.getChannelAddresses(this.edge, config).then(channels => {
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
-                    let result = response.result;
+                    const result = response.result;
                     if (this.componentId + '/ForceOnStateTime' in result.data) {
                         this.activeTimeOverPeriodForceOn = result.data[this.componentId + '/ForceOnStateTime'];
                     }
@@ -75,7 +76,7 @@ export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements On
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let channels: ChannelAddress[] = [
+            const channels: ChannelAddress[] = [
                 new ChannelAddress(this.componentId, 'ForceOnStateTime'),
                 new ChannelAddress(this.componentId, 'RegularStateTime'),
                 new ChannelAddress(this.componentId, 'RecommendationStateTime'),

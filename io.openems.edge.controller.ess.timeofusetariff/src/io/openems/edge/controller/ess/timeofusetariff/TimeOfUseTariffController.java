@@ -21,8 +21,8 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Current state of the Controller")),
 
-		QUARTERLY_PRICES(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.EUROS_PER_MEGAWATT_HOUR) //
+		QUARTERLY_PRICES(Doc.of(OpenemsType.DOUBLE) //
+				.unit(Unit.MONEY_PER_MEGAWATT_HOUR) //
 				.text("Price of the electricity for the current Hour")//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
@@ -57,7 +57,7 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 	 *
 	 * @return the Channel
 	 */
-	public default Channel<Float> getQuarterlyPricesChannel() {
+	public default Channel<Double> getQuarterlyPricesChannel() {
 		return this.channel(ChannelId.QUARTERLY_PRICES);
 	}
 
@@ -67,7 +67,7 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 	 *
 	 * @param value the next value
 	 */
-	public default void _setQuarterlyPrices(Float value) {
+	public default void _setQuarterlyPrices(Double value) {
 		this.getQuarterlyPricesChannel().setNextValue(value);
 	}
 

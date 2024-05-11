@@ -44,25 +44,7 @@ export interface Environment {
         readonly SETTINGS_ALERTING: string,
         readonly SETTINGS_NETWORK_CONFIGURATION: string,
 
-        readonly warranty: {
-            readonly home: {
-                readonly EN: string,
-                readonly DE: string,
-            },
-            readonly commercial: {
-                readonly EN: string,
-                readonly DE: string,
-            }
-        }
-
-        readonly gtc: {
-            readonly EN: string,
-            readonly DE: string
-        },
-
-        readonly METER_SOCOMEC: string,
-
-        readonly MANUALS: {
+        readonly WARRANTY: {
             readonly HOME: {
                 readonly EN: string,
                 readonly DE: string,
@@ -70,7 +52,28 @@ export interface Environment {
             readonly COMMERCIAL: {
                 readonly EN: string,
                 readonly DE: string,
-            }
+            },
+        }
+
+        readonly GTC: {
+            readonly EN: string,
+            readonly DE: string
+        },
+
+        readonly METER: {
+            readonly SOCOMEC: string,
+            readonly KDK: string
+        },
+
+        readonly MANUALS: {
+            readonly HOME: {
+                readonly HOME_10: string,
+                readonly HOME_20_30: string,
+            },
+            readonly COMMERCIAL: {
+                readonly COMMERCIAL_30: string,
+                readonly COMMERCIAL_50: string,
+            },
         },
         APP_CENTER: {
             /**
@@ -84,7 +87,7 @@ export interface Environment {
              * @returns the url of the image or null if not provided
              */
             APP_IMAGE: (language: string, appId: string) => string | null;
-        }
+        },
     },
     readonly PRODUCT_TYPES: (translate: TranslateService) => Filter
 }

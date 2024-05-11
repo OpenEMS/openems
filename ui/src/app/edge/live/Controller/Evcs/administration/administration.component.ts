@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
@@ -36,7 +37,7 @@ export class AdministrationComponent implements OnInit {
 
   updateZoeMode(event: CustomEvent) {
     let newValue = this.evcsComponent.properties['minHwCurrent'];
-    let oldValue = this.evcsComponent.properties['minHwCurrent'];
+    const oldValue = this.evcsComponent.properties['minHwCurrent'];
 
     if (event.detail.checked == true) {
       newValue = 10000;

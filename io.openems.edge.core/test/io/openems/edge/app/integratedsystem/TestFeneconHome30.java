@@ -36,6 +36,9 @@ public class TestFeneconHome30 {
 					Apps::prepareBatteryExtension //
 			);
 		}, null, new PseudoComponentManagerFactory());
+
+		final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
+		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
 	}
 
 	@Test
@@ -47,7 +50,7 @@ public class TestFeneconHome30 {
 	public void testCreateAndUpdateHomeFullSettings() throws Exception {
 		var homeInstance = this.createFullHome30();
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullSettings()));
 		// expect the same as before
 		// make sure every dependency got installed
@@ -94,7 +97,7 @@ public class TestFeneconHome30 {
 		settings.addProperty("HAS_PV_3", false);
 		settings.addProperty("HAS_PV_4", false);
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", settings));
 
 		for (int i = 0; i < 2; i++) {
@@ -122,21 +125,22 @@ public class TestFeneconHome30 {
 
 		assertNotNull(homeInstance);
 
-		this.appManagerTestBundle.assertExactSchedulerOrder("Initial Home 30 scheduler order",
+		this.appManagerTestBundle.scheduler.assertExactSchedulerOrder("Initial Home 30 scheduler order",
 				"ctrlPrepareBatteryExtension0", "ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0",
 				"ctrlBalancing0");
 
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, homeInstance.alias, fullSettings()));
 
-		this.appManagerTestBundle.assertExactSchedulerOrder("Update Home 30 to add emergency reserve",
+		this.appManagerTestBundle.scheduler.assertExactSchedulerOrder("Update Home 30 to add emergency reserve",
 				"ctrlPrepareBatteryExtension0", "ctrlEmergencyCapacityReserve0", "ctrlGridOptimizedCharge0",
 				"ctrlEssSurplusFeedToGrid0", "ctrlBalancing0");
 
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN, new UpdateAppInstance.Request(
 				homeInstance.instanceId, homeInstance.alias, fullSettingsWithoutEmergencyReserve()));
 
-		this.appManagerTestBundle.assertExactSchedulerOrder("Update Home 30 to remove EmergencyReserve Controller",
+		this.appManagerTestBundle.scheduler.assertExactSchedulerOrder(
+				"Update Home 30 to remove EmergencyReserve Controller", //
 				"ctrlPrepareBatteryExtension0", "ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0",
 				"ctrlBalancing0");
 	}
@@ -153,15 +157,14 @@ public class TestFeneconHome30 {
 						.addProperty("EMERGENCY_RESERVE_ENABLED", true) //
 						.addProperty("EMERGENCY_RESERVE_SOC", 15) //
 						.addProperty("SHADOW_MANAGEMENT_DISABLED", true) //
-						.build()))
-				.get();
+						.build()));
 
 		var batteryInverter = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0");
 		assertEquals("DISABLE",
 				(String) batteryInverter.getComponentContext().getProperties().get("mpptForShadowEnable"));
 
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
-				new UpdateAppInstance.Request(response.instance.instanceId, "alias", JsonUtils.buildJsonObject() //
+				new UpdateAppInstance.Request(response.instance().instanceId, "alias", JsonUtils.buildJsonObject() //
 						.addProperty("SAFETY_COUNTRY", "GERMANY") //
 						.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
 						.addProperty("MAX_FEED_IN_POWER", 1000) //
@@ -181,7 +184,7 @@ public class TestFeneconHome30 {
 		final var properties = fullSettings();
 		properties.addProperty("FEED_IN_TYPE", FeedInType.EXTERNAL_LIMITATION.name());
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", properties)).get();
+				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", properties));
 
 		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
 				.getComponentContext().getProperties();
@@ -195,7 +198,7 @@ public class TestFeneconHome30 {
 		final var properties = fullSettings();
 		properties.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION.name());
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", properties)).get();
+				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", properties));
 
 		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
 				.getComponentContext().getProperties();
@@ -209,7 +212,7 @@ public class TestFeneconHome30 {
 		final var properties = fullSettings();
 		properties.addProperty("FEED_IN_TYPE", FeedInType.NO_LIMITATION.name());
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", properties)).get();
+				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", properties));
 
 		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
 				.getComponentContext().getProperties();
@@ -235,9 +238,9 @@ public class TestFeneconHome30 {
 		var fullConfig = fullSettings();
 
 		final var response = appManagerTestBundle.sut.handleAddAppInstanceRequest(user,
-				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", fullConfig)).get();
+				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", fullConfig));
 
-		assertEquals(4, response.instance.dependencies.size());
+		assertEquals(4, response.instance().dependencies.size());
 
 		// make sure every dependency got installed
 		assertEquals(appManagerTestBundle.sut.getInstantiatedApps().size(), 5);
@@ -264,7 +267,8 @@ public class TestFeneconHome30 {
 		assertNotNull(homeInstance);
 		appManagerTestBundle.assertNoValidationErrors();
 
-		appManagerTestBundle.assertExactSchedulerOrder("Failed setting initial Home 30 Scheduler configuration",
+		appManagerTestBundle.scheduler.assertExactSchedulerOrder(
+				"Failed setting initial Home 30 Scheduler configuration", //
 				"ctrlPrepareBatteryExtension0", "ctrlEmergencyCapacityReserve0", "ctrlGridOptimizedCharge0",
 				"ctrlEssSurplusFeedToGrid0", "ctrlBalancing0");
 		return homeInstance;
