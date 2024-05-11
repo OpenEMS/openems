@@ -101,6 +101,10 @@ public class SamsungEssChargerImpl extends AbstractOpenemsComponent implements S
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.calculateEnergy();
@@ -124,7 +128,7 @@ public class SamsungEssChargerImpl extends AbstractOpenemsComponent implements S
 			} catch (OpenemsNamedException e) {
 				this.logDebug(this.log, e.getMessage());
 			}
-			
+
 			this._setActivePower(pvPower);
 		}
 	}
