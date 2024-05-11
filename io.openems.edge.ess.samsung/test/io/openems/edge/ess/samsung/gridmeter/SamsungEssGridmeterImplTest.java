@@ -6,9 +6,9 @@ import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.api.MeterType;
 
-public class SamsungEssChargerImplTest {
+public class SamsungEssGridmeterImplTest {
 
-	private static final String COMPONENT_ID = "charger0";
+	private static final String COMPONENT_ID = "meter0";
 
 	@Test
 	public void test() throws Exception {
