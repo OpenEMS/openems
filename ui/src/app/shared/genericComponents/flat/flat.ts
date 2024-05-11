@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input } from '@angular/core';
 import { Icon } from 'src/app/shared/type/widget';
 

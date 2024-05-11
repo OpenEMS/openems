@@ -15,15 +15,6 @@ import { OverviewComponent } from './overview/overview';
     BrowserModule,
     SharedModule,
   ],
-  entryComponents: [
-    FlatComponent,
-    OverviewComponent,
-    ProductionMeterChartComponent,
-    TotalDcChartComponent,
-    TotalAcChartComponent,
-    TotalChartComponent,
-    ChargerChartComponent,
-  ],
   declarations: [
     FlatComponent,
     OverviewComponent,

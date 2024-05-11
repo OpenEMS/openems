@@ -10,11 +10,6 @@ import { PredictionChartComponent } from './modal/predictionChart';
         BrowserModule,
         SharedModule,
     ],
-    entryComponents: [
-        FlatComponent,
-        ModalComponent,
-        PredictionChartComponent,
-    ],
     declarations: [
         FlatComponent,
         ModalComponent,

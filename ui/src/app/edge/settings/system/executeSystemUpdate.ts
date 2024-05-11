@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Subject, timer } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";

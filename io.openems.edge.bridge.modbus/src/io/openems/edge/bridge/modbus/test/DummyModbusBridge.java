@@ -23,6 +23,10 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 	private InetAddress ipAddress = null;
 
 	public DummyModbusBridge(String id) {
+		this(id, LogVerbosity.NONE);
+	}
+
+	public DummyModbusBridge(String id, LogVerbosity logVerbosity) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				BridgeModbus.ChannelId.values(), //
@@ -31,7 +35,7 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		super.activate(null, id, "", true, LogVerbosity.NONE, 2);
+		super.activate(null, id, "", true, logVerbosity, 2);
 	}
 
 	/**
@@ -66,12 +70,12 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 
 	@Override
 	public ModbusTransaction getNewModbusTransaction() throws OpenemsException {
-		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+		throw new UnsupportedOperationException("getNewModbusTransaction() Unsupported by Dummy Class");
 	}
 
 	@Override
 	public void closeModbusConnection() {
-		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+		throw new UnsupportedOperationException("closeModbusConnection() Unsupported by Dummy Class");
 	}
 
 }

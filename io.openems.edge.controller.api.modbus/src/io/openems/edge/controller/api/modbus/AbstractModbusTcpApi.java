@@ -2,7 +2,6 @@ package io.openems.edge.controller.api.modbus;
 
 import java.util.List;
 import java.util.TreeMap;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -16,15 +15,15 @@ import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.JsonApi;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
+import io.openems.edge.common.jsonapi.JsonrpcEndpointGuard;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.modbusslave.ModbusRecord;
 import io.openems.edge.common.modbusslave.ModbusRecordChannel;
@@ -34,7 +33,6 @@ import io.openems.edge.common.modbusslave.ModbusRecordUint16BlockLength;
 import io.openems.edge.common.modbusslave.ModbusRecordUint16Hash;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
-import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.ApiWorker;
 import io.openems.edge.controller.api.common.WritePojo;
@@ -44,7 +42,7 @@ import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolRequest;
 import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolResponse;
 
 public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
-		implements ModbusTcpApi, Controller, OpenemsComponent, JsonApi {
+		implements ModbusTcpApi, Controller, OpenemsComponent, ComponentJsonApi {
 
 	public static final int UNIT_ID = 1;
 	public static final int DEFAULT_PORT = 502;
@@ -377,25 +375,33 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest message)
-			throws OpenemsNamedException {
-		if (this.getComponentMissingFault().get() == Boolean.TRUE) {
-			throw new OpenemsException(this.getComponentMissingFaultChannel().channelDoc().getText());
-		}
-		if (this.getComponentNoModbusApiFault().get() == Boolean.TRUE) {
-			throw new OpenemsException(this.getComponentNoModbusApiFaultChannel().channelDoc().getText());
-		}
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(GetModbusProtocolRequest.METHOD, def -> {
+			def.setGuards(this.componentMissingGuard(), this.componentNoModbusApiGuard());
+		}, call -> {
+			return new GetModbusProtocolResponse(call.getRequest().getId(), this.records);
+		});
+		builder.handleRequest(GetModbusProtocolExportXlsxRequest.METHOD, def -> {
+			def.setGuards(this.componentMissingGuard(), this.componentNoModbusApiGuard());
+		}, call -> {
+			return new GetModbusProtocolExportXlsxResponse(call.getRequest().getId(), this.components, this.records);
+		});
+	}
 
-		switch (message.getMethod()) {
-		case GetModbusProtocolRequest.METHOD:
-			return CompletableFuture.completedFuture(new GetModbusProtocolResponse(message.getId(), this.records));
+	private JsonrpcEndpointGuard componentMissingGuard() {
+		return call -> {
+			if (this.getComponentMissingFault().get() == Boolean.TRUE) {
+				throw new OpenemsException(this.getComponentMissingFaultChannel().channelDoc().getText());
+			}
+		};
+	}
 
-		case GetModbusProtocolExportXlsxRequest.METHOD:
-			return CompletableFuture.completedFuture(
-					new GetModbusProtocolExportXlsxResponse(message.getId(), this.components, this.records));
-
-		}
-		return null;
+	private JsonrpcEndpointGuard componentNoModbusApiGuard() {
+		return call -> {
+			if (this.getComponentNoModbusApiFault().get() == Boolean.TRUE) {
+				throw new OpenemsException(this.getComponentNoModbusApiFaultChannel().channelDoc().getText());
+			}
+		};
 	}
 
 	/**

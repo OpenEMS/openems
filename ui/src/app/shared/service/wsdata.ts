@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { WebSocketSubject } from "rxjs/webSocket";
 import { environment } from "src/environments";
 import { JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";

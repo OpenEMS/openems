@@ -170,7 +170,7 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		var modbusProtocol = new ModbusProtocol(this,
 
 				new FC3ReadRegistersTask(this.offset.apply(0), Priority.LOW,

@@ -146,7 +146,7 @@ public class JsonFormlyUtil {
 	public static RangeBuilder buildRangeFromNameable(Nameable nameable) {
 		return new RangeBuilder(nameable);
 	}
-	
+
 	/**
 	 * Creates a JsonObject Formly DateTime Builder for the given enum.
 	 *
@@ -156,7 +156,7 @@ public class JsonFormlyUtil {
 	public static DateTimeBuilder buildDateTimeFromNameable(Nameable nameable) {
 		return new DateTimeBuilder(nameable);
 	}
-	
+
 	/**
 	 * Creates a JsonObject Formly Repeat Builder for the given enum.
 	 *

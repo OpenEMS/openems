@@ -90,6 +90,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.WATCHDOG.getChannelId());
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.W_SET_PCT.getChannelId());
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.WPARAM_RMP_TMS.getChannelId());
+		addChannel.invoke(sut, KacoSunSpecModel.S64201.ST_VND.getChannelId());
 
 		test.activate(MyConfig.create() //
 				.setId(BATTERY_INVERTER_ID) //
@@ -108,7 +109,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 						.output(STATE_MACHINE, State.UNDEFINED)) //
 				.next(new TestCase() //
 						.timeleap(clock, 4, ChronoUnit.SECONDS) //
-						.output(STATE_MACHINE, State.GO_RUNNING)) //
+						.output(STATE_MACHINE, State.STOPPED)) //
 				.next(new TestCase() //
 						.timeleap(clock, 1, ChronoUnit.SECONDS) //
 						.input(CURRENT_STATE, S64201CurrentState.GRID_CONNECTED) //

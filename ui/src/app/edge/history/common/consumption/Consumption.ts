@@ -11,9 +11,6 @@ import { OverviewComponent } from './overview/overview';
     BrowserModule,
     SharedModule,
   ],
-  entryComponents: [
-    FlatComponent,
-  ],
   declarations: [
     FlatComponent,
     ChartComponent,

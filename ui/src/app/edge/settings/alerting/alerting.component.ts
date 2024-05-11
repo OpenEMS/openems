@@ -1,11 +1,11 @@
-import { User } from 'src/app/shared/jsonrpc/shared';
+// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { SetUserAlertingConfigsRequest, UserSettingRequest } from 'src/app/shared/jsonrpc/request/setUserAlertingConfigsRequest';
 import { GetUserAlertingConfigsRequest } from 'src/app/shared/jsonrpc/request/getUserAlertingConfigsRequest';
-import { GetUserAlertingConfigsResponse, AlertingSettingResponse } from 'src/app/shared/jsonrpc/response/getUserAlertingConfigsResponse';
+import { SetUserAlertingConfigsRequest, UserSettingRequest } from 'src/app/shared/jsonrpc/request/setUserAlertingConfigsRequest';
+import { AlertingSettingResponse, GetUserAlertingConfigsResponse } from 'src/app/shared/jsonrpc/response/getUserAlertingConfigsResponse';
 import { Edge, Service, Utils, Websocket } from 'src/app/shared/shared';
 
 export enum AlertingType {
@@ -32,7 +32,6 @@ export class AlertingComponent implements OnInit {
   protected readonly defaultValues: DefaultValues;
 
   protected edge: Edge;
-  protected user: User;
   protected error: Error;
 
   protected currentUserInformation: DetailedAlertingSetting;
@@ -59,10 +58,6 @@ export class AlertingComponent implements OnInit {
   public ngOnInit(): void {
     this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.alerting' }, this.route).then(edge => {
       this.edge = edge;
-
-      this.service.metadata.subscribe(metadata => {
-        this.user = metadata.user;
-      });
 
       const request = new GetUserAlertingConfigsRequest({ edgeId: this.edge.id });
 

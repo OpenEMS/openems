@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import * as Chart from "chart.js";
 import { ChartDataset } from "chart.js";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
@@ -305,7 +306,7 @@ export class OeChartTester {
 
     return {
       type: 'option',
-      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, locale, config, datasets),
+      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, locale, config),
     };
   }
 

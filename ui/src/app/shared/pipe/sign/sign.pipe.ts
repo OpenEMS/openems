@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({

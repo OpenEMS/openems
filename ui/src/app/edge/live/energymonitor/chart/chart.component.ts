@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { fromEvent, Subject } from 'rxjs';
 import { debounceTime, delay, takeUntil } from 'rxjs/operators';
