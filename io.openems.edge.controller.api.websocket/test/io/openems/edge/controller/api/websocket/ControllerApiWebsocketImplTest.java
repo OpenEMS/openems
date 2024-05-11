@@ -14,6 +14,7 @@ public class ControllerApiWebsocketImplTest {
 	public void test() throws Exception {
 		new ControllerTest(new ControllerApiWebsocketImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("onRequestFactory", new DummyOnRequestFactory()) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setApiTimeout(60) //

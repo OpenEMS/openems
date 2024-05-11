@@ -44,12 +44,17 @@ public class VersionHandler {
 
 	private final List<Version> versions = new ArrayList<>();
 
+	/**
+	 * Binds a {@link Version} to this current handler.
+	 * 
+	 * @param version the {@link Version} to bind
+	 */
 	@Reference(//
 			policy = ReferencePolicy.DYNAMIC, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			bind = "bindVersion", unbind = "unbindVersion" //
 	)
-	protected void bindVersion(Version version) {
+	public void bindVersion(Version version) {
 		// make sure the versions list is sorted by the version number ascending
 		final var insertIndex = Collections.binarySearch(this.versions, version, Version.numberComparator());
 		if (insertIndex < 0) {
@@ -57,7 +62,12 @@ public class VersionHandler {
 		}
 	}
 
-	protected void unbindVersion(Version version) {
+	/**
+	 * Unbinds a {@link Version} from this current handler.
+	 * 
+	 * @param version the {@link Version} to unbind
+	 */
+	public void unbindVersion(Version version) {
 		this.versions.remove(version);
 	}
 

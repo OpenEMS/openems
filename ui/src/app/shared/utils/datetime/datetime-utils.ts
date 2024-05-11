@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { format, startOfMonth, startOfYear } from "date-fns";
 import { de } from "date-fns/locale";
 import { ChronoUnit } from "src/app/edge/history/shared";

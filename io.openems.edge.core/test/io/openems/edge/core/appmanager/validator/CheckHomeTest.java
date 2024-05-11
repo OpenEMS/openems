@@ -47,12 +47,10 @@ public class CheckHomeTest {
 
 	@Test
 	public void testCheckWithInstalledHome10() throws Exception {
-		final var response = this.appManagerTestBundle.sut
-				.handleAddAppInstanceRequest(DUMMY_ADMIN,
-						new AddAppInstance.Request("App.FENECON.Home", "key", "alias", TestFeneconHome.fullSettings()))
-				.get();
+		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", TestFeneconHome.fullSettings()));
 
-		assertTrue(response.warnings.isEmpty());
+		assertTrue(response.warnings().isEmpty());
 		assertTrue(this.checkHome.check());
 		assertTrue(PropsUtil.isHomeInstalled(this.appManagerTestBundle.appManagerUtil));
 	}
@@ -60,10 +58,9 @@ public class CheckHomeTest {
 	@Test
 	public void testCheckWithInstalledHome20() throws Exception {
 		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request("App.FENECON.Home.20", "key", "alias", TestFeneconHome20.fullSettings()))
-				.get();
+				new AddAppInstance.Request("App.FENECON.Home.20", "key", "alias", TestFeneconHome20.fullSettings()));
 
-		assertTrue(response.warnings.isEmpty());
+		assertTrue(response.warnings().isEmpty());
 		assertTrue(this.checkHome.check());
 		assertTrue(PropsUtil.isHomeInstalled(this.appManagerTestBundle.appManagerUtil));
 	}
@@ -71,10 +68,9 @@ public class CheckHomeTest {
 	@Test
 	public void testCheckWithInstalledHome30() throws Exception {
 		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", TestFeneconHome30.fullSettings()))
-				.get();
+				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", TestFeneconHome30.fullSettings()));
 
-		assertTrue(response.warnings.isEmpty());
+		assertTrue(response.warnings().isEmpty());
 		assertTrue(this.checkHome.check());
 		assertTrue(PropsUtil.isHomeInstalled(this.appManagerTestBundle.appManagerUtil));
 	}
