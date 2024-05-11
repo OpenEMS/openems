@@ -98,7 +98,7 @@ public class FeneconDessGridMeterImpl extends AbstractOpenemsModbusComponent imp
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(11109, Priority.LOW, //
 						m(FeneconDessGridMeter.ChannelId.ORIGINAL_ACTIVE_CONSUMPTION_ENERGY,

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { DateUtils } from "./dateutils";
 
 describe('DateUtils', () => {

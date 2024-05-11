@@ -220,7 +220,7 @@ public class EssFeneconBydContainerImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, new FC3ReadRegistersTask(0x1001, Priority.LOW,
 				// TODO check each channels id's for scaling factor
 				m(EssFeneconBydContainer.ChannelId.PCS_SYSTEM_WORKSTATE, new UnsignedWordElement(0x1001)),
@@ -496,7 +496,7 @@ public class EssFeneconBydContainerImpl extends AbstractOpenemsModbusComponent
 						)));
 	}
 
-	private ModbusProtocol defineModbus1Protocol() throws OpenemsException {
+	private ModbusProtocol defineModbus1Protocol() {
 		return new ModbusProtocol(this,
 				new FC3ReadRegistersTask(0x3410, Priority.LOW,
 						m(EssFeneconBydContainer.ChannelId.CONTAINER_IMMERSION_STATE, new UnsignedWordElement(0x3410)),
@@ -570,7 +570,7 @@ public class EssFeneconBydContainerImpl extends AbstractOpenemsModbusComponent
 						)));
 	}
 
-	protected ModbusProtocol defineModbus2Protocol() throws OpenemsException {
+	protected ModbusProtocol defineModbus2Protocol() {
 		return new ModbusProtocol(this, new FC3ReadRegistersTask(0x38A0, Priority.LOW, //
 				// RTU registers
 				m(EssFeneconBydContainer.ChannelId.SYSTEM_WORKSTATE, new UnsignedWordElement(0x38A0)),

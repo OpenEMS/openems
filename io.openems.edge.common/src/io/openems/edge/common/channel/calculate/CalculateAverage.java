@@ -26,12 +26,23 @@ public class CalculateAverage {
 		var value = channel.value().asOptional();
 		if (value.isPresent()) {
 			try {
-				this.values.add(value.get().doubleValue());
+				this.addValue(value.get());
 			} catch (Exception e) {
 				this.log.error("Adding Channel [" + channel.address() + "] value [" + value + "] failed. "
 						+ e.getClass().getSimpleName() + ": " + e.getMessage());
 				e.printStackTrace();
 			}
+		}
+	}
+
+	/**
+	 * Adds a Value.
+	 *
+	 * @param value the value
+	 */
+	public void addValue(Number value) {
+		if (value != null) {
+			this.values.add(value.doubleValue());
 		}
 	}
 

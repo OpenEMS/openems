@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Utils } from "./utils";
 
 describe('Utils', () => {

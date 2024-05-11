@@ -71,7 +71,7 @@ public class PvInverterFroniusImpl extends AbstractSunSpecPvInverter implements 
 		super.setModbus(modbus);
 	}
 
-	public PvInverterFroniusImpl() throws OpenemsException {
+	public PvInverterFroniusImpl() {
 		super(//
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //

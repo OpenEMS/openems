@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 
 import { TranslateService } from "@ngx-translate/core";
 import { CurrentData, EdgeConfig, Utils } from "../../shared";

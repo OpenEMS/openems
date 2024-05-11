@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { AbstractControl } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 

@@ -135,7 +135,7 @@ public class FeneconProEssImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(100, Priority.HIGH, //
 						m(FeneconProEss.ChannelId.SYSTEM_STATE, new UnsignedWordElement(100)), //
