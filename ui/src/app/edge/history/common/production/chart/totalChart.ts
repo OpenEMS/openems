@@ -14,7 +14,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
 
   protected override getChartData(): HistoryUtils.ChartData {
     const productionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-      .filter(component => this.config.isProducer(component));
+      .filter(component => component.isEnabled && this.config.isProducer(component));
     const chargerComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
 
     const channels: HistoryUtils.InputChannel[] = [{
