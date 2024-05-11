@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { Icon } from 'src/app/shared/type/widget';

@@ -15,7 +15,9 @@ import java.net.URL;
 import java.util.Base64;
 
 import org.junit.Test;
+import org.osgi.framework.Constants;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -36,8 +38,16 @@ import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyUserService;
 import io.openems.edge.common.test.TestUtils;
+import io.openems.edge.controller.api.common.handler.ComponentConfigRequestHandler;
+import io.openems.edge.controller.api.common.handler.ComponentRequestHandler;
+import io.openems.edge.controller.api.common.handler.RoutesJsonApiHandler;
+import io.openems.edge.controller.api.rest.DummyJsonRpcRestHandlerFactory;
+import io.openems.edge.controller.api.rest.JsonRpcRestHandler;
+import io.openems.edge.controller.api.rest.handler.BindingComponentConfigRequestHandler;
+import io.openems.edge.controller.api.rest.handler.BindingComponentRequestHandler;
+import io.openems.edge.controller.api.rest.handler.BindingRoutesJsonApiHandler;
+import io.openems.edge.controller.api.rest.handler.RootRequestHandler;
 import io.openems.edge.controller.test.ControllerTest;
-import io.openems.edge.timedata.test.DummyTimedata;
 
 public class ControllerApiRestReadWriteImplTest {
 
@@ -48,12 +58,29 @@ public class ControllerApiRestReadWriteImplTest {
 	public void test() throws OpenemsException, Exception {
 		final var port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
 
+		final var componentManager = new DummyComponentManager();
+
+		final var rootHandler = new RootRequestHandler(new BindingRoutesJsonApiHandler(new RoutesJsonApiHandler()));
+		rootHandler.bindJsonApi(
+				new BindingComponentConfigRequestHandler(new ComponentConfigRequestHandler(componentManager)));
+		final var componentRequestHandler = new ComponentRequestHandler();
+		componentRequestHandler.bindJsonApi(componentManager, ImmutableMap.<String, Object>builder() //
+				.put(Constants.SERVICE_ID, 0L) //
+				.build());
+		rootHandler.bindJsonApi(new BindingComponentRequestHandler(componentRequestHandler));
+
+		final var factory = new DummyJsonRpcRestHandlerFactory(() -> {
+			final var restHandler = new JsonRpcRestHandler();
+			restHandler.bindRootHandler(rootHandler);
+			return restHandler;
+		});
+
 		var sut = new ControllerApiRestReadWriteImpl();
 		var test = new ControllerTest(sut) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("componentManager", componentManager) //
 				.addReference("userService", new DummyUserService(//
 						DUMMY_GUEST, DUMMY_OWNER, DUMMY_INSTALLER, DUMMY_ADMIN)) //
-				.addReference("timedata", new DummyTimedata("timedata0")) //
+				.addReference("restHandlerFactory", factory) //
 				.addComponent(new DummyComponent(DUMMY_ID) //
 						.withReadChannel(1234)) //
 				.activate(MyConfig.create() //

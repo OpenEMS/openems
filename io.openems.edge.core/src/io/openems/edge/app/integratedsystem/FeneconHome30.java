@@ -5,6 +5,7 @@ import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.battery;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryInverter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.charger;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.chargerOld;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEmergencyCapacityReserve;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEssSurplusFeedToGrid;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.emergencyMeter;
@@ -78,6 +79,7 @@ import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
 
 /**
  * Describes a FENECON Home 30 energy storage system.
@@ -97,8 +99,10 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
       "CT_RATIO_FIRST": 200,
       "HAS_AC_METER": false,
       "AC_METER_TYPE": {@link AcMeterType},
-      "HAS_PV_[1-6]":true,
-      "PV_ALIAS_[1-6]":"PV [1-6]",
+      "HAS_PV_[1-6]":true, // deprecated
+      "PV_ALIAS_[1-6]":"PV [1-6]", // deprecated
+      "HAS_MPPT_[1-3]":true,
+      "MPPT_ALIAS_[1-3]":"MPPT [1-3]",
       "HAS_EMERGENCY_RESERVE":true,
       "EMERGENCY_RESERVE_ENABLED":true,
       "EMERGENCY_RESERVE_SOC":20,
@@ -178,9 +182,17 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 
 	}
 
+	@Deprecated
 	private static final int MAX_NUMBER_OF_PV = 6;
+	@Deprecated
 	private static final IntFunction<String> HAS_PV = value -> "HAS_PV_" + (value + 1);
+	@Deprecated
 	private static final IntFunction<String> PV_ALIAS = value -> "ALIAS_PV_" + (value + 1);
+
+	private static final int MAX_NUMBER_OF_MPPT = 3;
+	private static final IntFunction<String> HAS_MPPT = value -> "HAS_MPPT_" + (value + 1);
+	private static final IntFunction<String> MPPT_ALIAS = value -> "ALIAS_MPPT_" + (value + 1);
+
 	private final Map<String, PropertyParent> pvDefs = new TreeMap<>();
 
 	@Activate
@@ -192,13 +204,24 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 	) {
 		super(componentManager, componentContext, cm, componentUtil);
 
+		BooleanExpression anyOldPvSelected = null;
 		for (int i = 0; i < MAX_NUMBER_OF_PV; i++) {
 			final var oneBased = i + 1;
 			final var hasPv = new ParentPropertyImpl(HAS_PV.apply(i), AppDef.copyOfGeneric(defaultDef(), def -> def //
 					.setTranslatedLabel("App.IntegratedSystem.hasPv.label", oneBased, (oneBased + 1) / 2) //
 					.setDefaultValue(false) //
-					.setField(JsonFormlyUtil::buildCheckboxFromNameable) //
 			));
+			hasPv.def().setField(t -> JsonFormlyUtil.buildCheckboxFromNameable(t),
+					(app, property, l, parameter, field) -> {
+						field.onlyShowIf(Exp.currentModelValue(hasPv).notNull());
+					});
+
+			if (anyOldPvSelected == null) {
+				anyOldPvSelected = Exp.currentModelValue(hasPv).isNull();
+			} else {
+				anyOldPvSelected = anyOldPvSelected.and(Exp.currentModelValue(hasPv).isNull());
+			}
+
 			final var pvAlias = new ParentPropertyImpl(PV_ALIAS.apply(i), AppDef.copyOfGeneric(defaultDef(), def -> def //
 					.setTranslatedLabel("App.IntegratedSystem.pvAlias.label", oneBased) //
 					.setDefaultValueString((app, property, l, parameter) -> TranslationUtil
@@ -207,6 +230,30 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 						field.onlyShowIf(Exp.currentModelValue(hasPv).notNull());
 					}) //
 			));
+
+			this.pvDefs.put(hasPv.name(), hasPv);
+			this.pvDefs.put(pvAlias.name(), pvAlias);
+		}
+		final var tempAnyOldPvSelected = anyOldPvSelected;
+
+		for (int i = 0; i < MAX_NUMBER_OF_MPPT; i++) {
+			final var oneBased = i + 1;
+			final var hasPv = new ParentPropertyImpl(HAS_MPPT.apply(i), AppDef.copyOfGeneric(defaultDef(), def -> def //
+					.setTranslatedLabel("App.IntegratedSystem.hasMppt.label", oneBased) //
+					.setDefaultValue(false) //
+					.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
+						field.onlyShowIf(tempAnyOldPvSelected);
+					}) //
+			));
+			final var pvAlias = new ParentPropertyImpl(MPPT_ALIAS.apply(i),
+					AppDef.copyOfGeneric(defaultDef(), def -> def //
+							.setTranslatedLabel("App.IntegratedSystem.mpptAlias.label", oneBased) //
+							.setDefaultValueString((app, property, l, parameter) -> TranslationUtil.getTranslation(
+									parameter.bundle(), "App.IntegratedSystem.mpptAlias.alias", oneBased)) //
+							.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+								field.onlyShowIf(Exp.currentModelValue(hasPv).notNull());
+							}) //
+					));
 
 			this.pvDefs.put(hasPv.name(), hasPv);
 			this.pvDefs.put(pvAlias.name(), pvAlias);
@@ -279,6 +326,16 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 				}
 				final var chargerId = "charger" + i;
 				final var chargerAlias = this.getString(p, this.pvDefs.get(PV_ALIAS.apply(i)));
+				components.add(chargerOld(chargerId, chargerAlias, batteryInverterId, i));
+			}
+
+			for (int i = 0; i < MAX_NUMBER_OF_MPPT; i++) {
+				final var hasMppt = this.getBoolean(p, this.pvDefs.get(HAS_MPPT.apply(i)));
+				if (!hasMppt) {
+					continue;
+				}
+				final var chargerId = "charger" + (10 + i);
+				final var chargerAlias = this.getString(p, this.pvDefs.get(MPPT_ALIAS.apply(i)));
 				components.add(charger(chargerId, chargerAlias, batteryInverterId, i));
 			}
 
@@ -351,6 +408,11 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 		for (int i = 0; i < MAX_NUMBER_OF_PV; i++) {
 			builder.add(this.pvDefs.get(HAS_PV.apply(i)));
 			builder.add(this.pvDefs.get(PV_ALIAS.apply(i)));
+		}
+
+		for (int i = 0; i < MAX_NUMBER_OF_MPPT; i++) {
+			builder.add(this.pvDefs.get(HAS_MPPT.apply(i)));
+			builder.add(this.pvDefs.get(MPPT_ALIAS.apply(i)));
 		}
 
 		builder.add(Property.HAS_EMERGENCY_RESERVE);

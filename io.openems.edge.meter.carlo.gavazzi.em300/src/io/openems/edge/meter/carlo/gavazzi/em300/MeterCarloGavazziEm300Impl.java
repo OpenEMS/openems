@@ -85,7 +85,7 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		final var offset = 300000 + 1;
 		/**
 		 * See Modbus definition PDF-file in doc directory and

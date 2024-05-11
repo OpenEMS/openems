@@ -10,6 +10,7 @@ import { Role } from "../type/role";
 @Component({
   selector: 'oe-footer',
   styles: [`
+
     :host[data-isSmartPhone=true] {
       position: relative;
     }
@@ -18,16 +19,16 @@ import { Role } from "../type/role";
       position: sticky;
       bottom: 0;
       width: 100%;
+
       font-size: 14px !important;
-    }
+      ion-row {
+        text-align: center;
+      }
 
-    ion-row {
-      text-align: center;
-    }
-
-    ion-item {
-      --min-height: initial !important;
-      font-size: inherit;
+      ion-item {
+        --min-height: initial !important;
+        font-size: inherit;
+      }
     }
   `],
   templateUrl: 'footer.html',
@@ -36,7 +37,7 @@ export class FooterComponent implements OnInit {
 
   protected user: User | null = null;
   protected edge: Edge | null = null;
-  protected displayValues: { version: string, id: string, comment: string } | null = null;
+  protected displayValues: { comment: string, id: string, version: string } | null = null;
   protected isAtLeastOwner: boolean | null = null;
 
   @HostBinding('attr.data-isSmartPhone')
@@ -56,7 +57,7 @@ export class FooterComponent implements OnInit {
 
         let title = environment.edgeShortName;
         if (edge) {
-          this.displayValues = FooterComponent.getDisplayValues(edge);
+          this.displayValues = FooterComponent.getDisplayValues(this.user, edge);
 
           if (this.user.hasMultipleEdges) {
             title += " | " + edge.id;
@@ -64,16 +65,30 @@ export class FooterComponent implements OnInit {
         }
 
         this.title.setTitle(title);
-        this.isAtLeastOwner = Role.isAtLeast(this.user.globalRole, Role.OWNER);
       });
     });
   }
 
-  private static getDisplayValues(edge: Edge): { version: string; id: string; comment: string; } {
-    return {
-      comment: edge?.comment,
-      id: edge.id,
+  private static getDisplayValues(user: User, edge: Edge): { comment: string, id: string, version: string } {
+    const result = {
+      comment: "",
+      id: "",
       version: edge.version,
     };
+
+    switch (environment.backend) {
+      case "OpenEMS Backend":
+        if (Role.isAtLeast(user.globalRole, Role.OWNER) && user.hasMultipleEdges) {
+          result.comment = edge?.comment;
+        }
+        result.id = edge.id;
+        break;
+
+      case "OpenEMS Edge":
+        result.id = environment.edgeShortName;
+        break;
+    }
+
+    return result;
   }
 }

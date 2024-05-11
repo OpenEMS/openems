@@ -90,7 +90,7 @@ public class MeterPqplusUmd96Impl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				// Frequency
 				new FC3ReadRegistersTask(0x1004, Priority.LOW, //

@@ -220,7 +220,7 @@ public class BatteryInverterRefuStore88kImpl extends AbstractOpenemsModbusCompon
 	private static final int SUNSPEC_64800 = 40225; // MESA-PCS Extensions
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException { // Register
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(SUNSPEC_1, Priority.LOW, //
 						m(BatteryInverterRefuStore88k.ChannelId.ID_1, new UnsignedWordElement(SUNSPEC_1)), // 40002

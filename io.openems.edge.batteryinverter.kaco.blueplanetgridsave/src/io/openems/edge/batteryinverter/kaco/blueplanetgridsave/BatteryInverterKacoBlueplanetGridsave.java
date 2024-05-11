@@ -8,6 +8,7 @@ import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201CurrentState;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201RequestedState;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine.State;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -18,8 +19,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
-public interface BatteryInverterKacoBlueplanetGridsave
-		extends ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, StartStoppable {
+public interface BatteryInverterKacoBlueplanetGridsave extends ManagedSymmetricBatteryInverter,
+		SymmetricBatteryInverter, ModbusComponent, OpenemsComponent, StartStoppable {
 
 	/**
 	 * Sets the KACO watchdog timeout to 60 seconds.
@@ -31,28 +32,19 @@ public interface BatteryInverterKacoBlueplanetGridsave
 	 */
 	public static final int WATCHDOG_TRIGGER_SECONDS = 10;
 
-	/**
-	 * Retry set-command after x Seconds, e.g. for starting battery or
-	 * battery-inverter.
-	 */
-	public static int RETRY_COMMAND_SECONDS = 30;
-
-	/**
-	 * Retry x attempts for set-command.
-	 */
-	public static int RETRY_COMMAND_MAX_ATTEMPTS = 30;
-
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
 		RUN_FAILED(Doc.of(Level.FAULT) //
 				.text("Running the Logic failed")), //
-		MAX_START_ATTEMPTS(Doc.of(Level.FAULT) //
-				.text("The maximum number of start attempts failed")), //
-		MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
-				.text("The maximum number of stop attempts failed")), //
+		MAX_START_TIMEOUT(Doc.of(Level.FAULT) //
+				.text("Max start time is exceeded")), //
+		MAX_STOP_TIMEOUT(Doc.of(Level.FAULT) //
+				.text("Max stop time is exceeded")), //
 		INVERTER_CURRENT_STATE_FAULT(Doc.of(Level.FAULT) //
 				.text("The 'CurrentState' is invalid")), //
+		GRID_DISCONNECTION(Doc.of(Level.FAULT) //
+				.text("External grid protection disconnection (17)")), //
 		;
 
 		private final Doc doc;
@@ -92,59 +84,59 @@ public interface BatteryInverterKacoBlueplanetGridsave
 	public S64201CurrentState getCurrentState();
 
 	/**
-	 * Gets the Channel for {@link ChannelId#MAX_START_ATTEMPTS}.
+	 * Gets the Channel for {@link ChannelId#MAX_START_TIMEOUT}.
 	 *
 	 * @return the Channel
 	 */
-	public default StateChannel getMaxStartAttemptsChannel() {
-		return this.channel(ChannelId.MAX_START_ATTEMPTS);
+	public default StateChannel getMaxStartTimeoutChannel() {
+		return this.channel(ChannelId.MAX_START_TIMEOUT);
 	}
 
 	/**
-	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_START_ATTEMPTS}.
+	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_START_TIMEOUT}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Boolean> getMaxStartAttempts() {
-		return this.getMaxStartAttemptsChannel().value();
+	public default Value<Boolean> getMaxStartTimeout() {
+		return this.getMaxStartTimeoutChannel().value();
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#MAX_START_ATTEMPTS} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setMaxStartAttempts(Boolean value) {
-		this.getMaxStartAttemptsChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#MAX_STOP_ATTEMPTS}.
-	 *
-	 * @return the Channel
-	 */
-	public default StateChannel getMaxStopAttemptsChannel() {
-		return this.channel(ChannelId.MAX_STOP_ATTEMPTS);
-	}
-
-	/**
-	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_STOP_ATTEMPTS}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Boolean> getMaxStopAttempts() {
-		return this.getMaxStopAttemptsChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_STOP_ATTEMPTS}
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_START_TIMEOUT}
 	 * Channel.
 	 *
 	 * @param value the next value
 	 */
-	public default void _setMaxStopAttempts(Boolean value) {
-		this.getMaxStopAttemptsChannel().setNextValue(value);
+	public default void _setMaxStartTimeout(boolean value) {
+		this.getMaxStartTimeoutChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_STOP_TIMEOUT}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getMaxStopTimeoutChannel() {
+		return this.channel(ChannelId.MAX_STOP_TIMEOUT);
+	}
+
+	/**
+	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_STOP_TIMEOUT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getMaxStopTimeout() {
+		return this.getMaxStopTimeoutChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_STOP_TIMEOUT}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxStopTimeout(boolean value) {
+		this.getMaxStopTimeoutChannel().setNextValue(value);
 	}
 
 	/**
@@ -166,4 +158,83 @@ public interface BatteryInverterKacoBlueplanetGridsave
 	public default void setRequestedState(S64201RequestedState value) throws OpenemsNamedException {
 		this.getRequestedStateChannel().setNextWriteValue(value);
 	}
+
+	/**
+	 * Gets the Channel for ChannelId.INVERTER_CURRENT_STATE_FAULT.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Boolean> getInverterCurrentStateFaultChannel() {
+		return this.channel(ChannelId.INVERTER_CURRENT_STATE_FAULT);
+	}
+
+	/**
+	 * Writes the value to the ChannelId.INVERTER_CURRENT_STATE_FAULT.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setInverterCurrentStateFault(boolean value) {
+		this.getInverterCurrentStateFaultChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for ChannelId.RUN_FAILED.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Boolean> getRunFailedChannel() {
+		return this.channel(ChannelId.RUN_FAILED);
+	}
+
+	/**
+	 * Writes the value to the ChannelId.RUN_FAILED.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setRunFailed(boolean value) {
+		this.getRunFailedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for ChannelId.GRID_DISCONNECTION.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Boolean> getGridDisconnectionChannel() {
+		return this.channel(ChannelId.GRID_DISCONNECTION);
+	}
+
+	/**
+	 * Writes the value to the ChannelId.GRID_DISCONNECTION.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridDisconnection(boolean value) {
+		this.getGridDisconnectionChannel().setNextValue(value);
+	}
+
+	/**
+	 * Checks if the system is in a running state. This method retrieves the
+	 * system's global state and determines whether the system is in a running
+	 * state.
+	 *
+	 * @return true if the system is in a running state, false otherwise.
+	 */
+	public boolean isRunning();
+
+	/**
+	 * Checks if the system is in a stop state. This method retrieves the system's
+	 * global state and determines whether the system is in a stop state.
+	 *
+	 * @return true if the system is in a stop state, false otherwise.
+	 */
+	public boolean isShutdown();
+
+	/**
+	 * Checks if the system is in a fault state. This method retrieves the system's
+	 * global state and determines whether the system is in a fault state.
+	 *
+	 * @return true if the system is in a fault state, false otherwise.
+	 */
+	public boolean hasFailure();
 }

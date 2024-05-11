@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input } from '@angular/core';
 import { Edge, Service, EdgeConfig } from '../../../../../shared/shared';
 import { ModalController } from '@ionic/angular';

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { compareVersions } from 'compare-versions';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { SumState } from 'src/app/index/shared/sumState';

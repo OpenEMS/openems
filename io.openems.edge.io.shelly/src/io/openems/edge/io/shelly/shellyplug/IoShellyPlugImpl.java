@@ -1,5 +1,7 @@
 package io.openems.edge.io.shelly.shellyplug;
 
+import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
+
 import java.util.Objects;
 
 import org.osgi.service.component.ComponentContext;
@@ -99,16 +101,7 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		var b = new StringBuilder();
-		var valueOpt = this.getRelayChannel().value().asOptional();
-		if (valueOpt.isPresent()) {
-			b.append(valueOpt.get() ? "On" : "Off");
-		} else {
-			b.append("Unknown");
-		}
-		b.append("|");
-		b.append(this.getActivePowerChannel().value().asString());
-		return b.toString();
+		return generateDebugLog(this.getRelayChannel(), this.getActivePowerChannel());
 	}
 
 	@Override

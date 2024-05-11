@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { TimeUnit } from "chart.js";
 import { SumState } from "src/app/index/shared/sumState";
 
@@ -5,7 +6,7 @@ import { TextIndentation } from "../genericComponents/modal/modal-line/modal-lin
 import { OeChartTester, OeFormlyViewTester } from "../genericComponents/shared/testing/tester";
 import { Role } from "../type/role";
 import { Edge } from "./edge";
-import { EdgeConfig } from "./edgeconfig";
+import { EdgeConfig, PersistencePriority } from "./edgeconfig";
 
 export namespace DummyConfig {
 
@@ -301,3 +302,14 @@ export namespace ChartConfig {
         },
     });
 }
+
+describe('PersistencePriority', () => {
+    it('#isLessThan', () => {
+        expect(PersistencePriority.isLessThan(PersistencePriority.LOW, PersistencePriority.HIGH)).toBe(true);
+        expect(PersistencePriority.isLessThan(PersistencePriority.VERY_HIGH, PersistencePriority.HIGH)).toBe(false);
+        expect(PersistencePriority.isLessThan(PersistencePriority.HIGH, PersistencePriority.HIGH)).toBe(false);
+        expect(PersistencePriority.isLessThan(null, PersistencePriority.HIGH)).toBe(false);
+        expect(PersistencePriority.isLessThan(undefined, PersistencePriority.HIGH)).toBe(false);
+        expect(PersistencePriority.isLessThan(undefined, null)).toBe(false);
+    });
+});
