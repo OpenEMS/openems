@@ -350,7 +350,8 @@
         "level": "Level",
         "message": "Nachricht",
         "source": "Quelle",
-        "timestamp": "Zeitpunkt"
+        "timestamp": "Zeitpunkt",
+        "CONDENSED_OUTPUT": "Komprimierte Ausgabe"
       },
       "Controller": {
         "app": "Anwendung:",
@@ -670,11 +671,12 @@
       "TIME_OF_INSTALLATION": "Zeitpunkt der Installation",
       "WARRANTY_TERMS": "Garantiebedingungen",
       "ACCEPT": "akzeptieren",
-      "ALIAS_WITH_LABEL_HOME_DC": "Alias MPPT{{mppt}} PV{{pv}}",
-      "VALUE_WITH_LABEL_HOME_DC": "Wert MPPT{{ mppt }} PV{{ pv }} {{ symbol }}",
-      "ORIENTATION_WITH_LABEL_HOME_DC": "Ausrichtung MPPT{{ mppt }} PV{{ pv }}",
-      "MODULE_TYPE_WITH_LABEL_HOME_DC": "Modultyp MPPT{{ mppt }} PV{{ pv }}",
-      "NUMBER_OF_MODULES_WITH_LABEL_HOME_DC": "Anzahl PV-Module MPPT{{ mppt }} PV{{ pv }}",
+      "ALIAS_WITH_LABEL_HOME_DC": "Alias MPPT{{mppt}}",
+      "VALUE_WITH_LABEL_HOME_DC": "Wert MPPT{{ mppt }} {{ symbol }}",
+      "ORIENTATION_WITH_LABEL_HOME_DC": "Ausrichtung MPPT{{ mppt }}",
+      "MODULE_TYPE_WITH_LABEL_HOME_DC": "Modultyp MPPT{{ mppt }}",
+      "NUMBER_OF_MODULES_WITH_LABEL_HOME_DC": "Anzahl PV-Module MPPT{{ mppt }}",
+      "BOTH_SELECTED_LABEL": "Beide Anschlüsse (\"PV{{ pv1 }}\" und \"PV{{ pv2 }}\") belegt",
       "DEVICE_CONNECTION_CHECKED": "Das Stromspeichersystem ist an das Stromnetz angeschlossen",
       "ENERGY_FLOW_METER": {
         "LABEL": "Installierter Netzzähler"
@@ -758,13 +760,16 @@
         "SOUTH": "Sued",
         "WEST": "West"
       },
-      "INSTALLED_POWER": "Installierte leistung [Wₚ]",
+      "INSTALLED_POWER": "Installierte Leistung [Wₚ]",
+      "INSTALLED_POWER_PER_STRING": "Installierte Leistung pro String [Wₚ]",
       "MARKED_AS": " MPPT {{ mppt }} (beschriftet mit \"PV{{ pv }}\")",
+      "MARKED_AS_BOTH_STRINGS": " MPPT {{ mppt }} (beschriftet mit \"PV{{ pv1 }}\" & \"PV{{ pv2 }}\")",
       "MODULE_TYPE_DESCRIPTION": "z. B. Hersteller und Leistung",
       "MODULE_TYPE_WITH_LABEL": "Modultyp {{ label }}{{ number }}",
       "MODULE_TYPE": "Modultyp",
       "NUMBER_OF_MODULES_WITH_LABEL": "Anzahl PV-Module {{ label }}{{ number }}",
       "NUMBER_OF_MODULES": "Anzahl PV-Module",
+      "NUMBER_OF_MODULES_PER_STRING": "Anzahl PV-Module pro String",
       "OPEN_MANUAL": "Anleitung öffnen",
       "ORIENTATION_WITH_LABEL": "Ausrichtung {{ label }}{{ number }}",
       "ORIENTATION": "Ausrichtung",
@@ -772,7 +777,8 @@
       "SHADE_MANAGEMENT_DESCRIPTION": "Nur wenn Optimierer verbaut sind, muss das Schattenmanagement deaktiviert werden",
       "TITLE_PV": "DC-PV Installation (Wechselrichtereingänge)",
       "TITLE_DC": "DC-PV-Installation",
-      "DUPLICATE": " MPPT {{ mppt }} doppelt belegt (beschriftet mit \"PV{{ pv }}\")"
+      "DUPLICATE": " MPPT {{ mppt }} doppelt belegt (beschriftet mit \"PV{{ pv }}\")",
+      "BOTH_SELECTED_LABEL": "Sind beide Anschlüsse (\"PV{{ pv1 }}\" und \"PV{{ pv2 }}\") belegt?"
     },
     "PROTOCOL_SERIAL_NUMBERS": {
       "BATTERY_MODULE": "Batteriemodul ",
@@ -935,7 +941,11 @@
       "RESTARTED": "{{system}} neu starten war erfolgreich.",
       "RESTART_FAILED": "{{system}}-Neustart fehlgeschlagen.",
       "RESTART_CONFIRMATION": "Möchten Sie {{system}} neu starten?",
-      "RESTART_WARNING": "Während {{system}} neu startet ist die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet."
+      "RESTART_WARNING": "Während {{system}} neu startet ist die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet.",
+      "CONFIRMATION_INFO": "Möchten Sie ihr {{edgeShortName}} aktualisieren?",
+      "WARNING": "Im Rahmen des Systemupdates wird {{system}} neu gestartet und dabei die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet.",
+      "UPDATE_EXECUTE": "Systemupdate durchführen",
+      "SUB_HEADER": "Möchten Sie ein Systemupdate durchführen?"
     }
   },
   "CHANNELS": {

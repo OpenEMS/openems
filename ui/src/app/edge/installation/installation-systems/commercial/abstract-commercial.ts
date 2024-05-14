@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';

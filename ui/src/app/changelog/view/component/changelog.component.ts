@@ -33,8 +33,25 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2024.5.1',
+        changes: [
+          Changelog.openems('2024.5.0'),
+          Changelog.UI,
+          Changelog.product(Product.HOME_20_30) + "Verbesserungen am Inbetriebnahmeassistent",
+          Changelog.product(Product.HOME_10, Product.HOME_20_30, Product.INDUSTRIAL_S) + "Optimierungen bei leerer/voller Batterie",
+          Changelog.UI + "Verbesserung am System-Log",
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.HOME_10, Product.HOME_20_30) + "Abschalten der Batterie bei niedriger Zellspannung und keiner Beladung. Sicheres Schreiben von ChargeMaxVoltage/DischargeMinVoltage, Korrigierte Zuordnung von DIAG_STATUS Meldungen, Ignoriere gelegentliche unmögliche Werte für ActivePower" },
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.HOME_20_30) + "Hinweis auf Umstellung der MPPT Informationen im Online-Monitoring" },
+          { roleIsAtLeast: Role.ADMIN, change: "Leistungsverteilung: Verbesserung der KEEPING_ALL_EQUALS-Strategie bei Speicher-Clustern" },
+          { roleIsAtLeast: Role.ADMIN, change: "Modbus/SunSpec: Anzeige von Status-Informationen (\"Bit-Words\")" },
+          { roleIsAtLeast: Role.ADMIN, change: "Netzwerkkonfiguration über Online-Monitoring: Fehlerbehebung bei [Gateway] und [Route]" },
+          { roleIsAtLeast: Role.ADMIN, change: "System-Update über Online-Monitoring: Warnhinweis vor Ausführung" },
+        ],
+      },
+      {
         version: '2024.4.1',
         changes: [
+          Changelog.openems('2024.4.0'),
           Changelog.UI + "Fehlerbehebung Darstellung im lokalen Monitoring (Zugriff über IP-Adresse im Heimnetzwerk), Verbesserungen an der \"Footer\"-Leiste, Optimierung der historischen Ansicht für mobile Endgeräte",
           Changelog.app(App.PV_INVERTER, App.SMA) + "Fehlerbehebung bei Modellen mit neuerem SunSpec-Protokoll (SMA Sunny Tripower mit SunSpec Model 7xx)",
           Changelog.app(App.TIME_OF_USE) + Changelog.GENERAL_OPTIMIZATION,
@@ -46,6 +63,7 @@ export class ChangelogComponent {
       {
         version: '2024.3.1',
         changes: [
+          Changelog.openems('2024.3.0'),
           Changelog.UI + "Optimierung der historischen Ansicht für mobile Endgeräte",
           Changelog.UI + "Anzeige der EMS-Nr. im Seitentitel, \"Footer\"-Leiste zur Anzeige der EMS-Nr. und -Version",
           Changelog.product(Product.HOME_10, Product.HOME_20_30) + "Verbesserungen am Inbetriebnahmeassistent",

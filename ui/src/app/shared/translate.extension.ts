@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { FormlyExtension, FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 

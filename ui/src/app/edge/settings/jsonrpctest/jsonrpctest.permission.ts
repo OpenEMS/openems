@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Edge } from "src/app/shared/edge/edge";
 import { User } from "src/app/shared/jsonrpc/shared";
 import { Role } from "src/app/shared/type/role";

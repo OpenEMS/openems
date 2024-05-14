@@ -52,6 +52,7 @@
 	bnd.identity;id='io.openems.backend.metadata.file',\
 	bnd.identity;id='io.openems.backend.metadata.odoo',\
 	bnd.identity;id='io.openems.backend.oem.fenecon',\
+	bnd.identity;id='io.openems.backend.simulation.engine',\
 	bnd.identity;id='io.openems.backend.timedata.aggregatedinflux',\
 	bnd.identity;id='io.openems.backend.timedata.dummy',\
 	bnd.identity;id='io.openems.backend.timedata.influx',\
@@ -75,6 +76,7 @@
 	io.openems.backend.metadata.file;version=snapshot,\
 	io.openems.backend.metadata.odoo;version=snapshot,\
 	io.openems.backend.oem.fenecon;version=snapshot,\
+	io.openems.backend.simulation.engine;version=snapshot,\
 	io.openems.backend.timedata.aggregatedinflux;version=snapshot,\
 	io.openems.backend.timedata.dummy;version=snapshot,\
 	io.openems.backend.timedata.influx;version=snapshot,\
@@ -106,7 +108,7 @@
 	org.apache.felix.inventory;version='[2.0.0,2.0.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
 	org.apache.felix.scr;version='[2.2.10,2.2.11)',\
-	org.apache.felix.webconsole;version='[5.0.0,5.0.1)',\
+	org.apache.felix.webconsole;version='[5.0.2,5.0.3)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
 	org.jetbrains.kotlin.osgi-bundle;version='[1.9.23,1.9.24)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\

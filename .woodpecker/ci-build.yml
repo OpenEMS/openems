@@ -93,6 +93,8 @@ steps:
       - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g angular.json src/themes/fenecon/root/site.webmanifest
       - node_modules/.bin/ng config cli.cache.path "$NG_CLI_CACHE_PATH"
       - node_modules/.bin/ng lint
+      - node_modules/.bin/tsc
+      - node_modules/.bin/tsc-strict
       - node_modules/.bin/ng build --base-href /${CI_COMMIT_BRANCH}/ -c "$OEM,$OEM-backend-prod,prod"
       - npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
     depends_on: [prepare-environment]

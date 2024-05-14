@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.f2b.BatteryFeneconF2b;
@@ -15,6 +14,7 @@ import io.openems.edge.common.channel.AbstractChannelListenerManager;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.type.TypeUtils;
 
 public class ChannelManager extends AbstractChannelListenerManager {
@@ -98,26 +98,6 @@ public class ChannelManager extends AbstractChannelListenerManager {
 		}
 	}
 
-	protected void setBatteryVoltageLimits(List<BatteryFeneconF2b> batteries, //
-			Battery.ChannelId firstChannelId, //
-			Battery.ChannelId secondChannelId, //
-			BiFunction<Integer, Integer, Integer> channelsMethod, //
-			BiFunction<Integer, Integer, Integer> resultMethod, //
-			Consumer<Integer> batteryMethod) {
-		this.setBatteryLimits(batteries, firstChannelId, secondChannelId, channelsMethod, resultMethod, batteryMethod,
-				TypeUtils::abs);
-	}
-
-	protected void setBatteryCurrentLimits(List<BatteryFeneconF2b> batteries, //
-			Battery.ChannelId firstChannelId, //
-			Battery.ChannelId secondChannelId, //
-			BiFunction<Integer, Integer, Integer> channelsMethod, //
-			BiFunction<Integer, Integer, Integer> resultMethod, //
-			Consumer<Integer> batteryMethod) {
-		this.setBatteryLimits(batteries, firstChannelId, secondChannelId, channelsMethod, resultMethod, batteryMethod,
-				Function.identity());
-	}
-
 	/**
 	 * For each battery, according to the given method {@code "channelsMethod"}
 	 * first and second channel actual value calculates and each calculated value
@@ -135,9 +115,6 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	 *                        of second channels result and delta minimum.
 	 * @param batteryMethod   A default {@link Battery} interface method to set the
 	 *                        value on required channel.
-	 * @param mapper          Only to decide whether {@link TypeUtils#abs} method
-	 *                        necessary. The main difference comes from voltage(only
-	 *                        positive) and current(can be negative) values.
 	 */
 	protected void setBatteryLimits(//
 			List<BatteryFeneconF2b> batteries, //
@@ -145,8 +122,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 			Battery.ChannelId secondChannelId, //
 			BiFunction<Integer, Integer, Integer> channelsMethod, //
 			BiFunction<Integer, Integer, Integer> resultMethod, //
-			Consumer<Integer> batteryMethod, //
-			Function<Integer, Integer> mapper //
+			Consumer<Integer> batteryMethod //
 	) {
 		final Consumer<Value<Integer>> callback = (value) -> {
 			if (!this.parent.isStarted()) {
@@ -155,7 +131,8 @@ public class ChannelManager extends AbstractChannelListenerManager {
 			}
 			Integer sumOfSecondChannelValues = null;
 			List<Integer> differences = new ArrayList<>();
-			for (var battery : batteries) {
+			final var startedBatteries = batteries.stream().filter(StartStoppable::isStarted).toList();
+			for (var battery : startedBatteries) {
 				IntegerReadChannel firstChannel = battery.channel(firstChannelId);
 				IntegerReadChannel secondChannel = battery.channel(secondChannelId);
 				var firstChannelValue = firstChannel.getNextValue();
@@ -165,22 +142,29 @@ public class ChannelManager extends AbstractChannelListenerManager {
 					batteryMethod.accept(null);
 					return;
 				}
-				var deltaMin = mapper.apply(//
-						channelsMethod.apply(//
+				var deltaMin = firstChannelId == Battery.ChannelId.DISCHARGE_MIN_VOLTAGE //
+						? channelsMethod.apply(//
+								secondChannelValue.get(), //
+								firstChannelValue.get())
+						: channelsMethod.apply(//
 								firstChannelValue.get(), //
-								secondChannelValue.get()));
+								secondChannelValue.get());
 				if (deltaMin != null) {
 					differences.add(deltaMin);
 				}
+
 				sumOfSecondChannelValues = TypeUtils.sum(//
 						sumOfSecondChannelValues, //
 						secondChannelValue.get());
 			}
 			if (sumOfSecondChannelValues != null && !differences.isEmpty()) {
 				var minDifference = differences.stream().min(Integer::compareTo).get();
-				var limitValue = TypeUtils.abs(resultMethod.apply(//
-						sumOfSecondChannelValues, //
-						TypeUtils.multiply(batteries.size(), minDifference)));
+				var limitValue = firstChannelId == Battery.ChannelId.CHARGE_MAX_CURRENT //
+						? resultMethod.apply(//
+								TypeUtils.multiply(startedBatteries.size(), minDifference), sumOfSecondChannelValues)
+						: resultMethod.apply(//
+								sumOfSecondChannelValues, //
+								TypeUtils.multiply(startedBatteries.size(), minDifference));
 				batteryMethod.accept(TypeUtils.averageInt(limitValue));
 			}
 		};

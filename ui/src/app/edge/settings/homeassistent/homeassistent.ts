@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { formatNumber } from '@angular/common';
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';

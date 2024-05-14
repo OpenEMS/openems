@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
 import { Utils } from '../shared';
@@ -59,21 +60,6 @@ export class AdvertWidgets {
     public static parseAdvertWidgets(edge: Edge, config: EdgeConfig) {
 
         let list: AdvertWidget[] = [];
-
-        //Temporarily removing from displaying this advertise.
-        if (edge.producttype == ProductType.HOME || edge.producttype == ProductType.HOME_20_30) {
-            list.push({
-                name: 'dynamic-electricity-tariff',
-                title: 'Bis zu 30 % Stromkosten sparen',
-            });
-        }
-
-        /*
-        list.push({
-            name: 'Alerting',
-            title: 'Neue Benachrichtigungsfunktion jetzt verfügbar!'
-        })
-        */
 
         list = Utils.shuffleArray(list);
         return new AdvertWidgets(list);

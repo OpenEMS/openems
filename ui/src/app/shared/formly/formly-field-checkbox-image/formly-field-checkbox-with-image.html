@@ -10,12 +10,10 @@
                 </ion-item>
             </ion-col>
         </ion-row>
-        <ion-row class=" ion-justify-content-center" *ngIf="value">
-            <ion-col>
-                <ion-item>
-                    <ion-img [src]="props.url"></ion-img>
+        <ion-row class="ion-justify-content-center" *ngIf="value">
+            <ion-item lines="none">
+                    <img class="center" [src]="props.url">
                 </ion-item>
-            </ion-col>
         </ion-row>
     </ion-card>
 </ion-grid>

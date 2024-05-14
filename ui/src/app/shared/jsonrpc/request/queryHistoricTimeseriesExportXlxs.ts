@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { format } from 'date-fns';
 import { JsonrpcRequest } from '../base';
 

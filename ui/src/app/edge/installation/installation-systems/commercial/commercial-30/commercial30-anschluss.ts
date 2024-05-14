@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';

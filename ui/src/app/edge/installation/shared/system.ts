@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractIbn } from "../installation-systems/abstract-ibn";
 import { Commercial30AnschlussIbn } from "../installation-systems/commercial/commercial-30/commercial30-anschluss";

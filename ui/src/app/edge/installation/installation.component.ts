@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -61,6 +62,7 @@ export class InstallationComponent implements OnInit {
         // So we have to mention what type of implementation it is.
         // This is helpful particularly if installer does the refresh in between views.
         ibn = this.getIbn(systemId);
+        ibn.showViewCount = ibnString.showViewCount ?? false;
         ibn.views = ibnString.views ?? [];
         ibn.customer = ibnString.customer ?? {};
         ibn.installer = ibnString.installer ?? {};

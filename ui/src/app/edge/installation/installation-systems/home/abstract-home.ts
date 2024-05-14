@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -16,6 +17,22 @@ import { SystemId, SystemType } from '../../shared/system';
 import { BaseMode, ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
 import { SafetyCountry } from '../../views/configuration-execute/safety-country';
 import { AbstractIbn, SchedulerIdBehaviour } from '../abstract-ibn';
+
+/**
+ * Represents common properties shared between Home 20 and Home 30 configurations.
+ */
+export type Home2030CommonApp = {
+  SAFETY_COUNTRY: SafetyCountry,
+  FEED_IN_TYPE: FeedInType,
+  FEED_IN_SETTING: string,
+  GRID_METER_CATEGORY: Meter.GridMeterCategory,
+  CT_RATIO_FIRST: number,
+  MAX_FEED_IN_POWER?: number,
+  HAS_EMERGENCY_RESERVE: boolean,
+  EMERGENCY_RESERVE_ENABLED?: boolean,
+  EMERGENCY_RESERVE_SOC?: number,
+  SHADOW_MANAGEMENT_DISABLED?: boolean
+}
 
 export abstract class AbstractHomeIbn extends AbstractIbn {
   private static readonly SELECTOR = 'Home';
@@ -97,6 +114,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
   public abstract readonly emsBoxLabel: Category;
   public abstract readonly maxNumberOfPvStrings: number;
+  public abstract readonly maxNumberOfMppt: number;
   public abstract readonly homeAppId: string;
   public abstract readonly homeAppAlias: string;
   public abstract readonly maxNumberOfTowers: number;
@@ -486,34 +504,40 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
     let pvNr: number = 1;
     for (const dc of this.pv.dc) {
-      const mppt: number = this.maxNumberOfPvStrings > 2 ? Math.ceil(pvNr / 2) : pvNr;
+      const mppt: number = pvNr;
       if (dc.isSelected) {
         pvData.push(
           {
-            label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.ALIAS_WITH_LABEL_HOME_DC', { mppt: mppt, pv: pvNr }),
+            label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.ALIAS_WITH_LABEL_HOME_DC', { mppt: mppt }),
             value: dc.alias,
           },
           {
-            label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.VALUE_WITH_LABEL_HOME_DC', { mppt: mppt, pv: pvNr, symbol: '' }),
+            label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.VALUE_WITH_LABEL_HOME_DC', { mppt: mppt, symbol: '' }),
             value: dc.value,
           },
         );
         if (dc.orientation) {
           pvData.push({
-            label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.ORIENTATION_WITH_LABEL_HOME_DC', { mppt: mppt, pv: pvNr }),
+            label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.ORIENTATION_WITH_LABEL_HOME_DC', { mppt: mppt }),
             value: dc.orientation,
           });
         }
         if (dc.moduleType) {
           pvData.push({
-            label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.MODULE_TYPE_WITH_LABEL_HOME_DC', { mppt: mppt, pv: pvNr }),
+            label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.MODULE_TYPE_WITH_LABEL_HOME_DC', { mppt: mppt }),
             value: dc.moduleType,
           });
         }
         if (dc.modulesPerString) {
           pvData.push({
-            label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.NUMBER_OF_MODULES_WITH_LABEL_HOME_DC', { mppt: mppt, pv: pvNr }),
+            label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.NUMBER_OF_MODULES_WITH_LABEL_HOME_DC', { mppt: mppt }),
             value: dc.modulesPerString,
+          });
+        }
+        if (this.maxNumberOfMppt !== -1) {
+          pvData.push({
+            label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.BOTH_SELECTED_LABEL', { pv1: pvNr * 2 - 1, pv2: pvNr * 2 }),
+            value: dc.portsConnected ? this.translate.instant('General.yes') : this.translate.instant('General.no'),
           });
         }
       }
@@ -575,7 +599,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
             category: Category.DC_PV_INSTALLATION,
             name: this.translate.instant('INSTALLATION.VALUE_WITH_LABEL', { label: label, number: dcNr, symbol: '[Wp]' }),
             value: dc.value ? dc.value.toString() : '',
-          });
+          },
+        );
 
         dc.orientation && protocol.items.push({
           category: Category.DC_PV_INSTALLATION,
@@ -594,6 +619,14 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           name: this.translate.instant('INSTALLATION.PROTOCOL_PV.NUMBER_OF_MODULES_WITH_LABEL', { label: label, number: dcNr }),
           value: dc.modulesPerString ? dc.modulesPerString.toString() : '',
         });
+
+        if (this.maxNumberOfMppt !== -1) {
+          protocol.items.push({
+            category: Category.DC_PV_INSTALLATION,
+            name: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.BOTH_SELECTED_LABEL', { pv1: dcNr * 2 - 1, pv2: dcNr * 2 }),
+            value: dc.portsConnected ? this.translate.instant('General.yes') : this.translate.instant('General.no'),
+          });
+        }
       }
     }
 
@@ -1014,7 +1047,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
   public addHomeDcConfiguration(componentConfigurator: ComponentConfigurator, baseMode: BaseMode) {
 
     // Chargers
-    for (let i = 0; i < this.maxNumberOfPvStrings; i++) {
+    for (let i = 0; i < (this.maxNumberOfMppt === -1 ? this.maxNumberOfPvStrings : this.maxNumberOfMppt); i++) {
       const dc = this.pv.dc[i];
       let factoryId: string;
       let alias: string;
@@ -1064,5 +1097,30 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     }
 
     return meterData;
+  }
+
+  /**
+   * Retrieves the common properties for Home20 and Home30 configurations.
+   *
+   * @param safetyCountry - The safety country configuration.
+   * @param feedInSetting - The feed-in setting configuration.
+   * @returns An object containing the common properties for Home 20/30 application.
+   */
+  public getCommonPropertiesForHome2030(safetyCountry: SafetyCountry, feedInSetting: FeedInSetting): Home2030CommonApp {
+
+    const home20_30CommonApp: Home2030CommonApp = {
+      SAFETY_COUNTRY: safetyCountry,
+      FEED_IN_TYPE: this.feedInLimitation.feedInType,
+      ...(this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION && { MAX_FEED_IN_POWER: this.feedInLimitation.maximumFeedInPower }),
+      FEED_IN_SETTING: feedInSetting,
+      GRID_METER_CATEGORY: this.energyFlowMeter.meter,
+      ...(this.energyFlowMeter.meter === Meter.GridMeterCategory.COMMERCIAL_METER && { CT_RATIO_FIRST: this.energyFlowMeter.value }),
+      HAS_EMERGENCY_RESERVE: this.emergencyReserve.isEnabled,
+      ...(this.emergencyReserve.isEnabled && { EMERGENCY_RESERVE_ENABLED: this.emergencyReserve.isReserveSocEnabled }),
+      ...(this.emergencyReserve.isReserveSocEnabled && { EMERGENCY_RESERVE_SOC: this.emergencyReserve.value }),
+      ...(this.batteryInverter?.shadowManagementDisabled && { SHADOW_MANAGEMENT_DISABLED: true }),
+    };
+
+    return home20_30CommonApp;
   }
 }

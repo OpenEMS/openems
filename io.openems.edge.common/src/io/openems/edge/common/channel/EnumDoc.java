@@ -43,7 +43,9 @@ public class EnumDoc extends AbstractDoc<Integer> {
 	 * @return myself
 	 */
 	public EnumDoc initialValue(OptionsEnum initialValue) {
-		this.initialValue(initialValue.getValue());
+		if (initialValue != null) {
+			this.initialValue(initialValue.getValue());
+		}
 		return this.self();
 	}
 

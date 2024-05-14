@@ -36,6 +36,7 @@ import io.openems.edge.battery.fenecon.f2b.cluster.common.ChannelManager;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.statemachine.Context;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.statemachine.StateMachine;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.statemachine.StateMachine.State;
+import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -91,6 +92,7 @@ public class BatteryFeneconF2bClusterParallelImpl extends AbstractBatteryFenecon
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				BatteryFeneconF2b.ChannelId.values(), //
+				BatteryProtection.ChannelId.values(), //
 				BatteryFeneconF2bCluster.ChannelId.values(), //
 				BatteryFeneconF2bClusterParallel.ChannelId.values(), //
 				StartStoppable.ChannelId.values() //
@@ -241,7 +243,8 @@ public class BatteryFeneconF2bClusterParallelImpl extends AbstractBatteryFenecon
 			return this.batteries;
 		}
 		this._setVoltageDifferenceHigh(true);
-		return batteryInternalVoltageList.stream().filter(map -> map.getKey().get() < this.getMaxInternalVoltage().getAsInt())//
+		return batteryInternalVoltageList.stream()
+				.filter(map -> map.getKey().get() < this.getMaxInternalVoltage().getAsInt())//
 				.map(Map.Entry::getValue)//
 				.toList();
 	}

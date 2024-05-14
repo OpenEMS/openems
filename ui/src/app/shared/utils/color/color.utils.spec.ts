@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ColorUtils } from "./color.utils";
 
 describe('Color-Utils', () => {

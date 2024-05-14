@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Language } from "src/app/shared/type/language";
 import { environment } from "src/environments";
 

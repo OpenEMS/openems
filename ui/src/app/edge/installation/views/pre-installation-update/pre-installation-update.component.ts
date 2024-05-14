@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { SystemUpdateState } from 'src/app/edge/settings/system/getSystemUpdateStateResponse';

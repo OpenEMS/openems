@@ -56,17 +56,17 @@ public interface BatteryFeneconF2b extends Battery {
 				.text("F2B Terminal 30 C no input voltage") //
 				.accessMode(AccessMode.READ_ONLY)), //
 
-		F2B_T30C_OUTPUT_ERROR(Doc.of(Level.FAULT)//
-				.text("F2B Terminal 30 C output error") //
+		F2B_T30C_OUTPUT_ERROR(Doc.of(Level.WARNING)//
+				.text("F2B Terminal 30 C output warning") //
 				.accessMode(AccessMode.READ_ONLY)), //
 
 		// F2B_T15_HARDWARE_ERROR, Hardware error of T15 output (to battery)
-		F2B_TERMINAL_15_HW_ERROR(Doc.of(Level.FAULT)//
+		F2B_TERMINAL_15_HW_ERROR(Doc.of(Level.WARNING)//
 				.text("F2B Terminal 15 HW error") //
 				.accessMode(AccessMode.READ_ONLY)), //
 
 		// Error of HV Power Supply → T15, CAN, … not working
-		F2B_POWER_SUPPLY_ERROR_HV_SIDE(Doc.of(Level.FAULT)//
+		F2B_POWER_SUPPLY_ERROR_HV_SIDE(Doc.of(Level.WARNING)//
 				.text("F2B power supply error HV side") //
 				.accessMode(AccessMode.READ_ONLY)), //
 

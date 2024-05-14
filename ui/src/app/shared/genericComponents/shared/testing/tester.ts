@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import * as Chart from "chart.js";
 import { ChartDataset } from "chart.js";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";

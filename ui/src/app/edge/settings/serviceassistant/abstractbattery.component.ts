@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { SetChannelValueRequest } from "src/app/shared/jsonrpc/request/setChannelValueRequest";
 import { TranslateService } from "@ngx-translate/core";

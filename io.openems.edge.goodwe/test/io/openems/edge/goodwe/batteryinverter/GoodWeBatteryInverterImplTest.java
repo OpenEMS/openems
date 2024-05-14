@@ -1,14 +1,21 @@
 package io.openems.edge.goodwe.batteryinverter;
 
+import static io.openems.edge.goodwe.batteryinverter.GoodWeBatteryInverterImpl.doSetBmsVoltage;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.goodwe.GoodWeConstants;
@@ -111,6 +118,7 @@ public class GoodWeBatteryInverterImplTest {
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.addReference("sum", new DummySum()) //
 				.addComponent(charger) //
@@ -125,6 +133,7 @@ public class GoodWeBatteryInverterImplTest {
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.REMOTE) //
+						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, 0) //
@@ -145,6 +154,7 @@ public class GoodWeBatteryInverterImplTest {
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
@@ -158,6 +168,7 @@ public class GoodWeBatteryInverterImplTest {
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.REMOTE) //
+						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, 0) //
@@ -177,6 +188,7 @@ public class GoodWeBatteryInverterImplTest {
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
@@ -190,6 +202,7 @@ public class GoodWeBatteryInverterImplTest {
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.REMOTE) //
+						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, 0) //
@@ -209,6 +222,7 @@ public class GoodWeBatteryInverterImplTest {
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
@@ -222,6 +236,7 @@ public class GoodWeBatteryInverterImplTest {
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
@@ -253,6 +268,7 @@ public class GoodWeBatteryInverterImplTest {
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addComponent(charger) //
 				.addComponent(BATTERY) //
@@ -267,6 +283,7 @@ public class GoodWeBatteryInverterImplTest {
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
@@ -284,6 +301,7 @@ public class GoodWeBatteryInverterImplTest {
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
@@ -297,6 +315,7 @@ public class GoodWeBatteryInverterImplTest {
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
@@ -314,6 +333,7 @@ public class GoodWeBatteryInverterImplTest {
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
@@ -327,6 +347,7 @@ public class GoodWeBatteryInverterImplTest {
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
@@ -344,6 +365,7 @@ public class GoodWeBatteryInverterImplTest {
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
@@ -357,6 +379,7 @@ public class GoodWeBatteryInverterImplTest {
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
@@ -374,6 +397,7 @@ public class GoodWeBatteryInverterImplTest {
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
@@ -387,6 +411,7 @@ public class GoodWeBatteryInverterImplTest {
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
@@ -404,6 +429,7 @@ public class GoodWeBatteryInverterImplTest {
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.addReference("sum", new DummySum()) //
 				.addComponent(BATTERY).activate(MyConfig.create() //
@@ -417,6 +443,7 @@ public class GoodWeBatteryInverterImplTest {
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
 						.input(WBMS_CHARGE_MAX_CURRENT, 0) //
@@ -499,6 +526,7 @@ public class GoodWeBatteryInverterImplTest {
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.addReference("sum", new DummySum()) //
 				.addComponent(charger1) //
@@ -515,6 +543,7 @@ public class GoodWeBatteryInverterImplTest {
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
 						.input(MPPT1_I, 20) //
@@ -571,6 +600,7 @@ public class GoodWeBatteryInverterImplTest {
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.addReference("sum", new DummySum()) //
 				.addComponent(charger3) //
@@ -587,6 +617,7 @@ public class GoodWeBatteryInverterImplTest {
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
 						.input(MPPT2_I, 20) //
@@ -643,6 +674,7 @@ public class GoodWeBatteryInverterImplTest {
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.addReference("sum", new DummySum()) //
 				.addComponent(charger5) //
@@ -659,6 +691,7 @@ public class GoodWeBatteryInverterImplTest {
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
 						.input(MPPT3_I, 20) //
@@ -706,5 +739,38 @@ public class GoodWeBatteryInverterImplTest {
 						.output(CHARGER_5_ACTUAL_POWER, 2000) //
 						.output(CHARGER_6_ACTUAL_POWER, 0) //
 				);
+	}
+
+	@Test
+	public void testDoSetBmsVoltage() {
+		final var battery = new DummyBattery("battery0");
+		final var bmsChargeMaxVoltage = new Value<Integer>(null, 123);
+		final var bmsDischargeMinVoltage = new Value<Integer>(null, 456);
+
+		// No battery values
+		assertFalse(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1, bmsDischargeMinVoltage, 1));
+		battery //
+				.withChargeMaxCurrent(234) //
+				.withDischargeMaxCurrent(234);
+
+		// Battery full
+		battery //
+				.withChargeMaxCurrent(0); //
+		assertFalse(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1, bmsDischargeMinVoltage, 1));
+
+		// Battery empty
+		battery //
+				.withDischargeMaxCurrent(0); //
+		assertFalse(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1, bmsDischargeMinVoltage, 1));
+
+		// Values are already set
+		battery //
+				.withChargeMaxCurrent(234) //
+				.withDischargeMaxCurrent(234);
+		assertFalse(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 123, bmsDischargeMinVoltage, 456));
+
+		// Values should be updated
+		assertTrue(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1, bmsDischargeMinVoltage, 456));
+		assertTrue(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 123, bmsDischargeMinVoltage, 1));
 	}
 }

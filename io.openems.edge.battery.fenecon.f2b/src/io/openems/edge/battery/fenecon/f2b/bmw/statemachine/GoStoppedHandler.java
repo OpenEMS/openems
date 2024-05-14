@@ -48,7 +48,7 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 		var nextSubState = this.getNextSubState(context);
 		battery.channel(BatteryFeneconF2bBmw.ChannelId.GO_RUNNING_STATE_MACHINE).setNextValue(nextSubState);
 
-		var now = Instant.now(context.clock);
+		final var now = Instant.now(context.clock);
 		if (nextSubState != this.goStoppedState.subState) {
 			// Record State changes
 			this.goStoppedState = new GoStoppedState(nextSubState, now);
@@ -109,8 +109,8 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 			yield GoStoppedSubState.WAIT_FOURTY_SECONDS;
 		}
 		case WAIT_FOURTY_SECONDS -> {
-			var now = Instant.now(context.clock);
-			if (this.goStoppedState.lastChange.isAfter(now.minusSeconds(WAIT_UNTIL_BATTERY_IS_IN_STANDBY_STATE))) {
+			final var now = Instant.now(context.clock);
+			if (now.minusSeconds(WAIT_UNTIL_BATTERY_IS_IN_STANDBY_STATE).isAfter(this.goStoppedState.lastChange)) {
 				battery.setF2bCanCommunication(F2bCanCommunication.CAN_OFF);
 				var anyValueDefined = getValues(battery, BatteryValues.class).isPresent();
 				if (!anyValueDefined) {

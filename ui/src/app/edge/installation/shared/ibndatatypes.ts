@@ -25,7 +25,8 @@ export type DcPv = {
     value?: number,
     orientation?: string,
     moduleType?: string,
-    modulesPerString?: number
+    modulesPerString?: number,
+    portsConnected?: boolean,
 };
 
 export type dcForm = {

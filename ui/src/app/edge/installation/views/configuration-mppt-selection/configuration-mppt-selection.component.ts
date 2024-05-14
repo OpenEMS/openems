@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
@@ -41,20 +42,20 @@ export class ConfigurationMpptSelectionComponent implements OnInit {
   public getFields(): FormlyFieldConfig[] {
     const fields: FormlyFieldConfig[] = [];
 
-    for (let strings = 1; strings <= this.ibn.maxNumberOfPvStrings; strings++) {
+    for (let strings = 1; strings <= (this.ibn.maxNumberOfMppt !== -1 ? this.ibn.maxNumberOfMppt : this.ibn.maxNumberOfPvStrings); strings++) {
 
-      const mppt = Math.ceil(strings / 2);
-      const key: string = 'mppt' + mppt + 'pv' + strings;
-      const label: string = strings % 2 // Every second label has a different label.
+      const mppt = strings;
+      const key: string = 'mppt' + mppt;
+      const label: string = this.ibn.maxNumberOfMppt === -1 // Every second label has a different label.
         ? this.translate.instant('INSTALLATION.PROTOCOL_PV.MARKED_AS', { mppt: mppt, pv: strings })
-        : this.translate.instant('INSTALLATION.PROTOCOL_PV.DUPLICATE', { mppt: mppt, pv: strings });
+        : this.translate.instant('INSTALLATION.PROTOCOL_PV.MARKED_AS_BOTH_STRINGS', { mppt: mppt, pv1: strings * 2 - 1, pv2: strings * 2 });
       const defaultValue: boolean = this.model[key];
 
       fields.push({
         key: key,
         props: {
           label: label,
-          url: 'assets/img/home-mppt/' + mppt + '.' + strings + '.png',
+          url: this.ibn.maxNumberOfMppt === -1 ? 'assets/img/home-mppt/' + mppt + '.' + strings + '.png' : this.ibn.getImageUrl(mppt),
         },
         defaultValue: defaultValue,
         wrappers: ['formly-field-checkbox-with-image'],

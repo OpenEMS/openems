@@ -2,8 +2,6 @@ import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 import { AdvertisementComponent } from './advertisement.component';
-import { FlatComponent } from './dynamic-electricity-tariff/flat';
-import { ModalComponent } from './dynamic-electricity-tariff/modal';
 
 @NgModule({
     imports: [
@@ -11,8 +9,6 @@ import { ModalComponent } from './dynamic-electricity-tariff/modal';
     ],
     declarations: [
         AdvertisementComponent,
-        FlatComponent,
-        ModalComponent,
     ],
     exports: [
         AdvertisementComponent,

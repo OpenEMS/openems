@@ -1,6 +1,6 @@
 {
   "name": "openems-ui",
-  "version": "2024.4.1",
+  "version": "2024.5.1",
   "license": "AGPL-3.0",
   "private": true,
   "dependencies": {
@@ -68,7 +68,8 @@
     "karma-jasmine-html-reporter": "^2.1.0",
     "protractor": "~7.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "~4.9.5"
+    "typescript": "~4.9.5",
+    "typescript-strict-plugin": "^2.4.1"
   },
   "scripts": {
     "lint": "ng lint",

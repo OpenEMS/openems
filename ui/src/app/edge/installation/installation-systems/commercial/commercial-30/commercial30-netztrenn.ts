@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';

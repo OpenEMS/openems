@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { registerLocaleData } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';

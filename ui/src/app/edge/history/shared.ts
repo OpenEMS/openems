@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import * as Chart from 'chart.js';
 import { differenceInDays, differenceInMinutes, startOfDay } from 'date-fns';
 import { de } from 'date-fns/locale';

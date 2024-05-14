@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
