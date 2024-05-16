@@ -1,0 +1,3 @@
+= Stabl Ess
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.stabl[Source Code icon:github[]]
