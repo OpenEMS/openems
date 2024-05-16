@@ -18,7 +18,7 @@ public class MqttConnectionManager {
 	private String privateKeyPem;
 	private String trustStorePem;
 
-	private MqttClient client;
+	public MqttClient client;
 
 	public MqttConnectionManager(String broker, String clientId) {
 		this.broker = broker;
@@ -36,6 +36,7 @@ public class MqttConnectionManager {
 		this.trustStorePem = trustStorePem;
 	}
 
+	
 	/**
 	 * Establishes a connection to the MQTT broker.
 	 *
@@ -43,11 +44,12 @@ public class MqttConnectionManager {
 	 */
 	public void connect() throws MqttException {
 		this.client = new MqttClient(this.broker, this.clientId);
+		System.out.println(this.client.getClientId());
 		MqttConnectionOptions connOpts = new MqttConnectionOptions();
 
 		connOpts.setAutomaticReconnect(true);
 		connOpts.setCleanStart(true);
-		connOpts.setConnectionTimeout(10);
+		connOpts.setConnectionTimeout(10000);
 
 		if (this.username != null && !this.username.isBlank()) {
 			connOpts.setUserName(this.username);
@@ -63,7 +65,9 @@ public class MqttConnectionManager {
 			connOpts.setSocketFactory(createSslSocketFactory(this.certPem, this.privateKeyPem, this.trustStorePem));
 		}
 
+		System.out.println(this.client.getClientId());
 		this.client.connect(connOpts);
+		System.out.println("Return");
 	}
 
 	/**
