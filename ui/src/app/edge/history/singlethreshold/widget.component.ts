@@ -1,14 +1,16 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 import { calculateActiveTimeOverPeriod } from '../shared';
 
 @Component({
     selector: SinglethresholdWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: './widget.component.html',
 })
 export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
@@ -22,8 +24,8 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
     public component: EdgeConfig.Component = null;
 
     constructor(
-        public service: Service,
-        private route: ActivatedRoute
+        public override service: Service,
+        private route: ActivatedRoute,
     ) {
         super(service);
     }
@@ -43,13 +45,13 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
 
     ngOnChanges() {
         this.updateValues();
-    };
+    }
 
-    // Gather result & timestamps to calculate effective active time in % 
+    // Gather result & timestamps to calculate effective active time in %
     protected updateValues() {
         this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).then(response => {
             this.service.getConfig().then(config => {
-                let result = (response as QueryHistoricTimeseriesDataResponse).result;
+                const result = (response as QueryHistoricTimeseriesDataResponse).result;
                 let outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
                 if (typeof outputChannelAddress !== 'string') {
                     // Takes only the first output for simplicity reasons
@@ -58,11 +60,11 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
                 this.activeSecondsOverPeriod = calculateActiveTimeOverPeriod(ChannelAddress.fromString(outputChannelAddress), result);
             });
         });
-    };
+    }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+            const outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
             if (typeof outputChannelAddress === 'string') {
                 resolve([ChannelAddress.fromString(outputChannelAddress)]);
             } else {

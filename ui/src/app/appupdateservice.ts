@@ -4,20 +4,15 @@ import { SwUpdate } from "@angular/service-worker";
 import { Service } from "./shared/shared";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CheckForUpdateService {
 
   constructor(private update: SwUpdate,
-    private service: Service
+    private service: Service,
   ) { }
 
   init() {
-    let userId: string;
-    this.service.metadata.subscribe(entry => {
-      userId = entry?.user?.id ?? null;
-    });
-
     setInterval(async () => {
       const updateFound = await this.update.checkForUpdate();
       console.log(updateFound ? 'A new version is available.' : 'Already on the latest version.');

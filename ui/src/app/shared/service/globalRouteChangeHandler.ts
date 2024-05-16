@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { Router, RoutesRecognized } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -6,14 +7,14 @@ import { filter, map } from 'rxjs/operators';
 import { Service } from "./service";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class GlobalRouteChangeHandler {
 
   constructor(
     public service: Service,
     private router: Router,
-    private translate: TranslateService
+    private translate: TranslateService,
   ) {
 
     this.router.events.pipe(
@@ -28,7 +29,7 @@ export class GlobalRouteChangeHandler {
         }
 
         return data;
-      })
+      }),
     ).subscribe(e => {
 
       if (e.navbarTitle != null && e.navbarTitleToBeTranslated != null) {

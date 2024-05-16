@@ -4,6 +4,7 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -19,8 +20,11 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -28,11 +32,14 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
+import io.openems.edge.common.channel.ChannelUtils;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -56,15 +63,19 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 				"type=GRID" //
 		})
 @EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implements GoodWeGridMeter, ElectricityMeter,
 		ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
+	private final Logger log = LoggerFactory.getLogger(GoodWeGridMeterImpl.class);
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+
+	private Config config;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -94,6 +105,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
+		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -106,9 +118,15 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 		super.deactivate();
 	}
 
+	private final ElementToChannelConverter ignoreZeroAndScaleFactor1 = IgnoreZeroConverter.from(this, SCALE_FACTOR_1);
+	private final ElementToChannelConverter ignoreZeroAndScaleFactor2 = IgnoreZeroConverter.from(this, SCALE_FACTOR_2);
+	private final ElementToChannelConverter ignoreZeroAndScaleFactorMinus2 = IgnoreZeroConverter.from(this,
+			SCALE_FACTOR_MINUS_2);
+	private final ElementToChannelConverter ignoreZeroAndInvert = IgnoreZeroConverter.from(this, INVERT);
+
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		return new ModbusProtocol(this, //
+	protected ModbusProtocol defineModbusProtocol() {
+		var protocol = new ModbusProtocol(this, //
 
 				// States
 				new FC3ReadRegistersTask(36003, Priority.LOW,
@@ -131,40 +149,127 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 								}))), //
 
 				new FC3ReadRegistersTask(35123, Priority.LOW, //
-						m(GoodWeGridMeter.ChannelId.F_GRID_R, new UnsignedWordElement(35123), SCALE_FACTOR_MINUS_2), // //
+						m(GoodWeGridMeter.ChannelId.F_GRID_R, new UnsignedWordElement(35123),
+								this.ignoreZeroAndScaleFactorMinus2), // //
 						new DummyRegisterElement(35124, 35127), //
-						m(GoodWeGridMeter.ChannelId.F_GRID_S, new UnsignedWordElement(35128), SCALE_FACTOR_MINUS_2),
+						m(GoodWeGridMeter.ChannelId.F_GRID_S, new UnsignedWordElement(35128),
+								this.ignoreZeroAndScaleFactorMinus2),
 						new DummyRegisterElement(35129, 35132),
-						m(GoodWeGridMeter.ChannelId.F_GRID_T, new UnsignedWordElement(35133), SCALE_FACTOR_MINUS_2), //
+						m(GoodWeGridMeter.ChannelId.F_GRID_T, new UnsignedWordElement(35133),
+								this.ignoreZeroAndScaleFactorMinus2), //
 						m(GoodWeGridMeter.ChannelId.P_GRID_T, new SignedDoublewordElement(35134),
-								SCALE_FACTOR_MINUS_2)), //
+								this.ignoreZeroAndScaleFactorMinus2)), //
 
 				// Active and reactive power, Power factor and frequency
 				// Voltage, current and Grid Frequency of each phase
 				new FC3ReadRegistersTask(36005, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(36005), INVERT), //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(36006), INVERT), //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(36007), INVERT), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(36005),
+								this.ignoreZeroAndInvert), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(36006),
+								this.ignoreZeroAndInvert), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(36007),
+								this.ignoreZeroAndInvert), //
 						new DummyRegisterElement(36008, 36012), //
 						m(GoodWeGridMeter.ChannelId.METER_POWER_FACTOR, new UnsignedWordElement(36013),
-								SCALE_FACTOR_MINUS_2), //
-						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014), SCALE_FACTOR_1),
-						new DummyRegisterElement(36015, 36051),
-						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(36052), SCALE_FACTOR_2), //
-						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(36053), SCALE_FACTOR_2), //
-						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(36054), SCALE_FACTOR_2), //
-						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(36055), SCALE_FACTOR_2), //
-						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(36056), SCALE_FACTOR_2), //
-						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(36057), SCALE_FACTOR_2))); //
+								this.ignoreZeroAndScaleFactorMinus2), //
+						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014),
+								this.ignoreZeroAndScaleFactor1)));
+
+		// Handles different DSP versions
+		readElementOnce(protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(35016)).thenAccept(dspVersion -> {
+			if (dspVersion >= 4 || dspVersion == 0) {
+				this.handleDspVersion4(protocol);
+			}
+		});
+
+		switch (this.config.goodWeMeterCategory()) {
+		case COMMERCIAL_METER -> this.handleExternalMeter(protocol);
+		case SMART_METER -> {
+		}
+		}
+
+		return protocol;
+	}
+
+	/**
+	 * Adds Registers that are available from DSP version 4.
+	 * 
+	 * @param protocol the {@link ModbusProtocol}
+	 */
+	private void handleDspVersion4(ModbusProtocol protocol) {
+		protocol.addTask(//
+				new FC3ReadRegistersTask(36052, Priority.LOW, //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(36052),
+								this.ignoreZeroAndScaleFactor2), //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(36053),
+								this.ignoreZeroAndScaleFactor2), //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(36054),
+								this.ignoreZeroAndScaleFactor2), //
+						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(36055),
+								this.ignoreZeroAndScaleFactor2), //
+						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(36056),
+								this.ignoreZeroAndScaleFactor2), //
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(36057),
+								this.ignoreZeroAndScaleFactor2))); //
+	}
+
+	private void handleExternalMeter(ModbusProtocol protocol) {
+
+		protocol.addTask(//
+				new FC6WriteRegisterTask(47456,
+						m(GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO, new UnsignedWordElement(47456)) //
+				)); //
+
+		protocol.addTask(//
+				new FC3ReadRegistersTask(47456, Priority.LOW, //
+						m(GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO, new UnsignedWordElement(47456)) //
+				)); //
 	}
 
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.calculateEnergy();
-			break;
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
+
+			switch (this.config.goodWeMeterCategory()) {
+			case COMMERCIAL_METER -> this.setExternalMeterValue();
+			case SMART_METER -> {
+			}
+			}
 		}
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.calculateEnergy();
+		}
+	}
+
+	/**
+	 * Set channel for external meter if configured.
+	 */
+	protected void setExternalMeterValue() {
+		final var meterCtRatio = calculateRatio(this.config.externalMeterRatioValueA(),
+				this.config.externalMeterRatioValueB());
+
+		try {
+			ChannelUtils.setWriteValueIfNotRead(this.getExternalMeterRatioChannel(), meterCtRatio);
+		} catch (OpenemsNamedException e) {
+			this.logError(this.log, "Unable to set the ratio for external meter.");
+		}
+	}
+
+	/**
+	 * Calculate a ratio value.
+	 * 
+	 * <p>
+	 * Ignore impossible values.
+	 * 
+	 * @param valueA value A e.g. 3000A
+	 * @param valueB value B e.g. 5A
+	 * @return ratio value e.g. 600
+	 */
+	protected static Integer calculateRatio(int valueA, int valueB) {
+		if (valueA <= 0 || valueB <= 0) {
+			return null;
+		}
+		return valueA / valueB;
 	}
 
 	/**
@@ -219,7 +324,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	 * given phase will be returned.
 	 * 
 	 * <p>
-	 * For example: 0x0124 means Phase R connect incorrectly,Phase S connect
+	 * For example: 0x0124 means Phase R connect incorrectly，Phase S connect
 	 * reverse, Phase T connect correctly
 	 * 
 	 * @param phase Phase
@@ -244,7 +349,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	 * Update the connect state of the given phase.
 	 * 
 	 * <p>
-	 * 1: connect correctly, 2: connect reverse(CT), 4:connect incorrectly,
+	 * 1: connect correctly, 2: connect reverse（CT）, 4:connect incorrectly,
 	 * 
 	 * @param correctlyChannel   correctlyChannel
 	 * @param incorrectlyChannel incorrectlyChannel
@@ -301,5 +406,4 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 				ModbusSlaveNatureTable.of(GoodWeGridMeter.class, accessMode, 100).build() //
 		);
 	}
-
 }

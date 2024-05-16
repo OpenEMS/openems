@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -44,7 +45,7 @@ export class Websocket implements WebsocketInterface {
     private translate: TranslateService,
     private cookieService: CookieService,
     private router: Router,
-    private pagination: Pagination
+    private pagination: Pagination,
   ) {
     service.websocket = this;
 
@@ -79,7 +80,7 @@ export class Websocket implements WebsocketInterface {
           if (environment.debugMode) {
             console.info("Websocket connection opened");
           }
-          let token = this.cookieService.get('token');
+          const token = this.cookieService.get('token');
           if (token) {
             // Login with Session Token
             this.login(new AuthenticateWithTokenRequest({ token: token }));
@@ -88,9 +89,9 @@ export class Websocket implements WebsocketInterface {
           } else {
             // No Token -> directly ask for Login credentials
             this.status = 'waiting for credentials';
-            this.router.navigate(['/index']);
+            this.router.navigate(['/login']);
           }
-        }
+        },
       },
       closeObserver: {
         next: (value) => {
@@ -100,17 +101,20 @@ export class Websocket implements WebsocketInterface {
           }
           // trying to connect
           this.status = 'connecting';
-        }
-      }
+        },
+      },
     });
 
     this.socket.pipe(
       // Websocket Auto-Reconnect
-      retryWhen(errors => errors.pipe(delay(1000)))
+      retryWhen((errors) => {
+        console.warn(errors);
+        return errors.pipe(delay(1000));
+      }),
 
     ).subscribe(originalMessage => {
       // Receive message from server
-      let message: JsonrpcRequest | JsonrpcNotification | JsonrpcResponseSuccess | JsonrpcResponseError =
+      const message: JsonrpcRequest | JsonrpcNotification | JsonrpcResponseSuccess | JsonrpcResponseError =
         JsonrpcMessage.from(originalMessage);
 
       if (message instanceof JsonrpcRequest) {
@@ -144,31 +148,34 @@ export class Websocket implements WebsocketInterface {
     }, () => {
       this.status = 'failed';
       this.onClose();
-
     });
   }
 
   /**
    * Logs in by sending an authentication JSON-RPC Request and handles the AuthenticateResponse.
-   * 
+   *
    * @param request the JSON-RPC Request
+   * @param lang provided for @demo User. This doesn't change the global language, its just set locally
    */
   public login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest): Promise<void> {
     return new Promise<void>((resolve) => {
       this.sendRequest(request).then(r => {
-        let authenticateResponse = (r as AuthenticateResponse).result;
+        const authenticateResponse = (r as AuthenticateResponse).result;
 
-        let language = Language.getByKey(authenticateResponse.user.language.toLocaleLowerCase());
+        const language = Language.getByKey(localStorage.DEMO_LANGUAGE ?? authenticateResponse.user.language.toLocaleLowerCase());
         localStorage.LANGUAGE = language.key;
         this.service.setLang(language);
         this.status = 'online';
+
         // received login token -> save in cookie
         this.cookieService.set('token', authenticateResponse.token, { expires: 365, path: '/', sameSite: 'Strict' });
+
+        this.service.currentUser = authenticateResponse.user;
 
         // Metadata
         this.service.metadata.next({
           user: authenticateResponse.user,
-          edges: {}
+          edges: {},
         });
 
         // Resubscribe Channels
@@ -181,6 +188,8 @@ export class Websocket implements WebsocketInterface {
             }
           });
         });
+
+        this.router.initialNavigation();
         resolve();
       }).catch(reason => {
         this.checkErrorCode(reason);
@@ -220,13 +229,13 @@ export class Websocket implements WebsocketInterface {
 
   private onLoggedOut(): void {
     this.status = 'waiting for credentials';
-    this.cookieService.delete('token');
+    this.cookieService.delete('token', '/');
     this.service.onLogout();
   }
 
   /**
    * Sends a JSON-RPC Request to a Websocket and promises a callback.
-   * 
+   *
    * @param request the JSON-RPC Request
    */
   public sendRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
@@ -253,7 +262,7 @@ export class Websocket implements WebsocketInterface {
               console.warn("Request failed [" + request.method + "]", reason.error);
 
               if (request instanceof EdgeRpcRequest && reason.error?.code == 3000 /* Edge is not connected */) {
-                let edges = this.service.metadata.value?.edges ?? {};
+                const edges = this.service.metadata.value?.edges ?? {};
                 if (request.params.edgeId in edges) {
                   edges[request.params.edgeId].isOnline = false;
                 }
@@ -273,14 +282,14 @@ export class Websocket implements WebsocketInterface {
   }
 
   /**
-     * Waits until Websocket is 'online' and then 
+     * Waits until Websocket is 'online' and then
      * sends a safe JSON-RPC Request to a Websocket and promises a callback.
-     * 
+     *
      * @param request the JSON-RPC Request
      */
   public sendSafeRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
     return new Promise<JsonrpcResponseSuccess>((resolve, reject) => {
-      let interval = setInterval(() => {
+      const interval = setInterval(() => {
 
         // TODO: Status should be Observable, furthermore status should be like state-machine
         if (this.status == 'online') {
@@ -295,7 +304,7 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Sends a JSON-RPC notification to a Websocket.
-   * 
+   *
    * @param notification the JSON-RPC Notification
    */
   public sendNotification(notification: JsonrpcNotification): void {
@@ -307,7 +316,7 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Handle new JSON-RPC Request
-   * 
+   *
    * @param message the JSON-RPC Request
    */
   private onRequest(message: JsonrpcRequest): void {
@@ -316,7 +325,7 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Handle new JSON-RPC Notification
-   * 
+   *
    * @param message the JSON-RPC Notification
    */
   private onNotification(message: JsonrpcNotification): void {
@@ -331,7 +340,7 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Handle Websocket error.
-   * 
+   *
    * @param error the error
    */
   private onError(error: any): void {
@@ -347,16 +356,16 @@ export class Websocket implements WebsocketInterface {
 
   /**
    * Handles an EdgeRpcNotification.
-   * 
+   *
    * @param message the EdgeRpcNotification
    */
   private handleEdgeRpcNotification(edgeRpcNotification: EdgeRpcNotification): void {
-    let edgeId = edgeRpcNotification.params.edgeId;
-    let message = edgeRpcNotification.params.payload;
+    const edgeId = edgeRpcNotification.params.edgeId;
+    const message = edgeRpcNotification.params.payload;
 
-    let edges = this.service.metadata.value?.edges ?? {};
+    const edges = this.service.metadata.value?.edges ?? {};
     if (edgeId in edges) {
-      let edge = edges[edgeId];
+      const edge = edges[edgeId];
 
       switch (message.method) {
         case EdgeConfigNotification.METHOD:

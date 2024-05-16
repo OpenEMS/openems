@@ -1,5 +1,8 @@
 package io.openems.edge.io.weidmueller;
 
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -29,6 +32,7 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -72,7 +76,7 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 	private BooleanReadChannel[] digitalInputChannels;
 	private BooleanWriteChannel[] digitalOutputChannels;
 
-	public IoWeidmuellerUr20Impl() throws OpenemsException {
+	public IoWeidmuellerUr20Impl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
@@ -121,8 +125,7 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 							this.modules.get(module).add(channel);
 							element.bit(i, channelId);
 						}
-						tasks = new Task[] {
-								new FC3ReadRegistersTask(element.getStartAddress(), Priority.HIGH, element) };
+						tasks = new Task[] { new FC3ReadRegistersTask(element.startAddress, Priority.HIGH, element) };
 						break;
 					}
 
@@ -134,17 +137,16 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 							var channel = (BooleanWriteChannel) this.addChannel(channelId);
 
 							var outputElement = new CoilElement(nextOutputCoil++);
-							var channelMetaInfoBit = new ChannelMetaInfoBitReadAndWrite(inputElement.getStartAddress(),
-									i, PROCESS_DATA_OUTPUT_BASE_COIL, outputElement.getStartAddress());
+							var channelMetaInfoBit = new ChannelMetaInfoBitReadAndWrite(inputElement.startAddress, i,
+									PROCESS_DATA_OUTPUT_BASE_COIL, outputElement.startAddress);
 							writeChannels.add(channel);
-							myTasks.add(new FC5WriteCoilTask(outputElement.getStartAddress(),
+							myTasks.add(new FC5WriteCoilTask(outputElement.startAddress,
 									m(channelId, outputElement, channelMetaInfoBit)));
 
 							this.modules.get(module).add(channel);
 							inputElement.bit(i, channelId, channelMetaInfoBit);
 						}
-						myTasks.add(
-								new FC3ReadRegistersTask(inputElement.getStartAddress(), Priority.HIGH, inputElement));
+						myTasks.add(new FC3ReadRegistersTask(inputElement.startAddress, Priority.HIGH, inputElement));
 						tasks = myTasks.toArray(Task[]::new);
 						break;
 					}
@@ -156,15 +158,7 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 						return;
 					}
 
-					try {
-						this.modbusProtocol.addTasks(tasks);
-
-					} catch (OpenemsException e) {
-						this.logError(this.log, "Unable to add Modbus-Task for U-Remote-Module #" + moduleCount //
-								+ " [" + module.name() + "]: " + e.getMessage());
-						e.printStackTrace();
-						return;
-					}
+					this.modbusProtocol.addTasks(tasks);
 
 					this.digitalInputChannels = this.modules.values().stream() //
 							.flatMap(cs -> cs.stream()) //
@@ -184,7 +178,7 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return this.modbusProtocol;
 	}
 
@@ -228,27 +222,16 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 	}
 
 	private CompletableFuture<Integer> readNumberOfEntriesInTheCurrentModuleList() {
-		try {
-			return ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedWordElement(0x27FE), true);
-
-		} catch (OpenemsException e) {
-			this.logWarn(this.log, "Unable to readNumberOfEntriesInTheCurrentModuleList: " + e.getMessage());
-			return CompletableFuture.failedFuture(e);
-		}
+		return readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(0x27FE));
 	}
 
+	@SuppressWarnings("unchecked")
 	private CompletableFuture<List<Long>> readCurrentModuleList(int numberOfEntries) {
 		var elements = IntStream.range(0, numberOfEntries) //
 				.map(index -> 0x2A00 + index * 2) //
 				.mapToObj(address -> new UnsignedDoublewordElement(address)) //
-				.toArray(UnsignedDoublewordElement[]::new);
-		try {
-			return ModbusUtils.readELementsOnce(this.modbusProtocol, elements, true);
-
-		} catch (OpenemsException e) {
-			this.logWarn(this.log, "Unable to readCurrentModuleList: " + e.getMessage());
-			return CompletableFuture.failedFuture(e);
-		}
+				.toArray(ModbusRegisterElement[]::new);
+		return readElementsOnce(this.modbusProtocol, ModbusUtils::retryOnNull, elements);
 	}
 
 }

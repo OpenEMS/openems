@@ -1,13 +1,14 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { HistoryUtils } from 'src/app/shared/service/utils';
+import { ChartAxis, HistoryUtils, YAxisTitle } from 'src/app/shared/service/utils';
 
 import { ChannelAddress } from '../../../../../shared/shared';
 
 @Component({
   selector: 'productionTotalAcChart',
-  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html'
+  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
 })
 export class TotalAcChartComponent extends AbstractHistoryChart {
 
@@ -18,23 +19,23 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
           {
             name: 'ProductionAcActivePower',
             powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePower'),
-            energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergy')
+            energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergy'),
           },
           {
             name: 'ProductionAcActivePowerL1',
-            powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1')
+            powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1'),
           },
           {
             name: 'ProductionAcActivePowerL2',
-            powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2')
+            powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2'),
           },
           {
             name: 'ProductionAcActivePowerL3',
-            powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3')
-          }
+            powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3'),
+          },
         ],
       output: (data: HistoryUtils.ChannelData) => {
-        let datasets: HistoryUtils.DisplayValues[] = [];
+        const datasets: HistoryUtils.DisplayValues[] = [];
 
         datasets.push({
           name: this.translate.instant("General.TOTAL"),
@@ -45,7 +46,7 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
             return data['ProductionAcActivePower'];
           },
           color: "rgb(0,152,204)",
-          stack: 0
+          stack: 0,
         });
 
         for (let i = 1; i < 4; i++) {
@@ -57,16 +58,20 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
               }
               return data['ProductionAcActivePowerL' + i] ?? null;
             },
-            color: 'rgb(' + this.phaseColors[i - 1] + ')'
+            color: 'rgb(' + AbstractHistoryChart.phaseColors[i - 1] + ')',
           });
         }
 
         return datasets;
       },
       tooltip: {
-        formatNumber: '1.1-2'
+        formatNumber: '1.1-2',
       },
-      unit: HistoryUtils.YAxisTitle.ENERGY
+      yAxes: [{
+        unit: YAxisTitle.ENERGY,
+        position: 'left',
+        yAxisId: ChartAxis.LEFT,
+      }],
     };
   }
 }

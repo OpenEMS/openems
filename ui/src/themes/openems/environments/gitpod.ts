@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Environment } from "src/environments";
 import { theme } from "./theme";
 
@@ -9,6 +10,6 @@ export const environment: Environment = {
         url: "wss://8082-" + location.hostname.substring(location.hostname.indexOf("-") + 1),
 
         production: false,
-        debugMode: true
-    }
+        debugMode: true,
+    },
 };

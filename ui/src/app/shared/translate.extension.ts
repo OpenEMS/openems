@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { FormlyExtension, FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -12,7 +13,7 @@ export class TranslateExtension implements FormlyExtension {
         props._translated = true;
         field.expressions = {
             ...(field.expressions || {}),
-            'props.label': this.translate.stream(props.label)
+            'props.label': this.translate.stream(props.label),
         };
     }
 }
@@ -23,15 +24,15 @@ export function registerTranslateExtension(translate: TranslateService) {
         extensions: [
             {
                 name: 'translate',
-                extension: new TranslateExtension(translate)
-            }
-        ]
+                extension: new TranslateExtension(translate),
+            },
+        ],
     };
 }
 
 /**
  * Generic function for serial number validation error message.
- * 
+ *
  * @param translate the translate service.
  * @param field the FormlyFieldConfig.
  * @param length length of the specific serial number.

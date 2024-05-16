@@ -1,0 +1,27 @@
+[Unit]
+Description=OpenEMS
+After=network.target
+
+[Service]
+User=root
+Group=root
+Type=notify
+WorkingDirectory=/usr/lib/openems
+ExecStart=/usr/lib/jvm/temurin-17-jre-armhf/bin/java \
+    -Dorg.osgi.framework.storage=/tmp/org.osgi.framework.storage \
+    -Dosgi.clean=true \
+    -Dfelix.cm.dir=/etc/openems.d/ \
+    -Dorg.apache.felix.eventadmin.Timeout=0 \
+    -Dorg.apache.felix.http.host=localhost \
+    -Dopenems.data.dir=/var/lib/openems/ \
+    -XX:+HeapDumpOnOutOfMemoryError \
+    -XX:+ExitOnOutOfMemoryError \
+    -jar /usr/lib/openems/openems.jar
+SuccessExitStatus=143
+Restart=always
+RestartSec=10
+WatchdogSec=180
+TimeoutSec=180
+
+[Install]
+WantedBy=multi-user.target

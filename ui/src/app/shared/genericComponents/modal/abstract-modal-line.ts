@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ChangeDetectorRef, Directive, Inject, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -7,6 +8,7 @@ import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
+
 import { Role } from "../../type/role";
 import { Converter } from "../shared/converter";
 import { Filter } from "../shared/filter";
@@ -25,7 +27,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
 
     /**
     * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
-    * 
+    *
     * @param value the current data value
     * @returns converter function
     */
@@ -33,7 +35,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
 
     /**
     * Use `filter` to remove a line depending on a value.
-    * 
+    *
     * @param value the current data value
     * @returns converter function
     */
@@ -49,7 +51,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
         } else {
             this._name = value;
         }
-    };
+    }
 
     @Input() public value: number | string;
     @Input() public roleIsAtLeast?: Role = Role.GUEST;
@@ -66,14 +68,14 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     /** Selector needed for Subscribe (Identifier) */
     private selector: string = uuidv4();
 
-    /** 
+    /**
      * displayValue is the displayed @Input value in html
      */
     public displayValue: string = null;
     public displayName: string = null;
 
     /** Checks if any value of this line can be seen => hides line if false
-     * 
+     *
      * @deprecated can be remove in future when live-view is refactored with formlyfield
      */
     protected isAllowedToBeSeen: boolean = true;
@@ -92,7 +94,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
         @Inject(ModalController) protected modalCtrl: ModalController,
         @Inject(TranslateService) protected translate: TranslateService,
         @Inject(FormBuilder) public formBuilder: FormBuilder,
-        private ref: ChangeDetectorRef
+        private ref: ChangeDetectorRef,
     ) {
         ref.detach();
         setInterval(() => {
@@ -112,14 +114,14 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
                 this.config = config;
 
                 // get the channel addresses that should be subscribed
-                let channelAddresses: ChannelAddress[] = [...this.getChannelAddresses()];
+                const channelAddresses: ChannelAddress[] = [...this.getChannelAddresses()];
 
                 if (typeof this.name == 'object') {
                     channelAddresses.push(this.name.channel);
                 }
 
-                let channelIds = this.getChannelIds();
-                for (let channelId of channelIds) {
+                const channelIds = this.getChannelIds();
+                for (const channelId of channelIds) {
                     channelAddresses.push(new ChannelAddress(this.component.id, channelId));
                 }
                 if (channelAddresses.length != 0) {
@@ -128,9 +130,9 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
 
                 // call onCurrentData() with latest data
                 edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                    let allComponents = {};
-                    for (let channelAddress of channelAddresses) {
-                        let ca = channelAddress.toString();
+                    const allComponents = {};
+                    for (const channelAddress of channelAddresses) {
+                        const ca = channelAddress.toString();
                         allComponents[ca] = currentData.channel[ca];
                     }
                     this.onCurrentData({ allComponents: allComponents });
@@ -195,7 +197,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     }
     /**
      * Called on every new data.
-     * 
+     *
      * @param currentData new data for the subscribed Channel-Addresses
      */
     protected onCurrentData(currentData: CurrentData) {

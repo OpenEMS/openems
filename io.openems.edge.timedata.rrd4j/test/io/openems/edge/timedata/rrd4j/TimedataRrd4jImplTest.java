@@ -26,8 +26,10 @@ public class TimedataRrd4jImplTest {
 
 	@Test
 	public void test() throws Exception {
+		final var componentManager = new DummyComponentManager();
 		new ComponentTest(new TimedataRrd4jImpl()) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("workerFactory", new DummyRecordWorkerFactory(componentManager)) //
+				.addReference("readHandler", new Rrd4jReadHandler()) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setPersistencePriority(PersistencePriority.MEDIUM) //
@@ -47,9 +49,9 @@ public class TimedataRrd4jImplTest {
 	private static RrdDb createRrdDb(int step, int fiveMinutes, int oneHour) throws IOException, URISyntaxException {
 		final var rrdDef = new RrdDef("empty-path", START.getEpochSecond() - 1, step);
 		rrdDef.addDatasource(//
-				new DsDef(TimedataRrd4jImpl.DEFAULT_DATASOURCE_NAME, //
+				new DsDef(Rrd4jConstants.DEFAULT_DATASOURCE_NAME, //
 						DsType.GAUGE, //
-						TimedataRrd4jImpl.DEFAULT_HEARTBEAT_SECONDS, // Heartbeat in [s], default 300 = 5 minutes
+						Rrd4jConstants.DEFAULT_HEARTBEAT_SECONDS, // Heartbeat in [s], default 300 = 5 minutes
 						Double.NaN, Double.NaN));
 		// detailed recordings
 		rrdDef.addArchive(ConsolFun.AVERAGE, 0.5, 1, fiveMinutes); // 1 step (5 minutes), 8928 rows (31 days)
@@ -81,13 +83,13 @@ public class TimedataRrd4jImplTest {
 				ConsolFun.AVERAGE, //
 				START.getEpochSecond(), //
 				START.plus(3, ChronoUnit.HOURS).getEpochSecond());
-		var result = TimedataRrd4jImpl.postProcessData(request, resolution);
+		var result = Rrd4jSupplier.postProcessData(request.fetchData(), resolution);
 		database.close();
 
 		assertEquals(12, result.length); // 3 hours * 4 entries/per hour (15 minutes) = 12
-		assertEquals(8.0, result[0], 0.1);
-		assertEquals(23.0, result[1], 0.1);
-		assertEquals(38.0, result[2], 0.1);
+		assertEquals((0 + 3 + 8) / 3.0, result[0], 0.1);
+		assertEquals((13 + 18 + 23) / 3.0, result[1], 0.1);
+		assertEquals((28 + 33 + 38) / 3.0, result[2], 0.1);
 	}
 
 	/**
@@ -105,13 +107,14 @@ public class TimedataRrd4jImplTest {
 				ConsolFun.AVERAGE, //
 				START.getEpochSecond(), //
 				START.plus(3, ChronoUnit.HOURS).getEpochSecond());
-		var result = TimedataRrd4jImpl.postProcessData(request, resolution);
+		var result = Rrd4jSupplier.postProcessData(request.fetchData(), resolution);
 		database.close();
 
 		assertEquals(36, result.length); // 3 hours * 12 entries/per hour (5 minutes) = 36
-		assertEquals(3.0, result[0], 0.1);
-		assertEquals(8.0, result[1], 0.1);
-		assertEquals(13.0, result[2], 0.1);
+		assertEquals(0.0, result[0], 0.1);
+		assertEquals(3.0, result[1], 0.1);
+		assertEquals(8.0, result[2], 0.1);
+		assertEquals(13.0, result[3], 0.1);
 	}
 
 	/**
@@ -129,7 +132,7 @@ public class TimedataRrd4jImplTest {
 				ConsolFun.AVERAGE, //
 				START.getEpochSecond(), //
 				START.plus(3, ChronoUnit.HOURS).getEpochSecond());
-		var result = TimedataRrd4jImpl.postProcessData(request, resolution);
+		var result = Rrd4jSupplier.postProcessData(request.fetchData(), resolution);
 		database.close();
 
 		assertEquals(180, result.length); // 3 hours * 60 entries/per hour (1 minute) = 180
@@ -159,7 +162,7 @@ public class TimedataRrd4jImplTest {
 				ConsolFun.AVERAGE, //
 				START.getEpochSecond(), //
 				START.plus(3, ChronoUnit.HOURS).getEpochSecond());
-		var result = TimedataRrd4jImpl.postProcessData(request, resolution);
+		var result = Rrd4jSupplier.postProcessData(request.fetchData(), resolution);
 		database.close();
 
 		assertEquals(36, result.length); // 3 hours * 12 entries/per hour (5 minutes) = 36

@@ -1,21 +1,22 @@
-
-import { formatNumber } from '@angular/common';
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Data } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import * as Chart from 'chart.js';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
-import { ChartOptions, DEFAULT_TIME_CHART_OPTIONS, TooltipItem, Unit } from 'src/app/edge/history/shared';
+import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS } from 'src/app/edge/history/shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChartAxis, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from 'src/app/shared/shared';
 
 @Component({
     selector: 'predictionChart',
-    templateUrl: '../../../../../history/abstracthistorychart.html'
+    templateUrl: '../../../../../history/abstracthistorychart.html',
 })
 export class PredictionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input() protected refresh: boolean;
-    @Input() protected edge: Edge;
+    @Input() protected override edge: Edge;
     @Input() public component: EdgeConfig.Component;
     @Input() public targetEpochSeconds: number;
     @Input() public chargeStartEpochSeconds: number;
@@ -24,12 +25,12 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
-        private route: ActivatedRoute
+        protected override service: Service,
+        protected override translate: TranslateService,
+        private route: ActivatedRoute,
     ) {
         super("prediction-chart", service, translate);
     }
@@ -50,14 +51,14 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
         this.loading = true;
         this.colors = [];
 
-        this.queryHistoricTimeseriesData(PredictionChartComponent.DEFAULT_PERIOD.from, PredictionChartComponent.DEFAULT_PERIOD.to, { unit: Unit.MINUTES, value: 5 }).then(response => {
-            let result = response.result;
-            let datasets = [];
+        this.queryHistoricTimeseriesData(PredictionChartComponent.DEFAULT_PERIOD.from, PredictionChartComponent.DEFAULT_PERIOD.to, { unit: ChronoUnit.Type.MINUTES, value: 5 }).then(async response => {
+            const result = response.result;
+            const datasets = [];
 
-            // Get the 5 min index of the current time 
-            let hours = new Date().getHours();
-            let minutes = new Date().getMinutes();
-            let currIndex = Math.trunc((hours * 60 + minutes) / 5);
+            // Get the 5 min index of the current time
+            const hours = new Date().getHours();
+            const minutes = new Date().getMinutes();
+            const currIndex = Math.trunc((hours * 60 + minutes) / 5);
 
             // Add one buffer hour at the beginning to see at least one hour of the past soc
             let startIndex = currIndex - 12;
@@ -66,7 +67,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
             // Calculate soc and predicted soc data
             if ('_sum/EssSoc' in result.data) {
 
-                let socData = result.data['_sum/EssSoc'].map(value => {
+                const socData = result.data['_sum/EssSoc'].map(value => {
                     if (value == null) {
                         return null;
                     } else if (value > 100 || value < 0) {
@@ -85,17 +86,17 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     }
                 }
 
-                let targetTime = new Date(0);
+                const targetTime = new Date(0);
                 targetTime.setUTCSeconds(this.targetEpochSeconds);
 
                 // Predicted charge start only used, if a value is present. There's no Channel for it in older Openems Versions.
-                let isChargeStartPresent = this.chargeStartEpochSeconds != null;
-                let chargeStartTime = new Date(0);
+                const isChargeStartPresent = this.chargeStartEpochSeconds != null;
+                const chargeStartTime = new Date(0);
                 let chargeStartIndex = 0;
                 if (isChargeStartPresent) {
                     chargeStartTime.setUTCSeconds(this.chargeStartEpochSeconds);
-                    let chargeStartHours = chargeStartTime.getHours();
-                    let chargeStartMinutes = chargeStartTime.getMinutes();
+                    const chargeStartHours = chargeStartTime.getHours();
+                    const chargeStartMinutes = chargeStartTime.getMinutes();
 
                     // Calculate the index of the chargeStart
                     chargeStartIndex = Math.trunc((chargeStartHours * 60 + chargeStartMinutes) / 5);
@@ -103,19 +104,19 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
                 let dataSteps = 0;
                 let targetIndex = 0;
-                let predictedSocData = Array(288).fill(null);
+                const predictedSocData = Array(288).fill(null);
 
                 // Calculate the predicted soc data
                 if (startSoc != null && targetTime != null) {
 
-                    let targetHours = targetTime.getHours();
-                    let targetMinutes = targetTime.getMinutes();
+                    const targetHours = targetTime.getHours();
+                    const targetMinutes = targetTime.getMinutes();
 
                     // Calculate the index of the target minute
                     targetIndex = Math.trunc((targetHours * 60 + targetMinutes) / 5);
 
                     // Remaining capacity in %
-                    let remainingCapacity = 100 - startSoc;
+                    const remainingCapacity = 100 - startSoc;
 
                     // Calculate how much time is left in 5 min steps
                     let remainingSteps = 0;
@@ -129,7 +130,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                         // Calculate how much percentage is needed in every time step (5 min)
                         dataSteps = remainingCapacity / remainingSteps;
 
-                        // Set the data for the datasets 
+                        // Set the data for the datasets
                         let predictedSoc = startSoc - dataSteps;
                         for (let i = currIndex; i <= targetIndex; i++) {
                             // Predicted SoC increases only after charge start time, when channel is not zero (e.g. for older versions).
@@ -143,8 +144,8 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     }
                 }
 
-                // Add one buffer hour at the end to get more clarity in the chart 
-                let chartEndIndex = targetIndex + 12;
+                // Add one buffer hour at the end to get more clarity in the chart
+                const chartEndIndex = targetIndex + 12;
 
                 // Remove unimportant values that are after the end index
                 if (chartEndIndex < result.data['_sum/EssSoc'].length - 1) {
@@ -161,8 +162,8 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                 }
 
                 // Convert labels
-                let labels: Date[] = [];
-                for (let timestamp of result.timestamps) {
+                const labels: Date[] = [];
+                for (const timestamp of result.timestamps) {
                     labels.push(new Date(timestamp));
                 }
                 this.labels = labels;
@@ -173,42 +174,54 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     label: this.translate.instant('General.soc'),
                     data: socData,
                     hidden: false,
-                    yAxisID: 'yAxis2',
-                    position: 'right'
+                    yAxisID: ChartAxis.RIGHT,
                 }, {
                     label: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.expectedSoc'),
                     data: predictedSocData,
                     hidden: false,
-                    yAxisID: 'yAxis2',
-                    position: 'right'
+                    yAxisID: ChartAxis.RIGHT,
                 });
 
-                // Push the depending colors 
+                // Push the depending colors
                 this.colors.push({
                     backgroundColor: 'rgba(189, 195, 199,0.05)',
-                    borderColor: 'rgba(189, 195, 199,1)'
+                    borderColor: 'rgba(189, 195, 199,1)',
                 }, {
                     backgroundColor: 'rgba(0,223,0,0)',
-                    borderColor: 'rgba(0,223,0,1)'
+                    borderColor: 'rgba(0,223,0,1)',
                 });
             }
 
             this.datasets = datasets;
             this.loading = false;
             this.service.stopSpinner(this.spinnerId);
+            this.unit = YAxisTitle.PERCENTAGE;
+            this.formatNumber = '1.0-0';
+            await this.setOptions(this.options);
+            this.applyControllerSpecificOptions();
 
         }).catch(reason => {
-            console.error(reason); // TODO error message 
+            console.error(reason); // TODO error message
             this.initializeChart();
             return;
         });
     }
 
+    private applyControllerSpecificOptions() {
+        this.options.scales[ChartAxis.LEFT]['position'] = 'right';
+        this.options.scales.x.ticks.callback = function (value, index, values) {
+            const date = new Date(value);
+
+            // Display the label only if the minutes are zero (full hour)
+            return date.getMinutes() === 0 ? date.getHours() + ':00' : '';
+        };
+    }
+
     protected getChannelAddresses(): Promise<ChannelAddress[]> {
 
         return new Promise((resolve) => {
-            let result: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'EssSoc')
+            const result: ChannelAddress[] = [
+                new ChannelAddress('_sum', 'EssSoc'),
             ];
             if (this.component != null && this.component.id) {
                 result.push(new ChannelAddress(this.component.id, 'DelayChargeMaximumChargeLimit'));
@@ -222,58 +235,8 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
     }
 
     protected setLabel() {
-        let translate = this.translate;
-        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-
-        // Remove left y axis for now
-        options.scales.yAxes.shift();
-
-        // adds second y-axis to chart
-        options.scales.yAxes
-            .push({
-                id: 'yAxis2',
-                position: 'right',
-                scaleLabel: {
-                    display: true,
-                    labelString: "%",
-                    padding: -2,
-                    fontSize: 11
-                },
-                gridLines: {
-                    display: true
-                },
-                ticks: {
-                    beginAtZero: true,
-                    max: 100,
-                    padding: -5,
-                    stepSize: 20
-                }
-            });
-
-        options.layout = {
-            padding: {
-                left: 2,
-                right: 2,
-                top: 0,
-                bottom: 0
-            }
-        };
-        //x-axis
-        options.scales.xAxes[0].time.unit = "hour";
-
-        //y-axis
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
-            if (label == translate.instant('General.soc') || label == translate.instant('Edge.Index.Widgets.GridOptimizedCharge.expectedSoc')) {
-                return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-            } else {
-                return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-            }
-        };
-        this.options = options;
+        this.options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     }
-
 }
 
 export type ChannelChartDescription = {

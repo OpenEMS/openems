@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
 /**
@@ -5,7 +6,7 @@ import { Component, Input } from "@angular/core";
  */
 @Component({
     selector: 'oe-modal-horizontal-line',
-    templateUrl: './modal-horizontal-line.html'
+    templateUrl: './modal-horizontal-line.html',
 })
 export class ModalHorizontalLineComponent {
 

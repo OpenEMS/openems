@@ -1,15 +1,14 @@
 import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
 
-
 /**
  * Gets if a key can be redeemed.
- * 
+ *
  * <p>
  * Note: This Request needs to be wrapped in a appCenter Request.
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -21,7 +20,7 @@ import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response: AddAppInstance#Response
  */
@@ -32,9 +31,9 @@ export namespace AppCenterInstallAppWithSuppliedKeyRequest {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
                 installRequest: JsonrpcRequest
-            }
+            },
         ) {
             super(METHOD, params);
         }

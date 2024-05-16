@@ -2,27 +2,26 @@ package io.openems.edge.goodwe.common;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.goodwe.charger.AbstractGoodWeEtCharger;
-import io.openems.edge.goodwe.charger.GoodWeChargerPv1;
-import io.openems.edge.goodwe.charger.GoodWeChargerPv2;
+import io.openems.edge.goodwe.charger.GoodWeCharger;
 import io.openems.edge.goodwe.common.enums.AppModeIndex;
 import io.openems.edge.goodwe.common.enums.ArcSelfCheckStatus;
 import io.openems.edge.goodwe.common.enums.BatteryMode;
 import io.openems.edge.goodwe.common.enums.BatteryProtocol;
 import io.openems.edge.goodwe.common.enums.ComMode;
 import io.openems.edge.goodwe.common.enums.CpldWarningCode;
-import io.openems.edge.goodwe.common.enums.DiagnosticStatusHigh;
-import io.openems.edge.goodwe.common.enums.DiagnosticStatusLow;
 import io.openems.edge.goodwe.common.enums.DredCmd;
 import io.openems.edge.goodwe.common.enums.DredOffgridCheck;
 import io.openems.edge.goodwe.common.enums.EhBatteryFunctionActive;
@@ -32,8 +31,8 @@ import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.ExternalEmsFlag;
 import io.openems.edge.goodwe.common.enums.EzloggerProCommStatus;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
-import io.openems.edge.goodwe.common.enums.GoodweGridMeterType;
-import io.openems.edge.goodwe.common.enums.GoodweType;
+import io.openems.edge.goodwe.common.enums.GoodWeGridMeterType;
+import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.goodwe.common.enums.GridProtect;
 import io.openems.edge.goodwe.common.enums.GridWaveCheckLevel;
 import io.openems.edge.goodwe.common.enums.LedState;
@@ -56,20 +55,21 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Registers a GoodWe Charger.
 	 *
-	 * @param charger either {@link GoodWeChargerPv1} or {@link GoodWeChargerPv2}
+	 * @param charger {@link GoodWeCharger} charger
 	 */
-	public void addCharger(AbstractGoodWeEtCharger charger);
+	public void addCharger(GoodWeCharger charger);
 
 	/**
 	 * Unregisters a GoodWe Charger.
 	 *
-	 * @param charger either {@link GoodWeChargerPv1} or {@link GoodWeChargerPv2}
+	 * @param charger {@link GoodWeCharger} charger
 	 */
-	public void removeCharger(AbstractGoodWeEtCharger charger);
+	public void removeCharger(GoodWeCharger charger);
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		AC_OUTPUT_TYPE(Doc.of(OutputTypeAC.values())), //
 		SERIAL_NUMBER(Doc.of(OpenemsType.STRING) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.accessMode(AccessMode.READ_WRITE)),
 		EMS_CHECK_INVERTER_OPERATION_STATUS(Doc.of(EmsCheck.values())), //
 		DSP_FM_VERSION_MASTER(Doc.of(OpenemsType.INTEGER)), //
@@ -98,6 +98,55 @@ public interface GoodWe extends OpenemsComponent {
 		PV_MODE(Doc.of(PvMode.values())), //
 		TOTAL_INV_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
+
+		/*
+		 * Channels for multiple String charger in one MPPT. Channels only set and used
+		 * for GoodWe 20/30
+		 *
+		 * MPPT1
+		 */
+		MPPT1_P(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		MPPT1_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV1_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV1_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV2_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV2_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		/*
+		 * MPPT2
+		 */
+		MPPT2_P(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		MPPT2_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV3_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV3_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV4_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV4_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		/*
+		 * MPPT3
+		 */
+		MPPT3_P(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		MPPT3_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV5_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV5_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV6_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV6_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
 
 		/**
 		 * Total Active Power Of Inverter.
@@ -145,7 +194,7 @@ public interface GoodWe extends OpenemsComponent {
 		V_BATTERY1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT)), //
 		I_BATTERY1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)), //
+				.unit(Unit.AMPERE)), //
 		P_BATTERY1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		BATTERY_MODE(Doc.of(BatteryMode.values())), //
@@ -205,38 +254,175 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.KILOWATT_HOURS)), //
 
 		// Error Message 35189
-		STATE_0(Doc.of(Level.FAULT).text("The GFCI detecting circuit is abnormal")), //
-		STATE_1(Doc.of(Level.FAULT).text("The output current sensor is abnormal")), //
-		STATE_2(Doc.of(Level.WARNING).text("TBD")), //
-		STATE_3(Doc.of(Level.FAULT).text("DCI Consistency Failure")), //
-		STATE_4(Doc.of(Level.FAULT).text("GFCI Consistency Failure")), //
-		STATE_5(Doc.of(Level.WARNING).text("TBD")), //
-		STATE_6(Doc.of(Level.FAULT).text("GFCI Device Failure")), //
-		STATE_7(Doc.of(Level.FAULT).text("Relay Device Failure")), //
-		STATE_8(Doc.of(Level.FAULT).text("AC HCT Failure")), //
-		STATE_9(Doc.of(Level.FAULT).text("Utility Loss")), //
-		STATE_10(Doc.of(Level.FAULT).text("Gournd I Failure")), //
-		STATE_11(Doc.of(Level.WARNING).text("DC Bus High")), //
-		STATE_12(Doc.of(Level.FAULT).text("Internal Fan Failure(Back-Up Over Load for ES)")), //
-		STATE_13(Doc.of(Level.WARNING).text("Over Temperature")), //
-		STATE_14(Doc.of(Level.FAULT).text("Auto Test Failure")), //
-		STATE_15(Doc.of(Level.WARNING).text("PV Over Voltage")), //
-		STATE_16(Doc.of(Level.FAULT).text("External Fan Failure")), //
-		STATE_17(Doc.of(Level.FAULT).text("Vac Failure")), //
-		STATE_18(Doc.of(Level.FAULT).text("Isolation resistance of PV-plant too low")), //
-		STATE_19(Doc.of(Level.WARNING).text("The DC injection to grid is too high")), //
-		STATE_20(Doc.of(Level.WARNING).text("Back-Up Over Load")), //
-		STATE_21(Doc.of(Level.WARNING).text("TBD")), //
-		STATE_22(Doc.of(Level.FAULT).text("Different value between Master and\n" + "Slave for grid frequency")), //
-		STATE_23(Doc.of(Level.FAULT).text("Different value between Master and\n" + "Slave for grid voltage")), //
-		STATE_24(Doc.of(Level.WARNING).text("TBD")), //
-		STATE_25(Doc.of(Level.WARNING).text("Relay Check Failure")), //
-		STATE_26(Doc.of(Level.WARNING).text("TBD")), //
-		STATE_27(Doc.of(Level.WARNING).text("Phase angle out of range (110~140)")), //
-		STATE_28(Doc.of(Level.WARNING).text("Communication between ARM and DSP\n" + "is failure")), //
-		STATE_29(Doc.of(Level.FAULT).text("The grid frequency is out of tolerable\n" + "range")), //
-		STATE_30(Doc.of(Level.FAULT).text("EEPROM cannot be read or written")), //
-		STATE_31(Doc.of(Level.FAULT).text("Communication between\n" + "microcontrollers is failure")), //
+		STATE_0(Doc.of(Level.FAULT) //
+				.text("The Ground Fault Circuit Interrupter (GFCI) detecting circuit is abnormal " //
+						+ "| Interne Fehlerstrom-Schutzeinrichtung (RCD Einheit) wurde ausgelöst " //
+						+ "| Bitte überprüfen Sie den Netzanschluss sowie ggf. Backup-Lasten")), //
+
+		STATE_1(Doc.of(Level.FAULT) //
+				.text("The output current sensor is abnormal " //
+						+ "| Der Ausgangs-Stromsensor liefert unplausible Werte " //
+						+ "| Bitte überprüfen Sie die Installation")), //
+
+		// Bit 2 - TBD (Currently reserved) - warning should not appear unless there is
+		// a new description of GoodWe
+		STATE_2(Doc.of(Level.WARNING) //
+				.text("Warning Code 1")), //
+
+		STATE_3(Doc.of(Level.FAULT) //
+				.text("DCI Consistency Failure " //
+						+ "| Werte der Impedanzmessung (DCI Einheit) sind widersprüchlich/unplausibel " //
+						+ "| Bitte überprüfen Sie den Netzanschluss")), //
+
+		STATE_4(Doc.of(Level.FAULT) //
+				.text("Ground Fault Circuit Interrupter (GFCI) Consistency Failure " //
+						+ "| Werte der internen Fehlerstrom-Schutzeinrichtung (RCD) sind widersprüchlich/unplausibel " //
+						+ "| Bitte überprüfen Sie den Netzanschluss")), //
+
+		// Bit 5 - TBD (Currently reserved) - warning should not appear unless there is
+		// a new description of GoodWe
+		STATE_5(Doc.of(Level.WARNING) //
+				.text("Warning Code 2")), //
+
+		STATE_6(Doc.of(Level.FAULT) //
+				.text("Ground Fault Circuit Interrupter (GFCI) Device Failure " //
+						+ "| Interne Fehlerstrom-Schutzeinrichtung (RCD Einheit) befindet sich im Fehlerzustand " //
+						+ "| Bitte führen Sie einen Geräteneustart aus")), //
+
+		STATE_7(Doc.of(Level.FAULT) //
+				.text("Relay Device Failure " //
+						+ "| Interne Relais befinden sich im Fehlerzustand " //
+						+ "| Bitte führen Sie einen Geräteneustart aus")), //
+
+		STATE_8(Doc.of(Level.FAULT) //
+				.text("AC HCT Failure " //
+						+ "| Die HCT Einheit befindet sich im Fehlerzustand " //
+						+ "| Bitte führen Sie einen Geräteneustart aus")), //
+
+		STATE_9(Doc.of(Level.FAULT) //
+				.text("Utility Loss " //
+						+ "| Netzausfall wurde erkannt " //
+						+ "| Bitte überprüfen Sie ob das Kommunikationsmodul richtig gesteckt ist")), //
+
+		// TODO: Use new-lines or html-lists when the UI and edge log are able to handle
+		// them
+		STATE_10(Doc.of(Level.FAULT) //
+				.text("Ground I Failure " //
+						+ "| Erdungsfehler " //
+						+ "| Ggf. N und PE Leiter sind nicht richtig mit dem Netzanschluss des Wechselrichters verbunden. " //
+						+ "Ggf. zu hoher Ableitstrom der PV-Module zur Erde (z.B. bei hoher Luftfeuchtigkeit). " //
+						+ "Ggf. Netzerdungsverlust bzw. Wechselrichter kann keine Verbindung zu einem geerdeten Potential feststellen. " //
+						+ "Installation (Netz und PV) überprüfen")), //
+
+		STATE_11(Doc.of(Level.WARNING) //
+				.text("DC Bus High " //
+						+ "| Interne Betriebsspannung hoch " //
+						+ "| Ggf. übersteigt die Leerlauf- oder Betriebsspannung der PV-Module den für diesen Wechselrichter zulässigen Bereich. " //
+						+ "Ggf. liegt ein PV-Kriechstrom zur Erde an")), //
+
+		STATE_12(Doc.of(Level.FAULT) //
+				.text("Internal Fan Failure " //
+						+ "| Der interne Lüfter meldet einen Defekt")), //
+
+		STATE_13(Doc.of(Level.WARNING) //
+				.text("Over Temperature " //
+						+ "| Übertemperatur " //
+						+ "| Ggf. Luft-Umgebungstemperatur ist über einen längeren Zeitraum zu hoch. "
+						+ "Ggf. Luftstrom durch den Kühlkörper für Normalbetrieb unzureichend (Aufstellbedingungen beachten!). "
+						+ "Ggf. Behinderung des Luftstroms, z.B. Kühlkörper wurde abgedeckt")), //
+
+		STATE_14(Doc.of(Level.FAULT) //
+				.text("Utility Phase Failure " //
+						+ "| Phasenfehler " //
+						+ "| Überprüfen Sie das Drehfeld am Wechselrichter. " //
+						+ "Ggf. Kommunikationsadapter (ET+) nicht (richtig) gesteckt")), //
+
+		STATE_15(Doc.of(Level.FAULT) //
+				.text("PV Over Voltage " //
+						+ "| Überspannung PV " //
+						+ "| Bitte überprüfen Sie die Installation")), //
+
+		STATE_16(Doc.of(Level.WARNING) //
+				.text("External Fan Failure " //
+						+ "| Externer Lüfter befindet sich im Fehlerzustand")), //
+
+		STATE_17(Doc.of(Level.FAULT) //
+				.text("Vac Failure " //
+						+ "| Spannungsfehler " //
+						+ "| Die anliegende Spannung am \"On-Grid\" Anschluss befindet sich außerhalb der gültigen Parameter (für DE siehe VDE AR N 4105). " //
+						+ "Ggf. Kommunikationsmodul nicht (richtig) gesteckt")), //
+
+		STATE_18(Doc.of(Level.FAULT) //
+				.text("Isolation resistance of PV-plant too low " //
+						+ "| Isolationsfehler auf PV-Strings " //
+						+ "| Bitte überprüfen Sie die Installation")), //
+
+		STATE_19(Doc.of(Level.WARNING) //
+				.text("The DC injection to grid is too high " //
+						+ "| DC-Strom Einspeisung auf \"On-Grid\" Seite ist zu hoch " //
+						+ "| Bitte überprüfen Sie die Installation und angeschlossene Verbraucher bzw. Erzeuger")), //
+
+		STATE_20(Doc.of(Level.FAULT) //
+				.text("Back-Up Over Load " //
+						+ "| Überlastung Backup-Anschluss " //
+						+ "| Bitte beachten Sie die im Datenblatt angegebenen Maximal-Lasten")), //
+
+		// Bit 21 - TBD (Currently reserved) - warning should not appear unless there is
+		// a new description of GoodWe
+		STATE_21(Doc.of(Level.WARNING) //
+				.text("Warning Code 3")), //
+
+		STATE_22(Doc.of(Level.FAULT) //
+				.text("Difference between Master and Slave frequency too high " //
+						+ "| Frequenz zwischen Master und Slave weicht zu stark ab " //
+						+ "| Bitte führen Sie einen Geräteneustart aus")), //
+
+		STATE_23(Doc.of(Level.FAULT) //
+				.text("Difference between Master and Slave voltage too high " //
+						+ "| Spannung zwischen Master und Slave weicht zu stark ab " //
+						+ "| Bitte führen Sie einen Geräteneustart aus")), //
+
+		// Bit 24 - TBD (Currently reserved) - warning should not appear unless there is
+		// a new description of GoodWe
+		STATE_24(Doc.of(Level.WARNING) //
+				.text("Warning Code 4")), //
+
+		STATE_25(Doc.of(Level.FAULT) //
+				.text("Relay Check Failure " //
+						+ "| Selbsttest der Relais ist Fehlgeschlagen " //
+						+ "| Ggf. sind N und PE-Leiter nicht richtig mit den Anschlussklemmen des Wechselrichters verbunden. " //
+						+ "Ggf. Netzerdungsverlust. " //
+						+ "Bitte überprüfen Sie die Installation")), //
+
+		// Bit 26 - TBD (Currently reserved) - warning should not appear unless there is
+		// a new description of GoodWe
+		STATE_26(Doc.of(Level.WARNING) //
+				.text("Warning Code 5")), //
+
+		STATE_27(Doc.of(Level.WARNING) //
+				.text("Phase angle out of range (110~140°) " //
+						+ "| Die Phasenverschiebung zwischen den Phasen ist außerhalb der zulässigen Parameter (110~140°) " //
+						+ "| Bitte überprüfen Sie die Installation")), //
+
+		STATE_28(Doc.of(Level.WARNING) //
+				.text("Communication failure between ARM and DSP " //
+						+ "| Kommunikation zwischen der ARM und DSP Einheit ist fehlgeschlagen " //
+						+ "| Bitte führen Sie einen Geräteneustart aus")), //
+
+		STATE_29(Doc.of(Level.FAULT) //
+				.text("The grid frequency is out of tolerable range " //
+						+ "| Die Netz-Frequenz befindet sich außerhalb der zulässigen Parameter " //
+						+ "| Bitte überprüfen Sie die Installation und führen anschließend einen Geräteneustart aus")), //
+
+		STATE_30(Doc.of(Level.FAULT) //
+				.text("EEPROM cannot be read or written " //
+						+ "| EEPROM kann nicht gelesen oder geschrieben werden " //
+						+ "| Bitte führen Sie einen Geräteneustart aus")), //
+
+		STATE_31(Doc.of(Level.FAULT) //
+				.text("Communication failure between microcontrollers " //
+						+ "| Die Kommunikation zwischen den einzelnen Microkontrollern ist fehlerhaft " //
+						+ "| Bitte führen Sie einen Geräteneustart aus")), //
 
 		// External Communication Data (ARM)
 		COM_MODE(Doc.of(ComMode.values())), //
@@ -269,7 +455,7 @@ public interface GoodWe extends OpenemsComponent {
 		METER_TOTAL_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE)), //
 
-		METER_TYPE(Doc.of(GoodweGridMeterType.values())), //
+		METER_TYPE(Doc.of(GoodWeGridMeterType.values())), //
 		METER_SOFTWARE_VERSION(Doc.of(OpenemsType.INTEGER)), //
 
 		METER_CT2_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
@@ -484,7 +670,7 @@ public interface GoodWe extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)), //
 		MODBUS_BAUDRATE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		GOODWE_TYPE(Doc.of(GoodweType.values())), //
+		GOODWE_TYPE(Doc.of(GoodWeType.values())), //
 		FACTORY_SETTING(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.WRITE_ONLY)), //
 		CLEAR_DATA(Doc.of(OpenemsType.INTEGER) //
@@ -556,8 +742,112 @@ public interface GoodWe extends OpenemsComponent {
 		BATTERY_STRINGS(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		CPLD_WARNING_CODE(Doc.of(CpldWarningCode.values())), //
-		DIAG_STATUS_H(Doc.of(DiagnosticStatusHigh.values())), //
-		DIAG_STATUS_L(Doc.of(DiagnosticStatusLow.values())), //
+
+		// DIAGNOSIS STATUS HIGH
+		DIAG_STATUS_BATTERY_PRECHARGE_RELAY_OFF(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery Precharge Relay Off")), //
+
+		DIAG_STATUS_BYPASS_RELAY_STICK(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Bypass relay is sticking")), //
+
+		DIAG_STATUS_METER_VOLTAGE_SAMPLE_FAULT(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Meter voltage sample fault")), //
+
+		DIAG_STATUS_EXTERNAL_STOP_MODE_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("DRED or ESD stop the inverter")), //
+
+		DIAG_STATUS_BATTERY_OFFGRID_DOD(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery SOC less than Offgrid DOD")), //
+
+		DIAG_STATUS_BATTERY_SOC_ADJUST_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Only for BYD, adjust the SOC")), //
+		/*
+		 * DIAGNOSIS STATUS LOW
+		 */
+		DIAG_STATUS_BATTERY_VOLT_LOW(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery not discharge caused by low battery voltage")), //
+
+		DIAG_STATUS_BATTERY_SOC_LOW(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery not discharge caused by low SOC")), //
+
+		DIAG_STATUS_BATTERY_SOC_IN_BACK(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery SOC not recover to allow-discharge level")), //
+
+		DIAG_STATUS_BMS_DISCHARGE_DISABLE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BMS not allow discharge")), //
+
+		DIAG_STATUS_DISCHARGE_TIME_ON(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Discharge time is set, 1: On, 0: OFF")), //
+
+		DIAG_STATUS_CHARGE_TIME_ON(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Charge time is set, 1: On, 0: OFF")), //
+
+		DIAG_STATUS_DISCHARGE_DRIVE_ON(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Discharge driver is turned on")), //
+
+		DIAG_STATUS_BMS_DISCHG_CURRENT_LOW(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BMS discharge current limit is too low")), //
+
+		DIAG_STATUS_DISCHARGE_CURRENT_LOW(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Discharge current limit is too low (from App)")), //
+
+		DIAG_STATUS_METER_COMM_LOSS(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Smart Meter communication failure")), //
+
+		DIAG_STATUS_METER_CONNECT_REVERSE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Smart Meter connection reversed")), //
+
+		DIAG_STATUS_SELF_USE_LOAD_LIGHT(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Low load power, cannot activate battery discharge")), //
+
+		DIAG_STATUS_EMS_DISCHARGE_IZERO(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Discharge current limit 0A from EMS")), //
+
+		DIAG_STATUS_DISCHARGE_BUS_HIGH(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery not discharge caused by over high PV voltage")), //
+
+		DIAG_STATUS_BATTERY_DISCONNECT(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery disconnected")), //
+
+		DIAG_STATUS_BATTERY_OVERCHARGE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery overcharged")), //
+
+		DIAG_STATUS_BMS_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Lithium battery over temperature")), //
+
+		DIAG_STATUS_BMS_OVERCHARGE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Lithium battery overcharged or an individual cell voltage is higher")), //
+
+		DIAG_STATUS_BMS_CHARGE_DISABLE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BMS does not allow charge")), //
+
+		DIAG_STATUS_SELF_USE_OFF(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Self-use mode turned off")), //
+
+		DIAG_STATUS_SOC_DELTA_OVER_RANGE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("SOC Jumps abnormally")), //
+
+		DIAG_STATUS_BATTERY_SELF_DISCHARGE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery discharge at low current for long time, continuously over 30% of battery SOC")), //
+
+		DIAG_STATUS_OFFGRID_SOC_LOW(Doc.of(OpenemsType.BOOLEAN) //
+				.text("SOC is low under off-grid statues")), //
+
+		DIAG_STATUS_GRID_WAVE_UNSTABLE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Grid wave is bad, switch to back-up mode frequently")), //
+
+		DIAG_STATUS_FEED_POWER_LIMIT(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Export power limit is set")), //
+
+		DIAG_STATUS_PF_VALUE_SET(Doc.of(OpenemsType.BOOLEAN) //
+				.text("PF value is set")), //
+
+		DIAG_STATUS_REAL_POWER_LIMIT(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Active power value is set")), //
+
+		DIAG_STATUS_SOC_PROTECT_OFF(Doc.of(OpenemsType.BOOLEAN) //
+				.text("SOC protect Off")), //
+
 		EH_BATTERY_FUNCTION_ACTIVE(Doc.of(EhBatteryFunctionActive.values())), //
 		ARC_SELF_CHECK_STATUS(Doc.of(ArcSelfCheckStatus.values())), //
 
@@ -1022,6 +1312,8 @@ public interface GoodWe extends OpenemsComponent {
 		FEED_POWER_PARA_SET(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_WRITE)), //
+		RIPPLE_CONTROL_RECEIVER_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE)), //
 
 		DEBUG_EMS_POWER_MODE(Doc.of(EmsPowerMode.values())), //
 		DEBUG_EMS_POWER_SET(Doc.of(OpenemsType.INTEGER)), //
@@ -1034,7 +1326,7 @@ public interface GoodWe extends OpenemsComponent {
 
 		BMS_CURR_LMT_COFF(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		BATTERY_PROTOCOL_ARM(Doc.of(OpenemsType.INTEGER) //
+		BATTERY_PROTOCOL_ARM(Doc.of(BatteryProtocol.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		WORK_WEEK_1_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Work Week 1 Enabled")), //
@@ -1276,10 +1568,67 @@ public interface GoodWe extends OpenemsComponent {
 		WBMS_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEGREE_CELSIUS) //
 				.accessMode(AccessMode.READ_WRITE)), //
+
+		/**
+		 * Warning Codes (table 8-8).
+		 *
+		 * <ul>
+		 * <li>Bit 12-31 Reserved
+		 * <li>Bit 11: System High Temperature
+		 * <li>Bit 10: System Low Temperature 2
+		 * <li>Bit 09: System Low Temperature 1
+		 * <li>Bit 08: Cell Imbalance
+		 * <li>Bit 07: System Reboot
+		 * <li>Bit 06: Communication Failure
+		 * <li>Bit 05: Discharge Over-Current
+		 * <li>Bit 04: Charge Over-Current
+		 * <li>Bit 03: Cell Low Temperature
+		 * <li>Bit 02: Cell High Temperature
+		 * <li>Bit 01: Discharge Under-Voltage
+		 * <li>Bit 00: Charge Over-Voltage
+		 * </ul>
+		 */
+		// TODO: Into enum
 		WBMS_WARNING_CODE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
+
+		/**
+		 * Alarm Codes (table 8-7).
+		 *
+		 * <ul>
+		 * <li>Bit 16-31 Reserved
+		 * <li>Bit 15: Charge Over-Voltage Fault
+		 * <li>Bit 14: Discharge Under-Voltage Fault
+		 * <li>Bit 13: Cell High Temperature
+		 * <li>Bit 12: Communication Fault
+		 * <li>Bit 11: Charge Circuit Fault
+		 * <li>Bit 10: Discharge Circuit Fault
+		 * <li>Bit 09: Battery Lock
+		 * <li>Bit 08: Battery Break
+		 * <li>Bit 07: DC Bus Fault
+		 * <li>Bit 06: Precharge Fault
+		 * <li>Bit 05: Discharge Over-Current
+		 * <li>Bit 04: Charge Over-Current
+		 * <li>Bit 03: Cell Low Temperature
+		 * <li>Bit 02: Cell High Temperature
+		 * <li>Bit 01: Discharge Under-Voltage
+		 * <li>Bit 00: Charge Over-Voltage
+		 * </ul>
+		 */
+		// TODO: Into enum
 		WBMS_ALARM_CODE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
+
+		/**
+		 * BMS Status.
+		 *
+		 * <ul>
+		 * <li>Bit 2: Stop Discharge
+		 * <li>Bit 1: Stop Charge
+		 * <li>Bit 0: Force Charge
+		 * </ul>
+		 */
+		// TODO: Into enum
 		WBMS_STATUS(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		WBMS_DISABLE_TIMEOUT_DETECTION(Doc.of(OpenemsType.INTEGER) //
@@ -1292,7 +1641,10 @@ public interface GoodWe extends OpenemsComponent {
 		SMART_MODE_NOT_WORKING_WITH_PID_FILTER(Doc.of(Level.WARNING) //
 				.text("SMART mode does not work correctly with active PID filter")),
 		NO_SMART_METER_DETECTED(Doc.of(Level.WARNING) //
-				.text("No GoodWe Smart Meter detected. Only REMOTE mode can work correctly"));
+				.text("No GoodWe Smart Meter detected. Only REMOTE mode can work correctly")),
+		IMPOSSIBLE_FENECON_HOME_COMBINATION(Doc.of(Level.FAULT) //
+				.text("The installed inverter and battery combination is not authorised. Operation could cause hardware damages, so charging and discharging is blocked. Please install a complete Home 10, Home 20 or Home 30 system.")) //
+		;
 
 		private final Doc doc;
 
@@ -1311,7 +1663,7 @@ public interface GoodWe extends OpenemsComponent {
 	 *
 	 * @return the Channel
 	 */
-	public default Channel<GoodweType> getGoodweTypeChannel() {
+	public default Channel<GoodWeType> getGoodweTypeChannel() {
 		return this.channel(GoodWe.ChannelId.GOODWE_TYPE);
 	}
 
@@ -1320,8 +1672,18 @@ public interface GoodWe extends OpenemsComponent {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default GoodweType getGoodweType() {
+	public default GoodWeType getGoodweType() {
 		return this.getGoodweTypeChannel().value().asEnum();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#GOODWE_TYPE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGoodweType(GoodWeType value) {
+		this.getGoodweTypeChannel().setNextValue(value);
 	}
 
 	// TODO drop these methods
@@ -1599,4 +1961,79 @@ public interface GoodWe extends OpenemsComponent {
 		this.getMaxAcImportChannel().setNextValue(value);
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#BATTERY_PROTOCOL_ARM}.
+	 *
+	 * @return the Channel
+	 */
+	public default EnumReadChannel getBatteryProtocolArmChannel() {
+		return this.channel(ChannelId.BATTERY_PROTOCOL_ARM);
+	}
+
+	/**
+	 * Gets the battery protocol arm as enum. See
+	 * {@link ChannelId#BATTERY_PROTOCOL_ARM}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default BatteryProtocol getBatteryProtocolArm() {
+		return this.getBatteryProtocolArmChannel().value().asEnum();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SOC_START_TO_FORCE_CHARGE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getSocStartToForceChargeChannel() {
+		return this.channel(ChannelId.SOC_START_TO_FORCE_CHARGE);
+	}
+
+	/**
+	 * Gets the SoC to start the force charge [%]. See
+	 * {@link ChannelId#SOC_START_TO_FORCE_CHARGE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getSocStartToForceCharge() {
+		return this.getSocStartToForceChargeChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SOC_STOP_TO_FORCE_CHARGE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getSocStopToForceChargeChannel() {
+		return this.channel(ChannelId.SOC_STOP_TO_FORCE_CHARGE);
+	}
+
+	/**
+	 * Gets the SoC to stop the force charge [%]. See
+	 * {@link ChannelId#SOC_STOP_TO_FORCE_CHARGE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getSocStopToForceCharge() {
+		return this.getSocStopToForceChargeChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#IMPOSSIBLE_FENECON_HOME_COMBINATION}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getImpossibleFeneconHomeCombinationChannel() {
+		return this.channel(ChannelId.IMPOSSIBLE_FENECON_HOME_COMBINATION);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#IMPOSSIBLE_FENECON_HOME_COMBINATION} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setImpossibleFeneconHomeCombination(boolean value) {
+		this.getImpossibleFeneconHomeCombinationChannel().setNextValue(value);
+	}
 }

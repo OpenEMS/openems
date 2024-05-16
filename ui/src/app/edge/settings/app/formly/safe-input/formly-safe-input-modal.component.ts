@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnInit } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
@@ -5,7 +6,7 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
 
 @Component({
     selector: 'formly-safe-input-modal',
-    templateUrl: './formly-safe-input-modal.component.html'
+    templateUrl: './formly-safe-input-modal.component.html',
 })
 export class FormlySafeInputModalComponent implements OnInit {
 
@@ -20,7 +21,7 @@ export class FormlySafeInputModalComponent implements OnInit {
     protected myModel: {};
 
     constructor(
-        protected modalCtrl: ModalController
+        protected modalCtrl: ModalController,
     ) { }
 
     ngOnInit(): void {

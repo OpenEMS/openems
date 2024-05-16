@@ -1,10 +1,11 @@
+// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
 
 @Component({
     selector: FixDigitalOutputChartOverviewComponent.SELECTOR,
-    templateUrl: './fixdigitaloutputchartoverview.component.html'
+    templateUrl: './fixdigitaloutputchartoverview.component.html',
 })
 export class FixDigitalOutputChartOverviewComponent implements OnInit {
 
@@ -21,7 +22,7 @@ export class FixDigitalOutputChartOverviewComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) { }
 
     ngOnInit() {

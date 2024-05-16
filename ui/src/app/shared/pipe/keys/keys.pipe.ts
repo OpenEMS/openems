@@ -1,18 +1,19 @@
+// @ts-strict-ignore
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'keys'
+  name: 'keys',
 })
 export class KeysPipe implements PipeTransform {
-  transform(value, args:string[]) : any {
+  transform(value, args: string[]): any {
     if (!value) {
       return value;
-    } 
+    }
 
-    let keys = [];
-    for (let key in value) {
-      keys.push({key: key, value: value[key]});
-    } 
+    const keys = [];
+    for (const key in value) {
+      keys.push({ key: key, value: value[key] });
+    }
     return keys;
-  } 
-} 
+  }
+}

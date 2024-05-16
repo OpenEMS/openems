@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
@@ -7,7 +8,7 @@ import { DelayedSellToGridModalComponent } from './modal/modal.component';
 
 @Component({
     selector: DelayedSellToGridComponent.SELECTOR,
-    templateUrl: './delayedselltogrid.component.html'
+    templateUrl: './delayedselltogrid.component.html',
 })
 export class DelayedSellToGridComponent implements OnInit, OnDestroy {
 
@@ -24,7 +25,7 @@ export class DelayedSellToGridComponent implements OnInit, OnDestroy {
         private websocket: Websocket,
         protected translate: TranslateService,
         public modalCtrl: ModalController,
-        public service: Service
+        public service: Service,
     ) { }
 
     ngOnInit() {
@@ -45,8 +46,8 @@ export class DelayedSellToGridComponent implements OnInit, OnDestroy {
             component: DelayedSellToGridModalComponent,
             componentProps: {
                 component: this.component,
-                edge: this.edge
-            }
+                edge: this.edge,
+            },
         });
         return await modal.present();
     }

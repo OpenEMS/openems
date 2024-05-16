@@ -1,41 +1,40 @@
 package io.openems.edge.bridge.modbus.api.task;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.ManagedTask;
 
-public interface Task extends ManagedTask {
+public sealed interface Task extends ManagedTask permits AbstractTask, ReadTask, WriteTask, WaitTask {
 
 	/**
 	 * Gets the ModbusElements.
 	 *
 	 * @return an array of ModbusElements
 	 */
-	ModbusElement<?>[] getElements();
+	public ModbusElement[] getElements();
 
 	/**
 	 * Gets the start Modbus register address.
 	 *
 	 * @return the address
 	 */
-	int getStartAddress();
+	public int getStartAddress();
 
 	/**
 	 * Gets the length from first to last Modbus register address.
 	 *
 	 * @return the address
 	 */
-	int getLength();
+	public int getLength();
 
 	/**
 	 * Sets the parent.
 	 *
 	 * @param parent the parent {@link AbstractOpenemsModbusComponent}.
 	 */
-	void setParent(AbstractOpenemsModbusComponent parent);
+	public void setParent(AbstractOpenemsModbusComponent parent);
 
 	/**
 	 * Gets the parent.
@@ -48,32 +47,38 @@ public interface Task extends ManagedTask {
 	 * This is called on deactivate of the Modbus-Bridge. It can be used to clear
 	 * any references like listeners.
 	 */
-	void deactivate();
+	public void deactivate();
 
 	/**
 	 * Executes the tasks - i.e. sends the query of a ReadTask or writes a
 	 * WriteTask.
 	 *
 	 * @param bridge the Modbus-Bridge
-	 * @param <T>    the Modbus-Element
-	 * @throws OpenemsException on error
-	 * @return the number of executed Sub-Tasks
+	 * @return {@link ExecuteState}
 	 */
-	<T> int execute(AbstractModbusBridge bridge) throws OpenemsException;
+	public ExecuteState execute(AbstractModbusBridge bridge);
 
-	/**
-	 * Gets whether this ReadTask has been successfully executed before.
-	 *
-	 * @return true if this Task has been executed successfully at least once
-	 */
-	boolean hasBeenExecuted();
+	public static sealed interface ExecuteState {
 
-	/**
-	 * Gets the execution duration of the last execution (successful or not not
-	 * successful) in [ms].
-	 *
-	 * @return the duration in [ms]
-	 */
-	long getExecuteDuration();
+		public static final class Ok implements ExecuteState {
+			private Ok() {
+			}
+		}
 
+		/** Successfully executed request(s). */
+		public static final ExecuteState.Ok OK = new ExecuteState.Ok();
+
+		public static final class NoOp implements ExecuteState {
+			private NoOp() {
+			}
+		}
+
+		/** No available requests -> no operation. */
+		public static final ExecuteState.NoOp NO_OP = new ExecuteState.NoOp();
+
+		/** Executing request(s) failed. */
+		public static final record Error(Exception exception) implements ExecuteState {
+		}
+
+	}
 }

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Directive, Inject, Input, OnChanges, OnDestroy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -7,13 +8,21 @@ import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared"
 import { v4 as uuidv4 } from 'uuid';
 
 import { DataService } from "../shared/dataservice";
+import { Filter } from "../shared/filter";
 
 @Directive()
 export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
 
   /**
+   * Use `filter` to remove a line depending on a value.
+   *
+   * @param value the current data value
+   * @returns converter function
+   */
+  @Input() public filter: Filter = Filter.NO_FILTER;
+  /**
    * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
-   * 
+   *
    * @param value the value from CurrentData
    * @returns converter function
    */
@@ -27,10 +36,14 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   /** Channel defines the channel, you need for this line */
   @Input()
   set channelAddress(channelAddress: string) {
+    this._channelAddress = ChannelAddress.fromString(channelAddress);
     this.subscribe(ChannelAddress.fromString(channelAddress));
   }
 
-  /** 
+  private _channelAddress: ChannelAddress | null = null;
+  protected show: boolean = true;
+
+  /**
    * displayValue is the displayed @Input value in html
    */
   public displayValue: string | null = null;
@@ -47,15 +60,18 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     @Inject(ActivatedRoute) protected route: ActivatedRoute,
     @Inject(Service) protected service: Service,
     @Inject(ModalController) protected modalCtrl: ModalController,
-    @Inject(DataService) private dataService: DataService
+    @Inject(DataService) private dataService: DataService,
   ) { }
 
   public ngOnChanges() {
     this.setValue(this.value);
-  };
+  }
 
   protected setValue(value: any) {
     this.displayValue = this.converter(value);
+    if (this.filter) {
+      this.show = this.filter(value);
+    }
   }
 
   protected subscribe(channelAddress: ChannelAddress) {
@@ -71,8 +87,8 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
 
   public ngOnDestroy() {
     // Unsubscribe from OpenEMS
-    if (this.edge != null) {
-      this.edge.unsubscribeChannels(this.websocket, this.selector);
+    if (this.edge != null && this._channelAddress) {
+      this.edge.unsubscribeFromChannels(this.websocket, [this._channelAddress]);
     }
 
     // Unsubscribe from CurrentData subject

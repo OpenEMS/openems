@@ -1,12 +1,11 @@
 import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
 
-
 /**
  * Wrapper for Requests specific to AppCenter.
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -17,10 +16,10 @@ import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * The response base on the request in the payload.
  * </pre>
@@ -32,9 +31,9 @@ export namespace AppCenter {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
                 payload: JsonrpcRequest
-            }
+            },
         ) {
             super(AppCenter.METHOD, params);
         }

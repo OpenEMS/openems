@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
@@ -7,7 +8,7 @@ import { Mode, WorkMode } from 'src/app/shared/type/general';
 
 @Component({
     selector: 'heatingelement-modal',
-    templateUrl: './modal.html'
+    templateUrl: './modal.html',
 })
 export class ModalComponent extends AbstractModal implements OnInit {
 
@@ -21,21 +22,21 @@ export class ModalComponent extends AbstractModal implements OnInit {
     protected readonly WorkMode = WorkMode;
 
     protected override getChannelAddresses(): ChannelAddress[] {
-        let outputChannelPhaseOne = ChannelAddress.fromString(
+        const outputChannelPhaseOne = ChannelAddress.fromString(
             this.component.properties['outputChannelPhaseL1']);
-        let outputChannelPhaseTwo = ChannelAddress.fromString(
+        const outputChannelPhaseTwo = ChannelAddress.fromString(
             this.component.properties['outputChannelPhaseL2']);
-        let outputChannelPhaseThree = ChannelAddress.fromString(
+        const outputChannelPhaseThree = ChannelAddress.fromString(
             this.component.properties['outputChannelPhaseL3']);
         this.outputChannelArray = [outputChannelPhaseOne, outputChannelPhaseTwo, outputChannelPhaseThree];
 
-        let channelAddresses: ChannelAddress[] = [
+        const channelAddresses: ChannelAddress[] = [
             new ChannelAddress(this.component.id, 'ForceStartAtSecondsOfDay'),
             outputChannelPhaseOne,
             outputChannelPhaseTwo,
             outputChannelPhaseThree,
             new ChannelAddress(this.component.id, ModalComponent.PROPERTY_MODE),
-            new ChannelAddress(this.component.id, '_PropertyWorkMode')
+            new ChannelAddress(this.component.id, '_PropertyWorkMode'),
         ];
         return channelAddresses;
     }
@@ -68,7 +69,7 @@ export class ModalComponent extends AbstractModal implements OnInit {
             endTime: new FormControl(this.component.properties.endTime),
             workMode: new FormControl(this.component.properties.workMode),
             defaultLevel: new FormControl(this.component.properties.defaultLevel),
-            mode: new FormControl(this.mode)
+            mode: new FormControl(this.mode),
         });
     }
 

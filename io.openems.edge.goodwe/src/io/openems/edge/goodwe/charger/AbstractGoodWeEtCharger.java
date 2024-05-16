@@ -6,7 +6,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
@@ -41,8 +40,13 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 		);
 	}
 
+	protected AbstractGoodWeEtCharger(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+		super(firstInitialChannelIds, furtherInitialChannelIds);
+	}
+
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		final var startAddress = this.getStartAddress();
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(startAddress, Priority.HIGH, //

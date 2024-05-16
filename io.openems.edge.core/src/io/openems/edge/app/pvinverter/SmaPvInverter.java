@@ -1,19 +1,24 @@
 package io.openems.edge.app.pvinverter;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
-import io.openems.edge.app.enums.OptionsFactory;
+import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.enums.Phase;
 import io.openems.edge.app.pvinverter.SmaPvInverter.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -22,9 +27,9 @@ import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -32,6 +37,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a App for SMA PV-Inverter.
@@ -55,7 +61,7 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.PvInverter.Sma")
+@Component(name = "App.PvInverter.Sma")
 public class SmaPvInverter extends AbstractOpenemsAppWithProps<SmaPvInverter, Property, Parameter.BundleParameter>
 		implements OpenemsApp {
 
@@ -66,33 +72,21 @@ public class SmaPvInverter extends AbstractOpenemsAppWithProps<SmaPvInverter, Pr
 		MODBUS_ID(AppDef.of(SmaPvInverter.class) //
 				.setDefaultValue("modbus0")), //
 		// Properties
-		ALIAS(AppDef.of(SmaPvInverter.class) //
-				.setDefaultValueToAppName()), //
-		IP(AppDef.copyOf(Property.class, CommonPvInverterConfiguration.ip()) //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.isRequired(true);
-				})), //
-		PORT(AppDef.copyOf(Property.class, CommonPvInverterConfiguration.port()) //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.isRequired(true);
-				})), //
-		MODBUS_UNIT_ID(AppDef.copyOf(Property.class, CommonPvInverterConfiguration.modbusUnitId()) //
+		ALIAS(CommonProps.alias()), //
+		IP(AppDef.copyOfGeneric(PvInverterProps.ip(), def -> def //
+				.setRequired(true))), //
+		PORT(AppDef.copyOfGeneric(PvInverterProps.port(), def -> def //
+				.setRequired(true))), //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(PvInverterProps.modbusUnitId(), def -> def //
 				.setTranslatedDescriptionWithAppPrefix(".modbusUnitId.description") //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.isRequired(true);
-				})), //
-		PHASE(AppDef.of(SmaPvInverter.class) //
-				.setTranslatedLabelWithAppPrefix(".phase.label") // )
-				.setTranslatedDescriptionWithAppPrefix(".phase.description") //
-				.setDefaultValue(Phase.ALL.name()) //
-				.bidirectional(PV_INVERTER_ID, "phase", a -> a.componentManager) //
-				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> //
-				field.setOptions(OptionsFactory.of(Phase.class), l) //
-						.isRequired(true)));
+				.setRequired(true))), //
+		PHASE(AppDef.copyOfGeneric(PvInverterProps.phase(), def -> def//
+				.bidirectional(PV_INVERTER_ID, "phase", ComponentManagerSupplier::getComponentManager))), //
+		;
 
-		private final AppDef<SmaPvInverter, Property, BundleParameter> def;
+		private final AppDef<? super SmaPvInverter, ? super Property, ? super BundleParameter> def;
 
-		private Property(AppDef<SmaPvInverter, Property, BundleParameter> def) {
+		private Property(AppDef<? super SmaPvInverter, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -102,7 +96,7 @@ public class SmaPvInverter extends AbstractOpenemsAppWithProps<SmaPvInverter, Pr
 		}
 
 		@Override
-		public AppDef<SmaPvInverter, Property, BundleParameter> def() {
+		public AppDef<? super SmaPvInverter, ? super Property, ? super BundleParameter> def() {
 			return this.def;
 		}
 
@@ -130,19 +124,29 @@ public class SmaPvInverter extends AbstractOpenemsAppWithProps<SmaPvInverter, Pr
 			final var modbusId = this.getId(t, p, Property.MODBUS_ID);
 			final var pvInverterId = this.getId(t, p, Property.PV_INVERTER_ID);
 
-			final var factoryIdInverter = "PV-Inverter.SMA.SunnyTripower";
-			final var components = CommonPvInverterConfiguration.getComponents(//
-					factoryIdInverter, pvInverterId, modbusId, alias, ip, port,
-					b -> b.addProperty("modbusUnitId", modbusUnitId) //
-							.addProperty("phase", phase),
-					null);
-			return new AppConfiguration(components);
+			final var components = List.of(//
+					new EdgeConfig.Component(pvInverterId, alias, "PV-Inverter.SMA.SunnyTripower", //
+							JsonUtils.buildJsonObject() //
+									.addProperty("modbus.id", modbusId) //
+									.addProperty("modbusUnitId", modbusUnitId) //
+									.addProperty("phase", phase) //
+									.build()), //
+					new EdgeConfig.Component(modbusId, alias, "Bridge.Modbus.Tcp", JsonUtils.buildJsonObject() //
+							.addProperty("ip", ip) //
+							.addProperty("port", port) //
+							.build())//
+			);
+
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 

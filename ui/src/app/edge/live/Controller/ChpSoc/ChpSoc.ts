@@ -1,12 +1,14 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
-import { Icon } from 'src/app/shared/type/widget';
-import { ChannelAddress, CurrentData } from '../../../../shared/shared';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { Icon } from 'src/app/shared/type/widget';
+
+import { ChannelAddress, CurrentData } from '../../../../shared/shared';
 import { Controller_ChpSocModalComponent } from './modal/modal.component';
 
 @Component({
     selector: 'Controller_ChpSocComponent',
-    templateUrl: './ChpSoc.html'
+    templateUrl: './ChpSoc.html',
 })
 export class Controller_ChpSocComponent extends AbstractFlatWidget {
 
@@ -22,11 +24,11 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
     public icon: Icon = {
         name: '',
         size: 'large',
-        color: 'primary'
+        color: 'primary',
     };
     private static PROPERTY_MODE: string = '_PropertyMode';
 
-    protected getChannelAddresses() {
+    protected override getChannelAddresses() {
         this.outputChannel = ChannelAddress.fromString(
             this.component.properties['outputChannelAddress']);
         this.inputChannel = ChannelAddress.fromString(
@@ -37,11 +39,11 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
             this.inputChannel,
             this.propertyModeChannel,
             new ChannelAddress(this.component.id, '_PropertyHighThreshold'),
-            new ChannelAddress(this.component.id, '_PropertyLowThreshold')
+            new ChannelAddress(this.component.id, '_PropertyLowThreshold'),
         ];
     }
 
-    protected onCurrentData(currentData: CurrentData) {
+    protected override onCurrentData(currentData: CurrentData) {
 
         // Mode
         this.modeChannelValue = currentData.allComponents[this.propertyModeChannel.toString()];
@@ -56,7 +58,7 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
                 this.mode = this.translate.instant('General.automatic');
         }
 
-        let outputChannelValue = currentData.allComponents[this.outputChannel.toString()];
+        const outputChannelValue = currentData.allComponents[this.outputChannel.toString()];
 
         switch (outputChannelValue) {
             case 0:
@@ -80,8 +82,8 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
                 component: this.component,
                 edge: this.edge,
                 outputChannel: this.outputChannel,
-                inputChannel: this.inputChannel
-            }
+                inputChannel: this.inputChannel,
+            },
         });
         return await modal.present();
     }

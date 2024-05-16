@@ -1,14 +1,17 @@
 package io.openems.edge.bridge.modbus.sunspec;
 
+import static io.openems.edge.bridge.modbus.api.element.AbstractModbusElement.FillElementsPriority.HIGH;
+
 import java.util.Optional;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.FloatQuadruplewordElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -105,64 +108,36 @@ public interface SunSpecPoint {
 		 * @param startAddress the startAddress of the Point
 		 * @return a new Modbus Element
 		 */
-		public final AbstractModbusElement<?> generateModbusElement(Integer startAddress) {
-			switch (this.type) {
-			case UINT16:
-			case ACC16:
-			case ENUM16:
-			case BITFIELD16:
-				return new UnsignedWordElement(startAddress);
-			case INT16:
-			case SUNSSF:
-			case COUNT:
-				return new SignedWordElement(startAddress);
-			case UINT32:
-			case ACC32:
-			case ENUM32:
-			case BITFIELD32:
-			case IPADDR:
-				return new UnsignedDoublewordElement(startAddress);
-			case INT32:
-				return new SignedDoublewordElement(startAddress);
-			case UINT64:
-			case ACC64:
-				return new UnsignedQuadruplewordElement(startAddress);
-			case INT64:
-				return new SignedQuadruplewordElement(startAddress);
-			case FLOAT32:
-				return new FloatDoublewordElement(startAddress);
-			case PAD:
-				return new DummyRegisterElement(startAddress);
-			case FLOAT64:
-				break;
-			case EUI48:
-				break;
-			case IPV6ADDR:
-				// TODO this would be UINT128
-				break;
-			case STRING2:
-				return new StringWordElement(startAddress, 2);
-			case STRING4:
-				return new StringWordElement(startAddress, 4);
-			case STRING5:
-				return new StringWordElement(startAddress, 5);
-			case STRING6:
-				return new StringWordElement(startAddress, 6);
-			case STRING7:
-				return new StringWordElement(startAddress, 7);
-			case STRING8:
-				return new StringWordElement(startAddress, 8);
-			case STRING12:
-				return new StringWordElement(startAddress, 12);
-			case STRING16:
-				return new StringWordElement(startAddress, 16);
-			case STRING20:
-				return new StringWordElement(startAddress, 20);
-			case STRING25:
-				return new StringWordElement(startAddress, 25);
-			}
-			throw new IllegalArgumentException(
+		public final ModbusElement generateModbusElement(Integer startAddress) {
+			return switch (this.type) {
+			case UINT16, ACC16, ENUM16, BITFIELD16 -> new UnsignedWordElement(startAddress);
+			case SUNSSF -> new SignedWordElement(startAddress)//
+					.fillElementsPriority(HIGH);
+			case INT16, COUNT -> new SignedWordElement(startAddress);
+			case UINT32, ACC32, ENUM32, BITFIELD32, IPADDR -> new UnsignedDoublewordElement(startAddress);
+			case INT32 -> new SignedDoublewordElement(startAddress);
+			case UINT64, ACC64 -> new UnsignedQuadruplewordElement(startAddress);
+			case INT64 -> new SignedQuadruplewordElement(startAddress);
+			case FLOAT32 -> new FloatDoublewordElement(startAddress);
+			case PAD -> new DummyRegisterElement(startAddress);
+			case FLOAT64 -> new FloatQuadruplewordElement(startAddress);
+			case EUI48 -> null;
+			case IPV6ADDR // TODO this would be UINT128
+				-> null;
+			case STRING2 -> new StringWordElement(startAddress, 2);
+			case STRING4 -> new StringWordElement(startAddress, 4);
+			case STRING5 -> new StringWordElement(startAddress, 5);
+			case STRING6 -> new StringWordElement(startAddress, 6);
+			case STRING7 -> new StringWordElement(startAddress, 7);
+			case STRING8 -> new StringWordElement(startAddress, 8);
+			case STRING12 -> new StringWordElement(startAddress, 12);
+			case STRING16 -> new StringWordElement(startAddress, 16);
+			case STRING20 -> new StringWordElement(startAddress, 20);
+			case STRING25 -> new StringWordElement(startAddress, 25);
+			case STRING32 -> new StringWordElement(startAddress, 32);
+			default -> throw new IllegalArgumentException(
 					"Point [" + this.label + "]: Type [" + this.type + "] is not supported!");
+			};
 		}
 
 		/**
@@ -179,43 +154,19 @@ public interface SunSpecPoint {
 			}
 
 			// TODO: map to floating point OpenemsType when appropriate
-			switch (this.type) {
-			case UINT16:
-			case ACC16:
-			case ENUM16:
-			case BITFIELD16:
-			case INT16:
-			case SUNSSF:
-			case COUNT:
-			case INT32:
-			case PAD: // ignore
-			case EUI48:
-			case FLOAT32: // avoid floating point numbers; FLOAT32 might not fit in INTEGER
-				return OpenemsType.INTEGER;
-			case ACC32:
-			case BITFIELD32:
-			case ENUM32:
-			case IPADDR:
-			case UINT32:
-			case UINT64:
-			case ACC64:
-			case INT64:
-			case IPV6ADDR:
-			case FLOAT64: // avoid floating point numbers
-				return OpenemsType.LONG;
-			case STRING2:
-			case STRING4:
-			case STRING5:
-			case STRING6:
-			case STRING7:
-			case STRING8:
-			case STRING12:
-			case STRING16:
-			case STRING20:
-			case STRING25:
-				return OpenemsType.STRING;
-			}
-			throw new IllegalArgumentException("Unable to get matching OpenemsType for " + this.type);
+			return switch (this.type) {
+			case UINT16, ACC16, ENUM16, BITFIELD16, INT16, SUNSSF, COUNT, INT32, PAD, // ignore
+					EUI48, FLOAT32 // avoid floating point numbers; FLOAT32 might not fit in INTEGER
+				-> OpenemsType.INTEGER;
+			case ACC32, BITFIELD32, ENUM32, IPADDR, UINT32, UINT64, ACC64, INT64, IPV6ADDR, //
+					FLOAT64 // avoid floating point numbers
+				-> OpenemsType.LONG;
+			case STRING2, STRING4, STRING5, STRING6, STRING7, STRING8, STRING12, STRING16, STRING20, STRING25,
+					STRING32 ->
+				OpenemsType.STRING;
+			default -> throw new IllegalArgumentException("Unable to get matching OpenemsType for " + this.type);
+
+			};
 		}
 	}
 
@@ -223,6 +174,7 @@ public interface SunSpecPoint {
 		INT16(1), UINT16(1), COUNT(1), ACC16(1), INT32(2), UINT32(2), FLOAT32(2), ACC32(2), INT64(4), UINT64(4),
 		FLOAT64(4), ACC64(4), ENUM16(1), ENUM32(2), BITFIELD16(1), BITFIELD32(2), SUNSSF(1), STRING2(2), STRING4(4),
 		STRING5(5), STRING6(6), STRING7(7), STRING8(8), STRING12(12), STRING16(16), STRING20(20), STRING25(25),
+		STRING32(32),
 		/* use PAD for reserved points */
 		PAD(1), IPADDR(1), IPV6ADDR(16), EUI48(6);
 
@@ -243,53 +195,24 @@ public interface SunSpecPoint {
 			if (value == null) {
 				return false;
 			}
-			switch (type) {
-			case INT16:
-			case SUNSSF:
-				return !value.equals(Short.MIN_VALUE /* -32768 */);
-			case UINT16:
-			case ENUM16:
-			case BITFIELD16:
-			case COUNT:
-				return !value.equals(65535);
-			case ACC16:
-			case ACC32:
-			case IPADDR:
-			case ACC64:
-			case IPV6ADDR:
-				return !value.equals(0);
-			case INT32:
-				return !value.equals(0x80000000); // TODO correct?
-			case UINT32:
-			case ENUM32:
-			case BITFIELD32:
-				return !value.equals(4294967295L);
-			case INT64:
-				return !value.equals(0x8000000000000000L); // TODO correct?
-			case UINT64:
-				return !value.equals(0xFFFFFFFFFFFFFFFFL); // TODO correct?
-			case FLOAT32:
-				return !value.equals(Float.NaN);
-			case FLOAT64:
-				return false; // TODO not implemented
-			case PAD:
-				// This point is never needed/reserved
-				return false;
-			case STRING12:
-			case STRING16:
-			case STRING2:
-			case STRING20:
-			case STRING25:
-			case STRING4:
-			case STRING5:
-			case STRING6:
-			case STRING7:
-			case STRING8:
-				return !"".equals(value);
-			case EUI48:
-				return false; // TODO not implemented
-			}
-			return false;
+			return switch (type) {
+			case INT16, SUNSSF -> !value.equals(Short.MIN_VALUE /* -32768 */);
+			case UINT16, ENUM16, BITFIELD16, COUNT -> !value.equals(65535);
+			case ACC16, ACC32, IPADDR, ACC64, IPV6ADDR -> !value.equals(0);
+			case INT32 -> !value.equals(0x80000000); // TODO correct?
+			case UINT32, ENUM32, BITFIELD32 -> !value.equals(4294967295L);
+			case INT64 -> !value.equals(0x8000000000000000L); // TODO correct?
+			case UINT64 -> !value.equals(0xFFFFFFFFFFFFFFFFL); // TODO correct?
+			case FLOAT32 -> !value.equals(Float.NaN);
+			case FLOAT64 -> false; // TODO not implemented
+			case PAD // This point is never needed/reserved
+				-> false;
+			case STRING12, STRING16, STRING2, STRING20, STRING25, STRING32, STRING4, STRING5, STRING6, STRING7,
+					STRING8 ->
+				!"".equals(value);
+			case EUI48 -> false; // TODO not implemented
+			default -> false;
+			};
 		}
 	}
 

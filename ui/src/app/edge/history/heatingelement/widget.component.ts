@@ -1,13 +1,15 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: HeatingelementWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: './widget.component.html',
 })
 export class HeatingelementWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
@@ -25,8 +27,8 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
     public edge: Edge = null;
 
     constructor(
-        public service: Service,
-        private route: ActivatedRoute
+        public override service: Service,
+        private route: ActivatedRoute,
     ) {
         super(service);
     }
@@ -46,12 +48,12 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
 
     ngOnChanges() {
         this.updateValues();
-    };
+    }
 
     public getCumulativeValue(channeladdress: string, response: QueryHistoricTimeseriesDataResponse) {
-        let array = response.result.data[channeladdress];
-        let firstValue = array.find(el => el != null) ?? 0;
-        let lastValue = array.slice().reverse().find(el => el != null) ?? 0;
+        const array = response.result.data[channeladdress];
+        const firstValue = array.find(el => el != null) ?? 0;
+        const lastValue = array.slice().reverse().find(el => el != null) ?? 0;
         return lastValue - firstValue;
     }
 
@@ -61,14 +63,14 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
             this.activeTimeOverPeriodLevel2 = this.getCumulativeValue(this.componentId + '/Level2CumulatedTime', response);
             this.activeTimeOverPeriodLevel3 = this.getCumulativeValue(this.componentId + '/Level3CumulatedTime', response);
         });
-    };
+    }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let channeladdresses = [
+            const channeladdresses = [
                 new ChannelAddress(this.componentId, 'Level1CumulatedTime'),
                 new ChannelAddress(this.componentId, 'Level2CumulatedTime'),
-                new ChannelAddress(this.componentId, 'Level3CumulatedTime')
+                new ChannelAddress(this.componentId, 'Level3CumulatedTime'),
             ];
             resolve(channeladdresses);
         });

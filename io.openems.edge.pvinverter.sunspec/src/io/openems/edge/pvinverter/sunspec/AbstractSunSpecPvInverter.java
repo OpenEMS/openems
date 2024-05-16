@@ -35,6 +35,8 @@ import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S111;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S112;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S113;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S120;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S701;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S702;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
 import io.openems.edge.common.channel.Channel;
@@ -55,6 +57,7 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 		SINGLE_PHASE(S_101, S_111), //
 		SPLIT_PHASE(S_102, S_112), //
 		THREE_PHASE(S_103, S_113);
+		// TODO evaluate S701_ACType if block 701 is used
 
 		private final List<DefaultSunSpecModel> blocks;
 
@@ -69,11 +72,20 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 	private boolean readOnly;
 	private Phase phase;
 	private InverterType inverterType = null;
+	private final boolean calculateActiveProductionEnergyManually;
 
 	public AbstractSunSpecPvInverter(Map<SunSpecModel, Priority> activeModels,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
-			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsException {
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+		this(activeModels, false, firstInitialChannelIds, furtherInitialChannelIds);
+	}
+
+	public AbstractSunSpecPvInverter(Map<SunSpecModel, Priority> activeModels,
+			boolean calculateActiveProductionEnergyManually,
+			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);
+		this.calculateActiveProductionEnergyManually = calculateActiveProductionEnergyManually;
 		this._setActiveConsumptionEnergy(0);
 
 		// Automatically calculate sum values from L1/L2/L3
@@ -199,73 +211,119 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 		this.mapFirstPointToChannel(//
 				ElectricityMeter.ChannelId.FREQUENCY, //
 				SCALE_FACTOR_3, //
-				S111.HZ, S112.HZ, S113.HZ, S101.HZ, S102.HZ, S103.HZ);
+				S701.HZ, S111.HZ, S112.HZ, S113.HZ, S101.HZ, S102.HZ, S103.HZ);
 
 		this.mapFirstPointToChannel(//
 				ElectricityMeter.ChannelId.ACTIVE_POWER, //
 				DIRECT_1_TO_1, //
-				S111.W, S112.W, S113.W, S101.W, S102.W, S103.W);
+				S701.W, S111.W, S112.W, S113.W, S101.W, S102.W, S103.W);
 		this.mapFirstPointToChannel(//
 				ElectricityMeter.ChannelId.REACTIVE_POWER, //
 				DIRECT_1_TO_1, //
-				S111.V_AR, S112.V_AR, S113.V_AR, S101.V_AR, S102.V_AR, S103.V_AR);
+				S701.VAR, S111.V_AR, S112.V_AR, S113.V_AR, S101.V_AR, S102.V_AR, S103.V_AR);
 
 		// Individual Phases Power
-		switch (this.inverterType) {
-		case SINGLE_PHASE -> {
-			var phase = switch (this.phase) {
-			case ALL, L1 -> SinglePhase.L1; // Fallback to L1 on wrong configuration
-			case L2 -> SinglePhase.L2;
-			case L3 -> SinglePhase.L3;
-			};
-			if (phase != null) {
-				SinglePhaseMeter.calculateSinglePhaseFromActivePower(this, (meter) -> phase);
+		// If model S701 is active, the phase powers can be read, otherwise they have to
+		// be calculated.
+		var c = this.getSunSpecChannel(DefaultSunSpecModel.S701.WL1);
+		if (c.isPresent()) {
+			this.mapFirstPointToChannel(//
+					ElectricityMeter.ChannelId.ACTIVE_POWER_L1, //
+					DIRECT_1_TO_1, //
+					S701.WL1);
+			this.mapFirstPointToChannel(//
+					ElectricityMeter.ChannelId.ACTIVE_POWER_L2, //
+					DIRECT_1_TO_1, //
+					S701.WL2);
+			this.mapFirstPointToChannel(//
+					ElectricityMeter.ChannelId.ACTIVE_POWER_L3, //
+					DIRECT_1_TO_1, //
+					S701.WL3);
+			this.mapFirstPointToChannel(//
+					ElectricityMeter.ChannelId.REACTIVE_POWER_L1, //
+					DIRECT_1_TO_1, //
+					S701.VAR_L1);
+			this.mapFirstPointToChannel(//
+					ElectricityMeter.ChannelId.REACTIVE_POWER_L2, //
+					DIRECT_1_TO_1, //
+					S701.VAR_L2);
+			this.mapFirstPointToChannel(//
+					ElectricityMeter.ChannelId.REACTIVE_POWER_L3, //
+					DIRECT_1_TO_1, //
+					S701.VAR_L3);
+		} else {
+			switch (this.inverterType) {
+			case SINGLE_PHASE -> {
+				var phase = switch (this.phase) {
+				case ALL, L1 -> SinglePhase.L1; // Fallback to L1 on wrong configuration
+				case L2 -> SinglePhase.L2;
+				case L3 -> SinglePhase.L3;
+				};
+				if (phase != null) {
+					SinglePhaseMeter.calculateSinglePhaseFromActivePower(this, meter -> phase);
+				}
+			}
+			case SPLIT_PHASE, THREE_PHASE -> {
+				ElectricityMeter.calculatePhasesFromActivePower(this);
+				ElectricityMeter.calculatePhasesFromReactivePower(this);
+			}
 			}
 		}
-		case SPLIT_PHASE, THREE_PHASE -> {
-			ElectricityMeter.calculatePhasesFromActivePower(this);
-			ElectricityMeter.calculatePhasesFromReactivePower(this);
-		}
+
+		// Energy
+		if (!this.calculateActiveProductionEnergyManually) {
+			this.mapFirstPointToChannel(//
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+					DIRECT_1_TO_1, //
+					S701.TOT_WH_INJ, S111.WH, S112.WH, S113.WH, S101.WH, S102.WH, S103.WH);
+			this.mapFirstPointToChannel(//
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
+					DIRECT_1_TO_1, //
+					S701.TOT_WH_INJ_L1);
+			this.mapFirstPointToChannel(//
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
+					DIRECT_1_TO_1, //
+					S701.TOT_WH_INJ_L2);
+			this.mapFirstPointToChannel(//
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
+					DIRECT_1_TO_1, //
+					S701.TOT_WH_INJ_L3);
 		}
 
-		this.mapFirstPointToChannel(//
-				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
-				DIRECT_1_TO_1, //
-				S111.WH, S112.WH, S113.WH, S101.WH, S102.WH, S103.WH);
 		this.mapFirstPointToChannel(//
 				ManagedSymmetricPvInverter.ChannelId.MAX_APPARENT_POWER, //
 				DIRECT_1_TO_1, //
-				S120.W_RTG);
+				S702.V_A_MAX_RTG, S120.W_RTG);
 
 		// Voltage
 		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.VOLTAGE_L1, //
 				SCALE_FACTOR_3, //
-				S111.PH_VPH_A, S112.PH_VPH_A, S113.PH_VPH_A, S101.PH_VPH_A, S102.PH_VPH_A, S103.PH_VPH_A);
+				S701.VL1, S111.PH_VPH_A, S112.PH_VPH_A, S113.PH_VPH_A, S101.PH_VPH_A, S102.PH_VPH_A, S103.PH_VPH_A);
 		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.VOLTAGE_L2, //
 				SCALE_FACTOR_3, //
-				S111.PH_VPH_B, S112.PH_VPH_B, S113.PH_VPH_B, S101.PH_VPH_B, S102.PH_VPH_B, S103.PH_VPH_B);
+				S701.VL2, S111.PH_VPH_B, S112.PH_VPH_B, S113.PH_VPH_B, S101.PH_VPH_B, S102.PH_VPH_B, S103.PH_VPH_B);
 		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.VOLTAGE_L3, //
 				SCALE_FACTOR_3, //
-				S111.PH_VPH_C, S112.PH_VPH_C, S113.PH_VPH_C, S101.PH_VPH_C, S102.PH_VPH_C, S103.PH_VPH_C);
+				S701.VL3, S111.PH_VPH_C, S112.PH_VPH_C, S113.PH_VPH_C, S101.PH_VPH_C, S102.PH_VPH_C, S103.PH_VPH_C);
 
 		// Current
 		this.mapFirstPointToChannel(//
 				ElectricityMeter.ChannelId.CURRENT, //
 				SCALE_FACTOR_3, //
-				S111.A, S112.A, S113.A, S101.A, S102.A, S103.A);
+				S701.A, S111.A, S112.A, S113.A, S101.A, S102.A, S103.A);
 		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.CURRENT_L1, //
 				SCALE_FACTOR_3, //
-				S111.APH_A, S112.APH_A, S113.APH_A, S101.APH_A, S102.APH_A, S103.APH_A);
+				S701.AL1, S111.APH_A, S112.APH_A, S113.APH_A, S101.APH_A, S102.APH_A, S103.APH_A);
 		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.CURRENT_L2, //
 				SCALE_FACTOR_3, //
-				S111.APH_B, S112.APH_B, S113.APH_B, S101.APH_B, S102.APH_B, S103.APH_B);
+				S701.AL2, S111.APH_B, S112.APH_B, S113.APH_B, S101.APH_B, S102.APH_B, S103.APH_B);
 		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.CURRENT_L3, //
 				SCALE_FACTOR_3, //
-				S111.APH_C, S112.APH_C, S113.APH_C, S101.APH_C, S102.APH_C, S103.APH_C);
+				S701.AL3, S111.APH_C, S112.APH_C, S113.APH_C, S101.APH_C, S102.APH_C, S103.APH_C);
 	}
 
 	@Override
-	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
+	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) {
 		super.addBlock(startAddress, model, priority);
 
 		// Can we evaluate the InverterType from this Block?

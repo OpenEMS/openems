@@ -13,6 +13,12 @@ import io.openems.shared.influxdb.QueryLanguageConfig;
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "timedata0";
 
+	@AttributeDefinition(name = "Startdate", description = "for example: 2023-12-30; optional", required = false)
+	String startDate();
+
+	@AttributeDefinition(name = "Enddate", description = "for example: 2023-12-31; optional", required = false)
+	String endDate();
+
 	@AttributeDefinition(name = "Query language", description = "Query language Flux or InfluxQL")
 	QueryLanguageConfig queryLanguage() default QueryLanguageConfig.INFLUX_QL;
 

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -5,7 +6,7 @@ import { Edge, EdgeConfig, Service } from 'src/app/shared/shared';
 
 @Component({
     selector: SymmetricPeakshavingWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: './widget.component.html',
 })
 export class SymmetricPeakshavingWidgetComponent implements OnInit {
 
@@ -19,7 +20,7 @@ export class SymmetricPeakshavingWidgetComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) { }
 
     ngOnInit() {

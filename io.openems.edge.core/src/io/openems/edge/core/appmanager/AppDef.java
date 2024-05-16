@@ -1,5 +1,8 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.common.utils.FunctionUtils.supplier;
+
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -10,14 +13,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.FormlyBuilder;
+import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.Type.Parameter;
-import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
+import io.openems.edge.core.appmanager.formly.builder.FormlyBuilder;
 
 /**
  * AppDef short for definition of a property for an app.
@@ -28,7 +36,7 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
  */
 public class AppDef<APP extends OpenemsApp, //
 		PROPERTY extends Nameable, //
-		PARAMETER extends Type.Parameter> //
+		PARAMETER> //
 		implements OnlyIf<AppDef<APP, PROPERTY, PARAMETER>>, Self<AppDef<APP, PROPERTY, PARAMETER>> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AppDef.class);
@@ -54,6 +62,49 @@ public class AppDef<APP extends OpenemsApp, //
 		 * @return the output of the function
 		 */
 		public O get(A app, P property, Language l, M parameter);
+
+	}
+
+	@FunctionalInterface
+	public static interface FieldValuesPredicate<A, P, M> {
+
+		public static FieldValuesPredicate<? super Object, ? super Object, ? super Object> ALWAYS_TRUE = (app, property,
+				l, parameter) -> true;
+		public static FieldValuesPredicate<? super Object, ? super Object, ? super Object> ALWAYS_FALSE = (app,
+				property, l, parameter) -> false;
+
+		/**
+		 * A function with the values of the current field.
+		 * 
+		 * @param app       the current app
+		 * @param property  the current property
+		 * @param l         the current language
+		 * @param parameter the current provided parameters
+		 * @return true if the test was successful
+		 */
+		public boolean test(A app, P property, Language l, M parameter);
+
+	}
+
+	@FunctionalInterface
+	public static interface FieldValuesBiPredicate<A, P, M, E> {
+
+		public static final FieldValuesBiPredicate<? super Object, ? super Object, ? super Object, Object> TRUE//
+				= (app, property, l, parameter, user) -> true;
+		public static final FieldValuesBiPredicate<? super Object, ? super Object, ? super Object, Object> FALSE//
+				= (app, property, l, parameter, user) -> false;
+
+		/**
+		 * A function with the values of the current field.
+		 * 
+		 * @param app            the current app
+		 * @param property       the current property
+		 * @param l              the current language
+		 * @param parameter      the current provided parameters
+		 * @param extraParameter the extra parameter to pass to the predicate
+		 * @return true if the test was successful
+		 */
+		public boolean test(A app, P property, Language l, M parameter, E extraParameter);
 
 	}
 
@@ -124,15 +175,12 @@ public class AppDef<APP extends OpenemsApp, //
 	 */
 	private FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, JsonElement> defaultValue;
 
+	private boolean required = false;
+
 	/**
 	 * Function to get the {@link FormlyBuilder} for the input.
 	 */
 	private FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, FormlyBuilder<?>> field;
-
-	/**
-	 * Determines if the field gets added to the {@link AppAssistant} automatically.
-	 */
-	private boolean autoGenerateField = true;
 
 	/**
 	 * Determines if the property should get visibly saved in the AppManager
@@ -151,6 +199,17 @@ public class AppDef<APP extends OpenemsApp, //
 	private Function<? super PARAMETER, ResourceBundle> translationBundleSupplier;
 
 	/**
+	 * Determines if the property is allowed to be seen.
+	 */
+	private FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super User> isAllowedToSee//
+			= FieldValuesBiPredicate.TRUE;
+	/**
+	 * Determines if the property is allowed to be edited.
+	 */
+	private FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super User> isAllowedToEdit//
+			= FieldValuesBiPredicate.TRUE;
+
+	/**
 	 * Creates a {@link AppDef} with the componentId as the default value.
 	 * 
 	 * @param <APP>       the type of the {@link OpenemsApp}
@@ -161,7 +220,7 @@ public class AppDef<APP extends OpenemsApp, //
 	 */
 	public static final <APP extends OpenemsApp, //
 			PROPERTY extends Nameable, //
-			PARAMETER extends Type.Parameter> AppDef<APP, PROPERTY, PARAMETER> componentId(String componentId) {
+			PARAMETER> AppDef<APP, PROPERTY, PARAMETER> componentId(String componentId) {
 		return new AppDef<APP, PROPERTY, PARAMETER>() //
 				.setDefaultValue(componentId);
 	}
@@ -177,7 +236,7 @@ public class AppDef<APP extends OpenemsApp, //
 	 */
 	public static final <APP extends OpenemsApp, //
 			PROPERTY extends Nameable, //
-			PARAMETER extends Type.Parameter> AppDef<APP, PROPERTY, PARAMETER> of() {
+			PARAMETER> AppDef<APP, PROPERTY, PARAMETER> of() {
 		return new AppDef<APP, PROPERTY, PARAMETER>();
 	}
 
@@ -194,11 +253,11 @@ public class AppDef<APP extends OpenemsApp, //
 	 */
 	public static final <APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER>, //
 			PROPERTY extends Type<PROPERTY, APP, PARAMETER> & Nameable, //
-			PARAMETER extends Type.Parameter.BundleParameter> AppDef<APP, PROPERTY, PARAMETER> of(//
+			PARAMETER extends BundleProvider> AppDef<APP, PROPERTY, PARAMETER> of(//
 					final Class<APP> clazz //
 	) {
 		return new AppDef<APP, PROPERTY, PARAMETER>() //
-				.setTranslationBundleSupplier(BundleParameter::getBundle);
+				.setTranslationBundleSupplier(BundleProvider::bundle);
 	}
 
 	/**
@@ -230,22 +289,44 @@ public class AppDef<APP extends OpenemsApp, //
 	 */
 	public static final <//
 			APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER> & OpenemsApp, //
-			PROPERTY extends Enum<PROPERTY> & Nameable & Type<PROPERTY, APP, PARAMETER>, //
+			PROPERTY extends Nameable & Type<PROPERTY, APP, PARAMETER>, //
 			PARAMETER extends Type.Parameter.BundleParameter> //
 	AppDef<APP, PROPERTY, PARAMETER> copyOf(//
 			final Class<PROPERTY> propertyClass, //
 			final AppDef<OpenemsApp, Nameable, Type.Parameter.BundleParameter> otherDef //
 	) {
-		final var def = new AppDef<APP, PROPERTY, PARAMETER>();
-		def.translationBundleSupplier = otherDef.translationBundleSupplier;
-		def.label = otherDef.label;
-		def.description = otherDef.description;
-		def.defaultValue = otherDef.defaultValue;
-		def.field = otherDef.field;
-		def.autoGenerateField = otherDef.autoGenerateField;
-		def.isAllowedToSave = otherDef.isAllowedToSave;
-		def.bidirectionalValue = otherDef.bidirectionalValue;
-		return def;
+		return copyOfGeneric(otherDef);
+	}
+
+	/**
+	 * Creates a copy of the otherDef. This method is often used instead of the
+	 * {@link AppDef#copyOfGeneric(AppDef)} because the return type doesn't have to
+	 * be set explicit if a method call is appended to the result of the method.
+	 * 
+	 * @param <APP>        the type of the app
+	 * @param <PROPERTY>   the type of the property
+	 * @param <PARAMETER>  the type of the parameter
+	 * @param <APPO>       the type of the app from the otherDef
+	 * @param <PROPERTYO>  the type of the property from the otherDef
+	 * @param <PARAMETERO> the type of the parameter from the otherDef
+	 * @param otherDef     the other {@link AppDef}
+	 * @param consumer     the {@link Consumer} to set attributes of the
+	 *                     {@link AppDef}
+	 * @return the new {@link AppDef}
+	 */
+	public static final <//
+			APP extends APPO, //
+			PROPERTY extends PROPERTYO, //
+			PARAMETER extends PARAMETERO, //
+			APPO extends OpenemsApp, //
+			PROPERTYO extends Nameable, //
+			PARAMETERO> AppDef<APP, PROPERTY, PARAMETER> copyOfGeneric(//
+					final AppDef<APPO, PROPERTYO, PARAMETERO> otherDef, //
+					Consumer<AppDef<APP, PROPERTY, PARAMETER>> consumer //
+	) {
+		var a = AppDef.<APP, PROPERTY, PARAMETER, APPO, PROPERTYO, PARAMETERO>copyOfGeneric(otherDef);
+		consumer.accept(a);
+		return a;
 	}
 
 	/**
@@ -266,7 +347,7 @@ public class AppDef<APP extends OpenemsApp, //
 			PARAMETER extends PARAMETERO, //
 			APPO extends OpenemsApp, //
 			PROPERTYO extends Nameable, //
-			PARAMETERO extends Type.Parameter> AppDef<APP, PROPERTY, PARAMETER> copyOfGeneric(//
+			PARAMETERO> AppDef<APP, PROPERTY, PARAMETER> copyOfGeneric(//
 					final AppDef<APPO, PROPERTYO, PARAMETERO> otherDef //
 	) {
 		final var def = new AppDef<APP, PROPERTY, PARAMETER>();
@@ -275,9 +356,10 @@ public class AppDef<APP extends OpenemsApp, //
 		def.description = otherDef.description;
 		def.defaultValue = otherDef.defaultValue;
 		def.field = otherDef.field;
-		def.autoGenerateField = otherDef.autoGenerateField;
 		def.isAllowedToSave = otherDef.isAllowedToSave;
 		def.bidirectionalValue = otherDef.bidirectionalValue;
+		def.isAllowedToSee = otherDef.isAllowedToSee;
+		def.isAllowedToEdit = otherDef.isAllowedToEdit;
 		return def;
 	}
 
@@ -462,6 +544,19 @@ public class AppDef<APP extends OpenemsApp, //
 	}
 
 	/**
+	 * Wraps the name of the {@link Enum} in a {@link JsonPrimitive} and sets it as
+	 * the default value with {@link AppDef#setDefaultValue(Function)}.
+	 * 
+	 * @param e the {@link Enum} as the default value
+	 * @return this
+	 */
+	public final AppDef<APP, PROPERTY, PARAMETER> setDefaultValue(//
+			final Enum<?> e //
+	) {
+		return this.setDefaultValue(e.name());
+	}
+
+	/**
 	 * Wraps the {@link Boolean} in a {@link JsonPrimitive} and sets it as the
 	 * default value with {@link AppDef#setDefaultValue(Function)}.
 	 * 
@@ -614,12 +709,85 @@ public class AppDef<APP extends OpenemsApp, //
 	}
 
 	public AppDef<APP, PROPERTY, PARAMETER> setAutoGenerateField(boolean autoGenerateField) {
-		this.autoGenerateField = autoGenerateField;
-		return this;
+		this.isAllowedToSee = autoGenerateField ? FieldValuesBiPredicate.TRUE : FieldValuesBiPredicate.FALSE;
+		return this.self();
 	}
 
-	public boolean isAutoGenerateField() {
-		return this.autoGenerateField;
+	public AppDef<APP, PROPERTY, PARAMETER> setIsAllowedToSee(//
+			final FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, User> isAllowedToSee //
+	) {
+		this.isAllowedToSee = isAllowedToSee;
+		return this.self();
+	}
+
+	public final AppDef<APP, PROPERTY, PARAMETER> setRequired(boolean required) {
+		this.required = required;
+		return this.self();
+	}
+
+	/**
+	 * Appends the given predicates and collections them into one which checks that
+	 * every predicate returns true to determine if the current field should be
+	 * show.
+	 * 
+	 * @param isAllowedToSeePredicate the {@link FieldValuesBiPredicate}
+	 * @return this
+	 */
+	@SafeVarargs
+	public final AppDef<APP, PROPERTY, PARAMETER> appendIsAllowedToSee(//
+			final FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super User>... isAllowedToSeePredicate //
+	) {
+		this.isAllowedToSee = appendToExisting(this.isAllowedToSee, isAllowedToSeePredicate);
+		return this.self();
+	}
+
+	/**
+	 * Appends the given predicates and collections them into one which checks that
+	 * every predicate returns true to determine if the current field can be edited.
+	 * 
+	 * @param isAllowedToEditPredicates the {@link FieldValuesBiPredicate}
+	 * @return this
+	 */
+	@SafeVarargs
+	public final AppDef<APP, PROPERTY, PARAMETER> appendIsAllowedToEdit(//
+			final FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super User>... isAllowedToEditPredicates //
+	) {
+		this.isAllowedToEdit = appendToExisting(this.isAllowedToEdit, isAllowedToEditPredicates);
+		return this.self();
+	}
+
+	@SafeVarargs
+	private static <APP, PROPERTY, PARAMETER, EXTRA> FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super EXTRA> appendToExisting(//
+			final FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super EXTRA> existing, //
+			final FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super EXTRA>... appendPredicates //
+	) {
+		if (appendPredicates.length == 0) {
+			return existing;
+		}
+		if (existing == FieldValuesBiPredicate.FALSE //
+				|| Arrays.stream(appendPredicates).anyMatch(pred -> pred == FieldValuesBiPredicate.FALSE)) {
+			return FieldValuesBiPredicate.FALSE;
+		}
+		FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super EXTRA> singlePredicate = (app,
+				property, l, parameter, user) -> {
+			return Arrays.stream(appendPredicates) //
+					.allMatch(pred -> pred.test(app, property, l, parameter, user));
+		};
+		if (existing == null || existing == FieldValuesBiPredicate.TRUE) {
+			return singlePredicate;
+		}
+		return (app, property, l, parameter, user) -> {
+			return existing.test(app, property, l, parameter, user)
+					&& singlePredicate.test(app, property, l, parameter, user);
+		};
+	}
+
+	public FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super User> getIsAllowedToEdit() {
+		return this.isAllowedToEdit;
+	}
+
+	public FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super User> getIsAllowedToSee() {
+		return this.isAllowedToSee;
 	}
 
 	/**
@@ -748,6 +916,7 @@ public class AppDef<APP extends OpenemsApp, //
 			doIfPresent(app, property, l, parameter, this.label, field::setLabel);
 			doIfPresent(app, property, l, parameter, this.description, field::setDescription);
 			doIfPresent(app, property, l, parameter, this.defaultValue, field::setDefaultValue);
+			field.isRequired(this.required);
 			return field;
 		};
 	}
@@ -767,6 +936,17 @@ public class AppDef<APP extends OpenemsApp, //
 	@Override
 	public AppDef<APP, PROPERTY, PARAMETER> self() {
 		return this;
+	}
+
+	/**
+	 * Executes the given {@link Consumer} with the current instance.
+	 * 
+	 * @param consumer the {@link Consumer} to be executed with this instance
+	 * @return this
+	 */
+	public AppDef<APP, PROPERTY, PARAMETER> also(Consumer<AppDef<APP, PROPERTY, PARAMETER>> consumer) {
+		consumer.accept(this.self());
+		return this.self();
 	}
 
 	/**
@@ -791,6 +971,34 @@ public class AppDef<APP extends OpenemsApp, //
 			final String property, //
 			final Function<? super APP, ComponentManager> componentManagerFunction //
 	) {
+		return this.bidirectional(propOfComponentId, property, componentManagerFunction, Function.identity());
+	}
+
+	/**
+	 * Binds a property bidirectional.
+	 * 
+	 * <p>
+	 * The property itself will not be stored in the app configuration only in the
+	 * component. If the user doesn't provide the value of a property and there is a
+	 * bidirectional binding for it it will be filled up with the value of the
+	 * bidirectional binding. If there is no component id in the configuration or
+	 * the component doesn't exist or the property of the value is null then null is
+	 * returned inside the bidirectional function.
+	 * 
+	 * @param propOfComponentId        the key to get the component id from a
+	 *                                 configuration
+	 * @param property                 the property of the component
+	 * @param componentManagerFunction the function to get the component manager
+	 * @param mapper                   the mapper {@link Function} from the
+	 *                                 component to the actual value
+	 * @return this
+	 */
+	public AppDef<APP, PROPERTY, PARAMETER> bidirectional(//
+			final PROPERTY propOfComponentId, //
+			final String property, //
+			final Function<? super APP, ComponentManager> componentManagerFunction, //
+			final Function<? super JsonElement, JsonElement> mapper //
+	) {
 		this.bidirectionalValue = (app, prop, l, param, properties) -> {
 			if (properties == null) {
 				return null;
@@ -800,15 +1008,58 @@ public class AppDef<APP extends OpenemsApp, //
 				return null;
 			}
 			final var componentManager = componentManagerFunction.apply(app);
-			final var optionalComponent = componentManager.getEdgeConfig() //
-					.getComponent(componentId.getAsString());
-			return optionalComponent.map(component -> {
-				return component.getProperty(property).orElse(null);
-			}).orElse(null);
+			final var defaultValueSupplier = supplier(() -> {
+				final var a = this.getDefaultValue();
+				if (a != null) {
+					return a.get(app, prop, l, param);
+				}
+				return JsonNull.INSTANCE;
+			});
+
+			try {
+				final var component = componentManager.getComponent(componentId.getAsString());
+				return Optional.ofNullable(component.getComponentContext().getProperties().get(property)) //
+						.map(JsonUtils::getAsJsonElement) //
+						.map(mapper) //
+						.orElseGet(defaultValueSupplier);
+			} catch (OpenemsNamedException e) {
+				return defaultValueSupplier.get();
+			}
 		};
 		// set allowedToSave automatically to false
 		this.isAllowedToSave = false;
 		return this.self();
+	}
+
+	/**
+	 * Creates a simple mapper if the input {@link JsonElement} is a number it gets
+	 * multiplied with the given multiplicator.
+	 * 
+	 * @param multiplicator the multiplicator to be applied to the
+	 *                      {@link JsonElement}
+	 * @return the converter {@link Function}
+	 */
+	public static Function<? super JsonElement, JsonElement> multiplyWith(double multiplicator) {
+		return element -> {
+			if (!element.isJsonPrimitive()) {
+				return element;
+			}
+			if (!element.getAsJsonPrimitive().isNumber()) {
+				return element;
+			}
+			return new JsonPrimitive(element.getAsDouble() * multiplicator);
+		};
+	}
+
+	/**
+	 * Creates a {@link FieldValuesBiPredicate} to check if the {@link Role} of the
+	 * user is at least the given {@link Role}.
+	 * 
+	 * @param role the compared Role
+	 * @return the {@link FieldValuesBiPredicate}
+	 */
+	public static FieldValuesBiPredicate<? super Object, ? super Object, ? super Object, User> ofLeastRole(Role role) {
+		return (app, property, l, parameter, user) -> user.getRole().isAtLeast(role);
 	}
 
 }

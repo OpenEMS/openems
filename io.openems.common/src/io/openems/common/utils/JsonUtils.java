@@ -1,5 +1,7 @@
 package io.openems.common.utils;
 
+import static io.openems.common.utils.EnumUtils.toEnum;
+
 import java.net.Inet4Address;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -39,23 +41,31 @@ public class JsonUtils {
 	/**
 	 * Provide a easy way to generate a JsonArray from a list using the given
 	 * convert function to add each element.
-	 * 
+	 *
 	 * @param list    to convert
 	 * @param convert function to convert elements
 	 * @param <T>     type of an element from list
-	 * 
+	 *
 	 * @return list as JsonArray
 	 */
 	public static <T> JsonArray generateJsonArray(Collection<T> list, Function<T, JsonElement> convert) {
 		if (list == null) {
 			return null;
-		} else {
-			var jab = new JsonArrayBuilder();
-			list.forEach(element -> {
-				jab.add(convert.apply(element));
-			});
-			return jab.build();
 		}
+		var jab = new JsonArrayBuilder(list.size());
+		list.forEach(e -> jab.add(convert.apply(e)));
+		return jab.build();
+	}
+
+	/**
+	 * Provide a easy way to generate a JsonArray from a collection of JsonElements.
+	 *
+	 * @param <T>  type of element from list
+	 * @param list to convert
+	 * @return list as JsonArray
+	 */
+	public static <T extends JsonElement> JsonArray generateJsonArray(Collection<T> list) {
+		return generateJsonArray(list, json -> json);
 	}
 
 	/**
@@ -67,6 +77,10 @@ public class JsonUtils {
 
 		protected JsonArrayBuilder() {
 			this(new JsonArray());
+		}
+
+		protected JsonArrayBuilder(int capacity) {
+			this(new JsonArray(capacity));
 		}
 
 		protected JsonArrayBuilder(JsonArray j) {
@@ -262,10 +276,10 @@ public class JsonUtils {
 
 		/**
 		 * Add a {@link ZonedDateTime} value to the {@link JsonObject}.
-		 * 
+		 *
 		 * <p>
 		 * The value gets added in the format of {@link DateTimeFormatter#ISO_INSTANT}.
-		 * 
+		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
@@ -364,10 +378,10 @@ public class JsonUtils {
 		/**
 		 * Add a {@link ZonedDateTime} value to the {@link JsonObject} if it is not
 		 * null.
-		 * 
+		 *
 		 * <p>
 		 * The value gets added in the format of {@link DateTimeFormatter#ISO_INSTANT}.
-		 * 
+		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
@@ -404,7 +418,7 @@ public class JsonUtils {
 
 	}
 
-	public static class JsonArrayCollector implements Collector<JsonElement, JsonUtils.JsonArrayBuilder, JsonArray> {
+	public static class JsonArrayCollector implements Collector<JsonElement, JsonArrayBuilder, JsonArray> {
 
 		@Override
 		public Set<Characteristics> characteristics() {
@@ -418,7 +432,7 @@ public class JsonUtils {
 
 		@Override
 		public BiConsumer<JsonArrayBuilder, JsonElement> accumulator() {
-			return JsonUtils.JsonArrayBuilder::add;
+			return JsonArrayBuilder::add;
 		}
 
 		@Override
@@ -478,6 +492,58 @@ public class JsonUtils {
 	}
 
 	/**
+	 * Creates a JsonElement from the {@link Number} value.
+	 *
+	 * @param number the {@link Number}
+	 * @return a {@link JsonPrimitive} or {@link JsonNull}
+	 */
+	public static JsonElement toJson(Number number) {
+		if (number == null) {
+			return JsonNull.INSTANCE;
+		}
+		return new JsonPrimitive(number);
+	}
+
+	/**
+	 * Creates a JsonElement from the {@link Boolean} value.
+	 *
+	 * @param bool the {@link Boolean}
+	 * @return a {@link JsonPrimitive} or {@link JsonNull}
+	 */
+	public static JsonElement toJson(Boolean bool) {
+		if (bool == null) {
+			return JsonNull.INSTANCE;
+		}
+		return new JsonPrimitive(bool);
+	}
+
+	/**
+	 * Creates a JsonElement from the {@link Boolean} value.
+	 *
+	 * @param c the {@link Character}
+	 * @return a {@link JsonPrimitive} or {@link JsonNull}
+	 */
+	public static JsonElement toJson(Character c) {
+		if (c == null) {
+			return JsonNull.INSTANCE;
+		}
+		return new JsonPrimitive(c);
+	}
+
+	/**
+	 * Creates a JsonElement from the {@link Boolean} value.
+	 *
+	 * @param string the {@link String}
+	 * @return a {@link JsonPrimitive} or {@link JsonNull}
+	 */
+	public static JsonElement toJson(String string) {
+		if (string == null) {
+			return JsonNull.INSTANCE;
+		}
+		return new JsonPrimitive(string);
+	}
+
+	/**
 	 * Gets the {@link JsonElement} as {@link JsonPrimitive}.
 	 *
 	 * @param jElement the {@link JsonElement}
@@ -506,6 +572,19 @@ public class JsonUtils {
 			return value;
 		}
 		throw OpenemsError.JSON_NO_PRIMITIVE_MEMBER.exception(memberName, jElement.toString().replace("%", "%%"));
+	}
+
+	/**
+	 * Gets the member of the {@link JsonElement} as {@link Optional}
+	 * {@link JsonPrimitive}.
+	 *
+	 * @param jElement   the {@link JsonElement}
+	 * @param memberName the name of the member
+	 * @return the {@link Optional} {@link JsonPrimitive} value
+	 * @throws OpenemsNamedException on error
+	 */
+	public static Optional<JsonPrimitive> getAsOptionalPrimitive(JsonElement jElement, String memberName) {
+		return Optional.ofNullable(toPrimitive(toSubElement(jElement, memberName)));
 	}
 
 	/**
@@ -704,6 +783,19 @@ public class JsonUtils {
 	 */
 	public static Optional<String> getAsOptionalString(JsonElement jElement, String memberName) {
 		return Optional.ofNullable(toString(toPrimitive(toSubElement(jElement, memberName))));
+	}
+
+	/**
+	 * Gets the member of the {@link JsonElement} as {@link String} if it exists,
+	 * and the alternative value otherwise.
+	 *
+	 * @param jElement    the {@link JsonElement}
+	 * @param memberName  the name of the member
+	 * @param alternative the alternative value
+	 * @return the {@link String} value or the alternative value
+	 */
+	public static String getAsStringOrElse(JsonElement jElement, String memberName, String alternative) {
+		return getAsOptionalString(jElement, memberName).orElse(alternative);
 	}
 
 	/**
@@ -1360,17 +1452,20 @@ public class JsonUtils {
 			 * String
 			 */
 			return new JsonPrimitive((String) value);
-		} else if (value instanceof Boolean) {
+		}
+		if (value instanceof Boolean) {
 			/*
 			 * Boolean
 			 */
 			return new JsonPrimitive((Boolean) value);
-		} else if (value instanceof Inet4Address) {
+		}
+		if (value instanceof Inet4Address) {
 			/*
 			 * Inet4Address
 			 */
 			return new JsonPrimitive(((Inet4Address) value).getHostAddress());
-		} else if (value instanceof JsonElement) {
+		}
+		if (value instanceof JsonElement) {
 			/*
 			 * JsonElement
 			 */
@@ -1484,17 +1579,20 @@ public class JsonUtils {
 				 * Asking for an Long
 				 */
 				return j.getAsLong();
-			} else if (Boolean.class.isAssignableFrom(type)) {
+			}
+			if (Boolean.class.isAssignableFrom(type)) {
 				/*
 				 * Asking for an Boolean
 				 */
 				return j.getAsBoolean();
-			} else if (Double.class.isAssignableFrom(type)) {
+			}
+			if (Double.class.isAssignableFrom(type)) {
 				/*
 				 * Asking for an Double
 				 */
 				return j.getAsDouble();
-			} else if (String.class.isAssignableFrom(type)) {
+			}
+			if (String.class.isAssignableFrom(type)) {
 				/*
 				 * Asking for a String
 				 */
@@ -1545,11 +1643,7 @@ public class JsonUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getAsType(OpenemsType type, JsonElement j) throws OpenemsNamedException {
-		if (j == null) {
-			return null;
-		}
-
-		if (j.isJsonNull()) {
+		if ((j == null) || j.isJsonNull()) {
 			return null;
 		}
 
@@ -1630,6 +1724,20 @@ public class JsonUtils {
 	}
 
 	/**
+	 * Takes a JSON in the form 'YYYY-MM-DD' and converts it to a
+	 * {@link ZonedDateTime}.
+	 *
+	 * @param element    the {@link JsonElement}
+	 * @param memberName the name of the member of the JsonObject
+	 * @return the {@link ZonedDateTime}
+	 */
+	public static Optional<ZonedDateTime> getAsOptionalZonedDateTime(JsonElement element, String memberName)
+			throws OpenemsNamedException {
+		return JsonUtils.getAsOptionalString(element, memberName)//
+				.map(DateUtils::parseZonedDateTimeOrNull);
+	}
+
+	/**
 	 * Parses a string to a {@link JsonElement}.
 	 *
 	 * @param string to be parsed
@@ -1641,6 +1749,21 @@ public class JsonUtils {
 			return JsonParser.parseString(string);
 		} catch (JsonParseException e) {
 			throw OpenemsError.JSON_PARSE_FAILED.exception(e.getMessage(), StringUtils.toShortString(string, 100));
+		}
+	}
+
+	/**
+	 * Parses a string to a {@link Optional} {@link JsonElement}.
+	 * 
+	 * @param string to be parsed
+	 * @return the {@link Optional} of the result; {@link Optional#empty()} if the
+	 *         value can not be parsed
+	 */
+	public static Optional<JsonElement> parseOptional(String string) {
+		try {
+			return Optional.of(JsonParser.parseString(string));
+		} catch (JsonParseException e) {
+			return Optional.empty();
 		}
 	}
 
@@ -1683,7 +1806,7 @@ public class JsonUtils {
 	 *         {@link GsonBuilder#setPrettyPrinting()}
 	 */
 	public static String prettyToString(JsonElement j) {
-		return new GsonBuilder().setPrettyPrinting().create().toJson(j);
+		return new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(j);
 	}
 
 	/**
@@ -1717,9 +1840,19 @@ public class JsonUtils {
 	}
 
 	/**
+	 * Check if the given {@link JsonElement} is a {@link Number}.
+	 *
+	 * @param j the {@link JsonElement} to check
+	 * @return true if the element is a {@link Number}, otherwise false
+	 */
+	public static boolean isNumber(JsonElement j) {
+		return j.isJsonPrimitive() && j.getAsJsonPrimitive().isNumber();
+	}
+
+	/**
 	 * Returns a sequential stream of the {@link JsonElement JsonElements} in the
 	 * {@link JsonArray}.
-	 * 
+	 *
 	 * @param jsonArray The {@link JsonArray}, assumed to be unmodified during use
 	 * @return a Stream of the elements
 	 */
@@ -1741,7 +1874,7 @@ public class JsonUtils {
 	/**
 	 * Returns a {@link Collector} that accumulates the input elements into a new
 	 * {@link JsonObject}.
-	 * 
+	 *
 	 * @param <T>         the type of the input
 	 * @param keyMapper   the key mapper
 	 * @param valueMapper the value mapper
@@ -1762,11 +1895,11 @@ public class JsonUtils {
 
 	/**
 	 * Returns a Collector that accumulates the input elements into a new JsonArray.
-	 * 
+	 *
 	 * @return a Collector which collects all the input elements into a JsonArray
 	 */
-	public static Collector<JsonElement, JsonUtils.JsonArrayBuilder, JsonArray> toJsonArray() {
-		return new JsonUtils.JsonArrayCollector();
+	public static Collector<JsonElement, JsonArrayBuilder, JsonArray> toJsonArray() {
+		return new JsonArrayCollector();
 	}
 
 	private static JsonArray toJsonArray(JsonElement jElement) {
@@ -1938,18 +2071,6 @@ public class JsonUtils {
 		}
 		if (jPrimitive.isString()) {
 			return jPrimitive.getAsString();
-		}
-		return null;
-	}
-
-	private static <E extends Enum<E>> E toEnum(Class<E> enumType, String name) {
-		if (name == null || name.isBlank()) {
-			return null;
-		}
-		try {
-			return Enum.valueOf(enumType, name.toUpperCase());
-		} catch (IllegalArgumentException e) {
-			// handled below
 		}
 		return null;
 	}

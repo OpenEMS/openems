@@ -10,7 +10,7 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
-	protected static class Builder {
+	public static class Builder {
 		private String id;
 		private ControlMode controlMode;
 		private String modbusId;
@@ -21,6 +21,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private EnableDisable feedPowerEnable;
 		private int feedPowerPara;
 		private FeedInPowerSettings feedInPowerSettings;
+		private EnableDisable rcrEnable = EnableDisable.DISABLE;
 
 		private Builder() {
 		}
@@ -72,6 +73,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setFeedInPowerSettings(FeedInPowerSettings feedInPowerSettings) {
 			this.feedInPowerSettings = feedInPowerSettings;
+			return this;
+		}
+
+		public Builder setRcrEnable(EnableDisable rcrEnable) {
+			this.rcrEnable = rcrEnable;
 			return this;
 		}
 
@@ -146,4 +152,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.controlMode;
 	}
 
+	@Override
+	public EnableDisable rcrEnable() {
+		return this.builder.rcrEnable;
+	}
 }

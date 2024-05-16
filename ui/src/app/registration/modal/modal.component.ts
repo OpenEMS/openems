@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
@@ -9,7 +10,7 @@ import { environment } from 'src/environments';
 
 @Component({
   selector: 'registration-modal',
-  templateUrl: './modal.component.html'
+  templateUrl: './modal.component.html',
 })
 export class RegistrationModalComponent implements OnInit {
 
@@ -22,7 +23,7 @@ export class RegistrationModalComponent implements OnInit {
     public modalCtrl: ModalController,
     private translate: TranslateService,
     private service: Service,
-    private websocket: Websocket
+    private websocket: Websocket,
   ) { }
 
   ngOnInit() {
@@ -31,7 +32,7 @@ export class RegistrationModalComponent implements OnInit {
 
   /**
    * Update the form depending on the thrown event (ionChange) value.
-   * 
+   *
    * @param event to get current value and change the form
    */
   updateRegistrationForm(event: CustomEvent) {
@@ -47,23 +48,23 @@ export class RegistrationModalComponent implements OnInit {
       return;
     }
 
-    let password = this.formGroup.value.password;
-    let confirmPassword = this.formGroup.value.confirmPassword;
+    const password = this.formGroup.value.password;
+    const confirmPassword = this.formGroup.value.confirmPassword;
 
     if (password != confirmPassword) {
       this.service.toast(this.translate.instant("Register.errors.passwordNotEqual"), 'danger');
       return;
     }
 
-    let email = this.formGroup.value.email;
-    let confirmEmail = this.formGroup.value.confirmEmail;
+    const email = this.formGroup.value.email;
+    const confirmEmail = this.formGroup.value.confirmEmail;
 
     if (email != confirmEmail) {
       this.service.toast(this.translate.instant("Register.errors.emailNotEqual"), 'danger');
       return;
     }
 
-    let request = new RegisterUserRequest({
+    const request = new RegisterUserRequest({
       user: {
         firstname: this.formGroup.value.firstname,
         lastname: this.formGroup.value.lastname,
@@ -75,17 +76,17 @@ export class RegistrationModalComponent implements OnInit {
           street: this.formGroup.value.street,
           zip: this.formGroup.value.zip,
           city: this.formGroup.value.city,
-          country: this.formGroup.value.country
+          country: this.formGroup.value.country,
         },
-        role: this.activeSegment
+        role: this.activeSegment,
       },
-      oem: environment.theme
+      oem: environment.theme,
     });
 
-    let companyName = this.formGroup.value.companyName;
+    const companyName = this.formGroup.value.companyName;
     if (companyName) {
       request.params.user.company = {
-        name: companyName
+        name: companyName,
       };
     }
 
@@ -117,7 +118,7 @@ export class RegistrationModalComponent implements OnInit {
         email: new FormControl("", [Validators.required, Validators.email]),
         confirmEmail: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
-        confirmPassword: new FormControl("", Validators.required)
+        confirmPassword: new FormControl("", Validators.required),
       });
     } else {
       return this.formBuilder.group({
@@ -131,7 +132,7 @@ export class RegistrationModalComponent implements OnInit {
         email: new FormControl("", [Validators.required, Validators.email]),
         confirmEmail: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
-        confirmPassword: new FormControl("", Validators.required)
+        confirmPassword: new FormControl("", Validators.required),
       });
     }
   }

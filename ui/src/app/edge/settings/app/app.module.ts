@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { NgModule } from '@angular/core';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { InstallAppComponent } from './install.component';
@@ -12,6 +13,8 @@ import { FormlySafeInputModalComponent } from './formly/safe-input/formly-safe-i
 import { FormlySafeInputWrapperComponent } from './formly/safe-input/formly-safe-input.extended';
 import { FormlyTextComponent } from './formly/formly-text';
 import { FormlyInputWithUnitComponent } from './formly/input-with-unit';
+import { FormlyOptionGroupPickerComponent } from './formly/option-group-picker/formly-option-group-picker.component';
+import { FormlyReorderArrayComponent } from './formly/reorder-select/formly-reorder-array.component';
 
 export function KeyValidator(control: FormControl): ValidationErrors {
   return /^(.{4}-){3}.{4}$/.test(control.value) ? null : { 'key': true };
@@ -24,9 +27,9 @@ export function registerTranslateExtension(translate: TranslateService) {
         name: 'key',
         message() {
           return translate.stream('Edge.Config.App.Key.invalidPattern');
-        }
-      }
-    ]
+        },
+      },
+    ],
   };
 }
 
@@ -36,18 +39,20 @@ export function registerTranslateExtension(translate: TranslateService) {
     FormlyModule.forRoot({
       wrappers: [
         { name: "formly-safe-input-wrapper", component: FormlySafeInputWrapperComponent },
-        { name: "input-with-unit", component: FormlyInputWithUnitComponent }
+        { name: "input-with-unit", component: FormlyInputWithUnitComponent },
       ],
       types: [
-        { name: "text", component: FormlyTextComponent }
+        { name: "text", component: FormlyTextComponent },
+        { name: "formly-option-group-picker", component: FormlyOptionGroupPickerComponent },
+        { name: "reorder-array", component: FormlyReorderArrayComponent },
       ],
       validators: [
-        { name: 'key', validation: KeyValidator }
+        { name: 'key', validation: KeyValidator },
       ],
       validationMessages: [
-        { name: 'key', message: "The key doesnt match the pattern!" }
-      ]
-    })
+        { name: 'key', message: "The key doesnt match the pattern!" },
+      ],
+    }),
   ],
   declarations: [
     IndexComponent,
@@ -58,17 +63,19 @@ export function registerTranslateExtension(translate: TranslateService) {
     FormlySafeInputModalComponent,
     FormlySafeInputWrapperComponent,
     FormlyTextComponent,
-    FormlyInputWithUnitComponent
+    FormlyInputWithUnitComponent,
+    FormlyOptionGroupPickerComponent,
+    FormlyReorderArrayComponent,
   ],
   exports: [
     IndexComponent,
     InstallAppComponent,
     SingleAppComponent,
-    UpdateAppComponent
+    UpdateAppComponent,
   ],
   providers: [
     // Use factory for formly. This allows us to use translations in validationMessages.
-    { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] }
-  ]
+    { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
+  ],
 })
 export class AppModule { }

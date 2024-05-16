@@ -7,12 +7,12 @@ import java.time.ZoneOffset;
 
 import org.junit.Test;
 
+import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.filter.DisabledRampFilter;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.evcs.api.ChargeMode;
 import io.openems.edge.evcs.api.Status;
@@ -170,7 +170,6 @@ public class ControllerEvcsImplTest {
 
 	@Test
 	public void clusterTest() throws Exception {
-
 		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
 				ZoneOffset.UTC);
 

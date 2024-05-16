@@ -1,0 +1,160 @@
+<ng-container *ngIf="edge">
+
+    <!-- Is Edge online? -->
+    <ng-container *ngIf="!edge.isOnline; else edgeIsOnline">
+        <!-- Edge is Restarting after Update -->
+        <ng-container *ngIf="executeUpdate.isEdgeRestarting; else edgeIsOffline">
+            <ion-item lines="none">
+                <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.EDGE_RESTARTING' | translate:
+                    { edge: environment.edgeShortName } }}<br />
+                    {{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_TIME'| translate}}</ion-label>
+            </ion-item>
+            <ion-item lines="none">
+                <ion-progress-bar type="indeterminate" style="margin-top: 1%"></ion-progress-bar>
+            </ion-item>
+        </ng-container>
+
+        <!-- Edge is offline -->
+        <ng-template #edgeIsOffline>
+            <ion-item lines="none">
+                <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.OFFLINE' | translate:
+                    { edgeShortName: environment.edgeShortName } }}
+                </ion-label>
+            </ion-item>
+        </ng-template>
+    </ng-container>
+
+    <ng-template #edgeIsOnline>
+        <ng-container *ngIf="executeUpdate?.systemUpdateState as systemUpdateState">
+            <ng-container *ngIf="isWaiting; else isNotWaiting">
+
+                <ion-grid>
+                    <ion-row>
+                        <ion-col size="8">
+                            <ng-container *ngIf="systemUpdateState.unknown">
+                                <!-- Update State is unknown  -->
+                                <ng-container *ngIf="!executeUpdate.canNotBeUpdated; else canNotBeUpdated">
+                                    <ion-item lines="none">
+                                        <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_SEARCH'| translate}}</ion-label>
+                                    </ion-item>
+                                </ng-container>
+
+                                <ng-template #canNotBeUpdated>
+                                    <ion-item lines="none">
+                                        <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_NOT_POSSIBLE'| translate}}
+                                        </ion-label>
+                                    </ion-item>
+                                </ng-template>
+                            </ng-container>
+
+                            <ng-container *ngIf="systemUpdateState.running as state">
+                                <!-- Update is running -->
+                                <ion-item lines="none">
+                                    <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_PROGRESS'| translate}}<br />{{
+                                        'SETTINGS.SYSTEM_UPDATE.UPDATE_TIME'| translate}}
+                                    </ion-label>
+                                </ion-item>
+                                <ion-item lines="none">
+                                    <percentagebar [value]="state.percentCompleted"></percentagebar>
+                                </ion-item>
+                            </ng-container>
+                        </ion-col>
+                        <ion-col>
+                            <div style="height: 3vh">
+                                <ngx-spinner [name]="spinnerId"></ngx-spinner>
+                            </div>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+
+                <!-- Debug Logs -->
+                <ng-container *ngIf="environment.debugMode && systemUpdateState.running as state">
+                    <div *ngIf="state.logs.length > 0">
+                        <p style="cursor: pointer" (click)="showLog = !showLog">
+                            <ion-icon *ngIf="!showLog" name="arrow-down-circle-outline">
+                            </ion-icon>
+                            <ion-icon *ngIf="showLog" name="arrow-up-circle-outline">
+                            </ion-icon>
+                            <span>&nbsp;Details</span>
+                        </p>
+                        <p *ngIf="showLog">
+                            <ng-container *ngFor="let log of state.logs">
+                                <small>{{ log }}</small><br />
+                            </ng-container>
+                        </p>
+                    </div>
+                </ng-container>
+
+            </ng-container>
+            <ng-template #isNotWaiting>
+
+                <ng-container *ngIf="systemUpdateState.updated as state">
+                    <!-- Latest update is installed -->
+                    <ion-grid>
+                        <ion-row>
+                            <ion-col>
+                                <ion-item lines="none">
+                                    <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.INSTALLED_VERSION'| translate}}</ion-label>
+                                </ion-item>
+                            </ion-col>
+                            <ion-col>
+                                <ion-item lines="none">
+                                    <ion-label>{{ state.version }}</ion-label>
+                                </ion-item>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col size="12">
+                                <ion-item lines="none">
+                                    <ion-label color="success" class="ion-text-wrap">
+                                        {{ 'SETTINGS.SYSTEM_UPDATE.LATEST_VERISON'| translate}}
+                                    </ion-label>
+                                </ion-item>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ng-container>
+
+                <ng-container *ngIf="systemUpdateState.available as state">
+                    <!-- Update is available -->
+                    <ion-grid>
+                        <ion-row>
+                            <ion-col>
+                                <ion-item lines="none">
+                                    <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.INSTALLED_VERSION'| translate}}</ion-label>
+                                </ion-item>
+                            </ion-col>
+                            <ion-col>
+                                <ion-item lines="none">
+                                    <ion-label>{{ state.currentVersion }}</ion-label>
+                                </ion-item>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <ion-item lines="none">
+                                    <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.NEW_VERSION'| translate}}</ion-label>
+                                </ion-item>
+                            </ion-col>
+                            <ion-col>
+                                <ion-item lines="none">
+                                    <ion-label>{{ state.latestVersion }}</ion-label>
+                                </ion-item>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col></ion-col>
+                            <ion-col>
+                                <ion-item lines="none" class="ion-float-right">
+                                    <ion-button (click)="executeSystemUpdate()">{{
+                                        'SETTINGS.SYSTEM_UPDATE.NEW_VERSION_INSTALLING'| translate }}
+                                    </ion-button>
+                                </ion-item>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ng-container>
+            </ng-template>
+        </ng-container>
+    </ng-template>
+</ng-container>

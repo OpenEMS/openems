@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -382,7 +381,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		int inverterCount = this.inverterCount.getCount();
 
 		ModbusProtocol result = new ModbusProtocol(this, //
@@ -1149,7 +1148,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public boolean isCommunicationBroken() {
-		return this.getModbusCommunicationFailed().get() == Boolean.TRUE;
+		return this.getModbusCommunicationFailed();
 	}
 
 	@Override

@@ -88,6 +88,20 @@
             </ion-card-content>
           </ion-card>
         </ion-col>
+
+        <ion-col size="12" size-sm="4" *ngIf="canSeeJsonrpcTest">
+          <ion-card>
+            <ion-item lines="full" color="light">
+              <ion-icon slot="start" size="large" color="primary" name="eye-outline"></ion-icon>
+              <ion-label>Jsonrpc test</ion-label>
+            </ion-item>
+            <ion-card-content>
+              <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/jsonrpctest">
+                <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
       </ng-container>
 
       <ng-container *ngIf="edge.roleIsAtLeast('installer')">
@@ -161,10 +175,10 @@
           <ion-card>
             <ion-item lines="full" color="light">
               <ion-icon slot="start" size="large" color="primary" name="cloud-download-outline"></ion-icon>
-              <ion-label>{{ environment.edgeShortName }} Systemupdate</ion-label>
+              <ion-label>{{ environment.edgeShortName }} System</ion-label>
             </ion-item>
             <ion-card-content>
-              <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/systemupdate">
+              <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/system">
                 <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
               </ion-button>
             </ion-card-content>

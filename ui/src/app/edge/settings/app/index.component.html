@@ -2,12 +2,29 @@
 <ng-template #appsList let-appCatList="appCatList">
   <ion-col *ngFor="let app of appCatList.apps" size="6" size-xs="6" size-sm="4" size-lg="3" size-xl="2">
     <ion-card>
+      <ion-item lines="full" color="primary" style="cursor: pointer" (click)="onAppClicked(app)">
+        <ion-icon slot="start" size="medium" name="grid-outline"></ion-icon>
+        <ion-label style="white-space: initial" class="ion-no-margin">
+          <!-- Use short name if existing otherwise use normal name -->
+          {{ app.shortName ?? app.name }}
+        </ion-label>
+      </ion-item>
       <ion-card-content>
         <div>
-          <div style="display: flex; align-items: center; justify-content: center; cursor: pointer"
+          <div style="display: flex; align-items: center; justify-content: center; cursor: pointer;"
             (click)="onAppClicked(app)"
             [ngStyle]="{'opacity': (app.status.name === 'INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}">
-            <img *ngIf="app.image" [src]="app.image" />
+            <img *ngIf="app.image; else noImage" [src]="app.image" />
+            <ng-template #noImage>
+              <img *ngIf="app.imageUrl; else noImageUrl" [src]="app.imageUrl" (error)="app.imageUrl = null" />
+              <ng-template #noImageUrl>
+                <div style="max-width: 100%;">
+                  <h1 style="text-align: center; white-space: initial;">
+                    {{app.name}}
+                  </h1>
+                </div>
+              </ng-template>
+            </ng-template>
           </div>
         </div>
         <p *ngIf="false">
@@ -70,7 +87,7 @@
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" name="information-outline"></ion-icon>
             <ion-text text-nowrap>
-              <a routerLink="/device/{{ edge.id }}/settings/systemupdate{{ edge.isVersionAtLeast('2021.19.1') ? '' : '.old' }}"
+              <a routerLink="/device/{{ edge.id }}/settings/system{{ edge.isVersionAtLeast('2021.19.1') ? '' : '.old' }}"
                 text-nowrap translate>{{ 'Edge.Config.App.updateAvailable' | translate: {
                 edgeShortName: environment.edgeShortName } }}</a>
             </ion-text>
@@ -79,12 +96,20 @@
       </ion-col>
       <ng-container *ngIf="canEnterKey">
         <ion-col size="12" size-md="6" size-xl="2">
-          <ion-card style="cursor: pointer;" (click)="redeemKey()">
-            <ion-item lines="full" color="primary">
+          <ion-card id="redeemKeyCard" style="cursor: pointer;" (click)="redeemKey()">
+            <ion-item lines="full" color="primary" id="bottom-start">
               <ion-icon slot="start" size="large" name="key-outline"></ion-icon>
               <ion-text text-nowrap translate>Edge.Config.App.Key.useKey</ion-text>
+              <ion-badge *ngIf="numberOfUnusedRegisteredKeys !== 0" slot="end"
+                color="secondary">{{numberOfUnusedRegisteredKeys}}</ion-badge>
             </ion-item>
           </ion-card>
+          <ion-popover #hasKeyPopover [isOpen]="showPopover" side="bottom" alignment="center">
+            <ng-template>
+              <ion-content class="ion-padding" text-nowrap
+                translate>Edge.Config.App.UNUSED_REGISTERED_KEY_AVAILABLE</ion-content>
+            </ng-template>
+          </ion-popover>
         </ion-col>
         <ion-col size="12" size-md="6" size-xl="2">
           <ion-card style="cursor: pointer;" (click)="registerKey()">
@@ -100,8 +125,7 @@
     <ion-row *ngIf="key && key.bundles">
       <ion-col>
         <ion-segment [(ngModel)]="selectedBundle">
-          <ion-segment-button *ngFor="let bundle of key.bundles; let i = index" value={{i}}
-            (click)="updateSelection(null)">
+          <ion-segment-button *ngFor="let bundle of key.bundles; let i = index" value={{i}} (click)="updateSelection()">
             <ion-text text-nowrap>
               {{ bundle.length }}
             </ion-text>

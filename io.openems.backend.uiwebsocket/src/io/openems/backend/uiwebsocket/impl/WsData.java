@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +28,12 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	private static class SubscribedChannels {
 
+		private static final Logger LOG = LoggerFactory.getLogger(SubscribedChannels.class);
+
 		private int lastRequestCount = Integer.MIN_VALUE;
 		private final Map<String, SortedSet<String>> subscribedChannels = new HashMap<>();
+
+		private Set<String> currentDataMissingChannelValues = Collections.emptySet();
 
 		/**
 		 * Applies a SubscribeChannelsRequest.
@@ -55,11 +60,15 @@ public class WsData extends io.openems.common.websocket.WsData {
 				return Collections.emptyMap();
 			}
 
-			var result = new HashMap<String, JsonElement>(subscribedChannels.size());
-			for (var channel : subscribedChannels) {
-				result.put(channel, edgeCache.getChannelValue(channel));
+			var result = edgeCache.getChannelValues(subscribedChannels);
+			if (!result.b().isEmpty()) {
+				if (!result.b().equals(this.currentDataMissingChannelValues)) {
+					LOG.info("[" + edgeId + "] Channels missing in Current-Data: [" + String.join(", ", result.b())
+							+ "]");
+				}
+				this.currentDataMissingChannelValues = result.b();
 			}
-			return result;
+			return result.a();
 		}
 
 		protected void dispose() {
@@ -68,6 +77,8 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	private final Logger log = LoggerFactory.getLogger(WsData.class);
+
+	private final UUID id = UUID.randomUUID();
 
 	private final WebsocketServer parent;
 	private final SubscribedChannels subscribedChannels = new SubscribedChannels();
@@ -185,6 +196,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * @param edgeIds the edges to subscribe
 	 */
 	public void handleSubscribeEdgesRequest(Set<String> edgeIds) {
+		// TODO maybe only add and remove on explicit request
 		this.subscribedEdges = edgeIds;
 	}
 
@@ -222,6 +234,10 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 */
 	public boolean isEdgeSubscribed(String edgeId) {
 		return this.subscribedEdges.contains(edgeId);
+	}
+
+	public UUID getId() {
+		return this.id;
 	}
 
 }

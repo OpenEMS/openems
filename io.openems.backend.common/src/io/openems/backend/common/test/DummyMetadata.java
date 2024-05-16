@@ -4,24 +4,44 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
 import com.google.gson.JsonObject;
 
-import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
+import io.openems.backend.common.alerting.SumStateAlertingSetting;
+import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
-import io.openems.common.OpenemsOEM;
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
+import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 
 public class DummyMetadata implements Metadata {
+
+	private final DummyEventAdmin eventAdmin;
+
+	public DummyMetadata() {
+		this.eventAdmin = null;
+	}
+
+	public DummyMetadata(Consumer<Event> event) {
+		this.eventAdmin = new DummyEventAdmin(event);
+	}
+
+	public DummyMetadata(Function<Event, Boolean> eventFilter, Consumer<Event> event) {
+		this.eventAdmin = new DummyEventAdmin(eventFilter, event);
+	}
+
 	@Override
 	public boolean isInitialized() {
 		return false;
@@ -38,17 +58,27 @@ public class DummyMetadata implements Metadata {
 	}
 
 	@Override
-	public List<AlertingSetting> getUserAlertingSettings(String edgeId) {
+	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
 	@Override
-	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
+	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
 	@Override
-	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) {
+	public List<OfflineEdgeAlertingSetting> getEdgeOfflineAlertingSettings(String edgeId) throws OpenemsException {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
+	@Override
+	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
+	@Override
+	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> settings) {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
@@ -113,7 +143,7 @@ public class DummyMetadata implements Metadata {
 	}
 
 	@Override
-	public void registerUser(JsonObject user, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException {
+	public void registerUser(JsonObject user, String oem) throws OpenemsNamedException {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
@@ -124,7 +154,11 @@ public class DummyMetadata implements Metadata {
 
 	@Override
 	public EventAdmin getEventAdmin() {
-		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+		if (this.eventAdmin == null) {
+			throw new UnsupportedOperationException("Unsupported by Dummy Class");
+		} else {
+			return this.eventAdmin;
+		}
 	}
 
 	@Override
@@ -138,13 +172,28 @@ public class DummyMetadata implements Metadata {
 	}
 
 	@Override
-	public Map<String, Role> getPageDevice(User user, PaginationOptions paginationOptions)
+	public List<EdgeMetadata> getPageDevice(User user, PaginationOptions paginationOptions)
 			throws OpenemsNamedException {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
 	@Override
-	public Role getRoleForEdge(User user, String edgeId) throws OpenemsNamedException {
+	public EdgeMetadata getEdgeMetadataForUser(User user, String edgeId) throws OpenemsNamedException {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
+	@Override
+	public Optional<Level> getSumState(String edgeId) {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
+	@Override
+	public void logGenericSystemLog(GenericSystemLog systemLog) {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
+	@Override
+	public void updateUserSettings(User user, JsonObject settings) {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 

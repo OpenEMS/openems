@@ -311,8 +311,10 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return this.stateMachine.getCurrentState().asCamelCase() //
-				+ "|" + this.getGridModeChannel().value().asOptionString();
+		return new StringBuilder() //
+				.append(this.stateMachine.debugLog()) //
+				.append("|Grid:").append(this.getGridModeChannel().value().asOptionString()) //
+				.toString();
 	}
 
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
@@ -389,7 +391,7 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(1, Priority.HIGH, //
 						m(BatteryInverterSinexcel.ChannelId.MANUFACTURER_AND_MODEL_NUMBER, //
@@ -520,7 +522,7 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 						m(BatteryInverterSinexcel.ChannelId.REACTIVE_POWER_L1, new SignedWordElement(113),
 								SCALE_FACTOR_1), //
 						m(BatteryInverterSinexcel.ChannelId.REACTIVE_POWER_L2, new SignedWordElement(114),
-								SCALE_FACTOR_1), // fems
+								SCALE_FACTOR_1), //
 						m(BatteryInverterSinexcel.ChannelId.REACTIVE_POWER_L3, new SignedWordElement(115),
 								SCALE_FACTOR_1), //
 						m(BatteryInverterSinexcel.ChannelId.APPERENT_POWER_L1, new SignedWordElement(116),

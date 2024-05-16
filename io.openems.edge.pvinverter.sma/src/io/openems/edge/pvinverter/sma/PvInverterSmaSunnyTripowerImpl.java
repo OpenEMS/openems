@@ -51,13 +51,17 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 		ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
+			// before 2023
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) // from 40002
 			.put(DefaultSunSpecModel.S_101, Priority.LOW) // from 40081
 			.put(DefaultSunSpecModel.S_103, Priority.HIGH) // from 40185
 			.put(DefaultSunSpecModel.S_120, Priority.LOW) // from 40237
 			.put(DefaultSunSpecModel.S_121, Priority.LOW) // from 40265
 			.put(DefaultSunSpecModel.S_122, Priority.LOW) // from 40297
-			.put(DefaultSunSpecModel.S_123, Priority.LOW) // from 40343
+			.put(DefaultSunSpecModel.S_123, Priority.LOW) // from 40343 before 2023, from 40070 since 2023
+			// since 2023
+			.put(DefaultSunSpecModel.S_701, Priority.HIGH) // from 40096
+			.put(DefaultSunSpecModel.S_702, Priority.LOW) // from 40251
 			.build();
 
 	// Further available SunSpec blocks provided by SMA Sunny TriPower are:
@@ -72,6 +76,18 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 	// .put(DefaultSunSpecModel.S_160, Priority.LOW) // from 40621
 	// .put(DefaultSunSpecModel.S_129, Priority.LOW) // from 40751
 	// .put(DefaultSunSpecModel.S_130, Priority.LOW) // from 40813
+	// since 2023:
+	// .put(DefaultSunSpecModel.S_703, Priority.LOW) // from 40303
+	// .put(DefaultSunSpecModel.S_704, Priority.LOW) // from 40322
+	// .put(DefaultSunSpecModel.S_705, Priority.LOW) // from 40389
+	// .put(DefaultSunSpecModel.S_706, Priority.LOW) // from 40456
+	// .put(DefaultSunSpecModel.S_707, Priority.LOW) // from 40513
+	// .put(DefaultSunSpecModel.S_708, Priority.LOW) // from 40656
+	// .put(DefaultSunSpecModel.S_709, Priority.LOW) // from 40799
+	// .put(DefaultSunSpecModel.S_710, Priority.LOW) // from 40936
+	// .put(DefaultSunSpecModel.S_711, Priority.LOW) // from 41073
+	// .put(DefaultSunSpecModel.S_712, Priority.LOW) // from 41107
+	// .put(DefaultSunSpecModel.S_714, Priority.LOW) // from 41161
 
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
@@ -84,7 +100,7 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 		super.setModbus(modbus);
 	}
 
-	public PvInverterSmaSunnyTripowerImpl() throws OpenemsException {
+	public PvInverterSmaSunnyTripowerImpl() {
 		super(//
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //

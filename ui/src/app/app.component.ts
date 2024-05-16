@@ -1,10 +1,11 @@
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Title } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 
+import { Meta } from '@angular/platform-browser';
 import { environment } from '../environments';
 import { GlobalRouteChangeHandler } from './shared/service/globalRouteChangeHandler';
 import { Service, UserPermission, Websocket } from './shared/shared';
@@ -12,7 +13,7 @@ import { Language } from './shared/type/language';
 
 @Component({
   selector: 'app-root',
-  templateUrl: 'app.component.html'
+  templateUrl: 'app.component.html',
 })
 export class AppComponent implements OnInit, OnDestroy {
 
@@ -21,8 +22,11 @@ export class AppComponent implements OnInit, OnDestroy {
   public enableSideMenu: boolean;
   public isSystemLogEnabled: boolean = false;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
+  private subscription: Subscription = new Subscription();
 
   protected isUserAllowedToSeeOverview: boolean = false;
+  protected isUserAllowedToSeeFooter: boolean = false;
+  protected isHistoryDetailView: boolean = false;
 
   constructor(
     private platform: Platform,
@@ -32,14 +36,24 @@ export class AppComponent implements OnInit, OnDestroy {
     public service: Service,
     public toastController: ToastController,
     public websocket: Websocket,
-    private titleService: Title,
-    private globalRouteChangeHandler: GlobalRouteChangeHandler
+    private globalRouteChangeHandler: GlobalRouteChangeHandler,
+    private meta: Meta,
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
 
-    this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
-      this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
-    });
+
+    this.subscription.add(
+      this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
+        this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
+        this.isUserAllowedToSeeFooter = UserPermission.isUserAllowedToSeeFooter(metadata.user);
+      }));
+
+    this.subscription.add(
+      this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((e: NavigationEnd) => {
+        // Hide footer for history detail views
+        const segments = e.url.split('/');
+        this.isHistoryDetailView = segments.slice(0, -1).includes('history');
+      }));
   }
 
   ngOnInit() {
@@ -49,7 +63,6 @@ export class AppComponent implements OnInit, OnDestroy {
       this.environment.debugMode = JSON.parse(localStorage.getItem("DEBUGMODE"));
     }
 
-    this.titleService.setTitle(environment.edgeShortName);
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
       const toast = await this.toastController.create({
         message: notification.message,
@@ -58,14 +71,20 @@ export class AppComponent implements OnInit, OnDestroy {
         buttons: [
           {
             text: 'Ok',
-            role: 'cancel'
-          }
-        ]
+            role: 'cancel',
+          },
+        ],
       });
       toast.present();
     });
 
     this.platform.ready().then(() => {
+
+      // OEM colors exist only after ionic is initialized, so the notch color has to be set here
+      const notchColor = getComputedStyle(document.documentElement).getPropertyValue('--ion-color-background');
+      this.meta.updateTag(
+        { name: 'theme-color', content: notchColor },
+      );
       this.service.deviceHeight = this.platform.height();
       this.service.deviceWidth = this.platform.width();
       this.checkSmartphoneResolution(true);
@@ -100,5 +119,6 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+    this.subscription.unsubscribe();
   }
 }

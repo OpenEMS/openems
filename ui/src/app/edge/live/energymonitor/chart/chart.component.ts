@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { fromEvent, Subject } from 'rxjs';
 import { debounceTime, delay, takeUntil } from 'rxjs/operators';
@@ -10,7 +11,7 @@ import { StorageSectionComponent } from './section/storage.component';
 
 @Component({
   selector: 'energymonitor-chart',
-  templateUrl: './chart.component.html'
+  templateUrl: './chart.component.html',
 })
 export class EnergymonitorChartComponent implements OnInit, OnDestroy {
 
@@ -45,7 +46,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
-    private service: Service
+    private service: Service,
   ) { }
 
   ngOnInit() {
@@ -70,7 +71,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
     /*
      * Set values for energy monitor
      */
-    let summary = currentData.summary;
+    const summary = currentData.summary;
     [this.consumptionSection, this.gridSection, this.productionSection, this.storageSection]
       .filter(section => section != null)
       .forEach(section => {
@@ -91,8 +92,8 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
     }
     this.height = this.width = size;
     this.translation = `translate(${this.width / 2}, ${this.height / 2})`;
-    var outerRadius = Math.min(this.width, this.height) / 2;
-    var innerRadius = outerRadius - (outerRadius * 0.1378);
+    const outerRadius = Math.min(this.width, this.height) / 2;
+    const innerRadius = outerRadius - (outerRadius * 0.1378);
     // All sections from update() in section
     [this.consumptionSection, this.gridSection, this.productionSection, this.storageSection]
       .filter(section => section != null)

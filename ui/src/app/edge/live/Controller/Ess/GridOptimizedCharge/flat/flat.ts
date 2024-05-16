@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from 'src/app/shared/shared';
@@ -6,11 +7,11 @@ import { ModalComponent } from '../modal/modal';
 
 @Component({
     selector: 'Controller_Ess_GridOptimizedCharge',
-    templateUrl: './flat.html'
+    templateUrl: './flat.html',
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-    public component: EdgeConfig.Component = null;
+    public override component: EdgeConfig.Component = null;
     public mode: string = '-';
     public state: string = '-';
     public isSellToGridLimitAvoided: boolean = false;
@@ -25,7 +26,7 @@ export class FlatComponent extends AbstractFlatWidget {
             new ChannelAddress(this.componentId, "SellToGridLimitState"),
             new ChannelAddress(this.componentId, "DelayChargeMaximumChargeLimit"),
             new ChannelAddress(this.componentId, "SellToGridLimitMinimumChargeLimit"),
-            new ChannelAddress(this.componentId, "_PropertyMode")
+            new ChannelAddress(this.componentId, "_PropertyMode"),
         ];
     }
     protected override onCurrentData(currentData: CurrentData) {
@@ -75,8 +76,8 @@ export class FlatComponent extends AbstractFlatWidget {
         const modal = await this.modalController.create({
             component: ModalComponent,
             componentProps: {
-                component: this.component
-            }
+                component: this.component,
+            },
         });
         return await modal.present();
     }

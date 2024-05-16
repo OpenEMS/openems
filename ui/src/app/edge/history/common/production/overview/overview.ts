@@ -3,7 +3,7 @@ import { AbstractHistoryChartOverview } from '../../../../../shared/genericCompo
 import { ChannelAddress, EdgeConfig } from '../../../../../shared/shared';
 
 @Component({
-  templateUrl: './overview.html'
+  templateUrl: './overview.html',
 })
 export class OverviewComponent extends AbstractHistoryChartOverview {
   protected chargerComponents: EdgeConfig.Component[] = [];
@@ -21,4 +21,4 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
         .filter(component => component.isEnabled && this.config.isProducer(component));
     return [];
   }
-}  
+}

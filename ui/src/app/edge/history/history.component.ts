@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -8,7 +9,7 @@ import { environment } from 'src/environments';
 
 @Component({
   selector: 'history',
-  templateUrl: './history.component.html'
+  templateUrl: './history.component.html',
 })
 export class HistoryComponent implements OnInit {
 
@@ -16,7 +17,6 @@ export class HistoryComponent implements OnInit {
 
   // is a Timedata service available, i.e. can historic data be queried.
   public isTimedataAvailable: boolean = true;
-
   protected errorResponse: JsonrpcResponseError | null = null;
 
   // sets the height for a chart. This is recalculated on every window resize.
@@ -37,7 +37,7 @@ export class HistoryComponent implements OnInit {
   constructor(
     public service: Service,
     public translate: TranslateService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) { }
 
   ngOnInit() {
@@ -74,15 +74,15 @@ export class HistoryComponent implements OnInit {
   }
 
   updateOnWindowResize() {
-    let ref = /* fix proportions */ Math.min(window.innerHeight - 150,
+    const ref = /* fix proportions */ Math.min(window.innerHeight - 150,
       /* handle grid breakpoints */(window.innerWidth < 768 ? window.innerWidth - 150 : window.innerWidth - 400));
     this.socChartHeight =
       /* minimum size */ Math.max(150,
-      /* maximium size */ Math.min(200, ref)
+      /* maximium size */ Math.min(200, ref),
     ) + "px";
     this.energyChartHeight =
       /* minimum size */ Math.max(300,
-      /* maximium size */ Math.min(600, ref)
+      /* maximium size */ Math.min(600, ref),
     ) + "px";
   }
 }

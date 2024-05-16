@@ -1,5 +1,9 @@
 package io.openems.edge.controller.api.rest.readwrite;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
+import static io.openems.edge.common.test.DummyUser.DUMMY_GUEST;
+import static io.openems.edge.common.test.DummyUser.DUMMY_INSTALLER;
+import static io.openems.edge.common.test.DummyUser.DUMMY_OWNER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -11,7 +15,9 @@ import java.net.URL;
 import java.util.Base64;
 
 import org.junit.Test;
+import org.osgi.framework.Constants;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -21,48 +27,62 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
-import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
+import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.test.DummyUserService;
 import io.openems.edge.common.test.TestUtils;
+import io.openems.edge.controller.api.common.handler.ComponentConfigRequestHandler;
+import io.openems.edge.controller.api.common.handler.ComponentRequestHandler;
+import io.openems.edge.controller.api.common.handler.RoutesJsonApiHandler;
+import io.openems.edge.controller.api.rest.DummyJsonRpcRestHandlerFactory;
+import io.openems.edge.controller.api.rest.JsonRpcRestHandler;
+import io.openems.edge.controller.api.rest.handler.BindingComponentConfigRequestHandler;
+import io.openems.edge.controller.api.rest.handler.BindingComponentRequestHandler;
+import io.openems.edge.controller.api.rest.handler.BindingRoutesJsonApiHandler;
+import io.openems.edge.controller.api.rest.handler.RootRequestHandler;
 import io.openems.edge.controller.test.ControllerTest;
-import io.openems.edge.timedata.test.DummyTimedata;
 
 public class ControllerApiRestReadWriteImplTest {
 
 	private static final String CTRL_ID = "ctrlApiRest0";
 	private static final String DUMMY_ID = "dummy0";
 
-	private static final String GUEST = "guest";
-	private static final String OWNER = "owner";
-	private static final String INSTALLER = "installer";
-	private static final String ADMIN = "admin";
-
 	@Test
 	public void test() throws OpenemsException, Exception {
 		final var port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
 
+		final var componentManager = new DummyComponentManager();
+
+		final var rootHandler = new RootRequestHandler(new BindingRoutesJsonApiHandler(new RoutesJsonApiHandler()));
+		rootHandler.bindJsonApi(
+				new BindingComponentConfigRequestHandler(new ComponentConfigRequestHandler(componentManager)));
+		final var componentRequestHandler = new ComponentRequestHandler();
+		componentRequestHandler.bindJsonApi(componentManager, ImmutableMap.<String, Object>builder() //
+				.put(Constants.SERVICE_ID, 0L) //
+				.build());
+		rootHandler.bindJsonApi(new BindingComponentRequestHandler(componentRequestHandler));
+
+		final var factory = new DummyJsonRpcRestHandlerFactory(() -> {
+			final var restHandler = new JsonRpcRestHandler();
+			restHandler.bindRootHandler(rootHandler);
+			return restHandler;
+		});
+
 		var sut = new ControllerApiRestReadWriteImpl();
 		var test = new ControllerTest(sut) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("componentManager", componentManager) //
 				.addReference("userService", new DummyUserService(//
-						new DummyUser(GUEST, GUEST, Language.DEFAULT, Role.GUEST), //
-						new DummyUser(OWNER, OWNER, Language.DEFAULT, Role.OWNER), //
-						new DummyUser(INSTALLER, INSTALLER, Language.DEFAULT, Role.INSTALLER), //
-						new DummyUser(ADMIN, ADMIN, Language.DEFAULT, Role.ADMIN))) //
-				.addReference("timedata", new DummyTimedata("timedata0")) //
-				.addComponent(new DummyComponent(DUMMY_ID)) //
+						DUMMY_GUEST, DUMMY_OWNER, DUMMY_INSTALLER, DUMMY_ADMIN)) //
+				.addReference("restHandlerFactory", factory) //
+				.addComponent(new DummyComponent(DUMMY_ID) //
+						.withReadChannel(1234)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setApiTimeout(60) //
@@ -75,7 +95,7 @@ public class ControllerApiRestReadWriteImplTest {
 		 * /rest/channel/*
 		 */
 		// GET successful as GUEST
-		var channelGet = sendGetRequest(port, GUEST, "/rest/channel/dummy0/ReadChannel");
+		var channelGet = sendGetRequest(port, DUMMY_GUEST.password, "/rest/channel/dummy0/ReadChannel");
 		assertEquals(JsonUtils.buildJsonObject() //
 				.addProperty("address", "dummy0/ReadChannel") //
 				.addProperty("type", "INTEGER") //
@@ -86,9 +106,10 @@ public class ControllerApiRestReadWriteImplTest {
 				.build(), channelGet);
 
 		// POST successful as OWNER
-		var channelPost = sendPostRequest(port, OWNER, "/rest/channel/dummy0/WriteChannel", JsonUtils.buildJsonObject() //
-				.addProperty("value", 4321) //
-				.build());
+		var channelPost = sendPostRequest(port, DUMMY_OWNER.password, "/rest/channel/dummy0/WriteChannel",
+				JsonUtils.buildJsonObject() //
+						.addProperty("value", 4321) //
+						.build());
 		assertEquals(new JsonObject(), channelPost);
 		test //
 				.next(new TestCase() //
@@ -97,7 +118,7 @@ public class ControllerApiRestReadWriteImplTest {
 
 		// POST fails as GUEST
 		try {
-			sendPostRequest(port, GUEST, "/rest/channel/dummy0/WriteChannel", JsonUtils.buildJsonObject() //
+			sendPostRequest(port, DUMMY_GUEST.password, "/rest/channel/dummy0/WriteChannel", JsonUtils.buildJsonObject() //
 					.addProperty("value", 4321) //
 					.build());
 			assertTrue(false);
@@ -112,11 +133,11 @@ public class ControllerApiRestReadWriteImplTest {
 		var request = new GetEdgeConfigRequest().toJsonObject();
 		JsonrpcResponseSuccess.from(//
 				JsonUtils.getAsJsonObject(//
-						sendPostRequest(port, OWNER, "/jsonrpc", request)));
+						sendPostRequest(port, DUMMY_OWNER.password, "/jsonrpc", request)));
 
 		// POST fails as GUEST
 		try {
-			sendPostRequest(port, GUEST, "/jsonrpc", new GetEdgeConfigRequest().toJsonObject());
+			sendPostRequest(port, DUMMY_GUEST.password, "/jsonrpc", new GetEdgeConfigRequest().toJsonObject());
 			assertTrue(false);
 		} catch (OpenemsNamedException e) {
 			// ignore
@@ -177,12 +198,12 @@ public class ControllerApiRestReadWriteImplTest {
 		}
 	}
 
-	private static class DummyComponent extends AbstractOpenemsComponent implements OpenemsComponent {
+	private static class DummyComponent extends AbstractDummyOpenemsComponent<DummyComponent>
+			implements OpenemsComponent {
 
 		private static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 			READ_CHANNEL(new IntegerDoc() //
 					.unit(Unit.WATT) //
-					.initialValue(1234) //
 					.text("This is a Read-Channel")), //
 			WRITE_CHANNEL(Doc.of(OpenemsType.INTEGER) //
 					.accessMode(AccessMode.READ_WRITE)); //
@@ -199,21 +220,28 @@ public class ControllerApiRestReadWriteImplTest {
 			}
 		}
 
-		protected DummyComponent(String id, String alias,
-				io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
-				io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
-			super(firstInitialChannelIds, furtherInitialChannelIds);
-			for (Channel<?> channel : this.channels()) {
-				channel.nextProcessImage();
-			}
-			super.activate(null, id, alias, true);
-		}
-
 		public DummyComponent(String id) {
-			this(id, "", //
+			super(id, //
 					OpenemsComponent.ChannelId.values(), //
 					DummyComponent.ChannelId.values() //
 			);
 		}
+
+		@Override
+		protected DummyComponent self() {
+			return this;
+		}
+
+		/**
+		 * Set {@link ChannelId#READ_CHANNEL}.
+		 *
+		 * @param value the value
+		 * @return myself
+		 */
+		public DummyComponent withReadChannel(Integer value) {
+			TestUtils.withValue(this, ChannelId.READ_CHANNEL, value);
+			return this.self();
+		}
+
 	}
 }

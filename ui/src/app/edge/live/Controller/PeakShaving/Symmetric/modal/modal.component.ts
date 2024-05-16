@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
@@ -6,7 +7,7 @@ import { Edge, EdgeConfig, Service, Websocket } from '../../../../../../shared/s
 
 @Component({
     selector: 'symmetricpeakshaving-modal',
-    templateUrl: './modal.component.html'
+    templateUrl: './modal.component.html',
 })
 export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
 
@@ -22,30 +23,30 @@ export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
         public modalCtrl: ModalController,
         public service: Service,
         public translate: TranslateService,
-        public websocket: Websocket
+        public websocket: Websocket,
     ) { }
 
     ngOnInit() {
         this.formGroup = this.formBuilder.group({
             peakShavingPower: new FormControl(this.component.properties.peakShavingPower, Validators.compose([
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
-                Validators.required
+                Validators.required,
             ])),
             rechargePower: new FormControl(this.component.properties.rechargePower, Validators.compose([
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
-                Validators.required
-            ]))
+                Validators.required,
+            ])),
         });
     }
 
     applyChanges() {
         if (this.edge != null) {
             if (this.edge.roleIsAtLeast('owner')) {
-                let peakShavingPower = this.formGroup.controls['peakShavingPower'];
-                let rechargePower = this.formGroup.controls['rechargePower'];
+                const peakShavingPower = this.formGroup.controls['peakShavingPower'];
+                const rechargePower = this.formGroup.controls['rechargePower'];
                 if (peakShavingPower.valid && rechargePower.valid) {
                     if (peakShavingPower.value >= rechargePower.value) {
-                        let updateComponentArray = [];
+                        const updateComponentArray = [];
                         Object.keys(this.formGroup.controls).forEach((element, index) => {
                             if (this.formGroup.controls[element].dirty) {
                                 updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });

@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.test.DummyBattery;
@@ -23,7 +24,6 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.common.test.TimeLeapClock;
 
 public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 
@@ -89,6 +89,8 @@ public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.CURRENT_STATE.getChannelId());
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.WATCHDOG.getChannelId());
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.W_SET_PCT.getChannelId());
+		addChannel.invoke(sut, KacoSunSpecModel.S64201.WPARAM_RMP_TMS.getChannelId());
+		addChannel.invoke(sut, KacoSunSpecModel.S64201.ST_VND.getChannelId());
 
 		test.activate(MyConfig.create() //
 				.setId(BATTERY_INVERTER_ID) //
@@ -107,7 +109,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 						.output(STATE_MACHINE, State.UNDEFINED)) //
 				.next(new TestCase() //
 						.timeleap(clock, 4, ChronoUnit.SECONDS) //
-						.output(STATE_MACHINE, State.GO_RUNNING)) //
+						.output(STATE_MACHINE, State.STOPPED)) //
 				.next(new TestCase() //
 						.timeleap(clock, 1, ChronoUnit.SECONDS) //
 						.input(CURRENT_STATE, S64201CurrentState.GRID_CONNECTED) //

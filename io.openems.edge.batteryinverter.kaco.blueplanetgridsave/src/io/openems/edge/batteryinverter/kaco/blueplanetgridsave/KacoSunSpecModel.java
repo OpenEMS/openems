@@ -193,8 +193,8 @@ public enum KacoSunSpecModel implements SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE, //
-				Unit.SECONDS, //
-				"RMP_TMS_SF", //
+				Unit.MILLISECONDS, //
+				null, //
 				new OptionsEnum[0])), //
 		WPARAM_RMP_DEC_TMM(new PointImpl(//
 				"S64201_WPARAM_RMP_DEC_TMM", //
@@ -341,8 +341,8 @@ public enum KacoSunSpecModel implements SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
-				Unit.HERTZ, //
-				"HZ_SF", //
+				Unit.MILLIHERTZ, //
+				"mHZ_SF", //
 				new OptionsEnum[0])), //
 		RESERVED_36(new ReservedPointImpl("S64201_RESERVED_36")), //
 		RESERVED_37(new ReservedPointImpl("S64201_RESERVED_37")), //

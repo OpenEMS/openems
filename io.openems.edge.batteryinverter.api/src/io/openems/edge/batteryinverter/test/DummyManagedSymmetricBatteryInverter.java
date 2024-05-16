@@ -4,31 +4,33 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
+import io.openems.edge.common.test.TestUtils;
 
 /**
  * Provides a simple, simulated {@link ManagedSymmetricBatteryInverter}
  * component that can be used together with the OpenEMS Component test
  * framework.
  */
-public class DummyManagedSymmetricBatteryInverter extends AbstractOpenemsComponent
+public class DummyManagedSymmetricBatteryInverter
+		extends AbstractDummyOpenemsComponent<DummyManagedSymmetricBatteryInverter>
 		implements ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, StartStoppable {
 
 	public DummyManagedSymmetricBatteryInverter(String id) {
-		super(//
+		super(id, //
 				OpenemsComponent.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				SymmetricBatteryInverter.ChannelId.values(), //
 				ManagedSymmetricBatteryInverter.ChannelId.values() //
 		);
-		for (Channel<?> channel : this.channels()) {
-			channel.nextProcessImage();
-		}
-		super.activate(null, id, "", true);
+	}
+
+	@Override
+	protected DummyManagedSymmetricBatteryInverter self() {
+		return this;
 	}
 
 	@Override
@@ -38,7 +40,29 @@ public class DummyManagedSymmetricBatteryInverter extends AbstractOpenemsCompone
 
 	@Override
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
-		this._setStartStop(value);
+		this.withStartStop(value);
+	}
+
+	/**
+	 * Set {@link StartStoppable.ChannelId#START_STOP}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummyManagedSymmetricBatteryInverter withStartStop(StartStop value) {
+		TestUtils.withValue(this, StartStoppable.ChannelId.START_STOP, value);
+		return this;
+	}
+
+	/**
+	 * Set {@link SymmetricBatteryInverter.ChannelId#MAX_APPARENT_POWER}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummyManagedSymmetricBatteryInverter withMaxApparentPower(int value) {
+		TestUtils.withValue(this, SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, value);
+		return this;
 	}
 
 	@Override

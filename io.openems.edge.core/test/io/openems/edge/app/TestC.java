@@ -12,6 +12,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.edge.app.TestC.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -49,7 +50,7 @@ public class TestC extends AbstractEnumOpenemsApp<Property> implements OpenemsAp
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
 				.build();
 	}
@@ -66,7 +67,7 @@ public class TestC extends AbstractEnumOpenemsApp<Property> implements OpenemsAp
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
-		return (t, u, s) -> new AppConfiguration();
+		return (t, u, s) -> AppConfiguration.empty();
 	}
 
 	@Override

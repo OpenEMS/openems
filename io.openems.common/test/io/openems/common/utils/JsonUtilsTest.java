@@ -1,5 +1,82 @@
 package io.openems.common.utils;
 
+import static com.google.gson.JsonNull.INSTANCE;
+import static io.openems.common.exceptions.OpenemsError.JSON_HAS_NO_MEMBER;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_ARRAY;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_ARRAY_MEMBER;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_BOOLEAN;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_BOOLEAN_MEMBER;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_DATE_MEMBER;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_DOUBLE;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_DOUBLE_MEMBER;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_ENUM;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_ENUM_MEMBER;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_FLOAT;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_FLOAT_MEMBER;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_INET4ADDRESS;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_INET4ADDRESS_MEMBER;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_INTEGER;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_INTEGER_MEMBER;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_LONG;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_LONG_MEMBER;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_OBJECT;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_OBJECT_MEMBER;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_PRIMITIVE;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_PRIMITIVE_MEMBER;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_SHORT;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_SHORT_MEMBER;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_STRING;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_STRING_ARRAY;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_STRING_MEMBER;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_UUID;
+import static io.openems.common.exceptions.OpenemsError.JSON_NO_UUID_MEMBER;
+import static io.openems.common.exceptions.OpenemsError.JSON_PARSE_FAILED;
+import static io.openems.common.utils.JsonUtils.buildJsonArray;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.common.utils.JsonUtils.generateJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsBestType;
+import static io.openems.common.utils.JsonUtils.getAsBoolean;
+import static io.openems.common.utils.JsonUtils.getAsDouble;
+import static io.openems.common.utils.JsonUtils.getAsEnum;
+import static io.openems.common.utils.JsonUtils.getAsFloat;
+import static io.openems.common.utils.JsonUtils.getAsInet4Address;
+import static io.openems.common.utils.JsonUtils.getAsInt;
+import static io.openems.common.utils.JsonUtils.getAsJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsJsonElement;
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsLong;
+import static io.openems.common.utils.JsonUtils.getAsOptionalBoolean;
+import static io.openems.common.utils.JsonUtils.getAsOptionalDouble;
+import static io.openems.common.utils.JsonUtils.getAsOptionalEnum;
+import static io.openems.common.utils.JsonUtils.getAsOptionalFloat;
+import static io.openems.common.utils.JsonUtils.getAsOptionalInet4Address;
+import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
+import static io.openems.common.utils.JsonUtils.getAsOptionalJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsOptionalLong;
+import static io.openems.common.utils.JsonUtils.getAsOptionalShort;
+import static io.openems.common.utils.JsonUtils.getAsOptionalString;
+import static io.openems.common.utils.JsonUtils.getAsOptionalUUID;
+import static io.openems.common.utils.JsonUtils.getAsPrimitive;
+import static io.openems.common.utils.JsonUtils.getAsShort;
+import static io.openems.common.utils.JsonUtils.getAsString;
+import static io.openems.common.utils.JsonUtils.getAsStringArray;
+import static io.openems.common.utils.JsonUtils.getAsStringOrElse;
+import static io.openems.common.utils.JsonUtils.getAsType;
+import static io.openems.common.utils.JsonUtils.getAsUUID;
+import static io.openems.common.utils.JsonUtils.getAsZonedDateWithZeroTime;
+import static io.openems.common.utils.JsonUtils.getOptionalSubElement;
+import static io.openems.common.utils.JsonUtils.getSubElement;
+import static io.openems.common.utils.JsonUtils.isEmptyJsonArray;
+import static io.openems.common.utils.JsonUtils.isEmptyJsonObject;
+import static io.openems.common.utils.JsonUtils.parse;
+import static io.openems.common.utils.JsonUtils.parseToJsonArray;
+import static io.openems.common.utils.JsonUtils.parseToJsonObject;
+import static io.openems.common.utils.JsonUtils.prettyToString;
+import static io.openems.common.utils.JsonUtils.toJson;
+import static io.openems.common.utils.JsonUtils.toJsonArray;
+import static io.openems.common.utils.JsonUtils.toJsonObject;
+import static java.util.Optional.empty;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -11,6 +88,7 @@ import java.net.UnknownHostException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -18,6 +96,7 @@ import java.util.stream.Stream;
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -58,7 +137,7 @@ public class JsonUtilsTest {
 
 	private static JsonElement JSON_UUID = new JsonPrimitive("c48e2e28-09be-41d5-8e58-260d162991cc");
 
-	private static JsonObject JSON_OBJECT = JsonUtils.buildJsonObject() //
+	private static JsonObject JSON_OBJECT = buildJsonObject() //
 			.addProperty("Boolean", true) //
 			.addProperty("Float", 123.456F) //
 			.addProperty("Double", 123.456) //
@@ -89,7 +168,7 @@ public class JsonUtilsTest {
 			.add("EmptyArray", new JsonArray()) //
 			.build();
 
-	private static JsonArray JSON_ARRAY = JsonUtils.buildJsonArray() //
+	private static JsonArray JSON_ARRAY = buildJsonArray() //
 			.add(true) //
 			.add(123) //
 			.add(123456789L) //
@@ -99,7 +178,7 @@ public class JsonUtilsTest {
 
 	@Test
 	public void testJsonArrayCollector() throws OpenemsNamedException {
-		var j = JsonUtils.buildJsonArray() //
+		var j = buildJsonArray() //
 				.add(true) //
 				.add("String") //
 				.build();
@@ -107,325 +186,362 @@ public class JsonUtilsTest {
 				new JsonPrimitive(true), //
 				new JsonPrimitive("String"))//
 				.parallel() // make sure to trigger `combiner()`
-				.collect(JsonUtils.toJsonArray());
+				.collect(toJsonArray());
 		assertEquals(j, l);
 	}
 
 	@Test
+	public void testJsonObjectCollector() throws OpenemsNamedException {
+		final var map = ImmutableMap.<String, JsonElement>builder() //
+				.put("1", new JsonPrimitive("1")) //
+				.put("2", new JsonPrimitive(2)) //
+				.put("3", new JsonPrimitive(3.25)) //
+				.put("4", new JsonPrimitive(false)) //
+				.build();
+
+		final var jsonObject = map.entrySet().parallelStream() //
+				.collect(toJsonObject(Entry::getKey, Entry::getValue));
+
+		assertEquals("1", jsonObject.get("1").getAsString());
+		assertEquals(2, jsonObject.get("2").getAsInt());
+		assertEquals(3.25, jsonObject.get("3").getAsDouble(), 0.0);
+		assertEquals(false, jsonObject.get("4").getAsBoolean());
+	}
+
+	@Test
 	public void testBuilder() throws OpenemsNamedException {
-		JsonUtils.buildJsonArray(JSON_ARRAY) //
+		buildJsonArray(JSON_ARRAY) //
 				.build();
-		JsonUtils.buildJsonObject(JSON_OBJECT) //
+		buildJsonObject(JSON_OBJECT) //
 				.build();
+	}
+
+	@Test
+	public void testToJson() {
+		assertEquals(INSTANCE, toJson((Boolean) null));
+		assertEquals(new JsonPrimitive(true), toJson(true));
+
+		assertEquals(INSTANCE, toJson((Number) null));
+		assertEquals(new JsonPrimitive(123), toJson(123));
+
+		assertEquals(INSTANCE, toJson((Character) null));
+		assertEquals(new JsonPrimitive('a'), toJson('a'));
+
+		assertEquals(INSTANCE, toJson((String) null));
+		assertEquals(new JsonPrimitive("abc"), toJson("abc"));
 	}
 
 	@Test
 	public void testGetAsPrimitive() throws OpenemsNamedException {
 		// -> Element
-		assertEquals(new JsonPrimitive("value"), JsonUtils.getAsPrimitive(JSON_STRING));
-		assertOpenemsError(OpenemsError.JSON_NO_PRIMITIVE, //
-				() -> JsonUtils.getAsPrimitive(new JsonObject()) //
+		assertEquals(new JsonPrimitive("value"), getAsPrimitive(JSON_STRING));
+		assertOpenemsError(JSON_NO_PRIMITIVE, //
+				() -> getAsPrimitive(new JsonObject()) //
 		);
 
 		// -> Sub-Element
-		assertEquals(new JsonPrimitive("value"), JsonUtils.getAsPrimitive(JSON_OBJECT, "String"));
-		assertOpenemsError(OpenemsError.JSON_NO_PRIMITIVE_MEMBER, //
-				() -> JsonUtils.getAsPrimitive(JSON_OBJECT, "EmptyObject") //
+		assertEquals(new JsonPrimitive("value"), getAsPrimitive(JSON_OBJECT, "String"));
+		assertOpenemsError(JSON_NO_PRIMITIVE_MEMBER, //
+				() -> getAsPrimitive(JSON_OBJECT, "EmptyObject") //
 		);
 	}
 
 	@Test
 	public void testGetSubElement() throws OpenemsNamedException {
 		// -> Sub-Element
-		assertEquals(new JsonPrimitive("value"), JsonUtils.getSubElement(JSON_OBJECT, "String"));
-		assertEquals(new JsonObject(), JsonUtils.getSubElement(JSON_OBJECT, "EmptyObject"));
-		assertOpenemsError(OpenemsError.JSON_HAS_NO_MEMBER, //
-				() -> JsonUtils.getSubElement(JSON_OBJECT, "foo") //
+		assertEquals(new JsonPrimitive("value"), getSubElement(JSON_OBJECT, "String"));
+		assertEquals(new JsonObject(), getSubElement(JSON_OBJECT, "EmptyObject"));
+		assertOpenemsError(JSON_HAS_NO_MEMBER, //
+				() -> getSubElement(JSON_OBJECT, "foo") //
 		);
 
 		// -> Optional Sub-Element
-		assertEquals(new JsonObject(), JsonUtils.getOptionalSubElement(JSON_OBJECT, "EmptyObject").get());
-		assertEquals(Optional.empty(), JsonUtils.getOptionalSubElement(JSON_OBJECT, "foo"));
-		assertEquals(Optional.empty(), JsonUtils.getOptionalSubElement(null, "foo"));
+		assertEquals(new JsonObject(), getOptionalSubElement(JSON_OBJECT, "EmptyObject").get());
+		assertEquals(empty(), getOptionalSubElement(JSON_OBJECT, "foo"));
+		assertEquals(empty(), getOptionalSubElement(null, "foo"));
 	}
 
 	@Test
 	public void testGetAsJsonObject() throws OpenemsNamedException {
 		// -> Element
-		assertEquals(JSON_OBJECT, JsonUtils.getAsJsonObject(JSON_OBJECT));
-		assertOpenemsError(OpenemsError.JSON_NO_OBJECT, //
-				() -> JsonUtils.getAsJsonObject(JSON_STRING) //
+		assertEquals(JSON_OBJECT, getAsJsonObject(JSON_OBJECT));
+		assertOpenemsError(JSON_NO_OBJECT, //
+				() -> getAsJsonObject(JSON_STRING) //
 		);
 
 		// -> Optional Element
-		assertEquals(JSON_OBJECT, JsonUtils.getAsOptionalJsonObject(JSON_OBJECT).get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalJsonObject(JSON_STRING));
+		assertEquals(JSON_OBJECT, getAsOptionalJsonObject(JSON_OBJECT).get());
+		assertEquals(empty(), getAsOptionalJsonObject(JSON_STRING));
 
 		// -> Sub-Element
-		assertEquals(new JsonObject(), JsonUtils.getAsJsonObject(JSON_OBJECT, "EmptyObject"));
-		assertOpenemsError(OpenemsError.JSON_NO_OBJECT_MEMBER, //
-				() -> JsonUtils.getAsJsonObject(JSON_OBJECT, "foo"), //
-				() -> JsonUtils.getAsJsonObject(JSON_OBJECT, "String") //
+		assertEquals(new JsonObject(), getAsJsonObject(JSON_OBJECT, "EmptyObject"));
+		assertOpenemsError(JSON_NO_OBJECT_MEMBER, //
+				() -> getAsJsonObject(JSON_OBJECT, "foo"), //
+				() -> getAsJsonObject(JSON_OBJECT, "String") //
 		); //
 
 		// -> Optional Sub-Element
-		assertEquals(new JsonObject(), JsonUtils.getAsOptionalJsonObject(JSON_OBJECT, "EmptyObject").get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalJsonObject(JSON_OBJECT, "foo"));
+		assertEquals(new JsonObject(), getAsOptionalJsonObject(JSON_OBJECT, "EmptyObject").get());
+		assertEquals(empty(), getAsOptionalJsonObject(JSON_OBJECT, "foo"));
 	}
 
 	@Test
 	public void testGetAsJsonArray() throws OpenemsNamedException {
 		// -> Element
-		assertEquals(JSON_ARRAY, JsonUtils.getAsJsonArray(JSON_ARRAY));
-		assertOpenemsError(OpenemsError.JSON_NO_ARRAY, //
-				() -> JsonUtils.getAsJsonArray(JSON_STRING) //
+		assertEquals(JSON_ARRAY, getAsJsonArray(JSON_ARRAY));
+		assertOpenemsError(JSON_NO_ARRAY, //
+				() -> getAsJsonArray(JSON_STRING) //
 		);
 
 		// -> Optional Element
-		assertEquals(JSON_ARRAY, JsonUtils.getAsOptionalJsonArray(JSON_ARRAY).get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalJsonArray(JSON_STRING));
+		assertEquals(JSON_ARRAY, getAsOptionalJsonArray(JSON_ARRAY).get());
+		assertEquals(empty(), getAsOptionalJsonArray(JSON_STRING));
 
 		// -> Sub-Element
-		assertEquals(new JsonArray(), JsonUtils.getAsJsonArray(JSON_OBJECT, "EmptyArray"));
-		assertOpenemsError(OpenemsError.JSON_NO_ARRAY_MEMBER, //
-				() -> JsonUtils.getAsJsonArray(JSON_OBJECT, "foo"), //
-				() -> JsonUtils.getAsJsonArray(JSON_OBJECT, "String") //
+		assertEquals(new JsonArray(), getAsJsonArray(JSON_OBJECT, "EmptyArray"));
+		assertOpenemsError(JSON_NO_ARRAY_MEMBER, //
+				() -> getAsJsonArray(JSON_OBJECT, "foo"), //
+				() -> getAsJsonArray(JSON_OBJECT, "String") //
 		);
 
 		// -> Optional Sub-Element
-		assertEquals(new JsonArray(), JsonUtils.getAsOptionalJsonArray(JSON_OBJECT, "EmptyArray").get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalJsonArray(JSON_OBJECT, "foo"));
+		assertEquals(new JsonArray(), getAsOptionalJsonArray(JSON_OBJECT, "EmptyArray").get());
+		assertEquals(empty(), getAsOptionalJsonArray(JSON_OBJECT, "foo"));
 	}
 
 	@Test
 	public void testGetAsString() throws OpenemsNamedException {
 		// -> Element
-		assertEquals("value", JsonUtils.getAsString(JSON_STRING));
-		assertOpenemsError(OpenemsError.JSON_NO_STRING, //
-				() -> JsonUtils.getAsString(JSON_NUMBER) //
+		assertEquals("value", getAsString(JSON_STRING));
+		assertOpenemsError(JSON_NO_STRING, //
+				() -> getAsString(JSON_NUMBER) //
 		);
 
 		// -> Optional Element
-		assertEquals("value", JsonUtils.getAsOptionalString(JSON_STRING).get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalString(JSON_OBJECT));
+		assertEquals("value", getAsOptionalString(JSON_STRING).get());
+		assertEquals(empty(), getAsOptionalString(JSON_OBJECT));
 
 		// -> Sub-Element
-		assertEquals("value", JsonUtils.getAsString(JSON_OBJECT, "String"));
-		assertOpenemsError(OpenemsError.JSON_NO_STRING_MEMBER, //
-				() -> JsonUtils.getAsString(JSON_OBJECT, "foo"), //
-				() -> JsonUtils.getAsString(JSON_OBJECT, "Number") //
+		assertEquals("value", getAsString(JSON_OBJECT, "String"));
+		assertOpenemsError(JSON_NO_STRING_MEMBER, //
+				() -> getAsString(JSON_OBJECT, "foo"), //
+				() -> getAsString(JSON_OBJECT, "Number") //
 		);
 
 		// -> Optional Sub-Element
-		assertEquals("value", JsonUtils.getAsOptionalString(JSON_OBJECT, "String").get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalString(JSON_OBJECT, "foo"));
+		assertEquals("value", getAsOptionalString(JSON_OBJECT, "String").get());
+		assertEquals(empty(), getAsOptionalString(JSON_OBJECT, "foo"));
+
+		// -> As String or Else
+		assertEquals("value", getAsStringOrElse(JSON_OBJECT, "String", "alternative"));
+		assertEquals("alternative", getAsStringOrElse(JSON_OBJECT, "foo", "alternative"));
 	}
 
 	@Test
 	public void testGetAsStringArray() throws OpenemsNamedException {
-		var j1 = JsonUtils.buildJsonArray() //
+		var j1 = buildJsonArray() //
 				.add("foo") //
 				.add("bar") //
 				.build();
-		assertArrayEquals(new String[] { "foo", "bar" }, JsonUtils.getAsStringArray(j1));
+		assertArrayEquals(new String[] { "foo", "bar" }, getAsStringArray(j1));
 
-		var j2 = JsonUtils.buildJsonArray() //
+		var j2 = buildJsonArray() //
 				.add(123) //
 				.build();
-		assertOpenemsError(OpenemsError.JSON_NO_STRING_ARRAY, //
-				() -> JsonUtils.getAsStringArray(j2) //
+		assertOpenemsError(JSON_NO_STRING_ARRAY, //
+				() -> getAsStringArray(j2) //
 		);
 	}
 
 	@Test
 	public void testGetAsBoolean() throws OpenemsNamedException {
 		// -> Element
-		assertEquals(true, JsonUtils.getAsBoolean(JSON_BOOLEAN));
-		assertOpenemsError(OpenemsError.JSON_NO_BOOLEAN, //
-				() -> JsonUtils.getAsBoolean(JSON_NUMBER) //
+		assertEquals(true, getAsBoolean(JSON_BOOLEAN));
+		assertOpenemsError(JSON_NO_BOOLEAN, //
+				() -> getAsBoolean(JSON_NUMBER) //
 		);
 
 		// -> Optional Element
-		assertEquals(true, JsonUtils.getAsOptionalBoolean(JSON_BOOLEAN).get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalBoolean(JSON_NUMBER));
+		assertEquals(true, getAsOptionalBoolean(JSON_BOOLEAN).get());
+		assertEquals(empty(), getAsOptionalBoolean(JSON_NUMBER));
 
 		// -> Sub-Element
-		assertEquals(true, JsonUtils.getAsBoolean(JSON_OBJECT, "Boolean"));
-		assertOpenemsError(OpenemsError.JSON_NO_BOOLEAN_MEMBER, //
-				() -> JsonUtils.getAsBoolean(JSON_OBJECT, "foo"), //
-				() -> JsonUtils.getAsBoolean(JSON_OBJECT, "Number") //
+		assertEquals(true, getAsBoolean(JSON_OBJECT, "Boolean"));
+		assertOpenemsError(JSON_NO_BOOLEAN_MEMBER, //
+				() -> getAsBoolean(JSON_OBJECT, "foo"), //
+				() -> getAsBoolean(JSON_OBJECT, "Number") //
 		);
 
 		// -> Optional Sub-Element
-		assertEquals(true, JsonUtils.getAsOptionalBoolean(JSON_OBJECT, "Boolean").get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalBoolean(JSON_OBJECT, "foo"));
+		assertEquals(true, getAsOptionalBoolean(JSON_OBJECT, "Boolean").get());
+		assertEquals(empty(), getAsOptionalBoolean(JSON_OBJECT, "foo"));
 	}
 
 	@Test
 	public void testGetAsShort() throws OpenemsNamedException {
 		// -> Element
-		assertEquals((short) 123, JsonUtils.getAsShort(JSON_NUMBER));
-		assertOpenemsError(OpenemsError.JSON_NO_SHORT, //
-				() -> JsonUtils.getAsShort(JSON_STRING) //
+		assertEquals((short) 123, getAsShort(JSON_NUMBER));
+		assertOpenemsError(JSON_NO_SHORT, //
+				() -> getAsShort(JSON_STRING) //
 		);
 
 		// -> Optional Element
-		assertEquals(Short.valueOf((short) 123), JsonUtils.getAsOptionalShort(JSON_NUMBER).get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalShort(JSON_STRING));
+		assertEquals(Short.valueOf((short) 123), getAsOptionalShort(JSON_NUMBER).get());
+		assertEquals(empty(), getAsOptionalShort(JSON_STRING));
 
 		// -> Sub-Element
-		assertEquals((short) 123, JsonUtils.getAsShort(JSON_OBJECT, "Int"));
-		assertOpenemsError(OpenemsError.JSON_NO_SHORT_MEMBER, //
-				() -> JsonUtils.getAsShort(JSON_OBJECT, "String") //
+		assertEquals((short) 123, getAsShort(JSON_OBJECT, "Int"));
+		assertOpenemsError(JSON_NO_SHORT_MEMBER, //
+				() -> getAsShort(JSON_OBJECT, "String") //
 		);
 
 		// -> Optional Sub-Element
-		assertEquals(Short.valueOf((short) 123), JsonUtils.getAsOptionalShort(JSON_OBJECT, "Int").get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalShort(JSON_OBJECT, "foo"));
+		assertEquals(Short.valueOf((short) 123), getAsOptionalShort(JSON_OBJECT, "Int").get());
+		assertEquals(empty(), getAsOptionalShort(JSON_OBJECT, "foo"));
 	}
 
 	@Test
 	public void testGetAsInt() throws OpenemsNamedException {
 		// -> Element
-		assertEquals(123, JsonUtils.getAsInt(JSON_NUMBER));
-		assertOpenemsError(OpenemsError.JSON_NO_INTEGER, //
-				() -> JsonUtils.getAsInt(JSON_STRING) //
+		assertEquals(123, getAsInt(JSON_NUMBER));
+		assertOpenemsError(JSON_NO_INTEGER, //
+				() -> getAsInt(JSON_STRING) //
 		);
 
 		// -> Optional Element
-		assertEquals(Integer.valueOf(123), JsonUtils.getAsOptionalInt(JSON_NUMBER).get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalInt(JSON_STRING));
+		assertEquals(Integer.valueOf(123), getAsOptionalInt(JSON_NUMBER).get());
+		assertEquals(empty(), getAsOptionalInt(JSON_STRING));
 
 		// -> Sub-Element
-		assertEquals(123, JsonUtils.getAsInt(JSON_OBJECT, "Int"));
-		assertOpenemsError(OpenemsError.JSON_NO_INTEGER_MEMBER, //
-				() -> JsonUtils.getAsInt(JSON_OBJECT, "String") //
+		assertEquals(123, getAsInt(JSON_OBJECT, "Int"));
+		assertOpenemsError(JSON_NO_INTEGER_MEMBER, //
+				() -> getAsInt(JSON_OBJECT, "String") //
 		);
 
 		// -> Optional Sub-Element
-		assertEquals(Integer.valueOf(123), JsonUtils.getAsOptionalInt(JSON_OBJECT, "Int").get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalInt(JSON_OBJECT, "foo"));
+		assertEquals(Integer.valueOf(123), getAsOptionalInt(JSON_OBJECT, "Int").get());
+		assertEquals(empty(), getAsOptionalInt(JSON_OBJECT, "foo"));
 	}
 
 	@Test
 	public void testGetAsLong() throws OpenemsNamedException {
 		// -> Element
-		assertEquals(123L, JsonUtils.getAsLong(JSON_NUMBER));
-		assertOpenemsError(OpenemsError.JSON_NO_LONG, //
-				() -> JsonUtils.getAsLong(JSON_STRING) //
+		assertEquals(123L, getAsLong(JSON_NUMBER));
+		assertOpenemsError(JSON_NO_LONG, //
+				() -> getAsLong(JSON_STRING) //
 		);
 
 		// -> Optional Element
-		assertEquals(Long.valueOf(123), JsonUtils.getAsOptionalLong(JSON_NUMBER).get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalLong(JSON_STRING));
+		assertEquals(Long.valueOf(123), getAsOptionalLong(JSON_NUMBER).get());
+		assertEquals(empty(), getAsOptionalLong(JSON_STRING));
 
 		// -> Sub-Element
-		assertEquals(123456789L, JsonUtils.getAsLong(JSON_OBJECT, "Long"));
-		assertOpenemsError(OpenemsError.JSON_NO_LONG_MEMBER, //
-				() -> JsonUtils.getAsLong(JSON_OBJECT, "String") //
+		assertEquals(123456789L, getAsLong(JSON_OBJECT, "Long"));
+		assertOpenemsError(JSON_NO_LONG_MEMBER, //
+				() -> getAsLong(JSON_OBJECT, "String") //
 		);
 
 		// -> Optional Sub-Element
-		assertEquals(Long.valueOf(123456789L), JsonUtils.getAsOptionalLong(JSON_OBJECT, "Long").get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalLong(JSON_OBJECT, "foo"));
+		assertEquals(Long.valueOf(123456789L), getAsOptionalLong(JSON_OBJECT, "Long").get());
+		assertEquals(empty(), getAsOptionalLong(JSON_OBJECT, "foo"));
 	}
 
 	@Test
 	public void testGetAsDouble() throws OpenemsNamedException {
 		// -> Element
-		assertEquals(123.0, JsonUtils.getAsDouble(JSON_NUMBER), 0.1);
-		assertOpenemsError(OpenemsError.JSON_NO_DOUBLE, //
-				() -> JsonUtils.getAsDouble(JSON_STRING) //
+		assertEquals(123.0, getAsDouble(JSON_NUMBER), 0.1);
+		assertOpenemsError(JSON_NO_DOUBLE, //
+				() -> getAsDouble(JSON_STRING) //
 		);
 
 		// -> Optional Element
-		assertEquals(Double.valueOf(123.0), JsonUtils.getAsOptionalDouble(JSON_NUMBER).get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalDouble(JSON_STRING));
+		assertEquals(Double.valueOf(123.0), getAsOptionalDouble(JSON_NUMBER).get());
+		assertEquals(empty(), getAsOptionalDouble(JSON_STRING));
 
 		// -> Sub-Element
-		assertEquals(Double.valueOf(123.456), JsonUtils.getAsDouble(JSON_OBJECT, "Double"), 0.1);
-		assertOpenemsError(OpenemsError.JSON_NO_DOUBLE_MEMBER, //
-				() -> JsonUtils.getAsDouble(JSON_OBJECT, "String") //
+		assertEquals(Double.valueOf(123.456), getAsDouble(JSON_OBJECT, "Double"), 0.1);
+		assertOpenemsError(JSON_NO_DOUBLE_MEMBER, //
+				() -> getAsDouble(JSON_OBJECT, "String") //
 		);
 
 		// -> Optional Sub-Element
-		assertEquals(Double.valueOf(123.456), JsonUtils.getAsOptionalDouble(JSON_OBJECT, "Double").get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalDouble(JSON_OBJECT, "foo"));
+		assertEquals(Double.valueOf(123.456), getAsOptionalDouble(JSON_OBJECT, "Double").get());
+		assertEquals(empty(), getAsOptionalDouble(JSON_OBJECT, "foo"));
 	}
 
 	@Test
 	public void testGetAsFloat() throws OpenemsNamedException {
 		// -> Element
-		assertEquals(123.0, JsonUtils.getAsFloat(JSON_NUMBER), 0.1);
-		assertOpenemsError(OpenemsError.JSON_NO_FLOAT, //
-				() -> JsonUtils.getAsFloat(JSON_STRING) //
+		assertEquals(123.0, getAsFloat(JSON_NUMBER), 0.1);
+		assertOpenemsError(JSON_NO_FLOAT, //
+				() -> getAsFloat(JSON_STRING) //
 		);
 
 		// -> Optional Element
-		assertEquals(Float.valueOf(123.0F), JsonUtils.getAsOptionalFloat(JSON_NUMBER).get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalFloat(JSON_STRING));
+		assertEquals(Float.valueOf(123.0F), getAsOptionalFloat(JSON_NUMBER).get());
+		assertEquals(empty(), getAsOptionalFloat(JSON_STRING));
 
 		// -> Sub-Element
-		assertEquals(Float.valueOf(123.456F), JsonUtils.getAsFloat(JSON_OBJECT, "Double"), 0.1);
-		assertOpenemsError(OpenemsError.JSON_NO_FLOAT_MEMBER, //
-				() -> JsonUtils.getAsFloat(JSON_OBJECT, "String") //
+		assertEquals(Float.valueOf(123.456F), getAsFloat(JSON_OBJECT, "Double"), 0.1);
+		assertOpenemsError(JSON_NO_FLOAT_MEMBER, //
+				() -> getAsFloat(JSON_OBJECT, "String") //
 		);
 
 		// -> Optional Sub-Element
-		assertEquals(Float.valueOf(123.456F), JsonUtils.getAsOptionalFloat(JSON_OBJECT, "Double").get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalFloat(JSON_OBJECT, "foo"));
+		assertEquals(Float.valueOf(123.456F), getAsOptionalFloat(JSON_OBJECT, "Double").get());
+		assertEquals(empty(), getAsOptionalFloat(JSON_OBJECT, "foo"));
 	}
 
 	@Test
 	public void testGetAsEnum() throws OpenemsNamedException {
 		// -> Element
-		assertEquals(Unit.WATT, JsonUtils.getAsEnum(Unit.class, JSON_ENUM));
-		assertOpenemsError(OpenemsError.JSON_NO_ENUM, //
-				() -> JsonUtils.getAsEnum(Unit.class, JSON_STRING) //
+		assertEquals(Unit.WATT, getAsEnum(Unit.class, JSON_ENUM));
+		assertOpenemsError(JSON_NO_ENUM, //
+				() -> getAsEnum(Unit.class, JSON_STRING) //
 		);
 
 		// -> Optional Element
-		assertEquals(Unit.WATT, JsonUtils.getAsOptionalEnum(Unit.class, JSON_ENUM).get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalEnum(Unit.class, JSON_STRING));
+		assertEquals(Unit.WATT, getAsOptionalEnum(Unit.class, JSON_ENUM).get());
+		assertEquals(empty(), getAsOptionalEnum(Unit.class, JSON_STRING));
 
 		// -> Sub-Element
-		assertEquals(Unit.WATT, JsonUtils.getAsEnum(Unit.class, JSON_OBJECT, "Enum"));
-		assertOpenemsError(OpenemsError.JSON_NO_ENUM_MEMBER, //
-				() -> JsonUtils.getAsEnum(Unit.class, JSON_OBJECT, "String") //
+		assertEquals(Unit.WATT, getAsEnum(Unit.class, JSON_OBJECT, "Enum"));
+		assertOpenemsError(JSON_NO_ENUM_MEMBER, //
+				() -> getAsEnum(Unit.class, JSON_OBJECT, "String") //
 		);
 
 		// -> Optional Sub-Element
-		assertEquals(Unit.WATT, JsonUtils.getAsOptionalEnum(Unit.class, JSON_OBJECT, "Enum").get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalEnum(Unit.class, JSON_OBJECT, "foo"));
+		assertEquals(Unit.WATT, getAsOptionalEnum(Unit.class, JSON_OBJECT, "Enum").get());
+		assertEquals(empty(), getAsOptionalEnum(Unit.class, JSON_OBJECT, "foo"));
 	}
 
 	@Test
 	public void testGetAsInet4Address() throws OpenemsNamedException, UnknownHostException {
 		final var ip = Inet4Address.getByName("192.168.1.2");
 		final var InvalidHost = new JsonPrimitive("value.");
-		final var InvalidHostObject = JsonUtils.buildJsonObject() //
+		final var InvalidHostObject = buildJsonObject() //
 				.add("String", InvalidHost) //
 				.build();
 
 		// -> Element
-		assertEquals(ip, JsonUtils.getAsInet4Address(JSON_INET4ADDRESS));
-		assertOpenemsError(OpenemsError.JSON_NO_INET4ADDRESS, //
-				() -> JsonUtils.getAsInet4Address(InvalidHost) //
+		assertEquals(ip, getAsInet4Address(JSON_INET4ADDRESS));
+		assertOpenemsError(JSON_NO_INET4ADDRESS, //
+				() -> getAsInet4Address(InvalidHost) //
 		);
 
 		// -> Optional Element
-		assertEquals(ip, JsonUtils.getAsOptionalInet4Address(JSON_INET4ADDRESS).get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalInet4Address(InvalidHost));
+		assertEquals(ip, getAsOptionalInet4Address(JSON_INET4ADDRESS).get());
+		assertEquals(empty(), getAsOptionalInet4Address(InvalidHost));
 
 		// -> Sub-Element
-		assertEquals(ip, JsonUtils.getAsInet4Address(JSON_OBJECT, "Inet4Address"));
-		assertOpenemsError(OpenemsError.JSON_NO_INET4ADDRESS_MEMBER, //
-				() -> JsonUtils.getAsInet4Address(InvalidHostObject, "String") //
+		assertEquals(ip, getAsInet4Address(JSON_OBJECT, "Inet4Address"));
+		assertOpenemsError(JSON_NO_INET4ADDRESS_MEMBER, //
+				() -> getAsInet4Address(InvalidHostObject, "String") //
 		);
 
 		// -> Optional Sub-Element
-		assertEquals(ip, JsonUtils.getAsOptionalInet4Address(JSON_OBJECT, "Inet4Address").get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalInet4Address(JSON_OBJECT, "foo"));
+		assertEquals(ip, getAsOptionalInet4Address(JSON_OBJECT, "Inet4Address").get());
+		assertEquals(empty(), getAsOptionalInet4Address(JSON_OBJECT, "foo"));
 	}
 
 	@Test
@@ -433,191 +549,203 @@ public class JsonUtilsTest {
 		final var uuid = UUID.fromString("c48e2e28-09be-41d5-8e58-260d162991cc");
 
 		// -> Element
-		assertEquals(uuid, JsonUtils.getAsUUID(JSON_UUID));
-		assertOpenemsError(OpenemsError.JSON_NO_UUID, //
-				() -> JsonUtils.getAsUUID(JSON_STRING) //
+		assertEquals(uuid, getAsUUID(JSON_UUID));
+		assertOpenemsError(JSON_NO_UUID, //
+				() -> getAsUUID(JSON_STRING) //
 		);
 
 		// -> Optional Element
-		assertEquals(uuid, JsonUtils.getAsOptionalUUID(JSON_UUID).get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalUUID(JSON_STRING));
+		assertEquals(uuid, getAsOptionalUUID(JSON_UUID).get());
+		assertEquals(empty(), getAsOptionalUUID(JSON_STRING));
 
 		// -> Sub-Element
-		assertEquals(uuid, JsonUtils.getAsUUID(JSON_OBJECT, "UUID"));
-		assertOpenemsError(OpenemsError.JSON_NO_UUID_MEMBER, //
-				() -> JsonUtils.getAsUUID(JSON_OBJECT, "String") //
+		assertEquals(uuid, getAsUUID(JSON_OBJECT, "UUID"));
+		assertOpenemsError(JSON_NO_UUID_MEMBER, //
+				() -> getAsUUID(JSON_OBJECT, "String") //
 		);
 
 		// -> Optional Sub-Element
-		assertEquals(uuid, JsonUtils.getAsOptionalUUID(JSON_OBJECT, "UUID").get());
-		assertEquals(Optional.empty(), JsonUtils.getAsOptionalUUID(JSON_OBJECT, "foo"));
+		assertEquals(uuid, getAsOptionalUUID(JSON_OBJECT, "UUID").get());
+		assertEquals(empty(), getAsOptionalUUID(JSON_OBJECT, "foo"));
 	}
 
 	@Test
 	public void testGetAsJsonElement() throws UnknownHostException {
-		assertEquals(JsonNull.INSTANCE, JsonUtils.getAsJsonElement(null));
-		assertEquals(JsonNull.INSTANCE, JsonUtils.getAsJsonElement(Optional.empty()));
-		assertEquals(new JsonPrimitive(123), JsonUtils.getAsJsonElement(Optional.of(123)));
-		assertEquals(new JsonPrimitive(123), JsonUtils.getAsJsonElement(123));
-		assertEquals(new JsonPrimitive("foo"), JsonUtils.getAsJsonElement("foo"));
-		assertEquals(new JsonPrimitive(true), JsonUtils.getAsJsonElement(true));
+		assertEquals(INSTANCE, getAsJsonElement(null));
+		assertEquals(INSTANCE, getAsJsonElement(empty()));
+		assertEquals(new JsonPrimitive(123), getAsJsonElement(Optional.of(123)));
+		assertEquals(new JsonPrimitive(123), getAsJsonElement(123));
+		assertEquals(new JsonPrimitive("foo"), getAsJsonElement("foo"));
+		assertEquals(new JsonPrimitive(true), getAsJsonElement(true));
 		assertEquals(new JsonPrimitive(JSON_INET4ADDRESS.getAsString()),
-				JsonUtils.getAsJsonElement(Inet4Address.getByName("192.168.1.2")));
-		assertEquals(new JsonPrimitive(true), JsonUtils.getAsJsonElement(new JsonPrimitive(true)));
-		assertEquals(JsonUtils.buildJsonArray().add(true).add(false).build(),
-				JsonUtils.getAsJsonElement(new boolean[] { true, false }));
-		assertEquals(JsonUtils.buildJsonArray().add((short) 123).add((short) 456).build(),
-				JsonUtils.getAsJsonElement(new short[] { (short) 123, (short) 456 }));
-		assertEquals(JsonUtils.buildJsonArray().add(123).add(456).build(),
-				JsonUtils.getAsJsonElement(new int[] { 123, 456 }));
-		assertEquals(JsonUtils.buildJsonArray().add(123L).add(456L).build(),
-				JsonUtils.getAsJsonElement(new long[] { 123, 456 }));
-		assertEquals(JsonUtils.buildJsonArray().add(123F).add(456F).build(),
-				JsonUtils.getAsJsonElement(new float[] { 123, 456 }));
-		assertEquals(JsonUtils.buildJsonArray().add(123D).add(456D).build(),
-				JsonUtils.getAsJsonElement(new double[] { 123, 456 }));
-		assertEquals(JsonUtils.buildJsonArray().add("foo").add("bar").build(),
-				JsonUtils.getAsJsonElement(new String[] { "foo", "bar" }));
-		assertEquals(JsonUtils.buildJsonArray().add("foo").build(), JsonUtils.getAsJsonElement(new String[] { "foo" }));
-		assertEquals(new JsonArray(), JsonUtils.getAsJsonElement(new String[] { "" }));
-		assertEquals(JsonUtils.buildJsonArray().add("foo").build(), JsonUtils.getAsJsonElement(new Object[] { "foo" }));
+				getAsJsonElement(Inet4Address.getByName("192.168.1.2")));
+		assertEquals(new JsonPrimitive(true), getAsJsonElement(new JsonPrimitive(true)));
+		assertEquals(buildJsonArray().add(true).add(false).build(), getAsJsonElement(new boolean[] { true, false }));
+		assertEquals(buildJsonArray().add((short) 123).add((short) 456).build(),
+				getAsJsonElement(new short[] { (short) 123, (short) 456 }));
+		assertEquals(buildJsonArray().add(123).add(456).build(), getAsJsonElement(new int[] { 123, 456 }));
+		assertEquals(buildJsonArray().add(123L).add(456L).build(), getAsJsonElement(new long[] { 123, 456 }));
+		assertEquals(buildJsonArray().add(123F).add(456F).build(), getAsJsonElement(new float[] { 123, 456 }));
+		assertEquals(buildJsonArray().add(123D).add(456D).build(), getAsJsonElement(new double[] { 123, 456 }));
+		assertEquals(buildJsonArray().add("foo").add("bar").build(), getAsJsonElement(new String[] { "foo", "bar" }));
+		assertEquals(buildJsonArray().add("foo").build(), getAsJsonElement(new String[] { "foo" }));
+		assertEquals(new JsonArray(), getAsJsonElement(new String[] { "" }));
+		assertEquals(buildJsonArray().add("foo").build(), getAsJsonElement(new Object[] { "foo" }));
 		var uuid = UUID.randomUUID();
-		assertEquals(new JsonPrimitive(uuid.toString()), JsonUtils.getAsJsonElement(uuid));
+		assertEquals(new JsonPrimitive(uuid.toString()), getAsJsonElement(uuid));
 	}
 
 	@Test
 	public void testGetArrayAsInt() throws OpenemsNamedException {
-		var arr = JsonUtils.buildJsonArray() //
+		var arr = buildJsonArray() //
 				.add(10) //
 				.add(20) //
 				.add(30) //
 				.build();
-		assertEquals(10, JsonUtils.getAsInt(arr, 0));
-		assertEquals(20, JsonUtils.getAsInt(arr, 1));
-		assertEquals(30, JsonUtils.getAsInt(arr, 2));
-		assertOpenemsError(OpenemsError.JSON_NO_INTEGER_MEMBER, //
-				() -> JsonUtils.getAsInt(arr, -1), () -> JsonUtils.getAsInt(arr, 3));
+		assertEquals(10, getAsInt(arr, 0));
+		assertEquals(20, getAsInt(arr, 1));
+		assertEquals(30, getAsInt(arr, 2));
+		assertOpenemsError(JSON_NO_INTEGER_MEMBER, //
+				() -> getAsInt(arr, -1), () -> getAsInt(arr, 3));
 	}
 
 	@Test
 	public void testGetAsBestType() throws OpenemsNamedException {
-		assertEquals(Object[].class, JsonUtils.getAsBestType(new JsonArray()).getClass());
-		assertEquals(true,
-				((boolean[]) JsonUtils.getAsBestType(JsonUtils.buildJsonArray().add(true).add(false).build()))[0]);
-		assertEquals(123, ((int[]) JsonUtils.getAsBestType(JsonUtils.buildJsonArray().add(123).add(456).build()))[0]);
-		assertEquals("foo", ((Object[]) JsonUtils.getAsBestType(JsonUtils.buildJsonArray().add("foo").build()))[0]);
-		assertEquals("{}",
-				((Object[]) JsonUtils.getAsBestType(JsonUtils.buildJsonArray().add(new JsonObject()).build()))[0]);
-		assertEquals("{}", JsonUtils.getAsBestType(new JsonObject()));
-		assertEquals(true, JsonUtils.getAsBestType(JSON_BOOLEAN));
-		assertEquals(123, JsonUtils.getAsBestType(JSON_NUMBER));
-		assertEquals("192.168.1.2", JsonUtils.getAsBestType(JSON_INET4ADDRESS));
+		assertEquals(Object[].class, getAsBestType(new JsonArray()).getClass());
+		assertEquals(true, ((boolean[]) getAsBestType(buildJsonArray().add(true).add(false).build()))[0]);
+		assertEquals(123, ((int[]) getAsBestType(buildJsonArray().add(123).add(456).build()))[0]);
+		assertEquals("foo", ((Object[]) getAsBestType(buildJsonArray().add("foo").build()))[0]);
+		assertEquals("{}", ((Object[]) getAsBestType(buildJsonArray().add(new JsonObject()).build()))[0]);
+		assertEquals("{}", getAsBestType(new JsonObject()));
+		assertEquals(true, getAsBestType(JSON_BOOLEAN));
+		assertEquals(123, getAsBestType(JSON_NUMBER));
+		assertEquals("192.168.1.2", getAsBestType(JSON_INET4ADDRESS));
 	}
 
 	@Test
 	public void testGetAsType1() throws OpenemsNamedException {
-		assertEquals(Integer.class, JsonUtils.getAsType(Integer.class, new JsonPrimitive(123)).getClass());
-		assertEquals(Long.class, JsonUtils.getAsType(Long.class, new JsonPrimitive(123)).getClass());
-		assertEquals(Boolean.class, JsonUtils.getAsType(Boolean.class, new JsonPrimitive(true)).getClass());
-		assertEquals(Double.class, JsonUtils.getAsType(Double.class, new JsonPrimitive(123)).getClass());
-		assertEquals(String.class, JsonUtils.getAsType(String.class, new JsonPrimitive("foo")).getClass());
-		assertEquals(JsonObject.class, JsonUtils.getAsType(JsonObject.class, new JsonObject()).getClass());
-		assertEquals(JsonArray.class, JsonUtils.getAsType(JsonArray.class, new JsonArray()).getClass());
-		assertEquals(Long[].class,
-				JsonUtils.getAsType(Long[].class, JsonUtils.buildJsonArray().add(123).add(456).build()).getClass());
+		assertEquals(Integer.class, getAsType(Integer.class, new JsonPrimitive(123)).getClass());
+		assertEquals(Long.class, getAsType(Long.class, new JsonPrimitive(123)).getClass());
+		assertEquals(Boolean.class, getAsType(Boolean.class, new JsonPrimitive(true)).getClass());
+		assertEquals(Double.class, getAsType(Double.class, new JsonPrimitive(123)).getClass());
+		assertEquals(String.class, getAsType(String.class, new JsonPrimitive("foo")).getClass());
+		assertEquals(JsonObject.class, getAsType(JsonObject.class, new JsonObject()).getClass());
+		assertEquals(JsonArray.class, getAsType(JsonArray.class, new JsonArray()).getClass());
+		assertEquals(Long[].class, getAsType(Long[].class, buildJsonArray().add(123).add(456).build()).getClass());
 		assertAllThrow(NotImplementedException.class, //
-				() -> JsonUtils.getAsType(Integer[].class, JsonUtils.buildJsonArray().add(123).add(456).build())
-						.getClass(), //
-				() -> JsonUtils.getAsType(Long[].class, new JsonObject()).getClass(), //
-				() -> JsonUtils.getAsType(Inet4Address.class, new JsonObject()).getClass() //
+				() -> getAsType(Integer[].class, buildJsonArray().add(123).add(456).build()).getClass(), //
+				() -> getAsType(Long[].class, new JsonObject()).getClass(), //
+				() -> getAsType(Inet4Address.class, new JsonObject()).getClass() //
 		);
 		assertThrows(IllegalStateException.class, //
-				() -> JsonUtils.getAsType(Long[].class, JsonUtils.buildJsonArray().add(123).add("foo").build())
-						.getClass() //
+				() -> getAsType(Long[].class, buildJsonArray().add(123).add("foo").build()).getClass() //
 		);
 	}
 
 	@Test
 	public void testGetAsType2() throws OpenemsNamedException {
-		assertEquals((Boolean) null, JsonUtils.getAsType(OpenemsType.BOOLEAN, null));
-		assertEquals((Boolean) null, JsonUtils.getAsType(OpenemsType.BOOLEAN, JsonNull.INSTANCE));
-		assertEquals(true, JsonUtils.getAsType(OpenemsType.BOOLEAN, new JsonPrimitive(true)));
-		assertEquals(Double.valueOf(123D), JsonUtils.getAsType(OpenemsType.DOUBLE, new JsonPrimitive(123)));
-		assertEquals(Float.valueOf(123F), JsonUtils.getAsType(OpenemsType.FLOAT, new JsonPrimitive(123)));
-		assertEquals(Integer.valueOf(123), JsonUtils.getAsType(OpenemsType.INTEGER, new JsonPrimitive(123)));
-		assertEquals(Long.valueOf(123L), JsonUtils.getAsType(OpenemsType.LONG, new JsonPrimitive(123L)));
-		assertEquals(Short.valueOf((short) 123), JsonUtils.getAsType(OpenemsType.SHORT, new JsonPrimitive(123L)));
-		assertEquals("foo", JsonUtils.getAsType(OpenemsType.STRING, new JsonPrimitive("foo")));
+		assertEquals((Boolean) null, getAsType(OpenemsType.BOOLEAN, null));
+		assertEquals((Boolean) null, getAsType(OpenemsType.BOOLEAN, INSTANCE));
+		assertEquals(true, getAsType(OpenemsType.BOOLEAN, new JsonPrimitive(true)));
+		assertEquals(Double.valueOf(123D), getAsType(OpenemsType.DOUBLE, new JsonPrimitive(123)));
+		assertEquals(Float.valueOf(123F), getAsType(OpenemsType.FLOAT, new JsonPrimitive(123)));
+		assertEquals(Integer.valueOf(123), getAsType(OpenemsType.INTEGER, new JsonPrimitive(123)));
+		assertEquals(Long.valueOf(123L), getAsType(OpenemsType.LONG, new JsonPrimitive(123L)));
+		assertEquals(Short.valueOf((short) 123), getAsType(OpenemsType.SHORT, new JsonPrimitive(123L)));
+		assertEquals("foo", getAsType(OpenemsType.STRING, new JsonPrimitive("foo")));
 
 		assertThrows(NotImplementedException.class, //
-				() -> JsonUtils.getAsType(OpenemsType.BOOLEAN, new JsonObject()));
-		assertEquals("{}", JsonUtils.getAsType(OpenemsType.STRING, new JsonObject()));
-		assertEquals("[]", JsonUtils.getAsType(OpenemsType.STRING, new JsonArray()));
+				() -> getAsType(OpenemsType.BOOLEAN, new JsonObject()));
+		assertEquals("{}", getAsType(OpenemsType.STRING, new JsonObject()));
+		assertEquals("[]", getAsType(OpenemsType.STRING, new JsonArray()));
 	}
 
 	@Test
 	public void testGetAsTypeOptional() throws OpenemsNamedException {
 		assertAllThrow(NotImplementedException.class, //
-				() -> JsonUtils.getAsType(Optional.empty(), null), //
-				() -> JsonUtils.getAsType(Optional.empty(), new JsonPrimitive("foo")));
-		assertEquals("foo", JsonUtils.getAsType(Optional.of(String.class), new JsonPrimitive("foo")));
+				() -> getAsType(empty(), null), //
+				() -> getAsType(empty(), new JsonPrimitive("foo")));
+		assertEquals("foo", getAsType(Optional.of(String.class), new JsonPrimitive("foo")));
 	}
 
 	@Test
 	public void testGetAsZonedDateTime() throws OpenemsNamedException {
-		var j = JsonUtils.buildJsonObject() //
+		var j = buildJsonObject() //
 				.addProperty("date", "2000-12-30") //
 				.addProperty("foo", "bar") //
 				.build();
 		assertEquals(ZonedDateTime.of(2000, 12, 30, 0, 0, 0, 0, ZoneId.of("UTC")),
-				JsonUtils.getAsZonedDateWithZeroTime(j, "date", ZoneId.of("UTC")));
+				getAsZonedDateWithZeroTime(j, "date", ZoneId.of("UTC")));
 
-		assertOpenemsError(OpenemsError.JSON_NO_DATE_MEMBER, //
-				() -> JsonUtils.getAsZonedDateWithZeroTime(j, "foo", ZoneId.of("UTC")) //
+		assertOpenemsError(JSON_NO_DATE_MEMBER, //
+				() -> getAsZonedDateWithZeroTime(j, "foo", ZoneId.of("UTC")) //
 		);
 	}
 
 	@Test
 	public void testParse() throws OpenemsNamedException {
-		assertEquals(JsonUtils.buildJsonObject().addProperty("foo", "bar").build(),
-				JsonUtils.parse("{\"foo\": \"bar\"}"));
+		assertEquals(buildJsonObject().addProperty("foo", "bar").build(), parse("{\"foo\": \"bar\"}"));
 
-		assertOpenemsError(OpenemsError.JSON_PARSE_FAILED, //
-				() -> JsonUtils.parse("{]") //
+		assertOpenemsError(JSON_PARSE_FAILED, //
+				() -> parse("{]") //
 		);
 	}
 
 	@Test
 	public void testParseToJsonObject() throws OpenemsNamedException {
-		assertEquals(JsonUtils.buildJsonObject().addProperty("foo", "bar").build(),
-				JsonUtils.parseToJsonObject("{\"foo\": \"bar\"}"));
+		assertEquals(buildJsonObject().addProperty("foo", "bar").build(), parseToJsonObject("{\"foo\": \"bar\"}"));
 	}
 
 	@Test
 	public void testParseToJsonArray() throws OpenemsNamedException {
-		assertEquals(JsonUtils.buildJsonArray().add("foo").build(), JsonUtils.parseToJsonArray("[\"foo\"]"));
+		assertEquals(buildJsonArray().add("foo").build(), parseToJsonArray("[\"foo\"]"));
+	}
+
+	@Test
+	public void testPrettyToString() throws OpenemsNamedException {
+		assertEquals("""
+				{
+				  "Hello": "World",
+				  "Foo": [
+				    "A",
+				    123,
+				    true
+				  ],
+				  "Bar": null,
+				  "BarBar": null
+				}""", prettyToString(//
+				buildJsonObject() //
+						.addProperty("Hello", "World") //
+						.add("Foo", buildJsonArray() //
+								.add("A") //
+								.add(123) //
+								.add(true) //
+								.build()) //
+						.add("Bar", null) //
+						.add("BarBar", JsonNull.INSTANCE) //
+						.build()));
 	}
 
 	@Test
 	public void testIsEmptyJsonObject() throws OpenemsNamedException {
-		assertTrue(JsonUtils.isEmptyJsonObject(new JsonObject()));
-		assertFalse(JsonUtils.isEmptyJsonObject(JSON_OBJECT));
-		assertFalse(JsonUtils.isEmptyJsonObject(new JsonArray()));
-		assertFalse(JsonUtils.isEmptyJsonObject(null));
+		assertTrue(isEmptyJsonObject(new JsonObject()));
+		assertFalse(isEmptyJsonObject(JSON_OBJECT));
+		assertFalse(isEmptyJsonObject(new JsonArray()));
+		assertFalse(isEmptyJsonObject(null));
 	}
 
 	@Test
 	public void testIsEmptyJsonArray() throws OpenemsNamedException {
-		assertTrue(JsonUtils.isEmptyJsonArray(new JsonArray()));
-		assertFalse(JsonUtils.isEmptyJsonArray(JSON_ARRAY));
-		assertFalse(JsonUtils.isEmptyJsonArray(new JsonObject()));
-		assertFalse(JsonUtils.isEmptyJsonArray(null));
+		assertTrue(isEmptyJsonArray(new JsonArray()));
+		assertFalse(isEmptyJsonArray(JSON_ARRAY));
+		assertFalse(isEmptyJsonArray(new JsonObject()));
+		assertFalse(isEmptyJsonArray(null));
 	}
 
 	@Test
 	public void testGenerateJsonArray() {
 		var list = List.of("foo", "bar");
-		var r = JsonUtils.generateJsonArray(list, v -> new JsonPrimitive(v));
+		var r = generateJsonArray(list, v -> new JsonPrimitive(v));
 		assertEquals("foo", r.get(0).getAsString());
 		assertEquals("bar", r.get(1).getAsString());
 	}

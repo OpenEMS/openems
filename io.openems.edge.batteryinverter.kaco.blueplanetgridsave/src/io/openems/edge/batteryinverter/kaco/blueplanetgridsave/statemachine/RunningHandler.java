@@ -8,45 +8,23 @@ import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
+import io.openems.edge.common.type.TypeUtils;
 
 public class RunningHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
 		var inverter = context.getParent();
-
-		if (inverter.hasFaults()) {
-			return State.UNDEFINED;
+		if (inverter.hasFailure() || !inverter.isRunning()) {
+			return State.ERROR;
 		}
 
-		switch (inverter.getCurrentState()) {
-		case FAULT:
-		case GRID_PRE_CONNECTED:
-		case MPPT:
-		case NO_ERROR_PENDING:
-		case OFF:
-		case PRECHARGE:
-		case SHUTTING_DOWN:
-		case SLEEPING:
-		case STANDBY:
-		case STARTING:
-		case UNDEFINED:
-			return State.UNDEFINED;
-
-		case GRID_CONNECTED:
-			// All Good
-
-		case THROTTLED:
-			// if inverter is throttled, full power is not available, but the device
-			// is still working
+		if (inverter.getStartStopTarget() == StartStop.STOP) {
+			return State.GO_STOPPED;
 		}
 
-		// Mark as started
-		inverter._setStartStop(StartStop.START);
-
-		// Apply Active and Reactive Power Set-Points
 		this.applyPower(context);
-
+		inverter._setStartStop(StartStop.START);
 		return State.RUNNING;
 	}
 
@@ -66,6 +44,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 		// Active Power Set-Point is set in % of maximum active power
 		FloatWriteChannel wSetPctChannel = inverter.getSunSpecChannelOrError(KacoSunSpecModel.S64201.W_SET_PCT);
 		var wSetPct = context.setActivePower * 100F / maxApparentPower;
+		wSetPct = TypeUtils.fitWithin(-100F, 100F, wSetPct);
 		wSetPctChannel.setNextWriteValue(wSetPct);
 
 		// Reactive Power Set-Point is set in % of maximum active power
@@ -73,5 +52,4 @@ public class RunningHandler extends StateHandler<State, Context> {
 		var varSetPct = context.setReactivePower * 100F / maxApparentPower;
 		varSetPctChannel.setNextWriteValue(varSetPct);
 	}
-
 }

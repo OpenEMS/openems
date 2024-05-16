@@ -12,17 +12,15 @@ import { EssChargerComponent } from "./esscharger/modal.component";
         BrowserModule,
         IonicModule,
         PipeModule,
-        Generic_ComponentsModule
-    ],
-    entryComponents: [
+        Generic_ComponentsModule,
     ],
     declarations: [
         ElectricityMeterComponent,
-        EssChargerComponent
+        EssChargerComponent,
     ],
     exports: [
         ElectricityMeterComponent,
-        EssChargerComponent
-    ]
+        EssChargerComponent,
+    ],
 })
 export class MeterModule { }

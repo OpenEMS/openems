@@ -1,12 +1,15 @@
+// @ts-strict-ignore
 import { registerLocaleData } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, ToastController } from '@ionic/angular';
+import { ToastController } from '@ionic/angular';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { filter, first, take } from 'rxjs/operators';
+import { ChosenFilter } from 'src/app/index/filter/filter.component';
 import { environment } from 'src/environments';
+
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
 import { JsonrpcResponseError } from '../jsonrpc/base';
@@ -23,6 +26,7 @@ import { Role } from '../type/role';
 import { AbstractService } from './abstractservice';
 import { DefaultTypes } from './defaulttypes';
 import { Websocket } from './websocket';
+import { DateUtils } from '../utils/date/dateutils';
 
 @Injectable()
 export class Service extends AbstractService {
@@ -62,6 +66,8 @@ export class Service extends AbstractService {
     user: User, edges: { [edgeId: string]: Edge }
   }> = new BehaviorSubject(null);
 
+  public currentUser: User | null = null;
+
   /**
    * Holds reference to Websocket. This is set by Websocket in constructor.
    */
@@ -71,8 +77,7 @@ export class Service extends AbstractService {
     private router: Router,
     private spinner: NgxSpinnerService,
     private toaster: ToastController,
-    public modalCtrl: ModalController,
-    public translate: TranslateService
+    public translate: TranslateService,
   ) {
     super();
     // add language
@@ -111,7 +116,7 @@ export class Service extends AbstractService {
     this.notificationEvent.next(notification);
   }
 
-  public handleError(error: any) {
+  public override handleError(error: any) {
     console.error(error);
     // TODO: show notification
     // let notification: Notification = {
@@ -136,7 +141,7 @@ export class Service extends AbstractService {
         } else {
           // Translate from key
           this.translate.get(currentPageTitle.languageKey, currentPageTitle.interpolateParams).pipe(
-            take(1)
+            take(1),
           ).subscribe(title => this.currentPageTitle = title);
         }
       }
@@ -153,7 +158,7 @@ export class Service extends AbstractService {
     return new Promise<Edge>((resolve) => {
       this.currentEdge.pipe(
         filter(edge => edge != null),
-        first()
+        first(),
       ).toPromise().then(resolve);
       if (this.currentEdge.value) {
         resolve(this.currentEdge.value);
@@ -166,7 +171,7 @@ export class Service extends AbstractService {
       this.getCurrentEdge().then(edge => {
         edge.getConfig(this.websocket).pipe(
           filter(config => config != null && config.isValid()),
-          first()
+          first(),
         ).toPromise()
           .then(config => resolve(config))
           .catch(reason => reject(reason));
@@ -178,26 +183,26 @@ export class Service extends AbstractService {
   public onLogout() {
     this.currentEdge.next(null);
     this.metadata.next(null);
-    this.router.navigate(['/index']);
+    this.router.navigate(['/login']);
   }
 
   public getChannelAddresses(edge: Edge, channels: ChannelAddress[]): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
       resolve(channels);
     });
-  };
+  }
 
   public queryEnergy(fromDate: Date, toDate: Date, channels: ChannelAddress[]): Promise<QueryHistoricTimeseriesEnergyResponse> {
     // keep only the date, without time
     fromDate.setHours(0, 0, 0, 0);
     toDate.setHours(0, 0, 0, 0);
-    let promise = { resolve: null, reject: null };
-    let response = new Promise<QueryHistoricTimeseriesEnergyResponse>((resolve, reject) => {
+    const promise = { resolve: null, reject: null };
+    const response = new Promise<QueryHistoricTimeseriesEnergyResponse>((resolve, reject) => {
       promise.resolve = resolve;
       promise.reject = reject;
     });
     this.queryEnergyQueue.push(
-      { fromDate: fromDate, toDate: toDate, channels: channels, promises: [promise] }
+      { fromDate: fromDate, toDate: toDate, channels: channels, promises: [promise] },
     );
     // try to merge requests within 100 ms
     if (this.queryEnergyTimeout == null) {
@@ -206,23 +211,23 @@ export class Service extends AbstractService {
         this.queryEnergyTimeout = null;
 
         // merge requests
-        let mergedRequests: {
+        const mergedRequests: {
           fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[];
         }[] = [];
         let request;
-        while (request = this.queryEnergyQueue.pop()) {
+        while ((request = this.queryEnergyQueue.pop())) {
           if (mergedRequests.length == 0) {
             mergedRequests.push(request);
           } else {
             let merged = false;
-            for (let mergedRequest of mergedRequests) {
+            for (const mergedRequest of mergedRequests) {
               if (mergedRequest.fromDate.valueOf() === request.fromDate.valueOf()
                 && mergedRequest.toDate.valueOf() === request.toDate.valueOf()) {
                 // same date -> merge
                 mergedRequest.promises = mergedRequest.promises.concat(request.promises);
-                for (let newChannel of request.channels) {
+                for (const newChannel of request.channels) {
                   let isAlreadyThere = false;
-                  for (let existingChannel of mergedRequest.channels) {
+                  for (const existingChannel of mergedRequest.channels) {
                     if (existingChannel.channelId == newChannel.channelId && existingChannel.componentId == newChannel.componentId) {
                       isAlreadyThere = true;
                       break;
@@ -243,27 +248,27 @@ export class Service extends AbstractService {
 
         // send merged requests
         this.getCurrentEdge().then(edge => {
-          for (let source of mergedRequests) {
+          for (const source of mergedRequests) {
 
             // Jump to next request for empty channelAddresses
             if (source.channels.length == 0) {
               continue;
             }
 
-            let request = new QueryHistoricTimeseriesEnergyRequest(source.fromDate, source.toDate, source.channels);
+            const request = new QueryHistoricTimeseriesEnergyRequest(DateUtils.maxDate(source.fromDate, edge?.firstSetupProtocol), source.toDate, source.channels);
             edge.sendRequest(this.websocket, request).then(response => {
-              let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
+              const result = (response as QueryHistoricTimeseriesEnergyResponse).result;
               if (Object.keys(result.data).length != 0) {
-                for (let promise of source.promises) {
+                for (const promise of source.promises) {
                   promise.resolve(response as QueryHistoricTimeseriesEnergyResponse);
                 }
               } else {
-                for (let promise of source.promises) {
+                for (const promise of source.promises) {
                   promise.reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
                 }
               }
             }).catch(reason => {
-              for (let promise of source.promises) {
+              for (const promise of source.promises) {
                 promise.reject(reason);
               }
             });
@@ -276,35 +281,38 @@ export class Service extends AbstractService {
 
   /**
    * Gets the page for the given number.
-   * 
+   *
    * @param page the page number
    * @param query the query to restrict the edgeId
    * @param limit the number of edges to be retrieved
    * @returns a Promise
    */
-  public getEdges(page: number, query?: string, limit?: number): Promise<Edge[]> {
+  public getEdges(page: number, query?: string, limit?: number, searchParamsObj?: { [id: string]: ChosenFilter['value'] }): Promise<Edge[]> {
     return new Promise<Edge[]>((resolve, reject) => {
       this.websocket.sendSafeRequest(
         new GetEdgesRequest({
           page: page,
           ...(query && query != "" && { query: query }),
-          ...(limit && { limit: limit })
+          ...(limit && { limit: limit }),
+          ...(searchParamsObj && { searchParams: searchParamsObj }),
         })).then((response) => {
 
           const result = (response as GetEdgesResponse).result;
 
           // TODO change edges-map to array or other way around
-          let value = this.metadata.value;
-          let mappedResult = [];
-          for (let edge of result.edges) {
-            let mappedEdge = new Edge(
+          const value = this.metadata.value;
+          const mappedResult = [];
+          for (const edge of result.edges) {
+            const mappedEdge = new Edge(
               edge.id,
               edge.comment,
               edge.producttype,
               ("version" in edge) ? edge["version"] : "0.0.0",
               Role.getRole(edge.role.toString()),
               edge.isOnline,
-              edge.lastmessage
+              edge.lastmessage,
+              edge.sumState,
+              DateUtils.stringToDate(edge.firstSetupProtocol?.toString()),
             );
             value.edges[edge.id] = mappedEdge;
             mappedResult.push(mappedEdge);
@@ -320,7 +328,7 @@ export class Service extends AbstractService {
 
   /**
    * Updates the currentEdge in metadata
-   * 
+   *
    * @param edgeId the edgeId
    * @returns a empty Promise
    */
@@ -333,8 +341,8 @@ export class Service extends AbstractService {
         return;
       }
       this.websocket.sendSafeRequest(new GetEdgeRequest({ edgeId: edgeId })).then((response) => {
-        let edgeData = (response as GetEdgeResponse).result.edge;
-        let value = this.metadata.value;
+        const edgeData = (response as GetEdgeResponse).result.edge;
+        const value = this.metadata.value;
         const currentEdge = new Edge(
           edgeData.id,
           edgeData.comment,
@@ -342,9 +350,9 @@ export class Service extends AbstractService {
           ("version" in edgeData) ? edgeData["version"] : "0.0.0",
           Role.getRole(edgeData.role.toString()),
           edgeData.isOnline,
-          edgeData.lastmessage
-        );
-
+          edgeData.lastmessage,
+          edgeData.sumState,
+          DateUtils.stringToDate(edgeData.firstSetupProtocol?.toString()));
         this.currentEdge.next(currentEdge);
         value.edges[edgeData.id] = currentEdge;
         this.metadata.next(value);
@@ -364,7 +372,7 @@ export class Service extends AbstractService {
       fullScreen: false,
       bdColor: "rgba(0, 0, 0, 0.8)",
       size: "medium",
-      color: "#fff"
+      color: "#fff",
     });
   }
 
@@ -374,7 +382,7 @@ export class Service extends AbstractService {
       fullScreen: false,
       bdColor: "rgba(0, 0, 0, 0)",
       size: "medium",
-      color: "var(--ion-color-primary)"
+      color: "var(--ion-color-primary)",
     });
   }
 
@@ -382,12 +390,12 @@ export class Service extends AbstractService {
     this.spinner.hide(selector);
   }
 
-  public async toast(message: string, level: 'success' | 'warning' | 'danger') {
+  public async toast(message: string, level: 'success' | 'warning' | 'danger', duration?: number) {
     const toast = await this.toaster.create({
       message: message,
       color: level,
-      duration: 2000,
-      cssClass: 'container'
+      duration: duration ?? 2000,
+      cssClass: 'container',
     });
     toast.present();
   }
@@ -399,7 +407,7 @@ export class Service extends AbstractService {
 
   /**
    * Currently selected history period string
-   * 
+   *
    * initialized as day, is getting changed by pickdate component
    */
   public periodString: DefaultTypes.PeriodString = DefaultTypes.PeriodString.DAY;

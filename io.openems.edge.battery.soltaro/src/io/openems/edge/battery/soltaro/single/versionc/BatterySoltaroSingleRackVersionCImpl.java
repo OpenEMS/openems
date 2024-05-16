@@ -3,6 +3,7 @@ package io.openems.edge.battery.soltaro.single.versionc;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
@@ -27,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectionDefinitionSoltaro3500Wh;
@@ -42,9 +42,9 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
@@ -152,22 +152,9 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 	 * Gets the Number of Modules.
 	 *
 	 * @return the Number of Modules as a {@link CompletableFuture}.
-	 * @throws OpenemsException on error
 	 */
 	private CompletableFuture<Integer> getNumberOfModules() {
-		final var result = new CompletableFuture<Integer>();
-		try {
-			ModbusUtils.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(0x20C1), true)
-					.thenAccept(numberOfModules -> {
-						if (numberOfModules == null) {
-							return;
-						}
-						result.complete(numberOfModules);
-					});
-		} catch (OpenemsException e) {
-			result.completeExceptionally(e);
-		}
-		return result;
+		return readElementOnce(this.getModbusProtocol(), ModbusUtils::retryOnNull, new UnsignedWordElement(0x20C1));
 	}
 
 	@Override
@@ -215,14 +202,11 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc() //
-				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
-				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
-				+ "|State:" + this.stateMachine.getCurrentState();
+		return Battery.generateDebugLog(this, this.stateMachine);
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		var protocol = new ModbusProtocol(this, //
 				new FC6WriteRegisterTask(0x2004, //
 						m(BatterySoltaroSingleRackVersionC.ChannelId.SYSTEM_RESET, new UnsignedWordElement(0x2004)) //
@@ -421,7 +405,6 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 								.bit(6, BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_CHARGE_TEMP_HIGH) //
 								.bit(7, BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_CHARGE_TEMP_LOW) //
 								.bit(8, BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_SOC_LOW) //
-								.bit(9, BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_TEMP_DIFF_TOO_BIG) //
 								.bit(10, BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_POWER_POLE_HIGH) //
 								.bit(11, BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG) //
 								.bit(12, BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_INSULATION_FAIL) //
@@ -486,7 +469,7 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 								.bit(12, BatterySoltaroSingleRackVersionC.ChannelId.SLAVE_BMS_INIT)//
 						))); //
 		{
-			AbstractModbusElement<?>[] elements = {
+			ModbusElement[] elements = {
 					m(BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_CELL_OVER_VOLTAGE_ALARM,
 							new UnsignedWordElement(0x2080)), //
 					m(BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_CELL_OVER_VOLTAGE_RECOVER,
@@ -559,7 +542,7 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 
 		// WARN_LEVEL1 (Level1 warning registers RW)
 		{
-			AbstractModbusElement<?>[] elements = {
+			ModbusElement[] elements = {
 					m(BatterySoltaroSingleRackVersionC.ChannelId.LEVEL1_CELL_OVER_VOLTAGE_PROTECTION,
 							new UnsignedWordElement(0x2040)), //
 					m(BatterySoltaroSingleRackVersionC.ChannelId.LEVEL1_CELL_OVER_VOLTAGE_RECOVER,
@@ -632,7 +615,7 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 
 		// WARN_LEVEL2 (Level2 Protection registers RW)
 		{
-			AbstractModbusElement<?>[] elements = {
+			ModbusElement[] elements = {
 					m(BatterySoltaroSingleRackVersionC.ChannelId.LEVEL2_CELL_OVER_VOLTAGE_PROTECTION,
 							new UnsignedWordElement(0x2400)), //
 					m(BatterySoltaroSingleRackVersionC.ChannelId.LEVEL2_CELL_OVER_VOLTAGE_RECOVER,
@@ -719,7 +702,7 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 		 */
 		Consumer<CellChannelFactory.Type> addCellChannels = type -> {
 			for (var i = 0; i < numberOfModules; i++) {
-				var elements = new AbstractModbusElement<?>[type.getSensorsPerModule()];
+				var elements = new ModbusElement[type.getSensorsPerModule()];
 				for (var j = 0; j < type.getSensorsPerModule(); j++) {
 					var sensorIndex = i * type.getSensorsPerModule() + j;
 					var channelId = CellChannelFactory.create(type, sensorIndex);
@@ -735,14 +718,8 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 				}
 				// Add a Modbus read task for this module
 				var startAddress = type.getOffset() + i * type.getSensorsPerModule();
-				try {
-					this.getModbusProtocol().addTask(//
-							new FC3ReadRegistersTask(startAddress, Priority.LOW, elements));
-				} catch (OpenemsException e) {
-					this.logWarn(this.log, "Error while adding Modbus task for slave [" + i + "] starting at ["
-							+ startAddress + "]: " + e.getMessage());
-					e.printStackTrace();
-				}
+				this.getModbusProtocol().addTask(//
+						new FC3ReadRegistersTask(startAddress, Priority.LOW, elements));
 			}
 		};
 		addCellChannels.accept(CellChannelFactory.Type.VOLTAGE_SINGLE);

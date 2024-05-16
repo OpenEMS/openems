@@ -83,9 +83,10 @@ $font-family: var(--ion-font-family);
 
   /** font **/
   --ion-font-family: "Roboto", "Helvetica Neue", sans-serif;
-  --ion-background-color: #fff;
+  --ion-color-background: #fff;
+  --ion-color-text: #444444;
 }
-  
+
 /** Custom Colors **/
 :root {
   --ion-color-environmental: #8abd46;

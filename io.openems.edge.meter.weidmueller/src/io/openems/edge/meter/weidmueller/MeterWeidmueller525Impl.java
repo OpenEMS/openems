@@ -81,7 +81,7 @@ public class MeterWeidmueller525Impl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(19000, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(19000)), //

@@ -8,6 +8,11 @@
       "files": [
         "*.ts"
       ],
+      "env": {
+        "browser": true,
+        "node": true,
+        "jest": true
+      },
       "parserOptions": {
         "project": [
           "tsconfig.json"
@@ -18,13 +23,15 @@
         "unused-imports"
       ],
       "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
         "plugin:@angular-eslint/recommended",
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
         "unused-imports/no-unused-imports": "error",
         "semi": [
-          "warn",
+          "error",
           "always"
         ],
         "quote-props": [
@@ -59,7 +66,31 @@
         "curly": "error",
         "comma-dangle": [
           "error",
-          "never"
+          "always-multiline"
+        ],
+        "eol-last": [
+          "error",
+          "always"
+        ],
+        "no-trailing-spaces": "error",
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            "args": "none"
+          }
+        ],
+        "@typescript-eslint/no-explicit-any": 0,
+        "@typescript-eslint/no-namespace": 0,
+        "@typescript-eslint/ban-types": [
+          "error",
+          {
+            "extendDefaults": true,
+            "types": {
+              "{}": false,
+              "Object": false,
+              "Function": false
+            }
+          }
         ]
       }
     },

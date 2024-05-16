@@ -1,7 +1,7 @@
 FROM gitpod/workspace-postgres
 
 RUN bash -c ". /home/gitpod/.sdkman/bin/sdkman-init.sh \
-             && sdk install java 17.0.6-tem"
+             && sdk install java 21.0.2-tem"
 
 # disable angular analytics
 ENV NG_CLI_ANALYTICS=false
@@ -12,7 +12,7 @@ ENV TRIGGER_REBUILD 4
 RUN npm install -g @angular/cli 
 
 # Install odoo
-ENV ODOO_VERSION 15.0
+ENV ODOO_VERSION 16.0
 ENV ODOO_RELEASE latest
 RUN curl -o odoo.deb -sSL http://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/odoo_${ODOO_VERSION}.${ODOO_RELEASE}_all.deb \
     && sudo apt-get update \

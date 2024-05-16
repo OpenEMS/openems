@@ -3,7 +3,7 @@ import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractMo
 import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
 
 @Component({
-    templateUrl: './modal.html'
+    templateUrl: './modal.html',
 })
 export class ModalComponent extends AbstractModal {
 
@@ -16,7 +16,7 @@ export class ModalComponent extends AbstractModal {
     public isAsymmetric: boolean = false;
 
     protected override getChannelAddresses() {
-        let channelAddresses: ChannelAddress[] = [];
+        const channelAddresses: ChannelAddress[] = [];
 
         // Get Chargers
         this.chargerComponents =

@@ -2,6 +2,7 @@ package io.openems.edge.timedata.influxdb;
 
 import org.junit.Test;
 
+import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -17,6 +18,7 @@ public class TimedataInfluxDbImplTest {
 		new ComponentTest(new TimedataInfluxDbImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cycle", new DummyCycle(1000)) //
+				.addReference("oem", new DummyOpenemsEdgeOem()) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setQueryLanguage(QueryLanguageConfig.INFLUX_QL) //
@@ -24,6 +26,7 @@ public class TimedataInfluxDbImplTest {
 						.setOrg("-") //
 						.setApiKey("username:password") //
 						.setBucket("database/retentionPolicy") //
+						.setMeasurement("data") //
 						.setNoOfCycles(1) //
 						.setMaxQueueSize(5000) //
 						.setReadOnly(false) //

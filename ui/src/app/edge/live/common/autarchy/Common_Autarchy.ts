@@ -7,18 +7,14 @@ import { ModalComponent } from './modal/modal';
 @NgModule({
   imports: [
     BrowserModule,
-    SharedModule
-  ],
-  entryComponents: [
-    FlatComponent,
-    ModalComponent
+    SharedModule,
   ],
   declarations: [
     FlatComponent,
-    ModalComponent
+    ModalComponent,
   ],
   exports: [
-    FlatComponent
-  ]
+    FlatComponent,
+  ],
 })
 export class Common_Autarchy { }

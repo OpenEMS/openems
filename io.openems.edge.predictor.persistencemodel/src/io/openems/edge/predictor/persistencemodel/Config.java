@@ -3,6 +3,8 @@ package io.openems.edge.predictor.persistencemodel;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.predictor.api.prediction.LogVerbosity;
+
 @ObjectClassDefinition(//
 		name = "Predictor Persistence-Model", //
 		description = "")
@@ -18,10 +20,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Channel-Addresses", description = "List of Channel-Addresses this Predictor is used for, e.g. '*/ActivePower', '*/ActualPower'")
-	// TODO "_sum/ConsumptionActivePower" holds also actively controlled
-	// consumption; replace, once we introduce a
-	// 'Sum-Non-Regulated-Consumption'-Channel
-	String[] channelAddresses() default { "_sum/ProductionActivePower", "_sum/ConsumptionActivePower" };
+	String[] channelAddresses() default { //
+			"_sum/ProductionActivePower", //
+			"_sum/UnmanagedConsumptionActivePower", //
+			"_sum/ConsumptionActivePower" };
+
+	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
+	LogVerbosity logVerbosity() default LogVerbosity.NONE;
 
 	String webconsole_configurationFactory_nameHint() default "Predictor Persistence-Model [{id}]";
 

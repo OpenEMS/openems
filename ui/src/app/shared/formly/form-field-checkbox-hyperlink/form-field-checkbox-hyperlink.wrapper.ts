@@ -1,10 +1,11 @@
+// @ts-strict-ignore
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { FieldWrapper } from '@ngx-formly/core';
 
 @Component({
     selector: 'form-field-checkbox-hyperlink',
     templateUrl: './form-field-checkbox-hyperlink.wrapper.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormlyCheckBoxHyperlinkWrapperComponent extends FieldWrapper implements OnInit {
 

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 
@@ -12,7 +13,7 @@ import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
             <span *ngSwitchCase="'TEMPORARY'" translate>Edge.Index.Energymonitor.ERROR_TEMPORARY</span>
         </ng-container>
     </ion-label>
-</ion-item>`
+</ion-item>`,
 })
 export class HistoryDataErrorComponent {
 
@@ -27,12 +28,12 @@ export class HistoryDataErrorComponent {
 type ErrorType = 'TEMPORARY' | 'TOO_LONG' | null;
 
 function toType(response: JsonrpcResponseError | null): ErrorType {
-    let message = response?.error?.message;
+    const message = response?.error?.message;
     if (message === undefined) {
         return null;
     }
     switch (message) {
-        case "Die Anzeige und der Export von Daten über einen längeren Zeitraum ist derzeit leider nicht möglich":
+        case "Die Anzeige und der Export von Daten Ã¼ber einen lÃ¤ngeren Zeitraum ist derzeit leider nicht mÃ¶glich":
             return 'TOO_LONG';
         default:
             return 'TEMPORARY';

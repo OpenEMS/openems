@@ -1,11 +1,12 @@
 import { TestBed } from "@angular/core/testing";
 import { ModalController } from "@ionic/angular";
+
+import { PersistencePriority } from "../../edge/edgeconfig";
 import { DummyService } from "../../service/test/dummyservice";
 import { DummyWebsocket } from "../../service/test/dummywebsocket";
 import { EdgeConfig, Service, Websocket } from "../../shared";
 import { DummyModalController } from "../../test/DummyModalController";
 import { StatusSingleComponent } from "./status.component";
-
 
 describe('StatusComponent', () => {
     const testComponent = new EdgeConfig.Component("test", {}, {
@@ -14,8 +15,9 @@ describe('StatusComponent', () => {
             category: "ENUM",
             type: "BOOLEAN",
             unit: "W",
-            level: "OK"
-        }
+            level: "OK",
+            persistencePriority: PersistencePriority.HIGH,
+        },
     });
     let statusComponent: StatusSingleComponent;
     // initialize variables only in beforeEach, beforeAll
@@ -26,8 +28,8 @@ describe('StatusComponent', () => {
                 StatusSingleComponent,
                 { provide: ModalController, useClass: DummyModalController },
                 { provide: Service, useClass: DummyService },
-                { provide: Websocket, useClass: DummyWebsocket }
-            ]
+                { provide: Websocket, useClass: DummyWebsocket },
+            ],
         });
         statusComponent = TestBed.inject(StatusSingleComponent);
     }));
@@ -41,8 +43,3 @@ describe('StatusComponent', () => {
         });
     });
 });
-
-// TODO dummy classes for needed services
-class Dummy {
-
-}

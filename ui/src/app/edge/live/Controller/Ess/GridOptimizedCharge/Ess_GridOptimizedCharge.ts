@@ -8,20 +8,15 @@ import { PredictionChartComponent } from './modal/predictionChart';
 @NgModule({
     imports: [
         BrowserModule,
-        SharedModule
-    ],
-    entryComponents: [
-        FlatComponent,
-        ModalComponent,
-        PredictionChartComponent
+        SharedModule,
     ],
     declarations: [
         FlatComponent,
         ModalComponent,
-        PredictionChartComponent
+        PredictionChartComponent,
     ],
     exports: [
-        FlatComponent
-    ]
+        FlatComponent,
+    ],
 })
 export class Controller_Ess_GridOptimizedCharge { }

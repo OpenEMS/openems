@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
@@ -5,6 +6,12 @@ import { TranslateService } from "@ngx-translate/core";
 import { Edge, EdgeConfig, Service, Websocket } from "../../shared";
 import { Role } from "../../type/role";
 import { Icon } from "../../type/widget";
+
+export enum Status {
+    SUCCESS,
+    ERROR,
+    PENDING
+}
 
 @Component({
     selector: 'oe-modal',
@@ -14,7 +21,7 @@ import { Icon } from "../../type/widget";
             height: 100%;
             font-size: 0.9em;
         }
-    `]
+    `],
 })
 export class ModalComponent {
 
@@ -24,10 +31,12 @@ export class ModalComponent {
     /** Title in Header */
     @Input() public title: string;
 
-    @Input() protected toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | null = null;
+    @Input() protected toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | {
+        callback: () =>
+            {}, icon: Icon
+    } | null = null;
 
     @Input() protected helpKey: string | null = null;
-
     public readonly Role = Role;
 
     private edge: Edge = null;
@@ -36,16 +45,18 @@ export class ModalComponent {
         public modalController: ModalController,
         private websocket: Websocket,
         private service: Service,
-        private translate: TranslateService
+        private translate: TranslateService,
     ) {
         this.service.getCurrentEdge().then(edge => this.edge = edge);
     }
 
     // Changes applied together
     public applyChanges() {
-        let updateComponentArray: { name: string, value: any }[] = [];
-        for (let key in this.formGroup.controls) {
-            let control = this.formGroup.controls[key];
+        const updateComponentArray: { name: string, value: any }[] = [];
+        this.service.startSpinner('spinner');
+        for (const key in this.formGroup.controls) {
+            const control = this.formGroup.controls[key];
+            this.formGroup.controls[key];
 
             // Check if formControl-value didn't change
             if (control.pristine) {
@@ -54,7 +65,7 @@ export class ModalComponent {
 
             updateComponentArray.push({
                 name: key,
-                value: this.formGroup.value[key]
+                value: this.formGroup.value[key],
             });
         }
 
@@ -64,7 +75,7 @@ export class ModalComponent {
                     this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
                 }).catch(reason => {
                     this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-                });
+                }).finally(() => this.service.stopSpinner('spinner'));
         }
         this.formGroup.markAsPristine();
     }

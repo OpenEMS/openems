@@ -1,15 +1,14 @@
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
 
-
 /**
  * Gets if the key is free.
- * 
+ *
  * <p>
  * Note: This Request needs to be wrapped in a appCenter Request.
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -20,10 +19,10 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/b
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -41,9 +40,9 @@ export namespace AppCenterIsAppFree {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
                 appId: string,
-            }
+            },
         ) {
             super(METHOD, params);
         }
@@ -52,10 +51,10 @@ export namespace AppCenterIsAppFree {
     export class Response extends JsonrpcResponseSuccess {
 
         public constructor(
-            public readonly id: string,
-            public readonly result: {
+            public override readonly id: string,
+            public override readonly result: {
                 isAppFree: boolean
-            }
+            },
         ) {
             super(id, result);
         }

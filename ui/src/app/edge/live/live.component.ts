@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -5,7 +6,7 @@ import { Edge, EdgeConfig, Service, Utils, Websocket, Widgets } from 'src/app/sh
 
 @Component({
   selector: 'live',
-  templateUrl: './live.component.html'
+  templateUrl: './live.component.html',
 })
 export class LiveComponent implements OnInit, OnDestroy {
 
@@ -18,7 +19,7 @@ export class LiveComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     public service: Service,
     protected utils: Utils,
-    protected websocket: Websocket
+    protected websocket: Websocket,
   ) { }
 
   public ngOnInit() {

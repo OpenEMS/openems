@@ -27,6 +27,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ChannelMetaInfoReadAndWrite;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -55,7 +56,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 				"type=PRODUCTION" //
 		})
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class PvInverterSolarlogImpl extends AbstractOpenemsModbusComponent
 		implements PvInverterSolarlog, ManagedSymmetricPvInverter, ElectricityMeter, ModbusComponent, OpenemsComponent,
@@ -112,7 +114,7 @@ public class PvInverterSolarlogImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(3500, Priority.HIGH,
 						m(PvInverterSolarlog.ChannelId.LAST_UPDATE_TIME,
@@ -123,8 +125,7 @@ public class PvInverterSolarlogImpl extends AbstractOpenemsModbusComponent
 								new SignedDoublewordElement(3504).wordOrder(WordOrder.LSWMSW)),
 						m(ElectricityMeter.ChannelId.VOLTAGE, new SignedWordElement(3506), SCALE_FACTOR_3),
 						m(PvInverterSolarlog.ChannelId.UDC, new SignedWordElement(3507), SCALE_FACTOR_2),
-						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
-								new SignedDoublewordElement(3508).wordOrder(WordOrder.LSWMSW)),
+						new DummyRegisterElement(3508, 3509), //
 						m(PvInverterSolarlog.ChannelId.YESTERDAY_YIELD,
 								new SignedDoublewordElement(3510).wordOrder(WordOrder.LSWMSW)),
 						m(PvInverterSolarlog.ChannelId.MONTHLY_YIELD,

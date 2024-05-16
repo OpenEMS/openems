@@ -19,7 +19,7 @@ dependencies {
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(project.java_source as Integer)
 	}
 }
 
@@ -35,6 +35,7 @@ subprojects {
 	}
 	
 	tasks.withType(JavaCompile) {
+		options.release.set(project.java_target as Integer)
 		options.encoding = 'UTF-8'
 		options.fork = true
 		options.incremental = true
@@ -77,6 +78,7 @@ subprojects {
 			reports {
 				xml.required = false
 				html.required = false
+				sarif.required = false
 			}
 			minHeapSize = "256m"
 			maxHeapSize = "1g"
@@ -99,6 +101,17 @@ task cleanEdge() {
 			if (proj.tasks.findAll { it.name == 'clean' }) {
 				dependsOn(proj.clean)
 			}
+		}
+	}
+}
+
+task checkstyleAll() {
+	group 'OpenEMS-Build'
+	description 'Checkstyle all bundles'
+
+	subprojects.each { proj ->
+		if (proj.tasks.findAll { it.name == 'checkstyleMain' }) {
+			dependsOn(proj.checkstyleMain)
 		}
 	}
 }
@@ -247,13 +260,14 @@ task copyBundleReadmes() {
 		def targetBridge = basePath + "edge/bridge.adoc.d"
 		def targetDeviceService = basePath + "edge/device_service.adoc.d"
 		def targetTimedata = basePath + "edge/timedata.adoc.d"
-	
+		def targetBackendService = basePath + "backend/service.adoc.d"
+
 		// initialize target files and directories
-		[targetController, targetScheduler, targetNature, targetBridge, targetDeviceService, targetTimedata].each { target ->
-			delete fileTree(dir: target, include: '**/*.adoc') 
+		[targetController, targetScheduler, targetNature, targetBridge, targetDeviceService, targetTimedata, targetBackendService].each { target ->
+			delete fileTree(dir: target, include: '**/*.adoc')
 			new File(target + "/_include.adoc").write('')
 		}
-	
+
 		subprojects.each { proj ->
 			// in each subproject (= bundle)...
 			proj.file(".").listFiles().each { sourceFile ->
@@ -261,29 +275,35 @@ task copyBundleReadmes() {
 				if(sourceFile.getName().equalsIgnoreCase("readme.adoc")) {
 					def bundle = sourceFile.getParentFile().getName()
 					def target = null
-					// evaluate the OpenEMS Component ('Backend' or 'Edge')
+
 					if(bundle.startsWith("io.openems.edge.")) {
-					// evaluate the bundle type (e.g. 'Controller')
-					def edgeBundle = bundle.substring("io.openems.edge.".length())
-					if(edgeBundle.endsWith(".api")) {
-						target = targetNature
-					} else if(edgeBundle.startsWith("controller.")) {
-						target = targetController
-					} else if(edgeBundle.startsWith("scheduler.")) {
-						target = targetScheduler
-					} else if(edgeBundle.startsWith("bridge.")) {
-						target = targetBridge
-					} else if(edgeBundle.startsWith("timedata.")) {
-						target = targetTimedata
-					} else {
-						target = targetDeviceService
-					}
+						def edgeBundle = bundle.substring("io.openems.edge.".length())
+						if(edgeBundle.endsWith(".api")) {
+							target = targetNature
+						} else if(edgeBundle.startsWith("controller.")) {
+							target = targetController
+						} else if(edgeBundle.startsWith("scheduler.")) {
+							target = targetScheduler
+						} else if(edgeBundle.startsWith("bridge.")) {
+							target = targetBridge
+						} else if(edgeBundle.startsWith("timedata.")) {
+							target = targetTimedata
+						} else {
+							target = targetDeviceService
+						}
 	
 					} else if(bundle.startsWith("io.openems.backend.")) {
-						// ignore
-						return
-	
-					} else if(bundle.startsWith("io.openems.wrapper")) {
+						def backendBundle = bundle.substring("io.openems.backend.".length())
+						if(backendBundle.startsWith("timedata.")) {
+							target = targetBackendService
+						} else if(backendBundle.startsWith("metadata.")) {
+							target = targetBackendService
+						} else {
+							return // ignore
+						}
+
+					} else if(bundle.startsWith("io.openems.wrapper")
+						|| bundle.startsWith("io.openems.oem.")) {
 						// ignore
 						return
 					}

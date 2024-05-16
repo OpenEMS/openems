@@ -11,9 +11,10 @@
           <ng-container
             *ngFor="let changelog of changelogs | slice:0:(showAll ? changelogs.length : slice);  let last = last;">
             <ion-row>
-              <ion-title>
+              <ion-label *ngIf="changelog.title" style="font-size:large">{{ changelog.title }}</ion-label>
+              <ion-label *ngIf="changelog.version" style="font-size:large">
                 Version {{ changelog.version }}
-              </ion-title>
+              </ion-label>
             </ion-row>
             <ion-row>
               <ul>
@@ -41,11 +42,13 @@
             </div>
           </ng-container>
           <ion-row *ngIf="changelogs.length > slice && !showAll">
-            <ion-item lines="none">
-              <ion-button (click)="showAll = true">
-                Alle anzeigen
-              </ion-button>
-            </ion-item>
+            <ion-col>
+              <ion-item lines="none" class="ion-float-right">
+                <ion-button (click)="showAll = true">
+                  Alle anzeigen
+                </ion-button>
+              </ion-item>
+            </ion-col>
           </ion-row>
         </ion-card-content>
       </ion-card>

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
@@ -6,7 +7,7 @@ import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 @Component({
   selector: 'fixdigitaloutput-modal',
-  templateUrl: './modal.component.html'
+  templateUrl: './modal.component.html',
 })
 export class Controller_Io_FixDigitalOutputModalComponent {
 
@@ -18,24 +19,24 @@ export class Controller_Io_FixDigitalOutputModalComponent {
     protected translate: TranslateService,
     public modalCtrl: ModalController,
     public router: Router,
-    public websocket: Websocket
+    public websocket: Websocket,
   ) { }
 
-  /**  
+  /**
    * Updates the 'isOn'-Property of the FixDigitalOutput-Controller.
-   * 
-   * @param event 
+   *
+   * @param event
    */
   updateMode(event: CustomEvent) {
-    let oldMode = this.component.properties.isOn;
+    const oldMode = this.component.properties.isOn;
 
     // ion-segment button only supports string as type
     // https://ionicframework.com/docs/v4/api/segment-button
 
-    let newMode = (event.detail.value.toLowerCase() === 'true');
+    const newMode = (event.detail.value.toLowerCase() === 'true');
 
     this.edge.updateComponentConfig(this.websocket, this.component.id, [
-      { name: 'isOn', value: newMode }
+      { name: 'isOn', value: newMode },
     ]).then(() => {
       this.component.properties.isOn = newMode;
       this.service.toast(this.translate.instant('General.changeAccepted'), 'success');

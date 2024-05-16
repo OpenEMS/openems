@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.dummy;
 
+import static java.util.stream.Collectors.joining;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -28,19 +30,22 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
+import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
+import io.openems.backend.common.alerting.SumStateAlertingSetting;
+import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.metadata.AbstractMetadata;
-import io.openems.backend.common.metadata.AlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.SimpleEdgeHandler;
 import io.openems.backend.common.metadata.User;
-import io.openems.common.OpenemsOEM;
+import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
+import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.StringUtils;
@@ -71,6 +76,7 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	private final SimpleEdgeHandler edgeHandler = new SimpleEdgeHandler();
 
 	private Language defaultLanguage = Language.DE;
+	private JsonObject settings = new JsonObject();
 
 	@Activate
 	public MetadataDummy(@Reference EventAdmin eventadmin) {
@@ -94,19 +100,40 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	public User authenticate(String username, String password) throws OpenemsNamedException {
 		var name = "User #" + this.nextUserId.incrementAndGet();
 		var token = UUID.randomUUID().toString();
-		var user = new User(username, name, token, this.defaultLanguage, Role.ADMIN);
+		var user = new User(username, name, token, this.defaultLanguage, Role.ADMIN, this.hasMultipleEdges(),
+				this.settings);
 		this.users.put(user.getId(), user);
 		return user;
 	}
 
 	@Override
 	public User authenticate(String token) throws OpenemsNamedException {
-		for (User user : this.users.values()) {
-			if (user.getToken().equals(token)) {
-				return user;
+		for (var user : this.users.values()) {
+			if (!user.getToken().equals(token)) {
+				continue;
 			}
+			final var hasMultipleEdges = this.hasMultipleEdges();
+			final User returnUser;
+			if (user.hasMultipleEdges() != hasMultipleEdges //
+					|| !user.getSettings().equals(this.settings)) {
+				returnUser = this.createUser(user.getId(), user.getName(), user.getToken(), hasMultipleEdges);
+				this.users.put(token, returnUser);
+			} else {
+				returnUser = user;
+			}
+
+			return returnUser;
 		}
 		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+	}
+
+	private User createUser(String username, String name, String token, boolean hasMultipleEdges) {
+		return new User(username, name, token, this.defaultLanguage, Role.ADMIN, this.hasMultipleEdges(),
+				this.settings);
+	}
+
+	private boolean hasMultipleEdges() {
+		return this.edges.size() > 1;
 	}
 
 	@Override
@@ -215,7 +242,7 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	}
 
 	@Override
-	public void registerUser(JsonObject jsonObject, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException {
+	public void registerUser(JsonObject jsonObject, String oem) throws OpenemsNamedException {
 		throw new UnsupportedOperationException("DummyMetadata.registerUser() is not implemented");
 	}
 
@@ -251,22 +278,32 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	}
 
 	@Override
-	public List<AlertingSetting> getUserAlertingSettings(String edgeId) {
+	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
 		throw new UnsupportedOperationException("DummyMetadata.getUserAlertingSettings() is not implemented");
 	}
 
 	@Override
-	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
+	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) {
 		throw new UnsupportedOperationException("DummyMetadata.getUserAlertingSettings() is not implemented");
 	}
 
 	@Override
-	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) {
+	public List<OfflineEdgeAlertingSetting> getEdgeOfflineAlertingSettings(String edgeId) throws OpenemsException {
+		throw new UnsupportedOperationException("DummyMetadata.getEdgeOfflineAlertingSettings() is not implemented");
+	}
+
+	@Override
+	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException {
+		throw new UnsupportedOperationException("DummyMetadata.getSumStateAlertingSettings() is not implemented");
+	}
+
+	@Override
+	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> settings) {
 		throw new UnsupportedOperationException("DummyMetadata.setUserAlertingSettings() is not implemented");
 	}
 
 	@Override
-	public Map<String, Role> getPageDevice(User user, PaginationOptions paginationOptions)
+	public List<EdgeMetadata> getPageDevice(User user, PaginationOptions paginationOptions)
 			throws OpenemsNamedException {
 		var pagesStream = this.edges.values().stream();
 		final var query = paginationOptions.getQuery();
@@ -277,18 +314,74 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 							|| StringUtils.containsWithNullCheck(edge.getProducttype(), query) //
 			);
 		}
+		final var searchParams = paginationOptions.getSearchParams();
+		if (searchParams != null) {
+			if (searchParams.searchIsOnline()) {
+				pagesStream = pagesStream.filter(edge -> edge.isOnline() == searchParams.isOnline());
+			}
+			if (searchParams.productTypes() != null && !searchParams.productTypes().isEmpty()) {
+				pagesStream = pagesStream.filter(edge -> searchParams.productTypes().contains(edge.getProducttype()));
+			}
+			// TODO sum state filter
+		}
+
 		return pagesStream //
 				.sorted((s1, s2) -> s1.getId().compareTo(s2.getId())) //
 				.skip(paginationOptions.getPage() * paginationOptions.getLimit()) //
 				.limit(paginationOptions.getLimit()) //
 				.peek(t -> user.setRole(t.getId(), Role.ADMIN)) //
-				.collect(Collectors.toMap(t -> t.getId(), t -> Role.ADMIN)); //
+				.map(myEdge -> {
+					return new EdgeMetadata(//
+							myEdge.getId(), //
+							myEdge.getComment(), //
+							myEdge.getProducttype(), //
+							myEdge.getVersion(), //
+							Role.ADMIN, //
+							myEdge.isOnline(), //
+							myEdge.getLastmessage(), //
+							null, // firstSetupProtocol
+							Level.OK);
+				}).toList();
 	}
 
 	@Override
-	public Role getRoleForEdge(User user, String edgeId) throws OpenemsNamedException {
+	public EdgeMetadata getEdgeMetadataForUser(User user, String edgeId) throws OpenemsNamedException {
+		final var edge = this.edges.get(edgeId);
+		if (edge == null) {
+			return null;
+		}
 		user.setRole(edgeId, Role.ADMIN);
-		return Role.ADMIN;
+
+		return new EdgeMetadata(//
+				edge.getId(), //
+				edge.getComment(), //
+				edge.getProducttype(), //
+				edge.getVersion(), //
+				Role.ADMIN, //
+				edge.isOnline(), //
+				edge.getLastmessage(), //
+				null, // firstSetupProtocol
+				Level.OK //
+		);
+	}
+
+	@Override
+	public Optional<Level> getSumState(String edgeId) {
+		throw new UnsupportedOperationException("DummyMetadata.getSumState() is not implemented");
+	}
+
+	@Override
+	public void logGenericSystemLog(GenericSystemLog systemLog) {
+		this.logInfo(this.log,
+				"%s on %s executed %s [%s]".formatted(systemLog.user().getId(), systemLog.edgeId(), systemLog.teaser(),
+						systemLog.getValues().entrySet().stream() //
+								.map(t -> t.getKey() + "=" + t.getValue()) //
+								.collect(joining(", "))));
+	}
+
+	@Override
+	public void updateUserSettings(User user, JsonObject settings) {
+		this.settings = settings == null ? new JsonObject() : settings;
 	}
 
 }

@@ -2,6 +2,7 @@ package io.openems.edge.battery.soltaro.cluster.versionc;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 
 import java.util.LinkedList;
 import java.util.Optional;
@@ -10,6 +11,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -49,14 +51,15 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
+import io.openems.edge.bridge.modbus.api.task.Task.ExecuteState;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -185,208 +188,194 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 
 	private void updateRackChannels(Integer numberOfModules, TreeSet<Rack> racks) throws OpenemsException {
 		for (Rack r : racks) {
-			try {
-				this.getModbusProtocol().addTasks(//
+			this.getModbusProtocol().addTasks(//
 
-						new FC3ReadRegistersTask(r.offset + 0x000B, Priority.LOW, //
-								m(this.createChannelId(r, RackChannel.EMS_ADDRESS),
-										new UnsignedWordElement(r.offset + 0x000B)), //
-								m(this.createChannelId(r, RackChannel.EMS_BAUDRATE),
-										new UnsignedWordElement(r.offset + 0x000C)), //
-								new DummyRegisterElement(r.offset + 0x000D, r.offset + 0x000F),
-								m(this.createChannelId(r, RackChannel.PRE_CHARGE_CONTROL),
-										new UnsignedWordElement(r.offset + 0x0010)), //
-								new DummyRegisterElement(r.offset + 0x0011, r.offset + 0x0014),
-								m(this.createChannelId(r, RackChannel.SET_SUB_MASTER_ADDRESS),
-										new UnsignedWordElement(r.offset + 0x0015)) //
-						), //
-						new FC3ReadRegistersTask(r.offset + 0x00F4, Priority.LOW, //
-								m(this.createChannelId(r, RackChannel.EMS_COMMUNICATION_TIMEOUT),
-										new UnsignedWordElement(r.offset + 0x00F4)) //
-						),
+					new FC3ReadRegistersTask(r.offset + 0x000B, Priority.LOW, //
+							m(this.createChannelId(r, RackChannel.EMS_ADDRESS),
+									new UnsignedWordElement(r.offset + 0x000B)), //
+							m(this.createChannelId(r, RackChannel.EMS_BAUDRATE),
+									new UnsignedWordElement(r.offset + 0x000C)), //
+							new DummyRegisterElement(r.offset + 0x000D, r.offset + 0x000F),
+							m(this.createChannelId(r, RackChannel.PRE_CHARGE_CONTROL),
+									new UnsignedWordElement(r.offset + 0x0010)), //
+							new DummyRegisterElement(r.offset + 0x0011, r.offset + 0x0014),
+							m(this.createChannelId(r, RackChannel.SET_SUB_MASTER_ADDRESS),
+									new UnsignedWordElement(r.offset + 0x0015)) //
+					), //
+					new FC3ReadRegistersTask(r.offset + 0x00F4, Priority.LOW, //
+							m(this.createChannelId(r, RackChannel.EMS_COMMUNICATION_TIMEOUT),
+									new UnsignedWordElement(r.offset + 0x00F4)) //
+					),
 
-						// Single Cluster Control Registers (running without Master BMS)
-						new FC6WriteRegisterTask(r.offset + 0x0010, //
-								m(this.createChannelId(r, RackChannel.PRE_CHARGE_CONTROL),
-										new UnsignedWordElement(r.offset + 0x0010)) //
-						), //
-						new FC6WriteRegisterTask(r.offset + 0x00F4, //
-								m(this.createChannelId(r, RackChannel.EMS_COMMUNICATION_TIMEOUT),
-										new UnsignedWordElement(r.offset + 0x00F4)) //
-						), //
-						new FC16WriteRegistersTask(r.offset + 0x000B, //
-								m(this.createChannelId(r, RackChannel.EMS_ADDRESS),
-										new UnsignedWordElement(r.offset + 0x000B)), //
-								m(this.createChannelId(r, RackChannel.EMS_BAUDRATE),
-										new UnsignedWordElement(r.offset + 0x000C)) //
-						), //
+					// Single Cluster Control Registers (running without Master BMS)
+					new FC6WriteRegisterTask(r.offset + 0x0010, //
+							m(this.createChannelId(r, RackChannel.PRE_CHARGE_CONTROL),
+									new UnsignedWordElement(r.offset + 0x0010)) //
+					), //
+					new FC6WriteRegisterTask(r.offset + 0x00F4, //
+							m(this.createChannelId(r, RackChannel.EMS_COMMUNICATION_TIMEOUT),
+									new UnsignedWordElement(r.offset + 0x00F4)) //
+					), //
+					new FC16WriteRegistersTask(r.offset + 0x000B, //
+							m(this.createChannelId(r, RackChannel.EMS_ADDRESS),
+									new UnsignedWordElement(r.offset + 0x000B)), //
+							m(this.createChannelId(r, RackChannel.EMS_BAUDRATE),
+									new UnsignedWordElement(r.offset + 0x000C)) //
+					), //
 
-						// Single Cluster Control Registers (General)
-						new FC6WriteRegisterTask(r.offset + 0x00CC, //
-								m(this.createChannelId(r, RackChannel.SYSTEM_TOTAL_CAPACITY),
-										new UnsignedWordElement(r.offset + 0x00CC)) //
-						), //
-						new FC6WriteRegisterTask(r.offset + 0x0015, //
-								m(this.createChannelId(r, RackChannel.SET_SUB_MASTER_ADDRESS),
-										new UnsignedWordElement(r.offset + 0x0015)) //
-						), //
-						new FC6WriteRegisterTask(r.offset + 0x00F3, //
-								m(this.createChannelId(r, RackChannel.VOLTAGE_LOW_PROTECTION),
-										new UnsignedWordElement(r.offset + 0x00F3)) //
-						), //
-						new FC3ReadRegistersTask(r.offset + 0x00CC, Priority.LOW, //
-								m(this.createChannelId(r, RackChannel.SYSTEM_TOTAL_CAPACITY),
-										new UnsignedWordElement(r.offset + 0x00CC)) //
-						),
+					// Single Cluster Control Registers (General)
+					new FC6WriteRegisterTask(r.offset + 0x00CC, //
+							m(this.createChannelId(r, RackChannel.SYSTEM_TOTAL_CAPACITY),
+									new UnsignedWordElement(r.offset + 0x00CC)) //
+					), //
+					new FC6WriteRegisterTask(r.offset + 0x0015, //
+							m(this.createChannelId(r, RackChannel.SET_SUB_MASTER_ADDRESS),
+									new UnsignedWordElement(r.offset + 0x0015)) //
+					), //
+					new FC6WriteRegisterTask(r.offset + 0x00F3, //
+							m(this.createChannelId(r, RackChannel.VOLTAGE_LOW_PROTECTION),
+									new UnsignedWordElement(r.offset + 0x00F3)) //
+					), //
+					new FC3ReadRegistersTask(r.offset + 0x00CC, Priority.LOW, //
+							m(this.createChannelId(r, RackChannel.SYSTEM_TOTAL_CAPACITY),
+									new UnsignedWordElement(r.offset + 0x00CC)) //
+					),
 
-						// Single Cluster Status Registers
-						new FC3ReadRegistersTask(r.offset + 0x100, Priority.HIGH, //
-								m(this.createChannelId(r, RackChannel.VOLTAGE),
-										new UnsignedWordElement(r.offset + 0x100), SCALE_FACTOR_2),
-								m(this.createChannelId(r, RackChannel.CURRENT), new SignedWordElement(r.offset + 0x101),
-										SCALE_FACTOR_2),
-								m(this.createChannelId(r, RackChannel.CHARGE_INDICATION),
-										new UnsignedWordElement(r.offset + 0x102)),
-								m(this.createChannelId(r, RackChannel.SOC), new UnsignedWordElement(r.offset + 0x103)),
-								m(this.createChannelId(r, RackChannel.SOH), new UnsignedWordElement(r.offset + 0x104)),
-								m(this.createChannelId(r, RackChannel.MAX_CELL_VOLTAGE_ID),
-										new UnsignedWordElement(r.offset + 0x105)),
-								m(this.createChannelId(r, RackChannel.MAX_CELL_VOLTAGE),
-										new UnsignedWordElement(r.offset + 0x106)),
-								m(this.createChannelId(r, RackChannel.MIN_CELL_VOLTAGE_ID),
-										new UnsignedWordElement(r.offset + 0x107)),
-								m(this.createChannelId(r, RackChannel.MIN_CELL_VOLTAGE),
-										new UnsignedWordElement(r.offset + 0x108)),
-								m(this.createChannelId(r, RackChannel.MAX_CELL_TEMPERATURE_ID),
-										new UnsignedWordElement(r.offset + 0x109)),
-								m(this.createChannelId(r, RackChannel.MAX_CELL_TEMPERATURE),
-										new SignedWordElement(r.offset + 0x10A), SCALE_FACTOR_MINUS_1),
-								m(this.createChannelId(r, RackChannel.MIN_CELL_TEMPERATURE_ID),
-										new UnsignedWordElement(r.offset + 0x10B)),
-								m(this.createChannelId(r, RackChannel.MIN_CELL_TEMPERATURE),
-										new SignedWordElement(r.offset + 0x10C), SCALE_FACTOR_MINUS_1),
-								m(this.createChannelId(r, RackChannel.AVERAGE_VOLTAGE),
-										new UnsignedWordElement(r.offset + 0x10D)),
-								m(this.createChannelId(r, RackChannel.SYSTEM_INSULATION),
-										new UnsignedWordElement(r.offset + 0x10E)),
-								m(this.createChannelId(r, RackChannel.SYSTEM_MAX_CHARGE_CURRENT),
-										new UnsignedWordElement(r.offset + 0x10F), SCALE_FACTOR_2),
-								m(this.createChannelId(r, RackChannel.SYSTEM_MAX_DISCHARGE_CURRENT),
-										new UnsignedWordElement(r.offset + 0x110), SCALE_FACTOR_2),
-								m(this.createChannelId(r, RackChannel.POSITIVE_INSULATION),
-										new UnsignedWordElement(r.offset + 0x111)),
-								m(this.createChannelId(r, RackChannel.NEGATIVE_INSULATION),
-										new UnsignedWordElement(r.offset + 0x112)),
-								m(this.createChannelId(r, RackChannel.CLUSTER_RUN_STATE),
-										new UnsignedWordElement(r.offset + 0x113)),
-								m(this.createChannelId(r, RackChannel.AVG_TEMPERATURE),
-										new SignedWordElement(r.offset + 0x114))),
-						new FC3ReadRegistersTask(r.offset + 0x18b, Priority.LOW,
-								m(this.createChannelId(r, RackChannel.PROJECT_ID),
-										new UnsignedWordElement(r.offset + 0x18b)),
-								m(this.createChannelId(r, RackChannel.VERSION_MAJOR),
-										new UnsignedWordElement(r.offset + 0x18c)),
-								m(this.createChannelId(r, RackChannel.VERSION_SUB),
-										new UnsignedWordElement(r.offset + 0x18d)),
-								m(this.createChannelId(r, RackChannel.VERSION_MODIFY),
-										new UnsignedWordElement(r.offset + 0x18e))),
+					// Single Cluster Status Registers
+					new FC3ReadRegistersTask(r.offset + 0x100, Priority.HIGH, //
+							m(this.createChannelId(r, RackChannel.VOLTAGE), new UnsignedWordElement(r.offset + 0x100),
+									SCALE_FACTOR_2),
+							m(this.createChannelId(r, RackChannel.CURRENT), new SignedWordElement(r.offset + 0x101),
+									SCALE_FACTOR_2),
+							m(this.createChannelId(r, RackChannel.CHARGE_INDICATION),
+									new UnsignedWordElement(r.offset + 0x102)),
+							m(this.createChannelId(r, RackChannel.SOC), new UnsignedWordElement(r.offset + 0x103)),
+							m(this.createChannelId(r, RackChannel.SOH), new UnsignedWordElement(r.offset + 0x104)),
+							m(this.createChannelId(r, RackChannel.MAX_CELL_VOLTAGE_ID),
+									new UnsignedWordElement(r.offset + 0x105)),
+							m(this.createChannelId(r, RackChannel.MAX_CELL_VOLTAGE),
+									new UnsignedWordElement(r.offset + 0x106)),
+							m(this.createChannelId(r, RackChannel.MIN_CELL_VOLTAGE_ID),
+									new UnsignedWordElement(r.offset + 0x107)),
+							m(this.createChannelId(r, RackChannel.MIN_CELL_VOLTAGE),
+									new UnsignedWordElement(r.offset + 0x108)),
+							m(this.createChannelId(r, RackChannel.MAX_CELL_TEMPERATURE_ID),
+									new UnsignedWordElement(r.offset + 0x109)),
+							m(this.createChannelId(r, RackChannel.MAX_CELL_TEMPERATURE),
+									new SignedWordElement(r.offset + 0x10A), SCALE_FACTOR_MINUS_1),
+							m(this.createChannelId(r, RackChannel.MIN_CELL_TEMPERATURE_ID),
+									new UnsignedWordElement(r.offset + 0x10B)),
+							m(this.createChannelId(r, RackChannel.MIN_CELL_TEMPERATURE),
+									new SignedWordElement(r.offset + 0x10C), SCALE_FACTOR_MINUS_1),
+							m(this.createChannelId(r, RackChannel.AVERAGE_VOLTAGE),
+									new UnsignedWordElement(r.offset + 0x10D)),
+							m(this.createChannelId(r, RackChannel.SYSTEM_INSULATION),
+									new UnsignedWordElement(r.offset + 0x10E)),
+							m(this.createChannelId(r, RackChannel.SYSTEM_MAX_CHARGE_CURRENT),
+									new UnsignedWordElement(r.offset + 0x10F), SCALE_FACTOR_2),
+							m(this.createChannelId(r, RackChannel.SYSTEM_MAX_DISCHARGE_CURRENT),
+									new UnsignedWordElement(r.offset + 0x110), SCALE_FACTOR_2),
+							m(this.createChannelId(r, RackChannel.POSITIVE_INSULATION),
+									new UnsignedWordElement(r.offset + 0x111)),
+							m(this.createChannelId(r, RackChannel.NEGATIVE_INSULATION),
+									new UnsignedWordElement(r.offset + 0x112)),
+							m(this.createChannelId(r, RackChannel.CLUSTER_RUN_STATE),
+									new UnsignedWordElement(r.offset + 0x113)),
+							m(this.createChannelId(r, RackChannel.AVG_TEMPERATURE),
+									new SignedWordElement(r.offset + 0x114))),
+					new FC3ReadRegistersTask(r.offset + 0x18b, Priority.LOW,
+							m(this.createChannelId(r, RackChannel.PROJECT_ID),
+									new UnsignedWordElement(r.offset + 0x18b)),
+							m(this.createChannelId(r, RackChannel.VERSION_MAJOR),
+									new UnsignedWordElement(r.offset + 0x18c)),
+							m(this.createChannelId(r, RackChannel.VERSION_SUB),
+									new UnsignedWordElement(r.offset + 0x18d)),
+							m(this.createChannelId(r, RackChannel.VERSION_MODIFY),
+									new UnsignedWordElement(r.offset + 0x18e))),
 
-						// System Warning/Shut Down Status Registers
-						new FC3ReadRegistersTask(r.offset + 0x140, Priority.LOW,
-								// Level 2 Alarm: BMS Self-protect, main contactor shut down
-								m(new BitsWordElement(r.offset + 0x140, this) //
-										.bit(0, this.createChannelId(r, RackChannel.LEVEL2_CELL_VOLTAGE_HIGH)) //
-										.bit(1, this.createChannelId(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_HIGH)) //
-										.bit(2, this.createChannelId(r, RackChannel.LEVEL2_CHARGE_CURRENT_HIGH)) //
-										.bit(3, this.createChannelId(r, RackChannel.LEVEL2_CELL_VOLTAGE_LOW)) //
-										.bit(4, this.createChannelId(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_LOW)) //
-										.bit(5, this.createChannelId(r, RackChannel.LEVEL2_DISCHARGE_CURRENT_HIGH)) //
-										.bit(6, this.createChannelId(r, RackChannel.LEVEL2_CHARGE_TEMP_HIGH)) //
-										.bit(7, this.createChannelId(r, RackChannel.LEVEL2_CHARGE_TEMP_LOW)) //
-										// 8 -> Reserved
-										// 9 -> Reserved
-										.bit(10, this.createChannelId(r, RackChannel.LEVEL2_POWER_POLE_TEMP_HIGH)) //
-										// 11 -> Reserved
-										.bit(12, this.createChannelId(r, RackChannel.LEVEL2_INSULATION_VALUE)) //
-										// 13 -> Reserved
-										.bit(14, this.createChannelId(r, RackChannel.LEVEL2_DISCHARGE_TEMP_HIGH)) //
-										.bit(15, this.createChannelId(r, RackChannel.LEVEL2_DISCHARGE_TEMP_LOW)) //
-								),
-								// Level 1 Alarm: EMS Control to stop charge, discharge, charge&discharge
-								m(new BitsWordElement(r.offset + 0x141, this) //
-										.bit(0, this.createChannelId(r, RackChannel.LEVEL1_CELL_VOLTAGE_HIGH)) //
-										.bit(1, this.createChannelId(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_HIGH)) //
-										.bit(2, this.createChannelId(r, RackChannel.LEVEL1_CHARGE_CURRENT_HIGH)) //
-										.bit(3, this.createChannelId(r, RackChannel.LEVEL1_CELL_VOLTAGE_LOW)) //
-										.bit(4, this.createChannelId(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_LOW)) //
-										.bit(5, this.createChannelId(r, RackChannel.LEVEL1_DISCHARGE_CURRENT_HIGH)) //
-										.bit(6, this.createChannelId(r, RackChannel.LEVEL1_CHARGE_TEMP_HIGH)) //
-										.bit(7, this.createChannelId(r, RackChannel.LEVEL1_CHARGE_TEMP_LOW)) //
-										.bit(8, this.createChannelId(r, RackChannel.LEVEL1_SOC_LOW)) //
-										.bit(9, this.createChannelId(r, RackChannel.LEVEL1_TEMP_DIFF_TOO_BIG)) //
-										.bit(10, this.createChannelId(r, RackChannel.LEVEL1_POWER_POLE_TEMP_HIGH)) //
-										.bit(11, this.createChannelId(r, RackChannel.LEVEL1_CELL_VOLTAGE_DIFF_TOO_BIG)) //
-										.bit(12, this.createChannelId(r, RackChannel.LEVEL1_INSULATION_VALUE)) //
-										.bit(13, this.createChannelId(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_DIFF_TOO_BIG)) //
-										.bit(14, this.createChannelId(r, RackChannel.LEVEL1_DISCHARGE_TEMP_HIGH)) //
-										.bit(15, this.createChannelId(r, RackChannel.LEVEL1_DISCHARGE_TEMP_LOW)) //
-								),
-								// Pre-Alarm: Temperature Alarm will active current limication
-								m(new BitsWordElement(r.offset + 0x142, this) //
-										.bit(0, this.createChannelId(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_HIGH)) //
-										.bit(1, this.createChannelId(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_HIGH)) //
-										.bit(2, this.createChannelId(r, RackChannel.PRE_ALARM_CHARGE_CURRENT_HIGH)) //
-										.bit(3, this.createChannelId(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_LOW)) //
-										.bit(4, this.createChannelId(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_LOW)) //
-										.bit(5, this.createChannelId(r, RackChannel.PRE_ALARM_DISCHARGE_CURRENT_HIGH)) //
-										.bit(6, this.createChannelId(r, RackChannel.PRE_ALARM_CHARGE_TEMP_HIGH)) //
-										.bit(7, this.createChannelId(r, RackChannel.PRE_ALARM_CHARGE_TEMP_LOW)) //
-										.bit(8, this.createChannelId(r, RackChannel.PRE_ALARM_SOC_LOW)) //
-										.bit(9, this.createChannelId(r, RackChannel.PRE_ALARM_TEMP_DIFF_TOO_BIG)) //
-										.bit(10, this.createChannelId(r, RackChannel.PRE_ALARM_POWER_POLE_HIGH))//
-										.bit(11, this.createChannelId(r,
-												RackChannel.PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG)) //
-										.bit(12, this.createChannelId(r, RackChannel.PRE_ALARM_INSULATION_FAIL)) //
-										.bit(13, this.createChannelId(r,
-												RackChannel.PRE_ALARM_TOTAL_VOLTAGE_DIFF_TOO_BIG)) //
-										.bit(14, this.createChannelId(r, RackChannel.PRE_ALARM_DISCHARGE_TEMP_HIGH)) //
-										.bit(15, this.createChannelId(r, RackChannel.PRE_ALARM_DISCHARGE_TEMP_LOW)) //
-								) //
-						),
-						// Other Alarm Info
-						new FC3ReadRegistersTask(r.offset + 0x1A5, Priority.LOW, //
-								m(new BitsWordElement(r.offset + 0x1A5, this) //
-										.bit(0, this.createChannelId(r, RackChannel.ALARM_COMMUNICATION_TO_MASTER_BMS)) //
-										.bit(1, this.createChannelId(r, RackChannel.ALARM_COMMUNICATION_TO_SLAVE_BMS)) //
-										.bit(2, this.createChannelId(r,
-												RackChannel.ALARM_COMMUNICATION_SLAVE_BMS_TO_TEMP_SENSORS)) //
-										.bit(3, this.createChannelId(r, RackChannel.ALARM_SLAVE_BMS_HARDWARE)) //
-								)),
-						// Slave BMS Fault Message Registers
-						new FC3ReadRegistersTask(r.offset + 0x185, Priority.LOW, //
-								m(new BitsWordElement(r.offset + 0x185, this) //
-										.bit(0, this.createChannelId(r, RackChannel.SLAVE_BMS_VOLTAGE_SENSOR_CABLES)) //
-										.bit(1, this.createChannelId(r, RackChannel.SLAVE_BMS_POWER_CABLE)) //
-										.bit(2, this.createChannelId(r, RackChannel.SLAVE_BMS_LTC6803)) //
-										.bit(3, this.createChannelId(r, RackChannel.SLAVE_BMS_VOLTAGE_SENSORS)) //
-										.bit(4, this.createChannelId(r, RackChannel.SLAVE_BMS_TEMP_SENSOR_CABLES)) //
-										.bit(5, this.createChannelId(r, RackChannel.SLAVE_BMS_TEMP_SENSORS)) //
-										.bit(6, this.createChannelId(r, RackChannel.SLAVE_BMS_POWER_POLE_TEMP_SENSOR)) //
-										.bit(7, this.createChannelId(r, RackChannel.SLAVE_BMS_TEMP_BOARD_COM)) //
-										.bit(8, this.createChannelId(r, RackChannel.SLAVE_BMS_BALANCE_MODULE)) //
-										.bit(9, this.createChannelId(r, RackChannel.SLAVE_BMS_TEMP_SENSORS2)) //
-										.bit(10, this.createChannelId(r, RackChannel.SLAVE_BMS_INTERNAL_COM)) //
-										.bit(11, this.createChannelId(r, RackChannel.SLAVE_BMS_EEPROM)) //
-										.bit(12, this.createChannelId(r, RackChannel.SLAVE_BMS_INIT)) //
-								)) //
-				);
-			} catch (OpenemsException e) {
-				this.logError(this.log, "Error while creating modbus tasks: " + e.getMessage());
-				e.printStackTrace();
-			} //
+					// System Warning/Shut Down Status Registers
+					new FC3ReadRegistersTask(r.offset + 0x140, Priority.LOW,
+							// Level 2 Alarm: BMS Self-protect, main contactor shut down
+							m(new BitsWordElement(r.offset + 0x140, this) //
+									.bit(0, this.createChannelId(r, RackChannel.LEVEL2_CELL_VOLTAGE_HIGH)) //
+									.bit(1, this.createChannelId(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_HIGH)) //
+									.bit(2, this.createChannelId(r, RackChannel.LEVEL2_CHARGE_CURRENT_HIGH)) //
+									.bit(3, this.createChannelId(r, RackChannel.LEVEL2_CELL_VOLTAGE_LOW)) //
+									.bit(4, this.createChannelId(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_LOW)) //
+									.bit(5, this.createChannelId(r, RackChannel.LEVEL2_DISCHARGE_CURRENT_HIGH)) //
+									.bit(6, this.createChannelId(r, RackChannel.LEVEL2_CHARGE_TEMP_HIGH)) //
+									.bit(7, this.createChannelId(r, RackChannel.LEVEL2_CHARGE_TEMP_LOW)) //
+									// 8 -> Reserved
+									// 9 -> Reserved
+									.bit(10, this.createChannelId(r, RackChannel.LEVEL2_POWER_POLE_TEMP_HIGH)) //
+									// 11 -> Reserved
+									.bit(12, this.createChannelId(r, RackChannel.LEVEL2_INSULATION_VALUE)) //
+									// 13 -> Reserved
+									.bit(14, this.createChannelId(r, RackChannel.LEVEL2_DISCHARGE_TEMP_HIGH)) //
+									.bit(15, this.createChannelId(r, RackChannel.LEVEL2_DISCHARGE_TEMP_LOW)) //
+							),
+							// Level 1 Alarm: EMS Control to stop charge, discharge, charge&discharge
+							m(new BitsWordElement(r.offset + 0x141, this) //
+									.bit(1, this.createChannelId(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_HIGH)) //
+									.bit(2, this.createChannelId(r, RackChannel.LEVEL1_CHARGE_CURRENT_HIGH)) //
+									.bit(4, this.createChannelId(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_LOW)) //
+									.bit(5, this.createChannelId(r, RackChannel.LEVEL1_DISCHARGE_CURRENT_HIGH)) //
+									.bit(6, this.createChannelId(r, RackChannel.LEVEL1_CHARGE_TEMP_HIGH)) //
+									.bit(7, this.createChannelId(r, RackChannel.LEVEL1_CHARGE_TEMP_LOW)) //
+									.bit(8, this.createChannelId(r, RackChannel.LEVEL1_SOC_LOW)) //
+									.bit(9, this.createChannelId(r, RackChannel.LEVEL1_TEMP_DIFF_TOO_BIG)) //
+									.bit(10, this.createChannelId(r, RackChannel.LEVEL1_POWER_POLE_TEMP_HIGH)) //
+									.bit(11, this.createChannelId(r, RackChannel.LEVEL1_CELL_VOLTAGE_DIFF_TOO_BIG)) //
+									.bit(12, this.createChannelId(r, RackChannel.LEVEL1_INSULATION_VALUE)) //
+									.bit(13, this.createChannelId(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_DIFF_TOO_BIG)) //
+									.bit(14, this.createChannelId(r, RackChannel.LEVEL1_DISCHARGE_TEMP_HIGH)) //
+									.bit(15, this.createChannelId(r, RackChannel.LEVEL1_DISCHARGE_TEMP_LOW)) //
+							),
+							// Pre-Alarm: Temperature Alarm will active current limication
+							m(new BitsWordElement(r.offset + 0x142, this) //
+									.bit(2, this.createChannelId(r, RackChannel.PRE_ALARM_CHARGE_CURRENT_HIGH)) //
+									.bit(4, this.createChannelId(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_LOW)) //
+									.bit(5, this.createChannelId(r, RackChannel.PRE_ALARM_DISCHARGE_CURRENT_HIGH)) //
+									.bit(6, this.createChannelId(r, RackChannel.PRE_ALARM_CHARGE_TEMP_HIGH)) //
+									.bit(7, this.createChannelId(r, RackChannel.PRE_ALARM_CHARGE_TEMP_LOW)) //
+									.bit(10, this.createChannelId(r, RackChannel.PRE_ALARM_POWER_POLE_HIGH))//
+									.bit(11, this.createChannelId(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG)) //
+									.bit(12, this.createChannelId(r, RackChannel.PRE_ALARM_INSULATION_FAIL)) //
+									.bit(13, this.createChannelId(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_DIFF_TOO_BIG)) //
+									.bit(14, this.createChannelId(r, RackChannel.PRE_ALARM_DISCHARGE_TEMP_HIGH)) //
+									.bit(15, this.createChannelId(r, RackChannel.PRE_ALARM_DISCHARGE_TEMP_LOW)) //
+							) //
+					),
+					// Other Alarm Info
+					new FC3ReadRegistersTask(r.offset + 0x1A5, Priority.LOW, //
+							m(new BitsWordElement(r.offset + 0x1A5, this) //
+									.bit(0, this.createChannelId(r, RackChannel.ALARM_COMMUNICATION_TO_MASTER_BMS)) //
+									.bit(1, this.createChannelId(r, RackChannel.ALARM_COMMUNICATION_TO_SLAVE_BMS)) //
+									.bit(2, this.createChannelId(r,
+											RackChannel.ALARM_COMMUNICATION_SLAVE_BMS_TO_TEMP_SENSORS)) //
+									.bit(3, this.createChannelId(r, RackChannel.ALARM_SLAVE_BMS_HARDWARE)) //
+							)),
+					// Slave BMS Fault Message Registers
+					new FC3ReadRegistersTask(r.offset + 0x185, Priority.LOW, //
+							m(new BitsWordElement(r.offset + 0x185, this) //
+									.bit(0, this.createChannelId(r, RackChannel.SLAVE_BMS_VOLTAGE_SENSOR_CABLES)) //
+									.bit(1, this.createChannelId(r, RackChannel.SLAVE_BMS_POWER_CABLE)) //
+									.bit(2, this.createChannelId(r, RackChannel.SLAVE_BMS_LTC6803)) //
+									.bit(3, this.createChannelId(r, RackChannel.SLAVE_BMS_VOLTAGE_SENSORS)) //
+									.bit(4, this.createChannelId(r, RackChannel.SLAVE_BMS_TEMP_SENSOR_CABLES)) //
+									.bit(5, this.createChannelId(r, RackChannel.SLAVE_BMS_TEMP_SENSORS)) //
+									.bit(6, this.createChannelId(r, RackChannel.SLAVE_BMS_POWER_POLE_TEMP_SENSOR)) //
+									.bit(7, this.createChannelId(r, RackChannel.SLAVE_BMS_TEMP_BOARD_COM)) //
+									.bit(8, this.createChannelId(r, RackChannel.SLAVE_BMS_BALANCE_MODULE)) //
+									.bit(9, this.createChannelId(r, RackChannel.SLAVE_BMS_TEMP_SENSORS2)) //
+									.bit(10, this.createChannelId(r, RackChannel.SLAVE_BMS_INTERNAL_COM)) //
+									.bit(11, this.createChannelId(r, RackChannel.SLAVE_BMS_EEPROM)) //
+									.bit(12, this.createChannelId(r, RackChannel.SLAVE_BMS_INIT)) //
+							)) //
+			);
 			Consumer<CellChannelFactory.Type> addCellChannels = type -> {
 				for (var i = 0; i < numberOfModules; i++) {
-					var elements = new AbstractModbusElement<?>[type.getSensorsPerModule()];
+					var elements = new ModbusElement[type.getSensorsPerModule()];
 					for (var j = 0; j < type.getSensorsPerModule(); j++) {
 						var sensorIndex = i * type.getSensorsPerModule() + j;
 						var channelId = CellChannelFactory.create(r, type, sensorIndex);
@@ -396,14 +385,9 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 						elements[j] = m(channelId, new UnsignedWordElement(r.offset + type.getOffset() + sensorIndex));
 					}
 					// Add a Modbus read task for this module
-					try {
-						this.getModbusProtocol().addTasks(//
-								new FC3ReadRegistersTask(r.offset + type.getOffset() + i * type.getSensorsPerModule(),
-										Priority.LOW, elements));
-					} catch (OpenemsException e) {
-						this.logError(this.log, "Error while creating modbus tasks: " + e.getMessage());
-						e.printStackTrace();
-					}
+					this.getModbusProtocol().addTasks(//
+							new FC3ReadRegistersTask(r.offset + type.getOffset() + i * type.getSensorsPerModule(),
+									Priority.LOW, elements));
 				}
 			};
 			addCellChannels.accept(CellChannelFactory.Type.VOLTAGE_CLUSTER);
@@ -411,7 +395,7 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 
 			// WARN_LEVEL_Pre Alarm (Pre Alarm configuration registers RW)
 			{
-				AbstractModbusElement<?>[] elements = {
+				ModbusElement[] elements = {
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_CELL_OVER_VOLTAGE_ALARM),
 								new UnsignedWordElement(r.offset + 0x080)), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_CELL_OVER_VOLTAGE_RECOVER),
@@ -486,7 +470,7 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 
 			// WARN_LEVEL1 (Level1 warning registers RW)
 			{
-				AbstractModbusElement<?>[] elements = {
+				ModbusElement[] elements = {
 						m(this.createChannelId(r, RackChannel.LEVEL1_CELL_OVER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x040)), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_CELL_OVER_VOLTAGE_RECOVER),
@@ -561,7 +545,7 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 
 			// WARN_LEVEL2 (Level2 Protection registers RW)
 			{
-				AbstractModbusElement<?>[] elements = {
+				ModbusElement[] elements = {
 						m(this.createChannelId(r, RackChannel.LEVEL2_CELL_OVER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x400)), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_CELL_OVER_VOLTAGE_RECOVER),
@@ -664,38 +648,24 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 	 * @throws OpenemsException on error
 	 */
 	private CompletableFuture<Integer> getNumberOfModules() {
-		final var result = new CompletableFuture<Integer>();
-
-		try {
-			ModbusUtils
-					.readELementOnce(this.getModbusProtocol(),
-							new UnsignedWordElement(0x20C1 /* No of modules for 1st tower */), true)
-					.thenAccept(numberOfModules -> {
-						if (numberOfModules == null) {
-							return;
-						}
-						result.complete(numberOfModules);
-					});
-		} catch (OpenemsException e) {
-			result.completeExceptionally(e);
-		}
-
-		return result;
+		return readElementOnce(this.getModbusProtocol(), ModbusUtils::retryOnNull,
+				new UnsignedWordElement(0x20C1 /* No of modules for 1st tower */));
 	}
 
 	/**
 	 * Recursively reads the 'No of modules' register of each tower. Eventually
 	 * completes the {@link CompletableFuture}.
 	 *
+	 * @param retryPredicate      yield true to retry reading values; false
+	 *                            otherwise. Parameters are the {@link ExecuteState}
+	 *                            of the entire task and the individual element
+	 *                            value
 	 * @param result              the {@link CompletableFuture}
 	 * @param totalNumberOfTowers the recursively incremented total number of towers
 	 * @param addresses           Queue with the remaining 'No of modules' registers
-	 * @param tryAgainOnError     if true, tries to read till it receives a value;
-	 *                            if false, stops after first try and possibly
-	 *                            return null
 	 */
-	private void checkNumberOfTowers(CompletableFuture<Integer> result, int totalNumberOfTowers,
-			final Queue<Integer> addresses, boolean tryAgainOnError) {
+	private void checkNumberOfTowers(BiPredicate<ExecuteState, Integer> retryPredicate,
+			CompletableFuture<Integer> result, int totalNumberOfTowers, final Queue<Integer> addresses) {
 		final var address = addresses.poll();
 
 		if (address == null) {
@@ -704,28 +674,18 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 			return;
 		}
 
-		try {
-			// Read next address in Queue
-			ModbusUtils.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(address), tryAgainOnError)
-					.thenAccept(numberOfModules -> {
-						if (numberOfModules == null) {
-							if (tryAgainOnError) {
-								// Try again
-								return;
-							}
-							// Read error -> this tower does not exist. Stop here.
-							result.complete(totalNumberOfTowers);
-							return;
-						}
+		// Read next address in Queue
+		readElementOnce(this.getModbusProtocol(), retryPredicate, new UnsignedWordElement(address))
+				.thenAccept(numberOfModules -> {
+					if (numberOfModules == null) {
+						// Read error -> this tower does not exist. Stop here.
+						result.complete(totalNumberOfTowers);
+						return;
+					}
 
-						// Read successful -> try to read next tower
-						this.checkNumberOfTowers(result, totalNumberOfTowers + 1, addresses, false);
-					});
-		} catch (OpenemsException e) {
-			e.printStackTrace();
-			result.completeExceptionally(e);
-			return;
-		}
+					// Read successful -> try to read next tower
+					this.checkNumberOfTowers(ModbusUtils::doNotRetry, result, totalNumberOfTowers + 1, addresses);
+				});
 	}
 
 	private CompletableFuture<Integer> getNumberOfTowers() throws OpenemsException {
@@ -738,7 +698,7 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 		addresses.add(0x50C1 /* No of modules for 4th tower */);
 		addresses.add(0x60C1 /* No of modules for 5th tower */);
 
-		this.checkNumberOfTowers(result, 0, addresses, true);
+		this.checkNumberOfTowers(ModbusUtils::retryOnNull, result, 0, addresses);
 
 		return result;
 	}
@@ -789,14 +749,11 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc() //
-				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
-				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
-				+ "|State:" + this.stateMachine.getCurrentState().asCamelCase();
+		return Battery.generateDebugLog(this, this.stateMachine);
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this,
 				/*
 				 * BMS Control Registers
@@ -900,16 +857,12 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 						// Pre-Alarm Summary: Temperature Alarm can be used for current limitation,
 						// while all other alarms are just for alarm. Note: Alarm for all clusters
 						m(new BitsWordElement(0x1093, this) //
-								.bit(0, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_HIGH) //
 								.bit(1, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_TOTAL_VOLTAGE_HIGH) //
 								.bit(2, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_CHARGE_CURRENT_HIGH) //
-								.bit(3, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_LOW) //
 								.bit(4, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_TOTAL_VOLTAGE_LOW) //
 								.bit(5, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_DISCHARGE_CURRENT_HIGH) //
 								.bit(6, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_CHARGE_TEMP_HIGH) //
 								.bit(7, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_CHARGE_TEMP_LOW) //
-								.bit(8, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_SOC_LOW) //
-								.bit(9, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_TEMP_DIFF_TOO_BIG) //
 								.bit(10, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_POWER_POLE_HIGH) //
 								.bit(11, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG) //
 								.bit(12, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_INSULATION_FAIL) //
@@ -918,7 +871,6 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 								.bit(15, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_DISCHARGE_TEMP_LOW)), //
 						// Level 1 Alarm Summary
 						m(new BitsWordElement(0x1094, this) //
-								.bit(0, BatterySoltaroClusterVersionC.ChannelId.LEVEL1_CELL_VOLTAGE_HIGH) //
 								.bit(1, BatterySoltaroClusterVersionC.ChannelId.LEVEL1_TOTAL_VOLTAGE_HIGH) //
 								.bit(2, BatterySoltaroClusterVersionC.ChannelId.LEVEL1_CHARGE_CURRENT_HIGH) //
 								.bit(3, BatterySoltaroClusterVersionC.ChannelId.LEVEL1_CELL_VOLTAGE_LOW) //

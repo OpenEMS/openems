@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
@@ -10,7 +11,7 @@ type mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
 
 @Component({
     selector: Controller_ChpSocModalComponent.SELECTOR,
-    templateUrl: './modal.component.html'
+    templateUrl: './modal.component.html',
 })
 export class Controller_ChpSocModalComponent implements OnInit {
 
@@ -23,7 +24,7 @@ export class Controller_ChpSocModalComponent implements OnInit {
 
     public thresholds: RangeValue = {
         lower: null,
-        upper: null
+        upper: null,
     };
 
     constructor(
@@ -31,21 +32,21 @@ export class Controller_ChpSocModalComponent implements OnInit {
         public websocket: Websocket,
         public router: Router,
         protected translate: TranslateService,
-        public modalCtrl: ModalController
+        public modalCtrl: ModalController,
     ) { }
 
     ngOnInit() {
         this.thresholds['lower'] = this.component.properties['lowThreshold'];
         this.thresholds['upper'] = this.component.properties['highThreshold'];
-    };
+    }
 
-    /**  
+    /**
     * Updates the Charge-Mode of the EVCS-Controller.
-    * 
-    * @param event 
+    *
+    * @param event
     */
     updateMode(event: CustomEvent) {
-        let oldMode = this.component.properties.mode;
+        const oldMode = this.component.properties.mode;
         let newMode: mode;
 
         switch (event.detail.value) {
@@ -62,7 +63,7 @@ export class Controller_ChpSocModalComponent implements OnInit {
 
         if (this.edge != null) {
             this.edge.updateComponentConfig(this.websocket, this.component.id, [
-                { name: 'mode', value: newMode }
+                { name: 'mode', value: newMode },
             ]).then(() => {
                 this.component.properties.mode = newMode;
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -80,17 +81,17 @@ export class Controller_ChpSocModalComponent implements OnInit {
     * @param event
     */
     updateThresholds() {
-        let oldLowerThreshold = this.component.properties['lowThreshold'];
-        let oldUpperThreshold = this.component.properties['highThreshold'];
+        const oldLowerThreshold = this.component.properties['lowThreshold'];
+        const oldUpperThreshold = this.component.properties['highThreshold'];
 
-        let newLowerThreshold = this.thresholds['lower'];
-        let newUpperThreshold = this.thresholds['upper'];
+        const newLowerThreshold = this.thresholds['lower'];
+        const newUpperThreshold = this.thresholds['upper'];
 
         // prevents automatic update when no values have changed
         if (this.edge != null && (oldLowerThreshold != newLowerThreshold || oldUpperThreshold != newUpperThreshold)) {
             this.edge.updateComponentConfig(this.websocket, this.component.id, [
                 { name: 'lowThreshold', value: newLowerThreshold },
-                { name: 'highThreshold', value: newUpperThreshold }
+                { name: 'highThreshold', value: newUpperThreshold },
             ]).then(() => {
                 this.component.properties['lowThreshold'] = newLowerThreshold;
                 this.component.properties['highThreshold'] = newUpperThreshold;

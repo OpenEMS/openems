@@ -15,7 +15,6 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
@@ -29,10 +28,6 @@ import io.openems.edge.core.host.jsonrpc.GetSystemUpdateStateResponse.UpdateStat
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
-/**
- * This Worker reads the actual network configuration and stores it in the Host
- * configuration.
- */
 public class SystemUpdateHandler {
 
 	private static final int SHORT_TIMEOUT = 10; // [s]
@@ -69,6 +64,7 @@ public class SystemUpdateHandler {
 	 */
 	protected CompletableFuture<JsonrpcResponseSuccess> handleGetSystemUpdateStateRequest(
 			GetSystemUpdateStateRequest request) throws OpenemsNamedException {
+		final var params = this.parent.oem.getSystemUpdateParams();
 		final var result = new CompletableFuture<JsonrpcResponseSuccess>();
 
 		if (this.updateState.isRunning()) {
@@ -76,13 +72,13 @@ public class SystemUpdateHandler {
 
 		} else {
 			// Read currently installed version
-			this.executeSystemCommand("dpkg-query --showformat='${Version}' --show fems", SHORT_TIMEOUT)
-					.whenComplete((response, ex) -> {
+			this.executeSystemCommand("dpkg-query --showformat='${Version}' --show " + params.packageName(), //
+					SHORT_TIMEOUT).whenComplete((response, ex) -> {
 						if (ex != null) {
 							result.completeExceptionally(ex);
 							return;
 						}
-						var stdout = response.getStdout();
+						var stdout = response.scr.stdout();
 						if (stdout.length < 1) {
 							result.completeExceptionally(ex /* todo */);
 							return;
@@ -91,7 +87,7 @@ public class SystemUpdateHandler {
 
 						// Read latest version
 						try {
-							var latestVersion = this.download(OpenemsOEM.SYSTEM_UPDATE_LATEST_VERSION_URL).trim();
+							var latestVersion = this.download(params.latestVersionUrl()).trim();
 							result.complete(
 									GetSystemUpdateStateResponse.from(request.getId(), currentVersion, latestVersion));
 
@@ -123,7 +119,7 @@ public class SystemUpdateHandler {
 		final var runInBackground = false;
 		final Optional<String> username = Optional.empty();
 		final Optional<String> password = Optional.empty();
-		return this.parent.operatingSystem.handleExecuteCommandRequest(
+		return this.parent.operatingSystem.handleExecuteSystemCommandRequest(
 				new ExecuteSystemCommandRequest(command, runInBackground, timeoutSeconds, username, password));
 	}
 
@@ -166,6 +162,7 @@ public class SystemUpdateHandler {
 	}
 
 	private void executeUpdate(CompletableFuture<JsonrpcResponseSuccess> result) throws Exception {
+		final var params = this.parent.oem.getSystemUpdateParams();
 		Path logFile = null;
 		Path scriptFile = null;
 		try {
@@ -173,24 +170,25 @@ public class SystemUpdateHandler {
 			this.updateState.addLog("# Creating Logfile [" + logFile + "]");
 
 			// Download Update Script to temporary file
-			this.updateState.addLog("# Downloading update script [" + OpenemsOEM.SYSTEM_UPDATE_SCRIPT_URL + "]");
+			this.updateState.addLog("# Downloading update script " //
+					+ "[" + params.updateScriptUrl() + "]");
 			scriptFile = Files.createTempFile("system-update-script-", null);
 			var script = //
 					"export PS4='" + MARKER_BASH_TRACE + "${LINENO} '; \n" //
-							+ this.download(OpenemsOEM.SYSTEM_UPDATE_SCRIPT_URL);
+							+ this.download(params.updateScriptUrl());
 			Files.write(scriptFile, script.getBytes(StandardCharsets.US_ASCII));
 
 			final float totalNumberOfLines = script.split("\r\n|\r|\n").length;
 
 			// Make sure 'at' command is available
-			if (this.executeSystemCommand("which at", SHORT_TIMEOUT).get().getStdout().length == 0) {
+			if (this.executeSystemCommand("which at", SHORT_TIMEOUT).get().scr.stdout().length == 0) {
 				this.updateState.addLog("# Command 'at' is missing");
 
 				{
 					this.updateState.addLog("# Executing 'apt-get update'");
 					var response = this.executeSystemCommand("apt-get update", 3600).get();
 					this.updateState.addLog("'apt-get update'", response);
-					if (response.getExitCode() != 0) {
+					if (response.scr.exitcode() != 0) {
 						throw new Exception("'apt-get update' failed");
 					}
 				}
@@ -198,7 +196,7 @@ public class SystemUpdateHandler {
 					this.updateState.addLog("# Executing 'apt-get install at'");
 					var response = this.executeSystemCommand("apt-get -y install at", 3600).get();
 					this.updateState.addLog("'apt-get install at'", response);
-					if (response.getExitCode() != 0) {
+					if (response.scr.exitcode() != 0) {
 						throw new Exception("'apt-get install at' failed");
 					}
 				}
@@ -209,7 +207,7 @@ public class SystemUpdateHandler {
 				this.updateState.addLog("# Executing update script [" + scriptFile + "]");
 				var response = this.executeSystemCommand("echo '" //
 						+ "  {" //
-						+ "    bash -ex " + scriptFile.toString() + "; " //
+						+ "    bash -ex " + scriptFile.toString() + " " + params.updateScriptParams() + "; " //
 						+ "    if [ $? -eq 0 ]; then " //
 						+ "      echo \"" + MARKER_FINISHED_SUCCESSFULLY + "\"; " //
 						+ "    else " //
@@ -217,7 +215,7 @@ public class SystemUpdateHandler {
 						+ "    fi; " //
 						+ "  } >" + logFile.toAbsolutePath() + " 2>&1' " //
 						+ "| at now", SHORT_TIMEOUT).get();
-				if (response.getExitCode() != 0) {
+				if (response.scr.exitcode() != 0) {
 					throw new Exception("Executing update script [" + scriptFile + "] failed");
 				}
 			}

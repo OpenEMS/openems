@@ -1,10 +1,11 @@
+// @ts-strict-ignore
 import { Component, Input } from '@angular/core';
 import { Edge, Service, EdgeConfig } from '../../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 
 @Component({
     selector: 'Io_Api_DigitalInputModal',
-    templateUrl: './modal.component.html'
+    templateUrl: './modal.component.html',
 })
 export class Io_Api_DigitalInput_ModalComponent {
 
@@ -15,6 +16,6 @@ export class Io_Api_DigitalInput_ModalComponent {
 
     constructor(
         public service: Service,
-        public modalCtrl: ModalController
+        public modalCtrl: ModalController,
     ) { }
 }

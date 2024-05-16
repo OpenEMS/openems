@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { Subject } from 'rxjs';
@@ -7,7 +8,7 @@ import { CategorizedComponents, EdgeConfig } from '../../edge/edgeconfig';
 
 @Component({
     selector: StatusSingleComponent.SELECTOR,
-    templateUrl: './status.component.html'
+    templateUrl: './status.component.html',
 })
 export class StatusSingleComponent implements OnInit, OnDestroy {
 
@@ -24,20 +25,20 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
     constructor(
         public modalCtrl: ModalController,
         public service: Service,
-        private websocket: Websocket
+        private websocket: Websocket,
     ) { }
 
     ngOnInit() {
         this.service.getConfig().then(config => {
             this.config = config;
-            let categorizedComponentIds: string[] = [];
+            const categorizedComponentIds: string[] = [];
             this.components = config.listActiveComponents(categorizedComponentIds);
             this.components.forEach(categorizedComponent => {
                 categorizedComponent.components.forEach(component => {
                     // sets all arrow buttons to standard position (folded)
                     component['showProperties'] = false;
                     this.subscribedInfoChannels.push(
-                        new ChannelAddress(component.id, 'State')
+                        new ChannelAddress(component.id, 'State'),
                     );
                 });
             });

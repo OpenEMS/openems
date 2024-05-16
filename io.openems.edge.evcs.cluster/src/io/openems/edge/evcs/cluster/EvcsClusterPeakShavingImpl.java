@@ -38,6 +38,7 @@ import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.evcs.api.ChargeState;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.MetaEvcs;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.meter.api.ElectricityMeter;
 
@@ -51,7 +52,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS, //
 })
 public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
-		implements OpenemsComponent, Evcs, EventHandler, EvcsClusterPeakShaving,
+		implements MetaEvcs, OpenemsComponent, Evcs, EventHandler, EvcsClusterPeakShaving,
 		/*
 		 * Cluster is not a Controller, but we need to be placed at the correct position
 		 * in the Cycle by the Scheduler to be able to read the actually available ESS
@@ -372,6 +373,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 						} else {
 							managedEvcs.getChargeStateHandler()
 									.applyNewChargeState(ChargeState.WAITING_FOR_AVAILABLE_POWER);
+							managedEvcs.setDisplayText("Warte auf Leistung");
 							managedEvcs.setChargePowerLimit(0);
 						}
 
@@ -582,8 +584,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	@Override
 	public void run() throws OpenemsNamedException {
 		// Read maximum ESS Discharge power at the current position in the Cycle
-		if (this.ess instanceof ManagedSymmetricEss) {
-			var e = (ManagedSymmetricEss) this.ess;
+		if (this.ess instanceof ManagedSymmetricEss e) {
 			this.maxEssDischargePower = e.getPower().getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
 
 		} else {

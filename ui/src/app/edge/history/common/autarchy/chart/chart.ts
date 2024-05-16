@@ -1,12 +1,13 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { HistoryUtils } from 'src/app/shared/service/utils';
+import { ChartAxis, HistoryUtils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, Utils } from 'src/app/shared/shared';
 
 @Component({
   selector: 'autarchychart',
-  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html'
+  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -17,13 +18,13 @@ export class ChartComponent extends AbstractHistoryChart {
         [{
           name: 'Consumption',
           powerChannel: ChannelAddress.fromString('_sum/ConsumptionActivePower'),
-          energyChannel: ChannelAddress.fromString('_sum/ConsumptionActiveEnergy')
+          energyChannel: ChannelAddress.fromString('_sum/ConsumptionActiveEnergy'),
         },
         {
           name: 'GridBuy',
           powerChannel: ChannelAddress.fromString('_sum/GridActivePower'),
           energyChannel: ChannelAddress.fromString('_sum/GridBuyActiveEnergy'),
-          converter: HistoryUtils.ValueConverter.NON_NULL_OR_NEGATIVE
+          converter: HistoryUtils.ValueConverter.NON_NULL_OR_NEGATIVE,
         }],
       output: (data: HistoryUtils.ChannelData) => {
         return [{
@@ -34,16 +35,20 @@ export class ChartComponent extends AbstractHistoryChart {
           converter: () => {
             return data['Consumption']
               ?.map((value, index) =>
-                Utils.calculateAutarchy(data['GridBuy'][index], value)
+                Utils.calculateAutarchy(data['GridBuy'][index], value),
               );
           },
-          color: 'rgb(0,152,204)'
+          color: 'rgb(0,152,204)',
         }];
       },
       tooltip: {
-        formatNumber: '1.0-0'
+        formatNumber: '1.0-0',
       },
-      unit: HistoryUtils.YAxisTitle.PERCENTAGE
+      yAxes: [{
+        unit: YAxisTitle.PERCENTAGE,
+        position: 'left',
+        yAxisId: ChartAxis.LEFT,
+      }],
     };
   }
 }

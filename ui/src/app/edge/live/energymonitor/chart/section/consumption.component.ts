@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -13,16 +14,16 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
         trigger('Consumption', [
             state('show', style({
                 opacity: 0.1,
-                transform: 'translateX(0%)'
+                transform: 'translateX(0%)',
             })),
             state('hide', style({
                 opacity: 0.6,
-                transform: 'translateX(17%)'
+                transform: 'translateX(17%)',
             })),
             transition('show => hide', animate('650ms ease-out')),
-            transition('hide => show', animate('0ms ease-in'))
-        ])
-    ]
+            transition('hide => show', animate('0ms ease-in')),
+        ]),
+    ],
 })
 export class ConsumptionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
@@ -35,7 +36,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     constructor(
         unitpipe: UnitvaluePipe,
         translate: TranslateService,
-        service: Service
+        service: Service,
     ) {
         super('General.consumption', "right", "#FDC507", translate, service, "Consumption");
         this.unitpipe = unitpipe;
@@ -86,8 +87,8 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
-        let x = innerRadius - 5 - square.length;
-        let y = (square.length / 2) * (-1);
+        const x = innerRadius - 5 - square.length;
+        const y = (square.length / 2) * (-1);
         return new SvgSquarePosition(x, y);
     }
     protected getImagePath(): string {
@@ -111,15 +112,15 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let p = {
+        const v = Math.abs(ratio);
+        const r = radius;
+        const p = {
             topLeft: { x: v, y: v * -1 },
             middleLeft: { x: 0, y: 0 },
             bottomLeft: { x: v, y: v },
             topRight: { x: r, y: v * -1 },
             bottomRight: { x: r, y: v },
-            middleRight: { x: r - v, y: 0 }
+            middleRight: { x: r - v, y: 0 },
         };
         if (ratio > 0) {
             // towards right
@@ -132,16 +133,16 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     }
 
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let animationWidth = (r * -1) - v;
+        const v = Math.abs(ratio);
+        const r = radius;
+        const animationWidth = (r * -1) - v;
         let p = {
             topLeft: { x: v, y: v * -1 },
             middleLeft: { x: 0, y: 0 },
             bottomLeft: { x: v, y: v },
             topRight: { x: r, y: v * -1 },
             bottomRight: { x: r, y: v },
-            middleRight: { x: r - v, y: 0 }
+            middleRight: { x: r - v, y: 0 },
         };
         if (ratio > 0) {
             // towards right

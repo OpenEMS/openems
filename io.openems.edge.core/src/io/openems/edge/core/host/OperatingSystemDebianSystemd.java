@@ -1,5 +1,9 @@
 package io.openems.edge.core.host;
 
+import static java.lang.Runtime.getRuntime;
+import static java.util.concurrent.CompletableFuture.runAsync;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -16,11 +20,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -36,7 +42,11 @@ import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest.SystemCommand;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse.SystemCommandResponse;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartResponse;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 
 /**
@@ -77,7 +87,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				/*
 				 * Parse the content of the network configuration file
 				 */
-				var lines = Files.readAllLines(file.toPath(), StandardCharsets.US_ASCII);
+				var lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
 				NetworkInterface<File> networkInterface = parseSystemdNetworkdConfigurationFile(lines, file);
 
 				// check for null value
@@ -124,7 +134,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			var file = (File) iface.getAttachment();
 			var lines = this.toFileFormat(user, iface);
 			try {
-				Files.write(file.toPath(), lines, StandardCharsets.US_ASCII);
+				Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 			} catch (IOException e) {
 				writeException = e;
 			}
@@ -137,7 +147,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		}
 
 		// apply the configuration by restarting the systemd-networkd service
-		this.handleExecuteCommandRequest(ExecuteSystemCommandRequest
+		this.handleExecuteSystemCommandRequest(ExecuteSystemCommandRequest
 				.runInBackgroundWithoutAuthentication("systemctl restart systemd-networkd --no-block"));
 	}
 
@@ -182,9 +192,9 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	 */
 	private List<String> toFileFormat(User user, NetworkInterface<?> iface) throws OpenemsNamedException {
 		List<String> result = new ArrayList<>();
-		result.add("# changedBy:" //
+		result.add("# changedBy: " //
 				+ user.getName());
-		result.add("# changedAt:" //
+		result.add("# changedAt: " //
 				+ LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString() //
 		);
 		result.add("[Match]");
@@ -219,78 +229,99 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	}
 
 	@Override
-	public CompletableFuture<ExecuteSystemCommandResponse> handleExecuteCommandRequest(
+	public CompletableFuture<ExecuteSystemCommandResponse> handleExecuteSystemCommandRequest(
 			ExecuteSystemCommandRequest request) {
 		var result = new CompletableFuture<ExecuteSystemCommandResponse>();
+		this.execute(request.systemCommand, //
+				scr -> result.complete(new ExecuteSystemCommandResponse(request.id, scr)),
+				e -> result.completeExceptionally(e));
+		return result;
+	}
 
+	@Override
+	public CompletableFuture<ExecuteSystemRestartResponse> handleExecuteSystemRestartRequest(
+			ExecuteSystemRestartRequest request) {
+		final var result = new CompletableFuture<ExecuteSystemRestartResponse>();
+		var sc = new SystemCommand(//
+				switch (request.type) { // actual command string
+				case HARD -> "/usr/bin/systemctl reboot -i"; // "-i" is for "ignore inhibitors and users"
+				case SOFT -> "/usr/bin/systemctl restart openems";
+				}, //
+				false, // runInBackground
+				5, // timeoutSeconds
+				Optional.empty(), // username
+				Optional.empty()); // password
+		this.execute(sc, //
+				scr -> result.complete(new ExecuteSystemRestartResponse(request.id, scr)),
+				e -> result.completeExceptionally(e));
+		return result;
+	}
+
+	private void execute(SystemCommand sc, Consumer<SystemCommandResponse> scr, Consumer<Throwable> error) {
 		try {
-			Process proc;
-			if (request.getUsername().isPresent() && request.getPassword().isPresent()) {
+			final Process proc;
+			if (sc.username().isPresent() && sc.password().isPresent()) {
 				// Authenticate with user and password
-				proc = Runtime.getRuntime().exec(new String[] { //
+				proc = getRuntime().exec(new String[] { //
 						"/bin/bash", "-c", "--", //
-						"echo " + request.getPassword().get() + " | " //
-								+ " /usr/bin/sudo -Sk -p '' -u \"" + request.getUsername().get() + "\" -- " //
-								+ request.getCommand() });
-			} else if (request.getPassword().isPresent()) {
+						"echo " + sc.password().get() + " | " //
+								+ " /usr/bin/sudo -Sk -p '' -u \"" + sc.username().get() + "\" -- " //
+								+ sc.command() });
+			} else if (sc.password().isPresent()) {
 				// Authenticate with password (user must have 'sudo' permissions)
-				proc = Runtime.getRuntime().exec(new String[] { //
+				proc = getRuntime().exec(new String[] { //
 						"/bin/bash", "-c", "--", //
-						"echo " + request.getPassword().get() + " | " //
+						"echo " + sc.password().get() + " | " //
 								+ " /usr/bin/sudo -Sk -p '' -- " //
-								+ request.getCommand() });
+								+ sc.command() });
 			} else {
 				// No authentication: run as current user
-				proc = Runtime.getRuntime().exec(new String[] { //
-						"/bin/bash", "-c", "--", request.getCommand() });
+				proc = getRuntime().exec(new String[] { //
+						"/bin/bash", "-c", "--", sc.command() });
 			}
 
 			// get stdout and stderr
-			CompletableFuture<List<String>> stdoutFuture = CompletableFuture
-					.supplyAsync(new InputStreamToString(this.parent, request.getCommand(), proc.getInputStream()));
-			CompletableFuture<List<String>> stderrFuture = CompletableFuture
-					.supplyAsync(new InputStreamToString(this.parent, request.getCommand(), proc.getErrorStream()));
+			var stdoutFuture = supplyAsync(new InputStreamToString(this.parent, sc.command(), proc.getInputStream()));
+			var stderrFuture = supplyAsync(new InputStreamToString(this.parent, sc.command(), proc.getErrorStream()));
 
-			if (request.isRunInBackground()) {
+			if (sc.runInBackground()) {
 				/*
 				 * run in background
 				 */
-				String[] stdout = { //
-						"Command [" + request.getCommand() + "] executed in background...", //
+				var stdout = new String[] { //
+						"Command [" + sc.command() + "] executed in background...", //
 						"Check system logs for more information." };
-				result.complete(new ExecuteSystemCommandResponse(request.getId(), stdout, new String[0], 0));
+				scr.accept(new SystemCommandResponse(stdout, new String[0], 0));
 
 			} else {
 				/*
 				 * run in foreground with timeout
 				 */
-				CompletableFuture.runAsync(() -> {
-					List<String> stderr = new ArrayList<>();
+				runAsync(() -> {
+					var stderr = new ArrayList<>();
 					try {
 						// apply command timeout
-						if (!proc.waitFor(request.getTimeoutSeconds(), TimeUnit.SECONDS)) {
-							stderr.add("Command [" + request.getCommand() + "] timed out.");
+						if (!proc.waitFor(sc.timeoutSeconds(), TimeUnit.SECONDS)) {
+							stderr.add("Command [" + sc.command() + "] timed out.");
 							proc.destroy();
 						}
 
 						var stdout = stdoutFuture.get(1, TimeUnit.SECONDS);
 						stderr.addAll(stderrFuture.get(1, TimeUnit.SECONDS));
-						result.complete(new ExecuteSystemCommandResponse(request.getId(), //
+						scr.accept(new SystemCommandResponse(//
 								stdout.toArray(new String[stdout.size()]), //
 								stderr.toArray(new String[stderr.size()]), //
 								proc.exitValue() //
 						));
 
 					} catch (Throwable e) {
-						result.completeExceptionally(e);
+						error.accept(e);
 					}
 				});
 			}
 		} catch (IOException e) {
-			result.completeExceptionally(e);
+			error.accept(e);
 		}
-
-		return result;
 	}
 
 	/**
@@ -341,7 +372,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			if (!Files.exists(UDEV_PATH)) {
 				return "";
 			}
-			var lines = Files.readAllLines(UDEV_PATH, StandardCharsets.US_ASCII);
+			var lines = Files.readAllLines(UDEV_PATH, StandardCharsets.UTF_8);
 			return String.join("\n", lines);
 		} catch (IOException e) {
 			throw new OpenemsException("Unable to read file [" + UDEV_PATH + "]: " + e.getMessage());

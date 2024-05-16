@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { DefaultTypes } from "../service/defaulttypes";
 import { Utils } from "../service/utils";
 
@@ -9,18 +10,18 @@ export class CurrentData {
   public readonly summary: DefaultTypes.Summary;
 
   constructor(
-    public readonly channel: { [channelAddress: string]: any } = {}
+    public readonly channel: { [channelAddress: string]: any } = {},
   ) {
     this.summary = this.getSummary(channel);
   }
 
   private getSummary(c: { [channelAddress: string]: any }): DefaultTypes.Summary {
-    let result: DefaultTypes.Summary = {
+    const result: DefaultTypes.Summary = {
       system: {
         totalPower: null,
         autarchy: null,
         selfConsumption: null,
-        state: null
+        state: null,
       }, storage: {
         soc: null,
         activePowerL1: null,
@@ -42,7 +43,7 @@ export class CurrentData {
         effectivePower: null,
         effectiveChargePower: null,
         effectiveDischargePower: null,
-        capacity: null
+        capacity: null,
       }, production: {
         hasDC: false,
         powerRatio: null,
@@ -52,7 +53,7 @@ export class CurrentData {
         activePowerAcL2: null,
         activePowerAcL3: null,
         activePowerDc: null,
-        maxActivePower: null
+        maxActivePower: null,
       }, grid: {
         gridMode: null,
         powerRatio: null,
@@ -65,14 +66,14 @@ export class CurrentData {
         sellActivePowerL1: null,
         sellActivePowerL2: null,
         sellActivePowerL3: null,
-        maxSellActivePower: null
+        maxSellActivePower: null,
       }, consumption: {
         powerRatio: null,
         activePower: null,
         activePowerL1: null,
         activePowerL2: null,
-        activePowerL3: null
-      }
+        activePowerL3: null,
+      },
     };
 
     {
@@ -180,7 +181,7 @@ export class CurrentData {
 
         effectivePower = Utils.subtractSafely(
           Utils.subtractSafely(
-            Utils.orElse(result.storage.dischargeActivePowerAc, 0), result.storage.chargeActivePowerAc
+            Utils.orElse(result.storage.dischargeActivePowerAc, 0), result.storage.chargeActivePowerAc,
           ), result.production.activePowerDc);
         result.storage.effectivePower = effectivePower;
       }
@@ -227,7 +228,7 @@ export class CurrentData {
         result.grid.sellActivePower
         + (result.production.activePower < 0 ? result.production.activePower * -1 : 0)
         + result.storage.chargeActivePowerAc,
-        + (result.consumption.activePower > 0 ? result.consumption.activePower : 0)
+        + (result.consumption.activePower > 0 ? result.consumption.activePower : 0),
       );
       result.system.autarchy = CurrentData.calculateAutarchy(result.grid.buyActivePower, result.consumption.activePower);
       result.system.selfConsumption = Utils.calculateSelfConsumption(result.grid.sellActivePower, result.production.activePower);
@@ -244,10 +245,10 @@ export class CurrentData {
             1 - (
               Utils.divideSafely(
                 Utils.orElse(buyFromGrid, 0),
-                Math.max(Utils.orElse(consumptionActivePower, 0), 0)
+                Math.max(Utils.orElse(consumptionActivePower, 0), 0),
               )
             )
-          ) * 100, 0
+          ) * 100, 0,
         ), 0);
     } else {
       return null;

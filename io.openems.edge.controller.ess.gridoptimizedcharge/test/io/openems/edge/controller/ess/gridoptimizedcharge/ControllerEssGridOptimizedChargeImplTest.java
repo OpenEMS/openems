@@ -1,5 +1,7 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
+import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTION;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -22,6 +24,7 @@ import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingRunnable;
+import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -30,14 +33,12 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.Plot;
 import io.openems.edge.common.test.Plot.AxisFormat;
 import io.openems.edge.common.test.Plot.Data;
-import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.meter.test.DummyElectricityMeter;
-import io.openems.edge.predictor.api.test.DummyPrediction24Hours;
-import io.openems.edge.predictor.api.test.DummyPredictor24Hours;
+import io.openems.edge.predictor.api.prediction.Prediction;
+import io.openems.edge.predictor.api.test.DummyPredictor;
 import io.openems.edge.predictor.api.test.DummyPredictorManager;
 
 public class ControllerEssGridOptimizedChargeImplTest {
@@ -52,8 +53,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss(ESS_ID);
 	private static final DummyElectricityMeter METER = new DummyElectricityMeter(METER_ID);
 	private static final DummyHybridEss HYBRID_ESS = new DummyHybridEss(ESS_ID);
-	private static final DummyManagedSymmetricEss ESS_WITH_NONE_APPARENT_POWER = new DummyManagedSymmetricEss(ESS_ID,
-			new DummyPower(0));
+	private static final DummyManagedSymmetricEss ESS_WITH_NONE_APPARENT_POWER = new DummyManagedSymmetricEss(ESS_ID) //
+			.withMaxApparentPower(0);
 
 	// Ess channels
 	private static final ChannelAddress ESS_CAPACITY = new ChannelAddress(ESS_ID, "Capacity");
@@ -151,20 +152,18 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void automatic_default_predictions_at_midnight_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
-
-		// Predictions
-		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
-
-		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
-				"_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
-				"_sum/ConsumptionActivePower");
-
-		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
+		final var sum = new DummySum();
+		final var predictorManager = new DummyPredictorManager(
+				// Production
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						SUM_PRODUCTION_ACTIVE_POWER),
+				// Consumption
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -202,20 +201,18 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void automatic_default_predictions_at_midday_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
+		final var midnight = ZonedDateTime.now(clock).truncatedTo(DAYS);
 		final var cm = new DummyComponentManager(clock);
-
-		// Predictions
-		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
-
-		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
-				"_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
-				"_sum/ConsumptionActivePower");
-
-		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
+		final var sum = new DummySum();
+		final var predictorManager = new DummyPredictorManager(
+				// Production
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, midnight, DEFAULT_PRODUCTION_PREDICTION),
+						SUM_PRODUCTION_ACTIVE_POWER),
+				// Consumption
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, midnight, DEFAULT_CONSUMPTION_PREDICTION),
+						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -260,20 +257,18 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(10);
 
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
+		final var midnight = ZonedDateTime.now(clock).truncatedTo(DAYS);
 		final var cm = new DummyComponentManager(clock);
-
-		// Predictions
-		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
-
-		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
-				"_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
-				"_sum/ConsumptionActivePower");
-
-		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
+		final var sum = new DummySum();
+		final var predictorManager = new DummyPredictorManager(
+				// Production
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, midnight, DEFAULT_PRODUCTION_PREDICTION),
+						SUM_PRODUCTION_ACTIVE_POWER),
+				// Consumption
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, midnight, DEFAULT_CONSUMPTION_PREDICTION),
+						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -333,20 +328,18 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void automatic_default_predictions_at_evening_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T20:00:00.00Z"), ZoneOffset.UTC);
+		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
-
-		// Predictions
-		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
-
-		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
-				"_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
-				"_sum/ConsumptionActivePower");
-
-		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
+		final var sum = new DummySum();
+		final var predictorManager = new DummyPredictorManager(
+				// Production
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						SUM_PRODUCTION_ACTIVE_POWER),
+				// Consumption
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -405,19 +398,9 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	public void automatic_no_predictions_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
 		final var cm = new DummyComponentManager(clock);
-
-		// Predictions
-		final var productionPrediction = new DummyPrediction24Hours();
-		final var consumptionPrediction = new DummyPrediction24Hours();
-
-		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
-				"_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
-				"_sum/ConsumptionActivePower");
-
-		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(
+				new DummyPredictor(PREDICTOR_ID, cm, EMPTY_PREDICTION, SUM_PRODUCTION_ACTIVE_POWER), //
+				new DummyPredictor(PREDICTOR_ID, cm, EMPTY_PREDICTION, SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -453,15 +436,9 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	public void automatic_sell_to_grid_limit_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
 		final var cm = new DummyComponentManager(clock);
-
-		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, new DummyPrediction24Hours(),
-				"_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, new DummyPrediction24Hours(),
-				"_sum/ConsumptionActivePower");
-
-		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(
+				new DummyPredictor(PREDICTOR_ID, cm, EMPTY_PREDICTION, SUM_PRODUCTION_ACTIVE_POWER), //
+				new DummyPredictor(PREDICTOR_ID, cm, EMPTY_PREDICTION, SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -550,15 +527,9 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	public void automatic_sell_to_grid_limit_test_with_full_ess() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
 		final var cm = new DummyComponentManager(clock);
-
-		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, new DummyPrediction24Hours(),
-				"_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, new DummyPrediction24Hours(),
-				"_sum/ConsumptionActivePower");
-
-		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(
+				new DummyPredictor(PREDICTOR_ID, cm, EMPTY_PREDICTION, SUM_PRODUCTION_ACTIVE_POWER), //
+				new DummyPredictor(PREDICTOR_ID, cm, EMPTY_PREDICTION, SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -649,15 +620,9 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	public void automatic_sell_to_grid_limit_buffer_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
 		final var cm = new DummyComponentManager(clock);
-
-		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, new DummyPrediction24Hours(),
-				"_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, new DummyPrediction24Hours(),
-				"_sum/ConsumptionActivePower");
-
-		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(
+				new DummyPredictor(PREDICTOR_ID, cm, EMPTY_PREDICTION, SUM_PRODUCTION_ACTIVE_POWER), //
+				new DummyPredictor(PREDICTOR_ID, cm, EMPTY_PREDICTION, SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -745,20 +710,18 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void manual_midnight_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
-
-		// Predictions
-		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
-
-		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
-				"_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
-				"_sum/ConsumptionActivePower");
-
-		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
+		final var sum = new DummySum();
+		final var predictorManager = new DummyPredictorManager(
+				// Production
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						SUM_PRODUCTION_ACTIVE_POWER),
+				// Consumption
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -797,20 +760,18 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void manual_midday_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
+		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
-
-		// Predictions
-		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
-
-		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
-				"_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
-				"_sum/ConsumptionActivePower");
-
-		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
+		final var sum = new DummySum();
+		final var predictorManager = new DummyPredictorManager(
+				// Production
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						SUM_PRODUCTION_ACTIVE_POWER),
+				// Consumption
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -847,20 +808,18 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void hybridEss_manual_midday_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
+		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
-
-		// Predictions
-		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
-
-		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
-				"_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
-				"_sum/ConsumptionActivePower");
-
-		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
+		final var sum = new DummySum();
+		final var predictorManager = new DummyPredictorManager(
+				// Production
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						SUM_PRODUCTION_ACTIVE_POWER),
+				// Consumption
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -899,20 +858,18 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void mode_off_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
-
-		// Predictions
-		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
-
-		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
-				"_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
-				"_sum/ConsumptionActivePower");
-
-		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
+		final var sum = new DummySum();
+		final var predictorManager = new DummyPredictorManager(
+				// Production
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						SUM_PRODUCTION_ACTIVE_POWER),
+				// Consumption
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -948,20 +905,18 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void no_capacity_left_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
+		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
-
-		// Predictions
-		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
-
-		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
-				"_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
-				"_sum/ConsumptionActivePower");
-
-		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
+		final var sum = new DummySum();
+		final var predictorManager = new DummyPredictorManager(
+				// Production
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						SUM_PRODUCTION_ACTIVE_POWER),
+				// Consumption
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -1004,20 +959,18 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(10);
 
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
-
-		// Predictions
-		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
-
-		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
-				"_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
-				"_sum/ConsumptionActivePower");
-
-		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
+		final var sum = new DummySum();
+		final var predictorManager = new DummyPredictorManager(
+				// Production
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						SUM_PRODUCTION_ACTIVE_POWER),
+				// Consumption
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -1068,20 +1021,18 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(50);
 
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneId.of("Europe/Berlin"));
+		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
-
-		// Predictions
-		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
-
-		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
-				"_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
-				"_sum/ConsumptionActivePower");
-
-		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
+		final var sum = new DummySum();
+		final var predictorManager = new DummyPredictorManager(
+				// Production
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, now, DEFAULT_PRODUCTION_PREDICTION),
+						SUM_PRODUCTION_ACTIVE_POWER),
+				// Consumption
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, now, DEFAULT_CONSUMPTION_PREDICTION),
+						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -1677,22 +1628,22 @@ public class ControllerEssGridOptimizedChargeImplTest {
 
 	@Test
 	public void calculateAvailEnergy_test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T08:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T08:00:00.00Z"), ZoneOffset.UTC);
+		final var midnight = ZonedDateTime.now(clock).truncatedTo(DAYS);
+		final var cm = new DummyComponentManager(clock);
+		final var sum = new DummySum();
+		final var predictorManager = new DummyPredictorManager(
+				// Production
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_PRODUCTION_ACTIVE_POWER, midnight, DEFAULT_PRODUCTION_PREDICTION),
+						SUM_PRODUCTION_ACTIVE_POWER),
+				// Consumption
+				new DummyPredictor(PREDICTOR_ID, cm,
+						Prediction.from(sum, SUM_CONSUMPTION_ACTIVE_POWER, midnight, DEFAULT_CONSUMPTION_PREDICTION),
+						SUM_CONSUMPTION_ACTIVE_POWER));
 
-		DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
-
-		// Predictors
-		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
-
-		Integer[] production = productionPredictor
-				.get24HoursPrediction(new ChannelAddress("_sum", "ProductionActivePower")).getValues();
-		Integer[] consumption = consumptionPredictor
-				.get24HoursPrediction(new ChannelAddress("_sum", "ConsumptionActivePower")).getValues();
+		var production = predictorManager.getPrediction(SUM_PRODUCTION_ACTIVE_POWER).asArray();
+		var consumption = predictorManager.getPrediction(SUM_CONSUMPTION_ACTIVE_POWER).asArray();
 
 		// Positive result 08:00 - 12:00
 		int result1 = DelayCharge.calculateAvailEnergy(production, consumption, clock, 720 /* 12:00 */);
@@ -1709,11 +1660,6 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		 */
 		final TimeLeapClock clockInQuarterHour = new TimeLeapClock(Instant.parse("2020-01-01T08:09:00.00Z"),
 				ZoneOffset.UTC);
-
-		production = productionPredictor.get24HoursPrediction(new ChannelAddress("_sum", "ProductionActivePower"))
-				.getValues();
-		consumption = consumptionPredictor.get24HoursPrediction(new ChannelAddress("_sum", "ConsumptionActivePower"))
-				.getValues();
 
 		// Positive result 08:09 - 12:00 (Energy is increasing because there is more
 		// consumption as production at that time)

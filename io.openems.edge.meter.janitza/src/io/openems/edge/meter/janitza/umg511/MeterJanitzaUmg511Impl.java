@@ -95,7 +95,7 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(3845, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(3845), SCALE_FACTOR_3), //
@@ -120,7 +120,8 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(3873), //
 								INVERT_IF_TRUE(this.invert))), //
 				new FC3ReadRegistersTask(3925, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(3925)), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(3925), //
+								INVERT_IF_TRUE(this.invert)), //
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(3927), //
 								INVERT_IF_TRUE(this.invert))), //
 				new FC3ReadRegistersTask(3995, Priority.LOW, //
@@ -150,7 +151,6 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
 				ElectricityMeter.getModbusSlaveNatureTable(accessMode) //
 		);
 	}

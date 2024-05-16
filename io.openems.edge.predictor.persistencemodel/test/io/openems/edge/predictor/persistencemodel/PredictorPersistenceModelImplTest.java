@@ -1,19 +1,21 @@
 package io.openems.edge.predictor.persistencemodel;
 
+import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTION;
 import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
+import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
+import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.TimeLeapClock;
+import io.openems.edge.predictor.api.prediction.LogVerbosity;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class PredictorPersistenceModelImplTest {
@@ -55,18 +57,73 @@ public class PredictorPersistenceModelImplTest {
 				.activate(MyConfig.create() //
 						.setId(PREDICTOR_ID) //
 						.setChannelAddresses(METER1_ACTIVE_POWER.toString()) //
+						.setLogVerbosity(LogVerbosity.NONE) //
 						.build());
 
-		var prediction = sut.get24HoursPrediction(METER1_ACTIVE_POWER);
-		var p = prediction.getValues();
+		var prediction = sut.getPrediction(METER1_ACTIVE_POWER);
+		var p = prediction.asArray();
 
 		assertEquals((Integer) 0, p[0]);
 		assertEquals((Integer) 3, p[20]);
 		assertEquals((Integer) 6, p[21]);
 		assertEquals((Integer) 146, p[22]);
 		assertEquals((Integer) 297, p[23]);
-
-		System.out.println(Arrays.toString(prediction.getValues()));
+		assertEquals(190, prediction.valuePerQuarter.size());
 	}
 
+	@Test
+	public void test2() throws Exception {
+		var start = ZonedDateTime.of(2019, 12, 30, 0, 0, 0, 0, ZoneId.of("UTC"));
+		final var clock = new TimeLeapClock(start.toInstant(), ZoneOffset.UTC);
+		int[] values = {
+				// Day 1
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 19, 74, 323,
+				446, 934, 1583, 1952, 2861, 3565, 2275, 1742, 1807, 1523, 1594, 1386, 1378, 1416, 1501, 1367, 1413,
+				1515, 1546, 1652, 1605, 1284, 824, 788, 860, 1142, 1426, 1307, 1284, 1249, 931, 831, 739, 711, 403, 263,
+				55, 15, 3, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				// Day 2
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 18, 39, 308,
+				650, 555, 544, 825, 1293, 2108, 2165, 2198, 3209, 3405, 3686, 4231, 3850, 4915, 5397, 7712, 7363, 7483,
+				7320, 5950, 5644, 7157, 6847, 6549, 6498, 6296, 6096, 5895, 5658, 5372, 5011, 4603, 4159, 3831, 3400,
+				2757, 727, 194, 70, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+		var timedata = new DummyTimedata(TIMEDATA_ID);
+		for (var i = 0; i < values.length; i++) {
+			timedata.add(start.plusMinutes(i * 15), METER1_ACTIVE_POWER, values[i]);
+		}
+
+		var sut = new PredictorPersistenceModelImpl();
+
+		new ComponentTest(sut) //
+				.addReference("timedata", timedata) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.activate(MyConfig.create() //
+						.setId(PREDICTOR_ID) //
+						.setChannelAddresses(METER1_ACTIVE_POWER.toString()) //
+						.setLogVerbosity(LogVerbosity.NONE) //
+						.build());
+
+		clock.leap(39, ChronoUnit.HOURS);
+
+		sut.getPrediction(METER1_ACTIVE_POWER);
+	}
+
+	@Test
+	public void testEmpty() throws Exception {
+		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
+				ZoneOffset.UTC);
+		var timedata = new DummyTimedata(TIMEDATA_ID);
+		var sut = new PredictorPersistenceModelImpl();
+
+		new ComponentTest(sut) //
+				.addReference("timedata", timedata) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.activate(MyConfig.create() //
+						.setId(PREDICTOR_ID) //
+						.setChannelAddresses(METER1_ACTIVE_POWER.toString()) //
+						.setLogVerbosity(LogVerbosity.NONE) //
+						.build());
+
+		assertEquals(EMPTY_PREDICTION, sut.getPrediction(METER1_ACTIVE_POWER));
+	}
 }

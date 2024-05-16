@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
@@ -9,7 +10,7 @@ type inputMode = 'SOC' | 'GRIDSELL' | 'GRIDBUY' | 'PRODUCTION' | 'OTHER'
 
 @Component({
   selector: 'Io_ChannelSingleThresholdModalComponent',
-  templateUrl: './modal.component.html'
+  templateUrl: './modal.component.html',
 })
 export class Controller_Io_ChannelSingleThresholdModalComponent implements OnInit {
 
@@ -34,7 +35,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
     public modalCtrl: ModalController,
     public translate: TranslateService,
     public websocket: Websocket,
-    public formBuilder: FormBuilder
+    public formBuilder: FormBuilder,
   ) {
   }
 
@@ -43,19 +44,19 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
       minimumSwitchingTime: new FormControl(this.component.properties.minimumSwitchingTime, Validators.compose([
         Validators.min(5),
         Validators.pattern('^[1-9][0-9]*$'),
-        Validators.required
+        Validators.required,
       ])),
       switchedLoadPower: new FormControl(this.component.properties.switchedLoadPower, Validators.compose([
         Validators.pattern('^(?:[1-9][0-9]*|0)$'),
-        Validators.required
+        Validators.required,
       ])),
       threshold: new FormControl(this.getInputMode() == 'GRIDSELL' ? this.component.properties.threshold * -1 : this.component.properties.threshold, Validators.compose([
         Validators.min(1),
         Validators.pattern('^[1-9][0-9]*$'),
-        Validators.required
+        Validators.required,
       ])),
       inputMode: new FormControl(this.getInputMode()),
-      invert: new FormControl(this.component.properties.invert, Validators.requiredTrue)
+      invert: new FormControl(this.component.properties.invert, Validators.requiredTrue),
     });
     this.minimumSwitchingTime = this.formGroup.controls['minimumSwitchingTime'];
     this.threshold = this.formGroup.controls['threshold'];
@@ -91,7 +92,6 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
           this.threshold.setValue(newThreshold);
           this.threshold.markAsDirty();
         } else if (this.component.properties.threshold < 0) {
-          newThreshold = newThreshold;
           this.threshold.setValue(newThreshold);
           this.threshold.markAsDirty();
         }
@@ -124,7 +124,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
   }
 
   public updateMode(event: CustomEvent) {
-    let oldMode = this.component.properties.mode;
+    const oldMode = this.component.properties.mode;
     let newMode: mode;
 
     switch (event.detail.value) {
@@ -141,7 +141,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
 
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, this.component.id, [
-        { name: 'mode', value: newMode }
+        { name: 'mode', value: newMode },
       ]).then(() => {
         this.component.properties.mode = newMode;
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -153,7 +153,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
     }
   }
 
-  private convertToChannelAddress(inputMode: inputMode): String {
+  private convertToChannelAddress(inputMode: inputMode): string {
     switch (inputMode) {
       case 'SOC':
         return '_sum/EssSoc';
@@ -186,7 +186,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
       if (this.edge.roleIsAtLeast('owner')) {
         if (this.minimumSwitchingTime.valid && this.threshold.valid && this.switchedLoadPower.valid) {
           if (this.threshold.value > this.switchedLoadPower.value) {
-            let updateComponentArray = [];
+            const updateComponentArray = [];
             Object.keys(this.formGroup.controls).forEach((element, index) => {
               if (this.formGroup.controls[element].dirty) {
                 // catch inputMode and convert it to inputChannelAddress

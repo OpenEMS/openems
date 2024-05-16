@@ -1,16 +1,17 @@
 Bundle-Name: OpenEMS Edge Meter Siemens
-Bundle-Description: This implementation covers Siemens PAC2200/3200/4200
-Bundle-Vendor: Ernst KNOLL Feinmechanik GmbH
+Bundle-Description: This implementation covers Siemens PAC1600/PAC2200/PAC3200/PAC4200
+Bundle-Vendor: Ernst KNOLL Feinmechanik GmbH (PAC2200/PAC3200/PAC4200) / Universität Bayreuth Lehrstuhl Elektrische Energiesysteme (PAC1600)
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
+	com.ghgande.j2mod,\
 	io.openems.common,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
 	io.openems.edge.meter.api,\
 
 -testpath: \
-	${testpath}, \
-	com.ghgande.j2mod
+	${testpath}
+

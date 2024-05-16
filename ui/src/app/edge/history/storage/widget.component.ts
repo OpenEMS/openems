@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
@@ -7,7 +8,7 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: StorageComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: './widget.component.html',
 })
 export class StorageComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
@@ -23,8 +24,8 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
     public essComponents: EdgeConfig.Component[] = [];
 
     constructor(
-        public service: Service,
-        private route: ActivatedRoute
+        public override service: Service,
+        private route: ActivatedRoute,
 
     ) {
         super(service);
@@ -42,7 +43,7 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
 
     ngOnChanges() {
         this.updateValues();
-    };
+    }
 
     protected updateValues() {
         this.service.getConfig().then(config => {
@@ -58,10 +59,10 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let channels: ChannelAddress[] = [];
+            const channels: ChannelAddress[] = [];
             channels.push(
                 new ChannelAddress('_sum', 'EssDcChargeEnergy'),
-                new ChannelAddress('_sum', 'EssDcDischargeEnergy')
+                new ChannelAddress('_sum', 'EssDcDischargeEnergy'),
             );
             resolve(channels);
         });

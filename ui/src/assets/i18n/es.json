@@ -56,7 +56,7 @@
     "soc": "Cargo",
     "state": "Estado",
     "storageSystem": "Almacenamiento",
-    "systemState": "Estado del sistema",
+    "SYSTEM_STATE": "Estado del sistema",
     "TOTAL": "consumo total",
     "totalState": "Condición general",
     "warning": "Advertencia",
@@ -83,7 +83,15 @@
       "november": "Noviembre",
       "december": "Diciembre"
     },
-    "save": "Ahorrar"
+    "save": "Ahorrar",
+    "TIME": {
+      "HOUR": "Hora",
+      "HOURS": "Horas",
+      "MINUTE": "Minuto",
+      "MINUTES": "Minutos",
+      "DAY": "Día",
+      "DAYS": "Días"
+    }
   },
   "Menu": {
     "accessLevel": "Nivel de acceso",
@@ -106,9 +114,9 @@
     "connectionSuccessful": "Conexión a {{ value }} hecho.",
     "deviceOffline": "El aparato no está conectado!",
     "isOffline": "OpenEMS está fuera de línea!",
-    "loggedInAs": "Conectado como:",
+    "LOGGED_IN_AS": "Conectado como",
     "toEnergymonitor": "Al monitor de energía...",
-    "type": "Tipo:"
+    "TYPE": "Tipo"
   },
   "Login": {
     "title": "Login",
@@ -118,11 +126,43 @@
     "authenticationFailed": "Fallo de autentificación",
     "user": "Usuario"
   },
+  "Register": {
+    "segment": {
+      "user": "Usuario",
+      "installer": "Instalador"
+    },
+    "Form": {
+      "user": {
+        "acceptPrivacyPolicy": ""
+      },
+      "installer": {
+        "acceptPrivacyPolicy": ""
+      },
+      "contactDetails": "Datos de contacto",
+      "companyName": "Nombre de la empresa",
+      "firstname": "Nombre",
+      "lastname": "Apellido",
+      "street": "Calle | número de casa",
+      "zip": "Código postal",
+      "city": "Ciudad",
+      "country": "País",
+      "phone": "Número de teléfono",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar contraseña"
+    },
+    "button": "Crear",
+    "errors": {
+      "requiredFields": "Por favor, rellene todos los campos",
+      "passwordNotEqual": "Las contraseñas no son iguales"
+    },
+    "success": "Registro realizado con éxito"
+  },
   "Edge": {
     "Index": {
       "EmergencyReserve": {
-        "InfoForEmergencyReserveSlider": "Al activar la reserva de energía de emergencia, el valor puede seleccionarse libremente entre el 5% y el 100%.",
-        "emergencyReserve": "reserva de emergencia"
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Al activar la reserva de energía de emergencia, el valor puede seleccionarse libremente entre el 5% y el 100%.",
+        "EMERGENCY_RESERVE": "reserva de emergencia"
       },
       "Energymonitor": {
         "activePower": "Potencia de salida",
@@ -335,17 +375,6 @@
           "normalOperationShort": "Normal",
           "switchOnComShort": "Mando",
           "switchOnRecShort": "Recomendación"
-        },
-        "TimeOfUseTariff": {
-          "currentTariff": "Precio actual",
-          "delayedDischarge": "Retraso en el alta",
-          "STORAGE_DISCHARGE": "Descarga de almacenamiento",
-          "State": {
-            "notStarted": "El controlador aún no se ha iniciado ",
-            "delayed": "Retraso",
-            "allowsDischarge": "Liberado",
-            "standby": "Standby"
-          }
         }
       }
     },
@@ -450,22 +479,12 @@
         "newConnection": "Nueva conexión...",
         "newDevice": "Nuevo dispositivo..."
       },
-      "Alerting": {
-        "activate": "Activar",
-        "delay": "Retraso",
-        "save": "Guardar",
-        "options": {},
-        "toast": {
-          "success": "Ajustes adoptados",
-          "error": "Error al cargar la configuración"
-        },
-        "interval": {
-          "hours": "Horas",
-          "minute": "Minuto",
-          "minutes": "Minutos",
-          "day": "Día",
-          "days": "Días",
-          "hour": "Hora"
+      "ALERTING": {
+        "ACTIVATE": "Activar",
+        "DELAY": "Retraso",
+        "TOAST": {
+          "SUCCESS": "Ajustes adoptados",
+          "ERROR": "Error al cargar la configuración"
         }
       },
       "App": {

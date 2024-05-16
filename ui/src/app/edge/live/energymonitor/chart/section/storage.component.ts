@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -13,28 +14,28 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
         trigger('Discharge', [
             state('show', style({
                 opacity: 0.4,
-                transform: 'translateY(0)'
+                transform: 'translateY(0)',
             })),
             state('hide', style({
                 opacity: 0.1,
-                transform: 'translateY(-17%)'
+                transform: 'translateY(-17%)',
             })),
             transition('show => hide', animate('650ms ease-out')),
-            transition('hide => show', animate('0ms ease-in'))
+            transition('hide => show', animate('0ms ease-in')),
         ]),
         trigger('Charge', [
             state('show', style({
                 opacity: 0.1,
-                transform: 'translateY(0)'
+                transform: 'translateY(0)',
             })),
             state('hide', style({
                 opacity: 0.4,
-                transform: 'translateY(17%)'
+                transform: 'translateY(17%)',
             })),
             transition('show => hide', animate('650ms ease-out')),
-            transition('hide => show', animate('0ms ease-out'))
-        ])
-    ]
+            transition('hide => show', animate('0ms ease-out')),
+        ]),
+    ],
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
@@ -51,7 +52,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     constructor(
         translate: TranslateService,
         service: Service,
-        unitpipe: UnitvaluePipe
+        unitpipe: UnitvaluePipe,
     ) {
         super('Edge.Index.Energymonitor.storage', "down", "#009846", translate, service, "Storage");
         this.unitpipe = unitpipe;
@@ -144,8 +145,8 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
-        let x = (square.length / 2) * (-1);
-        let y = innerRadius - 5 - square.length;
+        const x = (square.length / 2) * (-1);
+        const y = innerRadius - 5 - square.length;
         return new SvgSquarePosition(x, y);
     }
 
@@ -168,15 +169,15 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     protected setElementHeight() { }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let p = {
+        const v = Math.abs(ratio);
+        const r = radius;
+        const p = {
             topLeft: { x: v * -1, y: v },
             bottomLeft: { x: v * -1, y: r },
             topRight: { x: v, y: v },
             bottomRight: { x: v, y: r },
             middleBottom: { x: 0, y: r - v },
-            middleTop: { x: 0, y: 0 }
+            middleTop: { x: 0, y: 0 },
         };
         if (ratio > 0) {
             // towards bottom
@@ -189,16 +190,16 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     }
 
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let animationWidth = r - v;
+        const v = Math.abs(ratio);
+        const r = radius;
+        const animationWidth = r - v;
         let p = {
             topLeft: { x: v * -1, y: v },
             bottomLeft: { x: v * -1, y: r },
             topRight: { x: v, y: v },
             bottomRight: { x: v, y: r },
             middleBottom: { x: 0, y: r - v },
-            middleTop: { x: 0, y: 0 }
+            middleTop: { x: 0, y: 0 },
         };
         if (ratio < 0) {
             // towards top

@@ -1,10 +1,11 @@
+// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Edge, EdgeConfig, Service } from '../../../../../shared/shared';
 
 @Component({
     selector: AsymmetricPeakshavingChartOverviewComponent.SELECTOR,
-    templateUrl: './asymmetricpeakshavingchartoverview.component.html'
+    templateUrl: './asymmetricpeakshavingchartoverview.component.html',
 })
 export class AsymmetricPeakshavingChartOverviewComponent implements OnInit {
 
@@ -15,7 +16,7 @@ export class AsymmetricPeakshavingChartOverviewComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) { }
 
     ngOnInit() {

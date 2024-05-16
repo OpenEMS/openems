@@ -1,8 +1,10 @@
 package io.openems.edge.core.appmanager;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 
+import com.google.gson.JsonArray;
+
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
 
 public class AppAssistant {
@@ -89,16 +91,21 @@ public class AppAssistant {
 	}
 
 	/**
-	 * Gets this {@link AppAssistant} as {@link JsonObject}.
-	 *
-	 * @return the {@link JsonObject}
+	 * Returns a {@link JsonSerializer} for a {@link AppAssistant}.
+	 * 
+	 * @return the created {@link JsonSerializer}
 	 */
-	public JsonObject toJsonObject() {
-		return JsonUtils.buildJsonObject() //
-				.addProperty("name", this.name) //
-				.addProperty("alias", this.alias) //
-				.add("fields", this.fields) //
-				.build();
+	public static JsonSerializer<AppAssistant> serializer() {
+		return jsonObjectSerializer(AppAssistant.class, //
+				json -> new AppAssistant(//
+						json.getString("name"), //
+						json.getString("alias"), //
+						json.getJsonArray("fields")), //
+				obj -> JsonUtils.buildJsonObject() //
+						.addProperty("name", obj.name) //
+						.addProperty("alias", obj.alias) //
+						.add("fields", obj.fields) //
+						.build());
 	}
 
 }

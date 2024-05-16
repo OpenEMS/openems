@@ -6,9 +6,8 @@ import java.util.function.Function;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
-import com.google.common.base.CaseFormat;
-
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.EnumUtils;
 
 /**
  * Units of measurement used in OpenEMS.
@@ -188,9 +187,10 @@ public enum Unit {
 	// ##########
 
 	/**
-	 * Unit of Energy Price [€/MWh].
+	 * Unit of Energy Price, e.g. [€/MWh]. (see Meta.ChannelId#CURRENCY).
 	 */
-	EUROS_PER_MEGAWATT_HOUR("€/MWh"),
+	// TODO symbol should incorporate actual Currency
+	MONEY_PER_MEGAWATT_HOUR("€/MWh"),
 
 	// ##########
 	// Frequency
@@ -275,7 +275,16 @@ public enum Unit {
 	/**
 	 * Unit of Resistance [uOhm].
 	 */
-	MICROOHM("uOhm", OHM, -6);
+	MICROOHM("uOhm", OHM, -6),
+
+	// ##########
+	// Pressure
+	// ##########
+
+	/**
+	 * Unit of Pressure [bar].
+	 */
+	BAR("bar");
 
 	public final String symbol;
 	public final Unit baseUnit;
@@ -349,12 +358,12 @@ public enum Unit {
 		case NONE -> //
 			value.toString();
 
-		case AMPERE, DEGREE_CELSIUS, DEZIDEGREE_CELSIUS, EUROS_PER_MEGAWATT_HOUR, HERTZ, MILLIAMPERE, MICROAMPERE,
+		case AMPERE, DEGREE_CELSIUS, DEZIDEGREE_CELSIUS, MONEY_PER_MEGAWATT_HOUR, HERTZ, MILLIAMPERE, MICROAMPERE,
 				MILLIHERTZ, MILLIVOLT, MICROVOLT, PERCENT, VOLT, VOLT_AMPERE, VOLT_AMPERE_REACTIVE, WATT, KILOWATT,
 				MILLIWATT, WATT_HOURS, OHM, KILOOHM, SECONDS, AMPERE_HOURS, HOUR, CUMULATED_SECONDS, KILOAMPERE_HOURS,
 				KILOVOLT_AMPERE, KILOVOLT_AMPERE_REACTIVE, KILOVOLT_AMPERE_REACTIVE_HOURS, KILOWATT_HOURS, MICROOHM,
 				MILLIAMPERE_HOURS, MILLIOHM, MILLISECONDS, MINUTE, THOUSANDTH, VOLT_AMPERE_HOURS,
-				VOLT_AMPERE_REACTIVE_HOURS, WATT_HOURS_BY_WATT_PEAK, CUMULATED_WATT_HOURS -> //
+				VOLT_AMPERE_REACTIVE_HOURS, WATT_HOURS_BY_WATT_PEAK, CUMULATED_WATT_HOURS, BAR -> //
 			value + " " + this.symbol;
 
 		case ON_OFF -> //
@@ -364,8 +373,7 @@ public enum Unit {
 
 	@Override
 	public String toString() {
-		return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.name())
-				+ (this.symbol.isEmpty() ? "" : " [" + this.symbol + "]");
+		return EnumUtils.nameAsCamelCase(this) + (this.symbol.isEmpty() ? "" : " [" + this.symbol + "]");
 	}
 
 	/**

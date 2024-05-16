@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { GetAppAssistant } from "./getAppAssistant";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 
@@ -10,25 +11,25 @@ describe('GetAppAssistent', () => {
                 key: 'a',
                 type: 'input',
                 props: {
-                    type: 'text'
+                    type: 'text',
                 },
                 fieldGroup: [
                     {
                         key: 'b',
                         type: 'input',
                         props: {
-                            type: 'number'
-                        }
-                    }
-                ]
+                            type: 'number',
+                        },
+                    },
+                ],
             },
             {
                 key: 'c',
                 type: 'input',
                 props: {
-                    type: 'number'
-                }
-            }
+                    type: 'number',
+                },
+            },
         ];
     });
 

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -13,28 +14,28 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
         trigger('GridBuy', [
             state('show', style({
                 opacity: 0.4,
-                transform: 'translateX(0%)'
+                transform: 'translateX(0%)',
             })),
             state('hide', style({
                 opacity: 0.1,
-                transform: 'translateX(17%)'
+                transform: 'translateX(17%)',
             })),
             transition('show => hide', animate('650ms')),
-            transition('hide => show', animate('0ms'))
+            transition('hide => show', animate('0ms')),
         ]),
         trigger('GridSell', [
             state('show', style({
                 opacity: 0.1,
-                transform: 'translateX(0%)'
+                transform: 'translateX(0%)',
             })),
             state('hide', style({
                 opacity: 0.4,
-                transform: 'translateX(-17%)'
+                transform: 'translateX(-17%)',
             })),
             transition('show => hide', animate('650ms ease-out')),
-            transition('hide => show', animate('0ms ease-in'))
-        ])
-    ]
+            transition('hide => show', animate('0ms ease-in')),
+        ]),
+    ],
 })
 export class GridSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
@@ -49,7 +50,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     constructor(
         translate: TranslateService,
         service: Service,
-        unitpipe: UnitvaluePipe
+        unitpipe: UnitvaluePipe,
     ) {
         super('General.grid', "left", "#1d1d1d", translate, service, "Grid");
         this.unitpipe = unitpipe;
@@ -142,8 +143,8 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
-        let x = (innerRadius - 5) * (-1);
-        let y = (square.length / 2) * (-1);
+        const x = (innerRadius - 5) * (-1);
+        const y = (square.length / 2) * (-1);
         return new SvgSquarePosition(x, y);
     }
 
@@ -172,15 +173,15 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let p = {
+        const v = Math.abs(ratio);
+        const r = radius;
+        const p = {
             bottomRight: { x: v * -1, y: v },
             bottomLeft: { x: r * -1, y: v },
             topRight: { x: v * -1, y: v * -1 },
             topLeft: { x: r * -1, y: v * -1 },
             middleLeft: { x: r * -1 + v, y: 0 },
-            middleRight: { x: 0, y: 0 }
+            middleRight: { x: 0, y: 0 },
         };
         if (ratio > 0) {
             // towards left
@@ -193,16 +194,16 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     }
 
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let animationWidth = r * -1 + v;
+        const v = Math.abs(ratio);
+        const r = radius;
+        const animationWidth = r * -1 + v;
         let p = {
             bottomRight: { x: v * -1, y: v },
             bottomLeft: { x: r * -1, y: v },
             topRight: { x: v * -1, y: v * -1 },
             topLeft: { x: r * -1, y: v * -1 },
             middleLeft: { x: r * -1 + v, y: 0 },
-            middleRight: { x: 0, y: 0 }
+            middleRight: { x: 0, y: 0 },
         };
 
         if (ratio > 0) {

@@ -17,8 +17,7 @@
                   [disabled]="(!((!varinstance.form.pristine) && (varinstance.form.valid))) || varinstance.isDeleting || varinstance.isUpdating"
                   translate> Edge.Config.App.updateApp
                 </ion-button>
-                <ion-button (click)="delete(varinstance)" color="primary" *ngIf="edge.roleIsAtLeast('admin')"
-                  [disabled]="varinstance.isDeleting || varinstance.isUpdating" translate>
+                <ion-button (click)="delete(varinstance)" color="primary" [disabled]="varinstance.isDeleting || varinstance.isUpdating" translate>
                   Edge.Config.App.deleteApp
                 </ion-button>
                 <div *ngIf="varinstance.isDeleting || varinstance.isUpdating" style="min-height: 100px;">

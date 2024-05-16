@@ -74,14 +74,39 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 		this.config = config;
 
 		// Publish MQTT messages under the topic "edge/edge0/..."
-		this.topicPrefix = String.format(ControllerApiMqtt.TOPIC_PREFIX, config.clientId());
+		this.topicPrefix = createTopicPrefix(config);
 
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.mqttConnector.connect(config.uri(), config.clientId(), config.username(), config.password())
-				.thenAccept(client -> {
+		this.mqttConnector.connect(config.uri(), config.clientId(), config.username(), config.password(),
+				config.certPem(), config.privateKeyPem(), config.trustStorePem()).thenAccept(client -> {
 					this.mqttClient = client;
 					this.logInfo(this.log, "Connected to MQTT Broker [" + config.uri() + "]");
 				});
+	}
+
+	/**
+	 * Creates the topic prefix in either format.
+	 * 
+	 * <ul>
+	 * <li>topic_prefix/edge/edge_id/
+	 * <li>edge/edge_id/
+	 * </ul>
+	 * 
+	 * @param config the {@link Config}
+	 * @return the prefix
+	 */
+	protected static String createTopicPrefix(Config config) {
+		final var b = new StringBuilder();
+		if (config.topicPrefix() != null && !config.topicPrefix().isBlank()) {
+			b //
+					.append(config.topicPrefix()) //
+					.append("/");
+		}
+		b //
+				.append("edge/") //
+				.append(config.clientId()) //
+				.append("/");
+		return b.toString();
 	}
 
 	@Override

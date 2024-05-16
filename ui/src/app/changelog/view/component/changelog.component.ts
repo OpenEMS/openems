@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from 'src/environments';
@@ -8,9 +8,9 @@ import { Changelog } from './changelog.constants';
 
 @Component({
   selector: 'changelog',
-  templateUrl: './changelog.component.html'
+  templateUrl: './changelog.component.html',
 })
-export class ChangelogComponent implements OnInit {
+export class ChangelogComponent {
 
   public environment = environment;
 
@@ -19,12 +19,8 @@ export class ChangelogComponent implements OnInit {
   constructor(
     public translate: TranslateService,
     public service: Service,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) { }
-
-  ngOnInit() {
-    this.service.setCurrentComponent({ languageKey: 'Menu.changelog' }, this.route);
-  }
 
   public readonly roleIsAtLeast = Role.isAtLeast;
   public numberToRole(role: number): string {
@@ -32,15 +28,16 @@ export class ChangelogComponent implements OnInit {
   }
 
   public readonly changelogs: {
-    version: string,
+    title?: string,
+    version?: string,
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
         version: 'x.y.z',
         changes: [
-          Changelog.link("OpenEMS Releases", 'https://github.com/OpenEMS/openems/releases')
-        ]
-      }
+          Changelog.link("OpenEMS Releases", 'https://github.com/OpenEMS/openems/releases'),
+        ],
+      },
     ];
 
 }

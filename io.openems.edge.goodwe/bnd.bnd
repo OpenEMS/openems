@@ -5,8 +5,10 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
+	com.ghgande.j2mod,\
 	io.openems.common,\
 	io.openems.edge.battery.api,\
+	io.openems.edge.battery.fenecon.home,\
 	io.openems.edge.batteryinverter.api,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
@@ -16,5 +18,4 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.timedata.api,\
 
 -testpath: \
-	${testpath},\
-	com.ghgande.j2mod
+	${testpath}
