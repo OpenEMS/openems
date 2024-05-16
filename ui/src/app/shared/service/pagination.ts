@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Directive } from '@angular/core';
 import { Router } from '@angular/router';
 import { SubscribeEdgesRequest } from '../jsonrpc/request/subscribeEdgesRequest';

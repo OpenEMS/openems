@@ -58,7 +58,7 @@ public class MeterSocomecThreephaseImpl extends AbstractSocomecMeter implements 
 
 	private Config config;
 
-	public MeterSocomecThreephaseImpl() throws OpenemsException {
+	public MeterSocomecThreephaseImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //

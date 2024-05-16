@@ -230,7 +230,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @return the {@link ModbusProtocol}
 	 * @throws OpenemsException on error
 	 */
-	protected ModbusProtocol getModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol getModbusProtocol() {
 		var protocol = this.protocol;
 		if (protocol != null) {
 			return protocol;
@@ -251,7 +251,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @return the ModbusProtocol
 	 * @throws OpenemsException on error
 	 */
-	protected abstract ModbusProtocol defineModbusProtocol() throws OpenemsException;
+	protected abstract ModbusProtocol defineModbusProtocol();
 
 	/**
 	 * Maps an Element to one or more ModbusChannels using converters, that convert

@@ -17,7 +17,7 @@ import com.ghgande.j2mod.modbus.ModbusException;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.JsonApi;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.modbus.AbstractModbusTcpApi;
@@ -30,7 +30,7 @@ import io.openems.edge.controller.api.modbus.ModbusTcpApi;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusTcpApi
-		implements ControllerApiModbusTcpReadOnly, ModbusTcpApi, Controller, OpenemsComponent, JsonApi {
+		implements ControllerApiModbusTcpReadOnly, ModbusTcpApi, Controller, OpenemsComponent, ComponentJsonApi {
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private Meta metaComponent = null;

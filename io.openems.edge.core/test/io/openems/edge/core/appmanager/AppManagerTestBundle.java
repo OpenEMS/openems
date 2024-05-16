@@ -8,7 +8,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -29,7 +28,6 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ReflectionUtils;
@@ -181,7 +179,7 @@ public class AppManagerTestBundle {
 			}
 
 			@Override
-			public CompletableFuture<AddAppInstance.Response> handleAddAppInstanceRequest(User user, Request request,
+			public AddAppInstance.Response handleAddAppInstanceRequest(User user, Request request,
 					boolean ignoreBackend) throws OpenemsNamedException {
 				final var response = super.handleAddAppInstanceRequest(user, request, ignoreBackend);
 				this.modifyWithCurrentConfig();
@@ -189,7 +187,7 @@ public class AppManagerTestBundle {
 			}
 
 			@Override
-			public CompletableFuture<? extends JsonrpcResponseSuccess> handleDeleteAppInstanceRequest(User user,
+			public DeleteAppInstance.Response handleDeleteAppInstanceRequest(User user,
 					DeleteAppInstance.Request request) throws OpenemsNamedException {
 				final var response = super.handleDeleteAppInstanceRequest(user, request);
 				this.modifyWithCurrentConfig();
@@ -197,7 +195,7 @@ public class AppManagerTestBundle {
 			}
 
 			@Override
-			public CompletableFuture<UpdateAppInstance.Response> handleUpdateAppInstanceRequest(User user,
+			public UpdateAppInstance.Response handleUpdateAppInstanceRequest(User user,
 					UpdateAppInstance.Request request) throws OpenemsNamedException {
 				final var response = super.handleUpdateAppInstanceRequest(user, request);
 				this.modifyWithCurrentConfig();

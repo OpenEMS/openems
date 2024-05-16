@@ -13,6 +13,7 @@ import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersRequest;
 import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersResponse;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
@@ -29,11 +30,21 @@ public class FC16WriteRegistersTask
 	private final Logger log = LoggerFactory.getLogger(FC16WriteRegistersTask.class);
 
 	public FC16WriteRegistersTask(int startAddress, ModbusElement... elements) {
-		super("FC16WriteRegisters", WriteMultipleRegistersResponse.class, startAddress, elements);
+		this(FunctionUtils::doNothing, startAddress, elements);
+	}
+
+	public FC16WriteRegistersTask(Consumer<ExecuteState> onExecute, int startAddress, ModbusElement... elements) {
+		super("FC16WriteRegisters", onExecute, WriteMultipleRegistersResponse.class, startAddress, elements);
 	}
 
 	@Override
-	public ExecuteState execute(AbstractModbusBridge bridge) {
+	public final ExecuteState execute(AbstractModbusBridge bridge) {
+		var result = this._execute(bridge);
+		this.onExecute.accept(result);
+		return result;
+	}
+
+	private ExecuteState _execute(AbstractModbusBridge bridge) {
 		var requests = mergeWriteRegisters(this.elements, message -> this.log.warn(message)).stream() //
 				.map(e -> new WriteMultipleRegistersRequest(e.startAddress(), e.getRegisters())) //
 				.toList();
@@ -42,7 +53,7 @@ public class FC16WriteRegistersTask
 			return ExecuteState.NO_OP;
 		}
 
-		boolean hasError = false;
+		Exception lastError = null;
 		for (var request : requests) {
 			try {
 				this.executeRequest(bridge, request);
@@ -52,12 +63,12 @@ public class FC16WriteRegistersTask
 
 				// Invalidate Elements
 				Stream.of(this.elements).forEach(el -> el.invalidate(bridge));
-				hasError = true;
+				lastError = e;
 			}
 		}
 
-		if (hasError) {
-			return ExecuteState.ERROR;
+		if (lastError != null) {
+			return new ExecuteState.Error(lastError);
 		} else {
 			return ExecuteState.OK;
 		}

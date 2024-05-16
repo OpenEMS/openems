@@ -31,6 +31,21 @@ import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
+/**
+ * {@link GoodWeChargerTwoStringImpl} was used to represent one string from a
+ * GoodWe MPPT tracker that is responsible for two strings (GoodWe ET-Systems).
+ * 
+ * <p>
+ * Possible values are:
+ * <li>MPPT Current
+ * <li>MPPT Power
+ * <li>String Current
+ * <li>String Voltage
+ * 
+ * <p>
+ * As the current values of one string are incorrect (so far DSP-Version 12,
+ * ARM-Version 27) the power cannot be calculated.
+ */
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "GoodWe.Charger.Two-String", //
@@ -40,6 +55,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
+@Deprecated
 public class GoodWeChargerTwoStringImpl extends AbstractOpenemsComponent implements GoodWeChargerTwoString,
 		EssDcCharger, GoodWeCharger, OpenemsComponent, EventHandler, TimedataProvider, ModbusSlave {
 

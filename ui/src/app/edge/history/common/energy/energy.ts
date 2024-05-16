@@ -10,10 +10,6 @@ import { FlatComponent } from './flat/flat';
     BrowserModule,
     SharedModule,
   ],
-  entryComponents: [
-    FlatComponent,
-    ChartComponent,
-  ],
   declarations: [
     FlatComponent,
     ChartComponent,

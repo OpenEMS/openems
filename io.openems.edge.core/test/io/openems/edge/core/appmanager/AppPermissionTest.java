@@ -61,11 +61,11 @@ public class AppPermissionTest {
 		return this.test.sut.handleAddAppInstanceRequest(DUMMY_INSTALLER,
 				new AddAppInstance.Request("App.Dummy", "key", "alias", JsonUtils.buildJsonObject() //
 						.build()))
-				.get().instance;
+				.instance();
 	}
 
 	private void deleteDummyApp(OpenemsAppInstance instance, User user) throws Exception {
-		this.test.sut.handleDeleteAppInstanceRequest(user, new DeleteAppInstance.Request(instance.instanceId)).get();
+		this.test.sut.handleDeleteAppInstanceRequest(user, new DeleteAppInstance.Request(instance.instanceId));
 	}
 
 }
