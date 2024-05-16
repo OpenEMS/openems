@@ -189,9 +189,5 @@ public class EssStablImpl extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel setActivePower = this.channel(EssStabl.ChannelId.SYSTEM_SIGNED_POWER_SET_POINT_AC);
 		setActivePower.setNextWriteValue(activePower);
 
-		// IntegerWriteChannel setReactivePower =
-		// inverter.channel(BatteryInverterSinexcel.ChannelId.SET_REACTIVE_POWER);
-		// setReactivePower.setNextWriteValue(context.setReactivePower);
-
 	}
 }
