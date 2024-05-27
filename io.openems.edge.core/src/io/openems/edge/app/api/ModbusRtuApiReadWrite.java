@@ -9,6 +9,7 @@ import java.util.function.Function;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
@@ -67,7 +68,7 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.Api.ModbusRtu.ReadWrite")
+@Component(name = "App.Api.ModbusRtu.ReadWrite")
 public class ModbusRtuApiReadWrite extends AbstractOpenemsAppWithProps<ModbusRtuApiReadWrite, Property, BundleParameter>
 		implements OpenemsApp {
 
