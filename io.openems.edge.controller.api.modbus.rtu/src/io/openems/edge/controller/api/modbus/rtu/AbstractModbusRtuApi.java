@@ -1,5 +1,6 @@
 package io.openems.edge.controller.api.modbus.rtu;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -66,10 +67,12 @@ public abstract class AbstractModbusRtuApi extends AbstractOpenemsComponent
 	private final TreeMap<Integer, String> components = new TreeMap<>();
 
 	private ConfigRecord config;
+	private List<OpenemsComponent> invalidComponents = new CopyOnWriteArrayList<>();
 
 	protected synchronized void addComponent(OpenemsComponent component) {
 		if (!(component instanceof ModbusSlave)) {
 			this.logError(this.log, "Component [" + component.id() + "] does not implement ModbusSlave");
+			this.invalidComponents.add(component);
 			this._setComponentNoModbusApiFault(true);
 			return;
 		}
@@ -78,7 +81,12 @@ public abstract class AbstractModbusRtuApi extends AbstractOpenemsComponent
 	}
 
 	protected synchronized void removeComponent(OpenemsComponent component) {
-		this._components.remove(component);
+		if (this.invalidComponents.remove(component)) {
+			if (this.invalidComponents.isEmpty()) {
+				this._setComponentNoModbusApiFault(false);
+			}
+			return;
+		}
 		this.updateComponents();
 	}
 
@@ -92,31 +100,61 @@ public abstract class AbstractModbusRtuApi extends AbstractOpenemsComponent
 		this.processImage = new MyProcessImage(this);
 	}
 
-	protected void activate(ComponentContext context, String id, String alias, boolean enabled, int apiTimeout,
-			int technicalUnitId, ConfigurationAdmin cm, ConfigRecord config) throws OpenemsException {
-		super.activate(context, id, alias, enabled);
-
+	protected void activate(ComponentContext context, ConfigurationAdmin cm, ConfigRecord config)
+			throws OpenemsException {
+		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.handleActivate(config, cm, config.id());
+	}
+	
+	private void handleActivate(ConfigRecord config, ConfigurationAdmin cm, String id) {
 		// configuration settings
 		this.config = config;
 
 		// update filter for 'Components'; allow disable components
 		final var filter = ConfigUtils.generateReferenceTargetFilter(this.servicePid(), false, config.componentIds);
-		if (OpenemsComponent.updateReferenceFilterRaw(cm, this.servicePid(), "Component", filter)) {
-			return;
-		}
+		OpenemsComponent.updateReferenceFilterRaw(cm, this.servicePid(), "Component", filter);
 
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout);
+		this.updateComponents();
+		}
+	
+	protected void modified(ComponentContext context, ConfigurationAdmin cm, ConfigRecord config)
+			throws OpenemsException {
+		super.modified(context, config.id(), config.alias(), config.enabled());
 
-		if (!this.isEnabled()) {
-			// abort if disabled
+		// update filter for 'Components'; allow disable components
+		final var filter = ConfigUtils.generateReferenceTargetFilter(this.servicePid(), false, config.componentIds);
+		OpenemsComponent.updateReferenceFilterRaw(cm, this.servicePid(), "Component", filter);
+
+		// Config (relevant for API) was not modified
+		if (this.config.equals(config)) {
 			return;
 		}
 
-		// Start Modbus-Server
-		this.startApiWorker.activate(id);
+		ModbusSlaveFactory.close();
 
-		this.updateComponents();
+		// Activate with new config
+		this.handleModified(config, cm, config.id());
 	}
+	
+	private void handleModified(ConfigRecord config, ConfigurationAdmin cm, String id) {
+	// configuration settings
+	this.config = config;
+
+	this.apiWorker.setTimeoutSeconds(config.apiTimeout);
+
+	if (!this.isEnabled()) {
+		// abort if disabled
+		return;
+	}
+
+	// Modify Modbus-Server
+	this.startApiWorker.modified(id);
+
+	this.updateComponents();
+}
+	
+	
 
 	/**
 	 * Called by addComponent/removeComponent. Initializes the ModbusRecords, once
@@ -431,21 +469,33 @@ public abstract class AbstractModbusRtuApi extends AbstractOpenemsComponent
 				.orElse(null);
 	}
 
-	protected static class ConfigRecord {
-		public final Meta metaComponent;
-		public final String[] componentIds;
-		public final int apiTimeout;
-		public final int port;
-		public final int maxConcurrentConnections;
-
-		public ConfigRecord(Meta metaComponent, String[] componentIds, int apiTimeout, int port,
-				int maxConcurrentConnections) {
-			super();
-			this.metaComponent = metaComponent;
-			this.componentIds = componentIds;
-			this.apiTimeout = apiTimeout;
-			this.port = port;
-			this.maxConcurrentConnections = maxConcurrentConnections;
+	public static record ConfigRecord(String id, String alias, boolean enabled, Meta metaComponent,
+			String[] componentIds, int apiTimeout, int port, int maxConcurrentConnections) {
+		
+		@Override
+		public boolean equals(Object other) {
+			
+		    if (this == other) {
+		        return true;
+		    }
+		    if (other == null) {
+		        return false;
+		    }   
+		    if (!(other instanceof ConfigRecord)) {
+		        return false;
+		    }
+			ConfigRecord config = (ConfigRecord) other;
+			
+			if (config.id.equals(this.id) && config.alias.equals(this.alias) //
+					&& config.enabled == this.enabled && config.metaComponent.equals(this.metaComponent) //
+					&& Arrays.equals(config.componentIds, this.componentIds) //
+					&& config.apiTimeout == this.apiTimeout && config.port == this.port //
+					&& config.maxConcurrentConnections == this.maxConcurrentConnections) {
+				return true;
+			}
+			
+			return false;
+			
 		}
 	}
 }

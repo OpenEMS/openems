@@ -18,7 +18,7 @@ public interface ModbusRtuApi extends OpenemsComponent {
 				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
 				.text("A configured Component is not available")), //
 		PROCESS_IMAGE_FAULT(Doc.of(Level.FAULT) //
-				.debounce(50, Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE) //
+				.debounce(10, Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE) //
 				.text("Invalid Modbus Function call. Only FC3, FC4, FC6 and FC16 are supported"));
 
 		private final Doc doc;

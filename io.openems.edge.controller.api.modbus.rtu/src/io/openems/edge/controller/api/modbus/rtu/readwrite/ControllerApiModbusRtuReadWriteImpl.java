@@ -22,7 +22,7 @@ import io.openems.edge.controller.api.modbus.rtu.ModbusRtuApi;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Controller.Api.ModbusTcp.ReadWrite", //
+		name = "Controller.Api.ModbusRtu.ReadWrite", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

@@ -185,7 +185,7 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.corrently',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.entsoe',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
-
+	bnd.identity;id='io.openems.edge.controller.api.modbus.rtu'
 -runbundles: \
 	Java-WebSocket;version='[1.5.4,1.5.5)',\
 	bcpkix;version='[1.77.0,1.77.1)',\
@@ -221,6 +221,7 @@
 	io.openems.edge.controller.api.backend;version=snapshot,\
 	io.openems.edge.controller.api.common;version=snapshot,\
 	io.openems.edge.controller.api.modbus;version=snapshot,\
+	io.openems.edge.controller.api.modbus.rtu;version=snapshot,\
 	io.openems.edge.controller.api.mqtt;version=snapshot,\
 	io.openems.edge.controller.api.rest;version=snapshot,\
 	io.openems.edge.controller.api.websocket;version=snapshot,\

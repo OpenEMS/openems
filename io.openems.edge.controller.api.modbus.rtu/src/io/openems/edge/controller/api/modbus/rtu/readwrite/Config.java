@@ -17,6 +17,9 @@ import io.openems.edge.controller.api.modbus.rtu.AbstractModbusRtuApi;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+	
+	@AttributeDefinition(name = "Port", description = "Port on which the server should listen.")
+	int port() default AbstractModbusRtuApi.DEFAULT_PORT;
 
 	@AttributeDefinition(name = "Port-Name", description = "The name of the serial port - e.g. '/dev/ttyUSB0' or 'COM3'")
 	String portName() default "/dev/ttyUSB0";
