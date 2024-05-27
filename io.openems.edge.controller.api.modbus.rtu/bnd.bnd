@@ -5,12 +5,13 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
+	com.ghgande.j2mod,\
 	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
-	com.ghgande.j2mod,\
 	io.openems.edge.controller.api.common,\
-	io.openems.wrapper.fastexcel
+	io.openems.wrapper.fastexcel,\
 
 -testpath: \
 	${testpath}

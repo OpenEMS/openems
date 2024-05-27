@@ -92,8 +92,8 @@ public abstract class AbstractModbusRtuApi extends AbstractOpenemsComponent
 		this.processImage = new MyProcessImage(this);
 	}
 
-	protected void activate(ComponentContext context, String id, String alias, boolean enabled, ConfigurationAdmin cm,
-			ConfigRecord config) throws OpenemsException {
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled, int apiTimeout,
+			int technicalUnitId, ConfigurationAdmin cm, ConfigRecord config) throws OpenemsException {
 		super.activate(context, id, alias, enabled);
 
 		// configuration settings

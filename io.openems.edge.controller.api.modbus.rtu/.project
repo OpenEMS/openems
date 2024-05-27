@@ -15,21 +15,9 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
-<<<<<<< HEAD
-		<buildCommand>
-			<name>net.sf.eclipsecs.core.CheckstyleBuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-=======
->>>>>>> 64945bf8c0a43f87ffb3f16499c6fdf921a7145f
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>bndtools.core.bndnature</nature>
-<<<<<<< HEAD
-		<nature>net.sf.eclipsecs.core.CheckstyleNature</nature>
-=======
->>>>>>> 64945bf8c0a43f87ffb3f16499c6fdf921a7145f
 	</natures>
 </projectDescription>

@@ -11,9 +11,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
-
-import com.ghgande.j2mod.modbus.ModbusException;
-
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -38,6 +35,15 @@ public class ControllerApiModbusRtuReadOnlyImpl extends AbstractModbusRtuApi
 	@Reference
 	private ConfigurationAdmin cm;
 
+	public ControllerApiModbusRtuReadOnlyImpl() {
+		super("Modbus/RTU-Api Read-Only", //
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ModbusRtuApi.ChannelId.values(), //
+				ControllerApiModbusRtuReadOnly.ChannelId.values() //
+				);
+	}
+	
 	@Override
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	protected void addComponent(OpenemsComponent component) {
@@ -48,20 +54,9 @@ public class ControllerApiModbusRtuReadOnlyImpl extends AbstractModbusRtuApi
 		super.removeComponent(component);
 	}
 
-	public ControllerApiModbusRtuReadOnlyImpl() {
-		super("Modbus/RTU-Api Read-Only", //
-				OpenemsComponent.ChannelId.values(), //
-				Controller.ChannelId.values(), //
-				ModbusRtuApi.ChannelId.values(), //
-				ControllerApiModbusRtuReadOnly.ChannelId.values() //
-		);
-	}
-
 	@Activate
-	private void activate(ComponentContext context, Config config) throws ModbusException, OpenemsException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), this.cm,
-				new ConfigRecord(this.metaComponent, config.component_ids(), 0 /* no timeout */, config.port(),
-						config.maxConcurrentConnections()));
+	protected void activate(ComponentContext context,  Config config) throws OpenemsException {
+		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
 	@Override
