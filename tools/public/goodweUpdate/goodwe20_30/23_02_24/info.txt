@@ -1,0 +1,3 @@
+Version 10.11.23 (Arm8 – DSP 7 - nicht voll getestet, soll DC-Fehler beheben)
+ARM: 8
+DSP: 7
