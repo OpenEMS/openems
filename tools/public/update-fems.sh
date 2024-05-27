@@ -8,6 +8,7 @@ export LANG=C
 export PACKAGE="fems"
 FORCE_UPDATE=false
 DEB_PATH="http://fenecon.de/fems-download/${PACKAGE}-latest.deb"
+UPDATE_LOCK_FILE="/tmp/fems-update.lock"
 
 # Parse command line paramaters
 while getopts "fb:" arg; do
@@ -133,6 +134,41 @@ function dpkg_download_install {
     rm -f /tmp/$filename
 }
 
+function vacuum {
+    apt clean || apt-get clean || true
+    journalctl --vacuum-files=1 || true
+    find /usr/share/{doc,man,locale} -not -name "copyright" -type f -delete || true
+}
+
+function __cleanup {
+    if [ -f "$UPDATE_LOCK_FILE" ]; then
+        rm -f "$UPDATE_LOCK_FILE"
+    fi
+}
+
+function prevent_multiple_exec {
+    if [ -f "$UPDATE_LOCK_FILE" ]; then
+        echo "Update is still running!"
+        exit 1
+    fi
+
+    trap __cleanup EXIT;
+    touch $UPDATE_LOCK_FILE;
+}
+
+#################
+#     MAIN      #
+#################
+
+prevent_multiple_exec;
+
+vacuum;
+
+VERSION=""
+if [ -e /etc/os-release ]; then
+    source /etc/os-release
+fi
+
 if [ -d "/home/imodcloud" ]; then
     echo "# Do not apt update Techbase"
 else
@@ -146,18 +182,17 @@ else
         rm -f /etc/apt/sources.list.d/jessie-backports.list
     fi
 
-    VERSION=""
-    if [ -e /etc/os-release ]; then
-        source /etc/os-release
-    fi
+    case "$VERSION" in
+        "8 (jessie)")
+            echo "# Remove deprecated jessie sources"
+            echo > /etc/apt/sources.list
+            ;;
 
-    if [ "$VERSION" = "8 (jessie)" ]; then
-        echo "# Remove deprecated jessie sources"
-        echo > /etc/apt/sources.list
-    elif [ "$VERSION" = "9 (stretch)" ]; then
-        echo "# Update stretch sources"
-        echo 'deb http://archive.debian.org/debian/ stretch main' > /etc/apt/sources.list
-    fi
+        "9 (stretch)")
+            echo "# Update stretch sources"
+            echo 'deb http://archive.debian.org/debian/ stretch main' > /etc/apt/sources.list
+            ;;
+    esac
 
     echo "# Setup dependencies"
     rm -f /etc/apt/trusted.gpg.d/*.lock
@@ -179,7 +214,7 @@ else
         KERNEL_OLD=$(readlink -f /boot/vmlinuz.old | cut -d'-' -f3)
         KERNEL_NEXT=$(readlink -f /boot/vmlinuz | cut -d'-' -f3)
         for i in $(seq 1 $((KERNEL_NEXT-1))); do
-            if [ $i -ne $KERNEL_RUNNING -a $i -ne $KERNEL_OLD ]; then 
+            if [ $i -ne $KERNEL_RUNNING -a $i -ne $KERNEL_OLD ]; then
                 echo "# Delete kernel version $KERNEL_MAJOR-$i"
                 rm -fv /boot/initrd.img-$KERNEL_MAJOR-$i-*
                 rm -fv /boot/vmlinuz-$KERNEL_MAJOR-$i-*
@@ -212,17 +247,23 @@ apt_install at
 apt_install ncdu
 
 if ! is_installed temurin-17-jre; then
-    if [ "$VERSION" = "8 (jessie)" ]; then
-        echo "# Manually install p11-kit for Jessie"
-        wget http://fenecon.de/fems-download/deb/{p11-kit_0.20.7-1_armhf,p11-kit-modules_0.20.7-1_armhf}.deb --no-check-certificate
-        dpkg -i {p11-kit_0.20.7-1_armhf,p11-kit-modules_0.20.7-1_armhf}.deb
-        rm -f {p11-kit_0.20.7-1_armhf,p11-kit-modules_0.20.7-1_armhf}.deb
-    elif [ "$VERSION" = "9 (stretch)" ]; then
-        echo "# Install p11-kit for stretch; downgrade libp11-kit0"
-        apt-get install libp11-kit0=0.23.3-2 p11-kit --assume-yes --force-yes
-    else
-        apt_install p11-kit
-    fi
+    case "$VERSION" in
+        "8 (jessie)")
+            echo "# Manually install p11-kit for Jessie"
+            wget http://fenecon.de/fems-download/deb/{p11-kit_0.20.7-1_armhf,p11-kit-modules_0.20.7-1_armhf}.deb --no-check-certificate
+            dpkg -i {p11-kit_0.20.7-1_armhf,p11-kit-modules_0.20.7-1_armhf}.deb
+            rm -f {p11-kit_0.20.7-1_armhf,p11-kit-modules_0.20.7-1_armhf}.deb
+            ;;
+
+        "9 (stretch)")
+            echo "# Install p11-kit for stretch; downgrade libp11-kit0"
+            apt-get install libp11-kit0=0.23.3-2 p11-kit --assume-yes --force-yes
+            ;;
+
+        *)
+            apt_install p11-kit
+            ;;
+    esac
 
     apt_install fonts-dejavu
     apt_install libasound2
@@ -238,6 +279,8 @@ apt_remove openjdk-8-jre-headless
 if [ ! -s /etc/ssl/certs/adoptium/cacerts ]; then
     dpkg-reconfigure adoptium-ca-certificates
 fi
+
+vacuum;
 
 export CURRENT_VERSION="$(dpkg-query --showformat='${Version}' --show $PACKAGE)"
 export LATEST_VERSION="$(wget -qO- http://fenecon.de/debian-test/${PACKAGE}-latest.version --no-check-certificate)"
@@ -259,4 +302,5 @@ else
     rm -f /tmp/${PACKAGE}.deb
 fi
 
+vacuum;
 echo "# Finished"
