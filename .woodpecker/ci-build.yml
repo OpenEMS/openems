@@ -105,6 +105,9 @@ steps:
       - *message-debian
       - *java-only
     image: openems-build:21.20
+    environment:
+      OEMS_EDGE_OUTPUT: "build/target/edge.jar"
+      OEMS_BACKEND_OUTPUT: "build/target/backend.jar"
     commands:
       - source $CI_WORKSPACE/.woodpecker-env
       - source $CI_WORKSPACE/.openems-env
@@ -113,8 +116,9 @@ steps:
       - common_initialize_environment
       - echo "Build Version $VERSION"
       - |
-        ./gradlew checkstyleAll --parallel --max-workers=4 && \
-        common_build_edge --no-build-cache --parallel --max-workers=2;        
+        common_run_checkstyle --parallel --max-workers=4 && \
+        common_build_edge --parallel --max-workers=2 && \
+        common_build_backend --parallel --max-workers=2;
     depends_on: [prepare-environment]
 
   build-debian-package:
@@ -127,7 +131,7 @@ steps:
       - source $CI_WORKSPACE/.openems-env
       ## start ##
       - mkdir -p tools/debian/usr/lib/openems/
-      - cp build/openems-edge.jar tools/debian/usr/lib/openems/openems.jar
+      - cp build/target/edge.jar tools/debian/usr/lib/openems/openems.jar
       - bash -x tools/build-debian-package.sh build/target/
     depends_on: [build-ui, build-java]
 
