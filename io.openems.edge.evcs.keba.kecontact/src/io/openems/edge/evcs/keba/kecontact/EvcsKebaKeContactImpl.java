@@ -309,11 +309,8 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		current = Math.min(current, 63_000);
 
 		if (current < 6000) {
-			current = 6000; // Set to minimum allowed value
+			current = 0;
 		}
-
-		return current;
-	}
 
 	// boolean shouldSwitchToThreePhases(int power, int phases) {
 	// boolean shouldSwitch = power > 4140 && phases != 3;
