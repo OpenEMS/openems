@@ -14,11 +14,13 @@ import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -53,7 +55,6 @@ public abstract class AbstractModbusRtuApi extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(AbstractModbusRtuApi.class);
 	private final MyProcessImage processImage;
-	private final String implementationName;
 
 	/**
 	 * Holds the link between Modbus address and ModbusRecord.
@@ -68,6 +69,23 @@ public abstract class AbstractModbusRtuApi extends AbstractOpenemsComponent
 
 	private ConfigRecord config;
 	private List<OpenemsComponent> invalidComponents = new CopyOnWriteArrayList<>();
+	
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		UNABLE_TO_START(Doc.of(Level.FAULT) //
+				.text("Unable to start Modbus-Api Server"));
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
 
 	protected synchronized void addComponent(OpenemsComponent component) {
 		if (!(component instanceof ModbusSlave)) {
@@ -96,28 +114,35 @@ public abstract class AbstractModbusRtuApi extends AbstractOpenemsComponent
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
-		this.implementationName = implementationName;
 		this.processImage = new MyProcessImage(this);
 	}
 
 	protected void activate(ComponentContext context, ConfigurationAdmin cm, ConfigRecord config)
 			throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.handleActivate(config, cm, config.id());
-	}
-	
-	private void handleActivate(ConfigRecord config, ConfigurationAdmin cm, String id) {
+
 		// configuration settings
 		this.config = config;
 
 		// update filter for 'Components'; allow disable components
 		final var filter = ConfigUtils.generateReferenceTargetFilter(this.servicePid(), false, config.componentIds);
-		OpenemsComponent.updateReferenceFilterRaw(cm, this.servicePid(), "Component", filter);
+		if (OpenemsComponent.updateReferenceFilterRaw(cm, this.servicePid(), "Component", filter)) {
+			return;
+		}
 
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout);
-		this.updateComponents();
+
+		if (!this.isEnabled()) {
+			// abort if disabled
+			return;
 		}
-	
+
+		// Start Modbus-Server
+		this.startApiWorker.activate(config.id());
+
+		this.updateComponents();
+	}
+
 	protected void modified(ComponentContext context, ConfigurationAdmin cm, ConfigRecord config)
 			throws OpenemsException {
 		super.modified(context, config.id(), config.alias(), config.enabled());
@@ -136,25 +161,23 @@ public abstract class AbstractModbusRtuApi extends AbstractOpenemsComponent
 		// Activate with new config
 		this.handleModified(config, cm, config.id());
 	}
-	
+
 	private void handleModified(ConfigRecord config, ConfigurationAdmin cm, String id) {
-	// configuration settings
-	this.config = config;
+		// configuration settings
+		this.config = config;
 
-	this.apiWorker.setTimeoutSeconds(config.apiTimeout);
+		this.apiWorker.setTimeoutSeconds(config.apiTimeout);
 
-	if (!this.isEnabled()) {
-		// abort if disabled
-		return;
+		if (!this.isEnabled()) {
+			// abort if disabled
+			return;
+		}
+
+		// Modify Modbus-Server
+		this.startApiWorker.modified(id);
+
+		this.updateComponents();
 	}
-
-	// Modify Modbus-Server
-	this.startApiWorker.modified(id);
-
-	this.updateComponents();
-}
-	
-	
 
 	/**
 	 * Called by addComponent/removeComponent. Initializes the ModbusRecords, once
@@ -163,6 +186,7 @@ public abstract class AbstractModbusRtuApi extends AbstractOpenemsComponent
 	private synchronized void updateComponents() {
 		// Check if all Components are available
 		var config = this.config;
+		
 		if (config == null) {
 			return;
 		}
@@ -191,6 +215,8 @@ public abstract class AbstractModbusRtuApi extends AbstractOpenemsComponent
 			this.log.warn(e.getMessage());
 		}
 	}
+	
+	protected abstract com.ghgande.j2mod.modbus.slave.ModbusSlave createSlave() throws ModbusException;
 
 	private final AbstractWorker startApiWorker = new AbstractWorker() {
 
@@ -202,35 +228,28 @@ public abstract class AbstractModbusRtuApi extends AbstractOpenemsComponent
 
 		@Override
 		protected void forever() {
-			var port = AbstractModbusRtuApi.this.config.port;
 			if (this.slave == null) {
 				try {
 					// start new server
-					this.slave = ModbusSlaveFactory.createTCPSlave(port,
-							AbstractModbusRtuApi.this.config.maxConcurrentConnections);
+					this.slave = AbstractModbusRtuApi.this.createSlave();
 					this.slave.addProcessImage(UNIT_ID, AbstractModbusRtuApi.this.processImage);
 					this.slave.open();
-					AbstractModbusRtuApi.this.logInfo(this.log, AbstractModbusRtuApi.this.implementationName
-							+ " started on port [" + port + "] with UnitId [" + AbstractModbusRtuApi.UNIT_ID + "].");
 
+					AbstractModbusRtuApi.this.logInfo(this.log,
+							"Modbus-Api started with UnitId [" + AbstractModbusRtuApi.UNIT_ID + "].");
+					AbstractModbusRtuApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(false);
 				} catch (ModbusException e) {
 					ModbusSlaveFactory.close();
-					AbstractModbusRtuApi.this.logError(this.log,
-							"Unable to start " + AbstractModbusRtuApi.this.implementationName + " on port [" + port
-									+ "]: " + e.getMessage());
-					AbstractModbusRtuApi.this._setUnableToStart(true);
+					AbstractModbusRtuApi.this.logError(this.log, "Unable to start Modbus-Api: " + e.getMessage());
+					AbstractModbusRtuApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(true);
 				}
 
 			} else {
 				// regular check for errors
-				var error = this.slave.getError();
-				if (error == null) {
-					AbstractModbusRtuApi.this._setUnableToStart(false);
-
-				} else {
-					AbstractModbusRtuApi.this.logError(this.log,
-							"Unable to start Modbus/TCP Api on port [" + port + "]: " + error);
-					AbstractModbusRtuApi.this._setUnableToStart(true);
+				String error = this.slave.getError();
+				if (error != null) {
+					AbstractModbusRtuApi.this.logError(this.log, "Unable to start Modbus-Api: " + error);
+					AbstractModbusRtuApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(true);
 					this.slave = null;
 					// stop server
 					ModbusSlaveFactory.close();
@@ -470,8 +489,8 @@ public abstract class AbstractModbusRtuApi extends AbstractOpenemsComponent
 	}
 
 	public static record ConfigRecord(String id, String alias, boolean enabled, Meta metaComponent,
-			String[] componentIds, int apiTimeout, int port, int maxConcurrentConnections) {
-		
+			String[] componentIds, int apiTimeout, String portName, int maxConcurrentConnections) {
+
 		@Override
 		public boolean equals(Object other) {
 			
@@ -489,7 +508,7 @@ public abstract class AbstractModbusRtuApi extends AbstractOpenemsComponent
 			if (config.id.equals(this.id) && config.alias.equals(this.alias) //
 					&& config.enabled == this.enabled && config.metaComponent.equals(this.metaComponent) //
 					&& Arrays.equals(config.componentIds, this.componentIds) //
-					&& config.apiTimeout == this.apiTimeout && config.port == this.port //
+					&& config.apiTimeout == this.apiTimeout && config.portName().equals(this.portName()) //
 					&& config.maxConcurrentConnections == this.maxConcurrentConnections) {
 				return true;
 			}
