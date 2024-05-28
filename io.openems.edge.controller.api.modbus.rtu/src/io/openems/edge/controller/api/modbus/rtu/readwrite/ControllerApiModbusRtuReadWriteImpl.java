@@ -14,7 +14,6 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.meta.Meta;
@@ -68,6 +67,7 @@ public class ControllerApiModbusRtuReadWriteImpl extends AbstractModbusRtuApi
 				new ConfigRecord(config.id(), config.alias(), config.enabled(), this.metaComponent,
 						config.component_ids(), config.apiTimeout(), config.port(), config.maxConcurrentConnections()));
 	}
+	
 	@Override
 	@Deactivate
 	protected void deactivate() {
