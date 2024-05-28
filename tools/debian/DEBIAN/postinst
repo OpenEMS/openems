@@ -75,6 +75,13 @@ case "$1" in
 		start_service cron
 		start_service nginx
 		
+		# Fully remove old fems-pagekite service
+		SERVICE_STATE=$(systemctl show --property="SubState" --property="LoadState" --property="ActiveState" fems-pagekite.service | tr '\n' ' ')
+		if [ "$SERVICE_STATE" = "LoadState=not-found ActiveState=active SubState=running " ]; then 
+			/bin/systemctl stop fems-pagekite.service
+			/bin/systemctl disable fems-pagekite.service
+		fi
+
 		# Setup firewall
 		/usr/sbin/ufw status \
 			| tr '\n' ' ' \

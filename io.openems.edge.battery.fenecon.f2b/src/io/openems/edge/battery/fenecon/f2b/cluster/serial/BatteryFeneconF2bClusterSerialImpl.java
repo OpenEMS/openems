@@ -27,6 +27,7 @@ import io.openems.edge.battery.fenecon.f2b.cluster.common.ChannelManager;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.statemachine.Context;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.statemachine.StateMachine;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.statemachine.StateMachine.State;
+import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -81,6 +82,7 @@ public class BatteryFeneconF2bClusterSerialImpl extends AbstractBatteryFeneconF2
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				BatteryFeneconF2b.ChannelId.values(), //
+				BatteryProtection.ChannelId.values(), //
 				BatteryFeneconF2bCluster.ChannelId.values(), //
 				BatteryFeneconF2bClusterSerial.ChannelId.values() //
 		);

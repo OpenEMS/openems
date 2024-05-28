@@ -7,6 +7,7 @@ import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAsOrElse;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsJsonElement;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsOptionalBoolean;
 import static io.openems.common.utils.JsonUtils.getAsOptionalJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsOptionalString;
@@ -57,7 +58,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
-import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ObjectUtils;
 import io.openems.common.utils.PasswordUtils;
 
@@ -809,7 +809,7 @@ public class OdooHandler {
 				.ifPresent(phone -> userFields.put("phone", phone));
 		getAsOptionalString(jsonObject, "password") //
 				.ifPresent(password -> userFields.put("password", password));
-		JsonUtils.getAsOptionalBoolean(jsonObject, "subscribeNewsletter") //
+		getAsOptionalBoolean(jsonObject, "subscribeNewsletter") //
 				.ifPresent(subscribeNewsletter -> userFields.put("fenecon_crm_newsletter", subscribeNewsletter));
 
 		var createdUserId = OdooUtils.create(this.credentials, Field.User.ODOO_MODEL, userFields);

@@ -25,13 +25,13 @@ public class ParallelChannelManager extends ChannelManager {
 	@Override
 	public void activate(List<BatteryFeneconF2b> batteries, BatteryFeneconF2bCluster cluster) {
 		super.activate(batteries, cluster);
-		this.setBatteryCurrentLimits(batteries, //
+		this.setBatteryLimits(batteries, //
 				Battery.ChannelId.CHARGE_MAX_CURRENT, //
 				Battery.ChannelId.CURRENT, //
 				TypeUtils::sum, //
 				TypeUtils::subtract, //
 				this.parent::_setChargeMaxCurrent);
-		this.setBatteryCurrentLimits(batteries, //
+		this.setBatteryLimits(batteries, //
 				Battery.ChannelId.DISCHARGE_MAX_CURRENT, //
 				Battery.ChannelId.CURRENT, //
 				TypeUtils::subtract, //
@@ -41,5 +41,6 @@ public class ParallelChannelManager extends ChannelManager {
 		this.calculate(INTEGER_SUM, batteries, Battery.ChannelId.CURRENT);
 		this.calculate(INTEGER_MIN, batteries, Battery.ChannelId.CHARGE_MAX_VOLTAGE);
 		this.calculate(INTEGER_MAX, batteries, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE);
+		this.calculate(INTEGER_AVG, batteries, Battery.ChannelId.INNER_RESISTANCE);
 	}
 }

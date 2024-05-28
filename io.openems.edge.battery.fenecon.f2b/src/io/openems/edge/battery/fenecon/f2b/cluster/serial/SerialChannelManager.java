@@ -28,13 +28,13 @@ public class SerialChannelManager extends ChannelManager {
 	@Override
 	public void activate(List<BatteryFeneconF2b> batteries, BatteryFeneconF2bCluster cluster) {
 		super.activate(batteries, cluster);
-		this.setBatteryVoltageLimits(batteries, //
+		this.setBatteryLimits(batteries, //
 				Battery.ChannelId.CHARGE_MAX_VOLTAGE, //
 				Battery.ChannelId.VOLTAGE, //
 				TypeUtils::subtract, //
 				TypeUtils::sum, //
 				this.parent::_setChargeMaxVoltage);
-		this.setBatteryVoltageLimits(batteries, //
+		this.setBatteryLimits(batteries, //
 				Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, //
 				Battery.ChannelId.VOLTAGE, //
 				TypeUtils::subtract, //
@@ -44,6 +44,7 @@ public class SerialChannelManager extends ChannelManager {
 		this.calculate(INTEGER_AVG, batteries, Battery.ChannelId.CURRENT);
 		this.calculate(INTEGER_MIN, batteries, Battery.ChannelId.CHARGE_MAX_CURRENT);
 		this.calculate(INTEGER_MIN, batteries, Battery.ChannelId.DISCHARGE_MAX_CURRENT);
+		this.calculate(INTEGER_SUM, batteries, Battery.ChannelId.INNER_RESISTANCE);
 		this.updateBmwClusterVoltage(batteries);
 	}
 

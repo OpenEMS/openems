@@ -85,21 +85,6 @@ public class BmwOnSetNextValueHandler implements DeviceSpecificOnSetNextValueHan
 			return;
 		}
 
-		var cellAvgtemp = batteries.stream()//
-				.map(BatteryFeneconF2b::getAvgCellTemperature)//
-				.filter(Value::isDefined)//
-				.mapToInt(Value::get)//
-				.reduce(TypeUtils::averageInt)//
-				.getAsInt();
-		var minCellVoltage = cluster.getMinCellVoltage().get();
-		var soc = cluster.getSoc().get();
-		if ((minCellVoltage < 3000) // [mV]
-				|| (soc < 30)// [%]
-				|| (cellAvgtemp < 0) || (cellAvgtemp > 40)) {
-			BmwOnSetNextValueHandler.setDefaultBalancingValues(balancableBatteries);
-			return;
-		}
-
 		var balancingMinCellVoltage = calculate(null, INTEGER_MIN, balancableBatteries,
 				BatteryFeneconF2bBmw.ChannelId.BALANCING_MIN_CELL_VOLTAGE);
 		var balancingCondition = calculate(true, Boolean::logicalAnd, balancableBatteries,
@@ -125,8 +110,8 @@ public class BmwOnSetNextValueHandler implements DeviceSpecificOnSetNextValueHan
 	private static void setDefaultBalancingValues(List<BatteryFeneconF2bBmw> batteries) {
 		batteries.forEach(b -> {
 			try {
-				b.setBalancingConditionsFullfilled(1);
-				b.setOcvReachedAtAllTheBatteries(1);
+				b.setBalancingConditionsFullfilled(2);
+				b.setOcvReachedAtAllTheBatteries(2);
 				b.setBalancingRunning(1);
 				b.setBalancingTargetVoltage(DEFAULT_MIN_CELL_TARGET_VOLTAGE);
 			} catch (OpenemsNamedException e) {

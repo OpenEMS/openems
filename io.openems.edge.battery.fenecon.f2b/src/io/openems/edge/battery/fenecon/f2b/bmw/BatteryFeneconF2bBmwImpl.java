@@ -1,19 +1,19 @@
 package io.openems.edge.battery.fenecon.f2b.bmw;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.ADD;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIVIDE;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.MULTIPLY;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SET_NULL_FOR_DEFAULT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SUBTRACT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.chain;
-import static io.openems.edge.common.channel.ChannelUtils.getValues;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -41,11 +41,11 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.f2b.BatteryFeneconF2b;
 import io.openems.edge.battery.fenecon.f2b.bmw.enums.CoolingApproval;
 import io.openems.edge.battery.fenecon.f2b.bmw.enums.HeatingRequest;
-import io.openems.edge.battery.fenecon.f2b.bmw.enums.OperationState;
 import io.openems.edge.battery.fenecon.f2b.bmw.enums.RequestCharging;
 import io.openems.edge.battery.fenecon.f2b.bmw.statemachine.Context;
 import io.openems.edge.battery.fenecon.f2b.bmw.statemachine.StateMachine;
 import io.openems.edge.battery.fenecon.f2b.bmw.statemachine.StateMachine.State;
+import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -66,7 +66,6 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.filter.Pt1filter;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -101,18 +100,12 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 	private static final ElementToChannelConverter SET_NULL_FOR_DEFAULT_00FF = SET_NULL_FOR_DEFAULT(0x00FF);
 	private static final ElementToChannelConverter SET_NULL_FOR_DEFAULT_3FFF = SET_NULL_FOR_DEFAULT(0x3FFF);
 	private static final ElementToChannelConverter SET_NULL_FOR_DEFAULT_FFFF = SET_NULL_FOR_DEFAULT(0xFFFF);
-
-	/* TODO drop pt1 filter after battery protection implementation */
-	private Pt1filter pt1FilterMaxCurrentVoltLimit;
-	private OperationState operationState = OperationState.UNDEFINED;
-	private Instant timeAtEntryForceCharge = Instant.MIN;
-	private Instant timeAtEntryDeepDischargeVoltageControl = Instant.MIN;
-	private boolean forceChargeWasActive = false;
-	private boolean deepDischargeVoltageControlWasActive = false;
+	private static final int INNER_RESISTANCE = 100; // [mOhm]
 
 	private boolean hvContactorUnlocked = true;
 	private boolean heatingTarget = false;
 	private Config config = null;
+	private BatteryProtection batteryProtection = null;
 
 	@Reference
 	private Cycle cycle;
@@ -129,6 +122,7 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 				ModbusComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
+				BatteryProtection.ChannelId.values(), //
 				BatteryFeneconF2b.ChannelId.values(), //
 				BatteryFeneconF2bBmw.ChannelId.values() //
 		);
@@ -147,8 +141,12 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 			return;
 		}
 		this.config = config;
-		// TODO drop after battery protection implementation
-		this.pt1FilterMaxCurrentVoltLimit = new Pt1filter(Constants.VOLTAGE_CONTROL_FILTER_TIME_CONSTANT, 1.0);
+		this._setInnerResistance(INNER_RESISTANCE);
+
+		// Initialize Battery-Protection
+		this.batteryProtection = BatteryProtection.create(this) //
+				.applyBatteryProtectionDefinition(new BatteryProtectionDefinition(), this.componentManager) //
+				.build();
 	}
 
 	@Override
@@ -180,7 +178,7 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 						m(BatteryFeneconF2bBmw.ChannelId.REQUEST_COOLING_VALVE, new UnsignedWordElement(15)), //
 						m(BatteryFeneconF2bBmw.ChannelId.ALLOCATES_BATTERY_HEATING_POWER, new UnsignedWordElement(16)), //
 						m(BatteryFeneconF2bBmw.ChannelId.HEATING_RELEASED_POWER, new UnsignedWordElement(17),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
+								SCALE_FACTOR_1), //
 						m(BatteryFeneconF2bBmw.ChannelId.REQUEST_CHARGING, new UnsignedWordElement(18)), //
 						m(BatteryFeneconF2bBmw.ChannelId.PREDICTED_CHARGING_POWER, new UnsignedWordElement(19)),
 						m(BatteryFeneconF2bBmw.ChannelId.PREDICTION_OF_THE_AVERAGE_EXPECTED_POWER_LOAD,
@@ -208,13 +206,12 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 						m(BatteryFeneconF2bBmw.ChannelId.REQUEST_COOLING_VALVE, new UnsignedWordElement(15)), //
 						m(BatteryFeneconF2bBmw.ChannelId.ALLOCATES_BATTERY_HEATING_POWER, new UnsignedWordElement(16)), //
 						m(BatteryFeneconF2bBmw.ChannelId.HEATING_RELEASED_POWER, new UnsignedWordElement(17),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
+								SCALE_FACTOR_1), //
 						m(BatteryFeneconF2bBmw.ChannelId.REQUEST_CHARGING, new UnsignedWordElement(18)), //
 						m(BatteryFeneconF2bBmw.ChannelId.PREDICTED_CHARGING_POWER, new UnsignedWordElement(19),
 								MULTIPLY(25)), //
 						m(BatteryFeneconF2bBmw.ChannelId.PREDICTION_OF_THE_AVERAGE_EXPECTED_POWER_LOAD,
-								new UnsignedWordElement(20),
-								chain(MULTIPLY(25), ElementToChannelConverter.SCALE_FACTOR_MINUS_2)),
+								new UnsignedWordElement(20), chain(MULTIPLY(25), SCALE_FACTOR_MINUS_2)),
 						m(BatteryFeneconF2b.ChannelId.F2B_TERMINAL_15_TOGGLE_REQUEST, new UnsignedWordElement(21)), //
 						new DummyRegisterElement(22, 49), //
 						m(BatteryFeneconF2b.ChannelId.F2B_RESET, new UnsignedWordElement(50))), //
@@ -227,9 +224,9 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 						m(BatteryFeneconF2b.ChannelId.F2B_TERMINAL_15_HW_ERROR, new UnsignedWordElement(103)), //
 						m(BatteryFeneconF2b.ChannelId.F2B_POWER_SUPPLY_ERROR_HV_SIDE, new UnsignedWordElement(104)), //
 						m(BatteryFeneconF2b.ChannelId.F2B_TERMINAL_30F_INPUT_VOLTAGE, new UnsignedWordElement(105),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						m(BatteryFeneconF2b.ChannelId.F2B_TERMINAL_30C_INPUT_VOLTAGE, new UnsignedWordElement(106),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						m(BatteryFeneconF2bBmw.ChannelId.HV_CONTACTOR_STATUS, new UnsignedWordElement(107),
 								SET_NULL_FOR_DEFAULT_3), //
 						m(BatteryFeneconF2bBmw.ChannelId.CAT1_PRECHARGE_SYSTEM_IS_LOCKED, new UnsignedWordElement(108),
@@ -259,14 +256,8 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 						m(BatteryFeneconF2bBmw.ChannelId.LINK_VOLTAGE, new UnsignedWordElement(116), //
 								chain(SET_NULL_FOR_DEFAULT_00FF, MULTIPLY(4))), //
 						// AVL_I_HVSTO, Actual current of the battery
-						m(new UnsignedWordElement(117))//
-								.m(BatteryFeneconF2bBmw.ChannelId.BATTERY_CURRENT,
-										chain(SET_NULL_FOR_DEFAULT_FFFF, SUBTRACT(8192), INVERT))//
-								.m(Battery.ChannelId.CURRENT,
-										chain(SET_NULL_FOR_DEFAULT_FFFF, SUBTRACT(8192),
-												ElementToChannelConverter.SCALE_FACTOR_MINUS_1, INVERT))
-								.build(), //
-
+						m(Battery.ChannelId.CURRENT, new UnsignedWordElement(117), //
+								chain(SET_NULL_FOR_DEFAULT_FFFF, SUBTRACT(8192), SCALE_FACTOR_MINUS_1, INVERT)), //
 						// CHGCOND_HVSTO, State of Charge (SoC) The SoC is calculated based on the
 						// nominal capacity.The minimal value is always \"0\" and the maximum value
 						// depends on the actual SoH (state of health) and will decrease over time
@@ -274,7 +265,7 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 								SET_NULL_FOR_DEFAULT_00FF), //
 						// MB_MIN_U_ELMNT_HVSTO, Minimum actual cell voltage
 						m(Battery.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(119), //
-								chain(SET_NULL_FOR_DEFAULT_0, MULTIPLY(2), ElementToChannelConverter.DIRECT_1_TO_1)), //
+								chain(SET_NULL_FOR_DEFAULT_0, MULTIPLY(2), DIRECT_1_TO_1)), //
 						// MB_MAX_U_ELMNT_HVSTO , Maximum actual cell voltage
 						m(Battery.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(120), //
 								chain(MULTIPLY(2), SET_NULL_FOR_DEFAULT_0)), // [0...8,188V]
@@ -289,16 +280,11 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 						m(BatteryFeneconF2b.ChannelId.AVG_CELL_TEMPERATURE, new UnsignedWordElement(124), //
 								chain(SET_NULL_FOR_DEFAULT_00FF, SUBTRACT(50))), //
 						// I_DYN_MAX_DCHG_HVSTO,
-						m(BatteryFeneconF2bBmw.ChannelId.BATTERY_DISCHARGE_MAX_CURRENT, new UnsignedWordElement(125), //
-								chain(SET_NULL_FOR_DEFAULT_FFFF, SUBTRACT(8192), INVERT)), // [-819,2...819,0A]
+						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new UnsignedWordElement(125),
+								chain(SET_NULL_FOR_DEFAULT_FFFF, SUBTRACT(8192), SCALE_FACTOR_MINUS_1, INVERT)), //
 						// U_MIN_DCHG_HVSTO
-						m(new UnsignedWordElement(126))//
-								.m(BatteryFeneconF2bBmw.ChannelId.BATTERY_DISCHARGE_MIN_VOLTAGE,
-										SET_NULL_FOR_DEFAULT_FFFF) //
-								.m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
-										chain(SET_NULL_FOR_DEFAULT_FFFF,
-												ElementToChannelConverter.SCALE_FACTOR_MINUS_1))//
-								.build(), // [0 ... 819,0 V]
+						m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(126), //
+								chain(SET_NULL_FOR_DEFAULT_FFFF, SCALE_FACTOR_MINUS_1)), //
 						m(BatteryFeneconF2bBmw.ChannelId.ALLOWED_DISCHARGE_POWER, new UnsignedWordElement(127), //
 								chain(SET_NULL_FOR_DEFAULT_FFFF, SUBTRACT(196596), MULTIPLY(3))), //
 						m(BatteryFeneconF2bBmw.ChannelId.MAX_ALLOWED_DISCHARGE_POWER, new UnsignedWordElement(128), //
@@ -306,16 +292,12 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 						// I_DYN_MAX_CHG_HVSTO, Maximum allowed charge current:In case the EES is
 						// operated
 						// at a higher charge current the EES might open the contactors
-						m(BatteryFeneconF2bBmw.ChannelId.BATTERY_CHARGE_MAX_CURRENT, new UnsignedWordElement(129), //
-								chain(SET_NULL_FOR_DEFAULT_FFFF, SUBTRACT(8192))),
+						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new UnsignedWordElement(129), //
+								chain(SET_NULL_FOR_DEFAULT_FFFF, SUBTRACT(8192), SCALE_FACTOR_MINUS_1)), //
 						// U_MAX_CHG_HVSTO, Maximum allowed charge voltage: In case the EES is be
 						// operated at a higher voltage while charging the EES might open the contactors
-						m(new UnsignedWordElement(130))//
-								.m(BatteryFeneconF2bBmw.ChannelId.BATTERY_CHARGE_MAX_VOLTAGE, SET_NULL_FOR_DEFAULT_FFFF) //
-								.m(Battery.ChannelId.CHARGE_MAX_VOLTAGE,
-										chain(SET_NULL_FOR_DEFAULT_FFFF,
-												ElementToChannelConverter.SCALE_FACTOR_MINUS_1))//
-								.build(), // [0 ... 819,0 V]
+						m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(130),
+								chain(SET_NULL_FOR_DEFAULT_FFFF, SCALE_FACTOR_MINUS_1)), //
 						m(BatteryFeneconF2bBmw.ChannelId.MAX_ALLOWED_CHARGE_POWER, new UnsignedWordElement(131), //
 								chain(SET_NULL_FOR_DEFAULT_FFFF, MULTIPLY(3))), //
 						m(BatteryFeneconF2bBmw.ChannelId.ALLOWED_CHARGE_POWER, new UnsignedWordElement(132), //
@@ -323,8 +305,7 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 						m(BatteryFeneconF2bBmw.ChannelId.INSULATION_MEASUREMENT_STATUS, new UnsignedWordElement(133),
 								SET_NULL_FOR_DEFAULT_3), //
 						m(BatteryFeneconF2bBmw.ChannelId.INSULATION_RESISTANCE, new UnsignedWordElement(134),
-								chain(SET_NULL_FOR_DEFAULT_00FF, SET_NULL_FOR_DEFAULT_00FD,
-										ElementToChannelConverter.SCALE_FACTOR_1)), //
+								chain(SET_NULL_FOR_DEFAULT_00FF, SET_NULL_FOR_DEFAULT_00FD, SCALE_FACTOR_1)), //
 						m(BatteryFeneconF2bBmw.ChannelId.INSULATION_VALUE_WARNING, new UnsignedWordElement(135),
 								chain(SET_NULL_FOR_DEFAULT_3, SET_NULL_FOR_DEFAULT_0, SUBTRACT(1))), //
 						m(BatteryFeneconF2bBmw.ChannelId.BALANCING_MIN_CELL_VOLTAGE, new UnsignedWordElement(136),
@@ -350,18 +331,16 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 						m(BatteryFeneconF2bBmw.ChannelId.HEATING_REQUEST, new UnsignedWordElement(147),
 								SET_NULL_FOR_DEFAULT_FF), //
 						m(BatteryFeneconF2bBmw.ChannelId.BATTERY_POWER, new UnsignedWordElement(148),
-								chain(SET_NULL_FOR_DEFAULT_0FFF, ElementToChannelConverter.SCALE_FACTOR_1)), //
+								chain(SET_NULL_FOR_DEFAULT_0FFF, SCALE_FACTOR_1)), //
 						m(BatteryFeneconF2bBmw.ChannelId.HEATING_POWER, new UnsignedWordElement(149),
 								SET_NULL_FOR_DEFAULT_0FFF), //
 						m(BatteryFeneconF2bBmw.ChannelId.PREDICTED_DISCHARGE_ENERGY, new UnsignedWordElement(150), //
-								chain(SET_NULL_FOR_DEFAULT_0FFF, MULTIPLY(2),
-										ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
+								chain(SET_NULL_FOR_DEFAULT_0FFF, MULTIPLY(2), SCALE_FACTOR_MINUS_2)), //
 						m(BatteryFeneconF2bBmw.ChannelId.PREDICTED_AVERAGE_ENERGY, new UnsignedWordElement(151),
 								SET_NULL_FOR_DEFAULT_FFFF), //
 						m(BatteryFeneconF2bBmw.ChannelId.PREDICTED_ENERGY_TO_RECEIVE_THE_TARGET_SOC,
 								new UnsignedWordElement(152), //
-								chain(SET_NULL_FOR_DEFAULT_FFFF, MULTIPLY(2),
-										ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
+								chain(SET_NULL_FOR_DEFAULT_FFFF, MULTIPLY(2), SCALE_FACTOR_MINUS_2)), //
 						m(BatteryFeneconF2bBmw.ChannelId.MIN_SOC, new UnsignedWordElement(153), //
 								chain(SET_NULL_FOR_DEFAULT_00FF, DIVIDE(2))), //
 						m(BatteryFeneconF2bBmw.ChannelId.MAX_SOC, new UnsignedWordElement(154), //
@@ -459,9 +438,8 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.batteryProtection.apply();
 			this.heatingManagement();
-			// TODO drop after battery protection implementation
-			this.calculateBatteryValues();
 			this.handleStateMachine();
 			break;
 		}
@@ -490,9 +468,8 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 	}
 
 	/**
-	 * TODO drop after battery protection implementation The internal voltage is
-	 * preferred when the battery is started, as the internal voltage is more
-	 * accurate than the junction voltage.
+	 * The internal voltage is preferred when the battery is started, as the
+	 * internal voltage is more accurate than the junction voltage.
 	 */
 	protected synchronized void updateBatteryVoltage() {
 		Integer batteryVoltage = null;
@@ -524,7 +501,6 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 		}
 	}
 
-	// TODO drop after battery protection implementation
 	protected synchronized void updateSoc() {
 		Channel<Double> batterySocChannel = this.channel(BatteryFeneconF2bBmw.ChannelId.BATTERY_SOC);
 		var batterySoc = batterySocChannel.value();
@@ -619,171 +595,6 @@ public class BatteryFeneconF2bBmwImpl extends AbstractOpenemsModbusComponent imp
 	}
 
 	public static record BatteryValues(int soc, int voltage, int chargeMaxVoltage, int dischargeMinVoltage) {
-	}
-
-	// TODO drop after battery protection implementation
-	public static record BatteryProtectionValues(int unlimitedSoc, int linkVoltageHighRes, int batteryCurrent,
-			int batteryChargeMaxVoltage, int batteryDischargeMinVoltage) {
-	}
-
-	// TODO drop after battery protection implementation
-	private void calculateBatteryValues() {
-		final var data = getValues(this, BatteryProtectionValues.class).orElse(null);
-
-		// Channel values are not available
-		if (data == null) {
-			this._setChargeMaxCurrent(null);
-			this._setDischargeMaxCurrent(null);
-			return;
-		}
-
-		// If battery voltage is equal to 0, do not perform the regulation
-		if (data.linkVoltageHighRes() == 0) {
-			this._setChargeMaxCurrent(null);
-			this._setDischargeMaxCurrent(null);
-			return;
-		}
-
-		// Voltage control
-		int chargeMaxCurrentVoltLimit = this.voltageRegulatorCalculateMaxCurrent(data.batteryCurrent(),
-				data.linkVoltageHighRes(), data.batteryChargeMaxVoltage(), TypeUtils::subtract,
-				this::_setChargeMaxCurrentVoltaLimitChannel);
-		final int dischargeMaxCurrentVoltLimit;
-		if (data.batteryDischargeMinVoltage() < Constants.BATTERY_MIN_VOLTAGE_LIMIT) {
-			dischargeMaxCurrentVoltLimit = this.voltageRegulatorCalculateMaxCurrent(data.batteryCurrent(),
-					data.linkVoltageHighRes(), Constants.BATTERY_MIN_VOLTAGE_LIMIT, TypeUtils::sum,
-					this::_setDischargeMaxCurrentVoltLimit);
-		} else {
-			dischargeMaxCurrentVoltLimit = this.voltageRegulatorCalculateMaxCurrent(data.batteryCurrent(),
-					data.linkVoltageHighRes(), data.batteryDischargeMinVoltage(), TypeUtils::sum,
-					this::_setDischargeMaxCurrentVoltLimit);
-		}
-
-		var batteryPower = TypeUtils.multiply(data.linkVoltageHighRes(), data.batteryCurrent());
-
-		// Deep Discharge Protection Voltage
-		if ((data.linkVoltageHighRes() <= data.batteryDischargeMinVoltage()
-				&& (batteryPower > -Constants.FORCE_CHARGE_POWER_ERROR_THRESHOLD))) {
-			if (!this.deepDischargeVoltageControlWasActive) {
-				this.timeAtEntryDeepDischargeVoltageControl = Instant.now();
-			} else if (Duration.between(this.timeAtEntryDeepDischargeVoltageControl, Instant.now())
-					.getSeconds() > Constants.DEEP_DISCHARGE_PROTECTION_ERROR_DELAY) {
-				this.channel(BatteryFeneconF2bBmw.ChannelId.DEEP_DISCHARGE_PROTECTION_VOLTAGE_CONTROL)
-						.setNextValue(true);
-			}
-			this.deepDischargeVoltageControlWasActive = true;
-		} else {
-			this.deepDischargeVoltageControlWasActive = false;
-		}
-
-		// calculate minimum chargeMaxCurrent and dischargeMaxCurrent
-		int minChargeMaxCurrent = Math.min(chargeMaxCurrentVoltLimit, this.getBatteryChargeMaxCurrent().get() / 10);
-		int minDischargeMaxCurrent = Math.min(dischargeMaxCurrentVoltLimit,
-				this.getBatteryDischargeMaxCurrent().get() / 10);
-		this.socRegulation(data.unlimitedSoc(), minChargeMaxCurrent, minDischargeMaxCurrent, batteryPower,
-				data.linkVoltageHighRes());
-
-	}
-
-	// TODO drop after battery protection implementation
-	private void socRegulation(Integer unlimitedSoc, Integer minChargeMaxCurrent, Integer minDischargeMaxCurrent,
-			Integer batteryPower, Integer batteryLinkVoltageHighRes) {
-		if (this.isStarted()) {
-			switch (this.operationState) {
-			case UNDEFINED:
-				this.operationState = OperationState.OFF;
-				break;
-			case OFF:
-				if (unlimitedSoc >= Constants.ONLY_DISCHARGE_UPPER_THRESHOLD) {
-					this.operationState = OperationState.ONLY_DISCHARGE;
-				} else if (unlimitedSoc >= Constants.ONLY_CHARGE_LOWER_THRESHOLD) {
-					this.operationState = OperationState.NORMAL;
-				} else {
-					this.operationState = OperationState.FORCE_CHARGE;
-				}
-				this.forceChargeWasActive = false;
-				break;
-			case NORMAL:
-				if (unlimitedSoc >= Constants.ONLY_DISCHARGE_UPPER_THRESHOLD) {
-					this.operationState = OperationState.ONLY_DISCHARGE;
-				} else if (unlimitedSoc <= Constants.ONLY_CHARGE_LOWER_THRESHOLD) {
-					this.operationState = OperationState.ONLY_CHARGE;
-				}
-				this.forceChargeWasActive = false;
-				break;
-			case ONLY_DISCHARGE:
-				if (unlimitedSoc <= Constants.ONLY_DISCHARGE_LOWER_THRESHOLD) {
-					this.operationState = OperationState.NORMAL;
-				}
-				if (minChargeMaxCurrent > 0) {
-					minChargeMaxCurrent = 0;
-				}
-				this.forceChargeWasActive = false;
-				break;
-			case ONLY_CHARGE:
-				if (unlimitedSoc >= Constants.ONLY_CHARGE_UPPER_THRESHOLD) {
-					this.operationState = OperationState.NORMAL;
-				} else if (unlimitedSoc <= Constants.FORCE_CHARGE_LOWER_THRESHOLD) {
-					this.operationState = OperationState.FORCE_CHARGE;
-				}
-				if (minDischargeMaxCurrent > 0) {
-					minDischargeMaxCurrent = 0;
-				}
-				this.forceChargeWasActive = false;
-				break;
-			case FORCE_CHARGE:
-				if (unlimitedSoc >= Constants.FORCE_CHARGE_UPPER_THRESHOLD) {
-					this.operationState = OperationState.ONLY_CHARGE;
-				}
-				// on Entry:
-				if (!this.forceChargeWasActive) {
-					this.timeAtEntryForceCharge = Instant.now();
-				} else if ((Duration.between(this.timeAtEntryForceCharge, Instant.now())
-						.getSeconds() > Constants.DEEP_DISCHARGE_PROTECTION_ERROR_DELAY)
-						&& (batteryPower > -Constants.FORCE_CHARGE_POWER_ERROR_THRESHOLD)) {
-					this.channel(BatteryFeneconF2bBmw.ChannelId.DEEP_DISCHARGE_PROTECTION_LIMIT_SOC).setNextValue(true);
-				}
-				this.forceChargeWasActive = true;
-				if (batteryLinkVoltageHighRes != 0) {
-					minDischargeMaxCurrent = -Constants.FORCE_CHARGE_DISCHARGE_POWER / (batteryLinkVoltageHighRes);
-				}
-				break;
-			}
-		} else {
-			this.operationState = OperationState.OFF;
-			minChargeMaxCurrent = 0;
-			minDischargeMaxCurrent = 0;
-		}
-
-		this.channel(BatteryFeneconF2bBmw.ChannelId.OPERATION_STATE).setNextValue(this.operationState);
-		this._setChargeMaxCurrent(minChargeMaxCurrent);
-		this._setDischargeMaxCurrent(minDischargeMaxCurrent);
-	}
-
-	// TODO drop after battery protection implementation
-	private int voltageRegulatorCalculateMaxCurrent(int batteryCurrent, int batteryVoltage, int batteryLimitVoltage,
-			BiFunction<Double, Double, Double> typeUtilsMethods, Consumer<Integer> batteryMethod) {
-
-		// Update CycleTime of PT1-filter
-		this.pt1FilterMaxCurrentVoltLimit.setCycleTime(this.cycle.getCycleTime() / 1000.0);
-
-		// Calculate charge maximum current
-		var deltaChargeCurrent = (TypeUtils.abs(TypeUtils.subtract(batteryVoltage, batteryLimitVoltage))
-				+ Constants.VOLTAGE_CONTROL_OFFSET) / Constants.INNER_RESISTANCE;
-		var maxCurrentVoltLimit = typeUtilsMethods.apply(deltaChargeCurrent, (double) batteryCurrent);
-		// apply filter
-		int resultMaxCurrent = (int) (this.pt1FilterMaxCurrentVoltLimit.applyPt1Filter(maxCurrentVoltLimit.intValue())
-				/ 10);
-
-		// compare with force charge-discharge power
-		var forceChargeDischargePower = TypeUtils
-				.multiply(TypeUtils.divide(Constants.FORCE_CHARGE_DISCHARGE_POWER, (batteryVoltage / 10)), -1);
-
-		if (resultMaxCurrent < forceChargeDischargePower) {
-			resultMaxCurrent = forceChargeDischargePower;
-		}
-		batteryMethod.accept(resultMaxCurrent);
-		return resultMaxCurrent;
 	}
 
 	@Override
