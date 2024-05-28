@@ -6,12 +6,14 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.channel.AccessMode;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
@@ -56,10 +58,16 @@ public class ControllerApiModbusRtuReadWriteImpl extends AbstractModbusRtuApi
 	}
 
 	@Activate
-	protected void activate(ComponentContext context, Config config) throws OpenemsException {
+	protected void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
+	@Modified
+	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		super.modified(context, this.cm,
+				new ConfigRecord(config.id(), config.alias(), config.enabled(), this.metaComponent,
+						config.component_ids(), config.apiTimeout(), config.port(), config.maxConcurrentConnections()));
+	}
 	@Override
 	@Deactivate
 	protected void deactivate() {
