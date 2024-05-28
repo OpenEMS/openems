@@ -287,7 +287,6 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 			this.channel(EvcsKebaKeContact.ChannelId.PHASE_SWITCH_COOLDOWN).setNextValue(secondsUntilNextSwitch);
 			this.log.info("Phase switch cooldown period has not passed. Time before next switch: "
 					+ secondsUntilNextSwitch + " seconds.");
-			this.applyDisplayText("Cooldown: " + secondsUntilNextSwitch + "s");
 		}
 
 		// Send command to set current
@@ -310,26 +309,9 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		current = Math.min(current, 63_000);
 
 		if (current < 6000) {
-			current = 0;
+			current = 6000; // Set to minimum allowed value
 		}
 
-		// TODO: Remove comments below
-		// We cannot fit the current value into min & max. The evcs should not start
-		// e.g. when there is a power request of 300 W
-		// Maybe a logic would be OK, that charges with the minimum only at the
-		// beginning of the session.
-
-		// int current = Math.round((power * 1000) / (phases * 230f));
-		// this.log.debug("Initial calculated current: " + current + "mA for power: " +
-		// power + "W, phases: " + phases);
-		//
-		// // Ensure the current is within KEBA's acceptable range
-		// current = Math.min(Math.max(current, 6000), 63_000);
-		// if (current == 6000 && power > 0) {
-		// // Adjust current for powers just over the threshold for 1-phase charging
-		// current = Math.max(current, 6000);
-		// }
-		// this.log.debug("Adjusted current within KEBA's range: " + current + "mA");
 		return current;
 	}
 
