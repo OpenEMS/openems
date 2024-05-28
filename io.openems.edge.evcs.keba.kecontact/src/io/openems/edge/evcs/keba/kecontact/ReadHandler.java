@@ -162,7 +162,7 @@ public class ReadHandler implements Consumer<String> {
 					this.setInt(EvcsKebaKeContact.ChannelId.CURR_USER, jsonMessage, "Curr user");
 					
 					this.setInt(EvcsKebaKeContact.ChannelId.X2_PHASE_SWITCH, jsonMessage, "X2 phaseSwitch");
-					this.setInt(EvcsKebaKeContact.ChannelId.X2_PHASE_SWITCH, jsonMessage, "X2 phaseSwitch source");
+					this.setInt(EvcsKebaKeContact.ChannelId.X2_PHASE_SWITCH_SOURCE, jsonMessage, "X2 phaseSwitch source");
 
 					// Check configuration for phase switch activation and parse the "X2
 					// phaseSwitch" status
