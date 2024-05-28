@@ -8,6 +8,9 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -221,6 +224,8 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		return this.config.phaseSwitchActive();
 	}
 
+	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
 	@Override
 	public boolean applyChargePowerLimit(int power) throws OpenemsException {
 		Instant now = Instant.now(this.componentManager.getClock());
@@ -241,16 +246,37 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		 */
 		IntegerReadChannel maxCurrentCannel = this.channel(EvcsKebaKeContact.ChannelId.DIP_SWITCH_MAX_HW);
 		final var phases = this.getPhases();
-		var prefferedPhases = Phases.preferredPhaseBehavior(power, this.getPhases(), this.config.minHwCurrent(),
+		var preferredPhases = Phases.preferredPhaseBehavior(power, this.getPhases(), this.config.minHwCurrent(),
 				maxCurrentCannel.value().orElse(DEFAULT_MAXIMUM_HARDWARE_CURRENT));
 
-		System.out.println("Preferred: " + prefferedPhases);
-		if (phases != prefferedPhases && isPhaseSwitchCooldownOver) {
-			boolean switchSuccess = this.switchPhases(prefferedPhases, now);
-			if (!switchSuccess) {
-				this.log.info("Phase switch failed. Exiting.");
-				return false; // Early exit if phase switch failed
-			}
+		System.out.println("Preferred: " + preferredPhases);
+		if (phases != preferredPhases && isPhaseSwitchCooldownOver) {
+			// Send previous value before switching phases
+			boolean sendPreviousSuccess = this.send("currtime " + current + " 1");
+			this.log.debug("Sent previous value before phase switching. Success: " + sendPreviousSuccess);
+
+			// Schedule the phase switch after a short delay
+			scheduler.schedule(() -> {
+				try {
+					boolean switchSuccess = this.switchPhases(preferredPhases, now);
+					if (!switchSuccess) {
+						this.log.info("Phase switch failed. Exiting.");
+						return false; // Early exit if phase switch failed
+					}
+
+					// Send command to set current
+					boolean sendSuccess = this.send("currtime " + current + " 1");
+					this.log.debug("Command to set current sent. Success: " + sendSuccess);
+					return sendSuccess;
+
+				} catch (Exception e) {
+					this.log.error("Error during phase switch delay handling", e);
+					return false;
+				}
+			}, 1, TimeUnit.SECONDS);
+
+			// Return early to avoid blocking the main thread
+			return true;
 		}
 
 		// TODO: Remove log. Use epoch time channel for displaying in UI instead
@@ -261,8 +287,6 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 			this.log.info("Phase switch cooldown period has not passed. Time before next switch: "
 					+ secondsUntilNextSwitch + " seconds.");
 		}
-
-		// TODO: Maybe send previous value during phase switching and wait for it.
 
 		// Send command to set current
 		boolean sendSuccess = this.send("currtime " + current + " 1");
