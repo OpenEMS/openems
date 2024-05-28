@@ -41,6 +41,9 @@ public interface EvcsKebaKeContact extends ManagedEvcs, Evcs, OpenemsComponent, 
 		DIP_SWITCH_MAX_HW(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIAMPERE) //
 				.text("The raw maximum limit configured by the dip switches")),
+		PHASE_SWITCH_COOLDOWN(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.SECONDS) //
+				.text("Time remaining for the phase switch cooldown")), //
 
 		/*
 		 * Report 2

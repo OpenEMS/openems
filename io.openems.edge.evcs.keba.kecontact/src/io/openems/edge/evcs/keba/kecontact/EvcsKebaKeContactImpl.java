@@ -279,11 +279,12 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 			return true;
 		}
 
-		// TODO: Remove log. Use epoch time channel for displaying in UI instead
+		// TODO: Remove log.
 		if (!isPhaseSwitchCooldownOver) {
 			Duration timeUntilNextSwitch = Duration.between(now,
 					this.lastPhaseChangeTime.plusSeconds(PHASE_SWITCH_COOLDOWN_SECONDS));
 			long secondsUntilNextSwitch = timeUntilNextSwitch.getSeconds();
+	        this.channel(EvcsKebaKeContact.ChannelId.PHASE_SWITCH_COOLDOWN).setNextValue(secondsUntilNextSwitch);
 			this.log.info("Phase switch cooldown period has not passed. Time before next switch: "
 					+ secondsUntilNextSwitch + " seconds.");
 		}
