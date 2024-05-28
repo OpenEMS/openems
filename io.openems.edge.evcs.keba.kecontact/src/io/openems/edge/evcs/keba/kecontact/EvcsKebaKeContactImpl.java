@@ -312,13 +312,16 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 			current = 0;
 		}
 
-	// boolean shouldSwitchToThreePhases(int power, int phases) {
-	// boolean shouldSwitch = power > 4140 && phases != 3;
-	// this.log.debug("Should switch to 3 phases: " + shouldSwitch + " [Power: " +
-	// power + "W, Current phases: "
-	// + phases + "]");
-	// return shouldSwitch;
-	// }
+		// boolean shouldSwitchToThreePhases(int power, int phases) {
+		// boolean shouldSwitch = power > 4140 && phases != 3;
+		// this.log.debug("Should switch to 3 phases: " + shouldSwitch + " [Power: " +
+		// power + "W, Current phases: "
+		// + phases + "]");
+		// return shouldSwitch;
+		// }
+
+		return current;
+	}
 
 	private boolean switchPhases(Phases prefferedPhases, Instant now) {
 
