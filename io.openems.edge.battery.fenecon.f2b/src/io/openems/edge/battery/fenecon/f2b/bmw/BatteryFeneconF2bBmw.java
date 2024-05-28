@@ -19,7 +19,6 @@ import io.openems.edge.battery.fenecon.f2b.bmw.enums.HeatingRequest;
 import io.openems.edge.battery.fenecon.f2b.bmw.enums.HvContactorStatus;
 import io.openems.edge.battery.fenecon.f2b.bmw.enums.InsulationMeasurement;
 import io.openems.edge.battery.fenecon.f2b.bmw.enums.InsulationMeasurementStatus;
-import io.openems.edge.battery.fenecon.f2b.bmw.enums.OperationState;
 import io.openems.edge.battery.fenecon.f2b.bmw.enums.RequestCharging;
 import io.openems.edge.battery.fenecon.f2b.bmw.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.BooleanWriteChannel;
@@ -96,16 +95,16 @@ public interface BatteryFeneconF2bBmw extends BatteryFeneconF2b, Battery, Openem
 		// Error Channels
 
 		// ST_PRCHRG_LOKD_HVSTO
-		CAT1_PRECHARGE_SYSTEM_IS_LOCKED(Doc.of(Level.WARNING)//
-				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)//
+		CAT1_PRECHARGE_SYSTEM_IS_LOCKED(Doc.of(Level.INFO)//
+				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)//
 				.accessMode(AccessMode.READ_ONLY)), //
 
-		CAT1_FAULT(Doc.of(Level.FAULT)//
+		CAT1_FAULT(Doc.of(Level.INFO)//
 				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)//
 				.text("CAT1 precharge system is locked")//
 				.accessMode(AccessMode.READ_ONLY)), //
 		// RQ_SER_HVSTO, Error category 3: No limitation but service needed
-		CAT3_NO_LIMITATIONS_BUT_SERVICE_NEEDED(Doc.of(Level.WARNING)//
+		CAT3_NO_LIMITATIONS_BUT_SERVICE_NEEDED(Doc.of(Level.INFO)//
 				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)//
 				.accessMode(AccessMode.READ_ONLY)), //
 
@@ -154,19 +153,6 @@ public interface BatteryFeneconF2bBmw extends BatteryFeneconF2b, Battery, Openem
 				.accessMode(AccessMode.READ_ONLY)), // [0 ... 8,188 V]
 
 		// U_MIN_DCHG_HVSTO
-		BATTERY_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.VOLT)//
-				.accessMode(AccessMode.READ_ONLY)),
-		BATTERY_CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.VOLT)//
-				.accessMode(AccessMode.READ_ONLY)),
-		BATTERY_CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.AMPERE)//
-				.accessMode(AccessMode.READ_ONLY)),
-		BATTERY_DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.AMPERE)//
-				.accessMode(AccessMode.READ_ONLY)),
-
 		// AVLB_PWR_SRT_DCHG_HVSTO, Maximum allowed discharge power for the next second
 		ALLOWED_DISCHARGE_POWER(Doc.of(OpenemsType.LONG)//
 				.unit(Unit.WATT)//
@@ -279,10 +265,6 @@ public interface BatteryFeneconF2bBmw extends BatteryFeneconF2b, Battery, Openem
 				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_ONLY)), //
 
-		BATTERY_CURRENT(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.AMPERE)//
-				.accessMode(AccessMode.READ_ONLY)), //
-
 		// RQ_CHGCOND_HVSTO_MIN, Minimum state of charge (SoC)
 		MIN_SOC(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.PERCENT)//
@@ -327,25 +309,10 @@ public interface BatteryFeneconF2bBmw extends BatteryFeneconF2b, Battery, Openem
 				.accessMode(AccessMode.READ_ONLY)), //
 		CAN_SIGNAL_INVALID_AVL_U_HVSTO(Doc.of(OpenemsType.BOOLEAN)//
 				.accessMode(AccessMode.READ_ONLY)), //
-		DEEP_DISCHARGE_PROTECTION_LIMIT_SOC(Doc.of(Level.FAULT) //
-				.text("Deep discharge protection of \"limit SoC\" triggered!")), //
-		DEEP_DISCHARGE_PROTECTION_VOLTAGE_CONTROL(Doc.of(Level.FAULT) //
-				.text("Deep discharge protection of \"voltage control\" triggered!")), //
 		GO_RUNNING_STATE_MACHINE(Doc.of(GoRunningSubState.values()) //
 				.text("Current State of GoRunning State-Machine")), //
 		GO_STOPPED_STATE_MACHINE(Doc.of(OpenemsType.INTEGER) //
 				.text("Current State of GoStopped State-Machine")), //
-		CHARGE_MAX_CURRENT_VOLT_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.AMPERE)), //
-		DISCHARGE_MAX_CURRENT_VOLT_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.AMPERE)), //
-		OPERATION_STATE(Doc.of(OperationState.values())//
-				.persistencePriority(PersistencePriority.HIGH)), //
-		ZERO_CURRENT_REQUEST_FAILED(Doc.of(OpenemsType.BOOLEAN)//
-				.text("Opened contactors under load, because zero current request was ignored")//
-				.persistencePriority(PersistencePriority.HIGH)), //
 		HV_CONTACTORS_STUCK(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Hv Contactors no battery reaction for open/close request")//
 				.persistencePriority(PersistencePriority.HIGH)), //
@@ -483,100 +450,6 @@ public interface BatteryFeneconF2bBmw extends BatteryFeneconF2b, Battery, Openem
 	 */
 	public default Value<Integer> getLinkVoltage() {
 		return this.getLinkVoltageChannel().value();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#BATTERY_CURRENT}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Integer> getBatteryCurrentChannel() {
-		return this.channel(ChannelId.BATTERY_CURRENT);
-	}
-
-	/**
-	 * Gets the BatteryCurrent, see {@link ChannelId#BATTERY_CURRENT}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getBatteryCurrent() {
-		return this.getBatteryCurrentChannel().value();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#BATTERY_DISCHARGE_MAX_CURRENT}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Integer> getBatteryDischargeMaxCurrentChannel() {
-		return this.channel(ChannelId.BATTERY_DISCHARGE_MAX_CURRENT);
-	}
-
-	/**
-	 * Gets the BatteryDischargeMaxCurrent, see
-	 * {@link ChannelId#BATTERY_DISCHARGE_MAX_CURRENT}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getBatteryDischargeMaxCurrent() {
-		return this.getBatteryDischargeMaxCurrentChannel().value();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#BATTERY_CHARGE_MAX_CURRENT}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Integer> getBatteryChargeMaxCurrentChannel() {
-		return this.channel(ChannelId.BATTERY_CHARGE_MAX_CURRENT);
-	}
-
-	/**
-	 * Gets the BatteryChargeMaxCurrent, see
-	 * {@link ChannelId#BATTERY_CHARGE_MAX_CURRENT}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getBatteryChargeMaxCurrent() {
-		return this.getBatteryChargeMaxCurrentChannel().value();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#BATTERY_DISCHARGE_MIN_VOLTAGE}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Integer> getBatteryDischargeMinVoltageChannel() {
-		return this.channel(ChannelId.BATTERY_DISCHARGE_MIN_VOLTAGE);
-	}
-
-	/**
-	 * Gets the BatteryDischargeMinVoltage, see
-	 * {@link ChannelId#BATTERY_DISCHARGE_MIN_VOLTAGE}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getBatteryDischargeMinVoltage() {
-		return this.getBatteryDischargeMinVoltageChannel().value();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#BATTERY_CHARGE_MAX_VOLTAGE}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Integer> getBatteryChargeMaxVoltageChannel() {
-		return this.channel(ChannelId.BATTERY_CHARGE_MAX_VOLTAGE);
-	}
-
-	/**
-	 * Gets the BatteryChargeMaxCurrent, see
-	 * {@link ChannelId#BATTERY_CHARGE_MAX_VOLTAGE}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getBatteryChargeMaxVoltage() {
-		return this.getBatteryChargeMaxVoltageChannel().value();
 	}
 
 	/**
@@ -934,34 +807,6 @@ public interface BatteryFeneconF2bBmw extends BatteryFeneconF2b, Battery, Openem
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#ZERO_CURRENT_REQUEST_FAILED}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Boolean> getZeroCurrentRequestFailedChannel() {
-		return this.channel(ChannelId.ZERO_CURRENT_REQUEST_FAILED);
-	}
-
-	/**
-	 * Gets the {@link ChannelId#ZERO_CURRENT_REQUEST_FAILED}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Boolean> getZeroCurrentRequestFailed() {
-		return this.getZeroCurrentRequestFailedChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#ZERO_CURRENT_REQUEST_FAILED} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setZeroCurrentRequestFailed(Boolean value) {
-		this.getZeroCurrentRequestFailedChannel().setNextValue(value);
-	}
-
-	/**
 	 * Gets the Channel for {@link ChannelId#HV_CONTACTORS_STUCK}.
 	 *
 	 * @return the Channel
@@ -997,62 +842,6 @@ public interface BatteryFeneconF2bBmw extends BatteryFeneconF2b, Battery, Openem
 	 */
 	public default void _setHvContactorsOpenedInRunning(Boolean value) {
 		this.getHvContactorsOpenedInRunningChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#DISCHARGE_MAX_CURRENT_VOLT_LIMIT}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Integer> getDischargeMaxCurrentVoltLimitChannel() {
-		return this.channel(ChannelId.DISCHARGE_MAX_CURRENT_VOLT_LIMIT);
-	}
-
-	/**
-	 * Gets the {@link ChannelId#DISCHARGE_MAX_CURRENT_VOLT_LIMIT}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getDischargeMaxCurrentVoltLimit() {
-		return this.getDischargeMaxCurrentVoltLimitChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#DISCHARGE_MAX_CURRENT_VOLT_LIMIT} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setDischargeMaxCurrentVoltLimit(Integer value) {
-		this.getDischargeMaxCurrentVoltLimitChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#CHARGE_MAX_CURRENT_VOLT_LIMIT}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Integer> getChargeMaxCurrentVoltaLimitChannel() {
-		return this.channel(ChannelId.CHARGE_MAX_CURRENT_VOLT_LIMIT);
-	}
-
-	/**
-	 * Gets the {@link ChannelId#CHARGE_MAX_CURRENT_VOLT_LIMIT}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getChargeMaxCurrentVoltaLimit() {
-		return this.getChargeMaxCurrentVoltaLimitChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#CHARGE_MAX_CURRENT_VOLT_LIMIT} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setChargeMaxCurrentVoltaLimitChannel(Integer value) {
-		this.getChargeMaxCurrentVoltaLimitChannel().setNextValue(value);
 	}
 
 	/**

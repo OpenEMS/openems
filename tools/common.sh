@@ -54,13 +54,20 @@ common_update_version_in_code() {
     sed --in-place "s#\(VERSION_DEV_BUILD_TIME = \)\"\(.*\)\";#\1\"$VERSION_DEV_BUILD_TIME\";#" $SRC_OPENEMS_CONSTANTS
 
     echo "## Update $SRC_PACKAGE_JSON"
-    sed --in-place "s#^\(    \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_JSON
+    sed --in-place "s#^\(  \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_JSON
 
     echo "## Update $SRC_PACKAGE_LOCK_JSON"
-    sed --in-place "s#^\(    \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_LOCK_JSON
+    sed --in-place "s#^\(  \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_LOCK_JSON
 
     echo "## Update $SRC_CHANGELOG_CONSTANTS"
     sed --in-place "s#\(UI_VERSION = \"\).*\(\";\)#\1$VERSION\2#" $SRC_CHANGELOG_CONSTANTS
+}
+
+# Build OpenEMS Backend
+common_build_backend() {
+    echo "# Build OpenEMS Backend"
+    ./gradlew $@ --build-cache build buildBackend resolve.BackendApp
+    git diff --exit-code io.openems.backend.application/BackendApp.bndrun
 }
 
 # Build OpenEMS Edge and UI in parallel
@@ -75,6 +82,12 @@ common_build_edge() {
     echo "# Build OpenEMS Edge"
     ./gradlew $@ --build-cache build buildEdge resolve.EdgeApp resolve.BackendApp
     git diff --exit-code io.openems.edge.application/EdgeApp.bndrun io.openems.backend.application/BackendApp.bndrun
+}
+
+# Run OpenEMS Checkstyle
+common_run_checkstyle() {
+    echo "# Run Checkstyle"
+    ./gradlew $@ checkstyleAll
 }
 
 # Build OpenEMS UI

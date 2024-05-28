@@ -11,6 +11,8 @@ export { BackupEnable, BatteryMode, BatteryStateMachine, DredCmd, GoodWe, GridMo
 export { SystemLog } from "./type/systemlog";
 export { Widget, WidgetFactory, WidgetNature, Widgets } from "./type/widget";
 
+import { AlertController, AlertOptions } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
 import { addIcons } from 'ionicons';
 import { Edge } from "./edge/edge";
 import { User } from "./jsonrpc/shared";
@@ -185,4 +187,26 @@ export enum EssStateMachine {
   STOP_BATTERY = 21, //
   STOPPED = 22, //
   ERROR = 30,
+}
+
+/**
+* Presents a simple
+*/
+export async function presentAlert(alertController: AlertController, translate: TranslateService, alertOptions: AlertOptions) {
+
+  if (!alertOptions?.buttons) {
+    throw new Error("Confirmation button is missing");
+  }
+
+  const alert = alertController.create({
+    ...alertOptions,
+    buttons: [{
+      text: translate.instant('General.cancel'),
+      role: 'cancel',
+    },
+    ...(alertOptions?.buttons ?? []),
+    ],
+    cssClass: 'alertController',
+  });
+  (await alert).present();
 }
