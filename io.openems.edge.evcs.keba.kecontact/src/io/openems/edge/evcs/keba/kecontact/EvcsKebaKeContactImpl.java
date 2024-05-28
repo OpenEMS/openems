@@ -256,7 +256,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 			this.log.debug("Sent previous value before phase switching. Success: " + sendPreviousSuccess);
 
 			// Schedule the phase switch after a short delay
-			scheduler.schedule(() -> {
+			this.scheduler.schedule(() -> {
 				try {
 					boolean switchSuccess = this.switchPhases(preferredPhases, now);
 					if (!switchSuccess) {
@@ -284,9 +284,10 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 			Duration timeUntilNextSwitch = Duration.between(now,
 					this.lastPhaseChangeTime.plusSeconds(PHASE_SWITCH_COOLDOWN_SECONDS));
 			long secondsUntilNextSwitch = timeUntilNextSwitch.getSeconds();
-	        this.channel(EvcsKebaKeContact.ChannelId.PHASE_SWITCH_COOLDOWN).setNextValue(secondsUntilNextSwitch);
+			this.channel(EvcsKebaKeContact.ChannelId.PHASE_SWITCH_COOLDOWN).setNextValue(secondsUntilNextSwitch);
 			this.log.info("Phase switch cooldown period has not passed. Time before next switch: "
 					+ secondsUntilNextSwitch + " seconds.");
+			this.applyDisplayText("Cooldown: " + secondsUntilNextSwitch + "s");
 		}
 
 		// Send command to set current
