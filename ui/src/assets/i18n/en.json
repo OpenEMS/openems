@@ -351,7 +351,8 @@
         "level": "Level",
         "message": "Message",
         "source": "Source",
-        "timestamp": "Timestamp"
+        "timestamp": "Timestamp",
+        "CONDENSED_OUTPUT": "Condensed Output"
       },
       "Controller": {
         "app": "App:",
@@ -938,7 +939,11 @@
       "RESTARTING": "Restarting {{system}}. (This can take up to {{minutes}} minutes)",
       "RESTARTED": "{{system}} restarting successful.",
       "RESTART_CONFIRMATION": "Would you like to restart {{system}}?",
-      "RESTART_WARNING": "Communication is interrupted while {{system}} is restarting. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state."
+      "RESTART_WARNING": "Communication is interrupted while {{system}} is restarting. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state.",
+      "CONFIRMATION_INFO": "Would you like to update your {{edgeShortName}}?",
+      "WARNING": "The software will restart after the system update. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state.",
+      "UPDATE_EXECUTE": "Execute system update",
+      "SUB_HEADER": "Would you like to execute a system update?"
     }
   },
   "CHANNELS": {
