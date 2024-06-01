@@ -39,7 +39,7 @@ import io.openems.edge.ess.power.api.Relationship;
  * Parent class for different implementations of Managed Energy Storage Systems,
  * consisting of a Battery-Inverter component and a Battery component.
  */
-public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTERY extends Battery, BATTERY_INVERTER extends ManagedSymmetricBatteryInverter>
+public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss & CycleProvider, BATTERY extends Battery, BATTERY_INVERTER extends ManagedSymmetricBatteryInverter>
 		extends AbstractOpenemsComponent implements GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
 		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
