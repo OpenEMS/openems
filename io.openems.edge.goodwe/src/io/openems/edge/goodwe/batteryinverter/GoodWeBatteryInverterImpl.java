@@ -3,6 +3,7 @@ package io.openems.edge.goodwe.batteryinverter;
 import static io.openems.edge.common.channel.ChannelUtils.setWriteValueIfNotRead;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -36,6 +37,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.startstop.StartStop;
@@ -46,6 +48,9 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.goodwe.batteryinverter.statemachine.Context;
+import io.openems.edge.goodwe.batteryinverter.statemachine.StateMachine;
+import io.openems.edge.goodwe.batteryinverter.statemachine.StateMachine.State;
 import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
@@ -64,17 +69,20 @@ import io.openems.edge.timedata.api.Timedata;
 )
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
-public class GoodWeBatteryInverterImpl extends AbstractGoodWe
-		implements GoodWeBatteryInverter, GoodWe, HybridManagedSymmetricBatteryInverter,
-		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, ModbusComponent, OpenemsComponent, EventHandler {
+public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeBatteryInverter, GoodWe,
+		HybridManagedSymmetricBatteryInverter, ManagedSymmetricBatteryInverter, SymmetricBatteryInverter,
+		ModbusComponent, OpenemsComponent, EventHandler, StartStoppable {
 
 	// Fenecon Home Battery Static module min voltage, used to calculate battery
 	// module number per tower
 	// TODO get from Battery
 	private static final int MODULE_MIN_VOLTAGE = 42;
 
+	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 	private final Logger log = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 	private final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler();
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
@@ -82,6 +90,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference
+	private ComponentManager componentManager;
 
 	@Reference
 	private Power power;
@@ -160,6 +171,50 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 			return;
 		}
 		super.handleEvent(event);
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.handleStateMachine();
+		}
+	}
+
+	/**
+	 * Handles the State-Machine.
+	 */
+	private void handleStateMachine() {
+		// Store the current State
+		this.channel(GoodWeBatteryInverter.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
+
+		// Initialize 'Start-Stop' Channel
+		this._setStartStop(StartStop.UNDEFINED);
+
+		var context = new Context(this, this.componentManager.getClock());
+		// Call the StateMachine
+		try {
+
+			this.stateMachine.run(context);
+
+			this.channel(GoodWeBatteryInverter.ChannelId.RUN_FAILED).setNextValue(false);
+
+		} catch (OpenemsNamedException e) {
+			this.channel(GoodWeBatteryInverter.ChannelId.RUN_FAILED).setNextValue(true);
+			this.logError(this.log, "StateMachine failed: " + e.getMessage());
+		}
+	}
+
+	@Override
+	public void setStartStop(StartStop value) {
+		if (this.startStopTarget.getAndSet(value) != value) {
+			// Set only if value changed
+			this.stateMachine.forceNextState(State.UNDEFINED);
+		}
+	}
+
+	@Override
+	public StartStop getStartStopTarget() {
+		return switch (this.config.startStop()) {
+		case AUTO -> this.startStopTarget.get();
+		case START -> StartStop.START;
+		case STOP -> StartStop.STOP;
+		};
 	}
 
 	/**
@@ -522,11 +577,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 		// Surplus power is always positive here
 		return surplusPower;
-	}
-
-	@Override
-	public void setStartStop(StartStop value) throws OpenemsNamedException {
-		// GoodWe is always started. This has no effect.
 	}
 
 	@Override

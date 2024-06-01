@@ -1,4 +1,4 @@
-package io.openems.edge.battery.fenecon.home.statemachine;
+package io.openems.edge.goodwe.batteryinverter.statemachine;
 
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.statemachine.AbstractStateMachine;
