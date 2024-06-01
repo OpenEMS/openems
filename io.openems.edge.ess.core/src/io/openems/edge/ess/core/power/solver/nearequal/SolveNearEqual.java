@@ -49,7 +49,7 @@ public class SolveNearEqual {
 				new MaxIter(10000), //
 				new MaxEval(10000), //
 				GoalType.MINIMIZE };
-		SimplexOptimizer solver = new SimplexOptimizer(1e-12, 1e-12);
+		SimplexOptimizer solver = new SimplexOptimizer(1e-11, 1e-11);
 		return solver.optimize(optimizationData);
 	}
 
