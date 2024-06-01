@@ -65,8 +65,10 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.FENECON.Industrial.S.ISK011", "https://fenecon.de/fenecon-industrial-s/") //
 			.put("App.TimeOfUseTariff.Awattar", "") //
 			.put("App.TimeOfUseTariff.ENTSO-E", "") //
+			.put("App.TimeOfUseTariff.RabotCharge", "") //
 			.put("App.TimeOfUseTariff.Stromdao", "") //
 			.put("App.TimeOfUseTariff.Tibber", "") //
+			.put("App.TimeOfUseTariff.RabotCharge", "") //
 			.put("App.Api.ModbusTcp.ReadOnly", "") //
 			.put("App.Api.ModbusTcp.ReadWrite", "") //
 			.put("App.Api.RestJson.ReadOnly", "") //
