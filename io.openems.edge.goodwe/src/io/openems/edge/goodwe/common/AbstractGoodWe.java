@@ -5,11 +5,14 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.common.type.TypeUtils.fitWithin;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -247,6 +250,20 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						}),
 
 						m(new BitsWordElement(35220, this) //
+								.bit(0, GoodWe.ChannelId.DIAG_STATUS_BMS_OVER_TEMPERATURE)//
+								.bit(1, GoodWe.ChannelId.DIAG_STATUS_BMS_OVERCHARGE)//
+								.bit(2, GoodWe.ChannelId.DIAG_STATUS_BMS_CHARGE_DISABLE)//
+								.bit(3, GoodWe.ChannelId.DIAG_STATUS_SELF_USE_OFF)//
+								.bit(4, GoodWe.ChannelId.DIAG_STATUS_SOC_DELTA_OVER_RANGE)//
+								.bit(5, GoodWe.ChannelId.DIAG_STATUS_BATTERY_SELF_DISCHARGE)//
+								.bit(6, GoodWe.ChannelId.DIAG_STATUS_OFFGRID_SOC_LOW)//
+								.bit(7, GoodWe.ChannelId.DIAG_STATUS_GRID_WAVE_UNSTABLE)//
+								.bit(8, GoodWe.ChannelId.DIAG_STATUS_FEED_POWER_LIMIT)//
+								.bit(9, GoodWe.ChannelId.DIAG_STATUS_PF_VALUE_SET)//
+								.bit(10, GoodWe.ChannelId.DIAG_STATUS_REAL_POWER_LIMIT)//
+								.bit(12, GoodWe.ChannelId.DIAG_STATUS_SOC_PROTECT_OFF)), //
+
+						m(new BitsWordElement(35221, this) //
 								.bit(0, GoodWe.ChannelId.DIAG_STATUS_BATTERY_VOLT_LOW)//
 								.bit(1, GoodWe.ChannelId.DIAG_STATUS_BATTERY_SOC_LOW)//
 								.bit(2, GoodWe.ChannelId.DIAG_STATUS_BATTERY_SOC_IN_BACK)//
@@ -264,19 +281,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								.bit(14, GoodWe.ChannelId.DIAG_STATUS_BATTERY_DISCONNECT)//
 								.bit(15, GoodWe.ChannelId.DIAG_STATUS_BATTERY_OVERCHARGE)), //
 
-						m(new BitsWordElement(35221, this) //
-								.bit(0, GoodWe.ChannelId.DIAG_STATUS_BMS_OVER_TEMPERATURE)//
-								.bit(1, GoodWe.ChannelId.DIAG_STATUS_BMS_OVERCHARGE)//
-								.bit(2, GoodWe.ChannelId.DIAG_STATUS_BMS_CHARGE_DISABLE)//
-								.bit(3, GoodWe.ChannelId.DIAG_STATUS_SELF_USE_OFF)//
-								.bit(4, GoodWe.ChannelId.DIAG_STATUS_SOC_DELTA_OVER_RANGE)//
-								.bit(5, GoodWe.ChannelId.DIAG_STATUS_BATTERY_SELF_DISCHARGE)//
-								.bit(6, GoodWe.ChannelId.DIAG_STATUS_OFFGRID_SOC_LOW)//
-								.bit(7, GoodWe.ChannelId.DIAG_STATUS_GRID_WAVE_UNSTABLE)//
-								.bit(8, GoodWe.ChannelId.DIAG_STATUS_FEED_POWER_LIMIT)//
-								.bit(9, GoodWe.ChannelId.DIAG_STATUS_PF_VALUE_SET)//
-								.bit(10, GoodWe.ChannelId.DIAG_STATUS_REAL_POWER_LIMIT)//
-								.bit(12, GoodWe.ChannelId.DIAG_STATUS_SOC_PROTECT_OFF)), //
 						new DummyRegisterElement(35222, 35224), //
 						m(GoodWe.ChannelId.EH_BATTERY_FUNCTION_ACTIVE, new UnsignedWordElement(35225)), //
 						m(GoodWe.ChannelId.ARC_SELF_CHECK_STATUS, new UnsignedWordElement(35226)) //
@@ -1950,9 +1954,19 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	}
 
 	protected void updatePowerAndEnergyChannels() {
-		var productionPower = this.calculatePvProduction();
+		final var productionPower = this.calculatePvProduction();
 		final Channel<Integer> pBattery1Channel = this.channel(GoodWe.ChannelId.P_BATTERY1);
 		var dcDischargePower = pBattery1Channel.value().get();
+		final IntegerReadChannel dcDischargePowerChannel = this.channel(this.dcDischargePowerChannelId);
+
+		/*
+		 * Ignore impossible values of P_BATTERY
+		 */
+		dcDischargePower = postprocessPBattery1(dcDischargePower, this.getWbmsVoltage().get(),
+				this.getGoodweType().maxDcCurrent,
+				state -> this.channel(GoodWe.ChannelId.IGNORE_IMPOSSIBLE_P_BATTERY_VALUE).setNextValue(state),
+				dcDischargePowerChannel.value().asOptional());
+
 		var acActivePower = TypeUtils.sum(productionPower, dcDischargePower);
 
 		/*
@@ -1981,7 +1995,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		/*
 		 * Update DC Discharge Power
 		 */
-		IntegerReadChannel dcDischargePowerChannel = this.channel(this.dcDischargePowerChannelId);
 		dcDischargePowerChannel.setNextValue(dcDischargePower);
 
 		/*
@@ -2000,6 +2013,43 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 			this.calculateDcChargeEnergy.update(dcDischargePower * -1);
 			this.calculateDcDischargeEnergy.update(0);
 		}
+	}
+
+	/**
+	 * Postprocess PBattery1 value.
+	 * 
+	 * <p>
+	 * Impossible battery power values will be ignored.
+	 * 
+	 * <p>
+	 * The total max DC current including a buffer of 10A is used to identify an
+	 * impossible power value, as WBMS_VOLTAGE has lower priority than pBattery and
+	 * the battery could charge even if the BmsChargeMaxCurrent is 0.
+	 * 
+	 * @param pBattery     battery power
+	 * @param dcVoltage    dc voltage
+	 * @param maxDcCurrent max dc current
+	 * @param setState     consume state
+	 * @param prevPBattery previous battery power
+	 * @return possible battery power
+	 */
+	protected static Integer postprocessPBattery1(Integer pBattery, Integer dcVoltage, Integer maxDcCurrent,
+			Consumer<Boolean> setState, Optional<Integer> prevPBattery) {
+
+		var stateIgnoreImpossiblePBatteryValue = false;
+		if (pBattery != null && dcVoltage != null && maxDcCurrent != null) {
+
+			var impossibleDcChargePower = (maxDcCurrent + 10) * dcVoltage;
+			var impossibleDcDischargePower = (maxDcCurrent + 10) * dcVoltage;
+
+			if (pBattery < impossibleDcChargePower * -1 || pBattery > impossibleDcDischargePower) {
+				stateIgnoreImpossiblePBatteryValue = true;
+				pBattery = prevPBattery
+						.orElse(fitWithin(maxDcCurrent * dcVoltage * -1, maxDcCurrent * dcVoltage, pBattery));
+			}
+		}
+		setState.accept(stateIgnoreImpossiblePBatteryValue);
+		return pBattery;
 	}
 
 	/**

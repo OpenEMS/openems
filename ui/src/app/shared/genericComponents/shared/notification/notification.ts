@@ -47,7 +47,6 @@ export class NotificationComponent implements OnInit, OnChanges {
       translucent: false,
       message: this.text,
       position: 'bottom',
-      cssClass: 'text-overflow-break',
       buttons: [
         { icon: 'close-outline', role: 'cancel' },
       ],
