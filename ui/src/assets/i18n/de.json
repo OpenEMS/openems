@@ -350,7 +350,8 @@
         "level": "Level",
         "message": "Nachricht",
         "source": "Quelle",
-        "timestamp": "Zeitpunkt"
+        "timestamp": "Zeitpunkt",
+        "CONDENSED_OUTPUT": "Komprimierte Ausgabe"
       },
       "Controller": {
         "app": "Anwendung:",
