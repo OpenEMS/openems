@@ -5,11 +5,14 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.common.type.TypeUtils.fitWithin;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1951,9 +1954,19 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	}
 
 	protected void updatePowerAndEnergyChannels() {
-		var productionPower = this.calculatePvProduction();
+		final var productionPower = this.calculatePvProduction();
 		final Channel<Integer> pBattery1Channel = this.channel(GoodWe.ChannelId.P_BATTERY1);
 		var dcDischargePower = pBattery1Channel.value().get();
+		final IntegerReadChannel dcDischargePowerChannel = this.channel(this.dcDischargePowerChannelId);
+
+		/*
+		 * Ignore impossible values of P_BATTERY
+		 */
+		dcDischargePower = postprocessPBattery1(dcDischargePower, this.getWbmsVoltage().get(),
+				this.getGoodweType().maxDcCurrent,
+				state -> this.channel(GoodWe.ChannelId.IGNORE_IMPOSSIBLE_P_BATTERY_VALUE).setNextValue(state),
+				dcDischargePowerChannel.value().asOptional());
+
 		var acActivePower = TypeUtils.sum(productionPower, dcDischargePower);
 
 		/*
@@ -1982,7 +1995,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		/*
 		 * Update DC Discharge Power
 		 */
-		IntegerReadChannel dcDischargePowerChannel = this.channel(this.dcDischargePowerChannelId);
 		dcDischargePowerChannel.setNextValue(dcDischargePower);
 
 		/*
@@ -2001,6 +2013,43 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 			this.calculateDcChargeEnergy.update(dcDischargePower * -1);
 			this.calculateDcDischargeEnergy.update(0);
 		}
+	}
+
+	/**
+	 * Postprocess PBattery1 value.
+	 * 
+	 * <p>
+	 * Impossible battery power values will be ignored.
+	 * 
+	 * <p>
+	 * The total max DC current including a buffer of 10A is used to identify an
+	 * impossible power value, as WBMS_VOLTAGE has lower priority than pBattery and
+	 * the battery could charge even if the BmsChargeMaxCurrent is 0.
+	 * 
+	 * @param pBattery     battery power
+	 * @param dcVoltage    dc voltage
+	 * @param maxDcCurrent max dc current
+	 * @param setState     consume state
+	 * @param prevPBattery previous battery power
+	 * @return possible battery power
+	 */
+	protected static Integer postprocessPBattery1(Integer pBattery, Integer dcVoltage, Integer maxDcCurrent,
+			Consumer<Boolean> setState, Optional<Integer> prevPBattery) {
+
+		var stateIgnoreImpossiblePBatteryValue = false;
+		if (pBattery != null && dcVoltage != null && maxDcCurrent != null) {
+
+			var impossibleDcChargePower = (maxDcCurrent + 10) * dcVoltage;
+			var impossibleDcDischargePower = (maxDcCurrent + 10) * dcVoltage;
+
+			if (pBattery < impossibleDcChargePower * -1 || pBattery > impossibleDcDischargePower) {
+				stateIgnoreImpossiblePBatteryValue = true;
+				pBattery = prevPBattery
+						.orElse(fitWithin(maxDcCurrent * dcVoltage * -1, maxDcCurrent * dcVoltage, pBattery));
+			}
+		}
+		setState.accept(stateIgnoreImpossiblePBatteryValue);
+		return pBattery;
 	}
 
 	/**
