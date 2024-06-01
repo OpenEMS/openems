@@ -191,12 +191,16 @@ task buildEdge() {
 	outputs.upToDateWhen { false }
 	
 	doLast {
-		file("${buildDir}/openems-edge.jar").delete()
+		def source = file("io.openems.edge.application/generated/distributions/executable/EdgeApp.jar")
+		def output = file(System.getenv('OEMS_EDGE_OUTPUT') ?: "${buildDir}/openems-edge.jar")
+
+		output.delete()
 		copy {
-			from file("io.openems.edge.application/generated/distributions/executable/EdgeApp.jar")
-			into file("${buildDir}")
-			rename ("EdgeApp.jar", "openems-edge.jar")
+			from source
+			into output.getParentFile()
+			rename (source.getName(), output.getName())
 		}
+		println("Built ${output}!")
 	}
 }
 
@@ -220,12 +224,16 @@ task buildBackend() {
 	outputs.upToDateWhen { false }
 
 	doLast {
-		file("${buildDir}/openems-backend.jar").delete()
+		def source = file("io.openems.backend.application/generated/distributions/executable/BackendApp.jar")
+		def output = file(System.getenv('OEMS_BACKEND_OUTPUT') ?: "${buildDir}/openems-backend.jar")
+
+		output.delete()
 		copy {
-			from file("io.openems.backend.application/generated/distributions/executable/BackendApp.jar")
-			into file("${buildDir}")
-			rename ("BackendApp.jar", "openems-backend.jar")
+			from source
+			into output.getParentFile()
+			rename (source.getName(), output.getName())
 		}
+		println("Built ${output}!")
 	}
 }
 
