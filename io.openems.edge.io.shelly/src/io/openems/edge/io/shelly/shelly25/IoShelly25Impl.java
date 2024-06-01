@@ -1,5 +1,9 @@
 package io.openems.edge.io.shelly.shelly25;
 
+import static io.openems.common.utils.JsonUtils.getAsBoolean;
+import static io.openems.common.utils.JsonUtils.getAsJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+
 import java.util.Objects;
 
 import org.osgi.service.component.ComponentContext;
@@ -18,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.common.channel.BooleanWriteChannel;
@@ -42,6 +45,7 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(IoShelly25Impl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
+
 	private String baseUrl;
 
 	@Reference
@@ -85,6 +89,7 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
+		// TODO share code with AbstractKmtronicRelay.debugLog()
 		var b = new StringBuilder();
 		var i = 1;
 		for (var channel : this.digitalOutputChannels) {
@@ -116,14 +121,20 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 		}
 	}
 
-	record RelayState(Boolean relayIsOn, Boolean overtemp, Boolean overpower) {
-	}
+	private record RelayState(Boolean relayIsOn, Boolean overtemp, Boolean overpower) {
+		private static RelayState from(JsonElement relay) throws OpenemsNamedException {
+			var relayIsOn = getAsBoolean(relay, "ison");
+			var overtemp = getAsBoolean(relay, "overtemperature");
+			var overpower = getAsBoolean(relay, "overpower");
+			return new RelayState(relayIsOn, overtemp, overpower);
+		}
 
-	private static RelayState parseRelay(JsonElement relay) throws OpenemsNamedException {
-		Boolean relayIsOn = JsonUtils.getAsBoolean(relay, "ison");
-		Boolean overtemp = JsonUtils.getAsBoolean(relay, "overtemperature");
-		Boolean overpower = JsonUtils.getAsBoolean(relay, "overpower");
-		return new RelayState(relayIsOn, overtemp, overpower);
+		private void applyChannels(IoShelly25 component, IoShelly25.ChannelId relayChannel,
+				IoShelly25.ChannelId overtempChannel, IoShelly25.ChannelId overpowerChannel) {
+			component.channel(relayChannel).setNextValue(this.relayIsOn);
+			component.channel(overtempChannel).setNextValue(this.overtemp);
+			component.channel(overpowerChannel).setNextValue(this.overpower);
+		}
 	}
 
 	/**
@@ -136,35 +147,25 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	 *                               unsuccessful.
 	 */
 	private void processHttpResult(JsonElement result, Throwable error) {
-		this._setSlaveCommunicationFailed(result == null);
-		RelayState relay1State = null;
-		RelayState relay2State = null;
+		var slaveCommunicationFailed = result == null;
+		var relay1State = new RelayState(null, null, null);
+		var relay2State = new RelayState(null, null, null);
 
 		try {
-			JsonElement jsonElement = JsonUtils.getAsJsonElement(result);
-			final var relays = JsonUtils.getAsJsonArray(jsonElement, "relays");
+			final var relays = getAsJsonArray(result, "relays");
+			relay1State = RelayState.from(getAsJsonObject(relays.get(0)));
+			relay2State = RelayState.from(getAsJsonObject(relays.get(1)));
 
-			for (int i = 0; i < 2; i++) {
-				if (i == 0) {
-					relay1State = parseRelay(JsonUtils.getAsJsonObject(relays.get(0)));
-				} else if (i == 1) {
-					relay2State = parseRelay(JsonUtils.getAsJsonObject(relays.get(1)));
-				}
-			}
-			this._setSlaveCommunicationFailed(false);
-		} catch (OpenemsNamedException e) {
+		} catch (OpenemsNamedException | IndexOutOfBoundsException e) {
 			this.logDebug(this.log, e.getMessage());
+			slaveCommunicationFailed = true;
 		}
 
-		this._setRelay1(relay1State.relayIsOn());
-		this._setRelay2(relay2State.relayIsOn());
-
-		this._setRelay1Overtemp(relay1State.overtemp());
-		this._setRelay2Overtemp(relay2State.overtemp());
-
-		this._setRelay1Overpower(relay1State.overpower());
-		this._setRelay2Overpower(relay2State.overpower());
-
+		this._setSlaveCommunicationFailed(slaveCommunicationFailed);
+		relay1State.applyChannels(this, IoShelly25.ChannelId.RELAY_1, //
+				IoShelly25.ChannelId.RELAY_1_OVERTEMP, IoShelly25.ChannelId.RELAY_1_OVERPOWER);
+		relay2State.applyChannels(this, IoShelly25.ChannelId.RELAY_2, //
+				IoShelly25.ChannelId.RELAY_2_OVERTEMP, IoShelly25.ChannelId.RELAY_2_OVERPOWER);
 	}
 
 	/**
