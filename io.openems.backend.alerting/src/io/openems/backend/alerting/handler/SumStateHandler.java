@@ -85,7 +85,7 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	}
 
 	private boolean isEdgeError(String edgeId) {
-		var sumState = this.metadata.getSumState(edgeId);
+		var sumState = this.metadata.getEdge(edgeId).map(Edge::getSumState);
 		if (sumState.isPresent()) {
 			return this.isSevere(sumState.get());
 		} else {
@@ -168,12 +168,12 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 
 		if (this.isSevere(level)) {
 			final var edgeOpt = this.metadata.getEdge(edgeId);
-			if (edgeOpt.isEmpty()) {
+			if (edgeOpt.isPresent()) {
+				this.addOrUpdate(edgeOpt.get(), level);
+				this.faultSince.putIfAbsent(edgeId, this.timeService.now());
+			} else {
 				this.log.warn("Edge with id '" + edgeId + "' was not found!");
 			}
-			this.addOrUpdate(edgeOpt.get(), level);
-
-			this.faultSince.putIfAbsent(edgeId, this.timeService.now());
 		} else {
 			this.tryRemoveEdge(edgeId);
 
