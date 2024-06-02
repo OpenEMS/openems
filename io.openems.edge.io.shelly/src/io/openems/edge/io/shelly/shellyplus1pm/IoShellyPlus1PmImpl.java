@@ -148,7 +148,7 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 		Integer power = null;
 		Integer voltage = null;
 		Integer current = null;
-		boolean relay0 = false;
+		Boolean relay0 = null;
 		boolean restartRequired = false;
 
 		if (error != null) {
