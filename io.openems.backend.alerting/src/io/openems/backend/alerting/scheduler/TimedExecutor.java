@@ -15,8 +15,11 @@ public interface TimedExecutor {
 		}
 
 		@Override
-		public int compareTo(TimedTask o) {
-			return this.executeAt.compareTo(o.executeAt);
+		public int compareTo(TimedTask other) {
+			if (other == null  || other.executeAt == null) {
+				return 1;
+			}
+			return this.executeAt.compareTo(other.executeAt);
 		}
 	}
 
