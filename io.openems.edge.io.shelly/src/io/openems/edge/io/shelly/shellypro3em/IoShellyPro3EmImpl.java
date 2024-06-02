@@ -1,7 +1,6 @@
 package io.openems.edge.io.shelly.shellypro3em;
 
 import static io.openems.common.utils.JsonUtils.getAsFloat;
-import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static java.lang.Math.round;
 
@@ -116,6 +115,7 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
 
 	private void processHttpResult(JsonElement result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
+		this.logInfo(this.log, "Processing HTTP result: " + (result == null ? "No result (null)" : "Result present"));
 
 		Integer activePower = null;
 		Integer activePowerL1 = null;
@@ -137,47 +137,46 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
 			try {
 				var response = getAsJsonObject(result);
 
-				var errors = getAsJsonArray(response, "errors");
-				for (var errorElement : errors) {
-					var errorType = errorElement.getAsString();
-					switch (errorType) {
-					case "phase_sequence":
-						phaseSequenceError = true;
-						break;
-					case "power_meter_failure":
-						powerMeterFailure = true;
-						break;
-					case "no_load":
-						noLoadCondition = true;
-						break;
+				// Check for 'errors' and process if present
+				if (response.has("errors") && response.get("errors").isJsonArray()) {
+
+					var errors = response.getAsJsonArray("errors");
+
+					for (JsonElement errorElement : errors) {
+						var errorType = errorElement.getAsString();
+
+						switch (errorType) {
+						case "phase_sequence":
+							phaseSequenceError = true;
+							break;
+						case "power_meter_failure":
+							powerMeterFailure = true;
+							break;
+						case "no_load":
+							noLoadCondition = true;
+							break;
+						}
 					}
+				} else {
+					this.logDebug(this.log, "No errors reported.");
 				}
 
 				// Total Active Power
 				activePower = round(getAsFloat(response, "total_act_power"));
 
-				// Read values for each phase
-				var phases = getAsJsonArray(response, "phases");
-				for (int i = 0; i < phases.size(); i++) {
-					var phase = getAsJsonObject(phases.get(i));
-					switch (i) {
-					case 0: // Phase A
-						activePowerL1 = round(getAsFloat(phase, "act_power"));
-						voltageL1 = round(getAsFloat(phase, "voltage") * 1000);
-						currentL1 = round(getAsFloat(phase, "current") * 1000);
-						break;
-					case 1: // Phase B
-						activePowerL2 = round(getAsFloat(phase, "act_power"));
-						voltageL2 = round(getAsFloat(phase, "voltage") * 1000);
-						currentL2 = round(getAsFloat(phase, "current") * 1000);
-						break;
-					case 2: // Phase C
-						activePowerL3 = round(getAsFloat(phase, "act_power"));
-						voltageL3 = round(getAsFloat(phase, "voltage") * 1000);
-						currentL3 = round(getAsFloat(phase, "current") * 1000);
-						break;
-					}
-				}
+				// Extract phase data
+				activePowerL1 = round(getAsFloat(response, "a_act_power"));
+				voltageL1 = round(getAsFloat(response, "a_voltage") * 1000);
+				currentL1 = round(getAsFloat(response, "a_current") * 1000);
+
+				activePowerL2 = round(getAsFloat(response, "b_act_power"));
+				voltageL2 = round(getAsFloat(response, "b_voltage") * 1000);
+				currentL2 = round(getAsFloat(response, "b_current") * 1000);
+
+				activePowerL3 = round(getAsFloat(response, "c_act_power"));
+				voltageL3 = round(getAsFloat(response, "c_voltage") * 1000);
+				currentL3 = round(getAsFloat(response, "c_current") * 1000);
+
 			} catch (OpenemsNamedException e) {
 				this.logDebug(this.log, e.getMessage());
 			}
