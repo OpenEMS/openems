@@ -115,7 +115,6 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
 
 	private void processHttpResult(JsonElement result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
-		this.logInfo(this.log, "Processing HTTP result: " + (result == null ? "No result (null)" : "Result present"));
 
 		Integer activePower = null;
 		Integer activePowerL1 = null;
