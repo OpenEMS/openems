@@ -4,8 +4,6 @@ import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 
-import java.util.Objects;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -29,6 +27,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.io.shelly.common.Utils;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -173,27 +172,8 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	 */
 	private void eventExecuteWrite() {
 		for (int i = 0; i < this.digitalOutputChannels.length; i++) {
-			this.executeWrite(this.digitalOutputChannels[i], i);
+			// Pass the index i to the executeWrite method along with each channel
+			Utils.executeWrite(this.digitalOutputChannels[i], this.baseUrl, this.httpBridge, i);
 		}
-	}
-
-	private void executeWrite(BooleanWriteChannel channel, int index) {
-		var readValue = channel.value().get();
-		var writeValue = channel.getNextWriteValueAndReset();
-		if (writeValue.isEmpty()) {
-			return;
-		}
-		if (Objects.equals(readValue, writeValue.get())) {
-			return;
-		}
-		final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
-		this.httpBridge.get(url).whenComplete((t, e) -> {
-			this._setSlaveCommunicationFailed(e != null);
-			if (e == null) {
-				this.logInfo(this.log, "Executed write successfully for URL: " + url);
-			} else {
-				this.logError(this.log, "Failed to execute write for URL: " + url + "; Error: " + e.getMessage());
-			}
-		});
 	}
 }

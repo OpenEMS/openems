@@ -6,8 +6,6 @@ import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 import static java.lang.Math.round;
 
-import java.util.Objects;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -33,6 +31,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.io.shelly.common.Utils;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
@@ -121,7 +120,7 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 
 	@Override
 	public String debugLog() {
-		return generateDebugLog(this.getRelayChannel(), this.getActivePowerChannel());
+		return generateDebugLog(this.digitalOutputChannels, this.getActivePowerChannel());
 	}
 
 	@Override
@@ -134,7 +133,7 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 			-> this.calculateEnergy();
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-			-> this.executeWrite();
+			-> Utils.executeWrite(this.getRelayChannel(), this.baseUrl, this.httpBridge, 0);
 		}
 	}
 
@@ -173,32 +172,6 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 		this._setCurrent(current);
 		this._setVoltage(voltage);
 		this.channel(IoShellyPlusPlugs.ChannelId.HAS_UPDATE).setNextValue(updatesAvailable);
-	}
-
-	/**
-	 * Execute on Cycle Event "Execute Write".
-	 */
-	private void executeWrite() {
-		var channel = this.getRelayChannel();
-		var readValue = channel.value().get();
-		var writeValue = channel.getNextWriteValueAndReset();
-		if (writeValue.isEmpty()) {
-			return;
-		}
-		if (Objects.equals(readValue, writeValue.get())) {
-			return;
-		}
-		var index = 0;
-		final var url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
-
-		this.httpBridge.get(url).whenComplete((t, e) -> {
-			this._setSlaveCommunicationFailed(e != null);
-			if (e == null) {
-				this.logDebug(this.log, "Executed write successfully for URL: " + url);
-			} else {
-				this.logError(this.log, "Failed to execute write for URL: " + url + "; Error: " + e.getMessage());
-			}
-		});
 	}
 
 	/**
