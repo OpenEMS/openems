@@ -1,11 +1,3 @@
---- src/index.html	2024-06-03 16:15:41.897469300 +0200
-+++ src/index.html.modifier	2024-06-03 16:11:30.163029000 +0200
-@@ -9,7 +9,7 @@
-     content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-   <meta name="format-detection" content="telephone=no" />
- 
+@@ -12,1 +12,1 @@
 -  <!-- anchor for docker configurations -->
 +  <script src="assets/env.js"></script>
- 
-   <!-- Workaround -> has to be removed, icons should be already included in materials -->
-   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
