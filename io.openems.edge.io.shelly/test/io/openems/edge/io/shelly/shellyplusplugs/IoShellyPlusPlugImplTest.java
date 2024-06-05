@@ -12,7 +12,7 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
 import io.openems.edge.timedata.test.DummyTimedata;
 
-public class IoShellyPlugImplTest {
+public class IoShellyPlusPlugImplTest {
 
 	private static final String COMPONENT_ID = "io0";
 
