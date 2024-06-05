@@ -73,7 +73,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder persistencePriority(PersistencePriority persistencePriority) {
+		public Builder setPersistencePriority(PersistencePriority persistencePriority) {
 			this.persistencePriority = persistencePriority;
 			return this;
 		}
