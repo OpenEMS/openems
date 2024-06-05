@@ -1,5 +1,6 @@
 package io.openems.edge.timedata.influxdb;
 
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.shared.influxdb.QueryLanguageConfig;
 
@@ -9,6 +10,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private boolean isReadOnly;
+		private PersistencePriority persistencePriority;
 		private int maxQueueSize;
 		private int noOfCycles;
 		private String bucket;
@@ -28,6 +30,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setReadOnly(boolean isReadOnly) {
 			this.isReadOnly = isReadOnly;
+			return this;
+		}
+
+		public Builder persistencePriority(PersistencePriority persistencePriority) {
+			this.persistencePriority = persistencePriority;
 			return this;
 		}
 
@@ -130,6 +137,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean isReadOnly() {
 		return this.builder.isReadOnly;
+	}
+
+	@Override
+	public PersistencePriority persistencePriority() {
+		return this.builder.persistencePriority;
 	}
 
 	@Override

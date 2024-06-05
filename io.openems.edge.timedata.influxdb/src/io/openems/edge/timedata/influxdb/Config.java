@@ -3,6 +3,7 @@ package io.openems.edge.timedata.influxdb;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.common.channel.PersistencePriority;
 import io.openems.shared.influxdb.QueryLanguageConfig;
 
 @ObjectClassDefinition(//
@@ -45,6 +46,9 @@ import io.openems.shared.influxdb.QueryLanguageConfig;
 
 	@AttributeDefinition(name = "Read-Only mode", description = "Activates the read-only mode. Then no data is written to InfluxDB.")
 	boolean isReadOnly() default false;
+	
+	@AttributeDefinition(name = "Persistence Priority", description = "Store only Channels with a Persistence Priority above this. Be aware that too many writes can wear-out your flash storage.")
+	PersistencePriority persistencePriority() default PersistencePriority.MEDIUM;	
 
 	String webconsole_configurationFactory_nameHint() default "Timedata InfluxDB [{id}]";
 }
