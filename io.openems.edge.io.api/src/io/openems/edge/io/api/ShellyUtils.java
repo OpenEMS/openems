@@ -40,7 +40,9 @@ public class ShellyUtils {
 	 * sending an HTTP request based on the channel's current and intended state.
 	 * This method compares the current state with the desired state, and only
 	 * proceeds with the HTTP request if they differ, ensuring no unnecessary
-	 * commands are sent.
+	 * commands are sent. The method returns a CompletableFuture that completes when
+	 * the HTTP request is finished. It completes normally if the HTTP request
+	 * succeeds, and exceptionally if the request fails due to errors.
 	 *
 	 * @param relayChannel the channel for the relay, specifying the current and
 	 *                     desired states
@@ -48,6 +50,9 @@ public class ShellyUtils {
 	 * @param httpBridge   the HTTP bridge to send the request
 	 * @param index        the index of the DigitalChannel to write to (used for the
 	 *                     URL)
+	 * @return CompletableFuture{@code <Void>} that completes when the HTTP
+	 *         operation completes. Completes exceptionally if there is an error in
+	 *         the HTTP request.
 	 */
 	public static CompletableFuture<Void> executeWrite(WriteChannel<Boolean> relayChannel, String baseUrl,
 			BridgeHttp httpBridge, Integer index) {
