@@ -140,7 +140,7 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 							}
 							
 							// ignore channel with lower priority than configured
-							if (!channel.channelDoc().getPersistencePriority().isAtLeast(config.persistencePriority())) {
+							if (!channel.channelDoc().getPersistencePriority().isAtLeast(this.config.persistencePriority())) {
 								return;
 							}							
 							
