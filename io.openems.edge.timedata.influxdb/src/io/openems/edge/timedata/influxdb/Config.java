@@ -2,7 +2,6 @@ package io.openems.edge.timedata.influxdb;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-
 import io.openems.common.channel.PersistencePriority;
 import io.openems.shared.influxdb.QueryLanguageConfig;
 
@@ -51,4 +50,5 @@ import io.openems.shared.influxdb.QueryLanguageConfig;
 	PersistencePriority persistencePriority() default PersistencePriority.MEDIUM;	
 
 	String webconsole_configurationFactory_nameHint() default "Timedata InfluxDB [{id}]";
+	
 }

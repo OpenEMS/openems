@@ -10,7 +10,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private boolean isReadOnly;
-		private PersistencePriority persistencePriority;
 		private int maxQueueSize;
 		private int noOfCycles;
 		private String bucket;
@@ -19,6 +18,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String url;
 		private QueryLanguageConfig queryLanguage;
 		private String measurement;
+		private PersistencePriority persistencePriority;
 
 		private Builder() {
 		}
@@ -30,11 +30,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setReadOnly(boolean isReadOnly) {
 			this.isReadOnly = isReadOnly;
-			return this;
-		}
-
-		public Builder persistencePriority(PersistencePriority persistencePriority) {
-			this.persistencePriority = persistencePriority;
 			return this;
 		}
 
@@ -75,6 +70,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setMeasurement(String measurement) {
 			this.measurement = measurement;
+			return this;
+		}
+
+		public Builder persistencePriority(PersistencePriority persistencePriority) {
+			this.persistencePriority = persistencePriority;
 			return this;
 		}
 
