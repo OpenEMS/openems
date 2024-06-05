@@ -1,23 +1,17 @@
-package io.openems.edge.io.shelly.common;
+package io.openems.edge.io.api;
 
 import java.util.Objects;
 import java.util.Optional;
-
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
+import java.util.concurrent.CompletableFuture;
 
 import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public class Utils {
+public class ShellyUtils {
 
-	@Reference(cardinality = ReferenceCardinality.MANDATORY)
-	private BridgeHttpFactory httpBridgeFactory;
-
-	private Utils() {
+	private ShellyUtils() {
 	}
 
 	/**
@@ -32,8 +26,7 @@ public class Utils {
 		var b = new StringBuilder();
 		for (int i = 0; i < relayChannels.length; i++) {
 			var relayChannel = relayChannels[i];
-			relayChannel.value().asOptional().ifPresentOrElse(v -> b.append(v ? "On" : "Off"),
-					() -> b.append("Unknown"));
+			relayChannel.value().asOptional().ifPresentOrElse(v -> b.append(v ? "x" : "-"), () -> b.append("?"));
 			if (i < relayChannels.length - 1) {
 				b.append("|");
 			}
@@ -56,20 +49,31 @@ public class Utils {
 	 * @param index        the index of the DigitalChannel to write to (used for the
 	 *                     URL)
 	 */
-	public static void executeWrite(WriteChannel<Boolean> relayChannel, String baseUrl, BridgeHttp httpBridge,
-			Integer index) {
+	public static CompletableFuture<Void> executeWrite(WriteChannel<Boolean> relayChannel, String baseUrl,
+			BridgeHttp httpBridge, Integer index) {
+		CompletableFuture<Void> future = new CompletableFuture<>();
 		Boolean readValue = relayChannel.value().get();
 		Optional<Boolean> writeValue = relayChannel.getNextWriteValueAndReset();
+
 		if (writeValue.isEmpty()) {
-			return;
+			future.complete(null); // No action needed
+			return future;
 		}
 		if (Objects.equals(readValue, writeValue.get())) {
-			return;
+			future.complete(null); // No change in state
+			return future;
 		}
+
 		final String url = baseUrl + "/rpc/Switch.Set?id=" + index + "&on=" + (writeValue.get() ? "true" : "false");
-		httpBridge.get(url).whenComplete((t, e) -> {
-			// Handle completion, e.g., error logging or success confirmation.
+		httpBridge.get(url).whenComplete((response, exception) -> {
+			if (exception != null) {
+				future.completeExceptionally(exception);
+			} else {
+				future.complete(null);
+			}
 		});
+
+		return future;
 	}
 
 }

@@ -4,7 +4,7 @@ import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
-import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
+import static io.openems.edge.io.api.ShellyUtils.generateDebugLog;
 import static java.lang.Math.round;
 
 import org.osgi.service.component.ComponentContext;
@@ -33,7 +33,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
-import io.openems.edge.io.shelly.common.Utils;
+import io.openems.edge.io.api.ShellyUtils;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.timedata.api.Timedata;
@@ -122,7 +122,7 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 			-> this.calculateEnergy();
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-			-> Utils.executeWrite(this.getRelayChannel(), this.baseUrl, this.httpBridge, 0);
+			-> ShellyUtils.executeWrite(this.getRelayChannel(), this.baseUrl, this.httpBridge, 0);
 		}
 	}
 
