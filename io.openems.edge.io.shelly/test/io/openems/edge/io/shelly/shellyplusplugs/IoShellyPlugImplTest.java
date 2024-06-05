@@ -63,7 +63,7 @@ public class IoShellyPlugImplTest {
 						.output(VOLTAGE, 231500)) //
 
 				.next(new TestCase("Invalid read response") //
-						.onBeforeControllersCallbacks(() -> assertEquals("Off|789 W", sut.debugLog()))
+						.onBeforeControllersCallbacks(() -> assertEquals("-|789 W", sut.debugLog()))
 
 						.onBeforeControllersCallbacks(() -> bridge.mockCycleResult("failed")) //
 						.output(ACTIVE_POWER, null) //
@@ -76,7 +76,7 @@ public class IoShellyPlugImplTest {
 						.output(CONSUMPTION_ENERGY, 0L)) //
 
 				.next(new TestCase("Write") //
-						.onBeforeControllersCallbacks(() -> assertEquals("Unknown|UNDEFINED", sut.debugLog()))
+						.onBeforeControllersCallbacks(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
 
 						.onBeforeControllersCallbacks(() -> {
 							sut.setRelay(true);
