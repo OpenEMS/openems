@@ -192,6 +192,18 @@ public class BatteryProtection {
 		 */
 		BP_FORCE_CHARGE(Doc.of(AbstractForceChargeDischarge.State.values()) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
+
+		/**
+		 * Battery Max Ever Current.
+		 *
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * </ul>
+		 */
+		BP_MAX_EVER_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
+
 		;
 
 		private final Doc doc;

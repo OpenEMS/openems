@@ -610,17 +610,15 @@ export abstract class AbstractHistoryChart implements OnInit {
 
         const isHidden = legendItem?.strokeThroughHidingStyle ?? null;
 
-        displayValues.filter(element => element.name == dataset.label?.split(":")[0]).forEach(() => {
-          chartLegendLabelItems.push({
-            text: dataset.label,
-            datasetIndex: index,
-            fontColor: getComputedStyle(document.documentElement).getPropertyValue('--ion-color-text'),
-            fillStyle: dataset.backgroundColor?.toString(),
-            hidden: isHidden != null ? isHidden : !chart.isDatasetVisible(index),
-            lineWidth: 2,
-            strokeStyle: dataset.borderColor.toString(),
-            ...(dataset['borderDash'] != null && { lineDash: dataset['borderDash'] }),
-          });
+        chartLegendLabelItems.push({
+          text: dataset.label,
+          datasetIndex: index,
+          fontColor: getComputedStyle(document.documentElement).getPropertyValue('--ion-color-text'),
+          fillStyle: dataset.backgroundColor?.toString(),
+          hidden: isHidden != null ? isHidden : !chart.isDatasetVisible(index),
+          lineWidth: 2,
+          strokeStyle: dataset.borderColor.toString(),
+          ...(dataset['borderDash'] != null && { lineDash: dataset['borderDash'] }),
         });
       });
 

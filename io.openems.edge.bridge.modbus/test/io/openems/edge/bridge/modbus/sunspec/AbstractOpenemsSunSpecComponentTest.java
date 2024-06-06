@@ -24,6 +24,7 @@ import io.openems.edge.bridge.modbus.MyConfigTcp;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.StringWordElement;
+import io.openems.edge.bridge.modbus.sunspec.Point.ModbusElementPoint;
 import io.openems.edge.bridge.modbus.sunspec.dummy.MyConfig;
 import io.openems.edge.bridge.modbus.sunspec.dummy.MySunSpecComponentImpl;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -38,14 +39,16 @@ public class AbstractOpenemsSunSpecComponentTest {
 		var elements = new ArrayList<ModbusElement>();
 		var startAddress = 0;
 		for (var point : DefaultSunSpecModel.S_701.points()) {
-			var element = point.get().generateModbusElement(startAddress);
-			startAddress += element.length;
-			elements.add(element);
+			if (point.get() instanceof ModbusElementPoint mep) { // without BitFieldPoints
+				var element = mep.generateModbusElement(startAddress);
+				startAddress += element.length;
+				elements.add(element);
+			}
 		}
 
 		var sut = preprocessModbusElements(elements);
 		assertEquals(2, sut.size()); // two sublists
-		assertEquals(69, sut.get(0).size()); // first task
+		assertEquals(66, sut.get(0).size()); // first task
 		assertEquals(1, sut.get(1).size()); // second task
 		assertEquals(StringWordElement.class, sut.get(1).get(0).getClass()); // second task
 	}
@@ -66,7 +69,7 @@ public class AbstractOpenemsSunSpecComponentTest {
 				.put(40003, 66); // Length of the SunSpec Block
 		IntStream.range(40004, 40070).forEach(i -> b.put(i, 0));
 		b //
-				.put(40070, 123) // SunSpec Block-ID
+				.put(40070, 103) // SunSpec Block-ID
 				.put(40071, 24); // Length of the SunSpec Block
 		IntStream.range(40072, 40096).forEach(i -> b.put(i, 0));
 		b //
@@ -119,7 +122,7 @@ public class AbstractOpenemsSunSpecComponentTest {
 			testWithEndOfMap(slave, bridge, testBridge, cmp, testCmp);
 			testWithIllegalAddress(slave, bridge, testBridge, cmp, testCmp);
 
-			assertFalse(cmp.getSunSpecChannel(DefaultSunSpecModel.S103.APH_A).isPresent());
+			assertFalse(cmp.getSunSpecChannel(DefaultSunSpecModel.S101.APH_A).isPresent());
 			assertNotNull(cmp.getSunSpecChannelOrError(DefaultSunSpecModel.S702.W_MAX_RTG));
 
 		} finally {
@@ -150,7 +153,7 @@ public class AbstractOpenemsSunSpecComponentTest {
 
 		cycle(testBridge, testCmp, 5, 100);
 
-		assertEquals(58, cmp.channels().size());
+		assertEquals(101, cmp.channels().size());
 	}
 
 	private static void testWithIllegalAddress(ModbusSlave slave, BridgeModbusTcpImpl bridge, ComponentTest testBridge,
@@ -166,6 +169,6 @@ public class AbstractOpenemsSunSpecComponentTest {
 		cycle(testBridge, testCmp, 1, 2000); // wait for defective component
 		cycle(testBridge, testCmp, 2, 100);
 
-		assertEquals(58, cmp.channels().size());
+		assertEquals(101, cmp.channels().size());
 	}
 }
