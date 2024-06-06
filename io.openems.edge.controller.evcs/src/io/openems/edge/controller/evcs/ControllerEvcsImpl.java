@@ -124,8 +124,10 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 		if (isClustered) {
 
 			var status = this.evcs.getStatus();
+			this.logDebug(this.log, "EVCS status: " + status);
 			switch (status) {
 			case ERROR, STARTING, UNDEFINED, NOT_READY_FOR_CHARGING, ENERGY_LIMIT_REACHED -> {
+				this.logDebug(this.log, "Setting charge power request to 0 due to status: " + status);
 				this.evcs.setChargePowerRequest(0);
 				this.resetMinMaxChannels();
 				return;
@@ -217,6 +219,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 	 * Resetting the minimum and maximum power channels.
 	 */
 	private void resetMinMaxChannels() {
+		this.logDebug(this.log, "Resetting minimum and maximum power channels");
 		this.evcs._setMinimumPower(0);
 		this.evcs._setMaximumPower(null);
 	}
@@ -225,6 +228,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 	 * Adapt the charge limits to the given hardware limits of the EVCS.
 	 */
 	private void adaptConfigToHardwareLimits() {
+		this.logDebug(this.log, "Adapting config to hardware limits");
 
 		var maxHardwareOpt = this.evcs.getMaximumHardwarePower().asOptional();
 		if (maxHardwareOpt.isPresent()) {
@@ -233,10 +237,10 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 				maxHW = (int) Math.ceil(maxHW / 100.0) * 100;
 				if (this.config.defaultChargeMinPower() > maxHW) {
 					this.configUpdate("defaultChargeMinPower", maxHW);
+					this.logDebug(this.log, "Updated defaultChargeMinPower to " + maxHW);
 				}
 			}
 		}
-
 	}
 
 	/**
@@ -289,6 +293,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 	 * @param requiredValue  Value that should be set
 	 */
 	public void configUpdate(String targetProperty, Object requiredValue) {
+		this.logDebug(this.log, "Updating config property " + targetProperty + " to " + requiredValue);
 
 		Configuration c;
 		try {
