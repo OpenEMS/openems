@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.battery.protection.BatteryProtection.ChannelId;
 import io.openems.edge.battery.protection.force.AbstractForceChargeDischarge;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -234,6 +235,7 @@ public abstract class AbstractMaxCurrentHandler {
 		/*
 		 * Store limits in Channels. If value is 'null', store the bmsMaxEverCurrent
 		 */
+		battery.channel(BatteryProtection.ChannelId.BP_MAX_EVER_CURRENT).setNextValue(this.bmsMaxEverCurrent);
 		battery.channel(this.getBpMinVoltageChannelId())
 				.setNextValue(TypeUtils.orElse(minCellVoltageLimit, this.bmsMaxEverCurrent));
 		battery.channel(this.getBpMaxVoltageChannelId())

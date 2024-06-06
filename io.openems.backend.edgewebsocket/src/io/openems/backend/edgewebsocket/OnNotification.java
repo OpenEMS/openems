@@ -145,10 +145,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			// set specific Edge values
 			if (d.has("_sum/State") && d.get("_sum/State").isJsonPrimitive()) {
 				var sumState = Level.fromJson(d, "_sum/State").orElse(Level.FAULT);
-				EventBuilder.from(this.parent.eventAdmin, Events.ON_SET_SUM_STATE)
-						.addArg(Events.OnSetSumState.EDGE_ID, edgeId) //
-						.addArg(Events.OnSetSumState.SUM_STATE, sumState) //
-						.send();
+				edge.setSumState(sumState);
 			}
 
 			if (d.has("_meta/Version") && d.get("_meta/Version").isJsonPrimitive()) {

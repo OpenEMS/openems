@@ -90,10 +90,10 @@ public class SumStateMessage extends Message {
 
 	@Override
 	public String toString() {
-		var localNotify = this.getNotifyStamp().withZoneSameInstant(ZoneId.systemDefault()).toString();
-		var localSince = this.getStateSince().withZoneSameInstant(ZoneId.systemDefault()).toString();
+		final var localNotify = this.getNotifyStamp().withZoneSameInstant(ZoneId.systemDefault()).toString();
+		final var localSince = this.getStateSince().withZoneSameInstant(ZoneId.systemDefault()).toString();
 
-		var rec = this.getCurrentRecipients().stream() //
+		final var rec = this.getCurrentRecipients().stream() //
 				.map(s -> String.valueOf(s.userLogin())) //
 				.collect(Collectors.joining(","));
 

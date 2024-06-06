@@ -4,6 +4,7 @@ import static io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent.B
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -81,7 +82,11 @@ import io.openems.edge.common.type.TypeUtils;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent implements ModbusComponent, OpenemsComponent,
-		Battery, EventHandler, ModbusSlave, StartStoppable, BatteryFeneconHome {
+		Battery, EventHandler, ModbusSlave, StartStoppable, BatteryFeneconHome, ModbusHelper {
+
+	public static final int DEFAULT_CRITICAL_MIN_VOLTAGE = 2800;
+	protected static final int TIMEOUT = 600; // [10 minutes in seconds]
+	private Instant timeCriticalMinVoltage;
 
 	protected final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
@@ -148,6 +153,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 			this.batteryProtection.apply();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.checkCriticalMinVoltage();
 			this.handleStateMachine();
 			break;
 		}
@@ -172,7 +178,6 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 				this.getBmsControl(), //
 				this.getModbusCommunicationFailed(), //
 				() -> this.retryModbusCommunication());
-
 		// Call the StateMachine
 		try {
 
@@ -1045,5 +1050,76 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 */
 	private static String generateSingleCellPrefix(int tower, int module, int num) {
 		return "TOWER_" + tower + "_MODULE_" + module + "_CELL_" + String.format("%03d", num);
+	}
+
+	@Override
+	public BridgeModbus getModbus() {
+		return this.getBridgeModbus();
+	}
+
+	@Override
+	public ModbusProtocol getDefinedModbusProtocol() throws OpenemsException {
+		return this.getModbusProtocol();
+	}
+
+	private void checkCriticalMinVoltage() {
+
+		final var subState = getMinVoltageSubState(DEFAULT_CRITICAL_MIN_VOLTAGE,
+				this.getMinCellVoltage().orElse(Integer.MAX_VALUE), this.getCurrent().orElse(0));
+		var now = Instant.now(this.componentManager.getClock());
+
+		switch (subState) {
+		case ABOVE_LIMIT -> {
+			this._setLowMinVoltageFault(false);
+			this._setLowMinVoltageWarning(false);
+			this._setLowMinVoltageFaultBatteryStopped(false);
+			this.timeCriticalMinVoltage = null;
+		}
+		case BELOW_LIMIT -> {
+
+			if (this.stateMachine.getCurrentState() == StateMachine.State.STOPPED) {
+				this._setLowMinVoltageFaultBatteryStopped(true);
+				this._setLowMinVoltageFault(false);
+				this._setLowMinVoltageWarning(false);
+				return;
+			}
+
+			this._setLowMinVoltageFaultBatteryStopped(false);
+
+			if (this.timeCriticalMinVoltage == null) {
+				this.timeCriticalMinVoltage = now;
+			}
+
+			if (this.timeCriticalMinVoltage.isBefore(now.minusSeconds(TIMEOUT))) {
+				this._setLowMinVoltageFault(true);
+				this._setLowMinVoltageWarning(false);
+				return;
+			}
+			this._setLowMinVoltageWarning(true);
+			this._setLowMinVoltageFault(false);
+		}
+		case BELOW_LIMIT_CHARGING -> {
+			this._setLowMinVoltageFaultBatteryStopped(false);
+			this._setLowMinVoltageWarning(true);
+			this._setLowMinVoltageFault(false);
+			this.timeCriticalMinVoltage = null;
+		}
+		}
+	}
+
+	protected static MinVoltageSubState getMinVoltageSubState(int minVoltageLimit, int currentMinVoltage, int current) {
+		if (currentMinVoltage > minVoltageLimit) {
+			return MinVoltageSubState.ABOVE_LIMIT;
+		}
+		if (current < 0) {
+			return MinVoltageSubState.BELOW_LIMIT_CHARGING;
+		}
+		return MinVoltageSubState.BELOW_LIMIT;
+	}
+
+	protected static enum MinVoltageSubState {
+		ABOVE_LIMIT, //
+		BELOW_LIMIT, //
+		BELOW_LIMIT_CHARGING; //
 	}
 }
