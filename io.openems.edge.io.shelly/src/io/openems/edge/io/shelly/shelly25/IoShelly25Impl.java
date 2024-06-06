@@ -97,7 +97,7 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 			if (valueOpt.isPresent()) {
 				valueText = valueOpt.get() ? "x" : "-";
 			} else {
-				valueText = "Unknown";
+				valueText = "?";
 			}
 			b.append(valueText);
 			if (i < this.digitalOutputChannels.length) {
@@ -146,21 +146,27 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	 *                               unsuccessful.
 	 */
 	private void processHttpResult(JsonElement result, Throwable error) {
-		var slaveCommunicationFailed = result == null;
+		this._setSlaveCommunicationFailed(result == null);
+		
 		var relay1State = new RelayState(null, null, null);
 		var relay2State = new RelayState(null, null, null);
 
-		try {
-			final var relays = getAsJsonArray(result, "relays");
-			relay1State = RelayState.from(getAsJsonObject(relays.get(0)));
-			relay2State = RelayState.from(getAsJsonObject(relays.get(1)));
+		if (error != null) {
+			this.logDebug(this.log, error.getMessage());
 
-		} catch (OpenemsNamedException | IndexOutOfBoundsException e) {
-			this.logDebug(this.log, e.getMessage());
-			slaveCommunicationFailed = true;
+		} else {
+			try {
+
+				final var relays = getAsJsonArray(result, "relays");
+				relay1State = RelayState.from(getAsJsonObject(relays.get(0)));
+				relay2State = RelayState.from(getAsJsonObject(relays.get(1)));
+
+			} catch (OpenemsNamedException | IndexOutOfBoundsException e) {
+				this.logDebug(this.log, e.getMessage());
+				this._setSlaveCommunicationFailed(true);
+			}
 		}
 
-		this._setSlaveCommunicationFailed(slaveCommunicationFailed);
 		relay1State.applyChannels(this, IoShelly25.ChannelId.RELAY_1, //
 				IoShelly25.ChannelId.RELAY_1_OVERTEMP, IoShelly25.ChannelId.RELAY_1_OVERPOWER);
 		relay2State.applyChannels(this, IoShelly25.ChannelId.RELAY_2, //
