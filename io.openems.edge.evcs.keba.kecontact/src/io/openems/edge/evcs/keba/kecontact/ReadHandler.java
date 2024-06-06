@@ -167,16 +167,11 @@ public class ReadHandler implements Consumer<String> {
 
 					// Check configuration for phase switch activation
 					boolean isPhaseSwitchConfiguredActive = this.parent.phaseSwitchActive();
-					JsonElement x2PhaseSwitchElement = jsonMessage.get("X2 phaseSwitch");
-					Integer x2PhaseSwitchStatus = x2PhaseSwitchElement != null && x2PhaseSwitchElement.isJsonPrimitive()
-							? x2PhaseSwitchElement.getAsInt()
-							: null;
+					int x2PhaseSwitchSource = jsonMessage.getAsJsonPrimitive("X2 phaseSwitch source").getAsInt();
 
-					// Only set the phase switch source if the phase switch is configured and
-					// currently reported as inactive
-					if (isPhaseSwitchConfiguredActive && (x2PhaseSwitchStatus != null && x2PhaseSwitchStatus == 0)) {
-						// Set the phase switch source to UDP control without activating the switch
-						// logic now !
+					// Only set the phase switch source to UDP control if it is not already set and
+					// if the phase switch is configured
+					if (isPhaseSwitchConfiguredActive && x2PhaseSwitchSource == 0) {
 						if (this.parent.send("x2src 4")) {
 							this.log.info("Phase switch source set to UDP control successfully.");
 						} else {
@@ -184,10 +179,8 @@ public class ReadHandler implements Consumer<String> {
 						}
 					} else if (!isPhaseSwitchConfiguredActive) {
 						this.log.debug("Phase switch activation not enabled in configuration.");
-					} else if (x2PhaseSwitchStatus != null && x2PhaseSwitchStatus != 0) {
-						this.log.debug("Phase switch is already active or status is currently unknown.");
-					} else {
-						this.log.warn("Could not parse 'X2 phaseSwitch' status from the message.");
+					} else if (x2PhaseSwitchSource != 0) {
+						this.log.debug("Phase switch source is already set to UDP control.");
 					}
 
 				} else if (id.equals("3")) {
