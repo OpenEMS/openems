@@ -12,12 +12,13 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
-public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsComponent, StartStoppable {
+public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsComponent, StartStoppable, ModbusHelper {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#BMS_CONTROL}.
@@ -673,6 +674,16 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.text("Current State of State-Machine")), //
 		RUN_FAILED(Doc.of(Level.FAULT) //
 				.text("Running the Logic failed")), //
+		LOW_MIN_VOLTAGE_WARNING(Doc.of(Level.WARNING) //
+				.text("Low min voltage warning "
+						+ "| Niedriger Ladezustand der Batterie, da die Batterie nicht durch den Wechselrichter beladen werden kann. Ohne Beladung schaltet sich die Batterie demnächst ab, um sich selbst zu schützen")),
+		LOW_MIN_VOLTAGE_FAULT(Doc.of(Level.FAULT) //
+				.text("Low min voltage fault "
+						+ "| Niedriger Ladezustand. Die Batterie schaltet sich demnächst ab, um sich selbst zu schützen")),
+		LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED(Doc.of(Level.FAULT) //
+				.text("Low min voltage fault - Battery stopped "
+						+ "| Batterie wurde wegen zu niedrigem Ladezustand abgeschaltet. Bitte kontaktieren Sie Ihren Installateur")),
+
 		;
 
 		private final Doc doc;
@@ -685,5 +696,92 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#LOW_MIN_VOLTAGE_WARNING}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getLowMinVoltageWarningChannel() {
+		return this.channel(ChannelId.LOW_MIN_VOLTAGE_WARNING);
+	}
+
+	/**
+	 * Gets the Warning state channel for a low minimum voltage. See
+	 * {@link ChannelId#LOW_MIN_VOLTAGE_WARNING}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getLowMinVoltageWarning() {
+		return this.getLowMinVoltageWarningChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#LOW_MIN_VOLTAGE_WARNING} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setLowMinVoltageWarning(boolean value) {
+		this.getLowMinVoltageWarningChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#LOW_MIN_VOLTAGE_FAULT}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getLowMinVoltageFaultChannel() {
+		return this.channel(ChannelId.LOW_MIN_VOLTAGE_FAULT);
+	}
+
+	/**
+	 * Gets the fault state channel for a low minimum voltage. See
+	 * {@link ChannelId#LOW_MIN_VOLTAGE_FAULT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getLowMinVoltage() {
+		return this.getLowMinVoltageFaultChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#LOW_MIN_VOLTAGE_FAULT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setLowMinVoltageFault(boolean value) {
+		this.getLowMinVoltageFaultChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getLowMinVoltageFaultBatteryStoppedChannel() {
+		return this.channel(ChannelId.LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED);
+	}
+
+	/**
+	 * Gets the fault state channel for a low minimum voltage when battery is
+	 * stopped. See {@link ChannelId#LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getLowMinVoltageFaultBatteryStopped() {
+		return this.getLowMinVoltageFaultBatteryStoppedChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setLowMinVoltageFaultBatteryStopped(boolean value) {
+		this.getLowMinVoltageFaultBatteryStoppedChannel().setNextValue(value);
 	}
 }

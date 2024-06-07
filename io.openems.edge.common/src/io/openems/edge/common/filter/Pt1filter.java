@@ -2,18 +2,19 @@ package io.openems.edge.common.filter;
 
 public class Pt1filter {
 
-	private final double filterTimeConstant;
+	private final int filterTimeConstant;
 
-	private double yOld = 0.0;
-	private double cycleTime = 0.0;
+	private double result;
+	private int cycleTime;
 
 	/**
 	 * Creates a PT1 filter.
 	 * 
 	 * @param filterTimeConstant filter time constant in seconds.
-	 * @param cycleTime          cycle time of calling applyPt1Filter in seconds
+	 * @param cycleTime          cycle time of calling applyPt1Filter in
+	 *                           milliseconds
 	 */
-	public Pt1filter(double filterTimeConstant, double cycleTime) {
+	public Pt1filter(int filterTimeConstant, int cycleTime) {
 		this.filterTimeConstant = filterTimeConstant;
 		this.cycleTime = cycleTime;
 	}
@@ -23,7 +24,7 @@ public class Pt1filter {
 	 * 
 	 * @param cycleTime cycle time of calling applyPt1Filter in seconds
 	 */
-	public void setCycleTime(double cycleTime) {
+	public void setCycleTime(int cycleTime) {
 		this.cycleTime = cycleTime;
 	}
 
@@ -33,19 +34,15 @@ public class Pt1filter {
 	 * @param value the input value
 	 * @return the filtered value
 	 */
-	public double applyPt1Filter(double value) {
-		// cycle time has not to be zero
-		if (this.cycleTime == 0.0) {
-			return (0.0);
-		}
+	public int applyPt1Filter(double value) {
 		// disable PT1-Filter if time constant is zero
-		if (this.filterTimeConstant == 0.0) {
-			this.yOld = value;
-			return (value);
+		if (this.filterTimeConstant == 0) {
+			this.result = value;
+			return (int) value;
 		}
 		// apply filter
-		this.yOld = (value + this.filterTimeConstant / this.cycleTime * this.yOld)
-				/ (1 + this.filterTimeConstant / this.cycleTime);
-		return this.yOld;
+		final var cycle = this.cycleTime / 1000.;
+		this.result = (value + this.filterTimeConstant / cycle * this.result) / (1 + this.filterTimeConstant / cycle);
+		return (int) this.result;
 	}
 }
