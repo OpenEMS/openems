@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.time.Duration;
 import java.time.Instant;
@@ -146,7 +145,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 	 * @return true if sent
 	 */
 	protected boolean send(String s) {
-		if (s.startsWith("x2") && !isPhaseSwitchSourceSet()) {
+		if (s.startsWith("x2") && !this.isPhaseSwitchSourceSet()) {
 			this.log.warn("Phase switch source not set to UDP control. Setting now...");
 			if (!this.send("x2src 4")) {
 				this.log.error("Failed to set phase switch source to UDP control.");
@@ -236,7 +235,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		Instant now = Instant.now(this.componentManager.getClock());
 		this.log.debug("Applying charge power limit: [Power: " + power + "W] at [" + now + "]");
 
-		if (!isPhaseSwitchSourceSet()) {
+		if (!this.isPhaseSwitchSourceSet()) {
 			if (!this.send("x2src 4")) {
 				this.log.error("Failed to set phase switch source to UDP control.");
 				return false;
