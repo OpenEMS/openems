@@ -9,7 +9,7 @@ import { ExecuteSystemRestartRequest, Type } from 'src/app/shared/jsonrpc/reques
 import { Role } from 'src/app/shared/type/role';
 import { environment } from 'src/environments';
 
-import { Edge, Service, Utils, Websocket } from '../../../../shared/shared';
+import { Edge, presentAlert, Service, Utils, Websocket } from '../../../../shared/shared';
 
 enum SystemRestartState {
     INITIAL, // No restart
@@ -31,15 +31,13 @@ enum SystemRestartState {
 })
 export class MaintenanceComponent implements OnInit {
 
-    private static readonly SELECTOR: string = 'oe-maintenance';
-    private static readonly TIMEOUT: number = 3000;
     protected readonly environment = environment;
 
     protected edge: Edge | null = null;
     protected options: { key: string, message: string, color: 'success' | 'warning' | null, info: string, roleIsAtLeast: Role, button: { disabled: boolean, label: string, callback: () => void } }[] = [
         {
             key: Type.HARD, message: null, color: null, info: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: environment.edgeShortName }), roleIsAtLeast: Role.OWNER, button: {
-                callback: () => this.presentAlert(Type.HARD), disabled: false, label: this.translate.instant('SETTINGS.SYSTEM_UPDATE.EMS_RESTARTING', { edgeShortName: environment.edgeShortName }),
+                callback: () => this.confirmationAlert(Type.HARD), disabled: false, label: this.translate.instant('SETTINGS.SYSTEM_UPDATE.EMS_RESTARTING', { edgeShortName: environment.edgeShortName }),
             },
         },
     ];
@@ -47,6 +45,17 @@ export class MaintenanceComponent implements OnInit {
     protected systemRestartState: BehaviorSubject<{ key: Type, state: SystemRestartState }> = new BehaviorSubject({ key: null, state: SystemRestartState.INITIAL });
     protected spinnerId: string = MaintenanceComponent.SELECTOR;
     protected readonly SystemRestartState = SystemRestartState;
+    protected confirmationAlert: Function = (type: Type) => presentAlert(this.alertCtrl, this.translate, {
+        message: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: environment.edgeShortName }),
+        subHeader: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION', { system: environment.edgeShortName }),
+        buttons: [{
+            text: this.translate.instant('General.RESTART'),
+            handler: () => this.execRestart(type),
+        }],
+    });
+
+    private static readonly SELECTOR: string = 'oe-maintenance';
+    private static readonly TIMEOUT: number = 3000;
 
     constructor(
         protected utils: Utils,

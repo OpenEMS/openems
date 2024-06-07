@@ -3,6 +3,7 @@ package io.openems.edge.bridge.modbus.sunspec;
 import static com.ghgande.j2mod.modbus.Modbus.ILLEGAL_ADDRESS_EXCEPTION;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
+import static io.openems.edge.bridge.modbus.sunspec.Utils.toUpperUnderscore;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
 import java.util.ArrayList;
@@ -37,6 +38,12 @@ import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.Task.ExecuteState;
+import io.openems.edge.bridge.modbus.sunspec.Point.BitFieldPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.BitFieldPoint.SunSpecBitPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.ChannelIdPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.ModbusElementPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.ScaleFactorPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.ScaledValuePoint;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.taskmanager.Priority;
 
@@ -231,13 +238,28 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	}
 
 	/**
-	 * Overwrite to provide custom SunSpecModel.
+	 * Override to provide custom {@link SunSpecModel}.
 	 *
 	 * @param blockId the Block-Id
 	 * @return the {@link SunSpecModel}
 	 * @throws IllegalArgumentException on error
 	 */
 	protected SunSpecModel getSunSpecModel(int blockId) throws IllegalArgumentException {
+		return null;
+	}
+
+	/**
+	 * Override to provide custom {@link SunSpecBitPoint}s.
+	 * 
+	 * <p>
+	 * Use this to create a different mapping for SunSpec BitFields, e.g. Model 103
+	 * "Vendor defined events".
+	 * 
+	 * @param bfp the {@link BitFieldPoint}
+	 * @return array of {@link SunSpecBitPoint}s; null or empty uses defaults from
+	 *         {@link DefaultSunSpecModel}.
+	 */
+	protected SunSpecBitPoint[] getBitPoints(BitFieldPoint bfp) {
 		return null;
 	}
 
@@ -277,27 +299,25 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 		startAddress += 2;
 		for (var i = 0; i < model.points().length; i++) {
 			var point = model.points()[i];
-			final var element = point.get().generateModbusElement(startAddress);
+			var elements = this.addModbusElementAndChannels(startAddress, model, point);
+			var length = elements.stream().mapToInt(e -> e.length).sum();
 
 			// Handle AccessMode
 			switch (point.get().accessMode) {
 			case READ_ONLY -> {
-				readElements.add(element);
+				readElements.addAll(elements);
 			}
 			case READ_WRITE -> {
-				readElements.add(element);
-				writeElements.add(element);
+				readElements.addAll(elements);
+				writeElements.addAll(elements);
 			}
 			case WRITE_ONLY -> {
-				readElements.add(new DummyRegisterElement(element.startAddress, element.length));
-				writeElements.add(element);
+				readElements.add(new DummyRegisterElement(startAddress, length));
+				writeElements.addAll(elements);
 			}
 			}
 
-			startAddress += element.length;
-			var channelId = point.getChannelId();
-			this.addChannel(channelId);
-			this.m(channelId, element, this.generateElementToChannelConverter(model, point));
+			startAddress += length;
 		}
 
 		// Create Tasks and add them to the ModbusProtocol
@@ -311,6 +331,38 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 					new FC16WriteRegistersTask(//
 							elements.get(0).startAddress, elements.toArray(ModbusElement[]::new)));
 		}
+	}
+
+	/**
+	 * Adds an Element of the block starting from startAddress and maps it to
+	 * Channel(s).
+	 *
+	 * @param startAddress the address to start reading from
+	 * @param model        the {@link SunSpecModel}
+	 * @param ssp          the {@link SunSpecPoint}
+	 * @return the added {@link ModbusElement}s
+	 */
+	protected List<ModbusElement> addModbusElementAndChannels(int startAddress, SunSpecModel model, SunSpecPoint ssp) {
+		final var p = ssp.get();
+		// TODO migrate to Java 21 Switch Pattern Matching
+		if (p instanceof BitFieldPoint bfp) {
+			// Channels are added and mapped internally
+			var alternativeBitPoints = this.getBitPoints(bfp);
+			return bfp.generateModbusElements(this, channelId -> this.addChannel(channelId), startAddress,
+					alternativeBitPoints);
+		}
+
+		if (p instanceof ModbusElementPoint mep) {
+			final var element = mep.generateModbusElement(startAddress);
+			if (p instanceof ChannelIdPoint cp) {
+				var channelId = cp.channelId;
+				this.addChannel(channelId);
+				this.m(channelId, element, this.generateElementToChannelConverter(model, p));
+			}
+			return List.of(element);
+		}
+
+		return List.of();
 	}
 
 	/**
@@ -368,7 +420,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @param point the {@link SunSpecPoint}
 	 * @return an {@link ElementToChannelConverter}, never null
 	 */
-	protected ElementToChannelConverter generateElementToChannelConverter(SunSpecModel model, SunSpecPoint point) {
+	protected ElementToChannelConverter generateElementToChannelConverter(SunSpecModel model, Point point) {
 		// Create converter for 'defined' state
 		final var valueIsDefinedConverter = new ElementToChannelConverter(//
 				/* Element -> Channel */ value -> point.isDefined(value) ? value : null,
@@ -376,23 +428,26 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 		// Generate Scale-Factor converter (possibly null)
 		ElementToChannelConverter scaleFactorConverter = null;
-		if (point.get().scaleFactor.isPresent()) {
-			final var scaleFactor = point.get().scaleFactor.get();
-			final var scaleFactorName = SunSpecCodeGenerator.toUpperUnderscore(scaleFactor);
+
+		if (point instanceof ScaledValuePoint svp) {
+			final var scaleFactorName = toUpperUnderscore(svp.scaleFactor);
 			scaleFactorConverter = Stream.of(model.points()) //
 					.filter(p -> p.name().equals(scaleFactorName)) //
-					.map(sfp -> new ElementToChannelScaleFactorConverter(this, point, sfp.getChannelId())) //
-					// Found matching Scale-Factor Point in SunSpec Modal
+					.map(SunSpecPoint::get) //
+					.filter(ScaleFactorPoint.class::isInstance) //
+					.map(ScaleFactorPoint.class::cast) //
+					.map(sfp -> new ElementToChannelScaleFactorConverter(this, svp, sfp.channelId)) //
+					// Found matching Scale-Factor Point in SunSpec Model
 					.findFirst()
 
 					// Else: try to parse constant Scale-Factor
 					.orElseGet(() -> {
 						try {
-							return new ElementToChannelScaleFactorConverter(Integer.parseInt(scaleFactor));
+							return new ElementToChannelScaleFactorConverter(Integer.parseInt(svp.scaleFactor));
 						} catch (NumberFormatException e) {
 							// Unable to parse Scale-Factor to static value
-							this.logError(this.log, "Unable to parse Scale-Factor [" + scaleFactor + "] for Point ["
-									+ point.name() + "]");
+							this.logError(this.log, "Unable to parse Scale-Factor [" + svp.scaleFactor + "] for Point ["
+									+ point.name + "]");
 							return null;
 						}
 					}); //
@@ -408,32 +463,38 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	/**
 	 * Get the Channel for the given Point.
 	 *
-	 * @param <T>   the Channel type
-	 * @param point the SunSpec Point
-	 * @return the optional Channel
+	 * @param <T> the Channel type
+	 * @param ssp the {@link SunSpecPoint}
+	 * @return the optional {@link Channel}
 	 */
-	protected <T extends Channel<?>> Optional<T> getSunSpecChannel(SunSpecPoint point) {
-		try {
-			return Optional.ofNullable(this.channel(point.getChannelId()));
-		} catch (IllegalArgumentException e) {
-			return Optional.empty();
+	protected <T extends Channel<?>> Optional<T> getSunSpecChannel(SunSpecPoint ssp) {
+		var point = ssp.get();
+		if (point instanceof ChannelIdPoint cp) {
+			try {
+				return Optional.ofNullable(this.channel(cp.channelId));
+			} catch (IllegalArgumentException e) {
+				// Ignore
+			}
+		} else {
+			// Ignore
 		}
+		return Optional.empty();
 	}
 
 	/**
 	 * Get the Channel for the given Point or throw an error if it is not available.
 	 *
-	 * @param <T>   the Channel type
-	 * @param point the SunSpec Point
-	 * @return the optional Channel
+	 * @param <T> the Channel type
+	 * @param ssp the {@link SunSpecPoint}
+	 * @return the optional {@link Channel}
 	 * @throws OpenemsException if Channel is not available
 	 */
 	@SuppressWarnings("unchecked")
-	protected <T extends Channel<?>> T getSunSpecChannelOrError(SunSpecPoint point) throws OpenemsException {
-		Optional<Channel<?>> channelOpt = this.getSunSpecChannel(point);
+	protected <T extends Channel<?>> T getSunSpecChannelOrError(SunSpecPoint ssp) throws OpenemsException {
+		Optional<Channel<?>> channelOpt = this.getSunSpecChannel(ssp);
 		if (!channelOpt.isPresent()) {
-			throw new OpenemsException("SunSpec Channel for Point [" + point.getClass().getSimpleName() + "."
-					+ point.name() + "] is not available");
+			throw new OpenemsException("SunSpec Channel for Point [" + ssp.getClass().getSimpleName() + "." + ssp.name()
+					+ "] is not available");
 		}
 		return (T) channelOpt.get();
 	}

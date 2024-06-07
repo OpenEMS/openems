@@ -4,17 +4,21 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { SubscribeEdgesRequest } from "src/app/shared/jsonrpc/request/subscribeEdgesRequest";
 import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
 
+
 /*** This component is needed as a routing parent and acts as a transit station without being displayed.*/
 @Component({
     selector: "edge",
     template: `
     <ion-content></ion-content>
          <ion-router-outlet id="content"></ion-router-outlet>
+         <oe-notification *ngIf="latestIncident" color="warning" [text]="latestIncident.message"
+    [id]="latestIncident.id"></oe-notification>
     `,
 })
 export class EdgeComponent implements OnInit, OnDestroy {
 
     private edge: Edge | null = null;
+    protected latestIncident: { message: string | null, id: string } | null = null;
 
     constructor(
         private router: Router,
@@ -30,6 +34,8 @@ export class EdgeComponent implements OnInit, OnDestroy {
             const edgeId = params['edgeId'];
             this.service.updateCurrentEdge(edgeId).then((edge) => {
                 this.edge = edge;
+
+                this.checkMessages();
                 this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edgeId] }))
                     .then(() => {
 
@@ -42,6 +48,9 @@ export class EdgeComponent implements OnInit, OnDestroy {
                 this.router.navigate(['index']);
             });
         });
+    }
+
+    public checkMessages(): void {
     }
 
     public ngOnDestroy(): void {

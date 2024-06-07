@@ -10,15 +10,52 @@
           </ion-item>
 
           <ion-card-content>
-            <ion-item>
-              <ion-checkbox (ionChange)="toggleSubscribe($event)" slot="start" [(ngModel)]="isSubscribed">
-              </ion-checkbox>
-              <ion-label translate class="ion-text-wrap">Edge.Config.Log.automaticUpdating</ion-label>
-            </ion-item>
+            <ion-grid class="ion-no-padding">
+              <ion-row>
+                <ion-col>
+                  <ion-item lines="none">
+                    <ion-checkbox (ionChange)="toggleSubscribe($event)" slot="start" [(ngModel)]="isSubscribed">
+                    </ion-checkbox>
+                    <ion-label class="ion-text-wrap" translate>Edge.Config.Log.automaticUpdating</ion-label>
+                  </ion-item>
+                </ion-col>
+                <ion-col *ngIf="isCondensedOutput !== null && isAtLeastGuest">
+                  <ion-item lines="none">
+                    <ion-toggle (ionChange)="toggleCondensedOutput($event)" slot="start"
+                      [(ngModel)]="isCondensedOutput">
+                    </ion-toggle>
+                    <ion-label class="ion-text-wrap" translate>Edge.Config.Log.CONDENSED_OUTPUT</ion-label>
+                  </ion-item>
+                </ion-col>
+                <ion-col>
+                  <ion-item lines="none">
+                    <ion-label translate class="ion-text-wrap" position="floating"
+                      color="primary">{{filters.placeholder}}</ion-label>
+                    <ion-select label-placement="floating" interface="popover" [multiple]="true" label="Fixed label"
+                      fill="solid" [interfaceOptions]="{ cssClass: 'custom-ion-popover' }" type="radio"
+                      (ionDismiss)="searchOnChange($event)" style="white-space: initial;">
+                      <ng-container *ngFor="let filter of filters.options">
+                        <ion-select-option [value]="filter.value">{{filter.name}}
+                        </ion-select-option>
+                      </ng-container>
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+            <ion-grid class="ion-no-padding">
+              <ion-row class="ion-justify-content-center">
+                <ion-col>
+                  <ion-searchbar [(ngModel)]="query" (ionChange)="searchOnChange()">
+                  </ion-searchbar>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
           </ion-card-content>
 
-          <ion-card-content>
-            <ion-grid *ngFor="let line of lines" class="ion-no-padding">
+          <ion-card-content style="overflow-x: scroll">
+            <ion-grid *ngFor="let line of logLines" class="ion-no-padding" style="user-select: text;">
+
               <ion-row style="font-family: monospace; font-size: small" style.color="black">
                 <ion-col size-sm="2" size="6">
                   {{ line.time }}
@@ -32,7 +69,7 @@
               </ion-row>
               <ion-row style="font-family: monospace" [style.color]="line.color">
                 <ion-col size="12">
-                  {{ line.message }}
+                  <ion-text [innerHTML]="line.message"></ion-text>
                 </ion-col>
               </ion-row>
             </ion-grid>
