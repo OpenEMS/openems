@@ -146,19 +146,24 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 	 * @return true if sent
 	 */
 	protected boolean send(String s) {
+		if (s.startsWith("x2") && !isPhaseSwitchSourceSet()) {
+			this.log.warn("Phase switch source not set to UDP control. Setting now...");
+			if (!this.send("x2src 4")) {
+				this.log.error("Failed to set phase switch source to UDP control.");
+				return false;
+			}
+		}
+
 		var raw = s.getBytes();
 		var packet = new DatagramPacket(raw, raw.length, this.ip, EvcsKebaKeContactImpl.UDP_PORT);
 		try (DatagramSocket datagrammSocket = new DatagramSocket()) {
 			datagrammSocket.send(packet);
 			return true;
-		} catch (SocketException e) {
-			this.logError(this.log, "Unable to open UDP socket for sending [" + s + "] to [" + this.ip.getHostAddress()
-					+ "]: " + e.getMessage());
+
 		} catch (IOException e) {
-			this.logError(this.log,
-					"Unable to send [" + s + "] UDP message to [" + this.ip.getHostAddress() + "]: " + e.getMessage());
+			this.logError(this.log, "Failed to send UDP packet: " + e.getMessage());
+			return false;
 		}
-		return false;
 	}
 
 	/**
@@ -231,6 +236,13 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		Instant now = Instant.now(this.componentManager.getClock());
 		this.log.debug("Applying charge power limit: [Power: " + power + "W] at [" + now + "]");
 
+		if (!isPhaseSwitchSourceSet()) {
+			if (!this.send("x2src 4")) {
+				this.log.error("Failed to set phase switch source to UDP control.");
+				return false;
+			}
+		}
+
 		boolean isPhaseSwitchCooldownOver = this.lastPhaseChangeTime.plusSeconds(PHASE_SWITCH_COOLDOWN_SECONDS)
 				.isBefore(now);
 		this.log.debug("Phase switch cooldown over: " + isPhaseSwitchCooldownOver);
@@ -249,7 +261,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		var preferredPhases = Phases.preferredPhaseBehavior(power, this.getPhases(), this.config.minHwCurrent(),
 				maxCurrentCannel.value().orElse(DEFAULT_MAXIMUM_HARDWARE_CURRENT));
 
-		System.out.println("Preferred: " + preferredPhases);
+		this.logDebug("Preferred: " + preferredPhases);
 		if (phases != preferredPhases && isPhaseSwitchCooldownOver) {
 			// Send previous value before switching phases
 			boolean sendPreviousSuccess = this.send("currtime " + current + " 1");
@@ -376,8 +388,15 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 				* Phases.THREE_PHASE.getValue();
 	}
 
-	@Override
-	public boolean considerPhaseSwitching() {
-		return this.config.phaseSwitchActive();
+	private boolean isPhaseSwitchSourceSet() {
+		IntegerReadChannel channel = getX2PhaseSwitchSourceChannel();
+
+		// Use the channel to read the value directly as an Integer.
+		// orElse(0) is safely used here because the method call is type-safe and
+		// expects an Integer.
+		Integer phaseSwitchSource = channel.value().orElse(0);
+
+		return phaseSwitchSource == 4;
 	}
+
 }

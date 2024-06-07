@@ -162,26 +162,7 @@ public class ReadHandler implements Consumer<String> {
 					this.setInt(EvcsKebaKeContact.ChannelId.CURR_USER, jsonMessage, "Curr user");
 
 					this.setInt(EvcsKebaKeContact.ChannelId.X2_PHASE_SWITCH, jsonMessage, "X2 phaseSwitch");
-					this.setInt(EvcsKebaKeContact.ChannelId.X2_PHASE_SWITCH_SOURCE, jsonMessage,
-							"X2 phaseSwitch source");
-
-					// Check configuration for phase switch activation
-					boolean isPhaseSwitchConfiguredActive = this.parent.phaseSwitchActive();
-					int x2PhaseSwitchSource = jsonMessage.getAsJsonPrimitive("X2 phaseSwitch source").getAsInt();
-
-					// Only set the phase switch source to UDP control if it is not already set and
-					// if the phase switch is configured
-					if (isPhaseSwitchConfiguredActive && x2PhaseSwitchSource == 0) {
-						if (this.parent.send("x2src 4")) {
-							this.log.info("Phase switch source set to UDP control successfully.");
-						} else {
-							this.log.error("Failed to set phase switch source to UDP control.");
-						}
-					} else if (!isPhaseSwitchConfiguredActive) {
-						this.log.debug("Phase switch activation not enabled in configuration.");
-					} else if (x2PhaseSwitchSource != 0) {
-						this.log.debug("Phase switch source is already set to UDP control.");
-					}
+					this.setInt(EvcsKebaKeContact.ChannelId.X2_PHASE_SWITCH_SOURCE, jsonMessage, "X2 phaseSwitch source");
 
 				} else if (id.equals("3")) {
 					/*
