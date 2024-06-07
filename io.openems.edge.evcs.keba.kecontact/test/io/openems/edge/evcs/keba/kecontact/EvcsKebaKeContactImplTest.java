@@ -54,6 +54,8 @@ public class EvcsKebaKeContactImplTest {
 						.setUseDisplay(false) //
 						.setPhaseSwitchActive(true) //
 						.build())
+				.next(new TestCase("Preparation").inputForce(
+						new ChannelAddress(COMPONENT_ID, EvcsKebaKeContact.ChannelId.X2_PHASE_SWITCH_SOURCE.id()), 4))
 				.next(new TestCase("Test 1") //
 						.input(status, Status.CHARGING) //
 						.input(chargePower, 5000) //
@@ -65,22 +67,15 @@ public class EvcsKebaKeContactImplTest {
 						.output(phases, Phases.THREE_PHASE) //
 						.output(minimumHardwarePower, 6 * 230) //
 						.output(maximumHardwarePower, 32 * 3 * 230) //
-						.onBeforeWriteCallbacks(() -> {
-							IntegerReadChannel channel = this.evcs.getX2PhaseSwitchSourceChannel();
-							int switchSource = channel.value().orElse(0);
-
-							if (switchSource != 4) {
-								channel.setNextValue(4);
-							}
-						}).onAfterWriteCallbacks(() -> {
+						.onAfterWriteCallbacks(() -> {
 							IntegerReadChannel channel = this.evcs.getX2PhaseSwitchSourceChannel();
 							int switchSource = channel.value().orElse(0);
 							assertEquals("X2 Phase Switch Source should be set to 4", 4, switchSource);
 						}));
+		// TODO: Logic would be easier to test if the phase switch part would be in a
+		// static
+		// method and the sendCommand would be passed in a Consumer/Function
 	}
-	// TODO: Logic would be easier to test if the phase switch part would be in a
-	// static
-	// method and the sendCommand would be passed in a Consumer/Function
 
 	// @Test
 	// public void testHandlingIncreasedPowerDemandWithPhaseSwitching() throws
