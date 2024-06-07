@@ -263,14 +263,21 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		return this.config.minHwCurrent();
 	}
 
+	/**
+	 * Calculates the current based on the given power and number of phases.
+	 * 
+	 * @param power  the power in watts
+	 * @param phases the number of phases
+	 * @return the calculated current in milliamps
+	 */
 	public int calculateCurrent(int power, int phases) {
 		var current = Math.round((power * 1000) / phases / 230f);
-		/*
-		 * Limits the charging value because KEBA knows only values between 6000 and
-		 * 63000
-		 */
+
+		// Limit the charging value because KEBA knows only values between 6000 and
+		// 63000
 		current = Math.min(current, 63_000);
 
+		// Ensure the current is at least 6000 (KEBA minimum value)
 		if (current < 6000) {
 			current = 0;
 		}
