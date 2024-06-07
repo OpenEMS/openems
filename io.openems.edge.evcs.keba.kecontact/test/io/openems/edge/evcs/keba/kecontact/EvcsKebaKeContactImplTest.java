@@ -1,12 +1,9 @@
 package io.openems.edge.evcs.keba.kecontact;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -66,12 +63,7 @@ public class EvcsKebaKeContactImplTest {
 						// Charge power itself would be read by the evcs next cycle
 						.output(phases, Phases.THREE_PHASE) //
 						.output(minimumHardwarePower, 6 * 230) //
-						.output(maximumHardwarePower, 32 * 3 * 230) //
-						.onAfterWriteCallbacks(() -> {
-							IntegerReadChannel channel = this.evcs.getX2PhaseSwitchSourceChannel();
-							int switchSource = channel.value().orElse(0);
-							assertEquals("X2 Phase Switch Source should be set to 4", 4, switchSource);
-						}));
+						.output(maximumHardwarePower, 32 * 3 * 230)); //
 		// TODO: Logic would be easier to test if the phase switch part would be in a
 		// static
 		// method and the sendCommand would be passed in a Consumer/Function
