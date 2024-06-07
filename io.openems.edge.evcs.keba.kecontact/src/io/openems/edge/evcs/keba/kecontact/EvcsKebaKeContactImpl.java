@@ -312,18 +312,24 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 	// }
 
 	private int calculateCurrent(int power, int phases) {
-		var voltage = 230f; // Typical voltage per phase
-		// Limit the power for one phase to 4.6 kW
-		if (phases == 1) {
-			power = Math.min(power, 4600); // 4600 W is 4.6 kW
-		}
-		var current = Math.round((power * 1000) / phases / voltage);
-		
+		var current = Math.round((power * 1000) / phases / 230f);
 		/*
 		 * Limits the charging value because KEBA knows only values between 6000 and
 		 * 63000
 		 */
 		current = Math.min(current, 63_000);
+
+		if (current < 6000) {
+			current = 0;
+		}
+
+		// boolean shouldSwitchToThreePhases(int power, int phases) {
+		// boolean shouldSwitch = power > 4140 && phases != 3;
+		// this.log.debug("Should switch to 3 phases: " + shouldSwitch + " [Power: " +
+		// power + "W, Current phases: "
+		// + phases + "]");
+		// return shouldSwitch;
+		// }
 
 		return current;
 	}
