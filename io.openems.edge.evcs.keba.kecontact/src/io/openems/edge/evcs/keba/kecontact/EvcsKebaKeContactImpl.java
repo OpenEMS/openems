@@ -53,7 +53,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 	public final Logger log = LoggerFactory.getLogger(EvcsKebaKeContactImpl.class);
 	private final ReadWorker readWorker = new ReadWorker(this);
 	private final ReadHandler readHandler = new ReadHandler(this);
-	private PhaseSwitchHandler phaseSwitchHandler; // Hinzugefügte Instanz des PhaseSwitchHandlers
+	private PhaseSwitchHandler phaseSwitchHandler;
 
 	@Reference
 	private ComponentManager componentManager;
@@ -90,7 +90,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		this._setFixedMinimumHardwarePower(this.getConfiguredMinimumHardwarePower());
 		this._setFixedMaximumHardwarePower(this.getConfiguredMaximumHardwarePower());
 
-		this.phaseSwitchHandler = new PhaseSwitchHandler(this); // Initialisierung des PhaseSwitchHandlers
+		this.phaseSwitchHandler = new PhaseSwitchHandler(this);
 
 		/*
 		 * subscribe on replies to report queries
@@ -257,6 +257,25 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 
 	public State getSwitchToThreePhaseState() {
 		return this.phaseSwitchHandler.getSwitchToThreePhaseState();
+	}
+
+	public int getMinPowerThreePhase() {
+		return this.config.minHwCurrent();
+	}
+
+	public int calculateCurrent(int power, int phases) {
+		var current = Math.round((power * 1000) / phases / 230f);
+		/*
+		 * Limits the charging value because KEBA knows only values between 6000 and
+		 * 63000
+		 */
+		current = Math.min(current, 63_000);
+
+		if (current < 6000) {
+			current = 0;
+		}
+
+		return current;
 	}
 
 	@Override

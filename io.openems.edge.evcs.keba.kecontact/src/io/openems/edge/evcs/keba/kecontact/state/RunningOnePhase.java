@@ -6,13 +6,13 @@ import io.openems.edge.evcs.api.Phases;
 public class RunningOnePhase implements State {
 	@Override
 	public void handlePower(int power, EvcsKebaKeContactImpl context) {
-		if (power > context.getMaxPowerOnePhase()) {
+		if (power > context.getConfiguredMaximumHardwarePower()) {
 			context.getPhaseSwitchHandler().setState(context.getSwitchToThreePhaseState());
 			context.getPhaseSwitchHandler().switchPhase();
 		} else {
 			int current = context.calculateCurrent(power, 1);
 			context.send("currtime " + current + " 1");
-			context.send("Running on one phase with sufficient power.");
+			context.log.info("Running on one phase with sufficient power:" + power);
 		}
 	}
 

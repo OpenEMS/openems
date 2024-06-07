@@ -6,7 +6,7 @@ import io.openems.edge.evcs.api.Phases;
 public class SwitchToOnePhase implements State {
 	@Override
 	public void switchPhase(EvcsKebaKeContactImpl context) {
-		context.getPhaseSwitchHandler().handlePhaseSwitch(Phases.ONE_PHASE);
+		context.getPhaseSwitchHandler().handlePhaseSwitch(Phases.ONE_PHASE); //
 		context.getPhaseSwitchHandler().setState(context.getRunningOnePhaseState());
 	}
 
