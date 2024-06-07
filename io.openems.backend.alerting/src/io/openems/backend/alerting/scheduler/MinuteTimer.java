@@ -4,7 +4,7 @@ import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.PriorityQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -21,7 +21,7 @@ public class MinuteTimer implements TimedExecutor {
 	private final Logger log = LoggerFactory.getLogger(MinuteTimer.class);
 
 	private final List<Consumer<ZonedDateTime>> subscriber = new ArrayList<>();
-	private final PriorityQueue<TimedTask> singleTasks = new PriorityQueue<>();
+	private final PriorityBlockingQueue<TimedTask> singleTasks = new PriorityBlockingQueue<>();
 
 	private final Clock clock;
 	private long cycleCount = 0;
@@ -73,7 +73,7 @@ public class MinuteTimer implements TimedExecutor {
 	 */
 	@Override
 	public TimedTask schedule(ZonedDateTime at, Consumer<ZonedDateTime> task) {
-		var singleTask = new TimedTask(at, task);
+		final var singleTask = new TimedTask(at, task);
 		this.singleTasks.add(singleTask);
 		return singleTask;
 	}
@@ -95,10 +95,11 @@ public class MinuteTimer implements TimedExecutor {
 	}
 
 	protected synchronized void start() {
-		if (!this.isRunning) {
-			this.log.debug("START");
-			this.isRunning = true;
+		if (this.isRunning) {
+			return;
 		}
+		this.log.debug("START");
+		this.isRunning = true;
 	}
 
 	private void logDebugInfos() {
@@ -115,7 +116,7 @@ public class MinuteTimer implements TimedExecutor {
 		this.cycleCount++;
 		this.logDebugInfos();
 
-		var now = this.now();
+		final var now = this.now();
 
 		this.callSubscriber(now);
 		this.callSingleTasks(now);
@@ -147,10 +148,11 @@ public class MinuteTimer implements TimedExecutor {
 	}
 
 	protected synchronized void stop() {
-		if (this.isRunning) {
-			this.log.debug("STOP");
-			this.isRunning = false;
+		if (!this.isRunning) {
+			return;
 		}
+		this.log.debug("STOP");
+		this.isRunning = false;
 	}
 
 	public int getSubscriberCount() {

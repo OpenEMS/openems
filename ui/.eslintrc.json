@@ -51,6 +51,9 @@
             }
           }
         ],
+        "@angular-eslint/use-lifecycle-interface": [
+          "error"
+        ],
         "@angular-eslint/directive-selector": [
           "error",
           {
