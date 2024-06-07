@@ -30,6 +30,7 @@ import io.openems.edge.bridge.modbus.api.ChannelMetaInfoBitReadAndWrite;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
+import io.openems.edge.bridge.modbus.api.ModbusUtils.ReadElementsResult;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
@@ -231,7 +232,8 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 				.map(index -> 0x2A00 + index * 2) //
 				.mapToObj(address -> new UnsignedDoublewordElement(address)) //
 				.toArray(ModbusRegisterElement[]::new);
-		return readElementsOnce(this.modbusProtocol, ModbusUtils::retryOnNull, elements);
+		return readElementsOnce(this.modbusProtocol, ModbusUtils::retryOnNull, elements) //
+				.thenApply(rsr -> ((ReadElementsResult<Long>) rsr).values());
 	}
 
 }

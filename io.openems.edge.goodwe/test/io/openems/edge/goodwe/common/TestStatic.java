@@ -5,6 +5,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.junit.Test;
 
 import io.openems.edge.goodwe.common.enums.GoodWeType;
@@ -125,5 +128,66 @@ public class TestStatic {
 				.get(GoodWe.ChannelId.DIAG_STATUS_METER_VOLTAGE_SAMPLE_FAULT));
 		assertFalse(AbstractGoodWe.detectDiagStatesH(value) //
 				.get(GoodWe.ChannelId.DIAG_STATUS_EXTERNAL_STOP_MODE_ENABLE));
+	}
+
+	@Test
+	public void testPostprocessPBattery1() {
+
+		AtomicBoolean stateResult = new AtomicBoolean();
+		Optional<Integer> prevPBattery = Optional.of(5000);
+
+		// Max DC Power: 5750W
+		var pBattery = 200_000;
+		var dcVoltage = 230;
+		var dcMaxCurrent = 25;
+
+		assertEquals(prevPBattery.get(), AbstractGoodWe.postprocessPBattery1(pBattery, dcVoltage, dcMaxCurrent,
+				state -> stateResult.set(state), prevPBattery)); //
+		assertTrue(stateResult.get());
+
+		pBattery = -100_000;
+		assertEquals(prevPBattery.get(), AbstractGoodWe.postprocessPBattery1(pBattery, dcVoltage, dcMaxCurrent,
+				state -> stateResult.set(state), prevPBattery)); //
+		assertTrue(stateResult.get());
+
+		pBattery = 4000;
+		assertEquals(4000, (int) AbstractGoodWe.postprocessPBattery1(pBattery, dcVoltage, dcMaxCurrent,
+				state -> stateResult.set(state), prevPBattery)); //
+		assertFalse(stateResult.get());
+
+		pBattery = -4000;
+		assertEquals(-4000, (int) AbstractGoodWe.postprocessPBattery1(pBattery, dcVoltage, dcMaxCurrent,
+				state -> stateResult.set(state), prevPBattery)); //
+		assertFalse(stateResult.get());
+
+		/*
+		 * One of the given values is null
+		 */
+		assertEquals(-100_000, (int) AbstractGoodWe.postprocessPBattery1(-100_000, null, dcMaxCurrent,
+				state -> stateResult.set(state), prevPBattery)); //
+		assertFalse(stateResult.get());
+
+		assertEquals(-100_000, (int) AbstractGoodWe.postprocessPBattery1(-100_000, dcVoltage, null,
+				state -> stateResult.set(state), prevPBattery)); //
+		assertFalse(stateResult.get());
+
+		Integer pBatteryNull = null;
+		assertEquals(null, AbstractGoodWe.postprocessPBattery1(pBatteryNull, dcVoltage, dcMaxCurrent,
+				state -> stateResult.set(state), prevPBattery)); //
+		assertFalse(stateResult.get());
+
+		/*
+		 * Previous value was null
+		 */
+		prevPBattery = Optional.empty();
+		pBattery = 200_000;
+		assertEquals(5750, (int) AbstractGoodWe.postprocessPBattery1(pBattery, dcVoltage, dcMaxCurrent,
+				state -> stateResult.set(state), prevPBattery)); //
+		assertTrue(stateResult.get());
+
+		pBattery = -100_000;
+		assertEquals(-5750, (int) AbstractGoodWe.postprocessPBattery1(pBattery, dcVoltage, dcMaxCurrent,
+				state -> stateResult.set(state), prevPBattery)); //
+		assertTrue(stateResult.get());
 	}
 }
