@@ -5,11 +5,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -40,6 +35,8 @@ import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.keba.kecontact.core.EvcsKebaKeContactCore;
+import io.openems.edge.evcs.keba.kecontact.state.PhaseSwitchHandler;
+import io.openems.edge.evcs.keba.kecontact.state.State;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -53,9 +50,10 @@ import io.openems.edge.evcs.keba.kecontact.core.EvcsKebaKeContactCore;
 public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		implements EvcsKebaKeContact, ManagedEvcs, Evcs, OpenemsComponent, EventHandler, ModbusSlave {
 
-	private final Logger log = LoggerFactory.getLogger(EvcsKebaKeContactImpl.class);
+	public final Logger log = LoggerFactory.getLogger(EvcsKebaKeContactImpl.class);
 	private final ReadWorker readWorker = new ReadWorker(this);
 	private final ReadHandler readHandler = new ReadHandler(this);
+	private PhaseSwitchHandler phaseSwitchHandler; // Hinzugefügte Instanz des PhaseSwitchHandlers
 
 	@Reference
 	private ComponentManager componentManager;
@@ -70,8 +68,6 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 
 	private Boolean lastConnectionLostState = false;
 	private InetAddress ip = null;
-	private Instant lastPhaseChangeTime = Instant.MIN;
-	private static final long PHASE_SWITCH_COOLDOWN_SECONDS = 310;
 
 	public EvcsKebaKeContactImpl() {
 		super(//
@@ -93,6 +89,8 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		this._setChargingType(ChargingType.AC);
 		this._setFixedMinimumHardwarePower(this.getConfiguredMinimumHardwarePower());
 		this._setFixedMaximumHardwarePower(this.getConfiguredMaximumHardwarePower());
+
+		this.phaseSwitchHandler = new PhaseSwitchHandler(this); // Initialisierung des PhaseSwitchHandlers
 
 		/*
 		 * subscribe on replies to report queries
@@ -144,7 +142,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 	 * @param s Message to send
 	 * @return true if sent
 	 */
-	protected boolean send(String s) {
+	public boolean send(String s) {
 		if (s.startsWith("x2") && !this.isPhaseSwitchSourceSet()) {
 			this.log.warn("Phase switch source not set to UDP control. Setting now...");
 			if (!this.send("x2src 4")) {
@@ -210,7 +208,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 
 	@Override
 	public EvcsPower getEvcsPower() {
-		return this.evcsPower;
+		return this.getEvcsPower();
 	}
 
 	@Override
@@ -228,129 +226,37 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		return this.config.phaseSwitchActive();
 	}
 
-	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
 	@Override
 	public boolean applyChargePowerLimit(int power) throws OpenemsException {
-		Instant now = Instant.now(this.componentManager.getClock());
-		this.log.debug("Applying charge power limit: [Power: " + power + "W] at [" + now + "]");
+		this.log.debug("Applying charge power limit: [Power: " + power + "W]");
 
-		if (!this.isPhaseSwitchSourceSet()) {
-			if (!this.send("x2src 4")) {
-				this.log.error("Failed to set phase switch source to UDP control.");
-				return false;
-			}
-		}
+		this.phaseSwitchHandler.applyPower(power); // Verwenden des PhaseSwitchHandlers
 
-		boolean isPhaseSwitchCooldownOver = this.lastPhaseChangeTime.plusSeconds(PHASE_SWITCH_COOLDOWN_SECONDS)
-				.isBefore(now);
-		this.log.debug("Phase switch cooldown over: " + isPhaseSwitchCooldownOver);
-
-		var phasesValue = this.getPhasesAsInt();
-		this.log.debug("Current charging phase configuration: " + phasesValue + " phases");
-
-		var current = this.calculateCurrent(power, phasesValue);
-		this.log.debug("Calculated current for charging: " + current + "mA");
-
-		/*
-		 * Determine if switching phases is necessary
-		 */
-		IntegerReadChannel maxCurrentCannel = this.channel(EvcsKebaKeContact.ChannelId.DIP_SWITCH_MAX_HW);
-		final var phases = this.getPhases();
-		var preferredPhases = Phases.preferredPhaseBehavior(power, this.getPhases(), this.config.minHwCurrent(),
-				maxCurrentCannel.value().orElse(DEFAULT_MAXIMUM_HARDWARE_CURRENT));
-
-		this.logDebug("Preferred: " + preferredPhases);
-		if (phases != preferredPhases && isPhaseSwitchCooldownOver) {
-			// Send previous value before switching phases
-			boolean sendPreviousSuccess = this.send("currtime " + current + " 1");
-			this.log.debug("Sent previous value before phase switching. Success: " + sendPreviousSuccess);
-
-			// Schedule the phase switch after a short delay
-			this.scheduler.schedule(() -> {
-				try {
-					boolean switchSuccess = this.switchPhases(preferredPhases, now);
-					if (!switchSuccess) {
-						this.log.info("Phase switch failed. Exiting.");
-						return false; // Early exit if phase switch failed
-					}
-
-					// Send command to set current
-					boolean sendSuccess = this.send("currtime " + current + " 1");
-					this.log.debug("Command to set current sent. Success: " + sendSuccess);
-					return sendSuccess;
-
-				} catch (Exception e) {
-					this.log.error("Error during phase switch delay handling", e);
-					return false;
-				}
-			}, 5, TimeUnit.SECONDS);
-
-			// Return early to avoid blocking the main thread
-			return true;
-		}
-
-		// TODO: Remove log.
-		if (!isPhaseSwitchCooldownOver) {
-			Duration timeUntilNextSwitch = Duration.between(now,
-					this.lastPhaseChangeTime.plusSeconds(PHASE_SWITCH_COOLDOWN_SECONDS));
-			long secondsUntilNextSwitch = timeUntilNextSwitch.getSeconds();
-			this.channel(EvcsKebaKeContact.ChannelId.PHASE_SWITCH_COOLDOWN).setNextValue(secondsUntilNextSwitch);
-			this.log.info("Phase switch cooldown period has not passed. Time before next switch: "
-					+ secondsUntilNextSwitch + " seconds.");
-		}
-
-		// Send command to set current
-		boolean sendSuccess = this.send("currtime " + current + " 1");
-		this.log.debug("Command to set current sent. Success: " + sendSuccess);
-
-		return sendSuccess;
+		return true;
 	}
 
-	// protected static boolean shouldSwitchToOnePhase(int power, int phases) {
-	// return power < 4140 && phases == 3;
-	// }
-
-	private int calculateCurrent(int power, int phases) {
-		var current = Math.round((power * 1000) / phases / 230f);
-		/*
-		 * Limits the charging value because KEBA knows only values between 6000 and
-		 * 63000
-		 */
-		current = Math.min(current, 63_000);
-
-		if (current < 6000) {
-			current = 0;
-		}
-
-		// boolean shouldSwitchToThreePhases(int power, int phases) {
-		// boolean shouldSwitch = power > 4140 && phases != 3;
-		// this.log.debug("Should switch to 3 phases: " + shouldSwitch + " [Power: " +
-		// power + "W, Current phases: "
-		// + phases + "]");
-		// return shouldSwitch;
-		// }
-
-		return current;
+	public int getMinHwCurrent() {
+		return this.config.minHwCurrent();
 	}
 
-	private boolean switchPhases(Phases prefferedPhases, Instant now) {
+	public PhaseSwitchHandler getPhaseSwitchHandler() {
+		return this.phaseSwitchHandler;
+	}
 
-		if (prefferedPhases == Phases.TWO_PHASE) {
-			// Set KEBA to two phases is not possible
-			prefferedPhases = Phases.THREE_PHASE;
-		}
-		String command = prefferedPhases == Phases.ONE_PHASE ? "x2 0" : "x2 1";
-		if (this.send(command)) {
-			this.lastPhaseChangeTime = now; // Update the cooldown timer regardless of the phase switch direction
-			this.log.info(
-					"Switched to " + (prefferedPhases == Phases.ONE_PHASE ? "1 phase" : "3 phases") + " successfully.");
-			return true;
-		} else {
-			this.log.warn(
-					"Failed to switch to " + (prefferedPhases == Phases.ONE_PHASE ? "1 phase" : "3 phases") + ".");
-			return false;
-		}
+	public State getSwitchToOnePhaseState() {
+		return this.phaseSwitchHandler.getSwitchToOnePhaseState();
+	}
+
+	public State getRunningOnePhaseState() {
+		return this.phaseSwitchHandler.getRunningOnePhaseState();
+	}
+
+	public State getRunningThreePhaseState() {
+		return this.phaseSwitchHandler.getRunningThreePhaseState();
+	}
+
+	public State getSwitchToThreePhaseState() {
+		return this.phaseSwitchHandler.getSwitchToThreePhaseState();
 	}
 
 	@Override
