@@ -284,7 +284,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 					this.log.error("Error during phase switch delay handling", e);
 					return false;
 				}
-			}, 1, TimeUnit.SECONDS);
+			}, 5, TimeUnit.SECONDS);
 
 			// Return early to avoid blocking the main thread
 			return true;
