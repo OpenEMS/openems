@@ -1,7 +1,7 @@
 package io.openems.edge.bridge.modbus.api;
 
 import io.openems.common.exceptions.InvalidValueException;
-import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.ScaledValuePoint;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -28,7 +28,7 @@ public class ElementToChannelScaleFactorConverter extends ElementToChannelConver
 		return channel.value().getOrError();
 	}
 
-	public ElementToChannelScaleFactorConverter(OpenemsComponent component, SunSpecPoint point,
+	public ElementToChannelScaleFactorConverter(OpenemsComponent component, ScaledValuePoint point,
 			ChannelId scaleFactorChannel) {
 		super(//
 				// element -> channel
