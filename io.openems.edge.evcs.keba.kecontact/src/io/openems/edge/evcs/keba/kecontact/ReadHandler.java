@@ -204,8 +204,13 @@ public class ReadHandler implements Consumer<String> {
 						if (currentL3.getNextValue().orElse(0) >= 100) {
 							phases += 1;
 						}
-						this.parent._setPhases(phases);
 
+						// Ensure only valid phases are set (1 or 3)
+						if (phases == 2) {
+							phases = 3;
+						}
+
+						this.parent._setPhases(phases);
 						this.parent.logInfoInDebugmode(this.log, "Used phases: " + phases);
 					}
 
