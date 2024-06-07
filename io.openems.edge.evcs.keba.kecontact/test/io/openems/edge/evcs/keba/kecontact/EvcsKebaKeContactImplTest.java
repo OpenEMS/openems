@@ -65,7 +65,7 @@ public class EvcsKebaKeContactImplTest {
 						.input(phases, Phases.THREE_PHASE) //
 						// Charge power itself would be read by the evcs next cycle
 						.output(phases, Phases.THREE_PHASE) //
-						.output(minimumHardwarePower, 6 * 230) //
+						.output(minimumHardwarePower, 18 * 230) //
 						.output(maximumHardwarePower, 32 * 3 * 230) //
 						.onBeforeWriteCallbacks(() -> { //
 							// Assert that X2_PHASE_SWITCH_SOURCE is set to 4
