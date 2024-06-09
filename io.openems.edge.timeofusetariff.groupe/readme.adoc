@@ -1,0 +1,9 @@
+= Time-Of-Use Tariff Groupe-E
+
+This implementation uses the Groupe-E platform to receive day-ahead quarterly prices.
+
+Prices retrieved from Groupe-E are subsequently converted to the user's currency (defined in Core.Meta Component) using the Exchange Rates API.
+
+For detailed information about the Exchange Rates API, please refer to: https://exchangerate.host/#/docs
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.groupe[Source Code icon:github[]]
