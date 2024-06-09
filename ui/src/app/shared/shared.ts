@@ -56,6 +56,20 @@ export class EdgePermission {
       return arr;
     }, []);
   }
+
+  /**
+   * Determines if the edge has its channels in the edgeconfig
+   * or if they should be obtained with a separate request.
+   *
+   * The reason this was introduced is to reduce the size of the EdgeConfig
+   * and therefore improve performance in network, backend, ui, edge.
+   *
+   * @returns true if the channels are included in the edgeconfig
+   */
+  public static hasChannelsInEdgeConfig(edge: Edge): boolean {
+    return !edge.isVersionAtLeast('2024.6.1');
+  }
+
 }
 
 export class UserPermission {

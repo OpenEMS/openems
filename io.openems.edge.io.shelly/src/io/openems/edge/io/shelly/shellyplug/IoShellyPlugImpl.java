@@ -29,6 +29,7 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -138,8 +139,15 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 			this._setSlaveCommunicationFailed(true);
 			this.logDebug(this.log, error.getMessage());
 			return;
-		} else {
-			try {
+		}
+		try {
+			final var relays = JsonUtils.getAsJsonArray(result.data(), "relays");
+			final var relay1 = JsonUtils.getAsJsonObject(relays.get(0));
+			final var relayIson = JsonUtils.getAsBoolean(relay1, "ison");
+			final var meters = JsonUtils.getAsJsonArray(result.data(), "meters");
+			final var meter1 = JsonUtils.getAsJsonObject(meters.get(0));
+			final var power = Math.round(JsonUtils.getAsFloat(meter1, "power"));
+			final var energy = JsonUtils.getAsLong(meter1, "total") /* Unit: Wm */ / 60 /* Wh */;
 
 				var response = getAsJsonObject(result);
 
