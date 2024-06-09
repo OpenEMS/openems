@@ -15,18 +15,19 @@
             <ion-list>
               <ion-item lines="none">
                 <ion-select style="white-space: initial;width: 100%;" #selectedComponentId interface="alert"
-                  [placeholder]="'CHANNELS.Component'| translate">
+                  [placeholder]="'CHANNELS.Component'| translate" (ionChange)="onSelectedComponentChanged($event)">
                   <ion-select-option style=" white-space: normal !important;"
                     *ngFor="let entry of (config.components | keys)" [value]="entry.key">
                     {{ entry.value.id }} ({{ entry.value.alias }})</ion-select-option>
                 </ion-select>
               </ion-item>
               <ion-item lines="none">
+                <ngx-spinner [name]="selectedComponentId.value"></ngx-spinner>
                 <ion-select style="white-space: initial;width: 100%;" #selectedChannelId interface="alert"
                   [placeholder]="'CHANNELS.CHANNEL'| translate">
                   <ng-container *ngIf="selectedComponentId && selectedComponentId.value">
                     <ion-select-option
-                      *ngFor="let entry of (config.components[selectedComponentId.value].channels | keys)"
+                      *ngFor="let entry of channelsPerComponent.get(selectedComponentId.value).channels | keyvalue"
                       [value]="entry.key">
                       {{ entry.key }}</ion-select-option>
                   </ng-container>
@@ -51,7 +52,7 @@
           </ion-item>
 
           <ion-card-content>
-            <ion-button *ngIf="edge.id" expand="block" (click)="localSave()"><span
+            <ion-button *ngIf="edge.id" expand="block" (click)="saveChannelsInLocalStorage()"><span
                 translate>CHANNELS.SAVE</span></ion-button>
             <ion-label [translateParams]="{edgeShortName: environment.edgeShortName}"
               translate>CHANNELS.SAVE_DESCRIPTION
@@ -62,8 +63,8 @@
     </ion-row>
 
     <ion-row>
-      <ng-container *ngIf="!isLoading && componentChannels&& edge?.currentData | async as currentData">
-        <ion-col *ngFor="let component of (componentChannels | keyvalue)" size="12" size-md="4">
+      <ng-container *ngIf="!isLoading && selectedComponentChannels && edge?.currentData | async as currentData">
+        <ion-col *ngFor="let component of (selectedComponentChannels | keyvalue)" size="12" size-md="4">
           <ion-card>
             <ion-item color="light" lines="full">
               <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
@@ -71,15 +72,17 @@
             </ion-item>
             <ion-card-content>
               <ion-list>
-                <ng-container *ngFor="let channelAddress of componentChannels[component.key]">
-                  <ion-card-content *ngIf="componentChannelConfig.get(channelAddress.toString()) as channelConfig">
-                    <ion-item lines="inset">
-                      <ion-label style="white-space:initial"><span translate>CHANNELS.CHANNEL</span>:
-                        {{channelAddress.channelId}}</ion-label>
-                      <ion-button (click)="unsubscribeChannel(channelAddress)" slot="end" color="light" size="small">
-                        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-                      </ion-button>
-                    </ion-item>
+                <ng-container *ngFor="let channel of component.value | keyvalue">
+                  <ion-item lines="inset">
+                    <ion-label style="white-space:initial"><span translate>CHANNELS.CHANNEL</span>:
+                      {{channel.key}}</ion-label>
+                    <ion-button (click)="unsubscribeChannel(component.key, channel.key)" slot="end" color="light"
+                      size="small">
+                      <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                    </ion-button>
+                  </ion-item>
+                  <ion-card-content
+                    *ngIf="channelsPerComponent.get(component.key).channels[channel.key] as channelConfig">
                     <!-- show meta information -->
                     <ion-item>
                       <div style="display: block; width: 30%;">
@@ -99,25 +102,27 @@
                       <ion-label translate>CHANNELS.VALUE</ion-label>
                       <ion-text>
                         <!-- show current value of Channel-->
-                        {{ currentData.channel[channelAddress.toString()] }}&nbsp;{{ channelConfig.unit }}
+                        {{ currentData.channel[component.key + '/' + channel.key] }}&nbsp;{{ channelConfig.unit }}
                         <!-- show value as string for enum values -->
                         <ng-container *ngIf="channelConfig.category === 'ENUM'">
                           <ng-container *ngFor="let option of (channelConfig.options | keys)">
-                            <span *ngIf="option.value === currentData.channel[channelAddress.toString()]">
+                            <span *ngIf="option.value === currentData.channel[component.key + '/' + channel.key]">
                               ({{ option.key }})
                             </span>
                           </ng-container>
                         </ng-container>
                         <!-- show active/inactive string for StateChannels -->
                         <ng-container *ngIf="channelConfig.category === 'STATE'">
-                          <span *ngIf="currentData.channel[channelAddress.toString()] === 1">(State is SET)</span>
-                          <span *ngIf="currentData.channel[channelAddress.toString()] === 0">(State is not set)</span>
+                          <span *ngIf="currentData.channel[component.key + '/' + channel.key] === 1">(State is
+                            SET)</span>
+                          <span *ngIf="currentData.channel[component.key + '/' + channel.key] === 0">(State is not
+                            set)</span>
                         </ng-container>
                         <!-- show active/inactive string for StateChannels -->
                         <ng-container
                           *ngIf="channelConfig.category === 'OPENEMS_TYPE' && channelConfig.type === 'BOOLEAN'">
-                          <span *ngIf="currentData.channel[channelAddress.toString()] === 1">(On)</span>
-                          <span *ngIf="currentData.channel[channelAddress.toString()] === 0">(Off)</span>
+                          <span *ngIf="currentData.channel[component.key + '/' + channel.key] === 1">(On)</span>
+                          <span *ngIf="currentData.channel[component.key + '/' + channel.key] === 0">(Off)</span>
                         </ng-container>
                       </ion-text>
                     </ion-item>
@@ -140,7 +145,7 @@
                         </ion-button>
                       </ng-template>
                     </ion-item>
-                    <ion-item lines="none" *ngIf="channelConfig.showPersistencePriority">
+                    <ion-item lines="none" *ngIf="channel.value.showPersistencePriority">
                       <ion-note style="white-space: initial;">
                         <ion-text color="warning">
                           Warnung:
@@ -154,9 +159,11 @@
                   <ion-label color="primary" translate>CHANNELS.MORE_CHANNELS</ion-label>
                   <ion-select interface="alert" #selectedChannelId>
                     <ng-container *ngIf="component.key">
-                      <ion-select-option *ngFor="let entry of (config.components[component.key].channels | keys)"
+                      <ion-select-option
+                        *ngFor="let entry of channelsPerComponent.get(component.key).channels | keyvalue"
                         [value]="entry.key">
-                        {{ entry.key }}</ion-select-option>
+                        {{ entry.key }}
+                      </ion-select-option>
                     </ng-container>
                   </ion-select>
                 </ion-item>
