@@ -38,8 +38,13 @@ public class IoShelly3EmImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new IoShelly3EmImpl()) //
+		final var bridgeFactory = new DummyBridgeHttpFactory();
+
+		final var bridge = bridgeFactory.bridge; //
+		final var sut = new IoShelly3EmImpl(); //
+		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
+				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setIp("127.0.0.1") //

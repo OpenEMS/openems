@@ -2,17 +2,12 @@ package io.openems.edge.bridge.http.api;
 
 import static java.util.Collections.emptyMap;
 
-import java.util.Collection;
-import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import com.google.gson.JsonElement;
 
 import io.openems.common.function.ThrowingConsumer;
-import io.openems.common.utils.FunctionUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 
@@ -55,29 +50,20 @@ public interface BridgeHttpCycle {
 			/**
 			 * The url which should be fetched.
 			 */
-			Supplier<Endpoint> endpoint, //
+			Endpoint endpoint, //
 			/**
 			 * The callback to execute on every successful result.
 			 */
-			Consumer<HttpResponse<String>> onResult, //
+			Consumer<String> result, //
 			/**
 			 * The callback to execute on every error.
 			 */
-			Consumer<HttpError> onError //
+			Consumer<Throwable> onError //
 	) {
-
-		public CycleEndpoint {
-			Objects.requireNonNull(endpoint, "Endpoint of CycleEndpoint must not be null!");
-			Objects.requireNonNull(onResult, "OnResult of CycleEndpoint must not be null!");
-			Objects.requireNonNull(onError, "OnError of CycleEndpoint must not be null!");
-			if (cycle < 1) {
-				throw new IllegalArgumentException("Cycle of CycleEndpoint must not be lower than 1!");
-			}
-		}
 
 		@Override
 		public String toString() {
-			return "CycleEndpoint [cycle=" + this.cycle + ", url=" + this.endpoint.get().url() + "]";
+			return "Endpoint [cycle=" + this.cycle() + ", url=" + this.endpoint.url() + "]";
 		}
 
 	}
@@ -86,10 +72,8 @@ public interface BridgeHttpCycle {
 	 * Subscribes to one http endpoint.
 	 * 
 	 * @param endpoint the {@link CycleEndpoint} configuration
-	 * @return the added {@link CycleEndpoint} (always the provided one); or null if
-	 *         the {@link CycleEndpoint} could not be added
 	 */
-	public CycleEndpoint subscribeCycle(CycleEndpoint endpoint);
+	public void subscribeCycle(CycleEndpoint endpoint);
 
 	/**
 	 * Subscribes to one http endpoint.
@@ -102,10 +86,8 @@ public interface BridgeHttpCycle {
 	 * @param cycle  the number of cycles to wait between requests
 	 * @param url    the url of the enpoint
 	 * @param result the consumer to call on every successful result
-	 * @return the added {@link CycleEndpoint}; or null if the {@link CycleEndpoint}
-	 *         could not be added
 	 */
-	public default CycleEndpoint subscribeCycle(int cycle, String url, Consumer<HttpResponse<String>> result) {
+	public default void subscribeCycle(int cycle, String url, Consumer<String> result) {
 		final var endpoint = new Endpoint(//
 				url, //
 				HttpMethod.GET, //
@@ -114,7 +96,7 @@ public interface BridgeHttpCycle {
 				null, //
 				emptyMap() //
 		);
-		return this.subscribeCycle(new CycleEndpoint(cycle, () -> endpoint, result, FunctionUtils::doNothing));
+		this.subscribeCycle(new CycleEndpoint(cycle, endpoint, result, BridgeHttp.EMPTY_ERROR_HANDLER));
 	}
 
 	/**
@@ -125,18 +107,16 @@ public interface BridgeHttpCycle {
 	 * the next get request to the url gets send when the last was finished either
 	 * successfully or with an error.
 	 * 
-	 * @param cycle    the number of cycles to wait between requests
-	 * @param url      the url of the enpoint
-	 * @param onResult the consumer to call on every successful result
-	 * @param onError  the consumer to call on a error
-	 * @return the added {@link CycleEndpoint}; or null if the {@link CycleEndpoint}
-	 *         could not be added
+	 * @param cycle   the number of cycles to wait between requests
+	 * @param url     the url of the enpoint
+	 * @param result  the consumer to call on every successful result
+	 * @param onError the consumer to call on a error
 	 */
-	public default CycleEndpoint subscribeCycle(//
+	public default void subscribeCycle(//
 			final int cycle, //
 			final String url, //
-			final ThrowingConsumer<HttpResponse<String>, Exception> onResult, //
-			final Consumer<HttpError> onError //
+			final ThrowingConsumer<String, Exception> result, //
+			final Consumer<Throwable> onError //
 	) {
 		final var endpoint = new Endpoint(//
 				url, //
@@ -146,63 +126,11 @@ public interface BridgeHttpCycle {
 				null, //
 				emptyMap() //
 		);
-		return this.subscribeCycle(cycle, endpoint, onResult, onError);
-	}
-
-	/**
-	 * Subscribes to one http endpoint.
-	 * 
-	 * <p>
-	 * Tries to fetch data every n-cycle. If receiving data takes more than n-cycle
-	 * the next get request to the url gets send when the last was finished either
-	 * successfully or with an error.
-	 * 
-	 * @param cycle    the number of cycles to wait between requests
-	 * @param endpoint the {@link Endpoint} to fetch
-	 * @param onResult the consumer to call on every successful result
-	 * @param onError  the consumer to call on a error
-	 * @return the added {@link CycleEndpoint}; or null if the {@link CycleEndpoint}
-	 *         could not be added
-	 */
-	public default CycleEndpoint subscribeCycle(//
-			final int cycle, //
-			final Endpoint endpoint, //
-			final ThrowingConsumer<HttpResponse<String>, Exception> onResult, //
-			final Consumer<HttpError> onError //
-	) {
-		return this.subscribeCycle(cycle, () -> endpoint, onResult, onError);
-	}
-
-	/**
-	 * Subscribes to one http endpoint.
-	 * 
-	 * <p>
-	 * Tries to fetch data every n-cycle. If receiving data takes more than n-cycle
-	 * the next get request to the url gets send when the last was finished either
-	 * successfully or with an error.
-	 * 
-	 * @param cycle            the number of cycles to wait between requests
-	 * @param endpointSupplier the supplier to get the {@link Endpoint} to fetch;
-	 *                         the {@link Supplier} get called right before the
-	 *                         fetch happens
-	 * @param onResult         the consumer to call on every successful result
-	 * @param onError          the consumer to call on a error
-	 * @return the added {@link CycleEndpoint}; or null if the {@link CycleEndpoint}
-	 *         could not be added
-	 */
-	public default CycleEndpoint subscribeCycle(//
-			final int cycle, //
-			final Supplier<Endpoint> endpointSupplier, //
-			final ThrowingConsumer<HttpResponse<String>, Exception> onResult, //
-			final Consumer<HttpError> onError //
-	) {
-		return this.subscribeCycle(new CycleEndpoint(cycle, endpointSupplier, t -> {
+		this.subscribeCycle(new CycleEndpoint(cycle, endpoint, t -> {
 			try {
-				onResult.accept(t);
-			} catch (HttpError e) {
-				onError.accept(e);
+				result.accept(t);
 			} catch (Exception e) {
-				onError.accept(new HttpError.UnknownError(e));
+				onError.accept(e);
 			}
 		}, onError));
 	}
@@ -220,15 +148,13 @@ public interface BridgeHttpCycle {
 	 * @param action the action to perform; the first is the result of the endpoint
 	 *               if existing and the second argument is passed if an error
 	 *               happend. One of the params is always null and one not
-	 * @return the added {@link CycleEndpoint}; or null if the {@link CycleEndpoint}
-	 *         could not be added
 	 */
-	public default CycleEndpoint subscribeCycle(//
+	public default void subscribeCycle(//
 			final int cycle, //
 			final String url, //
-			final BiConsumer<HttpResponse<String>, HttpError> action //
+			final BiConsumer<String, Throwable> action //
 	) {
-		return this.subscribeCycle(cycle, url, r -> action.accept(r, null), t -> action.accept(null, t));
+		this.subscribeCycle(cycle, url, r -> action.accept(r, null), t -> action.accept(null, t));
 	}
 
 	/**
@@ -239,18 +165,16 @@ public interface BridgeHttpCycle {
 	 * the next get request to the url gets send when the last was finished either
 	 * successfully or with an error.
 	 * 
-	 * @param url      the url of the enpoint
-	 * @param onResult the consumer to call on every successful result
-	 * @param onError  the consumer to call on a error
-	 * @return the added {@link CycleEndpoint}; or null if the {@link CycleEndpoint}
-	 *         could not be added
+	 * @param url     the url of the enpoint
+	 * @param result  the consumer to call on every successful result
+	 * @param onError the consumer to call on a error
 	 */
-	public default CycleEndpoint subscribeEveryCycle(//
+	public default void subscribeEveryCycle(//
 			final String url, //
-			final ThrowingConsumer<HttpResponse<String>, Exception> onResult, //
-			final Consumer<HttpError> onError //
+			final ThrowingConsumer<String, Exception> result, //
+			final Consumer<Throwable> onError //
 	) {
-		return this.subscribeCycle(1, url, onResult, onError);
+		this.subscribeCycle(1, url, result, onError);
 	}
 
 	/**
@@ -265,14 +189,12 @@ public interface BridgeHttpCycle {
 	 * @param action the action to perform; the first is the result of the endpoint
 	 *               if existing and the second argument is passed if an error
 	 *               happend. One of the params is always null and one not
-	 * @return the added {@link CycleEndpoint}; or null if the {@link CycleEndpoint}
-	 *         could not be added
 	 */
-	public default CycleEndpoint subscribeEveryCycle(//
+	public default void subscribeEveryCycle(//
 			final String url, //
-			final BiConsumer<HttpResponse<String>, HttpError> action //
+			final BiConsumer<String, Throwable> action //
 	) {
-		return this.subscribeCycle(1, url, r -> action.accept(r, null), t -> action.accept(null, t));
+		this.subscribeCycle(1, url, r -> action.accept(r, null), t -> action.accept(null, t));
 	}
 
 	/**
@@ -285,14 +207,12 @@ public interface BridgeHttpCycle {
 	 * 
 	 * @param url    the url of the enpoint
 	 * @param result the consumer to call on every successful result
-	 * @return the added {@link CycleEndpoint}; or null if the {@link CycleEndpoint}
-	 *         could not be added
 	 */
-	public default CycleEndpoint subscribeEveryCycle(//
+	public default void subscribeEveryCycle(//
 			final String url, //
-			final Consumer<HttpResponse<String>> result //
+			final Consumer<String> result //
 	) {
-		return this.subscribeCycle(1, url, result);
+		this.subscribeCycle(1, url, result);
 	}
 
 	/**
@@ -307,16 +227,14 @@ public interface BridgeHttpCycle {
 	 * @param url     the url of the enpoint
 	 * @param result  the consumer to call on every successful result
 	 * @param onError the consumer to call on a error
-	 * @return the added {@link CycleEndpoint}; or null if the {@link CycleEndpoint}
-	 *         could not be added
 	 */
-	public default CycleEndpoint subscribeJsonCycle(//
+	public default void subscribeJsonCycle(//
 			final int cycle, //
 			final String url, //
-			final ThrowingConsumer<HttpResponse<JsonElement>, Exception> result, //
-			final Consumer<HttpError> onError //
+			final ThrowingConsumer<JsonElement, Exception> result, //
+			final Consumer<Throwable> onError //
 	) {
-		return this.subscribeCycle(cycle, url, t -> result.accept(t.withData(JsonUtils.parse(t.data()))), onError);
+		this.subscribeCycle(cycle, url, t -> result.accept(JsonUtils.parse(t)), onError);
 	}
 
 	/**
@@ -332,16 +250,13 @@ public interface BridgeHttpCycle {
 	 * @param action the action to perform; the first is the result of the endpoint
 	 *               if existing and the second argument is passed if an error
 	 *               happend. One of the params is always null and one not
-	 * @return the added {@link CycleEndpoint}; or null if the {@link CycleEndpoint}
-	 *         could not be added
 	 */
-	public default CycleEndpoint subscribeJsonCycle(//
+	public default void subscribeJsonCycle(//
 			final int cycle, //
 			final String url, //
-			final BiConsumer<HttpResponse<JsonElement>, HttpError> action //
+			final BiConsumer<JsonElement, Throwable> action //
 	) {
-		return this.subscribeCycle(cycle, url, t -> action.accept(t.withData(JsonUtils.parse(t.data())), null),
-				t -> action.accept(null, t));
+		this.subscribeCycle(cycle, url, t -> action.accept(JsonUtils.parse(t), null), t -> action.accept(null, t));
 	}
 
 	/**
@@ -352,18 +267,16 @@ public interface BridgeHttpCycle {
 	 * the next get request to the url gets send when the last was finished either
 	 * successfully or with an error.
 	 * 
-	 * @param url      the url of the enpoint
-	 * @param onResult the consumer to call on every successful result
-	 * @param onError  the consumer to call on a error
-	 * @return the added {@link CycleEndpoint}; or null if the {@link CycleEndpoint}
-	 *         could not be added
+	 * @param url     the url of the enpoint
+	 * @param result  the consumer to call on every successful result
+	 * @param onError the consumer to call on a error
 	 */
-	public default CycleEndpoint subscribeJsonEveryCycle(//
+	public default void subscribeJsonEveryCycle(//
 			final String url, //
-			final ThrowingConsumer<HttpResponse<JsonElement>, Exception> onResult, //
-			final Consumer<HttpError> onError //
+			final ThrowingConsumer<JsonElement, Exception> result, //
+			final Consumer<Throwable> onError //
 	) {
-		return this.subscribeJsonCycle(1, url, onResult, onError);
+		this.subscribeJsonCycle(1, url, result, onError);
 	}
 
 	/**
@@ -378,42 +291,12 @@ public interface BridgeHttpCycle {
 	 * @param action the action to perform; the first is the result of the endpoint
 	 *               if existing and the second argument is passed if an error
 	 *               happend. One of the params is always null and one not
-	 * @return the added {@link CycleEndpoint}; or null if the {@link CycleEndpoint}
-	 *         could not be added
 	 */
-	public default CycleEndpoint subscribeJsonEveryCycle(//
+	public default void subscribeJsonEveryCycle(//
 			final String url, //
-			final BiConsumer<HttpResponse<JsonElement>, HttpError> action //
+			final BiConsumer<JsonElement, Throwable> action //
 	) {
-		return this.subscribeJsonCycle(1, url, r -> action.accept(r, null), t -> action.accept(null, t));
-	}
-
-	/**
-	 * Removes a {@link CycleEndpoint} if it matches the provided {@link Predicate}.
-	 * 
-	 * @param condition the {@link Predicate} to match
-	 * @return the removed {@link CycleEndpoint CycleEndpoints}
-	 */
-	public Collection<CycleEndpoint> removeCycleEndpointIf(Predicate<CycleEndpoint> condition);
-
-	/**
-	 * Removes all active {@link CycleEndpoint CycleEndpoints}.
-	 * 
-	 * @return the removed {@link CycleEndpoint CycleEndpoints}
-	 */
-	public default Collection<CycleEndpoint> removeAllCycleEndpoints() {
-		return this.removeCycleEndpointIf(t -> true);
-	}
-
-	/**
-	 * Removes a {@link CycleEndpoint} if it matches the provided
-	 * {@link CycleEndpoint}.
-	 * 
-	 * @param cycleEndpoint the {@link CycleEndpoint} to match
-	 * @return the removed {@link CycleEndpoint CycleEndpoints}
-	 */
-	public default boolean removeCycleEndpoint(CycleEndpoint cycleEndpoint) {
-		return !this.removeCycleEndpointIf(Predicate.isEqual(cycleEndpoint)).isEmpty();
+		this.subscribeJsonCycle(1, url, r -> action.accept(r, null), t -> action.accept(null, t));
 	}
 
 }

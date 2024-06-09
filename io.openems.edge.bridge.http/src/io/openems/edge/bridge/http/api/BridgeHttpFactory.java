@@ -31,11 +31,12 @@ import org.osgi.service.component.annotations.Reference;
 @Component(service = BridgeHttpFactory.class)
 public class BridgeHttpFactory {
 
-	private final ComponentServiceObjects<BridgeHttp> csoBridgeHttp;
+	@Reference
+	private ComponentServiceObjects<BridgeHttp> csoBridgeHttp;
 
 	@Activate
-	public BridgeHttpFactory(@Reference ComponentServiceObjects<BridgeHttp> csoBridgeHttp) {
-		this.csoBridgeHttp = csoBridgeHttp;
+	public BridgeHttpFactory() {
+
 	}
 
 	/**

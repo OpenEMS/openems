@@ -1,5 +1,6 @@
 package io.openems.edge.controller.api.websocket.handler;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +29,7 @@ import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.user.User;
 import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.websocket.OnRequest;
+import io.openems.edge.controller.api.websocket.Utils;
 import io.openems.edge.controller.api.websocket.WsData;
 
 @Component(property = "entry=" + RootRequestHandler.ENTRY_POINT)
@@ -94,7 +96,8 @@ public class AuthenticationRequestHandler implements JsonApi {
 		this.sessionTokens.put(token, user);
 		this.log.info("User [" + user.getId() + ":" + user.getName() + "] connected.");
 
-		return new AuthenticateResponse(requestId, token, user, Language.DEFAULT);
+		return new AuthenticateResponse(requestId, token, user, List.of(Utils.getEdgeMetadata(user.getRole())),
+				Language.DEFAULT);
 	}
 
 }

@@ -905,8 +905,7 @@
       "password": "Password",
       "confirmPassword": "Confirm password",
       "company": "Company",
-      "confirmEmail": "confirm E-Mail",
-      "PRIVATE": "Private"
+      "confirmEmail": "confirm E-Mail"
     },
     "button": "Create",
     "errors": {

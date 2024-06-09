@@ -19,7 +19,6 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
   @Input() public component: EdgeConfig.Component;
   @Input() public outputChannel: ChannelAddress | null = null;
   @Input() public inputChannel: ChannelAddress;
-  @Input() public inputChannelUnit: string | null = null;
 
   public formGroup: FormGroup;
 

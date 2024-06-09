@@ -6,10 +6,11 @@ import { PersistencePriority } from 'src/app/shared/edge/edgeconfig';
 import { SetChannelValueRequest } from 'src/app/shared/jsonrpc/request/setChannelValueRequest';
 import { environment } from 'src/environments';
 
-import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Websocket } from '../../../shared/shared';
-import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
-import { Channel, GetChannelsOfComponentResponse } from 'src/app/shared/jsonrpc/response/getChannelsOfComponentResponse';
-import { GetChannelsOfComponentRequest } from 'src/app/shared/jsonrpc/request/getChannelsOfComponentRequest';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
+
+export type ComponentChannels = {
+  [componentId: string]: ChannelAddress[];
+}
 
 @Component({
   selector: ChannelsComponent.SELECTOR,
@@ -23,12 +24,10 @@ export class ChannelsComponent {
   protected readonly environment = environment;
   protected edge: Edge = null;
   protected config: EdgeConfig = null;
-  private persistencePriority: string = PersistencePriority.DEFAULT_GLOBAL_PRIORITY;
-  protected channelsPerComponent = new Map<string, ComponentChannels>();
-
-  protected selectedComponentChannels = new Map<string, Map<string, { showPersistencePriority: boolean }>>();
-  // TODO should be a simple SET but equality checking in SETs is currently not changeable and therefore not very useful for objects
-  private subscribedChannels = new Map<string, ChannelAddress>();
+  protected channelsToBeSubscribed: ChannelAddress[] = [];
+  private channels: ChannelAddress[] = [];
+  protected componentChannels: ComponentChannels[] = [];
+  protected componentChannelConfig: Map<string, EdgeConfig.ComponentChannel & { showPersistencePriority: boolean }> = new Map();
 
   constructor(
     private service: Service,
@@ -48,71 +47,66 @@ export class ChannelsComponent {
     });
     this.service.getConfig().then(config => {
       this.config = config;
-      this.persistencePriority = this.config.getComponentsByFactory("Controller.Api.Backend")?.[0]?.properties['persistencePriority'] ?? PersistencePriority.DEFAULT_GLOBAL_PRIORITY;
       this.service.startSpinner(this.spinnerId);
-      this.loadSavedChannels().then(message => {
-        if (message) {
-          this.service.toast(message, 'success');
-        }
-      }).catch(reason => {
-        this.service.toast(reason, 'danger');
-      }).finally(() => {
-        this.service.stopSpinner(this.spinnerId);
-      });
+      this.loadSavedChannels();
     });
   }
 
   /**
-   * Subscribes a channel.
+   * Subscribes a channel
    *
    * @param componentId the componentId
    * @param channelId the channelId
    */
-  protected async subscribeChannel(componentId: string, channelId: string): Promise<void> {
-    const channelEntry = {
-      showPersistencePriority: true,
-    };
-    let selectedChannels = this.selectedComponentChannels.get(componentId);
-    if (!selectedChannels) {
-      selectedChannels = new Map();
-      this.selectedComponentChannels.set(componentId, selectedChannels);
+  protected subscribeChannel(componentId: string, channelId: string): void {
+    const address = new ChannelAddress(componentId, channelId);
+    if (this.componentChannels[componentId]?.filter(element => element.channelId == address.channelId)?.length === 0) {
+      this.componentChannels[componentId].push(address);
+    } else {
+      this.componentChannels[componentId] = [address];
     }
-    selectedChannels.set(channelId, channelEntry);
+    this.channelsToBeSubscribed.push(address);
+    this.componentChannelConfig.set(address.toString(), { ...this.config.getChannel(address), ...{ showPersistencePriority: false } });
 
-    const channelData = await this.getChannel(componentId, channelId);
-    channelEntry.showPersistencePriority = PersistencePriority.isLessThan(channelData.persistencePriority, this.persistencePriority);
+    if (this.config) {
+      const globalPersistencePriority = this.config.getComponentsByFactory("Controller.Api.Backend")?.[0]?.properties['persistencePriority'] ?? PersistencePriority.DEFAULT_GLOBAL_PRIORITY;
 
-    if (channelData.accessMode != 'WO') {
-      const channelAddress = new ChannelAddress(componentId, channelId);
-      this.subscribedChannels.set(channelAddress.toString(), channelAddress);
-      if (this.edge) {
-        this.edge.subscribeChannels(this.websocket, ChannelsComponent.SELECTOR, Array.from(this.subscribedChannels.values()));
+      const channelConfig = this.config.getChannel(address);
+      if (channelConfig) {
+        if (channelConfig.accessMode == "WO") {
+          // do not subscribe Write-Only Channels
+          return;
+        }
+
+        if (PersistencePriority.isLessThan(channelConfig.persistencePriority, globalPersistencePriority)) {
+          this.componentChannelConfig.set(address.toString(), { ...this.config.getChannel(address), ...{ showPersistencePriority: true } });
+        }
       }
     }
-    this.saveChannelsInUrl();
-  }
 
+    if (this.edge) {
+      this.edge.subscribeChannels(this.websocket, ChannelsComponent.SELECTOR, this.channelsToBeSubscribed);
+    }
+    this.saveChannels();
+  }
   /**
    * Unsubscribes a channel
    *
    * @param channelAddress the channelAddress to be unsubscribed
    */
-  protected unsubscribeChannel(componentId: string, channelId: string): void {
-    const channels = this.selectedComponentChannels.get(componentId);
-    if (channels) {
-      channels.delete(channelId);
+  protected unsubscribeChannel(channelAddress: ChannelAddress): void {
+    this.componentChannels[channelAddress.componentId] = this.componentChannels[channelAddress.componentId]?.
+      filter(element => element.channelId !== channelAddress.channelId);
 
-      if (channels.size === 0) {
-        this.selectedComponentChannels.delete(componentId);
+    if (this.componentChannels[channelAddress.componentId]?.length === 0) {
+      delete this.componentChannels[channelAddress.componentId];
+    }
+    this.channelsToBeSubscribed.forEach((item, index) => {
+      if (item.componentId === channelAddress.componentId && item.channelId === channelAddress.channelId) {
+        this.channelsToBeSubscribed.splice(index, 1);
       }
-    }
-
-    const channelAddress = new ChannelAddress(componentId, channelId);
-    if (this.subscribedChannels.delete(channelAddress.toString())) {
-      this.edge.subscribeChannels(this.websocket, ChannelsComponent.SELECTOR, Array.from(this.subscribedChannels.values()));
-    }
-
-    this.saveChannelsInUrl();
+    });
+    this.saveChannels();
   }
 
   protected setChannelValue(address: ChannelAddress, channelValue: any) {
@@ -132,166 +126,46 @@ export class ChannelsComponent {
     }
   }
 
-  private saveChannelsInUrl(): void {
-    const selectedChannels = this.getSelectedChannelStrings();
-    if (selectedChannels && selectedChannels.length > 0) {
-      this.router.navigate(['device/' + (this.edge.id) + '/settings/channels/'], { queryParams: { save: selectedChannels.toString() } });
-    } else {
-      this.router.navigate(['device/' + (this.edge.id) + '/settings/channels/']);
-    }
+  /**
+   * Saves Channels as queryParams in route
+   *  and navigates to the new route
+   */
+  private saveChannels(): void {
+    const data = Object.entries(this.channelsToBeSubscribed).map(([componentId, channels]) => {
+      return channels.toString();
+    }).toString();
+    this.router.navigate(['device/' + (this.edge.id) + '/settings/channels/'], { queryParams: { save: data } });
   }
 
-  protected saveChannelsInLocalStorage() {
-    const selectedChannels = this.getSelectedChannels();
-    if (selectedChannels && selectedChannels.length > 0) {
-      localStorage.setItem(ChannelsComponent.URL_PREFIX + "-" + this.edge.id, JSON.stringify(selectedChannels));
-    } else {
-      localStorage.removeItem(ChannelsComponent.URL_PREFIX + "-" + this.edge.id);
-    }
+  /**
+   * Saves channels for the current edge in localstorage
+   */
+  protected localSave() {
+    const dataStr = JSON.stringify(this.channelsToBeSubscribed);
+    localStorage.setItem(ChannelsComponent.URL_PREFIX + "-" + this.edge.id, dataStr);
     this.service.toast("Successfully saved subscribed channels", "success");
   }
 
-  private getSelectedChannelStrings(): string[] {
-    return this.getSelectedChannels().map(e => e.toString());
-  }
-
-  private getSelectedChannels(): ChannelAddress[] {
-    const channels: ChannelAddress[] = [];
-    for (const [componentId, value] of this.selectedComponentChannels.entries()) {
-      for (const [channelId] of value.entries()) {
-        channels.push(new ChannelAddress(componentId, channelId));
-      }
-    }
-    return channels;
-  }
-
-  private async loadSavedChannels(): Promise<string> {
+  protected loadSavedChannels() {
+    this.service.startSpinner(ChannelsComponent.SELECTOR);
     const address = this.route.snapshot.queryParamMap.get('save');
-    if (address) {
-      const channels = address.split(',')?.map(element => ChannelAddress.fromString(element));
-      try {
-        await Promise.all(channels.map(el => this.subscribeChannel(el.componentId, el.channelId)));
-        return 'Successfully loaded saved channels from url';
-      } catch (reason) {
-        throw 'Some channels may not have been loaded from url: ' + reason;
-      }
-    }
-
     const storedValue = localStorage.getItem(ChannelsComponent.URL_PREFIX + "-" + this.edge.id);
-    if (storedValue) {
-      const savedData: ChannelAddress[] = JSON.parse(storedValue);
-      try {
-        await Promise.all(savedData.map(el => this.subscribeChannel(el.componentId, el.channelId)));
-        return 'Successfully loaded saved channels from session';
-      } catch (reason) {
-        throw 'Some channels may not have been loaded from session: ' + reason;
-      }
+    if (address) {
+      this.channels = address.split(',')?.map(element => ChannelAddress.fromString(element));
+      this.channels.map(el => this.subscribeChannel(el.componentId, el.channelId));
+    } else if (storedValue) {
+      const savedData = JSON.parse(storedValue);
+      savedData.map(el => this.subscribeChannel(el.componentId, el.channelId));
+      this.service.toast("Successfully loaded saved channels", "success");
     }
-  }
-
-  protected onSelectedComponentChanged(event) {
-    const componentId: string = event.detail.value;
-
-    if (!componentId || this.channelsPerComponent.has(componentId)) {
-      return;
-    }
-
-    this.loadChannelsAndStore(componentId).then(() => {
-      // ignore
-    }).catch(reason => {
-      this.service.toast('Unable to load channels for ' + componentId + ': ' + reason, 'danger');
-    });
-  }
-
-  private getChannel(componentId: string, channelId: string): Promise<Channel> {
-    return new Promise((resolve, reject) => {
-      // check if channels of component are already loaded
-      const componentEntry = this.channelsPerComponent.get(componentId);
-      if (componentEntry && !componentEntry.activeRequest) {
-        const channel = componentEntry.channels[channelId];
-        if (channel) {
-          resolve(channel);
-        } else {
-          reject(channelId + ' is not defined by component ' + componentId);
-        }
-        return;
-      }
-      // get channels from edge and store
-      this.loadChannelsAndStore(componentId).then(channels => {
-        const channel = channels.channels[channelId];
-        if (channel) {
-          resolve(channel);
-        } else {
-          reject(channelId + ' is not defined by component ' + componentId);
-        }
-      }).catch(reject);
-    });
-  }
-
-  private loadChannels(componentId: string): Promise<Channel[]> {
-    return new Promise((resolve, reject) => {
-      if (EdgePermission.hasChannelsInEdgeConfig(this.edge)) {
-        const component = this.config.components[componentId];
-        if (!component) {
-          reject();
-          return;
-        }
-        const channels: Channel[] = [];
-        for (const [key, value] of Object.entries(component.channels)) {
-          channels.push({
-            id: key,
-            ...value,
-          });
-        }
-        resolve(channels);
-        return;
-      }
-
-      this.edge.sendRequest(this.websocket, new ComponentJsonApiRequest({
-        componentId: '_componentManager',
-        payload: new GetChannelsOfComponentRequest({ componentId: componentId }),
-      })).then((response: GetChannelsOfComponentResponse) => {
-        resolve(response.result.channels);
-      }).catch(reject);
-    });
-  }
-
-  private loadChannelsAndStore(componentId: string): Promise<ComponentChannels> {
-    return new Promise((resolve, reject) => {
-      if (!componentId) {
-        reject();
-        return;
-      }
-      let componentEntry: ComponentChannels;
-      if (!this.channelsPerComponent.has(componentId)) {
-        componentEntry = { channels: {} };
-        this.channelsPerComponent.set(componentId, componentEntry);
-      } else {
-        componentEntry = this.channelsPerComponent.get(componentId);
-      }
-
-      this.service.startSpinnerTransparentBackground(componentId);
-      const request = componentEntry.activeRequest ?? (componentEntry.activeRequest = this.loadChannels(componentId));
-      request.then(channels => {
-        channels.forEach(channel => {
-          componentEntry.channels[channel.id] = channel;
-        });
-        resolve(componentEntry);
-      }).catch(reject)
-        .finally(() => {
-          componentEntry.activeRequest = undefined;
-          this.service.stopSpinner(componentId);
-        });
-    });
+    this.service.stopSpinner(this.spinnerId);
   }
 
   ionViewDidLeave() {
-    this.selectedComponentChannels = new Map();
-    this.edge?.unsubscribeChannels(this.websocket, ChannelsComponent.SELECTOR);
+    this.componentChannels = [];
+    this.channelsToBeSubscribed = [];
+    if (this.edge != null) {
+      this.edge.unsubscribeChannels(this.websocket, ChannelsComponent.SELECTOR);
+    }
   }
 }
-
-type ComponentChannels = {
-  activeRequest?: Promise<Channel[]>,
-  channels: { [channelId: string]: Channel },
-};

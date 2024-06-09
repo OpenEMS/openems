@@ -1,6 +1,6 @@
-package io.openems.edge.timeofusetariff.api.utils;
+package io.openems.edge.timeofusetariff.entsoe;
 
-import static io.openems.edge.timeofusetariff.api.utils.ExchangeRateApi.getExchangeRate;
+import static io.openems.edge.timeofusetariff.entsoe.ExchangeRateApi.getExchangeRate;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;

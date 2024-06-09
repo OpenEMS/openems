@@ -22,12 +22,6 @@ import { Role } from '../type/role';
 import { SystemLog } from '../type/systemlog';
 import { CurrentData } from './currentdata';
 import { EdgeConfig } from './edgeconfig';
-import { ComponentJsonApiRequest } from '../jsonrpc/request/componentJsonApiRequest';
-import { GetChannelRequest } from '../jsonrpc/request/getChannelRequest';
-import { GetChannelResponse } from '../jsonrpc/response/getChannelResponse';
-import { Channel, GetChannelsOfComponentResponse } from '../jsonrpc/response/getChannelsOfComponentResponse';
-import { GetChannelsOfComponentRequest } from '../jsonrpc/request/getChannelsOfComponentRequest';
-import { EdgePermission } from '../shared';
 
 export class Edge {
 
@@ -69,63 +63,6 @@ export class Edge {
       this.refreshConfig(websocket);
     }
     return this.config;
-  }
-
-  /**
-   * Gets a channel either from {@link EdgeConfig edgeconfig} or requests it from the edge.
-   *
-   * @param websocket the websocket to send a request if the
-   *                  channel is not included in the edgeconfig
-   * @param channel   the address of the channel to get
-   * @returns a promise of the found channel
-   */
-  public async getChannel(websocket: Websocket, channel: ChannelAddress): Promise<Channel> {
-    if (EdgePermission.hasChannelsInEdgeConfig(this)) {
-      const config = await this.getConfig(websocket);
-      const foundChannel = config.value.getChannel(channel);
-      if (!foundChannel) {
-        throw new Error("Channel not found: " + channel);
-      }
-      return { id: channel.channelId, ...foundChannel };
-    }
-
-    const response = await this.sendRequest<GetChannelResponse>(websocket, new ComponentJsonApiRequest({
-      componentId: '_componentManager',
-      payload: new GetChannelRequest({
-        componentId: channel.componentId,
-        channelId: channel.channelId,
-      }),
-    }));
-
-    return response.result.channel;
-  }
-
-  /**
-   * Gets all channels of the component with the provided component id.
-   *
-   * @param websocket   the websocket to send a request if the
-   *                    channels are not included in the edgeconfig
-   * @param componentId the id of the component
-   * @returns a promise with the reuslt channels
-   */
-  public async getChannels(websocket: Websocket, componentId: string): Promise<Channel[]> {
-    if (EdgePermission.hasChannelsInEdgeConfig(this)) {
-      const config = await this.getConfig(websocket);
-      const component = config.value.components[componentId];
-      if (!component) {
-        throw new Error('Component not found');
-      }
-      return Object.entries(component.channels).reduce((p, c) => {
-        return [...p, { id: c[0], ...c[1] }];
-      }, []);
-    }
-
-    const response = await this.sendRequest<GetChannelsOfComponentResponse>(websocket, new ComponentJsonApiRequest({
-      componentId: '_componentManager',
-      payload: new GetChannelsOfComponentRequest({ componentId: componentId }),
-    }));
-
-    return response.result.channels;
   }
 
   /**
@@ -341,7 +278,7 @@ export class Edge {
    * @param request          the JSON-RPC Request
    * @param responseCallback the JSON-RPC Response callback
    */
-  public sendRequest<T = JsonrpcResponseSuccess>(ws: Websocket, request: JsonrpcRequest): Promise<T> {
+  public sendRequest(ws: Websocket, request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
     const wrap = new EdgeRpcRequest({ edgeId: this.id, payload: request });
     return new Promise((resolve, reject) => {
       ws.sendRequest(wrap).then(response => {

@@ -1,40 +1,34 @@
 package io.openems.edge.bridge.http.time;
 
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import java.time.Duration;
 
 public class DefaultDelayTimeProvider implements DelayTimeProvider {
 
-	private final Supplier<Delay> onFirstRunDelay;
-	private final Function<HttpError, Delay> onErrorDelay;
-	private final Function<HttpResponse<String>, Delay> onSuccessDelay;
+	private final DelayTimeProviderChain firstRunDelay;
+	private final DelayTimeProviderChain onErrorDelay;
+	private final DelayTimeProviderChain onSuccessDelay;
 
 	public DefaultDelayTimeProvider(//
-			Supplier<Delay> onFirstRunDelay, //
-			Function<HttpError, Delay> onErrorDelay, //
-			Function<HttpResponse<String>, Delay> onSuccessDelay //
+			DelayTimeProviderChain firstRunDelay, //
+			DelayTimeProviderChain onErrorDelay, //
+			DelayTimeProviderChain onSuccessDelay //
 	) {
-		this.onFirstRunDelay = onFirstRunDelay;
-		this.onErrorDelay = onErrorDelay;
+		this.firstRunDelay = firstRunDelay == null ? onSuccessDelay : firstRunDelay;
+		this.onErrorDelay = onErrorDelay == null ? onSuccessDelay : onErrorDelay;
 		this.onSuccessDelay = onSuccessDelay;
 	}
 
 	@Override
-	public Delay onFirstRunDelay() {
-		return this.onFirstRunDelay.get();
-	}
+	public Duration nextRun(boolean firstRun, boolean lastRunSuccessful) {
+		if (firstRun) {
+			return this.firstRunDelay.getDelay();
+		}
 
-	@Override
-	public Delay onErrorRunDelay(HttpError error) {
-		return this.onErrorDelay.apply(error);
-	}
+		if (!lastRunSuccessful) {
+			return this.onErrorDelay.getDelay();
+		}
 
-	@Override
-	public Delay onSuccessRunDelay(HttpResponse<String> result) {
-		return this.onSuccessDelay.apply(result);
+		return this.onSuccessDelay.getDelay();
 	}
 
 }

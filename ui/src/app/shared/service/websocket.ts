@@ -168,7 +168,7 @@ export class Websocket implements WebsocketInterface {
         this.status = 'online';
 
         // received login token -> save in cookie
-        this.cookieService.set('token', authenticateResponse.token, { expires: 365, path: '/', sameSite: 'Strict', secure: location.protocol === 'https:' });
+        this.cookieService.set('token', authenticateResponse.token, { expires: 365, path: '/', sameSite: 'Strict' });
 
         this.service.currentUser = authenticateResponse.user;
 

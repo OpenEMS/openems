@@ -902,8 +902,7 @@
       "email": "E-Mail Adresse",
       "password": "Passwort",
       "confirmPassword": "Passwort wiederholen",
-      "confirmEmail": "E-Mail Adresse wiederholen",
-      "PRIVATE": "Privat"
+      "confirmEmail": "E-Mail Adresse wiederholen"
     },
     "button": "Anlegen",
     "errors": {

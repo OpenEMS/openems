@@ -24,7 +24,10 @@ public class IoShelly25ImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new IoShelly25Impl()) //
+		final var bridgeFactory = new DummyBridgeHttpFactory();
+		final var bridge = bridgeFactory.bridge;
+		final var sut = new IoShelly25Impl();
+		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //

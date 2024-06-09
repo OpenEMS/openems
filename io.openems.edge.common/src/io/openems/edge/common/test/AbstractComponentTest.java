@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.osgi.framework.BundleContext;
@@ -258,19 +257,6 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		 */
 		public TestCase onAfterWriteCallbacks(ThrowingRunnable<Exception> callback) {
 			this.onAfterWriteCallbacks.add(callback);
-			return this;
-		}
-
-		/**
-		 * Helper method to scope variables or logic specifically for this
-		 * {@link TestCase}.
-		 * 
-		 * @param consumer the {@link Consumer} which gets immediately executed with the
-		 *                 current {@link TestCase}
-		 * @return myself
-		 */
-		public TestCase also(Consumer<TestCase> consumer) {
-			consumer.accept(this);
 			return this;
 		}
 

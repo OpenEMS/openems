@@ -8,7 +8,7 @@
       leftColumnWidth="20">
     </oe-flat-widget-line>
     <oe-flat-widget-line *ngIf="isOtherInputAddress" [name]="'General.currentValue' | translate"
-      [value]="dependendOnValue + ' ' + (unitOfInputChannel ?? '')">
+      [value]="dependendOnValue + ' ' + unitOfInputChannel">
     </oe-flat-widget-line>
 
     <ng-container *ngIf="outputChannelValue !== null">

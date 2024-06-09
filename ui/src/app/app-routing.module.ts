@@ -106,7 +106,7 @@ const routes: Routes = [
       { path: 'settings/component.install/:factoryId', component: EdgeSettingsComponentInstallComponentComponent },
       { path: 'settings/component.update', component: EdgeSettingsComponentUpdateIndexComponentComponent },
       { path: 'settings/component.update/:componentId', component: EdgeSettingsComponentUpdateComponentComponent },
-      { path: 'settings/network', component: EdgeSettingsNetworkComponent, data: { navbarTitleToBeTranslated: 'Edge.Config.Index.networkConfiguration' } },
+      { path: 'settings/network', component: EdgeSettingsNetworkComponent },
       { path: 'settings/profile', component: EdgeSettingsProfileComponent },
       { path: 'settings/profile/:componentId', component: AliasUpdateComponent },
       { path: 'settings/systemexecute', component: EdgeSettingsSystemExecuteComponent },

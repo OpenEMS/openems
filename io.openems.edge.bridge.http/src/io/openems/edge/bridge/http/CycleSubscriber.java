@@ -1,4 +1,4 @@
-package io.openems.edge.bridge.http.api;
+package io.openems.edge.bridge.http;
 
 import java.util.HashSet;
 import java.util.Set;

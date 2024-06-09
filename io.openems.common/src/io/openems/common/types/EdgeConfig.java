@@ -40,7 +40,7 @@ import io.openems.common.utils.JsonUtils;
  */
 public class EdgeConfig {
 
-	private static final Logger LOG = LoggerFactory.getLogger(EdgeConfig.class);
+	private static Logger LOG = LoggerFactory.getLogger(EdgeConfig.class);
 
 	/**
 	 * Represents an instance of an OpenEMS Component.
@@ -1388,7 +1388,7 @@ public class EdgeConfig {
 	public synchronized JsonObject toJson() {
 		if (this._json == null) {
 			this._json = JsonUtils.buildJsonObject() //
-					.add("components", this.componentsToJson(JsonFormat.WITHOUT_CHANNELS)) //
+					.add("components", this.componentsToJson(JsonFormat.COMPLETE)) //
 					.add("factories", this.factoriesToJson()) //
 					.build();
 		}

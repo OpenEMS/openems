@@ -2,14 +2,14 @@
 <ion-content>
   <ion-grid>
     <ion-row class="ion-justify-content-center">
-      <ion-col *ngFor="let form of forms" size="12" size-xl="6">
+      <ion-col *ngFor="let form of forms; let i = index" size="12" size-xl="6">
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon size="large" slot="start" name="globe-outline" color="primary"></ion-icon>
             <ion-label> {{ form.name === 'eth0' ? 'LAN' : form.name + ' (INTERNAL)' }}</ion-label>
             <ion-text translate>Edge.Network.advancedMode</ion-text>
             <ion-toggle (ionChange)="form.model.advancedMode = !form.model.advancedMode; 
-              hideOrShowFields(form)">
+              hideOrShowFields(i,form.model.advancedMode)">
             </ion-toggle>
             <oe-help-button key="SETTINGS_NETWORK_CONFIGURATION"></oe-help-button>
           </ion-item>

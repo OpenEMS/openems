@@ -88,7 +88,7 @@ public interface EvcsHardyBarth {
 		RAW_ACTIVE_POWER_L3(Doc.of(OpenemsType.LONG).unit(Unit.WATT), value -> {
 			Double doubleValue = TypeUtils.getAsType(OpenemsType.DOUBLE, value);
 			return TypeUtils.getAsType(OpenemsType.LONG, TypeUtils.multiply(doubleValue, SCALE_FACTOR_MINUS_1));
-		}, "secc", "port0", "metering", "power", "active", "ac", "l3", "actual"), //
+		}, "secc", "port0", "metering", "power", "active", "ac", "l2", "actual"), //
 
 		// METERING - CURRENT
 		RAW_ACTIVE_CURRENT_L1(Doc.of(OpenemsType.LONG).unit(Unit.MILLIAMPERE), "secc", "port0", "metering", "current",

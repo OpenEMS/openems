@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
-import { EdgeConfig } from 'src/app/shared/shared';
+import { ChannelAddress, EdgeConfig } from 'src/app/shared/shared';
 
 import { Io_Api_DigitalInput_ModalComponent } from './modal/modal.component';
 
@@ -15,11 +15,22 @@ export class Io_Api_DigitalInputComponent extends AbstractFlatWidget {
     public ioComponents: EdgeConfig.Component[] = null;
     public ioComponentCount = 0;
 
-    protected override afterIsInitialized(): void {
+    protected override getChannelAddresses() {
+        const channels: ChannelAddress[] = [];
         this.service.getConfig().then(config => {
+
             this.ioComponents = config.getComponentsImplementingNature("io.openems.edge.io.api.DigitalInput").filter(component => component.isEnabled);
+            for (const component of this.ioComponents) {
+
+                for (const channel in component.channels) {
+                    channels.push(
+                        new ChannelAddress(component.id, channel),
+                    );
+                }
+            }
             this.ioComponentCount = this.ioComponents.length;
         });
+        return channels;
     }
 
     async presentModal() {

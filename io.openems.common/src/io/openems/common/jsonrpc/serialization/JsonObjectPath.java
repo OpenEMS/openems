@@ -28,23 +28,6 @@ public interface JsonObjectPath extends JsonPath {
 	}
 
 	/**
-	 * Gets the enum value of the element associated with the member name of this
-	 * object.
-	 * 
-	 * @param <T>       the type of the enum
-	 * @param member    the name of the member
-	 * @param enumClass the class of the enum
-	 * @return the enum value
-	 */
-	public default <T extends Enum<T>> T getEnum(String member, Class<T> enumClass) {
-		try {
-			return Enum.valueOf(enumClass, this.getString(member));
-		} catch (Exception e) {
-			return enumClass.getEnumConstants()[0];
-		}
-	}
-
-	/**
 	 * Gets the element associated with the member name from this object as a
 	 * {@link String}.
 	 * 

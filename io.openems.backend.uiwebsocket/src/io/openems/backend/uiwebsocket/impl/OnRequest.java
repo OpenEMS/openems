@@ -170,8 +170,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			throws OpenemsNamedException {
 		wsData.setUserId(user.getId());
 		wsData.setToken(user.getToken());
-		return CompletableFuture
-				.completedFuture(new AuthenticateResponse(requestId, user.getToken(), user, user.getLanguage()));
+		return CompletableFuture.completedFuture(new AuthenticateResponse(requestId, user.getToken(), user,
+				User.generateEdgeMetadatas(user, this.parent.metadata), user.getLanguage()));
 	}
 
 	/**
@@ -225,8 +225,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			this.handleSubscribeChannelsRequest(wsData, edgeId, user, SubscribeChannelsRequest.from(request));
 		case SubscribeSystemLogRequest.METHOD ->
 			this.handleSubscribeSystemLogRequest(wsData, edgeId, user, SubscribeSystemLogRequest.from(request));
-		case SimulationRequest.METHOD -> this.handleSimulationRequest(edgeId, user, SimulationRequest.from(request));
-
+		case SimulationRequest.METHOD ->
+			this.handleSimulationRequest(edgeId, user, SimulationRequest.from(request));
+			
 		case ComponentJsonApiRequest.METHOD -> {
 			final var componentRequest = ComponentJsonApiRequest.from(request);
 			if (!"_host".equals(componentRequest.getComponentId())) {
@@ -286,20 +287,19 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	/**
 	 * Handles a {@link GetSimulationRequest}.
 	 * 
-	 * @param edgeId  the Edge-ID
-	 * @param user    the {@link User} - no specific level required
+	 * @param edgeId the Edge-ID
+	 * @param user the {@link User} - no specific level required
 	 * @param request the {@link GetSimulationRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleSimulationRequest(String edgeId, User user,
-			SimulationRequest request) throws OpenemsNamedException {
-
+	private CompletableFuture<JsonrpcResponseSuccess> handleSimulationRequest(String edgeId, User user, SimulationRequest request) throws OpenemsNamedException {
+		
 		final var simulation = this.parent.simulation;
 		if (simulation == null) {
 			throw new OpenemsException("simulation unavailable");
 		}
-
+		
 		return simulation.handleRequest(edgeId, user, request);
 	}
 

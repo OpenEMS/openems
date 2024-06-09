@@ -1,10 +1,5 @@
 package io.openems.common.jsonrpc.serialization;
 
-import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonSerializer;
-import static io.openems.common.utils.JsonUtils.toJsonArray;
-
-import java.util.List;
-
 import com.google.gson.JsonElement;
 
 public interface JsonSerializer<T> {
@@ -41,20 +36,6 @@ public interface JsonSerializer<T> {
 	 */
 	public default T deserialize(JsonElement json) {
 		return this.deserializePath(new JsonElementPathActual(json));
-	}
-
-	/**
-	 * Creates a new {@link JsonSerializer} which is able to serialize {@link List
-	 * Lists} with their generic type of the current {@link JsonSerializer}.
-	 * 
-	 * @return the new {@link JsonSerializer} of a {@link List}
-	 */
-	public default JsonSerializer<List<T>> toListSerializer() {
-		return jsonSerializer(//
-				json -> json.getAsJsonArrayPath().getAsList(this), //
-				obj -> obj.stream() //
-						.map(this::serialize) //
-						.collect(toJsonArray()));
 	}
 
 }

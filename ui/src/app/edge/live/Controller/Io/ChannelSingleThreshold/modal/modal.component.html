@@ -149,8 +149,8 @@
                       </td>
                       <td style="width: 35%" class="align_right" *ngSwitchCase="'OTHER'">
                         {{ currentData.channel[component.properties['inputChannelAddress']] }}
-                        <div *ngIf="inputChannelUnit">
-                          &nbsp;{{inputChannelUnit}}
+                        <div *ngIf="config.getChannel(inputChannel)['unit'] !== ''">
+                          &nbsp;{{config.getChannel(inputChannel)['unit']}}
                         </div>
                       </td>
                     </ng-container>
@@ -194,8 +194,8 @@
                           <ion-label *ngIf="inputMode.value !== 'OTHER'" class="regularFont">&nbsp;W
                           </ion-label>
                           <ion-label *ngIf="inputMode.value === 'OTHER'" class="regularFont">
-                            <div *ngIf="inputChannelUnit">
-                              &nbsp;{{ inputChannelUnit }}
+                            <div *ngIf="config.getChannel(inputChannel)['unit'] !== ''">
+                              &nbsp;{{ config.getChannel(inputChannel)['unit'] }}
                             </div>
                           </ion-label>
                         </ion-item>

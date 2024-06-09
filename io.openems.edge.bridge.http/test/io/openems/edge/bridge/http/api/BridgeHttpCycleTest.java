@@ -1,11 +1,12 @@
 package io.openems.edge.bridge.http.api;
 
-import static java.util.Collections.emptyMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
@@ -13,40 +14,35 @@ import org.junit.Before;
 import org.junit.Test;
 import org.osgi.service.event.Event;
 
-import io.openems.common.test.TimeLeapClock;
-import io.openems.common.utils.FunctionUtils;
+import io.openems.common.utils.ReflectionUtils;
 import io.openems.edge.bridge.http.BridgeHttpImpl;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.api.BridgeHttpCycle.CycleEndpoint;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpExecutor;
-import io.openems.edge.bridge.http.dummy.DummyEndpointFetcher;
+import io.openems.edge.bridge.http.CycleSubscriber;
+import io.openems.edge.bridge.http.DummyUrlFetcher;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 public class BridgeHttpCycleTest {
 
-	private DummyEndpointFetcher fetcher;
+	private DummyUrlFetcher fetcher;
 	private CycleSubscriber cycleSubscriber;
-	private DummyBridgeHttpExecutor pool;
 	private BridgeHttp bridgeHttp;
 
 	@Before
 	public void before() throws Exception {
 		this.cycleSubscriber = new CycleSubscriber();
-		this.fetcher = new DummyEndpointFetcher();
-		this.pool = new DummyBridgeHttpExecutor(new TimeLeapClock());
-		this.bridgeHttp = new BridgeHttpImpl(//
-				this.cycleSubscriber, //
-				this.fetcher, //
-				this.pool //
-		);
+		this.bridgeHttp = new BridgeHttpImpl();
+		ReflectionUtils.setAttribute(BridgeHttpImpl.class, this.bridgeHttp, "cycleSubscriber", this.cycleSubscriber);
 
+		this.fetcher = new DummyUrlFetcher();
 		this.fetcher.addEndpointHandler(endpoint -> {
 			return switch (endpoint.url()) {
-			case "dummy" -> HttpResponse.ok("success");
+			case "dummy" -> "success";
 			case "error" -> throw new RuntimeException();
 			default -> null;
 			};
 		});
+		ReflectionUtils.setAttribute(BridgeHttpImpl.class, this.bridgeHttp, "urlFetcher", this.fetcher);
+
+		((BridgeHttpImpl) this.bridgeHttp).activate();
 	}
 
 	@After
@@ -57,78 +53,99 @@ public class BridgeHttpCycleTest {
 	@Test
 	public void test() throws Exception {
 		final var callCount = new AtomicInteger(0);
+		final var future = new CompletableFuture<Void>();
 		this.bridgeHttp.subscribeCycle(3, "dummy", t -> {
-			assertEquals("success", t.data());
+			assertEquals("success", t);
 			callCount.incrementAndGet();
+			future.complete(null);
 		});
 
 		assertEquals(0, callCount.get());
 		this.nextCycle();
-		this.pool.update();
 		assertEquals(0, callCount.get());
 		this.nextCycle();
-		this.pool.update();
 		assertEquals(0, callCount.get());
 		this.nextCycle();
-		this.pool.update();
 
+		// wait until finished
+		future.get();
 		assertEquals(1, callCount.get());
 	}
 
 	@Test
 	public void testNotRunningMultipleTimes() throws Exception {
 		final var callCount = new AtomicInteger(0);
+		final var lock = new Object();
 
+		final var waitUntilContinueHandler = new CompletableFuture<Void>();
 		this.bridgeHttp.subscribeEveryCycle("dummy", t -> {
-			assertEquals("success", t.data());
+			assertEquals("success", t);
 			callCount.incrementAndGet();
+			synchronized (lock) {
+				lock.notify();
+
+			}
+			try {
+				waitUntilContinueHandler.get();
+			} catch (InterruptedException | ExecutionException e) {
+				assertTrue(false);
+			}
 		});
 
-		assertEquals(0, callCount.get());
-		this.nextCycle();
-		this.pool.update();
+		synchronized (lock) {
+			assertEquals(0, callCount.get());
+			this.nextCycle();
+			lock.wait();
+		}
 
-		assertEquals(1, callCount.get());
-		this.nextCycle();
-		assertEquals(1, callCount.get());
-		this.nextCycle();
-		assertEquals(1, callCount.get());
-		this.nextCycle();
+		synchronized (lock) {
+			assertEquals(1, callCount.get());
+			this.nextCycle();
+			assertEquals(1, callCount.get());
+			this.nextCycle();
+			assertEquals(1, callCount.get());
+		}
 
-		this.pool.update();
+		waitUntilContinueHandler.complete(null);
+
+		this.waitUntilCycleRequestAreFinished();
+		synchronized (lock) {
+			this.nextCycle();
+			lock.wait();
+		}
 
 		assertEquals(2, callCount.get());
-		this.nextCycle();
-		this.pool.update();
-		assertEquals(3, callCount.get());
-		this.nextCycle();
-		this.pool.update();
 	}
 
 	@Test
 	public void testRequestFail() throws Exception {
 		final var error = new CompletableFuture<Throwable>();
-		this.bridgeHttp.subscribeEveryCycle("error", FunctionUtils::doNothing, error::complete);
+		this.bridgeHttp.subscribeEveryCycle("error", t -> {
+			// empty
+		}, error::complete);
 
 		this.nextCycle();
-		this.pool.update();
 		assertNotNull(error.get());
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void testCreateCycleEndpointWithZeroCycle() throws Exception {
-		new CycleEndpoint(//
-				0, //
-				() -> new Endpoint("url", HttpMethod.GET, BridgeHttp.DEFAULT_CONNECT_TIMEOUT,
-						BridgeHttp.DEFAULT_READ_TIMEOUT, null, emptyMap()), //
-				FunctionUtils::doNothing, //
-				FunctionUtils::doNothing //
-		);
 	}
 
 	private void nextCycle() {
 		this.cycleSubscriber
 				.handleEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, new HashMap<>()));
+	}
+
+	private void waitUntilCycleRequestAreFinished() {
+		while (this.isCycleRequestRunning()) {
+			// wait
+		}
+	}
+
+	private boolean isCycleRequestRunning() {
+		for (var endpoint : ((BridgeHttpImpl) this.bridgeHttp).getCycleEndpoints()) {
+			if (endpoint.isRunning()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
