@@ -29,7 +29,7 @@ public class IoShellyPlugImplTest {
 		final var bridge = bridgeFactory.bridge;
 		final var sut = new IoShellyPlugImpl();
 		new ComponentTest(sut) //
-				.addReference("httpBridgeFactory", bridgeFactory) //
+				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setPhase(SinglePhase.L1) //

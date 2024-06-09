@@ -43,7 +43,7 @@ public class IoShelly3EmImplTest {
 		final var bridge = bridgeFactory.bridge; //
 		final var sut = new IoShelly3EmImpl(); //
 		new ComponentTest(sut) //
-				.addReference("httpBridgeFactory", bridgeFactory) //
+				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //

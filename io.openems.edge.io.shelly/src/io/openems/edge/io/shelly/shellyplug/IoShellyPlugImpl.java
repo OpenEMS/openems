@@ -23,6 +23,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.edge.bridge.http.api.HttpResponse;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -123,7 +124,7 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	private void processHttpResult(JsonElement result, Throwable error) {
+	private void processHttpResult(HttpResponse<JsonElement> result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
 
 		Boolean relayIson = null;
@@ -142,11 +143,11 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 
 				var response = getAsJsonObject(result);
 
-				var relays = getAsJsonArray(response, "relays");
+				var relays = getAsJsonArray(response.data(), "relays");
 				var relay1 = getAsJsonObject(relays.get(0));
 				relayIson = getAsBoolean(relay1, "ison");
 
-				var meters = getAsJsonArray(response, "meters");
+				var meters = getAsJsonArray(response.data(), "meters");
 				var meter1 = getAsJsonObject(meters.get(0));
 				power = round(getAsFloat(meter1, "power"));
 				energy = getAsLong(meter1, "total") /* Unit: Wm */ / 60 /* Wh */;

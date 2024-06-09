@@ -27,8 +27,12 @@ public class IoShelly25ImplTest {
 		final var bridgeFactory = new DummyBridgeHttpFactory();
 		final var bridge = bridgeFactory.bridge;
 		final var sut = new IoShelly25Impl();
-		new ComponentTest(sut).addReference("httpBridgeFactory", bridgeFactory)
-				.activate(MyConfig.create().setId(COMPONENT_ID).setIp("127.0.0.1").build())
+		new ComponentTest(sut) //
+				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
+				.activate(MyConfig.create() //
+						.setId(COMPONENT_ID) //
+						.setIp("127.0.0.1") //
+						.build()) //
 
 				// Test case for an invalid JSON response
 				.next(new TestCase("Invalid read response") //

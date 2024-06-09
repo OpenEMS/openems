@@ -31,7 +31,7 @@ public class IoShellyPlusPlugImplTest {
 		final var bridge = bridgeFactory.bridge;
 		final var sut = new IoShellyPlusPlugsImpl();
 		new ComponentTest(sut) //
-				.addReference("httpBridgeFactory", bridgeFactory) //
+				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
