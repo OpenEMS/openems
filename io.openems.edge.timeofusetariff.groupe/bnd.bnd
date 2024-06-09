@@ -1,15 +1,14 @@
-Bundle-Name: OpenEMS Edge Time-Of-Use Tariff API
+Bundle-Name: OpenEMS Edge Time-Of-Use Groupe-E
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	com.squareup.okio,\
 	io.openems.common,\
+	io.openems.edge.bridge.http,\
 	io.openems.edge.common,\
-	io.openems.wrapper.okhttp,\
-	
+	io.openems.edge.timeofusetariff.api,\
+
 -testpath: \
-	org.jetbrains.kotlin.osgi-bundle,\
 	${testpath}
