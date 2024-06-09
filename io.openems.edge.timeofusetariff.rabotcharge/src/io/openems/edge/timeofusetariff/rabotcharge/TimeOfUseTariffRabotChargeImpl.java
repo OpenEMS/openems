@@ -29,7 +29,9 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpMethod;
+import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.bridge.http.time.DelayTimeProvider;
 import io.openems.edge.bridge.http.time.DelayTimeProviderChain;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -50,6 +52,7 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 
 	private static final String RABOT_CHARGE_API_URL = "https://api.rabot-charge.de/api/day-ahead-prices-limited";
 	private static final int API_EXECUTE_HOUR = 14;
+	private static final int INTERNAL_ERROR = -1; // parsing, handle exception...
 
 	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffRabotChargeImpl.class);
 	private final AtomicReference<TimeOfUsePrices> prices = new AtomicReference<>(TimeOfUsePrices.EMPTY_PRICES);
@@ -102,17 +105,12 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 		}
 
 		@Override
-		public Duration nextRun(boolean firstRun, boolean lastRunSuccessful) {
-			if (firstRun) {
-				return Duration.ZERO;
-			}
+		public Delay onFirstRunDelay() {
+			return Delay.immediate();
+		}
 
-			if (!lastRunSuccessful) {
-				return DelayTimeProviderChain.fixedDelay(Duration.ofHours(1))//
-						.plusRandomDelay(60, ChronoUnit.SECONDS) //
-						.getDelay();
-			}
-
+		@Override
+		public Delay onSuccessRunDelay(HttpResponse<String> result) {
 			var now = ZonedDateTime.now(this.clock).truncatedTo(ChronoUnit.HOURS);
 			ZonedDateTime nextRun;
 
@@ -126,6 +124,14 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 					.plusRandomDelay(60, ChronoUnit.SECONDS) //
 					.getDelay();
 		}
+
+		@Override
+		public Delay onErrorRunDelay(HttpError error) {
+			return DelayTimeProviderChain.fixedDelay(Duration.ofHours(1))//
+					.plusRandomDelay(60, ChronoUnit.SECONDS) //
+					.getDelay();
+		}
+
 	}
 
 	private Endpoint createRabotChargeEndpoint() {
@@ -151,16 +157,20 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 
 	}
 
-	private void handleEndpointResponse(String response) throws OpenemsNamedException {
-		// TODO
-		// Add response code to the channel once HttpError and HttpResponse is merged in
-		// develop.
+	private void handleEndpointResponse(HttpResponse<String> response) throws OpenemsNamedException {
+		this.channel(TimeOfUseTariffRabotCharge.ChannelId.HTTP_STATUS_CODE).setNextValue(response.status().code());
 
 		// Parse the response for the prices
-		this.prices.set(parsePrices(response));
+		this.prices.set(parsePrices(response.data()));
 	}
 
-	private void handleEndpointError(Throwable error) {
+	private void handleEndpointError(HttpError error) {
+		var httpStatusCode = INTERNAL_ERROR;
+		if (error instanceof HttpError.ResponseError re) {
+			httpStatusCode = re.status.code();
+		}
+
+		this.channel(TimeOfUseTariffRabotCharge.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
 		this.log.error(error.getMessage(), error);
 	}
 
@@ -173,7 +183,7 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		return TimeOfUsePrices.from(ZonedDateTime.now(), this.prices.get());
+		return TimeOfUsePrices.from(ZonedDateTime.now(this.componentManager.getClock()), this.prices.get());
 	}
 
 	/**

@@ -28,6 +28,8 @@ import com.google.gson.JsonElement;
 
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpError;
+import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -138,7 +140,7 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 		}
 	}
 
-	private void processHttpResult(JsonElement result, Throwable error) {
+	private void processHttpResult(HttpResponse<JsonElement> result, HttpError error) {
 		this._setSlaveCommunicationFailed(result == null);
 
 		Boolean relayStatus = null;
@@ -152,7 +154,7 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 
 		} else {
 			try {
-				var response = getAsJsonObject(result);
+				var response = getAsJsonObject(result.data());
 				var sysInfo = getAsJsonObject(response, "sys");
 				var update = getAsJsonObject(sysInfo, "available_updates");
 				updatesAvailable = update != null && !update.entrySet().isEmpty();

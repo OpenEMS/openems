@@ -185,6 +185,8 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.awattar',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.corrently',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.entsoe',\
+	bnd.identity;id='io.openems.edge.timeofusetariff.groupe',\
+	bnd.identity;id='io.openems.edge.timeofusetariff.hassfurt',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.rabotcharge',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
 
@@ -363,6 +365,8 @@
 	io.openems.edge.timeofusetariff.awattar;version=snapshot,\
 	io.openems.edge.timeofusetariff.corrently;version=snapshot,\
 	io.openems.edge.timeofusetariff.entsoe;version=snapshot,\
+	io.openems.edge.timeofusetariff.groupe;version=snapshot,\
+	io.openems.edge.timeofusetariff.hassfurt;version=snapshot,\
 	io.openems.edge.timeofusetariff.rabotcharge;version=snapshot,\
 	io.openems.edge.timeofusetariff.tibber;version=snapshot,\
 	io.openems.oem.openems;version=snapshot,\
