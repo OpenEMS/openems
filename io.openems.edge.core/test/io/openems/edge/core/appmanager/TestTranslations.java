@@ -41,6 +41,8 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.rabotCharge(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ACCESS_TOKEN", "123456789") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.stadtwerkHassfurt(t), true, JsonUtils.buildJsonObject() //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.stromdaoCorrently(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ZIP_CODE", "123456789") //
 					.build()));
