@@ -12,7 +12,7 @@ public class IoShellyPro3ImplTest {
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new IoShellyPro3Impl()) //
-				.addReference("httpBridgeFactory", new DummyBridgeHttpFactory()) //
+				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setIp("127.0.0.1") //

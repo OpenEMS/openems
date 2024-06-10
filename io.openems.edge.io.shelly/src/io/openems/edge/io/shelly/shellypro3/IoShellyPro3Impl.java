@@ -1,5 +1,8 @@
 package io.openems.edge.io.shelly.shellypro3;
 
+import static io.openems.common.utils.JsonUtils.getAsBoolean;
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+
 import java.util.Objects;
 
 import org.osgi.service.component.ComponentContext;
@@ -16,12 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -72,11 +73,7 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 			final int relayIndex = i;
 			String url = this.baseUrl + "/rpc/Switch.GetStatus?id=" + relayIndex;
 			this.httpBridge.subscribeJsonEveryCycle(url, result -> {
-				try {
-					this.processHttpResult(result, relayIndex);
-				} catch (OpenemsNamedException e) {
-					this.logDebug(this.log, e.getMessage());
-				}
+				this.processHttpResult(result, relayIndex);
 			}, error -> {
 				logError(this.log, "HTTP request failed: " + error.getMessage());
 			});
@@ -128,38 +125,37 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 		}
 	}
 
-	private void processHttpResult(JsonElement result, int relayIndex) throws OpenemsNamedException {
-		Integer id = null;
-		Boolean output = null;
+	private void processHttpResult(HttpResponse<JsonElement> result, int relayIndex) {
+		Boolean ison = null;
 
-		try {
-			JsonObject switchStatus = JsonUtils.getAsJsonObject(result);
-			id = JsonUtils.getAsInt(switchStatus, "id");
-			output = JsonUtils.getAsBoolean(switchStatus, "output");
-
-			this.digitalOutputChannels[id].setNextWriteValue(output);
-
-		} catch (OpenemsNamedException e) {
+		if (result == null) {
 			this._setSlaveCommunicationFailed(true);
-			this.logError(this.log, e.getMessage());
-		}
+			return;
+		} else {
+			try {
+				var switchStatus = getAsJsonObject(result.data());
+				ison = getAsBoolean(switchStatus, "output");
 
-		if (id != null && output != null) {
-			this._setSlaveCommunicationFailed(false);
-			switch (id) {
-			case 0:
-				this._setRelay1(output);
-				break;
-			case 1:
-				this._setRelay2(output);
-				break;
-			case 2:
-				this._setRelay3(output);
-				break;
-			default:
-				this.logError(this.log, "Unexpected ID value: " + id);
-				break;
+				this.digitalOutputChannels[relayIndex].setNextWriteValue(ison);
+
+				this._setSlaveCommunicationFailed(false);
+
+			} catch (Exception e) {
+				this._setSlaveCommunicationFailed(true);
+				this.logError(this.log, "Error processing HTTP response: " + e.getMessage());
+				return;
 			}
+		}
+		switch (relayIndex) {
+		case 0:
+			this._setRelay1(ison);
+			break;
+		case 1:
+			this._setRelay2(ison);
+			break;
+		case 2:
+			this._setRelay3(ison);
+			break;
 		}
 	}
 
