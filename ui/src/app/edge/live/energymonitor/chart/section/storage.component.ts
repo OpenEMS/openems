@@ -54,7 +54,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
         service: Service,
         unitpipe: UnitvaluePipe,
     ) {
-        super('Edge.Index.Energymonitor.storage', "down", "#009846", translate, service, "Storage");
+        super('EDGE.INDEX.ENERGYMONITOR.STORAGE', "down", "#009846", translate, service, "Storage");
         this.unitpipe = unitpipe;
     }
 
@@ -111,7 +111,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
                 arrowIndicate = 0;
             }
 
-            this.name = this.translate.instant('Edge.Index.Energymonitor.storageCharge');
+            this.name = this.translate.instant('EDGE.INDEX.ENERGYMONITOR.STORAGE_CHARGE');
             super.updateSectionData(
                 sum.storage.effectiveChargePower,
                 sum.storage.powerRatio,
@@ -127,13 +127,13 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
             } else {
                 arrowIndicate = 0;
             }
-            this.name = this.translate.instant('Edge.Index.Energymonitor.storageDischarge');
+            this.name = this.translate.instant('EDGE.INDEX.ENERGYMONITOR.STORAGE_DISCHARGE');
             super.updateSectionData(
                 sum.storage.effectiveDischargePower,
                 sum.storage.powerRatio,
                 arrowIndicate);
         } else {
-            this.name = this.translate.instant('Edge.Index.Energymonitor.storage');
+            this.name = this.translate.instant('EDGE.INDEX.ENERGYMONITOR.STORAGE');
             super.updateSectionData(null, null, null);
         }
 

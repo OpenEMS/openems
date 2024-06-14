@@ -1,19 +1,19 @@
 <ion-card *ngIf="edge" button routerLink="/device/{{edge.id}}/history/storagechart">
     <ion-item lines="full" color="light">
         <ion-icon slot="start" name="oe-storage" color="success" size="large"></ion-icon>
-        <ion-label translate>General.storageSystem</ion-label>
+        <ion-label translate>GENERAL.STORAGE_SYSTEM</ion-label>
     </ion-item>
     <ion-card-content>
         <ng-container *ngIf="data && edge; else noData">
             <table class="full_width">
                 <tr>
-                    <td style="width:65%" translate>General.chargePower</td>
+                    <td style="width:65%" translate>GENERAL.CHARGE_POWER</td>
                     <td style="width:35%" class="align_right">
                         {{ data["_sum/EssDcChargeEnergy"] | unitvalue:'kWh' }}
                     </td>
                 </tr>
                 <tr>
-                    <td style="width:65%" translate>General.dischargePower</td>
+                    <td style="width:65%" translate>GENERAL.DISCHARGE_POWER</td>
                     <td style="width:35%" class="align_right">
                         {{ data["_sum/EssDcDischargeEnergy"] | unitvalue:'kWh' }}
                     </td>

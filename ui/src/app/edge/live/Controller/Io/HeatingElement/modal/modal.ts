@@ -56,9 +56,9 @@ export class ModalComponent extends AbstractModal implements OnInit {
         // Get current state
         this.activePhases.next(value);
         if (this.activePhases.value > 0) {
-            this.state = this.translate.instant('General.active');
+            this.state = this.translate.instant('GENERAL.ACTIVE');
         } else if (this.activePhases.value == 0) {
-            this.state = this.translate.instant('General.inactive');
+            this.state = this.translate.instant('GENERAL.INACTIVE');
         }
     }
 

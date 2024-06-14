@@ -32,7 +32,7 @@ export class ComponentInstallComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.addComponents' }, this.route).then(edge => {
+    this.service.setCurrentComponent({ languageKey: 'EDGE.CONFIG.INDEX.ADD_COMPONENTS' }, this.route).then(edge => {
       this.edge = edge;
     });
     const factoryId = this.route.snapshot.params["factoryId"];

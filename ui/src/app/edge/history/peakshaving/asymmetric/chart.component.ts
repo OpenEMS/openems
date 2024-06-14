@@ -71,7 +71,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant('General.phase') + ' ' + 'L1',
+                    label: this.translate.instant('GENERAL.PHASE') + ' ' + 'L1',
                     data: data,
                     hidden: false,
                 });
@@ -88,7 +88,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant('General.phase') + ' ' + 'L2',
+                    label: this.translate.instant('GENERAL.PHASE') + ' ' + 'L2',
                     data: data,
                     hidden: false,
                 });
@@ -105,7 +105,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant('General.phase') + ' ' + 'L3',
+                    label: this.translate.instant('GENERAL.PHASE') + ' ' + 'L3',
                     data: data,
                     hidden: false,
                 });
@@ -122,7 +122,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant('Edge.Index.Widgets.Peakshaving.rechargePower'),
+                    label: this.translate.instant('EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER'),
                     data: data,
                     hidden: false,
                     borderDash: [3, 3],
@@ -143,7 +143,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant('Edge.Index.Widgets.Peakshaving.peakshavingPower'),
+                    label: this.translate.instant('EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER'),
                     data: data,
                     hidden: false,
                     borderDash: [3, 3],
@@ -175,7 +175,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant('General.chargePower'),
+                    label: this.translate.instant('GENERAL.CHARGE_POWER'),
                     data: chargeData,
                 });
                 this.colors.push({
@@ -195,7 +195,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant('General.dischargePower'),
+                    label: this.translate.instant('GENERAL.DISCHARGE_POWER'),
                     data: dischargeData,
                 });
                 this.colors.push({

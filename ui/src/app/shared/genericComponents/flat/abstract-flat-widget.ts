@@ -26,7 +26,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
      * True after this.edge, this.config and this.component are set.
      */
     public isInitialized: boolean = false;
-    public edge: Edge = null;
+    public edge: EDGE = null;
     public config: EdgeConfig = null;
     public component: EdgeConfig.Component = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();

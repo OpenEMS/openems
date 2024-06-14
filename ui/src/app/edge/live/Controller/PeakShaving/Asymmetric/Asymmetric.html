@@ -1,12 +1,12 @@
 <oe-flat-widget button (click)="presentModal()" *ngIf="isInitialized" [title]="component.alias"
     [icon]="{name: 'trending-down-outline'}">
     <oe-flat-widget-line
-        [name]="('Edge.Index.Widgets.Peakshaving.mostStressedPhase' | translate) + '&nbsp;' + (mostStressedPhase | async)?.name"
+        [name]="('EDGE.INDEX.WIDGETS.PEAKSHAVING.MOST_STRESSED_PHASE' | translate) + '&nbsp;' + (mostStressedPhase | async)?.name"
         [converter]="CONVERT_WATT_TO_KILOWATT" [value]="(mostStressedPhase | async)?.value">
     </oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.Peakshaving.peakshavingPower'| translate"
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER'| translate"
         [converter]="CONVERT_WATT_TO_KILOWATT" [value]="peakShavingPower"></oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.Peakshaving.rechargePower' | translate"
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER' | translate"
         [converter]="CONVERT_WATT_TO_KILOWATT" [value]="rechargePower">
     </oe-flat-widget-line>
 </oe-flat-widget>

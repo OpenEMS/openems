@@ -3,19 +3,19 @@
         <ion-item [ngSwitch]="period" mode="md" [class.active]="service.periodString === period"
             (click)="setPeriod(period)" class="ion-text-center" lines="none" button>
             <ion-label *ngSwitchCase="DefaultTypes.PeriodString.DAY" translate>
-                Edge.History.day
+                EDGE.HISTORY.DAY
             </ion-label>
             <ion-label *ngSwitchCase="DefaultTypes.PeriodString.WEEK" translate>
-                Edge.History.week
+                EDGE.HISTORY.WEEK
             </ion-label>
             <ion-label *ngSwitchCase="DefaultTypes.PeriodString.MONTH" translate>
-                Edge.History.month
+                EDGE.HISTORY.MONTH
             </ion-label>
             <ion-label *ngSwitchCase="DefaultTypes.PeriodString.YEAR" translate>
-                Edge.History.year
+                EDGE.HISTORY.YEAR
             </ion-label>
             <ion-label *ngSwitchCase="DefaultTypes.PeriodString.TOTAL" translate>
-                Edge.History.TOTAL
+                EDGE.HISTORY.TOTAL
             </ion-label>
         </ion-item>
     </ng-container>
@@ -23,7 +23,7 @@
         (click)="showCustomDate = !showCustomDate; setPeriod(DefaultTypes.PeriodString.CUSTOM)" class="ion-text-center"
         lines="none" button>
         <ion-label translate>
-            Edge.History.otherPeriod
+            EDGE.HISTORY.OTHER_PERIOD
         </ion-label>
     </ion-item>
 </ion-list>

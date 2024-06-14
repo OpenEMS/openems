@@ -27,7 +27,7 @@ export class AliasUpdateComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.renameComponents' }, this.route).then(edge => {
+        this.service.setCurrentComponent({ languageKey: 'EDGE.CONFIG.INDEX.RENAME_COMPONENTS' }, this.route).then(edge => {
             this.edge = edge;
         });
         this.service.getConfig().then(config => {
@@ -45,16 +45,16 @@ export class AliasUpdateComponent implements OnInit {
         const newAlias = alias;
         if (this.edge != null) {
             if (this.component.id == newAlias) {
-                this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
+                this.service.toast(this.translate.instant('GENERAL.INPUT_NOT_VALID'), 'danger');
             } else {
                 this.edge.updateComponentConfig(this.websocket, this.component.id, [
                     { name: 'alias', value: newAlias },
                 ]).then(() => {
                     this.formGroup.markAsPristine();
-                    this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+                    this.service.toast(this.translate.instant('GENERAL.CHANGE_ACCEPTED'), 'success');
                 }).catch(reason => {
                     this.formGroup.markAsPristine();
-                    this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+                    this.service.toast(this.translate.instant('GENERAL.CHANGE_FAILED') + '\n' + reason.error.message, 'danger');
                     console.warn(reason);
                 });
             }

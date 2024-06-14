@@ -44,7 +44,7 @@ export class RegistrationModalComponent implements OnInit {
    */
   onSubmit() {
     if (!this.formGroup.valid) {
-      this.service.toast(this.translate.instant("Register.errors.requiredFields"), 'danger');
+      this.service.toast(this.translate.instant("REGISTER.ERRORS.REQUIRED_FIELDS"), 'danger');
       return;
     }
 
@@ -52,7 +52,7 @@ export class RegistrationModalComponent implements OnInit {
     const confirmPassword = this.formGroup.value.confirmPassword;
 
     if (password != confirmPassword) {
-      this.service.toast(this.translate.instant("Register.errors.passwordNotEqual"), 'danger');
+      this.service.toast(this.translate.instant("REGISTER.ERRORS.PASSWORD_NOT_EQUAL"), 'danger');
       return;
     }
 
@@ -60,7 +60,7 @@ export class RegistrationModalComponent implements OnInit {
     const confirmEmail = this.formGroup.value.confirmEmail;
 
     if (email != confirmEmail) {
-      this.service.toast(this.translate.instant("Register.errors.emailNotEqual"), 'danger');
+      this.service.toast(this.translate.instant("REGISTER.ERRORS.EMAIL_NOT_EQUAL"), 'danger');
       return;
     }
 
@@ -92,7 +92,7 @@ export class RegistrationModalComponent implements OnInit {
 
     this.websocket.sendRequest(request)
       .then(() => {
-        this.service.toast(this.translate.instant("Register.success"), 'success');
+        this.service.toast(this.translate.instant("REGISTER.SUCCESS"), 'success');
         this.modalCtrl.dismiss();
       })
       .catch(reason => {

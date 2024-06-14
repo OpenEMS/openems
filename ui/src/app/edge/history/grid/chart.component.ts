@@ -69,7 +69,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant('General.grid'),
+                    label: this.translate.instant('GENERAL.GRID'),
                     data: gridData,
                     hidden: false,
                 });
@@ -94,7 +94,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant('General.phase') + ' ' + 'L1',
+                        label: this.translate.instant('GENERAL.PHASE') + ' ' + 'L1',
                         data: gridData,
                         hidden: false,
                     });
@@ -114,7 +114,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant('General.phase') + ' ' + 'L2',
+                        label: this.translate.instant('GENERAL.PHASE') + ' ' + 'L2',
                         data: gridData,
                         hidden: false,
                     });
@@ -134,7 +134,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant('General.phase') + ' ' + 'L3',
+                        label: this.translate.instant('GENERAL.PHASE') + ' ' + 'L3',
                         data: gridData,
                         hidden: false,
                     });
@@ -172,16 +172,16 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
             const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
             // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
             if (value < -0.005) {
-                if (label.includes(translate.instant('General.phase'))) {
-                    label += ' ' + translate.instant('General.gridSell');
+                if (label.includes(translate.instant('GENERAL.PHASE'))) {
+                    label += ' ' + translate.instant('GENERAL.GRID_SELL');
                 } else {
-                    label = translate.instant('General.gridSell');
+                    label = translate.instant('GENERAL.GRID_SELL');
                 }
             } else if (value > 0.005) {
-                if (label.includes(translate.instant('General.phase'))) {
-                    label += ' ' + translate.instant('General.gridBuy');
+                if (label.includes(translate.instant('GENERAL.PHASE'))) {
+                    label += ' ' + translate.instant('GENERAL.GRID_BUY');
                 } else {
-                    label = translate.instant('General.gridBuy');
+                    label = translate.instant('GENERAL.GRID_BUY');
                 }
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";

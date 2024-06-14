@@ -15,10 +15,10 @@
               <ion-item>
                 <ion-button type="submit" color="primary"
                   [disabled]="(!((!varinstance.form.pristine) && (varinstance.form.valid))) || varinstance.isDeleting || varinstance.isUpdating"
-                  translate> Edge.Config.App.updateApp
+                  translate> EDGE.CONFIG.APP.UPDATE_APP
                 </ion-button>
                 <ion-button (click)="delete(varinstance)" color="primary" [disabled]="varinstance.isDeleting || varinstance.isUpdating" translate>
-                  Edge.Config.App.deleteApp
+                  EDGE.CONFIG.APP.DELETE_APP
                 </ion-button>
                 <div *ngIf="varinstance.isDeleting || varinstance.isUpdating" style="min-height: 100px;">
                 </div>

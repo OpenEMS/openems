@@ -1,19 +1,19 @@
 <oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup"
     helpKey="CONTROLLER_IO_HEATING_ELEMENT" *ngIf="isInitialized">
-    <oe-modal-line [name]="'General.state' | translate" [value]="this.state">
+    <oe-modal-line [name]="'GENERAL.STATE' | translate" [value]="this.state">
     </oe-modal-line>
 
     <oe-modal-line *ngIf="(activePhases | async) > 0"
-        [name]="'Edge.Index.Widgets.Heatingelement.activeLevel'| translate" [value]="'Level ' + (activePhases| async)">
+        [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.ACTIVE_LEVEL'| translate" [value]="'Level ' + (activePhases| async)">
     </oe-modal-line>
 
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
-    <oe-modal-line [name]="'General.mode'| translate"></oe-modal-line>
+    <oe-modal-line [name]="'GENERAL.MODE'| translate"></oe-modal-line>
     <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="[
-    { name: ('General.on' | translate), value: 'MANUAL_ON', icon: {color:'success', name: 'power'}},
-    { name: ('General.automatic' | translate), value: 'AUTOMATIC', icon: {color:'primary', name: 'sunny'}},
-    { name: ('General.off' | translate), value: 'MANUAL_OFF', icon: {color:'light-contrast', name: 'power'}}]">
+    { name: ('GENERAL.ON' | translate), value: 'MANUAL_ON', icon: {color:'success', name: 'power'}},
+    { name: ('GENERAL.AUTOMATIC' | translate), value: 'AUTOMATIC', icon: {color:'primary', name: 'sunny'}},
+    { name: ('GENERAL.OFF' | translate), value: 'MANUAL_OFF', icon: {color:'light-contrast', name: 'power'}}]">
     </oe-modal-buttons>
 
 
@@ -23,7 +23,7 @@
         <table class=" full_width">
             <tr>
                 <td style="width: 65%" translate>
-                    Edge.Index.Widgets.Heatingelement.guaranteeMinimumHeating
+                    EDGE.INDEX.WIDGETS.HEATINGELEMENT.GUARANTEE_MINIMUM_HEATING
                 </td>
                 <td style="width: 35%" class="align_right">
                     <ion-toggle (ionChange)="switchAllowMinimumHeating($event)"
@@ -50,7 +50,7 @@
             <tr>
                 <td class="text-align: left">
                     <ion-text translate>
-                        Edge.Index.Widgets.GridOptimizedCharge.endTime
+                        EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.END_TIME
                     </ion-text>:
                 </td>
                 <td>
@@ -70,7 +70,7 @@
 
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
-        <oe-modal-line [name]="'Edge.Index.Widgets.Heatingelement.minimumRunTime'| translate"></oe-modal-line>
+        <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.MINIMUM_RUN_TIME'| translate"></oe-modal-line>
         <oe-modal-line controlName="minTime" [control]="{type: 'RANGE', properties: {min: 1, max: 10, unit: 'H'}}"
             [formGroup]="formGroup">
         </oe-modal-line>

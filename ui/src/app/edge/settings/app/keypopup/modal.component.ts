@@ -95,7 +95,7 @@ export class KeyModalComponent implements OnInit {
             });
         }).catch(reason => {
             this.fields = this.getFields();
-            this.service.toast(this.translate.instant('Edge.Config.App.Key.failedLoadingRegisterKey'), 'danger');
+            this.service.toast(this.translate.instant('EDGE.CONFIG.APP.KEY.FAILED_LOADING_REGISTER_KEY'), 'danger');
         }).finally(() => {
             this.service.stopSpinner(this.spinnerId);
         });
@@ -177,7 +177,7 @@ export class KeyModalComponent implements OnInit {
             key: 'useRegisteredKeys',
             type: 'checkbox',
             props: {
-                label: this.translate.instant('Edge.Config.App.Key.useRegisteredKey'),
+                label: this.translate.instant('EDGE.CONFIG.APP.KEY.USE_REGISTERED_KEY'),
             },
             hide: this.registeredKeys.length === 0,
             expressions: {
@@ -189,7 +189,7 @@ export class KeyModalComponent implements OnInit {
             key: 'registeredKey',
             type: 'select',
             props: {
-                label: this.translate.instant('Edge.Config.App.Key.registeredKey'),
+                label: this.translate.instant('EDGE.CONFIG.APP.KEY.REGISTERED_KEY'),
                 required: true,
                 options: [],
             },
@@ -204,7 +204,7 @@ export class KeyModalComponent implements OnInit {
             key: 'key',
             type: 'input',
             props: {
-                label: this.translate.instant('Edge.Config.App.Key.key'),
+                label: this.translate.instant('EDGE.CONFIG.APP.KEY.KEY'),
                 required: true,
                 placeholder: 'XXXX-XXXX-XXXX-XXXX',
             },
@@ -235,13 +235,13 @@ export class KeyModalComponent implements OnInit {
                     key: 'useMasterKey',
                     type: 'checkbox',
                     props: {
-                        label: this.translate.instant('Edge.Config.App.Key.useMasterKey'),
+                        label: this.translate.instant('EDGE.CONFIG.APP.KEY.USE_MASTER_KEY'),
                     },
                 },
                 {
                     type: 'text',
                     props: {
-                        description: this.translate.instant('Edge.Config.App.Key.MASTER_KEY_HINT'),
+                        description: this.translate.instant('EDGE.CONFIG.APP.KEY.MASTER_KEY_HINT'),
                     },
                     expressions: {
                         hide: '!model.useMasterKey',
@@ -253,7 +253,7 @@ export class KeyModalComponent implements OnInit {
         fields.push({
             type: 'text',
             props: {
-                description: this.translate.instant('Edge.Config.App.Key.KEY_TYPO_MESSAGE_HINT'),
+                description: this.translate.instant('EDGE.CONFIG.APP.KEY.KEY_TYPO_MESSAGE_HINT'),
             },
             hideExpression: '!formState.gotInvalidKeyResponse',
         });
@@ -341,9 +341,9 @@ export class KeyModalComponent implements OnInit {
                 // only register key for this app
                 this.registerKey().then(() => {
                     this.modalCtrl.dismiss({ key: this.getSelectedKey() });
-                    this.service.toast(this.translate.instant('Edge.Config.App.Key.successRegisterKey'), 'success');
+                    this.service.toast(this.translate.instant('EDGE.CONFIG.APP.KEY.SUCCESS_REGISTER_KEY'), 'success');
                 }).catch(() => {
-                    this.service.toast(this.translate.instant('Edge.Config.App.Key.failedRegisterKey'), 'danger');
+                    this.service.toast(this.translate.instant('EDGE.CONFIG.APP.KEY.FAILED_REGISTER_KEY'), 'danger');
                 }).finally(() => {
                     this.service.stopSpinner(this.spinnerId);
                 });
@@ -418,25 +418,25 @@ export class KeyModalComponent implements OnInit {
                             return registration.edgeId !== this.edge.id;
                         });
                         if (differentEdge) {
-                            this.service.toast(this.translate.instant('Edge.Config.App.Key.alreadyRegisteredDifferentSystem'), 'warning');
+                            this.service.toast(this.translate.instant('EDGE.CONFIG.APP.KEY.ALREADY_REGISTERED_DIFFERENT_SYSTEM'), 'warning');
                             return;
                         }
                         const sameApp = result.additionalInfo.registrations.some(registration => {
                             return registration.appId === this.appId && registration.edgeId === this.edge.id;
                         });
                         if (!sameApp) {
-                            this.service.toast(this.translate.instant('Edge.Config.App.Key.alreadyRegisteredDifferentApp'), 'warning');
+                            this.service.toast(this.translate.instant('EDGE.CONFIG.APP.KEY.ALREADY_REGISTERED_DIFFERENT_APP'), 'warning');
                             return;
                         }
                     }
 
-                    this.service.toast(this.translate.instant('Edge.Config.App.Key.valid'), 'success');
+                    this.service.toast(this.translate.instant('EDGE.CONFIG.APP.KEY.VALID'), 'success');
                 } else {
-                    this.service.toast(this.translate.instant('Edge.Config.App.Key.invalid'), 'danger');
+                    this.service.toast(this.translate.instant('EDGE.CONFIG.APP.KEY.INVALID'), 'danger');
                 }
             }).catch(reason => {
                 // this may happen if the key is not stored in the database
-                this.service.toast(this.translate.instant('Edge.Config.App.Key.invalid'), 'danger');
+                this.service.toast(this.translate.instant('EDGE.CONFIG.APP.KEY.INVALID'), 'danger');
                 this.options.formState.gotInvalidKeyResponse = true;
                 if (environment.debugMode) {
                     console.log('Failed to validate Key', reason);

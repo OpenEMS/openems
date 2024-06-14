@@ -34,30 +34,30 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
     // Status
     switch (currentData.allComponents[this.componentId + '/Status']) {
       case -1:
-        this.statusValue = this.translate.instant('Edge.Index.Widgets.HeatPump.undefined');
+        this.statusValue = this.translate.instant('EDGE.INDEX.WIDGETS.HEAT_PUMP.UNDEFINED');
         break;
       case 0:
-        this.statusValue = this.translate.instant('Edge.Index.Widgets.HeatPump.lock');
+        this.statusValue = this.translate.instant('EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK');
         break;
       case 1:
-        this.statusValue = this.translate.instant('Edge.Index.Widgets.HeatPump.normalOperation');
+        this.statusValue = this.translate.instant('EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION');
         break;
       case 2:
-        this.statusValue = this.translate.instant('Edge.Index.Widgets.HeatPump.switchOnRec');
+        this.statusValue = this.translate.instant('EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC');
         break;
       case 3:
-        this.statusValue = this.translate.instant('Edge.Index.Widgets.HeatPump.switchOnCom');
+        this.statusValue = this.translate.instant('EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM');
         break;
     }
 
     // Mode
     switch (currentData.allComponents[this.component.id + '/' + Controller_Io_HeatpumpComponent.PROPERTY_MODE]) {
       case 'AUTOMATIC': {
-        this.mode = this.translate.instant('General.automatic');
+        this.mode = this.translate.instant('GENERAL.AUTOMATIC');
         break;
       }
       case 'MANUAL': {
-        this.mode = this.translate.instant('General.manually');
+        this.mode = this.translate.instant('GENERAL.MANUALLY');
         break;
       }
     }

@@ -35,7 +35,7 @@
                 {{ edge.getRoleString() }}
               </ion-item>
               <ion-item lines="none" *ngIf="edge.firstSetupProtocol">
-                <ion-label translate>Index.FIRST_SETUP_PROTOCOL</ion-label>
+                <ion-label translate>INDEX.FIRST_SETUP_PROTOCOL</ion-label>
                 {{ edge.firstSetupProtocol | date:'dd.MM.YYYY HH:mm' }}
               </ion-item>
             </ion-list>
@@ -81,7 +81,7 @@
                           <ion-icon *ngIf="item['showProperties']" name="arrow-up-circle-outline">
                           </ion-icon>
                           <span>&nbsp;{{ item.id }}</span>&nbsp;<span style="color:gray">{{ factory.name }}</span><span
-                            *ngIf="!item.isEnabled"> - <span translate>General.componentInactive</span></span>
+                            *ngIf="!item.isEnabled"> - <span translate>GENERAL.COMPONENT_INACTIVE</span></span>
                         </p>
                       </ng-container>
                     </ion-text>
@@ -101,7 +101,7 @@
                           <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
                           <oe-help-button key="CONTROLLER_API_MODBUSTCP_READ">
                             <span translate>
-                              General.manual
+                              GENERAL.MANUAL
                             </span>
                           </oe-help-button>
                         </ion-text>
@@ -109,21 +109,21 @@
                           <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
                           <oe-help-button key="CONTROLLER_API_MODBUSTCP_READWRITE">
                             <span translate>
-                              General.manual
+                              GENERAL.MANUAL
                             </span>
                           </oe-help-button>
                         </ion-text>
                         <ion-text *ngSwitchCase="'Controller.Api.Rest.ReadOnly'">
                           <oe-help-button key="CONTROLLER_API_REST_READ">
                             <span translate>
-                              General.manual
+                              GENERAL.MANUAL
                             </span>
                           </oe-help-button>
                         </ion-text>
                         <ion-text *ngSwitchCase="'Controller.Api.Rest.ReadWrite'">
                           <oe-help-button key="CONTROLLER_API_REST_READWRITE">
                             <span translate>
-                              General.manual
+                              GENERAL.MANUAL
                             </span>
                           </oe-help-button>
                         </ion-text>

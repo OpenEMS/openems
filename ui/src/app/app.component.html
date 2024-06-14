@@ -10,7 +10,7 @@
               <ion-item color="light" *ngSwitchCase="'connecting'">
                 <ion-icon slot="start" name="wifi-outline"></ion-icon>
                 <ion-label class="ion-text-wrap">
-                  <h2 translate>Index.connectionInProgress</h2>
+                  <h2 translate>INDEX.CONNECTION_IN_PROGRESS</h2>
                 </ion-label>
               </ion-item>
 
@@ -18,7 +18,7 @@
               <ion-item color="light" *ngSwitchCase="'failed'">
                 <ion-icon slot="start" name="close-circle-outline"></ion-icon>
                 <ion-label class="ion-text-wrap">
-                  <h2 translate [translateParams]="{value: 'OpenEMS'}">Index.connectionFailed</h2>
+                  <h2 translate [translateParams]="{value: 'OpenEMS'}">INDEX.CONNECTION_FAILED</h2>
                   <p color="light">{{ environment.url }}</p>
                 </ion-label>
               </ion-item>
@@ -34,14 +34,14 @@
     <!-- Show Sub-Views -->
     <ion-router-outlet id="content"></ion-router-outlet>
 
-    <!-- Side Menu  -->
+    <!-- Side MENU  -->
     <ion-menu type="overlay" side="start" contentId="content">
       <ion-header>
         <ion-toolbar color="primary">
           <ion-buttons slot="start">
             <ion-menu-button autoHide="false"></ion-menu-button>
           </ion-buttons>
-          <ion-title translate>Menu.menu</ion-title>
+          <ion-title translate>MENU.MENU</ion-title>
         </ion-toolbar>
       </ion-header>
       <ion-content>
@@ -59,18 +59,18 @@
             </ion-label>
           </ion-item>
 
-          <!-- Show Link to Overview if more than one Edge is accessible or the globalRole is at least installer -->
+          <!-- Show Link to Overview if more than one EDGE is accessible or the globalRole is at least installer -->
           <ng-container *ngIf="(service.metadata | async) as service">
             <ng-container *ngIf="isUserAllowedToSeeOverview">
               <ion-item lines="full" routerLinkActive="active" routerLink="/overview" (click)="menu.close()">
-                <ion-label translate>Menu.overview </ion-label>
+                <ion-label translate>MENU.OVERVIEW </ion-label>
               </ion-item>
             </ng-container>
           </ng-container>
 
           <nav *ngIf="(service.currentEdge | async) as edge">
             <ion-item lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">
-              <ion-label translate>Menu.edgeSettings</ion-label>
+              <ion-label translate>MENU.EDGE_SETTINGS</ion-label>
             </ion-item>
           </nav>
         </ion-list>

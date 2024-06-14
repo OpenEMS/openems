@@ -72,7 +72,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
             datasets.push({
                 type: 'line',
-                label: this.translate.instant('General.gridBuy'),
+                label: this.translate.instant('GENERAL.GRID_BUY'),
                 data: gridBuyArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
@@ -84,7 +84,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
             datasets.push({
                 type: 'line',
-                label: this.translate.instant('General.gridSell'),
+                label: this.translate.instant('GENERAL.GRID_SELL'),
                 data: gridSellArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
@@ -96,7 +96,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
             datasets.push({
                 type: 'line',
-                label: this.translate.instant('General.production'),
+                label: this.translate.instant('GENERAL.PRODUCTION'),
                 data: productionArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: false,
                 order: 1,
@@ -108,7 +108,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
             datasets.push({
                 type: 'line',
-                label: this.translate.instant('General.consumption'),
+                label: this.translate.instant('GENERAL.CONSUMPTION'),
                 data: consumptionArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: false,
                 order: 1,
@@ -120,7 +120,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
             datasets.push({
                 type: 'line',
-                label: this.translate.instant('General.chargePower'),
+                label: this.translate.instant('GENERAL.CHARGE_POWER'),
                 data: essChargeArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
@@ -133,7 +133,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
             datasets.push({
                 type: 'line',
-                label: this.translate.instant('General.dischargePower'),
+                label: this.translate.instant('GENERAL.DISCHARGE_POWER'),
                 data: essDischargeArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
@@ -147,7 +147,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
             // State of charge data
             datasets.push({
                 type: 'line',
-                label: this.translate.instant('General.soc'),
+                label: this.translate.instant('GENERAL.SOC'),
                 data: socArray,
                 hidden: false,
                 yAxisID: ChartAxis.RIGHT,
@@ -186,7 +186,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
         this.datasets = this.datasets.map((el: Chart.ChartDataset) => {
 
             // align particular dataset element to right yAxis
-            if (el.label === this.translate.instant('General.soc')) {
+            if (el.label === this.translate.instant('GENERAL.SOC')) {
                 el['yAxisID'] = ChartAxis.RIGHT;
             }
             return el;

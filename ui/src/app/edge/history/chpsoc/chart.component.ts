@@ -91,7 +91,7 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                             });
                             if (channel == inputChannel) {
                                 datasets.push({
-                                    label: this.translate.instant('General.soc'),
+                                    label: this.translate.instant('GENERAL.SOC'),
                                     data: data,
                                 });
                                 this.colors.push({
@@ -101,7 +101,7 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                             }
                             if (channel == lowThreshold) {
                                 datasets.push({
-                                    label: this.translate.instant('Edge.Index.Widgets.CHP.lowThreshold'),
+                                    label: this.translate.instant('EDGE.INDEX.WIDGETS.CHP.LOW_THRESHOLD'),
                                     data: data,
                                     borderDash: [3, 3],
                                 });
@@ -112,7 +112,7 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                             }
                             if (channel == highThreshold) {
                                 datasets.push({
-                                    label: this.translate.instant('Edge.Index.Widgets.CHP.highThreshold'),
+                                    label: this.translate.instant('EDGE.INDEX.WIDGETS.CHP.HIGH_THRESHOLD'),
                                     data: data,
                                     borderDash: [3, 3],
                                 });

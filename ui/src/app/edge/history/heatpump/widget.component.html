@@ -8,25 +8,25 @@
             <ion-card-content>
                 <table class="full_width">
                     <tr *ngIf="activeTimeOverPeriodRegular !== null && activeTimeOverPeriodRegular > 59">
-                        <td style="width:65%" translate>Edge.Index.Widgets.HeatPump.normalOperation</td>
+                        <td style="width:65%" translate>EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION</td>
                         <td style="width:35%" class="align_right">
                             {{ activeTimeOverPeriodRegular | formatSecondsToDuration }}
                         </td>
                     </tr>
                     <tr *ngIf="activeTimeOverPeriodRecommendation !== null && activeTimeOverPeriodRecommendation > 59">
-                        <td style="width:65%" translate>Edge.Index.Widgets.HeatPump.switchOnRec</td>
+                        <td style="width:65%" translate>EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC</td>
                         <td style="width:35%" class="align_right">
                             {{ activeTimeOverPeriodRecommendation | formatSecondsToDuration }}
                         </td>
                     <tr>
                     <tr *ngIf="activeTimeOverPeriodForceOn !== null && activeTimeOverPeriodForceOn > 59">
-                        <td style="width:65%" translate>Edge.Index.Widgets.HeatPump.switchOnCom</td>
+                        <td style="width:65%" translate>EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM</td>
                         <td style="width:35%" class="align_right">
                             {{ activeTimeOverPeriodForceOn | formatSecondsToDuration }}
                         </td>
                     <tr>
                     <tr *ngIf="activeTimeOverPeriodLock !== null && activeTimeOverPeriodLock > 59">
-                        <td style="width:65%" translate>Edge.Index.Widgets.HeatPump.lock</td>
+                        <td style="width:65%" translate>EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK</td>
                         <td style="width:35%" class="align_right">
                             {{ activeTimeOverPeriodLock | formatSecondsToDuration }}
                         </td>

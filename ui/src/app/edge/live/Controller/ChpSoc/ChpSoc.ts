@@ -49,24 +49,24 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
         this.modeChannelValue = currentData.allComponents[this.propertyModeChannel.toString()];
         switch (this.modeChannelValue) {
             case 'ON':
-                this.mode = this.translate.instant('General.on');
+                this.mode = this.translate.instant('GENERAL.ON');
                 break;
             case 'OFF':
-                this.mode = this.translate.instant('General.off');
+                this.mode = this.translate.instant('GENERAL.OFF');
                 break;
             case 'AUTOMATIC':
-                this.mode = this.translate.instant('General.automatic');
+                this.mode = this.translate.instant('GENERAL.AUTOMATIC');
         }
 
         const outputChannelValue = currentData.allComponents[this.outputChannel.toString()];
 
         switch (outputChannelValue) {
             case 0:
-                this.state = this.translate.instant('General.inactive');
+                this.state = this.translate.instant('GENERAL.INACTIVE');
                 this.icon.name == 'help-outline';
                 break;
             case 1:
-                this.state = this.translate.instant('General.active');
+                this.state = this.translate.instant('GENERAL.ACTIVE');
                 break;
         }
 

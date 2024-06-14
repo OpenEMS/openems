@@ -127,7 +127,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                             } else {
                                 if (channelAddress.channelId == "EssActivePower") {
                                     datasets.push({
-                                        label: this.translate.instant('General.chargeDischarge'),
+                                        label: this.translate.instant('GENERAL.CHARGE_DISCHARGE'),
                                         data: totalData,
                                     });
                                     this.colors.push({
@@ -138,19 +138,19 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                                 if ('_sum/EssActivePowerL1' && '_sum/EssActivePowerL2' && '_sum/EssActivePowerL3' in result.data && this.showPhases == true) {
                                     if (channelAddress.channelId == 'EssActivePowerL1') {
                                         datasets.push({
-                                            label: this.translate.instant('General.phase') + ' ' + 'L1',
+                                            label: this.translate.instant('GENERAL.PHASE') + ' ' + 'L1',
                                             data: totalDataL1,
                                         });
                                         this.colors.push(this.phase1Color);
                                     } if (channelAddress.channelId == 'EssActivePowerL2') {
                                         datasets.push({
-                                            label: this.translate.instant('General.phase') + ' ' + 'L2',
+                                            label: this.translate.instant('GENERAL.PHASE') + ' ' + 'L2',
                                             data: totalDataL2,
                                         });
                                         this.colors.push(this.phase2Color);
                                     } if (channelAddress.channelId == 'EssActivePowerL3') {
                                         datasets.push({
-                                            label: this.translate.instant('General.phase') + ' ' + 'L3',
+                                            label: this.translate.instant('GENERAL.PHASE') + ' ' + 'L3',
                                             data: totalDataL3,
                                         });
                                         this.colors.push(this.phase3Color);
@@ -195,16 +195,16 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
             const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
             // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
             if (value < -0.005) {
-                if (label.includes(translate.instant('General.phase'))) {
-                    label += ' ' + translate.instant('General.chargePower');
+                if (label.includes(translate.instant('GENERAL.PHASE'))) {
+                    label += ' ' + translate.instant('GENERAL.CHARGE_POWER');
                 } else {
-                    label = translate.instant('General.chargePower');
+                    label = translate.instant('GENERAL.CHARGE_POWER');
                 }
             } else if (value > 0.005) {
-                if (label.includes(translate.instant('General.phase'))) {
-                    label += ' ' + translate.instant('General.dischargePower');
+                if (label.includes(translate.instant('GENERAL.PHASE'))) {
+                    label += ' ' + translate.instant('GENERAL.DISCHARGE_POWER');
                 } else {
-                    label = translate.instant('General.dischargePower');
+                    label = translate.instant('GENERAL.DISCHARGE_POWER');
                 }
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";

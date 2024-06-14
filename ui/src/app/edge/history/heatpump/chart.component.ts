@@ -67,7 +67,7 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
                 });
 
                 datasets.push({
-                    label: this.translate.instant('General.state'),
+                    label: this.translate.instant('GENERAL.STATE'),
                     data: stateTimeData,
                     hidden: false,
                 });
@@ -98,19 +98,19 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
 
     private applyControllerSpecificOptions(options: Chart.ChartOptions) {
         const translate = this.translate;
-        options.scales[ChartAxis.LEFT]['title'].text = this.translate.instant('General.state');
+        options.scales[ChartAxis.LEFT]['title'].text = this.translate.instant('GENERAL.STATE');
         options.scales[ChartAxis.LEFT].ticks.callback = function (label, index, labels) {
             switch (label) {
                 case -1:
-                    return translate.instant('Edge.Index.Widgets.HeatPump.undefined');
+                    return translate.instant('EDGE.INDEX.WIDGETS.HEAT_PUMP.UNDEFINED');
                 case 0:
-                    return translate.instant('Edge.Index.Widgets.HeatPump.lock');
+                    return translate.instant('EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK');
                 case 1:
-                    return translate.instant('Edge.Index.Widgets.HeatPump.normalOperationShort');
+                    return translate.instant('EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION_SHORT');
                 case 2:
-                    return translate.instant('Edge.Index.Widgets.HeatPump.switchOnRecShort');
+                    return translate.instant('EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC_SHORT');
                 case 3:
-                    return translate.instant('Edge.Index.Widgets.HeatPump.switchOnComShort');
+                    return translate.instant('EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM_SHORT');
             }
         };
 
@@ -120,20 +120,20 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
             let toolTipValue;
             switch (value) {
                 case -1:
-                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.undefined');
+                    toolTipValue = translate.instant('EDGE.INDEX.WIDGETS.HEAT_PUMP.UNDEFINED');
                     break;
                 case 0:
-                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.lock');
+                    toolTipValue = translate.instant('EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK');
                     break;
 
                 case 1:
-                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.normalOperation');
+                    toolTipValue = translate.instant('EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION');
                     break;
                 case 2:
-                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.switchOnRec');
+                    toolTipValue = translate.instant('EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC');
                     break;
                 case 3:
-                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.switchOnCom');
+                    toolTipValue = translate.instant('EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM');
                     break;
                 default:
                     toolTipValue = '';

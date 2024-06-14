@@ -41,8 +41,8 @@
             <!-- 'SELECT' Line, provides select dropdown -->
             <td *ngIf="control.type === 'SELECT'" [formGroup]="formGroup">
                 <ng-container *ngIf="control.options">
-                    <ion-select interface="popover" [formControlName]="controlName" [okText]="'General.ok'| translate"
-                        [cancelText]="'General.cancel'| translate" style="text-align:end">
+                    <ion-select interface="popover" [formControlName]="controlName" [okText]="'GENERAL.OK'| translate"
+                        [cancelText]="'GENERAL.CANCEL'| translate" style="text-align:end">
 
                         <ion-select-option *ngFor="let option of control.options" [value]="option.value">
                             {{option.name}}

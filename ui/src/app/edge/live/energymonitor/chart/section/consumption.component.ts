@@ -38,7 +38,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         translate: TranslateService,
         service: Service,
     ) {
-        super('General.consumption', "right", "#FDC507", translate, service, "Consumption");
+        super('GENERAL.CONSUMPTION', "right", "#FDC507", translate, service, "Consumption");
         this.unitpipe = unitpipe;
     }
 

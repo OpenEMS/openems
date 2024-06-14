@@ -58,23 +58,23 @@ export class DelayedSellToGridModalComponent implements OnInit {
                             this.component.properties.continuousSellToGridPower = continuousSellToGridPower.value;
                             this.component.properties.sellToGridPowerLimit = sellToGridPowerLimit.value;
                             this.loading = false;
-                            this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+                            this.service.toast(this.translate.instant('GENERAL.CHANGE_ACCEPTED'), 'success');
                         }).catch(reason => {
                             continuousSellToGridPower.setValue(this.component.properties.continuousSellToGridPower);
                             sellToGridPowerLimit.setValue(this.component.properties.sellToGridPowerLimit);
                             this.loading = false;
-                            this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+                            this.service.toast(this.translate.instant('GENERAL.CHANGE_FAILED') + '\n' + reason.error.message, 'danger');
                             console.warn(reason);
                         });
                         this.formGroup.markAsPristine();
                     } else {
-                        this.service.toast(this.translate.instant('Edge.Index.Widgets.DelayedSellToGrid.relationError'), 'danger');
+                        this.service.toast(this.translate.instant('EDGE.INDEX.WIDGETS.DELAYED_SELL_TO_GRID.RELATION_ERROR'), 'danger');
                     }
                 } else {
-                    this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
+                    this.service.toast(this.translate.instant('GENERAL.INPUT_NOT_VALID'), 'danger');
                 }
             } else {
-                this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
+                this.service.toast(this.translate.instant('GENERAL.INSUFFICIENT_RIGHTS'), 'danger');
             }
         }
     }

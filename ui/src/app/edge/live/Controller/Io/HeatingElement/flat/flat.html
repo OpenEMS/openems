@@ -1,14 +1,14 @@
 <ng-container *ngIf="isInitialized">
     <oe-flat-widget button (click)="presentModal()" [title]="component.alias" [icon]="{color: 'danger', name:'flame'}">
-        <oe-flat-widget-line [name]="'General.mode' | translate" [value]="mode | translate">
+        <oe-flat-widget-line [name]="'GENERAL.MODE' | translate" [value]="mode | translate">
         </oe-flat-widget-line>
-        <oe-flat-widget-line [name]="'General.state' | translate" [value]="state | translate">
+        <oe-flat-widget-line [name]="'GENERAL.STATE' | translate" [value]="state | translate">
         </oe-flat-widget-line>
 
         <!-- Shown when state is 'active'  -->
         <ng-container *ngIf="(activePhases | async) as activePhases">
             <oe-flat-widget-line *ngIf="activePhases > 0"
-                [name]="'Edge.Index.Widgets.Heatingelement.activeLevel' | translate"
+                [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.ACTIVE_LEVEL' | translate"
                 [value]="'Level&nbsp;'+ activePhases">
             </oe-flat-widget-line>
         </ng-container>

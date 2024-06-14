@@ -14,7 +14,7 @@
                     <ion-card-content *ngIf="formGroup !== null">
                         <form [formGroup]="formGroup">
                             <ion-item lines="full" class="noPadding">
-                                <ion-label position="stacked" translate>General.currentName</ion-label>
+                                <ion-label position="stacked" translate>GENERAL.CURRENT_NAME</ion-label>
                                 <ion-input formControlName="alias">
                                 </ion-input>
                             </ion-item>
@@ -23,12 +23,12 @@
                             <ion-col size="6" class="ion-text-center">
                                 <ion-button expand="full" (click)="updateAlias(formGroup.controls['alias'].value)"
                                     translate>
-                                    General.apply
+                                    GENERAL.APPLY
                                 </ion-button>
                             </ion-col>
                             <ion-col size="6" class="ion-text-center">
                                 <ion-button expand="full" (click)="updateAlias('')" translate>
-                                    General.reset
+                                    GENERAL.RESET
                                 </ion-button>
                             </ion-col>
                         </ion-row>

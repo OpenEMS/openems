@@ -193,10 +193,10 @@ export class StorageModalComponent implements OnInit, OnDestroy {
             });
 
             this.edge.updateComponentConfig(this.websocket, controllerId, properties).then(() => {
-                this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+                this.service.toast(this.translate.instant('GENERAL.CHANGE_ACCEPTED'), 'success');
                 this.formGroup.markAsPristine();
             }).catch(reason => {
-                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant('GENERAL.CHANGE_FAILED') + '\n' + reason, 'danger');
             });
         }
     }

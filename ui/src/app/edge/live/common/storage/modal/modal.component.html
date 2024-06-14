@@ -1,6 +1,6 @@
 <ion-header>
     <ion-toolbar color="primary">
-        <ion-title translate>General.storageSystem</ion-title>
+        <ion-title translate>GENERAL.STORAGE_SYSTEM</ion-title>
         <ion-buttons slot="end">
             <oe-help-button key="COMMON_STORAGE"></oe-help-button>
 
@@ -23,19 +23,19 @@
                     <table class="full_width">
                         <div style="padding-top: 5px;"></div>
                         <tr>
-                            <td style="width:65%" translate>General.soc</td>
+                            <td style="width:65%" translate>GENERAL.SOC</td>
                             <td style="width: 35%" class="align_right">
                                 {{ sum.soc | unitvalue:'%' }}
                             </td>
                         </tr>
                         <!-- Charge/Discharge -->
                         <tr>
-                            <td style="width:65%" translate>General.chargePower</td>
+                            <td style="width:65%" translate>GENERAL.CHARGE_POWER</td>
                             <td style="width:35%" class="align_right">{{ (sum.effectivePower <= 0 ? (sum.effectivePower
                                     * -1) : null) | unitvalue:'W' }}</td>
                         </tr>
                         <tr>
-                            <td style="width:65%" translate>General.dischargePower</td>
+                            <td style="width:65%" translate>GENERAL.DISCHARGE_POWER</td>
                             <td style="width:35%" class="align_right">
                                 {{ (sum.effectivePower > 0 ? sum.effectivePower : null) | unitvalue:'W' }}
                             </td>
@@ -51,8 +51,8 @@
                                     <ng-container *ngIf="value !== null && value !== undefined">
                                         <tr *ngIf="value > 0">
                                             <td style="width:2%"></td>
-                                            <td style="width:63%"><span translate>General.phase</span> {{ phase }} <span
-                                                    translate>General.dischargePower</span>
+                                            <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }} <span
+                                                    translate>GENERAL.DISCHARGE_POWER</span>
                                             </td>
                                             <td style="width:35%" class="align_right">
                                                 {{ value | unitvalue:'W' }}
@@ -60,8 +60,8 @@
                                         </tr>
                                         <tr *ngIf="value <= 0">
                                             <td style="width:2%"></td>
-                                            <td style="width:63%"><span translate>General.phase</span> {{ phase }} <span
-                                                    translate>General.chargePower</span>
+                                            <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }} <span
+                                                    translate>GENERAL.CHARGE_POWER</span>
                                             </td>
                                             <td style="width:35%" class="align_right">
                                                 {{ (value * -1) | unitvalue:'W' }}
@@ -75,8 +75,8 @@
                                     <ng-container *ngIf="value !== null && value !== undefined">
                                         <tr *ngIf="value > 0">
                                             <td style="width:2%"></td>
-                                            <td style="width:63%"><span translate>General.phase</span> {{ phase }} <span
-                                                    translate>General.dischargePower</span>
+                                            <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }} <span
+                                                    translate>GENERAL.DISCHARGE_POWER</span>
                                             </td>
                                             <td style="width:35%" class="align_right">
                                                 {{ value | unitvalue:'W' }}
@@ -84,8 +84,8 @@
                                         </tr>
                                         <tr *ngIf="value <= 0">
                                             <td style="width:2%"></td>
-                                            <td style="width:63%"><span translate>General.phase</span> {{ phase }} <span
-                                                    translate>General.chargePower</span>
+                                            <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }} <span
+                                                    translate>GENERAL.CHARGE_POWER</span>
                                             </td>
                                             <td style="width:35%" class="align_right">
                                                 {{ (value * -1) | unitvalue:'W' }}
@@ -106,7 +106,7 @@
                                     <tr>
                                         <ion-item-divider color="light">
                                             <td style="width: 70%;" translate>
-                                                Edge.Index.EmergencyReserve.EMERGENCY_RESERVE
+                                                EDGE.INDEX.EMERGENCY_RESERVE.EMERGENCY_RESERVE
                                             </td>
                                             <td style="width: 15%;" class="align_right">
                                                 {{formGroup.value[component.id]?.['emergencyReserveController']?.reserveSoc|
@@ -133,7 +133,7 @@
                                             <ion-note class="ion-text-wrap ion-align-items-center">
                                                 <ion-text>
                                                     <small translate>
-                                                        Edge.Index.EmergencyReserve.INFO_FOR_EMERGENCY_RESERVE_SLIDER
+                                                        EDGE.INDEX.EMERGENCY_RESERVE.INFO_FOR_EMERGENCY_RESERVE_SLIDER
                                                     </small>
                                                 </ion-text>
                                             </ion-note>
@@ -165,7 +165,7 @@
                                 <tr>
                                     <ion-item-divider color="light">
                                         <td style="width: 90%;" translate>
-                                            Edge.Index.RETROFITTING.OPTIMAL
+                                            EDGE.INDEX.RETROFITTING.OPTIMAL
                                         </td>
                                         <td style="width: 15%" class="align_right">
                                             <ion-toggle formControlName="isRunning">
@@ -185,11 +185,11 @@
                                             <ion-segment [formControlName]="'targetTimeSpecified'">
                                                 <ion-segment-button value="false">
                                                     <ion-label
-                                                        translate>Edge.Index.RETROFITTING.INSTANT_START</ion-label>
+                                                        translate>EDGE.INDEX.RETROFITTING.INSTANT_START</ion-label>
                                                 </ion-segment-button>
                                                 <ion-segment-button value="true">
                                                     <ion-label
-                                                        translate>Edge.Index.RETROFITTING.PLANNED_EXPANSION</ion-label>
+                                                        translate>EDGE.INDEX.RETROFITTING.PLANNED_EXPANSION</ion-label>
                                                 </ion-segment-button>
                                             </ion-segment>
 
@@ -208,7 +208,7 @@
                                                                  targetTime: prepareBatteryExtensionController['targetTime'],
                                                                  targetTimeBuffer: prepareBatteryExtensionController['targetTimeBuffer'] }"
                                                                     translate>
-                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_INSTANT_START
+                                                                    EDGE.INDEX.RETROFITTING.INFORMATION_FOR_INSTANT_START
                                                                 </small>
                                                             </ion-text>
                                                         </ion-note>
@@ -227,14 +227,14 @@
                                                             <ion-label style="text-align: center"
                                                                 *ngIf="prepareBatteryExtensionController['targetTime'] as targetTime, else noValidTargetTime"
                                                                 [translateParams]="{date: targetTime | date: 'dd.MM.yyyy', time: targetTime | date: 'HH:mm'}"
-                                                                translate>Edge.Index.RETROFITTING.ON_DATE_AT_TIME
+                                                                translate>EDGE.INDEX.RETROFITTING.ON_DATE_AT_TIME
                                                             </ion-label>
 
                                                             <ng-template #noValidTargetTime>
                                                                 <ion-icon name="warning-outline"
                                                                     color="warning"></ion-icon>
                                                                 <ion-label style="text-align: center;" translate>
-                                                                    Edge.Index.RETROFITTING.SELECT_A_DATE
+                                                                    EDGE.INDEX.RETROFITTING.SELECT_A_DATE
                                                                 </ion-label>
                                                             </ng-template>
 
@@ -245,8 +245,8 @@
                                                                     <ion-datetime [showDefaultButtons]="true"
                                                                         style="overflow-y: auto;"
                                                                         presentation="date-time"
-                                                                        [doneText]="translate.instant('General.ok')"
-                                                                        [cancelText]="translate.instant('General.cancel')"
+                                                                        [doneText]="translate.instant('GENERAL.OK')"
+                                                                        [cancelText]="translate.instant('GENERAL.CANCEL')"
                                                                         [formControlName]="'targetTime'"></ion-datetime>
                                                                 </ng-template>
                                                             </ion-popover>
@@ -271,14 +271,14 @@
                                                                 targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc'],
                                                                 targetTimeBuffer: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetTimeBuffer'] }"
                                                                     translate>
-                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION
+                                                                    EDGE.INDEX.RETROFITTING.INFORMATION_FOR__PL_ANNED_EXPANSION
                                                                 </small>
                                                                 <small *ngIf="isTargetTimeInValid.get(component.id)"
                                                                     translate
                                                                     [translateParams]="{
                                                                 targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc']}"
                                                                     translate>
-                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE
+                                                                    EDGE.INDEX.RETROFITTING.INFORMATION_FOR__PL_ANNED_EXPANSION_INVALID_TARGET_DATE
                                                                 </small>
                                                             </ion-text>
                                                         </ion-note>
@@ -305,24 +305,24 @@
                     <table class="full_width">
                         <tr>
                             <td style="width:100%" translate>
-                                General.TOTAL
+                                GENERAL.TOTAL
                             </td>
                         </tr>
                         <div style="padding-top: 5px;"></div>
                         <tr>
-                            <td style="width: 65%" translate>General.soc</td>
+                            <td style="width: 65%" translate>GENERAL.SOC</td>
                             <td style="width:35%" class="align_right">
                                 {{ sum.soc | unitvalue:'%' }}
                             </td>
                         </tr>
                         <tr>
-                            <td style="width:65%" translate>General.chargePower</td>
+                            <td style="width:65%" translate>GENERAL.CHARGE_POWER</td>
                             <td style="width:35%" class="align_right">
                                 {{ sum.effectiveChargePower | unitvalue:'W' }}
                             </td>
                         </tr>
                         <tr>
-                            <td style="width:65%" translate>General.dischargePower</td>
+                            <td style="width:65%" translate>GENERAL.DISCHARGE_POWER</td>
                             <td style="width:35%" class="align_right">
                                 {{ sum.effectiveDischargePower | unitvalue:'W' }}
                             </td>
@@ -339,8 +339,8 @@
                                         <ng-container *ngIf="value !== null && value !== undefined">
                                             <tr *ngIf="value > 0">
                                                 <td style="width:2%"></td>
-                                                <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.dischargePower</span>
+                                                <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }}
+                                                    <span translate>GENERAL.DISCHARGE_POWER</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ value | unitvalue:'W' }}
@@ -348,8 +348,8 @@
                                             </tr>
                                             <tr *ngIf="value <= 0">
                                                 <td style="width:2%"></td>
-                                                <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.chargePower</span>
+                                                <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }}
+                                                    <span translate>GENERAL.CHARGE_POWER</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ (value * -1) | unitvalue:'W' }}
@@ -363,8 +363,8 @@
                                         <ng-container *ngIf="value !== null && value !== undefined">
                                             <tr *ngIf="value > 0">
                                                 <td style="width:2%"></td>
-                                                <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.dischargePower</span>
+                                                <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }}
+                                                    <span translate>GENERAL.DISCHARGE_POWER</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ value | unitvalue:'W' }}
@@ -372,8 +372,8 @@
                                             </tr>
                                             <tr *ngIf="value <= 0">
                                                 <td style="width:2%"></td>
-                                                <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.chargePower</span>
+                                                <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }}
+                                                    <span translate>GENERAL.CHARGE_POWER</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ (value * -1) | unitvalue:'W' }}
@@ -399,7 +399,7 @@
                                             </ion-col>
                                             <ion-col size="10">
                                                 <ion-note class="ion-text-wrap"><small
-                                                        translate>Edge.Index.Widgets.phasesInfo</small>
+                                                        translate>EDGE.INDEX.WIDGETS.PHASES_INFO</small>
                                                 </ion-note>
                                             </ion-col>
                                         </ion-row>
@@ -425,7 +425,7 @@
                                 </tr>
                                 <div style="padding-top: 5px;"></div>
                                 <tr>
-                                    <td style="width: 65%" translate>General.soc</td>
+                                    <td style="width: 65%" translate>GENERAL.SOC</td>
                                     <td style="width: 35%" class="align_right">
                                         {{ currentData[component.id + '/Soc'] | unitvalue:'%' }}
                                     </td>
@@ -437,12 +437,12 @@
                                     *ngIf="factory.natureIds.includes('io.openems.edge.ess.api.SymmetricEss') && value !== null && value !== undefined"
                                     class="full_width">
                                     <tr>
-                                        <td style="width:65%" translate>General.chargePower</td>
+                                        <td style="width:65%" translate>GENERAL.CHARGE_POWER</td>
                                         <td style="width:35%" class="align_right">{{ (value <= 0 ? (value * -1) : null)
                                                 | unitvalue:'W' }}<td>
                                     </tr>
                                     <tr>
-                                        <td style="width:65%" translate>General.dischargePower</td>
+                                        <td style="width:65%" translate>GENERAL.DISCHARGE_POWER</td>
                                         <td style="width:35%" class="align_right">{{ (value > 0 ? value : null) |
                                             unitvalue:'W' }}
                                         <td>
@@ -457,8 +457,8 @@
                                         <tr *ngIf="value !== null && value !== undefined">
                                             <ng-container *ngIf="value > 0">
                                                 <td style="width:2%"></td>
-                                                <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.dischargePower</span>
+                                                <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }}
+                                                    <span translate>GENERAL.DISCHARGE_POWER</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ value | unitvalue:'W' }}
@@ -466,8 +466,8 @@
                                             </ng-container>
                                             <ng-container *ngIf="value <= 0">
                                                 <td style="width:2%"></td>
-                                                <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.chargePower</span>
+                                                <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }}
+                                                    <span translate>GENERAL.CHARGE_POWER</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ (value * -1) | unitvalue:'W' }}
@@ -486,7 +486,7 @@
                                             <tr>
                                                 <ion-item-divider color="light">
                                                     <td style="width: 70%;" translate>
-                                                        Edge.Index.EmergencyReserve.EMERGENCY_RESERVE
+                                                        EDGE.INDEX.EMERGENCY_RESERVE.EMERGENCY_RESERVE
                                                     </td>
                                                     <td style="width: 15%;" class="align_right">
                                                         {{formGroup.value[component.id]?.['emergencyReserveController']?.reserveSoc|
@@ -515,7 +515,7 @@
                                                     <ion-note class="ion-text-wrap ion-align-items-center">
                                                         <ion-text>
                                                             <small translate>
-                                                                Edge.Index.EmergencyReserve.INFO_FOR_EMERGENCY_RESERVE_SLIDER
+                                                                EDGE.INDEX.EMERGENCY_RESERVE.INFO_FOR_EMERGENCY_RESERVE_SLIDER
                                                             </small>
                                                         </ion-text>
                                                     </ion-note>
@@ -546,7 +546,7 @@
                                         <tr>
                                             <ion-item-divider color="light">
                                                 <td style="width: 90%;" translate>
-                                                    Edge.Index.RETROFITTING.OPTIMAL
+                                                    EDGE.INDEX.RETROFITTING.OPTIMAL
                                                 </td>
                                                 <td style="width: 15%" class="align_right">
                                                     <ion-toggle formControlName="isRunning">
@@ -567,11 +567,11 @@
                                                     <ion-segment [formControlName]="'targetTimeSpecified'">
                                                         <ion-segment-button value="false">
                                                             <ion-label
-                                                                translate>Edge.Index.RETROFITTING.INSTANT_START</ion-label>
+                                                                translate>EDGE.INDEX.RETROFITTING.INSTANT_START</ion-label>
                                                         </ion-segment-button>
                                                         <ion-segment-button value="true">
                                                             <ion-label
-                                                                translate>Edge.Index.RETROFITTING.PLANNED_EXPANSION</ion-label>
+                                                                translate>EDGE.INDEX.RETROFITTING.PLANNED_EXPANSION</ion-label>
                                                         </ion-segment-button>
                                                     </ion-segment>
 
@@ -591,7 +591,7 @@
                                                                  targetTime: prepareBatteryExtensionController['targetTime'],
                                                                  targetTimeBuffer: prepareBatteryExtensionController['targetTimeBuffer'] }"
                                                                             translate>
-                                                                            Edge.Index.RETROFITTING.INFORMATION_FOR_INSTANT_START
+                                                                            EDGE.INDEX.RETROFITTING.INFORMATION_FOR_INSTANT_START
                                                                         </small>
                                                                     </ion-text>
                                                                 </ion-note>
@@ -610,7 +610,7 @@
                                                                     <ion-label style="text-align: center"
                                                                         *ngIf="prepareBatteryExtensionController['targetTime'] as targetTime, else noValidTargetTime"
                                                                         [translateParams]="{date: targetTime | date: 'dd.MM.yyyy', time: targetTime | date: 'HH:mm'}"
-                                                                        translate>Edge.Index.RETROFITTING.ON_DATE_AT_TIME
+                                                                        translate>EDGE.INDEX.RETROFITTING.ON_DATE_AT_TIME
                                                                     </ion-label>
 
                                                                     <ng-template #noValidTargetTime>
@@ -618,7 +618,7 @@
                                                                             color="warning"></ion-icon>
                                                                         <ion-label style="text-align: center;"
                                                                             translate>
-                                                                            Edge.Index.RETROFITTING.SELECT_A_DATE
+                                                                            EDGE.INDEX.RETROFITTING.SELECT_A_DATE
                                                                         </ion-label>
                                                                     </ng-template>
 
@@ -629,8 +629,8 @@
                                                                             <ion-datetime [showDefaultButtons]="true"
                                                                                 style="overflow-y: auto;"
                                                                                 presentation="date-time"
-                                                                                [doneText]="translate.instant('General.ok')"
-                                                                                [cancelText]="translate.instant('General.cancel')"
+                                                                                [doneText]="translate.instant('GENERAL.OK')"
+                                                                                [cancelText]="translate.instant('GENERAL.CANCEL')"
                                                                                 [formControlName]="'targetTime'"></ion-datetime>
                                                                         </ng-template>
                                                                     </ion-popover>
@@ -656,7 +656,7 @@
                                                                 targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc'],
                                                                 targetTimeBuffer: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetTimeBuffer'] }"
                                                                             translate>
-                                                                            Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION
+                                                                            EDGE.INDEX.RETROFITTING.INFORMATION_FOR__PL_ANNED_EXPANSION
                                                                         </small>
                                                                         <small
                                                                             *ngIf="isTargetTimeInValid.get(component.id)"
@@ -664,7 +664,7 @@
                                                                             [translateParams]="{
                                                                 targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc']}"
                                                                             translate>
-                                                                            Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE
+                                                                            EDGE.INDEX.RETROFITTING.INFORMATION_FOR__PL_ANNED_EXPANSION_INVALID_TARGET_DATE
                                                                         </small>
                                                                     </ion-text>
                                                                 </ion-note>
@@ -696,14 +696,14 @@
                                     <td style="width: 100%">{{ component.alias }}</td>
                                 </tr>
                                 <tr>
-                                    <td style="width:20%" translate>General.chargePower</td>
+                                    <td style="width:20%" translate>GENERAL.CHARGE_POWER</td>
                                     <td style="width:30%"></td>
                                     <td style="width:35%" class="align_right">
                                         {{ (value > 0 ? value : null) | unitvalue:'W' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="width:20%" translate>General.dischargePower</td>
+                                    <td style="width:20%" translate>GENERAL.DISCHARGE_POWER</td>
                                     <td style="width:30%"></td>
                                     <td style="width:35%" class="align_right">
                                         {{ (value <= 0 ? (value * -1) : null | unitvalue:'W') }}</td>
@@ -720,7 +720,7 @@
                                     <tr>
                                         <ion-item-divider color="light">
                                             <td style="width: 70%;" translate>
-                                                Edge.Index.EmergencyReserve.EMERGENCY_RESERVE
+                                                EDGE.INDEX.EMERGENCY_RESERVE.EMERGENCY_RESERVE
                                             </td>
                                             <td style="width: 15%;" class="align_right">
                                                 {{formGroup.value[component.id]?.['emergencyReserveController']?.reserveSoc|
@@ -747,7 +747,7 @@
                                             <ion-note class="ion-text-wrap ion-align-items-center">
                                                 <ion-text>
                                                     <small translate>
-                                                        Edge.Index.EmergencyReserve.INFO_FOR_EMERGENCY_RESERVE_SLIDER
+                                                        EDGE.INDEX.EMERGENCY_RESERVE.INFO_FOR_EMERGENCY_RESERVE_SLIDER
                                                     </small>
                                                 </ion-text>
                                             </ion-note>
@@ -777,7 +777,7 @@
                                 <tr>
                                     <ion-item-divider color="light">
                                         <td style="width: 90%;" translate>
-                                            Edge.Index.RETROFITTING.OPTIMAL
+                                            EDGE.INDEX.RETROFITTING.OPTIMAL
                                         </td>
                                         <td style="width: 15%" class="align_right">
                                             <ion-toggle formControlName="isRunning">
@@ -797,11 +797,11 @@
                                             <ion-segment [formControlName]="'targetTimeSpecified'">
                                                 <ion-segment-button value="false">
                                                     <ion-label
-                                                        translate>Edge.Index.RETROFITTING.INSTANT_START</ion-label>
+                                                        translate>EDGE.INDEX.RETROFITTING.INSTANT_START</ion-label>
                                                 </ion-segment-button>
                                                 <ion-segment-button value="true">
                                                     <ion-label
-                                                        translate>Edge.Index.RETROFITTING.PLANNED_EXPANSION</ion-label>
+                                                        translate>EDGE.INDEX.RETROFITTING.PLANNED_EXPANSION</ion-label>
                                                 </ion-segment-button>
                                             </ion-segment>
 
@@ -820,7 +820,7 @@
                                                              targetTime: prepareBatteryExtensionController['targetTime'],
                                                              targetTimeBuffer: prepareBatteryExtensionController['targetTimeBuffer'] }"
                                                                     translate>
-                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_INSTANT_START
+                                                                    EDGE.INDEX.RETROFITTING.INFORMATION_FOR_INSTANT_START
                                                                 </small>
                                                             </ion-text>
                                                         </ion-note>
@@ -839,14 +839,14 @@
                                                             <ion-label style="text-align: center"
                                                                 *ngIf="prepareBatteryExtensionController['targetTime'] as targetTime, else noValidTargetTime"
                                                                 [translateParams]="{date: targetTime | date: 'dd.MM.yyyy', time: targetTime | date: 'HH:mm'}"
-                                                                translate>Edge.Index.RETROFITTING.ON_DATE_AT_TIME
+                                                                translate>EDGE.INDEX.RETROFITTING.ON_DATE_AT_TIME
                                                             </ion-label>
 
                                                             <ng-template #noValidTargetTime>
                                                                 <ion-icon name="warning-outline"
                                                                     color="warning"></ion-icon>
                                                                 <ion-label style="text-align: center;" translate>
-                                                                    Edge.Index.RETROFITTING.SELECT_A_DATE
+                                                                    EDGE.INDEX.RETROFITTING.SELECT_A_DATE
                                                                 </ion-label>
                                                             </ng-template>
 
@@ -857,8 +857,8 @@
                                                                     <ion-datetime [showDefaultButtons]="true"
                                                                         style="overflow-y: auto;"
                                                                         presentation="date-time"
-                                                                        [doneText]="translate.instant('General.ok')"
-                                                                        [cancelText]="translate.instant('General.cancel')"
+                                                                        [doneText]="translate.instant('GENERAL.OK')"
+                                                                        [cancelText]="translate.instant('GENERAL.CANCEL')"
                                                                         [formControlName]="'targetTime'"></ion-datetime>
                                                                 </ng-template>
                                                             </ion-popover>
@@ -883,14 +883,14 @@
                                                             targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc'],
                                                             targetTimeBuffer: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetTimeBuffer'] }"
                                                                     translate>
-                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION
+                                                                    EDGE.INDEX.RETROFITTING.INFORMATION_FOR__PL_ANNED_EXPANSION
                                                                 </small>
                                                                 <small *ngIf="isTargetTimeInValid.get(component.id)"
                                                                     translate
                                                                     [translateParams]="{
                                                             targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc']}"
                                                                     translate>
-                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE
+                                                                    EDGE.INDEX.RETROFITTING.INFORMATION_FOR__PL_ANNED_EXPANSION_INVALID_TARGET_DATE
                                                                 </small>
                                                             </ion-text>
                                                         </ion-note>
@@ -916,11 +916,11 @@
                 <td>
                     <ion-text>
                         <span translate>
-                            Edge.Index.RETROFITTING.UPDATE_TO_NEW_VERSION
+                            EDGE.INDEX.RETROFITTING.UPDATE_TO_NEW_VERSION
                         </span>
                         →
                         <a (click)="modalCtrl.dismiss()" routerLink="/device/{{ edge.id }}/settings/system"
-                            [innerHtml]="'Edge.Index.SYSTEMUPDATE' | translate"></a>
+                            [innerHtml]="'EDGE.INDEX.SYSTEMUPDATE' | translate"></a>
                     </ion-text>
                 </td>
             </tr>

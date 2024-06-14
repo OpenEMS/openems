@@ -164,7 +164,7 @@ export async function presentAlert(alertController: AlertController, translate: 
   const alert = alertController.create({
     ...alertOptions,
     buttons: [{
-      text: translate.instant('General.cancel'),
+      text: translate.instant('GENERAL.CANCEL'),
       role: 'cancel',
     },
     ...(alertOptions?.buttons ?? []),

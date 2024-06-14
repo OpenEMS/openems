@@ -15,7 +15,7 @@
           <ion-card *ngSwitchCase="'waiting for credentials'">
             <ion-item color="primary" lines="full">
               <ion-icon slot="start" name="person-outline"></ion-icon>
-              <ion-label translate>Login.title</ion-label>
+              <ion-label translate>LOGIN.TITLE</ion-label>
             </ion-item>
 
             <!-- OpenEMS Edge Login -->
@@ -24,12 +24,12 @@
                 <div class="ion-padding">
                   <ion-item>
                     <ion-text class="ion-text-wrap" color="medium" translate>
-                      Login.preamble
+                      LOGIN.PREAMBLE
                     </ion-text>
                   </ion-item>
                   <ion-item>
-                    <ion-label position="floating" translate>Login.passwordLabel</ion-label>
-                    <ion-input #password required type="password" [placeholder]="'Login.passwordLabel' | translate"
+                    <ion-label position="floating" translate>LOGIN.PASSWORD_LABEL</ion-label>
+                    <ion-input #password required type="password" [placeholder]="'LOGIN.PASSWORD_LABEL' | translate"
                       value="user"></ion-input>
                   </ion-item>
 
@@ -47,14 +47,14 @@
             <ion-card-content *ngIf="environment.backend === 'OpenEMS Backend'">
               <form (ngSubmit)="doLogin({ username: username.value, password: password.value})">
                 <ion-item>
-                  <ion-label position="floating">E-Mail / <span translate>Login.user</span></ion-label>
+                  <ion-label position="floating">E-Mail / <span translate>LOGIN.USER</span></ion-label>
                   <ion-input #username required type="input"
-                    [placeholder]="'E-Mail / ' + ('Login.passwordLabel' | translate)">
+                    [placeholder]="'E-Mail / ' + ('LOGIN.PASSWORD_LABEL' | translate)">
                   </ion-input>
                 </ion-item>
                 <ion-item>
-                  <ion-label position="floating" translate>Login.passwordLabel</ion-label>
-                  <ion-input #password required type="password" [placeholder]="'Login.passwordLabel' | translate">
+                  <ion-label position="floating" translate>LOGIN.PASSWORD_LABEL</ion-label>
+                  <ion-input #password required type="password" [placeholder]="'LOGIN.PASSWORD_LABEL' | translate">
                   </ion-input>
                 </ion-item>
 
@@ -68,7 +68,7 @@
                     <tr>
                       <a type="button" class="ion-float-left" size="small" [href]="environment.links.FORGET_PASSWORD"
                         style="text-decoration: none;">
-                        <small translate>Login.passwordReset</small>
+                        <small translate>LOGIN.PASSWORD_RESET</small>
                       </a>
                     </tr>
                     <tr>

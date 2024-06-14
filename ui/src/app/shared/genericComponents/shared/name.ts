@@ -9,9 +9,9 @@ export namespace Name {
     (value): string => {
       if (typeof value === "number") {
         if (value < 0) {
-          return name + " " + translate.instant('General.gridSellAdvanced');
+          return name + " " + translate.instant('GENERAL.GRID_SELL_ADVANCED');
         } else {
-          return name + " " + translate.instant('General.gridBuyAdvanced');
+          return name + " " + translate.instant('GENERAL.GRID_BUY_ADVANCED');
         }
       }
       return name;

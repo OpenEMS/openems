@@ -61,39 +61,39 @@ export class ModalComponent extends AbstractModal {
                 currentData.allComponents[this.component.id + '/DelayChargeState'] != DelayChargeState.ACTIVE_LIMIT &&
                 currentData.allComponents[this.component.id + '/SellToGridLimitMinimumChargeLimit'] > 0)) {
             this.chargeLimit = {
-                name: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.minimumCharge'),
+                name: this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MINIMUM_CHARGE'),
                 value: currentData.allComponents[this.component.id + '/SellToGridLimitMinimumChargeLimit'],
             };
-            this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.gridFeedInLimitationIsAvoided');
+            this.state = this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.GRID_FEED_IN_LIMITATION_IS_AVOIDED');
 
         } else {
 
             // DelayCharge State
             switch (currentData.allComponents[this.component.id + '/DelayChargeState']) {
-                case -1: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.notDefined');
+                case -1: this.state = this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NOT_DEFINED');
                     break;
-                case 0: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.chargeLimitActive');
+                case 0: this.state = this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.CHARGE_LIMIT_ACTIVE');
                     break;
-                case 1: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.passedEndTime');
+                case 1: this.state = this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.PASSED_END_TIME');
                     break;
-                case 2: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.storageAlreadyFull');
+                case 2: this.state = this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.STORAGE_ALREADY_FULL');
                     break;
-                case 3: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.endTimeNotCalculated');
+                case 3: this.state = this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.END_TIME_NOT_CALCULATED');
                     break;
-                case 4: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitPossible');
+                case 4: this.state = this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_POSSIBLE');
                     break;
                 case 5: // Case 6: 'DISABLED' hides 'state-line', so no Message needed
-                case 7: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive');
+                case 7: this.state = this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_ACTIVE');
                     break;
 
-                case 8: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed');
+                case 8: this.state = this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.CHARGING_DELAYED');
                     break;
             }
 
             // DelayCharge Maximum Charge Limit
             if (currentData.allComponents[this.component.id + '/DelayChargeMaximumChargeLimit'] != null) {
                 this.chargeLimit = {
-                    name: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.maximumCharge'),
+                    name: this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_CHARGE'),
                     value: currentData.allComponents[this.component.id + '/DelayChargeMaximumChargeLimit'],
                 };
             }

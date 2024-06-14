@@ -44,7 +44,7 @@ export class UserComponent implements OnInit {
     key: "firstname",
     type: "input",
     props: {
-      label: this.translate.instant("Register.Form.firstname"),
+      label: this.translate.instant("REGISTER.FORM.FIRSTNAME"),
       disabled: true,
     },
   },
@@ -52,7 +52,7 @@ export class UserComponent implements OnInit {
     key: "lastname",
     type: "input",
     props: {
-      label: this.translate.instant("Register.Form.lastname"),
+      label: this.translate.instant("REGISTER.FORM.LASTNAME"),
       disabled: true,
     },
   }];
@@ -68,7 +68,7 @@ export class UserComponent implements OnInit {
   ngOnInit() {
     // Set currentLanguage to
     this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
-    this.service.setCurrentComponent({ languageKey: 'Menu.user' }, this.route);
+    this.service.setCurrentComponent({ languageKey: 'MENU.USER' }, this.route);
     this.getUserInformation().then((userInformation) => {
       this.form = {
         formGroup: new FormGroup({}),
@@ -79,7 +79,7 @@ export class UserComponent implements OnInit {
         key: "street",
         type: "input",
         props: {
-          label: this.translate.instant("Register.Form.street"),
+          label: this.translate.instant("REGISTER.FORM.STREET"),
           disabled: true,
         },
       },
@@ -87,7 +87,7 @@ export class UserComponent implements OnInit {
         key: "zip",
         type: "input",
         props: {
-          label: this.translate.instant("Register.Form.zip"),
+          label: this.translate.instant("REGISTER.FORM.ZIP"),
           disabled: true,
         },
       },
@@ -95,7 +95,7 @@ export class UserComponent implements OnInit {
         key: "city",
         type: "input",
         props: {
-          label: this.translate.instant("Register.Form.city"),
+          label: this.translate.instant("REGISTER.FORM.CITY"),
           disabled: true,
         },
       },
@@ -103,7 +103,7 @@ export class UserComponent implements OnInit {
         key: "country",
         type: "select",
         props: {
-          label: this.translate.instant("Register.Form.country"),
+          label: this.translate.instant("REGISTER.FORM.COUNTRY"),
           options: COUNTRY_OPTIONS(this.translate),
           disabled: true,
         },
@@ -112,7 +112,7 @@ export class UserComponent implements OnInit {
         key: "email",
         type: "input",
         props: {
-          label: this.translate.instant("Register.Form.email"),
+          label: this.translate.instant("REGISTER.FORM.EMAIL"),
           disabled: true,
         },
         validators: {
@@ -123,7 +123,7 @@ export class UserComponent implements OnInit {
         key: "phone",
         type: "input",
         props: {
-          label: this.translate.instant("Register.Form.phone"),
+          label: this.translate.instant("REGISTER.FORM.PHONE"),
           disabled: true,
         },
       }];
@@ -134,7 +134,7 @@ export class UserComponent implements OnInit {
             key: "companyName",
             type: "input",
             props: {
-              label: this.translate.instant('Register.Form.companyName'),
+              label: this.translate.instant('REGISTER.FORM.COMPANY_NAME'),
               disabled: true,
             },
           },
@@ -169,9 +169,9 @@ export class UserComponent implements OnInit {
     };
 
     this.service.websocket.sendRequest(new SetUserInformationRequest(params)).then(() => {
-      this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+      this.service.toast(this.translate.instant('GENERAL.CHANGE_ACCEPTED'), 'success');
     }).catch((reason) => {
-      this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+      this.service.toast(this.translate.instant('GENERAL.CHANGE_FAILED') + '\n' + reason.error.message, 'danger');
     });
     this.enableAndDisableFormFields();
     this.form.formGroup.markAsPristine();
@@ -240,7 +240,7 @@ export class UserComponent implements OnInit {
   }
 
   /**
-   * Logout from OpenEMS Edge or Backend.
+   * Logout from OpenEMS EDGE or Backend.
    */
   public doLogout() {
     this.websocket.logout();
@@ -257,9 +257,9 @@ export class UserComponent implements OnInit {
 
     this.service.setLang(language);
     this.websocket.sendRequest(new UpdateUserLanguageRequest({ language: language.key })).then(() => {
-      this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+      this.service.toast(this.translate.instant('GENERAL.CHANGE_ACCEPTED'), 'success');
     }).catch((reason) => {
-      this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+      this.service.toast(this.translate.instant('GENERAL.CHANGE_FAILED') + '\n' + reason.error.message, 'danger');
     });
 
     this.currentLanguage = language;

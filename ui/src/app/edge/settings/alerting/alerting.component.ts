@@ -56,7 +56,7 @@ export class AlertingComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.alerting' }, this.route).then(edge => {
+    this.service.setCurrentComponent({ languageKey: 'EDGE.CONFIG.INDEX.ALERTING' }, this.route).then(edge => {
       this.edge = edge;
 
       const request = new GetUserAlertingConfigsRequest({ edgeId: this.edge.id });
@@ -180,22 +180,22 @@ export class AlertingComponent implements OnInit {
    */
   protected getLabelToDelay(delay: number): string {
     if (delay <= 0) {
-      return this.translate.instant("Edge.Config.ALERTING.DEACTIVATED");
+      return this.translate.instant("EDGE.CONFIG.ALERTING.DEACTIVATED");
     }
     if (delay >= 1440) {
       delay = delay / 1440;
       return delay + ' ' + (delay == 1
-        ? this.translate.instant("General.TIME.DAY")
-        : this.translate.instant("General.TIME.DAYS"));
+        ? this.translate.instant("GENERAL.TIME.DAY")
+        : this.translate.instant("GENERAL.TIME.DAYS"));
     } else if (delay >= 60) {
       delay = delay / 60;
       return delay + ' ' + (delay == 1
-        ? this.translate.instant("General.TIME.HOUR")
-        : this.translate.instant("General.TIME.HOURS"));
+        ? this.translate.instant("GENERAL.TIME.HOUR")
+        : this.translate.instant("GENERAL.TIME.HOURS"));
     } else {
       return delay + ' ' + (delay == 1
-        ? this.translate.instant("General.TIME.MINUTE")
-        : this.translate.instant("General.TIME.MINUTES"));
+        ? this.translate.instant("GENERAL.TIME.MINUTE")
+        : this.translate.instant("GENERAL.TIME.MINUTES"));
     }
   }
 
@@ -263,14 +263,14 @@ export class AlertingComponent implements OnInit {
   private sendRequestAndUpdate(request: GetUserAlertingConfigsRequest | SetUserAlertingConfigsRequest, formGroup: FormGroup<any>[]) {
     this.sendRequest(request)
       .then(() => {
-        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+        this.service.toast(this.translate.instant('GENERAL.CHANGE_ACCEPTED'), 'success');
         for (const group of formGroup.values()) {
           group.markAsPristine();
         }
       })
       .catch((response) => {
         const error = response.error;
-        this.errorToast(this.translate.instant('General.changeFailed'), error.message);
+        this.errorToast(this.translate.instant('GENERAL.CHANGE_FAILED'), error.message);
       });
   }
 
@@ -287,7 +287,7 @@ export class AlertingComponent implements OnInit {
       }).catch(reason => {
         const error = reason.error;
         console.error(error);
-        this.errorToast(this.translate.instant('Edge.Config.ALERTING.TOAST.ERROR'), error.message);
+        this.errorToast(this.translate.instant('EDGE.CONFIG.ALERTING.TOAST.ERROR'), error.message);
         reject(reason);
       }).finally(() => {
         this.service.stopSpinner(this.spinnerId);

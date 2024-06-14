@@ -49,7 +49,7 @@ export class MaintenanceComponent implements OnInit {
         message: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: environment.edgeShortName }),
         subHeader: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION', { system: environment.edgeShortName }),
         buttons: [{
-            text: this.translate.instant('General.RESTART'),
+            text: this.translate.instant('GENERAL.RESTART'),
             handler: () => this.execRestart(type),
         }],
     });
@@ -94,7 +94,7 @@ export class MaintenanceComponent implements OnInit {
         let disableButtons: boolean = false;
         let showInfo: boolean = false;
         let color: 'warning' | 'success' | null = null;
-        const system = type === Type.HARD ? environment.edgeShortName : this.translate.instant('General.SYSTEM');
+        const system = type === Type.HARD ? environment.edgeShortName : this.translate.instant('GENERAL.SYSTEM');
 
         switch (this.systemRestartState?.value?.state) {
             case SystemRestartState.FAILED:
@@ -186,11 +186,11 @@ export class MaintenanceComponent implements OnInit {
             subHeader: translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION', { system: system }),
             message: translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: system }),
             buttons: [{
-                text: translate.instant('General.cancel'),
+                text: translate.instant('GENERAL.CANCEL'),
                 role: 'cancel',
             },
             {
-                text: translate.instant('General.RESTART'),
+                text: translate.instant('GENERAL.RESTART'),
                 handler: () => this.execRestart(type),
             }],
             cssClass: 'alertController',

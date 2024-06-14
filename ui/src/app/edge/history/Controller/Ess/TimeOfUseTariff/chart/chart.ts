@@ -48,28 +48,28 @@ export class ChartComponent extends AbstractHistoryChart {
             ],
             output: (data: HistoryUtils.ChannelData) => {
                 return [{
-                    name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
+                    name: this.translate.instant('EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING'),
                     converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.Balancing),
                     color: 'rgb(51,102,0)',
                     stack: 1,
                     order: 1,
                 },
                 {
-                    name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
+                    name: this.translate.instant('EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
                     converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.ChargeGrid),
                     color: 'rgb(0, 204, 204)',
                     stack: 1,
                     order: 1,
                 },
                 {
-                    name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
+                    name: this.translate.instant('EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
                     converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.DelayDischarge),
                     color: 'rgb(0,0,0)',
                     stack: 1,
                     order: 1,
                 },
                 {
-                    name: this.translate.instant('General.soc'),
+                    name: this.translate.instant('GENERAL.SOC'),
                     converter: () => data['Soc']?.map(value => Utils.multiplySafely(value, 1000)),
                     color: 'rgb(189, 195, 199)',
                     borderDash: [10, 10],
@@ -82,7 +82,7 @@ export class ChartComponent extends AbstractHistoryChart {
                     order: 0,
                 },
                 {
-                    name: this.translate.instant('General.gridBuy'),
+                    name: this.translate.instant('GENERAL.GRID_BUY'),
                     converter: () => data['GridBuy'],
                     color: 'rgb(0,0,0)',
                     yAxisId: ChartAxis.RIGHT_2,
@@ -207,9 +207,9 @@ export class ChartComponent extends AbstractHistoryChart {
     private getMinimumAxisValue(datasets: Chart.ChartDataset[]): number {
 
         const labels = [
-            this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
-            this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
-            this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
+            this.translate.instant('EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING'),
+            this.translate.instant('EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
+            this.translate.instant('EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
         ];
 
         const finalArray: number[] = labels

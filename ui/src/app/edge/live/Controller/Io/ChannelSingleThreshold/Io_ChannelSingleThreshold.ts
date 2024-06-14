@@ -63,11 +63,11 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
     switch (this.outputChannelValue) {
       case 0:
         this.icon.name = 'radio-button-off-outline';
-        this.state = this.translate.instant('General.off');
+        this.state = this.translate.instant('GENERAL.OFF');
         break;
       case 1:
         this.icon.name = 'aperture-outline';
-        this.state = this.translate.instant('General.on');
+        this.state = this.translate.instant('GENERAL.ON');
         break;
     }
 
@@ -75,13 +75,13 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
     this.modeValue = currentData.allComponents[this.component.id + '/_PropertyMode'];
     switch (this.modeValue) {
       case 'ON':
-        this.mode = this.translate.instant('General.on');
+        this.mode = this.translate.instant('GENERAL.ON');
         break;
       case 'OFF':
-        this.mode = this.translate.instant('General.off');
+        this.mode = this.translate.instant('GENERAL.OFF');
         break;
       case 'AUTOMATIC':
-        this.mode = this.translate.instant('General.automatic');
+        this.mode = this.translate.instant('GENERAL.AUTOMATIC');
     }
 
 
@@ -91,11 +91,11 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
     // Set dependendOn Value for different inputChannel && Set the switchConverter and switchValue
     switch (this.inputChannel.toString()) {
       case '_sum/EssSoc':
-        this.dependendOn = this.translate.instant('General.soc');
+        this.dependendOn = this.translate.instant('GENERAL.SOC');
         this.switchConverter = Utils.CONVERT_TO_PERCENT;
         break;
       case '_sum/ProductionActivePower':
-        this.dependendOn = this.translate.instant('General.production');
+        this.dependendOn = this.translate.instant('GENERAL.PRODUCTION');
         break;
       case '_sum/GridActivePower':
         if (this.component.properties.threshold < 0) {
@@ -105,13 +105,13 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
             this.switchValue = this.component.properties['threshold'] * -1 - this.component.properties['switchedLoadPower'];
           }
 
-          this.dependendOn = this.translate.instant('General.gridSell');
+          this.dependendOn = this.translate.instant('GENERAL.GRID_SELL');
         } else if (this.component.properties.threshold > 0) {
           if (this.outputChannelValue == 1) {
             this.switchValue = this.component.properties['threshold'] - this.component.properties['switchedLoadPower'];
           }
 
-          this.dependendOn = this.translate.instant('General.gridBuy');
+          this.dependendOn = this.translate.instant('GENERAL.GRID_BUY');
         }
         break;
       default:
@@ -122,7 +122,7 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
           this.switchValue += this.unitOfInputChannel !== '' ? this.unitOfInputChannel : '';
         }
 
-        this.dependendOn = this.translate.instant('Edge.Index.Widgets.Singlethreshold.other')
+        this.dependendOn = this.translate.instant('EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.OTHER')
           + ' (' + this.component.properties.inputChannelAddress + ')';
         break;
     }
@@ -137,17 +137,17 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
       // Check if invert is false
       if (!this.component.properties.invert) {
         if (this.outputChannelValue == 0) {
-          this.switchState = this.translate.instant('Edge.Index.Widgets.Singlethreshold.switchOnAbove');
+          this.switchState = this.translate.instant('EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_ABOVE');
         } else if (this.outputChannelValue == 1) {
-          this.switchState = this.translate.instant('Edge.Index.Widgets.Singlethreshold.switchOffBelow');
+          this.switchState = this.translate.instant('EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_OFF_BELOW');
         }
 
         // Check if invert is true
       } else if (this.component.properties.invert) {
         if (this.outputChannelValue == 0) {
-          this.switchState = this.translate.instant('Edge.Index.Widgets.Singlethreshold.switchOnBelow');
+          this.switchState = this.translate.instant('EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_BELOW');
         } else if (this.outputChannelValue == 1) {
-          this.switchState = this.translate.instant('Edge.Index.Widgets.Singlethreshold.switchOffAbove');
+          this.switchState = this.translate.instant('EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_OFF_ABOVE');
         }
       }
 
@@ -156,17 +156,17 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
       // Check if invert is false
       if (!this.component.properties.invert) {
         if (this.outputChannelValue == 0) {
-          this.switchState = this.translate.instant('Edge.Index.Widgets.Singlethreshold.switchOnBelow');
+          this.switchState = this.translate.instant('EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_BELOW');
         } else if (this.outputChannelValue == 1) {
-          this.switchState = this.translate.instant('Edge.Index.Widgets.Singlethreshold.switchOffAbove');
+          this.switchState = this.translate.instant('EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_OFF_ABOVE');
         }
 
         // Check if invert is true
       } else if (this.component.properties.invert) {
         if (this.outputChannelValue == 0) {
-          this.switchState = this.translate.instant('Edge.Index.Widgets.Singlethreshold.switchOnAbove');
+          this.switchState = this.translate.instant('EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_ABOVE');
         } else if (this.outputChannelValue == 1) {
-          this.switchState = this.translate.instant('Edge.Index.Widgets.Singlethreshold.switchOffBelow');
+          this.switchState = this.translate.instant('EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_OFF_BELOW');
         }
       }
     }

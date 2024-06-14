@@ -67,7 +67,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
                 });
                 if (address.channelId == "ActualPower") {
                     datasets.push({
-                        label: this.translate.instant('General.chargePower'),
+                        label: this.translate.instant('GENERAL.CHARGE_POWER'),
                         data: chargerData,
                         hidden: false,
                     });

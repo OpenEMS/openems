@@ -14,7 +14,7 @@
                                     <ion-item color="warning" lines="full">
                                         <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
                                         <ion-label class="ion-text-wrap ion-text-center" translate
-                                            [translateParams]="{edgeShortName: environment.edgeShortName}">Index.NO_EDGE_AVAILABLE</ion-label>
+                                            [translateParams]="{edgeShortName: environment.edgeShortName}">INDEX.NO_EDGE_AVAILABLE</ion-label>
                                     </ion-item>
                                     <ion-card-content class="ion-text-center">
                                         <p translate [translateParams]="{edgeShortName: environment.edgeShortName}">
@@ -25,11 +25,11 @@
                                     <ion-item color="warning" lines="full">
                                         <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
                                         <ion-label class="ion-text-wrap ion-text-center" translate
-                                            [translateParams]="{edgeShortName: environment.edgeShortName}">Index.NO_EDGE_FOR_USER</ion-label>
+                                            [translateParams]="{edgeShortName: environment.edgeShortName}">INDEX.NO_EDGE_FOR_USER</ion-label>
                                     </ion-item>
                                     <ion-card-content class="ion-text-center">
                                         <p translate [translateParams]="{edgeShortName: environment.edgeShortName}">
-                                            Index.VISIBLE_HERE_AFTER_INSTALLATION</p>
+                                            INDEX.VISIBLE_HERE_AFTER_INSTALLATION</p>
                                     </ion-card-content>
                                 </ng-template>
                             </ng-container>
@@ -64,9 +64,9 @@
                                                 <ion-label>
                                                     <h2 class="ion-text-wrap">{{ edge.comment }}</h2>
                                                     <p *ngIf="!edge.isOnline" class="ion-text-wrap">
-                                                        <ion-text translate>Index.deviceOffline</ion-text>
+                                                        <ion-text translate>INDEX.DEVICE_OFFLINE</ion-text>
                                                         <ion-label *ngIf="edge.lastmessage">
-                                                            <ion-text translate>Index.OFFLINE_SINCE</ion-text>
+                                                            <ion-text translate>INDEX.OFFLINE_SINCE</ion-text>
                                                             {{edge.lastmessage | date:'dd.MM.yyyy HH:mm'}}
                                                         </ion-label>
                                                     </p>
@@ -75,12 +75,12 @@
                                                     <ng-container *ngIf="environment.backend === 'OpenEMS Backend'">
                                                         <p>ID: {{ edge.id }}</p>
                                                         <p class="ion-text-wrap">
-                                                            <ion-text translate>Index.TYPE</ion-text>: {{
+                                                            <ion-text translate>INDEX.TYPE</ion-text>: {{
                                                             edge.producttype }}
                                                         </p>
                                                     </ng-container>
                                                     <p class="ion-text-wrap">
-                                                        <ion-text translate>Index.LOGGED_IN_AS</ion-text>: {{
+                                                        <ion-text translate>INDEX.LOGGED_IN_AS</ion-text>: {{
                                                         edge.getRoleString() }}
                                                     </p>
                                                 </ion-label>
@@ -109,7 +109,7 @@
                     <ion-fab-list side="top" style="left: 0; align-items: flex-start;" id="blurred">
                         <ion-button color="primary" [routerLink]="['./installation']" routerLinkActive="active"
                             translate
-                            [translateParams]="{edgeShortName: environment.edgeShortName}">Index.ADD_EDGE</ion-button>
+                            [translateParams]="{edgeShortName: environment.edgeShortName}">INDEX.ADD_EDGE</ion-button>
                     </ion-fab-list>
                 </ion-fab>
 
@@ -122,7 +122,7 @@
                     <ion-fab-list side="top" style="right: 0; align-items: flex-end;">
                         <ion-button color="primary" [routerLink]="['./installation']" routerLinkActive="active"
                             translate
-                            [translateParams]="{edgeShortName: environment.edgeShortName}">Index.ADD_EDGE</ion-button>
+                            [translateParams]="{edgeShortName: environment.edgeShortName}">INDEX.ADD_EDGE</ion-button>
                     </ion-fab-list>
                 </ion-fab>
             </ion-col>

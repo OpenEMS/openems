@@ -29,7 +29,7 @@ export class IndexComponent implements OnInit {
   }
 
   public ngOnInit() {
-    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.adjustComponents' }, this.route);
+    this.service.setCurrentComponent({ languageKey: 'EDGE.CONFIG.INDEX.ADJUST_COMPONENTS' }, this.route);
     this.service.getConfig().then(config => {
       this.config = config;
       const categorizedComponentIds: string[] = [];

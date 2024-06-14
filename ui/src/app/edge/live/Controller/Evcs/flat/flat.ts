@@ -82,9 +82,9 @@ export class FlatComponent extends AbstractFlatWidget {
     // Mode
     if (this.isChargingEnabled) {
       if (this.chargeMode == 'FORCE_CHARGE') {
-        this.mode = this.translate.instant('General.manually');
+        this.mode = this.translate.instant('GENERAL.MANUALLY');
       } else if (this.chargeMode == 'EXCESS_POWER') {
-        this.mode = this.translate.instant('Edge.Index.Widgets.EVCS.OptimizedChargeMode.shortName');
+        this.mode = this.translate.instant('EDGE.INDEX.WIDGETS.EVCS.OPTIMIZED_CHARGE_MODE.SHORT_NAME');
       }
     }
 
@@ -133,34 +133,34 @@ export class FlatComponent extends AbstractFlatWidget {
   private getState(enabledCharging: boolean, state: number, plug: number): string {
 
     if (enabledCharging === false) {
-      return this.translate.instant('Edge.Index.Widgets.EVCS.chargingStationDeactivated');
+      return this.translate.instant('EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION_DEACTIVATED');
     }
 
     if (plug == null) {
       if (state == null) {
-        return this.translate.instant('Edge.Index.Widgets.EVCS.notCharging');
+        return this.translate.instant('EDGE.INDEX.WIDGETS.EVCS.NOT_CHARGING');
       }
     } else if (plug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
-      return this.translate.instant('Edge.Index.Widgets.EVCS.cableNotConnected');
+      return this.translate.instant('EDGE.INDEX.WIDGETS.EVCS.CABLE_NOT_CONNECTED');
     }
     switch (state) {
       case ChargeState.STARTING:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.starting');
+        return this.translate.instant('EDGE.INDEX.WIDGETS.EVCS.STARTING');
       case ChargeState.UNDEFINED:
       case ChargeState.ERROR:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.error');
+        return this.translate.instant('EDGE.INDEX.WIDGETS.EVCS.ERROR');
       case ChargeState.READY_FOR_CHARGING:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.readyForCharging');
+        return this.translate.instant('EDGE.INDEX.WIDGETS.EVCS.READY_FOR_CHARGING');
       case ChargeState.NOT_READY_FOR_CHARGING:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.notReadyForCharging');
+        return this.translate.instant('EDGE.INDEX.WIDGETS.EVCS.NOT_READY_FOR_CHARGING');
       case ChargeState.AUTHORIZATION_REJECTED:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.notCharging');
+        return this.translate.instant('EDGE.INDEX.WIDGETS.EVCS.NOT_CHARGING');
       case ChargeState.CHARGING:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.charging');
+        return this.translate.instant('EDGE.INDEX.WIDGETS.EVCS.CHARGING');
       case ChargeState.ENERGY_LIMIT_REACHED:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.chargeLimitReached');
+        return this.translate.instant('EDGE.INDEX.WIDGETS.EVCS.CHARGE_LIMIT_REACHED');
       case ChargeState.CHARGING_FINISHED:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.carFull');
+        return this.translate.instant('EDGE.INDEX.WIDGETS.EVCS.CAR_FULL');
     }
   }
 

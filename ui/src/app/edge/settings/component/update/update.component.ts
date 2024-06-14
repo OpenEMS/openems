@@ -33,7 +33,7 @@ export class ComponentUpdateComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.adjustComponents' }, this.route).then(edge => {
+    this.service.setCurrentComponent({ languageKey: 'EDGE.CONFIG.INDEX.ADJUST_COMPONENTS' }, this.route).then(edge => {
       this.edge = edge;
     });
     const componentId = this.route.snapshot.params["componentId"];
