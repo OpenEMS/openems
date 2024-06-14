@@ -96,5 +96,5 @@ export abstract class AbstractHistoryWidget {
     /**
      * Updates and Fills the Chart
      */
-    protected abstract updateValues()
+    protected abstract updateValues();
 }

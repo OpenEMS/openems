@@ -26,7 +26,7 @@ type UserInformation = {
   zip: string,
   city: string,
   country: string
-}
+};
 
 @Component({
   templateUrl: './user.component.html',
