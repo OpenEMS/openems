@@ -22,7 +22,6 @@ export class FixDigitalOutputWidgetComponent extends AbstractHistoryWidget imple
     private static readonly SELECTOR = "fixDigitalOutputWidget";
 
     public activeSecondsOverPeriod: number = null;
-    public edge: EDGE = null;
 
     constructor(
         public override service: Service,
