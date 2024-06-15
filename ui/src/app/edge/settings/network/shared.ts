@@ -8,13 +8,13 @@ export type NetworkInterface = {
   linkLocalAddressing?: boolean,
   metric?: number,
   addresses?: IpAddress[]
-}
+};
 
 export type IpAddress = {
   label: string,
   address: string,
   subnetmask: string
-}
+};
 
 export type InterfaceForm = {
   name: string,
@@ -27,13 +27,13 @@ export type InterfaceModel = NetworkInterface & {
   addressesList?: string[],
   ip?: string | null,
   subnetmask?: string | null,
-}
+};
 
 export type NetworkConfig = {
   interfaces: {
     [name: string]: NetworkInterface;
   }
-}
+};
 
 export namespace NetworkUtils {
 

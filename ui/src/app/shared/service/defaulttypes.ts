@@ -102,7 +102,7 @@ export module DefaultTypes {
 
     export enum YAxisTitle {
       PERCENTAGE,
-      ENERGY
+      ENERGY,
     }
     export type InputChannel = {
 
@@ -113,7 +113,7 @@ export module DefaultTypes {
 
       /** Choose between predefined converters */
       converter?: (value: number) => number | null,
-    }
+    };
     export type DisplayValues = {
       name: string,
       /** suffix to the name */
@@ -128,11 +128,11 @@ export module DefaultTypes {
       color: string,
       /** the stack for barChart */
       stack?: number,
-    }
+    };
 
     export type ChannelData = {
       [name: string]: number[]
-    }
+    };
 
     export type ChartData = {
       /** Input Channels that need to be queried from the database */
@@ -146,7 +146,7 @@ export module DefaultTypes {
       },
       /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
       unit: YAxisTitle,
-    }
+    };
   }
 
   export class HistoryPeriod {
@@ -241,4 +241,4 @@ export module DefaultTypes {
 export type TKeyValue<T> = {
   key: string,
   value: T
-}
+};
