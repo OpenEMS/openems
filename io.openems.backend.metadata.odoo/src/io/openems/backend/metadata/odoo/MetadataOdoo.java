@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -176,16 +175,8 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 				.flatMap(JsonUtils::getAsOptionalJsonObject) //
 				.orElse(new JsonObject());
 
-		var jDevices = JsonUtils.getAsJsonArray(result, "devices");
-		NavigableMap<String, Role> roles = new TreeMap<>();
-		for (JsonElement device : jDevices) {
-			var edgeId = JsonUtils.getAsString(device, "name");
-			var role = Role.getRole(JsonUtils.getAsString(device, "role"));
-			roles.put(edgeId, role);
-		}
-
-		var user = new MyUser(odooUserId, login, name, sessionId, language, globalRole, roles, hasMultipleEdges,
-				settings);
+		var user = new MyUser(odooUserId, login, name, sessionId, language, globalRole, new TreeMap<>(),
+				hasMultipleEdges, settings);
 		var oldUser = this.users.put(login, user);
 		if (oldUser != null) {
 			oldUser.getEdgeRoles().forEach((edgeId, role) -> {

@@ -14,7 +14,7 @@ public class IoShellyPlugImplTest {
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new IoShellyPlugImpl()) //
-				.addReference("httpBridgeFactory", new DummyBridgeHttpFactory()) //
+				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setPhase(SinglePhase.L1) //
