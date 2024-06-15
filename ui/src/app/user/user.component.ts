@@ -240,7 +240,7 @@ export class UserComponent implements OnInit {
   }
 
   /**
-   * Logout from OpenEMS EDGE or Backend.
+   * Logout from OpenEMS Edge or Backend.
    */
   public doLogout() {
     this.websocket.logout();
