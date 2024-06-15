@@ -19,7 +19,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.host.SystemUpdateHandler;
 
 /**
- * JSON-RPC Response to "getSystemUpdateState" Request.
+ * JSON-RPC Response to {@link GetSystemUpdateStateRequest}.
  *
  * <p>
  *
@@ -166,24 +166,24 @@ public class GetSystemUpdateStateResponse extends JsonrpcResponseSuccess {
 		 */
 		public void addLog(String label, ExecuteSystemCommandResponse response) {
 			synchronized (this.log) {
-				var stdout = response.getStdout();
+				var stdout = response.scr.stdout();
 				if (stdout.length > 0) {
 					this.addLog(label + ": STDOUT");
-					for (String line : stdout) {
+					for (var line : stdout) {
 						this.addLog(label + ": " + line);
 					}
 				}
-				var stderr = response.getStderr();
+				var stderr = response.scr.stderr();
 				if (stderr.length > 0) {
 					this.addLog(label + ": STDERR");
-					for (String line : stderr) {
+					for (var line : stderr) {
 						this.addLog(label + ": " + line);
 					}
 				}
-				if (response.getExitCode() == 0) {
+				if (response.scr.exitcode() == 0) {
 					this.addLog(label + ": FINISHED SUCCESSFULLY");
 				} else {
-					this.addLog(label + ": FINISHED WITH ERROR CODE [" + response.getExitCode() + "]");
+					this.addLog(label + ": FINISHED WITH ERROR CODE [" + response.scr.exitcode() + "]");
 				}
 			}
 		}

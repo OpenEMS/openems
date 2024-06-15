@@ -22,14 +22,14 @@ export namespace Role {
             case "guest":
                 return Role.GUEST;
             default:
-                console.warn("Role [" + name + "] not found.")
+                console.warn("Role [" + name + "] not found.");
                 return Role.GUEST;
         }
     }
 
     /**
      * Evaluates whether "Role 1" is equal or more privileged than "Role 2".
-     * 
+     *
      * @param role1     the Role 1
      * @param role2     the Role 2
      * @return true if "Role 1" is equal or more privileged than "Role 2"

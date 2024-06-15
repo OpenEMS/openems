@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
-import { ChannelAddress, CurrentData, EdgeConfig, Utils } from 'src/app/shared/shared';
+import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
 
 @Component({
-    templateUrl: './modal.html'
+    templateUrl: './modal.html',
 })
 export class ModalComponent extends AbstractModal {
 
@@ -11,35 +11,28 @@ export class ModalComponent extends AbstractModal {
     public readonly isLastElement = Utils.isLastElement;
     public readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
 
-    public productionMeters: { component: EdgeConfig.Component, isAsymmetric: boolean }[] = [];
+    public productionMeters: EdgeConfig.Component[] = [];
     public chargerComponents: EdgeConfig.Component[] = [];
     public isAsymmetric: boolean = false;
 
     protected override getChannelAddresses() {
-        let channelAddresses: ChannelAddress[] = [];
+        const channelAddresses: ChannelAddress[] = [];
 
         // Get Chargers
         this.chargerComponents =
             this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
                 .filter(component => component.isEnabled);
 
-        const asymmetricMeters = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter")
-            .filter(component => component.isEnabled
-                && this.config.isProducer(component));
-
         // Get productionMeters
-        this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+        this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
             .filter(component => component.isEnabled && this.config.isProducer(component))
             .forEach(component => {
-                var isAsymmetric = asymmetricMeters.filter(element => component.id == element.id).length > 0;
                 channelAddresses.push(new ChannelAddress(component.id, 'ActivePower'));
-                if (isAsymmetric) {
-                    ['L1', 'L2', 'L3'].forEach(phase => {
-                        channelAddresses.push(new ChannelAddress(component.id, 'ActivePower' + phase));
-                    });
-                }
-                this.productionMeters.push({ component: component, isAsymmetric: isAsymmetric });
-            })
+                channelAddresses.push(new ChannelAddress(component.id, 'ActivePowerL1'));
+                channelAddresses.push(new ChannelAddress(component.id, 'ActivePowerL2'));
+                channelAddresses.push(new ChannelAddress(component.id, 'ActivePowerL3'));
+                this.productionMeters.push(component);
+            });
 
         return channelAddresses;
     }

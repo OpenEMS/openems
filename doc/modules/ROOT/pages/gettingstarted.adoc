@@ -43,7 +43,7 @@ NOTE: Eclipse IDE is the recommended development environment for newcomers to Op
 
 . Prepare Eclipse IDE
 .. Download Java Development Kit (JDK) 17 and install it. We recommend the https://adoptium.net/de/temurin/releases/?version=17[OpenJDK Temurin builds by the Adoptium project]
-.. Download https://www.eclipse.org[Eclipse for Java icon:external-link[]], install and start it
+.. Download https://www.eclipse.org/downloads/[Eclipse for Java icon:external-link[]], install and start it
 .. On first start you will get asked to create a workspace.
 Select your source code directory (`C:\Users\your.user\git\openems` in our example) and press btn:[Launch].
 +
@@ -60,7 +60,7 @@ Menu: btn:[Help] → btn:[Eclipse Marketplace...] → btn:[Find:] → enter btn:
 - Select btn:[Java] - btn:[Installed JREs] in the navigation tree
 - Press the btn:[Add...] button
 - Keep btn:[Standard VM] selected and press btn:[Next >]
-- Press the btn:[Directory...] button and select the folder of the installed JDK (e.g. `C:\Program Files\Eclipse Adoptium\jdk-17.0.6.10-hotspot`)
+- Press the btn:[Directory...] button and select the folder of the installed JDK (e.g. `C:\Program Files\Eclipse Adoptium\jdk-17.0.7.7-hotspot`)
 - Press the btn:[Finish] button
 - Back in the Preferences window, tick the newly added JDK 17 and press btn:[Apply and Close]
 +
@@ -82,6 +82,14 @@ Menu: btn:[File] →  btn:[Import...] → btn:[Bndtools] → btn:[Existing Bnd W
 +
 .io.openems.edge.application project in Eclipse IDE
 image::eclipse-io.openems.edge.application.png[io.openems.edge.application project in Eclipse IDE]
++
+NOTE: Instead of navigating through the projects tree, you can simply use the keyboard shortcut btn:[Ctrl] + btn:[Shift] + btn:[R] to start the "Open Resource" dialog. Enter "EdgeApp.bndrun" there and press btn:[Enter] to open the file.
++
+The `EdgeApp.bndrun` file declares all the bundles and runtime properties. For now it should not be necessary to edit it, but it hides some useful settings under the btn:[Source] tab:
++
+- `org.osgi.service.http.port=8080`: start the Apache Felix Web Console on port `8080`
+- `felix.cm.dir=c:/openems/config`: persist configurations in the folder `c:/openems/config`. Adjust this if you are working on Linux to keep your configurations after restart
+- `openems.data.dir=c:/openems/data`: this is where bundles are allowed to persist data. It is used e.g. by the RRD4j timedata storage
 
 .. Click on btn:[Run OSGi] to run OpenEMS Edge. You should see log outputs in the **Console** tab inside Eclipse IDE.
 +
@@ -98,7 +106,7 @@ image::apache-felix-console-configuration.png[Apache Felix Web Console Configura
 
 .. Configure a Scheduler
 +
-NOTE: The Scheduler is responsible for executing the control algorithms (Controllers) and defines the OpenEMS Edge application cycle
+NOTE: The Scheduler is responsible for executing the control algorithms (Controllers) in order and defines the OpenEMS Edge application cycle
 
 ... Click on _**Scheduler All Alphabetically**_
 +
@@ -113,7 +121,9 @@ image::config-scheduler-all-alphabetically.png[Configuration of All Alphabetical
 INFO  [onent.AbstractOpenemsComponent] [scheduler0] Activate Scheduler.AllAlphabetically
 ```
 +
-Add any other OpenEMS Components in the same way:
+Add any other OpenEMS Components in the same way.
++
+NOTE: Once everything is setup you can configure Components more easily via OpenEMS UI using the "Install components" feature in the Settings.
 
 .. Configure debug outputs on the console: _**Controller Debug Log**_. The default values can be accepted without changes.
 +
@@ -152,7 +162,7 @@ NOTE: The data source was configured with the OpenEMS Component ID `datasource0`
 .Configuration of Simulator GridMeter Acting
 image::config-simulator-grid-meter-acting.png[Configuration of Simulator GridMeter Acting]
 +
-This time some more logs will show up. Most importantly they show, that the Grid meter now shows a power value and the Consumption is derived directly from this value, because no PV system or energy storage system is configured yet.
+This time some more logs will appear. Most importantly they show, that the Grid meter now measures (simulates) a power value and the Consumption is derived directly from this value, because no PV system or energy storage system is configured yet.
 +
 ```
 INFO  [onent.AbstractOpenemsComponent] [meter0] Activate Simulator.GridMeter.Acting
@@ -165,7 +175,7 @@ NOTE: This setup causes the simulated grid-meter to take the standardized load-p
 +
 NOTE: 'Acting' in the name 'Simulator GridMeter Acting' refers to the fact, that this meter actively provides data - in opposite to a 'Reacting' simulated device that is reacting on other components: for example the 'Simulator.EssSymmetric.Reacting' configured below.
 
-.. Configure a simulated reacting energy storage system: _**Simulator EssSymmetric Reacting**_. The default values can be accepted without changes. (If you choose an other setup as the one described here you may have to create a new Datasource-Component and provide its ID here. The actual data is ignored, but the Datasource's Time-Delta value is required to calculate values with time-dependant units.)
+.. Configure a simulated reacting energy storage system: _**Simulator EssSymmetric Reacting**_. The default values can be accepted without changes.
 +
 .Configuration of Simulator EssSymmetric Reacting
 image::config-simulator-esssymmetric-reacting.png[Configuration of Simulator EssSymmetric Reacting]
@@ -180,10 +190,10 @@ INFO  [ntroller.debuglog.DebugLogImpl] [ctrlDebugLog0] _sum[State:Ok Ess SoC:50 
 +
 NOTE: The debug log now shows data for the battery, but the charge/discharge power stays at "0 W" and the state of charge stays at "50 %" as configured. Next step is to configure a control algorithm that tells the battery to charge or discharge depending on the power measured by the simulated grid meter.
 
-.. Configure the self-consumption optimization algorithm: _**Controller Balancing Symmetric**_. Configure the `Ess-ID` `'ess0'` and `Grid-Meter-ID` `'meter0'` to refer to the components configured above.
+.. Configure the self-consumption optimization algorithm: _**Controller Ess Balancing**_. Configure the `Ess-ID` `'ess0'` and `Grid-Meter-ID` `'meter0'` to refer to the components configured above.
 +
-.Configuration of Symmetric Balancing Controller
-image::config-controller-balancing-symmetric.png[Configuration of Symmetric Balancing Controller]
+.Configuration of Controller Ess Balancing
+image::config-controller-ess-balancing.png[Configuration of Controller Ess Balancing]
 +
 The log shows:
 +
@@ -227,6 +237,11 @@ image::openems-ui-login.png[OpenEMS UI Login screen]
 .OpenEMS UI Energymonitor screen
 image::openems-ui-edge-overview.png[OpenEMS UI Energymonitor screen]
 
+_Unfortunately the hosted version of OpenEMS UI is currently slightly outdated and incompatble with latest OpenEMS Edge. Follow the xref:ui/setup-ide.adoc[OpenEMS UI guide] to produce the following visualization. The language can be changed in the "burger menu" on top left -> btn:[admin] -> btn:[Allgemeine Einstellungen]._ 
+
+.OpenEMS UI Energymonitor screen
+image::openems-ui-edge-overview2.png[OpenEMS UI Energymonitor screen]
+
 == Integrate OpenEMS Backend
 
 Instead of having Edge and UI talk to each other directly, the communication can also be proxied via Backend.
@@ -251,15 +266,12 @@ NOTE: Disable the two icon buttons "Show Console When Standard Out changes" and 
 NOTE: Apache Felix Web Console for OpenEMS Backend is started on port 8079 by default. This is configured using the `org.osgi.service.http.port` setting in BackendApp.bndrun.
 +
 Login with username *admin* and password *admin*.
-+
-.Apache Felix Web Console Configuration for OpenEMS Backend
-image::apache-felix-console-backend-configuration.png[Apache Felix Web Console Configuration for OpenEMS Backend]
 
 .. Configure Edge.Websocket
 +
 NOTE: The _**Edge.Websocket**_ service is responsible for the communication between OpenEMS Backend and OpenEMS Edge.
 +
-In the example we are configuring the `Port '8081'`. This port needs to match with what we configure later in OpenEMS Edge.
+In the example we are configuring the `Port '8081'`. This port needs to match with what we configure later in OpenEMS Edge. The `Debug Mode 'DETAILED'` setting helps us to get some more details on the internal behaviour. 
 +
 .Configuration of Backend Edge.Websocket
 image::config-backend-edge.websocket.png[Configuration of Backend Edge.Websocket]
@@ -268,7 +280,7 @@ image::config-backend-edge.websocket.png[Configuration of Backend Edge.Websocket
 +
 NOTE: The _**Ui.Websocket**_ service is responsible for the communication between OpenEMS Backend and OpenEMS UI.
 +
-In the example we are configuring the `Port '8082'`. This port needs to match with what we configure later in the OpenEMS UI environment file.
+In the example we are configuring the `Port '8082'`. This port needs to match with what we configure later in the OpenEMS UI environment file. We are again setting `Debug Mode 'DETAILED'`
 +
 .Configuration of Backend Ui.Websocket
 image::config-backend-ui.websocket.png[Configuration of Backend Ui.Websocket]
@@ -277,7 +289,7 @@ image::config-backend-ui.websocket.png[Configuration of Backend Ui.Websocket]
 +
 NOTE: The *Timedata* service provider is responsible for holding the current and historic data of each connected Edge device.
 +
-In the example we are configuring the _**Timedata.Dummy**_ service. It takes no configuration parameters, so just press btn:[Save]. In a production system you would want to use a real implementation like *Timedata.InfluxDB*.
+In the example we are configuring the _**Timedata.Dummy**_ service. The default value for _Component-ID` can be accepted without changes, so just press btn:[Save]. In a production system you would want to use a real implementation like *Timedata.InfluxDB*.
 +
 .Configuration of Backend Timedata.Dummy
 image::config-backend-timedata.dummy.png[Configuration of Backend Timedata.Dummy]
@@ -290,6 +302,16 @@ NOTE: The *Metadata* service provider is responsible for authentication of Edge 
 image::config-backend-metadata.dummy.png[Configuration of Backend Metadata.Dummy]
 +
 NOTE: In the example we are configuring the _**Metadata.Dummy**_ service. It takes no configuration parameters, so just press btn:[Save]. In a production system you would want to use a real implementation like _**Metadata.File**_, which uses a static JSON file as input, or _**Metadata.Odoo**_, which uses the *Odoo* business software for authentication and IoT device management. This will require the https://github.com/OpenEMS/odoo-openems[Odoo-OpenEMS-Addon] to be installed on your Odoo instance. See the https://gitpod.io/#https://github.com/OpenEMS/openems/tree/main[OpenEMS Live-Demo Gitpod workspace] for a full, production ready example configuration. For more information see → xref:simulation/gitpod.adoc[Gitpod Workspace]
+
+.. Backend is ready
++
+You should have seen some important log messages by now, that indicate that the OpenEMS Backend is ready to accept connections:
+```
+INFO  [d.timedata.dummy.TimedataDummy] [Timedata.Dummy] Activate
+INFO  [d.metadata.dummy.MetadataDummy] [Metadata.Dummy] Activate
+INFO  [socket.AbstractWebsocketServer] [Ui.Websocket] Starting websocket server [port=8082]
+INFO  [socket.AbstractWebsocketServer] [Edge.Websocket] Starting websocket server [port=8081]
+```
 
 === Configure OpenEMS Edge
 
@@ -311,17 +333,23 @@ Once you press btn:[save] you should see logs in OpenEMS Edge
 +
 ```
 INFO  [onent.AbstractOpenemsComponent] [ctrlBackend0] Activate Controller.Api.Backend
-INFO  [socket.AbstractWebsocketClient] Opening connection [Controller.Api.Backend:ctrlBackend0] to websocket server [ws://localhost:8081]
+INFO  [socket.AbstractWebsocketClient] [ctrlBackend0] Opening connection to websocket server [ws://localhost:8081]
+INFO  [socket.ClientReconnectorWorker] [ctrlBackend0] Connecting WebSocket... [NOT_YET_CONNECTED]
+INFO  [socket.ClientReconnectorWorker] [ctrlBackend0] Connected WebSocket successfully [0s]
 INFO  [.controller.api.backend.OnOpen] [ctrlBackend0] Connected to OpenEMS Backend
 ```
 +
 and OpenEMS Backend
 +
 ```
-INFO  [s.backend.edgewebsocket.OnOpen] [Edge.Websocket] Edge [edge0] connected
+INFO  [s.backend.common.metadata.Edge] Edge [edge0]: Update version from [0.0.0] to [...]
+INFO  [mon.metadata.SimpleEdgeHandler] Edge [edge0]. Update config: ...
+INFO  [dgewebsocket.EdgeWebsocketImpl] [monitor] Edge-Connections: 1
 ```
 
 === Connect OpenEMS UI with Backend
+
+_(You need to have completed the xref:ui/setup-ide.adoc[OpenEMS UI guide] for the following steps)_
 
 . In the Visual Studio Code terminal stop the running `ng serve...` by pressing btn:[ctrl] + btn:[c]
 
@@ -337,10 +365,18 @@ NOTE: OpenEMS UI can work both for local connections to OpenEMS Edge as well as 
 +
 NOTE: _**Metadata.Dummy**_ accepts any user/password combination. For production use, switch to a different *Metadata* implementation as described above.
 +
-.UI via Backend
-image::ui-via-backend.png[UI via Backend]
+.OpenEMS UI Login screen
+image::openems-ui-backend-login.png[OpenEMS UI Login screen]
+
+. You will be presented an overview list of all connected OpenEMS Edge devices you have permissions for:
 +
-Click on *OpenEMS Edge #0* to see the same live-view as before on the local connection.
+.OpenEMS UI Overview screen
+image::openems-ui-backend-overview.png[OpenEMS UI Overview screen]
+
+. Click on *OpenEMS Edge #0* to see the same live-view as before on the local connection.
++
+.OpenEMS UI Live screen
+image::openems-ui-backend-live.png[OpenEMS UI Live screen]
 
 ## Next steps
 

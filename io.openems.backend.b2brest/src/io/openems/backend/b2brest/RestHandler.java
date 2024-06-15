@@ -1,8 +1,9 @@
 package io.openems.backend.b2brest;
 
-import java.io.BufferedReader;
+import static io.openems.common.utils.JsonUtils.parseToJsonObject;
+import static java.util.stream.Collectors.joining;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Base64;
@@ -11,7 +12,6 @@ import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
@@ -37,9 +36,9 @@ public class RestHandler extends AbstractHandler {
 
 	private final Logger log = LoggerFactory.getLogger(RestHandler.class);
 
-	private final B2bRest parent;
+	private final Backend2BackendRest parent;
 
-	public RestHandler(B2bRest parent) {
+	public RestHandler(Backend2BackendRest parent) {
 		this.parent = parent;
 	}
 
@@ -145,11 +144,12 @@ public class RestHandler extends AbstractHandler {
 	 */
 	private static JsonObject parseJson(Request baseRequest) throws OpenemsException {
 		try {
-			return JsonParser.parseString(//
-					new BufferedReader(new InputStreamReader(baseRequest.getInputStream())) //
-							.lines() //
-							.collect(Collectors.joining("\n"))) //
-					.getAsJsonObject();
+			try (var br = baseRequest.getReader()) {
+				return parseToJsonObject(br //
+						.lines() //
+						.collect(joining("\n")));
+			}
+
 		} catch (Exception e) {
 			throw new OpenemsException("Unable to parse: " + e.getMessage());
 		}

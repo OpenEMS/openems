@@ -89,43 +89,14 @@
           </ion-card>
         </ion-col>
 
-        <ion-col size="12" size-sm="4">
+        <ion-col size="12" size-sm="4" *ngIf="canSeeJsonrpcTest">
           <ion-card>
             <ion-item lines="full" color="light">
-              <ion-icon slot="start" size="large" color="primary" name="globe-outline"></ion-icon>
-              <ion-label>Network Configuration</ion-label>
+              <ion-icon slot="start" size="large" color="primary" name="eye-outline"></ion-icon>
+              <ion-label>Jsonrpc test</ion-label>
             </ion-item>
             <ion-card-content>
-              <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/network">
-                <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
-              </ion-button>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-
-        <!-- System Update -->
-        <ion-col size="12" size-sm="4">
-          <ion-card>
-            <ion-item lines="full" color="light">
-              <ion-icon slot="start" size="large" color="primary" name="cloud-download-outline"></ion-icon>
-              <ion-label>{{ environment.edgeShortName }} Systemupdate</ion-label>
-            </ion-item>
-            <ion-card-content>
-              <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/systemupdate }}">
-                <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
-              </ion-button>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-
-        <ion-col size="12" size-sm="4" *ngIf="canSeeAppCenter">
-          <ion-card>
-            <ion-item lines="full" color="light">
-              <ion-icon slot="start" size="large" color="primary" name="add-outline"></ion-icon>
-              <ion-label translate>{{ environment.edgeShortName }} App Center</ion-label>
-            </ion-item>
-            <ion-card-content>
-              <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/app">
+              <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/jsonrpctest">
                 <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
               </ion-button>
             </ion-card-content>
@@ -133,21 +104,87 @@
         </ion-col>
       </ng-container>
 
-      <ng-container *ngIf="edge.roleIsAtLeast('owner')">
+      <ng-container *ngIf="edge.roleIsAtLeast('installer')">
+        <ng-container *ngIf="!edge.isVersionAtLeast('2022.10.4'), else newNetworkUpdate">
+          <ng-container *ngIf="edge.roleIsAtLeast('admin')">
+            <ion-col size="12" size-sm="4">
+              <ion-card>
+                <ion-item lines="full" color="light">
+                  <ion-icon slot="start" size="large" color="primary" name="globe-outline"></ion-icon>
+                  <ion-label translate>Edge.Config.Index.networkConfiguration</ion-label>
+                </ion-item>
+                <ion-card-content>
+                  <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/network.old">
+                    <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+                  </ion-button>
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
+          </ng-container>
+        </ng-container>
+        <ng-template #newNetworkUpdate>
           <ion-col size="12" size-sm="4">
             <ion-card>
               <ion-item lines="full" color="light">
-                <ion-icon slot="start" size="large" color="primary" name="cloud-download-outline"></ion-icon>
-                <ion-label>{{ environment.edgeShortName }} Systemupdate</ion-label>
+                <ion-icon slot="start" size="large" color="primary" name="globe-outline"></ion-icon>
+                <ion-label translate>Edge.Config.Index.networkConfiguration</ion-label>
               </ion-item>
               <ion-card-content>
-                <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/systemupdate">
+                <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/network">
                   <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
                 </ion-button>
               </ion-card-content>
             </ion-card>
           </ion-col>
+        </ng-template>
+      </ng-container>
+
+      <ng-container *ngIf="edge.roleIsAtLeast('admin')">
         <ion-col size="12" size-sm="4">
+          <ion-card>
+            <ion-item lines="full" color="light">
+              <ion-icon slot="start" size="large" color="primary" name="construct-outline"></ion-icon>
+              <ion-label>{{ environment.edgeShortName }} Soltaro Service Assistent</ion-label>
+            </ion-item>
+            <ion-card-content>
+              <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/servcieAssistant">
+                <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ng-container>
+
+      <ion-col size="12" size-sm="4" *ngIf="canSeeAppCenter">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="add-outline"></ion-icon>
+            <ion-label>{{ 'Edge.Config.App.NAME_WITH_EDGE_NAME' | translate:
+              {edgeShortName: environment.edgeShortName} }}</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/app">
+              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ng-container *ngIf="edge.roleIsAtLeast('owner')">
+        <ion-col size="12" size-sm="4">
+          <ion-card>
+            <ion-item lines="full" color="light">
+              <ion-icon slot="start" size="large" color="primary" name="cloud-download-outline"></ion-icon>
+              <ion-label>{{ environment.edgeShortName }} System</ion-label>
+            </ion-item>
+            <ion-card-content>
+              <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/system">
+                <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col size="12" size-sm="4" *ngIf="!isEdgeBackend">
           <ion-card>
             <ion-item lines="full" color="light">
               <ion-icon slot="start" size="large" color="primary" name="notifications-outline"></ion-icon>

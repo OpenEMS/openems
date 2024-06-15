@@ -17,24 +17,23 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
 	private final Logger log = LoggerFactory.getLogger(WebsocketClient.class);
 
-	private final BackendApiImpl parent;
+	private final ControllerApiBackendImpl parent;
 	private final OnOpen onOpen;
-	private final OnRequest onRequest;
 	private final OnNotification onNotification;
 	private final OnError onError;
 	private final OnClose onClose;
 
-	protected WebsocketClient(BackendApiImpl parent, String name, URI serverUri, Map<String, String> httpHeaders,
-			Proxy proxy) {
+	protected WebsocketClient(ControllerApiBackendImpl parent, String name, URI serverUri,
+			Map<String, String> httpHeaders, Proxy proxy) {
 		super(name, serverUri, httpHeaders, proxy);
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
-		this.onRequest = new OnRequest(parent);
 		this.onNotification = new OnNotification(parent);
 		this.onError = new OnError(parent);
 		this.onClose = (ws, code, reason, remote) -> {
 			this.log.error("Disconnected from OpenEMS Backend [" + serverUri.toString() //
 					+ (proxy != AbstractWebsocketClient.NO_PROXY ? " via Proxy" : "") + "]");
+			this.parent.getUnableToSendChannel().setNextValue(true);
 		};
 	}
 
@@ -44,8 +43,8 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	}
 
 	@Override
-	public OnRequest getOnRequest() {
-		return this.onRequest;
+	public BackendOnRequest getOnRequest() {
+		return this.parent.requestHandler;
 	}
 
 	@Override

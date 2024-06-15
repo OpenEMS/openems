@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
@@ -9,7 +10,7 @@ type AutomaticEnableMode = 'automaticRecommendationCtrlEnabled' | 'automaticForc
 
 @Component({
   selector: 'heatpump-modal',
-  templateUrl: './modal.component.html'
+  templateUrl: './modal.component.html',
 })
 export class Controller_Io_HeatpumpModalComponent implements OnInit {
 
@@ -41,16 +42,16 @@ export class Controller_Io_HeatpumpModalComponent implements OnInit {
       automaticRecommendationCtrlEnabled: new FormControl(this.component.properties.automaticRecommendationCtrlEnabled),
       automaticRecommendationSurplusPower: new FormControl(this.component.properties.automaticRecommendationSurplusPower),
       minimumSwitchingTime: new FormControl(this.component.properties.minimumSwitchingTime),
-    })
-  };
+    });
+  }
 
   public updateControllerMode(event: CustomEvent) {
-    let oldMode = this.component.properties['mode'];
-    let newMode = event.detail.value;
+    const oldMode = this.component.properties['mode'];
+    const newMode = event.detail.value;
 
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, this.component.id, [
-        { name: 'mode', value: newMode }
+        { name: 'mode', value: newMode },
       ]).then(() => {
         this.component.properties.mode = newMode;
         this.formGroup.markAsPristine();
@@ -65,22 +66,22 @@ export class Controller_Io_HeatpumpModalComponent implements OnInit {
 
   public updateAutomaticEnableMode(isTrue: boolean, state: AutomaticEnableMode) {
     this.formGroup.controls[state].setValue(isTrue);
-    this.formGroup.controls[state].markAsDirty()
+    this.formGroup.controls[state].markAsDirty();
   }
 
   public updateManualMode(state: ManualMode) {
     this.formGroup.controls['manualState'].setValue(state);
-    this.formGroup.controls['manualState'].markAsDirty()
+    this.formGroup.controls['manualState'].markAsDirty();
   }
 
   public applyChanges() {
     if (this.edge != null) {
       if (this.edge.roleIsAtLeast('owner')) {
         if (this.formGroup.controls['automaticRecommendationSurplusPower'].value < this.formGroup.controls['automaticForceOnSurplusPower'].value) {
-          let updateComponentArray = [];
+          const updateComponentArray = [];
           Object.keys(this.formGroup.controls).forEach((element, index) => {
             if (this.formGroup.controls[element].dirty) {
-              updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+              updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });
             }
           });
           this.loading = true;

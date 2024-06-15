@@ -1,14 +1,15 @@
-import { ChannelAddress, CurrentData, Utils } from '../../../../../shared/shared';
+// @ts-strict-ignore
 import { Component } from '@angular/core';
-import { AbstractHistoryWidget } from 'src/app/shared/genericComponents/abstracthistorywidget';
+import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { ChannelAddress, CurrentData, Utils } from '../../../../../shared/shared';
 
 @Component({
     selector: 'autarchyWidget',
-    templateUrl: './flat.html'
+    templateUrl: './flat.html',
 })
-export class FlatComponent extends AbstractHistoryWidget {
+export class FlatComponent extends AbstractFlatWidget {
 
-    public autarchyValue: number;
+    protected autarchyValue: number | null;
 
     protected override onCurrentData(currentData: CurrentData) {
         this.autarchyValue =
@@ -21,7 +22,7 @@ export class FlatComponent extends AbstractHistoryWidget {
         return [
             new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
             new ChannelAddress('_sum', 'ConsumptionActiveEnergy'),
-        ]
+        ];
     }
 }
 

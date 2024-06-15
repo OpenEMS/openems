@@ -568,46 +568,53 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	private static final String PART_NUMBER_DS1922S = "DS1922S";
 	private static final String PART_NUMBER_UNKNOWN = "DS1922/DS1923/DS2422";
 
-	private static final String DESCRIPTION_DS1923 = "The DS1923 Temperature/Humidity Logger iButton is a rugged, "
-			+ "self-sufficient system that measures temperature and/or humidity "
-			+ "and records the result in a protected memory section. The recording "
-			+ "is done at a user-defined rate. A total of 8192 8-bit readings or "
-			+ "4096 16-bit readings taken at equidistant intervals ranging from 1 "
-			+ "second to 273 hours can be stored. In addition to this, there are 512 "
-			+ "bytes of SRAM for storing application specific information and 64 "
-			+ "bytes for calibration data. A mission to collect data can be "
-			+ "programmed to begin immediately, or after a user-defined delay or "
-			+ "after a temperature alarm. Access to the memory and control functions " + "can be password-protected.";
+	private static final String DESCRIPTION_DS1923 = """
+			The DS1923 Temperature/Humidity Logger iButton is a rugged, \
+			self-sufficient system that measures temperature and/or humidity \
+			and records the result in a protected memory section. The recording \
+			is done at a user-defined rate. A total of 8192 8-bit readings or \
+			4096 16-bit readings taken at equidistant intervals ranging from 1 \
+			second to 273 hours can be stored. In addition to this, there are 512 \
+			bytes of SRAM for storing application specific information and 64 \
+			bytes for calibration data. A mission to collect data can be \
+			programmed to begin immediately, or after a user-defined delay or \
+			after a temperature alarm. Access to the memory and control functions \
+			can be password-protected.""";
 
-	private static final String DESCRIPTION_DS1922 = "The DS1922L/T/E/S Temperature Logger iButtons are rugged, "
-			+ "self-sufficient systems that measure temperature and record the "
-			+ "result in a protected memory section. The recording is done at a "
-			+ "user-defined rate. A total of 8192 8-bit readings or 4096 16-bit "
-			+ "readings taken at equidistant intervals ranging from 1s to 273hrs "
-			+ "can be stored. In addition to this, there are 512 bytes of SRAM for "
-			+ "storing application-specific information and 64 bytes for calibration "
-			+ "data. A mission to collect data can be programmed to begin "
-			+ "immediately, or after a user-defined delay or after a temperature "
-			+ "alarm. Access to the memory and control functions can be password " + "protected.";
+	private static final String DESCRIPTION_DS1922 = """
+			The DS1922L/T/E/S Temperature Logger iButtons are rugged, \
+			self-sufficient systems that measure temperature and record the \
+			result in a protected memory section. The recording is done at a \
+			user-defined rate. A total of 8192 8-bit readings or 4096 16-bit \
+			readings taken at equidistant intervals ranging from 1s to 273hrs \
+			can be stored. In addition to this, there are 512 bytes of SRAM for \
+			storing application-specific information and 64 bytes for calibration \
+			data. A mission to collect data can be programmed to begin \
+			immediately, or after a user-defined delay or after a temperature \
+			alarm. Access to the memory and control functions can be password \
+			protected.""";
 
-	private static final String DESCRIPTION_DS2422 = "The DS2422 temperature/datalogger combines the core functions of a "
-			+ "fully featured datalogger in a single chip. It includes a temperature "
-			+ "sensor, realtime clock (RTC), memory, 1-Wire(R) interface, and serial "
-			+ "interface for an analog-to-digital converter (ADC) as well as control "
-			+ "circuitry for a charge pump. The ADC and the charge pump are "
-			+ "peripherals that can be added to build application-specific "
-			+ "dataloggers. The MAX1086 is an example of a compatible serial ADC. "
-			+ "Without external ADC, the DS2422 functions as a temperature logger "
-			+ "only. The DS2422 measures the temperature and/or reads the ADC at a "
-			+ "user-defined rate. A total of 8192 8-bit readings or 4096 16-bit "
-			+ "readings taken at equidistant intervals ranging from 1s to 273hrs can " + "be stored.";
+	private static final String DESCRIPTION_DS2422 = """
+			The DS2422 temperature/datalogger combines the core functions of a \
+			fully featured datalogger in a single chip. It includes a temperature \
+			sensor, realtime clock (RTC), memory, 1-Wire(R) interface, and serial \
+			interface for an analog-to-digital converter (ADC) as well as control \
+			circuitry for a charge pump. The ADC and the charge pump are \
+			peripherals that can be added to build application-specific \
+			dataloggers. The MAX1086 is an example of a compatible serial ADC. \
+			Without external ADC, the DS2422 functions as a temperature logger \
+			only. The DS2422 measures the temperature and/or reads the ADC at a \
+			user-defined rate. A total of 8192 8-bit readings or 4096 16-bit \
+			readings taken at equidistant intervals ranging from 1s to 273hrs can \
+			be stored.""";
 
-	private static final String DESCRIPTION_UNKNOWN = "Rugged, self-sufficient 1-Wire device that, once setup for "
-			+ "a mission, will measure temperature and A-to-D/Humidity, with the "
-			+ "result recorded in a protected memory section. It stores up "
-			+ "to 8192 1-byte measurements, which can be filled with 1- or "
-			+ "2-byte temperature readings and 1- or 2-byte A-to-D/Humidity readings "
-			+ "taken at a user-specified rate.";
+	private static final String DESCRIPTION_UNKNOWN = """
+			Rugged, self-sufficient 1-Wire device that, once setup for \
+			a mission, will measure temperature and A-to-D/Humidity, with the \
+			result recorded in a protected memory section. It stores up \
+			to 8192 1-byte measurements, which can be filled with 1- or \
+			2-byte temperature readings and 1- or 2-byte A-to-D/Humidity readings \
+			taken at a user-specified rate.""";
 
 // *****************************************************************************
 //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

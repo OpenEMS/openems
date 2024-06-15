@@ -2,7 +2,7 @@ import { JsonrpcRequest } from '../../../../shared/jsonrpc/base';
 
 /**
  * Exports Channels with current value and metadata to an Excel (xlsx) file.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -19,9 +19,9 @@ export class ChannelExportXlsxRequest extends JsonrpcRequest {
     public static METHOD: string = "channelExportXlsx";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             componentId: string
-        }
+        },
     ) {
         super(ChannelExportXlsxRequest.METHOD, params);
     }

@@ -25,8 +25,8 @@ import { StorageSectionComponent } from './chart/section/storage.component';
     StorageSectionComponent,
   ],
   exports: [
-    EnergymonitorComponent
-  ]
+    EnergymonitorComponent,
+  ],
 })
 export class EnergymonitorModule { }
 

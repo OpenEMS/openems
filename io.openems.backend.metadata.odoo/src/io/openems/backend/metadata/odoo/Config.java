@@ -4,6 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.backend.metadata.odoo.odoo.Protocol;
+import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 
 @ObjectClassDefinition(//
 		name = "Metadata.Odoo", //
@@ -39,6 +40,15 @@ public @interface Config {
 
 	@AttributeDefinition(name = "Database", description = "The database name")
 	String database();
+
+	@AttributeDefinition(name = "Number of Threads", description = "Pool-Size: the number of threads dedicated to handle the tasks")
+	int poolSize() default 30;
+
+	@AttributeDefinition(name = "Number of Threads", description = "Pool-Size: the maximum number of concurrent connections")
+	int pgConnectionPoolSize() default 40;
+
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+	DebugMode debugMode() default DebugMode.OFF;
 
 	String webconsole_configurationFactory_nameHint() default "Metadata.Odoo";
 

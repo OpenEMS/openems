@@ -24,6 +24,7 @@ import io.openems.edge.ess.core.power.data.LogUtil;
 import io.openems.edge.ess.core.power.data.TargetDirection;
 import io.openems.edge.ess.core.power.optimizers.AddConstraintsForNotStrictlyDefinedCoefficients;
 import io.openems.edge.ess.core.power.optimizers.KeepAllEqual;
+import io.openems.edge.ess.core.power.optimizers.KeepAllNearEqual;
 import io.openems.edge.ess.core.power.optimizers.KeepTargetDirectionAndMaximizeInOrder;
 import io.openems.edge.ess.core.power.optimizers.MoveTowardsTarget;
 import io.openems.edge.ess.core.power.optimizers.Optimizers;
@@ -44,7 +45,7 @@ public class Solver {
 	private final Data data;
 	private final Optimizers optimizers = new Optimizers();
 
-	private boolean debugMode = PowerComponent.DEFAULT_DEBUG_MODE;
+	private boolean debugMode = EssPower.DEFAULT_DEBUG_MODE;
 	private OnSolved onSolvedCallback = (isSolved, duration, strategy) -> {
 	};
 
@@ -180,8 +181,10 @@ public class Solver {
 				break;
 
 			case OPTIMIZE_BY_KEEPING_ALL_EQUAL:
+			case OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL:
 				solution = this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints,
-						SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL,
+						SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL, //
+						SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL, //
 						SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER,
 						SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET);
 				break;
@@ -256,6 +259,10 @@ public class Solver {
 				break;
 			case OPTIMIZE_BY_KEEPING_ALL_EQUAL:
 				solution = KeepAllEqual.apply(this.data.getCoefficients(), allInverters, allConstraints);
+				break;
+			case OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL:
+				solution = KeepAllNearEqual.apply(this.data.getCoefficients(), this.data.getEsss(), allInverters,
+						allConstraints, targetDirection);
 				break;
 			}
 

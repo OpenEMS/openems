@@ -5,9 +5,9 @@ import io.openems.edge.evcs.api.Status;
 // TODO: Can also be done by registering onSetNextValue listeners on the depending channel in the WebastoImpl.
 public class WebastoReadHandler {
 
-	private final WebastoImpl parent;
+	private final EvcsWebastoUniteImpl parent;
 
-	protected WebastoReadHandler(WebastoImpl parent) {
+	protected WebastoReadHandler(EvcsWebastoUniteImpl parent) {
 		this.parent = parent;
 	}
 

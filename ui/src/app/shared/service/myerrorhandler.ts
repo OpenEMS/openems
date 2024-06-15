@@ -5,21 +5,21 @@ import { Logger } from "./logger";
 @Injectable()
 export class MyErrorHandler implements ErrorHandler {
     constructor(
-        private injector: Injector
+        private injector: Injector,
     ) { }
 
     handleError(error: any) {
-        let logger = this.injector.get(Logger);
+        const logger = this.injector.get(Logger);
         console.error(error);
         if (error.message) {
-            let json = {
+            const json = {
                 error: {
-                    message: error.message
+                    message: error.message,
                 },
                 metadata: {
-                    browser: navigator.userAgent
-                }
-            }
+                    browser: navigator.userAgent,
+                },
+            };
 
             logger.error(JSON.stringify(json));
         }

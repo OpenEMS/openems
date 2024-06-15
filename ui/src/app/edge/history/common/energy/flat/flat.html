@@ -1,0 +1,27 @@
+<ng-container *ngIf="isSmartphoneResolution, else desktopView">
+    <ion-item lines="full" color="light">
+        <ion-icon size="large" slot="start" name="laptop-outline" color="primary"></ion-icon>
+        <ion-label translate>
+            Edge.Index.Energymonitor.title
+        </ion-label>
+
+        <ion-button (click)="exportToXlxs()" slot="end">
+            <ion-icon name="download-outline"></ion-icon>
+        </ion-button>
+    </ion-item>
+    <energychart [isOnlyChart]="true">
+    </energychart>
+</ng-container>
+
+<ng-template #desktopView>
+    <oe-flat-widget [title]="'Edge.Index.Energymonitor.title'| translate" [icon]="{name: 'laptop-outline'}"
+        *ngIf="isInitialized" [style.height.px]="getChartHeight()">
+        <ion-button slot="end" button (click)="exportToXlxs()">
+            <ion-icon [name]="'download-outline'">
+            </ion-icon>
+        </ion-button>
+
+        <energychart [isOnlyChart]="true">
+        </energychart>
+    </oe-flat-widget>
+</ng-template>

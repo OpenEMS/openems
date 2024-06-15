@@ -1,8 +1,10 @@
+// @ts-strict-ignore
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from 'src/app/shared/shared';
 import { calculateResolution } from './shared';
+import { DateUtils } from 'src/app/shared/utils/date/dateutils';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryWidget {
@@ -41,7 +43,7 @@ export abstract class AbstractHistoryWidget {
 
     /**
      * Sends the Historic Timeseries Data Query and makes sure the result is not empty.
-     * 
+     *
      * @param fromDate the From-Date
      * @param toDate   the To-Date
      * @param edge     the current Edge
@@ -49,14 +51,14 @@ export abstract class AbstractHistoryWidget {
     */
     protected queryHistoricTimeseriesData(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesDataResponse> {
 
-        let resolution = calculateResolution(this.service, fromDate, toDate).resolution;
+        const resolution = calculateResolution(this.service, fromDate, toDate).resolution;
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
-                        let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses, resolution);
+                        const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
                         edge.sendRequest(this.service.websocket, request).then(response => {
-                            let result = (response as QueryHistoricTimeseriesDataResponse).result;
+                            const result = (response as QueryHistoricTimeseriesDataResponse).result;
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
                                 resolve(response as QueryHistoricTimeseriesDataResponse);
                             } else {
@@ -64,7 +66,7 @@ export abstract class AbstractHistoryWidget {
                             }
                         }).catch(reason => reject(reason));
                     }).catch(reason => reject(reason));
-                })
+                });
             });
         });
     }
@@ -85,7 +87,7 @@ export abstract class AbstractHistoryWidget {
 
     /**
      * Gets the ChannelAddresses that should be queried.
-     * 
+     *
      * @param edge the current Edge
      * @param config the EdgeConfig
      */

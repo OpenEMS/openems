@@ -1,5 +1,7 @@
 package io.openems.edge.app.api;
 
+import static io.openems.edge.core.appmanager.formly.enums.InputType.PASSWORD;
+
 import java.util.EnumMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -12,7 +14,9 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
@@ -25,13 +29,14 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
  * Describes a App for MQTT Api.
@@ -92,7 +97,7 @@ public class MqttApi extends AbstractEnumOpenemsApp<Property> implements Openems
 								.setDescription(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".Password.description")) //
 								.isRequired(true) //
-								.setInputType(Type.PASSWORD) //
+								.setInputType(PASSWORD) //
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.CLIENT_ID) //
 								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".EdgeId.label")) //
@@ -113,8 +118,9 @@ public class MqttApi extends AbstractEnumOpenemsApp<Property> implements Openems
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 
@@ -152,13 +158,22 @@ public class MqttApi extends AbstractEnumOpenemsApp<Property> implements Openems
 			// remove password after use so it does not get save
 			p.remove(Property.PASSWORD);
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 
 	@Override
 	protected Class<Property> getPropertyClass() {
 		return Property.class;
+	}
+
+	@Override
+	public OpenemsAppPermissions getAppPermissions() {
+		return OpenemsAppPermissions.create() //
+				.setCanSee(Role.ADMIN) //
+				.build();
 	}
 
 }

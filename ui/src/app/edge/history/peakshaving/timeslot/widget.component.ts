@@ -1,11 +1,12 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+// @ts-strict-ignore
+import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { Edge, EdgeConfig, Service } from 'src/app/shared/shared';
 
 @Component({
     selector: TimeslotPeakshavingWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: './widget.component.html',
 })
 export class TimeslotPeakshavingWidgetComponent implements OnInit {
 

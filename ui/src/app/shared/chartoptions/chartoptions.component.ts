@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ChartOptionsPopoverComponent } from './popover/popover.component';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
@@ -6,7 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'chartOptions',
-    templateUrl: './chartoptions.component.html'
+    templateUrl: './chartoptions.component.html',
 })
 export class ChartOptionsComponent {
 
@@ -22,7 +23,7 @@ export class ChartOptionsComponent {
     ) { }
 
     async presentPopover(ev: any) {
-        let componentProps = {};
+        const componentProps = {};
         if (this.showPhases !== null) {
             componentProps['showPhases'] = this.showPhases;
         }
@@ -33,7 +34,7 @@ export class ChartOptionsComponent {
             component: ChartOptionsPopoverComponent,
             event: ev,
             translucent: false,
-            componentProps: componentProps
+            componentProps: componentProps,
         });
         await popover.present();
         popover.onDidDismiss().then((data) => {

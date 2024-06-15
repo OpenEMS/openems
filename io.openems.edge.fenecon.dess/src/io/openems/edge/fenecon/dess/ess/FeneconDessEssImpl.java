@@ -1,5 +1,7 @@
 package io.openems.edge.fenecon.dess.ess;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,10 +68,8 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 			HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
 	private final List<FeneconDessCharger> chargers = new ArrayList<>();
 
-	private Config config;
-
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -79,6 +79,8 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
+
+	private Config config;
 
 	public FeneconDessEssImpl() {
 		super(//
@@ -98,7 +100,7 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), FeneconDessConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id())) {
@@ -113,7 +115,7 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(10000, Priority.LOW, //
 						m(FeneconDessEss.ChannelId.SYSTEM_STATE, new UnsignedWordElement(10000)), //
@@ -123,11 +125,9 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(10143)), //
 						new DummyRegisterElement(10144, 10150),
 						m(FeneconDessEss.ChannelId.ORIGINAL_ACTIVE_CHARGE_ENERGY,
-								new UnsignedDoublewordElement(10151).wordOrder(WordOrder.MSWLSW),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+								new UnsignedDoublewordElement(10151).wordOrder(WordOrder.MSWLSW), SCALE_FACTOR_3), //
 						m(FeneconDessEss.ChannelId.ORIGINAL_ACTIVE_DISCHARGE_ENERGY,
-								new UnsignedDoublewordElement(10153).wordOrder(WordOrder.MSWLSW),
-								ElementToChannelConverter.SCALE_FACTOR_3)), //
+								new UnsignedDoublewordElement(10153).wordOrder(WordOrder.MSWLSW), SCALE_FACTOR_3)), //
 				new FC3ReadRegistersTask(11133, Priority.HIGH, //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(11133), DELTA_10000), //
 						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L1, new UnsignedWordElement(11134), DELTA_10000)), //

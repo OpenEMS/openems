@@ -17,14 +17,14 @@
                 Menu.name
               </ion-label>
               <ion-label>
-                {{ this.form?.model ? (this.form?.model?.firstname + ' ' + this.form?.model?.lastname) : user.name }}
+                {{ this.form?.model ? ((this.form?.model?.firstname ?? '') + ' ' + (this.form?.model?.lastname ?? '')).trim() : user.name }}
                 <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
                 </ion-icon> -->
               </ion-label>
             </ion-item>
             <ion-item lines="inset">
-              <ion-label>
-                Login
+              <ion-label translate>
+                Login.title
               </ion-label>
               <ion-label>
                 {{ user.id }}
@@ -59,17 +59,23 @@
         </ion-card>
 
         <!-- Show and Edit UserInformation -->
-        <ion-card *ngIf="showInformation" style="margin-top: 5%;">
+        <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
-            <ion-label class="ion-text-wrap" translate>
-              Register.Form.contactDetails
+            <ion-label class="ion-text-wrap">
+              <span translate>
+                Register.Form.contactDetails
+              </span>
+              <ng-container *ngIf="companyInformationFields.length > 0">
+                (<span translate>Register.Form.PRIVATE</span>)
+              </ng-container>
             </ion-label>
           </ion-item>
           <ion-card-content>
-            <formly-form [form]="form?.formGroup" [fields]="form?.fields" [model]="form?.model" style="color: primary"
-              color="primary">
-            </formly-form>
+
+            <formly-skeleton-wrapper [show]="showInformation" [form]="form?.formGroup" [fields]="userInformationFields"
+              [model]="form?.model">
+            </formly-skeleton-wrapper>
 
             <ion-item lines="none">
               <ion-button slot="start" (click)="enableAndDisableEditMode()"
@@ -85,7 +91,24 @@
 
           </ion-card-content>
         </ion-card>
+
+        <ion-card *ngIf="companyInformationFields.length > 0">
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
+            <ion-label class="ion-text-wrap">
+              <span translate>
+                Register.Form.contactDetails
+              </span>
+              (<span translate>Register.Form.company</span>)
+            </ion-label>
+          </ion-item>
+          <ion-card-content>
+            <formly-form [form]="form" [form]="form?.formGroup" [fields]="companyInformationFields"
+              [model]="form?.model"></formly-form>
+          </ion-card-content>
+        </ion-card>
       </ion-col>
+
       <ion-col size="12" size-md="8" size-xl="4">
         <ion-card>
           <ion-item lines="full" color="light">
@@ -103,11 +126,14 @@
               </li>
             </ul>
             <p class="ion-padding" translate>About.build</p>
-            <ul>
-              <li>
-                <a routerLinkActive="active" routerLink="/changelog">2023.5.0-SNAPSHOT</a>
-              </li>
-            </ul>
+            <div *ngIf="(service.metadata | async)?.user?.globalRole as role">
+              <p class="ion-padding" translate>About.build</p>
+              <ul>
+                <li>
+                  <a routerLinkActive="active" routerLink="/changelog">{{ uiVersion | version:role }}</a>
+                </li>
+              </ul>
+            </div>
             <p class="ion-padding">
               <span [innerHTML]="'About.contact' | translate:{value: 'info@openems.io'}"></span>
             </p>

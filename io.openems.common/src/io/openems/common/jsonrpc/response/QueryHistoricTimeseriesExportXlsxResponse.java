@@ -20,7 +20,6 @@ import org.dhatim.fastexcel.Worksheet;
 
 import com.google.gson.JsonElement;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.types.ChannelAddress;
@@ -44,24 +43,28 @@ import io.openems.common.utils.JsonUtils;
 public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResponse {
 
 	protected static class Channel {
-		public static ChannelAddress GRID_ACTIVE_POWER = new ChannelAddress("_sum", "GridActivePower");
-		public static ChannelAddress GRID_BUY_ACTIVE_ENERGY = new ChannelAddress("_sum", "GridBuyActiveEnergy");
-		public static ChannelAddress GRID_SELL_ACTIVE_ENERGY = new ChannelAddress("_sum", "GridSellActiveEnergy");
-		public static ChannelAddress PRODUCTION_ACTIVE_POWER = new ChannelAddress("_sum", "ProductionActivePower");
-		public static ChannelAddress PRODUCTION_ACTIVE_ENERGY = new ChannelAddress("_sum", "ProductionActiveEnergy");
-		public static ChannelAddress CONSUMPTION_ACTIVE_POWER = new ChannelAddress("_sum", "ConsumptionActivePower");
-		public static ChannelAddress CONSUMPTION_ACTIVE_ENERGY = new ChannelAddress("_sum", "ConsumptionActiveEnergy");
-		public static ChannelAddress ESS_DISCHARGE_POWER = new ChannelAddress("_sum", "EssDischargePower");
-		public static ChannelAddress ESS_DC_CHARGE_ENERGY = new ChannelAddress("_sum", "EssDcChargeEnergy");
-		public static ChannelAddress ESS_DC_DISCHARGE_ENERGY = new ChannelAddress("_sum", "EssDcDischargeEnergy");
-		public static ChannelAddress ESS_SOC = new ChannelAddress("_sum", "EssSoc");
+		public static final ChannelAddress GRID_ACTIVE_POWER = new ChannelAddress("_sum", "GridActivePower");
+		public static final ChannelAddress GRID_BUY_ACTIVE_ENERGY = new ChannelAddress("_sum", "GridBuyActiveEnergy");
+		public static final ChannelAddress GRID_SELL_ACTIVE_ENERGY = new ChannelAddress("_sum", "GridSellActiveEnergy");
+		public static final ChannelAddress PRODUCTION_ACTIVE_POWER = new ChannelAddress("_sum",
+				"ProductionActivePower");
+		public static final ChannelAddress PRODUCTION_ACTIVE_ENERGY = new ChannelAddress("_sum",
+				"ProductionActiveEnergy");
+		public static final ChannelAddress CONSUMPTION_ACTIVE_POWER = new ChannelAddress("_sum",
+				"ConsumptionActivePower");
+		public static final ChannelAddress CONSUMPTION_ACTIVE_ENERGY = new ChannelAddress("_sum",
+				"ConsumptionActiveEnergy");
+		public static final ChannelAddress ESS_DISCHARGE_POWER = new ChannelAddress("_sum", "EssDischargePower");
+		public static final ChannelAddress ESS_DC_CHARGE_ENERGY = new ChannelAddress("_sum", "EssDcChargeEnergy");
+		public static final ChannelAddress ESS_DC_DISCHARGE_ENERGY = new ChannelAddress("_sum", "EssDcDischargeEnergy");
+		public static final ChannelAddress ESS_SOC = new ChannelAddress("_sum", "EssSoc");
 	}
 
 	/**
 	 * All Power Channels, i.e. Channels that are exported per channel and
 	 * timestamp.
 	 */
-	public static Set<ChannelAddress> POWER_CHANNELS = Stream.of(//
+	public static final Set<ChannelAddress> POWER_CHANNELS = Stream.of(//
 			Channel.GRID_ACTIVE_POWER, //
 			Channel.PRODUCTION_ACTIVE_POWER, //
 			Channel.CONSUMPTION_ACTIVE_POWER, //
@@ -72,7 +75,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 	/**
 	 * All Energy Channels, i.e. exported with one value per channel.
 	 */
-	public static Set<ChannelAddress> ENERGY_CHANNELS = Stream.of(//
+	public static final Set<ChannelAddress> ENERGY_CHANNELS = Stream.of(//
 			Channel.GRID_BUY_ACTIVE_ENERGY, //
 			Channel.GRID_SELL_ACTIVE_ENERGY, //
 			Channel.PRODUCTION_ACTIVE_ENERGY, //
@@ -132,7 +135,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 			byte[] payload = {};
 			try (//
 					var os = new ByteArrayOutputStream();
-					var wb = new Workbook(os, OpenemsConstants.MANUFACTURER_MODEL, null) //
+					var wb = new Workbook(os, "", null) //
 			) {
 				var ws = wb.newWorksheet("Export");
 
@@ -166,7 +169,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 		protected static void addBasicInfo(Worksheet ws, String edgeId, ZonedDateTime fromDate, ZonedDateTime toDate,
 				ResourceBundle translationBundle) {
 
-			XlsxUtils.addStringValueBold(ws, 0, 0, "FEMS-Nr.");
+			XlsxUtils.addStringValueBold(ws, 0, 0, "Nr.");
 			XlsxUtils.addStringValue(ws, 0, 1, edgeId);
 			XlsxUtils.addStringValueBold(ws, 1, 0, translationBundle.getString("exportCreatedOn"));
 			XlsxUtils.addStringValue(ws, 1, 1, ZonedDateTime.now().format(XlsxUtils.DATE_TIME_FORMATTER));

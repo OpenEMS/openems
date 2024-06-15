@@ -1,12 +1,14 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: GridOptimizedChargeWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: './widget.component.html',
 })
 export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
@@ -25,7 +27,7 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
     public edge: Edge = null;
 
     constructor(
-        public service: Service,
+        public override service: Service,
         private route: ActivatedRoute,
     ) {
         super(service);
@@ -41,19 +43,19 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
         this.updateValues();
-    };
+    }
 
     protected updateValues() {
 
         this.service.getConfig().then(config => {
             this.getChannelAddresses(this.edge, config).then(channels => {
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
-                    let result = response.result;
+                    const result = response.result;
                     if (this.componentId + '/DelayChargeTime' in result.data) {
                         this.activeTimeDelayCharge = result.data[this.componentId + '/DelayChargeTime'];
                     }
@@ -67,14 +69,14 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
                     if (this.componentId + '/NoLimitationTime' in result.data) {
                         this.activeTimeNoChargeLimit = result.data[this.componentId + '/NoLimitationTime'];
                     }
-                })
+                });
             });
-        })
+        });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let channeladdresses = [
+            const channeladdresses = [
                 new ChannelAddress(this.componentId, 'DelayChargeTime'),
                 new ChannelAddress(this.componentId, 'SellToGridLimitTime'),
                 new ChannelAddress(this.componentId, 'AvoidLowChargingTime'),

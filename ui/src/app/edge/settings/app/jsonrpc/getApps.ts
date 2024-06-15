@@ -1,8 +1,9 @@
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonrpc/base";
+import { Flag } from "./flag/flag";
 
 /**
  * Represents a JSON-RPC Request for 'getApps'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -11,7 +12,7 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonr
  *   "params": {}
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
  * <pre>
@@ -54,10 +55,10 @@ export namespace GetApps {
     export class Response extends JsonrpcResponseSuccess {
 
         public constructor(
-            public readonly id: string,
-            public readonly result: {
+            public override readonly id: string,
+            public override readonly result: {
                 apps: App[]
-            }
+            },
         ) {
             super(id, result);
         }
@@ -68,9 +69,12 @@ export namespace GetApps {
         cardinality: 'SINGLE' | 'SINGLE_IN_CATEGORY' | 'MULTIPLE',
         appId: string,
         name: string,
-        image: string,
+        shortName?: string,
+        image?: string,
+        imageUrl?: string,
         status: Status,
         instanceIds: string[],
+        flags: Flag[]
     }
 
     export interface Status {

@@ -3,9 +3,8 @@ import { BrowserModule } from "@angular/platform-browser";
 import { IonicModule } from "@ionic/angular";
 import { Generic_ComponentsModule } from "../../genericComponents/genericComponents";
 import { PipeModule } from "../../pipe/pipe";
-import { AsymmetricMeterComponent } from "./asymmetric/modal.component";
+import { ElectricityMeterComponent } from "./electricity/modal.component";
 import { EssChargerComponent } from "./esscharger/modal.component";
-import { SymmetricMeterComponent } from "./symmetric/modal.component";
 
 
 @NgModule({
@@ -13,19 +12,15 @@ import { SymmetricMeterComponent } from "./symmetric/modal.component";
         BrowserModule,
         IonicModule,
         PipeModule,
-        Generic_ComponentsModule
-    ],
-    entryComponents: [
+        Generic_ComponentsModule,
     ],
     declarations: [
-        AsymmetricMeterComponent,
+        ElectricityMeterComponent,
         EssChargerComponent,
-        SymmetricMeterComponent,
     ],
     exports: [
-        AsymmetricMeterComponent,
+        ElectricityMeterComponent,
         EssChargerComponent,
-        SymmetricMeterComponent,
-    ]
+    ],
 })
 export class MeterModule { }

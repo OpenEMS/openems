@@ -9,13 +9,19 @@
       <ion-col size="12" size-xl="3">
         <form [formGroup]="form" (ngSubmit)="submit()">
           <ion-card>
-            <ion-item lines="full" color="primary">
-              <ion-icon slot="start" size="large" name="grid-outline"></ion-icon>
-              <ion-label>{{ app.name }}</ion-label>
-            </ion-item>
             <ion-card-content>
-              <div style="display: flex; align-items: center;justify-content: center;">
-                <img *ngIf="app.image" [src]="app.image" />
+              <div style="display: flex; align-items: center;justify-content: center;" class="ion-margin">
+                <img *ngIf="app.image; else noImage" [src]="app.image" />
+                <ng-template #noImage>
+                  <img *ngIf="app.imageUrl; else noImageUrl" [src]="app.imageUrl" (error)="app.imageUrl = null" />
+                  <ng-template #noImageUrl>
+                    <div style="max-width: 100%;">
+                      <h1 style="text-align: center; white-space: initial;">
+                        {{app.name}}
+                      </h1>
+                    </div>
+                  </ng-template>
+                </ng-template>
               </div>
               <!-- This button will be invisible until the feature gets implemented -->
               <div *ngIf="false">

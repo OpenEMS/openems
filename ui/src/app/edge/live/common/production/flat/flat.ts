@@ -1,11 +1,11 @@
-import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
+import { EdgeConfig, Utils } from 'src/app/shared/shared';
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { ModalComponent } from '../modal/modal';
 
 @Component({
     selector: 'Common_Production',
-    templateUrl: './flat.html'
+    templateUrl: './flat.html',
 })
 export class FlatComponent extends AbstractFlatWidget {
 
@@ -21,10 +21,10 @@ export class FlatComponent extends AbstractFlatWidget {
 
         // Get productionMeters
         this.productionMeterComponents =
-            this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+            this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
                 .filter(component => component.isEnabled && this.config.isProducer(component));
 
-        return []
+        return [];
     }
 
     async presentModal() {

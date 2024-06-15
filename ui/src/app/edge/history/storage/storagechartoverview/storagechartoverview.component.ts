@@ -1,10 +1,11 @@
+// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
 
 @Component({
     selector: StorageChartOverviewComponent.SELECTOR,
-    templateUrl: './storagechartoverview.component.html'
+    templateUrl: './storagechartoverview.component.html',
 })
 export class StorageChartOverviewComponent implements OnInit {
 
@@ -42,8 +43,8 @@ export class StorageChartOverviewComponent implements OnInit {
                 } else {
                     this.isOnlyChart = false;
                 }
-            })
-        })
+            });
+        });
     }
 
     onNotifyPhases(showPhases: boolean): void {

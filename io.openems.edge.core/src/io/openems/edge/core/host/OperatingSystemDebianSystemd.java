@@ -1,5 +1,9 @@
 package io.openems.edge.core.host;
 
+import static java.lang.Runtime.getRuntime;
+import static java.util.concurrent.CompletableFuture.runAsync;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -16,11 +20,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -36,7 +42,11 @@ import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest.SystemCommand;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse.SystemCommandResponse;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartResponse;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 
 /**
@@ -46,9 +56,16 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 	private static final String NETWORK_BASE_PATH = "/etc/systemd/network";
 	private static final Path UDEV_PATH = Paths.get("/etc/udev/rules.d/99-usb-serial.rules");
+	private static final int DEFAULT_METRIC = 1024;
+	private static final String MATCH_SECTION = "[Match]";
+	private static final String NETWORK_SECTION = "[Network]";
+	private static final String ROUTE_SECTION = "[Route]";
+	private static final String DHCP_SECTION = "[DHCP]";
+	private static final String ADDRESS_SECTION = "[Address]";
+	private static final String EMPTY_SECTION = "";
 
 	private static enum Block {
-		UNDEFINED, MATCH, NETWORK, ADDRESS
+		UNDEFINED, MATCH, NETWORK, ADDRESS, ROUTE, DHCP
 	}
 
 	private final HostImpl parent;
@@ -77,7 +94,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				/*
 				 * Parse the content of the network configuration file
 				 */
-				var lines = Files.readAllLines(file.toPath(), StandardCharsets.US_ASCII);
+				var lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
 				NetworkInterface<File> networkInterface = parseSystemdNetworkdConfigurationFile(lines, file);
 
 				// check for null value
@@ -124,7 +141,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			var file = (File) iface.getAttachment();
 			var lines = this.toFileFormat(user, iface);
 			try {
-				Files.write(file.toPath(), lines, StandardCharsets.US_ASCII);
+				Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 			} catch (IOException e) {
 				writeException = e;
 			}
@@ -137,7 +154,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		}
 
 		// apply the configuration by restarting the systemd-networkd service
-		this.handleExecuteCommandRequest(ExecuteSystemCommandRequest
+		this.handleExecuteSystemCommandRequest(ExecuteSystemCommandRequest
 				.runInBackgroundWithoutAuthentication("systemctl restart systemd-networkd --no-block"));
 	}
 
@@ -182,19 +199,18 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	 */
 	private List<String> toFileFormat(User user, NetworkInterface<?> iface) throws OpenemsNamedException {
 		List<String> result = new ArrayList<>();
-		result.add("# changedBy:" //
+		result.add("# changedBy: " //
 				+ user.getName());
-		result.add("# changedAt:" //
-				+ LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString() //
-		);
-		result.add("[Match]");
+		result.add("# changedAt: " //
+				+ LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString());
+		
+		// Match Section
+		result.add(MATCH_SECTION);
 		result.add("Name=" + iface.getName());
-		result.add("");
+		result.add(EMPTY_SECTION);
 
-		result.add("[Network]");
-		if (iface.getGateway().isSetAndNotNull()) {
-			result.add("Gateway=" + iface.getGateway().getValue().getHostAddress());
-		}
+		// Network Section
+		result.add(NETWORK_SECTION);
 		if (iface.getDhcp().isSetAndNotNull()) {
 			result.add("DHCP=" + (iface.getDhcp().getValue() ? "yes" : "no"));
 		}
@@ -204,11 +220,31 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		if (iface.getLinkLocalAddressing().isSetAndNotNull()) {
 			result.add("LinkLocalAddressing=" + (iface.getLinkLocalAddressing().getValue() ? "yes" : "no"));
 		}
+		
+		var metric = DEFAULT_METRIC;
+		if (iface.getMetric().isSetAndNotNull()) {
+			metric = iface.getMetric().getValue().intValue();
+		}
+		
+		if (iface.getDhcp().isSetAndNotNull()) {
+			var dhcp = iface.getDhcp().getValue();
+			result.add(EMPTY_SECTION);
+			if (dhcp) { // dhcp == yes
+				result.add(DHCP_SECTION);
+				result.add("RouteMetric=" + metric);
+			} else {
+				result.add(ROUTE_SECTION);
+				if (iface.getGateway().isSetAndNotNull()) {
+					result.add("Gateway=" + iface.getGateway().getValue().getHostAddress());
+				}
+				result.add("Metric=" + metric);
+			}
+		}
 		if (iface.getAddresses().isSetAndNotNull()) {
 			for (var address : iface.getAddresses().getValue()) {
 				final var label = address.getLabel();
-				result.add("");
-				result.add("[Address]");
+				result.add(EMPTY_SECTION);
+				result.add(ADDRESS_SECTION);
 				result.add("Address=" + address.toString());
 				if (!label.isBlank()) {
 					result.add("Label=" + label);
@@ -219,78 +255,99 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	}
 
 	@Override
-	public CompletableFuture<ExecuteSystemCommandResponse> handleExecuteCommandRequest(
+	public CompletableFuture<ExecuteSystemCommandResponse> handleExecuteSystemCommandRequest(
 			ExecuteSystemCommandRequest request) {
 		var result = new CompletableFuture<ExecuteSystemCommandResponse>();
+		this.execute(request.systemCommand, //
+				scr -> result.complete(new ExecuteSystemCommandResponse(request.id, scr)),
+				e -> result.completeExceptionally(e));
+		return result;
+	}
 
+	@Override
+	public CompletableFuture<ExecuteSystemRestartResponse> handleExecuteSystemRestartRequest(
+			ExecuteSystemRestartRequest request) {
+		final var result = new CompletableFuture<ExecuteSystemRestartResponse>();
+		var sc = new SystemCommand(//
+				switch (request.type) { // actual command string
+				case HARD -> "/usr/bin/systemctl reboot -i"; // "-i" is for "ignore inhibitors and users"
+				case SOFT -> "/usr/bin/systemctl restart openems";
+				}, //
+				false, // runInBackground
+				5, // timeoutSeconds
+				Optional.empty(), // username
+				Optional.empty()); // password
+		this.execute(sc, //
+				scr -> result.complete(new ExecuteSystemRestartResponse(request.id, scr)),
+				e -> result.completeExceptionally(e));
+		return result;
+	}
+
+	private void execute(SystemCommand sc, Consumer<SystemCommandResponse> scr, Consumer<Throwable> error) {
 		try {
-			Process proc;
-			if (request.getUsername().isPresent() && request.getPassword().isPresent()) {
+			final Process proc;
+			if (sc.username().isPresent() && sc.password().isPresent()) {
 				// Authenticate with user and password
-				proc = Runtime.getRuntime().exec(new String[] { //
+				proc = getRuntime().exec(new String[] { //
 						"/bin/bash", "-c", "--", //
-						"echo " + request.getPassword().get() + " | " //
-								+ " /usr/bin/sudo -Sk -p '' -u \"" + request.getUsername().get() + "\" -- " //
-								+ request.getCommand() });
-			} else if (request.getPassword().isPresent()) {
+						"echo " + sc.password().get() + " | " //
+								+ " /usr/bin/sudo -Sk -p '' -u \"" + sc.username().get() + "\" -- " //
+								+ sc.command() });
+			} else if (sc.password().isPresent()) {
 				// Authenticate with password (user must have 'sudo' permissions)
-				proc = Runtime.getRuntime().exec(new String[] { //
+				proc = getRuntime().exec(new String[] { //
 						"/bin/bash", "-c", "--", //
-						"echo " + request.getPassword().get() + " | " //
+						"echo " + sc.password().get() + " | " //
 								+ " /usr/bin/sudo -Sk -p '' -- " //
-								+ request.getCommand() });
+								+ sc.command() });
 			} else {
 				// No authentication: run as current user
-				proc = Runtime.getRuntime().exec(new String[] { //
-						"/bin/bash", "-c", "--", request.getCommand() });
+				proc = getRuntime().exec(new String[] { //
+						"/bin/bash", "-c", "--", sc.command() });
 			}
 
 			// get stdout and stderr
-			CompletableFuture<List<String>> stdoutFuture = CompletableFuture
-					.supplyAsync(new InputStreamToString(this.parent, request.getCommand(), proc.getInputStream()));
-			CompletableFuture<List<String>> stderrFuture = CompletableFuture
-					.supplyAsync(new InputStreamToString(this.parent, request.getCommand(), proc.getErrorStream()));
+			var stdoutFuture = supplyAsync(new InputStreamToString(this.parent, sc.command(), proc.getInputStream()));
+			var stderrFuture = supplyAsync(new InputStreamToString(this.parent, sc.command(), proc.getErrorStream()));
 
-			if (request.isRunInBackground()) {
+			if (sc.runInBackground()) {
 				/*
 				 * run in background
 				 */
-				String[] stdout = { //
-						"Command [" + request.getCommand() + "] executed in background...", //
+				var stdout = new String[] { //
+						"Command [" + sc.command() + "] executed in background...", //
 						"Check system logs for more information." };
-				result.complete(new ExecuteSystemCommandResponse(request.getId(), stdout, new String[0], 0));
+				scr.accept(new SystemCommandResponse(stdout, new String[0], 0));
 
 			} else {
 				/*
 				 * run in foreground with timeout
 				 */
-				CompletableFuture.runAsync(() -> {
-					List<String> stderr = new ArrayList<>();
+				runAsync(() -> {
+					var stderr = new ArrayList<>();
 					try {
 						// apply command timeout
-						if (!proc.waitFor(request.getTimeoutSeconds(), TimeUnit.SECONDS)) {
-							stderr.add("Command [" + request.getCommand() + "] timed out.");
+						if (!proc.waitFor(sc.timeoutSeconds(), TimeUnit.SECONDS)) {
+							stderr.add("Command [" + sc.command() + "] timed out.");
 							proc.destroy();
 						}
 
 						var stdout = stdoutFuture.get(1, TimeUnit.SECONDS);
 						stderr.addAll(stderrFuture.get(1, TimeUnit.SECONDS));
-						result.complete(new ExecuteSystemCommandResponse(request.getId(), //
+						scr.accept(new SystemCommandResponse(//
 								stdout.toArray(new String[stdout.size()]), //
 								stderr.toArray(new String[stderr.size()]), //
 								proc.exitValue() //
 						));
 
 					} catch (Throwable e) {
-						result.completeExceptionally(e);
+						error.accept(e);
 					}
 				});
 			}
 		} catch (IOException e) {
-			result.completeExceptionally(e);
+			error.accept(e);
 		}
-
-		return result;
 	}
 
 	/**
@@ -341,7 +398,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			if (!Files.exists(UDEV_PATH)) {
 				return "";
 			}
-			var lines = Files.readAllLines(UDEV_PATH, StandardCharsets.US_ASCII);
+			var lines = Files.readAllLines(UDEV_PATH, StandardCharsets.UTF_8);
 			return String.join("\n", lines);
 		} catch (IOException e) {
 			throw new OpenemsException("Unable to read file [" + UDEV_PATH + "]: " + e.getMessage());
@@ -362,6 +419,10 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			.compile("^Gateway=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
 	private static final Pattern NETWORK_DNS = Pattern //
 			.compile("^DNS=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
+	private static final Pattern GATEWAY_METRIC = Pattern //
+			.compile("^Metric=([0-9]+)$");
+	private static final Pattern ROUTE_METRIC = Pattern //
+			.compile("^RouteMetric=([0-9]+)$");
 
 	/**
 	 * Parses a Systemd-Networkd configuration file.
@@ -388,6 +449,8 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				ConfigurationProperty.asNotSet());
 		final var gateway = new AtomicReference<ConfigurationProperty<Inet4Address>>(//
 				ConfigurationProperty.asNotSet());
+		final var metric = new AtomicReference<ConfigurationProperty<Integer>>(//
+				ConfigurationProperty.asNotSet());
 		final var dns = new AtomicReference<ConfigurationProperty<Inet4Address>>(//
 				ConfigurationProperty.asNotSet());
 		final var addresses = new AtomicReference<ConfigurationProperty<Set<Inet4AddressWithSubnetmask>>>(//
@@ -407,15 +470,21 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			 */
 			if (line.startsWith("[")) {
 				switch (line) {
-				case "[Match]":
+				case MATCH_SECTION:
 					currentBlock = Block.MATCH;
 					break;
-				case "[Network]":
+				case NETWORK_SECTION:
 					currentBlock = Block.NETWORK;
 					break;
-				case "[Address]":
+				case ADDRESS_SECTION:
 					tmpAddress.set(null);
 					currentBlock = Block.ADDRESS;
+					break;
+				case ROUTE_SECTION:
+					currentBlock = Block.ROUTE;
+					break;
+				case DHCP_SECTION:
+					currentBlock = Block.DHCP;
 					break;
 				default:
 					currentBlock = Block.UNDEFINED;
@@ -455,8 +524,6 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 					addresses.set(ConfigurationProperty.of(addressDetails));
 				});
 				break;
-			case UNDEFINED:
-				break;
 			case ADDRESS:
 				onMatchString(NETWORK_ADDRESS, line, property -> {
 					// Storing here temporarily so that we can use it if when we find label.
@@ -487,11 +554,27 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 					addressDetails.add(address);
 				});
 				break;
+			case ROUTE:
+				onMatchInet4Address(NETWORK_GATEWAY, line, property -> {
+					gateway.set(ConfigurationProperty.of(property));
+				});
+				onMatchString(GATEWAY_METRIC, line, property -> {
+					metric.set(ConfigurationProperty.of(Integer.parseInt(property)));
+				});
+				break;
+			case DHCP:
+				onMatchString(ROUTE_METRIC, line, property -> {
+					metric.set(ConfigurationProperty.of(Integer.parseInt(property)));
+				});
+				break;
+			case UNDEFINED:
+				break;
 			default:
 				break;
 			}
 		}
 		return new NetworkInterface<>(name.get(), //
-				dhcp.get(), linkLocalAddressing.get(), gateway.get(), dns.get(), addresses.get(), attachment);
+				dhcp.get(), linkLocalAddressing.get(), gateway.get(), dns.get(), addresses.get(), metric.get(),
+				attachment);
 	}
 }

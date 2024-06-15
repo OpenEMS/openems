@@ -12,6 +12,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
@@ -25,14 +26,17 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.builder.SelectBuilder;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 /**
  * Describes a App for a Grid Optimized Charge.
@@ -91,7 +95,11 @@ public class SelfConsumptionOptimization extends AbstractEnumOpenemsApp<Property
 									.build()) //
 			);
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.schedulerByCentralOrder(//
+							new SchedulerComponent(ctrlBalacingId, "Controller.Symmetric.Balancing", this.getAppId()))) //
+					.build();
 		};
 	}
 
@@ -106,25 +114,26 @@ public class SelfConsumptionOptimization extends AbstractEnumOpenemsApp<Property
 										TranslationUtil.getTranslation(bundle, this.getAppId() + ".ess.description")) //
 								.isRequired(true) //
 								.setOptions(this.componentManager.getEnabledComponentsOfType(ManagedSymmetricEss.class),
-										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
-										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
+										SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
+										SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
 								.build())
 						.add(JsonFormlyUtil.buildSelect(Property.METER_ID)//
 								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".meter.label")) //
 								.setDescription(
 										TranslationUtil.getTranslation(bundle, this.getAppId() + ".meter.description")) //
 								.isRequired(true) //
-								.setOptions(this.componentManager.getEnabledComponentsOfType(SymmetricMeter.class),
-										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
-										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
+								.setOptions(this.componentManager.getEnabledComponentsOfType(ElectricityMeter.class),
+										SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
+										SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
 								.build())
 						.build())
 				.build();
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 

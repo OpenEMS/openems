@@ -1,5 +1,7 @@
 package io.openems.edge.fenecon.dess.gridmeter;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -29,9 +31,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.fenecon.dess.FeneconDessConstants;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -48,15 +49,15 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class FeneconDessGridMeterImpl extends AbstractOpenemsModbusComponent implements FeneconDessGridMeter,
-		AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler {
+		ElectricityMeter, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -71,17 +72,19 @@ public class FeneconDessGridMeterImpl extends AbstractOpenemsModbusComponent imp
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				FeneconDessGridMeter.ChannelId.values() //
 		);
 
-		// automatically calculate Active/ReactivePower from L1/L2/L3
-		AsymmetricMeter.initializePowerSumChannels(this);
+		// Automatically calculate sum values from L1/L2/L3
+		ElectricityMeter.calculateSumActivePowerFromPhases(this);
+		ElectricityMeter.calculateSumReactivePowerFromPhases(this);
+		ElectricityMeter.calculateSumCurrentFromPhases(this);
+		ElectricityMeter.calculateAverageVoltageFromPhases(this);
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), FeneconDessConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id())) {
 			return;
@@ -95,36 +98,28 @@ public class FeneconDessGridMeterImpl extends AbstractOpenemsModbusComponent imp
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(11109, Priority.LOW, //
 						m(FeneconDessGridMeter.ChannelId.ORIGINAL_ACTIVE_CONSUMPTION_ENERGY,
-								new UnsignedDoublewordElement(11109).wordOrder(WordOrder.MSWLSW),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedDoublewordElement(11109).wordOrder(WordOrder.MSWLSW), SCALE_FACTOR_2), //
 						m(FeneconDessGridMeter.ChannelId.ORIGINAL_ACTIVE_PRODUCTION_ENERGY,
-								new UnsignedDoublewordElement(11111).wordOrder(WordOrder.MSWLSW),
-								ElementToChannelConverter.SCALE_FACTOR_2)), //
+								new UnsignedDoublewordElement(11111).wordOrder(WordOrder.MSWLSW), SCALE_FACTOR_2)), //
 				new FC3ReadRegistersTask(11136, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(11136),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(11137),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(11138), DELTA_10000), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new UnsignedWordElement(11139), DELTA_10000)), //
+						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(11136), SCALE_FACTOR_2), //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(11137), SCALE_FACTOR_2), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(11138), DELTA_10000), //
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new UnsignedWordElement(11139), DELTA_10000)), //
 				new FC3ReadRegistersTask(11166, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(11166),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(11167),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(11168), DELTA_10000), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new UnsignedWordElement(11169), DELTA_10000)), //
+						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(11166), SCALE_FACTOR_2), //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(11167), SCALE_FACTOR_2), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(11168), DELTA_10000), //
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new UnsignedWordElement(11169), DELTA_10000)), //
 				new FC3ReadRegistersTask(11196, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(11196),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(11197),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(11198), DELTA_10000), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new UnsignedWordElement(11199), DELTA_10000)) //
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(11196), SCALE_FACTOR_2), //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(11197), SCALE_FACTOR_2), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(11198), DELTA_10000), //
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new UnsignedWordElement(11199), DELTA_10000)) //
 		); //
 	}
 

@@ -1,17 +1,21 @@
 package io.openems.edge.core.appmanager.jsonrpc;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.JsonUtils.toJsonArray;
+
 import java.util.List;
 import java.util.UUID;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.serialization.JsonElementPath;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.jsonapi.EndpointRequestType;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
+import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance.Request;
+import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance.Response;
 
 /**
  * Updates an {@link OpenemsAppInstance}..
@@ -45,74 +49,72 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
  * }
  * </pre>
  */
-public class UpdateAppInstance {
+public class UpdateAppInstance implements EndpointRequestType<Request, Response> {
 
-	public static final String METHOD = "updateAppInstance";
-
-	public static class Request extends JsonrpcRequest {
-
-		/**
-		 * Parses a generic {@link JsonrpcRequest} to a {@link UpdateAppInstance}.
-		 *
-		 * @param r the {@link JsonrpcRequest}
-		 * @return the {@link UpdateAppInstance}
-		 * @throws OpenemsNamedException on error
-		 */
-		public static Request from(JsonrpcRequest r) throws OpenemsNamedException {
-			var p = r.getParams();
-			var instanceId = JsonUtils.getAsUUID(p, "instanceId");
-			var alias = JsonUtils.getAsString(p, "alias");
-			var properties = JsonUtils.getAsJsonObject(p, "properties");
-			return new Request(r, instanceId, alias, properties);
-		}
-
-		public final UUID instanceId;
-		public String alias;
-		public final JsonObject properties;
-
-		private Request(JsonrpcRequest request, UUID instanceId, String alias, JsonObject properties) {
-			super(request, METHOD);
-			this.instanceId = instanceId;
-			this.alias = alias;
-			this.properties = properties;
-		}
-
-		public Request(UUID instanceId, String alias, JsonObject properties) {
-			super(METHOD);
-			this.instanceId = instanceId;
-			this.alias = alias;
-			this.properties = properties;
-		}
-
-		@Override
-		public JsonObject getParams() {
-			return JsonUtils.buildJsonObject() //
-					.addProperty("instanceId", this.instanceId.toString()) //
-					.addProperty("alias", this.alias) //
-					.add("properties", this.properties) //
-					.build();
-		}
+	@Override
+	public String getMethod() {
+		return "updateAppInstance";
 	}
 
-	public static class Response extends JsonrpcResponseSuccess {
+	@Override
+	public JsonSerializer<Request> getRequestSerializer() {
+		return Request.serializer();
+	}
 
-		public final OpenemsAppInstance instance;
-		public final JsonArray warnings;
+	@Override
+	public JsonSerializer<Response> getResponseSerializer() {
+		return Response.serializer();
+	}
 
-		public Response(UUID id, OpenemsAppInstance instance, List<String> warnings) {
-			super(id);
-			this.instance = instance;
-			this.warnings = warnings == null ? new JsonArray()
-					: warnings.stream().map(JsonPrimitive::new).collect(JsonUtils.toJsonArray());
+	public record Request(//
+			UUID instanceId, //
+			String alias, //
+			JsonObject properties //
+	) {
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link UpdateAppInstance.Request}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<UpdateAppInstance.Request> serializer() {
+			return jsonObjectSerializer(UpdateAppInstance.Request.class, //
+					json -> new UpdateAppInstance.Request(//
+							json.getStringPath("instanceId").getAsUuid(), //
+							json.getString("alias"), //
+							json.getJsonObject("properties")), //
+					obj -> JsonUtils.buildJsonObject() //
+							.addProperty("instanceId", obj.instanceId().toString()) //
+							.addProperty("alias", obj.alias()) //
+							.add("properties", obj.properties()) //
+							.build());
 		}
 
-		@Override
-		public JsonObject getResult() {
-			return JsonUtils.buildJsonObject() //
-					.add("instance", this.instance.toJsonObject()) //
-					.add("warnings", this.warnings) //
-					.build();
+	}
+
+	public record Response(//
+			OpenemsAppInstance instance, //
+			List<String> warnings //
+	) {
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link UpdateAppInstance.Response}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<UpdateAppInstance.Response> serializer() {
+			return jsonObjectSerializer(UpdateAppInstance.Response.class, //
+					json -> new UpdateAppInstance.Response(//
+							json.getElement("instance", OpenemsAppInstance.serializer()), //
+							json.getList("warnings", JsonElementPath::getAsString)), //
+					obj -> JsonUtils.buildJsonObject() //
+							.add("instance", OpenemsAppInstance.serializer().serialize(obj.instance())) //
+							.add("warnings", obj.warnings().stream() //
+									.map(JsonPrimitive::new) //
+									.collect(toJsonArray())) //
+							.build());
 		}
+
 	}
 
 }

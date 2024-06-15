@@ -1,6 +1,10 @@
 package io.openems.edge.app.evcs;
 
-import java.util.EnumMap;
+import static io.openems.edge.app.common.props.CommonProps.alias;
+
+import java.util.Map;
+import java.util.OptionalInt;
+import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -13,24 +17,31 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
+import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.evcs.KebaEvcs.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
-import io.openems.edge.core.appmanager.AppAssistant;
+import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.DefaultEnum;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
+import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.Type.Parameter;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 
 /**
  * Describes a Keba evcs App.
@@ -53,26 +64,43 @@ import io.openems.edge.core.appmanager.TranslationUtil;
  * </pre>
  */
 @Component(name = "App.Evcs.Keba")
-public class KebaEvcs extends AbstractEvcsApp<Property> implements OpenemsApp {
+public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Parameter.BundleParameter>
+		implements OpenemsApp {
 
-	public enum Property implements DefaultEnum, Nameable {
+	public enum Property implements Type<Property, KebaEvcs, Parameter.BundleParameter>, Nameable {
 		// Component-IDs
-		EVCS_ID("evcs0"), //
-		CTRL_EVCS_ID("ctrlEvcs0"), //
+		EVCS_ID(AppDef.componentId("evcs0")), //
+		CTRL_EVCS_ID(AppDef.componentId("ctrlEvcs0")), //
 		// Properties
-		ALIAS("KEBA Ladestation"), //
-		IP("192.168.25.11") //
+		ALIAS(alias()), //
+		IP(AppDef.copyOfGeneric(CommunicationProps.ip()) //
+				.setDefaultValue("192.168.25.11") //
+				.setRequired(true)), //
+		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
+				.setAllowedToSave(false)), //
+		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(//
+				EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID))), //
 		;
 
-		private final String defaultValue;
+		private final AppDef<? super KebaEvcs, ? super Property, ? super BundleParameter> def;
 
-		private Property(String defaultValue) {
-			this.defaultValue = defaultValue;
+		private Property(AppDef<? super KebaEvcs, ? super Property, ? super BundleParameter> def) {
+			this.def = def;
 		}
 
 		@Override
-		public String getDefaultValue() {
-			return this.defaultValue;
+		public Type<Property, KebaEvcs, BundleParameter> self() {
+			return this;
+		}
+
+		@Override
+		public AppDef<? super KebaEvcs, ? super Property, ? super BundleParameter> def() {
+			return this.def;
+		}
+
+		@Override
+		public Function<GetParameterValues<KebaEvcs>, BundleParameter> getParamter() {
+			return Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
 		}
 
 	}
@@ -84,61 +112,71 @@ public class KebaEvcs extends AbstractEvcsApp<Property> implements OpenemsApp {
 	}
 
 	@Override
-	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
+			final var controllerAlias = TranslationUtil.getTranslation(AbstractOpenemsApp.getTranslationBundle(l),
+					"App.Evcs.controller.alias");
+
 			// values the user enters
-			var ip = this.getValueOrDefault(p, Property.IP);
-			var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
+			final var ip = this.getString(p, l, Property.IP);
+			final var alias = this.getString(p, l, Property.ALIAS);
 
 			// values which are being auto generated by the appmanager
-			var evcsId = this.getId(t, p, Property.EVCS_ID);
-			var ctrlEvcsId = this.getId(t, p, Property.CTRL_EVCS_ID);
+			final var evcsId = this.getId(t, p, Property.EVCS_ID);
+			final var ctrlEvcsId = this.getId(t, p, Property.CTRL_EVCS_ID);
 
-			var components = this.getComponents(evcsId, alias, "Evcs.Keba.KeContact", ip, ctrlEvcsId);
+			var maxHardwarePowerPerPhase = OptionalInt.empty();
+			if (p.containsKey(Property.MAX_HARDWARE_POWER)) {
+				maxHardwarePowerPerPhase = OptionalInt.of(this.getInt(p, Property.MAX_HARDWARE_POWER));
+			}
 
-			var ips = Lists.newArrayList(//
-					new InterfaceConfiguration("eth0") //
-							.addIp("Evcs", "192.168.25.10/24") //
+			var components = Lists.newArrayList(//
+					new EdgeConfig.Component(evcsId, alias, "Evcs.Keba.KeContact", JsonUtils.buildJsonObject() //
+							.addPropertyIfNotNull("ip", ip) //
+							.build()), //
+					new EdgeConfig.Component(ctrlEvcsId, controllerAlias, "Controller.Evcs", JsonUtils.buildJsonObject() //
+							.addProperty("evcs.id", evcsId) //
+							.build())//
 			);
 
-			return new AppConfiguration(//
-					components, //
-					Lists.newArrayList(ctrlEvcsId, "ctrlBalancing0"), //
-					ip.startsWith("192.168.25.") ? ips : null //
-			);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.schedulerByCentralOrder(
+							new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId()))) //
+					.throwingOnlyIf(ip.startsWith("192.168.25."),
+							b -> b.addTask(Tasks.staticIp(new InterfaceConfiguration("eth0") //
+									.addIp("Evcs", "192.168.25.10/24")))) //
+					.addDependencies(EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
+							maxHardwarePowerPerPhase, evcsId)) //
+					.build();
 		};
 	}
 
 	@Override
-	public AppAssistant getAppAssistant(Language language) {
-		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
-		return AppAssistant.create(this.getName(language)) //
-				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildInput(Property.IP) //
-								.setLabel(TranslationUtil.getTranslation(bundle, "ipAddress")) //
-								.setDescription(TranslationUtil.getTranslation(bundle, "App.Evcs.ip.description"))
-								.setDefaultValue(Property.IP.getDefaultValue()) //
-								.isRequired(true) //
-								.setValidation(Validation.IP) //
-								.build()) //
-						.build()) //
-				.build();
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
-	}
-
-	@Override
-	protected Class<Property> getPropertyClass() {
-		return Property.class;
 	}
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.MULTIPLE;
+	}
+
+	@Override
+	public OpenemsAppCategory[] getCategories() {
+		return new OpenemsAppCategory[] { OpenemsAppCategory.EVCS };
+	}
+
+	@Override
+	protected KebaEvcs getApp() {
+		return this;
+	}
+
+	@Override
+	protected Property[] propertyValues() {
+		return Property.values();
 	}
 
 }

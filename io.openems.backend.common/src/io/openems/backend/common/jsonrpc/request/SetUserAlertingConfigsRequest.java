@@ -1,15 +1,20 @@
 package io.openems.backend.common.jsonrpc.request;
 
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.common.utils.JsonUtils.generateJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsInt;
+import static io.openems.common.utils.JsonUtils.getAsJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsString;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request for 'getEdgeConfig'.
@@ -23,8 +28,10 @@ import io.openems.common.utils.JsonUtils;
  *     "edgeId": string,
  *      "userSettings": [
  *          {
- *           userId: string,
- *           delayTime": number
+ *           userLogin: string,
+ *           offlineEdgeDelay: number,
+ *           faultEdgeDelay: number,
+ *           warningEdgeDelay: number
  *          }
  *      ]
  *   }
@@ -47,20 +54,23 @@ public class SetUserAlertingConfigsRequest extends JsonrpcRequest {
 	}
 
 	private final String edgeId;
-	private final List<AlertingSetting> userSettings = new ArrayList<>();
+	private final List<UserAlertingSettings> userSettings = new ArrayList<>();
 
 	private SetUserAlertingConfigsRequest(JsonrpcRequest request) throws OpenemsNamedException {
 		super(request, SetUserAlertingConfigsRequest.METHOD);
 		var params = request.getParams();
 
-		this.edgeId = JsonUtils.getAsString(params, "edgeId");
-		JsonUtils.getAsJsonArray(params, "userSettings").forEach(user -> {
+		this.edgeId = getAsString(params, "edgeId");
+		getAsJsonArray(params, "userSettings").forEach(user -> {
 			var userJsonObject = user.getAsJsonObject();
 			try {
-				var userId = JsonUtils.getAsString(userJsonObject, "userId");
-				var timeToWait = JsonUtils.getAsInt(userJsonObject, "delayTime");
+				var userLogin = getAsString(userJsonObject, "userLogin");
+				var offlineEdgeDelay = getAsInt(userJsonObject, "offlineEdgeDelay");
+				var faultEdgeDelay = getAsInt(userJsonObject, "faultEdgeDelay");
+				var warningEdgeDelay = getAsInt(userJsonObject, "warningEdgeDelay");
 
-				this.userSettings.add(new AlertingSetting(userId, timeToWait));
+				this.userSettings
+						.add(new UserAlertingSettings(userLogin, offlineEdgeDelay, faultEdgeDelay, warningEdgeDelay));
 			} catch (OpenemsNamedException e) {
 				e.printStackTrace();
 			}
@@ -81,22 +91,24 @@ public class SetUserAlertingConfigsRequest extends JsonrpcRequest {
 	 *
 	 * @return list of {@link UserAlertingSetting}
 	 */
-	public List<AlertingSetting> getUserSettings() {
+	public List<UserAlertingSettings> getUserSettings() {
 		return this.userSettings;
 	}
 
 	@Override
 	public JsonObject getParams() {
-		return JsonUtils.buildJsonObject() //
+		return buildJsonObject() //
 				.addProperty("edgeId", this.edgeId) //
-				.add("userSettings", JsonUtils.generateJsonArray(this.userSettings, this::toJson)) //
+				.add("userSettings", generateJsonArray(this.userSettings, this::toJson)) //
 				.build();
 	}
 
-	private JsonElement toJson(AlertingSetting setting) {
-		return JsonUtils.buildJsonObject() //
-				.addProperty("userId", setting.getUserId()) //
-				.addProperty("delayTime", setting.getDelayTime()) //
+	private JsonElement toJson(UserAlertingSettings setting) {
+		return buildJsonObject() //
+				.addProperty("userLogin", setting.userLogin()) //
+				.addProperty("offlineEdgeDelay", setting.edgeOfflineDelay()) //
+				.addProperty("faultEdgeDelay", setting.edgeFaultDelay()) //
+				.addProperty("warningEdgeDelay", setting.edgeWarningDelay()) //
 				.build();
 	}
 

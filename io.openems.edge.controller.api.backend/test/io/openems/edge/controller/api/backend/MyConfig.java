@@ -10,14 +10,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		public String apikey;
-		public String uri;
-		public String proxyAddress;
-		public int proxyPort;
-		public Type proxyType;
-		public int apiTimeout;
-		public PersistencePriority persistencePriority;
-		public boolean debugMode;
+		private String apikey;
+		private String uri;
+		private String proxyAddress;
+		private int proxyPort;
+		private Type proxyType;
+		private int apiTimeout;
+		private PersistencePriority persistencePriority;
+		private PersistencePriority aggregationPriority;
+		private PersistencePriority resendPriority;
+		private boolean debugMode;
 
 		private Builder() {
 		}
@@ -59,6 +61,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setPersistencePriority(PersistencePriority persistencePriority) {
 			this.persistencePriority = persistencePriority;
+			return this;
+		}
+
+		public Builder setAggregationPriority(PersistencePriority aggregationPriority) {
+			this.aggregationPriority = aggregationPriority;
+			return this;
+		}
+
+		public Builder setResendPriority(PersistencePriority resendPriority) {
+			this.resendPriority = resendPriority;
 			return this;
 		}
 
@@ -121,6 +133,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public PersistencePriority persistencePriority() {
 		return this.builder.persistencePriority;
+	}
+
+	@Override
+	public PersistencePriority aggregationPriority() {
+		return this.builder.aggregationPriority;
+	}
+
+	@Override
+	public PersistencePriority resendPriority() {
+		return this.builder.resendPriority;
 	}
 
 	@Override

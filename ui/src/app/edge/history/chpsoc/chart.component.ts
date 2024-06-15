@@ -1,15 +1,16 @@
-import { formatNumber } from '@angular/common';
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from './../shared';
+import { YAxisTitle } from 'src/app/shared/service/utils';
 
 @Component({
     selector: 'chpsocchart',
-    templateUrl: '../abstracthistorychart.html'
+    templateUrl: '../abstracthistorychart.html',
 })
 export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -18,16 +19,15 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
+        protected override service: Service,
+        protected override translate: TranslateService,
         private route: ActivatedRoute,
     ) {
         super("chpsoc-chart", service, translate);
     }
-
 
     ngOnInit() {
         this.startSpinner();
@@ -35,7 +35,7 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
@@ -45,28 +45,28 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(() => {
                 this.service.getConfig().then(config => {
-                    let outputChannel = config.getComponentProperties(this.componentId)['outputChannelAddress'];
-                    let inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
-                    let lowThreshold = this.componentId + '/_PropertyLowThreshold';
-                    let highThreshold = this.componentId + '/_PropertyHighThreshold';
-                    let result = response.result;
+                    const outputChannel = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+                    const inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
+                    const lowThreshold = this.componentId + '/_PropertyLowThreshold';
+                    const highThreshold = this.componentId + '/_PropertyHighThreshold';
+                    const result = response.result;
                     // convert labels
-                    let labels: Date[] = [];
-                    for (let timestamp of result.timestamps) {
+                    const labels: Date[] = [];
+                    for (const timestamp of result.timestamps) {
                         labels.push(new Date(timestamp));
                     }
                     this.labels = labels;
 
                     // convert datasets
-                    let datasets = [];
+                    const datasets = [];
 
                     // convert datasets
-                    for (let channel in result.data) {
+                    for (const channel in result.data) {
                         if (channel == outputChannel) {
-                            let address = ChannelAddress.fromString(channel);
-                            let data = result.data[channel].map(value => {
+                            const address = ChannelAddress.fromString(channel);
+                            const data = result.data[channel].map(value => {
                                 if (value == null) {
-                                    return null
+                                    return null;
                                 } else {
                                     return value * 100; // convert to % [0,100]
                                 }
@@ -78,17 +78,17 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                             this.colors.push({
                                 backgroundColor: 'rgba(0,191,255,0.05)',
                                 borderColor: 'rgba(0,191,255,1)',
-                            })
+                            });
                         } else {
-                            let data = result.data[channel].map(value => {
+                            const data = result.data[channel].map(value => {
                                 if (value == null) {
-                                    return null
+                                    return null;
                                 } else if (value > 100 || value < 0) {
                                     return null;
                                 } else {
                                     return value;
                                 }
-                            })
+                            });
                             if (channel == inputChannel) {
                                 datasets.push({
                                     label: this.translate.instant('General.soc'),
@@ -97,29 +97,29 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                                 this.colors.push({
                                     backgroundColor: 'rgba(0,0,0,0)',
                                     borderColor: 'rgba(0,223,0,1)',
-                                })
+                                });
                             }
                             if (channel == lowThreshold) {
                                 datasets.push({
                                     label: this.translate.instant('Edge.Index.Widgets.CHP.lowThreshold'),
                                     data: data,
-                                    borderDash: [3, 3]
+                                    borderDash: [3, 3],
                                 });
                                 this.colors.push({
                                     backgroundColor: 'rgba(0,0,0,0)',
                                     borderColor: 'rgba(0,191,255,1)',
-                                })
+                                });
                             }
                             if (channel == highThreshold) {
                                 datasets.push({
                                     label: this.translate.instant('Edge.Index.Widgets.CHP.highThreshold'),
                                     data: data,
-                                    borderDash: [3, 3]
+                                    borderDash: [3, 3],
                                 });
                                 this.colors.push({
                                     backgroundColor: 'rgba(0,0,0,0)',
                                     borderColor: 'rgba(0,191,255,1)',
-                                })
+                                });
                             }
                         }
                     }
@@ -140,6 +140,9 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
             console.error(reason); // TODO error message
             this.initializeChart();
             return;
+        }).finally(() => {
+            this.unit = YAxisTitle.PERCENTAGE;
+            this.setOptions(this.options);
         });
     }
 
@@ -147,26 +150,18 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
         return new Promise((resolve) => {
             const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
             const inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
-            let result: ChannelAddress[] = [
+            const result: ChannelAddress[] = [
                 outputChannel,
                 inputChannel,
                 new ChannelAddress(this.componentId, '_PropertyHighThreshold'),
                 new ChannelAddress(this.componentId, '_PropertyLowThreshold'),
             ];
             resolve(result);
-        })
+        });
     }
 
     protected setLabel() {
-        let options = this.createDefaultChartOptions();
-        options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
-            return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
-        }
-        options.scales.yAxes[0].ticks.max = 100;
-        this.options = options;
+        this.options = this.createDefaultChartOptions();
     }
 
     public getChartHeight(): number {

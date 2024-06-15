@@ -47,9 +47,11 @@ public class DummyComponentContext implements ComponentContext {
 	 * 
 	 * @param key   the property key
 	 * @param value the property value
+	 * @return myself
 	 */
-	public void addProperty(String key, Object value) {
+	public DummyComponentContext addProperty(String key, Object value) {
 		this.properties.put(key, value);
+		return this;
 	}
 
 	@Override

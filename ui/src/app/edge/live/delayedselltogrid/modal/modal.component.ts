@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
@@ -6,12 +7,12 @@ import { Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared'
 
 @Component({
     selector: DelayedSellToGridModalComponent.SELECTOR,
-    templateUrl: './modal.component.html'
+    templateUrl: './modal.component.html',
 })
 export class DelayedSellToGridModalComponent implements OnInit {
 
-    @Input() component: EdgeConfig.Component;
-    @Input() edge: Edge;
+    @Input() protected component: EdgeConfig.Component;
+    @Input() protected edge: Edge;
 
     private static readonly SELECTOR = "delayedselltogrid-modal";
 
@@ -30,28 +31,28 @@ export class DelayedSellToGridModalComponent implements OnInit {
         this.formGroup = this.formBuilder.group({
             continuousSellToGridPower: new FormControl(this.component.properties.continuousSellToGridPower, Validators.compose([
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
-                Validators.required
+                Validators.required,
             ])),
             sellToGridPowerLimit: new FormControl(this.component.properties.sellToGridPowerLimit, Validators.compose([
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
-                Validators.required
-            ]))
-        })
+                Validators.required,
+            ])),
+        });
     }
 
     applyChanges() {
         if (this.edge != null) {
             if (this.edge.roleIsAtLeast('owner')) {
-                let continuousSellToGridPower = this.formGroup.controls['continuousSellToGridPower'];
-                let sellToGridPowerLimit = this.formGroup.controls['sellToGridPowerLimit'];
+                const continuousSellToGridPower = this.formGroup.controls['continuousSellToGridPower'];
+                const sellToGridPowerLimit = this.formGroup.controls['sellToGridPowerLimit'];
                 if (continuousSellToGridPower.valid && sellToGridPowerLimit.valid) {
                     if (sellToGridPowerLimit.value > continuousSellToGridPower.value) {
-                        let updateComponentArray = [];
+                        const updateComponentArray = [];
                         Object.keys(this.formGroup.controls).forEach((element, index) => {
                             if (this.formGroup.controls[element].dirty) {
-                                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });
                             }
-                        })
+                        });
                         this.loading = true;
                         this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
                             this.component.properties.continuousSellToGridPower = continuousSellToGridPower.value;
@@ -64,8 +65,8 @@ export class DelayedSellToGridModalComponent implements OnInit {
                             this.loading = false;
                             this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                             console.warn(reason);
-                        })
-                        this.formGroup.markAsPristine()
+                        });
+                        this.formGroup.markAsPristine();
                     } else {
                         this.service.toast(this.translate.instant('Edge.Index.Widgets.DelayedSellToGrid.relationError'), 'danger');
                     }

@@ -1,13 +1,12 @@
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonrpc/base";
 import { GetAppInstances } from "./getAppInstances";
-import { GetApps } from "./getApps";
 
 /**
  * Updates an instance of an {@link OpenemsApp}.
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -20,10 +19,10 @@ import { GetApps } from "./getApps";
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -39,11 +38,11 @@ export namespace UpdateAppInstance {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
                 instanceId: string,
                 alias: string,
                 properties: {}
-            }
+            },
         ) {
             super(METHOD, params);
         }
@@ -53,11 +52,11 @@ export namespace UpdateAppInstance {
     export class Response extends JsonrpcResponseSuccess {
 
         public constructor(
-            public readonly id: string,
-            public readonly result: {
+            public override readonly id: string,
+            public override readonly result: {
                 instance: GetAppInstances.AppInstance,
-                warnings: String[]
-            }
+                warnings: string[]
+            },
         ) {
             super(id, result);
         }

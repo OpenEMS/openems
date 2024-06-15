@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -17,12 +18,12 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
             })),
             state('hide', style({
                 opacity: 0.6,
-                transform: 'translateX(17%)'
+                transform: 'translateX(17%)',
             })),
             transition('show => hide', animate('650ms ease-out')),
-            transition('hide => show', animate('0ms ease-in'))
-        ])
-    ]
+            transition('hide => show', animate('0ms ease-in')),
+        ]),
+    ],
 })
 export class ConsumptionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
@@ -53,7 +54,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     }
 
     get stateName() {
-        return this.showAnimation ? 'show' : 'hide'
+        return this.showAnimation ? 'show' : 'hide';
     }
 
     protected getStartAngle(): number {
@@ -86,19 +87,19 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
-        let x = innerRadius - 5 - square.length;
-        let y = (square.length / 2) * (-1);
+        const x = innerRadius - 5 - square.length;
+        const y = (square.length / 2) * (-1);
         return new SvgSquarePosition(x, y);
     }
     protected getImagePath(): string {
-        return "consumption.png";
+        return "icon/consumption.svg";
     }
 
     protected getValueText(value: number): string {
         if (value == null || Number.isNaN(value)) {
             return "";
         }
-        return this.unitpipe.transform(value, 'kW')
+        return this.unitpipe.transform(value, 'kW');
     }
 
     protected initEnergyFlow(radius: number): EnergyFlow {
@@ -106,21 +107,21 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     }
 
     protected setElementHeight() {
-        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3)
-        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3)
+        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3);
+        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3);
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let p = {
+        const v = Math.abs(ratio);
+        const r = radius;
+        const p = {
             topLeft: { x: v, y: v * -1 },
             middleLeft: { x: 0, y: 0 },
             bottomLeft: { x: v, y: v },
             topRight: { x: r, y: v * -1 },
             bottomRight: { x: r, y: v },
-            middleRight: { x: r - v, y: 0 }
-        }
+            middleRight: { x: r - v, y: 0 },
+        };
         if (ratio > 0) {
             // towards right
             p.topRight.x = p.topRight.x - v;
@@ -132,17 +133,17 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     }
 
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let animationWidth = (r * -1) - v;
+        const v = Math.abs(ratio);
+        const r = radius;
+        const animationWidth = (r * -1) - v;
         let p = {
             topLeft: { x: v, y: v * -1 },
             middleLeft: { x: 0, y: 0 },
             bottomLeft: { x: v, y: v },
             topRight: { x: r, y: v * -1 },
             bottomRight: { x: r, y: v },
-            middleRight: { x: r - v, y: 0 }
-        }
+            middleRight: { x: r - v, y: 0 },
+        };
         if (ratio > 0) {
             // towards right
             p.topRight.x = p.topLeft.x + animationWidth * 0.2;

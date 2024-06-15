@@ -10,18 +10,13 @@ import { PredictionChartComponent } from './modal/predictionChart';
         BrowserModule,
         SharedModule,
     ],
-    entryComponents: [
-        FlatComponent,
-        ModalComponent,
-        PredictionChartComponent
-    ],
     declarations: [
         FlatComponent,
         ModalComponent,
-        PredictionChartComponent
+        PredictionChartComponent,
     ],
     exports: [
-        FlatComponent
-    ]
+        FlatComponent,
+    ],
 })
 export class Controller_Ess_GridOptimizedCharge { }

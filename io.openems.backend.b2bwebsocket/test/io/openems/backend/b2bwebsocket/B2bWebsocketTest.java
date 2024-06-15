@@ -8,10 +8,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import org.junit.Test;
+
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
 import io.openems.backend.common.jsonrpc.request.GetEdgesChannelsValuesRequest;
 import io.openems.backend.common.jsonrpc.request.GetEdgesStatusRequest;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.request.EdgeRpcRequest;
+import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest.GridConnSchedule;
 import io.openems.common.types.ChannelAddress;
@@ -19,8 +23,8 @@ import io.openems.common.types.ChannelAddress;
 /**
  * This Test demonstrates the usage of the OpenEMS Backend-to-Backend API
  * interface. To start the tests make sure to start OpenEMS Backend and activate
- * the B2bWebsocket component via Apache Felix. Afterwards uncomment the "@Test"
- * annotations below and execute the Tests.
+ * the B2bWebsocket component via Apache Felix. Afterwards run this App via
+ * main().
  */
 public class B2bWebsocketTest {
 
@@ -39,12 +43,11 @@ public class B2bWebsocketTest {
 		return client;
 	}
 
-	// @Test
-	protected void testGetEdgesStatusRequest()
-			throws URISyntaxException, InterruptedException, ExecutionException, OpenemsNamedException {
+	@Test
+	public void getEdgesStatusRequest() throws Exception {
 		var client = B2bWebsocketTest.prepareTestClient();
 
-		var request = new GetEdgesStatusRequest();
+		var request = new GetEdgesStatusRequest("edge0");
 		try {
 			var responseFuture = client.sendRequest(request);
 			System.out.println(responseFuture.get().toString());
@@ -54,8 +57,22 @@ public class B2bWebsocketTest {
 		client.stop();
 	}
 
-	// @Test
-	protected void testGetEdgesChannelsValuesRequest() throws URISyntaxException, InterruptedException {
+	@Test
+	public void getEdgeConfigRequest() throws Exception {
+		var client = B2bWebsocketTest.prepareTestClient();
+
+		var request = new EdgeRpcRequest("edge0", new GetEdgeConfigRequest());
+		try {
+			var responseFuture = client.sendRequest(request);
+			System.out.println(responseFuture.get().toString());
+		} catch (InterruptedException | ExecutionException | OpenemsNamedException e) {
+			System.out.println(e.getMessage());
+		}
+		client.stop();
+	}
+
+	@Test
+	public void getEdgesChannelsValuesRequest() throws Exception {
 		var client = B2bWebsocketTest.prepareTestClient();
 
 		var request = new GetEdgesChannelsValuesRequest();
@@ -71,9 +88,8 @@ public class B2bWebsocketTest {
 		client.stop();
 	}
 
-	// @Test
-	protected void testSubscribeEdgesChannelsRequest()
-			throws URISyntaxException, InterruptedException, ExecutionException, OpenemsNamedException {
+	@Test
+	public void subscribeEdgesChannelsRequest() throws Exception {
 		var client = B2bWebsocketTest.prepareTestClient();
 		client.setOnNotification((ws, notification) -> {
 			System.out.println(notification.toString());
@@ -90,12 +106,11 @@ public class B2bWebsocketTest {
 			System.out.println(e.getMessage());
 		}
 
-		Thread.sleep(10000);
 		client.stop();
 	}
 
-	// @Test
-	protected void testSetGridConnSchedule() throws URISyntaxException, InterruptedException {
+	@Test
+	public void setGridConnSchedule() throws Exception {
 		var client = B2bWebsocketTest.prepareTestClient();
 
 		var request = new SetGridConnScheduleRequest("edge0");
@@ -108,5 +123,6 @@ public class B2bWebsocketTest {
 		} catch (InterruptedException | ExecutionException | OpenemsNamedException e) {
 			System.out.println(e.getMessage());
 		}
+		client.stop();
 	}
 }

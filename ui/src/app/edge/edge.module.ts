@@ -6,7 +6,7 @@ import { EdgeComponent } from './edge.component';
 
 @NgModule({
   declarations: [
-    EdgeComponent
+    EdgeComponent,
   ],
   imports: [
     HistoryModule,
@@ -14,7 +14,7 @@ import { EdgeComponent } from './edge.component';
     SharedModule,
   ],
   exports: [
-    EdgeComponent
-  ]
+    EdgeComponent,
+  ],
 })
 export class EdgeModule { }

@@ -1,5 +1,11 @@
 package io.openems.edge.core.host;
 
+import static io.openems.common.utils.JsonUtils.buildJsonArray;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsInet4Address;
+import static io.openems.common.utils.JsonUtils.getAsString;
+import static io.openems.common.utils.JsonUtils.getOptionalSubElement;
+
 import java.net.Inet4Address;
 import java.util.HashSet;
 import java.util.Optional;
@@ -41,70 +47,70 @@ public class NetworkInterface<A> {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static NetworkInterface<?> from(String name, JsonObject j) throws OpenemsNamedException {
+		var gateway = parseInet4Address(j, "gateway");
+		var metric = parseInteger(j, "metric");
+		var dns = parseInet4Address(j, "dns");
+		var addresses = parseAddresses(j);
+		var dhcp = parseBoolean(j, "dhcp");
+		var linkLocalAddressing = parseBoolean(j, "linkLocalAddressing");
 
-		// Gateway
-		ConfigurationProperty<Inet4Address> gateway;
-		{
-			ConfigurationProperty<String> gatewayString = ConfigurationProperty
-					.fromJsonElement(JsonUtils.getOptionalSubElement(j, "gateway"), JsonUtils::getAsString);
-			if (gatewayString.isSet()) {
-				if (gatewayString.getValue() == null || gatewayString.getValue().trim().isEmpty()) {
-					gateway = ConfigurationProperty.asNull();
-				} else {
-					gateway = ConfigurationProperty.fromJsonElement(
-							Optional.of(new JsonPrimitive(gatewayString.getValue())), JsonUtils::getAsInet4Address);
-				}
+		return new NetworkInterface<Void>(name, dhcp, linkLocalAddressing, gateway, dns, addresses, metric, null);
+	}
+
+	private static ConfigurationProperty<Inet4Address> parseInet4Address(JsonObject j, String member)
+			throws OpenemsNamedException {
+		ConfigurationProperty<String> gatewayString = ConfigurationProperty
+				.fromJsonElement(getOptionalSubElement(j, member), JsonUtils::getAsString);
+		if (gatewayString.isSet()) {
+			if (gatewayString.getValue() == null || gatewayString.getValue().trim().isEmpty()) {
+				return ConfigurationProperty.asNull();
 			} else {
-				gateway = ConfigurationProperty.asNotSet();
+				return ConfigurationProperty.fromJsonElement(//
+						Optional.of(new JsonPrimitive(gatewayString.getValue())), JsonUtils::getAsInet4Address);
 			}
+		} else {
+			return ConfigurationProperty.asNotSet();
 		}
+	}
 
-		// DNS
-		ConfigurationProperty<Inet4Address> dns;
-		{
-			ConfigurationProperty<String> dnsString = ConfigurationProperty
-					.fromJsonElement(JsonUtils.getOptionalSubElement(j, "dns"), JsonUtils::getAsString);
-			if (dnsString.isSet()) {
-				if (dnsString.getValue() == null || dnsString.getValue().trim().isEmpty()) {
-					dns = ConfigurationProperty.asNull();
-				} else {
-					dns = ConfigurationProperty.fromJsonElement(Optional.of(new JsonPrimitive(dnsString.getValue())),
-							JsonUtils::getAsInet4Address);
-				}
+	private static ConfigurationProperty<Integer> parseInteger(JsonObject j, String member)
+			throws OpenemsNamedException {
+		ConfigurationProperty<Integer> metricElement = ConfigurationProperty
+				.fromJsonElement(getOptionalSubElement(j, member), JsonUtils::getAsInt);
+		if (metricElement.isSet()) {
+			if (metricElement.getValue() == null) {
+				return ConfigurationProperty.asNull();
 			} else {
-				dns = ConfigurationProperty.asNotSet();
+				return ConfigurationProperty.fromJsonElement(//
+						Optional.of(new JsonPrimitive(metricElement.getValue())), JsonUtils::getAsInt);
 			}
+		} else {
+			return ConfigurationProperty.asNotSet();
 		}
+	}
 
-		// Addresses
-		ConfigurationProperty<Set<Inet4AddressWithSubnetmask>> addresses;
-		{
-			ConfigurationProperty<JsonArray> addressesArray = ConfigurationProperty
-					.fromJsonElement(JsonUtils.getOptionalSubElement(j, "addresses"), JsonUtils::getAsJsonArray);
-			if (addressesArray.isSet()) {
-				var value = new HashSet<Inet4AddressWithSubnetmask>();
-				for (JsonElement element : addressesArray.getValue()) {
-					var label = JsonUtils.getAsString(element, "label");
-					var address = JsonUtils.getAsInet4Address(element, "address");
-					var subnetmask = JsonUtils.getAsInet4Address(element, "subnetmask");
-					var cidr = Inet4AddressWithSubnetmask.getCidrFromSubnetmask(subnetmask);
-					value.add(new Inet4AddressWithSubnetmask(label, address, cidr));
-				}
-				addresses = ConfigurationProperty.of(value);
-			} else {
-				addresses = ConfigurationProperty.asNotSet();
+	private static ConfigurationProperty<Set<Inet4AddressWithSubnetmask>> parseAddresses(JsonObject j)
+			throws OpenemsNamedException {
+		ConfigurationProperty<JsonArray> addressesArray = ConfigurationProperty
+				.fromJsonElement(getOptionalSubElement(j, "addresses"), JsonUtils::getAsJsonArray);
+		if (addressesArray.isSet()) {
+			var value = new HashSet<Inet4AddressWithSubnetmask>();
+			for (JsonElement element : addressesArray.getValue()) {
+				var label = getAsString(element, "label");
+				var address = getAsInet4Address(element, "address");
+				var subnetmask = getAsInet4Address(element, "subnetmask");
+				var cidr = Inet4AddressWithSubnetmask.getCidrFromSubnetmask(subnetmask);
+				value.add(new Inet4AddressWithSubnetmask(label, address, cidr));
 			}
+			return ConfigurationProperty.of(value);
+		} else {
+			return ConfigurationProperty.asNotSet();
 		}
+	}
 
-		// DHCP
-		ConfigurationProperty<Boolean> dhcp = ConfigurationProperty
-				.fromJsonElement(JsonUtils.getOptionalSubElement(j, "dhcp"), JsonUtils::getAsBoolean);
-
-		// linkLocalAddressing
-		ConfigurationProperty<Boolean> linkLocalAddressing = ConfigurationProperty
-				.fromJsonElement(JsonUtils.getOptionalSubElement(j, "linkLocalAddressing"), JsonUtils::getAsBoolean);
-
-		return new NetworkInterface<Void>(name, dhcp, linkLocalAddressing, gateway, dns, addresses, null);
+	private static ConfigurationProperty<Boolean> parseBoolean(JsonObject j, String member)
+			throws OpenemsNamedException {
+		return ConfigurationProperty.fromJsonElement(getOptionalSubElement(j, member), JsonUtils::getAsBoolean);
 	}
 
 	private final String name;
@@ -113,6 +119,7 @@ public class NetworkInterface<A> {
 	private ConfigurationProperty<Inet4Address> gateway;
 	private ConfigurationProperty<Inet4Address> dns;
 	private ConfigurationProperty<Set<Inet4AddressWithSubnetmask>> addresses;
+	private ConfigurationProperty<Integer> metric;
 
 	/**
 	 * An arbitrary attachment to this NetworkInterface. Can be used to store e.g. a
@@ -126,6 +133,7 @@ public class NetworkInterface<A> {
 			ConfigurationProperty<Inet4Address> gateway, //
 			ConfigurationProperty<Inet4Address> dns, //
 			ConfigurationProperty<Set<Inet4AddressWithSubnetmask>> addresses, //
+			ConfigurationProperty<Integer> metric, //
 			A attachment) throws OpenemsException {
 		this.name = name;
 		this.dhcp = dhcp;
@@ -134,6 +142,7 @@ public class NetworkInterface<A> {
 		this.dns = dns;
 		this.attachment = attachment;
 		this.addresses = addresses;
+		this.metric = metric;
 	}
 
 	/**
@@ -170,6 +179,15 @@ public class NetworkInterface<A> {
 	 */
 	public ConfigurationProperty<Inet4Address> getGateway() {
 		return this.gateway;
+	}
+
+	/**
+	 * Gets the network interface metric.
+	 *
+	 * @return the Metric
+	 */
+	public ConfigurationProperty<Integer> getMetric() {
+		return this.metric;
 	}
 
 	/**
@@ -227,6 +245,7 @@ public class NetworkInterface<A> {
 	 *   "linkLocalAddressing": boolean,
 	 *   "gateway": string,
 	 *   "dns": string,
+	 *   "metric": number,
 	 *   "addresses": [{ 
 	 *     "label": string, 
 	 *     "address": string, 
@@ -239,20 +258,22 @@ public class NetworkInterface<A> {
 	 * @throws OpenemsNamedException on error.
 	 */
 	public JsonObject toJson() {
-		var result = JsonUtils.buildJsonObject() //
+		var result = buildJsonObject() //
 				.onlyIf(this.dhcp.isSet(), //
 						b -> b.addProperty("dhcp", this.dhcp.getValue()))
 				.onlyIf(this.linkLocalAddressing.isSet(), //
 						b -> b.addProperty("linkLocalAddressing", this.linkLocalAddressing.getValue()))
 				.onlyIf(!this.gateway.isNull(), //
 						b -> b.addProperty("gateway", this.gateway.getValue().getHostAddress()))
+				.onlyIf(!this.metric.isNull(), //
+						b -> b.addProperty("metric", this.metric.getValue().intValue()))
 				.onlyIf(!this.dns.isNull(), //
 						b -> b.addProperty("dns", this.dns.getValue().getHostAddress()))
 				.onlyIf(this.addresses.isSet(), //
 						b -> {
-							var arr = JsonUtils.buildJsonArray();
+							var arr = buildJsonArray();
 							for (var address : this.addresses.getValue()) {
-								arr.add(JsonUtils.buildJsonObject() //
+								arr.add(buildJsonObject() //
 										.addProperty("label", address.getLabel())
 										.addProperty("address", address.getInet4Address().getHostAddress())
 										.addProperty("subnetmask", address.getSubnetmaskAsString()).build());
@@ -271,43 +292,27 @@ public class NetworkInterface<A> {
 	public boolean updateFrom(NetworkInterface<?> change) {
 		var isChanged = false;
 		if (change.getDhcp().isSet()) {
-			if (change.getDhcp() == null) {
-				this.dhcp = ConfigurationProperty.asNotSet();
-			} else {
-				this.dhcp = change.getDhcp();
-			}
+			this.dhcp = change.getDhcp();
 			isChanged = true;
 		}
 		if (change.getLinkLocalAddressing().isSet()) {
-			if (change.getLinkLocalAddressing() == null) {
-				this.linkLocalAddressing = ConfigurationProperty.asNotSet();
-			} else {
-				this.linkLocalAddressing = change.getLinkLocalAddressing();
-			}
+			this.linkLocalAddressing = change.getLinkLocalAddressing();
 			isChanged = true;
 		}
 		if (change.getGateway().isSet()) {
-			if (change.getGateway() == null) {
-				this.gateway = ConfigurationProperty.asNotSet();
-			} else {
-				this.gateway = change.getGateway();
-			}
+			this.gateway = change.getGateway();
+			isChanged = true;
+		}
+		if (change.getMetric().isSet()) {
+			this.metric = change.getMetric();
 			isChanged = true;
 		}
 		if (change.getDns().isSet()) {
-			if (change.getDns() == null) {
-				this.dns = ConfigurationProperty.asNotSet();
-			} else {
-				this.dns = change.getDns();
-			}
+			this.dns = change.getDns();
 			isChanged = true;
 		}
 		if (change.getAddresses().isSet()) {
-			if (change.getAddresses() == null) {
-				this.addresses = ConfigurationProperty.asNotSet();
-			} else {
-				this.addresses = change.getAddressesIncludingDefaults();
-			}
+			this.addresses = change.getAddressesIncludingDefaults();
 			isChanged = true;
 		}
 		return isChanged;

@@ -16,9 +16,9 @@ import io.openems.common.utils.JsonUtils;
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 	private final Logger log = LoggerFactory.getLogger(OnClose.class);
-	private final B2bWebsocket parent;
+	private final Backend2BackendWebsocket parent;
 
-	public OnOpen(B2bWebsocket parent) {
+	public OnOpen(Backend2BackendWebsocket parent) {
 		this.parent = parent;
 	}
 
@@ -27,7 +27,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		try {
 			// Read "Authorization" header for Simple HTTP authentication. Source:
 			// https://stackoverflow.com/questions/16000517/how-to-get-password-from-http-basic-authentication
-			final var authorization = JsonUtils.getAsString(handshake, "Authorization");
+			final var authorization = JsonUtils.getAsString(handshake, "authorization");
 			if (authorization == null || !authorization.toLowerCase().startsWith("basic")) {
 				throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 			}

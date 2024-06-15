@@ -1,4 +1,3 @@
-import { Edge } from "../../edge/edge";
 import { JsonrpcRequest } from "../base";
 
 /**
@@ -18,9 +17,9 @@ export class SubscribeEdgesRequest extends JsonrpcRequest {
     private static METHOD: string = "subscribeEdges";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             edges: string[]
-        }
+        },
     ) {
         super(SubscribeEdgesRequest.METHOD, params);
     }

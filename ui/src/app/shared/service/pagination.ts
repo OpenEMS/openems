@@ -1,8 +1,6 @@
+// @ts-strict-ignore
 import { Directive } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { filter } from 'rxjs/operators';
-
-import { GetEdgeConfigRequest } from '../jsonrpc/request/getEdgeConfigRequest';
+import { Router } from '@angular/router';
 import { SubscribeEdgesRequest } from '../jsonrpc/request/subscribeEdgesRequest';
 import { ChannelAddress, Edge } from '../shared';
 import { Service } from './service';
@@ -22,7 +20,7 @@ export class Pagination {
 
       this.service.updateCurrentEdge(edge.id).then((edge) => {
         this.edge = edge;
-        this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edge.id] }))
+        this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edge.id] }));
       }).then(() => {
         this.edge.subscribeChannels(this.service.websocket, '', [
           new ChannelAddress('_sum', 'State'),
@@ -32,6 +30,6 @@ export class Pagination {
         .catch(() => {
           this.router.navigate(['index']);
         });
-    })
+    });
   }
 }

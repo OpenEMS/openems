@@ -55,100 +55,100 @@ public class BatteryProtection {
 				.unit(Unit.AMPERE) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
-		 * Charge Current limit derived from Min-Cell-Voltage.
+		 * Charge minimum voltage.
 		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
-		 * <li>Unit: Ampere
+		 * <li>Unit: Volt
 		 * </ul>
 		 */
 		BP_CHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.VOLT) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
-		 * Discharge Current limit derived from Min-Cell-Voltage.
+		 * Discharge minimum voltage.
 		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
-		 * <li>Unit: Ampere
+		 * <li>Unit: Volt
 		 * </ul>
 		 */
 		BP_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.VOLT) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
-		 * Charge Current limit derived from Max-Cell-Voltage.
+		 * Charge maximum voltage.
 		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
-		 * <li>Unit: Ampere
+		 * <li>Unit: Volt
 		 * </ul>
 		 */
 		BP_CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.VOLT) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
-		 * Discharge Current limit derived from Max-Cell-Voltage.
+		 * Discharge maximum voltage.
 		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
-		 * <li>Unit: Ampere
+		 * <li>Unit: Volt
 		 * </ul>
 		 */
 		BP_DISCHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.VOLT) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
-		 * Charge Current limit derived from Min-Cell-Temperature.
+		 * Charge Minimum Temperature.
 		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
-		 * <li>Unit: Ampere
+		 * <li>Unit: Degree Celsius
 		 * </ul>
 		 */
 		BP_CHARGE_MIN_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.DEGREE_CELSIUS) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
-		 * Discharge Current limit derived from Min-Cell-Temperature.
+		 * Discharge Minimum Temperature.
 		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
-		 * <li>Unit: Ampere
+		 * <li>Unit: Degree Celsius
 		 * </ul>
 		 */
 		BP_DISCHARGE_MIN_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.DEGREE_CELSIUS) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
-		 * Charge Current limit derived from Max-Cell-Temperature.
+		 * Charge Maximum Temperature.
 		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
-		 * <li>Unit: Ampere
+		 * <li>Unit: Degree Celsius
 		 * </ul>
 		 */
 		BP_CHARGE_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.DEGREE_CELSIUS) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
-		 * Discharge Current limit derived from Max-Cell-Temperature.
+		 * Discharge Maximum Temperature.
 		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
-		 * <li>Unit: Ampere
+		 * <li>Unit: Degree Celsius
 		 * </ul>
 		 */
 		BP_DISCHARGE_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.DEGREE_CELSIUS) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Charge Max-Increase Current limit.
@@ -179,8 +179,6 @@ public class BatteryProtection {
 		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
-		 * <li>Type: Integer
-		 * <li>Unit: Ampere
 		 * </ul>
 		 */
 		BP_FORCE_DISCHARGE(Doc.of(AbstractForceChargeDischarge.State.values()) //
@@ -190,12 +188,22 @@ public class BatteryProtection {
 		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
-		 * <li>Type: Integer
-		 * <li>Unit: Ampere
 		 * </ul>
 		 */
 		BP_FORCE_CHARGE(Doc.of(AbstractForceChargeDischarge.State.values()) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
+
+		/**
+		 * Battery Max Ever Current.
+		 *
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * </ul>
+		 */
+		BP_MAX_EVER_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
+
 		;
 
 		private final Doc doc;

@@ -1,14 +1,17 @@
+// @ts-strict-ignore
 import { ChangeDetectorRef, Directive, Inject, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { Subject } from "rxjs";
+import { Subject, Subscription } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
+
 import { Role } from "../../type/role";
 import { TextIndentation } from "./modal-line/modal-line";
+import { Converter } from "../shared/converter";
 
 @Directive()
 export abstract class AbstractModal implements OnInit, OnDestroy {
@@ -21,6 +24,9 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     public stopOnDestroy: Subject<void> = new Subject<void>();
     public formGroup: FormGroup | null = null;
 
+    /** Should be used to unsubscribe from all subscribed observables at once */
+    protected subscription: Subscription = new Subscription();
+
     /** Enum for User Role */
     public readonly Role = Role;
 
@@ -28,6 +34,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     public readonly TextIndentation = TextIndentation;
 
     public readonly Utils = Utils;
+    public readonly Converter = Converter;
 
     private selector: string = uuidv4();
 
@@ -38,7 +45,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
         @Inject(ModalController) public modalController: ModalController,
         @Inject(TranslateService) protected translate: TranslateService,
         @Inject(FormBuilder) public formBuilder: FormBuilder,
-        private ref: ChangeDetectorRef
+        public ref: ChangeDetectorRef,
     ) {
         ref.detach();
         setInterval(() => {
@@ -62,8 +69,8 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
                 if (this.component != null) {
                     this.component = config.components[this.component.id];
 
-                    let channelIds = this.getChannelIds();
-                    for (let channelId of channelIds) {
+                    const channelIds = this.getChannelIds();
+                    for (const channelId of channelIds) {
                         channelAddresses.push(new ChannelAddress(this.component.id, channelId));
                     }
                 }
@@ -73,28 +80,28 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
 
                 // call onCurrentData() with latest data
                 edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                    let allComponents = {};
-                    let thisComponent = {};
-                    for (let channelAddress of channelAddresses) {
-                        let ca = channelAddress.toString();
+                    const allComponents = {};
+                    for (const channelAddress of channelAddresses) {
+                        const ca = channelAddress.toString();
                         allComponents[ca] = currentData.channel[ca];
-                        if (channelAddress.componentId === this.component?.id) {
-                            thisComponent[channelAddress.channelId] = currentData.channel[ca];
-                        }
                     }
-                    this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
+                    this.onCurrentData({ allComponents: allComponents });
                 });
                 this.formGroup = this.getFormGroup();
 
                 // announce initialized
                 this.isInitialized = true;
+
+                this.onIsInitialized();
             });
         });
-    };
+    }
+    protected onIsInitialized() { }
 
     public ngOnDestroy() {
         // Unsubscribe from OpenEMS
         this.edge.unsubscribeChannels(this.websocket, this.selector);
+        this.subscription.unsubscribe();
 
         // Unsubscribe from CurrentData subject
         this.stopOnDestroy.next();
@@ -103,7 +110,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
 
     /**
      * Called on every new data.
-     * 
+     *
      * @param currentData new data for the subscribed Channel-Addresses
      */
     protected onCurrentData(currentData: CurrentData) {
@@ -125,6 +132,6 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
 
     /** Gets the FormGroup of the current Component */
     protected getFormGroup(): FormGroup | null {
-        return null
+        return null;
     }
 }

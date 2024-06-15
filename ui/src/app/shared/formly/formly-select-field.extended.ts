@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from "@angular/core";
+import { Component } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { FieldWrapper } from "@ngx-formly/core";
 import { FormlySelectFieldModalComponent } from "./formly-select-field-modal.component";
@@ -9,10 +9,10 @@ import { FormlySelectFieldModalComponent } from "./formly-select-field-modal.com
 })
 export class FormlySelectFieldExtendedWrapperComponent extends FieldWrapper {
 
-    // this wrapper is used to display a select which has more 
+    // this wrapper is used to display a select which has more
     // detailed information about an item when selecting them
     constructor(
-        private modalController: ModalController
+        private modalController: ModalController,
     ) {
         super();
 
@@ -31,20 +31,20 @@ export class FormlySelectFieldExtendedWrapperComponent extends FieldWrapper {
             componentProps: {
                 title: this.props.label,
                 options: this.props.options,
-                initialSelectedValue: this.formControl.value
+                initialSelectedValue: this.formControl.value,
             },
-            cssClass: ['auto-height', 'full-width']
+            cssClass: ['auto-height', 'full-width'],
         });
         modal.onDidDismiss().then(event => {
             if (!event.data) {
                 // nothing selected
                 return;
             }
-            const selectedValue = event.data.selectedValue
+            const selectedValue = event.data.selectedValue;
             if (!selectedValue) {
                 return;
             }
-            this.formControl.setValue(selectedValue)
+            this.formControl.setValue(selectedValue);
         });
         return await modal.present();
     }

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { FieldWrapper } from '@ngx-formly/core';
 
@@ -21,7 +22,7 @@ export class FormlyCheckBoxHyperlinkWrapperComponent extends FieldWrapper implem
         if (this.field.props.required) {
             this.secondLabel = this.field.props.description + '*';
         } else {
-            this.secondLabel = this.field.props.description
+            this.secondLabel = this.field.props.description;
         }
     }
 }

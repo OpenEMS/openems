@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
@@ -9,7 +10,7 @@ type inputMode = 'SOC' | 'GRIDSELL' | 'GRIDBUY' | 'PRODUCTION' | 'OTHER'
 
 @Component({
   selector: 'Io_ChannelSingleThresholdModalComponent',
-  templateUrl: './modal.component.html'
+  templateUrl: './modal.component.html',
 })
 export class Controller_Io_ChannelSingleThresholdModalComponent implements OnInit {
 
@@ -18,6 +19,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
   @Input() public component: EdgeConfig.Component;
   @Input() public outputChannel: ChannelAddress | null = null;
   @Input() public inputChannel: ChannelAddress;
+  @Input() public inputChannelUnit: string | null = null;
 
   public formGroup: FormGroup;
 
@@ -34,7 +36,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
     public modalCtrl: ModalController,
     public translate: TranslateService,
     public websocket: Websocket,
-    public formBuilder: FormBuilder
+    public formBuilder: FormBuilder,
   ) {
   }
 
@@ -47,16 +49,16 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
       ])),
       switchedLoadPower: new FormControl(this.component.properties.switchedLoadPower, Validators.compose([
         Validators.pattern('^(?:[1-9][0-9]*|0)$'),
-        Validators.required
+        Validators.required,
       ])),
       threshold: new FormControl(this.getInputMode() == 'GRIDSELL' ? this.component.properties.threshold * -1 : this.component.properties.threshold, Validators.compose([
         Validators.min(1),
         Validators.pattern('^[1-9][0-9]*$'),
-        Validators.required
+        Validators.required,
       ])),
       inputMode: new FormControl(this.getInputMode()),
-      invert: new FormControl(this.component.properties.invert, Validators.requiredTrue)
-    })
+      invert: new FormControl(this.component.properties.invert, Validators.requiredTrue),
+    });
     this.minimumSwitchingTime = this.formGroup.controls['minimumSwitchingTime'];
     this.threshold = this.formGroup.controls['threshold'];
     this.switchedLoadPower = this.formGroup.controls['switchedLoadPower'];
@@ -85,46 +87,45 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
       case "SOC":
         this.inputMode.setValue('SOC');
         this.switchedLoadPower.setValue(0);
-        this.switchedLoadPower.markAsDirty()
+        this.switchedLoadPower.markAsDirty();
         if (Math.abs(this.component.properties.threshold) < 0 || Math.abs(this.component.properties.threshold) > 100) {
           newThreshold = 50;
           this.threshold.setValue(newThreshold);
-          this.threshold.markAsDirty()
+          this.threshold.markAsDirty();
         } else if (this.component.properties.threshold < 0) {
-          newThreshold = newThreshold;
           this.threshold.setValue(newThreshold);
-          this.threshold.markAsDirty()
+          this.threshold.markAsDirty();
         }
         break;
       case "GRIDSELL":
         this.inputMode.setValue('GRIDSELL');
-        this.threshold.markAsDirty()
-        this.switchedLoadPower.markAsDirty()
+        this.threshold.markAsDirty();
+        this.switchedLoadPower.markAsDirty();
         break;
       case "GRIDBUY":
         this.inputMode.setValue('GRIDBUY');
-        this.switchedLoadPower.markAsDirty()
+        this.switchedLoadPower.markAsDirty();
         if (this.component.properties.threshold < 0) {
           newThreshold = this.formGroup.value.threshold;
           this.threshold.setValue(newThreshold);
-          this.threshold.markAsDirty()
+          this.threshold.markAsDirty();
         }
         break;
       case "PRODUCTION":
         this.inputMode.setValue('PRODUCTION');
         this.switchedLoadPower.setValue(0);
-        this.switchedLoadPower.markAsDirty()
+        this.switchedLoadPower.markAsDirty();
         if (this.component.properties.threshold < 0) {
           newThreshold = this.threshold.value;
           this.threshold.setValue(newThreshold);
-          this.threshold.markAsDirty()
+          this.threshold.markAsDirty();
         }
         break;
     }
   }
 
   public updateMode(event: CustomEvent) {
-    let oldMode = this.component.properties.mode;
+    const oldMode = this.component.properties.mode;
     let newMode: mode;
 
     switch (event.detail.value) {
@@ -141,7 +142,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
 
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, this.component.id, [
-        { name: 'mode', value: newMode }
+        { name: 'mode', value: newMode },
       ]).then(() => {
         this.component.properties.mode = newMode;
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -153,30 +154,30 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
     }
   }
 
-  private convertToChannelAddress(inputMode: inputMode): String {
+  private convertToChannelAddress(inputMode: inputMode): string {
     switch (inputMode) {
       case 'SOC':
-        return '_sum/EssSoc'
+        return '_sum/EssSoc';
       case 'GRIDBUY':
-        return '_sum/GridActivePower'
+        return '_sum/GridActivePower';
       case 'GRIDSELL':
-        return '_sum/GridActivePower'
+        return '_sum/GridActivePower';
       case 'PRODUCTION':
-        return '_sum/ProductionActivePower'
+        return '_sum/ProductionActivePower';
     }
   }
 
   private convertToInputMode(inputChannelAddress: string, threshold: number): inputMode {
     switch (inputChannelAddress) {
       case '_sum/EssSoc':
-        return 'SOC'
+        return 'SOC';
       case '_sum/ProductionActivePower':
-        return 'PRODUCTION'
+        return 'PRODUCTION';
       case '_sum/GridActivePower':
         if (threshold > 0) {
-          return 'GRIDBUY'
+          return 'GRIDBUY';
         } else if (threshold < 0) {
-          return 'GRIDSELL'
+          return 'GRIDSELL';
         }
     }
   }
@@ -186,17 +187,17 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
       if (this.edge.roleIsAtLeast('owner')) {
         if (this.minimumSwitchingTime.valid && this.threshold.valid && this.switchedLoadPower.valid) {
           if (this.threshold.value > this.switchedLoadPower.value) {
-            let updateComponentArray = [];
+            const updateComponentArray = [];
             Object.keys(this.formGroup.controls).forEach((element, index) => {
               if (this.formGroup.controls[element].dirty) {
                 // catch inputMode and convert it to inputChannelAddress
                 if (Object.keys(this.formGroup.controls)[index] == 'inputMode') {
-                  updateComponentArray.push({ name: 'inputChannelAddress', value: this.convertToChannelAddress(this.formGroup.controls[element].value) })
+                  updateComponentArray.push({ name: 'inputChannelAddress', value: this.convertToChannelAddress(this.formGroup.controls[element].value) });
                 } else if (this.inputMode.value == 'GRIDSELL' && Object.keys(this.formGroup.controls)[index] == 'threshold') {
                   this.formGroup.controls[element].setValue(this.formGroup.controls[element].value * -1);
-                  updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                  updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });
                 } else {
-                  updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                  updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });
                 }
               }
             });
@@ -225,7 +226,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
                 this.threshold.setValue(this.threshold.value * -1);
               }
             }
-            this.formGroup.markAsPristine()
+            this.formGroup.markAsPristine();
           } else {
             this.service.toast(this.translate.instant('Edge.Index.Widgets.Singlethreshold.relationError'), 'danger');
           }

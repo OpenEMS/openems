@@ -1,0 +1,37 @@
+= Metadata
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../assets/images
+
+The https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/metadata/Metadata.java[Metadata] interface defines a service, that coordinates OpenEMS Backend communication with one or more OpenEMS Edges and with the OpenEMS UI.
+It is responsible for identification and authorization of OpenEMS edges and of Users using the OpenEMS UI.
+Beside that the Metadata bundle is responsible for the state of https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/metadata/User.java[users] and https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/metadata/Edge.java[edges] and related processes.
+
+== Edges
+
+The Metadata service provides access to the https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/metadata/Edge.java[Edge] object - the digital twin representation of the OpenEMS Edge instance.
+[NOTE]
+====
+Identification of OpenEMS Edges is done with a unique API key.
+Please take care, that the API key includes a lot of randomness, because it is implicitly used to authorize the Edge.
+====
+
+== Users
+
+The https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/metadata/User.java[User] object includes meta information about a user. 
+Furthermore it is used for identification/authorization of the user.
+The metadata service can be used to change various attributes which are associated with a user (e.g. the users default language).
+
+== Processes
+
+The metadata service provides methods to
+
+* add users to an Edge,
+* set and change alerting/notification settings,
+* set up new Edge devices.

@@ -1,5 +1,6 @@
 package io.openems.common.utils;
 
+import static io.openems.common.utils.StringUtils.definedOrElse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -52,6 +53,32 @@ public class StringUtilsTest {
 	@Test
 	public void testMatchesFloatPattern() {
 		assertTrue(StringUtils.matchesFloatPattern("208.6"));
+	}
+
+	@Test
+	public void testDefinedOrElse() {
+		assertEquals("foo", definedOrElse("foo", "bar"));
+		assertEquals("bar", definedOrElse(null, "bar"));
+		assertEquals("bar", definedOrElse("", "bar"));
+		assertEquals("bar", definedOrElse(" ", "bar"));
+		assertEquals("bar", definedOrElse("	", "bar"));
+	}
+
+	@Test
+	public void testParseNumberFromNameNull() throws Exception {
+		assertTrue(StringUtils.parseNumberFromName(null).isEmpty());
+	}
+
+	@Test
+	public void testParseNumberFromNameInvalidString() throws Exception {
+		assertTrue(StringUtils.parseNumberFromName("edge").isEmpty());
+	}
+
+	@Test
+	public void testParseNumberFromNameValidString() throws Exception {
+		final var parsedNumber = StringUtils.parseNumberFromName("edge404");
+		assertTrue(parsedNumber.isPresent());
+		assertEquals(404, parsedNumber.getAsInt());
 	}
 
 }

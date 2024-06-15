@@ -11,9 +11,9 @@ import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 	private final Logger log = LoggerFactory.getLogger(OnOpen.class);
-	private final BackendApiImpl parent;
+	private final ControllerApiBackendImpl parent;
 
-	public OnOpen(BackendApiImpl parent) {
+	public OnOpen(ControllerApiBackendImpl parent) {
 		this.parent = parent;
 	}
 
@@ -28,6 +28,9 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 		// Send all Channel values
 		this.parent.sendChannelValuesWorker.sendValuesOfAllChannelsOnce();
+
+		// Trigger resending data
+		this.parent.resendHistoricDataWorker.triggerNextRun();
 	}
 
 }

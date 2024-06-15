@@ -9,23 +9,17 @@ import { Service } from "./shared/shared";
 export class CheckForUpdateService {
 
   constructor(private update: SwUpdate,
-    private service: Service
+    private service: Service,
   ) { }
 
   init() {
-    let userId: string;
-    this.service.metadata.subscribe(entry => {
-      userId = entry?.user?.id ?? null;
-    });
-
     setInterval(async () => {
       const updateFound = await this.update.checkForUpdate();
       console.log(updateFound ? 'A new version is available.' : 'Already on the latest version.');
-
       if (updateFound) {
-        window.location.reload()
+        window.location.reload();
       }
-    }, 10000)
+    }, 10000);
   }
 }
 // Will be used in Future

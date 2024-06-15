@@ -8,6 +8,4 @@ import { Component } from "@angular/core";
 </ion-router-outlet>
     `,
 })
-export class HistoryParentComponent {
-
-}
+export class HistoryParentComponent { }

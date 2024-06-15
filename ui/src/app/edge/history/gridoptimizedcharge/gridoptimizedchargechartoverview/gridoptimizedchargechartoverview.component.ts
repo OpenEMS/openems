@@ -1,10 +1,11 @@
+// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
 
 @Component({
     selector: GridOptimizedChargeChartOverviewComponent.SELECTOR,
-    templateUrl: './gridoptimizedchargechartoverview.component.html'
+    templateUrl: './gridoptimizedchargechartoverview.component.html',
 })
 export class GridOptimizedChargeChartOverviewComponent implements OnInit {
 
@@ -25,8 +26,8 @@ export class GridOptimizedChargeChartOverviewComponent implements OnInit {
                 this.service.getConfig().then(config => {
                     this.edge = edge;
                     this.component = config.getComponent(this.route.snapshot.params.componentId);
-                })
-            })
-        })
+                });
+            });
+        });
     }
 }

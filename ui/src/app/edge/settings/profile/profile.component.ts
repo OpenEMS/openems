@@ -1,6 +1,7 @@
+// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { PopoverController, ViewWillEnter } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
@@ -13,7 +14,7 @@ import { GetModbusProtocolExportXlsxRequest } from './modbusapi/getModbusProtoco
 
 @Component({
   selector: ProfileComponent.SELECTOR,
-  templateUrl: './profile.component.html'
+  templateUrl: './profile.component.html',
 })
 export class ProfileComponent implements OnInit {
 
@@ -39,32 +40,32 @@ export class ProfileComponent implements OnInit {
       this.edge = edge;
       this.service.getConfig().then(config => {
         this.config = config;
-        let categorizedComponentIds: string[] = ["_appManager", "_componentManager", "_cycle", "_meta", "_power", "_sum", "_predictorManager", "_host", "_evcsSlowPowerIncreaseFilter"]
+        const categorizedComponentIds: string[] = ["_appManager", "_componentManager", "_cycle", "_meta", "_power", "_sum", "_predictorManager", "_host", "_evcsSlowPowerIncreaseFilter"];
         this.components = config.listActiveComponents(categorizedComponentIds);
-      })
+      });
     });
   }
 
   public getModbusProtocol(componentId: string) {
     this.service.getCurrentEdge().then(edge => {
-      let request = new ComponentJsonApiRequest({ componentId: componentId, payload: new GetModbusProtocolExportXlsxRequest() });
+      const request = new ComponentJsonApiRequest({ componentId: componentId, payload: new GetModbusProtocolExportXlsxRequest() });
       edge.sendRequest(this.service.websocket, request).then(response => {
         Utils.downloadXlsx(response as Base64PayloadResponse, "Modbus-TCP-" + edge.id);
       }).catch(reason => {
         this.service.toast(this.translate.instant('Edge.Config.PROFILE.ERROR_DOWNLOADING_MODBUS_PROTOCOL') + ": " + (reason as JsonrpcResponseError).error.message, 'danger');
-      })
+      });
     });
   }
 
   public getChannelExport(componentId: string) {
     this.service.getCurrentEdge().then(edge => {
-      let request = new ComponentJsonApiRequest({ componentId: '_componentManager', payload: new ChannelExportXlsxRequest({ componentId: componentId }) });
+      const request = new ComponentJsonApiRequest({ componentId: '_componentManager', payload: new ChannelExportXlsxRequest({ componentId: componentId }) });
       edge.sendRequest(this.service.websocket, request).then(response => {
         Utils.downloadXlsx(response as Base64PayloadResponse, "ChannelExport-" + edge.id + "-" + componentId);
       }).catch(reason => {
         console.warn(reason);
-      })
+      });
     });
-  };
+  }
 
 }

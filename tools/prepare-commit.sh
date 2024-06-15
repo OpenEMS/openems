@@ -181,6 +181,7 @@ echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.eventadmin',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.fileinstall',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.metatype',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='io.openems.wrapper.pgbulkinsert',\\" >> "$bndrun.new" # required for timescaledb
 for D in io.openems.backend.*; do
 	if [[ "$D" == *api ]]; then
 		continue # ignore api bundle
@@ -193,3 +194,15 @@ head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) 
 rm "$bndrun.new"
 ./gradlew resolve.BackendApp
 
+# Build + test UI
+cd ui
+npm install
+node_modules/.bin/ng lint --fix
+node_modules/.bin/tsc
+node_modules/.bin/tsc-strict
+node_modules/.bin/ng build -c "openems,openems-backend-prod,prod"
+npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+cd ..
+
+echo
+echo "Finished"

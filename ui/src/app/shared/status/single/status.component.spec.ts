@@ -1,11 +1,12 @@
 import { TestBed } from "@angular/core/testing";
 import { ModalController } from "@ionic/angular";
-import { DummyService } from "../../service/test/dummyservice";
+
+import { PersistencePriority } from "../../edge/edgeconfig";
 import { DummyWebsocket } from "../../service/test/dummywebsocket";
-import { EdgeConfig, Service, Websocket } from "../../shared";
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "../../shared";
 import { DummyModalController } from "../../test/DummyModalController";
 import { StatusSingleComponent } from "./status.component";
-
+import { BehaviorSubject } from "rxjs";
 
 describe('StatusComponent', () => {
     const testComponent = new EdgeConfig.Component("test", {}, {
@@ -14,10 +15,17 @@ describe('StatusComponent', () => {
             category: "ENUM",
             type: "BOOLEAN",
             unit: "W",
-            level: "OK"
-        }
+            level: "OK",
+            persistencePriority: PersistencePriority.HIGH,
+            text: "",
+        },
     });
+    testComponent.id = 'test0';
+
     let statusComponent: StatusSingleComponent;
+    const serviceSpy = jasmine.createSpyObj('Service', ['getConfig'], ['currentEdge']);
+    const edgeSpy = jasmine.createSpyObj('Edge', ['subscribeChannels', 'isVersionAtLeast', 'unsubscribeChannels']);
+    const edgeConfigSpy = jasmine.createSpyObj('EdgeConfig', ['listActiveComponents'], ['components']);
     // initialize variables only in beforeEach, beforeAll
     beforeEach((() => {
         TestBed.configureTestingModule({
@@ -25,24 +33,40 @@ describe('StatusComponent', () => {
             providers: [
                 StatusSingleComponent,
                 { provide: ModalController, useClass: DummyModalController },
-                { provide: Service, useClass: DummyService },
-                { provide: Websocket, useClass: DummyWebsocket }
-            ]
+                { provide: Service, useValue: serviceSpy },
+                { provide: Websocket, useClass: DummyWebsocket },
+                { provide: Edge, useValue: edgeSpy },
+                { provide: EdgeConfig, useValue: edgeConfigSpy },
+            ],
         });
+        const valueEdgeSpy = TestBed.inject(Edge) as jasmine.SpyObj<Edge>;
+        valueEdgeSpy.isVersionAtLeast.and.returnValue(false); // check should be false then
+        valueEdgeSpy.unsubscribeChannels.and.callThrough();
+
+        const valueServiceSpy = TestBed.inject(Service) as jasmine.SpyObj<Service>;
+        spyPropertyGetter(valueServiceSpy, 'currentEdge').and.returnValue(new BehaviorSubject(TestBed.inject(Edge)));
+
+        const valueEdgeConfigSpy = TestBed.inject(EdgeConfig) as jasmine.SpyObj<EdgeConfig>;
+        valueEdgeConfigSpy.listActiveComponents.and.returnValue([{ category: { icon: '', title: 'title' }, components: [testComponent] }]);
+        spyPropertyGetter(valueEdgeConfigSpy, 'components').and.returnValue({ [testComponent.id]: testComponent });
+        valueServiceSpy.getConfig.and.resolveTo(TestBed.inject(EdgeConfig));
+
         statusComponent = TestBed.inject(StatusSingleComponent);
     }));
 
-    it('Test add Channels for subscription', () => {
-        statusComponent.ngOnInit();
-        statusComponent.subscribeInfoChannels(testComponent);
-        expect(statusComponent.subscribedInfoChannels.length).toBe(1);
-        statusComponent.subscribedInfoChannels.forEach((channelAddress) => {
-            expect(channelAddress.channelId).toBe('testChannel');
-        });
+    it('Test add Channels for subscription', async () => {
+        await statusComponent.ngOnInit();
+        await statusComponent.subscribeInfoChannels(testComponent);
+        expect(statusComponent.subscribedInfoChannels).toHaveSize(2);
+        expect(statusComponent.subscribedInfoChannels).toContain(new ChannelAddress(testComponent.id, 'State'));
+        expect(statusComponent.subscribedInfoChannels).toContain(new ChannelAddress(testComponent.id, 'testChannel'));
     });
 });
 
-// TODO dummy classes for needed services
-class Dummy {
-
+// TODO should be some common method
+function spyPropertyGetter<T, K extends keyof T>(
+    spyObj: jasmine.SpyObj<T>,
+    propName: K,
+): jasmine.Spy<() => T[K]> {
+    return Object.getOwnPropertyDescriptor(spyObj, propName)?.get as jasmine.Spy<() => T[K]>;
 }

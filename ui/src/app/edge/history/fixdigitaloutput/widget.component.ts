@@ -1,14 +1,16 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 import { calculateActiveTimeOverPeriod } from '../shared';
 
 @Component({
     selector: FixDigitalOutputWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: './widget.component.html',
 })
 export class FixDigitalOutputWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
@@ -23,7 +25,7 @@ export class FixDigitalOutputWidgetComponent extends AbstractHistoryWidget imple
     public edge: Edge = null;
 
     constructor(
-        public service: Service,
+        public override service: Service,
         private route: ActivatedRoute,
     ) {
         super(service);
@@ -35,33 +37,33 @@ export class FixDigitalOutputWidgetComponent extends AbstractHistoryWidget imple
                 this.edge = response;
                 this.config = config;
                 this.component = config.getComponent(this.componentId);
-            })
+            });
         });
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
         this.updateValues();
-    };
+    }
 
     protected updateValues() {
-        // Gather result & timestamps to calculate effective active time in % 
-        this.queryHistoricTimeseriesData(this.service.historyPeriod.from, this.service.historyPeriod.to).then(response => {
-            let result = (response as QueryHistoricTimeseriesDataResponse).result;
+        // Gather result & timestamps to calculate effective active time in %
+        this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).then(response => {
+            const result = (response as QueryHistoricTimeseriesDataResponse).result;
             this.service.getConfig().then(config => {
-                let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
+                const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
                 this.activeSecondsOverPeriod = calculateActiveTimeOverPeriod(outputChannel, result);
-            })
+            });
         });
-    };
+    }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
-            let channeladdresses = [outputChannel];
+            const channeladdresses = [outputChannel];
             resolve(channeladdresses);
         });
     }

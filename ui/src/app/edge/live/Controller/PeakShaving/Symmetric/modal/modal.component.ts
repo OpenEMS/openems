@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
@@ -6,12 +7,12 @@ import { Edge, EdgeConfig, Service, Websocket } from '../../../../../../shared/s
 
 @Component({
     selector: 'symmetricpeakshaving-modal',
-    templateUrl: './modal.component.html'
+    templateUrl: './modal.component.html',
 })
 export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
 
-    @Input() component: EdgeConfig.Component;
-    @Input() edge: Edge;
+    @Input() protected component: EdgeConfig.Component;
+    @Input() protected edge: Edge;
 
 
     public formGroup: FormGroup;
@@ -29,28 +30,28 @@ export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
         this.formGroup = this.formBuilder.group({
             peakShavingPower: new FormControl(this.component.properties.peakShavingPower, Validators.compose([
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
-                Validators.required
+                Validators.required,
             ])),
             rechargePower: new FormControl(this.component.properties.rechargePower, Validators.compose([
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
-                Validators.required
-            ]))
-        })
+                Validators.required,
+            ])),
+        });
     }
 
     applyChanges() {
         if (this.edge != null) {
             if (this.edge.roleIsAtLeast('owner')) {
-                let peakShavingPower = this.formGroup.controls['peakShavingPower'];
-                let rechargePower = this.formGroup.controls['rechargePower'];
+                const peakShavingPower = this.formGroup.controls['peakShavingPower'];
+                const rechargePower = this.formGroup.controls['rechargePower'];
                 if (peakShavingPower.valid && rechargePower.valid) {
                     if (peakShavingPower.value >= rechargePower.value) {
-                        let updateComponentArray = [];
+                        const updateComponentArray = [];
                         Object.keys(this.formGroup.controls).forEach((element, index) => {
                             if (this.formGroup.controls[element].dirty) {
-                                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });
                             }
-                        })
+                        });
                         this.loading = true;
                         this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
                             this.component.properties.peakShavingPower = peakShavingPower.value;
@@ -63,8 +64,8 @@ export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
                             this.loading = false;
                             this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                             console.warn(reason);
-                        })
-                        this.formGroup.markAsPristine()
+                        });
+                        this.formGroup.markAsPristine();
                     } else {
                         this.service.toast(this.translate.instant('Edge.Index.Widgets.Peakshaving.relationError'), 'danger');
                     }

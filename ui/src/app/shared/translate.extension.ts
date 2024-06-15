@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { FormlyExtension, FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -31,7 +32,7 @@ export function registerTranslateExtension(translate: TranslateService) {
 
 /**
  * Generic function for serial number validation error message.
- * 
+ *
  * @param translate the translate service.
  * @param field the FormlyFieldConfig.
  * @param length length of the specific serial number.

@@ -1,15 +1,14 @@
 package io.openems.edge.ess.cluster;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.common.startstop.StartStopConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
-
 	protected static class Builder {
 		private String id;
-		public boolean isOn;
-		public String outputChannelAddress;
-		public String[] essIds;
+		private String[] essIds;
+		private StartStopConfig startStop;
 
 		private Builder() {
 		}
@@ -24,13 +23,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setStartStop(StartStopConfig startStop) {
+			this.startStop = startStop;
+			return this;
+		}
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
 	}
 
 	/**
-	 * Create a Config builder.
+	 * Create a configuration builder.
 	 *
 	 * @return a {@link Builder}
 	 */
@@ -48,5 +52,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String[] ess_ids() {
 		return this.builder.essIds;
+	}
+
+	@Override
+	public StartStopConfig startStop() {
+		return this.builder.startStop;
 	}
 }

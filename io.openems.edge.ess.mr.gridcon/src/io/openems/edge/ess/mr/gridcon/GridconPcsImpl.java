@@ -1,5 +1,7 @@
 package io.openems.edge.ess.mr.gridcon;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT;
+
 import java.nio.ByteOrder;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -20,10 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
@@ -89,19 +89,6 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	public static final double EFFICIENCY_LOSS_CHARGE_FACTOR = EFFICIENCY_LOSS_FACTOR;
 
 	private final Logger log = LoggerFactory.getLogger(GridconPcsImpl.class);
-
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	@Reference
-	protected ComponentManager componentManager;
-	private InverterCount inverterCount;
-
-	private int activePowerPreset;
-
-	private double efficiencyLossDischargeFactor;
-	private double efficiencyLossChargeFactor;
-
 	private final Commands commands;
 	private final CcuParameters1 ccuParameters1;
 	private final CcuParameters2 ccuParameters2;
@@ -110,6 +97,19 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	private final IpuParameter ipu3Parameter;
 	private final DcDcParameter dcDcParameter;
 	private final CosPhiParameters cosPhiParameters;
+
+	@Reference
+	private ConfigurationAdmin cm;
+
+	@Reference
+	private ComponentManager componentManager;
+
+	private InverterCount inverterCount;
+
+	private int activePowerPreset;
+
+	private double efficiencyLossDischargeFactor;
+	private double efficiencyLossChargeFactor;
 
 	public GridconPcsImpl() {
 		super(//
@@ -133,7 +133,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.inverterCount = config.inverterCount();
 		this.efficiencyLossChargeFactor = config.efficiencyLossChargeFactor();
 		this.efficiencyLossDischargeFactor = config.efficiencyLossDischargeFactor();
@@ -381,7 +381,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		int inverterCount = this.inverterCount.getCount();
 
 		ModbusProtocol result = new ModbusProtocol(this, //
@@ -634,8 +634,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 							m(GridConChannelId.INVERTER_1_STATUS_DC_LINK_CURRENT,
 									new FloatDoublewordElement(33176).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_1_STATUS_DC_LINK_ACTIVE_POWER,
-									new FloatDoublewordElement(33178).wordOrder(WordOrder.LSWMSW),
-									ElementToChannelConverter.INVERT), //
+									new FloatDoublewordElement(33178).wordOrder(WordOrder.LSWMSW), INVERT), //
 							m(GridConChannelId.INVERTER_1_STATUS_DC_LINK_UTILIZATION,
 									new FloatDoublewordElement(33180).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_1_STATUS_FAN_SPEED_MAX,
@@ -717,8 +716,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 							m(GridConChannelId.INVERTER_2_STATUS_DC_LINK_CURRENT,
 									new FloatDoublewordElement(33208).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_2_STATUS_DC_LINK_ACTIVE_POWER,
-									new FloatDoublewordElement(33210).wordOrder(WordOrder.LSWMSW),
-									ElementToChannelConverter.INVERT), //
+									new FloatDoublewordElement(33210).wordOrder(WordOrder.LSWMSW), INVERT), //
 							m(GridConChannelId.INVERTER_2_STATUS_DC_LINK_UTILIZATION,
 									new FloatDoublewordElement(33212).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_2_STATUS_FAN_SPEED_MAX,
@@ -799,8 +797,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 							m(GridConChannelId.INVERTER_3_STATUS_DC_LINK_CURRENT,
 									new FloatDoublewordElement(33240).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_3_STATUS_DC_LINK_ACTIVE_POWER,
-									new FloatDoublewordElement(33242).wordOrder(WordOrder.LSWMSW),
-									ElementToChannelConverter.INVERT), //
+									new FloatDoublewordElement(33242).wordOrder(WordOrder.LSWMSW), INVERT), //
 							m(GridConChannelId.INVERTER_3_STATUS_DC_LINK_UTILIZATION,
 									new FloatDoublewordElement(33244).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_3_STATUS_FAN_SPEED_MAX,
@@ -1000,7 +997,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 									new FloatDoublewordElement(startAddressDcDcState + 8).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.DCDC_STATUS_DC_LINK_ACTIVE_POWER,
 									new FloatDoublewordElement(startAddressDcDcState + 10).wordOrder(WordOrder.LSWMSW),
-									ElementToChannelConverter.INVERT), //
+									INVERT), //
 							m(GridConChannelId.DCDC_STATUS_DC_LINK_UTILIZATION,
 									new FloatDoublewordElement(startAddressDcDcState + 12).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.DCDC_STATUS_FAN_SPEED_MAX,
@@ -1151,7 +1148,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public boolean isCommunicationBroken() {
-		return this.getModbusCommunicationFailed().get() == Boolean.TRUE;
+		return this.getModbusCommunicationFailed();
 	}
 
 	@Override

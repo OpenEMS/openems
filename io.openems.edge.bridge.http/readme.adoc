@@ -1,0 +1,6 @@
+= Http
+
+Http is a widely used standard for web communication. It is used for some hardware devices like electric meters, relays and so on.
+The standard architecture used by the devices are RESTful api's.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.bridge.http[Source Code icon:github[]]

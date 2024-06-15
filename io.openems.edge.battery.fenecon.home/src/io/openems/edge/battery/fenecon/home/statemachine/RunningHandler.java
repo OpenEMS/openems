@@ -11,10 +11,11 @@ public class RunningHandler extends StateHandler<State, Context> {
 		var battery = context.getParent();
 
 		if (battery.hasFaults()) {
-			return State.UNDEFINED;
+			return State.ERROR;
 		}
 
-		if (!context.isBatteryStarted()) {
+		// Is Battery still started?
+		if (context.bmsControl != Boolean.TRUE) {
 			return State.UNDEFINED;
 		}
 

@@ -15,7 +15,7 @@ import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
-import io.openems.edge.ess.core.power.PowerComponent.ChannelId;
+import io.openems.edge.ess.core.power.EssPower.ChannelId;
 import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.DummyInverter;

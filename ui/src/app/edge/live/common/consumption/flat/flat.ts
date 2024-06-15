@@ -1,11 +1,12 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
-import { ChannelAddress, CurrentData, EdgeConfig, Utils } from 'src/app/shared/shared';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from 'src/app/shared/shared';
 import { ModalComponent } from '../modal/modal';
 
 @Component({
   selector: 'consumption',
-  templateUrl: './flat.html'
+  templateUrl: './flat.html',
 })
 export class FlatComponent extends AbstractFlatWidget {
 
@@ -18,30 +19,26 @@ export class FlatComponent extends AbstractFlatWidget {
 
   protected override getChannelAddresses() {
 
-    let channelAddresses: ChannelAddress[] = [
+    const channelAddresses: ChannelAddress[] = [
       new ChannelAddress('_sum', 'ConsumptionActivePower'),
 
       // TODO should be moved to Modal
       new ChannelAddress('_sum', 'ConsumptionActivePowerL1'),
       new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
-      new ChannelAddress('_sum', 'ConsumptionActivePowerL3')
-    ]
+      new ChannelAddress('_sum', 'ConsumptionActivePowerL3'),
+    ];
 
     // Get consumptionMeterComponents
-    this.consumptionMeters = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+    this.consumptionMeters = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
       .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component));
 
-    for (let component of this.consumptionMeters) {
+    for (const component of this.consumptionMeters) {
       channelAddresses.push(
         new ChannelAddress(component.id, 'ActivePower'),
-      )
-      if (this.config.getNatureIdsByFactoryId(component.factoryId).includes('io.openems.edge.meter.api.AsymmetricMeter')) {
-        channelAddresses.push(
-          new ChannelAddress(component.id, 'ActivePowerL1'),
-          new ChannelAddress(component.id, 'ActivePowerL2'),
-          new ChannelAddress(component.id, 'ActivePowerL3'),
-        )
-      }
+        new ChannelAddress(component.id, 'ActivePowerL1'),
+        new ChannelAddress(component.id, 'ActivePowerL2'),
+        new ChannelAddress(component.id, 'ActivePowerL3'),
+      );
     }
 
     // Get EVCSs
@@ -49,10 +46,10 @@ export class FlatComponent extends AbstractFlatWidget {
       .filter(component => !(component.factoryId == 'Evcs.Cluster.SelfConsumption') &&
         !(component.factoryId == 'Evcs.Cluster.PeakShaving') && !component.isEnabled == false);
 
-    for (let component of this.evcss) {
+    for (const component of this.evcss) {
       channelAddresses.push(
         new ChannelAddress(component.id, 'ChargePower'),
-      )
+      );
     }
     return channelAddresses;
   }
@@ -65,14 +62,14 @@ export class FlatComponent extends AbstractFlatWidget {
 
     // TODO move sums to Model
     // Iterate over evcsComponents to get ChargePower for every component
-    for (let component of this.evcss) {
+    for (const component of this.evcss) {
       if (currentData.allComponents[component.id + '/ChargePower']) {
         this.evcsSumOfChargePower += currentData.allComponents[component.id + '/ChargePower'];
       }
     }
 
     // Iterate over evcsComponents to get ChargePower for every component
-    for (let component of this.consumptionMeters) {
+    for (const component of this.consumptionMeters) {
       if (currentData.allComponents[component.id + '/ActivePower']) {
         consumptionMetersSumOfActivePower += currentData.allComponents[component.id + '/ActivePower'];
       }
@@ -84,7 +81,7 @@ export class FlatComponent extends AbstractFlatWidget {
 
   async presentModal() {
     const modal = await this.modalController.create({
-      component: ModalComponent
+      component: ModalComponent,
     });
     return await modal.present();
   }

@@ -14,11 +14,10 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 	protected DummyEss(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[][] furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
-		// TODO Auto-generated constructor stub
 	}
 
-	public static int MAXIMUM_POWER = 10000;
-	public static int DC_LINK_VOLTAGE = 800;
+	public static final int MAXIMUM_POWER = 10000;
+	public static final int DC_LINK_VOLTAGE = 800;
 	private int currentActivePower = 0;
 	private boolean running;
 	private boolean error;
@@ -72,12 +71,10 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 
 	@Override
 	public void setErrorCodeFeedback(int errorCodeFeedback) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public int getErrorCode() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -88,140 +85,91 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 
 	@Override
 	public boolean isCommunicationBroken() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void setEnableIpu1(boolean enabled) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setEnableIpu2(boolean enabled) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setEnableIpu3(boolean enabled) {
-		// TODO Auto-generated method stub
-
 	}
-
-	// @Override
-	// public void setParameterSet(ParameterSet set1) {
-	// // TODO Auto-generated method stub
-	//
-	// }
 
 	@Override
 	public void setU0(float onGridVoltageFactor) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setF0(float onGridFrequencyFactor) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setPControlMode(PControlMode activePowerControl) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setQLimit(float f) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setPMaxChargeIpu1(float maxPower) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setPMaxDischargeIpu1(float maxPower) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setPMaxChargeIpu2(float maxPower) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setPMaxDischargeIpu2(float maxPower) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setPMaxChargeIpu3(float maxPower) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setPMaxDischargeIpu3(float maxPower) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setDcLinkVoltage(float dcLinkVoltageSetpoint) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setWeightStringA(Float weight) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setWeightStringB(Float weight) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setWeightStringC(Float weight) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setStringControlMode(int stringControlMode) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void enableDcDc() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setSyncDate(int date) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setSyncTime(int time) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -231,37 +179,29 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 
 	@Override
 	public int getErrorCount() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public void disableDcDc() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public boolean isDcDcStarted() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isIpusStarted(boolean enableIpu1, boolean enableIpu2, boolean enableIpu3) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void doWriteTasks() throws OpenemsNamedException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public float getReactivePower() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -272,170 +212,133 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 
 	@Override
 	public double getEfficiencyLossChargeFactor() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public double getEfficiencyLossDischargeFactor() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public void setIRefStringA(Float current) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setIRefStringB(Float current) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setIRefStringC(Float current) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public boolean isUndefined() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void setMode(Mode mode) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setBalancingMode(BalancingMode balancingMode) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setFundamentalFrequencyMode(FundamentalFrequencyMode fundamentalFrequencyMode) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setHarmonicCompensationMode(HarmonicCompensationMode harmonicCompensationMode) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public float getCurrentL1Grid() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public float getCurrentL2Grid() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public float getCurrentL3Grid() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public float getCurrentLNGrid() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public float getActivePowerL1Grid() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public float getActivePowerL2Grid() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public float getActivePowerL3Grid() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public float getActivePowerSumGrid() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public float getReactivePowerL1Grid() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public float getReactivePowerL2Grid() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public float getReactivePowerL3Grid() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public float getReactivePowerSumGrid() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public float getApparentPowerL1Grid() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public float getApparentPowerL2Grid() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public float getApparentPowerL3Grid() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public float getApparentPowerSumGrid() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public void setCosPhiSetPoint1(float cosPhiSetPoint1) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setCosPhiSetPoint2(float cosPhiSetPoint2) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

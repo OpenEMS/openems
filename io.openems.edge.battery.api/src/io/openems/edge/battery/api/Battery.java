@@ -13,6 +13,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.common.statemachine.AbstractStateMachine;
 
 /**
  * Represents a Battery.
@@ -192,7 +193,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT)),
+				.unit(Unit.MILLIVOLT) //
+				.persistencePriority(PersistencePriority.HIGH)),
 
 		/**
 		 * Maximum cell voltage.
@@ -205,7 +207,21 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 */
 		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT) //
-				.persistencePriority(PersistencePriority.HIGH));
+				.persistencePriority(PersistencePriority.HIGH)), //
+
+		/**
+		 * Battery Inner Resistance.
+		 *
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * <li>Unit: mOhm
+		 * </ul>
+		 */
+		INNER_RESISTANCE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIOHM) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
+		;
 
 		private final Doc doc;
 
@@ -241,6 +257,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 				.channel(18, ChannelId.MAX_CELL_TEMPERATURE, ModbusType.FLOAT32) //
 				.channel(20, ChannelId.MIN_CELL_VOLTAGE, ModbusType.FLOAT32) //
 				.channel(22, ChannelId.MAX_CELL_VOLTAGE, ModbusType.FLOAT32) //
+				.channel(24, ChannelId.INNER_RESISTANCE, ModbusType.FLOAT32) //
 				.build();
 	}
 
@@ -732,5 +749,65 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	 */
 	public default void _setMaxCellVoltage(int value) {
 		this.getMaxCellVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#INNER_RESISTANCE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getInnerResistanceChannel() {
+		return this.channel(ChannelId.INNER_RESISTANCE);
+	}
+
+	/**
+	 * Gets the Inner Resistance [mOhm]. See {@link ChannelId#INNER_RESISTANCE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getInnerResistance() {
+		return this.getInnerResistanceChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#INNER_RESISTANCE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setInnerResistance(Integer value) {
+		this.getInnerResistanceChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#INNER_RESISTANCE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setInnerResistance(int value) {
+		this.getInnerResistanceChannel().setNextValue(value);
+	}
+
+	/**
+	 * Generates a default DebugLog message for {@link Battery} implementations with
+	 * a State-Machine.
+	 * 
+	 * @param battery      the {@link Battery}
+	 * @param stateMachine the actual StateMachine (extends
+	 *                     {@link AbstractStateMachine})
+	 * @return a debug log String
+	 */
+	public static String generateDebugLog(Battery battery, AbstractStateMachine<?, ?> stateMachine) {
+		return new StringBuilder() //
+				.append(stateMachine.debugLog()) //
+				.append("|SoC:").append(battery.getSoc()) //
+				.append("|Actual:").append(battery.getVoltage()) //
+				.append(";").append(battery.getCurrent()) //
+				.append("|Charge:").append(battery.getChargeMaxVoltage()) //
+				.append(";").append(battery.getChargeMaxCurrent()) //
+				.append("|Discharge:").append(battery.getDischargeMinVoltage()) //
+				.append(";").append(battery.getDischargeMaxCurrent()) //
+				.toString();
 	}
 }

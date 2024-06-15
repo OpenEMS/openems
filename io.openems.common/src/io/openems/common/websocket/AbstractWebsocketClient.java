@@ -10,6 +10,7 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
+import org.java_websocket.extensions.permessage_deflate.PerMessageDeflateExtension;
 import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 	public static final Map<String, String> NO_HTTP_HEADERS = new HashMap<>();
 	public static final Proxy NO_PROXY = null;
-	public static final Draft DEFAULT_DRAFT = new Draft_6455();
+	public static final Draft DEFAULT_DRAFT = new Draft_6455(new PerMessageDeflateExtension());
 
 	protected final WebSocketClient ws;
 
@@ -139,9 +140,8 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 				AbstractWebsocketClient.this.reconnectorWorker.triggerNextRun();
 			}
 		};
-		// Disable lost connection detection
 		// https://github.com/TooTallNate/Java-WebSocket/wiki/Lost-connection-detection
-		this.ws.setConnectionLostTimeout(0);
+		this.ws.setConnectionLostTimeout(100);
 
 		// initialize WsData
 		var wsData = AbstractWebsocketClient.this.createWsData();

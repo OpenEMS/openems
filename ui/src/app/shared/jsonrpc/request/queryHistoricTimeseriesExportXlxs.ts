@@ -1,9 +1,10 @@
+// @ts-strict-ignore
 import { format } from 'date-fns';
 import { JsonrpcRequest } from '../base';
 
 /**
  * Queries historic timeseries data; exports to Xlsx (Excel) file.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -23,7 +24,7 @@ export class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 
     public constructor(
         private fromDate: Date,
-        private toDate: Date
+        private toDate: Date,
     ) {
         super(QueryHistoricTimeseriesExportXlxsRequest.METHOD, {
             timezone: new Date().getTimezoneOffset() * 60,

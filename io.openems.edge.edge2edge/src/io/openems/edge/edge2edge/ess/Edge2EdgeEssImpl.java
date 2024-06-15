@@ -44,17 +44,17 @@ public class Edge2EdgeEssImpl extends AbstractEdge2Edge implements ManagedSymmet
 		Edge2EdgeEss, Edge2Edge, ModbusComponent, OpenemsComponent {
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference
-	protected Power power;
+	private Power power;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
 
-	public Edge2EdgeEssImpl() throws OpenemsException {
+	public Edge2EdgeEssImpl() {
 		super(//
 				Lists.newArrayList(//
 						OpenemsComponent::getModbusSlaveNatureTable, //

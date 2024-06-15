@@ -15,29 +15,33 @@
         </ion-toolbar>
     </ion-header>
     <ion-content>
-        <ng-container>
-            <ion-card-content>
-                <table class="full_width">
-                    <tr>
-                        <td style="width: 100%" class="ion-padding"></td>
-                    </tr>
-                </table>
-                <singlethresholdChart [componentId]="component.id" [period]="service.historyPeriod">
-                </singlethresholdChart>
+        <ngx-spinner [name]="spinnerid"></ngx-spinner>
+        <ion-content *ngIf="inputChannelUnit">
+            <ng-container>
+                <ion-card-content>
+                    <table class="full_width">
+                        <tr>
+                            <td style="width: 100%" class="ion-padding"></td>
+                        </tr>
+                    </table>
+                    <singlethresholdChart [componentId]="component.id" [period]="service.historyPeriod.value"
+                        [inputChannelUnit]="inputChannelUnit">
+                    </singlethresholdChart>
+                </ion-card-content>
+            </ng-container>
+            <!-- Info Text -->
+            <ion-card-content class="underline" *ngIf="inputChannel === '_sum/GridActivePower'">
+                <ion-row class="ion-justify-content-center">
+                    <ion-item class="ion-text-center" lines="none">
+                        <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
+                        <ion-label class="ion-text-wrap">
+                            <small translate>
+                                Edge.Index.Widgets.twoWayInfoGrid
+                            </small>
+                        </ion-label>
+                    </ion-item>
+                </ion-row>
             </ion-card-content>
-        </ng-container>
-        <!-- Info Text -->
-        <ion-card-content class="underline" *ngIf="inputChannel === '_sum/GridActivePower'">
-            <ion-row class="ion-justify-content-center">
-                <ion-item class="ion-text-center" lines="none">
-                    <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
-                    <ion-label class="ion-text-wrap">
-                        <small translate>
-                            Edge.Index.Widgets.twoWayInfoGrid
-                        </small>
-                    </ion-label>
-                </ion-item>
-            </ion-row>
-        </ion-card-content>
+        </ion-content>
     </ion-content>
 </ng-container>

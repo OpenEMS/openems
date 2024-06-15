@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Environment } from "src/environments";
 import { theme } from "./theme";
 
@@ -10,5 +11,5 @@ export const environment: Environment = {
 
         production: false,
         debugMode: true,
-    }
+    },
 };

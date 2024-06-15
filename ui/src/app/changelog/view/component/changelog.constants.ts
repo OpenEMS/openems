@@ -1,10 +1,17 @@
 import { Role } from "src/app/shared/type/role";
-import { environment } from "src/environments";
 
 export class Changelog {
 
+    public static readonly UI_VERSION = "2024.7.0-SNAPSHOT";
+
     public static product(...products: Product[]) {
         return products.map(product => Changelog.link(product.name, product.url)).join(", ") + '. ';
+    }
+
+    public static app(app: App, ...names: string[]) {
+        return Changelog.link(app.name, app.url)
+            + (names.length === 0 ? "" : " (" + names.join(", ") + ")")
+            + ": ";
     }
 
     public static openems(version: string) {
@@ -34,7 +41,16 @@ export class Product {
     }
 }
 
+export class App {
+    // private to disallow creating other instances of this type
+    private constructor(public readonly name: string, public readonly url: any) {
+    }
+}
+
 export class OpenemsComponent {
+    public static readonly PQ_PLUS_ZAEHLER = new OpenemsComponent('PQ-Plus Zähler', 'https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.pqplus');
+    public static readonly SDM630_ZAEHLER = new OpenemsComponent('SDM 630 Zähler', 'https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.microcare.sdm630');
+
     // private to disallow creating other instances of this type
     private constructor(public readonly name: string, public readonly url: any) {
     }
