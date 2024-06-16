@@ -18,7 +18,7 @@
     "@ngx-formly/schematics": "^6.3.0",
     "@ngx-translate/core": "^15.0.0",
     "@nodro7/angular-mydatepicker": "^0.14.0",
-    "chart.js": "^4.4.2",
+    "chart.js": "^4.4.3",
     "chartjs-adapter-date-fns": "^3.0.0",
     "chartjs-plugin-zoom": "^2.0.1",
     "classlist.js": "^1.1.20150312",
