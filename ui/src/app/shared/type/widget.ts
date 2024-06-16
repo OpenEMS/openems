@@ -10,7 +10,7 @@ export enum WidgetClass {
     'Grid',
     'Common_Production',
     'Consumption',
-    'Controller_ChannelThreshold'
+    'Controller_ChannelThreshold',
 }
 
 export enum WidgetNature {
@@ -42,7 +42,7 @@ export type Icon = {
     color: string;
     size: string;
     name: string;
-}
+};
 
 export class Widget {
     public name: WidgetNature | WidgetFactory | string;
@@ -151,5 +151,5 @@ export class Widgets {
 }
 
 export enum ProductType {
-    HOME = "home"
+    HOME = "home",
 }

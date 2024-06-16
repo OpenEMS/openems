@@ -3,11 +3,12 @@ package io.openems.edge.bridge.http.api;
 import static java.util.Collections.emptyMap;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 import com.google.gson.JsonElement;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingFunction;
 import io.openems.common.utils.JsonUtils;
 
@@ -55,12 +56,6 @@ public interface BridgeHttp extends BridgeHttpCycle, BridgeHttpTime {
 	public static int DEFAULT_CONNECT_TIMEOUT = 5000; // 5s
 	public static int DEFAULT_READ_TIMEOUT = 5000; // 5s
 
-	/**
-	 * Default empty error handler.
-	 */
-	public static final Consumer<Throwable> EMPTY_ERROR_HANDLER = t -> {
-	};
-
 	public record Endpoint(//
 			String url, //
 			HttpMethod method, //
@@ -69,6 +64,12 @@ public interface BridgeHttp extends BridgeHttpCycle, BridgeHttpTime {
 			String body, // nullable
 			Map<String, String> properties //
 	) {
+
+		public Endpoint {
+			Objects.requireNonNull(url, "Url of Endpoint must not be null!");
+			Objects.requireNonNull(method, "Method of Endpoint must not be null!");
+			Objects.requireNonNull(properties, "Properties of Endpoint must not be null!");
+		}
 
 	}
 	
@@ -86,7 +87,7 @@ public interface BridgeHttp extends BridgeHttpCycle, BridgeHttpTime {
 	 * @param url the url to fetch
 	 * @return the result response future
 	 */
-	public default CompletableFuture<String> get(String url) {
+	public default CompletableFuture<HttpResponse<String>> get(String url) {
 		final var endpoint = new Endpoint(//
 				url, //
 				HttpMethod.GET, //
@@ -105,8 +106,8 @@ public interface BridgeHttp extends BridgeHttpCycle, BridgeHttpTime {
 	 * @param url the url to fetch
 	 * @return the result response future
 	 */
-	public default CompletableFuture<JsonElement> getJson(String url) {
-		return mapFuture(this.get(url), JsonUtils::parse);
+	public default CompletableFuture<HttpResponse<JsonElement>> getJson(String url) {
+		return mapFuture(this.get(url), BridgeHttp::mapToJson);
 	}
 
 	/**
@@ -115,7 +116,7 @@ public interface BridgeHttp extends BridgeHttpCycle, BridgeHttpTime {
 	 * @param url the url to fetch
 	 * @return the result response future
 	 */
-	public default CompletableFuture<String> put(String url) {
+	public default CompletableFuture<HttpResponse<String>> put(String url) {
 		final var endpoint = new Endpoint(//
 				url, //
 				HttpMethod.PUT, //
@@ -134,8 +135,8 @@ public interface BridgeHttp extends BridgeHttpCycle, BridgeHttpTime {
 	 * @param url the url to fetch
 	 * @return the result response future
 	 */
-	public default CompletableFuture<JsonElement> putJson(String url) {
-		return mapFuture(this.put(url), JsonUtils::parse);
+	public default CompletableFuture<HttpResponse<JsonElement>> putJson(String url) {
+		return mapFuture(this.put(url), BridgeHttp::mapToJson);
 	}
 
 	/**
@@ -145,7 +146,7 @@ public interface BridgeHttp extends BridgeHttpCycle, BridgeHttpTime {
 	 * @param body the request body to send
 	 * @return the result response future
 	 */
-	public default CompletableFuture<String> post(String url, String body) {
+	public default CompletableFuture<HttpResponse<String>> post(String url, String body) {
 		final var endpoint = new Endpoint(//
 				url, //
 				HttpMethod.POST, //
@@ -165,8 +166,8 @@ public interface BridgeHttp extends BridgeHttpCycle, BridgeHttpTime {
 	 * @param body the request body to send
 	 * @return the result response future
 	 */
-	public default CompletableFuture<JsonElement> postJson(String url, JsonElement body) {
-		return mapFuture(this.post(url, body.toString()), JsonUtils::parse);
+	public default CompletableFuture<HttpResponse<JsonElement>> postJson(String url, JsonElement body) {
+		return mapFuture(this.post(url, body.toString()), BridgeHttp::mapToJson);
 	}
 
 	/**
@@ -175,7 +176,7 @@ public interface BridgeHttp extends BridgeHttpCycle, BridgeHttpTime {
 	 * @param url the url to fetch
 	 * @return the result response future
 	 */
-	public default CompletableFuture<String> delete(String url) {
+	public default CompletableFuture<HttpResponse<String>> delete(String url) {
 		final var endpoint = new Endpoint(//
 				url, //
 				HttpMethod.DELETE, //
@@ -194,8 +195,8 @@ public interface BridgeHttp extends BridgeHttpCycle, BridgeHttpTime {
 	 * @param url the url to fetch
 	 * @return the result response future
 	 */
-	public default CompletableFuture<JsonElement> deleteJson(String url) {
-		return mapFuture(this.delete(url), JsonUtils::parse);
+	public default CompletableFuture<HttpResponse<JsonElement>> deleteJson(String url) {
+		return mapFuture(this.delete(url), BridgeHttp::mapToJson);
 	}
 
 	/**
@@ -204,7 +205,7 @@ public interface BridgeHttp extends BridgeHttpCycle, BridgeHttpTime {
 	 * @param endpoint the {@link Endpoint} to fetch
 	 * @return the result response future
 	 */
-	public CompletableFuture<String> request(Endpoint endpoint);
+	public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint);
 
 	/**
 	 * Fetches the url once and expects the result to be in json format.
@@ -212,8 +213,12 @@ public interface BridgeHttp extends BridgeHttpCycle, BridgeHttpTime {
 	 * @param endpoint the {@link Endpoint} to fetch
 	 * @return the result response future
 	 */
-	public default CompletableFuture<JsonElement> requestJson(Endpoint endpoint) {
-		return mapFuture(this.request(endpoint), JsonUtils::parse);
+	public default CompletableFuture<HttpResponse<JsonElement>> requestJson(Endpoint endpoint) {
+		return mapFuture(this.request(endpoint), BridgeHttp::mapToJson);
+	}
+
+	private static HttpResponse<JsonElement> mapToJson(HttpResponse<String> origin) throws OpenemsNamedException {
+		return origin.withData(JsonUtils.parse(origin.data()));
 	}
 
 	private static <I, R> CompletableFuture<R> mapFuture(//

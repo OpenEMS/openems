@@ -24,6 +24,8 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpError;
+import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -146,13 +148,13 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	 *                               communication with the slave device is
 	 *                               unsuccessful.
 	 */
-	private void processHttpResult(JsonElement result, Throwable error) {
+	private void processHttpResult(HttpResponse<JsonElement> result, HttpError error) {
 		var slaveCommunicationFailed = result == null;
 		var relay1State = new RelayState(null, null, null);
 		var relay2State = new RelayState(null, null, null);
 
 		try {
-			final var relays = getAsJsonArray(result, "relays");
+			final var relays = getAsJsonArray(result.data(), "relays");
 			relay1State = RelayState.from(getAsJsonObject(relays.get(0)));
 			relay2State = RelayState.from(getAsJsonObject(relays.get(1)));
 

@@ -6,6 +6,7 @@ public enum Currency implements OptionsEnum {
 	UNDEFINED(-1), //
 	EUR(0), //
 	SEK(1), //
+	CHF(2), //
 	;
 
 	private final int value;

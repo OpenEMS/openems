@@ -1,52 +1,58 @@
 package io.openems.edge.bridge.http.dummy;
 
-import static java.util.concurrent.CompletableFuture.completedFuture;
+import static java.util.Collections.emptyList;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
 
 import io.openems.edge.bridge.http.api.BridgeHttp;
+import io.openems.edge.bridge.http.api.HttpResponse;
 
 public class DummyBridgeHttp implements BridgeHttp {
 
-	public final List<CycleEndpoint> cycleEndpoints = new ArrayList<>();
-	public final List<TimeEndpoint> timeEndpoints = new ArrayList<>();
-
-	private String nextRequestResult = null;
-
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @implNote never gets executed in this class for actual testing a call use
+	 *           DummyBridgeHttpFactory#ofBridgeImpl
+	 */
 	@Override
-	public void subscribeCycle(CycleEndpoint endpoint) {
-		this.cycleEndpoints.add(endpoint);
-	}
-
-	@Override
-	public void subscribeTime(TimeEndpoint endpoint) {
-		this.timeEndpoints.add(endpoint);
-	}
-
-	@Override
-	public CompletableFuture<String> request(Endpoint endpoint) {
-		return completedFuture(this.nextRequestResult);
+	public CycleEndpoint subscribeCycle(CycleEndpoint endpoint) {
+		return endpoint;
 	}
 
 	/**
-	 * Mocks a result for all {@link CycleEndpoint}s.
+	 * {@inheritDoc}
 	 * 
-	 * @param result the mocked read result
+	 * @implNote never gets executed in this class for actual testing a call use
+	 *           DummyBridgeHttpFactory#ofBridgeImpl
 	 */
-	public void mockCycleResult(String result) {
-		this.cycleEndpoints.forEach(//
-				e -> e.result().accept(result));
+	@Override
+	public TimeEndpoint subscribeTime(TimeEndpoint endpoint) {
+		return endpoint;
 	}
 
 	/**
-	 * Mocks a result for simple request {@link Endpoint}.
+	 * {@inheritDoc}
 	 * 
-	 * @param nextRequestResult the mocked read result
+	 * @implNote this return future never completes for actual testing a call use
+	 *           DummyBridgeHttpFactory#ofBridgeImpl
 	 */
-	public void mockRequestResult(String nextRequestResult) {
-		this.nextRequestResult = nextRequestResult;
+	@Override
+	public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
+		// NOTE: this future never completes
+		return new CompletableFuture<>();
+	}
+
+	@Override
+	public Collection<CycleEndpoint> removeCycleEndpointIf(Predicate<CycleEndpoint> condition) {
+		return emptyList();
+	}
+
+	@Override
+	public Collection<TimeEndpoint> removeTimeEndpointIf(Predicate<TimeEndpoint> condition) {
+		return emptyList();
 	}
 
 	@Override
