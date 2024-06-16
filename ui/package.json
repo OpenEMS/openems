@@ -28,7 +28,7 @@
     "file-saver-es": "^2.0.5",
     "ng2-charts": "4.1.1",
     "ngx-cookie-service": "^16.1.0",
-    "ngx-spinner": "^16.0.2",
+    "ngx-spinner": "^17.0.0",
     "roboto-fontface": "^0.10.0",
     "rxjs": "~6.6.7",
     "swiper": "11.1.4",
