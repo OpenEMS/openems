@@ -65,6 +65,28 @@ public class DummyManagedSymmetricBatteryInverter
 		return this;
 	}
 
+	/**
+	 * Set {@link SymmetricBatteryInverter.ChannelId#DC_MIN_VOLTAGE}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummyManagedSymmetricBatteryInverter withDcMinVoltage(int value) {
+		TestUtils.withValue(this, SymmetricBatteryInverter.ChannelId.DC_MIN_VOLTAGE, value);
+		return this;
+	}
+
+	/**
+	 * Set {@link SymmetricBatteryInverter.ChannelId#DC_MAX_VOLTAGE}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummyManagedSymmetricBatteryInverter withDcMaxVoltage(int value) {
+		TestUtils.withValue(this, SymmetricBatteryInverter.ChannelId.DC_MAX_VOLTAGE, value);
+		return this;
+	}
+
 	@Override
 	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
 		this._setActivePower(setActivePower);

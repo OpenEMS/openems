@@ -1,8 +1,8 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
 import static io.openems.common.utils.StringUtils.definedOrElse;
+import static io.openems.edge.timeofusetariff.api.utils.ExchangeRateApi.getExchangeRate;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
-import static io.openems.edge.timeofusetariff.entsoe.ExchangeRateApi.getExchangeRate;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.parseCurrency;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.parsePrices;
 

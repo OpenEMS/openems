@@ -1,6 +1,7 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 
 import static io.openems.edge.common.channel.ChannelUtils.setWriteValueIfNotRead;
+import static io.openems.edge.common.sum.GridMode.ON_GRID;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -54,7 +55,6 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
@@ -75,6 +75,8 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 
 	private static final int UNIT_ID = 1;
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
+	private static final int DC_MIN_VOLTAGE_LIMIT = 650;
+	private static final int DC_MAX_VOLTAGE_LIMIT = 1315;
 
 	private final Logger log = LoggerFactory.getLogger(BatteryInverterKacoBlueplanetGridsaveImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
@@ -145,7 +147,9 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 				StartStoppable.ChannelId.values(), //
 				BatteryInverterKacoBlueplanetGridsave.ChannelId.values() //
 		);
-		this._setGridMode(GridMode.ON_GRID);
+		this._setGridMode(ON_GRID);
+		this._setDcMinVoltage(DC_MIN_VOLTAGE_LIMIT);
+		this._setDcMaxVoltage(DC_MAX_VOLTAGE_LIMIT);
 	}
 
 	@Activate

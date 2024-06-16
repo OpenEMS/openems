@@ -350,7 +350,8 @@
         "level": "Level",
         "message": "Nachricht",
         "source": "Quelle",
-        "timestamp": "Zeitpunkt"
+        "timestamp": "Zeitpunkt",
+        "CONDENSED_OUTPUT": "Komprimierte Ausgabe"
       },
       "Controller": {
         "app": "Anwendung:",
@@ -901,7 +902,8 @@
       "email": "E-Mail Adresse",
       "password": "Passwort",
       "confirmPassword": "Passwort wiederholen",
-      "confirmEmail": "E-Mail Adresse wiederholen"
+      "confirmEmail": "E-Mail Adresse wiederholen",
+      "PRIVATE": "Privat"
     },
     "button": "Anlegen",
     "errors": {
@@ -935,7 +937,11 @@
       "RESTARTED": "{{system}} neu starten war erfolgreich.",
       "RESTART_FAILED": "{{system}}-Neustart fehlgeschlagen.",
       "RESTART_CONFIRMATION": "Möchten Sie {{system}} neu starten?",
-      "RESTART_WARNING": "Während {{system}} neu startet ist die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet."
+      "RESTART_WARNING": "Während {{system}} neu startet ist die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet.",
+      "CONFIRMATION_INFO": "Möchten Sie ihr {{edgeShortName}} aktualisieren?",
+      "WARNING": "Im Rahmen des Systemupdates wird {{system}} neu gestartet und dabei die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet.",
+      "UPDATE_EXECUTE": "Systemupdate durchführen",
+      "SUB_HEADER": "Möchten Sie ein Systemupdate durchführen?"
     }
   },
   "CHANNELS": {

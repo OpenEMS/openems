@@ -33,3 +33,5 @@ Import-Package: \
 -metatypeannotations: *
 
 -sources: false
+
+-fixupmessages "Classes found in the wrong directory"

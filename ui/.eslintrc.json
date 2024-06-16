@@ -20,7 +20,8 @@
         "createDefaultProgram": true
       },
       "plugins": [
-        "unused-imports"
+        "unused-imports",
+        "@stylistic"
       ],
       "extends": [
         "eslint:recommended",
@@ -30,11 +31,11 @@
       ],
       "rules": {
         "unused-imports/no-unused-imports": "error",
-        "semi": [
+        "@stylistic/semi": [
           "error",
           "always"
         ],
-        "quote-props": [
+        "@stylistic/quote-props": [
           "warn",
           "consistent"
         ],
@@ -51,6 +52,9 @@
             }
           }
         ],
+        "@angular-eslint/use-lifecycle-interface": [
+          "error"
+        ],
         "@angular-eslint/directive-selector": [
           "error",
           {
@@ -64,15 +68,15 @@
           }
         ],
         "curly": "error",
-        "comma-dangle": [
+        "@stylistic/comma-dangle": [
           "error",
           "always-multiline"
         ],
-        "eol-last": [
+        "@stylistic/eol-last": [
           "error",
           "always"
         ],
-        "no-trailing-spaces": "error",
+        "@stylistic/no-trailing-spaces": "error",
         "@typescript-eslint/no-unused-vars": [
           "error",
           {

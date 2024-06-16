@@ -1,6 +1,6 @@
 {
   "name": "openems-ui",
-  "version": "2024.6.0-SNAPSHOT",
+  "version": "2024.7.0-SNAPSHOT",
   "license": "AGPL-3.0",
   "private": true,
   "dependencies": {
@@ -14,7 +14,7 @@
     "@angular/service-worker": "~16.2.12",
     "@ionic/angular": "^6.7.5",
     "@ngx-formly/core": "^6.3.0",
-    "@ngx-formly/ionic": "^6.3.0",
+    "@ngx-formly/ionic": "^6.3.4",
     "@ngx-formly/schematics": "^6.3.0",
     "@ngx-translate/core": "^15.0.0",
     "@nodro7/angular-mydatepicker": "^0.14.0",
@@ -31,9 +31,9 @@
     "ngx-spinner": "^16.0.2",
     "roboto-fontface": "^0.10.0",
     "rxjs": "~6.6.7",
-    "swiper": "11.1.1",
+    "swiper": "11.1.4",
     "tslib": "^2.6.2",
-    "uuid": "^9.0.1",
+    "uuid": "^10.0.0",
     "zone.js": "~0.13.3"
   },
   "devDependencies": {
@@ -47,6 +47,7 @@
     "@angular/compiler-cli": "^16.2.12",
     "@angular/language-service": "^16.2.12",
     "@ionic/angular-toolkit": "^11.0.1",
+    "@stylistic/eslint-plugin": "^2.1.0",
     "@types/jasmine": "~4.3.6",
     "@types/jasminewd2": "~2.0.13",
     "@types/node": "^20.12.6",
@@ -69,7 +70,7 @@
     "protractor": "~7.0.0",
     "ts-node": "^10.9.2",
     "typescript": "~4.9.5",
-    "typescript-strict-plugin": "^2.4.3"
+    "typescript-strict-plugin": "^2.4.4"
   },
   "scripts": {
     "lint": "ng lint",

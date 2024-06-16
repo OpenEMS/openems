@@ -27,7 +27,7 @@ export type Data = {
         label: string,
         _meta: {}
     }[]
-}
+};
 
 export type TooltipItem = {
     datasetIndex: number,
@@ -37,7 +37,7 @@ export type TooltipItem = {
     value: number,
     y: number,
     yLabel: number
-}
+};
 
 export type YAxis = {
 
@@ -61,7 +61,7 @@ export type YAxis = {
         stepSize?: number,
         callback?(value: number | string, index: number, values: number[] | string[]): string | number | null | undefined;
     }
-}
+};
 
 export type ChartOptions = {
     plugins: {},
@@ -144,7 +144,7 @@ export type ChartOptions = {
         }
     },
     legendCallback?(chart: Chart.Chart): string
-}
+};
 
 export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
     responsive: true,
@@ -409,7 +409,7 @@ export function setLabelVisible(label: string, visible: boolean | null): void {
 export type Resolution = {
     value: number,
     unit: ChronoUnit.Type
-}
+};
 
 export namespace ChronoUnit {
 
@@ -419,7 +419,7 @@ export namespace ChronoUnit {
         HOURS = "Hours",
         DAYS = "Days",
         MONTHS = "Months",
-        YEARS = "Years"
+        YEARS = "Years",
     }
 
     /**
@@ -460,5 +460,5 @@ export type ChartData = {
     },
     /** Name to be displayed on the left y-axis */
     yAxisTitle: string,
-}
+};
 

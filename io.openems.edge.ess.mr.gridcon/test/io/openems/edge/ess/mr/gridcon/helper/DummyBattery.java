@@ -23,6 +23,7 @@ public class DummyBattery extends AbstractDummyBattery<DummyBattery> implements 
 
 	public static final int DEFAULT_MIN_VOLTAGE = 700;
 	public static final int DEFAULT_MAX_VOLTAGE = 900;
+	public static final int DEFAULT_INNER_RESISTANCE = 100;
 
 	public DummyBattery() {
 		super("battery0", //
@@ -44,6 +45,7 @@ public class DummyBattery extends AbstractDummyBattery<DummyBattery> implements 
 		this.withDischargeMaxCurrent(DEFAULT_MAX_DISCHARGE_CURRENT);
 		this.withDischargeMinVoltage(DEFAULT_MIN_VOLTAGE);
 		this.withChargeMaxVoltage(DEFAULT_MAX_VOLTAGE);
+		this.withInnerResistence(DEFAULT_INNER_RESISTANCE);
 	}
 
 	@Override
