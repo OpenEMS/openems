@@ -69,7 +69,7 @@ export class FilterComponent {
   }
 }
 
-export type ChosenFilter = TKeyValue<string | string[] | boolean | null>
+export type ChosenFilter = TKeyValue<string | string[] | boolean | null>;
 
 export type Filter = {
   placeholder: string,
@@ -78,9 +78,9 @@ export type Filter = {
 
   // sets additional filter
   setAdditionalFilter?: () => ChosenFilter
-}
+};
 
 export type FilterOption = {
   name: string,
   value: string | null
-}
+};
