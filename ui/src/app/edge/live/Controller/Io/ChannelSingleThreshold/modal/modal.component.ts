@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 type mode = 'ON' | 'AUTOMATIC' | 'OFF';
-type inputMode = 'SOC' | 'GRIDSELL' | 'GRIDBUY' | 'PRODUCTION' | 'OTHER'
+type inputMode = 'SOC' | 'GRIDSELL' | 'GRIDBUY' | 'PRODUCTION' | 'OTHER';
 
 @Component({
   selector: 'Io_ChannelSingleThresholdModalComponent',
