@@ -6,13 +6,16 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
     ${buildpath},\
     bcprov,\
+    io.openems.common,\
+    io.openems.edge.bridge.http
     io.openems.edge.common,\
     io.openems.edge.meter.api,\
     io.openems.edge.timedata.api,\
-    io.openems.common,\
-    org.openmuc.jsml,\
     org.apache.commons.codec,\
-    io.openems.edge.bridge.http,\
+    org.openmuc.jsml,\
 
 -testpath: \
-    ${testpath}
+    ${testpath},\
+    io.openems.common,\
+    io.openems.edge.meter.api,\
+    io.openems.edge.bridge.http
