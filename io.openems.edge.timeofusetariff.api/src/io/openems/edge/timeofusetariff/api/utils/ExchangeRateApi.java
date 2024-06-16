@@ -1,4 +1,4 @@
-package io.openems.edge.timeofusetariff.entsoe;
+package io.openems.edge.timeofusetariff.api.utils;
 
 import static io.openems.common.utils.JsonUtils.getAsDouble;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
@@ -38,7 +38,7 @@ public class ExchangeRateApi {
 	 * @throws IOException           on error.
 	 * @throws OpenemsNamedException on error
 	 */
-	protected static double getExchangeRate(String accessKey, String source, Currency target)
+	public static double getExchangeRate(String accessKey, String source, Currency target)
 			throws IOException, OpenemsNamedException {
 		var request = new Request.Builder() //
 				.url(String.format(BASE_URL, accessKey, source, target.name())) //

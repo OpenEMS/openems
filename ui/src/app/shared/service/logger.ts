@@ -10,7 +10,7 @@ export enum Level {
     DEBUG = "debug",
     INFO = "info",
     WARNING = "warning",
-    ERROR = "error"
+    ERROR = "error",
 }
 
 @Injectable()

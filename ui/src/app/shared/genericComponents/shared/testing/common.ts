@@ -18,7 +18,7 @@ export namespace OeTester {
       energyPerPeriodChannelWithValues?: QueryHistoricTimeseriesEnergyPerPeriodResponse,
       /** data from a {@link QueryHistoricTimeseriesDataResponse} */
       dataChannelWithValues?: QueryHistoricTimeseriesDataResponse
-    }
+    };
   }
 
   export namespace ChartOptions {
