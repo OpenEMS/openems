@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import org.junit.Test;
+
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
 import io.openems.backend.common.jsonrpc.request.GetEdgesChannelsValuesRequest;
 import io.openems.backend.common.jsonrpc.request.GetEdgesStatusRequest;
@@ -30,20 +32,6 @@ public class B2bWebsocketTest {
 	private static final String USERNAME = "user";
 	private static final String PASSWORD = "password";
 
-	/**
-	 * Main.
-	 * 
-	 * @param args the args
-	 * @throws Exception on error
-	 */
-	public static void main(String[] args) throws Exception {
-		getEdgesStatusRequest();
-		getEdgeConfigRequest();
-		getEdgesChannelsValuesRequest();
-		subscribeEdgesChannelsRequest();
-		setGridConnSchedule();
-	}
-
 	private static TestClient prepareTestClient() throws URISyntaxException, InterruptedException {
 		Map<String, String> httpHeaders = new HashMap<>();
 		var auth = new String(
@@ -55,7 +43,8 @@ public class B2bWebsocketTest {
 		return client;
 	}
 
-	private static void getEdgesStatusRequest() throws Exception {
+	@Test
+	public void getEdgesStatusRequest() throws Exception {
 		var client = B2bWebsocketTest.prepareTestClient();
 
 		var request = new GetEdgesStatusRequest("edge0");
@@ -68,7 +57,8 @@ public class B2bWebsocketTest {
 		client.stop();
 	}
 
-	private static void getEdgeConfigRequest() throws Exception {
+	@Test
+	public void getEdgeConfigRequest() throws Exception {
 		var client = B2bWebsocketTest.prepareTestClient();
 
 		var request = new EdgeRpcRequest("edge0", new GetEdgeConfigRequest());
@@ -81,7 +71,8 @@ public class B2bWebsocketTest {
 		client.stop();
 	}
 
-	private static void getEdgesChannelsValuesRequest() throws Exception {
+	@Test
+	public void getEdgesChannelsValuesRequest() throws Exception {
 		var client = B2bWebsocketTest.prepareTestClient();
 
 		var request = new GetEdgesChannelsValuesRequest();
@@ -97,7 +88,8 @@ public class B2bWebsocketTest {
 		client.stop();
 	}
 
-	private static void subscribeEdgesChannelsRequest() throws Exception {
+	@Test
+	public void subscribeEdgesChannelsRequest() throws Exception {
 		var client = B2bWebsocketTest.prepareTestClient();
 		client.setOnNotification((ws, notification) -> {
 			System.out.println(notification.toString());
@@ -114,11 +106,11 @@ public class B2bWebsocketTest {
 			System.out.println(e.getMessage());
 		}
 
-		Thread.sleep(10000);
 		client.stop();
 	}
 
-	private static void setGridConnSchedule() throws Exception {
+	@Test
+	public void setGridConnSchedule() throws Exception {
 		var client = B2bWebsocketTest.prepareTestClient();
 
 		var request = new SetGridConnScheduleRequest("edge0");

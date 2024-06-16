@@ -1,0 +1,5 @@
+= Time-Of-Use Tariff Stadtwerk Hassfurt
+
+Retrieves the hourly prices from the Stadtwerk Hassfurt API and converts them into quarterly prices. The current implementation supports both "haStrom Flex" and "haStrom Flex Pro" models provided by Stadtwerk Hassfurt.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.hassfurt[Source Code icon:github[]]

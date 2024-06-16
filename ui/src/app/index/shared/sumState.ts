@@ -8,7 +8,7 @@ export enum SumState {
   OK = 'OK',
   INFO = 'INFO',
   WARNING = 'WARNING',
-  FAULT = 'FAULT'
+  FAULT = 'FAULT',
 }
 
 @Component({
