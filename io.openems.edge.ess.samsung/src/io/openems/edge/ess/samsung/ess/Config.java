@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.ess.power.api.Phase;
 
 @ObjectClassDefinition(//
-		name = "ESS Samsung", //
+		name = "Samsung ESS", //
 		description = "Implements the Sasmung ESS Combined System.")
 @interface Config {
 
@@ -28,5 +28,5 @@ import io.openems.edge.ess.power.api.Phase;
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the ESS.")
 	String ip() default "";
     
-	String webconsole_configurationFactory_nameHint() default "Samsung ESS Device [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Samsung ESS [{id}]";
 }

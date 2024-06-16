@@ -26,6 +26,8 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpError;
+import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -38,7 +40,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "PV-Inverter.Samsung", immediate = true, //
+		name = "Samsung.ESS.Charger", //
+		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
 
 @EventTopics({ //
@@ -47,23 +50,21 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 public class SamsungEssChargerImpl extends AbstractOpenemsComponent implements SamsungEssCharger, ElectricityMeter,
 		OpenemsComponent, EventHandler, TimedataProvider, ManagedSymmetricPvInverter {
 
+	private final Logger log = LoggerFactory.getLogger(SamsungEssChargerImpl.class);
+	private final CalculateEnergyFromPower calculateActualEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+
 	@Reference
 	protected ConfigurationAdmin cm;
-
-	private String baseUrl;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY)
 	private BridgeHttpFactory httpBridgeFactory;
 	private BridgeHttp httpBridge;
 
-	private final CalculateEnergyFromPower calculateActualEnergy = new CalculateEnergyFromPower(this,
-			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
-
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata;
 
-	private final Logger log = LoggerFactory.getLogger(SamsungEssChargerImpl.class);
-
+	private String baseUrl;
 	private Config config;
 
 	public SamsungEssChargerImpl() {
@@ -112,15 +113,15 @@ public class SamsungEssChargerImpl extends AbstractOpenemsComponent implements S
 		}
 	}
 
-	private void fetchAndUpdateEssRealtimeStatus(JsonElement json, Throwable error) {
-
+	private void fetchAndUpdateEssRealtimeStatus(HttpResponse<JsonElement> result, HttpError error) {
 		Integer pvPower = null;
 
 		if (error != null) {
 			this.logDebug(this.log, error.getMessage());
+
 		} else {
 			try {
-				var response = getAsJsonObject(json);
+				var response = getAsJsonObject(result.data());
 				var essRealtimeStatus = getAsJsonObject(response, "ESSRealtimeStatus");
 
 				pvPower = round(getAsFloat(essRealtimeStatus, "PvPw") * 1000);
@@ -128,9 +129,9 @@ public class SamsungEssChargerImpl extends AbstractOpenemsComponent implements S
 			} catch (OpenemsNamedException e) {
 				this.logDebug(this.log, e.getMessage());
 			}
-
-			this._setActivePower(pvPower);
 		}
+
+		this._setActivePower(pvPower);
 	}
 
 	/**

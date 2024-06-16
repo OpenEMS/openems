@@ -26,6 +26,8 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpError;
+import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -39,7 +41,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Ess.Samsung", immediate = true, //
+		name = "Samsung.ESS", immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE//
 )
 
@@ -49,9 +51,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 public class SamsungEssImpl extends AbstractOpenemsComponent
 		implements SamsungEss, SymmetricEss, OpenemsComponent, EventHandler, TimedataProvider, HybridEss {
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
-
+	private final Logger log = LoggerFactory.getLogger(SamsungEssImpl.class);
 	private final CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(this,
@@ -61,20 +61,20 @@ public class SamsungEssImpl extends AbstractOpenemsComponent
 	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
 			HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
 
-	private final Logger log = LoggerFactory.getLogger(SamsungEssImpl.class);
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
+
+	@Reference(cardinality = ReferenceCardinality.MANDATORY)
+	private BridgeHttpFactory httpBridgeFactory;
+	private BridgeHttp httpBridge;
 
 	private String baseUrl;
-
 	private Integer latestGridPw = 0;
 	private Integer latestPvPw = 0;
 	private Integer latestPcsPw = 0;
 	private Integer latestConsPw = 0;
 	private Integer latestBatteryStatus = -1;
 	private Integer latestGridStatus = -1;
-
-	@Reference(cardinality = ReferenceCardinality.MANDATORY)
-	private BridgeHttpFactory httpBridgeFactory;
-	private BridgeHttp httpBridge;
 
 	public SamsungEssImpl() {
 		super(//
@@ -124,50 +124,60 @@ public class SamsungEssImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	private void fetchAndUpdateEssRealtimeStatus(JsonElement json, Throwable error) {
+	private void fetchAndUpdateEssRealtimeStatus(HttpResponse<JsonElement> result, HttpError error) {
+		Integer pvPw = null;
+		Integer pcsPw = null;
+		Integer gridPw = null;
+		Integer consPw = null;
+		Integer batteryStatus = null;
+		Integer gridStatus = null;
+		Integer soc = null;
 
 		if (error != null) {
 			this.logDebug(this.log, error.getMessage());
+
 		} else {
 			try {
-				var response = getAsJsonObject(json);
+				var response = getAsJsonObject(result.data());
 				var essRealtimeStatus = getAsJsonObject(response, "ESSRealtimeStatus");
-
-				this.latestPvPw = round(getAsFloat(essRealtimeStatus, "PvPw") * 1000);
-				this.latestPcsPw = round(getAsFloat(essRealtimeStatus, "PcsPw"));
-				this.latestGridPw = round(getAsFloat(essRealtimeStatus, "GridPw"));
-				this.latestConsPw = round(getAsFloat(essRealtimeStatus, "ConsPw"));
-
-				this.latestBatteryStatus = getAsInt(essRealtimeStatus, "BtStusCd");
-				this.latestGridStatus = getAsInt(essRealtimeStatus, "GridStusCd");
-
-				this._setSoc(round(getAsInt(essRealtimeStatus, "BtSoc")));
+				pvPw = round(getAsFloat(essRealtimeStatus, "PvPw") * 1000);
+				pcsPw = round(getAsFloat(essRealtimeStatus, "PcsPw"));
+				gridPw = round(getAsFloat(essRealtimeStatus, "GridPw"));
+				consPw = round(getAsFloat(essRealtimeStatus, "ConsPw"));
+				batteryStatus = getAsInt(essRealtimeStatus, "BtStusCd");
+				gridStatus = getAsInt(essRealtimeStatus, "GridStusCd");
+				soc = round(getAsInt(essRealtimeStatus, "BtSoc"));
 
 			} catch (OpenemsNamedException e) {
 				this.logDebug(this.log, e.getMessage());
 			}
 		}
 
-		switch (this.latestBatteryStatus) {
-		case 0:
-			// Battery is in Discharge mode
-		case 1:
-			// Battery is in Charge mode
-			this._setDcDischargePower(this.latestPcsPw);
-			break;
-		case 2:
-			// Battery is in Idle mode
-			this._setDcDischargePower(0);
-			break;
-		default:
-			// Handle unknown status codes
-			this.logWarn(this.log, "Unknown Battery Status Code: " + this.latestBatteryStatus);
-			this._setDcDischargePower(null);
-			break;
+		var dcDischargePower = switch (batteryStatus) {
+		// Battery is in Discharge mode
+		case 0 -> null;
+		// Battery is in Charge mode
+		case 1 -> pcsPw;
+		// Battery is in Idle mode
+		case 2 -> 0;
+		// Handle unknown status codes
+		default -> {
+			this.logWarn(this.log, "Unknown Battery Status Code: " + batteryStatus);
+			yield null;
 		}
+		};
 
-		this._setActivePower(this.latestPcsPw - this.latestPvPw);
-		this._setSlaveCommunicationFailed(false);
+		this._setSlaveCommunicationFailed(error != null);
+		this._setActivePower(pcsPw - pvPw);
+		this._setDcDischargePower(dcDischargePower);
+		this._setSoc(soc);
+
+		this.latestPvPw = pvPw;
+		this.latestPcsPw = pcsPw;
+		this.latestGridPw = gridPw;
+		this.latestConsPw = consPw;
+		this.latestBatteryStatus = batteryStatus;
+		this.latestGridStatus = gridStatus;
 	}
 
 	@Override
@@ -221,9 +231,6 @@ public class SamsungEssImpl extends AbstractOpenemsComponent
 				this.calculateDcDischargeEnergy.update(0);
 			}
 		}
-
-		// Set DC Power explicitly equal to AC Power for clarity (we have no value for DC-Power)
-		this._setDcDischargePower(activePower);
 	}
 
 }

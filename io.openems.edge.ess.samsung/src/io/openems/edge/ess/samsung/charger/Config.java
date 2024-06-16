@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.meter.api.MeterType;
 
 @ObjectClassDefinition(//
-		name = "PV-Inverter Samsung Charger", //
+		name = "Samsung ESS Charger", //
 		description = "Implements the Samsung ESS Charger.")
 @interface Config {
 
