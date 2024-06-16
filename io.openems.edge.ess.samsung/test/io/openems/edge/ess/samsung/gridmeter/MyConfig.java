@@ -9,7 +9,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private String ip;
-		public MeterType type;
+		private MeterType type;
 
 		private Builder() {
 		}
@@ -25,9 +25,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		}
 
 		public Builder setType(MeterType type) {
-	this.type = type;
-	return this;
-}
+			this.type = type;
+			return this;
+		}
 
 		public MyConfig build() {
 			return new MyConfig(this);

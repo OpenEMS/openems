@@ -9,8 +9,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private String ip;
-		public Phase phase;
-		public int capacity;
+		private Phase phase;
+		private int capacity;
 
 		private Builder() {
 		}
@@ -29,12 +29,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.phase = phase;
 			return this;
 		}
-		
+
 		public Builder setCapacity(int capacity) {
 			this.capacity = capacity;
 			return this;
 		}
-		
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
