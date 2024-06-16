@@ -27,6 +27,8 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpError;
+import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -38,46 +40,43 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Grid-Meter.Samsung", immediate = true, //
+		name = "Samsung.ESS.Grid-Meter", //
+		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
 
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 })
-public class SamsungEssGridmeterImpl extends AbstractOpenemsComponent
-		implements SamsungEssGridmeter, ElectricityMeter, OpenemsComponent, EventHandler, TimedataProvider {
+public class SamsungEssGridMeterImpl extends AbstractOpenemsComponent
+		implements SamsungEssGridMeter, ElectricityMeter, OpenemsComponent, EventHandler, TimedataProvider {
 
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	private String baseUrl;
-
-	@Reference(cardinality = ReferenceCardinality.MANDATORY)
-	private BridgeHttpFactory httpBridgeFactory;
-	private BridgeHttp httpBridge;
-
+	private final Logger log = LoggerFactory.getLogger(SamsungEssGridMeterImpl.class);
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
+	@Reference
+	protected ConfigurationAdmin cm;
+
+	@Reference(cardinality = ReferenceCardinality.MANDATORY)
+	private BridgeHttpFactory httpBridgeFactory;
+	private BridgeHttp httpBridge;
+
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata;
 
-	private final Logger log = LoggerFactory.getLogger(SamsungEssGridmeterImpl.class);
-
 	private String currentGridStatus = "Unknown";
-
+	private String baseUrl;
 	private Config config;
 
-	public SamsungEssGridmeterImpl() {
+	public SamsungEssGridMeterImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SamsungEssGridmeter.ChannelId.values(), //
-				ElectricityMeter.ChannelId.values() //
+				ElectricityMeter.ChannelId.values(), //
+				SamsungEssGridMeter.ChannelId.values() //
 		);
 		ElectricityMeter.calculatePhasesFromActivePower(this);
-
 	}
 
 	@Activate
@@ -116,46 +115,47 @@ public class SamsungEssGridmeterImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	private void fetchAndUpdateEssRealtimeStatus(JsonElement json, Throwable error) {
-
+	private void fetchAndUpdateEssRealtimeStatus(HttpResponse<JsonElement> result, HttpError error) {
 		Integer gridPw = null;
-		Integer gridStatusCode = null;
+		String currentGridStatus = "Unknown";
 
 		if (error != null) {
 			this.logDebug(this.log, error.getMessage());
 		} else {
 			try {
 
-				var response = getAsJsonObject(json);
+				var response = getAsJsonObject(result.data());
 				var essRealtimeStatus = getAsJsonObject(response, "ESSRealtimeStatus");
 
 				gridPw = round(getAsFloat(essRealtimeStatus, "GridPw") * 1000);
-				gridStatusCode = getAsInt(essRealtimeStatus, "GridStusCd");
+				var gridStatusCode = getAsInt(essRealtimeStatus, "GridStusCd");
 
 				switch (gridStatusCode) {
 				case 0:
 					// Buy from Grid is positive
-					this.currentGridStatus = "Buy from Grid";
+					currentGridStatus = "Buy from Grid";
 					break;
 
 				case 1:
 					// Sell to Grid is negative
 					gridPw = -gridPw;
-					this.currentGridStatus = "Sell to Grid";
+					currentGridStatus = "Sell to Grid";
 
 					break;
 				default:
 					// Handle unknown status codes if needed
-					this.currentGridStatus = "Unknown";
+					currentGridStatus = "Unknown";
 					gridPw = 0;
 
 				}
 			} catch (OpenemsNamedException e) {
 				this.logDebug(this.log, e.getMessage());
 			}
-
-			this._setActivePower(gridPw);
 		}
+
+		this._setActivePower(gridPw);
+
+		this.currentGridStatus = currentGridStatus;
 	}
 
 	private void calculateEnergy() {
@@ -178,8 +178,7 @@ public class SamsungEssGridmeterImpl extends AbstractOpenemsComponent
 	@Override
 	public String debugLog() {
 		return "L:" + this.getActivePower().asString() //
-				+ " |Status: " //
-				+ this.currentGridStatus;
+				+ " |Status: " + this.currentGridStatus;
 	}
 
 	@Override

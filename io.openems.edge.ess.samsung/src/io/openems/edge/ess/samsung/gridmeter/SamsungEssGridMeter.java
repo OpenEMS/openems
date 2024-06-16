@@ -11,7 +11,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
-public interface SamsungEssGridmeter
+public interface SamsungEssGridMeter
 		extends ElectricityMeter, OpenemsComponent, EventHandler, ManagedSymmetricPvInverter {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -32,17 +32,7 @@ public interface SamsungEssGridmeter
 		 * </ul>
 		 */
 		GRID_PW(Doc.of(OpenemsType.DOUBLE) //
-				.text("PV Power")),
-		/**
-		 * Accumulates the total energy consumed actively by the system or facility.
-		 * This parameter is typically measured in kilowatt-hours.
-		 * 
-		 * <ul>
-		 * <li>Type: Integer</li>
-		 * </ul>
-		 */
-		ACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.text("Active Consumption Energy"));
+				.text("PV Power"));
 
 		private final Doc doc;
 

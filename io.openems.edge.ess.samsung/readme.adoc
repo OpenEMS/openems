@@ -5,7 +5,4 @@ This bundle implements the Samsung SDI ESS.
 Compatible with
 - https://www.photovoltaik4all.de/speicher/samsung/samsung-sdi-lithium-ionen-speicher-3-6-kwh/SA23695
 
-Implemented Natures
-- ElectricityMeter
-
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.samsung[Source Code icon:github[]]

@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.meter.api.MeterType;
 
 @ObjectClassDefinition(//
-		name = "Grid-Meter Samsung Charger", //
+		name = "Samsung ESS Grid-Meter", //
 		description = "Implements the Samsung ESS Grid-Meter.")
 @interface Config {
 
@@ -21,9 +21,9 @@ import io.openems.edge.meter.api.MeterType;
 
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the ESS.")
 	String ip();
-    
+
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.GRID;
 
-	String webconsole_configurationFactory_nameHint() default "Samsung ESS Grid Meter [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Samsung ESS Grid-Meter [{id}]";
 }
