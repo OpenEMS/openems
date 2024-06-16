@@ -1,24 +1,33 @@
 package io.openems.edge.bridge.http;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.PriorityQueue;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.function.Predicate;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceScope;
 import org.osgi.service.component.annotations.ServiceScope;
 import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.utils.ThreadPoolUtils;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
+import io.openems.edge.bridge.http.api.BridgeHttpExecutor;
+import io.openems.edge.bridge.http.api.CycleSubscriber;
+import io.openems.edge.bridge.http.api.EndpointFetcher;
+import io.openems.edge.bridge.http.api.HttpError;
+import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.time.DelayTimeProvider.Delay;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 @Component(//
@@ -28,12 +37,16 @@ public class BridgeHttpImpl implements BridgeHttp {
 
 	public static class CycleEndpointCountdown {
 		private volatile int cycleCount;
-		public final CycleEndpoint cycleEndpoint;
+		private final CycleEndpoint cycleEndpoint;
 		private volatile boolean running = false;
 
 		public CycleEndpointCountdown(CycleEndpoint endpoint) {
 			this.cycleCount = endpoint.cycle();
 			this.cycleEndpoint = endpoint;
+		}
+
+		public CycleEndpoint getCycleEndpoint() {
+			return this.cycleEndpoint;
 		}
 
 		/**
@@ -42,7 +55,17 @@ public class BridgeHttpImpl implements BridgeHttp {
 		 * @return this
 		 */
 		public CycleEndpointCountdown reset() {
-			this.cycleCount = this.cycleEndpoint.cycle();
+			return this.resetTo(this.cycleEndpoint.cycle());
+		}
+
+		/**
+		 * Resets the current cycle count to the given cycle count.
+		 * 
+		 * @param cycleCount the cycleCount to reset the current cycleCount to
+		 * @return this
+		 */
+		public CycleEndpointCountdown resetTo(int cycleCount) {
+			this.cycleCount = cycleCount;
 			return this;
 		}
 
@@ -71,7 +94,7 @@ public class BridgeHttpImpl implements BridgeHttp {
 		private final TimeEndpoint timeEndpoint;
 		private volatile boolean running = false;
 		private volatile boolean shutdown = false;
-		private Runnable shutdownCurrentTask;
+		private Runnable shutdownCurrentTask = FunctionUtils::doNothing;
 
 		public TimeEndpointCountdown(TimeEndpoint timeEndpoint) {
 			this.timeEndpoint = timeEndpoint;
@@ -98,7 +121,7 @@ public class BridgeHttpImpl implements BridgeHttp {
 		}
 
 		public void setShutdownCurrentTask(Runnable shutdownCurrentTask) {
-			this.shutdownCurrentTask = shutdownCurrentTask;
+			this.shutdownCurrentTask = shutdownCurrentTask == null ? FunctionUtils::doNothing : shutdownCurrentTask;
 		}
 
 		/**
@@ -106,36 +129,33 @@ public class BridgeHttpImpl implements BridgeHttp {
 		 */
 		public void shutdown() {
 			this.setShutdown(true);
-			final var shutdownTask = this.shutdownCurrentTask;
-			if (shutdownTask != null) {
-				shutdownTask.run();
-			}
+			this.shutdownCurrentTask.run();
 		}
 
 	}
 
 	private final Logger log = LoggerFactory.getLogger(BridgeHttpImpl.class);
 
-	@Reference
-	private CycleSubscriber cycleSubscriber;
+	private final CycleSubscriber cycleSubscriber;
+	private final EndpointFetcher urlFetcher;
+	private final BridgeHttpExecutor pool;
 
-	@Reference
-	private UrlFetcher urlFetcher;
-
-	// TODO change to java 21 virtual threads
-	// TODO: Single pool for every http worker & avoid same endpoint in that pool
-	private final ScheduledExecutorService pool = Executors.newScheduledThreadPool(0);
-
-	private final PriorityQueue<CycleEndpointCountdown> cycleEndpoints = new PriorityQueue<>(
+	private final PriorityBlockingQueue<CycleEndpointCountdown> cycleEndpoints = new PriorityBlockingQueue<>(11,
 			(e1, e2) -> e1.getCycleCount() - e2.getCycleCount());
 
-	private final Set<TimeEndpointCountdown> timeEndpoints = new HashSet<>();
+	private final Set<TimeEndpointCountdown> timeEndpoints = ConcurrentHashMap.newKeySet();
 
-	/**
-	 * Activate method.
-	 */
 	@Activate
-	public void activate() {
+	public BridgeHttpImpl(//
+			@Reference final CycleSubscriber cycleSubscriber, //
+			@Reference final EndpointFetcher urlFetcher, //
+			@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED) final BridgeHttpExecutor pool //
+	) {
+		super();
+		this.cycleSubscriber = cycleSubscriber;
+		this.urlFetcher = urlFetcher;
+		this.pool = pool;
+
 		this.cycleSubscriber.subscribe(this::handleEvent);
 	}
 
@@ -148,35 +168,46 @@ public class BridgeHttpImpl implements BridgeHttp {
 		this.cycleEndpoints.clear();
 		this.timeEndpoints.forEach(TimeEndpointCountdown::shutdown);
 		this.timeEndpoints.clear();
-		ThreadPoolUtils.shutdownAndAwaitTermination(this.pool, 0);
 	}
 
 	@Override
-	public void subscribeCycle(CycleEndpoint endpoint) {
+	public CycleEndpoint subscribeCycle(CycleEndpoint endpoint) {
+		Objects.requireNonNull(endpoint, "CycleEndpoint is not allowed to be null!");
+
 		if (!this.cycleEndpoints.offer(new CycleEndpointCountdown(endpoint))) {
 			this.log.warn("Unable to add " + endpoint + "!");
+			return null;
 		}
+		return endpoint;
 	}
 
 	@Override
-	public void subscribeTime(TimeEndpoint endpoint) {
+	public TimeEndpoint subscribeTime(TimeEndpoint endpoint) {
+		Objects.requireNonNull(endpoint, "TimeEndpoint is not allowed to be null!");
+
 		final var endpointCountdown = new TimeEndpointCountdown(endpoint);
 		this.timeEndpoints.add(endpointCountdown);
-		final var delay = endpoint.delayTimeProvider().nextRun(true, true);
-		final var future = this.pool.schedule(this.createTask(endpointCountdown), delay.toMillis(),
-				TimeUnit.MILLISECONDS);
-		endpointCountdown.setShutdownCurrentTask(() -> future.cancel(false));
+		final var delay = endpoint.delayTimeProvider().onFirstRunDelay();
+
+		// TODO change in java 21 to switch case
+		if (delay instanceof Delay.DurationDelay durationDelay) {
+			final var future = this.pool.schedule(this.createTask(endpointCountdown), durationDelay);
+			endpointCountdown.setShutdownCurrentTask(() -> future.cancel(false));
+		}
+		return endpoint;
 	}
 
 	@Override
-	public CompletableFuture<String> request(Endpoint endpoint) {
-		final var future = new CompletableFuture<String>();
+	public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
+		final var future = new CompletableFuture<HttpResponse<String>>();
 		this.pool.execute(() -> {
 			try {
 				final var result = this.urlFetcher.fetchEndpoint(endpoint);
 				future.complete(result);
-			} catch (Exception e) {
+			} catch (HttpError e) {
 				future.completeExceptionally(e);
+			} catch (Exception e) {
+				future.completeExceptionally(new HttpError.UnknownError(e));
 			}
 		});
 		return future;
@@ -193,13 +224,16 @@ public class BridgeHttpImpl implements BridgeHttp {
 
 			this.cycleEndpoints.forEach(CycleEndpointCountdown::decreaseCycleCount);
 
-			while (this.cycleEndpoints.peek().getCycleCount() == 0) {
+			while (!this.cycleEndpoints.isEmpty() //
+					&& this.cycleEndpoints.peek().getCycleCount() == 0) {
 				final var item = this.cycleEndpoints.poll();
 				synchronized (item) {
 					if (item.isRunning()) {
 						this.log.info(
 								"Process for " + item.cycleEndpoint + " is still running. Task is not queued twice");
-						this.cycleEndpoints.add(item.reset());
+						if (!this.cycleEndpoints.offer(item.resetTo(1))) {
+							this.log.info("Unable to re-add " + item + " to queue again.");
+						}
 						continue;
 					}
 
@@ -218,10 +252,10 @@ public class BridgeHttpImpl implements BridgeHttp {
 	private Runnable createTask(CycleEndpointCountdown endpointItem) {
 		return () -> {
 			try {
-				final var result = this.urlFetcher.fetchEndpoint(endpointItem.cycleEndpoint.endpoint());
-				endpointItem.cycleEndpoint.result().accept(result);
-			} catch (Exception e) {
-				endpointItem.cycleEndpoint.onError().accept(e);
+				final var result = this.urlFetcher.fetchEndpoint(endpointItem.getCycleEndpoint().endpoint().get());
+				endpointItem.getCycleEndpoint().onResult().accept(result);
+			} catch (HttpError e) {
+				endpointItem.getCycleEndpoint().onError().accept(e);
 			} finally {
 				synchronized (endpointItem) {
 					endpointItem.setRunning(false);
@@ -238,14 +272,17 @@ public class BridgeHttpImpl implements BridgeHttp {
 				}
 				endpointCountdown.setRunning(true);
 			}
-			boolean currentRunSuccessful;
+			HttpResponse<String> result = null;
+			HttpError error = null;
 			try {
-				final var result = this.urlFetcher.fetchEndpoint(endpointCountdown.getTimeEndpoint().endpoint());
+				result = this.urlFetcher.fetchEndpoint(endpointCountdown.getTimeEndpoint().endpoint().get());
 				endpointCountdown.getTimeEndpoint().onResult().accept(result);
-				currentRunSuccessful = true;
-			} catch (Exception e) {
+			} catch (HttpError e) {
 				endpointCountdown.getTimeEndpoint().onError().accept(e);
-				currentRunSuccessful = false;
+				error = e;
+			} catch (Exception e) {
+				error = new HttpError.UnknownError(e);
+				endpointCountdown.getTimeEndpoint().onError().accept(error);
 			}
 			synchronized (endpointCountdown) {
 				if (endpointCountdown.isShutdown()) {
@@ -254,12 +291,22 @@ public class BridgeHttpImpl implements BridgeHttp {
 			}
 
 			try {
-				final var nextDelay = endpointCountdown.getTimeEndpoint().delayTimeProvider().nextRun(false,
-						currentRunSuccessful);
+				final Delay nextDelay;
+				if (error != null) {
+					nextDelay = endpointCountdown.getTimeEndpoint().delayTimeProvider().onErrorRunDelay(error);
+				} else {
+					nextDelay = endpointCountdown.getTimeEndpoint().delayTimeProvider().onSuccessRunDelay(result);
+				}
 
-				final var future = this.pool.schedule(this.createTask(endpointCountdown), nextDelay.toMillis(),
-						TimeUnit.MILLISECONDS);
-				endpointCountdown.setShutdownCurrentTask(() -> future.cancel(false));
+				// TODO change in java 21 to switch case
+				if (nextDelay instanceof Delay.InfiniteDelay) {
+					// do not queue again
+					return;
+				} else if (nextDelay instanceof Delay.DurationDelay durationDelay) {
+					final var future = this.pool.schedule(this.createTask(endpointCountdown), durationDelay);
+					endpointCountdown.setShutdownCurrentTask(() -> future.cancel(false));
+				}
+
 			} catch (Exception e) {
 				if (this.pool.isShutdown()) {
 					return;
@@ -269,12 +316,23 @@ public class BridgeHttpImpl implements BridgeHttp {
 		};
 	}
 
-	public PriorityQueue<CycleEndpointCountdown> getCycleEndpoints() {
-		return this.cycleEndpoints;
+	@Override
+	public Collection<TimeEndpoint> removeTimeEndpointIf(Predicate<TimeEndpoint> condition) {
+		return new HashSet<>(this.timeEndpoints).stream() //
+				.filter(t -> condition.test(t.getTimeEndpoint())) //
+				.filter(this.timeEndpoints::remove) //
+				.peek(TimeEndpointCountdown::shutdown) //
+				.map(TimeEndpointCountdown::getTimeEndpoint) //
+				.toList();
 	}
 
-	public Set<TimeEndpointCountdown> getTimeEndpoints() {
-		return this.timeEndpoints;
+	@Override
+	public Collection<CycleEndpoint> removeCycleEndpointIf(Predicate<CycleEndpoint> condition) {
+		return new ArrayList<>(this.cycleEndpoints).stream() //
+				.filter(t -> condition.test(t.getCycleEndpoint())) //
+				.filter(this.cycleEndpoints::remove) //
+				.map(CycleEndpointCountdown::getCycleEndpoint) //
+				.toList();
 	}
 
 }

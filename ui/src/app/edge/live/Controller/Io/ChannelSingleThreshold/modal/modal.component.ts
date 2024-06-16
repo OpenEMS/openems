@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 type mode = 'ON' | 'AUTOMATIC' | 'OFF';
-type inputMode = 'SOC' | 'GRIDSELL' | 'GRIDBUY' | 'PRODUCTION' | 'OTHER'
+type inputMode = 'SOC' | 'GRIDSELL' | 'GRIDBUY' | 'PRODUCTION' | 'OTHER';
 
 @Component({
   selector: 'Io_ChannelSingleThresholdModalComponent',
@@ -19,6 +19,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
   @Input() public component: EdgeConfig.Component;
   @Input() public outputChannel: ChannelAddress | null = null;
   @Input() public inputChannel: ChannelAddress;
+  @Input() public inputChannelUnit: string | null = null;
 
   public formGroup: FormGroup;
 
