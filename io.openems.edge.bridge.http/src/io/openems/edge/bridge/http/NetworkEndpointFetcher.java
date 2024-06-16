@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -63,7 +64,7 @@ public class NetworkEndpointFetcher implements EndpointFetcher {
 	}
 
 	@Override
-	public byte[] fetchEndpointRaw(Endpoint endpoint) throws OpenemsNamedException {
+	public byte[] fetchEndpointRaw(Endpoint endpoint) throws HttpError {
 		try {
 			URL url = new URL(endpoint.url());
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -92,8 +93,7 @@ public class NetworkEndpointFetcher implements EndpointFetcher {
 				connection.disconnect();
 			}
 		} catch (IOException e) {
-			throw new OpenemsException(e);
+			throw new HttpError.UnknownError(e);
 		}
 	}
-
 }

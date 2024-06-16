@@ -23,6 +23,6 @@ public interface EndpointFetcher {
 	 * @return the raw response body as a byte array
 	 * @throws OpenemsNamedException on error
 	 */
-	public byte[] fetchEndpointRaw(Endpoint endpoint) throws OpenemsNamedException;
+	public byte[] fetchEndpointRaw(Endpoint endpoint) throws HttpError;
 
 }
