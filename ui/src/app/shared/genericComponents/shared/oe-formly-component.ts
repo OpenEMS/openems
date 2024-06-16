@@ -50,13 +50,13 @@ export abstract class AbstractFormlyComponent {
     * @param role  the Role of the User for this Edge
     * @param translate the Translate-Service
     */
-  protected abstract generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView
+  protected abstract generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView;
 }
 
 export type OeFormlyView = {
   title: string,
   lines: OeFormlyField[]
-}
+};
 
 export type OeFormlyField =
   | OeFormlyField.InfoLine
@@ -71,21 +71,21 @@ export namespace OeFormlyField {
   export type InfoLine = {
     type: 'info-line',
     name: string
-  }
+  };
 
   export type Item = {
     type: 'item',
     channel: string,
     filter?: (value: number | null) => boolean,
     converter?: (value: number | null) => string
-  }
+  };
 
   export type ChildrenLine = {
     type: 'children-line',
     name: /* actual name string */ string | /* name string derived from channel value */ { channel: ChannelAddress, converter: Converter },
     indentation?: TextIndentation,
     children: Item[],
-  }
+  };
 
   export type ChannelLine = {
     type: 'channel-line',
@@ -94,7 +94,7 @@ export namespace OeFormlyField {
     filter?: (value: number | null) => boolean,
     converter?: (value: number | null) => string
     indentation?: TextIndentation,
-  }
+  };
 
   export type ValueFromChannelsLine = {
     type: 'value-from-channels-line',
@@ -103,9 +103,9 @@ export namespace OeFormlyField {
     channelsToSubscribe: ChannelAddress[],
     indentation?: TextIndentation,
     filter?: (value: number[] | null) => boolean,
-  }
+  };
 
   export type HorizontalLine = {
     type: 'horizontal-line',
-  }
+  };
 }

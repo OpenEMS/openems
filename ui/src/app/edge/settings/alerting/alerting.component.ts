@@ -11,7 +11,7 @@ import { Edge, Service, Utils, Websocket } from 'src/app/shared/shared';
 export enum AlertingType {
   offline = 0,
   fault = 1,
-  warning = 2
+  warning = 2,
 }
 
 type DefaultValues = { [K in AlertingType]: Delay[]; };
