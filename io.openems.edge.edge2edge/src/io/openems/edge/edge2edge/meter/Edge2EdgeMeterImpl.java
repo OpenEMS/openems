@@ -1,5 +1,6 @@
 package io.openems.edge.edge2edge.meter;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -13,8 +14,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
-
-import com.google.common.collect.Lists;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
@@ -35,7 +34,7 @@ import io.openems.edge.meter.api.MeterType;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class Edge2EdgeMeterImpl extends AbstractEdge2Edge
-		implements ElectricityMeter, Edge2Edge, ModbusComponent, OpenemsComponent {
+		implements Edge2EdgeMeter, ElectricityMeter, Edge2Edge, ModbusComponent, OpenemsComponent {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -49,7 +48,7 @@ public class Edge2EdgeMeterImpl extends AbstractEdge2Edge
 
 	public Edge2EdgeMeterImpl() throws OpenemsException {
 		super(//
-				Lists.newArrayList(//
+				List.of(//
 						OpenemsComponent::getModbusSlaveNatureTable, //
 						ElectricityMeter::getModbusSlaveNatureTable //
 				), //
@@ -82,6 +81,7 @@ public class Edge2EdgeMeterImpl extends AbstractEdge2Edge
 	@Override
 	protected io.openems.edge.common.channel.ChannelId getWriteChannelId(ModbusSlaveNatureTable modbusSlaveNatureTable,
 			ModbusRecord record) {
+		// No writable Channels
 		return null;
 	}
 
