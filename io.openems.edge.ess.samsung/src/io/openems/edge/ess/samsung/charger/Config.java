@@ -21,7 +21,7 @@ import io.openems.edge.meter.api.MeterType;
 
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the ESS.")
 	String ip() default "";
-    
+
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.PRODUCTION;
 

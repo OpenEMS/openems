@@ -21,12 +21,12 @@ import io.openems.edge.ess.power.api.Phase;
 
 	@AttributeDefinition(name = "Phase", description = "Which Phase is this ESS connected to?")
 	Phase phase() default Phase.L1;
-	
+
 	@AttributeDefinition(name = "Capacity", description = "The Capacity of the ESS in Wh")
 	int capacity() default 3600;
 
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the ESS.")
 	String ip() default "";
-    
+
 	String webconsole_configurationFactory_nameHint() default "Samsung ESS [{id}]";
 }
