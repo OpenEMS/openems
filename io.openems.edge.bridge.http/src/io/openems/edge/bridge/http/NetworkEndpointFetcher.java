@@ -7,21 +7,23 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 
 import org.osgi.service.component.annotations.Component;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.HttpStatus;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.edge.bridge.http.api.EndpointFetcher;
+import io.openems.edge.bridge.http.api.HttpError;
+import io.openems.edge.bridge.http.api.HttpResponse;
 
 @Component
-public class UrlFetcherImpl implements UrlFetcher {
+public class NetworkEndpointFetcher implements EndpointFetcher {
 
 	@Override
-	public String fetchEndpoint(final Endpoint endpoint) throws OpenemsNamedException {
+	public HttpResponse<String> fetchEndpoint(final Endpoint endpoint) throws HttpError {
 		try {
-			var url = new URL(endpoint.url());
+			var url = URI.create(endpoint.url()).toURL();
 			var con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod(endpoint.method().name());
 			con.setConnectTimeout(endpoint.connectTimeout());
@@ -38,23 +40,22 @@ public class UrlFetcherImpl implements UrlFetcher {
 				}
 			}
 
-			final var status = con.getResponseCode();
+			final var status = HttpStatus.fromCodeOrCustom(con.getResponseCode(), con.getResponseMessage());
+
 			String body;
 			try (var in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
 				// Read HTTP response
 				body = in.lines().collect(joining(System.lineSeparator()));
+			} catch (IOException e) {
+				throw new HttpError.ResponseError(status, null);
 			}
 
-			// Check valid for all?
-			if (status < 300) {
-				return body;
-			} else {
-				throw new OpenemsException(
-						"Error while reading Endpoint " + endpoint.url() + ". Response code: " + status + ". " + body);
+			if (status.isError()) {
+				throw new HttpError.ResponseError(status, body);
 			}
-
+			return new HttpResponse<>(status, body);
 		} catch (IOException e) {
-			throw new OpenemsException(e);
+			throw new HttpError.UnknownError(e);
 		}
 	}
 

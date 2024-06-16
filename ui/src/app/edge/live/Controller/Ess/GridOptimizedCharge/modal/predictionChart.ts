@@ -244,4 +244,4 @@ export type ChannelChartDescription = {
     channelName: string,
     datasets: number[],
     colorRgb: string,
-}
+};
