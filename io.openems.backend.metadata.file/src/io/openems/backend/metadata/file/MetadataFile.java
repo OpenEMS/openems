@@ -348,7 +348,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 			if (searchParams.searchIsOnline()) {
 				pagesStream = pagesStream.filter(edge -> edge.isOnline() == searchParams.isOnline());
 			}
-			if (searchParams.productTypes() != null) {
+			if (searchParams.productTypes() != null && !searchParams.productTypes().isEmpty())
 				pagesStream = pagesStream.filter(edge -> searchParams.productTypes().contains(edge.getProducttype()));
 			}
 			// TODO sum state filter
