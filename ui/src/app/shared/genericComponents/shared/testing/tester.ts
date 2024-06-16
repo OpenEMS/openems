@@ -187,7 +187,7 @@ export namespace OeChartTester {
   export type Context = {
     energyChannel: { [id: string]: number[] }[]
     powerChannel: { [id: string]: number[] }[]
-  }[]
+  }[];
 
   export type View = {
     datasets: {
@@ -195,12 +195,12 @@ export namespace OeChartTester {
       labels: OeChartTester.Dataset.LegendLabel,
       options: OeChartTester.Dataset.Option
     }
-  }
+  };
 
   export type Dataset =
     | Dataset.Data
     | Dataset.LegendLabel
-    | Dataset.Option
+    | Dataset.Option;
 
   export namespace Dataset {
 
@@ -208,16 +208,16 @@ export namespace OeChartTester {
       type: 'data',
       label: string | Converter,
       value: number[] | null
-    }
+    };
 
     export type LegendLabel = {
       type: 'label',
       timestamps: Date[]
-    }
+    };
     export type Option = {
       type: 'option',
       options: Chart.ChartOptions
-    }
+    };
   }
 }
 
@@ -327,7 +327,7 @@ export namespace OeFormlyViewTester {
   export type View = {
     title: string,
     lines: Field[]
-  }
+  };
 
   export type Field =
     | Field.InfoLine
@@ -342,37 +342,37 @@ export namespace OeFormlyViewTester {
     export type InfoLine = {
       type: 'info-line',
       name: string
-    }
+    };
 
     export type Item = {
       type: 'item',
       value: string
-    }
+    };
 
     export type ChannelLine = {
       type: 'channel-line',
       name: string,
       value?: string,
       indentation?: TextIndentation,
-    }
+    };
 
     export type ValueLine = {
       type: 'value-from-channels-line',
       name: string,
       value?: string,
       indentation?: TextIndentation,
-    }
+    };
 
     export type ChildrenLine = {
       type: 'children-line',
       name: string,
       indentation?: TextIndentation,
       children?: Field[]
-    }
+    };
 
     export type HorizontalLine = {
       type: 'horizontal-line',
-    }
+    };
   }
 
   export function applyLineWithChildren(field: OeFormlyField.ChildrenLine, context: Context): { rawValue: number | null, value: string }
