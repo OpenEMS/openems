@@ -11,7 +11,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -66,7 +65,7 @@ public class NetworkEndpointFetcher implements EndpointFetcher {
 	@Override
 	public byte[] fetchEndpointRaw(Endpoint endpoint) throws HttpError {
 		try {
-			URL url = new URL(endpoint.url());
+			var url = URI.create(endpoint.url()).toURL();
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod(endpoint.method().name());
 			// Set request properties
