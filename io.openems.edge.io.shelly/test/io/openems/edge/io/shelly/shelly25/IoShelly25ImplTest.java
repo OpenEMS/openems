@@ -5,7 +5,8 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpError;
+import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 
@@ -24,8 +25,11 @@ public class IoShelly25ImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new IoShelly25Impl()) //
-				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
+		final var httpTestBundle = new DummyBridgeHttpBundle();
+
+		final var sut = new IoShelly25Impl();
+		new ComponentTest(sut) //
+				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setIp("127.0.0.1") //
@@ -35,7 +39,8 @@ public class IoShelly25ImplTest {
 				.next(new TestCase("Invalid read response") //
 						.onBeforeControllersCallbacks(() -> { //
 							assertEquals("Expected initial debug log", sut.debugLog(), "?|?"); //
-							bridge.mockCycleResult(null); // Simulate an error condition //
+							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());
+							httpTestBundle.triggerNextCycle();
 						}) //
 						.output(RELAY_1, null) //
 						.output(RELAY_2, null) //

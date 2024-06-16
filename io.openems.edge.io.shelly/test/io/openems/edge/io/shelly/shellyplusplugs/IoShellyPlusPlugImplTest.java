@@ -84,14 +84,15 @@ public class IoShellyPlusPlugImplTest {
 						.output(PRODUCTION_ENERGY, 0L) //
 						.output(CONSUMPTION_ENERGY, 0L)) //
 
+				// Test case for writing to relay
 				.next(new TestCase("Write") //
-						.onBeforeControllersCallbacks(() -> assertEquals("Unknown|UNDEFINED", sut.debugLog()))
+						.onBeforeControllersCallbacks(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
 						.onBeforeControllersCallbacks(() -> {
 							sut.setRelay(true);
 						}) //
 						.also(testCase -> {
-							final var relayTurnedOn = httpTestBundle.expect("http://127.0.0.1/relay/0?turn=on")
-									.toBeCalled();
+							final var relayTurnedOn = httpTestBundle
+									.expect("http://127.0.0.1/rpc/Switch.Set?id=0&on=true").toBeCalled();
 
 							testCase.onBeforeControllersCallbacks(() -> {
 								httpTestBundle.triggerNextCycle();
@@ -101,7 +102,6 @@ public class IoShellyPlusPlugImplTest {
 							});
 						})) //
 
-				.deactivate();
+				.deactivate();//
 	}
-
 }

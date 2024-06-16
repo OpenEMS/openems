@@ -1,11 +1,14 @@
 package io.openems.edge.io.shelly.shelly3em;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpError;
+import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.api.MeterType;
@@ -38,56 +41,63 @@ public class IoShelly3EmImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new IoShelly3EmImpl()) //
-				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
+		final var httpTestBundle = new DummyBridgeHttpBundle();
+
+		final var sut = new IoShelly3EmImpl();
+		new ComponentTest(sut) //
+				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
+				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setIp("127.0.0.1") //
 						.setType(MeterType.GRID) //
 						.build()) //
 
-				.next(new TestCase("Successful read response")
-						.onBeforeControllersCallbacks(() -> bridge.mockCycleResult("""
-										{
-										  "relays": [
-										    {
-										      "ison": true,
-										      "overpower": false
-										    }
-										  ],
-										  "emeters": [
-										    {
-										      "power": 8.52,
-										      "current": 1,
-										      "voltage": 230,
-										      "is_valid": true
-										    },
-										    {
-										      "power": 31.39,
-										      "current": 2,
-										      "voltage": 231,
-										      "is_valid": true
-										    },
-										    {
-										      "power": 58.75,
-										      "current": 3,
-										      "voltage": 232,
-										      "is_valid": false
-										    }
-										  ],
-										  "total_power": 35.88,
-										  "emeter_n": {
-										    "current": 0,
-										    "ixsum": 0.7,
-										    "mismatch": false,
-										    "is_valid": false
-										  },
-										  "update": {
-										    "status": "idle",
-										    "has_update": false
-										  }
-										}
-								""")) //
+				.next(new TestCase("Successful read response") //
+						.onBeforeControllersCallbacks(() -> {
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+									{
+									  "relays": [
+									    {
+									      "ison": true,
+									      "overpower": false
+									    }
+									  ],
+									  "emeters": [
+									    {
+									      "power": 8.52,
+									      "current": 1,
+									      "voltage": 230,
+									      "is_valid": true
+									    },
+									    {
+									      "power": 31.39,
+									      "current": 2,
+									      "voltage": 231,
+									      "is_valid": true
+									    },
+									    {
+									      "power": 58.75,
+									      "current": 3,
+									      "voltage": 232,
+									      "is_valid": false
+									    }
+									  ],
+									  "total_power": 35.88,
+									  "emeter_n": {
+									    "current": 0,
+									    "ixsum": 0.7,
+									    "mismatch": false,
+									    "is_valid": false
+									  },
+									  "update": {
+									    "status": "idle",
+									    "has_update": false
+									  }
+									}
+									"""));
+							httpTestBundle.triggerNextCycle();
+						}) //
 						.output(RELAY_OVERPOWER, false) //
 						.output(HAS_UPDATE, false) //
 						.output(ACTIVE_POWER, 99) //
@@ -104,10 +114,13 @@ public class IoShelly3EmImplTest {
 						.output(EMETER2_EXCEPTION, false) //
 						.output(EMETER3_EXCEPTION, true)) //
 
-				.next(new TestCase("Invalid read response")
+				.next(new TestCase("Invalid read response") //
 						.onBeforeControllersCallbacks(() -> assertEquals("x|99 W", sut.debugLog()))
 
-						.onBeforeControllersCallbacks(() -> bridge.mockCycleResult(null)) //
+						.onBeforeControllersCallbacks(() -> {
+							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());
+							httpTestBundle.triggerNextCycle();
+						}) //
 						.output(RELAY_OVERPOWER, false) //
 						.output(HAS_UPDATE, false) //
 						.output(ACTIVE_POWER, null) //
@@ -122,17 +135,26 @@ public class IoShelly3EmImplTest {
 						.output(CURRENT_L3, null) //
 						.output(PRODUCTION_ENERGY, 0L) //
 						.output(CONSUMPTION_ENERGY, 0L) //
-
 						.output(SLAVE_COMMUNICATION_FAILED, true)) //
 
+				// Test case for writing to relay
 				.next(new TestCase("Write") //
 						.onBeforeControllersCallbacks(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
-
 						.onBeforeControllersCallbacks(() -> {
 							sut.setRelay(true);
-							bridge.mockRequestResult("FOO-BAR");
+						}) //
+						.also(testCase -> {
+							final var relayTurnedOn = httpTestBundle
+									.expect("http://127.0.0.1/rpc/Switch.Set?id=0&on=true").toBeCalled();
+
+							testCase.onBeforeControllersCallbacks(() -> {
+								httpTestBundle.triggerNextCycle();
+							});
+							testCase.onAfterWriteCallbacks(() -> {
+								assertTrue("Failed to turn on relay", relayTurnedOn.get());
+							});
 						})) //
 
-				.deactivate();
+				.deactivate();//
 	}
 }

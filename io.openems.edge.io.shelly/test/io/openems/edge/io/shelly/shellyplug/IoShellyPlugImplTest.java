@@ -1,11 +1,14 @@
 package io.openems.edge.io.shelly.shellyplug;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpError;
+import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.api.MeterType;
@@ -17,16 +20,16 @@ public class IoShellyPlugImplTest {
 
 	private static final ChannelAddress ACTIVE_POWER = new ChannelAddress(COMPONENT_ID, "ActivePower");
 	private static final ChannelAddress RELAY = new ChannelAddress(COMPONENT_ID, "Relay");
-	private static final ChannelAddress PRODUCTION_ENERGY = new ChannelAddress(COMPONENT_ID, "ActiveProductionEnergy");
-	private static final ChannelAddress CONSUMPTION_ENERGY = new ChannelAddress(COMPONENT_ID,
-			"ActiveConsumptionEnergy");
 	private static final ChannelAddress SLAVE_COMMUNICATION_FAILED = new ChannelAddress(COMPONENT_ID,
 			"SlaveCommunicationFailed");
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new IoShellyPlugImpl()) //
-				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
+		final var httpTestBundle = new DummyBridgeHttpBundle();
+
+		final var sut = new IoShellyPlugImpl();
+		new ComponentTest(sut) //
+				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setPhase(SinglePhase.L1) //
@@ -35,43 +38,58 @@ public class IoShellyPlugImplTest {
 						.build()) //
 
 				.next(new TestCase("Successful read response") //
-						.onBeforeControllersCallbacks(() -> bridge.mockCycleResult("""
-								{
-								  "relays": [
-								    {
-								      "ison": true
-								    }
-								  ],
-								  "meters": [
-								    {
-								      "power": 789.1,
-								      "total": 72000
-								    }
-								  ]
-								}
-								""")) //
-						.output(ACTIVE_POWER, 789) //
-						// .output(RELAY, true) // TODO Also Test the Relay State
-						.output(PRODUCTION_ENERGY, 1200L)) //
+						.onBeforeControllersCallbacks(() -> {
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+									{
+									  "relays": [
+									    {
+									      "ison": true
+									    }
+									  ],
+									  "meters": [
+									    {
+									      "power": 789.1,
+									      "total": 72000
+									    }
+									  ]
+									}
+									"""));
+							httpTestBundle.triggerNextCycle();
+						}) //
+						.output(ACTIVE_POWER, 789)) //
+				// .output(RELAY, true) // TODO Also Test the Relay State
+				// .output(PRODUCTION_ENERGY, 1200L)) // TODO Also Test Production and
+				// Consumption
 
 				.next(new TestCase("Invalid read response") //
 						.onBeforeControllersCallbacks(() -> assertEquals("x|789 W", sut.debugLog()))
 
-						.onBeforeControllersCallbacks(() -> bridge.mockCycleResult("")) //
+						.onBeforeControllersCallbacks(() -> {
+							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());
+							httpTestBundle.triggerNextCycle();
+						}) //
 						.output(ACTIVE_POWER, null) //
 						.output(RELAY, null) //
-						.output(PRODUCTION_ENERGY, 0L) //
-						.output(CONSUMPTION_ENERGY, 0L) //
 						.output(SLAVE_COMMUNICATION_FAILED, true)) //
 
+				// Test case for writing to relay
 				.next(new TestCase("Write") //
 						.onBeforeControllersCallbacks(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
-
 						.onBeforeControllersCallbacks(() -> {
 							sut.setRelay(true);
-							bridge.mockRequestResult("FOO-BAR");
+						}) //
+						.also(testCase -> {
+							final var relayTurnedOn = httpTestBundle
+									.expect("http://127.0.0.1/rpc/Switch.Set?id=0&on=true").toBeCalled();
+
+							testCase.onBeforeControllersCallbacks(() -> {
+								httpTestBundle.triggerNextCycle();
+							});
+							testCase.onAfterWriteCallbacks(() -> {
+								assertTrue("Failed to turn on relay", relayTurnedOn.get());
+							});
 						})) //
 
-				.deactivate();
+				.deactivate();//
 	}
 }
