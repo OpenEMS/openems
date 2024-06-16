@@ -212,11 +212,11 @@ export type BarChartOptions = {
       }
     }]
   }
-}
+};
 
 export type BarChartTooltipItem = {
   datasetIndex: number,
   index: number,
   y: number,
   yLabel: number
-}
+};

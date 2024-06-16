@@ -57,7 +57,7 @@ public abstract class Message implements Comparable<Message> {
 	@Override
 	public int compareTo(Message o) {
 		if (o == null) {
-			return -1;
+			return 1;
 		}
 		return this.getNotifyStamp().compareTo(o.getNotifyStamp());
 	}
