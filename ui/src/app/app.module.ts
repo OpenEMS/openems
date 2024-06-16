@@ -10,6 +10,7 @@ import { FORMLY_CONFIG } from '@ngx-formly/core';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CookieService } from 'ngx-cookie-service';
 
+import { AngularMyDatePickerModule } from '@nodro7/angular-mydatepicker';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CheckForUpdateService } from './appupdateservice';
@@ -28,7 +29,6 @@ import { StatusSingleComponent } from './shared/status/single/status.component';
 import { registerTranslateExtension } from './shared/translate.extension';
 import { Language, MyTranslateLoader } from './shared/type/language';
 import { UserModule } from './user/user.module';
-import { AngularMyDatePickerModule } from '@nodro7/angular-mydatepicker';
 
 @NgModule({
   declarations: [
@@ -47,7 +47,7 @@ import { AngularMyDatePickerModule } from '@nodro7/angular-mydatepicker';
     EdgeModule,
     EdgeSettingsModule,
     IndexModule,
-    IonicModule.forRoot(),
+    IonicModule.forRoot({ innerHTMLTemplatesEnabled: true }),
     HttpClientModule,
     SharedModule,
     TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader } }),

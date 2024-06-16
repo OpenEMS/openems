@@ -343,4 +343,4 @@ function convertFormlyReorderArray(rootFields: FormlyFieldConfig[], field: Forml
 }
 
 
-type FormlyFieldConfigWithInitialModel = FormlyFieldConfig & { initialModel: {} }
+type FormlyFieldConfigWithInitialModel = FormlyFieldConfig & { initialModel: {} };

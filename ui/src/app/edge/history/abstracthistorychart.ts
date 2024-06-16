@@ -242,12 +242,12 @@ export abstract class AbstractHistoryChart {
     /**
      * Sets the Label of Chart
      */
-    protected abstract setLabel(config: EdgeConfig)
+    protected abstract setLabel(config: EdgeConfig);
 
     /**
      * Updates and Fills the Chart
      */
-    protected abstract updateChart()
+    protected abstract updateChart();
 
     /**
      * Initializes empty chart on error

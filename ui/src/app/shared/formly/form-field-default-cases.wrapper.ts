@@ -94,4 +94,4 @@ export class FormlyWrapperDefaultValueWithCasesComponent extends FieldWrapper im
 
 }
 
-type FieldDefaultCases = { field: string, cases: [{ case: any, defaultValue: any }] }
+type FieldDefaultCases = { field: string, cases: [{ case: any, defaultValue: any }] };

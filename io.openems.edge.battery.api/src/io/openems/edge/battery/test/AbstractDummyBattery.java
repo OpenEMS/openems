@@ -174,4 +174,15 @@ public abstract class AbstractDummyBattery<SELF extends AbstractDummyBattery<?>>
 		return this.self();
 	}
 
+	/**
+	 * Set {@link Battery.ChannelId#INNER_RESISTANCE}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public final SELF withInnerResistence(int value) {
+		TestUtils.withValue(this, Battery.ChannelId.INNER_RESISTANCE, value);
+		return this.self();
+	}
+
 }
