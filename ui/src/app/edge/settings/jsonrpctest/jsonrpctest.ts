@@ -135,21 +135,21 @@ type EndpointResponse = {
     examples: RequestExample[]
   },
   parent: { method: string, request: { base: any, pathToSubrequest: string[] } }[],
-}
+};
 
 type Tag = {
   name: string
-}
+};
 
 type Guard = {
   name: string,
   description: string
-}
+};
 
 type RequestExample = {
   key: string,
   value: {}
-}
+};
 
 type EndpointType =
   {
@@ -159,7 +159,7 @@ type EndpointType =
   | {
     type: 'string',
     constraints: string[]
-  }
+  };
 
 type Endpoint = {
   method: string,
@@ -185,4 +185,4 @@ type Endpoint = {
     loading?: boolean,
     response?: string;
   }
-}
+};

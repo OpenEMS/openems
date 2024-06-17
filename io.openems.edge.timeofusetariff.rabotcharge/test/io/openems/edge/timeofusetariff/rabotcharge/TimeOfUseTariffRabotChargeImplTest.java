@@ -26,7 +26,7 @@ public class TimeOfUseTariffRabotChargeImplTest {
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 		var rabotCharge = new TimeOfUseTariffRabotChargeImpl();
 		new ComponentTest(rabotCharge) //
-				.addReference("httpBridgeFactory", new DummyBridgeHttpFactory()) //
+				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
 				.addReference("componentManager", cm) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //

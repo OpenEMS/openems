@@ -10,7 +10,7 @@ import { Icon } from "../../type/widget";
 export enum Status {
     SUCCESS,
     ERROR,
-    PENDING
+    PENDING,
 }
 
 @Component({

@@ -105,5 +105,5 @@ export enum Status {
     "Undefined" = -1,
     "Inactive" = 0,
     "Active" = 1,
-    "ActiveForced" = 2
+    "ActiveForced" = 2,
 }

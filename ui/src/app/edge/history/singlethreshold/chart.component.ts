@@ -19,6 +19,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
   @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public componentId: string;
+  @Input() public inputChannelUnit: string;
 
   ngOnChanges() {
     this.updateChart();
@@ -230,7 +231,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
         this.unit = YAxisTitle.ENERGY;
         options.scales[ChartAxis.LEFT]['title'].text = labelString;
       } else {
-        labelString = config.getChannel(inputChannel)['unit'];
+        labelString = this.inputChannelUnit;
         options.scales[ChartAxis.LEFT]['title'].text = labelString;
       }
 
