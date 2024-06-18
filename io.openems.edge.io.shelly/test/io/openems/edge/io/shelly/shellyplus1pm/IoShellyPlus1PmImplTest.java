@@ -14,7 +14,7 @@ public class IoShellyPlus1PmImplTest {
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new IoShellyPlus1PmImpl()) //
-				.addReference("httpBridgeFactory", new DummyBridgeHttpFactory()) //
+				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setIp("127.0.0.1") //
