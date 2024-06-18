@@ -26,6 +26,7 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -142,7 +143,7 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 		}
 	}
 
-	private void processHttpResult(JsonElement result, Throwable error) {
+	private void processHttpResult(HttpResponse<JsonElement> result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
 
 		Integer power = null;
@@ -155,7 +156,7 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 			this.logDebug(this.log, error.getMessage());
 		} else {
 			try {
-				var jsonResponse = getAsJsonObject(result);
+				var jsonResponse = getAsJsonObject(result.data());
 				var switch0 = getAsJsonObject(jsonResponse, "switch:0");
 				power = round(getAsFloat(switch0, "apower"));
 				voltage = round(getAsFloat(switch0, "voltage") * 1000);
