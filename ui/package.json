@@ -47,7 +47,7 @@
     "@angular/compiler-cli": "^16.2.12",
     "@angular/language-service": "^16.2.12",
     "@ionic/angular-toolkit": "^11.0.1",
-    "@stylistic/eslint-plugin": "^2.1.0",
+    "@stylistic/eslint-plugin": "^2.2.1",
     "@types/jasmine": "~4.3.6",
     "@types/jasminewd2": "~2.0.13",
     "@types/node": "^20.12.6",
