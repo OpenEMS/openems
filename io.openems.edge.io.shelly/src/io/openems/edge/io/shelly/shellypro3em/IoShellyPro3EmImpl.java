@@ -25,6 +25,8 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpError;
+import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -113,7 +115,7 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	private void processHttpResult(JsonElement result, Throwable error) {
+	private void processHttpResult(HttpResponse<JsonElement> result, HttpError error) {
 		this._setSlaveCommunicationFailed(result == null);
 
 		Integer activePower = null;
@@ -134,7 +136,7 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
 			this.logDebug(this.log, error.getMessage());
 		} else {
 			try {
-				var response = getAsJsonObject(result);
+				var response = getAsJsonObject(result.data());
 
 				// Check for 'errors' and process if present
 				if (response.has("errors") && response.get("errors").isJsonArray()) {
