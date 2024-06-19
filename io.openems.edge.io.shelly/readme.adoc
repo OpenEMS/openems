@@ -7,5 +7,6 @@ Compatible with
 - https://www.shelly.com/en/products/shop/shelly-3-em[Shelly 3EM]
 - Shelly Plug S
 - https://www.shelly.com/de/products/shop/shelly-plus-plug-s-1[Shelly Plus Plug S]
+- https://www.shelly.com/de/products/shop/shelly-pro-3-em-120-a-1[Shelly Pro 3EM 3-Phase Meter]
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.shelly[Source Code icon:github[]]

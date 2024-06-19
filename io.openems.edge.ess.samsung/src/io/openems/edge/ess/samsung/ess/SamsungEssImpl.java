@@ -41,10 +41,10 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Samsung.ESS", immediate = true, //
+		name = "Samsung.ESS", //
+		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE//
 )
-
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 })
