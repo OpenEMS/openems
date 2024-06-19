@@ -7,7 +7,7 @@ import io.openems.edge.ess.power.api.Phase;
 
 @ObjectClassDefinition(//
 		name = "Samsung ESS", //
-		description = "Implements the Sasmung ESS Combined System.")
+		description = "Implements the Samsung ESS System.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
