@@ -57,9 +57,6 @@ public class IoShellyPlugImplTest {
 							httpTestBundle.triggerNextCycle();
 						}) //
 						.output(ACTIVE_POWER, 789)) //
-				// .output(RELAY, true) // TODO Also Test the Relay State
-				// .output(PRODUCTION_ENERGY, 1200L)) // TODO Also Test Production and
-				// Consumption
 
 				.next(new TestCase("Invalid read response") //
 						.onBeforeControllersCallbacks(() -> assertEquals("x|789 W", sut.debugLog()))
@@ -80,8 +77,7 @@ public class IoShellyPlugImplTest {
 						}) //
 						.also(testCase -> {
 							final var relayTurnedOn = httpTestBundle
-									.expect("http://127.0.0.1/rpc/Switch.Set?id=0&on=true").toBeCalled();
-
+									.expect("http://127.0.0.1/relay/0?turn=on").toBeCalled();
 							testCase.onBeforeControllersCallbacks(() -> {
 								httpTestBundle.triggerNextCycle();
 							});
