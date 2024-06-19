@@ -7,7 +7,7 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
 
 @ObjectClassDefinition(//
-		name = "IO Shelly Plus1Pm", //
+		name = "IO Shelly Plus 1PM", //
 		description = "Implements the Shelly 2ndGen / Plug WiFi Switch.")
 @interface Config {
 
@@ -29,5 +29,5 @@ import io.openems.edge.meter.api.SinglePhase;
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.CONSUMPTION_METERED;
 
-	String webconsole_configurationFactory_nameHint() default "IO Shelly Plus1PM [{id}]";
+	String webconsole_configurationFactory_nameHint() default "IO Shelly Plus 1PM [{id}]";
 }

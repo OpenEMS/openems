@@ -3,6 +3,7 @@ package io.openems.edge.io.shelly.shellyplus1pm;
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 import static java.lang.Math.round;
 
 import java.util.Objects;
@@ -14,6 +15,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -42,7 +45,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "IO.Shelly.Plus1Pm", //
+		name = "IO.Shelly.Plus1PM", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE//
 )
@@ -65,6 +68,7 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 	private SinglePhase phase = null;
 	private String baseUrl;
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY)
@@ -81,6 +85,10 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 		this.digitalOutputChannels = new BooleanWriteChannel[] { //
 				this.channel(IoShellyPlus1Pm.ChannelId.RELAY) //
 		};
+
+		SinglePhaseMeter.calculateSinglePhaseFromActivePower(this);
+		SinglePhaseMeter.calculateSinglePhaseFromCurrent(this);
+		SinglePhaseMeter.calculateSinglePhaseFromVoltage(this);
 	}
 
 	@Activate
@@ -115,17 +123,7 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 
 	@Override
 	public String debugLog() {
-		var b = new StringBuilder();
-		var valueOpt = this.getRelayChannel().value().asOptional();
-		if (valueOpt.isPresent()) {
-			b.append(valueOpt.get() ? "ON" : "OFF");
-		} else {
-			b.append("Unknown");
-		}
-		b.append("|");
-		b.append(this.getActivePowerChannel().value().asString());
-
-		return b.toString();
+		return generateDebugLog(this.getRelayChannel(), this.getActivePowerChannel());
 	}
 
 	@Override
@@ -135,11 +133,10 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 		}
 
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.calculateEnergy();
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE -> {
-			this.executeWrite(this.getRelayChannel(), 0);
-
-		}
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+			-> this.calculateEnergy();
+		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+			-> this.executeWrite(this.getRelayChannel(), 0);
 		}
 	}
 
@@ -154,6 +151,7 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 
 		if (error != null) {
 			this.logDebug(this.log, error.getMessage());
+
 		} else {
 			try {
 				var jsonResponse = getAsJsonObject(result.data());
@@ -166,33 +164,16 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 				var sys = getAsJsonObject(jsonResponse, "sys");
 				restartRequired = getAsBoolean(sys, "restart_required");
 
-				if (this.phase != null) {
-					switch (this.phase) {
-					case L1:
-						this._setActivePowerL1(power);
-						this._setVoltageL1(voltage);
-						this._setCurrentL1(current);
-						break;
-					case L2:
-						this._setActivePowerL2(power);
-						this._setVoltageL2(voltage);
-						this._setCurrentL2(current);
-						break;
-					case L3:
-						this._setActivePowerL3(power);
-						this._setVoltageL3(voltage);
-						this._setCurrentL3(current);
-						break;
-					}
-				}
 			} catch (OpenemsNamedException e) {
 				this.logDebug(this.log, e.getMessage());
 			}
-
-			this._setRelay(relay0);
-			this._setActivePower(power);
-			this.channel(IoShellyPlus1Pm.ChannelId.NEEDS_RESTART).setNextValue(restartRequired);
 		}
+
+		this._setRelay(relay0);
+		this._setActivePower(power);
+		this._setCurrent(current);
+		this._setVoltage(voltage);
+		this.channel(IoShellyPlus1Pm.ChannelId.NEEDS_RESTART).setNextValue(restartRequired);
 	}
 
 	/**
