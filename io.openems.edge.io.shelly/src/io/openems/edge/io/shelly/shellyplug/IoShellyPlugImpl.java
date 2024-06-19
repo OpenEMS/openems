@@ -2,6 +2,8 @@ package io.openems.edge.io.shelly.shellyplug;
 
 import static io.openems.edge.io.api.ShellyUtils.generateDebugLog;
 
+import java.util.Objects;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -27,7 +29,6 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
-import io.openems.edge.io.api.ShellyUtils;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
@@ -112,7 +113,7 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE -> {
-			ShellyUtils.executeWrite(this.getRelayChannel(), this.baseUrl, this.httpBridge, 0);
+			this.executeWrite(this.getRelayChannel(), 0);
 		}
 		}
 	}
@@ -144,6 +145,29 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 			this._setActiveProductionEnergy(null);
 			this.logDebug(this.log, e.getMessage());
 		}
+	}
+
+	/**
+	 * Execute on Cycle Event "Execute Write".
+	 * 
+	 * @param channel write channel
+	 * @param index   index
+	 */
+	private void executeWrite(BooleanWriteChannel channel, int index) {
+		var readValue = channel.value().get();
+		var writeValue = channel.getNextWriteValueAndReset();
+		if (writeValue.isEmpty()) {
+			// no write value
+			return;
+		}
+		if (Objects.equals(readValue, writeValue.get())) {
+			// read value = write value
+			return;
+		}
+		final var url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
+		this.httpBridge.get(url).whenComplete((t, e) -> {
+			this._setSlaveCommunicationFailed(e != null);
+		});
 	}
 
 	@Override
