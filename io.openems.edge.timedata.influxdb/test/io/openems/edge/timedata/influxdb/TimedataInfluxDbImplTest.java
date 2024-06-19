@@ -2,6 +2,7 @@ package io.openems.edge.timedata.influxdb;
 
 import org.junit.Test;
 
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -30,6 +31,7 @@ public class TimedataInfluxDbImplTest {
 						.setNoOfCycles(1) //
 						.setMaxQueueSize(5000) //
 						.setReadOnly(false) //
+						.setPersistencePriority(PersistencePriority.MEDIUM)
 						.build()) //
 				.next(new TestCase()) //
 		;

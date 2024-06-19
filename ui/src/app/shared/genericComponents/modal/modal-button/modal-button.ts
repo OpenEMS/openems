@@ -19,4 +19,4 @@ export type ButtonLabel = {
     /** Icons for Button, displayed above the corresponding name */
     icons?: Icon;
     callback?: Function;
-}
+};

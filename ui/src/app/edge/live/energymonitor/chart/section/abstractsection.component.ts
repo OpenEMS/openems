@@ -119,7 +119,7 @@ export class EnergyFlow {
 export enum GridMode {
     "undefined",
     "ongrid",
-    "offgrid"
+    "offgrid",
 }
 
 export abstract class AbstractSection {
