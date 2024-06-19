@@ -2,6 +2,7 @@ package io.openems.edge.io.shelly.shellypro3;
 
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 
 import java.util.Objects;
 
@@ -22,6 +23,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -31,7 +33,7 @@ import io.openems.edge.io.api.DigitalOutput;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "IO.Shelly.3Pro", //
+		name = "IO.Shelly.Pro3", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -44,6 +46,7 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(IoShellyPro3Impl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
+
 	private String baseUrl;
 
 	@Reference
@@ -72,10 +75,8 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 		for (int i = 0; i < 3; i++) {
 			final int relayIndex = i;
 			String url = this.baseUrl + "/rpc/Switch.GetStatus?id=" + relayIndex;
-			this.httpBridge.subscribeJsonEveryCycle(url, result -> {
-				this.processHttpResult(result, relayIndex);
-			}, error -> {
-				logError(this.log, "HTTP request failed: " + error.getMessage());
+			this.httpBridge.subscribeJsonEveryCycle(url, (result, error) -> {
+				this.processHttpResult(result, error, relayIndex);
 			});
 		}
 	}
@@ -94,23 +95,7 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		var b = new StringBuilder();
-		var i = 1;
-		for (BooleanWriteChannel channel : this.digitalOutputChannels) {
-			String valueText;
-			var valueOpt = channel.value().asOptional();
-			if (valueOpt.isPresent()) {
-				valueText = valueOpt.get() ? "ON" : "OFF";
-			} else {
-				valueText = "Unknown";
-			}
-			b.append(valueText);
-			if (i < this.digitalOutputChannels.length) {
-				b.append("|");
-			}
-			i++;
-		}
-		return b.toString();
+		return generateDebugLog(this.digitalOutputChannels);
 	}
 
 	@Override
@@ -125,37 +110,30 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 		}
 	}
 
-	private void processHttpResult(HttpResponse<JsonElement> result, int relayIndex) {
-		Boolean ison = null;
+	// NOTE: this method is called once per each relay
+	private void processHttpResult(HttpResponse<JsonElement> result, HttpError error, int relayIndex) {
+		this._setSlaveCommunicationFailed(result == null);
 
-		if (result == null) {
-			this._setSlaveCommunicationFailed(true);
-			return;
+		Boolean isOn = null;
+
+		if (error != null) {
+			this.logDebug(this.log, error.getMessage());
+
 		} else {
 			try {
 				var switchStatus = getAsJsonObject(result.data());
-				ison = getAsBoolean(switchStatus, "output");
-
-				this.digitalOutputChannels[relayIndex].setNextWriteValue(ison);
-
-				this._setSlaveCommunicationFailed(false);
+				isOn = getAsBoolean(switchStatus, "output");
 
 			} catch (Exception e) {
-				this._setSlaveCommunicationFailed(true);
 				this.logError(this.log, "Error processing HTTP response: " + e.getMessage());
 				return;
 			}
 		}
+
 		switch (relayIndex) {
-		case 0:
-			this._setRelay1(ison);
-			break;
-		case 1:
-			this._setRelay2(ison);
-			break;
-		case 2:
-			this._setRelay3(ison);
-			break;
+		case 0 -> this._setRelay1(isOn);
+		case 1 -> this._setRelay2(isOn);
+		case 2 -> this._setRelay3(isOn);
 		}
 	}
 

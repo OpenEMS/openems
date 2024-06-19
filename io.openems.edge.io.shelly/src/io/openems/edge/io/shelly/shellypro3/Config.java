@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
 		name = "IO Shelly Pro 3", //
-		description = "Implements the Shelly Pro 3 Relais.")
+		description = "Implements the Shelly Pro 3")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -19,4 +19,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Shelly device.")
 	String ip();
+	
+	String webconsole_configurationFactory_nameHint() default "IO Shelly Pro 3 [{id}]"; 
 }
