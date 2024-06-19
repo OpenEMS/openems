@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.http.api.HttpError;
+import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -35,10 +36,37 @@ public class IoShelly25ImplTest {
 						.setIp("127.0.0.1") //
 						.build()) //
 
+				// Test case for a successful JSON response
+				.next(new TestCase("Successful read response") //
+						.onBeforeControllersCallbacks(() -> {
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+										{
+											"relays": [
+												{
+													"ison": true,
+													"overtemperature": false,
+													"overpower": false
+												},
+												{
+													"ison": false,
+													"overtemperature": true,
+													"overpower": true
+												}
+											]
+										}
+									"""));
+							httpTestBundle.triggerNextCycle();
+						}) //
+						.output(RELAY_1_OVERTEMP, false) //
+						.output(RELAY_2_OVERTEMP, true) //
+						.output(RELAY_1_OVERPOWER, false) //
+						.output(RELAY_2_OVERPOWER, true) //
+						.output(SLAVE_COMMUNICATION_FAILED, false)) //
+
 				// Test case for an invalid JSON response
 				.next(new TestCase("Invalid read response") //
 						.onBeforeControllersCallbacks(() -> { //
-							assertEquals("Expected initial debug log", sut.debugLog(), "?|?"); //
+							assertEquals("Expected initial debug log", sut.debugLog(), "x|-"); //
 							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());
 							httpTestBundle.triggerNextCycle();
 						}) //

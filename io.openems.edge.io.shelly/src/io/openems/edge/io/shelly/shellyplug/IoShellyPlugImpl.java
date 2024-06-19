@@ -1,12 +1,6 @@
 package io.openems.edge.io.shelly.shellyplug;
 
-import static io.openems.common.utils.JsonUtils.getAsBoolean;
-import static io.openems.common.utils.JsonUtils.getAsFloat;
-import static io.openems.common.utils.JsonUtils.getAsJsonArray;
-import static io.openems.common.utils.JsonUtils.getAsJsonObject;
-import static io.openems.common.utils.JsonUtils.getAsLong;
 import static io.openems.edge.io.api.ShellyUtils.generateDebugLog;
-import static java.lang.Math.round;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -24,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.bridge.http.api.HttpResponse;
@@ -124,43 +119,30 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 
 	private void processHttpResult(HttpResponse<JsonElement> result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
-
-		Boolean relayIson = null;
-		Integer power = null;
-		Long energy = null;
-
 		if (error != null) {
 			this._setRelay(null);
 			this._setActivePower(null);
 			this._setActiveProductionEnergy(null);
-			this._setSlaveCommunicationFailed(true);
 			this.logDebug(this.log, error.getMessage());
 			return;
-		} else {
-			try {
+		}
+		try {
+			var relays = JsonUtils.getAsJsonArray(result.data(), "relays");
+			var relay1 = JsonUtils.getAsJsonObject(relays.get(0));
+			var relayIson = JsonUtils.getAsBoolean(relay1, "ison");
+			var meters = JsonUtils.getAsJsonArray(result.data(), "meters");
+			var meter1 = JsonUtils.getAsJsonObject(meters.get(0));
+			var power = Math.round(JsonUtils.getAsFloat(meter1, "power"));
+			var energy = JsonUtils.getAsLong(meter1, "total") /* Unit: Wm */ / 60 /* Wh */;
 
-				var response = getAsJsonObject(result.data());
-
-				var relays = getAsJsonArray(response, "relays");
-				var relay1 = getAsJsonObject(relays.get(0));
-				relayIson = getAsBoolean(relay1, "ison");
-
-				var meters = getAsJsonArray(response, "meters");
-				var meter1 = getAsJsonObject(meters.get(0));
-				power = round(getAsFloat(meter1, "power"));
-				energy = getAsLong(meter1, "total") /* Unit: Wm */ / 60 /* Wh */;
-
-				this._setRelay(relayIson);
-				this._setActivePower(power);
-				this._setActiveProductionEnergy(energy);
-
-			} catch (OpenemsNamedException e) {
-				this._setRelay(null);
-				this._setActivePower(null);
-				this._setActiveProductionEnergy(0L);
-				this._setSlaveCommunicationFailed(true);
-				this.logDebug(this.log, e.getMessage());
-			}
+			this._setRelay(relayIson);
+			this._setActivePower(power);
+			this._setActiveProductionEnergy(energy);
+		} catch (OpenemsNamedException e) {
+			this._setRelay(null);
+			this._setActivePower(null);
+			this._setActiveProductionEnergy(null);
+			this.logDebug(this.log, e.getMessage());
 		}
 	}
 
