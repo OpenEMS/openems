@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.meter.api.MeterType;
 
 @ObjectClassDefinition(
-		name = "Shelly Pro 3EM", //
+		name = "IO Shelly Pro 3EM", //
 		description = "Implements the Shelly Pro 3EM Energy Meter.")
 @interface Config {
 
@@ -25,6 +25,6 @@ import io.openems.edge.meter.api.MeterType;
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Shelly device.")
 	String ip();
 
-	String webconsole_configurationFactory_nameHint() default "Shelly Pro 3EM [{id}]"; 
+	String webconsole_configurationFactory_nameHint() default "IO Shelly Pro 3EM [{id}]"; 
 
 }

@@ -2,6 +2,8 @@ package io.openems.edge.io.shelly.shellypro3em;
 
 import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsOptionalJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsString;
 import static java.lang.Math.round;
 
 import org.osgi.service.component.ComponentContext;
@@ -38,7 +40,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Shelly.Pro.3EM", //
+		name = "IO.Shelly.Pro.3EM", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -97,10 +99,7 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		var b = new StringBuilder();
-		b.append(this.getActivePowerChannel().value().asString());
-
-		return b.toString();
+		return "L:" + this.getActivePower().asString();
 	}
 
 	@Override
@@ -134,32 +133,21 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
 
 		if (error != null) {
 			this.logDebug(this.log, error.getMessage());
+
 		} else {
 			try {
 				var response = getAsJsonObject(result.data());
 
 				// Check for 'errors' and process if present
-				if (response.has("errors") && response.get("errors").isJsonArray()) {
-
-					var errors = response.getAsJsonArray("errors");
-
-					for (JsonElement errorElement : errors) {
-						var errorType = errorElement.getAsString();
-
-						switch (errorType) {
-						case "phase_sequence":
-							phaseSequenceError = true;
-							break;
-						case "power_meter_failure":
-							powerMeterFailure = true;
-							break;
-						case "no_load":
-							noLoadCondition = true;
-							break;
+				var errors = getAsOptionalJsonArray(response, "errors");
+				if (errors.isPresent()) {
+					for (var e : errors.get()) {
+						switch (getAsString(e)) {
+						case "phase_sequence" -> phaseSequenceError = true;
+						case "power_meter_failure" -> powerMeterFailure = true;
+						case "no_load" -> noLoadCondition = true;
 						}
 					}
-				} else {
-					this.logDebug(this.log, "No errors reported.");
 				}
 
 				// Total Active Power
