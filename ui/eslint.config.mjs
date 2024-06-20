@@ -1,38 +1,59 @@
-{
-  "root": true,
-  "ignorePatterns": [
-    "projects/**/*"
-  ],
-  "overrides": [
-    {
-      "files": [
-        "*.ts"
-      ],
-      "env": {
-        "browser": true,
-        "node": true,
-        "jest": true
-      },
-      "parserOptions": {
-        "project": [
-          "tsconfig.json"
-        ],
-        "createDefaultProgram": true
-      },
-      "plugins": [
-        "import",
-        "unused-imports",
-        "@stylistic",
-        "check-file"
-      ],
-      "extends": [
-        "eslint:recommended",
-        "plugin:@typescript-eslint/recommended",
-        "plugin:@angular-eslint/recommended",
-        "plugin:@angular-eslint/template/process-inline-templates",
-        "plugin:import/recommended"
-      ],
-      "rules": {
+import unusedImports from "eslint-plugin-unused-imports";
+import stylistic from "@stylistic/eslint-plugin";
+import globals from "globals";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import js from "@eslint/js";
+import { FlatCompat } from "@eslint/eslintrc";
+import importPlugin from "eslint-plugin-import";
+import checkFile from "eslint-plugin-check-file";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const compat = new FlatCompat({
+    baseDirectory: __dirname,
+    recommendedConfig: js.configs.recommended,
+    allConfig: js.configs.all
+});
+
+export default [{
+    "ignores": ["projects/**/*"],
+}, ...compat.extends(
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@angular-eslint/recommended",
+    "plugin:@angular-eslint/template/process-inline-templates",
+    "plugin:import/recommended"
+).map(config => ({
+    ...config,
+    "files": ["**/*.ts"],
+})), {
+    "files": ["**/*.ts"],
+
+    "plugins": {
+        "unused-imports": unusedImports,
+        "@stylistic": stylistic,
+        "import": importPlugin,
+        "check-file": checkFile,
+    },
+
+    "languageOptions": {
+        "globals": {
+            ...globals.browser,
+            ...globals.node,
+            ...globals.jest,
+        },
+
+        "ecmaVersion": 5,
+        "sourceType": "commonjs",
+
+        "parserOptions": {
+            "project": ["tsconfig.json"],
+            "createDefaultProgram": true,
+        },
+    },
+
+    "rules": {
         "check-file/filename-naming-convention": [
           "off",
           {
@@ -126,33 +147,24 @@
             "message": "Using 'xdescribe' is not allowed."
           }
         ]
-      },
-      "overrides": [
-        {
-          "files": [
-            "*.component.ts",
-            "*.service.ts",
-            "*.module.ts"
-          ],
-          "rules": {
-            "check-file/filename-naming-convention": "off"
-          }
-        }
-      ],
-      "settings": {
-        "import/resolver": {
-          "typescript": {}
-        }
-      }
     },
-    {
-      "files": [
-        "*.html"
-      ],
-      "extends": [
-        "plugin:@angular-eslint/template/recommended"
-      ],
-      "rules": {}
+    "settings": {
+      "import/resolver": {
+        "typescript": {}
+      }
     }
-  ]
-}
+}, {
+    "files": ["*.component.ts", "*.service.ts", "*.module.ts"],
+    "plugins": {
+        "check-file": checkFile,
+    },
+    "rules": {
+        "check-file/filename-naming-convention": "off",
+    },
+}, ...compat.extends("plugin:@angular-eslint/template/recommended").map(config => ({
+    ...config,
+    "files": ["**/*.html"],
+})), {
+    "files": ["**/*.html"],
+    "rules": {},
+}];
