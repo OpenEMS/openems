@@ -21,7 +21,7 @@ export class OeSystemUpdateComponent implements OnInit, OnDestroy {
 
   protected executeUpdate: ExecuteSystemUpdate = null;
   protected isWaiting: boolean;
-  protected confirmationAlert: Function = () => presentAlert(this.alertCtrl, this.translate, {
+  protected confirmationAlert: () => void = () => presentAlert(this.alertCtrl, this.translate, {
     message: this.translate.instant('SETTINGS.SYSTEM_UPDATE.WARNING', { system: environment.edgeShortName }),
     subHeader: this.translate.instant('SETTINGS.SYSTEM_UPDATE.SUB_HEADER'),
     buttons: [{

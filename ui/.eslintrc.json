@@ -90,9 +90,7 @@
           {
             "extendDefaults": true,
             "types": {
-              "{}": false,
-              "Object": false,
-              "Function": false
+              "{}": false
             }
           }
         ]
