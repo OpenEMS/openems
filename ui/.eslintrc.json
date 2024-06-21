@@ -31,10 +31,7 @@
       ],
       "rules": {
         "unused-imports/no-unused-imports": "error",
-        "@stylistic/semi": [
-          "error",
-          "always"
-        ],
+        "@stylistic/semi": "error",
         "@stylistic/quote-props": [
           "warn",
           "consistent"
