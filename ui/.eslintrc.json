@@ -30,12 +30,8 @@
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
+        "curly": "error",
         "unused-imports/no-unused-imports": "error",
-        "@stylistic/semi": "error",
-        "@stylistic/quote-props": [
-          "warn",
-          "consistent"
-        ],
         "@typescript-eslint/explicit-member-accessibility": [
           "error",
           {
@@ -64,7 +60,11 @@
             "style": "camelCase"
           }
         ],
-        "curly": "error",
+        "@stylistic/semi": "error",
+        "@stylistic/quote-props": [
+          "warn",
+          "consistent"
+        ],
         "@stylistic/comma-dangle": [
           "error",
           "always-multiline"
