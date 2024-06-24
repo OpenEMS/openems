@@ -24,8 +24,9 @@
               <ion-item lines="none">
                 <ngx-spinner [name]="selectedComponentId.value"></ngx-spinner>
                 <ion-select style="white-space: initial;width: 100%;" #selectedChannelId interface="alert"
+                  [disabled]="!selectedComponentId?.value"
                   [placeholder]="'CHANNELS.CHANNEL'| translate">
-                  <ng-container *ngIf="selectedComponentId && selectedComponentId.value">
+                  <ng-container *ngIf="selectedComponentId?.value">
                     <ion-select-option
                       *ngFor="let entry of channelsPerComponent.get(selectedComponentId.value).channels | keyvalue"
                       [value]="entry.key">
