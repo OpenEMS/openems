@@ -51,7 +51,7 @@
     "@types/jasmine": "~4.3.6",
     "@types/jasminewd2": "~2.0.13",
     "@types/node": "^20.12.6",
-    "@types/uuid": "^9.0.8",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8.57.0",
