@@ -17,6 +17,7 @@ export enum WidgetNature {
     'io.openems.edge.evcs.api.Evcs',
     'io.openems.impl.controller.channelthreshold.ChannelThresholdController', // TODO deprecated
     'io.openems.edge.io.api.DigitalInput',
+    MANAGED_SYMMETRIC_PVINVERTER = 'io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter'
 }
 
 export enum WidgetFactory {
