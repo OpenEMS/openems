@@ -7,6 +7,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
     protected static class Builder {
         private String id;
+        private String alias = ""; // Default to empty string
+        private boolean enabled = true; // Default to true
         private String pvInverterId;
         private String inputChannelAddress0Percent;
         private String inputChannelAddress30Percent;
@@ -20,6 +22,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
         public Builder setId(String id) {
             this.id = id;
+            return this;
+        }
+
+        public Builder setAlias(String alias) {
+            this.alias = alias;
+            return this;
+        }
+
+        public Builder setEnabled(boolean enabled) {
+            this.enabled = enabled;
             return this;
         }
 
@@ -63,11 +75,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
         }
     }
 
-    /**
-     * Create a Config builder.
-     * 
-     * @return a {@link Builder}
-     */
     public static Builder create() {
         return new Builder();
     }
@@ -77,6 +84,21 @@ public class MyConfig extends AbstractComponentConfig implements Config {
     private MyConfig(Builder builder) {
         super(Config.class, builder.id);
         this.builder = builder;
+    }
+
+    @Override
+    public String id() {
+        return builder.id;
+    }
+
+    @Override
+    public String alias() {
+        return builder.alias;
+    }
+
+    @Override
+    public boolean enabled() {
+        return builder.enabled;
     }
 
     @Override
