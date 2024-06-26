@@ -75,6 +75,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
         }
     }
 
+    /**
+	 * Create a Config builder.
+	 *
+	 * @return a {@link Builder}
+	 */
     public static Builder create() {
         return new Builder();
     }
@@ -88,51 +93,51 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
     @Override
     public String id() {
-        return builder.id;
+        return this.builder.id;
     }
 
     @Override
     public String alias() {
-        return builder.alias;
+        return this.builder.alias;
     }
 
     @Override
     public boolean enabled() {
-        return builder.enabled;
+        return this.builder.enabled;
     }
 
     @Override
     public String pvInverter_id() {
-        return builder.pvInverterId;
+        return this.builder.pvInverterId;
     }
 
     @Override
     public String inputChannelAddress0Percent() {
-        return builder.inputChannelAddress0Percent;
+        return this.builder.inputChannelAddress0Percent;
     }
 
     @Override
     public String inputChannelAddress30Percent() {
-        return builder.inputChannelAddress30Percent;
+        return this.builder.inputChannelAddress30Percent;
     }
 
     @Override
     public String inputChannelAddress60Percent() {
-        return builder.inputChannelAddress60Percent;
+        return this.builder.inputChannelAddress60Percent;
     }
 
     @Override
     public String inputChannelAddress100Percent() {
-        return builder.inputChannelAddress100Percent;
+        return this.builder.inputChannelAddress100Percent;
     }
 
     @Override
     public int powerLimit30() {
-        return builder.powerLimit30;
+        return this.builder.powerLimit30;
     }
 
     @Override
     public int powerLimit60() {
-        return builder.powerLimit60;
+        return this.builder.powerLimit60;
     }
 }
