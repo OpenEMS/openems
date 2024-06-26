@@ -7,7 +7,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-//		private String setting0;
 
 		private Builder() {
 		}
@@ -79,10 +78,5 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
-//	@Override
-//	public String setting0() {
-//		return this.builder.setting0;
-//	}
 
 }
