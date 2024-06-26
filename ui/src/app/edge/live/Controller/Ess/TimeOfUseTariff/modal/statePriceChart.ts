@@ -21,9 +21,9 @@ import { Controller_Ess_TimeOfUseTariff } from '../Ess_TimeOfUseTariff';
 })
 export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() public refresh: boolean;
-    @Input() public override edge: Edge;
-    @Input() public component: EdgeConfig.Component;
+    @Input({ required: true }) public refresh!: boolean;
+    @Input({ required: true }) public override edge!: Edge;
+    @Input({ required: true }) public component!: EdgeConfig.Component;
 
     private currencyLabel: Currency.Label; // Default
 

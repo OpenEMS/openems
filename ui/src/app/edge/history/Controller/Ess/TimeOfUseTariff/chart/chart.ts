@@ -13,7 +13,7 @@ import { ColorUtils } from 'src/app/shared/utils/color/color.utils';
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-    @Input() public override component: EdgeConfig.Component;
+    @Input({ required: true }) public override component!: EdgeConfig.Component;
 
     private currencyLabel: Currency.Label; // Default
 

@@ -12,11 +12,11 @@ import { v4 as uuidv4 } from 'uuid';
 @Directive()
 export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
-  @Input()
-  public period: DefaultTypes.HistoryPeriod;
+  @Input({ required: true })
+  public period!: DefaultTypes.HistoryPeriod;
 
-  @Input()
-  protected componentId: string;
+  @Input({ required: true })
+  protected componentId!: string;
 
   /**
    * True after this.edge, this.config and this.component are set.

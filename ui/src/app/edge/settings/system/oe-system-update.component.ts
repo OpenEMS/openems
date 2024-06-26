@@ -15,7 +15,7 @@ export class OeSystemUpdateComponent implements OnInit, OnDestroy {
 
   @Output() public stateChanged: EventEmitter<SystemUpdateState> = new EventEmitter();
   @Input() public executeUpdateInstantly: boolean = false;
-  @Input() public edge: Edge;
+  @Input({ required: true }) public edge!: Edge;
   public readonly environment = environment;
   public readonly spinnerId: string = OeSystemUpdateComponent.SELECTOR;
 
