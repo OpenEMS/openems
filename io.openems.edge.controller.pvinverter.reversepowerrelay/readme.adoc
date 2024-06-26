@@ -1,0 +1,15 @@
+= io.openems.edge.controller.pvinverter.reversepowerrelay
+
+Limits pv production according to current state of reverse power relay (short: rpr, german: "Rundsteuerempfänger").
+Usually rpr as four defined states which are defined by it´s relays:
+- K1 -> 0% limit pv production to 0
+- K2 -> 30% limit pv production to 30%
+- K3 -> 60% limit pv production to 60%
+- K4 -> 100% no limitation
+
+You have to define a network input which has rpr´s output as input, e.g. a Siemens Logo!
+
+Be careful: if there is an undefined state (e.g. two relays active at the same time or no relay active at all) then pv production is limited to 0%!
+Usually only K4 should be active and your pv is not limited
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.pvinverter.reversepowerrelay[Source Code icon:github[]]
