@@ -126,7 +126,7 @@ export class Service extends AbstractService {
     // this.notify(notification);
   }
 
-  public setCurrentComponent(currentPageTitle: string | { languageKey: string, interpolateParams?: Object }, activatedRoute: ActivatedRoute): Promise<Edge> {
+  public setCurrentComponent(currentPageTitle: string | { languageKey: string, interpolateParams?: {} }, activatedRoute: ActivatedRoute): Promise<Edge> {
     return new Promise((resolve, reject) => {
       // Set the currentPageTitle only once per ActivatedRoute
       if (this.currentActivatedRoute != activatedRoute) {
