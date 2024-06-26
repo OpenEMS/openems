@@ -1,10 +1,11 @@
 package io.openems.edge.controller.pvinverter.reversepowerrelay;
 
+
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "Controller PV-Inverter Reverse Power Relay (Rundsteuerempfänger)", //
+		name = "Controller PV-Inverter Reverse Power Relay (Rundsteuerempfï¿½nger)", //
 		description = "Defines a reverse power relay to limit PV inverter.")
 @interface Config {
 

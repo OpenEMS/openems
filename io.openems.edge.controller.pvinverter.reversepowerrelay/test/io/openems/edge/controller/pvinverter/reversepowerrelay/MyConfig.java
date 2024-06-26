@@ -2,7 +2,6 @@ package io.openems.edge.controller.pvinverter.reversepowerrelay;
 
 import io.openems.common.test.AbstractComponentConfig;
 
-
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
@@ -17,11 +16,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.id = id;
 			return this;
 		}
-
-//		public Builder setSetting0(String setting0) {
-//			this.setting0 = setting0;
-//			return this;
-//		}
 
 		public MyConfig build() {
 			return new MyConfig(this);
