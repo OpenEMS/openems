@@ -1,6 +1,5 @@
 package io.openems.edge.controller.pvinverter.reversepowerrelay;
 
-
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;

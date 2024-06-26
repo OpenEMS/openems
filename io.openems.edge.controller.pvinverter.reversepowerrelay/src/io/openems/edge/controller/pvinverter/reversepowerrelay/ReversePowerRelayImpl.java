@@ -1,6 +1,5 @@
 package io.openems.edge.controller.pvinverter.reversepowerrelay;
 
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
