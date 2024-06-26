@@ -12,13 +12,15 @@ import io.openems.common.channel.AccessMode;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.io.api.DigitalInput;
 import io.openems.edge.io.api.DigitalOutput;
 
 public abstract class AbstractSiemensLogoRelay extends AbstractOpenemsModbusComponent
-		implements DigitalOutput, ModbusComponent, OpenemsComponent, ModbusSlave {
+		implements DigitalOutput, DigitalInput, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -29,18 +31,25 @@ public abstract class AbstractSiemensLogoRelay extends AbstractOpenemsModbusComp
 	}
 
 	private final BooleanWriteChannel[] digitalOutputChannels;
+	private final BooleanReadChannel[] digitalInputChannels;
 
 	protected AbstractSiemensLogoRelay(io.openems.edge.common.channel.ChannelId[] siemenslogoChannelIds) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
+				DigitalInput.ChannelId.values(), //
 				siemenslogoChannelIds //
 		);
 		this.digitalOutputChannels = Stream.of(siemenslogoChannelIds) //
 				.filter(channelId -> channelId.doc().getAccessMode() == AccessMode.READ_WRITE) //
 				.map(channelId -> this.channel(channelId)) //
 				.toArray(BooleanWriteChannel[]::new);
+		
+		this.digitalInputChannels = Stream.of(siemenslogoChannelIds) //
+				.filter(channelId -> channelId.doc().getAccessMode() == AccessMode.READ_ONLY) //
+				.map(channelId -> this.channel(channelId)) //
+				.toArray(BooleanReadChannel[]::new);
 	}
 
 	@Override
@@ -48,16 +57,25 @@ public abstract class AbstractSiemensLogoRelay extends AbstractOpenemsModbusComp
 		return this.digitalOutputChannels;
 	}
 	
+	@Override
+	public BooleanReadChannel[] digitalInputChannels() {
+		return this.digitalInputChannels;
+	}
+	
 
 	@Override
 	public String debugLog() {
-		return (String) Arrays.stream(this.digitalOutputChannels).map(chan -> chan.value().asOptional()).map(t -> {
-			if (t.isPresent()) {
-				return t.get() ? "X" : "-";
-			} else {
-				return "?";
-			}
-		}).collect(Collectors.joining(","));
+        String outputLog = Arrays.stream(this.digitalOutputChannels)
+                .map(chan -> chan.value().asOptional())
+                .map(t -> t.isPresent() ? (t.get() ? "X" : "-") : "?")
+                .collect(Collectors.joining(","));
+        
+        String inputLog = Arrays.stream(this.digitalInputChannels)
+                .map(chan -> chan.value().asOptional())
+                .map(t -> t.isPresent() ? (t.get() ? "I" : "O") : "?")
+                .collect(Collectors.joining(","));
+        
+        return "Output: [" + outputLog + "], Input: [" + inputLog + "]";
 	}
 
 

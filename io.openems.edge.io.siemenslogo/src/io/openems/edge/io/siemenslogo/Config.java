@@ -4,12 +4,12 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "Siemens Logo 8 Output Relay ", //
-		description = "Siemens Logo! 8 as Relais-Board")
+		name = "Siemens Logo 8 digital Input / Output", //
+		description = "Siemens Logo! 8 digital Input/Output")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-	String id() default "io.openems.edge.io.siemenslogo0";
+	String id() default "siemenslogo0";
 
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
 	String alias() default "";
@@ -20,9 +20,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
 
-	@AttributeDefinition(name = "Modbus read address offset", description = "Address offset in Logo!. This is where the virtual addresses start, e.g. 808 for virtual address 101.0 in Logo!")
-	int modbusOffsetReadAddress() default 800;
-
+	@AttributeDefinition(name = "Modbus write address offset", description = "Address offset in Logo! for writing outputs / relays. This is where the virtual addresses start, e.g. 808 for virtual address 101.0 in Logo!")
+	int modbusOffsetWriteAddress() default 800;
+	
+	@AttributeDefinition(name = "Modbus read address offset", description = "Address offset in Logo! for reading inputs (DI1-4). This is where the virtual addresses start, e.g. 808 for virtual address 110.0 in Logo!")
+	int modbusOffsetReadAddress() default 880;	
+	
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId() default 1;
 
