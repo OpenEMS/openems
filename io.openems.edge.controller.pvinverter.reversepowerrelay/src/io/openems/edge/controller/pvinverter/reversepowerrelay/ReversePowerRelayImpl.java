@@ -153,15 +153,16 @@ public class ReversePowerRelayImpl extends AbstractOpenemsComponent
 		}
 
 	}
+	
     public String getPvInverterId() {
-        return pvInverterId;
+        return this.pvInverterId;
     }
 
     public int getPowerLimit30Percent() {
-        return powerLimit30Percent;
+        return this.powerLimit30Percent;
     }
 
     public int getPowerLimit60Percent() {
-        return powerLimit60Percent;
+        return this.powerLimit60Percent;
     }
 }
