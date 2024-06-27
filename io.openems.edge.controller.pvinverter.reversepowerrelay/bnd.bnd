@@ -13,4 +13,5 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -testpath: \
 	${testpath},\
-	org.mockito.mockito-core
+	org.mockito.mockito-core,\
+	io.openems.edge.io.api
