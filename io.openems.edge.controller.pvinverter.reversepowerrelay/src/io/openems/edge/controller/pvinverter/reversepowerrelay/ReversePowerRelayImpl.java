@@ -129,6 +129,7 @@ public class ReversePowerRelayImpl extends AbstractOpenemsComponent
 
 			if (value0Percent == null || value30Percent == null || value60Percent == null || value100Percent == null) {
 				this.log.warn("Skipping logic in run() due to null channel values");
+				this.setPvLimit(0);				
 				return;
 			}
 			//

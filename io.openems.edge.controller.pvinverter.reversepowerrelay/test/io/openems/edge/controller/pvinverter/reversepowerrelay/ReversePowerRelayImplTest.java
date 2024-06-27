@@ -51,34 +51,65 @@ public class ReversePowerRelayImplTest {
 						.setPowerLimit30(30) //
 						.setPowerLimit60(60) //
 						.build())
-				.next(new TestCase() // undefined
+				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, -15000) //
 						.input(PV_INVERTER_ACTIVE_POWER, 15000) //
 						.input(IO_INPUT_OUTPUT0, true) //
-						.input(IO_INPUT_OUTPUT1, true) //
-						.input(IO_INPUT_OUTPUT2, true) //
-						.input(IO_INPUT_OUTPUT3, true) //
-						.output(PV_INVERTER_SET_ACTIVE_POWER_EQUALS, 0))
-
-				.next(new TestCase() // 100% -> limit null
+						.output(PV_INVERTER_SET_ACTIVE_POWER_EQUALS, 0)) //
+				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, -15000) //
-						.input(PV_INVERTER_ACTIVE_POWER, 1000) //
-						.input(IO_INPUT_OUTPUT0, false) //
-						.input(IO_INPUT_OUTPUT1, false) //
-						.input(IO_INPUT_OUTPUT2, false) //
-						.input(IO_INPUT_OUTPUT3, true) //
-						.output(PV_INVERTER_SET_ACTIVE_POWER_EQUALS, null))
-
-				.next(new TestCase() // 100% -> limit null
-						.input(GRID_ACTIVE_POWER, -15000) //
-						.input(PV_INVERTER_ACTIVE_POWER, 1000) //
+						.input(PV_INVERTER_ACTIVE_POWER, 10000) //
 						.input(IO_INPUT_OUTPUT0, false) //
 						.input(IO_INPUT_OUTPUT1, true) //
 						.input(IO_INPUT_OUTPUT2, false) //
 						.input(IO_INPUT_OUTPUT3, false) //
-						.output(PV_INVERTER_SET_ACTIVE_POWER_EQUALS, 30))
+						.output(PV_INVERTER_SET_ACTIVE_POWER_EQUALS, 30)) //
+				.next(new TestCase() //
+						.input(GRID_ACTIVE_POWER, -15000) //
+						.input(PV_INVERTER_ACTIVE_POWER, 8000) //
+						.input(IO_INPUT_OUTPUT0, false) //
+						.input(IO_INPUT_OUTPUT1, false) //
+						.input(IO_INPUT_OUTPUT2, true) //
+						.input(IO_INPUT_OUTPUT3, false) //
+						.output(PV_INVERTER_SET_ACTIVE_POWER_EQUALS, 60)) //
+				.next(new TestCase() //
+						.input(GRID_ACTIVE_POWER, -13000) //
+						.input(PV_INVERTER_ACTIVE_POWER, 7000) //
+						.input(IO_INPUT_OUTPUT0, false) //
+						.input(IO_INPUT_OUTPUT1, false) //
+						.input(IO_INPUT_OUTPUT2, false) //
+						.input(IO_INPUT_OUTPUT3, true) //
+						.output(PV_INVERTER_SET_ACTIVE_POWER_EQUALS, null)) // No limit
+				.next(new TestCase() //
+						.input(GRID_ACTIVE_POWER, 0) //
+						.input(PV_INVERTER_ACTIVE_POWER, 5000) //
+						.input(IO_INPUT_OUTPUT0, false) //
+						.input(IO_INPUT_OUTPUT1, false) //
+						.input(IO_INPUT_OUTPUT2, false) //
+						.input(IO_INPUT_OUTPUT3, false) //
+						.output(PV_INVERTER_SET_ACTIVE_POWER_EQUALS, 0))
 
 		; //
+
+	}
+
+	@Test
+	public void testNullChannelAddresses() throws Exception {
+		new ControllerTest(new ReversePowerRelayImpl()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addComponent(new DummyElectricityMeter(METER_ID)) //
+				.addComponent(new DummyManagedSymmetricPvInverter(PV_INVERTER)) //
+				.addComponent(new DummyInputOutput(IO_ID)) //
+				.activate(MyConfig.create() //
+						.setId(CTRL_ID) //
+						.setPvInverterId(PV_INVERTER) //
+						.setPowerLimit30(30) //
+						.setPowerLimit60(60) //
+						.build())
+				.next(new TestCase() //
+						.input(GRID_ACTIVE_POWER, -15000) //
+						.input(PV_INVERTER_ACTIVE_POWER, 15000) //
+						.output(PV_INVERTER_SET_ACTIVE_POWER_EQUALS, 0));
 
 	}
 }
