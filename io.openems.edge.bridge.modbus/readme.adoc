@@ -28,6 +28,16 @@ Read-Tasks can have two different priorities, that are defined in the ModbusProt
 - `LOW`: only one task of all defined LOW priority tasks of all components registered on the same bridge is executed per Cycle
 Write-Tasks always have `HIGH` priority, i.e. a set-point is always executed as-soon-as-possible - as long as the Component is not marked as defective
 
+=== Access interval
+
+OpenEMS's core cycle time is usually 1 second, but some modbus devices can be very slow. It's possible to lower the core cycle time but the whole system is slowed down.
+
+The parameter `intervalBetweenAccesses` can be configured to slow down the modbus bridge's access. Specifically, it defines the minimum time (in milliseconds) between 2 modbus accesses, which normally equals to the core cycle time (usually 1000ms).
+
+`intervalBetweenAccesses` is aligned to and calculated from the core cycle time. It's set to be 0 by default and any value between 0 and core cycle time will not affect the original modbus bridge logic. The right amount of core cycles to be skipped will be calculated and applied when `intervalBetweenAccesses` is set to be longer than core cycle time.
+
+Note that the real interval may be longer than configured due to the round off of core cycle time. For example, we set `intervalBetweenAccesses` to 1.5 seconds but core time is 1 second and in this case the final interval is 2 seconds.
+
 === Channels
 
 Each Modbus Bridge provides Channels for more detailed information:
