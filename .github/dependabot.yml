@@ -12,3 +12,9 @@ updates:
     interval: weekly
   open-pull-requests-limit: 10
   target-branch: develop
+- package-ecosystem: "github-actions"
+  directory: "/.github/workflows"
+  schedule:
+    interval: "weekly"
+  open-pull-requests-limit: 10
+  target-branch: develop
