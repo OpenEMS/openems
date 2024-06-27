@@ -105,6 +105,10 @@ public class ReversePowerRelayImplTest {
 						.setPvInverterId(PV_INVERTER) //
 						.setPowerLimit30(30) //
 						.setPowerLimit60(60) //
+						.setInputChannelAddress0Percent(IO_INPUT_OUTPUT0.toString()) //
+						.setInputChannelAddress30Percent(IO_INPUT_OUTPUT1.toString()) //
+						.setInputChannelAddress60Percent(IO_INPUT_OUTPUT2.toString()) //
+						.setInputChannelAddress100Percent(IO_INPUT_OUTPUT3.toString()) //						
 						.build())
 				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, -15000) //
