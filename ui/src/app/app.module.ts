@@ -13,6 +13,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { AngularMyDatePickerModule } from '@nodro7/angular-mydatepicker';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { AppService } from './app.service';
 import { CheckForUpdateService } from './appupdateservice';
 import { ChangelogModule } from './changelog/changelog.module';
 import { EdgeModule } from './edge/edge.module';
@@ -63,6 +64,7 @@ import { UserModule } from './user/user.module';
     { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
     Pagination,
     CheckForUpdateService,
+    AppService,
   ],
   bootstrap: [AppComponent],
 })
