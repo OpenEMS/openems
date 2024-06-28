@@ -9,8 +9,8 @@
 		<dependency>
 			<!-- Bnd Gradle Plugin For The Bnd Workspace -->
 			<!-- On update: also update gradle.properties file -->
-			<groupId>biz.aQute.bnd.workspace</groupId>
-			<artifactId>biz.aQute.bnd.workspace.gradle.plugin</artifactId>
+			<groupId>biz.aQute.bnd</groupId>
+			<artifactId>biz.aQute.bnd.gradle</artifactId>
 			<version>7.0.0</version>
 		</dependency>
 		<!-- com -->
@@ -260,6 +260,11 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
+			<version>0.18.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.dhatim</groupId>
+			<artifactId>fastexcel-reader</artifactId>
 			<version>0.18.0</version>
 		</dependency>
 		<dependency>
