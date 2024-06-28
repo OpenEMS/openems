@@ -49,12 +49,13 @@ import { OverViewComponent } from './index/overview/overview.component';
 import { DataService } from './shared/genericComponents/shared/dataservice';
 import { UserComponent } from './user/user.component';
 import { DetailsOverviewComponent } from './edge/history/common/production/details/details.overview';
+import { LoadingScreenComponent } from './index/shared/loading-screen';
 
 const routes: Routes = [
 
   // TODO should be removed in the future
-  { path: 'index', redirectTo: 'login', pathMatch: 'full' },
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'index', pathMatch: 'full' },
+  { path: 'index', component: LoadingScreenComponent },
   { path: 'login', component: LoginComponent, data: { navbarTitle: environment.uiTitle } },
 
   { path: 'overview', component: OverViewComponent },
@@ -125,7 +126,7 @@ const routes: Routes = [
 
   { path: 'demo', component: LoginComponent },
   // Fallback
-  { path: '**', pathMatch: 'full', redirectTo: 'login' },
+  { path: '**', pathMatch: 'full', redirectTo: 'index' },
 ];
 
 export const appRoutingProviders: any[] = [];
