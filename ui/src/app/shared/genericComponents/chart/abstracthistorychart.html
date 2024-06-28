@@ -1,5 +1,5 @@
 <oe-history-data-error [response]="errorResponse"></oe-history-data-error>
-<table class="full_width">
+<table class="full_width" *ngIf="chartTitle">
     <tr>
         <td style="width: 100%" class="ion-padding">{{chartTitle}}</td>
     </tr>
@@ -7,6 +7,7 @@
 <div [style.height.px]="getChartHeight()">
     <ngx-spinner [name]="spinnerId"></ngx-spinner>
     <ng-container *ngIf="!loading">
-        <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" [type]="chartType"></canvas>
+        <canvas style="padding-bottom: 2vh;" baseChart [datasets]="datasets" [labels]="labels" [options]="options"
+            [type]="chartType"></canvas>
     </ng-container>
 </div>

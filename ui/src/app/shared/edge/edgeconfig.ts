@@ -249,6 +249,17 @@ export class EdgeConfig {
     }
 
     /**
+     * Determines if component has nature
+     *
+     * @param nature the given Nature.
+     * @param componentId the Component-ID
+     */
+    public hasComponentNature(nature: string, componentId: string) {
+        const natureIds = this.getNatureIdsByComponentId(componentId);
+        return natureIds.includes(nature);
+    }
+
+    /**
      * Determines if Edge has a Storage device
      */
     public hasStorage(): boolean {
