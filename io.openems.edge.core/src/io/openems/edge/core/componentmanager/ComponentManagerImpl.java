@@ -399,7 +399,6 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			final var request = call.getRequest();
 			final var channel = this.getChannel(new ChannelAddress(request.componentId(), request.channelId()));
 
-			Thread.sleep(5000);
 			return new GetChannel.Response(toChannelRecord(channel));
 		});
 
