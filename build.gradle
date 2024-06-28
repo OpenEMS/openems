@@ -80,8 +80,8 @@ subprojects {
 				html.required = false
 				sarif.required = false
 			}
-			minHeapSize = "256m"
-			maxHeapSize = "1g"
+			minHeapSize = "512m"
+			maxHeapSize = "2048m"
 			// Exclude com.dalsemi.onewire
 			exclude '**/com/dalsemi/onewire/*'
 		}
