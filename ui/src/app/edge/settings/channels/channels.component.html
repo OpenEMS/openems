@@ -133,14 +133,14 @@
                       <ng-container *ngIf="channelConfig.type === 'BOOLEAN'; else no_boolean">
                         <!-- show Toggle for boolean value  -->
                         <ion-toggle #valueToggle></ion-toggle>
-                        <ion-button (click)="setChannelValue(channelAddress, valueToggle.checked)" slot="end"
+                        <ion-button (click)="setChannelValue(component.key, channel.key, valueToggle.checked)" slot="end"
                           color="light">
                           <ion-icon slot="icon-only" name="send-outline"></ion-icon>
                         </ion-button>
                       </ng-container>
                       <ng-template #no_boolean>
                         <ion-input placeholder="value" #channelValue></ion-input>
-                        <ion-button (click)="setChannelValue(channelAddress, channelValue.value)" slot="end"
+                        <ion-button (click)="setChannelValue(component.key, channel.key, channelValue.value)" slot="end"
                           color="light">
                           <ion-icon slot="icon-only" name="send-outline"></ion-icon>
                         </ion-button>
