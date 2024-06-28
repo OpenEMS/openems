@@ -70,6 +70,12 @@ public enum OpenemsAppCategory {
 	API("api"),
 
 	/**
+	 * Timedata..
+	 *
+	 */
+	TIMEDATA("timedata"),
+	
+	/**
 	 * Category for test apps.
 	 *
 	 * <p>

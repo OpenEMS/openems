@@ -46,12 +46,13 @@ public final class AllowedChannels {
 				.putAll(multiChannels("ess", 0, 17, "ReactivePower", DataType.LONG)) //
 				.put("ctrlIoHeatingElement0/Level", DataType.LONG) //
 				.put("ctrlGridOptimizedCharge0/DelayChargeMaximumChargeLimit", DataType.LONG) //
-				.putAll(multiChannels("charger", 0, 10, "ActualPower", DataType.LONG)) //
+				.putAll(multiChannels("charger", 0, 20, "ActualPower", DataType.LONG)) //
 				.put("ctrlEmergencyCapacityReserve0/ActualReserveSoc", DataType.LONG) //
 				.put("ctrlGridOptimizedCharge0/_PropertyMaximumSellToGridPower", DataType.LONG) //
 				.putAll(multiChannels("meter", 0, 10, "ActivePower", DataType.LONG)) //
 				.putAll(multiChannels("meter", 0, 10, "ActivePowerL", 1, 4, DataType.LONG)) //
 				.putAll(multiChannels("pvInverter", 0, 10, "ActivePower", DataType.LONG)) //
+				.putAll(multiChannels("pvInverter", 0, 10, "ActivePowerL", 1, 4, DataType.LONG)) //
 				.put("_sum/EssDischargePower", DataType.LONG) // used for xlsx export
 				.put("ctrlGridOptimizedCharge0/SellToGridLimitMinimumChargeLimit", DataType.LONG) //
 				.put("ctrlEssTimeOfUseTariff0/QuarterlyPrices", DataType.DOUBLE) //
@@ -87,10 +88,13 @@ public final class AllowedChannels {
 				.put("ctrlEssTimeOfUseTariff0/ChargedTime", DataType.LONG) //
 				.putAll(multiChannels("evcs", 0, 10, "ActiveConsumptionEnergy", DataType.LONG)) //
 				.putAll(multiChannels("meter", 0, 10, "ActiveProductionEnergy", DataType.LONG)) //
+				.putAll(multiChannels("meter", 0, 10, "ActiveProductionEnergyL", 1, 4, DataType.LONG)) //
 				.putAll(multiChannels("meter", 0, 10, "ActiveConsumptionEnergy", DataType.LONG)) //
+				.putAll(multiChannels("meter", 0, 10, "ActiveConsumptionEnergyL", 1, 4, DataType.LONG)) //
 				.putAll(multiChannels("io", 0, 10, "ActiveProductionEnergy", DataType.LONG)) //
 				.putAll(multiChannels("pvInverter", 0, 10, "ActiveProductionEnergy", DataType.LONG)) //
-				.putAll(multiChannels("charger", 0, 10, "ActualEnergy", DataType.LONG)) //
+				.putAll(multiChannels("pvInverter", 0, 10, "ActiveProductionEnergyL", 1, 4, DataType.LONG)) //
+				.putAll(multiChannels("charger", 0, 20, "ActualEnergy", DataType.LONG)) //
 				.put("ctrlGridOptimizedCharge0/AvoidLowChargingTime", DataType.LONG) //
 				.put("ctrlGridOptimizedCharge0/NoLimitationTime", DataType.LONG) //
 				.put("ctrlGridOptimizedCharge0/SellToGridLimitTime", DataType.LONG) //
@@ -170,16 +174,18 @@ public final class AllowedChannels {
 		if (type == null) {
 			return false;
 		}
-		final var number = value.getAsNumber();
-		switch (type) {
-		case DOUBLE:
-			builder.addField(field, number.doubleValue());
-			return true;
-		case LONG:
-			builder.addField(field, number.longValue());
-			return true;
+
+		var number = value.getAsNumber();
+
+		if (number.getClass().getName().equals("com.google.gson.internal.LazilyParsedNumber")) {
+			number = number.doubleValue();
 		}
-		return false;
+
+		switch (type) {
+		case DOUBLE -> builder.addField(field, number.doubleValue());
+		case LONG -> builder.addField(field, number.longValue());
+		}
+		return true;
 	}
 
 	protected static enum DataType {

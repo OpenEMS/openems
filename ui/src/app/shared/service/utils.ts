@@ -659,7 +659,7 @@ export namespace HistoryUtils {
   export type DisplayValues = {
     name: string,
     /** suffix to the name */
-    nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string,
+    nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string | null,
     /** Convert the values to be displayed in Chart */
     converter: () => any,
     /** If dataset should be hidden on Init */

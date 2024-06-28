@@ -70,6 +70,19 @@ export class EdgePermission {
     return !edge.isVersionAtLeast('2024.6.1');
   }
 
+  /**
+   * Determines if the edge has only the factories which are used by the
+   * active components in the edgeconfig or if all factories are inlcuded.
+   *
+   * The reason this was introduced is to reduce the size of the EdgeConfig
+   * and therefore improve performance in network, backend, ui, edge.
+   *
+   * @returns true if only the factories of the used components are in the edgeconfig
+   */
+  public static hasReducedFactories(edge: Edge): boolean {
+    return edge.isVersionAtLeast('2024.6.1');
+  }
+
 }
 
 export class UserPermission {

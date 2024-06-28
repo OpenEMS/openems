@@ -1,5 +1,8 @@
 <header></header>
 <ion-content>
+  <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh()">
+    <ion-refresher-content refreshingSpinner="crescent" class="ion-justify-content-center"></ion-refresher-content>
+  </ion-refresher>
   <oe-history-data-error [response]="errorResponse"></oe-history-data-error>
 
   <!-- Only displayed when history allowed to be seen -->

@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { BehaviorSubject, Subject } from "rxjs";
 
 import { ChannelAddress, Edge } from "../../shared";
+import { RefresherCustomEvent } from "@ionic/angular";
 
 @Injectable()
 export abstract class DataService {
@@ -29,4 +30,6 @@ export abstract class DataService {
    * @param channels the channels
    */
   public abstract unsubscribeFromChannels(channels: ChannelAddress[]);
+
+  public abstract refresh(ev: RefresherCustomEvent);
 }

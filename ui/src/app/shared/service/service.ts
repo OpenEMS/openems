@@ -169,14 +169,10 @@ export class Service extends AbstractService {
   public getConfig(): Promise<EdgeConfig> {
     return new Promise<EdgeConfig>((resolve, reject) => {
       this.getCurrentEdge().then(edge => {
-        edge.getConfig(this.websocket).pipe(
-          filter(config => config != null && config.isValid()),
-          first(),
-        ).toPromise()
-          .then(config => resolve(config))
-          .catch(reason => reject(reason));
-      })
-        .catch(reason => reject(reason));
+        edge.getFirstValidConfig(this.websocket)
+          .then(resolve)
+          .catch(reject);
+      }).catch(reason => reject(reason));
     });
   }
 

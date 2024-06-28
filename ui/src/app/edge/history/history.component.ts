@@ -2,6 +2,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { AppService } from 'src/app/app.service';
 import { HeaderComponent } from 'src/app/shared/header/header.component';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { Edge, EdgeConfig, Service, Widgets } from 'src/app/shared/shared';
@@ -33,6 +34,7 @@ export class HistoryComponent implements OnInit {
   // public channelthresholdComponents: string[] = [];
 
   public config: EdgeConfig = null;
+  protected handleRefresh: () => void = () => AppService.handleRefresh();
 
   constructor(
     public service: Service,
