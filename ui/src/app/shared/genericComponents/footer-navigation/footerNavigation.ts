@@ -6,7 +6,7 @@ export type NavigationOption = {
   id: string,
   callback: () => void,
   alias?: string,
-}
+};
 
 @Component({
   selector: 'oe-footer-subnavigation',

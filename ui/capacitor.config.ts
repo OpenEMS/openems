@@ -28,28 +28,17 @@ const baseConfig: CapacitorConfig = {
 }
 
 switch (process.env.NODE_ENV as Theme) {
-  case 'FENECON':
-    config = {
-      ...baseConfig,
-      appId: 'de.fenecon.fems',
-      appName: 'FENECON',
-      server: {
-        ...baseConfig.server,
-        hostname: 'portal.fenecon.de'
-      }
-    }
-    break;
-  case 'Heckert':
-    config = {
-      ...baseConfig,
-      appId: 'com.heckertsolar.ems',
-      appName: 'Heckert',
-      server: {
-        ...baseConfig.server,
-        hostname: 'symphon-e.heckert-solar.com'
-      }
-    }
-    break;
+  // case 'EXAMPLE':
+  //   config = {
+  //     ...baseConfig,
+  //     appId: 'io.openems.ui',
+  //     appName: 'EXAMPL',
+  //     server: {
+  //       ...baseConfig.server,
+  //       hostname: 'portal.openems.io'
+  //     }
+  //   }
+  //   break;
   default:
     throw new Error(`Capacitor config for theme ${process.env.NODE_ENV} not implemented.`)
 }

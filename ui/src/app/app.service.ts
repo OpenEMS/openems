@@ -97,7 +97,7 @@ export class AppService {
     *
     * @param clickedApp the app that has been clicked
     */
-  public async presentAlert(header: string, message: string, successCallback: Function) {
+  public async presentAlert(header: string, message: string, successCallback: () => void) {
 
     const alert = this.alertCtrl.create({
       header: header,
