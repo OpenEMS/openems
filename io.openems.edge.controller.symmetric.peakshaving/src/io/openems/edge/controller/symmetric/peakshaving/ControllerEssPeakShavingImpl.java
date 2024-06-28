@@ -69,8 +69,7 @@ public class ControllerEssPeakShavingImpl extends AbstractOpenemsComponent
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
 		switch (gridMode) {
-		case ON_GRID:
-		case UNDEFINED:
+		case ON_GRID, UNDEFINED:
 			break;
 		case OFF_GRID:
 			return;
@@ -80,30 +79,29 @@ public class ControllerEssPeakShavingImpl extends AbstractOpenemsComponent
 		var gridPower = meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
 				+ ess.getActivePower().getOrError() /* current charge/discharge Ess */;
 
-		int calculatedPower;
+		Integer calculatedPower = null;
 		if (gridPower >= this.config.peakShavingPower()) {
 			/*
 			 * Peak-Shaving
 			 */
 			calculatedPower = gridPower -= this.config.peakShavingPower();
 
-		} else if (gridPower <= this.config.rechargePower()) {
+		} else if (this.config.enableRecharge() && gridPower <= this.config.rechargePower()) {
 			/*
 			 * Recharge
 			 */
 			calculatedPower = gridPower -= this.config.rechargePower();
 
-		} else {
+		} else if (this.config.isStandalone()) {
 			/*
-			 * Do nothing
+			 * Standalone
 			 */
 			calculatedPower = 0;
 		}
-
-		/*
-		 * set result
-		 */
-		ess.setActivePowerEqualsWithPid(calculatedPower);
-		ess.setReactivePowerEquals(0);
+		
+		if (calculatedPower != null) {
+			ess.setActivePowerEqualsWithPid(calculatedPower);
+			ess.setReactivePowerEquals(0);
+		}
 	}
 }
