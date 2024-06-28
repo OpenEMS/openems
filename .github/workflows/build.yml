@@ -70,9 +70,10 @@ jobs:
           node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
           node_modules/.bin/ng lint
           export CHROME_BIN=/usr/bin/google-chrome-stable
-          npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+          npm run test -- --code-coverage --no-watch --no-progress --browsers=ChromeHeadlessCI
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
+          directory: ./ui/
           token: ${{ secrets.CODECOV_TOKEN }}
