@@ -22,35 +22,22 @@ android {
     
     flavorDimensions "version"
     productFlavors {
-        create("heckert") {
-            applicationId  "com.heckertsolar.ems"
-            namespace "com.heckertsolar.ems"
-            dimension "version"
-        }
-        create("fenecon") {
-            applicationId  "de.fenecon.fems"
-            namespace "de.fenecon.fems"
-            dimension "version"
-        }
+        // create("example") {
+        //     applicationId  "io.example.ui"
+        //     namespace "io.example.ui"
+        //     dimension "version"
+        // }
     }
 
     sourceSets {
-        heckert {
-            res {
-                srcDirs 'src/heckert/res'
-            }
-            java {
-                srcDirs 'src/heckert/java'
-            }
-        }
-        fenecon {
-            res {
-                srcDirs 'src/fenecon/res'
-            }
-            java {
-                srcDirs 'src/fenecon/java'
-            }
-        }
+        // example {
+        //     res {
+        //         srcDirs 'src/example/res'
+        //     }
+        //     java {
+        //         srcDirs 'src/example/java'
+        //     }
+        // }
     }
 
     signingConfigs {

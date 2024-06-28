@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">FENECON</string>
-    <string name="title_activity_main">FENECON</string>
-    <string name="package_name">de.fenecon.fems</string>
-    <string name="custom_url_scheme">de.fenecon.fems</string>
-</resources>
