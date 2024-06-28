@@ -7,9 +7,13 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Longs;
 import com.google.gson.JsonElement;
 import com.influxdb.client.write.Point;
 import com.influxdb.exceptions.InfluxException;
+
+import io.openems.common.utils.JsonUtils;
 
 /**
  * Handles Influx FieldTypeConflictExceptions. This helper provides conversion
@@ -54,33 +58,19 @@ public class FieldTypeConflictHandler {
 			return false;
 		}
 
-		var handler = this.createAndAddHandler(field, requiredType);
+		this.specialCaseFieldHandlers.computeIfAbsent(field, t -> this.createHandler(t, requiredType));
 
-		if (handler == null) {
-			this.parent.logWarn(this.log, "Unable to add special field handler for [" + field + "] from [" + thisType
-					+ "] to [" + requiredType.name().toLowerCase() + "]");
-		}
 		this.parent.logInfo(this.log,
 				"Add handler for [" + field + "] from [" + thisType + "] to [" + requiredType.name().toLowerCase()
 						+ "]\n" //
 						+ "Add predefined FieldTypeConflictHandler: this.createAndAddHandler(\"" + field
 						+ "\", RequiredType." + requiredType.name() + ");");
-		;
 
 		return true;
 	}
 
 	private static enum RequiredType {
 		STRING, INTEGER, FLOAT;
-	}
-
-	private BiConsumer<Point, JsonElement> createAndAddHandler(String field, RequiredType requiredType)
-			throws IllegalStateException {
-		var handler = this.createHandler(field, requiredType);
-		if (this.specialCaseFieldHandlers.put(field, handler) != null) {
-			throw new IllegalStateException("Handler for field [" + field + "] was already existing");
-		}
-		return handler;
 	}
 
 	/**
@@ -91,51 +81,35 @@ public class FieldTypeConflictHandler {
 	 * @param requiredType the {@link RequiredType}
 	 * @return the Handler
 	 */
-	private BiConsumer<Point, JsonElement> createHandler(String field, RequiredType requiredType) {
-		switch (requiredType) {
-		case STRING:
-			return (builder, jValue) -> {
-				var value = getAsFieldTypeString(jValue);
-				if (value != null) {
-					builder.addField(field, value);
-				}
-			};
+	protected BiConsumer<Point, JsonElement> createHandler(String field, RequiredType requiredType) {
+		return switch (requiredType) {
+		case STRING -> (builder, jValue) -> {
+			var value = getAsFieldTypeString(jValue);
+			if (value != null) {
+				builder.addField(field, value);
+			}
+		};
 
-		case INTEGER:
-			return (builder, jValue) -> {
-				try {
-					var value = getAsFieldTypeNumber(jValue);
-					if (value != null) {
-						builder.addField(field, value);
-					}
-				} catch (NumberFormatException e1) {
-					try {
-						// Failed -> try conversion to float and then to int
-						var value = getAsFieldTypeFloat(jValue);
-						if (value != null) {
-							builder.addField(field, Math.round(value));
-						}
-					} catch (NumberFormatException e2) {
-						this.parent.logWarn(this.log, "Unable to convert field [" + field + "] value [" + jValue
-								+ "] to integer: " + e2.getMessage());
-					}
-				}
-			};
+		case INTEGER -> (builder, jValue) -> {
+			final var value = getAsFieldTypeLong(jValue);
+			if (value == null) {
+				this.parent.logWarn(this.log,
+						"Unable to convert field [" + field + "] value [" + jValue + "] to integer");
+				return;
+			}
+			builder.addField(field, value);
+		};
 
-		case FLOAT:
-			return (builder, jValue) -> {
-				try {
-					var value = getAsFieldTypeFloat(jValue);
-					if (value != null) {
-						builder.addField(field, value);
-					}
-				} catch (NumberFormatException e1) {
-					this.parent.logInfo(this.log, "Unable to convert field [" + field + "] value [" + jValue
-							+ "] to float: " + e1.getMessage());
-				}
-			};
-		}
-		return null; // can never happen
+		case FLOAT -> (builder, jValue) -> {
+			final var value = getAsFieldTypeDouble(jValue);
+			if (value == null) {
+				this.parent.logWarn(this.log,
+						"Unable to convert field [" + field + "] value [" + jValue + "] to float");
+				return;
+			}
+			builder.addField(field, value);
+		};
+		};
 	}
 
 	/**
@@ -144,7 +118,7 @@ public class FieldTypeConflictHandler {
 	 * @param jValue the value
 	 * @return the value as String; null if value represents null
 	 */
-	private static String getAsFieldTypeString(JsonElement jValue) {
+	protected static String getAsFieldTypeString(JsonElement jValue) {
 		if (jValue.isJsonNull()) {
 			return null;
 		}
@@ -152,49 +126,80 @@ public class FieldTypeConflictHandler {
 	}
 
 	/**
-	 * Convert JsonElement to Number.
+	 * Convert JsonElement to Long.
 	 *
 	 * @param jValue the value
-	 * @return the value as Number; null if value represents null
-	 * @throws NumberFormatException on error
+	 * @return the value as Long; null if value represents null
 	 */
-	private static Number getAsFieldTypeNumber(JsonElement jValue) throws NumberFormatException {
-		if (jValue.isJsonNull()) {
+	protected static Long getAsFieldTypeLong(JsonElement jValue) {
+		if (!jValue.isJsonPrimitive()) {
 			return null;
 		}
-		var value = jValue.toString().replace("\"", "");
-		if (value.isEmpty()) {
-			return null;
+		if (JsonUtils.isNumber(jValue)) {
+			return jValue.getAsNumber().longValue();
 		}
-		try {
-			return Long.parseLong(value);
-		} catch (NumberFormatException e1) {
-			if (value.equalsIgnoreCase("false")) {
-				return 0L;
-			} else if (value.equalsIgnoreCase("true")) {
-				return 1L;
-			} else {
-				throw e1;
-			}
+		final var string = jValue.getAsString().replace("\"", "");
+
+		final var longValue = Longs.tryParse(string);
+		if (longValue != null) {
+			return longValue;
 		}
+
+		final var doubleValue = Doubles.tryParse(string);
+		if (doubleValue != null) {
+			return doubleValue.longValue();
+		}
+
+		final var bool = tryParseToBooleanNumber(string);
+		if (bool != null) {
+			return bool.longValue();
+		}
+
+		return null;
 	}
 
 	/**
-	 * Convert JsonElement to Float.
+	 * Convert JsonElement to Double.
 	 *
 	 * @param jValue the value
-	 * @return the value as Float; null if value represents null
-	 * @throws NumberFormatException on error
+	 * @return the value as Double; null if value represents null
 	 */
-	private static Float getAsFieldTypeFloat(JsonElement jValue) throws NumberFormatException {
-		if (jValue.isJsonNull()) {
+	protected static Double getAsFieldTypeDouble(JsonElement jValue) {
+		if (!jValue.isJsonPrimitive()) {
 			return null;
 		}
-		var value = jValue.toString().replace("\"", "");
-		if (value.isEmpty()) {
+		if (JsonUtils.isNumber(jValue)) {
+			return jValue.getAsNumber().doubleValue();
+		}
+		final var string = jValue.getAsString().replace("\"", "");
+
+		final var doubleValue = Doubles.tryParse(string);
+		if (doubleValue != null) {
+			return doubleValue;
+		}
+
+		final var bool = tryParseToBooleanNumber(string);
+		if (bool != null) {
+			return bool.doubleValue();
+		}
+
+		return null;
+	}
+
+	private static Boolean tryParseBoolean(String value) {
+		return switch (value) {
+		case "true" -> true;
+		case "false" -> false;
+		default -> null;
+		};
+	}
+
+	private static Integer tryParseToBooleanNumber(String value) {
+		final var bool = tryParseBoolean(value);
+		if (bool == null) {
 			return null;
 		}
-		return Float.parseFloat(value);
+		return bool ? 1 : 0;
 	}
 
 	/**
