@@ -4,6 +4,8 @@
     "actualPower": "e-car Laad vermogen",
     "autarchy": "Autarkie",
     "automatic": "Automatisch",
+    "auto": "Auto",
+    "onDateAtTime": "op {{date}} om {{time}}",
     "cancel": "annuleren",
     "capacity": "Hoedanigheid",
     "changeAccepted": "Wijziging geaccepteerd",
@@ -196,6 +198,11 @@
           "switchOnAbove": "Inschakelen via",
           "switchOnBelow": "Inschakelen onder",
           "threshold": "Thresholded"
+        },
+        "Timeframe": {
+          "targetSoc": "Doel laadstatus",
+          "endTime": "Eindtijd",
+          "startTime": "Starttijd"
         },
         "Peakshaving": {
           "asymmetricInfo": "De ingevoerde prestatiewaarden verwijzen naar afzonderlijke fasen. Het is aangepast aan de meest gestresste fase.",

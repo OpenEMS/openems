@@ -5,6 +5,8 @@
     "apply": "Apply",
     "autarchy": "Autarcie",
     "automatic": "Automatiquement",
+    "auto": "Auto",
+    "onDateAtTime": "le {{date}} à {{time}}",
     "cancel": "cancel",
     "capacity": "Capacité",
     "numberOfComponents": "nombre de composants",
@@ -213,6 +215,11 @@
           "sellToGridPowerLimit": "Charge ci-dessus",
           "continuousSellToGridPower": "Décharge ci-dessous",
           "relationError": "La limite de charge doit être supérieure à la limite de décharge"
+        },
+        "Timeframe": {
+          "targetSoc": "État de charge cible",
+          "endTime": "Heure de fin",
+          "startTime": "Heure de début"
         },
         "Peakshaving": {
           "asymmetricInfo": "The entered performance values ​​refer to individual phases. It is adjusted to the most stressed phase.",
