@@ -61,6 +61,11 @@
           "continuousSellToGridPower": "Entladung unter",
           "relationError": "Beladungsgrenze muss größer der Entladungsgrenze sein"
         },
+        "Timeframe": {
+          "targetSoc": "Ziel-Ladezustand",
+          "endTime": "End-Zeit",
+          "startTime": "Start-Zeit"
+        },
         "Peakshaving": {
           "asymmetricInfo": "Eingetragene Leistungswerte beziehen sich auf einzelne Phasen. Es wird auf die jeweils am stärksten belastete Phase ausgeregelt.",
           "endDate": "End Datum",
@@ -455,6 +460,7 @@
     "apply": "Übernehmen",
     "autarchy": "Autarkie",
     "automatic": "Automatisch",
+    "auto": "Auto",
     "cancel": "abbrechen",
     "capacity": "Kapazität",
     "changeAccepted": "Änderung übernommen",
@@ -497,6 +503,7 @@
     "offGrid": "Keine Netzverbindung!",
     "ok": "ok",
     "on": "An",
+    "onDateAtTime": "{{date}} um {{time}}",
     "otherConsumption": "Sonstiger",
     "percentage": "Prozent",
     "periodFromTo": "{{ value1 }} - {{ value2 }}",

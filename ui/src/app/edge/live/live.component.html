@@ -133,6 +133,10 @@
                 <Controller_Ess_FixActivePower [componentId]="widget.componentId"></Controller_Ess_FixActivePower>
               </ion-col>
 
+              <ion-col size="12" *ngSwitchCase="'Controller.Ess.Timeframe'" size-xl="6" class="ion-no-padding">
+                <Controller_Ess_Timeframe [componentId]="widget.componentId"></Controller_Ess_Timeframe>
+              </ion-col>
+
               <ion-col size="12" *ngSwitchCase="'Controller.Ess.GridOptimizedCharge'" size-lg="6"
                 class="ion-no-padding">
                 <Controller_Ess_GridOptimizedCharge [componentId]="widget.componentId">

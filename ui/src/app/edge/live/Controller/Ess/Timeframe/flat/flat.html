@@ -1,0 +1,16 @@
+<ng-container *ngIf="isInitialized">
+  <oe-flat-widget (click)="presentModal()" [icon]="{name:'swap-vertical-outline'}" [title]="component.alias">
+    <oe-flat-widget-line [name]="'General.state' | translate" [value]="propertyMode"
+                         [converter]="CONVERT_MANUAL_AUTO_OFF">
+    </oe-flat-widget-line>
+
+    <ng-container *ngIf="propertyMode !== 'OFF'">
+      <oe-flat-widget-line [name]="'Edge.Index.Widgets.Timeframe.targetSoc' | translate" [value]="targetSoC ?? '-'"
+                           [converter]="CONVERT_TO_PERCENT"></oe-flat-widget-line>
+      <oe-flat-widget-line [name]="'Edge.Index.Widgets.Timeframe.startTime' | translate"
+                           [value]="startTime"></oe-flat-widget-line>
+      <oe-flat-widget-line [name]="'Edge.Index.Widgets.Timeframe.endTime' | translate"
+                           [value]="endTime"></oe-flat-widget-line>
+    </ng-container>
+  </oe-flat-widget>
+</ng-container>

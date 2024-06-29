@@ -1,0 +1,42 @@
+<oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized">
+
+  <oe-modal-line [name]="'General.state' | translate" [channelAddress]="component.id + '/_PropertyMode'"
+                 [converter]="CONVERT_MANUAL_AUTO_OFF">
+  </oe-modal-line>
+
+  <ng-container *ngIf="formGroup.value.mode !== 'OFF'">
+    <oe-modal-line [name]="'Edge.Index.Widgets.Timeframe.targetSoc' | translate" [value]="targetSoC ?? '-'"
+                   [converter]="CONVERT_TO_PERCENT">
+    </oe-modal-line>
+    <oe-modal-line [name]="'Edge.Index.Widgets.Timeframe.startTime' | translate" [value]="startTime">
+    </oe-modal-line>
+    <oe-modal-line [name]="'Edge.Index.Widgets.Timeframe.endTime' | translate" [value]="endTime">
+    </oe-modal-line>
+  </ng-container>
+
+  <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
+  <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="[
+    { name: ('General.manually' | translate), value: 'MANUAL', icon: {color:'success', name: 'power-outline'}},
+    { name: ('General.off' | translate), value: 'OFF', icon: {color:'primary', name: 'power-outline'}}]">
+  </oe-modal-buttons>
+
+  <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
+  <ng-container *ngIf="formGroup.value.mode === 'MANUAL'">
+    <oe-modal-line [name]="'Edge.Index.Widgets.Timeframe.targetSoc'| translate" [formGroup]="formGroup"
+                   controlName="targetSoC"
+                   [control]="{ type: 'RANGE', properties: { min: 0, max: 100, unit: '%', step:1 } }">
+    </oe-modal-line>
+
+    <oe-modal-horizontal-line></oe-modal-horizontal-line>
+    <oe-modal-line [name]="'Edge.Index.Widgets.Timeframe.startTime'| translate" [formGroup]="formGroup"
+                   controlName="startTime"
+                   [control]="{ type: 'DATE_PICKER'}">
+    </oe-modal-line>
+    <oe-modal-line [name]="'Edge.Index.Widgets.Timeframe.endTime'| translate" [formGroup]="formGroup"
+                   controlName="endTime"
+                   [control]="{ type: 'DATE_PICKER'}">
+    </oe-modal-line>
+  </ng-container>
+</oe-modal>

@@ -24,6 +24,7 @@ export enum WidgetFactory {
     'Controller.ChannelThreshold',
     'Controller.CHP.SoC',
     'Controller.Ess.DelayedSellToGrid',
+    'Controller.Ess.Timeframe',
     'Controller.Ess.FixActivePower',
     'Controller.Ess.GridOptimizedCharge',
     'Controller.Ess.Time-Of-Use-Tariff.Discharge',

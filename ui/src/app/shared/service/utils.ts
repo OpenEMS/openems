@@ -291,6 +291,17 @@ export class Utils {
   };
 
   /**
+   * Converts a date to Date and Time string.
+   *
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
+  public static CONVERT_DATE = (value: Date | number | string): string => {
+    const date = new Date(value)
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+  };
+
+  /**
    * Adds unit percentage [%] to a value.
    *
    * @param value the value from passed value in html
@@ -332,6 +343,26 @@ export class Utils {
         return translate.instant('General.on');
       } else if (value === 'MANUAL_OFF') {
         return translate.instant('General.off');
+      } else {
+        return '-';
+      }
+    };
+  };
+
+  /**
+   * Converts states 'MANUAL', 'AUTO' and 'OFF' to translated strings.
+   *
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
+  public static CONVERT_MANUAL_AUTO_OFF = (translate: TranslateService) => {
+    return (value: DefaultTypes.ManualOffAuto): string => {
+      if (value === 'MANUAL') {
+        return translate.instant('General.manually');
+      } else if (value === 'OFF') {
+        return translate.instant('General.off');
+      } else if (value === 'AUTO') {
+        return translate.instant('General.auto');
       } else {
         return '-';
       }

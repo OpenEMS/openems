@@ -12,6 +12,7 @@ import { StorageComponent } from './common/storage/storage.component';
 import { Controller_ChannelthresholdComponent } from './Controller/Channelthreshold/Channelthreshold';
 import { Controller_ChpSocComponent } from './Controller/ChpSoc/ChpSoc';
 import { Controller_ChpSocModalComponent } from './Controller/ChpSoc/modal/modal.component';
+import {Controller_Ess_Timeframe} from "./Controller/Ess/Timeframe/Ess_Timeframe";
 import { Controller_Ess_FixActivePower } from './Controller/Ess/FixActivePower/Ess_FixActivePower';
 import { Controller_Ess_GridOptimizedCharge } from './Controller/Ess/GridOptimizedCharge/Ess_GridOptimizedCharge';
 import { Controller_Ess_TimeOfUseTariff } from './Controller/Ess/TimeOfUseTariff/Ess_TimeOfUseTariff';
@@ -54,6 +55,7 @@ import { OfflineComponent } from './offline/offline.component';
     Common_Grid,
     // Controller
     Controller_Ess_FixActivePower,
+    Controller_Ess_Timeframe,
     Controller_Ess_GridOptimizedCharge,
     Controller_Io_HeatingElement,
     EnergymonitorModule,
