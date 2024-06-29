@@ -1,0 +1,5 @@
+= Symmetric Timeframe
+
+Defines a timeframe to bring a symmetric energy storage system to a specified SoC.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.timeframe[Source Code icon:github[]]

@@ -61,6 +61,11 @@
           "continuousSellToGridPower": "以下で放電します",
           "relationError": "充電制限は、排出制限よりも大きくなければなりません"
         },
+        "Timeframe": {
+          "targetSoc": "目標の充電状態",
+          "endTime": "終了時間",
+          "startTime": "開始時間"
+        },
         "Peakshaving": {
           "asymmetricInfo": "入力されたパフォーマンス値は、個々のフェーズを指します。最も強調されたフェーズに調整されます。",
           "endDate": "終了日",
@@ -405,6 +410,8 @@
     "apply": "適用",
     "autarchy": "再生可能エネルギー率",
     "automatic": "自動",
+    "auto": "自動",
+    "onDateAtTime": "{{date}}の{{time}}に",
     "cancel": "キャンセル",
     "capacity": "容量",
     "changeAccepted": "変更が承認されました",
