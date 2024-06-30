@@ -153,7 +153,6 @@ public class ControllerEssTimeframeImpl extends AbstractOpenemsComponent
 
     private static Date getDateFromISOString(String iso8601String) {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_DATE_TIME;
-
         OffsetDateTime offsetDateTime = OffsetDateTime.parse(iso8601String, timeFormatter);
 
         return Date.from(Instant.from(offsetDateTime));
