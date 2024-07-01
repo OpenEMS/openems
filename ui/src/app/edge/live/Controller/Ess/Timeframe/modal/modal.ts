@@ -29,8 +29,8 @@ export class ModalComponent extends AbstractModal {
   protected override onCurrentData(currentData: CurrentData) {
     this.targetSoC = currentData.allComponents[this.component.id + '/_PropertyTargetSoC'];
 
-    const start = currentData.allComponents[this.component.id + '/_PropertyStartTime']
-    const end = currentData.allComponents[this.component.id + '/_PropertyEndTime']
+    const start = currentData.allComponents[this.component.id + '/_PropertyStartTime'];
+    const end = currentData.allComponents[this.component.id + '/_PropertyEndTime'];
 
     this.startTime = start ? Utils.CONVERT_DATE(start) : '-';
     this.endTime = end ? Utils.CONVERT_DATE(end) : '-';

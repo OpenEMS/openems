@@ -94,7 +94,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
     @Override
-    public int ess_capacity() {
+    public int fallback_ess_capacity() {
         return this.builder.ess_capacity;
     }
 

@@ -100,13 +100,11 @@ public class ControllerEssTimeframeImpl extends AbstractOpenemsComponent
             isActive = switch (this.config.mode()) {
                 case MANUAL -> {
                     // Apply Active-Power Set-Point
-                    var acPower = getAcPower(this.ess, this.config.ess_capacity(), this.config.targetSoC(), this.config.startTime(), this.config.endTime());
+                    var acPower = getAcPower(this.ess, this.config.fallback_ess_capacity(), this.config.targetSoC(), this.config.startTime(), this.config.endTime());
 
                     if (acPower == null) {
-                        logDebug(log, "Out of specified timeframe");
                         yield false; // is not active
                     } else {
-                        logDebug(log, "Setting AC Power to: [" + acPower + "W]");
                         PowerConstraint.apply(this.ess, this.id(), //
                                 this.config.phase(), Pwr.ACTIVE, this.config.relationship(), acPower);
                         yield true; // is active
@@ -127,18 +125,23 @@ public class ControllerEssTimeframeImpl extends AbstractOpenemsComponent
      * Gets the required AC power set-point for AC-ESS.
      *
      * @param ess       the {@link ManagedSymmetricEss}
+     * @param fallback_ess_capacity capacity of the ess, used as fallback if automatic determination does not work
      * @param targetSoC the target SoC
      * @param startTime the start time of the timeframe
      * @param endTime   the end time of the timeframe
      * @return the AC power set-point
      */
-    protected static Integer getAcPower(ManagedSymmetricEss ess, int ess_capacity, int targetSoC, String startTime, String endTime) throws InvalidValueException {
-        Date start = getDateFromISOString(startTime);
-        Date end = getDateFromISOString(endTime);
+    protected static Integer getAcPower(ManagedSymmetricEss ess, Integer fallback_ess_capacity, int targetSoC, String startTime, String endTime) throws InvalidValueException {
+        Date start = getDateFromIsoString(startTime);
+        Date end = getDateFromIsoString(endTime);
         Date current = new Date();
         if (current.after(start) && current.before(end)) {
             int currentSoC = ess.getSoc().getOrError();
-            int maxEssCapacity = ess.getCapacity().orElse(ess_capacity);
+            Integer maxEssCapacity = ess.getCapacity().orElse(fallback_ess_capacity);
+
+            if (maxEssCapacity == null || maxEssCapacity <= 0) {
+                throw new InvalidValueException("could not determine ESS capacity and no valid fallback capacity was configured.");
+            }
 
             int targetCapacity = maxEssCapacity * targetSoC / 100;
             int currentCapacity = maxEssCapacity * currentSoC / 100;
@@ -151,7 +154,7 @@ public class ControllerEssTimeframeImpl extends AbstractOpenemsComponent
         return null;
     }
 
-    private static Date getDateFromISOString(String iso8601String) {
+    private static Date getDateFromIsoString(String iso8601String) {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_DATE_TIME;
         OffsetDateTime offsetDateTime = OffsetDateTime.parse(iso8601String, timeFormatter);
 

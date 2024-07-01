@@ -297,7 +297,7 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_DATE = (value: Date | number | string): string => {
-    const date = new Date(value)
+    const date = new Date(value);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
   };
 
