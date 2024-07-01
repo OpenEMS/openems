@@ -7,7 +7,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	${buildpath},\
 	io.openems.common,\
 	io.openems.edge.common,\
-	org.openmuc.jmbus;version=3.2,\
+	org.openmuc.jmbus;version=3.3.0,\
 	org.openmuc.jrxtx;version=1.0
 
 -testpath: \

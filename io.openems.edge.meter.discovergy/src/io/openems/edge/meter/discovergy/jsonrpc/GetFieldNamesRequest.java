@@ -1,7 +1,5 @@
 package io.openems.edge.meter.discovergy.jsonrpc;
 
-import java.util.UUID;
-
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -10,7 +8,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request for 'getMeters'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -24,24 +22,37 @@ import io.openems.common.utils.JsonUtils;
  */
 public class GetFieldNamesRequest extends JsonrpcRequest {
 
-	public static GetFieldNamesRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		String meterId = JsonUtils.getAsString(r.getParams(), "meterId");
-		return new GetFieldNamesRequest(r.getId(), meterId);
-	}
-
 	public static final String METHOD = "getFieldNames";
+
+	/**
+	 * Create {@link GetFieldNamesRequest} from a template {@link JsonrpcRequest}.
+	 *
+	 * @param r the template {@link JsonrpcRequest}
+	 * @return the {@link GetFieldNamesRequest}
+	 * @throws OpenemsNamedException on parse error
+	 */
+	public static GetFieldNamesRequest from(JsonrpcRequest r) throws OpenemsNamedException {
+		var meterId = JsonUtils.getAsString(r.getParams(), "meterId");
+		return new GetFieldNamesRequest(r, meterId);
+	}
 
 	private final String meterId;
 
 	public GetFieldNamesRequest(String meterId) {
-		this(UUID.randomUUID(), meterId);
-	}
-
-	public GetFieldNamesRequest(UUID id, String meterId) {
-		super(id, METHOD);
+		super(METHOD);
 		this.meterId = meterId;
 	}
 
+	private GetFieldNamesRequest(JsonrpcRequest request, String meterId) {
+		super(request, METHOD);
+		this.meterId = meterId;
+	}
+
+	/**
+	 * Gets the Meter-ID.
+	 *
+	 * @return Meter-ID
+	 */
 	public String getMeterId() {
 		return this.meterId;
 	}

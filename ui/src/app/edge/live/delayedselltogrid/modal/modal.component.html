@@ -1,0 +1,60 @@
+<ion-header>
+    <ion-toolbar class="ion-justify-content-center" color="primary">
+        <ion-title>{{ component.alias }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ng-container *ngIf="!loading">
+        <form [formGroup]="formGroup">
+            <ion-card-content class="underline">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.DelayedSellToGrid.sellToGridPowerLimit
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="number" formControlName="sellToGridPowerLimit"
+                                    style="text-align: end;">
+                                </ion-input>
+                                <ion-label class="regularFont">&nbsp;W</ion-label>
+                            </ion-item>
+                        </td>
+                    </tr>
+                </table>
+            </ion-card-content>
+            <ion-card-content class="underline">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.DelayedSellToGrid.continuousSellToGridPower
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="number" formControlName="continuousSellToGridPower"
+                                    style="text-align: end;">
+                                </ion-input>
+                                <ion-label class="regularFont">&nbsp;W</ion-label>
+                            </ion-item>
+                        </td>
+                    </tr>
+                </table>
+            </ion-card-content>
+            <ion-fab *ngIf="formGroup.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="end" slot="fixed">
+                <ion-fab-button (click)="applyChanges()">
+                    <ion-icon size="large" name="checkmark-circle-outline">
+                    </ion-icon>
+                </ion-fab-button>
+            </ion-fab>
+        </form>
+    </ng-container>
+    <ion-grid *ngIf="loading === true">
+        <ion-progress-bar type="indeterminate"></ion-progress-bar>
+    </ion-grid>
+</ion-content>

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -45,8 +46,7 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * <H2>Features</H2>
  * <UL>
  * <LI>64 bit unique serial number
- * <LI>Operating temperature range from -40@htmlonly &#176C @endhtmlonly to
- * +85@htmlonly &#176C @endhtmlonly
+ * <LI>Operating temperature range from -40 to +85
  * </UL>
  *
  * <H2>Alternate Names</H2>
@@ -84,7 +84,6 @@ public class OneWireContainer01 extends OneWireContainer {
 	 * @see #setupContainer(DSPortAdapter,String)
 	 */
 	public OneWireContainer01() {
-		super();
 	}
 
 	/**
@@ -141,15 +140,19 @@ public class OneWireContainer01 extends OneWireContainer {
 		super(sourceAdapter, newAddress);
 	}
 
+	@Override
 	public String getName() {
 		return "DS1990A";
 	}
 
+	@Override
 	public String getAlternateNames() {
 		return "DS2401,DS2411";
 	}
 
+	@Override
 	public String getDescription() {
 		return "64-bit unique serial number";
 	}
 }
+// CHECKSTYLE:ON

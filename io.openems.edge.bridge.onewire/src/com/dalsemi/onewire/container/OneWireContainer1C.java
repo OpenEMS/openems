@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2004 Maxim Integrated Products, All Rights Reserved.
  *
@@ -27,6 +28,7 @@
 
 package com.dalsemi.onewire.container;
 
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -73,7 +75,7 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	/**
 	 * Used for 0xFF array
 	 */
-	private byte[] FF = new byte[8];
+	private final byte[] FF = new byte[8];
 
 	// --------
 	// -------- Memory Banks
@@ -140,12 +142,9 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 *      OneWireContainer1C(DSPortAdapter,String)
 	 */
 	public OneWireContainer1C() {
-		super();
+		this.initmem();
 
-		initmem();
-
-		for (int i = 0; i < FF.length; i++)
-			FF[i] = (byte) 0x0FF;
+		Arrays.fill(this.FF, (byte) 0x0FF);
 	}
 
 	/**
@@ -164,10 +163,9 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	public OneWireContainer1C(DSPortAdapter sourceAdapter, byte[] newAddress) {
 		super(sourceAdapter, newAddress);
 
-		initmem();
+		this.initmem();
 
-		for (int i = 0; i < FF.length; i++)
-			FF[i] = (byte) 0x0FF;
+		Arrays.fill(this.FF, (byte) 0x0FF);
 	}
 
 	/**
@@ -186,10 +184,9 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	public OneWireContainer1C(DSPortAdapter sourceAdapter, long newAddress) {
 		super(sourceAdapter, newAddress);
 
-		initmem();
+		this.initmem();
 
-		for (int i = 0; i < FF.length; i++)
-			FF[i] = (byte) 0x0FF;
+		Arrays.fill(this.FF, (byte) 0x0FF);
 	}
 
 	/**
@@ -208,10 +205,9 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	public OneWireContainer1C(DSPortAdapter sourceAdapter, String newAddress) {
 		super(sourceAdapter, newAddress);
 
-		initmem();
+		this.initmem();
 
-		for (int i = 0; i < FF.length; i++)
-			FF[i] = (byte) 0x0FF;
+		Arrays.fill(this.FF, (byte) 0x0FF);
 	}
 
 	// --------
@@ -224,6 +220,7 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 *
 	 * @return iButton or 1-Wire device name
 	 */
+	@Override
 	public String getName() {
 		return "DS28E04";
 	}
@@ -234,17 +231,18 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 * MemoryBank}, {@link com.dalsemi.onewire.container.PagedMemoryBank
 	 * PagedMemoryBank}, and {@link com.dalsemi.onewire.container.OTPMemoryBank
 	 * OTPMemoryBank}.
-	 * 
+	 *
 	 * @return <CODE>Enumeration</CODE> of memory banks
 	 */
+	@Override
 	public Enumeration<MemoryBank> getMemoryBanks() {
-		Vector<MemoryBank> bank_vector = new Vector<>(5);
+		var bank_vector = new Vector<MemoryBank>(5);
 
-		bank_vector.addElement(scratch);
-		bank_vector.addElement(mainMemory);
-		bank_vector.addElement(protectionMemory);
-		bank_vector.addElement(pioMemory);
-		bank_vector.addElement(searchMemory);
+		bank_vector.addElement(this.scratch);
+		bank_vector.addElement(this.mainMemory);
+		bank_vector.addElement(this.protectionMemory);
+		bank_vector.addElement(this.pioMemory);
+		bank_vector.addElement(this.searchMemory);
 
 		return bank_vector.elements();
 	}
@@ -256,6 +254,7 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 *
 	 * @return the alternate names for this iButton or 1-Wire device
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "DS28E04";
 	}
@@ -266,6 +265,7 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 *
 	 * @return device description
 	 */
+	@Override
 	public String getDescription() {
 		return "Addressable 1-Wire 4K-bit EEPROM, with 2 channels"
 				+ " of general-purpose PIO pins with pulse generation capability.";
@@ -288,6 +288,7 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 *
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 */
+	@Override
 	public int getNumberChannels(byte[] state) {
 		return 2;
 	}
@@ -303,6 +304,7 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 *
 	 * @see #getLatchState(int,byte[])
 	 */
+	@Override
 	public boolean isHighSideSwitch() {
 		return false;
 	}
@@ -317,6 +319,7 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 * @see #getSensedActivity(int,byte[])
 	 * @see #clearActivity()
 	 */
+	@Override
 	public boolean hasActivitySensing() {
 		return true;
 	}
@@ -330,6 +333,7 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 *
 	 * @see #getLevel(int,byte[])
 	 */
+	@Override
 	public boolean hasLevelSensing() {
 		return true;
 	}
@@ -346,6 +350,7 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 *
 	 * @see #setLatchState(int,boolean,boolean,byte[])
 	 */
+	@Override
 	public boolean hasSmartOn() {
 		return false;
 	}
@@ -361,6 +366,7 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 *
 	 * @see #setLatchState(int,boolean,boolean,byte[])
 	 */
+	@Override
 	public boolean onlySingleChannelOn() {
 		return false;
 	}
@@ -386,9 +392,10 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #hasLevelSensing()
 	 */
+	@Override
 	public boolean getLevel(int channel, byte[] state) {
-		byte level = (byte) (0x01 << channel);
-		return ((state[0] & level) == level);
+		var level = (byte) (0x01 << channel);
+		return (state[0] & level) == level;
 	}
 
 	/**
@@ -408,9 +415,10 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 * @see #isHighSideSwitch()
 	 * @see #setLatchState(int,boolean,boolean,byte[])
 	 */
+	@Override
 	public boolean getLatchState(int channel, byte[] state) {
-		byte latch = (byte) (0x01 << channel);
-		return ((state[1] & latch) == latch);
+		var latch = (byte) (0x01 << channel);
+		return (state[1] & latch) == latch;
 	}
 
 	/**
@@ -433,9 +441,10 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 * @see #hasActivitySensing()
 	 * @see #clearActivity()
 	 */
+	@Override
 	public boolean getSensedActivity(int channel, byte[] state) throws OneWireException {
-		byte activity = (byte) (0x01 << channel);
-		return ((state[2] & activity) == activity);
+		var activity = (byte) (0x01 << channel);
+		return (state[2] & activity) == activity;
 	}
 
 	/**
@@ -448,18 +457,20 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #getSensedActivity(int,byte[])
 	 */
+	@Override
 	public void clearActivity() throws OneWireException {
-		adapter.assertSelect(address);
+		this.adapter.assertSelect(this.address);
 
-		byte[] buffer = new byte[9];
+		var buffer = new byte[9];
 
 		buffer[0] = RESET_ACTIVITY_LATCHES;
-		System.arraycopy(FF, 0, buffer, 1, 8);
+		System.arraycopy(this.FF, 0, buffer, 1, 8);
 
-		adapter.dataBlock(buffer, 0, 9);
+		this.adapter.dataBlock(buffer, 0, 9);
 
-		if ((buffer[1] != (byte) 0xAA) && (buffer[1] != (byte) 0x55))
+		if (buffer[1] != (byte) 0xAA && buffer[1] != (byte) 0x55) {
 			throw new OneWireException("Sense Activity was not cleared.");
+		}
 	}
 
 	// --------
@@ -490,13 +501,15 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 * @see #getLatchState(int,byte[])
 	 * @see com.dalsemi.onewire.container.OneWireSensor#writeDevice(byte[])
 	 */
+	@Override
 	public void setLatchState(int channel, boolean latchState, boolean doSmart, byte[] state) {
-		byte latch = (byte) (0x01 << channel);
+		var latch = (byte) (0x01 << channel);
 
-		if (latchState)
+		if (latchState) {
 			state[1] = (byte) (state[1] | latch);
-		else
+		} else {
 			state[1] = (byte) (state[1] & ~latch);
+		}
 	}
 
 	/**
@@ -514,7 +527,7 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 * @see com.dalsemi.onewire.container.OneWireSensor#writeDevice(byte[])
 	 */
 	public void setLatchState(byte set, byte[] state) {
-		state[1] = (byte) set;
+		state[1] = set;
 	}
 
 	/**
@@ -533,11 +546,12 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public byte[] readDevice() throws OneWireIOException, OneWireException {
-		byte[] state = new byte[3];
+		var state = new byte[3];
 
-		System.arraycopy(FF, 0, state, 0, 3);
-		pioMemory.read(0, false, state, 0, 3);
+		System.arraycopy(this.FF, 0, state, 0, 3);
+		this.pioMemory.read(0, false, state, 0, 3);
 
 		return state;
 	}
@@ -559,9 +573,9 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 *                            adapter
 	 */
 	public byte[] readRegister() throws OneWireIOException, OneWireException {
-		byte[] register = new byte[3];
+		var register = new byte[3];
 
-		searchMemory.read(0, false, register, 0, 3);
+		this.searchMemory.read(0, false, register, 0, 3);
 
 		return register;
 	}
@@ -581,11 +595,12 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public void writeDevice(byte[] state) throws OneWireIOException, OneWireException {
 		// channel Access Write
-		adapter.assertSelect(address);
+		this.adapter.assertSelect(this.address);
 
-		byte[] buffer = new byte[5];
+		var buffer = new byte[5];
 
 		buffer[0] = PIO_ACCESS_WRITE;
 		buffer[1] = state[1];
@@ -593,7 +608,7 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 		buffer[3] = (byte) 0xFF;
 		buffer[4] = (byte) 0xFF;
 
-		adapter.dataBlock(buffer, 0, 5);
+		this.adapter.dataBlock(buffer, 0, 5);
 
 		if (buffer[3] != (byte) 0x00AA) {
 			throw new OneWireIOException("Failure to change latch state.");
@@ -619,9 +634,9 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 */
 	public void writeRegister(byte[] register) throws OneWireIOException, OneWireException {
 		// channel Access Write
-		adapter.assertSelect(address);
+		this.adapter.assertSelect(this.address);
 
-		byte[] buffer = new byte[6];
+		var buffer = new byte[6];
 
 		buffer[0] = WRITE_REGISTER;
 		buffer[1] = 0x23;
@@ -630,7 +645,7 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 		buffer[4] = register[1];
 		buffer[5] = register[2];
 
-		adapter.dataBlock(buffer, 0, 6);
+		this.adapter.dataBlock(buffer, 0, 6);
 	}
 
 	/**
@@ -649,22 +664,25 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 *                            adapter
 	 */
 	public boolean isVccPowered(byte[] register) throws OneWireIOException, OneWireException {
-		if ((register[2] & (byte) 0x80) == (byte) 0x80)
+		if ((register[2] & (byte) 0x80) == (byte) 0x80) {
 			return true;
+		}
 
 		return false;
 	}
 
 	public boolean getDefaultPolarity(byte[] register) {
-		if ((register[2] & (byte) 0x40) == (byte) 0x40)
+		if ((register[2] & (byte) 0x40) == (byte) 0x40) {
 			return true;
+		}
 
 		return false;
 	}
 
 	public boolean getPowerOnResetLatch(byte[] register) {
-		if ((register[2] & (byte) 0x08) == (byte) 0x08)
+		if ((register[2] & (byte) 0x08) == (byte) 0x08) {
 			return true;
+		}
 
 		return false;
 	}
@@ -677,7 +695,7 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 */
 	public void clearPowerOnReset(byte[] register) {
 		if ((register[2] & (byte) 0x08) == (byte) 0x08) {
-			register[2] = (byte) ((byte) register[2] & (byte) 0xF7);
+			register[2] = (byte) (register[2] & (byte) 0xF7);
 		}
 	}
 
@@ -689,7 +707,7 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 */
 	public void orConditionalSearch(byte[] register) {
 		if ((register[2] & (byte) 0x02) == (byte) 0x02) {
-			register[2] = (byte) ((byte) register[2] & (byte) 0xFD);
+			register[2] = (byte) (register[2] & (byte) 0xFD);
 		}
 	}
 
@@ -701,7 +719,7 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 */
 	public void andConditionalSearch(byte[] register) {
 		if ((register[2] & (byte) 0x02) != (byte) 0x02) {
-			register[2] = (byte) ((byte) register[2] | (byte) 0x02);
+			register[2] = (byte) (register[2] | (byte) 0x02);
 		}
 	}
 
@@ -709,15 +727,12 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 * Checks if the 'PIO Level' Conditional Search is set for input and if not sets
 	 * it.
 	 *
-	 * @param pinActivity if true, the activity latch for the pin is used for the
-	 *                    conditional search. Otherwise, the sensed level of the pin
-	 *                    is used for the conditional search.
-	 * @param register    current register for conditional search, which if returned
-	 *                    from <code>readRegister()</code>
+	 * @param register current register for conditional search, which if returned
+	 *                 from <code>readRegister()</code>
 	 */
 	public void setConditionalSearchLogicLevel(byte[] register) {
 		if ((register[2] & (byte) 0x01) == (byte) 0x01) {
-			register[2] = (byte) ((byte) register[2] & (byte) 0xFE);
+			register[2] = (byte) (register[2] & (byte) 0xFE);
 		}
 	}
 
@@ -730,7 +745,7 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 */
 	public void setConditionalSearchActivity(byte[] register) {
 		if ((register[2] & (byte) 0x01) != (byte) 0x01) {
-			register[2] = (byte) ((byte) register[2] | (byte) 0x01);
+			register[2] = (byte) (register[2] | (byte) 0x01);
 		}
 	}
 
@@ -744,12 +759,13 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 *                 from <code>readRegister()</code>
 	 */
 	public void setChannelMask(int channel, boolean set, byte[] register) {
-		byte mask = (byte) (0x01 << channel);
+		var mask = (byte) (0x01 << channel);
 
-		if (set)
-			register[0] = (byte) ((byte) register[0] | (byte) mask);
-		else
-			register[0] = (byte) ((byte) register[0] & (byte) ~mask);
+		if (set) {
+			register[0] = (byte) (register[0] | mask);
+		} else {
+			register[0] = (byte) (register[0] & (byte) ~mask);
+		}
 	}
 
 	/**
@@ -763,12 +779,13 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 *                 from <code>readRegister()</code>
 	 */
 	public void setChannelPolarity(int channel, boolean set, byte[] register) {
-		byte polarity = (byte) (0x01 << channel);
+		var polarity = (byte) (0x01 << channel);
 
-		if (set)
-			register[1] = (byte) ((byte) register[1] | (byte) polarity);
-		else
-			register[1] = (byte) ((byte) register[1] & (byte) ~polarity);
+		if (set) {
+			register[1] = (byte) (register[1] | polarity);
+		} else {
+			register[1] = (byte) (register[1] & (byte) ~polarity);
+		}
 	}
 
 	/**
@@ -783,9 +800,9 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 *         other wise.
 	 */
 	public boolean getChannelMask(int channel, byte[] register) {
-		byte mask = (byte) (0x01 << channel);
+		var mask = (byte) (0x01 << channel);
 
-		return ((register[0] & mask) == mask);
+		return (register[0] & mask) == mask;
 	}
 
 	/**
@@ -799,56 +816,57 @@ public class OneWireContainer1C extends OneWireContainer implements SwitchContai
 	 *         other wise.
 	 */
 	public boolean getChannelPolarity(int channel, byte[] register) {
-		byte polarity = (byte) (0x01 << channel);
+		var polarity = (byte) (0x01 << channel);
 
-		return ((register[1] & polarity) == polarity);
+		return (register[1] & polarity) == polarity;
 	}
 
 	/**
 	 * Initialize the memory banks and data associated with each.
 	 */
 	private void initmem() {
-		scratch = new MemoryBankScratchEE(this);
-		scratch.bankDescription = "Scratchpad";
-		((MemoryBankScratchEE) scratch).COPY_DELAY_LEN = 18; // TODO: Should be 10
-		((MemoryBankScratchEE) scratch).numVerificationBytes = 2;
+		this.scratch = new MemoryBankScratchEE(this);
+		this.scratch.bankDescription = "Scratchpad";
+		((MemoryBankScratchEE) this.scratch).COPY_DELAY_LEN = 18; // TODO: Should be 10
+		((MemoryBankScratchEE) this.scratch).numVerificationBytes = 2;
 
-		mainMemory = new MemoryBankNV(this, scratch);
-		mainMemory.bankDescription = "User Data Memory";
-		mainMemory.startPhysicalAddress = 0x000;
-		mainMemory.size = 0x200;
-		mainMemory.readOnly = false;
-		mainMemory.generalPurposeMemory = true;
-		mainMemory.readWrite = true;
-		mainMemory.powerDelivery = true;
+		this.mainMemory = new MemoryBankNV(this, this.scratch);
+		this.mainMemory.bankDescription = "User Data Memory";
+		this.mainMemory.startPhysicalAddress = 0x000;
+		this.mainMemory.size = 0x200;
+		this.mainMemory.readOnly = false;
+		this.mainMemory.generalPurposeMemory = true;
+		this.mainMemory.readWrite = true;
+		this.mainMemory.powerDelivery = true;
 
-		protectionMemory = new MemoryBankNV(this, scratch);
-		protectionMemory.bankDescription = "Protection Control and Factory Bytes";
-		protectionMemory.startPhysicalAddress = 0x200;
-		protectionMemory.size = 0x020;
-		protectionMemory.readOnly = false;
-		protectionMemory.generalPurposeMemory = false;
-		protectionMemory.readWrite = true;
-		protectionMemory.powerDelivery = true;
+		this.protectionMemory = new MemoryBankNV(this, this.scratch);
+		this.protectionMemory.bankDescription = "Protection Control and Factory Bytes";
+		this.protectionMemory.startPhysicalAddress = 0x200;
+		this.protectionMemory.size = 0x020;
+		this.protectionMemory.readOnly = false;
+		this.protectionMemory.generalPurposeMemory = false;
+		this.protectionMemory.readWrite = true;
+		this.protectionMemory.powerDelivery = true;
 
-		pioMemory = new MemoryBankNV(this, scratch);
-		pioMemory.bankDescription = "PIO Readouts";
-		pioMemory.startPhysicalAddress = 0x220;
-		pioMemory.size = 0x003;
-		pioMemory.readOnly = true;
-		pioMemory.generalPurposeMemory = false;
-		pioMemory.nonVolatile = false;
-		pioMemory.readWrite = false;
-		pioMemory.powerDelivery = false;
+		this.pioMemory = new MemoryBankNV(this, this.scratch);
+		this.pioMemory.bankDescription = "PIO Readouts";
+		this.pioMemory.startPhysicalAddress = 0x220;
+		this.pioMemory.size = 0x003;
+		this.pioMemory.readOnly = true;
+		this.pioMemory.generalPurposeMemory = false;
+		this.pioMemory.nonVolatile = false;
+		this.pioMemory.readWrite = false;
+		this.pioMemory.powerDelivery = false;
 
-		searchMemory = new MemoryBankNV(this, scratch);
-		searchMemory.bankDescription = "Conditional Search and Status Register";
-		searchMemory.startPhysicalAddress = 0x223;
-		searchMemory.size = 0x003;
-		searchMemory.readOnly = true;
-		searchMemory.generalPurposeMemory = false;
-		searchMemory.nonVolatile = false;
-		searchMemory.readWrite = false;
-		searchMemory.powerDelivery = false;
+		this.searchMemory = new MemoryBankNV(this, this.scratch);
+		this.searchMemory.bankDescription = "Conditional Search and Status Register";
+		this.searchMemory.startPhysicalAddress = 0x223;
+		this.searchMemory.size = 0x003;
+		this.searchMemory.readOnly = true;
+		this.searchMemory.generalPurposeMemory = false;
+		this.searchMemory.nonVolatile = false;
+		this.searchMemory.readWrite = false;
+		this.searchMemory.powerDelivery = false;
 	}
 }
+// CHECKSTYLE:ON

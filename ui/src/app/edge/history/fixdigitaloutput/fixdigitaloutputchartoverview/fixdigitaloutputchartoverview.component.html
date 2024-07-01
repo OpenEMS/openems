@@ -1,0 +1,44 @@
+<ng-container *ngIf="edge">
+    <ion-header>
+        <ion-toolbar color="primary">
+            <ion-title>{{ component.alias }}</ion-title>
+            <ion-buttons slot="start">
+                <chartOptions (setShowTotal)='onNotifyTotal($event)' [showTotal]="showTotal"></chartOptions>
+            </ion-buttons>
+            <ion-buttons slot="end">
+                <ion-button routerLink="/device/{{edge.id}}/history/">
+                    <ion-icon name="close-outline"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-toolbar>
+        <ion-toolbar color="primary">
+            <ion-buttons class="ion-justify-content-center">
+                <pickdate></pickdate>
+            </ion-buttons>
+        </ion-toolbar>
+    </ion-header>
+    <ion-content>
+        <ng-container *ngIf="showTotal">
+            <ion-card-content>
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 100%" class="ion-padding" translate>General.TOTAL</td>
+                    </tr>
+                </table>
+                <fixDigitalOutputTotalChart [period]="service.historyPeriod.value">
+                </fixDigitalOutputTotalChart>
+            </ion-card-content>
+        </ng-container>
+        <ng-container *ngIf="!showTotal">
+            <ion-card-content>
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 100%" class="ion-padding"></td>
+                    </tr>
+                </table>
+                <fixDigitalOutputSingleChart [componentId]="component.id" [period]="service.historyPeriod.value">
+                </fixDigitalOutputSingleChart>
+            </ion-card-content>
+        </ng-container>
+    </ion-content>
+</ng-container>

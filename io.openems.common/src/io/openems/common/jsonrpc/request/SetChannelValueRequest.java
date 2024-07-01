@@ -1,7 +1,5 @@
 package io.openems.common.jsonrpc.request;
 
-import java.util.UUID;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -12,7 +10,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Sets the write value of a Channel.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -28,26 +26,36 @@ import io.openems.common.utils.JsonUtils;
  */
 public class SetChannelValueRequest extends JsonrpcRequest {
 
-	public static SetChannelValueRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		String componentId = JsonUtils.getAsString(p, "componentId");
-		String channelId = JsonUtils.getAsString(p, "channelId");
-		JsonElement value = JsonUtils.getSubElement(p, "value");
-		return new SetChannelValueRequest(r.getId(), componentId, channelId, value);
-	}
+	public static final String METHOD = "setChannelValue";
 
-	public final static String METHOD = "setChannelValue";
+	/**
+	 * Create {@link SetChannelValueRequest} from a template {@link JsonrpcRequest}.
+	 *
+	 * @param r the template {@link JsonrpcRequest}
+	 * @return the {@link SetChannelValueRequest}
+	 * @throws OpenemsNamedException on parse error
+	 */
+	public static SetChannelValueRequest from(JsonrpcRequest r) throws OpenemsNamedException {
+		var p = r.getParams();
+		var componentId = JsonUtils.getAsString(p, "componentId");
+		var channelId = JsonUtils.getAsString(p, "channelId");
+		var value = JsonUtils.getSubElement(p, "value");
+		return new SetChannelValueRequest(r, componentId, channelId, value);
+	}
 
 	private final String componentId;
 	private final String channelId;
 	private final JsonElement value;
 
 	public SetChannelValueRequest(String componentId, String channelId, JsonElement value) {
-		this(UUID.randomUUID(), componentId, channelId, value);
+		super(SetChannelValueRequest.METHOD);
+		this.componentId = componentId;
+		this.channelId = channelId;
+		this.value = value;
 	}
 
-	public SetChannelValueRequest(UUID id, String componentId, String channelId, JsonElement value) {
-		super(id, METHOD);
+	private SetChannelValueRequest(JsonrpcRequest request, String componentId, String channelId, JsonElement value) {
+		super(request, SetChannelValueRequest.METHOD);
 		this.componentId = componentId;
 		this.channelId = channelId;
 		this.value = value;
@@ -62,19 +70,39 @@ public class SetChannelValueRequest extends JsonrpcRequest {
 				.build();
 	}
 
+	/**
+	 * Gets the Component-ID.
+	 *
+	 * @return Component-ID
+	 */
 	public String getComponentId() {
-		return componentId;
+		return this.componentId;
 	}
 
+	/**
+	 * Gets the Channel-ID.
+	 *
+	 * @return Channel-ID
+	 */
 	public String getChannelId() {
-		return channelId;
+		return this.channelId;
 	}
 
+	/**
+	 * Gets the {@link ChannelAddress}.
+	 *
+	 * @return ChannelAddress
+	 */
 	public ChannelAddress getChannelAddress() {
 		return new ChannelAddress(this.componentId, this.channelId);
 	}
 
+	/**
+	 * Gets the Value.
+	 *
+	 * @return Value
+	 */
 	public JsonElement getValue() {
-		return value;
+		return this.value;
 	}
 }

@@ -8,7 +8,7 @@ public class ModbusRecordFloat64Reserved extends ModbusRecordFloat64 {
 
 	@Override
 	public String toString() {
-		return "ModbusRecordFloat64Reserved [type=" + getType() + "]";
+		return "ModbusRecordFloat64Reserved [type=" + this.getType() + "]";
 	}
 
 }

@@ -2,7 +2,7 @@ import { JsonrpcResponseSuccess } from '../../../../shared/jsonrpc/base';
 
 /**
  * Wraps a JSON-RPC Response to "getModbusProtocol" Request
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -22,8 +22,8 @@ import { JsonrpcResponseSuccess } from '../../../../shared/jsonrpc/base';
 export class GetModbusProtocolResponse extends JsonrpcResponseSuccess {
 
     public constructor(
-        public readonly id: string,
-        public readonly result: {
+        public override readonly id: string,
+        public override readonly result: {
             table: [{
                 ref: number,
                 name: string,
@@ -31,7 +31,7 @@ export class GetModbusProtocolResponse extends JsonrpcResponseSuccess {
                 unit: string,
                 type: string
             }]
-        }
+        },
     ) {
         super(id, result);
     }

@@ -1,0 +1,38 @@
+<ion-card button routerLink="/device/{{edge.id}}/history/{{componentId}}/heatpumpchart" *ngIf="component && edge">
+    <ion-item lines="full" color="light">
+        <ion-icon slot="start" color="danger" name="flame"></ion-icon>
+        <ion-label>{{ component.alias }}</ion-label>
+    </ion-item>
+    <ng-container *ngIf="component && service.currentEdge | async as edge">
+        <ng-container *ngIf="edge.currentData | async as currentData">
+            <ion-card-content>
+                <table class="full_width">
+                    <tr *ngIf="activeTimeOverPeriodRegular !== null && activeTimeOverPeriodRegular > 59">
+                        <td style="width:65%" translate>Edge.Index.Widgets.HeatPump.normalOperation</td>
+                        <td style="width:35%" class="align_right">
+                            {{ activeTimeOverPeriodRegular | formatSecondsToDuration }}
+                        </td>
+                    </tr>
+                    <tr *ngIf="activeTimeOverPeriodRecommendation !== null && activeTimeOverPeriodRecommendation > 59">
+                        <td style="width:65%" translate>Edge.Index.Widgets.HeatPump.switchOnRec</td>
+                        <td style="width:35%" class="align_right">
+                            {{ activeTimeOverPeriodRecommendation | formatSecondsToDuration }}
+                        </td>
+                    <tr>
+                    <tr *ngIf="activeTimeOverPeriodForceOn !== null && activeTimeOverPeriodForceOn > 59">
+                        <td style="width:65%" translate>Edge.Index.Widgets.HeatPump.switchOnCom</td>
+                        <td style="width:35%" class="align_right">
+                            {{ activeTimeOverPeriodForceOn | formatSecondsToDuration }}
+                        </td>
+                    <tr>
+                    <tr *ngIf="activeTimeOverPeriodLock !== null && activeTimeOverPeriodLock > 59">
+                        <td style="width:65%" translate>Edge.Index.Widgets.HeatPump.lock</td>
+                        <td style="width:35%" class="align_right">
+                            {{ activeTimeOverPeriodLock | formatSecondsToDuration }}
+                        </td>
+                    <tr>
+                </table>
+            </ion-card-content>
+        </ng-container>
+    </ng-container>
+</ion-card>

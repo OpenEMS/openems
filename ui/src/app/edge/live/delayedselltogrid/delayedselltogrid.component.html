@@ -1,0 +1,28 @@
+<ion-card button (click)="presentModal()" *ngIf="component">
+    <ion-item lines="full" color="light">
+        <ion-icon slot="start" size="large" color="primary" name="trending-down-outline"></ion-icon>
+        <ion-label>{{ component.alias }}</ion-label>
+    </ion-item>
+    <ion-card-content class="underline" *ngIf="(edge.currentData | async)['channel'] as currentData">
+        <ng-container>
+            <table class="full_width">
+                <tr>
+                    <td style="width: 65%" translate>
+                        Edge.Index.Widgets.DelayedSellToGrid.sellToGridPowerLimit
+                    </td>
+                    <td style="width: 35%" class="align_right">
+                        {{ (component.properties.sellToGridPowerLimit) | unitvalue:'kW' }}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 65%" translate>
+                        Edge.Index.Widgets.DelayedSellToGrid.continuousSellToGridPower
+                    </td>
+                    <td style="width: 35%" class="align_right">
+                        {{ (component.properties.continuousSellToGridPower) | unitvalue:'kW' }}
+                    </td>
+                </tr>
+            </table>
+        </ng-container>
+    </ion-card-content>
+</ion-card>

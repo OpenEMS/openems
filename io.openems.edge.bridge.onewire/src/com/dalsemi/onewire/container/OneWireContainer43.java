@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2008 Maxim Integrated Products, All Rights Reserved.
  *
@@ -77,7 +78,7 @@ public class OneWireContainer43 extends OneWireContainer {
 	private MemoryBankScratchEE sp;
 
 	/*
-	 * registery memory bank to control write-once (EPROM) mode
+	 * registry memory bank to control write-once (EPROM) mode
 	 */
 	private MemoryBankEEPROM register;
 
@@ -100,7 +101,6 @@ public class OneWireContainer43 extends OneWireContainer {
 	 * using.
 	 */
 	public OneWireContainer43() {
-		super();
 	}
 
 	/**
@@ -115,7 +115,7 @@ public class OneWireContainer43 extends OneWireContainer {
 		super(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
@@ -130,7 +130,7 @@ public class OneWireContainer43 extends OneWireContainer {
 		super(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
@@ -145,7 +145,7 @@ public class OneWireContainer43 extends OneWireContainer {
 		super(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	// --------
@@ -160,11 +160,12 @@ public class OneWireContainer43 extends OneWireContainer {
 	 *                      iButton.
 	 * @param newAddress    address of this 1-Wire device
 	 */
+	@Override
 	public void setupContainer(DSPortAdapter sourceAdapter, byte[] newAddress) {
 		super.setupContainer(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
@@ -175,11 +176,12 @@ public class OneWireContainer43 extends OneWireContainer {
 	 *                      iButton.
 	 * @param newAddress    address of this 1-Wire device
 	 */
+	@Override
 	public void setupContainer(DSPortAdapter sourceAdapter, long newAddress) {
 		super.setupContainer(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
@@ -190,19 +192,21 @@ public class OneWireContainer43 extends OneWireContainer {
 	 *                      iButton.
 	 * @param newAddress    address of this 1-Wire device
 	 */
+	@Override
 	public void setupContainer(DSPortAdapter sourceAdapter, String newAddress) {
 		super.setupContainer(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
 	 * Retrieve the Maxim Integrated Products part number of the iButton as a
 	 * string. For example 'DS1992'.
 	 *
-	 * @return string represetation of the iButton name.
+	 * @return string representation of the iButton name.
 	 */
+	@Override
 	public String getName() {
 		return "DS28EC20";
 	}
@@ -214,6 +218,7 @@ public class OneWireContainer43 extends OneWireContainer {
 	 *
 	 * @return the alternate names for this iButton or 1-Wire device
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "";
 	}
@@ -221,8 +226,9 @@ public class OneWireContainer43 extends OneWireContainer {
 	/**
 	 * Retrieve a short description of the function of the iButton type.
 	 *
-	 * @return string represetation of the function description.
+	 * @return string representation of the function description.
 	 */
+	@Override
 	public String getDescription() {
 		return "20Kb 1-Wire EEPROM";
 	}
@@ -232,6 +238,7 @@ public class OneWireContainer43 extends OneWireContainer {
 	 *
 	 * @return max. communication speed.
 	 */
+	@Override
 	public int getMaxSpeed() {
 		return DSPortAdapter.SPEED_OVERDRIVE;
 	}
@@ -242,20 +249,21 @@ public class OneWireContainer43 extends OneWireContainer {
 	 * MemoryBank}, {@link com.dalsemi.onewire.container.PagedMemoryBank
 	 * PagedMemoryBank}, and {@link com.dalsemi.onewire.container.OTPMemoryBank
 	 * OTPMemoryBank}.
-	 * 
+	 *
 	 * @return <CODE>Enumeration</CODE> of memory banks
 	 */
+	@Override
 	public Enumeration<MemoryBank> getMemoryBanks() {
-		Vector<MemoryBank> bank_vector = new Vector<>(2);
+		var bank_vector = new Vector<MemoryBank>(2);
 
 		// scratchpad
 //	  bank_vector.addElement(( MemoryBank ) sp);
 
 		// main memory
-		bank_vector.addElement((MemoryBank) main_mem);
+		bank_vector.addElement(this.main_mem);
 
 		// register memory
-		bank_vector.addElement((MemoryBank) register);
+		bank_vector.addElement(this.register);
 
 		return bank_vector.elements();
 	}
@@ -265,21 +273,21 @@ public class OneWireContainer43 extends OneWireContainer {
 	 */
 	private void initMem() {
 		// scratch pad
-		sp = new MemoryBankScratchEE(this);
-		sp.size = 32;
-		sp.pageLength = 32;
-		sp.maxPacketDataLength = 29;
-		sp.pageAutoCRC = true;
-		sp.COPY_DELAY_LEN = 10;
-		sp.ES_MASK = (byte) 0;
+		this.sp = new MemoryBankScratchEE(this);
+		this.sp.size = 32;
+		this.sp.pageLength = 32;
+		this.sp.maxPacketDataLength = 29;
+		this.sp.pageAutoCRC = true;
+		this.sp.COPY_DELAY_LEN = 10;
+		this.sp.ES_MASK = (byte) 0;
 
 		// main memory
-		main_mem = new MemoryBankEEPROM(this, sp);
+		this.main_mem = new MemoryBankEEPROM(this, this.sp);
 
 		// initialize main memory
-		main_mem.size = 2560;
-		main_mem.numberPages = 80;
-		main_mem.scratchPadSize = 32;
+		this.main_mem.size = 2560;
+		this.main_mem.numberPages = 80;
+		this.main_mem.scratchPadSize = 32;
 		// readOnly = false;
 		// nonVolatile = true;
 		// pageAutoCRC = false;
@@ -294,32 +302,32 @@ public class OneWireContainer43 extends OneWireContainer {
 		// doSetSpeed = true;
 
 		// register memory
-		register = new MemoryBankEEPROM(this, sp);
+		this.register = new MemoryBankEEPROM(this, this.sp);
 
 		// initialize attributes of this memory bank
-		register.generalPurposeMemory = false;
-		register.bankDescription = "Write-protect/EPROM-Mode control register";
-		register.numberPages = 2;
-		register.size = 64;
-		register.pageLength = 32;
-		register.maxPacketDataLength = 0;
-		register.readWrite = true;
-		register.writeOnce = false;
-		register.readOnly = false;
-		register.nonVolatile = true;
-		register.pageAutoCRC = false;
-		register.lockPage = false;
-		register.programPulse = false;
-		register.powerDelivery = true;
-		register.extraInfo = false;
-		register.extraInfoLength = 0;
-		register.extraInfoDescription = null;
-		register.writeVerification = false;
-		register.startPhysicalAddress = 2560;
-		register.doSetSpeed = true;
+		this.register.generalPurposeMemory = false;
+		this.register.bankDescription = "Write-protect/EPROM-Mode control register";
+		this.register.numberPages = 2;
+		this.register.size = 64;
+		this.register.pageLength = 32;
+		this.register.maxPacketDataLength = 0;
+		this.register.readWrite = true;
+		this.register.writeOnce = false;
+		this.register.readOnly = false;
+		this.register.nonVolatile = true;
+		this.register.pageAutoCRC = false;
+		this.register.lockPage = false;
+		this.register.programPulse = false;
+		this.register.powerDelivery = true;
+		this.register.extraInfo = false;
+		this.register.extraInfoLength = 0;
+		this.register.extraInfoDescription = null;
+		this.register.writeVerification = false;
+		this.register.startPhysicalAddress = 2560;
+		this.register.doSetSpeed = true;
 
 		// set the lock mb
-		main_mem.mbLock = register;
+		this.main_mem.mbLock = this.register;
 	}
 
 	// --------
@@ -333,15 +341,15 @@ public class OneWireContainer43 extends OneWireContainer {
 	 * @return 'true' if current memory bank can only be written once
 	 */
 	public boolean isPageWriteOnce(int page) throws OneWireIOException, OneWireException {
-		byte[] rd_byte = new byte[1];
+		var rd_byte = new byte[1];
 
-		register.read(page, false, rd_byte, 0, 1);
+		this.register.read(page, false, rd_byte, 0, 1);
 
-		return (rd_byte[0] == WRITEONCE_FLAG);
+		return rd_byte[0] == WRITEONCE_FLAG;
 	}
 
 	/**
-	 * Lock the specifed page in the current memory bank. Not supported by all
+	 * Lock the specified page in the current memory bank. Not supported by all
 	 * devices. See the method 'canLockPage()'.
 	 *
 	 * @param page number of page to lock
@@ -350,14 +358,16 @@ public class OneWireContainer43 extends OneWireContainer {
 	 * @throws OneWireException
 	 */
 	public void setPageWriteOnce(int page) throws OneWireIOException, OneWireException {
-		byte[] wr_byte = new byte[1];
+		var wr_byte = new byte[1];
 
 		wr_byte[0] = WRITEONCE_FLAG;
 
-		register.write(page, wr_byte, 0, 1);
+		this.register.write(page, wr_byte, 0, 1);
 
 		// read back to verify
-		if (!isPageWriteOnce(page))
+		if (!this.isPageWriteOnce(page)) {
 			throw new OneWireIOException("Failed to set page to write-once mode.");
+		}
 	}
 }
+// CHECKSTYLE:ON

@@ -2,7 +2,6 @@ package io.openems.common.jsonrpc.request;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -15,7 +14,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request for 'updateComponentConfig'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -25,7 +24,7 @@ import io.openems.common.utils.JsonUtils;
  *     "componentId": string,
  *     "properties": [{
  *       "name": string,
- *       "value": any 
+ *       "value": any
  *     }]
  *   }
  * }
@@ -33,31 +32,41 @@ import io.openems.common.utils.JsonUtils;
  */
 public class UpdateComponentConfigRequest extends JsonrpcRequest {
 
-	public static UpdateComponentConfigRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		String componentId = JsonUtils.getAsString(p, "componentId");
-		List<Property> properties = Property.from(JsonUtils.getAsJsonArray(p, "properties"));
-		return new UpdateComponentConfigRequest(r.getId(), componentId, properties);
-	}
+	public static final String METHOD = "updateComponentConfig";
 
-	public final static String METHOD = "updateComponentConfig";
+	/**
+	 * Create {@link UpdateComponentConfigRequest} from a template
+	 * {@link JsonrpcRequest}.
+	 *
+	 * @param r the template {@link JsonrpcRequest}
+	 * @return the {@link UpdateComponentConfigRequest}
+	 * @throws OpenemsNamedException on parse error
+	 */
+	public static UpdateComponentConfigRequest from(JsonrpcRequest r) throws OpenemsNamedException {
+		var p = r.getParams();
+		var componentId = JsonUtils.getAsString(p, "componentId");
+		var properties = Property.from(JsonUtils.getAsJsonArray(p, "properties"));
+		return new UpdateComponentConfigRequest(r, componentId, properties);
+	}
 
 	private final String componentId;
 	private final List<Property> properties;
 
 	public UpdateComponentConfigRequest(String componentId, List<Property> properties) {
-		this(UUID.randomUUID(), componentId, properties);
+		super(UpdateComponentConfigRequest.METHOD);
+		this.componentId = componentId;
+		this.properties = properties;
 	}
 
-	public UpdateComponentConfigRequest(UUID id, String componentId, List<Property> properties) {
-		super(id, METHOD);
+	private UpdateComponentConfigRequest(JsonrpcRequest request, String componentId, List<Property> properties) {
+		super(request, UpdateComponentConfigRequest.METHOD);
 		this.componentId = componentId;
 		this.properties = properties;
 	}
 
 	@Override
 	public JsonObject getParams() {
-		JsonArray properties = new JsonArray();
+		var properties = new JsonArray();
 		for (Property property : this.properties) {
 			properties.add(property.toJson());
 		}
@@ -67,21 +76,31 @@ public class UpdateComponentConfigRequest extends JsonrpcRequest {
 				.build();
 	}
 
+	/**
+	 * Gets the Component-ID.
+	 *
+	 * @return Component-ID
+	 */
 	public String getComponentId() {
-		return componentId;
+		return this.componentId;
 	}
 
+	/**
+	 * Gets a list of Properties.
+	 *
+	 * @return the Properties
+	 */
 	public List<Property> getProperties() {
 		return this.properties;
 	}
 
 	public static class Property {
 
-		public static List<Property> from(JsonArray j) throws OpenemsNamedException {
+		protected static List<Property> from(JsonArray j) throws OpenemsNamedException {
 			List<Property> properties = new ArrayList<>();
 			for (JsonElement property : j) {
-				String name = JsonUtils.getAsString(property, "name");
-				JsonElement value = JsonUtils.getSubElement(property, "value");
+				var name = JsonUtils.getAsString(property, "name");
+				var value = JsonUtils.getSubElement(property, "value");
 				properties.add(new Property(name, value));
 			}
 			return properties;
@@ -91,6 +110,8 @@ public class UpdateComponentConfigRequest extends JsonrpcRequest {
 		private final JsonElement value;
 
 		/**
+		 * Initializes a Property.
+		 *
 		 * @param name  the Property name
 		 * @param value the new value
 		 */
@@ -112,15 +133,25 @@ public class UpdateComponentConfigRequest extends JsonrpcRequest {
 			this(name, new JsonPrimitive(value));
 		}
 
+		/**
+		 * Gets the Name.
+		 *
+		 * @return Name
+		 */
 		public String getName() {
 			return this.name;
 		}
 
+		/**
+		 * Gets the Value.
+		 *
+		 * @return Value
+		 */
 		public JsonElement getValue() {
 			return this.value;
 		}
 
-		public JsonObject toJson() {
+		protected JsonObject toJson() {
 			return JsonUtils.buildJsonObject() //
 					.addProperty("name", this.getName()) //
 					.add("value", this.getValue()) //

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -66,12 +67,12 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * </UL>
  *
  * <H3>Usage</H3>
- * 
+ *
  * <DL>
  * <DD>
  * <H4>Example 1</H4> Read the OTP status of page 0 in the OTPMemoryBank
  * instance 'otp':
- * 
+ *
  * <PRE>
  *  <CODE>
  *  if (otp.canRedirectPage())
@@ -80,7 +81,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  *     if (new_page != 0)
  *        System.out.println("Page 0 is redirected to " + new_page);
  *  }
- * 
+ *
  *  if (otp.canLockPage())
  *  {
  *     if (otp.isPageLocked(0))
@@ -97,12 +98,12 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  *
  * <DD>
  * <H4>Example 1</H4> Lock all of the pages in the OTPMemoryBank instance 'otp':
- * 
+ *
  * <PRE>
  *  <CODE>
  *  if (otp.canLockPage())
  *  {
- *     // loop to lock each page  
+ *     // loop to lock each page
  *     for (int pg = 0; pg < otp.getNumberPages(); pg++)
  *     {
  *        otp.lockPage(pg);
@@ -160,7 +161,7 @@ public interface OTPMemoryBank extends PagedMemoryBank {
 	 *
 	 * @return <CODE> true </CODE> if this memory bank has pages that can be locked
 	 *         from being redirected to a new page
-	 * 
+	 *
 	 * @see #lockRedirectPage(int) lockRedirectPage
 	 * @see #isRedirectPageLocked(int) isRedirectPageLocked
 	 */
@@ -171,7 +172,7 @@ public interface OTPMemoryBank extends PagedMemoryBank {
 	// --------
 
 	/**
-	 * Locks the specifed page in this memory bank. Not supported by all devices.
+	 * Locks the specified page in this memory bank. Not supported by all devices.
 	 *
 	 * @param page number of page to lock
 	 *
@@ -214,7 +215,7 @@ public interface OTPMemoryBank extends PagedMemoryBank {
 	public boolean isPageLocked(int page) throws OneWireIOException, OneWireException;
 
 	/**
-	 * Redirects the specifed page to a new page. Not supported by all devices.
+	 * Redirects the specified page to a new page. Not supported by all devices.
 	 *
 	 * @param page    number of page to redirect
 	 * @param newPage new page number to redirect to
@@ -236,31 +237,6 @@ public interface OTPMemoryBank extends PagedMemoryBank {
 	 *      DSPortAdapter.canProgram()
 	 */
 	public void redirectPage(int page, int newPage) throws OneWireIOException, OneWireException;
-
-	/**
-	 * Checks to see if the specified page is redirected. Not supported by all
-	 * devices.
-	 *
-	 * @param page page to check for redirection
-	 *
-	 * @return the new page number or 0 if not redirected
-	 *
-	 * @throws OneWireIOException on a 1-Wire communication error such as no device
-	 *                            present or a CRC read from the device is
-	 *                            incorrect. This could be caused by a physical
-	 *                            interruption in the 1-Wire Network due to shorts
-	 *                            or a newly arriving 1-Wire device issuing a
-	 *                            'presence pulse'.
-	 * @throws OneWireException   on a communication or setup error with the 1-Wire
-	 *                            adapter.
-	 *
-	 * @see #canRedirectPage() canRedirectPage
-	 * @see #redirectPage(int,int) redirectPage
-	 *
-	 * @deprecated As of 1-Wire API 0.01, replaced by
-	 *             {@link #getRedirectedPage(int)}
-	 */
-	public int isPageRedirected(int page) throws OneWireIOException, OneWireException;
 
 	/**
 	 * Gets the page redirection of the specified page. Not supported by all
@@ -286,7 +262,7 @@ public interface OTPMemoryBank extends PagedMemoryBank {
 	public int getRedirectedPage(int page) throws OneWireIOException, OneWireException;
 
 	/**
-	 * Locks the redirection of the specifed page. Not supported by all devices.
+	 * Locks the redirection of the specified page. Not supported by all devices.
 	 *
 	 * @param page page to redirect
 	 *
@@ -330,3 +306,4 @@ public interface OTPMemoryBank extends PagedMemoryBank {
 	 */
 	public boolean isRedirectPageLocked(int page) throws OneWireIOException, OneWireException;
 }
+// CHECKSTYLE:ON

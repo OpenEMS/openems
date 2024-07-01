@@ -1,6 +1,10 @@
 = KEBA KeContact c-series Charging Station
 
-Implemented Natures::
-- Evcs (Electric Vehicle Charging Station)
+This component implements the KEBA c-series charging station, which is controlled and read out using the proprietary UDP protocol.
+It collects all relevant information into the given Nature Channels and its own Channels and sends charging commands that have been set by another controllers.
+
+Implemented Natures:
+* Evcs (Electric Vehicle Charging Station)
+* ManagedEvcs
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.keba.kecontact[Source Code icon:github[]]

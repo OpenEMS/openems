@@ -15,24 +15,24 @@ public class FieldValue<T> {
 	}
 
 	public Field getField() {
-		return field;
+		return this.field;
 	}
 
 	public T getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String toString() {
 		String string;
-		if (value instanceof JsonElement) {
-			string = StringUtils.toShortString((JsonElement) value, 100);
-		} else if (value instanceof String) {
-			string = StringUtils.toShortString((String) value, 100);
+		if (this.value instanceof JsonElement) {
+			string = StringUtils.toShortString((JsonElement) this.value, 100);
+		} else if (this.value instanceof String) {
+			string = StringUtils.toShortString((String) this.value, 100);
 		} else {
 			string = this.value.toString();
 		}
-		string = string.replaceAll("\n", "");
+		string = string.replace("\n", "");
 		return this.field.id() + ":" + string;
 	}
 }

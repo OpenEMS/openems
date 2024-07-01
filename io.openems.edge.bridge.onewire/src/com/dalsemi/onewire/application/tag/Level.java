@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2002 Maxim Integrated Products, All Rights Reserved.
@@ -42,13 +43,12 @@ public class Level extends TaggedDevice implements TaggedSensor {
 	 * Creates an object for the device.
 	 */
 	public Level() {
-		super();
 	}
 
 	/**
 	 * Creates an object for the device with the supplied address and device type
 	 * connected to the supplied port adapter.
-	 * 
+	 *
 	 * @param adapter    The adapter serving the sensor.
 	 * @param netAddress The 1-Wire network address of the sensor.
 	 *
@@ -58,32 +58,32 @@ public class Level extends TaggedDevice implements TaggedSensor {
 	}
 
 	/**
-	 * The readSensor method returns the <max> or <min> string of the Sensor (in
-	 * this case, a switch). The elements <max> and <min> represent conducting and
+	 * The readSensor method returns the "max" or "min" string of the Sensor (in
+	 * this case, a switch). The elements "max" and "min" represent conducting and
 	 * non-conducting states of the switch, respectively.
 	 *
-	 * @param--none.
-	 *
-	 *               @return String The <max> string is associated with the
-	 *               conducting switch state, and the <min> string is associated
-	 *               with the non-conducting state of the 1-Wire switch.
+	 * @return String The "max" string is associated with the conducting switch
+	 *         state, and the "min" string is associated with the non-conducting
+	 *         state of the 1-Wire switch.
 	 */
+	@Override
 	public String readSensor() throws OneWireException {
-		String returnString = "";
+		var returnString = "";
 		byte[] switchState;
-		int switchChannel = getChannel();
+		var switchChannel = this.getChannel();
 		SwitchContainer Container;
-		Container = (SwitchContainer) DeviceContainer;
+		Container = (SwitchContainer) this.DeviceContainer;
 
 		if (Container.hasLevelSensing()) // if it can sense levels, read it.
 		{
 			switchState = Container.readDevice();
 			if (Container.getLevel(switchChannel, switchState)) {
-				returnString = getMax();
+				returnString = this.getMax();
 			} else {
-				returnString = getMin();
+				returnString = this.getMin();
 			}
 		}
 		return returnString;
 	}
 }
+// CHECKSTYLE:ON

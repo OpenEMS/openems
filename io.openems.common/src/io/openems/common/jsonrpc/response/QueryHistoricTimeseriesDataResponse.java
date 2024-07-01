@@ -15,7 +15,7 @@ import io.openems.common.types.ChannelAddress;
 
 /**
  * Represents a JSON-RPC Response for 'queryHistoricTimeseriesData'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -35,14 +35,6 @@ import io.openems.common.types.ChannelAddress;
  */
 public class QueryHistoricTimeseriesDataResponse extends JsonrpcResponseSuccess {
 
-	public static class EdgeInfo {
-		protected final boolean online;
-
-		public EdgeInfo(boolean online) {
-			this.online = online;
-		}
-	}
-
 	private final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table;
 
 	public QueryHistoricTimeseriesDataResponse(SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table) {
@@ -57,20 +49,20 @@ public class QueryHistoricTimeseriesDataResponse extends JsonrpcResponseSuccess 
 
 	@Override
 	public JsonObject getResult() {
-		JsonObject result = new JsonObject();
+		var result = new JsonObject();
 
-		JsonArray timestamps = new JsonArray();
-		for (ZonedDateTime timestamp : table.keySet()) {
+		var timestamps = new JsonArray();
+		for (ZonedDateTime timestamp : this.table.keySet()) {
 			timestamps.add(timestamp.format(DateTimeFormatter.ISO_INSTANT));
 		}
 		result.add("timestamps", timestamps);
 
-		JsonObject data = new JsonObject();
-		for (Entry<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> rowEntry : table.entrySet()) {
+		var data = new JsonObject();
+		for (Entry<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> rowEntry : this.table.entrySet()) {
 			for (Entry<ChannelAddress, JsonElement> colEntry : rowEntry.getValue().entrySet()) {
-				String channelAddress = colEntry.getKey().toString();
-				JsonElement value = colEntry.getValue();
-				JsonElement channelValuesElement = data.get(channelAddress);
+				var channelAddress = colEntry.getKey().toString();
+				var value = colEntry.getValue();
+				var channelValuesElement = data.get(channelAddress);
 				JsonArray channelValues;
 				if (channelValuesElement != null) {
 					channelValues = channelValuesElement.getAsJsonArray();

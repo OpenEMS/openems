@@ -1,7 +1,5 @@
 package io.openems.common.jsonrpc.request;
 
-import java.util.UUID;
-
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -10,7 +8,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request for 'deleteComponentConfig'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -24,22 +22,31 @@ import io.openems.common.utils.JsonUtils;
  */
 public class DeleteComponentConfigRequest extends JsonrpcRequest {
 
-	public static DeleteComponentConfigRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		String componentId = JsonUtils.getAsString(p, "componentId");
-		return new DeleteComponentConfigRequest(r.getId(), componentId);
-	}
+	public static final String METHOD = "deleteComponentConfig";
 
-	public final static String METHOD = "deleteComponentConfig";
+	/**
+	 * Create {@link DeleteComponentConfigRequest} from a template
+	 * {@link JsonrpcRequest}.
+	 *
+	 * @param r the template {@link JsonrpcRequest}
+	 * @return the {@link DeleteComponentConfigRequest}
+	 * @throws OpenemsNamedException on parse error
+	 */
+	public static DeleteComponentConfigRequest from(JsonrpcRequest r) throws OpenemsNamedException {
+		var p = r.getParams();
+		var componentId = JsonUtils.getAsString(p, "componentId");
+		return new DeleteComponentConfigRequest(r, componentId);
+	}
 
 	private final String componentId;
 
 	public DeleteComponentConfigRequest(String componentId) {
-		this(UUID.randomUUID(), componentId);
+		super(DeleteComponentConfigRequest.METHOD);
+		this.componentId = componentId;
 	}
 
-	public DeleteComponentConfigRequest(UUID id, String componentId) {
-		super(id, METHOD);
+	private DeleteComponentConfigRequest(JsonrpcRequest request, String componentId) {
+		super(request, DeleteComponentConfigRequest.METHOD);
 		this.componentId = componentId;
 	}
 
@@ -50,7 +57,12 @@ public class DeleteComponentConfigRequest extends JsonrpcRequest {
 				.build();
 	}
 
+	/**
+	 * Gets the Component-ID.
+	 *
+	 * @return Component-ID
+	 */
 	public String getComponentId() {
-		return componentId;
+		return this.componentId;
 	}
 }

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -131,7 +132,7 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 
 	/**
 	 * Starting physical address in memory bank. Needed for different types of
-	 * memory in the same logical memory bank. This can be used to seperate them
+	 * memory in the same logical memory bank. This can be used to separate them
 	 * into two virtual memory banks. Example: DS2406 status page has mixed EPROM
 	 * and Volatile RAM.
 	 */
@@ -178,7 +179,7 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	protected int extraInfoLength;
 
 	/**
-	 * Extra information descriptoin when reading page in memory bank
+	 * Extra information description when reading page in memory bank
 	 */
 	protected String extraInfoDescription;
 
@@ -193,39 +194,40 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	public MemoryBankScratch(OneWireContainer ibutton) {
 
 		// keep reference to ibutton where memory bank is
-		ib = ibutton;
+		this.ib = ibutton;
 
 		// initialize attributes of this memory bank - DEFAULT: DS199X scratchapd
-		bankDescription = "Scratchpad";
-		generalPurposeMemory = false;
-		startPhysicalAddress = 0;
-		size = 32;
-		readWrite = true;
-		writeOnce = false;
-		readOnly = false;
-		nonVolatile = false;
-		programPulse = false;
-		powerDelivery = false;
-		writeVerification = true;
-		numberPages = 1;
-		pageLength = 32;
-		maxPacketDataLength = 29;
-		pageAutoCRC = false;
-		extraInfo = true;
-		extraInfoLength = 3;
-		extraInfoDescription = "Target address, offset";
+		this.bankDescription = "Scratchpad";
+		this.generalPurposeMemory = false;
+		this.startPhysicalAddress = 0;
+		this.size = 32;
+		this.readWrite = true;
+		this.writeOnce = false;
+		this.readOnly = false;
+		this.nonVolatile = false;
+		this.programPulse = false;
+		this.powerDelivery = false;
+		this.writeVerification = true;
+		this.numberPages = 1;
+		this.pageLength = 32;
+		this.maxPacketDataLength = 29;
+		this.pageAutoCRC = false;
+		this.extraInfo = true;
+		this.extraInfoLength = 3;
+		this.extraInfoDescription = "Target address, offset";
 
 		// create the ffblock (used for faster 0xFF fills)
-		ffBlock = new byte[96];
+		this.ffBlock = new byte[96];
 
-		for (int i = 0; i < 96; i++)
-			ffBlock[i] = (byte) 0xFF;
+		for (var i = 0; i < 96; i++) {
+			this.ffBlock[i] = (byte) 0xFF;
+		}
 
 		// default copy scratchpad command
-		COPY_SCRATCHPAD_COMMAND = (byte) 0x55;
+		this.COPY_SCRATCHPAD_COMMAND = (byte) 0x55;
 
 		// indicate speed has not been set
-		doSetSpeed = true;
+		this.doSetSpeed = true;
 	}
 
 	// --------
@@ -237,8 +239,9 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 *
 	 * @return String containing the memory bank description
 	 */
+	@Override
 	public String getBankDescription() {
-		return bankDescription;
+		return this.bankDescription;
 	}
 
 	/**
@@ -248,8 +251,9 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 *
 	 * @return 'true' if current memory bank is general purpose
 	 */
+	@Override
 	public boolean isGeneralPurposeMemory() {
-		return generalPurposeMemory;
+		return this.generalPurposeMemory;
 	}
 
 	/**
@@ -257,8 +261,9 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 *
 	 * @return 'true' if current memory bank is read/write
 	 */
+	@Override
 	public boolean isReadWrite() {
-		return readWrite;
+		return this.readWrite;
 	}
 
 	/**
@@ -267,8 +272,9 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 *
 	 * @return 'true' if current memory bank can only be written once
 	 */
+	@Override
 	public boolean isWriteOnce() {
-		return writeOnce;
+		return this.writeOnce;
 	}
 
 	/**
@@ -276,8 +282,9 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 *
 	 * @return 'true' if current memory bank can only be read
 	 */
+	@Override
 	public boolean isReadOnly() {
-		return readOnly;
+		return this.readOnly;
 	}
 
 	/**
@@ -286,8 +293,9 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 *
 	 * @return 'true' if current memory bank non volatile.
 	 */
+	@Override
 	public boolean isNonVolatile() {
-		return nonVolatile;
+		return this.nonVolatile;
 	}
 
 	/**
@@ -297,8 +305,9 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @return 'true' if writing to the current memory bank pages requires a
 	 *         'ProgramPulse'.
 	 */
+	@Override
 	public boolean needsProgramPulse() {
-		return programPulse;
+		return this.programPulse;
 	}
 
 	/**
@@ -308,8 +317,9 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @return 'true' if writing to the current memory bank pages requires
 	 *         'PowerDelivery'.
 	 */
+	@Override
 	public boolean needsPowerDelivery() {
-		return powerDelivery;
+		return this.powerDelivery;
 	}
 
 	/**
@@ -318,8 +328,9 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 *
 	 * @return physical starting address of this logical bank.
 	 */
+	@Override
 	public int getStartPhysicalAddress() {
-		return startPhysicalAddress;
+		return this.startPhysicalAddress;
 	}
 
 	/**
@@ -327,8 +338,9 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 *
 	 * @return memory bank size in bytes.
 	 */
+	@Override
 	public int getSize() {
-		return size;
+		return this.size;
 	}
 
 	/**
@@ -336,8 +348,9 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 *
 	 * @return number of pages in current memory bank
 	 */
+	@Override
 	public int getNumberPages() {
-		return numberPages;
+		return this.numberPages;
 	}
 
 	/**
@@ -345,20 +358,22 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 *
 	 * @return page length in bytes in current memory bank
 	 */
+	@Override
 	public int getPageLength() {
-		return pageLength;
+		return this.pageLength;
 	}
 
 	/**
 	 * Query to get Maximum data page length in bytes for a packet read or written
 	 * in the current memory bank. See the 'ReadPagePacket()' and
-	 * 'WritePagePacket()' methods. This method is only usefull if the current
-	 * memory bank is general purpose memory.
+	 * 'WritePagePacket()' methods. This method is only useful if the current memory
+	 * bank is general purpose memory.
 	 *
 	 * @return max packet page length in bytes in current memory bank
 	 */
+	@Override
 	public int getMaxPacketDataLength() {
-		return maxPacketDataLength;
+		return this.maxPacketDataLength;
 	}
 
 	/**
@@ -368,24 +383,9 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 *
 	 * @return 'true' if current memory bank can be read with self generated CRC.
 	 */
+	@Override
 	public boolean hasPageAutoCRC() {
-		return pageAutoCRC;
-	}
-
-	/**
-	 * Query to see if current memory bank pages when read deliver extra information
-	 * outside of the normal data space. Examples of this may be a redirection byte,
-	 * counter, tamper protection bytes, or SHA-1 result. If this method returns
-	 * true then the methods 'ReadPagePacket()' and 'readPageCRC()' with 'extraInfo'
-	 * parameter can be used.
-	 *
-	 * @return 'true' if reading the current memory bank pages provides extra
-	 *         information.
-	 *
-	 * @deprecated As of 1-Wire API 0.01, replaced by {@link #hasExtraInfo()}
-	 */
-	public boolean haveExtraInfo() {
-		return extraInfo;
+		return this.pageAutoCRC;
 	}
 
 	/**
@@ -405,8 +405,9 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @see #readPagePacket(int,boolean,byte[],int,byte[]) readPagePacket(extra)
 	 * @since 1-Wire API 0.01
 	 */
+	@Override
 	public boolean hasExtraInfo() {
-		return extraInfo;
+		return this.extraInfo;
 	}
 
 	/**
@@ -416,8 +417,9 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @return number of bytes in Extra Information read when reading pages in the
 	 *         current memory bank.
 	 */
+	@Override
 	public int getExtraInfoLength() {
-		return extraInfoLength;
+		return this.extraInfoLength;
 	}
 
 	/**
@@ -427,8 +429,9 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 *
 	 * @return string describing extra information.
 	 */
+	@Override
 	public String getExtraInfoDescription() {
-		return extraInfoDescription;
+		return this.extraInfoDescription;
 	}
 
 	/**
@@ -437,8 +440,9 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @param doReadVerf true (default) verify write in 'write' false, don't verify
 	 *                   write (used on Write-Once bit manipulation)
 	 */
+	@Override
 	public void setWriteVerification(boolean doReadVerf) {
-		writeVerification = doReadVerf;
+		this.writeVerification = doReadVerf;
 	}
 
 	// --------
@@ -453,12 +457,12 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * readPageCRC(). readPageCRC() however is not supported on all memory types,
 	 * see 'hasPageAutoCRC()'. If neither is an option then this method could be
 	 * called more then once to at least verify that the same thing is read
-	 * consistantly.
+	 * consistently.
 	 *
 	 * @param startAddr    starting address
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new read()
-	 *                     continious where the last one led off and it is inside a
+	 *                     continuous where the last one led off and it is inside a
 	 *                     'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to place read data into
 	 * @param offset       offset into readBuf to place data
@@ -467,18 +471,20 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void read(int startAddr, boolean readContinue, byte[] readBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
 
 		// check if read exceeds memory
-		if ((startAddr + len) > size)
+		if (startAddr + len > this.size) {
 			throw new OneWireException("Read exceeds memory bank end");
+		}
 
 		// attempt to put device at speed
-		checkSpeed();
+		this.checkSpeed();
 
 		// read the scratchpad, discard extra information
-		readScratchpad(readBuf, offset, len, null);
+		this.readScratchpad(readBuf, offset, len, null);
 	}
 
 	/**
@@ -501,40 +507,44 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void write(int startAddr, byte[] writeBuf, int offset, int len) throws OneWireIOException, OneWireException {
 
 		// return if nothing to do
-		if (len == 0)
+		if (len == 0) {
 			return;
+		}
 
 		// attempt to put device at speed
-		checkSpeed();
+		this.checkSpeed();
 
 		// check if write exceeds memory
-		if ((startAddr + len) > size)
+		if (startAddr + len > this.size) {
 			throw new OneWireException("Write exceeds memory bank end");
+		}
 
 		// write the page of data to scratchpad
-		writeScratchpad(startPhysicalAddress + startAddr, writeBuf, offset, len);
+		this.writeScratchpad(this.startPhysicalAddress + startAddr, writeBuf, offset, len);
 
 		// read to verify ok
-		byte[] raw_buf = new byte[pageLength];
-		byte[] extra_buf = new byte[extraInfoLength];
+		var raw_buf = new byte[this.pageLength];
+		var extra_buf = new byte[this.extraInfoLength];
 
-		readScratchpad(raw_buf, 0, pageLength, extra_buf);
+		this.readScratchpad(raw_buf, 0, this.pageLength, extra_buf);
 
 		// check to see if the same
-		for (int i = 0; i < len; i++)
+		for (var i = 0; i < len; i++) {
 			if (raw_buf[i] != writeBuf[i + offset]) {
-				forceVerify();
+				this.forceVerify();
 
 				throw new OneWireIOException("Read back verify had incorrect data");
 			}
+		}
 
 		// check to make sure that the address is correct
-		if ((((extra_buf[0] & 0x00FF) | ((extra_buf[1] << 8) & 0x00FF00)) & 0x00FFFF) != (startPhysicalAddress
-				+ startAddr)) {
-			forceVerify();
+		if (((extra_buf[0] & 0x00FF | extra_buf[1] << 8 & 0x00FF00) & 0x00FFFF) != this.startPhysicalAddress
+				+ startAddr) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Read back address had incorrect data");
 		}
@@ -552,12 +562,12 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * readPageCRC(). readPageCRC() however is not supported on all memory types,
 	 * see 'hasPageAutoCRC()'. If neither is an option then this method could be
 	 * called more then once to at least verify that the same thing is read
-	 * consistantly.
+	 * consistently.
 	 *
 	 * @param page         page number to read packet from
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new readPage()
-	 *                     continious where the last one led off and it is inside a
+	 *                     continuous where the last one led off and it is inside a
 	 *                     'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to place read data into
 	 * @param offset       offset into readBuf to place data
@@ -565,18 +575,20 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPage(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
 
 		// check if read exceeds memory
-		if (page != 0)
+		if (page != 0) {
 			throw new OneWireException("Page read exceeds memory bank end");
+		}
 
 		// attempt to put device at speed
-		checkSpeed();
+		this.checkSpeed();
 
 		// read the scratchpad, discard extra information
-		readScratchpad(readBuf, offset, pageLength, null);
+		this.readScratchpad(readBuf, offset, this.pageLength, null);
 	}
 
 	/**
@@ -587,13 +599,13 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * provide the CRC as in readPageCRC(). readPageCRC() however is not supported
 	 * on all memory types, see 'hasPageAutoCRC()'. If neither is an option then
 	 * this method could be called more then once to at least verify that the same
-	 * thing is read consistantly. See the method 'hasExtraInfo()' for a description
+	 * thing is read consistently. See the method 'hasExtraInfo()' for a description
 	 * of the optional extra information some devices have.
 	 *
 	 * @param page         page number to read packet from
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new readPage()
-	 *                     continious where the last one led off and it is inside a
+	 *                     continuous where the last one led off and it is inside a
 	 *                     'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to place read data into
 	 * @param offset       offset into readBuf to place data
@@ -602,18 +614,20 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPage(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
 
 		// check if read exceeds memory
-		if (page != 0)
+		if (page != 0) {
 			throw new OneWireException("Page read exceeds memory bank end");
+		}
 
 		// attempt to put device at speed
-		checkSpeed();
+		this.checkSpeed();
 
 		// read the scratchpad, discard extra information
-		readScratchpad(readBuf, offset, pageLength, extraInfo);
+		this.readScratchpad(readBuf, offset, this.pageLength, extraInfo);
 	}
 
 	/**
@@ -632,7 +646,7 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @param page         page number to read packet from
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -644,19 +658,20 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public int readPagePacket(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
-		byte[] raw_buf = new byte[pageLength];
+		var raw_buf = new byte[this.pageLength];
 
 		// attempt to put device at speed
-		checkSpeed();
+		this.checkSpeed();
 
 		// read the scratchpad, discard extra information
-		readScratchpad(raw_buf, 0, pageLength, null);
+		this.readScratchpad(raw_buf, 0, this.pageLength, null);
 
 		// check if length is realistic
-		if (raw_buf[0] > maxPacketDataLength) {
-			forceVerify();
+		if (raw_buf[0] > this.maxPacketDataLength) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Invalid length in packet");
 		}
@@ -669,11 +684,10 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 
 			// return the length
 			return raw_buf[0];
-		} else {
-			forceVerify();
-
-			throw new OneWireIOException("Invalid CRC16 in packet read");
 		}
+		this.forceVerify();
+
+		throw new OneWireIOException("Invalid CRC16 in packet read");
 	}
 
 	/**
@@ -685,7 +699,7 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @param page         page number to read packet from
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -698,19 +712,20 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public int readPagePacket(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
-		byte[] raw_buf = new byte[pageLength];
+		var raw_buf = new byte[this.pageLength];
 
 		// attempt to put device at speed
-		checkSpeed();
+		this.checkSpeed();
 
 		// read the scratchpad, discard extra information
-		readScratchpad(raw_buf, 0, pageLength, extraInfo);
+		this.readScratchpad(raw_buf, 0, this.pageLength, extraInfo);
 
 		// check if length is realistic
-		if (raw_buf[0] > maxPacketDataLength) {
-			forceVerify();
+		if (raw_buf[0] > this.maxPacketDataLength) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Invalid length in packet");
 		}
@@ -723,11 +738,10 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 
 			// return the length
 			return raw_buf[0];
-		} else {
-			forceVerify();
-
-			throw new OneWireIOException("Invalid CRC16 in packet read");
 		}
+		this.forceVerify();
+
+		throw new OneWireIOException("Invalid CRC16 in packet read");
 	}
 
 	/**
@@ -742,31 +756,34 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void writePagePacket(int page, byte[] writeBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
 
 		// make sure length does not exceed max
-		if (len > maxPacketDataLength)
+		if (len > this.maxPacketDataLength) {
 			throw new OneWireException("Length of packet requested exceeds page size");
+		}
 
 		// see if this bank is general read/write
-		if (!generalPurposeMemory)
+		if (!this.generalPurposeMemory) {
 			throw new OneWireException("Current bank is not general purpose memory");
+		}
 
 		// construct the packet to write
-		byte[] raw_buf = new byte[len + 3];
+		var raw_buf = new byte[len + 3];
 
 		raw_buf[0] = (byte) len;
 
 		System.arraycopy(writeBuf, offset, raw_buf, 1, len);
 
-		int crc = CRC16.compute(raw_buf, 0, len + 1, page);
+		var crc = CRC16.compute(raw_buf, 0, len + 1, page);
 
 		raw_buf[len + 1] = (byte) (~crc & 0xFF);
-		raw_buf[len + 2] = (byte) (((~crc & 0xFFFF) >>> 8) & 0xFF);
+		raw_buf[len + 2] = (byte) ((~crc & 0xFFFF) >>> 8 & 0xFF);
 
 		// write the packet, return result
-		write(page * pageLength, raw_buf, 0, len + 3);
+		this.write(page * this.pageLength, raw_buf, 0, len + 3);
 	}
 
 	/**
@@ -776,7 +793,7 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @param page         page number to read
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -785,6 +802,7 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
 
@@ -801,7 +819,7 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @param page         page number to read
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -811,6 +829,7 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
 
@@ -838,34 +857,36 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readScratchpad(byte[] readBuf, int offset, int len, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
 		// select the device
-		if (!ib.adapter.select(ib.address)) {
-			forceVerify();
+		if (!this.ib.adapter.select(this.ib.address)) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Device select failed");
 		}
 
 		// build first block
-		byte[] raw_buf = new byte[1 + extraInfoLength];
+		var raw_buf = new byte[1 + this.extraInfoLength];
 
 		raw_buf[0] = READ_SCRATCHPAD_COMMAND;
 
-		System.arraycopy(ffBlock, 0, raw_buf, 1, extraInfoLength);
+		System.arraycopy(this.ffBlock, 0, raw_buf, 1, this.extraInfoLength);
 
 		// do the first block for TA1, TA2, and E/S
-		ib.adapter.dataBlock(raw_buf, 0, 1 + extraInfoLength);
+		this.ib.adapter.dataBlock(raw_buf, 0, 1 + this.extraInfoLength);
 
 		// optionally extract the extra info
-		if (extraInfo != null)
-			System.arraycopy(raw_buf, 1, extraInfo, 0, extraInfoLength);
+		if (extraInfo != null) {
+			System.arraycopy(raw_buf, 1, extraInfo, 0, this.extraInfoLength);
+		}
 
 		// build the next block
-		System.arraycopy(ffBlock, 0, readBuf, offset, len);
+		System.arraycopy(this.ffBlock, 0, readBuf, offset, len);
 
 		// send second block to read data, return result
-		ib.adapter.dataBlock(readBuf, offset, len);
+		this.ib.adapter.dataBlock(readBuf, offset, len);
 	}
 
 	/**
@@ -879,27 +900,28 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void writeScratchpad(int startAddr, byte[] writeBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
 
 		// select the device
-		if (!ib.adapter.select(ib.address)) {
-			forceVerify();
+		if (!this.ib.adapter.select(this.ib.address)) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Device select failed");
 		}
 
 		// build block to send
-		byte[] raw_buf = new byte[3 + len];
+		var raw_buf = new byte[3 + len];
 
 		raw_buf[0] = WRITE_SCRATCHPAD_COMMAND;
 		raw_buf[1] = (byte) (startAddr & 0xFF);
-		raw_buf[2] = (byte) (((startAddr & 0xFFFF) >>> 8) & 0xFF);
+		raw_buf[2] = (byte) ((startAddr & 0xFFFF) >>> 8 & 0xFF);
 
 		System.arraycopy(writeBuf, offset, raw_buf, 3, len);
 
 		// send block, return result
-		ib.adapter.dataBlock(raw_buf, 0, len + 3);
+		this.ib.adapter.dataBlock(raw_buf, 0, len + 3);
 	}
 
 	/**
@@ -911,29 +933,30 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void copyScratchpad(int startAddr, int len) throws OneWireIOException, OneWireException {
 
 		// select the device
-		if (!ib.adapter.select(ib.address)) {
-			forceVerify();
+		if (!this.ib.adapter.select(this.ib.address)) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Device select failed");
 		}
 
 		// build block to send
-		byte[] raw_buf = new byte[5];
+		var raw_buf = new byte[5];
 
-		raw_buf[0] = COPY_SCRATCHPAD_COMMAND;
+		raw_buf[0] = this.COPY_SCRATCHPAD_COMMAND;
 		raw_buf[1] = (byte) (startAddr & 0xFF);
-		raw_buf[2] = (byte) (((startAddr & 0xFFFF) >>> 8) & 0xFF);
-		raw_buf[3] = (byte) ((startAddr + len - 1) & 0x1F);
+		raw_buf[2] = (byte) ((startAddr & 0xFFFF) >>> 8 & 0xFF);
+		raw_buf[3] = (byte) (startAddr + len - 1 & 0x1F);
 		raw_buf[4] = (byte) 0xFF;
 
 		// send block (check copy indication complete)
-		ib.adapter.dataBlock(raw_buf, 0, 5);
+		this.ib.adapter.dataBlock(raw_buf, 0, 5);
 
 		if ((raw_buf[4] & 0x0F0) != 0) {
-			forceVerify();
+			this.forceVerify();
 
 			throw new OneWireIOException("Copy scratchpad complete not found");
 		}
@@ -952,34 +975,35 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 			throws OneWireIOException, OneWireException {
 		int i, j;
 
-		if (WriteProtect)
+		if (WriteProtect) {
 			i = 2;
-		else
+		} else {
 			i = 0;
+		}
 
 		for (j = 0; j < i; j++) {
 			// select the device
-			if (!ib.adapter.select(ib.address)) {
-				forceVerify();
+			if (!this.ib.adapter.select(this.ib.address)) {
+				this.forceVerify();
 
 				throw new OneWireIOException("Device select failed");
 			}
 
 			// build block to send
-			byte[] raw_buf = new byte[5];
+			var raw_buf = new byte[5];
 
-			raw_buf[0] = COPY_SCRATCHPAD_COMMAND;
+			raw_buf[0] = this.COPY_SCRATCHPAD_COMMAND;
 			raw_buf[1] = (byte) (startAddr & 0xFF);
-			raw_buf[2] = (byte) (((startAddr & 0xFFFF) >>> 8) & 0xFF);
-			raw_buf[3] = (byte) ((startAddr + len - 1) & 0x1F);
+			raw_buf[2] = (byte) ((startAddr & 0xFFFF) >>> 8 & 0xFF);
+			raw_buf[3] = (byte) (startAddr + len - 1 & 0x1F);
 			raw_buf[3] = (byte) (raw_buf[3] | 0x80);
 			raw_buf[4] = (byte) 0xFF;
 
 			// send block (check copy indication complete)
-			ib.adapter.dataBlock(raw_buf, 0, 5);
+			this.ib.adapter.dataBlock(raw_buf, 0, 5);
 
 			if ((raw_buf[4] & 0x0F0) != 0) {
-				forceVerify();
+				this.forceVerify();
 
 				throw new OneWireIOException("Copy scratchpad complete not found");
 			}
@@ -997,6 +1021,7 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void checkSpeed() throws OneWireIOException, OneWireException {
 		synchronized (this) {
 			// only check the speed
@@ -1004,12 +1029,12 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 			// currently at the ibutton's max speed. If it isn't, we should
 			// call the doSpeed() method, since the adapter might have
 			// changed speeds.
-			if (doSetSpeed || (ib.adapter.getSpeed() != ib.getMaxSpeed())) {
+			if (this.doSetSpeed || this.ib.adapter.getSpeed() != this.ib.getMaxSpeed()) {
 				// attempt to set the correct speed and verify device present
-				ib.doSpeed();
+				this.ib.doSpeed();
 
-				// no execptions so clear flag
-				doSetSpeed = false;
+				// no exceptions so clear flag
+				this.doSetSpeed = false;
 			}
 		}
 	}
@@ -1018,9 +1043,11 @@ class MemoryBankScratch implements PagedMemoryBank, ScratchPad {
 	 * Set the flag to indicate the next 'checkSpeed()' will force a speed set and
 	 * verify 'doSpeed()'.
 	 */
+	@Override
 	public void forceVerify() {
 		synchronized (this) {
-			doSetSpeed = true;
+			this.doSetSpeed = true;
 		}
 	}
 }
+// CHECKSTYLE:ON

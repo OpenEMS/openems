@@ -1,19 +1,17 @@
-import { ActivatedRoute } from '@angular/router';
+// @ts-strict-ignore
 import { Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { Edge, Service, EdgeConfig } from 'src/app/shared/shared';
-import { ModalController } from '@ionic/angular';
-import { SymmetricPeakshavingModalComponent } from './modal/modal.component';
+import { Edge, EdgeConfig, Service } from 'src/app/shared/shared';
 
 @Component({
     selector: SymmetricPeakshavingWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: './widget.component.html',
 })
 export class SymmetricPeakshavingWidgetComponent implements OnInit {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() private componentId: string;
-
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public componentId!: string;
 
     private static readonly SELECTOR = "symmetricPeakshavingWidget";
 
@@ -23,7 +21,6 @@ export class SymmetricPeakshavingWidgetComponent implements OnInit {
     constructor(
         public service: Service,
         private route: ActivatedRoute,
-        public modalCtrl: ModalController,
     ) { }
 
     ngOnInit() {
@@ -35,19 +32,5 @@ export class SymmetricPeakshavingWidgetComponent implements OnInit {
         });
     }
 
-    ngOnDestroy() {
-    }
-
-
-    async presentModal() {
-        const modal = await this.modalCtrl.create({
-            component: SymmetricPeakshavingModalComponent,
-            cssClass: 'wide-modal',
-            componentProps: {
-                component: this.component
-            }
-        });
-        return await modal.present();
-    }
 }
 

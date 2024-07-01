@@ -1,0 +1,12 @@
+= Siemens Meter
+
+* Applies to
+** Siemens PAC1600
+** Siemens PAC2200
+** Siemens PAC3200
+** Siemens PAC4200
+
+* Implemented Natures
+** ElectricityMeter
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.siemens[Source Code icon:github[]]

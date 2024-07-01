@@ -1,71 +1,111 @@
-<ion-grid *ngIf="isTimedataAvailable && widgets">
-  <ion-row>
-    <!-- Energymonitor Chart -->
-    <ion-col size="12">
-      <energy [period]="service.historyPeriod" [style.height]="energyChartHeight"></energy>
-    </ion-col>
+<header></header>
+<ion-content>
+  <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh()">
+    <ion-refresher-content refreshingSpinner="crescent" class="ion-justify-content-center"></ion-refresher-content>
+  </ion-refresher>
+  <oe-history-data-error [response]="errorResponse"></oe-history-data-error>
 
-    <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
-      <ion-col *ngSwitchCase="'Storage'" size="12" size-lg="4" size-xl="2">
-        <storageWidget [period]="service.historyPeriod"></storageWidget>
+  <!-- Only displayed when history allowed to be seen -->
+  <ion-grid *ngIf="isTimedataAvailable && widgets">
+    <ion-row>
+      <!-- Energymonitor Chart -->
+      <ion-col size="12">
+        <energy (setErrorResponse)="setErrorResponse($event)" [style.height]="energyChartHeight"></energy>
       </ion-col>
-      <ion-col *ngSwitchCase="'Production'" size="12" size-lg="4" size-xl="2">
-        <productionWidget [period]="service.historyPeriod"></productionWidget>
-      </ion-col>
-      <ion-col *ngSwitchCase="'Grid'" size="12" size-lg="4" size-xl="2">
-        <gridWidget [period]="service.historyPeriod"></gridWidget>
-      </ion-col>
-      <ion-col *ngSwitchCase="'Consumption'" size="12" size-lg="4" size-xl="2">
-        <consumptionWidget [period]="service.historyPeriod"></consumptionWidget>
-      </ion-col>
-      <ion-col *ngSwitchCase="'Selfconsumption'" size="12" size-lg="4" size-xl="2">
-        <selfconsumptionWidget [period]="service.historyPeriod"></selfconsumptionWidget>
-      </ion-col>
-      <ion-col *ngSwitchCase="'Autarchy'" size="12" size-lg="4" size-xl="2">
-        <autarchyWidget [period]="service.historyPeriod"></autarchyWidget>
-      </ion-col>
-    </ng-container>
-    <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
-      <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.ChannelThreshold'">
-        <channelthresholdWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
-        </channelthresholdWidget>
-      </ion-col>
-      <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.Symmetric.PeakShaving'">
-        <symmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
-        </symmetricPeakshavingWidget>
-      </ion-col>
-      <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.Asymmetric.PeakShaving'">
-        <asymmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
-        </asymmetricPeakshavingWidget>
-      </ion-col>
-      <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'">
-        <singlethresholdWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
-        </singlethresholdWidget>
-      </ion-col>
-      <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.IO.HeatingElement'">
-        <heatingelementWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
-        </heatingelementWidget>
-      </ion-col>
-      <ion-col size="12" size-lg="4" size-xl="2" *ngSwitchCase="'Controller.CHP.SoC'">
-        <chpsocWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
-        </chpsocWidget>
-      </ion-col>
-    </ng-container>
-  </ion-row>
-</ion-grid>
 
-<ion-grid *ngIf="!isTimedataAvailable">
-  <ion-row class="ion-justify-content-center">
-    <ion-col size="12" size-md="8">
-      <ion-card>
-        <ion-item lines="full" color="light">
-          <ion-icon slot="start" size="large" color="warning" name="information-circle-outline"></ion-icon>
-          <ion-label class="ion-text-wrap">Historic data is not available</ion-label>
-        </ion-item>
-        <ion-card-content>
-          <p>Please setup a Timeseries provider like "Timedata InfluxDB" to record and visualize historic data.</p>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
-  </ion-row>
-</ion-grid>
+      <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
+        <ion-col *ngSwitchCase="'Storage'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <storageWidget [period]="service.historyPeriod.value"></storageWidget>
+        </ion-col>
+        <ion-col *ngSwitchCase="'Common_Production'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <productionWidget></productionWidget>
+        </ion-col>
+        <ion-col *ngSwitchCase="'Grid'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <gridWidget></gridWidget>
+        </ion-col>
+        <ion-col *ngSwitchCase="'Consumption'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <consumptionWidget></consumptionWidget>
+        </ion-col>
+        <ion-col *ngSwitchCase="'Common_Selfconsumption'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <selfconsumptionWidget></selfconsumptionWidget>
+        </ion-col>
+        <ion-col *ngSwitchCase="'Common_Autarchy'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <autarchyWidget></autarchyWidget>
+        </ion-col>
+
+        <!-- Non-Common but showing only one widget for all components -->
+        <ion-col *ngSwitchCase="'Controller_ChannelThreshold'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <channelthresholdWidget>
+          </channelthresholdWidget>
+        </ion-col>
+      </ng-container>
+
+      <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
+
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Io.FixDigitalOutput'">
+          <fixDigitalOutputWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
+          </fixDigitalOutputWidget>
+        </ion-col>
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Symmetric.PeakShaving'">
+          <symmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
+          </symmetricPeakshavingWidget>
+        </ion-col>
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Asymmetric.PeakShaving'">
+          <asymmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
+          </asymmetricPeakshavingWidget>
+        </ion-col>
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.TimeslotPeakshaving'">
+          <timeslotPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
+          </timeslotPeakshavingWidget>
+        </ion-col>
+
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.DelayedSellToGrid'">
+          <delayedSellToGridWidget [componentId]="widget.componentId"></delayedSellToGridWidget>
+        </ion-col>
+
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'">
+          <singlethresholdWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
+          </singlethresholdWidget>
+        </ion-col>
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.GridOptimizedCharge'">
+          <gridOptimizedChargeWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
+          </gridOptimizedChargeWidget>
+        </ion-col>
+
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.Time-Of-Use-Tariff'">
+          <timeOfUseTariffWidget [componentId]="widget.componentId">
+          </timeOfUseTariffWidget>
+        </ion-col>
+
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.IO.HeatingElement'">
+          <heatingelementWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
+          </heatingelementWidget>
+        </ion-col>
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Io.HeatPump.SgReady'">
+          <heatpumpWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
+          </heatpumpWidget>
+        </ion-col>
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.CHP.SoC'">
+          <chpsocWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
+          </chpsocWidget>
+        </ion-col>
+      </ng-container>
+    </ion-row>
+  </ion-grid>
+
+  <ion-grid *ngIf="!isTimedataAvailable">
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="8">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="warning" name="information-circle-outline"></ion-icon>
+            <ion-label class="ion-text-wrap">Historische Daten sind derzeit lokal nicht verfügbar</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <p>Please setup a Timeseries provider like "Timedata InfluxDB" to record and visualize historic data.</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

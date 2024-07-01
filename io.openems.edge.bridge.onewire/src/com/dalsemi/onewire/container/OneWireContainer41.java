@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002-2009 Maxim Integrated Products, All Rights Reserved.
  *
@@ -139,7 +140,7 @@ import com.dalsemi.onewire.utils.Convert;
  * <li>A sample rate of 1.5 minutes.</li>
  * </ul>
  * </p>
- * 
+ *
  * <pre>
  * <code>
  *       // "ID" is a byte array of size 8 with an address of a part we
@@ -286,9 +287,6 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	// Temperature range width in degrees Celsius
 	private double temperatureRangeWidth = 125.0;
 
-	// Temperature resolution in degrees Celsius
-	private double temperatureResolution = 0.5;
-
 	// A-D Reference voltage
 	private double adReferenceVoltage = 5.02d;
 	// Number of valid bits in A-D Result
@@ -322,7 +320,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	private byte[] dataLog = null, temperatureLog = null;
 	/** Number of bytes used to store temperature values (0, 1, or 2) */
 	private int temperatureBytes = 0;
-	/** Number of bytes used to stroe data valuas (0, 1, or 2) */
+	/** Number of bytes used to store data valuas (0, 1, or 2) */
 	private int dataBytes = 0;
 	/** indicates whether or not the log has rolled over */
 	private boolean rolledOver = false;
@@ -338,7 +336,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	// indicates whether or not to use calibration for the humidity values
 	private boolean useHumdCalibrationRegisters = false;
 	// reference humidities that the calibration was calculated over
-	private double Href1 = 20, Href2 = 60, Href3 = 90;
+	private double Href2 = 60, Href3 = 90;
 	// the average value for each reference point
 	private double Hread1 = 0, Hread2 = 0, Hread3 = 0;
 	// the average error for each reference point
@@ -348,8 +346,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 
 	// indicates whether or not to use calibration for the temperature values
 	private boolean useTempCalibrationRegisters = false;
-	// reference temperatures that the calibration was calculated over
-	private double Tref1 = 0, Tref2 = 0, Tref3 = 0;
+	private double Tref2 = 0;
+
+	private double Tref3 = 0;
 	// the average value for each reference point
 	private double Tread1 = 0, Tread2 = 0, Tread3 = 0;
 	// the average error for each reference point
@@ -368,10 +367,10 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	private boolean hasHumiditySensor = false;
 
 	// temperature is 8-bit or 11-bit
-	private static final double temperatureResolutions[] = new double[] { .5d, .0625d };
+	private static final double temperatureResolutions[] = { .5d, .0625d };
 	// data is 10-bit or 16-bit
-	private static final double dataResolutions[] = new double[] { .5d, 0.001953125 };
-	private static final double humidityResolutions[] = new double[] { .6d, .04d };
+	private static final double dataResolutions[] = { .5d, 0.001953125 };
+	private static final double humidityResolutions[] = { .6d, .04d };
 
 	private String descriptionString = DESCRIPTION_UNKNOWN;
 
@@ -569,46 +568,53 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	private static final String PART_NUMBER_DS1922S = "DS1922S";
 	private static final String PART_NUMBER_UNKNOWN = "DS1922/DS1923/DS2422";
 
-	private static final String DESCRIPTION_DS1923 = "The DS1923 Temperature/Humidity Logger iButton is a rugged, "
-			+ "self-sufficient system that measures temperature and/or humidity "
-			+ "and records the result in a protected memory section. The recording "
-			+ "is done at a user-defined rate. A total of 8192 8-bit readings or "
-			+ "4096 16-bit readings taken at equidistant intervals ranging from 1 "
-			+ "second to 273 hours can be stored. In addition to this, there are 512 "
-			+ "bytes of SRAM for storing application specific information and 64 "
-			+ "bytes for calibration data. A mission to collect data can be "
-			+ "programmed to begin immediately, or after a user-defined delay or "
-			+ "after a temperature alarm. Access to the memory and control functions " + "can be password-protected.";
+	private static final String DESCRIPTION_DS1923 = """
+			The DS1923 Temperature/Humidity Logger iButton is a rugged, \
+			self-sufficient system that measures temperature and/or humidity \
+			and records the result in a protected memory section. The recording \
+			is done at a user-defined rate. A total of 8192 8-bit readings or \
+			4096 16-bit readings taken at equidistant intervals ranging from 1 \
+			second to 273 hours can be stored. In addition to this, there are 512 \
+			bytes of SRAM for storing application specific information and 64 \
+			bytes for calibration data. A mission to collect data can be \
+			programmed to begin immediately, or after a user-defined delay or \
+			after a temperature alarm. Access to the memory and control functions \
+			can be password-protected.""";
 
-	private static final String DESCRIPTION_DS1922 = "The DS1922L/T/E/S Temperature Logger iButtons are rugged, "
-			+ "self-sufficient systems that measure temperature and record the "
-			+ "result in a protected memory section. The recording is done at a "
-			+ "user-defined rate. A total of 8192 8-bit readings or 4096 16-bit "
-			+ "readings taken at equidistant intervals ranging from 1s to 273hrs "
-			+ "can be stored. In addition to this, there are 512 bytes of SRAM for "
-			+ "storing application-specific information and 64 bytes for calibration "
-			+ "data. A mission to collect data can be programmed to begin "
-			+ "immediately, or after a user-defined delay or after a temperature "
-			+ "alarm. Access to the memory and control functions can be password " + "protected.";
+	private static final String DESCRIPTION_DS1922 = """
+			The DS1922L/T/E/S Temperature Logger iButtons are rugged, \
+			self-sufficient systems that measure temperature and record the \
+			result in a protected memory section. The recording is done at a \
+			user-defined rate. A total of 8192 8-bit readings or 4096 16-bit \
+			readings taken at equidistant intervals ranging from 1s to 273hrs \
+			can be stored. In addition to this, there are 512 bytes of SRAM for \
+			storing application-specific information and 64 bytes for calibration \
+			data. A mission to collect data can be programmed to begin \
+			immediately, or after a user-defined delay or after a temperature \
+			alarm. Access to the memory and control functions can be password \
+			protected.""";
 
-	private static final String DESCRIPTION_DS2422 = "The DS2422 temperature/datalogger combines the core functions of a "
-			+ "fully featured datalogger in a single chip. It includes a temperature "
-			+ "sensor, realtime clock (RTC), memory, 1-Wire(R) interface, and serial "
-			+ "interface for an analog-to-digital converter (ADC) as well as control "
-			+ "circuitry for a charge pump. The ADC and the charge pump are "
-			+ "peripherals that can be added to build application-specific "
-			+ "dataloggers. The MAX1086 is an example of a compatible serial ADC. "
-			+ "Without external ADC, the DS2422 functions as a temperature logger "
-			+ "only. The DS2422 measures the temperature and/or reads the ADC at a "
-			+ "user-defined rate. A total of 8192 8-bit readings or 4096 16-bit "
-			+ "readings taken at equidistant intervals ranging from 1s to 273hrs can " + "be stored.";
+	private static final String DESCRIPTION_DS2422 = """
+			The DS2422 temperature/datalogger combines the core functions of a \
+			fully featured datalogger in a single chip. It includes a temperature \
+			sensor, realtime clock (RTC), memory, 1-Wire(R) interface, and serial \
+			interface for an analog-to-digital converter (ADC) as well as control \
+			circuitry for a charge pump. The ADC and the charge pump are \
+			peripherals that can be added to build application-specific \
+			dataloggers. The MAX1086 is an example of a compatible serial ADC. \
+			Without external ADC, the DS2422 functions as a temperature logger \
+			only. The DS2422 measures the temperature and/or reads the ADC at a \
+			user-defined rate. A total of 8192 8-bit readings or 4096 16-bit \
+			readings taken at equidistant intervals ranging from 1s to 273hrs can \
+			be stored.""";
 
-	private static final String DESCRIPTION_UNKNOWN = "Rugged, self-sufficient 1-Wire device that, once setup for "
-			+ "a mission, will measure temperature and A-to-D/Humidity, with the "
-			+ "result recorded in a protected memory section. It stores up "
-			+ "to 8192 1-byte measurements, which can be filled with 1- or "
-			+ "2-byte temperature readings and 1- or 2-byte A-to-D/Humidity readings "
-			+ "taken at a user-specified rate.";
+	private static final String DESCRIPTION_UNKNOWN = """
+			Rugged, self-sufficient 1-Wire device that, once setup for \
+			a mission, will measure temperature and A-to-D/Humidity, with the \
+			result recorded in a protected memory section. It stores up \
+			to 8192 1-byte measurements, which can be filled with 1- or \
+			2-byte temperature readings and 1- or 2-byte A-to-D/Humidity readings \
+			taken at a user-specified rate.""";
 
 // *****************************************************************************
 //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -631,10 +637,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *      OneWireContainer41(DSPortAdapter,String)
 	 */
 	public OneWireContainer41() {
-		super();
 		// initialize the memory banks
-		initMem();
-		setContainerVariables(null);
+		this.initMem();
+		this.setContainerVariables(null);
 	}
 
 	/**
@@ -653,8 +658,8 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 		super(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
-		setContainerVariables(null);
+		this.initMem();
+		this.setContainerVariables(null);
 	}
 
 	/**
@@ -673,8 +678,8 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 		super(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
-		setContainerVariables(null);
+		this.initMem();
+		this.setContainerVariables(null);
 	}
 
 	/**
@@ -693,8 +698,8 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 		super(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
-		setContainerVariables(null);
+		this.initMem();
+		this.setContainerVariables(null);
 	}
 
 	/**
@@ -705,12 +710,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @param newAddress    address of this 1-Wire device
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public void setupContainer(DSPortAdapter sourceAdapter, byte[] newAddress) {
 		super.setupContainer(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
-		setContainerVariables(null);
+		this.initMem();
+		this.setContainerVariables(null);
 	}
 
 	/**
@@ -721,12 +727,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @param newAddress    address of this 1-Wire device
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public void setupContainer(DSPortAdapter sourceAdapter, long newAddress) {
 		super.setupContainer(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
-		setContainerVariables(null);
+		this.initMem();
+		this.setContainerVariables(null);
 	}
 
 	/**
@@ -737,12 +744,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @param newAddress    address of this 1-Wire device
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public void setupContainer(DSPortAdapter sourceAdapter, String newAddress) {
 		super.setupContainer(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
-		setContainerVariables(null);
+		this.initMem();
+		this.setContainerVariables(null);
 	}
 
 // *****************************************************************************
@@ -767,31 +775,33 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public byte[] readDevice() throws OneWireIOException, OneWireException {
-		byte[] buffer = new byte[96];
+		var buffer = new byte[96];
 
-		int retryCnt = MAX_READ_RETRY_CNT;
-		int page = 0;
+		var retryCnt = MAX_READ_RETRY_CNT;
+		var page = 0;
 		do {
 			try {
 				switch (page) {
 				default:
 					break;
 				case 0:
-					register.readPageCRC(0, false, buffer, 0);
+					this.register.readPageCRC(0, false, buffer, 0);
 					page++;
 				case 1:
-					register.readPageCRC(1, retryCnt == MAX_READ_RETRY_CNT, buffer, 32);
+					this.register.readPageCRC(1, retryCnt == MAX_READ_RETRY_CNT, buffer, 32);
 					page++;
 				case 2:
-					register.readPageCRC(2, retryCnt == MAX_READ_RETRY_CNT, buffer, 64);
+					this.register.readPageCRC(2, retryCnt == MAX_READ_RETRY_CNT, buffer, 64);
 					page++;
 				}
 				retryCnt = MAX_READ_RETRY_CNT;
 			} catch (OneWireIOException owioe) {
 				// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-				if (DEBUG)
+				if (DEBUG) {
 					Debug.debug("readDevice exc, retryCnt=" + retryCnt, owioe);
+				}
 				// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 				/*
 				 * // this "workaround" is broken. Idea was based on suggestion // that
@@ -801,20 +811,24 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 				 * catch(Exception e) { throw new
 				 * OneWireIOException("Invalid CRC16 read from device, battery may be dead."); }
 				 */
-				if (--retryCnt == 0)
+				if (--retryCnt == 0) {
 					throw owioe;
+				}
 			} catch (OneWireException owe) {
 				// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-				if (DEBUG)
+				if (DEBUG) {
 					Debug.debug("readDevice exc, retryCnt=" + retryCnt, owe);
+				}
 				// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-				if (--retryCnt == 0)
+				if (--retryCnt == 0) {
 					throw owe;
+				}
 			}
 		} while (page < 3);
 
-		if (!isContainerVariablesSet)
-			setContainerVariables(buffer);
+		if (!this.isContainerVariablesSet) {
+			this.setContainerVariables(buffer);
+		}
 
 		return buffer;
 	}
@@ -834,13 +848,14 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public void writeDevice(byte[] state) throws OneWireIOException, OneWireException {
-		int start = updatertc ? 0 : 6;
+		var start = this.updatertc ? 0 : 6;
 
-		register.write(start, state, start, 32 - start);
+		this.register.write(start, state, start, 32 - start);
 
 		synchronized (this) {
-			updatertc = false;
+			this.updatertc = false;
 		}
 	}
 
@@ -867,50 +882,57 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 */
 	public byte readByte(int memAddr) throws OneWireIOException, OneWireException {
 		// break the address up into bytes
-		byte msbAddress = (byte) ((memAddr >> 8) & 0x0ff);
-		byte lsbAddress = (byte) (memAddr & 0x0ff);
+		var msbAddress = (byte) (memAddr >> 8 & 0x0ff);
+		var lsbAddress = (byte) (memAddr & 0x0ff);
 
 		/* check the validity of the address */
-		if ((msbAddress > 0x2F) || (msbAddress < 0))
+		if (msbAddress > 0x2F || msbAddress < 0) {
 			throw new IllegalArgumentException("OneWireContainer41-Address for read out of range.");
+		}
 
-		int numBytesToEndOfPage = 32 - (lsbAddress & 0x1F);
-		byte[] buffer = new byte[11 + numBytesToEndOfPage + 2];
+		var numBytesToEndOfPage = 32 - (lsbAddress & 0x1F);
+		var buffer = new byte[11 + numBytesToEndOfPage + 2];
 
-		if (doSpeedEnable)
-			doSpeed();
+		if (this.doSpeedEnable) {
+			this.doSpeed();
+		}
 
-		if (adapter.select(address)) {
-			buffer[0] = READ_MEMORY_CRC_PW_COMMAND;
-			buffer[1] = lsbAddress;
-			buffer[2] = msbAddress;
-
-			if (isContainerReadWritePasswordSet())
-				getContainerReadWritePassword(buffer, 3);
-			else
-				getContainerReadOnlyPassword(buffer, 3);
-
-			for (int i = 11; i < buffer.length; i++)
-				buffer[i] = (byte) 0x0ff;
-
-			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-			if (DEBUG)
-				Debug.debug("Send-> ", buffer);
-			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-			adapter.dataBlock(buffer, 0, buffer.length);
-			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-			if (DEBUG)
-				Debug.debug("Recv<- ", buffer);
-			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-
-			// exclude password from CRC 16
-			if (CRC16.compute(buffer, 11, buffer.length - 11, CRC16.compute(buffer, 0, 3, 0)) != 0x0000B001)
-				throw new OneWireIOException(
-						"Invalid CRC16 read from device.  Password may be incorrect or a sample may be in progress.");
-
-			return buffer[11];
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer41-Device not present.");
+		}
+		buffer[0] = READ_MEMORY_CRC_PW_COMMAND;
+		buffer[1] = lsbAddress;
+		buffer[2] = msbAddress;
+
+		if (this.isContainerReadWritePasswordSet()) {
+			this.getContainerReadWritePassword(buffer, 3);
+		} else {
+			this.getContainerReadOnlyPassword(buffer, 3);
+		}
+
+		for (var i = 11; i < buffer.length; i++) {
+			buffer[i] = (byte) 0x0ff;
+		}
+
+		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		if (DEBUG) {
+			Debug.debug("Send-> ", buffer);
+		}
+		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		this.adapter.dataBlock(buffer, 0, buffer.length);
+		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		if (DEBUG) {
+			Debug.debug("Recv<- ", buffer);
+			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		}
+
+		// exclude password from CRC 16
+		if (CRC16.compute(buffer, 11, buffer.length - 11, CRC16.compute(buffer, 0, 3, 0)) != 0x0000B001) {
+			throw new OneWireIOException(
+					"Invalid CRC16 read from device.  Password may be incorrect or a sample may be in progress.");
+		}
+
+		return buffer[11];
 	}
 
 	/**
@@ -999,13 +1021,14 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #setFlag(int,byte,boolean)
 	 */
 	public boolean getFlag(int register, byte bitMask) throws OneWireIOException, OneWireException {
-		int retryCnt = MAX_READ_RETRY_CNT;
+		var retryCnt = MAX_READ_RETRY_CNT;
 		while (true) {
 			try {
-				return ((readByte(register) & bitMask) != 0);
+				return (this.readByte(register) & bitMask) != 0;
 			} catch (OneWireException owe) {
-				if (--retryCnt == 0)
+				if (--retryCnt == 0) {
 					throw owe;
+				}
 			}
 		}
 	}
@@ -1037,7 +1060,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #setFlag(int,byte,boolean,byte[])
 	 */
 	public boolean getFlag(int register, byte bitMask, byte[] state) {
-		return ((state[register & 0x3F] & bitMask) != 0);
+		return (state[register & 0x3F] & bitMask) != 0;
 	}
 
 	/**
@@ -1078,11 +1101,11 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #readDevice()
 	 */
 	public void setFlag(int register, byte bitMask, boolean flagValue) throws OneWireIOException, OneWireException {
-		byte[] state = readDevice();
+		var state = this.readDevice();
 
-		setFlag(register, bitMask, flagValue, state);
+		this.setFlag(register, bitMask, flagValue, state);
 
-		writeDevice(state);
+		this.writeDevice(state);
 	}
 
 	/**
@@ -1119,12 +1142,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	public void setFlag(int register, byte bitMask, boolean flagValue, byte[] state) {
 		register = register & 0x3F;
 
-		byte flags = state[register];
+		var flags = state[register];
 
-		if (flagValue)
+		if (flagValue) {
 			flags = (byte) (flags | bitMask);
-		else
-			flags = (byte) (flags & ~(bitMask));
+		} else {
+			flags = (byte) (flags & ~bitMask);
+		}
 
 		// write the regs back
 		state[register] = flags;
@@ -1142,16 +1166,17 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * MemoryBank}, {@link com.dalsemi.onewire.container.PagedMemoryBank
 	 * PagedMemoryBank}, and {@link com.dalsemi.onewire.container.OTPMemoryBank
 	 * OTPMemoryBank}.
-	 * 
+	 *
 	 * @return <CODE>Enumeration</CODE> of memory banks
 	 */
+	@Override
 	public Enumeration<MemoryBank> getMemoryBanks() {
-		Vector<MemoryBank> v = new Vector<>(4);
+		var v = new Vector<MemoryBank>(4);
 
-		v.addElement(scratch);
-		v.addElement(userDataMemory);
-		v.addElement(register);
-		v.addElement(log);
+		v.addElement(this.scratch);
+		v.addElement(this.userDataMemory);
+		v.addElement(this.register);
+		v.addElement(this.log);
 
 		return v.elements();
 	}
@@ -1200,6 +1225,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @return maximum speed
 	 * @see DSPortAdapter#setSpeed
 	 */
+	@Override
 	public int getMaxSpeed() {
 		return DSPortAdapter.SPEED_OVERDRIVE;
 	}
@@ -1210,8 +1236,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return iButton or 1-Wire device name
 	 */
+	@Override
 	public String getName() {
-		return partNumber;
+		return this.partNumber;
 	}
 
 	/**
@@ -1221,9 +1248,11 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return the alternate names for this iButton or 1-Wire device
 	 */
+	@Override
 	public String getAlternateNames() {
-		if (partNumber.equals("DS1923"))
+		if (this.partNumber.equals("DS1923")) {
 			return "Hygrochron";
+		}
 		return "Thermochron8k";
 	}
 
@@ -1233,8 +1262,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return device description
 	 */
+	@Override
 	public String getDescription() {
-		return descriptionString;
+		return this.descriptionString;
 	}
 
 	/**
@@ -1246,12 +1276,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @throws OneWireException
 	 */
 	public byte getDeviceConfigByte() throws OneWireIOException, OneWireException {
-		if (deviceConfigByte == (byte) 0xFF) {
-			byte[] state = readDevice();
-			if (deviceConfigByte == (byte) 0xFF)
-				deviceConfigByte = state[DEVICE_CONFIGURATION_BYTE & 0x3F];
+		if (this.deviceConfigByte == (byte) 0xFF) {
+			var state = this.readDevice();
+			if (this.deviceConfigByte == (byte) 0xFF) {
+				this.deviceConfigByte = state[DEVICE_CONFIGURATION_BYTE & 0x3F];
+			}
 		}
-		return deviceConfigByte;
+		return this.deviceConfigByte;
 	}
 
 	/**
@@ -1270,7 +1301,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see OneWireContainer#doSpeed()
 	 */
 	public synchronized void setSpeedCheck(boolean doSpeedCheck) {
-		doSpeedEnable = doSpeedCheck;
+		this.doSpeedEnable = doSpeedCheck;
 	}
 
 // *****************************************************************************
@@ -1283,23 +1314,27 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * Stops the currently running mission.
 	 *
 	 */
+	@Override
 	public void stopMission() throws OneWireException, OneWireIOException {
 		/* read a user specified amount of memory and verify its validity */
-		if (doSpeedEnable)
-			doSpeed();
+		if (this.doSpeedEnable) {
+			this.doSpeed();
+		}
 
-		if (!adapter.select(address))
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer41-Device not present.");
+		}
 
-		byte[] buffer = new byte[10];
+		var buffer = new byte[10];
 		buffer[0] = STOP_MISSION_PW_COMMAND;
-		getContainerReadWritePassword(buffer, 1);
+		this.getContainerReadWritePassword(buffer, 1);
 		buffer[9] = (byte) 0xFF;
 
-		adapter.dataBlock(buffer, 0, 10);
+		this.adapter.dataBlock(buffer, 0, 10);
 
-		if (getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS))
+		if (this.getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS)) {
 			throw new OneWireException("OneWireContainer41-Stop mission failed.  Check read/write password.");
+		}
 	}
 
 	/**
@@ -1307,51 +1342,59 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * directly to the device registers, or by calling other setup methods.
 	 */
 	public void startMission() throws OneWireException, OneWireIOException {
-		if (getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS))
+		if (this.getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS)) {
 			throw new OneWireException("OneWireContainer41-Cannot start a mission while a mission is in progress.");
+		}
 
-		if (!getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MEMORY_CLEARED))
+		if (!this.getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MEMORY_CLEARED)) {
 			throw new OneWireException("OneWireContainer41-Must clear memory before calling start mission.");
+		}
 
-		if (doSpeedEnable)
-			doSpeed();
+		if (this.doSpeedEnable) {
+			this.doSpeed();
+		}
 
-		if (!adapter.select(address))
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer41-Device not present.");
+		}
 
-		byte[] buffer = new byte[10];
+		var buffer = new byte[10];
 		buffer[0] = START_MISSION_PW_COMMAND;
-		getContainerReadWritePassword(buffer, 1);
+		this.getContainerReadWritePassword(buffer, 1);
 		buffer[9] = (byte) 0xFF;
 
-		adapter.dataBlock(buffer, 0, 10);
+		this.adapter.dataBlock(buffer, 0, 10);
 	}
 
 	/**
 	 * Erases the log memory from this missioning device.
 	 */
 	public void clearMemory() throws OneWireException, OneWireIOException {
-		if (getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS))
+		if (this.getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS)) {
 			throw new OneWireException("OneWireContainer41-Cannot clear memory while mission is in progress.");
+		}
 
-		if (doSpeedEnable)
-			doSpeed();
+		if (this.doSpeedEnable) {
+			this.doSpeed();
+		}
 
-		if (!adapter.select(address))
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer41-Device not present.");
+		}
 
-		byte[] buffer = new byte[10];
+		var buffer = new byte[10];
 		buffer[0] = CLEAR_MEMORY_PW_COMMAND;
-		getContainerReadWritePassword(buffer, 1);
+		this.getContainerReadWritePassword(buffer, 1);
 		buffer[9] = (byte) 0xFF;
 
-		adapter.dataBlock(buffer, 0, 10);
+		this.adapter.dataBlock(buffer, 0, 10);
 
 		// wait 2 ms for Clear Memory to complete
 		msWait(2);
 
-		if (!getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MEMORY_CLEARED))
+		if (!this.getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MEMORY_CLEARED)) {
 			throw new OneWireException("OneWireContainer41-Clear Memory failed.  Check read/write password.");
+		}
 	}
 
 // *****************************************************************************
@@ -1365,6 +1408,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return the length in bytes of the Read-Only password.
 	 */
+	@Override
 	public int getReadOnlyPasswordLength() throws OneWireException {
 		return PASSWORD_LENGTH;
 	}
@@ -1374,6 +1418,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return the length in bytes of the Read/Write password.
 	 */
+	@Override
 	public int getReadWritePasswordLength() throws OneWireException {
 		return PASSWORD_LENGTH;
 	}
@@ -1383,6 +1428,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return the length in bytes of the Write-Only password.
 	 */
+	@Override
 	public int getWriteOnlyPasswordLength() throws OneWireException {
 		throw new OneWireException("The DS1922 does not have a write only password.");
 	}
@@ -1394,6 +1440,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @return the absolute address of the memory location where the Read-Only
 	 *         password is written.
 	 */
+	@Override
 	public int getReadOnlyPasswordAddress() throws OneWireException {
 		return READ_ACCESS_PASSWORD;
 	}
@@ -1405,6 +1452,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @return the absolute address of the memory location where the Read/Write
 	 *         password is written.
 	 */
+	@Override
 	public int getReadWritePasswordAddress() throws OneWireException {
 		return READ_WRITE_ACCESS_PASSWORD;
 	}
@@ -1416,6 +1464,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @return the absolute address of the memory location where the Write-Only
 	 *         password is written.
 	 */
+	@Override
 	public int getWriteOnlyPasswordAddress() throws OneWireException {
 		throw new OneWireException("The DS1922 does not have a write password.");
 	}
@@ -1427,6 +1476,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return <code>true</code> always, since DS1922 has Read-Only password.
 	 */
+	@Override
 	public boolean hasReadOnlyPassword() {
 		return true;
 	}
@@ -1438,6 +1488,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return <code>true</code> always, since DS1922 has Read/Write password.
 	 */
+	@Override
 	public boolean hasReadWritePassword() {
 		return true;
 	}
@@ -1449,6 +1500,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return <code>false</code> always, since DS1922 has no Write-Only password.
 	 */
+	@Override
 	public boolean hasWriteOnlyPassword() {
 		return false;
 	}
@@ -1459,8 +1511,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @return <code>true</code> if the device's Read-Only password has been
 	 *         enabled.
 	 */
+	@Override
 	public boolean getDeviceReadOnlyPasswordEnable() throws OneWireException {
-		return readOnlyPasswordEnabled;
+		return this.readOnlyPasswordEnabled;
 	}
 
 	/**
@@ -1469,8 +1522,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @return <code>true</code> if the device's Read/Write password has been
 	 *         enabled.
 	 */
+	@Override
 	public boolean getDeviceReadWritePasswordEnable() throws OneWireException {
-		return readWritePasswordEnabled;
+		return this.readWritePasswordEnabled;
 	}
 
 	/**
@@ -1479,6 +1533,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @return <code>true</code> if the device's Write-Only password has been
 	 *         enabled.
 	 */
+	@Override
 	public boolean getDeviceWriteOnlyPasswordEnable() throws OneWireException {
 		throw new OneWireException("The DS1922 does not have a Write Only Password.");
 	}
@@ -1493,6 +1548,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @return <code>true</code> if the device has the capability to enable one type
 	 *         of password while leaving another type disabled.
 	 */
+	@Override
 	public boolean hasSinglePasswordEnable() {
 		return false;
 	}
@@ -1526,31 +1582,36 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @param enableWriteOnly if <code>true</code> Write-Only passwords will be
 	 *                        enabled.
 	 */
+	@Override
 	public void setDevicePasswordEnable(boolean enableReadOnly, boolean enableReadWrite, boolean enableWriteOnly)
 			throws OneWireException, OneWireIOException {
-		if (enableWriteOnly)
+		if (enableWriteOnly) {
 			throw new OneWireException("The DS1922 does not have a write only password.");
-		if (enableReadOnly != enableReadWrite)
+		}
+		if (enableReadOnly != enableReadWrite) {
 			throw new OneWireException("Both read-only and read/write will be set with enable.");
-		if (!isContainerReadOnlyPasswordSet())
+		}
+		if (!this.isContainerReadOnlyPasswordSet()) {
 			throw new OneWireException("Container Read Password is not set");
-		if (!isContainerReadWritePasswordSet())
+		}
+		if (!this.isContainerReadWritePasswordSet()) {
 			throw new OneWireException("Container Read/Write Password is not set");
+		}
 
 		// must write both passwords for this to work
-		byte[] bothPasswordsEnable = new byte[17];
-		bothPasswordsEnable[0] = (enableReadOnly ? ENABLE_BYTE : DISABLE_BYTE);
-		getContainerReadOnlyPassword(bothPasswordsEnable, 1);
-		getContainerReadWritePassword(bothPasswordsEnable, 9);
+		var bothPasswordsEnable = new byte[17];
+		bothPasswordsEnable[0] = enableReadOnly ? ENABLE_BYTE : DISABLE_BYTE;
+		this.getContainerReadOnlyPassword(bothPasswordsEnable, 1);
+		this.getContainerReadWritePassword(bothPasswordsEnable, 9);
 
-		register.write(PASSWORD_CONTROL_REGISTER & 0x3F, bothPasswordsEnable, 0, 17);
+		this.register.write(PASSWORD_CONTROL_REGISTER & 0x3F, bothPasswordsEnable, 0, 17);
 
 		if (enableReadOnly) {
-			readOnlyPasswordEnabled = true;
-			readWritePasswordEnabled = true;
+			this.readOnlyPasswordEnabled = true;
+			this.readWritePasswordEnabled = true;
 		} else {
-			readOnlyPasswordEnabled = false;
-			readWritePasswordEnabled = false;
+			this.readOnlyPasswordEnabled = false;
+			this.readWritePasswordEnabled = false;
 		}
 	}
 
@@ -1581,8 +1642,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @param enableAll if <code>true</code>, all passwords are enabled. Otherwise,
 	 *                  all passwords are disabled.
 	 */
+	@Override
 	public void setDevicePasswordEnableAll(boolean enableAll) throws OneWireException, OneWireIOException {
-		setDevicePasswordEnable(enableAll, enableAll, false);
+		this.setDevicePasswordEnable(enableAll, enableAll, false);
 	}
 
 	/**
@@ -1610,20 +1672,23 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                 <code>(offset + getReadOnlyPasswordLength)</code>
 	 * @param offset   the starting point for copying from the given password array
 	 */
+	@Override
 	public void setDeviceReadOnlyPassword(byte[] password, int offset) throws OneWireException, OneWireIOException {
-		if (getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS))
+		if (this.getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS)) {
 			throw new OneWireIOException("OneWireContainer41-Cannot change password while mission is in progress.");
+		}
 
-		if (!isContainerReadWritePasswordSet())
+		if (!this.isContainerReadWritePasswordSet()) {
 			throw new OneWireException("Container Read/Write Password is not set");
+		}
 
 		// must write both passwords for this to work
-		byte[] bothPasswords = new byte[16];
+		var bothPasswords = new byte[16];
 		System.arraycopy(password, offset, bothPasswords, 0, 8);
-		getContainerReadWritePassword(bothPasswords, 8);
+		this.getContainerReadWritePassword(bothPasswords, 8);
 
-		register.write(READ_ACCESS_PASSWORD & 0x3F, bothPasswords, 0, 16);
-		setContainerReadOnlyPassword(password, offset);
+		this.register.write(READ_ACCESS_PASSWORD & 0x3F, bothPasswords, 0, 16);
+		this.setContainerReadOnlyPassword(password, offset);
 	}
 
 	/**
@@ -1644,12 +1709,14 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                 <code>(offset + getReadWritePasswordLength)</code>
 	 * @param offset   the starting point for copying from the given password array
 	 */
+	@Override
 	public void setDeviceReadWritePassword(byte[] password, int offset) throws OneWireException, OneWireIOException {
-		if (getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS))
+		if (this.getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS)) {
 			throw new OneWireIOException("OneWireContainer41-Cannot change password while mission is in progress.");
+		}
 
-		register.write(READ_WRITE_ACCESS_PASSWORD & 0x3F, password, offset, 8);
-		setContainerReadWritePassword(password, offset);
+		this.register.write(READ_WRITE_ACCESS_PASSWORD & 0x3F, password, offset, 8);
+		this.setContainerReadWritePassword(password, offset);
 	}
 
 	/**
@@ -1670,6 +1737,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                 <code>(offset + getWriteOnlyPasswordLength)</code>
 	 * @param offset   the starting point for copying from the given password array
 	 */
+	@Override
 	public void setDeviceWriteOnlyPassword(byte[] password, int offset) throws OneWireException, OneWireIOException {
 		throw new OneWireException("The DS1922 does not have a write only password.");
 	}
@@ -1685,9 +1753,10 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                 <code>(offset + getReadOnlyPasswordLength)</code>
 	 * @param offset   the starting point for copying from the given password array
 	 */
+	@Override
 	public void setContainerReadOnlyPassword(byte[] password, int offset) throws OneWireException {
-		System.arraycopy(password, offset, readPassword, 0, PASSWORD_LENGTH);
-		readPasswordSet = true;
+		System.arraycopy(password, offset, this.readPassword, 0, PASSWORD_LENGTH);
+		this.readPasswordSet = true;
 	}
 
 	/**
@@ -1701,9 +1770,10 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                 <code>(offset + getReadWritePasswordLength)</code>
 	 * @param offset   the starting point for copying from the given password array
 	 */
+	@Override
 	public void setContainerReadWritePassword(byte[] password, int offset) throws OneWireException {
-		System.arraycopy(password, offset, readWritePassword, 0, 8);
-		readWritePasswordSet = true;
+		System.arraycopy(password, offset, this.readWritePassword, 0, 8);
+		this.readWritePasswordSet = true;
 	}
 
 	/**
@@ -1717,6 +1787,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                 <code>(offset + getWriteOnlyPasswordLength)</code>
 	 * @param offset   the starting point for copying from the given password array
 	 */
+	@Override
 	public void setContainerWriteOnlyPassword(byte[] password, int offset) throws OneWireException {
 		throw new OneWireException("The DS1922 does not have a write only password.");
 	}
@@ -1730,8 +1801,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @return <code>true</code> if the password used by the API for reading from
 	 *         the device's memory has been set.
 	 */
+	@Override
 	public boolean isContainerReadOnlyPasswordSet() throws OneWireException {
-		return readPasswordSet;
+		return this.readPasswordSet;
 	}
 
 	/**
@@ -1743,8 +1815,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @return <code>true</code> if the password used by the API for reading from or
 	 *         writing to the device's memory has been set.
 	 */
+	@Override
 	public boolean isContainerReadWritePasswordSet() throws OneWireException {
-		return readWritePasswordSet;
+		return this.readWritePasswordSet;
 	}
 
 	/**
@@ -1756,6 +1829,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @return <code>true</code> if the password used by the API for writing to the
 	 *         device's memory has been set.
 	 */
+	@Override
 	public boolean isContainerWriteOnlyPasswordSet() throws OneWireException {
 		throw new OneWireException("The DS1922 does not have a write only password");
 	}
@@ -1772,8 +1846,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                 <code>(offset + getWriteOnlyPasswordLength)</code>
 	 * @param offset   the starting point for copying into the given password array
 	 */
+	@Override
 	public void getContainerReadOnlyPassword(byte[] password, int offset) throws OneWireException {
-		System.arraycopy(readPassword, 0, password, offset, PASSWORD_LENGTH);
+		System.arraycopy(this.readPassword, 0, password, offset, PASSWORD_LENGTH);
 	}
 
 	/**
@@ -1788,8 +1863,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                 be <code>(offset + getReadWritePasswordLength)</code>
 	 * @param offset   the starting point for copying into the given password array
 	 */
+	@Override
 	public void getContainerReadWritePassword(byte[] password, int offset) throws OneWireException {
-		System.arraycopy(readWritePassword, 0, password, offset, PASSWORD_LENGTH);
+		System.arraycopy(this.readWritePassword, 0, password, offset, PASSWORD_LENGTH);
 	}
 
 	/**
@@ -1804,6 +1880,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                 <code>(offset + getWriteOnlyPasswordLength)</code>
 	 * @param offset   the starting point for copying into the given password array
 	 */
+	@Override
 	public void getContainerWriteOnlyPassword(byte[] password, int offset) throws OneWireException {
 		throw new OneWireException("The DS1922 does not have a write only password");
 	}
@@ -1822,16 +1899,20 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                <code>(getNumberOfMissionChannels()-1)</code>
 	 * @return friendly label for the specified channel
 	 */
+	@Override
 	public String getMissionLabel(int channel) throws OneWireException, OneWireIOException {
 		if (channel == TEMPERATURE_CHANNEL) {
 			return "Temperature";
-		} else if (channel == DATA_CHANNEL) {
-			if (hasHumiditySensor && !adForceResults)
+		}
+		if (channel == DATA_CHANNEL) {
+			if (this.hasHumiditySensor && !this.adForceResults) {
 				return "Humidity";
-			else
+			} else {
 				return "Data";
-		} else
+			}
+		} else {
 			throw new OneWireException("Invalid Channel");
+		}
 	}
 
 	/**
@@ -1841,7 +1922,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @param enable sets/clears the SUTA bit in the Mission Control register.
 	 */
 	public void setStartUponTemperatureAlarmEnable(boolean enable) throws OneWireException, OneWireIOException {
-		setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_START_MISSION_ON_TEMPERATURE_ALARM, enable);
+		this.setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_START_MISSION_ON_TEMPERATURE_ALARM, enable);
 	}
 
 	/**
@@ -1857,7 +1938,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 */
 	public void setStartUponTemperatureAlarmEnable(boolean enable, byte[] state)
 			throws OneWireException, OneWireIOException {
-		setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_START_MISSION_ON_TEMPERATURE_ALARM, enable, state);
+		this.setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_START_MISSION_ON_TEMPERATURE_ALARM, enable, state);
 	}
 
 	/**
@@ -1869,7 +1950,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *         set.
 	 */
 	public boolean isStartUponTemperatureAlarmEnabled() throws OneWireException, OneWireIOException {
-		return getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_START_MISSION_ON_TEMPERATURE_ALARM);
+		return this.getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_START_MISSION_ON_TEMPERATURE_ALARM);
 	}
 
 	/**
@@ -1884,7 +1965,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *         set.
 	 */
 	public boolean isStartUponTemperatureAlarmEnabled(byte[] state) throws OneWireException, OneWireIOException {
-		return getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_START_MISSION_ON_TEMPERATURE_ALARM, state);
+		return this.getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_START_MISSION_ON_TEMPERATURE_ALARM, state);
 	}
 
 	/**
@@ -1895,10 +1976,11 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *         that this mission has the SUTA bit enabled.
 	 */
 	public boolean isMissionSUTA() throws OneWireException, OneWireIOException {
-		if (isMissionLoaded)
-			return getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_START_MISSION_ON_TEMPERATURE_ALARM, missionRegister);
-		else
-			return getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_START_MISSION_ON_TEMPERATURE_ALARM);
+		if (this.isMissionLoaded) {
+			return this.getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_START_MISSION_ON_TEMPERATURE_ALARM,
+					this.missionRegister);
+		}
+		return this.getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_START_MISSION_ON_TEMPERATURE_ALARM);
 	}
 
 	/**
@@ -1915,11 +1997,12 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 		// if MIP=0 or SUTA=0, WFTA could be in invalid state if previous
 		// mission did not get a temperature alarm. Clear Memory should
 		// clear this bit, so this is the workaround.
-		if (isMissionRunning() && isMissionSUTA()) {
-			if (isMissionLoaded)
-				return getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_WAITING_FOR_TEMPERATURE_ALARM, missionRegister);
-			else
-				return getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_WAITING_FOR_TEMPERATURE_ALARM);
+		if (this.isMissionRunning() && this.isMissionSUTA()) {
+			if (this.isMissionLoaded) {
+				return this.getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_WAITING_FOR_TEMPERATURE_ALARM,
+						this.missionRegister);
+			}
+			return this.getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_WAITING_FOR_TEMPERATURE_ALARM);
 		}
 		return false;
 	}
@@ -1940,9 +2023,10 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                          current time according to this
 	 *                          <code>java.util.Date</code>.
 	 */
+	@Override
 	public void startNewMission(int sampleRate, int missionStartDelay, boolean rolloverEnabled, boolean syncClock,
 			boolean[] channelEnabled) throws OneWireException, OneWireIOException {
-		byte[] state = readDevice();
+		var state = this.readDevice();
 		// if(isMissionLoaded)
 		// state = missionRegister;
 		// else
@@ -1950,90 +2034,95 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 
 //      System.out.println("startNewMission: before state=" + Convert.toHexString(state));
 
-		for (int i = 0; i < getNumberMissionChannels(); i++)
-			setMissionChannelEnable(i, channelEnabled[i], state);
+		for (var i = 0; i < this.getNumberMissionChannels(); i++) {
+			this.setMissionChannelEnable(i, channelEnabled[i], state);
+		}
 
 		if (sampleRate % 60 == 0 || sampleRate > 0x03FFF) {
 			// convert to minutes
-			sampleRate = (sampleRate / 60) & 0x03FFF;
-			setFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_HIGH_SPEED_SAMPLE, false, state);
+			sampleRate = sampleRate / 60 & 0x03FFF;
+			this.setFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_HIGH_SPEED_SAMPLE, false, state);
 		} else {
-			setFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_HIGH_SPEED_SAMPLE, true, state);
+			this.setFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_HIGH_SPEED_SAMPLE, true, state);
 		}
 
 		Convert.toByteArray(sampleRate, state, SAMPLE_RATE & 0x3F, 2);
 
 		Convert.toByteArray(missionStartDelay, state, MISSION_START_DELAY & 0x3F, 3);
 
-		setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_ROLLOVER, rolloverEnabled, state);
+		this.setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_ROLLOVER, rolloverEnabled, state);
 
 		if (syncClock) {
-			setClock(new Date().getTime(), state);
-		} else if (!getFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, state)) {
-			setFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, true, state);
+			this.setClock(new Date().getTime(), state);
+		} else if (!this.getFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, state)) {
+			this.setFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, true, state);
 		}
 //      System.out.println("startNewMission: after  state=" + Convert.toHexString(state));
 
-		clearMemory();
-		writeDevice(state);
-		startMission();
+		this.clearMemory();
+		this.writeDevice(state);
+		this.startMission();
 	}
 
 	/**
 	 * Loads the results of the currently running mission. Must be called before all
 	 * mission result/status methods.
 	 */
+	@Override
 	public synchronized void loadMissionResults() throws OneWireException, OneWireIOException {
 		// read the register contents
-		missionRegister = readDevice();
+		this.missionRegister = this.readDevice();
 
 		// get the number of samples
-		sampleCount = Convert.toInt(missionRegister, MISSION_SAMPLE_COUNT & 0x3F, 3);
-		sampleCountTotal = sampleCount;
+		this.sampleCount = Convert.toInt(this.missionRegister, MISSION_SAMPLE_COUNT & 0x3F, 3);
+		this.sampleCountTotal = this.sampleCount;
 
 		// sample rate, in seconds
-		sampleRate = Convert.toInt(missionRegister, SAMPLE_RATE & 0x3F, 2);
-		if (!getFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_HIGH_SPEED_SAMPLE, missionRegister))
+		this.sampleRate = Convert.toInt(this.missionRegister, SAMPLE_RATE & 0x3F, 2);
+		if (!this.getFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_HIGH_SPEED_SAMPLE, this.missionRegister)) {
 			// if sample rate is in minutes, convert to seconds
-			sampleRate *= 60;
+			this.sampleRate *= 60;
+		}
 
 		// grab the time
-		int[] time = getTime(MISSION_TIMESTAMP_TIME & 0x3F, missionRegister);
+		var time = this.getTime(MISSION_TIMESTAMP_TIME & 0x3F, this.missionRegister);
 		// grab the date
-		int[] date = getDate(MISSION_TIMESTAMP_DATE & 0x3F, missionRegister);
+		var date = this.getDate(MISSION_TIMESTAMP_DATE & 0x3F, this.missionRegister);
 
 		// date[1] - 1 because Java months are 0 offset
 		Calendar d = new GregorianCalendar(date[0], date[1] - 1, date[2], time[2], time[1], time[0]);
 
-		missionTimeStamp = d.getTime().getTime();
+		this.missionTimeStamp = d.getTime().getTime();
 
 		// figure out how many bytes for each temperature sample
-		temperatureBytes = 0;
+		this.temperatureBytes = 0;
 		// if it's being logged, add 1 to the size
-		if (getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_TEMPERATURE_LOGGING, missionRegister)) {
-			temperatureBytes += 1;
+		if (this.getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_TEMPERATURE_LOGGING, this.missionRegister)) {
+			this.temperatureBytes += 1;
 			// if it's 16-bit resolution, add another 1 to the size
-			if (getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_TEMPERATURE_RESOLUTION, missionRegister))
-				temperatureBytes += 1;
+			if (this.getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_TEMPERATURE_RESOLUTION, this.missionRegister)) {
+				this.temperatureBytes += 1;
+			}
 		}
 
 		// figure out how many bytes for each data sample
-		dataBytes = 0;
+		this.dataBytes = 0;
 		// if it's being logged, add 1 to the size
-		if (getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_DATA_LOGGING, missionRegister)) {
-			dataBytes += 1;
+		if (this.getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_DATA_LOGGING, this.missionRegister)) {
+			this.dataBytes += 1;
 			// if it's 16-bit resolution, add another 1 to the size
-			if (getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_DATA_RESOLUTION, missionRegister))
-				dataBytes += 1;
+			if (this.getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_DATA_RESOLUTION, this.missionRegister)) {
+				this.dataBytes += 1;
+			}
 		}
 
 		// default size of the log, could be different if using an odd
 		// sample size combination.
-		int logSize = MISSION_LOG_SIZE;
+		var logSize = MISSION_LOG_SIZE;
 
 		// figure max number of samples
-		int maxSamples = 0;
-		switch (temperatureBytes + dataBytes) {
+		var maxSamples = 0;
+		switch (this.temperatureBytes + this.dataBytes) {
 		case 1:
 			maxSamples = 8192;
 			break;
@@ -2055,87 +2144,94 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 
 		// check for rollover
 		int wrapCount = 0, offsetDepth = 0;
-		if (getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_ROLLOVER, missionRegister)
-				&& (rolledOver = (sampleCount > maxSamples)))// intentional assignment
+		if (this.getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_ROLLOVER, this.missionRegister)
+				&& (this.rolledOver = this.sampleCount > maxSamples))// intentional assignment
 		{
-			wrapCount = (sampleCount / maxSamples) - 1;
-			offsetDepth = sampleCount % maxSamples;
-			sampleCount = maxSamples;
+			wrapCount = this.sampleCount / maxSamples - 1;
+			offsetDepth = this.sampleCount % maxSamples;
+			this.sampleCount = maxSamples;
 		}
 
 		// DEBUG: For bad SOICS
-		if (!getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_ROLLOVER, missionRegister) && rolledOver) {
+		if (!this.getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_ROLLOVER, this.missionRegister) && this.rolledOver) {
 			throw new OneWireException("Device Error: rollover was not enabled, but it did occur.");
 		}
 
 		// figure out where the temperature bytes end, that's where
 		// the data bytes begin
-		int temperatureLogSize = temperatureBytes * maxSamples;
+		var temperatureLogSize = this.temperatureBytes * maxSamples;
 
 		// calculate first log entry time offset, in samples
-		timeOffset = ((wrapCount * maxSamples) + offsetDepth);
+		this.timeOffset = wrapCount * maxSamples + offsetDepth;
 
 		// temperature log
-		temperatureLog = new byte[sampleCount * temperatureBytes];
+		this.temperatureLog = new byte[this.sampleCount * this.temperatureBytes];
 		// data log
-		dataLog = new byte[sampleCount * dataBytes];
+		this.dataLog = new byte[this.sampleCount * this.dataBytes];
 		// cache for entire log
-		byte[] missionLogBuffer = new byte[Math.max(temperatureLog.length, dataLog.length)];
-		byte[] pagebuffer = new byte[32];
+		var missionLogBuffer = new byte[Math.max(this.temperatureLog.length, this.dataLog.length)];
+		var pagebuffer = new byte[32];
 
-		if (temperatureLog.length > 0) {
+		if (this.temperatureLog.length > 0) {
 			// read the data log for temperature
-			int numPages = (temperatureLog.length / 32) + ((temperatureLog.length % 32) > 0 ? 1 : 0);
-			int retryCnt = MAX_READ_RETRY_CNT;
-			for (int i = 0; i < numPages;) {
+			var numPages = this.temperatureLog.length / 32 + (this.temperatureLog.length % 32 > 0 ? 1 : 0);
+			var retryCnt = MAX_READ_RETRY_CNT;
+			for (var i = 0; i < numPages;) {
 				try {
-					log.readPageCRC(i, i > 0 && retryCnt == MAX_READ_RETRY_CNT, pagebuffer, 0);
+					this.log.readPageCRC(i, i > 0 && retryCnt == MAX_READ_RETRY_CNT, pagebuffer, 0);
 					System.arraycopy(pagebuffer, 0, missionLogBuffer, i * 32,
-							Math.min(32, temperatureLog.length - (i * 32)));
+							Math.min(32, this.temperatureLog.length - i * 32));
 					retryCnt = MAX_READ_RETRY_CNT;
 					i++;
 				} catch (OneWireIOException owioe) {
-					if (--retryCnt == 0)
+					if (--retryCnt == 0) {
 						throw owioe;
+					}
 				} catch (OneWireException owe) {
-					if (--retryCnt == 0)
+					if (--retryCnt == 0) {
 						throw owe;
+					}
 				}
 			}
 
 			// get the temperature bytes in order
-			int offsetIndex = offsetDepth * temperatureBytes;
-			System.arraycopy(missionLogBuffer, offsetIndex, temperatureLog, 0, temperatureLog.length - offsetIndex);
-			System.arraycopy(missionLogBuffer, 0, temperatureLog, temperatureLog.length - offsetIndex, offsetIndex);
+			var offsetIndex = offsetDepth * this.temperatureBytes;
+			System.arraycopy(missionLogBuffer, offsetIndex, this.temperatureLog, 0,
+					this.temperatureLog.length - offsetIndex);
+			System.arraycopy(missionLogBuffer, 0, this.temperatureLog, this.temperatureLog.length - offsetIndex,
+					offsetIndex);
 		}
 
-		if (dataLog.length > 0) {
+		if (this.dataLog.length > 0) {
 			// read the data log for humidity
-			int numPages = (dataLog.length / 32) + ((dataLog.length % 32) > 0 ? 1 : 0);
-			int retryCnt = MAX_READ_RETRY_CNT;
-			for (int i = 0; i < numPages;) {
+			var numPages = this.dataLog.length / 32 + (this.dataLog.length % 32 > 0 ? 1 : 0);
+			var retryCnt = MAX_READ_RETRY_CNT;
+			for (var i = 0; i < numPages;) {
 				try {
-					log.readPageCRC((temperatureLogSize / 32) + i, i > 0 && retryCnt == MAX_READ_RETRY_CNT, pagebuffer,
-							0);
-					System.arraycopy(pagebuffer, 0, missionLogBuffer, i * 32, Math.min(32, dataLog.length - (i * 32)));
+					this.log.readPageCRC(temperatureLogSize / 32 + i, i > 0 && retryCnt == MAX_READ_RETRY_CNT,
+							pagebuffer, 0);
+					System.arraycopy(pagebuffer, 0, missionLogBuffer, i * 32,
+							Math.min(32, this.dataLog.length - i * 32));
 					retryCnt = MAX_READ_RETRY_CNT;
 					i++;
 				} catch (OneWireIOException owioe) {
-					if (--retryCnt == 0)
+					if (--retryCnt == 0) {
 						throw owioe;
+					}
 				} catch (OneWireException owe) {
-					if (--retryCnt == 0)
+					if (--retryCnt == 0) {
 						throw owe;
+					}
 				}
 			}
 
 			// get the data bytes in order
-			int offsetIndex = offsetDepth * dataBytes;
-			System.arraycopy(missionLogBuffer, offsetIndex, dataLog, 0, dataLog.length - offsetIndex);
-			System.arraycopy(missionLogBuffer, 0, dataLog, dataLog.length - offsetIndex, offsetIndex);
+			var offsetIndex = offsetDepth * this.dataBytes;
+			System.arraycopy(missionLogBuffer, offsetIndex, this.dataLog, 0, this.dataLog.length - offsetIndex);
+			System.arraycopy(missionLogBuffer, 0, this.dataLog, this.dataLog.length - offsetIndex, offsetIndex);
 		}
 
-		isMissionLoaded = true;
+		this.isMissionLoaded = true;
 	}
 
 	/**
@@ -2143,8 +2239,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return <code>true</code> if the mission results have been loaded.
 	 */
+	@Override
 	public boolean isMissionLoaded() {
-		return isMissionLoaded;
+		return this.isMissionLoaded;
 	}
 
 	/**
@@ -2154,12 +2251,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return the number of channels
 	 */
+	@Override
 	public int getNumberMissionChannels() {
-		if (deviceConfigByte == DCB_DS1922L || deviceConfigByte == DCB_DS1922T || deviceConfigByte == DCB_DS1922E
-				|| deviceConfigByte == DCB_DS1922S)
+		if (this.deviceConfigByte == DCB_DS1922L || this.deviceConfigByte == DCB_DS1922T
+				|| this.deviceConfigByte == DCB_DS1922E || this.deviceConfigByte == DCB_DS1922S) {
 			return 1; // temperature only
-		else
-			return 2; // temperature and data/voltage/humidity
+		}
+		return 2; // temperature and data/voltage/humidity
 	}
 
 	/**
@@ -2169,11 +2267,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @param channel the channel to enable/disable
 	 * @param enable  if true, the channel is enabled
 	 */
+	@Override
 	public void setMissionChannelEnable(int channel, boolean enable) throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
-			missionRegister = readDevice();
-		setMissionChannelEnable(channel, enable, missionRegister);
-		writeDevice(missionRegister);
+		if (!this.isMissionLoaded) {
+			this.missionRegister = this.readDevice();
+		}
+		this.setMissionChannelEnable(channel, enable, this.missionRegister);
+		this.writeDevice(this.missionRegister);
 	}
 
 	/**
@@ -2187,9 +2287,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	public void setMissionChannelEnable(int channel, boolean enable, byte[] state)
 			throws OneWireException, OneWireIOException {
 		if (channel == TEMPERATURE_CHANNEL) {
-			setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_TEMPERATURE_LOGGING, enable, state);
+			this.setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_TEMPERATURE_LOGGING, enable, state);
 		} else if (channel == DATA_CHANNEL) {
-			setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_DATA_LOGGING, enable, state);
+			this.setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_DATA_LOGGING, enable, state);
 		} else {
 			throw new IllegalArgumentException("Invalid Channel");
 		}
@@ -2202,11 +2302,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @param channel the channel to enable/disable
 	 * @param enable  if true, the channel is enabled
 	 */
+	@Override
 	public boolean getMissionChannelEnable(int channel) throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
-			missionRegister = readDevice();
+		if (!this.isMissionLoaded) {
+			this.missionRegister = this.readDevice();
+		}
 
-		return getMissionChannelEnable(channel, missionRegister);
+		return this.getMissionChannelEnable(channel, this.missionRegister);
 	}
 
 	/**
@@ -2218,9 +2320,10 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 */
 	public boolean getMissionChannelEnable(int channel, byte[] state) throws OneWireException, OneWireIOException {
 		if (channel == TEMPERATURE_CHANNEL) {
-			return getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_TEMPERATURE_LOGGING, state);
-		} else if (channel == DATA_CHANNEL) {
-			return getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_DATA_LOGGING, state);
+			return this.getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_TEMPERATURE_LOGGING, state);
+		}
+		if (channel == DATA_CHANNEL) {
+			return this.getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_DATA_LOGGING, state);
 		} else {
 			throw new IllegalArgumentException("Invalid Channel");
 		}
@@ -2238,11 +2341,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                <code>(getNumberOfMissionChannels()-1)</code>
 	 * @return time, in seconds, between sampling
 	 */
+	@Override
 	public int getMissionSampleRate(int channel) throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
+		if (!this.isMissionLoaded) {
 			throw new OneWireException("Must load mission results first.");
+		}
 
-		return sampleRate;
+		return this.sampleRate;
 	}
 
 	/**
@@ -2253,11 +2358,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                <code>(getNumberOfMissionChannels()-1)</code>
 	 * @return number of samples available for the specified channel
 	 */
+	@Override
 	public int getMissionSampleCount(int channel) throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
+		if (!this.isMissionLoaded) {
 			throw new OneWireException("Must load mission results first.");
+		}
 
-		return sampleCount;
+		return this.sampleCount;
 	}
 
 	/**
@@ -2268,7 +2375,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *         device.
 	 */
 	public int getDeviceSampleCount() throws OneWireException, OneWireIOException {
-		return getDeviceSampleCount(readDevice());
+		return this.getDeviceSampleCount(this.readDevice());
 	}
 
 	/**
@@ -2293,11 +2400,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                <code>(getNumberOfMissionChannels()-1)</code>
 	 * @return number of samples taken for the specified channel
 	 */
+	@Override
 	public int getMissionSampleCountTotal(int channel) throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
+		if (!this.isMissionLoaded) {
 			throw new OneWireException("Must load mission results first.");
+		}
 
-		return sampleCountTotal;
+		return this.sampleCountTotal;
 	}
 
 	/**
@@ -2312,43 +2421,50 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                  <code>(getMissionSampleCount(channel)-1)</code>
 	 * @return the sample's value in degrees Celsius or percent RH.
 	 */
+	@Override
 	public double getMissionSample(int channel, int sampleNum) throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
+		if (!this.isMissionLoaded) {
 			throw new OneWireException("Must load mission results first.");
+		}
 
-		if (sampleNum >= sampleCount || sampleNum < 0)
+		if (sampleNum >= this.sampleCount || sampleNum < 0) {
 			throw new IllegalArgumentException("Invalid sample number");
+		}
 
-		double val = 0;
+		var val = 0D;
 		if (channel == TEMPERATURE_CHANNEL) {
-			val = decodeTemperature(temperatureLog, sampleNum * temperatureBytes, temperatureBytes, true);
-			if (useTempCalibrationRegisters && (partNumber != PART_NUMBER_DS1922E)) // DS1922E does not use calibration
-																					// registers
+			val = this.decodeTemperature(this.temperatureLog, sampleNum * this.temperatureBytes, this.temperatureBytes,
+					true);
+			if (this.useTempCalibrationRegisters && this.partNumber != PART_NUMBER_DS1922E) // DS1922E does not use
+																							// calibration
+			// registers
 			{
-				double valsq = val * val;
-				double error = tempCoeffA * valsq + tempCoeffB * val + tempCoeffC;
+				var valsq = val * val;
+				var error = this.tempCoeffA * valsq + this.tempCoeffB * val + this.tempCoeffC;
 				val = val - error;
 			}
 
 		} else if (channel == DATA_CHANNEL) {
-			if (hasHumiditySensor && !adForceResults) {
-				val = decodeHumidity(dataLog, sampleNum * dataBytes, dataBytes, true);
+			if (this.hasHumiditySensor && !this.adForceResults) {
+				val = this.decodeHumidity(this.dataLog, sampleNum * this.dataBytes, this.dataBytes, true);
 
-				if (useTemperatureCompensation) {
+				if (this.useTemperatureCompensation) {
 					double T;
-					if (!overrideTemperatureLog && getMissionSampleCount(TEMPERATURE_CHANNEL) > 0)
-						T = getMissionSample(TEMPERATURE_CHANNEL, sampleNum);
-					else
-						T = (double) defaultTempCompensationValue;
-					double gamma = (T > 15) ? 0.00001 : -0.00005;
+					if (!this.overrideTemperatureLog && this.getMissionSampleCount(TEMPERATURE_CHANNEL) > 0) {
+						T = this.getMissionSample(TEMPERATURE_CHANNEL, sampleNum);
+					} else {
+						T = this.defaultTempCompensationValue;
+					}
+					var gamma = T > 15 ? 0.00001 : -0.00005;
 					T -= 25;
 					val = (val * 0.0307 + .0035 * T - 0.000043 * T * T) / (0.0307 + gamma * T - 0.000002 * T * T);
 				}
 			} else {
-				val = getADVoltage(dataLog, sampleNum * dataBytes, dataBytes, true);
+				val = this.getADVoltage(this.dataLog, sampleNum * this.dataBytes, this.dataBytes, true);
 			}
-		} else
+		} else {
 			throw new IllegalArgumentException("Invalid Channel");
+		}
 
 		return val;
 	}
@@ -2368,29 +2484,34 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                  <code>(getMissionSampleCount(channel)-1)</code>
 	 * @return the sample as a whole integer
 	 */
+	@Override
 	public int getMissionSampleAsInteger(int channel, int sampleNum) throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
+		if (!this.isMissionLoaded) {
 			throw new OneWireException("Must load mission results first.");
+		}
 
-		if (sampleNum >= sampleCount || sampleNum < 0)
+		if (sampleNum >= this.sampleCount || sampleNum < 0) {
 			throw new IllegalArgumentException("Invalid sample number");
+		}
 
-		int i = 0;
+		var i = 0;
 		if (channel == TEMPERATURE_CHANNEL) {
-			if (temperatureBytes == 2) {
-				i = ((0x0FF & temperatureLog[sampleNum * temperatureBytes]) << 8)
-						| ((0x0FF & temperatureLog[sampleNum * temperatureBytes + 1]));
+			if (this.temperatureBytes == 2) {
+				i = (0x0FF & this.temperatureLog[sampleNum * this.temperatureBytes]) << 8
+						| 0x0FF & this.temperatureLog[sampleNum * this.temperatureBytes + 1];
 			} else {
-				i = (0x0FF & temperatureLog[sampleNum * temperatureBytes]);
+				i = 0x0FF & this.temperatureLog[sampleNum * this.temperatureBytes];
 			}
 		} else if (channel == DATA_CHANNEL) {
-			if (dataBytes == 2) {
-				i = ((0x0FF & dataLog[sampleNum * dataBytes]) << 8) | ((0x0FF & dataLog[sampleNum * dataBytes + 1]));
+			if (this.dataBytes == 2) {
+				i = (0x0FF & this.dataLog[sampleNum * this.dataBytes]) << 8
+						| 0x0FF & this.dataLog[sampleNum * this.dataBytes + 1];
 			} else {
-				i = (0x0FF & dataLog[sampleNum * dataBytes]);
+				i = 0x0FF & this.dataLog[sampleNum * this.dataBytes];
 			}
-		} else
+		} else {
 			throw new IllegalArgumentException("Invalid Channel");
+		}
 
 		return i;
 	}
@@ -2405,43 +2526,49 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                  <code>(getMissionSampleCount(channel)-1)</code>
 	 * @return the sample's timestamp, in milliseconds
 	 */
+	@Override
 	public long getMissionSampleTimeStamp(int channel, int sampleNum) throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
+		if (!this.isMissionLoaded) {
 			throw new OneWireException("Must load mission results first.");
+		}
 
-		long delta = ((long) ((long) timeOffset + (long) sampleNum)) * (long) sampleRate;
-		return delta * 1000L + missionTimeStamp;
+		var delta = ((long) this.timeOffset + (long) sampleNum) * this.sampleRate;
+		return delta * 1000L + this.missionTimeStamp;
 	}
 
 	/**
 	 * Returns <code>true</code> if a mission is currently running.
-	 * 
+	 *
 	 * @return <code>true</code> if a mission is currently running.
 	 */
+	@Override
 	public boolean isMissionRunning() throws OneWireException, OneWireIOException {
-		return getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS);
+		return this.getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS);
 	}
 
 	/**
 	 * Returns <code>true</code> if a rollover is enabled.
-	 * 
+	 *
 	 * @return <code>true</code> if a rollover is enabled.
 	 */
+	@Override
 	public boolean isMissionRolloverEnabled() throws OneWireException, OneWireIOException {
-		if (isMissionLoaded)
-			return getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_ROLLOVER, missionRegister);
-		else
-			return getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_ROLLOVER);
+		if (this.isMissionLoaded) {
+			return this.getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_ROLLOVER, this.missionRegister);
+		}
+		return this.getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_ENABLE_ROLLOVER);
 	}
 
 	/**
 	 * Returns <code>true</code> if a mission has rolled over.
-	 * 
+	 *
 	 * @return <code>true</code> if a mission has rolled over.
 	 */
+	@Override
 	public boolean hasMissionRolloverOccurred() throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
+		if (!this.isMissionLoaded) {
 			throw new OneWireException("Must load mission results first.");
+		}
 
 		return this.rolledOver;
 	}
@@ -2450,9 +2577,10 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * Clears the mission results and erases the log memory from this missioning
 	 * device.
 	 */
+	@Override
 	public void clearMissionResults() throws OneWireException, OneWireIOException {
-		clearMemory();
-		isMissionLoaded = false;
+		this.clearMemory();
+		this.isMissionLoaded = false;
 	}
 
 	/**
@@ -2462,9 +2590,11 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                <code>(getNumberOfMissionChannels()-1)</code>
 	 * @return time, in milliseconds, that the mission began
 	 */
+	@Override
 	public long getMissionTimeStamp(int channel) throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
+		if (!this.isMissionLoaded) {
 			throw new OneWireException("Must load mission results first.");
+		}
 
 		return this.missionTimeStamp;
 	}
@@ -2477,11 +2607,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                <code>(getNumberOfMissionChannels()-1)</code>
 	 * @return time, in milliseconds, before first sample occurred
 	 */
+	@Override
 	public long getFirstSampleOffset(int channel) throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
+		if (!this.isMissionLoaded) {
 			throw new OneWireException("Must load mission results first.");
+		}
 
-		return timeOffset * sampleRate * 1000L;
+		return this.timeOffset * this.sampleRate * 1000L;
 	}
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2495,18 +2627,22 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                <code>(getNumberOfMissionChannels()-1)</code>
 	 * @return all available resolutions for the specified mission channel.
 	 */
+	@Override
 	public double[] getMissionResolutions(int channel) throws OneWireException, OneWireIOException {
 		if (channel == TEMPERATURE_CHANNEL) {
 			return new double[] { temperatureResolutions[0], temperatureResolutions[1] };
-		} else if (channel == DATA_CHANNEL) {
-			if (hasHumiditySensor && !adForceResults)
+		}
+		if (channel == DATA_CHANNEL) {
+			if (this.hasHumiditySensor && !this.adForceResults) {
 				return new double[] { humidityResolutions[0], humidityResolutions[1] };
-			else if (adForceResults)
+			} else if (this.adForceResults) {
 				return new double[] { dataResolutions[0], dataResolutions[1] };
-			else
+			} else {
 				return new double[] { 8, 16 };
-		} else
+			}
+		} else {
 			throw new IllegalArgumentException("Invalid Channel");
+		}
 	}
 
 	/**
@@ -2516,31 +2652,34 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                <code>(getNumberOfMissionChannels()-1)</code>
 	 * @return the currently selected resolution for the specified channel.
 	 */
+	@Override
 	public double getMissionResolution(int channel) throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
+		if (!this.isMissionLoaded) {
 			throw new OneWireException("Must load mission results first.");
+		}
 
-		double resolution = 0;
+		var resolution = 0D;
 		if (channel == TEMPERATURE_CHANNEL) {
-			if (getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_TEMPERATURE_RESOLUTION, missionRegister))
+			if (this.getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_TEMPERATURE_RESOLUTION, this.missionRegister)) {
 				resolution = temperatureResolutions[1];
-			else
-				resolution = temperatureResolutions[0];
-		} else if (channel == DATA_CHANNEL) {
-			if (getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_DATA_RESOLUTION, missionRegister)) {
-				if (hasHumiditySensor && !adForceResults)
-					resolution = humidityResolutions[1];
-				else if (adForceResults)
-					resolution = dataResolutions[1];
-				else
-					resolution = 16;
 			} else {
-				if (hasHumiditySensor && !adForceResults)
-					resolution = humidityResolutions[0];
-				else if (adForceResults)
-					resolution = dataResolutions[0];
-				else
-					resolution = 8;
+				resolution = temperatureResolutions[0];
+			}
+		} else if (channel == DATA_CHANNEL) {
+			if (this.getFlag(MISSION_CONTROL_REGISTER, MCR_BIT_DATA_RESOLUTION, this.missionRegister)) {
+				if (this.hasHumiditySensor && !this.adForceResults) {
+					resolution = humidityResolutions[1];
+				} else if (this.adForceResults) {
+					resolution = dataResolutions[1];
+				} else {
+					resolution = 16;
+				}
+			} else if (this.hasHumiditySensor && !this.adForceResults) {
+				resolution = humidityResolutions[0];
+			} else if (this.adForceResults) {
+				resolution = dataResolutions[0];
+			} else {
+				resolution = 8;
 			}
 		} else {
 			throw new IllegalArgumentException("Invalid Channel");
@@ -2555,27 +2694,30 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                   <code>(getNumberOfMissionChannels()-1)</code>
 	 * @param resolution the new resolution for the specified channel.
 	 */
+	@Override
 	public void setMissionResolution(int channel, double resolution) throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
-			missionRegister = readDevice();
+		if (!this.isMissionLoaded) {
+			this.missionRegister = this.readDevice();
+		}
 
 		if (channel == TEMPERATURE_CHANNEL) {
-			setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_TEMPERATURE_RESOLUTION, resolution == temperatureResolutions[1],
-					missionRegister);
+			this.setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_TEMPERATURE_RESOLUTION,
+					resolution == temperatureResolutions[1], this.missionRegister);
 		} else if (channel == DATA_CHANNEL) {
-			if (hasHumiditySensor && !adForceResults)
-				setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_DATA_RESOLUTION, resolution == humidityResolutions[1],
-						missionRegister);
-			else if (adForceResults)
-				setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_DATA_RESOLUTION, resolution == dataResolutions[1],
-						missionRegister);
-			else
-				setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_DATA_RESOLUTION, resolution == 16, missionRegister);
+			if (this.hasHumiditySensor && !this.adForceResults) {
+				this.setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_DATA_RESOLUTION, resolution == humidityResolutions[1],
+						this.missionRegister);
+			} else if (this.adForceResults) {
+				this.setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_DATA_RESOLUTION, resolution == dataResolutions[1],
+						this.missionRegister);
+			} else {
+				this.setFlag(MISSION_CONTROL_REGISTER, MCR_BIT_DATA_RESOLUTION, resolution == 16, this.missionRegister);
+			}
 		} else {
 			throw new IllegalArgumentException("Invalid Channel");
 		}
 
-		writeDevice(missionRegister);
+		this.writeDevice(this.missionRegister);
 	}
 
 	/**
@@ -2659,6 +2801,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                <code>(getNumberOfMissionChannels()-1)</code>
 	 * @return true if the device has mission alarms for the specified channel.
 	 */
+	@Override
 	public boolean hasMissionAlarms(int channel) {
 		return true;
 	}
@@ -2673,21 +2816,24 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                  <code>ALARM_LOW</code>
 	 * @return true if the alarm was triggered.
 	 */
+	@Override
 	public boolean hasMissionAlarmed(int channel, int alarmType) throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
+		if (!this.isMissionLoaded) {
 			throw new OneWireException("Must load mission results first.");
+		}
 
 		if (channel == TEMPERATURE_CHANNEL) {
 			if (alarmType == MissionContainer.ALARM_HIGH) {
-				return getFlag(ALARM_STATUS_REGISTER, ASR_BIT_TEMPERATURE_HIGH_ALARM, missionRegister);
+				return this.getFlag(ALARM_STATUS_REGISTER, ASR_BIT_TEMPERATURE_HIGH_ALARM, this.missionRegister);
 			} else {
-				return getFlag(ALARM_STATUS_REGISTER, ASR_BIT_TEMPERATURE_LOW_ALARM, missionRegister);
+				return this.getFlag(ALARM_STATUS_REGISTER, ASR_BIT_TEMPERATURE_LOW_ALARM, this.missionRegister);
 			}
-		} else if (channel == DATA_CHANNEL) {
+		}
+		if (channel == DATA_CHANNEL) {
 			if (alarmType == MissionContainer.ALARM_HIGH) {
-				return getFlag(ALARM_STATUS_REGISTER, ASR_BIT_DATA_HIGH_ALARM, missionRegister);
+				return this.getFlag(ALARM_STATUS_REGISTER, ASR_BIT_DATA_HIGH_ALARM, this.missionRegister);
 			} else {
-				return getFlag(ALARM_STATUS_REGISTER, ASR_BIT_DATA_LOW_ALARM, missionRegister);
+				return this.getFlag(ALARM_STATUS_REGISTER, ASR_BIT_DATA_LOW_ALARM, this.missionRegister);
 			}
 		} else {
 			throw new IllegalArgumentException("Invalid Channel");
@@ -2705,21 +2851,26 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @return true if the alarm of the specified type has been enabled for the
 	 *         specified channel.
 	 */
+	@Override
 	public boolean getMissionAlarmEnable(int channel, int alarmType) throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
+		if (!this.isMissionLoaded) {
 			throw new OneWireException("Must load mission results first.");
+		}
 
 		if (channel == TEMPERATURE_CHANNEL) {
 			if (alarmType == MissionContainer.ALARM_HIGH) {
-				return getFlag(TEMPERATURE_CONTROL_REGISTER, TCR_BIT_ENABLE_TEMPERATURE_HIGH_ALARM, missionRegister);
+				return this.getFlag(TEMPERATURE_CONTROL_REGISTER, TCR_BIT_ENABLE_TEMPERATURE_HIGH_ALARM,
+						this.missionRegister);
 			} else {
-				return getFlag(TEMPERATURE_CONTROL_REGISTER, TCR_BIT_ENABLE_TEMPERATURE_LOW_ALARM, missionRegister);
+				return this.getFlag(TEMPERATURE_CONTROL_REGISTER, TCR_BIT_ENABLE_TEMPERATURE_LOW_ALARM,
+						this.missionRegister);
 			}
-		} else if (channel == DATA_CHANNEL) {
+		}
+		if (channel == DATA_CHANNEL) {
 			if (alarmType == MissionContainer.ALARM_HIGH) {
-				return getFlag(DATA_CONTROL_REGISTER, DCR_BIT_ENABLE_DATA_HIGH_ALARM, missionRegister);
+				return this.getFlag(DATA_CONTROL_REGISTER, DCR_BIT_ENABLE_DATA_HIGH_ALARM, this.missionRegister);
 			} else {
-				return getFlag(DATA_CONTROL_REGISTER, DCR_BIT_ENABLE_DATA_LOW_ALARM, missionRegister);
+				return this.getFlag(DATA_CONTROL_REGISTER, DCR_BIT_ENABLE_DATA_LOW_ALARM, this.missionRegister);
 			}
 		} else {
 			throw new IllegalArgumentException("Invalid Channel");
@@ -2735,30 +2886,34 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                  <code>ALARM_LOW</code>
 	 * @param enable    if true, alarm is enabled.
 	 */
+	@Override
 	public void setMissionAlarmEnable(int channel, int alarmType, boolean enable)
 			throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
-			missionRegister = readDevice();
+		if (!this.isMissionLoaded) {
+			this.missionRegister = this.readDevice();
+		}
 
 //      System.out.println("setMissionAlarmEnable: channel=" + channel +", alarmType=" + alarmType + ", enable=" + enable);
 //      System.out.println("setMissionAlarmEnable: before state=" + Convert.toHexString(missionRegister));
 		if (channel == TEMPERATURE_CHANNEL) {
 			if (alarmType == MissionContainer.ALARM_HIGH) {
-				setFlag(TEMPERATURE_CONTROL_REGISTER, TCR_BIT_ENABLE_TEMPERATURE_HIGH_ALARM, enable, missionRegister);
+				this.setFlag(TEMPERATURE_CONTROL_REGISTER, TCR_BIT_ENABLE_TEMPERATURE_HIGH_ALARM, enable,
+						this.missionRegister);
 			} else {
-				setFlag(TEMPERATURE_CONTROL_REGISTER, TCR_BIT_ENABLE_TEMPERATURE_LOW_ALARM, enable, missionRegister);
+				this.setFlag(TEMPERATURE_CONTROL_REGISTER, TCR_BIT_ENABLE_TEMPERATURE_LOW_ALARM, enable,
+						this.missionRegister);
 			}
 		} else if (channel == DATA_CHANNEL) {
 			if (alarmType == MissionContainer.ALARM_HIGH) {
-				setFlag(DATA_CONTROL_REGISTER, DCR_BIT_ENABLE_DATA_HIGH_ALARM, enable, missionRegister);
+				this.setFlag(DATA_CONTROL_REGISTER, DCR_BIT_ENABLE_DATA_HIGH_ALARM, enable, this.missionRegister);
 			} else {
-				setFlag(DATA_CONTROL_REGISTER, DCR_BIT_ENABLE_DATA_LOW_ALARM, enable, missionRegister);
+				this.setFlag(DATA_CONTROL_REGISTER, DCR_BIT_ENABLE_DATA_LOW_ALARM, enable, this.missionRegister);
 			}
 		} else {
 			throw new IllegalArgumentException("Invalid Channel");
 		}
 //      System.out.println("setMissionAlarmEnable: after  state=" + Convert.toHexString(missionRegister));
-		writeDevice(missionRegister);
+		this.writeDevice(this.missionRegister);
 	}
 
 	/**
@@ -2771,32 +2926,34 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                  <code>ALARM_LOW</code>
 	 * @return the threshold value which will trigger the alarm
 	 */
+	@Override
 	public double getMissionAlarm(int channel, int alarmType) throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
+		if (!this.isMissionLoaded) {
 			throw new OneWireException("Must load mission results first.");
+		}
 
-		double th = 0;
+		var th = 0D;
 		if (channel == TEMPERATURE_CHANNEL) {
 			if (alarmType == MissionContainer.ALARM_HIGH) {
-				th = decodeTemperature(missionRegister, TEMPERATURE_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
+				th = this.decodeTemperature(this.missionRegister, TEMPERATURE_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
 			} else {
-				th = decodeTemperature(missionRegister, TEMPERATURE_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
+				th = this.decodeTemperature(this.missionRegister, TEMPERATURE_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
 			}
 		} else if (channel == DATA_CHANNEL) {
 			if (alarmType == MissionContainer.ALARM_HIGH) {
-				if (hasHumiditySensor && !adForceResults)
-					th = decodeHumidity(missionRegister, DATA_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
-				else if (adForceResults)
-					th = getADVoltage(missionRegister, DATA_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
-				else
-					th = (0x0FF & missionRegister[DATA_HIGH_ALARM_THRESHOLD & 0x3F]);
+				if (this.hasHumiditySensor && !this.adForceResults) {
+					th = this.decodeHumidity(this.missionRegister, DATA_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
+				} else if (this.adForceResults) {
+					th = this.getADVoltage(this.missionRegister, DATA_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
+				} else {
+					th = 0x0FF & this.missionRegister[DATA_HIGH_ALARM_THRESHOLD & 0x3F];
+				}
+			} else if (this.hasHumiditySensor && !this.adForceResults) {
+				th = this.decodeHumidity(this.missionRegister, DATA_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
+			} else if (this.adForceResults) {
+				th = this.getADVoltage(this.missionRegister, DATA_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
 			} else {
-				if (hasHumiditySensor && !adForceResults)
-					th = decodeHumidity(missionRegister, DATA_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
-				else if (adForceResults)
-					th = getADVoltage(missionRegister, DATA_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
-				else
-					th = (0x0FF & missionRegister[DATA_LOW_ALARM_THRESHOLD & 0x3F]);
+				th = 0x0FF & this.missionRegister[DATA_LOW_ALARM_THRESHOLD & 0x3F];
 			}
 		} else {
 			throw new IllegalArgumentException("Invalid Channel");
@@ -2814,41 +2971,45 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *                  <code>ALARM_LOW</code>
 	 * @param threshold the threshold value which will trigger the alarm
 	 */
+	@Override
 	public void setMissionAlarm(int channel, int alarmType, double threshold)
 			throws OneWireException, OneWireIOException {
-		if (!isMissionLoaded)
-			missionRegister = readDevice();
+		if (!this.isMissionLoaded) {
+			this.missionRegister = this.readDevice();
+		}
 
 //      System.out.println("setMissionAlarm: channel=" + channel +", alarmType=" + alarmType + ", threshold=" + threshold);
 //      System.out.println("setMissionAlarm: before state=" + Convert.toHexString(missionRegister));
 
 		if (channel == TEMPERATURE_CHANNEL) {
 			if (alarmType == MissionContainer.ALARM_HIGH) {
-				encodeTemperature(threshold, missionRegister, TEMPERATURE_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
+				this.encodeTemperature(threshold, this.missionRegister, TEMPERATURE_HIGH_ALARM_THRESHOLD & 0x3F, 1,
+						false);
 			} else {
-				encodeTemperature(threshold, missionRegister, TEMPERATURE_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
+				this.encodeTemperature(threshold, this.missionRegister, TEMPERATURE_LOW_ALARM_THRESHOLD & 0x3F, 1,
+						false);
 			}
 		} else if (channel == DATA_CHANNEL) {
 			if (alarmType == MissionContainer.ALARM_HIGH) {
-				if (hasHumiditySensor && !adForceResults)
-					encodeHumidity(threshold, missionRegister, DATA_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
-				else if (adForceResults)
-					setADVoltage(threshold, missionRegister, DATA_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
-				else
-					missionRegister[DATA_HIGH_ALARM_THRESHOLD & 0x3F] = (byte) threshold;
+				if (this.hasHumiditySensor && !this.adForceResults) {
+					this.encodeHumidity(threshold, this.missionRegister, DATA_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
+				} else if (this.adForceResults) {
+					this.setADVoltage(threshold, this.missionRegister, DATA_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
+				} else {
+					this.missionRegister[DATA_HIGH_ALARM_THRESHOLD & 0x3F] = (byte) threshold;
+				}
+			} else if (this.hasHumiditySensor && !this.adForceResults) {
+				this.encodeHumidity(threshold, this.missionRegister, DATA_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
+			} else if (this.adForceResults) {
+				this.setADVoltage(threshold, this.missionRegister, DATA_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
 			} else {
-				if (hasHumiditySensor && !adForceResults)
-					encodeHumidity(threshold, missionRegister, DATA_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
-				else if (adForceResults)
-					setADVoltage(threshold, missionRegister, DATA_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
-				else
-					missionRegister[DATA_LOW_ALARM_THRESHOLD & 0x3F] = (byte) threshold;
+				this.missionRegister[DATA_LOW_ALARM_THRESHOLD & 0x3F] = (byte) threshold;
 			}
 		} else {
 			throw new IllegalArgumentException("Invalid Channel");
 		}
 //      System.out.println("setMissionAlarm: after state=" + Convert.toHexString(missionRegister));
-		writeDevice(missionRegister);
+		this.writeDevice(this.missionRegister);
 	}
 
 // *****************************************************************************
@@ -2866,6 +3027,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getTemperatureAlarm
 	 * @see #setTemperatureAlarm
 	 */
+	@Override
 	public boolean hasTemperatureAlarms() {
 		return true;
 	}
@@ -2880,6 +3042,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getTemperatureResolutions
 	 * @see #setTemperatureResolution
 	 */
+	@Override
 	public boolean hasSelectableTemperatureResolution() {
 		return false;
 	}
@@ -2895,8 +3058,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getTemperatureResolution
 	 * @see #setTemperatureResolution
 	 */
+	@Override
 	public double[] getTemperatureResolutions() {
-		double[] d = new double[1];
+		var d = new double[1];
 
 		d[0] = temperatureResolutions[1];
 
@@ -2913,6 +3077,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #setTemperatureAlarm
 	 *
 	 */
+	@Override
 	public double getTemperatureAlarmResolution() {
 		return temperatureResolutions[0];
 	}
@@ -2924,8 +3089,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @see #getMinTemperature()
 	 */
+	@Override
 	public double getMaxTemperature() {
-		return temperatureRangeLow + temperatureRangeWidth;
+		return this.temperatureRangeLow + this.temperatureRangeWidth;
 	}
 
 	/**
@@ -2935,8 +3101,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @see #getMaxTemperature()
 	 */
+	@Override
 	public double getMinTemperature() {
-		return temperatureRangeLow;
+		return this.temperatureRangeLow;
 	}
 
 	/**
@@ -2955,33 +3122,37 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public void doTemperatureConvert(byte[] state) throws OneWireIOException, OneWireException {
 		/* check for mission in progress */
-		if (getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS, state))
+		if (this.getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS, state)) {
 			throw new OneWireIOException("OneWireContainer41-Cant force " + "temperature read during a mission.");
+		}
 		/* check that the RTC is running */
-		if (!getFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, state))
+		if (!this.getFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, state)) {
 			throw new OneWireIOException(
 					"OneWireContainer41-Cant force " + "temperature conversion if the oscillator is not enabled");
+		}
 
 		/* get the temperature */
-		if (doSpeedEnable)
-			doSpeed(); // we aren't worried about how long this takes...we're sleeping for 750 ms!
+		if (this.doSpeedEnable) {
+			this.doSpeed(); // we aren't worried about how long this takes...we're sleeping for 750 ms!
+		}
 
-		adapter.reset();
+		this.adapter.reset();
 
-		if (adapter.select(address)) {
-			// perform the temperature conversion
-			byte[] buffer = new byte[] { FORCED_CONVERSION, (byte) 0xFF };
-			adapter.dataBlock(buffer, 0, 2);
-
-			msWait(750);
-
-			// grab the temperature
-			state[LAST_TEMPERATURE_CONVERSION_LSB & 0x3F] = readByte(LAST_TEMPERATURE_CONVERSION_LSB);
-			state[LAST_TEMPERATURE_CONVERSION_MSB & 0x3F] = readByte(LAST_TEMPERATURE_CONVERSION_MSB);
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer41-Device not found!");
+		}
+		// perform the temperature conversion
+		byte[] buffer = { FORCED_CONVERSION, (byte) 0xFF };
+		this.adapter.dataBlock(buffer, 0, 2);
+
+		msWait(750);
+
+		// grab the temperature
+		state[LAST_TEMPERATURE_CONVERSION_LSB & 0x3F] = this.readByte(LAST_TEMPERATURE_CONVERSION_LSB);
+		state[LAST_TEMPERATURE_CONVERSION_MSB & 0x3F] = this.readByte(LAST_TEMPERATURE_CONVERSION_MSB);
 	}
 
 	/**
@@ -2993,13 +3164,15 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @return temperature in Celsius from the last
 	 *         <code>doTemperatureConvert()</code>
 	 */
+	@Override
 	public double getTemperature(byte[] state) {
-		double val = decodeTemperature(state, LAST_TEMPERATURE_CONVERSION_LSB & 0x3F, 2, false);
-		if (useTempCalibrationRegisters && (partNumber != PART_NUMBER_DS1922E)) // DS1922E does not use calibration
-																				// registers
+		var val = this.decodeTemperature(state, LAST_TEMPERATURE_CONVERSION_LSB & 0x3F, 2, false);
+		if (this.useTempCalibrationRegisters && this.partNumber != PART_NUMBER_DS1922E) // DS1922E does not use
+																						// calibration
+		// registers
 		{
-			double valsq = val * val;
-			double error = tempCoeffA * valsq + tempCoeffB * val + tempCoeffC;
+			var valsq = val * val;
+			var error = this.tempCoeffA * valsq + this.tempCoeffB * val + this.tempCoeffC;
 			val = val - error;
 		}
 		return val;
@@ -3018,17 +3191,20 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #hasTemperatureAlarms
 	 * @see #setTemperatureAlarm
 	 */
+	@Override
 	public double getTemperatureAlarm(int alarmType, byte[] state) {
-		double th = 0;
-		if (alarmType == TemperatureContainer.ALARM_HIGH)
-			th = decodeTemperature(state, TEMPERATURE_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
-		else
-			th = decodeTemperature(state, TEMPERATURE_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
-		if (useTempCalibrationRegisters && (partNumber != PART_NUMBER_DS1922E)) // DS1922E does not use calibration
-																				// registers
+		var th = 0D;
+		if (alarmType == TemperatureContainer.ALARM_HIGH) {
+			th = this.decodeTemperature(state, TEMPERATURE_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
+		} else {
+			th = this.decodeTemperature(state, TEMPERATURE_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
+		}
+		if (this.useTempCalibrationRegisters && this.partNumber != PART_NUMBER_DS1922E) // DS1922E does not use
+																						// calibration
+		// registers
 		{
-			double thsq = th * th;
-			double error = tempCoeffA * thsq + tempCoeffB * th + tempCoeffC;
+			var thsq = th * th;
+			var error = this.tempCoeffA * thsq + this.tempCoeffB * th + this.tempCoeffC;
 			th = th - error;
 		}
 		return th;
@@ -3046,6 +3222,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getTemperatureResolutions
 	 * @see #setTemperatureResolution
 	 */
+	@Override
 	public double getTemperatureResolution(byte[] state) {
 		return temperatureResolutions[1];
 	}
@@ -3063,19 +3240,20 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #hasTemperatureAlarms
 	 * @see #getTemperatureAlarm
 	 */
+	@Override
 	public void setTemperatureAlarm(int alarmType, double alarmValue, byte[] state) {
-		if (useTempCalibrationRegisters && (partNumber != PART_NUMBER_DS1922E)) // DS1922E does not use calibration
-																				// registers
+		if (this.useTempCalibrationRegisters && this.partNumber != PART_NUMBER_DS1922E) // DS1922E does not use
+																						// calibration
+		// registers
 		{
-			alarmValue = ((1 - tempCoeffB)
-					- Math.sqrt(((tempCoeffB - 1) * (tempCoeffB - 1)) - 4 * tempCoeffA * (tempCoeffC + alarmValue)))
-					/ (2 * tempCoeffA);
+			alarmValue = (1 - this.tempCoeffB - Math.sqrt((this.tempCoeffB - 1) * (this.tempCoeffB - 1)
+					- 4 * this.tempCoeffA * (this.tempCoeffC + alarmValue))) / (2 * this.tempCoeffA);
 		}
 
 		if (alarmType == TemperatureContainer.ALARM_HIGH) {
-			encodeTemperature(alarmValue, state, TEMPERATURE_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
+			this.encodeTemperature(alarmValue, state, TEMPERATURE_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
 		} else {
-			encodeTemperature(alarmValue, state, TEMPERATURE_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
+			this.encodeTemperature(alarmValue, state, TEMPERATURE_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
 		}
 	}
 
@@ -3094,6 +3272,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getTemperatureResolution
 	 * @see #getTemperatureResolutions
 	 */
+	@Override
 	public void setTemperatureResolution(double resolution, byte[] state) throws OneWireException {
 		throw new OneWireException("Selectable Temperature Resolution Not Supported");
 	}
@@ -3114,6 +3293,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getHumidityResolutions
 	 * @see #setHumidityResolution
 	 */
+	@Override
 	public boolean isRelative() {
 		return true;
 	}
@@ -3127,6 +3307,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getHumidityAlarm
 	 * @see #setHumidityAlarm
 	 */
+	@Override
 	public boolean hasHumidityAlarms() {
 		return true;
 	}
@@ -3141,6 +3322,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getHumidityResolutions
 	 * @see #setHumidityResolution
 	 */
+	@Override
 	public boolean hasSelectableHumidityResolution() {
 		return false;
 	}
@@ -3157,8 +3339,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getHumidityResolution
 	 * @see #setHumidityResolution
 	 */
+	@Override
 	public double[] getHumidityResolutions() {
-		double[] d = new double[1];
+		var d = new double[1];
 
 		d[0] = humidityResolutions[1];
 
@@ -3177,6 +3360,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #setHumidityAlarm
 	 *
 	 */
+	@Override
 	public double getHumidityAlarmResolution() throws OneWireException {
 		return humidityResolutions[0];
 	}
@@ -3198,34 +3382,38 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public void doHumidityConvert(byte[] state) throws OneWireIOException, OneWireException {
 		/* check for mission in progress */
-		if (getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS, state))
+		if (this.getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS, state)) {
 			throw new OneWireIOException("OneWireContainer41-Cant force " + "Humidity read during a mission.");
+		}
 
 		/* check that the RTC is running */
-		if (!getFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, state))
+		if (!this.getFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, state)) {
 			throw new OneWireIOException(
 					"OneWireContainer41-Cant force " + "Humidity conversion if the oscillator is not enabled");
+		}
 
 		/* get the temperature */
-		if (doSpeedEnable)
-			doSpeed(); // we aren't worried about how long this takes...we're sleeping for 750 ms!
+		if (this.doSpeedEnable) {
+			this.doSpeed(); // we aren't worried about how long this takes...we're sleeping for 750 ms!
+		}
 
-		adapter.reset();
+		this.adapter.reset();
 
-		if (adapter.select(address)) {
-			// perform the temperature conversion
-			byte[] buffer = new byte[] { FORCED_CONVERSION, (byte) 0xFF };
-			adapter.dataBlock(buffer, 0, 2);
-
-			msWait(750);
-
-			// grab the temperature
-			state[LAST_DATA_CONVERSION_LSB & 0x3F] = readByte(LAST_DATA_CONVERSION_LSB);
-			state[LAST_DATA_CONVERSION_MSB & 0x3F] = readByte(LAST_DATA_CONVERSION_MSB);
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer41-Device not found!");
+		}
+		// perform the temperature conversion
+		byte[] buffer = { FORCED_CONVERSION, (byte) 0xFF };
+		this.adapter.dataBlock(buffer, 0, 2);
+
+		msWait(750);
+
+		// grab the temperature
+		state[LAST_DATA_CONVERSION_LSB & 0x3F] = this.readByte(LAST_DATA_CONVERSION_LSB);
+		state[LAST_DATA_CONVERSION_MSB & 0x3F] = this.readByte(LAST_DATA_CONVERSION_MSB);
 	}
 
 	// --------
@@ -3242,11 +3430,12 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getHumidityResolution
 	 * @see #setHumidityResolution
 	 */
+	@Override
 	public double getHumidity(byte[] state) {
-		double val = decodeHumidity(state, LAST_DATA_CONVERSION_LSB & 0x3F, 2, false);
-		if (useTemperatureCompensation) {
-			double T = decodeTemperature(state, LAST_TEMPERATURE_CONVERSION_LSB & 0x3F, 2, false);
-			double gamma = (T > 15) ? 0.00001 : -0.00005;
+		var val = this.decodeHumidity(state, LAST_DATA_CONVERSION_LSB & 0x3F, 2, false);
+		if (this.useTemperatureCompensation) {
+			var T = this.decodeTemperature(state, LAST_TEMPERATURE_CONVERSION_LSB & 0x3F, 2, false);
+			var gamma = T > 15 ? 0.00001 : -0.00005;
 			T -= 25;
 			val = (val * 0.0307 + .0035 * T - 0.000043 * T * T) / (0.0307 + gamma * T - 0.000002 * T * T);
 		}
@@ -3265,6 +3454,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getHumidityResolutions
 	 * @see #setHumidityResolution
 	 */
+	@Override
 	public double getHumidityResolution(byte[] state) {
 		return humidityResolutions[1];
 	}
@@ -3284,12 +3474,14 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #hasHumidityAlarms
 	 * @see #setHumidityAlarm
 	 */
+	@Override
 	public double getHumidityAlarm(int alarmType, byte[] state) throws OneWireException {
 		double th;
-		if (alarmType == HumidityContainer.ALARM_HIGH)
-			th = decodeHumidity(state, DATA_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
-		else
-			th = decodeHumidity(state, DATA_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
+		if (alarmType == HumidityContainer.ALARM_HIGH) {
+			th = this.decodeHumidity(state, DATA_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
+		} else {
+			th = this.decodeHumidity(state, DATA_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
+		}
 		return th;
 	}
 
@@ -3312,11 +3504,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #hasHumidityAlarms
 	 * @see #getHumidityAlarm
 	 */
+	@Override
 	public void setHumidityAlarm(int alarmType, double alarmValue, byte[] state) throws OneWireException {
-		if (alarmType == HumidityContainer.ALARM_HIGH)
-			encodeHumidity(alarmValue, state, DATA_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
-		else
-			encodeHumidity(alarmValue, state, DATA_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
+		if (alarmType == HumidityContainer.ALARM_HIGH) {
+			this.encodeHumidity(alarmValue, state, DATA_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
+		} else {
+			this.encodeHumidity(alarmValue, state, DATA_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
+		}
 	}
 
 	/**
@@ -3334,6 +3528,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getHumidityResolution
 	 * @see #getHumidityResolutions
 	 */
+	@Override
 	public void setHumidityResolution(double resolution, byte[] state) throws OneWireException {
 		throw new OneWireException("Selectable Humidity Resolution Not Supported");
 	}
@@ -3350,6 +3545,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return the number of channels
 	 */
+	@Override
 	public int getNumberADChannels() {
 		return 1;
 	}
@@ -3359,6 +3555,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return true if this device has high/low trip alarms
 	 */
+	@Override
 	public boolean hasADAlarms() {
 		return true;
 	}
@@ -3374,6 +3571,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @see #getNumberADChannels()
 	 */
+	@Override
 	public double[] getADRanges(int channel) {
 		return new double[] { 127 };
 	}
@@ -3393,6 +3591,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getNumberADChannels()
 	 * @see #getADRanges(int)
 	 */
+	@Override
 	public double[] getADResolutions(int channel, double range) {
 		return new double[] { dataResolutions[1] };
 	}
@@ -3405,6 +3604,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @see #doADConvert(boolean[],byte[])
 	 */
+	@Override
 	public boolean canADMultiChannelRead() {
 		return true;
 	}
@@ -3431,34 +3631,38 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #getADVoltage(int,byte[])
 	 */
+	@Override
 	public void doADConvert(int channel, byte[] state) throws OneWireIOException, OneWireException {
 		/* check for mission in progress */
-		if (getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS, state))
+		if (this.getFlag(GENERAL_STATUS_REGISTER, GSR_BIT_MISSION_IN_PROGRESS, state)) {
 			throw new OneWireIOException("OneWireContainer41-Cant force " + "temperature read during a mission.");
+		}
 
 		/* check that the RTC is running */
-		if (!getFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, state))
+		if (!this.getFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, state)) {
 			throw new OneWireIOException(
 					"OneWireContainer41-Cant force " + "A/D conversion if the oscillator is not enabled");
+		}
 
 		/* get the temperature */
-		if (doSpeedEnable)
-			doSpeed(); // we aren't worried about how long this takes...we're sleeping for 750 ms!
+		if (this.doSpeedEnable) {
+			this.doSpeed(); // we aren't worried about how long this takes...we're sleeping for 750 ms!
+		}
 
-		adapter.reset();
+		this.adapter.reset();
 
-		if (adapter.select(address)) {
-			// perform the conversion
-			byte[] buffer = new byte[] { FORCED_CONVERSION, (byte) 0xFF };
-			adapter.dataBlock(buffer, 0, 2);
-
-			msWait(750);
-
-			// grab the data
-			state[LAST_DATA_CONVERSION_LSB & 0x3F] = readByte(LAST_DATA_CONVERSION_LSB);
-			state[LAST_DATA_CONVERSION_MSB & 0x3F] = readByte(LAST_DATA_CONVERSION_MSB);
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer41-Device not found!");
+		}
+		// perform the conversion
+		byte[] buffer = { FORCED_CONVERSION, (byte) 0xFF };
+		this.adapter.dataBlock(buffer, 0, 2);
+
+		msWait(750);
+
+		// grab the data
+		state[LAST_DATA_CONVERSION_LSB & 0x3F] = this.readByte(LAST_DATA_CONVERSION_LSB);
+		state[LAST_DATA_CONVERSION_MSB & 0x3F] = this.readByte(LAST_DATA_CONVERSION_MSB);
 	}
 
 	/**
@@ -3485,8 +3689,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getADVoltage(byte[])
 	 * @see #canADMultiChannelRead()
 	 */
+	@Override
 	public void doADConvert(boolean[] doConvert, byte[] state) throws OneWireIOException, OneWireException {
-		doADConvert(DATA_CHANNEL, state);
+		this.doADConvert(DATA_CHANNEL, state);
 	}
 
 	/**
@@ -3512,8 +3717,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @see #doADConvert(boolean[],byte[])
 	 */
+	@Override
 	public double[] getADVoltage(byte[] state) throws OneWireIOException, OneWireException {
-		return new double[] { getADVoltage(DATA_CHANNEL, state) };
+		return new double[] { this.getADVoltage(DATA_CHANNEL, state) };
 	}
 
 	/**
@@ -3541,8 +3747,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #doADConvert(int,byte[])
 	 * @see #getADVoltage(byte[])
 	 */
+	@Override
 	public double getADVoltage(int channel, byte[] state) throws OneWireIOException, OneWireException {
-		return getADVoltage(state, LAST_DATA_CONVERSION_LSB & 0x3F, 2, false);
+		return this.getADVoltage(state, LAST_DATA_CONVERSION_LSB & 0x3F, 2, false);
 	}
 
 	/**
@@ -3564,12 +3771,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #hasADAlarms()
 	 */
+	@Override
 	public double getADAlarm(int channel, int alarmType, byte[] state) throws OneWireException {
-		double th = 0;
+		var th = 0D;
 		if (alarmType == ADContainer.ALARM_HIGH) {
-			th = getADVoltage(state, DATA_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
+			th = this.getADVoltage(state, DATA_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
 		} else {
-			th = getADVoltage(state, DATA_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
+			th = this.getADVoltage(state, DATA_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
 		}
 		return th;
 	}
@@ -3593,12 +3801,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #hasADAlarms()
 	 */
+	@Override
 	public boolean getADAlarmEnable(int channel, int alarmType, byte[] state) throws OneWireException {
-		boolean b = false;
+		var b = false;
 		if (alarmType == ADContainer.ALARM_HIGH) {
-			b = getFlag(DATA_CONTROL_REGISTER, DCR_BIT_ENABLE_DATA_HIGH_ALARM, state);
+			b = this.getFlag(DATA_CONTROL_REGISTER, DCR_BIT_ENABLE_DATA_HIGH_ALARM, state);
 		} else {
-			b = getFlag(DATA_CONTROL_REGISTER, DCR_BIT_ENABLE_DATA_LOW_ALARM, state);
+			b = this.getFlag(DATA_CONTROL_REGISTER, DCR_BIT_ENABLE_DATA_LOW_ALARM, state);
 		}
 		return b;
 	}
@@ -3624,12 +3833,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getADAlarmEnable(int,int,byte[])
 	 * @see #setADAlarmEnable(int,int,boolean,byte[])
 	 */
+	@Override
 	public boolean hasADAlarmed(int channel, int alarmType, byte[] state) throws OneWireException {
-		boolean b = false;
+		var b = false;
 		if (alarmType == ADContainer.ALARM_HIGH) {
-			b = getFlag(ALARM_STATUS_REGISTER, ASR_BIT_DATA_HIGH_ALARM, state);
+			b = this.getFlag(ALARM_STATUS_REGISTER, ASR_BIT_DATA_HIGH_ALARM, state);
 		} else {
-			b = getFlag(ALARM_STATUS_REGISTER, ASR_BIT_DATA_LOW_ALARM, state);
+			b = this.getFlag(ALARM_STATUS_REGISTER, ASR_BIT_DATA_LOW_ALARM, state);
 		}
 		return b;
 	}
@@ -3649,6 +3859,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getADResolutions(int,double)
 	 * @see #setADResolution(int,double,byte[])
 	 */
+	@Override
 	public double getADResolution(int channel, byte[] state) {
 		return dataResolutions[1];
 	}
@@ -3667,6 +3878,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getADRanges(int)
 	 * @see #setADRange(int,double,byte[])
 	 */
+	@Override
 	public double getADRange(int channel, byte[] state) {
 		return 127;
 	}
@@ -3696,11 +3908,12 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #setADAlarmEnable(int,int,boolean,byte[])
 	 * @see #hasADAlarmed(int,int,byte[])
 	 */
+	@Override
 	public void setADAlarm(int channel, int alarmType, double alarm, byte[] state) throws OneWireException {
 		if (alarmType == ADContainer.ALARM_HIGH) {
-			setADVoltage(alarm, state, DATA_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
+			this.setADVoltage(alarm, state, DATA_HIGH_ALARM_THRESHOLD & 0x3F, 1, false);
 		} else {
-			setADVoltage(alarm, state, DATA_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
+			this.setADVoltage(alarm, state, DATA_LOW_ALARM_THRESHOLD & 0x3F, 1, false);
 		}
 	}
 
@@ -3729,12 +3942,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getADAlarmEnable(int,int,byte[])
 	 * @see #hasADAlarmed(int,int,byte[])
 	 */
+	@Override
 	public void setADAlarmEnable(int channel, int alarmType, boolean alarmEnable, byte[] state)
 			throws OneWireException {
 		if (alarmType == ADContainer.ALARM_HIGH) {
-			setFlag(DATA_CONTROL_REGISTER, DCR_BIT_ENABLE_DATA_HIGH_ALARM, alarmEnable, state);
+			this.setFlag(DATA_CONTROL_REGISTER, DCR_BIT_ENABLE_DATA_HIGH_ALARM, alarmEnable, state);
 		} else {
-			setFlag(DATA_CONTROL_REGISTER, DCR_BIT_ENABLE_DATA_LOW_ALARM, alarmEnable, state);
+			this.setFlag(DATA_CONTROL_REGISTER, DCR_BIT_ENABLE_DATA_LOW_ALARM, alarmEnable, state);
 		}
 	}
 
@@ -3757,6 +3971,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getADResolution(int,byte[])
 	 *
 	 */
+	@Override
 	public void setADResolution(int channel, double resolution, byte[] state) {
 		// throw new OneWireException("Selectable A-D Resolution Not Supported");
 	}
@@ -3778,36 +3993,39 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #getADRanges(int)
 	 * @see #getADRange(int,byte[])
 	 */
+	@Override
 	public void setADRange(int channel, double range, byte[] state) {
 		// throw new OneWireException("Selectable A-D Range Not Supported");
 	}
 
 	public void setADReferenceVoltage(double referenceVoltage) {
-		adReferenceVoltage = referenceVoltage;
+		this.adReferenceVoltage = referenceVoltage;
 	}
 
 	public double getADReferenceVoltage() {
-		return adReferenceVoltage;
+		return this.adReferenceVoltage;
 	}
 
 	public void setADDeviceBitCount(int bits) {
-		if (bits > 16)
+		if (bits > 16) {
 			bits = 16;
-		if (bits < 8)
+		}
+		if (bits < 8) {
 			bits = 8;
-		adDeviceBits = bits;
+		}
+		this.adDeviceBits = bits;
 	}
 
 	public int getADDeviceBitCount() {
-		return adDeviceBits;
+		return this.adDeviceBits;
 	}
 
 	public void setForceADResults(boolean force) {
-		adForceResults = force;
+		this.adForceResults = force;
 	}
 
 	public boolean getForceADResults() {
-		return adForceResults;
+		return this.adForceResults;
 	}
 
 // *****************************************************************************
@@ -3827,6 +4045,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean hasClockAlarm() {
 		return false;
 	}
@@ -3839,6 +4058,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #isClockRunning(byte[])
 	 * @see #setClockRunEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean canDisableClock() {
 		return true;
 	}
@@ -3848,6 +4068,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return the clock resolution in milliseconds
 	 */
+	@Override
 	public long getClockResolution() {
 		return 1000;
 	}
@@ -3867,11 +4088,12 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #setClock(long,byte[])
 	 */
+	@Override
 	public long getClock(byte[] state) {
 		// grab the time
-		int[] time = getTime(RTC_TIME & 0x3F, state);
+		var time = this.getTime(RTC_TIME & 0x3F, state);
 		// grab the date
-		int[] date = getDate(RTC_DATE & 0x3F, state);
+		var date = this.getDate(RTC_DATE & 0x3F, state);
 
 		// date[1] - 1 because Java months are 0 offset
 		Calendar d = new GregorianCalendar(date[0], date[1] - 1, date[2], time[2], time[1], time[0]);
@@ -3894,6 +4116,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public long getClockAlarm(byte[] state) throws OneWireException {
 		throw new OneWireException("Device does not support clock alarms");
 	}
@@ -3914,6 +4137,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean isClockAlarming(byte[] state) {
 		return false;
 	}
@@ -3933,6 +4157,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean isClockAlarmEnabled(byte[] state) {
 		return false;
 	}
@@ -3950,8 +4175,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #canDisableClock()
 	 * @see #setClockRunEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean isClockRunning(byte[] state) {
-		return getFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, state);
+		return this.getFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, state);
 	}
 
 	// --------
@@ -3971,20 +4197,22 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see com.dalsemi.onewire.container.OneWireSensor#writeDevice(byte[])
 	 * @see #getClock(byte[])
 	 */
+	@Override
 	public void setClock(long time, byte[] state) {
-		Date x = new Date(time);
+		var x = new Date(time);
 		Calendar d = new GregorianCalendar();
 
 		d.setTime(x);
-		setTime(RTC_TIME & 0x3F, d.get(Calendar.HOUR_OF_DAY), d.get(Calendar.MINUTE), d.get(Calendar.SECOND), false,
-				state);
-		setDate(RTC_DATE & 0x3F, d.get(Calendar.YEAR), d.get(Calendar.MONTH) + 1, d.get(Calendar.DATE), state);
+		this.setTime(RTC_TIME & 0x3F, d.get(Calendar.HOUR_OF_DAY), d.get(Calendar.MINUTE), d.get(Calendar.SECOND),
+				false, state);
+		this.setDate(RTC_DATE & 0x3F, d.get(Calendar.YEAR), d.get(Calendar.MONTH) + 1, d.get(Calendar.DATE), state);
 
-		if (!getFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, state))
-			setFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, true, state);
+		if (!this.getFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, state)) {
+			this.setFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, true, state);
+		}
 
 		synchronized (this) {
-			updatertc = true;
+			this.updatertc = true;
 		}
 	}
 
@@ -4009,6 +4237,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #isClockAlarming(byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public void setClockAlarm(long time, byte[] state) throws OneWireException {
 		throw new OneWireException("Device does not support clock alarms");
 	}
@@ -4029,8 +4258,9 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #canDisableClock()
 	 * @see #isClockRunning(byte[])
 	 */
+	@Override
 	public void setClockRunEnable(boolean runEnable, byte[] state) {
-		setFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, runEnable, state);
+		this.setFlag(RTC_CONTROL_REGISTER, RCR_BIT_ENABLE_OSCILLATOR, runEnable, state);
 	}
 
 	/**
@@ -4051,6 +4281,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #isClockAlarming(byte[])
 	 */
+	@Override
 	public void setClockAlarmEnable(boolean alarmEnable, byte[] state) throws OneWireException {
 		throw new OneWireException("Device does not support clock alarms");
 	}
@@ -4065,39 +4296,40 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 */
 	private int[] getTime(int timeReg, byte[] state) {
 		byte upper, lower;
-		int[] result = new int[3];
+		var result = new int[3];
 
 		// First grab the seconds. Upper half holds the 10's of seconds
 		lower = state[timeReg++];
-		upper = (byte) ((lower >>> 4) & 0x07);
+		upper = (byte) (lower >>> 4 & 0x07);
 		lower = (byte) (lower & 0x0f);
-		result[0] = (int) lower + (int) upper * 10;
+		result[0] = lower + upper * 10;
 
 		// now grab minutes. The upper half holds the 10s of minutes
 		lower = state[timeReg++];
-		upper = (byte) ((lower >>> 4) & 0x07);
+		upper = (byte) (lower >>> 4 & 0x07);
 		lower = (byte) (lower & 0x0f);
-		result[1] = (int) lower + (int) upper * 10;
+		result[1] = lower + upper * 10;
 
 		// now grab the hours. The lower half is single hours again, but the
 		// upper half of the byte is determined by the 2nd bit - specifying
 		// 12/24 hour time.
 		lower = state[timeReg];
-		upper = (byte) ((lower >>> 4) & 0x07);
+		upper = (byte) (lower >>> 4 & 0x07);
 		lower = (byte) (lower & 0x0f);
 
 		byte PM = 0;
 		// if the 2nd bit is 1, convert 12 hour time to 24 hour time.
 		if ((upper & 0x04) != 0) {
 			// extract the AM/PM byte (PM is indicated by a 1)
-			if ((upper & 0x02) > 0)
+			if ((upper & 0x02) > 0) {
 				PM = 12;
+			}
 
 			// isolate the 10s place
 			upper &= 0x01;
 		}
 
-		result[2] = (int) (upper * 10) + (int) lower + (int) PM;
+		result[2] = upper * 10 + lower + PM;
 
 		return result;
 	}
@@ -4109,39 +4341,43 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 		byte upper, lower;
 
 		/* format in bytes and write seconds */
-		upper = (byte) (((seconds / 10) << 4) & 0xf0);
-		lower = (byte) ((seconds % 10) & 0x0f);
+		upper = (byte) (seconds / 10 << 4 & 0xf0);
+		lower = (byte) (seconds % 10 & 0x0f);
 		state[timeReg++] = (byte) (upper | lower);
 
 		/* format in bytes and write minutes */
-		upper = (byte) (((minutes / 10) << 4) & 0xf0);
-		lower = (byte) ((minutes % 10) & 0x0f);
+		upper = (byte) (minutes / 10 << 4 & 0xf0);
+		lower = (byte) (minutes % 10 & 0x0f);
 		state[timeReg++] = (byte) (upper | lower);
 
 		/* format in bytes and write hours/(12/24) bit */
 		if (AMPM) {
 			upper = (byte) 0x04;
 
-			if (hours > 11)
+			if (hours > 11) {
 				upper = (byte) (upper | 0x02);
+			}
 
 			// this next logic simply checks for a decade hour
-			if (((hours % 12) == 0) || ((hours % 12) > 9))
+			if (hours % 12 == 0 || hours % 12 > 9) {
 				upper = (byte) (upper | 0x01);
+			}
 
-			if (hours > 12)
+			if (hours > 12) {
 				hours = hours - 12;
+			}
 
-			if (hours == 0)
+			if (hours == 0) {
 				lower = (byte) 0x02;
-			else
-				lower = (byte) ((hours % 10) & 0x0f);
+			} else {
+				lower = (byte) (hours % 10 & 0x0f);
+			}
 		} else {
 			upper = (byte) (hours / 10);
 			lower = (byte) (hours % 10);
 		}
 
-		upper = (byte) ((upper << 4) & 0xf0);
+		upper = (byte) (upper << 4 & 0xf0);
 		lower = (byte) (lower & 0x0f);
 		state[timeReg] = (byte) (upper | lower);
 	}
@@ -4156,25 +4392,26 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 */
 	private int[] getDate(int timeReg, byte[] state) {
 		byte upper, lower;
-		int[] result = new int[] { 0, 0, 0 };
+		int[] result = { 0, 0, 0 };
 
 		/* extract the day of the month */
 		lower = state[timeReg++];
-		upper = (byte) ((lower >>> 4) & 0x0f);
+		upper = (byte) (lower >>> 4 & 0x0f);
 		lower = (byte) (lower & 0x0f);
 		result[2] = upper * 10 + lower;
 
 		/* extract the month */
 		lower = state[timeReg++];
-		if ((lower & 0x80) == 0x80)
+		if ((lower & 0x80) == 0x80) {
 			result[0] = 100;
-		upper = (byte) ((lower >>> 4) & 0x01);
+		}
+		upper = (byte) (lower >>> 4 & 0x01);
 		lower = (byte) (lower & 0x0f);
 		result[1] = upper * 10 + lower;
 
 		/* grab the year */
 		lower = state[timeReg++];
-		upper = (byte) ((lower >>> 4) & 0x0f);
+		upper = (byte) (lower >>> 4 & 0x0f);
 		lower = (byte) (lower & 0x0f);
 		result[0] += upper * 10 + lower + FIRST_YEAR_EVER;
 
@@ -4192,16 +4429,16 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 		byte upper, lower;
 
 		/* write the day byte (the upper holds 10s of days, lower holds single days) */
-		upper = (byte) (((day / 10) << 4) & 0xf0);
-		lower = (byte) ((day % 10) & 0x0f);
+		upper = (byte) (day / 10 << 4 & 0xf0);
+		lower = (byte) (day % 10 & 0x0f);
 		state[timeReg++] = (byte) (upper | lower);
 
 		/*
 		 * write the month bit in the same manner, with the MSBit indicating the century
 		 * (1 for 2000, 0 for 1900)
 		 */
-		upper = (byte) (((month / 10) << 4) & 0xf0);
-		lower = (byte) ((month % 10) & 0x0f);
+		upper = (byte) (month / 10 << 4 & 0xf0);
+		lower = (byte) (month % 10 & 0x0f);
 		state[timeReg++] = (byte) (upper | lower);
 
 		// now write the year
@@ -4210,8 +4447,8 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 			state[timeReg - 1] |= 0x80;
 			year -= 100;
 		}
-		upper = (byte) (((year / 10) << 4) & 0xf0);
-		lower = (byte) ((year % 10) & 0x0f);
+		upper = (byte) (year / 10 << 4 & 0xf0);
+		lower = (byte) (year % 10 & 0x0f);
 		state[timeReg] = (byte) (upper | lower);
 	}
 
@@ -4227,35 +4464,35 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	private void initMem() {
 
 		// scratchpad
-		scratch = new MemoryBankScratchCRCPW(this);
+		this.scratch = new MemoryBankScratchCRCPW(this);
 
 		// User Data Memory
-		userDataMemory = new MemoryBankNVCRCPW(this, scratch);
-		userDataMemory.numberPages = 16;
-		userDataMemory.size = 512;
-		userDataMemory.bankDescription = "User Data Memory";
-		userDataMemory.startPhysicalAddress = 0x0000;
-		userDataMemory.generalPurposeMemory = true;
-		userDataMemory.readOnly = false;
-		userDataMemory.readWrite = true;
+		this.userDataMemory = new MemoryBankNVCRCPW(this, this.scratch);
+		this.userDataMemory.numberPages = 16;
+		this.userDataMemory.size = 512;
+		this.userDataMemory.bankDescription = "User Data Memory";
+		this.userDataMemory.startPhysicalAddress = 0x0000;
+		this.userDataMemory.generalPurposeMemory = true;
+		this.userDataMemory.readOnly = false;
+		this.userDataMemory.readWrite = true;
 
 		// Register
-		register = new MemoryBankNVCRCPW(this, scratch);
-		register.numberPages = 32;
-		register.size = 1024;
-		register.bankDescription = "Register control";
-		register.startPhysicalAddress = 0x0200;
-		register.generalPurposeMemory = false;
+		this.register = new MemoryBankNVCRCPW(this, this.scratch);
+		this.register.numberPages = 32;
+		this.register.size = 1024;
+		this.register.bankDescription = "Register control";
+		this.register.startPhysicalAddress = 0x0200;
+		this.register.generalPurposeMemory = false;
 
 		// Data Log
-		log = new MemoryBankNVCRCPW(this, scratch);
-		log.numberPages = 256;
-		log.size = 8192;
-		log.bankDescription = "Data log";
-		log.startPhysicalAddress = 0x1000;
-		log.generalPurposeMemory = false;
-		log.readOnly = true;
-		log.readWrite = false;
+		this.log = new MemoryBankNVCRCPW(this, this.scratch);
+		this.log.numberPages = 256;
+		this.log.size = 8192;
+		this.log.bankDescription = "Data log";
+		this.log.startPhysicalAddress = 0x1000;
+		this.log.generalPurposeMemory = false;
+		this.log.readOnly = true;
+		this.log.readWrite = false;
 	}
 
 	/**
@@ -4265,127 +4502,128 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * Temperature/A-D iButton
 	 */
 	private void setContainerVariables(byte[] registerPages) {
-		double Tref1 = 60;
-		boolean autoLoadCalibration = true;
+		var Tref1 = 60D;
+		var autoLoadCalibration = true;
 
 		// clear this flag.. Gets set later if registerPages!=null
-		isContainerVariablesSet = false;
+		this.isContainerVariablesSet = false;
 
 		// reset mission parameters
-		hasHumiditySensor = false;
-		isMissionLoaded = false;
-		missionRegister = null;
-		dataLog = null;
-		temperatureLog = null;
-		adReferenceVoltage = 5.02d;
-		adDeviceBits = 10;
-		adForceResults = false;
+		this.hasHumiditySensor = false;
+		this.isMissionLoaded = false;
+		this.missionRegister = null;
+		this.dataLog = null;
+		this.temperatureLog = null;
+		this.adReferenceVoltage = 5.02d;
+		this.adDeviceBits = 10;
+		this.adForceResults = false;
 
-		deviceConfigByte = (byte) 0xFF;
+		this.deviceConfigByte = (byte) 0xFF;
 		if (registerPages != null) {
-			deviceConfigByte = registerPages[DEVICE_CONFIGURATION_BYTE & 0x03F];
+			this.deviceConfigByte = registerPages[DEVICE_CONFIGURATION_BYTE & 0x03F];
 		}
 
-		switch (deviceConfigByte) {
+		switch (this.deviceConfigByte) {
 		case DCB_DS2422:
-			partNumber = PART_NUMBER_DS2422;
-			temperatureRangeLow = -40;
-			temperatureRangeWidth = 125;
+			this.partNumber = PART_NUMBER_DS2422;
+			this.temperatureRangeLow = -40;
+			this.temperatureRangeWidth = 125;
 			Tref1 = 60;
-			descriptionString = DESCRIPTION_DS2422;
+			this.descriptionString = DESCRIPTION_DS2422;
 			autoLoadCalibration = false;
 			break;
 		case DCB_DS1923:
-			partNumber = PART_NUMBER_DS1923;
-			temperatureRangeLow = -40;
-			temperatureRangeWidth = 125;
+			this.partNumber = PART_NUMBER_DS1923;
+			this.temperatureRangeLow = -40;
+			this.temperatureRangeWidth = 125;
 			Tref1 = 60;
-			hasHumiditySensor = true;
-			descriptionString = DESCRIPTION_DS1923;
+			this.hasHumiditySensor = true;
+			this.descriptionString = DESCRIPTION_DS1923;
 			break;
 		case DCB_DS1922L:
-			partNumber = PART_NUMBER_DS1922L;
-			temperatureRangeLow = -40;
-			temperatureRangeWidth = 125;
+			this.partNumber = PART_NUMBER_DS1922L;
+			this.temperatureRangeLow = -40;
+			this.temperatureRangeWidth = 125;
 			Tref1 = 60;
-			descriptionString = DESCRIPTION_DS1922;
+			this.descriptionString = DESCRIPTION_DS1922;
 			break;
 		case DCB_DS1922T:
-			partNumber = PART_NUMBER_DS1922T;
-			temperatureRangeLow = 0;
-			temperatureRangeWidth = 125;
+			this.partNumber = PART_NUMBER_DS1922T;
+			this.temperatureRangeLow = 0;
+			this.temperatureRangeWidth = 125;
 			Tref1 = 90;
-			descriptionString = DESCRIPTION_DS1922;
+			this.descriptionString = DESCRIPTION_DS1922;
 			break;
 		case DCB_DS1922E:
-			partNumber = PART_NUMBER_DS1922E;
-			temperatureRangeLow = 15;
-			temperatureRangeWidth = 125;
-			descriptionString = DESCRIPTION_DS1922;
+			this.partNumber = PART_NUMBER_DS1922E;
+			this.temperatureRangeLow = 15;
+			this.temperatureRangeWidth = 125;
+			this.descriptionString = DESCRIPTION_DS1922;
 			break;
 		case DCB_DS1922S:
-			partNumber = PART_NUMBER_DS1922S;
-			temperatureRangeLow = -40;
-			temperatureRangeWidth = 125;
+			this.partNumber = PART_NUMBER_DS1922S;
+			this.temperatureRangeLow = -40;
+			this.temperatureRangeWidth = 125;
 			Tref1 = 60;
-			descriptionString = DESCRIPTION_DS1922
+			this.descriptionString = DESCRIPTION_DS1922
 					+ "\r\n\r\n* Please note that the DS1922S can be missioned only once.";
 			break;
 		default:
-			partNumber = PART_NUMBER_UNKNOWN;
-			temperatureRangeLow = -40;
-			temperatureRangeWidth = 125;
+			this.partNumber = PART_NUMBER_UNKNOWN;
+			this.temperatureRangeLow = -40;
+			this.temperatureRangeWidth = 125;
 			Tref1 = 60;
-			descriptionString = DESCRIPTION_UNKNOWN;
+			this.descriptionString = DESCRIPTION_UNKNOWN;
 			autoLoadCalibration = false;
 			break;
 		}
 
 		if (registerPages != null) {
-			isContainerVariablesSet = true;
+			this.isContainerVariablesSet = true;
 
 			if (autoLoadCalibration) {
 				// if humidity device, calculate the calibration coefficients
-				if (hasHumiditySensor) {
-					useHumdCalibrationRegisters = true;
+				if (this.hasHumiditySensor) {
+					this.useHumdCalibrationRegisters = true;
 
 					// DEBUG: Product samples were sent out uncalibrated. This flag
 					// allows the customer to not use the temperature calibration
-					String useHumdCal = OneWireAccessProvider.getProperty("DS1923.useHumidityCalibrationRegisters");
+					var useHumdCal = OneWireAccessProvider.getProperty("DS1923.useHumidityCalibrationRegisters");
 					if (useHumdCal != null && useHumdCal.toLowerCase().equals("false")) {
-						useHumdCalibrationRegisters = false;
+						this.useHumdCalibrationRegisters = false;
 						if (DEBUG) {
 							Debug.debug("DEBUG: Disabling Humidity Calibration Usage in Container");
 						}
 					}
 
-					Href1 = decodeHumidity(registerPages, 0x48, 2, true);
-					Hread1 = decodeHumidity(registerPages, 0x4A, 2, true);
-					Herror1 = Hread1 - Href1;
-					Href2 = decodeHumidity(registerPages, 0x4C, 2, true);
-					Hread2 = decodeHumidity(registerPages, 0x4E, 2, true);
-					Herror2 = Hread2 - Href2;
-					Href3 = decodeHumidity(registerPages, 0x50, 2, true);
-					Hread3 = decodeHumidity(registerPages, 0x52, 2, true);
-					Herror3 = Hread3 - Href3;
+					var Href1 = this.decodeHumidity(registerPages, 0x48, 2, true);
+					this.Hread1 = this.decodeHumidity(registerPages, 0x4A, 2, true);
+					this.Herror1 = this.Hread1 - Href1;
+					this.Href2 = this.decodeHumidity(registerPages, 0x4C, 2, true);
+					this.Hread2 = this.decodeHumidity(registerPages, 0x4E, 2, true);
+					this.Herror2 = this.Hread2 - this.Href2;
+					this.Href3 = this.decodeHumidity(registerPages, 0x50, 2, true);
+					this.Hread3 = this.decodeHumidity(registerPages, 0x52, 2, true);
+					this.Herror3 = this.Hread3 - this.Href3;
 
-					double Href1sq = Href1 * Href1;
-					double Href2sq = Href2 * Href2;
-					double Href3sq = Href3 * Href3;
-					humdCoeffB = ((Href2sq - Href1sq) * (Herror3 - Herror1) + Href3sq * (Herror1 - Herror2)
-							+ Href1sq * (Herror2 - Herror1))
-							/ ((Href2sq - Href1sq) * (Href3 - Href1) + (Href3sq - Href1sq) * (Href1 - Href2));
-					humdCoeffA = (Herror2 - Herror1 + humdCoeffB * (Href1 - Href2)) / (Href2sq - Href1sq);
-					humdCoeffC = Herror1 - humdCoeffA * Href1sq - humdCoeffB * Href1;
+					var Href1sq = Href1 * Href1;
+					var Href2sq = this.Href2 * this.Href2;
+					var Href3sq = this.Href3 * this.Href3;
+					this.humdCoeffB = ((Href2sq - Href1sq) * (this.Herror3 - this.Herror1)
+							+ Href3sq * (this.Herror1 - this.Herror2) + Href1sq * (this.Herror2 - this.Herror1))
+							/ ((Href2sq - Href1sq) * (this.Href3 - Href1) + (Href3sq - Href1sq) * (Href1 - this.Href2));
+					this.humdCoeffA = (this.Herror2 - this.Herror1 + this.humdCoeffB * (Href1 - this.Href2))
+							/ (Href2sq - Href1sq);
+					this.humdCoeffC = this.Herror1 - this.humdCoeffA * Href1sq - this.humdCoeffB * Href1;
 				}
 
-				useTempCalibrationRegisters = true;
+				this.useTempCalibrationRegisters = true;
 
 				// DEBUG: Product samples were sent out uncalibrated. This flag
 				// allows the customer to not use the temperature calibration
-				String useTempCal = OneWireAccessProvider.getProperty("DS1923.useTemperatureCalibrationRegisters");
+				var useTempCal = OneWireAccessProvider.getProperty("DS1923.useTemperatureCalibrationRegisters");
 				if (useTempCal != null && useTempCal.toLowerCase().equals("false")) {
-					useTempCalibrationRegisters = false;
+					this.useTempCalibrationRegisters = false;
 					if (DEBUG) {
 						Debug.debug("DEBUG: Disabling Temperature Calibration Usage in Container");
 					}
@@ -4394,35 +4632,36 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 				// if (partNumber == PART_NUMBER_DS1922E)
 				// useTempCalibrationRegisters = false; // !!!
 
-				Tref2 = decodeTemperature(registerPages, 0x40, 2, true);
-				Tread2 = decodeTemperature(registerPages, 0x42, 2, true);
-				Terror2 = Tread2 - Tref2;
-				Tref3 = decodeTemperature(registerPages, 0x44, 2, true);
-				Tread3 = decodeTemperature(registerPages, 0x46, 2, true);
-				Terror3 = Tread3 - Tref3;
-				Terror1 = Terror2;
-				Tread1 = Tref1 + Terror1;
+				this.Tref2 = this.decodeTemperature(registerPages, 0x40, 2, true);
+				this.Tread2 = this.decodeTemperature(registerPages, 0x42, 2, true);
+				this.Terror2 = this.Tread2 - this.Tref2;
+				this.Tref3 = this.decodeTemperature(registerPages, 0x44, 2, true);
+				this.Tread3 = this.decodeTemperature(registerPages, 0x46, 2, true);
+				this.Terror3 = this.Tread3 - this.Tref3;
+				this.Terror1 = this.Terror2;
+				this.Tread1 = Tref1 + this.Terror1;
 
 				if (DEBUG) {
 					Debug.debug("Tref1=" + Tref1);
-					Debug.debug("Tread1=" + Tread1);
-					Debug.debug("Terror1=" + Terror1);
-					Debug.debug("Tref2=" + Tref2);
-					Debug.debug("Tread2=" + Tread2);
-					Debug.debug("Terror2=" + Terror2);
-					Debug.debug("Tref3=" + Tref3);
-					Debug.debug("Tread3=" + Tread3);
-					Debug.debug("Terror3=" + Terror3);
+					Debug.debug("Tread1=" + this.Tread1);
+					Debug.debug("Terror1=" + this.Terror1);
+					Debug.debug("Tref2=" + this.Tref2);
+					Debug.debug("Tread2=" + this.Tread2);
+					Debug.debug("Terror2=" + this.Terror2);
+					Debug.debug("Tref3=" + this.Tref3);
+					Debug.debug("Tread3=" + this.Tread3);
+					Debug.debug("Terror3=" + this.Terror3);
 				}
 
-				double Tref1sq = Tref1 * Tref1;
-				double Tref2sq = Tref2 * Tref2;
-				double Tref3sq = Tref3 * Tref3;
-				tempCoeffB = ((Tref2sq - Tref1sq) * (Terror3 - Terror1) + Tref3sq * (Terror1 - Terror2)
-						+ Tref1sq * (Terror2 - Terror1))
-						/ ((Tref2sq - Tref1sq) * (Tref3 - Tref1) + (Tref3sq - Tref1sq) * (Tref1 - Tref2));
-				tempCoeffA = (Terror2 - Terror1 + tempCoeffB * (Tref1 - Tref2)) / (Tref2sq - Tref1sq);
-				tempCoeffC = Terror1 - tempCoeffA * Tref1sq - tempCoeffB * Tref1;
+				var Tref1sq = Tref1 * Tref1;
+				var Tref2sq = this.Tref2 * this.Tref2;
+				var Tref3sq = this.Tref3 * this.Tref3;
+				this.tempCoeffB = ((Tref2sq - Tref1sq) * (this.Terror3 - this.Terror1)
+						+ Tref3sq * (this.Terror1 - this.Terror2) + Tref1sq * (this.Terror2 - this.Terror1))
+						/ ((Tref2sq - Tref1sq) * (this.Tref3 - Tref1) + (Tref3sq - Tref1sq) * (Tref1 - this.Tref2));
+				this.tempCoeffA = (this.Terror2 - this.Terror1 + this.tempCoeffB * (Tref1 - this.Tref2))
+						/ (Tref2sq - Tref1sq);
+				this.tempCoeffC = this.Terror1 - this.tempCoeffA * Tref1sq - this.tempCoeffB * Tref1;
 			}
 		}
 	}
@@ -4434,7 +4673,7 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 		try {
 			Thread.sleep(ms);
 		} catch (InterruptedException ie) {
-			;
+
 		}
 	}
 
@@ -4443,22 +4682,23 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 */
 	private final double decodeTemperature(byte[] data, int offset, int length, boolean reverse) {
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-		if (DEBUG)
+		if (DEBUG) {
 			Debug.debug("decodeTemperature, data", data, offset, length);
+		}
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 		double whole, fraction = 0;
 		if (reverse && length == 2) {
-			fraction = ((data[offset + 1] & 0x0FF) / 512d);
-			whole = (data[offset] & 0x0FF) / 2d + (temperatureRangeLow - 1);
+			fraction = (data[offset + 1] & 0x0FF) / 512d;
+			whole = (data[offset] & 0x0FF) / 2d + (this.temperatureRangeLow - 1);
 		} else if (length == 2) {
-			fraction = ((data[offset] & 0x0FF) / 512d);
-			whole = (data[offset + 1] & 0x0FF) / 2d + (temperatureRangeLow - 1);
+			fraction = (data[offset] & 0x0FF) / 512d;
+			whole = (data[offset + 1] & 0x0FF) / 2d + (this.temperatureRangeLow - 1);
 		} else {
-			whole = (data[offset] & 0x0FF) / 2d + (temperatureRangeLow - 1);
+			whole = (data[offset] & 0x0FF) / 2d + (this.temperatureRangeLow - 1);
 		}
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 		if (DEBUG) {
-			Debug.debug("decodeTemperature, temperatureRangeLow= " + temperatureRangeLow);
+			Debug.debug("decodeTemperature, temperatureRangeLow= " + this.temperatureRangeLow);
 			Debug.debug("decodeTemperature, whole= " + whole);
 			Debug.debug("decodeTemperature, fraction= " + fraction);
 			Debug.debug("decodeTemperature, (whole+fraction)= " + (whole + fraction));
@@ -4471,12 +4711,13 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 * helper method for encoding temperature values
 	 */
 	private final void encodeTemperature(double temperature, byte[] data, int offset, int length, boolean reverse) {
-		double val = 2 * ((temperature) - (temperatureRangeLow - 1));
+		var val = 2 * (temperature - (this.temperatureRangeLow - 1));
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-		if (DEBUG)
-			Debug.debug("encodeTemperature, temperature=" + temperature + ", temperatureRangeLow=" + temperatureRangeLow
-					+ ", val=" + val);
-		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		if (DEBUG) {
+			Debug.debug("encodeTemperature, temperature=" + temperature + ", temperatureRangeLow="
+					+ this.temperatureRangeLow + ", val=" + val);
+			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		}
 
 		if (reverse && length == 2) {
 			data[offset + 1] = (byte) (0x0C0 & (byte) (val * 256));
@@ -4488,9 +4729,10 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 			data[offset] = (byte) val;
 		}
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-		if (DEBUG)
+		if (DEBUG) {
 			Debug.debug("encodeTemperature, data", data, offset, length);
-		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		}
 	}
 
 	/**
@@ -4498,15 +4740,15 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 */
 	private final double decodeHumidity(byte[] data, int offset, int length, boolean reverse) {
 		// get the 10-bit value of Vout
-		double val = getADVoltage(data, offset, length, reverse);
+		var val = this.getADVoltage(data, offset, length, reverse);
 
 		// convert Vout to a humidity reading
 		// this formula is from HIH-3610 sensor datasheet
 		val = (val - .958) / .0307;
 
-		if (useHumdCalibrationRegisters) {
-			double valsq = val * val;
-			double error = humdCoeffA * valsq + humdCoeffB * val + humdCoeffC;
+		if (this.useHumdCalibrationRegisters) {
+			var valsq = val * val;
+			var error = this.humdCoeffA * valsq + this.humdCoeffB * val + this.humdCoeffC;
 			val = val - error;
 		}
 
@@ -4518,36 +4760,37 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 	 */
 	private final void encodeHumidity(double humidity, byte[] data, int offset, int length, boolean reverse) {
 		// uncalibrate the alarm value before writing
-		if (useHumdCalibrationRegisters) {
-			humidity = ((1 - humdCoeffB)
-					- Math.sqrt(((humdCoeffB - 1) * (humdCoeffB - 1)) - 4 * humdCoeffA * (humdCoeffC + humidity)))
-					/ (2 * humdCoeffA);
+		if (this.useHumdCalibrationRegisters) {
+			humidity = (1 - this.humdCoeffB - Math.sqrt(
+					(this.humdCoeffB - 1) * (this.humdCoeffB - 1) - 4 * this.humdCoeffA * (this.humdCoeffC + humidity)))
+					/ (2 * this.humdCoeffA);
 		}
 
 		// convert humidity value to Vout value
-		double val = (humidity * .0307) + .958;
+		var val = humidity * .0307 + .958;
 		// convert Vout to byte[]
-		setADVoltage(val, data, offset, length, reverse);
+		this.setADVoltage(val, data, offset, length, reverse);
 	}
 
 	private final double getADVoltage(byte[] data, int offset, int length, boolean reverse) {
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-		if (DEBUG)
+		if (DEBUG) {
 			Debug.debug("getADVoltage, data", data, offset, length);
+		}
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 		// get the 10-bit value of vout
-		int ival = 0;
+		var ival = 0;
 		if (reverse && length == 2) {
-			ival = ((data[offset] & 0x0FF) << (adDeviceBits - 8));
-			ival |= ((data[offset + 1] & 0x0FF) >> (16 - adDeviceBits));
+			ival = (data[offset] & 0x0FF) << this.adDeviceBits - 8;
+			ival |= (data[offset + 1] & 0x0FF) >> 16 - this.adDeviceBits;
 		} else if (length == 2) {
-			ival = ((data[offset + 1] & 0x0FF) << (adDeviceBits - 8));
-			ival |= ((data[offset] & 0x0FF) >> (16 - adDeviceBits));
+			ival = (data[offset + 1] & 0x0FF) << this.adDeviceBits - 8;
+			ival |= (data[offset] & 0x0FF) >> 16 - this.adDeviceBits;
 		} else {
-			ival = ((data[offset] & 0x0FF) << (adDeviceBits - 8));
+			ival = (data[offset] & 0x0FF) << this.adDeviceBits - 8;
 		}
 
-		double dval = (ival * adReferenceVoltage) / (1 << adDeviceBits);
+		var dval = ival * this.adReferenceVoltage / (1 << this.adDeviceBits);
 
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 		if (DEBUG) {
@@ -4560,27 +4803,31 @@ public class OneWireContainer41 extends OneWireContainer implements PasswordCont
 
 	private final void setADVoltage(double voltage, byte[] data, int offset, int length, boolean reverse) {
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-		if (DEBUG)
+		if (DEBUG) {
 			Debug.debug("setADVoltage, voltage=" + voltage);
-		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-		int val = (int) ((voltage * (1 << adDeviceBits)) / adReferenceVoltage);
-		val = val & ((1 << adDeviceBits) - 1);
-		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-		if (DEBUG)
-			Debug.debug("setADVoltage, val=" + val);
-		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-		if (reverse && length == 2) {
-			data[offset] = (byte) (val >> (adDeviceBits - 8));
-			data[offset + 1] = (byte) (val << (16 - adDeviceBits));
-		} else if (length == 2) {
-			data[offset + 1] = (byte) (val >> (adDeviceBits - 8));
-			data[offset] = (byte) (val << (16 - adDeviceBits));
-		} else {
-			data[offset] = (byte) ((val & 0x3FC) >> (adDeviceBits - 8));
 		}
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-		if (DEBUG)
-			Debug.debug("setADVoltage, data", data, offset, length);
+		var val = (int) (voltage * (1 << this.adDeviceBits) / this.adReferenceVoltage);
+		val = val & (1 << this.adDeviceBits) - 1;
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		if (DEBUG) {
+			Debug.debug("setADVoltage, val=" + val);
+		}
+		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		if (reverse && length == 2) {
+			data[offset] = (byte) (val >> this.adDeviceBits - 8);
+			data[offset + 1] = (byte) (val << 16 - this.adDeviceBits);
+		} else if (length == 2) {
+			data[offset + 1] = (byte) (val >> this.adDeviceBits - 8);
+			data[offset] = (byte) (val << 16 - this.adDeviceBits);
+		} else {
+			data[offset] = (byte) ((val & 0x3FC) >> this.adDeviceBits - 8);
+		}
+		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		if (DEBUG) {
+			Debug.debug("setADVoltage, data", data, offset, length);
+			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		}
 	}
 }
+// CHECKSTYLE:ON

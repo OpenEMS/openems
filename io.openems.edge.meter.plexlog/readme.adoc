@@ -1,0 +1,6 @@
+= https://www.plexlog.de/web/pldatenlogger/[Plexlog Datalogger]
+
+Implemented Natures:
+- ElectricityMeter
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.plexlog[Source Code icon:github[]]

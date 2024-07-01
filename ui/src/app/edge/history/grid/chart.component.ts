@@ -1,62 +1,67 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+// @ts-strict-ignore
 import { formatNumber } from '@angular/common';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import * as Chart from 'chart.js';
 
 @Component({
     selector: 'gridChart',
-    templateUrl: '../abstracthistorychart.html'
+    templateUrl: '../abstracthistorychart.html',
 })
-export class GridChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class GridChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
-    @Input() private showPhases: boolean;
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public showPhases!: boolean;
 
     ngOnChanges() {
         this.updateChart();
-    };
-
-    constructor(
-        protected service: Service,
-        protected translate: TranslateService,
-        private route: ActivatedRoute,
-    ) {
-        super(service, translate);
     }
 
+    constructor(
+        protected override service: Service,
+        protected override translate: TranslateService,
+        private route: ActivatedRoute,
+    ) {
+        super("grid-chart", service, translate);
+    }
 
     ngOnInit() {
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh()
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.loading = true;
+        this.startSpinner();
+        this.colors = [];
+
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            let result = response.result;
-            this.colors = [];
+
+            const result = response.result;
             // convert labels
-            let labels: Date[] = [];
-            for (let timestamp of result.timestamps) {
+            const labels: Date[] = [];
+            for (const timestamp of result.timestamps) {
                 labels.push(new Date(timestamp));
             }
             this.labels = labels;
 
             // convert datasets
-            let datasets = [];
+            const datasets = [];
 
             if ('_sum/GridActivePower' in result.data) {
-                let gridData = result.data['_sum/GridActivePower'].map(value => {
+                const gridData = result.data['_sum/GridActivePower'].map(value => {
                     if (value == null) {
-                        return null
+                        return null;
                     } else if (value == 0) {
                         return 0;
                     } else {
@@ -66,12 +71,12 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                 datasets.push({
                     label: this.translate.instant('General.grid'),
                     data: gridData,
-                    hidden: false
+                    hidden: false,
                 });
                 this.colors.push({
                     backgroundColor: 'rgba(0,0,0,0.05)',
-                    borderColor: 'rgba(0,0,0,1)'
-                })
+                    borderColor: 'rgba(0,0,0,1)',
+                });
             }
 
             if ('_sum/GridActivePowerL1' && '_sum/GridActivePowerL2' && '_sum/GridActivePowerL3' in result.data && this.showPhases == true) {
@@ -79,9 +84,9 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                     /**
                      * Buy From Grid
                      */
-                    let gridData = result.data['_sum/GridActivePowerL1'].map(value => {
+                    const gridData = result.data['_sum/GridActivePowerL1'].map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else if (value == 0) {
                             return 0;
                         } else {
@@ -91,7 +96,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                     datasets.push({
                         label: this.translate.instant('General.phase') + ' ' + 'L1',
                         data: gridData,
-                        hidden: false
+                        hidden: false,
                     });
                     this.colors.push(this.phase1Color);
                 }
@@ -99,9 +104,9 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                     /**
                      * Buy From Grid
                      */
-                    let gridData = result.data['_sum/GridActivePowerL2'].map(value => {
+                    const gridData = result.data['_sum/GridActivePowerL2'].map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else if (value == 0) {
                             return 0;
                         } else {
@@ -111,7 +116,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                     datasets.push({
                         label: this.translate.instant('General.phase') + ' ' + 'L2',
                         data: gridData,
-                        hidden: false
+                        hidden: false,
                     });
                     this.colors.push(this.phase2Color);
                 }
@@ -119,9 +124,9 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                     /**
                      * Buy From Grid
                      */
-                    let gridData = result.data['_sum/GridActivePowerL3'].map(value => {
+                    const gridData = result.data['_sum/GridActivePowerL3'].map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else if (value == 0) {
                             return 0;
                         } else {
@@ -131,13 +136,14 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                     datasets.push({
                         label: this.translate.instant('General.phase') + ' ' + 'L3',
                         data: gridData,
-                        hidden: false
+                        hidden: false,
                     });
                     this.colors.push(this.phase3Color);
                 }
             }
             this.datasets = datasets;
             this.loading = false;
+            this.stopSpinner();
 
         }).catch(reason => {
             console.error(reason); // TODO error message
@@ -148,23 +154,22 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let result: ChannelAddress[] = [
+            const result: ChannelAddress[] = [
                 new ChannelAddress('_sum', 'GridActivePower'),
                 new ChannelAddress('_sum', 'GridActivePowerL1'),
                 new ChannelAddress('_sum', 'GridActivePowerL2'),
-                new ChannelAddress('_sum', 'GridActivePowerL3')
+                new ChannelAddress('_sum', 'GridActivePowerL3'),
             ];
             resolve(result);
-        })
+        });
     }
 
     protected setLabel() {
-        let translate = this.translate; // enables access to TranslateService
-        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-        options.scales.yAxes[0].scaleLabel.labelString = "kW";
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
+        const translate = this.translate; // enables access to TranslateService
+        const options = this.createDefaultChartOptions();
+        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+            let label = tooltipItem.dataset.label;
+            const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
             // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
             if (value < -0.005) {
                 if (label.includes(translate.instant('General.phase'))) {
@@ -180,7 +185,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                 }
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
         this.options = options;
     }
 

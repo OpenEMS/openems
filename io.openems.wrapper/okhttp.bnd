@@ -1,0 +1,51 @@
+Bundle-Name: okttp
+Bundle-Description: Squares meticulous HTTP client for Java and Kotlin. 
+Bundle-DocURL: https://square.github.io/okhttp/
+Bundle-License: https://opensource.org/licenses/Apache-2.0
+Bundle-Version: 4.12.0
+
+Include-Resource: \
+	@logging-interceptor-4.12.0.jar,\
+	@okhttp-4.12.0.jar,\
+
+Export-Package: \
+   okhttp3,\
+   okhttp3.internal,\
+   okhttp3.internal.authenticator,\
+   okhttp3.internal.cache,\
+   okhttp3.internal.cache2,\
+   okhttp3.internal.concurrent,\
+   okhttp3.internal.connection,\
+   okhttp3.internal.http,\
+   okhttp3.internal.http1,\
+   okhttp3.internal.http2,\
+   okhttp3.internal.io,\
+   okhttp3.internal.platform,\
+   okhttp3.internal.proxy,\
+   okhttp3.internal.publicsuffix,\
+   okhttp3.internal.tls,\
+   okhttp3.internal.ws,\
+   okhttp3.logging,\
+
+Import-Package: \
+	android.os;resolution:=optional,\
+	android.net.http;resolution:=optional,\
+	android.net.ssl;resolution:=optional,\
+	android.security;resolution:=optional,\
+	android.util;resolution:=optional,\
+	com.android.org.conscrypt;resolution:=optional,\
+	dalvik.system;resolution:=optional,\
+	org.bouncycastle.jsse;resolution:=optional,\
+	org.bouncycastle.jsse.provider;resolution:=optional,\
+	org.conscrypt;resolution:=optional,\
+	org.openjsse.javax.net.ssl;resolution:=optional,\
+	org.openjsse.net.ssl;resolution:=optional,\
+	sun.security.ssl;resolution:=optional,\
+	okio,\
+	*
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false

@@ -1,0 +1,121 @@
+<ion-item lines="none">
+    <!--
+    Is Edge online?
+    -->
+    <ion-grid *ngIf="!edge.isOnline">
+        <ng-container>
+            <!-- If Edge is Restarting after Update -->
+            <ng-container *ngIf="executeUpdate.isEdgeRestarting">
+                <ion-item lines="none">
+                    Das {{environment.edgeShortName}} wird neugestartet... <br />
+                    (Dies kann bis zu 10 min dauern)
+                </ion-item>
+
+                <ion-item lines="none">
+                    <ion-progress-bar type="indeterminate" style="margin-top: 1%"></ion-progress-bar>
+                </ion-item>
+            </ng-container>
+            <ng-container *ngIf="!executeUpdate.isEdgeRestarting">
+                <ion-item lines="none">
+                    Das {{environment.edgeShortName}} ist offline.
+                </ion-item>
+            </ng-container>
+        </ng-container>
+    </ion-grid>
+    <!--
+      System Update State
+    -->
+    <ion-grid *ngIf="edge.isOnline">
+        <ion-row *ngIf="!isWaiting">
+            <ion-col size="12">
+                <ion-item lines="none">
+                    <ion-card-content *ngIf="executeUpdate && executeUpdate.systemUpdateState">
+                        <ng-container *ngIf="executeUpdate.systemUpdateState.updated as state">
+                            <!--
+                      Latest update is already installed
+                  -->
+                            <ion-row>
+                                <ion-col>Installierte Version:</ion-col>
+                                <ion-col>{{ state.version }}</ion-col>
+                            </ion-row>
+                            <ion-row>
+                                <ion-col style="font-weight: bold; color: green;">
+                                    <ion-label class="ion-text-wrap">
+                                        Das System ist auf dem
+                                        aktuellsten
+                                        Softwarestand
+                                    </ion-label>
+                                </ion-col>
+                            </ion-row>
+                        </ng-container>
+                        <ng-container *ngIf="executeUpdate.systemUpdateState.available as state">
+                            <!--
+                      Update is available
+                  -->
+                            <ion-row>
+                                <ion-col>Installierte Version:</ion-col>
+                                <ion-col>{{ state.currentVersion }}</ion-col>
+                            </ion-row>
+                            <ion-row>
+                                <ion-col>Neueste Version:</ion-col>
+                                <ion-col>{{ state.latestVersion }}</ion-col>
+                            </ion-row>
+                            <ion-row>
+                                <ion-col>
+                                    <ion-button (click)="executeSystemUpdate()">Neueste Version
+                                        installieren
+                                    </ion-button>
+                                </ion-col>
+                            </ion-row>
+                        </ng-container>
+                    </ion-card-content>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+        <ion-row *ngIf="isWaiting">
+            <ion-col size="8">
+                <ion-item lines="none">
+                    <ion-card-content *ngIf="executeUpdate && executeUpdate.systemUpdateState">
+                        <ion-grid>
+                            <ng-container *ngIf="executeUpdate.systemUpdateState.unknown as state">
+                                <!--
+                              Update State is unknown
+                          -->
+                                <ion-row *ngIf="!executeUpdate.canNotBeUpdated">
+                                    <ion-col>Suche nach Updates...</ion-col>
+                                </ion-row>
+                                <ion-row *ngIf="executeUpdate.canNotBeUpdated">
+                                    <ion-col>System kann nicht geupdated werden!</ion-col>
+                                </ion-row>
+                            </ng-container>
+                            <ng-container *ngIf="executeUpdate.systemUpdateState.running as state">
+                                <!--
+                              Update is running
+                          -->
+                                <ion-row>
+                                    <ion-col>
+                                        <span *ngIf="state.percentCompleted < 100; else finished">Update wird
+                                            ausgeführt...<br />
+                                            (Dies kann bis zu 10 min dauern)</span>
+                                        <ng-template #finished>
+                                            <span><b>Update abgeschlossen</b></span>
+                                        </ng-template>
+                                    </ion-col>
+                                </ion-row>
+                                <ion-row>
+                                    <ion-col>
+                                        <percentagebar [value]="state.percentCompleted">
+                                        </percentagebar>
+                                    </ion-col>
+                                </ion-row>
+                            </ng-container>
+                        </ion-grid>
+                    </ion-card-content>
+                </ion-item>
+            </ion-col>
+            <ion-col size="4">
+                <ngx-spinner [name]="spinnerId"></ngx-spinner>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-item>

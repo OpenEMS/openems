@@ -1,8 +1,8 @@
 package io.openems.edge.bridge.modbus.api.element;
 
-import io.openems.common.types.OpenemsType;
-
 import java.nio.ByteBuffer;
+
+import io.openems.common.types.OpenemsType;
 
 /**
  * A FloatDoublewordElement represents a Float value according to IEEE-754 in an
@@ -19,11 +19,13 @@ public class FloatDoublewordElement extends AbstractDoubleWordElement<FloatDoubl
 		return this;
 	}
 
-	protected Float fromByteBuffer(ByteBuffer buff) {
-		return buff.order(this.getByteOrder()).getFloat(0);
+	@Override
+	protected Float byteBufferToValue(ByteBuffer buff) {
+		return buff.getFloat(0);
 	}
 
-	protected ByteBuffer toByteBuffer(ByteBuffer buff, Float value) {
-		return buff.putFloat(value.floatValue());
+	@Override
+	protected void valueToByteBuffer(ByteBuffer buff, Float value) {
+		buff.putFloat(value.floatValue());
 	}
 }

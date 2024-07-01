@@ -1,10 +1,11 @@
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
-import { Component, OnDestroy } from '@angular/core';
+// @ts-strict-ignore
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
-import { TranslateService } from '@ngx-translate/core';
-import { trigger, state, style, animate, transition } from '@angular/animations';
-import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
 
 @Component({
     selector: '[storagesection]',
@@ -13,32 +14,32 @@ import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
         trigger('Discharge', [
             state('show', style({
                 opacity: 0.4,
-                transform: 'translateY(0)'
+                transform: 'translateY(0)',
             })),
             state('hide', style({
                 opacity: 0.1,
-                transform: 'translateY(-17%)'
+                transform: 'translateY(-17%)',
             })),
             transition('show => hide', animate('650ms ease-out')),
-            transition('hide => show', animate('0ms ease-in'))
+            transition('hide => show', animate('0ms ease-in')),
         ]),
         trigger('Charge', [
             state('show', style({
                 opacity: 0.1,
-                transform: 'translateY(0)'
+                transform: 'translateY(0)',
             })),
             state('hide', style({
                 opacity: 0.4,
-                transform: 'translateY(17%)'
+                transform: 'translateY(17%)',
             })),
             transition('show => hide', animate('650ms ease-out')),
-            transition('hide => show', animate('0ms ease-out'))
-        ])
-    ]
+            transition('hide => show', animate('0ms ease-out')),
+        ]),
+    ],
 })
-export class StorageSectionComponent extends AbstractSection implements OnDestroy {
+export class StorageSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
-    private socValue: number
+    private socValue: number;
     private unitpipe: UnitvaluePipe;
     // animation variable to stop animation on destroy
     private startAnimation = null;
@@ -46,6 +47,7 @@ export class StorageSectionComponent extends AbstractSection implements OnDestro
     private showDischargeAnimation: boolean = false;
     public chargeAnimationTrigger: boolean = false;
     public dischargeAnimationTrigger: boolean = false;
+    public svgStyle: string;
 
     constructor(
         translate: TranslateService,
@@ -54,6 +56,10 @@ export class StorageSectionComponent extends AbstractSection implements OnDestro
     ) {
         super('Edge.Index.Energymonitor.storage', "down", "#009846", translate, service, "Storage");
         this.unitpipe = unitpipe;
+    }
+
+    ngOnInit() {
+        this.adjustFillRefbyBrowser();
     }
 
     toggleCharge() {
@@ -73,11 +79,11 @@ export class StorageSectionComponent extends AbstractSection implements OnDestro
     }
 
     get stateNameCharge() {
-        return this.showChargeAnimation ? 'show' : 'hide'
+        return this.showChargeAnimation ? 'show' : 'hide';
     }
 
     get stateNameDischarge() {
-        return this.showDischargeAnimation ? 'show' : 'hide'
+        return this.showDischargeAnimation ? 'show' : 'hide';
     }
 
     protected getStartAngle(): number {
@@ -127,46 +133,25 @@ export class StorageSectionComponent extends AbstractSection implements OnDestro
                 sum.storage.powerRatio,
                 arrowIndicate);
         } else {
-            this.name = this.translate.instant('Edge.Index.Energymonitor.storage')
+            this.name = this.translate.instant('Edge.Index.Energymonitor.storage');
             super.updateSectionData(null, null, null);
         }
 
         this.socValue = sum.storage.soc;
         if (this.square) {
             this.square.image.image = "assets/img/" + this.getImagePath();
+            this.svgStyle = 'storage-' + Utils.getStorageSocSegment(this.socValue);
         }
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
-        let x = (square.length / 2) * (-1);
-        let y = innerRadius - 5 - square.length;
+        const x = (square.length / 2) * (-1);
+        const y = innerRadius - 5 - square.length;
         return new SvgSquarePosition(x, y);
     }
 
     protected getImagePath(): string {
-        if (this.socValue < 11) {
-            return "storage_10_monitor.png"
-        } else if (this.socValue < 21) {
-            return "storage_20_monitor.png"
-        } else if (this.socValue < 31) {
-            return "storage_30_monitor.png"
-        } else if (this.socValue < 41) {
-            return "storage_40_monitor.png"
-        } else if (this.socValue < 51) {
-            return "storage_50_monitor.png"
-        } else if (this.socValue < 61) {
-            return "storage_60_monitor.png"
-        } else if (this.socValue < 71) {
-            return "storage_70_monitor.png"
-        } else if (this.socValue < 81) {
-            return "storage_80_monitor.png"
-        } else if (this.socValue < 91) {
-            return "storage_90_monitor.png"
-        } else if (this.socValue < 101) {
-            return "storage_100_monitor.png"
-        } else {
-            return "storage_empty_monitor.png"
-        }
+        return "icon/storage.svg";
     }
 
     protected getValueText(value: number): string {
@@ -184,16 +169,16 @@ export class StorageSectionComponent extends AbstractSection implements OnDestro
     protected setElementHeight() { }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let p = {
+        const v = Math.abs(ratio);
+        const r = radius;
+        const p = {
             topLeft: { x: v * -1, y: v },
             bottomLeft: { x: v * -1, y: r },
             topRight: { x: v, y: v },
             bottomRight: { x: v, y: r },
             middleBottom: { x: 0, y: r - v },
-            middleTop: { x: 0, y: 0 }
-        }
+            middleTop: { x: 0, y: 0 },
+        };
         if (ratio > 0) {
             // towards bottom
             p.bottomLeft.y = p.bottomLeft.y - v;
@@ -205,17 +190,17 @@ export class StorageSectionComponent extends AbstractSection implements OnDestro
     }
 
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        let v = Math.abs(ratio);
-        let r = radius;
-        let animationWidth = r - v;
+        const v = Math.abs(ratio);
+        const r = radius;
+        const animationWidth = r - v;
         let p = {
             topLeft: { x: v * -1, y: v },
             bottomLeft: { x: v * -1, y: r },
             topRight: { x: v, y: v },
             bottomRight: { x: v, y: r },
             middleBottom: { x: 0, y: r - v },
-            middleTop: { x: 0, y: 0 }
-        }
+            middleTop: { x: 0, y: 0 },
+        };
         if (ratio < 0) {
             // towards top
             p.middleTop.y = p.middleBottom.y + animationWidth * 0.2;

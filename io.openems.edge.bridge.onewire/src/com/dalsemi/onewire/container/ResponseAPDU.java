@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -54,7 +55,7 @@ package com.dalsemi.onewire.container;
  * qualifier.
  * </ul>
  *
- * 
+ *
  * <H3>Usage</H3>
  * <OL>
  * <LI><code><pre>
@@ -62,20 +63,20 @@ package com.dalsemi.onewire.container;
  *   ResponseAPDU rapdu = new ResponseAPDU(buffer); </pre></code>
  * <LI><code><pre>
  *   OneWireContainer16 owc16 = new OneWireContainer16(adapter, address);
- *   byte[] buffer = {(byte)0x90, (byte)0x00, (byte)0x00, (byte)0x00, 
+ *   byte[] buffer = {(byte)0x90, (byte)0x00, (byte)0x00, (byte)0x00,
  *                    (byte)0x01, (byte)0x02, (byte)0x03};
  *   CommandAPDU capdu = new CommandAPDU(buffer);
  *   ResponseAPDU rapdu = owc16.sendAPDU(capdu, runTime); </pre></code>
  * </OL>
  *
- * <H3>Additonal information</H3>
+ * <H3>Additional information</H3>
  * <DL>
  * <DD><A HREF="http://www.opencard.org"> http://www.opencard.org</A>
  * </DL>
- * 
+ *
  * @see com.dalsemi.onewire.container.CommandAPDU
  * @see com.dalsemi.onewire.container.OneWireContainer16
- * 
+ *
  * @version 0.00, 28 Aug 2000
  * @author YL
  *
@@ -98,20 +99,21 @@ public class ResponseAPDU {
 	 *
 	 * @param buffer the byte array with data for the internal
 	 *               <code>apduBuffer</code>
-	 * 
+	 *
 	 * @throws RuntimeException thrown when <code>buffer</code> length <
 	 *                          <code>2</code>.
 	 *
 	 * @see CommandAPDU
 	 */
 	public ResponseAPDU(byte[] buffer) {
-		if (buffer.length < 2)
+		if (buffer.length < 2) {
 			throw new RuntimeException("invalid ResponseAPDU, " + "length must be at least 2 bytes");
+		}
 
-		apduLength = buffer.length;
-		apduBuffer = new byte[apduLength];
+		this.apduLength = buffer.length;
+		this.apduBuffer = new byte[this.apduLength];
 
-		System.arraycopy(buffer, 0, apduBuffer, 0, apduLength);
+		System.arraycopy(buffer, 0, this.apduBuffer, 0, this.apduLength);
 	} // ResponseAPDU
 
 	/**
@@ -120,14 +122,14 @@ public class ResponseAPDU {
 	 * @return a byte array containing this <code>ResponseAPDU</code> data field
 	 */
 	public byte[] getData() {
-		if (apduLength > 2) {
-			byte[] data = new byte[apduLength - 2];
+		if (this.apduLength > 2) {
+			var data = new byte[this.apduLength - 2];
 
-			System.arraycopy(apduBuffer, 0, data, 0, apduLength - 2);
+			System.arraycopy(this.apduBuffer, 0, data, 0, this.apduLength - 2);
 
 			return data;
-		} else
-			return null;
+		}
+		return null;
 	} // data
 
 	/**
@@ -138,7 +140,7 @@ public class ResponseAPDU {
 	 * @return <code>(((SW1 << 8) & 0xFF00) | (SW2 & 0xFF))</code> as an integer
 	 */
 	public final int getSW() {
-		return (((getSW1() << 8) & 0xFF00) | (getSW2() & 0xFF));
+		return this.getSW1() << 8 & 0xFF00 | this.getSW2() & 0xFF;
 	} // getSW
 
 	/**
@@ -147,7 +149,7 @@ public class ResponseAPDU {
 	 * @return value of SW1 as a byte
 	 */
 	public final byte getSW1() {
-		return apduBuffer[apduLength - 2];
+		return this.apduBuffer[this.apduLength - 2];
 	} // getSW1
 
 	/**
@@ -156,7 +158,7 @@ public class ResponseAPDU {
 	 * @return value of SW2 as a byte
 	 */
 	public final byte getSW2() {
-		return apduBuffer[apduLength - 1];
+		return this.apduBuffer[this.apduLength - 1];
 	} // getSW2
 
 	/**
@@ -170,10 +172,11 @@ public class ResponseAPDU {
 	 * @see #getLength
 	 */
 	final public byte getByte(int index) {
-		if (index >= apduLength)
+		if (index >= this.apduLength) {
 			return (byte) -1; // read beyond end of ResponseAPDU
+		}
 
-		return (apduBuffer[index]);
+		return this.apduBuffer[index];
 	} // getByte
 
 	/**
@@ -186,9 +189,9 @@ public class ResponseAPDU {
 	 * @see #getLength
 	 */
 	final public byte[] getBytes() {
-		byte[] apdu = new byte[apduLength];
+		var apdu = new byte[this.apduLength];
 
-		System.arraycopy(apduBuffer, 0, apdu, 0, apduLength);
+		System.arraycopy(this.apduBuffer, 0, apdu, 0, this.apduLength);
 
 		return apdu;
 	} // getBytes
@@ -200,7 +203,7 @@ public class ResponseAPDU {
 	 *         currently stored
 	 */
 	final public int getLength() {
-		return apduLength;
+		return this.apduLength;
 	} // getLength
 
 	/**
@@ -208,40 +211,45 @@ public class ResponseAPDU {
 	 *
 	 * @return a string describing this <code>ResponseAPDU</code>
 	 */
+	@Override
 	public String toString() {
-		String apduString = "";
+		var apduString = new StringBuilder();
 
-		if (apduLength > 2) {
-			byte[] dataBuffer = new byte[apduLength - 2];
+		if (this.apduLength > 2) {
+			var dataBuffer = new byte[this.apduLength - 2];
 
-			dataBuffer = getData();
-			apduString += "DATA = ";
+			dataBuffer = this.getData();
+			apduString.append("DATA = ");
 
-			for (int i = 0; i < dataBuffer.length; i++) {
+			for (byte element : dataBuffer) {
 
 				// make hex String representation of byte array
-				if ((dataBuffer[i] & 0xFF) < 0x10)
-					apduString += '0';
+				if ((element & 0xFF) < 0x10) {
+					apduString.append('0');
+				}
 
-				apduString += Integer.toHexString((int) (dataBuffer[i] & 0xFF)) + " ";
+				apduString.append(Integer.toHexString(element & 0xFF)).append(" ");
 			}
 
-			apduString += " | ";
+			apduString.append(" | ");
 		}
 
-		apduString += "SW1 = ";
+		apduString.append("SW1 = ");
 
-		if ((getSW1() & 0xFF) < 0x10)
-			apduString += '0';
+		if ((this.getSW1() & 0xFF) < 0x10) {
+			apduString.append('0');
+		}
 
-		apduString += Integer.toHexString(getSW1() & 0xFF);
-		apduString += ", SW2 = ";
+		apduString.append(Integer.toHexString(this.getSW1() & 0xFF));
+		apduString.append(", SW2 = ");
 
-		if ((getSW2() & 0xFF) < 0x10)
-			apduString += '0';
+		if ((this.getSW2() & 0xFF) < 0x10) {
+			apduString.append('0');
+		}
 
-		apduString += Integer.toHexString(getSW2() & 0xFF);
+		apduString.append(Integer.toHexString(this.getSW2() & 0xFF));
 
-		return (apduString.toUpperCase());
+		return apduString.toString().toUpperCase();
 	} // toString
 }
+// CHECKSTYLE:ON

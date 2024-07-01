@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
  *
@@ -26,6 +27,8 @@
  */
 
 package com.dalsemi.onewire.container;
+
+import java.util.Arrays;
 
 import com.dalsemi.onewire.OneWireException;
 // imports
@@ -60,21 +63,10 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * @version 1.00, 01 Jun 2002
  * @author JPE
  */
-@SuppressWarnings({ "unused" })
 public class OneWireContainer3A extends OneWireContainer implements SwitchContainer {
 	// --------
 	// -------- Variables
 	// --------
-
-	/**
-	 * Status memory bank of the DS2413 for memory map registers
-	 */
-	private MemoryBankEEPROMstatus map;
-
-	/**
-	 * Status memory bank of the DS2413 for the conditional search
-	 */
-	private MemoryBankEEPROMstatus search;
 
 	/**
 	 * PIO Access read command
@@ -89,7 +81,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	/**
 	 * Used for 0xFF array
 	 */
-	private byte[] FF = new byte[8];
+	private final byte[] FF = new byte[8];
 
 	// --------
 	// -------- Constructors
@@ -111,10 +103,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 *      OneWireContainer3A(DSPortAdapter,String)
 	 */
 	public OneWireContainer3A() {
-		super();
-
-		for (int i = 0; i < FF.length; i++)
-			FF[i] = (byte) 0x0FF;
+		Arrays.fill(this.FF, (byte) 0x0FF);
 	}
 
 	/**
@@ -133,8 +122,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	public OneWireContainer3A(DSPortAdapter sourceAdapter, byte[] newAddress) {
 		super(sourceAdapter, newAddress);
 
-		for (int i = 0; i < FF.length; i++)
-			FF[i] = (byte) 0x0FF;
+		Arrays.fill(this.FF, (byte) 0x0FF);
 	}
 
 	/**
@@ -153,8 +141,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	public OneWireContainer3A(DSPortAdapter sourceAdapter, long newAddress) {
 		super(sourceAdapter, newAddress);
 
-		for (int i = 0; i < FF.length; i++)
-			FF[i] = (byte) 0x0FF;
+		Arrays.fill(this.FF, (byte) 0x0FF);
 	}
 
 	/**
@@ -173,8 +160,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	public OneWireContainer3A(DSPortAdapter sourceAdapter, String newAddress) {
 		super(sourceAdapter, newAddress);
 
-		for (int i = 0; i < FF.length; i++)
-			FF[i] = (byte) 0x0FF;
+		Arrays.fill(this.FF, (byte) 0x0FF);
 	}
 
 	// --------
@@ -187,6 +173,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 *
 	 * @return iButton or 1-Wire device name
 	 */
+	@Override
 	public String getName() {
 		return "DS2413";
 	}
@@ -198,6 +185,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 *
 	 * @return the alternate names for this iButton or 1-Wire device
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "Dual Channel Switch";
 	}
@@ -208,6 +196,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 *
 	 * @return device description
 	 */
+	@Override
 	public String getDescription() {
 		return "Dual Channel Addressable Switch";
 	}
@@ -218,6 +207,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 * @return maximum speed
 	 * @see DSPortAdapter#setSpeed
 	 */
+	@Override
 	public int getMaxSpeed() {
 		return DSPortAdapter.SPEED_OVERDRIVE;
 	}
@@ -239,6 +229,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 *
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 */
+	@Override
 	public int getNumberChannels(byte[] state) {
 		return 2;
 	}
@@ -254,6 +245,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 *
 	 * @see #getLatchState(int,byte[])
 	 */
+	@Override
 	public boolean isHighSideSwitch() {
 		return false;
 	}
@@ -268,6 +260,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 * @see #getSensedActivity(int,byte[])
 	 * @see #clearActivity()
 	 */
+	@Override
 	public boolean hasActivitySensing() {
 		return false;
 	}
@@ -281,6 +274,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 *
 	 * @see #getLevel(int,byte[])
 	 */
+	@Override
 	public boolean hasLevelSensing() {
 		return true;
 	}
@@ -297,6 +291,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 *
 	 * @see #setLatchState(int,boolean,boolean,byte[])
 	 */
+	@Override
 	public boolean hasSmartOn() {
 		return false;
 	}
@@ -312,6 +307,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 *
 	 * @see #setLatchState(int,boolean,boolean,byte[])
 	 */
+	@Override
 	public boolean onlySingleChannelOn() {
 		return false;
 	}
@@ -337,9 +333,10 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #hasLevelSensing()
 	 */
+	@Override
 	public boolean getLevel(int channel, byte[] state) {
-		byte level = (byte) (0x01 << (channel * 2));
-		return ((state[1] & level) == level);
+		var level = (byte) (0x01 << channel * 2);
+		return (state[1] & level) == level;
 	}
 
 	/**
@@ -359,9 +356,10 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 * @see #isHighSideSwitch()
 	 * @see #setLatchState(int,boolean,boolean,byte[])
 	 */
+	@Override
 	public boolean getLatchState(int channel, byte[] state) {
-		byte latch = (byte) (0x01 << ((channel * 2) + 1));
-		return ((state[1] & latch) == latch);
+		var latch = (byte) (0x01 << channel * 2 + 1);
+		return (state[1] & latch) == latch;
 	}
 
 	/**
@@ -384,6 +382,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 * @see #hasActivitySensing()
 	 * @see #clearActivity()
 	 */
+	@Override
 	public boolean getSensedActivity(int channel, byte[] state) throws OneWireException {
 		return false;
 	}
@@ -398,6 +397,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #getSensedActivity(int,byte[])
 	 */
+	@Override
 	public void clearActivity() throws OneWireException {
 	}
 
@@ -429,26 +429,28 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 * @see #getLatchState(int,byte[])
 	 * @see com.dalsemi.onewire.container.OneWireSensor#writeDevice(byte[])
 	 */
+	@Override
 	public void setLatchState(int channel, boolean latchState, boolean doSmart, byte[] state) {
-		byte latch = (byte) (0x01 << channel);
+		var latch = (byte) (0x01 << channel);
 		byte temp;
 
 		state[0] = (byte) 0x00FC;
 
-		if (getLatchState(0, state)) {
+		if (this.getLatchState(0, state)) {
 			temp = (byte) 0x01;
-			state[0] = (byte) (((byte) state[0]) | temp);
+			state[0] = (byte) (state[0] | temp);
 		}
 
-		if (getLatchState(1, state)) {
+		if (this.getLatchState(1, state)) {
 			temp = (byte) 0x02;
-			state[0] = (byte) (((byte) state[0]) | temp);
+			state[0] = (byte) (state[0] | temp);
 		}
 
-		if (latchState)
+		if (latchState) {
 			state[0] = (byte) (state[0] | latch);
-		else
+		} else {
 			state[0] = (byte) (state[0] & ~latch);
+		}
 	}
 
 	/**
@@ -466,7 +468,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 * @see com.dalsemi.onewire.container.OneWireSensor#writeDevice(byte[])
 	 */
 	public void setLatchState(byte set, byte[] state) {
-		state[0] = (byte) set;
+		state[0] = set;
 	}
 
 	/**
@@ -485,17 +487,18 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public byte[] readDevice() throws OneWireIOException, OneWireException {
-		byte[] buff = new byte[2];
+		var buff = new byte[2];
 
 		buff[0] = (byte) 0xF5; // PIO Access Read Command
 		buff[1] = (byte) 0xFF; // Used to read the PIO Status Bit Assignment
 
 		// select the device
-		if (adapter.select(address)) {
-			adapter.dataBlock(buff, 0, 2);
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireIOException("Device select failed");
+		}
+		this.adapter.dataBlock(buff, 0, 2);
 
 		return buff;
 	}
@@ -517,9 +520,7 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 *                            adapter
 	 */
 	public byte[] readRegister() throws OneWireIOException, OneWireException {
-		byte[] register = new byte[3];
-
-		return register;
+		return new byte[3];
 	}
 
 	/**
@@ -537,20 +538,21 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public void writeDevice(byte state[]) throws OneWireIOException, OneWireException {
-		byte[] buff = new byte[5];
+		var buff = new byte[5];
 
 		buff[0] = (byte) 0x5A; // PIO Access Write Command
-		buff[1] = (byte) state[0]; // Channel write information
+		buff[1] = state[0]; // Channel write information
 		buff[2] = (byte) ~state[0]; // Inverted write byte
 		buff[3] = (byte) 0xFF; // Confirmation Byte
 		buff[4] = (byte) 0xFF; // PIO Pin Status
 
 		// select the device
-		if (adapter.select(address)) {
-			adapter.dataBlock(buff, 0, 5);
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireIOException("Device select failed");
+		}
+		this.adapter.dataBlock(buff, 0, 5);
 
 		if (buff[3] != (byte) 0x00AA) {
 			throw new OneWireIOException("Failure to change latch state.");
@@ -575,3 +577,4 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	}
 
 }
+// CHECKSTYLE:ON

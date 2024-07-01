@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -48,7 +49,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * <A HREF="http://dbserv.maxim-ic.com/appnotes.cfm?appnote_number=114">
  * http://dbserv.maxim-ic.com/appnotes.cfm?appnote_number=114</A>
  * </P>
- * 
+ *
  * <P>
  * The MemoryBank methods can be organized into the following categories:
  * </P>
@@ -78,11 +79,11 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * </UL>
  *
  * <H3>Usage</H3>
- * 
+ *
  * <DL>
  * <DD>
  * <H4>Example 1</H4> Display some features of PagedMemoryBank instance 'pmb':
- * 
+ *
  * <PRE>
  *  <CODE>
  *  System.out.print("PagedMemoryBank has: " + pmb.getNumberPages() + " pages of length ");
@@ -99,13 +100,13 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * <DD>
  * <H4>Example 2</H4> Write a packet into the first page of a PagedMemoryBank
  * instance 'pmb':
- * 
+ *
  * <PRE>
  *  <CODE>
  *  byte[] write_buf = new byte[pmb.getMaxPacketDataLength()];
  *  for (int i = 0; i < write_buf.length; i++)
  *      write_buf[i] = (byte)0;
- * 
+ *
  *  mb.writePagePacket(0, write_buf, 0, write_buf.length);
  * </CODE>
  * </PRE>
@@ -113,29 +114,29 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * <DD>
  * <H4>Example 3</H4> Read all of the pages of a PagedMemoryBank instance 'pmb'
  * with device CRC verification:
- * 
+ *
  * <PRE>
  *  <CODE>
  *  byte[] read_buf = new byte[pmb.getPageLength()];
  *
  *  if (pmb.hasAutoCRC())
  *  {
- *     // loop to read each page with CRC 
+ *     // loop to read each page with CRC
  *     for (int pg = 0; pg < pmb.getNumberPages(); pg++)
  *     {
- *        // use 'readContinue' arguement to only access device on first page
+ *        // use 'readContinue' argument to only access device on first page
  *        pmb.readPageCRC(pg, (pg == 0), read_buf, 0);
  *
- *        // do something with data in read_buf ... 
+ *        // do something with data in read_buf ...
  *     }
  *  }
  *  else
  *     System.out.println("PagedMemoryBank does not support device generated CRC");
- * 
+ *
  * </CODE>
  * </PRE>
  * </DL>
- * 
+ *
  * @see com.dalsemi.onewire.container.MemoryBank
  * @see com.dalsemi.onewire.container.OTPMemoryBank
  * @see com.dalsemi.onewire.container.OneWireContainer04
@@ -184,11 +185,11 @@ public interface PagedMemoryBank extends MemoryBank {
 	 * Gets Maximum data page length in bytes for a packet read or written in this
 	 * memory bank. See the {@link #readPagePacket(int,boolean,byte[],int)
 	 * readPagePacket} and {@link #writePagePacket(int,byte[],int,int)
-	 * writePagePacket} methods. This method is only usefull if this memory bank is
+	 * writePagePacket} methods. This method is only useful if this memory bank is
 	 * general purpose memory.
 	 *
 	 * @return max packet page length in bytes in this memory bank
-	 * 
+	 *
 	 * @see #readPagePacket(int,boolean,byte[],int) readPagePacket
 	 * @see #readPagePacket(int,boolean,byte[],int,byte[]) readPagePacket(extra)
 	 * @see #writePagePacket(int,byte[],int,int) writePagePacket
@@ -207,26 +208,6 @@ public interface PagedMemoryBank extends MemoryBank {
 	 * @see #readPageCRC(int,boolean,byte[],int,byte[]) readPageCRC(extra)
 	 */
 	public boolean hasPageAutoCRC();
-
-	/**
-	 * Checks to see if this memory bank's pages deliver extra information outside
-	 * of the normal data space, when read. Examples of this may be a redirection
-	 * byte, counter, tamper protection bytes, or SHA-1 result. If this method
-	 * returns true then the methods with an 'extraInfo' parameter can be used:
-	 * {@link #readPage(int,boolean,byte[],int,byte[]) readPage},
-	 * {@link #readPageCRC(int,boolean,byte[],int,byte[]) readPageCRC}, and
-	 * {@link #readPagePacket(int,boolean,byte[],int,byte[]) readPagePacket}.
-	 *
-	 * @return <CODE> true </CODE> if reading the this memory bank's pages provides
-	 *         extra information
-	 *
-	 * @see #readPage(int,boolean,byte[],int,byte[]) readPage(extra)
-	 * @see #readPageCRC(int,boolean,byte[],int,byte[]) readPageCRC(extra)
-	 * @see #readPagePacket(int,boolean,byte[],int,byte[]) readPagePacket(extra)
-	 *
-	 * @deprecated As of 1-Wire API 0.01, replaced by {@link #hasExtraInfo()}
-	 */
-	public boolean haveExtraInfo();
 
 	/**
 	 * Checks to see if this memory bank's pages deliver extra information outside
@@ -395,7 +376,7 @@ public interface PagedMemoryBank extends MemoryBank {
 	 *                            valid packet.
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
-	 * 
+	 *
 	 * @see #getMaxPacketDataLength() getMaxPacketDataLength
 	 */
 	public int readPagePacket(int page, boolean readContinue, byte[] readBuf, int offset)
@@ -507,7 +488,7 @@ public interface PagedMemoryBank extends MemoryBank {
 	 * being read from. For example, if pages 0 - 4 are to be read, readContinue
 	 * would be set to false for page 0 and would be set to true for the next four
 	 * calls.
-	 * 
+	 *
 	 *
 	 * <P>
 	 * Note: Using readContinue = true can only be used if the new read continues
@@ -537,3 +518,4 @@ public interface PagedMemoryBank extends MemoryBank {
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException;
 }
+// CHECKSTYLE:ON

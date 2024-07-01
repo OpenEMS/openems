@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -69,7 +70,7 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	public static final byte COPY_SCRATCHPAD_COMMAND = (byte) 0x55;
 
 	/**
-	 * Channel acces write to change the property of the channel
+	 * Channel access write to change the property of the channel
 	 */
 	public static final byte CHANNEL_ACCESS_WRITE = (byte) 0x5A;
 
@@ -143,7 +144,7 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 
 	/**
 	 * Starting physical address in memory bank. Needed for different types of
-	 * memory in the same logical memory bank. This can be used to seperate them
+	 * memory in the same logical memory bank. This can be used to separate them
 	 * into two virtual memory banks. Example: DS2406 status page has mixed EPROM
 	 * and Volatile RAM.
 	 */
@@ -190,29 +191,30 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	public MemoryBankEEPROMstatus(OneWireContainer ibutton) {
 
 		// keep reference to ibutton where memory bank is
-		ib = ibutton;
+		this.ib = ibutton;
 
 		// initialize attributes of this memory bank - DEFAULT: Main memory DS1985 w/o
 		// lock stuff
-		generalPurposeMemory = false;
-		bankDescription = "Main Memory";
-		numberPages = 1;
-		readWrite = false;
-		writeOnce = false;
-		readOnly = false;
-		nonVolatile = true;
-		pageAutoCRC = true;
-		programPulse = false;
-		powerDelivery = false;
-		writeVerification = false;
-		startPhysicalAddress = 0;
-		doSetSpeed = true;
+		this.generalPurposeMemory = false;
+		this.bankDescription = "Main Memory";
+		this.numberPages = 1;
+		this.readWrite = false;
+		this.writeOnce = false;
+		this.readOnly = false;
+		this.nonVolatile = true;
+		this.pageAutoCRC = true;
+		this.programPulse = false;
+		this.powerDelivery = false;
+		this.writeVerification = false;
+		this.startPhysicalAddress = 0;
+		this.doSetSpeed = true;
 
 		// create the ffblock (used for faster 0xFF fills)
-		ffBlock = new byte[20];
+		this.ffBlock = new byte[20];
 
-		for (int i = 0; i < 20; i++)
-			ffBlock[i] = (byte) 0xFF;
+		for (var i = 0; i < 20; i++) {
+			this.ffBlock[i] = (byte) 0xFF;
+		}
 	}
 
 	// --------
@@ -224,8 +226,9 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 *
 	 * @return String containing the memory bank description
 	 */
+	@Override
 	public String getBankDescription() {
-		return bankDescription;
+		return this.bankDescription;
 	}
 
 	/**
@@ -235,8 +238,9 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 *
 	 * @return 'true' if current memory bank is general purpose
 	 */
+	@Override
 	public boolean isGeneralPurposeMemory() {
-		return generalPurposeMemory;
+		return this.generalPurposeMemory;
 	}
 
 	/**
@@ -244,8 +248,9 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 *
 	 * @return 'true' if current memory bank is read/write
 	 */
+	@Override
 	public boolean isReadWrite() {
-		return readWrite;
+		return this.readWrite;
 	}
 
 	/**
@@ -254,8 +259,9 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 *
 	 * @return 'true' if current memory bank can only be written once
 	 */
+	@Override
 	public boolean isWriteOnce() {
-		return writeOnce;
+		return this.writeOnce;
 	}
 
 	/**
@@ -263,8 +269,9 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 *
 	 * @return 'true' if current memory bank can only be read
 	 */
+	@Override
 	public boolean isReadOnly() {
-		return readOnly;
+		return this.readOnly;
 	}
 
 	/**
@@ -273,8 +280,9 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 *
 	 * @return 'true' if current memory bank non volatile.
 	 */
+	@Override
 	public boolean isNonVolatile() {
-		return nonVolatile;
+		return this.nonVolatile;
 	}
 
 	/**
@@ -284,8 +292,9 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 * @return 'true' if writing to the current memory bank pages requires a
 	 *         'ProgramPulse'.
 	 */
+	@Override
 	public boolean needsProgramPulse() {
-		return programPulse;
+		return this.programPulse;
 	}
 
 	/**
@@ -295,8 +304,9 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 * @return 'true' if writing to the current memory bank pages requires
 	 *         'PowerDelivery'.
 	 */
+	@Override
 	public boolean needsPowerDelivery() {
-		return powerDelivery;
+		return this.powerDelivery;
 	}
 
 	/**
@@ -305,8 +315,9 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 *
 	 * @return physical starting address of this logical bank.
 	 */
+	@Override
 	public int getStartPhysicalAddress() {
-		return startPhysicalAddress;
+		return this.startPhysicalAddress;
 	}
 
 	/**
@@ -314,8 +325,9 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 *
 	 * @return memory bank size in bytes.
 	 */
+	@Override
 	public int getSize() {
-		return size;
+		return this.size;
 	}
 
 	// --------
@@ -328,7 +340,7 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 * @return number of pages in current memory bank
 	 */
 	public int getNumberPages() {
-		return numberPages;
+		return this.numberPages;
 	}
 
 	/**
@@ -337,19 +349,19 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 * @return page length in bytes in current memory bank
 	 */
 	public int getPageLength() {
-		return pageLength;
+		return this.pageLength;
 	}
 
 	/**
 	 * Query to get Maximum data page length in bytes for a packet read or written
 	 * in the current memory bank. See the 'ReadPagePacket()' and
-	 * 'WritePagePacket()' methods. This method is only usefull if the current
-	 * memory bank is general purpose memory.
+	 * 'WritePagePacket()' methods. This method is only useful if the current memory
+	 * bank is general purpose memory.
 	 *
 	 * @return max packet page length in bytes in current memory bank
 	 */
 	public int getMaxPacketDataLength() {
-		return maxPacketDataLength;
+		return this.maxPacketDataLength;
 	}
 
 	/**
@@ -360,7 +372,7 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 * @return 'true' if current memory bank can be read with self generated CRC.
 	 */
 	public boolean hasPageAutoCRC() {
-		return pageAutoCRC;
+		return this.pageAutoCRC;
 	}
 
 	/**
@@ -412,8 +424,9 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 * @param doReadVerf true (default) verify write in 'write' false, don't verify
 	 *                   write (used on Write-Once bit manipulation)
 	 */
+	@Override
 	public void setWriteVerification(boolean doReadVerf) {
-		writeVerification = doReadVerf;
+		this.writeVerification = doReadVerf;
 	}
 
 	// --------
@@ -428,12 +441,12 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 * readPageCRC(). readPageCRC() however is not supported on all memory types,
 	 * see 'hasPageAutoCRC()'. If neither is an option then this method could be
 	 * called more then once to at least verify that the same thing is read
-	 * consistantly.
+	 * consistently.
 	 *
 	 * @param startAddr    starting physical address
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new read()
-	 *                     continious where the last one led off and it is inside a
+	 *                     continuous where the last one led off and it is inside a
 	 *                     'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to place read data into
 	 * @param offset       offset into readBuf to place data
@@ -442,39 +455,41 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void read(int startAddr, boolean readContinue, byte[] readBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
-		byte[] buff = new byte[20];
-		int addr = startPhysicalAddress + startAddr;
+		var buff = new byte[20];
+		var addr = this.startPhysicalAddress + startAddr;
 
-		System.arraycopy(ffBlock, 0, buff, 0, 20);
+		System.arraycopy(this.ffBlock, 0, buff, 0, 20);
 
 		// check if read exceeds memory
-		if ((startAddr + len) > size)
+		if (startAddr + len > this.size) {
 			throw new OneWireException("Read exceeds memory bank end");
+		}
 
 		// attempt to put device at max desired speed
 		// attempt to put device at max desired speed
 		if (!readContinue) {
-			checkSpeed();
+			this.checkSpeed();
 
 			// select the device
-			if (ib.adapter.select(ib.address)) {
-				buff[0] = READ_MEMORY_COMMAND;
-
-				// address 1
-				buff[1] = (byte) (addr & 0xFF);
-				// address 2
-				buff[2] = (byte) (((addr & 0xFFFF) >>> 8) & 0xFF);
-
-				ib.adapter.dataBlock(buff, 0, len + 3);
-
-				// extract the data
-				System.arraycopy(buff, 3, readBuf, offset, len);
-			} else
+			if (!this.ib.adapter.select(this.ib.address)) {
 				throw new OneWireIOException("Device select failed");
+			}
+			buff[0] = READ_MEMORY_COMMAND;
+
+			// address 1
+			buff[1] = (byte) (addr & 0xFF);
+			// address 2
+			buff[2] = (byte) ((addr & 0xFFFF) >>> 8 & 0xFF);
+
+			this.ib.adapter.dataBlock(buff, 0, len + 3);
+
+			// extract the data
+			System.arraycopy(buff, 3, readBuf, offset, len);
 		} else {
-			ib.adapter.dataBlock(buff, 0, len);
+			this.ib.adapter.dataBlock(buff, 0, len);
 
 			// extract the data
 			System.arraycopy(buff, 0, readBuf, offset, len);
@@ -501,71 +516,75 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void write(int startAddr, byte[] writeBuf, int offset, int len) throws OneWireIOException, OneWireException {
 		int i;
-		byte[] es_data = new byte[3];
-		byte[] scratchpad = new byte[8];
+		var es_data = new byte[3];
+		var scratchpad = new byte[8];
 
 		// return if nothing to do
-		if (len == 0)
+		if (len == 0) {
 			return;
+		}
 
 		// attempt to put device at speed
-		checkSpeed();
+		this.checkSpeed();
 
 		// check if write exceeds memory
-		if ((startAddr + len) > size)
+		if (startAddr + len > this.size) {
 			throw new OneWireException("Write exceeds memory bank end");
+		}
 
 		// check if trying to write read only bank
-		if (isReadOnly() && (((startPhysicalAddress + startAddr) != 137) && (len != 1)))
+		if (this.isReadOnly() && this.startPhysicalAddress + startAddr != 137 && len != 1) {
 			throw new OneWireException("Trying to write read-only memory bank");
+		}
 
-		if (((startPhysicalAddress + startAddr) == 137) && (len == 1)) {
-			ib.adapter.select(ib.address);
+		if (this.startPhysicalAddress + startAddr == 137 && len == 1) {
+			this.ib.adapter.select(this.ib.address);
 
-			byte[] buffer = new byte[5];
+			var buffer = new byte[5];
 
 			buffer[0] = CHANNEL_ACCESS_WRITE;
 			buffer[1] = writeBuf[offset];
 			buffer[2] = (byte) ~writeBuf[offset];
-			System.arraycopy(ffBlock, 0, buffer, 3, 2);
+			System.arraycopy(this.ffBlock, 0, buffer, 3, 2);
 
-			ib.adapter.dataBlock(buffer, 0, 5);
+			this.ib.adapter.dataBlock(buffer, 0, 5);
 
 			if (buffer[3] != (byte) 0x00AA) {
 				throw new OneWireIOException(
 						"Failure to change DS2408 latch state: buffer=" + Convert.toHexString(buffer));
 			}
-		} else if (((startPhysicalAddress + startAddr) > 138) && ((startPhysicalAddress + startAddr + len) < 143)) {
-			ib.adapter.select(ib.address);
+		} else if (this.startPhysicalAddress + startAddr > 138 && this.startPhysicalAddress + startAddr + len < 143) {
+			this.ib.adapter.select(this.ib.address);
 
-			byte[] buffer = new byte[6];
+			var buffer = new byte[6];
 
 			buffer[0] = (byte) 0xCC;
-			buffer[1] = (byte) ((startAddr + startPhysicalAddress) & 0xFF);
-			buffer[2] = (byte) ((((startAddr + startPhysicalAddress) & 0xFFFF) >>> 8) & 0xFF);
+			buffer[1] = (byte) (startAddr + this.startPhysicalAddress & 0xFF);
+			buffer[2] = (byte) ((startAddr + this.startPhysicalAddress & 0xFFFF) >>> 8 & 0xFF);
 
 			System.arraycopy(writeBuf, offset, buffer, 3, len);
 
-			ib.adapter.dataBlock(buffer, 0, len + 3);
-		} else if (((startPhysicalAddress + startAddr) > 127) && ((startPhysicalAddress + startAddr + len) < 130)) {
-			byte[] buffer = new byte[8];
-			int addr = 128;
-			byte[] buff = new byte[11];
+			this.ib.adapter.dataBlock(buffer, 0, len + 3);
+		} else if (this.startPhysicalAddress + startAddr > 127 && this.startPhysicalAddress + startAddr + len < 130) {
+			var buffer = new byte[8];
+			var addr = 128;
+			var buff = new byte[11];
 
-			System.arraycopy(ffBlock, 0, buff, 0, 11);
+			System.arraycopy(this.ffBlock, 0, buff, 0, 11);
 
-			ib.adapter.select(ib.address);
+			this.ib.adapter.select(this.ib.address);
 
 			buff[0] = READ_MEMORY_COMMAND;
 
 			// address 1
 			buff[1] = (byte) (addr & 0xFF);
 			// address 2
-			buff[2] = (byte) (((addr & 0xFFFF) >>> 8) & 0xFF);
+			buff[2] = (byte) ((addr & 0xFFFF) >>> 8 & 0xFF);
 
-			ib.adapter.dataBlock(buff, 0, 11);
+			this.ib.adapter.dataBlock(buff, 0, 11);
 
 			// extract the data
 			System.arraycopy(buff, 3, buffer, 0, 8);
@@ -573,26 +592,28 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 			System.arraycopy(writeBuf, offset, buffer, 0, len);
 
 			// write the page of data to scratchpad
-			if (!writeScratchpad(startPhysicalAddress + startAddr, buffer, 0, 8))
+			if (!this.writeScratchpad(this.startPhysicalAddress + startAddr, buffer, 0, 8)) {
 				throw new OneWireIOException("Invalid CRC16 in write");
+			}
 
-			if (!readScratchpad(scratchpad, 0, 8, es_data))
+			if (!this.readScratchpad(scratchpad, 0, 8, es_data)) {
 				throw new OneWireIOException("Read scratchpad was not successful.");
+			}
 
 			if ((es_data[2] & 0x20) == 0x20) {
 				throw new OneWireIOException("The write scratchpad command was not completed.");
-			} else {
-				for (i = 0; i < 8; i++)
-					if (scratchpad[i] != buffer[i]) {
-						throw new OneWireIOException(
-								"The read back of the data in the scratch pad did " + "not match.");
-					}
+			}
+			for (i = 0; i < 8; i++) {
+				if (scratchpad[i] != buffer[i]) {
+					throw new OneWireIOException("The read back of the data in the scratch pad did " + "not match.");
+				}
 			}
 
 			// Copy data from scratchpad into memory
-			copyScratchpad(es_data);
-		} else
+			this.copyScratchpad(es_data);
+		} else {
 			throw new OneWireIOException("Trying to write read-only memory.");
+		}
 	}
 
 	// --------
@@ -610,13 +631,13 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 		synchronized (this) {
 
 			// only check the speed
-			if (doSetSpeed) {
+			if (this.doSetSpeed) {
 
 				// attempt to set the correct speed and verify device present
-				ib.doSpeed();
+				this.ib.doSpeed();
 
-				// no execptions so clear flag
-				doSetSpeed = false;
+				// no exceptions so clear flag
+				this.doSetSpeed = false;
 			}
 		}
 	}
@@ -627,7 +648,7 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 */
 	public void forceVerify() {
 		synchronized (this) {
-			doSetSpeed = true;
+			this.doSetSpeed = true;
 		}
 	}
 
@@ -647,40 +668,37 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 */
 	public boolean writeScratchpad(int addr, byte[] out_buf, int offset, int len)
 			throws OneWireIOException, OneWireException {
-		byte[] send_block = new byte[14];
+		var send_block = new byte[14];
 
 		// protect send buffer
 		// since the scratchpad is only eight bytes, there is no reason to write
 		// more than eight bytes.. and we can optimize our send buffer's size.
-		if (len > 8)
+		if (len > 8) {
 			len = 8;
+		}
 
 		// access the device
-		if (ib.adapter.select(ib.getAddress())) {
-			int cnt = 0;
-			// set data block up
-			// start by sending the write scratchpad command
-			send_block[cnt++] = WRITE_SCRATCHPAD_COMMAND;
-			// followed by the target address
-			send_block[cnt++] = (byte) (addr & 0x00FF);
-			send_block[cnt++] = (byte) (((addr & 0x00FFFF) >>> 8) & 0x00FF);
-
-			// followed by the data to write to the scratchpad
-			System.arraycopy(out_buf, offset, send_block, 3, len);
-			cnt += len;
-
-			// followed by two bytes for reading CRC16 value
-			send_block[cnt++] = (byte) 0x00FF;
-			send_block[cnt++] = (byte) 0x00FF;
-
-			// send the data
-			ib.adapter.dataBlock(send_block, 0, cnt);
-
-			// verify the CRC is correct
-//         if (CRC16.compute(send_block, 0, cnt) != 0x0000B001)
-//            throw new OneWireIOException("Invalid CRC16 in Writing Scratch Pad");
-		} else
+		if (!this.ib.adapter.select(this.ib.getAddress())) {
 			throw new OneWireIOException("Device select failed.");
+		}
+		var cnt = 0;
+		// set data block up
+		// start by sending the write scratchpad command
+		send_block[cnt++] = WRITE_SCRATCHPAD_COMMAND;
+		// followed by the target address
+		send_block[cnt++] = (byte) (addr & 0x00FF);
+		send_block[cnt++] = (byte) ((addr & 0x00FFFF) >>> 8 & 0x00FF);
+
+		// followed by the data to write to the scratchpad
+		System.arraycopy(out_buf, offset, send_block, 3, len);
+		cnt += len;
+
+		// followed by two bytes for reading CRC16 value
+		send_block[cnt++] = (byte) 0x00FF;
+		send_block[cnt++] = (byte) 0x00FF;
+
+		// send the data
+		this.ib.adapter.dataBlock(send_block, 0, cnt);
 
 		return true;
 	}
@@ -695,46 +713,46 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	 * @throws OneWireException
 	 */
 	public synchronized void copyScratchpad(byte[] es_data) throws OneWireIOException, OneWireException {
-		byte[] send_block = new byte[4];
+		var send_block = new byte[4];
 
 		// access the device
-		if (ib.adapter.select(ib.getAddress())) {
-			// ending address with data status
-			send_block[3] = es_data[2];// ES;
-
-			// address 2
-			send_block[2] = es_data[1];// TA2
-
-			// address 1
-			send_block[1] = es_data[0];// TA1;
-
-			// Copy command
-			send_block[0] = COPY_SCRATCHPAD_COMMAND;
-
-			// send copy scratchpad command
-			ib.adapter.dataBlock(send_block, 0, 3);
-
-			// provide strong pull-up for copy
-			ib.adapter.setPowerDuration(DSPortAdapter.DELIVERY_INFINITE);
-			ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
-			ib.adapter.putByte(send_block[3]);
-
-			// pause before checking result
-			try {
-				Thread.sleep(12);
-			} catch (InterruptedException e) {
-			}
-
-			ib.adapter.setPowerNormal();
-
-			// get result
-			byte test = (byte) ib.adapter.getByte();
-
-			if (test == (byte) 0x00FF) {
-				throw new OneWireIOException("The scratchpad did not get copied to memory.");
-			}
-		} else
+		if (!this.ib.adapter.select(this.ib.getAddress())) {
 			throw new OneWireIOException("Device select failed.");
+		}
+		// ending address with data status
+		send_block[3] = es_data[2];// ES;
+
+		// address 2
+		send_block[2] = es_data[1];// TA2
+
+		// address 1
+		send_block[1] = es_data[0];// TA1;
+
+		// Copy command
+		send_block[0] = COPY_SCRATCHPAD_COMMAND;
+
+		// send copy scratchpad command
+		this.ib.adapter.dataBlock(send_block, 0, 3);
+
+		// provide strong pull-up for copy
+		this.ib.adapter.setPowerDuration(DSPortAdapter.DELIVERY_INFINITE);
+		this.ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
+		this.ib.adapter.putByte(send_block[3]);
+
+		// pause before checking result
+		try {
+			Thread.sleep(12);
+		} catch (InterruptedException e) {
+		}
+
+		this.ib.adapter.setPowerNormal();
+
+		// get result
+		var test = (byte) this.ib.adapter.getByte();
+
+		if (test == (byte) 0x00FF) {
+			throw new OneWireIOException("The scratchpad did not get copied to memory.");
+		}
 	}
 
 	/**
@@ -753,31 +771,33 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	public boolean readScratchpad(byte[] readBuf, int offset, int len, byte[] es_data)
 			throws OneWireIOException, OneWireException {
 		// select the device
-		if (!ib.adapter.select(ib.address)) {
-			forceVerify();
+		if (!this.ib.adapter.select(this.ib.address)) {
+			this.forceVerify();
 			throw new OneWireIOException("Device select failed");
 		}
 
 		// build first block
-		byte[] raw_buf = new byte[14];
+		var raw_buf = new byte[14];
 		raw_buf[0] = READ_SCRATCHPAD_COMMAND;
-		System.arraycopy(ffBlock, 0, raw_buf, 1, 13);
+		System.arraycopy(this.ffBlock, 0, raw_buf, 1, 13);
 
 		// do data block for TA1, TA2, and E/S
 		// followed by 8 bytes of data and 2 bytes of crc
-		ib.adapter.dataBlock(raw_buf, 0, 14);
+		this.ib.adapter.dataBlock(raw_buf, 0, 14);
 
 		// verify CRC16 is correct
-		if (CRC16.compute(raw_buf, 0, 14) == 0x0000B001) {
-			// optionally extract the extra info
-			if (es_data != null)
-				System.arraycopy(raw_buf, 1, es_data, 0, 3);
-
-			System.arraycopy(raw_buf, 4, readBuf, offset, len);
-			// success
-			return true;
-		} else
+		if (CRC16.compute(raw_buf, 0, 14) != 0x0000B001) {
 			throw new OneWireException("Error due to CRC.");
+		}
+		// optionally extract the extra info
+		if (es_data != null) {
+			System.arraycopy(raw_buf, 1, es_data, 0, 3);
+		}
+
+		System.arraycopy(raw_buf, 4, readBuf, offset, len);
+		// success
+		return true;
 	}
 
 }
+// CHECKSTYLE:ON

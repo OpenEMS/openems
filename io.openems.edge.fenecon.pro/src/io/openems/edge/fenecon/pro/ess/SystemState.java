@@ -9,7 +9,7 @@ public enum SystemState implements OptionsEnum {
 	START(2, "START"), //
 	FAULT(3, "FAULT"), //
 	OFF_GRID_PV(4, "Off-Grid PV");
-	
+
 	private final int value;
 	private final String name;
 
@@ -20,12 +20,12 @@ public enum SystemState implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

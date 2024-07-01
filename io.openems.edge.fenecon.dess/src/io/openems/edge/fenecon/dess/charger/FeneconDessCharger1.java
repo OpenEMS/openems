@@ -10,40 +10,69 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.fenecon.dess.FeneconDessConstants;
+import io.openems.edge.fenecon.dess.ess.FeneconDessEss;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
 
 @Designate(ocd = Config1.class, factory = true)
 @Component(//
 		name = "Fenecon.Dess.Charger1", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class FeneconDessCharger1 extends AbstractFeneconDessCharger implements EssDcCharger, OpenemsComponent {
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
+public class FeneconDessCharger1 extends AbstractFeneconDessCharger
+		implements FeneconDessCharger, EssDcCharger, ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider {
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
+
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
 
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	private FeneconDessEss ess;
+
 	public FeneconDessCharger1() {
-		super();
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config1 config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), FeneconDessConstants.UNIT_ID, this.cm,
-				"Modbus", config.modbus_id());
+	private void activate(ComponentContext context, Config1 config) throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm,
+				"Modbus", this.ess.getModbusBridgeId())) {
+			return;
+		}
+
+		// update filter for 'Ess'
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
+			return;
+		}
+
+		this.ess.addCharger(this);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
+		this.ess.removeCharger(this);
 		super.deactivate();
 	}
 
@@ -52,4 +81,8 @@ public class FeneconDessCharger1 extends AbstractFeneconDessCharger implements E
 		return 11240;
 	}
 
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
 }

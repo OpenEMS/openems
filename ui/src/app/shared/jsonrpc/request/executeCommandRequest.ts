@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Represents a JSON-RPC Request to execute a system command on OpenEMS Edge.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -20,16 +20,16 @@ import { JsonrpcRequest } from "../base";
  */
 export class ExecuteSystemCommandRequest extends JsonrpcRequest {
 
-    static METHOD: string = "executeSystemCommand";
+    private static METHOD: string = "executeSystemCommand";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             command: string,
             runInBackground: boolean,
             timeoutSeconds: number,
             username?: string,
             password?: string
-        }
+        },
     ) {
         super(ExecuteSystemCommandRequest.METHOD, params);
     }

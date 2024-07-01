@@ -5,11 +5,9 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
+	Java-WebSocket,\
 	io.openems.backend.common,\
-	io.openems.backend.metadata.api,\
-	io.openems.backend.timedata.api,\
 	io.openems.common,\
-	Java-WebSocket;version=1.4.1
 
 -testpath: \
 	${testpath}

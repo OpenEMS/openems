@@ -6,7 +6,7 @@ public enum Status implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	STARTING(0, "Starting"), //
 	/**
-	 * e.g. unplugged, X1 or "ena" not enabled, RFID not enabled,...
+	 * e.g. unplugged, RFID not enabled,...
 	 */
 	NOT_READY_FOR_CHARGING(1, "Not ready for Charging"), //
 	/**
@@ -29,12 +29,12 @@ public enum Status implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

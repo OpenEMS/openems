@@ -2,14 +2,17 @@ package io.openems.edge.common.filter;
 
 /**
  * A proportional-integral-derivative controller.
- * 
- * @see https://en.wikipedia.org/wiki/PID_controller
+ *
+ * @see <a href=
+ *      "https://en.wikipedia.org/wiki/PID_controller">https://en.wikipedia.org/wiki/PID_controller</a>
  */
 public class PidFilter {
 
 	public static final double DEFAULT_P = 0.3;
 	public static final double DEFAULT_I = 0.3;
 	public static final double DEFAULT_D = 0.1;
+
+	public static final int ERROR_SUM_LIMIT_FACTOR = 10;
 
 	private final double p;
 	private final double i;
@@ -24,7 +27,7 @@ public class PidFilter {
 
 	/**
 	 * Creates a PidFilter.
-	 * 
+	 *
 	 * @param p the proportional gain
 	 * @param i the integral gain
 	 * @param d the derivative gain
@@ -44,7 +47,7 @@ public class PidFilter {
 
 	/**
 	 * Limit the output value.
-	 * 
+	 *
 	 * @param lowLimit  lowest allowed output value
 	 * @param highLimit highest allowed output value
 	 */
@@ -60,7 +63,7 @@ public class PidFilter {
 	/**
 	 * Apply the PID filter using the current Channel value as input and the target
 	 * value.
-	 * 
+	 *
 	 * @param input  the input value, e.g. the measured Channel value
 	 * @param target the target value
 	 * @return the filtered set-point value
@@ -70,7 +73,7 @@ public class PidFilter {
 		target = this.applyLowHighLimits(target);
 
 		// Calculate the error
-		int error = target - input;
+		var error = target - input;
 
 		// We are already there
 		if (error == 0) {
@@ -78,7 +81,7 @@ public class PidFilter {
 		}
 
 		// Calculate P
-		double outputP = this.p * error;
+		var outputP = this.p * error;
 
 		// Set last values on first run
 		if (this.firstRun) {
@@ -87,19 +90,20 @@ public class PidFilter {
 		}
 
 		// Calculate I
-		double outputI = this.i * this.errorSum;
+		var outputI = this.i * this.errorSum;
 
 		// Calculate D
-		double outputD = -this.d * (input - this.lastInput);
+		var outputD = -this.d * (input - this.lastInput);
 
 		// Store last input value
 		this.lastInput = input;
 
 		// Sum outputs
-		double output = outputP + outputI + outputD;
+		var output = outputP + outputI + outputD;
 
-		// sum up the error
-		this.errorSum += error;
+		// Sum up the error and limit Error-Sum to not grow too much. Otherwise the PID
+		// filter will stop reacting on changes properly.
+		this.errorSum = this.applyErrorSumLimit(this.errorSum + error);
 
 		// Post-process the output value: convert to integer and apply value limits
 		return this.applyLowHighLimits(Math.round((float) output));
@@ -107,7 +111,7 @@ public class PidFilter {
 
 	/**
 	 * Reset the PID filter.
-	 * 
+	 *
 	 * <p>
 	 * This method should be called when the filter was not used for a while.
 	 */
@@ -117,17 +121,49 @@ public class PidFilter {
 	}
 
 	/**
-	 * Applies the low and high limits to a value.
-	 * 
+	 * Applies the configured PID low and high limits to a value.
+	 *
 	 * @param value the input value
 	 * @return the value within low and high limit
 	 */
-	private int applyLowHighLimits(int value) {
+	protected int applyLowHighLimits(int value) {
 		if (this.lowLimit != null && value < this.lowLimit) {
 			value = this.lowLimit;
 		}
 		if (this.highLimit != null && value > this.highLimit) {
 			value = this.highLimit;
+		}
+		return value;
+	}
+
+	/**
+	 * Applies the low and high limits to the error sum.
+	 *
+	 * @param value the input value
+	 * @return the value within low and high limit
+	 */
+	private double applyErrorSumLimit(double value) {
+		// find (positive) limit from low & high limits
+		double errorSumLimit;
+		if (this.lowLimit != null && this.highLimit != null) {
+			errorSumLimit = Math.max(Math.abs(this.lowLimit), Math.abs(this.highLimit));
+		} else if (this.lowLimit != null) {
+			errorSumLimit = Math.abs(this.lowLimit);
+		} else if (this.highLimit != null) {
+			errorSumLimit = Math.abs(this.highLimit);
+		} else {
+			return value;
+		}
+
+		// apply additional factor to increase limit
+		errorSumLimit *= ERROR_SUM_LIMIT_FACTOR;
+
+		// apply limit
+		if (value < errorSumLimit * -1) {
+			return errorSumLimit * -1;
+		}
+		if (value > errorSumLimit) {
+			return errorSumLimit;
 		}
 		return value;
 	}

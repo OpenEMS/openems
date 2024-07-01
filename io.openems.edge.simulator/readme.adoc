@@ -4,120 +4,141 @@ This bundle provides simulated OpenEMS Components for the Natures. They are usef
 
 == Simulator-App
 
-The Simulator-App is a very specific component that needs to be handled with care. It provides a full simulation environment to run an OpenEMS Edge instance in simulated realtime environment. 
+The Simulator-App is a very specific component that needs to be handled with care. It provides a full simulation environment to run an OpenEMS Edge instance in simulated realtime environment. After you ran a Simulation, you will receive the simulation result as a JSON. Also the simulation result can be viewed in OpenEMS UI.
 
 CAUTION: Be aware that the SimulatorApp Component takes control over the complete OpenEMS Edge Application, i.e. if you enable it, it is going to *delete all existing Component configurations*! 
 
 To run a simulation:
-- Run OpenEMS Edge using the EdgeApp.bndrun
-- Configure a read-write JSON/REST Api
-- Send a https://openems.github.io/openems.io/openems/latest/edge/controller.html#_endpoint_jsonrpc[JSON-RPC Request] like the following, providing full configurations for all required OpenEMS Edge Components
+
+. Run OpenEMS Edge using the EdgeApp.bndrun
+. Open up Apache Felix Web Console and
+
+.. activate a "Controller Api REST/JSON Read-Write"
+.. activate a "Simulator App"
+
+. Send a https://openems.github.io/openems.io/openems/latest/edge/controller.html#_endpoint_jsonrpc[JSON-RPC Request] like the following, providing full configurations for all required OpenEMS Edge Components
 
 [source,json]
 ----
 {
-    "method": "componentJsonApi",
-    "params": {
-        "componentId": "_simulator",
-        "payload": {
-            "method": "executeSimulation",
-            "params": {
-                "components": [
-                    {
-                        "factoryPid": "Scheduler.AllAlphabetically",
-                        "properties": [
-                            {
-                                "name": "id",
-                                "value": "scheduler0"
-                            }
-                        ]
-                    },
-                    {
-                        "factoryPid": "Simulator.GridMeter.Reacting",
-                        "properties": [
-                            {
-                                "name": "id",
-                                "value": "meter0"
-                            }
-                        ]
-                    },
-                    {
-                        "factoryPid": "Simulator.Datasource.CSV.Direct",
-                        "properties": [
-                            {
-                                "name": "id",
-                                "value": "datasource1"
-                            },
-                            {
-                                "name": "source",
-                                "value": "1000\n2000\n2500\n2000"
-                            },
-                            {
-                                "name": "timeDelta",
-                                "value": 5
-                            }
-                        ]
-                    },
-                    {
-                        "factoryPid": "Simulator.NRCMeter.Acting",
-                        "properties": [
-                            {
-                                "name": "id",
-                                "value": "meter1"
-                            },
-                            {
-                                "name": "datasource.id",
-                                "value": "datasource1"
-                            }
-                        ]
-                    },
-                    {
-                        "factoryPid": "Simulator.EssSymmetric.Reacting",
-                        "properties": [
-                            {
-                                "name": "id",
-                                "value": "ess0"
-                            },
-                            {
-                                "name": "maxApparentPower",
-                                "value": 10000
-                            },
-                            {
-                                "name": "capacity",
-                                "value": 10000
-                            },
-                            {
-                                "name": "initialSoc",
-                                "value": 50
-                            }
-                        ]
-                    },
-                    {
-                        "factoryPid": "Controller.Symmetric.Balancing",
-                        "properties": [
-                            {
-                                "name": "id",
-                                "value": "ctrlBalancing0"
-                            },
-                            {
-                                "name": "ess.id",
-                                "value": "ess0"
-                            },
-                            {
-                                "name": "meter.id",
-                                "value": "meter0"
-                            }
-                        ]
-                    }
-                ],
-                "clock": {
-                    "start": "2000-01-01T13:00:00.00Z",
-                    "end": "2000-01-01T14:00:00.00Z",
-                    "timeleapPerCycle": 1000
-                }
-            }
-        }
-    }
+   "method":"componentJsonApi",
+   "params":{
+      "componentId":"_simulator",
+      "payload":{
+         "method":"executeSimulation",
+         "params":{
+            "components":[
+               {
+                  "factoryPid":"Scheduler.AllAlphabetically",
+                  "properties":[
+                     {
+                        "name":"id",
+                        "value":"scheduler0"
+                     }
+                  ]
+               },
+               {
+                  "factoryPid":"Simulator.GridMeter.Reacting",
+                  "properties":[
+                     {
+                        "name":"id",
+                        "value":"meter0"
+                     }
+                  ]
+               },
+               {
+                  "factoryPid":"Simulator.NRCMeter.Acting",
+                  "properties":[
+                     {
+                        "name":"id",
+                        "value":"meter1"
+                     },
+                     {
+                        "name":"alias",
+                        "value":"Consumption"
+                     },
+                     {
+                        "name":"datasource.id",
+                        "value":"_simulator"
+                     }
+                  ]
+               },
+               {
+                  "factoryPid":"Simulator.ProductionMeter.Acting",
+                  "properties":[
+                     {
+                        "name":"id",
+                        "value":"meter2"
+                     },
+                     {
+                        "name":"alias",
+                        "value":"South Roof"
+                     },
+                     {
+                        "name":"datasource.id",
+                        "value":"_simulator"
+                     }
+                  ]
+               },
+               {
+                  "factoryPid":"Simulator.EssSymmetric.Reacting",
+                  "properties":[
+                     {
+                        "name":"id",
+                        "value":"ess0"
+                     },
+                     {
+                        "name":"maxApparentPower",
+                        "value":10000
+                     },
+                     {
+                        "name":"capacity",
+                        "value":10200
+                     },
+                     {
+                        "name":"initialSoc",
+                        "value":50
+                     }
+                  ]
+               },
+               {
+                  "factoryPid":"Controller.Symmetric.Balancing",
+                  "properties":[
+                     {
+                        "name":"id",
+                        "value":"ctrlBalancing0"
+                     },
+                     {
+                        "name":"ess.id",
+                        "value":"ess0"
+                     },
+                     {
+                        "name":"meter.id",
+                        "value":"meter0"
+                     }
+                  ]
+               }
+            ],
+            "clock":{
+               "start":"2000-01-01T00:00:00.00Z",
+               "end":"2000-01-08T00:00:00.00Z",
+               "timeleapPerCycle":900000,
+               "executeCycleTwice":true
+            },
+            "profiles":{
+               "meter1/ActivePower": [436,404,373,344,316,290,267,248,236,227,220,216,211,207,203,199,196,193,192,191,191,191,193,195,198,201,206,211,219,232,254,290,342,405,474,543,607,666,719,767,810,849,886,924,962,999,1029,1049,1055,1047,1025,990,944,890,833,779,732,692,658,630,607,588,572,555,539,527,524,535,562,602,647,692,731,764,795,825,854,878,892,887,861,820,775,733,704,683,666,646,621,591,556,518,479,440,402,364,436,404,374,345,316,290,267,249,236,227,220,216,211,207,203,199,196,193,192,191,191,191,193,195,198,201,206,211,219,232,255,291,342,405,475,544,608,667,720,768,811,850,888,926,964,1000,1030,1050,1056,1048,1027,992,945,891,834,780,733,693,659,631,608,589,572,556,540,528,525,536,563,603,648,693,732,765,796,826,855,880,893,888,862,821,776,735,705,684,667,647,622,591,556,519,480,441,402,365,338,304,274,249,231,218,209,204,200,198,197,195,194,193,191,191,192,194,196,200,204,215,238,279,340,413,489,557,607,642,663,673,676,673,665,653,638,622,607,594,586,580,578,578,580,584,593,607,626,647,664,673,670,658,639,619,600,583,568,553,539,527,517,511,510,515,527,549,579,618,662,711,761,810,855,893,922,940,943,931,902,862,818,777,744,716,691,665,635,602,566,528,489,450,412,374,338,304,275,250,231,218,210,204,201,198,197,196,194,193,192,192,192,194,197,200,205,216,239,279,340,414,490,558,608,643,664,674,677,674,666,654,639,623,608,595,587,581,579,579,581,585,594,608,627,648,665,674,671,659,640,620,601,584,569,554,540,528,518,512,511,516,528,550,580,619,663,712,762,811,856,895,924,941,945,932,904,864,820,778,745,717,692,666,636,603,567,529,490,451,413,375,338,304,275,250,231,218,210,204,201,198,197,196,194,193,192,192,192,194,197,200,205,216,239,279,340,415,491,558,609,643,664,675,678,675,666,654,639,624,608,596,587,582,579,579,581,586,594,608,628,649,666,675,672,659,641,621,602,585,569,554,540,528,518,513,512,517,529,550,581,619,664,712,763,812,857,896,925,942,946,933,905,865,820,779,745,718,693,667,637,603,567,529,491,452,413,375,339,305,275,250,232,219,210,204,201,198,197,196,194,193,192,192,192,194,197,200,205,216,239,280,341,415,491,559,609,644,665,676,679,676,667,655,640,624,609,596,588,582,580,580,582,586,595,609,628,649,667,676,673,660,641,621,602,585,570,555,541,529,519,513,512,517,529,551,581,620,665,713,764,813,858,897,926,943,947,934,906,865,821,780,746,719,694,668,637,604,568,530,491,452,413,375,339,305,275,250,232,219,210,205,201,199,198,196,195,194,192,192,193,195,197,201,205,216,239,280,341,415,492,559,610,645,666,676,679,676,668,656,641,625,609,597,588,583,580,580,582,587,595,609,629,650,667,676,673,661,642,622,603,586,570,555,541,529,519,514,513,518,530,551,582,621,665,714,764,814,859,897,927,944,948,935,906,866,822,781,747,719,694,668,638,604,568,530,492,452,414,376],
+               "meter2/ActivePower": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,24,100,250,277,345,449,457,535,530,575,770,862,720,779,808,638,552,457,440,574,537,499,356,216,267,180,180,147,102,19,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,23,105,162,223,271,309,370,431,463,514,481,463,516,467,406,375,361,401,387,372,345,334,337,312,275,229,184,141,96,20,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,20,74,134,173,209,254,275,302,331,380,419,437,471,410,441,444,410,394,400,396,384,387,391,350,291,260,208,140,74,20,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,24,130,215,278,378,443,529,534,568,797,726,618,766,703,802,809,755,783,682,633,672,590,629,515,523,403,318,251,171,31,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,26,56,336,1979,945,2897,3580,2510,3097,3499,5616,6327,2631,898,3859,3909,4931,3683,5996,1777,3615,3415,1601,1254,4954,4145,3426,1163,101,457,27,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,21,65,25,48,84,108,125,123,99,84,119,214,202,183,104,151,450,881,1878,3424,5211,4329,3986,1796,1904,1618,1173,646,758,50,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,35,104,163,246,349,329,406,387,379,457,396,488,530,540,591,835,774,740,569,549,542,524,549,471,446,337,234,192,110,30,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            },
+            "collect":[
+               "_sum/GridActivePower",
+               "_sum/EssActivePower",
+               "_sum/ProductionActivePower",
+               "_sum/ConsumptionActivePower",
+               "_sum/EssSoc"
+            ]
+         }
+      }
+   }
 }
 ----
 

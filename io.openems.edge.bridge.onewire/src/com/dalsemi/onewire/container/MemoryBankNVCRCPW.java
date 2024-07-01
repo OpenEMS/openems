@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -70,14 +71,14 @@ public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 	public MemoryBankNVCRCPW(PasswordContainer ibutton, MemoryBankScratchCRCPW scratch) {
 		super((OneWireContainer) ibutton, scratch);
 
-		ibPass = ibutton;
+		this.ibPass = ibutton;
 
 		// initialize attributes of this memory bank
-		pageAutoCRC = true;
-		readContinuePossible = true;
-		numVerifyBytes = 0;
+		this.pageAutoCRC = true;
+		this.readContinuePossible = true;
+		this.numVerifyBytes = 0;
 
-		scratchpadPW = scratch;
+		this.scratchpadPW = scratch;
 	}
 
 	/**
@@ -89,7 +90,7 @@ public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 	 * @param page         page number to read
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -99,9 +100,10 @@ public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
-		readPageCRC(page, readContinue, readBuf, offset, extraInfo, extraInfoLength);
+		this.readPageCRC(page, readContinue, readBuf, offset, extraInfo, this.extraInfoLength);
 	}
 
 	/**
@@ -112,7 +114,7 @@ public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 	 * @param page         page number to read
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -123,30 +125,34 @@ public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	protected void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo,
 			int extraLength) throws OneWireIOException, OneWireException {
-		int last_crc = 0;
+		var last_crc = 0;
 		byte[] raw_buf;
 		byte temp;
 
 		// only needs to be implemented if supported by hardware
-		if (!pageAutoCRC)
+		if (!this.pageAutoCRC) {
 			throw new OneWireException("Read page with CRC not supported in this memory bank");
+		}
 
 		// attempt to put device at max desired speed
-		if (!readContinue)
-			sp.checkSpeed();
+		if (!readContinue) {
+			this.sp.checkSpeed();
+		}
 
 		// check if read exceeds memory
-		if (page > numberPages)
+		if (page > this.numberPages) {
 			throw new OneWireException("Read exceeds memory bank end");
+		}
 
 		// see if need to access the device
-		if (!readContinue || !readContinuePossible) {
+		if (!readContinue || !this.readContinuePossible) {
 
 			// select the device
-			if (!ib.adapter.select(ib.address)) {
-				sp.forceVerify();
+			if (!this.ib.adapter.select(this.ib.address)) {
+				this.sp.forceVerify();
 
 				throw new OneWireIOException("Device select failed");
 			}
@@ -155,73 +161,74 @@ public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 			raw_buf = new byte[11];
 			raw_buf[0] = READ_MEMORY_CRC_PW_COMMAND;
 
-			int addr = page * pageLength + startPhysicalAddress;
+			var addr = page * this.pageLength + this.startPhysicalAddress;
 
 			raw_buf[1] = (byte) (addr & 0xFF);
-			raw_buf[2] = (byte) (((addr & 0xFFFF) >>> 8) & 0xFF);
+			raw_buf[2] = (byte) ((addr & 0xFFFF) >>> 8 & 0xFF);
 
-			if (ibPass.isContainerReadWritePasswordSet())
-				ibPass.getContainerReadWritePassword(raw_buf, 3);
-			else
-				ibPass.getContainerReadOnlyPassword(raw_buf, 3);
+			if (this.ibPass.isContainerReadWritePasswordSet()) {
+				this.ibPass.getContainerReadWritePassword(raw_buf, 3);
+			} else {
+				this.ibPass.getContainerReadOnlyPassword(raw_buf, 3);
+			}
 
 			// perform CRC16 on first part (without the password)
 			last_crc = CRC16.compute(raw_buf, 0, 3, last_crc);
 
 			// do the first block for command, TA1, TA2, and password
 
-			if (enablePower) {
-				ib.adapter.dataBlock(raw_buf, 0, 10);
+			if (this.enablePower) {
+				this.ib.adapter.dataBlock(raw_buf, 0, 10);
 
-				ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
+				this.ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
 
-				ib.adapter.putByte(raw_buf[10]);
+				this.ib.adapter.putByte(raw_buf[10]);
 
-			} else
-				ib.adapter.dataBlock(raw_buf, 0, 11);
-		} else {
-			if (enablePower) {
-				ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
-				temp = (byte) ib.adapter.getByte();
+			} else {
+				this.ib.adapter.dataBlock(raw_buf, 0, 11);
 			}
+		} else if (this.enablePower) {
+			this.ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
+			temp = (byte) this.ib.adapter.getByte();
 		}
 
-		if (enablePower) {
+		if (this.enablePower) {
 			msWait(3);
 
-			ib.adapter.setPowerNormal();
+			this.ib.adapter.setPowerNormal();
 		}
 
 		// pre-fill with 0xFF
-		raw_buf = new byte[pageLength + extraLength + 2 + numVerifyBytes];
+		raw_buf = new byte[this.pageLength + extraLength + 2 + this.numVerifyBytes];
 
-		System.arraycopy(ffBlock, 0, raw_buf, 0, raw_buf.length);
+		System.arraycopy(this.ffBlock, 0, raw_buf, 0, raw_buf.length);
 
 		// send block to read data + extra info? + crc
-		if (enablePower) {
-			ib.adapter.dataBlock(raw_buf, 0, (raw_buf.length - 1));
-			last_crc = CRC16.compute(raw_buf, 0, raw_buf.length - numVerifyBytes - 2, last_crc);
+		if (this.enablePower) {
+			this.ib.adapter.dataBlock(raw_buf, 0, raw_buf.length - 1);
+			last_crc = CRC16.compute(raw_buf, 0, raw_buf.length - this.numVerifyBytes - 2, last_crc);
 
-			if ((last_crc & 0x0FF) != ((~raw_buf[raw_buf.length - 2]) & 0x0FF)) {
-				sp.forceVerify();
+			if ((last_crc & 0x0FF) != (~raw_buf[raw_buf.length - 2] & 0x0FF)) {
+				this.sp.forceVerify();
 				throw new OneWireIOException("Invalid CRC16 read from device.  Password may be incorrect.");
 			}
 		} else {
-			ib.adapter.dataBlock(raw_buf, 0, raw_buf.length);
+			this.ib.adapter.dataBlock(raw_buf, 0, raw_buf.length);
 
 			// check the CRC
-			if (CRC16.compute(raw_buf, 0, raw_buf.length - numVerifyBytes, last_crc) != 0x0000B001) {
-				sp.forceVerify();
+			if (CRC16.compute(raw_buf, 0, raw_buf.length - this.numVerifyBytes, last_crc) != 0x0000B001) {
+				this.sp.forceVerify();
 				throw new OneWireIOException("Invalid CRC16 read from device.  Password may be incorrect.");
 			}
 		}
 
 		// extract the page data
-		System.arraycopy(raw_buf, 0, readBuf, offset, pageLength);
+		System.arraycopy(raw_buf, 0, readBuf, offset, this.pageLength);
 
 		// optional extract the extra info
-		if (extraInfo != null)
-			System.arraycopy(raw_buf, pageLength, extraInfo, 0, extraLength);
+		if (extraInfo != null) {
+			System.arraycopy(raw_buf, this.pageLength, extraInfo, 0, extraLength);
+		}
 	}
 
 	/**
@@ -232,12 +239,12 @@ public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 	 * readPageCRC(). readPageCRC() however is not supported on all memory types,
 	 * see 'hasPageAutoCRC()'. If neither is an option then this method could be
 	 * called more then once to at least verify that the same thing is read
-	 * consistantly.
+	 * consistently.
 	 *
 	 * @param startAddr    starting physical address
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new read()
-	 *                     continious where the last one led off and it is inside a
+	 *                     continuous where the last one led off and it is inside a
 	 *                     'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to place read data into
 	 * @param offset       offset into readBuf to place data
@@ -246,66 +253,69 @@ public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void read(int startAddr, boolean readContinue, byte[] readBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
 		int i;
-		byte[] raw_buf = new byte[64];
+		var raw_buf = new byte[64];
 
 		// attempt to put device at max desired speed
 		if (!readContinue) {
-			sp.checkSpeed();
+			this.sp.checkSpeed();
 		}
 
 		// check if read exceeds memory
-		if ((startAddr + len) > size)
+		if (startAddr + len > this.size) {
 			throw new OneWireException("Read exceeds memory bank end");
+		}
 
 		// see if need to access the device
 		if (!readContinue) {
 
 			// select the device
-			if (!ib.adapter.select(ib.address)) {
-				sp.forceVerify();
+			if (!this.ib.adapter.select(this.ib.address)) {
+				this.sp.forceVerify();
 
 				throw new OneWireIOException("Device select failed");
 			}
 
 			// build start reading memory block
-			int addr = startAddr + startPhysicalAddress;
+			var addr = startAddr + this.startPhysicalAddress;
 
 			raw_buf[0] = READ_MEMORY_CRC_PW_COMMAND;
 
 			raw_buf[1] = (byte) (addr & 0xFF);
-			raw_buf[2] = (byte) (((addr & 0xFFFF) >>> 8) & 0xFF);
+			raw_buf[2] = (byte) ((addr & 0xFFFF) >>> 8 & 0xFF);
 
-			if (ibPass.isContainerReadWritePasswordSet())
-				ibPass.getContainerReadWritePassword(raw_buf, 3);
-			else
-				ibPass.getContainerReadOnlyPassword(raw_buf, 3);
+			if (this.ibPass.isContainerReadWritePasswordSet()) {
+				this.ibPass.getContainerReadWritePassword(raw_buf, 3);
+			} else {
+				this.ibPass.getContainerReadOnlyPassword(raw_buf, 3);
+			}
 
 			// do the first block for command, address. password
-			if (enablePower) {
-				ib.adapter.dataBlock(raw_buf, 0, 10);
-				ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
-				ib.adapter.putByte(raw_buf[10]);
+			if (this.enablePower) {
+				this.ib.adapter.dataBlock(raw_buf, 0, 10);
+				this.ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
+				this.ib.adapter.putByte(raw_buf[10]);
 
 				msWait(10);
 
-				ib.adapter.setPowerNormal();
+				this.ib.adapter.setPowerNormal();
 			} else {
-				ib.adapter.dataBlock(raw_buf, 0, 11);
+				this.ib.adapter.dataBlock(raw_buf, 0, 11);
 			}
 		}
 
 		// pre-fill readBuf with 0xFF
-		int startOffset = startAddr % pageLength;
+		var startOffset = startAddr % this.pageLength;
 
 		// First, count how many bytes are leftover from the
 		// whole page reads.
-		int bytesLeftover = (len % pageLength);
+		var bytesLeftover = len % this.pageLength;
 
 		// Second, account for the whole number of pages
-		int pgs = (len / pageLength);
+		var pgs = len / this.pageLength;
 
 		// Third, if read starts in middle, go ahead and count
 		// that whole page as 1 more page.
@@ -314,27 +324,28 @@ public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 			// subtract the bytes from this extra page from our
 			// leftover bytes, since we just accounted for each
 			// byte to the end of this first page.
-			bytesLeftover -= (pageLength - startOffset);
+			bytesLeftover -= this.pageLength - startOffset;
 		}
 
 		// Finally, account for 1 more page read if there are
 		// any more left over bytes
-		if (bytesLeftover > 0)
+		if (bytesLeftover > 0) {
 			pgs += 1;
+		}
 
-		int startPage = startAddr / pageLength;
+		var startPage = startAddr / this.pageLength;
 
 		for (i = 0; i < pgs; i++) {
-			readPageCRC(startPage + i, false, raw_buf, 0, null, 0);
+			this.readPageCRC(startPage + i, false, raw_buf, 0, null, 0);
 
 			if (i == 0) {
-				System.arraycopy(raw_buf, startOffset, readBuf, offset, (pageLength - startOffset));
-			} else if ((i == (pgs - 1)) && (bytesLeftover != 0)) {
-				System.arraycopy(raw_buf, 0, readBuf, (offset + (pageLength - startOffset) + ((i - 1) * pageLength)),
-						bytesLeftover);
+				System.arraycopy(raw_buf, startOffset, readBuf, offset, this.pageLength - startOffset);
+			} else if (i == pgs - 1 && bytesLeftover != 0) {
+				System.arraycopy(raw_buf, 0, readBuf,
+						offset + this.pageLength - startOffset + (i - 1) * this.pageLength, bytesLeftover);
 			} else {
-				System.arraycopy(raw_buf, 0, readBuf, (offset + (pageLength - startOffset) + ((i - 1) * pageLength)),
-						pageLength);
+				System.arraycopy(raw_buf, 0, readBuf,
+						offset + this.pageLength - startOffset + (i - 1) * this.pageLength, this.pageLength);
 			}
 		}
 
@@ -360,34 +371,38 @@ public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void write(int startAddr, byte[] writeBuf, int offset, int len) throws OneWireIOException, OneWireException {
 		// find the last (non-inclusive) address for this write
-		int endingOffset = (startAddr + len);
-		if (((endingOffset & 0x1F) > 0) && (!enablePower)) {
+		var endingOffset = startAddr + len;
+		if ((endingOffset & 0x1F) > 0 && !this.enablePower) {
 			// find the number of bytes left until the end of the page
-			int numBytes = pageLength - (endingOffset & 0x1F);
+			var numBytes = this.pageLength - (endingOffset & 0x1F);
 			if ( // endingOffset == 0x250 ???? why??
-			(ibPass.hasReadWritePassword() && (0xFFE0 & endingOffset) == (0xFFE0 & ibPass.getReadWritePasswordAddress())
-					&& endingOffset < (ibPass.getReadWritePasswordAddress() + ibPass.getReadWritePasswordLength()))
-					|| (ibPass.hasReadOnlyPassword()
-							&& (0xFFE0 & endingOffset) == (0xFFE0 & ibPass.getReadOnlyPasswordAddress())
-							&& endingOffset < (ibPass.getReadOnlyPasswordAddress()
-									+ ibPass.getReadOnlyPasswordLength()))
-					|| (ibPass.hasWriteOnlyPassword()
-							&& (0xFFE0 & endingOffset) == (0xFFE0 & ibPass.getWriteOnlyPasswordAddress())
-							&& endingOffset < (ibPass.getWriteOnlyPasswordAddress()
-									+ ibPass.getWriteOnlyPasswordLength()))) {
+			this.ibPass.hasReadWritePassword()
+					&& (0xFFE0 & endingOffset) == (0xFFE0 & this.ibPass.getReadWritePasswordAddress())
+					&& endingOffset < this.ibPass.getReadWritePasswordAddress()
+							+ this.ibPass.getReadWritePasswordLength()
+					|| this.ibPass.hasReadOnlyPassword()
+							&& (0xFFE0 & endingOffset) == (0xFFE0 & this.ibPass.getReadOnlyPasswordAddress())
+							&& endingOffset < this.ibPass.getReadOnlyPasswordAddress()
+									+ this.ibPass.getReadOnlyPasswordLength()
+					|| this.ibPass.hasWriteOnlyPassword()
+							&& (0xFFE0 & endingOffset) == (0xFFE0 & this.ibPass.getWriteOnlyPasswordAddress())
+							&& endingOffset < this.ibPass.getWriteOnlyPasswordAddress()
+									+ this.ibPass.getWriteOnlyPasswordLength()) {
 
 				// password block would be written to with potentially bad data
-				throw new OneWireException("Executing write would overwrite password control registers with "
-						+ "potentially invalid data.  Please ensure write does not occur over"
-						+ "password control register page, or the password control data is "
-						+ "specified exactly in the write buffer.");
+				throw new OneWireException("""
+						Executing write would overwrite password control registers with \
+						potentially invalid data.  Please ensure write does not occur over \
+						password control register page, or the password control data is \
+						specified exactly in the write buffer.""");
 			}
 
-			byte[] tempBuf = new byte[len + numBytes];
+			var tempBuf = new byte[len + numBytes];
 			System.arraycopy(writeBuf, offset, tempBuf, 0, len);
-			read(endingOffset, false, tempBuf, len, numBytes);
+			this.read(endingOffset, false, tempBuf, len, numBytes);
 
 			super.write(startAddr, tempBuf, 0, tempBuf.length);
 		} else {
@@ -404,7 +419,8 @@ public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 		try {
 			Thread.sleep(ms);
 		} catch (InterruptedException ie) {
-			;
+
 		}
 	}
 }
+// CHECKSTYLE:ON

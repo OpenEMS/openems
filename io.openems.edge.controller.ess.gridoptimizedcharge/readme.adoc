@@ -1,0 +1,11 @@
+= ESS Grid Optimized Charge
+
+Combination of the PredictiveDelayCharge and the SellToGridPowerLimit controllers:  
+
+Delays the charging of the AC or DC storage system based on predicted production and consumption given by the PredictorManager.
+
+Even during the delayed charging, the battery is able to force charge when the sell-to-grid power exceeds the configured "Sell-To-Grid maximum power limit".
+This is mainly used when only 70 percent of the maximum production is allowed to feed in to the grid.
+
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.gridoptimizedcharge[Source Code icon:github[]]

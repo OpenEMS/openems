@@ -20,7 +20,8 @@ Include-Resource: \
 	@lib/RXTXcomm.jar;lib:=true
 
 -privatepackage: \
-	io.openems.edge.bridge.onewire.impl
+	io.openems.edge.bridge.onewire.impl,\
+	io.openems.edge.bridge.onewire.jsonrpc
 
 -buildpath: \
 	${buildpath},\

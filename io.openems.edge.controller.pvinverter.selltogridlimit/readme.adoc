@@ -1,5 +1,8 @@
-= Sell-To-Grid limit
+= PV-Inverter Sell-To-Grid limit
 
-Dynamically limits the Sell-To-Grid power to a defined maximum power.
+Dynamically limits the Sell-To-Grid power of a PV-Inverter to a defined maximum power.
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.selltogridlimit[Source Code icon:github[]]
+If the configured mode is asymmetric, the controller evaluates the grid meter phase with the highest Sell-To-Grid power and curbs the PV-power of the configured PV-Inverter. 
+The main purpose of the asymmetric mode is, to prevent the grid fuse from overcurrent.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.pvinverter.selltogridlimit[Source Code icon:github[]]

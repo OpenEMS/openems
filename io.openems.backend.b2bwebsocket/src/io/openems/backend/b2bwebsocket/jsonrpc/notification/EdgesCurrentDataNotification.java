@@ -14,7 +14,7 @@ import io.openems.common.types.ChannelAddress;
 /**
  * Represents a JSON-RPC Notification for sending the current data of all
  * subscribed Channels of multiple Edges.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -34,23 +34,30 @@ public class EdgesCurrentDataNotification extends JsonrpcNotification {
 	private final Table<String, ChannelAddress, JsonElement> values = HashBasedTable.create();
 
 	public EdgesCurrentDataNotification() {
-		super(METHOD);
+		super(EdgesCurrentDataNotification.METHOD);
 	}
 
+	/**
+	 * Adds a value to the notification.
+	 *
+	 * @param edgeId  the Edge-ID
+	 * @param channel the {@link ChannelAddress}
+	 * @param value   the value
+	 */
 	public void addValue(String edgeId, ChannelAddress channel, JsonElement value) {
 		this.values.put(edgeId, channel, value);
 	}
 
 	@Override
 	public JsonObject getParams() {
-		JsonObject j = new JsonObject();
+		var j = new JsonObject();
 		for (Entry<String, Map<ChannelAddress, JsonElement>> row : this.values.rowMap().entrySet()) {
-			String edgeId = row.getKey();
-			Map<ChannelAddress, JsonElement> columns = row.getValue();
-			JsonObject jEdge = new JsonObject();
+			var edgeId = row.getKey();
+			var columns = row.getValue();
+			var jEdge = new JsonObject();
 			for (Entry<ChannelAddress, JsonElement> column : columns.entrySet()) {
-				ChannelAddress channel = column.getKey();
-				JsonElement value = column.getValue();
+				var channel = column.getKey();
+				var value = column.getValue();
 				jEdge.add(channel.toString(), value);
 			}
 			j.add(edgeId, jEdge);

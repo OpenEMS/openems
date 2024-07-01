@@ -10,7 +10,7 @@ public interface OnNotification {
 
 	/**
 	 * Handles a JSON-RPC notification.
-	 * 
+	 *
 	 * @param websocket    the WebSocket
 	 * @param notification the JSON-RPC Notification
 	 * @throws OpenemsNamedException on error

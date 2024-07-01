@@ -1,14 +1,12 @@
 package io.openems.edge.controller.api.modbus.jsonrpc;
 
-import java.util.UUID;
-
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 
 /**
  * Exports the Modbus Protocol to an Excel (xlsx) file.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -23,11 +21,11 @@ public class GetModbusProtocolExportXlsxRequest extends JsonrpcRequest {
 	public static final String METHOD = "getModbusProtocolExportXlsx";
 
 	public GetModbusProtocolExportXlsxRequest() {
-		this(UUID.randomUUID());
+		super(METHOD);
 	}
 
-	public GetModbusProtocolExportXlsxRequest(UUID id) {
-		super(id, METHOD);
+	private GetModbusProtocolExportXlsxRequest(JsonrpcRequest request) {
+		super(request, METHOD);
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 package io.openems.edge.wago;
 
 /**
- * Represents one XML "Kanal" element inside the WAGO ea-config.xml file
+ * Represents one XML "Kanal" element inside the WAGO ea-config.xml file.
  */
 public class FieldbusModuleKanal {
 	public final String name;

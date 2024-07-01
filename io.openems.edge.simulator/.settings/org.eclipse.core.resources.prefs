@@ -1,4 +1,2 @@
 eclipse.preferences.version=1
-encoding//src/io/openems/edge/simulator/ess/asymmetric/reacting/EssAsymmetric.java=UTF-8
-encoding//src/io/openems/edge/simulator/meter/grid/acting/GridMeter.java=UTF-8
-encoding/bnd.bnd=UTF-8
+encoding/<project>=UTF-8

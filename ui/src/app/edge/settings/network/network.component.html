@@ -1,22 +1,31 @@
-<ion-grid *ngIf="interfaces">
-  <ion-row class="ion-justify-content-center">
-
-    <ion-col *ngFor="let iface of interfaces" size="12" size-xl="6">
-      <ion-card>
-        <ion-item lines="full" color="light">
-          <ion-icon size="large" slot="start" name="globe-outline" color="primary"></ion-icon>
-          <ion-label>Schnittstelle {{ iface.name }}</ion-label>
-        </ion-item>
-        <ion-card-content>
-          <form (ngSubmit)="submit(iface)">
-            <formly-form [form]="iface.form" [fields]="iface.fields" [model]="iface.model"></formly-form>
-            <ion-item>
-              <ion-button [disabled]="iface.form.pristine" type="submit" color="primary">Anwenden</ion-button>
-            </ion-item>
-          </form>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
-
-  </ion-row>
-</ion-grid>
+<header></header>
+<ion-content>
+  <ion-grid>
+    <ion-row class="ion-justify-content-center">
+      <ion-col *ngFor="let form of forms" size="12" size-xl="6">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon size="large" slot="start" name="globe-outline" color="primary"></ion-icon>
+            <ion-label> {{ form.name === 'eth0' ? 'LAN' : form.name + ' (INTERNAL)' }}</ion-label>
+            <ion-text translate>Edge.Network.advancedMode</ion-text>
+            <ion-toggle (ionChange)="form.model.advancedMode = !form.model.advancedMode; 
+              hideOrShowFields(form)">
+            </ion-toggle>
+            <oe-help-button key="SETTINGS_NETWORK_CONFIGURATION"></oe-help-button>
+          </ion-item>
+          <ion-card-content>
+            <form (ngSubmit)="submit(form)">
+              <formly-form [form]="form.formGroup" [fields]="form.fields" [model]="form.model">
+              </formly-form>
+              <ion-item>
+                <ion-button [disabled]="form.formGroup.pristine" type="submit" color="primary">
+                  {{ 'Edge.Network.submit' | translate}}
+                </ion-button>
+              </ion-item>
+            </form>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

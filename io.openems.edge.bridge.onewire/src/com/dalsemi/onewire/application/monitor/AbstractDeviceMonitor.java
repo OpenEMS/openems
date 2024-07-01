@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -66,18 +67,13 @@ import com.dalsemi.onewire.utils.OWPath;
  * environment. Instead of reporting the exception on each failed search
  * attempt, the monitor will default to retrying the search a handful of times
  * before finally reporting the exception.
- * 
- * @see #getMaxErrorCount(). To disable this feature, set the max error count to
- *      1.
- * @see #setMaxErrorCount(int).
- *      </P>
+ * </P>
  *
- *      <P>
- *      To receive events, an object must implement the
- *      <code>DeviceMonitorEventListener</code> interface.
- * @see DeviceMonitorEventListener. And the object must be added to the list of
- *      listeners. @see #addDeviceMonitorEventListener.
- *      </P>
+ * <P>
+ * To receive events, an object must implement the
+ * <code>DeviceMonitorEventListener</code> interface. And the object must be
+ * added to the list of listeners. @see #addDeviceMonitorEventListener.
+ * </P>
  *
  * @author SH
  * @version 1.00
@@ -137,11 +133,12 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 */
 	public void cleanUpStaleContainerReferences() {
 		synchronized (deviceContainerHash) {
-			Enumeration<Long> e = deviceContainerHash.keys();
+			var e = deviceContainerHash.keys();
 			while (e.hasMoreElements()) {
 				Object o = e.nextElement();
-				if (!deviceAddressHash.containsKey(o))
+				if (!this.deviceAddressHash.containsKey(o)) {
 					deviceContainerHash.remove(o);
+				}
 			}
 		}
 	}
@@ -163,17 +160,18 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 * and departure events will be fired.
 	 */
 	public void resetSearch() {
-		synchronized (sync_flag) {
+		synchronized (this.sync_flag) {
 			// fire departures for all devices
-			if (deviceAddressHash.size() > 0 && listeners.size() > 0) {
-				Vector<Long> v = new Vector<>(deviceAddressHash.size());
-				Enumeration<Long> e = deviceAddressHash.keys();
-				while (e.hasMoreElements())
+			if (this.deviceAddressHash.size() > 0 && this.listeners.size() > 0) {
+				var v = new Vector<Long>(this.deviceAddressHash.size());
+				var e = this.deviceAddressHash.keys();
+				while (e.hasMoreElements()) {
 					v.addElement(e.nextElement());
-				fireDepartureEvent(adapter, v);
+				}
+				this.fireDepartureEvent(this.adapter, v);
 			}
 
-			deviceAddressHash.clear();
+			this.deviceAddressHash.clear();
 		}
 	}
 
@@ -195,8 +193,9 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 *                 before it is removed.
 	 */
 	public void setMaxStateCount(int stateCnt) {
-		if (stateCnt <= 0)
+		if (stateCnt <= 0) {
 			throw new IllegalArgumentException("State Count must be greater than 0");
+		}
 
 		this.max_state_count = stateCnt;
 	}
@@ -218,8 +217,9 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 *                 notified
 	 */
 	public void setMaxErrorCount(int errorCnt) {
-		if (errorCnt <= 0)
+		if (errorCnt <= 0) {
 			throw new IllegalArgumentException("Error Count must be greater than 0");
+		}
 
 		this.max_error_count = errorCnt;
 	}
@@ -261,20 +261,21 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 */
 	public boolean pauseMonitor(boolean blocking) {
 		// clear the start flag
-		synchronized (sync_flag) {
-			if (hasCompletelyStopped || (!startRunning && !isRunning))
+		synchronized (this.sync_flag) {
+			if (this.hasCompletelyStopped || !this.startRunning && !this.isRunning) {
 				return true;
+			}
 
-			startRunning = false;
+			this.startRunning = false;
 		}
 
 		// wait until it is paused or until timeout
-		int i = 0;
-		while (isRunning && (blocking || (i++) < 100)) {
-			msSleep(10);
+		var i = 0;
+		while (this.isRunning && (blocking || i++ < 100)) {
+			this.msSleep(10);
 		}
 
-		return !isRunning;
+		return !this.isRunning;
 	}
 
 	/**
@@ -285,22 +286,24 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 */
 	public boolean resumeMonitor(boolean blocking) {
 		// set the start flag
-		synchronized (sync_flag) {
-			if (hasCompletelyStopped)
+		synchronized (this.sync_flag) {
+			if (this.hasCompletelyStopped) {
 				return false;
-			if (startRunning && isRunning)
+			}
+			if (this.startRunning && this.isRunning) {
 				return true;
+			}
 
-			startRunning = true;
+			this.startRunning = true;
 		}
 
 		// wait until it is running
-		int i = 0;
-		while (!isRunning && (blocking || (i++) < 100)) {
-			msSleep(10);
+		var i = 0;
+		while (!this.isRunning && (blocking || i++ < 100)) {
+			this.msSleep(10);
 		}
 
-		return isRunning;
+		return this.isRunning;
 	}
 
 	/**
@@ -309,7 +312,7 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 * @return <CODE>true</CODE> if monitor is running
 	 */
 	public boolean isMonitorRunning() {
-		return isRunning;
+		return this.isRunning;
 	}
 
 	/**
@@ -317,15 +320,15 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 */
 	public void killMonitor() {
 		// clear the running flags
-		synchronized (sync_flag) {
-			keepRunning = false;
-			startRunning = false;
+		synchronized (this.sync_flag) {
+			this.keepRunning = false;
+			this.startRunning = false;
 		}
 
 		// wait until the thread is no longer running, with a timeout
-		int i = 0;
-		while (!hasCompletelyStopped && i < 100) {
-			msSleep(20);
+		var i = 0;
+		while (!this.hasCompletelyStopped && i < 100) {
+			this.msSleep(20);
 		}
 	}
 
@@ -334,17 +337,18 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 * network. Listeners that have registered are notified when changes in the
 	 * network are detected.
 	 */
+	@Override
 	public void run() {
-		synchronized (sync_flag) {
-			hasCompletelyStopped = false;
+		synchronized (this.sync_flag) {
+			this.hasCompletelyStopped = false;
 		}
 
-		Vector<Long> arrivals = new Vector<>(), departures = new Vector<Long>();
-		while (keepRunning) {
-			if (startRunning) {
+		Vector<Long> arrivals = new Vector<>(), departures = new Vector<>();
+		while (this.keepRunning) {
+			if (this.startRunning) {
 				// set is now running
-				synchronized (sync_flag) {
-					isRunning = true;
+				synchronized (this.sync_flag) {
+					this.isRunning = true;
 				}
 
 				// erase previous arrivals and departures
@@ -352,35 +356,33 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 				departures.setSize(0);
 
 				// number of times an error occurred during 1-Wire search
-				int errorCount = 0;
-				boolean done = false;
+				var errorCount = 0;
+				var done = false;
 				while (!done) {
 					try {
 						// search for new devices, remove stale device entries
-						search(arrivals, departures);
+						this.search(arrivals, departures);
 						done = true;
 					} catch (Exception e) {
-						if (++errorCount == max_error_count) {
-							fireException(adapter, e);
+						if (++errorCount == this.max_error_count) {
+							this.fireException(this.adapter, e);
 							done = true;
 						}
 					}
 				}
-
-				// sleep to give other threads a chance at this network
-				msSleep(200);
 			} else {
 				// not running so clear flag
-				synchronized (sync_flag) {
-					isRunning = false;
+				synchronized (this.sync_flag) {
+					this.isRunning = false;
 				}
-				msSleep(200);
 			}
+			// sleep to give other threads a chance at this network
+			this.msSleep(200);
 		}
 		// not running so clear flag
-		synchronized (sync_flag) {
-			isRunning = false;
-			hasCompletelyStopped = true;
+		synchronized (this.sync_flag) {
+			this.isRunning = false;
+			this.hasCompletelyStopped = true;
 		}
 	}
 
@@ -398,7 +400,7 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 		try {
 			Thread.sleep(msTime);
 		} catch (InterruptedException e) {
-			;
+
 		}
 	}
 
@@ -412,8 +414,9 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 * @param dmel Listener of monitor events.
 	 */
 	public void addDeviceMonitorEventListener(DeviceMonitorEventListener dmel) {
-		if (dmel != null)
+		if (dmel != null) {
 			this.listeners.addElement(dmel);
+		}
 	}
 
 	/**
@@ -423,10 +426,9 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 *                arrivals.
 	 */
 	protected void fireArrivalEvent(DSPortAdapter adapter, Vector<Long> address) {
-		DeviceMonitorEvent dme = new DeviceMonitorEvent(DeviceMonitorEvent.ARRIVAL, this, adapter,
-				(Vector<Long>) address.clone());
-		for (int i = 0; i < listeners.size(); i++) {
-			DeviceMonitorEventListener listener = (DeviceMonitorEventListener) listeners.elementAt(i);
+		var dme = new DeviceMonitorEvent(DeviceMonitorEvent.ARRIVAL, this, adapter, (Vector<Long>) address.clone());
+		for (var i = 0; i < this.listeners.size(); i++) {
+			var listener = this.listeners.elementAt(i);
 			listener.deviceArrival(dme);
 		}
 	}
@@ -438,11 +440,10 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 *                devices.
 	 */
 	protected void fireDepartureEvent(DSPortAdapter adapter, Vector<Long> address) {
-		DeviceMonitorEvent dme = new DeviceMonitorEvent(DeviceMonitorEvent.DEPARTURE, this, adapter,
-				(Vector<Long>) address.clone());
+		var dme = new DeviceMonitorEvent(DeviceMonitorEvent.DEPARTURE, this, adapter, (Vector<Long>) address.clone());
 
-		for (int i = 0; i < listeners.size(); i++) {
-			DeviceMonitorEventListener listener = (DeviceMonitorEventListener) listeners.elementAt(i);
+		for (var i = 0; i < this.listeners.size(); i++) {
+			var listener = this.listeners.elementAt(i);
 			listener.deviceDeparture(dme);
 		}
 	}
@@ -453,9 +454,8 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 * @param ex The exception that occurred.
 	 */
 	private void fireException(DSPortAdapter adapter, Exception ex) {
-		for (int i = 0; i < listeners.size(); i++) {
-			((DeviceMonitorEventListener) listeners.elementAt(i))
-					.networkException(new DeviceMonitorException(this, adapter, ex));
+		for (var i = 0; i < this.listeners.size(); i++) {
+			this.listeners.elementAt(i).networkException(new DeviceMonitorException(this, adapter, ex));
 		}
 	}
 
@@ -466,7 +466,7 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 * @return The OWPath representing the network path to the device.
 	 */
 	public OWPath getDevicePath(byte[] address) {
-		return getDevicePath(Address.toLong(address));
+		return this.getDevicePath(Address.toLong(address));
 	}
 
 	/**
@@ -476,7 +476,7 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 * @return The OWPath representing the network path to the device.
 	 */
 	public OWPath getDevicePath(String address) {
-		return getDevicePath(Address.toLong(address));
+		return this.getDevicePath(Address.toLong(address));
 	}
 
 	/**
@@ -486,7 +486,7 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 * @return The OWPath representing the network path to the device.
 	 */
 	public OWPath getDevicePath(long address) {
-		return getDevicePath(new Long(address));
+		return this.getDevicePath(Long.valueOf(address));
 	}
 
 	/**
@@ -504,7 +504,7 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 * @return Enumeration of Long objects
 	 */
 	public Enumeration<Long> getAllAddresses() {
-		return deviceAddressHash.keys();
+		return this.deviceAddressHash.keys();
 	}
 
 	// --------
@@ -541,7 +541,7 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 * @return The specific OneWireContainer object of the device
 	 */
 	public static OneWireContainer getDeviceContainer(DSPortAdapter adapter, long address) {
-		return getDeviceContainer(adapter, new Long(address));
+		return getDeviceContainer(adapter, Long.valueOf(address));
 	}
 
 	/**
@@ -589,7 +589,7 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 * @param owc     The specific OneWireContainer object of the device
 	 */
 	public static void putDeviceContainer(long address, OneWireContainer owc) {
-		putDeviceContainer(new Long(address), owc);
+		putDeviceContainer(Long.valueOf(address), owc);
 	}
 
 	/**
@@ -604,3 +604,4 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 		}
 	}
 }
+// CHECKSTYLE:ON

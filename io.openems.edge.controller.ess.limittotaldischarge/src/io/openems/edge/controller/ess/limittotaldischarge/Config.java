@@ -26,7 +26,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Force-Charge SoC [%]", description = "Charging is forced while State of Charge is below Force-Charge-SoC.")
 	int forceChargeSoc() default 10;
 
-	@AttributeDefinition(name = "Force-Charge Power [W]", description = "The charge power during force-charging. Default is Max-Charge-Power divided by 5. Positive value.", required = false)
+	@AttributeDefinition(name = "Force-Charge Power [W]", description = "The charge power during force-charging. If parameter is left empty," //
+			+ "zero or negative, this value is calculated from Max-Charge-Power divided by 5", required = false)
 	int forceChargePower();
 
 	String webconsole_configurationFactory_nameHint() default "Controller Ess Limit Total Discharge [{id}]";

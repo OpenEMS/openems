@@ -17,15 +17,15 @@ public class EdgeApp {
 	private final Logger log = LoggerFactory.getLogger(EdgeApp.class);
 
 	@Activate
-	void activate() {
-		String message = "OpenEMS version [" + OpenemsConstants.VERSION + "] started";
-		String line = Strings.repeat("=", message.length());
+	private void activate() {
+		var message = "OpenEMS version [" + OpenemsConstants.VERSION + "] started";
+		var line = Strings.repeat("=", message.length());
 		this.log.info(line);
 		this.log.info(message);
 		this.log.info(line);
 
 		// Announce Operating System that OpenEMS Edge started
-		String socketName = System.getenv().get("NOTIFY_SOCKET");
+		var socketName = System.getenv().get("NOTIFY_SOCKET");
 		if (socketName != null && socketName.length() != 0) {
 			if (SDNotify.isAvailable()) {
 				SDNotify.sendNotify();
@@ -34,7 +34,7 @@ public class EdgeApp {
 	}
 
 	@Deactivate
-	void deactivate() {
+	private void deactivate() {
 		this.log.debug("Deactivate EdgeApp");
 	}
 

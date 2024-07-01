@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -43,25 +44,24 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * <P>
  * This iButton is primarily used as a read/write portable memory device.
  * </P>
- * 
+ *
  * <H3>Features</H3>
  * <UL>
  * <LI>4096 bits (512 bytes) of read/write nonvolatile memory
  * <LI>256-bit (32-byte) scratchpad ensures integrity of data transfer
  * <LI>Memory partitioned into 256-bit (32-byte) pages for packetizing data
  * <LI>Data integrity assured with strict read/write protocols
- * <LI>Operating temperature range from -40@htmlonly &#176C @endhtmlonly to
- * +70@htmlonly &#176C @endhtmlonly
+ * <LI>Operating temperature range from -40 to +70
  * <LI>Over 10 years of data retention
  * </UL>
- * 
+ *
  * <H3>Memory</H3>
- * 
+ *
  * <P>
  * The memory can be accessed through the objects that are returned from the
  * {@link #getMemoryBanks() getMemoryBanks} method.
  * </P>
- * 
+ *
  * The following is a list of the MemoryBank instances that are returned:
  *
  * <UL>
@@ -86,9 +86,9 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * payload
  * </UL>
  * </UL>
- * 
+ *
  * <H3>Usage</H3>
- * 
+ *
  * <DL>
  * <DD>See the usage example in
  * {@link com.dalsemi.onewire.container.OneWireContainer OneWireContainer} to
@@ -103,10 +103,10 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * <DD><A HREF="http://pdfserv.maxim-ic.com/arpdf/DS1992-DS1994.pdf">
  * http://pdfserv.maxim-ic.com/arpdf/DS1992-DS1994.pdf</A>
  * </DL>
- * 
+ *
  * @see com.dalsemi.onewire.container.MemoryBank
  * @see com.dalsemi.onewire.container.PagedMemoryBank
- * 
+ *
  * @version 0.00, 28 Aug 2000
  * @author DS
  */
@@ -128,7 +128,6 @@ public class OneWireContainer06 extends OneWireContainer {
 	 *      super.setupContainer()
 	 */
 	public OneWireContainer06() {
-		super();
 	}
 
 	/**
@@ -200,6 +199,7 @@ public class OneWireContainer06 extends OneWireContainer {
 	 *
 	 * @return iButton or 1-Wire device name
 	 */
+	@Override
 	public String getName() {
 		return "DS1993";
 	}
@@ -210,6 +210,7 @@ public class OneWireContainer06 extends OneWireContainer {
 	 *
 	 * @return device description
 	 */
+	@Override
 	public String getDescription() {
 		return "4096 bit read/write nonvolatile memory partitioned " + "into sixteen pages of 256 bits each. ";
 	}
@@ -220,14 +221,15 @@ public class OneWireContainer06 extends OneWireContainer {
 	 * MemoryBank}, {@link com.dalsemi.onewire.container.PagedMemoryBank
 	 * PagedMemoryBank}, and {@link com.dalsemi.onewire.container.OTPMemoryBank
 	 * OTPMemoryBank}.
-	 * 
+	 *
 	 * @return <CODE>Enumeration</CODE> of memory banks
 	 */
+	@Override
 	public Enumeration<MemoryBank> getMemoryBanks() {
-		Vector<MemoryBank> bank_vector = new Vector<>(2);
+		var bank_vector = new Vector<MemoryBank>(2);
 
 		// scratchpad
-		MemoryBankScratch scratch = new MemoryBankScratch(this);
+		var scratch = new MemoryBankScratch(this);
 
 		bank_vector.addElement(scratch);
 
@@ -237,3 +239,4 @@ public class OneWireContainer06 extends OneWireContainer {
 		return bank_vector.elements();
 	}
 }
+// CHECKSTYLE:ON

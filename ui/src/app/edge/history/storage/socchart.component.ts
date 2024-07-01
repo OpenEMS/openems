@@ -1,110 +1,135 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
+// @ts-strict-ignore
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { YAxisTitle } from 'src/app/shared/service/utils';
+
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
 
 @Component({
     selector: 'socStorageChart',
-    templateUrl: '../abstracthistorychart.html'
+    templateUrl: '../abstracthistorychart.html',
 })
-export class SocStorageChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class SocStorageChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+    private emergencyCapacityReserveComponents: EdgeConfig.Component[] = [];
 
-    ngOnChanges() {
+    public ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
+        protected override service: Service,
+        protected override translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("storage-single-chart", service, translate);
     }
 
-
-    ngOnInit() {
+    public ngOnInit() {
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
-        this.subscribeChartRefresh();
     }
 
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
+        this.autoSubscribeChartRefresh();
         this.loading = true;
+        this.startSpinner();
+        this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
-                    let result = response.result;
+                    const result = response.result;
                     // convert labels
-                    let labels: Date[] = [];
-                    for (let timestamp of result.timestamps) {
+                    const labels: Date[] = [];
+                    for (const timestamp of result.timestamps) {
                         labels.push(new Date(timestamp));
                     }
                     this.labels = labels;
 
                     // convert datasets
-                    let datasets = [];
-
-                    let moreThanOneESS = Object.keys(result.data).length > 1 ? true : false;
-
-                    this.getChannelAddresses(edge, config).then(channelAddresses => {
-                        channelAddresses.forEach(channelAddress => {
-                            let component = config.getComponent(channelAddress.componentId);
-                            let data = result.data[channelAddress.toString()].map(value => {
-                                if (value == null) {
-                                    return null
-                                } else if (value > 100 || value < 0) {
-                                    return null;
+                    const datasets = [];
+                    const moreThanOneESS = Object.keys(result.data).length > 1 ? true : false;
+                    this.getChannelAddresses(edge, config)
+                        .then(channelAddresses => {
+                            channelAddresses.forEach(channelAddress => {
+                                const component = config.getComponent(channelAddress.componentId);
+                                const data = result.data[channelAddress.toString()]?.map(value => {
+                                    if (value == null) {
+                                        return null;
+                                    } else if (value > 100 || value < 0) {
+                                        return null;
+                                    } else {
+                                        return value;
+                                    }
+                                });
+                                if (!data) {
+                                    return;
                                 } else {
-                                    return value;
+                                    if (channelAddress.channelId === 'EssSoc') {
+                                        datasets.push({
+                                            label: (moreThanOneESS ? this.translate.instant('General.TOTAL') : this.translate.instant('General.soc')),
+                                            data: data,
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: 'rgba(0,223,0,0.05)',
+                                            borderColor: 'rgba(0,223,0,1)',
+                                        });
+                                    }
+                                    if (channelAddress.channelId === 'Soc' && moreThanOneESS) {
+                                        datasets.push({
+                                            label: (channelAddress.componentId == component.alias ? component.id : component.alias),
+                                            data: data,
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: 'rgba(128,128,128,0.05)',
+                                            borderColor: 'rgba(128,128,128,1)',
+                                        });
+                                    }
+                                }
+                                if (channelAddress.channelId === 'ActualReserveSoc') {
+                                    datasets.push({
+                                        label:
+                                            this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.EMERGENCY_RESERVE"),
+                                        data: data,
+                                        borderDash: [3, 3],
+
+                                    });
+                                    this.colors.push({
+                                        backgroundColor: 'rgba(1, 1, 1,0)',
+                                        borderColor: 'rgba(1, 1, 1,1)',
+                                    });
                                 }
                             });
-                            if (!data) {
-                                return;
-                            } else {
-                                if (channelAddress.channelId == 'EssSoc') {
-                                    datasets.push({
-                                        label: (moreThanOneESS ? this.translate.instant('General.total') : this.translate.instant('General.soc')),
-                                        data: data
-                                    })
-                                    this.colors.push({
-                                        backgroundColor: 'rgba(0,223,0,0.05)',
-                                        borderColor: 'rgba(0,223,0,1)',
-                                    })
-                                }
-                                if (channelAddress.channelId == 'Soc' && moreThanOneESS) {
-                                    datasets.push({
-                                        label: (channelAddress.componentId == component.alias ? component.id : component.alias),
-                                        data: data
-                                    })
-                                    this.colors.push({
-                                        backgroundColor: 'rgba(128,128,128,0.05)',
-                                        borderColor: 'rgba(128,128,128,1)',
-                                    })
-                                }
-                            }
+
+                            this.datasets = datasets;
+                            this.loading = false;
+                            this.stopSpinner();
+                        }).finally(async () => {
+                            this.unit = YAxisTitle.PERCENTAGE;
+                            this.formatNumber = '1.0-0';
+                            await this.setOptions(this.options);
                         });
-                    });
-                    this.datasets = datasets;
-                    this.loading = false;
+
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
                     return;
                 });
+
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
                 return;
             });
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();
@@ -114,27 +139,29 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let channeladdresses: ChannelAddress[] = [];
-            channeladdresses.push(new ChannelAddress('_sum', 'EssSoc'))
-            if (config.getComponentIdsImplementingNature('io.openems.edge.ess.api.SymmetricEss').length > 1) {
-                config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !(component.factoryId == 'Ess.Cluster')).forEach(component => {
-                    channeladdresses.push(new ChannelAddress(component.id, 'Soc'))
-                })
+            const channeladdresses: ChannelAddress[] = [];
+            channeladdresses.push(new ChannelAddress('_sum', 'EssSoc'));
+
+            this.emergencyCapacityReserveComponents = config.getComponentsByFactory('Controller.Ess.EmergencyCapacityReserve')
+                .filter(component => component.isEnabled);
+
+            this.emergencyCapacityReserveComponents
+                .forEach(component =>
+                    channeladdresses.push(new ChannelAddress(component.id, 'ActualReserveSoc')),
+                );
+
+            const ess = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss");
+            if (ess.length > 1) {
+                ess.filter(component => !(component.factoryId === 'Ess.Cluster')).forEach(component => {
+                    channeladdresses.push(new ChannelAddress(component.id, 'Soc'));
+                });
             }
             resolve(channeladdresses);
-        })
+        });
     }
 
     protected setLabel() {
-        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-        options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
-            return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
-        }
-        options.scales.yAxes[0].ticks.max = 100;
-        this.options = options;
+        this.options = this.createDefaultChartOptions();
     }
 
     public getChartHeight(): number {

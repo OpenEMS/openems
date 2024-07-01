@@ -1,51 +1,68 @@
-import { EdgeConfig } from '../edge/edgeconfig';
+// @ts-strict-ignore
 import { Edge } from '../edge/edge';
+import { EdgeConfig } from '../edge/edgeconfig';
 
 export enum WidgetClass {
     'Energymonitor',
-    'Autarchy',
-    'Selfconsumption',
+    'Common_Autarchy',
+    'Common_Selfconsumption',
     'Storage',
     'Grid',
-    'Production',
+    'Common_Production',
     'Consumption',
+    'Controller_ChannelThreshold',
 }
 
 export enum WidgetNature {
     'io.openems.edge.evcs.api.Evcs',
     'io.openems.impl.controller.channelthreshold.ChannelThresholdController', // TODO deprecated
+    'io.openems.edge.io.api.DigitalInput',
 }
 
 export enum WidgetFactory {
-    'Controller.ChannelThreshold',
-    'Controller.Io.FixDigitalOutput',
-    'Controller.IO.ChannelSingleThreshold',
-    'Controller.IO.HeatingElement',
-    'Controller.CHP.SoC',
     'Controller.Asymmetric.PeakShaving',
+    'Controller.ChannelThreshold',
+    'Controller.CHP.SoC',
+    'Controller.Ess.DelayedSellToGrid',
+    'Controller.Ess.FixActivePower',
+    'Controller.Ess.GridOptimizedCharge',
+    'Controller.Ess.Time-Of-Use-Tariff.Discharge',
+    'Controller.Ess.Time-Of-Use-Tariff',
+    'Controller.IO.ChannelSingleThreshold',
+    'Controller.Io.FixDigitalOutput',
+    'Controller.IO.HeatingElement',
+    'Controller.Io.HeatPump.SgReady',
     'Controller.Symmetric.PeakShaving',
+    'Controller.TimeslotPeakshaving',
     'Evcs.Cluster.PeakShaving',
-    'Evcs.Cluster.SelfConsumtion',
+    'Evcs.Cluster.SelfConsumption',
 }
 
+export type Icon = {
+    color: string;
+    size: string;
+    name: string;
+};
+
 export class Widget {
-    name: WidgetNature | WidgetFactory | String;
-    componentId: string
+    public name: WidgetNature | WidgetFactory | string;
+    public componentId: string;
 }
 
 export class Widgets {
 
     public static parseWidgets(edge: Edge, config: EdgeConfig): Widgets {
 
-        let classes: String[] = Object.values(WidgetClass) //
+        const classes: string[] = Object.values(WidgetClass) //
             .filter(v => typeof v === 'string')
             .filter(clazz => {
                 if (!edge.isVersionAtLeast('2018.8')) {
+
                     // no filter for deprecated versions
                     return true;
                 }
                 switch (clazz) {
-                    case 'Autarchy':
+                    case 'Common_Autarchy':
                     case 'Grid':
                         return config.hasMeter();
                     case 'Energymonitor':
@@ -57,23 +74,28 @@ export class Widgets {
                         }
                     case 'Storage':
                         return config.hasStorage();
-                    case 'Production':
-                    case 'Selfconsumption':
+                    case 'Common_Production':
+                    case 'Common_Selfconsumption':
                         return config.hasProducer();
-                };
+                    case 'Controller_ChannelThreshold':
+                        return config.getComponentIdsByFactory('Controller.ChannelThreshold')?.length > 0;
+                }
                 return false;
             }).map(clazz => clazz.toString());
-        let list: Widget[] = [];
+        const list: Widget[] = [];
 
-        for (let nature of Object.values(WidgetNature).filter(v => typeof v === 'string')) {
-            for (let componentId of config.getComponentIdsImplementingNature(nature.toString())) {
+        for (const nature of Object.values(WidgetNature).filter(v => typeof v === 'string')) {
+            for (const componentId of config.getComponentIdsImplementingNature(nature.toString())) {
+                if (nature === 'io.openems.edge.io.api.DigitalInput' && list.some(e => e.name === 'io.openems.edge.io.api.DigitalInput')) {
+                    continue;
+                }
                 if (config.getComponent(componentId).isEnabled) {
                     list.push({ name: nature, componentId: componentId });
                 }
             }
         }
-        for (let factory of Object.values(WidgetFactory).filter(v => typeof v === 'string')) {
-            for (let componentId of config.getComponentIdsByFactory(factory.toString())) {
+        for (const factory of Object.values(WidgetFactory).filter(v => typeof v === 'string')) {
+            for (const componentId of config.getComponentIdsByFactory(factory.toString())) {
                 if (config.getComponent(componentId).isEnabled) {
                     list.push({ name: factory, componentId: componentId });
                 }
@@ -82,12 +104,20 @@ export class Widgets {
 
         // explicitely sort ChannelThresholdControllers by their outputChannelAddress
         list.sort((w1, w2) => {
-            const outputChannelAddress1 = config.getComponentProperties(w1.componentId)['outputChannelAddress'];
-            const outputChannelAddress2 = config.getComponentProperties(w2.componentId)['outputChannelAddress'];
-            if (outputChannelAddress1 && outputChannelAddress2) {
-                return outputChannelAddress1.localeCompare(outputChannelAddress2);
-            } else if (outputChannelAddress1) {
-                return 1;
+            if (w1.name === 'Controller.IO.ChannelSingleThreshold' && w2.name === 'Controller.IO.ChannelSingleThreshold') {
+                let outputChannelAddress1: string | string[] = config.getComponentProperties(w1.componentId)['outputChannelAddress'];
+                if (typeof outputChannelAddress1 !== 'string') {
+                    // Takes only the first output for simplicity reasons
+                    outputChannelAddress1 = outputChannelAddress1[0];
+                }
+                let outputChannelAddress2: string | string[] = config.getComponentProperties(w2.componentId)['outputChannelAddress'];
+                if (typeof outputChannelAddress2 !== 'string') {
+                    // Takes only the first output for simplicity reasons
+                    outputChannelAddress2 = outputChannelAddress2[0];
+                }
+                if (outputChannelAddress1 && outputChannelAddress2) {
+                    return outputChannelAddress1.localeCompare(outputChannelAddress2);
+                }
             }
 
             return w1.componentId.localeCompare(w1.componentId);
@@ -108,14 +138,18 @@ export class Widgets {
         /**
          * List of Widget-Classes.
          */
-        public readonly classes: String[]
+        public readonly classes: string[],
     ) {
         // fill names
-        for (let widget of list) {
-            let name: string = widget.name.toString();
+        for (const widget of list) {
+            const name: string = widget.name.toString();
             if (!this.names.includes(name)) {
                 this.names.push(name);
             }
         }
     }
+}
+
+export enum ProductType {
+    HOME = "home",
 }

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
  *
@@ -53,7 +54,7 @@ import com.dalsemi.onewire.utils.IOHelper;
  *
  * <P>
  * A typical use case for this class might be as follows:
- * 
+ *
  * <pre>
  * OneWireContainer18 coprOWC18 = new OneWireContainer18(adapter, address);
  *
@@ -120,10 +121,9 @@ import com.dalsemi.onewire.utils.IOHelper;
  * @version 1.00
  * @author SKH
  */
-@SuppressWarnings({ "unused" })
 public class SHADebit extends SHATransaction {
 	/** Used for fast FF copy */
-	private static final byte[] ffBlock = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+	private static final byte[] ffBlock = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
 			(byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 
 	// ************************************************************** //
@@ -163,7 +163,7 @@ public class SHADebit extends SHATransaction {
 
 	/** User apps should never call this */
 	protected SHADebit() {
-		;
+
 	}
 
 	/**
@@ -178,7 +178,7 @@ public class SHADebit extends SHATransaction {
 	public SHADebit(SHAiButtonCopr copr) {
 		super(copr);
 
-		resetParameters();
+		this.resetParameters();
 	}
 
 	/**
@@ -211,7 +211,7 @@ public class SHADebit extends SHATransaction {
 	 * </P>
 	 *
 	 * <P>
-	 * You can set the value of the intial account balance by calling
+	 * You can set the value of the initial account balance by calling
 	 * <code>transaction.setParameter(SHADebit.INITIAL_AMOUNT,10000)</code> where
 	 * the value of the units is in cents (i.e. 10000 = $100).
 	 * </P>
@@ -237,22 +237,23 @@ public class SHADebit extends SHATransaction {
 	 * @see SHAiButtonUser#writeAccountData(byte[],int)
 	 * @see #getLastError()
 	 */
+	@Override
 	public boolean setupTransactionData(SHAiButtonUser user) throws OneWireException, OneWireIOException {
 		// clear any error
-		lastError = NO_ERROR;
+		this.lastError = NO_ERROR;
 
 		// not in critical path, so malloc'ing is okay
-		byte[] accountData = new byte[32];
+		var accountData = new byte[32];
 
-		return writeTransactionData(user, 0, this.initialAmount, accountData);
+		return this.writeTransactionData(user, 0, this.initialAmount, accountData);
 	}
 
 	// prevent malloc'ing in the critical path
-	private byte[] verifyUser_fullBindCode = new byte[15];
-	private byte[] verifyUser_scratchpad = new byte[32];
-	private byte[] verifyUser_accountData = new byte[32];
-	private byte[] verifyUser_mac = new byte[20];
-	private byte[] verifyUser_chlg = new byte[3];
+	private final byte[] verifyUser_fullBindCode = new byte[15];
+	private final byte[] verifyUser_scratchpad = new byte[32];
+	private final byte[] verifyUser_accountData = new byte[32];
+	private final byte[] verifyUser_mac = new byte[20];
+	private final byte[] verifyUser_chlg = new byte[3];
 
 	/**
 	 * <P>
@@ -279,26 +280,27 @@ public class SHADebit extends SHATransaction {
 	 * @see SHAiButtonUser#readAccountData(byte[],int,byte[],int,byte[],int)
 	 * @see #getLastError()
 	 */
+	@Override
 	public synchronized boolean verifyUser(SHAiButtonUser user) throws OneWireException, OneWireIOException {
 		// clear any error
 		this.lastError = SHATransaction.NO_ERROR;
 
 		// local vars
-		byte[] fullBindCode = this.verifyUser_fullBindCode;
-		byte[] scratchpad = this.verifyUser_scratchpad;
-		byte[] accountData = this.verifyUser_accountData;
-		byte[] mac = this.verifyUser_mac;
-		byte[] chlg = this.verifyUser_chlg;
+		var fullBindCode = this.verifyUser_fullBindCode;
+		var scratchpad = this.verifyUser_scratchpad;
+		var accountData = this.verifyUser_accountData;
+		var mac = this.verifyUser_mac;
+		var chlg = this.verifyUser_chlg;
 
 		// Generate random challenge. This must be done on the
 		// coprocessor, otherwise flags aren't setup for VALIDATE_PAGE.
-		if (!copr.generateChallenge(0, chlg, 0)) {
-			lastError = COPR_COMPUTE_CHALLENGE_FAILED;
+		if (!this.copr.generateChallenge(0, chlg, 0)) {
+			this.lastError = COPR_COMPUTE_CHALLENGE_FAILED;
 			return false;
 		}
 
 		// have user answer the challenge
-		int wcc = user.readAccountData(chlg, 0, accountData, 0, mac, 0);
+		var wcc = user.readAccountData(chlg, 0, accountData, 0, mac, 0);
 
 		if (wcc < 0) {
 			if (user.hasWriteCycleCounter()) {
@@ -340,7 +342,8 @@ public class SHADebit extends SHATransaction {
 		}
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
 
-		if (!copr.verifyAuthentication(fullBindCode, accountData, scratchpad, mac, user.getAuthorizationCommand())) {
+		if (!this.copr.verifyAuthentication(fullBindCode, accountData, scratchpad, mac,
+				user.getAuthorizationCommand())) {
 			this.lastError = SHATransaction.COPROCESSOR_FAILURE;
 			return false;
 		}
@@ -348,11 +351,9 @@ public class SHADebit extends SHATransaction {
 		return true;
 	}
 
-	// prevent malloc'ing in the critical path
-	private byte[] verifyData_fullBindCode = new byte[32];
-	private byte[] verifyData_scratchpad = new byte[32];
-	private byte[] verifyData_accountData = new byte[32];
-	private byte[] verifyData_mac = new byte[20];
+	private final byte[] verifyData_scratchpad = new byte[32];
+	private final byte[] verifyData_accountData = new byte[32];
+	private final byte[] verifyData_mac = new byte[20];
 
 	/**
 	 * <P>
@@ -390,23 +391,24 @@ public class SHADebit extends SHATransaction {
 	 * @see SHAiButtonCopr#verifySignature(byte[],byte[],byte[])
 	 * @see #getLastError()
 	 */
+	@Override
 	public synchronized boolean verifyTransactionData(SHAiButtonUser user) throws OneWireException, OneWireIOException {
 		// clear any error
 		this.lastError = NO_ERROR;
 
 		// init local vars
-		byte[] scratchpad = this.verifyData_scratchpad;
-		byte[] accountData = this.verifyData_accountData;
-		byte[] verify_mac = this.verifyData_mac;
+		var scratchpad = this.verifyData_scratchpad;
+		var accountData = this.verifyData_accountData;
+		var verify_mac = this.verifyData_mac;
 
 		// if verifyUser was called, this is a read of cached data
-		int wcc = user.getWriteCycleCounter();
+		var wcc = user.getWriteCycleCounter();
 
 		// if verifyUser was called, this is a read of cached data
 		user.readAccountData(accountData, 0);
 
 		// get the user's balance from accountData
-		int balance = Convert.toInt(accountData, I_BALANCE, 3);
+		var balance = Convert.toInt(accountData, I_BALANCE, 3);
 		if (balance < 0) {
 			this.lastError = USER_BAD_ACCOUNT_DATA;
 			return false;
@@ -417,7 +419,7 @@ public class SHADebit extends SHATransaction {
 		System.arraycopy(accountData, I_SIGNATURE, verify_mac, 0, 20);
 
 		// now lets reset the mac
-		copr.getInitialSignature(accountData, I_SIGNATURE);
+		this.copr.getInitialSignature(accountData, I_SIGNATURE);
 		// and reset the CRC
 		accountData[I_FILE_CRC16 + 0] = (byte) 0;
 		accountData[I_FILE_CRC16 + 1] = (byte) 0;
@@ -438,9 +440,9 @@ public class SHADebit extends SHATransaction {
 		scratchpad[12] = (byte) user.getAccountPageNumber();
 		user.getAddress(scratchpad, 13, 7);
 
-		copr.getSigningChallenge(scratchpad, 20);
+		this.copr.getSigningChallenge(scratchpad, 20);
 
-		if (!copr.verifySignature(accountData, scratchpad, verify_mac)) {
+		if (!this.copr.verifySignature(accountData, scratchpad, verify_mac)) {
 			this.lastError = COPROCESSOR_FAILURE;
 			return false;
 		}
@@ -449,9 +451,9 @@ public class SHADebit extends SHATransaction {
 	}
 
 	// prevent malloc'ing in critical path
-	private byte[] executeTransaction_accountData = new byte[32];
-	private byte[] executeTransaction_oldAcctData = new byte[32];
-	private byte[] executeTransaction_newAcctData = new byte[32];
+	private final byte[] executeTransaction_accountData = new byte[32];
+	private final byte[] executeTransaction_oldAcctData = new byte[32];
+	private final byte[] executeTransaction_newAcctData = new byte[32];
 
 	// private byte[] executeTransaction_scratchpad = new byte[32];
 	/**
@@ -495,6 +497,7 @@ public class SHADebit extends SHATransaction {
 	 * @see SHAiButtonCopr#createDataSignature(byte[],byte[],byte[],int)
 	 * @see #getLastError()
 	 */
+	@Override
 	public synchronized boolean executeTransaction(SHAiButtonUser user, boolean verifySuccess)
 			throws OneWireException, OneWireIOException {
 		// clear any error
@@ -502,13 +505,13 @@ public class SHADebit extends SHATransaction {
 
 		// init local vars
 		// holds the working copy of account data
-		byte[] accountData = this.executeTransaction_accountData;
+		var accountData = this.executeTransaction_accountData;
 		// holds the backup copy of account data before writing
-		byte[] oldAcctData = this.executeTransaction_oldAcctData;
+		var oldAcctData = this.executeTransaction_oldAcctData;
 		// holds the account data read back for checking
-		byte[] newAcctData = this.executeTransaction_newAcctData;
+		var newAcctData = this.executeTransaction_newAcctData;
 		// just make the transaction ID a random number, so it changes
-		int transID = rand.nextInt();
+		var transID = rand.nextInt();
 
 		// if verifyUser was called, this is a read of cached data
 		user.readAccountData(accountData, 0);
@@ -517,7 +520,7 @@ public class SHADebit extends SHATransaction {
 		System.arraycopy(accountData, 0, oldAcctData, 0, 32);
 
 		// get the user's balance from accountData
-		int balance = Convert.toInt(accountData, I_BALANCE, 3);
+		var balance = Convert.toInt(accountData, I_BALANCE, 3);
 
 		// if there are insufficient funds
 		if (this.debitAmount > balance) {
@@ -526,30 +529,30 @@ public class SHADebit extends SHATransaction {
 		}
 
 		// update the user's balance
-		this.userBalance = (balance - this.debitAmount);
+		this.userBalance = balance - this.debitAmount;
 
-		boolean success = writeTransactionData(user, transID, this.userBalance, accountData);
+		var success = this.writeTransactionData(user, transID, this.userBalance, accountData);
 
 		// if write didn't succeeded or if we need to perform
 		// a verification step anyways, let's double-check what
 		// the user has on the button.
 		if (verifySuccess || !success) {
-			boolean dataOK = false;
-			int cnt = MAX_RETRY_CNT;
+			var dataOK = false;
+			var cnt = MAX_RETRY_CNT;
 			do {
 				// calling verify user re-issues a challenge-response
 				// and reloads the cached account data in the user object.
-				if (verifyUser(user)) {
+				if (this.verifyUser(user)) {
 					// compare the user's account data against the working
 					// copy and the backup copy.
 					if (user.readAccountData(newAcctData, 0)) {
-						boolean isOld = true;
-						boolean isCur = true;
-						for (int i = 0; i < 32 && (isOld || isCur); i++) {
+						var isOld = true;
+						var isCur = true;
+						for (var i = 0; i < 32 && (isOld || isCur); i++) {
 							// match the backup
-							isOld = isOld && (newAcctData[i] == oldAcctData[i]);
+							isOld = isOld && newAcctData[i] == oldAcctData[i];
 							// match the working copy
-							isCur = isCur && (newAcctData[i] == accountData[i]);
+							isCur = isCur && newAcctData[i] == accountData[i];
 						}
 						if (isOld) {
 							// if it matches the backup copy, we didn't write anything
@@ -561,7 +564,7 @@ public class SHADebit extends SHATransaction {
 						} else {
 							// iBUTTON DATA IS TOTALLY HOSED
 							// keep trying to get account data on the button
-							success = writeTransactionData(user, transID, this.userBalance, accountData);
+							success = this.writeTransactionData(user, transID, this.userBalance, accountData);
 						}
 					}
 				}
@@ -577,7 +580,7 @@ public class SHADebit extends SHATransaction {
 		return success;
 	}
 
-	private byte[] writeTransactionData_scratchpad = new byte[32];
+	private final byte[] writeTransactionData_scratchpad = new byte[32];
 
 	/**
 	 * Does the writing of transaction data to the user button as well as actually
@@ -586,9 +589,9 @@ public class SHADebit extends SHATransaction {
 	private final boolean writeTransactionData(SHAiButtonUser user, int transID, int balance, byte[] accountData)
 			throws OneWireException, OneWireIOException {
 		// init local vars
-		SHAiButtonCopr copr = this.copr;
-		int acctPageNum = user.getAccountPageNumber();
-		byte[] scratchpad = this.writeTransactionData_scratchpad;
+		var copr = this.copr;
+		var acctPageNum = user.getAccountPageNumber();
+		var scratchpad = this.writeTransactionData_scratchpad;
 
 		// length of the TMEX file - 28 data, 1 cont. ptr
 		accountData[I_FILE_LENGTH] = (byte) 29;
@@ -619,7 +622,7 @@ public class SHADebit extends SHATransaction {
 
 		// we need to increment the writeCycleCounter since we will be writing to the
 		// part
-		int wcc = user.getWriteCycleCounter();
+		var wcc = user.getWriteCycleCounter();
 		if (wcc > 0) {
 			// copy the write cycle counter into scratchpad
 			Convert.toByteArray(wcc + 1, scratchpad, 8, 4);
@@ -643,7 +646,7 @@ public class SHADebit extends SHATransaction {
 		copr.createDataSignature(accountData, scratchpad, accountData, I_SIGNATURE);
 
 		// after signature make sure to dump in the inverted CRC
-		int crc = ~CRC16.compute(accountData, 0, accountData[I_FILE_LENGTH] + 1, acctPageNum);
+		var crc = ~CRC16.compute(accountData, 0, accountData[I_FILE_LENGTH] + 1, acctPageNum);
 
 		// set the the crc16 bytes
 		accountData[I_FILE_CRC16 + 0] = (byte) crc;
@@ -662,12 +665,14 @@ public class SHADebit extends SHATransaction {
 
 		// write it to the button
 		try {
-			if (user.writeAccountData(accountData, 0))
+			if (user.writeAccountData(accountData, 0)) {
 				return true;
+			}
 
 		} catch (OneWireException owe) {
-			if (DEBUG)
+			if (DEBUG) {
 				IOHelper.writeLine(owe);
+			}
 		}
 
 		this.lastError = SHATransaction.USER_WRITE_DATA_FAILED;
@@ -698,14 +703,15 @@ public class SHADebit extends SHATransaction {
 	 *
 	 * @throws IllegalArgumentException if an invalid parameter type is requested.
 	 */
+	@Override
 	public synchronized int getParameter(int type) {
 		switch (type) {
 		case DEBIT_AMOUNT:
-			return debitAmount;
+			return this.debitAmount;
 		case INITIAL_AMOUNT:
-			return initialAmount;
+			return this.initialAmount;
 		case USER_BALANCE:
-			return userBalance;
+			return this.userBalance;
 		default:
 			throw new IllegalArgumentException("Invalid parameter type");
 		}
@@ -731,15 +737,17 @@ public class SHADebit extends SHATransaction {
 	 *
 	 * @throws IllegalArgumentException if an invalid parameter type is requested.
 	 */
+	@Override
 	public synchronized boolean setParameter(int type, int param) {
-		if (param <= 0)
+		if (param <= 0) {
 			return false;
+		}
 		switch (type) {
 		case DEBIT_AMOUNT:
-			debitAmount = param;
+			this.debitAmount = param;
 			break;
 		case INITIAL_AMOUNT:
-			initialAmount = param;
+			this.initialAmount = param;
 			break;
 		default:
 			return false;
@@ -752,10 +760,12 @@ public class SHADebit extends SHATransaction {
 	 * Resets all transaction parameters to default values
 	 * </p>
 	 */
+	@Override
 	public synchronized void resetParameters() {
-		debitAmount = 50; // 50 cents
-		initialAmount = 10000; // 100 dollars
-		userBalance = 0; // 0 dollars
+		this.debitAmount = 50; // 50 cents
+		this.initialAmount = 10000; // 100 dollars
+		this.userBalance = 0; // 0 dollars
 	}
 
 }
+// CHECKSTYLE:ON

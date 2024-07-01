@@ -73,7 +73,9 @@ public enum ErrorCodeChannelId1 implements ChannelId {
 	STATE_INPUT_SLOT_Blackfin_1(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.UNDEFINED) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
-			.needsHardReset(true) // after this error it was even not possible to acknowledge it with MR-Tool, so a hard reset has been necessary
+			.needsHardReset(true)
+			// after this error it was even not possible to acknowledge it with MR-Tool, so
+			// a hard reset has been necessary
 			.code(0x06000A) //
 			.text("InputSlot Timeout")),
 	STATE_COM_SLOT_Sharc_1(new ErrorDoc(Level.WARNING) //
@@ -407,7 +409,7 @@ public enum ErrorCodeChannelId1 implements ChannelId {
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
 			.needsHardReset(true) //
 			.code(0x01000F) //
-			.text("Array oveflow")),
+			.text("Array overflow")),
 	STATE_AUTONOM_TEST_SW_SOFTWARE_1(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.UNDEFINED) //
 			.reactionLevel(ReactionLevel.INFO) //
@@ -432,12 +434,12 @@ public enum ErrorCodeChannelId1 implements ChannelId {
 			.needsHardReset(false) //
 			.code(0x010013) //
 			.text("voltage not zero for Blackstart")),
-	STATE_VOLTAGE_SYNC_NOT_SUCCEDDED_SOFTWARE_1(new ErrorDoc(Level.WARNING) //
+	STATE_VOLTAGE_SYNC_NOT_SUCCEEDED_SOFTWARE_1(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.UNDEFINED) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
 			.needsHardReset(false) //
 			.code(0x010014) //
-			.text("voltage sync not succedded")),
+			.text("voltage sync not succeeded")),
 	STATE_VOLTAGE_NOT_OK_FOR_SYNC_V_SOFTWARE_1(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.UNDEFINED) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
@@ -455,7 +457,7 @@ public enum ErrorCodeChannelId1 implements ChannelId {
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
 			.needsHardReset(false) //
 			.code(0x010017) //
-			.text("FRT Error occured")),
+			.text("FRT Error occurred")),
 	STATE_IDC_OVERCURRENT_SOFTWARE_1(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.UNDEFINED) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
@@ -877,7 +879,13 @@ public enum ErrorCodeChannelId1 implements ChannelId {
 			.reactionLevel(ReactionLevel.WARNING) //
 			.needsHardReset(false) //
 			.code(0x04031F) //
-			.text("Warning: Fan Fault")),;
+			.text("Warning: Fan Fault")),
+	FLOAT_UNDERFLOW_FOR_PROPERTY(new ErrorDoc(Level.WARNING) //
+			.acknowledge(Acknowledge.UNDEFINED) //
+			.reactionLevel(ReactionLevel.INFO) //
+			.needsHardReset(false) //
+			.code(0x08000C) //
+			.text("Float underflow for property")),;
 
 	private final Doc doc;
 

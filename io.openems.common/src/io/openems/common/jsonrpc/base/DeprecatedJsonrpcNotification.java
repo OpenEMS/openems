@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 /**
  * Represents a wrapper around JSON-RPC Notification for compatibility with
  * deprecated OpenEMS Edge.
- * 
+ *
  * <pre>
  * { "..." }
  * </pre>

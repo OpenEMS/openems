@@ -2,6 +2,8 @@
 
 OneWire is a widely used protocol for home automation. It is used by sensors like thermometers.
 
+== Setup
+
 This implementation directly talks to the OneWire busmaster, e.g. a DS9490R USB dongle, without requiring the OneWire File System (OWFS). 
 It therefore requires the natively compiled C library by the manufacturer of the OneWire chip Maxim Integrated.
 This library is then accessed using Java JNI.
@@ -18,3 +20,69 @@ The library needs exclusive access to the busmaster.
 
 . Unload the default Linux driver: `rmmod ds2490`
 . Block the driver from loading on next boot `echo blacklist ds2490 > /etc/modprobe.d/ds2490.conf`
+
+== Identifying devices
+
+The OneWire Bridge provides a JSON-RPC Request that reads all devices connected to the OneWire bus.
+
+Example: read via OpenEMS Backend
+
+[source,json]
+----
+{
+  "method": "edgeRpc",
+  "params": {
+    "edgeId": "edge0",
+    "payload":{
+      "method": "componentJsonApi",
+      "params": {
+        "componentId": "onewire0",
+        "payload": {
+          "method": "getDevices",
+          "params": {}
+        }
+      }
+    }
+  }
+}
+----
+
+Example Response:
+
+[source,json]
+----
+{
+  "jsonrpc":"2.0",
+  "id":"UUID",
+  "result":{
+    "payload":{
+      "jsonrpc":"2.0",
+      "id":"UUID",
+      "result":{
+        "devices":[
+          {
+            "address":"4D0000094xxxxxxx",
+            "name":"DS18B20",
+            "alternateName":"DS1820B, DS18B20X",
+            "description":"Digital thermometer measures temperatures from -55C to 125C in 0.75 seconds (max).  +/- 0.5C accuracy between -10C and 85C. Thermometer resolution is programmable at 9, 10, 11, and 12 bits. ",
+            "details":{
+              "type":"TemperatureContainer",
+              "temperature":17.5625
+            }
+          },
+          {
+            "address":"6F0000022xxxxxxx",
+            "name":"DS2438",
+            "alternateName":"Smart Battery Monitor",
+            "description":"1-Wire device that integrates the total current charging or discharging through a battery and stores it in a register. It also returns the temperature (accurate to 2 degrees celsius), as well as the instantaneous current and voltage and also provides 40 bytes of EEPROM storage.",
+            "details":{
+              "type":"TemperatureContainer",
+              "temperature":19.3125
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+----

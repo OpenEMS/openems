@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
  *
@@ -138,7 +139,7 @@ public class SHAiButtonCopr {
 	protected int authPageNumber = -1;
 
 	/**
-	 * Any auxilliary data stored on this coprocessor
+	 * Any auxiliary data stored on this coprocessor
 	 */
 	protected String auxData;
 
@@ -212,7 +213,7 @@ public class SHAiButtonCopr {
 	 * @see #SHAiButtonCopr(OneWireContainer18,String)
 	 */
 	protected SHAiButtonCopr() {
-		;
+
 	}
 
 	/**
@@ -254,8 +255,8 @@ public class SHAiButtonCopr {
 	 *                           installation on user buttons.
 	 * @param l_bindCode         the binding code used to finalize secret
 	 *                           installation on user buttons.
-	 * @param l_auxData          any auxilliary or miscellaneous data to be stored
-	 *                           on the coprocessor.
+	 * @param l_auxData          any auxiliary or miscellaneous data to be stored on
+	 *                           the coprocessor.
 	 * @param l_initialSignature the 20-byte initial MAC placed in user account data
 	 *                           before generating actual MAC.
 	 * @param l_signingChlg      the 3-byte challenge used for signing user account
@@ -284,46 +285,53 @@ public class SHAiButtonCopr {
 		this.lastError = SHAiButtonCopr.NO_ERROR;
 
 		// Do some bounds checking on our array data.
-		if (l_bindData.length != 32)
+		if (l_bindData.length != 32) {
 			throw new OneWireException("Invalid Binding Data");
-		if (l_bindCode.length != 7)
+		}
+		if (l_bindCode.length != 7) {
 			throw new OneWireException("Invalid Binding Code");
-		if (l_signingChlg.length != 3)
+		}
+		if (l_signingChlg.length != 3) {
 			throw new OneWireException("Invalid Signing Challenge");
-		if (l_serviceFilename.length < 4)
+		}
+		if (l_serviceFilename.length < 4) {
 			throw new OneWireException("Invalid Service Filename");
-		if (l_signPageNumber != 0 && l_signPageNumber != 8)
+		}
+		if (l_signPageNumber != 0 && l_signPageNumber != 8) {
 			throw new OneWireException("Invalid Signing Page Number (must be 0 or 8)");
+		}
 
 		// Check to see if this coprocessor's authentication secret
 		// is appropriately padded to be used with a DS1961S
-		this.DS1961Scompatible = ((l_authSecret.length % 47) == 0);
-		int secretDiv = l_authSecret.length / 47;
-		for (int j = 0; j < secretDiv && DS1961Scompatible; j++) {
-			int offset = 47 * j;
-			for (int i = 32; i < 36 && this.DS1961Scompatible; i++)
-				this.DS1961Scompatible = (l_authSecret[i + offset] == (byte) 0x0FF);
-			for (int i = 44; i < 47 && this.DS1961Scompatible; i++)
-				this.DS1961Scompatible = (l_authSecret[i + offset] == (byte) 0x0FF);
+		this.DS1961Scompatible = l_authSecret.length % 47 == 0;
+		var secretDiv = l_authSecret.length / 47;
+		for (var j = 0; j < secretDiv && this.DS1961Scompatible; j++) {
+			var offset = 47 * j;
+			for (var i = 32; i < 36 && this.DS1961Scompatible; i++) {
+				this.DS1961Scompatible = l_authSecret[i + offset] == (byte) 0x0FF;
+			}
+			for (var i = 44; i < 47 && this.DS1961Scompatible; i++) {
+				this.DS1961Scompatible = l_authSecret[i + offset] == (byte) 0x0FF;
+			}
 		}
 
 		// get the current month, date, and year
-		Calendar c = Calendar.getInstance();
-		int month = c.get(Calendar.MONTH) + 1;
-		int date = c.get(Calendar.DATE);
-		int year = c.get(Calendar.YEAR) - 1900;
-		byte yearMSB = (byte) ((year >> 8) & 0x0FF);
-		byte yearLSB = (byte) (year & 0x0FF);
+		var c = Calendar.getInstance();
+		var month = c.get(Calendar.MONTH) + 1;
+		var date = c.get(Calendar.DATE);
+		var year = c.get(Calendar.YEAR) - 1900;
+		var yearMSB = (byte) (year >> 8 & 0x0FF);
+		var yearLSB = (byte) (year & 0x0FF);
 
 		try {
 			if (l_formatDevice) {
 				// format if necessary
-				OWFile f = new OWFile(l_owc, coprFilename);
+				var f = new OWFile(l_owc, coprFilename);
 				f.format();
 				f.close();
 			}
 			// Create the service file
-			OWFileOutputStream fos = new OWFileOutputStream(l_owc, coprFilename);
+			var fos = new OWFileOutputStream(l_owc, coprFilename);
 			fos.write(l_serviceFilename, 0, 4);
 			fos.write(l_serviceFileExt);
 			fos.write(l_signPageNumber);
@@ -344,7 +352,7 @@ public class SHAiButtonCopr {
 			fos.write(l_initialSignature, 0, (byte) l_initialSignature.length);
 			fos.write(l_auxData, 0, (byte) l_auxData.length);
 			fos.write(l_encCode);
-			fos.write(DS1961Scompatible ? 0x55 : 0x00);
+			fos.write(this.DS1961Scompatible ? 0x55 : 0x00);
 			fos.flush();
 			fos.close();
 		} catch (Exception ioe) {
@@ -353,12 +361,14 @@ public class SHAiButtonCopr {
 		}
 
 		// Install the system signing secret, used to sign and validate all user data
-		if (!l_owc.installMasterSecret(l_signPageNumber, l_signingSecret, l_signPageNumber & 7))
+		if (!l_owc.installMasterSecret(l_signPageNumber, l_signingSecret, l_signPageNumber & 7)) {
 			throw new OneWireException("Could not install signing secret");
+		}
 
 		// Install the system authentication secret, used to authenticate users
-		if (!l_owc.installMasterSecret(l_authPageNumber, l_authSecret, l_authPageNumber & 7))
+		if (!l_owc.installMasterSecret(l_authPageNumber, l_authSecret, l_authPageNumber & 7)) {
 			throw new OneWireException("Could not install authentication secret");
+		}
 
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 		if (DEBUG) {
@@ -420,7 +430,7 @@ public class SHAiButtonCopr {
 	 * @see #SHAiButtonCopr(OneWireContainer18,String,boolean,int,int,int,int,int,byte,byte[],byte[],byte[],byte[],byte[],byte[],byte[],byte[],byte[])
 	 */
 	public SHAiButtonCopr(OneWireContainer18 owc, String coprFilename) throws OneWireException, OneWireIOException {
-		setiButton(owc, coprFilename);
+		this.setiButton(owc, coprFilename);
 	}
 
 	// ***********************************************************************
@@ -467,26 +477,29 @@ public class SHAiButtonCopr {
 
 		OWFileInputStream fis = null;
 		try {
-			if (DEBUG)
+			if (DEBUG) {
 				IOHelper.writeLine("opening file: " + coprFilename + " on token: " + owc);
+			}
 			fis = new OWFileInputStream(owc, coprFilename);
 		} catch (OWFileNotFoundException e) {
-			if (DEBUG)
+			if (DEBUG) {
 				e.printStackTrace();
+			}
 			throw new OneWireIOException("Coprocessor service file Not found: " + e);
 		}
 		try {
 			// configures this object from the info in the given stream
-			fromStream(fis);
+			this.fromStream(fis);
 		} catch (IOException ioe) {
-			if (DEBUG)
+			if (DEBUG) {
 				ioe.printStackTrace();
-			throw new OneWireException("Bad Data in Coproccessor Service File: " + ioe);
+			}
+			throw new OneWireException("Bad Data in Coprocessor Service File: " + ioe);
 		} finally {
 			try {
 				fis.close();
 			} catch (IOException ioe) {
-				/* well, at least I tried! */;
+				/* well, at least I tried! */
 			}
 		}
 
@@ -496,19 +509,19 @@ public class SHAiButtonCopr {
 			IOHelper.writeLine("Loaded Coprocessor");
 			IOHelper.writeLine("address");
 			IOHelper.writeBytesHex(owc.getAddress());
-			IOHelper.writeLine("signPageNumber: " + signPageNumber);
-			IOHelper.writeLine("authPageNumber: " + authPageNumber);
-			IOHelper.writeLine("wspcPageNumber: " + wspcPageNumber);
+			IOHelper.writeLine("signPageNumber: " + this.signPageNumber);
+			IOHelper.writeLine("authPageNumber: " + this.authPageNumber);
+			IOHelper.writeLine("wspcPageNumber: " + this.wspcPageNumber);
 			IOHelper.writeLine("serviceFilename");
-			IOHelper.writeBytesHex(filename);
+			IOHelper.writeBytesHex(this.filename);
 			IOHelper.writeLine("bindData");
-			IOHelper.writeBytesHex(bindData);
+			IOHelper.writeBytesHex(this.bindData);
 			IOHelper.writeLine("bindCode");
-			IOHelper.writeBytesHex(bindCode);
+			IOHelper.writeBytesHex(this.bindCode);
 			IOHelper.writeLine("initialSignature");
-			IOHelper.writeBytesHex(initialSignature);
+			IOHelper.writeBytesHex(this.initialSignature);
 			IOHelper.writeLine("signingChallenge");
-			IOHelper.writeBytesHex(signingChallenge);
+			IOHelper.writeBytesHex(this.signingChallenge);
 			IOHelper.writeLine("------------------------------------");
 		}
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
@@ -555,8 +568,8 @@ public class SHAiButtonCopr {
 	 *         device.
 	 */
 	public byte[] getAddress() {
-		byte[] data = new byte[8];
-		System.arraycopy(address, 0, data, 0, 8);
+		var data = new byte[8];
+		System.arraycopy(this.address, 0, data, 0, 8);
 		return data;
 	}
 
@@ -570,7 +583,7 @@ public class SHAiButtonCopr {
 	 * @param offset the index at which copying starts
 	 */
 	public void getAddress(byte[] data, int offset) {
-		System.arraycopy(address, 0, data, offset, 8);
+		System.arraycopy(this.address, 0, data, offset, 8);
 	}
 
 	/**
@@ -584,7 +597,7 @@ public class SHAiButtonCopr {
 	 * @param cnt    the number of bytes to copy
 	 */
 	public void getAddress(byte[] data, int offset, int cnt) {
-		System.arraycopy(address, 0, data, offset, cnt);
+		System.arraycopy(this.address, 0, data, offset, cnt);
 	}
 
 	/**
@@ -604,14 +617,14 @@ public class SHAiButtonCopr {
 
 	/**
 	 * <P>
-	 * Returns a string representing the auxilliary data associated with this
+	 * Returns a string representing the auxiliary data associated with this
 	 * coprocessor's service.
 	 * </P>
 	 *
-	 * @return the auxilliary data of this coprocessor's service
+	 * @return the auxiliary data of this coprocessor's service
 	 */
 	public String getAuxilliaryData() {
-		return auxData;
+		return this.auxData;
 	}
 
 	/**
@@ -626,8 +639,8 @@ public class SHAiButtonCopr {
 	 * @see OneWireContainer18#bindSecretToiButton(int,byte[],byte[],int)
 	 */
 	public byte[] getBindCode() {
-		byte[] data = new byte[7];
-		System.arraycopy(bindCode, 0, data, 0, 7);
+		var data = new byte[7];
+		System.arraycopy(this.bindCode, 0, data, 0, 7);
 		return data;
 	}
 
@@ -644,7 +657,7 @@ public class SHAiButtonCopr {
 	 * @see OneWireContainer18#bindSecretToiButton(int,byte[],byte[],int)
 	 */
 	public void getBindCode(byte[] data, int offset) {
-		System.arraycopy(bindCode, 0, data, offset, 7);
+		System.arraycopy(this.bindCode, 0, data, offset, 7);
 	}
 
 	/**
@@ -659,8 +672,8 @@ public class SHAiButtonCopr {
 	 * @see OneWireContainer18#bindSecretToiButton(int,byte[],byte[],int)
 	 */
 	public byte[] getBindData() {
-		byte[] data = new byte[32];
-		System.arraycopy(bindData, 0, data, 0, 32);
+		var data = new byte[32];
+		System.arraycopy(this.bindData, 0, data, 0, 32);
 		return data;
 	}
 
@@ -677,7 +690,7 @@ public class SHAiButtonCopr {
 	 * @see OneWireContainer18#bindSecretToiButton(int,byte[],byte[],int)
 	 */
 	public void getBindData(byte[] data, int offset) {
-		System.arraycopy(bindData, 0, data, offset, 32);
+		System.arraycopy(this.bindData, 0, data, offset, 32);
 	}
 
 	/**
@@ -690,7 +703,7 @@ public class SHAiButtonCopr {
 	 * @return an integer representing type of encryption for user data.
 	 */
 	public int getEncryptionCode() {
-		return encCode;
+		return this.encCode;
 	}
 
 	/**
@@ -703,8 +716,8 @@ public class SHAiButtonCopr {
 	 * @param offset     the starting index for copying the filename.
 	 */
 	public void getFilename(byte[] l_filename, int offset) {
-		int cnt = Math.min(l_filename.length - offset, 4);
-		System.arraycopy(filename, offset, l_filename, offset, cnt);
+		var cnt = Math.min(l_filename.length - offset, 4);
+		System.arraycopy(this.filename, offset, l_filename, offset, cnt);
 	}
 
 	/**
@@ -717,7 +730,7 @@ public class SHAiButtonCopr {
 	 * @return proper file extension for user's account data file.
 	 */
 	public byte getFilenameExt() {
-		return filename[4];
+		return this.filename[4];
 	}
 
 	/**
@@ -729,8 +742,8 @@ public class SHAiButtonCopr {
 	 * @return 20-byte initial signature.
 	 */
 	public byte[] getInitialSignature() {
-		byte[] data = new byte[20];
-		System.arraycopy(initialSignature, 0, data, 0, 20);
+		var data = new byte[20];
+		System.arraycopy(this.initialSignature, 0, data, 0, 20);
 		return data;
 	}
 
@@ -740,11 +753,11 @@ public class SHAiButtonCopr {
 	 * account data into the specified array starting at the specified offset.
 	 * </P>
 	 *
-	 * @param data   arry for copying the 20-byte initial signature.
+	 * @param data   array for copying the 20-byte initial signature.
 	 * @param offset the index at which to start copying.
 	 */
 	public void getInitialSignature(byte[] data, int offset) {
-		System.arraycopy(initialSignature, 0, data, offset, 20);
+		System.arraycopy(this.initialSignature, 0, data, offset, 20);
 	}
 
 	/**
@@ -756,7 +769,7 @@ public class SHAiButtonCopr {
 	 * @return the error code, zero for none.
 	 */
 	public int getLastError() {
-		return lastError;
+		return this.lastError;
 	}
 
 	/**
@@ -768,7 +781,7 @@ public class SHAiButtonCopr {
 	 * @return the name of the provider's service.
 	 */
 	public String getProviderName() {
-		return providerName;
+		return this.providerName;
 	}
 
 	/**
@@ -780,8 +793,8 @@ public class SHAiButtonCopr {
 	 * @return 3-byte challenge
 	 */
 	public byte[] getSigningChallenge() {
-		byte[] data = new byte[3];
-		System.arraycopy(signingChallenge, 0, data, 0, 3);
+		var data = new byte[3];
+		System.arraycopy(this.signingChallenge, 0, data, 0, 3);
 		return data;
 	}
 
@@ -795,7 +808,7 @@ public class SHAiButtonCopr {
 	 * @param offset the index at which to start copying.
 	 */
 	public void getSigningChallenge(byte[] data, int offset) {
-		System.arraycopy(signingChallenge, 0, data, offset, 3);
+		System.arraycopy(this.signingChallenge, 0, data, offset, 3);
 	}
 
 	/**
@@ -846,7 +859,7 @@ public class SHAiButtonCopr {
 	 * @see #reformatFor1961S(byte[])
 	 */
 	public boolean isDS1961Scompatible() {
-		return DS1961Scompatible;
+		return this.DS1961Scompatible;
 	}
 	// ***********************************************************************
 	// End Accessor Methods
@@ -889,7 +902,7 @@ public class SHAiButtonCopr {
 	 *                       signing the page using the coprocessor's system signing
 	 *                       secret.
 	 * @param macStart       the offset into mac_buffer where copying should start.
-	 * 
+	 *
 	 * @return <code>true</code> if successful, <code>false</code> if an error
 	 *         occurred (use <code>getLastError()</code> for more information on the
 	 *         type of error)
@@ -911,8 +924,8 @@ public class SHAiButtonCopr {
 		this.lastError = SHAiButtonCopr.NO_ERROR;
 
 		// maintain local reference to container
-		OneWireContainer18 ibcL = this.ibc;
-		int addr = this.signPageNumber << 5;
+		var ibcL = this.ibc;
+		var addr = this.signPageNumber << 5;
 
 		// now we are ready to make a signature
 		if (!ibcL.writeDataPage(this.signPageNumber, accountData)) {
@@ -935,7 +948,7 @@ public class SHAiButtonCopr {
 			IOHelper.writeLine("-----------------------------------------------------------");
 			IOHelper.writeLine("COPR DEBUG - createDataSignature");
 			IOHelper.write("address: ");
-			IOHelper.writeBytesHex(address, 0, 8);
+			IOHelper.writeBytesHex(this.address, 0, 8);
 			IOHelper.writeLine("speed: " + this.ibc.getAdapter().getSpeed());
 			IOHelper.writeLine("-----------------------------------------------------------");
 		}
@@ -951,8 +964,8 @@ public class SHAiButtonCopr {
 
 			ibcL.useResume(false);
 			return true;
-		} else
-			this.lastError = SHAiButtonCopr.SHA_FUNCTION_FAILED;
+		}
+		this.lastError = SHAiButtonCopr.SHA_FUNCTION_FAILED;
 
 		ibcL.useResume(false);
 		return false;
@@ -981,7 +994,7 @@ public class SHAiButtonCopr {
 	 *                       secret.
 	 * @param macStart       the offset into mac_buffer where copying should start.
 	 * @param fullBindCode   used to recreate the user iButton's unique secret
-	 * 
+	 *
 	 * @return <code>true</code> if successful, <code>false</code> if an error
 	 *         occurred (use <code>getLastError()</code> for more information on the
 	 *         type of error)
@@ -1004,16 +1017,16 @@ public class SHAiButtonCopr {
 		this.lastError = SHAiButtonCopr.NO_ERROR;
 
 		// maintain local reference to container
-		OneWireContainer18 ibcL = this.ibc;
-		int page = this.signPageNumber;
-		int addr = page << 5;
+		var ibcL = this.ibc;
+		var page = this.signPageNumber;
+		var addr = page << 5;
 
 		// \\//\\//\\//\\//\\//\\//\\////\\////\\////\\////\\////\\////\\//
 		if (DEBUG) {
 			IOHelper.writeLine("-----------------------------------------------------------");
 			IOHelper.writeLine("COPR DEBUG - createDataSignatureAuth");
 			IOHelper.writeLine("address:");
-			IOHelper.writeBytesHex(address, 0, 8);
+			IOHelper.writeBytesHex(this.address, 0, 8);
 			IOHelper.writeLine("accountData");
 			IOHelper.writeBytesHex(accountData);
 			IOHelper.writeLine("signScratchpad");
@@ -1021,10 +1034,11 @@ public class SHAiButtonCopr {
 			IOHelper.writeLine("mac_buffer: ");
 			IOHelper.writeBytesHex(mac_buffer, macStart, 20);
 			IOHelper.writeLine("fullBindCode: ");
-			if (fullBindCode != null)
+			if (fullBindCode != null) {
 				IOHelper.writeBytesHex(fullBindCode);
-			else
+			} else {
 				IOHelper.writeLine("null");
+			}
 			IOHelper.writeLine("-----------------------------------------------------------");
 		}
 
@@ -1063,15 +1077,15 @@ public class SHAiButtonCopr {
 
 			ibcL.useResume(false);
 			return true;
-		} else
-			this.lastError = SHAiButtonCopr.SHA_FUNCTION_FAILED;
+		}
+		this.lastError = SHAiButtonCopr.SHA_FUNCTION_FAILED;
 
 		ibcL.useResume(false);
 		return false;
 	}
 
 	// prevent malloc'ing in the critical path
-	private byte[] generateChallenge_scratchpad = new byte[32];
+	private final byte[] generateChallenge_scratchpad = new byte[32];
 
 	/**
 	 * <p>
@@ -1121,11 +1135,11 @@ public class SHAiButtonCopr {
 		this.lastError = SHAiButtonCopr.NO_ERROR;
 
 		// maintain local reference to container
-		OneWireContainer18 ibcL = this.ibc;
-		byte[] scratchpad = this.generateChallenge_scratchpad;
-		int addr = authPageNumber << 5;
+		var ibcL = this.ibc;
+		var scratchpad = this.generateChallenge_scratchpad;
+		var addr = this.authPageNumber << 5;
 
-		if (ibcL.eraseScratchPad(authPageNumber)) {
+		if (ibcL.eraseScratchPad(this.authPageNumber)) {
 			// ibcL.useResume(true);
 
 			if (ibcL.SHAFunction(OneWireContainer18.COMPUTE_CHALLENGE, addr)) {
@@ -1133,7 +1147,7 @@ public class SHAiButtonCopr {
 				ibcL.readScratchPad(scratchpad, 0);
 
 				// copy the requested 3 return bytes
-				System.arraycopy(scratchpad, 8 + (offset % 17), ch, start, 3);
+				System.arraycopy(scratchpad, 8 + offset % 17, ch, start, 3);
 
 				// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 				if (DEBUG) {
@@ -1141,7 +1155,7 @@ public class SHAiButtonCopr {
 					IOHelper.writeLine("COPR DEBUG");
 					IOHelper.writeLine("address:");
 					IOHelper.writeLine("speed: " + this.ibc.getAdapter().getSpeed());
-					IOHelper.writeBytesHex(address, 0, 8);
+					IOHelper.writeBytesHex(this.address, 0, 8);
 					IOHelper.writeLine("Challenge:");
 					IOHelper.writeBytesHex(ch, start, 3);
 					ch[start] = (byte) 0x01;
@@ -1153,10 +1167,11 @@ public class SHAiButtonCopr {
 				// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 				ibcL.useResume(false);
 				return true;
-			} else
-				this.lastError = SHAiButtonCopr.SHA_FUNCTION_FAILED;
-		} else
+			}
+			this.lastError = SHAiButtonCopr.SHA_FUNCTION_FAILED;
+		} else {
 			this.lastError = SHAiButtonCopr.ERASE_SCRATCHPAD_FAILED;
+		}
 
 		ibcL.useResume(false);
 		return false;
@@ -1228,9 +1243,9 @@ public class SHAiButtonCopr {
 		this.lastError = SHAiButtonCopr.NO_ERROR;
 
 		// maintain local reference to container
-		OneWireContainer18 ibcL = this.ibc;
-		int addr = this.wspcPageNumber << 5;
-		int wspc = this.wspcPageNumber;
+		var ibcL = this.ibc;
+		var addr = this.wspcPageNumber << 5;
+		var wspc = this.wspcPageNumber;
 
 		// recreate the user's secret on the coprocessor.
 		if (!ibcL.bindSecretToiButton(this.authPageNumber, this.bindData, fullBindCode, wspc)) {
@@ -1245,7 +1260,7 @@ public class SHAiButtonCopr {
 			IOHelper.writeLine("-----------------------------------------------------------");
 			IOHelper.writeLine("COPR DEBUG - verifyAuthentication");
 			IOHelper.write("address: ");
-			IOHelper.writeBytesHex(address, 0, 8);
+			IOHelper.writeBytesHex(this.address, 0, 8);
 			IOHelper.writeLine("speed: " + this.ibc.getAdapter().getSpeed());
 			IOHelper.writeLine("pageData");
 			IOHelper.writeBytesHex(pageData);
@@ -1253,7 +1268,7 @@ public class SHAiButtonCopr {
 			IOHelper.writeBytesHex(scratchpad);
 			IOHelper.writeLine("authCmd: " + authCmd);
 			IOHelper.writeLine("bindData: ");
-			IOHelper.writeBytesHex(bindData);
+			IOHelper.writeBytesHex(this.bindData);
 			IOHelper.writeLine("fullBindCode: ");
 			IOHelper.writeBytesHex(fullBindCode);
 			IOHelper.writeLine("-----------------------------------------------------------");
@@ -1279,10 +1294,11 @@ public class SHAiButtonCopr {
 			if (ibcL.matchScratchPad(verify_mac)) {
 				ibcL.useResume(false);
 				return true;
-			} else
-				this.lastError = SHAiButtonCopr.MATCH_SCRATCHPAD_FAILED;
-		} else
+			}
+			this.lastError = SHAiButtonCopr.MATCH_SCRATCHPAD_FAILED;
+		} else {
 			this.lastError = SHAiButtonCopr.SHA_FUNCTION_FAILED;
+		}
 
 		ibcL.useResume(false);
 
@@ -1327,8 +1343,8 @@ public class SHAiButtonCopr {
 		this.lastError = SHAiButtonCopr.NO_ERROR;
 
 		// maintain local reference to container
-		OneWireContainer18 ibcL = this.ibc;
-		int addr = this.signPageNumber << 5;
+		var ibcL = this.ibc;
+		var addr = this.signPageNumber << 5;
 
 		// now we are ready to make a signature
 		if (!ibcL.writeDataPage(this.signPageNumber, pageData)) {
@@ -1349,7 +1365,7 @@ public class SHAiButtonCopr {
 			IOHelper.writeLine("-----------------------------------------------------------");
 			IOHelper.writeLine("COPR DEBUG - verifySignature");
 			IOHelper.write("address: ");
-			IOHelper.writeBytesHex(address, 0, 8);
+			IOHelper.writeBytesHex(this.address, 0, 8);
 			IOHelper.writeLine("speed: " + this.ibc.getAdapter().getSpeed());
 			IOHelper.writeLine("-----------------------------------------------------------");
 		}
@@ -1360,10 +1376,11 @@ public class SHAiButtonCopr {
 			if (ibcL.matchScratchPad(verify_mac)) {
 				ibcL.useResume(false);
 				return true;
-			} else
-				this.lastError = SHAiButtonCopr.MATCH_SCRATCHPAD_FAILED;
-		} else
+			}
+			this.lastError = SHAiButtonCopr.MATCH_SCRATCHPAD_FAILED;
+		} else {
 			this.lastError = SHAiButtonCopr.SHA_FUNCTION_FAILED;
+		}
 
 		ibcL.useResume(false);
 		return false;
@@ -1378,6 +1395,7 @@ public class SHAiButtonCopr {
 	 *
 	 * @return a string containing the 8-byte address of this 1-Wire device.
 	 */
+	@Override
 	public String toString() {
 		return "COPR: " + this.ibc.getAddressAsString() + ", provider: " + this.providerName + ", version: "
 				+ this.version;
@@ -1401,23 +1419,23 @@ public class SHAiButtonCopr {
 		is.read(this.bindCode, 0, 7);
 		is.read(this.signingChallenge, 0, 3);
 
-		int namelen = is.read();
-		int siglen = is.read();
-		int auxlen = is.read();
+		var namelen = is.read();
+		var siglen = is.read();
+		var auxlen = is.read();
 
-		byte[] l_providerName = new byte[namelen];
+		var l_providerName = new byte[namelen];
 		is.read(l_providerName);
 		this.providerName = new String(l_providerName);
 
-		int cnt = Math.min(this.initialSignature.length, siglen);
+		var cnt = Math.min(this.initialSignature.length, siglen);
 		is.read(this.initialSignature, 0, cnt);
 
-		byte[] l_auxData = new byte[auxlen];
+		var l_auxData = new byte[auxlen];
 		is.read(l_auxData);
 		this.auxData = new String(l_auxData);
 
 		this.encCode = is.read();
-		this.DS1961Scompatible = (is.read() != 0);
+		this.DS1961Scompatible = is.read() != 0;
 	}
 
 	/**
@@ -1441,8 +1459,8 @@ public class SHAiButtonCopr {
 		os.write(this.bindCode);
 		os.write(this.signingChallenge);
 
-		byte[] l_providerName = this.providerName.getBytes();
-		byte[] l_auxData = this.auxData.getBytes();
+		var l_providerName = this.providerName.getBytes();
+		var l_auxData = this.auxData.getBytes();
 		os.write((byte) l_providerName.length);
 		os.write((byte) this.initialSignature.length);
 		os.write((byte) l_auxData.length);
@@ -1480,11 +1498,11 @@ public class SHAiButtonCopr {
 	 *         DS1961S interaction.
 	 */
 	public static byte[] reformatFor1961S(byte[] auth_secret) {
-		int numPartials = (auth_secret.length / 47) + 1;
-		byte[] new_secret = new byte[47 * numPartials];
+		var numPartials = auth_secret.length / 47 + 1;
+		var new_secret = new byte[47 * numPartials];
 
-		for (int i = 0; i < numPartials; i++) {
-			int cnt = Math.min(auth_secret.length - (i * 47), 47);
+		for (var i = 0; i < numPartials; i++) {
+			var cnt = Math.min(auth_secret.length - i * 47, 47);
 			System.arraycopy(auth_secret, i * 47, new_secret, i * 47, cnt);
 			new_secret[i * 47 + 32] = (byte) 0xFF;
 			new_secret[i * 47 + 33] = (byte) 0xFF;
@@ -1497,3 +1515,4 @@ public class SHAiButtonCopr {
 		return new_secret;
 	}
 }
+// CHECKSTYLE:ON

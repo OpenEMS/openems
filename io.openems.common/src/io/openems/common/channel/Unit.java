@@ -1,70 +1,84 @@
 package io.openems.common.channel;
 
-import com.google.common.base.CaseFormat;
+import java.util.HashSet;
+import java.util.OptionalDouble;
+import java.util.function.Function;
+import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.EnumUtils;
 
+/**
+ * Units of measurement used in OpenEMS.
+ * 
+ * <p>
+ * Units marked as 'cumulated' are per definition steadily increasing, i.e.
+ * {@code Value(t + 1) >= Value(t)}. This applies e.g. to consumed energy in
+ * [Wh_Σ]. To calculate the 'discrete' consumed energy in [Wh] for a certain
+ * period, subtract first cumulated value from last cumulated value.
+ */
 public enum Unit {
 	// ##########
 	// Generic
 	// ##########
 
 	/**
-	 * No Unit
+	 * No Unit.
 	 */
 	NONE(""),
 
 	/**
-	 * Percentage [%], 0-100
+	 * Percentage [%], 0-100.
 	 */
 	PERCENT("%"),
 
 	/**
-	 * Thousandth [‰], 0-1000
+	 * Thousandth [‰], 0-1000.
 	 */
 	THOUSANDTH("‰"),
 
 	/**
-	 * On or Off
+	 * On or Off.
 	 */
-	ON_OFF(""),
+	ON_OFF("On/Off"), // Symbol is ignored in #format()
 
 	// ##########
 	// Power
 	// ##########
 
 	/**
-	 * Unit of Active Power [W]
+	 * Unit of Active Power [W].
 	 */
 	WATT("W"),
 
 	/**
-	 * Unit of Active Power [mW]
+	 * Unit of Active Power [mW].
 	 */
 	MILLIWATT("mW", WATT, -3),
 
 	/**
-	 * Unit of Active Power [kW]
+	 * Unit of Active Power [kW].
 	 */
 	KILOWATT("kW", WATT, 3),
 
 	/**
-	 * Unit of Reactive Power [var]
+	 * Unit of Reactive Power [var].
 	 */
 	VOLT_AMPERE_REACTIVE("var"),
 
 	/**
-	 * Unit of Reactive Power [kvar]
+	 * Unit of Reactive Power [kvar].
 	 */
 	KILOVOLT_AMPERE_REACTIVE("kvar", VOLT_AMPERE_REACTIVE, 3),
 
 	/**
-	 * Unit of Apparent Power [VA]
+	 * Unit of Apparent Power [VA].
 	 */
 	VOLT_AMPERE("VA"),
 
 	/**
-	 * Unit of Apparent Power [kVA]
+	 * Unit of Apparent Power [kVA].
 	 */
 	KILOVOLT_AMPERE("kVA", VOLT_AMPERE, 3),
 
@@ -73,45 +87,55 @@ public enum Unit {
 	// ##########
 
 	/**
-	 * Unit of Voltage [V]
+	 * Unit of Voltage [V].
 	 */
 	VOLT("V"),
 
 	/**
-	 * Unit of Voltage [mV]
+	 * Unit of Voltage [mV].
 	 */
 	MILLIVOLT("mV", VOLT, -3),
+
+	/**
+	 * Unit of Voltage [uV].
+	 */
+	MICROVOLT("uV", VOLT, -6),
 
 	// ##########
 	// Current
 	// ##########
 
 	/**
-	 * Unit of Current [A]
+	 * Unit of Current [A].
 	 */
 	AMPERE("A"),
 
 	/**
-	 * Unit of Current [mA]
+	 * Unit of Current [mA].
 	 */
 	MILLIAMPERE("mA", AMPERE, -3),
+
+	/**
+	 * Unit of Current [uA].
+	 */
+	MICROAMPERE("uA", AMPERE, -6),
 
 	// ##########
 	// Electric Charge
 	// ##########
 
 	/**
-	 * Unit of Electric Charge
+	 * Unit of Electric Charge.
 	 */
 	AMPERE_HOURS("Ah"),
 
 	/**
-	 * Unit of Electric Charge
+	 * Unit of Electric Charge.
 	 */
 	MILLIAMPERE_HOURS("mAh", AMPERE_HOURS, -3),
 
 	/**
-	 * Unit of Electric Charge
+	 * Unit of Electric Charge.
 	 */
 	KILOAMPERE_HOURS("kAh", AMPERE_HOURS, 3),
 
@@ -120,46 +144,65 @@ public enum Unit {
 	// ##########
 
 	/**
-	 * Unit of Energy [Wh]
+	 * Unit of Energy [Wh].
 	 */
 	WATT_HOURS("Wh"),
 
 	/**
-	 * Unit of Energy [kWh]
+	 * Unit of Energy [kWh].
 	 */
 	KILOWATT_HOURS("kWh", WATT_HOURS, 3),
 
 	/**
-	 * Unit of Reactive Energy [varh]
+	 * Unit of Reactive Energy [varh].
 	 */
 	VOLT_AMPERE_REACTIVE_HOURS("varh"),
 
 	/**
-	 * Unit of Reactive Energy [kVArh]
+	 * Unit of Reactive Energy [kVArh].
 	 */
 	KILOVOLT_AMPERE_REACTIVE_HOURS("kvarh", VOLT_AMPERE_REACTIVE_HOURS, 3),
 
 	/**
-	 * Unit of Energy [Wh/Wp]
+	 * Unit of Energy [Wh/Wp].
 	 */
 	WATT_HOURS_BY_WATT_PEAK("Wh/Wp"),
 
 	/**
-	 * Unit of Apparent Energy [VAh]
+	 * Unit of Apparent Energy [VAh].
 	 */
 	VOLT_AMPERE_HOURS("VAh"),
+
+	// ##########
+	// Cumulated Energy
+	// ##########
+
+	/**
+	 * Unit of cumulated Energy [Wh_Σ].
+	 */
+	CUMULATED_WATT_HOURS("Wh_Σ", WATT_HOURS),
+
+	// ##########
+	// Energy Tariff
+	// ##########
+
+	/**
+	 * Unit of Energy Price, e.g. [€/MWh]. (see Meta.ChannelId#CURRENCY).
+	 */
+	// TODO symbol should incorporate actual Currency
+	MONEY_PER_MEGAWATT_HOUR("€/MWh"),
 
 	// ##########
 	// Frequency
 	// ##########
 
 	/**
-	 * Unit of Frequency [Hz]
+	 * Unit of Frequency [Hz].
 	 */
 	HERTZ("Hz"),
 
 	/**
-	 * Unit of Frequency [mHz]
+	 * Unit of Frequency [mHz].
 	 */
 	MILLIHERTZ("mHz", HERTZ, -3),
 
@@ -168,12 +211,12 @@ public enum Unit {
 	// ##########
 
 	/**
-	 * Unit of Temperature [C]
+	 * Unit of Temperature [C].
 	 */
 	DEGREE_CELSIUS("C"),
 
 	/**
-	 * Unit of Temperature [dC]
+	 * Unit of Temperature [dC].
 	 */
 	DEZIDEGREE_CELSIUS("dC", DEGREE_CELSIUS, -1),
 
@@ -182,143 +225,202 @@ public enum Unit {
 	// ##########
 
 	/**
-	 * Unit of Time [s]
+	 * Unit of Time [s].
 	 */
 	SECONDS("sec"),
 
 	/**
-	 * Unit of Time [ms]
+	 * Unit of Time [ms].
 	 */
 	MILLISECONDS("ms", SECONDS, -3),
 
 	/**
-	 * Unit of Time
+	 * Unit of Time.
 	 */
 	MINUTE("min"),
 
 	/**
-	 * Unit of Time
+	 * Unit of Time.
 	 */
 	HOUR("h"),
+
+	// ##########
+	// Cumulated Time
+	// ##########
+
+	/**
+	 * Unit of cumulated time [s].
+	 */
+	CUMULATED_SECONDS("sec_Σ", SECONDS),
 
 	// ##########
 	// Resistance
 	// ##########
 
 	/**
-	 * Unit of Resistance [Ohm]
+	 * Unit of Resistance [Ohm].
 	 */
 	OHM("Ohm"),
 
 	/**
-	 * Unit of Resistance [kOhm]
+	 * Unit of Resistance [kOhm].
 	 */
 	KILOOHM("kOhm", OHM, 3),
 
 	/**
-	 * Unit of Resistance [mOhm]
+	 * Unit of Resistance [mOhm].
 	 */
 	MILLIOHM("mOhm", OHM, -3),
 
 	/**
-	 * Unit of Resistance [uOhm]
+	 * Unit of Resistance [uOhm].
 	 */
-	MICROOHM("uOhm", OHM, -6);
+	MICROOHM("uOhm", OHM, -6),
 
-	private final Unit baseUnit;
-	private final int scaleFactor;
-	private final String symbol;
+	// ##########
+	// Pressure
+	// ##########
 
+	/**
+	 * Unit of Pressure [bar].
+	 */
+	BAR("bar");
+
+	public final String symbol;
+	public final Unit baseUnit;
+	public final int scaleFactor;
+	public final Unit discreteUnit;
+
+	/**
+	 * Use this constructor for discrete Base-Units.
+	 * 
+	 * @param symbol the unit symbol
+	 */
 	private Unit(String symbol) {
-		this(symbol, null, 0);
+		this.symbol = symbol;
+		this.baseUnit = null;
+		this.scaleFactor = 0;
+		this.discreteUnit = null;
 	}
 
+	/**
+	 * Use this constructor for cumulated Units.
+	 * 
+	 * @param symbol       the unit symbol
+	 * @param discreteUnit the discrete unit that is derived by subtracting first
+	 *                     cumulated value from last cumulated value.
+	 */
+	private Unit(String symbol, Unit discreteUnit) {
+		this.symbol = symbol;
+		this.baseUnit = null;
+		this.scaleFactor = 0;
+		this.discreteUnit = discreteUnit;
+	}
+
+	/**
+	 * Use this constructor for discrete derived units.
+	 * 
+	 * @param symbol      the unit symbol
+	 * @param baseUnit    the discrete Base-Unit of this Unit
+	 * @param scaleFactor the scale factor to convert between this Unit and its
+	 *                    Base-Unit.
+	 */
 	private Unit(String symbol, Unit baseUnit, int scaleFactor) {
 		this.symbol = symbol;
 		this.baseUnit = baseUnit;
 		this.scaleFactor = scaleFactor;
+		this.discreteUnit = null;
 	}
 
-	public Unit getBaseUnit() {
-		return baseUnit;
-	}
-
+	/**
+	 * Gets the value in its base unit, e.g. converts [kW] to [W].
+	 *
+	 * @param value the value
+	 * @return the converted value
+	 */
 	public int getAsBaseUnit(int value) {
 		return (int) (value * Math.pow(10, this.scaleFactor));
 	}
 
-	public String getSymbol() {
-		return symbol;
-	}
-
+	/**
+	 * Formats the value in the given type.
+	 *
+	 * <p>
+	 * For most cases this adds the unit symbol to the value, like "123 kW".
+	 * Booleans are converted to "ON" or "OFF".
+	 *
+	 * @param value the value {@link Object}
+	 * @param type  the {@link OpenemsType}
+	 * @return the formatted value as String
+	 */
 	public String format(Object value, OpenemsType type) {
-		switch (this) {
-		case NONE:
-			return value.toString();
-		case AMPERE:
-		case DEGREE_CELSIUS:
-		case DEZIDEGREE_CELSIUS:
-		case HERTZ:
-		case MILLIAMPERE:
-		case MILLIHERTZ:
-		case MILLIVOLT:
-		case PERCENT:
-		case VOLT:
-		case VOLT_AMPERE:
-		case VOLT_AMPERE_REACTIVE:
-		case WATT:
-		case KILOWATT:
-		case MILLIWATT:
-		case WATT_HOURS:
-		case OHM:
-		case KILOOHM:
-		case SECONDS:
-		case AMPERE_HOURS:
-		case HOUR:
-		case KILOAMPERE_HOURS:
-		case KILOVOLT_AMPERE:
-		case KILOVOLT_AMPERE_REACTIVE:
-		case KILOVOLT_AMPERE_REACTIVE_HOURS:
-		case KILOWATT_HOURS:
-		case MICROOHM:
-		case MILLIAMPERE_HOURS:
-		case MILLIOHM:
-		case MILLISECONDS:
-		case MINUTE:
-		case THOUSANDTH:
-		case VOLT_AMPERE_HOURS:
-		case VOLT_AMPERE_REACTIVE_HOURS:
-		case WATT_HOURS_BY_WATT_PEAK:
-			return value + " " + this.symbol;
-		case ON_OFF:
-			boolean booleanValue = (Boolean) value;
-			return booleanValue ? "ON" : "OFF";
-		}
-		return "FORMAT_ERROR"; // should never happen, if 'switch' is complete
-	}
+		return switch (this) {
+		case NONE -> //
+			value.toString();
 
-	public String formatAsBaseUnit(Object value, OpenemsType type) {
-		if (this.baseUnit != null) {
-			switch (type) {
-			case SHORT:
-			case INTEGER:
-			case LONG:
-			case FLOAT:
-			case DOUBLE:
-				return this.baseUnit.formatAsBaseUnit(this.getAsBaseUnit((int) value), type);
-			case BOOLEAN:
-			case STRING:
-				return this.baseUnit.formatAsBaseUnit(value, type);
-			}
-		} else {
-			this.format(value, type);
-		}
-		return "FORMAT_ERROR"; // should never happen, if 'switch' is complete
+		case AMPERE, DEGREE_CELSIUS, DEZIDEGREE_CELSIUS, MONEY_PER_MEGAWATT_HOUR, HERTZ, MILLIAMPERE, MICROAMPERE,
+				MILLIHERTZ, MILLIVOLT, MICROVOLT, PERCENT, VOLT, VOLT_AMPERE, VOLT_AMPERE_REACTIVE, WATT, KILOWATT,
+				MILLIWATT, WATT_HOURS, OHM, KILOOHM, SECONDS, AMPERE_HOURS, HOUR, CUMULATED_SECONDS, KILOAMPERE_HOURS,
+				KILOVOLT_AMPERE, KILOVOLT_AMPERE_REACTIVE, KILOVOLT_AMPERE_REACTIVE_HOURS, KILOWATT_HOURS, MICROOHM,
+				MILLIAMPERE_HOURS, MILLIOHM, MILLISECONDS, MINUTE, THOUSANDTH, VOLT_AMPERE_HOURS,
+				VOLT_AMPERE_REACTIVE_HOURS, WATT_HOURS_BY_WATT_PEAK, CUMULATED_WATT_HOURS, BAR -> //
+			value + " " + this.symbol;
+
+		case ON_OFF -> //
+			value == null ? "UNDEFINED" : ((Boolean) value).booleanValue() ? "ON" : "OFF";
+		};
 	}
 
 	@Override
 	public String toString() {
-		return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.name()) + //
-				(this.symbol.isEmpty() ? "" : " [" + this.symbol + "]");
+		return EnumUtils.nameAsCamelCase(this) + (this.symbol.isEmpty() ? "" : " [" + this.symbol + "]");
+	}
+
+	/**
+	 * Finds a Unit by its Symbol.
+	 * 
+	 * @param symbol      the Symbol
+	 * @param defaultUnit the defaultUnit; this value is returned if no Unit with
+	 *                    the given Symbol exists
+	 * @return the Unit; or the defaultUnit if it was not found
+	 */
+	public static Unit fromSymbolOrElse(String symbol, Unit defaultUnit) {
+		return Stream.of(Unit.values()) //
+				.filter(u -> u.symbol == symbol) //
+				.findFirst() //
+				.orElse(defaultUnit);
+	}
+
+	/**
+	 * Get the corresponding aggregate function of current {@link Unit}.
+	 * 
+	 * @return corresponding aggregate function
+	 */
+	public Function<DoubleStream, OptionalDouble> getChannelAggregateFunction() {
+		if (this.isCumulated()) {
+			return DoubleStream::max;
+		} else {
+			return DoubleStream::average;
+		}
+	}
+
+	/**
+	 * Returns true if this is a cumulated unit.
+	 * 
+	 * @return true if this {@link Unit} is cumulated, otherwise false
+	 */
+	public boolean isCumulated() {
+		return this.discreteUnit != null;
+	}
+
+	/*
+	 * Static check for non-duplicated Symbols.
+	 */
+	static {
+		if (!Stream.of(Unit.values())//
+				.map(u -> u.symbol) //
+				.allMatch(new HashSet<>()::add)) {
+			throw new IllegalArgumentException("Symbols in Unit must be unique!");
+		}
 	}
 }

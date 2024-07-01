@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -36,12 +37,12 @@ package com.dalsemi.onewire.container;
  * <BR>
  *
  * According to ISO 7816-4, a <code>CommandAPDU</code> has the following format:
- * 
+ *
  * <pre>
  *                  HEADER         |           BODY
  *         CLA    INS    P1    P2  |  [LC]    [DATA]    [LE]
  * </pre>
- * 
+ *
  * where
  * <ul>
  * <li><code>CLA</code> is the class byte
@@ -57,23 +58,24 @@ package com.dalsemi.onewire.container;
  *
  * <H3>Usage</H3>
  * <OL>
- * <LI><code><pre>
- *   byte[] buffer = {(byte)0x90, (byte)0x00, (byte)0x00, (byte)0x00, 
- *                    (byte)0x01, (byte)0x02, (byte)0x03};
- *   CommandAPDU capdu = new CommandAPDU(buffer); </pre></code>
- * <LI><code><pre>
- *   CommandAPDU capdu = new CommandAPDU((byte)0x90, (byte)0x00, (byte)0x00, (byte)0x00, 
- *                                       (byte)0x01, (byte)0x02, (byte)0x03);</pre></code>
+ *
+ * <pre>
+ * byte[] buffer = { (byte) 0x90, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03 };
+ * CommandAPDU capdu = new CommandAPDU(buffer);
+ * </pre>
+ *
+ * <pre>
+ * CommandAPDU capdu = new CommandAPDU((byte) 0x90, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x02,
+ * 		(byte) 0x03);
+ * </pre>
  * </OL>
- * 
- * <H3>Additonal information</H3>
+ *
+ * <H3>Additional information</H3>
  * <DL>
  * <DD><A HREF="http://www.opencard.org"> http://www.opencard.org</A>
  * </DL>
- * 
+ *
  * @see com.dalsemi.onewire.container.ResponseAPDU
- * @see com.dalsemi.onewire.container.OneWireContainer16
- * 
  * @version 0.00, 28 Aug 2000
  * @author YL
  *
@@ -125,10 +127,10 @@ public class CommandAPDU {
 	 * @param buffer the entire <code>CommandAPDU</code> as a byte array
 	 */
 	public CommandAPDU(byte[] buffer) {
-		apduLength = buffer.length;
-		apduBuffer = new byte[apduLength];
+		this.apduLength = buffer.length;
+		this.apduBuffer = new byte[this.apduLength];
 
-		System.arraycopy(buffer, 0, apduBuffer, 0, apduLength);
+		System.arraycopy(buffer, 0, this.apduBuffer, 0, this.apduLength);
 	} // CommandAPDU
 
 	/**
@@ -200,35 +202,36 @@ public class CommandAPDU {
 		// all CommandAPDU has at least 5 bytes of header...
 		// that's CLA, INS, P1, P2, and LC
 
-		apduLength = 5;
+		this.apduLength = 5;
 
 		if (data != null) {
-			apduLength += data.length; // add data length
+			this.apduLength += data.length; // add data length
 		}
 
 		if (le >= 0) {
-			apduLength++; // add one byte for LE
+			this.apduLength++; // add one byte for LE
 		}
 
-		apduBuffer = new byte[apduLength];
+		this.apduBuffer = new byte[this.apduLength];
 
 		// fill CommandAPDU buffer body
-		apduBuffer[CLA] = cla;
-		apduBuffer[INS] = ins;
-		apduBuffer[P1] = p1;
-		apduBuffer[P2] = p2;
+		this.apduBuffer[CLA] = cla;
+		this.apduBuffer[INS] = ins;
+		this.apduBuffer[P1] = p1;
+		this.apduBuffer[P2] = p2;
 
 		if (data != null) {
-			apduBuffer[LC] = (byte) data.length;
+			this.apduBuffer[LC] = (byte) data.length;
 
-			System.arraycopy(data, 0, apduBuffer, LC + 1, data.length);
+			System.arraycopy(data, 0, this.apduBuffer, LC + 1, data.length);
 		} else {
 			// fill in the LC byte anyhoo
-			apduBuffer[LC] = (byte) 0;
+			this.apduBuffer[LC] = (byte) 0;
 		}
 
-		if (le >= 0)
-			apduBuffer[apduLength - 1] = (byte) le;
+		if (le >= 0) {
+			this.apduBuffer[this.apduLength - 1] = (byte) le;
+		}
 	} // CommandAPDU
 
 	/**
@@ -237,7 +240,7 @@ public class CommandAPDU {
 	 * @return <code>CLA</code> byte of this <code>CommandAPDU</code>
 	 */
 	public byte getCLA() {
-		return apduBuffer[CLA];
+		return this.apduBuffer[CLA];
 	} // getCLA
 
 	/**
@@ -246,7 +249,7 @@ public class CommandAPDU {
 	 * @return <code>INS</code> byte of this <code>CommandAPDU</code>
 	 */
 	public byte getINS() {
-		return apduBuffer[INS];
+		return this.apduBuffer[INS];
 	} // getINS
 
 	/**
@@ -255,7 +258,7 @@ public class CommandAPDU {
 	 * @return <code>P1</code> byte of this <code>CommandAPDU</code>
 	 */
 	public byte getP1() {
-		return apduBuffer[P1];
+		return this.apduBuffer[P1];
 	} // getP1
 
 	/**
@@ -264,7 +267,7 @@ public class CommandAPDU {
 	 * @return <code>P2</code> byte of this <code>CommandAPDU</code>
 	 */
 	public byte getP2() {
-		return apduBuffer[P2];
+		return this.apduBuffer[P2];
 	} // getP2
 
 	/**
@@ -275,10 +278,10 @@ public class CommandAPDU {
 	 *         body
 	 */
 	public int getLC() {
-		if (apduLength >= 6)
-			return apduBuffer[LC];
-		else
-			return 0;
+		if (this.apduLength >= 6) {
+			return this.apduBuffer[LC];
+		}
+		return 0;
 	} // getLC
 
 	/**
@@ -291,10 +294,10 @@ public class CommandAPDU {
 	 * @see ResponseAPDU
 	 */
 	public int getLE() {
-		if ((apduLength == 5) || (apduLength == (6 + getLC())))
-			return apduBuffer[apduLength - 1];
-		else
-			return -1;
+		if (this.apduLength == 5 || this.apduLength == 6 + this.getLC()) {
+			return this.apduBuffer[this.apduLength - 1];
+		}
+		return -1;
 	} // getLE
 
 	/**
@@ -308,7 +311,7 @@ public class CommandAPDU {
 	 *
 	 */
 	final public byte[] getBuffer() {
-		return apduBuffer;
+		return this.apduBuffer;
 	} // getBuffer
 
 	/**
@@ -326,10 +329,10 @@ public class CommandAPDU {
 	 * @see #getLength
 	 */
 	final public byte getByte(int index) {
-		if (index >= apduLength)
+		if (index >= this.apduLength) {
 			return (byte) -1; // read beyond end of CommandAPDU
-		else
-			return (apduBuffer[index]);
+		}
+		return this.apduBuffer[index];
 	} // getByte
 
 	/**
@@ -343,9 +346,9 @@ public class CommandAPDU {
 	 * @see #getBuffer
 	 */
 	final public byte[] getBytes() {
-		byte[] apdu = new byte[apduLength];
+		var apdu = new byte[this.apduLength];
 
-		System.arraycopy(apduBuffer, 0, apdu, 0, apduLength);
+		System.arraycopy(this.apduBuffer, 0, apdu, 0, this.apduLength);
 
 		return apdu;
 	} // getBytes
@@ -356,7 +359,7 @@ public class CommandAPDU {
 	 * @return the length of the <code>CommandAPDU</code> currently stored
 	 */
 	final public int getLength() {
-		return apduLength;
+		return this.apduLength;
 	} // getLength
 
 	/**
@@ -373,8 +376,9 @@ public class CommandAPDU {
 	 *
 	 */
 	final public void setByte(int index, byte value) {
-		if (index < apduLength)
-			apduBuffer[index] = value;
+		if (index < this.apduLength) {
+			this.apduBuffer[index] = value;
+		}
 	} // setByte
 
 	/**
@@ -382,32 +386,36 @@ public class CommandAPDU {
 	 *
 	 * @return a string describing this <code>CommandAPDU</code>
 	 */
+	@Override
 	public String toString() {
-		String apduString = "";
+		var apduString = new StringBuilder();
 
-		apduString += "CLA = " + Integer.toHexString(apduBuffer[CLA] & 0xFF);
-		apduString += " INS = " + Integer.toHexString(apduBuffer[INS] & 0xFF);
-		apduString += " P1 = " + Integer.toHexString(apduBuffer[P1] & 0xFF);
-		apduString += " P2 = " + Integer.toHexString(apduBuffer[P2] & 0xFF);
-		apduString += " LC = " + Integer.toHexString(getLC() & 0xFF);
+		apduString.append("CLA = ").append(Integer.toHexString(this.apduBuffer[CLA] & 0xFF));
+		apduString.append(" INS = ").append(Integer.toHexString(this.apduBuffer[INS] & 0xFF));
+		apduString.append(" P1 = ").append(Integer.toHexString(this.apduBuffer[P1] & 0xFF));
+		apduString.append(" P2 = ").append(Integer.toHexString(this.apduBuffer[P2] & 0xFF));
+		apduString.append(" LC = ").append(Integer.toHexString(this.getLC() & 0xFF));
 
-		if (getLE() == -1)
-			apduString += " LE = " + getLE();
-		else
-			apduString += " LE = " + Integer.toHexString(getLE() & 0xFF);
+		if (this.getLE() == -1) {
+			apduString.append(" LE = ").append(this.getLE());
+		} else {
+			apduString.append(" LE = ").append(Integer.toHexString(this.getLE() & 0xFF));
+		}
 
-		if (apduLength > 5) {
-			apduString += "\nDATA = ";
+		if (this.apduLength > 5) {
+			apduString.append("\nDATA = ");
 
-			for (int i = 5; i < getLC() + 5; i++) {
-				if ((apduBuffer[i] & 0xFF) < 0x10)
-					apduString += '0';
+			for (var i = 5; i < this.getLC() + 5; i++) {
+				if ((this.apduBuffer[i] & 0xFF) < 0x10) {
+					apduString.append('0');
+				}
 
-				apduString += Integer.toHexString((int) (apduBuffer[i] & 0xFF)) + " ";
+				apduString.append(Integer.toHexString(this.apduBuffer[i] & 0xFF)).append(" ");
 			}
 		}
 
 		// make hex String representation of byte array
-		return (apduString.toUpperCase());
+		return apduString.toString().toUpperCase();
 	} // toString
 }
+// CHECKSTYLE:ON

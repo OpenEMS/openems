@@ -1,9 +1,9 @@
-import { JsonrpcNotification } from "../base";
 import { EdgeConfig } from '../../edge/edgeconfig';
+import { JsonrpcNotification } from "../base";
 
 /**
  * Represents a JSON-RPC Notification for new EdgeConfig.
- *  
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -17,7 +17,7 @@ export class EdgeConfigNotification extends JsonrpcNotification {
     public static readonly METHOD: string = "edgeConfig";
 
     public constructor(
-        public readonly params: EdgeConfig
+        public override readonly params: EdgeConfig,
     ) {
         super(EdgeConfigNotification.METHOD, params);
     }

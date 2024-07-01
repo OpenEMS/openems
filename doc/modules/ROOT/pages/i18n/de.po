@@ -3804,7 +3804,7 @@ msgstr ""
 #, no-wrap
 msgid ""
 "\t@Override\n"
-"\tprotected ModbusProtocol defineModbusProtocol() { // <15>\n"
+"\tprotected ModbusProtocol defineModbusProtocol() throws OpenemsException { // <15>\n"
 "\t\treturn new ModbusProtocol(this, // <16>\n"
 "\t\t\t\tnew FC3ReadRegistersTask(1000, Priority.HIGH, // <17>\n"
 "\t\t\t\t\t\tm(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(1000)))); // <18>\n"
@@ -4431,8 +4431,8 @@ msgstr "Den Quellcode herunterladen"
 
 #. type: Plain text
 #: gettingstarted.adoc:17
-msgid "Download any https://git-scm.com[git client icon:external-link[]] and install it. Our recommendation is https://www.sourcetreeapp.com/[Sourctree by Atlassian icon:external-link[]]"
-msgstr "Laden Sie alle https:/git-scm.com [git-client icon:external-link[]] herunter und installieren Sie es. Unsere Empfehlung lautet https://www.sourcetreeapp.com/[Sourctree by Atlassian icon:external-link[]]"
+msgid "Download any https://git-scm.com[git client icon:external-link[]] and install it. Our recommendation is https://www.sourcetreeapp.com/[Sourcetree by Atlassian icon:external-link[]]"
+msgstr "Laden Sie alle https:/git-scm.com [git-client icon:external-link[]] herunter und installieren Sie es. Unsere Empfehlung lautet https://www.sourcetreeapp.com/[Sourcetree by Atlassian icon:external-link[]]"
 
 #. type: Plain text
 #: gettingstarted.adoc:19

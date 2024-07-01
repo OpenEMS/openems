@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -54,11 +55,11 @@ class MemoryBankScratchCRC extends MemoryBankScratchEx {
 		super(ibutton);
 
 		// initialize attributes of this memory bank - DEFAULT: DS1963L scratchapd
-		bankDescription = "Scratchpad with CRC";
-		pageAutoCRC = true;
+		this.bankDescription = "Scratchpad with CRC";
+		this.pageAutoCRC = true;
 
 		// default copy scratchpad command
-		COPY_SCRATCHPAD_COMMAND = (byte) 0x55;
+		this.COPY_SCRATCHPAD_COMMAND = (byte) 0x55;
 	}
 
 	// --------
@@ -72,7 +73,7 @@ class MemoryBankScratchCRC extends MemoryBankScratchEx {
 	 * @param page         page number to read
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -81,11 +82,12 @@ class MemoryBankScratchCRC extends MemoryBankScratchEx {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
-		byte[] extraInfo = new byte[extraInfoLength];
+		var extraInfo = new byte[this.extraInfoLength];
 
-		readPageCRC(page, readContinue, readBuf, offset, extraInfo);
+		this.readPageCRC(page, readContinue, readBuf, offset, extraInfo);
 	}
 
 	/**
@@ -97,7 +99,7 @@ class MemoryBankScratchCRC extends MemoryBankScratchEx {
 	 * @param page         page number to read
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -107,23 +109,27 @@ class MemoryBankScratchCRC extends MemoryBankScratchEx {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
 
 		// only needs to be implemented if supported by hardware
-		if (!pageAutoCRC)
+		if (!this.pageAutoCRC) {
 			throw new OneWireException("Read page with CRC not supported in this memory bank");
+		}
 
 		// attempt to put device at max desired speed
-		if (!readContinue)
-			checkSpeed();
+		if (!readContinue) {
+			this.checkSpeed();
+		}
 
 		// check if read exceeds memory
-		if (page > numberPages)
+		if (page > this.numberPages) {
 			throw new OneWireException("Read exceeds memory bank end");
+		}
 
 		// read the scratchpad
-		readScratchpad(readBuf, offset, pageLength, extraInfo);
+		this.readScratchpad(readBuf, offset, this.pageLength, extraInfo);
 	}
 
 	// --------
@@ -146,44 +152,47 @@ class MemoryBankScratchCRC extends MemoryBankScratchEx {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readScratchpad(byte[] readBuf, int offset, int len, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
 		// select the device
-		if (!ib.adapter.select(ib.address)) {
-			forceVerify();
+		if (!this.ib.adapter.select(this.ib.address)) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Device select failed");
 		}
 
 		// build block
-		byte[] raw_buf = new byte[extraInfoLength + pageLength + 3];
+		var raw_buf = new byte[this.extraInfoLength + this.pageLength + 3];
 
 		raw_buf[0] = READ_SCRATCHPAD_COMMAND;
 
-		System.arraycopy(ffBlock, 0, raw_buf, 1, raw_buf.length - 1);
+		System.arraycopy(this.ffBlock, 0, raw_buf, 1, raw_buf.length - 1);
 
 		// send block, command + (extra) + page data + CRC
-		ib.adapter.dataBlock(raw_buf, 0, raw_buf.length);
+		this.ib.adapter.dataBlock(raw_buf, 0, raw_buf.length);
 
 		// get the starting offset to see when the crc will show up
 		int addr = raw_buf[1];
 
-		addr = (addr | ((raw_buf[2] << 8) & 0xFF00)) & 0xFFFF;
+		addr = (addr | raw_buf[2] << 8 & 0xFF00) & 0xFFFF;
 
-		int num_crc = 35 - (addr & 0x001F) + extraInfoLength;
+		var num_crc = 35 - (addr & 0x001F) + this.extraInfoLength;
 
 		// check crc of entire block
 		if (CRC16.compute(raw_buf, 0, num_crc, 0) != 0x0000B001) {
-			forceVerify();
+			this.forceVerify();
 
 			throw new OneWireIOException("Invalid CRC16 read from device");
 		}
 
 		// optionally extract the extra info
-		if (extraInfo != null)
-			System.arraycopy(raw_buf, 1, extraInfo, 0, extraInfoLength);
+		if (extraInfo != null) {
+			System.arraycopy(raw_buf, 1, extraInfo, 0, this.extraInfoLength);
+		}
 
 		// extract the page data
-		System.arraycopy(raw_buf, extraInfoLength + 1, readBuf, 0, pageLength);
+		System.arraycopy(raw_buf, this.extraInfoLength + 1, readBuf, 0, this.pageLength);
 	}
 }
+// CHECKSTYLE:ON

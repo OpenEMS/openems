@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -64,7 +65,7 @@ import com.dalsemi.onewire.utils.Convert;
  * <P>
  * Example device setup
  * </P>
- * 
+ *
  * <PRE>
  * <CODE>
  *      byte[] state = owd.readDevice();
@@ -79,7 +80,7 @@ import com.dalsemi.onewire.utils.Convert;
  * <P>
  * Example device read
  * </P>
- * 
+ *
  * <PRE>
  * <CODE>
  *      owd.doADConvert(OneWireContainer20.CHANNELA, state);
@@ -93,7 +94,7 @@ import com.dalsemi.onewire.utils.Convert;
  *
  * <P>
  * When converting analog voltages to digital, the user of the device must
- * gaurantee that the voltage seen by the channel of the quad A/D does not
+ * guarantee that the voltage seen by the channel of the quad A/D does not
  * exceed the selected input range of the device. If this happens, the device
  * will default to reading 0 volts. There is NO way to know if the device is
  * reading a higher than specified voltage or NO voltage.
@@ -171,10 +172,8 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 * Default constructor
 	 */
 	public OneWireContainer20() {
-		super();
-
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
@@ -188,7 +187,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 		super(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
@@ -202,7 +201,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 		super(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
@@ -216,7 +215,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 		super(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	// --------
@@ -228,6 +227,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *
 	 * @return representation of this 1-Wire device's name
 	 */
+	@Override
 	public String getName() {
 		return "DS2450";
 	}
@@ -237,6 +237,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *
 	 * @return representation of this 1-Wire device's other names
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "1-Wire Quad A/D Converter";
 	}
@@ -246,13 +247,16 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *
 	 * @return description of this 1-Wire device's functionality
 	 */
+	@Override
 	public String getDescription() {
-		return "Four high-impedance inputs for measurement of analog "
-				+ "voltages.  User programable input range.  Very low "
-				+ "power.  Built-in multidrop controller.  Channels "
-				+ "not used as input can be configured as outputs " + "through the use of open drain digital outputs. "
-				+ "Capable of use of Overdrive for fast data transfer. "
-				+ "Uses on-chip 16-bit CRC-generator to guarantee good data.";
+		return """
+				Four high-impedance inputs for measurement of analog \
+				voltages.  User programmable input range.  Very low \
+				power.  Built-in multidrop controller.  Channels \
+				not used as input can be configured as outputs \
+				through the use of open drain digital outputs. \
+				Capable of use of Overdrive for fast data transfer. \
+				Uses on-chip 16-bit CRC-generator to guarantee good data.""";
 	}
 
 	/**
@@ -260,6 +264,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *
 	 * @return maximum speed of this One-Wire device
 	 */
+	@Override
 	public int getMaxSpeed() {
 		return DSPortAdapter.SPEED_OVERDRIVE;
 	}
@@ -273,15 +278,17 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 * @see com.dalsemi.onewire.container.PagedMemoryBank
 	 * @see com.dalsemi.onewire.container.OTPMemoryBank
 	 */
+	@Override
 	public Enumeration<MemoryBank> getMemoryBanks() {
-		Vector<MemoryBank> bank_vector = new Vector<>(4);
+		var bank_vector = new Vector<MemoryBank>(4);
 
 		// readout
-		bank_vector.addElement(readout);
+		bank_vector.addElement(this.readout);
 
 		// control/alarms/calibration
-		for (int i = 0; i < 3; i++)
-			bank_vector.addElement(regs.elementAt(i));
+		for (var i = 0; i < 3; i++) {
+			bank_vector.addElement(this.regs.elementAt(i));
+		}
 
 		return bank_vector.elements();
 	}
@@ -297,6 +304,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *
 	 * @return the number of channels
 	 */
+	@Override
 	public int getNumberADChannels() {
 		return NUM_CHANNELS;
 	}
@@ -306,6 +314,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *
 	 * @return <CODE>true</CODE> if it has high/low trips
 	 */
+	@Override
 	public boolean hasADAlarms() {
 		return true;
 	}
@@ -319,8 +328,9 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 * @return available ranges starting from the largest range to the smallest
 	 *         range
 	 */
+	@Override
 	public double[] getADRanges(int channel) {
-		double[] ranges = new double[2];
+		var ranges = new double[2];
 
 		ranges[0] = 5.12;
 		ranges[1] = 2.56;
@@ -338,11 +348,13 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *
 	 * @return available resolutions
 	 */
+	@Override
 	public double[] getADResolutions(int channel, double range) {
-		double[] res = new double[16];
+		var res = new double[16];
 
-		for (int i = 0; i < 16; i++)
-			res[i] = range / (double) (1 << (i + 1));
+		for (var i = 0; i < 16; i++) {
+			res[i] = range / (1 << i + 1);
+		}
 
 		return res;
 	}
@@ -353,6 +365,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *
 	 * @return <CODE>true</CODE> if can do multi-channel voltage reads
 	 */
+	@Override
 	public boolean canADMultiChannelRead() {
 		return true;
 	}
@@ -367,7 +380,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 * from this method with static utility methods to extract the status, alarm and
 	 * other register values. Appended to the data is 2 bytes that represent a
 	 * bitmap of changed bytes. These bytes are used in the
-	 * <CODE>writeADRegisters()</CODE> in conjuction with the 'set' methods to only
+	 * <CODE>writeADRegisters()</CODE> in conjunction with the 'set' methods to only
 	 * write back the changed register bytes.
 	 *
 	 * @return register page contents verified with onboard CRC
@@ -375,15 +388,16 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 * @throws OneWireIOException Data was not read correctly
 	 * @throws OneWireException   Could not find part
 	 */
+	@Override
 	public byte[] readDevice() throws OneWireIOException, OneWireException {
-		byte[] read_buf = new byte[27];
+		var read_buf = new byte[27];
 		MemoryBankAD mb;
 
 		// read the banks, control/alarm/calibration
-		for (int i = 0; i < 3; i++) {
-			mb = (MemoryBankAD) regs.elementAt(i);
+		for (var i = 0; i < 3; i++) {
+			mb = (MemoryBankAD) this.regs.elementAt(i);
 
-			mb.readPageCRC(0, (i != 0), read_buf, i * 8);
+			mb.readPageCRC(0, i != 0, read_buf, i * 8);
 		}
 
 		// zero out the bitmap
@@ -406,6 +420,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 * @throws OneWireIOException Data was not written correctly
 	 * @throws OneWireException   Could not find part
 	 */
+	@Override
 	public void writeDevice(byte[] state) throws OneWireIOException, OneWireException {
 		int start_offset, len, i, bank, index;
 		boolean got_block;
@@ -435,7 +450,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 			start_offset = 0;
 			len = 0;
 			got_block = false;
-			mb = (MemoryBankAD) regs.elementAt(bank);
+			mb = (MemoryBankAD) this.regs.elementAt(bank);
 
 			// loop through each byte in the memory bank
 			for (i = 0; i < 8; i++) {
@@ -444,19 +459,18 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 				if (Bit.arrayReadBit(bank * 8 + i, BITMAP_OFFSET, state) == 1) {
 
 					// check if already in a block
-					if (got_block)
+					if (got_block) {
 						len++;
-
-					// new block
-					else {
+					} else {
 						got_block = true;
 						start_offset = i;
 						len = 1;
 					}
 
 					// check for last byte exception, write current block
-					if (i == 7)
+					if (i == 7) {
 						mb.write(start_offset, state, bank * 8 + start_offset, len);
+					}
 				} else if (got_block) {
 
 					// done with this block so write it
@@ -487,16 +501,17 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 * @throws OneWireIOException Data was not read correctly
 	 * @throws OneWireException   Could not find part
 	 */
+	@Override
 	public double[] getADVoltage(byte[] state) throws OneWireIOException, OneWireException {
-		byte[] read_buf = new byte[8];
-		double[] ret_dbl = new double[4];
+		var read_buf = new byte[8];
+		var ret_dbl = new double[4];
 
 		// get readout page
-		readout.readPageCRC(0, false, read_buf, 0);
+		this.readout.readPageCRC(0, false, read_buf, 0);
 
 		// convert to array of doubles
-		for (int ch = 0; ch < 4; ch++) {
-			ret_dbl[ch] = interpretVoltage(Convert.toLong(read_buf, ch * 2, 2), getADRange(ch, state));
+		for (var ch = 0; ch < 4; ch++) {
+			ret_dbl[ch] = interpretVoltage(Convert.toLong(read_buf, ch * 2, 2), this.getADRange(ch, state));
 		}
 
 		return ret_dbl;
@@ -520,18 +535,20 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 * @throws OneWireException         Could not find part
 	 * @throws IllegalArgumentException Invalid channel number passed
 	 */
+	@Override
 	public double getADVoltage(int channel, byte[] state) throws OneWireIOException, OneWireException {
 
 		// check for valid channel value
-		if ((channel < 0) || (channel > 3))
+		if (channel < 0 || channel > 3) {
 			throw new IllegalArgumentException("Invalid channel number");
+		}
 
 		// get readout page
-		byte[] read_buf = new byte[8];
+		var read_buf = new byte[8];
 
-		readout.readPageCRC(0, false, read_buf, 0);
+		this.readout.readPageCRC(0, false, read_buf, 0);
 
-		return interpretVoltage(Convert.toLong(read_buf, channel * 2, 2), getADRange(channel, state));
+		return interpretVoltage(Convert.toLong(read_buf, channel * 2, 2), this.getADRange(channel, state));
 	}
 
 	/**
@@ -546,10 +563,11 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 * @throws OneWireIOException Data was not written correctly
 	 * @throws OneWireException   Could not find part
 	 */
+	@Override
 	public void doADConvert(int channel, byte[] state) throws OneWireIOException, OneWireException {
 
 		// call with set presets to 0
-		doADConvert(channel, PRESET_TO_ZEROS, state);
+		this.doADConvert(channel, PRESET_TO_ZEROS, state);
 	}
 
 	/**
@@ -565,15 +583,17 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 * @throws OneWireIOException Data was not written correctly
 	 * @throws OneWireException   Could not find part
 	 */
+	@Override
 	public void doADConvert(boolean[] doConvert, byte[] state) throws OneWireIOException, OneWireException {
 
 		// call with set presets to 0
-		int[] presets = new int[4];
+		var presets = new int[4];
 
-		for (int i = 0; i < 4; i++)
+		for (var i = 0; i < 4; i++) {
 			presets[i] = PRESET_TO_ZEROS;
+		}
 
-		doADConvert(doConvert, presets, state);
+		this.doADConvert(doConvert, presets, state);
 	}
 
 	/**
@@ -593,11 +613,12 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 			throws OneWireIOException, OneWireException, IllegalArgumentException {
 
 		// check for valid channel value
-		if ((channel < 0) || (channel > 3))
+		if (channel < 0 || channel > 3) {
 			throw new IllegalArgumentException("Invalid channel number");
+		}
 
 		// perform the conversion (do fixed max conversion time)
-		doADConvert((byte) (0x01 << channel), (byte) (preset << channel), 1440, state);
+		this.doADConvert((byte) (0x01 << channel), (byte) (preset << channel), 1440, state);
 	}
 
 	/**
@@ -617,31 +638,33 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 			throws OneWireIOException, OneWireException {
 		byte input_select_mask = 0;
 		byte read_out_control = 0;
-		int time = 160; // Time required in micro Seconds to covert.
+		var time = 160; // Time required in micro Seconds to convert.
 
 		// calculate the input mask, readout control, and conversion time
-		for (int ch = 3; ch >= 0; ch--) {
+		for (var ch = 3; ch >= 0; ch--) {
 
 			// input select
 			input_select_mask <<= 1;
 
-			if (doConvert[ch])
+			if (doConvert[ch]) {
 				input_select_mask |= 0x01;
+			}
 
 			// readout control
 			read_out_control <<= 2;
 
-			if (preset[ch] == PRESET_TO_ZEROS)
+			if (preset[ch] == PRESET_TO_ZEROS) {
 				read_out_control |= 0x01;
-			else if (preset[ch] == PRESET_TO_ONES)
+			} else if (preset[ch] == PRESET_TO_ONES) {
 				read_out_control |= 0x02;
+			}
 
 			// conversion time
-			time += (80 * getADResolution(ch, state));
+			time += 80 * this.getADResolution(ch, state);
 		}
 
 		// do the conversion
-		doADConvert(input_select_mask, read_out_control, time, state);
+		this.doADConvert(input_select_mask, read_out_control, time, state);
 	}
 
 	// --------
@@ -663,16 +686,18 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *
 	 * @throws IllegalArgumentException Invalid channel number passed
 	 */
+	@Override
 	public double getADAlarm(int channel, int alarmType, byte[] state) {
 
 		// check for valid channel value
-		if ((channel < 0) || (channel > 3))
+		if (channel < 0 || channel > 3) {
 			throw new IllegalArgumentException("Invalid channel number");
+		}
 
 		// extract alarm value and convert to voltage
-		long temp_long = (long) (state[ALARM_OFFSET + channel * 2 + alarmType] & 0x00FF) << 8;
+		var temp_long = (long) (state[ALARM_OFFSET + channel * 2 + alarmType] & 0x00FF) << 8;
 
-		return interpretVoltage(temp_long, getADRange(channel, state));
+		return interpretVoltage(temp_long, this.getADRange(channel, state));
 	}
 
 	/**
@@ -691,13 +716,15 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *
 	 * @throws IllegalArgumentException Invalid channel number passed
 	 */
+	@Override
 	public boolean getADAlarmEnable(int channel, int alarmType, byte[] state) {
 
 		// check for valid channel value
-		if ((channel < 0) || (channel > 3))
+		if (channel < 0 || channel > 3) {
 			throw new IllegalArgumentException("Invalid channel number");
+		}
 
-		return (Bit.arrayReadBit(2 + alarmType, channel * 2 + 1, state) == 1);
+		return Bit.arrayReadBit(2 + alarmType, channel * 2 + 1, state) == 1;
 	}
 
 	/**
@@ -716,13 +743,15 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *
 	 * @throws IllegalArgumentException Invalid channel number passed
 	 */
+	@Override
 	public boolean hasADAlarmed(int channel, int alarmType, byte[] state) {
 
 		// check for valid channel value
-		if ((channel < 0) || (channel > 3))
+		if (channel < 0 || channel > 3) {
 			throw new IllegalArgumentException("Invalid channel number");
+		}
 
-		return (Bit.arrayReadBit(4 + alarmType, channel * 2 + 1, state) == 1);
+		return Bit.arrayReadBit(4 + alarmType, channel * 2 + 1, state) == 1;
 	}
 
 	/**
@@ -739,19 +768,22 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *
 	 * @throws IllegalArgumentException Invalid channel number passed
 	 */
+	@Override
 	public double getADResolution(int channel, byte[] state) {
 
 		// check for valid channel value
-		if ((channel < 0) || (channel > 3))
+		if (channel < 0 || channel > 3) {
 			throw new IllegalArgumentException("Invalid channel number");
+		}
 
-		int res = state[channel * 2] & 0x0F;
+		var res = state[channel * 2] & 0x0F;
 
 		// return resolution, if 0 then 16 bits
-		if (res == 0)
+		if (res == 0) {
 			res = 16;
+		}
 
-		return getADRange(channel, state) / (double) (1 << res);
+		return this.getADRange(channel, state) / (1 << res);
 	}
 
 	/**
@@ -768,13 +800,15 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *
 	 * @throws IllegalArgumentException Invalid channel number passed
 	 */
+	@Override
 	public double getADRange(int channel, byte[] state) {
 
 		// check for valid channel value
-		if ((channel < 0) || (channel > 3))
+		if (channel < 0 || channel > 3) {
 			throw new IllegalArgumentException("Invalid channel number");
+		}
 
-		return (Bit.arrayReadBit(0, channel * 2 + 1, state) == 1) ? 5.12 : 2.56;
+		return Bit.arrayReadBit(0, channel * 2 + 1, state) == 1 ? 5.12 : 2.56;
 	}
 
 	/**
@@ -794,10 +828,11 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	public boolean isOutputEnabled(int channel, byte[] state) throws IllegalArgumentException {
 
 		// check for valid channel value
-		if ((channel < 0) || (channel > 3))
+		if (channel < 0 || channel > 3) {
 			throw new IllegalArgumentException("Invalid channel number");
+		}
 
-		return (Bit.arrayReadBit(7, channel * 2, state) == 1);
+		return Bit.arrayReadBit(7, channel * 2, state) == 1;
 	}
 
 	/**
@@ -818,14 +853,15 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	public boolean getOutputState(int channel, byte[] state) throws IllegalArgumentException {
 
 		// check for valid channel value
-		if ((channel < 0) || (channel > 3))
+		if (channel < 0 || channel > 3) {
 			throw new IllegalArgumentException("Invalid channel number");
+		}
 
-		return (Bit.arrayReadBit(6, channel * 2, state) == 1);
+		return Bit.arrayReadBit(6, channel * 2, state) == 1;
 	}
 
 	/**
-	 * Detects if this device has seen a Power-On-Reset (POR). If this has occured
+	 * Detects if this device has seen a Power-On-Reset (POR). If this has occurred
 	 * it may be necessary to set the state of the device to the desired values. The
 	 * register buffer is retrieved from the <CODE>readDevice()</CODE> method.
 	 *
@@ -836,7 +872,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *         <CODE>true</CODE> if not conducting
 	 */
 	public boolean getDevicePOR(byte[] state) {
-		return (Bit.arrayReadBit(7, 1, state) == 1);
+		return Bit.arrayReadBit(7, 1, state) == 1;
 	}
 
 	/**
@@ -850,7 +886,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 * @return <CODE>true</CODE> if set to external power operation
 	 */
 	public boolean isPowerExternal(byte[] state) {
-		return (state[EXPOWER_OFFSET] != 0);
+		return state[EXPOWER_OFFSET] != 0;
 	}
 
 	// --------
@@ -874,15 +910,17 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *
 	 * @throws IllegalArgumentException Invalid channel number passed
 	 */
+	@Override
 	public void setADAlarm(int channel, int alarmType, double alarm, byte[] state) {
 
 		// check for valid channel value
-		if ((channel < 0) || (channel > 3))
+		if (channel < 0 || channel > 3) {
 			throw new IllegalArgumentException("Invalid channel number");
+		}
 
-		int offset = ALARM_OFFSET + channel * 2 + alarmType;
+		var offset = ALARM_OFFSET + channel * 2 + alarmType;
 
-		state[offset] = (byte) ((voltageToInt(alarm, getADRange(channel, state)) >>> 8) & 0x00FF);
+		state[offset] = (byte) (voltageToInt(alarm, this.getADRange(channel, state)) >>> 8 & 0x00FF);
 
 		// set bitmap field to indicate this register has changed
 		Bit.arrayWriteBit(1, offset, BITMAP_OFFSET, state);
@@ -905,14 +943,16 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *
 	 * @throws IllegalArgumentException Invalid channel number passed
 	 */
+	@Override
 	public void setADAlarmEnable(int channel, int alarmType, boolean alarmEnable, byte[] state) {
 
 		// check for valid channel value
-		if ((channel < 0) || (channel > 3))
+		if (channel < 0 || channel > 3) {
 			throw new IllegalArgumentException("Invalid channel number");
+		}
 
 		// change alarm enable
-		Bit.arrayWriteBit(((alarmEnable) ? 1 : 0), 2 + alarmType, channel * 2 + 1, state);
+		Bit.arrayWriteBit(alarmEnable ? 1 : 0, 2 + alarmType, channel * 2 + 1, state);
 
 		// set bitmap field to indicate this register has changed
 		Bit.arrayWriteBit(1, channel * 2 + 1, BITMAP_OFFSET, state);
@@ -933,15 +973,17 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *
 	 * @throws IllegalArgumentException Invalid channel number passed
 	 */
+	@Override
 	public void setADResolution(int channel, double resolution, byte[] state) {
 
 		// check for valid channel value
-		if ((channel < 0) || (channel > 3))
+		if (channel < 0 || channel > 3) {
 			throw new IllegalArgumentException("Invalid channel number");
+		}
 
 		// convert voltage resolution into bit resolution
-		int div = (int) (getADRange(channel, state) / resolution);
-		int res_bits = 0;
+		var div = (int) (this.getADRange(channel, state) / resolution);
+		var res_bits = 0;
 
 		do {
 			div >>>= 1;
@@ -951,18 +993,20 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 
 		res_bits -= 1;
 
-		if (res_bits == 16)
+		if (res_bits == 16) {
 			res_bits = 0;
+		}
 
 		// check for valid bit resolution
-		if ((res_bits < 0) || (res_bits > 15))
+		if (res_bits < 0 || res_bits > 15) {
 			throw new IllegalArgumentException("Invalid resolution");
+		}
 
 		// clear out the resolution
 		state[channel * 2] &= (byte) 0xF0;
 
 		// set the resolution
-		state[channel * 2] |= (byte) ((res_bits == 16) ? 0 : res_bits);
+		state[channel * 2] |= (byte) (res_bits == 16 ? 0 : res_bits);
 
 		// set bitmap field to indicate this register has changed
 		Bit.arrayWriteBit(1, channel * 2, BITMAP_OFFSET, state);
@@ -983,21 +1027,24 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 *
 	 * @throws IllegalArgumentException Invalid channel number passed
 	 */
+	@Override
 	public void setADRange(int channel, double range, byte[] state) {
 
 		// check for valid channel value
-		if ((channel < 0) || (channel > 3))
+		if (channel < 0 || channel > 3) {
 			throw new IllegalArgumentException("Invalid channel number");
+		}
 
 		// convert range into bit value
 		int range_bit;
 
-		if ((range > 5.00) & (range < 5.30))
+		if (range > 5.00 && range < 5.30) {
 			range_bit = 1;
-		else if ((range > 2.40) & (range < 2.70))
+		} else if (range > 2.40 && range < 2.70) {
 			range_bit = 0;
-		else
+		} else {
 			throw new IllegalArgumentException("Invalid range");
+		}
 
 		// change range bit
 		Bit.arrayWriteBit(range_bit, 0, channel * 2 + 1, state);
@@ -1026,15 +1073,17 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	public void setOutput(int channel, boolean outputEnable, boolean outputState, byte[] state) {
 
 		// check for valid channel value
-		if ((channel < 0) || (channel > 3))
+		if (channel < 0 || channel > 3) {
 			throw new IllegalArgumentException("Invalid channel number");
+		}
 
 		// output enable bit
-		Bit.arrayWriteBit(((outputEnable) ? 1 : 0), 7, channel * 2, state);
+		Bit.arrayWriteBit(outputEnable ? 1 : 0, 7, channel * 2, state);
 
 		// optionally set state
-		if (outputEnable)
-			Bit.arrayWriteBit(((outputState) ? 1 : 0), 6, channel * 2, state);
+		if (outputEnable) {
+			Bit.arrayWriteBit(outputState ? 1 : 0, 6, channel * 2, state);
+		}
 
 		// set bitmap field to indicate this register has changed
 		Bit.arrayWriteBit(1, channel * 2, BITMAP_OFFSET, state);
@@ -1074,7 +1123,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 * @return calculated voltage based on the range
 	 */
 	public static double interpretVoltage(long rawVoltage, double range) {
-		return (((double) rawVoltage / 65535.0) * range);
+		return rawVoltage / 65535.0 * range;
 	}
 
 	/**
@@ -1087,7 +1136,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	 * @return the DS2450 voltage
 	 */
 	public static int voltageToInt(double voltage, double range) {
-		return (int) ((voltage * 65535.0) / range);
+		return (int) (voltage * 65535.0 / range);
 	}
 
 	// --------
@@ -1100,12 +1149,12 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	private void initMem() {
 
 		// readout
-		readout = new MemoryBankAD(this);
+		this.readout = new MemoryBankAD(this);
 
 		// control
-		regs = new Vector<>(3);
+		this.regs = new Vector<>(3);
 
-		MemoryBankAD temp_mb = new MemoryBankAD(this);
+		var temp_mb = new MemoryBankAD(this);
 
 		temp_mb.bankDescription = "A/D Control and Status";
 		temp_mb.generalPurposeMemory = false;
@@ -1113,7 +1162,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 		temp_mb.readWrite = true;
 		temp_mb.readOnly = false;
 
-		regs.addElement(temp_mb);
+		this.regs.addElement(temp_mb);
 
 		// Alarms
 		temp_mb = new MemoryBankAD(this);
@@ -1123,7 +1172,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 		temp_mb.readWrite = true;
 		temp_mb.readOnly = false;
 
-		regs.addElement(temp_mb);
+		this.regs.addElement(temp_mb);
 
 		// calibration
 		temp_mb = new MemoryBankAD(this);
@@ -1133,7 +1182,7 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 		temp_mb.readWrite = true;
 		temp_mb.readOnly = false;
 
-		regs.addElement(temp_mb);
+		this.regs.addElement(temp_mb);
 	}
 
 	/**
@@ -1159,65 +1208,66 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 		}
 
 		// Create the command block to be sent.
-		byte[] raw_buf = new byte[5];
+		var raw_buf = new byte[5];
 
 		raw_buf[0] = CONVERT_COMMAND;
 		raw_buf[1] = inputSelectMask;
-		raw_buf[2] = (byte) readOutControl;
+		raw_buf[2] = readOutControl;
 		raw_buf[3] = (byte) 0xFF;
 		raw_buf[4] = (byte) 0xFF;
 
 		// calculate the CRC16 up to and including readOutControl
-		int crc16 = CRC16.compute(raw_buf, 0, 3, 0);
+		var crc16 = CRC16.compute(raw_buf, 0, 3, 0);
 
 		// Send command block.
-		if (adapter.select(address)) {
-			if (isPowerExternal(state)) {
-
-				// good power so send the entire block (with both CRC)
-				adapter.dataBlock(raw_buf, 0, 5);
-
-				// Wait for complete of conversion
-				try {
-					Thread.sleep((timeUs / 1000) + 10);
-				} catch (InterruptedException e) {
-				}
-				;
-
-				// calculate the rest of the CRC16
-				crc16 = CRC16.compute(raw_buf, 3, 2, crc16);
-			} else {
-
-				// parasite power so send the all but last byte
-				adapter.dataBlock(raw_buf, 0, 4);
-
-				// setup power delivery
-				adapter.setPowerDuration(DSPortAdapter.DELIVERY_INFINITE);
-				adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
-
-				// get the final CRC byte and start strong power delivery
-				raw_buf[4] = (byte) adapter.getByte();
-				crc16 = CRC16.compute(raw_buf, 3, 2, crc16);
-
-				// Wait for power delivery to complete the conversion
-				try {
-					Thread.sleep((timeUs / 1000) + 1);
-				} catch (InterruptedException e) {
-				}
-				;
-
-				// Turn power off.
-				adapter.setPowerNormal();
-			}
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer20 - Device not found.");
+		}
+		if (this.isPowerExternal(state)) {
+
+			// good power so send the entire block (with both CRC)
+			this.adapter.dataBlock(raw_buf, 0, 5);
+
+			// Wait for complete of conversion
+			try {
+				Thread.sleep(timeUs / 1000 + 10);
+			} catch (InterruptedException e) {
+			}
+
+			// calculate the rest of the CRC16
+			crc16 = CRC16.compute(raw_buf, 3, 2, crc16);
+		} else {
+
+			// parasite power so send the all but last byte
+			this.adapter.dataBlock(raw_buf, 0, 4);
+
+			// setup power delivery
+			this.adapter.setPowerDuration(DSPortAdapter.DELIVERY_INFINITE);
+			this.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
+
+			// get the final CRC byte and start strong power delivery
+			raw_buf[4] = (byte) this.adapter.getByte();
+			crc16 = CRC16.compute(raw_buf, 3, 2, crc16);
+
+			// Wait for power delivery to complete the conversion
+			try {
+				Thread.sleep(timeUs / 1000 + 1);
+			} catch (InterruptedException e) {
+			}
+
+			// Turn power off.
+			this.adapter.setPowerNormal();
+		}
 
 		// check the CRC result
-		if (crc16 != 0x0000B001)
+		if (crc16 != 0x0000B001) {
 			throw new OneWireIOException("OneWireContainer20 - Failure during conversion - Bad CRC");
+		}
 
 		// check if still busy
-		if (adapter.getByte() == 0x00)
+		if (this.adapter.getByte() == 0x00) {
 			throw new OneWireIOException("Conversion failed to complete.");
+		}
 	}
 }
+// CHECKSTYLE:ON

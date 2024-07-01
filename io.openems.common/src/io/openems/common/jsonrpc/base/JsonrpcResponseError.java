@@ -15,7 +15,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Response Error.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -27,36 +27,50 @@ import io.openems.common.utils.JsonUtils;
  *   }
  * }
  * </pre>
- * 
+ *
  * @see <a href="https://www.jsonrpc.org/specification#error_object">JSON-RPC
  *      specification</a>
  */
 public class JsonrpcResponseError extends JsonrpcResponse {
 
-	private final static Logger LOG = LoggerFactory.getLogger(JsonrpcResponseError.class);
+	private static final Logger LOG = LoggerFactory.getLogger(JsonrpcResponseError.class);
 
+	/**
+	 * Parses a JSON String to a {@link JsonrpcResponseError}.
+	 *
+	 * @param json the JSON String
+	 * @return the {@link JsonrpcResponseError}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static JsonrpcResponseError from(String json) throws OpenemsNamedException {
-		return from(JsonUtils.parseToJsonObject(json));
+		return JsonrpcResponseError.from(JsonUtils.parseToJsonObject(json));
 	}
 
+	/**
+	 * Parses a {@link JsonObject} to a {@link JsonrpcResponseError}.
+	 *
+	 * @param j the {@link JsonObject}
+	 * @return the {@link JsonrpcResponseError}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static JsonrpcResponseError from(JsonObject j) throws OpenemsNamedException {
-		UUID id = UUID.fromString(JsonUtils.getAsString(j, "id"));
-		JsonObject error = JsonUtils.getAsJsonObject(j, "error");
-		int code = JsonUtils.getAsInt(error, "code");
+		var id = UUID.fromString(JsonUtils.getAsString(j, "id"));
+		var error = JsonUtils.getAsJsonObject(j, "error");
+		var code = JsonUtils.getAsInt(error, "code");
 		OpenemsError openemsError;
 		try {
 			openemsError = OpenemsError.fromCode(code);
 		} catch (OpenemsException e) {
-			LOG.warn("Falling back to Generic Error for JSON-RPC " + j.toString() + "; " + e.getMessage());
+			JsonrpcResponseError.LOG
+					.warn("Falling back to Generic Error for JSON-RPC " + j.toString() + "; " + e.getMessage());
 			openemsError = OpenemsError.GENERIC;
 		}
 		if (openemsError == OpenemsError.GENERIC) {
-			String message = JsonUtils.getAsString(error, "message");
+			var message = JsonUtils.getAsString(error, "message");
 			return new JsonrpcResponseError(id, message);
-		} else {
-			JsonArray params = JsonUtils.getAsJsonArray(error, "data");
-			return new JsonrpcResponseError(id, openemsError, params);
 		}
+		var params = JsonUtils.getAsJsonArray(error, "data");
+		return new JsonrpcResponseError(id, openemsError, params);
 	}
 
 	private final Logger log = LoggerFactory.getLogger(JsonrpcResponseError.class);
@@ -71,16 +85,16 @@ public class JsonrpcResponseError extends JsonrpcResponse {
 	}
 
 	/**
-	 * Creates a GENERIC error.
-	 * 
-	 * @param id
-	 * @param message
+	 * Creates a generic JSON-RPC Error response.
+	 *
+	 * @param id      the request ID
+	 * @param message the error message
 	 */
 	public JsonrpcResponseError(UUID id, String message) {
 		super(id);
 		this.openemsError = OpenemsError.GENERIC;
 		this.params = new JsonArray();
-		params.add(message);
+		this.params.add(message);
 	}
 
 	public JsonrpcResponseError(UUID id, OpenemsNamedException exception) {
@@ -91,8 +105,8 @@ public class JsonrpcResponseError extends JsonrpcResponse {
 
 	@Override
 	public JsonObject toJsonObject() {
-		Object[] params = new Object[this.params.size()];
-		for (int i = 0; i < params.length; i++) {
+		var params = new Object[this.params.size()];
+		for (var i = 0; i < params.length; i++) {
 			try {
 				params[i] = JsonUtils.getAsBestType(this.params.get(i));
 			} catch (OpenemsNamedException e) {
@@ -113,13 +127,18 @@ public class JsonrpcResponseError extends JsonrpcResponse {
 	}
 
 	public OpenemsError getOpenemsError() {
-		return openemsError;
+		return this.openemsError;
 	}
 
 	public JsonArray getParams() {
-		return params;
+		return this.params;
 	}
 
+	/**
+	 * Gets the error message parameters as Object array.
+	 *
+	 * @return the array of error message parameters
+	 */
 	public Object[] getParamsAsObjectArray() {
 		try {
 			return (Object[]) JsonUtils.getAsBestType(this.params);

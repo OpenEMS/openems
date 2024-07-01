@@ -1,7 +1,20 @@
-= SOCOMEC Diris A10 | A14 | B30 | E24 Meter
+= SOCOMEC Meter
 
-Implemented Natures::
-- SymmetricMeter
-- AsymmetricMeter
+Just configure `Meter.Socomec.Singlephase` or `Meter.Socomec.Threephase`. The actual type and modbus protocol of the Socomec meter is identified automatically.
+
+* Implemented singlephase meters:
+** https://www.socomec.com/range-single-circuit-energy-meter_en.html?product=/countis-e10-11-12_en.html[Socomec Countis E14]
+  
+* Implemented threephase meters:
+** https://www.socomec.com/range-single-circuit-energy-meter_en.html?product=/countis-e20-21_en.html[Socomec Countis E23/E24/E27/E28]
+** https://www.socomec.com/range-single-circuit-energy-meter_en.html?product=/countis-e30-31-32-33_en.html[Socomec Countis E34]
+** https://www.socomec.com/range-single-circuit-energy-meter_en.html?product=/countis-e40-41-42-44_en.html[Socomec Countis E44]
+** https://www.socomec.com/range-single-circuit-multifunction-meters_en.html?product=/diris-a10_en.html[Socomec Diris A10]
+** https://www.socomec.com/range-single-circuit-multifunction-meters_en.html?product=/diris-a14_en.html[Socomec Diris A14]
+** https://www.socomec.com/range-single-circuit-multifunction-meters_en.html?product=/diris-b_en.html[Socomec Diris B30]
+
+* Implemented Natures:
+- ElectricityMeter
+- SinglephaseMeter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.socomec[Source Code icon:github[]]

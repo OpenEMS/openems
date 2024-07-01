@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2004 Maxim Integrated Products, All Rights Reserved.
@@ -65,7 +66,7 @@ import com.dalsemi.onewire.utils.Address;
  * {@link com.dalsemi.onewire.container.PagedMemoryBank PagedMemoryBank}, and
  * {@link com.dalsemi.onewire.container.PagedMemoryBank OTPMemoryBank} for
  * specific examples.
- * 
+ *
  * <PRE>
  *  <CODE>
  *  MemoryBank      mb;
@@ -111,14 +112,14 @@ public class OneWireContainer {
 	/**
 	 * 1-Wire Network Address of this iButton or 1-Wire device. Family code is byte
 	 * at offset 0.
-	 * 
+	 *
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	protected byte[] address;
 
 	/**
 	 * Temporary copy of 1-Wire Network Address of this iButton or 1-Wire device.
-	 * 
+	 *
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	private byte[] addressCopy;
@@ -130,7 +131,7 @@ public class OneWireContainer {
 	 * <li>1 (SPEED_FLEX)
 	 * <li>2 (SPEED_OVERDRIVE)
 	 * <li>3 (SPEED_HYPERDRIVE)
-	 * <li>>3 future speeds
+	 * <li>&gt;3 future speeds
 	 * </ul>
 	 *
 	 * @see DSPortAdapter#setSpeed
@@ -233,19 +234,19 @@ public class OneWireContainer {
 	public void setupContainer(DSPortAdapter sourceAdapter, byte[] newAddress) {
 
 		// get a reference to the source adapter (will need this to communicate)
-		adapter = sourceAdapter;
+		this.adapter = sourceAdapter;
 
 		// set the Address
 		synchronized (this) {
-			address = new byte[8];
-			addressCopy = new byte[8];
+			this.address = new byte[8];
+			this.addressCopy = new byte[8];
 
-			System.arraycopy(newAddress, 0, address, 0, 8);
+			System.arraycopy(newAddress, 0, this.address, 0, 8);
 		}
 
 		// set desired speed to be SPEED_REGULAR by default with no fallback
-		speed = DSPortAdapter.SPEED_REGULAR;
-		speedFallBackOK = false;
+		this.speed = DSPortAdapter.SPEED_REGULAR;
+		this.speedFallBackOK = false;
 	}
 
 	/**
@@ -259,17 +260,17 @@ public class OneWireContainer {
 	public void setupContainer(DSPortAdapter sourceAdapter, long newAddress) {
 
 		// get a reference to the source adapter (will need this to communicate)
-		adapter = sourceAdapter;
+		this.adapter = sourceAdapter;
 
 		// set the Address
 		synchronized (this) {
-			address = Address.toByteArray(newAddress);
-			addressCopy = new byte[8];
+			this.address = Address.toByteArray(newAddress);
+			this.addressCopy = new byte[8];
 		}
 
 		// set desired speed to be SPEED_REGULAR by default with no fallback
-		speed = DSPortAdapter.SPEED_REGULAR;
-		speedFallBackOK = false;
+		this.speed = DSPortAdapter.SPEED_REGULAR;
+		this.speedFallBackOK = false;
 	}
 
 	/**
@@ -283,17 +284,17 @@ public class OneWireContainer {
 	public void setupContainer(DSPortAdapter sourceAdapter, String newAddress) {
 
 		// get a reference to the source adapter (will need this to communicate)
-		adapter = sourceAdapter;
+		this.adapter = sourceAdapter;
 
 		// set the Address
 		synchronized (this) {
-			address = Address.toByteArray(newAddress);
-			addressCopy = new byte[8];
+			this.address = Address.toByteArray(newAddress);
+			this.addressCopy = new byte[8];
 		}
 
 		// set desired speed to be SPEED_REGULAR by default with no fallback
-		speed = DSPortAdapter.SPEED_REGULAR;
-		speedFallBackOK = false;
+		this.speed = DSPortAdapter.SPEED_REGULAR;
+		this.speedFallBackOK = false;
 	}
 
 	/**
@@ -302,7 +303,7 @@ public class OneWireContainer {
 	 * @return port adapter instance
 	 */
 	public DSPortAdapter getAdapter() {
-		return adapter;
+		return this.adapter;
 	}
 
 	// --------
@@ -317,8 +318,9 @@ public class OneWireContainer {
 	 */
 	public String getName() {
 		synchronized (this) {
-			return "Device type: " + (((address[0] & 0x0FF) < 16) ? ("0" + Integer.toHexString(address[0] & 0x0FF))
-					: Integer.toHexString(address[0] & 0x0FF));
+			return "Device type: "
+					+ ((this.address[0] & 0x0FF) < 16 ? "0" + Integer.toHexString(this.address[0] & 0x0FF)
+							: Integer.toHexString(this.address[0] & 0x0FF));
 		}
 	}
 
@@ -350,14 +352,14 @@ public class OneWireContainer {
 	 *
 	 * @param newSpeed
 	 *                 <ul>
-	 *                 <li>0 (SPEED_REGULAR) set to normal communciation speed
-	 *                 <li>1 (SPEED_FLEX) set to flexible communciation speed used
+	 *                 <li>0 (SPEED_REGULAR) set to normal communication speed
+	 *                 <li>1 (SPEED_FLEX) set to flexible communication speed used
 	 *                 for long lines
-	 *                 <li>2 (SPEED_OVERDRIVE) set to normal communciation speed to
+	 *                 <li>2 (SPEED_OVERDRIVE) set to normal communication speed to
 	 *                 overdrive
-	 *                 <li>3 (SPEED_HYPERDRIVE) set to normal communciation speed to
+	 *                 <li>3 (SPEED_HYPERDRIVE) set to normal communication speed to
 	 *                 hyperdrive
-	 *                 <li>>3 future speeds
+	 *                 <li>&gt;3 future speeds
 	 *                 </ul>
 	 *
 	 * @param fallBack boolean indicating it is OK to fall back to a slower speed if
@@ -365,8 +367,8 @@ public class OneWireContainer {
 	 *
 	 */
 	public void setSpeed(int newSpeed, boolean fallBack) {
-		speed = newSpeed;
-		speedFallBackOK = fallBack;
+		this.speed = newSpeed;
+		this.speedFallBackOK = fallBack;
 	}
 
 	/**
@@ -388,7 +390,7 @@ public class OneWireContainer {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public byte[] getAddress() {
-		return address;
+		return this.address;
 	}
 
 	/**
@@ -398,7 +400,7 @@ public class OneWireContainer {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public String getAddressAsString() {
-		return Address.toString(address);
+		return Address.toString(this.address);
 	}
 
 	/**
@@ -408,7 +410,7 @@ public class OneWireContainer {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public long getAddressAsLong() {
-		return Address.toLong(address);
+		return Address.toLong(this.address);
 	}
 
 	/**
@@ -438,7 +440,7 @@ public class OneWireContainer {
 	 */
 	public boolean isPresent() throws OneWireIOException, OneWireException {
 		synchronized (this) {
-			return adapter.isPresent(address);
+			return this.adapter.isPresent(this.address);
 		}
 	}
 
@@ -454,14 +456,14 @@ public class OneWireContainer {
 	 */
 	public boolean isAlarming() throws OneWireIOException, OneWireException {
 		synchronized (this) {
-			return adapter.isAlarming(address);
+			return this.adapter.isAlarming(this.address);
 		}
 	}
 
 	/**
 	 * Go to the specified speed for this container. This method uses the containers
 	 * selected speed (method setSpeed(speed, fallback)) and will optionally fall
-	 * back to a slower speed if communciation failed. Only call this method once to
+	 * back to a slower speed if communication failed. Only call this method once to
 	 * get the device into the desired speed as long as the device is still
 	 * responding.
 	 *
@@ -470,36 +472,37 @@ public class OneWireContainer {
 	 * @see #setSpeed(int,boolean)
 	 */
 	public void doSpeed() throws OneWireIOException, OneWireException {
-		boolean is_present = false;
+		var is_present = false;
 
 		try {
 			// check if already at speed and device present
-			if ((speed == adapter.getSpeed()) && adapter.isPresent(address))
+			if (this.speed == this.adapter.getSpeed() && this.adapter.isPresent(this.address)) {
 				return;
+			}
 		} catch (OneWireIOException e) {
 			// VOID
 		}
 
 		// speed Overdrive
-		if (speed == DSPortAdapter.SPEED_OVERDRIVE) {
+		if (this.speed == DSPortAdapter.SPEED_OVERDRIVE) {
 			try {
 				// get this device and adapter to overdrive
-				adapter.setSpeed(DSPortAdapter.SPEED_REGULAR);
-				adapter.reset();
-				adapter.putByte((byte) 0x69);
-				adapter.setSpeed(DSPortAdapter.SPEED_OVERDRIVE);
+				this.adapter.setSpeed(DSPortAdapter.SPEED_REGULAR);
+				this.adapter.reset();
+				this.adapter.putByte((byte) 0x69);
+				this.adapter.setSpeed(DSPortAdapter.SPEED_OVERDRIVE);
 			} catch (OneWireIOException e) {
 				// VOID
 			}
 
 			// get copy of address
 			synchronized (this) {
-				System.arraycopy(address, 0, addressCopy, 0, 8);
-				adapter.dataBlock(addressCopy, 0, 8);
+				System.arraycopy(this.address, 0, this.addressCopy, 0, 8);
+				this.adapter.dataBlock(this.addressCopy, 0, 8);
 			}
 
 			try {
-				is_present = adapter.isPresent(address);
+				is_present = this.adapter.isPresent(this.address);
 			} catch (OneWireIOException e) {
 				// VOID
 			}
@@ -508,18 +511,19 @@ public class OneWireContainer {
 			if (!is_present) {
 
 				// check if allow fallback
-				if (speedFallBackOK)
-					adapter.setSpeed(DSPortAdapter.SPEED_REGULAR);
-				else
+				if (!this.speedFallBackOK) {
 					throw new OneWireIOException("Failed to get device to selected speed (overdrive)");
+				}
+				this.adapter.setSpeed(DSPortAdapter.SPEED_REGULAR);
 			}
 		}
 		// speed regular or flex
-		else if ((speed == DSPortAdapter.SPEED_REGULAR) || (speed == DSPortAdapter.SPEED_FLEX))
-			adapter.setSpeed(speed);
-		// speed hyperdrive, don't know how to do this
-		else
+		else if (this.speed == DSPortAdapter.SPEED_REGULAR || this.speed == DSPortAdapter.SPEED_FLEX) {
+			this.adapter.setSpeed(this.speed);
+			// speed hyperdrive, don't know how to do this
+		} else {
 			throw new OneWireException("Speed selected (hyperdrive) is not supported by this method");
+		}
 	}
 
 	// --------
@@ -534,30 +538,34 @@ public class OneWireContainer {
 	 * @return a hash code value for this object.
 	 * @see java.util.Hashtable
 	 */
+	@Override
 	public int hashCode() {
-		if (this.address == null)
+		if (this.address == null) {
 			return 0;
-		else
-			return (new Long(Address.toLong(this.address))).hashCode();
+		}
+		return Long.valueOf(Address.toLong(this.address)).hashCode();
 	}
 
 	/**
 	 * Indicates whether some other object is "equal to" this one.
-	 * 
+	 *
 	 * @param obj the reference object with which to compare.
 	 * @return <code>true</code> if this object is the same as the obj argument;
 	 *         <code>false</code> otherwise.
 	 */
+	@Override
 	public boolean equals(Object obj) {
-		if (obj == this)
+		if (obj == this) {
 			return true;
+		}
 
 		if (obj instanceof OneWireContainer) {
-			OneWireContainer owc = (OneWireContainer) obj;
+			var owc = (OneWireContainer) obj;
 			// don't claim that all subclasses of a specific container are
 			// equivalent to the parent container
-			if (owc.getClass() == this.getClass())
+			if (owc.getClass() == this.getClass()) {
 				return owc.getAddressAsLong() == this.getAddressAsLong();
+			}
 		}
 
 		return false;
@@ -568,7 +576,9 @@ public class OneWireContainer {
 	 *
 	 * @return a string representation of the object.
 	 */
+	@Override
 	public String toString() {
 		return Address.toString(this.address) + " " + this.getName();
 	}
 }
+// CHECKSTYLE:ON

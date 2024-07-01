@@ -1,15 +1,15 @@
 <ion-list lines="none" inset="false">
     <ion-item mode="md" [class.active]="showPhases" (click)="setPhases()" class="ion-text-center" lines="none" button
-        *ngIf="showPhases != null">
+        *ngIf="showPhases !== null">
         <ion-label translate>
             General.phases
         </ion-label>
-        <ion-toggle [checked]="showPhases"></ion-toggle>
+        <ion-toggle style="pointer-events: none" [checked]="showPhases"></ion-toggle>
     </ion-item>
     <ion-item mode="md" [class.active]="showTotal" (click)="setTotal()" class="ion-text-center" lines="none" button
-        *ngIf="showTotal != null">
+        *ngIf="showTotal !== null">
         <ion-label translate>
-            General.total
+            General.TOTAL
         </ion-label>
         <ion-toggle [checked]="showTotal"></ion-toggle>
     </ion-item>

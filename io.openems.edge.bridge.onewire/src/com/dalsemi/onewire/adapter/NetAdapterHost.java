@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -34,7 +35,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Random;
 
@@ -178,7 +178,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	 * @param adapter     DSPortAdapter that this NetAdapterHost will proxy commands
 	 *                    to.
 	 * @param multiThread if true, multiple TCP/IP connections are allowed to
-	 *                    interact simulataneously with this adapter.
+	 *                    interact simultaneously with this adapter.
 	 *
 	 * @throws IOException if a network error occurs or the listen socket cannot be
 	 *                     created on the specified port.
@@ -203,7 +203,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	 *                    to.
 	 * @param listenPort  the TCP/IP port to listen on for incoming connections
 	 * @param multiThread if true, multiple TCP/IP connections are allowed to
-	 *                    interact simulataneously with this adapter.
+	 *                    interact simultaneously with this adapter.
 	 *
 	 * @throws IOException if a network error occurs or the listen socket cannot be
 	 *                     created on the specified port.
@@ -223,11 +223,12 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 		}
 
 		// get the shared secret
-		String secret = OneWireAccessProvider.getProperty("NetAdapter.secret");
-		if (secret != null)
-			netAdapterSecret = secret.getBytes();
-		else
-			netAdapterSecret = DEFAULT_SECRET.getBytes();
+		var secret = OneWireAccessProvider.getProperty("NetAdapter.secret");
+		if (secret != null) {
+			this.netAdapterSecret = secret.getBytes();
+		} else {
+			this.netAdapterSecret = DEFAULT_SECRET.getBytes();
+		}
 	}
 
 	/**
@@ -269,7 +270,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	 *                    to.
 	 * @param serverSock  the ServerSocket for incoming connections
 	 * @param multiThread if true, multiple TCP/IP connections are allowed to
-	 *                    interact simulataneously with this adapter.
+	 *                    interact simultaneously with this adapter.
 	 *
 	 * @throws IOException if a network error occurs or the listen socket cannot be
 	 *                     created on the specified port.
@@ -289,11 +290,12 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 		}
 
 		// get the shared secret
-		String secret = OneWireAccessProvider.getProperty("NetAdapter.secret");
-		if (secret != null)
-			netAdapterSecret = secret.getBytes();
-		else
-			netAdapterSecret = DEFAULT_SECRET.getBytes();
+		var secret = OneWireAccessProvider.getProperty("NetAdapter.secret");
+		if (secret != null) {
+			this.netAdapterSecret = secret.getBytes();
+		} else {
+			this.netAdapterSecret = DEFAULT_SECRET.getBytes();
+		}
 	}
 
 	/**
@@ -303,7 +305,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	 *               client connections.
 	 */
 	public void setSecret(String secret) {
-		netAdapterSecret = secret.getBytes();
+		this.netAdapterSecret = secret.getBytes();
 	}
 
 	/**
@@ -311,7 +313,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	 * NetAdapterHost automatically. Uses defaults for Multicast group and port.
 	 */
 	public void createMulticastListener() throws IOException, UnknownHostException {
-		createMulticastListener(DEFAULT_MULTICAST_PORT);
+		this.createMulticastListener(DEFAULT_MULTICAST_PORT);
 	}
 
 	/**
@@ -321,10 +323,11 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	 * @param port The port the Multicast socket will receive packets on
 	 */
 	public void createMulticastListener(int port) throws IOException, UnknownHostException {
-		String group = OneWireAccessProvider.getProperty("NetAdapter.MulticastGroup");
-		if (group == null)
+		var group = OneWireAccessProvider.getProperty("NetAdapter.MulticastGroup");
+		if (group == null) {
 			group = DEFAULT_MULTICAST_GROUP;
-		createMulticastListener(port, group);
+		}
+		this.createMulticastListener(port, group);
 	}
 
 	/**
@@ -335,18 +338,18 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	 * @param group The group the Multicast socket will join
 	 */
 	public void createMulticastListener(int port, String group) throws IOException, UnknownHostException {
-		if (multicastListener == null) {
+		if (this.multicastListener == null) {
 			// 4 bytes for integer versionUID
-			byte[] versionBytes = Convert.toByteArray(versionUID);
+			var versionBytes = Convert.toByteArray(versionUID);
 
 			// this byte array is 5 because length is used to determine different
 			// packet types by client
-			byte[] listenPortBytes = new byte[5];
-			Convert.toByteArray(serverSocket.getLocalPort(), listenPortBytes, 0, 4);
+			var listenPortBytes = new byte[5];
+			Convert.toByteArray(this.serverSocket.getLocalPort(), listenPortBytes, 0, 4);
 			listenPortBytes[4] = (byte) 0x0FF;
 
-			multicastListener = new MulticastListener(port, group, versionBytes, listenPortBytes);
-			(new Thread(multicastListener)).start();
+			this.multicastListener = new MulticastListener(port, group, versionBytes, listenPortBytes);
+			new Thread(this.multicastListener).start();
 		}
 	}
 
@@ -356,23 +359,25 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	 * services the socket or (optionally) launches a new thread for servicing the
 	 * socket.
 	 */
+	@Override
 	public void run() {
-		hostRunning = true;
-		while (!hostStopped) {
+		this.hostRunning = true;
+		while (!this.hostStopped) {
 			Socket sock = null;
 			try {
-				sock = serverSocket.accept();
-				handleConnection(sock);
+				sock = this.serverSocket.accept();
+				this.handleConnection(sock);
 			} catch (IOException ioe1) {
 				try {
-					if (sock != null)
+					if (sock != null) {
 						sock.close();
+					}
 				} catch (IOException ioe2) {
-					;
+
 				}
 			}
 		}
-		hostRunning = false;
+		this.hostRunning = false;
 	}
 
 	/**
@@ -381,16 +386,16 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	 * servicing this connection.
 	 */
 	public void handleConnection(Socket sock) throws IOException {
-		SocketHandler sh = new SocketHandler(sock);
-		if (singleThreaded) {
+		var sh = new SocketHandler(sock);
+		if (this.singleThreaded) {
 			// single-threaded
 			sh.run();
 		} else {
 			// multi-threaded
-			Thread t = new Thread(sh);
+			var t = new Thread(sh);
 			t.start();
-			synchronized (hashHandlers) {
-				hashHandlers.put(t, sh);
+			synchronized (this.hashHandlers) {
+				this.hashHandlers.put(t, sh);
 			}
 		}
 	}
@@ -403,31 +408,34 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 		try {
 			this.serverSocket.close();
 		} catch (IOException ioe) {
-			;
+
 		}
 
 		// wait for run method to quit, with a timeout of 1 second
-		int i = 0;
-		while (hostRunning && i++ < 100)
+		var i = 0;
+		while (this.hostRunning && i++ < 100) {
 			try {
 				Thread.sleep(10);
 			} catch (Exception e) {
-				;
-			}
 
-		if (!singleThreaded) {
-			synchronized (hashHandlers) {
-				Enumeration<SocketHandler> e = hashHandlers.elements();
-				while (e.hasMoreElements())
-					((SocketHandler) e.nextElement()).stopHandler();
 			}
 		}
 
-		if (multicastListener != null)
-			multicastListener.stopListener();
+		if (!this.singleThreaded) {
+			synchronized (this.hashHandlers) {
+				var e = this.hashHandlers.elements();
+				while (e.hasMoreElements()) {
+					e.nextElement().stopHandler();
+				}
+			}
+		}
+
+		if (this.multicastListener != null) {
+			this.multicastListener.stopListener();
+		}
 
 		// ensure that there is no exclusive use of the adapter
-		adapter.endExclusive();
+		this.adapter.endExclusive();
 	}
 
 	/**
@@ -443,9 +451,9 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 		conn.output.writeInt(versionUID);
 		conn.output.flush();
 
-		byte retVal = conn.input.readByte();
+		var retVal = conn.input.readByte();
 
-		return (retVal == RET_SUCCESS);
+		return retVal == RET_SUCCESS;
 	}
 
 	/**
@@ -456,9 +464,10 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	 */
 	private void processRequests(Connection conn) throws IOException {
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-		if (DEBUG)
+		if (DEBUG) {
 			System.out.println("\n------------------------------------------");
-		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		}
 
 		// get the next command
 		byte cmd = 0x00;
@@ -466,9 +475,10 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 		cmd = conn.input.readByte();
 
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-		if (DEBUG)
+		if (DEBUG) {
 			System.out.println("CMD received: " + Integer.toHexString(cmd));
-		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		}
 
 		try {
 			// ... and fire the appropriate method
@@ -480,115 +490,115 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 				conn.output.flush();
 				break;
 			case CMD_CLOSECONNECTION:
-				close(conn);
+				this.close(conn);
 				break;
 			/* Raw Data commands */
 			case CMD_RESET:
-				adapterReset(conn);
+				this.adapterReset(conn);
 				break;
 			case CMD_PUTBIT:
-				adapterPutBit(conn);
+				this.adapterPutBit(conn);
 				break;
 			case CMD_PUTBYTE:
-				adapterPutByte(conn);
+				this.adapterPutByte(conn);
 				break;
 			case CMD_GETBIT:
-				adapterGetBit(conn);
+				this.adapterGetBit(conn);
 				break;
 			case CMD_GETBYTE:
-				adapterGetByte(conn);
+				this.adapterGetByte(conn);
 				break;
 			case CMD_GETBLOCK:
-				adapterGetBlock(conn);
+				this.adapterGetBlock(conn);
 				break;
 			case CMD_DATABLOCK:
-				adapterDataBlock(conn);
+				this.adapterDataBlock(conn);
 				break;
 			/* Power methods */
 			case CMD_SETPOWERDURATION:
-				adapterSetPowerDuration(conn);
+				this.adapterSetPowerDuration(conn);
 				break;
 			case CMD_STARTPOWERDELIVERY:
-				adapterStartPowerDelivery(conn);
+				this.adapterStartPowerDelivery(conn);
 				break;
 			case CMD_SETPROGRAMPULSEDURATION:
-				adapterSetProgramPulseDuration(conn);
+				this.adapterSetProgramPulseDuration(conn);
 				break;
 			case CMD_STARTPROGRAMPULSE:
-				adapterStartProgramPulse(conn);
+				this.adapterStartProgramPulse(conn);
 				break;
 			case CMD_STARTBREAK:
-				adapterStartBreak(conn);
+				this.adapterStartBreak(conn);
 				break;
 			case CMD_SETPOWERNORMAL:
-				adapterSetPowerNormal(conn);
+				this.adapterSetPowerNormal(conn);
 				break;
 			/* Speed methods */
 			case CMD_SETSPEED:
-				adapterSetSpeed(conn);
+				this.adapterSetSpeed(conn);
 				break;
 			case CMD_GETSPEED:
-				adapterGetSpeed(conn);
+				this.adapterGetSpeed(conn);
 				break;
 			/* Network Semaphore methods */
 			case CMD_BEGINEXCLUSIVE:
-				adapterBeginExclusive(conn);
+				this.adapterBeginExclusive(conn);
 				break;
 			case CMD_ENDEXCLUSIVE:
-				adapterEndExclusive(conn);
+				this.adapterEndExclusive(conn);
 				break;
 			/* Searching methods */
 			case CMD_FINDFIRSTDEVICE:
-				adapterFindFirstDevice(conn);
+				this.adapterFindFirstDevice(conn);
 				break;
 			case CMD_FINDNEXTDEVICE:
-				adapterFindNextDevice(conn);
+				this.adapterFindNextDevice(conn);
 				break;
 			case CMD_GETADDRESS:
-				adapterGetAddress(conn);
+				this.adapterGetAddress(conn);
 				break;
 			case CMD_SETSEARCHONLYALARMINGDEVICES:
-				adapterSetSearchOnlyAlarmingDevices(conn);
+				this.adapterSetSearchOnlyAlarmingDevices(conn);
 				break;
 			case CMD_SETNORESETSEARCH:
-				adapterSetNoResetSearch(conn);
+				this.adapterSetNoResetSearch(conn);
 				break;
 			case CMD_SETSEARCHALLDEVICES:
-				adapterSetSearchAllDevices(conn);
+				this.adapterSetSearchAllDevices(conn);
 				break;
 			case CMD_TARGETALLFAMILIES:
-				adapterTargetAllFamilies(conn);
+				this.adapterTargetAllFamilies(conn);
 				break;
 			case CMD_TARGETFAMILY:
-				adapterTargetFamily(conn);
+				this.adapterTargetFamily(conn);
 				break;
 			case CMD_EXCLUDEFAMILY:
-				adapterExcludeFamily(conn);
+				this.adapterExcludeFamily(conn);
 				break;
 			/* feature methods */
 			case CMD_CANBREAK:
-				adapterCanBreak(conn);
+				this.adapterCanBreak(conn);
 				break;
 			case CMD_CANDELIVERPOWER:
-				adapterCanDeliverPower(conn);
+				this.adapterCanDeliverPower(conn);
 				break;
 			case CMD_CANDELIVERSMARTPOWER:
-				adapterCanDeliverSmartPower(conn);
+				this.adapterCanDeliverSmartPower(conn);
 				break;
 			case CMD_CANFLEX:
-				adapterCanFlex(conn);
+				this.adapterCanFlex(conn);
 				break;
 			case CMD_CANHYPERDRIVE:
-				adapterCanHyperdrive(conn);
+				this.adapterCanHyperdrive(conn);
 				break;
 			case CMD_CANOVERDRIVE:
-				adapterCanOverdrive(conn);
+				this.adapterCanOverdrive(conn);
 				break;
 			case CMD_CANPROGRAM:
-				adapterCanProgram(conn);
+				this.adapterCanProgram(conn);
 				break;
 			default:
-				// System.out.println("Unkown command: " + cmd);
+				// System.out.println("Unknown command: " + cmd);
 				break;
 			}
 		} catch (OneWireException owe) {
@@ -609,7 +619,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 				conn.sock.close();
 			}
 		} catch (IOException ioe) {
-			/* drain */;
+			/* drain */
 		}
 
 		conn.sock = null;
@@ -617,7 +627,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 		conn.output = null;
 
 		// ensure that there is no exclusive use of the adapter
-		adapter.endExclusive();
+		this.adapter.endExclusive();
 	}
 
 	// --------
@@ -625,7 +635,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	// --------
 
 	private void adapterFindFirstDevice(Connection conn) throws IOException, OneWireException {
-		boolean b = adapter.findFirstDevice();
+		var b = this.adapter.findFirstDevice();
 
 		if (DEBUG) {
 			System.out.println("   findFirstDevice returned " + b);
@@ -637,7 +647,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	}
 
 	private void adapterFindNextDevice(Connection conn) throws IOException, OneWireException {
-		boolean b = adapter.findNextDevice();
+		var b = this.adapter.findNextDevice();
 
 		if (DEBUG) {
 			System.out.println("   findNextDevice returned " + b);
@@ -650,12 +660,12 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterGetAddress(Connection conn) throws IOException {
 		// read in the address
-		byte[] address = new byte[8];
+		var address = new byte[8];
 		// call getAddress
-		adapter.getAddress(address);
+		this.adapter.getAddress(address);
 
 		if (DEBUG) {
-			System.out.println("   adapter.getAddress(byte[]) called, speed=" + adapter.getSpeed());
+			System.out.println("   adapter.getAddress(byte[]) called, speed=" + this.adapter.getSpeed());
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -665,10 +675,10 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterSetSearchOnlyAlarmingDevices(Connection conn) throws IOException {
 		if (DEBUG) {
-			System.out.println("   setSearchOnlyAlarmingDevices called, speed=" + adapter.getSpeed());
+			System.out.println("   setSearchOnlyAlarmingDevices called, speed=" + this.adapter.getSpeed());
 		}
 
-		adapter.setSearchOnlyAlarmingDevices();
+		this.adapter.setSearchOnlyAlarmingDevices();
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.flush();
@@ -676,10 +686,10 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterSetNoResetSearch(Connection conn) throws IOException {
 		if (DEBUG) {
-			System.out.println("   setNoResetSearch called, speed=" + adapter.getSpeed());
+			System.out.println("   setNoResetSearch called, speed=" + this.adapter.getSpeed());
 		}
 
-		adapter.setNoResetSearch();
+		this.adapter.setNoResetSearch();
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.flush();
@@ -687,10 +697,10 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterSetSearchAllDevices(Connection conn) throws IOException {
 		if (DEBUG) {
-			System.out.println("   setSearchAllDevices called, speed=" + adapter.getSpeed());
+			System.out.println("   setSearchAllDevices called, speed=" + this.adapter.getSpeed());
 		}
 
-		adapter.setSearchAllDevices();
+		this.adapter.setSearchAllDevices();
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.flush();
@@ -698,10 +708,10 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterTargetAllFamilies(Connection conn) throws IOException {
 		if (DEBUG) {
-			System.out.println("   targetAllFamilies called, speed=" + adapter.getSpeed());
+			System.out.println("   targetAllFamilies called, speed=" + this.adapter.getSpeed());
 		}
 
-		adapter.targetAllFamilies();
+		this.adapter.targetAllFamilies();
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.flush();
@@ -709,18 +719,18 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterTargetFamily(Connection conn) throws IOException {
 		// get the number of family codes to expect
-		int len = conn.input.readInt();
+		var len = conn.input.readInt();
 		// get the family codes
-		byte[] family = new byte[len];
+		var family = new byte[len];
 		conn.input.readFully(family, 0, len);
 
 		if (DEBUG) {
-			System.out.println("   targetFamily called, speed=" + adapter.getSpeed());
+			System.out.println("   targetFamily called, speed=" + this.adapter.getSpeed());
 			System.out.println("      families: " + Convert.toHexString(family));
 		}
 
 		// call targetFamily
-		adapter.targetFamily(family);
+		this.adapter.targetFamily(family);
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.flush();
@@ -728,18 +738,18 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterExcludeFamily(Connection conn) throws IOException {
 		// get the number of family codes to expect
-		int len = conn.input.readInt();
+		var len = conn.input.readInt();
 		// get the family codes
-		byte[] family = new byte[len];
+		var family = new byte[len];
 		conn.input.readFully(family, 0, len);
 
 		if (DEBUG) {
-			System.out.println("   excludeFamily called, speed=" + adapter.getSpeed());
+			System.out.println("   excludeFamily called, speed=" + this.adapter.getSpeed());
 			System.out.println("      families: " + Convert.toHexString(family));
 		}
 
 		// call excludeFamily
-		adapter.excludeFamily(family);
+		this.adapter.excludeFamily(family);
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.flush();
@@ -751,13 +761,13 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterBeginExclusive(Connection conn) throws IOException, OneWireException {
 		if (DEBUG) {
-			System.out.println("   adapter.beginExclusive called, speed=" + adapter.getSpeed());
+			System.out.println("   adapter.beginExclusive called, speed=" + this.adapter.getSpeed());
 		}
 
 		// get blocking boolean
-		boolean blocking = conn.input.readBoolean();
+		var blocking = conn.input.readBoolean();
 		// call beginExclusive
-		boolean b = adapter.beginExclusive(blocking);
+		var b = this.adapter.beginExclusive(blocking);
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.writeBoolean(b);
@@ -770,11 +780,11 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterEndExclusive(Connection conn) throws IOException, OneWireException {
 		if (DEBUG) {
-			System.out.println("   adapter.endExclusive called, speed=" + adapter.getSpeed());
+			System.out.println("   adapter.endExclusive called, speed=" + this.adapter.getSpeed());
 		}
 
 		// call endExclusive
-		adapter.endExclusive();
+		this.adapter.endExclusive();
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.flush();
@@ -785,10 +795,10 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	// --------
 
 	private void adapterReset(Connection conn) throws IOException, OneWireException {
-		int i = adapter.reset();
+		var i = this.adapter.reset();
 
 		if (DEBUG) {
-			System.out.println("   reset, speed=" + adapter.getSpeed() + ", returned " + i);
+			System.out.println("   reset, speed=" + this.adapter.getSpeed() + ", returned " + i);
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -798,14 +808,14 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterPutBit(Connection conn) throws IOException, OneWireException {
 		// get the value of the bit
-		boolean bit = conn.input.readBoolean();
+		var bit = conn.input.readBoolean();
 
 		if (DEBUG) {
-			System.out.println("   putBit called, speed=" + adapter.getSpeed());
+			System.out.println("   putBit called, speed=" + this.adapter.getSpeed());
 			System.out.println("      bit=" + bit);
 		}
 
-		adapter.putBit(bit);
+		this.adapter.putBit(bit);
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.flush();
@@ -813,24 +823,24 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterPutByte(Connection conn) throws IOException, OneWireException {
 		// get the value of the byte
-		byte b = conn.input.readByte();
+		var b = conn.input.readByte();
 
 		if (DEBUG) {
-			System.out.println("   putByte called, speed=" + adapter.getSpeed());
+			System.out.println("   putByte called, speed=" + this.adapter.getSpeed());
 			System.out.println("      byte=" + Convert.toHexString(b));
 		}
 
-		adapter.putByte(b);
+		this.adapter.putByte(b);
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.flush();
 	}
 
 	private void adapterGetBit(Connection conn) throws IOException, OneWireException {
-		boolean bit = adapter.getBit();
+		var bit = this.adapter.getBit();
 
 		if (DEBUG) {
-			System.out.println("   getBit called, speed=" + adapter.getSpeed());
+			System.out.println("   getBit called, speed=" + this.adapter.getSpeed());
 			System.out.println("      bit=" + bit);
 		}
 
@@ -840,10 +850,10 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	}
 
 	private void adapterGetByte(Connection conn) throws IOException, OneWireException {
-		int b = adapter.getByte();
+		var b = this.adapter.getByte();
 
 		if (DEBUG) {
-			System.out.println("   getByte called, speed=" + adapter.getSpeed());
+			System.out.println("   getByte called, speed=" + this.adapter.getSpeed());
 			System.out.println("      byte=" + Convert.toHexString((byte) b));
 		}
 
@@ -854,14 +864,14 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterGetBlock(Connection conn) throws IOException, OneWireException {
 		// get the number requested
-		int len = conn.input.readInt();
+		var len = conn.input.readInt();
 		if (DEBUG) {
-			System.out.println("   getBlock called, speed=" + adapter.getSpeed());
+			System.out.println("   getBlock called, speed=" + this.adapter.getSpeed());
 			System.out.println("      len=" + len);
 		}
 
 		// get the bytes
-		byte[] b = adapter.getBlock(len);
+		var b = this.adapter.getBlock(len);
 
 		if (DEBUG) {
 			System.out.println("      returned: " + Convert.toHexString(b));
@@ -874,12 +884,12 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterDataBlock(Connection conn) throws IOException, OneWireException {
 		if (DEBUG) {
-			System.out.println("   DataBlock called, speed=" + adapter.getSpeed());
+			System.out.println("   DataBlock called, speed=" + this.adapter.getSpeed());
 		}
 		// get the number to block
-		int len = conn.input.readInt();
+		var len = conn.input.readInt();
 		// get the bytes to block
-		byte[] b = new byte[len];
+		var b = new byte[len];
 		conn.input.readFully(b, 0, len);
 
 		if (DEBUG) {
@@ -888,7 +898,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 		}
 
 		// do the block
-		adapter.dataBlock(b, 0, len);
+		this.adapter.dataBlock(b, 0, len);
 
 		if (DEBUG) {
 			System.out.println("      Recv: " + Convert.toHexString(b));
@@ -905,15 +915,15 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterSetPowerDuration(Connection conn) throws IOException, OneWireException {
 		// get the time factor value
-		int timeFactor = conn.input.readInt();
+		var timeFactor = conn.input.readInt();
 
 		if (DEBUG) {
-			System.out.println("   setPowerDuration called, speed=" + adapter.getSpeed());
+			System.out.println("   setPowerDuration called, speed=" + this.adapter.getSpeed());
 			System.out.println("      timeFactor=" + timeFactor);
 		}
 
 		// call setPowerDuration
-		adapter.setPowerDuration(timeFactor);
+		this.adapter.setPowerDuration(timeFactor);
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.flush();
@@ -921,15 +931,15 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterStartPowerDelivery(Connection conn) throws IOException, OneWireException {
 		// get the change condition value
-		int changeCondition = conn.input.readInt();
+		var changeCondition = conn.input.readInt();
 
 		if (DEBUG) {
-			System.out.println("   startPowerDelivery called, speed=" + adapter.getSpeed());
+			System.out.println("   startPowerDelivery called, speed=" + this.adapter.getSpeed());
 			System.out.println("      changeCondition=" + changeCondition);
 		}
 
 		// call startPowerDelivery
-		boolean success = adapter.startPowerDelivery(changeCondition);
+		var success = this.adapter.startPowerDelivery(changeCondition);
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.writeBoolean(success);
@@ -938,15 +948,15 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterSetProgramPulseDuration(Connection conn) throws IOException, OneWireException {
 		// get the time factor value
-		int timeFactor = conn.input.readInt();
+		var timeFactor = conn.input.readInt();
 
 		if (DEBUG) {
-			System.out.println("   setProgramPulseDuration called, speed=" + adapter.getSpeed());
+			System.out.println("   setProgramPulseDuration called, speed=" + this.adapter.getSpeed());
 			System.out.println("      timeFactor=" + timeFactor);
 		}
 
 		// call setProgramPulseDuration
-		adapter.setProgramPulseDuration(timeFactor);
+		this.adapter.setProgramPulseDuration(timeFactor);
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.flush();
@@ -954,15 +964,15 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterStartProgramPulse(Connection conn) throws IOException, OneWireException {
 		// get the change condition value
-		int changeCondition = conn.input.readInt();
+		var changeCondition = conn.input.readInt();
 
 		if (DEBUG) {
-			System.out.println("   startProgramPulse called, speed=" + adapter.getSpeed());
+			System.out.println("   startProgramPulse called, speed=" + this.adapter.getSpeed());
 			System.out.println("      changeCondition=" + changeCondition);
 		}
 
 		// call startProgramPulse();
-		boolean success = adapter.startProgramPulse(changeCondition);
+		var success = this.adapter.startProgramPulse(changeCondition);
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.writeBoolean(success);
@@ -971,11 +981,11 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterStartBreak(Connection conn) throws IOException, OneWireException {
 		if (DEBUG) {
-			System.out.println("   startBreak called, speed=" + adapter.getSpeed());
+			System.out.println("   startBreak called, speed=" + this.adapter.getSpeed());
 		}
 
 		// call startBreak();
-		adapter.startBreak();
+		this.adapter.startBreak();
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.flush();
@@ -983,11 +993,11 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterSetPowerNormal(Connection conn) throws IOException, OneWireException {
 		if (DEBUG) {
-			System.out.println("   setPowerNormal called, speed=" + adapter.getSpeed());
+			System.out.println("   setPowerNormal called, speed=" + this.adapter.getSpeed());
 		}
 
 		// call setPowerNormal
-		adapter.setPowerNormal();
+		this.adapter.setPowerNormal();
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.flush();
@@ -999,15 +1009,15 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterSetSpeed(Connection conn) throws IOException, OneWireException {
 		// get the value of the new speed
-		int speed = conn.input.readInt();
+		var speed = conn.input.readInt();
 
 		if (DEBUG) {
-			System.out.println("   setSpeed called, speed=" + adapter.getSpeed());
+			System.out.println("   setSpeed called, speed=" + this.adapter.getSpeed());
 			System.out.println("      speed=" + speed);
 		}
 
 		// do the setSpeed
-		adapter.setSpeed(speed);
+		this.adapter.setSpeed(speed);
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.flush();
@@ -1015,10 +1025,10 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 
 	private void adapterGetSpeed(Connection conn) throws IOException, OneWireException {
 		// get the adapter speed
-		int speed = adapter.getSpeed();
+		var speed = this.adapter.getSpeed();
 
 		if (DEBUG) {
-			System.out.println("   getSpeed called, speed=" + adapter.getSpeed());
+			System.out.println("   getSpeed called, speed=" + this.adapter.getSpeed());
 			System.out.println("      speed=" + speed);
 		}
 
@@ -1032,7 +1042,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	// --------
 
 	private void adapterCanOverdrive(Connection conn) throws IOException, OneWireException {
-		boolean b = adapter.canOverdrive();
+		var b = this.adapter.canOverdrive();
 
 		if (DEBUG) {
 			System.out.println("   canOverdrive returned " + b);
@@ -1044,7 +1054,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	}
 
 	private void adapterCanHyperdrive(Connection conn) throws IOException, OneWireException {
-		boolean b = adapter.canHyperdrive();
+		var b = this.adapter.canHyperdrive();
 
 		if (DEBUG) {
 			System.out.println("   canHyperDrive returned " + b);
@@ -1056,7 +1066,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	}
 
 	private void adapterCanFlex(Connection conn) throws IOException, OneWireException {
-		boolean b = adapter.canFlex();
+		var b = this.adapter.canFlex();
 
 		if (DEBUG) {
 			System.out.println("   canFlex returned " + b);
@@ -1068,7 +1078,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	}
 
 	private void adapterCanProgram(Connection conn) throws IOException, OneWireException {
-		boolean b = adapter.canProgram();
+		var b = this.adapter.canProgram();
 
 		if (DEBUG) {
 			System.out.println("   canProgram returned " + b);
@@ -1080,7 +1090,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	}
 
 	private void adapterCanDeliverPower(Connection conn) throws IOException, OneWireException {
-		boolean b = adapter.canDeliverPower();
+		var b = this.adapter.canDeliverPower();
 
 		if (DEBUG) {
 			System.out.println("   canDeliverPower returned " + b);
@@ -1092,7 +1102,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	}
 
 	private void adapterCanDeliverSmartPower(Connection conn) throws IOException, OneWireException {
-		boolean b = adapter.canDeliverSmartPower();
+		var b = this.adapter.canDeliverSmartPower();
 
 		if (DEBUG) {
 			System.out.println("   canDeliverSmartPower returned " + b);
@@ -1104,7 +1114,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	}
 
 	private void adapterCanBreak(Connection conn) throws IOException, OneWireException {
-		boolean b = adapter.canBreak();
+		var b = this.adapter.canBreak();
 
 		if (DEBUG) {
 			System.out.println("   canBreak returned " + b);
@@ -1127,7 +1137,7 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 		/**
 		 * The connection that is being serviced.
 		 */
-		private Connection conn;
+		private final Connection conn;
 
 		/**
 		 * indicates whether or not the handler is currently running
@@ -1140,65 +1150,66 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 		 */
 		public SocketHandler(Socket sock) throws IOException {
 			// set socket timeout to 10 seconds
-			sock.setSoTimeout(timeoutInSeconds * 1000);
+			sock.setSoTimeout(NetAdapterHost.this.timeoutInSeconds * 1000);
 
 			// create the connection object
-			conn = new Connection();
-			conn.sock = sock;
-			conn.input = new DataInputStream(conn.sock.getInputStream());
+			this.conn = new Connection();
+			this.conn.sock = sock;
+			this.conn.input = new DataInputStream(this.conn.sock.getInputStream());
 			if (BUFFERED_OUTPUT) {
-				conn.output = new DataOutputStream(new BufferedOutputStream(conn.sock.getOutputStream()));
+				this.conn.output = new DataOutputStream(new BufferedOutputStream(this.conn.sock.getOutputStream()));
 			} else {
-				conn.output = new DataOutputStream(conn.sock.getOutputStream());
+				this.conn.output = new DataOutputStream(this.conn.sock.getOutputStream());
 			}
 
 			// first thing transmitted should be version info
-			if (!sendVersionUID(conn)) {
+			if (!NetAdapterHost.this.sendVersionUID(this.conn)) {
 				throw new IOException("send version failed");
 			}
 
 			// authenticate the client
-			byte[] chlg = new byte[8];
+			var chlg = new byte[8];
 			rand.nextBytes(chlg);
-			conn.output.write(chlg);
-			conn.output.flush();
+			this.conn.output.write(chlg);
+			this.conn.output.flush();
 
 			// compute the crc of the secret and the challenge
-			int crc = CRC16.compute(netAdapterSecret, 0);
+			var crc = CRC16.compute(NetAdapterHost.this.netAdapterSecret, 0);
 			crc = CRC16.compute(chlg, crc);
-			int answer = conn.input.readInt();
+			var answer = this.conn.input.readInt();
 			if (answer != crc) {
-				conn.output.writeByte(RET_FAILURE);
-				conn.output.writeUTF("Client Authentication Failed");
-				conn.output.flush();
+				this.conn.output.writeByte(RET_FAILURE);
+				this.conn.output.writeUTF("Client Authentication Failed");
+				this.conn.output.flush();
 				throw new IOException("authentication failed");
-			} else {
-				conn.output.writeByte(RET_SUCCESS);
-				conn.output.flush();
 			}
+			this.conn.output.writeByte(RET_SUCCESS);
+			this.conn.output.flush();
 		}
 
 		/**
 		 * Run method for socket Servicer.
 		 */
+		@Override
 		public void run() {
-			handlerRunning = true;
+			this.handlerRunning = true;
 			try {
-				while (!hostStopped && conn.sock != null) {
-					processRequests(conn);
+				while (!NetAdapterHost.this.hostStopped && this.conn.sock != null) {
+					NetAdapterHost.this.processRequests(this.conn);
 				}
 			} catch (Throwable t) {
-				if (DEBUG)
+				if (DEBUG) {
 					t.printStackTrace();
-				close(conn);
+				}
+				NetAdapterHost.this.close(this.conn);
 			}
-			handlerRunning = false;
+			this.handlerRunning = false;
 
-			if (!hostStopped && !singleThreaded) {
-				synchronized (hashHandlers) {
+			if (!NetAdapterHost.this.hostStopped && !NetAdapterHost.this.singleThreaded) {
+				synchronized (NetAdapterHost.this.hashHandlers) {
 					// thread finished running without being stopped.
 					// politely remove it from the hashtable.
-					hashHandlers.remove(Thread.currentThread());
+					NetAdapterHost.this.hashHandlers.remove(Thread.currentThread());
 				}
 			}
 		}
@@ -1207,14 +1218,15 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 		 * Waits for handler to finish, with a timeout.
 		 */
 		public void stopHandler() {
-			int i = 0;
-			int timeout = 3000;
-			while (handlerRunning && i++ < timeout)
+			var i = 0;
+			var timeout = 3000;
+			while (this.handlerRunning && i++ < timeout) {
 				try {
 					Thread.sleep(10);
 				} catch (Exception e) {
-					;
+
 				}
+			}
 		}
 	}
 
@@ -1227,15 +1239,15 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	 * specified by DEFAULT_PORT.
 	 */
 	public static void main(String[] args) throws Exception {
-		DSPortAdapter adapter = com.dalsemi.onewire.OneWireAccessProvider.getDefaultAdapter();
+		var adapter = com.dalsemi.onewire.OneWireAccessProvider.getDefaultAdapter();
 
-		NetAdapterHost host = new NetAdapterHost(adapter, true);
+		var host = new NetAdapterHost(adapter, true);
 
 		System.out.println("Starting Multicast Listener");
 		host.createMulticastListener();
 
 		System.out.println("Starting NetAdapter Host");
-		(new Thread(host)).start();
+		new Thread(host).start();
 
 		// if(System.in!=null)
 		// {
@@ -1246,3 +1258,4 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 		// }
 	}
 }
+// CHECKSTYLE:ON

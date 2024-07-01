@@ -1,7 +1,10 @@
 = Carlo Gavazzi EM300 Meter
 
-Implemented Natures::
-- SymmetricMeter
-- AsymmetricMeter
+Applies to
+- CARLO GAVAZZI EM330
+- CARLO GAVAZZI EM340
+
+Implemented Natures:
+- ElectricityMeter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.carlo.gavazzi.em300[Source Code icon:github[]]

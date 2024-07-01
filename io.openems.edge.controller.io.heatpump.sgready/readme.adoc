@@ -1,0 +1,32 @@
+= IO SG-Ready Heat Pump
+
+Controls a heat pump that implements the SG-Ready standard via two Relay contacts, depending on surplus power and battery state-of-charge.
+
+== States
+
+The Controller distinguishes the different States, according to the SG-Ready standard.
+
+|===
+|Name |Description
+
+|Lock State
+|The lock state blocks everything till an internal maximum time of (default) two hours
+
+|Regular State
+|The heat pump runs in energy-efficient standard operation
+
+|Recommendation State
+|State: The heat pump runs in a more sufficient mode for space heating and hot water production, to use available surplus power
+
+|Force-On State
+|The heat pump runs in a definitive start/heat-up mode. Depending on the heat pump, heating is forced and additional heaters may be switched on
+|===
+
+== Channels
+
+The Controller has an ongoing time counter for every state, that is started and stopped if the corresponding state is active or not.
+
+Minimum switching time:
+As an additional preventative, the controller has a minimum switching time. If a state changed, it will wait for this time (default 60 seconds) till the next state can be set.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.io.heatpump.sgready[Source Code icon:github[]]

@@ -4,8 +4,9 @@ import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 @ProviderType
@@ -14,7 +15,7 @@ public interface Thermometer extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Temperature.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Thermometer
 		 * <li>Type: Integer
@@ -37,12 +38,41 @@ public interface Thermometer extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Temperature in [degree celsius].
-	 * 
+	 * Gets the Channel for {@link ChannelId#TEMPERATURE}.
+	 *
 	 * @return the Channel
 	 */
-	default Channel<Integer> getTemperature() {
+	public default IntegerReadChannel getTemperatureChannel() {
 		return this.channel(ChannelId.TEMPERATURE);
+	}
+
+	/**
+	 * Gets the Temperature in [deci degC]. See {@link ChannelId#TEMPERATURE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getTemperature() {
+		return this.getTemperatureChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#TEMPERATURE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setTemperature(Integer value) {
+		this.getTemperatureChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#TEMPERATURE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setTemperature(int value) {
+		this.getTemperatureChannel().setNextValue(value);
 	}
 
 }

@@ -1,0 +1,16 @@
+Bundle-Name: OpenEMS Edge EVCS OCPP Common
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.evcs.api,\
+	io.openems.edge.meter.api,\
+	io.openems.edge.timedata.api,\
+	io.openems.wrapper.eu.chargetime.ocpp,\
+
+-testpath: \
+	${testpath}

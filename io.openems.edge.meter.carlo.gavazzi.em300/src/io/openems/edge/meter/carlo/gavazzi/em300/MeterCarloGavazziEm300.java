@@ -4,10 +4,9 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface MeterCarloGavazziEm300 extends SymmetricMeter, AsymmetricMeter, OpenemsComponent {
+public interface MeterCarloGavazziEm300 extends ElectricityMeter, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		APPARENT_POWER_L1(Doc.of(OpenemsType.INTEGER) //
@@ -26,6 +25,7 @@ public interface MeterCarloGavazziEm300 extends SymmetricMeter, AsymmetricMeter,
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

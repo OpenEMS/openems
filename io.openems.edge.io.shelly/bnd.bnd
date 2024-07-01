@@ -1,0 +1,16 @@
+Bundle-Name: OpenEMS Edge IO Shelly
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.bridge.http,\
+	io.openems.edge.common,\
+	io.openems.edge.io.api,\
+	io.openems.edge.meter.api,\
+	io.openems.edge.timedata.api,\
+
+-testpath: \
+	${testpath}

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -27,14 +28,12 @@
 
 package com.dalsemi.onewire.application.monitor;
 
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import com.dalsemi.onewire.OneWireException;
 import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.adapter.OneWireIOException;
-import com.dalsemi.onewire.container.OneWireContainer;
 import com.dalsemi.onewire.container.SwitchContainer;
 import com.dalsemi.onewire.utils.OWPath;
 
@@ -57,31 +56,34 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 	/**
 	 * Create a complex monitor that does search branches
 	 *
-	 * @param the DSPortAdapter this monitor should search
+	 * @param adapter the DSPortAdapter this monitor should search
 	 */
 	public NetworkDeviceMonitor(DSPortAdapter adapter) {
-		setAdapter(adapter);
+		this.setAdapter(adapter);
 	}
 
 	/**
 	 * Sets this monitor to search a new DSPortAdapter
 	 *
-	 * @param the DSPortAdapter this monitor should search
+	 * @param adapter the DSPortAdapter this monitor should search
 	 */
+	@Override
 	public void setAdapter(DSPortAdapter adapter) {
-		if (adapter == null)
+		if (adapter == null) {
 			throw new IllegalArgumentException("Adapter cannot be null");
+		}
 
-		synchronized (sync_flag) {
+		synchronized (this.sync_flag) {
 			this.adapter = adapter;
 
-			if (this.paths == null)
+			if (this.paths == null) {
 				this.paths = new Vector<>();
-			else
+			} else {
 				this.paths.setSize(0);
+			}
 			this.paths.addElement(new OWPath(adapter));
 
-			resetSearch();
+			this.resetSearch();
 		}
 	}
 
@@ -100,8 +102,8 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 	 * Indicates whether or not branches are automatically traversed. If false, new
 	 * branches must be indicated using the "addBranch" method.
 	 *
-	 * @returns true if all branches are automatically traversed during a search
-	 *          operation.
+	 * @return true if all branches are automatically traversed during a search
+	 *         operation.
 	 */
 	public boolean getBranchAutoSearching() {
 		return this.branchAutoSearching;
@@ -114,7 +116,7 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 	 * @param path A branch to be searched during the next search routine
 	 */
 	public void addBranch(OWPath path) {
-		paths.addElement(path);
+		this.paths.addElement(path);
 	}
 
 	/**
@@ -123,9 +125,10 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 	 * @param address a Long object representing the address of the device
 	 * @return The OWPath representing the network path to the device.
 	 */
+	@Override
 	public OWPath getDevicePath(Long address) {
-		synchronized (devicePathHash) {
-			return (OWPath) devicePathHash.get(address);
+		synchronized (this.devicePathHash) {
+			return this.devicePathHash.get(address);
 		}
 	}
 
@@ -137,13 +140,15 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 	 * a touch-contact environment which could run for some time and needs to
 	 * conserve memory.
 	 */
+	@Override
 	public void cleanUpStalePathReferences() {
-		synchronized (devicePathHash) {
-			Enumeration<Long> e = devicePathHash.keys();
+		synchronized (this.devicePathHash) {
+			var e = this.devicePathHash.keys();
 			while (e.hasMoreElements()) {
 				Object o = e.nextElement();
-				if (!deviceAddressHash.containsKey(o))
-					devicePathHash.remove(o);
+				if (!this.deviceAddressHash.containsKey(o)) {
+					this.devicePathHash.remove(o);
+				}
 			}
 		}
 	}
@@ -154,34 +159,35 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 	 * @param arrivals   A vector of Long objects, represent new arrival addresses.
 	 * @param departures A vector of Long objects, represent departed addresses.
 	 */
+	@Override
 	public void search(Vector<Long> arrivals, Vector<Long> departures) throws OneWireException, OneWireIOException {
-		synchronized (sync_flag) {
+		synchronized (this.sync_flag) {
 			try {
-				// aquire the adapter
-				adapter.beginExclusive(true);
+				// acquire the adapter
+				this.adapter.beginExclusive(true);
 
 				// setup the search
-				adapter.setSearchAllDevices();
-				adapter.targetAllFamilies();
-				adapter.setSpeed(DSPortAdapter.SPEED_REGULAR);
+				this.adapter.setSearchAllDevices();
+				this.adapter.targetAllFamilies();
+				this.adapter.setSpeed(DSPortAdapter.SPEED_REGULAR);
 
 				// close any opened branches
-				for (int j = 0; j < paths.size(); j++) {
+				for (var j = 0; j < this.paths.size(); j++) {
 					try {
-						((OWPath) paths.elementAt(j)).close();
+						this.paths.elementAt(j).close();
 					} catch (Exception e) {
-						;
+
 					}
 				}
 
 				// search through all of the paths
-				for (int i = 0; i < paths.size(); i++) {
+				for (var i = 0; i < this.paths.size(); i++) {
 					// set searches to not use reset
-					adapter.setNoResetSearch();
+					this.adapter.setNoResetSearch();
 
 					// find the first device on this branch
-					boolean search_result = false;
-					OWPath path = (OWPath) paths.elementAt(i);
+					var search_result = false;
+					var path = this.paths.elementAt(i);
 					try {
 						// try to open the current path
 						path.open();
@@ -190,80 +196,88 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 						continue;
 					}
 
-					search_result = adapter.findFirstDevice();
+					search_result = this.adapter.findFirstDevice();
 
 					// loop while devices found
 					while (search_result) {
 						// get the 1-Wire address
-						Long longAddress = new Long(adapter.getAddressAsLong());
-						// check if the device allready exists in our hashtable
-						if (!deviceAddressHash.containsKey(longAddress)) {
-							OneWireContainer owc = getDeviceContainer(adapter, longAddress);
+						var longAddress = Long.valueOf(this.adapter.getAddressAsLong());
+						// check if the device already exists in our hashtable
+						if (!this.deviceAddressHash.containsKey(longAddress)) {
+							var owc = getDeviceContainer(this.adapter, longAddress);
 							// check to see if it's a switch and if we are supposed
 							// to automatically search down branches
-							if (this.branchAutoSearching && (owc instanceof SwitchContainer)) {
-								SwitchContainer sc = (SwitchContainer) owc;
-								byte[] state = sc.readDevice();
-								for (int j = 0; j < sc.getNumberChannels(state); j++) {
-									OWPath tmp = new OWPath(adapter, path);
+							if (this.branchAutoSearching && owc instanceof SwitchContainer) {
+								var sc = (SwitchContainer) owc;
+								var state = sc.readDevice();
+								for (var j = 0; j < sc.getNumberChannels(state); j++) {
+									var tmp = new OWPath(this.adapter, path);
 									tmp.add(owc, j);
-									if (!paths.contains(tmp))
-										paths.addElement(tmp);
+									if (!this.paths.contains(tmp)) {
+										this.paths.addElement(tmp);
+									}
 								}
 							}
 
-							synchronized (devicePathHash) {
-								devicePathHash.put(longAddress, path);
+							synchronized (this.devicePathHash) {
+								this.devicePathHash.put(longAddress, path);
 							}
-							if (arrivals != null)
+							if (arrivals != null) {
 								arrivals.addElement(longAddress);
+							}
 						}
 						// check if the existing device moved
-						else if (!path.equals((OWPath) devicePathHash.get(longAddress))) {
-							synchronized (devicePathHash) {
-								devicePathHash.put(longAddress, path);
+						else if (!path.equals(this.devicePathHash.get(longAddress))) {
+							synchronized (this.devicePathHash) {
+								this.devicePathHash.put(longAddress, path);
 							}
-							if (departures != null)
+							if (departures != null) {
 								departures.addElement(longAddress);
-							if (arrivals != null)
+							}
+							if (arrivals != null) {
 								arrivals.addElement(longAddress);
+							}
 						}
 
 						// update count
-						deviceAddressHash.put(longAddress, new Integer(max_state_count));
+						this.deviceAddressHash.put(longAddress, Integer.valueOf(this.max_state_count));
 
 						// find the next device on this branch
 						path.open();
-						search_result = adapter.findNextDevice();
+						search_result = this.adapter.findNextDevice();
 					}
 				}
 			} finally {
-				adapter.endExclusive();
+				this.adapter.endExclusive();
 			}
 
 			// remove any devices that have not been seen
-			for (Enumeration<Long> device_enum = deviceAddressHash.keys(); device_enum.hasMoreElements();) {
-				Long longAddress = (Long) device_enum.nextElement();
+			for (var device_enum = this.deviceAddressHash.keys(); device_enum.hasMoreElements();) {
+				var longAddress = device_enum.nextElement();
 
 				// check for removal by looking at state counter
-				int cnt = ((Integer) deviceAddressHash.get(longAddress)).intValue();
+				var cnt = this.deviceAddressHash.get(longAddress).intValue();
 				if (cnt <= 0) {
 					// device entry is stale, should be removed
-					deviceAddressHash.remove(longAddress);
-					if (departures != null)
+					this.deviceAddressHash.remove(longAddress);
+					if (departures != null) {
 						departures.addElement(longAddress);
+					}
 				} else {
 					// device entry isn't stale, it stays
-					deviceAddressHash.put(longAddress, new Integer(cnt - 1));
+					this.deviceAddressHash.put(longAddress, Integer.valueOf(cnt - 1));
 				}
 			}
 
 			// fire notification events
-			if (departures != null && departures.size() > 0)
-				fireDepartureEvent(adapter, departures);
-			if (arrivals != null && arrivals.size() > 0)
-				fireArrivalEvent(adapter, arrivals);
+			if (departures != null && departures.size() > 0) {
+				this.fireDepartureEvent(this.adapter, departures);
+			}
+			if (arrivals != null && arrivals.size() > 0) {
+				this.fireArrivalEvent(this.adapter, arrivals);
+			}
 		}
 	}
 
 }
+// CHECKSTYLE:ON

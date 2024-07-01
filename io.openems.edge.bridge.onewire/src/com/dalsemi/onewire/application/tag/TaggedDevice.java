@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
@@ -42,10 +43,9 @@ public class TaggedDevice {
 	/**
 	 * Creates an object for the device with the supplied address and device type
 	 * connected to the supplied port adapter.
-	 * 
+	 *
 	 * @param adapter    The adapter serving the sensor.
-	 * @param NetAddress The 1-Wire network address of the sensor.
-	 * @param netAddress
+	 * @param netAddress The 1-Wire network address of the sensor.
 	 */
 	public TaggedDevice(DSPortAdapter adapter, String netAddress) {
 		this.DeviceContainer = adapter.getDeviceContainer(netAddress);
@@ -63,7 +63,7 @@ public class TaggedDevice {
 	 * Sets the 1-Wire Container for the tagged device.
 	 */
 	public void setDeviceContainer(DSPortAdapter adapter, String netAddress) {
-		DeviceContainer = adapter.getDeviceContainer(netAddress);
+		this.DeviceContainer = adapter.getDeviceContainer(netAddress);
 	}
 
 	/**
@@ -72,7 +72,7 @@ public class TaggedDevice {
 	 * @param tType
 	 */
 	public void setDeviceType(String tType) {
-		DeviceType = tType;
+		this.DeviceType = tType;
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class TaggedDevice {
 	 * @param Label
 	 */
 	public void setLabel(String Label) {
-		label = Label;
+		this.label = Label;
 	}
 
 	/**
@@ -90,7 +90,7 @@ public class TaggedDevice {
 	 * @param Channel
 	 */
 	public void setChannelFromString(String Channel) {
-		channel = new Integer(Channel);
+		this.channel = Integer.valueOf(Channel);
 	}
 
 	/**
@@ -98,8 +98,8 @@ public class TaggedDevice {
 	 *
 	 * @param Channel
 	 */
-	public void setChannel(int Channel) {
-		channel = new Integer(Channel);
+	public void setChannel(int channel) {
+		this.channel = Integer.valueOf(channel);
 	}
 
 	/**
@@ -107,8 +107,8 @@ public class TaggedDevice {
 	 *
 	 * @param init
 	 */
-	public void setInit(String Init) {
-		init = Init;
+	public void setInit(String init) {
+		this.init = init;
 	}
 
 	/**
@@ -117,7 +117,7 @@ public class TaggedDevice {
 	 * @param cluster
 	 */
 	public void setClusterName(String cluster) {
-		clusterName = cluster;
+		this.clusterName = cluster;
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class TaggedDevice {
 	 * @param branches
 	 */
 	public void setBranches(Vector<TaggedDevice> branches) {
-		branchVector = branches;
+		this.branchVector = branches;
 	}
 
 	/**
@@ -136,7 +136,7 @@ public class TaggedDevice {
 	 * @param branchOWPath
 	 */
 	public void setOWPath(OWPath branchOWPath) {
-		branchPath = branchOWPath;
+		this.branchPath = branchOWPath;
 	}
 
 	/**
@@ -147,14 +147,14 @@ public class TaggedDevice {
 	 * @param Branches
 	 */
 	public void setOWPath(DSPortAdapter adapter, Vector<TaggedDevice> Branches) {
-		branchPath = new OWPath(adapter);
+		this.branchPath = new OWPath(adapter);
 
 		TaggedDevice TDevice;
 
-		for (int i = 0; i < Branches.size(); i++) {
-			TDevice = (TaggedDevice) Branches.elementAt(i);
+		for (var i = 0; i < Branches.size(); i++) {
+			TDevice = Branches.elementAt(i);
 
-			branchPath.add(TDevice.getDeviceContainer(), TDevice.getChannel());
+			this.branchPath.add(TDevice.getDeviceContainer(), TDevice.getChannel());
 		}
 	}
 
@@ -166,7 +166,7 @@ public class TaggedDevice {
 	 * @return The 1-Wire container for the tagged device.
 	 */
 	public OneWireContainer getDeviceContainer() {
-		return DeviceContainer;
+		return this.DeviceContainer;
 	}
 
 	/**
@@ -175,7 +175,7 @@ public class TaggedDevice {
 	 * @return The device type for the tagged device.
 	 */
 	public String getDeviceType() {
-		return DeviceType;
+		return this.DeviceType;
 	}
 
 	/**
@@ -184,7 +184,7 @@ public class TaggedDevice {
 	 * @return The label for the tagged device.
 	 */
 	public String getLabel() {
-		return label;
+		return this.label;
 	}
 
 	/**
@@ -193,7 +193,7 @@ public class TaggedDevice {
 	 * @return The channel for the tagged device as a String.
 	 */
 	public String getChannelAsString() {
-		return channel.toString();
+		return this.channel.toString();
 	}
 
 	/**
@@ -202,7 +202,7 @@ public class TaggedDevice {
 	 * @return The channel for the tagged device as an int.
 	 */
 	public int getChannel() {
-		return channel.intValue();
+		return this.channel.intValue();
 	}
 
 	/**
@@ -211,7 +211,7 @@ public class TaggedDevice {
 	 * @return String init (Initialization String)
 	 */
 	public String getInit() {
-		return init;
+		return this.init;
 	}
 
 	/**
@@ -220,7 +220,7 @@ public class TaggedDevice {
 	 * @return String Gets the max string
 	 */
 	public String getMax() {
-		return max;
+		return this.max;
 	}
 
 	/**
@@ -229,7 +229,7 @@ public class TaggedDevice {
 	 * @return String Gets the min string
 	 */
 	public String getMin() {
-		return min;
+		return this.min;
 	}
 
 	/**
@@ -238,7 +238,7 @@ public class TaggedDevice {
 	 * @return The cluster name for the tagged device.
 	 */
 	public String getClusterName() {
-		return clusterName;
+		return this.clusterName;
 	}
 
 	/**
@@ -247,7 +247,7 @@ public class TaggedDevice {
 	 * @return The vector of branches to get to the tagged device.
 	 */
 	public Vector<TaggedDevice> getBranches() {
-		return branchVector;
+		return this.branchVector;
 	}
 
 	/**
@@ -257,28 +257,32 @@ public class TaggedDevice {
 	 * @return The OWPath for the tagged device.
 	 */
 	public OWPath getOWPath() {
-		return branchPath;
+		return this.branchPath;
 	}
 
+	@Override
 	public boolean equals(Object o) {
-		if (o == this)
+		if (o == this) {
 			return true;
+		}
 
 		if (o instanceof TaggedDevice) {
-			TaggedDevice td = (TaggedDevice) o;
-			return (td.DeviceContainer.equals(this.DeviceContainer)) && (td.DeviceType.equals(this.DeviceType))
-					&& (td.min.equals(this.min)) && (td.max.equals(this.max)) && (td.init.equals(this.init))
-					&& (td.clusterName.equals(this.clusterName)) && (td.label.equals(this.label));
+			var td = (TaggedDevice) o;
+			return td.DeviceContainer.equals(this.DeviceContainer) && td.DeviceType.equals(this.DeviceType)
+					&& td.min.equals(this.min) && td.max.equals(this.max) && td.init.equals(this.init)
+					&& td.clusterName.equals(this.clusterName) && td.label.equals(this.label);
 		}
 		return false;
 	}
 
+	@Override
 	public int hashCode() {
-		return (getDeviceContainer().toString() + getLabel()).hashCode();
+		return (this.getDeviceContainer().toString() + this.getLabel()).hashCode();
 	}
 
+	@Override
 	public String toString() {
-		return getLabel();
+		return this.getLabel();
 	}
 
 	/** ********* Properties (fields) for this object ********** */
@@ -342,3 +346,4 @@ public class TaggedDevice {
 	 */
 	private OWPath branchPath;
 }
+// CHECKSTYLE:ON

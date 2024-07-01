@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
@@ -41,16 +42,14 @@ public class Contact extends TaggedDevice implements TaggedSensor {
 	 * Creates an object for the device.
 	 */
 	public Contact() {
-		super();
 	}
 
 	/**
 	 * Creates an object for the device with the supplied address and device type
 	 * connected to the supplied port adapter.
-	 * 
+	 *
 	 * @param adapter    The adapter serving the sensor.
-	 * @param NetAddress The 1-Wire network address of the sensor.
-	 * @param netAddress
+	 * @param netAddress The 1-Wire network address of the sensor.
 	 */
 	public Contact(DSPortAdapter adapter, String netAddress) {
 		super(adapter, netAddress);
@@ -59,20 +58,19 @@ public class Contact extends TaggedDevice implements TaggedSensor {
 	/**
 	 * The readSensor method returns the "max" string if the Sensor is present or
 	 * the "min" string if the Sensor is not present.
-	 * 
-	 * @param--none.
 	 *
-	 *               @return The "max" string if sensor is present or "min" string
-	 *               if not.
+	 * @return The "max" string if sensor is present or "min" string if not.
 	 */
+	@Override
 	public String readSensor() throws OneWireException {
-		String returnString = "";
+		var returnString = "";
 
-		if (DeviceContainer.isPresent()) {
-			returnString = max;
+		if (this.DeviceContainer.isPresent()) {
+			returnString = this.max;
 		} else {
-			returnString = min;
+			returnString = this.min;
 		}
 		return returnString;
 	}
 }
+// CHECKSTYLE:ON

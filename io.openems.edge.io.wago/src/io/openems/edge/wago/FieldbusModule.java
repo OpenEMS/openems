@@ -1,20 +1,46 @@
 package io.openems.edge.wago;
 
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.Channel;
 
 public abstract class FieldbusModule {
 
+	/**
+	 * Gets the Name of the {@link FieldbusModule}.
+	 *
+	 * @return the name
+	 */
 	public abstract String getName();
 
-	public abstract AbstractModbusElement<?>[] getInputElements();
+	/**
+	 * Gets the {@link ModbusCoilElement} for the input coils starting at address 0.
+	 *
+	 * @return the array; empty for no input coils
+	 */
+	public abstract CoilElement[] getInputCoil0Elements();
 
-	public abstract AbstractModbusElement<?>[] getOutputElements();
+	/**
+	 * Gets the {@link ModbusCoilElement} for the input coils starting at address
+	 * 512.
+	 *
+	 * @return the array; empty for no input coils
+	 */
+	public abstract CoilElement[] getInputCoil512Elements();
 
-	public abstract int getOutputCoils();
+	/**
+	 * Gets the {@link ModbusCoilElement} for the output coils starting at address
+	 * 512.
+	 *
+	 * @return the array; empty for no output coils
+	 */
+	public abstract CoilElement[] getOutputCoil512Elements();
 
-	public abstract int getInputCoils();
-
+	/**
+	 * Gets the Channels of the {@link FieldbusModule}.
+	 *
+	 * @return the {@link Channel}
+	 */
 	public abstract BooleanReadChannel[] getChannels();
 
 }

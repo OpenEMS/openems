@@ -1,393 +1,745 @@
 package io.openems.edge.fenecon.mini.ess;
 
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.metatype.annotations.Designate;
-
 import io.openems.common.channel.AccessMode;
-import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
-import io.openems.edge.bridge.modbus.api.ElementToChannelOffsetConverter;
-import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
-import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
-import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
-import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
-import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.AsymmetricEss;
-import io.openems.edge.ess.api.SinglePhase;
+import io.openems.edge.ess.api.ManagedAsymmetricEss;
+import io.openems.edge.ess.api.ManagedSinglePhaseEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.fenecon.mini.FeneconMiniConstants;
+import io.openems.edge.fenecon.mini.ess.statemachine.StateMachine.State;
 
-@Designate(ocd = Config.class, factory = true)
-@Component( //
-		name = "Fenecon.Mini.Ess", //
-		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class FeneconMiniEss extends AbstractOpenemsModbusComponent
-		implements SinglePhaseEss, AsymmetricEss, SymmetricEss, OpenemsComponent, ModbusSlave {
+public interface FeneconMiniEss extends ManagedSinglePhaseEss, ManagedAsymmetricEss, ManagedSymmetricEss,
+		SinglePhaseEss, AsymmetricEss, SymmetricEss, OpenemsComponent, ModbusSlave {
 
-	@Reference
-	protected ConfigurationAdmin cm;
+	public static final int MAX_APPARENT_POWER = 3000;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
+	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		STATE_MACHINE(Doc.of(State.values()) //
+				.text("Current State of State-Machine")), //
+		RUN_FAILED(Doc.of(Level.FAULT) //
+				.text("Running the Logic failed")),
+		GRID_MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.MILLIAMPERE)), //
+		GRID_MAX_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.MILLIAMPERE)), //
+
+		// EnumReadChannels
+		SYSTEM_STATE(Doc.of(SystemState.values())), //
+		CONTROL_MODE(Doc.of(ControlMode.values())), //
+		BATTERY_GROUP_STATE(Doc.of(BatteryGroupState.values())), //
+
+		// EnumWriteChannels
+		PCS_MODE(Doc.of(PcsMode.values()) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		SETUP_MODE(Doc.of(SetupMode.values()) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		SET_WORK_STATE(Doc.of(SetWorkState.values()) //
+				.accessMode(AccessMode.WRITE_ONLY)),
+		DEBUG_RUN_STATE(Doc.of(DebugRunState.values()) //
+				.accessMode(AccessMode.READ_WRITE)),
+
+		// IntegerWriteChannels
+		RTC_YEAR(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.text("Year")), //
+		RTC_MONTH(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.text("Month")), //
+		RTC_DAY(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.text("Day")), //
+		RTC_HOUR(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.text("Hour")), //
+		RTC_MINUTE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.text("Minute")), //
+		RTC_SECOND(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.text("Second")), //
+
+		// IntegerReadChannels
+		BATTERY_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		BATTERY_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+
+		BECU1_ALLOWED_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		BECU1_ALLOWED_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		BECU1_TOTAL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BECU1_TOTAL_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)), //
+		BECU1_SOC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT)), //
+		BECU1_VERSION(Doc.of(OpenemsType.INTEGER)), //
+		BECU1_NOMINAL_CAPACITY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE_HOURS)), //
+		BECU1_CURRENT_CAPACITY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE_HOURS)), //
+		BECU1_MINIMUM_VOLTAGE_NO(Doc.of(OpenemsType.INTEGER)), //
+		BECU1_MINIMUM_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		BECU1_MAXIMUM_VOLTAGE_NO(Doc.of(OpenemsType.INTEGER)), //
+		BECU1_MAXIMUM_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		BECU1_MINIMUM_TEMPERATURE_NO(Doc.of(OpenemsType.INTEGER)), //
+		BECU1_MINIMUM_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BECU1_MAXIMUM_TEMPERATURE_NO(Doc.of(OpenemsType.INTEGER)), //
+		BECU1_MAXIMUM_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+
+		BECU2_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)), //
+		BECU2_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)), //
+		BECU2_VOLT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		BECU2_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)), //
+		BECU2_SOC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT)), //
+
+		BECU2_VERSION(Doc.of(OpenemsType.INTEGER)), //
+		BECU2_MIN_VOLT_NO(Doc.of(OpenemsType.INTEGER)), //
+		BECU2_MIN_VOLT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		BECU2_MAX_VOLT_NO(Doc.of(OpenemsType.INTEGER)), //
+		BECU2_MAX_VOLT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		BECU2_MIN_TEMP_NO(Doc.of(OpenemsType.INTEGER)), //
+		BECU2_MIN_TEMP(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BECU2_MAX_TEMP_NO(Doc.of(OpenemsType.INTEGER)), //
+		BECU2_MAX_TEMP(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+
+		SYSTEM_WORK_MODE_STATE(Doc.of(OpenemsType.INTEGER)), //
+		SYSTEM_WORK_STATE(Doc.of(OpenemsType.INTEGER)), //
+
+		BECU_NUM(Doc.of(OpenemsType.INTEGER)), //
+		BECU_WORK_STATE(Doc.of(OpenemsType.INTEGER)), //
+		BECU_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)), //
+		BECU_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)), //
+		BECU_VOLT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		BECU_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE)), //
+
+		BATTERY_VOLTAGE_SECTION_1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_VOLTAGE_SECTION_2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_VOLTAGE_SECTION_3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_VOLTAGE_SECTION_4(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_VOLTAGE_SECTION_5(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_VOLTAGE_SECTION_6(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_VOLTAGE_SECTION_7(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_VOLTAGE_SECTION_8(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_VOLTAGE_SECTION_9(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_VOLTAGE_SECTION_10(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_VOLTAGE_SECTION_11(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_VOLTAGE_SECTION_12(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_VOLTAGE_SECTION_13(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_VOLTAGE_SECTION_14(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_VOLTAGE_SECTION_15(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_VOLTAGE_SECTION_16(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		// TODO add .delta(-40L)
+		BATTERY_TEMPERATURE_SECTION_1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_TEMPERATURE_SECTION_2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_TEMPERATURE_SECTION_3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_TEMPERATURE_SECTION_4(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_TEMPERATURE_SECTION_5(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_TEMPERATURE_SECTION_6(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_TEMPERATURE_SECTION_7(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_TEMPERATURE_SECTION_8(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_TEMPERATURE_SECTION_9(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_TEMPERATURE_SECTION_10(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_TEMPERATURE_SECTION_11(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_TEMPERATURE_SECTION_12(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_TEMPERATURE_SECTION_13(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_TEMPERATURE_SECTION_14(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_TEMPERATURE_SECTION_15(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_TEMPERATURE_SECTION_16(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+
+		// BooleanReadChannels
+		STATE_1(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1GeneralChargeOverCurrentAlarm")), //
+		STATE_2(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1GeneralDischargeOverCurrentAlarm")), //
+		STATE_3(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1ChargeCurrentLimitAlarm")), //
+		STATE_4(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1DischargeCurrentLimitAlarm")), //
+		STATE_5(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1GeneralHighVoltageAlarm")), //
+		STATE_6(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1GeneralLowVoltageAlarm")), //
+		STATE_8(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1GeneralHighTemperatureAlarm")), //
+		STATE_9(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1GeneralLowTemperatureAlarm")), //
+		STATE_10(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1AbnormalTemperatureChangeAlarm")), //
+		STATE_16(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1AbnormalCellCapacityAlarm")), //
+		STATE_17(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1BalancedSamplingAlarm")), //
+		STATE_18(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1BalancedControlAlarm")), //
+		STATE_19(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1HallSensorDoesNotWorkAccurately")), //
+		STATE_20(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1Generalleakage")), //
+		STATE_22(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1Contactor1TurnOnAbnormity")), //
+		STATE_23(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1Contactor1TurnOffAbnormity")), //
+		STATE_24(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1Contactor2TurnOnAbnormity")), //
+		STATE_25(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1Contactor2TurnOffAbnormity")), //
+		STATE_26(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1Contactor4CheckAbnormity")), //
+		STATE_27(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1ContactorCurrentUnsafe")), //
+		STATE_28(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1Contactor5CheckAbnormity")), //
+		STATE_36(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1GeneralOvervoltage")), //
+		STATE_42(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1BatteryFail")), //
+		STATE_44(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1Contactor1TestBackIsAbnormalTurnOnAbnormity")), //
+		STATE_45(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1Contactor1TestBackIsAbnormalTurnOffAbnormity")), //
+		STATE_46(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1Contactor2TestBackIsAbnormalTurnOnAbnormity")), //
+		STATE_47(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1Contactor2TestBackIsAbnormalTurnOffAbnormity")), //
+		STATE_88(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2GeneralOvervoltage")), //
+		STATE_96(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2Contactor1TestBackIsAbnormalTurnOnAbnormity")), //
+		STATE_97(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2Contactor1TestBackIsAbnormalTurnOffAbnormity")), //
+		STATE_98(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2Contactor2TestBackIsAbnormalTurnOnAbnormity")), //
+		STATE_99(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2Contactor2TestBackIsAbnormalTurnOffAbnormity")), //
+		STATE_117(Doc.of(OpenemsType.BOOLEAN) //
+				.text("GeneralCellStackHighVoltageAlarm")), //
+		STATE_118(Doc.of(OpenemsType.BOOLEAN) //
+				.text("GeneralCellStackLowVoltageAlarm")), //
+		STATE_134(Doc.of(OpenemsType.BOOLEAN) //
+				.text("TheCommunicationOfPCSBreak")), //
+		STATE_138(Doc.of(OpenemsType.BOOLEAN) //
+				.text("AbnormalMainContactor")), //
+		STATE_139(Doc.of(OpenemsType.BOOLEAN) //
+				.text("GeneralCellStackLeakage")), //
+		STATE_143(Doc.of(OpenemsType.BOOLEAN) //
+				.text("TheCommunicationWireToDredBreak")), //
+
+		SYSTEM_ERROR(Doc.of(Level.FAULT) //
+				.onInit(new StateChannel.TriggerOnAny(SystemErrorChannelId.values()))
+				.text("System-Error. More information at: https://fenecon.de/fenecon-mini-system-error")), //
+		SERVICE_INFO(Doc.of(Level.INFO) //
+				.onInit(new StateChannel.TriggerOnAny(ServiceInfoChannelId.values())) //
+				.text("Service-Info")), //
+		;
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
 	}
 
-	private SinglePhase phase;
+	/**
+	 * Source-Channels for {@link ChannelId#SYSTEM_ERROR}.
+	 */
+	public static enum SystemErrorChannelId implements io.openems.edge.common.channel.ChannelId {
+		STATE_34(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1GeneralUndervoltage")), //
+		STATE_105(Doc.of(OpenemsType.BOOLEAN) //
+				.text("NoAvailableBatteryGroup")); //
 
-	public FeneconMiniEss() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				SymmetricEss.ChannelId.values(), //
-				AsymmetricEss.ChannelId.values(), //
-				SinglePhaseEss.ChannelId.values(), //
-				EssChannelId.values() //
-		);
-		this.getCapacity().setNextValue(3_000);
+		private final Doc doc;
+
+		private SystemErrorChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+
+		}
 	}
 
-	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), FeneconMiniConstants.UNIT_ID, this.cm,
-				"Modbus", config.modbus_id());
-		this.phase = config.phase();
-		SinglePhaseEss.initializeCopyPhaseChannel(this, config.phase());
+	/**
+	 * Source-Channels for {@link ChannelId#SERVICE_INFO}.
+	 */
+	public static enum ServiceInfoChannelId implements io.openems.edge.common.channel.ChannelId {
+		STATE_7(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1AbnormalVoltageChangeAlarm")), //
+		STATE_11(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1SevereHighVoltageAlarm")), //
+		STATE_12(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1SevereLowVoltageAlarm")), //
+		STATE_13(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1SevereLowTemperatureAlarm")), //
+		STATE_14(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1SeverveChargeOverCurrentAlarm")), //
+		STATE_15(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1SeverveDischargeOverCurrentAlarm")), //
+		STATE_21(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1Severeleakage")), //
+		STATE_29(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1HighVoltageOffset")), //
+		STATE_30(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1LowVoltageOffset")), //
+		STATE_31(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1HighTemperatureOffset")), //
+		STATE_32(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1DischargeSevereOvercurrent")), //
+		STATE_33(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1ChargeSevereOvercurrent")), //
+		STATE_35(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1SevereOvervoltage")), //
+		STATE_37(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1SevereUndervoltage")), //
+		STATE_38(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1InsideCANBroken")), //
+		STATE_39(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1GeneralUndervoltageHighCurrentDischarge")), //
+		STATE_40(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1BMUError")), //
+		STATE_41(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1CurrentSamplingInvalidation")), //
+		STATE_43(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1TemperatureSamplingBroken")), //
+		STATE_48(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1SevereHighTemperatureFault")), //
+		STATE_49(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1HallInvalidation")), //
+		STATE_50(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1ContactorInvalidation")), //
+		STATE_51(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1OutsideCANBroken")), //
+		STATE_52(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU1CathodeContactorBroken")), //
+		STATE_53(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2GeneralChargeOverCurrentAlarm")), //
+		STATE_54(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2GeneralDischargeOverCurrentAlarm")), //
+		STATE_55(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2ChargeCurrentLimitAlarm")), //
+		STATE_56(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2DischargeCurrentLimitAlarm")), //
+		STATE_57(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2GeneralHighVoltageAlarm")), //
+		STATE_58(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2GeneralLowVoltageAlarm")), //
+		STATE_59(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2AbnormalVoltageChangeAlarm")), //
+		STATE_60(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2GeneralHighTemperatureAlarm")), //
+		STATE_61(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2GeneralLowTemperatureAlarm")), //
+		STATE_62(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2AbnormalTemperatureChangeAlarm")), //
+		STATE_63(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2SevereHighVoltageAlarm")), //
+		STATE_64(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2SevereLowVoltageAlarm")), //
+		STATE_65(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2SevereLowTemperatureAlarm")), //
+		STATE_66(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2SeverveChargeOverCurrentAlarm")), //
+		STATE_67(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2SeverveDischargeOverCurrentAlarm")), //
+		STATE_68(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2AbnormalCellCapacityAlarm")), //
+		STATE_69(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2BalancedSamplingAlarm")), //
+		STATE_70(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2BalancedControlAlarm")), //
+		STATE_71(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2HallSensorDoesNotWorkAccurately")), //
+		STATE_72(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2Generalleakage")), //
+		STATE_73(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2Severeleakage")), //
+		STATE_74(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2Contactor1TurnOnAbnormity")), //
+		STATE_75(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2Contactor1TurnOffAbnormity")), //
+		STATE_76(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2Contactor2TurnOnAbnormity")), //
+		STATE_77(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2Contactor2TurnOffAbnormity")), //
+		STATE_78(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2Contactor4CheckAbnormity")), //
+		STATE_79(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2ContactorCurrentUnsafe")), //
+		STATE_80(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2Contactor5CheckAbnormity")), //
+		STATE_81(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2HighVoltageOffset")), //
+		STATE_82(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2LowVoltageOffset")), //
+		STATE_83(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2HighTemperatureOffset")), //
+		STATE_84(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2DischargeSevereOvercurrent")), //
+		STATE_85(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2ChargeSevereOvercurrent")), //
+		STATE_86(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2GeneralUndervoltage")), //
+		STATE_87(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2SevereOvervoltage")), //
+		STATE_89(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2SevereUndervoltage")), //
+		STATE_90(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2InsideCANBroken")), //
+		STATE_91(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2GeneralUndervoltageHighCurrentDischarge")), //
+		STATE_92(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2BMUError")), //
+		STATE_93(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2CurrentSamplingInvalidation")), //
+		STATE_94(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2BatteryFail")), //
+		STATE_95(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2TemperatureSamplingBroken")), //
+		STATE_100(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2SevereHighTemperatureFault")), //
+		STATE_101(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2HallInvalidation")), //
+		STATE_102(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2ContactorInvalidation")), //
+		STATE_103(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2OutsideCANBroken")), //
+		STATE_104(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BECU2CathodeContactorBroken")), //
+		STATE_106(Doc.of(OpenemsType.BOOLEAN) //
+				.text("StackGeneralLeakage")), //
+		STATE_107(Doc.of(OpenemsType.BOOLEAN) //
+				.text("StackSevereLeakage")), //
+		STATE_108(Doc.of(OpenemsType.BOOLEAN) //
+				.text("StackStartingFail")), //
+		STATE_109(Doc.of(OpenemsType.BOOLEAN) //
+				.text("StackStoppingFail")), //
+		STATE_110(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BatteryProtection")), //
+		STATE_111(Doc.of(OpenemsType.BOOLEAN) //
+				.text("StackAndGroup1CANCommunicationInterrupt")), //
+		STATE_112(Doc.of(OpenemsType.BOOLEAN) //
+				.text("StackAndGroup2CANCommunicationInterrupt")), //
+		STATE_113(Doc.of(OpenemsType.BOOLEAN) //
+				.text("GeneralOvercurrentAlarmAtCellStackCharge")), //
+		STATE_114(Doc.of(OpenemsType.BOOLEAN) //
+				.text("GeneralOvercurrentAlarmAtCellStackDischarge")), //
+		STATE_115(Doc.of(OpenemsType.BOOLEAN) //
+				.text("CurrentLimitAlarmAtCellStackCharge")), //
+		STATE_116(Doc.of(OpenemsType.BOOLEAN) //
+				.text("CurrentLimitAlarmAtCellStackDischarge")), //
+		STATE_119(Doc.of(OpenemsType.BOOLEAN) //
+				.text("AbnormalCellStackVoltageChangeAlarm")), //
+		STATE_120(Doc.of(OpenemsType.BOOLEAN) //
+				.text("GeneralCellStackHighTemperatureAlarm")), //
+		STATE_121(Doc.of(OpenemsType.BOOLEAN) //
+				.text("GeneralCellStackLowTemperatureAlarm")), //
+		STATE_122(Doc.of(OpenemsType.BOOLEAN) //
+				.text("AbnormalCellStackTemperatureChangeAlarm")), //
+		STATE_123(Doc.of(OpenemsType.BOOLEAN) //
+				.text("SevereCellStackHighVoltageAlarm")), //
+		STATE_124(Doc.of(OpenemsType.BOOLEAN) //
+				.text("SevereCellStackLowVoltageAlarm")), //
+		STATE_125(Doc.of(OpenemsType.BOOLEAN) //
+				.text("SevereCellStackLowTemperatureAlarm")), //
+		STATE_126(Doc.of(OpenemsType.BOOLEAN) //
+				.text("SeverveOverCurrentAlarmAtCellStackDharge")), //
+		STATE_127(Doc.of(OpenemsType.BOOLEAN) //
+				.text("SeverveOverCurrentAlarmAtCellStackDischarge")), //
+		STATE_128(Doc.of(OpenemsType.BOOLEAN) //
+				.text("AbnormalCellStackCapacityAlarm")), //
+		STATE_129(Doc.of(OpenemsType.BOOLEAN) //
+				.text("TheParameterOfEEPROMInCellStackLoseEffectiveness")), //
+		STATE_130(Doc.of(OpenemsType.BOOLEAN) //
+				.text("IsolatingSwitchInConfluenceArkBreak")), //
+		STATE_131(Doc.of(OpenemsType.BOOLEAN) //
+				.text("TheCommunicationBetweenCellStackAndTemperatureOfCollectorBreak")), //
+		STATE_132(Doc.of(OpenemsType.BOOLEAN) //
+				.text("TheTemperatureOfCollectorFail")), //
+		STATE_133(Doc.of(OpenemsType.BOOLEAN) //
+				.text("HallSensorDoNotWorkAccurately")), //
+		STATE_135(Doc.of(OpenemsType.BOOLEAN) //
+				.text("AdvancedChargingOrMainContactorCloseAbnormally")), //
+		STATE_136(Doc.of(OpenemsType.BOOLEAN) //
+				.text("AbnormalSampledVoltage")), //
+		STATE_137(Doc.of(OpenemsType.BOOLEAN) //
+				.text("AbnormalAdvancedContactorOrAbnormalRS485GalleryOfPCS")), //
+		STATE_140(Doc.of(OpenemsType.BOOLEAN) //
+				.text("SevereCellStackLeakage")), //
+		STATE_141(Doc.of(OpenemsType.BOOLEAN) //
+				.text("SmokeAlarm")); //
+
+		private final Doc doc;
+
+		private ServiceInfoChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
 	}
 
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
+	/**
+	 * Gets the Channel for {@link ChannelId#SETUP_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default WriteChannel<SetupMode> getSetupModeChannel() {
+		return this.channel(ChannelId.SETUP_MODE);
+	}
+
+	/**
+	 * Gets the Setup Mode. See {@link ChannelId#SETUP_MODE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default SetupMode getSetupMode() {
+		return this.getSetupModeChannel().value().asEnum();
+	}
+
+	/**
+	 * Set the Setup Mode. See {@link ChannelId#SETUP_MODE}.
+	 *
+	 * @param value the next value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setSetupMode(SetupMode value) throws OpenemsNamedException {
+		this.getSetupModeChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PCS_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default WriteChannel<PcsMode> getPcsModeChannel() {
+		return this.channel(ChannelId.PCS_MODE);
+	}
+
+	/**
+	 * Gets the PCS Mode. See {@link ChannelId#PCS_MODE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default PcsMode getPcsMode() {
+		return this.getPcsModeChannel().value().asEnum();
+	}
+
+	/**
+	 * Set the PCS Mode. See {@link ChannelId#PCS_MODE}.
+	 *
+	 * @param value the next value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setPcsMode(PcsMode value) throws OpenemsNamedException {
+		this.getPcsModeChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_RUN_STATE}.
+	 *
+	 * @return the Channel
+	 */
+	public default WriteChannel<DebugRunState> getDebugRunStateChannel() {
+		return this.channel(ChannelId.DEBUG_RUN_STATE);
+	}
+
+	/**
+	 * Gets the Debug Run-State. See {@link ChannelId#DEBUG_RUN_STATE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default DebugRunState getDebugRunState() {
+		return this.getDebugRunStateChannel().value().asEnum();
+	}
+
+	/**
+	 * Set the Debug Run-State. See {@link ChannelId#DEBUG_RUN_STATE}.
+	 *
+	 * @param value the next value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setDebugRunState(DebugRunState value) throws OpenemsNamedException {
+		this.getDebugRunStateChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_MAX_CHARGE_CURRENT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getGridMaxChargeCurrentChannel() {
+		return this.channel(ChannelId.GRID_MAX_CHARGE_CURRENT);
+	}
+
+	/**
+	 * Gets the Grid Max-Charge-Current in [mA]. See
+	 * {@link ChannelId#GRID_MAX_CHARGE_CURRENT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getGridMaxChargeCurrent() {
+		return this.getGridMaxChargeCurrentChannel().value();
+	}
+
+	/**
+	 * Set the Grid Max-Charge-Current in [mA]. See
+	 * {@link ChannelId#GRID_MAX_CHARGE_CURRENT}.
+	 *
+	 * @param value the next value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setGridMaxChargeCurrent(Integer value) throws OpenemsNamedException {
+		this.getGridMaxChargeCurrentChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_MAX_DISCHARGE_CURRENT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getGridMaxDischargeCurrentChannel() {
+		return this.channel(ChannelId.GRID_MAX_DISCHARGE_CURRENT);
+	}
+
+	/**
+	 * Gets the Grid Max-Discharge-Current in [mA]. See
+	 * {@link ChannelId#GRID_MAX_DISCHARGE_CURRENT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getGridMaxDischargeCurrent() {
+		return this.getGridMaxDischargeCurrentChannel().value();
+	}
+
+	/**
+	 * Set the Grid Max-Charge-Current in [mA]. See
+	 * {@link ChannelId#GRID_MAX_CHARGE_CURRENT}.
+	 *
+	 * @param value the next value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setGridMaxDischargeCurrent(Integer value) throws OpenemsNamedException {
+		this.getGridMaxDischargeCurrentChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#BECU1_TOTAL_VOLTAGE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getBecu1TotalVoltageChannel() {
+		return this.channel(ChannelId.BECU1_TOTAL_VOLTAGE);
+	}
+
+	/**
+	 * Gets the Becu1 Total Voltage [mV]. See {@link ChannelId#BECU1_TOTAL_VOLTAGE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getBecu1TotalVoltage() {
+		return this.getBecu1TotalVoltageChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#BECU1_ALLOWED_CHARGE_CURRENT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getBecu1AllowedChargeCurrentChannel() {
+		return this.channel(ChannelId.BECU1_ALLOWED_CHARGE_CURRENT);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#BECU1_ALLOWED_DISCHARGE_CURRENT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getBecu1AllowedDischargeCurrentChannel() {
+		return this.channel(ChannelId.BECU1_ALLOWED_DISCHARGE_CURRENT);
 	}
 
 	@Override
-	public SinglePhase getPhase() {
-		return this.phase;
+	public default void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
+			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
+		ManagedSinglePhaseEss.super.applyPower(activePowerL1, reactivePowerL1, activePowerL2, reactivePowerL2,
+				activePowerL3, reactivePowerL3);
 	}
 
-	@Override
-	protected ModbusProtocol defineModbusProtocol() {
-		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(100, Priority.LOW, //
-						m(EssChannelId.SYSTEM_STATE, new UnsignedWordElement(100)), //
-						m(EssChannelId.CONTROL_MODE, new UnsignedWordElement(101)), //
-						new DummyRegisterElement(102, 103), //
-						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(104)), //
-						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, new UnsignedDoublewordElement(106)), //
-						m(EssChannelId.BATTERY_GROUP_STATE, new UnsignedWordElement(108)), //
-						new DummyRegisterElement(109), //
-						m(EssChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110)), //
-						m(EssChannelId.BATTERY_CURRENT, new SignedWordElement(111)), //
-						m(EssChannelId.BATTERY_POWER, new SignedWordElement(112))), //
-				new FC3ReadRegistersTask(2007, Priority.HIGH, //
-						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2007),
-								UNSIGNED_POWER_CONVERTER)), //
-				new FC3ReadRegistersTask(2107, Priority.HIGH, //
-						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2107),
-								UNSIGNED_POWER_CONVERTER)), //
-				new FC3ReadRegistersTask(2207, Priority.HIGH, //
-						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2207),
-								UNSIGNED_POWER_CONVERTER)), //
-				new FC3ReadRegistersTask(3000, Priority.LOW, //
-						m(EssChannelId.BECU1_CHARGE_CURRENT_LIMIT, new UnsignedWordElement(3000),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(EssChannelId.BECU1_DISCHARGE_CURRENT_LIMIT, new UnsignedWordElement(3001), //
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(EssChannelId.BECU1_TOTAL_VOLTAGE, new UnsignedWordElement(3002),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(EssChannelId.BECU1_TOTAL_CURRENT, new UnsignedWordElement(3003)), //
-						m(EssChannelId.BECU1_SOC, new UnsignedWordElement(3004)), //
-						m(new BitsWordElement(3005, this) //
-								.bit(0, EssChannelId.STATE_1) //
-								.bit(1, EssChannelId.STATE_2) //
-								.bit(2, EssChannelId.STATE_3) //
-								.bit(3, EssChannelId.STATE_4) //
-								.bit(4, EssChannelId.STATE_5) //
-								.bit(5, EssChannelId.STATE_6) //
-								.bit(6, EssChannelId.STATE_7) //
-								.bit(7, EssChannelId.STATE_8) //
-								.bit(8, EssChannelId.STATE_9) //
-								.bit(9, EssChannelId.STATE_10) //
-								.bit(10, EssChannelId.STATE_11) //
-								.bit(11, EssChannelId.STATE_12) //
-								.bit(12, EssChannelId.STATE_13) //
-								.bit(13, EssChannelId.STATE_14) //
-								.bit(14, EssChannelId.STATE_15) //
-								.bit(15, EssChannelId.STATE_16)), //
-						m(new BitsWordElement(3006, this) //
-								.bit(0, EssChannelId.STATE_17) //
-								.bit(1, EssChannelId.STATE_18) //
-								.bit(2, EssChannelId.STATE_19) //
-								.bit(4, EssChannelId.STATE_20) //
-								.bit(5, EssChannelId.STATE_21) //
-								.bit(6, EssChannelId.STATE_22) //
-								.bit(7, EssChannelId.STATE_23) //
-								.bit(8, EssChannelId.STATE_24) //
-								.bit(9, EssChannelId.STATE_25) //
-								.bit(10, EssChannelId.STATE_26) //
-								.bit(11, EssChannelId.STATE_27) //
-								.bit(12, EssChannelId.STATE_28) //
-								.bit(13, EssChannelId.STATE_29) //
-								.bit(14, EssChannelId.STATE_30) //
-								.bit(15, EssChannelId.STATE_31)), //
-						m(new BitsWordElement(3007, this) //
-								.bit(0, EssChannelId.STATE_32) //
-								.bit(1, EssChannelId.STATE_33) //
-								.bit(2, EssChannelId.STATE_34) //
-								.bit(3, EssChannelId.STATE_35) //
-								.bit(4, EssChannelId.STATE_36) //
-								.bit(5, EssChannelId.STATE_37) //
-								.bit(6, EssChannelId.STATE_38) //
-								.bit(7, EssChannelId.STATE_39) //
-								.bit(8, EssChannelId.STATE_40) //
-								.bit(9, EssChannelId.STATE_41) //
-								.bit(10, EssChannelId.STATE_42) //
-								.bit(13, EssChannelId.STATE_43) //
-								.bit(14, EssChannelId.STATE_44) //
-								.bit(15, EssChannelId.STATE_45)), //
-						m(new BitsWordElement(3008, this) //
-								.bit(0, EssChannelId.STATE_46) //
-								.bit(1, EssChannelId.STATE_47) //
-								.bit(2, EssChannelId.STATE_48) //
-								.bit(9, EssChannelId.STATE_49) //
-								.bit(10, EssChannelId.STATE_50) //
-								.bit(12, EssChannelId.STATE_51) //
-								.bit(13, EssChannelId.STATE_52)), //
-						m(EssChannelId.BECU1_VERSION, new UnsignedWordElement(3009)), //
-						m(EssChannelId.BECU1_NOMINAL_CAPACITY, new UnsignedWordElement(3010)), //
-						m(EssChannelId.BECU1_CURRENT_CAPACITY, new UnsignedWordElement(3011)), //
-						m(EssChannelId.BECU1_MINIMUM_VOLTAGE_NO, new UnsignedWordElement(3012)), //
-						m(EssChannelId.BECU1_MINIMUM_VOLTAGE, new UnsignedWordElement(3013)), //
-						m(EssChannelId.BECU1_MAXIMUM_VOLTAGE_NO, new UnsignedWordElement(3014)), //
-						m(EssChannelId.BECU1_MAXIMUM_VOLTAGE, new UnsignedWordElement(3015)), // ^
-						m(EssChannelId.BECU1_MINIMUM_TEMPERATURE_NO, new UnsignedWordElement(3016)), //
-						m(EssChannelId.BECU1_MINIMUM_TEMPERATURE, new UnsignedWordElement(3017),
-								new ElementToChannelOffsetConverter(-40)), //
-						m(EssChannelId.BECU1_MAXIMUM_TEMPERATURE_NO, new UnsignedWordElement(3018)), //
-						m(EssChannelId.BECU1_MAXIMUM_TEMPERATURE, new UnsignedWordElement(3019),
-								new ElementToChannelOffsetConverter(-40))),
-
-				new FC3ReadRegistersTask(3200, Priority.LOW, //
-						m(EssChannelId.BECU2_CHARGE_CURRENT, new UnsignedWordElement(3200)), //
-						m(EssChannelId.BECU2_DISCHARGE_CURRENT, new UnsignedWordElement(3201)), //
-						m(EssChannelId.BECU2_VOLT, new UnsignedWordElement(3202)), //
-						m(EssChannelId.BECU2_CURRENT, new UnsignedWordElement(3203)), //
-						m(EssChannelId.BECU2_SOC, new UnsignedWordElement(3204))), //
-				new FC3ReadRegistersTask(3205, Priority.LOW, //
-						m(new BitsWordElement(3205, this) //
-								.bit(0, EssChannelId.STATE_53) //
-								.bit(1, EssChannelId.STATE_54) //
-								.bit(2, EssChannelId.STATE_55) //
-								.bit(3, EssChannelId.STATE_56) //
-								.bit(4, EssChannelId.STATE_57) //
-								.bit(5, EssChannelId.STATE_58) //
-								.bit(6, EssChannelId.STATE_59) //
-								.bit(7, EssChannelId.STATE_60) //
-								.bit(8, EssChannelId.STATE_61) //
-								.bit(9, EssChannelId.STATE_62) //
-								.bit(10, EssChannelId.STATE_63) //
-								.bit(11, EssChannelId.STATE_64) //
-								.bit(12, EssChannelId.STATE_65) //
-								.bit(13, EssChannelId.STATE_66) //
-								.bit(14, EssChannelId.STATE_67) //
-								.bit(15, EssChannelId.STATE_68)), //
-						m(new BitsWordElement(3206, this) //
-								.bit(0, EssChannelId.STATE_69) //
-								.bit(1, EssChannelId.STATE_70) //
-								.bit(2, EssChannelId.STATE_71) //
-								.bit(4, EssChannelId.STATE_72) //
-								.bit(5, EssChannelId.STATE_73) //
-								.bit(6, EssChannelId.STATE_74) //
-								.bit(7, EssChannelId.STATE_75) //
-								.bit(8, EssChannelId.STATE_76) //
-								.bit(9, EssChannelId.STATE_77) //
-								.bit(10, EssChannelId.STATE_78) //
-								.bit(11, EssChannelId.STATE_79) //
-								.bit(12, EssChannelId.STATE_80) //
-								.bit(13, EssChannelId.STATE_81) //
-								.bit(14, EssChannelId.STATE_82) //
-								.bit(15, EssChannelId.STATE_83)),
-						m(new BitsWordElement(3207, this) //
-								.bit(0, EssChannelId.STATE_84) //
-								.bit(1, EssChannelId.STATE_85) //
-								.bit(2, EssChannelId.STATE_86) //
-								.bit(3, EssChannelId.STATE_87) //
-								.bit(4, EssChannelId.STATE_88) //
-								.bit(5, EssChannelId.STATE_89) //
-								.bit(6, EssChannelId.STATE_90) //
-								.bit(7, EssChannelId.STATE_91) //
-								.bit(8, EssChannelId.STATE_92) //
-								.bit(9, EssChannelId.STATE_93) //
-								.bit(10, EssChannelId.STATE_94) //
-								.bit(13, EssChannelId.STATE_95) //
-								.bit(14, EssChannelId.STATE_96) //
-								.bit(15, EssChannelId.STATE_97)), //
-						m(new BitsWordElement(3208, this) //
-								.bit(0, EssChannelId.STATE_98) //
-								.bit(1, EssChannelId.STATE_99) //
-								.bit(2, EssChannelId.STATE_100) //
-								.bit(9, EssChannelId.STATE_101) //
-								.bit(10, EssChannelId.STATE_102) //
-								.bit(12, EssChannelId.STATE_103) //
-								.bit(13, EssChannelId.STATE_104)),
-						m(EssChannelId.BECU2_VERSION, new UnsignedWordElement(3209)), //
-						new DummyRegisterElement(3210, 3211), //
-						m(EssChannelId.BECU2_MIN_VOLT_NO, new UnsignedWordElement(3212)), //
-						m(EssChannelId.BECU2_MIN_VOLT, new UnsignedWordElement(3213)), //
-						m(EssChannelId.BECU2_MAX_VOLT_NO, new UnsignedWordElement(3214)), //
-						m(EssChannelId.BECU2_MAX_VOLT, new UnsignedWordElement(3215)), // ^
-						m(EssChannelId.BECU2_MIN_TEMP_NO, new UnsignedWordElement(3216)), //
-						m(EssChannelId.BECU2_MIN_TEMP, new UnsignedWordElement(3217)), //
-						m(EssChannelId.BECU2_MAX_TEMP_NO, new UnsignedWordElement(3218)), //
-						m(EssChannelId.BECU2_MAX_TEMP, new UnsignedWordElement(3219))), //
-				new FC3ReadRegistersTask(4000, Priority.LOW, //
-						m(EssChannelId.SYSTEM_WORK_STATE, new UnsignedDoublewordElement(4000)), //
-						m(EssChannelId.SYSTEM_WORK_MODE_STATE, new UnsignedDoublewordElement(4002))), //
-				new FC3ReadRegistersTask(4800, Priority.LOW, //
-						m(EssChannelId.BECU_NUM, new UnsignedWordElement(4800)), //
-						// TODO BECU_WORK_STATE has been implemented with both registers(4801 and 4807)
-						m(EssChannelId.BECU_WORK_STATE, new UnsignedWordElement(4801)), //
-						new DummyRegisterElement(4802), //
-						m(EssChannelId.BECU_CHARGE_CURRENT, new UnsignedWordElement(4803)), //
-						m(EssChannelId.BECU_DISCHARGE_CURRENT, new UnsignedWordElement(4804)), //
-						m(EssChannelId.BECU_VOLT, new UnsignedWordElement(4805)), //
-						m(EssChannelId.BECU_CURRENT, new UnsignedWordElement(4806))), //
-				new FC16WriteRegistersTask(4809, //
-						m(new BitsWordElement(4809, this) //
-								.bit(0, EssChannelId.STATE_111) //
-								.bit(1, EssChannelId.STATE_112))), //
-				new FC3ReadRegistersTask(4808, Priority.LOW, //
-						m(new BitsWordElement(4808, this) //
-								.bit(0, EssChannelId.STATE_105) //
-								.bit(1, EssChannelId.STATE_106) //
-								.bit(2, EssChannelId.STATE_107) //
-								.bit(3, EssChannelId.STATE_108) //
-								.bit(4, EssChannelId.STATE_109) //
-								.bit(9, EssChannelId.STATE_110)), //
-						m(new BitsWordElement(4809, this) //
-								.bit(0, EssChannelId.STATE_111) //
-								.bit(1, EssChannelId.STATE_112)), //
-						m(new BitsWordElement(4810, this) //
-								.bit(0, EssChannelId.STATE_113) //
-								.bit(1, EssChannelId.STATE_114) //
-								.bit(2, EssChannelId.STATE_115) //
-								.bit(3, EssChannelId.STATE_116) //
-								.bit(4, EssChannelId.STATE_117) //
-								.bit(5, EssChannelId.STATE_118) //
-								.bit(6, EssChannelId.STATE_119) //
-								.bit(7, EssChannelId.STATE_120) //
-								.bit(8, EssChannelId.STATE_121) //
-								.bit(9, EssChannelId.STATE_122) //
-								.bit(10, EssChannelId.STATE_123) //
-								.bit(11, EssChannelId.STATE_124) //
-								.bit(12, EssChannelId.STATE_125) //
-								.bit(13, EssChannelId.STATE_126) //
-								.bit(14, EssChannelId.STATE_127) //
-								.bit(15, EssChannelId.STATE_128)), //
-						m(new BitsWordElement(4811, this) //
-								.bit(0, EssChannelId.STATE_129) //
-								.bit(1, EssChannelId.STATE_130) //
-								.bit(2, EssChannelId.STATE_131) //
-								.bit(3, EssChannelId.STATE_132) //
-								.bit(4, EssChannelId.STATE_133) //
-								.bit(5, EssChannelId.STATE_134) //
-								.bit(6, EssChannelId.STATE_135) //
-								.bit(7, EssChannelId.STATE_136) //
-								.bit(8, EssChannelId.STATE_137) //
-								.bit(9, EssChannelId.STATE_138) //
-								.bit(10, EssChannelId.STATE_139) //
-								.bit(11, EssChannelId.STATE_140) //
-								.bit(12, EssChannelId.STATE_141) //
-								.bit(13, EssChannelId.STATE_142) //
-								.bit(14, EssChannelId.STATE_143)),
-						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(4812), new ElementToChannelConverter(
-								// element -> channel
-								value -> {
-									// Set SoC to 100 % if battery is full and AllowedCharge is zero
-									if (value == null) {
-										return null;
-									}
-									int soc = (Integer) value;
-									IntegerReadChannel allowedCharge = this
-											.channel(EssChannelId.BECU1_CHARGE_CURRENT_LIMIT);
-									IntegerReadChannel allowedDischarge = this
-											.channel(EssChannelId.BECU1_DISCHARGE_CURRENT_LIMIT);
-									if (soc > 95 && allowedCharge.value().orElse(-1) == 0
-											&& allowedDischarge.value().orElse(0) != 0) {
-										return 100;
-									} else {
-										return value;
-									}
-								}, //
-									// channel -> element
-								value -> value)) //
-				), //
-
-				new FC3ReadRegistersTask(30166, Priority.LOW, //
-						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(30166))), //
-				new FC16WriteRegistersTask(9014, //
-						m(EssChannelId.RTC_YEAR, new UnsignedWordElement(9014)), //
-						m(EssChannelId.RTC_MONTH, new UnsignedWordElement(9015)), //
-						m(EssChannelId.RTC_DAY, new UnsignedWordElement(9016)), //
-						m(EssChannelId.RTC_HOUR, new UnsignedWordElement(9017)), //
-						m(EssChannelId.RTC_MINUTE, new UnsignedWordElement(9018)), //
-						m(EssChannelId.RTC_SECOND, new UnsignedWordElement(9019))), //
-				new FC16WriteRegistersTask(30558, //
-						m(EssChannelId.SETUP_MODE, new UnsignedWordElement(30558))), //
-				new FC16WriteRegistersTask(30559, //
-						m(EssChannelId.PCS_MODE, new UnsignedWordElement(30559))), //
-				new FC16WriteRegistersTask(30157, //
-						m(EssChannelId.SETUP_MODE, new UnsignedWordElement(30157)), //
-						m(EssChannelId.PCS_MODE, new UnsignedWordElement(30158))));//
-	}
-
-	@Override
-	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString(); //
-	}
-
-	@Override
-	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
-				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				AsymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(FeneconMiniEss.class, accessMode, 300) //
-						.build());
-	}
-
-	private final static ElementToChannelConverter UNSIGNED_POWER_CONVERTER = new ElementToChannelConverter( //
-			// element -> channel
-			value -> {
-				if (value == null) {
-					return null;
-				}
-				int intValue = (Integer) value;
-				if (intValue == 0) {
-					return 0; // ignore '0'
-				}
-				return intValue - 10_000; // apply delta of 10_000
-			}, //
-				// channel -> element
-			value -> value);
 }

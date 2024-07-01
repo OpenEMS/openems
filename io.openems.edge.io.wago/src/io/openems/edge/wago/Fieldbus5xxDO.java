@@ -1,37 +1,39 @@
 package io.openems.edge.wago;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.common.channel.PersistencePriority;
+import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 
 public class Fieldbus5xxDO extends FieldbusModule {
 
 	private static final String ID_TEMPLATE = "DIGITAL_OUTPUT_M";
 
-	private final AbstractModbusElement<?>[] inputElements;
-	private final AbstractModbusElement<?>[] outputElements;
+	private final CoilElement[] inputCoil0Elements = {};
+	private final CoilElement[] inputCoil512Elements;
+	private final CoilElement[] outputCoil512Elements;
 	private final BooleanReadChannel[] readChannels;
 
-	public Fieldbus5xxDO(Wago parent, int moduleCount, int inputOffset, int outputOffset, int channelsCount) {
-		String id = ID_TEMPLATE + moduleCount;
+	public Fieldbus5xxDO(IoWagoImpl parent, int moduleCount, int coilOffset512, int channelsCount) {
+		var id = ID_TEMPLATE + moduleCount;
 
 		this.readChannels = new BooleanReadChannel[channelsCount];
-		this.inputElements = new AbstractModbusElement<?>[channelsCount];
-		this.outputElements = new AbstractModbusElement<?>[channelsCount];
+		this.inputCoil512Elements = new CoilElement[channelsCount];
+		this.outputCoil512Elements = new CoilElement[channelsCount];
 
-		for (int i = 0; i < channelsCount; i++) {
-			OpenemsTypeDoc<Boolean> doc = new BooleanDoc() //
+		for (var i = 0; i < channelsCount; i++) {
+			var doc = new BooleanDoc() //
 					.accessMode(AccessMode.READ_WRITE);
-			FieldbusChannelId channelId = new FieldbusChannelId(id + "_C" + (i + 1), doc);
-			BooleanWriteChannel channel = (BooleanWriteChannel) parent.addChannel(channelId);
+			doc.persistencePriority(PersistencePriority.HIGH);
+			var channelId = new FieldbusChannelId(id + "_C" + (i + 1), doc);
+			var channel = (BooleanWriteChannel) parent.addChannel(channelId);
 
 			this.readChannels[i] = channel;
 
-			this.inputElements[i] = parent.createModbusElement(channel.channelId(), outputOffset + i);
-			this.outputElements[i] = parent.createModbusElement(channel.channelId(), outputOffset + i);
+			this.inputCoil512Elements[i] = parent.createModbusCoilElement(channel.channelId(), coilOffset512 + i);
+			this.outputCoil512Elements[i] = parent.createModbusCoilElement(channel.channelId(), coilOffset512 + i);
 		}
 	}
 
@@ -41,23 +43,18 @@ public class Fieldbus5xxDO extends FieldbusModule {
 	}
 
 	@Override
-	public AbstractModbusElement<?>[] getInputElements() {
-		return this.inputElements;
+	public CoilElement[] getInputCoil0Elements() {
+		return this.inputCoil0Elements;
 	}
 
 	@Override
-	public AbstractModbusElement<?>[] getOutputElements() {
-		return this.outputElements;
+	public CoilElement[] getInputCoil512Elements() {
+		return this.inputCoil512Elements;
 	}
 
 	@Override
-	public int getOutputCoils() {
-		return this.outputElements.length;
-	}
-
-	@Override
-	public int getInputCoils() {
-		return this.inputElements.length;
+	public CoilElement[] getOutputCoil512Elements() {
+		return this.outputCoil512Elements;
 	}
 
 	@Override

@@ -7,7 +7,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a generic JSON-RPC Notification.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -15,19 +15,33 @@ import io.openems.common.utils.JsonUtils;
  *   "params": {}
  * }
  * </pre>
- * 
+ *
  * @see <a href="https://www.jsonrpc.org/specification#notification">JSON-RPC
  *      specification</a>
  */
 public class GenericJsonrpcNotification extends JsonrpcNotification {
 
+	/**
+	 * Parses a JSON String to a {@link GenericJsonrpcNotification}.
+	 *
+	 * @param json the JSON String
+	 * @return the {@link GenericJsonrpcNotification}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static GenericJsonrpcNotification from(String json) throws OpenemsNamedException {
-		return from(JsonUtils.parseToJsonObject(json));
+		return GenericJsonrpcNotification.from(JsonUtils.parseToJsonObject(json));
 	}
 
+	/**
+	 * Parses a {@link JsonObject} to a {@link GenericJsonrpcNotification}.
+	 *
+	 * @param j the {@link JsonObject}
+	 * @return the {@link GenericJsonrpcNotification}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static GenericJsonrpcNotification from(JsonObject j) throws OpenemsNamedException {
-		String method = JsonUtils.getAsString(j, "method");
-		JsonObject params = JsonUtils.getAsJsonObject(j, "params");
+		var method = JsonUtils.getAsString(j, "method");
+		var params = JsonUtils.getAsJsonObject(j, "params");
 		return new GenericJsonrpcNotification(method, params);
 	}
 

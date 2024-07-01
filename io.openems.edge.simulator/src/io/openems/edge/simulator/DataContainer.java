@@ -8,33 +8,33 @@ import java.util.Set;
 
 public class DataContainer {
 
-	private HashMap<String, Integer> keys = new HashMap<>();
-	private List<Float[]> records = new ArrayList<>();
-	private int currentIndex = 0;
+	private final HashMap<String, Integer> keys = new HashMap<>();
+	private final List<Float[]> records = new ArrayList<>();
+	private int currentIndex = -1;
 
 	/**
 	 * Gets the available keys.
-	 * 
+	 *
 	 * @return the Channel-Id
 	 */
 	public Set<String> getKeys() {
-		return keys.keySet();
+		return this.keys.keySet();
 	}
 
 	/**
 	 * Sets the keys.
-	 * 
+	 *
 	 * @param keys the Channel-Id
 	 */
 	public void setKeys(String[] keys) {
-		for (int i = 0; i < keys.length; i++) {
+		for (var i = 0; i < keys.length; i++) {
 			this.keys.put(keys[i], i);
 		}
 	}
 
 	/**
 	 * Adds a Record to the end.
-	 * 
+	 *
 	 * @param record the record values
 	 */
 	public void addRecord(Float[] record) {
@@ -43,17 +43,20 @@ public class DataContainer {
 
 	/**
 	 * Gets the current record.
-	 * 
+	 *
 	 * @return the current record
 	 */
 	public Float[] getCurrentRecord() {
-		return this.records.get(currentIndex);
+		if (this.currentIndex == -1) {
+			this.currentIndex = 0;
+		}
+		return this.records.get(this.currentIndex);
 	}
 
 	/**
 	 * Gets the value for the key from the current record. If no keys exist, get the
 	 * first value of the record.
-	 * 
+	 *
 	 * @param key the Channel-Id
 	 * @return the record value
 	 */
@@ -69,12 +72,11 @@ public class DataContainer {
 				return Optional.empty();
 			}
 		}
-		Float[] record = this.getCurrentRecord();
+		var record = this.getCurrentRecord();
 		if (index < record.length) {
 			return Optional.ofNullable(record[index]);
-		} else {
-			return Optional.empty();
 		}
+		return Optional.empty();
 	}
 
 	/**
@@ -91,6 +93,6 @@ public class DataContainer {
 	 * Rewinds the data to start again at the first record.
 	 */
 	public void rewind() {
-		this.currentIndex = 0;
+		this.currentIndex = -1;
 	}
 }

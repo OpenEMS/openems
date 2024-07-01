@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -39,7 +40,6 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Random;
 
@@ -197,7 +197,7 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	 * @param adapter     DSPortAdapter that this NetAdapterSim will proxy commands
 	 *                    to.
 	 * @param multiThread if true, multiple TCP/IP connections are allowed to
-	 *                    interact simulataneously with this adapter.
+	 *                    interact simultaneously with this adapter.
 	 *
 	 * @throws IOException if a network error occurs or the listen socket cannot be
 	 *                     created on the specified port.
@@ -222,7 +222,7 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	 *                    to.
 	 * @param listenPort  the TCP/IP port to listen on for incoming connections
 	 * @param multiThread if true, multiple TCP/IP connections are allowed to
-	 *                    interact simulataneously with this adapter.
+	 *                    interact simultaneously with this adapter.
 	 *
 	 * @throws IOException if a network error occurs or the listen socket cannot be
 	 *                     created on the specified port.
@@ -236,9 +236,9 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 		this.processInput = new OutputStreamWriter(this.process.getOutputStream());
 
 		// wait until process is ready
-		int complete = 0;
+		var complete = 0;
 		while (complete < 2) {
-			String line = processOutput.readLine();
+			var line = this.processOutput.readLine();
 			if (complete == 0 && line.indexOf("read ok (data=17)") >= 0) {
 				complete++;
 				continue;
@@ -249,11 +249,12 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 			}
 		}
 
-		if (logFilename != null)
+		if (logFilename != null) {
 			this.logFile = new PrintWriter(new FileWriter(logFilename), true);
+		}
 
 		// Make sure we loaded the address of the device
-		simulationGetAddress();
+		this.simulationGetAddress();
 
 		// create the server socket
 		this.serverSocket = new ServerSocket(listenPort);
@@ -266,11 +267,12 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 		}
 
 		// get the shared secret
-		String secret = OneWireAccessProvider.getProperty("NetAdapter.secret");
-		if (secret != null)
-			netAdapterSecret = secret.getBytes();
-		else
-			netAdapterSecret = DEFAULT_SECRET.getBytes();
+		var secret = OneWireAccessProvider.getProperty("NetAdapter.secret");
+		if (secret != null) {
+			this.netAdapterSecret = secret.getBytes();
+		} else {
+			this.netAdapterSecret = DEFAULT_SECRET.getBytes();
+		}
 	}
 
 	/**
@@ -312,7 +314,7 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	 *                    to.
 	 * @param serverSock  the ServerSocket for incoming connections
 	 * @param multiThread if true, multiple TCP/IP connections are allowed to
-	 *                    interact simulataneously with this adapter.
+	 *                    interact simultaneously with this adapter.
 	 *
 	 * @throws IOException if a network error occurs or the listen socket cannot be
 	 *                     created on the specified port.
@@ -327,9 +329,9 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 		this.processInput = new OutputStreamWriter(this.process.getOutputStream());
 
 		// wait until process is ready
-		int complete = 0;
+		var complete = 0;
 		while (complete < 2) {
-			String line = processOutput.readLine();
+			var line = this.processOutput.readLine();
 			if (complete == 0 && line.indexOf("read ok (data=17)") >= 0) {
 				complete++;
 				continue;
@@ -340,11 +342,12 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 			}
 		}
 
-		if (logFilename != null)
+		if (logFilename != null) {
 			this.logFile = new PrintWriter(new FileWriter(logFilename), true);
+		}
 
 		// Make sure we loaded the address of the device
-		simulationGetAddress();
+		this.simulationGetAddress();
 
 		// save reference to the server socket
 		this.serverSocket = serverSock;
@@ -357,11 +360,12 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 		}
 
 		// get the shared secret
-		String secret = OneWireAccessProvider.getProperty("NetAdapter.secret");
-		if (secret != null)
-			netAdapterSecret = secret.getBytes();
-		else
-			netAdapterSecret = DEFAULT_SECRET.getBytes();
+		var secret = OneWireAccessProvider.getProperty("NetAdapter.secret");
+		if (secret != null) {
+			this.netAdapterSecret = secret.getBytes();
+		} else {
+			this.netAdapterSecret = DEFAULT_SECRET.getBytes();
+		}
 	}
 
 	/**
@@ -371,7 +375,7 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	 *               client connections.
 	 */
 	public void setSecret(String secret) {
-		netAdapterSecret = secret.getBytes();
+		this.netAdapterSecret = secret.getBytes();
 	}
 
 	/**
@@ -379,7 +383,7 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	 * NetAdapterSim automatically. Uses defaults for Multicast group and port.
 	 */
 	public void createMulticastListener() throws IOException, UnknownHostException {
-		createMulticastListener(DEFAULT_MULTICAST_PORT);
+		this.createMulticastListener(DEFAULT_MULTICAST_PORT);
 	}
 
 	/**
@@ -389,10 +393,11 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	 * @param port The port the Multicast socket will receive packets on
 	 */
 	public void createMulticastListener(int port) throws IOException, UnknownHostException {
-		String group = OneWireAccessProvider.getProperty("NetAdapter.MulticastGroup");
-		if (group == null)
+		var group = OneWireAccessProvider.getProperty("NetAdapter.MulticastGroup");
+		if (group == null) {
 			group = DEFAULT_MULTICAST_GROUP;
-		createMulticastListener(port, group);
+		}
+		this.createMulticastListener(port, group);
 	}
 
 	/**
@@ -403,18 +408,18 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	 * @param group The group the Multicast socket will join
 	 */
 	public void createMulticastListener(int port, String group) throws IOException, UnknownHostException {
-		if (multicastListener == null) {
+		if (this.multicastListener == null) {
 			// 4 bytes for integer versionUID
-			byte[] versionBytes = Convert.toByteArray(versionUID);
+			var versionBytes = Convert.toByteArray(versionUID);
 
 			// this byte array is 5 because length is used to determine different
 			// packet types by client
-			byte[] listenPortBytes = new byte[5];
-			Convert.toByteArray(serverSocket.getLocalPort(), listenPortBytes, 0, 4);
+			var listenPortBytes = new byte[5];
+			Convert.toByteArray(this.serverSocket.getLocalPort(), listenPortBytes, 0, 4);
 			listenPortBytes[4] = (byte) 0x0FF;
 
-			multicastListener = new MulticastListener(port, group, versionBytes, listenPortBytes);
-			(new Thread(multicastListener)).start();
+			this.multicastListener = new MulticastListener(port, group, versionBytes, listenPortBytes);
+			new Thread(this.multicastListener).start();
 		}
 	}
 
@@ -424,26 +429,28 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	 * services the socket or (optionally) launches a new thread for servicing the
 	 * socket.
 	 */
+	@Override
 	public void run() {
-		hostRunning = true;
-		while (!hostStopped) {
+		this.hostRunning = true;
+		while (!this.hostStopped) {
 			Socket sock = null;
 			try {
-				sock = serverSocket.accept();
+				sock = this.serverSocket.accept();
 				// reset time of last command, so we don't simulate a bunch of
-				// unneccessary time
-				timeOfLastCommand = System.currentTimeMillis();
-				handleConnection(sock);
+				// unnecessary time
+				this.timeOfLastCommand = System.currentTimeMillis();
+				this.handleConnection(sock);
 			} catch (IOException ioe1) {
 				try {
-					if (sock != null)
+					if (sock != null) {
 						sock.close();
+					}
 				} catch (IOException ioe2) {
-					;
+
 				}
 			}
 		}
-		hostRunning = false;
+		this.hostRunning = false;
 	}
 
 	/**
@@ -452,16 +459,16 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	 * servicing this connection.
 	 */
 	public void handleConnection(Socket sock) throws IOException {
-		SocketHandler sh = new SocketHandler(sock);
-		if (singleThreaded) {
+		var sh = new SocketHandler(sock);
+		if (this.singleThreaded) {
 			// single-threaded
 			sh.run();
 		} else {
 			// multi-threaded
-			Thread t = new Thread(sh);
+			var t = new Thread(sh);
 			t.start();
-			synchronized (hashHandlers) {
-				hashHandlers.put(t, sh);
+			synchronized (this.hashHandlers) {
+				this.hashHandlers.put(t, sh);
 			}
 		}
 	}
@@ -474,28 +481,31 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 		try {
 			this.serverSocket.close();
 		} catch (IOException ioe) {
-			;
+
 		}
 
 		// wait for run method to quit, with a timeout of 1 second
-		int i = 0;
-		while (hostRunning && i++ < 100)
+		var i = 0;
+		while (this.hostRunning && i++ < 100) {
 			try {
 				Thread.sleep(10);
 			} catch (Exception e) {
-				;
-			}
 
-		if (!singleThreaded) {
-			synchronized (hashHandlers) {
-				Enumeration<NetAdapterSim.SocketHandler> e = hashHandlers.elements();
-				while (e.hasMoreElements())
-					((SocketHandler) e.nextElement()).stopHandler();
 			}
 		}
 
-		if (multicastListener != null)
-			multicastListener.stopListener();
+		if (!this.singleThreaded) {
+			synchronized (this.hashHandlers) {
+				var e = this.hashHandlers.elements();
+				while (e.hasMoreElements()) {
+					e.nextElement().stopHandler();
+				}
+			}
+		}
+
+		if (this.multicastListener != null) {
+			this.multicastListener.stopListener();
+		}
 
 		// ensure that there is no exclusive use of the adapter
 		// adapter.endExclusive();
@@ -514,9 +524,9 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 		conn.output.writeInt(versionUID);
 		conn.output.flush();
 
-		byte retVal = conn.input.readByte();
+		var retVal = conn.input.readByte();
 
-		return (retVal == RET_SUCCESS);
+		return retVal == RET_SUCCESS;
 	}
 
 	protected long timeOfLastCommand = 0;
@@ -531,9 +541,10 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	 */
 	private void processRequests(Connection conn) throws IOException {
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-		if (logFile != null)
-			logFile.println("\n------------------------------------------");
-		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		if (this.logFile != null) {
+			this.logFile.println("\n------------------------------------------");
+			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		}
 
 		// get the next command
 		byte cmd = 0x00;
@@ -541,22 +552,24 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 		cmd = conn.input.readByte();
 
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-		if (logFile != null)
-			logFile.println("CMD received: " + Integer.toHexString(cmd));
-		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		if (this.logFile != null) {
+			this.logFile.println("CMD received: " + Integer.toHexString(cmd));
+			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		}
 
 		if (cmd == CMD_PINGCONNECTION) {
 			// no-op, might update timer of some sort later
-			simulationPing(1000);
+			this.simulationPing(1000);
 			conn.output.writeByte(RET_SUCCESS);
 			conn.output.flush();
 		} else {
-			long timeDelta = System.currentTimeMillis() - timeOfLastCommand;
-			if (SIM_DEBUG && logFile != null)
-				logFile.println("general: timeDelta=" + timeDelta);
+			var timeDelta = System.currentTimeMillis() - this.timeOfLastCommand;
+			if (SIM_DEBUG && this.logFile != null) {
+				this.logFile.println("general: timeDelta=" + timeDelta);
+			}
 			if (timeDelta >= IGNORE_TIME_MIN && timeDelta <= IGNORE_TIME_MAX) {
 				// do something with timeDelta
-				simulationPing(timeDelta);
+				this.simulationPing(timeDelta);
 			}
 
 			try {
@@ -564,126 +577,128 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 				switch (cmd) {
 				/* Connection keep-alive and close commands */
 				case CMD_CLOSECONNECTION:
-					close(conn);
+					this.close(conn);
 					break;
 				/* Raw Data commands */
 				case CMD_RESET:
-					adapterReset(conn);
+					this.adapterReset(conn);
 					break;
 				case CMD_PUTBIT:
-					adapterPutBit(conn);
+					this.adapterPutBit(conn);
 					break;
 				case CMD_PUTBYTE:
-					adapterPutByte(conn);
+					this.adapterPutByte(conn);
 					break;
 				case CMD_GETBIT:
-					adapterGetBit(conn);
+					this.adapterGetBit(conn);
 					break;
 				case CMD_GETBYTE:
-					adapterGetByte(conn);
+					this.adapterGetByte(conn);
 					break;
 				case CMD_GETBLOCK:
-					adapterGetBlock(conn);
+					this.adapterGetBlock(conn);
 					break;
 				case CMD_DATABLOCK:
-					adapterDataBlock(conn);
+					this.adapterDataBlock(conn);
 					break;
 				/* Power methods */
 				case CMD_SETPOWERDURATION:
-					adapterSetPowerDuration(conn);
+					this.adapterSetPowerDuration(conn);
 					break;
 				case CMD_STARTPOWERDELIVERY:
-					adapterStartPowerDelivery(conn);
+					this.adapterStartPowerDelivery(conn);
 					break;
 				case CMD_SETPROGRAMPULSEDURATION:
-					adapterSetProgramPulseDuration(conn);
+					this.adapterSetProgramPulseDuration(conn);
 					break;
 				case CMD_STARTPROGRAMPULSE:
-					adapterStartProgramPulse(conn);
+					this.adapterStartProgramPulse(conn);
 					break;
 				case CMD_STARTBREAK:
-					adapterStartBreak(conn);
+					this.adapterStartBreak(conn);
 					break;
 				case CMD_SETPOWERNORMAL:
-					adapterSetPowerNormal(conn);
+					this.adapterSetPowerNormal(conn);
 					break;
 				/* Speed methods */
 				case CMD_SETSPEED:
-					adapterSetSpeed(conn);
+					this.adapterSetSpeed(conn);
 					break;
 				case CMD_GETSPEED:
-					adapterGetSpeed(conn);
+					this.adapterGetSpeed(conn);
 					break;
 				/* Network Semaphore methods */
 				case CMD_BEGINEXCLUSIVE:
-					adapterBeginExclusive(conn);
+					this.adapterBeginExclusive(conn);
 					break;
 				case CMD_ENDEXCLUSIVE:
-					adapterEndExclusive(conn);
+					this.adapterEndExclusive(conn);
 					break;
 				/* Searching methods */
 				case CMD_FINDFIRSTDEVICE:
-					adapterFindFirstDevice(conn);
+					this.adapterFindFirstDevice(conn);
 					break;
 				case CMD_FINDNEXTDEVICE:
-					adapterFindNextDevice(conn);
+					this.adapterFindNextDevice(conn);
 					break;
 				case CMD_GETADDRESS:
-					adapterGetAddress(conn);
+					this.adapterGetAddress(conn);
 					break;
 				case CMD_SETSEARCHONLYALARMINGDEVICES:
-					adapterSetSearchOnlyAlarmingDevices(conn);
+					this.adapterSetSearchOnlyAlarmingDevices(conn);
 					break;
 				case CMD_SETNORESETSEARCH:
-					adapterSetNoResetSearch(conn);
+					this.adapterSetNoResetSearch(conn);
 					break;
 				case CMD_SETSEARCHALLDEVICES:
-					adapterSetSearchAllDevices(conn);
+					this.adapterSetSearchAllDevices(conn);
 					break;
 				case CMD_TARGETALLFAMILIES:
-					adapterTargetAllFamilies(conn);
+					this.adapterTargetAllFamilies(conn);
 					break;
 				case CMD_TARGETFAMILY:
-					adapterTargetFamily(conn);
+					this.adapterTargetFamily(conn);
 					break;
 				case CMD_EXCLUDEFAMILY:
-					adapterExcludeFamily(conn);
+					this.adapterExcludeFamily(conn);
 					break;
 				/* feature methods */
 				case CMD_CANBREAK:
-					adapterCanBreak(conn);
+					this.adapterCanBreak(conn);
 					break;
 				case CMD_CANDELIVERPOWER:
-					adapterCanDeliverPower(conn);
+					this.adapterCanDeliverPower(conn);
 					break;
 				case CMD_CANDELIVERSMARTPOWER:
-					adapterCanDeliverSmartPower(conn);
+					this.adapterCanDeliverSmartPower(conn);
 					break;
 				case CMD_CANFLEX:
-					adapterCanFlex(conn);
+					this.adapterCanFlex(conn);
 					break;
 				case CMD_CANHYPERDRIVE:
-					adapterCanHyperdrive(conn);
+					this.adapterCanHyperdrive(conn);
 					break;
 				case CMD_CANOVERDRIVE:
-					adapterCanOverdrive(conn);
+					this.adapterCanOverdrive(conn);
 					break;
 				case CMD_CANPROGRAM:
-					adapterCanProgram(conn);
+					this.adapterCanProgram(conn);
 					break;
 				default:
-					if (SIM_DEBUG && logFile != null)
-						logFile.println("Unkown command received: " + cmd);
+					if (SIM_DEBUG && this.logFile != null) {
+						this.logFile.println("Unknown command received: " + cmd);
+					}
 					break;
 				}
 			} catch (OneWireException owe) {
-				if (SIM_DEBUG && logFile != null)
-					logFile.println("Exception: " + owe.toString());
+				if (SIM_DEBUG && this.logFile != null) {
+					this.logFile.println("Exception: " + owe.toString());
+				}
 				conn.output.writeByte(RET_FAILURE);
 				conn.output.writeUTF(owe.toString());
 				conn.output.flush();
 			}
-			timeOfLastCommand = System.currentTimeMillis();
+			this.timeOfLastCommand = System.currentTimeMillis();
 		}
 	}
 
@@ -698,7 +713,7 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 				conn.sock.close();
 			}
 		} catch (IOException ioe) {
-			/* drain */;
+			/* drain */
 		}
 
 		conn.sock = null;
@@ -714,10 +729,10 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	// --------
 
 	private void adapterFindFirstDevice(Connection conn) throws IOException, OneWireException {
-		boolean b = true;// adapter.findFirstDevice();
+		var b = true;// adapter.findFirstDevice();
 
-		if (logFile != null) {
-			logFile.println("   findFirstDevice returned " + b);
+		if (this.logFile != null) {
+			this.logFile.println("   findFirstDevice returned " + b);
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -726,10 +741,10 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	}
 
 	private void adapterFindNextDevice(Connection conn) throws IOException, OneWireException {
-		boolean b = false;// adapter.findNextDevice();
+		var b = false;// adapter.findNextDevice();
 
-		if (logFile != null) {
-			logFile.println("   findNextDevice returned " + b);
+		if (this.logFile != null) {
+			this.logFile.println("   findNextDevice returned " + b);
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -738,18 +753,18 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	}
 
 	private void adapterGetAddress(Connection conn) throws IOException {
-		if (logFile != null) {
-			logFile.println("   adapter.getAddress(byte[]) called");
+		if (this.logFile != null) {
+			this.logFile.println("   adapter.getAddress(byte[]) called");
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
-		conn.output.write(fakeAddress, 0, 8);
+		conn.output.write(this.fakeAddress, 0, 8);
 		conn.output.flush();
 	}
 
 	private void adapterSetSearchOnlyAlarmingDevices(Connection conn) throws IOException {
-		if (logFile != null) {
-			logFile.println("   setSearchOnlyAlarmingDevices called");
+		if (this.logFile != null) {
+			this.logFile.println("   setSearchOnlyAlarmingDevices called");
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -757,8 +772,8 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	}
 
 	private void adapterSetNoResetSearch(Connection conn) throws IOException {
-		if (logFile != null) {
-			logFile.println("   setNoResetSearch called");
+		if (this.logFile != null) {
+			this.logFile.println("   setNoResetSearch called");
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -766,8 +781,8 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	}
 
 	private void adapterSetSearchAllDevices(Connection conn) throws IOException {
-		if (logFile != null) {
-			logFile.println("   setSearchAllDevices called");
+		if (this.logFile != null) {
+			this.logFile.println("   setSearchAllDevices called");
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -775,8 +790,8 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	}
 
 	private void adapterTargetAllFamilies(Connection conn) throws IOException {
-		if (logFile != null) {
-			logFile.println("   targetAllFamilies called");
+		if (this.logFile != null) {
+			this.logFile.println("   targetAllFamilies called");
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -786,14 +801,14 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	// TODO
 	private void adapterTargetFamily(Connection conn) throws IOException {
 		// get the number of family codes to expect
-		int len = conn.input.readInt();
+		var len = conn.input.readInt();
 		// get the family codes
-		byte[] family = new byte[len];
+		var family = new byte[len];
 		conn.input.readFully(family, 0, len);
 
-		if (logFile != null) {
-			logFile.println("   targetFamily called");
-			logFile.println("      families: " + Convert.toHexString(family));
+		if (this.logFile != null) {
+			this.logFile.println("   targetFamily called");
+			this.logFile.println("      families: " + Convert.toHexString(family));
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -803,14 +818,14 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	// TODO
 	private void adapterExcludeFamily(Connection conn) throws IOException {
 		// get the number of family codes to expect
-		int len = conn.input.readInt();
+		var len = conn.input.readInt();
 		// get the family codes
-		byte[] family = new byte[len];
+		var family = new byte[len];
 		conn.input.readFully(family, 0, len);
 
-		if (logFile != null) {
-			logFile.println("   excludeFamily called");
-			logFile.println("      families: " + Convert.toHexString(family));
+		if (this.logFile != null) {
+			this.logFile.println("   excludeFamily called");
+			this.logFile.println("      families: " + Convert.toHexString(family));
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -823,29 +838,29 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 
 	// TODO
 	private void adapterBeginExclusive(Connection conn) throws IOException, OneWireException {
-		if (logFile != null) {
-			logFile.println("   adapter.beginExclusive called");
+		if (this.logFile != null) {
+			this.logFile.println("   adapter.beginExclusive called");
 		}
 
 		// get blocking boolean
 		// boolean blocking =
 		conn.input.readBoolean();
 		// call beginExclusive
-		boolean b = true;
+		var b = true;
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.writeBoolean(b);
 		conn.output.flush();
 
-		if (logFile != null) {
-			logFile.println("      adapter.beginExclusive returned " + b);
+		if (this.logFile != null) {
+			this.logFile.println("      adapter.beginExclusive returned " + b);
 		}
 	}
 
 	// TODO
 	private void adapterEndExclusive(Connection conn) throws IOException, OneWireException {
-		if (logFile != null) {
-			logFile.println("   adapter.endExclusive called");
+		if (this.logFile != null) {
+			this.logFile.println("   adapter.endExclusive called");
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -857,13 +872,13 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	// --------
 
 	private void adapterReset(Connection conn) throws IOException, OneWireException {
-		int i = 1;// return 1 for presence pulse
+		var i = 1;// return 1 for presence pulse
 
-		if (logFile != null) {
-			logFile.println("   reset returned " + i);
+		if (this.logFile != null) {
+			this.logFile.println("   reset returned " + i);
 		}
 
-		simulationReset();
+		this.simulationReset();
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.writeInt(i);
@@ -873,39 +888,39 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	// TODO
 	private void adapterPutBit(Connection conn) throws IOException, OneWireException {
 		// get the value of the bit
-		boolean bit = conn.input.readBoolean();
+		var bit = conn.input.readBoolean();
 
-		if (logFile != null) {
-			logFile.println("   putBit called");
-			logFile.println("      bit=" + bit);
+		if (this.logFile != null) {
+			this.logFile.println("   putBit called");
+			this.logFile.println("      bit=" + bit);
 		}
 
-		simulationPutBit(bit);
+		this.simulationPutBit(bit);
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.flush();
 	}
 
 	private void adapterPutByte(Connection conn) throws IOException, OneWireException {
 		// get the value of the byte
-		byte b = conn.input.readByte();
+		var b = conn.input.readByte();
 
-		if (logFile != null) {
-			logFile.println("   putByte called");
-			logFile.println("      byte=" + Convert.toHexString(b));
+		if (this.logFile != null) {
+			this.logFile.println("   putByte called");
+			this.logFile.println("      byte=" + Convert.toHexString(b));
 		}
 
-		simulationPutByte(b);
+		this.simulationPutByte(b);
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.flush();
 	}
 
 	private void adapterGetBit(Connection conn) throws IOException, OneWireException {
-		boolean bit = simulationGetBit();
+		var bit = this.simulationGetBit();
 
-		if (logFile != null) {
-			logFile.println("   getBit called");
-			logFile.println("      bit=" + bit);
+		if (this.logFile != null) {
+			this.logFile.println("   getBit called");
+			this.logFile.println("      bit=" + bit);
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -914,11 +929,11 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	}
 
 	private void adapterGetByte(Connection conn) throws IOException, OneWireException {
-		int b = simulationGetByte();
+		int b = this.simulationGetByte();
 
-		if (logFile != null) {
-			logFile.println("   getByte called");
-			logFile.println("      byte=" + Convert.toHexString((byte) b));
+		if (this.logFile != null) {
+			this.logFile.println("   getByte called");
+			this.logFile.println("      byte=" + Convert.toHexString((byte) b));
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -928,20 +943,20 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 
 	private void adapterGetBlock(Connection conn) throws IOException, OneWireException {
 		// get the number requested
-		int len = conn.input.readInt();
-		if (logFile != null) {
-			logFile.println("   getBlock called");
-			logFile.println("      len=" + len);
+		var len = conn.input.readInt();
+		if (this.logFile != null) {
+			this.logFile.println("   getBlock called");
+			this.logFile.println("      len=" + len);
 		}
 
 		// get the bytes
-		byte[] b = new byte[len];
-		for (int i = 0; i < len; i++) {
-			b[i] = simulationGetByte();
+		var b = new byte[len];
+		for (var i = 0; i < len; i++) {
+			b[i] = this.simulationGetByte();
 		}
 
-		if (logFile != null) {
-			logFile.println("      returned: " + Convert.toHexString(b));
+		if (this.logFile != null) {
+			this.logFile.println("      returned: " + Convert.toHexString(b));
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -950,31 +965,31 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	}
 
 	private void adapterDataBlock(Connection conn) throws IOException, OneWireException {
-		if (logFile != null) {
-			logFile.println("   DataBlock called");
+		if (this.logFile != null) {
+			this.logFile.println("   DataBlock called");
 		}
 		// get the number to block
-		int len = conn.input.readInt();
+		var len = conn.input.readInt();
 		// get the bytes to block
-		byte[] b = new byte[len];
+		var b = new byte[len];
 		conn.input.readFully(b, 0, len);
 
-		if (logFile != null) {
-			logFile.println("      " + len + " bytes");
-			logFile.println("      Send: " + Convert.toHexString(b));
+		if (this.logFile != null) {
+			this.logFile.println("      " + len + " bytes");
+			this.logFile.println("      Send: " + Convert.toHexString(b));
 		}
 
 		// do the block
-		for (int i = 0; i < len; i++) {
+		for (var i = 0; i < len; i++) {
 			if (b[i] == (byte) 0x0FF) {
-				b[i] = simulationGetByte();
+				b[i] = this.simulationGetByte();
 			} else {
-				simulationPutByte(b[i]);
+				this.simulationPutByte(b[i]);
 			}
 		}
 
-		if (logFile != null) {
-			logFile.println("      Recv: " + Convert.toHexString(b));
+		if (this.logFile != null) {
+			this.logFile.println("      Recv: " + Convert.toHexString(b));
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -989,11 +1004,11 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	// TODO
 	private void adapterSetPowerDuration(Connection conn) throws IOException, OneWireException {
 		// get the time factor value
-		int timeFactor = conn.input.readInt();
+		var timeFactor = conn.input.readInt();
 
-		if (logFile != null) {
-			logFile.println("   setPowerDuration called");
-			logFile.println("      timeFactor=" + timeFactor);
+		if (this.logFile != null) {
+			this.logFile.println("   setPowerDuration called");
+			this.logFile.println("      timeFactor=" + timeFactor);
 		}
 
 		// call setPowerDuration
@@ -1006,15 +1021,15 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	// TODO
 	private void adapterStartPowerDelivery(Connection conn) throws IOException, OneWireException {
 		// get the change condition value
-		int changeCondition = conn.input.readInt();
+		var changeCondition = conn.input.readInt();
 
-		if (logFile != null) {
-			logFile.println("   startPowerDelivery called");
-			logFile.println("      changeCondition=" + changeCondition);
+		if (this.logFile != null) {
+			this.logFile.println("   startPowerDelivery called");
+			this.logFile.println("      changeCondition=" + changeCondition);
 		}
 
 		// call startPowerDelivery
-		boolean success = true;// adapter.startPowerDelivery(changeCondition);
+		var success = true;// adapter.startPowerDelivery(changeCondition);
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.writeBoolean(success);
@@ -1024,11 +1039,11 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	// TODO
 	private void adapterSetProgramPulseDuration(Connection conn) throws IOException, OneWireException {
 		// get the time factor value
-		int timeFactor = conn.input.readInt();
+		var timeFactor = conn.input.readInt();
 
-		if (logFile != null) {
-			logFile.println("   setProgramPulseDuration called");
-			logFile.println("      timeFactor=" + timeFactor);
+		if (this.logFile != null) {
+			this.logFile.println("   setProgramPulseDuration called");
+			this.logFile.println("      timeFactor=" + timeFactor);
 		}
 
 		// call setProgramPulseDuration
@@ -1041,15 +1056,15 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	// TODO
 	private void adapterStartProgramPulse(Connection conn) throws IOException, OneWireException {
 		// get the change condition value
-		int changeCondition = conn.input.readInt();
+		var changeCondition = conn.input.readInt();
 
-		if (logFile != null) {
-			logFile.println("   startProgramPulse called");
-			logFile.println("      changeCondition=" + changeCondition);
+		if (this.logFile != null) {
+			this.logFile.println("   startProgramPulse called");
+			this.logFile.println("      changeCondition=" + changeCondition);
 		}
 
 		// call startProgramPulse();
-		boolean success = true;// adapter.startProgramPulse(changeCondition);
+		var success = true;// adapter.startProgramPulse(changeCondition);
 
 		conn.output.writeByte(RET_SUCCESS);
 		conn.output.writeBoolean(success);
@@ -1058,8 +1073,8 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 
 	// TODO
 	private void adapterStartBreak(Connection conn) throws IOException, OneWireException {
-		if (logFile != null) {
-			logFile.println("   startBreak called");
+		if (this.logFile != null) {
+			this.logFile.println("   startBreak called");
 		}
 
 		// call startBreak();
@@ -1071,8 +1086,8 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 
 	// TODO
 	private void adapterSetPowerNormal(Connection conn) throws IOException, OneWireException {
-		if (logFile != null) {
-			logFile.println("   setPowerNormal called");
+		if (this.logFile != null) {
+			this.logFile.println("   setPowerNormal called");
 		}
 
 		// call setPowerNormal
@@ -1089,11 +1104,11 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	// TODO
 	private void adapterSetSpeed(Connection conn) throws IOException, OneWireException {
 		// get the value of the new speed
-		int speed = conn.input.readInt();
+		var speed = conn.input.readInt();
 
-		if (logFile != null) {
-			logFile.println("   setSpeed called");
-			logFile.println("      speed=" + speed);
+		if (this.logFile != null) {
+			this.logFile.println("   setSpeed called");
+			this.logFile.println("      speed=" + speed);
 		}
 
 		// do the setSpeed
@@ -1106,11 +1121,11 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	// TODO
 	private void adapterGetSpeed(Connection conn) throws IOException, OneWireException {
 		// get the adapter speed
-		int speed = 0;// adapter.getSpeed();
+		var speed = 0;// adapter.getSpeed();
 
-		if (logFile != null) {
-			logFile.println("   getSpeed called");
-			logFile.println("      speed=" + speed);
+		if (this.logFile != null) {
+			this.logFile.println("   getSpeed called");
+			this.logFile.println("      speed=" + speed);
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -1124,10 +1139,10 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 
 	// TODO
 	private void adapterCanOverdrive(Connection conn) throws IOException, OneWireException {
-		boolean b = false;// adapter.canOverdrive();
+		var b = false;// adapter.canOverdrive();
 
-		if (logFile != null) {
-			logFile.println("   canOverdrive returned " + b);
+		if (this.logFile != null) {
+			this.logFile.println("   canOverdrive returned " + b);
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -1137,10 +1152,10 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 
 	// TODO
 	private void adapterCanHyperdrive(Connection conn) throws IOException, OneWireException {
-		boolean b = false;// adapter.canHyperdrive();
+		var b = false;// adapter.canHyperdrive();
 
-		if (logFile != null) {
-			logFile.println("   canHyperDrive returned " + b);
+		if (this.logFile != null) {
+			this.logFile.println("   canHyperDrive returned " + b);
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -1150,10 +1165,10 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 
 	// TODO
 	private void adapterCanFlex(Connection conn) throws IOException, OneWireException {
-		boolean b = false;// adapter.canFlex();
+		var b = false;// adapter.canFlex();
 
-		if (logFile != null) {
-			logFile.println("   canFlex returned " + b);
+		if (this.logFile != null) {
+			this.logFile.println("   canFlex returned " + b);
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -1163,10 +1178,10 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 
 	// TODO
 	private void adapterCanProgram(Connection conn) throws IOException, OneWireException {
-		boolean b = true;// adapter.canProgram();
+		var b = true;// adapter.canProgram();
 
-		if (logFile != null) {
-			logFile.println("   canProgram returned " + b);
+		if (this.logFile != null) {
+			this.logFile.println("   canProgram returned " + b);
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -1176,10 +1191,10 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 
 	// TODO
 	private void adapterCanDeliverPower(Connection conn) throws IOException, OneWireException {
-		boolean b = true;// adapter.canDeliverPower();
+		var b = true;// adapter.canDeliverPower();
 
-		if (logFile != null) {
-			logFile.println("   canDeliverPower returned " + b);
+		if (this.logFile != null) {
+			this.logFile.println("   canDeliverPower returned " + b);
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -1189,10 +1204,10 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 
 	// TODO
 	private void adapterCanDeliverSmartPower(Connection conn) throws IOException, OneWireException {
-		boolean b = true;// adapter.canDeliverSmartPower();
+		var b = true;// adapter.canDeliverSmartPower();
 
-		if (logFile != null) {
-			logFile.println("   canDeliverSmartPower returned " + b);
+		if (this.logFile != null) {
+			this.logFile.println("   canDeliverSmartPower returned " + b);
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -1202,10 +1217,10 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 
 	// TODO
 	private void adapterCanBreak(Connection conn) throws IOException, OneWireException {
-		boolean b = true;// adapter.canBreak();
+		var b = true;// adapter.canBreak();
 
-		if (logFile != null) {
-			logFile.println("   canBreak returned " + b);
+		if (this.logFile != null) {
+			this.logFile.println("   canBreak returned " + b);
 		}
 
 		conn.output.writeByte(RET_SUCCESS);
@@ -1225,7 +1240,7 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 		/**
 		 * The connection that is being serviced.
 		 */
-		private Connection conn;
+		private final Connection conn;
 
 		/**
 		 * indicates whether or not the handler is currently running
@@ -1238,65 +1253,66 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 		 */
 		public SocketHandler(Socket sock) throws IOException {
 			// set socket timeout to 10 seconds
-			sock.setSoTimeout(timeoutInSeconds * 1000);
+			sock.setSoTimeout(NetAdapterSim.this.timeoutInSeconds * 1000);
 
 			// create the connection object
-			conn = new Connection();
-			conn.sock = sock;
-			conn.input = new DataInputStream(conn.sock.getInputStream());
+			this.conn = new Connection();
+			this.conn.sock = sock;
+			this.conn.input = new DataInputStream(this.conn.sock.getInputStream());
 			if (BUFFERED_OUTPUT) {
-				conn.output = new DataOutputStream(new BufferedOutputStream(conn.sock.getOutputStream()));
+				this.conn.output = new DataOutputStream(new BufferedOutputStream(this.conn.sock.getOutputStream()));
 			} else {
-				conn.output = new DataOutputStream(conn.sock.getOutputStream());
+				this.conn.output = new DataOutputStream(this.conn.sock.getOutputStream());
 			}
 
 			// first thing transmitted should be version info
-			if (!sendVersionUID(conn)) {
+			if (!NetAdapterSim.this.sendVersionUID(this.conn)) {
 				throw new IOException("send version failed");
 			}
 
 			// authenticate the client
-			byte[] chlg = new byte[8];
+			var chlg = new byte[8];
 			rand.nextBytes(chlg);
-			conn.output.write(chlg);
-			conn.output.flush();
+			this.conn.output.write(chlg);
+			this.conn.output.flush();
 
 			// compute the crc of the secret and the challenge
-			int crc = CRC16.compute(netAdapterSecret, 0);
+			var crc = CRC16.compute(NetAdapterSim.this.netAdapterSecret, 0);
 			crc = CRC16.compute(chlg, crc);
-			int answer = conn.input.readInt();
+			var answer = this.conn.input.readInt();
 			if (answer != crc) {
-				conn.output.writeByte(RET_FAILURE);
-				conn.output.writeUTF("Client Authentication Failed");
-				conn.output.flush();
+				this.conn.output.writeByte(RET_FAILURE);
+				this.conn.output.writeUTF("Client Authentication Failed");
+				this.conn.output.flush();
 				throw new IOException("authentication failed");
-			} else {
-				conn.output.writeByte(RET_SUCCESS);
-				conn.output.flush();
 			}
+			this.conn.output.writeByte(RET_SUCCESS);
+			this.conn.output.flush();
 		}
 
 		/**
 		 * Run method for socket Servicer.
 		 */
+		@Override
 		public void run() {
-			handlerRunning = true;
+			this.handlerRunning = true;
 			try {
-				while (!hostStopped && conn.sock != null) {
-					processRequests(conn);
+				while (!NetAdapterSim.this.hostStopped && this.conn.sock != null) {
+					NetAdapterSim.this.processRequests(this.conn);
 				}
 			} catch (Throwable t) {
-				if (logFile != null)
+				if (NetAdapterSim.this.logFile != null) {
 					t.printStackTrace();
-				close(conn);
+				}
+				NetAdapterSim.this.close(this.conn);
 			}
-			handlerRunning = false;
+			this.handlerRunning = false;
 
-			if (!hostStopped && !singleThreaded) {
-				synchronized (hashHandlers) {
+			if (!NetAdapterSim.this.hostStopped && !NetAdapterSim.this.singleThreaded) {
+				synchronized (NetAdapterSim.this.hashHandlers) {
 					// thread finished running without being stopped.
 					// politely remove it from the hashtable.
-					hashHandlers.remove(Thread.currentThread());
+					NetAdapterSim.this.hashHandlers.remove(Thread.currentThread());
 				}
 			}
 		}
@@ -1305,14 +1321,15 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 		 * Waits for handler to finish, with a timeout.
 		 */
 		public void stopHandler() {
-			int i = 0;
-			int timeout = 3000;
-			while (handlerRunning && i++ < timeout)
+			var i = 0;
+			var timeout = 3000;
+			while (this.handlerRunning && i++ < timeout) {
 				try {
 					Thread.sleep(10);
 				} catch (Exception e) {
-					;
+
 				}
+			}
 		}
 	}
 
@@ -1351,20 +1368,21 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	private static final String PROMPT = "ncsim> ";
 
 	private void simulationReset() throws IOException {
-		if (SIM_DEBUG && logFile != null) {
-			logFile.println("reset: Writing=" + OW_RESET_CMD);
-			logFile.println("reset: Writing=" + RUN + OW_RESET_RUN_LENGTH);
+		if (SIM_DEBUG && this.logFile != null) {
+			this.logFile.println("reset: Writing=" + OW_RESET_CMD);
+			this.logFile.println("reset: Writing=" + RUN + OW_RESET_RUN_LENGTH);
 		}
-		processInput.write(OW_RESET_CMD + LINE_DELIM);
-		processInput.write(RUN + OW_RESET_RUN_LENGTH + LINE_DELIM);
-		processInput.flush();
+		this.processInput.write(OW_RESET_CMD + LINE_DELIM);
+		this.processInput.write(RUN + OW_RESET_RUN_LENGTH + LINE_DELIM);
+		this.processInput.flush();
 
 		// wait for it to complete
-		int complete = 0;
+		var complete = 0;
 		while (complete < 2) {
-			String line = processOutput.readLine();
-			if (SIM_DEBUG && logFile != null)
-				logFile.println("reset: complete=" + complete + ", read=" + line);
+			var line = this.processOutput.readLine();
+			if (SIM_DEBUG && this.logFile != null) {
+				this.logFile.println("reset: complete=" + complete + ", read=" + line);
+			}
 			if (complete == 0 && line.indexOf(OW_RESET_RESULT) >= 0) {
 				complete++;
 				continue;
@@ -1374,27 +1392,29 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 				continue;
 			}
 		}
-		if (SIM_DEBUG && logFile != null)
-			logFile.println("reset: Complete");
+		if (SIM_DEBUG && this.logFile != null) {
+			this.logFile.println("reset: Complete");
+		}
 	}
 
 	private boolean simulationGetBit() throws java.io.IOException {
-		boolean bit = true;
+		var bit = true;
 
-		if (SIM_DEBUG && logFile != null) {
-			logFile.println("getBit: Writing=" + OW_READ_SLOT_CMD);
-			logFile.println("getBit: Writing=" + RUN + OW_READ_SLOT_RUN_LENGTH);
+		if (SIM_DEBUG && this.logFile != null) {
+			this.logFile.println("getBit: Writing=" + OW_READ_SLOT_CMD);
+			this.logFile.println("getBit: Writing=" + RUN + OW_READ_SLOT_RUN_LENGTH);
 		}
-		processInput.write(OW_READ_SLOT_CMD + LINE_DELIM);
-		processInput.write(RUN + OW_READ_SLOT_RUN_LENGTH + LINE_DELIM);
-		processInput.flush();
+		this.processInput.write(OW_READ_SLOT_CMD + LINE_DELIM);
+		this.processInput.write(RUN + OW_READ_SLOT_RUN_LENGTH + LINE_DELIM);
+		this.processInput.flush();
 
 		// wait for it to complete
-		int complete = 0;
+		var complete = 0;
 		while (complete < 3) {
-			String line = processOutput.readLine();
-			if (SIM_DEBUG && logFile != null)
-				logFile.println("getBit: complete=" + complete + ", read=" + line);
+			var line = this.processOutput.readLine();
+			if (SIM_DEBUG && this.logFile != null) {
+				this.logFile.println("getBit: complete=" + complete + ", read=" + line);
+			}
 			if (complete == 0 && line.indexOf("OW = 1'b0") >= 0) {
 				complete++;
 				continue;
@@ -1414,34 +1434,37 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 				continue;
 			}
 		}
-		if (SIM_DEBUG && logFile != null)
-			logFile.println("getBit: Complete");
+		if (SIM_DEBUG && this.logFile != null) {
+			this.logFile.println("getBit: Complete");
+		}
 		return bit;
 	}
 
 	private byte simulationGetByte() throws java.io.IOException {
 		byte bits = 0;
 
-		if (SIM_DEBUG && logFile != null) {
-			logFile.println("getByte: Writing=" + OW_READ_BYTE_CMD);
-			logFile.println("getByte: Writing=" + RUN + OW_READ_BYTE_RUN_LENGTH);
+		if (SIM_DEBUG && this.logFile != null) {
+			this.logFile.println("getByte: Writing=" + OW_READ_BYTE_CMD);
+			this.logFile.println("getByte: Writing=" + RUN + OW_READ_BYTE_RUN_LENGTH);
 		}
-		processInput.write(OW_READ_BYTE_CMD + LINE_DELIM);
-		processInput.write(RUN + OW_READ_BYTE_RUN_LENGTH + LINE_DELIM);
-		processInput.flush();
+		this.processInput.write(OW_READ_BYTE_CMD + LINE_DELIM);
+		this.processInput.write(RUN + OW_READ_BYTE_RUN_LENGTH + LINE_DELIM);
+		this.processInput.flush();
 
 		// wait for it to complete
 		try {
-			int complete = 0;
+			var complete = 0;
 			while (complete < 2) {
-				String line = processOutput.readLine();
-				if (SIM_DEBUG && logFile != null)
-					logFile.println("getByte: complete=" + complete + ", read=" + line);
+				var line = this.processOutput.readLine();
+				if (SIM_DEBUG && this.logFile != null) {
+					this.logFile.println("getByte: complete=" + complete + ", read=" + line);
+				}
 				if (complete == 0 && line.indexOf(OW_READ_RESULT) >= 0) {
-					int i = line.indexOf(OW_READ_RESULT) + OW_READ_RESULT.length();
-					String bitstr = line.substring(i, i + 2);
-					if (SIM_DEBUG && logFile != null)
-						logFile.println("getByte: bitstr=" + bitstr);
+					var i = line.indexOf(OW_READ_RESULT) + OW_READ_RESULT.length();
+					var bitstr = line.substring(i, i + 2);
+					if (SIM_DEBUG && this.logFile != null) {
+						this.logFile.println("getByte: bitstr=" + bitstr);
+					}
 					bits = (byte) (Convert.toInt(bitstr) & 0x0FF);
 					complete++;
 					continue;
@@ -1451,106 +1474,115 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 					continue;
 				}
 			}
-			if (SIM_DEBUG && logFile != null)
-				logFile.println("getByte: complete");
+			if (SIM_DEBUG && this.logFile != null) {
+				this.logFile.println("getByte: complete");
+			}
 		} catch (Convert.ConvertException ce) {
-			if (SIM_DEBUG && logFile != null)
-				logFile.println("Error during hex string conversion: " + ce);
+			if (SIM_DEBUG && this.logFile != null) {
+				this.logFile.println("Error during hex string conversion: " + ce);
+			}
 		}
 		return bits;
 	}
 
 	private void simulationPutBit(boolean bit) throws java.io.IOException {
 		if (bit) {
-			if (SIM_DEBUG && logFile != null) {
-				logFile.println("putBit: Writing=" + OW_WRITE_ONE_CMD);
-				logFile.println("putBit: Writing=" + RUN + OW_WRITE_ONE_RUN_LENGTH);
+			if (SIM_DEBUG && this.logFile != null) {
+				this.logFile.println("putBit: Writing=" + OW_WRITE_ONE_CMD);
+				this.logFile.println("putBit: Writing=" + RUN + OW_WRITE_ONE_RUN_LENGTH);
 			}
-			processInput.write(OW_WRITE_ONE_CMD + LINE_DELIM);
-			processInput.write(RUN + OW_WRITE_ONE_RUN_LENGTH + LINE_DELIM);
+			this.processInput.write(OW_WRITE_ONE_CMD + LINE_DELIM);
+			this.processInput.write(RUN + OW_WRITE_ONE_RUN_LENGTH + LINE_DELIM);
 		} else {
-			if (SIM_DEBUG && logFile != null) {
-				logFile.println("putBit: Writing=" + OW_WRITE_ZERO_CMD);
-				logFile.println("putBit: Writing=" + RUN + OW_WRITE_ZERO_RUN_LENGTH);
+			if (SIM_DEBUG && this.logFile != null) {
+				this.logFile.println("putBit: Writing=" + OW_WRITE_ZERO_CMD);
+				this.logFile.println("putBit: Writing=" + RUN + OW_WRITE_ZERO_RUN_LENGTH);
 			}
-			processInput.write(OW_WRITE_ZERO_CMD + LINE_DELIM);
-			processInput.write(RUN + OW_WRITE_ZERO_RUN_LENGTH + LINE_DELIM);
+			this.processInput.write(OW_WRITE_ZERO_CMD + LINE_DELIM);
+			this.processInput.write(RUN + OW_WRITE_ZERO_RUN_LENGTH + LINE_DELIM);
 		}
-		processInput.flush();
+		this.processInput.flush();
 
 		// wait for it to complete
-		int complete = 0;
+		var complete = 0;
 		while (complete < 1) {
-			String line = processOutput.readLine();
-			if (SIM_DEBUG && logFile != null)
-				logFile.println("putBit: complete=" + complete + ", read=" + line);
+			var line = this.processOutput.readLine();
+			if (SIM_DEBUG && this.logFile != null) {
+				this.logFile.println("putBit: complete=" + complete + ", read=" + line);
+			}
 			if (complete == 0 && line.indexOf(GENERIC_CMD_END) >= 0) {
 				complete++;
 				continue;
 			}
 		}
-		if (SIM_DEBUG && logFile != null)
-			logFile.println("putBit: complete");
+		if (SIM_DEBUG && this.logFile != null) {
+			this.logFile.println("putBit: complete");
+		}
 	}
 
 	private void simulationPutByte(byte b) throws IOException {
-		if (SIM_DEBUG && logFile != null) {
-			logFile.println("putByte: Writing=" + OW_WRITE_BYTE_ARG + Convert.toHexString(b));
-			logFile.println("putByte: Writing=" + OW_WRITE_BYTE_CMD);
-			logFile.println("putByte: Writing=" + RUN + OW_WRITE_BYTE_RUN_LENGTH);
+		if (SIM_DEBUG && this.logFile != null) {
+			this.logFile.println("putByte: Writing=" + OW_WRITE_BYTE_ARG + Convert.toHexString(b));
+			this.logFile.println("putByte: Writing=" + OW_WRITE_BYTE_CMD);
+			this.logFile.println("putByte: Writing=" + RUN + OW_WRITE_BYTE_RUN_LENGTH);
 		}
-		processInput.write(OW_WRITE_BYTE_ARG + Convert.toHexString(b) + LINE_DELIM);
-		processInput.write(OW_WRITE_BYTE_CMD + LINE_DELIM);
-		processInput.write(RUN + OW_WRITE_BYTE_RUN_LENGTH + LINE_DELIM);
-		processInput.flush();
+		this.processInput.write(OW_WRITE_BYTE_ARG + Convert.toHexString(b) + LINE_DELIM);
+		this.processInput.write(OW_WRITE_BYTE_CMD + LINE_DELIM);
+		this.processInput.write(RUN + OW_WRITE_BYTE_RUN_LENGTH + LINE_DELIM);
+		this.processInput.flush();
 
 		// wait for it to complete
-		int complete = 0;
+		var complete = 0;
 		while (complete < 1) {
-			String line = processOutput.readLine();
-			if (SIM_DEBUG && logFile != null)
-				logFile.println("putByte: complete=" + complete + ", read=" + line);
+			var line = this.processOutput.readLine();
+			if (SIM_DEBUG && this.logFile != null) {
+				this.logFile.println("putByte: complete=" + complete + ", read=" + line);
+			}
 			if (complete == 0 && line.indexOf(GENERIC_CMD_END) >= 0) {
 				complete++;
 				continue;
 			}
 		}
-		if (SIM_DEBUG && logFile != null)
-			logFile.println("putByte: complete");
+		if (SIM_DEBUG && this.logFile != null) {
+			this.logFile.println("putByte: complete");
+		}
 	}
 
 	private void simulationPing(long timeDelta) throws IOException {
-		if (SIM_DEBUG && logFile != null) {
-			logFile.println("ping: timeDelta=" + timeDelta);
-			logFile.println("ping: Writing=" + RUN + (PING_MS_RUN_LENGTH * timeDelta));
+		if (SIM_DEBUG && this.logFile != null) {
+			this.logFile.println("ping: timeDelta=" + timeDelta);
+			this.logFile.println("ping: Writing=" + RUN + PING_MS_RUN_LENGTH * timeDelta);
 		}
-		processInput.write(RUN + (PING_MS_RUN_LENGTH * timeDelta) + LINE_DELIM);
-		processInput.flush();
+		this.processInput.write(RUN + PING_MS_RUN_LENGTH * timeDelta + LINE_DELIM);
+		this.processInput.flush();
 
 		// wait for it to complete
-		int complete = 0;
+		var complete = 0;
 		while (complete < 1) {
-			String line = processOutput.readLine();
-			if (SIM_DEBUG && logFile != null)
-				logFile.println("ping: complete=" + complete + ", read=" + line);
+			var line = this.processOutput.readLine();
+			if (SIM_DEBUG && this.logFile != null) {
+				this.logFile.println("ping: complete=" + complete + ", read=" + line);
+			}
 			if (complete == 0 && line.indexOf(GENERIC_CMD_END) >= 0) {
 				complete++;
 				continue;
 			}
 		}
-		if (SIM_DEBUG && logFile != null)
-			logFile.println("ping: complete");
+		if (SIM_DEBUG && this.logFile != null) {
+			this.logFile.println("ping: complete");
+		}
 	}
 
 	private void simulationGetAddress() throws IOException {
 		this.fakeAddress = new byte[8];
 		// reset the simulated part
-		simulationReset();
+		this.simulationReset();
 		// put the Read Rom command
-		simulationPutByte((byte) 0x33);
+		this.simulationPutByte((byte) 0x33);
 		// get the Rom ID
-		for (int i = 0; i < 8; i++)
-			this.fakeAddress[i] = simulationGetByte();
+		for (var i = 0; i < 8; i++) {
+			this.fakeAddress[i] = this.simulationGetByte();
+		}
 	}
 
 	// --------
@@ -1574,7 +1606,7 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 			System.exit(1);
 		}
 
-		String execCmd = args[0];
+		var execCmd = args[0];
 		System.out.println("   Executing: " + execCmd);
 		String logFilename = null;
 		if (args.length > 1) {
@@ -1588,14 +1620,15 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 			System.out.println("   Simulation Debugging is: " + (NetAdapterSim.SIM_DEBUG ? "enabled" : "disabled"));
 		}
 
-		NetAdapterSim host = new NetAdapterSim(execCmd, logFilename);
+		var host = new NetAdapterSim(execCmd, logFilename);
 		System.out.println("Device Address=" + Address.toString(host.fakeAddress));
 
 		System.out.println("Starting Multicast Listener...");
 		host.createMulticastListener();
 
 		System.out.println("Starting NetAdapter Host...");
-		(new Thread(host)).start();
+		new Thread(host).start();
 		System.out.println("NetAdapter Host Started");
 	}
 }
+// CHECKSTYLE:ON

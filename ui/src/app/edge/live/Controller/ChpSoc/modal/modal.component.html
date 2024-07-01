@@ -1,0 +1,106 @@
+<ion-header>
+    <ion-toolbar color="primary">
+        <ion-title>{{ component.alias }}</ion-title>
+        <ion-buttons slot="end">
+            <oe-help-button key="CONTROLLER_CHP_SOC"></oe-help-button>
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ng-container *ngIf="edge.currentData | async as currentData">
+        <ion-card-content class="underline">
+            <table class="full_width">
+                <tr>
+                    <td translate>
+                        General.mode
+                    </td>
+                </tr>
+            </table>
+            <!-- ngIf prevents ionChange to trigger on init -->
+            <ion-segment *ngIf="component" (ionChange)="updateMode($event)" value="{{ component.properties['mode'] }}"
+                scrollable="false">
+                <ion-segment-button value="MANUAL_ON">
+                    <ion-label translate>
+                        General.on
+                    </ion-label>
+                    <ion-icon color="success" style="width:40px" name="power-outline"></ion-icon>
+                </ion-segment-button>
+                <ion-segment-button value="AUTOMATIC">
+                    <ion-label translate>
+                        General.automatic
+                    </ion-label>
+                    <ion-icon style="width:40px" name="sunny-outline">
+                    </ion-icon>
+                </ion-segment-button>
+                <ion-segment-button value="MANUAL_OFF">
+                    <ion-label translate>
+                        General.off
+                    </ion-label>
+                    <ion-icon name="power-outline" style="width: 40px"></ion-icon>
+                </ion-segment-button>
+            </ion-segment>
+        </ion-card-content>
+        <ng-container *ngIf="component.properties['mode'] === 'AUTOMATIC' && edge.roleIsAtLeast('owner')">
+            <ion-card-content class="underline">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            General.soc
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            {{ currentData.channel[inputChannel] | unitvalue:'%' }}
+                        </td>
+                    </tr>
+                    <div style="padding-top: 5px;"></div>
+                    <tr>
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.CHP.highThreshold
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            {{ component.properties['highThreshold'] | unitvalue:'%' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.CHP.lowThreshold
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            {{ component.properties['lowThreshold'] | unitvalue:'%' }}
+                        </td>
+                    </tr>
+                </table>
+                <table class="full_width">
+                    <tr>
+                        <ion-range (ionChange)="updateThresholds()" dual-knobs pin color="dark" min="0" max="100"
+                            [(ngModel)]="thresholds" debounce="500">
+                            <ion-label slot="start">
+                                {{ 0 | unitvalue:'%' }}
+                            </ion-label>
+                            <ion-label slot="end">
+                                {{ 100 | unitvalue:'%' }}
+                            </ion-label>
+                        </ion-range>
+                    </tr>
+                </table>
+            </ion-card-content>
+        </ng-container>
+        <ion-card-content>
+            <table class="full_width">
+                <tr>
+                    <td style="width:65%" translate>General.state</td>
+                    <td style="width:35%" class="align_right">
+                        <ng-container [ngSwitch]="currentData.channel[outputChannel]">
+                            <span *ngSwitchCase="1" translate>General.active</span>
+                            <span *ngSwitchCase="0" translate>General.inactive</span>
+                            <ion-icon *ngSwitchDefault name="help-outline"></ion-icon>
+                        </ng-container>
+                    </td>
+                </tr>
+            </table>
+        </ion-card-content>
+    </ng-container>
+</ion-content>

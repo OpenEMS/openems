@@ -1,7 +1,5 @@
 package io.openems.common.websocket;
 
-import java.util.Iterator;
-
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.Handshakedata;
 
@@ -10,16 +8,22 @@ import com.google.gson.JsonObject;
 public class WebsocketUtils {
 
 	/**
-	 * Converts a Handshake to a JsonObject
+	 * Converts a Handshake to a JsonObject.
 	 * 
-	 * @param handshake
-	 * @return
+	 * <p>
+	 * NOTE: Per <a href=
+	 * "https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2">specification</a>
+	 * "Field names are case-insensitive". Because of this fields are converted to
+	 * lower-case.
+	 *
+	 * @param handshake the {@link Handshakedata}
+	 * @return the converted {@link JsonObject}
 	 */
 	public static JsonObject handshakeToJsonObject(Handshakedata handshake) {
-		JsonObject j = new JsonObject();
-		for (Iterator<String> iter = handshake.iterateHttpFields(); iter.hasNext();) {
-			String field = iter.next();
-			j.addProperty(field, handshake.getFieldValue(field));
+		var j = new JsonObject();
+		for (var iter = handshake.iterateHttpFields(); iter.hasNext();) {
+			var field = iter.next();
+			j.addProperty(field.toLowerCase(), handshake.getFieldValue(field));
 		}
 		return j;
 	}
@@ -27,7 +31,7 @@ public class WebsocketUtils {
 	/**
 	 * Gets the toString() content of the WsData attachment of the WebSocket; or
 	 * empty string if not available.
-	 * 
+	 *
 	 * @param ws the WebSocket
 	 * @return the {@link WsData#toString()} content
 	 */

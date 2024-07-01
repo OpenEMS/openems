@@ -1,0 +1,32 @@
+<ion-grid>
+    <ion-row>
+        <ion-col size-lg="5" size-md="5" size-sm="5" size="12">
+            <ion-item lines="none">
+                <ion-label [position]="to.labelPosition" style="max-width:none">
+                    <span>{{to.label}}</span>
+                    <span *ngIf="to.required && to.hideRequiredMarker !== true">*</span>
+                    <span *ngIf="to.description"><br /><small>{{ to.description }}</small></span>
+                </ion-label>
+            </ion-item>
+        </ion-col>
+        <ion-col size-lg="7" size-md="7" size-sm="7" size="12">
+            <ion-item [lines]="to.itemLines">
+                <span *ngIf="to.prefix" style="color: rgb(150,150,150)">{{to.prefix}}</span>
+                <ion-input [formControl]="formControl" [formlyAttributes]="field" text-left></ion-input>
+            </ion-item>
+        </ion-col>
+    </ion-row>
+    <ion-row>
+        <ion-col offset-lg="5" offset-md="5" offset-sm="5">
+            <ion-item lines="none" *ngIf="showError">
+                <ion-label class="ion-text-wrap">
+                    <ion-text color="danger">
+                        <p>
+                            <formly-validation-message [field]="field"></formly-validation-message>
+                        </p>
+                    </ion-text>
+                </ion-label>
+            </ion-item>
+        </ion-col>
+    </ion-row>
+</ion-grid>

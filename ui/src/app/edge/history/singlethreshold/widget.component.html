@@ -1,4 +1,5 @@
-<ion-card button (click)="presentModal()" *ngIf="component">
+<ion-card button routerLink="/device/{{edge.id}}/history/{{componentId}}/singlethresholdchart"
+  *ngIf="component && edge">
   <ion-item lines="full" color="light">
     <ion-icon slot="start" color="primary" size="large" name="aperture-outline"></ion-icon>
     <ion-label>{{ component.alias }}</ion-label>
@@ -9,7 +10,7 @@
         <td style="width:65%" translate>
           Edge.History.activeDuration</td>
         <td style="width:35%" class="align_right">
-          {{ activeTimeOverPeriod }}
+          {{ activeSecondsOverPeriod | formatSecondsToDuration }}
         </td>
       </tr>
     </table>

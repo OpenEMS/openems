@@ -1,0 +1,3 @@
+= Battery FENECON Home
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.fenecon.home[Source Code icon:github[]]

@@ -1,0 +1,3666 @@
+<html class=" rafuqekj idc0_330"><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=8">
+    <title>
+          MODBUS tables of Countis_E34_E44</title>
+    <style type="text/css">
+
+
+          /************************************************
+          *
+          * balises html
+          *
+          *************************************************/
+
+          body
+          {
+          font-family: Helvetica, Arial, sans-serif;
+          color: #003C93;
+          background-color: #ffffff;
+          margin:0;
+          height:100%;
+          }
+          h1.level2 {
+          font-size: 1.2em;
+          border-bottom: 1px;
+          border-bottom-style: solid;
+          border-bottom-color: #378fce;
+          }
+          h1.level3 {
+          font-size: 1.1em;
+          }
+          .version {
+          position: absolute;
+          top: 0px;
+          font-size: 1em;
+          right: 30px;
+          color: #C51A1B;
+          font-weight:bold;
+          font-style:italic;
+          font-family: serif;
+          }
+          .version > span{
+          color: white;
+          }
+          h1
+          {
+          font-style: bold;
+          font-size: 1.5em;
+          color:#378fce;
+          margin:0 0 0 0;
+          padding:0;
+          }
+          h2
+          {
+          font-style: italic;
+          color:black;
+          font-size:1.0em;
+          margin:0 0 5 0;
+          padding:0px;
+          }
+          h3
+          {
+          color:#808080;
+          font-size:0.8em;
+          margin:0 0 5 0;
+          padding:0px;
+          }
+          tr{
+          background-color:#ffffff;
+          color:#4d4d4e;
+          text-align:center;
+          font-size:0.8em;
+          }
+          li > p{
+          margin:0;
+          padding-top:40px;
+          height:100px;
+          width:100px;
+          }
+
+          /************************************************
+          *
+          * navigation
+          *
+          *************************************************/
+
+
+          #navigation-vue{
+          position:fixed;
+          top:0;
+          left:0;
+          width:100%;
+          border:none;
+          z-index:3;
+          background-color:black;
+          }
+
+
+          #navigation-tile li{
+          list-style-type:none;
+          background-color:#378fce;
+          vertical-align: middle;
+          width: 100px;
+          height: 100px;
+          text-align: center;
+          cursor: pointer;
+          overflow: hidden;
+          margin-right:20px;
+          margin-bottom:10px;
+          margin-left:-10px;
+          padding:0px;
+          float:left;
+          }
+
+          #navigation-tile li:hover{
+          background-color:#808080;
+          }
+
+          /************************************************
+          *
+          * panel
+          *
+          *************************************************/
+
+
+          #content {
+          position:absolute;
+          top:8em;
+          left:3em;
+          padding-bottom:20px;
+          }
+
+          #border-left{
+          position:fixed;
+          top:90px;
+          left:0;
+          width:30px;
+          height:100%;
+          background-color:black;
+          z-index:10;
+          }
+
+          #border-right{
+          position:fixed;
+          top:90px;
+          right:0;
+          width:30px;
+          height:100%;
+          background-color:black;
+          z-index:10;
+          }
+
+          #border-bottom{
+          position:fixed;
+          background-color:black;
+          bottom:0;
+          width:100%;
+          height:30px;
+          z-index:15;
+          }
+
+          #border-bottom > img{
+          float:right;
+          margin-right:30px;
+          }
+
+
+
+          /************************************************
+          *
+          * table and link
+          *
+          *************************************************/
+
+          a{
+          text-decoration:none;
+          color:#ffffff;
+          text-align:center;
+          font-size:12px;
+          font-weight:bold;
+          width:100px;
+          height:100px;
+          overflow:hidden;
+          }
+
+          .header
+          {
+          background-color:#378fce;
+          color:#ffffff;
+          font-size:0.8em;
+          text-align:center;
+          }
+
+          .lignereserved
+          {
+          background-color:lightgrey;
+          }
+
+          #content>table{
+          width:50em;
+          }
+
+          table{
+          border-style:solid;
+          border-width:1px;
+          border-color:#808080;
+          width: 50em;
+          }
+
+          .level1{
+          padding-top:5.8em;
+          position:relative;
+          top:-5.5em;
+          margin-bottom:-5.5em;
+          }
+
+        </style>
+  </head>
+  <body>
+    <div id="navigation-vue">
+      <div class="version"><span>MODBUS TABLES - </span>V
+            200.53</div>
+      <ul id="navigation-tile"><a href="#General"><li>
+            <p>General</p>
+          </li></a><a href="#Application"><li>
+            <p>Application</p>
+          </li></a><a href="#Industrialization"><li>
+            <p>Industrialization</p>
+          </li></a></ul>
+    </div>
+    <div id="border-left"></div>
+    <div id="border-right"></div>
+    <div id="border-bottom"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAAAeCAYAAAG55dfBAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyBpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBXaW5kb3dzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkMyQUJDQTEyREE3QjExRTJCMTk0QTdFMjE5MEMyRTJCIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkMyQUJDQTEzREE3QjExRTJCMTk0QTdFMjE5MEMyRTJCIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6QzJBQkNBMTBEQTdCMTFFMkIxOTRBN0UyMTkwQzJFMkIiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6QzJBQkNBMTFEQTdCMTFFMkIxOTRBN0UyMTkwQzJFMkIiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4dRdQmAAANeUlEQVR42mL8//8/A7UAE4j4f5rxN8PHHcimLkdT9w+NbwDE56BskL4fQCzPAHIZEN8G4ulQ9n8sdDqUjoeKgbAYVOw1TC0T1PS7QLweyp4DxM1AfBDKZwTimVA6EogTgfgtEIsA8Skg/gXTCxBAjNQMM5b/Zxl/MfxlYGVgBlpt/B/mEmQbGKG2s2LRD1PLCAm9//+/I4UNPnAPjf8LSnfDwgxkyFogZgJiaSDeDDVYGYg1oGxZIE4F4itQPgsQ+0LVNEL5D0FyAAEEjpl/ZxjeAPF/IP4NxN5AnPLvLDdI7jTU1p9Qgw5B+fugfB0o/w+U/w7Kj4TyQa5/BMR/gTgIKYUwQMWQ+e+h/OlwhwFxFFJQvIEaAhIPAOJvUPF/QPwBKXit0Az+D1UPYzPhSLLlUHo5Ev4PDU2YWXCH5SEL4sHyWMTaCOjhQmK7oskV4NJH1eRPTQAQQIPSYZAy8SzQbRC8H4jVgDgEqbz7Dy1xkPkw8BXKNwZiDij7D1QOVE6uhYrxQcvVx1C5Zqj4eShfCMr/CysnQLnx37+TwNz4rPU/OFeeYiiAJnJY3LMhJdzZSBnkOVJ2/4+Uy2A57S206EBO9Mo4MgNGgv+LZFEAtDAHiV+Cii1E0liLpJYBLSeC6N9IBRsHEN+EehCm5jJaThTC5Sj0bJ6LVnoyYOHvJyAPo0Fl2jMsIYNTLwORRYIFNNjRxX2J0LsQSzHBgU8PE1KiTQfihdCq8xWS+GYglgFidiSxR1A6AUqD1PMA8TogrkHLTO6gChMpYx2HZTAo0IJW20zgBsRgLRIAAjBfPqEMh2Ecf6flIAdMuDpwkIO13Fwc1O7OO5DTSg4UKbWTIkW5OUgsf07LYdpBCQcrSxOFXbgwUmuk/VI2vm9933m8fmvXvfXp/f/89r57nud9npp1oLVYyn8vfKYj/Ogv56Kd8oyrTx3kqVvhS98YP+n2qOVnjU807TznIxXW9FK1visQcpFfjVnuyVq/w7QdzgetfV+sY+XbMsZYSvtU6SlijDZb9h0fSaeUVBdgq5RqqOf6e5f48FW4UBmZGcdiSqCCC1aW55oUYw8VvFuA/X0XmabEwGGV2LbFReY/ZMexBOh+H1gWYyYQS1iCiuINeRTrm0Cj6Besg+SEjCNrzqwdEWNh4He5mLz4zfZlBfmYm9Ij1oT4UCsrCfByLCrP6RUmuUDzsEsb8LF9ynqGL4Gf6joH5q192sufMNQZpueX6Y0OXdZp0ndgQszpssu5DOgALxzXpjolXgxj1ki0VNqkX2CaYwmyAobAGmgG12BJnM1DtxQFV3zB/p5J3JwxmwK1QzFRuQGtrONgAFyCA763OyJS0TLG+G4Pgm2wCrqYxuWo8uabzyAD+lnHmavob70zv1GUXxQaIFONMOV0UhM2QAQsgnZwxqRMa9ge2OS+NOgGx9xfx3NnqVkFWlbtpxO1WH4EYM9qQqoKovB9gUVZGkRGoe3SWoQISUFtzBbVpjBqFRFtWpiBiySzRVJUu1y0CQ0iq009MNr0I1Eg4SsKQijQREMqA+1lvkx7eW/n2DfwNc1ctKDVGzjvztwzc+68c+fc851zcsr6G+iQa3PDWTbGGhZqFqoQqhR6JDhLos9e85GdIkwSAsdwbu+bhWVKrGd3Yp2Z8554lyxeP/G2A9dl4WDMvBT472hdhfXMYeJlHfxrFi4cc5qhKugPVUbkm2ZUuyyRqBgJKLCfhDdcTB5FvdB5j4RCoS9WYiDES4twzQjlWzz2oqcd8ZRvx2ZNAf3xEIoysVsxFJwlD8tyEj4z/CGiwhndzi8LEuXDv+eD88v1t5ruLBRaAoFGqFHUK8jnzT8Xuk/jBXDvOqdMaBMpqgy8dTR/rVAljfMs+SHGB63/NYrrCGRqtmaC9tRIitpA+y52QofwbV0QTQ1JPzwLV/0rB5kKugS9d4dPg5qwb0cQk+3VjPhKGi9ygNY09ccdKPllTIIlQtq0n9KjNv8kxnUx+YzIAb4/O2TGZiIV0JU7jvZuaFk1f4vutwttA2A0bTWlIxKWeWjrxukJqDLATc1hlbW+iADpcqFBnL6vZP5G/mahJ0I3KB/ItQA91Z+sZyrwbcIpnbbAbuADpXbr8GSdmgEczboqz1t8gXGS7hUAaHIoonM2CjUItRCvyoo1I+uUDmI8zwqv+ISG1p5Gad9LAUyLAFxNq6WSxhVfbGiEH/aYgNlsj+c4d4H/0MNvi3kx2nY58qKRQxGmPcB4jcN0RynOC/BSfC1uTxd9seF6xEuBw52yd9B5tUL7hFYI9QkdFRoAfytgQhvMMuX44KqseqEDkK3mfRs8/QDvR6yYhxj0Aq09AehwD+O00DGrxHYcHtDAkbtUJNwCj5xEbMh70hTQETgAld/gM8OaWeZx46gU16uznH8KJvgvz9T6Vb3jfrvj3k567pyfxYPXdISNp5rEN8OkQUx1UEuOY+gPobpYSoGvCXrHyRQ0yM5YG8hQAJ8m+SrzI0x6LwJcDcqrUa9mGcpLUaZ/mvomWA8pIC9BgsBUNT/Qfx2h6mdPXALeZATPoHatrVXoGfpvcLzN3ELgkQkc2V5C8Z24NpF3U2973TLHVgKHAzBNg9FaYNI3YXaX4Qn3WDK+AyuZYkEbmV4Ak7uDfhIgugPjQ+QdNf10Dv3HWJcLpHOB9H9oPwVo3+xDqy6jOP5zXcMspGIko7+WIWEgpb2nLrkgVn8otgjDkEGwKIRCqaQ/NBKLkjnKFIpJL+RkQmRZBPlSbkm5WPvD9WY0x1Wm93onGzPd3b2/2+/Bz0PHx/P87k/JP6p74LDd5znPy+95Ped7zlNdWVW6LHSBZm8QGRye9wBV24iBP7AkOgUaUpkiy3bCjOiKuPoOmToz4nsjvln0YYg7os+j7kmaFvF8bO0UVopR9/byNwnVRfwAauNVwltm7rN9MeUmA+XPQpWzDuYDwd9xXy4Zte1W8a1XYMFZ5GkZ9RkcoEvcP3KelgpE6RDqbyHBd5q+3i1cDVm+77uE4zQZ7OQ23CYBnsQe3z3oqqQ2MuQscVoXwyXiukoibWUYLb9y/iNb931oMknpVUV9LSYsO4pbxf2+VxxLM44eFuWM2yKbsFyIi0a226zIHakwHgdwxYQxMkM4GgMnAvL3hH0tiLA1yYvRopNQT6WQEBdLiT2FziEZkbJ5zTxzo9awq2qETCG4bkG0xh8P8MfvD84PK3mHXTSBHXwTxuYnnF57katnZ65BztJBNNZZaJIliVFysrYKjLsIvJpyEEFjaN5FPaaz37ILuwUy+CPYUCB27FOcII8I/MgamMa4zIi0+5VRNGOSwwH6ooghsGRO9LfR+F+jvROOjLlRPhW/dyEzzcGfbqdfUx3kdSLWxTZxsuZJmyLkjP9gS8RzwfAejLgDmPxgshOrO/g8OmnWRTw7/GFiffjbwhvDn+ZODY88vTTMvNBXzr0fnRsjAh3aYeLdLjzFvg+awl8abL0zPTtvhJiJLqAQLaAqp5TTdlmD0sYQcRsjyqnyUALDeavS9m6P7KAi20het5K3zin/nufUkjKLYmTWKnkZAtB2wB0Rb8cWLzthEikRGuiFqC4FcDjH43n7/53EQJ+JPwmLA+HghiDMvBSExyI+GvGJ1qiebFAunpJ1z/AE3mhUIvbjFs9i0T5mgSJ7lAWkDXiSAcrE4JMuZ5XFm/ZsjgLRELJ8V4INtFGR2ezEi14KjRLlMKb089p/ZmFVXEjnTb6Jh9/jyX8mYScmeXSJr8gbV9qtV+oZUPqwGp0jVCZ9TkyfUjGT9ZYi/4YiZxE3bcJOKnUcd2TGAculjAbWN5GnzcNjCcY/JbwYI0odL1/uhWUGo0XZaVs88iuEzB4xoad48fE16b0ehdqeDKs89f/JiTTqyX/eUdp9ivZJYNYhsQBXikVxxrOpBimrXfG9ou2FikyvM4bXK+0MM9lxm6dEHFWAEp/3KOi9jPU3LPjTzmll20nHGAvDjFNOzNeui1lYBayvTuW9iMZtno7IWNDdCS060/bHyoAGuNDGKpQ/7rwRC5RNUOlEHhNPnyw3JrAKzxJEl1KsWZfaHZk5iszPjsyVSt9PK2NlAwLDBDdOzuO0WSFeX8VZv83/uvdDVfrvuSkKAJWWjC/2TUzQRSL9SdJN7HGzSK/F32tM30aRvh4fcC3lbCjIcsxdU2Y6adMxs/P4vAPKGr/ybH6vAh4w1EJYXYAPfDMA4ryYb8/SxmGgigYRfvIu/V8s5NcAyhrweAl5z4l805d2osYmCRDWQAVbiVbTaCcATidjmRKg6NqIv3DaaUW+jt+NxAHcQFs2vZ3v2gm0YR17MlY8DVzxAbCOJRN4tYk5Tztzvg3ooS52ZXmuwl8dnWs71se4OHqP4aptchTqfnSPNtLni4euBUexr6X+Aa6gfsciy4vySzh+7fU8RQRTtTlu6QLhMIfEKzuX81xvT/AKWD7hyAE1lIAxAq7YMn214T82bxl9OwxvEk9PK0EbzwID9FDno6R38B3r6cfrpLfwu47fn3ENf0n5tDNeG8T7NqMX9gkrvYjq0S+exdQwFxuZ92FxFX8oXhquThrAVqUqVT32VaourCr9D+kvI9fSbimZBAcAAAAASUVORK5CYII=" alt="logosocomec.png"></div>
+    <div id="content">
+      <h1 id="General" class="level1" align="left">General</h1><br><h1 id="Identification" class="level2" align="left">Identification</h1><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Product identification</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>50000</td>
+          <td><text>0x</text>C350</td>
+          <td>Info</td>
+          <td>66</td>
+          <td>NONE</td>
+          <td>READ</td>
+          <td>READ</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>50000</td>
+          <td><text>0x</text>C350</td>
+          <td align="center">4</td>
+          <td align="left">"SOCO"</td>
+          <td align="center">-</td>
+          <td align="center">STRING_16</td>
+        </tr>
+        <tr>
+          <td>50004</td>
+          <td><text>0x</text>C354</td>
+          <td align="center">1</td>
+          <td align="left">Product order ID (Countis:100, Protection:200, Atys:300, Diris:400)</td>
+          <td align="center">-</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>50005</td>
+          <td><text>0x</text>C355</td>
+          <td align="center">1</td>
+          <td align="left">Product ID (EX: 1000 ATS3)</td>
+          <td align="center">-</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>50006</td>
+          <td><text>0x</text>C356</td>
+          <td align="center">1</td>
+          <td align="left">JBUS Table Version (EX: 101 Version 1.01)</td>
+          <td align="center">-</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>50007</td>
+          <td><text>0x</text>C357</td>
+          <td align="center">1</td>
+          <td align="left">Product software version (EX: 100 Version 1.00)</td>
+          <td align="center">-</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>50008</td>
+          <td><text>0x</text>C358</td>
+          <td align="center">1</td>
+          <td align="left">Serial_AA_SS</td>
+          <td align="center">-</td>
+          <td align="center">U16_HEX</td>
+        </tr>
+        <tr>
+          <td>50009</td>
+          <td><text>0x</text>C359</td>
+          <td align="center">1</td>
+          <td align="left">Serial_SST_L</td>
+          <td align="center">-</td>
+          <td align="center">U16_HEX</td>
+        </tr>
+        <tr>
+          <td>50010</td>
+          <td><text>0x</text>C35A</td>
+          <td align="center">1</td>
+          <td align="left">Serial_order</td>
+          <td align="center">-</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>50011</td>
+          <td><text>0x</text>C35B</td>
+          <td align="center">2</td>
+          <td align="left">Serial_Reserve</td>
+          <td align="center">-</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50013</td>
+          <td><text>0x</text>C35D</td>
+          <td align="center">4</td>
+          <td align="left">See "Code table" tab for more details</td>
+          <td align="center">-</td>
+          <td align="center">U64_HEX</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50017</td>
+          <td><text>0x</text>C361</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>50018</td>
+          <td><text>0x</text>C362</td>
+          <td align="center">1</td>
+          <td align="left">Product version (Major)</td>
+          <td align="center">-</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>50019</td>
+          <td><text>0x</text>C363</td>
+          <td align="center">1</td>
+          <td align="left">Product version (Minor)</td>
+          <td align="center">-</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50020</td>
+          <td><text>0x</text>C364</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50021</td>
+          <td><text>0x</text>C365</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50022</td>
+          <td><text>0x</text>C366</td>
+          <td align="center">3</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50025</td>
+          <td><text>0x</text>C369</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50026</td>
+          <td><text>0x</text>C36A</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50027</td>
+          <td><text>0x</text>C36B</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50028</td>
+          <td><text>0x</text>C36C</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50029</td>
+          <td><text>0x</text>C36D</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>50030</td>
+          <td><text>0x</text>C36E</td>
+          <td align="center">4</td>
+          <td align="left">Product VLO (EX : "880100")</td>
+          <td align="center">-</td>
+          <td align="center">STRING_NORM</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50034</td>
+          <td><text>0x</text>C372</td>
+          <td align="center">4</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50038</td>
+          <td><text>0x</text>C376</td>
+          <td align="center">4</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>50042</td>
+          <td><text>0x</text>C37A</td>
+          <td align="center">8</td>
+          <td align="left">Vendor name (EX : "SOCOMEC")</td>
+          <td align="center">-</td>
+          <td align="center">STRING_NORM</td>
+        </tr>
+        <tr>
+          <td>50050</td>
+          <td><text>0x</text>C382</td>
+          <td align="center">8</td>
+          <td align="left">Product name (EX : "DIRIS A40R")</td>
+          <td align="center">-</td>
+          <td align="center">STRING_NORM</td>
+        </tr>
+        <tr>
+          <td>50058</td>
+          <td><text>0x</text>C38A</td>
+          <td align="center">8</td>
+          <td align="left">Extended name</td>
+          <td align="center">-</td>
+          <td align="center">STRING_NORM</td>
+        </tr>
+      </tbody></table><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Communication board information</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>38912</td>
+          <td><text>0x</text>9800</td>
+          <td>Info</td>
+          <td>11</td>
+          <td>NONE</td>
+          <td>READ</td>
+          <td>READ</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>38912</td>
+          <td><text>0x</text>9800</td>
+          <td align="center">1</td>
+          <td align="left">Communication Board version (Major)</td>
+          <td align="center">-</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>38913</td>
+          <td><text>0x</text>9801</td>
+          <td align="center">1</td>
+          <td align="left">Communication Board version (Minor)</td>
+          <td align="center">-</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>38914</td>
+          <td><text>0x</text>9802</td>
+          <td align="center">1</td>
+          <td align="left">Communication Board version (Revision)</td>
+          <td align="center">-</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>38915</td>
+          <td><text>0x</text>9803</td>
+          <td align="center">1</td>
+          <td align="left">Communication Board version (Build)</td>
+          <td align="center">-</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>38916</td>
+          <td><text>0x</text>9804</td>
+          <td align="center">3</td>
+          <td align="left">Communication Board build date</td>
+          <td align="center">-</td>
+          <td align="center">DATETIME_3</td>
+        </tr>
+        <tr>
+          <td>38919</td>
+          <td><text>0x</text>9807</td>
+          <td align="center">4</td>
+          <td align="left">Communication Board VLO (EX : "880100")</td>
+          <td align="center">-</td>
+          <td align="center">STRING_NORM</td>
+        </tr>
+      </tbody></table><br><br><h1 id="Common settings" class="level2" align="left">Common settings</h1><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Network Setting</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>57344</td>
+          <td><text>0x</text>E000</td>
+          <td>Settings</td>
+          <td>12</td>
+          <td>NONE</td>
+          <td>READ | WRITE | WRITE_MANY</td>
+          <td>READ | WRITE | WRITE_MANY</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>57344</td>
+          <td><text>0x</text>E000</td>
+          <td align="center">1</td>
+          <td align="left">Network Type :<br>0<text> : </text>1BL<br>1<text> : </text>2BL<br>2<text> : </text>3BL<br>3<text> : </text>3NBL<br>4<text> : </text>4BL<br>5<text> : </text>4NBL</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>57345</td>
+          <td><text>0x</text>E001</td>
+          <td align="center">1</td>
+          <td align="left">Current Transformer secondary :<br>1<text> : </text>1 A<br>5<text> : </text>5 A</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>57346</td>
+          <td><text>0x</text>E002</td>
+          <td align="center">1</td>
+          <td align="left">Current Transformer primary</td>
+          <td align="center">A</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>57347</td>
+          <td><text>0x</text>E003</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>57348</td>
+          <td><text>0x</text>E004</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>57349</td>
+          <td><text>0x</text>E005</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>57350</td>
+          <td><text>0x</text>E006</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>57351</td>
+          <td><text>0x</text>E007</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>57352</td>
+          <td><text>0x</text>E008</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>57354</td>
+          <td><text>0x</text>E00A</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>57355</td>
+          <td><text>0x</text>E00B</td>
+          <td align="center">1</td>
+          <td align="left">Synchronisation Top for  P+/-  Q+/- : time in seconds ( 1mn, 5mn, 8mn, 10mn, 15mn, 20mn, 30mn, 60mn)</td>
+          <td align="center">-</td>
+          <td align="center">U16</td>
+        </tr>
+      </tbody></table><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Hour/Date setting  ( Write 6 words in one time Function 16)</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>57600</td>
+          <td><text>0x</text>E100</td>
+          <td>Settings</td>
+          <td>6</td>
+          <td>NONE</td>
+          <td>READ | WRITE | WRITE_MANY</td>
+          <td>READ | WRITE | WRITE_MANY</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>57600</td>
+          <td><text>0x</text>E100</td>
+          <td align="center">1</td>
+          <td align="left">Day</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>57601</td>
+          <td><text>0x</text>E101</td>
+          <td align="center">1</td>
+          <td align="left">Month</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>57602</td>
+          <td><text>0x</text>E102</td>
+          <td align="center">1</td>
+          <td align="left">Year</td>
+          <td align="center">-</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>57603</td>
+          <td><text>0x</text>E103</td>
+          <td align="center">1</td>
+          <td align="left">Hour</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>57604</td>
+          <td><text>0x</text>E104</td>
+          <td align="center">1</td>
+          <td align="left">Minute</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>57605</td>
+          <td><text>0x</text>E105</td>
+          <td align="center">1</td>
+          <td align="left">Second</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+      </tbody></table><br><br><h1 id="Actions" class="level2" align="left">Actions</h1><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Action system</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>57856</td>
+          <td><text>0x</text>E200</td>
+          <td>Commands</td>
+          <td>1</td>
+          <td>NONE</td>
+          <td>WRITE</td>
+          <td>WRITE</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>57856</td>
+          <td><text>0x</text>E200</td>
+          <td align="center">1</td>
+          <td align="left">Action :<br>0xA1<text> : </text>Product Configuration storage<br>0xB2<text> : </text>Produit reset</td>
+          <td align="center">-</td>
+          <td align="center">U8_HEX</td>
+        </tr>
+      </tbody></table><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Value reset</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>57888</td>
+          <td><text>0x</text>E220</td>
+          <td>Commands</td>
+          <td>5</td>
+          <td>NONE</td>
+          <td>WRITE</td>
+          <td>WRITE</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>57888</td>
+          <td><text>0x</text>E220</td>
+          <td align="center">1</td>
+          <td align="left">Reset :0x0001 : Min/Max and AVG 4V0x0002 : 
+Min/Max and AVG 3U0x0004 : Min/Max and AVG 4I0x0008 : Min/Max and AVG 
+F0x0010 : Min/Max and AVG P+0x0020 : Min/Max and AVG P-0x0040 : Min/Max 
+and AVG Q+0x0080 : Min/Max and AVG Q-0x0100 : Min/Max and AVG S0x0200 : 
+Min/Max and AVG PF0x0400 : Min/Max and AVG THD 4V0x0800 : Min/Max and 
+AVG THD 3U0x1000 : Min/Max and AVG THD 4I0x2000 : Min/Max and AVG TIHD 
+4V0x4000 : Min/Max and AVG TIHD 3U0x8000 : Min/Max and AVG TIHD 4I</td>
+          <td align="center">-</td>
+          <td align="center">U16_HEX</td>
+        </tr>
+        <tr>
+          <td>57889</td>
+          <td><text>0x</text>E221</td>
+          <td align="center">1</td>
+          <td align="left">Reset : 0x0001 : Instantaneous Min/Max 
+4V0x0002 : Instantaneous Min/Max 3U0x0004 : Instantaneous Min/Max 
+4I0x0008 : Instantaneous Min/Max F0x0010 : Instantaneous Min/Max 
+P+0x0020 : Instantaneous Min/Max P-0x0040 : Instantaneous Min/Max 
+Q+0x0080 : Instantaneous Min/Max Q-0x0100 : Instantaneous Min/Max 
+S0x0200 : Instantaneous Min/Max PF0x0400 : Instantaneous Min/Max THD 
+4V0x0800 : Instantaneous Min/Max THD 3U0x1000 : Instantaneous Min/Max 
+THD 4I0x2000 : Instantaneous Min/Max TIHD 4V0x4000 : Instantaneous 
+Min/Max TIHD 3U0x8000 : Instantaneous Min/Max TIHD 4I</td>
+          <td align="center">-</td>
+          <td align="center">U16_HEX</td>
+        </tr>
+        <tr>
+          <td>57890</td>
+          <td><text>0x</text>E222</td>
+          <td align="center">1</td>
+          <td align="left">Reset : 0x0001 : Ea+0x0002 : Er+0x0004 : 
+Es0x0008 : Ea-0x0010 : Er-0x0020 : Hour counter0x0040 : All average 
+P/Q/S0x0080 : All events and all curves0x0100 : All alarms</td>
+          <td align="center">-</td>
+          <td align="center">U16_HEX</td>
+        </tr>
+        <tr>
+          <td>57891</td>
+          <td><text>0x</text>E223</td>
+          <td align="center">1</td>
+          <td align="left">Reset : 0x0001 : Input pulse counter 10x0002 :
+ Input pulse counter 20x0004 : Input pulse counter 30x0008 : Input pulse
+ counter 40x0010 : Input pulse counter 50x0020 : Input pulse counter 
+60x0040 : Input pulse counter 70x0080 : Input pulse counter 80x0100 : 
+Input pulse counter 90x0200 : Input pulse counter 100xFFFF : All</td>
+          <td align="center">-</td>
+          <td align="center">U16_HEX</td>
+        </tr>
+        <tr>
+          <td>57892</td>
+          <td><text>0x</text>E224</td>
+          <td align="center">1</td>
+          <td align="left">Reset : 0x0001 : Tariff counter 10x0002 : 
+Tariff counter 20x0004 : Tariff counter 30x0008 : Tariff counter 40x0010
+ : Tariff counter 50x0020 : Tariff counter 60x0040 : Tariff counter 
+70x0080 : Tariff counter 80xFFFF : All</td>
+          <td align="center">-</td>
+          <td align="center">U16_HEX</td>
+        </tr>
+      </tbody></table><br><br><br><h1 id="Application" class="level1" align="left">Application</h1><br><h1 id="Measurement" class="level2" align="left">Measurement</h1><br><h1 id="Common" class="level3" align="left">Common</h1><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Metrology  Affected by current and voltage transformers</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>50512</td>
+          <td><text>0x</text>C550</td>
+          <td>Info</td>
+          <td>62</td>
+          <td>NONE</td>
+          <td>READ</td>
+          <td>READ</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr class="lignereserved">
+          <td>50512</td>
+          <td><text>0x</text>C550</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>50514</td>
+          <td><text>0x</text>C552</td>
+          <td align="center">2</td>
+          <td align="left">Phase to Phase Voltage:  U12</td>
+          <td align="center">V<text> / </text>100</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50516</td>
+          <td><text>0x</text>C554</td>
+          <td align="center">2</td>
+          <td align="left">Phase to Phase Voltage:  U23</td>
+          <td align="center">V<text> / </text>100</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50518</td>
+          <td><text>0x</text>C556</td>
+          <td align="center">2</td>
+          <td align="left">Phase to Phase Voltage:  U31</td>
+          <td align="center">V<text> / </text>100</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50520</td>
+          <td><text>0x</text>C558</td>
+          <td align="center">2</td>
+          <td align="left">Simple voltage : V1</td>
+          <td align="center">V<text> / </text>100</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50522</td>
+          <td><text>0x</text>C55A</td>
+          <td align="center">2</td>
+          <td align="left">Simple voltage : V2</td>
+          <td align="center">V<text> / </text>100</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50524</td>
+          <td><text>0x</text>C55C</td>
+          <td align="center">2</td>
+          <td align="left">Simple voltage : V3</td>
+          <td align="center">V<text> / </text>100</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50526</td>
+          <td><text>0x</text>C55E</td>
+          <td align="center">2</td>
+          <td align="left">Frequency : F</td>
+          <td align="center">Hz<text> / </text>100</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50528</td>
+          <td><text>0x</text>C560</td>
+          <td align="center">2</td>
+          <td align="left">Current : I1</td>
+          <td align="center">A<text> / </text>1000</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50530</td>
+          <td><text>0x</text>C562</td>
+          <td align="center">2</td>
+          <td align="left">Current : I2</td>
+          <td align="center">A<text> / </text>1000</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50532</td>
+          <td><text>0x</text>C564</td>
+          <td align="center">2</td>
+          <td align="left">Current : I3</td>
+          <td align="center">A<text> / </text>1000</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50534</td>
+          <td><text>0x</text>C566</td>
+          <td align="center">2</td>
+          <td align="left">Neutral Current : In</td>
+          <td align="center">A<text> / </text>1000</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50536</td>
+          <td><text>0x</text>C568</td>
+          <td align="center">2</td>
+          <td align="left">? Active Power +/-  : P</td>
+          <td align="center">W<text> / </text>0.1</td>
+          <td align="center">S32</td>
+        </tr>
+        <tr>
+          <td>50538</td>
+          <td><text>0x</text>C56A</td>
+          <td align="center">2</td>
+          <td align="left">? Reactive Power +/- : Q</td>
+          <td align="center">var<text> / </text>0.1</td>
+          <td align="center">S32</td>
+        </tr>
+        <tr>
+          <td>50540</td>
+          <td><text>0x</text>C56C</td>
+          <td align="center">2</td>
+          <td align="left">? Apparent Power : S</td>
+          <td align="center">VA<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50542</td>
+          <td><text>0x</text>C56E</td>
+          <td align="center">2</td>
+          <td align="left">? Power Factor :  -: leading et + : lagging : PF</td>
+          <td align="center">-<text> / </text>1000</td>
+          <td align="center">S32</td>
+        </tr>
+        <tr>
+          <td>50544</td>
+          <td><text>0x</text>C570</td>
+          <td align="center">2</td>
+          <td align="left">Active Power phase 1 +/- : P1</td>
+          <td align="center">W<text> / </text>0.1</td>
+          <td align="center">S32</td>
+        </tr>
+        <tr>
+          <td>50546</td>
+          <td><text>0x</text>C572</td>
+          <td align="center">2</td>
+          <td align="left">Active Power phase 2 +/- : P2</td>
+          <td align="center">W<text> / </text>0.1</td>
+          <td align="center">S32</td>
+        </tr>
+        <tr>
+          <td>50548</td>
+          <td><text>0x</text>C574</td>
+          <td align="center">2</td>
+          <td align="left">Active Power phase 3 +/- : P3</td>
+          <td align="center">W<text> / </text>0.1</td>
+          <td align="center">S32</td>
+        </tr>
+        <tr>
+          <td>50550</td>
+          <td><text>0x</text>C576</td>
+          <td align="center">2</td>
+          <td align="left">Reactive Power phase 1 +/- : Q1</td>
+          <td align="center">var<text> / </text>0.1</td>
+          <td align="center">S32</td>
+        </tr>
+        <tr>
+          <td>50552</td>
+          <td><text>0x</text>C578</td>
+          <td align="center">2</td>
+          <td align="left">Reactive Power phase 2 +/- : Q2</td>
+          <td align="center">var<text> / </text>0.1</td>
+          <td align="center">S32</td>
+        </tr>
+        <tr>
+          <td>50554</td>
+          <td><text>0x</text>C57A</td>
+          <td align="center">2</td>
+          <td align="left">Reactive Power phase 3 +/- : Q3</td>
+          <td align="center">var<text> / </text>0.1</td>
+          <td align="center">S32</td>
+        </tr>
+        <tr>
+          <td>50556</td>
+          <td><text>0x</text>C57C</td>
+          <td align="center">2</td>
+          <td align="left">Apparent Power phase 1 : S1</td>
+          <td align="center">VA<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50558</td>
+          <td><text>0x</text>C57E</td>
+          <td align="center">2</td>
+          <td align="left">Apparent Power phase 2 : S2</td>
+          <td align="center">VA<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50560</td>
+          <td><text>0x</text>C580</td>
+          <td align="center">2</td>
+          <td align="left">Apparent Power phase 3 : S3</td>
+          <td align="center">VA<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50562</td>
+          <td><text>0x</text>C582</td>
+          <td align="center">2</td>
+          <td align="left">Power Factor phase 1  -: leading and + : lagging  : PF1</td>
+          <td align="center">-<text> / </text>1000</td>
+          <td align="center">S32</td>
+        </tr>
+        <tr>
+          <td>50564</td>
+          <td><text>0x</text>C584</td>
+          <td align="center">2</td>
+          <td align="left">Power Factor phase 2  -: leading and + : lagging  : PF2</td>
+          <td align="center">-<text> / </text>1000</td>
+          <td align="center">S32</td>
+        </tr>
+        <tr>
+          <td>50566</td>
+          <td><text>0x</text>C586</td>
+          <td align="center">2</td>
+          <td align="left">Power Factor phase 3  -: leading and + : lagging  : PF3</td>
+          <td align="center">-<text> / </text>1000</td>
+          <td align="center">S32</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50568</td>
+          <td><text>0x</text>C588</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50570</td>
+          <td><text>0x</text>C58A</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50572</td>
+          <td><text>0x</text>C58C</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+      </tbody></table><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Energies</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>50768</td>
+          <td><text>0x</text>C650</td>
+          <td>Info</td>
+          <td>65</td>
+          <td>NONE</td>
+          <td>READ</td>
+          <td>READ</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr class="lignereserved">
+          <td>50768</td>
+          <td><text>0x</text>C650</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>50770</td>
+          <td><text>0x</text>C652</td>
+          <td align="center">2</td>
+          <td align="left">Total Positive Active Energy (no resetable) : Ea+</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50772</td>
+          <td><text>0x</text>C654</td>
+          <td align="center">2</td>
+          <td align="left">Total Positive Reactive Energy  (no resetable) : Er +</td>
+          <td align="center">varh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50774</td>
+          <td><text>0x</text>C656</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>50776</td>
+          <td><text>0x</text>C658</td>
+          <td align="center">2</td>
+          <td align="left">Total Negative Active Energy  (no resetable) : Ea-</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50778</td>
+          <td><text>0x</text>C65A</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>50780</td>
+          <td><text>0x</text>C65C</td>
+          <td align="center">2</td>
+          <td align="left">Partial Positive Active Energy: Ea+</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50782</td>
+          <td><text>0x</text>C65E</td>
+          <td align="center">2</td>
+          <td align="left">Partial Positive Reactive Energy: Er +</td>
+          <td align="center">varh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50784</td>
+          <td><text>0x</text>C660</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>50786</td>
+          <td><text>0x</text>C662</td>
+          <td align="center">2</td>
+          <td align="left">Partial Negative Active Energy  : Ea-</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50788</td>
+          <td><text>0x</text>C664</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50790</td>
+          <td><text>0x</text>C666</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50792</td>
+          <td><text>0x</text>C668</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50794</td>
+          <td><text>0x</text>C66A</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50796</td>
+          <td><text>0x</text>C66C</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50798</td>
+          <td><text>0x</text>C66E</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50800</td>
+          <td><text>0x</text>C670</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50802</td>
+          <td><text>0x</text>C672</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50804</td>
+          <td><text>0x</text>C674</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50806</td>
+          <td><text>0x</text>C676</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50808</td>
+          <td><text>0x</text>C678</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50810</td>
+          <td><text>0x</text>C67A</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50812</td>
+          <td><text>0x</text>C67C</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50814</td>
+          <td><text>0x</text>C67E</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50816</td>
+          <td><text>0x</text>C680</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50818</td>
+          <td><text>0x</text>C682</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50820</td>
+          <td><text>0x</text>C684</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50822</td>
+          <td><text>0x</text>C686</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50824</td>
+          <td><text>0x</text>C688</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>50826</td>
+          <td><text>0x</text>C68A</td>
+          <td align="center">2</td>
+          <td align="left">Last date for Record average P/Q/S  in second since 01/01/2000</td>
+          <td align="center">-</td>
+          <td align="center">DATETIME</td>
+        </tr>
+        <tr>
+          <td>50828</td>
+          <td><text>0x</text>C68C</td>
+          <td align="center">1</td>
+          <td align="left">Last average (P+)</td>
+          <td align="center">W</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50829</td>
+          <td><text>0x</text>C68D</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50830</td>
+          <td><text>0x</text>C68E</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50831</td>
+          <td><text>0x</text>C68F</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50832</td>
+          <td><text>0x</text>C690</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+      </tbody></table><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Energies in Unit/100</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>50944</td>
+          <td><text>0x</text>C700</td>
+          <td>Info</td>
+          <td>65</td>
+          <td>NONE</td>
+          <td>READ</td>
+          <td>READ</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr class="lignereserved">
+          <td>50944</td>
+          <td><text>0x</text>C700</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>50946</td>
+          <td><text>0x</text>C702</td>
+          <td align="center">2</td>
+          <td align="left">Total Positive Active Energy (no resetable) : Ea+</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50948</td>
+          <td><text>0x</text>C704</td>
+          <td align="center">2</td>
+          <td align="left">Total Positive Reactive Energy  (no resetable) : Er +</td>
+          <td align="center">varh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50950</td>
+          <td><text>0x</text>C706</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>50952</td>
+          <td><text>0x</text>C708</td>
+          <td align="center">2</td>
+          <td align="left">Total Negative Active Energy  (no resetable) : Ea-</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50954</td>
+          <td><text>0x</text>C70A</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>50956</td>
+          <td><text>0x</text>C70C</td>
+          <td align="center">2</td>
+          <td align="left">Partial Positive Active Energy: Ea+</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50958</td>
+          <td><text>0x</text>C70E</td>
+          <td align="center">2</td>
+          <td align="left">Partial Positive Reactive Energy: Er +</td>
+          <td align="center">varh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50960</td>
+          <td><text>0x</text>C710</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>50962</td>
+          <td><text>0x</text>C712</td>
+          <td align="center">2</td>
+          <td align="left">Partial Negative Active Energy  : Ea-</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50964</td>
+          <td><text>0x</text>C714</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50966</td>
+          <td><text>0x</text>C716</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50968</td>
+          <td><text>0x</text>C718</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50970</td>
+          <td><text>0x</text>C71A</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50972</td>
+          <td><text>0x</text>C71C</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50974</td>
+          <td><text>0x</text>C71E</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50976</td>
+          <td><text>0x</text>C720</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50978</td>
+          <td><text>0x</text>C722</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50980</td>
+          <td><text>0x</text>C724</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50982</td>
+          <td><text>0x</text>C726</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50984</td>
+          <td><text>0x</text>C728</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50986</td>
+          <td><text>0x</text>C72A</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50988</td>
+          <td><text>0x</text>C72C</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50990</td>
+          <td><text>0x</text>C72E</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50992</td>
+          <td><text>0x</text>C730</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50994</td>
+          <td><text>0x</text>C732</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50996</td>
+          <td><text>0x</text>C734</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50998</td>
+          <td><text>0x</text>C736</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51000</td>
+          <td><text>0x</text>C738</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>51002</td>
+          <td><text>0x</text>C73A</td>
+          <td align="center">2</td>
+          <td align="left">Last date for Record average P/Q/S  in second since 01/01/2000</td>
+          <td align="center">-</td>
+          <td align="center">DATETIME</td>
+        </tr>
+        <tr>
+          <td>51004</td>
+          <td><text>0x</text>C73C</td>
+          <td align="center">1</td>
+          <td align="left">Last average (P+)</td>
+          <td align="center">W</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51005</td>
+          <td><text>0x</text>C73D</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51006</td>
+          <td><text>0x</text>C73E</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51007</td>
+          <td><text>0x</text>C73F</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51008</td>
+          <td><text>0x</text>C740</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+      </tbody></table><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Statistique  Affected by current and voltage transformers</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>51024</td>
+          <td><text>0x</text>C750</td>
+          <td>Info</td>
+          <td>70</td>
+          <td>NONE</td>
+          <td>READ</td>
+          <td>READ</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr class="lignereserved">
+          <td>51024</td>
+          <td><text>0x</text>C750</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51026</td>
+          <td><text>0x</text>C752</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51028</td>
+          <td><text>0x</text>C754</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51030</td>
+          <td><text>0x</text>C756</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51032</td>
+          <td><text>0x</text>C758</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51034</td>
+          <td><text>0x</text>C75A</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51036</td>
+          <td><text>0x</text>C75C</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51038</td>
+          <td><text>0x</text>C75E</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51040</td>
+          <td><text>0x</text>C760</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51042</td>
+          <td><text>0x</text>C762</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51044</td>
+          <td><text>0x</text>C764</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51046</td>
+          <td><text>0x</text>C766</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51048</td>
+          <td><text>0x</text>C768</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51050</td>
+          <td><text>0x</text>C76A</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51052</td>
+          <td><text>0x</text>C76C</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51054</td>
+          <td><text>0x</text>C76E</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51056</td>
+          <td><text>0x</text>C770</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51058</td>
+          <td><text>0x</text>C772</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51060</td>
+          <td><text>0x</text>C774</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51062</td>
+          <td><text>0x</text>C776</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51064</td>
+          <td><text>0x</text>C778</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51066</td>
+          <td><text>0x</text>C77A</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51068</td>
+          <td><text>0x</text>C77C</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51070</td>
+          <td><text>0x</text>C77E</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51072</td>
+          <td><text>0x</text>C780</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51074</td>
+          <td><text>0x</text>C782</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51076</td>
+          <td><text>0x</text>C784</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51078</td>
+          <td><text>0x</text>C786</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51080</td>
+          <td><text>0x</text>C788</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51082</td>
+          <td><text>0x</text>C78A</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51084</td>
+          <td><text>0x</text>C78C</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51086</td>
+          <td><text>0x</text>C78E</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51088</td>
+          <td><text>0x</text>C790</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51089</td>
+          <td><text>0x</text>C791</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51090</td>
+          <td><text>0x</text>C792</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51091</td>
+          <td><text>0x</text>C793</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51092</td>
+          <td><text>0x</text>C794</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51093</td>
+          <td><text>0x</text>C795</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+      </tbody></table><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Metrology  No Affected by current and voltage transformers</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>51280</td>
+          <td><text>0x</text>C850</td>
+          <td>Info</td>
+          <td>35</td>
+          <td>NONE</td>
+          <td>READ</td>
+          <td>READ</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr class="lignereserved">
+          <td>51280</td>
+          <td><text>0x</text>C850</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>51281</td>
+          <td><text>0x</text>C851</td>
+          <td align="center">1</td>
+          <td align="left">Phase to Phase Voltage:  U12</td>
+          <td align="center">V<text> / </text>100</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>51282</td>
+          <td><text>0x</text>C852</td>
+          <td align="center">1</td>
+          <td align="left">Phase to Phase Voltage:  U23</td>
+          <td align="center">V<text> / </text>100</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>51283</td>
+          <td><text>0x</text>C853</td>
+          <td align="center">1</td>
+          <td align="left">Phase to Phase Voltage:  U31</td>
+          <td align="center">V<text> / </text>100</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>51284</td>
+          <td><text>0x</text>C854</td>
+          <td align="center">1</td>
+          <td align="left">Simple voltage : V1</td>
+          <td align="center">V<text> / </text>100</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>51285</td>
+          <td><text>0x</text>C855</td>
+          <td align="center">1</td>
+          <td align="left">Simple voltage : V2</td>
+          <td align="center">V<text> / </text>100</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>51286</td>
+          <td><text>0x</text>C856</td>
+          <td align="center">1</td>
+          <td align="left">Simple voltage : V3</td>
+          <td align="center">V<text> / </text>100</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51287</td>
+          <td><text>0x</text>C857</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51288</td>
+          <td><text>0x</text>C858</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51289</td>
+          <td><text>0x</text>C859</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51290</td>
+          <td><text>0x</text>C85A</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51291</td>
+          <td><text>0x</text>C85B</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>51292</td>
+          <td><text>0x</text>C85C</td>
+          <td align="center">1</td>
+          <td align="left">? active Power +/-  : P</td>
+          <td align="center">W<text> / </text>0.1</td>
+          <td align="center">S16</td>
+        </tr>
+        <tr>
+          <td>51293</td>
+          <td><text>0x</text>C85D</td>
+          <td align="center">1</td>
+          <td align="left">? reactive Power +/- : Q</td>
+          <td align="center">var<text> / </text>0.1</td>
+          <td align="center">S16</td>
+        </tr>
+        <tr>
+          <td>51294</td>
+          <td><text>0x</text>C85E</td>
+          <td align="center">1</td>
+          <td align="left">? apparent power : S</td>
+          <td align="center">VA<text> / </text>0.1</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>51295</td>
+          <td><text>0x</text>C85F</td>
+          <td align="center">1</td>
+          <td align="left">? power factor :  -: leading and + : lagging : PF</td>
+          <td align="center">-<text> / </text>1000</td>
+          <td align="center">S16</td>
+        </tr>
+        <tr>
+          <td>51296</td>
+          <td><text>0x</text>C860</td>
+          <td align="center">1</td>
+          <td align="left">Active Power phase 1 +/- : P1</td>
+          <td align="center">W<text> / </text>0.1</td>
+          <td align="center">S16</td>
+        </tr>
+        <tr>
+          <td>51297</td>
+          <td><text>0x</text>C861</td>
+          <td align="center">1</td>
+          <td align="left">Active Power phase 2 +/- : P2</td>
+          <td align="center">W<text> / </text>0.1</td>
+          <td align="center">S16</td>
+        </tr>
+        <tr>
+          <td>51298</td>
+          <td><text>0x</text>C862</td>
+          <td align="center">1</td>
+          <td align="left">Active Power phase 3 +/- : P3</td>
+          <td align="center">W<text> / </text>0.1</td>
+          <td align="center">S16</td>
+        </tr>
+        <tr>
+          <td>51299</td>
+          <td><text>0x</text>C863</td>
+          <td align="center">1</td>
+          <td align="left">Reactive Power phase 1 +/- : Q1</td>
+          <td align="center">var<text> / </text>0.1</td>
+          <td align="center">S16</td>
+        </tr>
+        <tr>
+          <td>51300</td>
+          <td><text>0x</text>C864</td>
+          <td align="center">1</td>
+          <td align="left">Reactive Power phase 2 +/- : Q2</td>
+          <td align="center">var<text> / </text>0.1</td>
+          <td align="center">S16</td>
+        </tr>
+        <tr>
+          <td>51301</td>
+          <td><text>0x</text>C865</td>
+          <td align="center">1</td>
+          <td align="left">Reactive Power phase 3 +/- : Q3</td>
+          <td align="center">var<text> / </text>0.1</td>
+          <td align="center">S16</td>
+        </tr>
+        <tr>
+          <td>51302</td>
+          <td><text>0x</text>C866</td>
+          <td align="center">1</td>
+          <td align="left">Apparent power phase 1 : S1</td>
+          <td align="center">VA<text> / </text>0.1</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>51303</td>
+          <td><text>0x</text>C867</td>
+          <td align="center">1</td>
+          <td align="left">Apparent power phase 2 : S2</td>
+          <td align="center">VA<text> / </text>0.1</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>51304</td>
+          <td><text>0x</text>C868</td>
+          <td align="center">1</td>
+          <td align="left">Apparent power phase 3 : S3</td>
+          <td align="center">VA<text> / </text>0.1</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>51305</td>
+          <td><text>0x</text>C869</td>
+          <td align="center">1</td>
+          <td align="left">Power Factor phase 1  -: leading and + : lagging  : PF1</td>
+          <td align="center">-<text> / </text>1000</td>
+          <td align="center">S16</td>
+        </tr>
+        <tr>
+          <td>51306</td>
+          <td><text>0x</text>C86A</td>
+          <td align="center">1</td>
+          <td align="left">Power Factor phase 2  -: leading and + : lagging  : PF2</td>
+          <td align="center">-<text> / </text>1000</td>
+          <td align="center">S16</td>
+        </tr>
+        <tr>
+          <td>51307</td>
+          <td><text>0x</text>C86B</td>
+          <td align="center">1</td>
+          <td align="left">Power Factor phase 3  -: leading and + : lagging  : PF3</td>
+          <td align="center">-<text> / </text>1000</td>
+          <td align="center">S16</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51308</td>
+          <td><text>0x</text>C86C</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51309</td>
+          <td><text>0x</text>C86D</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51310</td>
+          <td><text>0x</text>C86E</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr>
+          <td>51311</td>
+          <td><text>0x</text>C86F</td>
+          <td align="center">1</td>
+          <td align="left">Total Positive Active Energy (no resetable) : Ea+</td>
+          <td align="center">Wh<text> / </text>1E-06</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>51312</td>
+          <td><text>0x</text>C870</td>
+          <td align="center">1</td>
+          <td align="left">Total Positive Reactive Energy  (no resetable) : Er +</td>
+          <td align="center">varh<text> / </text>1E-06</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>51313</td>
+          <td><text>0x</text>C871</td>
+          <td align="center">1</td>
+          <td align="left">Total Negative Active Energy  (no resetable) : Ea-</td>
+          <td align="center">Wh<text> / </text>1E-06</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51314</td>
+          <td><text>0x</text>C872</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+      </tbody></table><br>
+        <h2 align="left">Load curve P+</h2>
+      
+      <br><table cellspacing="0" cellpadding="2" border="1"><caption>
+          <h3 align="left"><text>Command</text></h3>
+        </caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>61440</td>
+          <td><text>0x</text>F000</td>
+          <td><text>Command</text></td>
+          <td>1</td>
+          <td>NONE</td>
+          <td><text>WRITE_MANY</text></td>
+          <td><text>WRITE_MANY</text></td>
+        </tr>
+      </tbody></table>
+      <br><table cellspacing="1" cellpadding="2" border="1"><tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>61440</td>
+          <td><text>0x</text>F000</td>
+          <td align="center">1</td>
+          <td align="left">Action<br>0x0001<text> : </text>Reset read pointer<br>0xFFFE<text> : </text>Get next data</td>
+          <td align="center">-</td>
+          <td align="center">U16_HEX</td>
+        </tr>
+      </tbody></table>
+      <br><table cellspacing="0" cellpadding="2" border="1"><caption>
+          <h3 align="left"><text>Header</text></h3>
+        </caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>61456</td>
+          <td><text>0x</text>F010</td>
+          <td><text>Header</text></td>
+          <td>6</td>
+          <td>NONE</td>
+          <td><text>READ</text></td>
+          <td><text>READ</text></td>
+        </tr>
+      </tbody></table>
+      <br><table cellspacing="1" cellpadding="2" border="1"><tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>61456</td>
+          <td><text>0x</text>F010</td>
+          <td align="center">1</td>
+          <td align="left">Record count ( Maximum 29 )</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>61457</td>
+          <td><text>0x</text>F011</td>
+          <td align="center">1</td>
+          <td align="left">Record size : 4 see below the data record description</td>
+          <td align="center">W</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>61458</td>
+          <td><text>0x</text>F012</td>
+          <td align="center">1</td>
+          <td align="left">Integration period</td>
+          <td align="center">s</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>61459</td>
+          <td><text>0x</text>F013</td>
+          <td align="center">1</td>
+          <td align="left">Physical Unit : 0<br>0<text> : </text>W<br>1<text> : </text>W<br>2<text> : </text>var<br>3<text> : </text>var<br>4<text> : </text>VA<br>5<text> : </text>None<br>6<text> : </text>J<br>7<text> : </text>Pulse<br>8<text> : </text>m3<br>9<text> : </text>Nm3<br>20<text> : </text>kW<br>22<text> : </text>kVAr<br>24<text> : </text>kVA<br>26<text> : </text>kJ<br>27<text> : </text>kilo-Pulse</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>61460</td>
+          <td><text>0x</text>F014</td>
+          <td align="center">1</td>
+          <td align="left">Numerator Rate</td>
+          <td align="center">-</td>
+          <td align="center">U16</td>
+        </tr>
+        <tr>
+          <td>61461</td>
+          <td><text>0x</text>F015</td>
+          <td align="center">1</td>
+          <td align="left">Denominator Rate</td>
+          <td align="center">-</td>
+          <td align="center">U16</td>
+        </tr>
+      </tbody></table>
+      <br><table cellspacing="0" cellpadding="2" border="1"><caption>
+          <h3 align="left"><text>Data</text></h3>
+        </caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>61462</td>
+          <td><text>0x</text>F016</td>
+          <td><text>Data</text></td>
+          <td>4</td>
+          <td>NONE</td>
+          <td><text>READ</text></td>
+          <td><text>READ</text></td>
+        </tr>
+      </tbody></table>
+      <br><table cellspacing="1" cellpadding="2" border="1"><tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>61462</td>
+          <td><text>0x</text>F016</td>
+          <td align="center">2</td>
+          <td align="left">Date</td>
+          <td align="center">s</td>
+          <td align="center">DATETIME</td>
+        </tr>
+        <tr>
+          <td>61464</td>
+          <td><text>0x</text>F018</td>
+          <td align="center">1</td>
+          <td align="left">Full/incomplete period<br>0<text> : </text>full integration period<br>1<text> : </text>incomplete integration period</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>61465</td>
+          <td><text>0x</text>F019</td>
+          <td align="center">1</td>
+          <td align="left">Value without CT*VT rate</td>
+          <td align="center">W</td>
+          <td align="center">U16</td>
+        </tr>
+      </tbody></table><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Energies per tariff</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>50848</td>
+          <td><text>0x</text>C6A0</td>
+          <td>Info</td>
+          <td>50</td>
+          <td>NONE</td>
+          <td>READ</td>
+          <td>READ</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>50848</td>
+          <td><text>0x</text>C6A0</td>
+          <td align="center">1</td>
+          <td align="left">0 &gt;: Tariff number &lt;: 8</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>50849</td>
+          <td><text>0x</text>C6A1</td>
+          <td align="center">1</td>
+          <td align="left">Tariff number in progress ( 1 to 8 )</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>50850</td>
+          <td><text>0x</text>C6A2</td>
+          <td align="center">2</td>
+          <td align="left">Positive Active Energies 1</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50852</td>
+          <td><text>0x</text>C6A4</td>
+          <td align="center">2</td>
+          <td align="left">Positive Active Energies 2</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50854</td>
+          <td><text>0x</text>C6A6</td>
+          <td align="center">2</td>
+          <td align="left">Positive Active Energies 3</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>50856</td>
+          <td><text>0x</text>C6A8</td>
+          <td align="center">2</td>
+          <td align="left">Positive Active Energies 4</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50858</td>
+          <td><text>0x</text>C6AA</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50860</td>
+          <td><text>0x</text>C6AC</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50862</td>
+          <td><text>0x</text>C6AE</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50864</td>
+          <td><text>0x</text>C6B0</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50866</td>
+          <td><text>0x</text>C6B2</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50868</td>
+          <td><text>0x</text>C6B4</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50870</td>
+          <td><text>0x</text>C6B6</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50872</td>
+          <td><text>0x</text>C6B8</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50874</td>
+          <td><text>0x</text>C6BA</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50876</td>
+          <td><text>0x</text>C6BC</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50878</td>
+          <td><text>0x</text>C6BE</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50880</td>
+          <td><text>0x</text>C6C0</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50882</td>
+          <td><text>0x</text>C6C2</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50884</td>
+          <td><text>0x</text>C6C4</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50886</td>
+          <td><text>0x</text>C6C6</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50888</td>
+          <td><text>0x</text>C6C8</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50890</td>
+          <td><text>0x</text>C6CA</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50892</td>
+          <td><text>0x</text>C6CC</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50894</td>
+          <td><text>0x</text>C6CE</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>50896</td>
+          <td><text>0x</text>C6D0</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+      </tbody></table><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Energies per tariff in Unit/100</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>51200</td>
+          <td><text>0x</text>C800</td>
+          <td>Info</td>
+          <td>50</td>
+          <td>NONE</td>
+          <td>READ</td>
+          <td>READ</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>51200</td>
+          <td><text>0x</text>C800</td>
+          <td align="center">1</td>
+          <td align="left">0 &gt;: Tariff number &lt;: 8</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>51201</td>
+          <td><text>0x</text>C801</td>
+          <td align="center">1</td>
+          <td align="left">Tariff number in progress ( 1 to 8 )</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>51202</td>
+          <td><text>0x</text>C802</td>
+          <td align="center">2</td>
+          <td align="left">Positive Active Energies 1</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>51204</td>
+          <td><text>0x</text>C804</td>
+          <td align="center">2</td>
+          <td align="left">Positive Active Energies 2</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>51206</td>
+          <td><text>0x</text>C806</td>
+          <td align="center">2</td>
+          <td align="left">Positive Active Energies 3</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>51208</td>
+          <td><text>0x</text>C808</td>
+          <td align="center">2</td>
+          <td align="left">Positive Active Energies 4</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51210</td>
+          <td><text>0x</text>C80A</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51212</td>
+          <td><text>0x</text>C80C</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51214</td>
+          <td><text>0x</text>C80E</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51216</td>
+          <td><text>0x</text>C810</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51218</td>
+          <td><text>0x</text>C812</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51220</td>
+          <td><text>0x</text>C814</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51222</td>
+          <td><text>0x</text>C816</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51224</td>
+          <td><text>0x</text>C818</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51226</td>
+          <td><text>0x</text>C81A</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51228</td>
+          <td><text>0x</text>C81C</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51230</td>
+          <td><text>0x</text>C81E</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51232</td>
+          <td><text>0x</text>C820</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51234</td>
+          <td><text>0x</text>C822</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51236</td>
+          <td><text>0x</text>C824</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51238</td>
+          <td><text>0x</text>C826</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51240</td>
+          <td><text>0x</text>C828</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51242</td>
+          <td><text>0x</text>C82A</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51244</td>
+          <td><text>0x</text>C82C</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51246</td>
+          <td><text>0x</text>C82E</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+        <tr class="lignereserved">
+          <td>51248</td>
+          <td><text>0x</text>C830</td>
+          <td align="center">2</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+      </tbody></table><br><br><h1 id="Specific" class="level3" align="left">Specific</h1><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Table Overflow</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>36864</td>
+          <td><text>0x</text>9000</td>
+          <td>Info</td>
+          <td>11</td>
+          <td>NONE</td>
+          <td>READ</td>
+          <td>READ</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>36864</td>
+          <td><text>0x</text>9000</td>
+          <td align="center">2</td>
+          <td align="left">Value of the meter overflow (10Wh) : 999 999 999</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36866</td>
+          <td><text>0x</text>9002</td>
+          <td align="center">1</td>
+          <td align="left">Nb Overflow Total Ea +</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>36867</td>
+          <td><text>0x</text>9003</td>
+          <td align="center">1</td>
+          <td align="left">Nb Overflow Total Er +</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>36868</td>
+          <td><text>0x</text>9004</td>
+          <td align="center">1</td>
+          <td align="left">Nb Overflow Total Ea -</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>36869</td>
+          <td><text>0x</text>9005</td>
+          <td align="center">1</td>
+          <td align="left">Reserved</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>36870</td>
+          <td><text>0x</text>9006</td>
+          <td align="center">1</td>
+          <td align="left">Reserved</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>36871</td>
+          <td><text>0x</text>9007</td>
+          <td align="center">1</td>
+          <td align="left">Nb Overflow Total Ea T1</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>36872</td>
+          <td><text>0x</text>9008</td>
+          <td align="center">1</td>
+          <td align="left">Nb Overflow Total Ea T2</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>36873</td>
+          <td><text>0x</text>9009</td>
+          <td align="center">1</td>
+          <td align="left">Nb Overflow Total Ea T3</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>36874</td>
+          <td><text>0x</text>900A</td>
+          <td align="center">1</td>
+          <td align="left">Nb Overflow Total Ea T4</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+      </tbody></table><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Temporal Active Index</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>36896</td>
+          <td><text>0x</text>9020</td>
+          <td>Info</td>
+          <td>24</td>
+          <td>NONE</td>
+          <td>READ</td>
+          <td>READ</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>36896</td>
+          <td><text>0x</text>9020</td>
+          <td align="center">2</td>
+          <td align="left">Ea + for day n-1</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36898</td>
+          <td><text>0x</text>9022</td>
+          <td align="center">2</td>
+          <td align="left">Ea - for day n-1</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36900</td>
+          <td><text>0x</text>9024</td>
+          <td align="center">2</td>
+          <td align="left">Ea + for day n</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36902</td>
+          <td><text>0x</text>9026</td>
+          <td align="center">2</td>
+          <td align="left">Ea - for day n</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36904</td>
+          <td><text>0x</text>9028</td>
+          <td align="center">2</td>
+          <td align="left">Ea + for Week n-1</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36906</td>
+          <td><text>0x</text>902A</td>
+          <td align="center">2</td>
+          <td align="left">Ea - for Week n-1</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36908</td>
+          <td><text>0x</text>902C</td>
+          <td align="center">2</td>
+          <td align="left">Ea + for Week n</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36910</td>
+          <td><text>0x</text>902E</td>
+          <td align="center">2</td>
+          <td align="left">Ea - for Week n</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36912</td>
+          <td><text>0x</text>9030</td>
+          <td align="center">2</td>
+          <td align="left">Ea + for Month n-1</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36914</td>
+          <td><text>0x</text>9032</td>
+          <td align="center">2</td>
+          <td align="left">Ea - for Month n-1</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36916</td>
+          <td><text>0x</text>9034</td>
+          <td align="center">2</td>
+          <td align="left">Ea + for Month n</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36918</td>
+          <td><text>0x</text>9036</td>
+          <td align="center">2</td>
+          <td align="left">Ea - for Month n</td>
+          <td align="center">Wh<text> / </text>0.001</td>
+          <td align="center">U32</td>
+        </tr>
+      </tbody></table><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Temporal Active Index in Unit/100</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>36928</td>
+          <td><text>0x</text>9040</td>
+          <td>Info</td>
+          <td>24</td>
+          <td>NONE</td>
+          <td>READ</td>
+          <td>READ</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>36928</td>
+          <td><text>0x</text>9040</td>
+          <td align="center">2</td>
+          <td align="left">Ea + for day n-1</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36930</td>
+          <td><text>0x</text>9042</td>
+          <td align="center">2</td>
+          <td align="left">Ea - for day n-1</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36932</td>
+          <td><text>0x</text>9044</td>
+          <td align="center">2</td>
+          <td align="left">Ea + for day n</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36934</td>
+          <td><text>0x</text>9046</td>
+          <td align="center">2</td>
+          <td align="left">Ea - for day n</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36936</td>
+          <td><text>0x</text>9048</td>
+          <td align="center">2</td>
+          <td align="left">Ea + for Week n-1</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36938</td>
+          <td><text>0x</text>904A</td>
+          <td align="center">2</td>
+          <td align="left">Ea - for Week n-1</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36940</td>
+          <td><text>0x</text>904C</td>
+          <td align="center">2</td>
+          <td align="left">Ea + for Week n</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36942</td>
+          <td><text>0x</text>904E</td>
+          <td align="center">2</td>
+          <td align="left">Ea - for Week n</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36944</td>
+          <td><text>0x</text>9050</td>
+          <td align="center">2</td>
+          <td align="left">Ea + for Month n-1</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36946</td>
+          <td><text>0x</text>9052</td>
+          <td align="center">2</td>
+          <td align="left">Ea - for Month n-1</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36948</td>
+          <td><text>0x</text>9054</td>
+          <td align="center">2</td>
+          <td align="left">Ea + for Month n</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>36950</td>
+          <td><text>0x</text>9056</td>
+          <td align="center">2</td>
+          <td align="left">Ea - for Month n</td>
+          <td align="center">Wh<text> / </text>0.1</td>
+          <td align="center">U32</td>
+        </tr>
+      </tbody></table><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Current without CT</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>40576</td>
+          <td><text>0x</text>9E80</td>
+          <td>Info</td>
+          <td>6</td>
+          <td>NONE</td>
+          <td>READ</td>
+          <td>READ</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>40576</td>
+          <td><text>0x</text>9E80</td>
+          <td align="center">2</td>
+          <td align="left">Current: I1</td>
+          <td align="center">A<text> / </text>1000</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>40578</td>
+          <td><text>0x</text>9E82</td>
+          <td align="center">2</td>
+          <td align="left">Current: I2</td>
+          <td align="center">A<text> / </text>1000</td>
+          <td align="center">U32</td>
+        </tr>
+        <tr>
+          <td>40580</td>
+          <td><text>0x</text>9E84</td>
+          <td align="center">2</td>
+          <td align="left">Current: I3</td>
+          <td align="center">A<text> / </text>1000</td>
+          <td align="center">U32</td>
+        </tr>
+      </tbody></table><br><br><h1 id="Action" class="level3" align="left">Action</h1><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Set Tariff</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>40480</td>
+          <td><text>0x</text>9E20</td>
+          <td>Commands</td>
+          <td>2</td>
+          <td>NONE</td>
+          <td>WRITE</td>
+          <td>WRITE</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>40480</td>
+          <td><text>0x</text>9E20</td>
+          <td align="center">1</td>
+          <td align="left">Reserved</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>40481</td>
+          <td><text>0x</text>9E21</td>
+          <td align="center">1</td>
+          <td align="left">N? Tariff to set</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+      </tbody></table><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Partial Energies Reset</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>40512</td>
+          <td><text>0x</text>9E40</td>
+          <td>Commands</td>
+          <td>1</td>
+          <td>NONE</td>
+          <td>WRITE</td>
+          <td>WRITE</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr class="lignereserved">
+          <td>40512</td>
+          <td><text>0x</text>9E40</td>
+          <td align="center">1</td>
+          <td align="left"><text>Reserved</text></td>
+          <td align="center"><text> - </text></td>
+          <td align="center"><text> - </text></td>
+        </tr>
+      </tbody></table><br><br><br><br><h1 id="Industrialization" class="level1" align="left">Industrialization</h1><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">Indus Mode and MID status</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>40544</td>
+          <td><text>0x</text>9E60</td>
+          <td>Info</td>
+          <td>2</td>
+          <td>NONE</td>
+          <td>READ</td>
+          <td>READ</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>40544</td>
+          <td><text>0x</text>9E60</td>
+          <td align="center">1</td>
+          <td align="left">Indus Mode (0: indus mode disabled, 1: indus mode enabled)</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+        <tr>
+          <td>40545</td>
+          <td><text>0x</text>9E61</td>
+          <td align="center">1</td>
+          <td align="left">MID status (0: non-MID product, 1: MID product</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+      </tbody></table><br><table cellspacing="0" cellpadding="2" border="1">
+        <caption>
+          <h2 align="left">COM Board Product ID</h2><br></caption>
+        <tbody><tr class="header">
+          <th width="100">Dec start address</th>
+          <th width="100">Hex start address</th>
+          <th width="100">Type</th>
+          <th width="100">Size</th>
+          <th width="100">Lock level</th>
+          <th width="150">Locked fcts</th>
+          <th width="150">Unlocked fcts</th>
+        </tr>
+        <tr align="center">
+          <td>40608</td>
+          <td><text>0x</text>9EA0</td>
+          <td>Info</td>
+          <td>1</td>
+          <td>NONE</td>
+          <td>READ</td>
+          <td>READ</td>
+        </tr>
+      </tbody></table><br><table cellspacing="1" cellpadding="2" border="1">
+        <tbody><tr class="header">
+          <th width="75">Dec address</th>
+          <th width="75">Hex address</th>
+          <th width="75">Words count</th>
+          <th width="400">Description</th>
+          <th width="75">Unit</th>
+          <th width="75">Data type</th>
+        </tr>
+        <tr>
+          <td>40608</td>
+          <td><text>0x</text>9EA0</td>
+          <td align="center">1</td>
+          <td align="left">Product ID :0x01: E3x/E4x COM Board0x02: E63 COM Board</td>
+          <td align="center">-</td>
+          <td align="center">U8</td>
+        </tr>
+      </tbody></table><br><br></div>
+  
+</body></html>

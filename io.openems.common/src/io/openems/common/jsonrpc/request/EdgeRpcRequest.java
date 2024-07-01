@@ -1,7 +1,5 @@
 package io.openems.common.jsonrpc.request;
 
-import java.util.UUID;
-
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -11,37 +9,69 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Wraps a JSON-RPC Request for a specific Edge-ID.
+ *
+ * <pre>
+ * {
+ *   "jsonrpc": "2.0",
+ *   "id": "UUID",
+ *   "method": "edgeRpc",
+ *   "params": {
+ *     "edgeId": string,
+ *     "payload": {
+ *     }
+ *   }
+ * }
+ * </pre>
  */
 public class EdgeRpcRequest extends JsonrpcRequest {
 
-	public final static String METHOD = "edgeRpc";
+	public static final String METHOD = "edgeRpc";
 
+	/**
+	 * Create {@link EdgeRpcRequest} from a template {@link JsonrpcRequest}.
+	 *
+	 * @param r the template {@link JsonrpcRequest}
+	 * @return the {@link EdgeRpcRequest}
+	 * @throws OpenemsNamedException on parse error
+	 */
 	public static EdgeRpcRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		String edgeId = JsonUtils.getAsString(p, "edgeId");
+		var p = r.getParams();
+		var edgeId = JsonUtils.getAsString(p, "edgeId");
 		JsonrpcRequest payload = GenericJsonrpcRequest.from(JsonUtils.getAsJsonObject(p, "payload"));
-		return new EdgeRpcRequest(r.getId(), edgeId, payload);
+		return new EdgeRpcRequest(r, edgeId, payload);
 	}
 
 	private final String edgeId;
 	private final JsonrpcRequest payload;
 
 	public EdgeRpcRequest(String edgeId, JsonrpcRequest payload) {
-		this(UUID.randomUUID(), edgeId, payload);
-	}
-
-	public EdgeRpcRequest(UUID id, String edgeId, JsonrpcRequest payload) {
-		super(id, METHOD);
+		super(EdgeRpcRequest.METHOD, payload.getTimeout() /* inherit timeout from payload */);
 		this.edgeId = edgeId;
 		this.payload = payload;
 	}
 
-	public String getEdgeId() {
-		return edgeId;
+	public EdgeRpcRequest(JsonrpcRequest request, String edgeId, JsonrpcRequest payload) {
+		super(request, EdgeRpcRequest.METHOD);
+		this.edgeId = edgeId;
+		this.payload = payload;
 	}
 
+	/**
+	 * Gets the Edge-ID.
+	 *
+	 * @return Edge-ID
+	 */
+	public String getEdgeId() {
+		return this.edgeId;
+	}
+
+	/**
+	 * Gets the Payload {@link JsonrpcRequest}.
+	 *
+	 * @return Payload
+	 */
 	public JsonrpcRequest getPayload() {
-		return payload;
+		return this.payload;
 	}
 
 	@Override

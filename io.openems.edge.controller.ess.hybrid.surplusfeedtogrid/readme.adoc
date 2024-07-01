@@ -1,0 +1,5 @@
+= Hybrid-Ess Surplus-Feed-To-Grid Controller
+
+Controls a Hybrid Battery Inverter (i.e. integrated Energy Storage System) so, that the surplus DC production of its chargers gets fed to grid.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.hybrid.surplusfeedtogrid[Source Code icon:github[]]

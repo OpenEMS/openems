@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -50,7 +51,7 @@ import com.dalsemi.onewire.container.SwitchContainer;
  * <DD>
  * <H4>Example</H4> Open the path 'path' to the 1-Wire temperature device 'tc'
  * and read the temperature:
- * 
+ *
  * <PRE>
  *  <CODE>
  *  // open a path to the temp device
@@ -86,17 +87,17 @@ public class OWPath {
 	// --------
 
 	/** Elements of the path in a Vector */
-	private Vector<OWPathElement> elements;
+	private final Vector<OWPathElement> elements;
 
 	/** Adapter where this path is based */
-	private DSPortAdapter adapter;
+	private final DSPortAdapter adapter;
 
 	// --------
 	// -------- Constructor
 	// --------
 
 	/**
-	 * Create a new 1-Wire path with no elemements. Elements can be added by using
+	 * Create a new 1-Wire path with no elements. Elements can be added by using
 	 * <CODE> copy </CODE> and/or <CODE> add </CODE>.
 	 *
 	 * @param adapter where the path is based
@@ -106,7 +107,7 @@ public class OWPath {
 	 */
 	public OWPath(DSPortAdapter adapter) {
 		this.adapter = adapter;
-		elements = new Vector<>(2, 1);
+		this.elements = new Vector<>(2, 1);
 	}
 
 	/**
@@ -120,9 +121,9 @@ public class OWPath {
 	 */
 	public OWPath(DSPortAdapter adapter, OWPath currentOWPath) {
 		this.adapter = adapter;
-		elements = new Vector<>(2, 1);
+		this.elements = new Vector<>(2, 1);
 
-		copy(currentOWPath);
+		this.copy(currentOWPath);
 	}
 
 	/**
@@ -131,16 +132,15 @@ public class OWPath {
 	 * @param currentOWPath path to copy from
 	 */
 	public void copy(OWPath currentOWPath) {
-		elements.removeAllElements();
+		this.elements.removeAllElements();
 
 		if (currentOWPath != null) {
 
 			// enumerature through elements in current path
-			for (Enumeration<OWPathElement> path_enum = currentOWPath.getAllOWPathElements(); path_enum
-					.hasMoreElements();) {
+			for (var path_enum = currentOWPath.getAllOWPathElements(); path_enum.hasMoreElements();) {
 
 				// cast the enum as a OWPathElements and add to vector
-				elements.addElement((OWPathElement) path_enum.nextElement());
+				this.elements.addElement(path_enum.nextElement());
 			}
 		}
 	}
@@ -154,7 +154,7 @@ public class OWPath {
 	 * @see #copy(OWPath) copy
 	 */
 	public void add(OneWireContainer owc, int channel) {
-		elements.addElement(new OWPathElement(owc, channel));
+		this.elements.addElement(new OWPathElement(owc, channel));
 	}
 
 	/**
@@ -165,7 +165,7 @@ public class OWPath {
 	 * @return <CODE> true </CODE> if the 1-Wire paths are the same
 	 */
 	public boolean equals(OWPath compareOWPath) {
-		return (this.toString().equals(compareOWPath.toString()));
+		return this.toString().equals(compareOWPath.toString());
 	}
 
 	/**
@@ -176,7 +176,7 @@ public class OWPath {
 	 * @see com.dalsemi.onewire.utils.OWPathElement
 	 */
 	public Enumeration<OWPathElement> getAllOWPathElements() {
-		return elements.elements();
+		return this.elements.elements();
 	}
 
 	/**
@@ -184,20 +184,21 @@ public class OWPath {
 	 *
 	 * @return string 1-Wire path as string
 	 */
+	@Override
 	public String toString() {
-		String st = new String("");
+		var st = "";
 		OWPathElement element;
 		OneWireContainer owc;
 
 		// append 'drive'
 		try {
-			st = adapter.getAdapterName() + "_" + adapter.getPortName() + "/";
+			st = this.adapter.getAdapterName() + "_" + this.adapter.getPortName() + "/";
 		} catch (OneWireException e) {
-			st = adapter.getAdapterName() + "/";
+			st = this.adapter.getAdapterName() + "/";
 		}
 
-		for (int i = 0; i < elements.size(); i++) {
-			element = (OWPathElement) elements.elementAt(i);
+		for (var i = 0; i < this.elements.size(); i++) {
+			element = this.elements.elementAt(i);
 			owc = element.getContainer();
 
 			// append 'directory' name
@@ -225,10 +226,10 @@ public class OWPath {
 		byte[] sw_state;
 
 		// enumerature through elements in path
-		for (int i = 0; i < elements.size(); i++) {
+		for (var i = 0; i < this.elements.size(); i++) {
 
 			// cast the enum as a OWPathElement
-			path_element = (OWPathElement) elements.elementAt(i);
+			path_element = this.elements.elementAt(i);
 
 			// get the switch
 			sw = (SwitchContainer) path_element.getContainer();
@@ -241,8 +242,8 @@ public class OWPath {
 		}
 
 		// check if not depth in path, do a reset so a resetless search will work
-		if (elements.size() == 0) {
-			adapter.reset();
+		if (this.elements.size() == 0) {
+			this.adapter.reset();
 		}
 	}
 
@@ -264,10 +265,10 @@ public class OWPath {
 		byte[] sw_state;
 
 		// loop through elements in path in reverse order
-		for (int i = elements.size() - 1; i >= 0; i--) {
+		for (var i = this.elements.size() - 1; i >= 0; i--) {
 
 			// cast the element as a OWPathElement
-			path_element = (OWPathElement) elements.elementAt(i);
+			path_element = this.elements.elementAt(i);
 
 			// get the switch
 			sw = (SwitchContainer) path_element.getContainer();
@@ -279,3 +280,4 @@ public class OWPath {
 		}
 	}
 }
+// CHECKSTYLE:ON

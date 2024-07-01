@@ -1,16 +1,16 @@
 import { Component, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
 import { Service } from '../../shared';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'chartoptionspopover',
-    templateUrl: './popover.component.html'
+    templateUrl: './popover.component.html',
 })
 export class ChartOptionsPopoverComponent {
 
-    @Input() public showPhases: boolean;
-    @Input() public showTotal: boolean;
+    @Input() public showPhases: boolean | null = null;
+    @Input() public showTotal: boolean | null = null;
 
     constructor(
         public service: Service,

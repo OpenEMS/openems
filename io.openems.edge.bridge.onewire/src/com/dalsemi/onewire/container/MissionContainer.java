@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -125,21 +126,21 @@ public interface MissionContainer extends ClockContainer {
 
 	/**
 	 * Returns <code>true</code> if a mission is currently running.
-	 * 
+	 *
 	 * @return <code>true</code> if a mission is currently running.
 	 */
 	boolean isMissionRunning() throws OneWireException, OneWireIOException;
 
 	/**
 	 * Returns <code>true</code> if a rollover is enabled.
-	 * 
+	 *
 	 * @return <code>true</code> if a rollover is enabled.
 	 */
 	boolean isMissionRolloverEnabled() throws OneWireException, OneWireIOException;
 
 	/**
 	 * Returns <code>true</code> if a mission has rolled over.
-	 * 
+	 *
 	 * @return <code>true</code> if a mission has rolled over.
 	 */
 	boolean hasMissionRolloverOccurred() throws OneWireException, OneWireIOException;
@@ -184,7 +185,6 @@ public interface MissionContainer extends ClockContainer {
 	 * channel's readings will be recorded in the mission log.
 	 *
 	 * @param channel the channel to enable/disable
-	 * @param enable  if true, the channel is enabled
 	 */
 	boolean getMissionChannelEnable(int channel) throws OneWireException, OneWireIOException;
 
@@ -397,3 +397,4 @@ public interface MissionContainer extends ClockContainer {
 	 */
 	void setMissionAlarm(int channel, int alarmType, double threshold) throws OneWireException, OneWireIOException;
 }
+// CHECKSTYLE:ON

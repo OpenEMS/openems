@@ -1,50 +1,75 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+// @ts-strict-ignore
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Meta, Title } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
-import { SplashScreen } from '@ionic-native/splash-screen/ngx';
-import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { MenuController, Platform, ToastController } from '@ionic/angular';
-import { Subject } from 'rxjs';
+import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
+import { Subject, Subscription } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
+
 import { environment } from '../environments';
-import { Edge, Service, Websocket } from './shared/shared';
-import { LanguageTag } from './shared/translate/language';
+import { GlobalRouteChangeHandler } from './shared/service/globalRouteChangeHandler';
+import { Service, UserPermission, Websocket } from './shared/shared';
+import { Language } from './shared/type/language';
+import { SplashScreen } from '@capacitor/splash-screen';
+import { AppService } from './app.service';
 
 @Component({
   selector: 'app-root',
-  templateUrl: 'app.component.html'
+  templateUrl: 'app.component.html',
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
 
-  public env = environment;
+  public environment = environment;
   public backUrl: string | boolean = '/';
   public enableSideMenu: boolean;
-  public currentPage: 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
   public isSystemLogEnabled: boolean = false;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
+  private subscription: Subscription = new Subscription();
+
+  protected isUserAllowedToSeeOverview: boolean = false;
+  protected isUserAllowedToSeeFooter: boolean = false;
+  protected isHistoryDetailView: boolean = false;
 
   constructor(
     private platform: Platform,
-    private splashScreen: SplashScreen,
-    private statusBar: StatusBar,
-    public websocket: Websocket,
-    public service: Service,
-    public router: Router,
-    public toastController: ToastController,
     public menu: MenuController,
-    private cdRef: ChangeDetectorRef
+    public modalCtrl: ModalController,
+    public router: Router,
+    public service: Service,
+    public toastController: ToastController,
+    public websocket: Websocket,
+    private globalRouteChangeHandler: GlobalRouteChangeHandler,
+    private meta: Meta,
+    private appService: AppService,
+    private title: Title,
   ) {
-    // this.initializeApp();
-    service.setLang(LanguageTag.DE);
-  }
+    service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
 
-  initializeApp() {
-    this.platform.ready().then(() => {
-      this.statusBar.styleDefault();
-      this.splashScreen.hide();
-    });
+
+    this.subscription.add(
+      this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
+        this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
+        this.isUserAllowedToSeeFooter = UserPermission.isUserAllowedToSeeFooter(metadata.user);
+      }));
+
+    this.subscription.add(
+      this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((e: NavigationEnd) => {
+        // Hide footer for history detail views
+        const segments = e.url.split('/');
+        this.isHistoryDetailView = segments.slice(0, -1).includes('history');
+      }));
+
+    this.appService.listen();
+    SplashScreen.hide();
   }
 
   ngOnInit() {
+
+    // Checks if sessionStorage is not null, undefined or empty string
+    if (localStorage.getItem("DEBUGMODE")) {
+      this.environment.debugMode = JSON.parse(localStorage.getItem("DEBUGMODE"));
+    }
+
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
       const toast = await this.toastController.create({
         message: notification.message,
@@ -54,118 +79,55 @@ export class AppComponent {
           {
             text: 'Ok',
             role: 'cancel',
-          }
-        ]
+          },
+        ],
       });
       toast.present();
     });
-    // set inital URL
-    this.updateUrl(window.location.pathname);
-    // update backUrl on navigation events
-    this.router.events.pipe(
-      takeUntil(this.ngUnsubscribe),
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(event => {
-      this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
-    })
+
+    this.platform.ready().then(() => {
+
+      // OEM colors exist only after ionic is initialized, so the notch color has to be set here
+      const notchColor = getComputedStyle(document.documentElement).getPropertyValue('--ion-color-background');
+      this.meta.updateTag(
+        { name: 'theme-color', content: notchColor },
+      );
+      this.service.deviceHeight = this.platform.height();
+      this.service.deviceWidth = this.platform.width();
+      this.checkSmartphoneResolution(true);
+      this.platform.resize.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+        this.service.deviceHeight = this.platform.height();
+        this.service.deviceWidth = this.platform.width();
+        this.checkSmartphoneResolution(false);
+      });
+    });
+
+    this.title.setTitle(environment.edgeShortName);
   }
 
-  // used to prevent 'Expression has changed after it was checked' error
-  ngAfterViewChecked() {
-    this.cdRef.detectChanges()
-  }
-
-  updateUrl(url: string) {
-    this.updateBackUrl(url);
-    this.updateEnableSideMenu(url);
-    this.updateCurrentPage(url);
-  }
-
-  updateEnableSideMenu(url: string) {
-    let urlArray = url.split('/');
-    let file = urlArray.pop();
-
-    if (file == 'settings' || file == 'about' || urlArray.length > 3) {
-      // disable side-menu; show back-button instead
-      this.enableSideMenu = false;
-    } else {
-      // enable side-menu if back-button is not needed 
-      this.enableSideMenu = true;
-    }
-  }
-
-  updateBackUrl(url: string) {
-    // disable backUrl & Segment Navigation on initial 'index' page
-    if (url === '/index') {
-      this.backUrl = false;
-      return;
-    }
-
-    // set backUrl for general settings when an Edge had been selected before
-    let currentEdge: Edge = this.service.currentEdge.value;
-    if (url === '/settings' && currentEdge != null) {
-      this.backUrl = '/device/' + currentEdge.id + "/live"
-      return;
-    }
-
-    let urlArray = url.split('/');
-    let backUrl: string | boolean = '/';
-    let file = urlArray.pop();
-
-    // disable backUrl for History & EdgeIndex Component ++ Enable Segment Navigation
-    if ((file == 'history' || file == 'live') && urlArray.length == 3) {
-      this.backUrl = false;
-      return;
-    } else {
-    }
-
-    // disable backUrl to first 'index' page from Edge index if there is only one Edge in the system
-    if (file === 'live' && urlArray.length == 3 && this.env.backend === "OpenEMS Edge") {
-      this.backUrl = false;
-      return;
-    }
-
-    // remove one part of the url for 'index'
-    if (file === 'live') {
-      urlArray.pop();
-    }
-    // re-join the url
-    backUrl = urlArray.join('/') || '/';
-
-    // correct path for '/device/[edgeId]/index'
-    if (backUrl === '/device') {
-      backUrl = '/';
-    }
-    this.backUrl = backUrl;
-  }
-
-  updateCurrentPage(url: string) {
-    let urlArray = url.split('/');
-    let file = urlArray.pop();
-
-    // Enable Segment Navigation for Edge-Index-Page
-    if ((file == 'history' || file == 'live') && urlArray.length == 3) {
-      if (file == 'history') {
-        this.currentPage = 'IndexHistory';
-      } else {
-        this.currentPage = 'IndexLive';
+  private checkSmartphoneResolution(init: boolean): void {
+    if (init == true) {
+      if (this.platform.width() <= 576) {
+        this.service.isSmartphoneResolution = true;
+        this.service.isSmartphoneResolutionSubject.next(true);
+      } else if (this.platform.width() > 576) {
+        this.service.isSmartphoneResolution = false;
+        this.service.isSmartphoneResolutionSubject.next(false);
       }
     } else {
-      this.currentPage = 'Other';
-    }
-  }
-
-  updateLiveHistorySegment(event) {
-    if (event.detail.value == "IndexLive") {
-      this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/live");
-    }
-    if (event.detail.value == "IndexHistory") {
-      this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/history");
+      if (this.platform.width() <= 576 && this.service.isSmartphoneResolution == false) {
+        this.service.isSmartphoneResolution = true;
+        this.service.isSmartphoneResolutionSubject.next(true);
+      } else if (this.platform.width() > 576 && this.service.isSmartphoneResolution == true) {
+        this.service.isSmartphoneResolution = false;
+        this.service.isSmartphoneResolutionSubject.next(false);
+      }
     }
   }
 
   ngOnDestroy() {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+    this.subscription.unsubscribe();
   }
 }

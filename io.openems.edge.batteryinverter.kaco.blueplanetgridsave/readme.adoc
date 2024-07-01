@@ -1,0 +1,12 @@
+= KACO blueplanet gridsave
+
+* Applies to
+** KACO blueplanet gridsave 50.0 TL3
+** KACO blueplanet gridsave 92.0 TL3
+
+* Implemented Natures
+** StartStoppable
+** SymmetricBatteryInverter
+** ManagedSymmetricBatteryInverter
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.batteryinverter.kaco.blueplanetgridsave[Source Code icon:github[]]

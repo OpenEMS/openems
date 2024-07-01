@@ -10,7 +10,9 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.common,\
 	io.openems.edge.meter.api,\
 	io.openems.edge.pvinverter.api,\
-	io.openems.edge.pvinverter.sunspec
+	io.openems.edge.pvinverter.sunspec,\
+	io.openems.edge.timedata.api
 
 -testpath: \
-	${testpath}
+	${testpath},\
+	com.ghgande.j2mod

@@ -1,9 +1,9 @@
 import { JsonrpcRequest } from "../../../shared/jsonrpc/base";
-import { NetworkInterface } from './shared';
+import { NetworkConfig } from './shared';
 
 /**
  * Represents a JSON-RPC Request for 'setNetworkConfig': Updates the current network configuration.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -24,14 +24,10 @@ import { NetworkInterface } from './shared';
  */
 export class SetNetworkConfigRequest extends JsonrpcRequest {
 
-    static METHOD: string = "setNetworkConfig";
+    private static METHOD: string = "setNetworkConfig";
 
     public constructor(
-        public readonly params: {
-            interfaces: {
-                [name: string]: NetworkInterface
-            }
-        }
+        public override readonly params: NetworkConfig,
     ) {
         super(SetNetworkConfigRequest.METHOD, params);
     }

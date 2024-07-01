@@ -1,0 +1,14 @@
+Bundle-Name: Jenetics
+Bundle-Description: Java Genetic Algorithm Library
+Bundle-DocURL: https://github.com/dhatim/fastexcel
+Bundle-License: https://opensource.org/licenses/Apache-2.0
+Bundle-Version: 7.2.0
+
+Include-Resource: @jenetics-7.2.0.jar
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+Export-Package: \
+    io.jenetics.*,\

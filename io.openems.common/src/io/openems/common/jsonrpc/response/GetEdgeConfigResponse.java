@@ -9,13 +9,13 @@ import io.openems.common.types.EdgeConfig;
 
 /**
  * Represents a JSON-RPC Response for 'getEdgeConfig'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "result": {
- *      {@link EdgeConfig#toJson()}   
+ *      {@link EdgeConfig#toJson()}
  *   }
  * }
  * </pre>

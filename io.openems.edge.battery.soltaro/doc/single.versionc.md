@@ -2,7 +2,7 @@
 
 ```mermaid
 graph LR
-Undefined -->|isSwitchedOn| GoRunning
+Undefined -->|target START| GoRunning
 
 GoRunning -->|not timeout| GoRunning
 GoRunning -->|isRunning| Running
@@ -12,7 +12,7 @@ Running -->|isRunning && everythingOk| Running
 Running -->|otherwise| Undefined
 
 
-Undefined -->|isSwitchedOff| GoStopped
+Undefined -->|target STOP| GoStopped
 GoStopped -->|isStopped| Stopped
 GoStopped -->|not timeout| GoStopped
 

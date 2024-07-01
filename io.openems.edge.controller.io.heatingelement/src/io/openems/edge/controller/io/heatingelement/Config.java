@@ -3,6 +3,10 @@ package io.openems.edge.controller.io.heatingelement;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.controller.io.heatingelement.enums.Level;
+import io.openems.edge.controller.io.heatingelement.enums.Mode;
+import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
+
 @ObjectClassDefinition(//
 		name = "Controller IO Heating Element", //
 		description = "Controls a three-phase heating element via Relays, according to grid active power")
@@ -31,7 +35,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Default Level", description = "This is the default Level in manual mode and for force-heating in automatic mode")
 	Level defaultLevel() default Level.LEVEL_1;
 
-	@AttributeDefinition(name = "End Time", description = "End time for minmum run time")
+	@AttributeDefinition(name = "End Time", description = "End time for minimum run time")
 	String endTime() default "17:00";
 
 	@AttributeDefinition(name = "Work-Mode Time or None", description = "Sets the Work-Mode to Time (= run at least Minimum Time) or None (only run on excess power)")

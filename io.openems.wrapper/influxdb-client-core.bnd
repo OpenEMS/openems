@@ -1,0 +1,26 @@
+Bundle-Name: influxdb-client-core
+Bundle-Description: The Java InfluxDB 2.0 Client Core
+Bundle-DocURL: https://github.com/influxdata/influxdb-client-java
+Bundle-License: https://opensource.org/licenses/MIT
+Bundle-Version: 7.1.0
+
+Include-Resource: \
+	@influxdb-client-core-7.1.0.jar,\
+
+Export-Package: \
+	com.influxdb,\
+	com.influxdb.annotations,\
+	com.influxdb.exceptions,\
+	com.influxdb.internal,\
+	com.influxdb.query,\
+	com.influxdb.query.exceptions,\
+	com.influxdb.query.internal,\
+
+Import-Package: \
+	*
+	
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false

@@ -1,0 +1,79 @@
+name: Build OpenEMS
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+      - develop
+  
+jobs:
+  build-java:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: gradle
+
+      - uses: kiancross/checkstyle-annotations-action@v1
+
+      - name: Build all Java packages
+        run: ./gradlew build
+
+      - name: Resolve OpenEMS bundles
+        run: ./gradlew resolve
+
+      - name: Validate BackendApp.bndrun
+        run: git diff --exit-code io.openems.backend.application/BackendApp.bndrun
+
+      - name: Validate EdgeApp.bndrun
+        run: git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
+
+      - name: Generate JaCoCo Code-coverage-report
+        run: ./gradlew jacocoTestReport
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  build-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Cache for Node.js
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ~/.ng
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+
+      - name: Build OpenEMS UI
+        run: |
+          cd ui
+          npm install 
+          npm ci --prefer-offline --cache ~/.npm
+          node_modules/.bin/ng config cli.cache.path "~/.ng"
+          node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
+          node_modules/.bin/ng lint
+          export CHROME_BIN=/usr/bin/google-chrome-stable
+          npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          directory: ./ui/
+          token: ${{ secrets.CODECOV_TOKEN }}

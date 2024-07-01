@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
  *
@@ -35,7 +36,7 @@ import com.dalsemi.onewire.OneWireException;
 import com.dalsemi.onewire.utils.CRC8;
 
 /**
- * The LSerialAdapter class implememts the DSPortAdapter interface for a legacy
+ * The LSerialAdapter class implements the DSPortAdapter interface for a legacy
  * 1-Wire serial interface adapters such as the DS9097.
  * <p>
  *
@@ -203,21 +204,18 @@ public class LSerialAdapter extends DSPortAdapter {
 	/** flag to indicate the last discrepancy */
 	private int LastDiscrepancy;
 
-	/** flag to indicate the last descrepancy with the family code byte */
-	private int LastFamilyDiscrepancy;
-
 	/** true if device found is the last device */
 	private boolean LastDevice;
 
 	/** current device */
-	private byte[] CurrentDevice = new byte[8];
+	private final byte[] CurrentDevice = new byte[8];
 
 	/**
 	 * Whether we are searching only alarming iButtons. This is currently ignored.
 	 */
 	boolean searchOnlyAlarmingButtons;
 
-	/** Flag to indicate next search will not be preceeded by a 1-Wire reset */
+	/** Flag to indicate next search will not be preceded by a 1-Wire reset */
 	private boolean skipResetOnSearch = false;
 
 	/** Flag to indicate next search will be a 'first' */
@@ -227,7 +225,7 @@ public class LSerialAdapter extends DSPortAdapter {
 	private boolean haveLocalUse;
 
 	/** Field syncObject */
-	private Object syncObject;
+	private final Object syncObject;
 
 	/** Enable/disable debug messages */
 	private static boolean doDebugMessages = false;
@@ -241,10 +239,10 @@ public class LSerialAdapter extends DSPortAdapter {
 	 *
 	 */
 	public LSerialAdapter() {
-		serial = null;
-		adapterPresent = false;
-		haveLocalUse = false;
-		syncObject = new Object();
+		this.serial = null;
+		this.adapterPresent = false;
+		this.haveLocalUse = false;
+		this.syncObject = new Object();
 	}
 
 	// --------
@@ -258,6 +256,7 @@ public class LSerialAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>String</code> representation of the port adapter.
 	 */
+	@Override
 	public String getAdapterName() {
 		return "DS9097";
 	}
@@ -268,6 +267,7 @@ public class LSerialAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>String</code> description of the port type required.
 	 */
+	@Override
 	public String getPortTypeDescription() {
 		return "serial communication port";
 	}
@@ -277,6 +277,7 @@ public class LSerialAdapter extends DSPortAdapter {
 	 *
 	 * @return version string
 	 */
+	@Override
 	public String getClassVersion() {
 		return classVersion;
 	}
@@ -288,11 +289,12 @@ public class LSerialAdapter extends DSPortAdapter {
 	/**
 	 * Retrieve a list of the platform appropriate port names for this adapter. A
 	 * port must be selected with the method 'selectPort' before any other
-	 * communication methods can be used. Using a communcation method before
+	 * communication methods can be used. Using a communication method before
 	 * 'selectPort' will result in a <code>OneWireException</code> exception.
 	 *
 	 * @return enumeration of type <code>String</code> that contains the port names
 	 */
+	@Override
 	public Enumeration<String> getPortNames() {
 		return SerialService.getSerialPortIdentifiers();
 	}
@@ -301,35 +303,37 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * Specify a platform appropriate port name for this adapter. Note that even
 	 * though the port has been selected, it's ownership may be relinquished if it
 	 * is not currently held in a 'exclusive' block. This class will then try to
-	 * re-aquire the port when needed. If the port cannot be re-aquired ehen the
+	 * re-acquire the port when needed. If the port cannot be re-acquired when the
 	 * exception <code>PortInUseException</code> will be thrown.
 	 *
 	 * @param newPortName name of the target port, retrieved from getPortNames()
 	 *
-	 * @return <code>true</code> if the port was aquired, <code>false</code> if the
+	 * @return <code>true</code> if the port was acquired, <code>false</code> if the
 	 *         port is not available.
 	 *
 	 * @throws OneWireIOException If port does not exist, or unable to communicate
 	 *                            with port.
 	 * @throws OneWireException   If port does not exist
 	 */
+	@Override
 	public boolean selectPort(String newPortName) throws OneWireIOException, OneWireException {
 
 		// find the port reference
-		serial = SerialService.getSerialService(newPortName);
+		this.serial = SerialService.getSerialService(newPortName);
 
 		// check if there is no such port
-		if (serial == null)
+		if (this.serial == null) {
 			throw new OneWireException("DS9097EAdapter: selectPort(), Not such serial port: " + newPortName);
+		}
 
 		try {
 
 			// acquire exclusive use of the port
-			beginLocalExclusive();
+			this.beginLocalExclusive();
 
 			// attempt to open the port
-			serial.openPort();
-			serial.setBaudRate(115200);
+			this.serial.openPort();
+			this.serial.setBaudRate(115200);
 
 			return true;
 		} catch (IOException ioe) {
@@ -337,7 +341,7 @@ public class LSerialAdapter extends DSPortAdapter {
 		} finally {
 
 			// release local exclusive use of port
-			endLocalExclusive();
+			this.endLocalExclusive();
 		}
 	}
 
@@ -348,11 +352,12 @@ public class LSerialAdapter extends DSPortAdapter {
 	 *
 	 * @throws OneWireException if valid port not yet selected
 	 */
+	@Override
 	public String getPortName() throws OneWireException {
-		if (serial != null)
-			return serial.getPortName();
-		else
-			throw new OneWireException("DS9097EAdapter-getPortName, port not selected");
+		if (this.serial != null) {
+			return this.serial.getPortName();
+		}
+		throw new OneWireException("DS9097EAdapter-getPortName, port not selected");
 	}
 
 	/**
@@ -362,20 +367,21 @@ public class LSerialAdapter extends DSPortAdapter {
 	 *
 	 * @throws OneWireException If port does not exist
 	 */
+	@Override
 	public void freePort() throws OneWireException {
 		try {
 			// acquire exclusive use of the port
-			beginLocalExclusive();
+			this.beginLocalExclusive();
 
-			adapterPresent = false;
+			this.adapterPresent = false;
 
 			// attempt to open the port
-			serial.closePort();
+			this.serial.closePort();
 		} catch (IOException ioe) {
 			throw new OneWireException("Error closing serial port");
 		} finally {
 			// release local exclusive use of port
-			endLocalExclusive();
+			this.endLocalExclusive();
 		}
 	}
 
@@ -392,22 +398,23 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public boolean adapterDetected() throws OneWireIOException, OneWireException {
-		if (!adapterPresent) {
+		if (!this.adapterPresent) {
 			try {
 				// acquire exclusive use of the port
-				beginLocalExclusive();
+				this.beginLocalExclusive();
 
-				adapterPresent();
+				this.adapterPresent();
 			} catch (OneWireIOException e) {
 				System.err.println("DS9097EAdapter: Not detected " + e);
 			} finally {
 				// release local exclusive use of port
-				endLocalExclusive();
+				this.endLocalExclusive();
 			}
 		}
 
-		return adapterPresent;
+		return this.adapterPresent;
 	}
 
 	/**
@@ -424,10 +431,9 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public String getAdapterVersion() throws OneWireIOException, OneWireException {
-		String version_string = "DS9097 adapter"; // Does not look for DS9097E yet
-
-		return version_string;
+		return "DS9097 adapter";
 	}
 
 	/**
@@ -446,6 +452,7 @@ public class LSerialAdapter extends DSPortAdapter {
 	 *                            adapter
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public String getAdapterAddress() throws OneWireIOException, OneWireException {
 		// there is no ID
 		return "<no adapter address>";
@@ -468,11 +475,12 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean findFirstDevice() throws OneWireIOException, OneWireException {
 		// reset the internal rom buffer
-		resetSearch = true;
+		this.resetSearch = true;
 
-		return findNextDevice();
+		return this.findNextDevice();
 	}
 
 	/**
@@ -485,33 +493,32 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean findNextDevice() throws OneWireIOException, OneWireException {
 		boolean retval;
 
 		try {
 			// acquire exclusive use of the port
-			beginLocalExclusive();
+			this.beginLocalExclusive();
 
 			while (true) {
-				retval = search(resetSearch);
+				retval = this.search(this.resetSearch);
 
-				if (retval) {
-					resetSearch = false;
-
-					// check if this is an OK family type
-					if (isValidFamily(CurrentDevice))
-						return true;
-
-					// Else, loop to the top and do another search.
-				} else {
-					resetSearch = true;
+				if (!retval) {
+					this.resetSearch = true;
 
 					return false;
+				}
+				this.resetSearch = false;
+
+				// check if this is an OK family type
+				if (this.isValidFamily(this.CurrentDevice)) {
+					return true;
 				}
 			}
 		} finally {
 			// release local exclusive use of port
-			endLocalExclusive();
+			this.endLocalExclusive();
 		}
 	}
 
@@ -523,8 +530,9 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * @param address An array to be filled with the current iButton address.
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public void getAddress(byte[] address) {
-		System.arraycopy(CurrentDevice, 0, address, 0, 8);
+		System.arraycopy(this.CurrentDevice, 0, address, 0, 8);
 	}
 
 	/**
@@ -535,7 +543,7 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * @param address An array to be copied into the current iButton address.
 	 */
 	public void setAddress(byte[] address) {
-		System.arraycopy(address, 0, CurrentDevice, 0, 8);
+		System.arraycopy(address, 0, this.CurrentDevice, 0, 8);
 	}
 
 	// --------
@@ -550,8 +558,9 @@ public class LSerialAdapter extends DSPortAdapter {
 	 *
 	 * @see #setNoResetSearch
 	 */
+	@Override
 	public void setSearchOnlyAlarmingDevices() {
-		searchOnlyAlarmingButtons = true;
+		this.searchOnlyAlarmingButtons = true;
 	}
 
 	/**
@@ -559,8 +568,9 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * This feature is chiefly used with the DS2409 1-Wire coupler. The normal reset
 	 * before each search can be restored with the 'setSearchAllDevices()' method.
 	 */
+	@Override
 	public void setNoResetSearch() {
-		skipResetOnSearch = true;
+		this.skipResetOnSearch = true;
 	}
 
 	/**
@@ -571,9 +581,10 @@ public class LSerialAdapter extends DSPortAdapter {
 	 *
 	 * @see #setNoResetSearch
 	 */
+	@Override
 	public void setSearchAllDevices() {
-		searchOnlyAlarmingButtons = false;
-		skipResetOnSearch = false;
+		this.searchOnlyAlarmingButtons = false;
+		this.skipResetOnSearch = false;
 	}
 
 	// --------
@@ -589,15 +600,16 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * has not yet been relinquished.
 	 * <p>
 	 *
-	 * @param blocking <code>true</code> if want to block waiting for an excluse
+	 * @param blocking <code>true</code> if want to block waiting for exclusive
 	 *                 access to the adapter
 	 * @return <code>true</code> if blocking was false and a exclusive session with
-	 *         the adapter was aquired
+	 *         the adapter was acquired
 	 *
 	 * @throws OneWireException on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean beginExclusive(boolean blocking) throws OneWireException {
-		return serial.beginExclusive(blocking);
+		return this.serial.beginExclusive(blocking);
 	}
 
 	/**
@@ -605,8 +617,9 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * dynamically marks the end of a critical section and should be used when
 	 * exclusive control is no longer needed.
 	 */
+	@Override
 	public void endExclusive() {
-		serial.endExclusive();
+		this.serial.endExclusive();
 	}
 
 	/**
@@ -618,18 +631,18 @@ public class LSerialAdapter extends DSPortAdapter {
 	private void beginLocalExclusive() throws OneWireException {
 
 		// check if there is no such port
-		if (serial == null)
+		if (this.serial == null) {
 			throw new OneWireException("DS9097EAdapter: port not selected ");
+		}
 
 		// check if already have exclusive use
-		if (serial.haveExclusive())
-			return;
-		else {
-			while (!haveLocalUse) {
-				synchronized (syncObject) {
-					haveLocalUse = serial.beginExclusive(false);
+		if (this.serial.haveExclusive()) {
+		} else {
+			while (!this.haveLocalUse) {
+				synchronized (this.syncObject) {
+					this.haveLocalUse = this.serial.beginExclusive(false);
 				}
-				if (!haveLocalUse) {
+				if (!this.haveLocalUse) {
 					try {
 						Thread.sleep(50);
 					} catch (Exception e) {
@@ -644,11 +657,11 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * if we did our own 'beginExclusive' block and frees it.
 	 */
 	private void endLocalExclusive() {
-		synchronized (syncObject) {
-			if (haveLocalUse) {
-				haveLocalUse = false;
+		synchronized (this.syncObject) {
+			if (this.haveLocalUse) {
+				this.haveLocalUse = false;
 
-				serial.endExclusive();
+				this.serial.endExclusive();
 			}
 		}
 	}
@@ -665,67 +678,69 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void putBit(boolean bitValue) throws OneWireIOException, OneWireException {
 		char send_byte;
 
 		try {
 			// acquire exclusive use of the port
-			beginLocalExclusive();
+			this.beginLocalExclusive();
 
 			// make sure adapter is present
-			if (adapterDetected()) {
-				if (bitValue)
-					send_byte = (char) 0xFF;
-				else
-					send_byte = (char) 0x00;
-
-				serial.flush();
-
-				serial.write(send_byte);
-				char[] result = serial.readWithTimeout(1);
-
-				if (result[0] != send_byte)
-					throw new OneWireIOException("Error during putBit(), echo was incorrect");
-			} else {
+			if (!this.adapterDetected()) {
 				throw new OneWireIOException("Error communicating with adapter");
+			}
+			if (bitValue) {
+				send_byte = (char) 0xFF;
+			} else {
+				send_byte = (char) 0x00;
+			}
+
+			this.serial.flush();
+
+			this.serial.write(send_byte);
+			var result = this.serial.readWithTimeout(1);
+
+			if (result[0] != send_byte) {
+				throw new OneWireIOException("Error during putBit(), echo was incorrect");
 			}
 		} catch (IOException ioe) {
 			throw new OneWireIOException(ioe.toString());
 		} finally {
 			// release local exclusive use of port
-			endLocalExclusive();
+			this.endLocalExclusive();
 		}
 	}
 
 	/**
 	 * Gets a bit from the 1-Wire Network.
 	 *
-	 * @return the bit value recieved from the the 1-Wire Network.
+	 * @return the bit value received from the the 1-Wire Network.
 	 *
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean getBit() throws OneWireIOException, OneWireException {
 		try {
 			// acquire exclusive use of the port
-			beginLocalExclusive();
+			this.beginLocalExclusive();
 
 			// make sure adapter is present
-			if (adapterDetected()) {
-				serial.flush();
+			if (this.adapterDetected()) {
+				this.serial.flush();
 
-				serial.write((char) 0x00FF);
-				char[] result = serial.readWithTimeout(1);
+				this.serial.write((char) 0x00FF);
+				var result = this.serial.readWithTimeout(1);
 
-				return (result[0] == 0xFF);
-			} else {
-				throw new OneWireIOException("Error communicating with adapter");
+				return result[0] == 0xFF;
 			}
+			throw new OneWireIOException("Error communicating with adapter");
 		} catch (IOException ioe) {
 			throw new OneWireIOException(ioe.toString());
 		} finally {
 			// release local exclusive use of port
-			endLocalExclusive();
+			this.endLocalExclusive();
 		}
 	}
 
@@ -737,12 +752,13 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void putByte(int byteValue) throws OneWireIOException, OneWireException {
-		byte[] temp_block = new byte[1];
+		var temp_block = new byte[1];
 
 		temp_block[0] = (byte) byteValue;
 
-		dataBlock(temp_block, 0, 1);
+		this.dataBlock(temp_block, 0, 1);
 	}
 
 	/**
@@ -753,17 +769,18 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public int getByte() throws OneWireIOException, OneWireException {
-		byte[] temp_block = new byte[1];
+		var temp_block = new byte[1];
 
 		temp_block[0] = (byte) 0xFF;
 
-		dataBlock(temp_block, 0, 1);
+		this.dataBlock(temp_block, 0, 1);
 
-		if (temp_block.length == 1)
-			return (temp_block[0] & 0xFF);
-		else
-			throw new OneWireIOException("Error communicating with adapter");
+		if (temp_block.length == 1) {
+			return temp_block[0] & 0xFF;
+		}
+		throw new OneWireIOException("Error communicating with adapter");
 	}
 
 	/**
@@ -776,14 +793,16 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public byte[] getBlock(int len) throws OneWireIOException, OneWireException {
-		byte[] temp_block = new byte[len];
+		var temp_block = new byte[len];
 
 		// set block to read 0xFF
-		for (int i = 0; i < len; i++)
+		for (var i = 0; i < len; i++) {
 			temp_block[i] = (byte) 0xFF;
+		}
 
-		getBlock(temp_block, len);
+		this.getBlock(temp_block, len);
 
 		return temp_block;
 	}
@@ -798,8 +817,9 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void getBlock(byte[] arr, int len) throws OneWireIOException, OneWireException {
-		getBlock(arr, 0, len);
+		this.getBlock(arr, 0, len);
 	}
 
 	/**
@@ -813,12 +833,14 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void getBlock(byte[] arr, int off, int len) throws OneWireIOException, OneWireException {
 		// set block to read 0xFF
-		for (int i = off; i < len; i++)
+		for (var i = off; i < len; i++) {
 			arr[i] = (byte) 0xFF;
+		}
 
-		dataBlock(arr, off, len);
+		this.dataBlock(arr, off, len);
 	}
 
 	/**
@@ -834,44 +856,45 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void dataBlock(byte dataBlock[], int off, int len) throws OneWireIOException, OneWireException {
 		try {
 			// acquire exclusive use of the port
-			beginLocalExclusive();
+			this.beginLocalExclusive();
 
 			// make sure adapter is present
-			if (adapterDetected()) {
-				int t_off, t_len;
-				t_off = off;
-				t_len = len;
-
-				// break up large blocks to not exceed 128 bytes at a time
-				do {
-					if (t_len > 128)
-						t_len = 128;
-
-					char[] send_block = constructSendBlock(dataBlock, t_off, t_len);
-
-					serial.flush();
-
-					serial.write(send_block);
-					char[] raw_recv = serial.readWithTimeout(send_block.length);
-
-					byte[] recv = interpretRecvBlock(raw_recv);
-
-					System.arraycopy(recv, 0, dataBlock, t_off, t_len);
-
-					t_off += t_len;
-					t_len = off + len - t_off;
-				} while (t_len > 0);
-			} else {
+			if (!this.adapterDetected()) {
 				throw new OneWireIOException("Error communicating with adapter");
 			}
+			int t_off, t_len;
+			t_off = off;
+			t_len = len;
+
+			// break up large blocks to not exceed 128 bytes at a time
+			do {
+				if (t_len > 128) {
+					t_len = 128;
+				}
+
+				var send_block = this.constructSendBlock(dataBlock, t_off, t_len);
+
+				this.serial.flush();
+
+				this.serial.write(send_block);
+				var raw_recv = this.serial.readWithTimeout(send_block.length);
+
+				var recv = this.interpretRecvBlock(raw_recv);
+
+				System.arraycopy(recv, 0, dataBlock, t_off, t_len);
+
+				t_off += t_len;
+				t_len = off + len - t_off;
+			} while (t_len > 0);
 		} catch (IOException ioe) {
 			throw new OneWireIOException(ioe.toString());
 		} finally {
 			// release local exclusive use of port
-			endLocalExclusive();
+			this.endLocalExclusive();
 		}
 	}
 
@@ -894,36 +917,38 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public int reset() throws OneWireIOException, OneWireException {
 		try {
 			// acquire exclusive use of the port
-			beginLocalExclusive();
+			this.beginLocalExclusive();
 
 			// make sure adapter is present
-			if (adapterDetected()) {
-				serial.flush();
+			if (this.adapterDetected()) {
+				this.serial.flush();
 
 				// send a break to reset 1-Wire
-				serial.sendBreak(1);
+				this.serial.sendBreak(1);
 
 				// get the result
-				char[] c = serial.readWithTimeout(1);
+				var c = this.serial.readWithTimeout(1);
 
 				// does not work: return ((c.length > 1) ? RESET_PRESENCE : RESET_NOPRESENCE);
 
 				return RESET_PRESENCE;
-			} else
-				return RESET_NOPRESENCE;
+			}
+			return RESET_NOPRESENCE;
 		} catch (IOException ioe) {
 			return RESET_NOPRESENCE;
 		} catch (OneWireIOException e) {
-			if (doDebugMessages)
+			if (doDebugMessages) {
 				System.err.println("DS9097EAdapter: Not detected " + e);
+			}
 
 			return RESET_NOPRESENCE;
 		} finally {
 			// release local exclusive use of port
-			endLocalExclusive();
+			this.endLocalExclusive();
 		}
 	}
 
@@ -958,103 +983,103 @@ public class LSerialAdapter extends DSPortAdapter {
 
 		// check for a force reset of the search
 		if (resetSearch) {
-			LastDiscrepancy = 0;
-			LastDevice = false;
-			LastFamilyDiscrepancy = 0;
+			this.LastDiscrepancy = 0;
+			this.LastDevice = false;
 		}
 
 		// if the last call was not the last one
-		if (!LastDevice) {
+		if (!this.LastDevice) {
 			// check if reset first is requested
-			if (!skipResetOnSearch) {
+			if (!this.skipResetOnSearch) {
 				// reset the 1-wire
 				// if there are no parts on 1-wire, return false
-				if (reset() != RESET_PRESENCE) {
+				if (this.reset() != RESET_PRESENCE) {
 					// reset the search
-					LastDiscrepancy = 0;
-					LastFamilyDiscrepancy = 0;
+					this.LastDiscrepancy = 0;
 					return false;
 				}
 			}
 
 			// If finding alarming devices issue a different command
-			if (searchOnlyAlarmingButtons)
-				putByte(ALARM_SEARCH_CMD); // issue the alarming search command
-			else
-				putByte(NORMAL_SEARCH_CMD); // issue the search command
+			if (this.searchOnlyAlarmingButtons) {
+				this.putByte(ALARM_SEARCH_CMD); // issue the alarming search command
+			} else {
+				this.putByte(NORMAL_SEARCH_CMD); // issue the search command
+			}
 
 			// loop to do the search
 			do {
 				// read a bit and its compliment
-				bit_test = (getBit() ? 1 : 0) << 1;
-				bit_test |= (getBit() ? 1 : 0);
+				bit_test = (this.getBit() ? 1 : 0) << 1;
+				bit_test |= this.getBit() ? 1 : 0;
 
 				// check for no devices on 1-wire
-				if (bit_test == 3)
+				if (bit_test == 3) {
 					break;
-				else {
-					// all devices coupled have 0 or 1
-					if (bit_test > 0)
-						search_direction = !((bit_test & 0x01) == 0x01); // bit write value for search
-					else {
-						// if this discrepancy if before the Last Discrepancy
-						// on a previous next then pick the same as last time
-						if (bit_number < LastDiscrepancy)
-							search_direction = ((CurrentDevice[serial_byte_number] & serial_byte_mask) > 0);
-						else
-							// if equal to last pick 1, if not then pick 0
-							search_direction = (bit_number == LastDiscrepancy);
-
-						// if 0 was picked then record its position in LastZero
-						if (!search_direction)
-							last_zero = bit_number;
-
-						// check for Last discrepancy in family
-						if (last_zero < 9)
-							LastFamilyDiscrepancy = last_zero;
+				}
+				// all devices coupled have 0 or 1
+				if (bit_test > 0) {
+					search_direction = !((bit_test & 0x01) == 0x01); // bit write value for search
+				} else {
+					// if this discrepancy if before the Last Discrepancy
+					// on a previous next then pick the same as last time
+					if (bit_number < this.LastDiscrepancy) {
+						search_direction = (this.CurrentDevice[serial_byte_number] & serial_byte_mask) > 0;
+					} else {
+						// if equal to last pick 1, if not then pick 0
+						search_direction = bit_number == this.LastDiscrepancy;
 					}
 
-					// set or clear the bit in the CurrentDevice byte serial_byte_number
-					// with mask serial_byte_mask
-					if (search_direction)
-						CurrentDevice[serial_byte_number] |= serial_byte_mask;
-					else
-						CurrentDevice[serial_byte_number] &= ~serial_byte_mask;
-
-					// serial number search direction write bit
-					putBit(search_direction);
-
-					// increment the byte counter bit_number
-					// and shift the mask serial_byte_mask
-					bit_number++;
-					serial_byte_mask = (serial_byte_mask <<= 1) & 0x00FF;
-
-					// if the mask is 0 then go to new CurrentDevice byte serial_byte_number
-					// and reset mask
-					if (serial_byte_mask == 0) {
-						// accumulate the CRC
-						lastcrc8 = CRC8.compute(CurrentDevice[serial_byte_number], lastcrc8);
-						serial_byte_number++;
-						serial_byte_mask = 1;
+					// if 0 was picked then record its position in LastZero
+					if (!search_direction) {
+						last_zero = bit_number;
 					}
+
+					// check for Last discrepancy in family
+					if (last_zero < 9) {
+					}
+				}
+
+				// set or clear the bit in the CurrentDevice byte serial_byte_number
+				// with mask serial_byte_mask
+				if (search_direction) {
+					this.CurrentDevice[serial_byte_number] |= serial_byte_mask;
+				} else {
+					this.CurrentDevice[serial_byte_number] &= ~serial_byte_mask;
+				}
+
+				// serial number search direction write bit
+				this.putBit(search_direction);
+
+				// increment the byte counter bit_number
+				// and shift the mask serial_byte_mask
+				bit_number++;
+				serial_byte_mask = (serial_byte_mask <<= 1) & 0x00FF;
+
+				// if the mask is 0 then go to new CurrentDevice byte serial_byte_number
+				// and reset mask
+				if (serial_byte_mask == 0) {
+					// accumulate the CRC
+					lastcrc8 = CRC8.compute(this.CurrentDevice[serial_byte_number], lastcrc8);
+					serial_byte_number++;
+					serial_byte_mask = 1;
 				}
 			} while (serial_byte_number < 8); // loop until through all CurrentDevice bytes 0-7
 
 			// if the search was successful then
-			if (!((bit_number < 65) || (lastcrc8 != 0))) {
+			if (!(bit_number < 65 || lastcrc8 != 0)) {
 				// search successful so set LastDiscrepancy,LastDevice,next_result
-				LastDiscrepancy = last_zero;
-				LastDevice = (LastDiscrepancy == 0);
+				this.LastDiscrepancy = last_zero;
+				this.LastDevice = this.LastDiscrepancy == 0;
 				next_result = true;
 			}
 		}
 
 		// if no device found then reset counters so next 'next' will be
 		// like a first
-		if (!next_result || (CurrentDevice[0] == 0)) {
-			LastDiscrepancy = 0;
-			LastDevice = false;
-			LastFamilyDiscrepancy = 0;
+		if (!next_result || this.CurrentDevice[0] == 0) {
+			this.LastDiscrepancy = 0;
+			this.LastDevice = false;
 			next_result = false;
 		}
 
@@ -1068,37 +1093,37 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * @return true if adapter likely present
 	 */
 	private boolean adapterPresent() {
-		if (!adapterPresent) {
+		if (!this.adapterPresent) {
 			char[] test_buf = { 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 					0x00, 0x00, 0xE3, 0xC1, 'A', 'T', 'E', '0', 0x0D, 'A' };
 
 			try {
 				// do reset
-				serial.flush();
+				this.serial.flush();
 
 				// send a break to reset 1-Wire
-				serial.sendBreak(1);
+				this.serial.sendBreak(1);
 
 				// get the result
-				char[] c = serial.readWithTimeout(1);
+				var c = this.serial.readWithTimeout(1);
 
 				// send the test message
-				serial.flush();
-				serial.write(test_buf);
+				this.serial.flush();
+				this.serial.write(test_buf);
 
 				// get echo
-				char[] result = serial.readWithTimeout(test_buf.length);
+				var result = this.serial.readWithTimeout(test_buf.length);
 
-				serial.flush();
+				this.serial.flush();
 
 				// if get entire echo then must be OK
-				adapterPresent = true;
+				this.adapterPresent = true;
 			} catch (IOException ioe) {
 				// DRAIN
 			}
 		}
 
-		return adapterPresent;
+		return this.adapterPresent;
 	}
 
 	/**
@@ -1113,16 +1138,17 @@ public class LSerialAdapter extends DSPortAdapter {
 	 */
 	private char[] constructSendBlock(byte[] data, int off, int len) {
 		int shift_byte, cnt = 0;
-		char[] send_block = new char[len * 8];
+		var send_block = new char[len * 8];
 
-		for (int i = 0; i < len; i++) {
+		for (var i = 0; i < len; i++) {
 			shift_byte = data[i + off];
 
-			for (int j = 0; j < 8; j++) {
-				if ((shift_byte & 0x01) == 0x01)
+			for (var j = 0; j < 8; j++) {
+				if ((shift_byte & 0x01) == 0x01) {
 					send_block[cnt++] = 0x00FF;
-				else
+				} else {
 					send_block[cnt++] = 0x00;
+				}
 
 				shift_byte >>>= 1;
 			}
@@ -1137,17 +1163,18 @@ public class LSerialAdapter extends DSPortAdapter {
 	 *
 	 * @param rawBlock character array of raw communication
 	 *
-	 * @return byte array of data recieved
+	 * @return byte array of data received
 	 */
 	private byte[] interpretRecvBlock(char[] rawBlock) {
 		int shift_byte = 0, bit_cnt = 0, byte_cnt = 0;
-		byte[] recv_block = new byte[rawBlock.length / 8];
+		var recv_block = new byte[rawBlock.length / 8];
 
-		for (int i = 0; i < rawBlock.length; i++) {
+		for (char element : rawBlock) {
 			shift_byte >>>= 1;
 
-			if (rawBlock[i] == 0x00FF)
+			if (element == 0x00FF) {
 				shift_byte |= 0x80;
+			}
 
 			bit_cnt++;
 
@@ -1171,24 +1198,25 @@ public class LSerialAdapter extends DSPortAdapter {
 	 */
 	/*
 	 * static {
-	 * 
+	 *
 	 * // create a SerialServices instance for each port available and put in hash
 	 * Enumeration com_enum = CommPortIdentifier.getPortIdentifiers();
 	 * CommPortIdentifier port_id; SerialService serial_instance;
-	 * 
-	 * // loop throught all of the serial port elements while
+	 *
+	 * // loop through all of the serial port elements while
 	 * (com_enum.hasMoreElements()) {
-	 * 
+	 *
 	 * // get the next com port port_id = (CommPortIdentifier)
 	 * com_enum.nextElement();
-	 * 
+	 *
 	 * // only collect the names of the serial ports if (port_id.getPortType() ==
 	 * CommPortIdentifier.PORT_SERIAL) { serial_instance = new
 	 * SerialService(port_id.getName());
-	 * 
+	 *
 	 * serialServiceHash.put(port_id.getName(), serial_instance);
-	 * 
+	 *
 	 * if (doDebugMessages) System.out.println("DEBUG: Serial port: " +
 	 * port_id.getName()); } } }
 	 */
 }
+// CHECKSTYLE:ON

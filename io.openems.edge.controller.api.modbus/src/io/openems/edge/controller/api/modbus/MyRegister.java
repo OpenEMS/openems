@@ -22,21 +22,21 @@ public class MyRegister implements Register {
 		this.onSetCallback = callback;
 	}
 
-	public int getIndex() {
-		return index;
+	protected int getIndex() {
+		return this.index;
 	}
 
-	public byte getByte1() {
-		return byte1;
+	protected byte getByte1() {
+		return this.byte1;
 	}
 
-	public byte getByte2() {
-		return byte2;
+	protected byte getByte2() {
+		return this.byte2;
 	}
 
 	@Override
 	public int getValue() {
-		return ((byte1 & 0xff) << 8 | (byte2 & 0xff));
+		return (this.byte1 & 0xff) << 8 | this.byte2 & 0xff;
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class MyRegister implements Register {
 		return new byte[] { this.byte1, this.byte2 };
 	}
 
-	public void setValue(byte byte1, byte byte2) {
+	protected void setValue(byte byte1, byte byte2) {
 		this.byte1 = byte1;
 		this.byte2 = byte2;
 		this.onSetCallback.accept(this);
@@ -67,7 +67,7 @@ public class MyRegister implements Register {
 
 	@Override
 	public final synchronized void setValue(short s) {
-		this.setValue((byte) (0xff & (s >> 8)), (byte) (0xff & s));
+		this.setValue((byte) (0xff & s >> 8), (byte) (0xff & s));
 	}
 
 	@Override

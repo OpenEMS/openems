@@ -1,0 +1,32 @@
+name: Build Docs
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: gradle
+
+      - name: Build Javadocs
+        run: ./gradlew buildAggregatedJavadocs --continue
+
+      - name: Build Antora-docs for openems.io
+        run: ./gradlew buildAntoraDocs --continue
+
+      - name: Deploy to GitHub pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          personal_token: ${{ secrets.DOCS }}
+          external_repository: OpenEMS/openems.io
+          publish_branch: master
+          publish_dir: build/www

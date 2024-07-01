@@ -2,21 +2,14 @@ Bundle-Name: OpenEMS Edge Meter Schneider Electric Acti9 Smartlink SI D
 Bundle-Vendor: FE-Partner AG
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: \
-	io.openems.edge.meter.api,\
-	io.openems.edge.meter.asymmetric.api,\
-	io.openems.edge.meter.symmetric.api
-Private-Package: io.openems.edge.meter.schneider.acti9.smartlink
 
--includeresource: {readme.adoc}
+-buildpath: \
+	${buildpath},\
+	com.ghgande.j2mod,\
+	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
+	io.openems.edge.meter.api
 
--buildpath: ${buildpath},\
-	io.openems.common;version=latest,\
-	io.openems.edge.bridge.modbus;version=latest,\
-	io.openems.edge.common;version=latest,\
-	io.openems.edge.meter.api;version=latest
-
--testpath: ${testpath}
-
-javac.source: 1.8
-javac.target: 1.8
+-testpath: \
+	${testpath}

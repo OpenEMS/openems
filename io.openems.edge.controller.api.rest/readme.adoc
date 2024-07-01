@@ -27,9 +27,52 @@ Use a HTTP request with method `GET` to read the current value of a Channel.
 *Example:* To read the current state of charge of the battery, send a GET request to http://x:user@localhost:8084/rest/channel/_sum/EssSoC. It returns a response like:
 ```
 {
-  "value": 50
+  "type":"INTEGER",
+  "accessMode":"RO",
+  "text":"",
+  "unit":"%",
+  "value":50
 }
 ``` 
+
+The `GET` api also understands regular expressions. Send a GET request to http://x:user@localhost:8084/rest/channel/.*/Active.*Power to read all `ActivePower` and `ReactivePower` channels of all components. It returns a response like:
+
+```
+[
+  {
+    "address":"pvInverter0/ActivePower",
+    "type":"INTEGER",
+    "accessMode":"RO",
+    "text":"",
+    "unit":"W",
+    "value":90
+  },
+  {
+    "address":"meter0/ActiveProductionPower",
+    "type":"INTEGER",
+    "accessMode":"RO",
+    "text":"",
+    "unit":"W",
+    "value":465
+  },
+  {
+    "address":"meter0/ActivePower",
+    "type":"INTEGER",
+    "accessMode":"RO",
+    "text":"",
+    "unit":"W",
+    "value":465
+  },
+  {
+    "address":"meter0/ActiveConsumptionPower",
+    "type":"INTEGER",
+    "accessMode":"RO",
+    "text":"",
+    "unit":"W",
+    "value":0
+  }
+]
+```
 
 === POST
 

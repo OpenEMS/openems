@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
  *
@@ -103,7 +104,7 @@ public abstract class SHATransaction {
 	 * </p>
 	 */
 	protected SHATransaction() {
-		;
+
 	}
 
 	/**
@@ -180,7 +181,7 @@ public abstract class SHATransaction {
 	 * <P>
 	 * Sets a particular parameter for this transaction. Parameters are specified in
 	 * the class documentation for the specific type of transaction that is being
-	 * peformed.
+	 * performed.
 	 * </P>
 	 */
 	public abstract boolean setParameter(int type, int param);
@@ -189,7 +190,7 @@ public abstract class SHATransaction {
 	 * <P>
 	 * Retrieves the value of a particular parameter for this transaction.
 	 * Parameters are specified in the class documentation for the specific type of
-	 * transaction that is being peformed.
+	 * transaction that is being performed.
 	 * </P>
 	 */
 	public abstract int getParameter(int type);
@@ -198,8 +199,9 @@ public abstract class SHATransaction {
 	 * <P>
 	 * Resets the value of all parameters for this transaction. Parameters are
 	 * specified in the class documentation for the specific type of transaction
-	 * that is being peformed.
+	 * that is being performed.
 	 * </P>
 	 */
 	public abstract void resetParameters();
 }
+// CHECKSTYLE:ON

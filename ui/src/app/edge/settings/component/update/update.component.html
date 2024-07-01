@@ -1,31 +1,34 @@
-<ion-grid *ngIf="factory && form">
-  <ion-row class="ion-justify-content-center">
+<header></header>
+<ion-content>
+  <ion-grid *ngIf="factory && form">
+    <ion-row class="ion-justify-content-center">
 
-    <ion-col size="12" size-xl="4">
-      <ion-card>
-        <ion-item>
-          <ion-icon slot="start" name="stats-outline" color="primary"></ion-icon>
-          <ion-label>
-            <ion-card-title class="ion-text-wrap">{{ factory.name }}</ion-card-title>
-            <ion-card-subtitle class="ion-text-wrap">{{ factory.description }}</ion-card-subtitle>
-          </ion-label>
-        </ion-item>
-        <ion-card-content>
-          <form [formGroup]="form" (ngSubmit)="submit()">
-            <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
-          </form>
-          <div style="padding-top: 10px">
-            <ion-button size="small" [disabled]="form.pristine" class="ion-float-left" (click)="submit()"
-              color="primary">
-              Aktualisiere
-              Komponente</ion-button>
-            <ion-button size="small" class="ion-float-right" (click)="delete()" color="warning">Lösche
-              Komponente
-            </ion-button>
-          </div>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
+      <ion-col size="12" size-xl="8">
+        <ion-card>
+          <ion-item>
+            <ion-icon size="large" slot="start" [name]="componentIcon" color="primary"></ion-icon>
+            <ion-label>
+              <ion-card-title class="ion-text-wrap">{{ factory.name }}</ion-card-title>
+              <ion-card-subtitle class="ion-text-wrap">{{ factory.description }}</ion-card-subtitle>
+            </ion-label>
+          </ion-item>
+          <ion-card-content>
+            <form [formGroup]="form" (ngSubmit)="submit()">
+              <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+            </form>
+            <div style="padding-top: 10px">
+              <ion-button size="small" [disabled]="form.pristine" class="ion-float-left" (click)="submit()"
+                color="primary">
+                Aktualisiere
+                Komponente</ion-button>
+              <ion-button size="small" class="ion-float-right" (click)="delete()" color="warning">Lösche
+                Komponente
+              </ion-button>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
 
-  </ion-row>
-</ion-grid>
+    </ion-row>
+  </ion-grid>
+</ion-content>

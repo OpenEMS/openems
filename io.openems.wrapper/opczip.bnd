@@ -10,7 +10,7 @@ Include-Resource: @opczip-1.2.0.jar
 
 -metatypeannotations: *
 
--exportcontents: \
-	com.github.rzymek.opczip
+Export-Package: \
+    com.github.rzymek.opczip
 	
 -sources: false

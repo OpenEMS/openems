@@ -11,7 +11,20 @@
 
 A OpenEMS Edge Controller holds the actual business logic or the actual algorithm that controls hardware. The logic of each active Controller is executed regularly on every Cycle, i.e. once per second.
 
-include::controller.adoc.d/_include.adoc[leveloffset=+0]
+On each execution cycle, e.g. once every second, the EMS can send a control command, which allows two different ways of controlling the hardware:
 
-// TODO
-//=== Developing a Controller
+- **Control by setpoint**
++
+In “control by setpoint” mode, the EMS calculates setpoint commands and sends them to the hardware for immediate execution.
++
+_Example:_ A power smoothing algorithm uses the current and previous output power values of a photovoltaics system. By applying its configured maximum defined ramp rate it deduces that the energy storage systems needs to be discharged with 150 kW to compensate a suddenly reduced output power. It therefore sends a setpoint for "discharge with 150 kW" to the ESS for immediate execution.
+
+- **Control by parameterization**
++
+In “control by parameterization” mode, the EMS sends the configuration parameters for control algorithms embedded into the hardware for internal execution.
++
+_Example:_ In a Virtual Inertia Ancillary Services application,     the EMS sends the configuration parameters for the control characteristics to the ESS. The ESS uses this parameter set for its internal, high-performance algorithm.
+
+The following Controllers are implemented in the OpenEMS standard codebase. The links point directly to the source code.
+
+include::controller.adoc.d/_include.adoc[leveloffset=+0]

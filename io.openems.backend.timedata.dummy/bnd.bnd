@@ -6,8 +6,6 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	io.openems.backend.common,\
-	io.openems.backend.metadata.api,\
-	io.openems.backend.timedata.api,\
 	io.openems.common
 
 -testpath: \

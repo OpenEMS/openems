@@ -36,10 +36,10 @@ public class DiscovergyApiClient {
 
 	/**
 	 * Returns all meters that the user has access to.
-	 * 
+	 *
 	 * <p>
 	 * See https://api.discovergy.com/docs/ for details.
-	 * 
+	 *
 	 * @return the Meters as a JsonArray.
 	 * @throws OpenemsNamedException on error
 	 */
@@ -49,36 +49,36 @@ public class DiscovergyApiClient {
 
 	/**
 	 * Returns the available measurement field names for the specified meter.
-	 * 
+	 *
 	 * <p>
 	 * See https://api.discovergy.com/docs/ for details.
-	 * 
+	 *
 	 * @param meterId the Discovergy Meter-ID
 	 * @return the Meters as a JsonArray.
 	 * @throws OpenemsNamedException on error
 	 */
 	public JsonArray getFieldNames(String meterId) throws OpenemsNamedException {
-		String endpoint = String.format("/field_names?meterId=%s", meterId);
+		var endpoint = String.format("/field_names?meterId=%s", meterId);
 		return JsonUtils.getAsJsonArray(//
 				this.sendGetRequest(endpoint));
 	}
 
 	/**
 	 * Returns the last measurement for the specified meter.
-	 * 
+	 *
 	 * <p>
 	 * See https://api.discovergy.com/docs/ for details.
-	 * 
+	 *
 	 * @param meterId the Discovergy Meter-ID
 	 * @param fields  the fields to be queried
 	 * @return the Meters as a JsonArray.
 	 * @throws OpenemsNamedException on error
 	 */
 	public JsonObject getLastReading(String meterId, Field... fields) throws OpenemsNamedException {
-		String endpoint = String.format("/last_reading?meterId=%s&fields=%s", //
+		var endpoint = String.format("/last_reading?meterId=%s&fields=%s", //
 				meterId, //
 				Arrays.stream(fields) //
-						.map(field -> field.n()) //
+						.map(Field::n) //
 						.collect(Collectors.joining(",")));
 		return JsonUtils.getAsJsonObject(//
 				this.sendGetRequest(endpoint));
@@ -86,24 +86,24 @@ public class DiscovergyApiClient {
 
 	/**
 	 * Sends a get request to the Discovergy API.
-	 * 
+	 *
 	 * @param endpoint the REST Api endpoint
 	 * @return a JsonObject or JsonArray
 	 * @throws OpenemsNamedException on error
 	 */
 	private JsonElement sendGetRequest(String endpoint) throws OpenemsNamedException {
 		try {
-			URL url = new URL(BASE_URL + endpoint);
-			HttpURLConnection con = (HttpURLConnection) url.openConnection();
+			var url = new URL(BASE_URL + endpoint);
+			var con = (HttpURLConnection) url.openConnection();
 			con.setRequestProperty("Authorization", this.authorizationHeader);
 			con.setRequestMethod("GET");
 			con.setConnectTimeout(5000);
 			con.setReadTimeout(5000);
-			int status = con.getResponseCode();
+			var status = con.getResponseCode();
 			String body;
-			try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+			try (var in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
 				// Read HTTP response
-				StringBuilder content = new StringBuilder();
+				var content = new StringBuilder();
 				String line;
 				while ((line = in.readLine()) != null) {
 					content.append(line);
@@ -114,10 +114,9 @@ public class DiscovergyApiClient {
 			if (status < 300) {
 				// Parse response to JSON
 				return JsonUtils.parse(body);
-			} else {
-				throw new OpenemsException(
-						"Error while reading from Discovergy API. Response code: " + status + ". " + body);
 			}
+			throw new OpenemsException(
+					"Error while reading from Discovergy API. Response code: " + status + ". " + body);
 		} catch (OpenemsNamedException | IOException e) {
 			throw new OpenemsException(
 					"Unable to read from Discovergy API. " + e.getClass().getSimpleName() + ": " + e.getMessage());

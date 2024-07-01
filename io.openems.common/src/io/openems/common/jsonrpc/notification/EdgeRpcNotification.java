@@ -7,7 +7,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Wraps a JSON-RPC Notification for a specific Edge-ID.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -21,13 +21,13 @@ import io.openems.common.utils.JsonUtils;
  */
 public class EdgeRpcNotification extends JsonrpcNotification {
 
-	public final static String METHOD = "edgeRpc";
+	public static final String METHOD = "edgeRpc";
 
 	private final String edgeId;
 	private final JsonrpcNotification payload;
 
 	public EdgeRpcNotification(String edgeId, JsonrpcNotification payload) {
-		super(METHOD);
+		super(EdgeRpcNotification.METHOD);
 		this.edgeId = edgeId;
 		this.payload = payload;
 	}
@@ -41,11 +41,11 @@ public class EdgeRpcNotification extends JsonrpcNotification {
 	}
 
 	public String getEdgeId() {
-		return edgeId;
+		return this.edgeId;
 	}
 
 	public JsonrpcNotification getPayload() {
-		return payload;
+		return this.payload;
 	}
 
 }

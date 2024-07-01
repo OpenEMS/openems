@@ -1,0 +1,33 @@
+<ion-card button routerLink="/device/{{edge.id}}/history/{{componentId}}/gridOptimizedChargeChart"
+  *ngIf="component && edge">
+  <ion-item lines="full" color="light">
+    <ion-icon slot="start" name="oe-grid-storage" size="large"></ion-icon>
+    <ion-label>{{ component.alias }}</ion-label>
+  </ion-item>
+  <ng-container *ngIf="component && service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+      <ion-card-content>
+        <table class="full_width">
+          <tr *ngIf="activeTimeAvoidLowCharging !== null && activeTimeAvoidLowCharging > 59">
+            <td style="width:65%" translate>Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed</td>
+            <td style="width:35%" class="align_right">
+              {{ activeTimeAvoidLowCharging | formatSecondsToDuration }}
+            </td>
+          <tr>
+          <tr *ngIf="activeTimeDelayCharge !== null && activeTimeDelayCharge > 59">
+            <td style="width:65%" translate>Edge.Index.Widgets.GridOptimizedCharge.State.chargeLimitActive</td>
+            <td style="width:35%" class="align_right">
+              {{ activeTimeDelayCharge | formatSecondsToDuration }}
+            </td>
+          </tr>
+          <tr *ngIf="activeTimeSellToGridLimit !== null && activeTimeSellToGridLimit > 59">
+            <td style="width:65%" translate>Edge.Index.Widgets.GridOptimizedCharge.gridFeedInLimitationAvoided</td>
+            <td style="width:35%" class="align_right">
+              {{ activeTimeSellToGridLimit | formatSecondsToDuration }}
+            </td>
+          <tr>
+        </table>
+      </ion-card-content>
+    </ng-container>
+  </ng-container>
+</ion-card>

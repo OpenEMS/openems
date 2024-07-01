@@ -1,86 +1,154 @@
 package io.openems.edge.controller.io.heatingelement;
 
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.controller.io.heatingelement.enums.Level;
+import io.openems.edge.controller.io.heatingelement.enums.Mode;
+import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
 
 @SuppressWarnings("all")
-class MyConfig extends AbstractComponentConfig implements Config {
+public class MyConfig extends AbstractComponentConfig implements Config {
 
-	private final String inputChannelAddress;
-	private final String outputChannelPhaseL1;
-	private final String outputChannelPhaseL2;
-	private final String outputChannelPhaseL3;
-	private final int powerOfPhase;
-	private final Mode mode;
-	private final WorkMode workMode;
-	private final int minTime;
-	private final String endTime;
-	private final Level defaultLevel;
-	private final int minimumSwitchingTime;
+	protected static class Builder {
+		private String id;
+		private String outputChannelPhaseL1;
+		private String outputChannelPhaseL2;
+		private String outputChannelPhaseL3;
+		private int powerOfPhase;
+		private Mode mode;
+		private WorkMode workMode;
+		private int minTime;
+		private String endTime;
+		private Level defaultLevel;
+		private int minimumSwitchingTime;
 
-	public MyConfig(String id, String inputChannelAddress, String outputChannelPhaseL1, String outputChannelPhaseL2,
-			String outputChannelPhaseL3, String endtime, int powerOfPhase, Mode mode, Level defaultLevel,
-			WorkMode workMode, int minTime, int minimumSwitchingTime) {
-		super(Config.class, id);
-		this.inputChannelAddress = inputChannelAddress;
-		this.outputChannelPhaseL1 = outputChannelPhaseL1;
-		this.outputChannelPhaseL2 = outputChannelPhaseL2;
-		this.outputChannelPhaseL3 = outputChannelPhaseL3;
-		this.powerOfPhase = powerOfPhase;
-		this.mode = mode;
-		this.workMode = workMode;
-		this.minTime = minTime;
-		this.endTime = endtime;
-		this.defaultLevel = defaultLevel;
-		this.minimumSwitchingTime = minimumSwitchingTime;
+		private Builder() {
+
+		}
+
+		public Builder setId(String id) {
+			this.id = id;
+			return this;
+		}
+
+		public Builder setOutputChannelPhaseL1(String outputChannelPhaseL1) {
+			this.outputChannelPhaseL1 = outputChannelPhaseL1;
+			return this;
+		}
+
+		public Builder setOutputChannelPhaseL2(String outputChannelPhaseL2) {
+			this.outputChannelPhaseL2 = outputChannelPhaseL2;
+			return this;
+		}
+
+		public Builder setOutputChannelPhaseL3(String outputChannelPhaseL3) {
+			this.outputChannelPhaseL3 = outputChannelPhaseL3;
+			return this;
+		}
+
+		public Builder setPowerOfPhase(int powerOfPhase) {
+			this.powerOfPhase = powerOfPhase;
+			return this;
+		}
+
+		public Builder setMode(Mode mode) {
+			this.mode = mode;
+			return this;
+		}
+
+		public Builder setWorkMode(WorkMode workMode) {
+			this.workMode = workMode;
+			return this;
+		}
+
+		public Builder setMinTime(int minTime) {
+			this.minTime = minTime;
+			return this;
+		}
+
+		public Builder setEndTime(String endTime) {
+			this.endTime = endTime;
+			return this;
+		}
+
+		public Builder setDefaultLevel(Level defaultLevel) {
+			this.defaultLevel = defaultLevel;
+			return this;
+		}
+
+		public Builder setMinimumSwitchingTime(int minimumSwitchingTime) {
+			this.minimumSwitchingTime = minimumSwitchingTime;
+			return this;
+		}
+
+		public MyConfig build() {
+			return new MyConfig(this);
+		}
 	}
 
-	@Override
-	public int powerPerPhase() {
-		return this.powerOfPhase;
+	/**
+	 * Create a Config builder.
+	 *
+	 * @return a {@link Builder}
+	 */
+	public static Builder create() {
+		return new Builder();
 	}
 
-	@Override
-	public String outputChannelPhaseL1() {
-		return this.outputChannelPhaseL1;
-	}
+	private final Builder builder;
 
-	@Override
-	public String outputChannelPhaseL2() {
-		return this.outputChannelPhaseL2;
-	}
-
-	@Override
-	public String outputChannelPhaseL3() {
-		return this.outputChannelPhaseL3;
+	private MyConfig(Builder builder) {
+		super(Config.class, builder.id);
+		this.builder = builder;
 	}
 
 	@Override
 	public Mode mode() {
-		return this.mode;
+		return this.builder.mode;
 	}
 
 	@Override
-	public WorkMode workMode() {
-		return this.workMode;
+	public String outputChannelPhaseL1() {
+		return this.builder.outputChannelPhaseL1;
 	}
 
 	@Override
-	public int minTime() {
-		return this.minTime;
+	public String outputChannelPhaseL2() {
+		return this.builder.outputChannelPhaseL2;
 	}
 
 	@Override
-	public String endTime() {
-		return this.endTime;
+	public String outputChannelPhaseL3() {
+		return this.builder.outputChannelPhaseL3;
 	}
 
 	@Override
 	public Level defaultLevel() {
-		return this.defaultLevel;
+		return this.builder.defaultLevel;
+	}
+
+	@Override
+	public String endTime() {
+		return this.builder.endTime;
+	}
+
+	@Override
+	public WorkMode workMode() {
+		return this.builder.workMode;
+	}
+
+	@Override
+	public int minTime() {
+		return this.builder.minTime;
+	}
+
+	@Override
+	public int powerPerPhase() {
+		return this.builder.powerOfPhase;
 	}
 
 	@Override
 	public int minimumSwitchingTime() {
-		return this.minimumSwitchingTime;
+		return this.builder.minimumSwitchingTime;
 	}
+
 }

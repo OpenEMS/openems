@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 package io.openems.edge.ess.mr.gridcon.enums;
 
 import java.util.HashMap;
@@ -13,24 +14,15 @@ public class ErrorDoc extends StateChannelDoc {
 	}
 
 	private static Map<Integer, ErrorDoc> mapCodeToDoc = new HashMap<>();
-	
+
 	public enum Acknowledge {
-		AUTO_ACKNOWLEDGE,
-		NO_ACKNOWLEDGE,
-		RESTART,
-		UNDEFINED
+		AUTO_ACKNOWLEDGE, NO_ACKNOWLEDGE, RESTART, UNDEFINED
 	}
-	
+
 	public enum ReactionLevel {
-		CFG_ANYBUS,
-		CFG_DERATING,
-		DISABLED,
-		FORCED,
-		INFO,
-		SHUTDOWN,
-		WARNING,
+		CFG_ANYBUS, CFG_DERATING, DISABLED, FORCED, INFO, SHUTDOWN, WARNING,
 	}
-	
+
 	private boolean needsHardReset;
 	private Acknowledge acknowledge;
 	private ReactionLevel reactionLevel;
@@ -41,7 +33,7 @@ public class ErrorDoc extends StateChannelDoc {
 	}
 
 	public boolean isNeedsHardReset() {
-		return needsHardReset;
+		return this.needsHardReset;
 	}
 
 	public ErrorDoc needsHardReset(boolean needsHardReset) {
@@ -50,7 +42,7 @@ public class ErrorDoc extends StateChannelDoc {
 	}
 
 	public Acknowledge getAcknowledge() {
-		return acknowledge;
+		return this.acknowledge;
 	}
 
 	public ErrorDoc acknowledge(Acknowledge acknowledge) {
@@ -59,7 +51,7 @@ public class ErrorDoc extends StateChannelDoc {
 	}
 
 	public ReactionLevel getReactionLevel() {
-		return reactionLevel;
+		return this.reactionLevel;
 	}
 
 	public ErrorDoc reactionLevel(ReactionLevel reactionLevel) {
@@ -68,7 +60,7 @@ public class ErrorDoc extends StateChannelDoc {
 	}
 
 	public int getCode() {
-		return code;
+		return this.code;
 	}
 
 	public ErrorDoc code(int code) {
@@ -76,6 +68,6 @@ public class ErrorDoc extends StateChannelDoc {
 		ErrorDoc.mapCodeToDoc.put(code, this);
 		return this;
 	}
-	
-	
+
 }
+// CHECKSTYLE:ON

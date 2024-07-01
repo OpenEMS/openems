@@ -1,0 +1,40 @@
+= Ess Active Power Voltage Characteristic
+
+* This controller charges/discharges an energy storage system with active power in order to keep the grid voltage within an acceptable range.
+
+* The active power set-point depends on the ratio of the grid voltage divided by the configured `nominalVoltage` parameter.
+
+* The active power per voltage ratio is defined by a poly-line graph in the `lineConfig` parameter. It takes a Json-Array of the following form:
+
+----
+[
+   {
+      "voltageRatio":0.95,
+      "power":4000
+   },
+   {
+      "voltageRatio":0.97999,
+      "power":1000
+   },
+   {
+      "voltageRatio":0.98,
+      "power":0
+   },
+   {
+      "voltageRatio":1.0299,
+      "power":0
+   },
+   {
+      "voltageRatio":1.03,
+      "power":-1000
+   },
+   {
+      "voltageRatio":1.05,
+      "power":-4000
+   }
+]
+----
+
+  * `waitForHysteresis` parameter: active power set-point is not updated more often than the hysteresis time in seconds. Default value is 20 seconds. The purpose of this parameter is to avoid oscillation in grid voltage via frequently setting power.
+
+https://github.com/OpenEMS/openems/tree/feature/develop/io.openems.edge.controller.ess.activepowervoltagecharacteristic[Source Code icon:github[]]

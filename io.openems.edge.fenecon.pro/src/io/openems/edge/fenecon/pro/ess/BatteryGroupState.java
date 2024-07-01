@@ -10,7 +10,7 @@ public enum BatteryGroupState implements OptionsEnum {
 	RUNNING(3, "Running"), //
 	STOPPING(4, "Stopping"), //
 	FAIL(5, "Fail");
-	
+
 	private final int value;
 	private final String name;
 
@@ -21,12 +21,12 @@ public enum BatteryGroupState implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

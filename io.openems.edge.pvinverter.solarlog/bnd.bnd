@@ -5,11 +5,13 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
+	com.ghgande.j2mod,\
 	io.openems.common,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
 	io.openems.edge.meter.api,\
-	io.openems.edge.pvinverter.api
+	io.openems.edge.pvinverter.api,\
+	io.openems.edge.timedata.api,\
 
 -testpath: \
 	${testpath}

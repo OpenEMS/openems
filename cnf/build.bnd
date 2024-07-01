@@ -1,37 +1,10 @@
 # Configure Repositories
--plugin.1.R7.API: \
-	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
-		snapshotUrls=https://oss.sonatype.org/content/repositories/osgi/; \
-		releaseUrls=https://repo.maven.apache.org/maven2/; \
-		revision=org.osgi.enroute:osgi-api:7.0.0; \
-		readOnly=true; \
-		name="OSGi R7 API"
--plugin.2.Enterprise.API: \
-	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
-		snapshotUrls=https://oss.sonatype.org/content/repositories/osgi/; \
-		releaseUrls=https://repo.maven.apache.org/maven2/; \
-		revision=org.osgi.enroute:enterprise-api:7.0.0; \
-		readOnly=true; \
-		name="Enterprise Java APIs"
--plugin.4.Test: \
-	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
-		snapshotUrls=https://oss.sonatype.org/content/repositories/osgi/; \
-		releaseUrls=https://repo.maven.apache.org/maven2/; \
-		revision=org.osgi.enroute:test-bundles:7.0.0; \
-		readOnly=true; \
-		name="Testing Bundles"
 -plugin.6.Central: \
 	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
 		releaseUrls=https://repo.maven.apache.org/maven2/; \
 		pom=${build}/pom.xml; \
 		readOnly=true; \
 		name="Maven Central"
-
--plugin.7.Local: \
-	aQute.bnd.deployer.repository.LocalIndexedRepo; \
-		name = Local; \
-		pretty = true; \
-		local = ${build}/local
 
 -plugin.8.Templates: \
 	aQute.bnd.deployer.repository.LocalIndexedRepo; \
@@ -57,15 +30,49 @@ junit: \
 
 # OpenEMS bnd.bnd defaults
 buildpath: \
-	osgi.annotation;version=7.0.0,\
-	osgi.core;version=7.0.0,\
-	osgi.cmpn;version=7.0.0,\
-	slf4j.api;version=1.7.30,\
-	com.google.guava;version=28.2,\
-	com.google.gson;version=2.8.5
+	osgi.annotation;version='8.1.0',\
+	osgi.core;version='8.0.0',\
+	org.ops4j.pax.logging.pax-logging-api;version='2.2.1',\
+	org.osgi.service.cm;version='1.6.1',\
+	org.osgi.service.component;version='1.5.0',\
+	org.osgi.service.component.annotations;version='1.5.0',\
+	org.osgi.service.event;version='1.4.1',\
+	org.osgi.service.metatype;version='1.4.1',\
+	org.osgi.service.metatype.annotations;version='1.4.1',\
+	org.osgi.util.promise;version='1.2.0',\
+	com.google.guava;version='33.2.1.jre',\
+	com.google.gson;version='2.11.0',\
 
 testpath: \
-    \${junit}
+	slf4j.simple,\
+	\${junit}
 
-javac.source: 1.8
-javac.target: 1.8
+# OpenEMS Eclipse IDE Workingsets
+-workingset =  \
+	Backend;member=${filter;${p};io\.openems\.backend\..*},\
+	Common;member=${filter;${p};cnf|io\.openems\.common|io\.openems\.shared\.influxdb|io\.openems\.wrapper},\
+	Edge_Common;member=${filter;${p};io\.openems\.edge\.core|io\.openems\.edge\.application|io\.openems\.edge\.common|io\.openems\.edge\.simulator|io\.openems\.edge\.controller\.api|io\.openems\.edge\.edge2edge},\
+	Edge_Battery_Inverter;member=${filter;${p};io\.openems\.edge\.batteryinverter\..*},\
+	Edge_Bridge;member=${filter;${p};io\.openems\.edge\.bridge\..*},\
+	Edge_Battery;member=${filter;${p};io\.openems\.edge\.battery\..*},\
+	Edge_Controller_Api;member=${filter;${p};io\.openems\.edge\.controller\.api\..*},\
+	Edge_Controller_Debug;member=${filter;${p};io\.openems\.edge\.controller\.debug\..*},\
+	Edge_Controller_Ess;member=${filter;${p};io\.openems\.edge\.controller\.asymmetric\..*|io\.openems\.edge\.controller\.symmetric\..*|io\.openems\.edge\.controller\.ess\..*},\
+	Edge_Controller_Evcs;member=${filter;${p};io\.openems\.edge\.controller\.evcs.*},\
+	Edge_Controller_Generic;member=${filter;${p};io\.openems\.edge\.controller\.generic\..*},\
+	Edge_Controller_IO;member=${filter;${p};io\.openems\.edge\.controller\.io\..*},\
+	Edge_Controller_PVinverter;member=${filter;${p};io\.openems\.edge\.controller\.pvinverter\..*},\
+	Edge_Ess;member=${filter;${p};io\.openems\.edge\.ess\..*},\
+	Edge_Evcs;member=${filter;${p};io\.openems\.edge\.evcs\..*|io\.openems\.wrapper\.eu\.chargetime\.ocpp},\
+	Edge_Multiple;member=${filter;${p};io\.openems\.edge\.fenecon\..*|io\.openems\.edge\.goodwe|io\.openems\.edge\.kostal\.piko|io\.openems\.edge\.tesla\..*|io\.openems\.edge\.solaredge|io\.openems\.edge\.bosch\..*|io\.openems\.edge\.katek\..*|io\.openems\.edge\.kaco\..*},\
+	Edge_IO;member=${filter;${p};io\.openems\.edge\.io\..*|io\.openems\.edge\.controller\.channelthreshold|io\.openems\.edge\.controller\.chp\..*|io\.openems\.edge\.controller\.highloadtimeslot},\
+	Edge_Meter;member=${filter;${p};io\.openems\.edge\.meter\..*},\
+	Edge_Predictor;member=${filter;${p};io\.openems\.edge\.predictor\..*},\
+	Edge_PVinverter;member=${filter;${p};io\.openems\.edge\.pvinverter\..*},\
+	Edge_Scheduler;member=${filter;${p};io\.openems\.edge\.scheduler\..*},\
+	Edge_Thermometer;member=${filter;${p};io\.openems\.edge\.onewire\.thermometer|io\.openems\.edge\.thermometer\..*},\
+	Edge_Timedata;member=${filter;${p};io\.openems\.edge\.timedata\..*},\
+	Edge_TimeOfUseTariff;member=${filter;${p};io\.openems\.edge\.timeofusetariff\..*},\
+
+javac.source: 17
+javac.target: 17

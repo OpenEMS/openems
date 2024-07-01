@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
@@ -28,7 +29,6 @@
 
 package com.dalsemi.onewire.application.file;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -75,15 +75,13 @@ import com.dalsemi.onewire.container.OneWireContainer;
  * allowed
  * <li>Files can have the read-only attribute
  * <li>Directories can have the hidden attribute
- * <li>It is recommended to limit directory depth to 10 levels to accomodate
+ * <li>It is recommended to limit directory depth to 10 levels to accommodate
  * legacy implementations
  * </ul>
  *
  * <H3>Usage</H3>
- * <DL>
- * <DD>
  * <H4>Example</H4> Write to a 1-Wire file on device 'owd':
- * 
+ *
  * <PRE>
  *  <CODE>
  *   // create a 1-Wire file at root
@@ -152,24 +150,24 @@ public class OWFileOutputStream extends OutputStream {
 	 *
 	 * @param owd  OneWireContainer that this Filesystem resides on
 	 * @param name the system-dependent filename
-	 * @exception FileNotFoundException if the file exists but is a directory rather
-	 *                                  than a regular file, does not exist but
-	 *                                  cannot be created, or cannot be opened for
-	 *                                  any other reason
-	 * @exception SecurityException     if a security manager exists and its
-	 *                                  <code>checkWrite</code> method denies write
-	 *                                  access to the file.
+	 * @exception OWFileNotFoundException if the file exists but is a directory
+	 *                                    rather than a regular file, does not exist
+	 *                                    but cannot be created, or cannot be opened
+	 *                                    for any other reason
+	 * @exception SecurityException       if a security manager exists and its
+	 *                                    <code>checkWrite</code> method denies
+	 *                                    write access to the file.
 	 */
 	public OWFileOutputStream(OneWireContainer owd, String name) throws OWFileNotFoundException {
-		OneWireContainer[] devices = new OneWireContainer[1];
+		var devices = new OneWireContainer[1];
 		devices[0] = owd;
-		fd = new OWFileDescriptor(devices, name);
+		this.fd = new OWFileDescriptor(devices, name);
 
 		try {
-			fd.create(false, false, false, -1, -1);
+			this.fd.create(false, false, false, -1, -1);
 		} catch (OWFileNotFoundException e) {
-			fd.free();
-			fd = null;
+			this.fd.free();
+			this.fd = null;
 			throw new OWFileNotFoundException(e.toString());
 		}
 	}
@@ -188,22 +186,19 @@ public class OWFileOutputStream extends OutputStream {
 	 *
 	 * @param owd  array of OneWireContainers that this Filesystem resides on
 	 * @param name the system-dependent filename
-	 * @exception FileNotFoundException if the file exists but is a directory rather
-	 *                                  than a regular file, does not exist but
-	 *                                  cannot be created, or cannot be opened for
-	 *                                  any other reason
-	 * @exception SecurityException     if a security manager exists and its
-	 *                                  <code>checkWrite</code> method denies write
-	 *                                  access to the file.
+	 * @exception OWFileNotFoundException if the file exists but is a directory
+	 *                                    rather than a regular file, does not exist
+	 *                                    but cannot be created, or cannot be opened
+	 *                                    for any other reason
 	 */
 	public OWFileOutputStream(OneWireContainer[] owd, String name) throws OWFileNotFoundException {
-		fd = new OWFileDescriptor(owd, name);
+		this.fd = new OWFileDescriptor(owd, name);
 
 		try {
-			fd.create(false, false, false, -1, -1);
+			this.fd.create(false, false, false, -1, -1);
 		} catch (OWFileNotFoundException e) {
-			fd.free();
-			fd = null;
+			this.fd.free();
+			this.fd = null;
 			throw new OWFileNotFoundException(e.toString());
 		}
 	}
@@ -226,22 +221,22 @@ public class OWFileOutputStream extends OutputStream {
 	 * @param name   the system-dependent file name
 	 * @param append if <code>true</code>, then bytes will be written to the end of
 	 *               the file rather than the beginning
-	 * @exception FileNotFoundException if the file exists but is a directory rather
-	 *                                  than a regular file, does not exist but
-	 *                                  cannot be created, or cannot be opened for
-	 *                                  any other reason.
-	 * @exception SecurityException     if a security manager exists and its
-	 *                                  <code>checkWrite</code> method denies write
-	 *                                  access to the file.
+	 * @exception OWFileNotFoundException if the file exists but is a directory
+	 *                                    rather than a regular file, does not exist
+	 *                                    but cannot be created, or cannot be opened
+	 *                                    for any other reason.
+	 * @exception SecurityException       if a security manager exists and its
+	 *                                    <code>checkWrite</code> method denies
+	 *                                    write access to the file.
 	 */
 	public OWFileOutputStream(OneWireContainer owd, String name, boolean append) throws OWFileNotFoundException {
-		fd = new OWFileDescriptor(owd, name);
+		this.fd = new OWFileDescriptor(owd, name);
 
 		try {
-			fd.create(append, false, false, -1, -1);
+			this.fd.create(append, false, false, -1, -1);
 		} catch (OWFileNotFoundException e) {
-			fd.free();
-			fd = null;
+			this.fd.free();
+			this.fd = null;
 			throw new OWFileNotFoundException(e.toString());
 		}
 	}
@@ -264,22 +259,22 @@ public class OWFileOutputStream extends OutputStream {
 	 * @param name   the system-dependent file name
 	 * @param append if <code>true</code>, then bytes will be written to the end of
 	 *               the file rather than the beginning
-	 * @exception FileNotFoundException if the file exists but is a directory rather
-	 *                                  than a regular file, does not exist but
-	 *                                  cannot be created, or cannot be opened for
-	 *                                  any other reason.
-	 * @exception SecurityException     if a security manager exists and its
-	 *                                  <code>checkWrite</code> method denies write
-	 *                                  access to the file.
+	 * @exception OWFileNotFoundException if the file exists but is a directory
+	 *                                    rather than a regular file, does not exist
+	 *                                    but cannot be created, or cannot be opened
+	 *                                    for any other reason.
+	 * @exception SecurityException       if a security manager exists and its
+	 *                                    <code>checkWrite</code> method denies
+	 *                                    write access to the file.
 	 */
 	public OWFileOutputStream(OneWireContainer[] owd, String name, boolean append) throws OWFileNotFoundException {
-		fd = new OWFileDescriptor(owd, name);
+		this.fd = new OWFileDescriptor(owd, name);
 
 		try {
-			fd.create(append, false, false, -1, -1);
+			this.fd.create(append, false, false, -1, -1);
 		} catch (OWFileNotFoundException e) {
-			fd.free();
-			fd = null;
+			this.fd.free();
+			this.fd = null;
 			throw new OWFileNotFoundException(e.toString());
 		}
 	}
@@ -298,25 +293,25 @@ public class OWFileOutputStream extends OutputStream {
 	 * <code>FileNotFoundException</code> is thrown.
 	 *
 	 * @param file the file to be opened for writing.
-	 * @exception FileNotFoundException if the file exists but is a directory rather
-	 *                                  than a regular file, does not exist but
-	 *                                  cannot be created, or cannot be opened for
-	 *                                  any other reason
-	 * @exception SecurityException     if a security manager exists and its
-	 *                                  <code>checkWrite</code> method denies write
-	 *                                  access to the file.
+	 * @exception OWFileNotFoundException if the file exists but is a directory
+	 *                                    rather than a regular file, does not exist
+	 *                                    but cannot be created, or cannot be opened
+	 *                                    for any other reason
+	 * @exception SecurityException       if a security manager exists and its
+	 *                                    <code>checkWrite</code> method denies
+	 *                                    write access to the file.
 	 * @see java.io.File#getPath()
 	 */
 	public OWFileOutputStream(OWFile file) throws OWFileNotFoundException {
 		try {
-			fd = file.getFD();
+			this.fd = file.getFD();
 		} catch (IOException e) {
-			fd.free();
-			fd = null;
+			this.fd.free();
+			this.fd = null;
 			throw new OWFileNotFoundException(e.toString());
 		}
 
-		fd.open();
+		this.fd.open();
 	}
 
 	/**
@@ -332,10 +327,11 @@ public class OWFileOutputStream extends OutputStream {
 	 *                              access to the file descriptor.
 	 */
 	public OWFileOutputStream(OWFileDescriptor fdObj) {
-		if (fdObj == null)
+		if (fdObj == null) {
 			throw new NullPointerException("1-Wire FileDescriptor provided is null");
+		}
 
-		fd = fdObj;
+		this.fd = fdObj;
 	}
 
 	// --------
@@ -349,11 +345,12 @@ public class OWFileOutputStream extends OutputStream {
 	 * @param b the byte to be written.
 	 * @exception IOException if an I/O error occurs.
 	 */
+	@Override
 	public void write(int b) throws IOException {
-		if (fd != null)
-			fd.write(b);
-		else
+		if (this.fd == null) {
 			throw new IOException("1-Wire FileDescriptor is null");
+		}
+		this.fd.write(b);
 	}
 
 	/**
@@ -363,11 +360,12 @@ public class OWFileOutputStream extends OutputStream {
 	 * @param b the data.
 	 * @exception IOException if an I/O error occurs.
 	 */
+	@Override
 	public void write(byte b[]) throws IOException {
-		if (fd != null)
-			fd.write(b, 0, b.length);
-		else
+		if (this.fd == null) {
 			throw new IOException("1-Wire FileDescriptor is null");
+		}
+		this.fd.write(b, 0, b.length);
 	}
 
 	/**
@@ -379,11 +377,12 @@ public class OWFileOutputStream extends OutputStream {
 	 * @param len the number of bytes to write.
 	 * @exception IOException if an I/O error occurs.
 	 */
+	@Override
 	public void write(byte b[], int off, int len) throws IOException {
-		if (fd != null)
-			fd.write(b, off, len);
-		else
+		if (this.fd == null) {
 			throw new IOException("1-Wire FileDescriptor is null");
+		}
+		this.fd.write(b, off, len);
 	}
 
 	/**
@@ -393,13 +392,14 @@ public class OWFileOutputStream extends OutputStream {
 	 *
 	 * @exception IOException if an I/O error occurs.
 	 */
+	@Override
 	public void close() throws IOException {
-		if (fd != null)
-			fd.close();
-		else
+		if (this.fd == null) {
 			throw new IOException("1-Wire FileDescriptor is null");
+		}
+		this.fd.close();
 
-		fd = null;
+		this.fd = null;
 	}
 
 	/**
@@ -413,10 +413,10 @@ public class OWFileOutputStream extends OutputStream {
 	 * @see com.dalsemi.onewire.application.file.OWFileDescriptor
 	 */
 	public OWFileDescriptor getFD() throws IOException {
-		if (fd != null)
-			return fd;
-		else
-			throw new IOException("1-Wire FileDescriptor is null");
+		if (this.fd != null) {
+			return this.fd;
+		}
+		throw new IOException("1-Wire FileDescriptor is null");
 	}
 
 	/**
@@ -427,8 +427,11 @@ public class OWFileOutputStream extends OutputStream {
 	 * @exception IOException if an I/O error occurs.
 	 * @see com.dalsemi.onewire.application.file.OWFileInputStream#close()
 	 */
+	@Override
 	public void finalize() throws IOException {
-		if (fd != null)
-			fd.close();
+		if (this.fd != null) {
+			this.fd.close();
+		}
 	}
 }
+// CHECKSTYLE:ON

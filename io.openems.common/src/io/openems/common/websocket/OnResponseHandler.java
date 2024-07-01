@@ -19,10 +19,11 @@ public class OnResponseHandler implements Runnable {
 	@Override
 	public final void run() {
 		try {
-			WsData wsData = ws.getAttachment();
-			wsData.handleJsonrpcResponse(response);
-		} catch (Exception e) {
-			this.parent.handleInternalErrorSync(e, WebsocketUtils.getWsDataString(this.ws));
+			WsData wsData = this.ws.getAttachment();
+			wsData.handleJsonrpcResponse(this.response);
+
+		} catch (Throwable t) {
+			this.parent.handleInternalErrorSync(t, WebsocketUtils.getWsDataString(this.ws));
 		}
 	}
 

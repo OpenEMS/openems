@@ -1,0 +1,15 @@
+= GoodWe ET and BT-Series Hybrid Inverters
+
+Ess:
+
+- SymmetricEss
+
+Charger: (ET only)
+
+- EssDcCharger
+
+Grid-Meter:
+
+- ElectricityMeter
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.goodwe[Source Code icon:github[]]

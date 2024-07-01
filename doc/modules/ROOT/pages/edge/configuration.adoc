@@ -9,12 +9,204 @@
 :icons: font
 :imagesdir: ../../assets/images
 
-OpenEMS Edge and Backend are configured using the standard OSGi configuration admin service. The easiest way to set a configuration is via the http://localhost:8080/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]] as described in the xref:gettingstarted.adoc[Getting Started] guide above.
+The actual hardware setup behind an Energy Management System (EMS) usually varies from site to site.
+To comply with this, the EMS needs a static, local configuration that declares available hardware components and services and activated control algorithms with their parameters. 
+This configuration persists locally on the EMS hardware on a storage like an on-board eMMC flash drive or an external SD card.
+To reduce writes to local storage and avoid hardware defects, the configuration should not be changed frequently.
+
+Example:
+
+- "Power meter of type SOCOMEC Diris A40, measuring the power at the grid connection point is connected on interface /dev/ttySC0 via RS485 bus with baudrate 9600. It listens on Modbus Unit-ID 5"
+- "Battery inverter of type KACO 50, connected via Modbus/TCP on IP address 10.4.0.15, port 502"
+- "Algorithm for using an energy storage system to apply power smoothing of a photovoltaics installation to a maximum defined ramp rate. Discharge battery on suddenly reduced DRES power; recharge on suddenly increased DRES power."
+
+## Manage configuration
+
+OpenEMS Edge and Backend are configured using the standard OSGi https://docs.osgi.org/specification/osgi.cmpn/7.0.0/service.cm.html[Configuration Admin Service]. There are multiple ways to manage this configuration:
+
+### Via OpenEMS UI
+
+Via the OpenEMS UI it is possible to configure an OpenEMS Edge that is connected directly or via an OpenEMS Backend:
+
+.OpenEMS UI Install Components
+image::ui-component-install-overview.png[OpenEMS UI Install Components Overview]
+
+.OpenEMS UI Install Component
+image::ui-component-install.png[OpenEMS UI Install Component]
+
+### Via Apache Felix Web Console
+
+The 'native way' to manage an OSGi configuration is via the Apache Felix Web Console. By default it listens on port 8080 and can be accessed via http://localhost:8080/system/console/configMgr as described in the xref:gettingstarted.adoc[Getting Started] guide.
 
 .Apache Felix Web Console Configuration
 image::apache-felix-console-configuration.png[Apache Felix Web Console Configuration]
 
-Configuration via OpenEMS UI is currently not available due to the ongoing migration to xref:coreconcepts.adoc#_osgi_bundle[OSGi]. Once migration is finished, it is going to be possible to change every configuration using the settings menu in OpenEMS UI - directly to OpenEMS Edge and via Backend.
+### Via JSON-RPC
 
-.OpenEMS UI Configuration
-image::ui-config.png[OpenEMS UI Configuration]
+The JSON-RPC protocol is used throughout the project to enable access to functions directly on the OpenEMS Edge or via an OpenEMS Backend. See xref:../component-communication/index.adoc[Component Communication] for details. Configuration may be adjusted using the following JSON-RPC methods:
+
+[source,json]
+----
+{
+  "method": "createComponentConfig",
+  "params": {
+    "factoryPid": string,
+    "properties": [{
+      "name": string,
+      "value": any
+    }]
+  }
+}
+----
+
+and
+
+[source,json]
+----
+{
+  "method": "updateComponentConfig",
+  "params": {
+    "componentId": string,
+    "properties": [{
+      "name": string,
+      "value": any
+    }]
+  }
+}
+----
+
+The parameters for updating a component configuration are:
+
+- `componentId`: The unique ID of the Component
+- `properties`: A set of properties with ‘name’ and ‘value
+
+_Example:_ The "Symmetric Balancing Schedule Controller" charges or discharges an ESS in order to reach a given power target setpoint at the grid connection point. Setpoints are given as a schedule in JSON format. Using an Update Component Config JSON-RPC request, an existing controller can be reconfigured with a new setpoint schedule:
+
+[source,json]
+----
+{
+  "jsonrpc": "2.0",
+  "id": UUID,
+  "method": "updateComponentConfig",
+  "params": {
+    "componentId": "ctrlBalancingSchedule0",
+    "properties": [
+      {
+        "name": "schedule",
+        "value": [
+          {
+            "startTimestamp": 1577836800,
+            "duration": 900,
+            "activePowerSetPoint": 0
+          },
+          {
+            "startTimestamp": 1577837700,
+            "duration": 900,
+            "activePowerSetPoint": -2000
+          }
+        ]
+      }
+    ]
+  }
+}
+----
+
+With this new configuration the algorithm will try to keep the grid connection point at `0 W` starting from timestamp `1577836800` (1st January 2020 00:00:00) for `900 seconds` (15 minutes) and at `-2000` (2000 W sell-to-grid power) starting from `1577837700` for another `900 seconds`. Outside of these two timeslots it sets no setpoint and allows a controller with lower priority to take over.
+
+### By editing/preseeding configuration files
+
+The OSGi Configuration Admin stores the configuration in plain text files on the filesystem. See the `felix.cm.dir` parameter in https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.application/EdgeApp.bndrun[EdgeApp.bndrun] file as an example.
+
+This way can be used to conveniently preseed a configuration on an Edge device in productive deployment or for quick changes. Make sure to restart the application afterwards to apply changes. 
+
+## Edge-Config
+
+.OpenEMS Edge Configuration Architecture
+image::config-architecture.png[OpenEMS Edge Configuration Architecture]
+
+The architecture of OpenEMS Edge configuration is shown in the image above. It consists of
+
+Nature::
+
+A Nature defines as set of characteristics and attributes. In OpenEMS Edge a Nature is a Java 'Interface', that defines required channels of an implementing OpenEMS Component.
++
+_Example:_ The Nature for a `Battery` defines Channels like `ChargeMaxVoltage`, `DischargeMaxVoltage` and `Soc` (state-of-charge) that need to be provided by every Battery implementation.
+
+Channel::
+
+A Channel represents a single piece of information about a component; enriched with metadata like a description, unit of measure and more.
++
+_Example:_ The `ChargeMaxVoltage` channel of the Battery nature has a descriptive text "Maximal voltage for charging", is defined as type Integer with the unit Ampere.
+
+Factory::
+
+A Factory is comparable to a 'Class' in object-oriented software development that is enriched with Java/OSGi metadata like a unique string identifier and defines a set of required configuration parameters.
+A factory implements one or more Natures to indicate that it provides all channels defined by the Nature.
+Additionally, a factory may define further channels that are specific to the individual implementation.
++
+_Example:_ The OpenEMS Edge "Factory" for BMW battery implements the `Battery` Nature.
+Additionally, it declares channels  like `AmbientTemperature` that are not available and required by every Battery implementation.
+
+Instance::
+
+An Instance is comparable to an "Object", i.e. a runtime instantiation of a factory with defined configuration parameters. The Instance is then further referred to as an OpenEMS Component and uniquely identified by its Component-ID.
+
+OpenEMS Edge provides the specific configuration via its API in the form of a JSON definition referred to as **EdgeConfig**. The following shortened example shows its general structure:
+
+[source,json]
+----
+{
+  "components": {
+    "ess0": {
+      "alias": "Battery Energy Storage System",
+      "factoryId": "Ess.Generic.ManagedSymmetric",
+      "properties": {
+        "enabled": true,
+        "battery.id": "battery0",
+        "batteryInverter.id": "batteryInverter0"
+      },
+      "channels": {
+        "ActivePower": {
+          "type": "INTEGER",
+          "accessMode": "RO",
+          "text": "Negative values for Charge; positive for Discharge",
+          "unit": "W"
+        }
+      }
+    }
+  },
+  "factories": {
+    "Ess.Generic.ManagedSymmetric": {
+      "id": "Ess.Generic.ManagedSymmetric",
+      "name": "ESS Generic Managed Symmetric",
+      "description": "",
+      "natureIds": [
+        "io.openems.edge.ess.api.SymmetricEss",
+      ],
+      "properties": [
+        {
+          "id": "id",
+          "name": "Component-ID",
+          "description": "Unique ID of this Component",
+          "isRequired": true,
+          "defaultValue": "ess0"
+        }
+      ]
+    }
+  }
+}
+----
+
+The EdgeConfig may be retrieved using the following JSON-RPC method:
+
+[source,json]
+----
+{
+  "jsonrpc": "2.0",
+  "id": "UUID",
+  "method": "getEdgeConfig",
+  "params": {}
+}
+----
+
+External services - like OpenEMS UI - can use the EdgeConfig to adapt to the actual configuration of the OpenEMS Edge.

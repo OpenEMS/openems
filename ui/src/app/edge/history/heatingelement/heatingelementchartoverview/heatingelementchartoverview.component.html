@@ -1,0 +1,23 @@
+<ng-container *ngIf="edge">
+    <ion-header>
+        <ion-toolbar color="primary">
+            <ion-title>{{ component.alias }}</ion-title>
+            <ion-buttons slot="end">
+                <ion-button routerLink="/device/{{edge.id}}/history/">
+                    <ion-icon name="close"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-toolbar>
+        <ion-toolbar color="primary">
+            <ion-buttons class="ion-justify-content-center">
+                <pickdate></pickdate>
+            </ion-buttons>
+        </ion-toolbar>
+    </ion-header>
+    <ion-content>
+        <ion-card-content>
+            <heatingelementChart [component]="component" [period]="service.historyPeriod.value">
+            </heatingelementChart>
+        </ion-card-content>
+    </ion-content>
+</ng-container>

@@ -10,7 +10,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Response for a Base64-encoded payload.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -28,6 +28,10 @@ public class Base64PayloadResponse extends JsonrpcResponseSuccess {
 	public Base64PayloadResponse(UUID id, byte[] payload) {
 		super(id);
 		this.payload = Base64.getEncoder().encodeToString(payload);
+	}
+
+	public String getPayload() {
+		return this.payload;
 	}
 
 	@Override

@@ -1,0 +1,7 @@
+<div style="max-width: 600px; max-height: 500px; width: 100%; height: 250px; position: relative;">
+    <ion-progress-bar *ngIf="loading" type="indeterminate"></ion-progress-bar>
+    <ng-container *ngIf="!loading">
+        <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" [colors]="colors"
+            chartType="bar"></canvas>
+    </ng-container>
+</div>

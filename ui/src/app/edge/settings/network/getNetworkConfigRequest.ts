@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../../../shared/jsonrpc/base";
 
 /**
  * Represents a JSON-RPC Request for 'getNetworkConfig'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -14,7 +14,7 @@ import { JsonrpcRequest } from "../../../shared/jsonrpc/base";
  */
 export class GetNetworkConfigRequest extends JsonrpcRequest {
 
-    static METHOD: string = "getNetworkConfig";
+    private static METHOD: string = "getNetworkConfig";
 
     public constructor(
     ) {

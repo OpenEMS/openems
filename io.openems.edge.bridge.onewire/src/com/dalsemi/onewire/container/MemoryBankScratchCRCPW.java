@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -43,7 +44,7 @@ import com.dalsemi.onewire.utils.CRC16;
 public class MemoryBankScratchCRCPW extends MemoryBankScratchEx {
 
 	/**
-	 * The Password container to acces the 8 byte passwords
+	 * The Password container to access the 8 byte passwords
 	 */
 	protected PasswordContainer ibPass = null;
 
@@ -63,14 +64,14 @@ public class MemoryBankScratchCRCPW extends MemoryBankScratchEx {
 	public MemoryBankScratchCRCPW(PasswordContainer ibutton) {
 		super((OneWireContainer) ibutton);
 
-		ibPass = ibutton;
+		this.ibPass = ibutton;
 
 		// initialize attributes of this memory bank - DEFAULT: DS1963L scratchapd
-		bankDescription = "Scratchpad with CRC and Password";
-		pageAutoCRC = true;
+		this.bankDescription = "Scratchpad with CRC and Password";
+		this.pageAutoCRC = true;
 
 		// default copy scratchpad command (from DS1922)
-		COPY_SCRATCHPAD_COMMAND = (byte) 0x99;
+		this.COPY_SCRATCHPAD_COMMAND = (byte) 0x99;
 	}
 
 	// --------
@@ -84,7 +85,7 @@ public class MemoryBankScratchCRCPW extends MemoryBankScratchEx {
 	 * @param page         page number to read
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -93,11 +94,12 @@ public class MemoryBankScratchCRCPW extends MemoryBankScratchEx {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
-		byte[] extraInfo = new byte[extraInfoLength];
+		var extraInfo = new byte[this.extraInfoLength];
 
-		readPageCRC(page, readContinue, readBuf, offset, extraInfo);
+		this.readPageCRC(page, readContinue, readBuf, offset, extraInfo);
 	}
 
 	/**
@@ -109,7 +111,7 @@ public class MemoryBankScratchCRCPW extends MemoryBankScratchEx {
 	 * @param page         page number to read
 	 * @param readContinue if 'true' then device read is continued without
 	 *                     re-selecting. This can only be used if the new
-	 *                     readPagePacket() continious where the last one stopped
+	 *                     readPagePacket() continuous where the last one stopped
 	 *                     and it is inside a 'beginExclusive/endExclusive' block.
 	 * @param readBuf      byte array to put data read. Must have at least
 	 *                     'getMaxPacketDataLength()' elements.
@@ -119,23 +121,27 @@ public class MemoryBankScratchCRCPW extends MemoryBankScratchEx {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
 
 		// only needs to be implemented if supported by hardware
-		if (!pageAutoCRC)
+		if (!this.pageAutoCRC) {
 			throw new OneWireException("Read page with CRC not supported in this memory bank");
+		}
 
 		// attempt to put device at max desired speed
-		if (!readContinue)
-			checkSpeed();
+		if (!readContinue) {
+			this.checkSpeed();
+		}
 
 		// check if read exceeds memory
-		if (page > numberPages)
+		if (page > this.numberPages) {
 			throw new OneWireException("Read exceeds memory bank end");
+		}
 
 		// read the scratchpad
-		readScratchpad(readBuf, offset, pageLength, extraInfo);
+		this.readScratchpad(readBuf, offset, this.pageLength, extraInfo);
 	}
 
 	// --------
@@ -158,63 +164,67 @@ public class MemoryBankScratchCRCPW extends MemoryBankScratchEx {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readScratchpad(byte[] readBuf, int offset, int len, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
-		int blockLength = 0;
-		int num_crc = 0;
+		var blockLength = 0;
+		var num_crc = 0;
 
 		// select the device
-		if (!ib.adapter.select(ib.address)) {
-			forceVerify();
+		if (!this.ib.adapter.select(this.ib.address)) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Device select failed");
 		}
 
 		// build block
-		if (enablePower) {
-			if (len == pageLength)
-				blockLength = extraInfoLength + pageLength + 3;
-			else
-				blockLength = len + extraInfoLength + 1;
-		} else
-			blockLength = extraInfoLength + pageLength + 3;
+		if (this.enablePower) {
+			if (len == this.pageLength) {
+				blockLength = this.extraInfoLength + this.pageLength + 3;
+			} else {
+				blockLength = len + this.extraInfoLength + 1;
+			}
+		} else {
+			blockLength = this.extraInfoLength + this.pageLength + 3;
+		}
 
-		byte[] raw_buf = new byte[blockLength];
+		var raw_buf = new byte[blockLength];
 
 		raw_buf[0] = READ_SCRATCHPAD_COMMAND;
 
-		System.arraycopy(ffBlock, 0, raw_buf, 1, raw_buf.length - 1);
+		System.arraycopy(this.ffBlock, 0, raw_buf, 1, raw_buf.length - 1);
 
 		// send block, command + (extra) + page data + CRC
-		ib.adapter.dataBlock(raw_buf, 0, raw_buf.length);
+		this.ib.adapter.dataBlock(raw_buf, 0, raw_buf.length);
 
 		// get the starting offset to see when the crc will show up
 		int addr = raw_buf[1];
 
-		addr = (addr | ((raw_buf[2] << 8) & 0xFF00)) & 0xFFFF;
+		addr = (addr | raw_buf[2] << 8 & 0xFF00) & 0xFFFF;
 
-		if (enablePower && (len == 64))
-			num_crc = pageLength + 3 - (addr & 0x003F) + extraInfoLength;
-		else if (!enablePower)
-			num_crc = pageLength + 3 - (addr & 0x001F) + extraInfoLength;
+		if (this.enablePower && len == 64) {
+			num_crc = this.pageLength + 3 - (addr & 0x003F) + this.extraInfoLength;
+		} else if (!this.enablePower) {
+			num_crc = this.pageLength + 3 - (addr & 0x001F) + this.extraInfoLength;
+		}
 
 		// check crc of entire block
-		if (len == pageLength) {
+		if (len == this.pageLength) {
 			if (CRC16.compute(raw_buf, 0, num_crc, 0) != 0x0000B001) {
-				forceVerify();
+				this.forceVerify();
 				throw new OneWireIOException("Invalid CRC16 read from device");
 			}
 		}
 
 		// optionally extract the extra info
-		if (extraInfo != null)
-			System.arraycopy(raw_buf, 1, extraInfo, 0, extraInfoLength);
+		if (extraInfo != null) {
+			System.arraycopy(raw_buf, 1, extraInfo, 0, this.extraInfoLength);
+		}
 
 		// extract the page data
-		if (!enablePower)
-			System.arraycopy(raw_buf, extraInfoLength + 1, readBuf, offset, len);
-		else
-			System.arraycopy(raw_buf, extraInfoLength + 1, readBuf, offset, len);
+		if (!this.enablePower) {
+		}
+		System.arraycopy(raw_buf, this.extraInfoLength + 1, readBuf, offset, len);
 	}
 
 	/**
@@ -226,62 +236,66 @@ public class MemoryBankScratchCRCPW extends MemoryBankScratchEx {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void copyScratchpad(int startAddr, int len) throws OneWireIOException, OneWireException {
-		if (!enablePower) {
-			if (((startAddr + len) & 0x1F) != 0)
+		if (!this.enablePower) {
+			if ((startAddr + len & 0x1F) != 0) {
 				throw new OneWireException("CopyScratchpad failed: Ending Offset must go to end of page");
+			}
 		}
 
 		// select the device
-		if (!ib.adapter.select(ib.address)) {
-			forceVerify();
+		if (!this.ib.adapter.select(this.ib.address)) {
+			this.forceVerify();
 			throw new OneWireIOException("Device select failed");
 		}
 
 		// build block to send (1 cmd, 3 data, 8 password, 4 verification)
-		int raw_buf_length = 16;
-		byte[] raw_buf = new byte[raw_buf_length];
+		var raw_buf_length = 16;
+		var raw_buf = new byte[raw_buf_length];
 
-		raw_buf[0] = COPY_SCRATCHPAD_COMMAND;
+		raw_buf[0] = this.COPY_SCRATCHPAD_COMMAND;
 		raw_buf[1] = (byte) (startAddr & 0xFF);
-		raw_buf[2] = (byte) (((startAddr & 0xFFFF) >>> 8) & 0xFF);
-		if (enablePower)
-			raw_buf[3] = (byte) ((startAddr + len - 1) & 0x3F);
-		else
-			raw_buf[3] = (byte) ((startAddr + len - 1) & 0x1F);
-
-		if (ibPass.isContainerReadWritePasswordSet()) {
-			ibPass.getContainerReadWritePassword(raw_buf, 4);
+		raw_buf[2] = (byte) ((startAddr & 0xFFFF) >>> 8 & 0xFF);
+		if (this.enablePower) {
+			raw_buf[3] = (byte) (startAddr + len - 1 & 0x3F);
+		} else {
+			raw_buf[3] = (byte) (startAddr + len - 1 & 0x1F);
 		}
 
-		System.arraycopy(ffBlock, 0, raw_buf, raw_buf_length - 4, 4);
+		if (this.ibPass.isContainerReadWritePasswordSet()) {
+			this.ibPass.getContainerReadWritePassword(raw_buf, 4);
+		}
+
+		System.arraycopy(this.ffBlock, 0, raw_buf, raw_buf_length - 4, 4);
 
 		// send block (check copy indication complete)
-		if (enablePower) {
-			ib.adapter.dataBlock(raw_buf, 0, (raw_buf_length - 5));
+		if (this.enablePower) {
+			this.ib.adapter.dataBlock(raw_buf, 0, raw_buf_length - 5);
 
-			ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
+			this.ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
 
-			ib.adapter.putByte(raw_buf[11]);
+			this.ib.adapter.putByte(raw_buf[11]);
 
 			msWait(23);
 
-			ib.adapter.setPowerNormal();
+			this.ib.adapter.setPowerNormal();
 
-			raw_buf[12] = (byte) ib.adapter.getByte();
+			raw_buf[12] = (byte) this.ib.adapter.getByte();
 
-			if (((raw_buf[12] & (byte) 0xF0) != (byte) 0xA0) && ((raw_buf[12] & (byte) 0xF0) != (byte) 0x50))
+			if ((raw_buf[12] & (byte) 0xF0) != (byte) 0xA0 && (raw_buf[12] & (byte) 0xF0) != (byte) 0x50) {
 				throw new OneWireIOException("Copy scratchpad complete not found");
+			}
 		} else {
-			ib.adapter.dataBlock(raw_buf, 0, raw_buf_length);
+			this.ib.adapter.dataBlock(raw_buf, 0, raw_buf_length);
 
-			byte verifyByte = (byte) (raw_buf[raw_buf_length - 1] & 0x0F);
+			var verifyByte = (byte) (raw_buf[raw_buf_length - 1] & 0x0F);
 			if (verifyByte != 0x0A && verifyByte != 0x05) {
 				// forceVerify();
-				if (verifyByte == 0x0F)
+				if (verifyByte == 0x0F) {
 					throw new OneWireIOException("Copy scratchpad failed - invalid password");
-				else
-					throw new OneWireIOException("Copy scratchpad complete not found");
+				}
+				throw new OneWireIOException("Copy scratchpad complete not found");
 			}
 		}
 	}
@@ -297,10 +311,12 @@ public class MemoryBankScratchCRCPW extends MemoryBankScratchEx {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void writeScratchpad(int startAddr, byte[] writeBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
-		if ((((startAddr + len) & 0x1F) != 0) && (!enablePower))
+		if ((startAddr + len & 0x1F) != 0 && !this.enablePower) {
 			throw new OneWireException("WriteScratchpad failed: Ending Offset must go to end of page");
+		}
 
 		super.writeScratchpad(startAddr, writeBuf, offset, len);
 	}
@@ -312,7 +328,8 @@ public class MemoryBankScratchCRCPW extends MemoryBankScratchEx {
 		try {
 			Thread.sleep(ms);
 		} catch (InterruptedException ie) {
-			;
+
 		}
 	}
 }
+// CHECKSTYLE:ON

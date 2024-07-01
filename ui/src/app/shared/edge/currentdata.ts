@@ -1,22 +1,27 @@
+// @ts-strict-ignore
 import { DefaultTypes } from "../service/defaulttypes";
 import { Utils } from "../service/utils";
 
+/**
+ * @deprecated this class will eventually be dropped, when abstract-widgets are finished and used everywhere.
+ */
 export class CurrentData {
 
   public readonly summary: DefaultTypes.Summary;
 
   constructor(
-    public readonly channel: { [channelAddress: string]: any } = {}
+    public readonly channel: { [channelAddress: string]: any } = {},
   ) {
     this.summary = this.getSummary(channel);
   }
 
   private getSummary(c: { [channelAddress: string]: any }): DefaultTypes.Summary {
-    let result: DefaultTypes.Summary = {
+    const result: DefaultTypes.Summary = {
       system: {
         totalPower: null,
         autarchy: null,
-        selfConsumption: null
+        selfConsumption: null,
+        state: null,
       }, storage: {
         soc: null,
         activePowerL1: null,
@@ -48,7 +53,7 @@ export class CurrentData {
         activePowerAcL2: null,
         activePowerAcL3: null,
         activePowerDc: null,
-        maxActivePower: null
+        maxActivePower: null,
       }, grid: {
         gridMode: null,
         powerRatio: null,
@@ -61,14 +66,14 @@ export class CurrentData {
         sellActivePowerL1: null,
         sellActivePowerL2: null,
         sellActivePowerL3: null,
-        maxSellActivePower: null
+        maxSellActivePower: null,
       }, consumption: {
         powerRatio: null,
         activePower: null,
         activePowerL1: null,
         activePowerL2: null,
-        activePowerL3: null
-      }
+        activePowerL3: null,
+      },
     };
 
     {
@@ -176,7 +181,7 @@ export class CurrentData {
 
         effectivePower = Utils.subtractSafely(
           Utils.subtractSafely(
-            Utils.orElse(result.storage.dischargeActivePowerAc, 0), result.storage.chargeActivePowerAc
+            Utils.orElse(result.storage.dischargeActivePowerAc, 0), result.storage.chargeActivePowerAc,
           ), result.production.activePowerDc);
         result.storage.effectivePower = effectivePower;
       }
@@ -211,8 +216,8 @@ export class CurrentData {
 
     {
       /*
-       * Total
-       */
+      * Total
+      */
       result.system.totalPower = Math.max(
         // Productions
         result.grid.buyActivePower
@@ -223,47 +228,31 @@ export class CurrentData {
         result.grid.sellActivePower
         + (result.production.activePower < 0 ? result.production.activePower * -1 : 0)
         + result.storage.chargeActivePowerAc,
-        + (result.consumption.activePower > 0 ? result.consumption.activePower : 0)
+        + (result.consumption.activePower > 0 ? result.consumption.activePower : 0),
       );
       result.system.autarchy = CurrentData.calculateAutarchy(result.grid.buyActivePower, result.consumption.activePower);
-      result.system.selfConsumption = CurrentData.calculateSelfConsumption(result.grid.sellActivePower, result.production.activePower, result.storage.effectiveDischargePower);
+      result.system.selfConsumption = Utils.calculateSelfConsumption(result.grid.sellActivePower, result.production.activePower);
+      // State
+      result.system.state = c['_sum/State'];
     }
     return result;
   }
-  public static calculateAutarchy(buyFromGrid: number, consumptionActivePower: number): number {
-    return Math.max(
-      Utils.orElse(
-        (
-          1 - (
-            Utils.divideSafely(
-              Utils.orElse(buyFromGrid, 0),
-              Math.max(Utils.orElse(consumptionActivePower, 0), 0)
-            )
-          )
-        ) * 100, 0
-      ), 0)
-  }
-
-  public static calculateSelfConsumption(sellToGrid: number, productionActivePower: number, storageDischargeActivePower: number): number {
-    if (productionActivePower == 0) {
-      return null;
-    }
-    else {
+  public static calculateAutarchy(buyFromGrid: number, consumptionActivePower: number): number | null {
+    if (buyFromGrid != null && consumptionActivePower != null) {
       return Math.max(
         Utils.orElse(
           (
             1 - (
               Utils.divideSafely(
-                Utils.orElse(sellToGrid, 0), (
-                Utils.addSafely(
-                  Math.max(Utils.orElse(productionActivePower, 0), 0),
-                  Utils.orElse(storageDischargeActivePower, 0)
-                )
-              )
+                Utils.orElse(buyFromGrid, 0),
+                Math.max(Utils.orElse(consumptionActivePower, 0), 0),
               )
             )
-          ) * 100, 0
-        ), 0)
+          ) * 100, 0,
+        ), 0);
+    } else {
+      return null;
     }
   }
+
 }

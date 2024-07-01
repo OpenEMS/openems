@@ -1,0 +1,19 @@
+Bundle-Name: OpenEMS Edge Controller Generic JsonLogic
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-includeresource.jsonlogic: \
+	@lib/json-logic-java-1.0.0.jar; lib:=true
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.ess.api,\
+	io.openems.edge.io.api,\
+	lib/json-logic-java-1.0.0.jar;version=file,\
+
+-testpath: \
+	${testpath}

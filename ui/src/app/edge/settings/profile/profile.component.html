@@ -1,106 +1,147 @@
-<ion-grid *ngIf="config">
-  <ion-row class="ion-justify-content-center">
+<header></header>
+<ion-content>
+  <ion-grid *ngIf="config">
+    <ion-row class="ion-justify-content-center">
 
-    <ion-col size="12" size-md="6" *ngIf="edge">
-      <ion-card>
-        <ion-item color="light" lines="full">
-          <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
-          <ion-label>Allgemeine Daten</ion-label>
-        </ion-item>
+      <ion-col size="12" size-md="6" *ngIf="edge">
+        <ion-card>
+          <ion-item color="light" lines="full">
+            <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
+            <ion-label>Allgemeine Daten</ion-label>
+          </ion-item>
 
-        <ion-card-content>
-          <ion-list>
-            <ion-item *ngIf="env.backend === 'OpenEMS Backend'">
-              <ion-label>Edge-ID</ion-label>
-              {{ edge.id }}
-            </ion-item>
-            <ion-item *ngIf="edge.comment">
-              <ion-label>Kommentar</ion-label>
-              {{ edge.comment }}
-            </ion-item>
-            <ion-item *ngIf="edge.producttype">
-              <ion-label>Product-Typ</ion-label>
-              {{ edge.producttype }}
-            </ion-item>
-            <ion-item>
-              <ion-label>OpenEMS-Edge Version</ion-label>
-              {{ edge.version }}
-            </ion-item>
-            <ion-item>
-              <ion-label>Rolle</ion-label>
-              {{ edge.getRoleString() }}
-            </ion-item>
-          </ion-list>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
+          <ion-card-content>
+            <ion-list>
+              <ion-item *ngIf="environment.backend === 'OpenEMS Backend'">
+                <ion-label>Edge-ID</ion-label>
+                {{ edge.id }}
+              </ion-item>
+              <ion-item *ngIf="edge.comment">
+                <ion-label>Kommentar</ion-label>
+                {{ edge.comment }}
+              </ion-item>
+              <ion-item *ngIf="edge.producttype">
+                <ion-label>Product-Typ</ion-label>
+                {{ edge.producttype }}
+              </ion-item>
+              <ion-item>
+                <ion-label style="white-space: initial;">{{ environment.edgeShortName }} Version</ion-label>
+                <a style="white-space: initial; display: inline-block; max-width: 50%; text-align: right;"
+                  routerLinkActive="active" routerLink="/changelog">{{ edge.version |
+                  version:edge.role }}</a>
+              </ion-item>
+              <ion-item>
+                <ion-label>Rolle</ion-label>
+                {{ edge.getRoleString() }}
+              </ion-item>
+              <ion-item lines="none" *ngIf="edge.firstSetupProtocol">
+                <ion-label translate>Index.FIRST_SETUP_PROTOCOL</ion-label>
+                {{ edge.firstSetupProtocol | date:'dd.MM.YYYY HH:mm' }}
+              </ion-item>
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
 
-  </ion-row>
-  <ion-row class="ion-justify-content-center">
+    </ion-row>
+    <ion-row class="ion-justify-content-center">
 
-    <ion-col size="12" size-md="6" *ngIf="config">
-      <ion-card>
-        <ion-item color="light" lines="full">
-          <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
-          <ion-label>Konfiguration</ion-label>
-        </ion-item>
+      <ion-col size="12" size-md="6" *ngIf="components !== null">
+        <ion-card>
+          <ion-item color="light" lines="full">
+            <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
+            <ion-label>Configuration</ion-label>
+          </ion-item>
 
-        <ion-card-content>
+          <ion-card-content>
 
-          <ion-list>
-            <ng-container *ngFor="let category of components">
-              <ion-item-group>
-                <ion-item lines="inset">
-                  <ion-icon name="{{ category.category.icon }}"></ion-icon>
-                  <ion-label class="ion-padding-start">
-                    {{ category.category.title }}
+            <ion-list>
+              <ng-container *ngFor="let category of components">
+                <ion-item-group>
+                  <ion-item lines="inset">
+                    <ion-icon name="{{ category.category.icon }}"></ion-icon>
+                    <ion-label class="ion-padding-start">
+                      {{ category.category.title }}
+                    </ion-label>
+                  </ion-item>
+                </ion-item-group>
+                <ion-item lines="none" *ngFor="let item of category.components">
+                  <ion-label class="ion-text-wrap">
+                    <ion-text>
+                      <ion-text color="primary">
+                        <h3>{{ item.alias }} <ion-icon *ngIf="edge.roleIsAtLeast('owner')" style="cursor: pointer;"
+                            [routerLink]="item.id" name="create-outline">
+                          </ion-icon>
+                        </h3>
+                      </ion-text>
+                      <ng-container *ngIf="config.factories[item.factoryId] as factory">
+                        <p style="cursor: pointer" (click)="item['showProperties'] = !item['showProperties']">
+                          <ion-icon *ngIf="!item['showProperties']" name="arrow-down-circle-outline">
+                          </ion-icon>
+                          <ion-icon *ngIf="item['showProperties']" name="arrow-up-circle-outline">
+                          </ion-icon>
+                          <span>&nbsp;{{ item.id }}</span>&nbsp;<span style="color:gray">{{ factory.name }}</span><span
+                            *ngIf="!item.isEnabled"> - <span translate>General.componentInactive</span></span>
+                        </p>
+                      </ng-container>
+                    </ion-text>
+                    <ng-container *ngIf="item['showProperties']">
+                      <!-- Component details -->
+                      <ul style="font-family: monospace; list-style-type: square">
+                        <ng-container *ngFor="let p of (item.properties | keys)">
+                          <li
+                            *ngIf="!['alias', '_lastChangeBy', '_lastChangeAt', 'enabled', ':org.apache.felix.configadmin.revision:'].includes(p.key) && !p.key.endsWith('.target')">
+                            {{ p.key }}: {{ p.value }}
+                          </li>
+                        </ng-container>
+                      </ul>
+                      <!-- Additional information for specific Factory-IDs -->
+                      <ng-container *ngFor="let factoryId of [item.factoryId]" [ngSwitch]="factoryId">
+                        <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp.ReadOnly'">
+                          <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
+                          <oe-help-button key="CONTROLLER_API_MODBUSTCP_READ">
+                            <span translate>
+                              General.manual
+                            </span>
+                          </oe-help-button>
+                        </ion-text>
+                        <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'">
+                          <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
+                          <oe-help-button key="CONTROLLER_API_MODBUSTCP_READWRITE">
+                            <span translate>
+                              General.manual
+                            </span>
+                          </oe-help-button>
+                        </ion-text>
+                        <ion-text *ngSwitchCase="'Controller.Api.Rest.ReadOnly'">
+                          <oe-help-button key="CONTROLLER_API_REST_READ">
+                            <span translate>
+                              General.manual
+                            </span>
+                          </oe-help-button>
+                        </ion-text>
+                        <ion-text *ngSwitchCase="'Controller.Api.Rest.ReadWrite'">
+                          <oe-help-button key="CONTROLLER_API_REST_READWRITE">
+                            <span translate>
+                              General.manual
+                            </span>
+                          </oe-help-button>
+                        </ion-text>
+                      </ng-container>
+                      <!-- Additional information for all Components -->
+                      <ng-container *ngIf="edge.roleIsAtLeast('admin') && edge.isVersionAtLeast('2021.10.10')">
+                        <ion-button (click)="getChannelExport(item.id)">Export Channels</ion-button>
+                      </ng-container>
+                    </ng-container>
                   </ion-label>
                 </ion-item>
-              </ion-item-group>
-              <ion-item lines="none" *ngFor="let item of category.components">
-                <ion-label class="ion-text-wrap">
-                  <ion-text style="cursor: pointer" (click)="item['showProperties'] = !item['showProperties']">
-                    <ion-text color="primary">
-                      <h3>{{ item.alias }}
-                        <span *ngIf="item.id != item.alias"> ({{ item.id }})</span>
-                        <small *ngIf="!item.isEnabled"> (Komponente ist inaktiv!)</small>
-                      </h3>
-                    </ion-text>
-                    <ng-container *ngIf="config.factories[item.factoryId] as factory">
-                      <p>{{ factory.name }} <small>({{ factory.description }})</small></p>
-                    </ng-container>
-                  </ion-text>
-                  <ng-container *ngIf="item['showProperties']">
-                    <ul style="font-family: monospace">
-                      <ng-container *ngFor="let p of (item.properties | keys)">
-                        <li
-                          *ngIf="!['alias', '_lastChangeBy', '_lastChangeAt', 'enabled', ':org.apache.felix.configadmin.revision:'].includes(p.key)">
-                          {{ p.key }}: {{ p.value }}
-                        </li>
-                      </ng-container>
-                    </ul>
-                    <!-- Additional information for specific Factory-IDs -->
-                    <ng-container *ngFor="let factoryId of [item.factoryId]" [ngSwitch]="factoryId">
-                      <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp.ReadOnly'">
-                        <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
-                      </ion-text>
-                      <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'">
-                        <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
-                      </ion-text>
-                      <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp'">
-                        <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
-                      </ion-text>
-                      <ion-icon name="arrow-dropdown-outline"></ion-icon>
-                    </ng-container>
-                  </ng-container>
-                </ion-label>
-              </ion-item>
-            </ng-container>
-          </ion-list>
+              </ng-container>
+            </ion-list>
 
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
 
-  </ion-row>
-</ion-grid>
+    </ion-row>
+  </ion-grid>
+</ion-content>

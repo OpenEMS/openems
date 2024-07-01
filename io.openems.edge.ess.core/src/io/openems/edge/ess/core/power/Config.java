@@ -18,10 +18,13 @@ import io.openems.edge.ess.power.api.SolverStrategy;
 	SolverStrategy strategy() default SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET;
 
 	@AttributeDefinition(name = "Symmetric Mode", description = "Keeps asymmetric ESS phases symmetric")
-	boolean symmetricMode() default PowerComponent.DEFAULT_SYMMETRIC_MODE;
+	boolean symmetricMode() default EssPower.DEFAULT_SYMMETRIC_MODE;
 
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
-	boolean debugMode() default PowerComponent.DEFAULT_DEBUG_MODE;
+	boolean debugMode() default EssPower.DEFAULT_DEBUG_MODE;
+
+	@AttributeDefinition(name = "Enable PID Filter", description = "Enables the PID Filter with the settings for P, I and D below")
+	boolean enablePid() default true;
 
 	@AttributeDefinition(name = "PID Filter: Proportional gain", description = "The weight of proportional gain in the PID filter. Value between [0;1].")
 	double p() default PidFilter.DEFAULT_P;

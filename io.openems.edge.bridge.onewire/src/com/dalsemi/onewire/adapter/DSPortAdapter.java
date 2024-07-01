@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -246,7 +247,7 @@ public abstract class DSPortAdapter {
 	/**
 	 * Hashtable to contain the user replaced OneWireContainers
 	 */
-	private Hashtable<Integer, Class<?>> registeredOneWireContainerClasses = new Hashtable<>(5);
+	private final Hashtable<Integer, Class<?>> registeredOneWireContainerClasses = new Hashtable<>(5);
 
 	/**
 	 * Byte array of families to include in search
@@ -293,7 +294,7 @@ public abstract class DSPortAdapter {
 	/**
 	 * Retrieves a list of the platform appropriate port names for this adapter. A
 	 * port must be selected with the method 'selectPort' before any other
-	 * communication methods can be used. Using a communcation method before
+	 * communication methods can be used. Using a communication method before
 	 * 'selectPort' will result in a <code>OneWireException</code> exception.
 	 *
 	 * @return <code>Enumeration</code> of type <code>String</code> that contains
@@ -332,20 +333,18 @@ public abstract class DSPortAdapter {
 			throw new OneWireException("Could not find OneWireContainer class");
 		}
 
-		Integer familyInt = new Integer(family);
+		var familyInt = Integer.valueOf(family);
 
 		if (OneWireContainerClass == null) {
 
 			// If a null is passed, remove the old container class.
-			registeredOneWireContainerClasses.remove(familyInt);
-		} else {
-			if (defaultibc.isAssignableFrom(OneWireContainerClass)) {
+			this.registeredOneWireContainerClasses.remove(familyInt);
+		} else if (defaultibc.isAssignableFrom(OneWireContainerClass)) {
 
-				// Put the new container class in the hashtable, replacing any old one.
-				registeredOneWireContainerClasses.put(familyInt, OneWireContainerClass);
-			} else {
-				throw new ClassCastException("Does not extend com.dalsemi.onewire.container.OneWireContainer");
-			}
+			// Put the new container class in the hashtable, replacing any old one.
+			this.registeredOneWireContainerClasses.put(familyInt, OneWireContainerClass);
+		} else {
+			throw new ClassCastException("Does not extend com.dalsemi.onewire.container.OneWireContainer");
 		}
 	}
 
@@ -353,12 +352,12 @@ public abstract class DSPortAdapter {
 	 * Specifies a platform appropriate port name for this adapter. Note that even
 	 * though the port has been selected, it's ownership may be relinquished if it
 	 * is not currently held in a 'exclusive' block. This class will then try to
-	 * re-aquire the port when needed. If the port cannot be re-aquired ehen the
+	 * re-acquire the port when needed. If the port cannot be re-acquired when the
 	 * exception <code>PortInUseException</code> will be thrown.
 	 *
 	 * @param portName name of the target port, retrieved from getPortNames()
 	 *
-	 * @return <code>true</code> if the port was aquired, <code>false</code> if the
+	 * @return <code>true</code> if the port was acquired, <code>false</code> if the
 	 *         port is not available.
 	 *
 	 * @throws OneWireIOException If port does not exist, or unable to communicate
@@ -559,20 +558,21 @@ public abstract class DSPortAdapter {
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
 	public Enumeration<OneWireContainer> getAllDeviceContainers() throws OneWireIOException, OneWireException {
-		Vector<OneWireContainer> ibutton_vector = new Vector<>();
+		var ibutton_vector = new Vector<OneWireContainer>();
 		OneWireContainer temp_ibutton;
 
-		temp_ibutton = getFirstDeviceContainer();
+		temp_ibutton = this.getFirstDeviceContainer();
 
 		if (temp_ibutton != null) {
 			ibutton_vector.addElement(temp_ibutton);
 
 			// loop to get all of the ibuttons
 			do {
-				temp_ibutton = getNextDeviceContainer();
+				temp_ibutton = this.getNextDeviceContainer();
 
-				if (temp_ibutton != null)
+				if (temp_ibutton != null) {
 					ibutton_vector.addElement(temp_ibutton);
+				}
 			} while (temp_ibutton != null);
 		}
 
@@ -593,10 +593,10 @@ public abstract class DSPortAdapter {
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
 	public OneWireContainer getFirstDeviceContainer() throws OneWireIOException, OneWireException {
-		if (findFirstDevice() == true) {
-			return getDeviceContainer();
-		} else
-			return null;
+		if (this.findFirstDevice() == true) {
+			return this.getDeviceContainer();
+		}
+		return null;
 	}
 
 	/**
@@ -614,10 +614,10 @@ public abstract class DSPortAdapter {
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
 	public OneWireContainer getNextDeviceContainer() throws OneWireIOException, OneWireException {
-		if (findNextDevice() == true) {
-			return getDeviceContainer();
-		} else
-			return null;
+		if (this.findNextDevice() == true) {
+			return this.getDeviceContainer();
+		}
+		return null;
 	}
 
 	/**
@@ -665,9 +665,9 @@ public abstract class DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public long getAddressAsLong() {
-		byte[] address = new byte[8];
+		var address = new byte[8];
 
-		getAddress(address);
+		this.getAddress(address);
 
 		return Address.toLong(address);
 	}
@@ -681,9 +681,9 @@ public abstract class DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public String getAddressAsString() {
-		byte[] address = new byte[8];
+		var address = new byte[8];
 
-		getAddress(address);
+		this.getAddress(address);
 
 		return Address.toString(address);
 	}
@@ -703,10 +703,10 @@ public abstract class DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public boolean isPresent(byte[] address) throws OneWireIOException, OneWireException {
-		reset();
-		putByte(0xF0); // Search ROM command
+		this.reset();
+		this.putByte(0xF0); // Search ROM command
 
-		return strongAccess(address);
+		return this.strongAccess(address);
 	}
 
 	/**
@@ -724,7 +724,7 @@ public abstract class DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public boolean isPresent(long address) throws OneWireIOException, OneWireException {
-		return isPresent(Address.toByteArray(address));
+		return this.isPresent(Address.toByteArray(address));
 	}
 
 	/**
@@ -742,7 +742,7 @@ public abstract class DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public boolean isPresent(String address) throws OneWireIOException, OneWireException {
-		return isPresent(Address.toByteArray(address));
+		return this.isPresent(Address.toByteArray(address));
 	}
 
 	/**
@@ -761,10 +761,10 @@ public abstract class DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public boolean isAlarming(byte[] address) throws OneWireIOException, OneWireException {
-		reset();
-		putByte(0xEC); // Conditional search commands
+		this.reset();
+		this.putByte(0xEC); // Conditional search commands
 
-		return strongAccess(address);
+		return this.strongAccess(address);
 	}
 
 	/**
@@ -783,7 +783,7 @@ public abstract class DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public boolean isAlarming(long address) throws OneWireIOException, OneWireException {
-		return isAlarming(Address.toByteArray(address));
+		return this.isAlarming(Address.toByteArray(address));
 	}
 
 	/**
@@ -802,12 +802,12 @@ public abstract class DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public boolean isAlarming(String address) throws OneWireIOException, OneWireException {
-		return isAlarming(Address.toByteArray(address));
+		return this.isAlarming(Address.toByteArray(address));
 	}
 
 	/**
 	 * Selects the specified iButton or 1-Wire device by broadcasting its address.
-	 * This operation is refered to a 'MATCH ROM' operation in the iButton and
+	 * This operation is referred to a 'MATCH ROM' operation in the iButton and
 	 * 1-Wire device data sheets. This does not affect the 'current' device state
 	 * information used in searches (findNextDevice...).
 	 *
@@ -827,23 +827,23 @@ public abstract class DSPortAdapter {
 	 */
 	public boolean select(byte[] address) throws OneWireIOException, OneWireException {
 		// send 1-Wire Reset
-		int rslt = reset();
+		var rslt = this.reset();
 
 		// broadcast the MATCH ROM command and address
-		byte[] send_packet = new byte[9];
+		var send_packet = new byte[9];
 
 		send_packet[0] = 0x55; // MATCH ROM command
 
 		System.arraycopy(address, 0, send_packet, 1, 8);
-		dataBlock(send_packet, 0, 9);
+		this.dataBlock(send_packet, 0, 9);
 
 		// success if any device present on 1-Wire Network
-		return ((rslt == RESET_PRESENCE) || (rslt == RESET_ALARM));
+		return rslt == RESET_PRESENCE || rslt == RESET_ALARM;
 	}
 
 	/**
 	 * Selects the specified iButton or 1-Wire device by broadcasting its address.
-	 * This operation is refered to a 'MATCH ROM' operation in the iButton and
+	 * This operation is referred to a 'MATCH ROM' operation in the iButton and
 	 * 1-Wire device data sheets. This does not affect the 'current' device state
 	 * information used in searches (findNextDevice...).
 	 *
@@ -862,12 +862,12 @@ public abstract class DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public boolean select(long address) throws OneWireIOException, OneWireException {
-		return select(Address.toByteArray(address));
+		return this.select(Address.toByteArray(address));
 	}
 
 	/**
 	 * Selects the specified iButton or 1-Wire device by broadcasting its address.
-	 * This operation is refered to a 'MATCH ROM' operation in the iButton and
+	 * This operation is referred to a 'MATCH ROM' operation in the iButton and
 	 * 1-Wire device data sheets. This does not affect the 'current' device state
 	 * information used in searches (findNextDevice...).
 	 *
@@ -886,12 +886,12 @@ public abstract class DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public boolean select(String address) throws OneWireIOException, OneWireException {
-		return select(Address.toByteArray(address));
+		return this.select(Address.toByteArray(address));
 	}
 
 	/**
 	 * Selects the specified iButton or 1-Wire device by broadcasting its address.
-	 * This operation is refered to a 'MATCH ROM' operation in the iButton and
+	 * This operation is referred to a 'MATCH ROM' operation in the iButton and
 	 * 1-Wire device data sheets. This does not affect the 'current' device state
 	 * information used in searches (findNextDevice...).
 	 *
@@ -911,13 +911,14 @@ public abstract class DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public void assertSelect(byte[] address) throws OneWireIOException, OneWireException {
-		if (!select(address))
+		if (!this.select(address)) {
 			throw new OneWireIOException("Device " + Address.toString(address) + " not present.");
+		}
 	}
 
 	/**
 	 * Selects the specified iButton or 1-Wire device by broadcasting its address.
-	 * This operation is refered to a 'MATCH ROM' operation in the iButton and
+	 * This operation is referred to a 'MATCH ROM' operation in the iButton and
 	 * 1-Wire device data sheets. This does not affect the 'current' device state
 	 * information used in searches (findNextDevice...).
 	 *
@@ -940,13 +941,14 @@ public abstract class DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public void assertSelect(long address) throws OneWireIOException, OneWireException {
-		if (!select(Address.toByteArray(address)))
+		if (!this.select(Address.toByteArray(address))) {
 			throw new OneWireIOException("Device " + Address.toString(address) + " not present.");
+		}
 	}
 
 	/**
 	 * Selects the specified iButton or 1-Wire device by broadcasting its address.
-	 * This operation is refered to a 'MATCH ROM' operation in the iButton and
+	 * This operation is referred to a 'MATCH ROM' operation in the iButton and
 	 * 1-Wire device data sheets. This does not affect the 'current' device state
 	 * information used in searches (findNextDevice...).
 	 *
@@ -966,8 +968,9 @@ public abstract class DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public void assertSelect(String address) throws OneWireIOException, OneWireException {
-		if (!select(Address.toByteArray(address)))
+		if (!this.select(Address.toByteArray(address))) {
 			throw new OneWireIOException("Device " + address + " not present.");
+		}
 	}
 
 	// --------
@@ -1005,15 +1008,15 @@ public abstract class DSPortAdapter {
 	 * Removes any selectivity during a search for iButtons or 1-Wire devices by
 	 * family type. The unique address for each iButton and 1-Wire device contains a
 	 * family descriptor that indicates the capabilities of the device.
-	 * 
+	 *
 	 * @see #targetFamily
 	 * @see #targetFamily(byte[])
 	 * @see #excludeFamily
 	 * @see #excludeFamily(byte[])
 	 */
 	public void targetAllFamilies() {
-		include = null;
-		exclude = null;
+		this.include = null;
+		this.exclude = null;
 	}
 
 	/**
@@ -1026,10 +1029,11 @@ public abstract class DSPortAdapter {
 	 * @see #targetAllFamilies
 	 */
 	public void targetFamily(int family) {
-		if ((include == null) || (include.length != 1))
-			include = new byte[1];
+		if (this.include == null || this.include.length != 1) {
+			this.include = new byte[1];
+		}
 
-		include[0] = (byte) family;
+		this.include[0] = (byte) family;
 	}
 
 	/**
@@ -1042,10 +1046,11 @@ public abstract class DSPortAdapter {
 	 * @see #targetAllFamilies
 	 */
 	public void targetFamily(byte family[]) {
-		if ((include == null) || (include.length != family.length))
-			include = new byte[family.length];
+		if (this.include == null || this.include.length != family.length) {
+			this.include = new byte[family.length];
+		}
 
-		System.arraycopy(family, 0, include, 0, family.length);
+		System.arraycopy(family, 0, this.include, 0, family.length);
 	}
 
 	/**
@@ -1058,10 +1063,11 @@ public abstract class DSPortAdapter {
 	 * @see #targetAllFamilies
 	 */
 	public void excludeFamily(int family) {
-		if ((exclude == null) || (exclude.length != 1))
-			exclude = new byte[1];
+		if (this.exclude == null || this.exclude.length != 1) {
+			this.exclude = new byte[1];
+		}
 
-		exclude[0] = (byte) family;
+		this.exclude[0] = (byte) family;
 	}
 
 	/**
@@ -1074,10 +1080,11 @@ public abstract class DSPortAdapter {
 	 * @see #targetAllFamilies
 	 */
 	public void excludeFamily(byte family[]) {
-		if ((exclude == null) || (exclude.length != family.length))
-			exclude = new byte[family.length];
+		if (this.exclude == null || this.exclude.length != family.length) {
+			this.exclude = new byte[family.length];
+		}
 
-		System.arraycopy(family, 0, exclude, 0, family.length);
+		System.arraycopy(family, 0, this.exclude, 0, family.length);
 	}
 
 	// --------
@@ -1097,10 +1104,10 @@ public abstract class DSPortAdapter {
 	 * they want to ensure exclusive use. If it is not called around several methods
 	 * then it will be called inside each method.
 	 *
-	 * @param blocking <code>true</code> if want to block waiting for an excluse
+	 * @param blocking <code>true</code> if want to block waiting for exclusive
 	 *                 access to the adapter
 	 * @return <code>true</code> if blocking was false and a exclusive session with
-	 *         the adapter was aquired
+	 *         the adapter was acquired
 	 *
 	 * @throws OneWireException on a setup error with the 1-Wire adapter
 	 */
@@ -1130,7 +1137,7 @@ public abstract class DSPortAdapter {
 	/**
 	 * Gets a bit from the 1-Wire Network.
 	 *
-	 * @return the bit value recieved from the the 1-Wire Network.
+	 * @return the bit value received from the the 1-Wire Network.
 	 *
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
@@ -1376,7 +1383,6 @@ public abstract class DSPortAdapter {
 	 *                            adapter does not support this operation
 	 */
 	public void setPowerNormal() throws OneWireIOException, OneWireException {
-		return;
 	}
 
 	// --------
@@ -1389,12 +1395,12 @@ public abstract class DSPortAdapter {
 	 *
 	 * @param speed
 	 *              <ul>
-	 *              <li>0 (SPEED_REGULAR) set to normal communciation speed
-	 *              <li>1 (SPEED_FLEX) set to flexible communciation speed used for
+	 *              <li>0 (SPEED_REGULAR) set to normal communication speed
+	 *              <li>1 (SPEED_FLEX) set to flexible communication speed used for
 	 *              long lines
-	 *              <li>2 (SPEED_OVERDRIVE) set to normal communciation speed to
+	 *              <li>2 (SPEED_OVERDRIVE) set to normal communication speed to
 	 *              overdrive
-	 *              <li>3 (SPEED_HYPERDRIVE) set to normal communciation speed to
+	 *              <li>3 (SPEED_HYPERDRIVE) set to normal communication speed to
 	 *              hyperdrive
 	 *              <li>>3 future speeds
 	 *              </ul>
@@ -1404,8 +1410,9 @@ public abstract class DSPortAdapter {
 	 *                            adapter does not support this operation
 	 */
 	public void setSpeed(int speed) throws OneWireIOException, OneWireException {
-		if (speed != SPEED_REGULAR)
+		if (speed != SPEED_REGULAR) {
 			throw new OneWireException("Non-regular 1-Wire speed not supported by this adapter type");
+		}
 	}
 
 	/**
@@ -1442,18 +1449,18 @@ public abstract class DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public OneWireContainer getDeviceContainer(byte[] address) {
-		int family_code = address[0] & 0x7F;
-		String family_string = ((family_code) < 16) ? ("0" + Integer.toHexString(family_code)).toUpperCase()
-				: (Integer.toHexString(family_code)).toUpperCase();
+		var family_code = address[0] & 0x7F;
+		var family_string = family_code < 16 ? ("0" + Integer.toHexString(family_code)).toUpperCase()
+				: Integer.toHexString(family_code).toUpperCase();
 		Class<?> ibutton_class = null;
 		OneWireContainer new_ibutton;
 
 		// If any user registered button exist, check the hashtable.
-		if (!registeredOneWireContainerClasses.isEmpty()) {
-			Integer familyInt = new Integer(family_code);
+		if (!this.registeredOneWireContainerClasses.isEmpty()) {
+			var familyInt = Integer.valueOf(family_code);
 
 			// Try and get a user provided container class first.
-			ibutton_class = (Class<?>) registeredOneWireContainerClasses.get(familyInt);
+			ibutton_class = this.registeredOneWireContainerClasses.get(familyInt);
 		}
 
 		// If we don't get one, do the normal lookup method.
@@ -1483,7 +1490,7 @@ public abstract class DSPortAdapter {
 		try {
 
 			// create the iButton container with a reference to this adapter
-			new_ibutton = (OneWireContainer) ibutton_class.newInstance();
+			new_ibutton = (OneWireContainer) ibutton_class.getConstructor().newInstance();
 
 			new_ibutton.setupContainer(this, address);
 		} catch (Exception e) {
@@ -1507,7 +1514,7 @@ public abstract class DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public OneWireContainer getDeviceContainer(long address) {
-		return getDeviceContainer(Address.toByteArray(address));
+		return this.getDeviceContainer(Address.toByteArray(address));
 	}
 
 	/**
@@ -1520,7 +1527,7 @@ public abstract class DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
 	public OneWireContainer getDeviceContainer(String address) {
-		return getDeviceContainer(Address.toByteArray(address));
+		return this.getDeviceContainer(Address.toByteArray(address));
 	}
 
 	/**
@@ -1533,11 +1540,11 @@ public abstract class DSPortAdapter {
 	public OneWireContainer getDeviceContainer() {
 
 		// Mask off the upper bit.
-		byte[] address = new byte[8];
+		var address = new byte[8];
 
-		getAddress(address);
+		this.getAddress(address);
 
-		return getDeviceContainer(address);
+		return this.getDeviceContainer(address);
 	}
 
 	/**
@@ -1546,19 +1553,19 @@ public abstract class DSPortAdapter {
 	 * @return <code>true</code> if in include group
 	 */
 	protected boolean isValidFamily(byte[] address) {
-		byte familyCode = address[0];
+		var familyCode = address[0];
 
-		if (exclude != null) {
-			for (int i = 0; i < exclude.length; i++) {
-				if (familyCode == exclude[i]) {
+		if (this.exclude != null) {
+			for (byte element : this.exclude) {
+				if (familyCode == element) {
 					return false;
 				}
 			}
 		}
 
-		if (include != null) {
-			for (int i = 0; i < include.length; i++) {
-				if (familyCode == include[i]) {
+		if (this.include != null) {
+			for (byte element : this.include) {
+				if (familyCode == element) {
 					return true;
 				}
 			}
@@ -1579,26 +1586,28 @@ public abstract class DSPortAdapter {
 	 *         search
 	 */
 	private boolean strongAccess(byte[] address) throws OneWireIOException, OneWireException {
-		byte[] send_packet = new byte[24];
+		var send_packet = new byte[24];
 		int i;
 
 		// set all bits at first
-		for (i = 0; i < 24; i++)
+		for (i = 0; i < 24; i++) {
 			send_packet[i] = (byte) 0xFF;
+		}
 
-		// now set or clear apropriate bits for search
-		for (i = 0; i < 64; i++)
-			arrayWriteBit(arrayReadBit(i, address), (i + 1) * 3 - 1, send_packet);
+		// now set or clear appropriate bits for search
+		for (i = 0; i < 64; i++) {
+			this.arrayWriteBit(this.arrayReadBit(i, address), (i + 1) * 3 - 1, send_packet);
+		}
 
 		// send to 1-Wire Net
-		dataBlock(send_packet, 0, 24);
+		this.dataBlock(send_packet, 0, 24);
 
 		// check the results of last 8 triplets (should be no conflicts)
 		int cnt = 56, goodbits = 0, tst, s;
 
 		for (i = 168; i < 192; i += 3) {
-			tst = (arrayReadBit(i, send_packet) << 1) | arrayReadBit(i + 1, send_packet);
-			s = arrayReadBit(cnt++, address);
+			tst = this.arrayReadBit(i, send_packet) << 1 | this.arrayReadBit(i + 1, send_packet);
+			s = this.arrayReadBit(cnt++, address);
 
 			if (tst == 0x03) // no device on line
 			{
@@ -1607,12 +1616,13 @@ public abstract class DSPortAdapter {
 				break; // quit
 			}
 
-			if (((s == 0x01) && (tst == 0x02)) || ((s == 0x00) && (tst == 0x01))) // correct bit
+			if (s == 0x01 && tst == 0x02 || s == 0x00 && tst == 0x01) {
 				goodbits++; // count as a good bit
+			}
 		}
 
 		// check too see if there were enough good bits to be successful
-		return (goodbits >= 8);
+		return goodbits >= 8;
 	}
 
 	/**
@@ -1623,13 +1633,14 @@ public abstract class DSPortAdapter {
 	 * @param buf   byte array to manipulate
 	 */
 	private void arrayWriteBit(int state, int index, byte[] buf) {
-		int nbyt = (index >>> 3);
-		int nbit = index - (nbyt << 3);
+		var nbyt = index >>> 3;
+		var nbit = index - (nbyt << 3);
 
-		if (state == 1)
-			buf[nbyt] |= (0x01 << nbit);
-		else
+		if (state == 1) {
+			buf[nbyt] |= 0x01 << nbit;
+		} else {
 			buf[nbyt] &= ~(0x01 << nbit);
+		}
 	}
 
 	/**
@@ -1641,10 +1652,10 @@ public abstract class DSPortAdapter {
 	 * @return bit state 1 or 0
 	 */
 	private int arrayReadBit(int index, byte[] buf) {
-		int nbyt = (index >>> 3);
-		int nbit = index - (nbyt << 3);
+		var nbyt = index >>> 3;
+		var nbit = index - (nbyt << 3);
 
-		return ((buf[nbyt] >>> nbit) & 0x01);
+		return buf[nbyt] >>> nbit & 0x01;
 	}
 
 	// --------
@@ -1653,7 +1664,7 @@ public abstract class DSPortAdapter {
 
 	/**
 	 * Returns a hashcode for this object
-	 * 
+	 *
 	 * @return a hascode for this object
 	 */
 	/*
@@ -1668,8 +1679,9 @@ public abstract class DSPortAdapter {
 	 * @return true if the given object is the same or equivalent to this
 	 *         DSPortAdapter.
 	 */
+	@Override
 	public boolean equals(Object o) {
-		if (o != null && o instanceof DSPortAdapter) {
+		if (o instanceof DSPortAdapter) {
 			if (o == this || o.toString().equals(this.toString())) {
 				return true;
 			}
@@ -1683,6 +1695,7 @@ public abstract class DSPortAdapter {
 	 *
 	 * @return a string representation of this DSPortAdapter
 	 */
+	@Override
 	public String toString() {
 		try {
 			return this.getAdapterName() + " " + this.getPortName();
@@ -1691,3 +1704,4 @@ public abstract class DSPortAdapter {
 		}
 	}
 }
+// CHECKSTYLE:ON

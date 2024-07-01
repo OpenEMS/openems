@@ -1,8 +1,8 @@
 package io.openems.common.jsonrpc.request;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -14,7 +14,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request for 'setGridConnSchedule'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -33,40 +33,55 @@ import io.openems.common.utils.JsonUtils;
  */
 public class SetGridConnScheduleRequest extends JsonrpcRequest {
 
+	/**
+	 * Create {@link SetGridConnScheduleRequest} from a template
+	 * {@link JsonrpcRequest}.
+	 *
+	 * @param r the template {@link JsonrpcRequest}
+	 * @return the {@link SetGridConnScheduleRequest}
+	 * @throws OpenemsNamedException on parse error
+	 */
 	public static SetGridConnScheduleRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		String edgeId = JsonUtils.getAsString(p, "id");
-		JsonArray s = JsonUtils.getAsJsonArray(p, "schedule");
-		List<GridConnSchedule> schedule = GridConnSchedule.from(s);
-		return new SetGridConnScheduleRequest(r.getId(), edgeId, schedule);
+		var p = r.getParams();
+		var edgeId = JsonUtils.getAsString(p, "id");
+		var s = JsonUtils.getAsJsonArray(p, "schedule");
+		var schedule = GridConnSchedule.from(s);
+		return new SetGridConnScheduleRequest(r, edgeId, schedule);
 	}
 
-	public final static String METHOD = "setGridConnSchedule";
+	public static final String METHOD = "setGridConnSchedule";
 
 	private final String edgeId;
 	private final List<GridConnSchedule> schedule;
 
 	public SetGridConnScheduleRequest(String edgeId) {
-		this(UUID.randomUUID(), edgeId, new ArrayList<>());
+		this(edgeId, new ArrayList<>());
 	}
 
 	public SetGridConnScheduleRequest(String edgeId, List<GridConnSchedule> schedule) {
-		this(UUID.randomUUID(), edgeId, schedule);
-	}
-
-	public SetGridConnScheduleRequest(UUID id, String edgeId, List<GridConnSchedule> schedule) {
-		super(id, METHOD);
+		super(SetGridConnScheduleRequest.METHOD);
 		this.edgeId = edgeId;
 		this.schedule = schedule;
 	}
 
+	private SetGridConnScheduleRequest(JsonrpcRequest request, String edgeId, List<GridConnSchedule> schedule) {
+		super(request, SetGridConnScheduleRequest.METHOD);
+		this.edgeId = edgeId;
+		this.schedule = schedule;
+	}
+
+	/**
+	 * Add a {@link GridConnSchedule} entry.
+	 *
+	 * @param scheduleEntry GridConnSchedule entry
+	 */
 	public void addScheduleEntry(GridConnSchedule scheduleEntry) {
 		this.schedule.add(scheduleEntry);
 	}
 
 	@Override
 	public JsonObject getParams() {
-		JsonArray schedule = new JsonArray();
+		var schedule = new JsonArray();
 		for (GridConnSchedule se : this.schedule) {
 			schedule.add(se.toJson());
 		}
@@ -76,24 +91,42 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 				.build();
 	}
 
+	/**
+	 * Gets the Edge-ID.
+	 *
+	 * @return Edge-ID
+	 */
 	public String getEdgeId() {
-		return edgeId;
+		return this.edgeId;
 	}
 
+	/**
+	 * Gets the list of {@link GridConnSchedule} entries.
+	 *
+	 * @return entries
+	 */
 	public List<GridConnSchedule> getSchedule() {
-		return schedule;
+		return this.schedule;
 	}
 
 	public static class GridConnSchedule {
 
+		/**
+		 * Create a list of {@link GridConnSchedule}s from a {@link JsonArray}.
+		 *
+		 * @param j the {@link JsonArray}
+		 * @return the list of {@link GridConnSchedule}s
+		 * @throws OpenemsNamedException on parse error
+		 */
 		public static List<GridConnSchedule> from(JsonArray j) throws OpenemsNamedException {
 			List<GridConnSchedule> schedule = new ArrayList<>();
 			for (JsonElement se : j) {
-				long startTimestamp = JsonUtils.getAsLong(se, "startTimestamp");
-				int duration = JsonUtils.getAsInt(se, "duration");
-				int activePowerSetPoint = JsonUtils.getAsInt(se, "activePowerSetPoint");
+				var startTimestamp = JsonUtils.getAsLong(se, "startTimestamp");
+				var duration = JsonUtils.getAsInt(se, "duration");
+				var activePowerSetPoint = JsonUtils.getAsInt(se, "activePowerSetPoint");
 				schedule.add(new GridConnSchedule(startTimestamp, duration, activePowerSetPoint));
 			}
+			schedule.sort(Comparator.comparing(GridConnSchedule::getStartTimestamp).reversed());
 			return schedule;
 		}
 
@@ -102,6 +135,8 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 		private final int activePowerSetPoint;
 
 		/**
+		 * Construct an instance of {@link GridConnSchedule}.
+		 *
 		 * @param startTimestamp      epoch in seconds
 		 * @param duration            in seconds
 		 * @param activePowerSetPoint in Watt
@@ -112,19 +147,34 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 			this.activePowerSetPoint = activePowerSetPoint;
 		}
 
+		/**
+		 * Gets the start timestamp in epoch seconds.
+		 *
+		 * @return start timestamp
+		 */
 		public long getStartTimestamp() {
-			return startTimestamp;
+			return this.startTimestamp;
 		}
 
+		/**
+		 * Gets the duration in seconds.
+		 *
+		 * @return duration
+		 */
 		public int getDuration() {
-			return duration;
+			return this.duration;
 		}
 
+		/**
+		 * Gets the Active-Power Setpoint.
+		 *
+		 * @return the setpoint
+		 */
 		public int getActivePowerSetPoint() {
-			return activePowerSetPoint;
+			return this.activePowerSetPoint;
 		}
 
-		public JsonObject toJson() {
+		protected JsonObject toJson() {
 			return JsonUtils.buildJsonObject() //
 					.addProperty("startTimestamp", this.getStartTimestamp()) //
 					.addProperty("duration", this.getDuration()) //

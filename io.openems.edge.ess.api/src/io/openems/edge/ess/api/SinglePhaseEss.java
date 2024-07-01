@@ -24,33 +24,33 @@ public interface SinglePhaseEss extends AsymmetricEss {
 
 	/**
 	 * Gets the Phase this ESS is connected to.
-	 * 
-	 * @return
+	 *
+	 * @return the {@link SinglePhase}
 	 */
 	public SinglePhase getPhase();
 
 	/**
 	 * Initializes Channel listeners. Copies the Active-Power Phase-Channel value to
 	 * Active-Power Channel.
-	 * 
-	 * @param ess
-	 * @param phase
+	 *
+	 * @param ess   the {@link AsymmetricEss}
+	 * @param phase the {@link SinglePhase}
 	 */
 	public static void initializeCopyPhaseChannel(AsymmetricEss ess, SinglePhase phase) {
 		switch (phase) {
 		case L1:
-			ess.getActivePowerL1().onSetNextValue(value -> {
-				ess.getActivePower().setNextValue(value);
+			ess.getActivePowerL1Channel().onSetNextValue(value -> {
+				ess._setActivePower(value.get());
 			});
 			break;
 		case L2:
-			ess.getActivePowerL2().onSetNextValue(value -> {
-				ess.getActivePower().setNextValue(value);
+			ess.getActivePowerL2Channel().onSetNextValue(value -> {
+				ess._setActivePower(value.get());
 			});
 			break;
 		case L3:
-			ess.getActivePowerL3().onSetNextValue(value -> {
-				ess.getActivePower().setNextValue(value);
+			ess.getActivePowerL3Channel().onSetNextValue(value -> {
+				ess._setActivePower(value.get());
 			});
 			break;
 		}

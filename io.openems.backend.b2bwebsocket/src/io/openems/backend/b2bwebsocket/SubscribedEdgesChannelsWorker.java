@@ -3,21 +3,14 @@ package io.openems.backend.b2bwebsocket;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-
 import io.openems.backend.b2bwebsocket.jsonrpc.notification.EdgesCurrentDataNotification;
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
-import io.openems.backend.metadata.api.BackendUser;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
@@ -27,11 +20,6 @@ public class SubscribedEdgesChannelsWorker {
 	protected static final int UPDATE_INTERVAL_IN_SECONDS = 2;
 
 	private final Logger log = LoggerFactory.getLogger(SubscribedEdgesChannelsWorker.class);
-
-	/**
-	 * Executor for subscriptions task.
-	 */
-	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
 	/**
 	 * Holds subscribed edges.
@@ -52,16 +40,16 @@ public class SubscribedEdgesChannelsWorker {
 
 	private int lastRequestCount = Integer.MIN_VALUE;
 
-	private final B2bWebsocket parent;
+	private final Backend2BackendWebsocket parent;
 
-	public SubscribedEdgesChannelsWorker(B2bWebsocket parent, WsData wsData) {
+	public SubscribedEdgesChannelsWorker(Backend2BackendWebsocket parent, WsData wsData) {
 		this.parent = parent;
 		this.wsData = wsData;
 	}
 
 	/**
 	 * Applies a SubscribeChannelsRequest.
-	 * 
+	 *
 	 * @param request the SubscribeEdgesChannelsRequest
 	 */
 	public synchronized void handleSubscribeEdgesChannelsRequest(SubscribeEdgesChannelsRequest request) {
@@ -73,7 +61,7 @@ public class SubscribedEdgesChannelsWorker {
 
 	/**
 	 * Updates the Subscription data.
-	 * 
+	 *
 	 * @param edgeIds  Set of Edge-IDs
 	 * @param channels Set of ChannelAddresses
 	 */
@@ -94,11 +82,11 @@ public class SubscribedEdgesChannelsWorker {
 
 		if (!channels.isEmpty() && !edgeIds.isEmpty()) {
 			// registered channels -> create new thread
-			this.futureOpt = Optional.of(this.executor.scheduleWithFixedDelay(() -> {
+			this.futureOpt = Optional.of(this.parent.executor.scheduleWithFixedDelay(() -> {
 				/*
 				 * This task is executed regularly. Sends data to Websocket.
 				 */
-				WebSocket ws = this.wsData.getWebsocket();
+				var ws = this.wsData.getWebsocket();
 				if (ws == null || !ws.isOpen()) {
 					// disconnected; stop worker
 					this.dispose();
@@ -111,14 +99,17 @@ public class SubscribedEdgesChannelsWorker {
 					this.log.warn("Unable to send SubscribedChannels: " + e.getMessage());
 				}
 
-			}, 0, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS));
+			}, 0, SubscribedEdgesChannelsWorker.UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS));
 		}
 	}
 
+	/**
+	 * Dispose and deactivate this worker.
+	 */
 	public void dispose() {
 		// unsubscribe regular task
 		if (this.futureOpt.isPresent()) {
-			futureOpt.get().cancel(true);
+			this.futureOpt.get().cancel(true);
 		}
 	}
 
@@ -129,16 +120,16 @@ public class SubscribedEdgesChannelsWorker {
 	 * @throws OpenemsNamedException on error
 	 */
 	private EdgesCurrentDataNotification getCurrentDataNotification() throws OpenemsNamedException {
-		EdgesCurrentDataNotification result = new EdgesCurrentDataNotification();
-		BackendUser user = this.wsData.getUserWithTimeout(5, TimeUnit.SECONDS);
+		var result = new EdgesCurrentDataNotification();
+		var user = this.wsData.getUserWithTimeout(5, TimeUnit.SECONDS);
 
 		for (String edgeId : this.edgeIds) {
 			// assure read permissions of this User for this Edge.
 			user.assertEdgeRoleIsAtLeast("EdgesCurrentDataNotification", edgeId, Role.GUEST);
 
-			for (ChannelAddress channel : this.channels) {
-				Optional<JsonElement> value = this.parent.timeData.getChannelValue(edgeId, channel);
-				result.addValue(edgeId, channel, value.orElse(JsonNull.INSTANCE));
+			var data = this.parent.edgeWebsocket.getChannelValues(edgeId, this.channels);
+			for (var entry : data.entrySet()) {
+				result.addValue(edgeId, entry.getKey(), entry.getValue());
 			}
 		}
 		return result;

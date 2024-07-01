@@ -1,0 +1,40 @@
+<header></header>
+<ion-content>
+    <ion-grid>
+        <ion-row class="ion-justify-content-center">
+            <ion-col size="12" size-xl="3">
+                <ion-card *ngIf="factory">
+                    <ion-item>
+                        <ion-icon size="large" slot="start" [name]="componentIcon" color="primary"></ion-icon>
+                        <ion-label>
+                            <ion-card-title class="ion-text-wrap">{{ factory.name }}</ion-card-title>
+                            <ion-card-subtitle class="ion-text-wrap">{{ factory.description }}</ion-card-subtitle>
+                        </ion-label>
+                    </ion-item>
+                    <ion-card-content *ngIf="formGroup !== null">
+                        <form [formGroup]="formGroup">
+                            <ion-item lines="full" class="noPadding">
+                                <ion-label position="stacked" translate>General.currentName</ion-label>
+                                <ion-input formControlName="alias">
+                                </ion-input>
+                            </ion-item>
+                        </form>
+                        <ion-row class="ion-justify-content-center">
+                            <ion-col size="6" class="ion-text-center">
+                                <ion-button expand="full" (click)="updateAlias(formGroup.controls['alias'].value)"
+                                    translate>
+                                    General.apply
+                                </ion-button>
+                            </ion-col>
+                            <ion-col size="6" class="ion-text-center">
+                                <ion-button expand="full" (click)="updateAlias('')" translate>
+                                    General.reset
+                                </ion-button>
+                            </ion-col>
+                        </ion-row>
+                    </ion-card-content>
+                </ion-card>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

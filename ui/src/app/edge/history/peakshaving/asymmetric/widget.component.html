@@ -1,4 +1,5 @@
-<ion-card button (click)="presentModal()" *ngIf="component">
+<ion-card button routerLink="/device/{{edge.id}}/history/{{componentId}}/asymmetricpeakshavingchart"
+    *ngIf="component && edge">
     <ion-item lines="full" color="light">
         <ion-icon slot="start" size="large" color="primary" name="trending-down-outline"></ion-icon>
         <ion-label>{{ component.alias }}</ion-label>

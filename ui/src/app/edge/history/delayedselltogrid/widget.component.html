@@ -1,0 +1,16 @@
+<ion-card button routerLink="/device/{{edge.id}}/history/{{componentId}}/delayedselltogridchart"
+    *ngIf="component && edge">
+    <ion-item lines="full" color="light">
+        <ion-icon slot="start" size="large" color="primary" name="trending-down-outline"></ion-icon>
+        <ion-label>{{ component.alias }}</ion-label>
+    </ion-item>
+    <ion-card-content>
+        <table class="full_width">
+            <tr>
+                <td style="width:35%" class="align_right">
+                    &nbsp;
+                </td>
+            </tr>
+        </table>
+    </ion-card-content>
+</ion-card>

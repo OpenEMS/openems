@@ -12,22 +12,54 @@ public class Coefficients {
 
 	private final List<Coefficient> coefficients = new CopyOnWriteArrayList<>();
 
+	private boolean symmetricMode = false;
 	private int noOfCoefficients = 0;
 
-	public synchronized void initialize(Set<String> essIds) {
+	/**
+	 * Initialize the Coefficients for the linear equation system.
+	 *
+	 * @param symmetricMode if activated, Coefficients are only added for Sum of all
+	 *                      Phases. Otherwise Coefficients for Sum and each Phase
+	 *                      are added.
+	 * @param essIds        Set of ESS-Ids
+	 */
+	public synchronized void initialize(boolean symmetricMode, Set<String> essIds) {
 		this.coefficients.clear();
-		int index = 0;
+		this.symmetricMode = symmetricMode;
+		var index = 0;
 		for (String essId : essIds) {
-			for (Phase phase : Phase.values()) {
+			if (symmetricMode) {
+				// Symmetric Mode
 				for (Pwr pwr : Pwr.values()) {
-					this.coefficients.add(new Coefficient(index++, essId, phase, pwr));
+					this.coefficients.add(new Coefficient(index++, essId, Phase.ALL, pwr));
+				}
+			} else {
+				// Asymmetric Mode
+				for (Phase phase : Phase.values()) {
+					for (Pwr pwr : Pwr.values()) {
+						this.coefficients.add(new Coefficient(index++, essId, phase, pwr));
+					}
 				}
 			}
 		}
 		this.noOfCoefficients = index;
 	}
 
+	/**
+	 * Gets the {@link Coefficient} for the given Ess-ID, {@link Phase} and
+	 * {@link Pwr}.
+	 * 
+	 * @param essId the Ess-ID
+	 * @param phase the {@link Phase}
+	 * @param pwr   the {@link Pwr}
+	 * @return the {@link Coefficient}
+	 * @throws OpenemsException on error
+	 */
 	public Coefficient of(String essId, Phase phase, Pwr pwr) throws OpenemsException {
+		if (this.symmetricMode && phase != Phase.ALL) {
+			throw new OpenemsException("Symmetric-Mode is activated. Coefficients for [" + essId + "," + phase + ","
+					+ pwr + "] is not available!");
+		}
 		for (Coefficient c : this.coefficients) {
 			if (Objects.equals(c.essId, essId) && c.phase == phase && c.pwr == pwr) {
 				return c;
@@ -42,6 +74,6 @@ public class Coefficients {
 	}
 
 	public int getNoOfCoefficients() {
-		return noOfCoefficients;
+		return this.noOfCoefficients;
 	}
 }

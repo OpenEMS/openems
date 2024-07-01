@@ -1,0 +1,13 @@
+= Electric Vehicle Charging Station OCPP Common
+
+The Open Charge Point Protocol (OCPP) is an application protocol for communication between
+Electric vehicle charging stations (EVCS) and a central management system.
+
+The whole bundle contains a library of the OCPP functions.
+It also provides a default abstract ocpp EVCS component that can be used by every specific charging station and a OcppServer interface that provides a minimum functionality, to be able to send data to a charging station.
+
+Implemented Natures:
+* Evcs (Electric Vehicle Charging Station
+* MeasuringEvcs (Can get measured information)
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.ocpp.core[Source Code icon:github[]]

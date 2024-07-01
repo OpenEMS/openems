@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -41,3 +42,4 @@ public class OWSyncFailedException extends java.io.IOException {
 		super(desc);
 	}
 }
+// CHECKSTYLE:ON

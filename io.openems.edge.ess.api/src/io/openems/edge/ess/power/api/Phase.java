@@ -10,6 +10,6 @@ public enum Phase {
 	}
 
 	public String getSymbol() {
-		return symbol;
+		return this.symbol;
 	}
 }

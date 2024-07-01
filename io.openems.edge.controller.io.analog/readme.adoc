@@ -1,0 +1,7 @@
+= IO Analog Controller
+
+Controller that sets a analog output according to the configured inputs to OFF|AUTOMATIC|ON.
+
+In AUTOMATIC mode the output is set dynamically depending on the current surplus power.
+ 
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.io.analog[Source Code icon:github[]]

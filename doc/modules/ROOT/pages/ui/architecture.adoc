@@ -1,0 +1,26 @@
+= UI Architecture
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../assets/images
+
+OpenEMS UI is the real-time user interface for web browsers and smartphones.
+
+.OpenEMS UI Live view
+image::ui-live.png[OpenEMS UI Live view]
+
+== Adaptive User Interface
+
+The OpenEMS UI is the standard user interface for OpenEMS.
+It uses the `EdgeConfig` (see Edge -> Configuration) to adapt its visualisation in accordance with the actual configuration.
+The screenshot above visualizes the 'Live view' of OpenEMS UI.
+It shows Storage System, Production and Grid because corresponding OpenEMS Components are listed in the EdgeConfig.
+
+== Configuration of OpenEMS Edge
+
+OpenEMS UI provides a way to instantiate an OpenEMS Component from a factory by providing configuration parameters. See Edge -> Configuration for details.

@@ -1,32 +1,31 @@
 package io.openems.edge.controller.test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractComponentTest;
-import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.api.Controller;
 
 /**
- * Framework for testing a Controller.
+ * Provides a generic test framework for OpenEMS {@link Controller}s.
  */
-public class ControllerTest extends AbstractComponentTest {
+public class ControllerTest extends AbstractComponentTest<ControllerTest, Controller> {
 
-	private final Controller controller;
-
-	public ControllerTest(Controller controller, OpenemsComponent... components) {
-		super(components);
-		this.controller = controller;
-	}
-
-	public ControllerTest(Controller controller, DummyComponentManager componentManager,
-			OpenemsComponent... components) {
-		super(components, componentManager);
-		this.controller = controller;
+	public ControllerTest(Controller controller, OpenemsComponent... components) throws OpenemsException {
+		super(controller);
+		for (OpenemsComponent component : components) {
+			this.addComponent(component);
+		}
 	}
 
 	@Override
-	protected void executeLogic() throws OpenemsNamedException {
-		this.controller.run();
+	protected void onExecuteControllers() throws OpenemsNamedException {
+		this.getSut().run();
+	}
+
+	@Override
+	protected ControllerTest self() {
+		return this;
 	}
 
 }

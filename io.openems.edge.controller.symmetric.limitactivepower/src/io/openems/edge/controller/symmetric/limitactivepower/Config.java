@@ -3,7 +3,7 @@ package io.openems.edge.controller.symmetric.limitactivepower;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Limit Active Power Symmetric", //
 		description = "Defines charge and discharge limits for a symmetric energy storage system.")
 @interface Config {
@@ -25,6 +25,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Max Discharge Power [W]", description = "Positive value describing the maximum Discharge Power.")
 	int maxDischargePower();
+
+	@AttributeDefinition(name = "Validate applied power Constraints", description = "If this property is 'false' the limitation is not validated. " //
+			+ "Only disable if you know what you are doing. This can break the system!")
+	boolean validatePowerConstraints() default true;
 
 	String webconsole_configurationFactory_nameHint() default "Controller Limit Active Power Symmetric [{id}]";
 }

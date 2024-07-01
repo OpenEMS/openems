@@ -9,7 +9,7 @@ public enum SetWorkState implements OptionsEnum {
 	REMOTE_CONTROL_OFF_GRID_STARTING(2, "Remote Control off Grid Starting"), //
 	STOP(3, "Stop"), //
 	EMERGENCY_STOP(4, "Emergency Stop"); //
-	
+
 	private final int value;
 	private final String name;
 
@@ -20,12 +20,12 @@ public enum SetWorkState implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

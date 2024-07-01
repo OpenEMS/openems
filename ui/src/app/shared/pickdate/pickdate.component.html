@@ -1,18 +1,11 @@
-<ng-container *ngIf="disableArrow != null">
-    <ion-button (click)="goBackward()">
-        <ion-icon class="ion-padding-start" src="assets/img/arrow-back.svg" slot="start"></ion-icon>
-    </ion-button>
-    <ion-button *ngIf="translate" (click)="presentPopover($event)">
-        {{service.historyPeriod.getText(translate)}}
-    </ion-button>
-    <ng-container *ngIf="disableArrow == false">
-        <ion-button (click)="goForward()">
-            <ion-icon class="ion-padding-end" src="assets/img/arrow-forward.svg" slot="end"></ion-icon>
-        </ion-button>
-    </ng-container>
-    <ng-container *ngIf="disableArrow == true">
-        <ion-button disabled (click)="goForward()">
-            <ion-icon class="ion-padding-end" src="assets/img/arrow-forward-crossed.svg" slot="end"></ion-icon>
-        </ion-button>
-    </ng-container>
-</ng-container>
+<ion-button (click)="goBackward()" [disabled]="!isBackArrowAllowed">
+    <ion-icon class="ion-padding-start" name="arrow-back-outline" slot="start" ngClass="secondary-color-contrast">
+    </ion-icon>
+</ion-button>
+<ion-button *ngIf="translate" (click)="presentPopover($event)" ngClass="secondary-color-contrast">
+    {{service.historyPeriod.value.getText(translate, service)}}
+</ion-button>
+<ion-button [disabled]="!isForwardArrowAllowed" (click)="goForward()">
+    <ion-icon class="ion-padding-end" slot="end" name="arrow-forward-outline" ngClass="secondary-color-contrast">
+    </ion-icon>
+</ion-button>

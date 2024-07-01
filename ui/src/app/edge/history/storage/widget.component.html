@@ -1,25 +1,25 @@
-<ion-card button (click)="presentModal()">
+<ion-card *ngIf="edge" button routerLink="/device/{{edge.id}}/history/storagechart">
     <ion-item lines="full" color="light">
-        <ion-avatar slot="start">
-            <img src="assets/img/storage.png">
-        </ion-avatar>
+        <ion-icon slot="start" name="oe-storage" color="success" size="large"></ion-icon>
         <ion-label translate>General.storageSystem</ion-label>
     </ion-item>
     <ion-card-content>
-        <table class="full_width" *ngIf="data && edge && service.isKwhAllowed(edge); else noData">
-            <tr>
-                <td style="width:65%" translate>General.chargePower</td>
-                <td style="width:35%" class="align_right">
-                    {{data["_sum/EssActiveChargeEnergy"] | unitvalue:'kWh'}}
-                </td>
-            </tr>
-            <tr>
-                <td style="width:65%" translate>General.dischargePower</td>
-                <td style="width:35%" class="align_right">
-                    {{data["_sum/EssActiveDischargeEnergy"] | unitvalue:'kWh'}}
-                </td>
-            </tr>
-        </table>
+        <ng-container *ngIf="data && edge; else noData">
+            <table class="full_width">
+                <tr>
+                    <td style="width:65%" translate>General.chargePower</td>
+                    <td style="width:35%" class="align_right">
+                        {{ data["_sum/EssDcChargeEnergy"] | unitvalue:'kWh' }}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width:65%" translate>General.dischargePower</td>
+                    <td style="width:35%" class="align_right">
+                        {{ data["_sum/EssDcDischargeEnergy"] | unitvalue:'kWh' }}
+                    </td>
+                </tr>
+            </table>
+        </ng-container>
         <ng-template #noData>
             <table class="full_width">
                 <tr>

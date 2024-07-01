@@ -1,8 +1,9 @@
 package io.openems.backend.b2brest;
 
-import java.io.BufferedReader;
+import static io.openems.common.utils.JsonUtils.parseToJsonObject;
+import static java.util.stream.Collectors.joining;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Base64;
@@ -11,11 +12,6 @@ import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -23,9 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
-import io.openems.backend.metadata.api.BackendUser;
+import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -34,22 +29,24 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseError;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.JsonUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class RestHandler extends AbstractHandler {
 
 	private final Logger log = LoggerFactory.getLogger(RestHandler.class);
 
-	private final B2bRest parent;
+	private final Backend2BackendRest parent;
 
-	public RestHandler(B2bRest parent) {
+	public RestHandler(Backend2BackendRest parent) {
 		this.parent = parent;
 	}
 
 	@Override
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
+			throws IOException {
 		try {
-			BackendUser user = this.authenticate(request);
+			var user = this.authenticate(request);
 
 			List<String> targets = Arrays.asList(//
 					target.substring(1) // remove leading '/'
@@ -59,7 +56,7 @@ public class RestHandler extends AbstractHandler {
 				throw new OpenemsException("Missing arguments to handle request");
 			}
 
-			String thisTarget = targets.get(0);
+			var thisTarget = targets.get(0);
 			switch (thisTarget) {
 			case "jsonrpc":
 				this.handleJsonRpc(user, baseRequest, request, response);
@@ -72,17 +69,17 @@ public class RestHandler extends AbstractHandler {
 
 	/**
 	 * Authenticate a user.
-	 * 
+	 *
 	 * @param request the HttpServletRequest
-	 * @return the User
+	 * @return the {@link User}
 	 * @throws OpenemsNamedException on error
 	 */
-	private BackendUser authenticate(HttpServletRequest request) throws OpenemsNamedException {
-		String authHeader = request.getHeader("Authorization");
+	private User authenticate(HttpServletRequest request) throws OpenemsNamedException {
+		var authHeader = request.getHeader("Authorization");
 		if (authHeader != null) {
-			StringTokenizer st = new StringTokenizer(authHeader);
+			var st = new StringTokenizer(authHeader);
 			if (st.hasMoreTokens()) {
-				String basic = st.nextToken();
+				var basic = st.nextToken();
 				if (basic.equalsIgnoreCase("Basic")) {
 					String credentials;
 					try {
@@ -90,10 +87,10 @@ public class RestHandler extends AbstractHandler {
 					} catch (UnsupportedEncodingException e) {
 						throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 					}
-					int p = credentials.indexOf(":");
+					var p = credentials.indexOf(":");
 					if (p != -1) {
-						String username = credentials.substring(0, p).trim();
-						String password = credentials.substring(p + 1).trim();
+						var username = credentials.substring(0, p).trim();
+						var password = credentials.substring(p + 1).trim();
 						// authenticate using username & password
 						return this.parent.metadata.authenticate(username, password);
 					}
@@ -140,16 +137,19 @@ public class RestHandler extends AbstractHandler {
 
 	/**
 	 * Parses a Request to JSON.
-	 * 
+	 *
 	 * @param baseRequest the Request
 	 * @return the {@link JsonObject}
 	 * @throws OpenemsException on error
 	 */
 	private static JsonObject parseJson(Request baseRequest) throws OpenemsException {
-		JsonParser parser = new JsonParser();
 		try {
-			return parser.parse(new BufferedReader(new InputStreamReader(baseRequest.getInputStream())).lines()
-					.collect(Collectors.joining("\n"))).getAsJsonObject();
+			try (var br = baseRequest.getReader()) {
+				return parseToJsonObject(br //
+						.lines() //
+						.collect(joining("\n")));
+			}
+
 		} catch (Exception e) {
 			throw new OpenemsException("Unable to parse: " + e.getMessage());
 		}
@@ -157,15 +157,15 @@ public class RestHandler extends AbstractHandler {
 
 	/**
 	 * Handles an http request to 'jsonrpc' endpoint.
-	 * 
-	 * @param user         the User
+	 *
+	 * @param user         the {@link User}
 	 * @param baseRequest  the {@link Request}
 	 * @param httpRequest  the {@link HttpServletRequest}
 	 * @param httpResponse the {@link HttpServletResponse}
 	 */
-	private void handleJsonRpc(BackendUser user, Request baseRequest, HttpServletRequest httpRequest,
+	private void handleJsonRpc(User user, Request baseRequest, HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse) {
-		UUID requestId = new UUID(0L, 0L); /* dummy UUID */
+		var requestId = new UUID(0L, 0L); /* dummy UUID */
 		try {
 			// call handler methods
 			if (!httpRequest.getMethod().equals("POST")) {
@@ -174,7 +174,7 @@ public class RestHandler extends AbstractHandler {
 			}
 
 			// parse json and add "jsonrpc" and "id" properties if missing
-			JsonObject json = RestHandler.parseJson(baseRequest);
+			var json = RestHandler.parseJson(baseRequest);
 			if (!json.has("jsonrpc")) {
 				json.addProperty("jsonrpc", "2.0");
 			}
@@ -182,9 +182,9 @@ public class RestHandler extends AbstractHandler {
 				json.addProperty("id", UUID.randomUUID().toString());
 			}
 			if (json.has("params")) {
-				JsonObject params = JsonUtils.getAsJsonObject(json, "params");
+				var params = JsonUtils.getAsJsonObject(json, "params");
 				if (params.has("payload")) {
-					JsonObject payload = JsonUtils.getAsJsonObject(params, "payload");
+					var payload = JsonUtils.getAsJsonObject(params, "payload");
 					if (!payload.has("jsonrpc")) {
 						payload.addProperty("jsonrpc", "2.0");
 					}
@@ -196,11 +196,11 @@ public class RestHandler extends AbstractHandler {
 				json.add("params", params);
 			}
 			// parse JSON-RPC Request
-			JsonrpcMessage message = JsonrpcMessage.from(json);
+			var message = JsonrpcMessage.from(json);
 			if (!(message instanceof JsonrpcRequest)) {
 				throw new OpenemsException("Only JSON-RPC Request is supported here.");
 			}
-			JsonrpcRequest request = (JsonrpcRequest) message;
+			var request = (JsonrpcRequest) message;
 
 			// handle the request
 			CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture = this.parent.jsonRpcRequestHandler

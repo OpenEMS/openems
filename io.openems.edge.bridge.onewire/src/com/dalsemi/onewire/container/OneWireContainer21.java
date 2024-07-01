@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999 - 2001 Maxim Integrated Products, All Rights Reserved.
@@ -152,7 +153,7 @@ import com.dalsemi.onewire.utils.Convert;
  * This code also ensures that the Thermocron's clock is set to run, and that
  * the clock alarm is enabled.
  * </p>
- * 
+ *
  * <pre>
  * <code>
  *       // "ID" is a byte array of size 8 with an address of a part we
@@ -299,9 +300,7 @@ import com.dalsemi.onewire.utils.Convert;
  * @author COlmstea, KLA
  *
  */
-@SuppressWarnings({ "unused" })
 public class OneWireContainer21 extends OneWireContainer implements TemperatureContainer, ClockContainer {
-	private static final byte FAMILY_CODE = (byte) 0x21;
 	private boolean doSpeedEnable = true;
 
 	/*
@@ -330,7 +329,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	private MemoryBankNVCRC log;
 
 	// Buffer to hold the temperature log in
-	private byte[] read_log_buffer = new byte[64 * 32]; // 64 pages X 32 bytes per page
+	private final byte[] read_log_buffer = new byte[64 * 32]; // 64 pages X 32 bytes per page
 
 	// should we update the Real time clock?
 	private boolean updatertc = false;
@@ -622,10 +621,8 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 *      OneWireContainer21(DSPortAdapter,String)
 	 */
 	public OneWireContainer21() {
-		super();
-
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
@@ -645,7 +642,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		super(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
@@ -665,7 +662,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		super(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
@@ -685,7 +682,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		super(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
@@ -696,9 +693,10 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @param newAddress    address of this 1-Wire device
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public void setupContainer(DSPortAdapter sourceAdapter, byte[] newAddress) {
 		super.setupContainer(sourceAdapter, newAddress);
-		setThermochronVariables();
+		this.setThermochronVariables();
 	}
 
 	/**
@@ -709,9 +707,10 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @param newAddress    address of this 1-Wire device
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public void setupContainer(DSPortAdapter sourceAdapter, long newAddress) {
 		super.setupContainer(sourceAdapter, newAddress);
-		setThermochronVariables();
+		this.setThermochronVariables();
 	}
 
 	/**
@@ -722,9 +721,10 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @param newAddress    address of this 1-Wire device
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public void setupContainer(DSPortAdapter sourceAdapter, java.lang.String newAddress) {
 		super.setupContainer(sourceAdapter, newAddress);
-		setThermochronVariables();
+		this.setThermochronVariables();
 	}
 
 	/**
@@ -733,29 +733,30 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * MemoryBank}, {@link com.dalsemi.onewire.container.PagedMemoryBank
 	 * PagedMemoryBank}, and {@link com.dalsemi.onewire.container.OTPMemoryBank
 	 * OTPMemoryBank}.
-	 * 
+	 *
 	 * @return <CODE>Enumeration</CODE> of memory banks
 	 */
+	@Override
 	public Enumeration<MemoryBank> getMemoryBanks() {
-		Vector<MemoryBank> bank_vector = new Vector<>(6);
+		var bank_vector = new Vector<MemoryBank>(6);
 
 		// scratchpad
-		bank_vector.addElement(scratch);
+		bank_vector.addElement(this.scratch);
 
 		// NVRAM
-		bank_vector.addElement(new MemoryBankNVCRC(this, scratch));
+		bank_vector.addElement(new MemoryBankNVCRC(this, this.scratch));
 
 		// Register page
-		bank_vector.addElement(register);
+		bank_vector.addElement(this.register);
 
 		// Alarm time stamps and duration
-		bank_vector.addElement(alarm);
+		bank_vector.addElement(this.alarm);
 
 		// Histogram
-		bank_vector.addElement(histogram);
+		bank_vector.addElement(this.histogram);
 
 		// Log
-		bank_vector.addElement(log);
+		bank_vector.addElement(this.log);
 
 		return bank_vector.elements();
 	}
@@ -770,45 +771,45 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	private void initMem() {
 
 		// scratchpad
-		scratch = new MemoryBankScratchCRC(this);
+		this.scratch = new MemoryBankScratchCRC(this);
 
 		// Register
-		register = new MemoryBankNVCRC(this, scratch);
-		register.numberPages = 1;
-		register.size = 32;
-		register.bankDescription = "Register control";
-		register.startPhysicalAddress = 0x200;
-		register.generalPurposeMemory = false;
+		this.register = new MemoryBankNVCRC(this, this.scratch);
+		this.register.numberPages = 1;
+		this.register.size = 32;
+		this.register.bankDescription = "Register control";
+		this.register.startPhysicalAddress = 0x200;
+		this.register.generalPurposeMemory = false;
 
 		// Alarm registers
-		alarm = new MemoryBankNVCRC(this, scratch);
-		alarm.numberPages = 3;
-		alarm.size = 96;
-		alarm.bankDescription = "Alarm time stamps";
-		alarm.startPhysicalAddress = 544;
-		alarm.generalPurposeMemory = false;
-		alarm.readOnly = true;
-		alarm.readWrite = false;
+		this.alarm = new MemoryBankNVCRC(this, this.scratch);
+		this.alarm.numberPages = 3;
+		this.alarm.size = 96;
+		this.alarm.bankDescription = "Alarm time stamps";
+		this.alarm.startPhysicalAddress = 544;
+		this.alarm.generalPurposeMemory = false;
+		this.alarm.readOnly = true;
+		this.alarm.readWrite = false;
 
 		// Histogram
-		histogram = new MemoryBankNVCRC(this, scratch);
-		histogram.numberPages = 4;
-		histogram.size = 128;
-		histogram.bankDescription = "Temperature Histogram";
-		histogram.startPhysicalAddress = 2048;
-		histogram.generalPurposeMemory = false;
-		histogram.readOnly = true;
-		histogram.readWrite = false;
+		this.histogram = new MemoryBankNVCRC(this, this.scratch);
+		this.histogram.numberPages = 4;
+		this.histogram.size = 128;
+		this.histogram.bankDescription = "Temperature Histogram";
+		this.histogram.startPhysicalAddress = 2048;
+		this.histogram.generalPurposeMemory = false;
+		this.histogram.readOnly = true;
+		this.histogram.readWrite = false;
 
 		// Log
-		log = new MemoryBankNVCRC(this, scratch);
-		log.numberPages = 64;
-		log.size = 2048;
-		log.bankDescription = "Temperature log";
-		log.startPhysicalAddress = 4096;
-		log.generalPurposeMemory = false;
-		log.readOnly = true;
-		log.readWrite = false;
+		this.log = new MemoryBankNVCRC(this, this.scratch);
+		this.log.numberPages = 64;
+		this.log.size = 2048;
+		this.log.bankDescription = "Temperature log";
+		this.log.startPhysicalAddress = 4096;
+		this.log.generalPurposeMemory = false;
+		this.log.readOnly = true;
+		this.log.readWrite = false;
 	}
 
 	/**
@@ -828,70 +829,70 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	private void setThermochronVariables() {
 		// Get Temperature Range code, which is the first 12 (MSB) bits of the
 		// unique serial number (after the CRC).
-		byte[] address = getAddress(); // retrieve 1-Wire net address to look at range code.
-		int rangeCode = (((address[6] & 0x0FF) << 4) | ((address[5] & 0x0FF) >> 4));
+		var address = this.getAddress(); // retrieve 1-Wire net address to look at range code.
+		var rangeCode = (address[6] & 0x0FF) << 4 | (address[5] & 0x0FF) >> 4;
 
 		switch (rangeCode) {
 		case 0x34C:
-			partNumber = "DS1921L-F51";
-			temperatureRangeLow = -40;
-			temperatureRangeHigh = 85;
-			temperatureResolution = 0.5;
-			temperatureOperatingRangeLow = -10;
-			temperatureOperatingRangeHigh = 85;
-			isDS1921HZ = false;
+			this.partNumber = "DS1921L-F51";
+			this.temperatureRangeLow = -40;
+			this.temperatureRangeHigh = 85;
+			this.temperatureResolution = 0.5;
+			this.temperatureOperatingRangeLow = -10;
+			this.temperatureOperatingRangeHigh = 85;
+			this.isDS1921HZ = false;
 			break;
 		case 0x254:
-			partNumber = "DS1921L-F52";
-			temperatureRangeLow = -40;
-			temperatureRangeHigh = 85;
-			temperatureResolution = 0.5;
-			temperatureOperatingRangeLow = -20;
-			temperatureOperatingRangeHigh = 85;
-			isDS1921HZ = false;
+			this.partNumber = "DS1921L-F52";
+			this.temperatureRangeLow = -40;
+			this.temperatureRangeHigh = 85;
+			this.temperatureResolution = 0.5;
+			this.temperatureOperatingRangeLow = -20;
+			this.temperatureOperatingRangeHigh = 85;
+			this.isDS1921HZ = false;
 			break;
 		case 0x15C:
-			partNumber = "DS1921L-F53";
-			temperatureRangeLow = -40;
-			temperatureRangeHigh = 85;
-			temperatureResolution = 0.5;
-			temperatureOperatingRangeLow = -30;
-			temperatureOperatingRangeHigh = 85;
-			isDS1921HZ = false;
+			this.partNumber = "DS1921L-F53";
+			this.temperatureRangeLow = -40;
+			this.temperatureRangeHigh = 85;
+			this.temperatureResolution = 0.5;
+			this.temperatureOperatingRangeLow = -30;
+			this.temperatureOperatingRangeHigh = 85;
+			this.isDS1921HZ = false;
 			break;
 		case 0x4F2:
-			partNumber = "DS1921H-F5";
-			temperatureRangeLow = 15;
-			temperatureRangeHigh = 46;
-			temperatureResolution = 0.125;
-			temperatureOperatingRangeLow = -40;
-			temperatureOperatingRangeHigh = 85;
-			isDS1921HZ = true;
+			this.partNumber = "DS1921H-F5";
+			this.temperatureRangeLow = 15;
+			this.temperatureRangeHigh = 46;
+			this.temperatureResolution = 0.125;
+			this.temperatureOperatingRangeLow = -40;
+			this.temperatureOperatingRangeHigh = 85;
+			this.isDS1921HZ = true;
 			break;
 		case 0x3B2:
-			partNumber = "DS1921Z-F5";
-			temperatureRangeLow = -5;
-			temperatureRangeHigh = 26;
-			temperatureResolution = 0.125;
-			temperatureOperatingRangeLow = -40;
-			temperatureOperatingRangeHigh = 85;
-			isDS1921HZ = true;
+			this.partNumber = "DS1921Z-F5";
+			this.temperatureRangeLow = -5;
+			this.temperatureRangeHigh = 26;
+			this.temperatureResolution = 0.125;
+			this.temperatureOperatingRangeLow = -40;
+			this.temperatureOperatingRangeHigh = 85;
+			this.isDS1921HZ = true;
 			break;
 		default:
-			long lower36bits = (((long) address[5] & 0x0F) << 32) | (((long) address[4] & 0x0FF) << 24)
-					| (((long) address[3] & 0x0FF) << 16) | (((long) address[2] & 0x0FF) << 8)
-					| ((long) address[1] & 0x0FF);
-			if (lower36bits >= 0x100000)
-				partNumber = "DS1921G-F5";
-			else
-				partNumber = "DS1921L-PROTO";
+			var lower36bits = ((long) address[5] & 0x0F) << 32 | ((long) address[4] & 0x0FF) << 24
+					| ((long) address[3] & 0x0FF) << 16 | ((long) address[2] & 0x0FF) << 8 | (long) address[1] & 0x0FF;
+			if (lower36bits >= 0x100000) {
+				this.partNumber = "DS1921G-F5";
+			} else {
+				this.partNumber = "DS1921L-PROTO";
+			}
 
-			temperatureRangeLow = -40;
-			temperatureRangeHigh = 85;
-			temperatureResolution = 0.5;
-			temperatureOperatingRangeLow = -40;
-			temperatureOperatingRangeHigh = 85;
-			isDS1921HZ = false;
+			this.temperatureRangeLow = -40;
+			this.temperatureRangeHigh = 85;
+			this.temperatureResolution = 0.5;
+			this.temperatureOperatingRangeLow = -40;
+			this.temperatureOperatingRangeHigh = 85;
+			this.isDS1921HZ = false;
 			break;
 
 		}
@@ -904,17 +905,17 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		 * in correct place rangeCode = rangeCode + (netAddress[5] & 0xFF); // add the
 		 * least significant byte to make integer. rangeCode = rangeCode >> 4; // this
 		 * is a 12-bit number, so get rid of extra 4 bits.
-		 * 
+		 *
 		 * // Detect what kind of part we have, a DS1921L-F5X or a DS1921H/Z int
 		 * detectionInt = rangeCode & 0x03; // get the last 2 bits to see what they are
 		 * if (detectionInt > 0) isDS1921HZ = true; // if the last 2 bits > 0 then the
 		 * part is a DS1921H or Z
-		 * 
+		 *
 		 * // Get temperature ranges as a result of the rangeCode and the type of
 		 * device. if (isDS1921HZ) { // get the most significant 8 bits of the 12-bit
 		 * rangeCode temperatureRangeLow = rangeCode >> 4; temperatureRangeLow =
 		 * temperatureRangeLow - 64; // 1 degree increment with 0x000 = -64 degrees.
-		 * 
+		 *
 		 * // Resolution Code -- the last 2 bits of the 12-bit rangeCode number // // 0
 		 * = 0.5 degrees Celsius // 1 = 0.25 // 2 = 0.125 // 3 = 0.0625 switch(rangeCode
 		 * & 0x03) // gets the last 2 bits of the 12-bit rangeCode. { case 0:
@@ -922,11 +923,11 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		 * break; case 2: temperatureResolution = 0.125; break; case 3:
 		 * temperatureResolution = 0.0625; break; default: temperatureResolution = 0.5;
 		 * }
-		 * 
+		 *
 		 * // Range Modifier Code (range width) // // 0 = full range, 256 * resolution
 		 * // 1 = reduced range, 2/3 of full range // 2 = reduced range, 1/2 of full
 		 * range // 3 = reduced range, 1/3 of full range
-		 * 
+		 *
 		 * switch((rangeCode >> 2) & 0x03) { case 0: temperatureRangeWidth = (256 *
 		 * temperatureResolution) - 1; break; case 1: temperatureRangeWidth = (256 *
 		 * temperatureResolution * 2 / 3) - 1; break; case 2: temperatureRangeWidth =
@@ -954,23 +955,23 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 */
 	private int[] getDate(int timeReg, byte[] state) {
 		byte upper, lower;
-		int[] result = new int[3];
+		var result = new int[3];
 
 		timeReg = timeReg & 31;
 
 		/* extract the day of the month */
 		lower = state[timeReg++];
-		upper = (byte) ((lower >>> 4) & 0x0f);
+		upper = (byte) (lower >>> 4 & 0x0f);
 		lower = (byte) (lower & 0x0f);
 		result[2] = 10 * upper + lower;
 
 		/* extract the month */
 		lower = state[timeReg++];
-		upper = (byte) ((lower >>> 4) & 0x0f);
+		upper = (byte) (lower >>> 4 & 0x0f);
 		lower = (byte) (lower & 0x0f);
 
 		// the upper bit contains the century, so subdivide upper
-		byte century = (byte) ((upper >>> 3) & 0x01);
+		var century = (byte) (upper >>> 3 & 0x01);
 
 		upper = (byte) (upper & 0x01);
 		result[1] = lower + upper * 10;
@@ -978,7 +979,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		/* grab the year */
 		result[0] = 1900 + century * 100;
 		lower = state[timeReg++];
-		upper = (byte) ((lower >>> 4) & 0x0f);
+		upper = (byte) (lower >>> 4 & 0x0f);
 		lower = (byte) (lower & 0x0f);
 		result[0] += upper * 10 + lower;
 
@@ -991,7 +992,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 */
 	private int[] getTime(int timeReg, byte[] state) {
 		byte upper, lower;
-		int[] result = new int[3];
+		var result = new int[3];
 
 		timeReg = timeReg & 31;
 
@@ -1000,37 +1001,38 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 
 		/* First grab the seconds. Upper half holds the 10's of seconds */
 		lower = state[timeReg++];
-		upper = (byte) ((lower >>> 4) & 0x07);
+		upper = (byte) (lower >>> 4 & 0x07);
 		lower = (byte) (lower & 0x0f);
-		result[0] = (int) lower + (int) upper * 10;
+		result[0] = lower + upper * 10;
 
 		/* now grab minutes. The upper half holds the 10s of minutes */
 		lower = state[timeReg++];
-		upper = (byte) ((lower >>> 4) & 0x07);
+		upper = (byte) (lower >>> 4 & 0x07);
 		lower = (byte) (lower & 0x0f);
-		result[1] = (int) lower + (int) upper * 10;
+		result[1] = lower + upper * 10;
 
 		/*
 		 * now grab the hours. The lower half is single hours again, but the upper half
 		 * of the byte is determined by the 2nd bit - specifying 12/24 hour time.
 		 */
 		lower = state[timeReg++];
-		upper = (byte) ((lower >>> 4) & 0x07);
+		upper = (byte) (lower >>> 4 & 0x07);
 		lower = (byte) (lower & 0x0f);
 
 		int hours;
 
 		// if the 2nd bit is 1, convert 12 hour time to 24 hour time.
-		if ((upper >>> 2) != 0) {
+		if (upper >>> 2 != 0) {
 
 			// extract the AM/PM byte (PM is indicated by a 1)
-			byte PM = (byte) (((upper << 6) >>> 7) & 0x01);
+			var PM = (byte) (upper << 6 >>> 7 & 0x01);
 
 			// isolate the 10s place
 			upper = (byte) (upper & 0x01);
 			hours = upper * 10 + PM * 12;
-		} else
+		} else {
 			hours = upper * 10; // already in 24 hour format
+		}
 
 		hours += lower;
 		result[2] = hours;
@@ -1046,7 +1048,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 
 		/* format in bytes and write seconds */
 		upper = (byte) (seconds / 10);
-		upper = (byte) ((upper << 4) & 0xf0);
+		upper = (byte) (upper << 4 & 0xf0);
 		lower = (byte) (seconds % 10);
 		lower = (byte) (lower & 0x0f);
 		state[timeReg & 31] = (byte) (upper | lower);
@@ -1055,7 +1057,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 
 		/* format in bytes and write minutes */
 		upper = (byte) (minutes / 10);
-		upper = (byte) ((upper << 4) & 0xf0);
+		upper = (byte) (upper << 4 & 0xf0);
 		lower = (byte) (minutes % 10);
 		lower = (byte) (lower & 0x0f);
 		state[timeReg & 31] = (byte) (upper | lower);
@@ -1066,26 +1068,30 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		if (AMPM) {
 			upper = (byte) 0x04;
 
-			if (hours > 11)
+			if (hours > 11) {
 				upper = (byte) (upper | 0x02);
+			}
 
 			// this next function simply checks for a decade hour
-			if (((hours % 12) == 0) || ((hours % 12) > 9))
+			if (hours % 12 == 0 || hours % 12 > 9) {
 				upper = (byte) (upper | 0x01);
+			}
 
-			if (hours > 12)
+			if (hours > 12) {
 				hours = hours - 12;
+			}
 
-			if (hours == 0)
+			if (hours == 0) {
 				lower = (byte) 0x02;
-			else
-				lower = (byte) ((hours % 10) & 0x0f);
+			} else {
+				lower = (byte) (hours % 10 & 0x0f);
+			}
 		} else {
 			upper = (byte) (hours / 10);
 			lower = (byte) (hours % 10);
 		}
 
-		upper = (byte) ((upper << 4) & 0xf0);
+		upper = (byte) (upper << 4 & 0xf0);
 		lower = (byte) (lower & 0x0f);
 		state[timeReg & 31] = (byte) (upper | lower);
 
@@ -1104,7 +1110,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 
 		/* write the day byte (the upper holds 10s of days, lower holds single days) */
 		upper = (byte) (day / 10);
-		upper = (byte) ((upper << 4) & 0xf0);
+		upper = (byte) (upper << 4 & 0xf0);
 		lower = (byte) (day % 10);
 		lower = (byte) (lower & 0x0f);
 		state[0x04] = (byte) (upper | lower);
@@ -1114,7 +1120,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		 * (1 for 2000, 0 for 1900)
 		 */
 		upper = (byte) (month / 10);
-		upper = (byte) ((upper << 4) & 0xf0);
+		upper = (byte) (upper << 4 & 0xf0);
 		lower = (byte) (month % 10);
 		lower = (byte) (lower & 0x0f);
 
@@ -1123,14 +1129,15 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 
 			// go ahead and fix up the year too while i'm at it
 			year = year - 2000;
-		} else
+		} else {
 			year = year - 1900;
+		}
 
 		state[0x05] = (byte) (upper | lower);
 
 		// now write the year
 		upper = (byte) (year / 10);
-		upper = (byte) ((upper << 4) & 0xf0);
+		upper = (byte) (upper << 4 & 0xf0);
 		lower = (byte) (year % 10);
 		lower = (byte) (lower & 0x0f);
 		state[0x06] = (byte) (upper | lower);
@@ -1148,6 +1155,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @return maximum speed
 	 * @see DSPortAdapter#setSpeed
 	 */
+	@Override
 	public int getMaxSpeed() {
 		return DSPortAdapter.SPEED_OVERDRIVE;
 	}
@@ -1158,8 +1166,9 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 *
 	 * @return iButton or 1-Wire device name
 	 */
+	@Override
 	public String getName() {
-		return partNumber;
+		return this.partNumber;
 	}
 
 	/**
@@ -1169,6 +1178,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 *
 	 * @return the alternate names for this iButton or 1-Wire device
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "Thermochron";
 	}
@@ -1179,31 +1189,30 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 *
 	 * @return device description
 	 */
+	@Override
 	public String getDescription() {
 		// put the DS1921's characteristics together in a string format.
-		String characteristics = "";
-		if (partNumber != "DS1921") {
+		var characteristics = "";
+		if (this.partNumber != "DS1921") {
 			// get the physical range as a string
-			String strPhysicalRange = Convert.toString(getPhysicalRangeLowTemperature(), 1) + " to "
-					+ Convert.toString(getPhysicalRangeHighTemperature(), 1) + " degrees Celsius.";
+			var strPhysicalRange = Convert.toString(this.getPhysicalRangeLowTemperature(), 1) + " to "
+					+ Convert.toString(this.getPhysicalRangeHighTemperature(), 1) + " degrees Celsius.";
 			// get the operating range as a string
-			String strOperatingRange = Convert.toString(getOperatingRangeLowTemperature(), 1) + " to "
-					+ Convert.toString(getOperatingRangeHighTemperature(), 1) + " degrees Celsius.";
+			var strOperatingRange = Convert.toString(this.getOperatingRangeLowTemperature(), 1) + " to "
+					+ Convert.toString(this.getOperatingRangeHighTemperature(), 1) + " degrees Celsius.";
 			characteristics = " The operating range for this device is:  " + strOperatingRange
 					+ " The physical range for this device is:  " + strPhysicalRange + " The resolution is "
-					+ Convert.toString(getTemperatureResolution(), 3)
-					+ " degrees Celsius, and the histogram bin width is " + Convert.toString(getHistogramBinWidth(), 3)
-					+ " degrees Celsius.";
+					+ Convert.toString(this.getTemperatureResolution(), 3)
+					+ " degrees Celsius, and the histogram bin width is "
+					+ Convert.toString(this.getHistogramBinWidth(), 3) + " degrees Celsius.";
 		}
-		String returnString = "Rugged, self-sufficient 1-Wire device that, once setup for "
+		return "Rugged, self-sufficient 1-Wire device that, once setup for "
 				+ "a mission, will measure the temperature and record the result in "
 				+ "a protected memory section. It stores up to 2048 temperature "
 				+ "measurements and will take measurements at a user-specified "
 				+ "rate. The thermochron also records the number of times the temperature "
 				+ "falls on a given degree range (temperature bin), and stores the " + "data in histogram format."
 				+ characteristics;
-
-		return returnString;
 	}
 
 	/**
@@ -1222,7 +1231,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see OneWireContainer#doSpeed()
 	 */
 	public synchronized void setSpeedCheck(boolean doSpeedCheck) {
-		doSpeedEnable = doSpeedCheck;
+		this.doSpeedEnable = doSpeedCheck;
 	}
 
 	/**
@@ -1241,7 +1250,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @return the physical range low temperature in degrees Celsius
 	 */
 	public double getPhysicalRangeLowTemperature() {
-		return temperatureRangeLow;
+		return this.temperatureRangeLow;
 	}
 
 	/**
@@ -1260,7 +1269,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @return the physical range low temperature in degrees Celsius
 	 */
 	public double getPhysicalRangeHighTemperature() {
-		return temperatureRangeHigh;
+		return this.temperatureRangeHigh;
 	}
 
 	/**
@@ -1279,7 +1288,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @return the operating range low temperature in degrees Celsius
 	 */
 	public double getOperatingRangeLowTemperature() {
-		return temperatureOperatingRangeLow;
+		return this.temperatureOperatingRangeLow;
 	}
 
 	/**
@@ -1298,7 +1307,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @return the operating range high temperature in degrees Celsius
 	 */
 	public double getOperatingRangeHighTemperature() {
-		return temperatureOperatingRangeHigh;
+		return this.temperatureOperatingRangeHigh;
 	}
 
 	/**
@@ -1308,7 +1317,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @return the temperature resolution of this thermochron.
 	 */
 	public double getTemperatureResolution() {
-		return temperatureResolution;
+		return this.temperatureResolution;
 	}
 
 	/**
@@ -1318,9 +1327,10 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @return the lowest histogram bin temperature.
 	 */
 	public double getHistogramLowTemperature() {
-		double lowTemp = getPhysicalRangeLowTemperature(); // low temp of thermochrons other than H or Z
-		if (isDS1921HZ)
-			lowTemp = lowTemp - (getTemperatureResolution() * 4);
+		var lowTemp = this.getPhysicalRangeLowTemperature(); // low temp of thermochrons other than H or Z
+		if (this.isDS1921HZ) {
+			lowTemp = lowTemp - this.getTemperatureResolution() * 4;
+		}
 		return lowTemp;
 	}
 
@@ -1330,7 +1340,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @return the width of a histogram bin for this thermochron.
 	 */
 	public double getHistogramBinWidth() {
-		return (getTemperatureResolution() * 4); // 4 temperature readings per bin
+		return this.getTemperatureResolution() * 4; // 4 temperature readings per bin
 	}
 
 	/**
@@ -1352,12 +1362,12 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		// and Tlow is the low temperature of temperature range.
 		// and Tres is the resolution of the DS1921.
 
-		double decodedTemperature = 0.0;
-		if (isDS1921HZ) {
-			decodedTemperature = ((tempByte & 0x00ff) * temperatureResolution);
-			decodedTemperature = decodedTemperature + (temperatureRangeLow - (4 * temperatureResolution));
+		var decodedTemperature = 0.0;
+		if (this.isDS1921HZ) {
+			decodedTemperature = (tempByte & 0x00ff) * this.temperatureResolution;
+			decodedTemperature = decodedTemperature + (this.temperatureRangeLow - 4 * this.temperatureResolution);
 		} else {
-			decodedTemperature = ((tempByte & 0x00ff) / 2.0) - 40.0;
+			decodedTemperature = (tempByte & 0x00ff) / 2.0 - 40.0;
 		}
 		return decodedTemperature;
 	}
@@ -1381,11 +1391,11 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		// and Tres is the resolution of the DS1921
 
 		byte encodedTemperature = 0x00;
-		if (isDS1921HZ) {
-			double result = ((temperature - temperatureRangeLow) / temperatureResolution) + 4;
+		if (this.isDS1921HZ) {
+			var result = (temperature - this.temperatureRangeLow) / this.temperatureResolution + 4;
 			encodedTemperature = (byte) ((int) result & 0x000000ff);
 		} else {
-			encodedTemperature = (byte) (((int) (2 * temperature) + 80) & 0x000000ff);
+			encodedTemperature = (byte) ((int) (2 * temperature) + 80 & 0x000000ff);
 		}
 		return encodedTemperature;
 	}
@@ -1413,59 +1423,63 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	public void writeByte(int memAddr, byte source) throws OneWireIOException, OneWireException {
 
 		// User should only need to write to the 32 byte register page
-		byte[] buffer = new byte[5];
+		var buffer = new byte[5];
 
 		// break the address into its bytes
-		byte msbAddress = (byte) ((memAddr >>> 8) & 0x0ff);
-		byte lsbAddress = (byte) (memAddr & 0x0ff);
+		var msbAddress = (byte) (memAddr >>> 8 & 0x0ff);
+		var lsbAddress = (byte) (memAddr & 0x0ff);
 
 		/* check for valid parameters */
-		if ((msbAddress > 0x1F) || (msbAddress < 0))
+		if (msbAddress > 0x1F || msbAddress < 0) {
 			throw new IllegalArgumentException("OneWireContainer21-Address for write out of range.");
+		}
 
 		/* perform the write and verification */
-		if (doSpeedEnable)
-			doSpeed();
+		if (this.doSpeedEnable) {
+			this.doSpeed();
+		}
 
-		if (adapter.select(address)) {
-
-			/* write to the scratchpad first */
-			buffer[0] = WRITE_SCRATCHPAD_COMMAND;
-			buffer[1] = lsbAddress;
-			buffer[2] = msbAddress;
-			buffer[3] = source;
-
-			adapter.dataBlock(buffer, 0, 4);
-
-			/* read it back for the verification bytes required to copy it to mem */
-			adapter.select(address);
-
-			buffer[0] = READ_SCRATCHPAD_COMMAND;
-
-			for (int i = 1; i < 5; i++)
-				buffer[i] = (byte) 0x0ff;
-
-			adapter.dataBlock(buffer, 0, 5);
-
-			// check to see if the data was written correctly
-			if (buffer[4] != source)
-				throw new OneWireIOException("OneWireContainer21-Error writing data byte.");
-
-			/* now perform the copy from the scratchpad to memory */
-			adapter.select(address);
-
-			buffer[0] = COPY_SCRATCHPAD_COMMAND;
-
-			// keep buffer[1]-buffer[3] because they contain the verification bytes
-			buffer[4] = (byte) 0xff;
-
-			adapter.dataBlock(buffer, 0, 5);
-
-			/* now check to see that the part sent a 01010101 indicating a success */
-			if ((buffer[4] != (byte) 0xAA) && (buffer[4] != (byte) 0x55))
-				throw new OneWireIOException("OneWireContainer21-Error writing data byte.");
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer21-Device not present.");
+		}
+		/* write to the scratchpad first */
+		buffer[0] = WRITE_SCRATCHPAD_COMMAND;
+		buffer[1] = lsbAddress;
+		buffer[2] = msbAddress;
+		buffer[3] = source;
+
+		this.adapter.dataBlock(buffer, 0, 4);
+
+		/* read it back for the verification bytes required to copy it to mem */
+		this.adapter.select(this.address);
+
+		buffer[0] = READ_SCRATCHPAD_COMMAND;
+
+		for (var i = 1; i < 5; i++) {
+			buffer[i] = (byte) 0x0ff;
+		}
+
+		this.adapter.dataBlock(buffer, 0, 5);
+
+		// check to see if the data was written correctly
+		if (buffer[4] != source) {
+			throw new OneWireIOException("OneWireContainer21-Error writing data byte.");
+		}
+
+		/* now perform the copy from the scratchpad to memory */
+		this.adapter.select(this.address);
+
+		buffer[0] = COPY_SCRATCHPAD_COMMAND;
+
+		// keep buffer[1]-buffer[3] because they contain the verification bytes
+		buffer[4] = (byte) 0xff;
+
+		this.adapter.dataBlock(buffer, 0, 5);
+
+		/* now check to see that the part sent a 01010101 indicating a success */
+		if (buffer[4] != (byte) 0xAA && buffer[4] != (byte) 0x55) {
+			throw new OneWireIOException("OneWireContainer21-Error writing data byte.");
+		}
 	}
 
 	/**
@@ -1491,31 +1505,33 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #getMemoryBanks()
 	 */
 	public byte readByte(int memAddr) throws OneWireIOException, OneWireException {
-		byte[] buffer = new byte[4];
+		var buffer = new byte[4];
 
 		// break the address up into bytes
-		byte msbAddress = (byte) ((memAddr >> 8) & 0x000000ff);
-		byte lsbAddress = (byte) (memAddr & 0x000000ff);
+		var msbAddress = (byte) (memAddr >> 8 & 0x000000ff);
+		var lsbAddress = (byte) (memAddr & 0x000000ff);
 
 		/* check the validity of the address */
-		if ((msbAddress > 0x1F) || (msbAddress < 0))
+		if (msbAddress > 0x1F || msbAddress < 0) {
 			throw new IllegalArgumentException("OneWireContainer21-Address for read out of range.");
+		}
 
 		/* read a user specified amount of memory and verify its validity */
-		if (doSpeedEnable)
-			doSpeed();
+		if (this.doSpeedEnable) {
+			this.doSpeed();
+		}
 
-		if (adapter.select(address)) {
+		if (this.adapter.select(this.address)) {
 			buffer[0] = READ_MEMORY_CRC_COMMAND;
 			buffer[1] = lsbAddress;
 			buffer[2] = msbAddress;
 			buffer[3] = (byte) 0x0ff;
 
-			adapter.dataBlock(buffer, 0, 4);
+			this.adapter.dataBlock(buffer, 0, 4);
 
 			return buffer[3];
-		} else
-			throw new OneWireException("OneWireContainer21-Device not present.");
+		}
+		throw new OneWireException("OneWireContainer21-Device not present.");
 	}
 
 	/**
@@ -1592,7 +1608,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 *
 	 */
 	public boolean getFlag(int register, byte bitMask) throws OneWireIOException, OneWireException {
-		return ((readByte(register) & bitMask) != 0);
+		return (this.readByte(register) & bitMask) != 0;
 	}
 
 	/**
@@ -1622,7 +1638,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #setFlag(int,byte,boolean,byte[])
 	 */
 	public boolean getFlag(int register, byte bitMask, byte[] state) {
-		return ((state[register & 31] & bitMask) != 0);
+		return (state[register & 31] & bitMask) != 0;
 	}
 
 	/**
@@ -1665,19 +1681,21 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	public void setFlag(int register, byte bitMask, boolean flagValue) throws OneWireIOException, OneWireException {
 
 		// check for Mission in Progress flag
-		if (getFlag(STATUS_REGISTER, MISSION_IN_PROGRESS_FLAG))
+		if (this.getFlag(STATUS_REGISTER, MISSION_IN_PROGRESS_FLAG)) {
 			throw new OneWireIOException("OneWireContainer21-Cannot write to register while mission is in progress.");
+		}
 
 		// read the current flag settings
-		byte flags = readByte(register);
+		var flags = this.readByte(register);
 
-		if (flagValue)
+		if (flagValue) {
 			flags = (byte) (flags | bitMask);
-		else
-			flags = (byte) (flags & ~(bitMask));
+		} else {
+			flags = (byte) (flags & ~bitMask);
+		}
 
 		// write the regs back
-		writeByte(register, flags);
+		this.writeByte(register, flags);
 	}
 
 	/**
@@ -1714,12 +1732,13 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	public void setFlag(int register, byte bitMask, boolean flagValue, byte[] state) {
 		register = register & 31;
 
-		byte flags = state[register];
+		var flags = state[register];
 
-		if (flagValue)
+		if (flagValue) {
 			flags = (byte) (flags | bitMask);
-		else
-			flags = (byte) (flags & ~(bitMask));
+		} else {
+			flags = (byte) (flags & ~bitMask);
+		}
 
 		// write the regs back
 		state[register] = flags;
@@ -1760,22 +1779,24 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 */
 	public void enableMission(int sampleRate) throws OneWireIOException, OneWireException {
 		/* check for valid parameters */
-		if ((sampleRate > 255) || (sampleRate < 0))
+		if (sampleRate > 255 || sampleRate < 0) {
 			throw new IllegalArgumentException("OneWireContainer21-Sample rate must be 255 minutes or less");
+		}
 
-		if (getFlag(STATUS_REGISTER, MISSION_IN_PROGRESS_FLAG))
+		if (this.getFlag(STATUS_REGISTER, MISSION_IN_PROGRESS_FLAG)) {
 			throw new OneWireIOException("OneWireContainer30-Unable to start mission (Mission already in Progress)");
+		}
 
 		// read the current register status
-		byte controlReg = readByte(CONTROL_REGISTER);
+		var controlReg = this.readByte(CONTROL_REGISTER);
 
 		// Set the enable mission byte to 0
 		controlReg = (byte) (controlReg & 0xEF);
 
-		writeByte(CONTROL_REGISTER, controlReg);
+		this.writeByte(CONTROL_REGISTER, controlReg);
 
 		// set the sample rate and let her rip
-		writeByte(0x20D, (byte) (sampleRate & 0x000000ff));
+		this.writeByte(0x20D, (byte) (sampleRate & 0x000000ff));
 	}
 
 	/**
@@ -1796,12 +1817,12 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	public void disableMission() throws OneWireIOException, OneWireException {
 
 		// first read the current register
-		byte statusReg = readByte(STATUS_REGISTER);
+		var statusReg = this.readByte(STATUS_REGISTER);
 
 		// Set the MIP bit to 0, regardless of whether a mission is commencing
 		statusReg = (byte) (statusReg & 0xDF); // set the MIP bit to 0;
 
-		writeByte(STATUS_REGISTER, statusReg);
+		this.writeByte(STATUS_REGISTER, statusReg);
 	}
 
 	/**
@@ -1827,7 +1848,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #enableMission(int)
 	 */
 	public void setMissionStartDelay(int missionStartDelay, byte[] state) {
-		state[0x12] = (byte) (missionStartDelay);
+		state[0x12] = (byte) missionStartDelay;
 		state[0x13] = (byte) (missionStartDelay >> 8);
 	}
 
@@ -1867,38 +1888,39 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		// added 8/29/2001 by SH - delay necessary so that clock is
 		// running before mission is enabled.
 		// check to see if the Oscillator is enabled.
-		byte[] state = readDevice();
-		if (isClockRunning(state)) {
-			// if the osciallator is not enabled, start it
-			setClockRunEnable(true, state);
-			writeDevice(state);
+		var state = this.readDevice();
+		if (this.isClockRunning(state)) {
+			// if the oscillator is not enabled, start it
+			this.setClockRunEnable(true, state);
+			this.writeDevice(state);
 			// and give it the required time
 			try {
 				Thread.sleep(751);
 			} catch (InterruptedException ie) {
-				;
+
 			}
 		}
 
 		// first set the MCLRE bit to 1 in the control register
-		setFlag(CONTROL_REGISTER, MEMORY_CLEAR_ENABLE_FLAG, true);
+		this.setFlag(CONTROL_REGISTER, MEMORY_CLEAR_ENABLE_FLAG, true);
 
 		// now send the memory clear command and wait 5 milliseconds
-		if (doSpeedEnable)
-			doSpeed();
+		if (this.doSpeedEnable) {
+			this.doSpeed();
+		}
 
-		adapter.reset();
+		this.adapter.reset();
 
-		if (adapter.select(address)) {
-			adapter.putByte(CLEAR_MEMORY_COMMAND);
-
-			try {
-				Thread.sleep(5);
-			} catch (Exception e) {
-				// drain it
-			}
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer21-Device not found.");
+		}
+		this.adapter.putByte(CLEAR_MEMORY_COMMAND);
+
+		try {
+			Thread.sleep(5);
+		} catch (Exception e) {
+			// drain it
+		}
 	}
 
 	/**
@@ -1908,7 +1930,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * returned <code>java.util.Calendar</code> object are valid. Only four values
 	 * in the <code>Calendar</code> should be used. The field names for these values
 	 * are:
-	 * 
+	 *
 	 * <pre>
 	 * <code>
 	 *      Calendar.DAY_OF_MONTH
@@ -1935,8 +1957,8 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	public Calendar getAlarmTime(byte[] state) {
 
 		// first get the time
-		int[] time = getTime(0x207, state);
-		Calendar result = Calendar.getInstance();
+		var time = this.getTime(0x207, state);
+		var result = Calendar.getInstance();
 		result.set(Calendar.YEAR, 0);
 		result.set(Calendar.MONTH, 0);
 		result.set(Calendar.DATE, 0);
@@ -1949,7 +1971,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		// time [0]);
 
 		// now put the day of the week in there
-		byte dayOfWeek = (byte) (state[0x0A] & 0x07);
+		var dayOfWeek = (byte) (state[0x0A] & 0x07);
 
 		result.set(Calendar.DAY_OF_MONTH, dayOfWeek);
 
@@ -1965,7 +1987,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 *
 	 * <p>
 	 * Valid values for <code>alarmFrequency</code> are:
-	 * 
+	 *
 	 * <pre>
 	 * <code>
 	 *    ONCE_PER_SECOND
@@ -2000,11 +2022,11 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #ONCE_PER_WEEK
 	 */
 	public void setClockAlarm(int hours, int minutes, int seconds, int day, int alarmFrequency, byte[] state) {
-		setTime(0x207, hours, minutes, seconds, false, state);
+		this.setTime(0x207, hours, minutes, seconds, false, state);
 
 		state[0x0a] = (byte) day;
 
-		int number_0_msb = 0; // how many of the MS, MM, MH, MD bytes have
+		var number_0_msb = 0; // how many of the MS, MM, MH, MD bytes have
 
 		// 0 as their ms bit???
 		switch (alarmFrequency) {
@@ -2026,13 +2048,14 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 			break;
 		}
 
-		for (int i = 0x07; i < 0x0b; i++) {
+		for (var i = 0x07; i < 0x0b; i++) {
 			if (number_0_msb > 0) {
 				number_0_msb--;
 
 				state[i] = (byte) (state[i] & 0x7f); // make the leading bit 0
-			} else
+			} else {
 				state[i] = (byte) (state[i] | 0x80); // make the laeding bit 1
+			}
 		}
 	}
 
@@ -2050,7 +2073,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #readDevice()
 	 */
 	public int getSampleRate(byte[] state) {
-		return (int) (0x0FF & state[0x0D]);
+		return 0x0FF & state[0x0D];
 	}
 
 	/**
@@ -2067,11 +2090,11 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #getDeviceSamplesCounter(byte[])
 	 */
 	public int getMissionSamplesCounter(byte[] state) {
-		byte low = state[0x1A];
-		byte medium = state[0x1B];
-		byte high = state[0x1C];
+		var low = state[0x1A];
+		var medium = state[0x1B];
+		var high = state[0x1C];
 
-		return (((high << 16) & 0x00ff0000) | ((medium << 8) & 0x0000ff00) | (low & 0x000000ff));
+		return high << 16 & 0x00ff0000 | medium << 8 & 0x0000ff00 | low & 0x000000ff;
 	}
 
 	/**
@@ -2095,11 +2118,11 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #getMissionSamplesCounter(byte[])
 	 */
 	public int getDeviceSamplesCounter(byte[] state) {
-		byte low = state[0x1D];
-		byte medium = state[0x1E];
-		byte high = state[0x1F];
+		var low = state[0x1D];
+		var medium = state[0x1E];
+		var high = state[0x1F];
 
-		return (((high << 16) & 0x00ff0000) | ((medium << 8) & 0x0000ff00) | (low & 0x000000ff));
+		return high << 16 & 0x00ff0000 | medium << 8 & 0x0000ff00 | low & 0x000000ff;
 	}
 
 	/**
@@ -2122,33 +2145,35 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		 * read the seconds. since i can ignore that in this case, i can go ahead and
 		 * 'fake' read the seconds
 		 */
-		int[] time_result = getTime(0x214, state);
-		int[] date_result = getDate(0x217, state);
-		int year = date_result[0] % 100;
+		var time_result = this.getTime(0x214, state);
+		var date_result = this.getDate(0x217, state);
+		var year = date_result[0] % 100;
 
 		// determine the century based on the number of samples taken
-		int numberOfCounts = getMissionSamplesCounter(state);
-		int timeBetweenCounts = getSampleRate(state);
-		int yearsSinceMissionStart = (int) ((numberOfCounts * timeBetweenCounts) / (525600));
+		var numberOfCounts = this.getMissionSamplesCounter(state);
+		var timeBetweenCounts = this.getSampleRate(state);
+		var yearsSinceMissionStart = numberOfCounts * timeBetweenCounts / 525600;
 
 		// get a rough estimate of how long ago this was
 		// result = getDateTime(state);
-		int[] offset_result = getDate(0x204, state);
-		int result_year = offset_result[0];
+		var offset_result = this.getDate(0x204, state);
+		var result_year = offset_result[0];
 
 		// add the century based on this calculation
 		// if ((result.get(Calendar.YEAR) - yearsSinceMissionStart) > 1999)
-		if ((result_year - yearsSinceMissionStart) > 1999)
+		if (result_year - yearsSinceMissionStart > 1999) {
 			year += 2000;
-		else
+		} else {
 			year += 1900;
+		}
 
 		// protect against deviations that may cause gross errors
 		// if (year > result.get(Calendar.YEAR))
-		if (year > result_year)
+		if (year > result_year) {
 			year -= 100;
+		}
 
-		Calendar result = Calendar.getInstance();
+		var result = Calendar.getInstance();
 		result.set(Calendar.YEAR, year);
 		result.set(Calendar.MONTH, date_result[1] - 1);
 		result.set(Calendar.DATE, date_result[2]);
@@ -2172,7 +2197,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * millisecond value of <code>getMissionTimeStamp()</code> to determine the time
 	 * that the 'first' log entry actually occurred.
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * <code>
 	 *      //ds1921 is a OneWireContainer21
@@ -2204,10 +2229,11 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #getTemperatureLog(byte[])
 	 */
 	public long getFirstLogOffset(byte[] state) {
-		long counter = getMissionSamplesCounter(state);
+		long counter = this.getMissionSamplesCounter(state);
 
-		if ((counter < 2049) || (!getFlag(CONTROL_REGISTER, ROLLOVER_ENABLE_FLAG, state)))
+		if (counter < 2049 || !this.getFlag(CONTROL_REGISTER, ROLLOVER_ENABLE_FLAG, state)) {
 			return 0;
+		}
 
 		// else we need to figure out when the first sample occurred
 		// since there are counter entries, the first entry is (counter - 2048)
@@ -2217,11 +2243,9 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 
 		// rate is the rate in minutes, must multiply by 60 to be seconds,
 		// then by 1000 to be milliseconds
-		int rate = this.getSampleRate(state);
+		var rate = this.getSampleRate(state);
 
-		counter = counter * rate * 1000 * 60;
-
-		return counter;
+		return counter * rate * 1000 * 60;
 	}
 
 	/**
@@ -2261,36 +2285,37 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		byte[] result;
 
 		/* get the number of samples and the rate at which they were taken */
-		int numberOfReadings = getMissionSamplesCounter(state);
+		var numberOfReadings = this.getMissionSamplesCounter(state);
 
 		// used for rollover
-		int offsetDepth = 0;
+		var offsetDepth = 0;
 
 		/* this next line checks the rollover bit and whether a rollover occurred */
-		if ((getFlag(CONTROL_REGISTER, ROLLOVER_ENABLE_FLAG, state)) && (numberOfReadings > 2048)) {
+		if (this.getFlag(CONTROL_REGISTER, ROLLOVER_ENABLE_FLAG, state) && numberOfReadings > 2048) {
 
 			// offsetDepth holds the number of new readings before we hit older ones
 			offsetDepth = numberOfReadings % 2048;
 		}
 
 		// the max number of readings STORED is 2048
-		if (numberOfReadings > 2048)
+		if (numberOfReadings > 2048) {
 			numberOfReadings = 2048;
+		}
 
 		result = new byte[numberOfReadings];
 
-		int offset = 0;
+		var offset = 0;
 
 		while (offset < numberOfReadings) {
-			log.readPageCRC(offset >> 5, false, read_log_buffer, offset);
+			this.log.readPageCRC(offset >> 5, false, this.read_log_buffer, offset);
 
 			offset += 32;
 		}
 
 		// put the bytes into the output array, but careful for the case
 		// where we rolled over that we start in the right place!
-		System.arraycopy(read_log_buffer, offsetDepth, result, 0, numberOfReadings - offsetDepth);
-		System.arraycopy(read_log_buffer, 0, result, numberOfReadings - offsetDepth, offsetDepth);
+		System.arraycopy(this.read_log_buffer, offsetDepth, result, 0, numberOfReadings - offsetDepth);
+		System.arraycopy(this.read_log_buffer, 0, result, numberOfReadings - offsetDepth, offsetDepth);
 
 		return result;
 	}
@@ -2324,17 +2349,18 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 */
 	public int[] getTemperatureHistogram() throws OneWireIOException, OneWireException {
 		int[] result;
-		if (isDS1921HZ)
+		if (this.isDS1921HZ) {
 			result = new int[64]; // One more bin for the H or Z
-		else
+		} else {
 			result = new int[63];
-		byte[] buffer = new byte[128];
+		}
+		var buffer = new byte[128];
 
 		/* read the data first */
-		int offset = 0;
+		var offset = 0;
 
 		while (offset < 128) {
-			histogram.readPageCRC(offset >> 5, false, buffer, offset);
+			this.histogram.readPageCRC(offset >> 5, false, buffer, offset);
 
 			offset += 32;
 		}
@@ -2344,7 +2370,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		while (i < result.length) {
 
 			// get the 2 byte counter values
-			result[i] = (buffer[j] & 0x00ff) | ((buffer[j + 1] << 8) & 0xff00);
+			result[i] = buffer[j] & 0x00ff | buffer[j + 1] << 8 & 0xff00;
 
 			i++;
 
@@ -2375,7 +2401,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #getAlarmHistory(byte)
 	 */
 	public boolean getAlarmStatus(byte alarmBit, byte[] state) {
-		return ((state[STATUS_REGISTER & 31] & alarmBit) != 0);
+		return (state[STATUS_REGISTER & 31] & alarmBit) != 0;
 	}
 
 	/**
@@ -2419,7 +2445,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 *
 	 * <p>
 	 * Acceptable values for the <code>alarmBit</code> parameter are:
-	 * 
+	 *
 	 * <pre>
 	 * <code>
 	 *     TEMPERATURE_LOW_ALARM
@@ -2443,31 +2469,33 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #getAlarmStatus(byte,byte[])
 	 */
 	public byte[] getAlarmHistory(byte alarmBit) throws OneWireIOException, OneWireException {
-		int counter = 0;
-		byte[] temp_data = new byte[96];
-		int offset = 0;
+		var counter = 0;
+		var temp_data = new byte[96];
+		var offset = 0;
 
 		while (offset < 96) {
-			alarm.readPageCRC(offset >> 5, false, temp_data, offset);
+			this.alarm.readPageCRC(offset >> 5, false, temp_data, offset);
 
 			offset += 32;
 		}
 
-		if (alarmBit == TEMPERATURE_LOW_ALARM)
+		if (alarmBit == TEMPERATURE_LOW_ALARM) {
 			offset = 0;
-		else
+		} else {
 			offset = 48;
+		}
 
 		/*
 		 * check how many entries there are (each entry consists of 4 bytes) the fourth
 		 * byte of each entry is the counter - check if its > 0
 		 */
 		/* but there can only be a maximum of 12 entries! */
-		while (counter < 12 && (counter * 4 + 3 + offset < temp_data.length)
-				&& (temp_data[counter * 4 + 3 + offset] != 0))
+		while (counter < 12 && counter * 4 + 3 + offset < temp_data.length
+				&& temp_data[counter * 4 + 3 + offset] != 0) {
 			counter++;
+		}
 
-		byte[] data = new byte[counter << 2];
+		var data = new byte[counter << 2];
 
 		System.arraycopy(temp_data, offset, data, 0, counter << 2);
 
@@ -2490,11 +2518,12 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public byte[] readDevice() throws OneWireIOException, OneWireException {
-		byte[] buffer = new byte[32];
+		var buffer = new byte[32];
 
 		// going to return the register page, 32 bytes
-		register.readPageCRC(0, false, buffer, 0);
+		this.register.readPageCRC(0, false, buffer, 0);
 
 		return buffer;
 	}
@@ -2514,16 +2543,18 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public void writeDevice(byte[] state) throws OneWireIOException, OneWireException {
-		if (getFlag(STATUS_REGISTER, MISSION_IN_PROGRESS_FLAG))
+		if (this.getFlag(STATUS_REGISTER, MISSION_IN_PROGRESS_FLAG)) {
 			throw new OneWireIOException("OneWireContainer21-Cannot write to registers while mission is in progress.");
+		}
 
-		int start = updatertc ? 0 : 7;
+		var start = this.updatertc ? 0 : 7;
 
-		register.write(start, state, start, 20 - start); // last 12 bytes are read only
+		this.register.write(start, state, start, 20 - start); // last 12 bytes are read only
 
 		synchronized (this) {
-			updatertc = false;
+			this.updatertc = false;
 		}
 	}
 
@@ -2542,6 +2573,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #getTemperatureAlarm
 	 * @see #setTemperatureAlarm
 	 */
+	@Override
 	public boolean hasTemperatureAlarms() {
 		return true;
 	}
@@ -2556,6 +2588,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #getTemperatureResolutions
 	 * @see #setTemperatureResolution
 	 */
+	@Override
 	public boolean hasSelectableTemperatureResolution() {
 		return false;
 	}
@@ -2571,10 +2604,11 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #getTemperatureResolution
 	 * @see #setTemperatureResolution
 	 */
+	@Override
 	public double[] getTemperatureResolutions() {
-		double[] d = new double[1];
+		var d = new double[1];
 
-		d[0] = temperatureResolution;
+		d[0] = this.temperatureResolution;
 
 		return d;
 	}
@@ -2589,6 +2623,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #setTemperatureAlarm
 	 *
 	 */
+	@Override
 	public double getTemperatureAlarmResolution() {
 		return 1.5;
 	}
@@ -2600,8 +2635,9 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 *
 	 * @see #getMinTemperature()
 	 */
+	@Override
 	public double getMaxTemperature() {
-		return getOperatingRangeHighTemperature();
+		return this.getOperatingRangeHighTemperature();
 	}
 
 	/**
@@ -2611,8 +2647,9 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 *
 	 * @see #getMaxTemperature()
 	 */
+	@Override
 	public double getMinTemperature() {
-		return getOperatingRangeLowTemperature();
+		return this.getOperatingRangeLowTemperature();
 	}
 
 	// --------
@@ -2635,32 +2672,34 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public void doTemperatureConvert(byte[] state) throws OneWireIOException, OneWireException {
 
 		/* check for mission in progress */
-		if (getFlag(STATUS_REGISTER, MISSION_IN_PROGRESS_FLAG))
+		if (this.getFlag(STATUS_REGISTER, MISSION_IN_PROGRESS_FLAG)) {
 			throw new OneWireIOException("OneWireContainer21-Cant force " + "temperature read during a mission.");
+		}
 
 		/* get the temperature */
-		if (doSpeedEnable)
-			doSpeed(); // we aren't worried about how long this takes...we're sleeping for 750 ms!
+		if (this.doSpeedEnable) {
+			this.doSpeed(); // we aren't worried about how long this takes...we're sleeping for 750 ms!
+		}
 
-		adapter.reset();
+		this.adapter.reset();
 
-		if (adapter.select(address)) {
-
-			// perform the temperature conversion
-			adapter.putByte(CONVERT_TEMPERATURE_COMMAND);
-
-			try {
-				Thread.sleep(750);
-			} catch (InterruptedException e) {
-			}
-
-			// grab the temperature
-			state[0x11] = readByte(0x211);
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer21-Device not found!");
+		}
+		// perform the temperature conversion
+		this.adapter.putByte(CONVERT_TEMPERATURE_COMMAND);
+
+		try {
+			Thread.sleep(750);
+		} catch (InterruptedException e) {
+		}
+
+		// grab the temperature
+		state[0x11] = this.readByte(0x211);
 	}
 
 	// --------
@@ -2676,8 +2715,9 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @return temperature in Celsius from the last
 	 *         <code>doTemperatureConvert()</code>
 	 */
+	@Override
 	public double getTemperature(byte[] state) {
-		return decodeTemperature(state[0x11]);
+		return this.decodeTemperature(state[0x11]);
 	}
 
 	/**
@@ -2693,11 +2733,12 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #hasTemperatureAlarms
 	 * @see #setTemperatureAlarm
 	 */
+	@Override
 	public double getTemperatureAlarm(int alarmType, byte[] state) {
-		if ((alarmType == TEMPERATURE_HIGH_ALARM) || (alarmType == ALARM_HIGH))
-			return decodeTemperature(state[0x0c]);
-		else
-			return decodeTemperature(state[0x0b]);
+		if (alarmType == TEMPERATURE_HIGH_ALARM || alarmType == ALARM_HIGH) {
+			return this.decodeTemperature(state[0x0c]);
+		}
+		return this.decodeTemperature(state[0x0b]);
 	}
 
 	/**
@@ -2712,8 +2753,9 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #getTemperatureResolutions
 	 * @see #setTemperatureResolution
 	 */
+	@Override
 	public double getTemperatureResolution(byte[] state) {
-		return temperatureResolution;
+		return this.temperatureResolution;
 	}
 
 	// --------
@@ -2733,29 +2775,34 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #hasTemperatureAlarms
 	 * @see #getTemperatureAlarm
 	 */
+	@Override
 	public void setTemperatureAlarm(int alarmType, double alarmValue, byte[] state) {
-		double histogramLow = getHistogramLowTemperature();
-		double histogramHigh = getPhysicalRangeHighTemperature()
-				+ (getHistogramBinWidth() - getTemperatureResolution());
-		byte alarm = encodeTemperature(alarmValue);
+		var histogramLow = this.getHistogramLowTemperature();
+		var histogramHigh = this.getPhysicalRangeHighTemperature()
+				+ (this.getHistogramBinWidth() - this.getTemperatureResolution());
+		var alarm = this.encodeTemperature(alarmValue);
 
 		// take special care of top and bottom of temperature ranges for the different
 		// types of thermochrons.
-		if (isDS1921HZ) {
-			if (alarmValue < histogramLow)
+		if (this.isDS1921HZ) {
+			if (alarmValue < histogramLow) {
 				alarm = 0;
+			}
 
-			if (alarmValue > histogramHigh)
+			if (alarmValue > histogramHigh) {
 				alarm = (byte) 0xFF; // maximum value stand for the histogram high temperature
+			}
 		} else {
-			if (alarmValue < -40.0)
+			if (alarmValue < -40.0) {
 				alarm = 0;
+			}
 
-			if (alarmValue > 85.0)
+			if (alarmValue > 85.0) {
 				alarm = (byte) 0xfa; // maximum value stands for 85.0 C
+			}
 		}
 
-		if ((alarmType == TEMPERATURE_HIGH_ALARM) || (alarmType == ALARM_HIGH)) {
+		if (alarmType == TEMPERATURE_HIGH_ALARM || alarmType == ALARM_HIGH) {
 			state[0x0c] = alarm;
 		} else {
 			state[0x0b] = alarm;
@@ -2777,6 +2824,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #getTemperatureResolution
 	 * @see #getTemperatureResolutions
 	 */
+	@Override
 	public void setTemperatureResolution(double resolution, byte[] state) throws OneWireException {
 		throw new OneWireException("Selectable Temperature Resolution Not Supported");
 	}
@@ -2798,6 +2846,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean hasClockAlarm() {
 		return true;
 	}
@@ -2810,6 +2859,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #isClockRunning(byte[])
 	 * @see #setClockRunEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean canDisableClock() {
 		return true;
 	}
@@ -2819,6 +2869,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 *
 	 * @return the clock resolution in milliseconds
 	 */
+	@Override
 	public long getClockResolution() {
 		return 1000;
 	}
@@ -2838,17 +2889,18 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #setClock(long,byte[])
 	 */
+	@Override
 	public long getClock(byte[] state) {
 
 		/* grab the time (at location 200, date at 204) */
-		int[] time = getTime(0x200, state);
-		int[] date = getDate(0x204, state);
+		var time = this.getTime(0x200, state);
+		var date = this.getDate(0x204, state);
 
 		// date[1] - 1 because Java months are 0 offset
 		// date[0] - 1900 because Java years are from 1900
 		// Date d = new Date(date[0]-1900, date[1]-1, date[2], time[2], time[1],
 		// time[0]);
-		Calendar result = Calendar.getInstance();
+		var result = Calendar.getInstance();
 		result.set(Calendar.YEAR, date[0]);
 		result.set(Calendar.MONTH, date[1] - 1);
 		result.set(Calendar.DATE, date[2]);
@@ -2880,11 +2932,12 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public long getClockAlarm(byte[] state) {
 
 		// first get the normal real time clock
-		int[] time = getTime(0x200, state);
-		int[] date = getDate(0x204, state);
+		var time = this.getTime(0x200, state);
+		var date = this.getDate(0x204, state);
 
 		// date[0] = year
 		// date[1] = month
@@ -2893,7 +2946,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		// time[1] = minute
 		// time[0] = second
 		// date[1] - 1 because Java does funky months from offset 0
-		Calendar c = Calendar.getInstance();
+		var c = Calendar.getInstance();
 		c.set(Calendar.YEAR, date[0]);
 		c.set(Calendar.MONTH, date[1] - 1);
 		c.set(Calendar.DATE, date[2]);
@@ -2906,41 +2959,44 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		// time [2], time [1], time [0]);
 
 		// get the seconds into the day we are at
-		int time_into_day = time[0] + 60 * time[1] + 60 * 60 * time[2];
+		var time_into_day = time[0] + 60 * time[1] + 60 * 60 * time[2];
 
 		// now lets get the alarm specs
-		int[] a_time = getTime(0x207, state);
+		var a_time = this.getTime(0x207, state);
 
 		// get the seconds into the day the alarm is at
-		int a_time_into_day = a_time[0] + 60 * a_time[1] + 60 * 60 * a_time[2];
+		var a_time_into_day = a_time[0] + 60 * a_time[1] + 60 * 60 * a_time[2];
 
 		// now put the day of the week in there
-		byte dayOfWeek = (byte) (state[0x0A] & 0x07);
+		var dayOfWeek = (byte) (state[0x0A] & 0x07);
 
-		if (dayOfWeek == 0)
+		if (dayOfWeek == 0) {
 			dayOfWeek++;
+		}
 
-		byte MS = (byte) ((state[0x07] >>> 7) & 0x01);
-		byte MM = (byte) ((state[0x08] >>> 7) & 0x01);
-		byte MH = (byte) ((state[0x09] >>> 7) & 0x01);
-		byte MD = (byte) ((state[0x0A] >>> 7) & 0x01);
+		var MS = (byte) (state[0x07] >>> 7 & 0x01);
+		var MM = (byte) (state[0x08] >>> 7 & 0x01);
+		var MH = (byte) (state[0x09] >>> 7 & 0x01);
+		var MD = (byte) (state[0x0A] >>> 7 & 0x01);
 
-		long temp_time = 0;
-		int MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
+		var temp_time = 0L;
+		var MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 
 		switch (MS + MM + MH + MD) {
 		case 4: // ONCE_PER_SECOND
 			c.add(Calendar.SECOND, 1);
 			break;
 		case 3: // ONCE_PER_MINUTE
-			if (!(a_time_into_day < time_into_day)) // alarm has occurred
+			if (!(a_time_into_day < time_into_day)) {
 				c.add(Calendar.MINUTE, 1);
+			}
 
 			c.set(Calendar.SECOND, a_time[0]);
 			break;
 		case 2: // ONCE_PER_HOUR
-			if (!(a_time_into_day < time_into_day)) // alarm has occurred
+			if (!(a_time_into_day < time_into_day)) {
 				c.add(Calendar.HOUR_OF_DAY, 1); // will occur again next hour
+			}
 
 			c.set(Calendar.SECOND, a_time[0]);
 			c.set(Calendar.MINUTE, a_time[1]);
@@ -2950,8 +3006,9 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 			c.set(Calendar.MINUTE, a_time[1]);
 			c.set(Calendar.HOUR_OF_DAY, a_time[2]);
 
-			if ((a_time_into_day < time_into_day)) // alarm has occurred
+			if (a_time_into_day < time_into_day) {
 				c.add(Calendar.DATE, 1); // will occur again tomorrow
+			}
 			break;
 		default:
 		case 0: // ONCE_PER_WEEK
@@ -2964,12 +3021,12 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 			/*
 			 * oh no!!! TINI doesn't like calls to Calendar.roll() and Calendar.add()! we
 			 * could be stuck here forever!
-			 * 
+			 *
 			 * if (dayOfWeek == c.get(c.DAY_OF_WEEK)) {
-			 * 
+			 *
 			 * //has alarm already occurred today? if ((a_time_into_day < time_into_day))
 			 * //alarm has occurred c.add(c.DATE, 7); //will occur again next week } else {
-			 * 
+			 *
 			 * //roll the day of the week until it matches while (dayOfWeek !=
 			 * c.get(c.DAY_OF_WEEK)) c.roll(c.DATE, true); }
 			 */
@@ -2978,14 +3035,15 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 			if (dayOfWeek == c.get(Calendar.DAY_OF_WEEK)) {
 
 				// has alarm already occurred today?
-				if ((a_time_into_day < time_into_day)) // alarm has occurred
-					temp_time += (7 * MILLIS_PER_DAY); // will occur again next week
+				if (a_time_into_day < time_into_day) {
+					temp_time += 7 * MILLIS_PER_DAY; // will occur again next week
+				}
 			} else {
 
 				// roll the day of the week until it matches
-				int cdayofweek = c.get(Calendar.DAY_OF_WEEK);
+				var cdayofweek = c.get(Calendar.DAY_OF_WEEK);
 
-				while ((dayOfWeek % 7) != (cdayofweek++ % 7)) {
+				while (dayOfWeek % 7 != cdayofweek++ % 7) {
 					temp_time += MILLIS_PER_DAY;
 				}
 				// c.roll(c.DATE, true);
@@ -3013,8 +3071,9 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean isClockAlarming(byte[] state) {
-		return ((state[STATUS_REGISTER & 31] & TIMER_ALARM) != 0);
+		return (state[STATUS_REGISTER & 31] & TIMER_ALARM) != 0;
 	}
 
 	/**
@@ -3032,8 +3091,9 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean isClockAlarmEnabled(byte[] state) {
-		return ((state[CONTROL_REGISTER & 31] & TIMER_ALARM_SEARCH_FLAG) != 0);
+		return (state[CONTROL_REGISTER & 31] & TIMER_ALARM_SEARCH_FLAG) != 0;
 	}
 
 	/**
@@ -3049,10 +3109,11 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #canDisableClock()
 	 * @see #setClockRunEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean isClockRunning(byte[] state) {
 
 		// checks for equal to 0 since active low means clock is running
-		return ((state[CONTROL_REGISTER & 31] & OSCILLATOR_ENABLE_FLAG) == 0);
+		return (state[CONTROL_REGISTER & 31] & OSCILLATOR_ENABLE_FLAG) == 0;
 	}
 
 	// --------
@@ -3072,19 +3133,20 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see com.dalsemi.onewire.container.OneWireSensor#writeDevice(byte[])
 	 * @see #getClock(byte[])
 	 */
+	@Override
 	public void setClock(long time, byte[] state) {
-		Date x = new Date(time);
-		Calendar d = Calendar.getInstance();
+		var x = new Date(time);
+		var d = Calendar.getInstance();
 
 		// removed by SH - not J2ME-compliant
 		// Calendar d = new GregorianCalendar();
 
 		d.setTime(x);
-		setTime(0x200, d.get(Calendar.HOUR_OF_DAY), d.get(Calendar.MINUTE), d.get(Calendar.SECOND), false, state);
-		setDate(d.get(Calendar.YEAR), d.get(Calendar.MONTH) + 1, d.get(Calendar.DATE), state);
+		this.setTime(0x200, d.get(Calendar.HOUR_OF_DAY), d.get(Calendar.MINUTE), d.get(Calendar.SECOND), false, state);
+		this.setDate(d.get(Calendar.YEAR), d.get(Calendar.MONTH) + 1, d.get(Calendar.DATE), state);
 
 		synchronized (this) {
-			updatertc = true;
+			this.updatertc = true;
 		}
 	}
 
@@ -3109,6 +3171,7 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #isClockAlarming(byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public void setClockAlarm(long time, byte[] state) throws OneWireException {
 
 		// can't do this because we need more info on the alarm
@@ -3131,10 +3194,11 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #canDisableClock()
 	 * @see #isClockRunning(byte[])
 	 */
+	@Override
 	public void setClockRunEnable(boolean runEnable, byte[] state) {
 
 		// the oscillator enable is active low
-		setFlag(CONTROL_REGISTER, OSCILLATOR_ENABLE_FLAG, !runEnable, state);
+		this.setFlag(CONTROL_REGISTER, OSCILLATOR_ENABLE_FLAG, !runEnable, state);
 	}
 
 	/**
@@ -3155,7 +3219,9 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #isClockAlarming(byte[])
 	 */
+	@Override
 	public void setClockAlarmEnable(boolean alarmEnable, byte[] state) {
-		setFlag(CONTROL_REGISTER, TIMER_ALARM_SEARCH_FLAG, alarmEnable, state);
+		this.setFlag(CONTROL_REGISTER, TIMER_ALARM_SEARCH_FLAG, alarmEnable, state);
 	}
 }
+// CHECKSTYLE:ON

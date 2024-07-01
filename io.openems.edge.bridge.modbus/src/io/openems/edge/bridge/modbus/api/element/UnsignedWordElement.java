@@ -3,12 +3,13 @@ package io.openems.edge.bridge.modbus.api.element;
 import java.nio.ByteBuffer;
 
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.type.TypeUtils;
 
 /**
  * An UnsignedWordElement represents an Integer value in an
- * {@link AbstractWordElement}.
+ * {@link AbstractSingleWordElement}.
  */
-public class UnsignedWordElement extends AbstractWordElement<UnsignedWordElement, Integer> {
+public class UnsignedWordElement extends AbstractSingleWordElement<UnsignedWordElement, Integer> {
 
 	public UnsignedWordElement(int address) {
 		super(OpenemsType.INTEGER, address);
@@ -19,12 +20,15 @@ public class UnsignedWordElement extends AbstractWordElement<UnsignedWordElement
 		return this;
 	}
 
-	protected Integer fromByteBuffer(ByteBuffer buff) {
+	@Override
+	protected Integer byteBufferToValue(ByteBuffer buff) {
 		return Short.toUnsignedInt(buff.getShort(0));
 	}
 
-	protected ByteBuffer toByteBuffer(ByteBuffer buff, Integer value) {
-		return buff.putShort(value.shortValue());
+	@Override
+	protected void valueToByteBuffer(ByteBuffer buff, Integer value) {
+		Integer i = TypeUtils.getAsType(OpenemsType.INTEGER, value);
+		buff.putShort(i.shortValue());
 	}
 
 }

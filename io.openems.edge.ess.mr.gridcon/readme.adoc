@@ -1,7 +1,9 @@
 = Maschinenfabrik Rheinhausen (MR) Gridcon
 
-Implemented Natures::
+Implemented Natures
 - SymmetricEss
 - ManagedSymmetricEss
+
+Good Settings for PID: 0.3  0.15  0
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.mr.gridcon[Source Code icon:github[]]

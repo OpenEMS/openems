@@ -6,11 +6,10 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	io.openems.backend.common,\
-	io.openems.backend.metadata.api,\
-	io.openems.backend.timedata.api,\
 	io.openems.common,\
 	io.openems.shared.influxdb,\
-	io.openems.wrapper.influxdb-java
+	io.openems.wrapper.influxdb-client-core,\
+	io.openems.wrapper.influxdb-client-java,\
 
 -testpath: \
 	${testpath}
