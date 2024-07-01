@@ -78,7 +78,6 @@ public class SunSpecCodeGenerator {
 			"model_142.json", //
 			"model_143.json", //
 			"model_144.json", //
-			"model_160.json", //
 			"model_211.json", //
 			"model_212.json", //
 			"model_213.json", //
