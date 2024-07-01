@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.ObjectClassDefinition;
@@ -40,7 +41,7 @@ import io.openems.common.utils.JsonUtils;
  */
 public class EdgeConfig {
 
-	private static Logger LOG = LoggerFactory.getLogger(EdgeConfig.class);
+	private static final Logger LOG = LoggerFactory.getLogger(EdgeConfig.class);
 
 	/**
 	 * Represents an instance of an OpenEMS Component.
@@ -1060,19 +1061,12 @@ public class EdgeConfig {
 		 * @return configuration as a JSON Object
 		 */
 		public JsonObject toJson() {
-			var natureIds = new JsonArray();
-			for (String naturId : this.getNatureIds()) {
-				natureIds.add(naturId);
-			}
-			var properties = new JsonArray();
-			for (Property property : this.getProperties()) {
-				properties.add(property.toJson());
-			}
 			return JsonUtils.buildJsonObject() //
 					.addProperty("name", this.name) //
 					.addProperty("description", this.description) //
-					.add("natureIds", natureIds) //
-					.add("properties", properties) //
+					.add("natureIds", Stream.of(this.getNatureIds()) //
+							.map(JsonPrimitive::new) //
+							.collect(JsonUtils.toJsonArray())) //
 					.build();
 		}
 
@@ -1388,7 +1382,7 @@ public class EdgeConfig {
 	public synchronized JsonObject toJson() {
 		if (this._json == null) {
 			this._json = JsonUtils.buildJsonObject() //
-					.add("components", this.componentsToJson(JsonFormat.COMPLETE)) //
+					.add("components", this.componentsToJson(JsonFormat.WITHOUT_CHANNELS)) //
 					.add("factories", this.factoriesToJson()) //
 					.build();
 		}
@@ -1431,6 +1425,10 @@ public class EdgeConfig {
 	public JsonObject factoriesToJson() {
 		var b = JsonUtils.buildJsonObject();
 		for (Entry<String, Factory> entry : this.getFactories().entrySet()) {
+			if (!this.getComponents().values().stream() //
+					.anyMatch(c -> c.factoryId.equals(entry.getKey()))) {
+				continue;
+			}
 			b.add(entry.getKey(), entry.getValue().toJson());
 		}
 		return b.build();

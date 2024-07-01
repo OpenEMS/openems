@@ -6,9 +6,9 @@ export enum GridMode {
 export enum Mode {
     MANUAL_ON = 'MANUAL_ON',
     MANUAL_OFF = 'MANUAL_OFF',
-    AUTOMATIC = 'AUTOMATIC'
+    AUTOMATIC = 'AUTOMATIC',
 }
 export enum WorkMode {
     TIME = 'TIME',
-    NONE = 'NONE'
+    NONE = 'NONE',
 }

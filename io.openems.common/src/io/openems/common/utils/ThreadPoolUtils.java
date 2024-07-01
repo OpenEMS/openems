@@ -56,6 +56,10 @@ public class ThreadPoolUtils {
 	 * @return a String
 	 */
 	public static String debugLog(ThreadPoolExecutor executor) {
+		if (executor == null) {
+			return "UNDEFINED";
+		}
+
 		var activeCount = executor.getActiveCount();
 		var b = new StringBuilder() //
 				.append("Pool: ").append(executor.getPoolSize()).append("/").append(executor.getMaximumPoolSize()) //
@@ -75,7 +79,11 @@ public class ThreadPoolUtils {
 	 * @return a Map of key to value
 	 */
 	public static Map<String, Long> debugMetrics(ThreadPoolExecutor executor) {
-		return Map.<String, Long>of(//
+		if (executor == null) {
+			return Map.of();
+		}
+
+		return Map.of(//
 				"PoolSize", Long.valueOf(executor.getPoolSize()), //
 				"MaxPoolSize", Long.valueOf(executor.getMaximumPoolSize()), //
 				"Active", Long.valueOf(executor.getActiveCount()), //

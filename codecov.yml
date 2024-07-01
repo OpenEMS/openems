@@ -1,0 +1,15 @@
+coverage:
+  round: up
+  precision: 2
+  status:
+    project:
+      default:
+        target: auto #default
+
+comment:
+  layout: "condensed_header, diff"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+  hide_project_coverage: true

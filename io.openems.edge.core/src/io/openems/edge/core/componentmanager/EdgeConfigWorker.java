@@ -495,8 +495,8 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 			var serviceComponents = serviceComponentsString.split(",");
 
 			// read Service-Component XML files from OSGI-INF folder
-			for (String serviceComponent : serviceComponents) {
-				if (!serviceComponent.contains(factoryPid)) {
+			for (var serviceComponent : serviceComponents) {
+				if (!serviceComponent.equals("OSGI-INF/" + factoryPid + ".xml")) {
 					// search for correct XML file
 					continue;
 				}

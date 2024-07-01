@@ -1,5 +1,9 @@
 <header></header>
 <ion-content>
+  <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content refreshingSpinner="crescent" class="ion-justify-content-center"></ion-refresher-content>
+  </ion-refresher>
+
   <ion-grid [hidden]="!edge.subscribeChannelsSuccessful" *ngIf="edge && edge.isOnline">
     <ion-row class="ion-justify-content-center" *ngIf="widgets">
       <!-- Energymonitor -->

@@ -55,10 +55,9 @@
                                                 *ngIf="address.componentId === item.id && address.channelId !== 'State'">
                                                 <ng-container *ngIf="currentData.channel[address.toString()] === 1">
                                                     <!-- State-Channel is active -->
-                                                    <ion-label class="ion-text-wrap"
-                                                        *ngIf="item.channels[address.channelId]['text'].length !== 0">
+                                                    <ion-label class="ion-text-wrap">
                                                         <ng-container
-                                                            [ngSwitch]="item.channels[address.channelId]['level']">
+                                                            [ngSwitch]="channels[address.componentId][address.channelId].level">
                                                             <ion-text *ngSwitchCase="'INFO'" color="success" translate>
                                                                 General.info&nbsp;
                                                             </ion-text>
@@ -70,24 +69,13 @@
                                                                 General.fault&nbsp;
                                                             </ion-text>
                                                         </ng-container>
-                                                        {{ item.channels[address.channelId]['text'] }}
-                                                    </ion-label>
-                                                    <ion-label class="ion-text-wrap"
-                                                        *ngIf="item.channels[address.channelId]['text'].length === 0">
-                                                        <ng-container
-                                                            [ngSwitch]="item.channels[address.channelId]['level']">
-                                                            <ion-text *ngSwitchCase="'INFO'" color="success" translate>
-                                                                General.info&nbsp;
-                                                            </ion-text>
-                                                            <ion-text *ngSwitchCase="'WARNING'" color="warning"
-                                                                translate>
-                                                                General.warning&nbsp;
-                                                            </ion-text>
-                                                            <ion-text *ngSwitchCase="'FAULT'" color="danger" translate>
-                                                                General.fault&nbsp;
-                                                            </ion-text>
-                                                        </ng-container>
-                                                        {{ address.channelId.toString() }}
+                                                        <ion-text
+                                                            *ngIf="channels[address.componentId][address.channelId].text.length > 0; else noText">
+                                                            {{ channels[address.componentId][address.channelId].text }}
+                                                        </ion-text>
+                                                        <ng-template #noText>
+                                                            {{ address.channelId.toString() }}
+                                                        </ng-template>
                                                     </ion-label>
                                                 </ng-container>
                                             </ng-container>

@@ -1,6 +1,7 @@
 // @ts-strict-ignore
 
 import { TranslateService } from "@ngx-translate/core";
+
 import { CurrentData, EdgeConfig, Utils } from "../../shared";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { Formatter } from "./formatter";

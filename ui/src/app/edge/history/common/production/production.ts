@@ -7,6 +7,8 @@ import { ProductionMeterChartComponent } from './chart/productionMeterChart';
 import { TotalAcChartComponent } from './chart/totalAcChart';
 import { TotalChartComponent } from './chart/totalChart';
 import { TotalDcChartComponent } from './chart/totalDcChart';
+import { ChartComponent } from './details/chart/chart';
+import { DetailsOverviewComponent } from './details/details.overview';
 import { FlatComponent } from './flat/flat';
 import { OverviewComponent } from './overview/overview';
 
@@ -23,6 +25,8 @@ import { OverviewComponent } from './overview/overview';
     TotalAcChartComponent,
     TotalChartComponent,
     ChargerChartComponent,
+    DetailsOverviewComponent,
+    ChartComponent,
   ],
   exports: [
     FlatComponent,

@@ -18,5 +18,5 @@ export type ButtonLabel = {
     value: string;
     /** Icons for Button, displayed above the corresponding name */
     icons?: Icon;
-    callback?: Function;
-}
+    callback?: () => void;
+};

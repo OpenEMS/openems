@@ -3,7 +3,7 @@ plugins {
 }
 
 node {
-	nodeModulesDir = file("${projectDir}/build")
+	nodeProjectDir = file("${projectDir}/build")
 }
 
 /*

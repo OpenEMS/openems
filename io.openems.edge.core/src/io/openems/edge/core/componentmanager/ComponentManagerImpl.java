@@ -1,14 +1,19 @@
 package io.openems.edge.core.componentmanager;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -29,9 +34,11 @@ import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonNull;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.channel.ChannelCategory;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -43,8 +50,12 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.session.Role;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.EnumDoc;
+import io.openems.edge.common.channel.StateChannelDoc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
@@ -56,6 +67,14 @@ import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxRequest;
 import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxResponse;
+import io.openems.edge.core.componentmanager.jsonrpc.GetAllComponentFactories;
+import io.openems.edge.core.componentmanager.jsonrpc.GetChannel;
+import io.openems.edge.core.componentmanager.jsonrpc.GetChannelsOfComponent;
+import io.openems.edge.core.componentmanager.jsonrpc.GetChannelsOfComponent.ChannelRecord;
+import io.openems.edge.core.componentmanager.jsonrpc.GetDigitalInputChannelsOfComponents;
+import io.openems.edge.core.componentmanager.jsonrpc.GetPropertiesOfFactory;
+import io.openems.edge.core.componentmanager.jsonrpc.GetStateChannelsOfComponent;
+import io.openems.edge.io.api.DigitalInput;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -343,6 +362,105 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			return this.handleChannelExportXlsxRequest(t.get(EdgeKeys.USER_KEY), //
 					ChannelExportXlsxRequest.from(t.getRequest()));
 		});
+
+		builder.handleRequest(new GetStateChannelsOfComponent(), endpoint -> {
+			endpoint.setDescription("""
+					Handles a GetStateChannelsOfComponent.
+					""");
+		}, call -> {
+			// TODO could be used for translating channel texts
+			// final var user = call.get(EdgeKeys.USER_KEY);
+
+			final var channels = this.getPossiblyDisabledComponent(call.getRequest().componentId()).channels().stream() //
+					.filter(t -> t.channelDoc().getChannelCategory() == ChannelCategory.STATE) //
+					.map(ComponentManagerImpl::toChannelRecord) //
+					.toList();
+
+			return new GetStateChannelsOfComponent.Response(channels);
+		});
+
+		builder.handleRequest(new GetChannelsOfComponent(), endpoint -> {
+			endpoint.setDescription("""
+					Handles a GetStateChannelsOfComponent.
+					""");
+		}, call -> {
+			final var channels = this.getPossiblyDisabledComponent(call.getRequest().componentId()).channels().stream() //
+					.map(ComponentManagerImpl::toChannelRecord) //
+					.toList();
+
+			return new GetChannelsOfComponent.Response(channels);
+		});
+
+		builder.handleRequest(new GetChannel(), endpoint -> {
+			endpoint.setDescription("""
+					Handles a GetChannel.
+					""");
+		}, call -> {
+			final var request = call.getRequest();
+			final var channel = this.getChannel(new ChannelAddress(request.componentId(), request.channelId()));
+
+			return new GetChannel.Response(toChannelRecord(channel));
+		});
+
+		builder.handleRequest(new GetDigitalInputChannelsOfComponents(), endpoint -> {
+			endpoint.setDescription("""
+					Handles a GetDigitalInputChannelsOfComponent.
+					""");
+		}, call -> {
+
+			final var result = this.getEnabledComponentsOfType(DigitalInput.class).stream() //
+					.filter(t -> call.getRequest().componentIds().contains(t.id())) //
+					.collect(toMap(OpenemsComponent::id, t -> Arrays.stream(t.digitalInputChannels()) //
+							.map(ComponentManagerImpl::toChannelRecord) //
+							.toList()));
+
+			return new GetDigitalInputChannelsOfComponents.Response(result);
+		});
+
+		builder.handleRequest(new GetAllComponentFactories(), endpoint -> {
+			endpoint.setDescription("""
+					Handles a GetAllComponentFactories.
+					""") //
+					.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
+		}, call -> {
+			final var edgeConfig = this.getEdgeConfig();
+
+			return new GetAllComponentFactories.Response(edgeConfig.getFactories().entrySet().stream()
+					.collect(JsonUtils.toJsonObject(Entry::getKey, i -> i.getValue().toJson())));
+		});
+
+		builder.handleRequest(new GetPropertiesOfFactory(), endpoint -> {
+			endpoint.setDescription("""
+					Handles a GetPropertiesOfFactory.
+					""") //
+					.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
+		}, call -> {
+			final var factoryId = call.getRequest().factoryId();
+
+			final var edgeConfig = this.getEdgeConfig();
+			final var factory = edgeConfig.getFactories().get(factoryId);
+
+			if (factory == null) {
+				throw new OpenemsException("Factory with id " + factoryId + " could not be found.");
+			}
+
+			return new GetPropertiesOfFactory.Response(factory.toJson(), Stream.of(factory.getProperties()) //
+					.map(EdgeConfig.Factory.Property::toJson) //
+					.collect(JsonUtils.toJsonArray()));
+		});
+	}
+
+	private static ChannelRecord toChannelRecord(Channel<?> channel) {
+		return new GetChannelsOfComponent.ChannelRecord(//
+				channel.channelId().id(), //
+				channel.channelDoc().getAccessMode(), //
+				channel.channelDoc().getPersistencePriority(), //
+				channel.channelDoc().getText(), //
+				channel.channelDoc().getType(), //
+				channel.channelDoc().getUnit(), //
+				channel.channelDoc().getChannelCategory(), //
+				channel.channelDoc() instanceof StateChannelDoc c ? c.getLevel() : null, //
+				channel.channelDoc() instanceof EnumDoc c ? Lists.newArrayList(c.getOptions()) : null);
 	}
 
 	/**

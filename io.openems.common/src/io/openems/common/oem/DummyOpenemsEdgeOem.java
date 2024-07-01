@@ -65,6 +65,8 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.FENECON.Industrial.S.ISK011", "https://fenecon.de/fenecon-industrial-s/") //
 			.put("App.TimeOfUseTariff.Awattar", "") //
 			.put("App.TimeOfUseTariff.ENTSO-E", "") //
+			.put("App.TimeOfUseTariff.GroupeE", "") //
+			.put("App.TimeOfUseTariff.Hassfurt", "") //
 			.put("App.TimeOfUseTariff.RabotCharge", "") //
 			.put("App.TimeOfUseTariff.Stromdao", "") //
 			.put("App.TimeOfUseTariff.Tibber", "") //
@@ -72,6 +74,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Api.ModbusTcp.ReadWrite", "") //
 			.put("App.Api.RestJson.ReadOnly", "") //
 			.put("App.Api.RestJson.ReadWrite", "") //
+			.put("App.Timedata.InfluxDb", "")//
 			.put("App.Evcs.HardyBarth", "") //
 			.put("App.Evcs.Keba", "") //
 			.put("App.Evcs.IesKeywatt", "") //
@@ -90,6 +93,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Meter.Socomec", "") //
 			.put("App.Meter.CarloGavazzi", "") //
 			.put("App.Meter.Janitza", "") //
+			.put("App.Meter.Discovergy", "")//
 			.put("App.PvInverter.Fronius", "") //
 			.put("App.PvInverter.Kaco", "") //
 			.put("App.PvInverter.Kostal", "") //

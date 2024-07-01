@@ -20,7 +20,7 @@ public class TypeTest {
 			assertEquals((Long) 101180500005L, JsonUtils.getAsType(OpenemsType.LONG, j));
 		}
 		{
-			var j = new JsonPrimitive("519100001009210611000019");
+			var j = new JsonPrimitive("X519100001009210611000019");
 			assertEquals(Type.STRING, Type.detect(j));
 			assertEquals(j.getAsString(), JsonUtils.getAsType(OpenemsType.STRING, j));
 		}

@@ -56,7 +56,7 @@ subprojects {
 		jacocoTestReport {
 			reports {
 				xml.required = true
-				csv.required = true
+				csv.required = false
 				html.required = false
 			}
 			// Exclude com.dalsemi.onewire
@@ -80,8 +80,8 @@ subprojects {
 				html.required = false
 				sarif.required = false
 			}
-			minHeapSize = "256m"
-			maxHeapSize = "1g"
+			minHeapSize = "512m"
+			maxHeapSize = "2048m"
 			// Exclude com.dalsemi.onewire
 			exclude '**/com/dalsemi/onewire/*'
 		}
@@ -147,7 +147,7 @@ task assembleBackend() {
 	description 'Assemble all Backend-Bundles'
 	
 	subprojects.each { proj ->
-		if( proj.name ==~ /io.openems.(backend|common|shared|wrapper).*/ ) {
+		if( proj.name ==~ /io.openems.(backend|common|oem|shared|wrapper).*/ ) {
 			if (proj.tasks.findAll { it.name == 'assemble' }) {
 				dependsOn(proj.assemble)
 			}
