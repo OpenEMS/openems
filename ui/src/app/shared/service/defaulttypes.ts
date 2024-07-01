@@ -14,6 +14,7 @@ export module DefaultTypes {
   }
 
   export type ManualOnOff = 'MANUAL_ON' | 'MANUAL_OFF';
+  export type ManualOffAuto = 'MANUAL' | 'OFF' | 'AUTO';
 
   /**
    * CurrentData Summary
