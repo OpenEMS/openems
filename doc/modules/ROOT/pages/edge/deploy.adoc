@@ -116,7 +116,7 @@ Execute `systemctl daemon-reload`
 
 ==== Update OpenEMS Edge JAR file
 
-To update the OpenEMS JAR file at the target device, it is required to copy the JAR file from your build directory (see xref:./build.adoc[Build OpenEMS Edge]) to `/usr/lib/openems/openems.jar` on the target device. Afterwards it is required to restart the systemd service
+To update the OpenEMS JAR file at the target device, it is required to copy the JAR file from your build directory (see xref:edge/build.adoc[Build OpenEMS Edge]) to `/usr/lib/openems/openems.jar` on the target device. Afterwards it is required to restart the systemd service
 
 . Copy JAR file via SCP.
 +
