@@ -11,8 +11,8 @@ import { Edge, EdgeConfig, Service, Websocket } from '../../../../../shared/shar
 })
 export class AdministrationComponent implements OnInit {
 
-  @Input() public evcsComponent: EdgeConfig.Component;
-  @Input() public edge: Edge;
+  @Input({ required: true }) public evcsComponent!: EdgeConfig.Component;
+  @Input({ required: true }) public edge!: Edge;
 
   private static readonly SELECTOR = "administration";
 

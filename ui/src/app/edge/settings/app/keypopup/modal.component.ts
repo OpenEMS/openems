@@ -22,10 +22,10 @@ import { hasPredefinedKey } from '../permissions';
 })
 export class KeyModalComponent implements OnInit {
 
-    @Input() public edge: Edge;
+    @Input({ required: true }) public edge!: Edge;
     @Input() public appId: string | null = null;
     @Input() public appName: string | null = null;
-    @Input() public behaviour: KeyValidationBehaviour;
+    @Input({ required: true }) public behaviour!: KeyValidationBehaviour;
 
     @Input() public knownApps: GetApps.App[] | null = null;
 
