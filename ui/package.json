@@ -15,7 +15,7 @@
     "@capacitor-community/file-opener": "^1.0.5",
     "@capacitor/android": "5.2.3",
     "@capacitor/app": "^5.0.6",
-    "@capacitor/core": "5.2.3",
+    "@capacitor/core": "5.7.6",
     "@capacitor/filesystem": "^5.2.0",
     "@capacitor/ios": "5.2.3",
     "@capacitor/splash-screen": "^5.0.6",
