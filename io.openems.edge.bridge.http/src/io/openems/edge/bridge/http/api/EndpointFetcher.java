@@ -15,4 +15,14 @@ public interface EndpointFetcher {
 	 */
 	public HttpResponse<String> fetchEndpoint(Endpoint endpoint) throws HttpError;
 
+	/**
+	 * Executes an HTTP request for the given endpoint and returns the raw response
+	 * body as a byte array.
+	 * 
+	 * @param endpoint the {@link Endpoint} to fetch
+	 * @return the raw response body as a byte array
+	 * @throws OpenemsNamedException on error
+	 */
+	public byte[] fetchEndpointRaw(Endpoint endpoint) throws HttpError;
+
 }

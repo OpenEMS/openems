@@ -90,4 +90,10 @@ public class DummyEndpointFetcher implements EndpointFetcher {
 		this.onTaskFinished = onTaskFinished == null ? FunctionUtils::doNothing : onTaskFinished;
 	}
 
+	@Override
+	public byte[] fetchEndpointRaw(Endpoint endpoint) throws HttpError {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
