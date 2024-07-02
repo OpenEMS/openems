@@ -37,9 +37,9 @@ export abstract class AbstractHistoryChart implements OnInit {
   @Input() public chartTitle: string = "";
 
   /** TODO: workaround with Observables, to not have to pass the period on Initialisation */
-  @Input() public component: EdgeConfig.Component;
-  @Input() public showPhases: boolean;
-  @Input() public showTotal: boolean;
+  @Input() public component?: EdgeConfig.Component;
+  @Input() public showPhases: boolean = false;
+  @Input() public showTotal: boolean = false;
   @Input() public isOnlyChart: boolean = false;
 
   public edge: Edge | null = null;

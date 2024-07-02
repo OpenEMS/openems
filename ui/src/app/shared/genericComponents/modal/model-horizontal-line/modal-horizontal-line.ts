@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
 /**
@@ -11,7 +10,7 @@ import { Component, Input } from "@angular/core";
 export class ModalHorizontalLineComponent {
 
     /** Components-Array to iterate over */
-    @Input() protected components: any[];
+    @Input({ required: true }) protected components!: any[];
     /** index is an iterator */
-    @Input() protected index: number;
+    @Input({ required: true }) protected index!: number;
 }

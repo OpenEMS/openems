@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
@@ -25,7 +24,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 })
 export class FormlyFieldWithLoadingAnimationComponent {
   @Input() public show: boolean = false;
-  @Input() public fields: FormlyFieldConfig[];
-  @Input() public form: FormGroup;
-  @Input() public model: any;
+  @Input({ required: true }) public fields!: FormlyFieldConfig[];
+  @Input({ required: true }) public form!: FormGroup;
+  @Input({ required: true }) public model!: any;
 }

@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, Input } from '@angular/core';
 import { Converter } from 'src/app/shared/genericComponents/shared/converter';
 import { Utils } from 'src/app/shared/shared';
@@ -10,7 +9,7 @@ import { EdgeConfig } from '../../edgeconfig';
     templateUrl: './modal.component.html',
 })
 export class EssChargerComponent {
-    @Input() public component: EdgeConfig.Component;
+    @Input({ required: true }) public component!: EdgeConfig.Component;
     protected readonly Role = Role;
     protected readonly Utils = Utils;
     protected readonly Converter = Converter;

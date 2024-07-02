@@ -13,11 +13,11 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class EvcsChartComponent implements OnInit, OnChanges {
 
-  @Input() private evcsMap: { [sourceId: string]: EdgeConfig.Component };
-  @Input() private edge: Edge;
-  @Input() private currentData: CurrentData;
+  @Input({ required: true }) private evcsMap!: { [sourceId: string]: EdgeConfig.Component };
+  @Input({ required: true }) private edge!: Edge;
+  @Input({ required: true }) private currentData!: CurrentData;
   @Input() private evcsConfigMap: { [evcsId: string]: EdgeConfig.Component } = {};
-  @Input() private componentId: string;
+  @Input({ required: true }) private componentId!: string;
 
   private static readonly SELECTOR = "evcsChart";
   public loading: boolean = true;
