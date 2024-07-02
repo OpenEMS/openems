@@ -20,11 +20,14 @@ jobs:
 
       - uses: kiancross/checkstyle-annotations-action@v1
 
+      - name: Checkstyle
+        run: ./gradlew checkstyleAll --console=plain --warn
+
       - name: Build all Java packages
-        run: ./gradlew build
+        run: ./gradlew build --console=plain --warn
 
       - name: Resolve OpenEMS bundles
-        run: ./gradlew resolve
+        run: ./gradlew resolve --console=plain --warn
 
       - name: Validate BackendApp.bndrun
         run: git diff --exit-code io.openems.backend.application/BackendApp.bndrun
@@ -33,7 +36,7 @@ jobs:
         run: git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
 
       - name: Prepare Edge+Backend assets
-        run: ./gradlew buildEdge buildBackend
+        run: ./gradlew buildEdge buildBackend --console=plain --warn
 
       - name: Save build-artifacts
         uses: actions/upload-artifact@v4
@@ -74,14 +77,13 @@ jobs:
 
       - name: Prepare UI asset
         run: |
-          tar --xz --transform 's|^ui/target|openems-ui|' -cvf build/openems-ui.tar.xz ui/target/
+          tar --xz --transform 's|^ui/target|openems-ui|' -cvf openems-ui.tar.xz ui/target/
 
       - name: Save build-artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ui-build-artifacts
-          path: |
-            build/openems-ui.tar.xz
+          path: openems-ui.tar.xz
 
   release:
     runs-on: ubuntu-latest
