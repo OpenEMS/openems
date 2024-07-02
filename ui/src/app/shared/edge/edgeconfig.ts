@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { ChannelAddress } from '../type/channeladdress';
 import { Widgets } from '../type/widget';
 import { Edge } from './edge';
@@ -413,7 +412,7 @@ export class EdgeConfig {
      * Lists all available Factories, grouped by category.
      */
     public static listAvailableFactories(factories: { [id: string]: EdgeConfig.Factory }): CategorizedFactories[] {
-        const allFactories = [
+        const allFactories: CategorizedFactories[] = [
             {
                 category: { title: 'Simulatoren', icon: 'flask-outline' },
                 factories: Object.entries(factories)
@@ -426,7 +425,7 @@ export class EdgeConfig {
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.meter.api.SymmetricMeter"), // TODO replaced by ElectricityMeter
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.meter.api.ElectricityMeter"),
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.ess.dccharger.api.EssDcCharger"),
-                ],
+                ].flat(2),
             },
             {
                 category: { title: 'Speichersysteme', icon: 'battery-charging-outline' },
@@ -434,7 +433,7 @@ export class EdgeConfig {
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.ess.api.SymmetricEss"),
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.battery.api.Battery"),
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter"),
-                ],
+                ].flat(2),
             },
             {
                 category: { title: 'Speichersystem-Steuerung', icon: 'options-outline' },
@@ -444,13 +443,13 @@ export class EdgeConfig {
                         /Controller\.Ess.*/,
                         /Controller\.Symmetric.*/,
                     ]),
-                ],
+                ].flat(2),
             },
             {
                 category: { title: 'E-Auto-Ladestation', icon: 'car-outline' },
                 factories: [
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.evcs.api.Evcs"),
-                ],
+                ].flat(2),
             },
             {
                 category: { title: 'E-Auto-Ladestation-Steuerung', icon: 'options-outline' },
@@ -458,14 +457,14 @@ export class EdgeConfig {
                     EdgeConfig.getFactoriesByIds(factories, [
                         'Controller.Evcs',
                     ]),
-                ],
+                ].flat(2),
             },
             {
                 category: { title: 'I/Os', icon: 'log-in-outline' },
                 factories: [
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.io.api.DigitalOutput"),
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.io.api.DigitalInput"),
-                ],
+                ].flat(2),
             },
             {
                 category: { title: 'I/O-Steuerung', icon: 'options-outline' },
@@ -476,13 +475,13 @@ export class EdgeConfig {
                         'Controller.IO.HeatingElement',
                         'Controller.Io.HeatPump.SgReady',
                     ]),
-                ],
+                ].flat(2),
             },
             {
                 category: { title: 'Temperatursensoren', icon: 'thermometer-outline' },
                 factories: [
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.thermometer.api.Thermometer"),
-                ],
+                ].flat(2),
             },
             {
                 category: { title: 'Externe Schnittstellen', icon: 'megaphone-outline' },
@@ -496,7 +495,7 @@ export class EdgeConfig {
                         'Controller.Api.Rest.ReadOnly',
                         'Controller.Api.Rest.ReadWrite',
                     ]),
-                ],
+                ].flat(2),
             },
             {
                 category: { title: 'Cloud-Schnittstellen', icon: 'cloud-outline' },
@@ -507,7 +506,7 @@ export class EdgeConfig {
                     EdgeConfig.getFactoriesByIds(factories, [
                         'Controller.Api.Backend',
                     ]),
-                ],
+                ].flat(2),
             },
             {
                 category: { title: 'Geräte-Schnittstellen', icon: 'swap-horizontal-outline' },
@@ -519,7 +518,7 @@ export class EdgeConfig {
                         'Bridge.Modbus.Tcp',
                         'Kaco.BlueplanetHybrid10.Core',
                     ]),
-                ],
+                ].flat(2),
             },
             {
                 category: { title: 'Standard-Komponenten', icon: 'resize-outline' },
@@ -531,13 +530,13 @@ export class EdgeConfig {
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.timedata.api.Timedata"),
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.predictor.api.oneday.Predictor24Hours"),
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.scheduler.api.Scheduler"),
-                ],
+                ].flat(2),
             },
             {
                 category: { title: 'Spezial-Controller', icon: 'repeat-outline' },
                 factories: [
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.controller.api.Controller"),
-                ],
+                ].flat(2),
             },
             {
                 category: { title: 'Weitere', icon: 'radio-button-off-outline' },
@@ -549,8 +548,7 @@ export class EdgeConfig {
         const result: CategorizedFactories[] = [];
         allFactories.forEach(item => {
             const factories =
-                // create one flat array
-                [].concat(...item.factories)
+                item.factories
                     // remove Factories from list that have already been listed before
                     .filter(factory => !ignoreFactoryIds.includes(factory.id))
                     // remove duplicates
@@ -588,10 +586,9 @@ export class EdgeConfig {
         const allComponents = [];
         const factories = this.listAvailableFactories();
         for (const entry of factories) {
-            const components = [];
+            const components: EdgeConfig.Component[] = [];
             for (const factory of entry.factories) {
-                components.push(this.getComponentsByFactory(factory.id));
-                // components.concat(...this.getComponentsByFactory(factory.id));
+                components.concat(...this.getComponentsByFactory(factory.id));
             }
             allComponents.push({
                 category: entry.category,
@@ -601,8 +598,7 @@ export class EdgeConfig {
         const result: CategorizedComponents[] = [];
         allComponents.forEach(item => {
             const components =
-                // create one flat array
-                [].concat(...item.components)
+                item.components
                     // remove Components from list that have already been listed before
                     .filter(component => !ignoreComponentIds.includes(component.id))
                     // remove duplicates
@@ -662,9 +658,9 @@ export class EdgeConfig {
      *
      * @param address the ChannelAddress
      */
-    public getChannel(address: ChannelAddress): EdgeConfig.ComponentChannel {
+    public getChannel(address: ChannelAddress): EdgeConfig.ComponentChannel | null {
         const component = this.components[address.componentId];
-        if (component) {
+        if (component?.channels) {
             return component.channels[address.channelId];
         } else {
             return null;
@@ -702,13 +698,13 @@ export namespace PersistencePriority {
 
 export module EdgeConfig {
     export class ComponentChannel {
-        public readonly type: "BOOLEAN" | "SHORT" | "INTEGER" | "LONG" | "FLOAT" | "DOUBLE" | "STRING";
-        public readonly accessMode: "RO" | "RW" | "WO";
-        public readonly unit: string;
-        public readonly category: "OPENEMS_TYPE" | "ENUM" | "STATE";
-        public readonly level: "INFO" | "OK" | "WARNING" | "FAULT";
-        public readonly persistencePriority: PersistencePriority;
-        public readonly text: string;
+        public readonly type!: "BOOLEAN" | "SHORT" | "INTEGER" | "LONG" | "FLOAT" | "DOUBLE" | "STRING";
+        public readonly accessMode!: "RO" | "RW" | "WO";
+        public readonly unit!: string;
+        public readonly category!: "OPENEMS_TYPE" | "ENUM" | "STATE";
+        public readonly level!: "INFO" | "OK" | "WARNING" | "FAULT";
+        public readonly persistencePriority?: PersistencePriority;
+        public readonly text!: string;
         public readonly options?: { [key: string]: number };
     }
 
@@ -725,13 +721,16 @@ export module EdgeConfig {
     }
 
     export class FactoryProperty {
-        public readonly id: string;
-        public readonly name: string;
-        public readonly description: string;
-        public readonly isRequired: boolean;
-        public readonly defaultValue: any;
-        public readonly schema: {};
+        public readonly id!: string;
+        public readonly name!: string;
+        public readonly description!: string;
+        public readonly type!: string;
+        public readonly isRequired!: boolean;
+        public readonly isPassword!: boolean;
+        public readonly defaultValue!: any;
+        public readonly schema!: {};
     }
+
 
     export class Factory {
         public id: string = "";
@@ -749,7 +748,7 @@ export module EdgeConfig {
          *
          * @param propertyId the Property-ID
          */
-        static getPropertyForId(factory: Factory, propertyId: string): FactoryProperty {
+        static getPropertyForId(factory: Factory, propertyId: string): FactoryProperty | null {
             for (const property of factory.properties) {
                 if (property.id === propertyId) {
                     return property;
