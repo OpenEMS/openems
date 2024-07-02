@@ -74,14 +74,13 @@ jobs:
 
       - name: Prepare UI asset
         run: |
-          tar --xz --transform 's|^ui/target|openems-ui|' -cvf build/openems-ui.tar.xz ui/target/
+          tar --xz --transform 's|^ui/target|openems-ui|' -cvf openems-ui.tar.xz ui/target/
 
       - name: Save build-artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ui-build-artifacts
-          path: |
-            build/openems-ui.tar.xz
+          path: openems-ui.tar.xz
 
   release:
     runs-on: ubuntu-latest
