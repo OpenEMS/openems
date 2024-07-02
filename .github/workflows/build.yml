@@ -22,11 +22,14 @@ jobs:
 
       - uses: kiancross/checkstyle-annotations-action@v1
 
+      - name: Checkstyle
+        run: ./gradlew checkstyleAll --console=plain --warn
+
       - name: Build all Java packages
-        run: ./gradlew build
+        run: ./gradlew build --console=plain --warn
 
       - name: Resolve OpenEMS bundles
-        run: ./gradlew resolve
+        run: ./gradlew resolve --console=plain --warn
 
       - name: Validate BackendApp.bndrun
         run: git diff --exit-code io.openems.backend.application/BackendApp.bndrun
@@ -64,7 +67,6 @@ jobs:
       - name: Build OpenEMS UI
         run: |
           cd ui
-          npm install 
           npm ci --prefer-offline --cache ~/.npm
           node_modules/.bin/ng config cli.cache.path "~/.ng"
           node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
