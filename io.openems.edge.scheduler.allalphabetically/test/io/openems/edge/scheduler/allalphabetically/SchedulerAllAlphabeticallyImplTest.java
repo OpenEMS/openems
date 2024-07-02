@@ -2,7 +2,9 @@ package io.openems.edge.scheduler.allalphabetically;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
@@ -25,7 +27,7 @@ public class SchedulerAllAlphabeticallyImplTest {
 	private static final String CTRL4_ID = "ctrl4";
 
 	@Test
-	public void test() throws Exception {
+	public void testWithFixedPriorities() throws Exception {
 		final SchedulerAllAlphabetically sut = new SchedulerAllAlphabeticallyImpl();
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -42,6 +44,46 @@ public class SchedulerAllAlphabeticallyImplTest {
 
 		assertEquals(//
 				Arrays.asList(CTRL2_ID, CTRL1_ID, CTRL0_ID, CTRL3_ID, CTRL4_ID), //
+				getControllerIds(sut));
+	}
+
+	@Test
+	public void testOnlyAlphabeticalOrdering() throws Exception {
+		final var controllerIds = new ArrayList<>(List.of(
+				"ctrlController1",
+				"a",
+				"aa",
+				"aA",
+				"ab",
+				"aB",
+				"A",
+				"0",
+				"1",
+				"0controller",
+				"0Controller",
+				"bla",
+				"controller0",
+				"controller1",
+				"dontroller0",
+				"dontroller1",
+				"d0",
+				"D0",
+				"Z",
+				"z"));
+		final var sut = new SchedulerAllAlphabeticallyImpl();
+		final var test = new ComponentTest(sut) //
+				.addReference("componentManager", new DummyComponentManager());
+		controllerIds.forEach(controllerId -> test.addComponent(new DummyController(controllerId)));
+		test.activate(MyConfig.create()
+				.setId(SCHEDULER_ID)
+				.setControllersIds()
+				.build())
+			.next(new TestCase());
+
+		Collections.sort(controllerIds);
+
+		assertEquals(
+				controllerIds,
 				getControllerIds(sut));
 	}
 
