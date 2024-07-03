@@ -38,9 +38,10 @@ public class SchedulerAllAlphabeticallyImplTest {
 				.addComponent(new DummyController(CTRL4_ID)) //
 				.activate(MyConfig.create() //
 						.setId(SCHEDULER_ID) //
-						.setControllersIds(CTRL2_ID, CTRL1_ID) //
+						.setControllersIds(CTRL2_ID, CTRL1_ID, "") //
 						.build())
-				.next(new TestCase());
+				.next(new TestCase()) //
+				.deactivate();
 
 		assertEquals(//
 				Arrays.asList(CTRL2_ID, CTRL1_ID, CTRL0_ID, CTRL3_ID, CTRL4_ID), //
@@ -49,42 +50,41 @@ public class SchedulerAllAlphabeticallyImplTest {
 
 	@Test
 	public void testOnlyAlphabeticalOrdering() throws Exception {
-		final var controllerIds = new ArrayList<>(List.of(
-				"ctrlController1",
-				"a",
-				"aa",
-				"aA",
-				"ab",
-				"aB",
-				"A",
-				"0",
-				"1",
-				"0controller",
-				"0Controller",
-				"bla",
-				"controller0",
-				"controller1",
-				"dontroller0",
-				"dontroller1",
-				"d0",
-				"D0",
-				"Z",
+		final var controllerIds = new ArrayList<>(List.of(//
+				"ctrlController1", //
+				"a", //
+				"aa", //
+				"aA", //
+				"ab", //
+				"aB", //
+				"A", //
+				"0", //
+				"1", //
+				"0controller", //
+				"0Controller", //
+				"bla", //
+				"controller0", //
+				"controller1", //
+				"dontroller0", //
+				"dontroller1", //
+				"d0", //
+				"D0", //
+				"Z", //
 				"z"));
 		final var sut = new SchedulerAllAlphabeticallyImpl();
-		final var test = new ComponentTest(sut) //
-				.addReference("componentManager", new DummyComponentManager());
+		final var test = new ComponentTest(sut); //
 		controllerIds.forEach(controllerId -> test.addComponent(new DummyController(controllerId)));
-		test.activate(MyConfig.create()
-				.setId(SCHEDULER_ID)
-				.setControllersIds()
-				.build())
-			.next(new TestCase());
+		test //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.activate(MyConfig.create() //
+						.setId(SCHEDULER_ID) //
+						.setControllersIds() //
+						.build()) //
+				.next(new TestCase());
 
 		Collections.sort(controllerIds);
 
-		assertEquals(
-				controllerIds,
-				getControllerIds(sut));
+		assertEquals(controllerIds, getControllerIds(sut));
 	}
 
 	private static List<String> getControllerIds(Scheduler scheduler) throws OpenemsNamedException {
