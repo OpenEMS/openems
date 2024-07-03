@@ -28,6 +28,9 @@ import { GetChannelResponse } from '../jsonrpc/response/getChannelResponse';
 import { Channel, GetChannelsOfComponentResponse } from '../jsonrpc/response/getChannelsOfComponentResponse';
 import { GetChannelsOfComponentRequest } from '../jsonrpc/request/getChannelsOfComponentRequest';
 import { EdgePermission } from '../shared';
+import { filter, first } from 'rxjs/operators';
+import { GetPropertiesOfFactoryRequest } from '../jsonrpc/request/getPropertiesOfFactoryRequest';
+import { GetPropertiesOfFactoryResponse } from '../jsonrpc/response/getPropertiesOfFactoryResponse';
 
 export class Edge {
 
@@ -72,6 +75,18 @@ export class Edge {
   }
 
   /**
+   * Gets the first valid Config. If not available yet, it requests it via Websocket.
+   *
+   * @param websocket the Websocket connection
+   */
+  public getFirstValidConfig(websocket: Websocket): Promise<EdgeConfig> {
+    return this.getConfig(websocket)
+      .pipe(filter(config => config != null && config.isValid()),
+        first())
+      .toPromise();
+  }
+
+  /**
    * Gets a channel either from {@link EdgeConfig edgeconfig} or requests it from the edge.
    *
    * @param websocket the websocket to send a request if the
@@ -81,8 +96,8 @@ export class Edge {
    */
   public async getChannel(websocket: Websocket, channel: ChannelAddress): Promise<Channel> {
     if (EdgePermission.hasChannelsInEdgeConfig(this)) {
-      const config = await this.getConfig(websocket);
-      const foundChannel = config.value.getChannel(channel);
+      const config = await this.getFirstValidConfig(websocket);
+      const foundChannel = config.getChannel(channel);
       if (!foundChannel) {
         throw new Error("Channel not found: " + channel);
       }
@@ -110,8 +125,8 @@ export class Edge {
    */
   public async getChannels(websocket: Websocket, componentId: string): Promise<Channel[]> {
     if (EdgePermission.hasChannelsInEdgeConfig(this)) {
-      const config = await this.getConfig(websocket);
-      const component = config.value.components[componentId];
+      const config = await this.getFirstValidConfig(websocket);
+      const component = config.components[componentId];
       if (!component) {
         throw new Error('Component not found');
       }
@@ -126,6 +141,19 @@ export class Edge {
     }));
 
     return response.result.channels;
+  }
+
+  public async getFactoryProperties(websocket: Websocket, factoryId: string): Promise<[EdgeConfig.Factory, EdgeConfig.FactoryProperty[]]> {
+    if (EdgePermission.hasReducedFactories(this)) {
+      const response = await this.sendRequest<GetPropertiesOfFactoryResponse>(websocket, new ComponentJsonApiRequest({
+        componentId: '_componentManager',
+        payload: new GetPropertiesOfFactoryRequest({ factoryId }),
+      }));
+      return [response.result.factory, response.result.properties];
+    }
+
+    const factory = (await this.getFirstValidConfig(websocket)).factories[factoryId];
+    return [factory, factory.properties];
   }
 
   /**

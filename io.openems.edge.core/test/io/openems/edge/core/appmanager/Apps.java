@@ -16,6 +16,7 @@ import io.openems.edge.app.api.ModbusTcpApiReadOnly;
 import io.openems.edge.app.api.ModbusTcpApiReadWrite;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
 import io.openems.edge.app.api.RestJsonApiReadWrite;
+import io.openems.edge.app.api.TimedataInfluxDb;
 import io.openems.edge.app.ess.FixActivePower;
 import io.openems.edge.app.ess.FixStateOfCharge;
 import io.openems.edge.app.ess.PowerPlantController;
@@ -36,6 +37,7 @@ import io.openems.edge.app.integratedsystem.FeneconHome30;
 import io.openems.edge.app.loadcontrol.ManualRelayControl;
 import io.openems.edge.app.loadcontrol.ThresholdControl;
 import io.openems.edge.app.meter.CarloGavazziMeter;
+import io.openems.edge.app.meter.DiscovergyMeter;
 import io.openems.edge.app.meter.JanitzaMeter;
 import io.openems.edge.app.meter.MicrocareSdm630Meter;
 import io.openems.edge.app.meter.SocomecMeter;
@@ -300,6 +302,16 @@ public class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link TimedataInfluxDb}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TimedataInfluxDb timedataInfluxDb(AppManagerTestBundle t) {
+		return app(t, TimedataInfluxDb::new, "App.Timedata.InfluxDb");
+	}
+
+	/**
 	 * Test method for creating a {@link AlpitronicEvcs}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -425,6 +437,16 @@ public class Apps {
 	 */
 	public static final SocomecMeter socomecMeter(AppManagerTestBundle t) {
 		return app(t, SocomecMeter::new, "App.Meter.Socomec");
+	}
+
+	/**
+	 * Test method for creating a {@link DiscoveregyMeter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final DiscovergyMeter discovergyMeter(AppManagerTestBundle t) {
+		return app(t, DiscovergyMeter::new, "App.Meter.Discovergy");
 	}
 
 	/**

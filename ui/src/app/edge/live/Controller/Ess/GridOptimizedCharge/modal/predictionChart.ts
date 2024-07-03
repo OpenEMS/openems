@@ -15,11 +15,11 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from 'src/app/shared
 })
 export class PredictionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() protected refresh: boolean;
-    @Input() protected override edge: Edge;
-    @Input() public component: EdgeConfig.Component;
-    @Input() public targetEpochSeconds: number;
-    @Input() public chargeStartEpochSeconds: number;
+    @Input({ required: true }) protected refresh!: boolean;
+    @Input({ required: true }) protected override edge!: Edge;
+    @Input({ required: true }) public component!: EdgeConfig.Component;
+    @Input({ required: true }) public targetEpochSeconds!: number;
+    @Input({ required: true }) public chargeStartEpochSeconds!: number;
 
     private static DEFAULT_PERIOD: DefaultTypes.HistoryPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
 

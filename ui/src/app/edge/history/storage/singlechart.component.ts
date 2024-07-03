@@ -16,8 +16,8 @@ import { AbstractHistoryChart } from '../abstracthistorychart';
 })
 export class StorageSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() public showPhases: boolean;
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public showPhases!: boolean;
 
     ngOnChanges() {
         this.updateChart();

@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -65,10 +67,12 @@ import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxRequest;
 import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxResponse;
+import io.openems.edge.core.componentmanager.jsonrpc.GetAllComponentFactories;
 import io.openems.edge.core.componentmanager.jsonrpc.GetChannel;
 import io.openems.edge.core.componentmanager.jsonrpc.GetChannelsOfComponent;
 import io.openems.edge.core.componentmanager.jsonrpc.GetChannelsOfComponent.ChannelRecord;
 import io.openems.edge.core.componentmanager.jsonrpc.GetDigitalInputChannelsOfComponents;
+import io.openems.edge.core.componentmanager.jsonrpc.GetPropertiesOfFactory;
 import io.openems.edge.core.componentmanager.jsonrpc.GetStateChannelsOfComponent;
 import io.openems.edge.io.api.DigitalInput;
 
@@ -395,7 +399,6 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			final var request = call.getRequest();
 			final var channel = this.getChannel(new ChannelAddress(request.componentId(), request.channelId()));
 
-			Thread.sleep(5000);
 			return new GetChannel.Response(toChannelRecord(channel));
 		});
 
@@ -412,6 +415,38 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 							.toList()));
 
 			return new GetDigitalInputChannelsOfComponents.Response(result);
+		});
+
+		builder.handleRequest(new GetAllComponentFactories(), endpoint -> {
+			endpoint.setDescription("""
+					Handles a GetAllComponentFactories.
+					""") //
+					.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
+		}, call -> {
+			final var edgeConfig = this.getEdgeConfig();
+
+			return new GetAllComponentFactories.Response(edgeConfig.getFactories().entrySet().stream()
+					.collect(JsonUtils.toJsonObject(Entry::getKey, i -> i.getValue().toJson())));
+		});
+
+		builder.handleRequest(new GetPropertiesOfFactory(), endpoint -> {
+			endpoint.setDescription("""
+					Handles a GetPropertiesOfFactory.
+					""") //
+					.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
+		}, call -> {
+			final var factoryId = call.getRequest().factoryId();
+
+			final var edgeConfig = this.getEdgeConfig();
+			final var factory = edgeConfig.getFactories().get(factoryId);
+
+			if (factory == null) {
+				throw new OpenemsException("Factory with id " + factoryId + " could not be found.");
+			}
+
+			return new GetPropertiesOfFactory.Response(factory.toJson(), Stream.of(factory.getProperties()) //
+					.map(EdgeConfig.Factory.Property::toJson) //
+					.collect(JsonUtils.toJsonArray()));
 		});
 	}
 

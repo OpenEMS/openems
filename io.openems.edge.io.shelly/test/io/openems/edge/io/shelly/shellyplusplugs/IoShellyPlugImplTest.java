@@ -43,7 +43,7 @@ public class IoShellyPlugImplTest {
 						.setType(MeterType.PRODUCTION) //
 						.build()) //
 
-				.next(new TestCase("Successfull read response") //
+				.next(new TestCase("Successful read response") //
 						.onBeforeControllersCallbacks(() -> {
 							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
 									{

@@ -10,12 +10,42 @@ import { EdgeConfig, PersistencePriority } from "./edgeconfig";
 
 export namespace DummyConfig {
 
+    export function dummyEdge(values: {
+        edgeId?: string,
+        comment?: string,
+        producttype?: string,
+        version?: string,
+        role?: Role,
+        isOnline?: boolean,
+        lastmessage?: Date,
+        sumState?: SumState,
+        firstSetupProtocol?: Date,
+    }): Edge {
+        return new Edge(
+            values.edgeId ?? "edge0",
+            values.comment ?? "edge0",
+            values.producttype ?? "",
+            values.version ?? "2023.3.5",
+            values.role ?? Role.ADMIN,
+            values.isOnline ?? true,
+            values.lastmessage ?? new Date(),
+            values.sumState ?? SumState.OK,
+            values.firstSetupProtocol ?? new Date(0),
+        );
+    }
+
     const DUMMY_EDGE: Edge = new Edge("edge0", "", "", "2023.3.5", Role.ADMIN, true, new Date(), SumState.OK, new Date(0));
     export function from(...components: Component[]): EdgeConfig {
 
-        return new EdgeConfig(DUMMY_EDGE, <EdgeConfig><unknown>{
-            components: <unknown>components?.reduce((acc, c) => ({ ...acc, [c.id]: c }), {}),
-            factories: <unknown>components?.map(c => c.factory),
+        return new EdgeConfig(DUMMY_EDGE, <EdgeConfig>{
+            components: <unknown>components?.reduce((acc, c) => {
+                c.factoryId = c.factory.id;
+                return ({ ...acc, [c.id]: c });
+            }, {}),
+            factories: components?.reduce((p, c) => {
+                p[c.factory.id] = new EdgeConfig.Factory(c.factory.id, '', c.factory.natureIds);
+                return p;
+            }, {}),
         });
     }
 
@@ -24,16 +54,15 @@ export namespace DummyConfig {
 
         const factories = {};
         components.forEach(obj => {
-            const component = obj as unknown;
-            if (factories[component['factoryId']]) {
-                factories[component['factoryId']].componentIds = [...factories[component['factoryId']].componentIds, ...component['factory'].componentIds];
+            if (factories[obj.factoryId]) {
+                factories[obj.factoryId].componentIds = [...factories[obj.factoryId].componentIds, obj.id];
             } else {
-                factories[component['factoryId']] = {
-                    componentIds: component['factory'].componentIds,
+                factories[obj.factoryId] = {
+                    componentIds: [obj.id],
                     description: "",
-                    id: component['factoryId'],
-                    name: component['factoryId'],
-                    natureIds: component['factory'].natureIds,
+                    id: obj.factoryId,
+                    name: obj.factoryId,
+                    natureIds: edgeConfig.factories[obj.factoryId].natureIds,
                     properties: [],
                 };
             }
@@ -45,7 +74,7 @@ export namespace DummyConfig {
         });
     }
 
-    namespace Factory {
+    export namespace Factory {
 
         export const METER_SOCOMEC_THREEPHASE = {
             id: "Meter.Socomec.Threephase",
@@ -210,7 +239,8 @@ export namespace DummyConfig {
 // identifier `Factory` is also used in namespace
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 type Factory = {
-    id: string
+    id: string,
+    natureIds: string[],
 };
 
 /**

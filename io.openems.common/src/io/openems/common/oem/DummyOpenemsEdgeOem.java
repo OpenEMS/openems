@@ -74,6 +74,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Api.ModbusTcp.ReadWrite", "") //
 			.put("App.Api.RestJson.ReadOnly", "") //
 			.put("App.Api.RestJson.ReadWrite", "") //
+			.put("App.Timedata.InfluxDb", "")//
 			.put("App.Evcs.HardyBarth", "") //
 			.put("App.Evcs.Keba", "") //
 			.put("App.Evcs.IesKeywatt", "") //
@@ -92,6 +93,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Meter.Socomec", "") //
 			.put("App.Meter.CarloGavazzi", "") //
 			.put("App.Meter.Janitza", "") //
+			.put("App.Meter.Discovergy", "")//
 			.put("App.PvInverter.Fronius", "") //
 			.put("App.PvInverter.Kaco", "") //
 			.put("App.PvInverter.Kostal", "") //

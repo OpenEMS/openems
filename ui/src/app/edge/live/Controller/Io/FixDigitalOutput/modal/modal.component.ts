@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
@@ -11,8 +10,8 @@ import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 })
 export class Controller_Io_FixDigitalOutputModalComponent {
 
-  @Input() public edge: Edge;
-  @Input() public component: EdgeConfig.Component;
+  @Input({ required: true }) public edge!: Edge;
+  @Input({ required: true }) public component!: EdgeConfig.Component;
 
   constructor(
     public service: Service,

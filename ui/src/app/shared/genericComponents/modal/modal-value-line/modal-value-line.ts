@@ -20,11 +20,11 @@ export class ModalValueLineComponent extends AbstractModalLine {
     return this.channels;
   }
 
-  @Input() private valueCallback: (currentData: CurrentData) => string;
+  @Input({ required: true }) private valueCallback!: (currentData: CurrentData) => string;
 
   // Width of Left Column, Right Column is (100% - leftColumn)
-  @Input()
-  protected leftColumnWidth: number;
+  @Input({ required: true })
+  protected leftColumnWidth!: number;
 
   /** Fixed indentation of the modal-line */
   @Input() protected textIndent: TextIndentation = TextIndentation.NONE;

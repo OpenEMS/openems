@@ -4,7 +4,7 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { filter } from "rxjs/operators";
 
-import { ChannelAddress, EdgeConfig, Service } from "../../shared";
+import { CurrentData, ChannelAddress, EdgeConfig, Service } from "../../shared";
 import { SharedModule } from "../../shared.module";
 import { Role } from "../../type/role";
 import { TextIndentation } from "../modal/modal-line/modal-line";
@@ -99,7 +99,7 @@ export namespace OeFormlyField {
   export type ValueFromChannelsLine = {
     type: 'value-from-channels-line',
     name: string,
-    value: Function,
+    value: (data: CurrentData) => string,
     channelsToSubscribe: ChannelAddress[],
     indentation?: TextIndentation,
     filter?: (value: number[] | null) => boolean,

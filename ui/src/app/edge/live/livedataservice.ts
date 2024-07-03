@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { DataService } from "../../shared/genericComponents/shared/dataservice";
 import { ChannelAddress, Edge, Service, Websocket } from "../../shared/shared";
+import { RefresherCustomEvent } from "@ionic/angular";
 
 @Directive()
 export class LiveDataService extends DataService implements OnDestroy {
@@ -51,5 +52,14 @@ export class LiveDataService extends DataService implements OnDestroy {
 
     public unsubscribeFromChannels(channels: ChannelAddress[]) {
         this.edge.unsubscribeFromChannels(this.websocket, channels);
+    }
+
+    public override refresh(ev: RefresherCustomEvent) {
+        this.currentValue.next({ allComponents: {} });
+        this.edge.unsubscribeFromChannels(this.websocket, this.subscribedChannelAddresses);
+        setTimeout(() => {
+            this.edge.subscribeChannels(this.websocket, "", this.subscribedChannelAddresses);
+            ev.target.complete();
+        }, 1000);
     }
 }

@@ -30,15 +30,8 @@
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
+        "curly": "error",
         "unused-imports/no-unused-imports": "error",
-        "@stylistic/semi": [
-          "error",
-          "always"
-        ],
-        "@stylistic/quote-props": [
-          "warn",
-          "consistent"
-        ],
         "@typescript-eslint/explicit-member-accessibility": [
           "error",
           {
@@ -67,15 +60,16 @@
             "style": "camelCase"
           }
         ],
-        "curly": "error",
+        "@stylistic/semi": "error",
+        "@stylistic/quote-props": [
+          "warn",
+          "consistent"
+        ],
         "@stylistic/comma-dangle": [
           "error",
           "always-multiline"
         ],
-        "@stylistic/eol-last": [
-          "error",
-          "always"
-        ],
+        "@stylistic/eol-last": "error",
         "@stylistic/no-trailing-spaces": "error",
         "@typescript-eslint/no-unused-vars": [
           "error",
@@ -90,9 +84,7 @@
           {
             "extendDefaults": true,
             "types": {
-              "{}": false,
-              "Object": false,
-              "Function": false
+              "{}": false
             }
           }
         ]

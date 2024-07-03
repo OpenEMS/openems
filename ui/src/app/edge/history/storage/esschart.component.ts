@@ -14,9 +14,9 @@ import { AbstractHistoryChart } from '../abstracthistorychart';
 export class StorageESSChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() public componentId: string;
-    @Input() public showPhases: boolean;
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public componentId!: string;
+    @Input({ required: true }) public showPhases!: boolean;
 
     private moreThanOneProducer: boolean = null;
 
