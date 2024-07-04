@@ -14,7 +14,7 @@ export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
   public channelAddresses: ChannelAddress[] = [];
   public evcsIdsInCluster: string[] = [];
   public evcssInCluster: EdgeConfig.Component[] = [];
-  public evcsComponent: EdgeConfig.Component = null;
+  public evcsComponent: EdgeConfig.Component | null = null;
   public evcsMap: { [sourceId: string]: EdgeConfig.Component } = {};
   public isConnectionSuccessful: boolean;
   public alias: string;

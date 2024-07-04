@@ -99,7 +99,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
             });
           }
           if (channel == inputChannel) {
-            let inputLabel: string = null;
+            let inputLabel: string | null = null;
             const address = ChannelAddress.fromString(channel);
             switch (address.channelId) {
               case 'GridActivePower':

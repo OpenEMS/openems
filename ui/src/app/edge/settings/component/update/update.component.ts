@@ -13,14 +13,14 @@ export class ComponentUpdateComponent implements OnInit {
 
   private static readonly SELECTOR = "componentUpdate";
 
-  public edge: Edge = null;
-  public factory: EdgeConfig.Factory = null;
-  public form: FormGroup = null;
+  public edge: Edge | null = null;
+  public factory: EdgeConfig.Factory | null = null;
+  public form: FormGroup | null = null;
   public model = null;
-  public fields: FormlyFieldConfig[] = null;
-  public componentIcon: string = null;
+  public fields: FormlyFieldConfig[] | null = null;
+  public componentIcon: string | null = null;
 
-  private componentId: string = null;
+  private componentId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,

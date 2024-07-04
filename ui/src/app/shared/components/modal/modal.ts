@@ -28,7 +28,7 @@ export class ModalComponent {
     /** Title in Header */
     @Input({ required: true }) public title!: string;
 
-    @Input() protected component: EdgeConfig.Component = null;
+    @Input() protected component: EdgeConfig.Component | null = null;
     @Input() protected formGroup: FormGroup = new FormGroup({});
 
     @Input() protected toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | {
@@ -39,7 +39,7 @@ export class ModalComponent {
     @Input() protected helpKey: string | null = null;
     public readonly Role = Role;
 
-    private edge: Edge = null;
+    private edge: Edge | null = null;
 
     constructor(
         public modalController: ModalController,

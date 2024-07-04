@@ -32,7 +32,7 @@ export class ModalComponent extends AbstractModal {
   protected numberOfPhases: number = 3; // Defaults to three phases
   protected defaultChargeMinPower: number;
   protected energyLimit: boolean;
-  protected chargeMode: ChargeMode = null;
+  protected chargeMode: ChargeMode | null = null;
   protected isEnergySinceBeginningAllowed: boolean = false;
   protected isChargingEnabled: boolean = false;
   protected sessionLimit: number;

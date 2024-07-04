@@ -22,9 +22,9 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
    * True after this.edge, this.config and this.component are set.
    */
   public isInitialized: boolean = false;
-  public edge: Edge = null;
-  public config: EdgeConfig = null;
-  public component: EdgeConfig.Component = null;
+  public edge: Edge | null = null;
+  public config: EdgeConfig | null = null;
+  public component: EdgeConfig.Component | null = null;
   public stopOnDestroy: Subject<void> = new Subject<void>();
 
   private selector: string = uuidv4();

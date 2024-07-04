@@ -13,7 +13,7 @@ export class FormlySafeInputModalComponent implements OnInit {
     @Input({ required: true })
     protected title!: string;
     @Input()
-    protected fields: FormlyFieldConfig[] = null;
+    protected fields: FormlyFieldConfig[] | null = null;
     @Input({ required: true })
     protected model!: {};
 

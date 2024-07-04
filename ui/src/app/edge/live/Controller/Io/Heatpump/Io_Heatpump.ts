@@ -14,7 +14,7 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
 
   private static PROPERTY_MODE: string = '_PropertyMode';
 
-  public override component: EdgeConfig.Component = null;
+  public override component: EdgeConfig.Component | null = null;
   public status: BehaviorSubject<{ name: string }> = new BehaviorSubject(null);
   public isConnectionSuccessful: boolean;
   public mode: string;

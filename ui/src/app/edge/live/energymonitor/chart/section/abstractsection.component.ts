@@ -120,7 +120,7 @@ export abstract class AbstractSection {
     public fillRef: string = "";
     public valuePath: string = "";
     public outlinePath: string = "";
-    public energyFlow: EnergyFlow = null;
+    public energyFlow: EnergyFlow | null = null;
     public square: SvgSquare;
     public squarePosition: SvgSquarePosition;
     public name: string = "";
@@ -136,7 +136,7 @@ export abstract class AbstractSection {
     protected gridMode: GridMode;
     protected restrictionMode: number;
 
-    private lastCurrentData: DefaultTypes.Summary = null;
+    private lastCurrentData: DefaultTypes.Summary | null = null;
 
     constructor(
         translateName: string,

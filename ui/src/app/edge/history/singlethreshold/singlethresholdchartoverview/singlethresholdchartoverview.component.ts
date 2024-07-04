@@ -11,9 +11,9 @@ export class SinglethresholdChartOverviewComponent implements OnInit {
 
     private static readonly SELECTOR = "channelthreshold-chart-overview";
 
-    public edge: Edge = null;
+    public edge: Edge | null = null;
 
-    public component: EdgeConfig.Component = null;
+    public component: EdgeConfig.Component | null = null;
     public inputChannel: string;
 
     // reference to the Utils method to access via html

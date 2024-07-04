@@ -97,7 +97,7 @@ export abstract class AbstractHistoryChart implements OnInit {
     }
 
     chartObject.input.forEach(element => {
-      let channelAddress: ChannelAddress = null;
+      let channelAddress: ChannelAddress | null = null;
       if (chartType == 'bar' && element.energyChannel) {
         channelAddress = element.energyChannel;
       } else {

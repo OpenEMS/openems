@@ -28,7 +28,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
   public readonly spinnerId: string = InstallAppComponent.SELECTOR;
 
   protected form: FormGroup | null = null;
-  protected fields: FormlyFieldConfig[] = null;
+  protected fields: FormlyFieldConfig[] | null = null;
   protected model: any | null = null;
   protected appName: string | null = null;
   protected isInstalling: boolean = false;

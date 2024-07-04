@@ -82,7 +82,7 @@ export class Service extends AbstractService {
   /**
    * Holds the current Activated Route
    */
-  private currentActivatedRoute: ActivatedRoute = null;
+  private currentActivatedRoute: ActivatedRoute | null = null;
 
   private queryEnergyQueue: {
     fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
