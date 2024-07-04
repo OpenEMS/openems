@@ -45,7 +45,7 @@ export class MaintenanceComponent implements OnInit {
     protected systemRestartState: BehaviorSubject<{ key: Type, state: SystemRestartState }> = new BehaviorSubject({ key: null, state: SystemRestartState.INITIAL });
     protected spinnerId: string = MaintenanceComponent.SELECTOR;
     protected readonly SystemRestartState = SystemRestartState;
-    protected confirmationAlert: Function = (type: Type) => presentAlert(this.alertCtrl, this.translate, {
+    protected confirmationAlert: (type: Type) => void = (type: Type) => presentAlert(this.alertCtrl, this.translate, {
         message: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: environment.edgeShortName }),
         subHeader: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION', { system: environment.edgeShortName }),
         buttons: [{

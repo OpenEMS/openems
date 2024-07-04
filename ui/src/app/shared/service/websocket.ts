@@ -82,6 +82,7 @@ export class Websocket implements WebsocketInterface {
           }
           const token = this.cookieService.get('token');
           if (token) {
+
             // Login with Session Token
             this.login(new AuthenticateWithTokenRequest({ token: token }));
             this.status = 'authenticating';
@@ -89,7 +90,6 @@ export class Websocket implements WebsocketInterface {
           } else {
             // No Token -> directly ask for Login credentials
             this.status = 'waiting for credentials';
-            this.router.navigate(['/login']);
           }
         },
       },

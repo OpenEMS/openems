@@ -16,8 +16,8 @@ import { AbstractHistoryChart } from '../abstracthistorychart';
 })
 export class GridOptimizedChargeChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-  @Input() public period: DefaultTypes.HistoryPeriod;
-  @Input() public component: EdgeConfig.Component;
+  @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+  @Input({ required: true }) public component!: EdgeConfig.Component;
 
   ngOnChanges() {
     this.updateChart();

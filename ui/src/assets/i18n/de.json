@@ -954,5 +954,8 @@
     "SET_VALUE": "Eingestellter Wert",
     "MORE_CHANNELS": "Weitere Kanäle hinzufügen",
     "CHANNEL": "Kanal"
+  },
+  "APP": {
+    "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Diese Funktion ist vorübergehend in der App nicht verfügbar, verwenden Sie bitte dafür die Web-App."
   }
 }

@@ -9,8 +9,8 @@
 		<dependency>
 			<!-- Bnd Gradle Plugin For The Bnd Workspace -->
 			<!-- On update: also update gradle.properties file -->
-			<groupId>biz.aQute.bnd.workspace</groupId>
-			<artifactId>biz.aQute.bnd.workspace.gradle.plugin</artifactId>
+			<groupId>biz.aQute.bnd</groupId>
+			<artifactId>biz.aQute.bnd.gradle</artifactId>
 			<version>7.0.0</version>
 		</dependency>
 		<!-- com -->
@@ -203,7 +203,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty</artifactId>
-			<version>5.1.20</version>
+			<version>5.1.22</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
@@ -237,7 +237,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/README.md#releases -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>5.0.2</version>
+			<version>5.0.4</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Web Console Service Component Runtime/Declarative Services Plugin -->
@@ -260,6 +260,11 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
+			<version>0.18.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.dhatim</groupId>
+			<artifactId>fastexcel-reader</artifactId>
 			<version>0.18.0</version>
 		</dependency>
 		<dependency>

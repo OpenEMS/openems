@@ -9,14 +9,14 @@ import { Icon } from 'src/app/shared/type/widget';
 export class FlatWidgetComponent {
 
   /** Image in Header */
-  @Input() public img: string;
+  @Input() public img?: string;
 
   /** Icon in Header */
-  @Input() public icon: Icon = null;
+  @Input() public icon: Icon | null = null;
 
   /** BackgroundColor of the Header (light or dark) */
-  @Input() public color: string;
+  @Input() public color?: string;
 
   /** Title in Header */
-  @Input() public title: string;
+  @Input() public title?: string;
 }

@@ -126,7 +126,7 @@ export class Service extends AbstractService {
     // this.notify(notification);
   }
 
-  public setCurrentComponent(currentPageTitle: string | { languageKey: string, interpolateParams?: Object }, activatedRoute: ActivatedRoute): Promise<Edge> {
+  public setCurrentComponent(currentPageTitle: string | { languageKey: string, interpolateParams?: {} }, activatedRoute: ActivatedRoute): Promise<Edge> {
     return new Promise((resolve, reject) => {
       // Set the currentPageTitle only once per ActivatedRoute
       if (this.currentActivatedRoute != activatedRoute) {
@@ -169,14 +169,10 @@ export class Service extends AbstractService {
   public getConfig(): Promise<EdgeConfig> {
     return new Promise<EdgeConfig>((resolve, reject) => {
       this.getCurrentEdge().then(edge => {
-        edge.getConfig(this.websocket).pipe(
-          filter(config => config != null && config.isValid()),
-          first(),
-        ).toPromise()
-          .then(config => resolve(config))
-          .catch(reason => reject(reason));
-      })
-        .catch(reason => reject(reason));
+        edge.getFirstValidConfig(this.websocket)
+          .then(resolve)
+          .catch(reject);
+      }).catch(reason => reject(reason));
     });
   }
 

@@ -17,13 +17,13 @@ import { Filter } from "../shared/filter";
 export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges {
 
     /** FormGroup */
-    @Input() public formGroup: FormGroup;
+    @Input({ required: true }) public formGroup!: FormGroup;
 
     /** component */
     @Input() public component: EdgeConfig.Component = null;
 
     /** FormGroup ControlName */
-    @Input() public controlName: string;
+    @Input({ required: true }) public controlName!: string;
 
     /**
     * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
@@ -53,7 +53,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
         }
     }
 
-    @Input() public value: number | string;
+    @Input({ required: true }) public value!: number | string;
     @Input() public roleIsAtLeast?: Role = Role.GUEST;
     protected show: boolean = true;
 

@@ -11,8 +11,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class ChartOptionsComponent {
 
-    @Input() public showPhases: boolean | null;
-    @Input() public showTotal: boolean | null;
+    @Input({ required: true }) public showPhases!: boolean | null;
+    @Input({ required: true }) public showTotal!: boolean | null;
     @Output() public setShowPhases = new EventEmitter<boolean>();
     @Output() public setShowTotal = new EventEmitter<boolean>();
 

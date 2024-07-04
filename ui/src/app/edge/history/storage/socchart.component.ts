@@ -14,7 +14,7 @@ import { AbstractHistoryChart } from '../abstracthistorychart';
 })
 export class SocStorageChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     private emergencyCapacityReserveComponents: EdgeConfig.Component[] = [];
 
     public ngOnChanges() {

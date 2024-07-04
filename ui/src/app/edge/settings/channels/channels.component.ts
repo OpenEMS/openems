@@ -115,19 +115,19 @@ export class ChannelsComponent {
     this.saveChannelsInUrl();
   }
 
-  protected setChannelValue(address: ChannelAddress, channelValue: any) {
+  protected setChannelValue(componentId: string, channelId: string, channelValue: any) {
     if (this.edge) {
       this.edge.sendRequest(
         this.service.websocket,
         new SetChannelValueRequest({
-          componentId: address.componentId,
-          channelId: address.channelId,
+          componentId: componentId,
+          channelId: channelId,
           value: channelValue,
         }),
       ).then(() => {
-        this.service.toast("Successfully set " + address.toString() + " to [" + channelValue + "]", "success");
+        this.service.toast("Successfully set " + componentId + "/" + channelId + " to [" + channelValue + "]", "success");
       }).catch(() => {
-        this.service.toast("Error setting " + address.toString() + " to [" + channelValue + "]", 'danger');
+        this.service.toast("Error setting " + componentId + "/" + channelId + " to [" + channelValue + "]", 'danger');
       });
     }
   }

@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
@@ -33,6 +34,8 @@ import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
  * The internal PointImpl object for easier handling in Enums.
  */
 public abstract sealed class Point {
+
+	private static final PersistencePriority DEFAULT_PERSISTENCE_PRIORITY = PersistencePriority.VERY_LOW;
 
 	/**
 	 * A Point that relates to a {@link ModbusElement}.
@@ -69,7 +72,7 @@ public abstract sealed class Point {
 	public final boolean mandatory;
 	public final AccessMode accessMode;
 
-	public Point(String name, String label, String description, Point.Type type, boolean mandatory,
+	protected Point(String name, String label, String description, Point.Type type, boolean mandatory,
 			AccessMode accessMode) {
 		this.name = name;
 		this.description = description;
@@ -110,6 +113,7 @@ public abstract sealed class Point {
 				doc.text(description);
 			}
 			doc.accessMode(accessMode);
+			doc.persistencePriority(DEFAULT_PERSISTENCE_PRIORITY);
 			this.channelId = new SunSChannelId<>(name, doc);
 		}
 

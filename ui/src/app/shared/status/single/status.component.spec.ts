@@ -12,7 +12,7 @@ describe('StatusComponent', () => {
     const testComponent = new EdgeConfig.Component("test", {}, {
         "testChannel": {
             accessMode: "RO",
-            category: "ENUM",
+            category: "STATE",
             type: "BOOLEAN",
             unit: "W",
             level: "OK",

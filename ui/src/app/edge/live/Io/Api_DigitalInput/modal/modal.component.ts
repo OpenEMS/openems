@@ -13,8 +13,8 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/b
 export class Io_Api_DigitalInput_ModalComponent implements OnInit, OnDestroy {
     private static readonly SELECTOR = "Io_Api_DigitalInput_ModalComponent";
 
-    @Input() public edge: Edge;
-    @Input() public ioComponents: EdgeConfig.Component[];
+    @Input({ required: true }) public edge!: Edge;
+    @Input({ required: true }) public ioComponents!: EdgeConfig.Component[];
 
     protected digitalInputChannelsPerComponent: { componentId: string, componentAlias: string, channels: Channel[] }[];
 
