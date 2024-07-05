@@ -38,10 +38,10 @@ export class Controller_Io_FixDigitalOutputModalComponent {
       { name: 'isOn', value: newMode },
     ]).then(() => {
       this.component.properties.isOn = newMode;
-      this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+      this.service.toast(this.translate.instant('GENERAL.CHANGE_ACCEPTED'), 'success');
     }).catch(reason => {
       this.component.properties.isOn = oldMode;
-      this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+      this.service.toast(this.translate.instant('GENERAL.CHANGE_FAILED') + '\n' + reason.error.message, 'danger');
       console.warn(reason);
     });
   }

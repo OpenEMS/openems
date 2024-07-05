@@ -74,7 +74,7 @@ export class ChartComponent extends AbstractHistoryChart {
       },
       tooltip: {
         formatNumber: '1.1-2',
-        afterTitle: this.translate.instant('General.TOTAL'),
+        afterTitle: this.translate.instant('GENERAL.TOTAL'),
       },
       yAxes: [{
         unit: YAxisTitle.ENERGY,

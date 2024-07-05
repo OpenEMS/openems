@@ -1,7 +1,7 @@
 <ng-container *ngIf="edge">
     <ion-header>
         <ion-toolbar class="ion-justify-content-center" color="primary">
-            <ion-title class="ion-text-start ion-padding-left" translate>General.storageSystem
+            <ion-title class="ion-text-start ion-padding-left" translate>GENERAL.STORAGE_SYSTEM
             </ion-title>
             <ion-buttons slot="start">
                 <chartOptions (setShowTotal)='onNotifyTotal($event)' (setShowPhases)='onNotifyPhases($event)'
@@ -23,7 +23,7 @@
         <ion-card-content class="underline">
             <table class="full_width">
                 <tr>
-                    <td style="width: 100%" class="ion-padding" translate>General.soc</td>
+                    <td style="width: 100%" class="ion-padding" translate>GENERAL.SOC</td>
                 </tr>
             </table>
             <socStorageChart style="padding-top: 50px;" [period]="service.historyPeriod.value"></socStorageChart>
@@ -32,7 +32,7 @@
             <ion-card-content>
                 <table class="full_width">
                     <tr>
-                        <td style="width: 100%" class="ion-padding" translate>General.TOTAL</td>
+                        <td style="width: 100%" class="ion-padding" translate>GENERAL.TOTAL</td>
                     </tr>
                 </table>
                 <storageTotalChart [showPhases]="showPhases" [period]="service.historyPeriod.value">
@@ -44,12 +44,12 @@
                         <ion-label class="ion-text-wrap">
                             <ion-row class="ion-text-center" translate>
                                 <small translate>
-                                    Edge.Index.Widgets.InfoStorageForCharge
+                                    EDGE.INDEX.WIDGETS.INFO_STORAGE_FOR_CHARGE
                                 </small>
                             </ion-row>
                             <ion-row size="6" class="ion-text-center">
                                 <small translate>
-                                    Edge.Index.Widgets.InfoStorageForDischarge
+                                    EDGE.INDEX.WIDGETS.INFO_STORAGE_FOR_DISCHARGE
                                 </small>
                             </ion-row>
                         </ion-label>
@@ -62,7 +62,7 @@
                 <ion-card-content class="underline">
                     <table class="full_width">
                         <tr>
-                            <td style="width: 100%" class="ion-padding" translate>General.TOTAL</td>
+                            <td style="width: 100%" class="ion-padding" translate>GENERAL.TOTAL</td>
                         </tr>
                     </table>
                     <storageSingleChart [showPhases]="showPhases" [period]="service.historyPeriod.value">
@@ -76,12 +76,12 @@
                             <ion-label class="ion-text-wrap">
                                 <ion-row class="ion-text-center" translate>
                                     <small translate>
-                                        Edge.Index.Widgets.InfoStorageForCharge
+                                        EDGE.INDEX.WIDGETS.INFO_STORAGE_FOR_CHARGE
                                     </small>
                                 </ion-row>
                                 <ion-row size="6" class="ion-text-center">
                                     <small translate>
-                                        Edge.Index.Widgets.InfoStorageForDischarge
+                                        EDGE.INDEX.WIDGETS.INFO_STORAGE_FOR_DISCHARGE
                                     </small>
                                 </ion-row>
                             </ion-label>
@@ -93,7 +93,7 @@
                 <ion-card-content class="underline">
                     <table class="full_width">
                         <tr>
-                            <td style="width: 100%" class="ion-padding" translate>General.TOTAL</td>
+                            <td style="width: 100%" class="ion-padding" translate>GENERAL.TOTAL</td>
                         </tr>
                     </table>
                     <storageSingleChart [showPhases]="showPhases" [period]="service.historyPeriod.value">
@@ -120,12 +120,12 @@
                             <ion-label class="ion-text-wrap">
                                 <ion-row class="ion-text-center" translate>
                                     <small translate>
-                                        Edge.Index.Widgets.InfoStorageForCharge
+                                        EDGE.INDEX.WIDGETS.INFO_STORAGE_FOR_CHARGE
                                     </small>
                                 </ion-row>
                                 <ion-row size="6" class="ion-text-center">
                                     <small translate>
-                                        Edge.Index.Widgets.InfoStorageForDischarge
+                                        EDGE.INDEX.WIDGETS.INFO_STORAGE_FOR_DISCHARGE
                                     </small>
                                 </ion-row>
                             </ion-label>

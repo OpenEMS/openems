@@ -203,11 +203,11 @@ export class Websocket implements WebsocketInterface {
     // TODO create global Errorhandler for any type of error
     switch (reason.error.code) {
       case 1003:
-        this.service.toast(this.translate.instant('Login.authenticationFailed'), 'danger');
+        this.service.toast(this.translate.instant('LOGIN.AUTHENTICATION_FAILED'), 'danger');
         this.onLoggedOut();
         break;
       case 1:
-        this.service.toast(this.translate.instant("Login.REQUEST_TIMEOUT"), "danger");
+        this.service.toast(this.translate.instant("LOGIN.REQUEST_TIMEOUT"), "danger");
         this.status = 'waiting for credentials';
         this.service.onLogout();
         break;

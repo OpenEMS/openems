@@ -50,10 +50,10 @@ export class AdministrationComponent implements OnInit {
         { name: 'minHwCurrent', value: newValue },
       ]).then(() => {
         this.evcsComponent.properties.minHwCurrent = newValue;
-        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+        this.service.toast(this.translate.instant('GENERAL.CHANGE_ACCEPTED'), 'success');
       }).catch(reason => {
         this.evcsComponent.properties.minHwCurrent = oldValue;
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+        this.service.toast(this.translate.instant('GENERAL.CHANGE_FAILED') + '\n' + reason, 'danger');
         console.warn(reason);
       });
     }

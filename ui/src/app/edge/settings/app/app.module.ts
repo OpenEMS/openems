@@ -26,7 +26,7 @@ export function registerTranslateExtension(translate: TranslateService) {
       {
         name: 'key',
         message() {
-          return translate.stream('Edge.Config.App.Key.invalidPattern');
+          return translate.stream('EDGE.CONFIG.APP.KEY.INVALID_PATTERN');
         },
       },
     ],

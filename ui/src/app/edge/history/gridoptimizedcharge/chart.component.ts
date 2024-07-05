@@ -73,7 +73,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
             }
           });
           datasets.push({
-            label: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.maximumCharge'),
+            label: this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_CHARGE'),
             data: delayChargeData,
             hidden: false,
             borderDash: [3, 3],
@@ -98,7 +98,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
             }
           });
           datasets.push({
-            label: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.minimumCharge'),
+            label: this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MINIMUM_CHARGE'),
             data: sellToGridLimitData,
             hidden: false,
             borderDash: [3, 3],
@@ -133,7 +133,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
           });
 
           datasets.push({
-            label: this.translate.instant('General.chargePower'),
+            label: this.translate.instant('GENERAL.CHARGE_POWER'),
             data: chargeData,
             hidden: false,
             yAxisID: 'yAxis1',
@@ -156,7 +156,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
               }
             });
             datasets.push({
-              label: this.translate.instant('General.soc'),
+              label: this.translate.instant('GENERAL.SOC'),
               data: socData,
               hidden: false,
               yAxisID: ChartAxis.RIGHT,

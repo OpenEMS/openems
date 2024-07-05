@@ -99,16 +99,16 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
             const address = ChannelAddress.fromString(channel);
             switch (address.channelId) {
               case 'GridActivePower':
-                inputLabel = this.translate.instant('General.grid');
+                inputLabel = this.translate.instant('GENERAL.GRID');
                 break;
               case 'ProductionActivePower':
-                inputLabel = this.translate.instant('General.production');
+                inputLabel = this.translate.instant('GENERAL.PRODUCTION');
                 break;
               case 'EssSoc':
-                inputLabel = this.translate.instant('General.soc');
+                inputLabel = this.translate.instant('GENERAL.SOC');
                 break;
               default:
-                inputLabel = this.translate.instant('Edge.Index.Widgets.Singlethreshold.other');
+                inputLabel = this.translate.instant('EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.OTHER');
                 break;
             }
             let data;
@@ -255,9 +255,9 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
       options.plugins.tooltip.callbacks.label = function (item: Chart.TooltipItem<any>) {
         const label = item.dataset.label;
         const value = item.dataset.data[item.dataIndex];
-        if (label == outputChannel.channelId || label == translate.instant('General.soc')) {
+        if (label == outputChannel.channelId || label == translate.instant('GENERAL.SOC')) {
           return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-        } else if (label == translate.instant('General.grid') || label == translate.instant('General.production')) {
+        } else if (label == translate.instant('GENERAL.GRID') || label == translate.instant('GENERAL.PRODUCTION')) {
           return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         } else {
           return label + ": " + formatNumber(value, 'de', '1.0-2') + " " + labelString;

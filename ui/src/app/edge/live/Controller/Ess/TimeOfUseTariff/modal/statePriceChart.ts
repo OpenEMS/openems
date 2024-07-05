@@ -146,9 +146,9 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
         this.datasets = this.datasets.map((el: Chart.ChartDataset) => {
 
             // align particular dataset element to right yAxis
-            if (el.label == this.translate.instant('General.gridBuy')) {
+            if (el.label == this.translate.instant('GENERAL.GRID_BUY')) {
                 el['yAxisID'] = ChartAxis.RIGHT_2;
-            } else if (el.label == this.translate.instant('General.soc')) {
+            } else if (el.label == this.translate.instant('GENERAL.SOC')) {
                 el['yAxisID'] = ChartAxis.RIGHT;
             }
 

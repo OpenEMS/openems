@@ -23,7 +23,7 @@ export class ChargerChartComponent extends AbstractHistoryChart {
       output: (data: HistoryUtils.ChannelData) => {
         return [
           {
-            name: this.translate.instant('General.production'),
+            name: this.translate.instant('GENERAL.PRODUCTION'),
             converter: () => { return data['ActualPower']; },
             nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
               return energyResponse.result.data[this.component.id + '/ActualEnergy'];

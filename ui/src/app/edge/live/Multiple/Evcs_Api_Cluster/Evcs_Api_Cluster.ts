@@ -47,7 +47,7 @@ export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
   protected override onCurrentData(currentData: CurrentData) {
 
     this.evcsComponent = this.config.getComponent(this.componentId);
-    this.alias = this.config.components[this.componentId].properties.alias ?? 'Edge.Index.Widgets.EVCS.chargingStationCluster';
+    this.alias = this.config.components[this.componentId].properties.alias ?? 'EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION_CLUSTER';
     this.isConnectionSuccessful = currentData.allComponents[this.componentId + '/State'] != 3 ? true : false;
 
     // Initialise the Map with all evcss

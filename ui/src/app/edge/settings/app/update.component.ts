@@ -115,12 +115,12 @@ export class UpdateAppComponent implements OnInit {
         if (result.warnings && result.warnings.length > 0) {
           this.service.toast(result.warnings.join(';'), 'warning');
         } else {
-          this.service.toast(this.translate.instant('Edge.Config.App.successUpdate'), 'success');
+          this.service.toast(this.translate.instant('EDGE.CONFIG.APP.SUCCESS_UPDATE'), 'success');
         }
         instance.properties = result.instance.properties;
         instance.properties['ALIAS'] = result.instance.alias;
       })
-      .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant('Edge.Config.App.failUpdate', { error: error })))
+      .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant('EDGE.CONFIG.APP.FAIL_UPDATE', { error: error })))
       .finally(() => {
         instance.isUpdating = false;
         this.service.stopSpinner(instance.instanceId);
@@ -138,10 +138,10 @@ export class UpdateAppComponent implements OnInit {
         }),
       })).then(response => {
         this.instances.splice(this.instances.indexOf(instance), 1);
-        this.service.toast(this.translate.instant('Edge.Config.App.successDelete'), 'success');
+        this.service.toast(this.translate.instant('EDGE.CONFIG.APP.SUCCESS_DELETE'), 'success');
         this.router.navigate(['device/' + (this.edge.id) + '/settings/app/']);
       })
-      .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant('Edge.Config.App.failDelete', { error: error })))
+      .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant('EDGE.CONFIG.APP.FAIL_DELETE', { error: error })))
       .finally(() => {
         instance.isDeleting = false;
         this.service.stopSpinner(instance.instanceId);

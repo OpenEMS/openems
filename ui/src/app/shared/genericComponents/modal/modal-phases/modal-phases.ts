@@ -35,7 +35,7 @@ export class ModalPhasesComponent extends AbstractModalLine {
   protected override onCurrentData(currentData: CurrentData): void {
     for (const phase of this.phases) {
       const powerPerPhase = currentData.allComponents[this.component.id + '/ActivePower' + phase.key];
-      phase.name = this.translate.instant('General.phase') + " " + phase.key + this.setTranslatedName(powerPerPhase);
+      phase.name = this.translate.instant('GENERAL.PHASE') + " " + phase.key + this.setTranslatedName(powerPerPhase);
     }
   }
 

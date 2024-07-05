@@ -1,10 +1,10 @@
 <oe-flat-widget button *ngIf="isInitialized" [title]="component.alias" button
     routerLink="/device/{{edge.id}}/history/{{component.id}}/scheduleChart" [icon]="{name:
     'cloud-outline'}">
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE' | translate"
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE' | translate"
         [value]="delayedActiveTimeOverPeriod | formatSecondsToDuration">
     </oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID' | translate"
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID' | translate"
         [value]="chargedConsumptionActiveTimeOverPeriod | formatSecondsToDuration">
     </oe-flat-widget-line>
 </oe-flat-widget>

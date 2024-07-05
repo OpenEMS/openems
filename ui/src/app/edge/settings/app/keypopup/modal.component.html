@@ -1,7 +1,7 @@
 <ion-header>
     <ion-toolbar class="ion-justify-content-center" color="primary">
-        <ion-title *ngIf="behaviour !== 0" translate>Edge.Config.App.Key.useKey</ion-title>
-        <ion-title *ngIf="behaviour === 0" translate>Edge.Config.App.Key.registerKey</ion-title>
+        <ion-title *ngIf="behaviour !== 0" translate>EDGE.CONFIG.APP.KEY.USE_KEY</ion-title>
+        <ion-title *ngIf="behaviour === 0" translate>EDGE.CONFIG.APP.KEY.REGISTER_KEY</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close"></ion-icon>
@@ -15,7 +15,7 @@
     <ion-grid>
         <ion-row>
             <ion-col size="12" translate>
-                Edge.Config.App.Key.enterKey
+                EDGE.CONFIG.APP.KEY.ENTER_KEY
             </ion-col>
         </ion-row>
         <ion-row>
@@ -28,22 +28,22 @@
                 <ion-row>
                     <ion-col size="12" size-md="4">
                         <ion-button (click)="modalCtrl.dismiss()" style="display: flex;" translate>
-                            General.cancel
+                            GENERAL.CANCEL
                         </ion-button>
                     </ion-col>
                     <ion-col size="12" size-md="8">
                         <ion-button *ngIf="!isKeyValid()" (click)="validateKey()" [disabled]="form.invalid"
                             style="display: flex;" translate>
-                            Edge.Config.App.Key.validateKey
+                            EDGE.CONFIG.APP.KEY.VALIDATE_KEY
                         </ion-button>
                         <ion-button *ngIf="isKeyValid()" (click)="onClickCreateApp()" [ngSwitch]="behaviour"
                             style="display: flex;">
                             <!-- REGISTER -->
-                            <ion-label *ngSwitchCase="0" translate>Edge.Config.App.Key.registerKey</ion-label>
+                            <ion-label *ngSwitchCase="0" translate>EDGE.CONFIG.APP.KEY.REGISTER_KEY</ion-label>
                             <!-- NAVIGATE -->
-                            <ion-label *ngSwitchCase="1" translate>Edge.Config.App.Key.useKey</ion-label>
+                            <ion-label *ngSwitchCase="1" translate>EDGE.CONFIG.APP.KEY.USE_KEY</ion-label>
                             <!-- SELECT -->
-                            <ion-label *ngSwitchCase="2" translate>Edge.Config.App.Key.useKey</ion-label>
+                            <ion-label *ngSwitchCase="2" translate>EDGE.CONFIG.APP.KEY.USE_KEY</ion-label>
                         </ion-button>
                     </ion-col>
                 </ion-row>

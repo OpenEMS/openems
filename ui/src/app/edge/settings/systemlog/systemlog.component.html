@@ -16,7 +16,7 @@
                   <ion-item lines="none">
                     <ion-checkbox (ionChange)="toggleSubscribe($event)" slot="start" [(ngModel)]="isSubscribed">
                     </ion-checkbox>
-                    <ion-label class="ion-text-wrap" translate>Edge.Config.Log.automaticUpdating</ion-label>
+                    <ion-label class="ion-text-wrap" translate>EDGE.CONFIG.LOG.AUTOMATIC_UPDATING</ion-label>
                   </ion-item>
                 </ion-col>
                 <ion-col *ngIf="isCondensedOutput !== null && isAtLeastGuest">
@@ -24,7 +24,7 @@
                     <ion-toggle (ionChange)="toggleCondensedOutput($event)" slot="start"
                       [(ngModel)]="isCondensedOutput">
                     </ion-toggle>
-                    <ion-label class="ion-text-wrap" translate>Edge.Config.Log.CONDENSED_OUTPUT</ion-label>
+                    <ion-label class="ion-text-wrap" translate>EDGE.CONFIG.LOG.CONDENSED_OUTPUT</ion-label>
                   </ion-item>
                 </ion-col>
                 <ion-col>

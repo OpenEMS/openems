@@ -7,14 +7,14 @@
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
             <ion-label class="ion-text-wrap" translate>
-              Menu.user
+              MENU.USER
             </ion-label>
           </ion-item>
 
           <ion-card-content class="ion-text-wrap">
             <ion-item lines="inset">
               <ion-label translate>
-                Menu.name
+                MENU.NAME
               </ion-label>
               <ion-label>
                 {{ this.form?.model ? ((this.form?.model?.firstname ?? '') + ' ' + (this.form?.model?.lastname ?? '')).trim() : user.name }}
@@ -24,7 +24,7 @@
             </ion-item>
             <ion-item lines="inset">
               <ion-label translate>
-                Login.title
+                LOGIN.TITLE
               </ion-label>
               <ion-label>
                 {{ user.id }}
@@ -34,7 +34,7 @@
             </ion-item>
             <ion-item lines="inset">
               <ion-label translate>
-                Menu.accessLevel
+                MENU.ACCESS_LEVEL
               </ion-label>
               <ion-label>
                 {{ 'Role.' + user.globalRole | translate }}
@@ -44,7 +44,7 @@
             </ion-item>
             <ion-item lines="none">
               <ion-button (click)="doLogout()" slot="end" size="default" fill="clear">
-                <ion-label translate>Menu.logout</ion-label>
+                <ion-label translate>MENU.LOGOUT</ion-label>
                 <ion-icon name="log-out-outline"></ion-icon>
               </ion-button>
             </ion-item>
@@ -64,10 +64,10 @@
             <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
             <ion-label class="ion-text-wrap">
               <span translate>
-                Register.Form.contactDetails
+                REGISTER.FORM.CONTACT_DETAILS
               </span>
               <ng-container *ngIf="companyInformationFields.length > 0">
-                (<span translate>Register.Form.PRIVATE</span>)
+                (<span translate>REGISTER.FORM.PRIVATE</span>)
               </ng-container>
             </ion-label>
           </ion-item>
@@ -84,7 +84,7 @@
                 <ion-icon name="pencil-outline" slot="end"></ion-icon>
               </ion-button>
               <ion-button [disabled]="!form?.formGroup?.dirty" slot="end" (click)="applyChanges()">
-                <ion-label translate>General.save</ion-label>
+                <ion-label translate>GENERAL.SAVE</ion-label>
                 <ion-icon name="save-outline" slot="end"></ion-icon>
               </ion-button>
             </ion-item>
@@ -97,9 +97,9 @@
             <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
             <ion-label class="ion-text-wrap">
               <span translate>
-                Register.Form.contactDetails
+                REGISTER.FORM.CONTACT_DETAILS
               </span>
-              (<span translate>Register.Form.company</span>)
+              (<span translate>REGISTER.FORM.COMPANY</span>)
             </ion-label>
           </ion-item>
           <ion-card-content>
@@ -119,15 +119,15 @@
           </ion-item>
 
           <ion-card-content class="ion-text-wrap">
-            <p class="ion-padding" translate>About.developed</p>
+            <p class="ion-padding" translate>ABOUT.DEVELOPED</p>
             <ul>
               <li>
-                <a target="_blank" href="https://openems.io" translate>About.openEMS</a>
+                <a target="_blank" href="https://openems.io" translate>ABOUT.OPENEMS</a>
               </li>
             </ul>
-            <p class="ion-padding" translate>About.build</p>
+            <p class="ion-padding" translate>ABOUT.BUILD</p>
             <div *ngIf="(service.metadata | async)?.user?.globalRole as role">
-              <p class="ion-padding" translate>About.build</p>
+              <p class="ion-padding" translate>ABOUT.BUILD</p>
               <ul>
                 <li>
                   <a routerLinkActive="active" routerLink="/changelog">{{ uiVersion | version:role }}</a>
@@ -147,11 +147,11 @@
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="options-outline"></ion-icon>
-            <ion-label translate>Menu.generalSettings</ion-label>
+            <ion-label translate>MENU.GENERAL_SETTINGS</ion-label>
           </ion-item>
           <ion-card-content>
             <ion-item lines="none">
-              <ion-label translate>About.language</ion-label>
+              <ion-label translate>ABOUT.LANGUAGE</ion-label>
               <ion-select #langSelect (ionChange)="setLanguage(langSelect.value)" [value]="currentLanguage">
                 <ion-select-option *ngFor="let language of languages" [value]="language">
                   {{ language.title }}

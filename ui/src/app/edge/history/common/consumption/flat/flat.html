@@ -1,4 +1,4 @@
-<oe-flat-widget [title]="'General.consumption' | translate" [icon]="{name: 'oe-consumption', color: 'warning'}" button
+<oe-flat-widget [title]="'GENERAL.CONSUMPTION' | translate" [icon]="{name: 'oe-consumption', color: 'warning'}" button
     routerLink="/device/{{edge.id}}/history/consumptionchart" *ngIf="isInitialized">
 
     <oe-flat-widget-line *ngIf="evcsComponents.length === 0 && consumptionMeterComponents.length === 0, else meters"
@@ -20,7 +20,7 @@
     <ng-container *ngIf="(evcsComponents.length !== 0 || consumptionMeterComponents.length !== 0)">
 
         <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
-        <oe-flat-widget-line [name]="'General.otherConsumption'| translate" [value]="totalOtherEnergy"
+        <oe-flat-widget-line [name]="'GENERAL.OTHER_CONSUMPTION'| translate" [value]="totalOtherEnergy"
             [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
         </oe-flat-widget-line>
 

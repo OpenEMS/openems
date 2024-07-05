@@ -128,7 +128,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
             const date = DateUtils.stringToDate(targetDate.toString());
             return {
-                color: 'green', text: this.translate.instant('Edge.Index.RETROFITTING.TARGET_TIME_SPECIFIED', {
+                color: 'green', text: this.translate.instant('EDGE.INDEX.RETROFITTING.TARGET_TIME_SPECIFIED', {
                     targetDate: DateUtils.toLocaleDateString(date),
                     targetTime: date.toLocaleTimeString(),
                 }),
@@ -137,12 +137,12 @@ export class StorageComponent extends AbstractFlatWidget {
 
         if (essIsBlocking != null && essIsBlocking == 1) {
             // If ess reached targetSoc
-            return { color: 'green', text: this.translate.instant('Edge.Index.RETROFITTING.REACHED_TARGET_SOC') };
+            return { color: 'green', text: this.translate.instant('EDGE.INDEX.RETROFITTING.REACHED_TARGET_SOC') };
 
         } else if ((essIsCharging != null && essIsCharging == 1) || (essIsDischarging != null && essIsDischarging == 1)) {
 
             // If Ess is charging to or discharging to the targetSoc
-            return { color: 'orange', text: this.translate.instant('Edge.Index.RETROFITTING.PREPARING') };
+            return { color: 'orange', text: this.translate.instant('EDGE.INDEX.RETROFITTING.PREPARING') };
         } else {
             return null;
         }

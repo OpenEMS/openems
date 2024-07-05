@@ -76,7 +76,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
             }
           });
           datasets.push({
-            label: this.translate.instant('General.gridSell'),
+            label: this.translate.instant('GENERAL.GRID_SELL'),
             data: sellToGridData,
             hidden: false,
           });
@@ -102,7 +102,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
           });
 
           datasets.push({
-            label: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.maximumGridFeedIn'),
+            label: this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_GRID_FEED_IN'),
             data: sellToGridLimitData,
             hidden: false,
             borderDash: [3, 3],
@@ -149,7 +149,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
             }
           });
           datasets.push({
-            label: this.translate.instant('General.production'),
+            label: this.translate.instant('GENERAL.PRODUCTION'),
             data: productionData,
             hidden: false,
           });

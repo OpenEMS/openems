@@ -314,9 +314,9 @@ export class Utils {
   public static CONVERT_MANUAL_ON_OFF = (translate: TranslateService) => {
     return (value: DefaultTypes.ManualOnOff): string => {
       if (value === 'MANUAL_ON') {
-        return translate.instant('General.on');
+        return translate.instant('GENERAL.ON');
       } else if (value === 'MANUAL_OFF') {
-        return translate.instant('General.off');
+        return translate.instant('GENERAL.OFF');
       } else {
         return '-';
       }
@@ -332,9 +332,9 @@ export class Utils {
    */
   public static convertChargeDischargePower(translate: TranslateService, power: number): { name: string, value: number } {
     if (power >= 0) {
-      return { name: translate.instant('General.dischargePower'), value: power };
+      return { name: translate.instant('GENERAL.DISCHARGE_POWER'), value: power };
     } else {
-      return { name: translate.instant('General.chargePower'), value: power * -1 };
+      return { name: translate.instant('GENERAL.CHARGE_POWER'), value: power * -1 };
     }
   }
 
@@ -348,11 +348,11 @@ export class Utils {
   public static CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = (translate: TranslateService) => {
     return (value: any): string => {
       if (value === 'MANUAL') {
-        return translate.instant('General.manually');
+        return translate.instant('GENERAL.MANUALLY');
       } else if (value === 'OFF') {
-        return translate.instant('General.off');
+        return translate.instant('GENERAL.OFF');
       } else if (value === 'AUTOMATIC') {
-        return translate.instant('General.automatic');
+        return translate.instant('GENERAL.AUTOMATIC');
       } else {
         return '-';
       }
@@ -395,11 +395,11 @@ export class Utils {
     return (value: any): string => {
       switch (Math.round(value)) {
         case 0:
-          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
+          return translate.instant('EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
         case 3:
-          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID');
+          return translate.instant('EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID');
         default: // Usually "1"
-          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING');
+          return translate.instant('EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING');
       }
     };
   };
@@ -640,7 +640,7 @@ export namespace HistoryUtils {
  */
   export function createEmptyDataset(translate: TranslateService): ChartDataset[] {
     return [{
-      label: translate.instant("Edge.History.noData"),
+      label: translate.instant("EDGE.HISTORY.NO_DATA"),
       data: [],
       hidden: false,
     }];
@@ -813,11 +813,11 @@ export namespace TimeOfUseTariffUtils {
       return;
     }
 
-    const socLabel = translate.instant('General.soc');
-    const dischargeLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
-    const chargeConsumptionLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID');
-    const balancingLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING');
-    const gridBuyLabel = translate.instant('General.gridBuy');
+    const socLabel = translate.instant('GENERAL.SOC');
+    const dischargeLabel = translate.instant('EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
+    const chargeConsumptionLabel = translate.instant('EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID');
+    const balancingLabel = translate.instant('EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING');
+    const gridBuyLabel = translate.instant('GENERAL.GRID_BUY');
 
     // Switch case to handle different labels
     switch (label) {

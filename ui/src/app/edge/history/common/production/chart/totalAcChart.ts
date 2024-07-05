@@ -38,7 +38,7 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
         const datasets: HistoryUtils.DisplayValues[] = [];
 
         datasets.push({
-          name: this.translate.instant("General.TOTAL"),
+          name: this.translate.instant("GENERAL.TOTAL"),
           nameSuffix: (energyPeriodResponse: QueryHistoricTimeseriesEnergyResponse) => {
             return energyPeriodResponse.result.data['_sum/ProductionAcActiveEnergy'] ?? null;
           },

@@ -1,6 +1,6 @@
 <oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized">
 
-  <oe-modal-line [name]="'General.state' | translate" [channelAddress]="component.id + '/_PropertyMode'"
+  <oe-modal-line [name]="'GENERAL.STATE' | translate" [channelAddress]="component.id + '/_PropertyMode'"
     [converter]="CONVERT_MANUAL_ON_OFF">
   </oe-modal-line>
 
@@ -13,14 +13,14 @@
   <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
   <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="[
-    { name: ('General.on' | translate), value: 'MANUAL_ON', icon: {color:'success', name: 'power-outline'}},
-    { name: ('General.off' | translate), value: 'MANUAL_OFF', icon: {color:'primary', name: 'power-outline'}}]">
+    { name: ('GENERAL.ON' | translate), value: 'MANUAL_ON', icon: {color:'success', name: 'power-outline'}},
+    { name: ('GENERAL.OFF' | translate), value: 'MANUAL_OFF', icon: {color:'primary', name: 'power-outline'}}]">
   </oe-modal-buttons>
 
   <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
   <ng-container *ngIf="formGroup.value.mode === 'MANUAL_ON'">
-    <oe-modal-line [name]="'General.power'| translate" [formGroup]="formGroup" controlName="power"
+    <oe-modal-line [name]="'GENERAL.POWER'| translate" [formGroup]="formGroup" controlName="power"
       [control]="{type: 'INPUT'}">
     </oe-modal-line>
 
@@ -28,7 +28,7 @@
   </ng-container>
 
   <oe-modal-info-line
-    [info]="('Edge.Index.Widgets.InfoStorageForCharge' | translate) + '. ' + ('Edge.Index.Widgets.InfoStorageForDischarge' | translate)">
+    [info]="('EDGE.INDEX.WIDGETS.INFO_STORAGE_FOR_CHARGE' | translate) + '. ' + ('EDGE.INDEX.WIDGETS.INFO_STORAGE_FOR_DISCHARGE' | translate)">
   </oe-modal-info-line>
 
 </oe-modal>

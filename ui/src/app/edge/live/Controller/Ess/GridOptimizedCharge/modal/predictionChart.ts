@@ -171,12 +171,12 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
                 // Push the prepared data into the datasets
                 datasets.push({
-                    label: this.translate.instant('General.soc'),
+                    label: this.translate.instant('GENERAL.SOC'),
                     data: socData,
                     hidden: false,
                     yAxisID: ChartAxis.RIGHT,
                 }, {
-                    label: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.expectedSoc'),
+                    label: this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.EXPECTED_SOC'),
                     data: predictedSocData,
                     hidden: false,
                     yAxisID: ChartAxis.RIGHT,

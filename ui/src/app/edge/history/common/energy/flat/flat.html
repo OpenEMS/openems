@@ -2,7 +2,7 @@
     <ion-item lines="full" color="light">
         <ion-icon size="large" slot="start" name="laptop-outline" color="primary"></ion-icon>
         <ion-label translate>
-            Edge.Index.Energymonitor.title
+            EDGE.INDEX.ENERGYMONITOR.TITLE
         </ion-label>
 
         <ion-button (click)="exportToXlxs()" slot="end">
@@ -14,7 +14,7 @@
 </ng-container>
 
 <ng-template #desktopView>
-    <oe-flat-widget [title]="'Edge.Index.Energymonitor.title'| translate" [icon]="{name: 'laptop-outline'}"
+    <oe-flat-widget [title]="'EDGE.INDEX.ENERGYMONITOR.TITLE'| translate" [icon]="{name: 'laptop-outline'}"
         *ngIf="isInitialized" [style.height.px]="getChartHeight()">
         <ion-button slot="end" button (click)="exportToXlxs()">
             <ion-icon [name]="'download-outline'">

@@ -1,86 +1,86 @@
 {
-  "General": {
-    "active": "Actief",
-    "actualPower": "e-car Laad vermogen",
-    "autarchy": "Autarkie",
-    "automatic": "Automatisch",
-    "cancel": "annuleren",
-    "capacity": "Hoedanigheid",
-    "changeAccepted": "Wijziging geaccepteerd",
-    "changeFailed": "Wijziging mislukt",
-    "chargeDischarge": "Debet/ontlaad",
-    "chargePower": "Laad vermogen",
-    "componentCount": "Aantal componenten",
-    "componentInactive": "Component is inactief!",
-    "connectionLost": "Verbinding verbroken. Probeer opnieuw verbinding te maken.",
-    "consumption": "Verbruik",
-    "cumulative": "Cumulatieve Waarden",
-    "currentValue": "Huidige waarde",
-    "dateFormat": "dd-MM-yyyy",
-    "digitalInputs": "Digitale Ingangen",
-    "numberOfComponents": "aantal componenten",
-    "directConsumption": "Directe consumptie",
-    "dischargePower": "Ontlaad vermogen",
-    "fault": "Fout",
-    "grid": "Net",
-    "gridBuy": "Netafname",
-    "gridBuyAdvanced": "Netafname",
-    "gridSell": "Netteruglevering",
-    "gridSellAdvanced": "Netteruglevering",
+  "GENERAL": {
+    "ACTIVE": "Actief",
+    "ACTUAL_POWER": "e-car Laad vermogen",
+    "AUTARCHY": "Autarkie",
+    "AUTOMATIC": "Automatisch",
+    "CANCEL": "annuleren",
+    "CAPACITY": "Hoedanigheid",
+    "CHANGE_ACCEPTED": "Wijziging geaccepteerd",
+    "CHANGE_FAILED": "Wijziging mislukt",
+    "CHARGE_DISCHARGE": "Debet/ontlaad",
+    "CHARGE_POWER": "Laad vermogen",
+    "COMPONENT_COUNT": "Aantal componenten",
+    "COMPONENT_INACTIVE": "Component is inactief!",
+    "CONNECTION_LOST": "Verbinding verbroken. Probeer opnieuw verbinding te maken.",
+    "CONSUMPTION": "Verbruik",
+    "CUMULATIVE": "Cumulatieve Waarden",
+    "CURRENT_VALUE": "Huidige waarde",
+    "DATE_FORMAT": "dd-MM-yyyy",
+    "DIGITAL_INPUTS": "Digitale Ingangen",
+    "NUMBER_OF_COMPONENTS": "aantal componenten",
+    "DIRECT_CONSUMPTION": "Directe consumptie",
+    "DISCHARGE_POWER": "Ontlaad vermogen",
+    "FAULT": "Fout",
+    "GRID": "Net",
+    "GRID_BUY": "Netafname",
+    "GRID_BUY_ADVANCED": "Netafname",
+    "GRID_SELL": "Netteruglevering",
+    "GRID_SELL_ADVANCED": "Netteruglevering",
     "HISTORY": "Historie",
-    "inactive": "Inactief",
-    "info": "Info",
-    "inputNotValid": "Invoer ongeldig",
-    "insufficientRights": "Onvoldoende rechten",
+    "INACTIVE": "Inactief",
+    "INFO": "Info",
+    "INPUT_NOT_VALID": "Invoer ongeldig",
+    "INSUFFICIENT_RIGHTS": "Onvoldoende rechten",
     "LIVE": "Live",
-    "load": "Laden",
-    "manually": "handmatig",
-    "measuredValue": "Gemeten Waarde",
-    "mode": "Mode",
-    "more": "Meer…",
-    "noValue": "Geen waarde",
-    "off": "Van",
-    "offGrid": "Geen Netaansluiting!",
-    "ok": "ok",
-    "on": "Naar",
-    "otherConsumption": "andere consumptie",
-    "percentage": "Procent",
-    "periodFromTo": "van {{ value1 }} tot {{ value2 }}",
-    "power": "Vermogen",
-    "production": "Opwekking",
-    "reportValue": "Rapporteer beschadigde gegevens",
-    "selfConsumption": "Eigen consumptie",
-    "soc": "Laadstatus",
-    "state": "Staat",
-    "storageSystem": "Batterij",
+    "LOAD": "Laden",
+    "MANUALLY": "handmatig",
+    "MEASURED_VALUE": "Gemeten Waarde",
+    "MODE": "Mode",
+    "MORE": "Meer…",
+    "NO_VALUE": "Geen waarde",
+    "OFF": "Van",
+    "OFF_GRID": "Geen Netaansluiting!",
+    "OK": "ok",
+    "ON": "Naar",
+    "OTHER_CONSUMPTION": "andere consumptie",
+    "PERCENTAGE": "Procent",
+    "PERIOD_FROM_TO": "van {{ value1 }} tot {{ value2 }}",
+    "POWER": "Vermogen",
+    "PRODUCTION": "Opwekking",
+    "REPORT_VALUE": "Rapporteer beschadigde gegevens",
+    "SELF_CONSUMPTION": "Eigen consumptie",
+    "SOC": "Laadstatus",
+    "STATE": "Staat",
+    "STORAGE_SYSTEM": "Batterij",
     "SYSTEM_STATE": "Systeemstatus",
     "TOTAL": "totale verbruik",
-    "totalState": "Algemene staat",
-    "warning": "Waarschuwing",
-    "Week": {
-      "monday": "Maandag",
-      "tuesday": "Dinsdag",
-      "wednesday": "Woensdag",
-      "thursday": "Donderdag",
-      "friday": "Vrijdag",
-      "saturday": "Zaterdag",
-      "sunday": "Zondag"
+    "TOTAL_STATE": "Algemene staat",
+    "WARNING": "Waarschuwing",
+    "WEEK": {
+      "MONDAY": "Maandag",
+      "TUESDAY": "Dinsdag",
+      "WEDNESDAY": "Woensdag",
+      "THURSDAY": "Donderdag",
+      "FRIDAY": "Vrijdag",
+      "SATURDAY": "Zaterdag",
+      "SUNDAY": "Zondag"
     },
-    "Month": {
-      "january": "Januari",
-      "february": "Februari",
-      "march": "Maart",
-      "april": "April",
-      "may": "Mei",
-      "june": "Juni",
-      "july": "Juli",
-      "august": "Augustus",
-      "september": "September",
-      "october": "Oktober",
-      "november": "November",
-      "december": "December"
+    "MONTH": {
+      "JANUARY": "Januari",
+      "FEBRUARY": "Februari",
+      "MARCH": "Maart",
+      "APRIL": "April",
+      "MAY": "Mei",
+      "JUNE": "Juni",
+      "JULY": "Juli",
+      "AUGUST": "Augustus",
+      "SEPTEMBER": "September",
+      "OCTOBER": "Oktober",
+      "NOVEMBER": "November",
+      "DECEMBER": "December"
     },
-    "save": "Opslaan",
+    "SAVE": "Opslaan",
     "TIME": {
       "HOUR": "Uur",
       "HOURS": "Uur",
@@ -90,390 +90,390 @@
       "DAYS": "Dagen"
     }
   },
-  "Menu": {
-    "accessLevel": "Toegangsniveau",
-    "edgeSettings": "instellingen",
-    "generalSettings": "Algemene instellingen",
-    "index": "Overzicht",
-    "logout": "Uitloggen",
-    "menu": "Menu",
-    "name": "Naam",
-    "overview": "Alle systemen",
-    "settings": "Instellingen",
-    "user": "Gebruiker",
-    "changelog": "Changelog",
-    "otherUser": "Andere gebruikers"
+  "MENU": {
+    "ACCESS_LEVEL": "Toegangsniveau",
+    "EDGE_SETTINGS": "instellingen",
+    "GENERAL_SETTINGS": "Algemene instellingen",
+    "INDEX": "Overzicht",
+    "LOGOUT": "Uitloggen",
+    "MENU": "Menu",
+    "NAME": "Naam",
+    "OVERVIEW": "Alle systemen",
+    "SETTINGS": "Instellingen",
+    "USER": "Gebruiker",
+    "CHANGELOG": "Changelog",
+    "OTHER_USER": "Andere gebruikers"
   },
-  "Index": {
-    "allConnected": "Alle verbindingen gemaakt.",
-    "connectionInProgress": "Verbinding tot stand brengen...",
-    "connectionFailed": "Verbinding met {{ value }} mislukt.",
-    "connectionSuccessful": "Succesvol verbonden met {{ value }}.",
-    "deviceOffline": "Het apparaat is niet aangesloten!",
-    "isOffline": "OpenEMS is offline!",
+  "INDEX": {
+    "ALL_CONNECTED": "Alle verbindingen gemaakt.",
+    "CONNECTION_IN_PROGRESS": "Verbinding tot stand brengen...",
+    "CONNECTION_FAILED": "Verbinding met {{ value }} mislukt.",
+    "CONNECTION_SUCCESSFUL": "Succesvol verbonden met {{ value }}.",
+    "DEVICE_OFFLINE": "Het apparaat is niet aangesloten!",
+    "IS_OFFLINE": "OpenEMS is offline!",
     "LOGGED_IN_AS": "Geregistreerd als",
-    "toEnergymonitor": "Naar Energiemonitor...",
+    "TO_ENERGYMONITOR": "Naar Energiemonitor...",
     "TYPE": "Type"
   },
-  "Login": {
-    "title": "Login",
-    "preamble": "Voer uw wachtwoord in of bevestig de standaard om in te loggen als gast.",
-    "passwordLabel": "Wachtwoord",
-    "passwordReset": "Wachtwoord opnieuw instellen",
-    "authenticationFailed": "Authenticatie mislukt",
-    "user": "Gebruiker"
+  "LOGIN": {
+    "TITLE": "Login",
+    "PREAMBLE": "Voer uw wachtwoord in of bevestig de standaard om in te loggen als gast.",
+    "PASSWORD_LABEL": "Wachtwoord",
+    "PASSWORD_RESET": "Wachtwoord opnieuw instellen",
+    "AUTHENTICATION_FAILED": "Authenticatie mislukt",
+    "USER": "Gebruiker"
   },
-  "Register": {
-    "segment": {
-      "user": "Gebruiker",
-      "installer": "Installateur"
+  "REGISTER": {
+    "SEGMENT": {
+      "USER": "Gebruiker",
+      "INSTALLER": "Installateur"
     },
-    "Form": {
-      "user": {
-        "acceptPrivacyPolicy": ""
+    "FORM": {
+      "USER": {
+        "ACCEPT_PRIVACY_POLICY": ""
       },
-      "installer": {
-        "acceptPrivacyPolicy": ""
+      "INSTALLER": {
+        "ACCEPT_PRIVACY_POLICY": ""
       },
-      "contactDetails": "Contactgegevens",
-      "companyName": "Bedrijfsnaam",
-      "firstname": "Voornaam",
-      "lastname": "Achternaam",
-      "street": "Straat | huisnummer",
-      "zip": "Postcode",
-      "city": "Stad",
-      "country": "Land",
-      "phone": "Telefoonnummer",
-      "email": "E-Mail - adres",
-      "password": "Wachtwoord",
-      "confirmPassword": "Bevestig wachtwoord"
+      "CONTACT_DETAILS": "Contactgegevens",
+      "COMPANY_NAME": "Bedrijfsnaam",
+      "FIRSTNAME": "Voornaam",
+      "LASTNAME": "Achternaam",
+      "STREET": "Straat | huisnummer",
+      "ZIP": "Postcode",
+      "CITY": "Stad",
+      "COUNTRY": "Land",
+      "PHONE": "Telefoonnummer",
+      "EMAIL": "E-Mail - adres",
+      "PASSWORD": "Wachtwoord",
+      "CONFIRM_PASSWORD": "Bevestig wachtwoord"
     },
-    "button": "Maken",
-    "errors": {
-      "requiredFields": "Gelieve alle velden in te vullen"
+    "BUTTON": "Maken",
+    "ERRORS": {
+      "REQUIRED_FIELDS": "Gelieve alle velden in te vullen"
     },
-    "passwordNotEqual": "Wachtwoorden zijn niet gelijk",
-    "success": "Registratie succesvol"
+    "PASSWORD_NOT_EQUAL": "Wachtwoorden zijn niet gelijk",
+    "SUCCESS": "Registratie succesvol"
   },
-  "Edge": {
-    "Index": {
-      "EmergencyReserve": {
+  "EDGE": {
+    "INDEX": {
+      "EMERGENCY_RESERVE": {
         "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Door de noodstroomreserve te activeren, kan de waarde vrij worden gekozen tussen 5% en 100%.",
         "EMERGENCY_RESERVE": "noodreserve"
       },
-      "Energymonitor": {
-        "activePower": "Actief vermogen",
-        "consumptionWarning": "Verbruik & onbekende producenten",
-        "gridMeter": "Energiemeter",
-        "productionMeter": "Productiemeter",
-        "reactivePower": "Blind vermogen",
-        "storage": "Batterij",
-        "title": "Energiemonitor"
+      "ENERGYMONITOR": {
+        "ACTIVE_POWER": "Actief vermogen",
+        "CONSUMPTION_WARNING": "Verbruik & onbekende producenten",
+        "GRID_METER": "Energiemeter",
+        "PRODUCTION_METER": "Productiemeter",
+        "REACTIVE_POWER": "Blind vermogen",
+        "STORAGE": "Batterij",
+        "TITLE": "Energiemonitor"
       },
-      "Widgets": {
-        "autarchyInfo": "Autarky geeft het percentage huidig ​​vermogen aan dat kan worden gedekt door opwekking en ontlading van de opslag.",
-        "phasesInfo": "De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.",
-        "selfconsumptionInfo": "Eigen verbruik geeft het percentage van de momenteel gegenereerde uitvoer aan dat kan worden gebruikt door direct verbruik en opslagbelasting zelf.",
-        "twoWayInfoGrid": "Negatieve waarden komen overeen met netinvoeding, Positieve waarden komen overeen met netvoeding",
-        "InfoStorageForCharge": "Negatieve waarden komen overeen met het laden van geheugen",
-        "InfoStorageForDischarge": "Positieve waarden komen overeen met geheugenontlading",
-        "Channeltreshold": {
-          "output": "uitgang"
+      "WIDGETS": {
+        "AUTARCHY_INFO": "Autarky geeft het percentage huidig ​​vermogen aan dat kan worden gedekt door opwekking en ontlading van de opslag.",
+        "PHASES_INFO": "De som van de afzonderlijke fasen kan om technische redenen enigszins afwijken van het totaal.",
+        "SELFCONSUMPTION_INFO": "Eigen verbruik geeft het percentage van de momenteel gegenereerde uitvoer aan dat kan worden gebruikt door direct verbruik en opslagbelasting zelf.",
+        "TWO_WAY_INFO_GRID": "Negatieve waarden komen overeen met netinvoeding, Positieve waarden komen overeen met netvoeding",
+        "INFO_STORAGE_FOR_CHARGE": "Negatieve waarden komen overeen met het laden van geheugen",
+        "INFO_STORAGE_FOR_DISCHARGE": "Positieve waarden komen overeen met geheugenontlading",
+        "CHANNELTRESHOLD": {
+          "OUTPUT": "uitgang"
         },
-        "Singlethreshold": {
-          "above": "Over",
-          "behaviour": "Gedrag",
-          "below": "Beneden",
-          "currentValue": "Huidige waarde",
-          "dependendOn": "Afhankelijk van",
-          "minSwitchingTime": "Minimum omschakeling",
-          "moreThanMaxPower": "De waarde mag niet lager zijn dan het maximale vermogen van het gecontroleerde apparaat",
-          "other": "Anders",
-          "relationError": "Drempel moet groter zijn dan de geschakelde belasting",
-          "switchedLoadPower": "Geschakelde belasting",
-          "switchOffAbove": "Uitschakelen via",
-          "switchOffBelow": "Schakel uit onder",
-          "switchOnAbove": "Inschakelen via",
-          "switchOnBelow": "Inschakelen onder",
-          "threshold": "Thresholded"
+        "SINGLETHRESHOLD": {
+          "ABOVE": "Over",
+          "BEHAVIOUR": "Gedrag",
+          "BELOW": "Beneden",
+          "CURRENT_VALUE": "Huidige waarde",
+          "DEPENDEND_ON": "Afhankelijk van",
+          "MIN_SWITCHING_TIME": "Minimum omschakeling",
+          "MORE_THAN_MAX_POWER": "De waarde mag niet lager zijn dan het maximale vermogen van het gecontroleerde apparaat",
+          "OTHER": "Anders",
+          "RELATION_ERROR": "Drempel moet groter zijn dan de geschakelde belasting",
+          "SWITCHED_LOAD_POWER": "Geschakelde belasting",
+          "SWITCH_OFF_ABOVE": "Uitschakelen via",
+          "SWITCH_OFF_BELOW": "Schakel uit onder",
+          "SWITCH_ON_ABOVE": "Inschakelen via",
+          "SWITCH_ON_BELOW": "Inschakelen onder",
+          "THRESHOLD": "Thresholded"
         },
-        "Peakshaving": {
-          "asymmetricInfo": "De ingevoerde prestatiewaarden verwijzen naar afzonderlijke fasen. Het is aangepast aan de meest gestresste fase.",
-          "endDate": "Einddatum",
-          "endTime": "Eindtijd",
-          "mostStressedPhase": "Meest gestresste fase",
-          "peakshaving": "Piek scheren",
-          "peakshavingPower": "Afvoer voorbij",
-          "recharge": "Laadvermogen",
-          "rechargePower": "Bezig met laden onder",
-          "relationError": "Ontladingslimiet moet groter zijn dan of gelijk zijn aan de belastingslimiet",
-          "startDate": "Startdatum",
-          "startTime": "Starttijd",
-          "startTimeCharge": "Starttijd laden"
+        "PEAKSHAVING": {
+          "ASYMMETRIC_INFO": "De ingevoerde prestatiewaarden verwijzen naar afzonderlijke fasen. Het is aangepast aan de meest gestresste fase.",
+          "END_DATE": "Einddatum",
+          "END_TIME": "Eindtijd",
+          "MOST_STRESSED_PHASE": "Meest gestresste fase",
+          "PEAKSHAVING": "Piek scheren",
+          "PEAKSHAVING_POWER": "Afvoer voorbij",
+          "RECHARGE": "Laadvermogen",
+          "RECHARGE_POWER": "Bezig met laden onder",
+          "RELATION_ERROR": "Ontladingslimiet moet groter zijn dan of gelijk zijn aan de belastingslimiet",
+          "START_DATE": "Startdatum",
+          "START_TIME": "Starttijd",
+          "START_TIME_CHARGE": "Starttijd laden"
         },
-        "DelayedSellToGrid": {
-          "sellToGridPowerLimit": "Laad hierboven op",
-          "continuousSellToGridPower": "Ontlading hieronder",
-          "relationError": "De kostenlimiet moet groter zijn dan de ontladingslimiet"
+        "DELAYED_SELL_TO_GRID": {
+          "SELL_TO_GRID_POWER_LIMIT": "Laad hierboven op",
+          "CONTINUOUS_SELL_TO_GRID_POWER": "Ontlading hieronder",
+          "RELATION_ERROR": "De kostenlimiet moet groter zijn dan de ontladingslimiet"
         },
-        "GridOptimizedCharge": {
-          "chargingDelayed": "Opladen vertraagd",
-          "considerGridFeedInLimit": "Houd rekening met de maximale teruglevering van het net",
-          "endTime": "Eindtijd",
-          "endTimeDescription": "Het opladen gebeurt niet met de maximale hoeveelheid voor een paar uur, maar gestaag over een langere periode.",
-          "endTimeDetailedDescription": "Het laden vindt niet plaats met de maximale output voor een paar uur, maar gestaag met een maximum van {{ value1 }} tot {{ value2 }} uur.",
-          "endTimeLong": "Eindtijd van beperkt laden",
-          "expectedSoc": "Verwachte laadstatus",
-          "expectedSocWithoutSellToGridLimit": "Zonder de maximale teruglevering aan het net te vermijden",
-          "gridFeedInLimitationAvoided": "Netterugleveringsbeperking vermeden",
-          "gridOptimizedChargeDisabled": "Laden geoptimaliseerd voor raster gedeactiveerd",
-          "high": "Hoog",
-          "History": {
-            "batteryChargeGridLimitDescription": "De maximale netvoeding waarboven het opladen van de batterijen (voor zover mogelijk) wordt verhoogd, ligt onder de maximaal toegestane netvoeding om voortijdige productiebeperking te voorkomen.",
-            "priorityDescription": "De minimale acculading heeft een hogere prioriteit dan de maximale acculading"
+        "GRID_OPTIMIZED_CHARGE": {
+          "CHARGING_DELAYED": "Opladen vertraagd",
+          "CONSIDER_GRID_FEED_IN_LIMIT": "Houd rekening met de maximale teruglevering van het net",
+          "END_TIME": "Eindtijd",
+          "END_TIME_DESCRIPTION": "Het opladen gebeurt niet met de maximale hoeveelheid voor een paar uur, maar gestaag over een langere periode.",
+          "END_TIME_DETAILED_DESCRIPTION": "Het laden vindt niet plaats met de maximale output voor een paar uur, maar gestaag met een maximum van {{ value1 }} tot {{ value2 }} uur.",
+          "END_TIME_LONG": "Eindtijd van beperkt laden",
+          "EXPECTED_SOC": "Verwachte laadstatus",
+          "EXPECTED_SOC_WITHOUT_SELL_TO_GRID_LIMIT": "Zonder de maximale teruglevering aan het net te vermijden",
+          "GRID_FEED_IN_LIMITATION_AVOIDED": "Netterugleveringsbeperking vermeden",
+          "GRID_OPTIMIZED_CHARGE_DISABLED": "Laden geoptimaliseerd voor raster gedeactiveerd",
+          "HIGH": "Hoog",
+          "HISTORY": {
+            "BATTERY_CHARGE_GRID_LIMIT_DESCRIPTION": "De maximale netvoeding waarboven het opladen van de batterijen (voor zover mogelijk) wordt verhoogd, ligt onder de maximaal toegestane netvoeding om voortijdige productiebeperking te voorkomen.",
+            "PRIORITY_DESCRIPTION": "De minimale acculading heeft een hogere prioriteit dan de maximale acculading"
           },
-          "low": "Laag",
-          "maximumCharge": "Maximale lading",
-          "maximumGridFeedIn": "Maximaal toegestane teruglevering",
-          "medium": "Medium",
-          "minimumCharge": "Minimale lading",
-          "RiskDescription": {
-            "Low": {
-              "functionDescription": "Relatief vroeg laden van de winkel",
-              "storageDescription": "Grotere kans dat het geheugen volledig wordt geladen",
-              "pvCurtail": "Lagere kans dat inperking van het PV-systeem wordt voorkomen"
+          "LOW": "Laag",
+          "MAXIMUM_CHARGE": "Maximale lading",
+          "MAXIMUM_GRID_FEED_IN": "Maximaal toegestane teruglevering",
+          "MEDIUM": "Medium",
+          "MINIMUM_CHARGE": "Minimale lading",
+          "RISK_DESCRIPTION": {
+            "LOW": {
+              "FUNCTION_DESCRIPTION": "Relatief vroeg laden van de winkel",
+              "STORAGE_DESCRIPTION": "Grotere kans dat het geheugen volledig wordt geladen",
+              "PV_CURTAIL": "Lagere kans dat inperking van het PV-systeem wordt voorkomen"
             },
-            "Medium": {
-              "functionDescription": "Relatief gelijkmatige belading van de winkel",
-              "storageDescription": "Grote kans dat de opslag volledig wordt geladen",
-              "pvCurtail": "Grote kans dat de inperking van het PV-systeem wordt vermeden"
+            "MEDIUM": {
+              "FUNCTION_DESCRIPTION": "Relatief gelijkmatige belading van de winkel",
+              "STORAGE_DESCRIPTION": "Grote kans dat de opslag volledig wordt geladen",
+              "PV_CURTAIL": "Grote kans dat de inperking van het PV-systeem wordt vermeden"
             },
-            "High": {
-              "functionDescription": "Relatief later opladen van het opslagsysteem",
-              "storageDescription": "Minder kans dat het opslagsysteem volledig wordt opgeladen",
-              "pvCurtail": "Grotere kans dat de inperking van het PV-systeem wordt vermeden"
+            "HIGH": {
+              "FUNCTION_DESCRIPTION": "Relatief later opladen van het opslagsysteem",
+              "STORAGE_DESCRIPTION": "Minder kans dat het opslagsysteem volledig wordt opgeladen",
+              "PV_CURTAIL": "Grotere kans dat de inperking van het PV-systeem wordt vermeden"
             }
           },
-          "riskPropensity": "Risicobereidheid",
-          "settingOnlyVisableForInstaller": "Deze instelling is alleen zichtbaar voor de installateur",
-          "State": {
-            "avoidLowCharging": "Laag opladen vermeden",
-            "chargeLimitActive": "Laadlimiet actief",
-            "endTimeNotCalculated": "Eindtijd niet berekend",
-            "gridFeedInLimitationIsAvoided": "Grid-Feed-in beperking wordt vermeden",
-            "noLimitActive": "Geen laadlimiet actief",
-            "noLimitPossible": "Geen beperking mogelijk (beperkt door controles met hogere prioriteit)",
-            "notDefined": "Niet gedefinieerd",
-            "passedEndTime": "Eindtijd van beperkt laden overschreden",
-            "storageAlreadyFull": "Geheugen al vol"
+          "RISK_PROPENSITY": "Risicobereidheid",
+          "SETTING_ONLY_VISABLE_FOR_INSTALLER": "Deze instelling is alleen zichtbaar voor de installateur",
+          "STATE": {
+            "AVOID_LOW_CHARGING": "Laag opladen vermeden",
+            "CHARGE_LIMIT_ACTIVE": "Laadlimiet actief",
+            "END_TIME_NOT_CALCULATED": "Eindtijd niet berekend",
+            "GRID_FEED_IN_LIMITATION_IS_AVOIDED": "Grid-Feed-in beperking wordt vermeden",
+            "NO_LIMIT_ACTIVE": "Geen laadlimiet actief",
+            "NO_LIMIT_POSSIBLE": "Geen beperking mogelijk (beperkt door controles met hogere prioriteit)",
+            "NOT_DEFINED": "Niet gedefinieerd",
+            "PASSED_END_TIME": "Eindtijd van beperkt laden overschreden",
+            "STORAGE_ALREADY_FULL": "Geheugen al vol"
           },
-          "storageCapacity": "opslagcapaciteit (alleen zichtbaar voor admin)"
+          "STORAGE_CAPACITY": "opslagcapaciteit (alleen zichtbaar voor admin)"
         },
         "CHP": {
-          "highThreshold": "hoge drempel",
-          "lowThreshold": "Lage drempelwaarde"
+          "HIGH_THRESHOLD": "hoge drempel",
+          "LOW_THRESHOLD": "Lage drempelwaarde"
         },
         "EVCS": {
-          "activateCharging": "Activeer het laadstation",
-          "amountOfChargingStations": "Aantal laadstations",
-          "cable": "Kabel",
-          "cableNotConnected": "Kabel is niet aangesloten",
-          "carFull": "Auto is vol",
-          "chargeLimitReached": "Oplaadlimiet bereikt",
-          "chargeMode": "laadmodus",
-          "chargeTarget": "Lading doel",
-          "charging": "Is aan het laden",
-          "chargingLimit": "Laadlimiet",
-          "chargingPower": "Oplaadvermogen",
-          "chargingStation": "Laadstation",
-          "chargingStationCluster": "Laadstation cluster",
-          "chargingStationDeactivated": "Laadstation gedeactiveerd",
-          "chargingStationPluggedInEV": "Laadstation + E-Auto aangesloten",
-          "chargingStationPluggedInEVLocked": "Laadstation + E-Auto aangesloten + op slot",
-          "chargingStationPluggedInLocked": "Laadstation aangesloten + op slot",
-          "charingStationPluggedIn": "Laadstation aangesloten",
-          "clusterConfigError": "Er is een fout opgetreden in de configuratie van het Evcs-cluster",
-          "currentCharge": "Huidige lading",
-          "energySinceBeginning": "Energie sinds de laatste lading start",
-          "energyLimit": "Energielimiet",
-          "enforceCharging": "Handhaaf het laden",
-          "error": "Fout",
-          "maxEnergyRestriction": "Beperk de maximale energie per lading",
-          "notAuthorized": "Geen bevoegdheid",
-          "notCharging": "Niet opladen",
-          "notReadyForCharging": "Niet klaar voor opladen",
-          "overviewChargingStations": "Overzicht laadstations",
-          "prioritization": "Prioritering",
-          "readyForCharging": "Klaar om op te laden",
-          "starting": "Beginnend",
-          "status": "Staat",
-          "totalCharge": "Totale lading",
-          "totalChargingPower": "Totaal laadvermogen",
-          "unknown": "Onbekend",
-          "unplugged": "Unplugged",
-          "Administration": {
-            "carAdministration": "Auto administratie",
-            "customCarInfo": "Als dit het geval is, kan uw auto alleen efficiënt worden geladen vanaf een bepaalde output. Met deze knop is dit opgenomen in uw configuratie-opties en in het automatisch laden.",
-            "renaultZoe": "Wordt een Renault Zoe voornamelijk op dit laadstation geladen?"
+          "ACTIVATE_CHARGING": "Activeer het laadstation",
+          "AMOUNT_OF_CHARGING_STATIONS": "Aantal laadstations",
+          "CABLE": "Kabel",
+          "CABLE_NOT_CONNECTED": "Kabel is niet aangesloten",
+          "CAR_FULL": "Auto is vol",
+          "CHARGE_LIMIT_REACHED": "Oplaadlimiet bereikt",
+          "CHARGE_MODE": "laadmodus",
+          "CHARGE_TARGET": "Lading doel",
+          "CHARGING": "Is aan het laden",
+          "CHARGING_LIMIT": "Laadlimiet",
+          "CHARGING_POWER": "Oplaadvermogen",
+          "CHARGING_STATION": "Laadstation",
+          "CHARGING_STATION_CLUSTER": "Laadstation cluster",
+          "CHARGING_STATION_DEACTIVATED": "Laadstation gedeactiveerd",
+          "CHARGING_STATION_PLUGGED_IN_EV": "Laadstation + E-Auto aangesloten",
+          "CHARGING_STATION_PLUGGED_IN_EVLOCKED": "Laadstation + E-Auto aangesloten + op slot",
+          "CHARGING_STATION_PLUGGED_IN_LOCKED": "Laadstation aangesloten + op slot",
+          "CHARING_STATION_PLUGGED_IN": "Laadstation aangesloten",
+          "CLUSTER_CONFIG_ERROR": "Er is een fout opgetreden in de configuratie van het Evcs-cluster",
+          "CURRENT_CHARGE": "Huidige lading",
+          "ENERGY_SINCE_BEGINNING": "Energie sinds de laatste lading start",
+          "ENERGY_LIMIT": "Energielimiet",
+          "ENFORCE_CHARGING": "Handhaaf het laden",
+          "ERROR": "Fout",
+          "MAX_ENERGY_RESTRICTION": "Beperk de maximale energie per lading",
+          "NOT_AUTHORIZED": "Geen bevoegdheid",
+          "NOT_CHARGING": "Niet opladen",
+          "NOT_READY_FOR_CHARGING": "Niet klaar voor opladen",
+          "OVERVIEW_CHARGING_STATIONS": "Overzicht laadstations",
+          "PRIORITIZATION": "Prioritering",
+          "READY_FOR_CHARGING": "Klaar om op te laden",
+          "STARTING": "Beginnend",
+          "STATUS": "Staat",
+          "TOTAL_CHARGE": "Totale lading",
+          "TOTAL_CHARGING_POWER": "Totaal laadvermogen",
+          "UNKNOWN": "Onbekend",
+          "UNPLUGGED": "Unplugged",
+          "ADMINISTRATION": {
+            "CAR_ADMINISTRATION": "Auto administratie",
+            "CUSTOM_CAR_INFO": "Als dit het geval is, kan uw auto alleen efficiënt worden geladen vanaf een bepaalde output. Met deze knop is dit opgenomen in uw configuratie-opties en in het automatisch laden.",
+            "RENAULT_ZOE": "Wordt een Renault Zoe voornamelijk op dit laadstation geladen?"
           },
-          "NoConnection": {
-            "description": "Hij kon niet op het laadstation worden aangesloten.",
-            "help1_1": "Het IP-adres van het laadstation verschijnt bij het opnieuw inschakelen",
-            "help1": "Controleer of het laadstation is ingeschakeld en via het netwerk kan worden bereikt"
+          "NO_CONNECTION": {
+            "DESCRIPTION": "Hij kon niet op het laadstation worden aangesloten.",
+            "HELP1_1": "Het IP-adres van het laadstation verschijnt bij het opnieuw inschakelen",
+            "HELP1": "Controleer of het laadstation is ingeschakeld en via het netwerk kan worden bereikt"
           },
-          "OptimizedChargeMode": {
-            "info": "In deze modus wordt de belasting van de auto aangepast aan de huidige productie en het huidige verbruik.",
-            "minChargePower": "Loading rate",
-            "minCharging": "Minimale vergoeding betalen",
-            "minInfo": "Als u wilt voorkomen dat de auto s nachts niet oplaadt, kunt u een minimale lading instellen.",
-            "name": "Geoptimaliseerd laden",
-            "shortName": "Automatisch",
-            "ChargingPriority": {
-              "car": "Auto",
-              "info": "Afhankelijk van de prioriteit wordt het geselecteerde onderdeel eerst geladen",
-              "storage": "Opslagruimte"
+          "OPTIMIZED_CHARGE_MODE": {
+            "INFO": "In deze modus wordt de belasting van de auto aangepast aan de huidige productie en het huidige verbruik.",
+            "MIN_CHARGE_POWER": "Loading rate",
+            "MIN_CHARGING": "Minimale vergoeding betalen",
+            "MIN_INFO": "Als u wilt voorkomen dat de auto s nachts niet oplaadt, kunt u een minimale lading instellen.",
+            "NAME": "Geoptimaliseerd laden",
+            "SHORT_NAME": "Automatisch",
+            "CHARGING_PRIORITY": {
+              "CAR": "Auto",
+              "INFO": "Afhankelijk van de prioriteit wordt het geselecteerde onderdeel eerst geladen",
+              "STORAGE": "Opslagruimte"
             }
           },
-          "ForceChargeMode": {
-            "info": "In deze modus wordt het laden van de auto afgedwongen, d.w.z. het is altijd gegarandeerd dat de auto wordt opgeladen, zelfs als het laadstation toegang moet hebben tot netstroom.",
-            "maxCharging": "Maximale laadstroom",
-            "maxChargingDetails": "Als de auto de ingevoerde maximale waarde niet kan laden, wordt het vermogen automatisch beperkt.",
-            "name": "Gedwongen laden",
-            "shortName": "handmatig"
+          "FORCE_CHARGE_MODE": {
+            "INFO": "In deze modus wordt het laden van de auto afgedwongen, d.w.z. het is altijd gegarandeerd dat de auto wordt opgeladen, zelfs als het laadstation toegang moet hebben tot netstroom.",
+            "MAX_CHARGING": "Maximale laadstroom",
+            "MAX_CHARGING_DETAILS": "Als de auto de ingevoerde maximale waarde niet kan laden, wordt het vermogen automatisch beperkt.",
+            "NAME": "Gedwongen laden",
+            "SHORT_NAME": "handmatig"
           }
         },
-        "Heatingelement": {
-          "activeForced": "Actief (Minimale looptijd)",
-          "activeLevel": "Actieve level",
-          "endtime": "Einde tijd",
-          "energy": "Energie",
-          "guaranteeMinimumHeating": "Minimale verwarming garanderen",
-          "heatingelement": "Verwarmingselement",
-          "minimalEnergyAmount": "Minimale hoeveelheid energie",
-          "minimumRunTime": "Minimale looptijd",
-          "priority": "Prioriteit",
-          "time": "Tijd",
-          "timeCountdown": "Tijd om te beginnen"
+        "HEATINGELEMENT": {
+          "ACTIVE_FORCED": "Actief (Minimale looptijd)",
+          "ACTIVE_LEVEL": "Actieve level",
+          "ENDTIME": "Einde tijd",
+          "ENERGY": "Energie",
+          "GUARANTEE_MINIMUM_HEATING": "Minimale verwarming garanderen",
+          "HEATINGELEMENT": "Verwarmingselement",
+          "MINIMAL_ENERGY_AMOUNT": "Minimale hoeveelheid energie",
+          "MINIMUM_RUN_TIME": "Minimale looptijd",
+          "PRIORITY": "Prioriteit",
+          "TIME": "Tijd",
+          "TIME_COUNTDOWN": "Tijd om te beginnen"
         },
-        "HeatPump": {
-          "aboveSoc": "en van staat van last van",
-          "belowSoc": "en onder staat van beschuldiging van",
-          "gridBuy": "Vanaf netaankoop van",
-          "gridSell": "Van overtollige toevoer van",
-          "lock": "Slot",
-          "moreThanHpPower": "De waarde mag niet lager zijn dan het maximale vermogen van de warmtepomp",
-          "normalOperation": "Normale operatie",
-          "relationError": "Overwaarde inschakelcommando moet groter zijn dan aanbevolen inschakelwaarde",
-          "switchOnCom": "Inschakelcommando",
-          "switchOnRec": "Inschakeladvies",
-          "undefined": "Ongedefinieerd",
-          "normalOperationShort": "",
-          "switchOnComShort": "",
-          "switchOnRecShort": ""
+        "HEAT_PUMP": {
+          "ABOVE_SOC": "en van staat van last van",
+          "BELOW_SOC": "en onder staat van beschuldiging van",
+          "GRID_BUY": "Vanaf netaankoop van",
+          "GRID_SELL": "Van overtollige toevoer van",
+          "LOCK": "Slot",
+          "MORE_THAN_HP_POWER": "De waarde mag niet lager zijn dan het maximale vermogen van de warmtepomp",
+          "NORMAL_OPERATION": "Normale operatie",
+          "RELATION_ERROR": "Overwaarde inschakelcommando moet groter zijn dan aanbevolen inschakelwaarde",
+          "SWITCH_ON_COM": "Inschakelcommando",
+          "SWITCH_ON_REC": "Inschakeladvies",
+          "UNDEFINED": "Ongedefinieerd",
+          "NORMAL_OPERATION_SHORT": "",
+          "SWITCH_ON_COM_SHORT": "",
+          "SWITCH_ON_REC_SHORT": ""
         }
       }
     },
-    "History": {
-      "beginDate": "Selecteer startdatum",
-      "day": "Dag",
-      "endDate": "Selecteer einddatum",
-      "export": "download als Excel-bestand",
-      "go": "Ga!",
-      "lastMonth": "Vorige maand",
-      "lastWeek": "Vorige week",
-      "lastYear": "Vorig jaar",
-      "month": "Maand",
-      "noData": "geen gegevens beschikbaar",
-      "tryAgain": "Probeer het later nog eens...",
-      "otherPeriod": "Andere periode",
-      "period": "Periode",
-      "selectedDay": "{{ value }}",
-      "selectedPeriod": "Geselecteerde periode:",
-      "today": "Vandaag",
-      "week": "Woche",
-      "year": "Jaar",
-      "yesterday": "Gisteren",
-      "sun": "Zon",
-      "mon": "Maa",
-      "tue": "Din",
-      "wed": "Woe",
-      "thu": "Don",
-      "fri": "Vri",
-      "sat": "Zat",
-      "jan": "Jan",
-      "feb": "Feb",
-      "mar": "Maa",
-      "apr": "Apr",
-      "may": "Mei",
-      "jun": "Jun",
-      "jul": "Jul",
-      "aug": "Aug",
-      "sep": "Sep",
-      "oct": "Okt",
-      "nov": "Nov",
-      "dec": "Dec",
-      "activeDuration": "actieve duur"
+    "HISTORY": {
+      "BEGIN_DATE": "Selecteer startdatum",
+      "DAY": "Dag",
+      "END_DATE": "Selecteer einddatum",
+      "EXPORT": "download als Excel-bestand",
+      "GO": "Ga!",
+      "LAST_MONTH": "Vorige maand",
+      "LAST_WEEK": "Vorige week",
+      "LAST_YEAR": "Vorig jaar",
+      "MONTH": "Maand",
+      "NO_DATA": "geen gegevens beschikbaar",
+      "TRY_AGAIN": "Probeer het later nog eens...",
+      "OTHER_PERIOD": "Andere periode",
+      "PERIOD": "Periode",
+      "SELECTED_DAY": "{{ value }}",
+      "SELECTED_PERIOD": "Geselecteerde periode:",
+      "TODAY": "Vandaag",
+      "WEEK": "Woche",
+      "YEAR": "Jaar",
+      "YESTERDAY": "Gisteren",
+      "SUN": "Zon",
+      "MON": "Maa",
+      "TUE": "Din",
+      "WED": "Woe",
+      "THU": "Don",
+      "FRI": "Vri",
+      "SAT": "Zat",
+      "JAN": "Jan",
+      "FEB": "Feb",
+      "MAR": "Maa",
+      "APR": "Apr",
+      "MAY": "Mei",
+      "JUN": "Jun",
+      "JUL": "Jul",
+      "AUG": "Aug",
+      "SEP": "Sep",
+      "OCT": "Okt",
+      "NOV": "Nov",
+      "DEC": "Dec",
+      "ACTIVE_DURATION": "actieve duur"
     },
-    "Installation": {
-      "attentionMessage": "Merk op dat de selectie achteraf niet ongedaan kan worden gemaakt.",
-      "backward": "achterwaarts",
-      "confirmAppSelection": "Weet u zeker dat u de volgende app wilt selecteren?",
-      "confirmAppSelectionLater": "Zijn ze er zeker van dat ze de selectie later maken?",
-      "forward": "voorwaarts",
-      "pleaseSelectOption": "Gelieve een optie te kiezen"
+    "INSTALLATION": {
+      "ATTENTION_MESSAGE": "Merk op dat de selectie achteraf niet ongedaan kan worden gemaakt.",
+      "BACKWARD": "achterwaarts",
+      "CONFIRM_APP_SELECTION": "Weet u zeker dat u de volgende app wilt selecteren?",
+      "CONFIRM_APP_SELECTION_LATER": "Zijn ze er zeker van dat ze de selectie later maken?",
+      "FORWARD": "voorwaarts",
+      "PLEASE_SELECT_OPTION": "Gelieve een optie te kiezen"
     },
-    "Config": {
-      "Index": {
-        "addComponents": "Componenten installeren",
-        "adjustComponents": "Componenten configureren",
-        "bridge": "Verbindingen en apparaten",
-        "controller": "Toepassingen",
-        "dataStorage": "Gegevensopslag",
-        "executeSimulator": "Simulatie uitvoeren",
-        "liveLog": "Live System log",
-        "log": "Log",
-        "manualControl": "Handmatige bediening",
-        "renameComponents": "Componenten hernoem",
-        "scheduler": "Toepassingsschema",
-        "simulator": "Simulator",
-        "systemExecute": "Voer systeemopdracht uit",
-        "systemProfile": "Systeemprofiel",
-        "alerting": "Waarschuwing",
-        "networkConfiguration": "Netwerk configuratie"
+    "CONFIG": {
+      "INDEX": {
+        "ADD_COMPONENTS": "Componenten installeren",
+        "ADJUST_COMPONENTS": "Componenten configureren",
+        "BRIDGE": "Verbindingen en apparaten",
+        "CONTROLLER": "Toepassingen",
+        "DATA_STORAGE": "Gegevensopslag",
+        "EXECUTE_SIMULATOR": "Simulatie uitvoeren",
+        "LIVE_LOG": "Live System log",
+        "LOG": "Log",
+        "MANUAL_CONTROL": "Handmatige bediening",
+        "RENAME_COMPONENTS": "Componenten hernoem",
+        "SCHEDULER": "Toepassingsschema",
+        "SIMULATOR": "Simulator",
+        "SYSTEM_EXECUTE": "Voer systeemopdracht uit",
+        "SYSTEM_PROFILE": "Systeemprofiel",
+        "ALERTING": "Waarschuwing",
+        "NETWORK_CONFIGURATION": "Netwerk configuratie"
       },
-      "More": {
-        "manualCommand": "Handmatig commando",
-        "manualpqPowerSpecification": "Gespecificeerd vermogen",
-        "manualpqReset": "Reset",
-        "manualpqSubmit": "Toepassen",
-        "refuInverter": "REFU inverter",
-        "refuStart": "Start",
-        "refuStartStop": "Inverter starten/ stoppen",
-        "refuStop": "Stop",
-        "send": "Verstuur"
+      "MORE": {
+        "MANUAL_COMMAND": "Handmatig commando",
+        "MANUALPQ_POWER_SPECIFICATION": "Gespecificeerd vermogen",
+        "MANUALPQ_RESET": "Reset",
+        "MANUALPQ_SUBMIT": "Toepassen",
+        "REFU_INVERTER": "REFU inverter",
+        "REFU_START": "Start",
+        "REFU_START_STOP": "Inverter starten/ stoppen",
+        "REFU_STOP": "Stop",
+        "SEND": "Verstuur"
       },
-      "Scheduler": {
-        "always": "Altijd",
-        "class": "Soort:",
-        "contact": "Dit zou niet mogen gebeuren. Neem contact op met <a href=\"mailto: {{ value }}\">{{ value }}</a>.",
-        "newScheduler": "New Schema...",
-        "notImplemented": "Gegevens niet geïmplementeerd:"
+      "SCHEDULER": {
+        "ALWAYS": "Altijd",
+        "CLASS": "Soort:",
+        "CONTACT": "Dit zou niet mogen gebeuren. Neem contact op met <a href=\"mailto: {{ value }}\">{{ value }}</a>.",
+        "NEW_SCHEDULER": "New Schema...",
+        "NOT_IMPLEMENTED": "Gegevens niet geïmplementeerd:"
       },
-      "Log": {
-        "automaticUpdating": "Automatisch updaten",
-        "level": "Niveau",
-        "message": "Bericht",
-        "source": "Bron",
-        "timestamp": "Tijdspit"
+      "LOG": {
+        "AUTOMATIC_UPDATING": "Automatisch updaten",
+        "LEVEL": "Niveau",
+        "MESSAGE": "Bericht",
+        "SOURCE": "Bron",
+        "TIMESTAMP": "Tijdspit"
       },
-      "Controller": {
-        "app": "App:",
-        "internallyID": "Intern ID:",
-        "priority": "Prioriteit:"
+      "CONTROLLER": {
+        "APP": "App:",
+        "INTERNALLY_ID": "Intern ID:",
+        "PRIORITY": "Prioriteit:"
       },
-      "Bridge": {
-        "newConnection": "Nieuwe verbinding...",
-        "newDevice": "Nieuw apparaat…"
+      "BRIDGE": {
+        "NEW_CONNECTION": "Nieuwe verbinding...",
+        "NEW_DEVICE": "Nieuw apparaat…"
       },
       "ALERTING": {
         "ACTIVATE": "Activeer",
@@ -483,56 +483,56 @@
           "ERROR": "Fout bij het laden van de instellingen"
         }
       },
-      "App": {
-        "header": "De App Manager bevindt zich momenteel in een eerste testversie.",
-        "updateAvailable": "Er is een nieuwe {{ randShortName }} versie is beschikbaar! Gelieve de {{ edgeShortName }} bij te werken zodat alle nieuwe {{ edgeShortName }} Apps worden weergegeven in het App Center.",
-        "installed": "Geïnstalleerd",
-        "available": "Beschikbaar",
-        "incompatible": "Onverenigbaar",
-        "buyApp": "App kopen",
-        "modifyApp": "App wijzigen",
-        "createApp": "App installeren",
-        "deleteApp": "App verwijderen",
-        "updateApp": "App bijwerken",
-        "errorInstallable": "Installatiefouten",
-        "errorCompatible": "Compatibiliteitsfouten",
-        "notAvailable": "Niet beschikbaar"
+      "APP": {
+        "HEADER": "De App Manager bevindt zich momenteel in een eerste testversie.",
+        "UPDATE_AVAILABLE": "Er is een nieuwe {{ randShortName }} versie is beschikbaar! Gelieve de {{ edgeShortName }} bij te werken zodat alle nieuwe {{ edgeShortName }} Apps worden weergegeven in het App Center.",
+        "INSTALLED": "Geïnstalleerd",
+        "AVAILABLE": "Beschikbaar",
+        "INCOMPATIBLE": "Onverenigbaar",
+        "BUY_APP": "App kopen",
+        "MODIFY_APP": "App wijzigen",
+        "CREATE_APP": "App installeren",
+        "DELETE_APP": "App verwijderen",
+        "UPDATE_APP": "App bijwerken",
+        "ERROR_INSTALLABLE": "Installatiefouten",
+        "ERROR_COMPATIBLE": "Compatibiliteitsfouten",
+        "NOT_AVAILABLE": "Niet beschikbaar"
       }
     },
-    "Service": {
-      "entireSystem": "Hele systeem",
-      "Cell": {
-        "voltages": "Celspanningen",
-        "temperatures": "Celtemperaturen",
-        "insulation": "Isolatie"
+    "SERVICE": {
+      "ENTIRE_SYSTEM": "Hele systeem",
+      "CELL": {
+        "VOLTAGES": "Celspanningen",
+        "TEMPERATURES": "Celtemperaturen",
+        "INSULATION": "Isolatie"
       }
     },
-    "Network": {
-      "errorReadingConfiguration": "Fout bij lezen huidige netwerkconfiguratie:",
-      "mandatoryFields": "Gelieve de verplichte velden in te vullen",
-      "successUpdate": "Netwerkconfiguratie geüpdatet voor:",
-      "errorUpdating": "Fout bij updaten",
-      "ipAddress": "IP-adres",
-      "subnetmask": "Subnetmasker",
-      "addIP": "Statische IP-adressen toevoegen",
-      "validAddressWarning": "Voer bij 'Statische IP-adressen toevoegen' een geldig ip-adres in met netmasker, b.v. 10.4.1.6/24",
-      "advancedMode": "Geavanceerde modus"
+    "NETWORK": {
+      "ERROR_READING_CONFIGURATION": "Fout bij lezen huidige netwerkconfiguratie:",
+      "MANDATORY_FIELDS": "Gelieve de verplichte velden in te vullen",
+      "SUCCESS_UPDATE": "Netwerkconfiguratie geüpdatet voor:",
+      "ERROR_UPDATING": "Fout bij updaten",
+      "IP_ADDRESS": "IP-adres",
+      "SUBNETMASK": "Subnetmasker",
+      "ADD_IP": "Statische IP-adressen toevoegen",
+      "VALID_ADDRESS_WARNING": "Voer bij 'Statische IP-adressen toevoegen' een geldig ip-adres in met netmasker, b.v. 10.4.1.6/24",
+      "ADVANCED_MODE": "Geavanceerde modus"
     }
   },
-  "About": {
-    "build": "Versie",
-    "currentDevelopments": "Huidige ontwikkelingen",
-    "developed": "Deze gebruikersinterface is ontwikkeld als open-source-software.",
-    "faq": "Veel Gestelde Vragen (FAQ)",
-    "language": "Selecteer taal:",
-    "openEMS": "Meer over OpenEMS",
-    "patchnotes": "Veranderingen in de monitoring voor deze build"
+  "ABOUT": {
+    "BUILD": "Versie",
+    "CURRENT_DEVELOPMENTS": "Huidige ontwikkelingen",
+    "DEVELOPED": "Deze gebruikersinterface is ontwikkeld als open-source-software.",
+    "FAQ": "Veel Gestelde Vragen (FAQ)",
+    "LANGUAGE": "Selecteer taal:",
+    "OPENEMS": "Meer over OpenEMS",
+    "PATCHNOTES": "Veranderingen in de monitoring voor deze build"
   },
-  "Notifications": {
-    "authenticationFailed": "Geen verbinding.Autorisatie mislukt.",
-    "closed": "Verbinding beëindigd.",
-    "failed": "Verbinding mislukt.",
-    "loggedIn": "Aangemeld.",
-    "loggedInAs": "Aangemeld als gebruiker {{ value }}."
+  "NOTIFICATIONS": {
+    "AUTHENTICATION_FAILED": "Geen verbinding.Autorisatie mislukt.",
+    "CLOSED": "Verbinding beëindigd.",
+    "FAILED": "Verbinding mislukt.",
+    "LOGGED_IN": "Aangemeld.",
+    "LOGGED_IN_AS": "Aangemeld als gebruiker {{ value }}."
   }
 }

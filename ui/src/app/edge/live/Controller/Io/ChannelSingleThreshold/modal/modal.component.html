@@ -19,12 +19,12 @@
             <table class="full_width">
               <tr>
                 <td style="width: 65%" translate>
-                  General.state
+                  GENERAL.STATE
                 </td>
                 <td style="width: 35%" class="align_right">
                   <ng-container [ngSwitch]="currentData.channel[outputChannel]">
-                    <span *ngSwitchCase="1" translate>General.on</span>
-                    <span *ngSwitchCase="0" translate>General.off</span>
+                    <span *ngSwitchCase="1" translate>GENERAL.ON</span>
+                    <span *ngSwitchCase="0" translate>GENERAL.OFF</span>
                     <ion-icon *ngSwitchDefault name="help-outline"></ion-icon>
                   </ng-container>
                 </td>
@@ -36,27 +36,27 @@
             <table class="full_width">
               <tr>
                 <td style="width: 65%" translate>
-                  General.mode
+                  GENERAL.MODE
                 </td>
               </tr>
             </table>
             <ion-segment (ionChange)="updateMode($event)" value="{{ component.properties['mode'] }}" scrollable="false">
               <ion-segment-button value="ON">
                 <ion-label translate>
-                  General.on
+                  GENERAL.ON
                 </ion-label>
                 <ion-icon color="success" style="width:40px" name="power-outline"></ion-icon>
               </ion-segment-button>
               <ion-segment-button value="AUTOMATIC">
                 <ion-label translate>
-                  General.automatic
+                  GENERAL.AUTOMATIC
                 </ion-label>
                 <ion-icon style="width:40px" name="sunny-outline">
                 </ion-icon>
               </ion-segment-button>
               <ion-segment-button value="OFF">
                 <ion-label translate>
-                  General.off
+                  GENERAL.OFF
                 </ion-label>
                 <ion-icon name="power-outline" style="width: 40px"></ion-icon>
               </ion-segment-button>
@@ -69,10 +69,10 @@
                   <table class="full_width">
                     <tr>
                       <td style="width: 50%" translate>
-                        Edge.Index.Widgets.Singlethreshold.dependendOn
+                        EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.DEPENDEND_ON
                       </td>
                       <td style="width: 50%" class="align_right">
-                        <span translate>Edge.Index.Widgets.Singlethreshold.other</span>
+                        <span translate>EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.OTHER</span>
                         ({{ component.properties.inputChannelAddress }})
                       </td>
                     </tr>
@@ -84,14 +84,14 @@
                   <ion-row>
                     <ion-col class="ion-no-padding" size="12">
                       <ion-item lines="none" class="noPadding">
-                        <ion-label class="regularFont" translate>Edge.Index.Widgets.Singlethreshold.dependendOn
+                        <ion-label class="regularFont" translate>EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.DEPENDEND_ON
                         </ion-label>
                         <ion-select formControlName="inputMode" [value]="inputMode.value"
                           (ionChange)="updateInputMode($event)">
-                          <ion-select-option value="SOC" translate>General.soc</ion-select-option>
-                          <ion-select-option value="PRODUCTION" translate>General.production</ion-select-option>
-                          <ion-select-option value="GRIDSELL" translate>General.gridSell</ion-select-option>
-                          <ion-select-option value="GRIDBUY" translate>General.gridBuy</ion-select-option>
+                          <ion-select-option value="SOC" translate>GENERAL.SOC</ion-select-option>
+                          <ion-select-option value="PRODUCTION" translate>GENERAL.PRODUCTION</ion-select-option>
+                          <ion-select-option value="GRIDSELL" translate>GENERAL.GRID_SELL</ion-select-option>
+                          <ion-select-option value="GRIDBUY" translate>GENERAL.GRID_BUY</ion-select-option>
                         </ion-select>
                       </ion-item>
                     </ion-col>
@@ -104,7 +104,7 @@
                   <table class="full_width">
                     <tr>
                       <td style="width: 65%" translate>
-                        Edge.Index.Widgets.Singlethreshold.switchedLoadPower
+                        EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCHED_LOAD_POWER
                       </td>
                       <td style="width: 35%" class="align_right">
                         <ion-item lines="inset" class="noPadding">
@@ -121,7 +121,7 @@
                     <tr>
                       <td style="width: 100%">
                         <ion-text color="danger" translate>
-                          Edge.Index.Widgets.Singlethreshold.moreThanMaxPower
+                          EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.MORE_THAN_MAX_POWER
                         </ion-text>
                       </td>
                     </tr>
@@ -133,7 +133,7 @@
                 <table class="full_width">
                   <tr>
                     <td style="width: 65%" translate>
-                      Edge.Index.Widgets.Singlethreshold.currentValue</td>
+                      EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.CURRENT_VALUE</td>
                     <ng-container [ngSwitch]="inputMode.value">
                       <td style="width: 35%" class="align_right" *ngSwitchCase="'SOC'">
                         {{ sum.storage.soc | unitvalue:'%' }}
@@ -160,7 +160,7 @@
                   <table class="full_width">
                     <tr>
                       <td style="width: 65%;" translate>
-                        Edge.Index.Widgets.Singlethreshold.threshold</td>
+                        EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.THRESHOLD</td>
                       <td style="width: 35%" class="align_right">
                         {{ threshold.value | unitvalue:'%' }}
                       </td>
@@ -184,7 +184,7 @@
                   <table class="full_width">
                     <tr>
                       <td style="width: 65%" translate>
-                        Edge.Index.Widgets.Singlethreshold.threshold
+                        EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.THRESHOLD
                       </td>
                       <td style="width: 35%" class="align_right">
                         <ion-item lines="inset" class="noPadding">
@@ -209,7 +209,7 @@
                 <table class="full_width">
                   <tr>
                     <td style="width: 65%" translate>
-                      Edge.Index.Widgets.Singlethreshold.behaviour
+                      EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.BEHAVIOUR
                     </td>
                   </tr>
                 </table>
@@ -219,11 +219,11 @@
                   <ion-segment-button value="false">
                     <ion-label>
                       <ng-container *ngIf="inputMode.value === 'SOC'; else noSocFalse">
-                        <span translate>Edge.Index.Widgets.Singlethreshold.switchOnAbove</span>
+                        <span translate>EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_ABOVE</span>
                         {{ threshold.value | unitvalue:'%' }}
                       </ng-container>
                       <ng-template #noSocFalse>
-                        <span translate>Edge.Index.Widgets.Singlethreshold.switchOnAbove</span>
+                        <span translate>EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_ABOVE</span>
                         {{ threshold.value | unitvalue:'W'}}
                       </ng-template>
                     </ion-label>
@@ -232,11 +232,11 @@
                   <ion-segment-button value="true">
                     <ion-label>
                       <ng-container *ngIf="inputMode.value === 'SOC'; else noSocTrue">
-                        <span translate>Edge.Index.Widgets.Singlethreshold.switchOnBelow</span>
+                        <span translate>EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_BELOW</span>
                         {{ threshold.value | unitvalue:'%' }}
                       </ng-container>
                       <ng-template #noSocTrue>
-                        <span translate>Edge.Index.Widgets.Singlethreshold.switchOnBelow</span>
+                        <span translate>EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_BELOW</span>
                         {{ threshold.value | unitvalue:'W' }}
                       </ng-template>
                     </ion-label>
@@ -248,14 +248,14 @@
                   [value]="invert.value">
                   <ion-segment-button value="true">
                     <ion-label>
-                      <span translate>Edge.Index.Widgets.Singlethreshold.switchOnAbove</span>
+                      <span translate>EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_ABOVE</span>
                       {{ threshold.value | unitvalue:'W' }}
                     </ion-label>
                     <ion-icon style="width:40px" name="arrow-up-outline"></ion-icon>
                   </ion-segment-button>
                   <ion-segment-button value="false">
                     <ion-label>
-                      <span translate>Edge.Index.Widgets.Singlethreshold.switchOnBelow</span>
+                      <span translate>EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_BELOW</span>
                       {{ threshold.value | unitvalue:'W' }}
                     </ion-label>
                     <ion-icon style="width:40px" name="arrow-down-outline"></ion-icon>
@@ -267,7 +267,7 @@
                 <table class="full_width">
                   <tr>
                     <td style="width: 65%" translate>
-                      Edge.Index.Widgets.Singlethreshold.minSwitchingTime
+                      EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.MIN_SWITCHING_TIME
                     </td>
                     <td style="width: 35%" class="align_right">
                       <ion-item lines="inset" class="noPadding">

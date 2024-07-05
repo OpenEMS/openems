@@ -68,7 +68,7 @@ export class SystemExecuteComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.systemExecute' }, this.route);
+    this.service.setCurrentComponent({ languageKey: 'EDGE.CONFIG.INDEX.SYSTEM_EXECUTE' }, this.route);
     this.form = this.formBuilder.group({
       username: new FormControl("root"),
       password: new FormControl(""),

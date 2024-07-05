@@ -254,7 +254,7 @@ export abstract class AbstractHistoryChart {
      * @param spinnerSelector to stop spinner
      */
     protected initializeChart() {
-        EMPTY_DATASET[0].label = this.translate.instant('Edge.History.noData');
+        EMPTY_DATASET[0].label = this.translate.instant('EDGE.HISTORY.NO_DATA');
         this.datasets = EMPTY_DATASET;
         this.labels = [];
         this.loading = false;

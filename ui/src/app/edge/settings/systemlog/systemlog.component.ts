@@ -10,7 +10,7 @@ import { Service, Utils, Websocket } from '../../../shared/shared';
 import { Role } from 'src/app/shared/type/role';
 
 export const LOG_LEVEL_FILTER = (translate: TranslateService): Filter => ({
-  placeholder: translate.instant("Edge.Config.Log.level"),
+  placeholder: translate.instant("EDGE.CONFIG.LOG.LEVEL"),
   category: "level",
   options: [
     {
@@ -18,15 +18,15 @@ export const LOG_LEVEL_FILTER = (translate: TranslateService): Filter => ({
       value: "DEBUG",
     },
     {
-      name: translate.instant('General.info'),
+      name: translate.instant('GENERAL.INFO'),
       value: "INFO",
     },
     {
-      name: translate.instant('General.warning'),
+      name: translate.instant('GENERAL.WARNING'),
       value: "WARN",
     },
     {
-      name: translate.instant("General.fault"),
+      name: translate.instant("GENERAL.FAULT"),
       value: "ERROR",
     },
   ],
@@ -108,9 +108,9 @@ export class SystemLogComponent implements OnInit, OnDestroy {
         edge.updateComponentConfig(this.websocket, SystemLogComponent.DEBUG_LOG_CONTROLLER_ID, [{
           name: 'condensedOutput', value: event.detail['checked'],
         }]).then(() => {
-          this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+          this.service.toast(this.translate.instant('GENERAL.CHANGE_ACCEPTED'), 'success');
         }).catch((reason) => {
-          this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+          this.service.toast(this.translate.instant('GENERAL.CHANGE_FAILED') + '\n' + reason.error.message, 'danger');
         }));
   }
 

@@ -80,7 +80,7 @@ export class ChartComponent extends AbstractHistoryChart {
       output: (data: HistoryUtils.ChannelData) => {
         return [
           {
-            name: translate.instant('General.production'),
+            name: translate.instant('GENERAL.PRODUCTION'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data['_sum/ProductionActiveEnergy'],
             converter: () => data['ProductionActivePower'],
             color: 'rgb(45,143,171)',
@@ -91,7 +91,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
           // DirectConsumption, displayed in stack 1 & 2, only one legenItem
           ...[chartType === 'bar' && {
-            name: translate.instant('General.directConsumption'),
+            name: translate.instant('GENERAL.DIRECT_CONSUMPTION'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
               return Utils.subtractSafely(energyValues.result.data['_sum/ProductionActiveEnergy'], energyValues.result.data['_sum/GridSellActiveEnergy'], energyValues.result.data['_sum/EssDcChargeEnergy']);
             },
@@ -105,7 +105,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
           // Charge Power
           {
-            name: translate.instant('General.chargePower'),
+            name: translate.instant('GENERAL.CHARGE_POWER'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data['_sum/EssDcChargeEnergy'],
             converter: () => chartType === 'line' //
               ? data['EssCharge']?.map((value, index) => {
@@ -118,7 +118,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
           // Discharge Power
           {
-            name: translate.instant('General.dischargePower'),
+            name: translate.instant('GENERAL.DISCHARGE_POWER'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data['_sum/EssDcDischargeEnergy'],
             converter: () => {
               return chartType === 'line' ?
@@ -133,7 +133,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
           // Sell to grid
           {
-            name: translate.instant('General.gridSellAdvanced'),
+            name: translate.instant('GENERAL.GRID_SELL_ADVANCED'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data['_sum/GridSellActiveEnergy'],
             converter: () => data['GridSell'],
             color: 'rgb(0,0,200)',
@@ -143,7 +143,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
           // Buy from Grid
           {
-            name: translate.instant('General.gridBuyAdvanced'),
+            name: translate.instant('GENERAL.GRID_BUY_ADVANCED'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data['_sum/GridBuyActiveEnergy'],
             converter: () => data['GridBuy'],
             color: 'rgb(0,0,0)',
@@ -153,7 +153,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
           // Consumption
           {
-            name: translate.instant('General.consumption'),
+            name: translate.instant('GENERAL.CONSUMPTION'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data['_sum/ConsumptionActiveEnergy'],
             converter: () => data['Consumption'],
             color: 'rgb(253,197,7)',
@@ -163,7 +163,7 @@ export class ChartComponent extends AbstractHistoryChart {
           },
           ...[chartType === 'line' &&
           {
-            name: translate.instant('General.soc'),
+            name: translate.instant('GENERAL.SOC'),
             converter: () => data['EssSoc']?.map(value => Utils.multiplySafely(value, 1000)),
             color: 'rgb(189, 195, 199)',
             borderDash: [10, 10],
@@ -179,9 +179,9 @@ export class ChartComponent extends AbstractHistoryChart {
         formatNumber: '1.0-2',
         afterTitle: (stack: string) => {
           if (stack === "1") {
-            return translate.instant('General.production');
+            return translate.instant('GENERAL.PRODUCTION');
           } else if (stack === "2") {
-            return translate.instant('General.consumption');
+            return translate.instant('GENERAL.CONSUMPTION');
           }
           return null;
         },

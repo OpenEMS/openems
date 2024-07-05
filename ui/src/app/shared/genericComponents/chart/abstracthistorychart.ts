@@ -857,11 +857,11 @@ export abstract class AbstractHistoryChart implements OnInit {
           return '';
         }
 
-        return translate.instant('Edge.Index.Widgets.Channeltreshold.ACTIVE_TIME_OVER_PERIOD');
+        return translate.instant('EDGE.INDEX.WIDGETS.CHANNELTRESHOLD.ACTIVE_TIME_OVER_PERIOD');
       case YAxisTitle.TIME:
-        return translate.instant('Edge.Index.Widgets.Channeltreshold.ACTIVE_TIME_OVER_PERIOD');
+        return translate.instant('EDGE.INDEX.WIDGETS.CHANNELTRESHOLD.ACTIVE_TIME_OVER_PERIOD');
       case YAxisTitle.PERCENTAGE:
-        return translate.instant('General.percentage');
+        return translate.instant('GENERAL.PERCENTAGE');
       case YAxisTitle.ENERGY:
         if (chartType == 'bar') {
           return 'kWh';

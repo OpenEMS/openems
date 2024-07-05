@@ -74,7 +74,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                             } else {
                                 if (channelAddress.channelId == "ActivePower") {
                                     datasets.push({
-                                        label: this.translate.instant('General.chargeDischarge'),
+                                        label: this.translate.instant('GENERAL.CHARGE_DISCHARGE'),
                                         data: data,
                                         hidden: false,
                                     });
@@ -86,21 +86,21 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                                 if (this.componentId + '/ActivePowerL1' && this.componentId + '/ActivePowerL2' && this.componentId + '/ActivePowerL3' in result.data && this.showPhases == true) {
                                     if (channelAddress.channelId == 'ActivePowerL1') {
                                         datasets.push({
-                                            label: this.translate.instant('General.phase') + ' ' + 'L1',
+                                            label: this.translate.instant('GENERAL.PHASE') + ' ' + 'L1',
                                             data: data,
                                         });
                                         this.colors.push(this.phase1Color);
                                     }
                                     if (channelAddress.channelId == 'ActivePowerL2') {
                                         datasets.push({
-                                            label: this.translate.instant('General.phase') + ' ' + 'L2',
+                                            label: this.translate.instant('GENERAL.PHASE') + ' ' + 'L2',
                                             data: data,
                                         });
                                         this.colors.push(this.phase2Color);
                                     }
                                     if (channelAddress.channelId == 'ActivePowerL3') {
                                         datasets.push({
-                                            label: this.translate.instant('General.phase') + ' ' + 'L3',
+                                            label: this.translate.instant('GENERAL.PHASE') + ' ' + 'L3',
                                             data: data,
                                         });
                                         this.colors.push(this.phase3Color);

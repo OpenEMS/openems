@@ -1,91 +1,91 @@
 {
-  "General": {
-    "active": "Activé",
-    "actualPower": "Puissance de décharge VE",
-    "apply": "Apply",
-    "autarchy": "Autarcie",
-    "automatic": "Automatiquement",
-    "cancel": "cancel",
-    "capacity": "Capacité",
-    "numberOfComponents": "nombre de composants",
-    "changeAccepted": "Changement accepté",
-    "changeFailed": "Changement échoué",
-    "chargeDischarge": "Puissance de Charge/Décharge",
-    "chargePower": "Puissance de charge",
-    "componentInactive": "Component is not active!",
-    "connectionLost": "Connection lost. Trying to reconnect.",
-    "consumption": "Consommation",
-    "cumulative": "Valeurs cummulées",
-    "currentName": "current name",
-    "currentValue": "current value",
-    "dateFormat": "yyyy-MM-dd",
-    "dischargePower": "Puissance de décharge",
-    "digitalInputs": "Entrées numériques",
-    "fault": "Fault",
-    "grid": "Réseau",
-    "gridBuy": "Acheté sur le réseau",
-    "gridBuyAdvanced": "Achete",
-    "gridSell": "Vendu sur le réseau",
-    "gridSellAdvanced": "Vends",
+  "GENERAL": {
+    "ACTIVE": "Activé",
+    "ACTUAL_POWER": "Puissance de décharge VE",
+    "APPLY": "Apply",
+    "AUTARCHY": "Autarcie",
+    "AUTOMATIC": "Automatiquement",
+    "CANCEL": "cancel",
+    "CAPACITY": "Capacité",
+    "NUMBER_OF_COMPONENTS": "nombre de composants",
+    "CHANGE_ACCEPTED": "Changement accepté",
+    "CHANGE_FAILED": "Changement échoué",
+    "CHARGE_DISCHARGE": "Puissance de Charge/Décharge",
+    "CHARGE_POWER": "Puissance de charge",
+    "COMPONENT_INACTIVE": "Component is not active!",
+    "CONNECTION_LOST": "Connection lost. Trying to reconnect.",
+    "CONSUMPTION": "Consommation",
+    "CUMULATIVE": "Valeurs cummulées",
+    "CURRENT_NAME": "current name",
+    "CURRENT_VALUE": "current value",
+    "DATE_FORMAT": "yyyy-MM-dd",
+    "DISCHARGE_POWER": "Puissance de décharge",
+    "DIGITAL_INPUTS": "Entrées numériques",
+    "FAULT": "Fault",
+    "GRID": "Réseau",
+    "GRID_BUY": "Acheté sur le réseau",
+    "GRID_BUY_ADVANCED": "Achete",
+    "GRID_SELL": "Vendu sur le réseau",
+    "GRID_SELL_ADVANCED": "Vends",
     "HISTORY": "Historique",
-    "inactive": "Désactivé",
-    "info": "Info",
-    "inputNotValid": "Input not valid",
-    "insufficientRights": "Droits insuffisants",
+    "INACTIVE": "Désactivé",
+    "INFO": "Info",
+    "INPUT_NOT_VALID": "Input not valid",
+    "INSUFFICIENT_RIGHTS": "Droits insuffisants",
     "LIVE": "Direct",
-    "load": "Charge",
-    "manually": "Manuellement",
-    "measuredValue": "Measured Value",
-    "mode": "Mode",
-    "more": "Plus...",
-    "noValue": "Aucune valeurs",
-    "off": "Off",
-    "offGrid": "Pas de connection au réseau!",
-    "ok": "ok",
-    "on": "On",
-    "otherConsumption": "autre consommation",
-    "percentage": "Pourcentage",
-    "periodFromTo": "de {{ value1 }} à {{ value2 }}",
-    "phase": "Phase",
-    "phases": "Phases",
-    "power": "Puissance",
-    "production": "Production",
-    "rename": "Rename",
-    "reportValue": "Report corrupted data",
-    "reset": "Reset",
-    "search": "Recherche",
-    "selfConsumption": "Auto Consommation",
-    "soc": "état de charge",
-    "state": "Etat",
-    "storageSystem": "Système de stockage",
+    "LOAD": "Charge",
+    "MANUALLY": "Manuellement",
+    "MEASURED_VALUE": "Measured Value",
+    "MODE": "Mode",
+    "MORE": "Plus...",
+    "NO_VALUE": "Aucune valeurs",
+    "OFF": "Off",
+    "OFF_GRID": "Pas de connection au réseau!",
+    "OK": "ok",
+    "ON": "On",
+    "OTHER_CONSUMPTION": "autre consommation",
+    "PERCENTAGE": "Pourcentage",
+    "PERIOD_FROM_TO": "de {{ value1 }} à {{ value2 }}",
+    "PHASE": "Phase",
+    "PHASES": "Phases",
+    "POWER": "Puissance",
+    "PRODUCTION": "Production",
+    "RENAME": "Rename",
+    "REPORT_VALUE": "Report corrupted data",
+    "RESET": "Reset",
+    "SEARCH": "Recherche",
+    "SELF_CONSUMPTION": "Auto Consommation",
+    "SOC": "état de charge",
+    "STATE": "Etat",
+    "STORAGE_SYSTEM": "Système de stockage",
     "SYSTEM_STATE": "État du système",
     "TOTAL": "Total",
-    "totalState": "Total state",
-    "warning": "Warning",
-    "Week": {
-      "monday": "Lundi",
-      "tuesday": "Mardi",
-      "wednesday": "Mercredi",
-      "thursday": "Jeudi",
-      "friday": "Vendredi",
-      "saturday": "Samedi",
-      "sunday": "Dimanche"
+    "TOTAL_STATE": "Total state",
+    "WARNING": "Warning",
+    "WEEK": {
+      "MONDAY": "Lundi",
+      "TUESDAY": "Mardi",
+      "WEDNESDAY": "Mercredi",
+      "THURSDAY": "Jeudi",
+      "FRIDAY": "Vendredi",
+      "SATURDAY": "Samedi",
+      "SUNDAY": "Dimanche"
     },
-    "Month": {
-      "january": "January",
-      "february": "February",
-      "march": "March",
-      "april": "April",
-      "may": "May",
-      "june": "June",
-      "july": "July",
-      "august": "August",
-      "september": "September",
-      "october": "October",
-      "november": "November",
-      "december": "December"
+    "MONTH": {
+      "JANUARY": "January",
+      "FEBRUARY": "February",
+      "MARCH": "March",
+      "APRIL": "April",
+      "MAY": "May",
+      "JUNE": "June",
+      "JULY": "July",
+      "AUGUST": "August",
+      "SEPTEMBER": "September",
+      "OCTOBER": "October",
+      "NOVEMBER": "November",
+      "DECEMBER": "December"
     },
-    "save": "sauvegarder",
+    "SAVE": "sauvegarder",
     "TIME": {
       "HOUR": "Heure",
       "HOURS": "Heures",
@@ -95,390 +95,390 @@
       "DAYS": "Journées"
     }
   },
-  "Menu": {
-    "accessLevel": "Niveau d'accès",
-    "edgeSettings": "Réglages",
-    "generalSettings": "Réglages généraux",
-    "index": "Index",
-    "logout": "Déconnexion",
-    "menu": "Menu",
-    "name": "Nom",
-    "overview": "Tous les systèmes",
-    "profile": "Utilisateur",
-    "settings": "Réglages",
-    "changelog": "Changelog",
-    "otherUser": "Autres utilisateurs"
+  "MENU": {
+    "ACCESS_LEVEL": "Niveau d'accès",
+    "EDGE_SETTINGS": "Réglages",
+    "GENERAL_SETTINGS": "Réglages généraux",
+    "INDEX": "Index",
+    "LOGOUT": "Déconnexion",
+    "MENU": "Menu",
+    "NAME": "Nom",
+    "OVERVIEW": "Tous les systèmes",
+    "PROFILE": "Utilisateur",
+    "SETTINGS": "Réglages",
+    "CHANGELOG": "Changelog",
+    "OTHER_USER": "Autres utilisateurs"
   },
-  "Index": {
-    "allConnected": "Toutes les connections sont établies.",
-    "connectionInProgress": "Établir la connexion...",
-    "connectionSuccessful": "Connecté avec succès à {{ value }}.",
-    "connectionFailed": "Connection avec {{ value }} échouée.",
-    "deviceOffline": "Ld'appareil n d'est pas connecté!",
-    "isOffline": "OpenEMS est hors ligne!",
+  "INDEX": {
+    "ALL_CONNECTED": "Toutes les connections sont établies.",
+    "CONNECTION_IN_PROGRESS": "Établir la connexion...",
+    "CONNECTION_SUCCESSFUL": "Connecté avec succès à {{ value }}.",
+    "CONNECTION_FAILED": "Connection avec {{ value }} échouée.",
+    "DEVICE_OFFLINE": "Ld'appareil n d'est pas connecté!",
+    "IS_OFFLINE": "OpenEMS est hors ligne!",
     "LOGGED_IN_AS": "Enregistré en tant que",
-    "toEnergymonitor": "Vers le moniteur d'énergie...",
+    "TO_ENERGYMONITOR": "Vers le moniteur d'énergie...",
     "TYPE": "Type"
   },
-  "Login": {
-    "title": "Login",
-    "preamble": "Veuillez saisir votre mot de passe ou confirmer l'entrée par défaut pour vous connecter en tant qu'invité.",
-    "passwordLabel": "mot de passe",
-    "passwordReset": "Réinitialiser le mot de passe",
-    "authenticationFailed": "Échec de l'authentification",
-    "user": "Utilisateur"
+  "LOGIN": {
+    "TITLE": "Login",
+    "PREAMBLE": "Veuillez saisir votre mot de passe ou confirmer l'entrée par défaut pour vous connecter en tant qu'invité.",
+    "PASSWORD_LABEL": "mot de passe",
+    "PASSWORD_RESET": "Réinitialiser le mot de passe",
+    "AUTHENTICATION_FAILED": "Échec de l'authentification",
+    "USER": "Utilisateur"
   },
-  "Register": {
-    "segment": {
-      "user": "Utilisateur",
-      "installer": "Installateur"
+  "REGISTER": {
+    "SEGMENT": {
+      "USER": "Utilisateur",
+      "INSTALLER": "Installateur"
     },
-    "Form": {
-      "user": {
-        "acceptPrivacyPolicy": ""
+    "FORM": {
+      "USER": {
+        "ACCEPT_PRIVACY_POLICY": ""
       },
-      "installer": {
-        "acceptPrivacyPolicy": ""
+      "INSTALLER": {
+        "ACCEPT_PRIVACY_POLICY": ""
       },
-      "contactDetails": "Coordonnées",
-      "companyName": "Nom de la société",
-      "firstname": "Prénom",
-      "lastname": "Nom de famille",
-      "street": "Rue | Numéro de maison",
-      "zip": "Code postal",
-      "city": "Ville",
-      "country": "Pays",
-      "phone": "Numéro de téléphone",
-      "email": "Courrier électronique.",
-      "password": "Mot de passe.",
-      "confirmPassword": "Confirmer le mot de passe."
+      "CONTACT_DETAILS": "Coordonnées",
+      "COMPANY_NAME": "Nom de la société",
+      "FIRSTNAME": "Prénom",
+      "LASTNAME": "Nom de famille",
+      "STREET": "Rue | Numéro de maison",
+      "ZIP": "Code postal",
+      "CITY": "Ville",
+      "COUNTRY": "Pays",
+      "PHONE": "Numéro de téléphone",
+      "EMAIL": "Courrier électronique.",
+      "PASSWORD": "Mot de passe.",
+      "CONFIRM_PASSWORD": "Confirmer le mot de passe."
     },
-    "button": "Créer",
-    "errors": {
-      "requiredFields": "Veuillez remplir tous les champs",
-      "passwordNotEqual": "Les mots de passe ne sont pas égaux."
+    "BUTTON": "Créer",
+    "ERRORS": {
+      "REQUIRED_FIELDS": "Veuillez remplir tous les champs",
+      "PASSWORD_NOT_EQUAL": "Les mots de passe ne sont pas égaux."
     },
-    "success": "Inscription réussie"
+    "SUCCESS": "Inscription réussie"
   },
-  "Edge": {
-    "Index": {
-      "EmergencyReserve": {
+  "EDGE": {
+    "INDEX": {
+      "EMERGENCY_RESERVE": {
         "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "En activant la réserve d'énergie de secours, la valeur peut être librement choisie entre 5 % et 100 %.",
         "EMERGENCY_RESERVE": "réserve d'urgence"
       },
-      "Energymonitor": {
-        "activePower": "Puissance Active",
-        "consumptionWarning": "Consommation & production inconnue",
-        "gridMeter": "Compteur Réseau",
-        "productionMeter": "Compteur production",
-        "reactivePower": "Puissance Réactive",
-        "storage": "Stockage",
-        "storageCharge": "Stockage-Charge",
-        "storageDischarge": "Stockage-Décharge",
-        "title": "Moniteur d'énergie"
+      "ENERGYMONITOR": {
+        "ACTIVE_POWER": "Puissance Active",
+        "CONSUMPTION_WARNING": "Consommation & production inconnue",
+        "GRID_METER": "Compteur Réseau",
+        "PRODUCTION_METER": "Compteur production",
+        "REACTIVE_POWER": "Puissance Réactive",
+        "STORAGE": "Stockage",
+        "STORAGE_CHARGE": "Stockage-Charge",
+        "STORAGE_DISCHARGE": "Stockage-Décharge",
+        "TITLE": "Moniteur d'énergie"
       },
-      "Energytable": {
-        "title": "Tableau énergétique",
-        "loadingDC": "Charge DC",
-        "productionDC": "Production DC"
+      "ENERGYTABLE": {
+        "TITLE": "Tableau énergétique",
+        "LOADING_DC": "Charge DC",
+        "PRODUCTION_DC": "Production DC"
       },
-      "Widgets": {
-        "autarchyInfo": "L'AUtarcie indique le pourcentage de la puissance actuelle qui peut être couverte par la production et la décharge du stockage.",
-        "phasesInfo": "Pour des raisons technique, la somme des phases individuelles peut être légerement différente de la somme totale.",
-        "selfconsumptionInfo": "L'auto-consommation indique le pourcentage de la puissance générée actuellement qui peut être utilisé par une consommation directe et une recharge du stockage.",
-        "twoWayInfoGrid": "Les valeurs négatives correspondent à l'alimentation du réseau, Les valeurs positives correspondent à l'alimentation secteur",
-        "InfoStorageForCharge": "Les valeurs négatives correspondent au chargement de la mémoire",
-        "InfoStorageForDischarge": "Les valeurs positives correspondent à une décharge de la mémoire",
-        "Channeltreshold": {
-          "output": "Output"
+      "WIDGETS": {
+        "AUTARCHY_INFO": "L'AUtarcie indique le pourcentage de la puissance actuelle qui peut être couverte par la production et la décharge du stockage.",
+        "PHASES_INFO": "Pour des raisons technique, la somme des phases individuelles peut être légerement différente de la somme totale.",
+        "SELFCONSUMPTION_INFO": "L'auto-consommation indique le pourcentage de la puissance générée actuellement qui peut être utilisé par une consommation directe et une recharge du stockage.",
+        "TWO_WAY_INFO_GRID": "Les valeurs négatives correspondent à l'alimentation du réseau, Les valeurs positives correspondent à l'alimentation secteur",
+        "INFO_STORAGE_FOR_CHARGE": "Les valeurs négatives correspondent au chargement de la mémoire",
+        "INFO_STORAGE_FOR_DISCHARGE": "Les valeurs positives correspondent à une décharge de la mémoire",
+        "CHANNELTRESHOLD": {
+          "OUTPUT": "Output"
         },
-        "Singlethreshold": {
-          "above": "Above",
-          "behaviour": "Behaviour",
-          "below": "Below",
-          "currentValue": "Current value",
-          "dependendOn": "Dependend on",
-          "minSwitchingTime": "Minimum swichting time",
-          "moreThanMaxPower": "La valeur ne doit pas être inférieure à la puissance maximale de l appareil contrôlé",
-          "other": "Other",
-          "relationError": "Threshold must be greater than the switched load power",
-          "switchedLoadPower": "Switched load power",
-          "switchOffAbove": "Switch off above",
-          "switchOffBelow": "Switch off below",
-          "switchOnAbove": "Switch on above",
-          "switchOnBelow": "Switch on below",
-          "threshold": "Threshold"
+        "SINGLETHRESHOLD": {
+          "ABOVE": "Above",
+          "BEHAVIOUR": "Behaviour",
+          "BELOW": "Below",
+          "CURRENT_VALUE": "Current value",
+          "DEPENDEND_ON": "Dependend on",
+          "MIN_SWITCHING_TIME": "Minimum swichting time",
+          "MORE_THAN_MAX_POWER": "La valeur ne doit pas être inférieure à la puissance maximale de l appareil contrôlé",
+          "OTHER": "Other",
+          "RELATION_ERROR": "Threshold must be greater than the switched load power",
+          "SWITCHED_LOAD_POWER": "Switched load power",
+          "SWITCH_OFF_ABOVE": "Switch off above",
+          "SWITCH_OFF_BELOW": "Switch off below",
+          "SWITCH_ON_ABOVE": "Switch on above",
+          "SWITCH_ON_BELOW": "Switch on below",
+          "THRESHOLD": "Threshold"
         },
-        "DelayedSellToGrid": {
-          "sellToGridPowerLimit": "Charge ci-dessus",
-          "continuousSellToGridPower": "Décharge ci-dessous",
-          "relationError": "La limite de charge doit être supérieure à la limite de décharge"
+        "DELAYED_SELL_TO_GRID": {
+          "SELL_TO_GRID_POWER_LIMIT": "Charge ci-dessus",
+          "CONTINUOUS_SELL_TO_GRID_POWER": "Décharge ci-dessous",
+          "RELATION_ERROR": "La limite de charge doit être supérieure à la limite de décharge"
         },
-        "Peakshaving": {
-          "asymmetricInfo": "The entered performance values ​​refer to individual phases. It is adjusted to the most stressed phase.",
-          "endDate": "Date de fin",
-          "endTime": "Heure de fin",
-          "mostStressedPhase": "Most stressed phase",
-          "peakshaving": "Peak-Shaving",
-          "peakshavingPower": "Discharge above",
-          "recharge": "Puissance de charge",
-          "rechargePower": "Charge below",
-          "relationError": "Discharge limit must be greater than or equal to the load limit",
-          "startDate": "Date de début",
-          "startTime": "Heure de début",
-          "startTimeCharge": "Heure de début du chargement"
+        "PEAKSHAVING": {
+          "ASYMMETRIC_INFO": "The entered performance values ​​refer to individual phases. It is adjusted to the most stressed phase.",
+          "END_DATE": "Date de fin",
+          "END_TIME": "Heure de fin",
+          "MOST_STRESSED_PHASE": "Most stressed phase",
+          "PEAKSHAVING": "Peak-Shaving",
+          "PEAKSHAVING_POWER": "Discharge above",
+          "RECHARGE": "Puissance de charge",
+          "RECHARGE_POWER": "Charge below",
+          "RELATION_ERROR": "Discharge limit must be greater than or equal to the load limit",
+          "START_DATE": "Date de début",
+          "START_TIME": "Heure de début",
+          "START_TIME_CHARGE": "Heure de début du chargement"
         },
-        "GridOptimizedCharge": {
-          "chargingDelayed": "Chargement retardé",
-          "considerGridFeedInLimit": "Tenir compte de l'injection maximale du réseau",
-          "endTime": "Heure de fin",
-          "endTimeDescription": "La charge n'a pas lieu avec la quantité maximale pendant quelques heures, mais régulièrement sur une plus longue période de temps.",
-          "endTimeDetailedDescription": "Le chargement n'a pas lieu avec la puissance maximale pendant quelques heures, mais régulièrement avec un maximum de {{ value1 }} à {{ value2 }} heures.",
-          "endTimeLong": "Heure de fin du chargement restreint",
-          "expectedSoc": "État de charge prévu",
-          "expectedSocWithoutSellToGridLimit": "Sans éviter l'injection maximale du réseau",
-          "gridFeedInLimitationAvoided": "Limitation de l'alimentation du réseau évitée",
-          "gridOptimizedChargeDisabled": "Charge optimisée pour le réseau désactivée",
-          "high": "Haute",
-          "History": {
-            "batteryChargeGridLimitDescription": "L'alimentation maximale du réseau, au-delà de laquelle la charge des batteries est augmentée (dans la mesure du possible), est inférieure à l'alimentation maximale autorisée du réseau afin d'éviter une réduction prématurée de la production.",
-            "priorityDescription": "La charge minimale de la batterie a une priorité plus élevée que la charge maximale de la batterie."
+        "GRID_OPTIMIZED_CHARGE": {
+          "CHARGING_DELAYED": "Chargement retardé",
+          "CONSIDER_GRID_FEED_IN_LIMIT": "Tenir compte de l'injection maximale du réseau",
+          "END_TIME": "Heure de fin",
+          "END_TIME_DESCRIPTION": "La charge n'a pas lieu avec la quantité maximale pendant quelques heures, mais régulièrement sur une plus longue période de temps.",
+          "END_TIME_DETAILED_DESCRIPTION": "Le chargement n'a pas lieu avec la puissance maximale pendant quelques heures, mais régulièrement avec un maximum de {{ value1 }} à {{ value2 }} heures.",
+          "END_TIME_LONG": "Heure de fin du chargement restreint",
+          "EXPECTED_SOC": "État de charge prévu",
+          "EXPECTED_SOC_WITHOUT_SELL_TO_GRID_LIMIT": "Sans éviter l'injection maximale du réseau",
+          "GRID_FEED_IN_LIMITATION_AVOIDED": "Limitation de l'alimentation du réseau évitée",
+          "GRID_OPTIMIZED_CHARGE_DISABLED": "Charge optimisée pour le réseau désactivée",
+          "HIGH": "Haute",
+          "HISTORY": {
+            "BATTERY_CHARGE_GRID_LIMIT_DESCRIPTION": "L'alimentation maximale du réseau, au-delà de laquelle la charge des batteries est augmentée (dans la mesure du possible), est inférieure à l'alimentation maximale autorisée du réseau afin d'éviter une réduction prématurée de la production.",
+            "PRIORITY_DESCRIPTION": "La charge minimale de la batterie a une priorité plus élevée que la charge maximale de la batterie."
           },
-          "low": "Faible",
-          "maximumCharge": "Charge maximale",
-          "maximumGridFeedIn": "Alimentation réseau maximale autorisée",
-          "medium": "Moyen",
-          "minimumCharge": "Charge minimale",
-          "RiskDescription": {
-            "Low": {
-              "functionDescription": "Chargement relativement précoce du magasin",
-              "storageDescription": "Plus grande probabilité que la mémoire soit complètement chargée",
-              "pvCurtail": "Plus faible probabilité que la réduction du système PV soit évitée"
+          "LOW": "Faible",
+          "MAXIMUM_CHARGE": "Charge maximale",
+          "MAXIMUM_GRID_FEED_IN": "Alimentation réseau maximale autorisée",
+          "MEDIUM": "Moyen",
+          "MINIMUM_CHARGE": "Charge minimale",
+          "RISK_DESCRIPTION": {
+            "LOW": {
+              "FUNCTION_DESCRIPTION": "Chargement relativement précoce du magasin",
+              "STORAGE_DESCRIPTION": "Plus grande probabilité que la mémoire soit complètement chargée",
+              "PV_CURTAIL": "Plus faible probabilité que la réduction du système PV soit évitée"
             },
-            "Medium": {
-              "functionDescription": "Chargement relativement uniforme du magasin",
-              "storageDescription": "Forte probabilité que le stockage soit complètement chargé",
-              "pvCurtail": "Forte probabilité que la réduction du système PV soit évitée"
+            "MEDIUM": {
+              "FUNCTION_DESCRIPTION": "Chargement relativement uniforme du magasin",
+              "STORAGE_DESCRIPTION": "Forte probabilité que le stockage soit complètement chargé",
+              "PV_CURTAIL": "Forte probabilité que la réduction du système PV soit évitée"
             },
-            "High": {
-              "functionDescription": "Charge relativement tardive du système de stockage",
-              "storageDescription": "Moins de probabilité que le système de stockage soit complètement chargé",
-              "pvCurtail": "Probabilité plus élevée que la réduction du système PV sera évitée"
+            "HIGH": {
+              "FUNCTION_DESCRIPTION": "Charge relativement tardive du système de stockage",
+              "STORAGE_DESCRIPTION": "Moins de probabilité que le système de stockage soit complètement chargé",
+              "PV_CURTAIL": "Probabilité plus élevée que la réduction du système PV sera évitée"
             }
           },
-          "riskPropensity": "Propension au risque",
-          "settingOnlyVisableForInstaller": "Ce paramètre n'est visible que par l'installateur",
-          "State": {
-            "avoidLowCharging": "Faible charge évitée",
-            "chargeLimitActive": "Limite de chargement active",
-            "endTimeNotCalculated": "Heure de fin non calculée",
-            "gridFeedInLimitationIsAvoided": "La limitation Grid-Feed-in est évitée",
-            "noLimitActive": "Aucune limite de chargement active",
-            "noLimitPossible": "Aucune limitation possible (limitée par des contrôles de priorité plus élevée)",
-            "notDefined": "Non défini",
-            "passedEndTime": "Heure de fin du chargement limité dépassée",
-            "storageAlreadyFull": "Mémoire déjà pleine"
+          "RISK_PROPENSITY": "Propension au risque",
+          "SETTING_ONLY_VISABLE_FOR_INSTALLER": "Ce paramètre n'est visible que par l'installateur",
+          "STATE": {
+            "AVOID_LOW_CHARGING": "Faible charge évitée",
+            "CHARGE_LIMIT_ACTIVE": "Limite de chargement active",
+            "END_TIME_NOT_CALCULATED": "Heure de fin non calculée",
+            "GRID_FEED_IN_LIMITATION_IS_AVOIDED": "La limitation Grid-Feed-in est évitée",
+            "NO_LIMIT_ACTIVE": "Aucune limite de chargement active",
+            "NO_LIMIT_POSSIBLE": "Aucune limitation possible (limitée par des contrôles de priorité plus élevée)",
+            "NOT_DEFINED": "Non défini",
+            "PASSED_END_TIME": "Heure de fin du chargement limité dépassée",
+            "STORAGE_ALREADY_FULL": "Mémoire déjà pleine"
           },
-          "storageCapacity": "capacité de stockage (visible seulement pour admin)"
+          "STORAGE_CAPACITY": "capacité de stockage (visible seulement pour admin)"
         },
         "CHP": {
-          "highThreshold": "Seuil Haut",
-          "lowThreshold": "Seuil Bas"
+          "HIGH_THRESHOLD": "Seuil Haut",
+          "LOW_THRESHOLD": "Seuil Bas"
         },
         "EVCS": {
-          "activateCharging": "Activer la sation de recharge",
-          "amountOfChargingStations": "Quantité de stations de rehcarge",
-          "cable": "Cable",
-          "cableNotConnected": "Le câble n'est pas connecté",
-          "carFull": "CLa voiture est remplie",
-          "chargeLimitReached": "Limite de charge atteinte",
-          "chargeMode": "Charge Mode",
-          "chargeTarget": "Charge target",
-          "charging": "En charge",
-          "chargingLimit": "Limite de recharge",
-          "chargingPower": "Puissance de recharge",
-          "chargingStation": "Station de recharge",
-          "chargingStationCluster": "Ensemble de stations de recharge",
-          "chargingStationDeactivated": "Station de recharge désactivée",
-          "chargingStationPluggedIn": "Station de charge branchée",
-          "chargingStationPluggedInLocked": "Station de recharge branchée + verrouillée.",
-          "chargingStationPluggedInEV": "Station de recharge + EV branchée.",
-          "chargingStationPluggedInEVLocked": "Station de recharge + EV branchée + Verrouillée",
-          "clusterConfigError": "Une erreur s'est produite dans la configuration du cluster de stations de recharge",
-          "currentCharge": "Reharge actuelle",
-          "energySinceBeginning": "Energie depuis le début de la dernière recharge",
-          "energyLimit": "Limite d'énergie",
-          "enforceCharging": "Appliquer la charge",
-          "error": "Erreur",
-          "maxEnergyRestriction": "Energie maximum par recharge",
-          "notAuthorized": "Pas Authorisé",
-          "notCharging": "Pas en charge",
-          "notReadyForCharging": "Pas prêt pour la recharge",
-          "overviewChargingStations": "Appercu des stations de recharge",
-          "prioritization": "Priorisation",
-          "readyForCharging": "Prêt pour la recharge",
-          "starting": "Démarrage",
-          "status": "Status",
-          "totalCharge": "Recharge totale",
-          "totalChargingPower": "Puissance de recharge totale",
-          "unplugged": "Débranché",
-          "NoConnection": {
-            "description": "Pas de connection à la station de recharge.",
-            "help1_1": "L'IP de la station de recharge apparait lorsqu'elle s'allume de nouveau",
-            "help1": "Vérifiez si la station de recharge est allimée et qu'elle peut être atteinte via le réseau."
+          "ACTIVATE_CHARGING": "Activer la sation de recharge",
+          "AMOUNT_OF_CHARGING_STATIONS": "Quantité de stations de rehcarge",
+          "CABLE": "Cable",
+          "CABLE_NOT_CONNECTED": "Le câble n'est pas connecté",
+          "CAR_FULL": "CLa voiture est remplie",
+          "CHARGE_LIMIT_REACHED": "Limite de charge atteinte",
+          "CHARGE_MODE": "Charge Mode",
+          "CHARGE_TARGET": "Charge target",
+          "CHARGING": "En charge",
+          "CHARGING_LIMIT": "Limite de recharge",
+          "CHARGING_POWER": "Puissance de recharge",
+          "CHARGING_STATION": "Station de recharge",
+          "CHARGING_STATION_CLUSTER": "Ensemble de stations de recharge",
+          "CHARGING_STATION_DEACTIVATED": "Station de recharge désactivée",
+          "CHARGING_STATION_PLUGGED_IN": "Station de charge branchée",
+          "CHARGING_STATION_PLUGGED_IN_LOCKED": "Station de recharge branchée + verrouillée.",
+          "CHARGING_STATION_PLUGGED_IN_EV": "Station de recharge + EV branchée.",
+          "CHARGING_STATION_PLUGGED_IN_EVLOCKED": "Station de recharge + EV branchée + Verrouillée",
+          "CLUSTER_CONFIG_ERROR": "Une erreur s'est produite dans la configuration du cluster de stations de recharge",
+          "CURRENT_CHARGE": "Reharge actuelle",
+          "ENERGY_SINCE_BEGINNING": "Energie depuis le début de la dernière recharge",
+          "ENERGY_LIMIT": "Limite d'énergie",
+          "ENFORCE_CHARGING": "Appliquer la charge",
+          "ERROR": "Erreur",
+          "MAX_ENERGY_RESTRICTION": "Energie maximum par recharge",
+          "NOT_AUTHORIZED": "Pas Authorisé",
+          "NOT_CHARGING": "Pas en charge",
+          "NOT_READY_FOR_CHARGING": "Pas prêt pour la recharge",
+          "OVERVIEW_CHARGING_STATIONS": "Appercu des stations de recharge",
+          "PRIORITIZATION": "Priorisation",
+          "READY_FOR_CHARGING": "Prêt pour la recharge",
+          "STARTING": "Démarrage",
+          "STATUS": "Status",
+          "TOTAL_CHARGE": "Recharge totale",
+          "TOTAL_CHARGING_POWER": "Puissance de recharge totale",
+          "UNPLUGGED": "Débranché",
+          "NO_CONNECTION": {
+            "DESCRIPTION": "Pas de connection à la station de recharge.",
+            "HELP1_1": "L'IP de la station de recharge apparait lorsqu'elle s'allume de nouveau",
+            "HELP1": "Vérifiez si la station de recharge est allimée et qu'elle peut être atteinte via le réseau."
           },
-          "OptimizedChargeMode": {
-            "info": "Dans ce mode la charge de la voiture est ajustée à la productione t consommation actuelle.",
-            "minCharging": "Recharge minimum garantie",
-            "minChargePower": "taux de charge minimum",
-            "minInfo": "Si vous voulez éviter que la voiture ne charge pas durant la nuit, vous pouvez régler une charge minimum.",
-            "name": "Recharge Optimisée",
-            "shortName": "Automatiquement",
-            "ChargingPriority": {
-              "car": "Voiture",
-              "info": "En fonction de la priorisation, le composant sélectionné sera rechargé en premier",
-              "storage": "Stockage"
+          "OPTIMIZED_CHARGE_MODE": {
+            "INFO": "Dans ce mode la charge de la voiture est ajustée à la productione t consommation actuelle.",
+            "MIN_CHARGING": "Recharge minimum garantie",
+            "MIN_CHARGE_POWER": "taux de charge minimum",
+            "MIN_INFO": "Si vous voulez éviter que la voiture ne charge pas durant la nuit, vous pouvez régler une charge minimum.",
+            "NAME": "Recharge Optimisée",
+            "SHORT_NAME": "Automatiquement",
+            "CHARGING_PRIORITY": {
+              "CAR": "Voiture",
+              "INFO": "En fonction de la priorisation, le composant sélectionné sera rechargé en premier",
+              "STORAGE": "Stockage"
             }
           },
-          "ForceChargeMode": {
-            "info": "Dans ce mode, la recharge de la voiture est forcée, i.e. il est toujours garanti que la voiture sera chargée, même si la station de recharge à besoin de la puissance du réseau.",
-            "maxCharging": "Puissance de recharge maximum",
-            "maxChargingDetails": "Si la voiture ne peut accepter la valeur maximum, la puissance sera automatiquement limitée.",
-            "name": "Recharge forcée",
-            "shortName": "Mannuellement"
+          "FORCE_CHARGE_MODE": {
+            "INFO": "Dans ce mode, la recharge de la voiture est forcée, i.e. il est toujours garanti que la voiture sera chargée, même si la station de recharge à besoin de la puissance du réseau.",
+            "MAX_CHARGING": "Puissance de recharge maximum",
+            "MAX_CHARGING_DETAILS": "Si la voiture ne peut accepter la valeur maximum, la puissance sera automatiquement limitée.",
+            "NAME": "Recharge forcée",
+            "SHORT_NAME": "Mannuellement"
           }
         },
-        "Heatingelement": {
-          "activeForced": "Actif (Minimum runtime)",
-          "activeLevel": "Active level",
-          "endtime": "Endtime",
-          "energy": "Energy",
-          "guaranteeMinimumHeating": "Garantir un chauffage minimum",
-          "heatingelement": "Heating element",
-          "minimalEnergyAmount": "Minimal charge amount",
-          "minimumRunTime": "Minimum runtime",
-          "priority": "Priority",
-          "time": "Time",
-          "timeCountdown": "time until start"
+        "HEATINGELEMENT": {
+          "ACTIVE_FORCED": "Actif (Minimum runtime)",
+          "ACTIVE_LEVEL": "Active level",
+          "ENDTIME": "Endtime",
+          "ENERGY": "Energy",
+          "GUARANTEE_MINIMUM_HEATING": "Garantir un chauffage minimum",
+          "HEATINGELEMENT": "Heating element",
+          "MINIMAL_ENERGY_AMOUNT": "Minimal charge amount",
+          "MINIMUM_RUN_TIME": "Minimum runtime",
+          "PRIORITY": "Priority",
+          "TIME": "Time",
+          "TIME_COUNTDOWN": "time until start"
         },
-        "HeatPump": {
-          "aboveSoc": "et de l'état de charge de",
-          "belowSoc": "et en charge de",
-          "gridBuy": "De l achat du réseau de",
-          "gridSell": "Par excès d alimentatio de",
-          "lock": "Fermer à clé",
-          "moreThanHpPower": "La valeur ne doit pas être inférieure à la puissance maximale de la pompe à chaleur",
-          "normalOperation": "Fonctionnement normal",
-          "normalOperationShort": "Normal",
-          "relationError": "La valeur excédentaire de la commande de mise en marche doit être supérieure à la valeur recommandée de mise en marche",
-          "switchOnCom": "Commande de mise en marche",
-          "switchOnComShort": "Commenade",
-          "switchOnRec": "Recommandation de mise en marche",
-          "switchOnRecShort": "Recommandation",
-          "undefined": "Indéfinie"
+        "HEAT_PUMP": {
+          "ABOVE_SOC": "et de l'état de charge de",
+          "BELOW_SOC": "et en charge de",
+          "GRID_BUY": "De l achat du réseau de",
+          "GRID_SELL": "Par excès d alimentatio de",
+          "LOCK": "Fermer à clé",
+          "MORE_THAN_HP_POWER": "La valeur ne doit pas être inférieure à la puissance maximale de la pompe à chaleur",
+          "NORMAL_OPERATION": "Fonctionnement normal",
+          "NORMAL_OPERATION_SHORT": "Normal",
+          "RELATION_ERROR": "La valeur excédentaire de la commande de mise en marche doit être supérieure à la valeur recommandée de mise en marche",
+          "SWITCH_ON_COM": "Commande de mise en marche",
+          "SWITCH_ON_COM_SHORT": "Commenade",
+          "SWITCH_ON_REC": "Recommandation de mise en marche",
+          "SWITCH_ON_REC_SHORT": "Recommandation",
+          "UNDEFINED": "Indéfinie"
         }
       }
     },
-    "History": {
-      "beginDate": "Sélectionnez la date de début",
-      "day": "Jour",
-      "endDate": "Sélectionnez la date de fin",
-      "export": "télécharger sous format excel",
-      "go": "Go!",
-      "lastMonth": "Le mois passé",
-      "lastWeek": "Semaine dernière",
-      "lastYear": "L'année passée",
-      "month": "Mois",
-      "noData": "Pas de données disponible",
-      "otherPeriod": "Autre période",
-      "period": "Période",
-      "selectedDay": "{{ value }}",
-      "selectedPeriod": "Période sélectionnée:",
-      "today": "Aujourd'hui",
-      "week": "Semaine",
-      "year": "Année",
-      "yesterday": "Hier",
-      "sun": "Dim",
-      "mon": "Lun",
-      "tue": "Mar",
-      "wed": "Mer",
-      "thu": "Jeu",
-      "fri": "Ven",
-      "sat": "Sam",
-      "jan": "Jan",
-      "feb": "Fév",
-      "mar": "Mar",
-      "apr": "Avr",
-      "may": "Mai",
-      "jun": "Jun",
-      "jul": "Jul",
-      "aug": "Aou",
-      "sep": "Sep",
-      "oct": "Oct",
-      "nov": "Nov",
-      "dec": "Dec",
-      "activeDuration": "Durée active"
+    "HISTORY": {
+      "BEGIN_DATE": "Sélectionnez la date de début",
+      "DAY": "Jour",
+      "END_DATE": "Sélectionnez la date de fin",
+      "EXPORT": "télécharger sous format excel",
+      "GO": "Go!",
+      "LAST_MONTH": "Le mois passé",
+      "LAST_WEEK": "Semaine dernière",
+      "LAST_YEAR": "L'année passée",
+      "MONTH": "Mois",
+      "NO_DATA": "Pas de données disponible",
+      "OTHER_PERIOD": "Autre période",
+      "PERIOD": "Période",
+      "SELECTED_DAY": "{{ value }}",
+      "SELECTED_PERIOD": "Période sélectionnée:",
+      "TODAY": "Aujourd'hui",
+      "WEEK": "Semaine",
+      "YEAR": "Année",
+      "YESTERDAY": "Hier",
+      "SUN": "Dim",
+      "MON": "Lun",
+      "TUE": "Mar",
+      "WED": "Mer",
+      "THU": "Jeu",
+      "FRI": "Ven",
+      "SAT": "Sam",
+      "JAN": "Jan",
+      "FEB": "Fév",
+      "MAR": "Mar",
+      "APR": "Avr",
+      "MAY": "Mai",
+      "JUN": "Jun",
+      "JUL": "Jul",
+      "AUG": "Aou",
+      "SEP": "Sep",
+      "OCT": "Oct",
+      "NOV": "Nov",
+      "DEC": "Dec",
+      "ACTIVE_DURATION": "Durée active"
     },
-    "Installation": {
-      "attentionMessage": "Notez que la sélection ne peut pas être annulée par la suite.",
-      "backward": "arrière",
-      "confirmAppSelection": "Êtes-vous sûr de vouloir sélectionner l'application suivante ?",
-      "confirmAppSelectionLater": "Sont-ils sûrs de faire la sélection plus tard ?",
-      "forward": "plus",
-      "pleaseSelectOption": "Veuillez choisir une option"
+    "INSTALLATION": {
+      "ATTENTION_MESSAGE": "Notez que la sélection ne peut pas être annulée par la suite.",
+      "BACKWARD": "arrière",
+      "CONFIRM_APP_SELECTION": "Êtes-vous sûr de vouloir sélectionner l'application suivante ?",
+      "CONFIRM_APP_SELECTION_LATER": "Sont-ils sûrs de faire la sélection plus tard ?",
+      "FORWARD": "plus",
+      "PLEASE_SELECT_OPTION": "Veuillez choisir une option"
     },
-    "Config": {
-      "Index": {
-        "addComponents": "Installez des componsants",
-        "adjustComponents": "Configurez des composants",
-        "bridge": "Connections et appareils",
-        "controller": "Applications",
-        "dataStorage": "Donnée du stockage",
-        "executeSimulator": "Executez les simulations",
-        "liveLog": "Live system log",
-        "log": "Log",
-        "manualControl": "Contrôle manuel",
-        "renameComponents": "Rename components",
-        "scheduler": "Applicationplanner",
-        "simulator": "Simulateur",
-        "systemExecute": "Exécutez une commande système",
-        "systemProfile": "System Profile",
-        "alerting": "Alerte",
-        "networkConfiguration": "Configuration du réseau"
+    "CONFIG": {
+      "INDEX": {
+        "ADD_COMPONENTS": "Installez des componsants",
+        "ADJUST_COMPONENTS": "Configurez des composants",
+        "BRIDGE": "Connections et appareils",
+        "CONTROLLER": "Applications",
+        "DATA_STORAGE": "Donnée du stockage",
+        "EXECUTE_SIMULATOR": "Executez les simulations",
+        "LIVE_LOG": "Live system log",
+        "LOG": "Log",
+        "MANUAL_CONTROL": "Contrôle manuel",
+        "RENAME_COMPONENTS": "Rename components",
+        "SCHEDULER": "Applicationplanner",
+        "SIMULATOR": "Simulateur",
+        "SYSTEM_EXECUTE": "Exécutez une commande système",
+        "SYSTEM_PROFILE": "System Profile",
+        "ALERTING": "Alerte",
+        "NETWORK_CONFIGURATION": "Configuration du réseau"
       },
-      "More": {
-        "manualCommand": "Commande Manuelle",
-        "manualpqPowerSpecification": "Spécification de puissance",
-        "manualpqReset": "Reset",
-        "manualpqSubmit": "Soumettre",
-        "refuInverter": "REFU Inverter",
-        "refuStart": "Start",
-        "refuStartStop": "Start/Stop inverter",
-        "refuStop": "Stop",
-        "send": "Envoyer"
+      "MORE": {
+        "MANUAL_COMMAND": "Commande Manuelle",
+        "MANUALPQ_POWER_SPECIFICATION": "Spécification de puissance",
+        "MANUALPQ_RESET": "Reset",
+        "MANUALPQ_SUBMIT": "Soumettre",
+        "REFU_INVERTER": "REFU Inverter",
+        "REFU_START": "Start",
+        "REFU_START_STOP": "Start/Stop inverter",
+        "REFU_STOP": "Stop",
+        "SEND": "Envoyer"
       },
-      "Scheduler": {
-        "always": "Toujours",
-        "class": "Class:",
-        "contact": "Ceci ne devrait pas arriver. merci de contacter <a href=\"mailto: {{ value }}\">{{ value }}</a>.",
-        "newScheduler": "New scheduler...",
-        "notImplemented": "Formulaire non implanté: "
+      "SCHEDULER": {
+        "ALWAYS": "Toujours",
+        "CLASS": "Class:",
+        "CONTACT": "Ceci ne devrait pas arriver. merci de contacter <a href=\"mailto: {{ value }}\">{{ value }}</a>.",
+        "NEW_SCHEDULER": "New scheduler...",
+        "NOT_IMPLEMENTED": "Formulaire non implanté: "
       },
-      "Log": {
-        "automaticUpdating": "Mise à jour automatique",
-        "level": "Level",
-        "message": "Message",
-        "source": "Source",
-        "timestamp": "Timestamp"
+      "LOG": {
+        "AUTOMATIC_UPDATING": "Mise à jour automatique",
+        "LEVEL": "Level",
+        "MESSAGE": "Message",
+        "SOURCE": "Source",
+        "TIMESTAMP": "Timestamp"
       },
-      "Controller": {
-        "app": "App:",
-        "internallyID": "Internally ID:",
-        "priority": "Priorité:"
+      "CONTROLLER": {
+        "APP": "App:",
+        "INTERNALLY_ID": "Internally ID:",
+        "PRIORITY": "Priorité:"
       },
-      "Bridge": {
-        "newConnection": "Nouvelle connexion...",
-        "newDevice": "Nouvel appareil..."
+      "BRIDGE": {
+        "NEW_CONNECTION": "Nouvelle connexion...",
+        "NEW_DEVICE": "Nouvel appareil..."
       },
       "ALERTING": {
         "ACTIVATE": "Activer",
@@ -488,54 +488,54 @@
           "ERROR": "Erreur lors du chargement des paramètres"
         }
       },
-      "App": {
-        "header": "L'App Manager est actuellement dans une première version de test.",
-        "updateAvailable": "Une nouvelle version {{ edgeShortName }} est disponible. version est disponible ! Veuillez mettre à jour le {{ edgeShortName }} pour que tous les nouveaux {{ edgeShortName }} soient affichés. Apps soient affichées dans l'App Center.",
-        "installed": "Installé",
-        "available": "Disponible sur",
-        "incompatible": "Incompatibilité",
-        "buyApp": "Acheter l'application",
-        "modifyApp": "Modifier l'application",
-        "createApp": "Installer l'application",
-        "deleteApp": "Supprimer l'application",
-        "updateApp": "Mise à jour de l'application",
-        "errorInstallable": "Erreurs d'installation",
-        "errorCompatible": "Erreurs de compatibilité",
-        "notAvailable": "Pas disponible"
+      "APP": {
+        "HEADER": "L'App Manager est actuellement dans une première version de test.",
+        "UPDATE_AVAILABLE": "Une nouvelle version {{ edgeShortName }} est disponible. version est disponible ! Veuillez mettre à jour le {{ edgeShortName }} pour que tous les nouveaux {{ edgeShortName }} soient affichés. Apps soient affichées dans l'App Center.",
+        "INSTALLED": "Installé",
+        "AVAILABLE": "Disponible sur",
+        "INCOMPATIBLE": "Incompatibilité",
+        "BUY_APP": "Acheter l'application",
+        "MODIFY_APP": "Modifier l'application",
+        "CREATE_APP": "Installer l'application",
+        "DELETE_APP": "Supprimer l'application",
+        "UPDATE_APP": "Mise à jour de l'application",
+        "ERROR_INSTALLABLE": "Erreurs d'installation",
+        "ERROR_COMPATIBLE": "Erreurs de compatibilité",
+        "NOT_AVAILABLE": "Pas disponible"
       }
     },
-    "Service": {
-      "entireSystem": "système entier",
-      "Cell": {
-        "voltages": "Tensions de cellules",
-        "temperatures": "Températures des cellules",
-        "insulation": "Isolement"
+    "SERVICE": {
+      "ENTIRE_SYSTEM": "système entier",
+      "CELL": {
+        "VOLTAGES": "Tensions de cellules",
+        "TEMPERATURES": "Températures des cellules",
+        "INSULATION": "Isolement"
       }
     },
-    "Network": {
-      "errorReadingConfiguration": "Erreur lors de la lecture de la configuration réseau actuelle:",
-      "mandatoryFields": "Merci de remplir les champs obligatoires",
-      "successUpdate": "Configuration réseau mise à jour avec succès pour",
-      "errorUpdating": "Erreur lors de la mise à jour",
-      "ipAddress": "Adresse IP",
-      "subnetmask": "Masque de sous-réseau",
-      "addIP": "Ajouter des adresses IP statiques",
-      "validAddressWarning": "Dans 'Ajouter des adresses IP statiques', veuillez entrer une adresse IP valide avec un masque de réseau, par ex. 10.4.1.6/24",
-      "advancedMode": "Mode avancé"
+    "NETWORK": {
+      "ERROR_READING_CONFIGURATION": "Erreur lors de la lecture de la configuration réseau actuelle:",
+      "MANDATORY_FIELDS": "Merci de remplir les champs obligatoires",
+      "SUCCESS_UPDATE": "Configuration réseau mise à jour avec succès pour",
+      "ERROR_UPDATING": "Erreur lors de la mise à jour",
+      "IP_ADDRESS": "Adresse IP",
+      "SUBNETMASK": "Masque de sous-réseau",
+      "ADD_IP": "Ajouter des adresses IP statiques",
+      "VALID_ADDRESS_WARNING": "Dans 'Ajouter des adresses IP statiques', veuillez entrer une adresse IP valide avec un masque de réseau, par ex. 10.4.1.6/24",
+      "ADVANCED_MODE": "Mode avancé"
     }
   },
-  "About": {
-    "build": "This build",
-    "currentDevelopments": "Développement actuels",
-    "developed": "Cet interface utilisateur est développé en tant que logiciel libre.",
-    "language": "Sélectionnez la langue:",
-    "openEMS": "Plus au sujet d'OpenEMS"
+  "ABOUT": {
+    "BUILD": "This build",
+    "CURRENT_DEVELOPMENTS": "Développement actuels",
+    "DEVELOPED": "Cet interface utilisateur est développé en tant que logiciel libre.",
+    "LANGUAGE": "Sélectionnez la langue:",
+    "OPENEMS": "Plus au sujet d'OpenEMS"
   },
-  "Notifications": {
-    "authenticationFailed": "Pas de connexion, échec d'authentification .",
-    "closed": "Connecxion fermée.",
-    "failed": "Connexion échouée.",
-    "loggedIn": "Enregistré.",
-    "loggedInAs": "Enregistré sous as '{{ value }}'."
+  "NOTIFICATIONS": {
+    "AUTHENTICATION_FAILED": "Pas de connexion, échec d'authentification .",
+    "CLOSED": "Connecxion fermée.",
+    "FAILED": "Connexion échouée.",
+    "LOGGED_IN": "Enregistré.",
+    "LOGGED_IN_AS": "Enregistré sous as '{{ value }}'."
   }
 }

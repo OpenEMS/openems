@@ -31,7 +31,7 @@ export class ModalComponent extends AbstractFormlyComponent {
     // Total
     lines.push({
       type: 'channel-line',
-      name: translate.instant('General.TOTAL'),
+      name: translate.instant('GENERAL.TOTAL'),
       channel: '_sum/ConsumptionActivePower',
       converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
     });
@@ -39,7 +39,7 @@ export class ModalComponent extends AbstractFormlyComponent {
     Phase.THREE_PHASE.forEach(phase => {
       lines.push({
         type: 'channel-line',
-        name: translate.instant('General.phase') + ' ' + phase,
+        name: translate.instant('GENERAL.PHASE') + ' ' + phase,
         indentation: TextIndentation.SINGLE,
         channel: '_sum/ConsumptionActivePower' + phase,
         converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
@@ -107,18 +107,18 @@ export class ModalComponent extends AbstractFormlyComponent {
 
     lines.push({
       type: 'value-from-channels-line',
-      name: translate.instant('General.otherConsumption'),
+      name: translate.instant('GENERAL.OTHER_CONSUMPTION'),
       value: (currentData: CurrentData) => Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO(Converter.CALCULATE_CONSUMPTION_OTHER_POWER(evcss, consumptionMeters, currentData)),
       channelsToSubscribe: channelsToSubscribe,
     });
 
     lines.push({
       type: 'info-line',
-      name: translate.instant('Edge.Index.Widgets.phasesInfo'),
+      name: translate.instant('EDGE.INDEX.WIDGETS.PHASES_INFO'),
     });
 
     return {
-      title: translate.instant('General.consumption'),
+      title: translate.instant('GENERAL.CONSUMPTION'),
       lines: lines,
     };
   }

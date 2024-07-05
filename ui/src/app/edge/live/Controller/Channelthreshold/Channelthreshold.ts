@@ -28,10 +28,10 @@ export class Controller_ChannelthresholdComponent extends AbstractFlatWidget {
     if (channel != null) {
       if (channel == 1) {
         this.icon.name = "radio-button-on-outline";
-        this.state = this.translate.instant('General.on');
+        this.state = this.translate.instant('GENERAL.ON');
       } else if (channel == 0) {
         this.icon.name = 'radio-button-off-outline';
-        this.state = this.translate.instant('General.off');
+        this.state = this.translate.instant('GENERAL.OFF');
       }
     } else {
       this.icon.name = 'help-outline';

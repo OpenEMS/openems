@@ -61,7 +61,7 @@ const routes: Routes = [
   { path: 'overview', component: OverViewComponent },
 
   { path: 'user', component: UserComponent },
-  { path: 'changelog', component: ChangelogViewComponent, data: { navbarTitleToBeTranslated: 'Menu.changelog' } },
+  { path: 'changelog', component: ChangelogViewComponent, data: { navbarTitleToBeTranslated: 'MENU.CHANGELOG' } },
 
   // Edge Pages
   {
@@ -103,18 +103,18 @@ const routes: Routes = [
         ],
       },
 
-      { path: 'settings', data: { navbarTitleToBeTranslated: 'Menu.edgeSettings' }, component: EdgeSettingsComponent },
+      { path: 'settings', data: { navbarTitleToBeTranslated: 'MENU.EDGE_SETTINGS' }, component: EdgeSettingsComponent },
       { path: 'settings/channels', component: EdgeSettingsChannelsComponent },
-      { path: 'settings/component.install', component: EdgeSettingsComponentInstallIndexComponentComponent, data: { navbarTitleToBeTranslated: 'Edge.Config.Index.addComponents' } },
-      { path: 'settings/component.install/:factoryId', component: EdgeSettingsComponentInstallComponentComponent, data: { navbarTitleToBeTranslated: 'Edge.Config.Index.addComponents' } },
-      { path: 'settings/component.update', component: EdgeSettingsComponentUpdateIndexComponentComponent, data: { navbarTitleToBeTranslated: 'Edge.Config.Index.adjustComponents' } },
-      { path: 'settings/component.update/:componentId', component: EdgeSettingsComponentUpdateComponentComponent, data: { navbarTitleToBeTranslated: 'Edge.Config.Index.adjustComponents' } },
-      { path: 'settings/network', component: EdgeSettingsNetworkComponent, data: { navbarTitleToBeTranslated: 'Edge.Config.Index.networkConfiguration' } },
+      { path: 'settings/component.install', component: EdgeSettingsComponentInstallIndexComponentComponent, data: { navbarTitleToBeTranslated: 'EDGE.CONFIG.INDEX.ADD_COMPONENTS' } },
+      { path: 'settings/component.install/:factoryId', component: EdgeSettingsComponentInstallComponentComponent, data: { navbarTitleToBeTranslated: 'EDGE.CONFIG.INDEX.ADD_COMPONENTS' } },
+      { path: 'settings/component.update', component: EdgeSettingsComponentUpdateIndexComponentComponent, data: { navbarTitleToBeTranslated: 'EDGE.CONFIG.INDEX.ADJUST_COMPONENTS' } },
+      { path: 'settings/component.update/:componentId', component: EdgeSettingsComponentUpdateComponentComponent, data: { navbarTitleToBeTranslated: 'EDGE.CONFIG.INDEX.ADJUST_COMPONENTS' } },
+      { path: 'settings/network', component: EdgeSettingsNetworkComponent, data: { navbarTitleToBeTranslated: 'EDGE.CONFIG.INDEX.NETWORK_CONFIGURATION' } },
       { path: 'settings/profile', component: EdgeSettingsProfileComponent },
       { path: 'settings/profile/:componentId', component: AliasUpdateComponent },
       { path: 'settings/systemexecute', component: EdgeSettingsSystemExecuteComponent },
-      { path: 'settings/systemlog', component: EdgeSettingsSystemLogComponent, data: { navbarTitleToBeTranslated: 'Edge.Config.Index.liveLog' } },
-      { path: 'settings/system', component: EdgeSettingsSystemComponent, data: { navbarTitleToBeTranslated: 'Edge.Config.Index.SYSTEM' } },
+      { path: 'settings/systemlog', component: EdgeSettingsSystemLogComponent, data: { navbarTitleToBeTranslated: 'EDGE.CONFIG.INDEX.LIVE_LOG' } },
+      { path: 'settings/system', component: EdgeSettingsSystemComponent, data: { navbarTitleToBeTranslated: 'EDGE.CONFIG.INDEX.SYSTEM' } },
       { path: 'settings/app', data: { navbarTitle: environment.edgeShortName + ' Apps' }, component: EdgeSettingsAppIndex },
       { path: 'settings/app/install/:appId', component: EdgeSettingsAppInstall },
       { path: 'settings/app/update/:appId', component: EdgeSettingsAppUpdate },

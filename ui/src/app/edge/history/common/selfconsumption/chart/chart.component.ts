@@ -28,7 +28,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 }],
             output: (data: HistoryUtils.ChannelData) => {
                 return [{
-                    name: this.translate.instant('General.selfConsumption'),
+                    name: this.translate.instant('GENERAL.SELF_CONSUMPTION'),
                     nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
                         return Utils.calculateSelfConsumption(energyValues?.result.data['_sum/GridSellActiveEnergy'] ?? null, energyValues?.result.data['_sum/ProductionActiveEnergy'] ?? null);
                     },

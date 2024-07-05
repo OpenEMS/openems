@@ -44,28 +44,28 @@ export class FlatComponent extends AbstractFlatWidget {
 
         switch (currentData.allComponents[this.component.id + '/DelayChargeState']) {
             case -1:
-                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.notDefined');
+                this.state = this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NOT_DEFINED');
                 break;
             case 0:
-                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.chargeLimitActive');
+                this.state = this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.CHARGE_LIMIT_ACTIVE');
                 break;
             case 1:
-                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.passedEndTime');
+                this.state = this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.PASSED_END_TIME');
                 break;
             case 2:
-                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.storageAlreadyFull');
+                this.state = this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.STORAGE_ALREADY_FULL');
                 break;
             case 3:
-                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.endTimeNotCalculated');
+                this.state = this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.END_TIME_NOT_CALCULATED');
                 break;
             case 4:
-                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitPossible');
+                this.state = this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_POSSIBLE');
                 break;
             case 5:
             case 7:
-                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive');
+                this.state = this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_ACTIVE');
                 break;
-            case 8: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed');
+            case 8: this.state = this.translate.instant('EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.CHARGING_DELAYED');
                 break;
         }
 

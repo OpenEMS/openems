@@ -190,7 +190,7 @@ export namespace Converter {
 
   export const ON_OFF = (translate: TranslateService) => {
     return (raw): string => {
-      return translate.instant(raw == 1 ? 'General.on' : 'General.off');
+      return translate.instant(raw == 1 ? 'GENERAL.ON' : 'GENERAL.OFF');
     };
   };
 

@@ -25,7 +25,7 @@ export class TotalDcChartComponent extends AbstractHistoryChart {
         ],
       output: (data: HistoryUtils.ChannelData) => {
         return [{
-          name: this.translate.instant('General.production'),
+          name: this.translate.instant('GENERAL.PRODUCTION'),
           nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
             return energyResponse.result.data['_sum/ProductionDcActiveEnergy'];
           },

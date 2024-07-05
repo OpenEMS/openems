@@ -6,7 +6,7 @@
                     {{ alias }}
                 </ion-label>
                 <ion-label *ngIf="!config.properties.alias" translate>
-                    Edge.Index.Widgets.EVCS.chargingStationCluster
+                    EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION_CLUSTER
                 </ion-label>
             </ion-title>
             <ion-buttons slot="end">
@@ -24,7 +24,7 @@
                     <ion-header>
                         <ion-toolbar ion-background="transparent">
                             <ion-title style="text-align: center" translate>
-                                Edge.Index.Widgets.EVCS.overviewChargingStations
+                                EDGE.INDEX.WIDGETS.EVCS.OVERVIEW_CHARGING_STATIONS
                             </ion-title>
                             <ion-icon size="large" slot="end" name="arrow-dropright-outline">
                             </ion-icon>
@@ -33,7 +33,7 @@
                     <ion-item padding-top class="normalFontSize" lines="none">
                         <table class="full_width">
                             <tr>
-                                <td style="width:50%" translate>Edge.Index.Widgets.EVCS.amountOfChargingStations
+                                <td style="width:50%" translate>EDGE.INDEX.WIDGETS.EVCS.AMOUNT_OF_CHARGING_STATIONS
                                 </td>
                                 <td style="width:5%"></td>
                                 <td style="width:45%" class="align_right">
@@ -43,7 +43,7 @@
                             <tr>
                                 <td style="width:50%">
                                     <ion-label translate>
-                                        Edge.Index.Widgets.EVCS.totalChargingPower
+                                        EDGE.INDEX.WIDGETS.EVCS.TOTAL_CHARGING_POWER
                                     </ion-label>
                                 </td>
                                 <td style="width:5%"></td>
@@ -59,7 +59,7 @@
                         </evcsChart>
                     </ion-item>
                     <ion-label>
-                        <ion-label translate>Edge.Index.Widgets.EVCS.prioritization</ion-label>:
+                        <ion-label translate>EDGE.INDEX.WIDGETS.EVCS.PRIORITIZATION</ion-label>:
                         <ion-reorder-group (ionItemReorder)="doReorder($event)" disabled="false">
                             <ion-item *ngFor="let evcs of prioritizedEvcsList; let i = index" [attr.data-index]="i"
                                 lines="full">
@@ -106,7 +106,7 @@
                                             <table class="full_width">
                                                 <tr>
                                                     <td style="width:50%" translate>
-                                                        Edge.Index.Widgets.EVCS.chargingPower
+                                                        EDGE.INDEX.WIDGETS.EVCS.CHARGING_POWER
                                                     </td>
                                                     <td style="width:50%" class="align_right">
                                                         {{ getState(currentData[evcs_id + "/ChargePower"] |
@@ -117,7 +117,7 @@
                                                 </tr>
                                                 <tr>
                                                     <td style="width: 50%" translate>
-                                                        Edge.Index.Widgets.EVCS.energySinceBeginning</td>
+                                                        EDGE.INDEX.WIDGETS.EVCS.ENERGY_SINCE_BEGINNING</td>
                                                     <td style="width:50%" class="align_right">
                                                         {{ (currentData[evcs_id + "/EnergySession"] * 0.1) |
                                                         number:'1.0-0' }}
@@ -132,7 +132,7 @@
                                                 <table class="full_width" class="ion-text-wrap">
                                                     <tr>
                                                         <td style="width:50%" translate>
-                                                            Edge.Index.Widgets.EVCS.activateCharging
+                                                            EDGE.INDEX.WIDGETS.EVCS.ACTIVATE_CHARGING
                                                         </td>
                                                         <td style="width:50%" class="align_right">
                                                             <ion-toggle class="swiper-no-swiping" class="align_right"
@@ -154,7 +154,7 @@
                                                                         </ion-icon>
 
                                                                         <ion-label translate>
-                                                                            Edge.Index.Widgets.EVCS.OptimizedChargeMode.shortName
+                                                                            EDGE.INDEX.WIDGETS.EVCS.OPTIMIZED_CHARGE_MODE.SHORT_NAME
                                                                         </ion-label>
                                                                     </ion-item>
                                                                 </ion-segment-button>
@@ -182,13 +182,13 @@
                                                     <tr *ngIf="displayInfo" style="margin-top: 10px;">
                                                         <td style="width: 45%">
                                                             <ion-label translate class="ion-text-wrap">
-                                                                Edge.Index.Widgets.EVCS.OptimizedChargeMode.info
+                                                                EDGE.INDEX.WIDGETS.EVCS.OPTIMIZED_CHARGE_MODE.INFO
                                                             </ion-label>
                                                         </td>
                                                         <td style="width: 5%"></td>
                                                         <td style="width: 50%" colspan="2">
                                                             <ion-label translate class="ion-text-wrap">
-                                                                Edge.Index.Widgets.EVCS.ForceChargeMode.info
+                                                                EDGE.INDEX.WIDGETS.EVCS.FORCE_CHARGE_MODE.INFO
                                                             </ion-label>
                                                         </td>
                                                     </tr>
@@ -203,7 +203,7 @@
                                                             <table>
                                                                 <tr>
                                                                     <td width="50%" translate>
-                                                                        Edge.Index.Widgets.EVCS.OptimizedChargeMode.minCharging
+                                                                        EDGE.INDEX.WIDGETS.EVCS.OPTIMIZED_CHARGE_MODE.MIN_CHARGING
                                                                     </td>
                                                                     <td width="50%" style="text-align: right;">
                                                                         <ion-toggle class="swiper-no-swiping"
@@ -257,7 +257,7 @@
                                                             </table>
                                                             <br>
                                                             <ion-label style="border-radius: 5px;" translate>
-                                                                Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.info
+                                                                EDGE.INDEX.WIDGETS.EVCS.OPTIMIZED_CHARGE_MODE.CHARGING_PRIORITY.INFO
                                                             </ion-label>
                                                         </td>
                                                     </tr>
@@ -267,7 +267,7 @@
                                                             <table>
                                                                 <tr>
                                                                     <td width="50%" translate>
-                                                                        Edge.Index.Widgets.EVCS.ForceChargeMode.maxCharging
+                                                                        EDGE.INDEX.WIDGETS.EVCS.FORCE_CHARGE_MODE.MAX_CHARGING
                                                                     </td>
                                                                 </tr>
                                                             </table>
@@ -288,7 +288,7 @@
                                                                 </ion-label>
                                                             </ion-range>
                                                             <ion-label translate class="ion-text-wrap">
-                                                                Edge.Index.Widgets.EVCS.ForceChargeMode.maxChargingDetails
+                                                                EDGE.INDEX.WIDGETS.EVCS.FORCE_CHARGE_MODE.MAX_CHARGING_DETAILS
                                                             </ion-label>
                                                         </td>
                                                     </tr>
@@ -308,13 +308,13 @@
                                         *ngIf="currentData[evcs_id + '/State'] === 3">
                                         <tr>
                                             <td translate>
-                                                Edge.Index.Widgets.EVCS.NoConnection.description
+                                                EDGE.INDEX.WIDGETS.EVCS.NO_CONNECTION.DESCRIPTION
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>
                                                 <ul>
-                                                    <li translate>Edge.Index.Widgets.EVCS.NoConnection.help1</li>
+                                                    <li translate>EDGE.INDEX.WIDGETS.EVCS.NO_CONNECTION.HELP1</li>
                                                 </ul>
                                             </td>
                                         </tr>

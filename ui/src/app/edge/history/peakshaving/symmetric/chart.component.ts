@@ -69,7 +69,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant('General.measuredValue'),
+                        label: this.translate.instant('GENERAL.MEASURED_VALUE'),
                         data: data,
                         hidden: false,
                     });
@@ -89,7 +89,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant('Edge.Index.Widgets.Peakshaving.rechargePower'),
+                        label: this.translate.instant('EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER'),
                         data: data,
                         hidden: false,
                         borderDash: [3, 3],
@@ -110,7 +110,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant('Edge.Index.Widgets.Peakshaving.peakshavingPower'),
+                        label: this.translate.instant('EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER'),
                         data: data,
                         hidden: false,
                         borderDash: [3, 3],
@@ -142,7 +142,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant('General.chargePower'),
+                        label: this.translate.instant('GENERAL.CHARGE_POWER'),
                         data: chargeData,
                         borderDash: [10, 10],
                     });
@@ -163,7 +163,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant('General.dischargePower'),
+                        label: this.translate.instant('GENERAL.DISCHARGE_POWER'),
                         data: dischargeData,
                         borderDash: [10, 10],
                     });

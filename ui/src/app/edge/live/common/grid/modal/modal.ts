@@ -22,7 +22,7 @@ export class ModalComponent extends AbstractFormlyComponent {
     // Grid-Mode
     const lines: OeFormlyField[] = [{
       type: 'channel-line',
-      name: translate.instant("General.offGrid"),
+      name: translate.instant("GENERAL.OFF_GRID"),
       channel: '_sum/GridMode',
       filter: Filter.GRID_MODE_IS_OFF_GRID,
       converter: Converter.HIDE_VALUE,
@@ -35,13 +35,13 @@ export class ModalComponent extends AbstractFormlyComponent {
       lines.push(
         {
           type: 'channel-line',
-          name: translate.instant("General.gridSellAdvanced"),
+          name: translate.instant("GENERAL.GRID_SELL_ADVANCED"),
           channel: '_sum/GridActivePower',
           converter: Converter.GRID_SELL_POWER_OR_ZERO,
         },
         {
           type: 'channel-line',
-          name: translate.instant("General.gridBuyAdvanced"),
+          name: translate.instant("GENERAL.GRID_BUY_ADVANCED"),
           channel: '_sum/GridActivePower',
           converter: Converter.GRID_BUY_POWER_OR_ZERO,
         }, {
@@ -56,13 +56,13 @@ export class ModalComponent extends AbstractFormlyComponent {
         lines.push(
           {
             type: 'channel-line',
-            name: translate.instant("General.gridSellAdvanced"),
+            name: translate.instant("GENERAL.GRID_SELL_ADVANCED"),
             channel: meter.id + '/ActivePower',
             converter: Converter.GRID_SELL_POWER_OR_ZERO,
           },
           {
             type: 'channel-line',
-            name: translate.instant("General.gridBuyAdvanced"),
+            name: translate.instant("GENERAL.GRID_BUY_ADVANCED"),
             channel: meter.id + '/ActivePower',
             converter: Converter.GRID_BUY_POWER_OR_ZERO,
           });
@@ -89,12 +89,12 @@ export class ModalComponent extends AbstractFormlyComponent {
       // Technical info
       lines.push({
         type: 'info-line',
-        name: translate.instant("Edge.Index.Widgets.phasesInfo"),
+        name: translate.instant("EDGE.INDEX.WIDGETS.PHASES_INFO"),
       });
     }
 
     return {
-      title: translate.instant('General.grid'),
+      title: translate.instant('GENERAL.GRID'),
       lines: lines,
     };
   }
@@ -105,7 +105,7 @@ export class ModalComponent extends AbstractFormlyComponent {
         type: 'children-line',
         name: {
           channel: ChannelAddress.fromString(component.id + '/ActivePower' + phase),
-          converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, translate.instant('General.phase') + " " + phase),
+          converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, translate.instant('GENERAL.PHASE') + " " + phase),
         },
         indentation: TextIndentation.SINGLE,
         children: ModalComponent.generatePhasesLineItems(role, phase, component),

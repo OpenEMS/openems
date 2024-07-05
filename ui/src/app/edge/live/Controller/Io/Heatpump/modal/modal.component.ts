@@ -55,10 +55,10 @@ export class Controller_Io_HeatpumpModalComponent implements OnInit {
       ]).then(() => {
         this.component.properties.mode = newMode;
         this.formGroup.markAsPristine();
-        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+        this.service.toast(this.translate.instant('GENERAL.CHANGE_ACCEPTED'), 'success');
       }).catch(reason => {
         this.component.properties.mode = oldMode;
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+        this.service.toast(this.translate.instant('GENERAL.CHANGE_FAILED') + '\n' + reason.error.message, 'danger');
         console.warn(reason);
       });
     }
@@ -87,20 +87,20 @@ export class Controller_Io_HeatpumpModalComponent implements OnInit {
           this.loading = true;
           this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
             this.component.properties.manualState = this.formGroup.value.manualState;
-            this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+            this.service.toast(this.translate.instant('GENERAL.CHANGE_ACCEPTED'), 'success');
             this.loading = false;
           }).catch(reason => {
             this.formGroup.controls['minTime'].setValue(this.component.properties.manualState);
-            this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+            this.service.toast(this.translate.instant('GENERAL.CHANGE_FAILED') + '\n' + reason, 'danger');
             this.loading = false;
             console.warn(reason);
           });
           this.formGroup.markAsPristine();
         } else {
-          this.service.toast(this.translate.instant('Edge.Index.Widgets.HeatPump.relationError'), 'danger');
+          this.service.toast(this.translate.instant('EDGE.INDEX.WIDGETS.HEAT_PUMP.RELATION_ERROR'), 'danger');
         }
       } else {
-        this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
+        this.service.toast(this.translate.instant('GENERAL.INSUFFICIENT_RIGHTS'), 'danger');
       }
     }
   }

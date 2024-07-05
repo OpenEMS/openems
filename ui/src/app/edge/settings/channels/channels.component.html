@@ -15,7 +15,7 @@
             <ion-list>
               <ion-item lines="none">
                 <ion-select style="white-space: initial;width: 100%;" #selectedComponentId interface="alert"
-                  [placeholder]="'CHANNELS.Component'| translate" (ionChange)="onSelectedComponentChanged($event)">
+                  [placeholder]="'CHANNELS.COMPONENT'| translate" (ionChange)="onSelectedComponentChanged($event)">
                   <ion-select-option style=" white-space: normal !important;"
                     *ngFor="let entry of (config.components | keys)" [value]="entry.key">
                     {{ entry.value.id }} ({{ entry.value.alias }})</ion-select-option>

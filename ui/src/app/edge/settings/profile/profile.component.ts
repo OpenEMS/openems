@@ -36,7 +36,7 @@ export class ProfileComponent implements OnInit {
   ) { }
 
   public ngOnInit() {
-    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.systemProfile' }, this.route).then(edge => {
+    this.service.setCurrentComponent({ languageKey: 'EDGE.CONFIG.INDEX.SYSTEM_PROFILE' }, this.route).then(edge => {
       this.edge = edge;
       this.service.getConfig().then(config => {
         this.config = config;
@@ -52,7 +52,7 @@ export class ProfileComponent implements OnInit {
       edge.sendRequest(this.service.websocket, request).then(response => {
         Utils.downloadXlsx(response as Base64PayloadResponse, "Modbus-TCP-" + edge.id);
       }).catch(reason => {
-        this.service.toast(this.translate.instant('Edge.Config.PROFILE.ERROR_DOWNLOADING_MODBUS_PROTOCOL') + ": " + (reason as JsonrpcResponseError).error.message, 'danger');
+        this.service.toast(this.translate.instant('EDGE.CONFIG.PROFILE.ERROR_DOWNLOADING_MODBUS_PROTOCOL') + ": " + (reason as JsonrpcResponseError).error.message, 'danger');
       });
     });
   }

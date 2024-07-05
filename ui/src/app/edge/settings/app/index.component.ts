@@ -41,15 +41,15 @@ export class IndexComponent implements OnInit, OnDestroy {
   public apps: GetApps.App[] = [];
 
   public installedApps: AppList = {
-    name: 'Edge.Config.App.installed', appCategories: []
+    name: 'EDGE.CONFIG.APP.INSTALLED', appCategories: []
     , shouldBeShown: () => this.key === null, // only show installed apps when the user is not currently selecting an app from a key
   };
   public availableApps: AppList = {
-    name: 'Edge.Config.App.available', appCategories: []
+    name: 'EDGE.CONFIG.APP.AVAILABLE', appCategories: []
     , shouldBeShown: () => true, // always show available apps
   };
   public incompatibleApps: AppList = {
-    name: 'Edge.Config.App.incompatible', appCategories: []
+    name: 'EDGE.CONFIG.APP.INCOMPATIBLE', appCategories: []
     , shouldBeShown: () => this.edge.roleIsAtLeast(Role.ADMIN), // only show incompatible apps for admins
   };
 
@@ -95,7 +95,7 @@ export class IndexComponent implements OnInit, OnDestroy {
     });
 
     this.service.setCurrentComponent({
-      languageKey: 'Edge.Config.App.NAME_WITH_EDGE_NAME',
+      languageKey: 'EDGE.CONFIG.APP.NAME_WITH_EDGE_NAME',
       interpolateParams: { edgeShortName: environment.edgeShortName },
     }, this.route).then(edge => {
       this.edge = edge;

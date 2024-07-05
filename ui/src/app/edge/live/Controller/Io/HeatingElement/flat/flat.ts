@@ -52,15 +52,15 @@ export class FlatComponent extends AbstractFlatWidget {
         // get current mode
         switch (currentData.allComponents[this.component.id + '/' + FlatComponent.PROPERTY_MODE]) {
             case 'MANUAL_ON': {
-                this.mode = 'General.on';
+                this.mode = 'GENERAL.ON';
                 break;
             }
             case 'MANUAL_OFF': {
-                this.mode = 'General.off';
+                this.mode = 'GENERAL.OFF';
                 break;
             }
             case 'AUTOMATIC': {
-                this.mode = 'General.automatic';
+                this.mode = 'GENERAL.AUTOMATIC';
                 break;
             }
         }
@@ -76,17 +76,17 @@ export class FlatComponent extends AbstractFlatWidget {
         // Get current state
         this.activePhases.next(value);
         if (this.activePhases.value > 0) {
-            this.state = 'General.active';
+            this.state = 'GENERAL.ACTIVE';
 
             // Check forced heat
             // TODO: Use only Status if edge version is latest [2022.8]
             this.runState = currentData.allComponents[this.component.id + '/' + 'Status'];
 
             if (this.runState == Status.ActiveForced) {
-                this.state = 'Edge.Index.Widgets.Heatingelement.activeForced';
+                this.state = 'EDGE.INDEX.WIDGETS.HEATINGELEMENT.ACTIVE_FORCED';
             }
         } else if (this.activePhases.value == 0) {
-            this.state = 'General.inactive';
+            this.state = 'GENERAL.INACTIVE';
         }
     }
 

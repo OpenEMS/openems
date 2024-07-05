@@ -25,22 +25,22 @@
               </div>
               <!-- This button will be invisible until the feature gets implemented -->
               <div *ngIf="false">
-                <ion-button style="width: 100%;" disabled translate>Edge.Config.App.buyApp</ion-button>
+                <ion-button style="width: 100%;" disabled translate>EDGE.CONFIG.APP.BUY_APP</ion-button>
               </div>
               <div *ngIf="!(isPreInstalledApp || isFreeApp)">
                 <ion-button style="width: 100%;" (click)="registerKey(app.appId)" translate>
-                  Edge.Config.App.Key.registerKey</ion-button>
+                  EDGE.CONFIG.APP.KEY.REGISTER_KEY</ion-button>
               </div>
               <div>
                 <ion-button style="width: 100%;" [disabled]="app.instanceIds.length === 0"
                   [routerLink]="['../../update', app.appId]" [queryParams]="{name: app.name}" translate>
-                  Edge.Config.App.modifyApp</ion-button>
+                  EDGE.CONFIG.APP.MODIFY_APP</ion-button>
               </div>
               <div *ngIf="!isPreInstalledApp">
                 <ion-button style="width: 100%;" [disabled]="(app.cardinality !== 'MULTIPLE' && app.instanceIds.length !== 0) 
                   || app.status.name !== 'INSTALLABLE' 
                   || !(canEnterKey || hasPredefinedKey)" (click)="installApp(app.appId)"
-                  translate>Edge.Config.App.createApp
+                  translate>EDGE.CONFIG.APP.CREATE_APP
                 </ion-button>
               </div>
             </ion-card-content>

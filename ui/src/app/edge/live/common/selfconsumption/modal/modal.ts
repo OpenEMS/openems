@@ -14,10 +14,10 @@ export class ModalComponent extends AbstractFormlyComponent {
 
     public static generateView(translate: TranslateService): OeFormlyView {
         return {
-            title: translate.instant('General.selfConsumption'),
+            title: translate.instant('GENERAL.SELF_CONSUMPTION'),
             lines: [{
                 type: 'info-line',
-                name: translate.instant("Edge.Index.Widgets.selfconsumptionInfo"),
+                name: translate.instant("EDGE.INDEX.WIDGETS.SELFCONSUMPTION_INFO"),
             }],
         };
     }

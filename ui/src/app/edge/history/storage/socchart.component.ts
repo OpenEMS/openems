@@ -75,7 +75,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                 } else {
                                     if (channelAddress.channelId === 'EssSoc') {
                                         datasets.push({
-                                            label: (moreThanOneESS ? this.translate.instant('General.TOTAL') : this.translate.instant('General.soc')),
+                                            label: (moreThanOneESS ? this.translate.instant('GENERAL.TOTAL') : this.translate.instant('GENERAL.SOC')),
                                             data: data,
                                         });
                                         this.colors.push({
@@ -97,7 +97,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                 if (channelAddress.channelId === 'ActualReserveSoc') {
                                     datasets.push({
                                         label:
-                                            this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.EMERGENCY_RESERVE"),
+                                            this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("EDGE.INDEX.EMERGENCY_RESERVE.EMERGENCY_RESERVE"),
                                         data: data,
                                         borderDash: [3, 3],
 

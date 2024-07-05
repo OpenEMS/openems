@@ -9,19 +9,19 @@
       <ion-card-content>
         <table class="full_width">
           <tr *ngIf="activeTimeAvoidLowCharging !== null && activeTimeAvoidLowCharging > 59">
-            <td style="width:65%" translate>Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed</td>
+            <td style="width:65%" translate>EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.CHARGING_DELAYED</td>
             <td style="width:35%" class="align_right">
               {{ activeTimeAvoidLowCharging | formatSecondsToDuration }}
             </td>
           <tr>
           <tr *ngIf="activeTimeDelayCharge !== null && activeTimeDelayCharge > 59">
-            <td style="width:65%" translate>Edge.Index.Widgets.GridOptimizedCharge.State.chargeLimitActive</td>
+            <td style="width:65%" translate>EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.CHARGE_LIMIT_ACTIVE</td>
             <td style="width:35%" class="align_right">
               {{ activeTimeDelayCharge | formatSecondsToDuration }}
             </td>
           </tr>
           <tr *ngIf="activeTimeSellToGridLimit !== null && activeTimeSellToGridLimit > 59">
-            <td style="width:65%" translate>Edge.Index.Widgets.GridOptimizedCharge.gridFeedInLimitationAvoided</td>
+            <td style="width:65%" translate>EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.GRID_FEED_IN_LIMITATION_AVOIDED</td>
             <td style="width:35%" class="align_right">
               {{ activeTimeSellToGridLimit | formatSecondsToDuration }}
             </td>

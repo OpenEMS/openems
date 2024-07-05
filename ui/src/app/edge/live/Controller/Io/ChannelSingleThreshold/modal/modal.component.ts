@@ -145,10 +145,10 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
         { name: 'mode', value: newMode },
       ]).then(() => {
         this.component.properties.mode = newMode;
-        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+        this.service.toast(this.translate.instant('GENERAL.CHANGE_ACCEPTED'), 'success');
       }).catch(reason => {
         this.component.properties.mode = oldMode;
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+        this.service.toast(this.translate.instant('GENERAL.CHANGE_FAILED') + '\n' + reason.error.message, 'danger');
         console.warn(reason);
       });
     }
@@ -209,7 +209,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
               this.component.properties.inputChannelAddress = this.convertToChannelAddress(this.inputMode.value) != this.component.properties.inputChannelAddress ? this.convertToChannelAddress(this.inputMode.value) : this.component.properties.inputChannelAddress;
               this.component.properties.invert = this.invert.value;
               this.loading = false;
-              this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+              this.service.toast(this.translate.instant('GENERAL.CHANGE_ACCEPTED'), 'success');
             }).catch(reason => {
               this.loading = false;
               this.minimumSwitchingTime.setValue(this.component.properties.minimumSwitchingTime);
@@ -218,7 +218,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
               this.inputMode.setValue(this.convertToInputMode(this.component.properties.inputChannelAddress, this.component.properties.threshold));
               this.invert.setValue(this.component.properties.invert);
               this.loading = false;
-              this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+              this.service.toast(this.translate.instant('GENERAL.CHANGE_FAILED') + '\n' + reason.error.message, 'danger');
               console.warn(reason);
             });
             if (this.inputMode.value == 'GRIDSELL') {
@@ -228,13 +228,13 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
             }
             this.formGroup.markAsPristine();
           } else {
-            this.service.toast(this.translate.instant('Edge.Index.Widgets.Singlethreshold.relationError'), 'danger');
+            this.service.toast(this.translate.instant('EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.RELATION_ERROR'), 'danger');
           }
         } else {
-          this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
+          this.service.toast(this.translate.instant('GENERAL.INPUT_NOT_VALID'), 'danger');
         }
       } else {
-        this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
+        this.service.toast(this.translate.instant('GENERAL.INSUFFICIENT_RIGHTS'), 'danger');
       }
     }
   }

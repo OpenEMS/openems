@@ -38,7 +38,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
         service: Service,
         unitpipe: UnitvaluePipe,
     ) {
-        super('General.production', "up", "#36aed1", translate, service, "Common_Production");
+        super('GENERAL.PRODUCTION', "up", "#36aed1", translate, service, "Common_Production");
         this.unitpipe = unitpipe;
     }
 
