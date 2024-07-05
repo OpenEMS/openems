@@ -37,7 +37,7 @@ describe('DateUtils', () => {
   });
 
   it('#isDateBefore - checks if given date is before date to be compared to', () => {
-    const date: Date = DateUtils.stringToDate('2023-01-01');
+    const date: Date = DateUtils.stringToDate('2023-01-01') as Date;
     expect(DateUtils.isDateBefore(date, DateUtils.stringToDate("2023-01-31"))).toEqual(true);
     expect(DateUtils.isDateBefore(date, DateUtils.stringToDate("2022-12-31"))).toEqual(false);
     expect(DateUtils.isDateBefore(date, DateUtils.stringToDate("2023-01-01"))).toEqual(false);

@@ -10,7 +10,7 @@ export namespace ArrayUtils {
    * @param arr the arr
    * @returns a number if arr not empty, else null
    */
-  export function findSmallestNumber(arr: number[]): number | null {
+  export function findSmallestNumber(arr: (number | null | undefined)[]): number | null {
     if (arr?.length === 0 || arr?.every(el => el == null)) {
       return null; // Return undefined for an empty array or handle it based on your requirements
     }
@@ -23,7 +23,7 @@ export namespace ArrayUtils {
    * @param arr the arr
    * @returns a number if arr not empty, else null
    */
-  export function findBiggestNumber(arr: number[]): number | null {
+  export function findBiggestNumber(arr: (number | null | undefined)[]): number | null {
     if (arr?.length === 0 || arr?.every(el => el == null)) {
       return null; // Return undefined for an empty array or handle it based on your requirements
     }
