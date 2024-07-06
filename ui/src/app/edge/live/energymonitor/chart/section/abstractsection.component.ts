@@ -278,12 +278,12 @@ export abstract class AbstractSection {
     }
 
     /**
-    * calculate...
-    * ...length of square and image;
-    * ...x and y of text and image;
-    * ...fontsize of text;
-    */
-    private getSquare(innerRadius: any): SvgSquare {
+     * calculate...
+     * ...length of square and image;
+     * ...x and y of text and image;
+     * ...fontsize of text;
+     */
+    private getSquare(innerRadius: number): SvgSquare {
         const width = innerRadius / 2.5;
 
         const textSize = width / 4;

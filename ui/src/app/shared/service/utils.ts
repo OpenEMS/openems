@@ -19,14 +19,14 @@ export class Utils {
    * @param element
    * @param array
    */
-  public static isLastElement(element, array: any[]) {
+  public static isLastElement<T>(element: T, array: T[]): boolean {
     return element == array[array.length - 1];
   }
 
   /**
    * Creates a deep copy of the object
    */
-  public static deepCopy(obj: any, target?: any) {
+  public static deepCopy<T>(obj: T, target?: T): T {
     let copy: any;
 
     // Handle the 3 simple types, and null or undefined
@@ -162,7 +162,7 @@ export class Utils {
    * @param v2
    * @returns
    */
-  public static compareArraysSafely(v1: any[], v2: any[]): boolean {
+  public static compareArraysSafely<T>(v1: T[] | null, v2: T[] | null): boolean {
     if (v1 == null || v2 == null) {
       return null;
     }
@@ -236,7 +236,7 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_TO_WATT = (value: any): string => {
+  public static CONVERT_TO_WATT = (value: number | null): string => {
     if (value == null) {
       return '-';
     } else if (value >= 0) {
@@ -252,7 +252,7 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_WATT_TO_KILOWATT = (value: any): string => {
+  public static CONVERT_WATT_TO_KILOWATT = (value: number | null): string => {
     if (value == null) {
       return '-';
     }
@@ -271,7 +271,7 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_SECONDS_TO_DATE_FORMAT = (value: any): string => {
+  public static CONVERT_SECONDS_TO_DATE_FORMAT = (value: number): string => {
     return new Date(value * 1000).toLocaleTimeString();
   };
 
@@ -291,7 +291,7 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_TO_WATTHOURS = (value: any): string => {
+  public static CONVERT_TO_WATTHOURS = (value: number): string => {
     return formatNumber(value, 'de', '1.0-1') + ' Wh';
   };
 
@@ -301,7 +301,7 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_TO_KILO_WATTHOURS = (value: any): string => {
+  public static CONVERT_TO_KILO_WATTHOURS = (value: number): string => {
     return formatNumber(Utils.divideSafely(value, 1000), 'de', '1.0-1') + ' kWh';
   };
 
@@ -381,7 +381,7 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
-    return (value: any): string =>
+    return (value: number | null): string =>
       (!value ? "-" : formatNumber(value / 10, 'de', '1.0-' + decimal)) + ' ' + label;
   };
 
@@ -517,7 +517,7 @@ export class Utils {
    * @param array the array to be shuffled
    * @returns the shuffled array
    */
-  public static shuffleArray(array: any[]): any[] {
+  public static shuffleArray<T>(array: T[]): T[] {
     return array.sort(() => Math.random() - 0.5);
   }
 
@@ -529,7 +529,7 @@ export class Utils {
    * @param source the source Object.
    * @returns the value.
    */
-  public static isArrayExistingInSource(arrayToCheck: string[], source: any): boolean {
+  public static isArrayExistingInSource(arrayToCheck: string[], source: Record<string, any>): boolean {
     return arrayToCheck.every(value => {
       if (value in source) {
         return true;

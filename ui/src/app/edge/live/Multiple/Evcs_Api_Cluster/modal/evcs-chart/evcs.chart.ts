@@ -23,7 +23,7 @@ export class EvcsChartComponent implements OnInit, OnChanges {
 
   public loading: boolean = true;
   public options: BarChartOptions;
-  public labels: any[];
+  public labels: string[];
   public datasets: Chart.ChartDataset[];
   public chart: Chart.Chart; // This will hold our chart info
 

@@ -37,13 +37,13 @@ export class Product {
     public static readonly OPENEMS_BACKEND = new Product('OpenEMS Edge', 'https://github.com/OpenEMS/openems');
 
     // private to disallow creating other instances of this type
-    private constructor(public readonly name: string, public readonly url: any) {
+    private constructor(public readonly name: string, public readonly url: string) {
     }
 }
 
 export class App {
     // private to disallow creating other instances of this type
-    private constructor(public readonly name: string, public readonly url: any) {
+    private constructor(public readonly name: string, public readonly url: string) {
     }
 }
 
@@ -52,7 +52,7 @@ export class OpenemsComponent {
     public static readonly SDM630_ZAEHLER = new OpenemsComponent('SDM 630 Zähler', 'https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.microcare.sdm630');
 
     // private to disallow creating other instances of this type
-    private constructor(public readonly name: string, public readonly url: any) {
+    private constructor(public readonly name: string, public readonly url: string) {
     }
 }
 

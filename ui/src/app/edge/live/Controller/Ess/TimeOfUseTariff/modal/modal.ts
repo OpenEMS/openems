@@ -11,7 +11,7 @@ import { Controller_Ess_TimeOfUseTariff } from '../Ess_TimeOfUseTariff';
 export class ModalComponent extends AbstractModal {
 
     protected readonly CONVERT_TIME_OF_USE_TARIFF_STATE = this.Utils.CONVERT_TIME_OF_USE_TARIFF_STATE(this.translate);
-    protected priceWithCurrency: any;
+    protected priceWithCurrency: string;
 
     protected override getFormGroup(): FormGroup {
         return this.formBuilder.group({
