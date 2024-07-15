@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { ChannelAddress } from '../type/channeladdress';
-import { Widgets } from '../type/widget';
+import { WidgetNature, Widgets } from '../type/widget';
 import { Edge } from './edge';
 
 export interface CategorizedComponents {
@@ -331,6 +331,17 @@ export class EdgeConfig {
     }
 
     /**
+     * Is the given meter implementing given nature
+     * 
+     * @param component the meter component
+     * @param natureId the nature id
+     * @returns true if component implements nature
+     */
+    public isComponentImplementingNature(component: EdgeConfig.Component, natureId: string) {
+        return this.getNatureIdsByFactoryId(component.factoryId)?.filter(nature => nature === natureId)?.length > 0 ?? false;
+    }
+
+    /**
      * Is the given Meter of type 'PRODUCTION'?
      *
      * @param component the Meter Component
@@ -340,22 +351,18 @@ export class EdgeConfig {
         if (component.properties['type'] == "PRODUCTION") {
             return true;
         }
+
+        if (this.isComponentImplementingNature(component, WidgetNature.MANAGED_SYMMETRIC_PVINVERTER)) {
+            return true;
+        }
+
         // TODO properties in OSGi Component annotations are not transmitted correctly with Apache Felix SCR
         switch (component.factoryId) {
             case 'Fenecon.Dess.PvMeter':
             case 'Fenecon.Mini.PvMeter':
             case 'Fenecon.Pro.PvMeter':
-            case 'Kaco.BlueplanetHybrid10.PvInverter':
             case 'Kostal.Piko.Charger':
-            case 'PV-Inverter.Fronius':
-            case 'PV-Inverter.KACO.blueplanet':
-            case 'PV-Inverter.Kostal':
-            case 'PV-Inverter.SMA.SunnyTripower':
-            case 'PV-Inverter.Solarlog':
-            case 'PV-Inverter.SunSpec':
             case 'Simulator.ProductionMeter.Acting':
-            case 'Simulator.PvInverter':
-            case 'SolarEdge.PV-Inverter':
                 return true;
         }
 
