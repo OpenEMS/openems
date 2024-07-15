@@ -24,7 +24,7 @@
     "@ionic/angular": "^6.7.5",
     "@ionic/cli": "^7.1.6",
     "@ngx-formly/core": "^6.3.0",
-    "@ngx-formly/ionic": "^6.3.5",
+    "@ngx-formly/ionic": "^6.3.6",
     "@ngx-formly/schematics": "^6.3.0",
     "@ngx-translate/core": "^15.0.0",
     "@nodro7/angular-mydatepicker": "^0.14.0",
