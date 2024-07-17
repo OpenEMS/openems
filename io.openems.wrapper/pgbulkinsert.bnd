@@ -1,10 +1,10 @@
 Bundle-Name: pgbulkinsert
 Bundle-DocURL: https://github.com/PgBulkInsert/PgBulkInsert
 Bundle-License: https://opensource.org/licenses/MIT
-Bundle-Version: 8.1.3
+Bundle-Version: 8.1.4
 
 Include-Resource: \
-	@pgbulkinsert-8.1.3.jar,\
+	@pgbulkinsert-8.1.4.jar,\
 
 -dsannotations: *
 
