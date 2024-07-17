@@ -44,7 +44,7 @@
     "ngx-spinner": "^16.0.2",
     "roboto-fontface": "^0.10.0",
     "rxjs": "~6.6.7",
-    "swiper": "11.1.4",
+    "swiper": "11.1.5",
     "tslib": "^2.6.2",
     "uuid": "^10.0.0",
     "zone.js": "~0.13.3"
