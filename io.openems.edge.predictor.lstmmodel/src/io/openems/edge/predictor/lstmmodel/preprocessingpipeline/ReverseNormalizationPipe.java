@@ -12,37 +12,25 @@ public class ReverseNormalizationPipe implements Stage<Object, Object> {
 		this.mean = average;
 		this.standerDeviation = std;
 		this.hyperParameters = hyp;
-
 	}
 
 	@Override
 	public Object execute(Object input) {
-		try {
-			double[] inputData = (double[]) input;
-			double[] mean = (double[]) this.mean;
-			double[] std = (double[]) this.standerDeviation;
-			return DataModification.reverseStandrize(inputData, mean, std, this.hyperParameters);
-		} catch (ClassCastException e) {
-			try {
-				double inputData = (double) input;
-				double mean = (double) this.mean;
-				double std = (double) this.standerDeviation;
-				return DataModification.reverseStandrize(inputData, mean, std, this.hyperParameters);
-
-			} catch (ClassCastException f) {
-				try {
-					double[] inputData = (double[]) input;
-					double mean = (double) this.mean;
-					double std = (double) this.standerDeviation;
-					return DataModification.reverseStandrize(inputData, mean, std, this.hyperParameters);
-
-				} catch (ClassCastException g) {
-					f.printStackTrace();
-					return null;
-				}
-			}
+		if (input instanceof double[] inputArray) {
+			if (this.mean instanceof double[] meanArray //
+					&& this.standerDeviation instanceof double[] sdArray) {
+				return DataModification.reverseStandrize(inputArray, meanArray, sdArray, this.hyperParameters);
+			} else if (this.mean instanceof Double meanValue //
+					&& this.standerDeviation instanceof Double sdValue) {
+				return DataModification.reverseStandrize(inputArray, meanValue, sdValue, this.hyperParameters);
+			} else
+				return null;
+		} else if (input instanceof Double inputArray) {
+			double mean = (double) this.mean;
+			double std = (double) this.standerDeviation;
+			return DataModification.reverseStandrize(inputArray, mean, std, this.hyperParameters);
+		} else {
+			return null;
 		}
-
 	}
-
 }

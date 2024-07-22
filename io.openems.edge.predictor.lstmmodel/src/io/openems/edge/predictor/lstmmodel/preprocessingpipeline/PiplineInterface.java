@@ -1,12 +1,11 @@
 package io.openems.edge.predictor.lstmmodel.preprocessingpipeline;
 
 /**
- * Defines an interface for a pipeline that processes data through stages.
+ * Represents a pipeline that processes data through a series of stages.
  *
- * @param <Out> The output type of the pipeline.
- * @param <In>  The input type of the pipeline.
+ * @param <O> The type of the output produced by the pipeline.
+ * @param <I> The type of the input consumed by the pipeline.
  */
-
 public interface PiplineInterface<O, I> {
 	/**
 	 * Adds a stage to the pipeline.
@@ -20,7 +19,5 @@ public interface PiplineInterface<O, I> {
 	 *
 	 * @return The result of executing the pipeline.
 	 */
-
 	Object execute();
-
 }

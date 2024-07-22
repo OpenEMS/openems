@@ -8,5 +8,4 @@ public interface Stage<O, I> {
 	 * @return The result of the processing, typically of type O.
 	 */
 	O execute(final I input);
-
 }

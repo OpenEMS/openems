@@ -1,13 +1,11 @@
 package io.openems.edge.predictor.lstmmodel.preprocessingpipeline;
 
-import io.openems.edge.predictor.lstmmodel.preprocessing.DataModification;
+import static io.openems.edge.predictor.lstmmodel.preprocessing.DataModification.removeNegatives;
 
 public class RemoveNegativesPipe implements Stage<Object, Object> {
 
 	@Override
 	public Object execute(Object input) {
-
-		return DataModification.removeNegatives((double[]) input);
+		return (input instanceof double[] in) ? removeNegatives(in) : null;
 	}
-
 }
