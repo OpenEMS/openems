@@ -5,20 +5,21 @@ import java.util.Collections;
 
 public class DynamicItterationValue {
 
-	public static int setItter(ArrayList<Double> error, int errorIndex, HyperParameters hyperParameters) {
+	public static int setIteration(ArrayList<Double> errors, int errorIndex, HyperParameters hyperParameters) {
 
-		if (error.isEmpty()) {
+		if (errors.isEmpty()) {
 			return 10;
 		}
-		double minErrorVal = Collections.min(error);
-		double maxErrorVal = Collections.max(error);
-		int minItterVal = 1;
-		int maxItteeVal = 10 * hyperParameters.getEpochTrack() + 1;
-		var val = minItterVal
-				+ (((error.get(errorIndex) - minErrorVal) / (maxErrorVal - minErrorVal)) * (maxItteeVal - minItterVal));
 
-		return (int) val;
+		var minError = Collections.min(errors);
+		var maxError = Collections.max(errors);
+		var minIteration = 1;
+		var maxIteration = 10 * hyperParameters.getEpochTrack() + 1;
 
+		var errorValue = errors.get(errorIndex);
+		var normalizedError = (errorValue - minError) / (maxError - minError);
+		var iterationValue = minIteration + (normalizedError * (maxIteration - minIteration));
+
+		return (int) Math.round(iterationValue);
 	}
-
 }

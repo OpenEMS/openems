@@ -70,7 +70,7 @@ public class MakeModelTest {
 			for (int j = 0; j < dataGroupedByMinute[i].length; j++) {
 
 				hyperParameters.setGdIterration(
-						DynamicItterationValue.setItter(hyperParameters.getAllModelErrorSeason(), k, hyperParameters));
+						DynamicItterationValue.setIteration(hyperParameters.getAllModelErrorSeason(), k, hyperParameters));
 
 				if (hyperParameters.getCount() == 0) {
 					weightSeasonality = generateInitialWeightMatrix(windowsSize, hyperParameters);
