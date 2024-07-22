@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
 import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
