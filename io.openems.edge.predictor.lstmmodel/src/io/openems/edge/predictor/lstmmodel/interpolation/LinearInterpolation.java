@@ -1,6 +1,7 @@
 package io.openems.edge.predictor.lstmmodel.interpolation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class LinearInterpolation {
 
@@ -15,11 +16,10 @@ public class LinearInterpolation {
 
 		ArrayList<ArrayList<Integer>> coordinate = determineInterpolatingPoints(data);
 		for (int i = 0; i < coordinate.size(); i++) {
-			Integer xVal1 = coordinate.get(i).get(0);
-			Integer xVal2 = coordinate.get(i).get(1);
+			var xVal1 = coordinate.get(i).get(0);
+			var xVal2 = coordinate.get(i).get(1);
 
-			ArrayList<Double> ineterPolationResult = computeInterpolation(xVal1, xVal2, data.get(xVal1),
-					data.get((int) xVal2));
+			var ineterPolationResult = computeInterpolation(xVal1, xVal2, data.get(xVal1), data.get((int) xVal2));
 			data = combine(data, ineterPolationResult, xVal1, xVal2);
 
 		}
@@ -40,11 +40,11 @@ public class LinearInterpolation {
 
 		ArrayList<ArrayList<Integer>> coordinates = new ArrayList<>();
 
-		boolean inNaNSequence = false;
-		int xVal1 = -1;
+		var inNaNSequence = false;
+		var xVal1 = -1;
 
 		for (int i = 0; i < data.size(); i++) {
-			double currentValue = data.get(i);
+			var currentValue = data.get(i);
 
 			if (Double.isNaN(currentValue)) {
 				if (!inNaNSequence) {
@@ -53,7 +53,7 @@ public class LinearInterpolation {
 				}
 			} else {
 				if (inNaNSequence) {
-					int xVal2 = i;
+					var xVal2 = i;
 					ArrayList<Integer> temp = new ArrayList<>();
 					temp.add(xVal1);
 					temp.add(xVal2);
@@ -63,7 +63,6 @@ public class LinearInterpolation {
 			}
 		}
 		return coordinates;
-
 	}
 
 	/**
@@ -77,9 +76,9 @@ public class LinearInterpolation {
 	 */
 
 	public static ArrayList<Double> computeInterpolation(int xValue1, int xValue2, double yValue1, double yValue2) {
-		ArrayList<Double> interPolatedResults = new ArrayList<Double>();
-		double xVal1 = (double) xValue1;
-		double xVal2 = (double) xValue2;
+		var interPolatedResults = new ArrayList<Double>();
+		var xVal1 = (double) xValue1;
+		var xVal2 = (double) xValue2;
 
 		for (int i = 1; i < (xValue2 - xValue1); i++) {
 			interPolatedResults
