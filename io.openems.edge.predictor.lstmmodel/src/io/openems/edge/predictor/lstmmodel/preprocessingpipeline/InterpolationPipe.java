@@ -5,7 +5,8 @@ import java.util.ArrayList;
 
 import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
 import io.openems.edge.predictor.lstmmodel.interpolation.InterpolationManager;
-import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
+import static io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion.to1DArrayList;
+import static io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion.to1DArray;
 
 public class InterpolationPipe implements Stage<Object, Object> {
 	private HyperParameters hyperParameters;
@@ -16,9 +17,11 @@ public class InterpolationPipe implements Stage<Object, Object> {
 
 	@Override
 	public Object execute(Object input) {
-		double[] inputData = (double[]) input;
-		InterpolationManager inter = new InterpolationManager(UtilityConversion.to1DArrayList(inputData),
-				this.hyperParameters);
-		return UtilityConversion.to1DArray(inter.getInterpolatedData());
+		if (input instanceof double[] in) {
+			var inList = to1DArrayList(in);
+			var inter = new InterpolationManager(inList, this.hyperParameters);
+			return to1DArray(inter.getInterpolatedData());
+		}
+		return null;
 	}
 }

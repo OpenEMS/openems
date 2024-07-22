@@ -4,8 +4,9 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
 import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
-import io.openems.edge.predictor.lstmmodel.preprocessing.DataModification;
-import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
+import static io.openems.edge.predictor.lstmmodel.preprocessing.DataModification.modifyFortrendPrediction;
+import static io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion.to1DArrayList;
+import static io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion.to2DArray;
 
 public class ModifyDataForTrend implements Stage<Object, Object> {
 
@@ -16,20 +17,20 @@ public class ModifyDataForTrend implements Stage<Object, Object> {
 	public ModifyDataForTrend(ArrayList<OffsetDateTime> date, HyperParameters hype) {
 		this.dates = date;
 		this.hyperparameters = hype;
-
 	}
 
 	@Override
 	public Object execute(Object input) {
-		double[] inputData = (double[]) input;
-		Object modifiedData = UtilityConversion.to2DArray(DataModification.modifyFortrendPrediction(
-				UtilityConversion.to1DArrayList(inputData), this.dates, this.hyperparameters));
-		// TODO Auto-generated method stub
-		return modifiedData;
+
+		if (input instanceof double[] inputData) {
+			var inList = to1DArrayList(inputData);
+			var modified = modifyFortrendPrediction(inList, this.dates, this.hyperparameters);
+			return to2DArray(modified);
+		}
+		return null;
 	}
 
 	public void setDates(ArrayList<OffsetDateTime> date) {
 		this.dates = date;
 	}
-
 }
