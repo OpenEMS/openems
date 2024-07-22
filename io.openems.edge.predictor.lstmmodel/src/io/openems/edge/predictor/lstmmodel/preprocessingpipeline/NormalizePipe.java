@@ -1,7 +1,5 @@
 package io.openems.edge.predictor.lstmmodel.preprocessingpipeline;
 
-import java.lang.reflect.Array;
-
 import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
 import io.openems.edge.predictor.lstmmodel.preprocessing.DataModification;
 
@@ -38,32 +36,27 @@ public class NormalizePipe implements Stage<Object, Object> {
 		public void make() {
 
 			if (this.input instanceof double[][][]) {
-				this.process = new Normalize3Dim(this.hyperParameters,(double[][][])this.input );
+				this.process = new Normalize3Dim(this.hyperParameters, (double[][][]) this.input);
 			} else if (this.input instanceof double[][]) {
-				this.process = new Normalize2Dim(this.hyperParameters,(double[][])this.input);
+				this.process = new Normalize2Dim(this.hyperParameters, (double[][]) this.input);
 			} else if (this.input instanceof double[]) {
-				this.process = new Normalize1Dim(this.hyperParameters,(double[])this.input);
+				this.process = new Normalize1Dim(this.hyperParameters, (double[]) this.input);
 			} else {
 				throw new IllegalArgumentException("Illegal Argument encountered during normalization");
 			}
 
 		}
 
-		
 	}
 
 	private class Normalize3Dim implements Stage<double[][][], double[][][]> {
 		private HyperParameters hyperParameters;
-		private double[][][]input ;
+		private double[][][] input;
 
-		public Normalize3Dim(HyperParameters hype,double[][][]data) {
+		public Normalize3Dim(HyperParameters hype, double[][][] data) {
 			this.hyperParameters = hype;
-			this.input=data;
+			this.input = data;
 		}
-
-		
-		
-		
 
 		@Override
 		public double[][][] execute(double[][][] in) {
@@ -78,7 +71,7 @@ public class NormalizePipe implements Stage<Object, Object> {
 			temp1[0] = normTrain;
 			temp1[1] = temp2;
 			return temp1;
-			
+
 		}
 	}
 
@@ -87,13 +80,13 @@ public class NormalizePipe implements Stage<Object, Object> {
 		private HyperParameters hyperParameters;
 		double[][] input;
 
-		public Normalize2Dim(HyperParameters hype,double[][]data) {
+		public Normalize2Dim(HyperParameters hype, double[][] data) {
 			this.hyperParameters = hype;
-			this.input=data;
+			this.input = data;
 		}
 
 		@Override
-		public double[][] execute(double[][]in) {
+		public double[][] execute(double[][] in) {
 			double[][] inputData = this.input;
 			double[][] normdata = DataModification.normalizeData(inputData, this.hyperParameters);
 			return normdata;
@@ -105,9 +98,9 @@ public class NormalizePipe implements Stage<Object, Object> {
 		private HyperParameters hyperParameters;
 		double[] input;
 
-		public Normalize1Dim(HyperParameters hype,double[] data) {
+		public Normalize1Dim(HyperParameters hype, double[] data) {
 			this.hyperParameters = hype;
-			this.input= data;
+			this.input = data;
 		}
 
 		@Override
@@ -117,6 +110,5 @@ public class NormalizePipe implements Stage<Object, Object> {
 
 		}
 	}
-	
-	
+
 }

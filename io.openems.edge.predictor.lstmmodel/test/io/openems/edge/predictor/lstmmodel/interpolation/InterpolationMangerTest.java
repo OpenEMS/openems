@@ -2,7 +2,6 @@ package io.openems.edge.predictor.lstmmodel.interpolation;
 
 import static org.junit.Assert.assertEquals;
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 

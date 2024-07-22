@@ -10,8 +10,6 @@ import io.openems.edge.predictor.lstmmodel.preprocessing.DataModification;
 import io.openems.edge.predictor.lstmmodel.preprocessingpipeline.test.MakeModelTest;
 import io.openems.edge.predictor.lstmmodel.preprocessingpipeline.test.ValidateSeasonailtyTest;
 import io.openems.edge.predictor.lstmmodel.preprocessingpipeline.test.ValidateTrendTest;
-import io.openems.edge.predictor.lstmmodel.validator.ValidationSeasonalityModel;
-import io.openems.edge.predictor.lstmmodel.validator.ValidationTrendModel;
 
 public class TrainAndValidateBatch2 {
 

@@ -158,7 +158,6 @@ public class PredictTrendTest {
 
 	public static void main(String[] args) {
 
-		PredictTrendTest obj = new PredictTrendTest();
 		String modelName = "ConsumptionActivePower";
 
 		HyperParameters hp = ReadAndSaveModels.read(modelName);
@@ -177,7 +176,8 @@ public class PredictTrendTest {
 						OffsetDateTime.of(2024, 7, 9, 18, 0, 0, 0, ZoneOffset.UTC),
 						OffsetDateTime.of(2024, 7, 10, 19, 0, 0, 0, ZoneOffset.UTC)));
 
-		var res = obj.predictTrendtest(data, date, ZonedDateTime.of(2024, 7, 9, 18, 0, 0, 0, ZoneOffset.UTC), hp);
+		var res = PredictTrendTest.predictTrendtest(data, date,
+				ZonedDateTime.of(2024, 7, 9, 18, 0, 0, 0, ZoneOffset.UTC), hp);
 		System.out.println(res);
 
 	}

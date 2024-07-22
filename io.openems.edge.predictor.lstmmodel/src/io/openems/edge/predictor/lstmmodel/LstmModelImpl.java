@@ -1,14 +1,19 @@
 package io.openems.edge.predictor.lstmmodel;
 
+import static io.openems.edge.predictor.lstmmodel.utilities.DataUtility.combine;
+import static io.openems.edge.predictor.lstmmodel.utilities.DataUtility.getData;
+import static io.openems.edge.predictor.lstmmodel.utilities.DataUtility.getDate;
+import static io.openems.edge.predictor.lstmmodel.utilities.DataUtility.getMinute;
+
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.SortedMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-import org.apache.commons.math3.geometry.euclidean.oned.Interval;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -38,12 +43,14 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.predictor.api.prediction.AbstractPredictor;
 import io.openems.edge.predictor.api.prediction.Prediction;
+import io.openems.edge.predictor.api.prediction.Prediction.Interval;
 import io.openems.edge.predictor.api.prediction.Predictor;
 import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
 import io.openems.edge.predictor.lstmmodel.common.ReadAndSaveModels;
 import io.openems.edge.predictor.lstmmodel.jsonrpc.GetPredictionRequest;
 import io.openems.edge.predictor.lstmmodel.jsonrpc.PredictionRequestHandler;
 import io.openems.edge.predictor.lstmmodel.preprocessing.DataModification;
+import io.openems.edge.predictor.lstmmodel.train.LstmTrain;
 import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
 import io.openems.edge.timedata.api.Timedata;
 
@@ -57,6 +64,7 @@ public class LstmModelImpl extends AbstractPredictor
 		implements Predictor, OpenemsComponent, ComponentJsonApi, LstmModel {
 
 	private static final Function<ArrayList<Double>, Integer[]> DOUBLELIST_TO_INTARRAY = UtilityConversion::toInteger1DArray;
+	private static final long PERIOD = 45 * 24 * 60; /* 45 days in minutes */
 
 	@Reference
 	private Sum sum;
@@ -94,13 +102,13 @@ public class LstmModelImpl extends AbstractPredictor
 		this.channelForPrediction = ChannelAddress.fromString(config.channelAddresses());
 
 		/*
-		 * Avoid training for the new fems , coz no data, Fix to 45 day period, inside
-		 * this 30 day for training , and 15 days for validation
+		 * Avoid training for the new FEMs due to lack of data. Set a fixed 45-day
+		 * period: 30 days for training and 15 days for validation.
 		 */
-//		this.scheduler.scheduleAtFixedRate(//
-//				new LstmTrain(this.timedata, //
-//						config.channelAddresses(), this),
-//				0, 15 * 24 * 60 /* 15 days in minutes */, TimeUnit.MINUTES);
+		this.scheduler.scheduleAtFixedRate(//
+				new LstmTrain(this.timedata, //
+						config.channelAddresses(), this),
+				0, PERIOD, TimeUnit.MINUTES);
 
 	}
 

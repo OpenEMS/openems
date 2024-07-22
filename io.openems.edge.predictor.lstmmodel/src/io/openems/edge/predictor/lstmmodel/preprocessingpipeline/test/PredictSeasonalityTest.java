@@ -69,7 +69,6 @@ public class PredictSeasonalityTest {
 
 	public static void main(String[] args) {
 
-		PredictSeasonalityTest obj = new PredictSeasonalityTest();
 		String modelName = "ConsumptionActivePower";
 
 		HyperParameters hp = ReadAndSaveModels.read(modelName);
@@ -88,7 +87,7 @@ public class PredictSeasonalityTest {
 						OffsetDateTime.of(2024, 7, 9, 18, 0, 0, 0, ZoneOffset.UTC),
 						OffsetDateTime.of(2024, 7, 10, 19, 0, 0, 0, ZoneOffset.UTC)));
 
-		var res = obj.predictSeasonalityTest(data, date, hp);
+		var res = PredictSeasonalityTest.predictSeasonalityTest(data, date, hp);
 		System.out.println(res);
 
 	}
