@@ -9,6 +9,8 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.SortedMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -123,20 +125,37 @@ public class LstmModelImpl extends AbstractPredictor
 	@Override
 	protected Prediction createNewPrediction(ChannelAddress channelAddress) {
 
-		var hyperParameters = ReadAndSaveModels.read(channelAddress.toString().split("/")[1]);
-
+		var hyperParameters = ReadAndSaveModels.read(channelAddress.getChannelId());
 		var nowDate = ZonedDateTime.now();
 
-		var seasonalityPrediction = this.predictSeasonality(channelAddress, nowDate, hyperParameters);
-		var trendPrediction = this.predictTrend(channelAddress, nowDate, hyperParameters);
-		var predicted = combine(trendPrediction, seasonalityPrediction);
+		CompletableFuture<ArrayList<Double>> seasonalityPredictionFuture = CompletableFuture.supplyAsync(() -> {
+			return predictSeasonality(channelAddress, nowDate, hyperParameters);
+		});
+
+		CompletableFuture<ArrayList<Double>> trendPredictionFuture = CompletableFuture.supplyAsync(() -> {
+			return predictTrend(channelAddress, nowDate, hyperParameters);
+		});
+
+		/*
+		 * Combine predictions only after both seasonalityPredictionFuture and
+		 * trendPredictionFuture are complete
+		 */
+		var predicted = seasonalityPredictionFuture.thenCombine(trendPredictionFuture, (seasonality, trend) -> {
+			return combine(seasonality, trend);
+		});
+
 		var till = nowDate.withMinute(getMinute(nowDate, hyperParameters)).withSecond(0).withNano(0);
 
-		return Prediction.from(//
-				Prediction.getValueRange(this.sum, channelAddress), //
-				Interval.DUODCIMUS, //
-				till, //
-				DOUBLELIST_TO_INTARRAY.apply(predicted));
+		try {
+			return Prediction.from(//
+					Prediction.getValueRange(this.sum, channelAddress), //
+					Interval.DUODCIMUS, //
+					till, //
+					DOUBLELIST_TO_INTARRAY.apply(predicted.get()));
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	/**
