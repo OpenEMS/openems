@@ -23,25 +23,25 @@ public class CubicalInterpolation extends SplineInterpolator {
 	 * @return interpolated results
 	 */
 	public ArrayList<Double> compute() {
-		var interPolation = new ArrayList<ArrayList<Double>>();
+		var interpolation = new ArrayList<ArrayList<Double>>();
 		var function = this.getFunctionForAllInterval(this.data);
-		var diff = this.firstOrderDiff(function);
+		var differences = this.firstOrderDiff(function);
 
-		for (int i = 0; i < diff.length; i++) {
-			if (diff[i] != 1) {
-				int requiredPoints = (int) (diff[i] - 1);
-				interPolation.add(this.calculate(function.getPolynomials()[i].getCoefficients(), requiredPoints));
+		for (int i = 0; i < differences.length; i++) {
+			if (differences[i] != 1) {
+				int requiredPoints = (int) (differences[i] - 1);
+				interpolation.add(this.calculate(function.getPolynomials()[i].getCoefficients(), requiredPoints));
 			}
 		}
-		this.generateCombineInstruction(interPolation, diff);
+		this.generateCombineInstruction(interpolation, differences);
 		return this.data;
 	}
 
 	private PolynomialSplineFunction getFunctionForAllInterval(ArrayList<Double> data) {
-		long nonNaNCount = data.stream().filter(d -> !Double.isNaN(d)).count();
+		var nonNaNCount = data.stream().filter(d -> !Double.isNaN(d)).count();
 
-		double[] dataNew = new double[(int) nonNaNCount];
-		double[] xVal = new double[(int) nonNaNCount];
+		var dataNew = new double[(int) nonNaNCount];
+		var xVal = new double[(int) nonNaNCount];
 
 		int[] index = { 0 };
 		IntStream.range(0, data.size())//
@@ -57,16 +57,18 @@ public class CubicalInterpolation extends SplineInterpolator {
 
 	private double[] firstOrderDiff(PolynomialSplineFunction function) {
 		double[] knots = function.getKnots();
-		return IntStream.range(0, knots.length - 1).mapToDouble(i -> knots[i + 1] - knots[i]).toArray();
+		return IntStream.range(0, knots.length - 1)//
+				.mapToDouble(i -> knots[i + 1] - knots[i])//
+				.toArray();
 	}
 
 	private ArrayList<Double> calculate(double[] weight, int requiredPoints) {
 
-		ArrayList<Double> result = new ArrayList<Double>();
+		ArrayList<Double> result = new ArrayList<>();
 		for (int j = 0; j < requiredPoints; j++) {
 			double sum = 0;
 			for (int i = 0; i < weight.length; i++) {
-				sum = sum + weight[i] * Math.pow(j + 1, i);
+				sum += weight[i] * Math.pow(j + 1, i);
 			}
 			result.add(sum);
 		}
@@ -82,26 +84,18 @@ public class CubicalInterpolation extends SplineInterpolator {
 		for (int i = 0; i < firstOrderDiff.length; i++) {
 
 			if (firstOrderDiff[i] != 1) {
-
 				startingPoint = i + 1 + addedData;
-
 				this.combineToData(startingPoint, (int) firstOrderDiff[i] - 1, interPolatedValue.get(count));
 				addedData = (int) (firstOrderDiff[i] - 1 + addedData);
 				count = count + 1;
-
 			}
-
 		}
-
 	}
 
 	private void combineToData(int startingPoint, int totalpointsRequired, ArrayList<Double> dataToAdd) {
 		for (int i = 0; i < totalpointsRequired; i++) {
-
 			this.data.set(i + startingPoint, dataToAdd.get(i));
-
 		}
-
 	}
 
 	/**
@@ -110,11 +104,7 @@ public class CubicalInterpolation extends SplineInterpolator {
 	 * @return boolean yes or no.
 	 */
 	public boolean canInterpolate() {
-		if (this.data.size() <= 4) {
-			return false;
-		} else {
-			return true;
-		}
+		return this.data.size() > 4;
 	}
 
 	public void setData(ArrayList<Double> val) {

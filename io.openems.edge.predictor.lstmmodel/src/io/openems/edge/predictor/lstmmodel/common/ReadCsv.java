@@ -12,8 +12,8 @@ import io.openems.common.OpenemsConstants;
 
 public class ReadCsv {
 
-	private static final String MODEL_DIRECTORY = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile()
-			.getAbsolutePath();
+	private static final String MODEL_DIRECTORY = Paths.get(OpenemsConstants.getOpenemsDataDir())//
+			.toFile().getAbsolutePath();
 	private static final String MODEL_FOLDER = File.separator + "models" + File.separator;
 
 	private ArrayList<Double> data = new ArrayList<Double>();
@@ -37,7 +37,8 @@ public class ReadCsv {
 	public void getDataFromCsv(String fileName) {
 
 		try {
-			var path = Paths.get(MODEL_DIRECTORY, MODEL_FOLDER, fileName).toString();
+			var path = Paths.get(MODEL_DIRECTORY, MODEL_FOLDER, fileName)//
+					.toString();
 
 			var reader = new BufferedReader(new FileReader(path));
 			var line = reader.readLine();

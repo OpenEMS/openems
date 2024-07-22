@@ -4,8 +4,8 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalDouble;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
 import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
@@ -23,12 +23,9 @@ public class InterpolationManager {
 		return this.newDates;
 	}
 
-	public final static Function<ArrayList<Double>, ArrayList<Double>> nanReplacer = InterpolationManager::replaceNullWithNaN;
-	public final static Function<ArrayList<Double>, Double> meanCalculator = InterpolationManager::calculateMean;
-
 	public InterpolationManager(double[] data, HyperParameters hyperParameters) {
-		var d = UtilityConversion.to1DArrayList(data);
-		this.makeInterpolation(d);
+		var dataList = UtilityConversion.to1DArrayList(data);
+		this.makeInterpolation(dataList);
 	}
 
 	public InterpolationManager(ArrayList<Double> data, HyperParameters hyperParameters) {
@@ -62,11 +59,14 @@ public class InterpolationManager {
 	}
 
 	private void handleFirstAndLastDataPoint(ArrayList<Double> currentGroup, double mean) {
-		if (Double.isNaN(currentGroup.get(0))) {
-			currentGroup.set(0, mean);
+		int firstIndex = 0;
+		int lastIndex = currentGroup.size() - 1;
+
+		if (Double.isNaN(currentGroup.get(firstIndex))) {
+			currentGroup.set(firstIndex, mean);
 		}
-		if (Double.isNaN(currentGroup.get(currentGroup.size() - 1))) {
-			currentGroup.set(currentGroup.size() - 1, mean);
+		if (Double.isNaN(currentGroup.get(lastIndex))) {
+			currentGroup.set(lastIndex, mean);
 		}
 	}
 
@@ -146,4 +146,5 @@ public class InterpolationManager {
 		}
 		return groupedData;
 	}
+
 }
