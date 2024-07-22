@@ -1,7 +1,6 @@
 package io.openems.edge.predictor.lstmmodel.interpolation;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class LinearInterpolation {
 

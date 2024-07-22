@@ -27,5 +27,4 @@ public class GetPredictionResponse extends JsonrpcResponseSuccess {
 				.add("prediction", this.prediction) //
 				.build();
 	}
-
 }

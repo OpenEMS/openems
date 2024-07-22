@@ -24,11 +24,7 @@ public class PredictionRequestHandler {
 		var sortedMap = predictionManager.getPrediction(consumption).valuePerQuarter;
 
 		var predictionArray = new JsonArray();
-		for (Integer value : sortedMap.values()) {
-			predictionArray.add(new JsonPrimitive(value));
-		}
+		sortedMap.values().forEach(value -> predictionArray.add(new JsonPrimitive(value)));
 		return new GetPredictionResponse(requestId, predictionArray);
-
 	}
-
 }
