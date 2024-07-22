@@ -108,9 +108,11 @@ public class LstmModelImpl extends AbstractPredictor
 		 * period: 30 days for training and 15 days for validation.
 		 */
 		this.scheduler.scheduleAtFixedRate(//
-				new LstmTrain(this.timedata, //
-						config.channelAddresses(), this),
-				0, PERIOD, TimeUnit.MINUTES);
+				new LstmTrain(this.timedata, config.channelAddresses(), this), //
+				0, //
+				PERIOD, //
+				TimeUnit.MINUTES//
+		);
 
 	}
 
