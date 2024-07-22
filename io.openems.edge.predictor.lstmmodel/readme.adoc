@@ -1,0 +1,3 @@
+= io.openems.edge.predictor.lstmmodel
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.predictor.lstmmodel[Source Code icon:github[]]
