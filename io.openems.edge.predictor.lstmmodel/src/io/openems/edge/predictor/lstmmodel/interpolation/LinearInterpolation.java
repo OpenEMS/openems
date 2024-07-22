@@ -105,5 +105,4 @@ public class LinearInterpolation {
 		}
 		return orginalData;
 	}
-
 }
