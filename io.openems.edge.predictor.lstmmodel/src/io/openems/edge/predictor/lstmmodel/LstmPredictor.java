@@ -1,19 +1,19 @@
 package io.openems.edge.predictor.lstmmodel;
 
-import static io.openems.edge.predictor.lstm.utilities.UtilityConversion.to1DArray;
-import static io.openems.edge.predictor.lstm.utilities.UtilityConversion.to1DArrayList;
-import static io.openems.edge.predictor.lstm.utilities.UtilityConversion.to2DArrayList;
-import static io.openems.edge.predictor.lstm.utilities.UtilityConversion.to2DList;
+import static io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion.to1DArray;
+import static io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion.to1DArrayList;
+import static io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion.to2DArrayList;
+import static io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion.to2DList;
 
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.openems.edge.predictor.lstm.common.DataStatistics;
-import io.openems.edge.predictor.lstm.common.HyperParameters;
-import io.openems.edge.predictor.lstm.preprocessingpipeline.PreprocessingPipeImpl;
-import io.openems.edge.predictor.lstm.utilities.MathUtils;
+import io.openems.edge.predictor.lstmmodel.common.DataStatistics;
+import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
+import io.openems.edge.predictor.lstmmodel.preprocessingpipeline.PreprocessingPipeImpl;
+import io.openems.edge.predictor.lstmmodel.utilities.MathUtils;
 
 public class LstmPredictor {
 
