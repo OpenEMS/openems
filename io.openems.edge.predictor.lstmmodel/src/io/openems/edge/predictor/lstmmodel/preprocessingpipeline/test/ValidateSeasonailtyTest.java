@@ -58,7 +58,7 @@ public class ValidateSeasonailtyTest {
 				.movingAverage().scale().filterOutliers().groupByHoursAndMinutes().get();
 
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels = DataModification
-				.reshape((DataModification.decraseDimension(untestedSeasonalityWeight)), hyperParameters);
+				.reshape((DataModification.flattern4dto3d(untestedSeasonalityWeight)), hyperParameters);
 
 		for (int h = 0; h < allModels.size(); h++) {
 			ArrayList<Double> rmsTemp1 = new ArrayList<Double>();

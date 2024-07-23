@@ -18,7 +18,7 @@ public class ValidateTrendTest {
 			ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> untestedTrendWeights, HyperParameters hyperParameters) {
 
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels = DataModification
-				.reshape((DataModification.decraseDimension(untestedTrendWeights)), hyperParameters);
+				.reshape((DataModification.flattern4dto3d(untestedTrendWeights)), hyperParameters);
 
 		ArrayList<ArrayList<Double>> rmsErrors = this.validateModels(//
 				values, //
