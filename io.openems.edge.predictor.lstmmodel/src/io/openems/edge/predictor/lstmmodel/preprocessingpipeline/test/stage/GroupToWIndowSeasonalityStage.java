@@ -25,8 +25,8 @@ public class GroupToWIndowSeasonalityStage implements Stage<double[], double[][]
 	public double[][][] execute(double[] input) {
 
 		try {
-			double[][] windowedData = getWindowDataTrain(input);
-			double[] windowedTarget = getTargetData(input);
+			double[][] windowedData = this.getWindowDataTrain(input);
+			double[] windowedTarget = this.getTargetData(input);
 			return new double[][][] { windowedData, new double[][] { windowedTarget } };
 		} catch (Exception e) {
 			e.printStackTrace();

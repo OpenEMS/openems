@@ -12,8 +12,16 @@ import io.openems.edge.predictor.lstmmodel.performance.PerformanceMatrix;
 import io.openems.edge.predictor.lstmmodel.preprocessing.DataModification;
 
 public class ValidateTrendTest {
-	public static final String TREND = "trend.txt";
+	public static final String TREND = "trend";
 
+	/**
+	 * Pipeline Validate Trend Test.
+	 * 
+	 * @param values               List of double values
+	 * @param dates                List of OffsetDateTime values
+	 * @param untestedTrendWeights List of un-tested weights
+	 * @param hyperParameters      {@link HyperParameters}
+	 */
 	public void validateTrendTest(ArrayList<Double> values, ArrayList<OffsetDateTime> dates,
 			ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> untestedTrendWeights, HyperParameters hyperParameters) {
 
@@ -37,40 +45,24 @@ public class ValidateTrendTest {
 	private ArrayList<ArrayList<Double>> validateModels(ArrayList<Double> value, ArrayList<OffsetDateTime> dates,
 			ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels, HyperParameters hyperParameters) {
 
-		/*
-		 * ArrayList<Double> -> double[] intepolation double[] -> double[] movingaverage
-		 * double[] -> double[] scaling double[] -> double[] filteroutlier double[] ->
-		 * double[][][] modify for trndprediction
-		 */
+		double[][] modifiedData = Pipeline.of(value, dates, hyperParameters)// ArrayList<Double> -> double[]
 
-		/*
-		 * loop using i and j
-		 * 
-		 * dpuble [] -> double[][][] groupto stiffed window double [][][] -> double
-		 * [][][] normalize
-		 * 
-		 */
-
-		// caluclate the mean double [][] -> double[]
-		// mean on 2d array stddevaition on 2d array double [][] -> double[]
-
-		//
-
-		// now predict with double [][] -? double []
-
-		/**
-		 * use predict for revernormalize
-		 * 
-		 * double [] -> double [] revernormalize(mean , std) but use the mean and std
-		 * deviation form the previously calculated double [] -> double[] reverscale
-		 */
-
-		double[][] modifiedData = Pipeline.of(value, dates, hyperParameters)//
+				// intepolation double[] -> double[]
 				.interpolate()//
+
+				// movingaverage double[] -> double[]
+
 				.movingAverage()//
+				// scaling double[] -> double[]
+
 				.scale()//
+				// scaling double[] -> double[]
+
 				.filterOutliers()//
-				.modifyForTrendPrediction().get();
+				// double[] -> double[][]
+
+				.modifyForTrendPrediction()//
+				.get();
 
 		ArrayList<ArrayList<Double>> rmsTemp2 = new ArrayList<>();
 
@@ -80,12 +72,20 @@ public class ValidateTrendTest {
 			for (int j = 0; j < modifiedData.length; j++) {
 
 				double[][][] intermediate = Pipeline.of(modifiedData[j], hyperParameters)//
-						.groupedToStiffedWindow().get();
 
+						// double [] -> double[][][] group to stiffed window
+						.groupedToStiffedWindow()//
+						.get();
+
+				// caluclate the mean double [][] -> double[]
 				var mean = DataStatistics.getMean(intermediate[0]);
+
+				// mean on 2d array stddevaition on 2d array double [][] -> double[]
 				var sd = DataStatistics.getStandardDeviation(intermediate[0]);
 
 				double[][][] preprocessed = Pipeline.of(intermediate, hyperParameters)//
+
+						// double [][][] -> double [][][] normalize
 						.normalize()//
 						.get();
 
@@ -108,6 +108,14 @@ public class ValidateTrendTest {
 		return rmsTemp2;
 	}
 
+	/**
+	 * find the Optimum index.
+	 * 
+	 * @param matrix          the matrix
+	 * @param var             the variable
+	 * @param hyperParameters the {@link HyperParameters}
+	 * @return matrix
+	 */
 	public static List<List<Integer>> findOptimumIndex(ArrayList<ArrayList<Double>> matrix, String var,
 			HyperParameters hyperParameters) {
 		List<List<Integer>> minimumIndices = new ArrayList<>();

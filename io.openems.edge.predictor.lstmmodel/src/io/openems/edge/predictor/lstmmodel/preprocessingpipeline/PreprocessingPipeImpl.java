@@ -123,7 +123,7 @@ public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
 	}
 
 	/**
-	 * Add moving Remove Negatives
+	 * Add moving Remove Negatives.
 	 * 
 	 * @return this
 	 */

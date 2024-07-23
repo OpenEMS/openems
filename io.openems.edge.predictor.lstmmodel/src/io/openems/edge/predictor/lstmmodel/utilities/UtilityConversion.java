@@ -51,6 +51,13 @@ public class UtilityConversion {
 				}).toArray();
 	}
 
+	/**
+	 * Convert {@link java.util.List} of {@link OffsetDateTime} to
+	 * {@link OffsetDateTime}[].
+	 * 
+	 * @param data {@link java.util.List} of {@link OffsetDateTime}
+	 * @return result converted {@link OffsetDateTime} []
+	 */
 	public static OffsetDateTime[] to1DArray(ArrayList<OffsetDateTime> data) {
 		return data.stream().toArray(OffsetDateTime[]::new);
 	}
@@ -151,10 +158,14 @@ public class UtilityConversion {
 				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
+	/**
+	 * Convert double[] to {@link java.util.ArrayList} of OffsetDateTime.
+	 * 
+	 * @param toBeConverted array of OffsetDateTime
+	 * @return result converted Array list
+	 */
 	public static ArrayList<OffsetDateTime> to1DArrayList(OffsetDateTime[] toBeConverted) {
-
 		return Arrays.stream(toBeConverted).collect(Collectors.toCollection(ArrayList::new));
-
 	}
 
 	/**

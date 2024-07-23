@@ -613,7 +613,7 @@ public class DataModification {
 	 * hyperparameters with the extracted weights based on the model type.
 	 * 
 	 * @param allModel        The 4D ArrayList containing all models.
-	 * @param index           The list of indices specifying the location of optimum
+	 * @param indices         The list of indices specifying the location of optimum
 	 *                        weights in the models.
 	 * @param fileName        The name of the file to save the final model.
 	 * @param modelType       The type of the model ("trend.txt" or

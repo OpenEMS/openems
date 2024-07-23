@@ -20,7 +20,7 @@ public class GroupByStage implements Stage<double[], double[][][]> {
 	@Override
 	public double[][][] execute(double[] input) {
 		var inList = to1DArrayList(input);
-		var groupedByHourAndMinuteList = groupDataByHourAndMinute(inList, UtilityConversion.to1DArrayList(dates));
+		var groupedByHourAndMinuteList = groupDataByHourAndMinute(inList, UtilityConversion.to1DArrayList(this.dates));
 		return to3DArray(groupedByHourAndMinuteList);
 	}
 }

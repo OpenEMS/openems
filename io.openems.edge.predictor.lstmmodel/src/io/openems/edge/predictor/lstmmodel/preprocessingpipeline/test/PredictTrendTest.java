@@ -16,46 +16,46 @@ import io.openems.edge.predictor.lstmmodel.common.ReadAndSaveModels;
 
 public class PredictTrendTest {
 
+	/**
+	 * Pipeline Trend Test.
+	 * 
+	 * @param data            List of double values
+	 * @param date            List of OffsetDateTime values
+	 * @param until           {@link ZonedDateTime} of until
+	 * @param hyperParameters {@link HyperParameters}
+	 * @return List of the Trend data
+	 */
 	public static ArrayList<Double> predictTrendtest(ArrayList<Double> data, ArrayList<OffsetDateTime> date,
 			ZonedDateTime until, HyperParameters hyperParameters) {
 
-		/*
-		 * ArrayList<Double> -> double[] intepolation double[] -> double[] remove
-		 * negatives double[] -> double[] scaling
-		 */
-
-		// caluclate the mean double [] -> double
-
-		/**
-		 * mean on 2d array stddevaition on 1d array double [] -> double
-		 */
-
-		/**
-		 * normalization on 2d array double [] -? double []
-		 */
-
-		// now predict with double [] -> double []
-
-		/**
-		 * use predict for revernormalize
-		 * 
-		 * double [] -> double [] revernormalize(mean , std) but use the mean and std
-		 * deviation form the previously calculated double [] -> double[] reverscale
-		 */
-
 		var scaled = Pipeline.of(data, date, hyperParameters)//
-				.interpolate()//
-				.removeNegatives()//
-				.scale()//
+
+				// ArrayList<Double> -> double[]
+				.interpolate()
+
+				// double[] -> double[]
+				.removeNegatives()
+
+				// double[] -> double[]
+				.scale()
+
+				// (to1d)
 				.to1DList();
 
+		// calculate the mean double [] -> double
 		var mean = DataStatistics.getMean(scaled);
+
+		// calculate the Standard deviation double [] -> double
 		var sd = DataStatistics.getStandardDeviation(scaled);
 
 		var trendPrediction = new double[hyperParameters.getTrendPoint()];
 
 		var normal = Pipeline.of(scaled, date, hyperParameters)//
-				.normalize()//
+
+				// double [] -> double []
+				.normalize()
+
+				// (to1d)
 				.to1DList();
 
 		var predictionFor = until.plusMinutes(hyperParameters.getInterval());
@@ -81,12 +81,29 @@ public class PredictTrendTest {
 		}
 
 		return Pipeline.of(normal, date, hyperParameters)//
+
+				// double [] -> double [] revernormalize(mean , std)
 				.reverseNormalize(mean, sd)//
+
+				// double [] -> double[] reverscale
 				.reverseScale()//
+
+				// (to1d)
 				.to1DList();
 
 	}
 
+	/**
+	 * Pipeline Trend.
+	 * 
+	 * @param data            List of double values *
+	 * @param date            List of OffsetDateTime values
+	 * @param until           {@link ZonedDateTime} of until
+	 * @param hyperParameters {@link HyperParameters}
+	 * 
+	 * 
+	 * @return list of predictions
+	 */
 	public ArrayList<Double> predictTrend(ArrayList<Double> data, ArrayList<OffsetDateTime> date, ZonedDateTime until,
 			HyperParameters hyperParameters) {
 
@@ -95,9 +112,6 @@ public class PredictTrendTest {
 
 		var trendPoints = hyperParameters.getTrendPoint();
 		var trendPrediction = new double[trendPoints];
-
-		var mean = DataStatistics.getMean(scaled.get());
-		var standardDeviation = DataStatistics.getStandardDeviation(scaled.get());
 
 		var normData = Pipeline.of(scaled.to1DList(), date, hyperParameters).normalize().to1DList();
 
@@ -136,12 +150,22 @@ public class PredictTrendTest {
 			Thread.currentThread().interrupt();
 		}
 
+		var mean = DataStatistics.getMean(scaled.get());
+		var standardDeviation = DataStatistics.getStandardDeviation(scaled.get());
+
 		var result = Pipeline.of(normData, date, hyperParameters).reverseNormalize(mean, standardDeviation)
 				.reverseScale().to1DList();
 
 		return result;
 	}
 
+	/**
+	 * Decode the date to Column index.
+	 * 
+	 * @param predictionFor   the {@link ZonedDateTime}
+	 * @param hyperParameters the {@link HyperParameters}
+	 * @return result
+	 */
 	public static double decodeDateToColumnIndex(ZonedDateTime predictionFor, HyperParameters hyperParameters) {
 
 		var hour = predictionFor.getHour();
@@ -156,6 +180,11 @@ public class PredictTrendTest {
 		}
 	}
 
+	/**
+	 * main method for testing.
+	 * 
+	 * @param args the args
+	 */
 	public static void main(String[] args) {
 
 		String modelName = "ConsumptionActivePower";

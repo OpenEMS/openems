@@ -45,7 +45,7 @@ public class FilterOutliers {
 	 * indices.
 	 *
 	 * @param data  the input dataset
-	 * @param index the indices of data points to be transformed
+	 * @param indices the indices of data points to be transformed
 	 * @return the transformed dataset
 	 */
 	public static double[] filter(double[] data, ArrayList<Integer> indices) {

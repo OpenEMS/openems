@@ -14,48 +14,38 @@ import io.openems.edge.predictor.lstmmodel.preprocessing.DataModification;
 
 public class ValidateSeasonailtyTest {
 
-	public static final String SEASONALITY = "seasonality.txt";
+	public static final String SEASONALITY = "seasonality";
 
+	/**
+	 * Pipeline Validate Seasonality Test.
+	 * 
+	 * @param values                    List of double values
+	 * @param dates                     List of OffsetDateTime values
+	 * @param untestedSeasonalityWeight List of un-tested weights
+	 * @param hyperParameters           {@link HyperParameters}
+	 */
 	public static void validateSeasonality(ArrayList<Double> values, ArrayList<OffsetDateTime> dates,
 			ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> untestedSeasonalityWeight,
 			HyperParameters hyperParameters) {
 
 		ArrayList<ArrayList<Double>> rmsTemp2 = new ArrayList<ArrayList<Double>>();
 
-		/*
-		 * ArrayList<Double> -> double[]
-		 * 
-		 * intepolation double[] -> double[] movingaverage double[] -> double[] scaling
-		 * double[] -> double[]
-		 * 
-		 * filteroutlier double[] -> double[] groupby hours n minutes dpouble[] ->
-		 * double [][][]
-		 * 
-		 * 
-		 */
+		var dataGroupedByMinute = Pipeline.of(values, dates, hyperParameters)// ArrayList<Double> -> double[]
 
-		// caluclate the mean double [][] -> double[]
-
-		/**
-		 * mean on 2d array stddevaition on 2d array double [][] -> double[]
-		 */
-
-		/**
-		 * normalization on 2d array double [][] -? double [][]
-		 */
-
-		// now predict with double [][] -? double []
-
-		/**
-		 * use predict for revernormalize
-		 * 
-		 * double [] -> double [] revernormalize(mean , std) but use the mean and std
-		 * deviation form the previously calculated double [] -> double[] reverscale
-		 */
-
-		var dataGroupedByMinute = Pipeline.of(values, dates, hyperParameters)//
+				// intepolation double[] -> double[]
 				.interpolate()//
-				.movingAverage().scale().filterOutliers().groupByHoursAndMinutes().get();
+
+				// movingaverage double[] -> double[]
+				.movingAverage()//
+
+				// scaling double[] -> double[]
+				.scale()//
+
+				// double[] -> double[]
+				.filterOutliers()//
+
+				// groupby hours n minutes doouble[] -> double [][][]
+				.groupByHoursAndMinutes().get();
 
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels = DataModification
 				.reshape((DataModification.flattern4dto3d(untestedSeasonalityWeight)), hyperParameters);
@@ -104,6 +94,14 @@ public class ValidateSeasonailtyTest {
 
 	}
 
+	/**
+	 * find the Optimum index.
+	 * 
+	 * @param matrix          the matrix
+	 * @param variable        the variable
+	 * @param hyperParameters the {@link HyperParameters}
+	 * @return matrix
+	 */
 	public static List<List<Integer>> findOptimumIndex(ArrayList<ArrayList<Double>> matrix, String variable,
 			HyperParameters hyperParameters) {
 		List<List<Integer>> minimumIndices = new ArrayList<>();

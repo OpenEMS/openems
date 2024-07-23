@@ -12,61 +12,75 @@ import io.openems.edge.predictor.lstmmodel.common.ReadAndSaveModels;
 
 public class PredictSeasonalityTest {
 
+	/**
+	 * Pipeline Seasonality Test.
+	 * 
+	 * @param data            List of double values
+	 * @param date            List of OffsetDateTime values
+	 * @param hyperParameters {@link HyperParameters}
+	 * @return List of the predicted data
+	 */
 	public static ArrayList<Double> predictSeasonalityTest(//
 			ArrayList<Double> data, //
 			ArrayList<OffsetDateTime> date, //
 			HyperParameters hyperParameters //
 	) {
 
-		/*
-		 * ArrayList<Double> -> double[] intepolation double[] -> double[] movingaverage
-		 * double[] -> double[] scaling double[] -> double[] filteroutlier double[] ->
-		 * double[][][] groupby hours n minutes dpouble[][][] -> double [][] tranfrm (to
-		 * 2d)
-		 */
-
-		// caluclate the mean double [][] -> double[]
-
-		/**
-		 * mean on 2d array stddevaition on 2d array double [][] -> double[]
-		 */
-
-		/**
-		 * normalization on 2d array double [][] -? double [][]
-		 */
-
-		// now predict with double [][] -? double []
-
-		/**
-		 * use predict for revernormalize
-		 * 
-		 * double [] -> double [] revernormalize(mean , std) but use the mean and std
-		 * deviation form the previously calculated double [] -> double[] reverscale
-		 */
-
 		final var resized = Pipeline.of(data, date, hyperParameters) //
+
+				// ArrayList<Double> -> double[] intepolation
 				.interpolate() //
-				// .movingAverage
+
+				// double[] -> double[] movingaverage
+				.movingAverage()//
+
+				// double[] -> double[] scaling
 				.scale() //
+
+				// double[] -> double[] filteroutlier
 				.filterOutliers() //
+
+				// double[] -> double[][][] groupby hours n minutes
 				.groupByHoursAndMinutes()//
+
+				// (to2d)
 				.to2DList();
 
+		// calculate the mean double [][] -> double[]
 		var mean = DataStatistics.getMean(resized.get());
+
+		// calculate the Standard deviation double [][] -> double[]
 		var sd = DataStatistics.getStandardDeviation(resized.get());
 
-		var normal = Pipeline.of(resized.get(), hyperParameters).normalize().to2DList();
+		var normal = Pipeline.of(resized.get(), hyperParameters)//
+
+				// double [][] -> double [][]
+				.normalize()//
+
+				// (to2d)
+				.to2DList();
 
 		var allModel = hyperParameters.getBestModelSeasonality();
 
 		final var predicted = LstmPredictor.predictPre(normal, allModel, hyperParameters);
 
 		return Pipeline.of(predicted, date, hyperParameters) //
+
+				// double [] -> double [] revernormalize(mean , std)
 				.reverseNormalize(mean, sd) //
+
+				// double [] -> double[] reverscale
 				.reverseScale() //
+
+				// (to1d)
 				.to1DList();
 	}
 
+	/**
+	 * main method for testing.
+	 * 
+	 * @param args the args
+	 */
 	public static void main(String[] args) {
 
 		String modelName = "ConsumptionActivePower";

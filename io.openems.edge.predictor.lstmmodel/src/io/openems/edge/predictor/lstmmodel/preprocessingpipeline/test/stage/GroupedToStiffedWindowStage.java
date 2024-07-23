@@ -46,7 +46,7 @@ public class GroupedToStiffedWindowStage implements Stage<double[], double[][][]
 	 * converts the grouped data into a 2D array representing the stiffed windowed
 	 * structure.
 	 *
-	 * @param val        The input ArrayList of Double values to be grouped into
+	 * @param values     The input ArrayList of Double values to be grouped into
 	 *                   windows.
 	 * @param windowSize The size of each window for grouping the values.
 	 * @return A 2D array representing the stiffed windowed structure of the grouped
@@ -71,11 +71,11 @@ public class GroupedToStiffedWindowStage implements Stage<double[], double[][][]
 	}
 
 	/**
-	 * Groups the values in the input ArrayList into a stiffed target structure,
+	 * Groups the values in the input Array into a stiffed target structure,
 	 * extracting every nth element to form windows of a specified size and converts
 	 * the grouped data into a 1D array.
 	 *
-	 * @param val        The input ArrayList of Double values from which the stiffed
+	 * @param val        The input Array of Double values from which the stiffed
 	 *                   target structure is created.
 	 * @param windowSize The size of each window, representing the step size for
 	 *                   selecting elements.
@@ -95,6 +95,18 @@ public class GroupedToStiffedWindowStage implements Stage<double[], double[][][]
 		return to1DArray(windowedData);
 	}
 
+	/**
+	 * Groups the values in the input ArrayList into a stiffed target structure,
+	 * extracting every nth element to form windows of a specified size and converts
+	 * the grouped data into a 1D array.
+	 *
+	 * @param val        The input ArrayList of Double values from which the stiffed
+	 *                   target structure is created.
+	 * @param windowSize The size of each window, representing the step size for
+	 *                   selecting elements.
+	 * @return A 1D array representing the stiffed target structure of the grouped
+	 *         values.
+	 */
 	public static double[] groupToStiffedTarget(double[] val, int windowSize) {
 		if (windowSize < 1 || windowSize > val.length) {
 			throw new IllegalArgumentException("Invalid window size");

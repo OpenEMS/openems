@@ -131,11 +131,11 @@ public class LstmModelImpl extends AbstractPredictor
 		var nowDate = ZonedDateTime.now();
 
 		CompletableFuture<ArrayList<Double>> seasonalityPredictionFuture = CompletableFuture.supplyAsync(() -> {
-			return predictSeasonality(channelAddress, nowDate, hyperParameters);
+			return this.predictSeasonality(channelAddress, nowDate, hyperParameters);
 		});
 
 		CompletableFuture<ArrayList<Double>> trendPredictionFuture = CompletableFuture.supplyAsync(() -> {
-			return predictTrend(channelAddress, nowDate, hyperParameters);
+			return this.predictTrend(channelAddress, nowDate, hyperParameters);
 		});
 
 		/*

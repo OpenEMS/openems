@@ -10,7 +10,7 @@ public class HyperParameters implements Serializable {
 	private OffsetDateTime lastTrainedDate;
 
 	public OffsetDateTime getLastTrainedDate() {
-		return lastTrainedDate;
+		return this.lastTrainedDate;
 	}
 
 	/**

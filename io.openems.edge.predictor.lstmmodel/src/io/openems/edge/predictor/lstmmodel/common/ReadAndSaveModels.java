@@ -72,8 +72,7 @@ public class ReadAndSaveModels {
 	 * the de-serialization of {@link OffsetDateTime} objects. The file is expected
 	 * to be located in the "models" directory within the OpenEMS data directory.
 	 * 
-	 * @param the fileName The name of the JSON file to read the HyperParameters
-	 *            from.
+	 * @param fileName The name of the JSON file to read the HyperParameters from.
 	 * @return The {@link HyperParameters} object read from the file.
 	 * @throws FileNotFoundException If the specified file is not found.
 	 * @throws IOException           If an I/O error occurs while reading the file.

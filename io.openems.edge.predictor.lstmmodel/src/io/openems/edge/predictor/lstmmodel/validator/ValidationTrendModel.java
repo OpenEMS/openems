@@ -139,7 +139,7 @@ public class ValidationTrendModel {
 
 				double rms = PerformanceMatrix.rmsError(
 						(double[]) validateTrendPreProcess.setData(intermediate[1][0]).reverseScale().execute(),
-						result)*(1-PerformanceMatrix.accuracy((double[]) validateTrendPreProcess.setData(intermediate[1][0]).reverseScale().execute(),
+						result) * (1 - PerformanceMatrix.accuracy((double[]) validateTrendPreProcess.setData(intermediate[1][0]).reverseScale().execute(),
 						result, 0.01));
 				rmsTemp1.add(rms);
 			}

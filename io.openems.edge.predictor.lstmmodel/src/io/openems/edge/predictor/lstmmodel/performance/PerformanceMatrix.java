@@ -71,6 +71,13 @@ public class PerformanceMatrix {
 		return Math.sqrt(meanSquaredError);
 	}
 
+	/**
+	 * Calculate the RmsError of two arrays.
+	 * 
+	 * @param target    double array of target
+	 * @param predicted double array of predicted
+	 * @return rms Error
+	 */
 	public static double rmsError(double[] target, double[] predicted) {
 		if (predicted.length != target.length) {
 			throw new IllegalArgumentException("Input lists must have the same size");
@@ -131,8 +138,16 @@ public class PerformanceMatrix {
 			}
 		}
 		return (double) count / predicted.size();
-	} 
-	
+	}
+
+	/**
+	 * Calculate the Accuracy of the predicted compared to target.
+	 * 
+	 * @param target            double array of target
+	 * @param predicted         double array of predicted
+	 * @param allowedPercentage allowed percentage error
+	 * @return accuracy
+	 */
 	public static double accuracy(double[] target, double[] predicted, double allowedPercentage) {
 		double count = 0;
 
@@ -144,7 +159,7 @@ public class PerformanceMatrix {
 			}
 		}
 		return (double) count / predicted.length;
-	} 
+	}
 
 	/**
 	 * Calculates the Mean Absolute Percentage Error (MAPE) between the target and

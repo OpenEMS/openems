@@ -24,8 +24,8 @@ public class GrouptoWindowpipe implements Stage<Object, Object> {
 	public Object execute(Object input) {
 		if (input instanceof double[] inputData) {
 			try {
-				double[][] windowedData = getWindowDataTrain(inputData);
-				double[] windowedTarget = getTargetData(inputData);
+				double[][] windowedData = this.getWindowDataTrain(inputData);
+				double[] windowedTarget = this.getTargetData(inputData);
 				return new double[][][] { windowedData, new double[][] { windowedTarget } };
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -12,6 +12,14 @@ public class MakeModelTest {
 	public static final String SEASONALITY = "seasonality.txt";
 	public static final String TREND = "trend.txt";
 
+	/**
+	 * Train the trend model.
+	 * 
+	 * @param data            The ArrayList of data
+	 * @param date            The ArrayList of date
+	 * @param hyperParameters The {@link HyperParameters}
+	 * @return 2dList of trend model
+	 */
 	public synchronized ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> trainTrend(ArrayList<Double> data,
 			ArrayList<OffsetDateTime> date, HyperParameters hyperParameters) {
 
@@ -19,7 +27,6 @@ public class MakeModelTest {
 		var weightTrend = new ArrayList<ArrayList<Double>>();
 
 		var modifiedData = Pipeline.of(data, date, hyperParameters)//
-
 				.interpolate()//
 				.movingAverage()//
 				.movingAverage()//
@@ -49,6 +56,14 @@ public class MakeModelTest {
 		return weightMatrix;
 	}
 
+	/**
+	 * Train the Seasonality model.
+	 * 
+	 * @param data            The ArrayList of data
+	 * @param date            The ArrayList of date
+	 * @param hyperParameters The {@link HyperParameters}
+	 * @return 2dList of Seasonality model
+	 */
 	public synchronized ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> trainSeasonality(ArrayList<Double> data,
 			ArrayList<OffsetDateTime> date, HyperParameters hyperParameters) {
 
@@ -69,8 +84,8 @@ public class MakeModelTest {
 		for (int i = 0; i < dataGroupedByMinute.length; i++) {
 			for (int j = 0; j < dataGroupedByMinute[i].length; j++) {
 
-				hyperParameters.setGdIterration(
-						DynamicItterationValue.setIteration(hyperParameters.getAllModelErrorSeason(), k, hyperParameters));
+				hyperParameters.setGdIterration(DynamicItterationValue
+						.setIteration(hyperParameters.getAllModelErrorSeason(), k, hyperParameters));
 
 				if (hyperParameters.getCount() == 0) {
 					weightSeasonality = generateInitialWeightMatrix(windowsSize, hyperParameters);
