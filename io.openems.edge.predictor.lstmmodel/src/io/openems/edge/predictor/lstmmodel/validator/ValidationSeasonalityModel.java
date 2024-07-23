@@ -9,14 +9,15 @@ import java.util.List;
 import io.openems.edge.predictor.lstmmodel.LstmPredictor;
 import io.openems.edge.predictor.lstmmodel.common.DataStatistics;
 import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
-import io.openems.edge.predictor.lstmmodel.performance.PerformanceMatrix;
+import static io.openems.edge.predictor.lstmmodel.performance.PerformanceMatrix.rmsError;
+import static io.openems.edge.predictor.lstmmodel.performance.PerformanceMatrix.accuracy;
 import io.openems.edge.predictor.lstmmodel.preprocessing.DataModification;
 import io.openems.edge.predictor.lstmmodel.preprocessingpipeline.PreprocessingPipeImpl;
 import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
 
 public class ValidationSeasonalityModel {
 
-	public static final String SEASONALITY = "seasonality.txt";
+	public static final String SEASONALITY = "seasonality";
 
 	/**
 	 * Validate the Seasonality.
@@ -44,7 +45,7 @@ public class ValidationSeasonalityModel {
 				.execute();
 
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels = DataModification
-				.reshape((DataModification.decraseDimension(untestedSeasonalityWeight)), hyperParameters);
+				.reshape((DataModification.flattern4dto3d(untestedSeasonalityWeight)), hyperParameters);
 
 		for (int h = 0; h < allModels.size(); h++) {
 			ArrayList<Double> rmsTemp1 = new ArrayList<Double>();
@@ -72,10 +73,16 @@ public class ValidationSeasonalityModel {
 							.reverseScale()//
 							.execute();
 
-					// preProcessing.setData(intermediate[1][0]).reverseScale().execute();
-
-					double rms = PerformanceMatrix.rmsError((double[]) preProcessing.setData(intermediate[1][0]).reverseScale().execute(),result)
-							* (1-PerformanceMatrix.accuracy((double[]) preProcessing.setData(intermediate[1][0]).reverseScale().execute(),result, 0.01)) ;
+					double rms = rmsError(//
+							(double[]) preProcessing//
+									.setData(intermediate[1][0])//
+									.reverseScale()//
+									.execute(),
+							result) //
+							* //
+							(1 - accuracy((double[]) preProcessing.setData(intermediate[1][0])//
+									.reverseScale()//
+									.execute(), result, 0.01));
 
 					rmsTemp1.add(rms);
 					k = k + 1;

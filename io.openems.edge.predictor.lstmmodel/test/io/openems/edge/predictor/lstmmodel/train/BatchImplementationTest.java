@@ -24,7 +24,7 @@ public class BatchImplementationTest {
 		for (int i = check; i <= 25; i++) {
 			hyperParameters.setOuterLoopCount(i);
 
-			final String pathTrain = Integer.toString(i+1) + ".csv";
+			final String pathTrain = Integer.toString(i + 1) + ".csv";
 			final String pathValidate = Integer.toString(27) + ".csv";
 			System.out.println("");
 

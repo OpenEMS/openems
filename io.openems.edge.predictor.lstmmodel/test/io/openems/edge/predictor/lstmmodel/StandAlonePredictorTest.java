@@ -30,8 +30,7 @@ public class StandAlonePredictorTest {
 
 		String csv = "2" + ".csv";
 
-		ZonedDateTime globDate = ZonedDateTime.of(2022,6,16
-				, 0, 0, 0, 0, ZonedDateTime.now().getZone());
+		ZonedDateTime globDate = ZonedDateTime.of(2022, 6, 16, 0, 0, 0, 0, ZonedDateTime.now().getZone());
 
 		HyperParameters hyperParameters = ReadAndSaveModels.read("ConsumptionActivePower");
 

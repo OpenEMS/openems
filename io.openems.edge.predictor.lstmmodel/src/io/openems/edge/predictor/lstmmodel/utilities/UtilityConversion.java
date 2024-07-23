@@ -36,22 +36,6 @@ public class UtilityConversion {
 	}
 
 	/**
-	 * Convert {@link java.util.ArrayList} of Double to double[].
-	 * 
-	 * @param data {@link java.util.ArrayList} of Double
-	 * @return result converted double []
-	 */
-//	public static double[] to1DArray(ArrayList<Double> data) {
-//		return data.stream() //
-//				.mapToDouble(d -> {
-//					if (d == null || d.isNaN() || Double.isNaN(d)) {
-//						return Double.NaN;
-//					}
-//					return d.doubleValue();
-//				}).toArray();
-//	}
-
-	/**
 	 * Convert {@link java.util.List} of double to double[].
 	 * 
 	 * @param data {@link java.util.List} of double

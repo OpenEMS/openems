@@ -10,9 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-//import io.openems.edge.predictor.lstm.common.DataStatistics;
 import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
-//import io.openems.edge.predictor.lstm.utilities.UtilityConversion;
 
 public class DataModification {
 
@@ -32,12 +30,9 @@ public class DataModification {
 	 * @return A new list containing the scaled data within the specified range.
 	 */
 	public static ArrayList<Double> scale(ArrayList<Double> data, double min, double max) {
-		ArrayList<Double> scaledData = new ArrayList<>();
-		for (Double value : data) {
-			double scaledValue = MIN_SCALED + ((value - min) / (max - min)) * (MAX_SCALED - MIN_SCALED);
-			scaledData.add(scaledValue);
-		}
-		return scaledData;
+		return data.stream()//
+				.map(value -> MIN_SCALED + ((value - min) / (max - min)) * (MAX_SCALED - MIN_SCALED))
+				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	/**
@@ -53,18 +48,14 @@ public class DataModification {
 	 * @return A new list containing the scaled data within the specified range.
 	 */
 	public static double[] scale(double[] data, double min, double max) {
-		double[] scaledData = new double[data.length];
-
-		for (int i = 0; i < data.length; i++) {
-			double scaledValue = MIN_SCALED + ((data[i] - min) / (max - min)) * (MAX_SCALED - MIN_SCALED);
-			scaledData[i] = (scaledValue);
-		}
-		return scaledData;
+		return Arrays.stream(data)//
+				.map(value -> MIN_SCALED + ((value - min) / (max - min)) * (MAX_SCALED - MIN_SCALED))//
+				.toArray();
 	}
 
 	/**
-	 * Rescales a single data point from the scaled range to the original range.
-	 * This method rescales a single data point from the scaled range (defined by
+	 * Re-scales a single data point from the scaled range to the original range.
+	 * This method re-scales a single data point from the scaled range (defined by
 	 * 'minScaled' and 'maxScaled') back to the original range, which is specified
 	 * by 'minOriginal' and 'maxOriginal'. It performs the reverse scaling operation
 	 * for a single data value.
@@ -78,7 +69,7 @@ public class DataModification {
 	 * @return The rescaled data point in the original range.
 	 */
 	public static double scaleBack(double scaledData, double minOriginal, double maxOriginal) {
-		return calc(scaledData, MIN_SCALED, MAX_SCALED, minOriginal, maxOriginal);
+		return calculateScale(scaledData, MIN_SCALED, MAX_SCALED, minOriginal, maxOriginal);
 	}
 
 	/**
@@ -93,11 +84,9 @@ public class DataModification {
 	 * @return A new ArrayList containing the scaled back values.
 	 */
 	public static ArrayList<Double> scaleBack(ArrayList<Double> data, double minOriginal, double maxOriginal) {
-		ArrayList<Double> returnArr = new ArrayList<Double>();
-		for (double val : data) {
-			returnArr.add(calc(val, MIN_SCALED, MAX_SCALED, minOriginal, maxOriginal));
-		}
-		return returnArr;
+		return data.stream()//
+				.map(value -> calculateScale(value, MIN_SCALED, MAX_SCALED, minOriginal, maxOriginal))//
+				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	/**
@@ -112,17 +101,26 @@ public class DataModification {
 	 * @return A new ArrayList containing the scaled back values.
 	 */
 	public static double[] scaleBack(double[] data, double minOriginal, double maxOriginal) {
-		double[] returnArr = new double[data.length];
-		for (int i = 0; i < data.length; i++) {
-			returnArr[i] = calc(data[i], MIN_SCALED, MAX_SCALED, minOriginal, maxOriginal);
-		}
-		return returnArr;
+		return Arrays.stream(data)//
+				.map(value -> calculateScale(value, MIN_SCALED, MAX_SCALED, minOriginal, maxOriginal))//
+				.toArray();
 	}
 
-	private static double calc(double valScaled, double minScaled, double maxScaled, double minOriginal,
+	/**
+	 * Scales a value from a scaled range back to the original range.
+	 *
+	 * @param valScaled   The value in the scaled range to be converted back to the
+	 *                    original range.
+	 * @param minScaled   The minimum value of the scaled range.
+	 * @param maxScaled   The maximum value of the scaled range.
+	 * @param minOriginal The minimum value of the original range.
+	 * @param maxOriginal The maximum value of the original range.
+	 * @return The value converted back to the original range.
+	 */
+	private static double calculateScale(double valScaled, double minScaled, double maxScaled, double minOriginal,
 			double maxOriginal) {
-		return ((valScaled - minScaled) * (maxOriginal - minOriginal) / (maxScaled - minScaled)) //
-				+ minOriginal;
+		return ((valScaled - minScaled) * (maxOriginal - minOriginal) / (maxScaled - minScaled)//
+		) + minOriginal;
 	}
 
 	/**
@@ -155,7 +153,8 @@ public class DataModification {
 	 *                        normalized.
 	 * @param target          The target values to which the data will be
 	 *                        standardized.
-	 * @param hyperParameters The hyperparameters required for normalization.
+	 * @param hyperParameters The {@link HyperParameters} required for
+	 *                        normalization.
 	 * @return A double array containing the normalized data.
 	 */
 
@@ -166,7 +165,6 @@ public class DataModification {
 			standData[i] = standardize(target[i], getMean(data[i]), getStandardDeviation(data[i]), hyperParameters);
 		}
 		return standData;
-
 	}
 
 	/**
@@ -176,7 +174,7 @@ public class DataModification {
 	 * standardizes each data point.
 	 *
 	 * @param inputData       The 1D array of data to be standardized.
-	 * @param hyperParameters instance of class HyperParameters
+	 * @param hyperParameters instance of {@link HyperParameters}
 	 * @return A new 1D array containing the standardized (normalized) data.
 	 */
 	public static double[] standardize(double[] inputData, HyperParameters hyperParameters) {
@@ -198,16 +196,15 @@ public class DataModification {
 	 * Standardizes a given input data point using mean and standard deviation. This
 	 * method standardizes the input data point based on the provided mean and
 	 * standard deviation of the current data and the target mean and standard
-	 * deviation specified in the hyperparameters.
+	 * deviation specified in the {@link HyperParameters}.
 	 * 
 	 * @param inputData       The input data point to be standardized.
 	 * @param mean            The mean of the current data.
 	 * @param standerdDev     The standard deviation of the current data.
-	 * @param hyperParameters The hyperparameters containing the target mean and
-	 *                        standard deviation.
+	 * @param hyperParameters The {@link HyperParameters} containing the target mean
+	 *                        and standard deviation.
 	 * @return The standardized value of the input data point.
 	 */
-
 	public static double standardize(double inputData, double mean, double standerdDev,
 			HyperParameters hyperParameters) {
 
@@ -231,10 +228,9 @@ public class DataModification {
 	 * @param mean              The mean of the original data.
 	 * @param standardDeviation The standard deviation of the original data.
 	 * @param zvalue            The Z-score value of the standardized data point.
-	 * @param hyperParameters   instance of class HyperParameters
+	 * @param hyperParameters   instance of {@link HyperParameters}
 	 * @return The reverse standardized value in the original data's scale.
 	 */
-
 	public static double reverseStandrize(double zvalue, double mean, double standardDeviation,
 			HyperParameters hyperParameters) {
 
@@ -248,93 +244,110 @@ public class DataModification {
 
 	/**
 	 * Reverse standardizes a list of data points based on given mean, standard
-	 * deviation, and hyperparameters. This method reverse standardizes each data
-	 * point in the input list based on the provided mean, standard deviation, and
-	 * hyperparameters. It returns a new list containing the reverse standardized
-	 * values.
+	 * deviation, and {@link HyperParameters}. This method reverse standardizes each
+	 * data point in the input list based on the provided mean, standard deviation,
+	 * and {@link HyperParameters}. It returns a new Array containing the reverse
+	 * standardized values.
 	 * 
 	 * @param data            The list of data points to be reverse standardized.
 	 * @param mean            The list of means corresponding to the data points.
 	 * @param standDeviation  The list of standard deviations corresponding to the
 	 *                        data points.
-	 * @param hyperParameters The hyperparameters containing the target mean and
-	 *                        standard deviation.
+	 * @param hyperParameters The {@link HyperParameters} containing the target mean
+	 *                        and standard deviation.
 	 * @return A new list containing the reverse standardized values.
 	 */
-
 	public static double[] reverseStandrize(ArrayList<Double> data, ArrayList<Double> mean,
 			ArrayList<Double> standDeviation, HyperParameters hyperParameters) {
 		double[] revNorm = new double[data.size()];
 		for (int i = 0; i < data.size(); i++) {
 			revNorm[i] = (reverseStandrize(data.get(i), mean.get(i), standDeviation.get(i), hyperParameters));
-
 		}
-
 		return revNorm;
-
 	}
 
+	/**
+	 * Reverse standardizes a list of data points based on given mean, standard
+	 * deviation, and {@link HyperParameters}. This method reverse standardizes each
+	 * data point in the input list based on the provided mean, standard deviation,
+	 * and {@link HyperParameters}. It returns a new list containing the reverse
+	 * standardized values.
+	 * 
+	 * @param data            The Array of data points to be reverse standardized.
+	 * @param mean            The Array of means corresponding to the data points.
+	 * @param standDeviation  The Array of standard deviations corresponding to the
+	 *                        data points.
+	 * @param hyperParameters The {@link HyperParameters} containing the target mean
+	 *                        and standard deviation.
+	 * @return A new Array containing the reverse standardized values.
+	 */
 	public static double[] reverseStandrize(double[] data, double[] mean, double[] standDeviation,
 			HyperParameters hyperParameters) {
 		double[] revNorm = new double[data.length];
 		for (int i = 0; i < data.length; i++) {
 			revNorm[i] = (reverseStandrize(data[i], mean[i], standDeviation[i], hyperParameters));
-
 		}
-
 		return revNorm;
-
 	}
 
 	/**
 	 * Reverse standardizes a list of data points based on given mean, standard
-	 * deviation, and hyperparameters. This method reverse standardizes each data
-	 * point in the input list based on the provided mean, standard deviation, and
-	 * hyperparameters. It returns a new list containing the reverse standardized
-	 * values.
+	 * deviation, and {@link HyperParameters}. This method reverse standardizes each
+	 * data point in the input list based on the provided mean, standard deviation,
+	 * and {@link HyperParameters}. It returns a new Array containing the reverse
+	 * standardized values.
 	 * 
-	 * @param data            The list of data points to be reverse standardized.
+	 * @param data            The Array of data points to be reverse standardized.
 	 * @param mean            The mean corresponding to the data points.
 	 * @param standDeviation  The standard deviation corresponding to the data
 	 *                        points.
-	 * @param hyperParameters The hyperparameters containing the target mean and
-	 *                        standard deviation.
-	 * @return A new list containing the reverse standardized values.
+	 * @param hyperParameters The {@link HyperParameters} containing the target mean
+	 *                        and standard deviation.
+	 * @return A new Array containing the reverse standardized values.
 	 */
-
 	public static double[] reverseStandrize(ArrayList<Double> data, double mean, double standDeviation,
 			HyperParameters hyperParameters) {
 		double[] revNorm = new double[data.size()];
 		for (int i = 0; i < data.size(); i++) {
 			revNorm[i] = (reverseStandrize(data.get(i), mean, standDeviation, hyperParameters));
-
 		}
-
 		return revNorm;
-
 	}
 
+	/**
+	 * Reverse standardizes a list of data points based on given mean, standard
+	 * deviation, and {@link HyperParameters}. This method reverse standardizes each
+	 * data point in the input list based on the provided mean, standard deviation,
+	 * and {@link HyperParameters}. It returns a new list containing the reverse
+	 * standardized values.
+	 * 
+	 * @param data            The list of data points to be reverse standardized.
+	 * @param mean            The mean corresponding to the data points.
+	 * @param standDeviation  The standard deviation corresponding to the data
+	 *                        points.
+	 * @param hyperParameters The {@link HyperParameters} containing the target mean
+	 *                        and standard deviation.
+	 * @return A new list containing the reverse standardized values.
+	 */
 	public static double[] reverseStandrize(double[] data, double mean, double standDeviation,
 			HyperParameters hyperParameters) {
 		double[] revNorm = new double[data.length];
 		for (int i = 0; i < data.length; i++) {
 			revNorm[i] = (reverseStandrize(data[i], mean, standDeviation, hyperParameters));
-
 		}
-
 		return revNorm;
-
 	}
 
 	/**
 	 * Modifies the given time-series data for long-term prediction by grouping it
 	 * based on hours and minutes.
 	 * 
-	 * @param data The ArrayList of Double values representing the time-series data.
-	 * @param date The ArrayList of OffsetDateTime objects corresponding to the
-	 *             timestamps of the data.
-	 * @return An ArrayList of ArrayLists of ArrayLists, representing the modified
-	 *         data grouped by hours and minutes.
+	 * @param data The {@link ArrayList} of Double values representing the
+	 *             time-series data.
+	 * @param date The {@link ArrayList} of OffsetDateTime objects corresponding to
+	 *             the timestamps of the data.
+	 * @return An {@link ArrayList} of {@link ArrayList} of {@link ArrayList},
+	 *         representing the modified data grouped by hours and minutes.
 	 */
 
 	public static ArrayList<ArrayList<ArrayList<Double>>> groupDataByHourAndMinute(ArrayList<Double> data,
@@ -371,7 +384,7 @@ public class DataModification {
 		ArrayList<ArrayList<ArrayList<Double>>> firstModification = groupDataByHourAndMinute(data, date);
 
 		// Flatten the structure of the first modification
-		ArrayList<ArrayList<Double>> secondModification = flattenDataStructure(firstModification);
+		ArrayList<ArrayList<Double>> secondModification = flatten3dto2d(firstModification);
 
 		// Apply windowing to create the third modification
 		ArrayList<ArrayList<Double>> thirdModification = applyWindowing(secondModification, hyperParameters);
@@ -379,15 +392,27 @@ public class DataModification {
 		return thirdModification;
 	}
 
-	private static ArrayList<ArrayList<Double>> flattenDataStructure(ArrayList<ArrayList<ArrayList<Double>>> data) {
-		ArrayList<ArrayList<Double>> flattenedData = new ArrayList<>();
+	private static ArrayList<ArrayList<Double>> flatten3dto2d(//
+			ArrayList<ArrayList<ArrayList<Double>>> data) {
+		return data.stream()//
+				.flatMap(twoDList -> twoDList.stream())//
+				.collect(Collectors.toCollection(ArrayList::new));
+	}
 
-		for (ArrayList<ArrayList<Double>> hourData : data) {
-			for (ArrayList<Double> minuteData : hourData) {
-				flattenedData.add(minuteData);
-			}
-		}
-		return flattenedData;
+	/**
+	 * Decreases the dimensionality of a 4D ArrayList to a 3D ArrayList. This method
+	 * flattens the input 4D ArrayList to a 3D ArrayList by merging the innermost
+	 * ArrayLists into one. It returns the resulting 3D ArrayList.
+	 * 
+	 * @param model The 4D ArrayList to decrease in dimensionality.
+	 * @return The resulting 3D ArrayList after decreasing the dimensionality.
+	 */
+	public static ArrayList<ArrayList<ArrayList<Double>>> flattern4dto3d(
+			ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> model) {
+
+		return model.stream()//
+				.flatMap(threeDList -> threeDList.stream())//
+				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	private static ArrayList<ArrayList<Double>> applyWindowing(ArrayList<ArrayList<Double>> data,
@@ -442,7 +467,6 @@ public class DataModification {
 	 * @return An ArrayList of ArrayLists, where each inner ArrayList represents a
 	 *         batch of Double values.
 	 */
-
 	public static ArrayList<ArrayList<Double>> getDataInBatch(ArrayList<Double> originalList, int numberOfGroups) {
 		ArrayList<ArrayList<Double>> splitGroups = new ArrayList<>();
 
@@ -501,7 +525,6 @@ public class DataModification {
 	 * @return ArrayList&lt;Double&gt; A new ArrayList&lt;Double&gt; with negative
 	 *         values replaced by zero.
 	 */
-
 	public static ArrayList<Double> removeNegatives(ArrayList<Double> data) {
 		return data.stream()//
 				// Replace negative values with 0
@@ -517,11 +540,10 @@ public class DataModification {
 	 * @param data the input array of doubles
 	 * @return a new array with negative values replaced by 0
 	 */
-
 	public static double[] removeNegatives(double[] data) {
-		return Arrays.stream(data) 
-				.map(value -> Double.isNaN(value) ? Double.NaN : Math.max(value, 0)) 
-				.toArray(); 
+		return Arrays.stream(data)//
+				.map(value -> Double.isNaN(value) ? Double.NaN : Math.max(value, 0))//
+				.toArray();
 	}
 
 	/**
@@ -536,60 +558,52 @@ public class DataModification {
 		return data.stream().map(val -> val * scalingFactor).collect(Collectors.toCollection(ArrayList::new));
 	}
 
+	/**
+	 * Scales each element in the input ArrayList by a specified scaling factor.
+	 *
+	 * @param data          The Array of Double values to be scaled.
+	 * @param scalingFactor The factor by which each element in the data Array will
+	 *                      be multiplied.
+	 * @return A new Array containing the scaled values.
+	 */
 	public static double[] constantScaling(double[] data, double scalingFactor) {
 		return Arrays.stream(data).map(val -> val * scalingFactor).toArray();
 	}
 
 	/**
-	 * Reshapes a three-dimensional ArrayList into a four-dimensional ArrayList
-	 * structure. This method takes a three-dimensional ArrayList of data and
-	 * reshapes it into a four-dimensional ArrayList structure. The reshaping is
-	 * performed by dividing the original data into blocks of size 4x24. The
-	 * resulting four-dimensional ArrayList contains these blocks.
+	 * Reshapes a 3D ArrayList into a 4D ArrayList structure. This method takes a
+	 * three-dimensional ArrayList of data and reshapes it into a four-dimensional
+	 * ArrayList structure. The reshaping is performed by dividing the original data
+	 * into blocks of size 4x24. The resulting four-dimensional ArrayList contains
+	 * these blocks.
 	 *
-	 * @param dataList        The three-dimensional ArrayList to be reshaped.
-	 * @param hyperParameters is the object of class HyperPrameters.
-	 * @return A four-dimensional ArrayList structure containing the reshaped data.
+	 *
+	 * @param dataList        The 3D list to be reshaped.
+	 * @param hyperParameters The hyperparameters containing the interval used to
+	 *                        reshape the list.
+	 * @return A reshaped 4D list.
 	 */
-
 	public static ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> reshape(
 			ArrayList<ArrayList<ArrayList<Double>>> dataList, HyperParameters hyperParameters) {
 
-		int m = 60 / hyperParameters.getInterval() * 24;
-		int n = dataList.size() / m;
-		int o = 0;
-		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> temp2 = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
-		for (int i = 0; i < n; i++) {
-			ArrayList<ArrayList<ArrayList<Double>>> temp1 = new ArrayList<ArrayList<ArrayList<Double>>>();
-			for (int j = 0; j < m; j++) {
-				temp1.add(dataList.get(o));
-				o = o + 1;
-			}
-			temp2.add(temp1);
-		}
-		return temp2;
-	}
+		// Calculate the dimensions for reshaping
+		int rowsPerDay = 60 / hyperParameters.getInterval() * 24;
+		int numDays = dataList.size() / rowsPerDay;
 
-	/**
-	 * Decreases the dimensionality of a 4D ArrayList to a 3D ArrayList. This method
-	 * flattens the input 4D ArrayList to a 3D ArrayList by merging the innermost
-	 * ArrayLists into one. It returns the resulting 3D ArrayList.
-	 * 
-	 * @param model The 4D ArrayList to decrease in dimensionality.
-	 * @return The resulting 3D ArrayList after decreasing the dimensionality.
-	 */
+		// Initialize the reshaped 4D list
+		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> reshapedData = new ArrayList<>();
 
-	public static ArrayList<ArrayList<ArrayList<Double>>> decraseDimension(
-			ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> model) {
-		ArrayList<ArrayList<ArrayList<Double>>> result = new ArrayList<ArrayList<ArrayList<Double>>>();
-		for (int i = 0; i < model.size(); i++) {
-			for (int j = 0; j < model.get(i).size(); j++) {
-				result.add(model.get(i).get(j));
+		int dataIndex = 0;
+		for (int day = 0; day < numDays; day++) {
+			ArrayList<ArrayList<ArrayList<Double>>> dailyData = new ArrayList<>();
+			for (int row = 0; row < rowsPerDay; row++) {
+				dailyData.add(dataList.get(dataIndex));
+				dataIndex++;
 			}
+			reshapedData.add(dailyData);
 		}
 
-		return result;
-
+		return reshapedData;
 	}
 
 	/**
@@ -607,29 +621,31 @@ public class DataModification {
 	 * @param hyperParameters The hyperparameters to update with the extracted
 	 *                        weights.
 	 */
+	public static void updateModel(ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel, //
+			List<List<Integer>> indices, //
+			String fileName, //
+			String modelType, //
+			HyperParameters hyperParameters) {
 
-	public static void updateModel(ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel,
-			List<List<Integer>> index, String fileName, String modelType, HyperParameters hyperParameters) {
+		ArrayList<ArrayList<ArrayList<Double>>> optimumWeights = new ArrayList<ArrayList<ArrayList<Double>>>();
 
-		ArrayList<ArrayList<ArrayList<Double>>> optimumWeight = new ArrayList<ArrayList<ArrayList<Double>>>();
-		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> finalWeight = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
-
-		for (int i = 0; i < index.size(); i++) {
-			ArrayList<ArrayList<Double>> temp1 = allModel.get(index.get(i).get(0)).get(index.get(i).get(1));
-			optimumWeight.add(temp1);
-		}
-		finalWeight.add(optimumWeight);
-		// SaveModel.saveModels(finalWeight, fileName);
-
-		switch (modelType) {
-		case "trend.txt":
-			hyperParameters.updatModelTrend(optimumWeight);
-			break;
-		case "seasonality.txt":
-			hyperParameters.updateModelSeasonality(optimumWeight);
-			break;
+		for (List<Integer> idx : indices) {
+			ArrayList<ArrayList<Double>> tempWeights = allModel//
+					.get(idx.get(0))//
+					.get(idx.get(1));
+			optimumWeights.add(tempWeights);
 		}
 
+		switch (modelType.toLowerCase()) {
+		case "trend":
+			hyperParameters.updatModelTrend(optimumWeights);
+			break;
+		case "seasonality":
+			hyperParameters.updateModelSeasonality(optimumWeights);
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid model type: " + modelType);
+		}
 	}
 
 	/**
@@ -645,7 +661,9 @@ public class DataModification {
 		if (featureA.length != featureB.length) {
 			throw new IllegalArgumentException("The input arrays must have the same length.");
 		}
-		return IntStream.range(0, featureA.length).mapToDouble(i -> featureA[i] * featureB[i]).toArray();
+		return IntStream.range(0, featureA.length)//
+				.mapToDouble(i -> featureA[i] * featureB[i])//
+				.toArray();
 	}
 
 	/**
@@ -663,7 +681,8 @@ public class DataModification {
 		if (featureA.length != featureB.length) {
 			throw new IllegalArgumentException("The input arrays must have the same length.");
 		}
-		return IntStream.range(0, featureA.length).mapToDouble(i -> (featureB[i] == 0) ? 0 : featureA[i] / featureB[i])
+		return IntStream.range(0, featureA.length)//
+				.mapToDouble(i -> (featureB[i] == 0) ? 0 : featureA[i] / featureB[i])//
 				.toArray();
 	}
 

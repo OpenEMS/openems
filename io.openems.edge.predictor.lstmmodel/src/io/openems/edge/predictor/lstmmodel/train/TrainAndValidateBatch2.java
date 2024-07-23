@@ -32,10 +32,10 @@ public class TrainAndValidateBatch2 {
 			for (int batch = hyperParameter.getBatchTrack(); batch < hyperParameter.getBatchSize(); batch++) {
 
 				hyperParameter.setCount(k);
-				System.out.println("=====> Batch = " + hyperParameter.getBatchTrack() + //
-						"/" + hyperParameter.getBatchSize());
-				System.out.println("=====> Epoch=  " + epoch + //
-						"/" + hyperParameter.getEpoch());
+				System.out.println("=====> Batch = " + hyperParameter.getBatchTrack() //
+						+ "/" + hyperParameter.getBatchSize());
+				System.out.println("=====> Epoch=  " + epoch //
+						+ "/" + hyperParameter.getEpoch());
 
 				MakeModelTest makeModels = new MakeModelTest();
 

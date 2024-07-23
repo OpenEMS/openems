@@ -23,8 +23,9 @@ public class ReverseNormalizationPipe implements Stage<Object, Object> {
 			} else if (this.mean instanceof Double meanValue //
 					&& this.standerDeviation instanceof Double sdValue) {
 				return DataModification.reverseStandrize(inputArray, meanValue, sdValue, this.hyperParameters);
-			} else
+			} else {
 				return null;
+			}
 		} else if (input instanceof Double inputArray) {
 			double mean = (double) this.mean;
 			double std = (double) this.standerDeviation;

@@ -14,7 +14,7 @@ import io.openems.edge.predictor.lstmmodel.preprocessingpipeline.PreprocessingPi
 import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
 
 public class ValidationTrendModel {
-	public static final String TREND = "trend.txt";
+	public static final String TREND = "trend";
 
 	/**
 	 * validate Trend.
@@ -29,7 +29,7 @@ public class ValidationTrendModel {
 			ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> untestedTrendWeights, HyperParameters hyperParameters) {
 
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels = DataModification
-				.reshape((DataModification.decraseDimension(untestedTrendWeights)), hyperParameters);
+				.reshape((DataModification.flattern4dto3d(untestedTrendWeights)), hyperParameters);
 
 		ArrayList<ArrayList<Double>> rmsErrors = this.validateModels(//
 				values, //
@@ -39,8 +39,11 @@ public class ValidationTrendModel {
 
 		List<List<Integer>> optInd = findOptimumIndex(rmsErrors, TREND, hyperParameters);
 
-		this.updateModels(allModels, optInd,
-				Integer.toString(hyperParameters.getCount()) + hyperParameters.getModelName() + TREND, TREND,
+		this.updateModels(//
+				allModels, //
+				optInd,
+				Integer.toString(hyperParameters.getCount()) + hyperParameters.getModelName() + TREND, //
+				TREND,
 				hyperParameters);
 	}
 
