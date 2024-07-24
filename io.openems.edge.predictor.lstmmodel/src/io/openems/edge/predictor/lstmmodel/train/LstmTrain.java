@@ -84,8 +84,8 @@ public class LstmTrain implements Runnable {
 		var trainingData = this.getData(trainMap);
 		var trainingDate = this.getDate(trainMap);
 
-		var validationData = this.getData(trainMap);
-		var validationDate = this.getDate(trainMap);
+		var validationData = this.getData(validateMap);
+		var validationDate = this.getDate(validateMap);
 
 		// TODO call adapt method
 		// Read an save model.adapt method
