@@ -1,11 +1,15 @@
 package io.openems.edge.predictor.lstmmodel.train;
 
+import static io.openems.edge.predictor.lstmmodel.preprocessing.DataModification.constantScaling;
+import static io.openems.edge.predictor.lstmmodel.preprocessing.DataModification.removeNegatives;
+
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -20,7 +24,6 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.predictor.lstmmodel.LstmModel;
 import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
 import io.openems.edge.predictor.lstmmodel.common.ReadAndSaveModels;
-import io.openems.edge.predictor.lstmmodel.preprocessing.DataModification;
 import io.openems.edge.timedata.api.Timedata;
 
 public class LstmTrain implements Runnable {
@@ -28,56 +31,70 @@ public class LstmTrain implements Runnable {
 	private Timedata timedata;
 	private String channelAddress;
 	private LstmModel parent;
+	private long days;
 
-	public LstmTrain(Timedata timedata, String channelAddress, LstmModel parent) {
+	public LstmTrain(Timedata timedata, String channelAddress, LstmModel parent, long days) {
 		this.timedata = timedata;
 		this.channelAddress = channelAddress;
 		this.parent = parent;
-
+		this.days = days;
 	}
 
 	@Override
 	public void run() {
 
-		// this.trainInBatchtest();
-		System.out.println("=====> Training for : " + this.channelAddress.toString());
+		System.out.println("=====> Training for : " + this.channelAddress);
 
 		ZonedDateTime nowDate = ZonedDateTime.now();
-		ZonedDateTime until = ZonedDateTime.of(//
-				nowDate.getYear(), //
-				nowDate.getMonthValue(), //
-				nowDate.minusDays(1).getDayOfMonth(), //
-				23, 45, 0, 0, nowDate.getZone());
+		ZonedDateTime until = nowDate.withHour(23).withMinute(45).withSecond(0).withNano(0).minusDays(1);
+		ZonedDateTime fromDate = until.minusDays(this.days).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
-		ZonedDateTime temp = until.minusDays(30);
-
-		ZonedDateTime fromDate = ZonedDateTime.of(//
-				temp.getYear(), //
-				temp.getMonthValue(), //
-				temp.getDayOfMonth(), //
-				0, 0, 0, 0, ZonedDateTime.now().getZone());
+		// (60/ 5) * 24* 45
+		// (60/ 5) * 24* 15
+		// 66 percent and 33 percent
 
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> querryResult = new TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>();
 		HyperParameters hyperParameters = ReadAndSaveModels.read(this.channelAddress.split("/")[1]);
+
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> trainMap = new TreeMap<>();
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> validateMap = new TreeMap<>();
 
 		try {
 			querryResult = this.timedata.queryHistoricData(null, fromDate, until,
 					Sets.newHashSet(ChannelAddress.fromString(this.channelAddress)),
 					new Resolution(hyperParameters.getInterval(), ChronoUnit.MINUTES));
 
+			int totalItems = querryResult.size();
+			int trainSize = (int) (totalItems * 0.66);
+
+			int count = 0;
+			for (Map.Entry<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> entry : querryResult.entrySet()) {
+				if (count < trainSize) {
+					trainMap.put(entry.getKey(), entry.getValue());
+				} else {
+					validateMap.put(entry.getKey(), entry.getValue());
+				}
+				count++;
+			}
+
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
 		}
 
-		var trainingData = this.getData(querryResult);
-		var trainingDate = this.getDate(querryResult);
+		var trainingData = this.getData(trainMap);
+		var trainingDate = this.getDate(trainMap);
+
+		var validationData = this.getData(trainMap);
+		var validationDate = this.getDate(trainMap);
 
 		// TODO call adapt method
 		// Read an save model.adapt method
+		// ReadAndSaveModels.adapt(hyperParameters, validateBatchData,
+		// validateBatchDate);
 
 		new TrainAndValidateBatch(//
-				DataModification.constantScaling(DataModification.removeNegatives(trainingData), 1), trainingDate, //
-				DataModification.constantScaling(DataModification.removeNegatives(trainingData), 1), trainingDate,
+				constantScaling(removeNegatives(trainingData), 1), trainingDate, //
+				constantScaling(removeNegatives(validationData), 1), validationDate, //
 				hyperParameters);
 
 		this.parent._setLastTrainedTime(hyperParameters.getLastTrainedDate().toString());

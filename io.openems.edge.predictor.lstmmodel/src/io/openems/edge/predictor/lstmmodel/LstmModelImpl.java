@@ -66,7 +66,8 @@ public class LstmModelImpl extends AbstractPredictor
 		implements Predictor, OpenemsComponent, ComponentJsonApi, LstmModel {
 
 	private static final Function<ArrayList<Double>, Integer[]> DOUBLELIST_TO_INTARRAY = UtilityConversion::toInteger1DArray;
-	private static final long PERIOD = 45 * 24 * 60; /* 45 days in minutes */
+	private static final long DAYS_45 = 45; /* 45 days in minutes */
+	private static final long PERIOD = DAYS_45 * 24 * 60; /* 45 days in minutes */
 
 	@Reference
 	private Sum sum;
@@ -108,7 +109,7 @@ public class LstmModelImpl extends AbstractPredictor
 		 * period: 30 days for training and 15 days for validation.
 		 */
 		this.scheduler.scheduleAtFixedRate(//
-				new LstmTrain(this.timedata, config.channelAddresses(), this), //
+				new LstmTrain(this.timedata, config.channelAddresses(), this, DAYS_45), //
 				0, //
 				PERIOD, //
 				TimeUnit.MINUTES//
