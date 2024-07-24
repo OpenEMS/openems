@@ -63,34 +63,39 @@ public class ValidateSeasonailtyTest {
 					var mean = DataStatistics.getMean(intermediate[0]);
 					var sd = DataStatistics.getStandardDeviation(intermediate[0]);
 
-					double[][][] preProcessed = Pipeline.of(intermediate, hyperParameters).normalize().get();
+					double[][][] preProcessed = Pipeline.of(intermediate, hyperParameters)//
+							.normalize()//
+							.get();
 
-					ArrayList<ArrayList<Double>> val = allModels.get(h).get(k);
+					var val = allModels.get(h).get(k);
 
-					ArrayList<Double> tempPredict = LstmPredictor.predictPre(preProcessed[0], val, hyperParameters);
+					var tempPredict = LstmPredictor.predictPre(preProcessed[0], val, hyperParameters);
 
-					double[] predicted = Pipeline.of(tempPredict, hyperParameters).reverseNormalize(mean, sd)
-							.reverseScale().get();
+					var predicted = Pipeline.of(tempPredict, hyperParameters)//
+							.reverseNormalize(mean, sd)//
+							.reverseScale()//
+							.get();
 
-					double[] target = Pipeline.of(intermediate[1][0], hyperParameters)//
+					var target = Pipeline.of(intermediate[1][0], hyperParameters)//
+							.reverseScale()//
+							.get();
 
-							.reverseScale().get();
-
-					double rms = PerformanceMatrix.rmsError(target, predicted);
+					var rms = PerformanceMatrix.rmsError(target, predicted);
 					rmsTemp1.add(rms);
 
 					k = k + 1;
-
 				}
 
 			}
 			rmsTemp2.add(rmsTemp1);
 		}
-		List<List<Integer>> optInd = findOptimumIndex(rmsTemp2, SEASONALITY, hyperParameters);
+		var optInd = findOptimumIndex(rmsTemp2, SEASONALITY, hyperParameters);
 
-		DataModification.updateModel(allModels, optInd,
-				Integer.toString(hyperParameters.getCount()) + hyperParameters.getModelName() + SEASONALITY,
-				SEASONALITY, hyperParameters);
+		DataModification.updateModel(//
+				allModels, //
+				optInd, Integer.toString(hyperParameters.getCount()) + hyperParameters.getModelName() + SEASONALITY,
+				SEASONALITY, //
+				hyperParameters);
 
 	}
 
@@ -134,6 +139,8 @@ public class ValidateSeasonailtyTest {
 			err.add(matrix.get(minimumIndices.get(i).get(0)).get(minimumIndices.get(i).get(1)));
 		}
 		hyperParameters.setAllModelErrorSeason(err);
+		// TODO Error calculation could be division of sections, or average currently
+		// its standard deviation
 		double errVal = DataStatistics.getStandardDeviation(err, hyperParameters.getTargetError());
 		hyperParameters.setRmsErrorSeasonality(errVal);
 		System.out.println("=====> Average RMS error for  " + variable + " = " + errVal);

@@ -23,11 +23,16 @@ public class ModifyDataForTrend implements Stage<Object, Object> {
 	public Object execute(Object input) {
 
 		if (input instanceof double[] inputData) {
-			var inList = to1DArrayList(inputData);
-			var modified = modifyFortrendPrediction(inList, this.dates, this.hyperparameters);
-			return to2DArray(modified);
+			try {
+				var inList = to1DArrayList(inputData);
+				var modified = modifyFortrendPrediction(inList, this.dates, this.hyperparameters);
+				return to2DArray(modified);
+			} catch (Exception e) {
+				throw new RuntimeException("Error processing input data", e);
+			}
+		} else {
+			throw new IllegalArgumentException("Input must be an instance of double[]");
 		}
-		return null;
 	}
 
 	public void setDates(ArrayList<OffsetDateTime> date) {

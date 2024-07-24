@@ -28,21 +28,22 @@ public class GrouptoWindowpipe implements Stage<Object, Object> {
 				double[] windowedTarget = this.getTargetData(inputData);
 				return new double[][][] { windowedData, new double[][] { windowedTarget } };
 			} catch (Exception e) {
-				e.printStackTrace();
+				throw new RuntimeException("Error processing input data", e);
 			}
+		} else {
+			throw new IllegalArgumentException("Input must be an instance of double[]");
 		}
-		return null;
 	}
 
 	private double[][] getWindowDataTrain(double[] data) {
-		int lower = 0;
-		int upper = data.length - 1;
+		var lower = 0;
+		var upper = data.length - 1;
 
 		var subList = IntStream.range(lower, upper)//
 				.mapToObj(index -> data[index]) //
 				.collect(Collectors.toCollection(ArrayList::new));
 
-		List<List<Double>> res = windowed(subList, this.window) //
+		var res = windowed(subList, this.window) //
 				.map(s -> s.collect(Collectors.toList())) //
 				.collect(Collectors.toList());
 
@@ -61,10 +62,10 @@ public class GrouptoWindowpipe implements Stage<Object, Object> {
 		if (data.length == 0) {
 			throw new Exception("Scaled data is empty");
 		}
-		int lower = 0;
-		int upper = data.length - 1;
+		var lower = 0;
+		var upper = data.length - 1;
 
-		double[] subArr = IntStream.range(lower + this.window, upper + 1) //
+		var subArr = IntStream.range(lower + this.window, upper + 1) //
 				.mapToDouble(index -> data[index]) //
 				.toArray();
 

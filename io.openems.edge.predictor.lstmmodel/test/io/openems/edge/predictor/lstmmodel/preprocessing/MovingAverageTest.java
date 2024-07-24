@@ -31,7 +31,7 @@ public class MovingAverageTest {
 				434.0, 506.0, 489.0, 545.0, 622.0, 696.0, 613.0, 562.0, 521.0, 551.0, 492.0, 475.0, 507.0, 489.0, 488.0,
 				471.0, 401.0 };
 
-		System.out.println("Converted = " + UtilityConversion.to1DArrayList(MovingAverage.compute(data)));
+		System.out.println("Converted = " + UtilityConversion.to1DArrayList(MovingAverage.movingAverage(data)));
 		System.out.println("orginal = " + UtilityConversion.to1DArrayList(data));
 	}
 

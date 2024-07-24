@@ -21,26 +21,29 @@ public class TrainandTestSplitPipe implements Stage<Object, Object> {
 	 */
 	@Override
 	public Object execute(Object value) {
+		if (value instanceof double[] valueTemp) {
+			double splitPercentage = this.hyp.getDataSplitTrain();
+			int dataSize = valueTemp.length - 1;
 
-		double[] valueTemp = (double[]) value;
-		double splitPercentage = this.hyp.getDataSplitTrain();
-		int dataSize = valueTemp.length - 1;
+			int trainLowerIndex = 0;
+			int trainUpperIndex = (int) (splitPercentage * dataSize);
 
-		int trainLowerIndex = 0;
-		int trainUpperIndex = (int) (splitPercentage * dataSize);
+			int testLowerIndex = trainUpperIndex;
+			int testUpperIndex = dataSize + 1;
 
-		int testLowerIndex = trainUpperIndex;
-		int testUpperIndex = dataSize + 1;
+			double[][] combinedData = { // train data
+					IntStream.range(trainLowerIndex, trainUpperIndex) //
+							.mapToDouble(index -> valueTemp[index]) //
+							.toArray(), // target data
+					IntStream.range(testLowerIndex, testUpperIndex) //
+							.mapToDouble(index -> valueTemp[index]) //
+							.toArray() //
+			};
 
-		double[][] combinedData = { // train data
-				IntStream.range(trainLowerIndex, trainUpperIndex) //
-						.mapToDouble(index -> valueTemp[index]) //
-						.toArray(), // target data
-				IntStream.range(testLowerIndex, testUpperIndex) //
-						.mapToDouble(index -> valueTemp[index]) //
-						.toArray() //
-		};
+			return combinedData;
+		} else {
+			throw new IllegalArgumentException("Input must be an instance of double[]");
+		}
 
-		return combinedData;
 	}
 }

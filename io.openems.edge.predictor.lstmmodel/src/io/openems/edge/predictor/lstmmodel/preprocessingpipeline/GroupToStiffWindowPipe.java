@@ -19,23 +19,24 @@ public class GroupToStiffWindowPipe implements Stage<Object, Object> {
 
 	@Override
 	public Object execute(Object input) {
+
 		if (input instanceof double[] inputData) {
 
-			var resultArray = new double[2][][];
-
 			var inputDataList = to1DArrayList(inputData);
-
+			
+			var resultArray = new double[2][][];
 			var stiffedTargetGroup = new double[1][];
-			stiffedTargetGroup[0] = groupToStiffedTarget(inputDataList, this.window);
 
+			stiffedTargetGroup[0] = groupToStiffedTarget(inputDataList, this.window);
 			var stiffedWindowGroup = groupToStiffedWindow(inputDataList, this.window);
 
 			resultArray[0] = stiffedWindowGroup;
 			resultArray[1] = stiffedTargetGroup;
 
 			return resultArray;
+		} else {
+			throw new IllegalArgumentException("Input must be an instance of double[]");
 		}
-		return null;
 	}
 
 	/**
@@ -47,7 +48,7 @@ public class GroupToStiffWindowPipe implements Stage<Object, Object> {
 	 *                   windows.
 	 * @param windowSize The size of each window for grouping the values.
 	 * @return A 2D array representing the stiffed windowed structure of the grouped
-	 *         values. //
+	 *         values.
 	 */
 	public static double[][] groupToStiffedWindow(ArrayList<Double> values, int windowSize) {
 		if (windowSize < 1 || windowSize > values.size()) {

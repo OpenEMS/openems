@@ -1,8 +1,9 @@
 package io.openems.edge.predictor.lstmmodel.preprocessingpipeline;
 
-import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
 import static io.openems.edge.predictor.lstmmodel.preprocessing.DataModification.normalizeData;
 import static io.openems.edge.predictor.lstmmodel.preprocessing.DataModification.standardize;
+
+import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
 
 public class NormalizePipe implements Stage<Object, Object> {
 
@@ -10,34 +11,30 @@ public class NormalizePipe implements Stage<Object, Object> {
 
 	public NormalizePipe(HyperParameters hyper) {
 		this.hyperParameters = hyper;
-
 	}
 
 	@Override
 	public Object execute(Object input) {
+		try {
+			if (input instanceof double[][][] inputArray) {
 
-		if (input instanceof double[][][] inputArray) {
+				double[][] trainData = inputArray[0];
+				double[] targetData = inputArray[1][0];
 
-			double[][] normalizedTrainData = normalizeData(//
-					inputArray[0], /* is the train data */
-					this.hyperParameters//
-			);
+				double[][] normalizedTrainData = normalizeData(trainData, this.hyperParameters);
+				double[] normalizedTargetData = normalizeData(trainData, targetData, this.hyperParameters);
 
-			double[] normalizedTargetData = normalizeData(//
-					inputArray[0], /* is the train data */
-					inputArray[1][0], /* is the target data */
-					this.hyperParameters//
-			);
+				return new double[][][] { normalizedTrainData, { normalizedTargetData } };
 
-			return new double[][][] { normalizedTrainData, { normalizedTargetData } };
-
-		} else if (input instanceof double[][] inputArray) {
-			double[][] normdata = normalizeData(inputArray, this.hyperParameters);
-			return normdata;
-		} else if (input instanceof double[] inputArray) {
-			return standardize(inputArray, this.hyperParameters);
-		} else {
-			throw new IllegalArgumentException("Illegal Argument encountered during normalization");
+			} else if (input instanceof double[][] inputArray) {
+				return normalizeData(inputArray, this.hyperParameters);
+			} else if (input instanceof double[] inputArray) {
+				return standardize(inputArray, this.hyperParameters);
+			} else {
+				throw new IllegalArgumentException("Illegal Argument encountered during normalization");
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Illegal Argument encountered during normalization");
 		}
 	}
 }

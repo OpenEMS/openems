@@ -42,7 +42,7 @@ public class LstmTrain implements Runnable {
 		// this.trainInBatchtest();
 		System.out.println("=====> Training for : " + this.channelAddress.toString());
 
-		ZonedDateTime nowDate = ZonedDateTime.now().minusDays(20);
+		ZonedDateTime nowDate = ZonedDateTime.now();
 		ZonedDateTime until = ZonedDateTime.of(//
 				nowDate.getYear(), //
 				nowDate.getMonthValue(), //

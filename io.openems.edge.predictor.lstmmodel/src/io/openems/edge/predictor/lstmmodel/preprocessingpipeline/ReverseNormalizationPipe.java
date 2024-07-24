@@ -16,22 +16,27 @@ public class ReverseNormalizationPipe implements Stage<Object, Object> {
 
 	@Override
 	public Object execute(Object input) {
-		if (input instanceof double[] inputArray) {
-			if (this.mean instanceof double[] meanArray //
-					&& this.standerDeviation instanceof double[] sdArray) {
-				return DataModification.reverseStandrize(inputArray, meanArray, sdArray, this.hyperParameters);
-			} else if (this.mean instanceof Double meanValue //
-					&& this.standerDeviation instanceof Double sdValue) {
-				return DataModification.reverseStandrize(inputArray, meanValue, sdValue, this.hyperParameters);
+
+		try {
+			if (input instanceof double[] inputArray) {
+				if (this.mean instanceof double[] meanArray //
+						&& this.standerDeviation instanceof double[] sdArray) {
+					return DataModification.reverseStandrize(inputArray, meanArray, sdArray, this.hyperParameters);
+				} else if (this.mean instanceof Double meanValue //
+						&& this.standerDeviation instanceof Double sdValue) {
+					return DataModification.reverseStandrize(inputArray, meanValue, sdValue, this.hyperParameters);
+				} else {
+					throw new IllegalArgumentException("Input must be an instance of double[]");
+				}
+			} else if (input instanceof Double inputArray) {
+				double mean = (double) this.mean;
+				double std = (double) this.standerDeviation;
+				return DataModification.reverseStandrize(inputArray, mean, std, this.hyperParameters);
 			} else {
-				return null;
+				throw new IllegalArgumentException("Input must be an instance of double[]");
 			}
-		} else if (input instanceof Double inputArray) {
-			double mean = (double) this.mean;
-			double std = (double) this.standerDeviation;
-			return DataModification.reverseStandrize(inputArray, mean, std, this.hyperParameters);
-		} else {
-			return null;
+		} catch (Exception e) {
+			throw new RuntimeException("Error processing input data", e);
 		}
 	}
 }

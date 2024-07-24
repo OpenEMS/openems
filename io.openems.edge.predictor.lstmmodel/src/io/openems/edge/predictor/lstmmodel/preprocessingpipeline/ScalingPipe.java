@@ -19,11 +19,11 @@ public class ScalingPipe implements Stage<Object, Object> {
 	public Object execute(Object value) {
 		if (value instanceof double[][] v) {
 			return this.scaleSecondCase(v);
-		}
-		if (value instanceof double[] v) {
+		} else if (value instanceof double[] v) {
 			return (this.scaleFirstCase(v));
+		} else {
+			throw new IllegalArgumentException("Input must be an instance of double[]");
 		}
-		return null;
 	}
 
 	/**
@@ -41,8 +41,8 @@ public class ScalingPipe implements Stage<Object, Object> {
 		}
 
 		double[][] result = new double[2][];
-		result[0] = (double[]) this.execute(value[0]);
-		result[1] = (double[]) this.execute(value[1]);
+		result[0] = this.scaleFirstCase(value[0]);
+		result[1] = this.scaleFirstCase(value[1]);
 
 		return result;
 	}

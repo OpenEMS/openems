@@ -7,6 +7,7 @@ import java.util.List;
 import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
 
 public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
+
 	private Object inputData;
 	private Object outputData;
 	private Object mean;
@@ -42,7 +43,7 @@ public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
 	}
 
 	/**
-	 * Add moving scale stage.
+	 * Add scale stage.
 	 * 
 	 * @return this
 	 */
@@ -51,7 +52,7 @@ public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
 	}
 
 	/**
-	 * Add moving constantscale stage.
+	 * Add constant scale stage.
 	 * 
 	 * @return this
 	 */
@@ -60,7 +61,7 @@ public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
 	}
 
 	/**
-	 * Add moving trainTestSplit stage.
+	 * Add trainTestSplit stage.
 	 * 
 	 * @return this
 	 */
@@ -69,7 +70,7 @@ public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
 	}
 
 	/**
-	 * Add moving filterOutliers stage.
+	 * Add filterOutliers stage.
 	 * 
 	 * @return this
 	 */
@@ -78,7 +79,7 @@ public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
 	}
 
 	/**
-	 * Add moving normalize stage.
+	 * Add normalize stage.
 	 * 
 	 * @return this
 	 */
@@ -87,7 +88,7 @@ public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
 	}
 
 	/**
-	 * Add moving groupToWIndowTrend stage.
+	 * Add groupToWIndowTrend stage.
 	 * 
 	 * @return this
 	 */
@@ -96,7 +97,7 @@ public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
 	}
 
 	/**
-	 * Add moving groupToWIndowSeasonality stage.
+	 * Add groupToWIndowSeasonality stage.
 	 * 
 	 * @return this
 	 */
@@ -105,16 +106,16 @@ public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
 	}
 
 	/**
-	 * Add moving shuffel stage.
+	 * Add shuffle stage.
 	 * 
 	 * @return this
 	 */
-	public PreprocessingPipeImpl shuffel() {
+	public PreprocessingPipeImpl shuffle() {
 		return this.addStage(new ShufflePipe());
 	}
 
 	/**
-	 * Add moving groupByHoursAndMinutes stage.
+	 * Add groupByHoursAndMinutes stage.
 	 * 
 	 * @return this
 	 */
@@ -123,7 +124,7 @@ public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
 	}
 
 	/**
-	 * Add moving Remove Negatives.
+	 * Add Remove Negatives.
 	 * 
 	 * @return this
 	 */
@@ -133,7 +134,7 @@ public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
 	}
 
 	/**
-	 * Add moving groupToStiffedWindow stage.
+	 * Add groupToStiffedWindow stage.
 	 * 
 	 * @return this
 	 */
@@ -142,7 +143,7 @@ public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
 	}
 
 	/**
-	 * Add moving interpolate stage.
+	 * Add interpolate stage.
 	 * 
 	 * @return this
 	 */
@@ -151,7 +152,7 @@ public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
 	}
 
 	/**
-	 * Add moving modifyForShortTermPrediction stage.
+	 * Add modifyForShortTermPrediction stage.
 	 * 
 	 * @return this
 	 */
@@ -160,7 +161,7 @@ public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
 	}
 
 	/**
-	 * Add moving differencing stage.
+	 * Add differencing stage.
 	 * 
 	 * @return this
 	 */
@@ -169,7 +170,7 @@ public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
 	}
 
 	/**
-	 * Add moving reverseScale stage.
+	 * Add reverseScale stage.
 	 * 
 	 * @return this
 	 */
@@ -178,7 +179,7 @@ public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
 	}
 
 	/**
-	 * Add moving reverseNormalize stage.
+	 * Add reverseNormalize stage.
 	 * 
 	 * @return this
 	 */

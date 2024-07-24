@@ -7,7 +7,7 @@ public class MovingAverageStage implements Stage<double[], double[]> {
 
 	@Override
 	public double[] execute(double[] value) {
-		return MovingAverage.compute(value);
+		return MovingAverage.movingAverage(value);
 	}
 
 }

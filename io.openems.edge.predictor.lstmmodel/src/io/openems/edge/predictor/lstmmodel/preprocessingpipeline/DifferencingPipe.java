@@ -6,6 +6,8 @@ public class DifferencingPipe implements Stage<Object, Object> {
 
 	@Override
 	public Object execute(Object input) {
-		return (input instanceof double[] in) ? Differencing.firstOrderDifferencing(in) : null;
+		return (input instanceof double[] in)//
+				? Differencing.firstOrderDifferencing(in)//
+				: new IllegalArgumentException("Input must be an instance of double[]");
 	}
 }

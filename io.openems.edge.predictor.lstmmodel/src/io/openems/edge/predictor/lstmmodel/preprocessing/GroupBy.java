@@ -66,7 +66,6 @@ public class GroupBy {
 	 */
 	public void hour() {
 		this.groupByTemporalField(ChronoField.HOUR_OF_DAY, this.groupedDateByHour, this.groupedDataByHour);
-		// printGroupedData("Hour", this.groupedDateByHour, this.groupedDataByHour);
 	}
 
 	/**
@@ -74,7 +73,6 @@ public class GroupBy {
 	 */
 	public void minute() {
 		this.groupByTemporalField(ChronoField.MINUTE_OF_HOUR, this.groupedDateByMin, this.groupedDataByMin);
-		// printGroupedData("Minute", this.groupedDateByMin, this.groupedDataByMin);
 	}
 
 	public ArrayList<ArrayList<Double>> getGroupedDataByHour() {

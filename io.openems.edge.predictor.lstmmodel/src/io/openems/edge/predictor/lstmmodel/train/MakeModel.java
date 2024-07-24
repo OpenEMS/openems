@@ -7,7 +7,7 @@ import io.openems.edge.predictor.lstmmodel.common.DynamicItterationValue;
 import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
 import io.openems.edge.predictor.lstmmodel.preprocessingpipeline.PreprocessingPipeImpl;
 import io.openems.edge.predictor.lstmmodel.util.Engine.EngineBuilder;
-import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
+import static io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion.to1DArray;
 
 public class MakeModel {
 	public static final String SEASONALITY = "seasonality";
@@ -34,7 +34,7 @@ public class MakeModel {
 		var weightMatrix = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
 		var weightTrend = new ArrayList<ArrayList<Double>>();
 		PreprocessingPipeImpl preProcessing = new PreprocessingPipeImpl(hyperParameters);
-		preProcessing.setData(UtilityConversion.to1DArray(data));
+		preProcessing.setData(to1DArray(data));
 		preProcessing.setDates(date);
 
 		var modifiedData = (double[][]) preProcessing//
@@ -56,7 +56,7 @@ public class MakeModel {
 			var preProcessed = (double[][][]) preProcessing//
 					.groupToStiffedWindow()//
 					.normalize()//
-					.shuffel()//
+					.shuffle()//
 					.execute();
 
 			var model = new EngineBuilder() //
@@ -95,7 +95,7 @@ public class MakeModel {
 
 		PreprocessingPipeImpl preprocessing = new PreprocessingPipeImpl(hyperParameters);
 
-		preprocessing.setData(UtilityConversion.to1DArray(data));//
+		preprocessing.setData(to1DArray(data));//
 		preprocessing.setDates(date);//
 
 		var dataGroupedByMinute = (double[][][]) preprocessing//
@@ -111,8 +111,8 @@ public class MakeModel {
 		for (int i = 0; i < dataGroupedByMinute.length; i++) {
 			for (int j = 0; j < dataGroupedByMinute[i].length; j++) {
 
-				hyperParameters.setGdIterration(
-						DynamicItterationValue.setIteration(hyperParameters.getAllModelErrorSeason(), k, hyperParameters));
+				hyperParameters.setGdIterration(DynamicItterationValue
+						.setIteration(hyperParameters.getAllModelErrorSeason(), k, hyperParameters));
 
 				if (hyperParameters.getCount() == 0) {
 					weightSeasonality = generateInitialWeightMatrix(windowsSize, hyperParameters);
@@ -127,7 +127,7 @@ public class MakeModel {
 				var preProcessedSeason = (double[][][]) preprocessing.differencing()// first order
 						.groupToWIndowSeasonality()//
 						.normalize()//
-						.shuffel()//
+						.shuffle()//
 						.execute();
 
 				var model = new EngineBuilder()//

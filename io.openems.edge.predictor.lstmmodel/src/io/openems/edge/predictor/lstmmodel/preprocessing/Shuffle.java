@@ -1,9 +1,11 @@
 package io.openems.edge.predictor.lstmmodel.preprocessing;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -24,14 +26,28 @@ public class Shuffle {
 	 * corresponding data and target values remain aligned.
 	 */
 	public void shuffleIt() {
-		List<Integer> indices = IntStream.range(0, this.data.length).boxed().collect(Collectors.toList());
-		Random r = new Random(100);
-		Collections.shuffle(indices, r);
+		List<Integer> indices = IntStream.range(0, this.data.length)//
+				.boxed()//
+				.collect(Collectors.toList());
 
+		Collections.shuffle(indices, new Random(100));
+
+		CompletableFuture<Void> dataFuture = CompletableFuture
+				.runAsync(() -> this.shuffleData(new ArrayList<>(indices)));
+		CompletableFuture<Void> targetFuture = CompletableFuture
+				.runAsync(() -> this.shuffleTarget(new ArrayList<>(indices)));
+
+		CompletableFuture<Void> combinedFuture = CompletableFuture.allOf(dataFuture, targetFuture);
+		combinedFuture.join();
+	}
+
+	private void shuffleData(List<Integer> indices) {
 		this.data = indices.stream()//
 				.map(i -> Arrays.copyOf(this.data[i], this.data[i].length))//
 				.toArray(double[][]::new);
+	}
 
+	private void shuffleTarget(List<Integer> indices) {
 		this.target = indices.stream()//
 				.mapToDouble(i -> this.target[i])//
 				.toArray();

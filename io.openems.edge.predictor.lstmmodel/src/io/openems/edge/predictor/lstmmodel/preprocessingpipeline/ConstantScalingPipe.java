@@ -12,6 +12,8 @@ public class ConstantScalingPipe implements Stage<Object, Object> {
 
 	@Override
 	public Object execute(Object input) {
-		return (input instanceof double[] in) ? constantScaling(in, this.scalingFactor) : null;
+		return (input instanceof double[] in)//
+				? constantScaling(in, this.scalingFactor)//
+				: new IllegalArgumentException("Input must be an instance of double[]");
 	}
 }

@@ -9,8 +9,8 @@ import io.openems.edge.predictor.lstmmodel.util.Engine.EngineBuilder;
 
 public class MakeModelTest {
 
-	public static final String SEASONALITY = "seasonality.txt";
-	public static final String TREND = "trend.txt";
+	public static final String SEASONALITY = "seasonality";
+	public static final String TREND = "trend";
 
 	/**
 	 * Train the trend model.

@@ -36,7 +36,8 @@ public class Differencing {
 
 		accumulating[0] = data[0] + init;
 
-		IntStream.range(1, data.length).forEach(i -> accumulating[i] = accumulating[i - 1] + data[i]);
+		IntStream.range(1, data.length)//
+				.forEach(i -> accumulating[i] = accumulating[i - 1] + data[i]);
 
 		return accumulating;
 	}

@@ -17,11 +17,13 @@ public class InterpolationPipe implements Stage<Object, Object> {
 
 	@Override
 	public Object execute(Object input) {
+
 		if (input instanceof double[] in) {
 			var inList = to1DArrayList(in);
 			var inter = new InterpolationManager(inList, this.hyperParameters);
 			return to1DArray(inter.getInterpolatedData());
+		} else {
+			throw new IllegalArgumentException("Input must be an instance of double[]");
 		}
-		return null;
 	}
 }

@@ -18,12 +18,12 @@ public class GroupbyPipe implements Stage<Object, Object> {
 
 	@Override
 	public Object execute(Object input) {
-
 		if (input instanceof double[] in) {
 			var inList = to1DArrayList(in);
 			var groupedByHourAndMinuteList = groupDataByHourAndMinute(inList, this.dates);
 			return to3DArray(groupedByHourAndMinuteList);
+		} else {
+			throw new IllegalArgumentException("Input must be an instance of double[]");
 		}
-		return null;
 	}
 }
