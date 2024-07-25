@@ -124,7 +124,9 @@ public class MakeModel {
 
 				preprocessing.setData(dataGroupedByMinute[i][j]);
 
-				var preProcessedSeason = (double[][][]) preprocessing.differencing()// first order
+				var preProcessedSeason = (double[][][]) preprocessing
+//						.differencing()
+//						.differencing()// first order
 						.groupToWIndowSeasonality()//
 						.normalize()//
 						.shuffle()//

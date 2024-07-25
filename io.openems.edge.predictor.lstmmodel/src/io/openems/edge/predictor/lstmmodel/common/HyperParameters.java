@@ -135,7 +135,7 @@ public class HyperParameters implements Serializable {
 	 * of range errors during training.</li>
 	 * </ul>
 	 */
-	private int batchSize = 1;
+	private int batchSize = 10;
 
 	/**
 	 * Counter for tracking batches.
@@ -180,7 +180,7 @@ public class HyperParameters implements Serializable {
 	 * number of epochs can be necessary based on the specific characteristics of
 	 * the dataset and the complexity of the model.
 	 */
-	private int epoch = 1;
+	private int epoch = 10;
 
 	/**
 	 * Counter for tracking epochs. The counter updates after every time all batches

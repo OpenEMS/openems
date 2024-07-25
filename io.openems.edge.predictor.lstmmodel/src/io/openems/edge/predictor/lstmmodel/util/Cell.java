@@ -85,14 +85,14 @@ public class Cell {
 			this.zT = MathUtils.tanh(this.wZ * this.xT + this.rZ * this.ytMinusOne);
 			this.cT = this.ctMinusOne + this.iT * this.zT * dropOutProb;
 			this.yT = this.ytMinusOne * (1 - dropOutProb) + this.oT * MathUtils.tanh(this.cT) * dropOutProb;
-			this.error = this.yT - this.outputDataLoc;
+			this.error =  Math.abs(this.yT - this.outputDataLoc)/Math.sqrt(2);
 		} else {
 			this.iT = MathUtils.sigmoid(this.wI * this.xT + this.rI * this.ytMinusOne);
 			this.oT = MathUtils.sigmoid(this.wO * this.xT + this.rO * this.ytMinusOne);
 			this.zT = MathUtils.tanh(this.wZ * this.xT + this.rZ * this.ytMinusOne);
 			this.cT = this.ctMinusOne + this.iT * this.zT;
 			this.yT = this.oT * MathUtils.tanh(this.cT);
-			this.error = (this.yT - this.outputDataLoc);
+			this.error = Math.abs(this.yT - this.outputDataLoc)/Math.sqrt(2);
 		}
 	}
 

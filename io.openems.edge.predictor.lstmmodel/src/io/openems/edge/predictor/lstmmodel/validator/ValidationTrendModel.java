@@ -126,6 +126,7 @@ public class ValidationTrendModel {
 
 				double[][][] preprocessed = (double[][][]) validateTrendPreProcess.setData(intermediate)//
 						.normalize()//
+						.shuffle()//
 						.execute();
 
 				double[] result = (double[]) validateTrendPreProcess//

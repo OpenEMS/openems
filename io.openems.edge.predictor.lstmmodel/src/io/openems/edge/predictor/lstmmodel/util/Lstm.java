@@ -36,7 +36,7 @@ public class Lstm {
 				if (i < this.cells.size() - 1) {
 					this.cells.get(i + 1).setYtMinusOne(this.cells.get(i).getYt());
 					this.cells.get(i + 1).setCtMinusOne(this.cells.get(i).getCt());
-					this.cells.get(i).setError((this.cells.get(i).getYt() - this.cells.get(i + 1).getXt()));
+					this.cells.get(i).setError((Math.abs(this.cells.get(i).getYt() - this.cells.get(i + 1).getXt())/Math.sqrt(2)));
 				}
 			}
 		} catch (IndexOutOfBoundsException e) {

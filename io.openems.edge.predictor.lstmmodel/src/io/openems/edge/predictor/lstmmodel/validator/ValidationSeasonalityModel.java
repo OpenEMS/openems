@@ -60,6 +60,7 @@ public class ValidationSeasonalityModel {
 
 					double[][][] preProcessed = (double[][][]) preProcessing.setData(intermediate)//
 							.normalize()//
+							.shuffle()//
 							.execute();
 
 					ArrayList<ArrayList<Double>> val = allModels.get(h).get(k);

@@ -22,10 +22,11 @@ public class BatchImplementationTest {
 		int check = hyperParameters.getOuterLoopCount();
 
 		for (int i = check; i <= 25; i++) {
+			
 			hyperParameters.setOuterLoopCount(i);
 
-			final String pathTrain = Integer.toString(i + 1) + ".csv";
-			final String pathValidate = Integer.toString(27) + ".csv";
+			final String pathTrain = Integer.toString(i + 4) + ".csv";
+			final String pathValidate = Integer.toString(i+4) + ".csv";
 			System.out.println("");
 
 			hyperParameters.printHyperParameters();
@@ -43,8 +44,8 @@ public class BatchImplementationTest {
 			var validateBatchData = DataModification.getDataInBatch(obj2.getData(), 6).get(1);
 			var validateBatchDate = DataModification.getDateInBatch(obj2.getDates(), 6).get(1);
 
-			// ReadAndSaveModels.adapt(hyperParameters, validateBatchData,
-			// validateBatchDate);
+//		 ReadAndSaveModels.adapt(hyperParameters, validateBatchData,
+//			 validateBatchDate);
 
 			new TrainAndValidateBatch(
 					DataModification.constantScaling(DataModification.removeNegatives(obj1.getData()), 1),

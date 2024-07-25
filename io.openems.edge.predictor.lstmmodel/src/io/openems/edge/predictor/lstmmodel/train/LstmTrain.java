@@ -108,6 +108,7 @@ public class LstmTrain implements Runnable {
 	 * @param queryResult The SortedMap queryResult.
 	 * @return An ArrayList of Double values extracted from non-null JsonElement
 	 *         values.
+	 * @throws Exception
 	 */
 	public ArrayList<Double> getData(SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult) {
 
@@ -124,8 +125,9 @@ public class LstmTrain implements Runnable {
 				}).forEach(value -> data.add(value));
 
 		// TODO remove this later
-		if (this.isAllNulls(data)) {
+		if (this.cannotTrainConditions(data)) {
 			System.out.println("Data is all null, use a different predictor");
+
 		}
 
 		return data;
@@ -154,8 +156,11 @@ public class LstmTrain implements Runnable {
 	 * @param array The ArrayList to be checked.
 	 * @return true if all elements in the ArrayList are null, false otherwise.
 	 */
-	private boolean isAllNulls(ArrayList<Double> array) {
-		return array.stream().allMatch(Objects::isNull);
+	private boolean cannotTrainConditions(ArrayList<Double> array) {
+		var firstCondttion = array.stream().allMatch(Objects::isNull);
+		var secondCondition = array.stream().filter(d -> !Double.isNaN(d)).count() / array.size() > 0.5;
+
+		return firstCondttion && secondCondition;
 	}
 
 }
