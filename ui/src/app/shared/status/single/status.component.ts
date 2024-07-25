@@ -82,6 +82,12 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
             if (EdgePermission.hasChannelsInEdgeConfig(this.edge)) {
                 const channels: typeof this.channels['componentId'] = {};
                 for (const [key, value] of Object.entries(this.config.components[componentId].channels)) {
+
+                    // show only state channels
+                    if (value.category !== "STATE") {
+                        continue;
+                    }
+
                     channels[key] = { text: value.text, level: value.level };
                 }
                 resolve(channels);

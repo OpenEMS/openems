@@ -23,7 +23,7 @@ export class ChartComponent implements OnInit, OnChanges {
   @Input() public isPopoverNeeded: boolean = false;
 
   // Manually trigger ChangeDetection through Inputchange
-  @Input() private period: DefaultTypes.PeriodString;
+  @Input() private period?: DefaultTypes.PeriodString;
   protected showPopover: boolean = false;
 
   constructor(

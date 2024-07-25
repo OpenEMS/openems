@@ -10,12 +10,12 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
 })
 export class FormlySafeInputModalComponent implements OnInit {
 
-    @Input()
-    protected title: string;
+    @Input({ required: true })
+    protected title!: string;
     @Input()
     protected fields: FormlyFieldConfig[] = null;
-    @Input()
-    protected model: {};
+    @Input({ required: true })
+    protected model!: {};
 
     protected form: FormGroup = new FormGroup({});
     protected myModel: {};

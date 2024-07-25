@@ -108,6 +108,18 @@ public class AbstractChannelManager<ESS extends SymmetricEss & CycleProvider, BA
 		this.addCopyListener(battery, //
 				Battery.ChannelId.SOC, //
 				SymmetricEss.ChannelId.SOC);
+		this.addCopyListener(battery, //
+				Battery.ChannelId.MIN_CELL_VOLTAGE, //
+				SymmetricEss.ChannelId.MIN_CELL_VOLTAGE);
+		this.addCopyListener(battery, //
+				Battery.ChannelId.MAX_CELL_VOLTAGE, //
+				SymmetricEss.ChannelId.MAX_CELL_VOLTAGE);
+		this.addCopyListener(battery, //
+				Battery.ChannelId.MIN_CELL_TEMPERATURE, //
+				SymmetricEss.ChannelId.MIN_CELL_TEMPERATURE);
+		this.addCopyListener(battery, //
+				Battery.ChannelId.MAX_CELL_TEMPERATURE, //
+				SymmetricEss.ChannelId.MAX_CELL_TEMPERATURE);
 	}
 
 	private void addEssListener(ClockProvider clockProvider, Battery battery, SymmetricBatteryInverter inverter) {

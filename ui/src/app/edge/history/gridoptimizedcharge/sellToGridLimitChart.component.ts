@@ -14,8 +14,8 @@ import { AbstractHistoryChart } from '../abstracthistorychart';
 })
 export class SellToGridLimitChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-  @Input() public period: DefaultTypes.HistoryPeriod;
-  @Input() public component: EdgeConfig.Component;
+  @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+  @Input({ required: true }) public component!: EdgeConfig.Component;
 
   private gridMeter: string;
 

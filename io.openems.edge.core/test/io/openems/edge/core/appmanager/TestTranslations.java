@@ -60,6 +60,10 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.restJsonApiReadWrite(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("API_TIMEOUT", 60) //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.timedataInfluxDb(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("API_KEY", "123456789") //
+					.addProperty("BUCKET", "bucket")//
+					.build()));
 			this.apps.add(new TestTranslation(Apps.hardyBarthEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.kebaEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.iesKeywattEvcs(t), true, new JsonObject()));
@@ -91,6 +95,10 @@ public class TestTranslations {
 					.build()));
 			this.apps.add(new TestTranslation(Apps.thresholdControl(t), false, JsonUtils.buildJsonObject() //
 					.add("OUTPUT_CHANNELS", JsonUtils.buildJsonArray().add("io0/Relay1").build()) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.discovergyMeter(t), false, JsonUtils.buildJsonObject() //
+					.addProperty("EMAIL", "test@test.test") //
+					.addProperty("PASSWORD", "xxxx") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.socomecMeter(t), false, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //

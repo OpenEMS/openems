@@ -3,13 +3,16 @@ Bundle-DocURL: https://github.com/dhatim/fastexcel
 Bundle-License: https://opensource.org/licenses/Apache-2.0
 Bundle-Version: 0.18.0
 
-Include-Resource: @fastexcel-0.18.0.jar
+Include-Resource: \
+	@fastexcel-0.18.0.jar,\
+	@fastexcel-reader-0.18.0.jar,\
 
 -dsannotations: *
 
 -metatypeannotations: *
 
 Export-Package: \
-    org.dhatim.fastexcel
+    org.dhatim.fastexcel,\
+    org.dhatim.fastexcel.reader,\
 
 -sources: false

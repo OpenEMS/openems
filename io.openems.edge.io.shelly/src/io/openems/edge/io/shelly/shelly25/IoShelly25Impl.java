@@ -3,6 +3,7 @@ package io.openems.edge.io.shelly.shelly25;
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 
 import java.util.Objects;
 
@@ -91,24 +92,7 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		// TODO share code with AbstractKmtronicRelay.debugLog()
-		var b = new StringBuilder();
-		var i = 1;
-		for (var channel : this.digitalOutputChannels) {
-			String valueText;
-			var valueOpt = channel.value().asOptional();
-			if (valueOpt.isPresent()) {
-				valueText = valueOpt.get() ? "x" : "-";
-			} else {
-				valueText = "Unknown";
-			}
-			b.append(valueText);
-			if (i < this.digitalOutputChannels.length) {
-				b.append("|");
-			}
-			i++;
-		}
-		return b.toString();
+		return generateDebugLog(this.digitalOutputChannels);
 	}
 
 	@Override

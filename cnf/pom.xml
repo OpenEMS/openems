@@ -9,8 +9,8 @@
 		<dependency>
 			<!-- Bnd Gradle Plugin For The Bnd Workspace -->
 			<!-- On update: also update gradle.properties file -->
-			<groupId>biz.aQute.bnd.workspace</groupId>
-			<artifactId>biz.aQute.bnd.workspace.gradle.plugin</artifactId>
+			<groupId>biz.aQute.bnd</groupId>
+			<artifactId>biz.aQute.bnd.gradle</artifactId>
 			<version>7.0.0</version>
 		</dependency>
 		<!-- com -->
@@ -105,7 +105,7 @@
 			<!-- Changelog: https://github.com/PgBulkInsert/PgBulkInsert/blob/master/CHANGELOG.md-->
 			<groupId>de.bytefish</groupId>
 			<artifactId>pgbulkinsert</artifactId>
-			<version>8.1.3</version>
+			<version>8.1.4</version>
 		</dependency>
 		<!-- eu -->
 		<dependency>
@@ -203,7 +203,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty</artifactId>
-			<version>5.1.20</version>
+			<version>5.1.24</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
@@ -237,7 +237,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/README.md#releases -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>5.0.2</version>
+			<version>5.0.6</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Web Console Service Component Runtime/Declarative Services Plugin -->
@@ -260,6 +260,11 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
+			<version>0.18.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.dhatim</groupId>
+			<artifactId>fastexcel-reader</artifactId>
 			<version>0.18.0</version>
 		</dependency>
 		<dependency>
@@ -307,7 +312,7 @@
 			<!-- HTML processing -->
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.17.2</version>
+			<version>1.18.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
