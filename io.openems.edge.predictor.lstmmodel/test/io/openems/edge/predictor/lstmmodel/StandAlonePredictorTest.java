@@ -23,12 +23,12 @@ public class StandAlonePredictorTest {
 	/**
 	 * Prediction testing.
 	 */
-	@Test
+	// @Test
 	public void predictionTest() {
 		ArrayList<ArrayList<Double>> predictedSeasonality = new ArrayList<ArrayList<Double>>();
 		ArrayList<Double> predictedTrend = new ArrayList<Double>();
 
-		String csv = "2" + ".csv";
+		String csv = "1" + ".csv";
 
 		ZonedDateTime globDate = ZonedDateTime.of(2022, 6, 16, 0, 0, 0, 0, ZonedDateTime.now().getZone());
 
@@ -73,6 +73,67 @@ public class StandAlonePredictorTest {
 		System.out.println("rmsTrend = " + rmsTrend);
 		System.out.println("rms Seasonality= " + rmsSeasonality);
 		System.out.println("accuracy trend = " + PerformanceMatrix.accuracy(target, predictedTrend, .15));
+		System.out.println("accuracy seasonlity = " + PerformanceMatrix.accuracy(target, pre, .15));
+
+	}
+
+	@Test
+
+	public void predictionTestMultivarient() {
+		ArrayList<ArrayList<Double>> predictedSeasonality = new ArrayList<ArrayList<Double>>();
+		ArrayList<Double> predictedTrend = new ArrayList<Double>();
+
+		String csv = "1" + ".csv";
+
+		ZonedDateTime globDate = ZonedDateTime.of(2022, 6, 16, 0, 0, 0, 0, ZonedDateTime.now().getZone());
+
+		HyperParameters hyperParameters = ReadAndSaveModels.read("ConsumptionActivePower");
+
+		hyperParameters.printHyperParameters();
+
+		int predictionFor = 1;
+		for (int i = 0; i < predictionFor; i++) {
+
+			ZonedDateTime nowDate = globDate;
+			nowDate = nowDate.plusHours(24 * i);
+
+			var tempPredicted = this.predictSeasonalityMultivarent(hyperParameters, nowDate, csv);
+			predictedSeasonality.add(tempPredicted);
+
+		}
+
+		for (int i = 0; i < predictionFor; i++) {
+			ZonedDateTime nowDate = globDate;
+			nowDate = nowDate.plusHours(24 * i);
+			predictedTrend = this.predictTrendOneDayMultivarent(hyperParameters, nowDate, csv);
+
+		}
+		ArrayList<Double> pre = UtilityConversion.to1DArrayList(predictedSeasonality);
+		ZonedDateTime nowDate = globDate;
+		ZonedDateTime until = ZonedDateTime.of(nowDate.getYear(), nowDate.getMonthValue(), nowDate.getDayOfMonth(),
+				nowDate.getHour(), getMinute(nowDate, hyperParameters), 0, 0, nowDate.getZone());
+
+		ZonedDateTime targetFrom = until.plusMinutes(hyperParameters.getInterval());
+		ZonedDateTime targetTo = targetFrom.plusHours(24 * predictionFor);
+//--------------------------------------->
+		// changing target data for refrence
+		ArrayList<Double> target = this.getTargetData(targetFrom, targetTo, csv, hyperParameters);
+		var ref = getTargetRefrence(targetFrom, targetTo);
+
+		var trend = DataModification.elementWiseDiv(predictedTrend, ref);
+//---------------------------------------->
+
+		double rmsSeasonality = PerformanceMatrix.rmsError(target, pre);
+		double rmsTrend = PerformanceMatrix.rmsError(target, trend);
+
+		System.out.println("Target = " + DataModification.constantScaling(target, 1));
+		System.out.println("PredictedSeasonality = " + DataModification.constantScaling(pre, 1));
+
+		System.out.println("Target = " + target);
+		System.out.println("Predicted trend = " + DataModification.constantScaling(trend, 1));
+		System.out.println("rmsTrend = " + rmsTrend);
+		System.out.println("rms Seasonality= " + rmsSeasonality);
+		System.out.println("accuracy trend = " + PerformanceMatrix.accuracy(target, trend, .15));
 		System.out.println("accuracy seasonlity = " + PerformanceMatrix.accuracy(target, pre, .15));
 
 	}
@@ -281,6 +342,55 @@ public class StandAlonePredictorTest {
 	}
 
 	/**
+	 * Doing what it suppose to do.
+	 * 
+	 * @param hyperParameters the Hyperparam
+	 * @param nowDate         nowDate
+	 * @param csvFileName     csvFileName
+	 * @return predicted the predicted
+	 */
+	public ArrayList<Double> predictSeasonalityMultivarent(HyperParameters hyperParameters, ZonedDateTime nowDate,
+			String csvFileName) {
+
+		ZonedDateTime until = ZonedDateTime.of(nowDate.getYear(), nowDate.getMonthValue(), nowDate.getDayOfMonth(),
+				nowDate.getHour(), getMinute(nowDate, hyperParameters), 0, 0, nowDate.getZone());
+
+		int windowSize = hyperParameters.getWindowSizeSeasonality();
+
+		nowDate = nowDate.plusMinutes(hyperParameters.getInterval());
+
+		ZonedDateTime temp = until.minusDays(windowSize);
+		ZonedDateTime fromDate = ZonedDateTime.of(temp.getYear(), temp.getMonthValue(), temp.getDayOfMonth(),
+				nowDate.getHour(), getMinute(nowDate, hyperParameters), 0, 0, temp.getZone());
+
+		ArrayList<Double> data = this.queryData(fromDate, until, csvFileName);
+
+		final ArrayList<OffsetDateTime> date = this.queryDate(fromDate, until, csvFileName);
+
+		// ------------------------->
+		var refdata = generateRefrence(date);
+		var toPredictData = DataModification.elementWiseMultiplication(refdata, data);
+		// -------------------------->
+
+		ZonedDateTime targetFrom = until.plusMinutes(hyperParameters.getInterval());
+
+		ArrayList<Double> predicted = LstmPredictor.getArranged(
+				LstmPredictor.getIndex(targetFrom.getHour(), targetFrom.getMinute(), hyperParameters),
+				LstmPredictor.predictSeasonality(toPredictData, date, hyperParameters));
+		// PredictSeasonality.predictSeasonality(data, date, hyperParameters));
+
+		// ------------------------------->
+		// postprocess
+		var targetRef = getTargetRefrence(fromDate, until);
+		var temp1 = DataModification.elementWiseDiv(predicted, targetRef);
+
+		// ---------------------------------->
+
+		return temp1;
+
+	}
+
+	/**
 	 * Gives prediction for seasoality.
 	 * 
 	 * @param hyperParameters the Hyperparam
@@ -326,6 +436,48 @@ public class StandAlonePredictorTest {
 		return predicted;
 	}
 
+	public ArrayList<Double> predictTrendOneDayMultivarent(HyperParameters hyperParameters, ZonedDateTime nowDate,
+			String csvFileName) {
+
+		// ArrayList<Double> val = new ArrayList<Double>();
+		ArrayList<Double> forTrendPrediction = new ArrayList<Double>();
+		ArrayList<OffsetDateTime> dateForTrend = new ArrayList<OffsetDateTime>();
+		ArrayList<Double> predicted = new ArrayList<Double>();
+		for (int i = 0; i < 60 / hyperParameters.getInterval() * 24; i++) {
+
+			ZonedDateTime nowDateTemp = nowDate.plusMinutes(i * hyperParameters.getInterval());
+			System.out.println(nowDateTemp);
+
+			ZonedDateTime until = ZonedDateTime.of(nowDateTemp.getYear(), nowDateTemp.getMonthValue(),
+					nowDateTemp.getDayOfMonth(), nowDateTemp.getHour(), getMinute(nowDateTemp, hyperParameters), 0, 0,
+					nowDateTemp.getZone());
+
+			forTrendPrediction = this.queryData(
+					until.minusMinutes(hyperParameters.getInterval() * hyperParameters.getWindowSizeTrend()), until,
+					csvFileName);
+			dateForTrend = this.queryDate(
+					until.minusMinutes(hyperParameters.getInterval() * hyperParameters.getWindowSizeTrend()), until,
+					csvFileName);
+
+			// ----------------------------------------->
+			// modification for multivarent
+			var tempData = generateRefrence(dateForTrend);
+			tempData = DataModification.elementWiseMultiplication(forTrendPrediction, tempData);
+
+			// ----------------------------------------->
+
+			predicted.add(
+
+					LstmPredictor.predictTrend(tempData, dateForTrend, until, hyperParameters)
+
+//					PredictTrendTest.predictTrendtest(tempData, dateForTrend, until, hyperParameters)
+
+							.get(0));
+
+		}
+		return predicted;
+	}
+
 	/**
 	 * Gives target data to compare.
 	 * 
@@ -343,4 +495,58 @@ public class StandAlonePredictorTest {
 
 	}
 
+	public ArrayList<Double> generateRefrence(ArrayList<OffsetDateTime> date) {
+
+		// one hour = 360/24 degree
+		// one minute = 360/(24*60) degree
+		ArrayList<Double> data = new ArrayList<Double>();
+
+		for (int i = 0; i < date.size(); i++) {
+			var hour = date.get(i).getHour();
+			var minute = date.get(i).getMinute();
+			double deg = 360 * hour / 24;
+			double degDec = 360 * minute / (24 * 60);
+			double angle = deg + degDec;
+			double addVal =  Math.cos(Math.toRadians(angle));
+			data.add(1.5+addVal);
+		}
+		return data;
+	}
+
+	public static ArrayList<Double> generateReference(ArrayList<ZonedDateTime> date) {
+		// one hour = 360/24 degrees
+		// one minute = 360/(24*60) degrees
+		ArrayList<Double> data = new ArrayList<>();
+
+		for (ZonedDateTime zonedDateTime : date) {
+			int hour = zonedDateTime.getHour();
+			int minute = zonedDateTime.getMinute();
+			double deg = 360.0 * hour / 24.0;
+			double degDec = 360.0 * minute / (24.0 * 60.0);
+			double angle = deg + degDec;
+			double addVal =  Math.cos(Math.toRadians(angle));
+			
+			data.add(1.5+addVal);
+
+			
+		}
+
+		return data;
+	}
+
+	ArrayList<Double> getTargetRefrence(ZonedDateTime from, ZonedDateTime to) {
+		System.out.println(from);
+		System.out.println(to);
+		int interval = 5;
+		int hour = 24;
+		int dataLen = 60 / interval * hour;
+		ArrayList<ZonedDateTime> date = new ArrayList<ZonedDateTime>();
+		for (int i = 0; i < dataLen; i++) {
+			date.add(from.plusMinutes(i * interval));
+
+		}
+
+		return generateReference(date);
+
+	}
 }

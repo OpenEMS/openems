@@ -1,5 +1,8 @@
 package io.openems.edge.predictor.lstmmodel.train;
 
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+
 import org.junit.Test;
 
 import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
@@ -11,7 +14,7 @@ public class BatchImplementationTest {
 	/**
 	 * Batch testing.
 	 */
-	@Test
+	//@Test
 	public void trainInBatchtest() {
 
 		HyperParameters hyperParameters;
@@ -22,11 +25,11 @@ public class BatchImplementationTest {
 		int check = hyperParameters.getOuterLoopCount();
 
 		for (int i = check; i <= 25; i++) {
-			
+
 			hyperParameters.setOuterLoopCount(i);
 
-			final String pathTrain = Integer.toString(i + 4) + ".csv";
-			final String pathValidate = Integer.toString(i+4) + ".csv";
+			final String pathTrain = Integer.toString(4) + ".csv";
+			final String pathValidate = Integer.toString(4) + ".csv";
 			System.out.println("");
 
 			hyperParameters.printHyperParameters();
@@ -59,7 +62,82 @@ public class BatchImplementationTest {
 			ReadAndSaveModels.save(hyperParameters);
 
 		}
+	}
+
+	@Test
+	public void trainInBatchtestMultivarient() {
+
+		HyperParameters hyperParameters;
+		String modelName = "ConsumptionActivePower";
+
+		hyperParameters = ReadAndSaveModels.read(modelName);
+
+		int check = hyperParameters.getOuterLoopCount();
+
+		for (int i = check; i <= 25; i++) {
+
+			hyperParameters.setOuterLoopCount(i);
+
+			final String pathTrain = Integer.toString(i + 4) + ".csv";
+			final String pathValidate = Integer.toString(i + 4) + ".csv";
+			System.out.println("");
+
+			hyperParameters.printHyperParameters();
+			hyperParameters.setLearningRateLowerLimit(0.00001);
+			hyperParameters.setLearningRateUpperLimit(0.001);
+
+			System.out.println("");
+
+			System.out.println(pathTrain);
+			System.out.println(pathValidate);
+
+			ReadCsv obj1 = new ReadCsv(pathTrain);
+			final ReadCsv obj2 = new ReadCsv(pathValidate);
+
+			var trainingref = generateRefrence(obj1.getDates());
+			var validationref = generateRefrence(obj2.getDates());
+
+			var trainingData = DataModification.elementWiseMultiplication(trainingref, obj1.getData());
+			var validationData = DataModification.elementWiseMultiplication(validationref, obj2.getData());
+
+			var validateBatchData = DataModification.getDataInBatch(validationData, 6).get(1);
+			var validateBatchDate = DataModification.getDateInBatch(obj2.getDates(), 6).get(1);
+
+//			 ReadAndSaveModels.adapt(hyperParameters, validateBatchData,
+//				 validateBatchDate);
+
+			new TrainAndValidateBatch(trainingData, obj1.getDates(), validateBatchData, validateBatchDate,
+					hyperParameters);
+
+			hyperParameters.setEpochTrack(0);
+			hyperParameters.setBatchTrack(0);
+			hyperParameters.setOuterLoopCount(hyperParameters.getOuterLoopCount() + 1);
+			ReadAndSaveModels.save(hyperParameters);
+
+		}
 
 	}
 
+
+	public ArrayList<Double> generateRefrence(ArrayList<OffsetDateTime> date) {
+
+		// one hour = 360/24 degree
+		// one minute = 360/(24*60) degree
+		ArrayList<Double> data = new ArrayList<Double>();
+
+		for (int i = 0; i < date.size(); i++) {
+			int hour = date.get(i).getHour();
+			int minute = date.get(i).getMinute();
+			double deg = 360.0 * hour / 24.0;
+			double degDec = 360.0 * minute / (24.0 * 60.0);
+			double angle = deg + degDec;
+			double addVal =  Math.cos(Math.toRadians(angle));
+			data.add(1.5+addVal);
+
+
+		
+
+		}
+		return data;
+	}
 }

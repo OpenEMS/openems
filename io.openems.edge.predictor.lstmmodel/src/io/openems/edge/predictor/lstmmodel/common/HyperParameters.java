@@ -95,14 +95,14 @@ public class HyperParameters implements Serializable {
 	 */
 	private double dataSplitValidate = 1 - this.dataSplitTrain;
 
-	private double wiInit = 0;
-	private double woInit = 0;
-	private double wzInit = 0;
-	private double riInit = 0;
-	private double roInit = 0;
-	private double rzInit = 0;
-	private double ytInit = 0;
-	private double ctInit = 0;
+	private double wiInit = 0.2;
+	private double woInit = 0.2;
+	private double wzInit = 0.2;
+	private double riInit = 0.2;
+	private double roInit = 0.2;
+	private double rzInit = 0.2;
+	private double ytInit = 0.2;
+	private double ctInit = 0.2;
 
 	/**
 	 * Interval for logging or updating parameters.
