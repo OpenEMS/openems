@@ -15,6 +15,9 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 
@@ -27,6 +30,8 @@ import io.openems.edge.predictor.lstmmodel.common.ReadAndSaveModels;
 import io.openems.edge.timedata.api.Timedata;
 
 public class LstmTrain implements Runnable {
+
+	private final Logger log = LoggerFactory.getLogger(LstmTrain.class);
 
 	private Timedata timedata;
 	private String channelAddress;
@@ -43,15 +48,9 @@ public class LstmTrain implements Runnable {
 	@Override
 	public void run() {
 
-		System.out.println("=====> Training for : " + this.channelAddress);
-
-		ZonedDateTime nowDate = ZonedDateTime.now();
-		ZonedDateTime until = nowDate.withHour(23).withMinute(45).withSecond(0).withNano(0).minusDays(1);
-		ZonedDateTime fromDate = until.minusDays(this.days).withHour(0).withMinute(0).withSecond(0).withNano(0);
-
-		// (60/ 5) * 24* 45
-		// (60/ 5) * 24* 15
-		// 66 percent and 33 percent
+		var nowDate = ZonedDateTime.now();
+		var until = nowDate.withHour(23).withMinute(45).withSecond(0).withNano(0).minusDays(1);
+		var fromDate = until.minusDays(this.days).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> querryResult = new TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>();
 		HyperParameters hyperParameters = ReadAndSaveModels.read(this.channelAddress.split("/")[1]);
@@ -65,7 +64,7 @@ public class LstmTrain implements Runnable {
 					new Resolution(hyperParameters.getInterval(), ChronoUnit.MINUTES));
 
 			int totalItems = querryResult.size();
-			int trainSize = (int) (totalItems * 0.66);
+			int trainSize = (int) (totalItems * 0.66); // 66% train and 33% validation
 
 			int count = 0;
 			for (Map.Entry<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> entry : querryResult.entrySet()) {
@@ -81,17 +80,25 @@ public class LstmTrain implements Runnable {
 			e.printStackTrace();
 		}
 
+		// Get the training data
 		var trainingData = this.getData(trainMap);
-		var trainingDate = this.getDate(trainMap);
 
+		if (this.cannotTrainConditions(trainingData)) {
+			this.parent._setCannotTrainCondition(true);
+			this.log.info("Cannot proceed with training: Data is all null or insufficient data.");
+			return;
+		}
+		// Get the training Date
+		var trainingDate = this.getDate(trainMap);
+		// Get the training data
 		var validationData = this.getData(validateMap);
+		// Get the validationDate
 		var validationDate = this.getDate(validateMap);
 
-		// TODO call adapt method
-		// Read an save model.adapt method
-		// ReadAndSaveModels.adapt(hyperParameters, validateBatchData,
-		// validateBatchDate);
-
+		/**
+		 * TODO Read an save model.adapt method ReadAndSaveModels.adapt(hyperParameters,
+		 * validateBatchData, validateBatchDate);
+		 */
 		new TrainAndValidateBatch(//
 				constantScaling(removeNegatives(trainingData), 1), trainingDate, //
 				constantScaling(removeNegatives(validationData), 1), validationDate, //
@@ -99,6 +106,7 @@ public class LstmTrain implements Runnable {
 
 		this.parent._setLastTrainedTime(hyperParameters.getLastTrainedDate().toString());
 		this.parent._setModelError(Collections.min(hyperParameters.getRmsErrorSeasonality()));
+		this.parent._setCannotTrainCondition(false);
 
 	}
 
@@ -108,7 +116,6 @@ public class LstmTrain implements Runnable {
 	 * @param queryResult The SortedMap queryResult.
 	 * @return An ArrayList of Double values extracted from non-null JsonElement
 	 *         values.
-	 * @throws Exception
 	 */
 	public ArrayList<Double> getData(SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult) {
 
@@ -124,12 +131,6 @@ public class LstmTrain implements Runnable {
 					return v.getAsDouble();
 				}).forEach(value -> data.add(value));
 
-		// TODO remove this later
-		if (this.cannotTrainConditions(data)) {
-			System.out.println("Data is all null, use a different predictor");
-
-		}
-
 		return data;
 	}
 
@@ -142,7 +143,6 @@ public class LstmTrain implements Runnable {
 	 * @return An ArrayList of OffsetDateTime objects extracted from the
 	 *         ZonedDateTime keys.
 	 */
-
 	public ArrayList<OffsetDateTime> getDate(
 			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult) {
 		return queryResult.keySet().stream()//
@@ -157,10 +157,17 @@ public class LstmTrain implements Runnable {
 	 * @return true if all elements in the ArrayList are null, false otherwise.
 	 */
 	private boolean cannotTrainConditions(ArrayList<Double> array) {
-		var firstCondttion = array.stream().allMatch(Objects::isNull);
-		var secondCondition = array.stream().filter(d -> !Double.isNaN(d)).count() / array.size() > 0.5;
+		if (array.isEmpty()) {
+			return true; // Cannot train with no data
+		}
 
-		return firstCondttion && secondCondition;
+		boolean allNulls = array.stream().allMatch(Objects::isNull);
+		if (allNulls) {
+			return true; // Cannot train with all null data
+		}
+
+		var nonNanCount = array.stream().filter(d -> d != null && !Double.isNaN(d)).count();
+		var validProportion = (double) nonNanCount / array.size();
+		return validProportion <= 0.5; // Cannot train with 50% or more invalid data
 	}
-
 }
