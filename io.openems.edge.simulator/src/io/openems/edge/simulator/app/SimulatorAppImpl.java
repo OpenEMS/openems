@@ -7,7 +7,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -43,7 +42,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
-import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.session.Role;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.timedata.Resolution;
@@ -182,8 +180,7 @@ public class SimulatorAppImpl extends AbstractOpenemsComponent implements Simula
 		this.setCycleTime(AbstractWorker.ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN);
 
 		// Create Ess.Power with disabled PID filter
-		this.componentManager.handleCreateComponentConfigRequest(user,
-				new CreateComponentConfigRequest("Ess.Power", Arrays.asList(new Property("enablePid", false))));
+		this.updateEssPower();
 
 		// Create Components
 		Set<String> simulatorComponentIds = new HashSet<>();
@@ -328,7 +325,11 @@ public class SimulatorAppImpl extends AbstractOpenemsComponent implements Simula
 			}
 			if (factoryPid.startsWith("Core.") //
 					|| factoryPid.startsWith("Controller.Api.") //
-					|| factoryPid.startsWith("Predictor.")) {
+					|| factoryPid.startsWith("Predictor.") //
+					// Ess.Power exists by default. We don't delete it, but will overwrite the
+					// configuration later. Delete request for this component does not work for some
+					// unknown reason.
+					|| factoryPid.equals("Ess.Power")) {
 				continue;
 			}
 			switch (factoryPid) {
@@ -398,6 +399,22 @@ public class SimulatorAppImpl extends AbstractOpenemsComponent implements Simula
 			config.update(properties);
 		} catch (IOException e) {
 			this.logError(this.log, "Unable to configure Core Cycle-Time. " + e.getClass() + ": " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Sets the Ess.Power to the default settings for a simulation.
+	 *
+	 */
+	private void updateEssPower() {
+		try {
+			var config = this.cm.getConfiguration("Ess.Power", null);
+			Dictionary<String, Object> properties = new Hashtable<>();
+			properties.put("enablePid", false);
+			config.update(properties);
+		} catch (IOException e) {
+			this.logError(this.log,
+					"Unable to configure Ess.Power enabledPid. " + e.getClass() + ": " + e.getMessage());
 		}
 	}
 
