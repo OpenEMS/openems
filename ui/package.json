@@ -17,7 +17,7 @@
     "@capacitor/app": "^5.0.6",
     "@capacitor/core": "5.7.6",
     "@capacitor/filesystem": "^5.2.0",
-    "@capacitor/ios": "5.2.3",
+    "@capacitor/ios": "5.7.7",
     "@capacitor/splash-screen": "^5.0.6",
     "@ionic-native/core": "^5.36.0",
     "@ionic-native/file-opener": "^5.36.0",
