@@ -1,0 +1,16 @@
+Bundle-Name: OpenEMS Backend Metadata LDAP
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: Allows authentication, authorization and edge configuration through a LDAP server.
+Bundle-Category: osgi
+Bundle-Vendor: Christian Poulter
+Bundle-ContactAddress: devel(at)poulter.de
+Bundle-Copyright: OpenEMS Backend Metadata LDAP (C) 2024 Christian Poulter
+Bundle-License: https://www.gnu.org/licenses/agpl-3.0.txt
+
+-buildpath: \
+	${buildpath},\
+	io.openems.backend.common,\
+	io.openems.common
+
+-testpath: \
+	${testpath}
