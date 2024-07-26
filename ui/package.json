@@ -35,7 +35,7 @@
     "chartjs-adapter-date-fns": "^3.0.0",
     "chartjs-plugin-zoom": "^2.0.1",
     "classlist.js": "^1.1.20150312",
-    "compare-versions": "^6.1.0",
+    "compare-versions": "^6.1.1",
     "d3": "^7.9.0",
     "date-fns": "^2.30.0",
     "file-saver-es": "^2.0.5",
