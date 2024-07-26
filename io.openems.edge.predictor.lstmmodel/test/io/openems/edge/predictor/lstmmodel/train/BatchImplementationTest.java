@@ -14,7 +14,7 @@ public class BatchImplementationTest {
 	/**
 	 * Batch testing.
 	 */
-	//@Test
+	// @Test
 	public void trainInBatchtest() {
 
 		HyperParameters hyperParameters;
@@ -47,8 +47,8 @@ public class BatchImplementationTest {
 			var validateBatchData = DataModification.getDataInBatch(obj2.getData(), 6).get(1);
 			var validateBatchDate = DataModification.getDateInBatch(obj2.getDates(), 6).get(1);
 
-//		 ReadAndSaveModels.adapt(hyperParameters, validateBatchData,
-//			 validateBatchDate);
+			// ReadAndSaveModels.adapt(hyperParameters, validateBatchData,
+			// validateBatchDate);
 
 			new TrainAndValidateBatch(
 					DataModification.constantScaling(DataModification.removeNegatives(obj1.getData()), 1),
@@ -94,8 +94,8 @@ public class BatchImplementationTest {
 			ReadCsv obj1 = new ReadCsv(pathTrain);
 			final ReadCsv obj2 = new ReadCsv(pathValidate);
 
-			var trainingref = generateRefrence(obj1.getDates());
-			var validationref = generateRefrence(obj2.getDates());
+			var trainingref = this.generateRefrence(obj1.getDates());
+			var validationref = this.generateRefrence(obj2.getDates());
 
 			var trainingData = DataModification.elementWiseMultiplication(trainingref, obj1.getData());
 			var validationData = DataModification.elementWiseMultiplication(validationref, obj2.getData());
@@ -103,8 +103,8 @@ public class BatchImplementationTest {
 			var validateBatchData = DataModification.getDataInBatch(validationData, 6).get(1);
 			var validateBatchDate = DataModification.getDateInBatch(obj2.getDates(), 6).get(1);
 
-//			 ReadAndSaveModels.adapt(hyperParameters, validateBatchData,
-//				 validateBatchDate);
+			// ReadAndSaveModels.adapt(hyperParameters, validateBatchData,
+			// validateBatchDate);
 
 			new TrainAndValidateBatch(trainingData, obj1.getDates(), validateBatchData, validateBatchDate,
 					hyperParameters);
@@ -118,26 +118,36 @@ public class BatchImplementationTest {
 
 	}
 
-
+	/**
+	 * Generates a list of reference values based on the provided list of
+	 * OffsetDateTime objects. Each reference value is calculated using the cosine
+	 * of the angle corresponding to the time of day represented by each
+	 * OffsetDateTime. The formula used is: - One hour corresponds to 360/24
+	 * degrees. - One minute corresponds to 360/(24*60) degrees.
+	 *
+	 * @param date an ArrayList of OffsetDateTime objects representing the date and
+	 *             time.
+	 * @return an ArrayList of Double values representing the generated reference
+	 *         values.
+	 */
 	public ArrayList<Double> generateRefrence(ArrayList<OffsetDateTime> date) {
-
-		// one hour = 360/24 degree
-		// one minute = 360/(24*60) degree
 		ArrayList<Double> data = new ArrayList<Double>();
 
 		for (int i = 0; i < date.size(); i++) {
+			// Extract the hour and minute from the current OffsetDateTime.
 			int hour = date.get(i).getHour();
 			int minute = date.get(i).getMinute();
+
+			// Calculate the degree values for the hour and minute.
 			double deg = 360.0 * hour / 24.0;
 			double degDec = 360.0 * minute / (24.0 * 60.0);
 			double angle = deg + degDec;
-			double addVal =  Math.cos(Math.toRadians(angle));
-			data.add(1.5+addVal);
 
-
-		
-
+			// Calculate the cosine of the angle in radians and add 1.5 to the result.
+			double addVal = Math.cos(Math.toRadians(angle));
+			data.add(1.5 + addVal);
 		}
 		return data;
 	}
+
 }

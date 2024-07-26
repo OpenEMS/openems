@@ -115,13 +115,12 @@ public class StandAlonePredictorTest {
 
 		ZonedDateTime targetFrom = until.plusMinutes(hyperParameters.getInterval());
 		ZonedDateTime targetTo = targetFrom.plusHours(24 * predictionFor);
-//--------------------------------------->
+
 		// changing target data for refrence
 		ArrayList<Double> target = this.getTargetData(targetFrom, targetTo, csv, hyperParameters);
-		var ref = getTargetRefrence(targetFrom, targetTo);
+		var ref = this.getTargetRefrence(targetFrom, targetTo);
 
 		var trend = DataModification.elementWiseDiv(predictedTrend, ref);
-//---------------------------------------->
 
 		double rmsSeasonality = PerformanceMatrix.rmsError(target, pre);
 		double rmsTrend = PerformanceMatrix.rmsError(target, trend);
@@ -368,7 +367,7 @@ public class StandAlonePredictorTest {
 		final ArrayList<OffsetDateTime> date = this.queryDate(fromDate, until, csvFileName);
 
 		// ------------------------->
-		var refdata = generateRefrence(date);
+		var refdata = this.generateRefrence(date);
 		var toPredictData = DataModification.elementWiseMultiplication(refdata, data);
 		// -------------------------->
 
@@ -377,14 +376,10 @@ public class StandAlonePredictorTest {
 		ArrayList<Double> predicted = LstmPredictor.getArranged(
 				LstmPredictor.getIndex(targetFrom.getHour(), targetFrom.getMinute(), hyperParameters),
 				LstmPredictor.predictSeasonality(toPredictData, date, hyperParameters));
-		// PredictSeasonality.predictSeasonality(data, date, hyperParameters));
 
-		// ------------------------------->
 		// postprocess
-		var targetRef = getTargetRefrence(fromDate, until);
+		var targetRef = this.getTargetRefrence(fromDate, until);
 		var temp1 = DataModification.elementWiseDiv(predicted, targetRef);
-
-		// ---------------------------------->
 
 		return temp1;
 
@@ -421,16 +416,13 @@ public class StandAlonePredictorTest {
 					until.minusMinutes(hyperParameters.getInterval() * hyperParameters.getWindowSizeTrend()), until,
 					csvFileName);
 
-			predicted.add(
+			predicted.add(LstmPredictor.predictTrend(forTrendPrediction, dateForTrend, until, hyperParameters)
 
 					/*
-					 * LstmPredictor.predictTrend(forTrendPrediction, dateForTrend, until,
-					 * hyperParameters)
-					 *///
-
-					PredictTrendTest.predictTrendtest(forTrendPrediction, dateForTrend, until, hyperParameters)
-
-							.get(0));
+					 * TODO for new pipeline PredictTrendTest.predictTrendtest(forTrendPrediction,
+					 * dateForTrend, until, hyperParameters)
+					 */
+					.get(0));
 
 		}
 		return predicted;
@@ -459,21 +451,15 @@ public class StandAlonePredictorTest {
 					until.minusMinutes(hyperParameters.getInterval() * hyperParameters.getWindowSizeTrend()), until,
 					csvFileName);
 
-			// ----------------------------------------->
-			// modification for multivarent
-			var tempData = generateRefrence(dateForTrend);
+			// modification for multivariant
+			var tempData = this.generateRefrence(dateForTrend);
 			tempData = DataModification.elementWiseMultiplication(forTrendPrediction, tempData);
 
-			// ----------------------------------------->
-
-			predicted.add(
-
-					LstmPredictor.predictTrend(tempData, dateForTrend, until, hyperParameters)
-
-//					PredictTrendTest.predictTrendtest(tempData, dateForTrend, until, hyperParameters)
-
-							.get(0));
-
+			predicted.add(LstmPredictor.predictTrend(tempData, dateForTrend, until, hyperParameters)
+					// TODO use this for new pipeline
+					// PredictTrendTest.predictTrendtest(tempData, dateForTrend, until,
+					// hyperParameters)
+					.get(0));
 		}
 		return predicted;
 	}
@@ -507,8 +493,8 @@ public class StandAlonePredictorTest {
 			double deg = 360 * hour / 24;
 			double degDec = 360 * minute / (24 * 60);
 			double angle = deg + degDec;
-			double addVal =  Math.cos(Math.toRadians(angle));
-			data.add(1.5+addVal);
+			double addVal = Math.cos(Math.toRadians(angle));
+			data.add(1.5 + addVal);
 		}
 		return data;
 	}
@@ -524,11 +510,10 @@ public class StandAlonePredictorTest {
 			double deg = 360.0 * hour / 24.0;
 			double degDec = 360.0 * minute / (24.0 * 60.0);
 			double angle = deg + degDec;
-			double addVal =  Math.cos(Math.toRadians(angle));
-			
-			data.add(1.5+addVal);
+			double addVal = Math.cos(Math.toRadians(angle));
 
-			
+			data.add(1.5 + addVal);
+
 		}
 
 		return data;

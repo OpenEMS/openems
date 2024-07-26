@@ -667,6 +667,47 @@ public class DataModification {
 	}
 
 	/**
+	 * Performs element-wise multiplication of two ArrayLists.
+	 *
+	 * @param featureA the first ArrayList
+	 * @param featureB the second ArrayList
+	 * @return a new ArrayList where each element is the result of multiplying the
+	 *         corresponding elements of featureA and featureB
+	 * @throws IllegalArgumentException if the input ArrayLists are of different
+	 *                                  lengths
+	 */
+	public static ArrayList<Double> elementWiseMultiplication(ArrayList<Double> featureA, ArrayList<Double> featureB) {
+		if (featureA.size() != featureB.size()) {
+			throw new IllegalArgumentException("The input ArrayLists must have the same length.");
+		}
+		ArrayList<Double> result = new ArrayList<>();
+		IntStream.range(0, featureA.size()).forEach(i -> result.add(featureA.get(i) * featureB.get(i)));
+		return result;
+	}
+
+	/**
+	 * Performs element-wise division of two ArrayLists. If an element in featureB
+	 * is zero, the corresponding element in the result will be zero.
+	 *
+	 * @param featureA the first ArrayList
+	 * @param featureB the second ArrayList
+	 * @return a new ArrayList where each element is the result of dividing the
+	 *         corresponding elements of featureA by featureB or zero if the element
+	 *         in featureB is zero
+	 * @throws IllegalArgumentException if the input ArrayLists are of different
+	 *                                  lengths
+	 */
+	public static ArrayList<Double> elementWiseDiv(ArrayList<Double> featureA, ArrayList<Double> featureB) {
+		if (featureA.size() != featureB.size()) {
+			throw new IllegalArgumentException("The input ArrayLists must have the same length.");
+		}
+		ArrayList<Double> result = new ArrayList<>();
+		IntStream.range(0, featureA.size())
+				.forEach(i -> result.add((featureB.get(i) == 0) ? featureA.get(i) : featureA.get(i) / featureB.get(i)));
+		return result;
+	}
+
+	/**
 	 * Performs element-wise division of two arrays. If an element in featureB is
 	 * zero, the corresponding element in the result will be zero.
 	 *
@@ -685,46 +726,5 @@ public class DataModification {
 				.mapToDouble(i -> (featureB[i] == 0) ? featureA[i] : featureA[i] / featureB[i])//
 				.toArray();
 	}
-	
-	
-	  /**
-     * Performs element-wise multiplication of two ArrayLists.
-     *
-     * @param featureA the first ArrayList
-     * @param featureB the second ArrayList
-     * @return a new ArrayList where each element is the result of multiplying the
-     *         corresponding elements of featureA and featureB
-     * @throws IllegalArgumentException if the input ArrayLists are of different lengths
-     */
-    public static ArrayList<Double> elementWiseMultiplication(ArrayList<Double> featureA, ArrayList<Double> featureB) {
-        if (featureA.size() != featureB.size()) {
-            throw new IllegalArgumentException("The input ArrayLists must have the same length.");
-        }
-        ArrayList<Double> result = new ArrayList<>();
-        IntStream.range(0, featureA.size())
-                 .forEach(i -> result.add(featureA.get(i) * featureB.get(i)));
-        return result;
-    }
-    
-    /**
-     * Performs element-wise division of two ArrayLists. If an element in featureB is
-     * zero, the corresponding element in the result will be zero.
-     *
-     * @param featureA the first ArrayList
-     * @param featureB the second ArrayList
-     * @return a new ArrayList where each element is the result of dividing the
-     *         corresponding elements of featureA by featureB or zero if the element
-     *         in featureB is zero
-     * @throws IllegalArgumentException if the input ArrayLists are of different lengths
-     */
-    public static ArrayList<Double> elementWiseDiv(ArrayList<Double> featureA, ArrayList<Double> featureB) {
-        if (featureA.size() != featureB.size()) {
-            throw new IllegalArgumentException("The input ArrayLists must have the same length.");
-        }
-        ArrayList<Double> result = new ArrayList<>();
-        IntStream.range(0, featureA.size())
-                 .forEach(i -> result.add((featureB.get(i) == 0) ? featureA.get(i) : featureA.get(i) / featureB.get(i)));
-        return result;
-    }
 
 }
