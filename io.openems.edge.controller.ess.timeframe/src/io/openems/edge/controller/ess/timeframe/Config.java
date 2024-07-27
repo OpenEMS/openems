@@ -26,11 +26,17 @@ import io.openems.edge.ess.power.api.Relationship;
     @AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
     String ess_id();
 
-    @AttributeDefinition(name = "ESS Capacity", description = "Capacity of the ESS in Wh. Serves as Fallback, if ESS capacity can not be read from ESS.", required = false)
-    int fallback_ess_capacity() default 0;
+    @AttributeDefinition(name = "Fallback ESS Capacity", description = "Capacity of the ESS in Wh. Serves as Fallback, if ESS capacity can not be read from ESS.", required = false)
+    int ess_capacity() default 0;
 
     @AttributeDefinition(name = "Target SoC [%]", description = "SoC to reach within the specified timeframe")
     int targetSoC();
+
+    @AttributeDefinition(name = "Max charge power [W]", description = "Max power that can be used to charge the ESS. 0 means no limit.")
+    int maxChargePower() default 0;
+
+    @AttributeDefinition(name = "Max discharge power [W]", description = "Max power that can be used to discharge the ESS. 0 means no limit.")
+    int maxDischargePower() default 0;
 
     @AttributeDefinition(name = "Start Time", description = "Start of the timeframe used in manual mode; ISO 8601 format")
     String startTime();

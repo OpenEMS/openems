@@ -100,7 +100,15 @@ public class ControllerEssTimeframeImpl extends AbstractOpenemsComponent
             isActive = switch (this.config.mode()) {
                 case MANUAL -> {
                     // Apply Active-Power Set-Point
-                    var acPower = getAcPower(this.ess, this.config.fallback_ess_capacity(), this.config.targetSoC(), this.config.startTime(), this.config.endTime());
+                    var acPower = getAcPower(
+                            this.ess,
+                            this.config.ess_capacity(),
+                            this.config.targetSoC(),
+                            this.config.maxChargePower(),
+                            this.config.maxDischargePower(),
+                            this.config.startTime(),
+                            this.config.endTime()
+                    );
 
                     if (acPower == null) {
                         yield false; // is not active
@@ -124,14 +132,24 @@ public class ControllerEssTimeframeImpl extends AbstractOpenemsComponent
     /**
      * Gets the required AC power set-point for AC-ESS.
      *
-     * @param ess       the {@link ManagedSymmetricEss}
+     * @param ess                   the {@link ManagedSymmetricEss}
      * @param fallback_ess_capacity capacity of the ess, used as fallback if automatic determination does not work
-     * @param targetSoC the target SoC
-     * @param startTime the start time of the timeframe
-     * @param endTime   the end time of the timeframe
+     * @param targetSoC             the target SoC
+     * @param maxChargePower        max power to charge
+     * @param maxDischargePower     max power to discharge
+     * @param startTime             the start time of the timeframe
+     * @param endTime               the end time of the timeframe
      * @return the AC power set-point
      */
-    protected static Integer getAcPower(ManagedSymmetricEss ess, Integer fallback_ess_capacity, int targetSoC, String startTime, String endTime) throws InvalidValueException {
+    protected static Integer getAcPower(
+            ManagedSymmetricEss ess,
+            Integer fallback_ess_capacity,
+            int targetSoC,
+            int maxChargePower,
+            int maxDischargePower,
+            String startTime,
+            String endTime
+    ) throws InvalidValueException {
         Date start = getDateFromIsoString(startTime);
         Date end = getDateFromIsoString(endTime);
         Date current = new Date();
@@ -147,8 +165,15 @@ public class ControllerEssTimeframeImpl extends AbstractOpenemsComponent
             int currentCapacity = maxEssCapacity * currentSoC / 100;
 
             float timeframeInHours = (end.getTime() - current.getTime()) / 1000f / 60f / 60f;
+            int requestedPower = Math.round((currentCapacity - targetCapacity) / timeframeInHours);
+            if (maxChargePower != 0) {
+                requestedPower = Math.max(requestedPower, -maxChargePower);
+            }
+            if (maxDischargePower != 0) {
+                requestedPower = Math.min(requestedPower, maxDischargePower);
+            }
 
-           return Math.round((currentCapacity - targetCapacity) / timeframeInHours);
+            return requestedPower;
         }
 
         return null;

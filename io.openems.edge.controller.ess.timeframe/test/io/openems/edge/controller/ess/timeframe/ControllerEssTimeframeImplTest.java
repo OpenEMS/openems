@@ -1,7 +1,9 @@
 package io.openems.edge.controller.ess.timeframe;
 
-import static org.junit.Assert.assertEquals;
-
+import io.openems.common.exceptions.InvalidValueException;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.test.DummyManagedSymmetricEss;
+import io.openems.edge.ess.test.DummySymmetricEss;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -16,6 +18,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+
+import static org.junit.Assert.*;
 
 public class ControllerEssTimeframeImplTest {
 
@@ -55,5 +59,91 @@ public class ControllerEssTimeframeImplTest {
                         .setPhase(Phase.ALL) //
                         .setRelationship(Relationship.EQUALS) //
                         .build()); //
+    }
+
+    @Test
+    public void testLimitChargePower() throws InvalidValueException {
+
+        var ess = new DummyManagedSymmetricEss(ESS_ID)
+                .withCapacity(10000)
+                .withSoc(25)
+                .withActivePower(0)
+                .withMaxApparentPower(10000);
+
+        assertEquals(Integer.valueOf(-1000), //
+                ControllerEssTimeframeImpl.getAcPower(
+                        ess,
+                        0,
+                        50,
+                        1000,
+                        0,
+                        getIso8601String(now()),
+                        getIso8601String(inOneHour())
+                ));
+
+
+        Integer acPower = ControllerEssTimeframeImpl.getAcPower(
+                ess,
+                0,
+                50,
+                0,
+                0,
+                getIso8601String(now()),
+                getIso8601String(inOneHour())
+        );
+        assertNotNull(acPower);
+        assertTrue(acPower < -1000);
+
+    }
+
+    @Test
+    public void testLimitDischargePower() throws InvalidValueException {
+
+        var ess = new DummyManagedSymmetricEss(ESS_ID)
+                .withCapacity(10000)
+                .withSoc(75)
+                .withActivePower(0)
+                .withMaxApparentPower(10000);
+
+        assertEquals(Integer.valueOf(1000), //
+                ControllerEssTimeframeImpl.getAcPower(
+                        ess,
+                        0,
+                        50,
+                        0,
+                        1000,
+                        getIso8601String(now()),
+                        getIso8601String(inOneHour())
+                ));
+
+
+        Integer acPower = ControllerEssTimeframeImpl.getAcPower(
+                ess,
+                0,
+                50,
+                0,
+                0,
+                getIso8601String(now()),
+                getIso8601String(inOneHour())
+        );
+        assertNotNull(acPower);
+        assertTrue(acPower > 1000);
+
+    }
+
+
+    private Date now() {
+        return new Date();
+    }
+
+    private Date inOneHour() {
+        return new Date(now().getTime() + 3600 * 1000);
+    }
+
+
+    private String getIso8601String(Date date) {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return df.format(date);
     }
 }
