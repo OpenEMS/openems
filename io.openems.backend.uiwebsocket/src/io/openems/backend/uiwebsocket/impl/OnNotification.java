@@ -19,7 +19,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	}
 
 	@Override
-	public void run(WebSocket ws, JsonrpcNotification notification) throws OpenemsNamedException {
+	public void accept(WebSocket ws, JsonrpcNotification notification) throws OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
 		User user = null;
 		try {

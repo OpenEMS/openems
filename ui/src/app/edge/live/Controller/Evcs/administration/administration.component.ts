@@ -11,10 +11,10 @@ import { Edge, EdgeConfig, Service, Websocket } from '../../../../../shared/shar
 })
 export class AdministrationComponent implements OnInit {
 
+  private static readonly SELECTOR = "administration";
+
   @Input({ required: true }) public evcsComponent!: EdgeConfig.Component;
   @Input({ required: true }) public edge!: Edge;
-
-  private static readonly SELECTOR = "administration";
 
   // used for ion-toggle in html
   public isCheckedZoe: boolean = null;

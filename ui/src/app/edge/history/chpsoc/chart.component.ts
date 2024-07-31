@@ -17,16 +17,16 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public componentId!: string;
 
-    ngOnChanges() {
-        this.updateChart();
-    }
-
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
         private route: ActivatedRoute,
     ) {
         super("chpsoc-chart", service, translate);
+    }
+
+    ngOnChanges() {
+        this.updateChart();
     }
 
     ngOnInit() {
@@ -36,6 +36,10 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 1.3;
     }
 
     protected updateChart() {
@@ -164,7 +168,4 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
         this.options = this.createDefaultChartOptions();
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 1.3;
-    }
 }

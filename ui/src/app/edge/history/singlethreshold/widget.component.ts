@@ -14,10 +14,10 @@ import { calculateActiveTimeOverPeriod } from '../shared';
 })
 export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
+    private static readonly SELECTOR = "singlethresholdWidget";
+
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public componentId!: string;
-
-    private static readonly SELECTOR = "singlethresholdWidget";
 
     public activeSecondsOverPeriod: number = null;
     public edge: Edge = null;

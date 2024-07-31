@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { environment } from 'src/environments';
 
+import { Capacitor } from '@capacitor/core';
 import { AppService } from '../app.service';
 import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
 import { Edge, Service, Utils, Websocket } from '../shared/shared';
@@ -16,12 +17,12 @@ import { Edge, Service, Utils, Websocket } from '../shared/shared';
 export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
   public environment = environment;
   public form: FormGroup;
+  protected formIsDisabled: boolean = false;
+  protected popoverActive: 'android' | 'ios' | null = null;
+  protected readonly operatingSystem = AppService.deviceInfo.os;
+  protected readonly isApp: boolean = Capacitor.getPlatform() !== 'web';
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private page = 0;
-  protected formIsDisabled: boolean = false;
-
-  protected popoverActive: 'android' | 'iOS' | null = null;
-  protected readonly isApp: boolean = AppService.isApp;
 
   constructor(
     public service: Service,
@@ -31,6 +32,20 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
     private route: ActivatedRoute,
     private cdref: ChangeDetectorRef,
   ) { }
+
+  /**
+ * Trims credentials
+ *
+ * @param password the password
+ * @param username the username
+ * @returns trimmed credentials
+ */
+  public static trimCredentials(password: string, username?: string): { password: string, username?: string } {
+    return {
+      password: password?.trim(),
+      ...(username && { username: username?.trim() }),
+    };
+  }
 
   ngAfterContentChecked() {
     this.cdref.detectChanges();
@@ -72,19 +87,6 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
     }
   }
 
-  /**
-   * Trims credentials
-   *
-   * @param password the password
-   * @param username the username
-   * @returns trimmed credentials
-   */
-  public static trimCredentials(password: string, username?: string): { password: string, username?: string } {
-    return {
-      password: password?.trim(),
-      ...(username && { username: username?.trim() }),
-    };
-  }
 
   /**
    * Login to OpenEMS Edge or Backend.
@@ -141,5 +143,14 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
   ngOnDestroy() {
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
+  }
+
+  protected async showPopoverOrRedirectToStore(operatingSystem: 'android' | 'ios') {
+    const link: string | null = AppService.getAppStoreLink();
+    if (link) {
+      window.open(link, '_blank');
+    } else {
+      this.popoverActive = operatingSystem;
+    }
   }
 }

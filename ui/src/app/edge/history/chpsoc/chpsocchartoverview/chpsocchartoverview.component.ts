@@ -9,12 +9,10 @@ import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
 })
 export class ChpSocChartOverviewComponent implements OnInit {
 
+    private static readonly SELECTOR = "chpsoc-chart-overview";
     public edge: Edge = null;
     public config: EdgeConfig = null;
-
     public component: EdgeConfig.Component = null;
-
-    private static readonly SELECTOR = "chpsoc-chart-overview";
 
     constructor(
         public service: Service,

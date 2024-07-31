@@ -28,6 +28,9 @@ export class OverViewComponent implements OnInit, OnDestroy {
     public form: FormGroup;
     public filteredEdges: Edge[] = [];
 
+    protected loading: boolean = false;
+    protected searchParams: Map<string, ChosenFilter['value']> = new Map();
+
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private page = 0;
     private query: string | null = null;
@@ -36,8 +39,6 @@ export class OverViewComponent implements OnInit, OnDestroy {
     private readonly limit: number = 20;
     /** True, if all available edges for this user had been retrieved */
     private limitReached: boolean = false;
-    protected loading: boolean = false;
-    protected searchParams: Map<string, ChosenFilter['value']> = new Map();
 
     constructor(
         public service: Service,
@@ -60,6 +61,54 @@ export class OverViewComponent implements OnInit, OnDestroy {
 
     ionViewWillEnter() {
         this.service.setCurrentComponent('', this.route);
+    }
+
+    /**
+     * Updates available edges on scroll-event
+     *
+     * @param infiniteScroll the InfiniteScrollCustomEvent
+     */
+    doInfinite(infiniteScroll: InfiniteScrollCustomEvent) {
+        setTimeout(() => {
+            this.page++;
+            this.loadNextPage().then((edges) => {
+                this.filteredEdges.push(...edges);
+                infiniteScroll.target.complete();
+            }).catch(() => {
+                infiniteScroll.target.complete();
+            });
+        }, 200);
+    }
+
+    ngOnDestroy() {
+        this.stopOnDestroy.next();
+        this.stopOnDestroy.complete();
+    }
+
+    loadNextPage(): Promise<Edge[]> {
+
+        this.loading = true;
+        return new Promise<Edge[]>((resolve, reject) => {
+            if (this.limitReached) {
+                resolve([]);
+                return;
+            }
+
+            const searchParamsObj = {};
+            if (this.searchParams && this.searchParams.size > 0) {
+                for (const [key, value] of this.searchParams) {
+                    searchParamsObj[key] = value;
+                }
+            }
+            this.service.getEdges(this.page, this.query, this.limit, searchParamsObj)
+                .then((edges) => {
+                    this.limitReached = edges.length < this.limit;
+                    resolve(edges);
+                }).catch((err) => {
+                    reject(err);
+                });
+        }).finally(() =>
+            this.loading = false);
     }
 
     protected getAndSubscribeEdge(edge: Edge) {
@@ -114,51 +163,4 @@ export class OverViewComponent implements OnInit, OnDestroy {
         });
     }
 
-    /**
-     * Updates available edges on scroll-event
-     *
-     * @param infiniteScroll the InfiniteScrollCustomEvent
-     */
-    doInfinite(infiniteScroll: InfiniteScrollCustomEvent) {
-        setTimeout(() => {
-            this.page++;
-            this.loadNextPage().then((edges) => {
-                this.filteredEdges.push(...edges);
-                infiniteScroll.target.complete();
-            }).catch(() => {
-                infiniteScroll.target.complete();
-            });
-        }, 200);
-    }
-
-    ngOnDestroy() {
-        this.stopOnDestroy.next();
-        this.stopOnDestroy.complete();
-    }
-
-    loadNextPage(): Promise<Edge[]> {
-
-        this.loading = true;
-        return new Promise<Edge[]>((resolve, reject) => {
-            if (this.limitReached) {
-                resolve([]);
-                return;
-            }
-
-            const searchParamsObj = {};
-            if (this.searchParams && this.searchParams.size > 0) {
-                for (const [key, value] of this.searchParams) {
-                    searchParamsObj[key] = value;
-                }
-            }
-            this.service.getEdges(this.page, this.query, this.limit, searchParamsObj)
-                .then((edges) => {
-                    this.limitReached = edges.length < this.limit;
-                    resolve(edges);
-                }).catch((err) => {
-                    reject(err);
-                });
-        }).finally(() =>
-            this.loading = false);
-    }
 }

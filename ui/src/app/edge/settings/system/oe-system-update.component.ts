@@ -13,6 +13,8 @@ import { SystemUpdateState } from './getSystemUpdateStateResponse';
 })
 export class OeSystemUpdateComponent implements OnInit, OnDestroy {
 
+  private static readonly SELECTOR = "oe-system-update";
+
   @Output() public stateChanged: EventEmitter<SystemUpdateState> = new EventEmitter();
   @Input() public executeUpdateInstantly: boolean = false;
   @Input({ required: true }) public edge!: Edge;
@@ -21,16 +23,6 @@ export class OeSystemUpdateComponent implements OnInit, OnDestroy {
 
   protected executeUpdate: ExecuteSystemUpdate = null;
   protected isWaiting: boolean;
-  protected confirmationAlert: () => void = () => presentAlert(this.alertCtrl, this.translate, {
-    message: this.translate.instant('SETTINGS.SYSTEM_UPDATE.WARNING', { system: environment.edgeShortName }),
-    subHeader: this.translate.instant('SETTINGS.SYSTEM_UPDATE.SUB_HEADER'),
-    buttons: [{
-      text: this.translate.instant('SETTINGS.SYSTEM_UPDATE.UPDATE_EXECUTE'),
-      handler: () => this.executeSystemUpdate(),
-    }],
-  });
-
-  private static readonly SELECTOR = "oe-system-update";
 
   constructor(
     private websocket: Websocket,
@@ -73,4 +65,14 @@ export class OeSystemUpdateComponent implements OnInit, OnDestroy {
     this.isWaiting = true;
     this.executeUpdate.executeSystemUpdate();
   }
+
+  protected confirmationAlert: () => void = () => presentAlert(this.alertCtrl, this.translate, {
+    message: this.translate.instant('SETTINGS.SYSTEM_UPDATE.WARNING', { system: environment.edgeShortName }),
+    subHeader: this.translate.instant('SETTINGS.SYSTEM_UPDATE.SUB_HEADER'),
+    buttons: [{
+      text: this.translate.instant('SETTINGS.SYSTEM_UPDATE.UPDATE_EXECUTE'),
+      handler: () => this.executeSystemUpdate(),
+    }],
+  });
+
 }

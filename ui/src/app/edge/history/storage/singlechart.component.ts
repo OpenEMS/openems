@@ -19,16 +19,16 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public showPhases!: boolean;
 
-    ngOnChanges() {
-        this.updateChart();
-    }
-
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
         private route: ActivatedRoute,
     ) {
         super("storage-single-chart", service, translate);
+    }
+
+    ngOnChanges() {
+        this.updateChart();
     }
 
     ngOnInit() {
@@ -38,6 +38,27 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 21 * 9;
+    }
+
+    protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
+        return new Promise((resolve) => {
+            const result: ChannelAddress[] = [
+                new ChannelAddress('_sum', 'EssActivePower'),
+                new ChannelAddress('_sum', 'ProductionDcActualPower'),
+                new ChannelAddress('_sum', 'EssActivePowerL1'),
+                new ChannelAddress('_sum', 'EssActivePowerL2'),
+                new ChannelAddress('_sum', 'EssActivePowerL3'),
+            ];
+            resolve(result);
+        });
+    }
+
+    protected setLabel() {
+        this.options = this.createDefaultChartOptions();
     }
 
     protected updateChart() {
@@ -217,24 +238,4 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
         this.options = options;
     }
 
-    protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
-        return new Promise((resolve) => {
-            const result: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'EssActivePower'),
-                new ChannelAddress('_sum', 'ProductionDcActualPower'),
-                new ChannelAddress('_sum', 'EssActivePowerL1'),
-                new ChannelAddress('_sum', 'EssActivePowerL2'),
-                new ChannelAddress('_sum', 'EssActivePowerL3'),
-            ];
-            resolve(result);
-        });
-    }
-
-    protected setLabel() {
-        this.options = this.createDefaultChartOptions();
-    }
-
-    public getChartHeight(): number {
-        return window.innerHeight / 21 * 9;
-    }
 }

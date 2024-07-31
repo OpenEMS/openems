@@ -35,6 +35,38 @@ export class NetworkComponent implements OnInit {
     this.initializeComponent();
   }
 
+  public submit(iface: InterfaceForm): void {
+    if (!iface.formGroup.valid) {
+      this.service.toast(this.translate.instant('Edge.Network.mandatoryFields'), 'danger');
+      return;
+    }
+
+    // Adds the static addresses entered in form field "Statische IP-Adressen hinzufügen" to addressJson in json format.
+    const addressJson: IpAddress[] = this.buildAddressJson(iface);
+    const request: NetworkConfig = this.buildRequest(iface, addressJson);
+    const interfaceName: string = iface.name === NetworkComponent.ETH_0 ? NetworkComponent.ETH_0 : iface.name;
+
+    this.sendRequest(interfaceName, request);
+  }
+
+  /**
+   * Hide expression dosent work with custom type 'repeat'.
+   * So this is the workaround for that functionality.
+   *
+   * @param form the form fields that need to be changed.
+   */
+  protected hideOrShowFields(form: FormlyForm): void {
+
+    const addressField: FormlyFieldConfig | undefined = form.fields.find(element => element.key == 'addressesList');
+    const linkLocalAddressField: FormlyFieldConfig | undefined = form.fields.find(element => element.key == 'linkLocalAddressing');
+    const metric: FormlyFieldConfig | undefined = form.fields.find(element => element.key == 'metric');
+    const advancedMode: boolean = form.model.advancedMode;
+
+    if (addressField) { addressField.hide = !advancedMode; }
+    if (linkLocalAddressField) { linkLocalAddressField.hide = !advancedMode; }
+    if (metric) { metric.hide = !advancedMode; }
+  }
+
   private async initializeComponent() {
     try {
       this.edge = await this.service.getCurrentEdge();
@@ -59,20 +91,6 @@ export class NetworkComponent implements OnInit {
         }
       }
     }
-  }
-
-  public submit(iface: InterfaceForm): void {
-    if (!iface.formGroup.valid) {
-      this.service.toast(this.translate.instant('Edge.Network.mandatoryFields'), 'danger');
-      return;
-    }
-
-    // Adds the static addresses entered in form field "Statische IP-Adressen hinzufügen" to addressJson in json format.
-    const addressJson: IpAddress[] = this.buildAddressJson(iface);
-    const request: NetworkConfig = this.buildRequest(iface, addressJson);
-    const interfaceName: string = iface.name === NetworkComponent.ETH_0 ? NetworkComponent.ETH_0 : iface.name;
-
-    this.sendRequest(interfaceName, request);
   }
 
   /**
@@ -173,23 +191,6 @@ export class NetworkComponent implements OnInit {
     }
   }
 
-  /**
-   * Hide expression dosent work with custom type 'repeat'.
-   * So this is the workaround for that functionality.
-   *
-   * @param form the form fields that need to be changed.
-   */
-  protected hideOrShowFields(form: FormlyForm): void {
-
-    const addressField: FormlyFieldConfig | undefined = form.fields.find(element => element.key == 'addressesList');
-    const linkLocalAddressField: FormlyFieldConfig | undefined = form.fields.find(element => element.key == 'linkLocalAddressing');
-    const metric: FormlyFieldConfig | undefined = form.fields.find(element => element.key == 'metric');
-    const advancedMode: boolean = form.model.advancedMode;
-
-    if (addressField) { addressField.hide = !advancedMode; }
-    if (linkLocalAddressField) { linkLocalAddressField.hide = !advancedMode; }
-    if (metric) { metric.hide = !advancedMode; }
-  }
 
   /**
    * Generates the interface configuration based on the provided name and source data.

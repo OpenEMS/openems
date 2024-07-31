@@ -1,7 +1,7 @@
 import { DecimalPipe } from '@angular/common';
 import { Pipe, PipeTransform } from '@angular/core';
 
-import { Converter } from '../../genericComponents/shared/converter';
+import { Converter } from '../../components/shared/converter';
 
 @Pipe({
     name: 'formatSecondsToDuration',

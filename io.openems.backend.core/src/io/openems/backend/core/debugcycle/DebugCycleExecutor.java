@@ -49,7 +49,7 @@ public class DebugCycleExecutor implements Runnable {
 
 	@Activate
 	public DebugCycleExecutor() {
-		this.debugCycleScheduledExecutor.scheduleAtFixedRate(this, 10, 10, TimeUnit.SECONDS);
+		this.debugCycleScheduledExecutor.scheduleAtFixedRate(this, 5, 5, TimeUnit.SECONDS);
 	}
 
 	/**

@@ -11,12 +11,12 @@ import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 })
 export class AliasUpdateComponent implements OnInit {
 
-    private edge: Edge;
-
     public component: EdgeConfig.Component = null;
     public formGroup: FormGroup | null = null;
     public factory: EdgeConfig.Factory = null;
     public componentIcon: string = null;
+
+    private edge: Edge;
 
     constructor(
         private service: Service,

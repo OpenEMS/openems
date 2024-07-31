@@ -70,6 +70,7 @@ public final class AllowedChannels {
 				.putAll(multiChannels("ctrlApiModbusTcp", 0, 3, "Ess0SetReactivePowerLessOrEquals", DataType.LONG)) //
 				.putAll(multiChannels("ctrlApiModbusTcp", 0, 3, "Ess0SetReactivePowerGreaterOrEquals", DataType.LONG)) //
 				.putAll(multiChannels("ctrlApiModbusTcp", 0, 3, "Ess0SetActivePowerGreaterOrEquals", DataType.LONG)) //
+				.put("ctrlEssLimiter14a0/RestrictionMode", DataType.LONG) //
 				.build();
 
 		ALLOWED_CUMULATED_CHANNELS = ImmutableMap.<String, DataType>builder() //
@@ -115,6 +116,7 @@ public final class AllowedChannels {
 				.putAll(multiChannels("ess", 0, 17, "ActiveDischargeEnergy", DataType.LONG)) //
 				.putAll(multiChannels("ctrlApiModbusTcp", 0, 3, "CumulatedActiveTime", DataType.LONG)) //
 				.putAll(multiChannels("ctrlApiModbusTcp", 0, 3, "CumulatedInactiveTime", DataType.LONG)) //
+				.put("ctrlEssLimiter14a0/CumulatedRestrictionTime", DataType.LONG) //
 				.build();
 	}
 

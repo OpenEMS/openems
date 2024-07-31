@@ -307,6 +307,11 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 	}
 
 	@Override
+	public Optional<String> getEmsTypeForEdge(String edgeId) {
+		throw new UnsupportedOperationException("FileMetadata.getEmsTypeForEdge() is not implemented");
+	}
+
+	@Override
 	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
 		throw new UnsupportedOperationException("FileMetadata.getUserAlertingSettings() is not implemented");
 	}

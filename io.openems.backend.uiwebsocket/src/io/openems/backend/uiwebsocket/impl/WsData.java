@@ -9,8 +9,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.java_websocket.WebSocket;
 
 import com.google.gson.JsonElement;
 
@@ -19,7 +18,6 @@ import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.CurrentDataNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
@@ -28,12 +26,8 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	private static class SubscribedChannels {
 
-		private static final Logger LOG = LoggerFactory.getLogger(SubscribedChannels.class);
-
 		private int lastRequestCount = Integer.MIN_VALUE;
 		private final Map<String, SortedSet<String>> subscribedChannels = new HashMap<>();
-
-		private Set<String> currentDataMissingChannelValues = Collections.emptySet();
 
 		/**
 		 * Applies a SubscribeChannelsRequest.
@@ -61,13 +55,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 			}
 
 			var result = edgeCache.getChannelValues(subscribedChannels);
-			if (!result.b().isEmpty()) {
-				if (!result.b().equals(this.currentDataMissingChannelValues)) {
-					LOG.info("[" + edgeId + "] Channels missing in Current-Data: [" + String.join(", ", result.b())
-							+ "]");
-				}
-				this.currentDataMissingChannelValues = result.b();
-			}
 			return result.a();
 		}
 
@@ -76,19 +63,16 @@ public class WsData extends io.openems.common.websocket.WsData {
 		}
 	}
 
-	private final Logger log = LoggerFactory.getLogger(WsData.class);
-
 	private final UUID id = UUID.randomUUID();
 
-	private final WebsocketServer parent;
 	private final SubscribedChannels subscribedChannels = new SubscribedChannels();
 	private Optional<String> userId = Optional.empty();
 	private Optional<String> token = Optional.empty();
 
 	private Set<String> subscribedEdges = new HashSet<>();
 
-	public WsData(WebsocketServer parent) {
-		this.parent = parent;
+	public WsData(WebSocket ws) {
+		super(ws);
 	}
 
 	/**
@@ -214,16 +198,9 @@ public class WsData extends io.openems.common.websocket.WsData {
 		if (values.isEmpty()) {
 			return;
 		}
-		try {
-			this.send(//
-					new EdgeRpcNotification(edgeId, //
-							new CurrentDataNotification(values)));
-
-		} catch (OpenemsException e) {
-			// Log & stop subscribes
-			this.parent.logWarn(this.log, "Unable to send CurrentDataNotification: " + e.getMessage());
-			this.subscribedChannels.dispose();
-		}
+		this.send(//
+				new EdgeRpcNotification(edgeId, //
+						new CurrentDataNotification(values)));
 	}
 
 	/**

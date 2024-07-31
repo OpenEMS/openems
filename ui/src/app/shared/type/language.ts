@@ -38,6 +38,15 @@ export class Language {
     public static readonly ALL = [Language.DE, Language.EN, Language.CZ, Language.NL, Language.ES, Language.FR, Language.JA];
     public static readonly DEFAULT = Language.DE;
 
+    constructor(
+        public readonly title: string,
+        public readonly key: string,
+        public readonly i18nLocaleKey: string,
+        public readonly json: any,
+        public readonly locale: any,
+    ) {
+    }
+
     public static getByKey(key: string): Language | null {
         for (const language of Language.ALL) {
 
@@ -92,12 +101,4 @@ export class Language {
         return lang?.i18nLocaleKey ?? Language.DEFAULT.i18nLocaleKey;
     }
 
-    constructor(
-        public readonly title: string,
-        public readonly key: string,
-        public readonly i18nLocaleKey: string,
-        public readonly json: any,
-        public readonly locale: any,
-    ) {
-    }
 }

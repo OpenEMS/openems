@@ -1,8 +1,8 @@
-import { DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
-import { OeTester } from "src/app/shared/genericComponents/shared/testing/common";
-import { OeChartTester } from "src/app/shared/genericComponents/shared/testing/tester";
+import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
+import { OeTester } from "src/app/shared/components/shared/testing/common";
+import { OeChartTester } from "src/app/shared/components/shared/testing/tester";
 import { EdgeConfig } from "src/app/shared/shared";
-import { removeFunctions, TestContext } from "src/app/shared/test/utils.spec";
+import { removeFunctions, TestContext } from "src/app/shared/components/shared/testing/utils.spec";
 
 import { ChartComponent } from "./chart";
 

@@ -1,18 +1,30 @@
 package io.openems.common.websocket;
 
+import static io.openems.common.utils.JsonrpcUtils.simplifyJsonrpcMessage;
+import static io.openems.common.utils.StringUtils.toShortString;
+import static io.openems.common.websocket.WebsocketUtils.generateWsDataString;
+
+import org.java_websocket.WebSocket;
+import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.openems.common.jsonrpc.base.JsonrpcMessage;
 
 public abstract class AbstractWebsocket<T extends WsData> {
+
+	private final Logger log = LoggerFactory.getLogger(AbstractWebsocket.class);
 
 	private final String name;
 
 	/**
-	 * Creates an empty WsData object that is attached to the WebSocket as early as
-	 * possible.
-	 *
+	 * Creates an empty WsData object that is attached to the given
+	 * {@link WebSocket} as early as possible.
+	 * 
+	 * @param ws the {@link WebSocket}
 	 * @return the typed {@link WsData}
 	 */
-	protected abstract T createWsData();
+	protected abstract T createWsData(WebSocket ws);
 
 	/**
 	 * Callback for internal error.
@@ -86,23 +98,41 @@ public abstract class AbstractWebsocket<T extends WsData> {
 	 *
 	 * @param command the {@link Runnable}
 	 */
-	protected abstract void execute(Runnable command) throws Exception;
+	protected abstract void execute(Runnable command);
 
 	/**
-	 * Handles an internal Error asynchronously.
-	 * 
-	 * @param t            the {@link Throwable} to be handled
-	 * @param wsDataString the toString() content of the WsData attachment of the
-	 *                     WebSocket
+	 * Sends a {@link JsonrpcMessage} to the {@link WebSocket}. Returns true if
+	 * sending was successful, otherwise false. Also logs a warning in that case.
+	 *
+	 * @param ws      the {@link WebSocket}
+	 * @param message the {@link JsonrpcMessage}
+	 * @return true if sending was successful
 	 */
-	protected void handleInternalErrorAsync(Throwable t, String wsDataString) {
-		try {
-			this.execute(new OnInternalErrorHandler(this.getOnInternalError(), t, wsDataString));
-
-		} catch (Throwable t1) {
-			this.handleInternalErrorSync(t, wsDataString);
-			this.handleInternalErrorSync(t1, wsDataString);
+	protected final boolean sendMessage(WebSocket ws, JsonrpcMessage message) {
+		if (!ws.isOpen()) {
+			// Catch status before to avoid throwing an expensive
+			// WebsocketNotConnectedException
+			this.sendMessageFailedLog(ws, message);
+			return false;
 		}
+
+		try {
+			ws.send(message.toString());
+			return true;
+
+		} catch (WebsocketNotConnectedException e) {
+			// Fallback for race condition if Connection was closed inbetween
+			this.sendMessageFailedLog(ws, message);
+			return false;
+		}
+	}
+
+	private void sendMessageFailedLog(WebSocket ws, JsonrpcMessage message) {
+		this.logWarn(this.log, new StringBuilder() //
+				.append("[").append(generateWsDataString(ws)) //
+				.append("] Unable to send message: Connection is closed. ") //
+				.append(toShortString(simplifyJsonrpcMessage(message), 100)) //
+				.toString());
 	}
 
 	/**
@@ -112,8 +142,8 @@ public abstract class AbstractWebsocket<T extends WsData> {
 	 * @param wsDataString the toString() content of the WsData attachment of the
 	 *                     WebSocket
 	 */
-	protected void handleInternalErrorSync(Throwable t, String wsDataString) {
-		this.getOnInternalError().run(t, wsDataString);
+	protected void handleInternalError(Throwable t, String wsDataString) {
+		this.getOnInternalError().accept(t, wsDataString);
 	}
 
 	/**

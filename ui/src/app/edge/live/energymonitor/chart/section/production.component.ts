@@ -42,8 +42,16 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
         this.unitpipe = unitpipe;
     }
 
+    get stateName() {
+        return this.showAnimation ? 'show' : 'hide';
+    }
+
     ngOnInit() {
         this.adjustFillRefbyBrowser();
+    }
+
+    ngOnDestroy() {
+        clearInterval(this.startAnimation);
     }
 
     toggleAnimation() {
@@ -51,10 +59,6 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
             this.showAnimation = !this.showAnimation;
         }, this.animationSpeed);
         this.animationTrigger = true;
-    }
-
-    get stateName() {
-        return this.showAnimation ? 'show' : 'hide';
     }
 
     protected getStartAngle(): number {
@@ -156,7 +160,4 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
         return p;
     }
 
-    ngOnDestroy() {
-        clearInterval(this.startAnimation);
-    }
 }
