@@ -30,9 +30,9 @@ export class SettingsComponent implements OnInit {
     this.service.getCurrentEdge().then(edge => {
       this.edge = edge;
       const user = this.service.metadata?.value?.user;
-      this.isAtLeastOwner = Role.isAtLeast(user.globalRole, Role.OWNER);
-      this.isAtLeastInstaller = Role.isAtLeast(user.globalRole, Role.INSTALLER);
-      this.isAtLeastAdmin = Role.isAtLeast(user.globalRole, Role.ADMIN);
+      this.isAtLeastOwner = edge.roleIsAtLeast(Role.OWNER);
+      this.isAtLeastInstaller = edge.roleIsAtLeast(Role.INSTALLER);
+      this.isAtLeastAdmin = edge.roleIsAtLeast(Role.ADMIN);
       this.canSeeJsonrpcTest = canSeeJsonrpcTest(user, edge);
     });
   }
