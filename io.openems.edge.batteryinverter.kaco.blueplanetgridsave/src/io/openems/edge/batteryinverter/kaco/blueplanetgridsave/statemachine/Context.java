@@ -4,10 +4,10 @@ import java.time.Clock;
 import java.time.Instant;
 
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.BatteryInverterKacoBlueplanetGridsave;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.BatteryInverterKacoBlueplanetGridsaveImpl;
 import io.openems.edge.common.statemachine.AbstractContext;
 
-public class Context extends AbstractContext<BatteryInverterKacoBlueplanetGridsave> {
+public class Context extends AbstractContext<BatteryInverterKacoBlueplanetGridsaveImpl> {
 
 	protected final Battery battery;
 	protected final int setActivePower;
@@ -16,7 +16,7 @@ public class Context extends AbstractContext<BatteryInverterKacoBlueplanetGridsa
 
 	private static final int TIMEOUT = 240; // [s]
 
-	public Context(BatteryInverterKacoBlueplanetGridsave parent, Battery battery, int setActivePower,
+	public Context(BatteryInverterKacoBlueplanetGridsaveImpl parent, Battery battery, int setActivePower,
 			int setReactivePower, Clock clock) {
 		super(parent);
 		this.battery = battery;
