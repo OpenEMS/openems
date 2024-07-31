@@ -126,7 +126,8 @@
             "passedEndTime": "Endzeitpunkt der begrenzten Beladung überschritten",
             "storageAlreadyFull": "Speicher bereits voll"
           },
-          "storageCapacity": "Speicherkapazität (nur sichtbar für admin)"
+          "storageCapacity": "Speicherkapazität (nur sichtbar für admin)",
+          "MAXIMUM_GRIDSELL_WITH_CHARGE": "Maximale Netzeinspeisung durch Batteriebeladung"
         },
         "CHP": {
           "highThreshold": "Oberer Schwellenwert",
