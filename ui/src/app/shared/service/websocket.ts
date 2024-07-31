@@ -80,6 +80,7 @@ export class Websocket implements WebsocketInterface {
           if (environment.debugMode) {
             console.info("Websocket connection opened");
           }
+
           const token = this.cookieService.get('token');
           if (token) {
 
@@ -90,6 +91,7 @@ export class Websocket implements WebsocketInterface {
           } else {
             // No Token -> directly ask for Login credentials
             this.status = 'waiting for credentials';
+            this.router.navigate(['login']);
           }
         },
       },
