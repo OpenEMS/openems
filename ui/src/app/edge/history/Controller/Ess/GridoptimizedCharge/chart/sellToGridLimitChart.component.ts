@@ -11,11 +11,6 @@ import { ChannelAddress } from 'src/app/shared/shared';
 })
 export class SellToGridLimitChartComponent extends AbstractHistoryChart {
 
-  protected getChartData(): HistoryUtils.ChartData {
-    const gridMeterId = this.config.getComponentProperties(this.component.id)['meter.id'];
-    return SellToGridLimitChartComponent.getChartData(gridMeterId, this.component.id, this.translate);
-  }
-
   public static getChartData(gridmeterId: string, componentId: string, translate: TranslateService): HistoryUtils.ChartData {
     return {
       input: [
@@ -67,4 +62,10 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart {
       }],
     };
   }
+
+  protected getChartData(): HistoryUtils.ChartData {
+    const gridMeterId = this.config.getComponentProperties(this.component.id)['meter.id'];
+    return SellToGridLimitChartComponent.getChartData(gridMeterId, this.component.id, this.translate);
+  }
+
 }

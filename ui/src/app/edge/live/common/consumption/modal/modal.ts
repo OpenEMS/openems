@@ -13,10 +13,6 @@ import { ChannelAddress, CurrentData, EdgeConfig } from '../../../../../shared/s
 })
 export class ModalComponent extends AbstractFormlyComponent {
 
-  protected override generateView(config: EdgeConfig): OeFormlyView {
-    return ModalComponent.generateView(config, this.translate);
-  }
-
   public static generateView(config: EdgeConfig, translate: TranslateService): OeFormlyView {
 
     const evcss: EdgeConfig.Component[] | null = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
@@ -122,4 +118,9 @@ export class ModalComponent extends AbstractFormlyComponent {
       lines: lines,
     };
   }
+
+  protected override generateView(config: EdgeConfig): OeFormlyView {
+    return ModalComponent.generateView(config, this.translate);
+  }
+
 }

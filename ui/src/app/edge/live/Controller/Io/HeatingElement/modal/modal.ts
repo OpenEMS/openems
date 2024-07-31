@@ -21,6 +21,18 @@ export class ModalComponent extends AbstractModal implements OnInit {
     protected readonly Mode = Mode;
     protected readonly WorkMode = WorkMode;
 
+    // allowMinimumHeating == workMode: none
+    // TODO remove when outputting of event is errorless possible
+    switchAllowMinimumHeating(event: CustomEvent) {
+        if (event.detail.checked == true) {
+            this.formGroup.controls['workMode'].setValue('TIME');
+            this.formGroup.controls['workMode'].markAsDirty();
+        } else if (event.detail.checked == false) {
+            this.formGroup.controls['workMode'].setValue('NONE');
+            this.formGroup.controls['workMode'].markAsDirty();
+        }
+    }
+
     protected override getChannelAddresses(): ChannelAddress[] {
         const outputChannelPhaseOne = ChannelAddress.fromString(
             this.component.properties['outputChannelPhaseL1']);
@@ -73,15 +85,4 @@ export class ModalComponent extends AbstractModal implements OnInit {
         });
     }
 
-    // allowMinimumHeating == workMode: none
-    // TODO remove when outputting of event is errorless possible
-    switchAllowMinimumHeating(event: CustomEvent) {
-        if (event.detail.checked == true) {
-            this.formGroup.controls['workMode'].setValue('TIME');
-            this.formGroup.controls['workMode'].markAsDirty();
-        } else if (event.detail.checked == false) {
-            this.formGroup.controls['workMode'].setValue('NONE');
-            this.formGroup.controls['workMode'].markAsDirty();
-        }
-    }
 }

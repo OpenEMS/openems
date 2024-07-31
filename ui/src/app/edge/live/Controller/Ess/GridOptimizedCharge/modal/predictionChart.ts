@@ -15,17 +15,13 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from 'src/app/shared
 })
 export class PredictionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input({ required: true }) protected refresh!: boolean;
-    @Input({ required: true }) protected override edge!: Edge;
+    private static DEFAULT_PERIOD: DefaultTypes.HistoryPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
+
     @Input({ required: true }) public component!: EdgeConfig.Component;
     @Input({ required: true }) public targetEpochSeconds!: number;
     @Input({ required: true }) public chargeStartEpochSeconds!: number;
-
-    private static DEFAULT_PERIOD: DefaultTypes.HistoryPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
-
-    ngOnChanges() {
-        this.updateChart();
-    }
+    @Input({ required: true }) protected refresh!: boolean;
+    @Input({ required: true }) protected override edge!: Edge;
 
     constructor(
         protected override service: Service,
@@ -35,6 +31,10 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
         super("prediction-chart", service, translate);
     }
 
+    ngOnChanges() {
+        this.updateChart();
+    }
+
     ngOnInit() {
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
@@ -42,6 +42,10 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 4;
     }
 
     protected updateChart() {
@@ -207,14 +211,8 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
         });
     }
 
-    private applyControllerSpecificOptions() {
-        this.options.scales[ChartAxis.LEFT]['position'] = 'right';
-        this.options.scales.x.ticks.callback = function (value, index, values) {
-            const date = new Date(value);
-
-            // Display the label only if the minutes are zero (full hour)
-            return date.getMinutes() === 0 ? date.getHours() + ':00' : '';
-        };
+    protected setLabel() {
+        this.options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     }
 
     protected getChannelAddresses(): Promise<ChannelAddress[]> {
@@ -230,13 +228,16 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
         });
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 4;
+    private applyControllerSpecificOptions() {
+        this.options.scales[ChartAxis.LEFT]['position'] = 'right';
+        this.options.scales.x.ticks.callback = function (value, index, values) {
+            const date = new Date(value);
+
+            // Display the label only if the minutes are zero (full hour)
+            return date.getMinutes() === 0 ? date.getHours() + ':00' : '';
+        };
     }
 
-    protected setLabel() {
-        this.options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-    }
 }
 
 export type ChannelChartDescription = {

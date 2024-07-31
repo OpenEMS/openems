@@ -19,16 +19,18 @@ export class ChannelsComponent {
 
   private static readonly SELECTOR = "channels";
   private static readonly URL_PREFIX = "channels";
+  public customAlertOptions: any = {
+    cssClass: 'wide-alert',
+  };
   protected readonly spinnerId = ChannelsComponent.SELECTOR;
   protected readonly environment = environment;
   protected edge: Edge = null;
   protected config: EdgeConfig = null;
-  private persistencePriority: string = PersistencePriority.DEFAULT_GLOBAL_PRIORITY;
   protected channelsPerComponent = new Map<string, ComponentChannels>();
-
   protected selectedComponentChannels = new Map<string, Map<string, { showPersistencePriority: boolean }>>();
   // TODO should be a simple SET but equality checking in SETs is currently not changeable and therefore not very useful for objects
   private subscribedChannels = new Map<string, ChannelAddress>();
+  private persistencePriority: string = PersistencePriority.DEFAULT_GLOBAL_PRIORITY;
 
   constructor(
     private service: Service,
@@ -37,10 +39,6 @@ export class ChannelsComponent {
     private router: Router,
     protected translate: TranslateService,
   ) { }
-
-  public customAlertOptions: any = {
-    cssClass: 'wide-alert',
-  };
 
   ionViewWillEnter() {
     this.service.setCurrentComponent("Channels", this.route).then(edge => {
@@ -60,6 +58,11 @@ export class ChannelsComponent {
         this.service.stopSpinner(this.spinnerId);
       });
     });
+  }
+
+  ionViewDidLeave() {
+    this.selectedComponentChannels = new Map();
+    this.edge?.unsubscribeChannels(this.websocket, ChannelsComponent.SELECTOR);
   }
 
   /**
@@ -132,15 +135,6 @@ export class ChannelsComponent {
     }
   }
 
-  private saveChannelsInUrl(): void {
-    const selectedChannels = this.getSelectedChannelStrings();
-    if (selectedChannels && selectedChannels.length > 0) {
-      this.router.navigate(['device/' + (this.edge.id) + '/settings/channels/'], { queryParams: { save: selectedChannels.toString() } });
-    } else {
-      this.router.navigate(['device/' + (this.edge.id) + '/settings/channels/']);
-    }
-  }
-
   protected saveChannelsInLocalStorage() {
     const selectedChannels = this.getSelectedChannels();
     if (selectedChannels && selectedChannels.length > 0) {
@@ -149,6 +143,29 @@ export class ChannelsComponent {
       localStorage.removeItem(ChannelsComponent.URL_PREFIX + "-" + this.edge.id);
     }
     this.service.toast("Successfully saved subscribed channels", "success");
+  }
+
+  protected onSelectedComponentChanged(event) {
+    const componentId: string = event.detail.value;
+
+    if (!componentId || this.channelsPerComponent.has(componentId)) {
+      return;
+    }
+
+    this.loadChannelsAndStore(componentId).then(() => {
+      // ignore
+    }).catch(reason => {
+      this.service.toast('Unable to load channels for ' + componentId + ': ' + reason, 'danger');
+    });
+  }
+
+  private saveChannelsInUrl(): void {
+    const selectedChannels = this.getSelectedChannelStrings();
+    if (selectedChannels && selectedChannels.length > 0) {
+      this.router.navigate(['device/' + (this.edge.id) + '/settings/channels/'], { queryParams: { save: selectedChannels.toString() } });
+    } else {
+      this.router.navigate(['device/' + (this.edge.id) + '/settings/channels/']);
+    }
   }
 
   private getSelectedChannelStrings(): string[] {
@@ -189,19 +206,6 @@ export class ChannelsComponent {
     }
   }
 
-  protected onSelectedComponentChanged(event) {
-    const componentId: string = event.detail.value;
-
-    if (!componentId || this.channelsPerComponent.has(componentId)) {
-      return;
-    }
-
-    this.loadChannelsAndStore(componentId).then(() => {
-      // ignore
-    }).catch(reason => {
-      this.service.toast('Unable to load channels for ' + componentId + ': ' + reason, 'danger');
-    });
-  }
 
   private getChannel(componentId: string, channelId: string): Promise<Channel> {
     return new Promise((resolve, reject) => {
@@ -285,10 +289,6 @@ export class ChannelsComponent {
     });
   }
 
-  ionViewDidLeave() {
-    this.selectedComponentChannels = new Map();
-    this.edge?.unsubscribeChannels(this.websocket, ChannelsComponent.SELECTOR);
-  }
 }
 
 type ComponentChannels = {

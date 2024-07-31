@@ -15,15 +15,12 @@ export type NavigationOption = {
 })
 export class FooterNavigationComponent implements AfterViewInit {
 
+  private static readonly INTERVAL: number = 1000;
+
   @ViewChildren('subnavigationbuttons', { read: ElementRef })
   public subnavigationbuttons!: QueryList<ElementRef>;
   @ViewChild('container', { read: ElementRef }) public container!: ElementRef;
-
   @Input() public backButton: boolean = false;
-  @Input() public set navigationOptions(nodes: NavigationOption[]) {
-    this._buttons = nodes;
-    this.buttons = nodes;
-  }
 
   protected areButtonsReadyToShow: boolean = false;
   protected buttons: NavigationOption[] = [];
@@ -32,13 +29,20 @@ export class FooterNavigationComponent implements AfterViewInit {
 
   private _buttons: NavigationOption[] = [];
 
-  private static readonly INTERVAL: number = 1000;
-
   constructor(
     protected location: Location,
     protected popoverCtrl: PopoverController,
     private cdr: ChangeDetectorRef,
   ) {
+  }
+
+  @Input() public set navigationOptions(nodes: NavigationOption[]) {
+    this._buttons = nodes;
+    this.buttons = nodes;
+  }
+  @HostListener('window:resize', ['$event.target.innerWidth'])
+  private onResize(width: number) {
+    this.initializeFooterSubnavigation();
   }
 
   ngAfterViewInit() {
@@ -51,10 +55,6 @@ export class FooterNavigationComponent implements AfterViewInit {
     this.showPopover = false;
   }
 
-  @HostListener('window:resize', ['$event.target.innerWidth'])
-  private onResize(width: number) {
-    this.initializeFooterSubnavigation();
-  }
 
 
   /**

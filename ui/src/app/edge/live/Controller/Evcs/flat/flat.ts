@@ -43,6 +43,22 @@ export class FlatComponent extends AbstractFlatWidget {
   protected propertyMode: DefaultTypes.ManualOnOff = null;
   protected status: string;
 
+  formatNumber(i: number) {
+    const round = Math.ceil(i / 100) * 100;
+    return round;
+  }
+
+
+  async presentModal() {
+    const modal = await this.modalController.create({
+      component: ModalComponent,
+      componentProps: {
+        component: this.component,
+      },
+    });
+    return await modal.present();
+  }
+
   protected override getChannelAddresses(): ChannelAddress[] {
     const result = [
       new ChannelAddress(this.component.id, 'ChargePower'),
@@ -164,21 +180,6 @@ export class FlatComponent extends AbstractFlatWidget {
     }
   }
 
-  formatNumber(i: number) {
-    const round = Math.ceil(i / 100) * 100;
-    return round;
-  }
-
-
-  async presentModal() {
-    const modal = await this.modalController.create({
-      component: ModalComponent,
-      componentProps: {
-        component: this.component,
-      },
-    });
-    return await modal.present();
-  }
 }
 
 enum ChargeState {

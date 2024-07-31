@@ -40,15 +40,15 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
+    public chargeAnimationTrigger: boolean = false;
+    public dischargeAnimationTrigger: boolean = false;
+    public svgStyle: string;
     private socValue: number;
     private unitpipe: UnitvaluePipe;
     // animation variable to stop animation on destroy
     private startAnimation = null;
     private showChargeAnimation: boolean = false;
     private showDischargeAnimation: boolean = false;
-    public chargeAnimationTrigger: boolean = false;
-    public dischargeAnimationTrigger: boolean = false;
-    public svgStyle: string;
 
     constructor(
         translate: TranslateService,
@@ -59,8 +59,20 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
         this.unitpipe = unitpipe;
     }
 
+    get stateNameCharge() {
+        return this.showChargeAnimation ? 'show' : 'hide';
+    }
+
+    get stateNameDischarge() {
+        return this.showDischargeAnimation ? 'show' : 'hide';
+    }
+
     ngOnInit() {
         this.adjustFillRefbyBrowser();
+    }
+
+    ngOnDestroy() {
+        clearInterval(this.startAnimation);
     }
 
     toggleCharge() {
@@ -77,26 +89,6 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
         }, this.animationSpeed);
         this.chargeAnimationTrigger = false;
         this.dischargeAnimationTrigger = true;
-    }
-
-    get stateNameCharge() {
-        return this.showChargeAnimation ? 'show' : 'hide';
-    }
-
-    get stateNameDischarge() {
-        return this.showDischargeAnimation ? 'show' : 'hide';
-    }
-
-    protected getStartAngle(): number {
-        return 136;
-    }
-
-    protected getEndAngle(): number {
-        return 224;
-    }
-
-    protected getRatioType(): Ratio {
-        return 'Negative and Positive [-1,1]';
     }
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
@@ -158,6 +150,18 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
                     }
                 });
             });
+    }
+
+    protected getStartAngle(): number {
+        return 136;
+    }
+
+    protected getEndAngle(): number {
+        return 224;
+    }
+
+    protected getRatioType(): Ratio {
+        return 'Negative and Positive [-1,1]';
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
@@ -234,7 +238,4 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
         return p;
     }
 
-    ngOnDestroy() {
-        clearInterval(this.startAnimation);
-    }
 }

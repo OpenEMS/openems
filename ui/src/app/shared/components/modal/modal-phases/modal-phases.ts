@@ -12,14 +12,14 @@ import { TextIndentation } from "../modal-line/modal-line";
 })
 export class ModalPhasesComponent extends AbstractModalLine {
 
+  protected readonly TextIndentation = TextIndentation;
+
   protected readonly phases: { key: string, name: string }[] = [
     { key: "L1", name: "" },
     { key: "L2", name: "" },
     { key: "L3", name: "" },
   ];
   @Input() private setTranslatedName = (powerPerPhase: number) => { return ""; };
-
-  protected readonly TextIndentation = TextIndentation;
 
   protected override getChannelAddresses(): ChannelAddress[] {
     const channelAddresses: ChannelAddress[] = [];

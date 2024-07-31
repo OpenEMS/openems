@@ -13,9 +13,9 @@ import { RefresherCustomEvent } from "@ionic/angular";
 @Injectable()
 export class HistoryDataService extends DataService {
 
-  private channelAddresses: { [sourceId: string]: ChannelAddress } = {};
   public queryChannelsTimeout: any | null = null;
   protected override timestamps: string[] = [];
+  private channelAddresses: { [sourceId: string]: ChannelAddress } = {};
 
   constructor(
     @Inject(Websocket) protected websocket: Websocket,

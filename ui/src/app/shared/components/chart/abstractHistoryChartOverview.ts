@@ -10,11 +10,6 @@ import { DefaultTypes } from "../../service/defaulttypes";
 @Directive()
 export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges, OnDestroy {
 
-  public edge: Edge | null = null;
-  public period: DefaultTypes.HistoryPeriod;
-  protected showTotal: boolean = true;
-  protected showPhases: boolean = false;
-
   /**
    * True after this.edge, this.config and this.component are set.
    */
@@ -22,6 +17,11 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
   public config: EdgeConfig = null;
   public component: EdgeConfig.Component = null;
   public stopOnDestroy: Subject<void> = new Subject<void>();
+  public edge: Edge | null = null;
+  public period: DefaultTypes.HistoryPeriod;
+  protected showTotal: boolean = true;
+  protected showPhases: boolean = false;
+
 
   constructor(
     public service: Service,

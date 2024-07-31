@@ -8,9 +8,6 @@ import { Role } from 'src/app/shared/type/role';
   templateUrl: '../../../../../shared/components/formly/formly-field-modal/template.html',
 })
 export class ModalComponent extends AbstractFormlyComponent {
-  protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
-    return ModalComponent.generateView(this.translate);
-  }
 
   public static generateView(translate: TranslateService): OeFormlyView {
     return {
@@ -21,4 +18,8 @@ export class ModalComponent extends AbstractFormlyComponent {
       }],
     };
   }
+  protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
+    return ModalComponent.generateView(this.translate);
+  }
+
 }

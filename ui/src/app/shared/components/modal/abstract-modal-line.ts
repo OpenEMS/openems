@@ -40,52 +40,31 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     * @returns converter function
     */
     @Input() public filter: Filter = Filter.NO_FILTER;
-
-    private _name: string | ((value: any) => string);
-
-    /** Name for parameter, displayed on the left side*/
-    @Input() set name(value: string | { channel: ChannelAddress, converter: (value: any) => string }) {
-        if (typeof value === 'object') {
-            this.subscribe(value.channel);
-            this._name = value.converter;
-        } else {
-            this._name = value;
-        }
-    }
-
     @Input({ required: true }) public value!: number | string;
     @Input() public roleIsAtLeast?: Role = Role.GUEST;
-    protected show: boolean = true;
-
-    /** Channel defines the channel, you need for this line */
-    @Input()
-    set channelAddress(channelAddress: string) {
-        if (channelAddress) {
-            this.subscribe(ChannelAddress.fromString(channelAddress));
-        }
-    }
-
-    /** Selector needed for Subscribe (Identifier) */
-    private selector: string = uuidv4();
 
     /**
      * displayValue is the displayed @Input value in html
-     */
+    */
     public displayValue: string = null;
     public displayName: string = null;
-
-    /** Checks if any value of this line can be seen => hides line if false
-     *
-     * @deprecated can be remove in future when live-view is refactored with formlyfield
-     */
-    protected isAllowedToBeSeen: boolean = true;
     public edge: Edge = null;
     public config: EdgeConfig = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
 
+    /** Checks if any value of this line can be seen => hides line if false
+     *
+     * @deprecated can be remove in future when live-view is refactored with formlyfield
+    */
+    protected isAllowedToBeSeen: boolean = true;
+    protected show: boolean = true;
     protected readonly Role = Role;
     protected readonly Utils = Utils;
     protected readonly Converter = Converter;
+
+    private _name: string | ((value: any) => string);
+    /** Selector needed for Subscribe (Identifier) */
+    private selector: string = uuidv4();
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -100,6 +79,24 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
         setInterval(() => {
             this.ref.detectChanges(); // manually trigger change detection
         }, 0);
+    }
+
+    /** Name for parameter, displayed on the left side*/
+    @Input() set name(value: string | { channel: ChannelAddress, converter: (value: any) => string }) {
+        if (typeof value === 'object') {
+            this.subscribe(value.channel);
+            this._name = value.converter;
+        } else {
+            this._name = value;
+        }
+    }
+
+    /** Channel defines the channel, you need for this line */
+    @Input()
+    set channelAddress(channelAddress: string) {
+        if (channelAddress) {
+            this.subscribe(ChannelAddress.fromString(channelAddress));
+        }
     }
 
     ngOnChanges() {
@@ -139,6 +136,17 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
                 });
             });
         });
+    }
+
+    public ngOnDestroy() {
+        // Unsubscribe from OpenEMS
+        if (this.edge != null) {
+            this.edge.unsubscribeChannels(this.websocket, this.selector);
+        }
+
+        // Unsubscribe from CurrentData subject
+        this.stopOnDestroy.next();
+        this.stopOnDestroy.complete();
     }
 
     /** value defines value of the parameter, displayed on the right */
@@ -185,16 +193,6 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
 
     }
 
-    public ngOnDestroy() {
-        // Unsubscribe from OpenEMS
-        if (this.edge != null) {
-            this.edge.unsubscribeChannels(this.websocket, this.selector);
-        }
-
-        // Unsubscribe from CurrentData subject
-        this.stopOnDestroy.next();
-        this.stopOnDestroy.complete();
-    }
     /**
      * Called on every new data.
      *

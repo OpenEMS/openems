@@ -10,10 +10,9 @@ import { Edge, Service, EdgeConfig } from 'src/app/shared/shared';
 })
 export class DelayedSellToGridWidgetComponent implements OnInit {
 
+    private static readonly SELECTOR = "delayedSellToGridWidget";
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public componentId!: string;
-
-    private static readonly SELECTOR = "delayedSellToGridWidget";
 
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;

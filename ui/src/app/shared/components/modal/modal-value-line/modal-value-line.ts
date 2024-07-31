@@ -10,24 +10,23 @@ import { AbstractModalLine } from "../abstract-modal-line";
 })
 export class ModalValueLineComponent extends AbstractModalLine {
 
+  // Width of Left Column, Right Column is (100% - leftColumn)
+  @Input({ required: true }) protected leftColumnWidth!: number;
+
+  /** Fixed indentation of the modal-line */
+  @Input() protected textIndent: TextIndentation = TextIndentation.NONE;
+
+  @Input({ required: true }) private valueCallback!: (currentData: CurrentData) => string;
+
+  private channels: ChannelAddress[];
+
   @Input() set channelsToSubscribe(channels: ChannelAddress[]) {
     this.channels = channels;
   }
 
-  private channels: ChannelAddress[];
-
   protected override getChannelAddresses(): ChannelAddress[] {
     return this.channels;
   }
-
-  @Input({ required: true }) private valueCallback!: (currentData: CurrentData) => string;
-
-  // Width of Left Column, Right Column is (100% - leftColumn)
-  @Input({ required: true })
-  protected leftColumnWidth!: number;
-
-  /** Fixed indentation of the modal-line */
-  @Input() protected textIndent: TextIndentation = TextIndentation.NONE;
 
   protected override onCurrentData(currentData: CurrentData): void {
     this.displayValue = this.valueCallback(currentData);

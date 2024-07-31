@@ -12,10 +12,6 @@ import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-  public override getChartData() {
-    return ChartComponent.getChartData(this.config, this.chartType, this.translate);
-  }
-
   public static getChartData(config: EdgeConfig | null, chartType: 'line' | 'bar', translate: TranslateService): HistoryUtils.ChartData {
     const input: HistoryUtils.InputChannel[] =
       config?.widgets.classes.reduce((arr: HistoryUtils.InputChannel[], key) => {
@@ -204,7 +200,12 @@ export class ChartComponent extends AbstractHistoryChart {
     };
   }
 
+  public override getChartData() {
+    return ChartComponent.getChartData(this.config, this.chartType, this.translate);
+  }
+
   protected override getChartHeight(): number {
     return this.service.deviceHeight / 2;
   }
+
 }

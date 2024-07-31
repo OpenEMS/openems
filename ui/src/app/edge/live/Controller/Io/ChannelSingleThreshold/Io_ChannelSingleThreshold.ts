@@ -30,6 +30,21 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
   public switchValue: number | string;
   public switchConverter = Utils.CONVERT_WATT_TO_KILOWATT;
 
+  async presentModal() {
+    const modal = await this.modalController.create({
+      component: Controller_Io_ChannelSingleThresholdModalComponent,
+      componentProps: {
+        component: this.component,
+        config: this.config,
+        edge: this.edge,
+        outputChannel: this.outputChannel,
+        inputChannel: this.inputChannel,
+        inputChannelUnit: this.unitOfInputChannel,
+      },
+    });
+    return await modal.present();
+  }
+
   protected override afterIsInitialized(): void {
     this.inputChannel = ChannelAddress.fromString(
       this.component.properties['inputChannelAddress']);
@@ -171,21 +186,6 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
       }
     }
 
-  }
-
-  async presentModal() {
-    const modal = await this.modalController.create({
-      component: Controller_Io_ChannelSingleThresholdModalComponent,
-      componentProps: {
-        component: this.component,
-        config: this.config,
-        edge: this.edge,
-        outputChannel: this.outputChannel,
-        inputChannel: this.inputChannel,
-        inputChannelUnit: this.unitOfInputChannel,
-      },
-    });
-    return await modal.present();
   }
 }
 

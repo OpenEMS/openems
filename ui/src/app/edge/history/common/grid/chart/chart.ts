@@ -15,10 +15,6 @@ import { ChartAnnotationState } from 'src/app/shared/type/general';
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-  public override getChartData() {
-    return ChartComponent.getChartData(this.config, this.chartType, this.translate, this.showPhases);
-  }
-
   public static getChartData(config: EdgeConfig, chartType: 'line' | 'bar', translate: TranslateService, showPhases: boolean): HistoryUtils.ChartData {
     const input: HistoryUtils.InputChannel[] = [
       {
@@ -225,4 +221,9 @@ export class ChartComponent extends AbstractHistoryChart {
     }
 
   }
+
+  public override getChartData() {
+    return ChartComponent.getChartData(this.config, this.chartType, this.translate, this.showPhases);
+  }
+
 }

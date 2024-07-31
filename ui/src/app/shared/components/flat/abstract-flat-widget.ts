@@ -16,11 +16,11 @@ import { Service } from "../../service/service";
 @Directive()
 export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
 
-    public readonly Utils = Utils;
-    public readonly Converter = Converter;
-
     @Input()
     protected componentId: string;
+
+    public readonly Utils = Utils;
+    public readonly Converter = Converter;
 
     /**
      * True after this.edge, this.config and this.component are set.

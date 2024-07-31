@@ -20,6 +20,16 @@ export class FlatComponent extends AbstractFlatWidget {
     public readonly CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
+    async presentModal() {
+        const modal = await this.modalController.create({
+            component: ModalComponent,
+            componentProps: {
+                component: this.component,
+            },
+        });
+        return await modal.present();
+    }
+
     protected override getChannelAddresses() {
         return [
             new ChannelAddress(this.componentId, "DelayChargeState"),
@@ -72,13 +82,4 @@ export class FlatComponent extends AbstractFlatWidget {
         this.delayChargeMaximumChargeLimit = currentData.allComponents[this.component.id + '/DelayChargeMaximumChargeLimit'];
     }
 
-    async presentModal() {
-        const modal = await this.modalController.create({
-            component: ModalComponent,
-            componentProps: {
-                component: this.component,
-            },
-        });
-        return await modal.present();
-    }
 }

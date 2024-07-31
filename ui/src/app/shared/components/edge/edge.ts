@@ -16,20 +16,38 @@ import { DeleteComponentConfigRequest } from '../../jsonrpc/request/deleteCompon
 import { EdgeRpcRequest } from '../../jsonrpc/request/edgeRpcRequest';
 import { GetChannelRequest } from '../../jsonrpc/request/getChannelRequest';
 import { GetChannelsOfComponentRequest } from '../../jsonrpc/request/getChannelsOfComponentRequest';
-import { GetEdgeConfigRequest } from '../../jsonrpc/request/getEdgeConfigRequest';
 import { GetPropertiesOfFactoryRequest } from '../../jsonrpc/request/getPropertiesOfFactoryRequest';
 import { SubscribeChannelsRequest } from '../../jsonrpc/request/subscribeChannelsRequest';
 import { SubscribeSystemLogRequest } from '../../jsonrpc/request/subscribeSystemLogRequest';
 import { UpdateComponentConfigRequest } from '../../jsonrpc/request/updateComponentConfigRequest';
 import { GetChannelResponse } from '../../jsonrpc/response/getChannelResponse';
 import { Channel, GetChannelsOfComponentResponse } from '../../jsonrpc/response/getChannelsOfComponentResponse';
-import { GetEdgeConfigResponse } from '../../jsonrpc/response/getEdgeConfigResponse';
 import { GetPropertiesOfFactoryResponse } from '../../jsonrpc/response/getPropertiesOfFactoryResponse';
 import { ArrayUtils } from '../../service/arrayutils';
 import { ChannelAddress, SystemLog, Websocket, EdgePermission } from '../../shared';
 import { Role } from '../../type/role';
+import { GetEdgeConfigResponse } from '../../jsonrpc/response/getEdgeConfigResponse';
+import { GetEdgeConfigRequest } from '../../jsonrpc/request/getEdgeConfigRequest';
 
 export class Edge {
+
+  // holds current data
+  public currentData: BehaviorSubject<CurrentData> = new BehaviorSubject<CurrentData>(new CurrentData({}));
+
+  // holds system log
+  public systemLog: Subject<SystemLog> = new Subject<SystemLog>();
+
+  // determine if subscribe on channels was successful
+  // used in live component to hide elements while no channel data available
+  public subscribeChannelsSuccessful: boolean = false;
+
+  // holds config
+  private config: BehaviorSubject<EdgeConfig> = new BehaviorSubject<EdgeConfig>(null);
+
+  // holds currently subscribed channels, identified by source id
+  private subscribedChannels: { [sourceId: string]: ChannelAddress[] } = {};
+  private isRefreshConfigBlocked: boolean = false;
+  private subscribeChannelsTimeout: any = null;
 
   constructor(
     public readonly id: string,
@@ -43,21 +61,6 @@ export class Edge {
     public readonly firstSetupProtocol: Date,
   ) { }
 
-  // holds currently subscribed channels, identified by source id
-  private subscribedChannels: { [sourceId: string]: ChannelAddress[] } = {};
-
-  // holds current data
-  public currentData: BehaviorSubject<CurrentData> = new BehaviorSubject<CurrentData>(new CurrentData({}));
-
-  // holds system log
-  public systemLog: Subject<SystemLog> = new Subject<SystemLog>();
-
-  // holds config
-  private config: BehaviorSubject<EdgeConfig> = new BehaviorSubject<EdgeConfig>(null);
-
-  // determine if subscribe on channels was successful
-  // used in live component to hide elements while no channel data available
-  public subscribeChannelsSuccessful: boolean = false;
 
   /**
    * Gets the Config. If not available yet, it requests it via Websocket.
@@ -161,32 +164,6 @@ export class Edge {
   }
 
   /**
-   * Refresh the config.
-   */
-  private refreshConfig(websocket: Websocket): void {
-    // make sure to send not faster than every 1000 ms
-    if (this.isRefreshConfigBlocked) {
-      return;
-    }
-    // block refreshConfig()
-    this.isRefreshConfigBlocked = true;
-    setTimeout(() => {
-      // unblock refreshConfig()
-      this.isRefreshConfigBlocked = false;
-    }, 1000);
-
-    const request = new GetEdgeConfigRequest();
-    this.sendRequest(websocket, request).then(response => {
-      const edgeConfigResponse = response as GetEdgeConfigResponse;
-      this.config.next(new EdgeConfig(this, edgeConfigResponse.result));
-    }).catch(reason => {
-      console.warn("Unable to refresh config", reason);
-      this.config.next(new EdgeConfig(this));
-    });
-  }
-  private isRefreshConfigBlocked: boolean = false;
-
-  /**
    * Add Channels to subscription
    *
    * @param websocket the Websocket
@@ -273,35 +250,6 @@ export class Edge {
   public unsubscribeSystemLog(websocket: Websocket): Promise<JsonrpcResponseSuccess> {
     return this.sendRequest(websocket, new SubscribeSystemLogRequest({ subscribe: false }));
   }
-
-  /**
-   * Sends a SubscribeChannelsRequest for all Channels in 'this.subscribedChannels'
-   *
-   * @param websocket the Websocket
-   */
-  private sendSubscribeChannels(websocket: Websocket): void {
-    // make sure to send not faster than every 100 ms
-    if (this.subscribeChannelsTimeout == null) {
-      this.subscribeChannelsTimeout = setTimeout(() => {
-        // reset subscribeChannelsTimeout
-        this.subscribeChannelsTimeout = null;
-
-        // merge channels from currentDataSubscribes
-        const channels: ChannelAddress[] = [];
-        for (const componentId in this.subscribedChannels) {
-          channels.push(...this.subscribedChannels[componentId]);
-        }
-        const request = new SubscribeChannelsRequest(channels);
-        this.sendRequest(websocket, request).then(() => {
-          this.subscribeChannelsSuccessful = true;
-        }).catch(reason => {
-          this.subscribeChannelsSuccessful = false;
-          console.warn(reason);
-        });
-      }, 100);
-    }
-  }
-  private subscribeChannelsTimeout: any = null;
 
   /**
    * Handles a EdgeConfigNotification
@@ -427,5 +375,58 @@ export class Edge {
    */
   public getRoleString(): string {
     return Role[this.role].toLowerCase();
+  }
+
+  /**
+ * Refresh the config.
+ */
+  private refreshConfig(websocket: Websocket): void {
+    // make sure to send not faster than every 1000 ms
+    if (this.isRefreshConfigBlocked) {
+      return;
+    }
+    // block refreshConfig()
+    this.isRefreshConfigBlocked = true;
+    setTimeout(() => {
+      // unblock refreshConfig()
+      this.isRefreshConfigBlocked = false;
+    }, 1000);
+
+    const request = new GetEdgeConfigRequest();
+    this.sendRequest(websocket, request).then(response => {
+      const edgeConfigResponse = response as GetEdgeConfigResponse;
+      this.config.next(new EdgeConfig(this, edgeConfigResponse.result));
+    }).catch(reason => {
+      console.warn("Unable to refresh config", reason);
+      this.config.next(new EdgeConfig(this));
+    });
+  }
+
+  /**
+ * Sends a SubscribeChannelsRequest for all Channels in 'this.subscribedChannels'
+ *
+ * @param websocket the Websocket
+ */
+  private sendSubscribeChannels(websocket: Websocket): void {
+    // make sure to send not faster than every 100 ms
+    if (this.subscribeChannelsTimeout == null) {
+      this.subscribeChannelsTimeout = setTimeout(() => {
+        // reset subscribeChannelsTimeout
+        this.subscribeChannelsTimeout = null;
+
+        // merge channels from currentDataSubscribes
+        const channels: ChannelAddress[] = [];
+        for (const componentId in this.subscribedChannels) {
+          channels.push(...this.subscribedChannels[componentId]);
+        }
+        const request = new SubscribeChannelsRequest(channels);
+        this.sendRequest(websocket, request).then(() => {
+          this.subscribeChannelsSuccessful = true;
+        }).catch(reason => {
+          this.subscribeChannelsSuccessful = false;
+          console.warn(reason);
+        });
+      }, 100);
+    }
   }
 }

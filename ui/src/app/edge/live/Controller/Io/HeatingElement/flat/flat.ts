@@ -13,7 +13,6 @@ import { ModalComponent } from '../modal/modal';
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-    private outputChannelArray: ChannelAddress[] = [];
     private static PROPERTY_MODE: string = '_PropertyMode';
 
     protected activePhases: BehaviorSubject<number> = new BehaviorSubject(0);
@@ -23,6 +22,17 @@ export class FlatComponent extends AbstractFlatWidget {
     protected workMode: WorkMode;
     protected readonly WorkMode = WorkMode;
     protected readonly CONVERT_SECONDS_TO_DATE_FORMAT = Utils.CONVERT_SECONDS_TO_DATE_FORMAT;
+    private outputChannelArray: ChannelAddress[] = [];
+
+    async presentModal() {
+        const modal = await this.modalController.create({
+            component: ModalComponent,
+            componentProps: {
+                component: this.component,
+            },
+        });
+        return await modal.present();
+    }
 
     protected override getChannelAddresses() {
 
@@ -90,15 +100,6 @@ export class FlatComponent extends AbstractFlatWidget {
         }
     }
 
-    async presentModal() {
-        const modal = await this.modalController.create({
-            component: ModalComponent,
-            componentProps: {
-                component: this.component,
-            },
-        });
-        return await modal.present();
-    }
 }
 
 export enum Status {

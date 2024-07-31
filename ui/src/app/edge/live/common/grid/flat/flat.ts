@@ -1,11 +1,11 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
-import { ChannelAddress, CurrentData, GridMode, Utils } from 'src/app/shared/shared';
 import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
-import { ModalComponent } from '../modal/modal';
 import { Converter } from 'src/app/shared/components/shared/converter';
+import { ChannelAddress, CurrentData, GridMode, Utils } from 'src/app/shared/shared';
 import { Icon } from 'src/app/shared/type/widget';
 import { GridSectionComponent } from '../../../energymonitor/chart/section/grid.component';
+import { ModalComponent } from '../modal/modal';
 
 @Component({
   selector: 'grid',
@@ -13,20 +13,30 @@ import { GridSectionComponent } from '../../../energymonitor/chart/section/grid.
 })
 export class FlatComponent extends AbstractFlatWidget {
 
+  private static readonly RESTRICTION_MODE: ChannelAddress = new ChannelAddress('ctrlEssLimiter14a0', 'RestrictionMode');
+  private static readonly GRID_ACTIVE_POWER: ChannelAddress = new ChannelAddress('_sum', 'GridActivePower');
+  private static readonly GRID_MODE: ChannelAddress = new ChannelAddress('_sum', 'GridMode');
+
   public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
   public readonly GridMode = GridMode;
 
   public gridBuyPower: number;
   public gridSellPower: number;
+
   protected gridMode: number;
   protected gridState: string;
   protected icon: Icon | null = null;
-
   protected isActivated: boolean = false;
 
-  private static readonly RESTRICTION_MODE: ChannelAddress = new ChannelAddress('ctrlEssLimiter14a0', 'RestrictionMode');
-  private static readonly GRID_ACTIVE_POWER: ChannelAddress = new ChannelAddress('_sum', 'GridActivePower');
-  private static readonly GRID_MODE: ChannelAddress = new ChannelAddress('_sum', 'GridMode');
+  async presentModal() {
+    const modal = await this.modalController.create({
+      component: ModalComponent,
+      componentProps: {
+        edge: this.edge,
+      },
+    });
+    return await modal.present();
+  }
 
   protected override getChannelAddresses(): ChannelAddress[] {
     const channelAddresses: ChannelAddress[] = [
@@ -53,13 +63,4 @@ export class FlatComponent extends AbstractFlatWidget {
     this.icon = GridSectionComponent.getCurrentGridIcon(currentData);
   }
 
-  async presentModal() {
-    const modal = await this.modalController.create({
-      component: ModalComponent,
-      componentProps: {
-        edge: this.edge,
-      },
-    });
-    return await modal.present();
-  }
 }

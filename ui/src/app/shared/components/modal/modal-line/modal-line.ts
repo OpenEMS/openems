@@ -8,17 +8,17 @@ import { ButtonLabel } from "../modal-button/modal-button";
 })
 export class ModalLineComponent extends AbstractModalLine {
 
-    // Width of Left Column, Right Column is (100% - leftColumn)
-    @Input({ required: true })
-    protected leftColumnWidth!: number;
-
     /** ControlName for Form Field */
     @Input({ required: true }) public override controlName!: string;
+
+    // Width of Left Column, Right Column is (100% - leftColumn)
+    @Input({ required: true }) protected leftColumnWidth!: number;
+
     @Input() protected button: ButtonLabel | null = null;
     /** ControlName for Toggle Button */
     @Input({ required: true }) protected control!:
         { type: 'TOGGLE' } |
-        { type: 'INPUT', properties?: {unit:'W'} } |
+        { type: 'INPUT', properties?: { unit: 'W' } } |
         /* the available select options*/
         { type: 'SELECT', options: { value: string, name: string }[] } |
         /* the properties for range slider*/

@@ -20,6 +20,19 @@ export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
   public alias: string;
   public readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
 
+  async presentModal() {
+    const modal = await this.modalController.create({
+      component: Evcs_Api_ClusterModalComponent,
+      componentProps: {
+        config: this.component,
+        edge: this.edge,
+        componentId: this.componentId,
+        evcsMap: this.evcsMap,
+      },
+    });
+    return await modal.present();
+  }
+
   protected override getChannelAddresses() {
 
     this.evcsIdsInCluster = this.config.components[this.componentId].properties["evcs.ids"];
@@ -81,16 +94,4 @@ export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
     );
   }
 
-  async presentModal() {
-    const modal = await this.modalController.create({
-      component: Evcs_Api_ClusterModalComponent,
-      componentProps: {
-        config: this.component,
-        edge: this.edge,
-        componentId: this.componentId,
-        evcsMap: this.evcsMap,
-      },
-    });
-    return await modal.present();
-  }
 }

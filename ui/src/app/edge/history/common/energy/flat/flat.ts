@@ -14,11 +14,15 @@ import { AppService } from 'src/app/app.service';
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-    protected autarchyValue: number | null;
     private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
     private static readonly EXCEL_EXTENSION = '.xlsx';
+    protected autarchyValue: number | null;
     protected readonly isSmartphoneResolution = this.service.isSmartphoneResolution;
     protected readonly isApp: boolean = AppService.platform !== 'web';
+
+    public getChartHeight(): number {
+        return this.service.deviceHeight / 2;
+    }
 
     protected override onCurrentData(currentData: CurrentData) {
         this.autarchyValue =
@@ -34,13 +38,9 @@ export class FlatComponent extends AbstractFlatWidget {
         ];
     }
 
-    public getChartHeight(): number {
-        return this.service.deviceHeight / 2;
-    }
-
     /**
- * Export historic data to Excel file.
- */
+   * Export historic data to Excel file.
+    */
     protected exportToXlxs() {
 
         if (this.isApp) {

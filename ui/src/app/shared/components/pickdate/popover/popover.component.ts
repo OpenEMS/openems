@@ -20,13 +20,11 @@ export class PickDatePopoverComponent implements OnInit {
     @Input() public edge: Edge | null = null;
     @Input() public historyPeriods: DefaultTypes.PeriodStringValues[] = [];
 
-    private readonly TODAY = new Date();
-    private readonly TOMORROW = addDays(new Date(), 1);
-    protected readonly DefaultTypes = DefaultTypes;
     public locale: string = 'de';
     public showCustomDate: boolean = false;
 
     protected periods: string[] = [];
+    protected readonly TOMORROW = addDays(new Date(), 1);
     protected myDpOptions: IAngularMyDpOptions = {
         stylesData: {
             selector: 'dp1',
@@ -49,12 +47,21 @@ export class PickDatePopoverComponent implements OnInit {
         selectorWidth: '251px',
         showWeekNumbers: true,
     };
+    protected readonly DefaultTypes = DefaultTypes;
+    private readonly TODAY = new Date();
+
 
     constructor(
         public service: Service,
         public popoverCtrl: PopoverController,
         public translate: TranslateService,
     ) { }
+
+    public onDateChanged(event: IMyDateRangeModel) {
+        this.service.historyPeriod.next(new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate));
+        this.service.periodString = DefaultTypes.PeriodString.CUSTOM;
+        this.popoverCtrl.dismiss();
+    }
 
     ngOnInit() {
         // Restrict user to pick date before ibn-date
@@ -117,9 +124,4 @@ export class PickDatePopoverComponent implements OnInit {
         return { year: getYear(date), month: getMonth(date) + 1, day: getDate(date) };
     }
 
-    public onDateChanged(event: IMyDateRangeModel) {
-        this.service.historyPeriod.next(new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate));
-        this.service.periodString = DefaultTypes.PeriodString.CUSTOM;
-        this.popoverCtrl.dismiss();
-    }
 }

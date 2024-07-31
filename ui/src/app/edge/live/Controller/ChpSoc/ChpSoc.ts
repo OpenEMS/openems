@@ -12,6 +12,8 @@ import { Controller_ChpSocModalComponent } from './modal/modal.component';
 })
 export class Controller_ChpSocComponent extends AbstractFlatWidget {
 
+    private static PROPERTY_MODE: string = '_PropertyMode';
+
     public inputChannel: ChannelAddress = null;
     public outputChannel: ChannelAddress = null;
     public propertyModeChannel: ChannelAddress = null;
@@ -26,7 +28,19 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
         size: 'large',
         color: 'primary',
     };
-    private static PROPERTY_MODE: string = '_PropertyMode';
+
+    async presentModal() {
+        const modal = await this.modalController.create({
+            component: Controller_ChpSocModalComponent,
+            componentProps: {
+                component: this.component,
+                edge: this.edge,
+                outputChannel: this.outputChannel,
+                inputChannel: this.inputChannel,
+            },
+        });
+        return await modal.present();
+    }
 
     protected override getChannelAddresses() {
         this.outputChannel = ChannelAddress.fromString(
@@ -75,16 +89,4 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
         this.lowThresholdValue = currentData.allComponents[this.component.id + '/_PropertyLowThreshold'];
     }
 
-    async presentModal() {
-        const modal = await this.modalController.create({
-            component: Controller_ChpSocModalComponent,
-            componentProps: {
-                component: this.component,
-                edge: this.edge,
-                outputChannel: this.outputChannel,
-                inputChannel: this.inputChannel,
-            },
-        });
-        return await modal.present();
-    }
 }

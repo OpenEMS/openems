@@ -18,7 +18,6 @@ export class HistoryComponent implements OnInit {
 
   // is a Timedata service available, i.e. can historic data be queried.
   public isTimedataAvailable: boolean = true;
-  protected errorResponse: JsonrpcResponseError | null = null;
 
   // sets the height for a chart. This is recalculated on every window resize.
   public socChartHeight: string = "250px";
@@ -34,7 +33,7 @@ export class HistoryComponent implements OnInit {
   // public channelthresholdComponents: string[] = [];
 
   public config: EdgeConfig = null;
-  protected handleRefresh: () => void = () => AppService.handleRefresh();
+  protected errorResponse: JsonrpcResponseError | null = null;
 
   constructor(
     public service: Service,
@@ -65,10 +64,6 @@ export class HistoryComponent implements OnInit {
     });
   }
 
-  protected setErrorResponse(errorResponse: JsonrpcResponseError | null) {
-    this.errorResponse = errorResponse;
-  }
-
   // checks arrows when ChartPage is closed
   // double viewchild is used to prevent undefined state of PickDateComponent
   ionViewDidEnter() {
@@ -87,4 +82,11 @@ export class HistoryComponent implements OnInit {
       /* maximium size */ Math.min(600, ref),
     ) + "px";
   }
+
+  protected handleRefresh: () => void = () => AppService.handleRefresh();
+
+  protected setErrorResponse(errorResponse: JsonrpcResponseError | null) {
+    this.errorResponse = errorResponse;
+  }
+
 }

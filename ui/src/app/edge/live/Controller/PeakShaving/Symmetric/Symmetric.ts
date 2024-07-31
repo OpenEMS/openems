@@ -16,6 +16,17 @@ export class Controller_Symmetric_PeakShavingComponent extends AbstractFlatWidge
     public rechargePower: number;
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
+    async presentModal() {
+        const modal = await this.modalController.create({
+            component: Controller_Symmetric_PeakShavingModalComponent,
+            componentProps: {
+                component: this.component,
+                edge: this.edge,
+            },
+        });
+        return await modal.present();
+    }
+
     protected override getChannelAddresses() {
         return [
             new ChannelAddress(this.component.properties['meter.id'], 'ActivePower'),
@@ -33,14 +44,4 @@ export class Controller_Symmetric_PeakShavingComponent extends AbstractFlatWidge
         this.rechargePower = this.component.properties['rechargePower'];
     }
 
-    async presentModal() {
-        const modal = await this.modalController.create({
-            component: Controller_Symmetric_PeakShavingModalComponent,
-            componentProps: {
-                component: this.component,
-                edge: this.edge,
-            },
-        });
-        return await modal.present();
-    }
 }

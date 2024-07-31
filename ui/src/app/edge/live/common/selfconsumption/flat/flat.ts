@@ -13,6 +13,13 @@ export class FlatComponent extends AbstractFlatWidget {
 
     public calculatedSelfConsumption: number;
 
+    async presentModal() {
+        const modal = await this.modalController.create({
+            component: ModalComponent,
+        });
+        return await modal.present();
+    }
+
     protected override getChannelAddresses() {
         return [
             new ChannelAddress('_sum', 'GridActivePower'),
@@ -30,10 +37,4 @@ export class FlatComponent extends AbstractFlatWidget {
         );
     }
 
-    async presentModal() {
-        const modal = await this.modalController.create({
-            component: ModalComponent,
-        });
-        return await modal.present();
-    }
 }

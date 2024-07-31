@@ -3,10 +3,10 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
-import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { Icon } from 'src/app/shared/type/widget';
 import { CurrentData, EdgeConfig, GridMode, Service, Utils } from '../../../../../shared/shared';
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
-import { Icon } from 'src/app/shared/type/widget';
 
 @Component({
     selector: '[gridsection]',
@@ -40,13 +40,14 @@ import { Icon } from 'src/app/shared/type/widget';
 })
 export class GridSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
+    public buyAnimationTrigger: boolean = false;
+    public sellAnimationTrigger: boolean = false;
+
     private unitpipe: UnitvaluePipe;
     // animation variable to stop animation on destroy
     private startAnimation = null;
     private showBuyAnimation = false;
     private showSellAnimation = false;
-    public buyAnimationTrigger: boolean = false;
-    public sellAnimationTrigger: boolean = false;
 
     constructor(
         translate: TranslateService,
@@ -57,8 +58,48 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         this.unitpipe = unitpipe;
     }
 
+    get stateNameBuy() {
+        return this.showBuyAnimation ? 'show' : 'hide';
+    }
+
+    get stateNameSell() {
+        return this.showSellAnimation ? 'show' : 'hide';
+    }
+
+    public static getCurrentGridIcon(currentData: CurrentData): Icon {
+        const gridMode = currentData.allComponents['_sum/GridMode'];
+        const restrictionMode = currentData.allComponents['ctrlEssLimiter14a0/RestrictionMode'];
+        if (gridMode === GridMode.OFF_GRID) {
+            return {
+                color: 'dark',
+                name: 'oe-offgrid',
+                size: '',
+            };
+        }
+        if (restrictionMode === 1) {
+            return {
+                color: 'dark',
+                name: 'oe-grid-restriction',
+                size: '',
+            };
+        }
+        return {
+            color: 'dark',
+            name: 'oe-grid',
+            size: '',
+        };
+    }
+
+    public static isControllerEnabled(config: EdgeConfig, factoryId: string): boolean {
+        return config.getComponentsByFactory(factoryId).filter(component => component.isEnabled).length > 0;
+    }
+
     ngOnInit() {
         this.adjustFillRefbyBrowser();
+    }
+
+    ngOnDestroy() {
+        clearInterval(this.startAnimation);
     }
 
     toggleBuyAnimation() {
@@ -75,26 +116,6 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         }, this.animationSpeed);
         this.buyAnimationTrigger = false;
         this.sellAnimationTrigger = true;
-    }
-
-    get stateNameBuy() {
-        return this.showBuyAnimation ? 'show' : 'hide';
-    }
-
-    get stateNameSell() {
-        return this.showSellAnimation ? 'show' : 'hide';
-    }
-
-    protected getStartAngle(): number {
-        return 226;
-    }
-
-    protected getEndAngle(): number {
-        return 314;
-    }
-
-    protected getRatioType(): Ratio {
-        return 'Negative and Positive [-1,1]';
     }
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
@@ -141,6 +162,18 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         if (this.square) {
             this.square.image.image = "assets/img/" + this.getImagePath();
         }
+    }
+
+    protected getStartAngle(): number {
+        return 226;
+    }
+
+    protected getEndAngle(): number {
+        return 314;
+    }
+
+    protected getRatioType(): Ratio {
+        return 'Negative and Positive [-1,1]';
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
@@ -223,38 +256,5 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             p = null;
         }
         return p;
-    }
-
-    public static getCurrentGridIcon(currentData: CurrentData): Icon {
-        const gridMode = currentData.allComponents['_sum/GridMode'];
-        const restrictionMode = currentData.allComponents['ctrlEssLimiter14a0/RestrictionMode'];
-        if (gridMode === GridMode.OFF_GRID) {
-            return {
-                color: 'dark',
-                name: 'oe-offgrid',
-                size: '',
-            };
-        }
-        if (restrictionMode === 1) {
-            return {
-                color: 'dark',
-                name: 'oe-grid-restriction',
-                size: '',
-            };
-        }
-        return {
-            color: 'dark',
-            name: 'oe-grid',
-            size: '',
-        };
-
-    }
-
-    public static isControllerEnabled(config: EdgeConfig, factoryId: string): boolean {
-        return config.getComponentsByFactory(factoryId).filter(component => component.isEnabled).length > 0;
-    }
-
-    ngOnDestroy() {
-        clearInterval(this.startAnimation);
     }
 }

@@ -145,6 +145,15 @@ export class PowerAssistantComponent extends AbstractFlatWidget {
       .map(c => ChannelAddress.fromString(c.address));
   }
 
+  protected override onCurrentData(currentData: CurrentData) {
+    this.allChannels()
+      .reduce((arr, c) => {
+        c.value = currentData.allComponents[c.address];
+        arr.push(c);
+        return arr;
+      }, []);
+  }
+
   private allChannels(): Channel[] {
     return this.entries
       .flatMap(e => e.ess.channels
@@ -208,14 +217,6 @@ export class PowerAssistantComponent extends AbstractFlatWidget {
     return { essId: essId, channels: channels };
   }
 
-  protected override onCurrentData(currentData: CurrentData) {
-    this.allChannels()
-      .reduce((arr, c) => {
-        c.value = currentData.allComponents[c.address];
-        arr.push(c);
-        return arr;
-      }, []);
-  }
 }
 
 export namespace Converter {

@@ -15,13 +15,6 @@ export class Io_Api_DigitalInputComponent extends AbstractFlatWidget {
     public ioComponents: EdgeConfig.Component[] = null;
     public ioComponentCount = 0;
 
-    protected override afterIsInitialized(): void {
-        this.service.getConfig().then(config => {
-            this.ioComponents = config.getComponentsImplementingNature("io.openems.edge.io.api.DigitalInput").filter(component => component.isEnabled);
-            this.ioComponentCount = this.ioComponents.length;
-        });
-    }
-
     async presentModal() {
         const modal = await this.modalController.create({
             component: Io_Api_DigitalInput_ModalComponent,
@@ -31,6 +24,13 @@ export class Io_Api_DigitalInputComponent extends AbstractFlatWidget {
             },
         });
         return await modal.present();
+    }
+
+    protected override afterIsInitialized(): void {
+        this.service.getConfig().then(config => {
+            this.ioComponents = config.getComponentsImplementingNature("io.openems.edge.io.api.DigitalInput").filter(component => component.isEnabled);
+            this.ioComponentCount = this.ioComponents.length;
+        });
     }
 
 }

@@ -57,6 +57,43 @@ export class ModalComponent extends AbstractModal {
     }, 0);
   }
 
+  public static getHelpKey(factoryId: string): string {
+    switch (factoryId) {
+      case 'Evcs.Keba.KeContact':
+        return 'EVCS_KEBA_KECONTACT';
+      case 'Evcs.HardyBarth':
+        return 'EVCS_KEBA_KECONTACT';
+      case 'Evcs.IesKeywattSingle':
+        return 'EVCS_OCPP_IESKEYWATTSINGLE';
+      default:
+        return null;
+    }
+  }
+
+  async presentPopover() {
+    const popover = await this.popoverctrl.create({
+      component: PopoverComponent,
+      componentProps: {
+        chargeMode: this.formGroup.controls['chargeMode'].value,
+      },
+    });
+    return await popover.present();
+  }
+
+  async presentModal() {
+    const modal = await this.detailViewController.create({
+      component: AdministrationComponent,
+      componentProps: {
+        evcsComponent: this.evcsComponent,
+        edge: this.edge,
+      },
+    });
+    modal.onDidDismiss().then(() => {
+      this.updateRenaultZoeConfig();
+    });
+    return await modal.present();
+  }
+
   protected override getChannelAddresses(): ChannelAddress[] {
 
     this.controller = this.config.getComponentsByFactory("Controller.Evcs")
@@ -193,6 +230,11 @@ export class ModalComponent extends AbstractModal {
     }
   }
 
+  protected formatNumber(i: number) {
+    const round = Math.ceil(i / 100) * 100;
+    return round;
+  }
+
   /**
   * Returns the state of the EVCS
   *
@@ -234,47 +276,6 @@ export class ModalComponent extends AbstractModal {
     }
   }
 
-  protected formatNumber(i: number) {
-    const round = Math.ceil(i / 100) * 100;
-    return round;
-  }
-
-  async presentPopover() {
-    const popover = await this.popoverctrl.create({
-      component: PopoverComponent,
-      componentProps: {
-        chargeMode: this.formGroup.controls['chargeMode'].value,
-      },
-    });
-    return await popover.present();
-  }
-
-  async presentModal() {
-    const modal = await this.detailViewController.create({
-      component: AdministrationComponent,
-      componentProps: {
-        evcsComponent: this.evcsComponent,
-        edge: this.edge,
-      },
-    });
-    modal.onDidDismiss().then(() => {
-      this.updateRenaultZoeConfig();
-    });
-    return await modal.present();
-  }
-
-  public static getHelpKey(factoryId: string): string {
-    switch (factoryId) {
-      case 'Evcs.Keba.KeContact':
-        return 'EVCS_KEBA_KECONTACT';
-      case 'Evcs.HardyBarth':
-        return 'EVCS_KEBA_KECONTACT';
-      case 'Evcs.IesKeywattSingle':
-        return 'EVCS_OCPP_IESKEYWATTSINGLE';
-      default:
-        return null;
-    }
-  }
 }
 
 enum ChargeState {

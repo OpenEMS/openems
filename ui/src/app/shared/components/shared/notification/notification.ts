@@ -7,10 +7,11 @@ import { ToastController } from "@ionic/angular";
 })
 export class NotificationComponent implements OnInit, OnChanges {
 
+  private static readonly PREFIX = 'hide-notification-';
+
   @Input() private text: string | null = null;
   @Input() private id: string | number | null = null;
 
-  private static readonly PREFIX = 'hide-notification-';
   private hideMessage: boolean = true;
 
   constructor(private toastie: ToastController) { }

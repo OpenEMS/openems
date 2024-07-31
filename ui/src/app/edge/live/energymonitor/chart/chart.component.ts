@@ -15,8 +15,6 @@ import { StorageSectionComponent } from './section/storage.component';
 })
 export class EnergymonitorChartComponent implements OnInit, OnDestroy {
 
-  public readonly spinnerId = "energymonitor";
-
   @ViewChild(ConsumptionSectionComponent, { static: true })
   public consumptionSection: ConsumptionSectionComponent;
 
@@ -32,22 +30,25 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   @ViewChild('energymonitorChart', { static: true })
   private chartDiv: ElementRef;
 
-  @Input()
-  set currentData(currentData: CurrentData) {
-    this.service.stopSpinner(this.spinnerId);
-    this.updateCurrentData(currentData);
-  }
-
   public translation: string;
   public width: number;
   public height: number;
   public gridMode: number;
 
+  public readonly spinnerId = "energymonitor";
+
   private ngUnsubscribe: Subject<void> = new Subject<void>();
+
+
 
   constructor(
     private service: Service,
   ) { }
+  @Input()
+  set currentData(currentData: CurrentData) {
+    this.service.stopSpinner(this.spinnerId);
+    this.updateCurrentData(currentData);
+  }
 
   ngOnInit() {
     this.service.startSpinner(this.spinnerId);

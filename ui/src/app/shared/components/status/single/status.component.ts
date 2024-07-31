@@ -16,23 +16,28 @@ import { CategorizedComponents, EdgeConfig } from '../../edge/edgeconfig';
     templateUrl: './status.component.html',
 })
 export class StatusSingleComponent implements OnInit, OnDestroy {
+    private static readonly SELECTOR = "statussingle";
 
-    private stopOnDestroy: Subject<void> = new Subject<void>();
-
+    public subscribedInfoChannels: ChannelAddress[] = [];
+    public onInfoChannels: ChannelAddress[] = [];
     public edge?: Edge;
     public config: EdgeConfig;
     public components: CategorizedComponents[];
     protected channels: { [componentId: string]: { [channelId: string]: { text: string, level: string } } } = {};
-    public subscribedInfoChannels: ChannelAddress[] = [];
-    public onInfoChannels: ChannelAddress[] = [];
 
-    private static readonly SELECTOR = "statussingle";
+    private stopOnDestroy: Subject<void> = new Subject<void>();
 
     constructor(
         public modalCtrl: ModalController,
         public service: Service,
         private websocket: Websocket,
     ) { }
+
+    ngOnDestroy() {
+        this.edge?.unsubscribeChannels(this.websocket, StatusSingleComponent.SELECTOR);
+        this.stopOnDestroy.next();
+        this.stopOnDestroy.complete();
+    }
 
     async ngOnInit() {
         this.config = await this.service.getConfig();
@@ -109,9 +114,4 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
         });
     }
 
-    ngOnDestroy() {
-        this.edge?.unsubscribeChannels(this.websocket, StatusSingleComponent.SELECTOR);
-        this.stopOnDestroy.next();
-        this.stopOnDestroy.complete();
-    }
 }

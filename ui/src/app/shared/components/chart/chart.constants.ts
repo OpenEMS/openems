@@ -45,16 +45,6 @@ export class ChartConstants {
   };
 
   /**
-   * Checks if data series is positive.
-   *
-   * @param datasets the chart datasets
-   * @returns true, if only positive data exists
-   */
-  private static isDataSeriesPositive(datasets: ChartDataset[]): boolean {
-    return datasets.filter(el => el != null).map(el => el.data).every(el => el.every(e => (e as number) >= 0));
-  }
-
-  /**
    * Gets the scale options for all datasets of the passed yAxis
    *
    * @param datasets the datasets
@@ -102,4 +92,15 @@ export class ChartConstants {
       /* Subtracting 0, because there is always one interval less than amount of ticks*/
       ChartConstants.NUMBER_OF_Y_AXIS_TICKS - 2).toString());
   }
+
+  /**
+ * Checks if data series is positive.
+ *
+ * @param datasets the chart datasets
+ * @returns true, if only positive data exists
+ */
+  private static isDataSeriesPositive(datasets: ChartDataset[]): boolean {
+    return datasets.filter(el => el != null).map(el => el.data).every(el => el.every(e => (e as number) >= 0));
+  }
+
 }

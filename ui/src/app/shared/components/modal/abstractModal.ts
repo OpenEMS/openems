@@ -18,15 +18,6 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
 
     @Input() public component: EdgeConfig.Component = null;
 
-    public isInitialized: boolean = false;
-    public edge: Edge = null;
-    public config: EdgeConfig = null;
-    public stopOnDestroy: Subject<void> = new Subject<void>();
-    public formGroup: FormGroup | null = null;
-
-    /** Should be used to unsubscribe from all subscribed observables at once */
-    protected subscription: Subscription = new Subscription();
-
     /** Enum for User Role */
     public readonly Role = Role;
 
@@ -35,6 +26,15 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
 
     public readonly Utils = Utils;
     public readonly Converter = Converter;
+
+    public isInitialized: boolean = false;
+    public edge: Edge = null;
+    public config: EdgeConfig = null;
+    public stopOnDestroy: Subject<void> = new Subject<void>();
+    public formGroup: FormGroup | null = null;
+
+    /** Should be used to unsubscribe from all subscribed observables at once */
+    protected subscription: Subscription = new Subscription();
 
     private selector: string = uuidv4();
 
@@ -51,6 +51,16 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
         setInterval(() => {
             this.ref.detectChanges(); // manually trigger change detection
         }, 0);
+    }
+
+    public ngOnDestroy() {
+        // Unsubscribe from OpenEMS
+        this.edge.unsubscribeChannels(this.websocket, this.selector);
+        this.subscription.unsubscribe();
+
+        // Unsubscribe from CurrentData subject
+        this.stopOnDestroy.next();
+        this.stopOnDestroy.complete();
     }
 
     public ngOnInit() {
@@ -97,16 +107,6 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
         });
     }
     protected onIsInitialized() { }
-
-    public ngOnDestroy() {
-        // Unsubscribe from OpenEMS
-        this.edge.unsubscribeChannels(this.websocket, this.selector);
-        this.subscription.unsubscribe();
-
-        // Unsubscribe from CurrentData subject
-        this.stopOnDestroy.next();
-        this.stopOnDestroy.complete();
-    }
 
     /**
      * Called on every new data.

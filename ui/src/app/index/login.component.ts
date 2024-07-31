@@ -17,13 +17,12 @@ import { Edge, Service, Utils, Websocket } from '../shared/shared';
 export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
   public environment = environment;
   public form: FormGroup;
-  private stopOnDestroy: Subject<void> = new Subject<void>();
-  private page = 0;
   protected formIsDisabled: boolean = false;
-
   protected popoverActive: 'android' | 'ios' | null = null;
   protected readonly operatingSystem = AppService.deviceInfo.os;
   protected readonly isApp: boolean = Capacitor.getPlatform() !== 'web';
+  private stopOnDestroy: Subject<void> = new Subject<void>();
+  private page = 0;
 
   constructor(
     public service: Service,
@@ -33,6 +32,20 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
     private route: ActivatedRoute,
     private cdref: ChangeDetectorRef,
   ) { }
+
+  /**
+ * Trims credentials
+ *
+ * @param password the password
+ * @param username the username
+ * @returns trimmed credentials
+ */
+  public static trimCredentials(password: string, username?: string): { password: string, username?: string } {
+    return {
+      password: password?.trim(),
+      ...(username && { username: username?.trim() }),
+    };
+  }
 
   ngAfterContentChecked() {
     this.cdref.detectChanges();
@@ -74,19 +87,6 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
     }
   }
 
-  /**
-   * Trims credentials
-   *
-   * @param password the password
-   * @param username the username
-   * @returns trimmed credentials
-   */
-  public static trimCredentials(password: string, username?: string): { password: string, username?: string } {
-    return {
-      password: password?.trim(),
-      ...(username && { username: username?.trim() }),
-    };
-  }
 
   /**
    * Login to OpenEMS Edge or Backend.

@@ -13,44 +13,29 @@ import { Filter } from "../shared/filter";
 @Directive()
 export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
 
-  /**
-   * Use `filter` to remove a line depending on a value.
-   *
-   * @param value the current data value
-   * @returns converter function
-   */
-  @Input() public filter: Filter = Filter.NO_FILTER;
-  /**
-   * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
-   *
-   * @param value the value from CurrentData
-   * @returns converter function
-   */
-  @Input()
-  public converter = (value: any): string => { return value; };
-
   /** value defines value of the parameter, displayed on the right */
   @Input()
   public value: any;
 
-  /** Channel defines the channel, you need for this line */
-  @Input()
-  set channelAddress(channelAddress: string) {
-    this._channelAddress = ChannelAddress.fromString(channelAddress);
-    this.subscribe(ChannelAddress.fromString(channelAddress));
-  }
-
-  private _channelAddress: ChannelAddress | null = null;
-  protected show: boolean = true;
+  /**
+   * Use `filter` to remove a line depending on a value.
+  *
+     * @param value the current data value
+     * @returns converter function
+     */
+  @Input() public filter: Filter = Filter.NO_FILTER;
 
   /**
    * displayValue is the displayed @Input value in html
-   */
+  */
   public displayValue: string | null = null;
+
+  protected show: boolean = true;
+  private _channelAddress: ChannelAddress | null = null;
 
   /**
    * selector used for subscribe
-   */
+  */
   private selector: string = uuidv4();
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private edge: Edge = null;
@@ -63,8 +48,34 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     @Inject(DataService) private dataService: DataService,
   ) { }
 
+  /** Channel defines the channel, you need for this line */
+  @Input()
+  set channelAddress(channelAddress: string) {
+    this._channelAddress = ChannelAddress.fromString(channelAddress);
+    this.subscribe(ChannelAddress.fromString(channelAddress));
+  }
+
+  /**
+   * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
+  *
+  * @param value the value from CurrentData
+  * @returns converter function
+  */
+  @Input() public converter = (value: any): string => { return value; };
+
   public ngOnChanges() {
     this.setValue(this.value);
+  }
+
+  public ngOnDestroy() {
+    // Unsubscribe from OpenEMS
+    if (this.edge != null && this._channelAddress) {
+      this.edge.unsubscribeFromChannels(this.websocket, [this._channelAddress]);
+    }
+
+    // Unsubscribe from CurrentData subject
+    this.stopOnDestroy.next();
+    this.stopOnDestroy.complete();
   }
 
   protected setValue(value: any) {
@@ -85,14 +96,4 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     });
   }
 
-  public ngOnDestroy() {
-    // Unsubscribe from OpenEMS
-    if (this.edge != null && this._channelAddress) {
-      this.edge.unsubscribeFromChannels(this.websocket, [this._channelAddress]);
-    }
-
-    // Unsubscribe from CurrentData subject
-    this.stopOnDestroy.next();
-    this.stopOnDestroy.complete();
-  }
 }

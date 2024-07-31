@@ -14,10 +14,6 @@ import { GridSectionComponent } from '../../../energymonitor/chart/section/grid.
 })
 export class ModalComponent extends AbstractFormlyComponent {
 
-  protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
-    return ModalComponent.generateView(config, role, this.translate);
-  }
-
   public static generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView {
 
     const isActivated = GridSectionComponent.isControllerEnabled(config, 'Controller.Ess.Limiter14a');
@@ -166,4 +162,9 @@ export class ModalComponent extends AbstractFormlyComponent {
 
     return children;
   }
+
+  protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
+    return ModalComponent.generateView(config, role, this.translate);
+  }
+
 }

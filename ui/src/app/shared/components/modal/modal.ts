@@ -25,11 +25,11 @@ export enum Status {
 })
 export class ModalComponent {
 
-    @Input() protected component: EdgeConfig.Component = null;
-    @Input() protected formGroup: FormGroup = new FormGroup({});
-
     /** Title in Header */
     @Input({ required: true }) public title!: string;
+
+    @Input() protected component: EdgeConfig.Component = null;
+    @Input() protected formGroup: FormGroup = new FormGroup({});
 
     @Input() protected toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | {
         callback: () =>

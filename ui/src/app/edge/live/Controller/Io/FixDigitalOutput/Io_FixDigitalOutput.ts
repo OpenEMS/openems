@@ -14,6 +14,20 @@ export class Controller_Io_FixDigitalOutputComponent extends AbstractFlatWidget 
   public state: string = '-';
   public outputChannel: string;
 
+  async presentModal() {
+    if (!this.isInitialized) {
+      return;
+    }
+    const modal = await this.modalController.create({
+      component: Controller_Io_FixDigitalOutputModalComponent,
+      componentProps: {
+        component: this.component,
+        edge: this.edge,
+      },
+    });
+    return await modal.present();
+  }
+
   protected override getChannelAddresses(): ChannelAddress[] {
     this.outputChannel = this.component.properties['outputChannelAddress'];
     return [ChannelAddress.fromString(this.outputChannel)];
@@ -30,17 +44,4 @@ export class Controller_Io_FixDigitalOutputComponent extends AbstractFlatWidget 
     }
   }
 
-  async presentModal() {
-    if (!this.isInitialized) {
-      return;
-    }
-    const modal = await this.modalController.create({
-      component: Controller_Io_FixDigitalOutputModalComponent,
-      componentProps: {
-        component: this.component,
-        edge: this.edge,
-      },
-    });
-    return await modal.present();
-  }
 }

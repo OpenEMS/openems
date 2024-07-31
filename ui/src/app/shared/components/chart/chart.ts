@@ -14,16 +14,17 @@ import { Edge, Service } from "../../shared";
 })
 export class ChartComponent implements OnInit, OnChanges {
 
-  public edge: Edge | null = null;
   @Input() public title: string = '';
   @Input() public showPhases: boolean | null = null;
   @Input() public showTotal: boolean | null = null;
   @Output() public setShowPhases: EventEmitter<boolean> = new EventEmitter();
   @Output() public setShowTotal: EventEmitter<boolean> = new EventEmitter();
   @Input() public isPopoverNeeded: boolean = false;
-
   // Manually trigger ChangeDetection through Inputchange
   @Input() private period?: DefaultTypes.PeriodString;
+
+  public edge: Edge | null = null;
+
   protected showPopover: boolean = false;
 
   constructor(
@@ -48,18 +49,6 @@ export class ChartComponent implements OnInit, OnChanges {
     this.checkIfPopoverNeeded();
   }
 
-  private checkIfPopoverNeeded() {
-    if (this.isPopoverNeeded) {
-      if (this.service.periodString == DefaultTypes.PeriodString.MONTH || (this.service.periodString == DefaultTypes.PeriodString.YEAR)) {
-        this.showPopover = false;
-        this.setShowPhases.emit(false);
-        this.setShowTotal.emit(true);
-      } else {
-        this.showPopover = true;
-      }
-    }
-  }
-
   async presentPopover(ev: any) {
     const popover = await this.popoverCtrl.create({
       component: ChartOptionsPopoverComponent,
@@ -79,4 +68,17 @@ export class ChartComponent implements OnInit, OnChanges {
     });
     await popover.present();
   }
+
+  private checkIfPopoverNeeded() {
+    if (this.isPopoverNeeded) {
+      if (this.service.periodString == DefaultTypes.PeriodString.MONTH || (this.service.periodString == DefaultTypes.PeriodString.YEAR)) {
+        this.showPopover = false;
+        this.setShowPhases.emit(false);
+        this.setShowTotal.emit(true);
+      } else {
+        this.showPopover = true;
+      }
+    }
+  }
+
 }

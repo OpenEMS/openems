@@ -26,10 +26,8 @@ import { WsData } from './wsdata';
 
 @Injectable()
 export class Websocket implements WebsocketInterface {
-  private static readonly DEFAULT_EDGEID = 0;
-  private readonly wsdata = new WsData();
 
-  private socket: WebSocketSubject<any>;
+  private static readonly DEFAULT_EDGEID = 0;
 
   public status:
     'initial' // before first connection attempt
@@ -39,6 +37,10 @@ export class Websocket implements WebsocketInterface {
     | 'online' // logged in + normal operation
     | 'failed' // connection failed
     = 'initial';
+
+  private readonly wsdata = new WsData();
+
+  private socket: WebSocketSubject<any>;
 
   constructor(
     private service: Service,
@@ -56,8 +58,147 @@ export class Websocket implements WebsocketInterface {
   }
 
   /**
-   * Opens a connection using a stored token. Called once by constructor
+   * Logs in by sending an authentication JSON-RPC Request and handles the AuthenticateResponse.
+   *
+   * @param request the JSON-RPC Request
+   * @param lang provided for @demo User. This doesn't change the global language, its just set locally
    */
+  public login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest): Promise<void> {
+    return new Promise<void>((resolve) => {
+      this.sendRequest(request).then(r => {
+        const authenticateResponse = (r as AuthenticateResponse).result;
+
+        const language = Language.getByKey(localStorage.DEMO_LANGUAGE ?? authenticateResponse.user.language.toLocaleLowerCase());
+        localStorage.LANGUAGE = language.key;
+        this.service.setLang(language);
+        this.status = 'online';
+
+        // received login token -> save in cookie
+        this.cookieService.set('token', authenticateResponse.token, { expires: 365, path: '/', sameSite: 'Strict', secure: location.protocol === 'https:' });
+
+        this.service.currentUser = authenticateResponse.user;
+
+        // Metadata
+        this.service.metadata.next({
+          user: authenticateResponse.user,
+          edges: {},
+        });
+
+        // Resubscribe Channels
+        this.service.getCurrentEdge().then(edge => {
+
+          this.pagination.getAndSubscribeEdge(edge).then(() => {
+            edge.subscribeChannelsSuccessful = true;
+            if (edge != null) {
+              edge.subscribeChannelsOnReconnect(this);
+            }
+          });
+        });
+
+        this.router.initialNavigation();
+        resolve();
+      }).catch(reason => {
+        this.checkErrorCode(reason);
+        resolve();
+      });
+    });
+  }
+
+  /**
+   * Logs out by sending a logout JSON-RPC Request.
+   */
+  public logout() {
+    this.sendRequest(new LogoutRequest()).then(response => {
+      this.onLoggedOut();
+    }).catch(reason => {
+      console.error(reason);
+    });
+  }
+
+  /**
+   * Sends a JSON-RPC Request to a Websocket and promises a callback.
+   *
+   * @param request the JSON-RPC Request
+   */
+  public sendRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
+    if (
+      // logged in + normal operation
+      this.status == 'online'
+      // otherwise only authentication request allowed
+      || (request instanceof AuthenticateWithPasswordRequest || request instanceof AuthenticateWithTokenRequest || request instanceof RegisterUserRequest)) {
+
+      return new Promise((resolve, reject) => {
+        this.wsdata.sendRequest(this.socket, request).then(response => {
+          if (environment.debugMode) {
+            if (request instanceof EdgeRpcRequest) {
+              console.info("Response     [" + request.params.payload.method + ":" + request.params.edgeId + "]", response.result['payload']['result']);
+            } else {
+              console.info("Response     [" + request.method + "]", response.result);
+            }
+          }
+          resolve(response);
+
+        }).catch(reason => {
+          if (environment.debugMode) {
+            if (reason instanceof JsonrpcResponseError) {
+              console.warn("Request failed [" + request.method + "]", reason.error);
+
+              if (request instanceof EdgeRpcRequest && reason.error?.code == 3000 /* Edge is not connected */) {
+                const edges = this.service.metadata.value?.edges ?? {};
+                if (request.params.edgeId in edges) {
+                  edges[request.params.edgeId].isOnline = false;
+                }
+              }
+            } else {
+              console.warn("Request failed [" + request.method + "]", reason);
+            }
+          }
+          reject(reason);
+
+        });
+      });
+
+    } else {
+      return Promise.reject("Websocket is not connected or authenticated! Unable to send Request: " + JSON.stringify(request));
+    }
+  }
+
+  /**
+     * Waits until Websocket is 'online' and then
+     * sends a safe JSON-RPC Request to a Websocket and promises a callback.
+     *
+     * @param request the JSON-RPC Request
+     */
+  public sendSafeRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
+    return new Promise<JsonrpcResponseSuccess>((resolve, reject) => {
+      const interval = setInterval(() => {
+
+        // TODO: Status should be Observable, furthermore status should be like state-machine
+        if (this.status == 'online') {
+          clearInterval(interval);
+          this.sendRequest(request)
+            .then((response) => resolve(response))
+            .catch((err) => reject(err));
+        }
+      }, 500);
+    });
+  }
+
+  /**
+   * Sends a JSON-RPC notification to a Websocket.
+   *
+   * @param notification the JSON-RPC Notification
+   */
+  public sendNotification(notification: JsonrpcNotification): void {
+    if (this.status != 'online') {
+      console.warn("Websocket is not connected! Unable to send Notification", notification);
+    }
+    this.wsdata.sendNotification(this.socket, notification);
+  }
+
+  /**
+ * Opens a connection using a stored token. Called once by constructor
+ */
   private connect() {
     if (this.status != 'initial') {
       return;
@@ -153,53 +294,6 @@ export class Websocket implements WebsocketInterface {
     });
   }
 
-  /**
-   * Logs in by sending an authentication JSON-RPC Request and handles the AuthenticateResponse.
-   *
-   * @param request the JSON-RPC Request
-   * @param lang provided for @demo User. This doesn't change the global language, its just set locally
-   */
-  public login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest): Promise<void> {
-    return new Promise<void>((resolve) => {
-      this.sendRequest(request).then(r => {
-        const authenticateResponse = (r as AuthenticateResponse).result;
-
-        const language = Language.getByKey(localStorage.DEMO_LANGUAGE ?? authenticateResponse.user.language.toLocaleLowerCase());
-        localStorage.LANGUAGE = language.key;
-        this.service.setLang(language);
-        this.status = 'online';
-
-        // received login token -> save in cookie
-        this.cookieService.set('token', authenticateResponse.token, { expires: 365, path: '/', sameSite: 'Strict', secure: location.protocol === 'https:' });
-
-        this.service.currentUser = authenticateResponse.user;
-
-        // Metadata
-        this.service.metadata.next({
-          user: authenticateResponse.user,
-          edges: {},
-        });
-
-        // Resubscribe Channels
-        this.service.getCurrentEdge().then(edge => {
-
-          this.pagination.getAndSubscribeEdge(edge).then(() => {
-            edge.subscribeChannelsSuccessful = true;
-            if (edge != null) {
-              edge.subscribeChannelsOnReconnect(this);
-            }
-          });
-        });
-
-        this.router.initialNavigation();
-        resolve();
-      }).catch(reason => {
-        this.checkErrorCode(reason);
-        resolve();
-      });
-    });
-  }
-
   private checkErrorCode(reason: JsonrpcResponseError) {
 
     // TODO create global Errorhandler for any type of error
@@ -218,102 +312,10 @@ export class Websocket implements WebsocketInterface {
     }
   }
 
-  /**
-   * Logs out by sending a logout JSON-RPC Request.
-   */
-  public logout() {
-    this.sendRequest(new LogoutRequest()).then(response => {
-      this.onLoggedOut();
-    }).catch(reason => {
-      console.error(reason);
-    });
-  }
-
   private onLoggedOut(): void {
     this.status = 'waiting for credentials';
     this.cookieService.delete('token', '/');
     this.service.onLogout();
-  }
-
-  /**
-   * Sends a JSON-RPC Request to a Websocket and promises a callback.
-   *
-   * @param request the JSON-RPC Request
-   */
-  public sendRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
-    if (
-      // logged in + normal operation
-      this.status == 'online'
-      // otherwise only authentication request allowed
-      || (request instanceof AuthenticateWithPasswordRequest || request instanceof AuthenticateWithTokenRequest || request instanceof RegisterUserRequest)) {
-
-      return new Promise((resolve, reject) => {
-        this.wsdata.sendRequest(this.socket, request).then(response => {
-          if (environment.debugMode) {
-            if (request instanceof EdgeRpcRequest) {
-              console.info("Response     [" + request.params.payload.method + ":" + request.params.edgeId + "]", response.result['payload']['result']);
-            } else {
-              console.info("Response     [" + request.method + "]", response.result);
-            }
-          }
-          resolve(response);
-
-        }).catch(reason => {
-          if (environment.debugMode) {
-            if (reason instanceof JsonrpcResponseError) {
-              console.warn("Request failed [" + request.method + "]", reason.error);
-
-              if (request instanceof EdgeRpcRequest && reason.error?.code == 3000 /* Edge is not connected */) {
-                const edges = this.service.metadata.value?.edges ?? {};
-                if (request.params.edgeId in edges) {
-                  edges[request.params.edgeId].isOnline = false;
-                }
-              }
-            } else {
-              console.warn("Request failed [" + request.method + "]", reason);
-            }
-          }
-          reject(reason);
-
-        });
-      });
-
-    } else {
-      return Promise.reject("Websocket is not connected or authenticated! Unable to send Request: " + JSON.stringify(request));
-    }
-  }
-
-  /**
-     * Waits until Websocket is 'online' and then
-     * sends a safe JSON-RPC Request to a Websocket and promises a callback.
-     *
-     * @param request the JSON-RPC Request
-     */
-  public sendSafeRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
-    return new Promise<JsonrpcResponseSuccess>((resolve, reject) => {
-      const interval = setInterval(() => {
-
-        // TODO: Status should be Observable, furthermore status should be like state-machine
-        if (this.status == 'online') {
-          clearInterval(interval);
-          this.sendRequest(request)
-            .then((response) => resolve(response))
-            .catch((err) => reject(err));
-        }
-      }, 500);
-    });
-  }
-
-  /**
-   * Sends a JSON-RPC notification to a Websocket.
-   *
-   * @param notification the JSON-RPC Notification
-   */
-  public sendNotification(notification: JsonrpcNotification): void {
-    if (this.status != 'online') {
-      console.warn("Websocket is not connected! Unable to send Notification", notification);
-    }
-    this.wsdata.sendNotification(this.socket, notification);
   }
 
   /**

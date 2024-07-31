@@ -35,39 +35,18 @@ import { Role } from "../../type/role";
 })
 export class FooterComponent implements OnInit {
 
+  @HostBinding('attr.data-isSmartPhone')
+  public isSmartPhone: boolean = this.service.isSmartphoneResolution;
+
   protected user: User | null = null;
   protected edge: Edge | null = null;
   protected displayValues: { comment: string, id: string, version: string } | null = null;
   protected isAtLeastOwner: boolean | null = null;
 
-  @HostBinding('attr.data-isSmartPhone')
-  public isSmartPhone: boolean = this.service.isSmartphoneResolution;
-
   constructor(
     protected service: Service,
     private title: Title,
   ) { }
-
-  ngOnInit() {
-    this.service.currentEdge.subscribe((edge) => {
-      this.edge = edge;
-
-      this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe((metadata) => {
-        this.user = metadata.user;
-
-        let title = environment.edgeShortName;
-        if (edge) {
-          this.displayValues = FooterComponent.getDisplayValues(this.user, edge);
-
-          if (this.user.hasMultipleEdges) {
-            title += " | " + edge.id;
-          }
-        }
-
-        this.title.setTitle(title);
-      });
-    });
-  }
 
   private static getDisplayValues(user: User, edge: Edge): { comment: string, id: string, version: string } {
     const result = {
@@ -91,4 +70,26 @@ export class FooterComponent implements OnInit {
 
     return result;
   }
+
+  ngOnInit() {
+    this.service.currentEdge.subscribe((edge) => {
+      this.edge = edge;
+
+      this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe((metadata) => {
+        this.user = metadata.user;
+
+        let title = environment.edgeShortName;
+        if (edge) {
+          this.displayValues = FooterComponent.getDisplayValues(this.user, edge);
+
+          if (this.user.hasMultipleEdges) {
+            title += " | " + edge.id;
+          }
+        }
+
+        this.title.setTitle(title);
+      });
+    });
+  }
+
 }

@@ -28,11 +28,6 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
     private currencyLabel: Currency.Label; // Default
 
-    public ngOnChanges() {
-        this.currencyLabel = Currency.getCurrencyLabelByEdgeId(this.edge.id);
-        this.updateChart();
-    }
-
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
@@ -40,6 +35,15 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
         private websocket: Websocket,
     ) {
         super("schedule-chart", service, translate);
+    }
+
+    public getChartHeight(): number {
+        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
+    }
+
+    public ngOnChanges() {
+        this.currencyLabel = Currency.getCurrencyLabelByEdgeId(this.edge.id);
+        this.updateChart();
     }
 
     public ngOnInit() {
@@ -93,6 +97,14 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
             await this.setOptions(this.options);
             this.applyControllerSpecificOptions();
         });
+    }
+
+    protected setLabel() {
+        this.options = this.createDefaultChartOptions();
+    }
+
+    protected getChannelAddresses(): Promise<ChannelAddress[]> {
+        return new Promise(() => { []; });
     }
 
     private applyControllerSpecificOptions() {
@@ -164,15 +176,4 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
         this.options['animation'] = false;
     }
 
-    protected setLabel() {
-        this.options = this.createDefaultChartOptions();
-    }
-
-    protected getChannelAddresses(): Promise<ChannelAddress[]> {
-        return new Promise(() => { []; });
-    }
-
-    public getChartHeight(): number {
-        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
-    }
 }

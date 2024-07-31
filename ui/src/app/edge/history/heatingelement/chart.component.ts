@@ -20,16 +20,16 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
   @Input({ required: true }) public component!: EdgeConfig.Component;
 
-  ngOnChanges() {
-    this.updateChart();
-  }
-
   constructor(
     protected override service: Service,
     protected override translate: TranslateService,
     private route: ActivatedRoute,
   ) {
     super("heatingelement-chart", service, translate);
+  }
+
+  ngOnChanges() {
+    this.updateChart();
   }
 
   ngOnInit() {
@@ -40,6 +40,10 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
 
   ngOnDestroy() {
     this.unsubscribeChartRefresh();
+  }
+
+  public getChartHeight(): number {
+    return window.innerHeight / 1.3;
   }
 
   protected updateChart() {
@@ -120,7 +124,4 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
     this.options = this.createDefaultChartOptions();
   }
 
-  public getChartHeight(): number {
-    return window.innerHeight / 1.3;
-  }
 }

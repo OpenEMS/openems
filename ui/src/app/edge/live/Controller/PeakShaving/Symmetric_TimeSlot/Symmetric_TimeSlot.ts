@@ -16,21 +16,6 @@ export class Controller_Symmetric_TimeSlot_PeakShavingComponent extends Abstract
     public rechargePower: number;
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
-    protected override getChannelAddresses() {
-        return [
-            new ChannelAddress(this.component.properties['meter.id'], 'ActivePower'),
-            new ChannelAddress(this.componentId, '_PropertyPeakShavingPower'),
-            new ChannelAddress(this.componentId, '_PropertyRechargePower'),
-        ];
-    }
-    protected override onCurrentData(currentData: CurrentData) {
-
-        // activePower is 0 for negative Values
-        this.activePower = currentData.allComponents[this.component.properties['meter.id'] + '/ActivePower'] >= 0
-            ? currentData.allComponents[this.component.properties['meter.id'] + '/ActivePower'] : 0;
-        this.peakShavingPower = this.component.properties['peakShavingPower'];
-        this.rechargePower = this.component.properties['rechargePower'];
-    }
     async presentModal() {
         const modal = await this.modalController.create({
             component: Controller_Symmetric_TimeSlot_PeakShavingModalComponent,
@@ -46,4 +31,21 @@ export class Controller_Symmetric_TimeSlot_PeakShavingComponent extends Abstract
         });
         return await modal.present();
     }
+
+    protected override getChannelAddresses() {
+        return [
+            new ChannelAddress(this.component.properties['meter.id'], 'ActivePower'),
+            new ChannelAddress(this.componentId, '_PropertyPeakShavingPower'),
+            new ChannelAddress(this.componentId, '_PropertyRechargePower'),
+        ];
+    }
+    protected override onCurrentData(currentData: CurrentData) {
+
+        // activePower is 0 for negative Values
+        this.activePower = currentData.allComponents[this.component.properties['meter.id'] + '/ActivePower'] >= 0
+            ? currentData.allComponents[this.component.properties['meter.id'] + '/ActivePower'] : 0;
+        this.peakShavingPower = this.component.properties['peakShavingPower'];
+        this.rechargePower = this.component.properties['rechargePower'];
+    }
+
 }

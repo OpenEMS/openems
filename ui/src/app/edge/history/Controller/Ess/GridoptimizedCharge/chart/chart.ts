@@ -10,11 +10,6 @@ import { ChannelAddress, EdgeConfig } from 'src/app/shared/shared';
   templateUrl: '../../../../../../shared/components/chart/abstracthistorychart.html',
 })
 export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
-  protected getChartData(): HistoryUtils.ChartData {
-    return GridOptimizedChargeChartComponent.getChartData(this.component, this.translate);
-  }
-
-
   public static getChartData(component: EdgeConfig.Component, translate: TranslateService): HistoryUtils.ChartData {
     return {
       input: [
@@ -91,4 +86,8 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
       }],
     };
   }
+  protected getChartData(): HistoryUtils.ChartData {
+    return GridOptimizedChargeChartComponent.getChartData(this.component, this.translate);
+  }
+
 }
