@@ -65,6 +65,9 @@ public class BatteryFeneconHomeImplTest {
 			BatteryFeneconHome.ChannelId.NUMBER_OF_TOWERS.id());
 	private static final ChannelAddress NUMBER_OF_MODULES_PER_TOWER = new ChannelAddress(BATTERY_ID,
 			BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER.id());
+	private static final ChannelAddress BP_CHARGE_MAX_SOC = new ChannelAddress(BATTERY_ID,
+			BatteryProtection.ChannelId.BP_CHARGE_MAX_SOC.id());
+	private static final ChannelAddress SOC = new ChannelAddress(BATTERY_ID, Battery.ChannelId.SOC.id());
 
 	private static final ChannelAddress BATTERY_RELAY = new ChannelAddress(IO_ID, "InputOutput4");
 
@@ -594,5 +597,74 @@ public class BatteryFeneconHomeImplTest {
 						.input(TOWER_4_BMS_SOFTWARE_VERSION, 256) //
 						.output(NUMBER_OF_TOWERS, 1)) //
 		;
+	}
+
+	/**
+	 * Battery charge power limited by the {@link FeneconHomeBatteryProtection52}.
+	 *
+	 * @throws Exception on error
+	 */
+	@Test
+	public void testBatteryProtectionSocLimitations() throws Exception {
+		var sut = new BatteryFeneconHomeImpl();
+		new ComponentTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addComponent(new DummyInputOutput(IO_ID))//
+				.activate(MyConfig.create() //
+						.setId(BATTERY_ID) //
+						.setModbusId(MODBUS_ID) //
+						.setModbusUnitId(0) //
+						.setStartStop(StartStopConfig.START) //
+						.setBatteryStartUpRelay("io0/InputOutput4")//
+						.build()) //
+
+				.next(new TestCase() //
+						.input(BATTERY_RELAY, false) //
+						.input(BMS_CONTROL, true) // Switched On
+						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-Undefined")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-StartUpRelayOff")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-RetryModbusCommunication")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-WaitForBmsControl")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-WaitForModbusCommunication")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, StateMachine.State.RUNNING)) //
+				.next(new TestCase() //
+						.output(BP_CHARGE_MAX_SOC, 40)) //
+
+				.next(new TestCase() //
+						.input(SOC, 97) //
+						.output(SOC, 97)) //
+				.next(new TestCase() //
+						.output(BP_CHARGE_MAX_SOC, (int) Math.round(40 * 0.625))) //
+				.next(new TestCase() //
+						.input(SOC, 98)) //
+				.next(new TestCase() //
+						.output(BP_CHARGE_MAX_SOC, (int) Math.round(40 * 0.4))) //
+				.next(new TestCase() //
+						.input(SOC, 99)) //
+				.next(new TestCase() //
+						.output(BP_CHARGE_MAX_SOC, (int) Math.round(40 * 0.2))) //
+				.next(new TestCase() //
+						.input(SOC, 100)) //
+				.next(new TestCase() //
+						.output(BP_CHARGE_MAX_SOC, (int) Math.round(40 * 0.05))) //
+				.next(new TestCase() //
+						.input(SOC, 99)) //
+				.next(new TestCase() //
+						.output(BP_CHARGE_MAX_SOC, (int) Math.round(40 * 0.2)) //
+				);
 	}
 }

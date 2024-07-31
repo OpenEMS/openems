@@ -71,6 +71,26 @@ public interface BatteryProtectionDefinition {
 	public PolyLine getDischargeTemperatureToPercent();
 
 	/**
+	 * Defines the SoC-to-Percent limits for Charging.
+	 *
+	 * <p>
+	 * SoC values are in [%], Percentage in [0,1].
+	 *
+	 * @return a {@link PolyLine}
+	 */
+	public PolyLine getChargeSocToPercent();
+
+	/**
+	 * Defines the SoC-to-Percent limits for Discharging.
+	 *
+	 * <p>
+	 * SoC values are in [%], Percentage in [0,1].
+	 *
+	 * @return a {@link PolyLine}
+	 */
+	public PolyLine getDischargeSocToPercent();
+
+	/**
 	 * Defines the parameters for Force-Discharge mode.
 	 *
 	 * @return the parameters
