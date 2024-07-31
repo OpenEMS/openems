@@ -74,7 +74,8 @@ export module DefaultTypes {
       sellActivePowerL2: number,
       sellActivePowerL3: number,
       maxSellActivePower: number,
-      gridMode: number
+      gridMode: number,
+      restrictionMode: number
     }, consumption: {
       powerRatio: number,
       activePower: number,

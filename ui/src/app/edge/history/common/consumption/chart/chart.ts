@@ -55,7 +55,7 @@ export class ChartComponent extends AbstractHistoryChart {
           ...inputChannel,
         ],
       output: (data: HistoryUtils.ChannelData) => {
-        const datasets: HistoryUtils.DisplayValues[] = [];
+        const datasets: HistoryUtils.DisplayValue[] = [];
         datasets.push({
           name: translate.instant('General.TOTAL'),
           nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {

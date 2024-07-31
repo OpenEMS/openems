@@ -1,4 +1,9 @@
-<oe-flat-widget [icon]="{name: 'oe-grid', color:'dark'}" [title]="'General.grid' | translate" (click)="presentModal()">
+<oe-flat-widget [icon]="icon" [title]="'General.grid' | translate" (click)="presentModal()">
+    <ng-container *ngIf="isActivated">
+        <oe-flat-widget-line [name]="'General.state'| translate" [value]="gridState" [leftColumnWidth]="10">
+        </oe-flat-widget-line>
+        <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
+    </ng-container>
     <oe-flat-widget-line [name]="'General.gridSellAdvanced' | translate" [value]="gridSellPower"
         [converter]="CONVERT_WATT_TO_KILOWATT">
     </oe-flat-widget-line>

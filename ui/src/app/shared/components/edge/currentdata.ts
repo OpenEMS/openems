@@ -67,6 +67,7 @@ export class CurrentData {
         sellActivePowerL2: null,
         sellActivePowerL3: null,
         maxSellActivePower: null,
+        restrictionMode: null,
       }, consumption: {
         powerRatio: null,
         activePower: null,
@@ -95,6 +96,7 @@ export class CurrentData {
         result.grid.maxSellActivePower = -5000;
       }
       result.grid.gridMode = c['_sum/GridMode'];
+      result.grid.restrictionMode = c['ctrlEssLimiter14a0/RestrictionMode'];
       if (gridActivePower > 0) {
         result.grid.sellActivePower = 0;
         result.grid.buyActivePower = gridActivePower;

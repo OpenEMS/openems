@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Role } from 'src/app/shared/type/role';
 import { environment } from 'src/environments';
 import { Edge, Service, Utils } from '../../shared/shared';
-import { canSeeJsonrpcTest } from './jsonrpctest/permission';
+import { JsonrpcTestPermission } from './jsonrpctest/jsonrpctest.permission';
 
 @Component({
   selector: 'settings',
@@ -33,7 +33,7 @@ export class SettingsComponent implements OnInit {
       this.isAtLeastOwner = edge.roleIsAtLeast(Role.OWNER);
       this.isAtLeastInstaller = edge.roleIsAtLeast(Role.INSTALLER);
       this.isAtLeastAdmin = edge.roleIsAtLeast(Role.ADMIN);
-      this.canSeeJsonrpcTest = canSeeJsonrpcTest(user, edge);
+      this.canSeeJsonrpcTest = JsonrpcTestPermission.canSee(user, edge);
     });
   }
 }

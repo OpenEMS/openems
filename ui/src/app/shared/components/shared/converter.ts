@@ -2,7 +2,7 @@
 
 import { TranslateService } from "@ngx-translate/core";
 
-import { CurrentData, EdgeConfig, Utils } from "../../shared";
+import { CurrentData, EdgeConfig, GridMode, Utils } from "../../shared";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { Formatter } from "./formatter";
 
@@ -30,6 +30,12 @@ export namespace Converter {
     return "-"; // null or string
   };
 
+  export const IF_STRING = (value: number | string | null, callback: (text: string) => string) => {
+    if (typeof value === 'string') {
+      return callback(value);
+    }
+    return "-"; // null or number
+  };
   /**
    * Converter for Grid-Buy-Power.
    *
@@ -186,6 +192,18 @@ export namespace Converter {
 
     return Utils.subtractSafely(activePowerTotal,
       Utils.addSafely(evcsChargePowerTotal, consumptionMeterActivePowerTotal));
+  };
+
+  export const GRID_STATE_TO_MESSAGE = (translate: TranslateService, currentData: CurrentData): string => {
+    const gridMode = currentData.allComponents['_sum/GridMode'];
+    const restrictionMode = currentData.allComponents['ctrlEssLimiter14a0/RestrictionMode'];
+    if (gridMode === GridMode.OFF_GRID) {
+      return translate.instant("GRID_STATES.OFF_GRID");
+    }
+    if (restrictionMode === 1) {
+      return translate.instant('GRID_STATES.RESTRICTION');
+    }
+    return translate.instant("GRID_STATES.NO_EXTERNAL_LIMITATION");
   };
 
   export const ON_OFF = (translate: TranslateService) => {

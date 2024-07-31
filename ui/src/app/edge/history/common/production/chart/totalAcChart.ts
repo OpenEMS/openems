@@ -35,7 +35,7 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
           },
         ],
       output: (data: HistoryUtils.ChannelData) => {
-        const datasets: HistoryUtils.DisplayValues[] = [];
+        const datasets: HistoryUtils.DisplayValue[] = [];
 
         datasets.push({
           name: this.translate.instant("General.TOTAL"),

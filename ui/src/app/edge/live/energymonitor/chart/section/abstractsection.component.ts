@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
-import { Service } from 'src/app/shared/shared';
+import { GridMode, Service } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import * as d3 from 'd3';
 
@@ -116,12 +116,6 @@ export class EnergyFlow {
     }
 }
 
-export enum GridMode {
-    "undefined",
-    "ongrid",
-    "offgrid",
-}
-
 export abstract class AbstractSection {
 
     public fillRef: string = "";
@@ -141,6 +135,7 @@ export abstract class AbstractSection {
     protected height: number = 0;
     protected width: number = 0;
     protected gridMode: GridMode;
+    protected restrictionMode: number;
 
     private lastCurrentData: DefaultTypes.Summary = null;
 

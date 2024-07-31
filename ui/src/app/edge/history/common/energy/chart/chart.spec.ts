@@ -34,7 +34,7 @@ describe('History EnergyMonitor', () => {
             ],
             labels: LABELS(History.DAY.dataChannelWithValues.result.timestamps),
             options: History.LINE_CHART_OPTIONS('hour', 'line', {
-              ['right']: { ticks: { stepSize: 20 }, scale: { beginAtZero: true } },
+              ['right']: { ticks: { stepSize: 20 }, scale: null },
             }),
           },
         });

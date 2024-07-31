@@ -960,6 +960,12 @@
     "MORE_CHANNELS": "Weitere Kanäle hinzufügen",
     "CHANNEL": "Kanal"
   },
+  "GRID_STATES": {
+    "OFF_GRID": "Netzausfall",
+    "NO_EXTERNAL_LIMITATION": "keine externe Limitierung",
+    "RIPPLE_CONTROL_RECEIVER": "Rundsteuerempfänger",
+    "RESTRICTION": "Dimmung nach §14a EnWG"
+  },
   "APP": {
     "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Diese Funktion ist vorübergehend in der App nicht verfügbar, verwenden Sie bitte dafür die Web-App."
   }

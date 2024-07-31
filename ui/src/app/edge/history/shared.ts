@@ -165,6 +165,9 @@ export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
         line: {},
     },
     plugins: {
+        annotation: {
+            annotations: [],
+        },
         colors: {
             enabled: false,
         },

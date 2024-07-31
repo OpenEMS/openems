@@ -963,6 +963,12 @@
     "MORE_CHANNELS": "Add More Channels",
     "CHANNEL": "Channel"
   },
+  "GRID_STATES": {
+    "OFF_GRID": "Power outage",
+    "NO_EXTERNAL_LIMITATION": "No external limitation",
+    "RIPPLE_CONTROL_RECEIVER": "Ripple Control Receiver",
+    "RESTRICTION": "Restriction according to $14a EnWG"
+  },
   "APP": {
     "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "This function is temporarily not available in the app, please use the web app instead."
   }

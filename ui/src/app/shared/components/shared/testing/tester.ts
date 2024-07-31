@@ -306,7 +306,7 @@ export class OeChartTester {
 
     return {
       type: 'option',
-      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, locale, config, datasets),
+      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, null, legendOptions, channelData.result, locale, config, datasets),
     };
   }
 

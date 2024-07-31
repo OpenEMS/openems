@@ -44,7 +44,7 @@ export class ChartComponent extends AbstractHistoryChart {
     const chartObject: HistoryUtils.ChartData = {
       input: channels,
       output: (data: HistoryUtils.ChannelData) => {
-        const datasets: HistoryUtils.DisplayValues[] = [];
+        const datasets: HistoryUtils.DisplayValue[] = [];
         datasets.push({
           name: component.alias,
           nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => {

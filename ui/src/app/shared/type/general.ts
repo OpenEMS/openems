@@ -8,6 +8,11 @@ export enum Mode {
     MANUAL_OFF = 'MANUAL_OFF',
     AUTOMATIC = 'AUTOMATIC',
 }
+export const ChartAnnotationState = {
+    ON: 1,
+    OFF: 0,
+    OFF_HIDDEN: null,
+};
 export enum WorkMode {
     TIME = 'TIME',
     NONE = 'NONE',

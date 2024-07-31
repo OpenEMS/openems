@@ -1,6 +1,5 @@
 // @ts-strict-ignore
-import { ChannelAddress } from '../type/channeladdress';
-import { Widgets } from '../type/widget';
+import { ChannelAddress, Widgets } from '../../shared';
 import { Edge } from './edge';
 
 export interface CategorizedComponents {

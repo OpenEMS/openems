@@ -4,8 +4,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
-import { Service, Utils } from '../../../../../shared/shared';
+import { CurrentData, EdgeConfig, GridMode, Service, Utils } from '../../../../../shared/shared';
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
+import { Icon } from 'src/app/shared/type/widget';
 
 @Component({
     selector: '[gridsection]',
@@ -149,11 +150,12 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     }
 
     protected getImagePath(): string {
-        if (this.gridMode == 2) {
+        if (this.gridMode === GridMode.OFF_GRID) {
             return "icon/offgrid.svg";
-        } else {
-            return "icon/grid.svg";
+        } else if (this.restrictionMode === 1) {
+            return "icon/gridRestriction.svg";
         }
+        return "icon/grid.svg";
     }
 
     protected getValueText(value: number): string {
@@ -221,6 +223,35 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             p = null;
         }
         return p;
+    }
+
+    public static getCurrentGridIcon(currentData: CurrentData): Icon {
+        const gridMode = currentData.allComponents['_sum/GridMode'];
+        const restrictionMode = currentData.allComponents['ctrlEssLimiter14a0/RestrictionMode'];
+        if (gridMode === GridMode.OFF_GRID) {
+            return {
+                color: 'dark',
+                name: 'oe-offgrid',
+                size: '',
+            };
+        }
+        if (restrictionMode === 1) {
+            return {
+                color: 'dark',
+                name: 'oe-grid-restriction',
+                size: '',
+            };
+        }
+        return {
+            color: 'dark',
+            name: 'oe-grid',
+            size: '',
+        };
+
+    }
+
+    public static isControllerEnabled(config: EdgeConfig, factoryId: string): boolean {
+        return config.getComponentsByFactory(factoryId).filter(component => component.isEnabled).length > 0;
     }
 
     ngOnDestroy() {

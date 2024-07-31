@@ -34,7 +34,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
       input: input,
       output: (data: HistoryUtils.ChannelData) => {
 
-        const output: HistoryUtils.DisplayValues[] = [];
+        const output: HistoryUtils.DisplayValue[] = [];
 
         const colors: string[] = ['rgb(0,0,139)', 'rgb(0,191,255)', 'rgb(0,0,56)', 'rgb(77,77,174)'];
 

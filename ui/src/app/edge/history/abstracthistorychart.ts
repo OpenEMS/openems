@@ -418,7 +418,7 @@ export abstract class AbstractHistoryChart {
 
                 options.scales.x['stacked'] = true;
                 options.scales[ChartAxis.LEFT]['stacked'] = false;
-                options = NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges('line' + this.spinnerId, options, this.service, chartObject);
+                options = NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges('line', options, this.service, chartObject);
 
                 /** Overwrite default yAxisId */
                 this.datasets = this.datasets

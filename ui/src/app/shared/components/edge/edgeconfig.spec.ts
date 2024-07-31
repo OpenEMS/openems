@@ -126,6 +126,16 @@ export namespace DummyConfig {
             ],
         };
 
+        export const ESS_LIMITER_14A = {
+            id: "Controller.Ess.Limiter14a",
+            natureIds: [
+                "io.openems.edge.controller.ess.limiter14a",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.timedata.api.TimedataProvider",
+
+            ],
+        };
+
         export const SOLAR_EDGE_PV_INVERTER = {
             id: "SolarEdge.PV-Inverter",
             natureIds: [
@@ -214,6 +224,17 @@ export namespace DummyConfig {
             properties: {
                 invert: false,
                 modbusUnitId: 5,
+            },
+            channels: {},
+        });
+
+        export const ESS_LIMITER_14A = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factoryId: 'Controller.Ess.Limiter14a',
+            factory: Factory.ESS_LIMITER_14A,
+            properties: {
+                enabled: "true",
             },
             channels: {},
         });
