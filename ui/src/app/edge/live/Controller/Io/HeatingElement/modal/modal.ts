@@ -2,7 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
-import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
+import { AbstractModal } from 'src/app/shared/components/modal/abstractModal';
 import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
 import { Mode, WorkMode } from 'src/app/shared/type/general';
 
@@ -20,6 +20,18 @@ export class ModalComponent extends AbstractModal implements OnInit {
 
     protected readonly Mode = Mode;
     protected readonly WorkMode = WorkMode;
+
+    // allowMinimumHeating == workMode: none
+    // TODO remove when outputting of event is errorless possible
+    switchAllowMinimumHeating(event: CustomEvent) {
+        if (event.detail.checked == true) {
+            this.formGroup.controls['workMode'].setValue('TIME');
+            this.formGroup.controls['workMode'].markAsDirty();
+        } else if (event.detail.checked == false) {
+            this.formGroup.controls['workMode'].setValue('NONE');
+            this.formGroup.controls['workMode'].markAsDirty();
+        }
+    }
 
     protected override getChannelAddresses(): ChannelAddress[] {
         const outputChannelPhaseOne = ChannelAddress.fromString(
@@ -73,15 +85,4 @@ export class ModalComponent extends AbstractModal implements OnInit {
         });
     }
 
-    // allowMinimumHeating == workMode: none
-    // TODO remove when outputting of event is errorless possible
-    switchAllowMinimumHeating(event: CustomEvent) {
-        if (event.detail.checked == true) {
-            this.formGroup.controls['workMode'].setValue('TIME');
-            this.formGroup.controls['workMode'].markAsDirty();
-        } else if (event.detail.checked == false) {
-            this.formGroup.controls['workMode'].setValue('NONE');
-            this.formGroup.controls['workMode'].markAsDirty();
-        }
-    }
 }

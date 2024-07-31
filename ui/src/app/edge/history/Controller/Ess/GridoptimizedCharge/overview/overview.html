@@ -1,0 +1,32 @@
+<oe-chart *ngIf="isInitialized"
+    [period]="service.historyPeriod" [title]="component.alias">
+
+    <gridOptimizedChargeChart [chartTitle]="'General.chargePower'| translate" [component]="component">
+    </gridOptimizedChargeChart>
+    <ion-card-content class="underline">
+        <ion-row class="ion-justify-content-center">
+            <ion-item class="ion-text-center" lines="none">
+                <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
+                <ion-label class="ion-text-wrap">
+                    <small translate>
+                        Edge.Index.Widgets.GridOptimizedCharge.History.priorityDescription
+                    </small>
+                </ion-label>
+            </ion-item>
+        </ion-row>
+    </ion-card-content>
+    <sellToGridLimitChart [chartTitle]="'General.gridSell'| translate" [component]="component">
+    </sellToGridLimitChart>
+    <ion-card-content class="underline">
+        <ion-row class="ion-justify-content-center">
+            <ion-item class="ion-text-center" lines="none">
+                <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
+                <ion-label class="ion-text-wrap">
+                    <small translate>
+                        Edge.Index.Widgets.GridOptimizedCharge.History.batteryChargeGridLimitDescription
+                    </small>
+                </ion-label>
+            </ion-item>
+        </ion-row>
+    </ion-card-content>
+</oe-chart>

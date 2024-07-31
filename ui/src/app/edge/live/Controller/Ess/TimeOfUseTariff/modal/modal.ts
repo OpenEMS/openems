@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
+import { AbstractModal } from 'src/app/shared/components/modal/abstractModal';
 import { ChannelAddress, Currency, CurrentData } from 'src/app/shared/shared';
 import { Controller_Ess_TimeOfUseTariff } from '../Ess_TimeOfUseTariff';
 

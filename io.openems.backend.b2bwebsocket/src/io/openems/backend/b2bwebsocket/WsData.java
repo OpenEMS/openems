@@ -6,6 +6,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.java_websocket.WebSocket;
+
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -15,7 +17,8 @@ public class WsData extends io.openems.common.websocket.WsData {
 	private final SubscribedEdgesChannelsWorker worker;
 	private final CompletableFuture<User> user = new CompletableFuture<>();
 
-	public WsData(Backend2BackendWebsocket parent) {
+	public WsData(WebSocket ws, Backend2BackendWebsocket parent) {
+		super(ws);
 		this.worker = new SubscribedEdgesChannelsWorker(parent, this);
 	}
 

@@ -77,12 +77,12 @@ export type ChartOptions = {
     responsive?: boolean,
     maintainAspectRatio: boolean,
     legend: {
-        onClick?(event: MouseEvent, legendItem: Chart.LegendItem): void
         labels: {
             generateLabels?(chart: Chart.Chart): Chart.LegendItem[],
             filter?(legendItem: Chart.LegendItem, data: ChartData): any,
         },
         position: "bottom"
+        onClick?(event: MouseEvent, legendItem: Chart.LegendItem): void
     },
     elements: {
         point: {
@@ -135,13 +135,13 @@ export type ChartOptions = {
         mode: string,
         intersect: boolean,
         axis: string,
-        itemSort?(itemA: Chart.TooltipItem<any>, itemB: Chart.TooltipItem<any>, data?: ChartData): number,
         callbacks: {
             label?(tooltipItem: TooltipItem, data: Data): string,
             title?(tooltipItems: Chart.TooltipItem<any>[], data: Data): string,
             afterTitle?(item: Chart.TooltipItem<any>[], data: Data): string | string[],
             footer?(item: Chart.TooltipItem<any>[], data: ChartData): string | string[]
         }
+        itemSort?(itemA: Chart.TooltipItem<any>, itemB: Chart.TooltipItem<any>, data?: ChartData): number,
     },
     legendCallback?(chart: Chart.Chart): string
 };
@@ -165,6 +165,9 @@ export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
         line: {},
     },
     plugins: {
+        annotation: {
+            annotations: [],
+        },
         colors: {
             enabled: false,
         },

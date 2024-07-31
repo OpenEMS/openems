@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import * as Chart from 'chart.js';
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
-import { CurrentData } from 'src/app/shared/edge/currentdata';
+import { CurrentData } from 'src/app/shared/components/edge/currentdata';
 import { Data } from 'src/app/edge/history/shared';
 import { EdgeConfig, Edge } from 'src/app/shared/shared';
 import { ModalController } from '@ionic/angular';
@@ -13,24 +13,35 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class EvcsChartComponent implements OnInit, OnChanges {
 
+  private static readonly SELECTOR = "evcsChart";
+
   @Input({ required: true }) private evcsMap!: { [sourceId: string]: EdgeConfig.Component };
   @Input({ required: true }) private edge!: Edge;
   @Input({ required: true }) private currentData!: CurrentData;
   @Input() private evcsConfigMap: { [evcsId: string]: EdgeConfig.Component } = {};
   @Input({ required: true }) private componentId!: string;
 
-  private static readonly SELECTOR = "evcsChart";
   public loading: boolean = true;
   public options: BarChartOptions;
   public labels: any[];
   public datasets: Chart.ChartDataset[];
   public chart: Chart.Chart; // This will hold our chart info
 
-
   constructor(
     protected translate: TranslateService,
     public modalController: ModalController,
   ) { }
+
+  getMaxPower() {
+    const minPower = 22;
+    let maxHW = this.currentData[this.componentId + '/MaximumHardwarePower'];
+    let chargePower = this.currentData[this.componentId + '/ChargePower'];
+    maxHW = maxHW == null ? minPower : maxHW / 1000;
+    chargePower = chargePower == null ? 0 : chargePower / 1000;
+
+    const maxPower: number = chargePower < minPower || maxHW;
+    return Math.round(maxPower);
+  }
 
   ngOnInit() {
     this.options = DEFAULT_BAR_CHART_OPTIONS;
@@ -75,16 +86,6 @@ export class EvcsChartComponent implements OnInit, OnChanges {
     this.loading = false;
   }
 
-  getMaxPower() {
-    const minPower = 22;
-    let maxHW = this.currentData[this.componentId + '/MaximumHardwarePower'];
-    let chargePower = this.currentData[this.componentId + '/ChargePower'];
-    maxHW = maxHW == null ? minPower : maxHW / 1000;
-    chargePower = chargePower == null ? 0 : chargePower / 1000;
-
-    const maxPower: number = chargePower < minPower || maxHW;
-    return Math.round(maxPower);
-  }
 }
 
 export const DEFAULT_BAR_CHART_OPTIONS: BarChartOptions = {

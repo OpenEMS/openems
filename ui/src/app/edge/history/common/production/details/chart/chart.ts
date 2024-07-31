@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
-import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
-import { Phase } from 'src/app/shared/genericComponents/shared/phase';
+import { AbstractHistoryChart } from 'src/app/shared/components/chart/abstracthistorychart';
+import { Phase } from 'src/app/shared/components/shared/phase';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ChartAxis, HistoryUtils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress } from 'src/app/shared/shared';
 
 @Component({
   selector: 'meterChart',
-  templateUrl: '../../../../../../shared/genericComponents/chart/abstracthistorychart.html',
+  templateUrl: '../../../../../../shared/components/chart/abstracthistorychart.html',
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -44,7 +44,7 @@ export class ChartComponent extends AbstractHistoryChart {
     const chartObject: HistoryUtils.ChartData = {
       input: channels,
       output: (data: HistoryUtils.ChannelData) => {
-        const datasets: HistoryUtils.DisplayValues[] = [];
+        const datasets: HistoryUtils.DisplayValue[] = [];
         datasets.push({
           name: component.alias,
           nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => {

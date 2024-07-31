@@ -3,11 +3,11 @@ package io.openems.backend.b2bwebsocket;
 import java.net.URI;
 import java.util.Map;
 
+import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.websocket.AbstractWebsocketClient;
-import io.openems.common.websocket.DummyWsData;
 import io.openems.common.websocket.OnClose;
 import io.openems.common.websocket.OnError;
 import io.openems.common.websocket.OnNotification;
@@ -29,6 +29,7 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 		super("B2bwebsocket.Unittest", serverUri, httpHeaders);
 		this.onOpen = (ws, handshake) -> {
 			this.log.info("OnOpen: " + handshake);
+			return null;
 		};
 		this.onRequest = (ws, request) -> {
 			this.log.info("OnRequest: " + request);
@@ -91,8 +92,13 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 	}
 
 	@Override
-	protected WsData createWsData() {
-		return new DummyWsData();
+	protected WsData createWsData(WebSocket ws) {
+		return new WsData(ws) {
+			@Override
+			public String toString() {
+				return "TestClient.WsData []";
+			}
+		};
 	}
 
 	@Override

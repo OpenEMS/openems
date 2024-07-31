@@ -10,16 +10,18 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../
 export class SinglethresholdChartOverviewComponent implements OnInit {
 
     private static readonly SELECTOR = "channelthreshold-chart-overview";
-    protected readonly spinnerid = SinglethresholdChartOverviewComponent.SELECTOR;
 
     public edge: Edge = null;
 
     public component: EdgeConfig.Component = null;
     public inputChannel: string;
-    protected inputChannelUnit: string;
 
     // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
+
+    protected inputChannelUnit: string;
+    protected readonly spinnerid = SinglethresholdChartOverviewComponent.SELECTOR;
+
 
     constructor(
         public service: Service,

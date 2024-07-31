@@ -4,16 +4,6 @@ import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
     selector: '[ngVar]',
 })
 export class VarDirective {
-    @Input()
-    set ngVar(context: unknown) {
-        this.context.$implicit = this.context.ngVar = context;
-
-        if (!this.hasView) {
-            this.vcRef.createEmbeddedView(this.templateRef, this.context);
-            this.hasView = true;
-        }
-    }
-
     private context: {
         $implicit: unknown;
         ngVar: unknown;
@@ -28,4 +18,15 @@ export class VarDirective {
         private templateRef: TemplateRef<any>,
         private vcRef: ViewContainerRef,
     ) { }
+
+    @Input()
+    set ngVar(context: unknown) {
+        this.context.$implicit = this.context.ngVar = context;
+
+        if (!this.hasView) {
+            this.vcRef.createEmbeddedView(this.templateRef, this.context);
+            this.hasView = true;
+        }
+    }
+
 }

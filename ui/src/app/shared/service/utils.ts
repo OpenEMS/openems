@@ -586,13 +586,13 @@ export class Utils {
 
     evcsComponents.forEach(component => {
       channelData[component.id + '/ChargePower']?.forEach((value, index) => {
-        totalEvcsConsumption[index] = value;
+        totalMeteredConsumption[index] = Utils.addSafely(totalMeteredConsumption[index], value);
       });
     });
 
     consumptionMeterComponents.forEach(meter => {
       channelData[meter.id + '/ActivePower']?.forEach((value, index) => {
-        totalMeteredConsumption[index] = value;
+        totalMeteredConsumption[index] = Utils.addSafely(totalMeteredConsumption[index], value);
       });
     });
 
@@ -617,6 +617,7 @@ export enum YAxisTitle {
   RELAY,
   ENERGY,
   VOLTAGE,
+  CURRENT,
   TIME,
   CURRENCY,
 }
@@ -656,7 +657,7 @@ export namespace HistoryUtils {
     /** Choose between predefined converters */
     converter?: (value: number) => number | null,
   };
-  export type DisplayValues = {
+  export type DisplayValue<T extends CustomOptions = PluginCustomOptions> = {
     name: string,
     /** suffix to the name */
     nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string | null,
@@ -664,6 +665,8 @@ export namespace HistoryUtils {
     converter: () => any,
     /** If dataset should be hidden on Init */
     hiddenOnInit?: boolean,
+    /** If dataset should be hidden in tooltip */
+    hiddenInTooltip?: boolean,
     /** default: true, stroke through label for hidden dataset */
     noStrokeThroughLegendIfHidden?: boolean,
     /** color in rgb-Format */
@@ -679,14 +682,7 @@ export namespace HistoryUtils {
     /** axisId from yAxes  */
     yAxisId?: ChartAxis,
     /** overrides global chartConfig for this dataset */
-    custom?: {
-      /** overrides global unit */
-      unit?: YAxisTitle,
-      /** overrides global charttype */
-      type?: 'line' | 'bar',
-      /** overrides global formatNumber */
-      formatNumber?: string
-    },
+    custom?: T,
     tooltip?: [{
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
       stackIds: number[]
@@ -697,6 +693,32 @@ export namespace HistoryUtils {
      */
     order?: number,
   };
+
+  export interface CustomOptions {
+    unit?: YAxisTitle,
+    /** overrides global charttype */
+    type?: 'line' | 'bar',
+    /** overrides global formatNumber */
+    formatNumber?: string,
+  }
+
+  export interface PluginCustomOptions extends CustomOptions {
+    pluginType: string,
+  }
+
+  export interface BoxCustomOptions extends PluginCustomOptions {
+    pluginType: 'box',
+    annotations: {
+      /** Start date string in ISO-format */
+      xMin: string | number,
+      /** End date string in ISO-format */
+      xMax: string | number,
+      /** Number */
+      yMax?: number,
+      yMin?: number,
+      yScaleID: ChartAxis,
+    }[];
+  }
 
   /**
  * Data from a subscription to Channel or from a historic data query.
@@ -711,7 +733,7 @@ export namespace HistoryUtils {
     /** Input Channels that need to be queried from the database */
     input: InputChannel[],
     /** Output Channels that will be shown in the chart */
-    output: (data: ChannelData) => DisplayValues[],
+    output: (data: ChannelData, labels?: Date[]) => DisplayValue<HistoryUtils.CustomOptions>[],
     tooltip: {
       /** Format of Number displayed */
       formatNumber: string,

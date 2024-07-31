@@ -18,16 +18,16 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
 
     private moreThanOneProducer: boolean = null;
 
-    ngOnChanges() {
-        this.updateChart();
-    }
-
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
         private route: ActivatedRoute,
     ) {
         super("storage-charger-chart", service, translate);
+    }
+
+    ngOnChanges() {
+        this.updateChart();
     }
 
     ngOnInit() {
@@ -37,6 +37,10 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 21 * 9;
     }
 
     protected updateChart() {
@@ -103,7 +107,4 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
         this.options = this.createDefaultChartOptions();
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 21 * 9;
-    }
 }

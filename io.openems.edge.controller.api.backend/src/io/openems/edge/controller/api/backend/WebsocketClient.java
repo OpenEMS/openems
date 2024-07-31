@@ -7,6 +7,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,8 +64,8 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	}
 
 	@Override
-	protected WsData createWsData() {
-		return new WsData();
+	protected WsData createWsData(WebSocket es) {
+		return new WsData(ws);
 	}
 
 	@Override

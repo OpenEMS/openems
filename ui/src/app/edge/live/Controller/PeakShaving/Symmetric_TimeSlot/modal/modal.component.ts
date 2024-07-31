@@ -11,10 +11,10 @@ import { Edge, EdgeConfig, Service, Websocket } from '../../../../../../shared/s
 })
 export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements OnInit {
 
+    private static readonly SELECTOR = "timeslotpeakshaving-modal";
+
     @Input() protected component: EdgeConfig.Component | null = null;
     @Input() protected edge: Edge | null = null;
-
-    private static readonly SELECTOR = "timeslotpeakshaving-modal";
 
     public formGroup: FormGroup;
     public loading: boolean = false;

@@ -11,12 +11,12 @@ import { DefaultTypes } from "../defaulttypes";
 
 export class DummyService extends AbstractService {
 
-    private readonly edge = new Edge("edge0", "comment", "productype"
+    public readonly edge = new Edge("edge0", "comment", "productype"
         , "1234.56.78", Role.ADMIN, true, new Date(), SumState.OK, new Date());
 
-    private readonly edgeConfig = new EdgeConfig(this.edge, undefined);
-
     public currentEdge: BehaviorSubject<Edge> = new BehaviorSubject(this.edge);
+
+    private readonly edgeConfig = new EdgeConfig(this.edge, undefined);
 
     setLang(id: Language) {
         throw new Error("Method not implemented.");

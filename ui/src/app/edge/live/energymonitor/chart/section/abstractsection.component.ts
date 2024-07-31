@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
-import { Service } from 'src/app/shared/shared';
+import { GridMode, Service } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import * as d3 from 'd3';
 
@@ -59,6 +59,7 @@ export interface SvgEnergyFlow {
 export class EnergyFlow {
     public points: string = "0,0 0,0";
     public animationPoints: string = "0,0 0,0";
+    public state: "one" | "two" | "three" = "one";
 
     constructor(
         public radius: number,
@@ -99,8 +100,6 @@ export class EnergyFlow {
         }
     }
 
-    public state: "one" | "two" | "three" = "one";
-
     public switchState() {
         if (this.state == 'one') {
             this.state = 'two';
@@ -114,12 +113,6 @@ export class EnergyFlow {
     public hide() {
         this.state = 'three';
     }
-}
-
-export enum GridMode {
-    "undefined",
-    "ongrid",
-    "offgrid",
 }
 
 export abstract class AbstractSection {
@@ -141,6 +134,7 @@ export abstract class AbstractSection {
     protected height: number = 0;
     protected width: number = 0;
     protected gridMode: GridMode;
+    protected restrictionMode: number;
 
     private lastCurrentData: DefaultTypes.Summary = null;
 
@@ -149,7 +143,7 @@ export abstract class AbstractSection {
         protected direction: "left" | "right" | "down" | "up" = "left",
         public color: string,
         protected translate: TranslateService,
-        service: Service,
+        protected service: Service,
         widgetClass: string,
     ) {
         this.sectionId = translateName;
@@ -165,6 +159,49 @@ export abstract class AbstractSection {
     }
 
     /**
+    * Updates the Values for this Section.
+     *
+     * @param sum the CurrentData.Summary
+    */
+    public updateCurrentData(sum: DefaultTypes.Summary): void {
+        this.lastCurrentData = sum;
+        this._updateCurrentData(sum);
+    }
+
+    /**
+    * This method is called on every change of resolution of the browser window.
+     */
+    public updateOnWindowResize(outerRadius: number, innerRadius: number, height: number, width: number) {
+        this.outerRadius = outerRadius;
+        this.innerRadius = innerRadius;
+        this.height = height;
+        this.width = width;
+        const outlineArc = this.getArc()
+            .startAngle(this.deg2rad(this.getStartAngle()))
+            .endAngle(this.deg2rad(this.getEndAngle()));
+        this.outlinePath = outlineArc();
+
+        /**
+         * imaginary positioning "square"
+         */
+        this.square = this.getSquare(innerRadius);
+        this.squarePosition = this.getSquarePosition(this.square, innerRadius);
+        /**
+         * energy flow rectangle
+         */
+        const availableInnerRadius = innerRadius - this.square.image.y - this.square.image.length - 10;
+        this.energyFlow = this.initEnergyFlow(availableInnerRadius);
+
+        // now update also the value specific elements
+        if (this.lastCurrentData) {
+            this.updateCurrentData(this.lastCurrentData);
+        }
+
+        // update correct positioning for Image + Text
+        this.setElementHeight();
+    }
+
+    /**
      * attr.fill="{{ fillRef }}" has to be specific if using Safari (IOS Browser)
      * otherwise Energymonitor wont be displayed correctly
      */
@@ -177,61 +214,23 @@ export abstract class AbstractSection {
         }
     }
 
-    /**
-     * Gets the Start-Angle in Degree
-     */
-    protected abstract getStartAngle(): number;
+    protected getArc(): any {
+        return d3.arc()
+            .innerRadius(this.innerRadius)
+            .outerRadius(this.outerRadius);
+    }
 
-    /**
-     * Gets the End-Angle in Degree
-     */
-    protected abstract getEndAngle(): number;
-
-    /**
-     * Gets the Ratio-Type of this Section
-     */
-    protected abstract getRatioType(): Ratio;
-
-    /**
-     * Gets the SVG for EnergyFlow
-     *
-     * @param ratio  the ratio of the value [-1,1] * scale factor
-     * @param radius the available radius
-     */
-    protected abstract getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow;
-
-    /**
-     * Gets the SVG for EnergyFlowAnimation
-     *
-     * @param ratio  the ratio of the value [-1,1] * scale factor
-     * @param radius the available radius
-     */
-    protected abstract getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow;
-
-    /**
-     * Updates the Values for this Section.
-     *
-     * @param sum the CurrentData.Summary
-     */
-    public updateCurrentData(sum: DefaultTypes.Summary): void {
-        this.lastCurrentData = sum;
-        this._updateCurrentData(sum);
+    protected deg2rad(value: number): number {
+        return value * (Math.PI / 180);
     }
 
     /**
-     * Updates the Values for this Section. Should internally call updateSectionData().
-     *
-     * @param sum the CurrentData.Summary
-     */
-    protected abstract _updateCurrentData(sum: DefaultTypes.Summary): void;
-
-    /**
-     * This method is called on every change of values.
-     *
-     * @param valueAbsolute the absolute value of the Section
-     * @param valueRatio    the relative value of the Section in [-1,1]
-     * @param sumRatio      the relative value of the Section compared to the total System.InPower/OutPower [0,1]
-     */
+    * This method is called on every change of values.
+    *
+    * @param valueAbsolute the absolute value of the Section
+    * @param valueRatio    the relative value of the Section in [-1,1]
+    * @param sumRatio      the relative value of the Section compared to the total System.InPower/OutPower [0,1]
+    */
     protected updateSectionData(valueAbsolute: number, valueRatio: number, sumRatio: number) {
         if (!this.isEnabled) {
             return;
@@ -279,44 +278,11 @@ export abstract class AbstractSection {
     }
 
     /**
-     * This method is called on every change of resolution of the browser window.
-     */
-    public updateOnWindowResize(outerRadius: number, innerRadius: number, height: number, width: number) {
-        this.outerRadius = outerRadius;
-        this.innerRadius = innerRadius;
-        this.height = height;
-        this.width = width;
-        const outlineArc = this.getArc()
-            .startAngle(this.deg2rad(this.getStartAngle()))
-            .endAngle(this.deg2rad(this.getEndAngle()));
-        this.outlinePath = outlineArc();
-
-        /**
-         * imaginary positioning "square"
-         */
-        this.square = this.getSquare(innerRadius);
-        this.squarePosition = this.getSquarePosition(this.square, innerRadius);
-        /**
-         * energy flow rectangle
-         */
-        const availableInnerRadius = innerRadius - this.square.image.y - this.square.image.length - 10;
-        this.energyFlow = this.initEnergyFlow(availableInnerRadius);
-
-        // now update also the value specific elements
-        if (this.lastCurrentData) {
-            this.updateCurrentData(this.lastCurrentData);
-        }
-
-        // update correct positioning for Image + Text
-        this.setElementHeight();
-    }
-
-    /**
-     * calculate...
-     * ...length of square and image;
-     * ...x and y of text and image;
-     * ...fontsize of text;
-     */
+    * calculate...
+    * ...length of square and image;
+    * ...x and y of text and image;
+    * ...fontsize of text;
+    */
     private getSquare(innerRadius: any): SvgSquare {
         const width = innerRadius / 2.5;
 
@@ -341,20 +307,47 @@ export abstract class AbstractSection {
         );
     }
 
+    /**
+     * Gets the Start-Angle in Degree
+     */
+    protected abstract getStartAngle(): number;
+
+    /**
+     * Gets the End-Angle in Degree
+     */
+    protected abstract getEndAngle(): number;
+
+    /**
+     * Gets the Ratio-Type of this Section
+     */
+    protected abstract getRatioType(): Ratio;
+
+    /**
+     * Gets the SVG for EnergyFlow
+     *
+     * @param ratio  the ratio of the value [-1,1] * scale factor
+     * @param radius the available radius
+     */
+    protected abstract getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow;
+
+    /**
+     * Gets the SVG for EnergyFlowAnimation
+     *
+     * @param ratio  the ratio of the value [-1,1] * scale factor
+     * @param radius the available radius
+     */
+    protected abstract getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow;
+
+    /**
+     * Updates the Values for this Section. Should internally call updateSectionData().
+     *
+     * @param sum the CurrentData.Summary
+     */
+    protected abstract _updateCurrentData(sum: DefaultTypes.Summary): void;
     protected abstract getImagePath(): string;
     protected abstract getSquarePosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
     protected abstract getValueText(value: number): string;
     protected abstract initEnergyFlow(radius: number): EnergyFlow;
     protected abstract setElementHeight();
-
-    protected getArc(): any {
-        return d3.arc()
-            .innerRadius(this.innerRadius)
-            .outerRadius(this.outerRadius);
-    }
-
-    protected deg2rad(value: number): number {
-        return value * (Math.PI / 180);
-    }
 
 }

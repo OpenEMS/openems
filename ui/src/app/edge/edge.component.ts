@@ -17,8 +17,9 @@ import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared"
 })
 export class EdgeComponent implements OnInit, OnDestroy {
 
-    private edge: Edge | null = null;
     protected latestIncident: { message: string | null, id: string } | null = null;
+
+    private edge: Edge | null = null;
 
     constructor(
         private router: Router,
@@ -29,7 +30,6 @@ export class EdgeComponent implements OnInit, OnDestroy {
 
     public ngOnInit(): void {
         this.activatedRoute.params.subscribe((params) => {
-
             // Set CurrentEdge in Metadata
             const edgeId = params['edgeId'];
             this.service.updateCurrentEdge(edgeId).then((edge) => {

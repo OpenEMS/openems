@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 
@@ -18,18 +18,6 @@ export class FlatComponent extends AbstractFlatWidget {
   public chargeDischargePower: { name: string, value: number };
   public propertyMode: DefaultTypes.ManualOnOff = null;
 
-  protected override getChannelAddresses(): ChannelAddress[] {
-    return [
-      new ChannelAddress(this.component.id, "_PropertyPower"),
-      new ChannelAddress(this.component.id, "_PropertyMode"),
-    ];
-  }
-
-  protected override onCurrentData(currentData: CurrentData) {
-    this.chargeDischargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + '/_PropertyPower']);
-    this.propertyMode = currentData.allComponents[this.component.id + '/_PropertyMode'];
-  }
-
   async presentModal() {
     if (!this.isInitialized) {
       return;
@@ -42,4 +30,17 @@ export class FlatComponent extends AbstractFlatWidget {
     });
     return await modal.present();
   }
+
+  protected override getChannelAddresses(): ChannelAddress[] {
+    return [
+      new ChannelAddress(this.component.id, "_PropertyPower"),
+      new ChannelAddress(this.component.id, "_PropertyMode"),
+    ];
+  }
+
+  protected override onCurrentData(currentData: CurrentData) {
+    this.chargeDischargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + '/_PropertyPower']);
+    this.propertyMode = currentData.allComponents[this.component.id + '/_PropertyMode'];
+  }
+
 }
