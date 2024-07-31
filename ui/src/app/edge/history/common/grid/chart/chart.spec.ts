@@ -6,21 +6,44 @@ import { expectView } from "./chart.constants.spec";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
 import { OeTester } from "src/app/shared/components/shared/testing/common";
 import { TestContext, sharedSetup } from "src/app/shared/components/shared/testing/utils.spec";
+import { ChartAxis } from "src/app/shared/service/utils";
 
 describe('History Grid', () => {
-  const defaultEMS = DummyConfig.from(
-    DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
-  );
 
-  let TEST_CONTEXT: TestContext;
-  beforeEach(async () =>
-    TEST_CONTEXT = await sharedSetup(),
-  );
+    const edgeConfigWithOutController14a = DummyConfig.from(
+        DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
+    );
+
+    const edgeConfig = DummyConfig.from(
+        DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
+        DummyConfig.Component.ESS_LIMITER_14A("ctrlEssLimiter14a0"),
+    );
+
+    let TEST_CONTEXT: TestContext;
+    beforeEach(async () =>
+        TEST_CONTEXT = await sharedSetup(),
+    );
 
     it('#getChartData()', () => {
         {
+            // Line - Chart - without Controller 14a
+            expectView(edgeConfigWithOutController14a, TEST_CONTEXT, 'line', History.DAY,
+                {
+                    datasets: {
+                        data: [
+                            DATA('Einspeisung: 15,6 kWh', [null, null, null, 0, 0, 0.006, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.004, 0, 0, 0, 0.004, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.005, 0, 0, 0, 0, 0, 0.001, 0.002, null, null, null, null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.001, 0.004, 0, 0.004, 0, 0, 0, 0, 0.005, 0.013, 0.006, 0.004, 0.017, 0.015, 0.017, 0.011, 0, 0, 0, 0, 0.029, 0.015, 0.013, 0.019, 0.014, 0.007, 0.016, 0, 0.018, 0.022, 0, 0.012, 0.011, 0.007, 0, 0.033, 0.007, 0.003, 0.004, 0.011, 0, 0.038, 0, 0, 0.019, 0, 0.016, 0.014, 0.018, 0, 1.119, 3.453, 3.608, 3.941, 4.392, 3.786, 4.805, 4.688, 3.095, 2.32, 2.851, 3.058, 4.044, 5.011, 2.789, 6.53, 5.029, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]),
+                            DATA('Bezug: 0,9 kWh', [null, null, null, 0.031, 0.018, 0, 0.02, 0.016, 0.015, 0.014, 0.009, 0.02, 0.025, 0.025, 0.025, 0.021, 0.012, 0.009, 0.01, 0.011, 0.005, 0.003, 0, 0.015, 0.018, 0.023, 0, 0, 0, 0.002, 0.002, 0.003, 0.015, 0.008, 0.022, 0.027, 0.016, 0.003, 0.002, 0, 0.028, 0.027, 0.017, 0.001, 0, 0, 0, null, null, null, null, 0.011, 0.01, 0.004, 0.006, 0.007, 0.018, 0.008, 0.012, 0.009, 0.004, 0.013, 0.015, 0.012, 0, 0, 0, 0.002, 0, 0.005, 0.001, 0.03, 0.062, 0, 0, 0, 0, 0, 0, 0, 0, 0.015, 0.005, 0.004, 0.007, 0, 0, 0, 0, 0, 0, 0, 0.005, 0, 0, 0, 0, 0, 0, 0.021, 0, 0, 0, 0, 0, 0.003, 0, 0.004, 0, 0, 0.032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]),
+                        ],
+                        labels: LABELS(History.DAY.dataChannelWithValues.result.timestamps),
+                        options: OeTester.ChartOptions.LINE_CHART_OPTIONS('hour', 'line', {
+                            [ChartAxis.LEFT]: { scale: { beginAtZero: true } },
+                        }),
+                    },
+                }, false);
+        }
+        {
             // Line - Chart
-            expectView(defaultEMS, TEST_CONTEXT, 'line', History.DAY,
+            expectView(edgeConfig, TEST_CONTEXT, 'line', History.DAY,
                 {
                     datasets: {
                         data: [
@@ -36,7 +59,7 @@ describe('History Grid', () => {
         }
         {
             // Line - Chart
-            expectView(defaultEMS, TEST_CONTEXT, 'line', History.WEEK,
+            expectView(edgeConfig, TEST_CONTEXT, 'line', History.WEEK,
                 {
                     datasets: {
                         data: [
@@ -52,7 +75,7 @@ describe('History Grid', () => {
         }
         {
             // Line - Chart
-            expectView(defaultEMS, TEST_CONTEXT, 'bar', History.MONTH,
+            expectView(edgeConfig, TEST_CONTEXT, 'bar', History.MONTH,
                 {
                     datasets: {
                         data: [
@@ -69,7 +92,7 @@ describe('History Grid', () => {
         }
         {
             // BAR - Chart
-            expectView(defaultEMS, TEST_CONTEXT, 'bar', History.YEAR,
+            expectView(edgeConfig, TEST_CONTEXT, 'bar', History.YEAR,
                 {
                     datasets: {
                         data: [

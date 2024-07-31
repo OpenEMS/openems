@@ -231,10 +231,10 @@ export namespace DummyConfig {
         export const ESS_LIMITER_14A = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
-            factoryId: 'Controller.Ess.Limiter14a',
             factory: Factory.ESS_LIMITER_14A,
             properties: {
                 enabled: "true",
+                ["ess.id"]: "ess0",
             },
             channels: {},
         });

@@ -52,6 +52,31 @@ export class ChartComponent extends AbstractHistoryChart {
         });
       });
     }
+
+    const yAxes: HistoryUtils.yAxes[] = [{
+      unit: YAxisTitle.ENERGY,
+      position: 'left',
+      yAxisId: ChartAxis.LEFT,
+    }];
+
+    if (GridSectionComponent.isControllerEnabled(config, "Controller.Ess.Limiter14a")) {
+      yAxes.push((chartType === 'bar' ?
+        {
+          unit: YAxisTitle.TIME,
+          position: 'right',
+          yAxisId: ChartAxis.RIGHT,
+          displayGrid: false,
+        } :
+        {
+          unit: YAxisTitle.RELAY,
+          position: 'right',
+          yAxisId: ChartAxis.RIGHT,
+          customTitle: translate.instant('General.state'),
+          displayGrid: false,
+        }
+      ));
+    }
+
     return {
       input: input,
       output: (data: HistoryUtils.ChannelData, labels: Date[]) => {
@@ -145,27 +170,7 @@ export class ChartComponent extends AbstractHistoryChart {
       tooltip: {
         formatNumber: '1.0-2',
       },
-      yAxes: [{
-        unit: YAxisTitle.ENERGY,
-        position: 'left',
-        yAxisId: ChartAxis.LEFT,
-      },
-      (chartType === 'bar' ?
-        {
-          unit: YAxisTitle.TIME,
-          position: 'right',
-          yAxisId: ChartAxis.RIGHT,
-          displayGrid: false,
-        } :
-        {
-          unit: YAxisTitle.RELAY,
-          position: 'right',
-          yAxisId: ChartAxis.RIGHT,
-          customTitle: translate.instant('General.state'),
-          displayGrid: false,
-        }
-      ),
-      ],
+      yAxes: yAxes,
     };
 
     /**
