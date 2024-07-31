@@ -586,13 +586,13 @@ export class Utils {
 
     evcsComponents.forEach(component => {
       channelData[component.id + '/ChargePower']?.forEach((value, index) => {
-        totalEvcsConsumption[index] = value;
+        totalMeteredConsumption[index] = Utils.addSafely(totalMeteredConsumption[index], value);
       });
     });
 
     consumptionMeterComponents.forEach(meter => {
       channelData[meter.id + '/ActivePower']?.forEach((value, index) => {
-        totalMeteredConsumption[index] = value;
+        totalMeteredConsumption[index] = Utils.addSafely(totalMeteredConsumption[index], value);
       });
     });
 

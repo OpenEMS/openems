@@ -106,7 +106,6 @@ export class ChartComponent extends AbstractHistoryChart {
               return Utils.calculateOtherConsumptionTotal(energyValues, evcsComponents, consumptionMeters);
             },
             converter: () => {
-
               return Utils.calculateOtherConsumption(data, evcsComponents, consumptionMeters);
             },
             color: 'rgb(0,0,0)',
