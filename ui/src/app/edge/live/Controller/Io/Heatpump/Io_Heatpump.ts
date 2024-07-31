@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
 import { ChannelAddress, CurrentData, EdgeConfig } from 'src/app/shared/shared';
 
 import { Controller_Io_HeatpumpModalComponent } from './modal/modal.component';

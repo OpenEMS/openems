@@ -1,7 +1,7 @@
-import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST } from "src/app/shared/edge/edgeconfig.spec";
-import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/testing/tester";
+import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST } from "src/app/shared/components/edge/edgeconfig.spec";
+import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
+import { sharedSetup, TestContext } from "src/app/shared/components/shared/testing/utils.spec";
 import { GridMode } from "src/app/shared/shared";
-import { sharedSetup, TestContext } from "src/app/shared/test/utils.spec";
 import { Role } from "src/app/shared/type/role";
 
 import { expectView } from "./constants.spec";

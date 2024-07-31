@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
 
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../../shared/shared';
 import { Evcs_Api_ClusterModalComponent } from './modal/evcsCluster-modal.page';

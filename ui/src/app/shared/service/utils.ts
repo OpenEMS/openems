@@ -617,6 +617,7 @@ export enum YAxisTitle {
   RELAY,
   ENERGY,
   VOLTAGE,
+  CURRENT,
   TIME,
   CURRENCY,
 }
@@ -680,7 +681,7 @@ export namespace HistoryUtils {
     yAxisId?: ChartAxis,
     /** overrides global chartConfig for this dataset */
     custom?: {
-      /** overrides global unit */
+      /** @deprecated overrides global unit */
       unit?: YAxisTitle,
       /** overrides global charttype */
       type?: 'line' | 'bar',

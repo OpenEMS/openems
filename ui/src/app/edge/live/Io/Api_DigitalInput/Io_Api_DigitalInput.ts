@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
 import { EdgeConfig } from 'src/app/shared/shared';
 
 import { Io_Api_DigitalInput_ModalComponent } from './modal/modal.component';

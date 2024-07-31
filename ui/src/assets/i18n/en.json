@@ -303,7 +303,10 @@
       "oct": "Oxt",
       "nov": "Nov",
       "dec": "Dec",
-      "activeDuration": "active duration"
+      "activeDuration": "active duration",
+      "CURRENT_AND_VOLTAGE": "Current & Voltage",
+      "CURRENT": "Current",
+      "VOLTAGE": "Voltage"
     },
     "Config": {
       "Index": {

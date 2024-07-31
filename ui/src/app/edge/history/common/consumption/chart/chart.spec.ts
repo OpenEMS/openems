@@ -1,8 +1,8 @@
 // @ts-strict-ignore
-import { DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
-import { OeTester } from "src/app/shared/genericComponents/shared/testing/common";
+import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
+import { OeTester } from "src/app/shared/components/shared/testing/common";
+import { sharedSetup, TestContext } from "src/app/shared/components/shared/testing/utils.spec";
 
-import { sharedSetup, TestContext } from "../../../../../shared/test/utils.spec";
 import { DATA, LABELS } from "../../energy/chart/chart.constants.spec";
 import { History } from "./channels.spec";
 import { expectView } from "./chart.constants.spec";

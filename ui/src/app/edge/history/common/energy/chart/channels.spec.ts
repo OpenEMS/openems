@@ -1,7 +1,7 @@
 import { TimeUnit } from "chart.js";
-import { ChartConstants } from "src/app/shared/genericComponents/chart/chart.constants";
-import { OeTester } from "src/app/shared/genericComponents/shared/testing/common";
-import { OeChartTester } from "src/app/shared/genericComponents/shared/testing/tester";
+import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { OeTester } from "src/app/shared/components/shared/testing/common";
+import { OeChartTester } from "src/app/shared/components/shared/testing/tester";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";

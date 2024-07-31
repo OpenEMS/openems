@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
-import { AbstractHistoryChart as NewAbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { AbstractHistoryChart as NewAbstractHistoryChart } from 'src/app/shared/components/chart/abstracthistorychart';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
@@ -13,7 +13,7 @@ import { DateUtils } from 'src/app/shared/utils/date/dateutils';
 import { DateTimeUtils } from 'src/app/shared/utils/datetime/datetime-utils';
 
 import { calculateResolution, ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, setLabelVisible } from './shared';
-import { ChartConstants } from 'src/app/shared/genericComponents/chart/chart.constants';
+import { ChartConstants } from 'src/app/shared/components/chart/chart.constants';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {

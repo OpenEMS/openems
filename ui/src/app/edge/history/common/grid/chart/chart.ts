@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { AbstractHistoryChart } from 'src/app/shared/components/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChartAxis, HistoryUtils, YAxisTitle } from 'src/app/shared/service/utils';
@@ -9,7 +9,7 @@ import { ChannelAddress, EdgeConfig } from 'src/app/shared/shared';
 
 @Component({
   selector: 'gridchart',
-  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
+  templateUrl: '../../../../../shared/components/chart/abstracthistorychart.html',
 })
 export class ChartComponent extends AbstractHistoryChart {
 

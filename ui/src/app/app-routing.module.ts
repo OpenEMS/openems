@@ -4,14 +4,15 @@ import { environment } from 'src/environments';
 
 import { ChangelogViewComponent } from './changelog/view/view';
 import { EdgeComponent } from './edge/edge.component';
-import { OverviewComponent as ChannelthresholdChartOverviewComponent } from './edge/history/Controller/ChannelThreshold/overview/overview';
-import { OverviewComponent as TimeOfUseTariffOverviewComponent } from './edge/history/Controller/Ess/TimeOfUseTariff/overview/overview';
 import { OverviewComponent as AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
+import { DetailsOverviewComponent as ConsumptionDetailsOverviewComponent } from './edge/history/common/consumption/details/details.overview';
 import { OverviewComponent as ConsumptionChartOverviewComponent } from './edge/history/common/consumption/overview/overview';
 import { OverviewComponent as GridChartOverviewComponent } from './edge/history/common/grid/overview/overview';
 import { DetailsOverviewComponent } from './edge/history/common/production/details/details.overview';
 import { OverviewComponent as ProductionChartOverviewComponent } from './edge/history/common/production/overview/overview';
 import { OverviewComponent as SelfconsumptionChartOverviewComponent } from './edge/history/common/selfconsumption/overview/overview';
+import { OverviewComponent as ChannelthresholdChartOverviewComponent } from './edge/history/Controller/ChannelThreshold/overview/overview';
+import { OverviewComponent as TimeOfUseTariffOverviewComponent } from './edge/history/Controller/Ess/TimeOfUseTariff/overview/overview';
 import { DelayedSellToGridChartOverviewComponent } from './edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { FixDigitalOutputChartOverviewComponent } from './edge/history/fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
 import { GridOptimizedChargeChartOverviewComponent } from './edge/history/gridoptimizedcharge/gridoptimizedchargechartoverview/gridoptimizedchargechartoverview.component';
@@ -49,8 +50,9 @@ import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/set
 import { LoginComponent } from './index/login.component';
 import { OverViewComponent } from './index/overview/overview.component';
 import { LoadingScreenComponent } from './index/shared/loading-screen';
-import { DataService } from './shared/genericComponents/shared/dataservice';
+import { DataService } from './shared/components/shared/dataservice';
 import { UserComponent } from './user/user.component';
+import { CurrentAndVoltageOverviewComponent } from './shared/components/edge/meter/currentVoltage/currentVoltage.overview';
 
 const routes: Routes = [
 
@@ -93,9 +95,12 @@ const routes: Routes = [
           { path: ':componentId/timeslotpeakshavingchart', component: TimeslotPeakshavingChartOverviewComponent },
           { path: 'autarchychart', component: AutarchyChartOverviewComponent },
           { path: 'consumptionchart', component: ConsumptionChartOverviewComponent },
+          { path: 'consumptionchart/:componentId', component: ConsumptionDetailsOverviewComponent },
+          { path: 'consumptionchart/:componentId/currentVoltage', component: CurrentAndVoltageOverviewComponent },
           { path: 'gridchart', component: GridChartOverviewComponent },
           { path: 'productionchart', component: ProductionChartOverviewComponent },
           { path: 'productionchart/:componentId', component: DetailsOverviewComponent },
+          { path: 'productionchart/:componentId/currentVoltage', component: CurrentAndVoltageOverviewComponent },
           { path: 'selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
           { path: 'storagechart', component: StorageChartOverviewComponent },
 

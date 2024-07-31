@@ -1,11 +1,11 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
-import { DataService } from 'src/app/shared/genericComponents/shared/dataservice';
 
 import { formatNumber } from '@angular/common';
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../shared/shared';
 import { LiveDataService } from '../../live/livedataservice';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
+import { DataService } from 'src/app/shared/components/shared/dataservice';
 
 type Channel = {
   title: string,

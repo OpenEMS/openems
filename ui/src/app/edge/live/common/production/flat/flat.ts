@@ -1,6 +1,6 @@
 import { EdgeConfig, Utils } from 'src/app/shared/shared';
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
 import { ModalComponent } from '../modal/modal';
 
 @Component({

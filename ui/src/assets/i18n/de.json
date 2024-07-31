@@ -263,6 +263,7 @@
       "SYSTEMUPDATE": "Systemupdate"
     },
     "History": {
+      "CURRENT_AND_VOLTAGE": "Strom & Spannung",
       "beginDate": "Startdatum wählen",
       "day": "Tag",
       "endDate": "Enddatum wählen",
@@ -302,7 +303,9 @@
       "oct": "Okt",
       "nov": "Nov",
       "dec": "Dez",
-      "activeDuration": "Einschaltdauer"
+      "activeDuration": "Einschaltdauer",
+      "CURRENT": "Strom",
+      "VOLTAGE": "Spannung"
     },
     "Config": {
       "Index": {

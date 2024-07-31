@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { CategorizedFactories } from 'src/app/shared/edge/edgeconfig';
+import { CategorizedFactories } from 'src/app/shared/components/edge/edgeconfig';
 import { Component, OnInit } from '@angular/core';
 import { Service, Utils, EdgeConfig, Websocket, Edge, EdgePermission } from '../../../../shared/shared';
 import { JsonrpcRequest, JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';

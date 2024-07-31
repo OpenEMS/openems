@@ -3,7 +3,7 @@ import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@ang
 import { fromEvent, Subject } from 'rxjs';
 import { debounceTime, delay, takeUntil } from 'rxjs/operators';
 import { Service } from 'src/app/shared/shared';
-import { CurrentData } from '../../../../shared/edge/currentdata';
+import { CurrentData } from '../../../../shared/components/edge/currentdata';
 import { ConsumptionSectionComponent } from './section/consumption.component';
 import { GridSectionComponent } from './section/grid.component';
 import { ProductionSectionComponent } from './section/production.component';

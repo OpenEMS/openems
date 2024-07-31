@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { HistoryDataErrorModule } from 'src/app/shared/components/history-data-error/history-data-error.module';
 
 import { SharedModule } from '../../shared/shared.module';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
@@ -50,6 +51,7 @@ import { StorageComponent } from './storage/widget.component';
     SharedModule,
     Common,
     Controller,
+    HistoryDataErrorModule,
   ],
   declarations: [
     AsymmetricPeakshavingChartComponent,

@@ -2,14 +2,14 @@
 import { Component, Input } from '@angular/core';
 import * as Chart from 'chart.js';
 import { calculateResolution, ChronoUnit, Resolution } from 'src/app/edge/history/shared';
-import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { AbstractHistoryChart } from 'src/app/shared/components/chart/abstracthistorychart';
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, Currency, EdgeConfig } from "src/app/shared/shared";
 import { ColorUtils } from 'src/app/shared/utils/color/color.utils';
 
 @Component({
     selector: 'scheduleChart',
-    templateUrl: '../../../../../../shared/genericComponents/chart/abstracthistorychart.html',
+    templateUrl: '../../../../../../shared/components/chart/abstracthistorychart.html',
 })
 export class ChartComponent extends AbstractHistoryChart {
 

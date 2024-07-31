@@ -1,6 +1,6 @@
 // @ts-strict-ignore
-export { Edge } from "./edge/edge";
-export { EdgeConfig } from "./edge/edgeconfig";
+export { Edge } from "./components/edge/edge";
+export { EdgeConfig } from "./components/edge/edgeconfig";
 export { Logger } from "./service/logger";
 export { Service } from "./service/service";
 export { Utils } from "./service/utils";
@@ -14,7 +14,7 @@ export { Widget, WidgetFactory, WidgetNature, Widgets } from "./type/widget";
 import { AlertController, AlertOptions } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { addIcons } from 'ionicons';
-import { Edge } from "./edge/edge";
+import { Edge } from "./components/edge/edge";
 import { User } from "./jsonrpc/shared";
 import { DefaultTypes } from "./service/defaulttypes";
 import { Role } from "./type/role";

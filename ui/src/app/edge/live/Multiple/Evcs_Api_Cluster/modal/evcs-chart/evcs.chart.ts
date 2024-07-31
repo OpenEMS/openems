@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import * as Chart from 'chart.js';
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
-import { CurrentData } from 'src/app/shared/edge/currentdata';
+import { CurrentData } from 'src/app/shared/components/edge/currentdata';
 import { Data } from 'src/app/edge/history/shared';
 import { EdgeConfig, Edge } from 'src/app/shared/shared';
 import { ModalController } from '@ionic/angular';

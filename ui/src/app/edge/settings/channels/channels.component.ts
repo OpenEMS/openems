@@ -2,7 +2,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { PersistencePriority } from 'src/app/shared/edge/edgeconfig';
+import { PersistencePriority } from 'src/app/shared/components/edge/edgeconfig';
 import { SetChannelValueRequest } from 'src/app/shared/jsonrpc/request/setChannelValueRequest';
 import { environment } from 'src/environments';
 

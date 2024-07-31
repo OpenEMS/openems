@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
-import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { AbstractHistoryChart } from 'src/app/shared/components/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 
 import { ChartAxis, HistoryUtils, Utils, YAxisTitle } from '../../../../../shared/service/utils';
@@ -8,7 +8,7 @@ import { ChannelAddress } from '../../../../../shared/shared';
 
 @Component({
   selector: 'productionTotalChart',
-  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
+  templateUrl: '../../../../../shared/components/chart/abstracthistorychart.html',
 })
 export class TotalChartComponent extends AbstractHistoryChart {
 

@@ -1,15 +1,15 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { TextIndentation } from 'src/app/shared/genericComponents/modal/modal-line/modal-line';
-import { Converter } from 'src/app/shared/genericComponents/shared/converter';
-import { Filter } from 'src/app/shared/genericComponents/shared/filter';
-import { Name } from 'src/app/shared/genericComponents/shared/name';
-import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from 'src/app/shared/genericComponents/shared/oe-formly-component';
+import { TextIndentation } from 'src/app/shared/components/modal/modal-line/modal-line';
+import { Converter } from 'src/app/shared/components/shared/converter';
+import { Filter } from 'src/app/shared/components/shared/filter';
+import { Name } from 'src/app/shared/components/shared/name';
+import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from 'src/app/shared/components/shared/oe-formly-component';
 import { ChannelAddress, EdgeConfig } from 'src/app/shared/shared';
 import { Role } from 'src/app/shared/type/role';
 
 @Component({
-  templateUrl: '../../../../../shared/formly/formly-field-modal/template.html',
+  templateUrl: '../../../../../shared/components/formly/formly-field-modal/template.html',
 })
 export class ModalComponent extends AbstractFormlyComponent {
 

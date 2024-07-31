@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { formatNumber } from '@angular/common';
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
 import { CurrentData } from "src/app/shared/shared";
 import { DateUtils } from 'src/app/shared/utils/date/dateutils';
 
