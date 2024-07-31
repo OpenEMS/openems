@@ -15,7 +15,6 @@ import io.openems.edge.predictor.lstmmodel.interpolation.InterpolationManager;
 import io.openems.edge.predictor.lstmmodel.performance.PerformanceMatrix;
 import io.openems.edge.predictor.lstmmodel.preprocessing.DataModification;
 import io.openems.edge.predictor.lstmmodel.preprocessingpipeline.test.PredictSeasonalityTest;
-import io.openems.edge.predictor.lstmmodel.preprocessingpipeline.test.PredictTrendTest;
 import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
 
 public class StandAlonePredictorTest {

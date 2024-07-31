@@ -36,7 +36,8 @@ public class Lstm {
 				if (i < this.cells.size() - 1) {
 					this.cells.get(i + 1).setYtMinusOne(this.cells.get(i).getYt());
 					this.cells.get(i + 1).setCtMinusOne(this.cells.get(i).getCt());
-					this.cells.get(i).setError((Math.abs(this.cells.get(i).getYt() - this.cells.get(i + 1).getXt())/Math.sqrt(2)));
+					this.cells.get(i).setError(
+							(Math.abs(this.cells.get(i).getYt() - this.cells.get(i + 1).getXt()) / Math.sqrt(2)));
 				}
 			}
 		} catch (IndexOutOfBoundsException e) {
@@ -135,7 +136,7 @@ public class Lstm {
 		}
 
 		int globalMinimaIndex = findGlobalMinima(mW.getErrorList());
-		
+
 		var returnArray = new ArrayList<ArrayList<Double>>();
 
 		returnArray.add(mW.getWi().get(globalMinimaIndex));
