@@ -23,10 +23,10 @@ import { User } from '../jsonrpc/shared';
 import { ChannelAddress } from '../shared';
 import { Language } from '../type/language';
 import { Role } from '../type/role';
+import { DateUtils } from '../utils/date/dateutils';
 import { AbstractService } from './abstractservice';
 import { DefaultTypes } from './defaulttypes';
 import { Websocket } from './websocket';
-import { DateUtils } from '../utils/date/dateutils';
 
 @Injectable()
 export class Service extends AbstractService {
@@ -406,16 +406,4 @@ export class Service extends AbstractService {
     });
     toast.present();
   }
-
-  /**
-   * Currently selected history period
-   */
-  public historyPeriod: BehaviorSubject<DefaultTypes.HistoryPeriod>;
-
-  /**
-   * Currently selected history period string
-   *
-   * initialized as day, is getting changed by pickdate component
-   */
-  public periodString: DefaultTypes.PeriodString = DefaultTypes.PeriodString.DAY;
 }
