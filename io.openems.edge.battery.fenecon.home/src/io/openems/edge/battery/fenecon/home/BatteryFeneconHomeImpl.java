@@ -531,17 +531,18 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	}
 
 	protected static Integer calculateTowerNumberFromSoftwareVersion(List<Integer> versionList) {
-		var numberOftowers = 0;
+		var numberOfTowers = 0;
 		for (var version : versionList) {
 			if (version == null) {
 				return null;
 			}
 			if (version == 0 || version == 256) {
-				return numberOftowers;
+				// Ensure number of towers is never '0' if registers are not null.
+				return Math.max(1, numberOfTowers);
 			}
-			numberOftowers++;
+			numberOfTowers++;
 		}
-		return numberOftowers;
+		return numberOfTowers;
 	}
 
 	private int lastNumberOfTowers = 0;

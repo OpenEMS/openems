@@ -64,5 +64,9 @@ public class TestStatic {
 
 		assertEquals(4, (int) BatteryFeneconHomeImpl //
 				.calculateTowerNumberFromSoftwareVersion(Arrays.asList(4, 4, 4, 4, 0)));
+
+		// Exceptionally not null
+		assertEquals(1, (int) BatteryFeneconHomeImpl //
+				.calculateTowerNumberFromSoftwareVersion(Arrays.asList(256, 0, 0, 0, 0)));
 	}
 }
