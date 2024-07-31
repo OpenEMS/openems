@@ -614,10 +614,10 @@ export abstract class AbstractHistoryChart implements OnInit {
           text: dataset.label,
           datasetIndex: index,
           fontColor: getComputedStyle(document.documentElement).getPropertyValue('--ion-color-text'),
-          fillStyle: dataset.backgroundColor?.toString(),
+          ...(dataset.backgroundColor != null && {fillStyle: dataset.backgroundColor.toString()}),
           hidden: isHidden != null ? isHidden : !chart.isDatasetVisible(index),
           lineWidth: 2,
-          strokeStyle: dataset.borderColor.toString(),
+          ...(dataset.borderColor != null && {strokeStyle: dataset.borderColor.toString()}),
           ...(dataset['borderDash'] != null && { lineDash: dataset['borderDash'] }),
         });
       });
