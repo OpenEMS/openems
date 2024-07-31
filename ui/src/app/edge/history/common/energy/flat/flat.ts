@@ -18,7 +18,7 @@ export class FlatComponent extends AbstractFlatWidget {
     private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
     private static readonly EXCEL_EXTENSION = '.xlsx';
     protected readonly isSmartphoneResolution = this.service.isSmartphoneResolution;
-    protected readonly isApp: boolean = AppService.isApp;
+    protected readonly isApp: boolean = AppService.platform !== 'web';
 
     protected override onCurrentData(currentData: CurrentData) {
         this.autarchyValue =
@@ -43,7 +43,7 @@ export class FlatComponent extends AbstractFlatWidget {
  */
     protected exportToXlxs() {
 
-        if (AppService.isApp) {
+        if (this.isApp) {
             this.service.toast(this.translate.instant('APP.FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE'), "warning");
             return;
         }

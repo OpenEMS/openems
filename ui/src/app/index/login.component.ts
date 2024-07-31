@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { environment } from 'src/environments';
 
+import { Capacitor } from '@capacitor/core';
 import { AppService } from '../app.service';
 import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
 import { Edge, Service, Utils, Websocket } from '../shared/shared';
@@ -20,8 +21,9 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
   private page = 0;
   protected formIsDisabled: boolean = false;
 
-  protected popoverActive: 'android' | 'iOS' | null = null;
-  protected readonly isApp: boolean = AppService.isApp;
+  protected popoverActive: 'android' | 'ios' | null = null;
+  protected readonly operatingSystem = AppService.deviceInfo.os;
+  protected readonly isApp: boolean = Capacitor.getPlatform() !== 'web';
 
   constructor(
     public service: Service,
@@ -141,5 +143,14 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
   ngOnDestroy() {
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
+  }
+
+  protected async showPopoverOrRedirectToStore(operatingSystem: 'android' | 'ios') {
+    const link: string | null = AppService.getAppStoreLink();
+    if (link) {
+      window.open(link, '_blank');
+    } else {
+      this.popoverActive = operatingSystem;
+    }
   }
 }

@@ -7,22 +7,28 @@ import { FileOpener } from '@ionic-native/file-opener';
 import { AlertController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
+import { DeviceDetectorService, DeviceInfo } from 'ngx-device-detector';
 import { BehaviorSubject, Subject } from 'rxjs';
+import { environment } from 'src/environments';
 import { JsonrpcRequest } from './shared/jsonrpc/base';
-import { Websocket } from './shared/shared';
 
 @Injectable()
 export class AppService {
   public static isActive: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
   public static lastActive: Subject<Date> = new Subject();
-  public static readonly isApp: boolean = Capacitor.getPlatform() !== 'web';
+  public static readonly platform: string = Capacitor.getPlatform();
+  public static deviceInfo: DeviceInfo;
   public static notifications: Map<string, { subscribe: JsonrpcRequest, unsubscribe: JsonrpcRequest }> = new Map();
 
+  private static isMobile: boolean = false;
   constructor(
-    private websocket: Websocket,
     private alertCtrl: AlertController,
     private translate: TranslateService,
-  ) { }
+    private deviceService: DeviceDetectorService,
+  ) {
+    AppService.deviceInfo = this.deviceService.getDeviceInfo();
+    AppService.isMobile = this.deviceService.isMobile();
+  }
 
   private async updateState() {
     const { isActive } = await App.getState();
@@ -37,7 +43,7 @@ export class AppService {
   public listen() {
 
     // // Don't use in web
-    if (!AppService.isApp) {
+    if (!AppService.platform) {
       return;
     }
 
@@ -119,7 +125,7 @@ export class AppService {
 
   static async writeAndOpenFile(data: Blob, fileName: string) {
 
-    if (!AppService.isApp) {
+    if (!AppService.platform) {
       saveAs(data, fileName);
     }
 
@@ -150,5 +156,19 @@ export class AppService {
     setTimeout(() =>
       window.location.reload()
       , 1000);
+  }
+
+  public static getAppStoreLink(): string | null {
+    if (this.isMobile) {
+      switch (AppService.deviceInfo.os) {
+        case 'iOS':
+          return environment.links.APP.IOS;
+        case 'Android':
+          return environment.links.APP.ANDROID;
+        default:
+          return null;
+      }
+    }
+    return null;
   }
 }

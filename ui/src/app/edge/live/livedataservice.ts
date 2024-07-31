@@ -60,6 +60,6 @@ export class LiveDataService extends DataService implements OnDestroy {
         setTimeout(() => {
             this.edge.subscribeChannels(this.websocket, "", this.subscribedChannelAddresses);
             ev.target.complete();
-        }, 1000);
+        }, 2000);
     }
 }

@@ -29,6 +29,7 @@ import { SharedModule } from './shared/shared.module';
 import { registerTranslateExtension } from './shared/translate.extension';
 import { Language, MyTranslateLoader } from './shared/type/language';
 import { UserModule } from './user/user.module';
+import { DeviceDetectorService } from 'ngx-device-detector';
 
 @NgModule({
   declarations: [
@@ -60,6 +61,7 @@ import { UserModule } from './user/user.module';
     { provide: LOCALE_ID, useValue: Language.DEFAULT.key },
     // Use factory for formly. This allows us to use translations in validationMessages.
     { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
+    DeviceDetectorService,
     Pagination,
     CheckForUpdateService,
     AppService,
