@@ -43,7 +43,7 @@ export class AppService {
   public listen() {
 
     // // Don't use in web
-    if (!AppService.platform) {
+    if (AppService.platform === 'web') {
       return;
     }
 
