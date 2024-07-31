@@ -21,7 +21,7 @@
     </ng-container>
     <ion-item mode="md" [class.active]="service.periodString === DefaultTypes.PeriodString.CUSTOM"
         (click)="showCustomDate = !showCustomDate; setPeriod(DefaultTypes.PeriodString.CUSTOM)" class="ion-text-center"
-        lines="none" button>
+        lines="none" button testId="popover-button">
         <ion-label translate>
             Edge.History.otherPeriod
         </ion-label>

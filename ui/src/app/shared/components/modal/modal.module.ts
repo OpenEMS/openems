@@ -6,6 +6,7 @@ import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { PipeModule } from '../../pipe/pipe';
+import { HelpButtonComponent } from './help-button/help-button';
 import { ModalComponent } from './modal';
 import { ModalButtonsComponent } from './modal-button/modal-button';
 import { ModalInfoLineComponent } from './modal-info-line/modal-info-line';
@@ -33,6 +34,7 @@ import { ModalHorizontalLineComponent } from './model-horizontal-line/modal-hori
     ModalLineItemComponent,
     ModalPhasesComponent,
     ModalValueLineComponent,
+    HelpButtonComponent,
   ],
   exports: [
     ModalButtonsComponent,
@@ -43,6 +45,7 @@ import { ModalHorizontalLineComponent } from './model-horizontal-line/modal-hori
     ModalLineItemComponent,
     ModalPhasesComponent,
     ModalValueLineComponent,
+    HelpButtonComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 

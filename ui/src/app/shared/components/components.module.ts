@@ -15,7 +15,6 @@ import { FlatWidgetPercentagebarComponent } from './flat/flat-widget-percentageb
 import { FooterComponent } from './footer/footer';
 import { FooterNavigationModule } from './footer/subnavigation/footerNavigation.module';
 import { HistoryDataErrorModule } from './history-data-error/history-data-error.module';
-import { HelpButtonComponent } from './modal/help-button/help-button';
 import { ModalModule } from './modal/modal.module';
 import { PickdateModule } from './pickdate/pickdate.module';
 import { NotificationComponent } from './shared/notification/notification';
@@ -44,7 +43,6 @@ import { NotificationComponent } from './shared/notification/notification';
         FlatWidgetLineItemComponent,
 
         // Others
-        HelpButtonComponent,
         NotificationComponent,
         FooterComponent,
     ],
@@ -57,7 +55,6 @@ import { NotificationComponent } from './shared/notification/notification';
         FlatWidgetLineItemComponent,
 
         // Others
-        HelpButtonComponent,
         NotificationComponent,
         FooterComponent,
 
