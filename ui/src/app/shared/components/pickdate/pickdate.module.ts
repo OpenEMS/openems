@@ -6,6 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { PickDateComponent } from './pickdate.component';
 import { PickDatePopoverComponent } from './popover/popover.component';
+import { AngularMyDatePickerModule } from '@nodro7/angular-mydatepicker';
 
 @NgModule({
   imports: [
@@ -13,6 +14,7 @@ import { PickDatePopoverComponent } from './popover/popover.component';
     IonicModule,
     ReactiveFormsModule,
     TranslateModule,
+    AngularMyDatePickerModule,
   ],
   declarations: [
     PickDateComponent,

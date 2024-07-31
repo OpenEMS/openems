@@ -9,7 +9,6 @@ import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componen
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
-import { ChartConstants } from 'src/app/shared/genericComponents/chart/chart.constants';
 import { GetScheduleRequest } from '../../../../../../shared/jsonrpc/request/getScheduleRequest';
 import { GetScheduleResponse } from '../../../../../../shared/jsonrpc/response/getScheduleResponse';
 
