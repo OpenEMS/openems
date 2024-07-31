@@ -77,7 +77,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
         },
       ]),
       tooltip: {
-        formatNumber: '1.0-0',
+        formatNumber: '1.0-2',
       },
       yAxes: [{
         unit: YAxisTitle.ENERGY,
