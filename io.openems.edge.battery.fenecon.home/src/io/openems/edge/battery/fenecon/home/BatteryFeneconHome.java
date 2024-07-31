@@ -657,7 +657,8 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 		TOWER_0_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Bms software version of first tower")),
+				.text("Bms software version of first tower") //
+				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
 
 		BATTERY_HARDWARE_TYPE(Doc.of(BatteryFeneconHomeHardwareType.values()) //
 				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),

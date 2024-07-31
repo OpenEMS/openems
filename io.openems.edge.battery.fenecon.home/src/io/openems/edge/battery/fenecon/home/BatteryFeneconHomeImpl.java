@@ -6,7 +6,6 @@ import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -59,6 +58,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.ChannelUtils;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -494,13 +494,22 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 				BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION, //
 				BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION, //
 				BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION//
-		);
+		) //
+				.stream() //
+				.map(c -> {
+					IntegerReadChannel channel = this.channel(c);
+					return channel.value().get();
+				}) //
+				.toList();
 
-		final var numberOfTowers = this.calculateTowerNumberFromSoftwareVersion(softwareVersionlist);
+		final var numberOfTowers = calculateTowerNumberFromSoftwareVersion(softwareVersionlist);
 
 		// Write 'TOWER_NUMBER' Debug Channel
 		Channel<?> numberOfTowersChannel = this.channel(BatteryFeneconHome.ChannelId.NUMBER_OF_TOWERS);
 		numberOfTowersChannel.setNextValue(numberOfTowers);
+		if (numberOfTowers == null) {
+			return;
+		}
 
 		final var moduleMaxVoltage = this.getBatteryHardwareType().moduleMaxVoltage;
 		final var moduleMinVoltage = this.getBatteryHardwareType().moduleMinVoltage;
@@ -521,18 +530,16 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 		}
 	}
 
-	private int calculateTowerNumberFromSoftwareVersion(List<BatteryFeneconHome.ChannelId> channelIdList) {
-		var numberOftowers = 1;
-		for (var channelId : channelIdList) {
-			if (channelId == null) {
+	protected static Integer calculateTowerNumberFromSoftwareVersion(List<Integer> versionList) {
+		var numberOftowers = 0;
+		for (var version : versionList) {
+			if (version == null) {
+				return null;
+			}
+			if (version == 0 || version == 256) {
 				return numberOftowers;
 			}
-			Channel<Integer> channel = this.channel(channelId);
-			var softwareVersion = channel.value();
-			if (softwareVersion.isDefined() && !Objects.equals(softwareVersion.get(), 0)
-					&& !Objects.equals(softwareVersion.get(), 256)) {
-				numberOftowers++;
-			}
+			numberOftowers++;
 		}
 		return numberOftowers;
 	}
