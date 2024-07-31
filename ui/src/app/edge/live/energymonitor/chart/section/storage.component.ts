@@ -2,6 +2,7 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { CurrentData } from 'src/app/shared/components/edge/currentdata';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
@@ -51,7 +52,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
 
     constructor(
         translate: TranslateService,
-        service: Service,
+        protected override service: Service,
         unitpipe: UnitvaluePipe,
     ) {
         super('Edge.Index.Energymonitor.storage', "down", "#009846", translate, service, "Storage");
@@ -99,49 +100,64 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     }
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
-        if (sum.storage.effectiveChargePower != null) {
-            let arrowIndicate: number;
-            // only reacts to kW values (50 W => 0.1 kW rounded)
-            if (sum.storage.effectiveChargePower > 49) {
-                if (!this.chargeAnimationTrigger) {
-                    this.toggleCharge();
-                }
-                arrowIndicate = Utils.divideSafely(sum.storage.effectiveChargePower, sum.system.totalPower);
-            } else {
-                arrowIndicate = 0;
-            }
 
-            this.name = this.translate.instant('Edge.Index.Energymonitor.storageCharge');
-            super.updateSectionData(
-                sum.storage.effectiveChargePower,
-                sum.storage.powerRatio,
-                arrowIndicate);
-        } else if (sum.storage.effectiveDischargePower != null) {
-            let arrowIndicate: number;
-            if (sum.storage.effectiveDischargePower > 49) {
-                if (!this.dischargeAnimationTrigger) {
-                    this.toggleDischarge();
-                }
-                arrowIndicate = Utils.multiplySafely(
-                    Utils.divideSafely(sum.storage.effectiveDischargePower, sum.system.totalPower), -1);
-            } else {
-                arrowIndicate = 0;
-            }
-            this.name = this.translate.instant('Edge.Index.Energymonitor.storageDischarge');
-            super.updateSectionData(
-                sum.storage.effectiveDischargePower,
-                sum.storage.powerRatio,
-                arrowIndicate);
-        } else {
-            this.name = this.translate.instant('Edge.Index.Energymonitor.storage');
-            super.updateSectionData(null, null, null);
-        }
+        this.service.getCurrentEdge()
+            .then(async edge => {
+                edge.currentData.subscribe(curr => {
+                    const maxApparentPower = edge.isVersionAtLeast('2024.2.2')
+                        ? curr.channel['_sum/EssMaxDischargePower']
+                        : curr.channel['_sum/EssMaxApparentPower'];
+                    const minDischargePower = edge.isVersionAtLeast('2024.2.2')
+                        ? curr.channel['_sum/EssMinDischargePower']
+                        : curr.channel['_sum/EssMaxApparentPower'];
 
-        this.socValue = sum.storage.soc;
-        if (this.square) {
-            this.square.image.image = "assets/img/" + this.getImagePath();
-            this.svgStyle = 'storage-' + Utils.getStorageSocSegment(this.socValue);
-        }
+                    sum.storage.powerRatio = CurrentData.getEssPowerRatio(maxApparentPower, minDischargePower, sum.storage.effectivePower);
+
+                    if (sum.storage.effectiveChargePower != null) {
+                        let arrowIndicate: number;
+                        // only reacts to kW values (50 W => 0.1 kW rounded)
+                        if (sum.storage.effectiveChargePower > 49) {
+                            if (!this.chargeAnimationTrigger) {
+                                this.toggleCharge();
+                            }
+                            arrowIndicate = Utils.divideSafely(sum.storage.effectiveChargePower, sum.system.totalPower);
+                        } else {
+                            arrowIndicate = 0;
+                        }
+
+                        this.name = this.translate.instant('Edge.Index.Energymonitor.storageCharge');
+                        super.updateSectionData(
+                            sum.storage.effectiveChargePower,
+                            sum.storage.powerRatio,
+                            arrowIndicate);
+                    } else if (sum.storage.effectiveDischargePower != null) {
+                        let arrowIndicate: number;
+                        if (sum.storage.effectiveDischargePower > 49) {
+                            if (!this.dischargeAnimationTrigger) {
+                                this.toggleDischarge();
+                            }
+                            arrowIndicate = Utils.multiplySafely(
+                                Utils.divideSafely(sum.storage.effectiveDischargePower, sum.system.totalPower), -1);
+                        } else {
+                            arrowIndicate = 0;
+                        }
+                        this.name = this.translate.instant('Edge.Index.Energymonitor.storageDischarge');
+                        super.updateSectionData(
+                            sum.storage.effectiveDischargePower,
+                            sum.storage.powerRatio,
+                            arrowIndicate);
+                    } else {
+                        this.name = this.translate.instant('Edge.Index.Energymonitor.storage');
+                        super.updateSectionData(null, null, null);
+                    }
+
+                    this.socValue = sum.storage.soc;
+                    if (this.square) {
+                        this.square.image.image = "assets/img/" + this.getImagePath();
+                        this.svgStyle = 'storage-' + Utils.getStorageSocSegment(this.socValue);
+                    }
+                });
+            });
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {

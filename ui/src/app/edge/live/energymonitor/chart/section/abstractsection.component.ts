@@ -149,7 +149,7 @@ export abstract class AbstractSection {
         protected direction: "left" | "right" | "down" | "up" = "left",
         public color: string,
         protected translate: TranslateService,
-        service: Service,
+        protected service: Service,
         widgetClass: string,
     ) {
         this.sectionId = translateName;
