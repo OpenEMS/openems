@@ -646,7 +646,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 												OpenemsType.BOOLEAN))),
 								m(new BitsWordElement(towerOffset + 5, this)
 										.bit(0, this.generateTowerChannel(tower, "LEVEL_2_CELL_OVER_VOLTAGE",
-												Level.WARNING)) //
+												Level.INFO)) //
 										.bit(1, this.generateTowerChannel(tower, "LEVEL_2_CELL_UNDER_VOLTAGE",
 												Level.WARNING)) //
 										.bit(2, this.generateTowerChannel(tower, "LEVEL_2_OVER_CHARGING_CURRENT",

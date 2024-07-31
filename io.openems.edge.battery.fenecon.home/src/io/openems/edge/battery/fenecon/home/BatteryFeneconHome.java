@@ -125,7 +125,7 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.text("Rack Under Temperature Alarm")), //
 		RACK_PRE_ALARM_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Rack Cell VOltage Difference Alarm")), //
+				.text("Rack Cell Voltage Difference Alarm")), //
 		RACK_PRE_ALARM_BCU_TEMP_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack BCU Temp Difference Alarm")), //
@@ -167,7 +167,7 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 		RACK_LEVEL_1_OVER_DISCHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Over Discharging warning")), //
-		RACK_LEVEL_2_CELL_OVER_VOLTAGE(Doc.of(Level.WARNING) //
+		RACK_LEVEL_2_CELL_OVER_VOLTAGE(Doc.of(Level.INFO) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Cell Over Voltage Fault")), //
 		RACK_LEVEL_2_CELL_UNDER_VOLTAGE(Doc.of(Level.WARNING) //
@@ -272,7 +272,7 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.text("Warning BCU 10 Position")), //
 
 		// Fault BCU Position
-		FAULT_POSITION_BCU_1(Doc.of(Level.WARNING) //
+		FAULT_POSITION_BCU_1(Doc.of(Level.INFO) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Fault BCU 1 Position")), //
 		FAULT_POSITION_BCU_2(Doc.of(Level.WARNING) //
