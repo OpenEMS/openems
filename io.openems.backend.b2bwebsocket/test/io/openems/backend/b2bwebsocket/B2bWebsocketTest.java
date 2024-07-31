@@ -13,7 +13,6 @@ import org.junit.Test;
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
 import io.openems.backend.common.jsonrpc.request.GetEdgesChannelsValuesRequest;
 import io.openems.backend.common.jsonrpc.request.GetEdgesStatusRequest;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
@@ -51,7 +50,7 @@ public class B2bWebsocketTest {
 		try {
 			var responseFuture = client.sendRequest(request);
 			System.out.println(responseFuture.get().toString());
-		} catch (InterruptedException | ExecutionException | OpenemsNamedException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			System.out.println(e.getMessage());
 		}
 		client.stop();
@@ -65,7 +64,7 @@ public class B2bWebsocketTest {
 		try {
 			var responseFuture = client.sendRequest(request);
 			System.out.println(responseFuture.get().toString());
-		} catch (InterruptedException | ExecutionException | OpenemsNamedException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			System.out.println(e.getMessage());
 		}
 		client.stop();
@@ -82,7 +81,7 @@ public class B2bWebsocketTest {
 		try {
 			var responseFuture = client.sendRequest(request);
 			System.out.println(responseFuture.get().toString());
-		} catch (InterruptedException | ExecutionException | OpenemsNamedException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			System.out.println(e.getMessage());
 		}
 		client.stop();
@@ -102,7 +101,7 @@ public class B2bWebsocketTest {
 		try {
 			var responseFuture = client.sendRequest(request);
 			System.out.println(responseFuture.get().toString());
-		} catch (InterruptedException | ExecutionException | OpenemsNamedException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			System.out.println(e.getMessage());
 		}
 
@@ -120,7 +119,7 @@ public class B2bWebsocketTest {
 		try {
 			var responseFuture = client.sendRequest(request);
 			System.out.println(responseFuture.get().toString());
-		} catch (InterruptedException | ExecutionException | OpenemsNamedException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			System.out.println(e.getMessage());
 		}
 		client.stop();

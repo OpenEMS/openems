@@ -69,7 +69,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 
 	@Reference
 	protected volatile TimedataManager timedataManager;
-	
+
 	@Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.OPTIONAL)
 	protected volatile SimulationEngine simulation;
 
@@ -98,8 +98,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 	 */
 	private synchronized void startServer() {
 		if (this.server == null) {
-			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize(),
-					this.config.debugMode());
+			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize());
 			this.server.start();
 		}
 	}
@@ -130,37 +129,38 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 	}
 
 	@Override
-	public void send(UUID websocketId, JsonrpcNotification notification) throws OpenemsNamedException {
-		var wsData = this.getWsDataForIdOrError(websocketId);
-		wsData.send(notification);
+	public boolean send(UUID websocketId, JsonrpcNotification notification) {
+		final WsData wsData;
+		try {
+			wsData = this.getWsDataForIdOrError(websocketId);
+		} catch (OpenemsNamedException e) {
+			return false;
+		}
+		return wsData.send(notification);
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> send(UUID websocketId, JsonrpcRequest request)
-			throws OpenemsNamedException {
-		var wsData = this.getWsDataForIdOrError(websocketId);
+	public CompletableFuture<JsonrpcResponseSuccess> send(UUID websocketId, JsonrpcRequest request) {
+		WsData wsData;
+		try {
+			wsData = this.getWsDataForIdOrError(websocketId);
+		} catch (OpenemsNamedException e) {
+			return CompletableFuture.failedFuture(e);
+		}
 		return wsData.send(request);
 	}
 
 	@Override
-	public void sendBroadcast(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException {
+	public void sendBroadcast(String edgeId, JsonrpcNotification notification) {
 		if (this.server == null) {
 			return;
 		}
 		var wsDatas = this.getWsDatasForEdgeId(edgeId);
-		OpenemsNamedException exception = null;
 		for (WsData wsData : wsDatas) {
 			if (!wsData.isEdgeSubscribed(edgeId)) {
 				continue;
 			}
-			try {
-				wsData.send(notification);
-			} catch (OpenemsNamedException e) {
-				exception = e;
-			}
-		}
-		if (exception != null) {
-			throw exception;
+			wsData.send(notification);
 		}
 	}
 

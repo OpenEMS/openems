@@ -21,6 +21,7 @@ Export-Package: \
 	de.bytefish.pgbulkinsert.pgsql.converter,\
 	de.bytefish.pgbulkinsert.pgsql.handlers,\
 	de.bytefish.pgbulkinsert.pgsql.model.geometric,\
+	de.bytefish.pgbulkinsert.pgsql.model.interval,\
 	de.bytefish.pgbulkinsert.pgsql.model.network,\
 	de.bytefish.pgbulkinsert.pgsql.model.range,\
 	de.bytefish.pgbulkinsert.row,\

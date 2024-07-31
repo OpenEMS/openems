@@ -1,4 +1,4 @@
-package io.openems.backend.b2bwebsocket;
+package io.openems.backend.edge.application;
 
 import java.net.URI;
 import java.util.Map;
@@ -26,9 +26,8 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 	private OnClose onClose;
 
 	protected TestClient(URI serverUri, Map<String, String> httpHeaders) {
-		super("B2bwebsocket.Unittest", serverUri, httpHeaders);
+		super("WebsocketPerformanceTestApp", serverUri, httpHeaders);
 		this.onOpen = (ws, handshake) -> {
-			this.log.info("OnOpen: " + handshake);
 			return null;
 		};
 		this.onRequest = (ws, request) -> {
