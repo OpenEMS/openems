@@ -8,6 +8,7 @@ import { NgxSpinnerModule } from "ngx-spinner";
 import { PipeModule } from "src/app/shared/pipe/pipe";
 
 import { HistoryDataErrorModule } from "../../history-data-error/history-data-error.module";
+import { ModalModule } from "../../modal/modal.module";
 import { ElectricityMeterComponent } from "./electricity/modal.component";
 import { EssChargerComponent } from "./esscharger/modal.component";
 
@@ -23,6 +24,7 @@ import { EssChargerComponent } from "./esscharger/modal.component";
             type: 'ball-clip-rotate-multiple',
         }),
         HistoryDataErrorModule,
+        ModalModule,
     ],
     declarations: [
         ElectricityMeterComponent,

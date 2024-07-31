@@ -16,14 +16,7 @@ import { FooterComponent } from './footer/footer';
 import { FooterNavigationModule } from './footer/subnavigation/footerNavigation.module';
 import { HistoryDataErrorModule } from './history-data-error/history-data-error.module';
 import { HelpButtonComponent } from './modal/help-button/help-button';
-import { ModalComponent } from './modal/modal';
-import { ModalButtonsComponent } from './modal/modal-button/modal-button';
-import { ModalInfoLineComponent } from './modal/modal-info-line/modal-info-line';
-import { ModalLineComponent } from './modal/modal-line/modal-line';
-import { ModalLineItemComponent } from './modal/modal-line/modal-line-item/modal-line-item';
-import { ModalPhasesComponent } from './modal/modal-phases/modal-phases';
-import { ModalValueLineComponent } from './modal/modal-value-line/modal-value-line';
-import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/modal-horizontal-line';
+import { ModalModule } from './modal/modal.module';
 import { PickdateModule } from './pickdate/pickdate.module';
 import { NotificationComponent } from './shared/notification/notification';
 
@@ -39,6 +32,7 @@ import { NotificationComponent } from './shared/notification/notification';
         FooterNavigationModule,
         ChartModule,
         PickdateModule,
+        ModalModule,
     ],
     declarations: [
 
@@ -48,16 +42,6 @@ import { NotificationComponent } from './shared/notification/notification';
         FlatWidgetHorizontalLineComponent,
         FlatWidgetPercentagebarComponent,
         FlatWidgetLineItemComponent,
-
-        // Modal
-        ModalButtonsComponent,
-        ModalInfoLineComponent,
-        ModalLineComponent,
-        ModalHorizontalLineComponent,
-        ModalComponent,
-        ModalLineItemComponent,
-        ModalPhasesComponent,
-        ModalValueLineComponent,
 
         // Others
         HelpButtonComponent,
@@ -72,16 +56,6 @@ import { NotificationComponent } from './shared/notification/notification';
         FlatWidgetPercentagebarComponent,
         FlatWidgetLineItemComponent,
 
-        // Modal
-        ModalButtonsComponent,
-        ModalInfoLineComponent,
-        ModalLineComponent,
-        ModalHorizontalLineComponent,
-        ModalComponent,
-        ModalLineItemComponent,
-        ModalPhasesComponent,
-        ModalValueLineComponent,
-
         // Others
         HelpButtonComponent,
         NotificationComponent,
@@ -90,6 +64,7 @@ import { NotificationComponent } from './shared/notification/notification';
         FooterNavigationModule,
         ChartModule,
         PickdateModule,
+        ModalModule,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 

@@ -24,6 +24,7 @@ import { FormlySelectFieldModalComponent } from './components/formly/formly-sele
 import { FormlySelectFieldExtendedWrapperComponent } from './components/formly/formly-select-field.extended';
 import { FormlyFieldWithLoadingAnimationComponent } from './components/formly/formly-skeleton-wrapper';
 import { InputTypeComponent } from './components/formly/input';
+import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from './components/formly/input-serial-number-wrapper';
 import { PanelWrapperComponent } from './components/formly/panel-wrapper.component';
 import { RepeatTypeComponent } from './components/formly/repeat';
 import { HeaderComponent } from './components/header/header.component';
@@ -31,8 +32,6 @@ import { HistoryDataErrorModule } from './components/history-data-error/history-
 import { PercentageBarComponent } from './components/percentagebar/percentagebar.component';
 import { DirectiveModule } from './directive/directive';
 import { ChartOptionsComponent } from './legacy/chartoptions/chartoptions.component';
-// import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from './formly/input-serial-number-wrapper';
-import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from './components/formly/input-serial-number-wrapper';
 import { PipeModule } from './pipe/pipe';
 import { Logger } from './service/logger';
 import { Service } from './service/service';
@@ -98,6 +97,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     ComponentsModule,
     TranslateModule,
     HistoryDataErrorModule,
+    MeterModule,
   ],
   declarations: [
     // components
