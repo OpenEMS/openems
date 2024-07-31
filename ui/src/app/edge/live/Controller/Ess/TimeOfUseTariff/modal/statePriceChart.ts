@@ -14,6 +14,7 @@ import { ColorUtils } from 'src/app/shared/utils/color/color.utils';
 import { GetScheduleRequest } from '../../../../../../shared/jsonrpc/request/getScheduleRequest';
 import { GetScheduleResponse } from '../../../../../../shared/jsonrpc/response/getScheduleResponse';
 import { Controller_Ess_TimeOfUseTariff } from '../Ess_TimeOfUseTariff';
+import { ChartConstants } from 'src/app/shared/genericComponents/chart/chart.constants';
 
 @Component({
     selector: 'statePriceChart',
@@ -97,10 +98,10 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
     private applyControllerSpecificOptions() {
         const locale = this.service.translate.currentLang;
         const rightYaxisSoc: HistoryUtils.yAxes = { position: 'right', unit: YAxisTitle.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYaxisSoc, this.translate, 'line', locale);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYaxisSoc, this.translate, 'line', locale, ChartConstants.EMPTY_DATASETS);
 
         const rightYAxisPower: HistoryUtils.yAxes = { position: 'right', unit: YAxisTitle.POWER, yAxisId: ChartAxis.RIGHT_2 };
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxisPower, this.translate, 'line', locale);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxisPower, this.translate, 'line', locale, ChartConstants.EMPTY_DATASETS);
 
         this.options.scales.x['time'].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
         this.options.scales.x['ticks'] = { source: 'auto', autoSkip: false };

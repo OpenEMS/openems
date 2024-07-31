@@ -198,7 +198,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
     const showYAxisTitle = true;
 
     [yAxisRight, yAxisLeft].forEach(yAxis => {
-      this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, yAxis, this.translate, 'line', locale, showYAxisTitle);
+      this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, yAxis, this.translate, 'line', locale, [], showYAxisTitle);
     });
 
     this.datasets = this.datasets.map((el, index, arr) => {

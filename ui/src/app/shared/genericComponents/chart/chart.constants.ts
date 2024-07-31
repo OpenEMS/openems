@@ -1,11 +1,58 @@
 // @ts-strict-ignore
 import { ChartDataset } from "chart.js";
 
-import { ArrayUtils } from "../../utils/array/array.utils";
+import { TranslateService } from "@ngx-translate/core";
 import { HistoryUtils, Utils } from "../../service/utils";
+import { ArrayUtils } from "../../utils/array/array.utils";
+import { AbstractHistoryChart } from "./abstracthistorychart";
 
 export class ChartConstants {
   public static readonly NUMBER_OF_Y_AXIS_TICKS: number = 6;
+  public static readonly EMPTY_DATASETS: ChartDataset[] = [];
+
+  /**
+   * Default yScale CartesianScaleTypeRegistry.linear
+   *
+   * @param element the yAxis
+   * @param translate the translate service
+   * @param chartType the chartType
+   * @param datasets the chart datasets
+   * @returns scale options
+   */
+  public static DEFAULT_Y_SCALE_OPTIONS = (element: HistoryUtils.yAxes, translate: TranslateService, chartType: 'line' | 'bar', datasets: ChartDataset[], showYAxisTitle?: boolean) => {
+    const beginAtZero: boolean = ChartConstants.isDataSeriesPositive(datasets);
+
+    return {
+      title: {
+        text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
+        display: showYAxisTitle,
+        padding: 5,
+        font: {
+          size: 11,
+        },
+      },
+      beginAtZero: beginAtZero,
+      position: element.position,
+      grid: {
+        display: element.displayGrid ?? true,
+      },
+      ticks: {
+        color: getComputedStyle(document.documentElement).getPropertyValue('--ion-color-text'),
+        padding: 5,
+        maxTicksLimit: ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
+      },
+    };
+  };
+
+  /**
+   * Checks if data series is positive.
+   *
+   * @param datasets the chart datasets
+   * @returns true, if only positive data exists
+   */
+  private static isDataSeriesPositive(datasets: ChartDataset[]): boolean {
+    return datasets.filter(el => el != null).map(el => el.data).every(el => el.every(e => (e as number) >= 0));
+  }
 
   /**
    * Gets the scale options for all datasets of the passed yAxis

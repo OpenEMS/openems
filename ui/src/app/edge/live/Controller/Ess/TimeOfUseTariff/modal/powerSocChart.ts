@@ -9,6 +9,7 @@ import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componen
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
+import { ChartConstants } from 'src/app/shared/genericComponents/chart/chart.constants';
 import { GetScheduleRequest } from '../../../../../../shared/jsonrpc/request/getScheduleRequest';
 import { GetScheduleResponse } from '../../../../../../shared/jsonrpc/response/getScheduleResponse';
 
@@ -180,8 +181,8 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
         const leftYAxis: HistoryUtils.yAxes = { position: 'left', unit: YAxisTitle.POWER, yAxisId: ChartAxis.LEFT };
         const locale = this.service.translate.currentLang;
 
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, 'line', locale, true);
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, 'line', locale, true);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, 'line', locale, ChartConstants.EMPTY_DATASETS, true);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, 'line', locale, ChartConstants.EMPTY_DATASETS, true);
 
         this.datasets = this.datasets.map((el: Chart.ChartDataset) => {
 
