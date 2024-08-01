@@ -104,7 +104,7 @@ public class CubicalInterpolation extends SplineInterpolator {
 	 * @return boolean yes or no.
 	 */
 	public boolean canInterpolate() {
-		var nonNaNCount = this.data.stream().filter(d -> !Double.isNaN(d)).count();
+		var nonNaNCount = this.data.stream().filter(d -> d != null && !Double.isNaN(d)).count();
 		return this.data.size() > 4 && nonNaNCount > 2;
 	}
 
