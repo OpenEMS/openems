@@ -1,6 +1,6 @@
-import { LINE_INFO } from "src/app/shared/edge/edgeconfig.spec";
-import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/testing/tester";
-import { sharedSetup, TestContext } from "src/app/shared/test/utils.spec";
+import { LINE_INFO } from "src/app/shared/components/edge/edgeconfig.spec";
+import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
+import { sharedSetup, TestContext } from "src/app/shared/components/shared/testing/utils.spec";
 
 import { ModalComponent } from "./modal";
 

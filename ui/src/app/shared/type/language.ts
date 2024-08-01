@@ -14,9 +14,13 @@ import fr from 'src/assets/i18n/fr.json';
 import nl from 'src/assets/i18n/nl.json';
 import ja from 'src/assets/i18n/ja.json';
 
+interface Translation {
+    [key: string]: string | Translation;
+}
+
 export class MyTranslateLoader implements TranslateLoader {
 
-    public getTranslation(key: string): Observable<any> {
+    public getTranslation(key: string): Observable<Translation> {
         const language = Language.getByKey(key);
         if (language) {
             return of(language.json);
@@ -37,6 +41,18 @@ export class Language {
 
     public static readonly ALL = [Language.DE, Language.EN, Language.CZ, Language.NL, Language.ES, Language.FR, Language.JA];
     public static readonly DEFAULT = Language.DE;
+
+    constructor(
+        public readonly title: string,
+        public readonly key: string,
+        public readonly i18nLocaleKey: string,
+        public readonly json: any,
+        // Angular is not providing common type for locale.
+        // https://github.com/angular/angular/issues/30506
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        public readonly locale: any,
+    ) {
+    }
 
     public static getByKey(key: string): Language | null {
         for (const language of Language.ALL) {
@@ -90,14 +106,5 @@ export class Language {
         }
 
         return lang?.i18nLocaleKey ?? Language.DEFAULT.i18nLocaleKey;
-    }
-
-    constructor(
-        public readonly title: string,
-        public readonly key: string,
-        public readonly i18nLocaleKey: string,
-        public readonly json: any,
-        public readonly locale: any,
-    ) {
     }
 }

@@ -13,10 +13,9 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 })
 export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
+    private static readonly SELECTOR = "heatpumpWidget";
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public componentId!: string;
-
-    private static readonly SELECTOR = "heatpumpWidget";
 
     public component: EdgeConfig.Component | null = null;
 

@@ -19,14 +19,14 @@ export class Utils {
    * @param element
    * @param array
    */
-  public static isLastElement(element, array: any[]) {
+  public static isLastElement<T>(element: T, array: T[]): boolean {
     return element == array[array.length - 1];
   }
 
   /**
    * Creates a deep copy of the object
    */
-  public static deepCopy(obj: any, target?: any) {
+  public static deepCopy<T>(obj: T, target?: T): T {
     let copy: any;
 
     // Handle the 3 simple types, and null or undefined
@@ -162,7 +162,7 @@ export class Utils {
    * @param v2
    * @returns
    */
-  public static compareArraysSafely(v1: any[], v2: any[]): boolean {
+  public static compareArraysSafely<T>(v1: T[] | null, v2: T[] | null): boolean {
     if (v1 == null || v2 == null) {
       return null;
     }
@@ -236,7 +236,7 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_TO_WATT = (value: any): string => {
+  public static CONVERT_TO_WATT = (value: number | null): string => {
     if (value == null) {
       return '-';
     } else if (value >= 0) {
@@ -252,7 +252,7 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_WATT_TO_KILOWATT = (value: any): string => {
+  public static CONVERT_WATT_TO_KILOWATT = (value: number | null): string => {
     if (value == null) {
       return '-';
     }
@@ -271,7 +271,7 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_SECONDS_TO_DATE_FORMAT = (value: any): string => {
+  public static CONVERT_SECONDS_TO_DATE_FORMAT = (value: number): string => {
     return new Date(value * 1000).toLocaleTimeString();
   };
 
@@ -291,7 +291,7 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_TO_WATTHOURS = (value: any): string => {
+  public static CONVERT_TO_WATTHOURS = (value: number): string => {
     return formatNumber(value, 'de', '1.0-1') + ' Wh';
   };
 
@@ -301,7 +301,7 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_TO_KILO_WATTHOURS = (value: any): string => {
+  public static CONVERT_TO_KILO_WATTHOURS = (value: number): string => {
     return formatNumber(Utils.divideSafely(value, 1000), 'de', '1.0-1') + ' kWh';
   };
 
@@ -381,7 +381,7 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
-    return (value: any): string =>
+    return (value: number | null): string =>
       (!value ? "-" : formatNumber(value / 10, 'de', '1.0-' + decimal)) + ' ' + label;
   };
 
@@ -517,7 +517,7 @@ export class Utils {
    * @param array the array to be shuffled
    * @returns the shuffled array
    */
-  public static shuffleArray(array: any[]): any[] {
+  public static shuffleArray<T>(array: T[]): T[] {
     return array.sort(() => Math.random() - 0.5);
   }
 
@@ -529,7 +529,7 @@ export class Utils {
    * @param source the source Object.
    * @returns the value.
    */
-  public static isArrayExistingInSource(arrayToCheck: string[], source: any): boolean {
+  public static isArrayExistingInSource(arrayToCheck: string[], source: Record<string, any>): boolean {
     return arrayToCheck.every(value => {
       if (value in source) {
         return true;
@@ -586,13 +586,13 @@ export class Utils {
 
     evcsComponents.forEach(component => {
       channelData[component.id + '/ChargePower']?.forEach((value, index) => {
-        totalEvcsConsumption[index] = value;
+        totalMeteredConsumption[index] = Utils.addSafely(totalMeteredConsumption[index], value);
       });
     });
 
     consumptionMeterComponents.forEach(meter => {
       channelData[meter.id + '/ActivePower']?.forEach((value, index) => {
-        totalMeteredConsumption[index] = value;
+        totalMeteredConsumption[index] = Utils.addSafely(totalMeteredConsumption[index], value);
       });
     });
 
@@ -617,6 +617,7 @@ export enum YAxisTitle {
   RELAY,
   ENERGY,
   VOLTAGE,
+  CURRENT,
   TIME,
   CURRENCY,
 }
@@ -656,7 +657,7 @@ export namespace HistoryUtils {
     /** Choose between predefined converters */
     converter?: (value: number) => number | null,
   };
-  export type DisplayValues = {
+  export type DisplayValue<T extends CustomOptions = PluginCustomOptions> = {
     name: string,
     /** suffix to the name */
     nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string | null,
@@ -664,6 +665,8 @@ export namespace HistoryUtils {
     converter: () => any,
     /** If dataset should be hidden on Init */
     hiddenOnInit?: boolean,
+    /** If dataset should be hidden in tooltip */
+    hiddenInTooltip?: boolean,
     /** default: true, stroke through label for hidden dataset */
     noStrokeThroughLegendIfHidden?: boolean,
     /** color in rgb-Format */
@@ -679,14 +682,7 @@ export namespace HistoryUtils {
     /** axisId from yAxes  */
     yAxisId?: ChartAxis,
     /** overrides global chartConfig for this dataset */
-    custom?: {
-      /** overrides global unit */
-      unit?: YAxisTitle,
-      /** overrides global charttype */
-      type?: 'line' | 'bar',
-      /** overrides global formatNumber */
-      formatNumber?: string
-    },
+    custom?: T,
     tooltip?: [{
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
       stackIds: number[]
@@ -697,6 +693,32 @@ export namespace HistoryUtils {
      */
     order?: number,
   };
+
+  export interface CustomOptions {
+    unit?: YAxisTitle,
+    /** overrides global charttype */
+    type?: 'line' | 'bar',
+    /** overrides global formatNumber */
+    formatNumber?: string,
+  }
+
+  export interface PluginCustomOptions extends CustomOptions {
+    pluginType: string,
+  }
+
+  export interface BoxCustomOptions extends PluginCustomOptions {
+    pluginType: 'box',
+    annotations: {
+      /** Start date string in ISO-format */
+      xMin: string | number,
+      /** End date string in ISO-format */
+      xMax: string | number,
+      /** Number */
+      yMax?: number,
+      yMin?: number,
+      yScaleID: ChartAxis,
+    }[];
+  }
 
   /**
  * Data from a subscription to Channel or from a historic data query.
@@ -711,7 +733,7 @@ export namespace HistoryUtils {
     /** Input Channels that need to be queried from the database */
     input: InputChannel[],
     /** Output Channels that will be shown in the chart */
-    output: (data: ChannelData) => DisplayValues[],
+    output: (data: ChannelData, labels?: Date[]) => DisplayValue<HistoryUtils.CustomOptions>[],
     tooltip: {
       /** Format of Number displayed */
       formatNumber: string,

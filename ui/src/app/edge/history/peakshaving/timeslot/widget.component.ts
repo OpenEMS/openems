@@ -10,10 +10,10 @@ import { Edge, EdgeConfig, Service } from 'src/app/shared/shared';
 })
 export class TimeslotPeakshavingWidgetComponent implements OnInit {
 
+    private static readonly SELECTOR = "timeslotPeakshavingWidget";
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public componentId!: string;
 
-    private static readonly SELECTOR = "timeslotPeakshavingWidget";
 
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;

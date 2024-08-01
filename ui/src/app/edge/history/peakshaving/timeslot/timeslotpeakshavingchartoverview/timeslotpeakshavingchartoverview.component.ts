@@ -9,10 +9,10 @@ import { Edge, EdgeConfig, Service } from '../../../../../shared/shared';
 })
 export class TimeslotPeakshavingChartOverviewComponent implements OnInit {
 
+    private static readonly SELECTOR = "timeslotpeakshaving-chart-overview";
+
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;
-
-    private static readonly SELECTOR = "timeslotpeakshaving-chart-overview";
 
     constructor(
         public service: Service,

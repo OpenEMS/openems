@@ -13,10 +13,10 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 })
 export class HeatingelementWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
+    private static readonly SELECTOR = "heatingelementWidget";
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public componentId!: string;
 
-    private static readonly SELECTOR = "heatingelementWidget";
 
     public component: EdgeConfig.Component = null;
 

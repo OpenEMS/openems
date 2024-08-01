@@ -3,4 +3,5 @@
   [period]="service.historyPeriod.value">
   <meterChart [isOnlyChart]="true"></meterChart>
 </oe-chart>
-<oe-footer-subnavigation *ngIf="isInitialized" [backButton]="true" [navigationOptions]="[]"></oe-footer-subnavigation>
+<oe-footer-subnavigation *ngIf="isInitialized" [backButton]="true"
+  [navigationOptions]="navigationButtons"></oe-footer-subnavigation>

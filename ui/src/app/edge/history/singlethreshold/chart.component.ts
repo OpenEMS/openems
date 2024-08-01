@@ -21,10 +21,6 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
   @Input({ required: true }) public componentId!: string;
   @Input({ required: true }) public inputChannelUnit!: string;
 
-  ngOnChanges() {
-    this.updateChart();
-  }
-
   constructor(
     protected override service: Service,
     protected override translate: TranslateService,
@@ -40,6 +36,14 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
   ngOnDestroy() {
     this.unsubscribeChartRefresh();
+  }
+
+  ngOnChanges() {
+    this.updateChart();
+  }
+
+  public getChartHeight(): number {
+    return window.innerHeight / 1.3;
   }
 
   protected updateChart() {
@@ -269,7 +273,4 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
   }
 
-  public getChartHeight(): number {
-    return window.innerHeight / 1.3;
-  }
 }

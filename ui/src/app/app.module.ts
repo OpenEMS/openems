@@ -8,9 +8,9 @@ import { RouteReuseStrategy } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { FORMLY_CONFIG } from '@ngx-formly/core';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
+import { AngularMyDatePickerModule } from '@nodro7/angular-mydatepicker';
 import { CookieService } from 'ngx-cookie-service';
 
-import { AngularMyDatePickerModule } from '@nodro7/angular-mydatepicker';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AppService } from './app.service';
@@ -21,21 +21,20 @@ import { SettingsModule as EdgeSettingsModule } from './edge/settings/settings.m
 import { SystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { IndexModule } from './index/index.module';
 import { RegistrationModule } from './registration/registration.module';
-import { ChartOptionsPopoverComponent } from './shared/chartoptions/popover/popover.component';
-import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.component';
+import { StatusSingleComponent } from './shared/components/status/single/status.component';
+import { ChartOptionsPopoverComponent } from './shared/legacy/chartoptions/popover/popover.component';
 import { MyErrorHandler } from './shared/service/myerrorhandler';
 import { Pagination } from './shared/service/pagination';
 import { SharedModule } from './shared/shared.module';
-import { StatusSingleComponent } from './shared/status/single/status.component';
 import { registerTranslateExtension } from './shared/translate.extension';
 import { Language, MyTranslateLoader } from './shared/type/language';
 import { UserModule } from './user/user.module';
+import { DeviceDetectorService } from 'ngx-device-detector';
 
 @NgModule({
   declarations: [
     AppComponent,
     ChartOptionsPopoverComponent,
-    PickDatePopoverComponent,
     StatusSingleComponent,
     SystemLogComponent,
   ],
@@ -62,6 +61,7 @@ import { UserModule } from './user/user.module';
     { provide: LOCALE_ID, useValue: Language.DEFAULT.key },
     // Use factory for formly. This allows us to use translations in validationMessages.
     { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
+    DeviceDetectorService,
     Pagination,
     CheckForUpdateService,
     AppService,

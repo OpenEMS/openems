@@ -2,6 +2,7 @@ package io.openems.common.websocket;
 
 import java.net.URI;
 
+import org.java_websocket.WebSocket;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -9,6 +10,10 @@ import org.slf4j.Logger;
 public class ClientReconnectorWorkerTest {
 
 	private static class MyWsData extends WsData {
+
+		public MyWsData(WebSocket ws) {
+			super(ws);
+		}
 
 		@Override
 		public String toString() {
@@ -24,8 +29,8 @@ public class ClientReconnectorWorkerTest {
 		}
 
 		@Override
-		protected MyWsData createWsData() {
-			return new MyWsData();
+		protected MyWsData createWsData(WebSocket ws) {
+			return new MyWsData(ws);
 		}
 
 		@Override
@@ -59,9 +64,8 @@ public class ClientReconnectorWorkerTest {
 		}
 
 		@Override
-		protected void execute(Runnable command) throws Exception {
+		protected void execute(Runnable command) {
 			// TODO Auto-generated method stub
-
 		}
 
 		@Override

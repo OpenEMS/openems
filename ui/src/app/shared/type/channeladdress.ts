@@ -1,5 +1,10 @@
 export class ChannelAddress {
 
+    constructor(
+        public readonly componentId: string,
+        public readonly channelId: string,
+    ) { }
+
     /**
      * Parses a string to a ChannelAddress
      *
@@ -10,12 +15,8 @@ export class ChannelAddress {
         return new ChannelAddress(array[0], array[1]);
     }
 
-    constructor(
-        public readonly componentId: string,
-        public readonly channelId: string,
-    ) { }
-
     public toString() {
         return this.componentId + "/" + this.channelId;
     }
+
 }

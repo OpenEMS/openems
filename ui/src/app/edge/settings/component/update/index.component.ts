@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
-import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
+import { CategorizedComponents } from 'src/app/shared/components/edge/edgeconfig';
 import { EdgeConfig, Service, Utils } from '../../../../shared/shared';
 
 interface MyCategorizedComponents extends CategorizedComponents {

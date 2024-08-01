@@ -17,6 +17,22 @@ export class FormlyReorderArrayComponent extends FieldType<FieldTypeConfig<Forml
 
     protected itemToAdd: SelectOption | null = null;
 
+    private get allowDuplicates(): boolean {
+        return this.props.allowDuplicates ?? false;
+    }
+
+    private get selectOptions(): SelectOption[] {
+        return this.props.selectOptions.map<SelectOption>(optionConfig => {
+            return {
+                label: optionConfig.label,
+                value: optionConfig.value,
+                expressions: {
+                    locked: optionConfig.expressions?.locked?.(this.field) ?? false,
+                },
+            };
+        }) ?? [];
+    }
+
     public ngOnInit(): void {
         const oldValues = this.formControl.getRawValue() as string[];
 
@@ -90,22 +106,6 @@ export class FormlyReorderArrayComponent extends FieldType<FieldTypeConfig<Forml
             }
             option.expressions.locked = validatedOption.expressions.locked;
         });
-    }
-
-    private get allowDuplicates(): boolean {
-        return this.props.allowDuplicates ?? false;
-    }
-
-    private get selectOptions(): SelectOption[] {
-        return this.props.selectOptions.map<SelectOption>(optionConfig => {
-            return {
-                label: optionConfig.label,
-                value: optionConfig.value,
-                expressions: {
-                    locked: optionConfig.expressions?.locked?.(this.field) ?? false,
-                },
-            };
-        }) ?? [];
     }
 
 }
