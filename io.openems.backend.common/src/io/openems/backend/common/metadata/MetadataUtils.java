@@ -16,6 +16,17 @@ public class MetadataUtils {
 	private MetadataUtils() {
 	}
 
+	/**
+	 * Common implementation for
+	 * {@link Metadata#getPageDevice(User, PaginationOptions)}.
+	 * 
+	 * @param <EDGE>            the type of the {@link Edge}
+	 * @param user              the {@link User}
+	 * @param edges             a Collection of {@link Edge}s
+	 * @param paginationOptions the {@link PaginationOptions}
+	 * @return the result, a list of {@link EdgeMetadata}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static <EDGE extends Edge> List<EdgeMetadata> getPageDevice(User user, Collection<EDGE> edges,
 			PaginationOptions paginationOptions) throws OpenemsNamedException {
 		var pagesStream = edges.stream();
