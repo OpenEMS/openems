@@ -126,7 +126,8 @@
             "passedEndTime": "End time of limited charging exceeded",
             "storageAlreadyFull": "Storage already full"
           },
-          "storageCapacity": "Storagecapacity (only visible for admin)"
+          "storageCapacity": "Storagecapacity (only visible for admin)",
+          "MAXIMUM_GRIDSELL_WITH_CHARGE": "Maximum grid feed-in through charging"
         },
         "CHP": {
           "highThreshold": "High Threshold",
@@ -303,7 +304,10 @@
       "oct": "Oxt",
       "nov": "Nov",
       "dec": "Dec",
-      "activeDuration": "active duration"
+      "activeDuration": "active duration",
+      "CURRENT_AND_VOLTAGE": "Current & Voltage",
+      "CURRENT": "Current",
+      "VOLTAGE": "Voltage"
     },
     "Config": {
       "Index": {
@@ -513,6 +517,7 @@
     "SYSTEM_STATE": "System state",
     "TOTAL": "Total",
     "totalState": "Total state",
+    "VISIBLE_FOR_ADMINS_ONLY": "Visible for Service & Administration only",
     "warning": "Warning",
     "Week": {
       "monday": "Monday",
@@ -957,6 +962,12 @@
     "SET_VALUE": "Set value",
     "MORE_CHANNELS": "Add More Channels",
     "CHANNEL": "Channel"
+  },
+  "GRID_STATES": {
+    "OFF_GRID": "Power outage",
+    "NO_EXTERNAL_LIMITATION": "No external limitation",
+    "RIPPLE_CONTROL_RECEIVER": "Ripple Control Receiver",
+    "RESTRICTION": "Restriction according to $14a EnWG"
   },
   "APP": {
     "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "This function is temporarily not available in the app, please use the web app instead."

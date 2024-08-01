@@ -21,9 +21,6 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
 
     @ViewChild(IonReorderGroup, { static: true })
     public reorderGroup: IonReorderGroup;
-
-    public chargeState: ChargeState;
-    private chargePlug: ChargePlug;
     public evcsAmount: number;
     public swiperIndex: number = 0;
     public slideOpts = {
@@ -37,6 +34,9 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
     public lastEvcs: string;
     public prioritizedEvcsList: string[];
     public evcsConfigMap: { [evcsId: string]: EdgeConfig.Component } = {};
+
+    public chargeState: ChargeState;
+    private chargePlug: ChargePlug;
 
     constructor(
         protected service: Service,

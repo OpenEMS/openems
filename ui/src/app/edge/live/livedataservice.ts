@@ -3,7 +3,7 @@ import { Directive, Inject, OnDestroy } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from 'uuid';
 
-import { DataService } from "../../shared/genericComponents/shared/dataservice";
+import { DataService } from "../../shared/components/shared/dataservice";
 import { ChannelAddress, Edge, Service, Websocket } from "../../shared/shared";
 import { RefresherCustomEvent } from "@ionic/angular";
 
@@ -60,6 +60,6 @@ export class LiveDataService extends DataService implements OnDestroy {
         setTimeout(() => {
             this.edge.subscribeChannels(this.websocket, "", this.subscribedChannelAddresses);
             ev.target.complete();
-        }, 1000);
+        }, 2000);
     }
 }

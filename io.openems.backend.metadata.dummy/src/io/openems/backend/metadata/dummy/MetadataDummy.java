@@ -79,10 +79,19 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	private JsonObject settings = new JsonObject();
 
 	@Activate
-	public MetadataDummy(@Reference EventAdmin eventadmin) {
+	public MetadataDummy(@Reference EventAdmin eventadmin, Config config) {
 		super("Metadata.Dummy");
 		this.eventAdmin = eventadmin;
 		this.logInfo(this.log, "Activate");
+
+		// Prefill
+		this.logInfo(this.log, "Prefilling Edges [" //
+				+ String.format(config.edgeIdTemplate(), 0) + "..."
+				+ String.format(config.edgeIdTemplate(), config.edgeIdMax()) + "]");
+		for (var i = 0; i < config.edgeIdMax() + 1; i++) {
+			this.createEdge(config.edgeIdTemplate(), i);
+		}
+		this.nextEdgeId.set(config.edgeIdMax() + 1);
 
 		// Allow the services some time to settle
 		this.executor.schedule(() -> {
@@ -166,7 +175,18 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 		var edge = new MyEdge(this, edgeId, apikey, setupPassword, "OpenEMS Edge #" + id, "", "");
 		this.edges.put(edgeId, edge);
 		return Optional.ofNullable(edgeId);
+	}
 
+	/**
+	 * Creates and adds a {@link MyEdge}.
+	 * 
+	 * @param edgeIdTemplate the Edge-ID template
+	 * @param i              value to be filled in the template
+	 */
+	private void createEdge(String edgeIdTemplate, int i) {
+		var edgeId = String.format(edgeIdTemplate, i);
+		var edge = new MyEdge(this, edgeId, edgeId, edgeId, "OpenEMS Edge #" + i, "", "");
+		this.edges.put(edgeId, edge);
 	}
 
 	@Override
@@ -278,6 +298,11 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	}
 
 	@Override
+	public Optional<String> getEmsTypeForEdge(String edgeId) {
+		throw new UnsupportedOperationException("DummyMetadata.getEmsTypeForEdge() is not implemented");
+	}
+
+	@Override
 	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
 		throw new UnsupportedOperationException("DummyMetadata.getUserAlertingSettings() is not implemented");
 	}
@@ -383,5 +408,4 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	public void updateUserSettings(User user, JsonObject settings) {
 		this.settings = settings == null ? new JsonObject() : settings;
 	}
-
 }

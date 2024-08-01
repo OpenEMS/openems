@@ -17,16 +17,20 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     private emergencyCapacityReserveComponents: EdgeConfig.Component[] = [];
 
-    public ngOnChanges() {
-        this.updateChart();
-    }
-
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
         private route: ActivatedRoute,
     ) {
         super("storage-single-chart", service, translate);
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 21 * 9;
+    }
+
+    public ngOnChanges() {
+        this.updateChart();
     }
 
     public ngOnInit() {
@@ -164,7 +168,4 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
         this.options = this.createDefaultChartOptions();
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 21 * 9;
-    }
 }

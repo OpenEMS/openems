@@ -12,9 +12,8 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 })
 export class StorageComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
-    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
-
     private static readonly SELECTOR = "storageWidget";
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
 
     // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;

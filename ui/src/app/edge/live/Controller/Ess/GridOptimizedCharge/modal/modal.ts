@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
+import { AbstractModal } from 'src/app/shared/components/modal/abstractModal';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 import { Role } from 'src/app/shared/type/role';
 

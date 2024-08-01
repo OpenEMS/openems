@@ -1,0 +1,53 @@
+<ng-template #tplComponent let-component>
+  <oe-flat-widget-line [name]="component.alias" [value]="component.id"></oe-flat-widget-line>
+  <ng-container *ngFor="let d of component.channels">
+    <oe-flat-widget-line *ngIf="d" [name]="'> ' + d.title + ' (' + d.address + ')'" [value]="d.value"
+      [converter]="d.converter"></oe-flat-widget-line>
+    <oe-flat-widget-line *ngIf="!d" name="> "></oe-flat-widget-line>
+  </ng-container>
+</ng-template>
+
+<header></header>
+<ion-content>
+  <ion-grid>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-sm="12" size-md="10" size="8">
+        <ion-item>
+          <ion-icon slot="start" size="large" name="information-circle-outline"></ion-icon>
+          <ion-text text-nowrap>
+            Der "Power Assistant" zeigt für alle Speichersysteme (ess0, ess1,...) die jeweiligen Controller und jeweils
+            einige relevante Datenpunkte. Die Reihenfolge entspricht der Reihenfolge im Scheduler.
+          </ion-text>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngFor="let entry of entries" class="ion-justify-content-center">
+      <ion-col size="12" size-sm="12" size-md="10" size="8">
+        <oe-flat-widget [title]="entry.ess.alias">
+          <ng-template *ngTemplateOutlet="tplComponent; context: {$implicit: entry.ess}"></ng-template>
+          <ng-container *ngIf="entry.battery">
+            <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
+            <ng-template *ngTemplateOutlet="tplComponent; context: {$implicit: entry.battery}"></ng-template>
+          </ng-container>
+          <ng-container *ngIf="entry.batteryInverter">
+            <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
+            <ng-template *ngTemplateOutlet="tplComponent; context: {$implicit: entry.batteryInverter}"></ng-template>
+          </ng-container>
+          <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
+          <ng-container *ngFor="let controller of entry.controllers">
+            <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
+            <ng-template *ngTemplateOutlet="tplComponent; context: {$implicit: controller}"></ng-template>
+          </ng-container>
+        </oe-flat-widget>
+      </ion-col>
+    </ion-row>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-sm="12" size-md="10" size="8">
+        <oe-flat-widget title="Not-implemented Controllers">
+          <oe-flat-widget-line *ngFor="let component of ignoredControllers" [name]="component.alias"
+            [value]="component.id"></oe-flat-widget-line>
+        </oe-flat-widget>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { Inject, Injectable } from "@angular/core";
 
-import { DataService } from "../../shared/genericComponents/shared/dataservice";
+import { DataService } from "../../shared/components/shared/dataservice";
 import { QueryHistoricTimeseriesEnergyResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Edge } from "../../shared/shared";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
@@ -13,9 +13,9 @@ import { RefresherCustomEvent } from "@ionic/angular";
 @Injectable()
 export class HistoryDataService extends DataService {
 
-  private channelAddresses: { [sourceId: string]: ChannelAddress } = {};
-  public queryChannelsTimeout: any | null = null;
+  public queryChannelsTimeout: ReturnType<typeof setTimeout> | null = null;
   protected override timestamps: string[] = [];
+  private channelAddresses: { [sourceId: string]: ChannelAddress } = {};
 
   constructor(
     @Inject(Websocket) protected websocket: Websocket,

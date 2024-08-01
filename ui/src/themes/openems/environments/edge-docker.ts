@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Environment } from "src/environments";
 import { theme } from "./theme";
 
@@ -5,7 +6,7 @@ import { theme } from "./theme";
 // cf.
 //  - tools/docker/ui/root/etc/s6-overlay/s6-rc.d/init-nginx/run
 //  - tools/docker/ui/assets/env.template.js
-const window_env = (window as any).env as { [key: string]: string};
+const window_env = (window as any).env as { [key: string]: string };
 
 export const environment: Environment = {
     ...theme, ...{

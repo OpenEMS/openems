@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from 'src/app/shared/shared';
 
@@ -42,6 +42,22 @@ export class FlatComponent extends AbstractFlatWidget {
   protected chargeDischargePower: { name: string, value: number };
   protected propertyMode: DefaultTypes.ManualOnOff = null;
   protected status: string;
+
+  formatNumber(i: number) {
+    const round = Math.ceil(i / 100) * 100;
+    return round;
+  }
+
+
+  async presentModal() {
+    const modal = await this.modalController.create({
+      component: ModalComponent,
+      componentProps: {
+        component: this.component,
+      },
+    });
+    return await modal.present();
+  }
 
   protected override getChannelAddresses(): ChannelAddress[] {
     const result = [
@@ -164,21 +180,6 @@ export class FlatComponent extends AbstractFlatWidget {
     }
   }
 
-  formatNumber(i: number) {
-    const round = Math.ceil(i / 100) * 100;
-    return round;
-  }
-
-
-  async presentModal() {
-    const modal = await this.modalController.create({
-      component: ModalComponent,
-      componentProps: {
-        component: this.component,
-      },
-    });
-    return await modal.present();
-  }
 }
 
 enum ChargeState {

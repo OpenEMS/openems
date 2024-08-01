@@ -1,6 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 
 export abstract class JsonrpcMessage {
+    public readonly jsonrpc: string = "2.0";
+
+    protected constructor(
+    ) { }
 
     public static from(message: any): JsonrpcRequest | JsonrpcNotification | JsonrpcResponseSuccess | JsonrpcResponseError {
         if ("method" in message && "params" in message) {
@@ -18,10 +22,7 @@ export abstract class JsonrpcMessage {
         }
     }
 
-    protected constructor(
-    ) { }
 
-    public readonly jsonrpc: string = "2.0";
 }
 
 export abstract class AbstractJsonrpcRequest extends JsonrpcMessage {

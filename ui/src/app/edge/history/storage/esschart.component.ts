@@ -20,16 +20,16 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
 
     private moreThanOneProducer: boolean = null;
 
-    ngOnChanges() {
-        this.updateChart();
-    }
-
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
         private route: ActivatedRoute,
     ) {
         super("storage-ess-chart", service, translate);
+    }
+
+    ngOnChanges() {
+        this.updateChart();
     }
 
     ngOnInit() {
@@ -40,6 +40,10 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 21 * 9;
     }
 
     protected updateChart() {
@@ -157,7 +161,4 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
         this.options = options;
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 21 * 9;
-    }
 }

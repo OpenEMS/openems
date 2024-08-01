@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +15,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.CurrentDataNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
@@ -74,7 +74,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 		}
 	}
 
-	private final Logger log = LoggerFactory.getLogger(WsData.class);
 	private final ControllerApiWebsocketImpl parent;
 	private final SubscribedChannels subscribedChannels = new SubscribedChannels();
 
@@ -86,7 +85,8 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	private Optional<User> user = Optional.empty();
 
-	public WsData(ControllerApiWebsocketImpl parent) {
+	public WsData(WebSocket ws, ControllerApiWebsocketImpl parent) {
+		super(ws);
 		this.parent = parent;
 	}
 
@@ -172,14 +172,9 @@ public class WsData extends io.openems.common.websocket.WsData {
 			return;
 		}
 		this.parent.server.execute(() -> {
-			try {
-				this.send(//
-						new EdgeRpcNotification(ControllerApiWebsocket.EDGE_ID, //
-								new CurrentDataNotification(values)));
-
-			} catch (OpenemsException e) {
-				this.parent.logWarn(this.log, "Unable to send CurrentDataNotification: " + e.getMessage());
-			}
+			this.send(//
+					new EdgeRpcNotification(ControllerApiWebsocket.EDGE_ID, //
+							new CurrentDataNotification(values)));
 		});
 	}
 

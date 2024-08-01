@@ -11,6 +11,7 @@ import { IndexComponent as ComponentUpdateIndexComponent } from './component/upd
 import { ComponentUpdateComponent } from './component/update/update.component';
 import { JsonrpcTestComponent } from './jsonrpctest/jsonrpctest';
 import { NetworkComponent } from './network/network.component';
+import { PowerAssistantModule } from './powerassistant/powerassistant.module';
 import { AliasUpdateComponent } from './profile/aliasupdate.component';
 import { ProfileComponent } from './profile/profile.component';
 import { SettingsComponent } from './settings.component';
@@ -24,6 +25,7 @@ import { SystemExecuteComponent } from './systemexecute/systemexecute.component'
     AppModule,
     SharedModule,
     ChangelogModule,
+    PowerAssistantModule,
   ],
   declarations: [
     AlertingComponent,

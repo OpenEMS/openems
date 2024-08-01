@@ -1,0 +1,6 @@
+<oe-chart [title]="component.alias +  '&nbsp;-&nbsp;' + ('Edge.History.CURRENT_AND_VOLTAGE' | translate)" [showPhases]="showPhases"
+  [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)" (setShowPhases)="setShowPhases($event)"
+  *ngIf="isInitialized" [period]="service.historyPeriod.value">
+  <currentVoltageChart [isOnlyChart]="true"></currentVoltageChart>
+</oe-chart>
+<oe-footer-subnavigation *ngIf="isInitialized" [backButton]="true" [navigationOptions]="[]"></oe-footer-subnavigation>

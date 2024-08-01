@@ -10,10 +10,10 @@ import { Edge, EdgeConfig, Service } from 'src/app/shared/shared';
 })
 export class SymmetricPeakshavingWidgetComponent implements OnInit {
 
+    private static readonly SELECTOR = "symmetricPeakshavingWidget";
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public componentId!: string;
 
-    private static readonly SELECTOR = "symmetricPeakshavingWidget";
 
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;

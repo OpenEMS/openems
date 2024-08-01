@@ -24,6 +24,7 @@ public enum OpenemsError {
 	COMMON_AUTHENTICATION_FAILED(1003, "Authentication failed"), //
 	COMMON_USER_UNDEFINED(1004, "User [%s] is not defined"), //
 	COMMON_ROLE_UNDEFINED(1005, "Access to this resource [%s] is denied. Role for User [%s] is not defined"), //
+	COMMON_SERVICE_NOT_AVAILABLE(1006, "This service is currently not available. Please try again later"), //
 	/*
 	 * Edge errors. 2000-2999
 	 */
@@ -46,6 +47,7 @@ public enum OpenemsError {
 	JSONRPC_UNHANDLED_METHOD(4001, "Unhandled JSON-RPC method [%s]"), //
 	JSONRPC_INVALID_MESSAGE(4002, "JSON-RPC Message is not a valid Request, Result or Notification: %s"), //
 	JSONRPC_RESPONSE_WITHOUT_REQUEST(4003, "Got Response without Request: %s"), //
+	JSONRPC_SEND_FAILED(4004, "Send failed"), //
 
 	/*
 	 * JSON Errors. 5000-5999
