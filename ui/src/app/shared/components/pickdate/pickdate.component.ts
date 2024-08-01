@@ -176,7 +176,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
             }
 
             case DefaultTypes.PeriodString.CUSTOM: {
-                let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.value.from - <any>this.service.historyPeriod.value.to) / (1000 * 60 * 60 * 24));
+                let dateDistance = Math.floor(Math.abs(this.service.historyPeriod.value.from.getTime() - this.service.historyPeriod.value.to.getTime()) / (1000 * 60 * 60 * 24));
                 if (dateDistance == 0) {
                     dateDistance = 1;
                 }
@@ -271,7 +271,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 break;
             }
             case DefaultTypes.PeriodString.CUSTOM: {
-                let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.value.from - <any>this.service.historyPeriod.value.to) / (1000 * 60 * 60 * 24));
+                let dateDistance = Math.floor(Math.abs(this.service.historyPeriod.value.from.getTime() - this.service.historyPeriod.value.to.getTime()) / (1000 * 60 * 60 * 24));
                 if (dateDistance == 0) {
                     dateDistance = 1;
                 }
@@ -322,7 +322,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 break;
             }
             case DefaultTypes.PeriodString.CUSTOM: {
-                let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.value.from - <any>this.service.historyPeriod.value.to) / (1000 * 60 * 60 * 24));
+                let dateDistance = Math.floor(Math.abs(this.service.historyPeriod.value.from.getTime() - this.service.historyPeriod.value.to.getTime()) / (1000 * 60 * 60 * 24));
                 if (dateDistance == 0) {
                     dateDistance = 1;
                 }

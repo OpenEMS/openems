@@ -62,6 +62,8 @@ export class DummyService extends AbstractService {
     isPartnerAllowed(edge: Edge): boolean {
         throw new Error("Method not implemented.");
     }
+   // https://v16.angular.io/api/core/ErrorHandler#errorhandler
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
     override handleError(error: any): void {
         throw new Error("Method not implemented.");
     }
