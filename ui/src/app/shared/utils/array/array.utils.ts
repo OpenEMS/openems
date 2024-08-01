@@ -5,30 +5,27 @@ export namespace ArrayUtils {
   }
 
   /**
-   * Finds the smallest number in a array
+   * Finds the smallest number in a array.
+   * null, undefined, NaN, +-Infinity are ignored in this method.
    *
    * @param arr the arr
    * @returns a number if arr not empty, else null
    */
-  export function findSmallestNumber(arr: number[]): number | null {
-    if (arr?.length === 0 || arr?.every(el => el == null)) {
-      return null; // Return undefined for an empty array or handle it based on your requirements
-    }
-    return Math.min(...(arr.filter(Number.isFinite)));
+  export function findSmallestNumber(arr: (number | null | undefined)[]): number | null {
+    const filteredArr = arr.filter((el): el is number => Number.isFinite(el));
+    return filteredArr.length > 0 ? Math.min(...filteredArr) : null;
   }
 
   /**
-   * Finds the biggest number in a array
+   * Finds the biggest number in a array.
+   * null, undefined, NaN, +-Infinity are ignored in this method.
    *
    * @param arr the arr
    * @returns a number if arr not empty, else null
    */
-  export function findBiggestNumber(arr: number[]): number | null {
-    if (arr?.length === 0 || arr?.every(el => el == null)) {
-      return null; // Return undefined for an empty array or handle it based on your requirements
-    }
-
-    return Math.max(...(arr.filter(Number.isFinite)));
+  export function findBiggestNumber(arr: (number | null | undefined)[]): number | null {
+    const filteredArr = arr.filter((el): el is number => Number.isFinite(el));
+    return filteredArr.length > 0 ? Math.max(...filteredArr) : null;
   }
 
   /**

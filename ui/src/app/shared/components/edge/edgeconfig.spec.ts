@@ -193,7 +193,7 @@ export namespace DummyConfig {
         });
         export const GOODWE_GRID_METER = (id: string, alias?: string): Component => ({
             id: id,
-            alias: alias,
+            alias: alias ?? id,
             factory: Factory.METER_GOODWE_GRID,
             properties: {
                 invert: false,
@@ -205,7 +205,7 @@ export namespace DummyConfig {
 
         export const SOLAR_EDGE_PV_INVERTER = (id: string, alias?: string): Component => ({
             id: id,
-            alias: alias,
+            alias: alias ?? id,
             factoryId: 'SolarEdge.PV-Inverter',
             factory: Factory.SOLAR_EDGE_PV_INVERTER,
             properties: {

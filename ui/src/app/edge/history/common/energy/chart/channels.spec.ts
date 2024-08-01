@@ -8,7 +8,7 @@ import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/re
 
 export namespace History {
 
-  export const LINE_CHART_OPTIONS = (period: string, chartType: 'line' | 'bar', options: { [key: string]: { scale: { min: number, max: number; }, ticks: { stepSize: number; }; }; }): OeChartTester.Dataset.Option => ({
+  export const LINE_CHART_OPTIONS = (period: string, chartType: 'line' | 'bar', options: { [key: string]: { scale: { min: number, max: number; } | null, ticks: { stepSize: number }; }; }): OeChartTester.Dataset.Option => ({
     type: 'option',
     options: {
       "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": {}, "line": {} }, "plugins": { "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": '' } }, "tooltip": { "intersect": false, "mode": "index", "callbacks": {} }, "annotation": { annotations: {} } }, "scales": {

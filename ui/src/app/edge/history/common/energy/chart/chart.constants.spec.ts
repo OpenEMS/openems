@@ -19,7 +19,7 @@ export const DATASET = (data: OeChartTester.Dataset.Data, labels: OeChartTester.
   options: options,
 });
 
-export const DATA = (name: string, value: number[]): OeChartTester.Dataset.Data => ({
+export const DATA = (name: string, value: (number | null)[]): OeChartTester.Dataset.Data => ({
   type: "data",
   label: name,
   value: value,
