@@ -37,6 +37,7 @@ import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.metadata.MetadataUtils;
 import io.openems.backend.common.metadata.SimpleEdgeHandler;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.channel.Level;
@@ -48,7 +49,6 @@ import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
-import io.openems.common.utils.StringUtils;
 import io.openems.common.utils.ThreadPoolUtils;
 
 @Designate(ocd = Config.class, factory = false)
@@ -330,43 +330,7 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	@Override
 	public List<EdgeMetadata> getPageDevice(User user, PaginationOptions paginationOptions)
 			throws OpenemsNamedException {
-		var pagesStream = this.edges.values().stream();
-		final var query = paginationOptions.getQuery();
-		if (query != null) {
-			pagesStream = pagesStream.filter(//
-					edge -> StringUtils.containsWithNullCheck(edge.getId(), query) //
-							|| StringUtils.containsWithNullCheck(edge.getComment(), query) //
-							|| StringUtils.containsWithNullCheck(edge.getProducttype(), query) //
-			);
-		}
-		final var searchParams = paginationOptions.getSearchParams();
-		if (searchParams != null) {
-			if (searchParams.searchIsOnline()) {
-				pagesStream = pagesStream.filter(edge -> edge.isOnline() == searchParams.isOnline());
-			}
-			if (searchParams.productTypes() != null && !searchParams.productTypes().isEmpty()) {
-				pagesStream = pagesStream.filter(edge -> searchParams.productTypes().contains(edge.getProducttype()));
-			}
-			// TODO sum state filter
-		}
-
-		return pagesStream //
-				.sorted((s1, s2) -> s1.getId().compareTo(s2.getId())) //
-				.skip(paginationOptions.getPage() * paginationOptions.getLimit()) //
-				.limit(paginationOptions.getLimit()) //
-				.peek(t -> user.setRole(t.getId(), Role.ADMIN)) //
-				.map(myEdge -> {
-					return new EdgeMetadata(//
-							myEdge.getId(), //
-							myEdge.getComment(), //
-							myEdge.getProducttype(), //
-							myEdge.getVersion(), //
-							Role.ADMIN, //
-							myEdge.isOnline(), //
-							myEdge.getLastmessage(), //
-							null, // firstSetupProtocol
-							Level.OK);
-				}).toList();
+		return MetadataUtils.getPageDevice(user, this.edges.values(), paginationOptions);
 	}
 
 	@Override
