@@ -427,6 +427,14 @@ public class StandAlonePredictorTest {
 		return predicted;
 	}
 
+	/**
+	 * Predicts the Trend.
+	 * 
+	 * @param hyperParameters the {@link HyperParameters}
+	 * @param nowDate         the {@link ZonedDateTime} for now
+	 * @param csvFileName     the csv file name
+	 * @return the trend
+	 */
 	public ArrayList<Double> predictTrendOneDayMultivarent(HyperParameters hyperParameters, ZonedDateTime nowDate,
 			String csvFileName) {
 
@@ -466,7 +474,6 @@ public class StandAlonePredictorTest {
 	/**
 	 * Gives target data to compare.
 	 * 
-	 * 
 	 * @param from           the From
 	 * @param to             the to
 	 * @param csvfileName    the csvfileName
@@ -480,8 +487,13 @@ public class StandAlonePredictorTest {
 
 	}
 
+	/**
+	 * Generates a Reference from {@link OffsetDateTime}s.
+	 * 
+	 * @param date the {@link OffsetDateTime}s
+	 * @return the reference
+	 */
 	public ArrayList<Double> generateRefrence(ArrayList<OffsetDateTime> date) {
-
 		// one hour = 360/24 degree
 		// one minute = 360/(24*60) degree
 		ArrayList<Double> data = new ArrayList<Double>();
@@ -498,6 +510,12 @@ public class StandAlonePredictorTest {
 		return data;
 	}
 
+	/**
+	 * Generates a Reference from {@link ZonedDateTime}s.
+	 * 
+	 * @param date the {@link ZonedDateTime}s
+	 * @return the reference
+	 */
 	public static ArrayList<Double> generateReference(ArrayList<ZonedDateTime> date) {
 		// one hour = 360/24 degrees
 		// one minute = 360/(24*60) degrees
