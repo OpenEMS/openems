@@ -26,7 +26,7 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
   protected override afterIsInitialized() {
     this.service.getCurrentEdge().then(edge => {
 
-      if (this.config?.hasComponentNature("io.openems.edge.evcs.api.Evcs", this.component?.id)) {
+      if (this.component && this.config?.hasComponentNature("io.openems.edge.evcs.api.Evcs", this.component.id)) {
         return;
       }
 

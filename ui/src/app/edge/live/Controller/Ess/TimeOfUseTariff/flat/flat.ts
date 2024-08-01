@@ -12,7 +12,8 @@ export class FlatComponent extends AbstractFlatWidget implements OnInit {
 
     protected readonly CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
     protected readonly CONVERT_TIME_OF_USE_TARIFF_STATE = Utils.CONVERT_TIME_OF_USE_TARIFF_STATE(this.translate);
-    protected priceWithCurrency: string;
+
+    protected priceWithCurrency: string = "-";
 
     async presentModal() {
         const modal = await this.modalController.create({
