@@ -15,7 +15,7 @@ type Priority = 'CAR' | 'STORAGE';
 export class Evcs_Api_ClusterModalComponent implements OnInit {
 
     @Input({ required: true }) public edge!: Edge;
-    @Input() public config: EdgeConfig.Component = null;
+    @Input() public config: EdgeConfig.Component | null = null;
     @Input({ required: true }) public componentId!: string;
     @Input() public evcsMap: { [sourceId: string]: EdgeConfig.Component } = {};
 

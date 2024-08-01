@@ -11,10 +11,10 @@ export class StorageChartOverviewComponent implements OnInit {
 
     private static readonly SELECTOR = "storage-chart-overview";
 
-    public edge: Edge = null;
+    public edge: Edge | null = null;
 
-    public essComponents: EdgeConfig.Component[] = null;
-    public chargerComponents: EdgeConfig.Component[] = null;
+    public essComponents: EdgeConfig.Component[] | null = null;
+    public chargerComponents: EdgeConfig.Component[] | null = null;
 
     public showPhases: boolean = false;
     public showTotal: boolean = false;

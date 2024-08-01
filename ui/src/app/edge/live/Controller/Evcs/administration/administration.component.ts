@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
@@ -17,7 +16,7 @@ export class AdministrationComponent implements OnInit {
   @Input({ required: true }) public edge!: Edge;
 
   // used for ion-toggle in html
-  public isCheckedZoe: boolean = null;
+  public isCheckedZoe: boolean | null = null;
 
   constructor(
     private route: ActivatedRoute,

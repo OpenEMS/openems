@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
@@ -22,8 +21,8 @@ export class ProfileComponent implements OnInit {
 
   public environment = environment;
 
-  public edge: Edge = null;
-  public config: EdgeConfig = null;
+  public edge: Edge | null = null;
+  public config: EdgeConfig | null = null;
   public subscribedChannels: ChannelAddress[] = [];
 
   public components: CategorizedComponents[] | null = null;

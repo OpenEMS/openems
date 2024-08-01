@@ -16,7 +16,7 @@ export class FlatComponent extends AbstractFlatWidget {
   public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
 
   public chargeDischargePower: { name: string, value: number };
-  public propertyMode: DefaultTypes.ManualOnOff = null;
+  public propertyMode: DefaultTypes.ManualOnOff | null = null;
 
   async presentModal() {
     if (!this.isInitialized) {

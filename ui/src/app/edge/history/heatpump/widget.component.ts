@@ -24,7 +24,7 @@ export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements On
     public activeTimeOverPeriodRecommendation: number | null = null;
     public activeTimeOverPeriodLock: number | null = null;
 
-    public edge: Edge = null;
+    public edge: Edge | null = null;
 
     constructor(
         public override service: Service,

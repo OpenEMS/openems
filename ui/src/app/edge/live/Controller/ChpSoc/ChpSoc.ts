@@ -13,10 +13,9 @@ import { Controller_ChpSocModalComponent } from './modal/modal.component';
 export class Controller_ChpSocComponent extends AbstractFlatWidget {
 
     private static PROPERTY_MODE: string = '_PropertyMode';
-
-    public inputChannel: ChannelAddress = null;
-    public outputChannel: ChannelAddress = null;
-    public propertyModeChannel: ChannelAddress = null;
+    public inputChannel: ChannelAddress | null = null;
+    public outputChannel: ChannelAddress | null = null;
+    public propertyModeChannel: ChannelAddress | null = null;
     public highThresholdValue: number;
     public lowThresholdValue: number;
     public state: string;

@@ -11,8 +11,8 @@ export class FixDigitalOutputChartOverviewComponent implements OnInit {
 
     private static readonly SELECTOR = "fixdigitaloutput-chart-overview";
 
-    public edge: Edge = null;
-    public component: EdgeConfig.Component = null;
+    public edge: Edge | null = null;
+    public component: EdgeConfig.Component | null = null;
 
     public showTotal: boolean = false;
     public fixDigitalOutputComponents: string[] = [];

@@ -16,7 +16,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
     public essComponents: EdgeConfig.Component[] = [];
     public chargerComponents: EdgeConfig.Component[] = [];
-    public storageIconStyle: string = null;
+    public storageIconStyle: string | null = null;
     public isHybridEss: boolean[] = [];
     public emergencyReserveComponents: { [essId: string]: EdgeConfig.Component } = {};
     public currentSoc: number[] = [];

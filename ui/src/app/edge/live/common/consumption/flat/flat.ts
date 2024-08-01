@@ -11,7 +11,7 @@ import { ModalComponent } from '../modal/modal';
 export class FlatComponent extends AbstractFlatWidget {
 
   public evcss: EdgeConfig.Component[] | null = null;
-  public consumptionMeters: EdgeConfig.Component[] = null;
+  public consumptionMeters: EdgeConfig.Component[] | null = null;
   public sumActivePower: number = 0;
   public evcsSumOfChargePower: number;
   public otherPower: number;

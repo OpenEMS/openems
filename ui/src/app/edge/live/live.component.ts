@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RefresherCustomEvent } from '@ionic/angular';
@@ -12,9 +11,9 @@ import { Edge, EdgeConfig, Service, Utils, Websocket, Widgets } from 'src/app/sh
 })
 export class LiveComponent implements OnInit, OnDestroy {
 
-  public edge: Edge = null;
-  public config: EdgeConfig = null;
-  public widgets: Widgets = null;
+  public edge: Edge | null = null;
+  public config: EdgeConfig | null = null;
+  public widgets: Widgets | null = null;
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
   constructor(

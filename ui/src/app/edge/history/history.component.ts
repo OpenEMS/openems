@@ -24,15 +24,15 @@ export class HistoryComponent implements OnInit {
   public energyChartHeight: string = "250px";
 
   // holds the Widgets
-  public widgets: Widgets = null;
+  public widgets: Widgets | null = null;
 
   // holds the current Edge
-  public edge: Edge = null;
+  public edge: Edge | null = null;
 
   // holds Channelthreshold Components to display effective active time in %
   // public channelthresholdComponents: string[] = [];
 
-  public config: EdgeConfig = null;
+  public config: EdgeConfig | null = null;
   protected errorResponse: JsonrpcResponseError | null = null;
 
   constructor(

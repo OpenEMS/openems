@@ -38,7 +38,7 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   */
   private selector: string = uuidv4();
   private stopOnDestroy: Subject<void> = new Subject<void>();
-  private edge: Edge = null;
+  private edge: Edge | null = null;
 
   constructor(
     @Inject(Websocket) protected websocket: Websocket,

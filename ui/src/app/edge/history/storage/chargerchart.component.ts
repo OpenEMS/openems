@@ -16,7 +16,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public componentId!: string;
 
-    private moreThanOneProducer: boolean = null;
+    private moreThanOneProducer: boolean | null = null;
 
     constructor(
         protected override service: Service,

@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, Websocket } from '../../../shared/shared';

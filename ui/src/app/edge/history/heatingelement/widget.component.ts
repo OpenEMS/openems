@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
@@ -18,13 +17,13 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
     @Input({ required: true }) public componentId!: string;
 
 
-    public component: EdgeConfig.Component = null;
+    public component: EdgeConfig.Component | null = null;
 
     public activeTimeOverPeriodLevel1: number | null = null;
     public activeTimeOverPeriodLevel2: number | null = null;
     public activeTimeOverPeriodLevel3: number | null = null;
 
-    public edge: Edge = null;
+    public edge: Edge | null = null;
 
     constructor(
         public override service: Service,

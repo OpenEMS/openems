@@ -24,8 +24,8 @@ export class ChannelsComponent {
   };
   protected readonly spinnerId = ChannelsComponent.SELECTOR;
   protected readonly environment = environment;
-  protected edge: Edge = null;
-  protected config: EdgeConfig = null;
+  protected edge: Edge | null = null;
+  protected config: EdgeConfig | null = null;
   protected channelsPerComponent = new Map<string, ComponentChannels>();
   protected selectedComponentChannels = new Map<string, Map<string, { showPersistencePriority: boolean }>>();
   // TODO should be a simple SET but equality checking in SETs is currently not changeable and therefore not very useful for objects

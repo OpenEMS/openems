@@ -22,11 +22,11 @@ export class ModalComponent extends AbstractModal {
     public state: string = '';
     public chargeLimit: { name: string, value: number };
     public delayChargeState: number | null = null;
-    public maximumSellToGridPower: number = null;
+    public maximumSellToGridPower: number | null = null;
     public targetMinute: number | null = null;
     public delayChargeMaximumChargeLimit: number | null = null;
     public targetEpochSeconds: number | null = null;
-    public chargeStartEpochSeconds: number = null;
+    public chargeStartEpochSeconds: number | null = null;
 
     protected override getChannelAddresses(): ChannelAddress[] {
         this.refreshChart = false;
