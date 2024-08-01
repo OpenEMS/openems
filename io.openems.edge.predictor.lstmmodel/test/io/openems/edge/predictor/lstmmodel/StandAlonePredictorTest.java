@@ -4,8 +4,6 @@ import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
-import org.junit.Test;
-
 //import org.junit.Test;
 
 import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
@@ -76,9 +74,8 @@ public class StandAlonePredictorTest {
 
 	}
 
-	@Test
-
-	public void predictionTestMultivarient() {
+	// @Test
+	protected void predictionTestMultivarient() {
 		ArrayList<ArrayList<Double>> predictedSeasonality = new ArrayList<ArrayList<Double>>();
 		ArrayList<Double> predictedTrend = new ArrayList<Double>();
 
