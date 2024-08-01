@@ -14,12 +14,9 @@ import { AbstractHistoryChart } from '../abstracthistorychart';
 })
 export class DelayedSellToGridChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() public componentId: string;
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public componentId!: string;
 
-    ngOnChanges() {
-        this.updateChart();
-    }
 
     constructor(
         protected override service: Service,
@@ -29,6 +26,10 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
         super("delayedsellTogrid-chart", service, translate);
     }
 
+    ngOnChanges() {
+        this.updateChart();
+    }
+
     ngOnInit() {
         this.startSpinner();
         this.service.setCurrentComponent('', this.route);
@@ -36,6 +37,10 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 1.3;
     }
 
     protected updateChart() {
@@ -210,7 +215,4 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
         this.options = this.createDefaultChartOptions();
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 1.3;
-    }
 }

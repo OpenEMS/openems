@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
@@ -9,12 +8,10 @@ import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
 })
 export class ChpSocChartOverviewComponent implements OnInit {
 
-    public edge: Edge = null;
-    public config: EdgeConfig = null;
-
-    public component: EdgeConfig.Component = null;
-
     private static readonly SELECTOR = "chpsoc-chart-overview";
+    public edge: Edge | null = null;
+    public config: EdgeConfig | null = null;
+    public component: EdgeConfig.Component | null = null;
 
     constructor(
         public service: Service,

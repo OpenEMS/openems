@@ -7,20 +7,17 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChartAxis, Utils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service } from 'src/app/shared/shared';
 
-import { AbstractHistoryChart } from '../abstracthistorychart';
 import { formatNumber } from '@angular/common';
+import { AbstractHistoryChart } from '../abstracthistorychart';
 
 @Component({
     selector: 'storageTotalChart',
     templateUrl: '../abstracthistorychart.html',
 })
 export class StorageTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
-    @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() public showPhases: boolean;
 
-    ngOnChanges() {
-        this.updateChart();
-    }
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public showPhases!: boolean;
 
     constructor(
         protected override service: Service,
@@ -30,6 +27,10 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
         super("storage-total-chart", service, translate);
     }
 
+    ngOnChanges() {
+        this.updateChart();
+    }
+
     ngOnInit() {
         this.startSpinner();
         this.service.setCurrentComponent('', this.route);
@@ -37,6 +38,10 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 21 * 9;
     }
 
     protected updateChart() {
@@ -254,9 +259,5 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         };
-    }
-
-    public getChartHeight(): number {
-        return window.innerHeight / 21 * 9;
     }
 }

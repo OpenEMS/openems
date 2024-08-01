@@ -1,11 +1,11 @@
 package io.openems.edge.controller.api.backend;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.handshake.Handshakedata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonObject;
-
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
@@ -18,7 +18,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 	}
 
 	@Override
-	public void run(WebSocket ws, JsonObject handshake) {
+	public OpenemsError apply(WebSocket ws, Handshakedata handshakedata) {
 		this.parent.logInfo(this.log, "Connected to OpenEMS Backend");
 
 		// Immediately send Config
@@ -31,6 +31,8 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 		// Trigger resending data
 		this.parent.resendHistoricDataWorker.triggerNextRun();
+
+		return null; // No error
 	}
 
 }

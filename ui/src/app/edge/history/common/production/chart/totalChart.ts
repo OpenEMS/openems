@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
-import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { AbstractHistoryChart } from 'src/app/shared/components/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 
 import { ChartAxis, HistoryUtils, Utils, YAxisTitle } from '../../../../../shared/service/utils';
@@ -8,9 +8,17 @@ import { ChannelAddress } from '../../../../../shared/shared';
 
 @Component({
   selector: 'productionTotalChart',
-  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
+  templateUrl: '../../../../../shared/components/chart/abstracthistorychart.html',
 })
 export class TotalChartComponent extends AbstractHistoryChart {
+
+  public override getChartHeight(): number {
+    if (this.showTotal) {
+      return window.innerHeight / 1.3;
+    } else {
+      return window.innerHeight / 2.3;
+    }
+  }
 
   protected override getChartData(): HistoryUtils.ChartData {
     const productionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
@@ -68,7 +76,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
     const chartObject: HistoryUtils.ChartData = {
       input: channels,
       output: (data: HistoryUtils.ChannelData) => {
-        const datasets: HistoryUtils.DisplayValues[] = [];
+        const datasets: HistoryUtils.DisplayValue[] = [];
         datasets.push({
           name: this.showTotal == false ? this.translate.instant('General.production') : this.translate.instant('General.TOTAL'),
           nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => {
@@ -162,11 +170,4 @@ export class TotalChartComponent extends AbstractHistoryChart {
     return chartObject;
   }
 
-  public override getChartHeight(): number {
-    if (this.showTotal) {
-      return window.innerHeight / 1.3;
-    } else {
-      return window.innerHeight / 2.3;
-    }
-  }
 }

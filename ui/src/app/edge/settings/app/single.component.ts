@@ -32,28 +32,24 @@ export class SingleAppComponent implements OnInit, OnDestroy {
   public form: FormGroup | null = null;
   public model: any | null = null;
 
+  protected canEnterKey: boolean | undefined;
+  protected hasPredefinedKey: boolean | undefined;
+  protected keyForFreeApps: string;
+  protected isFreeApp: boolean = false;
+  protected isPreInstalledApp: boolean = false;
+
   private appId: string | null = null;
   private appName: string | null = null;
   private app: GetApps.App | null = null;
   private descriptor: GetAppDescriptor.AppDescriptor | null = null;
   private isXL: boolean = true;
-
   // for stopping spinner when all responses are recieved
   private readonly requestCount: number = 3;
   private receivedResponse: number = 0;
-
   private edge: Edge | null = null;
-
   private key: string | null = null;
   private useMasterKey: boolean = false;
-
-  protected canEnterKey: boolean | undefined;
-  protected hasPredefinedKey: boolean | undefined;
-
   private stopOnDestroy: Subject<void> = new Subject<void>();
-  protected keyForFreeApps: string;
-  protected isFreeApp: boolean = false;
-  protected isPreInstalledApp: boolean = false;
 
   public constructor(
     private route: ActivatedRoute,
@@ -65,6 +61,11 @@ export class SingleAppComponent implements OnInit, OnDestroy {
     private sanitizer: DomSanitizer,
     protected modalController: ModalController,
   ) {
+  }
+
+  @HostListener('window:resize', ['$event'])
+  private onResize(event) {
+    this.updateIsXL();
   }
 
   public ngOnInit() {
@@ -181,20 +182,37 @@ export class SingleAppComponent implements OnInit, OnDestroy {
     this.stopOnDestroy.complete();
   }
 
-  @HostListener('window:resize', ['$event'])
-  private onResize(event) {
-    this.updateIsXL();
-  }
-
-  private updateIsXL() {
-    this.isXL = 1200 <= window.innerWidth;
-  }
-
   protected iFrameStyle() {
     const styles = {
       'height': (this.isXL) ? '100%' : window.innerHeight + 'px',
     };
     return styles;
+  }
+
+  protected installApp(appId: string) {
+    if (this.key || this.useMasterKey) {
+      // if key already set navigate directly to installation view
+      const state = this.useMasterKey ? { useMasterKey: true } : { appKey: this.key };
+      this.router.navigate(['device/' + (this.edge.id) + '/settings/app/install/' + this.appId]
+        , { queryParams: { name: this.appName }, state: state });
+      return;
+    }
+    // if the version is not high enough and the edge doesnt support installing apps via keys directly navigate to installation
+    if (!hasKeyModel(this.edge) || this.isFreeApp) {
+      this.router.navigate(['device/' + (this.edge.id) + '/settings/app/install/' + this.appId]
+        , { queryParams: { name: this.appName } });
+      return;
+    }
+    // show modal to let the user enter a key
+    this.presentModal(appId, KeyValidationBehaviour.NAVIGATE);
+  }
+
+  protected registerKey(appId: string) {
+    this.presentModal(appId, KeyValidationBehaviour.REGISTER);
+  }
+
+  private updateIsXL() {
+    this.isXL = 1200 <= window.innerWidth;
   }
 
   private setApp(app: GetApps.App) {
@@ -224,28 +242,6 @@ export class SingleAppComponent implements OnInit, OnDestroy {
       cssClass: 'auto-height',
     });
     return await modal.present();
-  }
-
-  protected installApp(appId: string) {
-    if (this.key || this.useMasterKey) {
-      // if key already set navigate directly to installation view
-      const state = this.useMasterKey ? { useMasterKey: true } : { appKey: this.key };
-      this.router.navigate(['device/' + (this.edge.id) + '/settings/app/install/' + this.appId]
-        , { queryParams: { name: this.appName }, state: state });
-      return;
-    }
-    // if the version is not high enough and the edge doesnt support installing apps via keys directly navigate to installation
-    if (!hasKeyModel(this.edge) || this.isFreeApp) {
-      this.router.navigate(['device/' + (this.edge.id) + '/settings/app/install/' + this.appId]
-        , { queryParams: { name: this.appName } });
-      return;
-    }
-    // show modal to let the user enter a key
-    this.presentModal(appId, KeyValidationBehaviour.NAVIGATE);
-  }
-
-  protected registerKey(appId: string) {
-    this.presentModal(appId, KeyValidationBehaviour.REGISTER);
   }
 
 }

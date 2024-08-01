@@ -8,23 +8,16 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 	@Override
 	public State runAndGetNextState(Context context) {
 		final var inverter = context.getParent();
-
-		if (inverter.getCurrentState().isUndefined()) {
-			return State.UNDEFINED;
+		return switch (inverter.getStartStopTarget()) {
+		case UNDEFINED -> State.UNDEFINED;
+		case START -> {
+			if (inverter.hasFailure()) {
+				yield State.ERROR;
+			}
+			yield State.GO_RUNNING;
 		}
-
-		if (inverter.hasFailure()) {
-			return State.ERROR;
-		}
-
-		if (inverter.isRunning()) {
-			return State.RUNNING;
-		}
-
-		if (inverter.isShutdown()) {
-			return State.STOPPED;
-		}
-
-		return State.GO_STOPPED;
+		case STOP -> State.GO_STOPPED;
+		};
 	}
+
 }

@@ -14,12 +14,8 @@ import { AbstractHistoryChart } from '../../abstracthistorychart';
 })
 export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() public component: EdgeConfig.Component;
-
-    ngOnChanges() {
-        this.updateChart();
-    }
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public component!: EdgeConfig.Component;
 
     constructor(
         protected override service: Service,
@@ -29,6 +25,10 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
         super("asymmetricpeakshaving-chart", service, translate);
     }
 
+    ngOnChanges() {
+        this.updateChart();
+    }
+
     ngOnInit() {
         this.startSpinner();
         this.service.setCurrentComponent('', this.route);
@@ -36,6 +36,10 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 1.3;
     }
 
     protected updateChart() {
@@ -237,7 +241,4 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
         this.options = this.createDefaultChartOptions();
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 1.3;
-    }
 }

@@ -1,7 +1,9 @@
 package io.openems.common.websocket;
 
+import java.util.function.BiConsumer;
+
 @FunctionalInterface
-public interface OnInternalError {
+public interface OnInternalError extends BiConsumer<Throwable, String> {
 
 	/**
 	 * Handles an internal error.
@@ -9,6 +11,6 @@ public interface OnInternalError {
 	 * @param t            the error {@link Throwable}
 	 * @param wsDataString the content from WsData.toString()
 	 */
-	public void run(Throwable t, String wsDataString);
+	public void accept(Throwable t, String wsDataString);
 
 }

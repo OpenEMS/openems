@@ -9,12 +9,12 @@ import { Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
 })
 export class StorageChartOverviewComponent implements OnInit {
 
-    public edge: Edge = null;
-
     private static readonly SELECTOR = "storage-chart-overview";
 
-    public essComponents: EdgeConfig.Component[] = null;
-    public chargerComponents: EdgeConfig.Component[] = null;
+    public edge: Edge | null = null;
+
+    public essComponents: EdgeConfig.Component[] | null = null;
+    public chargerComponents: EdgeConfig.Component[] | null = null;
 
     public showPhases: boolean = false;
     public showTotal: boolean = false;

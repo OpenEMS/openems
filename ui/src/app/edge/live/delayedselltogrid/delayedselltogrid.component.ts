@@ -14,11 +14,11 @@ export class DelayedSellToGridComponent implements OnInit, OnDestroy {
 
     private static readonly SELECTOR = "delayedselltogrid";
 
-    @Input() public componentId: string;
+    @Input({ required: true }) public componentId!: string;
 
-    public edge: Edge = null;
+    public edge: Edge | null = null;
 
-    public component: EdgeConfig.Component = null;
+    public component: EdgeConfig.Component | null = null;
 
     constructor(
         private route: ActivatedRoute,

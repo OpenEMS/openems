@@ -1,13 +1,13 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
-import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { AbstractHistoryChart } from 'src/app/shared/components/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ChartAxis, HistoryUtils, Utils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress } from 'src/app/shared/shared';
 
 @Component({
     selector: 'selfconsumptionChart',
-    templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
+    templateUrl: '../../../../../shared/components/chart/abstracthistorychart.html',
 })
 export class ChartComponent extends AbstractHistoryChart {
 

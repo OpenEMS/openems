@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
 
 import { ChannelAddress, CurrentData, Utils } from '../../../../../shared/shared';
 import { Controller_Symmetric_PeakShavingModalComponent } from './modal/modal.component';
@@ -15,6 +15,17 @@ export class Controller_Symmetric_PeakShavingComponent extends AbstractFlatWidge
     public peakShavingPower: number;
     public rechargePower: number;
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
+
+    async presentModal() {
+        const modal = await this.modalController.create({
+            component: Controller_Symmetric_PeakShavingModalComponent,
+            componentProps: {
+                component: this.component,
+                edge: this.edge,
+            },
+        });
+        return await modal.present();
+    }
 
     protected override getChannelAddresses() {
         return [
@@ -33,14 +44,4 @@ export class Controller_Symmetric_PeakShavingComponent extends AbstractFlatWidge
         this.rechargePower = this.component.properties['rechargePower'];
     }
 
-    async presentModal() {
-        const modal = await this.modalController.create({
-            component: Controller_Symmetric_PeakShavingModalComponent,
-            componentProps: {
-                component: this.component,
-                edge: this.edge,
-            },
-        });
-        return await modal.present();
-    }
 }

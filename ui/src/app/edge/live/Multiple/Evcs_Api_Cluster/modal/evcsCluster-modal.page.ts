@@ -14,16 +14,13 @@ type Priority = 'CAR' | 'STORAGE';
 })
 export class Evcs_Api_ClusterModalComponent implements OnInit {
 
-    @Input() public edge: Edge;
-    @Input() public config: EdgeConfig.Component = null;
-    @Input() public componentId: string;
+    @Input({ required: true }) public edge!: Edge;
+    @Input() public config: EdgeConfig.Component | null = null;
+    @Input({ required: true }) public componentId!: string;
     @Input() public evcsMap: { [sourceId: string]: EdgeConfig.Component } = {};
 
     @ViewChild(IonReorderGroup, { static: true })
     public reorderGroup: IonReorderGroup;
-
-    public chargeState: ChargeState;
-    private chargePlug: ChargePlug;
     public evcsAmount: number;
     public swiperIndex: number = 0;
     public slideOpts = {
@@ -37,6 +34,9 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
     public lastEvcs: string;
     public prioritizedEvcsList: string[];
     public evcsConfigMap: { [evcsId: string]: EdgeConfig.Component } = {};
+
+    public chargeState: ChargeState;
+    private chargePlug: ChargePlug;
 
     constructor(
         protected service: Service,

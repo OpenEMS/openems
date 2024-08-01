@@ -26,6 +26,24 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
         this.displayType = this.props["displayType"] ?? 'string';
     }
 
+    public getValue() {
+        if (this.displayType === 'boolean'
+            || this.displayType === 'number'
+            || this.displayType === 'string') {
+            return this.model[this.pathToDisplayValue];
+        }
+
+        if (this.displayType === 'optionGroup') {
+            const value = this.getValueOfOptionGroup();
+            if (value) {
+                return value;
+            }
+        }
+
+        // not defined
+        return this.model[this.pathToDisplayValue];
+    }
+
     protected onSelectItem() {
         this.formControl.markAsTouched();
         this.openModal();
@@ -81,24 +99,6 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
             this.formControl.markAsDirty();
         });
         return await modal.present();
-    }
-
-    public getValue() {
-        if (this.displayType === 'boolean'
-            || this.displayType === 'number'
-            || this.displayType === 'string') {
-            return this.model[this.pathToDisplayValue];
-        }
-
-        if (this.displayType === 'optionGroup') {
-            const value = this.getValueOfOptionGroup();
-            if (value) {
-                return value;
-            }
-        }
-
-        // not defined
-        return this.model[this.pathToDisplayValue];
     }
 
     private getValueOfOptionGroup(): string {

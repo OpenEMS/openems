@@ -291,7 +291,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	}
 
 	/**
-	 * Gets the Allowed Charge Power in [W], range "&lt;= 0". See
+	 * Gets the Allowed Charge Power in [W], range "<= 0". See
 	 * {@link ChannelId#ALLOWED_CHARGE_POWER}.
 	 *
 	 * @return the Channel {@link Value}
@@ -330,7 +330,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	}
 
 	/**
-	 * Gets the Allowed Discharge Power in [W], range "&lt;= 0". See
+	 * Gets the Allowed Discharge Power in [W], range ">= 0". See
 	 * {@link ChannelId#ALLOWED_DISCHARGE_POWER}.
 	 *
 	 * @return the Channel {@link Value}

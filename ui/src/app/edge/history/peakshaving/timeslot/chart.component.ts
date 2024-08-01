@@ -14,12 +14,8 @@ import { AbstractHistoryChart } from '../../abstracthistorychart';
 })
 export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() public componentId: string;
-
-    ngOnChanges() {
-        this.updateChart();
-    }
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public componentId!: string;
 
     constructor(
         protected override service: Service,
@@ -29,6 +25,10 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
         super("timeslotpeakshaving-chart", service, translate);
     }
 
+    ngOnChanges() {
+        this.updateChart();
+    }
+
     ngOnInit() {
         this.startSpinner();
         this.service.setCurrentComponent('', this.route);
@@ -36,6 +36,10 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 1.3;
     }
 
     protected updateChart() {
@@ -224,7 +228,4 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
         this.options = this.createDefaultChartOptions();
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 1.3;
-    }
 }

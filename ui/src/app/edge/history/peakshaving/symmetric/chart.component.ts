@@ -13,12 +13,8 @@ import { AbstractHistoryChart } from '../../abstracthistorychart';
 })
 export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() public componentId: string;
-
-    ngOnChanges() {
-        this.updateChart();
-    }
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public componentId!: string;
 
     constructor(
         protected override service: Service,
@@ -28,6 +24,10 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
         super("symmetricpeakshaving-chart", service, translate);
     }
 
+    ngOnChanges() {
+        this.updateChart();
+    }
+
     ngOnInit() {
         this.startSpinner();
         this.service.setCurrentComponent('', this.route);
@@ -35,6 +35,10 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 1.3;
     }
 
     protected updateChart() {
@@ -209,7 +213,4 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
         this.options = options;
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 1.3;
-    }
 }

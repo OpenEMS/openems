@@ -14,19 +14,7 @@ export class ChangelogComponent {
 
   public environment = environment;
 
-  protected slice: number = 10;
-  protected showAll: boolean = false;
-  constructor(
-    public translate: TranslateService,
-    public service: Service,
-    private route: ActivatedRoute,
-  ) { }
-
   public readonly roleIsAtLeast = Role.isAtLeast;
-  public numberToRole(role: number): string {
-    return Role[role].toLowerCase();
-  }
-
   public readonly changelogs: {
     title?: string,
     version?: string,
@@ -40,4 +28,16 @@ export class ChangelogComponent {
       },
     ];
 
+
+  protected slice: number = 10;
+  protected showAll: boolean = false;
+  constructor(
+    public translate: TranslateService,
+    public service: Service,
+    private route: ActivatedRoute,
+  ) { }
+
+  public numberToRole(role: number): string {
+    return Role[role].toLowerCase();
+  }
 }
