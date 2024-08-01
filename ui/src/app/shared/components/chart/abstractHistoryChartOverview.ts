@@ -15,7 +15,7 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
    */
   public isInitialized: boolean = false;
   public config: EdgeConfig = null;
-  public component: EdgeConfig.Component = null;
+  public component: EdgeConfig.Component | null = null;
   public stopOnDestroy: Subject<void> = new Subject<void>();
   public edge: Edge | null = null;
   public period: DefaultTypes.HistoryPeriod;

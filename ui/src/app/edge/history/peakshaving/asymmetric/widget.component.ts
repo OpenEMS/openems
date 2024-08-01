@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { ActivatedRoute } from '@angular/router';
 import { Component, Input, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -15,8 +14,8 @@ export class AsymmetricPeakshavingWidgetComponent implements OnInit {
     @Input({ required: true }) public componentId!: string;
 
 
-    public edge: Edge = null;
-    public component: EdgeConfig.Component = null;
+    public edge: Edge | null = null;
+    public component: EdgeConfig.Component | null = null;
 
     constructor(
         public service: Service,

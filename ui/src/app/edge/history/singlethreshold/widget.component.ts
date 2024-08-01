@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
@@ -19,9 +18,9 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public componentId!: string;
 
-    public activeSecondsOverPeriod: number = null;
-    public edge: Edge = null;
-    public component: EdgeConfig.Component = null;
+    public activeSecondsOverPeriod: number | null = null;
+    public edge: Edge | null = null;
+    public component: EdgeConfig.Component | null = null;
 
     constructor(
         public override service: Service,

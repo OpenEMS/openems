@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
 import { EdgeConfig } from 'src/app/shared/shared';
@@ -12,7 +11,7 @@ import { Io_Api_DigitalInput_ModalComponent } from './modal/modal.component';
 
 export class Io_Api_DigitalInputComponent extends AbstractFlatWidget {
 
-    public ioComponents: EdgeConfig.Component[] = null;
+    public ioComponents: EdgeConfig.Component[] | null = null;
     public ioComponentCount = 0;
 
     async presentModal() {

@@ -18,8 +18,8 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
     // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
-    public data: Cumulated = null;
-    public edge: Edge = null;
+    public data: Cumulated | null = null;
+    public edge: Edge | null = null;
     public essComponents: EdgeConfig.Component[] = [];
 
     constructor(

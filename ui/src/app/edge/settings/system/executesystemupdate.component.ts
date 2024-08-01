@@ -18,7 +18,7 @@ export class ExecuteSystemUpdateComponent implements OnInit, OnDestroy {
   public readonly spinnerId: string = ExecuteSystemUpdateComponent.SELECTOR;
 
   public readonly environment = environment;
-  protected executeUpdate: ExecuteSystemUpdate = null;
+  protected executeUpdate: ExecuteSystemUpdate | null = null;
 
   protected isWaiting: boolean;
 

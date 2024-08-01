@@ -13,13 +13,13 @@ export class ComponentInstallComponent implements OnInit {
 
   private static readonly SELECTOR = "componentInstall";
 
-  public edge: Edge = null;
-  public factory: EdgeConfig.Factory = null;
+  public edge: Edge | null = null;
+  public factory: EdgeConfig.Factory | null = null;
   public form = null;
   public model = null;
-  public fields: FormlyFieldConfig[] = null;
+  public fields: FormlyFieldConfig[] | null = null;
 
-  private factoryId: string = null;
+  private factoryId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,

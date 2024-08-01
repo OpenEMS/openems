@@ -19,7 +19,7 @@ export class FlatComponent extends AbstractFlatWidget {
   public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
 
   protected controller: EdgeConfig.Component;
-  protected evcsComponent: EdgeConfig.Component = null;
+  protected evcsComponent: EdgeConfig.Component | null = null;
   protected isConnectionSuccessful: boolean = false;
   protected isEnergySinceBeginningAllowed: boolean = false;
   protected mode: string;
@@ -33,14 +33,14 @@ export class FlatComponent extends AbstractFlatWidget {
   protected minChargePower: number;
   protected maxChargePower: number;
   protected forceChargeMinPower: string;
-  protected chargeMode: ChargeMode = null;
+  protected chargeMode: ChargeMode | null = null;
   protected readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
   protected readonly CONVERT_TO_KILO_WATTHOURS = Utils.CONVERT_TO_KILO_WATTHOURS;
   protected readonly CONVERT_MANUAL_ON_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
   protected chargeTarget: string;
   protected energySession: string;
   protected chargeDischargePower: { name: string, value: number };
-  protected propertyMode: DefaultTypes.ManualOnOff = null;
+  protected propertyMode: DefaultTypes.ManualOnOff | null = null;
   protected status: string;
 
   formatNumber(i: number) {

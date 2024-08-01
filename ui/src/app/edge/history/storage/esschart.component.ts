@@ -18,7 +18,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     @Input({ required: true }) public componentId!: string;
     @Input({ required: true }) public showPhases!: boolean;
 
-    private moreThanOneProducer: boolean = null;
+    private moreThanOneProducer: boolean | null = null;
 
     constructor(
         protected override service: Service,

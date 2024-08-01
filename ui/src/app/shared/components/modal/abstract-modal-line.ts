@@ -46,10 +46,10 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     /**
      * displayValue is the displayed @Input value in html
     */
-    public displayValue: string = null;
-    public displayName: string = null;
-    public edge: Edge = null;
-    public config: EdgeConfig = null;
+    public displayValue: string | null = null;
+    public displayName: string | null = null;
+    public edge: Edge | null = null;
+    public config: EdgeConfig | null = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
 
     /** Checks if any value of this line can be seen => hides line if false
