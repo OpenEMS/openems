@@ -53,7 +53,7 @@ export class CurrentVoltageChartComponent extends AbstractHistoryChart {
       yAxes: [{
         unit: YAxisTitle.VOLTAGE,
         position: 'left',
-        yAxisId: ChartAxis.LEFT,
+        yAxisId: ChartAxis.RIGHT,
       },
       {
         unit: YAxisTitle.CURRENT,

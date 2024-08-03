@@ -241,6 +241,15 @@ export abstract class AbstractHistoryChart implements OnInit {
    * @returns chart options
    */
   public static applyChartTypeSpecificOptionsChanges(chartType: 'bar' | 'line', options: Chart.ChartOptions, service: Service, chartObject: HistoryUtils.ChartData | null): Chart.ChartOptions {
+    options.scales = options.scales || {};
+    options.scales.x = options.scales.x || {};
+
+    if (chartObject && chartObject.yAxes) {
+      chartObject.yAxes.forEach(yAxis => {
+        options.scales[yAxis.yAxisId] = options.scales[yAxis.yAxisId] || {};
+      });
+    }
+
     switch (chartType) {
       case 'bar': {
         options.plugins.tooltip.mode = 'x';
@@ -248,26 +257,15 @@ export abstract class AbstractHistoryChart implements OnInit {
         options.scales.x.ticks['source'] = 'data';
         let barPercentage = 1;
         switch (service.periodString) {
-          case DefaultTypes.PeriodString.CUSTOM: {
+          case DefaultTypes.PeriodString.CUSTOM:
             barPercentage = 0.7;
             break;
-          }
-          case DefaultTypes.PeriodString.MONTH: {
-            if (service.isSmartphoneResolution == true) {
-              barPercentage = 1;
-            } else {
-              barPercentage = 0.9;
-            }
+          case DefaultTypes.PeriodString.MONTH:
+            barPercentage = service.isSmartphoneResolution ? 1 : 0.9;
             break;
-          }
-          case DefaultTypes.PeriodString.YEAR: {
-            if (service.isSmartphoneResolution == true) {
-              barPercentage = 1;
-            } else {
-              barPercentage = 0.8;
-            }
+          case DefaultTypes.PeriodString.YEAR:
+            barPercentage = service.isSmartphoneResolution ? 1 : 0.8;
             break;
-          }
         }
 
         options.datasets.bar = {
@@ -283,7 +281,9 @@ export abstract class AbstractHistoryChart implements OnInit {
 
         if (chartObject) {
           for (const yAxis of chartObject.yAxes) {
-            options.scales[yAxis.yAxisId]['stacked'] = false;
+            if (options.scales[yAxis.yAxisId]) {
+              options.scales[yAxis.yAxisId]['stacked'] = false;
+            }
           }
         }
         break;
