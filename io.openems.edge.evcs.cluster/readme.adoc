@@ -1,6 +1,6 @@
 = EVCS Cluster
 
-Distributes the charging power (Depending on the implementation) to the priorized charging stations.
+Distributes the charging power (Depending on the implementation) to the prioritized charging stations.
 The implementations calculate the maximum power that can be used by all charging stations.
 
 Possible Cluster implementations:

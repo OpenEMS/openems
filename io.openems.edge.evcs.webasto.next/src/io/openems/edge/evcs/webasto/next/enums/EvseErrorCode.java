@@ -10,7 +10,7 @@ public enum EvseErrorCode implements OptionsEnum {
 	EV_COMMUNICATION_ERROR(3, "EV communication error"), //
 	OVER_VOLTAGE(4, "Over Voltage"), //
 	UNDER_VOLTAGE(5, "Under Voltage"), //
-	OVER_CURRENT_FALIURE(6, "Over current faliure"), //
+	OVER_CURRENT_FAILURE(6, "Over current failure"), //
 	OTHER_ERROR(7, "Other error"), //
 	GROUND_FAILURE(8, "Ground failure"), //
 	RCD_MODULE_ERROR(9, "Error RCD modulel"), //

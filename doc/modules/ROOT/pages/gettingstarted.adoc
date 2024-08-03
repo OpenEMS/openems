@@ -237,7 +237,7 @@ image::openems-ui-login.png[OpenEMS UI Login screen]
 .OpenEMS UI Energymonitor screen
 image::openems-ui-edge-overview.png[OpenEMS UI Energymonitor screen]
 
-_Unfortunately the hosted version of OpenEMS UI is currently slightly outdated and incompatble with latest OpenEMS Edge. Follow the xref:ui/setup-ide.adoc[OpenEMS UI guide] to produce the following visualization. The language can be changed in the "burger menu" on top left -> btn:[admin] -> btn:[Allgemeine Einstellungen]._ 
+_Unfortunately the hosted version of OpenEMS UI is currently slightly outdated and incompatible with latest OpenEMS Edge. Follow the xref:ui/setup-ide.adoc[OpenEMS UI guide] to produce the following visualization. The language can be changed in the "burger menu" on top left -> btn:[admin] -> btn:[Allgemeine Einstellungen]._ 
 
 .OpenEMS UI Energymonitor screen
 image::openems-ui-edge-overview2.png[OpenEMS UI Energymonitor screen]
