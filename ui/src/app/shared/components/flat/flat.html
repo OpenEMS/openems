@@ -2,8 +2,8 @@
     <ion-item color="light" lines="full">
 
         <!-- Check if img or icon is handed over. -->
-        <ion-avatar *ngIf="img" slot="start">
-            <img [src]="img">
+        <ion-avatar *ngIf="img" slot="start" [class]="'iconify' + (img.large? ' icon-large' : '')">
+            <img [src]="img.src">
         </ion-avatar>
         <ion-icon *ngIf="icon" slot="start" [size]="icon.size || 'large'" [color]="icon.color || 'primary'"
             [name]="icon.name">

@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Component, Input } from '@angular/core';
-import { Icon } from 'src/app/shared/type/widget';
+import { Icon, ImageIcon } from 'src/app/shared/type/widget';
 
 @Component({
   selector: 'oe-flat-widget',
@@ -9,7 +9,7 @@ import { Icon } from 'src/app/shared/type/widget';
 export class FlatWidgetComponent {
 
   /** Image in Header */
-  @Input() public img?: string;
+  @Input() public img?: ImageIcon;
 
   /** Icon in Header */
   @Input() public icon: Icon | null = null;
