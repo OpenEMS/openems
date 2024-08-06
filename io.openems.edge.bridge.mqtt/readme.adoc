@@ -1,0 +1,32 @@
+= Bridge Mqtt v3.1.1
+
+This Bridge provides the ability to Connect to MQTT Broker with Version 3.1.1.
+After Connecting to the Broker its possible to add MqttComponents with Publish and SubcribeTasks
+To handle individual Payloads.
+
+This allows individual configuration and publishing/subscribing of Broker etc.
+
+See io.openems.consolinno.edge.component for more information.
+
+
+== Usage
+
+* `brokerUrl` - Provide the complete URL/URI to the Broker e.g. `tcp://mosquitto.org:1883`
+* `userRequired` - Are user credentials necessary for authentication
+* `username` - the username
+* `password` - the password
+
+== NOTES
+
+* Websocket
+    ** uses usually the standard Port 443
+    ** have a basepath (usually `/ws`) creating the uri  wss://test-broker.com:443/ws
+    ** usually they use credentials and use `wss` in the beginning
+
+* TCP
+    ** TCP Connection without encryption use `tcp://`
+    ** Standard Port is 1883
+
+* SSL/TLS
+    ** Connections with encryption use `ssl://`
+    ** Standard Port is 8883
