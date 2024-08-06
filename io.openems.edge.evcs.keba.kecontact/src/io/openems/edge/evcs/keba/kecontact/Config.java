@@ -28,5 +28,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Use display?", description = "Activates the KEBA display to show the current power or states.", required = true)
 	boolean useDisplay() default true;
 
+	@AttributeDefinition(name = "Use Phase Switching?", description = "Enables or disables the use of external phase switching to control the charging process.")
+	boolean phaseSwitchActive() default false;
+
 	String webconsole_configurationFactory_nameHint() default "EVCS KEBA KeContact [{id}]";
 }

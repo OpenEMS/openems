@@ -756,6 +756,11 @@ public interface Evcs extends OpenemsComponent {
 			var maximumPower = phases.getFromThreePhase(fixedMaximum);
 			var minimumPower = phases.getFromThreePhase(fixedMinimum);
 
+			if (evcs instanceof ManagedEvcs mEvcs && mEvcs.considerPhaseSwitching()) {
+				maximumPower = Phases.THREE_PHASE.getFromThreePhase(fixedMaximum);
+				minimumPower = Phases.ONE_PHASE.getFromThreePhase(fixedMinimum);
+			}
+
 			evcs.getMaximumHardwarePowerChannel().setNextValue(maximumPower);
 			evcs.getMinimumHardwarePowerChannel().setNextValue(minimumPower);
 		};
