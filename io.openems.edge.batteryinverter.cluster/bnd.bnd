@@ -1,0 +1,14 @@
+Bundle-Name: OpenEMS Edge io.openems.edge.batteryinverter.cluster
+Bundle-Vendor: RVR Energy Technology Ltd.
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.batteryinverter.api,\
+	io.openems.edge.battery.api
+
+-testpath: \
+	${testpath}
