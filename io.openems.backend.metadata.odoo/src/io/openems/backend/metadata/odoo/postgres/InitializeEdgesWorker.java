@@ -3,8 +3,9 @@ package io.openems.backend.metadata.odoo.postgres;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +22,7 @@ public class InitializeEdgesWorker {
 	protected final PostgresHandler parent;
 	private final HikariDataSource dataSource;
 	private final Runnable onFinished;
-
-	/**
-	 * Executor for subscriptions task.
-	 */
-	private final ExecutorService executor = Executors.newSingleThreadExecutor();
+	private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(1);
 
 	public InitializeEdgesWorker(PostgresHandler parent, HikariDataSource dataSource, Runnable onFinished) {
 		this.parent = parent;
@@ -37,26 +34,39 @@ public class InitializeEdgesWorker {
 	 * Starts the {@link InitializeEdgesWorker}.
 	 */
 	public synchronized void start() {
-		this.executor.execute(() -> {
-			try (var con = this.dataSource.getConnection()) {
-				this.parent.logInfo(this.log, "Caching Edges from Postgres [started]");
-				this.markAllEdgesAsOffline(con);
-				this.readAllEdgesFromPostgres(con);
-				this.parent.logInfo(this.log, "Caching Edges from Postgres [finished]");
-			} catch (SQLException e) {
-				this.parent.logWarn(this.log, "Caching Edges from Postgres [canceled]");
-				this.logError("Unable to connect do dataSource. ", e);
-			}
+		try (var con = this.dataSource.getConnection()) {
+			// Immediately mark all edges as offline before any scheduled tasks
+			this.markAllEdgesAsOffline(con);
+			this.parent.logInfo(this.log, "All edges marked offline on initial run");
+		} catch (SQLException e) {
+			this.logError("Unable to connect to Postgres ", e);
+		} finally {
 			this.onFinished.run();
-		});
+		}
+
+		// Schedule the periodic execution
+		this.scheduledExecutor.scheduleAtFixedRate(() -> {
+			try (var con = this.dataSource.getConnection()) {
+				this.runCachingEdgesTask(con);
+			} catch (SQLException e) {
+				this.logError("Unable to connect to Postgres ", e);
+			} finally {
+				this.onFinished.run();
+			}
+		}, 0, 30, TimeUnit.MINUTES); // Start immediately and run every 30 minutes
+	}
+
+	private void runCachingEdgesTask(Connection con) {
+		this.parent.logInfo(this.log, "Caching Edges from Postgres [started]");
+		this.readAllEdgesFromPostgres(con);
+		this.parent.logInfo(this.log, "Caching Edges from Postgres [finished]");
 	}
 
 	/**
 	 * Stops the {@link InitializeEdgesWorker}.
 	 */
 	public synchronized void stop() {
-		// Shutdown executor
-		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.scheduledExecutor, 5);
 	}
 
 	private void markAllEdgesAsOffline(Connection con) {
