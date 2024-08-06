@@ -50,6 +50,13 @@ public abstract class AbstractPredictor extends AbstractOpenemsComponent impleme
 		}
 	}
 
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled, String channelAddresses,
+			LogVerbosity logVerbosity) throws OpenemsNamedException {
+		super.activate(context, id, alias, enabled);
+		this.logVerbosity = logVerbosity;
+		this.predictions.put(ChannelAddress.fromString(channelAddresses), EMPTY_PREDICTION);
+	}
+
 	@Override
 	public ChannelAddress[] getChannelAddresses() {
 		return this.predictions.keySet().toArray(ChannelAddress[]::new);
