@@ -30,7 +30,7 @@ public class SolveNearEqual {
 	 */
 	public PointValuePair solve(int totalVariables) {
 
-		// If the SetPower is greater than Sum of inidividual upper bound, then return
+		// If the SetPower is greater than Sum of individual upper bound, then return
 		// the upper bound
 		if (this.powerSetValue > Arrays.stream(this.upperBound).sum()) {
 			return new PointValuePair(this.upperBound, 0.0);

@@ -32,7 +32,7 @@ public class ParamsUtils {
 	 * predicted consumption energy that cannot be supplied from production.
 	 * 
 	 * @param essMinSocEnergy ESS energy below a configured minimum SoC [Wh]
-	 * @param essMaxSocEnergy ESS energy below a configured maximium SoC [Wh]
+	 * @param essMaxSocEnergy ESS energy below a configured maximum SoC [Wh]
 	 * @param productions     Production predictions per period
 	 * @param consumptions    Consumption predictions per period
 	 * @param prices          Prices per period

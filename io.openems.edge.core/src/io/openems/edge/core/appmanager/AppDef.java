@@ -32,7 +32,7 @@ import io.openems.edge.core.appmanager.formly.builder.FormlyBuilder;
  * 
  * @param <APP>       the type of the app
  * @param <PROPERTY>  the type of the property
- * @param <PARAMETER> the type of the paramters
+ * @param <PARAMETER> the type of the parameters
  */
 public class AppDef<APP extends OpenemsApp, //
 		PROPERTY extends Nameable, //

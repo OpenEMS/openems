@@ -196,7 +196,7 @@ public final class Client implements Comparable<Client>, Runnable, Closeable {
 	/**
 	 * Check if ID is accepted by inverter
 	 *
-	 * @return true - ID accepted, false - ID not accpeted.
+	 * @return true - ID accepted, false - ID not accepted.
 	 */
 	public boolean isIdAccepted() {
 
@@ -206,7 +206,7 @@ public final class Client implements Comparable<Client>, Runnable, Closeable {
 	/**
 	 * Check if user password is accepted by inverter
 	 *
-	 * @return true - ID accepted, false - ID not accpeted.
+	 * @return true - ID accepted, false - ID not accepted.
 	 */
 	public boolean isPasswordAccepted() {
 		return this.accessBitTest(2);

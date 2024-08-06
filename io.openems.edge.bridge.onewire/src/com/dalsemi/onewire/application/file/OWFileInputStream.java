@@ -51,7 +51,7 @@ import com.dalsemi.onewire.container.OneWireContainer;
  * <li>File/directory names are not case sensitive and will be automatically
  * changed to all-CAPS
  * <li>Only files can have extensions
- * <li>Extensions are numberical in the range 0 to 125
+ * <li>Extensions are numerical in the range 0 to 125
  * <li>Extensions 100 to 125 are special purpose and not yet implemented or
  * allowed
  * <li>Files can have the read-only attribute

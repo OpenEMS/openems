@@ -75,11 +75,11 @@ export class HistoryComponent implements OnInit {
       /* handle grid breakpoints */(window.innerWidth < 768 ? window.innerWidth - 150 : window.innerWidth - 400));
     this.socChartHeight =
       /* minimum size */ Math.max(150,
-      /* maximium size */ Math.min(200, ref),
+      /* maximum size */ Math.min(200, ref),
     ) + "px";
     this.energyChartHeight =
       /* minimum size */ Math.max(300,
-      /* maximium size */ Math.min(600, ref),
+      /* maximum size */ Math.min(600, ref),
     ) + "px";
   }
 
