@@ -115,6 +115,7 @@
 	bnd.identity;id='io.openems.edge.ess.generic',\
 	bnd.identity;id='io.openems.edge.ess.samsung',\
 	bnd.identity;id='io.openems.edge.ess.sma',\
+	bnd.identity;id='io.openems.edge.ess.sungrow',\
 	bnd.identity;id='io.openems.edge.evcs.alpitronic.hypercharger',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.core',\
@@ -175,6 +176,7 @@
 	bnd.identity;id='io.openems.edge.pvinverter.sma',\
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
 	bnd.identity;id='io.openems.edge.pvinverter.sunspec',\
+	bnd.identity;id='io.openems.edge.pvinverter.sungrow',\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
 	bnd.identity;id='io.openems.edge.scheduler.daily',\
 	bnd.identity;id='io.openems.edge.scheduler.fixedorder',\
@@ -288,6 +290,7 @@
 	io.openems.edge.ess.generic;version=snapshot,\
 	io.openems.edge.ess.samsung;version=snapshot,\
 	io.openems.edge.ess.sma;version=snapshot,\
+	io.openems.edge.ess.sungrow;version=snapshot,\
 	io.openems.edge.evcs.alpitronic.hypercharger;version=snapshot,\
 	io.openems.edge.evcs.api;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\
@@ -353,6 +356,7 @@
 	io.openems.edge.pvinverter.sma;version=snapshot,\
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\
 	io.openems.edge.pvinverter.sunspec;version=snapshot,\
+	io.openems.edge.pvinverter.sungrow;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.api;version=snapshot,\
 	io.openems.edge.scheduler.daily;version=snapshot,\
