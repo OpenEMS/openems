@@ -5,7 +5,7 @@
     </oe-flat-widget-line>
 
     <ng-template #noValue>
-        <oe-flat-widget-line [icon]="{name: icon.name}" [name]="'General.state' | translate"></oe-flat-widget-line>
+        <oe-flat-widget-line [icon]="icon" [name]="'General.state' | translate"></oe-flat-widget-line>
     </ng-template>
 
     <oe-flat-widget-percentagebar *ngIf="this.modeChannelValue === 'AUTOMATIC'">

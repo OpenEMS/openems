@@ -44,6 +44,11 @@ export type Icon = {
     name: string;
 };
 
+export type ImageIcon = {
+    src: string;
+    large: boolean;
+};
+
 export class Widget {
     public name: WidgetNature | WidgetFactory | string;
     public componentId: string;
