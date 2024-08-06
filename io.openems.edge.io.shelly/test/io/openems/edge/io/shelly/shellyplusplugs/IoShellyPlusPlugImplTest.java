@@ -15,7 +15,7 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
 import io.openems.edge.timedata.test.DummyTimedata;
 
-public class IoShellyPlugImplTest {
+public class IoShellyPlusPlugImplTest {
 
 	private static final String COMPONENT_ID = "io0";
 
@@ -69,7 +69,7 @@ public class IoShellyPlugImplTest {
 						.output(VOLTAGE, 231500)) //
 
 				.next(new TestCase("Invalid read response") //
-						.onBeforeControllersCallbacks(() -> assertEquals("Off|789 W", sut.debugLog()))
+						.onBeforeControllersCallbacks(() -> assertEquals("-|789 W", sut.debugLog()))
 
 						.onBeforeControllersCallbacks(() -> {
 							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());
@@ -84,14 +84,15 @@ public class IoShellyPlugImplTest {
 						.output(PRODUCTION_ENERGY, 0L) //
 						.output(CONSUMPTION_ENERGY, 0L)) //
 
+				// Test case for writing to relay
 				.next(new TestCase("Write") //
-						.onBeforeControllersCallbacks(() -> assertEquals("Unknown|UNDEFINED", sut.debugLog()))
+						.onBeforeControllersCallbacks(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
 						.onBeforeControllersCallbacks(() -> {
 							sut.setRelay(true);
 						}) //
 						.also(testCase -> {
-							final var relayTurnedOn = httpTestBundle.expect("http://127.0.0.1/relay/0?turn=on")
-									.toBeCalled();
+							final var relayTurnedOn = httpTestBundle
+									.expect("http://127.0.0.1/rpc/Switch.Set?id=0&on=true").toBeCalled();
 
 							testCase.onBeforeControllersCallbacks(() -> {
 								httpTestBundle.triggerNextCycle();
@@ -101,7 +102,6 @@ public class IoShellyPlugImplTest {
 							});
 						})) //
 
-				.deactivate();
+				.deactivate();//
 	}
-
 }

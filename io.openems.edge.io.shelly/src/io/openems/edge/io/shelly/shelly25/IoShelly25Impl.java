@@ -3,7 +3,7 @@ package io.openems.edge.io.shelly.shelly25;
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
-import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
+import static io.openems.edge.io.api.ShellyUtils.generateDebugLog;
 
 import java.util.Objects;
 
@@ -137,14 +137,19 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 		var relay1State = new RelayState(null, null, null);
 		var relay2State = new RelayState(null, null, null);
 
-		try {
-			final var relays = getAsJsonArray(result.data(), "relays");
-			relay1State = RelayState.from(getAsJsonObject(relays.get(0)));
-			relay2State = RelayState.from(getAsJsonObject(relays.get(1)));
+		if (error != null) {
+			this.logDebug(this.log, error.getMessage());
 
-		} catch (OpenemsNamedException | IndexOutOfBoundsException e) {
-			this.logDebug(this.log, e.getMessage());
-			slaveCommunicationFailed = true;
+		} else {
+			try {
+				final var relays = getAsJsonArray(result.data(), "relays");
+				relay1State = RelayState.from(getAsJsonObject(relays.get(0)));
+				relay2State = RelayState.from(getAsJsonObject(relays.get(1)));
+
+			} catch (OpenemsNamedException | IndexOutOfBoundsException e) {
+				this.logDebug(this.log, e.getMessage());
+				slaveCommunicationFailed = true;
+			}
 		}
 
 		this._setSlaveCommunicationFailed(slaveCommunicationFailed);
