@@ -232,4 +232,12 @@ public interface BridgeHttp extends BridgeHttpCycle, BridgeHttpTime {
 		return future;
 	}
 
+	/**
+	 * Fetches the url once and returns the raw byte array of the response.
+	 * 
+	 * @param endpoint the {@link Endpoint} to fetch
+	 * @return the result response future containing the raw byte array
+	 */
+	CompletableFuture<byte[]> requestRaw(Endpoint endpoint);
+
 }

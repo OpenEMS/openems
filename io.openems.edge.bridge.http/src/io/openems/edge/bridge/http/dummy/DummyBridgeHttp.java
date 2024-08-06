@@ -55,4 +55,10 @@ public class DummyBridgeHttp implements BridgeHttp {
 		return emptyList();
 	}
 
+	@Override
+	public CompletableFuture<byte[]> requestRaw(Endpoint endpoint) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

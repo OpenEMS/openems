@@ -3,8 +3,11 @@ package io.openems.edge.bridge.http;
 import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -59,4 +62,37 @@ public class NetworkEndpointFetcher implements EndpointFetcher {
 		}
 	}
 
+	@Override
+	public byte[] fetchEndpointRaw(Endpoint endpoint) throws HttpError {
+		try {
+			var url = URI.create(endpoint.url()).toURL();
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod(endpoint.method().name());
+			// Set request properties
+			endpoint.properties().forEach(connection::setRequestProperty);
+			// Handle request body for POST and PUT methods
+			if ("POST".equals(endpoint.method().name()) || "PUT".equals(endpoint.method().name())) {
+				connection.setDoOutput(true);
+				try (OutputStream os = connection.getOutputStream()) {
+					byte[] input = endpoint.body().getBytes("utf-8");
+					os.write(input, 0, input.length);
+				}
+			}
+			// Read response
+			try (InputStream in = connection.getInputStream()) {
+				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+				int nRead;
+				byte[] data = new byte[1024];
+				while ((nRead = in.read(data, 0, data.length)) != -1) {
+					buffer.write(data, 0, nRead);
+				}
+				buffer.flush();
+				return buffer.toByteArray();
+			} finally {
+				connection.disconnect();
+			}
+		} catch (IOException e) {
+			throw new HttpError.UnknownError(e);
+		}
+	}
 }
