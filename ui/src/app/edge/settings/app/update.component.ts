@@ -31,10 +31,9 @@ export class UpdateAppComponent implements OnInit {
   public readonly spinnerId: string = UpdateAppComponent.SELECTOR;
 
   protected instances: MyInstance[] = [];
+  protected appName: string | null = null;
 
   private edge: Edge | null = null;
-
-  protected appName: string | null = null;
 
   public constructor(
     private route: ActivatedRoute,

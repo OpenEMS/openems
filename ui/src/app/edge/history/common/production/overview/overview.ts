@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { NavigationOption } from 'src/app/shared/genericComponents/footer-navigation/footerNavigation';
-import { AbstractHistoryChartOverview } from '../../../../../shared/genericComponents/chart/abstractHistoryChartOverview';
+import { NavigationOption } from 'src/app/shared/components/footer/subnavigation/footerNavigation';
+
+import { AbstractHistoryChartOverview } from '../../../../../shared/components/chart/abstractHistoryChartOverview';
 import { ChannelAddress, EdgeConfig, Service } from '../../../../../shared/shared';
 
 @Component({

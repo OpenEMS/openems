@@ -17,16 +17,16 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public componentId!: string;
 
-    ngOnChanges() {
-        this.updateChart();
-    }
-
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
         private route: ActivatedRoute,
     ) {
         super("timeslotpeakshaving-chart", service, translate);
+    }
+
+    ngOnChanges() {
+        this.updateChart();
     }
 
     ngOnInit() {
@@ -36,6 +36,10 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 1.3;
     }
 
     protected updateChart() {
@@ -224,7 +228,4 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
         this.options = this.createDefaultChartOptions();
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 1.3;
-    }
 }

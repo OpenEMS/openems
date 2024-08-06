@@ -1,9 +1,8 @@
-// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RefresherCustomEvent } from '@ionic/angular';
 import { Subject } from 'rxjs';
-import { DataService } from 'src/app/shared/genericComponents/shared/dataservice';
+import { DataService } from 'src/app/shared/components/shared/dataservice';
 import { Edge, EdgeConfig, Service, Utils, Websocket, Widgets } from 'src/app/shared/shared';
 
 @Component({
@@ -12,11 +11,10 @@ import { Edge, EdgeConfig, Service, Utils, Websocket, Widgets } from 'src/app/sh
 })
 export class LiveComponent implements OnInit, OnDestroy {
 
-  public edge: Edge = null;
-  public config: EdgeConfig = null;
-  public widgets: Widgets = null;
+  public edge: Edge | null = null;
+  public config: EdgeConfig | null = null;
+  public widgets: Widgets | null = null;
   private stopOnDestroy: Subject<void> = new Subject<void>();
-  protected handleRefresh: (ev: RefresherCustomEvent) => void = (ev: RefresherCustomEvent) => this.dataService.refresh(ev);
 
   constructor(
     private route: ActivatedRoute,
@@ -41,4 +39,6 @@ export class LiveComponent implements OnInit, OnDestroy {
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
   }
+
+  protected handleRefresh: (ev: RefresherCustomEvent) => void = (ev: RefresherCustomEvent) => this.dataService.refresh(ev);
 }

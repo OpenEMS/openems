@@ -19,19 +19,6 @@ export class Logger {
     public constructor(private service: Service) { }
 
     /**
-     * Sends the given message via a websocket request.
-     *
-     * @param level the log level
-     * @param msg the message to be logged
-     */
-    private sendLogMessageNotification(level: Level, msg: string) {
-
-        if (environment.production == true) {
-            this.service.websocket.sendNotification(new LogMessageNotification({ level: level, msg: msg }));
-        }
-    }
-
-    /**
      * Log a messag at the DEBUG level.
      *
      * @param msg the message to be logged
@@ -65,6 +52,19 @@ export class Logger {
      */
     public error(msg: string) {
         this.sendLogMessageNotification(Level.ERROR, msg);
+    }
+
+    /**
+     * Sends the given message via a websocket request.
+     *
+     * @param level the log level
+     * @param msg the message to be logged
+     */
+    private sendLogMessageNotification(level: Level, msg: string) {
+
+        if (environment.production == true) {
+            this.service.websocket.sendNotification(new LogMessageNotification({ level: level, msg: msg }));
+        }
     }
 
 }

@@ -10,8 +10,8 @@ import { filter, first, take } from 'rxjs/operators';
 import { ChosenFilter } from 'src/app/index/filter/filter.component';
 import { environment } from 'src/environments';
 
-import { Edge } from '../edge/edge';
-import { EdgeConfig } from '../edge/edgeconfig';
+import { Edge } from '../components/edge/edge';
+import { EdgeConfig } from '../components/edge/edgeconfig';
 import { JsonrpcResponseError } from '../jsonrpc/base';
 import { GetEdgeRequest } from '../jsonrpc/request/getEdgeRequest';
 import { GetEdgesRequest } from '../jsonrpc/request/getEdgesRequest';
@@ -23,10 +23,10 @@ import { User } from '../jsonrpc/shared';
 import { ChannelAddress } from '../shared';
 import { Language } from '../type/language';
 import { Role } from '../type/role';
+import { DateUtils } from '../utils/date/dateutils';
 import { AbstractService } from './abstractservice';
 import { DefaultTypes } from './defaulttypes';
 import { Websocket } from './websocket';
-import { DateUtils } from '../utils/date/dateutils';
 
 @Injectable()
 export class Service extends AbstractService {
@@ -34,6 +34,18 @@ export class Service extends AbstractService {
   public static readonly TIMEOUT = 15_000;
 
   public notificationEvent: Subject<DefaultTypes.Notification> = new Subject<DefaultTypes.Notification>();
+
+  /**
+ * Currently selected history period
+ */
+  public historyPeriod: BehaviorSubject<DefaultTypes.HistoryPeriod>;
+
+  /**
+   * Currently selected history period string
+   *
+   * initialized as day, is getting changed by pickdate component
+   */
+  public periodString: DefaultTypes.PeriodString = DefaultTypes.PeriodString.DAY;
 
   /**
    * Represents the resolution of used device
@@ -50,10 +62,9 @@ export class Service extends AbstractService {
   public currentPageTitle: string;
 
   /**
-   * Holds the current Activated Route
-   */
-  private currentActivatedRoute: ActivatedRoute = null;
-
+   * Holds reference to Websocket. This is set by Websocket in constructor.
+  */
+  public websocket: Websocket = null;
   /**
    * Holds the currently selected Edge.
    */
@@ -69,9 +80,14 @@ export class Service extends AbstractService {
   public currentUser: User | null = null;
 
   /**
-   * Holds reference to Websocket. This is set by Websocket in constructor.
+   * Holds the current Activated Route
    */
-  public websocket: Websocket = null;
+  private currentActivatedRoute: ActivatedRoute | null = null;
+
+  private queryEnergyQueue: {
+    fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
+  }[] = [];
+  private queryEnergyTimeout: any = null;
 
   constructor(
     private router: Router,
@@ -116,6 +132,8 @@ export class Service extends AbstractService {
     this.notificationEvent.next(notification);
   }
 
+  // https://v16.angular.io/api/core/ErrorHandler#errorhandler
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public override handleError(error: any) {
     console.error(error);
     // TODO: show notification
@@ -357,11 +375,6 @@ export class Service extends AbstractService {
     });
   }
 
-  private queryEnergyQueue: {
-    fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
-  }[] = [];
-  private queryEnergyTimeout: any = null;
-
   public startSpinner(selector: string) {
     this.spinner.show(selector, {
       type: "ball-clip-rotate-multiple",
@@ -395,16 +408,4 @@ export class Service extends AbstractService {
     });
     toast.present();
   }
-
-  /**
-   * Currently selected history period
-   */
-  public historyPeriod: BehaviorSubject<DefaultTypes.HistoryPeriod>;
-
-  /**
-   * Currently selected history period string
-   *
-   * initialized as day, is getting changed by pickdate component
-   */
-  public periodString: DefaultTypes.PeriodString = DefaultTypes.PeriodString.DAY;
 }

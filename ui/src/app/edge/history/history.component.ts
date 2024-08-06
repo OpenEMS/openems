@@ -3,7 +3,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { AppService } from 'src/app/app.service';
-import { HeaderComponent } from 'src/app/shared/header/header.component';
+import { HeaderComponent } from 'src/app/shared/components/header/header.component';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { Edge, EdgeConfig, Service, Widgets } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
@@ -18,23 +18,22 @@ export class HistoryComponent implements OnInit {
 
   // is a Timedata service available, i.e. can historic data be queried.
   public isTimedataAvailable: boolean = true;
-  protected errorResponse: JsonrpcResponseError | null = null;
 
   // sets the height for a chart. This is recalculated on every window resize.
   public socChartHeight: string = "250px";
   public energyChartHeight: string = "250px";
 
   // holds the Widgets
-  public widgets: Widgets = null;
+  public widgets: Widgets | null = null;
 
   // holds the current Edge
-  public edge: Edge = null;
+  public edge: Edge | null = null;
 
   // holds Channelthreshold Components to display effective active time in %
   // public channelthresholdComponents: string[] = [];
 
-  public config: EdgeConfig = null;
-  protected handleRefresh: () => void = () => AppService.handleRefresh();
+  public config: EdgeConfig | null = null;
+  protected errorResponse: JsonrpcResponseError | null = null;
 
   constructor(
     public service: Service,
@@ -65,10 +64,6 @@ export class HistoryComponent implements OnInit {
     });
   }
 
-  protected setErrorResponse(errorResponse: JsonrpcResponseError | null) {
-    this.errorResponse = errorResponse;
-  }
-
   // checks arrows when ChartPage is closed
   // double viewchild is used to prevent undefined state of PickDateComponent
   ionViewDidEnter() {
@@ -87,4 +82,11 @@ export class HistoryComponent implements OnInit {
       /* maximium size */ Math.min(600, ref),
     ) + "px";
   }
+
+  protected handleRefresh: () => void = () => AppService.handleRefresh();
+
+  protected setErrorResponse(errorResponse: JsonrpcResponseError | null) {
+    this.errorResponse = errorResponse;
+  }
+
 }

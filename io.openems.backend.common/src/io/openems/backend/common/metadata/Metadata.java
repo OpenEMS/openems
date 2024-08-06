@@ -377,6 +377,14 @@ public interface Metadata {
 	public Optional<String> getSerialNumberForEdge(Edge edge);
 
 	/**
+	 * Get ems type for the given {@link Edge}.
+	 *
+	 * @param edgeId id of the edge to search for ems type
+	 * @return ems type or empty {@link Optional}
+	 */
+	public Optional<String> getEmsTypeForEdge(String edgeId);
+
+	/**
 	 * Gets a map of Edge-IDs with the role of the given user.
 	 *
 	 * @param user              {@link User} the current user

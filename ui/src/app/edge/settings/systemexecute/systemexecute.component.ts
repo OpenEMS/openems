@@ -24,6 +24,11 @@ export class SystemExecuteComponent implements OnInit {
 
   private static readonly SELECTOR = "systemExecute";
 
+  public loading: boolean = false;
+  public stdout: string[] = [];
+  public stderr: string[] = [];
+  public commandLogs: ExecuteSystemCommandRequest[] = [];
+
   public form: FormGroup;
 
   public model: any = {};
@@ -77,11 +82,6 @@ export class SystemExecuteComponent implements OnInit {
       command: new FormControl(""),
     });
   }
-
-  public loading: boolean = false;
-  public stdout: string[] = [];
-  public stderr: string[] = [];
-  public commandLogs: ExecuteSystemCommandRequest[] = [];
 
   public updatePredefined() {
     let command;

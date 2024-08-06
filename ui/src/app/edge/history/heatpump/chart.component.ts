@@ -18,9 +18,6 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public component!: EdgeConfig.Component;
 
-    ngOnChanges() {
-        this.updateChart();
-    }
 
     constructor(
         protected override service: Service,
@@ -30,6 +27,10 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
         super("heatpump-chart", service, translate);
     }
 
+    ngOnChanges() {
+        this.updateChart();
+    }
+
     ngOnInit() {
         this.startSpinner();
         this.service.setCurrentComponent('', this.route);
@@ -37,6 +38,10 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 1.3;
     }
 
     protected updateChart() {
@@ -96,6 +101,10 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
         });
     }
 
+    protected setLabel() {
+        this.options = this.createDefaultChartOptions();
+    }
+
     private applyControllerSpecificOptions(options: Chart.ChartOptions) {
         const translate = this.translate;
         options.scales[ChartAxis.LEFT]['title'].text = this.translate.instant('General.state');
@@ -147,11 +156,4 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
         this.options = options;
     }
 
-    protected setLabel() {
-        this.options = this.createDefaultChartOptions();
-    }
-
-    public getChartHeight(): number {
-        return window.innerHeight / 1.3;
-    }
 }

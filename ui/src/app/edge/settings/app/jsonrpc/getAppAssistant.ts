@@ -74,7 +74,7 @@ export namespace GetAppAssistant {
             }
         }
         if (!hasAliasField) {
-            // insert alias field into appAssistent fields
+            // insert alias field into appAssistant fields
             const aliasField = { key: 'ALIAS', type: 'input', templateOptions: { label: 'Alias' }, defaultValue: appAssistant.alias };
             appAssistant.fields.splice(0, 0, aliasField);
         }

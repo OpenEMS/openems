@@ -1,13 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { SelectCustomEvent } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { parse } from 'date-fns';
 import { Subject } from 'rxjs';
 import { filter, take, takeUntil } from 'rxjs/operators';
 import { Filter } from 'src/app/index/filter/filter.component';
 
 import { Service, Utils, Websocket } from '../../../shared/shared';
 import { Role } from 'src/app/shared/type/role';
+import { parse } from 'date-fns';
+import { SelectCustomEvent } from '@ionic/angular';
 
 export const LOG_LEVEL_FILTER = (translate: TranslateService): Filter => ({
   placeholder: translate.instant("Edge.Config.Log.level"),
@@ -38,6 +38,9 @@ export const LOG_LEVEL_FILTER = (translate: TranslateService): Filter => ({
 })
 export class SystemLogComponent implements OnInit, OnDestroy {
 
+  private static readonly SELECTOR = "systemLog";
+  private static readonly DEBUG_LOG_CONTROLLER_ID = 'ctrlDebugLog0';
+
   public isSubscribed: boolean = false;
 
   /** Displayed loglines */
@@ -47,11 +50,9 @@ export class SystemLogComponent implements OnInit, OnDestroy {
   protected isCondensedOutput: boolean | null = null;
   protected isAtLeastGuest: boolean = false;
 
-  private static readonly SELECTOR = "systemLog";
   private ngUnsubscribe = new Subject<void>();
   private searchParams: string[] | null = null;
   private MAX_LOG_ENTRIES = 200;
-  private static readonly DEBUG_LOG_CONTROLLER_ID = 'ctrlDebugLog0';
 
   /** Original loglines */
   private _logLines: {
@@ -67,52 +68,7 @@ export class SystemLogComponent implements OnInit, OnDestroy {
     private websocket: Websocket,
     private service: Service,
     private translate: TranslateService,
-  ) {
-  }
-
-  ngOnInit() {
-    this.subscribe();
-
-    this.service.getCurrentEdge().then(edge => {
-      this.isAtLeastGuest = !edge.roleIsAtLeast(Role.OWNER);
-      edge.getConfig(this.websocket).pipe(filter(config => !!config), take(1))
-        .subscribe(config => {
-          const component = config.getComponent(SystemLogComponent.DEBUG_LOG_CONTROLLER_ID);
-
-          if (!component) {
-            this.isCondensedOutput = null;
-          }
-
-          if (component.properties?.condensedOutput != null) {
-            this.isCondensedOutput = component.properties?.condensedOutput;
-          }
-        });
-    });
-  }
-
-  ngOnDestroy() {
-    this.unsubscribe();
-  }
-
-  public toggleSubscribe(event: CustomEvent) {
-    if (event.detail['checked']) {
-      this.subscribe();
-    } else {
-      this.unsubscribe();
-    }
-  }
-
-  protected toggleCondensedOutput(event: CustomEvent) {
-    this.service.currentEdge.pipe(filter(edge => !!edge), take(1))
-      .subscribe(edge =>
-        edge.updateComponentConfig(this.websocket, SystemLogComponent.DEBUG_LOG_CONTROLLER_ID, [{
-          name: 'condensedOutput', value: event.detail['checked'],
-        }]).then(() => {
-          this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-        }).catch((reason) => {
-          this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-        }));
-  }
+  ) { }
 
   public subscribe() {
     // put placeholder
@@ -159,6 +115,73 @@ export class SystemLogComponent implements OnInit, OnDestroy {
     this.isSubscribed = true;
   }
 
+  ngOnInit() {
+    this.subscribe();
+
+    this.service.getCurrentEdge().then(edge => {
+      this.isAtLeastGuest = !edge.roleIsAtLeast(Role.OWNER);
+      edge.getConfig(this.websocket).pipe(filter(config => !!config), take(1))
+        .subscribe(config => {
+          const component = config.getComponent(SystemLogComponent.DEBUG_LOG_CONTROLLER_ID);
+
+          if (!component) {
+            this.isCondensedOutput = null;
+          }
+
+          if (component.properties?.condensedOutput != null) {
+            this.isCondensedOutput = component.properties?.condensedOutput;
+          }
+        });
+    });
+  }
+
+  ngOnDestroy() {
+    this.unsubscribe();
+  }
+
+  public toggleSubscribe(event: CustomEvent) {
+    if (event.detail['checked']) {
+      this.subscribe();
+    } else {
+      this.unsubscribe();
+    }
+  }
+
+  public unsubscribe() {
+    this.service.getCurrentEdge().then(edge => {
+      edge.unsubscribeSystemLog(this.websocket);
+    });
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+    this.ngUnsubscribe = new Subject<void>();
+  }
+
+  protected toggleCondensedOutput(event: CustomEvent) {
+    this.service.currentEdge.pipe(filter(edge => !!edge), take(1))
+      .subscribe(edge =>
+        edge.updateComponentConfig(this.websocket, SystemLogComponent.DEBUG_LOG_CONTROLLER_ID, [{
+          name: 'condensedOutput', value: event.detail['checked'],
+        }]).then(() => {
+          this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+        }).catch((reason) => {
+          this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+        }));
+  }
+
+  /**
+  * Search on change, triggered by searchbar input-event.
+  *
+  * @param event from template passed event
+  */
+  protected searchOnChange(searchParams?: SelectCustomEvent): void {
+
+    if (searchParams) {
+      this.searchParams = searchParams?.target?.value ?? null;
+    }
+
+    this.filterLogs();
+  }
+
   private getColor(level: 'INFO' | 'WARN' | 'DEBUG' | 'ERROR'): string {
     switch (level) {
       case 'INFO':
@@ -172,29 +195,6 @@ export class SystemLogComponent implements OnInit, OnDestroy {
       default:
         return 'black';
     }
-  }
-
-  public unsubscribe() {
-    this.service.getCurrentEdge().then(edge => {
-      edge.unsubscribeSystemLog(this.websocket);
-    });
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-    this.ngUnsubscribe = new Subject<void>();
-  }
-
-  /**
-    * Search on change, triggered by searchbar input-event.
-    *
-    * @param event from template passed event
-    */
-  protected searchOnChange(searchParams?: SelectCustomEvent): void {
-
-    if (searchParams) {
-      this.searchParams = searchParams?.target?.value ?? null;
-    }
-
-    this.filterLogs();
   }
 
   /**

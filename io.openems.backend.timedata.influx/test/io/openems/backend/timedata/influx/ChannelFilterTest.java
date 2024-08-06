@@ -45,8 +45,8 @@ public class ChannelFilterTest {
 		assertFalse(filter.isValid("äöü0/Status"));
 
 		// SunSpec
-		assertFalse(filter.isValid("pvInverter0/S1Evt"));
-		assertFalse(filter.isValid("pvInverter0/S111A"));
+		assertTrue(filter.isValid("pvInverter0/S1Evt"));
+		assertTrue(filter.isValid("pvInverter0/S111A"));
 	}
 
 }

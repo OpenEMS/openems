@@ -44,10 +44,10 @@ export enum SumState {
 })
 export class SumStateComponent implements OnInit {
 
-  protected readonly SUM_STATE = SumState;
   @Input() protected sumState: SumState = SumState.OK;
   @Input() protected isEdgeOnline: boolean = false;
   protected isAtLeastInstaller: boolean = false;
+  protected readonly SUM_STATE = SumState;
 
   constructor(private service: Service) { }
 

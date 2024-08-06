@@ -1,23 +1,16 @@
 package io.openems.common.websocket;
 
+import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
-
-import io.openems.common.exceptions.NotImplementedException;
 
 public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implements AutoCloseable {
 
 	public static class Builder {
-		private OnOpen onOpen = (ws, handshake) -> {
-		};
-		private OnRequest onRequest = (ws, request) -> {
-			throw new NotImplementedException("On-Request handler is not implemented");
-		};
-		private OnNotification onNotification = (ws, notification) -> {
-		};
-		private OnError onError = (ws, ex) -> {
-		};
-		private OnClose onClose = (ws, code, reason, remote) -> {
-		};
+		private OnOpen onOpen = OnOpen.NO_OP;
+		private OnRequest onRequest = OnRequest.NO_OP;
+		private OnNotification onNotification = OnNotification.NO_OP;
+		private OnError onError = OnError.NO_OP;
+		private OnClose onClose = OnClose.NO_OP;
 
 		private Builder() {
 		}
@@ -94,13 +87,18 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 	private final DummyWebsocketServer.Builder builder;
 
 	private DummyWebsocketServer(DummyWebsocketServer.Builder builder) {
-		super("DummyWebsocketServer", 0 /* auto-select port */, 1 /* pool size */, DebugMode.OFF);
+		super("DummyWebsocketServer", 0 /* auto-select port */, 1 /* pool size */);
 		this.builder = builder;
 	}
 
 	@Override
-	protected WsData createWsData() {
-		return new DummyWsData();
+	protected WsData createWsData(WebSocket ws) {
+		return new WsData(ws) {
+			@Override
+			public String toString() {
+				return "DummyWebsocketServer.WsData []";
+			}
+		};
 	}
 
 	@Override
@@ -144,7 +142,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 	}
 
 	@Override
-	public void close() throws Exception {
+	public void close() {
 		this.stop();
 	}
 }

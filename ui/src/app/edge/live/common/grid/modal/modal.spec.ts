@@ -1,7 +1,7 @@
-import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST } from "src/app/shared/edge/edgeconfig.spec";
-import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/testing/tester";
+import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST, VALUE_FROM_CHANNELS_LINE } from "src/app/shared/components/edge/edgeconfig.spec";
+import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
+import { sharedSetup, TestContext } from "src/app/shared/components/shared/testing/utils.spec";
 import { GridMode } from "src/app/shared/shared";
-import { sharedSetup, TestContext } from "src/app/shared/test/utils.spec";
 import { Role } from "src/app/shared/type/role";
 
 import { expectView } from "./constants.spec";
@@ -37,12 +37,14 @@ describe('Grid - Modal', () => {
       // Single Meter
       const EMS = DummyConfig.from(
         DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
+        DummyConfig.Component.ESS_LIMITER_14A("ctrlEssLimiter14a0"),
       );
 
       // Admin and Installer
       expectView(EMS, Role.ADMIN, VIEW_CONTEXT(), TEST_CONTEXT, {
         title: "Netz",
         lines: [
+          VALUE_FROM_CHANNELS_LINE("Zustand", "keine externe Limitierung"),
           CHANNEL_LINE("Einspeisung", "1.000 W"),
           CHANNEL_LINE("Bezug", "0 W"),
           PHASE_ADMIN("Phase L1 Einspeisung", "230 V", "2,2 A", "500 W"),
@@ -57,6 +59,7 @@ describe('Grid - Modal', () => {
       expectView(EMS, Role.OWNER, VIEW_CONTEXT(), TEST_CONTEXT, {
         title: "Netz",
         lines: [
+          VALUE_FROM_CHANNELS_LINE("Zustand", "keine externe Limitierung"),
           CHANNEL_LINE("Einspeisung", "1.000 W"),
           CHANNEL_LINE("Bezug", "0 W"),
           PHASE_GUEST("Phase L1 Einspeisung", "500 W"),
@@ -76,6 +79,7 @@ describe('Grid - Modal', () => {
             name: "Keine Netzverbindung!",
             value: "",
           },
+          VALUE_FROM_CHANNELS_LINE("Zustand", "Netzausfall"),
           CHANNEL_LINE("Einspeisung", "1.000 W"),
           CHANNEL_LINE("Bezug", "0 W"),
           PHASE_ADMIN("Phase L1 Einspeisung", "230 V", "2,2 A", "500 W"),
@@ -92,12 +96,14 @@ describe('Grid - Modal', () => {
       const EMS = DummyConfig.from(
         DummyConfig.Component.SOCOMEC_GRID_METER("meter10"),
         DummyConfig.Component.SOCOMEC_GRID_METER("meter11"),
+        DummyConfig.Component.ESS_LIMITER_14A("ctrlEssLimiter14a0"),
       );
 
       // Admin and Installer -> two meters
       expectView(EMS, Role.ADMIN, VIEW_CONTEXT(), TEST_CONTEXT, {
         title: "Netz",
         lines: [
+          VALUE_FROM_CHANNELS_LINE("Zustand", "keine externe Limitierung"),
           CHANNEL_LINE("Einspeisung", "1.000 W"),
           CHANNEL_LINE("Bezug", "0 W"),
           LINE_HORIZONTAL,
@@ -119,6 +125,7 @@ describe('Grid - Modal', () => {
       expectView(EMS, Role.GUEST, VIEW_CONTEXT(), TEST_CONTEXT, {
         title: "Netz",
         lines: [
+          VALUE_FROM_CHANNELS_LINE("Zustand", "keine externe Limitierung"),
           CHANNEL_LINE("Einspeisung", "1.000 W"),
           CHANNEL_LINE("Bezug", "0 W"),
           LINE_HORIZONTAL,

@@ -16,9 +16,9 @@ export class DelayedSellToGridComponent implements OnInit, OnDestroy {
 
     @Input({ required: true }) public componentId!: string;
 
-    public edge: Edge = null;
+    public edge: Edge | null = null;
 
-    public component: EdgeConfig.Component = null;
+    public component: EdgeConfig.Component | null = null;
 
     constructor(
         private route: ActivatedRoute,
