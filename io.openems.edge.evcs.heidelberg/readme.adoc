@@ -1,0 +1,28 @@
+= Heidelberg(Amperfied) Charging Station 
+
+This component implements the Heidelberg wallbox series.
+
+== https://en.wikipedia.org/wiki/Software_release_life_cycle[Software release life cycle]: BETA
+
+This implementation has been carried out privately and not yet fully feature tested. Please consider it BETA quality
+
+== Compatibility
+** connect.solar
+** (not tested) connect.home
+** (not tested) connect.business
+** (not implemented) energy control (should be similar. Protocol below)
+
+(https://www.amperfied.de/service-support/downloads/)
+
+== Additional application notes
+
+Implemented Natures:
+* Evcs (Electric Vehicle Charging Station)
+* ManagedEvcs
+* ModbusComponent
+
+Protocol: (uptaded versions may be find here: https://www.amperfied.de/service-support/downloads/)
+- Connect series: https://www.amperfied.de/wp-content/uploads/2024/01/Documentation-Modbus-Register-Layout-connect-series-20240130.pdf
+- Energy control: https://www.amperfied.de/wp-content/uploads/2023/03/20220809_AMP-Erweiterte-ModBus-Registerbeschreibung.pdf
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.heidelberg[Source Code icon:github[]]
