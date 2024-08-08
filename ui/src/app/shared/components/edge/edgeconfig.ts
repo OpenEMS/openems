@@ -586,9 +586,9 @@ export class EdgeConfig {
         const allComponents = [];
         const factories = this.listAvailableFactories();
         for (const entry of factories) {
-            const components: EdgeConfig.Component[] = [];
+            const components: EdgeConfig.Component[] = []; // Option 2: let components: EdgeConfig.Component[] = [];
             for (const factory of entry.factories) {
-                components.push(...this.getComponentsByFactory(factory.id));
+                components.push(...this.getComponentsByFactory(factory.id)); // Option 2: components = components.concat(...this.getComponentsByFactory(factory.id));
             }
             allComponents.push({
                 category: entry.category,
