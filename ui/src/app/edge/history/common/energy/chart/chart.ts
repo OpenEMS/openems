@@ -165,6 +165,9 @@ export class ChartComponent extends AbstractHistoryChart {
             borderDash: [10, 10],
             yAxisId: ChartAxis.RIGHT,
             stack: 1,
+            custom: {
+              unit: YAxisTitle.PERCENTAGE,
+            },
           }],
         ];
       },
