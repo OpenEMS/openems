@@ -33,5 +33,8 @@ import io.openems.edge.bridge.modbus.api.LogVerbosity;
 	@AttributeDefinition(name = "Invalidate elements after how many read Errors?", description = "Increase this value if modbus read errors happen frequently.")
 	int invalidateElementsAfterReadErrors() default 1;
 
+	@AttributeDefinition(name = "Interval between accesses (in milliseconds)", description = "Cycle skipping will be calculated from this value and core cycle time.")
+	int intervalBetweenAccesses() default 0;
+
 	String webconsole_configurationFactory_nameHint() default "Bridge Modbus/TCP [{id}]";
 }
