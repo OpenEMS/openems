@@ -111,7 +111,7 @@ export class Utils {
    * @param values the values
    * @returns a number, if at least one value is not null, else null
    */
-  public static subtractSafely(...values: (number | null)[]): number {
+  public static subtractSafely(...values: (number | null)[]): number | null {
     return values
       .filter(value => value !== null && value !== undefined)
       .reduce((sum, curr) => {
@@ -131,7 +131,7 @@ export class Utils {
    * @param v1
    * @param v2
    */
-  public static divideSafely(v1: number, v2: number): number | null {
+  public static divideSafely(v1: number | null, v2: number | null): number | null {
     if (v1 == null || v2 == null) {
       return null;
     } else if (v2 == 0) {
@@ -184,12 +184,27 @@ export class Utils {
    * Safely rounds a - possibly 'null' - value: Math.round(v)
    *
    * @param v
+   * @returns the rounded value, null if value is invalid
    */
-  public static roundSafely(v: number): number {
+  public static roundSafely(v: number | null): number | null {
     if (v == null) {
-      return v;
+      return null;
     } else {
       return Math.round(v);
+    }
+  }
+
+  /**
+   * Safely floors a - possibly 'null' - value: Math.floor(v)
+   *
+   * @param v
+   * @returns the floored value, null if value is invalid
+   */
+  public static floorSafely(v: number | null): number | null {
+    if (v == null) {
+      return null;
+    } else {
+      return Math.floor(v);
     }
   }
 
