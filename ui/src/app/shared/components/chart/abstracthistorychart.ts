@@ -338,7 +338,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       if (displayValue.hiddenInTooltip) {
         return null;
       }
-      const unit = displayValue?.custom?.unit
+      const unit = chartObject.yAxes?.find(el => el.yAxisId === displayValue.yAxisId)?.unit
         ?? chartObject.yAxes[0]?.unit;
 
       if (value === null) {
