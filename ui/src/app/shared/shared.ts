@@ -83,7 +83,6 @@ export class EdgePermission {
   public static hasReducedFactories(edge: Edge): boolean {
     return edge.isVersionAtLeast('2024.6.1');
   }
-
 }
 
 export class UserPermission {
