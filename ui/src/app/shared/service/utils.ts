@@ -620,6 +620,7 @@ export enum YAxisTitle {
   CURRENT,
   TIME,
   CURRENCY,
+  NUMBER,
 }
 
 export enum ChartAxis {
@@ -671,7 +672,9 @@ export namespace HistoryUtils {
     noStrokeThroughLegendIfHidden?: boolean,
     /** color in rgb-Format */
     color: string,
-    /** the stack for barChart, if not provided datasets are not stacked but overlaying each other */
+    /**
+     * The stack/stacks for this dataset to be displayed, if not provided datasets are not stacked but overlaying each other
+     */
     stack?: number | number[],
     /** False per default */
     hideLabelInLegend?: boolean,
@@ -720,6 +723,13 @@ export namespace HistoryUtils {
     }[];
   }
 
+  export interface DataLabelsCustomOptions extends PluginCustomOptions {
+    pluginType: 'datalabels',
+    datalabels: {
+      displayUnit: string,
+    },
+  }
+
   /**
  * Data from a subscription to Channel or from a historic data query.
  *
@@ -745,9 +755,10 @@ export namespace HistoryUtils {
   export type yAxes = {
     /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
     unit: YAxisTitle,
-    customTitle?: string,
     position: 'left' | 'right' | 'bottom' | 'top',
     yAxisId: ChartAxis,
+    /** YAxis title -> {@link https://www.chartjs.org/docs/latest/samples/scale-options/titles.html Chartjs Title} */
+    customTitle?: string
     /** Default: true */
     displayGrid?: boolean
   };

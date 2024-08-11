@@ -1,7 +1,9 @@
 // @ts-strict-ignore
-import { ChartDataset } from "chart.js";
+import { ChartComponentLike, ChartDataset } from "chart.js";
 
+import { formatNumber } from "@angular/common";
 import { TranslateService } from "@ngx-translate/core";
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { HistoryUtils, Utils } from "../../service/utils";
 import { ArrayUtils } from "../../utils/array/array.utils";
 import { AbstractHistoryChart } from "./abstracthistorychart";
@@ -9,6 +11,44 @@ import { AbstractHistoryChart } from "./abstracthistorychart";
 export class ChartConstants {
   public static readonly NUMBER_OF_Y_AXIS_TICKS: number = 6;
   public static readonly EMPTY_DATASETS: ChartDataset[] = [];
+
+  public static Plugins = class {
+
+    public static readonly DEFAULT_EMPTY_SCREEN: (text: string) => ChartComponentLike = (text) => ({
+      id: 'empty_chart',
+      beforeDraw: (chart, args, options) => {
+        const { ctx } = <{ ctx: CanvasRenderingContext2D }>chart;
+        ctx.save();
+
+        ctx.textAlign = 'center';
+        ctx.fillStyle = 'grey';
+        ctx.font = "1.5em serif";
+        ctx.fillText(text, chart.width / 2, chart.height / 2, chart.width);
+        ctx.restore();
+      },
+      defaults: {
+        color: 'none',
+      },
+    });
+
+    /**
+     * Configuration for plugin {@link ChartDataLabels ChartDataLabels}
+     *
+     * @param unit the unit to display
+     * @returns plugin configuration for {@link ChartDataLabels ChartDataLabels-plugin}
+     */
+    public static readonly BAR_CHART_DATALABELS = (unit: string, disable: boolean): any => ({
+      ...ChartDataLabels,
+      formatter: (value, ctx) => {
+        return formatNumber(value, 'de', '1.0-0') + '\xa0' + unit ?? null;
+      },
+      ...{
+        anchor: 'end', offset: -18, align: 'start', clip: false, clamp: true,
+      },
+      plugin: ChartDataLabels,
+      display: disable,
+    });
+  };
 
   /**
    * Default yScale CartesianScaleTypeRegistry.linear
@@ -74,12 +114,12 @@ export class ChartConstants {
   }
 
   /**
-   * Calculates the stepSize
-   *
-   * @param min the minimum
-   * @param max the maximum
-   * @returns the stepSize if max and min are not null and min is smaller than max
-   */
+  * Calculates the stepSize
+  *
+  * @param min the minimum
+  * @param max the maximum
+  * @returns the stepSize if max and min are not null and min is smaller than max
+  */
   public static calculateStepSize(min: number, max: number): number | null {
 
     if (min == null || max == null || min > max) {
@@ -94,13 +134,17 @@ export class ChartConstants {
   }
 
   /**
- * Checks if data series is positive.
- *
- * @param datasets the chart datasets
- * @returns true, if only positive data exists
- */
+   * Checks if data series is positive.
+   *
+   * @param datasets the chart datasets
+   * @returns true, if only positive data exists
+   */
   private static isDataSeriesPositive(datasets: ChartDataset[]): boolean {
     return datasets.filter(el => el != null).map(el => el.data).every(el => el.every(e => (e as number) >= 0));
   }
+}
 
+export enum XAxisType {
+  NUMBER,
+  TIMESERIES,
 }

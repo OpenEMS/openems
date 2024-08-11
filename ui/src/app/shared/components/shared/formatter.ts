@@ -1,4 +1,5 @@
 import { formatNumber } from "@angular/common";
+import { Currency } from "../../shared";
 
 export namespace Formatter {
   export const FORMAT_WATT = (value: number) => {
@@ -24,5 +25,10 @@ export namespace Formatter {
   export const FORMAT_PERCENT = (value: number) => {
     // TODO apply correct locale
     return formatNumber(value, 'de', '1.0-0') + " %";
+  };
+
+  export const FORMAT_CURRENCY_PER_KWH = (value: number | string, currency: string = Currency.Unit.CENT) => {
+    // TODO apply correct locale
+    return formatNumber(parseInt(value.toString()), 'de', '1.0-2') + " " + Currency.getCurrencyLabelByCurrency(currency);
   };
 }

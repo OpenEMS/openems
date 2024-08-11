@@ -9,6 +9,7 @@ import { PipeModule } from '../pipe/pipe';
 import { ChartModule } from './chart/chart.module';
 import { FlatWidgetComponent } from './flat/flat';
 import { FlatWidgetHorizontalLineComponent } from './flat/flat-widget-horizontal-line/flat-widget-horizontal-line';
+import { FlatWidgetLineDividerComponent } from './flat/flat-widget-line-divider/flat-widget-line-divider';
 import { FlatWidgetLineComponent } from './flat/flat-widget-line/flat-widget-line';
 import { FlatWidgetLineItemComponent } from './flat/flat-widget-line/flat-widget-line-item/flat-widget-line-item';
 import { FlatWidgetPercentagebarComponent } from './flat/flat-widget-percentagebar/flat-widget-percentagebar';
@@ -37,10 +38,11 @@ import { NotificationComponent } from './shared/notification/notification';
 
         // Flat
         FlatWidgetComponent,
-        FlatWidgetLineComponent,
         FlatWidgetHorizontalLineComponent,
-        FlatWidgetPercentagebarComponent,
+        FlatWidgetLineComponent,
+        FlatWidgetLineDividerComponent,
         FlatWidgetLineItemComponent,
+        FlatWidgetPercentagebarComponent,
 
         // Others
         NotificationComponent,
@@ -49,10 +51,11 @@ import { NotificationComponent } from './shared/notification/notification';
     exports: [
         // Flat
         FlatWidgetComponent,
-        FlatWidgetLineComponent,
         FlatWidgetHorizontalLineComponent,
-        FlatWidgetPercentagebarComponent,
+        FlatWidgetLineComponent,
+        FlatWidgetLineDividerComponent,
         FlatWidgetLineItemComponent,
+        FlatWidgetPercentagebarComponent,
 
         // Others
         NotificationComponent,

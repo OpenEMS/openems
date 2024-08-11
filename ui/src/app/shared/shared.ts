@@ -153,6 +153,10 @@ export namespace Currency {
     OERE_PER_KWH = "Öre/kWh",
     CENT_PER_KWH = "Cent/kWh",
   }
+
+  export enum Unit {
+    CENT = "Cent",
+  }
 }
 
 export enum EssStateMachine {

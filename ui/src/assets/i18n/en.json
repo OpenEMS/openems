@@ -950,6 +950,11 @@
       "WARNING": "The software will restart after the system update. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state.",
       "UPDATE_EXECUTE": "Execute system update",
       "SUB_HEADER": "Would you like to execute a system update?"
+    },
+    "ENERGY_JOURNEY": {
+      "TO_THE_ANALYSIS": "To the analysis",
+      "CURRENT_NUMBER_OF_MODULES": "Current",
+      "SIMULATION_NOT_STARTED": "Simulation not started"
     }
   },
   "CHANNELS": {
