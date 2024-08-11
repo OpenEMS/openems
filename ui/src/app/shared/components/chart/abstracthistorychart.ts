@@ -648,6 +648,23 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     return formatNumber(value, 'de', format) + ' ' + tooltipsLabel;
   }
 
+  public static getDefaultOptions(xAxisType: XAxisType, service: Service, labels: (Date | string)[]): Chart.ChartOptions {
+
+    let options: Chart.ChartOptions;
+    switch (xAxisType) {
+      case XAxisType.NUMBER:
+        options = DEFAULT_NUMBER_CHART_OPTIONS(labels);
+        break;
+      case XAxisType.TIMESERIES:
+      default:
+        options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS());
+        options.scales.x['time'].unit = calculateResolution(service, service.historyPeriod.value.from, service.historyPeriod.value.to).timeFormat;
+        break;
+    }
+
+    return options;
+  }
+
   /**
    * Generates a Tooltip Title string from a 'fromDate' and 'toDate'.
    *
@@ -712,23 +729,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       default:
         return '';
     }
-  }
-
-  private static getDefaultOptions(xAxisType: XAxisType, service: Service, labels: (Date | string)[]): Chart.ChartOptions {
-
-    let options: Chart.ChartOptions;
-    switch (xAxisType) {
-      case XAxisType.NUMBER:
-        options = DEFAULT_NUMBER_CHART_OPTIONS(labels);
-        break;
-      case XAxisType.TIMESERIES:
-      default:
-        options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS());
-        options.scales.x['time'].unit = calculateResolution(service, service.historyPeriod.value.from, service.historyPeriod.value.to).timeFormat;
-        break;
-    }
-
-    return options;
   }
 
   /**
