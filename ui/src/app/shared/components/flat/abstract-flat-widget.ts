@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Directive, Inject, Input, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
@@ -8,10 +8,11 @@ import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Utils } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
 
-import { DataService } from "../shared/dataservice";
-import { Converter } from "../shared/converter";
-import { Websocket } from "../../service/websocket";
+import { FormBuilder, FormGroup } from "@angular/forms";
 import { Service } from "../../service/service";
+import { Websocket } from "../../service/websocket";
+import { Converter } from "../shared/converter";
+import { DataService } from "../shared/dataservice";
 
 @Directive()
 export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
@@ -30,6 +31,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     public config: EdgeConfig = null;
     public component: EdgeConfig.Component = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
+    public formGroup: FormGroup | null = null;
 
     private selector: string = uuidv4();
 
@@ -40,11 +42,13 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
         @Inject(ModalController) protected modalController: ModalController,
         @Inject(TranslateService) protected translate: TranslateService,
         protected dataService: DataService,
+        protected formBuilder: FormBuilder,
+        protected router: Router,
     ) {
     }
 
     public ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.service.getConfig().then(config => {
                 // store important variables publically
                 this.edge = edge;
@@ -65,6 +69,8 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                     this.onCurrentData(value);
                     this.afterOnCurrentData();
                 });
+
+                this.formGroup = this.getFormGroup();
             });
         });
     }
@@ -107,4 +113,9 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
      * Gets called after {@link onCurrentData}, every time the currentValue changes
      */
     protected afterOnCurrentData() { }
+
+    /** Gets the FormGroup of the current Component */
+    protected getFormGroup(): FormGroup | null {
+        return null;
+    }
 }

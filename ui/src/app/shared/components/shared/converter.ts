@@ -36,6 +36,14 @@ export namespace Converter {
     }
     return "-"; // null or number
   };
+
+  export const IF_NUMBER_OR_STRING = (value: number | string | null, callback: (value: number | string) => string) => {
+    if (typeof value === 'number' || typeof value === 'string') {
+      return callback(value);
+    }
+    return "-"; // null or string
+  };
+
   /**
    * Converter for Grid-Buy-Power.
    *

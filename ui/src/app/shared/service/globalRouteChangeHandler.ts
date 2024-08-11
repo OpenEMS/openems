@@ -27,7 +27,6 @@ export class GlobalRouteChangeHandler {
           data = route.data || data;
           route = route.firstChild;
         }
-
         return data;
       }),
     ).subscribe(e => {

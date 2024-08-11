@@ -1,54 +1,37 @@
 import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { AbstractHistoryChart } from 'src/app/shared/components/chart/abstracthistorychart';
 import { Phase } from 'src/app/shared/components/shared/phase';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ChartAxis, HistoryUtils, YAxisTitle } from 'src/app/shared/service/utils';
-import { ChannelAddress } from 'src/app/shared/shared';
+import { ChannelAddress, EdgeConfig } from 'src/app/shared/shared';
 
 @Component({
-  selector: 'meterChart',
+  selector: 'productionMeterChart',
   templateUrl: '../../../../../../shared/components/chart/abstracthistorychart.html',
 })
-export class ChartComponent extends AbstractHistoryChart {
+export class ProductionMeterChartDetailsComponent extends AbstractHistoryChart {
 
-
-  protected override getChartData(): HistoryUtils.ChartData {
-
-    const component = this.config.getComponent(this.route.snapshot.params.componentId);
-    const isProductionMeter = this.config.hasComponentNature("io.openems.edge.meter.api.ElectricityMeter", component.id) && this.config.isProducer(component);
-    const isCharger = this.config.hasComponentNature("io.openems.edge.ess.dccharger.api.EssDcCharger", component.id);
-
-    const channels: HistoryUtils.InputChannel[] = [];
-
-    if (isCharger) {
-      channels.push({
-        name: component.id,
-        powerChannel: ChannelAddress.fromString(component.id + '/ActualPower'),
-        energyChannel: ChannelAddress.fromString(component.id + '/ActualEnergy'),
-      });
-    }
-
-    if (isProductionMeter) {
-      channels.push({
+  public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService): HistoryUtils.ChartData {
+    const component = config.getComponent(route.snapshot.params.componentId);
+    return {
+      input: [{
         name: component.id,
         powerChannel: ChannelAddress.fromString(component.id + '/ActivePower'),
         energyChannel: ChannelAddress.fromString(component.id + '/ActiveProductionEnergy'),
-      });
-
-      channels.push(...Phase.THREE_PHASE.map(phase => ({
+      },
+      ...Phase.THREE_PHASE.map(phase => ({
         name: 'ProductionAcActivePower' + phase,
         powerChannel: ChannelAddress.fromString(component.id + '/ActivePower' + phase),
-      })));
-    }
+      }))],
 
-    const chartObject: HistoryUtils.ChartData = {
-      input: channels,
       output: (data: HistoryUtils.ChannelData) => {
         const datasets: HistoryUtils.DisplayValue[] = [];
         datasets.push({
           name: component.alias,
           nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => {
-            return energyQueryResponse.result.data[isCharger ? component.id + '/ActualEnergy' : component.id + '/ActiveProductionEnergy'];
+            return energyQueryResponse.result.data[component.id + '/ActiveProductionEnergy'];
           },
           converter: () => {
             return data[component.id];
@@ -57,10 +40,6 @@ export class ChartComponent extends AbstractHistoryChart {
           hiddenOnInit: false,
           stack: 2,
         });
-
-        if (!isProductionMeter) {
-          return datasets;
-        }
 
         datasets.push(...Phase.THREE_PHASE.map((phase, i) => ({
           name: "Phase " + phase,
@@ -74,7 +53,7 @@ export class ChartComponent extends AbstractHistoryChart {
       },
       tooltip: {
         formatNumber: '1.1-2',
-        afterTitle: this.translate.instant('General.TOTAL'),
+        afterTitle: translate.instant('General.TOTAL'),
       },
       yAxes: [{
         unit: YAxisTitle.ENERGY,
@@ -82,7 +61,9 @@ export class ChartComponent extends AbstractHistoryChart {
         yAxisId: ChartAxis.LEFT,
       }],
     };
+  }
 
-    return chartObject;
+  protected override getChartData(): HistoryUtils.ChartData {
+    return ProductionMeterChartDetailsComponent.getChartData(this.config, this.route, this.translate);
   }
 }

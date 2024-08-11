@@ -9,8 +9,9 @@ import { ChartModule } from "../../../chart/chart.module";
 import { HistoryDataErrorModule } from "../../../history-data-error/history-data-error.module";
 import { PickdateModule } from "../../../pickdate/pickdate.module";
 
-import { CurrentVoltageChartComponent } from "./chart/chart";
+import { CurrentVoltageSymmetricChartComponent } from "./chart/symmetricMeter";
 import { CurrentAndVoltageOverviewComponent } from "./currentVoltage.overview";
+import { CurrentVoltageAsymmetricChartComponent } from "./chart/asymmetricMeter";
 
 @NgModule({
   imports: [
@@ -29,11 +30,13 @@ import { CurrentAndVoltageOverviewComponent } from "./currentVoltage.overview";
   ],
   declarations: [
     CurrentAndVoltageOverviewComponent,
-    CurrentVoltageChartComponent,
+    CurrentVoltageAsymmetricChartComponent,
+    CurrentVoltageSymmetricChartComponent,
   ],
   exports: [
     CurrentAndVoltageOverviewComponent,
-    CurrentVoltageChartComponent,
+    CurrentVoltageAsymmetricChartComponent,
+    CurrentVoltageSymmetricChartComponent,
   ],
 })
 export class CurrentVoltageModule { }

@@ -12,6 +12,7 @@ import { Role } from 'src/app/shared/type/role';
 })
 export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
   protected navigationButtons: NavigationOption[] = [];
+  protected componentType: 'sum' | 'consumptionMeter' | 'evcs' | null = null;
 
   constructor(
     public override service: Service,
@@ -24,14 +25,48 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
   }
 
   protected override afterIsInitialized() {
+    this.componentType = this.getComponentType();
     this.service.getCurrentEdge().then(edge => {
 
-      if (this.component && this.config?.hasComponentNature("io.openems.edge.evcs.api.Evcs", this.component.id)) {
+      if(!this.component) {
+        return;
+      }
+
+      if (this.config?.hasComponentNature("io.openems.edge.evcs.api.Evcs", this.component.id)) {
+        return;
+      }
+
+      if (this.component.factoryId === 'Core.Sum') {
+        this.component.alias = this.translate.instant('General.TOTAL');
         return;
       }
 
       this.navigationButtons = [
         { id: 'currentVoltage', isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("Edge.History.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate(['./currentVoltage'], { relativeTo: this.route }); } }];
     });
+  }
+
+  private getComponentType(): typeof this.componentType {
+    if(!this.component) {
+      return null;
+    }
+
+    if (this.config?.hasComponentNature("io.openems.edge.evcs.api.Evcs", this.component.id)
+      && (this.component.factoryId !== 'Evcs.Cluster.SelfConsumption')
+      && this.component.factoryId !== 'Evcs.Cluster.PeakShaving'
+      && this.component.isEnabled !== false) {
+      return 'evcs';
+    }
+
+    if (this.config?.hasComponentNature("io.openems.edge.meter.api.ElectricityMeter", this.component.id)
+      && this.config.isTypeConsumptionMetered(this.component) && this.component.isEnabled) {
+      return 'consumptionMeter';
+    }
+
+    if (this.component.factoryId === 'Core.Sum') {
+      return 'sum';
+    }
+
+    return null;
   }
 }

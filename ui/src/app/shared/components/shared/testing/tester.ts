@@ -7,6 +7,7 @@ import { HistoryUtils } from "src/app/shared/service/utils";
 import { CurrentData, EdgeConfig } from "src/app/shared/shared";
 
 import { AbstractHistoryChart } from "../../chart/abstracthistorychart";
+import { XAxisType } from "../../chart/chart.constants";
 import { TextIndentation } from "../../modal/modal-line/modal-line";
 import { Converter } from "../converter";
 import { OeFormlyField, OeFormlyView } from "../oe-formly-component";
@@ -223,7 +224,7 @@ export namespace OeChartTester {
 
 export class OeChartTester {
 
-  public static apply(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', channels: OeTester.Types.Channels, testContext: TestContext, config: EdgeConfig): OeChartTester.View {
+  public static apply(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', channels: OeTester.Types.Channels, testContext: TestContext, config: EdgeConfig, xAxisScalingType: XAxisType = XAxisType.TIMESERIES): OeChartTester.View {
 
     const channelData = OeChartTester.getChannelDataByCharttype(chartType, channels);
 
@@ -238,7 +239,7 @@ export class OeChartTester {
     const configuration = AbstractHistoryChart.fillChart(chartType, chartData, channelData, channels.energyChannelWithValues);
     const data: OeChartTester.Dataset.Data[] = OeChartTester.convertChartDatasetsToDatasets(configuration.datasets);
     const labels: OeChartTester.Dataset.LegendLabel = OeChartTester.convertChartLabelsToLegendLabels(configuration.labels);
-    const options: OeChartTester.Dataset.Option = OeChartTester.convertChartDataToOptions(chartData, chartType, testContext, channels, testContext.translate.currentLang, config, configuration.datasets);
+    const options: OeChartTester.Dataset.Option = OeChartTester.convertChartDataToOptions(chartData, chartType, testContext, channels, testContext.translate.currentLang, config, configuration.datasets, xAxisScalingType, configuration.labels);
 
     return {
       datasets: {
@@ -292,9 +293,10 @@ export class OeChartTester {
    * @param channels the channels
    * @returns dataset options
    */
-  public static convertChartDataToOptions(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', testContext: TestContext, channels: OeTester.Types.Channels, locale: string, config: EdgeConfig, datasets: Chart.ChartDataset[]): OeChartTester.Dataset.Option {
+  public static convertChartDataToOptions(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', testContext: TestContext, channels: OeTester.Types.Channels, locale: string, config: EdgeConfig, datasets: Chart.ChartDataset[], xAxisType: XAxisType = XAxisType.TIMESERIES, labels: (Date | string)[] = []): OeChartTester.Dataset.Option {
 
     const channelData: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse = OeChartTester.getChannelDataByCharttype(chartType, channels);
+
     const displayValues = chartData.output(channelData.result.data);
     const legendOptions: any[] = [];
 
@@ -306,7 +308,7 @@ export class OeChartTester {
 
     return {
       type: 'option',
-      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, null, legendOptions, channelData.result, locale, config, datasets),
+      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, locale, config, datasets, xAxisType, labels),
     };
   }
 

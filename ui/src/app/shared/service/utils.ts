@@ -111,7 +111,7 @@ export class Utils {
    * @param values the values
    * @returns a number, if at least one value is not null, else null
    */
-  public static subtractSafely(...values: (number | null)[]): number {
+  public static subtractSafely(...values: (number | null)[]): number | null {
     return values
       .filter(value => value !== null && value !== undefined)
       .reduce((sum, curr) => {
@@ -131,7 +131,7 @@ export class Utils {
    * @param v1
    * @param v2
    */
-  public static divideSafely(v1: number, v2: number): number | null {
+  public static divideSafely(v1: number | null, v2: number | null): number | null {
     if (v1 == null || v2 == null) {
       return null;
     } else if (v2 == 0) {
@@ -184,12 +184,27 @@ export class Utils {
    * Safely rounds a - possibly 'null' - value: Math.round(v)
    *
    * @param v
+   * @returns the rounded value, null if value is invalid
    */
-  public static roundSafely(v: number): number {
+  public static roundSafely(v: number | null): number | null {
     if (v == null) {
-      return v;
+      return null;
     } else {
       return Math.round(v);
+    }
+  }
+
+  /**
+   * Safely floors a - possibly 'null' - value: Math.floor(v)
+   *
+   * @param v
+   * @returns the floored value, null if value is invalid
+   */
+  public static floorSafely(v: number | null): number | null {
+    if (v == null) {
+      return null;
+    } else {
+      return Math.floor(v);
     }
   }
 
@@ -620,6 +635,7 @@ export enum YAxisTitle {
   CURRENT,
   TIME,
   CURRENCY,
+  NUMBER,
 }
 
 export enum ChartAxis {
@@ -671,7 +687,9 @@ export namespace HistoryUtils {
     noStrokeThroughLegendIfHidden?: boolean,
     /** color in rgb-Format */
     color: string,
-    /** the stack for barChart, if not provided datasets are not stacked but overlaying each other */
+    /**
+     * The stack/stacks for this dataset to be displayed, if not provided datasets are not stacked but overlaying each other
+     */
     stack?: number | number[],
     /** False per default */
     hideLabelInLegend?: boolean,
@@ -720,6 +738,13 @@ export namespace HistoryUtils {
     }[];
   }
 
+  export interface DataLabelsCustomOptions extends PluginCustomOptions {
+    pluginType: 'datalabels',
+    datalabels: {
+      displayUnit: string,
+    },
+  }
+
   /**
  * Data from a subscription to Channel or from a historic data query.
  *
@@ -745,9 +770,10 @@ export namespace HistoryUtils {
   export type yAxes = {
     /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
     unit: YAxisTitle,
-    customTitle?: string,
     position: 'left' | 'right' | 'bottom' | 'top',
     yAxisId: ChartAxis,
+    /** YAxis title -> {@link https://www.chartjs.org/docs/latest/samples/scale-options/titles.html Chartjs Title} */
+    customTitle?: string
     /** Default: true */
     displayGrid?: boolean
   };

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { Role } from 'src/app/shared/type/role';
 import { environment } from 'src/environments';
 import { Edge, Service, Utils } from '../../shared/shared';
@@ -23,6 +24,7 @@ export class SettingsComponent implements OnInit {
   constructor(
     protected utils: Utils,
     private service: Service,
+    private translate: TranslateService,
   ) {
   }
 

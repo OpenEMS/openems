@@ -7,21 +7,22 @@ import { ChannelAddress } from 'src/app/shared/shared';
   selector: 'currentVoltageChart',
   templateUrl: '../../../../../components/chart/abstracthistorychart.html',
 })
-export class CurrentVoltageChartComponent extends AbstractHistoryChart {
+export class CurrentVoltageSymmetricChartComponent extends AbstractHistoryChart {
 
   protected override getChartData(): HistoryUtils.ChartData {
 
     const component = this.config.getComponent(this.route.snapshot.params.componentId);
     const chartObject: HistoryUtils.ChartData = {
-      input: [{
-        name: component.id + 'Current',
-        powerChannel: ChannelAddress.fromString(component.id + '/Current'),
+      input: [
+        {
+          name: component.id + 'Current',
+          powerChannel: ChannelAddress.fromString(component.id + '/Current'),
 
-      },
-      {
-        name: component.id + 'Voltage',
-        powerChannel: ChannelAddress.fromString(component.id + '/Voltage'),
-      },
+        },
+        {
+          name: component.id + 'Voltage',
+          powerChannel: ChannelAddress.fromString(component.id + '/Voltage'),
+        },
       ],
       output: (data: HistoryUtils.ChannelData) => [
 
@@ -33,6 +34,7 @@ export class CurrentVoltageChartComponent extends AbstractHistoryChart {
           color: 'rgb(253,197,7)',
           hiddenOnInit: false,
           stack: 1,
+
           yAxisId: ChartAxis.RIGHT,
         },
         {
