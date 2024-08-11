@@ -34,6 +34,7 @@ export class CurrentVoltageAsymmetricChartComponent extends AbstractHistoryChart
           },
           hideShadow: true,
           color: currentPhasesColors[index],
+          yAxisId: ChartAxis.RIGHT,
         })),
         ...Phase.THREE_PHASE.map((phase, index) => ({
           name: this.translate.instant('Edge.History.VOLTAGE') + " " + phase,

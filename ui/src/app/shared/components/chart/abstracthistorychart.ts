@@ -316,6 +316,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         }
       case YAxisTitle.VOLTAGE:
         return translate.instant('Edge.History.VOLTAGE');
+      case YAxisTitle.CURRENT:
+        return translate.instant('Edge.History.CURRENT');
       case YAxisTitle.NONE:
         return '';
       default:
@@ -625,6 +627,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       case YAxisTitle.VOLTAGE:
         tooltipsLabel = 'V';
         break;
+      case YAxisTitle.CURRENT:
+        tooltipsLabel = 'A';
+        break;
       case YAxisTitle.POWER:
         tooltipsLabel = 'W';
         break;
@@ -696,6 +701,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return '%';
       case YAxisTitle.VOLTAGE:
         return 'V';
+      case YAxisTitle.CURRENT:
+        return 'A';
       case YAxisTitle.ENERGY:
         if (chartType == 'bar') {
           return 'kWh';
