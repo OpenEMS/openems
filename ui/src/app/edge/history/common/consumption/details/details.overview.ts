@@ -28,7 +28,11 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
     this.componentType = this.getComponentType();
     this.service.getCurrentEdge().then(edge => {
 
-      if (this.component && this.config?.hasComponentNature("io.openems.edge.evcs.api.Evcs", this.component.id)) {
+      if(!this.component) {
+        return;
+      }
+
+      if (this.config?.hasComponentNature("io.openems.edge.evcs.api.Evcs", this.component.id)) {
         return;
       }
 
@@ -43,15 +47,18 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
   }
 
   private getComponentType(): typeof this.componentType {
+    if(!this.component) {
+      return null;
+    }
 
-    if (this.config?.hasComponentNature("io.openems.edge.evcs.api.Evcs", this.component?.id)
-      && (this.component?.factoryId !== 'Evcs.Cluster.SelfConsumption')
-      && this.component?.factoryId !== 'Evcs.Cluster.PeakShaving'
-      && this.component?.isEnabled !== false) {
+    if (this.config?.hasComponentNature("io.openems.edge.evcs.api.Evcs", this.component.id)
+      && (this.component.factoryId !== 'Evcs.Cluster.SelfConsumption')
+      && this.component.factoryId !== 'Evcs.Cluster.PeakShaving'
+      && this.component.isEnabled !== false) {
       return 'evcs';
     }
 
-    if (this.config?.hasComponentNature("io.openems.edge.meter.api.ElectricityMeter", this.component?.id)
+    if (this.config?.hasComponentNature("io.openems.edge.meter.api.ElectricityMeter", this.component.id)
       && this.config.isTypeConsumptionMetered(this.component) && this.component.isEnabled) {
       return 'consumptionMeter';
     }

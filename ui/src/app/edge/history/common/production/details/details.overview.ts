@@ -31,7 +31,7 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
     this.service.getCurrentEdge().then(edge => {
 
       // Hide current & voltage
-      if (this.component.factoryId === 'Core.Sum') {
+      if (this.component?.factoryId === 'Core.Sum') {
         return;
       }
 
@@ -41,6 +41,9 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
   }
 
   private getComponentType(): typeof this.componentSome {
+    if (!this.component) {
+      return null;
+    }
 
     if (this.config.hasComponentNature("io.openems.edge.ess.dccharger.api.EssDcCharger", this.component.id) && this.component.isEnabled) {
       return { type: 'charger', displayName: this.component.alias };
