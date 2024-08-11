@@ -13,8 +13,6 @@ import { Role } from 'src/app/shared/type/role';
 export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
   protected navigationButtons: NavigationOption[] = [];
 
-  protected componentSome: { type: 'sum' | 'productionMeter' | 'charger', displayName: string } | null = null;
-
   constructor(
     public override service: Service,
     protected override route: ActivatedRoute,
@@ -26,34 +24,17 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
   }
 
   protected override afterIsInitialized() {
-    this.componentSome = this.getComponentType();
-
     this.service.getCurrentEdge().then(edge => {
 
-      // Hide current & voltage
-      if (this.component.factoryId === 'Core.Sum') {
+      const gridMeter = Object.values(this.config.components)
+        .find((component) => component.isEnabled && this.config.isTypeGrid(component)) ?? null;
+
+      if (!gridMeter) {
         return;
       }
 
       this.navigationButtons = [
-        { id: 'currentVoltage', isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("Edge.History.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate(['./currentVoltage'], { relativeTo: this.route }); } }];
+        { id: 'currentVoltage', isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("Edge.History.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate([`../${gridMeter.id}/currentVoltage`], { relativeTo: this.route }); } }];
     });
-  }
-
-  private getComponentType(): typeof this.componentSome {
-
-    if (this.config.hasComponentNature("io.openems.edge.ess.dccharger.api.EssDcCharger", this.component.id) && this.component.isEnabled) {
-      return { type: 'charger', displayName: this.component.alias };
-    }
-
-    if (this.config.isProducer(this.component) && this.component.isEnabled) {
-      return { type: 'productionMeter', displayName: this.component.alias };
-    }
-
-    if (this.component.factoryId === 'Core.Sum') {
-      return { type: 'sum', displayName: this.translate.instant('General.TOTAL') };
-    }
-
-    return null;
   }
 }

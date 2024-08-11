@@ -86,7 +86,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   public static fillChart(chartType: 'line' | 'bar', chartObject: HistoryUtils.ChartData, energyPeriodResponse: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse,
     energyResponse?: QueryHistoricTimeseriesEnergyResponse) {
     if (Utils.isDataEmpty(energyPeriodResponse)) {
-      return;
+      return {
+        datasets: ChartConstants.EMPTY_DATASETS,
+        labels: [],
+        legendOptions: [],
+      };
     }
 
     const channelData: { data: { [name: string]: number[] } } = { data: {} };

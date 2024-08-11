@@ -76,6 +76,16 @@ export namespace DummyConfig {
 
     export namespace Factory {
 
+        export const SUM = {
+            id: "Core.Sum",
+            natureIds: [
+                "io.openems.edge.common.sum.Sum",
+                "io.openems.edge.common.modbusslave.ModbusSlave",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
         export const METER_SOCOMEC_THREEPHASE = {
             id: "Meter.Socomec.Threephase",
             natureIds: [
@@ -96,6 +106,17 @@ export namespace DummyConfig {
                 "io.openems.edge.bridge.modbus.api.ModbusComponent",
                 "io.openems.edge.common.modbusslave.ModbusSlave",
                 "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const CHARGER_GOODWE_MPPT_TWO_STRING = {
+            id: "GoodWe.Charger.Mppt.Two-String",
+            natureIds: [
+                "io.openems.edge.common.modbusslave.ModbusSlave",
+                "io.openems.edge.ess.dccharger.api.EssDcCharger",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.goodwe.charger.GoodWeCharger",
                 "io.openems.edge.timedata.api.TimedataProvider",
             ],
         };
@@ -155,6 +176,16 @@ export namespace DummyConfig {
 
     export namespace Component {
 
+        export const SUM = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factoryId: "Core.Sum",
+            factory: Factory.SUM,
+            properties: {
+                enabled: "true",
+            },
+            channels: {},
+        });
         export const EVCS_HARDY_BARTH = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
@@ -199,6 +230,19 @@ export namespace DummyConfig {
                 invert: false,
                 modbusUnitId: 5,
                 type: "PRODUCTION",
+            },
+            channels: {},
+        });
+
+        export const GOODWE_CHARGER_MPPT_TWO_STRING = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias,
+            factory: Factory.CHARGER_GOODWE_MPPT_TWO_STRING,
+            properties: {
+                "alias": "MPPT 1",
+                "enabled": true,
+                "essOrBatteryInverter.id": "batteryInverter0",
+                "mpptPort": "MPPT_1",
             },
             channels: {},
         });

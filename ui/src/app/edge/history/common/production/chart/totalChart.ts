@@ -169,5 +169,4 @@ export class TotalChartComponent extends AbstractHistoryChart {
 
     return chartObject;
   }
-
 }

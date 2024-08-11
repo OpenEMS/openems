@@ -1,7 +1,8 @@
-<oe-chart [title]="component.alias" [showPhases]="showPhases" [showTotal]="showTotal"
-  (setShowTotal)="setShowTotal($event)" (setShowPhases)="setShowPhases($event)" *ngIf="isInitialized && component"
-  [period]="service.historyPeriod.value">
-  <consumptionMeterChart [isOnlyChart]="true"></consumptionMeterChart>
+<oe-chart [title]="component.alias" *ngIf="isInitialized && component" [period]="service.historyPeriod.value">
+<ng-container [ngSwitch]="componentType.type">
+    <sumChart *ngSwitchCase="'sum'" [isOnlyChart]="true"></sumChart>
+    <consumptionMeterChart  *ngSwitchCase="'consumptionMeter'" [isOnlyChart]="true"></consumptionMeterChart>
+    <evcsChart  *ngSwitchCase="'evcs'" [isOnlyChart]="true"></evcsChart>
+  </ng-container>
 </oe-chart>
-<oe-footer-subnavigation *ngIf="isInitialized" [backButton]="true"
-  [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
+<oe-footer-subnavigation *ngIf="isInitialized" [backButton]="true" [navigationOptions]="navigationButtons"></oe-footer-subnavigation>

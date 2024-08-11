@@ -7,6 +7,7 @@ import { EdgeComponent } from './edge/edge.component';
 import { OverviewComponent as AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
 import { DetailsOverviewComponent as ConsumptionDetailsOverviewComponent } from './edge/history/common/consumption/details/details.overview';
 import { OverviewComponent as ConsumptionChartOverviewComponent } from './edge/history/common/consumption/overview/overview';
+import { DetailsOverviewComponent as GridDetailsOverviewComponent } from './edge/history/common/grid/details/details.overview';
 import { OverviewComponent as GridChartOverviewComponent } from './edge/history/common/grid/overview/overview';
 import { DetailsOverviewComponent } from './edge/history/common/production/details/details.overview';
 import { OverviewComponent as ProductionChartOverviewComponent } from './edge/history/common/production/overview/overview';
@@ -54,7 +55,7 @@ import { CurrentAndVoltageOverviewComponent } from './shared/components/edge/met
 import { DataService } from './shared/components/shared/dataservice';
 import { UserComponent } from './user/user.component';
 
-const routes: Routes = [
+export const routes: Routes = [
 
   // TODO should be removed in the future
   { path: '', redirectTo: 'index', pathMatch: 'full' },
@@ -98,6 +99,8 @@ const routes: Routes = [
           { path: 'consumptionchart/:componentId', component: ConsumptionDetailsOverviewComponent },
           { path: 'consumptionchart/:componentId/currentVoltage', component: CurrentAndVoltageOverviewComponent },
           { path: 'gridchart', component: GridChartOverviewComponent },
+          { path: 'gridchart/:componentId', component: GridDetailsOverviewComponent },
+          { path: 'gridchart/:componentId/currentVoltage', component: CurrentAndVoltageOverviewComponent },
           { path: 'productionchart', component: ProductionChartOverviewComponent },
           { path: 'productionchart/:componentId', component: DetailsOverviewComponent },
           { path: 'productionchart/:componentId/currentVoltage', component: CurrentAndVoltageOverviewComponent },
