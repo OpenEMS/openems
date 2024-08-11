@@ -24,8 +24,7 @@
               <ion-item lines="none">
                 <ngx-spinner [name]="selectedComponentId.value"></ngx-spinner>
                 <ion-select style="white-space: initial;width: 100%;" #selectedChannelId interface="alert"
-                  [disabled]="!selectedComponentId?.value"
-                  [placeholder]="'CHANNELS.CHANNEL'| translate">
+                  [disabled]="!selectedComponentId?.value" [placeholder]="'CHANNELS.CHANNEL'| translate">
                   <ng-container *ngIf="selectedComponentId?.value">
                     <ion-select-option
                       *ngFor="let entry of channelsPerComponent.get(selectedComponentId.value).channels | keyvalue"
@@ -133,8 +132,8 @@
                       <ng-container *ngIf="channelConfig.type === 'BOOLEAN'; else no_boolean">
                         <!-- show Toggle for boolean value  -->
                         <ion-toggle #valueToggle></ion-toggle>
-                        <ion-button (click)="setChannelValue(component.key, channel.key, valueToggle.checked)" slot="end"
-                          color="light">
+                        <ion-button (click)="setChannelValue(component.key, channel.key, valueToggle.checked)"
+                          slot="end" color="light">
                           <ion-icon slot="icon-only" name="send-outline"></ion-icon>
                         </ion-button>
                       </ng-container>
@@ -180,5 +179,22 @@
 
       </ng-container>
     </ion-row>
+
   </ion-grid>
+  <ion-item lines="none" *ngIf="isAtLeastOneChannelExistingInEdgeConfig">
+    <ion-label>
+      <ng-container>
+        <ion-row class="ion-justify-content-center">
+          <ion-col size="12" size-md="4">
+            <ion-card>
+              <ion-item color="light" lines="full">
+                <ion-icon color="danger" size="large" slot="start" name="alert-circle"></ion-icon>
+                A component couldn't be found!
+              </ion-item>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ng-container>
+    </ion-label>
+  </ion-item>
 </ion-content>
