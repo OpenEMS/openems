@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { SubscribeEdgesRequest } from "src/app/shared/jsonrpc/request/subscribeEdgesRequest";
 import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
 
-
 /*** This component is needed as a routing parent and acts as a transit station without being displayed.*/
 @Component({
     selector: "edge",

@@ -28,7 +28,7 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
     this.componentType = this.getComponentType();
     this.service.getCurrentEdge().then(edge => {
 
-      if(!this.component) {
+      if (!this.component) {
         return;
       }
 
@@ -47,7 +47,7 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
   }
 
   private getComponentType(): typeof this.componentType {
-    if(!this.component) {
+    if (!this.component) {
       return null;
     }
 

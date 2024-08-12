@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { NavigationOption } from 'src/app/shared/components/footer/subnavigation/footerNavigation';
-
 import { AbstractHistoryChartOverview } from '../../../../../shared/components/chart/abstractHistoryChartOverview';
 import { ChannelAddress, EdgeConfig, Service } from '../../../../../shared/shared';
-import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   templateUrl: './overview.html',

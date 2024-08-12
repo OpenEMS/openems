@@ -1,6 +1,6 @@
-<oe-chart [title]="'General.production' | translate" *ngIf="isInitialized"
-  [period]="service.historyPeriod.value"  [(showPhases)]="showPhases" [showTotal]="false" (setShowTotal)="setShowTotal($event)">
-    <productionTotalChart [isOnlyChart]="true" [showTotal]="showTotal" [showPhases]="showPhases">
-    </productionTotalChart>
+<oe-chart [title]="'General.production' | translate" *ngIf="isInitialized" [period]="service.historyPeriod.value"
+  [(showPhases)]="showPhases" [showTotal]="false" (setShowTotal)="setShowTotal($event)">
+  <productionTotalChart [isOnlyChart]="true" [showTotal]="showTotal" [showPhases]="showPhases">
+  </productionTotalChart>
 </oe-chart>
 <oe-footer-subnavigation *ngIf="isInitialized" [navigationOptions]="navigationButtons"></oe-footer-subnavigation>

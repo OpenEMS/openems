@@ -1,6 +1,5 @@
 <ion-input *ngIf="props.type === 'number'; else noNumberInput" placeholder="{{props.placeholder}}"
-    style="width:100%; float:right; text-align: right" 
-    [type]="props.type || 'text'" [formControl]="formControl"
+    style="width:100%; float:right; text-align: right" [type]="props.type || 'text'" [formControl]="formControl"
     [min]="props.min">
 </ion-input>
 <ng-template #noNumberInput>

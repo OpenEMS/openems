@@ -2,16 +2,15 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
+import { SplashScreen } from '@capacitor/splash-screen';
 import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
 import { Subject, Subscription } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
-
 import { environment } from '../environments';
+import { AppService } from './app.service';
 import { GlobalRouteChangeHandler } from './shared/service/globalRouteChangeHandler';
 import { Service, UserPermission, Websocket } from './shared/shared';
 import { Language } from './shared/type/language';
-import { SplashScreen } from '@capacitor/splash-screen';
-import { AppService } from './app.service';
 
 @Component({
   selector: 'app-root',

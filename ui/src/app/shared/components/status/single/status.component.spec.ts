@@ -1,13 +1,12 @@
 import { TestBed } from "@angular/core/testing";
 import { ModalController } from "@ionic/angular";
-
-import { EdgeConfig, PersistencePriority } from "../../edge/edgeconfig";
-import { StatusSingleComponent } from "./status.component";
 import { BehaviorSubject } from "rxjs";
 import { DummyWebsocket } from "src/app/shared/service/test/dummywebsocket";
-import { Service, Websocket, ChannelAddress } from "src/app/shared/shared";
+import { ChannelAddress, Service, Websocket } from "src/app/shared/shared";
 import { Edge } from "../../edge/edge";
+import { EdgeConfig, PersistencePriority } from "../../edge/edgeconfig";
 import { DummyModalController } from "../../shared/testing/DummyModalController";
+import { StatusSingleComponent } from "./status.component";
 
 describe('StatusComponent', () => {
     const testComponent = new EdgeConfig.Component("test", {}, {

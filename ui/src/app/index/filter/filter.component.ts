@@ -2,9 +2,9 @@
 import { Component, EventEmitter, Output } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { TKeyValue } from "src/app/shared/service/defaulttypes";
+import { Utils } from "src/app/shared/shared";
 import { environment } from "src/environments";
 import { SUM_STATES } from "../shared/sumState";
-import { Utils } from "src/app/shared/shared";
 
 @Component({
   selector: 'oe-filter',

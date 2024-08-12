@@ -1,4 +1,5 @@
 // @ts-strict-ignore
+import { ActivatedRoute } from "@angular/router";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
 import { OeTester } from "src/app/shared/components/shared/testing/common";
 import { OeChartTester } from "src/app/shared/components/shared/testing/tester";
@@ -7,7 +8,6 @@ import { EdgeConfig } from "src/app/shared/shared";
 import { DATA, LABELS } from "../../../energy/chart/chart.constants.spec";
 import { History } from "./channels.spec";
 import { ProductionMeterChartDetailsComponent } from "./productionMeter";
-import { ActivatedRoute } from "@angular/router";
 
 describe('History Production Details - productionMeters', () => {
     const defaultEMS = DummyConfig.from(

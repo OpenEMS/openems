@@ -7,14 +7,14 @@ import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
+import { Flags } from '../jsonrpc/flag/flags';
 import { GetApps } from '../jsonrpc/getApps';
+import { hasPredefinedKey } from '../permissions';
 import { AppCenter } from './appCenter';
 import { AppCenterAddRegisterKeyHistory } from './appCenterAddRegisterKeyHistory';
 import { AppCenterGetRegisteredKeys } from './appCenterGetRegisteredKeys';
 import { AppCenterIsKeyApplicable } from './appCenterIsKeyApplicable';
 import { Key } from './key';
-import { Flags } from '../jsonrpc/flag/flags';
-import { hasPredefinedKey } from '../permissions';
 
 @Component({
     selector: KeyModalComponent.SELECTOR,

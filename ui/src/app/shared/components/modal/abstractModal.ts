@@ -10,8 +10,8 @@ import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocke
 import { v4 as uuidv4 } from 'uuid';
 
 import { Role } from "../../type/role";
-import { TextIndentation } from "./modal-line/modal-line";
 import { Converter } from "../shared/converter";
+import { TextIndentation } from "./modal-line/modal-line";
 
 @Directive()
 export abstract class AbstractModal implements OnInit, OnDestroy {

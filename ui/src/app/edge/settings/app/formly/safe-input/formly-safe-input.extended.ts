@@ -2,9 +2,9 @@
 import { Component, OnInit } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { FieldWrapper, FormlyFieldConfig } from "@ngx-formly/core";
-import { FormlySafeInputModalComponent } from "./formly-safe-input-modal.component";
 import { GetAppAssistant } from "../../jsonrpc/getAppAssistant";
 import { OptionGroupConfig, getTitleFromOptionConfig } from "../option-group-picker/optionGroupPickerConfiguration";
+import { FormlySafeInputModalComponent } from "./formly-safe-input-modal.component";
 
 @Component({
     selector: 'formly-safe-input-wrapper',

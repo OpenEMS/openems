@@ -1,9 +1,9 @@
 // @ts-strict-ignore
-import { ChannelAddress } from "../../../shared/type/channeladdress";
 import { format } from 'date-fns';
+import { Resolution } from "src/app/edge/history/shared";
+import { ChannelAddress } from "../../../shared/type/channeladdress";
 import { JsonrpcRequest } from "../base";
 import { JsonRpcUtils } from "../jsonrpcutils";
-import { Resolution } from "src/app/edge/history/shared";
 
 /**
  * Represents a JSON-RPC Request to query Historic Timeseries Data.

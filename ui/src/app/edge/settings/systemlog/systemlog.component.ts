@@ -1,13 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { SelectCustomEvent } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { parse } from 'date-fns';
 import { Subject } from 'rxjs';
 import { filter, take, takeUntil } from 'rxjs/operators';
 import { Filter } from 'src/app/index/filter/filter.component';
-
-import { Service, Utils, Websocket } from '../../../shared/shared';
 import { Role } from 'src/app/shared/type/role';
-import { parse } from 'date-fns';
-import { SelectCustomEvent } from '@ionic/angular';
+import { Service, Utils, Websocket } from '../../../shared/shared';
 
 export const LOG_LEVEL_FILTER = (translate: TranslateService): Filter => ({
   placeholder: translate.instant("Edge.Config.Log.level"),
