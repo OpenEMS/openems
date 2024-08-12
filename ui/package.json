@@ -63,7 +63,7 @@
     "@angular/compiler-cli": "^16.2.12",
     "@angular/language-service": "^16.2.12",
     "@capacitor/assets": "^3.0.0",
-    "@capacitor/cli": "6.1.1",
+    "@capacitor/cli": "6.1.2",
     "@ionic/angular-toolkit": "^11.0.1",
     "@stylistic/eslint-plugin": "^2.4.0",
     "@types/jasmine": "~4.3.6",
