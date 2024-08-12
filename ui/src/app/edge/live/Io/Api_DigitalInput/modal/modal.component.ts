@@ -1,10 +1,10 @@
 // @ts-strict-ignore
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Edge, Service, EdgeConfig, Websocket, ChannelAddress, EdgePermission } from '../../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
-import { Channel } from 'src/app/shared/jsonrpc/response/getChannelsOfComponentResponse';
-import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { JsonrpcRequest, JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
+import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
+import { Channel } from 'src/app/shared/jsonrpc/response/getChannelsOfComponentResponse';
+import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Websocket } from '../../../../../shared/shared';
 
 @Component({
     selector: 'Io_Api_DigitalInputModal',

@@ -9,7 +9,6 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { filter, first, take } from 'rxjs/operators';
 import { ChosenFilter } from 'src/app/index/filter/filter.component';
 import { environment } from 'src/environments';
-
 import { Edge } from '../components/edge/edge';
 import { EdgeConfig } from '../components/edge/edgeconfig';
 import { JsonrpcResponseError } from '../jsonrpc/base';

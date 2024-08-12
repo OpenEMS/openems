@@ -4,10 +4,13 @@ import { FormGroup } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
+import { environment } from 'src/environments';
 import { Edge, Service, Utils, Websocket } from '../../../shared/shared';
+import { InstallAppComponent } from './install.component';
 import { GetApp } from './jsonrpc/getApp';
 import { GetAppDescriptor } from './jsonrpc/getAppDescriptor';
 import { GetApps } from './jsonrpc/getApps';
@@ -16,9 +19,6 @@ import { AppCenterGetPossibleApps } from './keypopup/appCenterGetPossibleApps';
 import { AppCenterIsAppFree } from './keypopup/appCenterIsAppFree';
 import { KeyModalComponent, KeyValidationBehaviour } from './keypopup/modal.component';
 import { canEnterKey, hasKeyModel, hasPredefinedKey } from './permissions';
-import { InstallAppComponent } from './install.component';
-import { TranslateService } from '@ngx-translate/core';
-import { environment } from 'src/environments';
 
 @Component({
   selector: SingleAppComponent.SELECTOR,

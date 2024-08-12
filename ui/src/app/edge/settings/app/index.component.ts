@@ -10,16 +10,16 @@ import { Role } from 'src/app/shared/type/role';
 import { Environment, environment } from 'src/environments';
 import { Edge, Service, Websocket } from '../../../shared/shared';
 import { ExecuteSystemUpdate } from '../system/executeSystemUpdate';
+import { InstallAppComponent } from './install.component';
+import { Flags } from './jsonrpc/flag/flags';
 import { GetApps } from './jsonrpc/getApps';
+import { App } from './keypopup/app';
 import { AppCenter } from './keypopup/appCenter';
 import { AppCenterGetPossibleApps } from './keypopup/appCenterGetPossibleApps';
+import { AppCenterGetRegisteredKeys } from './keypopup/appCenterGetRegisteredKeys';
 import { Key } from './keypopup/key';
 import { KeyModalComponent, KeyValidationBehaviour } from './keypopup/modal.component';
 import { canEnterKey } from './permissions';
-import { Flags } from './jsonrpc/flag/flags';
-import { App } from './keypopup/app';
-import { InstallAppComponent } from './install.component';
-import { AppCenterGetRegisteredKeys } from './keypopup/appCenterGetRegisteredKeys';
 
 @Component({
   selector: IndexComponent.SELECTOR,

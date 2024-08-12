@@ -13,7 +13,6 @@ export class TimeslotPeakshavingWidgetComponent implements OnInit {
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public componentId!: string;
 
-
     public edge: Edge | null = null;
     public component: EdgeConfig.Component | null = null;
 

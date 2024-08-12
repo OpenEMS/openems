@@ -1,9 +1,8 @@
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Subject } from "rxjs";
-
-import { ChannelAddress, Edge } from "../../shared";
 import { RefresherCustomEvent } from "@ionic/angular";
+import { BehaviorSubject, Subject } from "rxjs";
+import { ChannelAddress, Edge } from "../../shared";
 
 @Injectable()
 export abstract class DataService {

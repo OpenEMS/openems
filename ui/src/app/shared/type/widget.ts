@@ -75,7 +75,6 @@ export class Widgets {
     }
 
     public static parseWidgets(edge: Edge, config: EdgeConfig): Widgets {
-
         const classes: string[] = Object.values(WidgetClass) //
             .filter(v => typeof v === 'string')
             .filter(clazz => {

@@ -1,6 +1,6 @@
 // @ts-strict-ignore
-import { GetAppAssistant } from "./getAppAssistant";
 import { FormlyFieldConfig } from "@ngx-formly/core";
+import { GetAppAssistant } from "./getAppAssistant";
 
 describe('GetAppAssistant', () => {
     let fields: FormlyFieldConfig[];

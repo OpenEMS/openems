@@ -1,9 +1,9 @@
 // @ts-strict-ignore
-import { CategorizedFactories } from 'src/app/shared/components/edge/edgeconfig';
 import { Component, OnInit } from '@angular/core';
-import { Service, Utils, EdgeConfig, Websocket, Edge, EdgePermission } from '../../../../shared/shared';
+import { CategorizedFactories } from 'src/app/shared/components/edge/edgeconfig';
 import { JsonrpcRequest, JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
+import { Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket } from '../../../../shared/shared';
 
 interface MyCategorizedFactories extends CategorizedFactories {
   isClicked?: boolean,

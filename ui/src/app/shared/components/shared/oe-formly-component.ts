@@ -3,8 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { filter } from "rxjs/operators";
-
-import { CurrentData, ChannelAddress, EdgeConfig, Service } from "../../shared";
+import { ChannelAddress, CurrentData, EdgeConfig, Service } from "../../shared";
 import { SharedModule } from "../../shared.module";
 import { Role } from "../../type/role";
 import { TextIndentation } from "../modal/modal-line/modal-line";

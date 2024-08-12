@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { VarDirective } from './ngvar';
 import { AutofillDirective } from './autofill';
+import { VarDirective } from './ngvar';
 
 @NgModule({
     imports: [

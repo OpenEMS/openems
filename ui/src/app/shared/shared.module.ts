@@ -10,7 +10,6 @@ import { FormlyIonicModule } from '@ngx-formly/ionic';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgChartsModule } from 'ng2-charts';
 import { NgxSpinnerModule } from "ngx-spinner";
-
 import { appRoutingProviders } from '../app-routing.module';
 import { ComponentsModule } from './components/components.module';
 import { MeterModule } from './components/edge/meter/meter.module';

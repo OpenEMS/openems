@@ -6,11 +6,11 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Edge, Service, Utils, Websocket } from '../../../shared/shared';
+import { InstallAppComponent } from './install.component';
 import { DeleteAppInstance } from './jsonrpc/deleteAppInstance';
 import { GetAppAssistant } from './jsonrpc/getAppAssistant';
 import { GetAppInstances } from './jsonrpc/getAppInstances';
 import { UpdateAppInstance } from './jsonrpc/updateAppInstance';
-import { InstallAppComponent } from './install.component';
 
 interface MyInstance {
   instanceId: string, // uuid

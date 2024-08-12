@@ -1,11 +1,11 @@
 // @ts-strict-ignore
-import * as Chart from 'chart.js';
-import { Component, Input, OnInit, OnChanges } from '@angular/core';
-import { CurrentData } from 'src/app/shared/components/edge/currentdata';
-import { Data } from 'src/app/edge/history/shared';
-import { EdgeConfig, Edge } from 'src/app/shared/shared';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import * as Chart from 'chart.js';
+import { Data } from 'src/app/edge/history/shared';
+import { CurrentData } from 'src/app/shared/components/edge/currentdata';
+import { Edge, EdgeConfig } from 'src/app/shared/shared';
 
 @Component({
   selector: EvcsChartComponent.SELECTOR,

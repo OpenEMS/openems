@@ -1,12 +1,9 @@
 // @ts-strict-ignore
 import { compareVersions } from 'compare-versions';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { SumState } from 'src/app/index/shared/sumState';
-
-import { CurrentData } from './currentdata';
-import { EdgeConfig } from './edgeconfig';
 import { filter, first } from 'rxjs/operators';
-import { JsonrpcResponseSuccess, JsonrpcRequest } from '../../jsonrpc/base';
+import { SumState } from 'src/app/index/shared/sumState';
+import { JsonrpcRequest, JsonrpcResponseSuccess } from '../../jsonrpc/base';
 import { CurrentDataNotification } from '../../jsonrpc/notification/currentDataNotification';
 import { EdgeConfigNotification } from '../../jsonrpc/notification/edgeConfigNotification';
 import { SystemLogNotification } from '../../jsonrpc/notification/systemLogNotification';
@@ -16,18 +13,20 @@ import { DeleteComponentConfigRequest } from '../../jsonrpc/request/deleteCompon
 import { EdgeRpcRequest } from '../../jsonrpc/request/edgeRpcRequest';
 import { GetChannelRequest } from '../../jsonrpc/request/getChannelRequest';
 import { GetChannelsOfComponentRequest } from '../../jsonrpc/request/getChannelsOfComponentRequest';
+import { GetEdgeConfigRequest } from '../../jsonrpc/request/getEdgeConfigRequest';
 import { GetPropertiesOfFactoryRequest } from '../../jsonrpc/request/getPropertiesOfFactoryRequest';
 import { SubscribeChannelsRequest } from '../../jsonrpc/request/subscribeChannelsRequest';
 import { SubscribeSystemLogRequest } from '../../jsonrpc/request/subscribeSystemLogRequest';
 import { UpdateComponentConfigRequest } from '../../jsonrpc/request/updateComponentConfigRequest';
 import { GetChannelResponse } from '../../jsonrpc/response/getChannelResponse';
 import { Channel, GetChannelsOfComponentResponse } from '../../jsonrpc/response/getChannelsOfComponentResponse';
+import { GetEdgeConfigResponse } from '../../jsonrpc/response/getEdgeConfigResponse';
 import { GetPropertiesOfFactoryResponse } from '../../jsonrpc/response/getPropertiesOfFactoryResponse';
 import { ArrayUtils } from '../../service/arrayutils';
-import { ChannelAddress, SystemLog, Websocket, EdgePermission } from '../../shared';
+import { ChannelAddress, EdgePermission, SystemLog, Websocket } from '../../shared';
 import { Role } from '../../type/role';
-import { GetEdgeConfigResponse } from '../../jsonrpc/response/getEdgeConfigResponse';
-import { GetEdgeConfigRequest } from '../../jsonrpc/request/getEdgeConfigRequest';
+import { CurrentData } from './currentdata';
+import { EdgeConfig } from './edgeconfig';
 
 export class Edge {
 
