@@ -585,5 +585,5 @@ Same applies to the OpenEMS Backend for dynamically loading devices.
 Before continuing with the development and implementation, it's important to ensure that your module's tests are passing. This helps in maintaining the quality and functionality of the module. To check the tests of your module, execute the following Gradle command in the root directory of OpenEMS:
 
 ----
-Run ./gradlew :io.openems.edge.io.shelly:clean in the root Directory to check the tests of your module.
+Run ./gradlew :io.openems.edge.io.shelly:test in the root Directory to check the tests of your module.
 ----
