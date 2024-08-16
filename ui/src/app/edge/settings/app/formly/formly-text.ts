@@ -11,7 +11,7 @@ import { FieldType, FieldTypeConfig } from "@ngx-formly/core";
     `,
     encapsulation: ViewEncapsulation.None,
 })
-export class FormlyTextComponent extends FieldType<FieldTypeConfig>  {
+export class FormlyTextComponent extends FieldType<FieldTypeConfig> {
 
     constructor(
     ) {

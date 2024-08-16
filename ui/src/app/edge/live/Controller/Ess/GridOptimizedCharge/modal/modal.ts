@@ -1,6 +1,7 @@
+// @ts-strict-ignore
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
+import { AbstractModal } from 'src/app/shared/components/modal/abstractModal';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 import { Role } from 'src/app/shared/type/role';
 
@@ -21,11 +22,11 @@ export class ModalComponent extends AbstractModal {
     public state: string = '';
     public chargeLimit: { name: string, value: number };
     public delayChargeState: number | null = null;
-    public maximumSellToGridPower: number = null;
+    public maximumSellToGridPower: number | null = null;
     public targetMinute: number | null = null;
     public delayChargeMaximumChargeLimit: number | null = null;
     public targetEpochSeconds: number | null = null;
-    public chargeStartEpochSeconds: number = null;
+    public chargeStartEpochSeconds: number | null = null;
 
     protected override getChannelAddresses(): ChannelAddress[] {
         this.refreshChart = false;

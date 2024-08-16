@@ -1,7 +1,8 @@
+// @ts-strict-ignore
 import { History } from "src/app/edge/history/common/energy/chart/channels.spec";
-import { DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
+import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
+import { sharedSetup, TestContext } from "src/app/shared/components/shared/testing/utils.spec";
 
-import { sharedSetup, TestContext } from "../../../../../shared/test/utils.spec";
 import { DATA, expectView, LABELS } from "./chart.constants.spec";
 
 describe('History EnergyMonitor', () => {
@@ -33,7 +34,7 @@ describe('History EnergyMonitor', () => {
             ],
             labels: LABELS(History.DAY.dataChannelWithValues.result.timestamps),
             options: History.LINE_CHART_OPTIONS('hour', 'line', {
-              ["left"]: { scale: { min: 0, max: 7 }, ticks: { stepSize: 1.75 } }, ["right"]: { scale: { min: 0, max: 1003 }, ticks: { stepSize: 25 } },
+              ['right']: { ticks: { stepSize: 20 }, scale: null },
             }),
           },
         });
@@ -54,9 +55,7 @@ describe('History EnergyMonitor', () => {
               DATA('Ladezustand', History.WEEK.dataChannelWithValues.result.data['_sum/EssSoc']),
             ],
             labels: LABELS(History.WEEK.dataChannelWithValues.result.timestamps),
-            options: History.LINE_CHART_OPTIONS('day', 'line', {
-              ["left"]: { scale: { min: 0, max: 9 }, ticks: { stepSize: 2.25 } }, ["right"]: { scale: { min: 0, max: 1003 }, ticks: { stepSize: 25 } },
-            }),
+            options: History.LINE_CHART_OPTIONS('day', 'line', { ['right']: { ticks: { stepSize: 20 }, scale: null } }),
           },
         });
     }
@@ -79,9 +78,7 @@ describe('History EnergyMonitor', () => {
               DATA('Verbrauch: 9.976,1 kWh', [320.342, 346.615, 341.433, 333.054, 358.458, 347.872, 289.283, null, 556.51, 311.366, 314.722, 355.556, 381.671, 384.558, 366.19, 349.336, 303.696, 288.727, 357.434, 388.659, 402.625, null, 713.771, 320.238, 332.099, null, 756.429, 384.136, 371.322, null]),
             ],
             labels: LABELS(History.MONTH.energyPerPeriodChannelWithValues.result.timestamps),
-            options: History.BAR_CHART_OPTIONS('day', 'bar', {
-              ["left"]: { scale: { min: 0, max: 1579 }, ticks: { stepSize: 394.75 } },
-            }),
+            options: History.BAR_CHART_OPTIONS('day', 'bar', {}),
           },
         });
     }
@@ -104,9 +101,7 @@ describe('History EnergyMonitor', () => {
               DATA('Verbrauch: 58.573,4 kWh', [11634.885, 8207.927, 8976.354, 8311.835, 10341.804, 9976.102, 975.807, null, null, null, null, null]),
             ],
             labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues.result.timestamps),
-            options: History.BAR_CHART_OPTIONS('month', 'bar', {
-              ["left"]: { scale: { min: 0, max: 22491 }, ticks: { stepSize: 5622.75 } },
-            }),
+            options: History.BAR_CHART_OPTIONS('month', 'bar', {}),
           },
         });
     }
@@ -119,7 +114,6 @@ describe('History EnergyMonitor', () => {
             data: [],
             labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues.result.timestamps),
             options: History.BAR_CHART_OPTIONS('month', 'bar', {
-              ["left"]: { scale: {}, ticks: {} },
             }),
           },
         });
@@ -143,9 +137,7 @@ describe('History EnergyMonitor', () => {
               DATA('Verbrauch: 58.573,4 kWh', [11634.885, 8207.927, 8976.354, 8311.835, 10341.804, 9976.102, 975.807, null, null, null, null, null]),
             ],
             labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues.result.timestamps),
-            options: History.BAR_CHART_OPTIONS('month', 'bar', {
-              ["left"]: { scale: { min: 0, max: 12839 }, ticks: { stepSize: 3209.75 } }, ["right"]: { scale: { min: 0, max: 1003 }, ticks: { stepSize: 25 } },
-            }),
+            options: History.BAR_CHART_OPTIONS('month', 'bar', {}),
           },
         });
     }
@@ -165,9 +157,7 @@ describe('History EnergyMonitor', () => {
               DATA('Verbrauch: 58.573,4 kWh', [11634.885, 8207.927, 8976.354, 8311.835, 10341.804, 9976.102, 975.807, null, null, null, null, null]),
             ],
             labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues.result.timestamps),
-            options: History.BAR_CHART_OPTIONS('month', 'bar', {
-              ["left"]: { scale: { min: 0, max: 12839 }, ticks: { stepSize: 3209.75 } },
-            }),
+            options: History.BAR_CHART_OPTIONS('month', 'bar', {}),
           },
         });
     }
@@ -187,9 +177,7 @@ describe('History EnergyMonitor', () => {
               DATA('Verbrauch: 58.573,4 kWh', [11634.885, 8207.927, 8976.354, 8311.835, 10341.804, 9976.102, 975.807, null, null, null, null, null]),
             ],
             labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues.result.timestamps),
-            options: History.BAR_CHART_OPTIONS('month', 'bar', {
-              ["left"]: { scale: { min: 0, max: 11635 }, ticks: { stepSize: 2908.75 } },
-            }),
+            options: History.BAR_CHART_OPTIONS('month', 'bar', {}),
           },
         });
     }

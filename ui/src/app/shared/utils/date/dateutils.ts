@@ -1,3 +1,5 @@
+import { TranslateService } from "@ngx-translate/core";
+import { format, isBefore } from "date-fns";
 
 export namespace DateUtils {
 
@@ -75,5 +77,35 @@ export namespace DateUtils {
 
   export function isFullHour(date: Date) {
     return date.getMinutes() != 0 ? null : date;
+  }
+
+  /**
+   * Checks if passed date is before a certain date
+   *
+   * @param date the date
+   * @param compareDate the date to compare it to
+   * @returns true, if the passed date is before compareDate
+   */
+  export function isDateBefore(date: Date, compareDate: Date): boolean {
+    if (date != null && compareDate != null) {
+      return isBefore(date, compareDate);
+    }
+    return false;
+  }
+
+  /**
+   * Checks if passed date is before a certain date, e.g. "01.08.2024 - 02.08.2024"
+   *
+   * @param fromDate the date
+   * @param toDate the date to compare it to
+   * @param translate the translate service
+   * @returns a dateRange, or null if either fromDate or toDate invalid
+   */
+  export function toDateRange(fromDate: Date, toDate: Date, translate: TranslateService): string | null {
+
+    if (!fromDate || !toDate) {
+      return null;
+    }
+    return format(fromDate, translate.instant('General.dateFormat')) + " - " + format(toDate, translate.instant('General.dateFormat'));
   }
 }

@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -12,14 +13,10 @@ import { AbstractHistoryChart } from '../abstracthistorychart';
 })
 export class StorageChargerChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() public componentId: string;
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public componentId!: string;
 
-    private moreThanOneProducer: boolean = null;
-
-    ngOnChanges() {
-        this.updateChart();
-    }
+    private moreThanOneProducer: boolean | null = null;
 
     constructor(
         protected override service: Service,
@@ -29,6 +26,10 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
         super("storage-charger-chart", service, translate);
     }
 
+    ngOnChanges() {
+        this.updateChart();
+    }
+
     ngOnInit() {
         this.startSpinner();
         this.service.setCurrentComponent('', this.route);
@@ -36,6 +37,10 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 21 * 9;
     }
 
     protected updateChart() {
@@ -102,7 +107,4 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
         this.options = this.createDefaultChartOptions();
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 21 * 9;
-    }
 }

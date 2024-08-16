@@ -1,7 +1,7 @@
 import { DecimalPipe, registerLocaleData } from "@angular/common";
 import localDE from '@angular/common/locales/de';
-import { UnitvaluePipe } from "./unitvalue.pipe";
 import { Language } from "../../type/language";
+import { UnitvaluePipe } from "./unitvalue.pipe";
 
 describe('UnitvaluePipe', () => {
     registerLocaleData(localDE);

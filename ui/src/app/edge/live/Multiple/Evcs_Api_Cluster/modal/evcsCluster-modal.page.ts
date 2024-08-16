@@ -1,8 +1,9 @@
-import { ActivatedRoute, Router } from '@angular/router';
+// @ts-strict-ignore
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IonReorderGroup, ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
 type Priority = 'CAR' | 'STORAGE';
@@ -13,16 +14,13 @@ type Priority = 'CAR' | 'STORAGE';
 })
 export class Evcs_Api_ClusterModalComponent implements OnInit {
 
-    @Input() public edge: Edge;
-    @Input() public config: EdgeConfig.Component = null;
-    @Input() public componentId: string;
+    @Input({ required: true }) public edge!: Edge;
+    @Input() public config: EdgeConfig.Component | null = null;
+    @Input({ required: true }) public componentId!: string;
     @Input() public evcsMap: { [sourceId: string]: EdgeConfig.Component } = {};
 
     @ViewChild(IonReorderGroup, { static: true })
     public reorderGroup: IonReorderGroup;
-
-    public chargeState: ChargeState;
-    private chargePlug: ChargePlug;
     public evcsAmount: number;
     public swiperIndex: number = 0;
     public slideOpts = {
@@ -36,6 +34,9 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
     public lastEvcs: string;
     public prioritizedEvcsList: string[];
     public evcsConfigMap: { [evcsId: string]: EdgeConfig.Component } = {};
+
+    public chargeState: ChargeState;
+    private chargePlug: ChargePlug;
 
     constructor(
         protected service: Service,
@@ -347,7 +348,7 @@ enum ChargeState {
     ERROR,                    //Error
     AUTHORIZATION_REJECTED,   //Authorization rejected
     ENERGY_LIMIT_REACHED,     //Charge limit reached
-    CHARGING_FINISHED         //Charging has finished
+    CHARGING_FINISHED,         //Charging has finished
 }
 
 enum ChargePlug {
@@ -356,5 +357,5 @@ enum ChargePlug {
     PLUGGED_ON_EVCS,                          //Plugged on EVCS
     PLUGGED_ON_EVCS_AND_LOCKED = 3,           //Plugged on EVCS and locked
     PLUGGED_ON_EVCS_AND_ON_EV = 5,            //Plugged on EVCS and on EV
-    PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7  //Plugged on EVCS and on EV and locked
+    PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7,  //Plugged on EVCS and on EV and locked
 }

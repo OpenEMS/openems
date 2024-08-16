@@ -1,5 +1,6 @@
-import { ChannelAddress } from "../../type/channeladdress";
+// @ts-strict-ignore
 import { format } from 'date-fns';
+import { ChannelAddress } from "../../type/channeladdress";
 import { JsonrpcRequest } from "../base";
 import { JsonRpcUtils } from "../jsonrpcutils";
 

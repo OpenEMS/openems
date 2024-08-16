@@ -1,7 +1,6 @@
 package io.openems.common.utils;
 
 import java.util.OptionalInt;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 import com.google.gson.JsonElement;
@@ -90,35 +89,7 @@ public class StringUtils {
 		}
 	}
 
-	private static final Predicate<String> DETECT_INTEGER_PATTERN = //
-			Pattern.compile("^[-+]?[0-9]+$").asPredicate();
-
-	private static final Predicate<String> DETECT_FLOAT_PATTERN = //
-			Pattern.compile("^[-+]?[0-9]*\\.[0-9]+$").asPredicate();
-
 	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
-
-	/**
-	 * Checks if the given string matches an Integer pattern, i.e. if could be
-	 * parsed to Integer/Long.
-	 * 
-	 * @param string a string
-	 * @return true if it matches Integer
-	 */
-	public static boolean matchesIntegerPattern(String string) {
-		return DETECT_INTEGER_PATTERN.test(string);
-	}
-
-	/**
-	 * Checks if the given string matches an Float pattern, i.e. if could be parsed
-	 * to Float/Double.
-	 * 
-	 * @param string a string
-	 * @return true if it matches Float
-	 */
-	public static boolean matchesFloatPattern(String string) {
-		return DETECT_FLOAT_PATTERN.test(string);
-	}
 
 	/**
 	 * Causes this character sequence to be replaced by the reverse of the sequence.

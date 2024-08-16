@@ -9,8 +9,7 @@ import { ChannelAddress, Edge, Service, Websocket } from '../../../shared/shared
 export class EnergymonitorComponent implements OnInit, OnDestroy {
 
   private static readonly SELECTOR = "energymonitor";
-
-  public edge: Edge = null;
+  protected edge: Edge | null = null;
 
   constructor(
     private service: Service,
@@ -21,9 +20,15 @@ export class EnergymonitorComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
+
+      const essMinMaxChannels = this.edge.isVersionAtLeast('2024.2.2')
+        ? [new ChannelAddress('_sum', 'EssMinDischargePower'), new ChannelAddress('_sum', 'EssMaxDischargePower')]
+        : [new ChannelAddress('_sum', 'EssMaxApparentPower')];
+
       edge.subscribeChannels(this.websocket, EnergymonitorComponent.SELECTOR, [
         // Ess
-        new ChannelAddress('_sum', 'EssSoc'), new ChannelAddress('_sum', 'EssActivePower'), new ChannelAddress('_sum', 'EssMaxApparentPower'),
+        new ChannelAddress('_sum', 'EssSoc'), new ChannelAddress('_sum', 'EssActivePower'),
+        ...essMinMaxChannels,
         // Grid
         new ChannelAddress('_sum', 'GridActivePower'), new ChannelAddress('_sum', 'GridMinActivePower'), new ChannelAddress('_sum', 'GridMaxActivePower'), new ChannelAddress('_sum', 'GridMode'),
         // Production

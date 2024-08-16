@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
@@ -10,8 +11,8 @@ export class FixDigitalOutputChartOverviewComponent implements OnInit {
 
     private static readonly SELECTOR = "fixdigitaloutput-chart-overview";
 
-    public edge: Edge = null;
-    public component: EdgeConfig.Component = null;
+    public edge: Edge | null = null;
+    public component: EdgeConfig.Component | null = null;
 
     public showTotal: boolean = false;
     public fixDigitalOutputComponents: string[] = [];

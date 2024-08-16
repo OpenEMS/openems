@@ -1,0 +1,8 @@
+<oe-chart [title]="component.alias +  '&nbsp;-&nbsp;' + ('Edge.History.CURRENT_AND_VOLTAGE' | translate)"
+  [showPhases]="showPhases" [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)"
+  (setShowPhases)="setShowPhases($event)" *ngIf="isInitialized && isMeterAsymmetric !== null"
+  [period]="service.historyPeriod.value">
+  <currentVoltageAsymmetricChart *ngIf="isMeterAsymmetric" [isOnlyChart]="true"></currentVoltageAsymmetricChart>
+  <currentVoltageChart *ngIf="!isMeterAsymmetric" [isOnlyChart]="true"></currentVoltageChart>
+</oe-chart>
+<oe-footer-subnavigation *ngIf="isInitialized" [backButton]="true" [navigationOptions]="[]"></oe-footer-subnavigation>

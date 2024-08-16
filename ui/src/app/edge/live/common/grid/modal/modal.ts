@@ -1,24 +1,22 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { TextIndentation } from 'src/app/shared/genericComponents/modal/modal-line/modal-line';
-import { Converter } from 'src/app/shared/genericComponents/shared/converter';
-import { Filter } from 'src/app/shared/genericComponents/shared/filter';
-import { Name } from 'src/app/shared/genericComponents/shared/name';
-import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from 'src/app/shared/genericComponents/shared/oe-formly-component';
-import { ChannelAddress, EdgeConfig } from 'src/app/shared/shared';
+import { TextIndentation } from 'src/app/shared/components/modal/modal-line/modal-line';
+import { Converter } from 'src/app/shared/components/shared/converter';
+import { Filter } from 'src/app/shared/components/shared/filter';
+import { Name } from 'src/app/shared/components/shared/name';
+import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from 'src/app/shared/components/shared/oe-formly-component';
+import { ChannelAddress, CurrentData, EdgeConfig } from 'src/app/shared/shared';
 import { Role } from 'src/app/shared/type/role';
+import { GridSectionComponent } from '../../../energymonitor/chart/section/grid.component';
 
 @Component({
-  templateUrl: '../../../../../shared/formly/formly-field-modal/template.html',
+  templateUrl: '../../../../../shared/components/formly/formly-field-modal/template.html',
 })
 export class ModalComponent extends AbstractFormlyComponent {
 
-  protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
-    return ModalComponent.generateView(config, role, this.translate);
-  }
-
   public static generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView {
 
+    const isActivated = GridSectionComponent.isControllerEnabled(config, 'Controller.Ess.Limiter14a');
     // Grid-Mode
     const lines: OeFormlyField[] = [{
       type: 'channel-line',
@@ -32,6 +30,18 @@ export class ModalComponent extends AbstractFormlyComponent {
 
     // Sum Channels (if more than one meter)
     if (gridMeters.length > 1) {
+      if (isActivated) {
+        lines.push({
+          type: 'value-from-channels-line',
+          name: translate.instant("General.state"),
+          value: (currentData: CurrentData) => Converter.GRID_STATE_TO_MESSAGE(translate, currentData),
+          channelsToSubscribe: [
+            new ChannelAddress("_sum", "GridMode"),
+            new ChannelAddress("ctrlEssLimiter14a0", "RestrictionMode"),
+          ],
+        });
+      }
+
       lines.push(
         {
           type: 'channel-line',
@@ -44,15 +54,30 @@ export class ModalComponent extends AbstractFormlyComponent {
           name: translate.instant("General.gridBuyAdvanced"),
           channel: '_sum/GridActivePower',
           converter: Converter.GRID_BUY_POWER_OR_ZERO,
-        }, {
-        type: 'horizontal-line',
-      });
+        },
+        {
+          type: 'horizontal-line',
+        },
+      );
     }
+
 
     // Individual Meters
     for (const meter of gridMeters) {
-      if (gridMeters.length == 1) {
+      if (gridMeters.length === 1) {
         // Two lines if there is only one meter (= same visualization as with Sum Channels)
+        if (isActivated) {
+          lines.push({
+            type: 'value-from-channels-line',
+            name: translate.instant("General.state"),
+            value: (currentData: CurrentData) => Converter.GRID_STATE_TO_MESSAGE(translate, currentData),
+            channelsToSubscribe: [
+              new ChannelAddress("_sum", "GridMode"),
+              new ChannelAddress("ctrlEssLimiter14a0", "RestrictionMode"),
+            ],
+          });
+        }
+
         lines.push(
           {
             type: 'channel-line',
@@ -65,7 +90,8 @@ export class ModalComponent extends AbstractFormlyComponent {
             name: translate.instant("General.gridBuyAdvanced"),
             channel: meter.id + '/ActivePower',
             converter: Converter.GRID_BUY_POWER_OR_ZERO,
-          });
+          },
+        );
 
       } else {
         // More than one meter? Show only one line per meter.
@@ -79,10 +105,12 @@ export class ModalComponent extends AbstractFormlyComponent {
 
       lines.push(
         // Individual phases: Voltage, Current and Power
-        ...ModalComponent.generatePhasesView(meter, translate, role), {
-        // Line separator
-        type: 'horizontal-line',
-      });
+        ...ModalComponent.generatePhasesView(meter, translate, role),
+        {
+          // Line separator
+          type: 'horizontal-line',
+        },
+      );
     }
 
     if (gridMeters.length > 0) {
@@ -134,4 +162,9 @@ export class ModalComponent extends AbstractFormlyComponent {
 
     return children;
   }
+
+  protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
+    return ModalComponent.generateView(config, role, this.translate);
+  }
+
 }

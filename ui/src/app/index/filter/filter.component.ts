@@ -1,9 +1,10 @@
+// @ts-strict-ignore
 import { Component, EventEmitter, Output } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { TKeyValue } from "src/app/shared/service/defaulttypes";
+import { Utils } from "src/app/shared/shared";
 import { environment } from "src/environments";
 import { SUM_STATES } from "../shared/sumState";
-import { Utils } from "src/app/shared/shared";
 
 @Component({
   selector: 'oe-filter',
@@ -68,7 +69,7 @@ export class FilterComponent {
   }
 }
 
-export type ChosenFilter = TKeyValue<string | string[] | boolean | null>
+export type ChosenFilter = TKeyValue<string | string[] | boolean | null>;
 
 export type Filter = {
   placeholder: string,
@@ -77,9 +78,9 @@ export type Filter = {
 
   // sets additional filter
   setAdditionalFilter?: () => ChosenFilter
-}
+};
 
 export type FilterOption = {
   name: string,
   value: string | null
-}
+};

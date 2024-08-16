@@ -47,6 +47,7 @@ public class TasksSupplierImpl implements TasksSupplier {
 	 */
 	public synchronized void removeProtocol(String sourceId) {
 		this.taskManagers.remove(sourceId);
+		this.nextLowPriorityTasks.removeIf(t -> t.a() == sourceId);
 	}
 
 	@Override

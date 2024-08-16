@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
+
 import io.openems.backend.common.metadata.User;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
@@ -42,10 +42,9 @@ public class SystemLogHandler {
 	 * @param websocketId the id of the UI websocket connection
 	 * @param request     the {@link SubscribeSystemLogRequest}
 	 * @return a reply
-	 * @throws OpenemsNamedException on error
 	 */
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
-			UUID websocketId, SubscribeSystemLogRequest request) throws OpenemsNamedException {
+			UUID websocketId, SubscribeSystemLogRequest request) {
 		if (request.isSubscribe()) {
 			// Add subscription
 			this.addSubscriptionId(edgeId, websocketId);
@@ -80,39 +79,18 @@ public class SystemLogHandler {
 
 		if (ids == null) {
 			// No Tokens exist, but we still receive Notification? -> send unsubscribe
-			try {
-				var dummyGuestUser = new User("internal", "UnsubscribeSystemLogNotification",
-						UUID.randomUUID().toString(), Language.EN, Role.GUEST, false, new JsonObject());
-				this.parent.send(edgeId, dummyGuestUser, SubscribeSystemLogRequest.unsubscribe());
-				this.parent.logInfo(this.log, edgeId, "Was still sending SystemLogNotification. Sent unsubscribe.");
-
-			} catch (OpenemsNamedException e) {
-				this.parent.logWarn(this.log, edgeId,
-						"Was still sending SystemLogNotification. Unable to send unsubscribe: " + e.getMessage());
-			}
+			var dummyGuestUser = new User("internal", "UnsubscribeSystemLogNotification", UUID.randomUUID().toString(),
+					Language.EN, Role.GUEST, false, new JsonObject());
+			this.parent.send(edgeId, dummyGuestUser, SubscribeSystemLogRequest.unsubscribe());
+			this.parent.logInfo(this.log, edgeId, "Was still sending SystemLogNotification. Sent unsubscribe.");
 			return;
 		}
 
 		// Forward Notification to each Session token
 		for (var id : ids) {
-			try {
-				// TODO use events
-				if (this.parent.uiWebsocket != null) {
-					this.parent.uiWebsocket.send(id, new EdgeRpcNotification(edgeId, notification));
-				}
-
-			} catch (OpenemsNamedException | NullPointerException e) {
-				this.parent.logWarn(this.log, edgeId, "Unable to handle SystemLogNotification: " + e.getMessage());
-				// error -> send unsubscribe
-				try {
-					var dummyGuestUser = new User("internal", "UnsubscribeSystemLogNotification",
-							UUID.randomUUID().toString(), Language.EN, Role.GUEST, false, new JsonObject());
-					this.handleSubscribeSystemLogRequest(edgeId, dummyGuestUser, id,
-							SubscribeSystemLogRequest.unsubscribe());
-
-				} catch (OpenemsNamedException e1) {
-					this.parent.logWarn(this.log, edgeId, "Unable to send unsubscribe: " + e1.getMessage());
-				}
+			// TODO use events
+			if (this.parent.uiWebsocket != null) {
+				this.parent.uiWebsocket.send(id, new EdgeRpcNotification(edgeId, notification));
 			}
 		}
 	}

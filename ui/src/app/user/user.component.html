@@ -17,9 +17,11 @@
                 Menu.name
               </ion-label>
               <ion-label>
-                {{ this.form?.model ? ((this.form?.model?.firstname ?? '') + ' ' + (this.form?.model?.lastname ?? '')).trim() : user.name }}
-                <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
-                </ion-icon> -->
+                {{
+                this.form?.model
+                ? ((this.form?.model?.firstname ?? '') + ' ' + (this.form?.model?.lastname ?? '')).trim()
+                : user.name
+                }}
               </ion-label>
             </ion-item>
             <ion-item lines="inset">
@@ -62,8 +64,13 @@
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
-            <ion-label class="ion-text-wrap" translate>
-              Register.Form.contactDetails
+            <ion-label class="ion-text-wrap">
+              <span translate>
+                Register.Form.contactDetails
+              </span>
+              <ng-container *ngIf="companyInformationFields.length > 0">
+                (<span translate>Register.Form.PRIVATE</span>)
+              </ng-container>
             </ion-label>
           </ion-item>
           <ion-card-content>
@@ -84,6 +91,22 @@
               </ion-button>
             </ion-item>
 
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card *ngIf="companyInformationFields.length > 0">
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
+            <ion-label class="ion-text-wrap">
+              <span translate>
+                Register.Form.contactDetails
+              </span>
+              (<span translate>Register.Form.company</span>)
+            </ion-label>
+          </ion-item>
+          <ion-card-content>
+            <formly-form [form]="form" [form]="form?.formGroup" [fields]="companyInformationFields"
+              [model]="form?.model"></formly-form>
           </ion-card-content>
         </ion-card>
       </ion-col>

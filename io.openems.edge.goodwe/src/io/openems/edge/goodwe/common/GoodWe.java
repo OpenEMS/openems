@@ -105,9 +105,9 @@ public interface GoodWe extends OpenemsComponent {
 		 *
 		 * MPPT1
 		 */
-		TWO_S_MPPT1_P(Doc.of(OpenemsType.INTEGER) //
+		MPPT1_P(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
-		TWO_S_MPPT1_I(Doc.of(OpenemsType.INTEGER) //
+		MPPT1_I(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIAMPERE)), //
 		TWO_S_PV1_V(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT)), //
@@ -120,9 +120,9 @@ public interface GoodWe extends OpenemsComponent {
 		/*
 		 * MPPT2
 		 */
-		TWO_S_MPPT2_P(Doc.of(OpenemsType.INTEGER) //
+		MPPT2_P(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
-		TWO_S_MPPT2_I(Doc.of(OpenemsType.INTEGER) //
+		MPPT2_I(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIAMPERE)), //
 		TWO_S_PV3_V(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT)), //
@@ -135,9 +135,9 @@ public interface GoodWe extends OpenemsComponent {
 		/*
 		 * MPPT3
 		 */
-		TWO_S_MPPT3_P(Doc.of(OpenemsType.INTEGER) //
+		MPPT3_P(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
-		TWO_S_MPPT3_I(Doc.of(OpenemsType.INTEGER) //
+		MPPT3_I(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIAMPERE)), //
 		TWO_S_PV5_V(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT)), //
@@ -194,7 +194,7 @@ public interface GoodWe extends OpenemsComponent {
 		V_BATTERY1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT)), //
 		I_BATTERY1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)), //
+				.unit(Unit.AMPERE)), //
 		P_BATTERY1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		BATTERY_MODE(Doc.of(BatteryMode.values())), //
@@ -1643,7 +1643,9 @@ public interface GoodWe extends OpenemsComponent {
 		NO_SMART_METER_DETECTED(Doc.of(Level.WARNING) //
 				.text("No GoodWe Smart Meter detected. Only REMOTE mode can work correctly")),
 		IMPOSSIBLE_FENECON_HOME_COMBINATION(Doc.of(Level.FAULT) //
-				.text("The installed inverter and battery combination is not authorised. Operation could cause hardware damages, so charging and discharging is blocked. Please install a complete Home 10, Home 20 or Home 30 system.")) //
+				.text("The installed inverter and battery combination is not authorised. Operation could cause hardware damages, so charging and discharging is blocked. Please install a complete Home 10, Home 20 or Home 30 system.")), //
+		IGNORE_IMPOSSIBLE_P_BATTERY_VALUE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Ignore impossible battery power")) //
 		;
 
 		private final Doc doc;

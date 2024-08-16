@@ -1,8 +1,8 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 import { Icon } from 'src/app/shared/type/widget';
-
 import { Controller_Io_ChannelSingleThresholdModalComponent } from './modal/modal.component';
 
 @Component({
@@ -24,11 +24,36 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
   public dependendOn: string;
   public dependendOnValue: any;
   public isOtherInputAddress: boolean;
-  public unitOfInputChannel: any;
+  public unitOfInputChannel: string | null = null;
   public outputChannelValue: number | null = null;
   public switchState: string;
   public switchValue: number | string;
   public switchConverter = Utils.CONVERT_WATT_TO_KILOWATT;
+
+  async presentModal() {
+    const modal = await this.modalController.create({
+      component: Controller_Io_ChannelSingleThresholdModalComponent,
+      componentProps: {
+        component: this.component,
+        config: this.config,
+        edge: this.edge,
+        outputChannel: this.outputChannel,
+        inputChannel: this.inputChannel,
+        inputChannelUnit: this.unitOfInputChannel,
+      },
+    });
+    return await modal.present();
+  }
+
+  protected override afterIsInitialized(): void {
+    this.inputChannel = ChannelAddress.fromString(
+      this.component.properties['inputChannelAddress']);
+
+    this.edge.getChannel(this.websocket, this.inputChannel)
+      .then(channel => {
+        this.unitOfInputChannel = channel.unit;
+      });
+  }
 
   protected override getChannelAddresses() {
     const outputChannelAddress: string | string[] = this.component.properties['outputChannelAddress'];
@@ -38,8 +63,6 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
       // Takes only the first output for simplicity reasons
       this.outputChannel = ChannelAddress.fromString(outputChannelAddress[0]);
     }
-    this.inputChannel = ChannelAddress.fromString(
-      this.component.properties['inputChannelAddress']);
     return [
       this.outputChannel,
       this.inputChannel,
@@ -79,7 +102,6 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
 
     // 'AUTOMATIC'-Mode dependend on
     this.dependendOnValue = currentData.allComponents[this.inputChannel.toString()];
-    this.unitOfInputChannel = this.config.getChannel(this.inputChannel)['unit'];
 
     // Set dependendOn Value for different inputChannel && Set the switchConverter and switchValue
     switch (this.inputChannel.toString()) {
@@ -165,18 +187,5 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
     }
 
   }
-
-  async presentModal() {
-    const modal = await this.modalController.create({
-      component: Controller_Io_ChannelSingleThresholdModalComponent,
-      componentProps: {
-        component: this.component,
-        config: this.config,
-        edge: this.edge,
-        outputChannel: this.outputChannel,
-        inputChannel: this.inputChannel,
-      },
-    });
-    return await modal.present();
-  }
 }
+

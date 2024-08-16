@@ -55,8 +55,8 @@ subprojects {
 		
 		jacocoTestReport {
 			reports {
-				xml.required = false
-				csv.required = true
+				xml.required = true
+				csv.required = false
 				html.required = false
 			}
 			// Exclude com.dalsemi.onewire
@@ -80,8 +80,8 @@ subprojects {
 				html.required = false
 				sarif.required = false
 			}
-			minHeapSize = "256m"
-			maxHeapSize = "1g"
+			minHeapSize = "512m"
+			maxHeapSize = "2048m"
 			// Exclude com.dalsemi.onewire
 			exclude '**/com/dalsemi/onewire/*'
 		}
@@ -97,7 +97,7 @@ task cleanEdge() {
 	description 'Clean all Edge-Bundles'
 	
 	subprojects.each { proj ->
-		if( proj.name ==~ /io.openems.(common|edge|shared|wrapper).*/ ) {
+		if( proj.name ==~ /io.openems.(common|edge|oem|shared|wrapper).*/ ) {
 			if (proj.tasks.findAll { it.name == 'clean' }) {
 				dependsOn(proj.clean)
 			}
@@ -134,7 +134,7 @@ task assembleEdge() {
 	description 'Assemble all Edge-Bundles'
 	
 	subprojects.each { proj ->
-		if( proj.name ==~ /io.openems.(common|edge|shared|wrapper).*/ ) {
+		if( proj.name ==~ /io.openems.(common|edge|oem|shared|wrapper).*/ ) {
 			if (proj.tasks.findAll { it.name == 'assemble' }) {
 				dependsOn(proj.assemble)
 			}
@@ -147,7 +147,7 @@ task assembleBackend() {
 	description 'Assemble all Backend-Bundles'
 	
 	subprojects.each { proj ->
-		if( proj.name ==~ /io.openems.(backend|common|shared|wrapper).*/ ) {
+		if( proj.name ==~ /io.openems.(backend|common|oem|shared|wrapper).*/ ) {
 			if (proj.tasks.findAll { it.name == 'assemble' }) {
 				dependsOn(proj.assemble)
 			}
@@ -191,12 +191,16 @@ task buildEdge() {
 	outputs.upToDateWhen { false }
 	
 	doLast {
-		file("${buildDir}/openems-edge.jar").delete()
+		def source = file("io.openems.edge.application/generated/distributions/executable/EdgeApp.jar")
+		def output = file(System.getenv('OEMS_EDGE_OUTPUT') ?: "${buildDir}/openems-edge.jar")
+
+		output.delete()
 		copy {
-			from file("io.openems.edge.application/generated/distributions/executable/EdgeApp.jar")
-			into file("${buildDir}")
-			rename ("EdgeApp.jar", "openems-edge.jar")
+			from source
+			into output.getParentFile()
+			rename (source.getName(), output.getName())
 		}
+		println("Built ${output}!")
 	}
 }
 
@@ -220,12 +224,16 @@ task buildBackend() {
 	outputs.upToDateWhen { false }
 
 	doLast {
-		file("${buildDir}/openems-backend.jar").delete()
+		def source = file("io.openems.backend.application/generated/distributions/executable/BackendApp.jar")
+		def output = file(System.getenv('OEMS_BACKEND_OUTPUT') ?: "${buildDir}/openems-backend.jar")
+
+		output.delete()
 		copy {
-			from file("io.openems.backend.application/generated/distributions/executable/BackendApp.jar")
-			into file("${buildDir}")
-			rename ("BackendApp.jar", "openems-backend.jar")
+			from source
+			into output.getParentFile()
+			rename (source.getName(), output.getName())
 		}
+		println("Built ${output}!")
 	}
 }
 

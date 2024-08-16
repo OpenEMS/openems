@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
@@ -8,7 +9,7 @@ import { ExecuteSystemRestartRequest, Type } from 'src/app/shared/jsonrpc/reques
 import { Role } from 'src/app/shared/type/role';
 import { environment } from 'src/environments';
 
-import { Edge, Service, Utils, Websocket } from '../../../../shared/shared';
+import { Edge, presentAlert, Service, Utils, Websocket } from '../../../../shared/shared';
 
 enum SystemRestartState {
     INITIAL, // No restart
@@ -32,13 +33,14 @@ export class MaintenanceComponent implements OnInit {
 
     private static readonly SELECTOR: string = 'oe-maintenance';
     private static readonly TIMEOUT: number = 3000;
+
     protected readonly environment = environment;
 
     protected edge: Edge | null = null;
     protected options: { key: string, message: string, color: 'success' | 'warning' | null, info: string, roleIsAtLeast: Role, button: { disabled: boolean, label: string, callback: () => void } }[] = [
         {
             key: Type.HARD, message: null, color: null, info: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: environment.edgeShortName }), roleIsAtLeast: Role.OWNER, button: {
-                callback: () => this.presentAlert(Type.HARD), disabled: false, label: this.translate.instant('SETTINGS.SYSTEM_UPDATE.EMS_RESTARTING', { edgeShortName: environment.edgeShortName }),
+                callback: () => this.confirmationAlert(Type.HARD), disabled: false, label: this.translate.instant('SETTINGS.SYSTEM_UPDATE.EMS_RESTARTING', { edgeShortName: environment.edgeShortName }),
             },
         },
     ];
@@ -53,7 +55,28 @@ export class MaintenanceComponent implements OnInit {
         protected service: Service,
         private translate: TranslateService,
         private alertCtrl: AlertController,
-    ) {
+    ) { }
+
+    /**
+ * Present confirmation alert
+ */
+    async presentAlert(type: Type) {
+        const translate = this.translate;
+        const system = type === Type.HARD ? environment.edgeShortName : 'OpenEMS';
+        const alert = this.alertCtrl.create({
+            subHeader: translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION', { system: system }),
+            message: translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: system }),
+            buttons: [{
+                text: translate.instant('General.cancel'),
+                role: 'cancel',
+            },
+            {
+                text: translate.instant('General.RESTART'),
+                handler: () => this.execRestart(type),
+            }],
+            cssClass: 'alertController',
+        });
+        (await alert).present();
     }
 
     ngOnInit() {
@@ -73,6 +96,15 @@ export class MaintenanceComponent implements OnInit {
             this.updateOptions(state.key);
         });
     }
+
+    protected confirmationAlert: (type: Type) => void = (type: Type) => presentAlert(this.alertCtrl, this.translate, {
+        message: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: environment.edgeShortName }),
+        subHeader: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION', { system: environment.edgeShortName }),
+        buttons: [{
+            text: this.translate.instant('General.RESTART'),
+            handler: () => this.execRestart(type),
+        }],
+    });
 
     /**
      * Updates the options
@@ -166,25 +198,4 @@ export class MaintenanceComponent implements OnInit {
         );
     }
 
-    /**
-     * Present confirmation alert
-     */
-    async presentAlert(type: Type) {
-        const translate = this.translate;
-        const system = type === Type.HARD ? environment.edgeShortName : 'OpenEMS';
-        const alert = this.alertCtrl.create({
-            subHeader: translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION', { system: system }),
-            message: translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: system }),
-            buttons: [{
-                text: translate.instant('General.cancel'),
-                role: 'cancel',
-            },
-            {
-                text: translate.instant('General.RESTART'),
-                handler: () => this.execRestart(type),
-            }],
-            cssClass: 'alertController',
-        });
-        (await alert).present();
-    }
 }

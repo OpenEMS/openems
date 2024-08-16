@@ -126,7 +126,8 @@
             "passedEndTime": "End time of limited charging exceeded",
             "storageAlreadyFull": "Storage already full"
           },
-          "storageCapacity": "Storagecapacity (only visible for admin)"
+          "storageCapacity": "Storagecapacity (only visible for admin)",
+          "MAXIMUM_GRIDSELL_WITH_CHARGE": "Maximum grid feed-in through charging"
         },
         "CHP": {
           "highThreshold": "High Threshold",
@@ -303,7 +304,10 @@
       "oct": "Oxt",
       "nov": "Nov",
       "dec": "Dec",
-      "activeDuration": "active duration"
+      "activeDuration": "active duration",
+      "CURRENT_AND_VOLTAGE": "Current & Voltage",
+      "CURRENT": "Current",
+      "VOLTAGE": "Voltage"
     },
     "Config": {
       "Index": {
@@ -351,7 +355,8 @@
         "level": "Level",
         "message": "Message",
         "source": "Source",
-        "timestamp": "Timestamp"
+        "timestamp": "Timestamp",
+        "CONDENSED_OUTPUT": "Condensed Output"
       },
       "Controller": {
         "app": "App:",
@@ -512,6 +517,7 @@
     "SYSTEM_STATE": "System state",
     "TOTAL": "Total",
     "totalState": "Total state",
+    "VISIBLE_FOR_ADMINS_ONLY": "Visible for Service & Administration only",
     "warning": "Warning",
     "Week": {
       "monday": "Monday",
@@ -671,11 +677,12 @@
       "TIME_OF_INSTALLATION": "Time of the installation",
       "WARRANTY_TERMS": "Warranty terms",
       "ACCEPT": "acceptation",
-      "ALIAS_WITH_LABEL_HOME_DC": "Alias MPPT{{mppt}} PV{{pv}}",
-      "VALUE_WITH_LABEL_HOME_DC": "Value MPPT{{ mppt }} PV{{ pv }} {{ symbol }}",
-      "ORIENTATION_WITH_LABEL_HOME_DC": "MPPT{{ mppt }} PV{{ pv }} Orientation",
-      "MODULE_TYPE_WITH_LABEL_HOME_DC": "Type of modules MPPT{{ mppt }} PV{{ pv }}",
-      "NUMBER_OF_MODULES_WITH_LABEL_HOME_DC": "Numnber of PV modules MPPT{{ mppt }} PV{{ pv }}",
+      "ALIAS_WITH_LABEL_HOME_DC": "Alias MPPT{{mppt}}",
+      "VALUE_WITH_LABEL_HOME_DC": "Value MPPT{{ mppt }} {{ symbol }}",
+      "ORIENTATION_WITH_LABEL_HOME_DC": "MPPT{{ mppt }} Orientation",
+      "MODULE_TYPE_WITH_LABEL_HOME_DC": "Type of modules MPPT{{ mppt }}",
+      "NUMBER_OF_MODULES_WITH_LABEL_HOME_DC": "Numnber of PV modules MPPT{{ mppt }}",
+      "BOTH_SELECTED_LABEL": "Both pv-ports (\"PV{{ pv1 }}\" and \"PV{{ pv2 }}\") connected",
       "DEVICE_CONNECTION_CHECKED": "The energy storage system is connected to the power grid",
       "ENERGY_FLOW_METER": {
         "LABEL": "Installed Grid-Meter"
@@ -759,13 +766,16 @@
         "SOUTH": "South",
         "WEST": "West"
       },
-      "INSTALLED_POWER": "Installed power[Wₚ]",
+      "INSTALLED_POWER": "Installed power [Wₚ]",
+      "INSTALLED_POWER_PER_STRING": "Installed power per string [Wₚ]",
       "MARKED_AS": " MPPT {{ mppt }} (marked as \"PV{{ pv }}\")",
+      "MARKED_AS_BOTH_STRINGS": " MPPT {{ mppt }} (marked as \"PV{{ pv1 }}\" & \"PV{{ pv2 }}\")",
       "MODULE_TYPE_DESCRIPTION": "e.g. Manufuturer and Power",
       "MODULE_TYPE_WITH_LABEL": "Type of modules {{ label }}{{ number }}",
       "MODULE_TYPE": "Type of modules",
       "NUMBER_OF_MODULES_WITH_LABEL": "Number of PV module {{ label }}{{ number }}",
-      "NUMBER_OF_MODULES": "Number of PV module",
+      "NUMBER_OF_MODULES": "Number of PV module per string",
+      "NUMBER_OF_MODULES_PER_STRING": "Number of PV module",
       "OPEN_MANUAL": "Open manual",
       "ORIENTATION_WITH_LABEL": "{{ label }}{{ number }} Orientation",
       "ORIENTATION": "Orientation",
@@ -773,7 +783,8 @@
       "SHADE_MANAGEMENT_DESCRIPTION": "The shade management has to be disabled, only if optimizers are installed.",
       "TITLE_PV": "DC-PV installation (Inverter inputs)",
       "TITLE_DC": "DC-PV-Installation",
-      "DUPLICATE": " MPPT {{ mppt }} double occupied (marked as \"PV{{ pv }}\")"
+      "DUPLICATE": " MPPT {{ mppt }} double occupied (marked as \"PV{{ pv }}\")",
+      "BOTH_SELECTED_LABEL": "Are both ports (\"PV{{ pv1 }}\" & \"PV{{ pv2 }}\") connected?"
     },
     "PROTOCOL_SERIAL_NUMBERS": {
       "BATTERY_MODULE": "Battery module ",
@@ -899,7 +910,8 @@
       "password": "Password",
       "confirmPassword": "Confirm password",
       "company": "Company",
-      "confirmEmail": "confirm E-Mail"
+      "confirmEmail": "confirm E-Mail",
+      "PRIVATE": "Private"
     },
     "button": "Create",
     "errors": {
@@ -933,7 +945,16 @@
       "RESTARTING": "Restarting {{system}}. (This can take up to {{minutes}} minutes)",
       "RESTARTED": "{{system}} restarting successful.",
       "RESTART_CONFIRMATION": "Would you like to restart {{system}}?",
-      "RESTART_WARNING": "Communication is interrupted while {{system}} is restarting. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state."
+      "RESTART_WARNING": "Communication is interrupted while {{system}} is restarting. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state.",
+      "CONFIRMATION_INFO": "Would you like to update your {{edgeShortName}}?",
+      "WARNING": "The software will restart after the system update. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state.",
+      "UPDATE_EXECUTE": "Execute system update",
+      "SUB_HEADER": "Would you like to execute a system update?"
+    },
+    "ENERGY_JOURNEY": {
+      "TO_THE_ANALYSIS": "To the analysis",
+      "CURRENT_NUMBER_OF_MODULES": "Current",
+      "SIMULATION_NOT_STARTED": "Simulation not started"
     }
   },
   "CHANNELS": {
@@ -946,5 +967,14 @@
     "SET_VALUE": "Set value",
     "MORE_CHANNELS": "Add More Channels",
     "CHANNEL": "Channel"
+  },
+  "GRID_STATES": {
+    "OFF_GRID": "Power outage",
+    "NO_EXTERNAL_LIMITATION": "No external limitation",
+    "RIPPLE_CONTROL_RECEIVER": "Ripple Control Receiver",
+    "RESTRICTION": "Restriction according to $14a EnWG"
+  },
+  "APP": {
+    "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "This function is temporarily not available in the app, please use the web app instead."
   }
 }

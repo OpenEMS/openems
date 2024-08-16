@@ -1,5 +1,8 @@
 <header></header>
 <ion-content>
+  <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh()">
+    <ion-refresher-content refreshingSpinner="crescent" class="ion-justify-content-center"></ion-refresher-content>
+  </ion-refresher>
   <oe-history-data-error [response]="errorResponse"></oe-history-data-error>
 
   <!-- Only displayed when history allowed to be seen -->
@@ -65,7 +68,7 @@
           </singlethresholdWidget>
         </ion-col>
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.GridOptimizedCharge'">
-          <gridOptimizedChargeWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
+          <gridOptimizedChargeWidget [componentId]="widget.componentId">
           </gridOptimizedChargeWidget>
         </ion-col>
 

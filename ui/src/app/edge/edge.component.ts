@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { SubscribeEdgesRequest } from "src/app/shared/jsonrpc/request/subscribeEdgesRequest";
@@ -9,9 +10,13 @@ import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared"
     template: `
     <ion-content></ion-content>
          <ion-router-outlet id="content"></ion-router-outlet>
+         <oe-notification *ngIf="latestIncident" color="warning" [text]="latestIncident.message"
+    [id]="latestIncident.id"></oe-notification>
     `,
 })
 export class EdgeComponent implements OnInit, OnDestroy {
+
+    protected latestIncident: { message: string | null, id: string } | null = null;
 
     private edge: Edge | null = null;
 
@@ -24,11 +29,12 @@ export class EdgeComponent implements OnInit, OnDestroy {
 
     public ngOnInit(): void {
         this.activatedRoute.params.subscribe((params) => {
-
             // Set CurrentEdge in Metadata
             const edgeId = params['edgeId'];
             this.service.updateCurrentEdge(edgeId).then((edge) => {
                 this.edge = edge;
+
+                this.checkMessages();
                 this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edgeId] }))
                     .then(() => {
 
@@ -41,6 +47,9 @@ export class EdgeComponent implements OnInit, OnDestroy {
                 this.router.navigate(['index']);
             });
         });
+    }
+
+    public checkMessages(): void {
     }
 
     public ngOnDestroy(): void {

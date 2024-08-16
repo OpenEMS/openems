@@ -1,19 +1,16 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { AbstractHistoryChart } from 'src/app/shared/components/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ChartAxis, HistoryUtils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
 
 @Component({
   selector: 'consumptionchart',
-  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
+  templateUrl: '../../../../../shared/components/chart/abstracthistorychart.html',
 })
 export class ChartComponent extends AbstractHistoryChart {
-
-  protected override getChartData() {
-    return ChartComponent.getChartData(this.config, this.translate);
-  }
 
   public static getChartData(config: EdgeConfig, translate: TranslateService): HistoryUtils.ChartData {
 
@@ -54,7 +51,7 @@ export class ChartComponent extends AbstractHistoryChart {
           ...inputChannel,
         ],
       output: (data: HistoryUtils.ChannelData) => {
-        const datasets: HistoryUtils.DisplayValues[] = [];
+        const datasets: HistoryUtils.DisplayValue[] = [];
         datasets.push({
           name: translate.instant('General.TOTAL'),
           nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
@@ -105,7 +102,6 @@ export class ChartComponent extends AbstractHistoryChart {
               return Utils.calculateOtherConsumptionTotal(energyValues, evcsComponents, consumptionMeters);
             },
             converter: () => {
-
               return Utils.calculateOtherConsumption(data, evcsComponents, consumptionMeters);
             },
             color: 'rgb(0,0,0)',
@@ -126,4 +122,9 @@ export class ChartComponent extends AbstractHistoryChart {
         }],
     };
   }
+
+  protected override getChartData() {
+    return ChartComponent.getChartData(this.config, this.translate);
+  }
+
 }

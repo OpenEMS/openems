@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { AbstractControl } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 
@@ -73,7 +74,7 @@ export namespace GetAppAssistant {
             }
         }
         if (!hasAliasField) {
-            // insert alias field into appAssistent fields
+            // insert alias field into appAssistant fields
             const aliasField = { key: 'ALIAS', type: 'input', templateOptions: { label: 'Alias' }, defaultValue: appAssistant.alias };
             appAssistant.fields.splice(0, 0, aliasField);
         }
@@ -342,4 +343,4 @@ function convertFormlyReorderArray(rootFields: FormlyFieldConfig[], field: Forml
 }
 
 
-type FormlyFieldConfigWithInitialModel = FormlyFieldConfig & { initialModel: {} }
+type FormlyFieldConfigWithInitialModel = FormlyFieldConfig & { initialModel: {} };

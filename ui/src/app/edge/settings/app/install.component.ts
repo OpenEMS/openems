@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -26,19 +27,17 @@ export class InstallAppComponent implements OnInit, OnDestroy {
   private static readonly SELECTOR = 'app-install';
   public readonly spinnerId: string = InstallAppComponent.SELECTOR;
 
-  private stopOnDestroy: Subject<void> = new Subject<void>();
-
   protected form: FormGroup | null = null;
-  protected fields: FormlyFieldConfig[] = null;
+  protected fields: FormlyFieldConfig[] | null = null;
   protected model: any | null = null;
+  protected appName: string | null = null;
+  protected isInstalling: boolean = false;
 
+  private stopOnDestroy: Subject<void> = new Subject<void>();
   private key: string | null = null;
   private useMasterKey: boolean = false;
   private appId: string | null = null;
-  protected appName: string | null = null;
   private edge: Edge | null = null;
-  protected isInstalling: boolean = false;
-
   private hasPredefinedKey: boolean = false;
   private isAppFree: boolean = false;
 
@@ -50,7 +49,27 @@ export class InstallAppComponent implements OnInit, OnDestroy {
     private modalController: ModalController,
     private router: Router,
     private translate: TranslateService,
-  ) {
+  ) { }
+
+  /**
+ * Displays a error toast with the string supplied from the messageBuilder.
+ * If the error is from a Jsonrpc call the error message gets extracted.
+ *
+ * @param service the service to open the toast with
+ * @param messageBuilder the message supplier
+ * @returns a method to handle a catch from a promise
+ */
+  public static errorToast(service: Service, messageBuilder: (reason) => string): (reason: any) => void {
+    return (reason) => {
+      if (reason.error) {
+        reason = reason.error;
+        if (reason.message) {
+          reason = reason.message;
+        }
+      }
+      console.error(reason);
+      service.toast(messageBuilder(reason), 'danger');
+    };
   }
 
   public ngOnInit() {
@@ -161,7 +180,8 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         }
 
         this.form.markAsPristine();
-        this.router.navigate(['device/' + (this.edge.id) + '/settings/app/']);
+        const navigationExtras = { state: { appInstanceChange: true } };
+        this.router.navigate(['device/' + (this.edge.id) + '/settings/app/'], navigationExtras);
       })
         .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant('Edge.Config.App.failInstall', { error: error })))
         .finally(() => {
@@ -233,25 +253,5 @@ export class InstallAppComponent implements OnInit, OnDestroy {
     return selectKeyPromise;
   }
 
-  /**
-   * Displays a error toast with the string supplied from the messageBuilder.
-   * If the error is from a Jsonrpc call the error message gets extracted.
-   *
-   * @param service the service to open the toast with
-   * @param messageBuilder the message supplier
-   * @returns a method to handle a catch from a promise
-   */
-  public static errorToast(service: Service, messageBuilder: (reason) => string): (reason: any) => void {
-    return (reason) => {
-      if (reason.error) {
-        reason = reason.error;
-        if (reason.message) {
-          reason = reason.message;
-        }
-      }
-      console.error(reason);
-      service.toast(messageBuilder(reason), 'danger');
-    };
-  }
 
 }

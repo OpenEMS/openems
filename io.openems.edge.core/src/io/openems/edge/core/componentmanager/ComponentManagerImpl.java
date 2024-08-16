@@ -1,15 +1,19 @@
 package io.openems.edge.core.componentmanager;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -30,15 +34,15 @@ import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonNull;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.channel.ChannelCategory;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
@@ -46,16 +50,31 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.session.Role;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.EnumDoc;
+import io.openems.edge.common.channel.StateChannelDoc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.JsonApi;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.EdgeGuards;
+import io.openems.edge.common.jsonapi.EdgeKeys;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxRequest;
 import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxResponse;
+import io.openems.edge.core.componentmanager.jsonrpc.GetAllComponentFactories;
+import io.openems.edge.core.componentmanager.jsonrpc.GetChannel;
+import io.openems.edge.core.componentmanager.jsonrpc.GetChannelsOfComponent;
+import io.openems.edge.core.componentmanager.jsonrpc.GetChannelsOfComponent.ChannelRecord;
+import io.openems.edge.core.componentmanager.jsonrpc.GetDigitalInputChannelsOfComponents;
+import io.openems.edge.core.componentmanager.jsonrpc.GetPropertiesOfFactory;
+import io.openems.edge.core.componentmanager.jsonrpc.GetStateChannelsOfComponent;
+import io.openems.edge.io.api.DigitalInput;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -65,7 +84,7 @@ import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxResponse;
 				"enabled=true" //
 		})
 public class ComponentManagerImpl extends AbstractOpenemsComponent
-		implements ComponentManager, OpenemsComponent, JsonApi, ConfigurationListener {
+		implements ComponentManager, OpenemsComponent, ConfigurationListener, ComponentJsonApi {
 
 	private final List<ComponentManagerWorker> workers = new ArrayList<>();
 	private final EdgeConfigWorker edgeConfigWorker;
@@ -215,6 +234,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			// filter invalid
 			e.printStackTrace();
 			return Collections.emptyList();
+		} catch (RuntimeException e) {
+			e.printStackTrace();
+			return Collections.emptyList();
 		}
 	}
 
@@ -282,30 +304,163 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
-			throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.GUEST);
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(GetEdgeConfigRequest.METHOD, endpoint -> {
+			endpoint.setDescription("""
+					Handles a GetEdgeConfigRequest.
+					""") //
+					.setGuards(EdgeGuards.roleIsAtleast(Role.GUEST));
+		}, t -> {
+			return this.handleGetEdgeConfigRequest(t.get(EdgeKeys.USER_KEY), //
+					GetEdgeConfigRequest.from(t.getRequest()));
+		});
 
-		switch (request.getMethod()) {
+		builder.handleRequest(CreateComponentConfigRequest.METHOD, endpoint -> {
+			endpoint.setDescription("""
+					Handles a CreateComponentConfigRequest.
+					""") //
+					.setGuards(EdgeGuards.roleIsAtleastFromBackend(Role.INSTALLER), //
+							EdgeGuards.roleIsAtleastNotFromBackend(Role.ADMIN));
+		}, t -> {
+			this.handleCreateComponentConfigRequest(t.get(EdgeKeys.USER_KEY), //
+					CreateComponentConfigRequest.from(t.getRequest()));
 
-		case GetEdgeConfigRequest.METHOD:
-			return this.handleGetEdgeConfigRequest(user, GetEdgeConfigRequest.from(request));
+			return new GenericJsonrpcResponseSuccess(t.getRequest().getId());
+		});
 
-		case CreateComponentConfigRequest.METHOD:
-			return this.handleCreateComponentConfigRequest(user, CreateComponentConfigRequest.from(request));
+		builder.handleRequest(UpdateComponentConfigRequest.METHOD, endpoint -> {
+			endpoint.setDescription("""
+					Handles a UpdateComponentConfigRequest.
+					""") //
+					.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+		}, t -> {
+			this.handleUpdateComponentConfigRequest(t.get(EdgeKeys.USER_KEY), //
+					UpdateComponentConfigRequest.from(t.getRequest()));
 
-		case UpdateComponentConfigRequest.METHOD:
-			return this.handleUpdateComponentConfigRequest(user, UpdateComponentConfigRequest.from(request));
+			return new GenericJsonrpcResponseSuccess(t.getRequest().getId());
+		});
 
-		case DeleteComponentConfigRequest.METHOD:
-			return this.handleDeleteComponentConfigRequest(user, DeleteComponentConfigRequest.from(request));
+		builder.handleRequest(DeleteComponentConfigRequest.METHOD, endpoint -> {
+			endpoint.setDescription("""
+					Handles a DeleteComponentConfigRequest.
+					""") //
+					.setGuards(EdgeGuards.roleIsAtleastFromBackend(Role.INSTALLER), //
+							EdgeGuards.roleIsAtleastNotFromBackend(Role.ADMIN));
+		}, t -> {
+			this.handleDeleteComponentConfigRequest(t.get(EdgeKeys.USER_KEY), //
+					DeleteComponentConfigRequest.from(t.getRequest()));
 
-		case ChannelExportXlsxRequest.METHOD:
-			return this.handleChannelExportXlsxRequest(user, ChannelExportXlsxRequest.from(request));
+			return new GenericJsonrpcResponseSuccess(t.getRequest().getId());
+		});
 
-		default:
-			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
-		}
+		builder.handleRequest(ChannelExportXlsxRequest.METHOD, endpoint -> {
+			endpoint.setDescription("""
+					Handles a ChannelExportXlsxRequest.
+					""") //
+					.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
+		}, t -> {
+			return this.handleChannelExportXlsxRequest(t.get(EdgeKeys.USER_KEY), //
+					ChannelExportXlsxRequest.from(t.getRequest()));
+		});
+
+		builder.handleRequest(new GetStateChannelsOfComponent(), endpoint -> {
+			endpoint.setDescription("""
+					Handles a GetStateChannelsOfComponent.
+					""");
+		}, call -> {
+			// TODO could be used for translating channel texts
+			// final var user = call.get(EdgeKeys.USER_KEY);
+
+			final var channels = this.getPossiblyDisabledComponent(call.getRequest().componentId()).channels().stream() //
+					.filter(t -> t.channelDoc().getChannelCategory() == ChannelCategory.STATE) //
+					.map(ComponentManagerImpl::toChannelRecord) //
+					.toList();
+
+			return new GetStateChannelsOfComponent.Response(channels);
+		});
+
+		builder.handleRequest(new GetChannelsOfComponent(), endpoint -> {
+			endpoint.setDescription("""
+					Handles a GetStateChannelsOfComponent.
+					""");
+		}, call -> {
+			final var channels = this.getPossiblyDisabledComponent(call.getRequest().componentId()).channels().stream() //
+					.map(ComponentManagerImpl::toChannelRecord) //
+					.toList();
+
+			return new GetChannelsOfComponent.Response(channels);
+		});
+
+		builder.handleRequest(new GetChannel(), endpoint -> {
+			endpoint.setDescription("""
+					Handles a GetChannel.
+					""");
+		}, call -> {
+			final var request = call.getRequest();
+			final var channel = this.getChannel(new ChannelAddress(request.componentId(), request.channelId()));
+
+			return new GetChannel.Response(toChannelRecord(channel));
+		});
+
+		builder.handleRequest(new GetDigitalInputChannelsOfComponents(), endpoint -> {
+			endpoint.setDescription("""
+					Handles a GetDigitalInputChannelsOfComponent.
+					""");
+		}, call -> {
+
+			final var result = this.getEnabledComponentsOfType(DigitalInput.class).stream() //
+					.filter(t -> call.getRequest().componentIds().contains(t.id())) //
+					.collect(toMap(OpenemsComponent::id, t -> Arrays.stream(t.digitalInputChannels()) //
+							.map(ComponentManagerImpl::toChannelRecord) //
+							.toList()));
+
+			return new GetDigitalInputChannelsOfComponents.Response(result);
+		});
+
+		builder.handleRequest(new GetAllComponentFactories(), endpoint -> {
+			endpoint.setDescription("""
+					Handles a GetAllComponentFactories.
+					""") //
+					.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
+		}, call -> {
+			final var edgeConfig = this.getEdgeConfig();
+
+			return new GetAllComponentFactories.Response(edgeConfig.getFactories().entrySet().stream()
+					.collect(JsonUtils.toJsonObject(Entry::getKey, i -> i.getValue().toJson())));
+		});
+
+		builder.handleRequest(new GetPropertiesOfFactory(), endpoint -> {
+			endpoint.setDescription("""
+					Handles a GetPropertiesOfFactory.
+					""") //
+					.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
+		}, call -> {
+			final var factoryId = call.getRequest().factoryId();
+
+			final var edgeConfig = this.getEdgeConfig();
+			final var factory = edgeConfig.getFactories().get(factoryId);
+
+			if (factory == null) {
+				throw new OpenemsException("Factory with id " + factoryId + " could not be found.");
+			}
+
+			return new GetPropertiesOfFactory.Response(factory.toJson(), Stream.of(factory.getProperties()) //
+					.map(EdgeConfig.Factory.Property::toJson) //
+					.collect(JsonUtils.toJsonArray()));
+		});
+	}
+
+	private static ChannelRecord toChannelRecord(Channel<?> channel) {
+		return new GetChannelsOfComponent.ChannelRecord(//
+				channel.channelId().id(), //
+				channel.channelDoc().getAccessMode(), //
+				channel.channelDoc().getPersistencePriority(), //
+				channel.channelDoc().getText(), //
+				channel.channelDoc().getType(), //
+				channel.channelDoc().getUnit(), //
+				channel.channelDoc().getChannelCategory(), //
+				channel.channelDoc() instanceof StateChannelDoc c ? c.getLevel() : null, //
+				channel.channelDoc() instanceof EnumDoc c ? Lists.newArrayList(c.getOptions()) : null);
 	}
 
 	/**
@@ -316,23 +471,15 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(User user,
-			GetEdgeConfigRequest request) throws OpenemsNamedException {
+	private GetEdgeConfigResponse handleGetEdgeConfigRequest(User user, GetEdgeConfigRequest request)
+			throws OpenemsNamedException {
 		var config = this.getEdgeConfig();
-		var response = new GetEdgeConfigResponse(request.getId(), config);
-		return CompletableFuture.completedFuture(response);
+		return new GetEdgeConfigResponse(request.getId(), config);
 	}
 
-	/**
-	 * Handles a {@link CreateComponentConfigRequest}.
-	 *
-	 * @param user    the {@link User}
-	 * @param request the {@link CreateComponentConfigRequest}
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	public CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
-			CreateComponentConfigRequest request) throws OpenemsNamedException {
+	@Override
+	public void handleCreateComponentConfigRequest(User user, CreateComponentConfigRequest request)
+			throws OpenemsNamedException {
 		// Get Component-ID from Request
 		String componentId = null;
 		for (Property property : request.getProperties()) {
@@ -395,20 +542,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			e.printStackTrace();
 			throw OpenemsError.EDGE_UNABLE_TO_CREATE_CONFIG.exception(request.getFactoryPid(), e.getMessage());
 		}
-
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
-	/**
-	 * Handles a {@link UpdateComponentConfigRequest}.
-	 *
-	 * @param user    the {@link User}
-	 * @param request the {@link UpdateComponentConfigRequest}
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	public CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(User user,
-			UpdateComponentConfigRequest request) throws OpenemsNamedException {
+	@Override
+	public void handleUpdateComponentConfigRequest(User user, UpdateComponentConfigRequest request)
+			throws OpenemsNamedException {
 		var config = this.getExistingConfigForId(request.getComponentId());
 
 		// Create map with changed configuration attributes
@@ -451,20 +589,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			e.printStackTrace();
 			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.getComponentId(), e.getMessage());
 		}
-
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
-	/**
-	 * Handles a {@link DeleteComponentConfigRequest}.
-	 *
-	 * @param user    the {@link User}
-	 * @param request the {@link DeleteComponentConfigRequest}
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	public CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(User user,
-			DeleteComponentConfigRequest request) throws OpenemsNamedException {
+	@Override
+	public void handleDeleteComponentConfigRequest(User user, DeleteComponentConfigRequest request)
+			throws OpenemsNamedException {
 		var config = this.getExistingConfigForId(request.getComponentId());
 
 		try {
@@ -473,8 +602,6 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			e.printStackTrace();
 			throw OpenemsError.EDGE_UNABLE_TO_DELETE_CONFIG.exception(request.getComponentId(), e.getMessage());
 		}
-
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
 	/**
@@ -485,14 +612,13 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	protected CompletableFuture<JsonrpcResponseSuccess> handleChannelExportXlsxRequest(User user,
-			ChannelExportXlsxRequest request) throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("ChannelExportXlsxRequest", Role.ADMIN);
+	protected ChannelExportXlsxResponse handleChannelExportXlsxRequest(User user, ChannelExportXlsxRequest request)
+			throws OpenemsNamedException {
 		var component = this.getComponent(request.getComponentId());
 		if (component == null) {
 			throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(request.getComponentId());
 		}
-		return CompletableFuture.completedFuture(new ChannelExportXlsxResponse(request.getId(), component));
+		return new ChannelExportXlsxResponse(request.getId(), component);
 	}
 
 	/**

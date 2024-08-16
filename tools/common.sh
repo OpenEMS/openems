@@ -8,6 +8,7 @@ common_initialize_environment() {
     SRC_PACKAGE_JSON="ui/package.json"
     SRC_PACKAGE_LOCK_JSON="ui/package-lock.json"
     SRC_CHANGELOG_CONSTANTS="ui/src/app/changelog/view/component/changelog.constants.ts"
+    SRC_ANDROID_GRADLE="ui/android/app/build.gradle"
 
     # Set environment variables
     THEME="openems"
@@ -53,13 +54,24 @@ common_update_version_in_code() {
     sed --in-place "s#\(VERSION_DEV_BUILD_TIME = \)\"\(.*\)\";#\1\"$VERSION_DEV_BUILD_TIME\";#" $SRC_OPENEMS_CONSTANTS
 
     echo "## Update $SRC_PACKAGE_JSON"
-    sed --in-place "s#^\(    \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_JSON
+    sed --in-place "s#^\(  \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_JSON
 
     echo "## Update $SRC_PACKAGE_LOCK_JSON"
-    sed --in-place "s#^\(    \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_LOCK_JSON
+    sed --in-place "s#^\(  \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_LOCK_JSON
 
     echo "## Update $SRC_CHANGELOG_CONSTANTS"
     sed --in-place "s#\(UI_VERSION = \"\).*\(\";\)#\1$VERSION\2#" $SRC_CHANGELOG_CONSTANTS
+
+    echo "## Update $SRC_ANDROID_GRADLE"
+    sed --in-place "s#\(versionCode \).*\$#\1$(printf "%04d%02d%02d" $VERSION_MAJOR $VERSION_MINOR $VERSION_PATCH)#" $SRC_ANDROID_GRADLE
+    sed --in-place "s#\(versionName \).*\$#\1\"$VERSION\"#" $SRC_ANDROID_GRADLE
+}
+
+# Build OpenEMS Backend
+common_build_backend() {
+    echo "# Build OpenEMS Backend"
+    ./gradlew $@ --build-cache build buildBackend resolve.BackendApp
+    git diff --exit-code io.openems.backend.application/BackendApp.bndrun
 }
 
 # Build OpenEMS Edge and UI in parallel
@@ -74,6 +86,12 @@ common_build_edge() {
     echo "# Build OpenEMS Edge"
     ./gradlew $@ --build-cache build buildEdge resolve.EdgeApp resolve.BackendApp
     git diff --exit-code io.openems.edge.application/EdgeApp.bndrun io.openems.backend.application/BackendApp.bndrun
+}
+
+# Run OpenEMS Checkstyle
+common_run_checkstyle() {
+    echo "# Run Checkstyle"
+    ./gradlew $@ checkstyleAll
 }
 
 # Build OpenEMS UI

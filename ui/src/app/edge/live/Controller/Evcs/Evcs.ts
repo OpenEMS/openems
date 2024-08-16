@@ -10,11 +10,6 @@ import { PopoverComponent } from './popover/popover';
     BrowserModule,
     SharedModule,
   ],
-  entryComponents: [
-    FlatComponent,
-    ModalComponent,
-    PopoverComponent,
-  ],
   declarations: [
     FlatComponent,
     ModalComponent,

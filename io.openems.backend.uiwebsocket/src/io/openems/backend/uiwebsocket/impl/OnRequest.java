@@ -1,18 +1,17 @@
 package io.openems.backend.uiwebsocket.impl;
 
-import static java.util.Collections.emptyMap;
-
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.java_websocket.WebSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.jsonrpc.request.AddEdgeToUserRequest;
+import io.openems.backend.common.jsonrpc.request.GetEmsTypeRequest;
 import io.openems.backend.common.jsonrpc.request.GetSetupProtocolDataRequest;
 import io.openems.backend.common.jsonrpc.request.GetSetupProtocolRequest;
 import io.openems.backend.common.jsonrpc.request.GetUserAlertingConfigsRequest;
@@ -20,12 +19,13 @@ import io.openems.backend.common.jsonrpc.request.GetUserInformationRequest;
 import io.openems.backend.common.jsonrpc.request.RegisterUserRequest;
 import io.openems.backend.common.jsonrpc.request.SetUserAlertingConfigsRequest;
 import io.openems.backend.common.jsonrpc.request.SetUserInformationRequest;
+import io.openems.backend.common.jsonrpc.request.SimulationRequest;
 import io.openems.backend.common.jsonrpc.request.SubmitSetupProtocolRequest;
 import io.openems.backend.common.jsonrpc.request.SubscribeEdgesRequest;
 import io.openems.backend.common.jsonrpc.response.AddEdgeToUserResponse;
+import io.openems.backend.common.jsonrpc.response.GetEmsTypeResponse;
 import io.openems.backend.common.jsonrpc.response.GetUserAlertingConfigsResponse;
 import io.openems.backend.common.jsonrpc.response.GetUserInformationResponse;
-import io.openems.backend.common.metadata.Metadata.GenericSystemLog;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -35,7 +35,6 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.AuthenticateWithPasswordRequest;
 import io.openems.common.jsonrpc.request.AuthenticateWithTokenRequest;
-import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeRequest;
 import io.openems.common.jsonrpc.request.GetEdgesRequest;
@@ -54,6 +53,8 @@ import io.openems.common.utils.JsonUtils;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
+	private final Logger log = LoggerFactory.getLogger(OnRequest.class);
+
 	private final UiWebsocketImpl parent;
 
 	public OnRequest(UiWebsocketImpl parent) {
@@ -61,7 +62,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	@Override
-	public CompletableFuture<? extends JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
+	public CompletableFuture<? extends JsonrpcResponseSuccess> apply(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
 
@@ -88,6 +89,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			this.handleEdgeRpcRequest(wsData, user, EdgeRpcRequest.from(request));
 		case AddEdgeToUserRequest.METHOD -> //
 			this.handleAddEdgeToUserRequest(user, AddEdgeToUserRequest.from(request));
+		case GetEmsTypeRequest.METHOD -> //
+			this.handleGetEmsTypeRequest(user, GetEmsTypeRequest.from(request));
 		case GetUserInformationRequest.METHOD -> //
 			this.handleGetUserInformationRequest(user, GetUserInformationRequest.from(request));
 		case SetUserInformationRequest.METHOD -> //
@@ -169,8 +172,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			throws OpenemsNamedException {
 		wsData.setUserId(user.getId());
 		wsData.setToken(user.getToken());
-		return CompletableFuture.completedFuture(new AuthenticateResponse(requestId, user.getToken(), user,
-				User.generateEdgeMetadatas(user, this.parent.metadata), user.getLanguage()));
+		return CompletableFuture
+				.completedFuture(new AuthenticateResponse(requestId, user.getToken(), user, user.getLanguage()));
 	}
 
 	/**
@@ -217,6 +220,12 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			EdgeRpcRequest edgeRpcRequest) throws OpenemsNamedException {
 		var edgeId = edgeRpcRequest.getEdgeId();
 		var request = edgeRpcRequest.getPayload();
+
+		// TODO still not the best to check the access => should be separate service
+		if (user.getRole(edgeId).isEmpty()) {
+			this.parent.metadata.getEdgeMetadataForUser(user, edgeId);
+			this.parent.logInfo(this.log, "Role was not defined for user=" + user.getId() + ", edge=" + edgeId);
+		}
 		user.assertEdgeRoleIsAtLeast(EdgeRpcRequest.METHOD, edgeId, Role.GUEST);
 
 		CompletableFuture<JsonrpcResponseSuccess> resultFuture = switch (request.getMethod()) {
@@ -224,37 +233,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			this.handleSubscribeChannelsRequest(wsData, edgeId, user, SubscribeChannelsRequest.from(request));
 		case SubscribeSystemLogRequest.METHOD ->
 			this.handleSubscribeSystemLogRequest(wsData, edgeId, user, SubscribeSystemLogRequest.from(request));
-		case ComponentJsonApiRequest.METHOD -> {
-			final var componentRequest = ComponentJsonApiRequest.from(request);
-			if (!"_host".equals(componentRequest.getComponentId())) {
-				yield null;
-			}
-			switch (componentRequest.getPayload().getMethod()) {
-			case "executeSystemCommand" -> {
-				final var executeSystemCommandRequest = componentRequest.getPayload();
-				final var p = executeSystemCommandRequest.getParams();
-				this.parent.metadata.logGenericSystemLog(new LogSystemExecuteCommend(edgeId, user, //
-						JsonUtils.getAsString(p, "command"), //
-						JsonUtils.getAsOptionalBoolean(p, "sudo").orElse(null), //
-						JsonUtils.getAsOptionalString(p, "username").orElse(null), //
-						JsonUtils.getAsOptionalString(p, "password").orElse(null), //
-						JsonUtils.getAsOptionalBoolean(p, "runInBackground").orElse(null) //
-				));
-			}
-			case "executeSystemUpdate" -> {
-				this.parent.metadata.logGenericSystemLog(new LogUpdateSystem(edgeId, user));
-			}
-			case "executeSystemRestart" -> {
-				final var executeSystemCommandRequest = componentRequest.getPayload();
-				final var p = executeSystemCommandRequest.getParams();
-				this.parent.metadata.logGenericSystemLog(new LogRestartSystem(edgeId, user, //
-						JsonUtils.getAsOptionalString(p, "type").orElse(null) //
-				));
-			}
-			}
+		case SimulationRequest.METHOD -> this.handleSimulationRequest(edgeId, user, SimulationRequest.from(request));
 
-			yield null;
-		}
 		default -> {
 			// unable to handle; try generic handler
 			yield null;
@@ -280,72 +260,24 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		return result;
 	}
 
-	private record LogSystemExecuteCommend(//
-			String edgeId, // non-null
-			User user, // non-null
-			String command, // non-null
-			Boolean sudo, // null-able
-			String username, // null-able
-			String password, // null-able
-			Boolean runInBackground // null-able
-	) implements GenericSystemLog {
+	/**
+	 * Handles a {@link GetSimulationRequest}.
+	 * 
+	 * @param edgeId  the Edge-ID
+	 * @param user    the {@link User} - no specific level required
+	 * @param request the {@link GetSimulationRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleSimulationRequest(String edgeId, User user,
+			SimulationRequest request) throws OpenemsNamedException {
 
-		@Override
-		public String teaser() {
-			return "Systemcommand: " + this.command;
+		final var simulation = this.parent.simulation;
+		if (simulation == null) {
+			throw new OpenemsException("simulation unavailable");
 		}
 
-		@Override
-		public Map<String, String> getValues() {
-			return Map.of(//
-					"Sudo", Boolean.toString(Optional.ofNullable(this.sudo()).orElse(false)), //
-					"Command", this.command(), //
-					"Username", this.username(), //
-					"Password", this.password() == null || this.password().isEmpty() ? "[NOT_SET]" : "[SET]", //
-					"Run in Background", Boolean.toString(Optional.ofNullable(this.runInBackground()).orElse(false)) //
-			);
-		}
-
-	}
-
-	private record LogUpdateSystem(//
-			String edgeId, // non-null
-			User user // non-null
-	) implements GenericSystemLog {
-
-		@Override
-		public String teaser() {
-			return "Systemupdate";
-		}
-
-		@Override
-		public Map<String, String> getValues() {
-			return emptyMap();
-		}
-
-	}
-
-	private record LogRestartSystem(//
-			String edgeId, // non-null
-			User user, // non-null
-			String type // null-able
-	) implements GenericSystemLog {
-
-		@Override
-		public String teaser() {
-			return "Systemrestart";
-		}
-
-		@Override
-		public Map<String, String> getValues() {
-			if (this.type == null) {
-				return emptyMap();
-			}
-			return Map.of(//
-					"type", this.type //
-			);
-		}
-
+		return simulation.handleRequest(edgeId, user, request);
 	}
 
 	/**
@@ -417,6 +349,25 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		return CompletableFuture
 				.completedFuture(new AddEdgeToUserResponse(request.getId(), edge, serialNumber.orElse(null)));
+	}
+
+	/**
+	 * Handles an {@link GetEmsTypeRequest}.
+	 *
+	 * @param user    the {@link User}
+	 * @param request the {@link GetEmsTypeRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<GetEmsTypeResponse> handleGetEmsTypeRequest(User user, GetEmsTypeRequest request)
+			throws OpenemsNamedException {
+		if (user.getRole(request.getEdgeId()).isEmpty()) {
+			this.parent.metadata.getEdgeMetadataForUser(user, request.getEdgeId());
+		}
+		user.assertEdgeRoleIsAtLeast(GetEmsTypeRequest.METHOD, request.getEdgeId(), Role.GUEST);
+		final var emsType = this.parent.metadata.getEmsTypeForEdge(request.getEdgeId());
+
+		return CompletableFuture.completedFuture(new GetEmsTypeResponse(request.getId(), emsType.orElse(null)));
 	}
 
 	/**

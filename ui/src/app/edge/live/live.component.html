@@ -1,5 +1,9 @@
 <header></header>
 <ion-content>
+  <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content refreshingSpinner="crescent" class="ion-justify-content-center"></ion-refresher-content>
+  </ion-refresher>
+
   <ion-grid [hidden]="!edge.subscribeChannelsSuccessful" *ngIf="edge && edge.isOnline">
     <ion-row class="ion-justify-content-center" *ngIf="widgets">
       <!-- Energymonitor -->
@@ -40,7 +44,6 @@
                 <consumption></consumption>
               </ion-col>
 
-
             </ng-container>
 
             <!-- Widgets depending on the configuration of the OpenEMS Edge -->
@@ -53,7 +56,6 @@
                   *ngIf="factoryId !== 'Evcs.Cluster.PeakShaving' && factoryId !== 'Evcs.Cluster.SelfConsumption'">
                   <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12" size-lg="6" class="ion-no-padding">
                     <Controller_Evcs [componentId]="widget.componentId"></Controller_Evcs>
-
                   </ion-col>
                 </ng-container>
               </ng-container>

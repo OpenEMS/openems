@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
 
@@ -10,15 +10,10 @@ import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
 
     protected delayedActiveTimeOverPeriod: number | null = null;
     protected chargedConsumptionActiveTimeOverPeriod: number | null = null;
-
-    protected override onCurrentData(currentData: CurrentData) {
-        this.delayedActiveTimeOverPeriod = currentData.allComponents[this.componentId + '/DelayedTime'];
-        this.chargedConsumptionActiveTimeOverPeriod = currentData.allComponents[this.componentId + '/ChargedTime'];
-    }
 
     override getChannelAddresses(): ChannelAddress[] {
         return [
@@ -26,4 +21,10 @@ export class FlatComponent extends AbstractFlatWidget {
             new ChannelAddress(this.componentId, 'ChargedTime'),
         ];
     }
+
+    protected override onCurrentData(currentData: CurrentData) {
+        this.delayedActiveTimeOverPeriod = currentData.allComponents[this.componentId + '/DelayedTime'];
+        this.chargedConsumptionActiveTimeOverPeriod = currentData.allComponents[this.componentId + '/ChargedTime'];
+    }
+
 }

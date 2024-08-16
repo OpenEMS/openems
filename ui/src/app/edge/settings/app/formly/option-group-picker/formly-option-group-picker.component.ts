@@ -1,6 +1,7 @@
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { FieldType, FieldTypeConfig, FormlyFieldConfig } from "@ngx-formly/core";
-import { OptionGroup, OptionGroupConfig, Option, getTitleFromOptionConfig } from "./optionGroupPickerConfiguration";
+import { Option, OptionGroup, OptionGroupConfig, getTitleFromOptionConfig } from "./optionGroupPickerConfiguration";
 
 @Component({
     selector: 'formly-option-group-picker',
@@ -14,6 +15,31 @@ export class FormlyOptionGroupPickerComponent extends FieldType<FieldTypeConfig>
     protected selectedValue: string | string[];
 
     protected optionGroups: OptionGroup[] = [];
+
+    private static getOptionGroups(field: FormlyFieldConfig, optionGroupConfigs: OptionGroupConfig[]): OptionGroup[] {
+        return optionGroupConfigs.map<OptionGroup>(groupConfig => {
+            return {
+                group: groupConfig.group,
+                title: groupConfig.title,
+                options: groupConfig.options
+                    .filter(optionConfig => {
+                        // Remove hidden Options
+                        return !(optionConfig.expressions?.hide?.(field) ?? optionConfig.hide ?? false);
+                    })
+                    .map<Option>(optionConfig => {
+                        return {
+                            value: optionConfig.value,
+                            title: getTitleFromOptionConfig(optionConfig, field),
+                            disabled: optionConfig.expressions?.disabled?.(field) ?? optionConfig.disabled ?? false,
+                            selected: false,
+                        };
+                    }),
+            };
+        }).filter(group => {
+            // Remove empty OptionGroups
+            return group.options.length !== 0;
+        });
+    }
 
     public ngOnInit(): void {
         this.multi = this.props.isMulti ?? false;
@@ -59,10 +85,6 @@ export class FormlyOptionGroupPickerComponent extends FieldType<FieldTypeConfig>
         }
     }
 
-    private isMulti(selectedValue: string | string[]): selectedValue is string[] {
-        return this.multi;
-    }
-
     protected valueChange() {
         this.formControl.setValue(this.selectedValue);
         this.form.markAsDirty();
@@ -81,33 +103,12 @@ export class FormlyOptionGroupPickerComponent extends FieldType<FieldTypeConfig>
         this.valueChange();
     }
 
-    private invalidateOptionGroups() {
-        this.optionGroups = FormlyOptionGroupPickerComponent.getOptionGroups(this.field, this.props.options as OptionGroupConfig[]);
+    private isMulti(selectedValue: string | string[]): selectedValue is string[] {
+        return this.multi;
     }
 
-    private static getOptionGroups(field: FormlyFieldConfig, optionGroupConfigs: OptionGroupConfig[]): OptionGroup[] {
-        return optionGroupConfigs.map<OptionGroup>(groupConfig => {
-            return {
-                group: groupConfig.group,
-                title: groupConfig.title,
-                options: groupConfig.options
-                    .filter(optionConfig => {
-                        // Remove hidden Options
-                        return !(optionConfig.expressions?.hide?.(field) ?? optionConfig.hide ?? false);
-                    })
-                    .map<Option>(optionConfig => {
-                        return {
-                            value: optionConfig.value,
-                            title: getTitleFromOptionConfig(optionConfig, field),
-                            disabled: optionConfig.expressions?.disabled?.(field) ?? optionConfig.disabled ?? false,
-                            selected: false,
-                        };
-                    }),
-            };
-        }).filter(group => {
-            // Remove empty OptionGroups
-            return group.options.length !== 0;
-        });
+    private invalidateOptionGroups() {
+        this.optionGroups = FormlyOptionGroupPickerComponent.getOptionGroups(this.field, this.props.options as OptionGroupConfig[]);
     }
 
 }

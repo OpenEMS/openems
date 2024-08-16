@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { Router, RoutesRecognized } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -26,7 +27,6 @@ export class GlobalRouteChangeHandler {
           data = route.data || data;
           route = route.firstChild;
         }
-
         return data;
       }),
     ).subscribe(e => {

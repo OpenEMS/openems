@@ -26,7 +26,6 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.ComponentUtilImpl;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
-import io.openems.edge.core.componentmanager.ComponentManagerImpl;
 
 @Component(//
 		service = { //
@@ -180,13 +179,8 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 			}
 
 			try {
-				final var request = new DeleteComponentConfigRequest(comp.getId());
-				if (user != null) {
-					this.componentManager.handleJsonrpcRequest(user, request);
-				} else {
-					// user can be null using internal method
-					((ComponentManagerImpl) this.componentManager).handleDeleteComponentConfigRequest(user, request);
-				}
+				this.componentManager.handleDeleteComponentConfigRequest(user,
+						new DeleteComponentConfigRequest(comp.getId()));
 				this.deletedComponents.add(comp.getId());
 			} catch (OpenemsNamedException e) {
 				errors.add(e.toString());
@@ -247,13 +241,8 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 		properties.add(new Property("id", comp.getId()));
 		properties.add(new Property("alias", comp.getAlias()));
 
-		var request = new CreateComponentConfigRequest(comp.getFactoryId(), properties);
-		if (user != null) {
-			this.componentManager.handleJsonrpcRequest(user, request);
-			return;
-		}
-		// user can be null using internal method
-		((ComponentManagerImpl) this.componentManager).handleCreateComponentConfigRequest(user, request);
+		this.componentManager.handleCreateComponentConfigRequest(user,
+				new CreateComponentConfigRequest(comp.getFactoryId(), properties));
 	}
 
 	/**
@@ -276,14 +265,9 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 				.map(t -> new Property(t.getKey(), t.getValue())) //
 				.collect(Collectors.toList());
 		properties.add(new Property("alias", myComp.getAlias()));
-		var updateRequest = new UpdateComponentConfigRequest(actualComp.getId(), properties);
 
-		if (user != null) {
-			this.componentManager.handleJsonrpcRequest(user, updateRequest);
-			return;
-		}
-		// user can be null using internal method
-		((ComponentManagerImpl) this.componentManager).handleUpdateComponentConfigRequest(user, updateRequest);
+		this.componentManager.handleUpdateComponentConfigRequest(user,
+				new UpdateComponentConfigRequest(actualComp.getId(), properties));
 	}
 
 	@Override

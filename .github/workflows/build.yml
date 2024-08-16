@@ -22,11 +22,14 @@ jobs:
 
       - uses: kiancross/checkstyle-annotations-action@v1
 
+      - name: Checkstyle
+        run: ./gradlew checkstyleAll --console=plain --warn
+
       - name: Build all Java packages
-        run: ./gradlew build
+        run: ./gradlew build --console=plain --warn
 
       - name: Resolve OpenEMS bundles
-        run: ./gradlew resolve
+        run: ./gradlew resolve --console=plain --warn
 
       - name: Validate BackendApp.bndrun
         run: git diff --exit-code io.openems.backend.application/BackendApp.bndrun
@@ -34,41 +37,13 @@ jobs:
       - name: Validate EdgeApp.bndrun
         run: git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
 
-      #
-      # Generate Code-coverage-report
-      #
       - name: Generate JaCoCo Code-coverage-report
         run: ./gradlew jacocoTestReport
-        
-      - name: Summarize JaCoCo Report
-        id: jacoco
-        uses: cicirello/jacoco-badge-generator@v2
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
         with:
-          jacoco-csv-file: 'io.openems.*/generated/reports/jacoco/**/*.csv'
-          generate-coverage-badge: false
-
-      - name: Create JaCoCo Badge
-        env:
-          PR_NUMBER: ${{ github.event.number }}
-        run: |
-          coverage=$(echo "scale=2; ${{ steps.jacoco.outputs.coverage }} * 100" | bc | cut -c1-4);
-
-          color=red;
-          if (( $(echo "$coverage > 90" | bc -l) )); then
-            color=success;
-          elif (( $(echo "$coverage > 80" | bc -l) )); then
-            color=green;
-          elif (( $(echo "$coverage > 60" | bc -l) )); then
-            color=yellow;
-          fi;
-
-          mkdir -p ./jacoco
-          echo $PR_NUMBER > ./jacoco/jacoco_report_number
-          echo '![Code Coverage]'"(https://img.shields.io/badge/Code%20Coverage-${coverage}%25-${color}?style=flat)" > ./jacoco/jacoco_report_badge
-      - uses: actions/upload-artifact@v4
-        with:
-          name: jacoco_report
-          path: jacoco/
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   build-ui:
     runs-on: ubuntu-latest
@@ -78,7 +53,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '20'
 
       - name: Setup Cache for Node.js
         uses: actions/cache@v4
@@ -92,10 +67,15 @@ jobs:
       - name: Build OpenEMS UI
         run: |
           cd ui
-          npm install 
           npm ci --prefer-offline --cache ~/.npm
           node_modules/.bin/ng config cli.cache.path "~/.ng"
           node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
           node_modules/.bin/ng lint
           export CHROME_BIN=/usr/bin/google-chrome-stable
-          npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+          npm run test -- --code-coverage --no-watch --no-progress --browsers=ChromeHeadlessCI
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          directory: ./ui/
+          token: ${{ secrets.CODECOV_TOKEN }}

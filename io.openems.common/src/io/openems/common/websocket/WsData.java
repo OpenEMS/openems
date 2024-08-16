@@ -24,9 +24,13 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 public abstract class WsData {
 
 	/**
-	 * Holds the Websocket. Possibly null!
+	 * Holds the WebSocket.
 	 */
-	private WebSocket websocket = null;
+	private final WebSocket websocket;
+
+	protected WsData(WebSocket ws) {
+		this.websocket = ws;
+	}
 
 	/**
 	 * Holds Futures for JSON-RPC Requests.
@@ -39,19 +43,10 @@ public abstract class WsData {
 	 * blocked resources.
 	 */
 	public void dispose() {
+		final var e = new OpenemsException("Websocket connection closed");
 		// Complete all pending requests
-		this.requestFutures.values()
-				.forEach(r -> r.completeExceptionally(new OpenemsException("Websocket connection closed.")));
+		this.requestFutures.values().forEach(r -> r.completeExceptionally(e));
 		this.requestFutures.clear();
-	}
-
-	/**
-	 * Sets the WebSocket.
-	 *
-	 * @param ws the WebSocket instance
-	 */
-	public synchronized void setWebsocket(WebSocket ws) {
-		this.websocket = ws;
 	}
 
 	/**
@@ -68,15 +63,16 @@ public abstract class WsData {
 	 *
 	 * @param request the JSON-RPC Request
 	 * @return a promise for a successful JSON-RPC Response
-	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<JsonrpcResponseSuccess> send(JsonrpcRequest request) throws OpenemsNamedException {
+	public CompletableFuture<JsonrpcResponseSuccess> send(JsonrpcRequest request) {
 		var future = new CompletableFuture<JsonrpcResponseSuccess>();
 		var existingFuture = this.requestFutures.putIfAbsent(request.getId(), future);
 		if (existingFuture != null) {
-			throw OpenemsError.JSONRPC_ID_NOT_UNIQUE.exception(request.getId());
+			return CompletableFuture.failedFuture(OpenemsError.JSONRPC_ID_NOT_UNIQUE.exception(request.getId()));
 		}
-		this.sendMessage(request);
+		if (!this.sendMessage(request)) {
+			future.completeExceptionally(OpenemsError.JSONRPC_SEND_FAILED.exception());
+		}
 		return future;
 	}
 
@@ -84,26 +80,28 @@ public abstract class WsData {
 	 * Sends a JSON-RPC Notification to a WebSocket.
 	 *
 	 * @param notification the JSON-RPC Notification
-	 * @throws OpenemsException on error
+	 * @return true if sending was successful; false otherwise
 	 */
-	public void send(JsonrpcNotification notification) throws OpenemsException {
-		this.sendMessage(notification);
+	public boolean send(JsonrpcNotification notification) {
+		return this.sendMessage(notification);
 	}
 
 	/**
 	 * Sends the JSON-RPC message.
 	 *
 	 * @param message the JSON-RPC Message
-	 * @throws OpenemsException on error
+	 * @return true if sending was successful; false otherwise
 	 */
-	private void sendMessage(JsonrpcMessage message) throws OpenemsException {
-		if (this.websocket == null) {
-			throw new OpenemsException("There is no Websocket defined for this WsData.");
+	private boolean sendMessage(JsonrpcMessage message) {
+		if (!this.websocket.isOpen()) {
+			return false;
 		}
 		try {
 			this.websocket.send(message.toString());
+			return true;
 		} catch (WebsocketNotConnectedException e) {
-			throw new OpenemsException("Websocket is not connected: " + e.getMessage());
+			// handles corner cases
+			return false;
 		}
 	}
 

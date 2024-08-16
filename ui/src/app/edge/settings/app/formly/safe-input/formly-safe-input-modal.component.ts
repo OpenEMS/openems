@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnInit } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
@@ -9,12 +10,12 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
 })
 export class FormlySafeInputModalComponent implements OnInit {
 
+    @Input({ required: true })
+    protected title!: string;
     @Input()
-    protected title: string;
-    @Input()
-    protected fields: FormlyFieldConfig[] = null;
-    @Input()
-    protected model: {};
+    protected fields: FormlyFieldConfig[] | null = null;
+    @Input({ required: true })
+    protected model!: {};
 
     protected form: FormGroup = new FormGroup({});
     protected myModel: {};

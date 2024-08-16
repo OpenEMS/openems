@@ -9,12 +9,18 @@
     "downlevelIteration": true,
     "experimentalDecorators": true,
     "moduleResolution": "node",
+    "plugins": [
+      {
+        "name": "typescript-strict-plugin"
+      }
+    ],
     "importHelpers": true,
+    "strict": false,
     "target": "ES2022",
     "module": "es2020",
     "noImplicitOverride": true,
     "lib": [
-      "es2018",
+      "es2022",
       "dom"
     ],
     "resolveJsonModule": true,

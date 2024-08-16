@@ -1,20 +1,20 @@
+// @ts-strict-ignore
 import { Component, Input } from '@angular/core';
 import * as Chart from 'chart.js';
 import { calculateResolution, ChronoUnit, Resolution } from 'src/app/edge/history/shared';
-import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { AbstractHistoryChart } from 'src/app/shared/components/chart/abstracthistorychart';
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, Currency, EdgeConfig } from "src/app/shared/shared";
 import { ColorUtils } from 'src/app/shared/utils/color/color.utils';
 
 @Component({
     selector: 'scheduleChart',
-    templateUrl: '../../../../../../shared/genericComponents/chart/abstracthistorychart.html',
+    templateUrl: '../../../../../../shared/components/chart/abstracthistorychart.html',
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-    @Input() public override component: EdgeConfig.Component;
+    @Input({ required: true }) public override component!: EdgeConfig.Component;
 
-    private TimeOfUseTariffState = TimeOfUseTariffUtils.TimeOfUseTariffState;
     private currencyLabel: Currency.Label; // Default
 
     protected override getChartData(): HistoryUtils.ChartData {
@@ -49,21 +49,21 @@ export class ChartComponent extends AbstractHistoryChart {
             output: (data: HistoryUtils.ChannelData) => {
                 return [{
                     name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
-                    converter: () => this.getDataset(data, this.TimeOfUseTariffState.Balancing),
+                    converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.Balancing),
                     color: 'rgb(51,102,0)',
                     stack: 1,
                     order: 1,
                 },
                 {
                     name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
-                    converter: () => this.getDataset(data, this.TimeOfUseTariffState.ChargeGrid),
+                    converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.ChargeGrid),
                     color: 'rgb(0, 204, 204)',
                     stack: 1,
                     order: 1,
                 },
                 {
                     name: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
-                    converter: () => this.getDataset(data, this.TimeOfUseTariffState.DelayDischarge),
+                    converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.DelayDischarge),
                     color: 'rgb(0,0,0)',
                     stack: 1,
                     order: 1,

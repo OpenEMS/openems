@@ -32,6 +32,12 @@ public class BatteryFeneconHomeImplTest {
 
 	private static final ChannelAddress STATE_MACHINE = new ChannelAddress(BATTERY_ID,
 			BatteryFeneconHome.ChannelId.STATE_MACHINE.id());
+	private static final ChannelAddress LOW_MIN_VOLTAGE_WARNING = new ChannelAddress(BATTERY_ID,
+			BatteryFeneconHome.ChannelId.LOW_MIN_VOLTAGE_WARNING.id());
+	private static final ChannelAddress LOW_MIN_VOLTAGE_FAULT = new ChannelAddress(BATTERY_ID,
+			BatteryFeneconHome.ChannelId.LOW_MIN_VOLTAGE_FAULT.id());
+	private static final ChannelAddress LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED = new ChannelAddress(BATTERY_ID,
+			BatteryFeneconHome.ChannelId.LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED.id());
 	private static final ChannelAddress MODBUS_COMMUNICATION_FAILED = new ChannelAddress(BATTERY_ID,
 			ModbusComponent.ChannelId.MODBUS_COMMUNICATION_FAILED.id());
 	private static final ChannelAddress BMS_CONTROL = new ChannelAddress(BATTERY_ID,
@@ -42,6 +48,27 @@ public class BatteryFeneconHomeImplTest {
 			Battery.ChannelId.MAX_CELL_VOLTAGE.id());
 	private static final ChannelAddress CHARGE_MAX_CURRENT = new ChannelAddress(BATTERY_ID,
 			Battery.ChannelId.CHARGE_MAX_CURRENT.id());
+	private static final ChannelAddress CURRENT = new ChannelAddress(BATTERY_ID, Battery.ChannelId.CURRENT.id());
+	private static final ChannelAddress MIN_CELL_VOLTAGE = new ChannelAddress(BATTERY_ID,
+			Battery.ChannelId.MIN_CELL_VOLTAGE.id());
+	private static final ChannelAddress TOWER_0_BMS_SOFTWARE_VERSION = new ChannelAddress(BATTERY_ID,
+			BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION.id());
+	private static final ChannelAddress TOWER_1_BMS_SOFTWARE_VERSION = new ChannelAddress(BATTERY_ID,
+			BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION.id());
+	private static final ChannelAddress TOWER_2_BMS_SOFTWARE_VERSION = new ChannelAddress(BATTERY_ID,
+			BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION.id());
+	private static final ChannelAddress TOWER_3_BMS_SOFTWARE_VERSION = new ChannelAddress(BATTERY_ID,
+			BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION.id());
+	private static final ChannelAddress TOWER_4_BMS_SOFTWARE_VERSION = new ChannelAddress(BATTERY_ID,
+			BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION.id());
+	private static final ChannelAddress NUMBER_OF_TOWERS = new ChannelAddress(BATTERY_ID,
+			BatteryFeneconHome.ChannelId.NUMBER_OF_TOWERS.id());
+	private static final ChannelAddress NUMBER_OF_MODULES_PER_TOWER = new ChannelAddress(BATTERY_ID,
+			BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER.id());
+	private static final ChannelAddress BP_CHARGE_MAX_SOC = new ChannelAddress(BATTERY_ID,
+			BatteryProtection.ChannelId.BP_CHARGE_MAX_SOC.id());
+	private static final ChannelAddress SOC = new ChannelAddress(BATTERY_ID, Battery.ChannelId.SOC.id());
+
 	private static final ChannelAddress BATTERY_RELAY = new ChannelAddress(IO_ID, "InputOutput4");
 
 	private static ThrowingRunnable<Exception> assertLog(BatteryFeneconHomeImpl sut, String message) {
@@ -303,5 +330,341 @@ public class BatteryFeneconHomeImplTest {
 		assertEquals(BatteryFeneconHomeHardwareType.BATTERY_64,
 				BatteryFeneconHomeImpl.parseHardwareTypeFromRegisterValue(640));
 
+	}
+
+	@Test
+	public void testMinVoltageGoStopped() throws Exception {
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
+		var sut = new BatteryFeneconHomeImpl();
+		new ComponentTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addComponent(new DummyInputOutput(IO_ID)) //
+				.activate(MyConfig.create() //
+						.setId(BATTERY_ID) //
+						.setModbusId(MODBUS_ID) //
+						.setModbusUnitId(0) //
+						.setStartStop(StartStopConfig.START) //
+						.setBatteryStartUpRelay("io0/InputOutput4")//
+						.build())//
+
+				.next(new TestCase() //
+						.input(BATTERY_RELAY, false) //
+						.input(BMS_CONTROL, true) // Switched On
+						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-Undefined")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-StartUpRelayOff")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-RetryModbusCommunication")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-WaitForBmsControl")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-WaitForModbusCommunication")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, StateMachine.State.RUNNING))
+
+				/*
+				 * Critical min voltage
+				 */
+				.next(new TestCase("MinCellVoltage below critical value") //
+						.input(MIN_CELL_VOLTAGE, (BatteryFeneconHomeImpl.DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.input(CURRENT, 0) //
+						.output(LOW_MIN_VOLTAGE_WARNING, true) //
+						.output(LOW_MIN_VOLTAGE_FAULT, false) //
+						.output(STATE_MACHINE, StateMachine.State.RUNNING) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false) //
+						.onAfterControllersCallbacks(
+								() -> clock.leap(BatteryFeneconHomeImpl.TIMEOUT - 10, ChronoUnit.SECONDS))) //
+				.next(new TestCase("MinCellVoltage below critical value - charging resets time") //
+						.input(MIN_CELL_VOLTAGE, (BatteryFeneconHomeImpl.DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.input(CURRENT, -300) //
+						.output(LOW_MIN_VOLTAGE_WARNING, true) //
+						.output(LOW_MIN_VOLTAGE_FAULT, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false)) //
+				.next(new TestCase("MinCellVoltage below critical value - timer starts again") //
+						.input(CURRENT, 0) //
+						.input(MIN_CELL_VOLTAGE, (BatteryFeneconHomeImpl.DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.output(LOW_MIN_VOLTAGE_WARNING, true) //
+						.output(LOW_MIN_VOLTAGE_FAULT, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false) //
+						.onAfterControllersCallbacks(
+								() -> clock.leap(BatteryFeneconHomeImpl.TIMEOUT - 10, ChronoUnit.SECONDS))) //
+				.next(new TestCase("MinCellVoltage below critical value - time not passed") //
+						.input(CURRENT, 0) //
+						.input(MIN_CELL_VOLTAGE, (BatteryFeneconHomeImpl.DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.output(LOW_MIN_VOLTAGE_WARNING, true) //
+						.output(LOW_MIN_VOLTAGE_FAULT, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false) //
+						.onAfterControllersCallbacks(() -> clock.leap(15, ChronoUnit.SECONDS))) //
+				.next(new TestCase("MinCellVoltage below critical value - time passed") //
+						.input(CURRENT, 0) //
+						.input(MIN_CELL_VOLTAGE, (BatteryFeneconHomeImpl.DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.output(LOW_MIN_VOLTAGE_FAULT, true) //
+						.output(LOW_MIN_VOLTAGE_WARNING, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false) //
+						.output(STATE_MACHINE, StateMachine.State.RUNNING)) //
+				.next(new TestCase("MinCellVoltage below critical value - error") //
+						.input(LOW_MIN_VOLTAGE_FAULT, true) //
+						.input(CURRENT, 0) //
+						.input(MIN_CELL_VOLTAGE, (BatteryFeneconHomeImpl.DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.output(LOW_MIN_VOLTAGE_FAULT, true) //
+						.output(LOW_MIN_VOLTAGE_WARNING, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false)) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, StateMachine.State.ERROR)) //
+				.next(new TestCase("MinCellVoltage below critical value - go stopped") //
+						.input(LOW_MIN_VOLTAGE_FAULT, true) //
+						.input(CURRENT, 0) //
+
+						// MinCellVoltage would be null, but there is not DummyTimedata for not to test
+						// "getPastValues"
+						.input(MIN_CELL_VOLTAGE, (BatteryFeneconHomeImpl.DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.output(LOW_MIN_VOLTAGE_FAULT, true) //
+						.output(LOW_MIN_VOLTAGE_WARNING, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false) //
+						.output(STATE_MACHINE, StateMachine.State.GO_STOPPED) //
+						.onAfterControllersCallbacks(() -> clock.leap(2_100, ChronoUnit.SECONDS))) // 35 minutes
+				.next(new TestCase() //
+						.input(MODBUS_COMMUNICATION_FAILED, true) //
+				) //
+				.next(new TestCase("MinCellVoltage below critical value - stopped") //
+						.input(CURRENT, 0) //
+						.input(MODBUS_COMMUNICATION_FAILED, true) //
+						.input(MIN_CELL_VOLTAGE, (BatteryFeneconHomeImpl.DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.output(LOW_MIN_VOLTAGE_WARNING, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, true) //
+						.output(STATE_MACHINE, StateMachine.State.STOPPED) //
+				);
+	}
+
+	@Test
+	public void testMinVoltageCharging() throws Exception {
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
+		var sut = new BatteryFeneconHomeImpl();
+		new ComponentTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addComponent(new DummyInputOutput(IO_ID)) //
+				.activate(MyConfig.create() //
+						.setId(BATTERY_ID) //
+						.setModbusId(MODBUS_ID) //
+						.setModbusUnitId(0) //
+						.setStartStop(StartStopConfig.START) //
+						.setBatteryStartUpRelay("io0/InputOutput4")//
+						.build())//
+
+				.next(new TestCase() //
+						.input(BATTERY_RELAY, false) //
+						.input(BMS_CONTROL, true) // Switched On
+						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-Undefined")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-StartUpRelayOff")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-RetryModbusCommunication")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-WaitForBmsControl")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-WaitForModbusCommunication")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, StateMachine.State.RUNNING))
+
+				/*
+				 * Critical min voltage
+				 */
+				.next(new TestCase("MinCellVoltage below critical value") //
+						.input(MIN_CELL_VOLTAGE, (BatteryFeneconHomeImpl.DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.input(CURRENT, 0) //
+						.output(LOW_MIN_VOLTAGE_WARNING, true) //
+						.output(LOW_MIN_VOLTAGE_FAULT, false) //
+						.output(STATE_MACHINE, StateMachine.State.RUNNING) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false) //
+						.onAfterControllersCallbacks(
+								() -> clock.leap(BatteryFeneconHomeImpl.TIMEOUT - 10, ChronoUnit.SECONDS))) //
+				.next(new TestCase("MinCellVoltage below critical value - charging resets time") //
+						.input(MIN_CELL_VOLTAGE, (BatteryFeneconHomeImpl.DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.input(CURRENT, -300) //
+						.output(LOW_MIN_VOLTAGE_WARNING, true) //
+						.output(LOW_MIN_VOLTAGE_FAULT, false) //
+						.output(STATE_MACHINE, StateMachine.State.RUNNING) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false)) //
+				.next(new TestCase("MinCellVoltage below critical value - charging") //
+						.input(CURRENT, -2000) //
+						.input(MIN_CELL_VOLTAGE, (BatteryFeneconHomeImpl.DEFAULT_CRITICAL_MIN_VOLTAGE + 50)) //
+						.output(LOW_MIN_VOLTAGE_WARNING, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT, false) //
+						.output(STATE_MACHINE, StateMachine.State.RUNNING) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false) //
+				);
+	}
+
+	@Test
+	public void testNumberOfTowers() throws Exception {
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
+		var sut = new BatteryFeneconHomeImpl();
+		new ComponentTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addComponent(new DummyInputOutput(IO_ID)) //
+				.activate(MyConfig.create() //
+						.setId(BATTERY_ID) //
+						.setModbusId(MODBUS_ID) //
+						.setModbusUnitId(0) //
+						.setStartStop(StartStopConfig.START) //
+						.setBatteryStartUpRelay("io0/InputOutput4")//
+						.build())//
+
+				.next(new TestCase() //
+						.input(BATTERY_RELAY, false) //
+						.input(BMS_CONTROL, true) // Switched On
+						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-Undefined")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-StartUpRelayOff")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-RetryModbusCommunication")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-WaitForBmsControl")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-WaitForModbusCommunication")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, StateMachine.State.RUNNING))
+				.next(new TestCase() //
+						.output(NUMBER_OF_TOWERS, null))
+				.next(new TestCase() //
+						.input(NUMBER_OF_MODULES_PER_TOWER, 7) //
+						.input(TOWER_0_BMS_SOFTWARE_VERSION, 262) //
+						.input(TOWER_1_BMS_SOFTWARE_VERSION, 0) //
+						.input(TOWER_2_BMS_SOFTWARE_VERSION, 0) //
+						.input(TOWER_3_BMS_SOFTWARE_VERSION, 0) //
+						.input(TOWER_4_BMS_SOFTWARE_VERSION, 256) //
+						.output(NUMBER_OF_TOWERS, 1)) //
+				.next(new TestCase() //
+						.input(TOWER_0_BMS_SOFTWARE_VERSION, 262) //
+						.input(TOWER_1_BMS_SOFTWARE_VERSION, null) //
+						.input(TOWER_2_BMS_SOFTWARE_VERSION, null) //
+						.input(TOWER_3_BMS_SOFTWARE_VERSION, null) //
+						.input(TOWER_4_BMS_SOFTWARE_VERSION, null) //
+						.output(NUMBER_OF_TOWERS, null)) //
+				.next(new TestCase() //
+						.input(TOWER_0_BMS_SOFTWARE_VERSION, 262) //
+						.input(TOWER_1_BMS_SOFTWARE_VERSION, 0) //
+						.input(TOWER_2_BMS_SOFTWARE_VERSION, 0) //
+						.input(TOWER_3_BMS_SOFTWARE_VERSION, 0) //
+						.input(TOWER_4_BMS_SOFTWARE_VERSION, 256) //
+						.output(NUMBER_OF_TOWERS, 1)) //
+				.next(new TestCase() //
+						.output(NUMBER_OF_TOWERS, 1)) //
+				.next(new TestCase() //
+						.input(NUMBER_OF_TOWERS, null) //
+						.input(NUMBER_OF_MODULES_PER_TOWER, 7) //
+						.output(NUMBER_OF_TOWERS, null)) //
+				.next(new TestCase() //
+						.input(TOWER_0_BMS_SOFTWARE_VERSION, null) //
+						.input(TOWER_1_BMS_SOFTWARE_VERSION, 0) //
+						.input(TOWER_2_BMS_SOFTWARE_VERSION, 0) //
+						.input(TOWER_3_BMS_SOFTWARE_VERSION, 0) //
+						.input(TOWER_4_BMS_SOFTWARE_VERSION, 256) //
+						.output(NUMBER_OF_TOWERS, null)) //
+				.next(new TestCase() // Number of towers changes after TOWER_0_BMS_SOFTWARE_VERSION is set
+						.input(TOWER_0_BMS_SOFTWARE_VERSION, 262) //
+						.input(TOWER_1_BMS_SOFTWARE_VERSION, 0) //
+						.input(TOWER_2_BMS_SOFTWARE_VERSION, 0) //
+						.input(TOWER_3_BMS_SOFTWARE_VERSION, 0) //
+						.input(TOWER_4_BMS_SOFTWARE_VERSION, 256) //
+						.output(NUMBER_OF_TOWERS, 1)) //
+		;
+	}
+
+	/**
+	 * Battery charge power limited by the {@link FeneconHomeBatteryProtection52}.
+	 *
+	 * @throws Exception on error
+	 */
+	@Test
+	public void testBatteryProtectionSocLimitations() throws Exception {
+		var sut = new BatteryFeneconHomeImpl();
+		new ComponentTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addComponent(new DummyInputOutput(IO_ID))//
+				.activate(MyConfig.create() //
+						.setId(BATTERY_ID) //
+						.setModbusId(MODBUS_ID) //
+						.setModbusUnitId(0) //
+						.setStartStop(StartStopConfig.START) //
+						.setBatteryStartUpRelay("io0/InputOutput4")//
+						.build()) //
+
+				.next(new TestCase() //
+						.input(BATTERY_RELAY, false) //
+						.input(BMS_CONTROL, true) // Switched On
+						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-Undefined")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-StartUpRelayOff")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-RetryModbusCommunication")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-WaitForBmsControl")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-WaitForModbusCommunication")) //
+						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, StateMachine.State.RUNNING)) //
+				.next(new TestCase() //
+						.output(BP_CHARGE_MAX_SOC, 40)) //
+
+				.next(new TestCase() //
+						.input(SOC, 97) //
+						.output(SOC, 97)) //
+				.next(new TestCase() //
+						.output(BP_CHARGE_MAX_SOC, (int) Math.round(40 * 0.625))) //
+				.next(new TestCase() //
+						.input(SOC, 98)) //
+				.next(new TestCase() //
+						.output(BP_CHARGE_MAX_SOC, (int) Math.round(40 * 0.4))) //
+				.next(new TestCase() //
+						.input(SOC, 99)) //
+				.next(new TestCase() //
+						.output(BP_CHARGE_MAX_SOC, (int) Math.round(40 * 0.2))) //
+				.next(new TestCase() //
+						.input(SOC, 100)) //
+				.next(new TestCase() //
+						.output(BP_CHARGE_MAX_SOC, (int) Math.round(40 * 0.05))) //
+				.next(new TestCase() //
+						.input(SOC, 99)) //
+				.next(new TestCase() //
+						.output(BP_CHARGE_MAX_SOC, (int) Math.round(40 * 0.2)) //
+				);
 	}
 }

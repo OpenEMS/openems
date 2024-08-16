@@ -6,9 +6,14 @@ export enum GridMode {
 export enum Mode {
     MANUAL_ON = 'MANUAL_ON',
     MANUAL_OFF = 'MANUAL_OFF',
-    AUTOMATIC = 'AUTOMATIC'
+    AUTOMATIC = 'AUTOMATIC',
 }
+export const ChartAnnotationState = {
+    ON: 1,
+    OFF: 0,
+    OFF_HIDDEN: null,
+};
 export enum WorkMode {
     TIME = 'TIME',
-    NONE = 'NONE'
+    NONE = 'NONE',
 }

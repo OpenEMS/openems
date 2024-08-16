@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { CommonModule } from '@angular/common';
 import { Injector, NgModule } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
@@ -9,34 +10,32 @@ import { FormlyIonicModule } from '@ngx-formly/ionic';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgChartsModule } from 'ng2-charts';
 import { NgxSpinnerModule } from "ngx-spinner";
-
-import { appRoutingProviders } from './../app-routing.module';
-import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
+import { appRoutingProviders } from '../app-routing.module';
+import { ComponentsModule } from './components/components.module';
+import { MeterModule } from './components/edge/meter/meter.module';
+import { FormlyCheckBoxHyperlinkWrapperComponent } from './components/formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper';
+import { FormlyWrapperDefaultValueWithCasesComponent } from './components/formly/form-field-default-cases.wrapper';
+import { FormlyWrapperFormFieldComponent } from './components/formly/form-field.wrapper';
+import { FormlyFieldCheckboxWithImageComponent } from './components/formly/formly-field-checkbox-image/formly-field-checkbox-with-image';
+import { FormlyFieldModalComponent } from './components/formly/formly-field-modal/formlyfieldmodal';
+import { FormlyFieldRadioWithImageComponent } from './components/formly/formly-field-radio-with-image/formly-field-radio-with-image';
+import { FormlySelectFieldModalComponent } from './components/formly/formly-select-field-modal.component';
+import { FormlySelectFieldExtendedWrapperComponent } from './components/formly/formly-select-field.extended';
+import { FormlyFieldWithLoadingAnimationComponent } from './components/formly/formly-skeleton-wrapper';
+import { InputTypeComponent } from './components/formly/input';
+import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from './components/formly/input-serial-number-wrapper';
+import { PanelWrapperComponent } from './components/formly/panel-wrapper.component';
+import { RepeatTypeComponent } from './components/formly/repeat';
+import { HeaderComponent } from './components/header/header.component';
+import { HistoryDataErrorModule } from './components/history-data-error/history-data-error.module';
+import { PercentageBarComponent } from './components/percentagebar/percentagebar.component';
 import { DirectiveModule } from './directive/directive';
-import { MeterModule } from './edge/meter/meter.module';
-import { FormlyCheckBoxHyperlinkWrapperComponent } from './formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper';
-import { FormlyWrapperDefaultValueWithCasesComponent } from './formly/form-field-default-cases.wrapper';
-import { FormlyWrapperFormFieldComponent } from './formly/form-field.wrapper';
-import { FormlyFieldModalComponent } from './formly/formly-field-modal/formlyfieldmodal';
-import { FormlyFieldRadioWithImageComponent } from './formly/formly-field-radio-with-image/formly-field-radio-with-image';
-import { FormlySelectFieldModalComponent } from './formly/formly-select-field-modal.component';
-import { FormlySelectFieldExtendedWrapperComponent } from './formly/formly-select-field.extended';
-import { InputTypeComponent } from './formly/input';
-import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from './formly/input-serial-number-wrapper';
-import { PanelWrapperComponent } from './formly/panel-wrapper.component';
-import { RepeatTypeComponent } from './formly/repeat';
-import { Generic_ComponentsModule } from './genericComponents/genericComponents';
-import { HistoryDataErrorComponent } from './history-data-error.component';
-import { PercentageBarComponent } from './percentagebar/percentagebar.component';
+import { ChartOptionsComponent } from './legacy/chartoptions/chartoptions.component';
 import { PipeModule } from './pipe/pipe';
 import { Logger } from './service/logger';
-import { Utils } from './service/utils';
-import { FormlyFieldWithLoadingAnimationComponent } from './formly/formly-skeleton-wrapper';
-import { FormlyFieldCheckboxWithImageComponent } from './formly/formly-field-checkbox-image/formly-field-checkbox-with-image';
-import { HeaderComponent } from './header/header.component';
 import { Service } from './service/service';
+import { Utils } from './service/utils';
 import { Websocket } from './shared';
-import { FooterComponent } from './footer/footer';
 
 export function IpValidator(control: FormControl): ValidationErrors {
   return /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(control.value) ? null : { 'ip': true };
@@ -94,14 +93,15 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
       ],
     }),
     PipeModule,
-    Generic_ComponentsModule,
+    ComponentsModule,
     TranslateModule,
+    HistoryDataErrorModule,
+    MeterModule,
   ],
   declarations: [
     // components
     ChartOptionsComponent,
     HeaderComponent,
-    HistoryDataErrorComponent,
     PercentageBarComponent,
     // formly
     InputTypeComponent,
@@ -117,7 +117,6 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     PanelWrapperComponent,
     FormlyFieldWithLoadingAnimationComponent,
     FormlyFieldCheckboxWithImageComponent,
-    FooterComponent,
   ],
   exports: [
     // modules
@@ -134,15 +133,14 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     RouterModule,
     TranslateModule,
     PipeModule,
-    Generic_ComponentsModule,
+    ComponentsModule,
     MeterModule,
+    HistoryDataErrorModule,
     // components
     ChartOptionsComponent,
     HeaderComponent,
-    HistoryDataErrorComponent,
     PercentageBarComponent,
     FormlyFieldWithLoadingAnimationComponent,
-    FooterComponent,
   ],
   providers: [
     appRoutingProviders,

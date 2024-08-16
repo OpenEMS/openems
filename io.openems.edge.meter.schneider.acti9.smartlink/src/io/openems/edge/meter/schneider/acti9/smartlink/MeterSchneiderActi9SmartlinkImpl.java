@@ -85,7 +85,7 @@ public class MeterSchneiderActi9SmartlinkImpl extends AbstractOpenemsModbusCompo
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		final var offset = 1;
 		/**
 		 * See Datasheet PDF-file in doc directory.

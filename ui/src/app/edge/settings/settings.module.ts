@@ -9,7 +9,9 @@ import { IndexComponent as ComponentInstallIndexComponent } from './component/in
 import { ComponentInstallComponent } from './component/install/install.component';
 import { IndexComponent as ComponentUpdateIndexComponent } from './component/update/index.component';
 import { ComponentUpdateComponent } from './component/update/update.component';
+import { JsonrpcTestComponent } from './jsonrpctest/jsonrpctest';
 import { NetworkComponent } from './network/network.component';
+import { PowerAssistantModule } from './powerassistant/powerassistant.module';
 import { AliasUpdateComponent } from './profile/aliasupdate.component';
 import { ProfileComponent } from './profile/profile.component';
 import { SettingsComponent } from './settings.component';
@@ -23,6 +25,7 @@ import { SystemExecuteComponent } from './systemexecute/systemexecute.component'
     AppModule,
     SharedModule,
     ChangelogModule,
+    PowerAssistantModule,
   ],
   declarations: [
     AlertingComponent,
@@ -32,6 +35,7 @@ import { SystemExecuteComponent } from './systemexecute/systemexecute.component'
     ComponentInstallIndexComponent,
     ComponentUpdateComponent,
     ComponentUpdateIndexComponent,
+    JsonrpcTestComponent,
     MaintenanceComponent,
     NetworkComponent,
     OeSystemUpdateComponent,
@@ -39,8 +43,6 @@ import { SystemExecuteComponent } from './systemexecute/systemexecute.component'
     SettingsComponent,
     SystemComponent,
     SystemExecuteComponent,
-  ],
-  entryComponents: [
   ],
   exports: [
     OeSystemUpdateComponent,

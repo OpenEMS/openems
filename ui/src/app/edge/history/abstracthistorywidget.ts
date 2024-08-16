@@ -1,9 +1,10 @@
+// @ts-strict-ignore
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from 'src/app/shared/shared';
-import { calculateResolution } from './shared';
 import { DateUtils } from 'src/app/shared/utils/date/dateutils';
+import { calculateResolution } from './shared';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryWidget {
@@ -95,5 +96,5 @@ export abstract class AbstractHistoryWidget {
     /**
      * Updates and Fills the Chart
      */
-    protected abstract updateValues()
+    protected abstract updateValues();
 }

@@ -4,6 +4,7 @@ import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 import static java.lang.Math.round;
 
 import java.util.Objects;
@@ -29,6 +30,7 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -109,17 +111,7 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		var b = new StringBuilder();
-		var valueOpt = this.getRelayChannel().value().asOptional();
-		b.append(valueOpt.isPresent() //
-				? (valueOpt.get() //
-						? "ON" //
-						: "OFF") //
-				: "Unknown");
-		b.append("|");
-		b.append(this.getActivePowerChannel().value().asString());
-
-		return b.toString();
+		return generateDebugLog(this.getRelayChannel(), this.getActivePowerChannel());
 	}
 
 	@Override
@@ -136,7 +128,7 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	private void processHttpResult(JsonElement result, Throwable error) {
+	private void processHttpResult(HttpResponse<JsonElement> result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
 
 		// Prepare variables
@@ -159,7 +151,7 @@ public class IoShelly3EmImpl extends AbstractOpenemsComponent
 
 		} else {
 			try {
-				var response = getAsJsonObject(result);
+				var response = getAsJsonObject(result.data());
 
 				var relays = getAsJsonArray(response, "relays");
 				if (!relays.isEmpty()) {

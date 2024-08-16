@@ -1,8 +1,8 @@
+// @ts-strict-ignore
 import { Subject, timer } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { Edge, Websocket } from "src/app/shared/shared";
-import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
 import { ExecuteSystemUpdateRequest } from "./executeSystemUpdateRequest";
 import { GetSystemUpdateStateRequest } from "./getSystemUpdateStateRequest";
@@ -16,9 +16,8 @@ export class ExecuteSystemUpdate {
     public canNotBeUpdated: boolean = false;
     public isEdgeRestarting: boolean = false;
     public systemUpdateState: SystemUpdateState = { unknown: {} };
-    private ngUnsubscribe = new Subject<void>();
-
     public systemUpdateStateChange: (value: SystemUpdateState) => void;
+    private ngUnsubscribe = new Subject<void>();
 
     public constructor(
         private edge: Edge,
@@ -45,40 +44,6 @@ export class ExecuteSystemUpdate {
                 }).catch(error => {
                     reject(error);
                 });
-        });
-    }
-
-    private refreshSystemUpdateState(): Promise<SystemUpdateState> {
-        return new Promise<SystemUpdateState>((resolve, reject) => {
-            // if the version is a SNAPSHOT always set the udpate state
-            // to updated with the current SNAPSHOT version
-            if (this.edge.isSnapshot() && !this.edge.roleIsAtLeast(Role.ADMIN)) {
-                const updateState = { updated: { version: this.edge.version } };
-                this.setSystemUpdateState(updateState);
-                this.stopRefreshSystemUpdateState();
-                resolve(updateState);
-            } else {
-                this.edge.sendRequest(this.websocket,
-                    new ComponentJsonApiRequest({
-                        componentId: "_host",
-                        payload: new GetSystemUpdateStateRequest(),
-                    })).then(response => {
-                        const result = (response as GetSystemUpdateStateResponse).result;
-
-                        this.setSystemUpdateState(result);
-                        // Stop regular check if there is no Update available
-                        if (result.updated) {
-                            this.stopRefreshSystemUpdateState();
-                        }
-                        resolve(this.systemUpdateState);
-                    }).catch(error => {
-                        if (this.systemUpdateState.running) {
-                            this.isEdgeRestarting = true;
-                            return;
-                        }
-                        reject(error);
-                    });
-            }
         });
     }
 
@@ -109,6 +74,39 @@ export class ExecuteSystemUpdate {
                         resolve(this.systemUpdateState);
                     }
                 }).catch(error => {
+                    reject(error);
+                });
+        });
+    }
+
+    /**
+ * Stops asking the status.
+ */
+    public stop() {
+        this.stopRefreshSystemUpdateState();
+        this.ngUnsubscribe.complete();
+    }
+
+    private refreshSystemUpdateState(): Promise<SystemUpdateState> {
+        return new Promise<SystemUpdateState>((resolve, reject) => {
+            this.edge.sendRequest(this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: "_host",
+                    payload: new GetSystemUpdateStateRequest(),
+                })).then(response => {
+                    const result = (response as GetSystemUpdateStateResponse).result;
+
+                    this.setSystemUpdateState(result);
+                    // Stop regular check if there is no Update available
+                    if (result.updated) {
+                        this.stopRefreshSystemUpdateState();
+                    }
+                    resolve(this.systemUpdateState);
+                }).catch(error => {
+                    if (this.systemUpdateState.running) {
+                        this.isEdgeRestarting = true;
+                        return;
+                    }
                     reject(error);
                 });
         });
@@ -151,14 +149,6 @@ export class ExecuteSystemUpdate {
 
     private stopRefreshSystemUpdateState() {
         this.ngUnsubscribe.next();
-    }
-
-    /**
-     * Stops asking the status.
-     */
-    public stop() {
-        this.stopRefreshSystemUpdateState();
-        this.ngUnsubscribe.complete();
     }
 
     private setSystemUpdateState(systemUpdateState: SystemUpdateState) {

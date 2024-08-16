@@ -11,16 +11,6 @@ export class CheckForUpdateService {
   constructor(private update: SwUpdate,
     private service: Service,
   ) { }
-
-  init() {
-    setInterval(async () => {
-      const updateFound = await this.update.checkForUpdate();
-      console.log(updateFound ? 'A new version is available.' : 'Already on the latest version.');
-      if (updateFound) {
-        window.location.reload();
-      }
-    }, 10000);
-  }
 }
 // Will be used in Future
 @Injectable()

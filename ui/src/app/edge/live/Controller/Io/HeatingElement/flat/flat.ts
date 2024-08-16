@@ -1,6 +1,7 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 import { WorkMode } from 'src/app/shared/type/general';
 
@@ -12,7 +13,6 @@ import { ModalComponent } from '../modal/modal';
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-    private outputChannelArray: ChannelAddress[] = [];
     private static PROPERTY_MODE: string = '_PropertyMode';
 
     protected activePhases: BehaviorSubject<number> = new BehaviorSubject(0);
@@ -22,6 +22,17 @@ export class FlatComponent extends AbstractFlatWidget {
     protected workMode: WorkMode;
     protected readonly WorkMode = WorkMode;
     protected readonly CONVERT_SECONDS_TO_DATE_FORMAT = Utils.CONVERT_SECONDS_TO_DATE_FORMAT;
+    private outputChannelArray: ChannelAddress[] = [];
+
+    async presentModal() {
+        const modal = await this.modalController.create({
+            component: ModalComponent,
+            componentProps: {
+                component: this.component,
+            },
+        });
+        return await modal.present();
+    }
 
     protected override getChannelAddresses() {
 
@@ -89,20 +100,11 @@ export class FlatComponent extends AbstractFlatWidget {
         }
     }
 
-    async presentModal() {
-        const modal = await this.modalController.create({
-            component: ModalComponent,
-            componentProps: {
-                component: this.component,
-            },
-        });
-        return await modal.present();
-    }
 }
 
 export enum Status {
     "Undefined" = -1,
     "Inactive" = 0,
     "Active" = 1,
-    "ActiveForced" = 2
+    "ActiveForced" = 2,
 }

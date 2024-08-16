@@ -8,10 +8,9 @@ import { Edge, EdgeConfig, Service } from '../../../../../shared/shared';
 })
 export class AsymmetricPeakshavingChartOverviewComponent implements OnInit {
 
-    public edge: Edge = null;
-    public component: EdgeConfig.Component = null;
-
     private static readonly SELECTOR = "asymmetricpeakshaving-chart-overview";
+    public edge: Edge | null = null;
+    public component: EdgeConfig.Component | null = null;
 
     constructor(
         public service: Service,

@@ -87,9 +87,9 @@ public class TimedataRrd4jImplTest {
 		database.close();
 
 		assertEquals(12, result.length); // 3 hours * 4 entries/per hour (15 minutes) = 12
-		assertEquals(8.0, result[0], 0.1);
-		assertEquals(23.0, result[1], 0.1);
-		assertEquals(38.0, result[2], 0.1);
+		assertEquals((0 + 3 + 8) / 3.0, result[0], 0.1);
+		assertEquals((13 + 18 + 23) / 3.0, result[1], 0.1);
+		assertEquals((28 + 33 + 38) / 3.0, result[2], 0.1);
 	}
 
 	/**

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.osgi.framework.BundleContext;
@@ -257,6 +258,19 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		 */
 		public TestCase onAfterWriteCallbacks(ThrowingRunnable<Exception> callback) {
 			this.onAfterWriteCallbacks.add(callback);
+			return this;
+		}
+
+		/**
+		 * Helper method to scope variables or logic specifically for this
+		 * {@link TestCase}.
+		 * 
+		 * @param consumer the {@link Consumer} which gets immediately executed with the
+		 *                 current {@link TestCase}
+		 * @return myself
+		 */
+		public TestCase also(Consumer<TestCase> consumer) {
+			consumer.accept(this);
 			return this;
 		}
 
@@ -525,6 +539,17 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 		// Now SUT can be added to the list, as it does have an ID now
 		this.addComponent(this.sut);
+		return this.self();
+	}
+
+	/**
+	 * Calls the 'deactivate()' method of the 'system-under-test'.
+	 *
+	 * @return itself, to use as a builder
+	 * @throws Exception on error
+	 */
+	public SELF deactivate() throws Exception {
+		this.callDeactivate();
 		return this.self();
 	}
 

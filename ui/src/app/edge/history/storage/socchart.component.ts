@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -13,12 +14,8 @@ import { AbstractHistoryChart } from '../abstracthistorychart';
 })
 export class SocStorageChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     private emergencyCapacityReserveComponents: EdgeConfig.Component[] = [];
-
-    public ngOnChanges() {
-        this.updateChart();
-    }
 
     constructor(
         protected override service: Service,
@@ -26,6 +23,14 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
         private route: ActivatedRoute,
     ) {
         super("storage-single-chart", service, translate);
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 21 * 9;
+    }
+
+    public ngOnChanges() {
+        this.updateChart();
     }
 
     public ngOnInit() {
@@ -163,7 +168,4 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
         this.options = this.createDefaultChartOptions();
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 21 * 9;
-    }
 }

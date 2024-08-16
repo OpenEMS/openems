@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
@@ -10,10 +11,10 @@ import { Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared'
 })
 export class DelayedSellToGridModalComponent implements OnInit {
 
-    @Input() protected component: EdgeConfig.Component;
-    @Input() protected edge: Edge;
-
     private static readonly SELECTOR = "delayedselltogrid-modal";
+    @Input({ required: true }) protected component!: EdgeConfig.Component;
+    @Input({ required: true }) protected edge!: Edge;
+
 
     public formGroup: FormGroup;
     public loading: boolean = false;

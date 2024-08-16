@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { ChartDataset } from 'chart.js';
@@ -18,14 +19,14 @@ export class Utils {
    * @param element
    * @param array
    */
-  public static isLastElement(element, array: any[]) {
+  public static isLastElement<T>(element: T, array: T[]): boolean {
     return element == array[array.length - 1];
   }
 
   /**
    * Creates a deep copy of the object
    */
-  public static deepCopy(obj: any, target?: any) {
+  public static deepCopy<T>(obj: T, target?: T): T {
     let copy: any;
 
     // Handle the 3 simple types, and null or undefined
@@ -110,7 +111,7 @@ export class Utils {
    * @param values the values
    * @returns a number, if at least one value is not null, else null
    */
-  public static subtractSafely(...values: (number | null)[]): number {
+  public static subtractSafely(...values: (number | null)[]): number | null {
     return values
       .filter(value => value !== null && value !== undefined)
       .reduce((sum, curr) => {
@@ -130,7 +131,7 @@ export class Utils {
    * @param v1
    * @param v2
    */
-  public static divideSafely(v1: number, v2: number): number | null {
+  public static divideSafely(v1: number | null, v2: number | null): number | null {
     if (v1 == null || v2 == null) {
       return null;
     } else if (v2 == 0) {
@@ -161,7 +162,7 @@ export class Utils {
    * @param v2
    * @returns
    */
-  public static compareArraysSafely(v1: any[], v2: any[]): boolean {
+  public static compareArraysSafely<T>(v1: T[] | null, v2: T[] | null): boolean {
     if (v1 == null || v2 == null) {
       return null;
     }
@@ -183,12 +184,27 @@ export class Utils {
    * Safely rounds a - possibly 'null' - value: Math.round(v)
    *
    * @param v
+   * @returns the rounded value, null if value is invalid
    */
-  public static roundSafely(v: number): number {
+  public static roundSafely(v: number | null): number | null {
     if (v == null) {
-      return v;
+      return null;
     } else {
       return Math.round(v);
+    }
+  }
+
+  /**
+   * Safely floors a - possibly 'null' - value: Math.floor(v)
+   *
+   * @param v
+   * @returns the floored value, null if value is invalid
+   */
+  public static floorSafely(v: number | null): number | null {
+    if (v == null) {
+      return null;
+    } else {
+      return Math.floor(v);
     }
   }
 
@@ -235,7 +251,7 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_TO_WATT = (value: any): string => {
+  public static CONVERT_TO_WATT = (value: number | null): string => {
     if (value == null) {
       return '-';
     } else if (value >= 0) {
@@ -251,7 +267,7 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_WATT_TO_KILOWATT = (value: any): string => {
+  public static CONVERT_WATT_TO_KILOWATT = (value: number | null): string => {
     if (value == null) {
       return '-';
     }
@@ -270,7 +286,7 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_SECONDS_TO_DATE_FORMAT = (value: any): string => {
+  public static CONVERT_SECONDS_TO_DATE_FORMAT = (value: number): string => {
     return new Date(value * 1000).toLocaleTimeString();
   };
 
@@ -290,7 +306,7 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_TO_WATTHOURS = (value: any): string => {
+  public static CONVERT_TO_WATTHOURS = (value: number): string => {
     return formatNumber(value, 'de', '1.0-1') + ' Wh';
   };
 
@@ -300,7 +316,7 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_TO_KILO_WATTHOURS = (value: any): string => {
+  public static CONVERT_TO_KILO_WATTHOURS = (value: number): string => {
     return formatNumber(Utils.divideSafely(value, 1000), 'de', '1.0-1') + ' kWh';
   };
 
@@ -380,7 +396,7 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
-    return (value: any): string =>
+    return (value: number | null): string =>
       (!value ? "-" : formatNumber(value / 10, 'de', '1.0-' + decimal)) + ' ' + label;
   };
 
@@ -516,7 +532,7 @@ export class Utils {
    * @param array the array to be shuffled
    * @returns the shuffled array
    */
-  public static shuffleArray(array: any[]): any[] {
+  public static shuffleArray<T>(array: T[]): T[] {
     return array.sort(() => Math.random() - 0.5);
   }
 
@@ -528,7 +544,7 @@ export class Utils {
    * @param source the source Object.
    * @returns the value.
    */
-  public static isArrayExistingInSource(arrayToCheck: string[], source: any): boolean {
+  public static isArrayExistingInSource(arrayToCheck: string[], source: Record<string, any>): boolean {
     return arrayToCheck.every(value => {
       if (value in source) {
         return true;
@@ -585,13 +601,13 @@ export class Utils {
 
     evcsComponents.forEach(component => {
       channelData[component.id + '/ChargePower']?.forEach((value, index) => {
-        totalEvcsConsumption[index] = value;
+        totalMeteredConsumption[index] = Utils.addSafely(totalMeteredConsumption[index], value);
       });
     });
 
     consumptionMeterComponents.forEach(meter => {
       channelData[meter.id + '/ActivePower']?.forEach((value, index) => {
-        totalMeteredConsumption[index] = value;
+        totalMeteredConsumption[index] = Utils.addSafely(totalMeteredConsumption[index], value);
       });
     });
 
@@ -616,8 +632,10 @@ export enum YAxisTitle {
   RELAY,
   ENERGY,
   VOLTAGE,
+  CURRENT,
   TIME,
-  CURRENCY
+  CURRENCY,
+  NUMBER,
 }
 
 export enum ChartAxis {
@@ -654,20 +672,24 @@ export namespace HistoryUtils {
 
     /** Choose between predefined converters */
     converter?: (value: number) => number | null,
-  }
-  export type DisplayValues = {
+  };
+  export type DisplayValue<T extends CustomOptions = PluginCustomOptions> = {
     name: string,
     /** suffix to the name */
-    nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string,
+    nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string | null,
     /** Convert the values to be displayed in Chart */
     converter: () => any,
     /** If dataset should be hidden on Init */
     hiddenOnInit?: boolean,
+    /** If dataset should be hidden in tooltip */
+    hiddenInTooltip?: boolean,
     /** default: true, stroke through label for hidden dataset */
     noStrokeThroughLegendIfHidden?: boolean,
     /** color in rgb-Format */
     color: string,
-    /** the stack for barChart, if not provided datasets are not stacked but overlaying each other */
+    /**
+     * The stack/stacks for this dataset to be displayed, if not provided datasets are not stacked but overlaying each other
+     */
     stack?: number | number[],
     /** False per default */
     hideLabelInLegend?: boolean,
@@ -678,14 +700,7 @@ export namespace HistoryUtils {
     /** axisId from yAxes  */
     yAxisId?: ChartAxis,
     /** overrides global chartConfig for this dataset */
-    custom?: {
-      /** overrides global unit */
-      unit?: YAxisTitle,
-      /** overrides global charttype */
-      type?: 'line' | 'bar',
-      /** overrides global formatNumber */
-      formatNumber?: string
-    },
+    custom?: T,
     tooltip?: [{
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
       stackIds: number[]
@@ -695,6 +710,39 @@ export namespace HistoryUtils {
      * @default Number.MAX_VALUE
      */
     order?: number,
+  };
+
+  export interface CustomOptions {
+    unit?: YAxisTitle,
+    /** overrides global charttype */
+    type?: 'line' | 'bar',
+    /** overrides global formatNumber */
+    formatNumber?: string,
+  }
+
+  export interface PluginCustomOptions extends CustomOptions {
+    pluginType: string,
+  }
+
+  export interface BoxCustomOptions extends PluginCustomOptions {
+    pluginType: 'box',
+    annotations: {
+      /** Start date string in ISO-format */
+      xMin: string | number,
+      /** End date string in ISO-format */
+      xMax: string | number,
+      /** Number */
+      yMax?: number,
+      yMin?: number,
+      yScaleID: ChartAxis,
+    }[];
+  }
+
+  export interface DataLabelsCustomOptions extends PluginCustomOptions {
+    pluginType: 'datalabels',
+    datalabels: {
+      displayUnit: string,
+    },
   }
 
   /**
@@ -704,30 +752,31 @@ export namespace HistoryUtils {
  */
   export type ChannelData = {
     [name: string]: number[]
-  }
+  };
 
   export type ChartData = {
     /** Input Channels that need to be queried from the database */
     input: InputChannel[],
     /** Output Channels that will be shown in the chart */
-    output: (data: ChannelData) => DisplayValues[],
+    output: (data: ChannelData, labels?: Date[]) => DisplayValue<HistoryUtils.CustomOptions>[],
     tooltip: {
       /** Format of Number displayed */
       formatNumber: string,
       afterTitle?: (stack: string) => string,
     },
     yAxes: yAxes[],
-  }
+  };
 
   export type yAxes = {
     /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
     unit: YAxisTitle,
-    customTitle?: string,
     position: 'left' | 'right' | 'bottom' | 'top',
     yAxisId: ChartAxis,
+    /** YAxis title -> {@link https://www.chartjs.org/docs/latest/samples/scale-options/titles.html Chartjs Title} */
+    customTitle?: string
     /** Default: true */
     displayGrid?: boolean
-  }
+  };
 
   export namespace ValueConverter {
 
@@ -773,22 +822,10 @@ export namespace HistoryUtils {
 
 export namespace TimeOfUseTariffUtils {
 
-  export type ScheduleChartData = {
-    datasets: ChartDataset[],
-    colors: any[],
-    labels: Date[]
-  }
-
-  export enum TimeOfUseTariffState {
+  export enum State {
     DelayDischarge = 0,
     Balancing = 1,
-    ChargeProduction = 2,
     ChargeGrid = 3,
-  }
-
-  export enum ControlMode {
-    CHARGE_CONSUMPTION = 'CHARGE_CONSUMPTION',
-    DELAY_DISCHARGE = 'DELAY_DISCHARGE'
   }
 
   /**
@@ -806,127 +843,6 @@ export namespace TimeOfUseTariffUtils {
       price = (price / 10.0);
       return Math.round(price * 10000) / 10000.0;
     }
-  }
-
-  /**
-   * Gets the schedule chart data containing datasets, colors and labels.
-   *
-   * @param size The length of the dataset
-   * @param prices The Time-of-Use-Tariff quarterly price array
-   * @param states The Time-of-Use-Tariff state array
-   * @param timestamps The Time-of-Use-Tariff timestamps array
-   * @param gridBuy The Time-of-Use-Tariff gridBuy array
-   * @param socArray The Time-of0Use-Tariff soc Array.
-   * @param translate The Translate service
-   * @param controlMode The Control mode of the controller.
-   * @returns The ScheduleChartData.
-   */
-  export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[], gridBuy: number[], socArray: number[], translate: TranslateService, controlMode: ControlMode): ScheduleChartData {
-    const datasets: ChartDataset[] = [];
-    const colors: any[] = [];
-    const labels: Date[] = [];
-
-    // Initializing States.
-    const barChargeGrid = Array(size).fill(null);
-    const barBalancing = Array(size).fill(null);
-    const barDelayDischarge = Array(size).fill(null);
-
-    for (let index = 0; index < size; index++) {
-      const quarterlyPrice = formatPrice(prices[index]);
-      const state = states[index];
-      labels.push(new Date(timestamps[index]));
-
-      if (state !== null) {
-        switch (state) {
-          case TimeOfUseTariffState.DelayDischarge:
-            barDelayDischarge[index] = quarterlyPrice;
-            break;
-          case TimeOfUseTariffState.Balancing:
-            barBalancing[index] = quarterlyPrice;
-            break;
-          case TimeOfUseTariffState.ChargeGrid:
-            barChargeGrid[index] = quarterlyPrice;
-            break;
-        }
-      }
-    }
-
-    // Set datasets
-    datasets.push({
-      type: 'bar',
-      label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
-      data: barBalancing,
-      order: 1,
-    });
-    colors.push({
-      // Dark Green
-      backgroundColor: 'rgba(51,102,0,0.8)',
-      borderColor: 'rgba(51,102,0,1)',
-    });
-
-    // Set dataset for ChargeGrid.
-    if (!barChargeGrid.every(v => v === null) || controlMode == ControlMode.CHARGE_CONSUMPTION) {
-      datasets.push({
-        type: 'bar',
-        label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
-        data: barChargeGrid,
-        order: 1,
-      });
-      colors.push({
-        // Sky blue
-        backgroundColor: 'rgba(0, 204, 204,0.5)',
-        borderColor: 'rgba(0, 204, 204,0.7)',
-      });
-    }
-
-    // Set dataset for buy from grid
-    datasets.push({
-      type: 'bar',
-      label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
-      data: barDelayDischarge,
-      order: 1,
-    });
-    colors.push({
-      // Black
-      backgroundColor: 'rgba(0,0,0,0.8)',
-      borderColor: 'rgba(0,0,0,0.9)',
-    });
-
-    // State of charge data
-    datasets.push({
-      type: 'line',
-      label: translate.instant('General.soc'),
-      data: socArray,
-      hidden: false,
-      yAxisID: ChartAxis.RIGHT,
-      borderDash: [10, 10],
-      order: 0,
-    });
-    colors.push({
-      backgroundColor: 'rgba(189, 195, 199,0.2)',
-      borderColor: 'rgba(189, 195, 199,1)',
-    });
-
-    datasets.push({
-      type: 'line',
-      label: translate.instant('General.gridBuy'),
-      data: gridBuy,
-      hidden: true,
-      yAxisID: ChartAxis.RIGHT_2,
-      order: 2,
-    });
-    colors.push({
-      backgroundColor: 'rgba(0,0,0, 0.2)',
-      borderColor: 'rgba(0,0,0, 1)',
-    });
-
-    const scheduleChartData: ScheduleChartData = {
-      colors: colors,
-      datasets: datasets,
-      labels: labels,
-    };
-
-    return scheduleChartData;
   }
 
   /**
@@ -962,12 +878,10 @@ export namespace TimeOfUseTariffUtils {
         // Show floating point number for values between 0 and 1
         return label + ": " + formatNumber(value, 'de', '1.0-4') + " " + currencyLabel;
 
-      case gridBuyLabel:
-        return label + ": " + formatNumber(value, 'de', '1.0-0') + " kW";
-
       default:
+      case gridBuyLabel:
         // Power values
-        return label + ": " + formatNumber(value, 'de', '1.0-0') + ' ' + 'W';
+        return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
     }
   }
 

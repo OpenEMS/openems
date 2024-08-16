@@ -1,6 +1,7 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 
 import static io.openems.edge.common.channel.ChannelUtils.setWriteValueIfNotRead;
+import static io.openems.edge.common.sum.GridMode.ON_GRID;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -28,11 +30,14 @@ import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OptionsEnum;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201ControlMode;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201CurrentState;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201StVnd;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64202.S64202EnLimit;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.Context;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine;
@@ -49,13 +54,11 @@ import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
@@ -76,9 +79,12 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 
 	private static final int UNIT_ID = 1;
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
+	private static final int DC_MIN_VOLTAGE_LIMIT = 650;
+	private static final int DC_MAX_VOLTAGE_LIMIT = 1315;
 
-	private final Logger log = LoggerFactory.getLogger(BatteryInverterKacoBlueplanetGridsaveImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+	private final Logger log = LoggerFactory.getLogger(BatteryInverterKacoBlueplanetGridsaveImpl.class);
+	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 
 	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY);
@@ -113,7 +119,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 	 */
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_103, Priority.HIGH) //
 			.put(DefaultSunSpecModel.S_121, Priority.LOW) //
 			.put(KacoSunSpecModel.S_64201, Priority.HIGH) //
 			.put(KacoSunSpecModel.S_64202, Priority.LOW) //
@@ -135,7 +141,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 	// .put(SunSpecModel.S_160, Priority.LOW) //
 
 	@Activate
-	public BatteryInverterKacoBlueplanetGridsaveImpl() throws OpenemsException {
+	public BatteryInverterKacoBlueplanetGridsaveImpl() {
 		super(//
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //
@@ -145,7 +151,9 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 				StartStoppable.ChannelId.values(), //
 				BatteryInverterKacoBlueplanetGridsave.ChannelId.values() //
 		);
-		this._setGridMode(GridMode.ON_GRID);
+		this._setGridMode(ON_GRID);
+		this._setDcMinVoltage(DC_MIN_VOLTAGE_LIMIT);
+		this._setDcMaxVoltage(DC_MAX_VOLTAGE_LIMIT);
 	}
 
 	@Activate
@@ -194,30 +202,81 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
 
+		// Set if there is grid disconnection failure
+		this.handleGridDisconnection();
+
 		// Calculate the Energy values from ActivePower.
 		this.calculateEnergy();
+
+		// Enable reactive power by default
+		this.enableReactivePower();
 
 		if (this.config.activateWatchdog()) {
 			// Trigger the Watchdog
 			this.triggerWatchdog();
 		}
 
-		// Set State-Channels
-		this.setStateChannels();
-
 		// Prepare Context
-		var context = new Context(this, battery, this.config, setActivePower, setReactivePower);
+		var context = new Context(this, //
+				battery, //
+				setActivePower, //
+				setReactivePower, //
+				this.componentManager.getClock());
 
 		// Call the StateMachine
 		try {
 			this.stateMachine.run(context);
-
-			this.channel(BatteryInverterKacoBlueplanetGridsave.ChannelId.RUN_FAILED).setNextValue(false);
-
+			this._setRunFailed(false);
 		} catch (OpenemsNamedException e) {
-			this.channel(BatteryInverterKacoBlueplanetGridsave.ChannelId.RUN_FAILED).setNextValue(true);
+			this._setRunFailed(true);
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 		}
+	}
+
+	/**
+	 * Enable the reactive power by default.
+	 */
+	private void enableReactivePower() {
+		try {
+			EnumWriteChannel channel = this.getSunSpecChannelOrError(KacoSunSpecModel.S64201.CONTROL_MODE);
+			setWriteValueIfNotRead(channel, S64201ControlMode.SUNSPEC_CTRL_MODE_QFIX);
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private record HandleFaultChannels(//
+			SunSpecPoint model, //
+			OptionsEnum stateEnum, //
+			Consumer<Boolean> method//
+	) {
+
+	}
+
+	private void handleGridDisconnection() {
+		Stream.of(
+				new HandleFaultChannels(KacoSunSpecModel.S64201.ST_VND, S64201StVnd.POWADORPROTECT_DISCONNECTION,
+						this::_setGridDisconnection), //
+				new HandleFaultChannels(KacoSunSpecModel.S64201.ST_VND, S64201StVnd.GRID_FAILURE_PHASETOPHASE,
+						this::_setGridFailureLineToLine), //
+				new HandleFaultChannels(KacoSunSpecModel.S64201.ST_VND, S64201StVnd.LINE_FAILURE_UNDERFREQ,
+						this::_setLineFailureUnderFreq), //
+				new HandleFaultChannels(KacoSunSpecModel.S64201.ST_VND, S64201StVnd.LINE_FAILURE_OVERFREQ,
+						this::_setLineFailureOverFreq), //
+				new HandleFaultChannels(KacoSunSpecModel.S64201.ST_VND, S64201StVnd.PROTECTION_SHUTDOWN_LINE_1,
+						this::_setProtectionShutdownLine1), //
+				new HandleFaultChannels(KacoSunSpecModel.S64201.ST_VND, S64201StVnd.PROTECTION_SHUTDOWN_LINE_2,
+						this::_setProtectionShutdownLine2), //
+				new HandleFaultChannels(KacoSunSpecModel.S64201.ST_VND, S64201StVnd.PROTECTION_SHUTDOWN_LINE_3,
+						this::_setProtectionShutdownLine3))//
+				.forEach(t -> {
+					try {
+						var channel = this.getSunSpecChannelOrError(t.model);
+						t.method.accept(Objects.equal(channel.value().get(), t.stateEnum));
+					} catch (OpenemsException e) {
+						this.logWarn(this.log, e.getMessage());
+					}
+				});
 	}
 
 	@Override
@@ -314,38 +373,6 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 	}
 
 	/**
-	 * Sets the State-Channels, e.g. Warnings and Faults.
-	 *
-	 * @throws OpenemsNamedException on error
-	 */
-	private void setStateChannels() throws OpenemsNamedException {
-		/*
-		 * INVERTER_CURRENT_STATE_FAULT
-		 */
-		StateChannel inverterCurrentStateChannel = this
-				.channel(BatteryInverterKacoBlueplanetGridsave.ChannelId.INVERTER_CURRENT_STATE_FAULT);
-		switch (this.getCurrentState()) {
-		case FAULT:
-		case UNDEFINED:
-		case NO_ERROR_PENDING:
-			inverterCurrentStateChannel.setNextValue(true);
-			break;
-		case GRID_CONNECTED:
-		case GRID_PRE_CONNECTED:
-		case MPPT:
-		case OFF:
-		case PRECHARGE:
-		case SHUTTING_DOWN:
-		case SLEEPING:
-		case STANDBY:
-		case STARTING:
-		case THROTTLED:
-			inverterCurrentStateChannel.setNextValue(false);
-			break;
-		}
-	}
-
-	/**
 	 * Mark SunSpec initialization completed; this takes some time at startup.
 	 */
 	@Override
@@ -405,34 +432,20 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 				.toString();
 	}
 
-	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
-
 	@Override
 	public void setStartStop(StartStop value) {
 		if (this.startStopTarget.getAndSet(value) != value) {
-			// Set only if value changed
 			this.stateMachine.forceNextState(State.UNDEFINED);
 		}
 	}
 
 	@Override
 	public StartStop getStartStopTarget() {
-		switch (this.config.startStop()) {
-		case AUTO:
-			// read StartStop-Channel
-			return this.startStopTarget.get();
-
-		case START:
-			// force START
-			return StartStop.START;
-
-		case STOP:
-			// force STOP
-			return StartStop.STOP;
-		}
-
-		assert false;
-		return StartStop.UNDEFINED; // can never happen
+		return switch (this.config.startStop()) {
+		case AUTO -> this.startStopTarget.get();
+		case START -> StartStop.START;
+		case STOP -> StartStop.STOP;
+		};
 	}
 
 	/**
@@ -485,7 +498,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 	}
 
 	@Override
-	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
+	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) {
 		super.addBlock(startAddress, model, priority);
 
 		// Mark S_64203 as available
@@ -493,4 +506,40 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 			this.hasSunSpecModel64203 = true;
 		}
 	}
+
+	/**
+	 * Checks if the system is in a running state. This method retrieves the
+	 * system's global state and determines whether the system is in a running
+	 * state.
+	 *
+	 * @return true if the system is in a running state, false otherwise.
+	 */
+	public boolean isRunning() {
+		return this.getCurrentState() == S64201CurrentState.GRID_CONNECTED//
+				|| this.getCurrentState() == S64201CurrentState.THROTTLED;
+	}
+
+	/**
+	 * Checks if the system is in a stop state. This method retrieves the system's
+	 * global state and determines whether the system is in a stop state.
+	 *
+	 * @return true if the system is in a stop state, false otherwise.
+	 */
+	public boolean isShutdown() {
+		return this.getCurrentState() == S64201CurrentState.OFF //
+				|| this.getCurrentState() == S64201CurrentState.STANDBY //
+				|| this.getCurrentState() == S64201CurrentState.PRECHARGE//
+				|| this.getCurrentState() == S64201CurrentState.SHUTTING_DOWN;
+	}
+
+	/**
+	 * Checks if the system is in a fault state. This method retrieves the system's
+	 * global state and determines whether the system is in a fault state.
+	 *
+	 * @return true if the system is in a fault state, false otherwise.
+	 */
+	public boolean hasFailure() {
+		return this.hasFaults() || this.getCurrentState() == S64201CurrentState.FAULT;
+	}
+
 }

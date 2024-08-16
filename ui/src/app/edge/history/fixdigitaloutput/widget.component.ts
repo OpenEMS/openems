@@ -13,15 +13,14 @@ import { calculateActiveTimeOverPeriod } from '../shared';
 })
 export class FixDigitalOutputWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() public componentId: string;
-    private config: EdgeConfig = null;
-    public component: EdgeConfig.Component = null;
-
     private static readonly SELECTOR = "fixDigitalOutputWidget";
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public componentId!: string;
 
-    public activeSecondsOverPeriod: number = null;
-    public edge: Edge = null;
+    public component: EdgeConfig.Component | null = null;
+    public activeSecondsOverPeriod: number | null = null;
+    public edge: Edge | null = null;
+    private config: EdgeConfig | null = null;
 
     constructor(
         public override service: Service,

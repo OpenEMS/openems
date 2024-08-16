@@ -41,6 +41,25 @@ public class FeneconHomeBatteryProtection52 implements BatteryProtectionDefiniti
 	}
 
 	@Override
+	public PolyLine getChargeSocToPercent() {
+		return PolyLine.create() //
+				.addPoint(0, 1) //
+				.addPoint(Math.nextDown(95), 1) //
+				.addPoint(95, 1) //
+				.addPoint(96, 1) //
+				.addPoint(97, 0.625) //
+				.addPoint(98, 0.4) //
+				.addPoint(99, 0.2) //
+				.addPoint(100, 0.05) //
+				.build();
+	}
+
+	@Override
+	public PolyLine getDischargeSocToPercent() {
+		return PolyLine.empty();
+	}
+
+	@Override
 	public ForceDischarge.Params getForceDischargeParams() {
 		return new ForceDischarge.Params(3550, 3490, 3450);
 	}

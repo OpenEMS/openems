@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -16,12 +17,9 @@ import { AbstractHistoryChart } from '../abstracthistorychart';
 })
 export class SinglethresholdChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-  @Input() public period: DefaultTypes.HistoryPeriod;
-  @Input() public componentId: string;
-
-  ngOnChanges() {
-    this.updateChart();
-  }
+  @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+  @Input({ required: true }) public componentId!: string;
+  @Input({ required: true }) public inputChannelUnit!: string;
 
   constructor(
     protected override service: Service,
@@ -38,6 +36,14 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
   ngOnDestroy() {
     this.unsubscribeChartRefresh();
+  }
+
+  ngOnChanges() {
+    this.updateChart();
+  }
+
+  public getChartHeight(): number {
+    return window.innerHeight / 1.3;
   }
 
   protected updateChart() {
@@ -93,7 +99,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
             });
           }
           if (channel == inputChannel) {
-            let inputLabel: string = null;
+            let inputLabel: string | null = null;
             const address = ChannelAddress.fromString(channel);
             switch (address.channelId) {
               case 'GridActivePower':
@@ -229,7 +235,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
         this.unit = YAxisTitle.ENERGY;
         options.scales[ChartAxis.LEFT]['title'].text = labelString;
       } else {
-        labelString = config.getChannel(inputChannel)['unit'];
+        labelString = this.inputChannelUnit;
         options.scales[ChartAxis.LEFT]['title'].text = labelString;
       }
 
@@ -267,7 +273,4 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
   }
 
-  public getChartHeight(): number {
-    return window.innerHeight / 1.3;
-  }
 }

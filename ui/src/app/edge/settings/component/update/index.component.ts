@@ -1,6 +1,6 @@
+// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
+import { CategorizedComponents } from 'src/app/shared/components/edge/edgeconfig';
 import { EdgeConfig, Service, Utils } from '../../../../shared/shared';
 
 interface MyCategorizedComponents extends CategorizedComponents {
@@ -16,19 +16,17 @@ export class IndexComponent implements OnInit {
 
   private static readonly SELECTOR = "indexComponentUpdate";
 
-  public config: EdgeConfig = null;
+  public config: EdgeConfig | null = null;
   public list: MyCategorizedComponents[];
 
   public showAllEntries = false;
 
   constructor(
-    private route: ActivatedRoute,
     private service: Service,
   ) {
   }
 
   public ngOnInit() {
-    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.adjustComponents' }, this.route);
     this.service.getConfig().then(config => {
       this.config = config;
       const categorizedComponentIds: string[] = [];

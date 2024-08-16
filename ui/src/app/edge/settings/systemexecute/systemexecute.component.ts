@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -22,6 +23,11 @@ const COMMANDS: { [key: string]: CommandFunction; } = {
 export class SystemExecuteComponent implements OnInit {
 
   private static readonly SELECTOR = "systemExecute";
+
+  public loading: boolean = false;
+  public stdout: string[] = [];
+  public stderr: string[] = [];
+  public commandLogs: ExecuteSystemCommandRequest[] = [];
 
   public form: FormGroup;
 
@@ -76,11 +82,6 @@ export class SystemExecuteComponent implements OnInit {
       command: new FormControl(""),
     });
   }
-
-  public loading: boolean = false;
-  public stdout: string[] = [];
-  public stderr: string[] = [];
-  public commandLogs: ExecuteSystemCommandRequest[] = [];
 
   public updatePredefined() {
     let command;

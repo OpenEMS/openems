@@ -78,7 +78,7 @@ public class PhoenixContactMeterImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		final var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(0x8006, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(0x8006) //

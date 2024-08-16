@@ -1,7 +1,8 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
 
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
-import { Converter } from 'src/app/shared/genericComponents/shared/converter';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
+import { Converter } from 'src/app/shared/components/shared/converter';
 import { ChannelAddress, EdgeConfig } from 'src/app/shared/shared';
 
 @Component({

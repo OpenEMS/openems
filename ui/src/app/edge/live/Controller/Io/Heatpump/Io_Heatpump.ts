@@ -1,6 +1,7 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
 import { ChannelAddress, CurrentData, EdgeConfig } from 'src/app/shared/shared';
 
 import { Controller_Io_HeatpumpModalComponent } from './modal/modal.component';
@@ -11,13 +12,30 @@ import { Controller_Io_HeatpumpModalComponent } from './modal/modal.component';
 })
 export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
 
-  public override component: EdgeConfig.Component = null;
+  private static PROPERTY_MODE: string = '_PropertyMode';
+
+  public override component: EdgeConfig.Component | null = null;
   public status: BehaviorSubject<{ name: string }> = new BehaviorSubject(null);
   public isConnectionSuccessful: boolean;
   public mode: string;
   public statusValue: number;
 
-  private static PROPERTY_MODE: string = '_PropertyMode';
+  async presentModal() {
+    const modal = await this.modalController.create({
+      component: Controller_Io_HeatpumpModalComponent,
+      componentProps: {
+        edge: this.edge,
+        component: this.component,
+        status: this.status,
+      },
+    });
+    modal.onDidDismiss().then(() => {
+      this.service.getConfig().then(config => {
+        this.component = config.components[this.componentId];
+      });
+    });
+    return await modal.present();
+  }
 
   protected override getChannelAddresses() {
     return [
@@ -61,20 +79,5 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
       }
     }
   }
-  async presentModal() {
-    const modal = await this.modalController.create({
-      component: Controller_Io_HeatpumpModalComponent,
-      componentProps: {
-        edge: this.edge,
-        component: this.component,
-        status: this.status,
-      },
-    });
-    modal.onDidDismiss().then(() => {
-      this.service.getConfig().then(config => {
-        this.component = config.components[this.componentId];
-      });
-    });
-    return await modal.present();
-  }
+
 }

@@ -1,10 +1,12 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
-import { ChannelAddress, CurrentData, Utils } from '../../../../../shared/shared';
-import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
-import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
-import { isSameDay, format, isSameMonth, isSameYear } from 'date-fns';
+import { format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
 import { saveAs } from 'file-saver-es';
+import { AppService } from 'src/app/app.service';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
+import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
+import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
+import { ChannelAddress, CurrentData, Utils } from '../../../../../shared/shared';
 
 @Component({
     selector: 'energy',
@@ -12,10 +14,15 @@ import { saveAs } from 'file-saver-es';
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-    protected autarchyValue: number | null;
     private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
     private static readonly EXCEL_EXTENSION = '.xlsx';
+    protected autarchyValue: number | null;
     protected readonly isSmartphoneResolution = this.service.isSmartphoneResolution;
+    protected readonly isApp: boolean = AppService.platform !== 'web';
+
+    public getChartHeight(): number {
+        return this.service.deviceHeight / 2;
+    }
 
     protected override onCurrentData(currentData: CurrentData) {
         this.autarchyValue =
@@ -31,14 +38,16 @@ export class FlatComponent extends AbstractFlatWidget {
         ];
     }
 
-    public getChartHeight(): number {
-        return this.service.deviceHeight / 2;
-    }
-
     /**
- * Export historic data to Excel file.
- */
+   * Export historic data to Excel file.
+    */
     protected exportToXlxs() {
+
+        if (this.isApp) {
+            this.service.toast(this.translate.instant('APP.FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE'), "warning");
+            return;
+        }
+
         this.service.getCurrentEdge().then(edge => {
             edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to)).then(response => {
                 const r = response as Base64PayloadResponse;

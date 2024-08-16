@@ -2,10 +2,11 @@ package io.openems.common.websocket;
 
 import org.java_websocket.WebSocket;
 
-import io.openems.common.exceptions.OpenemsException;
-
 @FunctionalInterface
 public interface OnClose {
+
+	public static final OnClose NO_OP = (ws, code, reason, remote) -> {
+	};
 
 	/**
 	 * Called after the websocket connection has been closed.
@@ -15,8 +16,7 @@ public interface OnClose {
 	 * @param reason the close reason
 	 * @param remote Returns whether or not the closing of the connection was
 	 *               initiated by the remote host
-	 * @throws OpenemsException on error
 	 */
-	public void run(WebSocket ws, int code, String reason, boolean remote) throws OpenemsException;
+	public void accept(WebSocket ws, int code, String reason, boolean remote);
 
 }

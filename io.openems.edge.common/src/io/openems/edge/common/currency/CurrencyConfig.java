@@ -17,7 +17,11 @@ public enum CurrencyConfig {
 	/**
 	 * Swedish Krona.
 	 */
-	SEK;
+	SEK,
+	/**
+	 * Swiss Francs.
+	 */
+	CHF;
 
 	/**
 	 * Converts the {@link CurrencyConfig} to the {@link Currency}.
@@ -28,6 +32,7 @@ public enum CurrencyConfig {
 		return switch (this) {
 		case EUR -> Currency.EUR;
 		case SEK -> Currency.SEK;
+		case CHF -> Currency.CHF;
 		};
 	}
 }

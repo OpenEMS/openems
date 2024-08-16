@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
@@ -16,10 +17,10 @@ export class Controller_ChpSocModalComponent implements OnInit {
 
     private static readonly SELECTOR = "chpsoc-modal";
 
-    @Input() public edge: Edge;
-    @Input() public component: EdgeConfig.Component;
-    @Input() public outputChannel: ChannelAddress;
-    @Input() public inputChannel: ChannelAddress;
+    @Input({ required: true }) public edge!: Edge;
+    @Input({ required: true }) public component!: EdgeConfig.Component;
+    @Input({ required: true }) public outputChannel!: ChannelAddress;
+    @Input({ required: true }) public inputChannel!: ChannelAddress;
 
     public thresholds: RangeValue = {
         lower: null,

@@ -1,5 +1,6 @@
+// @ts-strict-ignore
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from 'src/app/shared/shared';
 
 import { ModalComponent } from '../modal/modal';
@@ -10,7 +11,7 @@ import { ModalComponent } from '../modal/modal';
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-    public override component: EdgeConfig.Component = null;
+    public override component: EdgeConfig.Component | null = null;
     public mode: string = '-';
     public state: string = '-';
     public isSellToGridLimitAvoided: boolean = false;
@@ -18,6 +19,16 @@ export class FlatComponent extends AbstractFlatWidget {
     public delayChargeMaximumChargeLimit: number | null = null;
     public readonly CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
+
+    async presentModal() {
+        const modal = await this.modalController.create({
+            component: ModalComponent,
+            componentProps: {
+                component: this.component,
+            },
+        });
+        return await modal.present();
+    }
 
     protected override getChannelAddresses() {
         return [
@@ -71,13 +82,4 @@ export class FlatComponent extends AbstractFlatWidget {
         this.delayChargeMaximumChargeLimit = currentData.allComponents[this.component.id + '/DelayChargeMaximumChargeLimit'];
     }
 
-    async presentModal() {
-        const modal = await this.modalController.create({
-            component: ModalComponent,
-            componentProps: {
-                component: this.component,
-            },
-        });
-        return await modal.present();
-    }
 }

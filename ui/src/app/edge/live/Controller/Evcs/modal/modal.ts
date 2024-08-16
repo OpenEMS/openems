@@ -1,9 +1,10 @@
+// @ts-strict-ignore
 import { ChangeDetectorRef, Component, Inject } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
+import { AbstractModal } from 'src/app/shared/components/modal/abstractModal';
 import { ChannelAddress, CurrentData, EdgeConfig, Service, Utils, Websocket } from 'src/app/shared/shared';
 
 import { AdministrationComponent } from '../administration/administration.component';
@@ -31,7 +32,7 @@ export class ModalComponent extends AbstractModal {
   protected numberOfPhases: number = 3; // Defaults to three phases
   protected defaultChargeMinPower: number;
   protected energyLimit: boolean;
-  protected chargeMode: ChargeMode = null;
+  protected chargeMode: ChargeMode | null = null;
   protected isEnergySinceBeginningAllowed: boolean = false;
   protected isChargingEnabled: boolean = false;
   protected sessionLimit: number;
@@ -54,6 +55,43 @@ export class ModalComponent extends AbstractModal {
     setInterval(() => {
       this.ref.detectChanges(); // manually trigger change detection
     }, 0);
+  }
+
+  public static getHelpKey(factoryId: string): string {
+    switch (factoryId) {
+      case 'Evcs.Keba.KeContact':
+        return 'EVCS_KEBA_KECONTACT';
+      case 'Evcs.HardyBarth':
+        return 'EVCS_KEBA_KECONTACT';
+      case 'Evcs.IesKeywattSingle':
+        return 'EVCS_OCPP_IESKEYWATTSINGLE';
+      default:
+        return null;
+    }
+  }
+
+  async presentPopover() {
+    const popover = await this.popoverctrl.create({
+      component: PopoverComponent,
+      componentProps: {
+        chargeMode: this.formGroup.controls['chargeMode'].value,
+      },
+    });
+    return await popover.present();
+  }
+
+  async presentModal() {
+    const modal = await this.detailViewController.create({
+      component: AdministrationComponent,
+      componentProps: {
+        evcsComponent: this.evcsComponent,
+        edge: this.edge,
+      },
+    });
+    modal.onDidDismiss().then(() => {
+      this.updateRenaultZoeConfig();
+    });
+    return await modal.present();
   }
 
   protected override getChannelAddresses(): ChannelAddress[] {
@@ -192,6 +230,11 @@ export class ModalComponent extends AbstractModal {
     }
   }
 
+  protected formatNumber(i: number) {
+    const round = Math.ceil(i / 100) * 100;
+    return round;
+  }
+
   /**
   * Returns the state of the EVCS
   *
@@ -233,47 +276,6 @@ export class ModalComponent extends AbstractModal {
     }
   }
 
-  protected formatNumber(i: number) {
-    const round = Math.ceil(i / 100) * 100;
-    return round;
-  }
-
-  async presentPopover() {
-    const popover = await this.popoverctrl.create({
-      component: PopoverComponent,
-      componentProps: {
-        chargeMode: this.formGroup.controls['chargeMode'].value,
-      },
-    });
-    return await popover.present();
-  }
-
-  async presentModal() {
-    const modal = await this.detailViewController.create({
-      component: AdministrationComponent,
-      componentProps: {
-        evcsComponent: this.evcsComponent,
-        edge: this.edge,
-      },
-    });
-    modal.onDidDismiss().then(() => {
-      this.updateRenaultZoeConfig();
-    });
-    return await modal.present();
-  }
-
-  public static getHelpKey(factoryId: string): string {
-    switch (factoryId) {
-      case 'Evcs.Keba.KeContact':
-        return 'EVCS_KEBA_KECONTACT';
-      case 'Evcs.HardyBarth':
-        return 'EVCS_KEBA_KECONTACT';
-      case 'Evcs.IesKeywattSingle':
-        return 'EVCS_OCPP_IESKEYWATTSINGLE';
-      default:
-        return null;
-    }
-  }
 }
 
 enum ChargeState {
@@ -285,7 +287,7 @@ enum ChargeState {
   ERROR,                    //Error
   AUTHORIZATION_REJECTED,   //Authorization rejected
   ENERGY_LIMIT_REACHED,     //Energy limit reached
-  CHARGING_FINISHED         //Charging has finished
+  CHARGING_FINISHED,         //Charging has finished
 }
 
 enum ChargePlug {
@@ -294,5 +296,5 @@ enum ChargePlug {
   PLUGGED_ON_EVCS,                          //Plugged on EVCS
   PLUGGED_ON_EVCS_AND_LOCKED = 3,           //Plugged on EVCS and locked
   PLUGGED_ON_EVCS_AND_ON_EV = 5,            //Plugged on EVCS and on EV
-  PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7  //Plugged on EVCS and on EV and locked
+  PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7,  //Plugged on EVCS and on EV and locked
 }

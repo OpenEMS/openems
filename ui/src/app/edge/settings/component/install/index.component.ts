@@ -1,8 +1,9 @@
-import { ActivatedRoute } from '@angular/router';
-import { CategorizedFactories } from 'src/app/shared/edge/edgeconfig';
+// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
-import { Service, Utils, EdgeConfig } from '../../../../shared/shared';
-import { TranslateService } from '@ngx-translate/core';
+import { CategorizedFactories } from 'src/app/shared/components/edge/edgeconfig';
+import { JsonrpcRequest, JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
+import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
+import { Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket } from '../../../../shared/shared';
 
 interface MyCategorizedFactories extends CategorizedFactories {
   isClicked?: boolean,
@@ -18,26 +19,24 @@ export class IndexComponent implements OnInit {
   private static readonly SELECTOR = "indexComponentInstall";
 
   public list: MyCategorizedFactories[];
-
   public showAllFactories = false;
 
+  private edge: Edge;
+
   constructor(
-    private route: ActivatedRoute,
     private service: Service,
-    private translate: TranslateService,
+    private websocket: Websocket,
   ) {
   }
 
-  ngOnInit() {
-    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.addComponents' }, this.route);
-    this.service.getConfig().then(config => {
-      this.list = config.listAvailableFactories();
-      for (const entry of this.list) {
-        entry.isClicked = false;
-        entry.filteredFactories = entry.factories;
-      }
-      this.updateFilter("");
-    });
+  async ngOnInit() {
+    this.edge = await this.service.getCurrentEdge();
+    this.list = await this.getCategorizedFactories();
+    for (const entry of this.list) {
+      entry.isClicked = false;
+      entry.filteredFactories = entry.factories;
+    }
+    this.updateFilter("");
   }
 
   updateFilter(completeFilter: string) {
@@ -62,4 +61,46 @@ export class IndexComponent implements OnInit {
       this.showAllFactories = true;
     }
   }
+
+  private async getCategorizedFactories(): Promise<MyCategorizedFactories[]> {
+    if (EdgePermission.hasReducedFactories(this.edge)) {
+      const response = await this.edge.sendRequest<GetAllComponentFactoriesResponse>(this.websocket, new ComponentJsonApiRequest({
+        componentId: '_componentManager',
+        payload: new GetAllComponentFactoriesRequest(),
+      }));
+      for (const [factoryId, factory] of Object.entries(response.result.factories)) {
+        factory.id = factoryId;
+      }
+
+      return EdgeConfig.listAvailableFactories(response.result.factories);
+    }
+
+    const config = await this.service.getConfig();
+    return config.listAvailableFactories();
+  }
 }
+
+
+class GetAllComponentFactoriesRequest extends JsonrpcRequest {
+
+  private static METHOD: string = "getAllComponentFactories";
+
+  public constructor() {
+    super(GetAllComponentFactoriesRequest.METHOD, {});
+  }
+
+}
+
+class GetAllComponentFactoriesResponse extends JsonrpcResponseSuccess {
+
+  public constructor(
+    public override readonly id: string,
+    public override readonly result: {
+      factories: { [factoryId: string]: EdgeConfig.Factory },
+    },
+  ) {
+    super(id, result);
+  }
+
+}
+

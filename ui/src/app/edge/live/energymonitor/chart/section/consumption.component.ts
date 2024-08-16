@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -41,6 +42,10 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         this.unitpipe = unitpipe;
     }
 
+    get stateName() {
+        return this.showAnimation ? 'show' : 'hide';
+    }
+
     ngOnInit() {
         this.adjustFillRefbyBrowser();
     }
@@ -52,8 +57,8 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         this.animationTrigger = true;
     }
 
-    get stateName() {
-        return this.showAnimation ? 'show' : 'hide';
+    ngOnDestroy() {
+        clearInterval(this.startAnimation);
     }
 
     protected getStartAngle(): number {
@@ -155,7 +160,4 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         return p;
     }
 
-    ngOnDestroy() {
-        clearInterval(this.startAnimation);
-    }
 }

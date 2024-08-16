@@ -1,17 +1,20 @@
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
-import { AbstractHistoryChart as NewAbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { AbstractHistoryChart as NewAbstractHistoryChart } from 'src/app/shared/components/chart/abstracthistorychart';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 import { calculateResolution } from 'src/app/edge/history/shared';
+import { ChartConstants } from 'src/app/shared/components/chart/chart.constants';
 import { ColorUtils } from 'src/app/shared/utils/color/color.utils';
 import { GetScheduleRequest } from '../../../../../../shared/jsonrpc/request/getScheduleRequest';
 import { GetScheduleResponse } from '../../../../../../shared/jsonrpc/response/getScheduleResponse';
+import { Controller_Ess_TimeOfUseTariff } from '../Ess_TimeOfUseTariff';
 
 @Component({
     selector: 'statePriceChart',
@@ -19,16 +22,11 @@ import { GetScheduleResponse } from '../../../../../../shared/jsonrpc/response/g
 })
 export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() public refresh: boolean;
-    @Input() public override edge: Edge;
-    @Input() public component: EdgeConfig.Component;
+    @Input({ required: true }) public refresh!: boolean;
+    @Input({ required: true }) public override edge!: Edge;
+    @Input({ required: true }) public component!: EdgeConfig.Component;
 
     private currencyLabel: Currency.Label; // Default
-
-    public ngOnChanges() {
-        this.currencyLabel = Currency.getCurrencyLabelByEdgeId(this.edge.id);
-        this.updateChart();
-    }
 
     constructor(
         protected override service: Service,
@@ -37,6 +35,15 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
         private websocket: Websocket,
     ) {
         super("schedule-chart", service, translate);
+    }
+
+    public getChartHeight(): number {
+        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
+    }
+
+    public ngOnChanges() {
+        this.currencyLabel = Currency.getCurrencyLabelByEdgeId(this.edge.id);
+        this.updateChart();
     }
 
     public ngOnInit() {
@@ -69,7 +76,8 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
                 socArray: schedule.map(entry => entry.soc),
             };
 
-            const scheduleChartData = TimeOfUseTariffUtils.getScheduleChartData(schedule.length, priceArray, stateArray, timestampArray, gridBuyArray, socArray, this.translate, this.component.properties.controlMode);
+            const scheduleChartData = Controller_Ess_TimeOfUseTariff.getScheduleChartData(schedule.length, priceArray,
+                stateArray, timestampArray, gridBuyArray, socArray, this.translate, this.component.properties.controlMode);
 
             this.colors = scheduleChartData.colors;
             this.labels = scheduleChartData.labels;
@@ -78,10 +86,12 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
             this.loading = false;
             this.setLabel();
             this.stopSpinner();
+
         }).catch((reason) => {
             console.error(reason);
             this.initializeChart();
             return;
+
         }).finally(async () => {
             this.unit = YAxisTitle.CURRENCY;
             await this.setOptions(this.options);
@@ -89,13 +99,21 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
         });
     }
 
+    protected setLabel() {
+        this.options = this.createDefaultChartOptions();
+    }
+
+    protected getChannelAddresses(): Promise<ChannelAddress[]> {
+        return new Promise(() => { []; });
+    }
+
     private applyControllerSpecificOptions() {
         const locale = this.service.translate.currentLang;
         const rightYaxisSoc: HistoryUtils.yAxes = { position: 'right', unit: YAxisTitle.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYaxisSoc, this.translate, 'line', locale);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYaxisSoc, this.translate, 'line', locale, ChartConstants.EMPTY_DATASETS);
 
         const rightYAxisPower: HistoryUtils.yAxes = { position: 'right', unit: YAxisTitle.POWER, yAxisId: ChartAxis.RIGHT_2 };
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxisPower, this.translate, 'line', locale);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxisPower, this.translate, 'line', locale, ChartConstants.EMPTY_DATASETS);
 
         this.options.scales.x['time'].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
         this.options.scales.x['ticks'] = { source: 'auto', autoSkip: false };
@@ -152,19 +170,10 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
         this.options.scales[ChartAxis.LEFT]['title'].text = this.currencyLabel;
         this.options.scales[ChartAxis.RIGHT].grid.display = false;
+        this.options.scales[ChartAxis.RIGHT_2].suggestedMin = 0;
+        this.options.scales[ChartAxis.RIGHT_2].suggestedMax = 1;
         this.options.scales[ChartAxis.RIGHT_2].grid.display = false;
         this.options['animation'] = false;
     }
 
-    protected setLabel() {
-        this.options = this.createDefaultChartOptions();
-    }
-
-    protected getChannelAddresses(): Promise<ChannelAddress[]> {
-        return new Promise(() => { []; });
-    }
-
-    public getChartHeight(): number {
-        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
-    }
 }

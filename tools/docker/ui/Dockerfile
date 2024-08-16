@@ -6,21 +6,21 @@ FROM --platform=$BUILDPLATFORM node:${NODE}-alpine AS build_ui
 
 ARG VERSION
 
-RUN apk update && apk upgrade;
+RUN apk add --update --no-cache patch
 
 COPY ui/ /src/
+COPY tools/docker/ui/index.patch /src/
 
 WORKDIR /src
 
-RUN npm install && \
+RUN patch src/index.html < index.patch && \
+    npm install && \
     node_modules/.bin/ng build -c "$VERSION";
 
 ### Build ui base
 FROM ghcr.io/linuxserver/baseimage-alpine:edge AS ui_base
 
-RUN apk update && apk upgrade
-
-RUN apk add --no-cache \
+RUN apk add --update --no-cache \
     nginx openssl
 	
 ### Build ui container

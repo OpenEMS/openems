@@ -2,9 +2,10 @@ package io.openems.edge.battery.fenecon.home;
 
 import static io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent.BitConverter.INVERT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 
+import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -57,6 +58,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.ChannelUtils;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -80,7 +82,11 @@ import io.openems.edge.common.type.TypeUtils;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent implements ModbusComponent, OpenemsComponent,
-		Battery, EventHandler, ModbusSlave, StartStoppable, BatteryFeneconHome {
+		Battery, EventHandler, ModbusSlave, StartStoppable, BatteryFeneconHome, ModbusHelper {
+
+	public static final int DEFAULT_CRITICAL_MIN_VOLTAGE = 2800;
+	protected static final int TIMEOUT = 600; // [10 minutes in seconds]
+	private Instant timeCriticalMinVoltage;
 
 	protected final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
@@ -147,6 +153,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 			this.batteryProtection.apply();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.checkCriticalMinVoltage();
 			this.handleStateMachine();
 			break;
 		}
@@ -171,7 +178,6 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 				this.getBmsControl(), //
 				this.getModbusCommunicationFailed(), //
 				() -> this.retryModbusCommunication());
-
 		// Call the StateMachine
 		try {
 
@@ -186,7 +192,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(500, Priority.LOW, //
 						m(new BitsWordElement(500, this) //
@@ -345,7 +351,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 */
 	private void detectHardwareType() throws OpenemsException {
 		// Set Battery-Protection
-		ModbusUtils.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(10019), true) //
+		readElementOnce(this.getModbusProtocol(), ModbusUtils::retryOnNull, new UnsignedWordElement(10019))
 				.thenAccept(value -> {
 					if (value == null) {
 						return;
@@ -488,13 +494,22 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 				BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION, //
 				BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION, //
 				BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION//
-		);
+		) //
+				.stream() //
+				.map(c -> {
+					IntegerReadChannel channel = this.channel(c);
+					return channel.value().get();
+				}) //
+				.toList();
 
-		final var numberOfTowers = this.calculateTowerNumberFromSoftwareVersion(softwareVersionlist);
+		final var numberOfTowers = calculateTowerNumberFromSoftwareVersion(softwareVersionlist);
 
 		// Write 'TOWER_NUMBER' Debug Channel
 		Channel<?> numberOfTowersChannel = this.channel(BatteryFeneconHome.ChannelId.NUMBER_OF_TOWERS);
 		numberOfTowersChannel.setNextValue(numberOfTowers);
+		if (numberOfTowers == null) {
+			return;
+		}
 
 		final var moduleMaxVoltage = this.getBatteryHardwareType().moduleMaxVoltage;
 		final var moduleMinVoltage = this.getBatteryHardwareType().moduleMinVoltage;
@@ -515,20 +530,19 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 		}
 	}
 
-	private int calculateTowerNumberFromSoftwareVersion(List<BatteryFeneconHome.ChannelId> channelIdList) {
-		var numberOftowers = 1;
-		for (var channelId : channelIdList) {
-			if (channelId == null) {
-				return numberOftowers;
+	protected static Integer calculateTowerNumberFromSoftwareVersion(List<Integer> versionList) {
+		var numberOfTowers = 0;
+		for (var version : versionList) {
+			if (version == null) {
+				return null;
 			}
-			Channel<Integer> channel = this.channel(channelId);
-			var softwareVersion = channel.value();
-			if (softwareVersion.isDefined() && !Objects.equals(softwareVersion.get(), 0)
-					&& !Objects.equals(softwareVersion.get(), 256)) {
-				numberOftowers++;
+			if (version == 0 || version == 256) {
+				// Ensure number of towers is never '0' if registers are not null.
+				return Math.max(1, numberOfTowers);
 			}
+			numberOfTowers++;
 		}
-		return numberOftowers;
+		return numberOfTowers;
 	}
 
 	private int lastNumberOfTowers = 0;
@@ -632,7 +646,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 												OpenemsType.BOOLEAN))),
 								m(new BitsWordElement(towerOffset + 5, this)
 										.bit(0, this.generateTowerChannel(tower, "LEVEL_2_CELL_OVER_VOLTAGE",
-												Level.WARNING)) //
+												Level.INFO)) //
 										.bit(1, this.generateTowerChannel(tower, "LEVEL_2_CELL_UNDER_VOLTAGE",
 												Level.WARNING)) //
 										.bit(2, this.generateTowerChannel(tower, "LEVEL_2_OVER_CHARGING_CURRENT",
@@ -1044,5 +1058,76 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 */
 	private static String generateSingleCellPrefix(int tower, int module, int num) {
 		return "TOWER_" + tower + "_MODULE_" + module + "_CELL_" + String.format("%03d", num);
+	}
+
+	@Override
+	public BridgeModbus getModbus() {
+		return this.getBridgeModbus();
+	}
+
+	@Override
+	public ModbusProtocol getDefinedModbusProtocol() throws OpenemsException {
+		return this.getModbusProtocol();
+	}
+
+	private void checkCriticalMinVoltage() {
+
+		final var subState = getMinVoltageSubState(DEFAULT_CRITICAL_MIN_VOLTAGE,
+				this.getMinCellVoltage().orElse(Integer.MAX_VALUE), this.getCurrent().orElse(0));
+		var now = Instant.now(this.componentManager.getClock());
+
+		switch (subState) {
+		case ABOVE_LIMIT -> {
+			this._setLowMinVoltageFault(false);
+			this._setLowMinVoltageWarning(false);
+			this._setLowMinVoltageFaultBatteryStopped(false);
+			this.timeCriticalMinVoltage = null;
+		}
+		case BELOW_LIMIT -> {
+
+			if (this.stateMachine.getCurrentState() == StateMachine.State.STOPPED) {
+				this._setLowMinVoltageFaultBatteryStopped(true);
+				this._setLowMinVoltageFault(false);
+				this._setLowMinVoltageWarning(false);
+				return;
+			}
+
+			this._setLowMinVoltageFaultBatteryStopped(false);
+
+			if (this.timeCriticalMinVoltage == null) {
+				this.timeCriticalMinVoltage = now;
+			}
+
+			if (this.timeCriticalMinVoltage.isBefore(now.minusSeconds(TIMEOUT))) {
+				this._setLowMinVoltageFault(true);
+				this._setLowMinVoltageWarning(false);
+				return;
+			}
+			this._setLowMinVoltageWarning(true);
+			this._setLowMinVoltageFault(false);
+		}
+		case BELOW_LIMIT_CHARGING -> {
+			this._setLowMinVoltageFaultBatteryStopped(false);
+			this._setLowMinVoltageWarning(true);
+			this._setLowMinVoltageFault(false);
+			this.timeCriticalMinVoltage = null;
+		}
+		}
+	}
+
+	protected static MinVoltageSubState getMinVoltageSubState(int minVoltageLimit, int currentMinVoltage, int current) {
+		if (currentMinVoltage > minVoltageLimit) {
+			return MinVoltageSubState.ABOVE_LIMIT;
+		}
+		if (current < 0) {
+			return MinVoltageSubState.BELOW_LIMIT_CHARGING;
+		}
+		return MinVoltageSubState.BELOW_LIMIT;
+	}
+
+	protected static enum MinVoltageSubState {
+		ABOVE_LIMIT, //
+		BELOW_LIMIT, //
+		BELOW_LIMIT_CHARGING; //
 	}
 }

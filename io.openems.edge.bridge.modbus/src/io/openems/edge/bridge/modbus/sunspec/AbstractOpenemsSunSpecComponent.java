@@ -1,5 +1,11 @@
 package io.openems.edge.bridge.modbus.sunspec;
 
+import static com.ghgande.j2mod.modbus.Modbus.ILLEGAL_ADDRESS_EXCEPTION;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
+import static io.openems.edge.bridge.modbus.sunspec.Utils.toUpperUnderscore;
+import static java.util.concurrent.CompletableFuture.completedFuture;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +21,7 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ghgande.j2mod.modbus.ModbusSlaveException;
 import com.google.common.collect.Lists;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -25,13 +32,18 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
-import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.Task;
+import io.openems.edge.bridge.modbus.api.task.Task.ExecuteState;
+import io.openems.edge.bridge.modbus.sunspec.Point.BitFieldPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.BitFieldPoint.SunSpecBitPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.ChannelIdPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.ModbusElementPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.ScaleFactorPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.ScaledValuePoint;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.taskmanager.Priority;
 
@@ -70,7 +82,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 */
 	public AbstractOpenemsSunSpecComponent(Map<SunSpecModel, Priority> activeModels,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
-			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsException {
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 		this.activeModels = activeModels;
 		this.modbusProtocol = new ModbusProtocol(this);
@@ -97,18 +109,10 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 				throw new IllegalArgumentException("This modbus device is not SunSpec!");
 			}
 
-			try {
-				this.readNextBlock(40_002, expectedBlocks).thenRun(() -> {
-					this.isSunSpecInitializationCompleted = true;
-					this.onSunSpecInitializationCompleted();
-				});
-
-			} catch (OpenemsException e) {
-				this.logWarn(this.log, "Error while reading SunSpec identifier block: " + e.getMessage());
-				e.printStackTrace();
+			this.readNextBlock(40_002, expectedBlocks).thenRun(() -> {
 				this.isSunSpecInitializationCompleted = true;
 				this.onSunSpecInitializationCompleted();
-			}
+			});
 		});
 		return super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId);
 	}
@@ -128,16 +132,8 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @throws OpenemsException on error
 	 */
 	private CompletableFuture<Boolean> isSunSpec() throws OpenemsException {
-		final var result = new CompletableFuture<Boolean>();
-		ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedDoublewordElement(40_000), true)
-				.thenAccept(value -> {
-					if (value == 0x53756e53) {
-						result.complete(true);
-					} else {
-						result.complete(false);
-					}
-				});
-		return result;
+		return readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedDoublewordElement(40_000)) //
+				.thenApply(v -> v == 0x53756e53);
 	}
 
 	/**
@@ -148,31 +144,47 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @return a future that completes once reading the block finished
 	 * @throws OpenemsException on error
 	 */
-	private CompletableFuture<Void> readNextBlock(int startAddress, Set<Integer> remainingBlocks)
-			throws OpenemsException {
-		final var finished = new CompletableFuture<Void>();
-
+	private CompletableFuture<Void> readNextBlock(int startAddress, Set<Integer> remainingBlocks) {
 		// Finish if all expected Blocks have been read
 		if (remainingBlocks.isEmpty()) {
-			finished.complete(null);
+			return completedFuture(null);
 		}
 
 		/*
 		 * Try to read block by block until all required blocks have been read or an
-		 * END_OF_MAP register has been found.
+		 * END_OF_MAP register has been found or reading fails permanently.
 		 *
 		 * It may still happen that a device does not have a valid END_OF_MAP register
 		 * and that some blocks are not read - especially when one component is used for
 		 * multiple devices like single and three phase inverter.
 		 */
-		this.readElementsOnceTyped(new UnsignedWordElement(startAddress), new UnsignedWordElement(startAddress + 1))
-				.thenAccept(values -> {
-					int blockId = values.get(0);
+		return readElementsOnce(this.modbusProtocol, //
+				// Retry if value is null and error is not "Illegal Data Address".
+				// Background: some SMA inverters do not provide an END_OF_MAP register.
+				(executeState, value) -> {
+					if (executeState instanceof ExecuteState.Error s) {
+						if (s.exception() instanceof ModbusSlaveException mse) {
+							if (mse.isType(ILLEGAL_ADDRESS_EXCEPTION)) {
+								return false; // do not retry
+							}
+						}
+					}
+					if (value != null) {
+						return false; // do not retry
+					}
+					return true;
+				}, //
+
+				new UnsignedWordElement(startAddress), // Block-ID
+				new UnsignedWordElement(startAddress + 1)) // Length of Block
+
+				.thenCompose(rer -> {
+					var values = rer.values();
+					var blockId = values.get(0);
 
 					// END_OF_MAP
-					if (blockId == 0xFFFF) {
-						finished.complete(null);
-						return;
+					if (blockId == null || blockId == 0xFFFF) {
+						return completedFuture(null);
 					}
 
 					// Handle SunSpec Block
@@ -190,46 +202,23 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 						if (activeEntry != null) {
 							var sunSpecModel = activeEntry.getKey();
 							var priority = activeEntry.getValue();
-							try {
-								this.addBlock(startAddress, sunSpecModel, priority);
-								remainingBlocks.remove(activeEntry.getKey().getBlockId());
-							} catch (OpenemsException e) {
-								this.logWarn(this.log, "Error while adding SunSpec-Model [" + blockId
-										+ "] starting at [" + startAddress + "]: " + e.getMessage());
-								e.printStackTrace();
-							}
 
+							this.addBlock(startAddress, sunSpecModel, priority);
+							remainingBlocks.remove(activeEntry.getKey().getBlockId());
 						} else {
 							// This block is not considered, because the Model is not active
 							this.logInfo(this.log,
 									"Ignoring SunSpec-Model [" + blockId + "] starting at [" + startAddress + "]");
 						}
-					}
 
-					// Stop reading if all expectedBlocks have been read
-					if (remainingBlocks.isEmpty()) {
-						finished.complete(null);
-						return;
 					}
 
 					// Read next block recursively
 					var nextBlockStartAddress = startAddress + 2 + values.get(1);
-					try {
 
-						final var readNextBlockFuture = this.readNextBlock(nextBlockStartAddress, remainingBlocks);
-						// Announce finished when next block (recursively) is finished
-						readNextBlockFuture.thenRun(() -> {
-							finished.complete(null);
-						});
-					} catch (OpenemsException e) {
-						this.logWarn(this.log, "Error while adding SunSpec-Model [" + blockId + "] starting at ["
-								+ startAddress + "]: " + e.getMessage());
-						e.printStackTrace();
-						finished.complete(null); // announce finish immediately to not get stuck
-					}
-
+					// Announce finished when next block (recursively) is finished
+					return this.readNextBlock(nextBlockStartAddress, remainingBlocks);
 				});
-		return finished;
 	}
 
 	/**
@@ -249,13 +238,28 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	}
 
 	/**
-	 * Overwrite to provide custom SunSpecModel.
+	 * Override to provide custom {@link SunSpecModel}.
 	 *
 	 * @param blockId the Block-Id
 	 * @return the {@link SunSpecModel}
 	 * @throws IllegalArgumentException on error
 	 */
 	protected SunSpecModel getSunSpecModel(int blockId) throws IllegalArgumentException {
+		return null;
+	}
+
+	/**
+	 * Override to provide custom {@link SunSpecBitPoint}s.
+	 * 
+	 * <p>
+	 * Use this to create a different mapping for SunSpec BitFields, e.g. Model 103
+	 * "Vendor defined events".
+	 * 
+	 * @param bfp the {@link BitFieldPoint}
+	 * @return array of {@link SunSpecBitPoint}s; null or empty uses defaults from
+	 *         {@link DefaultSunSpecModel}.
+	 */
+	protected SunSpecBitPoint[] getBitPoints(BitFieldPoint bfp) {
 		return null;
 	}
 
@@ -286,9 +290,8 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @param startAddress the address to start reading from
 	 * @param model        the SunSpecModel
 	 * @param priority     the reading priority
-	 * @throws OpenemsException on error
 	 */
-	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
+	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) {
 		this.logInfo(this.log, "Adding SunSpec-Model [" + model.getBlockId() + ":" + model.label() + "] starting at ["
 				+ startAddress + "]");
 		var readElements = new ArrayList<ModbusElement>();
@@ -296,27 +299,25 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 		startAddress += 2;
 		for (var i = 0; i < model.points().length; i++) {
 			var point = model.points()[i];
-			final var element = point.get().generateModbusElement(startAddress);
+			var elements = this.addModbusElementAndChannels(startAddress, model, point);
+			var length = elements.stream().mapToInt(e -> e.length).sum();
 
 			// Handle AccessMode
 			switch (point.get().accessMode) {
 			case READ_ONLY -> {
-				readElements.add(element);
+				readElements.addAll(elements);
 			}
 			case READ_WRITE -> {
-				readElements.add(element);
-				writeElements.add(element);
+				readElements.addAll(elements);
+				writeElements.addAll(elements);
 			}
 			case WRITE_ONLY -> {
-				readElements.add(new DummyRegisterElement(element.startAddress, element.length));
-				writeElements.add(element);
+				readElements.add(new DummyRegisterElement(startAddress, length));
+				writeElements.addAll(elements);
 			}
 			}
 
-			startAddress += element.length;
-			var channelId = point.getChannelId();
-			this.addChannel(channelId);
-			this.m(channelId, element, this.generateElementToChannelConverter(model, point));
+			startAddress += length;
 		}
 
 		// Create Tasks and add them to the ModbusProtocol
@@ -330,6 +331,38 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 					new FC16WriteRegistersTask(//
 							elements.get(0).startAddress, elements.toArray(ModbusElement[]::new)));
 		}
+	}
+
+	/**
+	 * Adds an Element of the block starting from startAddress and maps it to
+	 * Channel(s).
+	 *
+	 * @param startAddress the address to start reading from
+	 * @param model        the {@link SunSpecModel}
+	 * @param ssp          the {@link SunSpecPoint}
+	 * @return the added {@link ModbusElement}s
+	 */
+	protected List<ModbusElement> addModbusElementAndChannels(int startAddress, SunSpecModel model, SunSpecPoint ssp) {
+		final var p = ssp.get();
+		// TODO migrate to Java 21 Switch Pattern Matching
+		if (p instanceof BitFieldPoint bfp) {
+			// Channels are added and mapped internally
+			var alternativeBitPoints = this.getBitPoints(bfp);
+			return bfp.generateModbusElements(this, channelId -> this.addChannel(channelId), startAddress,
+					alternativeBitPoints);
+		}
+
+		if (p instanceof ModbusElementPoint mep) {
+			final var element = mep.generateModbusElement(startAddress);
+			if (p instanceof ChannelIdPoint cp) {
+				var channelId = cp.channelId;
+				this.addChannel(channelId);
+				this.m(channelId, element, this.generateElementToChannelConverter(model, p));
+			}
+			return List.of(element);
+		}
+
+		return List.of();
 	}
 
 	/**
@@ -387,7 +420,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @param point the {@link SunSpecPoint}
 	 * @return an {@link ElementToChannelConverter}, never null
 	 */
-	protected ElementToChannelConverter generateElementToChannelConverter(SunSpecModel model, SunSpecPoint point) {
+	protected ElementToChannelConverter generateElementToChannelConverter(SunSpecModel model, Point point) {
 		// Create converter for 'defined' state
 		final var valueIsDefinedConverter = new ElementToChannelConverter(//
 				/* Element -> Channel */ value -> point.isDefined(value) ? value : null,
@@ -395,23 +428,26 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 		// Generate Scale-Factor converter (possibly null)
 		ElementToChannelConverter scaleFactorConverter = null;
-		if (point.get().scaleFactor.isPresent()) {
-			final var scaleFactor = point.get().scaleFactor.get();
-			final var scaleFactorName = SunSpecCodeGenerator.toUpperUnderscore(scaleFactor);
+
+		if (point instanceof ScaledValuePoint svp) {
+			final var scaleFactorName = toUpperUnderscore(svp.scaleFactor);
 			scaleFactorConverter = Stream.of(model.points()) //
 					.filter(p -> p.name().equals(scaleFactorName)) //
-					.map(sfp -> new ElementToChannelScaleFactorConverter(this, point, sfp.getChannelId())) //
-					// Found matching Scale-Factor Point in SunSpec Modal
+					.map(SunSpecPoint::get) //
+					.filter(ScaleFactorPoint.class::isInstance) //
+					.map(ScaleFactorPoint.class::cast) //
+					.map(sfp -> new ElementToChannelScaleFactorConverter(this, svp, sfp.channelId)) //
+					// Found matching Scale-Factor Point in SunSpec Model
 					.findFirst()
 
 					// Else: try to parse constant Scale-Factor
 					.orElseGet(() -> {
 						try {
-							return new ElementToChannelScaleFactorConverter(Integer.parseInt(scaleFactor));
+							return new ElementToChannelScaleFactorConverter(Integer.parseInt(svp.scaleFactor));
 						} catch (NumberFormatException e) {
 							// Unable to parse Scale-Factor to static value
-							this.logError(this.log, "Unable to parse Scale-Factor [" + scaleFactor + "] for Point ["
-									+ point.name() + "]");
+							this.logError(this.log, "Unable to parse Scale-Factor [" + svp.scaleFactor + "] for Point ["
+									+ point.name + "]");
 							return null;
 						}
 					}); //
@@ -425,82 +461,40 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	}
 
 	/**
-	 * Reads given Elements once from Modbus.
-	 *
-	 * @param <T>      the Type of the elements
-	 * @param elements the elements
-	 * @return a future list with the values, e.g. a list of integers
-	 * @throws OpenemsException on error
-	 */
-	@SafeVarargs
-	private final <T> CompletableFuture<List<T>> readElementsOnceTyped(ModbusRegisterElement<?, T>... elements)
-			throws OpenemsException {
-		// Register listeners for elements
-		@SuppressWarnings("unchecked")
-		final var subResults = (CompletableFuture<T>[]) new CompletableFuture<?>[elements.length];
-		for (var i = 0; i < elements.length; i++) {
-			var subResult = new CompletableFuture<T>();
-			subResults[i] = subResult;
-
-			var element = elements[i];
-			element.onUpdateCallback(value -> {
-				if (value == null) {
-					// try again
-					return;
-				}
-				subResult.complete(value);
-			});
-		}
-
-		// Activate task
-		final Task task = new FC3ReadRegistersTask(elements[0].startAddress, Priority.HIGH, elements);
-		this.modbusProtocol.addTask(task);
-
-		// Prepare result
-		final var result = new CompletableFuture<List<T>>();
-		CompletableFuture.allOf(subResults).thenRun(() -> {
-			// do not try again
-			this.modbusProtocol.removeTask(task);
-
-			// get all results and complete result
-			List<T> values = Stream.of(subResults) //
-					.map(CompletableFuture::join) //
-					.collect(Collectors.toCollection(ArrayList::new));
-			result.complete(values);
-		});
-
-		return result;
-	}
-
-	/**
 	 * Get the Channel for the given Point.
 	 *
-	 * @param <T>   the Channel type
-	 * @param point the SunSpec Point
-	 * @return the optional Channel
+	 * @param <T> the Channel type
+	 * @param ssp the {@link SunSpecPoint}
+	 * @return the optional {@link Channel}
 	 */
-	protected <T extends Channel<?>> Optional<T> getSunSpecChannel(SunSpecPoint point) {
-		try {
-			return Optional.ofNullable(this.channel(point.getChannelId()));
-		} catch (IllegalArgumentException e) {
-			return Optional.empty();
+	protected <T extends Channel<?>> Optional<T> getSunSpecChannel(SunSpecPoint ssp) {
+		var point = ssp.get();
+		if (point instanceof ChannelIdPoint cp) {
+			try {
+				return Optional.ofNullable(this.channel(cp.channelId));
+			} catch (IllegalArgumentException e) {
+				// Ignore
+			}
+		} else {
+			// Ignore
 		}
+		return Optional.empty();
 	}
 
 	/**
 	 * Get the Channel for the given Point or throw an error if it is not available.
 	 *
-	 * @param <T>   the Channel type
-	 * @param point the SunSpec Point
-	 * @return the optional Channel
+	 * @param <T> the Channel type
+	 * @param ssp the {@link SunSpecPoint}
+	 * @return the optional {@link Channel}
 	 * @throws OpenemsException if Channel is not available
 	 */
 	@SuppressWarnings("unchecked")
-	protected <T extends Channel<?>> T getSunSpecChannelOrError(SunSpecPoint point) throws OpenemsException {
-		Optional<Channel<?>> channelOpt = this.getSunSpecChannel(point);
+	protected <T extends Channel<?>> T getSunSpecChannelOrError(SunSpecPoint ssp) throws OpenemsException {
+		Optional<Channel<?>> channelOpt = this.getSunSpecChannel(ssp);
 		if (!channelOpt.isPresent()) {
-			throw new OpenemsException("SunSpec Channel for Point [" + point.getClass().getSimpleName() + "."
-					+ point.name() + "] is not available");
+			throw new OpenemsException("SunSpec Channel for Point [" + ssp.getClass().getSimpleName() + "." + ssp.name()
+					+ "] is not available");
 		}
 		return (T) channelOpt.get();
 	}
@@ -524,7 +518,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 		for (SunSpecPoint point : points) {
 			Optional<Channel<?>> c = this.getSunSpecChannel(point);
 			if (c.isPresent()) {
-				c.get().onUpdate(value -> {
+				c.get().onSetNextValue(value -> {
 					this.channel(targetChannel).setNextValue(converter.elementToChannel(value.get()));
 				});
 				return;

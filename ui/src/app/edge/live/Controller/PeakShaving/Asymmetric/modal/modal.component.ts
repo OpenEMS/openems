@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
@@ -11,9 +12,9 @@ import { Edge, EdgeConfig, Service, Websocket } from '../../../../../../shared/s
 })
 export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
 
-    @Input() protected component: EdgeConfig.Component;
-    @Input() protected edge: Edge;
-    @Input() protected mostStressedPhase: Subject<{ name: 'L1' | 'L2' | 'L3' | '', value: number }>;
+    @Input({ required: true }) protected component!: EdgeConfig.Component;
+    @Input({ required: true }) protected edge!: Edge;
+    @Input({ required: true }) protected mostStressedPhase!: Subject<{ name: 'L1' | 'L2' | 'L3' | '', value: number }>;
 
     public formGroup: FormGroup;
     public loading: boolean = false;

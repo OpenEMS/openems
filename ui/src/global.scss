@@ -250,6 +250,7 @@ formly-input-section {
 
         .alert-button-group {
             justify-content: space-between;
+
             .alert-button {
                 color: $primary-color;
                 font-size: small;
@@ -312,11 +313,6 @@ formly-input-section {
         left: 25%;
         width: 50%;
         color: var(--ion-color-primary);
-    }
-
-    // Used for notification component
-    .text-overflow-break {
-        line-break: anywhere;
     }
 }
 
