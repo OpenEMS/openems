@@ -1,21 +1,16 @@
 /*
  *   OpenEMS Metadata LDAP bundle
- *   
- *   Written by Christian Poulter.   
+ *
+ *   Written by Christian Poulter.
  *   Copyright (C) 2024 Christian Poulter <devel(at)poulter.de>
  *
- *   This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU Affero General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
+ *   This program and the accompanying materials are made available under
+ *   the terms of the Eclipse Public License v2.0 which accompanies this
+ *   distribution, and is available at
  *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU Affero General Public License for more details.
+ *   https://www.eclipse.org/legal/epl-2.0
  *
- *   You should have received a copy of the GNU Affero General Public License
- *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *   SPDX-License-Identifier: EPL-2.0
  *
  */
 
@@ -57,7 +52,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     @AttributeDefinition(
         name = "Security credentials",
         description = "The LDAP security credentials.",
-        required = false
+        required = false,
+        type = AttributeType.PASSWORD
     )
     String ldapSecurityCredentials();
 
@@ -94,24 +90,24 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     String ldapGroupOuGuest();
 
     @AttributeDefinition(
-        name = "Group ou for guests",
-        description = "The LDAP group ou for guests.",
+        name = "Group ou for owners",
+        description = "The LDAP group ou for owners.",
         defaultValue = "cn=openems_owner,ou=groups,dc=test",
         required = true
     )
     String ldapGroupOuOwner();
 
     @AttributeDefinition(
-        name = "Group ou for guests",
-        description = "The LDAP group ou for guests.",
+        name = "Group ou for installers",
+        description = "The LDAP group ou for installers.",
         defaultValue = "cn=openems_installer,ou=groups,dc=test",
         required = true
     )
     String ldapGroupOuInstaller();
 
     @AttributeDefinition(
-        name = "Group ou for guests",
-        description = "The LDAP group ou for guests.",
+        name = "Group ou for admins",
+        description = "The LDAP group ou for admins.",
         defaultValue = "cn=openems_admin,ou=groups,dc=test",
         required = true
     )

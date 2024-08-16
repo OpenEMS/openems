@@ -1,21 +1,16 @@
 /*
  *   OpenEMS Metadata LDAP bundle
- *   
- *   Written by Christian Poulter.   
+ *
+ *   Written by Christian Poulter.
  *   Copyright (C) 2024 Christian Poulter <devel(at)poulter.de>
  *
- *   This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU Affero General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
+ *   This program and the accompanying materials are made available under
+ *   the terms of the Eclipse Public License v2.0 which accompanies this
+ *   distribution, and is available at
  *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU Affero General Public License for more details.
+ *   https://www.eclipse.org/legal/epl-2.0
  *
- *   You should have received a copy of the GNU Affero General Public License
- *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *   SPDX-License-Identifier: EPL-2.0
  *
  */
 
