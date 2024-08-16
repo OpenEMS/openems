@@ -6,11 +6,11 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Edge, Service, Utils, Websocket } from '../../../shared/shared';
+import { InstallAppComponent } from './install.component';
 import { DeleteAppInstance } from './jsonrpc/deleteAppInstance';
 import { GetAppAssistant } from './jsonrpc/getAppAssistant';
 import { GetAppInstances } from './jsonrpc/getAppInstances';
 import { UpdateAppInstance } from './jsonrpc/updateAppInstance';
-import { InstallAppComponent } from './install.component';
 
 interface MyInstance {
   instanceId: string, // uuid
@@ -31,10 +31,9 @@ export class UpdateAppComponent implements OnInit {
   public readonly spinnerId: string = UpdateAppComponent.SELECTOR;
 
   protected instances: MyInstance[] = [];
+  protected appName: string | null = null;
 
   private edge: Edge | null = null;
-
-  protected appName: string | null = null;
 
   public constructor(
     private route: ActivatedRoute,
@@ -139,7 +138,8 @@ export class UpdateAppComponent implements OnInit {
       })).then(response => {
         this.instances.splice(this.instances.indexOf(instance), 1);
         this.service.toast(this.translate.instant('Edge.Config.App.successDelete'), 'success');
-        this.router.navigate(['device/' + (this.edge.id) + '/settings/app/']);
+        const navigationExtras = { state: { appInstanceChange: true } };
+        this.router.navigate(['device/' + (this.edge.id) + '/settings/app/'], navigationExtras);
       })
       .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant('Edge.Config.App.failDelete', { error: error })))
       .finally(() => {

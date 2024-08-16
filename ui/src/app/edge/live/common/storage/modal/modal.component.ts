@@ -19,7 +19,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
     @Input({ required: true }) protected config!: EdgeConfig;
     @Input() protected essComponents: EdgeConfig.Component[] | null = null;
     @Input({ required: true }) protected chargerComponents!: EdgeConfig.Component[];
-    @Input() protected singleComponent: EdgeConfig.Component = null;
+    @Input() protected singleComponent: EdgeConfig.Component | null = null;
 
     // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;

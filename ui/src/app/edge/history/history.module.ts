@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { HistoryDataErrorModule } from 'src/app/shared/components/history-data-error/history-data-error.module';
 
 import { SharedModule } from '../../shared/shared.module';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
@@ -12,11 +13,6 @@ import { FixDigitalOutputChartOverviewComponent } from './fixdigitaloutput/fixdi
 import { FixDigitalOutputSingleChartComponent } from './fixdigitaloutput/singlechart.component';
 import { FixDigitalOutputTotalChartComponent } from './fixdigitaloutput/totalchart.component';
 import { FixDigitalOutputWidgetComponent } from './fixdigitaloutput/widget.component';
-import { GridChartComponent } from './grid/chart.component';
-import { GridOptimizedChargeChartComponent } from './gridoptimizedcharge/chart.component';
-import { GridOptimizedChargeChartOverviewComponent } from './gridoptimizedcharge/gridoptimizedchargechartoverview/gridoptimizedchargechartoverview.component';
-import { SellToGridLimitChartComponent } from './gridoptimizedcharge/sellToGridLimitChart.component';
-import { GridOptimizedChargeWidgetComponent } from './gridoptimizedcharge/widget.component';
 import { HeatingelementChartComponent } from './heatingelement/chart.component';
 import { HeatingelementChartOverviewComponent } from './heatingelement/heatingelementchartoverview/heatingelementchartoverview.component';
 import { HeatingelementWidgetComponent } from './heatingelement/widget.component';
@@ -50,6 +46,7 @@ import { StorageComponent } from './storage/widget.component';
     SharedModule,
     Common,
     Controller,
+    HistoryDataErrorModule,
   ],
   declarations: [
     AsymmetricPeakshavingChartComponent,
@@ -64,10 +61,6 @@ import { StorageComponent } from './storage/widget.component';
     FixDigitalOutputSingleChartComponent,
     FixDigitalOutputTotalChartComponent,
     FixDigitalOutputWidgetComponent,
-    GridChartComponent,
-    GridOptimizedChargeChartComponent,
-    GridOptimizedChargeChartOverviewComponent,
-    GridOptimizedChargeWidgetComponent,
     HeatingelementChartComponent,
     HeatingelementChartOverviewComponent,
     HeatingelementWidgetComponent,
@@ -75,7 +68,6 @@ import { StorageComponent } from './storage/widget.component';
     HeatPumpChartOverviewComponent,
     HeatpumpWidgetComponent,
     HistoryComponent,
-    SellToGridLimitChartComponent,
     SinglethresholdChartComponent,
     SinglethresholdChartOverviewComponent,
     SinglethresholdWidgetComponent,

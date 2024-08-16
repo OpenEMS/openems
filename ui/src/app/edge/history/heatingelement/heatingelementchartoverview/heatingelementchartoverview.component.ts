@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
@@ -9,10 +8,9 @@ import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
 })
 export class HeatingelementChartOverviewComponent implements OnInit {
 
-    public edge: Edge = null;
-    public component: EdgeConfig.Component = null;
-
     private static readonly SELECTOR = "heatingelement-chart-overview";
+    public edge: Edge | null = null;
+    public component: EdgeConfig.Component | null = null;
 
     constructor(
         public service: Service,

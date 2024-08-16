@@ -1,21 +1,21 @@
 // @ts-strict-ignore
 import { Inject, Injectable } from "@angular/core";
 
-import { DataService } from "../../shared/genericComponents/shared/dataservice";
+import { RefresherCustomEvent } from "@ionic/angular";
+import { QueryHistoricTimeseriesEnergyRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
+import { Service } from "src/app/shared/service/service";
+import { Websocket } from "src/app/shared/service/websocket";
+import { DateUtils } from "src/app/shared/utils/date/dateutils";
+import { DataService } from "../../shared/components/shared/dataservice";
 import { QueryHistoricTimeseriesEnergyResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Edge } from "../../shared/shared";
-import { DateUtils } from "src/app/shared/utils/date/dateutils";
-import { QueryHistoricTimeseriesEnergyRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
-import { Websocket } from "src/app/shared/service/websocket";
-import { Service } from "src/app/shared/service/service";
-import { RefresherCustomEvent } from "@ionic/angular";
 
 @Injectable()
 export class HistoryDataService extends DataService {
 
-  private channelAddresses: { [sourceId: string]: ChannelAddress } = {};
-  public queryChannelsTimeout: any | null = null;
+  public queryChannelsTimeout: ReturnType<typeof setTimeout> | null = null;
   protected override timestamps: string[] = [];
+  private channelAddresses: { [sourceId: string]: ChannelAddress } = {};
 
   constructor(
     @Inject(Websocket) protected websocket: Websocket,

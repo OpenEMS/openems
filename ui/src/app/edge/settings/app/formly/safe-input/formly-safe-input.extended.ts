@@ -2,9 +2,9 @@
 import { Component, OnInit } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { FieldWrapper, FormlyFieldConfig } from "@ngx-formly/core";
-import { FormlySafeInputModalComponent } from "./formly-safe-input-modal.component";
 import { GetAppAssistant } from "../../jsonrpc/getAppAssistant";
 import { OptionGroupConfig, getTitleFromOptionConfig } from "../option-group-picker/optionGroupPickerConfiguration";
+import { FormlySafeInputModalComponent } from "./formly-safe-input-modal.component";
 
 @Component({
     selector: 'formly-safe-input-wrapper',
@@ -24,6 +24,24 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
     ngOnInit(): void {
         this.pathToDisplayValue = this.props["pathToDisplayValue"];
         this.displayType = this.props["displayType"] ?? 'string';
+    }
+
+    public getValue() {
+        if (this.displayType === 'boolean'
+            || this.displayType === 'number'
+            || this.displayType === 'string') {
+            return this.model[this.pathToDisplayValue];
+        }
+
+        if (this.displayType === 'optionGroup') {
+            const value = this.getValueOfOptionGroup();
+            if (value) {
+                return value;
+            }
+        }
+
+        // not defined
+        return this.model[this.pathToDisplayValue];
     }
 
     protected onSelectItem() {
@@ -81,24 +99,6 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
             this.formControl.markAsDirty();
         });
         return await modal.present();
-    }
-
-    public getValue() {
-        if (this.displayType === 'boolean'
-            || this.displayType === 'number'
-            || this.displayType === 'string') {
-            return this.model[this.pathToDisplayValue];
-        }
-
-        if (this.displayType === 'optionGroup') {
-            const value = this.getValueOfOptionGroup();
-            if (value) {
-                return value;
-            }
-        }
-
-        // not defined
-        return this.model[this.pathToDisplayValue];
     }
 
     private getValueOfOptionGroup(): string {

@@ -31,6 +31,9 @@ enum SystemRestartState {
 })
 export class MaintenanceComponent implements OnInit {
 
+    private static readonly SELECTOR: string = 'oe-maintenance';
+    private static readonly TIMEOUT: number = 3000;
+
     protected readonly environment = environment;
 
     protected edge: Edge | null = null;
@@ -45,17 +48,6 @@ export class MaintenanceComponent implements OnInit {
     protected systemRestartState: BehaviorSubject<{ key: Type, state: SystemRestartState }> = new BehaviorSubject({ key: null, state: SystemRestartState.INITIAL });
     protected spinnerId: string = MaintenanceComponent.SELECTOR;
     protected readonly SystemRestartState = SystemRestartState;
-    protected confirmationAlert: (type: Type) => void = (type: Type) => presentAlert(this.alertCtrl, this.translate, {
-        message: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: environment.edgeShortName }),
-        subHeader: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION', { system: environment.edgeShortName }),
-        buttons: [{
-            text: this.translate.instant('General.RESTART'),
-            handler: () => this.execRestart(type),
-        }],
-    });
-
-    private static readonly SELECTOR: string = 'oe-maintenance';
-    private static readonly TIMEOUT: number = 3000;
 
     constructor(
         protected utils: Utils,
@@ -63,7 +55,28 @@ export class MaintenanceComponent implements OnInit {
         protected service: Service,
         private translate: TranslateService,
         private alertCtrl: AlertController,
-    ) {
+    ) { }
+
+    /**
+ * Present confirmation alert
+ */
+    async presentAlert(type: Type) {
+        const translate = this.translate;
+        const system = type === Type.HARD ? environment.edgeShortName : 'OpenEMS';
+        const alert = this.alertCtrl.create({
+            subHeader: translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION', { system: system }),
+            message: translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: system }),
+            buttons: [{
+                text: translate.instant('General.cancel'),
+                role: 'cancel',
+            },
+            {
+                text: translate.instant('General.RESTART'),
+                handler: () => this.execRestart(type),
+            }],
+            cssClass: 'alertController',
+        });
+        (await alert).present();
     }
 
     ngOnInit() {
@@ -83,6 +96,15 @@ export class MaintenanceComponent implements OnInit {
             this.updateOptions(state.key);
         });
     }
+
+    protected confirmationAlert: (type: Type) => void = (type: Type) => presentAlert(this.alertCtrl, this.translate, {
+        message: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: environment.edgeShortName }),
+        subHeader: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION', { system: environment.edgeShortName }),
+        buttons: [{
+            text: this.translate.instant('General.RESTART'),
+            handler: () => this.execRestart(type),
+        }],
+    });
 
     /**
      * Updates the options
@@ -176,25 +198,4 @@ export class MaintenanceComponent implements OnInit {
         );
     }
 
-    /**
-     * Present confirmation alert
-     */
-    async presentAlert(type: Type) {
-        const translate = this.translate;
-        const system = type === Type.HARD ? environment.edgeShortName : 'OpenEMS';
-        const alert = this.alertCtrl.create({
-            subHeader: translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION', { system: system }),
-            message: translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: system }),
-            buttons: [{
-                text: translate.instant('General.cancel'),
-                role: 'cancel',
-            },
-            {
-                text: translate.instant('General.RESTART'),
-                handler: () => this.execRestart(type),
-            }],
-            cssClass: 'alertController',
-        });
-        (await alert).present();
-    }
 }

@@ -66,20 +66,6 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
     this.invert = this.formGroup.controls['invert'];
   }
 
-  private getInputMode(): inputMode {
-    if (this.component.properties.inputChannelAddress == '_sum/GridActivePower' && this.component.properties.threshold < 0) {
-      return 'GRIDSELL';
-    } else if (this.component.properties.inputChannelAddress == '_sum/GridActivePower' && this.component.properties.threshold > 0) {
-      return 'GRIDBUY';
-    } else if (this.component.properties.inputChannelAddress == '_sum/ProductionActivePower') {
-      return 'PRODUCTION';
-    } else if (this.component.properties.inputChannelAddress == '_sum/EssSoc') {
-      return 'SOC';
-    } else if (this.component.properties.inputChannelAddress != null) {
-      return 'OTHER';
-    }
-  }
-
   public updateInputMode(event: CustomEvent) {
     let newThreshold: number = this.component.properties.threshold;
 
@@ -154,34 +140,6 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
     }
   }
 
-  private convertToChannelAddress(inputMode: inputMode): string {
-    switch (inputMode) {
-      case 'SOC':
-        return '_sum/EssSoc';
-      case 'GRIDBUY':
-        return '_sum/GridActivePower';
-      case 'GRIDSELL':
-        return '_sum/GridActivePower';
-      case 'PRODUCTION':
-        return '_sum/ProductionActivePower';
-    }
-  }
-
-  private convertToInputMode(inputChannelAddress: string, threshold: number): inputMode {
-    switch (inputChannelAddress) {
-      case '_sum/EssSoc':
-        return 'SOC';
-      case '_sum/ProductionActivePower':
-        return 'PRODUCTION';
-      case '_sum/GridActivePower':
-        if (threshold > 0) {
-          return 'GRIDBUY';
-        } else if (threshold < 0) {
-          return 'GRIDSELL';
-        }
-    }
-  }
-
   public applyChanges(): void {
     if (this.edge != null) {
       if (this.edge.roleIsAtLeast('owner')) {
@@ -238,4 +196,47 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
       }
     }
   }
+
+  private getInputMode(): inputMode {
+    if (this.component.properties.inputChannelAddress == '_sum/GridActivePower' && this.component.properties.threshold < 0) {
+      return 'GRIDSELL';
+    } else if (this.component.properties.inputChannelAddress == '_sum/GridActivePower' && this.component.properties.threshold > 0) {
+      return 'GRIDBUY';
+    } else if (this.component.properties.inputChannelAddress == '_sum/ProductionActivePower') {
+      return 'PRODUCTION';
+    } else if (this.component.properties.inputChannelAddress == '_sum/EssSoc') {
+      return 'SOC';
+    } else if (this.component.properties.inputChannelAddress != null) {
+      return 'OTHER';
+    }
+  }
+
+  private convertToChannelAddress(inputMode: inputMode): string {
+    switch (inputMode) {
+      case 'SOC':
+        return '_sum/EssSoc';
+      case 'GRIDBUY':
+        return '_sum/GridActivePower';
+      case 'GRIDSELL':
+        return '_sum/GridActivePower';
+      case 'PRODUCTION':
+        return '_sum/ProductionActivePower';
+    }
+  }
+
+  private convertToInputMode(inputChannelAddress: string, threshold: number): inputMode {
+    switch (inputChannelAddress) {
+      case '_sum/EssSoc':
+        return 'SOC';
+      case '_sum/ProductionActivePower':
+        return 'PRODUCTION';
+      case '_sum/GridActivePower':
+        if (threshold > 0) {
+          return 'GRIDBUY';
+        } else if (threshold < 0) {
+          return 'GRIDSELL';
+        }
+    }
+  }
+
 }

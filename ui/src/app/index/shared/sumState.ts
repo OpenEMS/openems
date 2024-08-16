@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { Filter } from "../filter/filter.component";
-import { Role } from "src/app/shared/type/role";
 import { Service } from "src/app/shared/shared";
+import { Role } from "src/app/shared/type/role";
+import { Filter } from "../filter/filter.component";
 
 export enum SumState {
   OK = 'OK',
@@ -44,10 +44,10 @@ export enum SumState {
 })
 export class SumStateComponent implements OnInit {
 
-  protected readonly SUM_STATE = SumState;
   @Input() protected sumState: SumState = SumState.OK;
   @Input() protected isEdgeOnline: boolean = false;
   protected isAtLeastInstaller: boolean = false;
+  protected readonly SUM_STATE = SumState;
 
   constructor(private service: Service) { }
 

@@ -16,11 +16,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public componentId!: string;
 
-    private moreThanOneProducer: boolean = null;
-
-    ngOnChanges() {
-        this.updateChart();
-    }
+    private moreThanOneProducer: boolean | null = null;
 
     constructor(
         protected override service: Service,
@@ -30,6 +26,10 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
         super("storage-charger-chart", service, translate);
     }
 
+    ngOnChanges() {
+        this.updateChart();
+    }
+
     ngOnInit() {
         this.startSpinner();
         this.service.setCurrentComponent('', this.route);
@@ -37,6 +37,10 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 21 * 9;
     }
 
     protected updateChart() {
@@ -103,7 +107,4 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
         this.options = this.createDefaultChartOptions();
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 21 * 9;
-    }
 }

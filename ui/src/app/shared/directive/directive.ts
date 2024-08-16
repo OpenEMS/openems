@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { AutofillDirective } from './autofill';
 import { VarDirective } from './ngvar';
 
 @NgModule({
@@ -8,12 +9,15 @@ import { VarDirective } from './ngvar';
     ],
     declarations: [
         VarDirective,
+        AutofillDirective,
     ],
     exports: [
         VarDirective,
+        AutofillDirective,
     ],
     providers: [
         VarDirective,
+        AutofillDirective,
     ],
 })
 export class DirectiveModule { }

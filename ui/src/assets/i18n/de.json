@@ -126,7 +126,8 @@
             "passedEndTime": "Endzeitpunkt der begrenzten Beladung überschritten",
             "storageAlreadyFull": "Speicher bereits voll"
           },
-          "storageCapacity": "Speicherkapazität (nur sichtbar für admin)"
+          "storageCapacity": "Speicherkapazität (nur sichtbar für admin)",
+          "MAXIMUM_GRIDSELL_WITH_CHARGE": "Maximale Netzeinspeisung durch Batteriebeladung"
         },
         "CHP": {
           "highThreshold": "Oberer Schwellenwert",
@@ -263,6 +264,7 @@
       "SYSTEMUPDATE": "Systemupdate"
     },
     "History": {
+      "CURRENT_AND_VOLTAGE": "Strom & Spannung",
       "beginDate": "Startdatum wählen",
       "day": "Tag",
       "endDate": "Enddatum wählen",
@@ -302,7 +304,9 @@
       "oct": "Okt",
       "nov": "Nov",
       "dec": "Dez",
-      "activeDuration": "Einschaltdauer"
+      "activeDuration": "Einschaltdauer",
+      "CURRENT": "Strom",
+      "VOLTAGE": "Spannung"
     },
     "Config": {
       "Index": {
@@ -511,6 +515,7 @@
     "SYSTEM_STATE": "Systemstatus",
     "TOTAL": "Gesamt",
     "totalState": "Gesamtstatus",
+    "VISIBLE_FOR_ADMINS_ONLY": "Sichtbar nur für Service & Administration",
     "warning": "Warnung",
     "Week": {
       "monday": "Montag",
@@ -942,6 +947,11 @@
       "WARNING": "Im Rahmen des Systemupdates wird {{system}} neu gestartet und dabei die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet.",
       "UPDATE_EXECUTE": "Systemupdate durchführen",
       "SUB_HEADER": "Möchten Sie ein Systemupdate durchführen?"
+    },
+    "ENERGY_JOURNEY": {
+      "TO_THE_ANALYSIS": "Zur Analyse",
+      "CURRENT_NUMBER_OF_MODULES": "Aktuell",
+      "SIMULATION_NOT_STARTED": "Simulation nicht gestartet"
     }
   },
   "CHANNELS": {
@@ -954,6 +964,12 @@
     "SET_VALUE": "Eingestellter Wert",
     "MORE_CHANNELS": "Weitere Kanäle hinzufügen",
     "CHANNEL": "Kanal"
+  },
+  "GRID_STATES": {
+    "OFF_GRID": "Netzausfall",
+    "NO_EXTERNAL_LIMITATION": "keine externe Limitierung",
+    "RIPPLE_CONTROL_RECEIVER": "Rundsteuerempfänger",
+    "RESTRICTION": "Dimmung nach §14a EnWG"
   },
   "APP": {
     "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Diese Funktion ist vorübergehend in der App nicht verfügbar, verwenden Sie bitte dafür die Web-App."

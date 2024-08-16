@@ -172,6 +172,11 @@ public class DummyMetadata implements Metadata {
 	}
 
 	@Override
+	public Optional<String> getEmsTypeForEdge(String edgeId) {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
+	@Override
 	public List<EdgeMetadata> getPageDevice(User user, PaginationOptions paginationOptions)
 			throws OpenemsNamedException {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");

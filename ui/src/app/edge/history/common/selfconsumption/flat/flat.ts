@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
-import { CurrentData, Utils, ChannelAddress } from 'src/app/shared/shared';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
+import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 
 @Component({
     selector: 'selfconsumptionWidget',

@@ -3,10 +3,9 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-
+import { YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { YAxisTitle } from 'src/app/shared/service/utils';
 
 @Component({
     selector: 'chpsocchart',
@@ -17,16 +16,16 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public componentId!: string;
 
-    ngOnChanges() {
-        this.updateChart();
-    }
-
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
         private route: ActivatedRoute,
     ) {
         super("chpsoc-chart", service, translate);
+    }
+
+    ngOnChanges() {
+        this.updateChart();
     }
 
     ngOnInit() {
@@ -36,6 +35,10 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 1.3;
     }
 
     protected updateChart() {
@@ -164,7 +167,4 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
         this.options = this.createDefaultChartOptions();
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 1.3;
-    }
 }

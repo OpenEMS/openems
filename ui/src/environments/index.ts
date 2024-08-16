@@ -89,6 +89,10 @@ export interface Environment {
              */
             APP_IMAGE: (language: string, appId: string) => string | null;
         },
+        APP: {
+            ANDROID: string | null,
+            IOS: string | null,
+        }
     },
     readonly PRODUCT_TYPES: (translate: TranslateService) => Filter | null
 }

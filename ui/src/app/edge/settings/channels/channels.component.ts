@@ -2,14 +2,14 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { PersistencePriority } from 'src/app/shared/edge/edgeconfig';
+import { PersistencePriority } from 'src/app/shared/components/edge/edgeconfig';
 import { SetChannelValueRequest } from 'src/app/shared/jsonrpc/request/setChannelValueRequest';
 import { environment } from 'src/environments';
 
-import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Websocket } from '../../../shared/shared';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
-import { Channel, GetChannelsOfComponentResponse } from 'src/app/shared/jsonrpc/response/getChannelsOfComponentResponse';
 import { GetChannelsOfComponentRequest } from 'src/app/shared/jsonrpc/request/getChannelsOfComponentRequest';
+import { Channel, GetChannelsOfComponentResponse } from 'src/app/shared/jsonrpc/response/getChannelsOfComponentResponse';
+import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Websocket } from '../../../shared/shared';
 
 @Component({
   selector: ChannelsComponent.SELECTOR,
@@ -19,16 +19,20 @@ export class ChannelsComponent {
 
   private static readonly SELECTOR = "channels";
   private static readonly URL_PREFIX = "channels";
+  public customAlertOptions: any = {
+    cssClass: 'wide-alert',
+  };
+
+  protected isAtLeastOneChannelExistingInEdgeConfig: boolean = false;
   protected readonly spinnerId = ChannelsComponent.SELECTOR;
   protected readonly environment = environment;
-  protected edge: Edge = null;
-  protected config: EdgeConfig = null;
-  private persistencePriority: string = PersistencePriority.DEFAULT_GLOBAL_PRIORITY;
+  protected edge: Edge | null = null;
+  protected config: EdgeConfig | null = null;
   protected channelsPerComponent = new Map<string, ComponentChannels>();
-
   protected selectedComponentChannels = new Map<string, Map<string, { showPersistencePriority: boolean }>>();
   // TODO should be a simple SET but equality checking in SETs is currently not changeable and therefore not very useful for objects
   private subscribedChannels = new Map<string, ChannelAddress>();
+  private persistencePriority: string = PersistencePriority.DEFAULT_GLOBAL_PRIORITY;
 
   constructor(
     private service: Service,
@@ -38,9 +42,7 @@ export class ChannelsComponent {
     protected translate: TranslateService,
   ) { }
 
-  public customAlertOptions: any = {
-    cssClass: 'wide-alert',
-  };
+  private static readonly ERROR_COMPONENT_COULD_NOT_BE_FOUND = (componentId: string) => `[ComponentId] ${componentId} doesn't exist on this edge`;
 
   ionViewWillEnter() {
     this.service.setCurrentComponent("Channels", this.route).then(edge => {
@@ -56,10 +58,17 @@ export class ChannelsComponent {
         }
       }).catch(reason => {
         this.service.toast(reason, 'danger');
+        this.selectedComponentChannels = new Map();
+        this.isAtLeastOneChannelExistingInEdgeConfig = true;
       }).finally(() => {
         this.service.stopSpinner(this.spinnerId);
       });
     });
+  }
+
+  ionViewDidLeave() {
+    this.selectedComponentChannels = new Map();
+    this.edge?.unsubscribeChannels(this.websocket, ChannelsComponent.SELECTOR);
   }
 
   /**
@@ -132,15 +141,6 @@ export class ChannelsComponent {
     }
   }
 
-  private saveChannelsInUrl(): void {
-    const selectedChannels = this.getSelectedChannelStrings();
-    if (selectedChannels && selectedChannels.length > 0) {
-      this.router.navigate(['device/' + (this.edge.id) + '/settings/channels/'], { queryParams: { save: selectedChannels.toString() } });
-    } else {
-      this.router.navigate(['device/' + (this.edge.id) + '/settings/channels/']);
-    }
-  }
-
   protected saveChannelsInLocalStorage() {
     const selectedChannels = this.getSelectedChannels();
     if (selectedChannels && selectedChannels.length > 0) {
@@ -149,6 +149,30 @@ export class ChannelsComponent {
       localStorage.removeItem(ChannelsComponent.URL_PREFIX + "-" + this.edge.id);
     }
     this.service.toast("Successfully saved subscribed channels", "success");
+  }
+
+  protected onSelectedComponentChanged(event) {
+    const componentId: string = event.detail.value;
+
+    if (!componentId || this.channelsPerComponent.has(componentId)) {
+      return;
+    }
+
+    this.loadChannelsAndStore(componentId).then(() => {
+      // ignore
+    }).catch(reason => {
+      this.service.toast('Unable to load channels for ' + componentId + ': ' + reason, 'danger');
+    });
+  }
+
+  private saveChannelsInUrl(): void {
+    const selectedChannels = this.getSelectedChannelStrings();
+    if (selectedChannels && selectedChannels.length > 0) {
+      this.router.navigate(['device/' + (this.edge.id) + '/settings/channels/'], { queryParams: { save: selectedChannels.toString() } });
+      this.isAtLeastOneChannelExistingInEdgeConfig = false;
+    } else {
+      this.router.navigate(['device/' + (this.edge.id) + '/settings/channels/']);
+    }
   }
 
   private getSelectedChannelStrings(): string[] {
@@ -170,6 +194,13 @@ export class ChannelsComponent {
     if (address) {
       const channels = address.split(',')?.map(element => ChannelAddress.fromString(element));
       try {
+        const existingComponents = channels.filter(el => el.componentId in this.config.components);
+
+        if (existingComponents.length > 1) {
+          this.isAtLeastOneChannelExistingInEdgeConfig = true;
+          return 'No component matches this edges components';
+        }
+
         await Promise.all(channels.map(el => this.subscribeChannel(el.componentId, el.channelId)));
         return 'Successfully loaded saved channels from url';
       } catch (reason) {
@@ -187,20 +218,6 @@ export class ChannelsComponent {
         throw 'Some channels may not have been loaded from session: ' + reason;
       }
     }
-  }
-
-  protected onSelectedComponentChanged(event) {
-    const componentId: string = event.detail.value;
-
-    if (!componentId || this.channelsPerComponent.has(componentId)) {
-      return;
-    }
-
-    this.loadChannelsAndStore(componentId).then(() => {
-      // ignore
-    }).catch(reason => {
-      this.service.toast('Unable to load channels for ' + componentId + ': ' + reason, 'danger');
-    });
   }
 
   private getChannel(componentId: string, channelId: string): Promise<Channel> {
@@ -247,6 +264,13 @@ export class ChannelsComponent {
         return;
       }
 
+      if (!(componentId in this.config.components)) {
+        console.warn(ChannelsComponent.ERROR_COMPONENT_COULD_NOT_BE_FOUND(componentId));
+        this.isAtLeastOneChannelExistingInEdgeConfig = true;
+        reject();
+        return;
+      }
+
       this.edge.sendRequest(this.websocket, new ComponentJsonApiRequest({
         componentId: '_componentManager',
         payload: new GetChannelsOfComponentRequest({ componentId: componentId }),
@@ -285,10 +309,6 @@ export class ChannelsComponent {
     });
   }
 
-  ionViewDidLeave() {
-    this.selectedComponentChannels = new Map();
-    this.edge?.unsubscribeChannels(this.websocket, ChannelsComponent.SELECTOR);
-  }
 }
 
 type ComponentChannels = {

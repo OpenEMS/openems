@@ -8,6 +8,7 @@ common_initialize_environment() {
     SRC_PACKAGE_JSON="ui/package.json"
     SRC_PACKAGE_LOCK_JSON="ui/package-lock.json"
     SRC_CHANGELOG_CONSTANTS="ui/src/app/changelog/view/component/changelog.constants.ts"
+    SRC_ANDROID_GRADLE="ui/android/app/build.gradle"
 
     # Set environment variables
     THEME="openems"
@@ -60,6 +61,10 @@ common_update_version_in_code() {
 
     echo "## Update $SRC_CHANGELOG_CONSTANTS"
     sed --in-place "s#\(UI_VERSION = \"\).*\(\";\)#\1$VERSION\2#" $SRC_CHANGELOG_CONSTANTS
+
+    echo "## Update $SRC_ANDROID_GRADLE"
+    sed --in-place "s#\(versionCode \).*\$#\1$(printf "%04d%02d%02d" $VERSION_MAJOR $VERSION_MINOR $VERSION_PATCH)#" $SRC_ANDROID_GRADLE
+    sed --in-place "s#\(versionName \).*\$#\1\"$VERSION\"#" $SRC_ANDROID_GRADLE
 }
 
 # Build OpenEMS Backend

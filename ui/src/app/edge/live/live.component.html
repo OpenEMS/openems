@@ -44,7 +44,6 @@
                 <consumption></consumption>
               </ion-col>
 
-
             </ng-container>
 
             <!-- Widgets depending on the configuration of the OpenEMS Edge -->
@@ -57,7 +56,6 @@
                   *ngIf="factoryId !== 'Evcs.Cluster.PeakShaving' && factoryId !== 'Evcs.Cluster.SelfConsumption'">
                   <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12" size-lg="6" class="ion-no-padding">
                     <Controller_Evcs [componentId]="widget.componentId"></Controller_Evcs>
-
                   </ion-col>
                 </ng-container>
               </ng-container>

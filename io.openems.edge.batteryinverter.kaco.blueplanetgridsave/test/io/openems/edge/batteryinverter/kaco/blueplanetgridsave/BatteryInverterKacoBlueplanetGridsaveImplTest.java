@@ -109,7 +109,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 						.output(STATE_MACHINE, State.UNDEFINED)) //
 				.next(new TestCase() //
 						.timeleap(clock, 4, ChronoUnit.SECONDS) //
-						.output(STATE_MACHINE, State.STOPPED)) //
+						.output(STATE_MACHINE, State.GO_RUNNING)) //
 				.next(new TestCase() //
 						.timeleap(clock, 1, ChronoUnit.SECONDS) //
 						.input(CURRENT_STATE, S64201CurrentState.GRID_CONNECTED) //

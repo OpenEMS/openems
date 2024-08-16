@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from 'src/app/shared/shared';
 
@@ -19,7 +19,7 @@ export class FlatComponent extends AbstractFlatWidget {
   public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
 
   protected controller: EdgeConfig.Component;
-  protected evcsComponent: EdgeConfig.Component = null;
+  protected evcsComponent: EdgeConfig.Component | null = null;
   protected isConnectionSuccessful: boolean = false;
   protected isEnergySinceBeginningAllowed: boolean = false;
   protected mode: string;
@@ -33,15 +33,31 @@ export class FlatComponent extends AbstractFlatWidget {
   protected minChargePower: number;
   protected maxChargePower: number;
   protected forceChargeMinPower: string;
-  protected chargeMode: ChargeMode = null;
+  protected chargeMode: ChargeMode | null = null;
   protected readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
   protected readonly CONVERT_TO_KILO_WATTHOURS = Utils.CONVERT_TO_KILO_WATTHOURS;
   protected readonly CONVERT_MANUAL_ON_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
   protected chargeTarget: string;
   protected energySession: string;
   protected chargeDischargePower: { name: string, value: number };
-  protected propertyMode: DefaultTypes.ManualOnOff = null;
+  protected propertyMode: DefaultTypes.ManualOnOff | null = null;
   protected status: string;
+
+  formatNumber(i: number) {
+    const round = Math.ceil(i / 100) * 100;
+    return round;
+  }
+
+
+  async presentModal() {
+    const modal = await this.modalController.create({
+      component: ModalComponent,
+      componentProps: {
+        component: this.component,
+      },
+    });
+    return await modal.present();
+  }
 
   protected override getChannelAddresses(): ChannelAddress[] {
     const result = [
@@ -164,21 +180,6 @@ export class FlatComponent extends AbstractFlatWidget {
     }
   }
 
-  formatNumber(i: number) {
-    const round = Math.ceil(i / 100) * 100;
-    return round;
-  }
-
-
-  async presentModal() {
-    const modal = await this.modalController.create({
-      component: ModalComponent,
-      componentProps: {
-        component: this.component,
-      },
-    });
-    return await modal.present();
-  }
 }
 
 enum ChargeState {

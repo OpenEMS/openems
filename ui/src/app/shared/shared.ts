@@ -1,6 +1,6 @@
 // @ts-strict-ignore
-export { Edge } from "./edge/edge";
-export { EdgeConfig } from "./edge/edgeconfig";
+export { Edge } from "./components/edge/edge";
+export { EdgeConfig } from "./components/edge/edgeconfig";
 export { Logger } from "./service/logger";
 export { Service } from "./service/service";
 export { Utils } from "./service/utils";
@@ -14,7 +14,7 @@ export { Widget, WidgetFactory, WidgetNature, Widgets } from "./type/widget";
 import { AlertController, AlertOptions } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { addIcons } from 'ionicons';
-import { Edge } from "./edge/edge";
+import { Edge } from "./components/edge/edge";
 import { User } from "./jsonrpc/shared";
 import { DefaultTypes } from "./service/defaulttypes";
 import { Role } from "./type/role";
@@ -24,6 +24,7 @@ addIcons({
   'oe-evcs': 'assets/img/icon/evcs.svg',
   'oe-grid': 'assets/img/icon/grid.svg',
   'oe-grid-storage': 'assets/img/icon/gridStorage.svg',
+  'oe-grid-restriction': 'assets/img/icon/gridRestriction.svg',
   'oe-offgrid': 'assets/img/icon/offgrid.svg',
   'oe-production': 'assets/img/icon/production.svg',
   'oe-storage': 'assets/img/icon/storage.svg',
@@ -82,7 +83,6 @@ export class EdgePermission {
   public static hasReducedFactories(edge: Edge): boolean {
     return edge.isVersionAtLeast('2024.6.1');
   }
-
 }
 
 export class UserPermission {
@@ -151,6 +151,10 @@ export namespace Currency {
   export enum Label {
     OERE_PER_KWH = "Öre/kWh",
     CENT_PER_KWH = "Cent/kWh",
+  }
+
+  export enum Unit {
+    CENT = "Cent",
   }
 }
 

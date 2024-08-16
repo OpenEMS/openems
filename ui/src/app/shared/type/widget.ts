@@ -1,6 +1,6 @@
 // @ts-strict-ignore
-import { Edge } from '../edge/edge';
-import { EdgeConfig } from '../edge/edgeconfig';
+import { Edge } from '../components/edge/edge';
+import { EdgeConfig } from '../components/edge/edgeconfig';
 
 export enum WidgetClass {
     'Energymonitor',
@@ -50,9 +50,31 @@ export class Widget {
 }
 
 export class Widgets {
+    /**
+     * Names of Widgets.
+     */
+    public readonly names: string[] = [];
+
+    private constructor(
+        /**
+         * List of all Widgets.
+         */
+        public readonly list: Widget[],
+        /**
+         * List of Widget-Classes.
+         */
+        public readonly classes: string[],
+    ) {
+        // fill names
+        for (const widget of list) {
+            const name: string = widget.name.toString();
+            if (!this.names.includes(name)) {
+                this.names.push(name);
+            }
+        }
+    }
 
     public static parseWidgets(edge: Edge, config: EdgeConfig): Widgets {
-
         const classes: string[] = Object.values(WidgetClass) //
             .filter(v => typeof v === 'string')
             .filter(clazz => {
@@ -124,32 +146,7 @@ export class Widgets {
         });
         return new Widgets(list, classes);
     }
-
-    /**
-     * Names of Widgets.
-     */
-    public readonly names: string[] = [];
-
-    private constructor(
-        /**
-         * List of all Widgets.
-         */
-        public readonly list: Widget[],
-        /**
-         * List of Widget-Classes.
-         */
-        public readonly classes: string[],
-    ) {
-        // fill names
-        for (const widget of list) {
-            const name: string = widget.name.toString();
-            if (!this.names.includes(name)) {
-                this.names.push(name);
-            }
-        }
-    }
 }
 
 export enum ProductType {
-    HOME = "home",
 }

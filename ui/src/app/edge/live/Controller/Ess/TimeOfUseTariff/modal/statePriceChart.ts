@@ -4,12 +4,13 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
-import { AbstractHistoryChart as NewAbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { AbstractHistoryChart as NewAbstractHistoryChart } from 'src/app/shared/components/chart/abstracthistorychart';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 import { calculateResolution } from 'src/app/edge/history/shared';
+import { ChartConstants } from 'src/app/shared/components/chart/chart.constants';
 import { ColorUtils } from 'src/app/shared/utils/color/color.utils';
 import { GetScheduleRequest } from '../../../../../../shared/jsonrpc/request/getScheduleRequest';
 import { GetScheduleResponse } from '../../../../../../shared/jsonrpc/response/getScheduleResponse';
@@ -27,11 +28,6 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
     private currencyLabel: Currency.Label; // Default
 
-    public ngOnChanges() {
-        this.currencyLabel = Currency.getCurrencyLabelByEdgeId(this.edge.id);
-        this.updateChart();
-    }
-
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
@@ -39,6 +35,15 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
         private websocket: Websocket,
     ) {
         super("schedule-chart", service, translate);
+    }
+
+    public getChartHeight(): number {
+        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
+    }
+
+    public ngOnChanges() {
+        this.currencyLabel = Currency.getCurrencyLabelByEdgeId(this.edge.id);
+        this.updateChart();
     }
 
     public ngOnInit() {
@@ -94,13 +99,21 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
         });
     }
 
+    protected setLabel() {
+        this.options = this.createDefaultChartOptions();
+    }
+
+    protected getChannelAddresses(): Promise<ChannelAddress[]> {
+        return new Promise(() => { []; });
+    }
+
     private applyControllerSpecificOptions() {
         const locale = this.service.translate.currentLang;
         const rightYaxisSoc: HistoryUtils.yAxes = { position: 'right', unit: YAxisTitle.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYaxisSoc, this.translate, 'line', locale);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYaxisSoc, this.translate, 'line', locale, ChartConstants.EMPTY_DATASETS);
 
         const rightYAxisPower: HistoryUtils.yAxes = { position: 'right', unit: YAxisTitle.POWER, yAxisId: ChartAxis.RIGHT_2 };
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxisPower, this.translate, 'line', locale);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxisPower, this.translate, 'line', locale, ChartConstants.EMPTY_DATASETS);
 
         this.options.scales.x['time'].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
         this.options.scales.x['ticks'] = { source: 'auto', autoSkip: false };
@@ -163,15 +176,4 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
         this.options['animation'] = false;
     }
 
-    protected setLabel() {
-        this.options = this.createDefaultChartOptions();
-    }
-
-    protected getChannelAddresses(): Promise<ChannelAddress[]> {
-        return new Promise(() => { []; });
-    }
-
-    public getChartHeight(): number {
-        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
-    }
 }

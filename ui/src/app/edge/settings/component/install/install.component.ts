@@ -1,9 +1,9 @@
 // @ts-strict-ignore
-import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { Service, Utils, Websocket, EdgeConfig, Edge } from '../../../../shared/shared';
+import { Edge, EdgeConfig, Service, Utils, Websocket } from '../../../../shared/shared';
 
 @Component({
   selector: ComponentInstallComponent.SELECTOR,
@@ -13,13 +13,13 @@ export class ComponentInstallComponent implements OnInit {
 
   private static readonly SELECTOR = "componentInstall";
 
-  public edge: Edge = null;
-  public factory: EdgeConfig.Factory = null;
+  public edge: Edge | null = null;
+  public factory: EdgeConfig.Factory | null = null;
   public form = null;
   public model = null;
-  public fields: FormlyFieldConfig[] = null;
+  public fields: FormlyFieldConfig[] | null = null;
 
-  private factoryId: string = null;
+  private factoryId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,

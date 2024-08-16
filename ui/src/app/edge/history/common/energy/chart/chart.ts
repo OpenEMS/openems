@@ -1,20 +1,16 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { AbstractHistoryChart } from 'src/app/shared/components/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ChartAxis, HistoryUtils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
 
 @Component({
   selector: 'energychart',
-  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
+  templateUrl: '../../../../../shared/components/chart/abstracthistorychart.html',
 })
 export class ChartComponent extends AbstractHistoryChart {
-
-  public override getChartData() {
-    return ChartComponent.getChartData(this.config, this.chartType, this.translate);
-  }
 
   public static getChartData(config: EdgeConfig | null, chartType: 'line' | 'bar', translate: TranslateService): HistoryUtils.ChartData {
     const input: HistoryUtils.InputChannel[] =
@@ -169,9 +165,6 @@ export class ChartComponent extends AbstractHistoryChart {
             borderDash: [10, 10],
             yAxisId: ChartAxis.RIGHT,
             stack: 1,
-            custom: {
-              unit: YAxisTitle.PERCENTAGE,
-            },
           }],
         ];
       },
@@ -207,7 +200,12 @@ export class ChartComponent extends AbstractHistoryChart {
     };
   }
 
+  public override getChartData() {
+    return ChartComponent.getChartData(this.config, this.chartType, this.translate);
+  }
+
   protected override getChartHeight(): number {
     return this.service.deviceHeight / 2;
   }
+
 }

@@ -4,11 +4,11 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
-import { AbstractHistoryChart as NewAbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { AbstractHistoryChart as NewAbstractHistoryChart } from 'src/app/shared/components/chart/abstracthistorychart';
+import { ChartConstants } from 'src/app/shared/components/chart/chart.constants';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
-
 import { GetScheduleRequest } from '../../../../../../shared/jsonrpc/request/getScheduleRequest';
 import { GetScheduleResponse } from '../../../../../../shared/jsonrpc/response/getScheduleResponse';
 
@@ -22,9 +22,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
     @Input({ required: true }) public override edge!: Edge;
     @Input({ required: true }) public component!: EdgeConfig.Component;
 
-    public ngOnChanges() {
-        this.updateChart();
-    }
 
     constructor(
         protected override service: Service,
@@ -35,6 +32,10 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
         super("powerSoc-chart", service, translate);
     }
 
+    public ngOnChanges() {
+        this.updateChart();
+    }
+
     public ngOnInit() {
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
@@ -42,6 +43,26 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
     public ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
+    }
+
+    protected setLabel() {
+        this.options = this.createDefaultChartOptions();
+        const translate = this.translate;
+        this.options.plugins.tooltip.callbacks.label = function (item: Chart.TooltipItem<any>) {
+
+            const label = item.dataset.label;
+            const value = item.dataset.data[item.dataIndex];
+
+            return TimeOfUseTariffUtils.getLabel(value, label, translate);
+        };
+    }
+
+    protected getChannelAddresses(): Promise<ChannelAddress[]> {
+        return new Promise(() => { []; });
     }
 
     protected override updateChart() {
@@ -180,8 +201,8 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
         const leftYAxis: HistoryUtils.yAxes = { position: 'left', unit: YAxisTitle.POWER, yAxisId: ChartAxis.LEFT };
         const locale = this.service.translate.currentLang;
 
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, 'line', locale, true);
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, 'line', locale, true);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, 'line', locale, ChartConstants.EMPTY_DATASETS, true);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, 'line', locale, ChartConstants.EMPTY_DATASETS, true);
 
         this.datasets = this.datasets.map((el: Chart.ChartDataset) => {
 
@@ -205,23 +226,4 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
         this.options.scales[ChartAxis.LEFT].suggestedMax = 1;
     }
 
-    protected setLabel() {
-        this.options = this.createDefaultChartOptions();
-        const translate = this.translate;
-        this.options.plugins.tooltip.callbacks.label = function (item: Chart.TooltipItem<any>) {
-
-            const label = item.dataset.label;
-            const value = item.dataset.data[item.dataIndex];
-
-            return TimeOfUseTariffUtils.getLabel(value, label, translate);
-        };
-    }
-
-    protected getChannelAddresses(): Promise<ChannelAddress[]> {
-        return new Promise(() => { []; });
-    }
-
-    public getChartHeight(): number {
-        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
-    }
 }

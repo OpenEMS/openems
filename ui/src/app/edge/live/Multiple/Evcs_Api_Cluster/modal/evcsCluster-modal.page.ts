@@ -1,9 +1,9 @@
 // @ts-strict-ignore
-import { ActivatedRoute, Router } from '@angular/router';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IonReorderGroup, ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
 type Priority = 'CAR' | 'STORAGE';
@@ -15,15 +15,12 @@ type Priority = 'CAR' | 'STORAGE';
 export class Evcs_Api_ClusterModalComponent implements OnInit {
 
     @Input({ required: true }) public edge!: Edge;
-    @Input() public config: EdgeConfig.Component = null;
+    @Input() public config: EdgeConfig.Component | null = null;
     @Input({ required: true }) public componentId!: string;
     @Input() public evcsMap: { [sourceId: string]: EdgeConfig.Component } = {};
 
     @ViewChild(IonReorderGroup, { static: true })
     public reorderGroup: IonReorderGroup;
-
-    public chargeState: ChargeState;
-    private chargePlug: ChargePlug;
     public evcsAmount: number;
     public swiperIndex: number = 0;
     public slideOpts = {
@@ -37,6 +34,9 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
     public lastEvcs: string;
     public prioritizedEvcsList: string[];
     public evcsConfigMap: { [evcsId: string]: EdgeConfig.Component } = {};
+
+    public chargeState: ChargeState;
+    private chargePlug: ChargePlug;
 
     constructor(
         protected service: Service,

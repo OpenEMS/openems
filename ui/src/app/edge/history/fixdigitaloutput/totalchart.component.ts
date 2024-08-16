@@ -17,16 +17,16 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
 
   @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
 
-  ngOnChanges() {
-    this.updateChart();
-  }
-
   constructor(
     protected override service: Service,
     protected override translate: TranslateService,
     private route: ActivatedRoute,
   ) {
     super("fixdigitaloutput-total-chart", service, translate);
+  }
+
+  ngOnChanges() {
+    this.updateChart();
   }
 
   ngOnInit() {
@@ -38,6 +38,9 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
     this.unsubscribeChartRefresh();
   }
 
+  public getChartHeight(): number {
+    return window.innerHeight / 1.3;
+  }
   protected updateChart() {
     this.autoSubscribeChartRefresh();
     this.startSpinner();
@@ -120,7 +123,4 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
     this.options = this.createDefaultChartOptions();
   }
 
-  public getChartHeight(): number {
-    return window.innerHeight / 1.3;
-  }
 }

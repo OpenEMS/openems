@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 import { Icon } from 'src/app/shared/type/widget';
 import { Controller_Io_ChannelSingleThresholdModalComponent } from './modal/modal.component';
@@ -29,6 +29,21 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
   public switchState: string;
   public switchValue: number | string;
   public switchConverter = Utils.CONVERT_WATT_TO_KILOWATT;
+
+  async presentModal() {
+    const modal = await this.modalController.create({
+      component: Controller_Io_ChannelSingleThresholdModalComponent,
+      componentProps: {
+        component: this.component,
+        config: this.config,
+        edge: this.edge,
+        outputChannel: this.outputChannel,
+        inputChannel: this.inputChannel,
+        inputChannelUnit: this.unitOfInputChannel,
+      },
+    });
+    return await modal.present();
+  }
 
   protected override afterIsInitialized(): void {
     this.inputChannel = ChannelAddress.fromString(
@@ -171,21 +186,6 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
       }
     }
 
-  }
-
-  async presentModal() {
-    const modal = await this.modalController.create({
-      component: Controller_Io_ChannelSingleThresholdModalComponent,
-      componentProps: {
-        component: this.component,
-        config: this.config,
-        edge: this.edge,
-        outputChannel: this.outputChannel,
-        inputChannel: this.inputChannel,
-        inputChannelUnit: this.unitOfInputChannel,
-      },
-    });
-    return await modal.present();
   }
 }
 

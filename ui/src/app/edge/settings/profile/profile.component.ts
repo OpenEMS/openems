@@ -1,9 +1,8 @@
-// @ts-strict-ignore
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
+import { CategorizedComponents } from 'src/app/shared/components/edge/edgeconfig';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
@@ -22,8 +21,8 @@ export class ProfileComponent implements OnInit {
 
   public environment = environment;
 
-  public edge: Edge = null;
-  public config: EdgeConfig = null;
+  public edge: Edge | null = null;
+  public config: EdgeConfig | null = null;
   public subscribedChannels: ChannelAddress[] = [];
 
   public components: CategorizedComponents[] | null = null;

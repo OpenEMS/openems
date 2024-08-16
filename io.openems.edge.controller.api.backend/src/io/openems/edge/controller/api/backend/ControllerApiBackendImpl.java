@@ -263,8 +263,7 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public CompletableFuture<? extends JsonrpcResponseSuccess> sendRequest(User user, JsonrpcRequest request)
-			throws OpenemsNamedException {
+	public CompletableFuture<? extends JsonrpcResponseSuccess> sendRequest(User user, JsonrpcRequest request) {
 		return this.websocket.sendRequest(request);
 	}
 
