@@ -1,9 +1,7 @@
 package io.openems.edge.controller.ess.timeframe;
 
 import io.openems.common.exceptions.InvalidValueException;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.ess.test.DummySymmetricEss;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -11,7 +9,6 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedAsymmetricEss;
 
 import java.text.DateFormat;
@@ -19,7 +16,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 
 public class ControllerEssTimeframeImplTest {
 
@@ -77,8 +77,8 @@ public class ControllerEssTimeframeImplTest {
                         50,
                         1000,
                         0,
-                        getIso8601String(now()),
-                        getIso8601String(inOneHour())
+                        this.getIso8601String(this.now()),
+                        this.getIso8601String(this.inOneHour())
                 ));
 
 
@@ -88,8 +88,8 @@ public class ControllerEssTimeframeImplTest {
                 50,
                 0,
                 0,
-                getIso8601String(now()),
-                getIso8601String(inOneHour())
+                this.getIso8601String(this.now()),
+                this.getIso8601String(this.inOneHour())
         );
         assertNotNull(acPower);
         assertTrue(acPower < -1000);
@@ -112,8 +112,8 @@ public class ControllerEssTimeframeImplTest {
                         50,
                         0,
                         1000,
-                        getIso8601String(now()),
-                        getIso8601String(inOneHour())
+                        this.getIso8601String(this.now()),
+                        this.getIso8601String(this.inOneHour())
                 ));
 
 
@@ -123,8 +123,8 @@ public class ControllerEssTimeframeImplTest {
                 50,
                 0,
                 0,
-                getIso8601String(now()),
-                getIso8601String(inOneHour())
+                this.getIso8601String(this.now()),
+                this.getIso8601String(this.inOneHour())
         );
         assertNotNull(acPower);
         assertTrue(acPower > 1000);
@@ -137,7 +137,7 @@ public class ControllerEssTimeframeImplTest {
     }
 
     private Date inOneHour() {
-        return new Date(now().getTime() + 3600 * 1000);
+        return new Date(this.now().getTime() + 3600 * 1000);
     }
 
 

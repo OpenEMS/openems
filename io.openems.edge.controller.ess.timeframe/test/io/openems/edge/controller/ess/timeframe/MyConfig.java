@@ -14,7 +14,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
         private Phase phase;
         private Relationship relationship;
 
-        private int ess_capacity;
+        private int essCapacity;
         private int targetSoC;
         private int maxChargePower;
         private int maxDischargePower;
@@ -49,8 +49,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
             return this;
         }
 
-        public Builder setEss_capacity(int ess_capacity) {
-            this.ess_capacity = ess_capacity;
+        public Builder setEss_capacity(int essCapacity) {
+            this.essCapacity = essCapacity;
             return this;
         }
 
@@ -108,7 +108,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
     @Override
     public int ess_capacity() {
-        return this.builder.ess_capacity;
+        return this.builder.essCapacity;
     }
 
     @Override
