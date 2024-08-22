@@ -8,6 +8,7 @@ import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { Base64PayloadResponse } from "../jsonrpc/response/base64PayloadResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Currency, EdgeConfig } from "../shared";
+import { Language } from "src/app/shared/type/language"
 
 export class Utils {
 
@@ -251,10 +252,11 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_TO_WATT = (value: number | null): string => {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     if (value == null) {
       return "-";
     } else if (value >= 0) {
-      return formatNumber(value, "de", "1.0-0") + " W";
+      return formatNumber(value, locale, "1.0-0") + " W";
     } else {
       return "0 W";
     }
@@ -267,13 +269,14 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_WATT_TO_KILOWATT = (value: number | null): string => {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     if (value == null) {
       return "-";
     }
     const thisValue: number = (value / 1000);
 
     if (thisValue >= 0) {
-      return formatNumber(thisValue, "de", "1.0-1") + " kW";
+      return formatNumber(thisValue, locale, "1.0-1") + " kW";
     } else {
       return "0 kW";
     }
@@ -306,7 +309,8 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_TO_WATTHOURS = (value: number): string => {
-    return formatNumber(value, "de", "1.0-1") + " Wh";
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+    return formatNumber(value, locale, "1.0-1") + " Wh";
   };
 
   /**
@@ -316,7 +320,8 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_TO_KILO_WATTHOURS = (value: number): string => {
-    return formatNumber(Utils.divideSafely(value, 1000), "de", "1.0-1") + " kWh";
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+    return formatNumber(Utils.divideSafely(value, 1000), locale, "1.0-1") + " kWh";
   };
 
   /**
@@ -395,6 +400,7 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     return (value: number | null | undefined): string =>
       (value == null ? "-" : formatNumber(value / 10, "de", "1.0-" + decimal)) + " " + label;
   };
@@ -863,7 +869,7 @@ export namespace TimeOfUseTariffUtils {
    * @returns The formatted label, or exits if the value is not valid.
    */
   export function getLabel(value: number, label: string, translate: TranslateService, currencyLabel?: Currency.Label): string {
-
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     // Error handling: Return undefined if value is not valid
     if (value === undefined || value === null || Number.isNaN(Number.parseInt(value.toString()))) {
       return;
@@ -878,18 +884,18 @@ export namespace TimeOfUseTariffUtils {
     // Switch case to handle different labels
     switch (label) {
       case socLabel:
-        return label + ": " + formatNumber(value, "de", "1.0-0") + " %";
+        return label + ": " + formatNumber(value, locale, "1.0-0") + " %";
 
       case dischargeLabel:
       case chargeConsumptionLabel:
       case balancingLabel:
         // Show floating point number for values between 0 and 1
-        return label + ": " + formatNumber(value, "de", "1.0-4") + " " + currencyLabel;
+        return label + ": " + formatNumber(value, locale, "1.0-4") + " " + currencyLabel;
 
       default:
       case gridBuyLabel:
         // Power values
-        return label + ": " + formatNumber(value, "de", "1.0-2") + " kW";
+        return label + ": " + formatNumber(value, locale, "1.0-2") + " kW";
     }
   }
 

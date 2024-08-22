@@ -4,6 +4,7 @@ import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
+import { Language, MyTranslateLoader } from "src/app/shared/type/language";
 
 import { StorageModalComponent } from "./modal/modal.component";
 
@@ -51,6 +52,7 @@ export class StorageComponent extends AbstractFlatWidget {
      * @returns only positive and 0
      */
     public convertPower(value: number, isCharge?: boolean) {
+        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
         if (value == null) {
             return "-";
         }
@@ -59,7 +61,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
         // Round thisValue to Integer when decimal place equals 0
         if (thisValue > 0) {
-            return formatNumber(thisValue, "de", "1.0-1") + " kW"; // TODO get locale dynamically
+            return formatNumber(thisValue, locale, "1.0-1") + " kW";
 
         } else if (thisValue == 0 && isCharge) {
             // if thisValue is 0, then show only when charge and not discharge

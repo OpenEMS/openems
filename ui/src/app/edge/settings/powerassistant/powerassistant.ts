@@ -3,6 +3,7 @@ import { formatNumber } from "@angular/common";
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { DataService } from "src/app/shared/components/shared/dataservice";
+import { Language } from "src/app/shared/type/language"
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "../../../shared/shared";
 import { LiveDataService } from "../../live/livedataservice";
 
@@ -222,10 +223,11 @@ export class PowerAssistantComponent extends AbstractFlatWidget {
 export namespace Converter {
   export function unit(unit: string): (value: any) => string {
     return function (value: any): string {
+      const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
       if (value == null) {
         return "-";
       } else if (value >= 0) {
-        return formatNumber(value, "de", "1.0-0") + " " + unit;
+        return formatNumber(value, locale, "1.0-0") + " " + unit;
       }
     };
   }
