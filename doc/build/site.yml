@@ -6,14 +6,14 @@ site:
 
 content:
   sources:
-    - url: ./../../
+    - url: https://github.com/OpenEMS/openems.git
       edit_url: https://github.com/OpenEMS/openems/tree/{refname}/{path}
       branches: HEAD
       start_path: doc
 
 ui:
   bundle:
-    url: uibundle_openems.zip
+    url: https://github.com/OpenEMS/openems.io-theme/releases/latest/download/ui-bundle.zip
 
 output:
   dir: www
