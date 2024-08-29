@@ -6,8 +6,8 @@ site:
 
 content:
   sources:
-    - url: https://github.com/OpenEMS/openems.git
-      edit_url: https://github.com/OpenEMS/openems/tree/{refname}/{path}
+    - url: ./../../
+      edit_url: https://github.com/OpenEMS/openems/tree/develop/{path}
       branches: HEAD
       start_path: doc
 
