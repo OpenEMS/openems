@@ -171,10 +171,13 @@ export class ChartComponent extends AbstractHistoryChart {
       tooltip: {
         formatNumber: '1.0-2',
         afterTitle: (stack: string) => {
-          if (stack === "1") {
-            return translate.instant('General.production');
-          } else if (stack === "2") {
-            return translate.instant('General.consumption');
+
+          if (chartType === 'bar') {
+            if (stack === "1") {
+              return translate.instant('General.production');
+            } else if (stack === "2") {
+              return translate.instant('General.consumption');
+            }
           }
           return null;
         },
