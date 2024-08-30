@@ -144,7 +144,7 @@ export const appRoutingProviders: any[] = [];
 
 @NgModule({
   imports: [
-    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules }),
+    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules, paramsInheritanceStrategy: 'always' }),
   ],
   exports: [RouterModule],
 })
