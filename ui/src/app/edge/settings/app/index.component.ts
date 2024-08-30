@@ -1,10 +1,10 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, NavigationExtras, Router } from '@angular/router';
 import { IonPopover, ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { filter, switchMap, takeUntil } from 'rxjs/operators';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Role } from 'src/app/shared/type/role';
 import { Environment, environment } from 'src/environments';
@@ -76,6 +76,17 @@ export class IndexComponent implements OnInit, OnDestroy {
 
   public ngOnInit() {
     this.init();
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      switchMap(() => this.route.url),
+      takeUntil(this.stopOnDestroy),
+    ).subscribe(() => {
+      const navigationExtras = this.router.getCurrentNavigation()?.extras as NavigationExtras;
+      const appInstanceChange = navigationExtras?.state?.appInstanceChange;
+      if (appInstanceChange != null && appInstanceChange) {
+        this.init();
+      }
+    });
   }
 
   public ngOnDestroy(): void {
