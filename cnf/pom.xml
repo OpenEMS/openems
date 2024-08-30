@@ -393,13 +393,13 @@
 			<!-- Used by Apache Felix Web Management Console -->
 			<groupId>org.owasp.encoder</groupId>
 			<artifactId>encoder</artifactId>
-			<version>1.2.3</version>
+			<version>1.3.1</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.7.3</version>
+			<version>42.7.4</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
