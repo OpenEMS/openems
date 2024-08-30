@@ -13,7 +13,7 @@
     "@angular/router": "~16.2.12",
     "@angular/service-worker": "~16.2.12",
     "@capacitor-community/file-opener": "^1.0.5",
-    "@capacitor/android": "5.7.7",
+    "@capacitor/android": "5.7.8",
     "@capacitor/app": "^5.0.6",
     "@capacitor/core": "5.7.8",
     "@capacitor/filesystem": "^5.2.0",
