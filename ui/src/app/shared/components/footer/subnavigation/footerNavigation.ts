@@ -55,8 +55,6 @@ export class FooterNavigationComponent implements AfterViewInit {
     this.showPopover = false;
   }
 
-
-
   /**
    * Initializes sub-navigation
    */

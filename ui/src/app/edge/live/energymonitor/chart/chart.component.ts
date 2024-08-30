@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { fromEvent, Subject } from 'rxjs';
+import { Subject, fromEvent } from 'rxjs';
 import { debounceTime, delay, takeUntil } from 'rxjs/operators';
 import { Service } from 'src/app/shared/shared';
 import { CurrentData } from '../../../../shared/components/edge/currentdata';
@@ -38,8 +38,6 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   public readonly spinnerId = "energymonitor";
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
-
-
 
   constructor(
     private service: Service,

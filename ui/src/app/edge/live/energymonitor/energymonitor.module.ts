@@ -28,6 +28,3 @@ import { EnergymonitorComponent } from './energymonitor.component';
   ],
 })
 export class EnergymonitorModule { }
-
-
-
