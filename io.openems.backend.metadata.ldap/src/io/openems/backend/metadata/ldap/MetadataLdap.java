@@ -458,4 +458,11 @@ public class MetadataLdap extends AbstractMetadata implements Metadata, EventHan
 
         throw new UnsupportedOperationException("setUserAlertingSettings() is not implemented");
     }
+
+    @Override
+    public Optional<String> getEmsTypeForEdge(String edgeId) {
+        log.info("MetadataLdap.getEmsTypeForEdge()");
+
+        throw new UnsupportedOperationException("getEmsTypeForEdge() is not implemented");
+    }
 }
