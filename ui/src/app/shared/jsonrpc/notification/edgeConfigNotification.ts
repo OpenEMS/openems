@@ -1,4 +1,4 @@
-import { EdgeConfig } from '../../components/edge/edgeconfig';
+import { EdgeConfig } from "../../components/edge/edgeconfig";
 import { JsonrpcNotification } from "../base";
 
 /**

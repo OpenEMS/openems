@@ -20,7 +20,7 @@ export abstract class AbstractFormlyComponent {
     const route = SharedModule.injector.get<ActivatedRoute>(ActivatedRoute);
     this.translate = SharedModule.injector.get<TranslateService>(TranslateService);
 
-    service.setCurrentComponent('', route).then(edge => {
+    service.setCurrentComponent("", route).then(edge => {
       edge.getConfig(service.websocket)
         .pipe(filter(config => !!config))
         .subscribe((config) => {
@@ -36,7 +36,7 @@ export abstract class AbstractFormlyComponent {
               required: true,
               options: [{ lines: view.lines }],
             },
-            wrappers: ['formly-field-modal'],
+            wrappers: ["formly-field-modal"],
           }];
         });
     });
@@ -68,26 +68,26 @@ export type OeFormlyField =
 export namespace OeFormlyField {
 
   export type InfoLine = {
-    type: 'info-line',
+    type: "info-line",
     name: string
   };
 
   export type Item = {
-    type: 'item',
+    type: "item",
     channel: string,
     filter?: (value: number | null) => boolean,
     converter?: (value: number | null) => string
   };
 
   export type ChildrenLine = {
-    type: 'children-line',
+    type: "children-line",
     name: /* actual name string */ string | /* name string derived from channel value */ { channel: ChannelAddress, converter: Converter },
     indentation?: TextIndentation,
     children: Item[],
   };
 
   export type ChannelLine = {
-    type: 'channel-line',
+    type: "channel-line",
     name: /* actual name string */ string | /* name string derived from channel value */ Converter,
     channel: string,
     filter?: (value: number | null) => boolean,
@@ -96,7 +96,7 @@ export namespace OeFormlyField {
   };
 
   export type ValueFromChannelsLine = {
-    type: 'value-from-channels-line',
+    type: "value-from-channels-line",
     name: string,
     value: (data: CurrentData) => string,
     channelsToSubscribe: ChannelAddress[],
@@ -105,6 +105,6 @@ export namespace OeFormlyField {
   };
 
   export type HorizontalLine = {
-    type: 'horizontal-line',
+    type: "horizontal-line",
   };
 }

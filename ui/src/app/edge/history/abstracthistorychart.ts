@@ -1,18 +1,18 @@
 // @ts-strict-ignore
-import { TranslateService } from '@ngx-translate/core';
-import * as Chart from 'chart.js';
-import { AbstractHistoryChart as NewAbstractHistoryChart } from 'src/app/shared/components/chart/abstracthistorychart';
-import { ChartConstants, XAxisType } from 'src/app/shared/components/chart/chart.constants';
-import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
+import { TranslateService } from "@ngx-translate/core";
+import * as Chart from "chart.js";
+import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { ChartConstants, XAxisType } from "src/app/shared/components/chart/chart.constants";
+import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
-import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
+import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
-import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
-import { ChartAxis, HistoryUtils, Utils, YAxisTitle } from 'src/app/shared/service/utils';
-import { ChannelAddress, Edge, EdgeConfig, Service } from 'src/app/shared/shared';
-import { DateUtils } from 'src/app/shared/utils/date/dateutils';
-import { DateTimeUtils } from 'src/app/shared/utils/datetime/datetime-utils';
-import { calculateResolution, ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, setLabelVisible } from './shared';
+import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
+import { ChartAxis, HistoryUtils, Utils, YAxisTitle } from "src/app/shared/service/utils";
+import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
+import { DateUtils } from "src/app/shared/utils/date/dateutils";
+import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+import { calculateResolution, ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, setLabelVisible } from "./shared";
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {
@@ -39,22 +39,22 @@ export abstract class AbstractHistoryChart {
     /** @deprecated*/
     protected unit: YAxisTitle = YAxisTitle.ENERGY;
     /** @deprecated*/
-    protected formatNumber: string = '1.0-2';
+    protected formatNumber: string = "1.0-2";
     /** @deprecated*/
     protected xAxisType: XAxisType = XAxisType.TIMESERIES;
 
     // Colors for Phase 1-3
     protected phase1Color = {
-        backgroundColor: 'rgba(255,127,80,0.05)',
-        borderColor: 'rgba(255,127,80,1)',
+        backgroundColor: "rgba(255,127,80,0.05)",
+        borderColor: "rgba(255,127,80,1)",
     };
     protected phase2Color = {
-        backgroundColor: 'rgba(0,0,255,0.1)',
-        borderColor: 'rgba(0,0,255,1)',
+        backgroundColor: "rgba(0,0,255,0.1)",
+        borderColor: "rgba(0,0,255,1)",
     };
     protected phase3Color = {
-        backgroundColor: 'rgba(128,128,0,0.1)',
-        borderColor: 'rgba(128,128,0,1)',
+        backgroundColor: "rgba(128,128,0,0.1)",
+        borderColor: "rgba(128,128,0,1)",
     };
 
     constructor(
@@ -74,14 +74,14 @@ export abstract class AbstractHistoryChart {
     protected static toTooltipTitle(fromDate: Date, toDate: Date, date: Date, service: Service): string {
         const unit = calculateResolution(service, fromDate, toDate).resolution.unit;
         if (unit == ChronoUnit.Type.MONTHS) {
-            return date.toLocaleDateString('default', { month: 'long' });
+            return date.toLocaleDateString("default", { month: "long" });
 
         } else if (unit == ChronoUnit.Type.DAYS) {
-            return date.toLocaleDateString('default', { day: '2-digit', month: 'long' });
+            return date.toLocaleDateString("default", { day: "2-digit", month: "long" });
 
         } else {
             // Default
-            return date.toLocaleString('default', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + date.toLocaleTimeString('default', { hour12: false, hour: '2-digit', minute: '2-digit' });
+            return date.toLocaleString("default", { day: "2-digit", month: "2-digit", year: "2-digit" }) + " " + date.toLocaleTimeString("default", { hour12: false, hour: "2-digit", minute: "2-digit" });
         }
     }
 
@@ -116,7 +116,7 @@ export abstract class AbstractHistoryChart {
 
         return new Promise<void>((resolve) => {
             const locale = this.service.translate.currentLang;
-            const yAxis: HistoryUtils.yAxes = { position: 'left', unit: this.unit, yAxisId: ChartAxis.LEFT };
+            const yAxis: HistoryUtils.yAxes = { position: "left", unit: this.unit, yAxisId: ChartAxis.LEFT };
             const chartObject: HistoryUtils.ChartData = {
                 input: [],
                 output: () => [],
@@ -134,7 +134,7 @@ export abstract class AbstractHistoryChart {
                 options = NewAbstractHistoryChart.getDefaultOptions(this.xAxisType, this.service, this.labels);
 
                 /** Hide default displayed yAxis */
-                options.scales['y'] = {
+                options.scales["y"] = {
                     display: false,
                 };
 
@@ -152,7 +152,7 @@ export abstract class AbstractHistoryChart {
                     const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
 
                     const customUnit = tooltipItem.dataset.unit ?? null;
-                    return label.split(":")[0] + ": " + NewAbstractHistoryChart.getToolTipsSuffix("", value, formatNumber, customUnit ?? unit, 'line', locale, translate, conf);
+                    return label.split(":")[0] + ": " + NewAbstractHistoryChart.getToolTipsSuffix("", value, formatNumber, customUnit ?? unit, "line", locale, translate, conf);
                 };
 
                 options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
@@ -186,10 +186,10 @@ export abstract class AbstractHistoryChart {
                             text: dataset.label,
                             datasetIndex: index,
                             fillStyle: color.backgroundColor,
-                            fontColor: getComputedStyle(document.documentElement).getPropertyValue('--ion-color-text'),
+                            fontColor: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-text"),
                             hidden: !chart.isDatasetVisible(index),
                             lineWidth: 2,
-                            ...(dataset['borderDash'] && { lineDash: dataset['borderDash'] }),
+                            ...(dataset["borderDash"] && { lineDash: dataset["borderDash"] }),
                             strokeStyle: color.borderColor,
                         });
                     });
@@ -220,29 +220,29 @@ export abstract class AbstractHistoryChart {
                 };
 
                 const timeFormat = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
-                options.scales.x['time'].unit = timeFormat;
+                options.scales.x["time"].unit = timeFormat;
                 switch (timeFormat) {
-                    case 'hour':
-                        options.scales.x.ticks['source'] = 'auto';//labels,auto
+                    case "hour":
+                        options.scales.x.ticks["source"] = "auto";//labels,auto
                         options.scales.x.ticks.maxTicksLimit = 31;
                         break;
-                    case 'day':
-                    case 'month':
-                        options.scales.x.ticks['source'] = 'data';
+                    case "day":
+                    case "month":
+                        options.scales.x.ticks["source"] = "data";
                         break;
                 }
 
                 // Only one yAxis defined
-                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, 'line', locale, ChartConstants.EMPTY_DATASETS, false);
+                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, "line", locale, ChartConstants.EMPTY_DATASETS, false);
 
-                options.scales.x['stacked'] = true;
-                options.scales[ChartAxis.LEFT]['stacked'] = false;
-                options = NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges('line', options, this.service, chartObject);
+                options.scales.x["stacked"] = true;
+                options.scales[ChartAxis.LEFT]["stacked"] = false;
+                options = NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges("line", options, this.service, chartObject);
 
                 /** Overwrite default yAxisId */
                 this.datasets = this.datasets
                     .map(el => {
-                        el['yAxisID'] = ChartAxis.LEFT;
+                        el["yAxisID"] = ChartAxis.LEFT;
                         return el;
                     });
             }).then(() => {
@@ -403,7 +403,7 @@ export abstract class AbstractHistoryChart {
      * @param spinnerSelector to stop spinner
      */
     protected initializeChart() {
-        EMPTY_DATASET[0].label = this.translate.instant('Edge.History.noData');
+        EMPTY_DATASET[0].label = this.translate.instant("Edge.History.noData");
         this.datasets = EMPTY_DATASET;
         this.labels = [];
         this.loading = false;

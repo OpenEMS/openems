@@ -1,17 +1,17 @@
 // @ts-strict-ignore
-import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Subject, fromEvent } from 'rxjs';
-import { debounceTime, delay, takeUntil } from 'rxjs/operators';
-import { Service } from 'src/app/shared/shared';
-import { CurrentData } from '../../../../shared/components/edge/currentdata';
-import { ConsumptionSectionComponent } from './section/consumption.component';
-import { GridSectionComponent } from './section/grid.component';
-import { ProductionSectionComponent } from './section/production.component';
-import { StorageSectionComponent } from './section/storage.component';
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Subject, fromEvent } from "rxjs";
+import { debounceTime, delay, takeUntil } from "rxjs/operators";
+import { Service } from "src/app/shared/shared";
+import { CurrentData } from "../../../../shared/components/edge/currentdata";
+import { ConsumptionSectionComponent } from "./section/consumption.component";
+import { GridSectionComponent } from "./section/grid.component";
+import { ProductionSectionComponent } from "./section/production.component";
+import { StorageSectionComponent } from "./section/storage.component";
 
 @Component({
-  selector: 'energymonitor-chart',
-  templateUrl: './chart.component.html',
+  selector: "energymonitor-chart",
+  templateUrl: "./chart.component.html",
 })
 export class EnergymonitorChartComponent implements OnInit, OnDestroy {
 
@@ -27,7 +27,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   @ViewChild(StorageSectionComponent, { static: true })
   public storageSection: StorageSectionComponent;
 
-  @ViewChild('energymonitorChart', { static: true })
+  @ViewChild("energymonitorChart", { static: true })
   private chartDiv: ElementRef;
 
   public translation: string;
@@ -52,7 +52,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
     this.service.startSpinner(this.spinnerId);
     // make sure chart is redrawn in the beginning and on window resize
     setTimeout(() => this.updateOnWindowResize(), 500);
-    const source = fromEvent(window, 'resize', null, null);
+    const source = fromEvent(window, "resize", null, null);
     source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(e => {
       this.updateOnWindowResize();
     });

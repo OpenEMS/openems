@@ -5,7 +5,7 @@ import { EdgeConfig } from "src/app/shared/shared";
 import { OeChartTester } from "../../../../../shared/components/shared/testing/tester";
 import { ChartComponent } from "./chart";
 
-export function expectView(config: EdgeConfig, testContext: TestContext, chartType: 'line' | 'bar', channels: OeTester.Types.Channels, view: OeChartTester.View): void {
+export function expectView(config: EdgeConfig, testContext: TestContext, chartType: "line" | "bar", channels: OeTester.Types.Channels, view: OeChartTester.View): void {
   expect(removeFunctions(OeChartTester
     .apply(ChartComponent
       .getChartData(DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config), chartType, testContext.translate), chartType, channels, testContext, config)))

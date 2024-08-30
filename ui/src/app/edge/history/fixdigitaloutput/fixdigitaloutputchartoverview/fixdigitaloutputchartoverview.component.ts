@@ -1,11 +1,11 @@
 // @ts-strict-ignore
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { Edge, EdgeConfig, Service, Utils } from "../../../../shared/shared";
 
 @Component({
     selector: FixDigitalOutputChartOverviewComponent.SELECTOR,
-    templateUrl: './fixdigitaloutputchartoverview.component.html',
+    templateUrl: "./fixdigitaloutputchartoverview.component.html",
 })
 export class FixDigitalOutputChartOverviewComponent implements OnInit {
 
@@ -26,11 +26,11 @@ export class FixDigitalOutputChartOverviewComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.setCurrentComponent("", this.route).then(edge => {
             this.service.getConfig().then(config => {
                 this.edge = edge;
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
-                config.getComponentsByFactory('Controller.Io.FixDigitalOutput').forEach(component => {
+                config.getComponentsByFactory("Controller.Io.FixDigitalOutput").forEach(component => {
                     this.fixDigitalOutputComponents.push(component.id);
                 });
                 if (this.fixDigitalOutputComponents.length > 1) {

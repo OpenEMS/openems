@@ -45,7 +45,7 @@ export namespace ArrayUtils {
       } else if (!bVal) {
         return -1;
       }
-      return aVal.localeCompare(bVal, undefined, { sensitivity: 'accent' });
+      return aVal.localeCompare(bVal, undefined, { sensitivity: "accent" });
     });
   }
 }

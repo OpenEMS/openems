@@ -1,19 +1,19 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
 
-import type { ChartOptions } from 'chart.js';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChartAxis, YAxisTitle } from 'src/app/shared/service/utils';
+import type { ChartOptions } from "chart.js";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { ChartAxis, YAxisTitle } from "src/app/shared/service/utils";
 
-import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { AbstractHistoryChart } from '../abstracthistorychart';
+import { QueryHistoricTimeseriesDataResponse } from "../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
+import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../shared/shared";
+import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({
-  selector: 'heatingelementChart',
-  templateUrl: '../abstracthistorychart.html',
+  selector: "heatingelementChart",
+  templateUrl: "../abstracthistorychart.html",
 })
 export class HeatingelementChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -34,7 +34,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
 
   ngOnInit() {
     this.startSpinner();
-    this.service.setCurrentComponent('', this.route);
+    this.service.setCurrentComponent("", this.route);
     this.setLabel();
   }
 
@@ -63,7 +63,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
 
         // convert datasets
         const datasets = [];
-        const level = this.component.id + '/Level';
+        const level = this.component.id + "/Level";
 
         if (level in result.data) {
           const levelData = result.data[level].map(value => {
@@ -74,12 +74,12 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
             }
           });
           datasets.push({
-            label: 'Level',
+            label: "Level",
             data: levelData,
           });
           this.colors.push({
-            backgroundColor: 'rgba(200,0,0,0.05)',
-            borderColor: 'rgba(200,0,0,1)',
+            backgroundColor: "rgba(200,0,0,0.05)",
+            borderColor: "rgba(200,0,0,1)",
           });
         }
         this.datasets = datasets;
@@ -97,7 +97,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
       this.initializeChart();
       return;
     }).finally(async () => {
-      this.formatNumber = '1.0-1';
+      this.formatNumber = "1.0-1";
       this.unit = YAxisTitle.NONE;
       await this.setOptions(this.options);
       this.applyControllerSpecificOptions(this.options);
@@ -106,17 +106,17 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
-      const levels = new ChannelAddress(this.component.id, 'Level');
+      const levels = new ChannelAddress(this.component.id, "Level");
       const channeladdresses = [levels];
       resolve(channeladdresses);
     });
   }
 
   protected applyControllerSpecificOptions(options: ChartOptions) {
-    options.scales[ChartAxis.LEFT]['title'].text = 'Level';
-    options.scales[ChartAxis.LEFT]['beginAtZero'] = true;
+    options.scales[ChartAxis.LEFT]["title"].text = "Level";
+    options.scales[ChartAxis.LEFT]["beginAtZero"] = true;
     options.scales[ChartAxis.LEFT].max = 3;
-    options.scales[ChartAxis.LEFT].ticks['stepSize'] = 1;
+    options.scales[ChartAxis.LEFT].ticks["stepSize"] = 1;
     this.options = options;
   }
 

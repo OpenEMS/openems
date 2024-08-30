@@ -23,9 +23,9 @@ export class TimeUtils {
     minutes -= hours * 60;
 
     if (hours <= 23 && minutes > 0) {
-      return decimalPipe.transform(hours, '1.0-0') + 'h' + " " + decimalPipe.transform(minutes, '1.0-0') + 'm';
+      return decimalPipe.transform(hours, "1.0-0") + "h" + " " + decimalPipe.transform(minutes, "1.0-0") + "m";
     } else {
-      return decimalPipe.transform(hours, '1.0-0') + 'h';
+      return decimalPipe.transform(hours, "1.0-0") + "h";
     }
   }
 
@@ -49,9 +49,9 @@ export class TimeUtils {
     const minutes = Math.floor(seconds / 60);
 
     if (minutes > 0) {
-      return decimalPipe.transform(minutes, '1.0-0') + ' min';
+      return decimalPipe.transform(minutes, "1.0-0") + " min";
     } else {
-      return decimalPipe.transform(seconds, '1.0-0') + ' s';
+      return decimalPipe.transform(seconds, "1.0-0") + " s";
     }
   }
 }

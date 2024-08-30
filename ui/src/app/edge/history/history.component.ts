@@ -1,16 +1,16 @@
 // @ts-strict-ignore
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { AppService } from 'src/app/app.service';
-import { HeaderComponent } from 'src/app/shared/components/header/header.component';
-import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
-import { Edge, EdgeConfig, Service, Widgets } from 'src/app/shared/shared';
-import { environment } from 'src/environments';
+import { Component, OnInit, ViewChild } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { AppService } from "src/app/app.service";
+import { HeaderComponent } from "src/app/shared/components/header/header.component";
+import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
+import { Edge, EdgeConfig, Service, Widgets } from "src/app/shared/shared";
+import { environment } from "src/environments";
 
 @Component({
-  selector: 'history',
-  templateUrl: './history.component.html',
+  selector: "history",
+  templateUrl: "./history.component.html",
 })
 export class HistoryComponent implements OnInit {
 
@@ -42,7 +42,7 @@ export class HistoryComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentComponent('', this.route);
+    this.service.setCurrentComponent("", this.route);
     this.service.currentEdge.subscribe((edge) => {
       this.edge = edge;
     });
@@ -57,8 +57,8 @@ export class HistoryComponent implements OnInit {
       config.hasStorage();
       this.widgets = config.widgets;
       // Are we connected to OpenEMS Edge and is a timedata service available?
-      if (environment.backend == 'OpenEMS Edge'
-        && config.getComponentsImplementingNature('io.openems.edge.timedata.api.Timedata').filter(c => c.isEnabled).length == 0) {
+      if (environment.backend == "OpenEMS Edge"
+        && config.getComponentsImplementingNature("io.openems.edge.timedata.api.Timedata").filter(c => c.isEnabled).length == 0) {
         this.isTimedataAvailable = false;
       }
     });

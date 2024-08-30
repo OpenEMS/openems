@@ -2,12 +2,12 @@
 import { Injectable } from "@angular/core";
 import { Router, RoutesRecognized } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { filter, map } from 'rxjs/operators';
+import { filter, map } from "rxjs/operators";
 
 import { Service } from "./service";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class GlobalRouteChangeHandler {
 
@@ -21,7 +21,7 @@ export class GlobalRouteChangeHandler {
       filter(event => event instanceof RoutesRecognized),
       map(event => {
         let data = null;
-        let route = event['state'].root;
+        let route = event["state"].root;
 
         while (route) {
           data = route.data || data;
@@ -32,7 +32,7 @@ export class GlobalRouteChangeHandler {
     ).subscribe(e => {
 
       if (e.navbarTitle != null && e.navbarTitleToBeTranslated != null) {
-        throw new Error('Either use navbarTitle or navbarTitleToBeTranslated');
+        throw new Error("Either use navbarTitle or navbarTitleToBeTranslated");
       }
 
       this.service.currentPageTitle = e.navbarTitle ?? (e.navbarTitleToBeTranslated ? translate.instant(e.navbarTitleToBeTranslated) : null) ?? this.service.currentPageTitle;

@@ -18,7 +18,8 @@
         "editor.codeActionsOnSave": {
             "source.organizeImports": "explicit",
             "source.removeUnusedImports": "explicit"
-        }
+        },
+        "typescript.preferences.quoteStyle": "double"
     },
     "[jsonc]": {
         "editor.defaultFormatter": "vscode.json-language-features"
@@ -46,5 +47,5 @@
         "**/node_modules",
         "*.svg",
         "*.scss"
-    ]
+    ],
 }

@@ -1,12 +1,12 @@
 // @ts-strict-ignore
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { GetUserAlertingConfigsRequest } from 'src/app/shared/jsonrpc/request/getUserAlertingConfigsRequest';
-import { SetUserAlertingConfigsRequest, UserSettingRequest } from 'src/app/shared/jsonrpc/request/setUserAlertingConfigsRequest';
-import { AlertingSettingResponse, GetUserAlertingConfigsResponse } from 'src/app/shared/jsonrpc/response/getUserAlertingConfigsResponse';
-import { Edge, Service, Utils, Websocket } from 'src/app/shared/shared';
+import { Component, OnInit } from "@angular/core";
+import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { GetUserAlertingConfigsRequest } from "src/app/shared/jsonrpc/request/getUserAlertingConfigsRequest";
+import { SetUserAlertingConfigsRequest, UserSettingRequest } from "src/app/shared/jsonrpc/request/setUserAlertingConfigsRequest";
+import { AlertingSettingResponse, GetUserAlertingConfigsResponse } from "src/app/shared/jsonrpc/response/getUserAlertingConfigsResponse";
+import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
 
 export enum AlertingType {
   offline = 0,
@@ -21,7 +21,7 @@ type DetailedAlertingSetting = AlertingSetting & { isOfflineActive: boolean, isF
 
 @Component({
   selector: AlertingComponent.SELECTOR,
-  templateUrl: './alerting.component.html',
+  templateUrl: "./alerting.component.html",
 })
 export class AlertingComponent implements OnInit {
 
@@ -55,7 +55,7 @@ export class AlertingComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.alerting' }, this.route).then(edge => {
+    this.service.setCurrentComponent({ languageKey: "Edge.Config.Index.alerting" }, this.route).then(edge => {
       this.edge = edge;
 
       const request = new GetUserAlertingConfigsRequest({ edgeId: this.edge.id });
@@ -94,16 +94,16 @@ export class AlertingComponent implements OnInit {
     }
     if (delay >= 1440) {
       delay = delay / 1440;
-      return delay + ' ' + (delay == 1
+      return delay + " " + (delay == 1
         ? this.translate.instant("General.TIME.DAY")
         : this.translate.instant("General.TIME.DAYS"));
     } else if (delay >= 60) {
       delay = delay / 60;
-      return delay + ' ' + (delay == 1
+      return delay + " " + (delay == 1
         ? this.translate.instant("General.TIME.HOUR")
         : this.translate.instant("General.TIME.HOURS"));
     } else {
-      return delay + ' ' + (delay == 1
+      return delay + " " + (delay == 1
         ? this.translate.instant("General.TIME.MINUTE")
         : this.translate.instant("General.TIME.MINUTES"));
     }
@@ -142,9 +142,9 @@ export class AlertingComponent implements OnInit {
         for (const user of this.otherUserInformation) {
           const control = this.otherUserForm.controls[user.userLogin];
           if (control.dirty) {
-            const offlineEdgeDelay = control.value['offlineEdgeDelay'];
-            const faultEdgeDelay = control.value['faultEdgeDelay'];
-            const warningEdgeDelay = control.value['warningEdgeDelay'];
+            const offlineEdgeDelay = control.value["offlineEdgeDelay"];
+            const faultEdgeDelay = control.value["faultEdgeDelay"];
+            const warningEdgeDelay = control.value["warningEdgeDelay"];
             //let isActivated = control.value['isActivated'];
             changedUserSettings.push({
               userLogin: user.userLogin,
@@ -252,7 +252,7 @@ export class AlertingComponent implements OnInit {
 
   private sortedAlphabetically(userSettings: AlertingSettingResponse[]): AlertingSettingResponse[] {
     return userSettings.sort((userA, userB) => {
-      return userA.userLogin.localeCompare(userB.userLogin, undefined, { sensitivity: 'accent' });
+      return userA.userLogin.localeCompare(userB.userLogin, undefined, { sensitivity: "accent" });
     });
   }
 
@@ -273,14 +273,14 @@ export class AlertingComponent implements OnInit {
   private sendRequestAndUpdate(request: GetUserAlertingConfigsRequest | SetUserAlertingConfigsRequest, formGroup: FormGroup<any>[]) {
     this.sendRequest(request)
       .then(() => {
-        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+        this.service.toast(this.translate.instant("General.changeAccepted"), "success");
         for (const group of formGroup.values()) {
           group.markAsPristine();
         }
       })
       .catch((response) => {
         const error = response.error;
-        this.errorToast(this.translate.instant('General.changeFailed'), error.message);
+        this.errorToast(this.translate.instant("General.changeFailed"), error.message);
       });
   }
 
@@ -297,7 +297,7 @@ export class AlertingComponent implements OnInit {
       }).catch(reason => {
         const error = reason.error;
         console.error(error);
-        this.errorToast(this.translate.instant('Edge.Config.ALERTING.TOAST.ERROR'), error.message);
+        this.errorToast(this.translate.instant("Edge.Config.ALERTING.TOAST.ERROR"), error.message);
         reject(reason);
       }).finally(() => {
         this.service.stopSpinner(this.spinnerId);
@@ -306,6 +306,6 @@ export class AlertingComponent implements OnInit {
   }
 
   private errorToast(errorType: string, errorMsg: string) {
-    this.service.toast('[ ' + errorType + ' ]<br/>' + errorMsg, 'danger');
+    this.service.toast("[ " + errorType + " ]<br/>" + errorMsg, "danger");
   }
 }

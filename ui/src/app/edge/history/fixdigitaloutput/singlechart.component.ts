@@ -1,18 +1,18 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import * as Chart from 'chart.js';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { YAxisTitle } from 'src/app/shared/service/utils';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import * as Chart from "chart.js";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { YAxisTitle } from "src/app/shared/service/utils";
 
-import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { AbstractHistoryChart } from '../abstracthistorychart';
+import { QueryHistoricTimeseriesDataResponse } from "../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
+import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../shared/shared";
+import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({
-  selector: 'fixDigitalOutputSingleChart',
-  templateUrl: '../abstracthistorychart.html',
+  selector: "fixDigitalOutputSingleChart",
+  templateUrl: "../abstracthistorychart.html",
 })
 export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -34,7 +34,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
 
   ngOnInit() {
     this.startSpinner();
-    this.service.setCurrentComponent('', this.route);
+    this.service.setCurrentComponent("", this.route);
   }
 
   ngOnDestroy() {
@@ -75,8 +75,8 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
           data: data,
         });
         this.colors.push({
-          backgroundColor: 'rgba(0,191,255,0.05)',
-          borderColor: 'rgba(0,191,255,1)',
+          backgroundColor: "rgba(0,191,255,0.05)",
+          borderColor: "rgba(0,191,255,1)",
         });
       }
       this.datasets = datasets;
@@ -95,7 +95,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
-      const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
+      const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)["outputChannelAddress"]);
       const channeladdresses = [outputChannel];
       resolve(channeladdresses);
     });

@@ -1,16 +1,16 @@
 // @ts-strict-ignore
-import { Injectable } from '@angular/core';
-import { App } from '@capacitor/app';
-import { Capacitor } from '@capacitor/core';
-import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
-import { FileOpener } from '@ionic-native/file-opener';
-import { AlertController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { saveAs } from 'file-saver-es';
-import { DeviceDetectorService, DeviceInfo } from 'ngx-device-detector';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { environment } from 'src/environments';
-import { JsonrpcRequest } from './shared/jsonrpc/base';
+import { Injectable } from "@angular/core";
+import { App } from "@capacitor/app";
+import { Capacitor } from "@capacitor/core";
+import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
+import { FileOpener } from "@ionic-native/file-opener";
+import { AlertController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { saveAs } from "file-saver-es";
+import { DeviceDetectorService, DeviceInfo } from "ngx-device-detector";
+import { BehaviorSubject, Subject } from "rxjs";
+import { environment } from "src/environments";
+import { JsonrpcRequest } from "./shared/jsonrpc/base";
 
 @Injectable()
 export class AppService {
@@ -42,9 +42,9 @@ export class AppService {
   public static getAppStoreLink(): string | null {
     if (this.isMobile) {
       switch (AppService.deviceInfo.os) {
-        case 'iOS':
+        case "iOS":
           return environment.links.APP.IOS;
-        case 'Android':
+        case "Android":
           return environment.links.APP.ANDROID;
         default:
           return null;
@@ -71,25 +71,25 @@ export class AppService {
         });
 
         FileOpener.open(result.uri, data.type)
-          .then(() => console.log('File is opened'))
-          .catch(e => console.log('Error opening file', e));
+          .then(() => console.log("File is opened"))
+          .catch(e => console.log("Error opening file", e));
 
-        console.log('Wrote file', result.uri);
+        console.log("Wrote file", result.uri);
       } catch (e) {
-        console.error('Unable to write file', e);
+        console.error("Unable to write file", e);
       }
     };
   }
 
   public listen() {
     // Don't use in web
-    if (AppService.platform === 'web') {
+    if (AppService.platform === "web") {
       return;
     }
 
     this.updateState();
 
-    App.addListener('appStateChange', () => {
+    App.addListener("appStateChange", () => {
       this.updateState();
     });
   }
@@ -128,7 +128,7 @@ export class AppService {
         encoding: Encoding.UTF8,
       });
 
-      console.log('secrets:', contents);
+      console.log("secrets:", contents);
     };
 
     await writeSecretFile();
@@ -146,16 +146,16 @@ export class AppService {
       header: header,
       message: message,
       buttons: [{
-        text: this.translate.instant('INSTALLATION.BACK'),
-        role: 'cancel',
+        text: this.translate.instant("INSTALLATION.BACK"),
+        role: "cancel",
       },
       {
-        text: this.translate.instant('INSTALLATION.FORWARD'),
+        text: this.translate.instant("INSTALLATION.FORWARD"),
         handler: () => {
           successCallback();
         },
       }],
-      cssClass: 'alertController',
+      cssClass: "alertController",
     });
     (await alert).present();
   }

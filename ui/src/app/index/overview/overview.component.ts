@@ -3,9 +3,9 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { InfiniteScrollCustomEvent } from "@ionic/angular";
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
-import { filter, take } from 'rxjs/operators';
+import { filter, take } from "rxjs/operators";
 import { Pagination } from "src/app/shared/service/pagination";
 import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
@@ -14,8 +14,8 @@ import { environment } from "src/environments";
 import { ChosenFilter } from "../filter/filter.component";
 
 @Component({
-    selector: 'overview',
-    templateUrl: './overview.component.html',
+    selector: "overview",
+    templateUrl: "./overview.component.html",
 })
 export class OverViewComponent implements OnInit, OnDestroy {
     public environment = environment;
@@ -29,7 +29,7 @@ export class OverViewComponent implements OnInit, OnDestroy {
     public filteredEdges: Edge[] = [];
 
     protected loading: boolean = false;
-    protected searchParams: Map<string, ChosenFilter['value']> = new Map();
+    protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private page = 0;
@@ -60,7 +60,7 @@ export class OverViewComponent implements OnInit, OnDestroy {
     }
 
     ionViewWillEnter() {
-        this.service.setCurrentComponent('', this.route);
+        this.service.setCurrentComponent("", this.route);
     }
 
     /**
@@ -120,7 +120,7 @@ export class OverViewComponent implements OnInit, OnDestroy {
      *
      * @param event from template passed event
      */
-    protected searchOnChange(searchParams?: Map<string, ChosenFilter['value']>) {
+    protected searchOnChange(searchParams?: Map<string, ChosenFilter["value"]>) {
 
         if (searchParams) {
             this.searchParams = searchParams;
@@ -151,10 +151,10 @@ export class OverViewComponent implements OnInit, OnDestroy {
                     // Forward directly to device page, if
                     // - Direct local access to Edge
                     // - No installer (i.e. guest or owner) and access to only one Edge
-                    if (environment.backend == 'OpenEMS Edge' || (!this.loggedInUserCanInstall && edgeIds.length == 1)) {
+                    if (environment.backend == "OpenEMS Edge" || (!this.loggedInUserCanInstall && edgeIds.length == 1)) {
                         const edge = metadata.edges[edgeIds[0]];
                         setTimeout(() => {
-                            this.router.navigate(['/device', edge.id]);
+                            this.router.navigate(["/device", edge.id]);
                         }, 100);
                         return;
                     }

@@ -1,11 +1,11 @@
 // @ts-strict-ignore
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../../shared/shared';
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from "../../../../shared/shared";
 
 @Component({
     selector: SinglethresholdChartOverviewComponent.SELECTOR,
-    templateUrl: './singlethresholdchartoverview.component.html',
+    templateUrl: "./singlethresholdchartoverview.component.html",
 })
 export class SinglethresholdChartOverviewComponent implements OnInit {
 
@@ -31,17 +31,17 @@ export class SinglethresholdChartOverviewComponent implements OnInit {
 
     ngOnInit() {
         this.service.startSpinner(this.spinnerid);
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.setCurrentComponent("", this.route).then(edge => {
             this.service.getConfig().then(config => {
                 this.edge = edge;
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
-                this.inputChannel = config.getComponentProperties(this.component.id)['inputChannelAddress'];
+                this.inputChannel = config.getComponentProperties(this.component.id)["inputChannelAddress"];
 
                 this.edge.getChannel(this.websocket, ChannelAddress.fromString(this.inputChannel)).then(c => {
                     this.inputChannelUnit = c.unit;
                 }).catch(e => {
                     console.error(e);
-                    this.inputChannelUnit = '';
+                    this.inputChannelUnit = "";
                 }).finally(() => {
                     this.service.stopSpinner(this.spinnerid);
                 });

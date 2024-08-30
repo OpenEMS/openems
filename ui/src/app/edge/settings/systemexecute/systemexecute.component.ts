@@ -1,24 +1,24 @@
 // @ts-strict-ignore
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
-import { TranslateService } from '@ngx-translate/core';
-import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
-import { ExecuteSystemCommandRequest } from 'src/app/shared/jsonrpc/request/executeCommandRequest';
-import { ExecuteSystemCommandResponse } from 'src/app/shared/jsonrpc/response/executeSystemCommandResponse';
-import { Service, Utils, Websocket } from '../../../shared/shared';
+import { Component, OnInit } from "@angular/core";
+import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
+import { FormlyFieldConfig, FormlyFormOptions } from "@ngx-formly/core";
+import { TranslateService } from "@ngx-translate/core";
+import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { ExecuteSystemCommandRequest } from "src/app/shared/jsonrpc/request/executeCommandRequest";
+import { ExecuteSystemCommandResponse } from "src/app/shared/jsonrpc/response/executeSystemCommandResponse";
+import { Service, Utils, Websocket } from "../../../shared/shared";
 
 type CommandFunction = (...args: (string | boolean | number)[]) => string;
 
 const COMMANDS: { [key: string]: CommandFunction; } = {
-  'ping': (ip: string) => `ping -c4 ${ip}`,
-  'openems-restart': () => "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; echo 'systemctl restart openems' | at now",
+  "ping": (ip: string) => `ping -c4 ${ip}`,
+  "openems-restart": () => "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; echo 'systemctl restart openems' | at now",
 };
 
 @Component({
   selector: SystemExecuteComponent.SELECTOR,
-  templateUrl: './systemexecute.component.html',
+  templateUrl: "./systemexecute.component.html",
 })
 export class SystemExecuteComponent implements OnInit {
 
@@ -34,17 +34,17 @@ export class SystemExecuteComponent implements OnInit {
   public model: any = {};
   public options: FormlyFormOptions = {};
   public fields: FormlyFieldConfig[] = [{
-    key: 'predefined',
-    type: 'radio',
-    templateOptions: { options: [{ value: 'ping', label: 'Ping device in network' }] },
+    key: "predefined",
+    type: "radio",
+    templateOptions: { options: [{ value: "ping", label: "Ping device in network" }] },
   }, {
-    key: 'ping',
-    hideExpression: (model: any, formState: any) => this.model['predefined'] !== 'ping',
+    key: "ping",
+    hideExpression: (model: any, formState: any) => this.model["predefined"] !== "ping",
     fieldGroup: [{
-      key: 'ip',
-      type: 'input',
+      key: "ip",
+      type: "input",
       templateOptions: {
-        label: 'IP-Address', placeholder: "192.168.0.1", required: true, pattern: /(\d{1,3}\.){3}\d{1,3}/,
+        label: "IP-Address", placeholder: "192.168.0.1", required: true, pattern: /(\d{1,3}\.){3}\d{1,3}/,
       },
       validation: {
         messages: {
@@ -53,11 +53,11 @@ export class SystemExecuteComponent implements OnInit {
       },
     }],
   }, {
-    key: 'predefined',
-    type: 'radio',
+    key: "predefined",
+    type: "radio",
     templateOptions: {
       options: [
-        { value: 'openems-restart', label: 'Restart OpenEMS Edge service' },
+        { value: "openems-restart", label: "Restart OpenEMS Edge service" },
       ],
     },
   }];
@@ -73,7 +73,7 @@ export class SystemExecuteComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.systemExecute' }, this.route);
+    this.service.setCurrentComponent({ languageKey: "Edge.Config.Index.systemExecute" }, this.route);
     this.form = this.formBuilder.group({
       username: new FormControl("root"),
       password: new FormControl(""),
@@ -99,15 +99,15 @@ export class SystemExecuteComponent implements OnInit {
           command = cmd();
       }
     }
-    this.form.controls['command'].setValue(command);
+    this.form.controls["command"].setValue(command);
   }
 
   public submit() {
-    const username = this.form.controls['username'];
-    const password = this.form.controls['password'];
-    const timeoutSeconds = this.form.controls['timeoutSeconds'];
-    const runInBackground = this.form.controls['runInBackground'];
-    const command = this.form.controls['command'];
+    const username = this.form.controls["username"];
+    const password = this.form.controls["password"];
+    const timeoutSeconds = this.form.controls["timeoutSeconds"];
+    const runInBackground = this.form.controls["runInBackground"];
+    const command = this.form.controls["command"];
 
     this.service.getCurrentEdge().then(edge => {
       this.loading = true;

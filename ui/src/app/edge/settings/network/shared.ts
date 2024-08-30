@@ -56,7 +56,7 @@ export namespace NetworkUtils {
       octets.push(256 - Math.pow(2, 8 - bits));
       cidr -= bits;
     }
-    return octets.join('.');
+    return octets.join(".");
   }
 
   /**
@@ -73,12 +73,12 @@ export namespace NetworkUtils {
   export function getCidrFromSubnetmask(subnetmask: string): number {
     // Split the subnet mask into its octets, convert them to binary, and join the binary strings
     const binaryString = subnetmask
-      .split('.')
+      .split(".")
       .map(Number)
-      .map(part => (part >>> 0).toString(2).padStart(8, '0')) // Ensure each part is represented as 8 bits
-      .join('');
+      .map(part => (part >>> 0).toString(2).padStart(8, "0")) // Ensure each part is represented as 8 bits
+      .join("");
 
     // return the number of '1's in the binary string to get the CIDR notation
-    return binaryString.split('1').length - 1;
+    return binaryString.split("1").length - 1;
   }
 }

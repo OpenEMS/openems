@@ -89,7 +89,11 @@
           }
         ],
         "@typescript-eslint/member-ordering": "error",
-        "no-multiple-empty-lines": "error"
+        "no-multiple-empty-lines": "error",
+        "quotes": [
+          "error",
+          "double"
+        ]
       }
     },
     {

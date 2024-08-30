@@ -1,17 +1,17 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { YAxisTitle } from 'src/app/shared/service/utils';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { YAxisTitle } from "src/app/shared/service/utils";
 
-import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Service } from '../../../shared/shared';
-import { AbstractHistoryChart } from '../abstracthistorychart';
+import { QueryHistoricTimeseriesDataResponse } from "../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
+import { ChannelAddress, Service } from "../../../shared/shared";
+import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({
-  selector: 'fixDigitalOutputTotalChart',
-  templateUrl: '../abstracthistorychart.html',
+  selector: "fixDigitalOutputTotalChart",
+  templateUrl: "../abstracthistorychart.html",
 })
 export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -31,7 +31,7 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
 
   ngOnInit() {
     this.startSpinner();
-    this.service.setCurrentComponent('', this.route);
+    this.service.setCurrentComponent("", this.route);
   }
 
   ngOnDestroy() {
@@ -74,8 +74,8 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
               data: data,
             });
             this.colors.push({
-              backgroundColor: 'rgba(0,191,255,0.05)',
-              borderColor: 'rgba(0,191,255,1)',
+              backgroundColor: "rgba(0,191,255,0.05)",
+              borderColor: "rgba(0,191,255,1)",
             });
             break;
           case 1:
@@ -84,8 +84,8 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
               data: data,
             });
             this.colors.push({
-              backgroundColor: 'rgba(0,0,139,0.05)',
-              borderColor: 'rgba(0,0,139,1)',
+              backgroundColor: "rgba(0,0,139,0.05)",
+              borderColor: "rgba(0,0,139,1)",
             });
             break;
         }
@@ -100,7 +100,7 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
       return;
     }).finally(async () => {
       this.unit = YAxisTitle.PERCENTAGE;
-      this.formatNumber = '1.0-0';
+      this.formatNumber = "1.0-0";
       await this.setOptions(this.options);
     });
   }
@@ -110,8 +110,8 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
       this.service.getConfig().then(config => {
         const channeladdresses = [];
         // find all FixIoControllers
-        config.getComponentsByFactory('Controller.Io.FixDigitalOutput').forEach(component => {
-          const outputChannel = ChannelAddress.fromString(config.getComponentProperties(component.id)['outputChannelAddress']);
+        config.getComponentsByFactory("Controller.Io.FixDigitalOutput").forEach(component => {
+          const outputChannel = ChannelAddress.fromString(config.getComponentProperties(component.id)["outputChannelAddress"]);
           channeladdresses.push(outputChannel);
         });
         resolve(channeladdresses);

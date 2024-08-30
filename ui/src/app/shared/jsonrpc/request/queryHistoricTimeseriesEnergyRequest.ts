@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { format } from 'date-fns';
+import { format } from "date-fns";
 import { ChannelAddress } from "../../type/channeladdress";
 import { JsonrpcRequest } from "../base";
 import { JsonRpcUtils } from "../jsonrpcutils";
@@ -32,8 +32,8 @@ export class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
     ) {
         super(QueryHistoricTimeseriesEnergyRequest.METHOD, {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            fromDate: format(fromDate, 'yyyy-MM-dd'),
-            toDate: format(toDate, 'yyyy-MM-dd'),
+            fromDate: format(fromDate, "yyyy-MM-dd"),
+            toDate: format(toDate, "yyyy-MM-dd"),
             channels: JsonRpcUtils.channelsToStringArray(channels),
         });
         // delete local fields, otherwise they are sent with the JSON-RPC Request

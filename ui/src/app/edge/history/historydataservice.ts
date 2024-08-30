@@ -44,7 +44,7 @@ export class HistoryDataService extends DataService {
                   allComponents[key] = value;
                 }
                 this.currentValue.next({ allComponents: allComponents });
-                this.timestamps = response.result['timestamps'] ?? [];
+                this.timestamps = response.result["timestamps"] ?? [];
               }).catch(err => console.warn(err))
               .finally(() => {
               });

@@ -1,16 +1,16 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { YAxisTitle } from 'src/app/shared/service/utils';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { YAxisTitle } from "src/app/shared/service/utils";
 
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
-import { AbstractHistoryChart } from '../../abstracthistorychart';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../../../shared/shared";
+import { AbstractHistoryChart } from "../../abstracthistorychart";
 
 @Component({
-    selector: 'asymmetricpeakshavingchart',
-    templateUrl: '../../abstracthistorychart.html',
+    selector: "asymmetricpeakshavingchart",
+    templateUrl: "../../abstracthistorychart.html",
 })
 export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -31,7 +31,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
 
     ngOnInit() {
         this.startSpinner();
-        this.service.setCurrentComponent('', this.route);
+        this.service.setCurrentComponent("", this.route);
     }
 
     ngOnDestroy() {
@@ -48,11 +48,11 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
         this.loading = true;
         this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            const meterIdActivePowerL1 = this.component.properties['meter.id'] + '/ActivePowerL1';
-            const meterIdActivePowerL2 = this.component.properties['meter.id'] + '/ActivePowerL2';
-            const meterIdActivePowerL3 = this.component.properties['meter.id'] + '/ActivePowerL3';
-            const peakshavingPower = this.component.id + '/_PropertyPeakShavingPower';
-            const rechargePower = this.component.id + '/_PropertyRechargePower';
+            const meterIdActivePowerL1 = this.component.properties["meter.id"] + "/ActivePowerL1";
+            const meterIdActivePowerL2 = this.component.properties["meter.id"] + "/ActivePowerL2";
+            const meterIdActivePowerL3 = this.component.properties["meter.id"] + "/ActivePowerL3";
+            const peakshavingPower = this.component.id + "/_PropertyPeakShavingPower";
+            const rechargePower = this.component.id + "/_PropertyRechargePower";
             const result = response.result;
             // convert labels
             const labels: Date[] = [];
@@ -75,7 +75,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant('General.phase') + ' ' + 'L1',
+                    label: this.translate.instant("General.phase") + " " + "L1",
                     data: data,
                     hidden: false,
                 });
@@ -92,7 +92,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant('General.phase') + ' ' + 'L2',
+                    label: this.translate.instant("General.phase") + " " + "L2",
                     data: data,
                     hidden: false,
                 });
@@ -109,7 +109,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant('General.phase') + ' ' + 'L3',
+                    label: this.translate.instant("General.phase") + " " + "L3",
                     data: data,
                     hidden: false,
                 });
@@ -126,14 +126,14 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant('Edge.Index.Widgets.Peakshaving.rechargePower'),
+                    label: this.translate.instant("Edge.Index.Widgets.Peakshaving.rechargePower"),
                     data: data,
                     hidden: false,
                     borderDash: [3, 3],
                 });
                 this.colors.push({
-                    backgroundColor: 'rgba(0,0,0,0)',
-                    borderColor: 'rgba(0,223,0,1)',
+                    backgroundColor: "rgba(0,0,0,0)",
+                    borderColor: "rgba(0,223,0,1)",
                 });
             }
             if (peakshavingPower in result.data) {
@@ -147,27 +147,27 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant('Edge.Index.Widgets.Peakshaving.peakshavingPower'),
+                    label: this.translate.instant("Edge.Index.Widgets.Peakshaving.peakshavingPower"),
                     data: data,
                     hidden: false,
                     borderDash: [3, 3],
                 });
                 this.colors.push({
-                    backgroundColor: 'rgba(0,0,0,0)',
-                    borderColor: 'rgba(200,0,0,1)',
+                    backgroundColor: "rgba(0,0,0,0)",
+                    borderColor: "rgba(200,0,0,1)",
                 });
             }
-            if ('_sum/EssActivePower' in result.data) {
+            if ("_sum/EssActivePower" in result.data) {
                 /*
                  * Storage Charge
                  */
                 let effectivePower;
-                if ('_sum/ProductionDcActualPower' in result.data && result.data['_sum/ProductionDcActualPower'].length > 0) {
-                    effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
-                        return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
+                if ("_sum/ProductionDcActualPower" in result.data && result.data["_sum/ProductionDcActualPower"].length > 0) {
+                    effectivePower = result.data["_sum/ProductionDcActualPower"].map((value, index) => {
+                        return Utils.subtractSafely(result.data["_sum/EssActivePower"][index], value);
                     });
                 } else {
-                    effectivePower = result.data['_sum/EssActivePower'];
+                    effectivePower = result.data["_sum/EssActivePower"];
                 }
                 const chargeData = effectivePower.map(value => {
                     if (value == null) {
@@ -179,12 +179,12 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant('General.chargePower'),
+                    label: this.translate.instant("General.chargePower"),
                     data: chargeData,
                 });
                 this.colors.push({
-                    backgroundColor: 'rgba(0,223,0,0.05)',
-                    borderColor: 'rgba(0,223,0,1)',
+                    backgroundColor: "rgba(0,223,0,0.05)",
+                    borderColor: "rgba(0,223,0,1)",
                 });
                 /*
                  * Storage Discharge
@@ -199,12 +199,12 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant('General.dischargePower'),
+                    label: this.translate.instant("General.dischargePower"),
                     data: dischargeData,
                 });
                 this.colors.push({
-                    backgroundColor: 'rgba(200,0,0,0.05)',
-                    borderColor: 'rgba(200,0,0,1)',
+                    backgroundColor: "rgba(200,0,0,0.05)",
+                    borderColor: "rgba(200,0,0,1)",
                 });
             }
             this.datasets = datasets;
@@ -225,13 +225,13 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             const result: ChannelAddress[] = [
-                new ChannelAddress(this.component.id, '_PropertyPeakShavingPower'),
-                new ChannelAddress(this.component.id, '_PropertyRechargePower'),
-                new ChannelAddress(this.component.properties['meter.id'], 'ActivePowerL1'),
-                new ChannelAddress(this.component.properties['meter.id'], 'ActivePowerL2'),
-                new ChannelAddress(this.component.properties['meter.id'], 'ActivePowerL3'),
-                new ChannelAddress('_sum', 'ProductionDcActualPower'),
-                new ChannelAddress('_sum', 'EssActivePower'),
+                new ChannelAddress(this.component.id, "_PropertyPeakShavingPower"),
+                new ChannelAddress(this.component.id, "_PropertyRechargePower"),
+                new ChannelAddress(this.component.properties["meter.id"], "ActivePowerL1"),
+                new ChannelAddress(this.component.properties["meter.id"], "ActivePowerL2"),
+                new ChannelAddress(this.component.properties["meter.id"], "ActivePowerL3"),
+                new ChannelAddress("_sum", "ProductionDcActualPower"),
+                new ChannelAddress("_sum", "EssActivePower"),
             ];
             resolve(result);
         });

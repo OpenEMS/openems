@@ -1,4 +1,4 @@
-import { JsonrpcRequest } from '../../../../shared/jsonrpc/base';
+import { JsonrpcRequest } from "../../../../shared/jsonrpc/base";
 
 /**
  * Wraps a JSON-RPC Request to query the Modbus Protocol from Modbus/TCP
