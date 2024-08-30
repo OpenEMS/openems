@@ -414,7 +414,7 @@
 	org.eclipse.jetty.io;version='[9.4.28,9.4.29)',\
 	org.eclipse.jetty.util;version='[9.4.28,9.4.29)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[2.0.0,2.0.1)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[2.0.20,2.0.21)',\
 	org.jsoup;version='[1.18.1,1.18.2)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
