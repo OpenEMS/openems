@@ -14,9 +14,22 @@ updates:
     open-pull-requests-limit: 10
     target-branch: develop
     groups:
+      angular:
+        patterns:
+          - "@angular/*"
       capacitor:
         patterns:
           - "@capacitor/*"
+      ionic-native:
+        patterns:
+          - "@ionic-native/*"
+      ngx-formly:
+        patterns:
+          - "@ngx-formly/*"
+      karma:
+        patterns:
+          - "karma-*"
+          - "karma"
       eslint:
         patterns:
           - "@angular-eslint/*"
