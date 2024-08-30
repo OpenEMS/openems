@@ -625,7 +625,7 @@ export class Utils {
   }
 }
 
-export enum YAxisTitle {
+export enum YAxisType {
   NONE,
   POWER,
   PERCENTAGE,
@@ -635,7 +635,6 @@ export enum YAxisTitle {
   CURRENT,
   TIME,
   CURRENCY,
-  NUMBER,
 }
 
 export enum ChartAxis {
@@ -713,7 +712,7 @@ export namespace HistoryUtils {
   };
 
   export interface CustomOptions {
-    unit?: YAxisTitle,
+    unit?: YAxisType,
     /** overrides global charttype */
     type?: "line" | "bar",
     /** overrides global formatNumber */
@@ -769,7 +768,7 @@ export namespace HistoryUtils {
 
   export type yAxes = {
     /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
-    unit: YAxisTitle,
+    unit: YAxisType,
     position: "left" | "right" | "bottom" | "top",
     yAxisId: ChartAxis,
     /** YAxis title -> {@link https://www.chartjs.org/docs/latest/samples/scale-options/titles.html Chartjs Title} */

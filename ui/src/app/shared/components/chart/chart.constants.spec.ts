@@ -2,7 +2,7 @@
 import { ChartDataset } from "chart.js";
 import { History } from "src/app/edge/history/common/energy/chart/channels.spec";
 
-import { ChartAxis, HistoryUtils, YAxisTitle } from "../../service/utils";
+import { ChartAxis, HistoryUtils, YAxisType } from "../../service/utils";
 import { ChartConstants } from "./chart.constants";
 
 describe("Chart constants", () => {
@@ -17,7 +17,7 @@ describe("Chart constants", () => {
   });
 
   it("#getScaleOptions", () => {
-    const yAxis: HistoryUtils.yAxes = { unit: YAxisTitle.ENERGY, position: "left", yAxisId: ChartAxis.LEFT };
+    const yAxis: HistoryUtils.yAxes = { unit: YAxisType.ENERGY, position: "left", yAxisId: ChartAxis.LEFT };
     const datasets: ChartDataset[] = [
       {
         data: History.DAY.dataChannelWithValues.result.data["_sum/ConsumptionActivePower"],

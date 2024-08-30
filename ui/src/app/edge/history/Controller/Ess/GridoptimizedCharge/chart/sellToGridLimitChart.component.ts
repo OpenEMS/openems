@@ -2,7 +2,7 @@
 import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ChartAxis, HistoryUtils, Utils, YAxisTitle } from "src/app/shared/service/utils";
+import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress } from "src/app/shared/shared";
 
 @Component({
@@ -56,7 +56,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart {
         formatNumber: "1.0-2",
       },
       yAxes: [{
-        unit: YAxisTitle.ENERGY,
+        unit: YAxisType.ENERGY,
         position: "left",
         yAxisId: ChartAxis.LEFT,
       }],

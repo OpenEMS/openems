@@ -8,7 +8,7 @@ import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/reque
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
-import { ChartAxis, HistoryUtils, Utils, YAxisTitle } from "src/app/shared/service/utils";
+import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
@@ -37,7 +37,7 @@ export abstract class AbstractHistoryChart {
     protected hasSubscribed: boolean = false;
 
     /** @deprecated*/
-    protected unit: YAxisTitle = YAxisTitle.ENERGY;
+    protected unit: YAxisType = YAxisType.ENERGY;
     /** @deprecated*/
     protected formatNumber: string = "1.0-2";
     /** @deprecated*/
@@ -229,6 +229,8 @@ export abstract class AbstractHistoryChart {
                     case "day":
                     case "month":
                         options.scales.x.ticks["source"] = "data";
+                        break;
+                    default:
                         break;
                 }
 

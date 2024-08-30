@@ -211,7 +211,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
     }
   }
 
-  private convertToChannelAddress(inputMode: inputMode): string {
+  private convertToChannelAddress(inputMode: inputMode): string | null {
     switch (inputMode) {
       case "SOC":
         return "_sum/EssSoc";
@@ -221,6 +221,8 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
         return "_sum/GridActivePower";
       case "PRODUCTION":
         return "_sum/ProductionActivePower";
+      default:
+        return null;
     }
   }
 

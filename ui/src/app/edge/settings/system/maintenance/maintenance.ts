@@ -138,6 +138,9 @@ export class MaintenanceComponent implements OnInit {
                 message = this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTARTED", { system: system });
                 showInfo = true;
                 break;
+            default:
+                break;
+
         }
 
         if (!message) {

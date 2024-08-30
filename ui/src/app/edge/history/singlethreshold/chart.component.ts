@@ -5,7 +5,7 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-import { ChartAxis, YAxisTitle } from "src/app/shared/service/utils";
+import { ChartAxis, YAxisType } from "src/app/shared/service/utils";
 
 import { QueryHistoricTimeseriesDataResponse } from "../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../shared/shared";
@@ -150,7 +150,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
                 hidden: false,
                 yAxisID: yAxisID,
                 position: "right",
-                unit: YAxisTitle.PERCENTAGE,
+                unit: YAxisType.PERCENTAGE,
               });
 
               this.colors.push({
@@ -182,7 +182,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
         this.initializeChart();
         return;
       }).finally(async () => {
-        this.unit = YAxisTitle.PERCENTAGE;
+        this.unit = YAxisType.PERCENTAGE;
         await this.setOptions(this.options);
         this.addControllerSpecificOptions(this.options);
       });
@@ -228,11 +228,11 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
       if (inputChannel.channelId == "EssSoc") {
         labelString = "%";
-        this.unit = YAxisTitle.PERCENTAGE;
+        this.unit = YAxisType.PERCENTAGE;
         options.scales[ChartAxis.LEFT]["title"].text = labelString;
       } else if (inputChannel.channelId == "GridActivePower" || inputChannel.channelId == "ProductionActivePower") {
         labelString = "kW";
-        this.unit = YAxisTitle.ENERGY;
+        this.unit = YAxisType.ENERGY;
         options.scales[ChartAxis.LEFT]["title"].text = labelString;
       } else {
         labelString = this.inputChannelUnit;

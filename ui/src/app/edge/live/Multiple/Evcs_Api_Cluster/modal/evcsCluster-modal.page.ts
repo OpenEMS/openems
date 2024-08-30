@@ -291,6 +291,8 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
                     return this.translate.instant("Edge.Index.Widgets.EVCS.chargeLimitReached");
                 case ChargeState.CHARGING_FINISHED:
                     return this.translate.instant("Edge.Index.Widgets.EVCS.carFull");
+                default:
+                    return this.translate.instant("Edge.Index.Widgets.EVCS.charging");
             }
         }
         return this.translate.instant("Edge.Index.Widgets.EVCS.charging");

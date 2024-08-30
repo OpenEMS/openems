@@ -5,7 +5,7 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-import { ChartAxis, YAxisTitle } from "src/app/shared/service/utils";
+import { ChartAxis, YAxisType } from "src/app/shared/service/utils";
 
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../../shared/shared";
 import { AbstractHistoryChart } from "../abstracthistorychart";
@@ -198,7 +198,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
             this.initializeChart();
             return;
         }).finally(async () => {
-            this.unit = YAxisTitle.ENERGY;
+            this.unit = YAxisType.ENERGY;
             await this.setOptions(this.options);
             this.applyControllerSpecificChartOptions(this.options);
             this.loading = false;

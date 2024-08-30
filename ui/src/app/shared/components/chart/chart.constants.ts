@@ -64,7 +64,7 @@ export class ChartConstants {
 
     return {
       title: {
-        text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
+        text: element.customTitle ?? AbstractHistoryChart.getYAxisType(element.unit, translate, chartType),
         display: showYAxisTitle,
         padding: 5,
         font: {

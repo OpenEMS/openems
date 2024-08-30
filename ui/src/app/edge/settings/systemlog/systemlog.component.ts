@@ -191,8 +191,6 @@ export class SystemLogComponent implements OnInit, OnDestroy {
         return "gray";
       case "ERROR":
         return "red";
-      default:
-        return "black";
     }
   }
 

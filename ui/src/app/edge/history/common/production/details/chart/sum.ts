@@ -5,7 +5,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { Phase } from "src/app/shared/components/shared/phase";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChartAxis, HistoryUtils, Utils, YAxisTitle } from "src/app/shared/service/utils";
+import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 
 @Component({
@@ -78,7 +78,7 @@ export class SumChartDetailsComponent extends AbstractHistoryChart {
         afterTitle: translate.instant("General.TOTAL"),
       },
       yAxes: [{
-        unit: YAxisTitle.ENERGY,
+        unit: YAxisType.ENERGY,
         position: "left",
         yAxisId: ChartAxis.LEFT,
       }],

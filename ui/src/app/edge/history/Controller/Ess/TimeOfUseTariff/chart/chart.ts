@@ -3,7 +3,7 @@ import { Component, Input } from "@angular/core";
 import * as Chart from "chart.js";
 import { calculateResolution, ChronoUnit, Resolution } from "src/app/edge/history/shared";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisTitle } from "src/app/shared/service/utils";
+import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Currency, EdgeConfig } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 
@@ -76,7 +76,7 @@ export class ChartComponent extends AbstractHistoryChart {
                     yAxisId: ChartAxis.RIGHT,
                     custom: {
                         type: "line",
-                        unit: YAxisTitle.PERCENTAGE,
+                        unit: YAxisType.PERCENTAGE,
                         formatNumber: "1.0-0",
                     },
                     order: 0,
@@ -99,18 +99,18 @@ export class ChartComponent extends AbstractHistoryChart {
                 formatNumber: "1.1-4",
             },
             yAxes: [{
-                unit: YAxisTitle.CURRENCY,
+                unit: YAxisType.CURRENCY,
                 position: "left",
                 yAxisId: ChartAxis.LEFT,
             },
             {
-                unit: YAxisTitle.PERCENTAGE,
+                unit: YAxisType.PERCENTAGE,
                 position: "right",
                 yAxisId: ChartAxis.RIGHT,
                 displayGrid: false,
             },
             {
-                unit: YAxisTitle.POWER,
+                unit: YAxisType.POWER,
                 position: "right",
                 yAxisId: ChartAxis.RIGHT_2,
                 displayGrid: false,

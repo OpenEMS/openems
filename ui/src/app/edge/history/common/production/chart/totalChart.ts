@@ -3,7 +3,7 @@ import { Component } from "@angular/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 
-import { ChartAxis, HistoryUtils, Utils, YAxisTitle } from "../../../../../shared/service/utils";
+import { ChartAxis, HistoryUtils, Utils, YAxisType } from "../../../../../shared/service/utils";
 import { ChannelAddress } from "../../../../../shared/shared";
 
 @Component({
@@ -161,7 +161,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
         afterTitle: this.translate.instant("General.TOTAL"),
       },
       yAxes: [{
-        unit: YAxisTitle.ENERGY,
+        unit: YAxisType.ENERGY,
         position: "left",
         yAxisId: ChartAxis.LEFT,
       }],

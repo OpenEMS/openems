@@ -4,7 +4,7 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-import { ChartAxis, Utils, YAxisTitle } from "src/app/shared/service/utils";
+import { ChartAxis, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 
 import { formatNumber } from "@angular/common";
@@ -180,7 +180,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                         });
                     }).finally(async () => {
                         this.datasets = datasets;
-                        this.unit = YAxisTitle.ENERGY;
+                        this.unit = YAxisType.ENERGY;
                         await this.setOptions(this.options);
                         this.applyControllerSpecificChartOptions(this.options);
                         this.stopSpinner();

@@ -7,7 +7,7 @@ import { AbstractHistoryChart } from "src/app/edge/history/abstracthistorychart"
 import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
-import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisTitle } from "src/app/shared/service/utils";
+import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { GetScheduleRequest } from "../../../../../../shared/jsonrpc/request/getScheduleRequest";
 import { GetScheduleResponse } from "../../../../../../shared/jsonrpc/response/getScheduleResponse";
@@ -145,7 +145,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 data: essChargeArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
-                unit: YAxisTitle.POWER,
+                unit: YAxisType.POWER,
             });
             this.colors.push({
                 backgroundColor: "rgba(0,223,0, 0.2)",
@@ -158,7 +158,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 data: essDischargeArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
-                unit: YAxisTitle.POWER,
+                unit: YAxisType.POWER,
             });
             this.colors.push({
                 backgroundColor: "rgba(200,0,0, 0.2)",
@@ -174,7 +174,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 yAxisID: ChartAxis.RIGHT,
                 borderDash: [10, 10],
                 order: 1,
-                unit: YAxisTitle.PERCENTAGE,
+                unit: YAxisType.PERCENTAGE,
             });
             this.colors.push({
                 backgroundColor: "rgba(189, 195, 199,0.2)",
@@ -197,8 +197,8 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
     }
 
     private applyControllerSpecificOptions() {
-        const rightYAxis: HistoryUtils.yAxes = { position: "right", unit: YAxisTitle.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
-        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: YAxisTitle.POWER, yAxisId: ChartAxis.LEFT };
+        const rightYAxis: HistoryUtils.yAxes = { position: "right", unit: YAxisType.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
+        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: YAxisType.POWER, yAxisId: ChartAxis.LEFT };
         const locale = this.service.translate.currentLang;
 
         this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, "line", locale, ChartConstants.EMPTY_DATASETS, true);

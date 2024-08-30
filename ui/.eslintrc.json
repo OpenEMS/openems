@@ -93,6 +93,12 @@
         "quotes": [
           "error",
           "double"
+        ],
+        "@typescript-eslint/switch-exhaustiveness-check": [
+          "error",
+          {
+            "allowDefaultCaseForExhaustiveSwitch": false
+          }
         ]
       }
     },

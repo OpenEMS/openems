@@ -2,7 +2,7 @@
 import { Component } from "@angular/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChartAxis, HistoryUtils, YAxisTitle } from "src/app/shared/service/utils";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
 
 import { ChannelAddress } from "../../../../../shared/shared";
 
@@ -63,7 +63,7 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
         formatNumber: "1.1-2",
       },
       yAxes: [{
-        unit: YAxisTitle.ENERGY,
+        unit: YAxisType.ENERGY,
         position: "left",
         yAxisId: ChartAxis.LEFT,
       }],

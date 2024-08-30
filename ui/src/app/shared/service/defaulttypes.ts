@@ -101,7 +101,7 @@ export module DefaultTypes {
 
   export namespace History {
 
-    export enum YAxisTitle {
+    export enum YAxisType {
       PERCENTAGE,
       ENERGY,
     }
@@ -146,7 +146,7 @@ export module DefaultTypes {
         afterTitle?: string
       },
       /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
-      unit: YAxisTitle,
+      unit: YAxisType,
     };
   }
 

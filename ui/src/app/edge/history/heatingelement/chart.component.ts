@@ -5,7 +5,7 @@ import { TranslateService } from "@ngx-translate/core";
 
 import type { ChartOptions } from "chart.js";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-import { ChartAxis, YAxisTitle } from "src/app/shared/service/utils";
+import { ChartAxis, YAxisType } from "src/app/shared/service/utils";
 
 import { QueryHistoricTimeseriesDataResponse } from "../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../shared/shared";
@@ -98,7 +98,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
       return;
     }).finally(async () => {
       this.formatNumber = "1.0-1";
-      this.unit = YAxisTitle.NONE;
+      this.unit = YAxisType.NONE;
       await this.setOptions(this.options);
       this.applyControllerSpecificOptions(this.options);
     });

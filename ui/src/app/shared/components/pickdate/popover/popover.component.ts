@@ -111,6 +111,8 @@ export class PickDatePopoverComponent implements OnInit {
                 this.popoverCtrl.dismiss();
                 break;
             }
+            default:
+                break;
         }
     }
 

@@ -329,6 +329,9 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(subDays(this.service.historyPeriod.value.from, dateDistance), subDays(this.service.historyPeriod.value.to, dateDistance)));
                 break;
             }
+            default:
+                break;
+
         }
     }
 
@@ -399,7 +402,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
      * calculates the milliseconds until next period (Day|Week) will occour
      * is used to change date period
      */
-    private millisecondsUntilnextPeriod(): number {
+    private millisecondsUntilnextPeriod(): number | null {
         // + 1000 to reach the next day
         switch (this.service.periodString) {
             case DefaultTypes.PeriodString.DAY: {
@@ -422,6 +425,8 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 const endOfYearTime = endOfYear(currentDayTime);
                 return differenceInMilliseconds(endOfYearTime, currentDayTime) + 1000;
             }
+            default:
+                return null;
         }
     }
 

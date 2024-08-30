@@ -4,7 +4,7 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-import { YAxisTitle } from "src/app/shared/service/utils";
+import { YAxisType } from "src/app/shared/service/utils";
 
 import { QueryHistoricTimeseriesDataResponse } from "../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../shared/shared";
@@ -87,7 +87,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
       this.initializeChart();
       return;
     }).finally(async () => {
-      this.unit = YAxisTitle.PERCENTAGE;
+      this.unit = YAxisType.PERCENTAGE;
       await this.setOptions(this.options);
       this.stopSpinner();
     });

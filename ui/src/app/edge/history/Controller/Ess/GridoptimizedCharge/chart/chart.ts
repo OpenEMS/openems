@@ -2,7 +2,7 @@
 import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ChartAxis, HistoryUtils, Utils, YAxisTitle } from "src/app/shared/service/utils";
+import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 
 @Component({
@@ -67,7 +67,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
           borderDash: [10, 10],
           yAxisId: ChartAxis.RIGHT,
           custom: {
-            unit: YAxisTitle.PERCENTAGE,
+            unit: YAxisType.PERCENTAGE,
           },
         },
       ]),
@@ -75,11 +75,11 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
         formatNumber: "1.0-2",
       },
       yAxes: [{
-        unit: YAxisTitle.ENERGY,
+        unit: YAxisType.ENERGY,
         position: "left",
         yAxisId: ChartAxis.LEFT,
       }, {
-        unit: YAxisTitle.PERCENTAGE,
+        unit: YAxisType.PERCENTAGE,
         position: "right",
         yAxisId: ChartAxis.RIGHT,
         displayGrid: false,

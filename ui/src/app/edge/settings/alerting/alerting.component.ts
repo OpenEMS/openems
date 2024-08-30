@@ -228,8 +228,6 @@ export class AlertingComponent implements OnInit {
         return setting.faultEdgeDelay;
       case AlertingType.warning:
         return setting.warningEdgeDelay;
-      default:
-        return 0;
     }
   }
 

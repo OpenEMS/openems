@@ -3,7 +3,7 @@ import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChartAxis, HistoryUtils, YAxisTitle } from "src/app/shared/service/utils";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, EdgeConfig, Utils } from "src/app/shared/shared";
 
 @Component({
@@ -186,14 +186,14 @@ export class ChartComponent extends AbstractHistoryChart {
 
         // Left YAxis
         {
-          unit: YAxisTitle.ENERGY,
+          unit: YAxisType.ENERGY,
           position: "left",
           yAxisId: ChartAxis.LEFT,
         },
 
         // Right Yaxis, only shown for line-chart
         (chartType === "line" && {
-          unit: YAxisTitle.PERCENTAGE,
+          unit: YAxisType.PERCENTAGE,
           customTitle: "%",
           position: "right",
           yAxisId: ChartAxis.RIGHT,

@@ -6,7 +6,7 @@ import * as Chart from "chart.js";
 import { AbstractHistoryChart } from "src/app/edge/history/abstracthistorychart";
 import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
-import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisTitle } from "src/app/shared/service/utils";
+import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 
 import { calculateResolution } from "src/app/edge/history/shared";
@@ -93,7 +93,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
             return;
 
         }).finally(async () => {
-            this.unit = YAxisTitle.CURRENCY;
+            this.unit = YAxisType.CURRENCY;
             await this.setOptions(this.options);
             this.applyControllerSpecificOptions();
         });
@@ -109,10 +109,10 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
     private applyControllerSpecificOptions() {
         const locale = this.service.translate.currentLang;
-        const rightYaxisSoc: HistoryUtils.yAxes = { position: "right", unit: YAxisTitle.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
+        const rightYaxisSoc: HistoryUtils.yAxes = { position: "right", unit: YAxisType.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
         this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYaxisSoc, this.translate, "line", locale, ChartConstants.EMPTY_DATASETS);
 
-        const rightYAxisPower: HistoryUtils.yAxes = { position: "right", unit: YAxisTitle.POWER, yAxisId: ChartAxis.RIGHT_2 };
+        const rightYAxisPower: HistoryUtils.yAxes = { position: "right", unit: YAxisType.POWER, yAxisId: ChartAxis.RIGHT_2 };
         this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxisPower, this.translate, "line", locale, ChartConstants.EMPTY_DATASETS);
 
         this.options.scales.x["time"].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;

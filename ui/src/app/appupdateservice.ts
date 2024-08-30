@@ -29,6 +29,8 @@ export class LogUpdateService {
         case "VERSION_INSTALLATION_FAILED":
           console.log(`Failed to install app version '${evt.version.hash}': ${evt.error}`);
           break;
+        default:
+          break;
       }
     });
   }

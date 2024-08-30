@@ -2,7 +2,7 @@
 import { Component } from "@angular/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChartAxis, HistoryUtils, Utils, YAxisTitle } from "src/app/shared/service/utils";
+import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress } from "src/app/shared/shared";
 
 @Component({
@@ -45,7 +45,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 formatNumber: "1.0-0",
             },
             yAxes: [{
-                unit: YAxisTitle.PERCENTAGE,
+                unit: YAxisType.PERCENTAGE,
                 position: "left",
                 yAxisId: ChartAxis.LEFT,
             }],

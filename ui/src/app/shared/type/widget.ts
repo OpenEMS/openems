@@ -101,8 +101,9 @@ export class Widgets {
                         return config.hasProducer();
                     case "Controller_ChannelThreshold":
                         return config.getComponentIdsByFactory("Controller.ChannelThreshold")?.length > 0;
+                    default:
+                        return false;
                 }
-                return false;
             }).map(clazz => clazz.toString());
         const list: Widget[] = [];
 

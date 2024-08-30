@@ -3,7 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-import { YAxisTitle } from "src/app/shared/service/utils";
+import { YAxisType } from "src/app/shared/service/utils";
 
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../../../shared/shared";
 import { AbstractHistoryChart } from "../../abstracthistorychart";
@@ -216,7 +216,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
             this.initializeChart();
             return;
         }).finally(async () => {
-            this.unit = YAxisTitle.ENERGY;
+            this.unit = YAxisType.ENERGY;
             await this.setOptions(this.options);
             this.stopSpinner();
         });

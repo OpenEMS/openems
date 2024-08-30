@@ -40,7 +40,7 @@ export class DateTimeUtils {
         }
 
         energyPerPeriodResponse.result.timestamps = newTimestamps.concat(energyPerPeriodResponse.result.timestamps);
-        break;
+        return energyPerPeriodResponse;
       }
 
       case ChronoUnit.Type.YEARS: {
@@ -49,10 +49,11 @@ export class DateTimeUtils {
         const formattedDates = energyPerPeriodResponse.result.timestamps.map((timestamp) =>
           startOfYear(DateUtils.stringToDate(timestamp)));
         energyPerPeriodResponse.result.timestamps = formattedDates.map(date => format(date, "yyyy-MM-dd HH:mm:ss", { locale: de })?.toString());
-        break;
+        return energyPerPeriodResponse;
       }
+      default:
+        return energyPerPeriodResponse;
     }
 
-    return energyPerPeriodResponse;
   }
 }

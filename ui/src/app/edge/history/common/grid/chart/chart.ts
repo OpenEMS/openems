@@ -5,7 +5,7 @@ import { BoxAnnotationOptions } from "chartjs-plugin-annotation";
 import { GridSectionComponent } from "src/app/edge/live/energymonitor/chart/section/grid.component";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChartAxis, HistoryUtils, YAxisTitle } from "src/app/shared/service/utils";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { ChartAnnotationState } from "src/app/shared/type/general";
 
@@ -54,7 +54,7 @@ export class ChartComponent extends AbstractHistoryChart {
     }
 
     const yAxes: HistoryUtils.yAxes[] = [{
-      unit: YAxisTitle.ENERGY,
+      unit: YAxisType.ENERGY,
       position: "left",
       yAxisId: ChartAxis.LEFT,
     }];
@@ -62,13 +62,13 @@ export class ChartComponent extends AbstractHistoryChart {
     if (GridSectionComponent.isControllerEnabled(config, "Controller.Ess.Limiter14a")) {
       yAxes.push((chartType === "bar" ?
         {
-          unit: YAxisTitle.TIME,
+          unit: YAxisType.TIME,
           position: "right",
           yAxisId: ChartAxis.RIGHT,
           displayGrid: false,
         } :
         {
-          unit: YAxisTitle.RELAY,
+          unit: YAxisType.RELAY,
           position: "right",
           yAxisId: ChartAxis.RIGHT,
           customTitle: translate.instant("General.state"),
@@ -119,11 +119,11 @@ export class ChartComponent extends AbstractHistoryChart {
             stack: 2,
             custom: (
               chartType === "line" ? {
-                unit: YAxisTitle.RELAY,
+                unit: YAxisType.RELAY,
                 pluginType: "box",
                 annotations: getAnnotations(offGridData, labels),
               } : {
-                unit: YAxisTitle.TIME,
+                unit: YAxisType.TIME,
               }
             ),
             yAxisId: ChartAxis.RIGHT,
@@ -139,11 +139,11 @@ export class ChartComponent extends AbstractHistoryChart {
             stack: 2,
             custom: (
               chartType === "line" ? {
-                unit: YAxisTitle.RELAY,
+                unit: YAxisType.RELAY,
                 pluginType: "box",
                 annotations: getAnnotations(restrictionData, labels),
               } : {
-                unit: YAxisTitle.TIME,
+                unit: YAxisType.TIME,
               }
             ),
             yAxisId: ChartAxis.RIGHT,

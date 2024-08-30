@@ -17,7 +17,7 @@ import { QueryHistoricTimeseriesEnergyRequest } from "../../jsonrpc/request/quer
 import { QueryHistoricTimeseriesDataResponse } from "../../jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { FormatSecondsToDurationPipe } from "../../pipe/formatSecondsToDuration/formatSecondsToDuration.pipe";
-import { ChartAxis, HistoryUtils, YAxisTitle } from "../../service/utils";
+import { ChartAxis, HistoryUtils, YAxisType } from "../../service/utils";
 import { ChannelAddress, Currency, Edge, EdgeConfig, Logger, Service, Utils } from "../../shared";
 import { Language } from "../../type/language";
 import { ColorUtils } from "../../utils/color/color.utils";
@@ -245,6 +245,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
             }
             break;
           }
+          default:
+            break;
         }
 
         options.datasets.bar = {
@@ -296,29 +298,29 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     return dataset;
   }
 
-  public static getYAxisTitle(title: YAxisTitle, translate: TranslateService, chartType: "bar" | "line", customTitle?: string): string {
+  public static getYAxisType(title: YAxisType, translate: TranslateService, chartType: "bar" | "line", customTitle?: string): string {
     switch (title) {
-      case YAxisTitle.RELAY:
+      case YAxisType.RELAY:
         if (chartType === "line") {
           // Hide YAxis title
           return "";
         }
         return translate.instant("Edge.Index.Widgets.Channeltreshold.ACTIVE_TIME_OVER_PERIOD");
-      case YAxisTitle.TIME:
+      case YAxisType.TIME:
         return translate.instant("Edge.Index.Widgets.Channeltreshold.ACTIVE_TIME_OVER_PERIOD");
-      case YAxisTitle.PERCENTAGE:
+      case YAxisType.PERCENTAGE:
         return translate.instant("General.percentage");
-      case YAxisTitle.ENERGY:
+      case YAxisType.ENERGY:
         if (chartType == "bar") {
           return "kWh";
         } else {
           return "kW";
         }
-      case YAxisTitle.VOLTAGE:
+      case YAxisType.VOLTAGE:
         return translate.instant("Edge.History.VOLTAGE");
-      case YAxisTitle.CURRENT:
+      case YAxisType.CURRENT:
         return translate.instant("Edge.History.CURRENT");
-      case YAxisTitle.NONE:
+      case YAxisType.NONE:
         return "";
       default:
         return "kW";
@@ -353,9 +355,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     let options: Chart.ChartOptions = Utils.deepCopy(<Chart.ChartOptions>Utils.deepCopy(AbstractHistoryChart.getDefaultOptions(chartOptionsType, service, labels)));
     const displayValues: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>[] = chartObject.output(channelData.data);
 
-    const showYAxisTitle: boolean = chartObject.yAxes.length > 1;
+    const showYAxisType: boolean = chartObject.yAxes.length > 1;
     chartObject.yAxes.forEach((element) => {
-      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale, datasets, showYAxisTitle);
+      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale, datasets, showYAxisType);
     });
 
     options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
@@ -497,13 +499,13 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    * @param locale the current locale
    * @returns the chart options {@link Chart.ChartOptions}
    */
-  public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", locale: string, datasets: Chart.ChartDataset[], showYAxisTitle?: boolean): Chart.ChartOptions {
+  public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", locale: string, datasets: Chart.ChartDataset[], showYAxisType?: boolean): Chart.ChartOptions {
 
-    const baseConfig = ChartConstants.DEFAULT_Y_SCALE_OPTIONS(element, translate, chartType, datasets, showYAxisTitle);
+    const baseConfig = ChartConstants.DEFAULT_Y_SCALE_OPTIONS(element, translate, chartType, datasets, showYAxisType);
 
     switch (element.unit) {
 
-      case YAxisTitle.RELAY:
+      case YAxisType.RELAY:
         options.scales[element.yAxisId] = {
           ...baseConfig,
           min: 0,
@@ -520,7 +522,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           },
         };
         break;
-      case YAxisTitle.PERCENTAGE:
+      case YAxisType.PERCENTAGE:
         options.scales[element.yAxisId] = {
           ...baseConfig,
           stacked: true,
@@ -536,7 +538,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         };
         break;
 
-      case YAxisTitle.TIME:
+      case YAxisType.TIME:
         options.scales[element.yAxisId] = {
           ...baseConfig,
           min: 0,
@@ -551,14 +553,14 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           },
         };
         break;
-      case YAxisTitle.POWER:
-      case YAxisTitle.ENERGY:
-      case YAxisTitle.VOLTAGE:
-      case YAxisTitle.CURRENT:
-      case YAxisTitle.NONE:
+      case YAxisType.POWER:
+      case YAxisType.ENERGY:
+      case YAxisType.VOLTAGE:
+      case YAxisType.CURRENT:
+      case YAxisType.NONE:
         options.scales[element.yAxisId] = baseConfig;
         break;
-      case YAxisTitle.CURRENCY:
+      case YAxisType.CURRENCY:
         options.scales[element.yAxisId] = {
           ...baseConfig,
           beginAtZero: false,
@@ -579,21 +581,23 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    * @param suffix the suffix, a number that will be added to the baseName
    * @returns a string, that is either the baseName, if no suffix is provided, or a baseName with a formatted number
    */
-  public static getTooltipsLabelName(baseName: string, unit: YAxisTitle, suffix?: number | string): string {
+  public static getTooltipsLabelName(baseName: string, unit: YAxisType, suffix?: number | string): string {
     if (suffix != null) {
       if (typeof suffix === "string") {
         return baseName + " " + suffix;
       } else {
         switch (unit) {
-          case YAxisTitle.ENERGY:
+          case YAxisType.ENERGY:
             return baseName + ": " + formatNumber(suffix / 1000, "de", "1.0-1") + " kWh";
-          case YAxisTitle.PERCENTAGE:
+          case YAxisType.PERCENTAGE:
             return baseName + ": " + formatNumber(suffix, "de", "1.0-1") + " %";
-          case YAxisTitle.RELAY:
-          case YAxisTitle.TIME: {
+          case YAxisType.RELAY:
+          case YAxisType.TIME: {
             const pipe = new FormatSecondsToDurationPipe(new DecimalPipe(Language.DE.key));
             return baseName + ": " + pipe.transform(suffix);
           }
+          default:
+            return baseName;
         }
       }
     }
@@ -601,39 +605,39 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   }
 
   /**
-   * Gets the tooltips label, dependent on YAxisTitle
+   * Gets the tooltips label, dependent on YAxisType
    *
-   * @param title the YAxisTitle
+   * @param title the YAxisType
    * @returns the tooltips suffix
    */
-  public static getToolTipsSuffix(label: any, value: number, format: string, title: YAxisTitle, chartType: "bar" | "line", language: string, translate: TranslateService, config: EdgeConfig): string {
+  public static getToolTipsSuffix(label: any, value: number, format: string, title: YAxisType, chartType: "bar" | "line", language: string, translate: TranslateService, config: EdgeConfig): string {
     let tooltipsLabel: string | null = null;
     switch (title) {
-      case YAxisTitle.RELAY: {
+      case YAxisType.RELAY: {
         return Converter.ON_OFF(translate)(value);
       }
-      case YAxisTitle.TIME: {
+      case YAxisType.TIME: {
         const pipe = new FormatSecondsToDurationPipe(new DecimalPipe(language));
         return pipe.transform(value);
       }
-      case YAxisTitle.CURRENCY: {
+      case YAxisType.CURRENCY: {
         const currency = config.components["_meta"].properties.currency;
         tooltipsLabel = Currency.getCurrencyLabelByCurrency(currency);
         break;
       }
-      case YAxisTitle.PERCENTAGE:
+      case YAxisType.PERCENTAGE:
         tooltipsLabel = AbstractHistoryChart.getToolTipsAfterTitleLabel(title, chartType, value, translate);
         break;
-      case YAxisTitle.VOLTAGE:
+      case YAxisType.VOLTAGE:
         tooltipsLabel = "V";
         break;
-      case YAxisTitle.CURRENT:
+      case YAxisType.CURRENT:
         tooltipsLabel = "A";
         break;
-      case YAxisTitle.POWER:
+      case YAxisType.POWER:
         tooltipsLabel = "W";
         break;
-      case YAxisTitle.ENERGY:
+      case YAxisType.ENERGY:
         if (chartType == "bar") {
           tooltipsLabel = "kWh";
         } else {
@@ -656,7 +660,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         options = DEFAULT_NUMBER_CHART_OPTIONS(labels);
         break;
       case XAxisType.TIMESERIES:
-      default:
         options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS());
         options.scales.x["time"].unit = calculateResolution(service, service.historyPeriod.value.from, service.historyPeriod.value.to).timeFormat;
         break;
@@ -703,24 +706,24 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   }
 
   /**
-   * Gets the tooltips label, dependent on YAxisTitle
+   * Gets the tooltips label, dependent on YAxisType
    *
-   * @param title the YAxisTitle
+   * @param title the YAxisType
    * @returns the tooltips title with the corresponding unit
    */
-  protected static getToolTipsAfterTitleLabel(title: YAxisTitle | null, chartType: "bar" | "line", value: number | string | null, translate: TranslateService): string {
+  protected static getToolTipsAfterTitleLabel(title: YAxisType | null, chartType: "bar" | "line", value: number | string | null, translate: TranslateService): string {
     switch (title) {
-      case YAxisTitle.RELAY:
+      case YAxisType.RELAY:
         return Converter.ON_OFF(translate)(value);
-      case YAxisTitle.TIME:
+      case YAxisType.TIME:
         return "h";
-      case YAxisTitle.PERCENTAGE:
+      case YAxisType.PERCENTAGE:
         return "%";
-      case YAxisTitle.VOLTAGE:
+      case YAxisType.VOLTAGE:
         return "V";
-      case YAxisTitle.CURRENT:
+      case YAxisType.CURRENT:
         return "A";
-      case YAxisTitle.ENERGY:
+      case YAxisType.ENERGY:
         if (chartType == "bar") {
           return "kWh";
         } else {

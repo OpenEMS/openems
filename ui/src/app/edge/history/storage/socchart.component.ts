@@ -3,7 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-import { YAxisTitle } from "src/app/shared/service/utils";
+import { YAxisType } from "src/app/shared/service/utils";
 
 import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../shared/shared";
 import { AbstractHistoryChart } from "../abstracthistorychart";
@@ -117,7 +117,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                             this.loading = false;
                             this.stopSpinner();
                         }).finally(async () => {
-                            this.unit = YAxisTitle.PERCENTAGE;
+                            this.unit = YAxisType.PERCENTAGE;
                             this.formatNumber = "1.0-0";
                             await this.setOptions(this.options);
                         });

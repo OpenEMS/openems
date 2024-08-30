@@ -6,7 +6,7 @@ import * as Chart from "chart.js";
 import { AbstractHistoryChart } from "src/app/edge/history/abstracthistorychart";
 import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS } from "src/app/edge/history/shared";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-import { ChartAxis, YAxisTitle } from "src/app/shared/service/utils";
+import { ChartAxis, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
 
 @Component({
@@ -199,7 +199,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
             this.datasets = datasets;
             this.loading = false;
             this.service.stopSpinner(this.spinnerId);
-            this.unit = YAxisTitle.PERCENTAGE;
+            this.unit = YAxisType.PERCENTAGE;
             this.formatNumber = "1.0-0";
             await this.setOptions(this.options);
             this.applyControllerSpecificOptions();
