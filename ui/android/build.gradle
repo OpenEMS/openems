@@ -3,7 +3,7 @@
 buildscript {
 
     ext {
-        agp_version = '8.1.4'
+        agp_version = '8.4.0'
     }
     repositories {
         google()
@@ -29,4 +29,68 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+task bundleThemeRelease(type: DefaultTask)  {
+    group 'Build'
+    description 'Assembles aab for $THEME variant'
+
+    def theme = (System.getenv('THEME') ?: 'none').toLowerCase()
+
+    if(theme != 'none') {
+    dependsOn tasks.getByPath(':app:bundle'+theme.capitalize()+'Release')
+    }
+
+    doLast {
+        if (theme == 'none') {
+            throw new Exception("Environment variable THEME not set!")
+        }
+
+        def source = file("app/build/outputs/bundle/"+theme+"Release/app-"+theme+"-release.aab")
+        def output = file("target/"+theme+".aab")
+
+        output.delete()
+        copy {
+            from source
+            into output.getParentFile()
+            rename (source.getName(), output.getName())
+        }
+        println("Built ${output}!")
+    }
+}
+
+task assembleThemeRelease(type: DefaultTask)  {
+    group 'Build'
+    description 'Assembles apk for $THEME variant'
+
+    def theme = (System.getenv('THEME') ?: 'none').toLowerCase()
+
+    if(theme != 'none') {
+    dependsOn tasks.getByPath(':app:assemble'+theme.capitalize())
+    }
+
+    doLast {
+        if (theme == 'none') {
+            throw new Exception("Environment variable THEME not set!")
+        }
+
+        def source = file("app/build/outputs/apk/"+theme+"/release/app-"+theme+"-release.apk")
+        def output = file("target/"+theme+".apk")
+
+        output.delete()
+        copy {
+            from source
+            into output.getParentFile()
+            rename (source.getName(), output.getName())
+        }
+        println("Built ${output}!")
+    }
+}
+
+task buildThemeRelease(type: DefaultTask)  {
+    group 'Build'
+    description 'Build aab and apk for $THEME variant'
+
+    dependsOn tasks.getByPath(':bundleThemeRelease')
+    dependsOn tasks.getByPath(':assembleThemeRelease')
 }
