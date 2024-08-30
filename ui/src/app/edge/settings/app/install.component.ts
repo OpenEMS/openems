@@ -180,7 +180,8 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         }
 
         this.form.markAsPristine();
-        this.router.navigate(['device/' + (this.edge.id) + '/settings/app/']);
+        const navigationExtras = { state: { appInstanceChange: true } };
+        this.router.navigate(['device/' + (this.edge.id) + '/settings/app/'], navigationExtras);
       })
         .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant('Edge.Config.App.failInstall', { error: error })))
         .finally(() => {
