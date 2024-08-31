@@ -30,7 +30,7 @@ export class EdgeComponent implements OnInit, OnDestroy {
     public ngOnInit(): void {
         this.activatedRoute.params.subscribe((params) => {
             // Set CurrentEdge in Metadata
-            const edgeId = params['edgeId'];
+            const edgeId = params["edgeId"];
             this.service.updateCurrentEdge(edgeId).then((edge) => {
                 this.edge = edge;
 
@@ -39,12 +39,12 @@ export class EdgeComponent implements OnInit, OnDestroy {
                     .then(() => {
 
                         // Subscribe on these channels for the state in HeaderComponent
-                        edge.subscribeChannels(this.websocket, '', [
-                            new ChannelAddress('_sum', 'State'),
+                        edge.subscribeChannels(this.websocket, "", [
+                            new ChannelAddress("_sum", "State"),
                         ]);
                     });
             }).catch(() => {
-                this.router.navigate(['index']);
+                this.router.navigate(["index"]);
             });
         });
     }

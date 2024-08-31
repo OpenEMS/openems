@@ -1,6 +1,6 @@
-import { NgModule } from '@angular/core';
-import { SharedModule } from 'src/app/shared/shared.module';
-import { JsonrpcTestComponent } from './jsonrpctest';
+import { NgModule } from "@angular/core";
+import { SharedModule } from "src/app/shared/shared.module";
+import { JsonrpcTestComponent } from "./jsonrpctest";
 
 @NgModule({
   imports: [

@@ -26,6 +26,13 @@
 @import "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css";
 @import "variables";
 
+/* Live- and HistoryComponent*/
+ion-refresher-content {
+    ion-spinner {
+        left: 0 !important;
+    }
+}
+
 .custom-ion-popover {
 
     white-space: inherit;

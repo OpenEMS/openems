@@ -1,42 +1,44 @@
 // @ts-strict-ignore
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { CookieService } from 'ngx-cookie-service';
-import { delay, retryWhen } from 'rxjs/operators';
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { Injectable } from "@angular/core";
+import { Router } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { CookieService } from "ngx-cookie-service";
+import { delay, retryWhen } from "rxjs/operators";
+import { WebSocketSubject, webSocket } from "rxjs/webSocket";
 import { environment } from "src/environments";
 
-import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from '../jsonrpc/base';
-import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
-import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
-import { EdgeRpcNotification } from '../jsonrpc/notification/edgeRpcNotification';
-import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
-import { AuthenticateWithPasswordRequest } from '../jsonrpc/request/authenticateWithPasswordRequest';
-import { AuthenticateWithTokenRequest } from '../jsonrpc/request/authenticateWithTokenRequest';
-import { EdgeRpcRequest } from '../jsonrpc/request/edgeRpcRequest';
-import { LogoutRequest } from '../jsonrpc/request/logoutRequest';
-import { RegisterUserRequest } from '../jsonrpc/request/registerUserRequest';
-import { AuthenticateResponse } from '../jsonrpc/response/authenticateResponse';
-import { Language } from '../type/language';
-import { Pagination } from './pagination';
-import { Service } from './service';
-import { WebsocketInterface } from './websocketInterface';
-import { WsData } from './wsdata';
+import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";
+import { CurrentDataNotification } from "../jsonrpc/notification/currentDataNotification";
+import { EdgeConfigNotification } from "../jsonrpc/notification/edgeConfigNotification";
+import { EdgeRpcNotification } from "../jsonrpc/notification/edgeRpcNotification";
+import { SystemLogNotification } from "../jsonrpc/notification/systemLogNotification";
+import { AuthenticateWithPasswordRequest } from "../jsonrpc/request/authenticateWithPasswordRequest";
+import { AuthenticateWithTokenRequest } from "../jsonrpc/request/authenticateWithTokenRequest";
+import { EdgeRpcRequest } from "../jsonrpc/request/edgeRpcRequest";
+import { LogoutRequest } from "../jsonrpc/request/logoutRequest";
+import { RegisterUserRequest } from "../jsonrpc/request/registerUserRequest";
+import { AuthenticateResponse } from "../jsonrpc/response/authenticateResponse";
+import { Language } from "../type/language";
+import { Pagination } from "./pagination";
+import { Service } from "./service";
+import { WebsocketInterface } from "./websocketInterface";
+import { WsData } from "./wsdata";
 
 @Injectable()
 export class Websocket implements WebsocketInterface {
 
+  public static readonly REQUEST_TIMEOUT = 500;
+
   private static readonly DEFAULT_EDGEID = 0;
 
   public status:
-    'initial' // before first connection attempt
-    | 'connecting' // trying to connect to backend
-    | 'authenticating' // sent authentication request; waiting for response
-    | 'waiting for credentials' // login is required. Waiting for credentials input
-    | 'online' // logged in + normal operation
-    | 'failed' // connection failed
-    = 'initial';
+    "initial" // before first connection attempt
+    | "connecting" // trying to connect to backend
+    | "authenticating" // sent authentication request; waiting for response
+    | "waiting for credentials" // login is required. Waiting for credentials input
+    | "online" // logged in + normal operation
+    | "failed" // connection failed
+    = "initial";
 
   private readonly wsdata = new WsData();
 
@@ -71,10 +73,10 @@ export class Websocket implements WebsocketInterface {
         const language = Language.getByKey(localStorage.DEMO_LANGUAGE ?? authenticateResponse.user.language.toLocaleLowerCase());
         localStorage.LANGUAGE = language.key;
         this.service.setLang(language);
-        this.status = 'online';
+        this.status = "online";
 
         // received login token -> save in cookie
-        this.cookieService.set('token', authenticateResponse.token, { expires: 365, path: '/', sameSite: 'Strict', secure: location.protocol === 'https:' });
+        this.cookieService.set("token", authenticateResponse.token, { expires: 365, path: "/", sameSite: "Strict", secure: location.protocol === "https:" });
 
         this.service.currentUser = authenticateResponse.user;
 
@@ -123,7 +125,7 @@ export class Websocket implements WebsocketInterface {
   public sendRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
     if (
       // logged in + normal operation
-      this.status == 'online'
+      this.status == "online"
       // otherwise only authentication request allowed
       || (request instanceof AuthenticateWithPasswordRequest || request instanceof AuthenticateWithTokenRequest || request instanceof RegisterUserRequest)) {
 
@@ -131,7 +133,7 @@ export class Websocket implements WebsocketInterface {
         this.wsdata.sendRequest(this.socket, request).then(response => {
           if (environment.debugMode) {
             if (request instanceof EdgeRpcRequest) {
-              console.info("Response     [" + request.params.payload.method + ":" + request.params.edgeId + "]", response.result['payload']['result']);
+              console.info("Response     [" + request.params.payload.method + ":" + request.params.edgeId + "]", response.result["payload"]["result"]);
             } else {
               console.info("Response     [" + request.method + "]", response.result);
             }
@@ -174,13 +176,13 @@ export class Websocket implements WebsocketInterface {
       const interval = setInterval(() => {
 
         // TODO: Status should be Observable, furthermore status should be like state-machine
-        if (this.status == 'online') {
+        if (this.status == "online") {
           clearInterval(interval);
           this.sendRequest(request)
             .then((response) => resolve(response))
             .catch((err) => reject(err));
         }
-      }, 500);
+      }, Websocket.REQUEST_TIMEOUT);
     });
   }
 
@@ -190,7 +192,7 @@ export class Websocket implements WebsocketInterface {
    * @param notification the JSON-RPC Notification
    */
   public sendNotification(notification: JsonrpcNotification): void {
-    if (this.status != 'online') {
+    if (this.status != "online") {
       console.warn("Websocket is not connected! Unable to send Notification", notification);
     }
     this.wsdata.sendNotification(this.socket, notification);
@@ -200,11 +202,11 @@ export class Websocket implements WebsocketInterface {
  * Opens a connection using a stored token. Called once by constructor
  */
   private connect() {
-    if (this.status != 'initial') {
+    if (this.status != "initial") {
       return;
     }
     // trying to connect
-    this.status = 'connecting';
+    this.status = "connecting";
 
     if (environment.debugMode) {
       console.info("Websocket connecting to URL [" + environment.url + "]");
@@ -222,17 +224,17 @@ export class Websocket implements WebsocketInterface {
             console.info("Websocket connection opened");
           }
 
-          const token = this.cookieService.get('token');
+          const token = this.cookieService.get("token");
           if (token) {
 
             // Login with Session Token
             this.login(new AuthenticateWithTokenRequest({ token: token }));
-            this.status = 'authenticating';
+            this.status = "authenticating";
 
           } else {
             // No Token -> directly ask for Login credentials
-            this.status = 'waiting for credentials';
-            this.router.navigate(['login']);
+            this.status = "waiting for credentials";
+            this.router.navigate(["login"]);
           }
         },
       },
@@ -243,7 +245,7 @@ export class Websocket implements WebsocketInterface {
             console.info("Websocket connection closed");
           }
           // trying to connect
-          this.status = 'connecting';
+          this.status = "connecting";
         },
       },
     });
@@ -274,10 +276,10 @@ export class Websocket implements WebsocketInterface {
       } else if (message instanceof JsonrpcNotification) {
         // handle JSON-RPC Notification
         if (environment.debugMode) {
-          if (message.method == EdgeRpcNotification.METHOD && 'payload' in message.params) {
+          if (message.method == EdgeRpcNotification.METHOD && "payload" in message.params) {
             const m = message as EdgeRpcNotification;
             const payload = m.params.payload;
-            console.info("Notification [" + m.params.edgeId + "] [" + payload["method"] + "]", payload['params']);
+            console.info("Notification [" + m.params.edgeId + "] [" + payload["method"] + "]", payload["params"]);
           } else {
             console.info("Notification [" + message.method + "]", message.params);
           }
@@ -289,7 +291,7 @@ export class Websocket implements WebsocketInterface {
       this.onError(error);
 
     }, () => {
-      this.status = 'failed';
+      this.status = "failed";
       this.onClose();
     });
   }
@@ -299,12 +301,12 @@ export class Websocket implements WebsocketInterface {
     // TODO create global Errorhandler for any type of error
     switch (reason.error.code) {
       case 1003:
-        this.service.toast(this.translate.instant('Login.authenticationFailed'), 'danger');
+        this.service.toast(this.translate.instant("Login.authenticationFailed"), "danger");
         this.onLoggedOut();
         break;
       case 1:
         this.service.toast(this.translate.instant("Login.REQUEST_TIMEOUT"), "danger");
-        this.status = 'waiting for credentials';
+        this.status = "waiting for credentials";
         this.service.onLogout();
         break;
       default:
@@ -313,8 +315,8 @@ export class Websocket implements WebsocketInterface {
   }
 
   private onLoggedOut(): void {
-    this.status = 'waiting for credentials';
-    this.cookieService.delete('token', '/');
+    this.status = "waiting for credentials";
+    this.cookieService.delete("token", "/");
     this.service.onLogout();
   }
 

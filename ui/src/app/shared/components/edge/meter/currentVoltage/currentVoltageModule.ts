@@ -22,7 +22,7 @@ import { CurrentAndVoltageOverviewComponent } from "./currentVoltage.overview";
     NgChartsModule,
     HistoryDataErrorModule,
     NgxSpinnerModule.forRoot({
-      type: 'ball-clip-rotate-multiple',
+      type: "ball-clip-rotate-multiple",
     }),
     ChartModule,
     PickdateModule,

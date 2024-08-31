@@ -1,12 +1,12 @@
 // @ts-strict-ignore
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from "@angular/core";
+import { Router } from "@angular/router";
 
-import { Service, Websocket } from '../../shared/shared';
+import { Service, Websocket } from "../../shared/shared";
 
 @Component({
-  selector: 'index',
-  templateUrl: './loading-screen.html',
+  selector: "index",
+  templateUrl: "./loading-screen.html",
 })
 export class LoadingScreenComponent implements OnInit {
 
@@ -23,14 +23,14 @@ export class LoadingScreenComponent implements OnInit {
     // TODO add websocket status observable
     const interval = setInterval(() => {
       this.service.startSpinner(this.spinnerId);
-      if (this.websocket.status === 'online') {
+      if (this.websocket.status === "online") {
         this.service.stopSpinner(this.spinnerId);
-        this.router.navigate(['/overview']);
+        this.router.navigate(["/overview"]);
         clearInterval(interval);
       }
-      if (this.websocket.status === 'waiting for credentials') {
+      if (this.websocket.status === "waiting for credentials") {
         this.service.stopSpinner(this.spinnerId);
-        this.router.navigate(['/login']);
+        this.router.navigate(["/login"]);
         clearInterval(interval);
       }
     }, 1000);

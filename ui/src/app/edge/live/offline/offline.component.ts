@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { Edge, Service, Utils } from 'src/app/shared/shared';
-import { DateUtils } from 'src/app/shared/utils/date/dateutils';
+import { Component, OnInit } from "@angular/core";
+import { Edge, Service, Utils } from "src/app/shared/shared";
+import { DateUtils } from "src/app/shared/utils/date/dateutils";
 
 // TODO add translations when refactoring offline.component.html
 @Component({
-    selector: 'offline',
-    templateUrl: './offline.component.html',
+    selector: "offline",
+    templateUrl: "./offline.component.html",
 })
 export class OfflineComponent implements OnInit {
 

@@ -43,7 +43,7 @@ export namespace DummyConfig {
                 return ({ ...acc, [c.id]: c });
             }, {}),
             factories: components?.reduce((p, c) => {
-                p[c.factory.id] = new EdgeConfig.Factory(c.factory.id, '', c.factory.natureIds);
+                p[c.factory.id] = new EdgeConfig.Factory(c.factory.id, "", c.factory.natureIds);
                 return p;
             }, {}),
         });
@@ -189,7 +189,7 @@ export namespace DummyConfig {
         export const EVCS_HARDY_BARTH = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
-            factoryId: 'Evcs.HardyBarth',
+            factoryId: "Evcs.HardyBarth",
             factory: Factory.EVCS_HARDY_BARTH,
             properties: {
                 enabled: "true",
@@ -200,7 +200,7 @@ export namespace DummyConfig {
         export const SOCOMEC_GRID_METER = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
-            factoryId: 'Meter.Socomec.Threephase',
+            factoryId: "Meter.Socomec.Threephase",
             factory: Factory.METER_SOCOMEC_THREEPHASE,
             properties: {
                 invert: false,
@@ -250,7 +250,7 @@ export namespace DummyConfig {
         export const SOLAR_EDGE_PV_INVERTER = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
-            factoryId: 'SolarEdge.PV-Inverter',
+            factoryId: "SolarEdge.PV-Inverter",
             factory: Factory.SOLAR_EDGE_PV_INVERTER,
             properties: {
                 invert: false,
@@ -263,7 +263,7 @@ export namespace DummyConfig {
         export const ESS_GENERIC_MANAGEDSYMMETRIC = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
-            factoryId: 'Ess.Generic.ManagedSymmetric',
+            factoryId: "Ess.Generic.ManagedSymmetric",
             factory: Factory.ESS_GENERIC_MANAGEDSYMMETRIC,
             properties: {
                 invert: false,
@@ -384,22 +384,22 @@ export const LINE_INFO = (text: string): OeFormlyViewTester.Field => ({
 
 export namespace ChartConfig {
 
-    export const LINE_CHART_OPTIONS = (period: string, chartType: 'line' | 'bar', labelString?: string): OeChartTester.Dataset.Option => ({
-        type: 'option',
-        options: { "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": {}, "line": {} }, "plugins": { "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": '' } }, "tooltip": { "intersect": false, "mode": "index", "callbacks": {} } }, "scales": { "x": { "stacked": true, "offset": false, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } }, "left": { ...(chartType === 'line' ? { stacked: false } : {}), "title": { "text": "kW", "display": true, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true }, "ticks": {} } } },
+    export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", labelString?: string): OeChartTester.Dataset.Option => ({
+        type: "option",
+        options: { "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": {}, "line": {} }, "plugins": { "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "index", "callbacks": {} } }, "scales": { "x": { "stacked": true, "offset": false, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } }, "left": { ...(chartType === "line" ? { stacked: false } : {}), "title": { "text": "kW", "display": true, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true }, "ticks": {} } } },
     });
 
-    export const BAR_CHART_OPTIONS = (period: string, chartType: 'line' | 'bar', labelString?: string): OeChartTester.Dataset.Option => ({
-        type: 'option', options: {
-            "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 1 }, "line": {} }, "plugins": { "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": '' } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {} } }, "scales": {
-                "x": { "stacked": true, "offset": true, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } }, "left": { ...(chartType === 'line' ? { stacked: false } : {}), "title": { "text": "kWh", "display": true, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true }, "ticks": {} },
+    export const BAR_CHART_OPTIONS = (period: string, chartType: "line" | "bar", labelString?: string): OeChartTester.Dataset.Option => ({
+        type: "option", options: {
+            "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 1 }, "line": {} }, "plugins": { "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {} } }, "scales": {
+                "x": { "stacked": true, "offset": true, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } }, "left": { ...(chartType === "line" ? { stacked: false } : {}), "title": { "text": "kWh", "display": true, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true }, "ticks": {} },
             },
         },
     });
 }
 
-describe('PersistencePriority', () => {
-    it('#isLessThan', () => {
+describe("PersistencePriority", () => {
+    it("#isLessThan", () => {
         expect(PersistencePriority.isLessThan(PersistencePriority.LOW, PersistencePriority.HIGH)).toBe(true);
         expect(PersistencePriority.isLessThan(PersistencePriority.VERY_HIGH, PersistencePriority.HIGH)).toBe(false);
         expect(PersistencePriority.isLessThan(PersistencePriority.HIGH, PersistencePriority.HIGH)).toBe(false);

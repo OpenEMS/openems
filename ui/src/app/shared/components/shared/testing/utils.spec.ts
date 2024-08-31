@@ -1,7 +1,7 @@
 
 import { registerLocaleData } from "@angular/common";
-import localDE from '@angular/common/locales/de';
-import localeDeExtra from '@angular/common/locales/extra/de';
+import localDE from "@angular/common/locales/de";
+import localeDeExtra from "@angular/common/locales/extra/de";
 import { LOCALE_ID } from "@angular/core";
 import { TestBed, TestModuleMetadata } from "@angular/core/testing";
 import { ActivatedRoute, RouterModule } from "@angular/router";
@@ -29,9 +29,9 @@ export const BASE_TEST_BED: TestModuleMetadata = {
 
 export function setTranslateParams(): void {
     const translateService = TestBed.inject(TranslateService);
-    translateService.addLangs(['de']);
-    translateService.use('de');
-    registerLocaleData(localDE, 'de', localeDeExtra);
+    translateService.addLangs(["de"]);
+    translateService.use("de");
+    registerLocaleData(localDE, "de", localeDeExtra);
 }
 
 export async function sharedSetup(): Promise<TestContext> {
@@ -46,13 +46,13 @@ export async function sharedSetup(): Promise<TestContext> {
 }
 
 export function removeFunctions(obj: any): any {
-    if (typeof obj !== 'object' || obj === null) {
+    if (typeof obj !== "object" || obj === null) {
         return obj;
     }
 
     const result: any = {};
     for (const key in obj) {
-        if (typeof obj[key] !== 'function') {
+        if (typeof obj[key] !== "function") {
             result[key] = removeFunctions(obj[key]);
         }
     }

@@ -7,14 +7,14 @@ import { environment } from "src/environments";
 import { SUM_STATES } from "../shared/sumState";
 
 @Component({
-  selector: 'oe-filter',
-  templateUrl: './filter.component.html',
+  selector: "oe-filter",
+  templateUrl: "./filter.component.html",
 })
 export class FilterComponent {
 
-  @Output() protected setSearchParams: EventEmitter<Map<string, ChosenFilter['value']>> = new EventEmitter<Map<string, ChosenFilter['value']>>();
+  @Output() protected setSearchParams: EventEmitter<Map<string, ChosenFilter["value"]>> = new EventEmitter<Map<string, ChosenFilter["value"]>>();
   protected filters: Filter[] = [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)];
-  protected searchParams: Map<string, ChosenFilter['value']> = new Map();
+  protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
 
   constructor(private translate: TranslateService) { }
 

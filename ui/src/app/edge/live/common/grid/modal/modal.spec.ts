@@ -17,11 +17,11 @@ const VIEW_CONTEXT = (properties?: {}): OeFormlyViewTester.Context => ({
   ...properties,
 });
 
-describe('Grid - Modal', () => {
+describe("Grid - Modal", () => {
   let TEST_CONTEXT: TestContext;
   beforeEach(async () => TEST_CONTEXT = await sharedSetup());
 
-  it('generateView()', () => {
+  it("generateView()", () => {
     {
       // No Meters
       const EMS = DummyConfig.from();
@@ -71,7 +71,7 @@ describe('Grid - Modal', () => {
       });
 
       // Offgrid
-      expectView(EMS, Role.ADMIN, VIEW_CONTEXT({ '_sum/GridMode': GridMode.OFF_GRID }), TEST_CONTEXT, {
+      expectView(EMS, Role.ADMIN, VIEW_CONTEXT({ "_sum/GridMode": GridMode.OFF_GRID }), TEST_CONTEXT, {
         title: "Netz",
         lines: [
           {

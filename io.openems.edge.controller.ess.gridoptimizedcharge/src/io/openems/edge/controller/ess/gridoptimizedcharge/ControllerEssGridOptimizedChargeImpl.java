@@ -145,8 +145,7 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 
 	@Override
 	public void run() throws OpenemsNamedException {
-
-		if (!this.ess.isManaged()) {
+		if (!this.ess.isManaged() && this.config.mode() != Mode.OFF) {
 			this._setConfiguredEssIsNotManaged(true);
 			return;
 		}

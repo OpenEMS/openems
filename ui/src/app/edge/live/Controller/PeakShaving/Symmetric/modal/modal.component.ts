@@ -1,13 +1,13 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { Edge, EdgeConfig, Service, Websocket } from '../../../../../../shared/shared';
+import { Component, Input, OnInit } from "@angular/core";
+import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
+import { ModalController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { Edge, EdgeConfig, Service, Websocket } from "../../../../../../shared/shared";
 
 @Component({
-    selector: 'symmetricpeakshaving-modal',
-    templateUrl: './modal.component.html',
+    selector: "symmetricpeakshaving-modal",
+    templateUrl: "./modal.component.html",
 })
 export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
 
@@ -29,11 +29,11 @@ export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
     ngOnInit() {
         this.formGroup = this.formBuilder.group({
             peakShavingPower: new FormControl(this.component.properties.peakShavingPower, Validators.compose([
-                Validators.pattern('^(?:[1-9][0-9]*|0)$'),
+                Validators.pattern("^(?:[1-9][0-9]*|0)$"),
                 Validators.required,
             ])),
             rechargePower: new FormControl(this.component.properties.rechargePower, Validators.compose([
-                Validators.pattern('^(?:[1-9][0-9]*|0)$'),
+                Validators.pattern("^(?:[1-9][0-9]*|0)$"),
                 Validators.required,
             ])),
         });
@@ -41,9 +41,9 @@ export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
 
     applyChanges() {
         if (this.edge != null) {
-            if (this.edge.roleIsAtLeast('owner')) {
-                const peakShavingPower = this.formGroup.controls['peakShavingPower'];
-                const rechargePower = this.formGroup.controls['rechargePower'];
+            if (this.edge.roleIsAtLeast("owner")) {
+                const peakShavingPower = this.formGroup.controls["peakShavingPower"];
+                const rechargePower = this.formGroup.controls["rechargePower"];
                 if (peakShavingPower.valid && rechargePower.valid) {
                     if (peakShavingPower.value >= rechargePower.value) {
                         const updateComponentArray = [];
@@ -57,23 +57,23 @@ export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
                             this.component.properties.peakShavingPower = peakShavingPower.value;
                             this.component.properties.rechargePower = rechargePower.value;
                             this.loading = false;
-                            this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+                            this.service.toast(this.translate.instant("General.changeAccepted"), "success");
                         }).catch(reason => {
                             peakShavingPower.setValue(this.component.properties.peakShavingPower);
                             rechargePower.setValue(this.component.properties.rechargePower);
                             this.loading = false;
-                            this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+                            this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
                             console.warn(reason);
                         });
                         this.formGroup.markAsPristine();
                     } else {
-                        this.service.toast(this.translate.instant('Edge.Index.Widgets.Peakshaving.relationError'), 'danger');
+                        this.service.toast(this.translate.instant("Edge.Index.Widgets.Peakshaving.relationError"), "danger");
                     }
                 } else {
-                    this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
+                    this.service.toast(this.translate.instant("General.inputNotValid"), "danger");
                 }
             } else {
-                this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
+                this.service.toast(this.translate.instant("General.insufficientRights"), "danger");
             }
         }
     }
