@@ -1,0 +1,5 @@
+<oe-chart [(showPhases)]="showPhases" [period]="service.historyPeriod.value" *ngIf="isInitialized" [title]="'Edge.Index.Widgets.FIX_DIGITAL_OUTPUT' | translate">
+    <totalChart [isOnlyChart]="true"></totalChart>
+</oe-chart>
+<oe-footer-subnavigation *ngIf="isInitialized"
+  [navigationOptions]="navigationButtons"></oe-footer-subnavigation>

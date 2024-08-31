@@ -9,10 +9,6 @@ import { Controller } from "./Controller/controller.module";
 import { DelayedSellToGridChartComponent } from "./delayedselltogrid/chart.component";
 import { DelayedSellToGridChartOverviewComponent } from "./delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component";
 import { DelayedSellToGridWidgetComponent } from "./delayedselltogrid/widget.component";
-import { FixDigitalOutputChartOverviewComponent } from "./fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component";
-import { FixDigitalOutputSingleChartComponent } from "./fixdigitaloutput/singlechart.component";
-import { FixDigitalOutputTotalChartComponent } from "./fixdigitaloutput/totalchart.component";
-import { FixDigitalOutputWidgetComponent } from "./fixdigitaloutput/widget.component";
 import { HeatingelementChartComponent } from "./heatingelement/chart.component";
 import { HeatingelementChartOverviewComponent } from "./heatingelement/heatingelementchartoverview/heatingelementchartoverview.component";
 import { HeatingelementWidgetComponent } from "./heatingelement/widget.component";
@@ -30,9 +26,6 @@ import { SymmetricPeakshavingWidgetComponent } from "./peakshaving/symmetric/wid
 import { TimeslotPeakshavingChartComponent } from "./peakshaving/timeslot/chart.component";
 import { TimeslotPeakshavingChartOverviewComponent } from "./peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component";
 import { TimeslotPeakshavingWidgetComponent } from "./peakshaving/timeslot/widget.component";
-import { SinglethresholdChartComponent } from "./singlethreshold/chart.component";
-import { SinglethresholdChartOverviewComponent } from "./singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component";
-import { SinglethresholdWidgetComponent } from "./singlethreshold/widget.component";
 import { StorageChargerChartComponent } from "./storage/chargerchart.component";
 import { StorageESSChartComponent } from "./storage/esschart.component";
 import { StorageSingleChartComponent } from "./storage/singlechart.component";
@@ -57,10 +50,6 @@ import { StorageComponent } from "./storage/widget.component";
     DelayedSellToGridChartComponent,
     DelayedSellToGridChartOverviewComponent,
     DelayedSellToGridWidgetComponent,
-    FixDigitalOutputChartOverviewComponent,
-    FixDigitalOutputSingleChartComponent,
-    FixDigitalOutputTotalChartComponent,
-    FixDigitalOutputWidgetComponent,
     HeatingelementChartComponent,
     HeatingelementChartOverviewComponent,
     HeatingelementWidgetComponent,
@@ -68,9 +57,6 @@ import { StorageComponent } from "./storage/widget.component";
     HeatPumpChartOverviewComponent,
     HeatpumpWidgetComponent,
     HistoryComponent,
-    SinglethresholdChartComponent,
-    SinglethresholdChartOverviewComponent,
-    SinglethresholdWidgetComponent,
     SocStorageChartComponent,
     StorageChargerChartComponent,
     StorageChartOverviewComponent,

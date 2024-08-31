@@ -371,6 +371,21 @@ export class EdgeConfig {
     }
 
     /**
+     * Gets the Component Ids by the given Factories.
+     *
+     * @param factoryIds the Factory PIDs.
+     * @returns the component Ids
+     */
+    public getComponentIdsByFactories(...factoryIds: string[]): string[] {
+        const componentIds: string[] = [];
+
+        for (const factory of factoryIds) {
+            componentIds.push(...this.getComponentIdsByFactory(factory));
+        }
+        return componentIds;
+    }
+
+    /**
      * Get Component-IDs of Components that implement the given Nature.
      *
      * @param nature the given Nature.
