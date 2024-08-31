@@ -23,7 +23,7 @@ export class DateTimeUtils {
 
         // Change first timestamp to start of month
         const formattedDate = startOfMonth(DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps[0]));
-        energyPerPeriodResponse.result.timestamps[0] = format(formattedDate, 'yyyy-MM-dd HH:mm:ss', { locale: de })?.toString() ?? energyPerPeriodResponse.result.timestamps[0];
+        energyPerPeriodResponse.result.timestamps[0] = format(formattedDate, "yyyy-MM-dd HH:mm:ss", { locale: de })?.toString() ?? energyPerPeriodResponse.result.timestamps[0];
 
         // show 12 stacks, even if no data and timestamps
         const newTimestamps: string[] = [];
@@ -40,7 +40,7 @@ export class DateTimeUtils {
         }
 
         energyPerPeriodResponse.result.timestamps = newTimestamps.concat(energyPerPeriodResponse.result.timestamps);
-        break;
+        return energyPerPeriodResponse;
       }
 
       case ChronoUnit.Type.YEARS: {
@@ -48,11 +48,12 @@ export class DateTimeUtils {
         // Change dates to be first day of year
         const formattedDates = energyPerPeriodResponse.result.timestamps.map((timestamp) =>
           startOfYear(DateUtils.stringToDate(timestamp)));
-        energyPerPeriodResponse.result.timestamps = formattedDates.map(date => format(date, 'yyyy-MM-dd HH:mm:ss', { locale: de })?.toString());
-        break;
+        energyPerPeriodResponse.result.timestamps = formattedDates.map(date => format(date, "yyyy-MM-dd HH:mm:ss", { locale: de })?.toString());
+        return energyPerPeriodResponse;
       }
+      default:
+        return energyPerPeriodResponse;
     }
 
-    return energyPerPeriodResponse;
   }
 }

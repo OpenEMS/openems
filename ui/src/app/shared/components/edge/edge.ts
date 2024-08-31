@@ -1,33 +1,32 @@
 // @ts-strict-ignore
-import { compareVersions } from 'compare-versions';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { SumState } from 'src/app/index/shared/sumState';
-
-import { CurrentData } from './currentdata';
-import { EdgeConfig } from './edgeconfig';
-import { filter, first } from 'rxjs/operators';
-import { JsonrpcResponseSuccess, JsonrpcRequest } from '../../jsonrpc/base';
-import { CurrentDataNotification } from '../../jsonrpc/notification/currentDataNotification';
-import { EdgeConfigNotification } from '../../jsonrpc/notification/edgeConfigNotification';
-import { SystemLogNotification } from '../../jsonrpc/notification/systemLogNotification';
-import { ComponentJsonApiRequest } from '../../jsonrpc/request/componentJsonApiRequest';
-import { CreateComponentConfigRequest } from '../../jsonrpc/request/createComponentConfigRequest';
-import { DeleteComponentConfigRequest } from '../../jsonrpc/request/deleteComponentConfigRequest';
-import { EdgeRpcRequest } from '../../jsonrpc/request/edgeRpcRequest';
-import { GetChannelRequest } from '../../jsonrpc/request/getChannelRequest';
-import { GetChannelsOfComponentRequest } from '../../jsonrpc/request/getChannelsOfComponentRequest';
-import { GetPropertiesOfFactoryRequest } from '../../jsonrpc/request/getPropertiesOfFactoryRequest';
-import { SubscribeChannelsRequest } from '../../jsonrpc/request/subscribeChannelsRequest';
-import { SubscribeSystemLogRequest } from '../../jsonrpc/request/subscribeSystemLogRequest';
-import { UpdateComponentConfigRequest } from '../../jsonrpc/request/updateComponentConfigRequest';
-import { GetChannelResponse } from '../../jsonrpc/response/getChannelResponse';
-import { Channel, GetChannelsOfComponentResponse } from '../../jsonrpc/response/getChannelsOfComponentResponse';
-import { GetPropertiesOfFactoryResponse } from '../../jsonrpc/response/getPropertiesOfFactoryResponse';
-import { ArrayUtils } from '../../service/arrayutils';
-import { ChannelAddress, SystemLog, Websocket, EdgePermission } from '../../shared';
-import { Role } from '../../type/role';
-import { GetEdgeConfigResponse } from '../../jsonrpc/response/getEdgeConfigResponse';
-import { GetEdgeConfigRequest } from '../../jsonrpc/request/getEdgeConfigRequest';
+import { compareVersions } from "compare-versions";
+import { BehaviorSubject, Subject } from "rxjs";
+import { filter, first } from "rxjs/operators";
+import { SumState } from "src/app/index/shared/sumState";
+import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../jsonrpc/base";
+import { CurrentDataNotification } from "../../jsonrpc/notification/currentDataNotification";
+import { EdgeConfigNotification } from "../../jsonrpc/notification/edgeConfigNotification";
+import { SystemLogNotification } from "../../jsonrpc/notification/systemLogNotification";
+import { ComponentJsonApiRequest } from "../../jsonrpc/request/componentJsonApiRequest";
+import { CreateComponentConfigRequest } from "../../jsonrpc/request/createComponentConfigRequest";
+import { DeleteComponentConfigRequest } from "../../jsonrpc/request/deleteComponentConfigRequest";
+import { EdgeRpcRequest } from "../../jsonrpc/request/edgeRpcRequest";
+import { GetChannelRequest } from "../../jsonrpc/request/getChannelRequest";
+import { GetChannelsOfComponentRequest } from "../../jsonrpc/request/getChannelsOfComponentRequest";
+import { GetEdgeConfigRequest } from "../../jsonrpc/request/getEdgeConfigRequest";
+import { GetPropertiesOfFactoryRequest } from "../../jsonrpc/request/getPropertiesOfFactoryRequest";
+import { SubscribeChannelsRequest } from "../../jsonrpc/request/subscribeChannelsRequest";
+import { SubscribeSystemLogRequest } from "../../jsonrpc/request/subscribeSystemLogRequest";
+import { UpdateComponentConfigRequest } from "../../jsonrpc/request/updateComponentConfigRequest";
+import { GetChannelResponse } from "../../jsonrpc/response/getChannelResponse";
+import { Channel, GetChannelsOfComponentResponse } from "../../jsonrpc/response/getChannelsOfComponentResponse";
+import { GetEdgeConfigResponse } from "../../jsonrpc/response/getEdgeConfigResponse";
+import { GetPropertiesOfFactoryResponse } from "../../jsonrpc/response/getPropertiesOfFactoryResponse";
+import { ArrayUtils } from "../../service/arrayutils";
+import { ChannelAddress, EdgePermission, SystemLog, Websocket } from "../../shared";
+import { Role } from "../../type/role";
+import { CurrentData } from "./currentdata";
+import { EdgeConfig } from "./edgeconfig";
 
 export class Edge {
 
@@ -105,7 +104,7 @@ export class Edge {
     }
 
     const response = await this.sendRequest<GetChannelResponse>(websocket, new ComponentJsonApiRequest({
-      componentId: '_componentManager',
+      componentId: "_componentManager",
       payload: new GetChannelRequest({
         componentId: channel.componentId,
         channelId: channel.channelId,
@@ -128,7 +127,7 @@ export class Edge {
       const config = await this.getFirstValidConfig(websocket);
       const component = config.components[componentId];
       if (!component) {
-        throw new Error('Component not found');
+        throw new Error("Component not found");
       }
       return Object.entries(component.channels).reduce((p, c) => {
         return [...p, { id: c[0], ...c[1] }];
@@ -136,7 +135,7 @@ export class Edge {
     }
 
     const response = await this.sendRequest<GetChannelsOfComponentResponse>(websocket, new ComponentJsonApiRequest({
-      componentId: '_componentManager',
+      componentId: "_componentManager",
       payload: new GetChannelsOfComponentRequest({ componentId: componentId }),
     }));
 
@@ -146,7 +145,7 @@ export class Edge {
   public async getFactoryProperties(websocket: Websocket, factoryId: string): Promise<[EdgeConfig.Factory, EdgeConfig.FactoryProperty[]]> {
     if (EdgePermission.hasReducedFactories(this)) {
       const response = await this.sendRequest<GetPropertiesOfFactoryResponse>(websocket, new ComponentJsonApiRequest({
-        componentId: '_componentManager',
+        componentId: "_componentManager",
         payload: new GetPropertiesOfFactoryRequest({ factoryId }),
       }));
       return [response.result.factory, response.result.properties];
@@ -318,7 +317,7 @@ export class Edge {
     const wrap = new EdgeRpcRequest({ edgeId: this.id, payload: request });
     return new Promise((resolve, reject) => {
       ws.sendRequest(wrap).then(response => {
-        resolve(response['result']['payload']);
+        resolve(response["result"]["payload"]);
       }).catch(reason => {
         reject(reason);
       });

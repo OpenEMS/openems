@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { SubscribeEdgesRequest } from "src/app/shared/jsonrpc/request/subscribeEdgesRequest";
 import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
 
-
 /*** This component is needed as a routing parent and acts as a transit station without being displayed.*/
 @Component({
     selector: "edge",
@@ -31,7 +30,7 @@ export class EdgeComponent implements OnInit, OnDestroy {
     public ngOnInit(): void {
         this.activatedRoute.params.subscribe((params) => {
             // Set CurrentEdge in Metadata
-            const edgeId = params['edgeId'];
+            const edgeId = params["edgeId"];
             this.service.updateCurrentEdge(edgeId).then((edge) => {
                 this.edge = edge;
 
@@ -40,12 +39,12 @@ export class EdgeComponent implements OnInit, OnDestroy {
                     .then(() => {
 
                         // Subscribe on these channels for the state in HeaderComponent
-                        edge.subscribeChannels(this.websocket, '', [
-                            new ChannelAddress('_sum', 'State'),
+                        edge.subscribeChannels(this.websocket, "", [
+                            new ChannelAddress("_sum", "State"),
                         ]);
                     });
             }).catch(() => {
-                this.router.navigate(['index']);
+                this.router.navigate(["index"]);
             });
         });
     }

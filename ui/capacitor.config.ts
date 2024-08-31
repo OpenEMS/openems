@@ -22,10 +22,10 @@ const baseConfig: CapacitorConfig = {
       useDialog: true,
     },
     CapacitorCookies: {
-      enabled: true
-    }
-  }
-}
+      enabled: true,
+    },
+  },
+};
 
 switch (process.env.NODE_ENV as Theme) {
   // case 'EXAMPLE':
@@ -40,8 +40,7 @@ switch (process.env.NODE_ENV as Theme) {
   //   }
   //   break;
   default:
-    throw new Error(`Capacitor config for theme ${process.env.NODE_ENV} not implemented.`)
-}
-console.warn(config);
+    throw new Error(`Capacitor config for theme ${process.env.NODE_ENV} not implemented.`);
 
+}
 export default config;

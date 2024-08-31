@@ -26,6 +26,13 @@
 @import "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css";
 @import "variables";
 
+/* Live- and HistoryComponent*/
+ion-refresher-content {
+    ion-spinner {
+        left: 0 !important;
+    }
+}
+
 .custom-ion-popover {
 
     white-space: inherit;
@@ -250,6 +257,7 @@ formly-input-section {
 
         .alert-button-group {
             justify-content: space-between;
+
             .alert-button {
                 color: $primary-color;
                 font-size: small;

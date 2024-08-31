@@ -344,12 +344,19 @@ task copyBundleReadmes() {
  */
 task buildAntoraDocs(dependsOn: copyBundleReadmes) {
 	group 'Documentation'
-	
 	dependsOn ":doc:buildAntoraDocs"
+
+	def source = file("doc/build/www")
+	def output = file("${buildDir}/www")
+
 	doLast {
+		output.deleteDir()
 		copy {
-			from "doc/build/www"
-			into "${buildDir}/www"
+			from source
+			into output
 		}
+		source.deleteDir()
+		
+		println("Built ${output}!")
 	}
 }

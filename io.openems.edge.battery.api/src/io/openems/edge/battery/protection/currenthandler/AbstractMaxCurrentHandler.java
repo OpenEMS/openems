@@ -283,7 +283,7 @@ public abstract class AbstractMaxCurrentHandler {
 
 		// Get the minimum limit of all limits in Ampere
 		var limit = TypeUtils.min(TypeUtils.toDouble(bpBms), minCellVoltageLimit, maxCellVoltageLimit,
-				minCellTemperatureLimit, maxCellTemperatureLimit, maxIncreaseAmpereLimit, forceCurrent);
+				minCellTemperatureLimit, maxCellTemperatureLimit, maxSocLimit, maxIncreaseAmpereLimit, forceCurrent);
 
 		// Set '0' to block charge/discharge?
 		if (

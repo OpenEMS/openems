@@ -245,7 +245,14 @@
           "CHART_TITLE": "Aktueller Fahrplan (BETA-Test)",
           "CHART_WARNING_NOTE": "Die Grafik zeigt die vergangenen drei Stunden, sowie die zukünftig geplante Betriebsweise für den Zeitraum, für den die dynamischen Netzbezugspreise zur Verfügung stehen. Bitte beachten Sie, dass der Fahrplan kontinuierlich neu berechnet wird und sich somit im Tagesverlauf ändern kann.",
           "POWER_SOC_CHART_TITLE": "Vorhersagen (Nur für Admins)"
-        }
+        },
+        "SYSTEM": {
+          "INDUSTRIAL": {
+            "NOTE": "Startet oder stoppt das Gesamtsystem, inklusive Batteriewechselrichter und Batterien."
+          },
+          "OVERALL_SYSTEM": "Gesamtsystem"
+        },
+        "FIX_DIGITAL_OUTPUT": "Digitale Ausgangscontroller"
       },
       "RETROFITTING": {
         "UPDATE_TO_NEW_VERSION": "Um die Kapazitätserweiterung nutzen zu können, ist ein Update auf die neueste Version erforderlich.",
@@ -947,6 +954,11 @@
       "WARNING": "Im Rahmen des Systemupdates wird {{system}} neu gestartet und dabei die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet.",
       "UPDATE_EXECUTE": "Systemupdate durchführen",
       "SUB_HEADER": "Möchten Sie ein Systemupdate durchführen?"
+    },
+    "ENERGY_JOURNEY": {
+      "TO_THE_ANALYSIS": "Zur Analyse",
+      "CURRENT_NUMBER_OF_MODULES": "Aktuell",
+      "SIMULATION_NOT_STARTED": "Simulation nicht gestartet"
     }
   },
   "CHANNELS": {

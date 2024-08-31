@@ -5,8 +5,8 @@ import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componen
 import { Edge, Websocket } from "src/app/shared/shared";
 import { environment } from "src/environments";
 import { ExecuteSystemUpdateRequest } from "./executeSystemUpdateRequest";
-import { GetSystemUpdateStateResponse, SystemUpdateState } from "./getSystemUpdateStateResponse";
 import { GetSystemUpdateStateRequest } from "./getSystemUpdateStateRequest";
+import { GetSystemUpdateStateResponse, SystemUpdateState } from "./getSystemUpdateStateResponse";
 
 export class ExecuteSystemUpdate {
 

@@ -1,10 +1,10 @@
 // @ts-strict-ignore
-import { Component, Input } from '@angular/core';
-import { Icon } from 'src/app/shared/type/widget';
+import { Component, Input } from "@angular/core";
+import { Icon } from "src/app/shared/type/widget";
 
 @Component({
-  selector: 'oe-flat-widget',
-  templateUrl: './flat.html',
+  selector: "oe-flat-widget",
+  templateUrl: "./flat.html",
 })
 export class FlatWidgetComponent {
 

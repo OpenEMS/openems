@@ -1,15 +1,15 @@
 // @ts-strict-ignore
-import { Component, OnInit } from '@angular/core';
-import { AlertController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { BehaviorSubject, Subscription } from 'rxjs';
-import { skip } from 'rxjs/operators';
-import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
-import { ExecuteSystemRestartRequest, Type } from 'src/app/shared/jsonrpc/request/executeSystemRestartRequest';
-import { Role } from 'src/app/shared/type/role';
-import { environment } from 'src/environments';
+import { Component, OnInit } from "@angular/core";
+import { AlertController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { BehaviorSubject, Subscription } from "rxjs";
+import { skip } from "rxjs/operators";
+import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { ExecuteSystemRestartRequest, Type } from "src/app/shared/jsonrpc/request/executeSystemRestartRequest";
+import { Role } from "src/app/shared/type/role";
+import { environment } from "src/environments";
 
-import { Edge, presentAlert, Service, Utils, Websocket } from '../../../../shared/shared';
+import { Edge, presentAlert, Service, Utils, Websocket } from "../../../../shared/shared";
 
 enum SystemRestartState {
     INITIAL, // No restart
@@ -20,10 +20,10 @@ enum SystemRestartState {
 
 @Component({
     selector: MaintenanceComponent.SELECTOR,
-    templateUrl: './maintenance.html',
+    templateUrl: "./maintenance.html",
     styles: [`
     :host {
-        ion-card: {
+        :is(ion-card) {
             cursor: auto !important;;
         }
     }
@@ -31,16 +31,16 @@ enum SystemRestartState {
 })
 export class MaintenanceComponent implements OnInit {
 
-    private static readonly SELECTOR: string = 'oe-maintenance';
+    private static readonly SELECTOR: string = "oe-maintenance";
     private static readonly TIMEOUT: number = 3000;
 
     protected readonly environment = environment;
 
     protected edge: Edge | null = null;
-    protected options: { key: string, message: string, color: 'success' | 'warning' | null, info: string, roleIsAtLeast: Role, button: { disabled: boolean, label: string, callback: () => void } }[] = [
+    protected options: { key: string, message: string, color: "success" | "warning" | null, info: string, roleIsAtLeast: Role, button: { disabled: boolean, label: string, callback: () => void } }[] = [
         {
-            key: Type.HARD, message: null, color: null, info: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: environment.edgeShortName }), roleIsAtLeast: Role.OWNER, button: {
-                callback: () => this.confirmationAlert(Type.HARD), disabled: false, label: this.translate.instant('SETTINGS.SYSTEM_UPDATE.EMS_RESTARTING', { edgeShortName: environment.edgeShortName }),
+            key: Type.HARD, message: null, color: null, info: this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", { system: environment.edgeShortName }), roleIsAtLeast: Role.OWNER, button: {
+                callback: () => this.confirmationAlert(Type.HARD), disabled: false, label: this.translate.instant("SETTINGS.SYSTEM_UPDATE.EMS_RESTARTING", { edgeShortName: environment.edgeShortName }),
             },
         },
     ];
@@ -62,19 +62,19 @@ export class MaintenanceComponent implements OnInit {
  */
     async presentAlert(type: Type) {
         const translate = this.translate;
-        const system = type === Type.HARD ? environment.edgeShortName : 'OpenEMS';
+        const system = type === Type.HARD ? environment.edgeShortName : "OpenEMS";
         const alert = this.alertCtrl.create({
-            subHeader: translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION', { system: system }),
-            message: translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: system }),
+            subHeader: translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION", { system: system }),
+            message: translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", { system: system }),
             buttons: [{
-                text: translate.instant('General.cancel'),
-                role: 'cancel',
+                text: translate.instant("General.cancel"),
+                role: "cancel",
             },
             {
-                text: translate.instant('General.RESTART'),
+                text: translate.instant("General.RESTART"),
                 handler: () => this.execRestart(type),
             }],
-            cssClass: 'alertController',
+            cssClass: "alertController",
         });
         (await alert).present();
     }
@@ -98,10 +98,10 @@ export class MaintenanceComponent implements OnInit {
     }
 
     protected confirmationAlert: (type: Type) => void = (type: Type) => presentAlert(this.alertCtrl, this.translate, {
-        message: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: environment.edgeShortName }),
-        subHeader: this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION', { system: environment.edgeShortName }),
+        message: this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", { system: environment.edgeShortName }),
+        subHeader: this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION", { system: environment.edgeShortName }),
         buttons: [{
-            text: this.translate.instant('General.RESTART'),
+            text: this.translate.instant("General.RESTART"),
             handler: () => this.execRestart(type),
         }],
     });
@@ -115,13 +115,13 @@ export class MaintenanceComponent implements OnInit {
         let message: string | null = null;
         let disableButtons: boolean = false;
         let showInfo: boolean = false;
-        let color: 'warning' | 'success' | null = null;
-        const system = type === Type.HARD ? environment.edgeShortName : this.translate.instant('General.SYSTEM');
+        let color: "warning" | "success" | null = null;
+        const system = type === Type.HARD ? environment.edgeShortName : this.translate.instant("General.SYSTEM");
 
         switch (this.systemRestartState?.value?.state) {
             case SystemRestartState.FAILED:
                 message = this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_FAILED", { system: system });
-                color = 'warning';
+                color = "warning";
                 disableButtons = false;
                 showInfo = true;
                 break;
@@ -134,10 +134,13 @@ export class MaintenanceComponent implements OnInit {
             case SystemRestartState.RESTARTED:
                 this.service.stopSpinner(this.spinnerId + type);
                 disableButtons = false;
-                color = 'success';
+                color = "success";
                 message = this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTARTED", { system: system });
                 showInfo = true;
                 break;
+            default:
+                break;
+
         }
 
         if (!message) {
@@ -151,7 +154,7 @@ export class MaintenanceComponent implements OnInit {
             // Hide and show buttons
             option.button.disabled = disableButtons ? disableButtons : !this.edge.roleIsAtLeast(option.roleIsAtLeast);
             option.color = color;
-            option.info = showInfo ? this.translate.instant('SETTINGS.SYSTEM_UPDATE.RESTART_WARNING', { system: environment.edgeShortName }) : null;
+            option.info = showInfo ? this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", { system: environment.edgeShortName }) : null;
             return option;
         });
     }
@@ -163,7 +166,7 @@ export class MaintenanceComponent implements OnInit {
      */
     private execRestart(type: Type) {
 
-        const request = new ComponentJsonApiRequest({ componentId: '_host', payload: new ExecuteSystemRestartRequest({ type: type }) });
+        const request = new ComponentJsonApiRequest({ componentId: "_host", payload: new ExecuteSystemRestartRequest({ type: type }) });
 
         // Workaround, there could be no response
         this.edge.sendRequest(this.websocket, request).catch(() => {

@@ -1,12 +1,12 @@
 // @ts-strict-ignore
-import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
-import { ChannelAddress, CurrentData, EdgeConfig, Utils } from 'src/app/shared/shared';
-import { ModalComponent } from '../modal/modal';
+import { Component } from "@angular/core";
+import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
+import { ModalComponent } from "../modal/modal";
 
 @Component({
-  selector: 'consumption',
-  templateUrl: './flat.html',
+  selector: "consumption",
+  templateUrl: "./flat.html",
 })
 export class FlatComponent extends AbstractFlatWidget {
 
@@ -27,12 +27,12 @@ export class FlatComponent extends AbstractFlatWidget {
   protected override getChannelAddresses() {
 
     const channelAddresses: ChannelAddress[] = [
-      new ChannelAddress('_sum', 'ConsumptionActivePower'),
+      new ChannelAddress("_sum", "ConsumptionActivePower"),
 
       // TODO should be moved to Modal
-      new ChannelAddress('_sum', 'ConsumptionActivePowerL1'),
-      new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
-      new ChannelAddress('_sum', 'ConsumptionActivePowerL3'),
+      new ChannelAddress("_sum", "ConsumptionActivePowerL1"),
+      new ChannelAddress("_sum", "ConsumptionActivePowerL2"),
+      new ChannelAddress("_sum", "ConsumptionActivePowerL3"),
     ];
 
     // Get consumptionMeterComponents
@@ -41,21 +41,21 @@ export class FlatComponent extends AbstractFlatWidget {
 
     for (const component of this.consumptionMeters) {
       channelAddresses.push(
-        new ChannelAddress(component.id, 'ActivePower'),
-        new ChannelAddress(component.id, 'ActivePowerL1'),
-        new ChannelAddress(component.id, 'ActivePowerL2'),
-        new ChannelAddress(component.id, 'ActivePowerL3'),
+        new ChannelAddress(component.id, "ActivePower"),
+        new ChannelAddress(component.id, "ActivePowerL1"),
+        new ChannelAddress(component.id, "ActivePowerL2"),
+        new ChannelAddress(component.id, "ActivePowerL3"),
       );
     }
 
     // Get EVCSs
     this.evcss = this.config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
-      .filter(component => !(component.factoryId == 'Evcs.Cluster.SelfConsumption') &&
-        !(component.factoryId == 'Evcs.Cluster.PeakShaving') && !component.isEnabled == false);
+      .filter(component => !(component.factoryId == "Evcs.Cluster.SelfConsumption") &&
+        !(component.factoryId == "Evcs.Cluster.PeakShaving") && !component.isEnabled == false);
 
     for (const component of this.evcss) {
       channelAddresses.push(
-        new ChannelAddress(component.id, 'ChargePower'),
+        new ChannelAddress(component.id, "ChargePower"),
       );
     }
     return channelAddresses;
@@ -65,20 +65,20 @@ export class FlatComponent extends AbstractFlatWidget {
 
     this.evcsSumOfChargePower = 0;
     let consumptionMetersSumOfActivePower: number = 0;
-    this.sumActivePower = currentData.allComponents['_sum/ConsumptionActivePower'];
+    this.sumActivePower = currentData.allComponents["_sum/ConsumptionActivePower"];
 
     // TODO move sums to Model
     // Iterate over evcsComponents to get ChargePower for every component
     for (const component of this.evcss) {
-      if (currentData.allComponents[component.id + '/ChargePower']) {
-        this.evcsSumOfChargePower += currentData.allComponents[component.id + '/ChargePower'];
+      if (currentData.allComponents[component.id + "/ChargePower"]) {
+        this.evcsSumOfChargePower += currentData.allComponents[component.id + "/ChargePower"];
       }
     }
 
     // Iterate over evcsComponents to get ChargePower for every component
     for (const component of this.consumptionMeters) {
-      if (currentData.allComponents[component.id + '/ActivePower']) {
-        consumptionMetersSumOfActivePower += currentData.allComponents[component.id + '/ActivePower'];
+      if (currentData.allComponents[component.id + "/ActivePower"]) {
+        consumptionMetersSumOfActivePower += currentData.allComponents[component.id + "/ActivePower"];
       }
     }
 

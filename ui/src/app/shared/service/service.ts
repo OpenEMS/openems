@@ -1,32 +1,32 @@
 // @ts-strict-ignore
-import { registerLocaleData } from '@angular/common';
-import { Injectable } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
-import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
-import { NgxSpinnerService } from 'ngx-spinner';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { filter, first, take } from 'rxjs/operators';
-import { ChosenFilter } from 'src/app/index/filter/filter.component';
-import { environment } from 'src/environments';
-
-import { Edge } from '../components/edge/edge';
-import { EdgeConfig } from '../components/edge/edgeconfig';
-import { JsonrpcResponseError } from '../jsonrpc/base';
-import { GetEdgeRequest } from '../jsonrpc/request/getEdgeRequest';
-import { GetEdgesRequest } from '../jsonrpc/request/getEdgesRequest';
-import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
-import { GetEdgeResponse } from '../jsonrpc/response/getEdgeResponse';
-import { GetEdgesResponse } from '../jsonrpc/response/getEdgesResponse';
-import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { User } from '../jsonrpc/shared';
-import { ChannelAddress } from '../shared';
-import { Language } from '../type/language';
-import { Role } from '../type/role';
-import { DateUtils } from '../utils/date/dateutils';
-import { AbstractService } from './abstractservice';
-import { DefaultTypes } from './defaulttypes';
-import { Websocket } from './websocket';
+import { registerLocaleData } from "@angular/common";
+import { Injectable } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
+import { ToastController } from "@ionic/angular";
+import { LangChangeEvent, TranslateService } from "@ngx-translate/core";
+import { NgxSpinnerService } from "ngx-spinner";
+import { BehaviorSubject, Subject } from "rxjs";
+import { filter, first, take } from "rxjs/operators";
+import { ChosenFilter } from "src/app/index/filter/filter.component";
+import { environment } from "src/environments";
+import { ChartConstants } from "../components/chart/chart.constants";
+import { Edge } from "../components/edge/edge";
+import { EdgeConfig } from "../components/edge/edgeconfig";
+import { JsonrpcResponseError } from "../jsonrpc/base";
+import { GetEdgeRequest } from "../jsonrpc/request/getEdgeRequest";
+import { GetEdgesRequest } from "../jsonrpc/request/getEdgesRequest";
+import { QueryHistoricTimeseriesEnergyRequest } from "../jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
+import { GetEdgeResponse } from "../jsonrpc/response/getEdgeResponse";
+import { GetEdgesResponse } from "../jsonrpc/response/getEdgesResponse";
+import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
+import { User } from "../jsonrpc/shared";
+import { ChannelAddress } from "../shared";
+import { Language } from "../type/language";
+import { Role } from "../type/role";
+import { DateUtils } from "../utils/date/dateutils";
+import { AbstractService } from "./abstractservice";
+import { DefaultTypes } from "./defaulttypes";
+import { Websocket } from "./websocket";
 
 @Injectable()
 export class Service extends AbstractService {
@@ -55,6 +55,7 @@ export class Service extends AbstractService {
   public deviceWidth: number = 0;
   public isSmartphoneResolution: boolean = false;
   public isSmartphoneResolutionSubject: Subject<boolean> = new Subject<boolean>();
+  public activeQueryData: string;
 
   /**
    * Holds the currenty selected Page Title.
@@ -148,9 +149,9 @@ export class Service extends AbstractService {
     return new Promise((resolve, reject) => {
       // Set the currentPageTitle only once per ActivatedRoute
       if (this.currentActivatedRoute != activatedRoute) {
-        if (typeof currentPageTitle === 'string') {
+        if (typeof currentPageTitle === "string") {
           // Use given page title directly
-          if (currentPageTitle == null || currentPageTitle.trim() === '') {
+          if (currentPageTitle == null || currentPageTitle.trim() === "") {
             this.currentPageTitle = environment.uiTitle;
           } else {
             this.currentPageTitle = currentPageTitle;
@@ -197,7 +198,7 @@ export class Service extends AbstractService {
   public onLogout() {
     this.currentEdge.next(null);
     this.metadata.next(null);
-    this.router.navigate(['/login']);
+    this.router.navigate(["/login"]);
   }
 
   public getChannelAddresses(edge: Edge, channels: ChannelAddress[]): Promise<ChannelAddress[]> {
@@ -215,22 +216,27 @@ export class Service extends AbstractService {
       promise.resolve = resolve;
       promise.reject = reject;
     });
-    this.queryEnergyQueue.push(
-      { fromDate: fromDate, toDate: toDate, channels: channels, promises: [promise] },
-    );
-    // try to merge requests within 100 ms
+    this.queryEnergyQueue.push({
+      fromDate: fromDate,
+      toDate: toDate,
+      channels: channels,
+      promises: [promise],
+    });
+
     if (this.queryEnergyTimeout == null) {
       this.queryEnergyTimeout = setTimeout(() => {
-
         this.queryEnergyTimeout = null;
 
-        // merge requests
         const mergedRequests: {
-          fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[];
+          fromDate: Date,
+          toDate: Date,
+          channels: ChannelAddress[],
+          promises: { resolve, reject }[];
         }[] = [];
+
         let request;
         while ((request = this.queryEnergyQueue.pop())) {
-          if (mergedRequests.length == 0) {
+          if (mergedRequests.length === 0) {
             mergedRequests.push(request);
           } else {
             let merged = false;
@@ -240,14 +246,9 @@ export class Service extends AbstractService {
                 // same date -> merge
                 mergedRequest.promises = mergedRequest.promises.concat(request.promises);
                 for (const newChannel of request.channels) {
-                  let isAlreadyThere = false;
-                  for (const existingChannel of mergedRequest.channels) {
-                    if (existingChannel.channelId == newChannel.channelId && existingChannel.componentId == newChannel.componentId) {
-                      isAlreadyThere = true;
-                      break;
-                    }
-                  }
-                  if (!isAlreadyThere) {
+                  if (!mergedRequest.channels.some(existingChannel =>
+                    existingChannel.channelId === newChannel.channelId &&
+                    existingChannel.componentId === newChannel.componentId)) {
                     mergedRequest.channels.push(newChannel);
                   }
                 }
@@ -265,30 +266,44 @@ export class Service extends AbstractService {
           for (const source of mergedRequests) {
 
             // Jump to next request for empty channelAddresses
-            if (source.channels.length == 0) {
+            if (source.channels.length === 0) {
               continue;
             }
 
-            const request = new QueryHistoricTimeseriesEnergyRequest(DateUtils.maxDate(source.fromDate, edge?.firstSetupProtocol), source.toDate, source.channels);
-            edge.sendRequest(this.websocket, request).then(response => {
-              const result = (response as QueryHistoricTimeseriesEnergyResponse).result;
-              if (Object.keys(result.data).length != 0) {
+            const request = new QueryHistoricTimeseriesEnergyRequest(
+              DateUtils.maxDate(source.fromDate, edge?.firstSetupProtocol),
+              source.toDate,
+              source.channels,
+            );
+
+            this.activeQueryData = request.id;
+            edge.sendRequest(this.websocket, request)
+              .then(response => {
+                if (this.activeQueryData !== response.id) {
+                  return;
+                }
+
+                const result = (response as QueryHistoricTimeseriesEnergyResponse).result;
+
+                if (Object.keys(result.data).length === 0) {
+                  for (const promise of source.promises) {
+                    promise.reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                  }
+                  return;
+                }
+
                 for (const promise of source.promises) {
                   promise.resolve(response as QueryHistoricTimeseriesEnergyResponse);
                 }
-              } else {
+              })
+              .catch(async reason => {
                 for (const promise of source.promises) {
-                  promise.reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                  promise.reject(new JsonrpcResponseError((await response).id, { code: 0, message: "Result was empty" }));
                 }
-              }
-            }).catch(reason => {
-              for (const promise of source.promises) {
-                promise.reject(reason);
-              }
-            });
+              });
           }
         });
-      }, 100);
+      }, ChartConstants.REQUEST_TIMEOUT);
     }
     return response;
   }
@@ -301,7 +316,7 @@ export class Service extends AbstractService {
    * @param limit the number of edges to be retrieved
    * @returns a Promise
    */
-  public getEdges(page: number, query?: string, limit?: number, searchParamsObj?: { [id: string]: ChosenFilter['value'] }): Promise<Edge[]> {
+  public getEdges(page: number, query?: string, limit?: number, searchParamsObj?: { [id: string]: ChosenFilter["value"] }): Promise<Edge[]> {
     return new Promise<Edge[]>((resolve, reject) => {
       this.websocket.sendSafeRequest(
         new GetEdgesRequest({
@@ -399,12 +414,12 @@ export class Service extends AbstractService {
     this.spinner.hide(selector);
   }
 
-  public async toast(message: string, level: 'success' | 'warning' | 'danger', duration?: number) {
+  public async toast(message: string, level: "success" | "warning" | "danger", duration?: number) {
     const toast = await this.toaster.create({
       message: message,
       color: level,
       duration: duration ?? 2000,
-      cssClass: 'container',
+      cssClass: "container",
     });
     toast.present();
   }

@@ -163,6 +163,21 @@ public class Rrd4jReadHandlerTest {
 		), this.query(new Resolution(15, ChronoUnit.MINUTES)));
 	}
 
+	@Test
+	public void testStreamRanges() throws Exception {
+		final var utc = ZoneId.of("UTC");
+		final var from = ZonedDateTime.of(2023, 12, 26, 0, 0, 0, 0, utc);
+		final var to = ZonedDateTime.of(2024, 3, 8, 0, 0, 0, 0, utc);
+		final var result = Rrd4jReadHandler.streamRanges(from, to, new Resolution(1, ChronoUnit.MONTHS)).toList();
+		assertEquals(4, result.size());
+		assertEquals(new Rrd4jReadHandler.Range(from, ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, utc)), result.get(0));
+		assertEquals(new Rrd4jReadHandler.Range(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, utc),
+				ZonedDateTime.of(2024, 2, 1, 0, 0, 0, 0, utc)), result.get(1));
+		assertEquals(new Rrd4jReadHandler.Range(ZonedDateTime.of(2024, 2, 1, 0, 0, 0, 0, utc),
+				ZonedDateTime.of(2024, 3, 1, 0, 0, 0, 0, utc)), result.get(2));
+		assertEquals(new Rrd4jReadHandler.Range(ZonedDateTime.of(2024, 3, 1, 0, 0, 0, 0, utc), to), result.get(3));
+	}
+
 	private SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> query(Resolution resolution)
 			throws IllegalArgumentException, OpenemsNamedException {
 		return this.readHandler.queryHistoricData(this.rrdbId, //
