@@ -11,6 +11,7 @@ import { AbstractHistoryChart } from "./abstracthistorychart";
 export class ChartConstants {
   public static readonly NUMBER_OF_Y_AXIS_TICKS: number = 6;
   public static readonly EMPTY_DATASETS: ChartDataset[] = [];
+  public static readonly REQUEST_TIMEOUT = 500;
 
   public static Plugins = class {
 

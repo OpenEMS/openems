@@ -12,7 +12,7 @@ import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/servic
 import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
-import { calculateResolution, ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, setLabelVisible } from "./shared";
+import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, calculateResolution, setLabelVisible } from "./shared";
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {
@@ -57,6 +57,9 @@ export abstract class AbstractHistoryChart {
         borderColor: "rgba(128,128,0,1)",
     };
 
+    private activeQueryData: string;
+    private debounceTimeout: any | null = null;
+
     constructor(
         public readonly spinnerId: string,
         protected service: Service,
@@ -67,7 +70,7 @@ export abstract class AbstractHistoryChart {
     * Generates a Tooltip Title string from a 'fromDate' and 'toDate'.
     *
     * @param fromDate the From-Date
-   * @param toDate the To-Date
+    * @param toDate the To-Date
     * @param date Date from TooltipItem
     * @returns period for Tooltip Header
     */
@@ -107,11 +110,11 @@ export abstract class AbstractHistoryChart {
     }
 
     /**
-  *
-  * Sets chart options
-  *
-  * @deprecated used for charts not using {@link NewAbstractHistoryChart} but {@link AbstractHistoryChart}
-  */
+    *
+    * Sets chart options
+    *
+    * @deprecated used for charts not using {@link NewAbstractHistoryChart} but {@link AbstractHistoryChart}
+    */
     public setOptions(options: Chart.ChartOptions): Promise<void> {
 
         return new Promise<void>((resolve) => {
@@ -269,34 +272,47 @@ export abstract class AbstractHistoryChart {
 
         this.errorResponse = null;
 
-        const result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
-            this.service.getCurrentEdge().then(edge => {
-                this.service.getConfig().then(config => {
-                    this.setLabel(config);
-                    this.getChannelAddresses(edge, config).then(channelAddresses => {
+        if (this.debounceTimeout) {
+            clearTimeout(this.debounceTimeout);
+        }
 
-                        const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
-                        edge.sendRequest(this.service.websocket, request).then(response => {
-                            resolve(response as QueryHistoricTimeseriesDataResponse);
-                        }).catch(error => {
-                            this.errorResponse = error;
-                            resolve(new QueryHistoricTimeseriesDataResponse(error.id, {
-                                timestamps: [null], data: { null: null },
-                            }));
+        this.debounceTimeout = setTimeout(() => {
+            const result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
+                this.service.getCurrentEdge().then(edge => {
+                    this.service.getConfig().then(config => {
+                        this.setLabel(config);
+                        this.getChannelAddresses(edge, config).then(channelAddresses => {
+                            const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
+                            edge.sendRequest(this.service.websocket, request).then(response => {
+                                resolve(response as QueryHistoricTimeseriesDataResponse);
+                                this.activeQueryData = request.id;
+                            }).catch(error => {
+                                this.errorResponse = error;
+                                resolve(new QueryHistoricTimeseriesDataResponse(error.id, {
+                                    timestamps: [null], data: { null: null },
+                                }));
+                            });
                         });
                     });
                 });
+            }).then((response) => {
+                if (this.activeQueryData !== response.id) {
+                    return;
+                }
+                if (Utils.isDataEmpty(response)) {
+                    this.loading = false;
+                    this.service.stopSpinner(this.spinnerId);
+                    this.initializeChart();
+                }
+                return DateTimeUtils.normalizeTimestamps(resolution.unit, response);
             });
-        }).then((response) => {
-            if (Utils.isDataEmpty(response)) {
-                this.loading = false;
-                this.service.stopSpinner(this.spinnerId);
-                this.initializeChart();
-            }
-            return DateTimeUtils.normalizeTimestamps(resolution.unit, response);
-        });
 
-        return result;
+            return result;
+        }, ChartConstants.REQUEST_TIMEOUT);
+
+        return new Promise((resolve) => {
+            resolve(new QueryHistoricTimeseriesDataResponse("", { timestamps: [], data: {} }));
+        });
     }
 
     /**

@@ -9,6 +9,7 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { filter, first, take } from "rxjs/operators";
 import { ChosenFilter } from "src/app/index/filter/filter.component";
 import { environment } from "src/environments";
+import { ChartConstants } from "../components/chart/chart.constants";
 import { Edge } from "../components/edge/edge";
 import { EdgeConfig } from "../components/edge/edgeconfig";
 import { JsonrpcResponseError } from "../jsonrpc/base";
@@ -54,6 +55,7 @@ export class Service extends AbstractService {
   public deviceWidth: number = 0;
   public isSmartphoneResolution: boolean = false;
   public isSmartphoneResolutionSubject: Subject<boolean> = new Subject<boolean>();
+  public activeQueryData: string;
 
   /**
    * Holds the currenty selected Page Title.
@@ -214,22 +216,27 @@ export class Service extends AbstractService {
       promise.resolve = resolve;
       promise.reject = reject;
     });
-    this.queryEnergyQueue.push(
-      { fromDate: fromDate, toDate: toDate, channels: channels, promises: [promise] },
-    );
-    // try to merge requests within 100 ms
+    this.queryEnergyQueue.push({
+      fromDate: fromDate,
+      toDate: toDate,
+      channels: channels,
+      promises: [promise],
+    });
+
     if (this.queryEnergyTimeout == null) {
       this.queryEnergyTimeout = setTimeout(() => {
-
         this.queryEnergyTimeout = null;
 
-        // merge requests
         const mergedRequests: {
-          fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[];
+          fromDate: Date,
+          toDate: Date,
+          channels: ChannelAddress[],
+          promises: { resolve, reject }[];
         }[] = [];
+
         let request;
         while ((request = this.queryEnergyQueue.pop())) {
-          if (mergedRequests.length == 0) {
+          if (mergedRequests.length === 0) {
             mergedRequests.push(request);
           } else {
             let merged = false;
@@ -239,14 +246,9 @@ export class Service extends AbstractService {
                 // same date -> merge
                 mergedRequest.promises = mergedRequest.promises.concat(request.promises);
                 for (const newChannel of request.channels) {
-                  let isAlreadyThere = false;
-                  for (const existingChannel of mergedRequest.channels) {
-                    if (existingChannel.channelId == newChannel.channelId && existingChannel.componentId == newChannel.componentId) {
-                      isAlreadyThere = true;
-                      break;
-                    }
-                  }
-                  if (!isAlreadyThere) {
+                  if (!mergedRequest.channels.some(existingChannel =>
+                    existingChannel.channelId === newChannel.channelId &&
+                    existingChannel.componentId === newChannel.componentId)) {
                     mergedRequest.channels.push(newChannel);
                   }
                 }
@@ -264,30 +266,44 @@ export class Service extends AbstractService {
           for (const source of mergedRequests) {
 
             // Jump to next request for empty channelAddresses
-            if (source.channels.length == 0) {
+            if (source.channels.length === 0) {
               continue;
             }
 
-            const request = new QueryHistoricTimeseriesEnergyRequest(DateUtils.maxDate(source.fromDate, edge?.firstSetupProtocol), source.toDate, source.channels);
-            edge.sendRequest(this.websocket, request).then(response => {
-              const result = (response as QueryHistoricTimeseriesEnergyResponse).result;
-              if (Object.keys(result.data).length != 0) {
+            const request = new QueryHistoricTimeseriesEnergyRequest(
+              DateUtils.maxDate(source.fromDate, edge?.firstSetupProtocol),
+              source.toDate,
+              source.channels,
+            );
+
+            this.activeQueryData = request.id;
+            edge.sendRequest(this.websocket, request)
+              .then(response => {
+                if (this.activeQueryData !== response.id) {
+                  return;
+                }
+
+                const result = (response as QueryHistoricTimeseriesEnergyResponse).result;
+
+                if (Object.keys(result.data).length === 0) {
+                  for (const promise of source.promises) {
+                    promise.reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                  }
+                  return;
+                }
+
                 for (const promise of source.promises) {
                   promise.resolve(response as QueryHistoricTimeseriesEnergyResponse);
                 }
-              } else {
+              })
+              .catch(async reason => {
                 for (const promise of source.promises) {
-                  promise.reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                  promise.reject(new JsonrpcResponseError((await response).id, { code: 0, message: "Result was empty" }));
                 }
-              }
-            }).catch(reason => {
-              for (const promise of source.promises) {
-                promise.reject(reason);
-              }
-            });
+              });
           }
         });
-      }, 100);
+      }, ChartConstants.REQUEST_TIMEOUT);
     }
     return response;
   }

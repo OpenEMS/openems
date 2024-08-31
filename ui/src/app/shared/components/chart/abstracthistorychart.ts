@@ -63,6 +63,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   protected errorResponse: JsonrpcResponseError | null = null;
 
   protected legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
+  protected debounceTimeout: any | null = null;
   private channelData: { data: { [name: string]: number[] } } = { data: {} };
 
   constructor(
@@ -888,39 +889,44 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     this.isDataExisting = true;
     const resolution = res ?? calculateResolution(this.service, fromDate, toDate).resolution;
 
-    const result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
-      this.service.getCurrentEdge().then(edge => {
-        this.service.getConfig().then(async () => {
-          const channelAddresses = (await this.getChannelAddresses()).powerChannels;
-          const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
-          edge.sendRequest(this.service.websocket, request).then(response => {
-            const result = (response as QueryHistoricTimeseriesDataResponse)?.result;
-            if (Object.keys(result).length != 0) {
-              resolve(response as QueryHistoricTimeseriesDataResponse);
-            } else {
-              this.errorResponse = new JsonrpcResponseError(request.id, { code: 1, message: "Empty Result" });
-              resolve(new QueryHistoricTimeseriesDataResponse(response.id, {
-                timestamps: [null], data: { null: null },
-              }));
-            }
-          }).catch((response) => {
-            this.errorResponse = response;
-            this.initializeChart();
-          });
-        });
-      });
-    }).then((response) => {
+    if (this.debounceTimeout) {
+      clearTimeout(this.debounceTimeout);
+    }
 
-      // Check if channelAddresses are empty
-      if (Utils.isDataEmpty(response)) {
+    return new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
+      this.service.getCurrentEdge()
+        .then(edge => this.service.getConfig()
+          .then(async () => {
+            const channelAddresses = (await this.getChannelAddresses()).powerChannels;
+            const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
 
-        // load defaultchart
-        this.isDataExisting = false;
-        this.initializeChart();
-      }
-      return response;
+            this.debounceTimeout = setTimeout(() => {
+              edge.sendRequest(this.service.websocket, request)
+                .then(response => {
+                  const result = (response as QueryHistoricTimeseriesDataResponse)?.result;
+                  let responseToReturn: QueryHistoricTimeseriesDataResponse;
+
+                  if (Object.keys(result).length !== 0) {
+                    responseToReturn = response as QueryHistoricTimeseriesDataResponse;
+                  } else {
+                    this.errorResponse = new JsonrpcResponseError(request.id, { code: 1, message: "Empty Result" });
+                    responseToReturn = new QueryHistoricTimeseriesDataResponse(response.id, {
+                      timestamps: [null],
+                      data: { null: null },
+                    });
+                  }
+
+                  if (Utils.isDataEmpty(responseToReturn)) {
+                    this.isDataExisting = false;
+                    this.initializeChart();
+                  }
+                  resolve(responseToReturn);
+                });
+            }, ChartConstants.REQUEST_TIMEOUT);
+          }),
+        );
     });
-    return result;
+
   }
 
   /**

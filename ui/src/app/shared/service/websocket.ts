@@ -4,7 +4,7 @@ import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { CookieService } from "ngx-cookie-service";
 import { delay, retryWhen } from "rxjs/operators";
-import { webSocket, WebSocketSubject } from "rxjs/webSocket";
+import { WebSocketSubject, webSocket } from "rxjs/webSocket";
 import { environment } from "src/environments";
 
 import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";
@@ -26,6 +26,8 @@ import { WsData } from "./wsdata";
 
 @Injectable()
 export class Websocket implements WebsocketInterface {
+
+  public static readonly REQUEST_TIMEOUT = 500;
 
   private static readonly DEFAULT_EDGEID = 0;
 
@@ -180,7 +182,7 @@ export class Websocket implements WebsocketInterface {
             .then((response) => resolve(response))
             .catch((err) => reject(err));
         }
-      }, 500);
+      }, Websocket.REQUEST_TIMEOUT);
     });
   }
 

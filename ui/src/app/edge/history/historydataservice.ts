@@ -2,6 +2,7 @@
 import { Inject, Injectable } from "@angular/core";
 
 import { RefresherCustomEvent } from "@ionic/angular";
+import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { QueryHistoricTimeseriesEnergyRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
 import { Service } from "src/app/shared/service/service";
 import { Websocket } from "src/app/shared/service/websocket";
@@ -15,6 +16,7 @@ export class HistoryDataService extends DataService {
 
   public queryChannelsTimeout: ReturnType<typeof setTimeout> | null = null;
   protected override timestamps: string[] = [];
+  private activeQueryData: string;
   private channelAddresses: { [sourceId: string]: ChannelAddress } = {};
 
   constructor(
@@ -36,21 +38,36 @@ export class HistoryDataService extends DataService {
         if (Object.entries(this.channelAddresses).length > 0) {
 
           this.service.historyPeriod.subscribe(date => {
-            edge.sendRequest(this.websocket, new QueryHistoricTimeseriesEnergyRequest(DateUtils.maxDate(date.from, edge?.firstSetupProtocol), date.to, Object.values(this.channelAddresses)))
+
+            const request = new QueryHistoricTimeseriesEnergyRequest(
+              DateUtils.maxDate(date.from, edge?.firstSetupProtocol),
+              date.to,
+              Object.values(this.channelAddresses),
+            );
+
+            this.activeQueryData = request.id;
+
+            edge.sendRequest(this.websocket, request)
               .then((response) => {
-                const allComponents = {};
-                const result = (response as QueryHistoricTimeseriesEnergyResponse).result;
-                for (const [key, value] of Object.entries(result.data)) {
-                  allComponents[key] = value;
+                if (this.activeQueryData === response.id) {
+                  const allComponents = {};
+                  const result = (response as QueryHistoricTimeseriesEnergyResponse).result;
+
+                  for (const [key, value] of Object.entries(result.data)) {
+                    allComponents[key] = value;
+                  }
+
+                  this.currentValue.next({ allComponents: allComponents });
+                  this.timestamps = response.result["timestamps"] ?? [];
                 }
-                this.currentValue.next({ allComponents: allComponents });
-                this.timestamps = response.result["timestamps"] ?? [];
-              }).catch(err => console.warn(err))
+              })
+              .catch(err => console.warn(err))
               .finally(() => {
+                this.queryChannelsTimeout = null;
               });
           });
         }
-      }, 100);
+      }, ChartConstants.REQUEST_TIMEOUT);
     }
   }
 
