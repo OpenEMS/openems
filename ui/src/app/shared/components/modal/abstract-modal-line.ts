@@ -104,7 +104,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     }
 
     ngOnInit() {
-        this.service.setCurrentComponent("", this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.service.getConfig().then(config => {
                 // store important variables publically
                 this.edge = edge;
@@ -172,7 +172,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
 
     /** Subscribe on HTML passed Channels */
     protected subscribe(channelAddress: ChannelAddress) {
-        this.service.setCurrentComponent("", this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
 
             // Check if user is allowed to see these channel-values

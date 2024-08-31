@@ -18,7 +18,7 @@ export class HeatingelementChartOverviewComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent("", this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
                 this.service.getConfig().then(config => {

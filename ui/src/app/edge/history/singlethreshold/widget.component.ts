@@ -30,7 +30,7 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
     }
 
     ngOnInit() {
-        this.service.setCurrentComponent("", this.route).then(response => {
+        this.service.getCurrentEdge().then(response => {
             this.edge = response;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);

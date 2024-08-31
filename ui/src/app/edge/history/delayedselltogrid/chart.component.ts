@@ -32,7 +32,6 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
 
     ngOnInit() {
         this.startSpinner();
-        this.service.setCurrentComponent("", this.route);
     }
 
     ngOnDestroy() {

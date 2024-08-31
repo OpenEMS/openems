@@ -22,7 +22,7 @@ export class TimeslotPeakshavingWidgetComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent("", this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);

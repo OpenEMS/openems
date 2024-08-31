@@ -34,7 +34,6 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
 
   ngOnInit() {
     this.startSpinner();
-    this.service.setCurrentComponent("", this.route);
     this.setLabel();
   }
 

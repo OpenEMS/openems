@@ -37,7 +37,7 @@ export class ChartComponent implements OnInit, OnChanges {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentComponent("", this.route).then(edge => {
+    this.service.getCurrentEdge().then(edge => {
       this.edge = edge;
     });
 

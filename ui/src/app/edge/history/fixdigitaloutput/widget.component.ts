@@ -30,7 +30,7 @@ export class FixDigitalOutputWidgetComponent extends AbstractHistoryWidget imple
     }
 
     ngOnInit() {
-        this.service.setCurrentComponent("", this.route).then(response => {
+        this.service.getCurrentEdge().then(response => {
             this.service.getConfig().then(config => {
                 this.edge = response;
                 this.config = config;

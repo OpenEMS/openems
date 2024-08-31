@@ -33,6 +33,8 @@ export abstract class AbstractService extends ErrorHandler {
 
   /**
    * Parses the route params and sets the current edge
+   *
+   * @deprecated use the angular routing module to set page title, getCurrentEdge for retrieving the edge
   */
   abstract setCurrentComponent(currentPageTitle: string, activatedRoute: ActivatedRoute): Promise<Edge>;
 

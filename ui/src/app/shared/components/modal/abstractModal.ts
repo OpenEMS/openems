@@ -64,7 +64,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     }
 
     public ngOnInit() {
-        this.service.setCurrentComponent("", this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.service.getConfig().then(config => {
 
                 // store important variables publically

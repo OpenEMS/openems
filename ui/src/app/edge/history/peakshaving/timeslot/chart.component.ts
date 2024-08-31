@@ -31,7 +31,6 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
 
     ngOnInit() {
         this.startSpinner();
-        this.service.setCurrentComponent("", this.route);
     }
 
     ngOnDestroy() {

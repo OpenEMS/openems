@@ -29,8 +29,8 @@ export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnIn
     }
 
     ngOnInit() {
-        this.service.setCurrentComponent("", this.route).then(response => {
-            this.edge = response;
+        this.service.getCurrentEdge().then(edge => {
+            this.edge = edge;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
             });

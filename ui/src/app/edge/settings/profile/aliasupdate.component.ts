@@ -28,7 +28,7 @@ export class AliasUpdateComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent({ languageKey: "Edge.Config.Index.renameComponents" }, this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
         });
         this.service.getConfig().then(config => {

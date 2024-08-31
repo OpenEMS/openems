@@ -55,7 +55,7 @@ export class AlertingComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.service.setCurrentComponent({ languageKey: "Edge.Config.Index.alerting" }, this.route).then(edge => {
+    this.service.getCurrentEdge().then(edge => {
       this.edge = edge;
 
       const request = new GetUserAlertingConfigsRequest({ edgeId: this.edge.id });

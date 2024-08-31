@@ -59,10 +59,6 @@ export class OverViewComponent implements OnInit, OnDestroy {
         });
     }
 
-    ionViewWillEnter() {
-        this.service.setCurrentComponent("", this.route);
-    }
-
     /**
      * Updates available edges on scroll-event
      *

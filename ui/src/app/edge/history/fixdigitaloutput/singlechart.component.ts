@@ -34,7 +34,6 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
 
   ngOnInit() {
     this.startSpinner();
-    this.service.setCurrentComponent("", this.route);
   }
 
   ngOnDestroy() {

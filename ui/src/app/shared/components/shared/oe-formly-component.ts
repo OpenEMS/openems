@@ -1,5 +1,4 @@
 import { FormGroup } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { filter } from "rxjs/operators";
@@ -17,10 +16,9 @@ export abstract class AbstractFormlyComponent {
 
   constructor() {
     const service = SharedModule.injector.get<Service>(Service);
-    const route = SharedModule.injector.get<ActivatedRoute>(ActivatedRoute);
     this.translate = SharedModule.injector.get<TranslateService>(TranslateService);
 
-    service.setCurrentComponent("", route).then(edge => {
+    service.getCurrentEdge().then(edge => {
       edge.getConfig(service.websocket)
         .pipe(filter(config => !!config))
         .subscribe((config) => {

@@ -31,7 +31,6 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
   ngOnInit() {
     this.startSpinner();
-    this.service.setCurrentComponent("", this.route);
   }
 
   ngOnDestroy() {

@@ -30,7 +30,6 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
 
     ngOnInit() {
         this.startSpinner();
-        this.service.setCurrentComponent("", this.route);
     }
 
     ngOnDestroy() {

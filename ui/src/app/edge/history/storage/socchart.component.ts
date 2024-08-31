@@ -35,7 +35,6 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
 
     public ngOnInit() {
         this.startSpinner();
-        this.service.setCurrentComponent("", this.route);
     }
 
     public ngOnDestroy() {

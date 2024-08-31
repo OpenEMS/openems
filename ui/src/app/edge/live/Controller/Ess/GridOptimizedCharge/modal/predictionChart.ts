@@ -37,7 +37,6 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
     ngOnInit() {
         this.service.startSpinner(this.spinnerId);
-        this.service.setCurrentComponent("", this.route);
     }
 
     ngOnDestroy() {

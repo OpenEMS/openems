@@ -30,7 +30,6 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
 
     ngOnInit() {
         this.startSpinner();
-        this.service.setCurrentComponent("", this.route);
     }
 
     ngOnDestroy() {

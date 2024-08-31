@@ -33,7 +33,6 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
 
     ngOnInit() {
         this.startSpinner();
-        this.service.setCurrentComponent("", this.route);
     }
 
     ngOnDestroy() {

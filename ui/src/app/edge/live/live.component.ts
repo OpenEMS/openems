@@ -25,7 +25,6 @@ export class LiveComponent implements OnInit, OnDestroy {
   ) { }
 
   public ngOnInit() {
-    this.service.setCurrentComponent("", this.route);
     this.service.currentEdge.subscribe((edge) => {
       this.edge = edge;
     });

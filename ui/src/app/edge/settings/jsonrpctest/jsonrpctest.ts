@@ -26,7 +26,7 @@ export class JsonrpcTestComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.service.setCurrentComponent("Jsonrpc Test", this.route).then(edge => {
+    this.service.getCurrentEdge().then(edge => {
       this.edge = edge;
       edge.sendRequest(this.websocket, new JsonrpcRequest("routes", {})).then(response => {
         this.endpoints = (response.result["endpoints"] as EndpointResponse[]).map(endpoint => {

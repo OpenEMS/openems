@@ -18,7 +18,7 @@ export class EnergymonitorComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentComponent("", this.route).then(edge => {
+    this.service.getCurrentEdge().then(edge => {
       this.edge = edge;
 
       const essMinMaxChannels = this.edge.isVersionAtLeast("2024.2.2")

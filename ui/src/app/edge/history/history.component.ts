@@ -42,7 +42,6 @@ export class HistoryComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentComponent("", this.route);
     this.service.currentEdge.subscribe((edge) => {
       this.edge = edge;
     });

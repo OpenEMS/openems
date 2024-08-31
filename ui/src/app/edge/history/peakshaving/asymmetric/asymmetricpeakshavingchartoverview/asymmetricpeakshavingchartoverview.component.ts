@@ -18,7 +18,7 @@ export class AsymmetricPeakshavingChartOverviewComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent("", this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.service.getConfig().then(config => {
 
                 this.edge = edge;

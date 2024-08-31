@@ -35,7 +35,7 @@ export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements On
     }
 
     ngOnInit() {
-        this.service.setCurrentComponent("", this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);

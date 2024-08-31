@@ -45,7 +45,7 @@ export class ChannelsComponent {
   private static readonly ERROR_COMPONENT_COULD_NOT_BE_FOUND = (componentId: string) => `[ComponentId] ${componentId} doesn't exist on this edge`;
 
   ionViewWillEnter() {
-    this.service.setCurrentComponent("Channels", this.route).then(edge => {
+    this.service.getCurrentEdge().then(edge => {
       this.edge = edge;
     });
     this.service.getConfig().then(config => {

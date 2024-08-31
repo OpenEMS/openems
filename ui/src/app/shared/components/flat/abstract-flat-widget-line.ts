@@ -86,7 +86,7 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   }
 
   protected subscribe(channelAddress: ChannelAddress) {
-    this.service.setCurrentComponent("", this.route).then(edge => {
+    this.service.getCurrentEdge().then(edge => {
       this.edge = edge;
 
       this.dataService.getValues([channelAddress], this.edge);

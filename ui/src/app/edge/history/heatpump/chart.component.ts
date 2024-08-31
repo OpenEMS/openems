@@ -33,7 +33,6 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
 
     ngOnInit() {
         this.startSpinner();
-        this.service.setCurrentComponent("", this.route);
     }
 
     ngOnDestroy() {
