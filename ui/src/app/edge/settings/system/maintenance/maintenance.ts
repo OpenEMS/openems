@@ -23,7 +23,7 @@ enum SystemRestartState {
     templateUrl: "./maintenance.html",
     styles: [`
     :host {
-        ion-card: {
+        :is(ion-card) {
             cursor: auto !important;;
         }
     }
