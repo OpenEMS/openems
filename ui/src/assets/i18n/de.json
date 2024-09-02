@@ -245,7 +245,14 @@
           "CHART_TITLE": "Aktueller Fahrplan (BETA-Test)",
           "CHART_WARNING_NOTE": "Die Grafik zeigt die vergangenen drei Stunden, sowie die zukünftig geplante Betriebsweise für den Zeitraum, für den die dynamischen Netzbezugspreise zur Verfügung stehen. Bitte beachten Sie, dass der Fahrplan kontinuierlich neu berechnet wird und sich somit im Tagesverlauf ändern kann.",
           "POWER_SOC_CHART_TITLE": "Vorhersagen (Nur für Admins)"
-        }
+        },
+        "SYSTEM": {
+          "INDUSTRIAL": {
+            "NOTE": "Startet oder stoppt das Gesamtsystem, inklusive Batteriewechselrichter und Batterien."
+          },
+          "OVERALL_SYSTEM": "Gesamtsystem"
+        },
+        "FIX_DIGITAL_OUTPUT": "Digitale Ausgangscontroller"
       },
       "RETROFITTING": {
         "UPDATE_TO_NEW_VERSION": "Um die Kapazitätserweiterung nutzen zu können, ist ein Update auf die neueste Version erforderlich.",

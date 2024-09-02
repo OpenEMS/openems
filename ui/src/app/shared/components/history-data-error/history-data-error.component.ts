@@ -3,7 +3,7 @@ import { Component, Input } from "@angular/core";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 
 @Component({
-    selector: 'oe-history-data-error',
+    selector: "oe-history-data-error",
     template: `
     <ion-item lines="full" color="warning" *ngIf="type !== null">
     <ion-icon size="large" slot="start" name="alert-circle-outline"></ion-icon>
@@ -25,7 +25,7 @@ export class HistoryDataErrorComponent {
     }
 }
 
-type ErrorType = 'TEMPORARY' | 'TOO_LONG' | null;
+type ErrorType = "TEMPORARY" | "TOO_LONG" | null;
 
 function toType(response: JsonrpcResponseError | null): ErrorType {
     const message = response?.error?.message;
@@ -34,8 +34,8 @@ function toType(response: JsonrpcResponseError | null): ErrorType {
     }
     switch (message) {
         case "Die Anzeige und der Export von Daten über einen längeren Zeitraum ist derzeit leider nicht möglich":
-            return 'TOO_LONG';
+            return "TOO_LONG";
         default:
-            return 'TEMPORARY';
+            return "TEMPORARY";
     }
 }

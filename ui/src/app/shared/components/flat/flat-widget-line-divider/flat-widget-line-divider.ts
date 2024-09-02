@@ -6,8 +6,8 @@ import { Icon } from "src/app/shared/type/widget";
  * Inserts a transparent divider
  */
 @Component({
-    selector: 'oe-flat-widget-line-divider',
-    templateUrl: './flat-widget-line-divider.html',
+    selector: "oe-flat-widget-line-divider",
+    templateUrl: "./flat-widget-line-divider.html",
 })
 export class FlatWidgetLineDividerComponent {
 

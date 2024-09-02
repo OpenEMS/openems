@@ -2,7 +2,7 @@
 import { TestBed } from "@angular/core/testing";
 import { LoginComponent } from "./login.component";
 
-describe('Login', () => {
+describe("Login", () => {
   const password = " password ";
   const username = " username ";
 
@@ -12,7 +12,7 @@ describe('Login', () => {
     }).compileComponents();
   });
 
-  it('#trimCredentials should trim password and username', () => {
+  it("#trimCredentials should trim password and username", () => {
     {
       // Username and password - OpenEMS Backend
       expect(LoginComponent.trimCredentials(password, username)).toEqual({ password: "password", username: "username" });

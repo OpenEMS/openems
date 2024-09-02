@@ -1,12 +1,12 @@
 // @ts-strict-ignore
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { environment } from 'src/environments';
-import { Edge, Service, UserPermission, Utils } from '../../../shared/shared';
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { environment } from "src/environments";
+import { Edge, Service, UserPermission, Utils } from "../../../shared/shared";
 
 @Component({
   selector: SystemComponent.SELECTOR,
-  templateUrl: './system.component.html',
+  templateUrl: "./system.component.html",
 })
 export class SystemComponent implements OnInit {
 

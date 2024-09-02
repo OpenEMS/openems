@@ -2,12 +2,12 @@ import { Component, Input, OnChanges, OnInit } from "@angular/core";
 import { ToastController } from "@ionic/angular";
 
 @Component({
-  selector: 'oe-notification',
-  template: '',
+  selector: "oe-notification",
+  template: "",
 })
 export class NotificationComponent implements OnInit, OnChanges {
 
-  private static readonly PREFIX = 'hide-notification-';
+  private static readonly PREFIX = "hide-notification-";
 
   @Input() private text: string | null = null;
   @Input() private id: string | number | null = null;
@@ -18,7 +18,7 @@ export class NotificationComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     const note = localStorage.getItem(NotificationComponent.PREFIX + this.id);
-    this.hideMessage = note != null ? note === 'true' : false;
+    this.hideMessage = note != null ? note === "true" : false;
 
     this.createToast();
   }
@@ -47,16 +47,16 @@ export class NotificationComponent implements OnInit, OnChanges {
     const popover = await this.toastie.create({
       translucent: false,
       message: this.text,
-      position: 'bottom',
+      position: "bottom",
       buttons: [
-        { icon: 'close-outline', role: 'cancel' },
+        { icon: "close-outline", role: "cancel" },
       ],
     });
 
     popover.present();
 
     await popover.onDidDismiss().then(() => {
-      localStorage.setItem(NotificationComponent.PREFIX + this.id, 'true');
+      localStorage.setItem(NotificationComponent.PREFIX + this.id, "true");
     });
   }
 }

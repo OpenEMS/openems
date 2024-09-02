@@ -2,7 +2,7 @@
 import { Directive, Inject, OnDestroy } from "@angular/core";
 import { RefresherCustomEvent } from "@ionic/angular";
 import { takeUntil } from "rxjs/operators";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import { DataService } from "../../shared/components/shared/dataservice";
 import { ChannelAddress, Edge, Service, Websocket } from "../../shared/shared";
 

@@ -5,7 +5,7 @@ import { removeFunctions, TestContext } from "src/app/shared/components/shared/t
 import { EdgeConfig } from "src/app/shared/shared";
 import { ChartComponent } from "./chart";
 
-export function expectView(config: EdgeConfig, testContext: TestContext, chartType: 'line' | 'bar', channels: OeTester.Types.Channels, view: OeChartTester.View): void {
+export function expectView(config: EdgeConfig, testContext: TestContext, chartType: "line" | "bar", channels: OeTester.Types.Channels, view: OeChartTester.View): void {
 
   expect(removeFunctions(OeChartTester
     .apply(ChartComponent

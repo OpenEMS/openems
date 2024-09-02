@@ -1,5 +1,5 @@
 <oe-chart [title]="component.alias" *ngIf="isInitialized && component" [period]="service.historyPeriod.value">
-  <ng-container [ngSwitch]="componentType.type">
+  <ng-container [ngSwitch]="componentType">
     <sumChart *ngSwitchCase="'sum'" [isOnlyChart]="true"></sumChart>
     <consumptionMeterChart *ngSwitchCase="'consumptionMeter'" [isOnlyChart]="true"></consumptionMeterChart>
     <evcsChart *ngSwitchCase="'evcs'" [isOnlyChart]="true"></evcsChart>

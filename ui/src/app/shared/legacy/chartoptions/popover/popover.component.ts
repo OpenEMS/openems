@@ -1,11 +1,11 @@
-import { Component, Input } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { Service } from 'src/app/shared/shared';
+import { Component, Input } from "@angular/core";
+import { PopoverController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { Service } from "src/app/shared/shared";
 
 @Component({
-    selector: 'chartoptionspopover',
-    templateUrl: './popover.component.html',
+    selector: "chartoptionspopover",
+    templateUrl: "./popover.component.html",
 })
 export class ChartOptionsPopoverComponent {
 
@@ -24,7 +24,7 @@ export class ChartOptionsPopoverComponent {
         } else if (this.showPhases == false) {
             this.showPhases = true;
         }
-        this.popoverCtrl.dismiss(this.showPhases, 'Phases');
+        this.popoverCtrl.dismiss(this.showPhases, "Phases");
     }
 
     public setTotal() {
@@ -33,7 +33,7 @@ export class ChartOptionsPopoverComponent {
         } else if (this.showTotal == false) {
             this.showTotal = true;
         }
-        this.popoverCtrl.dismiss(this.showTotal, 'Total');
+        this.popoverCtrl.dismiss(this.showTotal, "Total");
     }
 
 }

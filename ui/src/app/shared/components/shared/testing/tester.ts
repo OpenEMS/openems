@@ -30,7 +30,7 @@ export class OeFormlyViewTester {
       /**
        * OeFormlyField.Line
        */
-      case 'children-line': {
+      case "children-line": {
         const tmp = OeFormlyViewTester.applyLineWithChildren(field, context);
 
         // Prepare result
@@ -61,7 +61,7 @@ export class OeFormlyViewTester {
 
         // Read or generate name
         let name: string;
-        if (typeof (field.name) === 'function') {
+        if (typeof (field.name) === "function") {
           name = field.name(tmp.rawValue);
         } else {
           name = field.name;
@@ -206,17 +206,17 @@ export namespace OeChartTester {
   export namespace Dataset {
 
     export type Data = {
-      type: 'data',
+      type: "data",
       label: string | Converter,
       value: (number | null)[]
     };
 
     export type LegendLabel = {
-      type: 'label',
+      type: "label",
       timestamps: Date[]
     };
     export type Option = {
-      type: 'option',
+      type: "option",
       options: Chart.ChartOptions
     };
   }
@@ -224,7 +224,7 @@ export namespace OeChartTester {
 
 export class OeChartTester {
 
-  public static apply(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', channels: OeTester.Types.Channels, testContext: TestContext, config: EdgeConfig, xAxisScalingType: XAxisType = XAxisType.TIMESERIES): OeChartTester.View {
+  public static apply(chartData: HistoryUtils.ChartData, chartType: "line" | "bar", channels: OeTester.Types.Channels, testContext: TestContext, config: EdgeConfig, xAxisScalingType: XAxisType = XAxisType.TIMESERIES): OeChartTester.View {
 
     const channelData = OeChartTester.getChannelDataByCharttype(chartType, channels);
 
@@ -258,7 +258,7 @@ export class OeChartTester {
    */
   public static convertChartLabelsToLegendLabels(labels: Date[]): OeChartTester.Dataset.LegendLabel {
     return {
-      type: 'label',
+      type: "label",
       timestamps: labels,
     };
   }
@@ -275,7 +275,7 @@ export class OeChartTester {
     for (const dataset of datasets) {
       fields.push(
         {
-          type: 'data',
+          type: "data",
           label: dataset.label,
           value: dataset.data as number[],
         });
@@ -293,7 +293,7 @@ export class OeChartTester {
    * @param channels the channels
    * @returns dataset options
    */
-  public static convertChartDataToOptions(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', testContext: TestContext, channels: OeTester.Types.Channels, locale: string, config: EdgeConfig, datasets: Chart.ChartDataset[], xAxisType: XAxisType = XAxisType.TIMESERIES, labels: (Date | string)[] = []): OeChartTester.Dataset.Option {
+  public static convertChartDataToOptions(chartData: HistoryUtils.ChartData, chartType: "line" | "bar", testContext: TestContext, channels: OeTester.Types.Channels, locale: string, config: EdgeConfig, datasets: Chart.ChartDataset[], xAxisType: XAxisType = XAxisType.TIMESERIES, labels: (Date | string)[] = []): OeChartTester.Dataset.Option {
 
     const channelData: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse = OeChartTester.getChannelDataByCharttype(chartType, channels);
 
@@ -302,21 +302,21 @@ export class OeChartTester {
 
     displayValues.forEach(displayValue => {
       const yAxis = chartData.yAxes.find(yaxis => yaxis?.yAxisId == (displayValue?.yAxisId ?? chartData.yAxes[0].yAxisId));
-      const label = AbstractHistoryChart.getTooltipsLabelName(displayValue.name, yAxis?.unit, typeof displayValue.nameSuffix == 'function' ? displayValue.nameSuffix(channels.energyChannelWithValues) : null);
+      const label = AbstractHistoryChart.getTooltipsLabelName(displayValue.name, yAxis?.unit, typeof displayValue.nameSuffix == "function" ? displayValue.nameSuffix(channels.energyChannelWithValues) : null);
       legendOptions.push(AbstractHistoryChart.getLegendOptions(label, displayValue));
     });
 
     return {
-      type: 'option',
+      type: "option",
       options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, locale, config, datasets, xAxisType, labels),
     };
   }
 
-  private static getChannelDataByCharttype(chartType: 'line' | 'bar', channels: OeTester.Types.Channels): QueryHistoricTimeseriesEnergyPerPeriodResponse | QueryHistoricTimeseriesDataResponse {
+  private static getChannelDataByCharttype(chartType: "line" | "bar", channels: OeTester.Types.Channels): QueryHistoricTimeseriesEnergyPerPeriodResponse | QueryHistoricTimeseriesDataResponse {
     switch (chartType) {
-      case 'line':
+      case "line":
         return channels.dataChannelWithValues;
-      case 'bar':
+      case "bar":
         return channels.energyPerPeriodChannelWithValues;
     }
   }
@@ -342,38 +342,38 @@ export namespace OeFormlyViewTester {
   export namespace Field {
 
     export type InfoLine = {
-      type: 'info-line',
+      type: "info-line",
       name: string
     };
 
     export type Item = {
-      type: 'item',
+      type: "item",
       value: string
     };
 
     export type ChannelLine = {
-      type: 'channel-line',
+      type: "channel-line",
       name: string,
       value?: string,
       indentation?: TextIndentation,
     };
 
     export type ValueLine = {
-      type: 'value-from-channels-line',
+      type: "value-from-channels-line",
       name: string,
       value?: string,
       indentation?: TextIndentation,
     };
 
     export type ChildrenLine = {
-      type: 'children-line',
+      type: "children-line",
       name: string,
       indentation?: TextIndentation,
       children?: Field[]
     };
 
     export type HorizontalLine = {
-      type: 'horizontal-line',
+      type: "horizontal-line",
     };
   }
 
@@ -383,12 +383,12 @@ export namespace OeFormlyViewTester {
     let value: string | null = null;
     let rawValue: number | null = null;
 
-    if (typeof field.name == 'object') {
-      rawValue = typeof field.name == 'object' ? (field.name.channel.toString() in context ? context[field.name.channel.toString()] : null) : null;
+    if (typeof field.name == "object") {
+      rawValue = typeof field.name == "object" ? (field.name.channel.toString() in context ? context[field.name.channel.toString()] : null) : null;
       value = field.name.converter(rawValue);
     }
 
-    if (typeof (field.name) === 'string') {
+    if (typeof (field.name) === "string") {
       value = field.name;
     }
 
