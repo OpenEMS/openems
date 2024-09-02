@@ -10,5 +10,6 @@ export const environment: Environment = {
 
         production: false,
         debugMode: true,
+        loginWithUsername: false,
     },
 };

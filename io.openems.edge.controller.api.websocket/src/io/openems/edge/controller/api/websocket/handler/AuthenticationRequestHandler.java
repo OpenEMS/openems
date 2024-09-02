@@ -52,9 +52,17 @@ public class AuthenticationRequestHandler implements JsonApi {
 
 		builder.handleRequest(AuthenticateWithPasswordRequest.METHOD, call -> {
 			final var request = AuthenticateWithPasswordRequest.from(call.getRequest());
-
-			return this.handleAuthentication(call.get(OnRequest.WS_DATA_KEY), request.getId(),
-					this.userService.authenticate(request.password), UUID.randomUUID().toString());
+			
+            Optional<User> user = request.usernameOpt.isPresent() ?
+                this.userService.authenticate(request.usernameOpt.get(), request.password) :
+                this.userService.authenticate(request.password);
+			
+            return this.handleAuthentication(
+                call.get(OnRequest.WS_DATA_KEY),
+                request.getId(),
+                user,
+                UUID.randomUUID().toString()
+            );	
 		});
 
 		builder.handleRequest(LogoutRequest.METHOD, endpoint -> {
