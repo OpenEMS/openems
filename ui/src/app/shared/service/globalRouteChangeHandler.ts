@@ -4,6 +4,7 @@ import { Router, RoutesRecognized } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { filter, map } from "rxjs/operators";
 
+import { environment } from "src/environments";
 import { Service } from "./service";
 
 @Injectable({
@@ -35,7 +36,7 @@ export class GlobalRouteChangeHandler {
         throw new Error("Either use navbarTitle or navbarTitleToBeTranslated");
       }
 
-      this.service.currentPageTitle = e.navbarTitle ?? (e.navbarTitleToBeTranslated ? translate.instant(e.navbarTitleToBeTranslated) : null) ?? this.service.currentPageTitle;
+      this.service.currentPageTitle = e.navbarTitle ?? (e.navbarTitleToBeTranslated ? translate.instant(e.navbarTitleToBeTranslated) : null) ?? this.service.currentPageTitle ?? environment.uiTitle;
     });
   }
 }

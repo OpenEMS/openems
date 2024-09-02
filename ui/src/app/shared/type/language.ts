@@ -13,8 +13,9 @@ import es from "src/assets/i18n/es.json";
 import fr from "src/assets/i18n/fr.json";
 import ja from "src/assets/i18n/ja.json";
 import nl from "src/assets/i18n/nl.json";
+import { environment } from "src/environments";
 
-interface Translation {
+export interface Translation {
     [key: string]: string | Translation;
 }
 
@@ -106,5 +107,25 @@ export class Language {
         }
 
         return lang?.i18nLocaleKey ?? Language.DEFAULT.i18nLocaleKey;
+    }
+
+    /**
+     * Sets a additional translation file
+     *
+     * e.g. AdvertismentModule
+     *
+     * @param translationFile the translation file
+     * @returns translations params
+     */
+    public static setAdditionalTranslationFile(translationFile: any): { lang: string, translations: {}, shouldMerge?: boolean } {
+        let key = localStorage.LANGUAGE ?? Language.DEFAULT.key;
+        if (!(key in translationFile)) {
+
+            if (environment.debugMode) {
+                console.warn(`[Advert] No translation available for Language ${key}. Implemented languages are: ${Object.keys(translationFile)}`);
+            }
+            key = Language.DEFAULT.key;
+        }
+        return { lang: key, translations: translationFile[key], shouldMerge: true };
     }
 }
