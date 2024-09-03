@@ -150,7 +150,7 @@ public class Rrd4jReadHandler {
 	 * @param rrdDbId             the id of the rrdb
 	 * @param notSendChannel      the channel with the timestamps where the data got
 	 *                            not send
-	 * @param lastResendTimestamp the timstamp of the last resend
+	 * @param lastResendTimestamp the timestamp of the last resend
 	 * @param debugMode           if debugMode is active
 	 * @return the {@link Timeranges}
 	 * @throws OpenemsNamedException on error

@@ -23,7 +23,7 @@ public class ConfigProperties {
 	// Terminate time buffer in min
 	private final int terminationBuffer;
 
-	// Terminates itself after separate conditon
+	// Terminates itself after separate condition
 	private final boolean conditionalTermination;
 
 	// Condition for termination

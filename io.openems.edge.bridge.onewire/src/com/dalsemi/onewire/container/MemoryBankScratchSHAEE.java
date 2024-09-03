@@ -467,7 +467,7 @@ public class MemoryBankScratchSHAEE extends MemoryBankScratchEx {
 	}
 
 	/**
-	 * Copy all 8 bytes of the Sratch Pad to a certain address in memory using the
+	 * Copy all 8 bytes of the Scratch Pad to a certain address in memory using the
 	 * provided authorization MAC
 	 *
 	 * @param addr       the address to copy the data to

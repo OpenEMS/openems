@@ -57,7 +57,7 @@ class RawSendPacket {
 	// --------
 
 	/**
-	 * Construct and initiailize the raw send packet
+	 * Construct and initialize the raw send packet
 	 */
 	public RawSendPacket() {
 		this.buffer = new StringBuilder();
