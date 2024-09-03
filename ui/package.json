@@ -78,7 +78,7 @@
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
-    "@typescript-eslint/types": "^7.0.0",
+    "@typescript-eslint/types": "^8.4.0",
     "eslint": "^8.57.0",
     "eslint-plugin-import": "2.29.1",
     "eslint-plugin-jsdoc": "48.10.0",
