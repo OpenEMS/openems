@@ -67,4 +67,4 @@ body:
         ---
         - *For questions and suggestions please interact with the [community](https://community.openems.io/).*
         - *Do you need help getting started? Then please read the documentation [documentation](https://openems.github.io/openems.io/openems/latest/introduction.html).*
-        - *Also read our [contributing guidelines](https://github.com/OpenEMS/openems/blob/develop/.github/CONTRIBUTING.md) before submitting code suggestions.*
+        - *Also read our [contribution guidelines](https://github.com/OpenEMS/openems/blob/develop/.github/CONTRIBUTING.md) before submitting code suggestions.*

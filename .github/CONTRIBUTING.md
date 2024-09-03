@@ -11,11 +11,11 @@
 
 By contributing, you agree to the Licenses of this repository:
 
-- OpenEMS-Edge, -Backend
+- OpenEMS Edge und Backend
   
     [Eclipse Public License version 2.0](../LICENSE-EPL-2.0)
 
-- OpenEMS-Ui
+- OpenEMS UI
 
     [GNU Affero General Public License version 3](../LICENSE-AGPL-3.0)
 
@@ -27,13 +27,13 @@ By contributing, you agree to respect the [Code of Conduct](CODE_OF_CONDUCT.md) 
 
 A great way to contribute to the project is to send a detailed report when you encounter an issue. We always appreciate a well-written, thorough bug report, and will thank you for it!
 
-To maintain clear and organized communication, all discussions should take place in the [openems community forum](https://community.openems.io/). This helps keep everything together and ensures that conversations are streamlined and accessible to all contributors.
+To maintain clear and organized communication, all discussions should take place in the [OpenEMS Community forum](https://community.openems.io/). This helps keep everything together and ensures that conversations are streamlined and accessible to all contributors.
 
 ⚠️ *Please refrain from opening empty pull requests solely for the purpose of discussing ideas. Instead, utilize the forum to share and refine your concepts before submitting any code changes.*
 
 ## 💡 Feature Requests
 
-Similar to issue reports, feature requests should be submitted to the [openems community forum](https://community.openems.io/) for discussion. This helps ensure that all ideas are properly reviewed and discussed by the community.
+Similar to issue reports, feature requests should be submitted to the [OpenEMS Community forum](https://community.openems.io/) for discussion. This helps ensure that all ideas are properly reviewed and discussed by the community.
 
 When submitting a feature request, please be clear about the intended outcome and how it would relate to existing features. Providing detailed information helps in evaluating the request more effectively.
 
