@@ -1,30 +1,30 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { FormlyFieldConfig } from '@ngx-formly/core';
-import { TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { JsonrpcRequest } from 'src/app/shared/jsonrpc/base';
-import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
-import { Edge, Service, Utils, Websocket } from '../../../shared/shared';
-import { AddAppInstance } from './jsonrpc/addAppInstance';
-import { GetAppAssistant } from './jsonrpc/getAppAssistant';
-import { AppCenter } from './keypopup/appCenter';
-import { AppCenterInstallAppWithSuppliedKeyRequest } from './keypopup/appCenterInstallAppWithSuppliedKey';
-import { AppCenterIsAppFree } from './keypopup/appCenterIsAppFree';
-import { KeyModalComponent, KeyValidationBehaviour } from './keypopup/modal.component';
-import { hasPredefinedKey } from './permissions';
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { FormGroup } from "@angular/forms";
+import { ActivatedRoute, Router } from "@angular/router";
+import { ModalController } from "@ionic/angular";
+import { FormlyFieldConfig } from "@ngx-formly/core";
+import { TranslateService } from "@ngx-translate/core";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
+import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
+import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { Edge, Service, Utils, Websocket } from "../../../shared/shared";
+import { AddAppInstance } from "./jsonrpc/addAppInstance";
+import { GetAppAssistant } from "./jsonrpc/getAppAssistant";
+import { AppCenter } from "./keypopup/appCenter";
+import { AppCenterInstallAppWithSuppliedKeyRequest } from "./keypopup/appCenterInstallAppWithSuppliedKey";
+import { AppCenterIsAppFree } from "./keypopup/appCenterIsAppFree";
+import { KeyModalComponent, KeyValidationBehaviour } from "./keypopup/modal.component";
+import { hasPredefinedKey } from "./permissions";
 
 @Component({
   selector: InstallAppComponent.SELECTOR,
-  templateUrl: './install.component.html',
+  templateUrl: "./install.component.html",
 })
 export class InstallAppComponent implements OnInit, OnDestroy {
 
-  private static readonly SELECTOR = 'app-install';
+  private static readonly SELECTOR = "app-install";
   public readonly spinnerId: string = InstallAppComponent.SELECTOR;
 
   protected form: FormGroup | null = null;
@@ -68,7 +68,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         }
       }
       console.error(reason);
-      service.toast(messageBuilder(reason), 'danger');
+      service.toast(messageBuilder(reason), "danger");
     };
   }
 
@@ -76,15 +76,15 @@ export class InstallAppComponent implements OnInit, OnDestroy {
     this.service.startSpinner(this.spinnerId);
     const state = history?.state;
     if (state) {
-      if ('appKey' in state) {
-        this.key = state['appKey'];
+      if ("appKey" in state) {
+        this.key = state["appKey"];
       }
-      if ('useMasterKey' in state) {
-        this.useMasterKey = state['useMasterKey'];
+      if ("useMasterKey" in state) {
+        this.useMasterKey = state["useMasterKey"];
       }
     }
-    const appId = this.route.snapshot.params['appId'];
-    const appName = this.route.snapshot.queryParams['name'];
+    const appId = this.route.snapshot.params["appId"];
+    const appName = this.route.snapshot.queryParams["name"];
     this.appId = appId;
     this.service.setCurrentComponent(appName, this.route).then(edge => {
       this.edge = edge;
@@ -109,7 +109,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         });
       edge.sendRequest(this.websocket,
         new ComponentJsonApiRequest({
-          componentId: '_appManager',
+          componentId: "_appManager",
           payload: new GetAppAssistant.Request({ appId: appId }),
         })).then(response => {
           const appAssistant = GetAppAssistant.postprocess((response as GetAppAssistant.Response).result);
@@ -139,16 +139,16 @@ export class InstallAppComponent implements OnInit, OnDestroy {
     this.obtainKey().then(key => {
       this.service.startSpinnerTransparentBackground(this.appId);
       // remove alias field from properties
-      const alias = this.form.value['ALIAS'];
+      const alias = this.form.value["ALIAS"];
       const clonedFields = {};
       for (const item in this.form.value) {
-        if (item !== 'ALIAS') {
+        if (item !== "ALIAS") {
           clonedFields[item] = this.form.value[item];
         }
       }
 
       let request: JsonrpcRequest = new ComponentJsonApiRequest({
-        componentId: '_appManager',
+        componentId: "_appManager",
         payload: new AddAppInstance.Request({
           appId: this.appId,
           alias: alias,
@@ -174,15 +174,16 @@ export class InstallAppComponent implements OnInit, OnDestroy {
           this.model = result.instance.properties;
         }
         if (result.warnings && result.warnings.length > 0) {
-          this.service.toast(result.warnings.join(';'), 'warning');
+          this.service.toast(result.warnings.join(";"), "warning");
         } else {
-          this.service.toast(this.translate.instant('Edge.Config.App.successInstall'), 'success');
+          this.service.toast(this.translate.instant("Edge.Config.App.successInstall"), "success");
         }
 
         this.form.markAsPristine();
-        this.router.navigate(['device/' + (this.edge.id) + '/settings/app/']);
+        const navigationExtras = { state: { appInstanceChange: true } };
+        this.router.navigate(["device/" + (this.edge.id) + "/settings/app/"], navigationExtras);
       })
-        .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant('Edge.Config.App.failInstall', { error: error })))
+        .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("Edge.Config.App.failInstall", { error: error })))
         .finally(() => {
           this.isInstalling = false;
           this.service.stopSpinner(this.appId);
@@ -227,7 +228,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         behaviour: KeyValidationBehaviour.SELECT,
         appName: this.appName,
       },
-      cssClass: 'auto-height',
+      cssClass: "auto-height",
     });
 
     const selectKeyPromise = new Promise<string>((resolve, reject) => {

@@ -246,7 +246,14 @@
           "CHART_TITLE": "Planned Schedule (BETA test)",
           "CHART_WARNING_NOTE": "The graphic shows the past three hours as well as the future planned operating mode for the period for which the dynamic grid purchase prices are available. Please note that the planned schedule is subject to continuous recalculation and may change throughout the day.",
           "POWER_SOC_CHART_TITLE": "Forecasts (Only for Admins)"
-        }
+        },
+        "SYSTEM": {
+          "INDUSTRIAL": {
+            "NOTE": "Starts or stops the entire system, including battery inverter and batteries."
+          },
+          "OVERALL_SYSTEM": "Overall system"
+        },
+        "FIX_DIGITAL_OUTPUT": "Digital Outputcontroller"
       },
       "RETROFITTING": {
         "OPTIMAL": "Capacity expansion",
@@ -950,6 +957,11 @@
       "WARNING": "The software will restart after the system update. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state.",
       "UPDATE_EXECUTE": "Execute system update",
       "SUB_HEADER": "Would you like to execute a system update?"
+    },
+    "ENERGY_JOURNEY": {
+      "TO_THE_ANALYSIS": "To the analysis",
+      "CURRENT_NUMBER_OF_MODULES": "Current",
+      "SIMULATION_NOT_STARTED": "Simulation not started"
     }
   },
   "CHANNELS": {

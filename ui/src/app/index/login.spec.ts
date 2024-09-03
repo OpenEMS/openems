@@ -1,11 +1,18 @@
 // @ts-strict-ignore
+import { TestBed } from "@angular/core/testing";
 import { LoginComponent } from "./login.component";
 
-describe('Login', () => {
+describe("Login", () => {
   const password = " password ";
   const username = " username ";
 
-  it('#trimCredentials should trim password and username', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [LoginComponent],
+    }).compileComponents();
+  });
+
+  it("#trimCredentials should trim password and username", () => {
     {
       // Username and password - OpenEMS Backend
       expect(LoginComponent.trimCredentials(password, username)).toEqual({ password: "password", username: "username" });

@@ -121,20 +121,20 @@ export class CurrentData {
        * > 0 => Buy from grid
        * < 0 => Sell to grid
        */
-      const gridActivePower: number = c['_sum/GridActivePower'];
-      result.grid.activePowerL1 = c['_sum/GridActivePowerL1'];
-      result.grid.activePowerL2 = c['_sum/GridActivePowerL2'];
-      result.grid.activePowerL3 = c['_sum/GridActivePowerL3'];
-      result.grid.maxBuyActivePower = c['_sum/GridMaxActivePower'];
+      const gridActivePower: number = c["_sum/GridActivePower"];
+      result.grid.activePowerL1 = c["_sum/GridActivePowerL1"];
+      result.grid.activePowerL2 = c["_sum/GridActivePowerL2"];
+      result.grid.activePowerL3 = c["_sum/GridActivePowerL3"];
+      result.grid.maxBuyActivePower = c["_sum/GridMaxActivePower"];
       if (!result.grid.maxBuyActivePower) {
         result.grid.maxBuyActivePower = 5000;
       }
-      result.grid.maxSellActivePower = c['_sum/GridMinActivePower'] * -1;
+      result.grid.maxSellActivePower = c["_sum/GridMinActivePower"] * -1;
       if (!result.grid.maxSellActivePower) {
         result.grid.maxSellActivePower = -5000;
       }
-      result.grid.gridMode = c['_sum/GridMode'];
-      result.grid.restrictionMode = c['ctrlEssLimiter14a0/RestrictionMode'];
+      result.grid.gridMode = c["_sum/GridMode"];
+      result.grid.restrictionMode = c["ctrlEssLimiter14a0/RestrictionMode"];
       if (gridActivePower > 0) {
         result.grid.sellActivePower = 0;
         result.grid.buyActivePower = gridActivePower;
@@ -150,17 +150,17 @@ export class CurrentData {
       /*
        * Production
        */
-      result.production.activePowerAc = c['_sum/ProductionAcActivePower'];
-      result.production.activePowerAcL1 = c['_sum/ProductionAcActivePowerL1'];
-      result.production.activePowerAcL2 = c['_sum/ProductionAcActivePowerL2'];
-      result.production.activePowerAcL3 = c['_sum/ProductionAcActivePowerL3'];
-      result.production.activePower = c['_sum/ProductionActivePower'];
-      result.production.maxActivePower = c['_sum/ProductionMaxActivePower'];
+      result.production.activePowerAc = c["_sum/ProductionAcActivePower"];
+      result.production.activePowerAcL1 = c["_sum/ProductionAcActivePowerL1"];
+      result.production.activePowerAcL2 = c["_sum/ProductionAcActivePowerL2"];
+      result.production.activePowerAcL3 = c["_sum/ProductionAcActivePowerL3"];
+      result.production.activePower = c["_sum/ProductionActivePower"];
+      result.production.maxActivePower = c["_sum/ProductionMaxActivePower"];
       if (!result.production.maxActivePower) {
         result.production.maxActivePower = 10000;
       }
       result.production.powerRatio = Utils.orElse(Utils.divideSafely(result.production.activePower, result.production.maxActivePower), 0);
-      result.production.activePowerDc = c['_sum/ProductionDcActualPower'];
+      result.production.activePowerDc = c["_sum/ProductionDcActualPower"];
     }
 
     {
@@ -169,18 +169,18 @@ export class CurrentData {
        * > 0 => Discharge
        * < 0 => Charge
        */
-      result.storage.soc = c['_sum/EssSoc'];
-      result.storage.activePowerL1 = c['_sum/EssActivePowerL1'];
-      result.storage.activePowerL2 = c['_sum/EssActivePowerL2'];
-      result.storage.activePowerL3 = c['_sum/EssActivePowerL3'];
-      result.storage.maxApparentPower = c['_sum/EssMaxApparentPower'];
-      result.storage.capacity = c['_sum/EssCapacity'];
-      const essActivePower: number = c['_sum/EssActivePower'];
+      result.storage.soc = c["_sum/EssSoc"];
+      result.storage.activePowerL1 = c["_sum/EssActivePowerL1"];
+      result.storage.activePowerL2 = c["_sum/EssActivePowerL2"];
+      result.storage.activePowerL3 = c["_sum/EssActivePowerL3"];
+      result.storage.maxApparentPower = c["_sum/EssMaxApparentPower"];
+      result.storage.capacity = c["_sum/EssCapacity"];
+      const essActivePower: number = c["_sum/EssActivePower"];
 
       if (!result.storage.maxApparentPower) {
         result.storage.maxApparentPower = 5000;
       }
-      result.storage.chargeActivePowerDc = c['_sum/ProductionDcActualPower'];
+      result.storage.chargeActivePowerDc = c["_sum/ProductionDcActualPower"];
       if (essActivePower == null) {
         // keep 'null'
       } else if (essActivePower > 0) {
@@ -240,11 +240,11 @@ export class CurrentData {
       /*
        * Consumption
        */
-      result.consumption.activePower = c['_sum/ConsumptionActivePower'];
-      result.consumption.activePowerL1 = c['_sum/ConsumptionActivePowerL1'];
-      result.consumption.activePowerL2 = c['_sum/ConsumptionActivePowerL2'];
-      result.consumption.activePowerL3 = c['_sum/ConsumptionActivePowerL3'];
-      let consumptionMaxActivePower = c['_sum/ConsumptionMaxActivePower'];
+      result.consumption.activePower = c["_sum/ConsumptionActivePower"];
+      result.consumption.activePowerL1 = c["_sum/ConsumptionActivePowerL1"];
+      result.consumption.activePowerL2 = c["_sum/ConsumptionActivePowerL2"];
+      result.consumption.activePowerL3 = c["_sum/ConsumptionActivePowerL3"];
+      let consumptionMaxActivePower = c["_sum/ConsumptionMaxActivePower"];
       if (!consumptionMaxActivePower) {
         consumptionMaxActivePower = 10000;
       }
@@ -273,7 +273,7 @@ export class CurrentData {
       result.system.autarchy = CurrentData.calculateAutarchy(result.grid.buyActivePower, result.consumption.activePower);
       result.system.selfConsumption = Utils.calculateSelfConsumption(result.grid.sellActivePower, result.production.activePower);
       // State
-      result.system.state = c['_sum/State'];
+      result.system.state = c["_sum/State"];
     }
     return result;
   }

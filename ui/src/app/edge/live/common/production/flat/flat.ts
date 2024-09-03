@@ -1,11 +1,11 @@
-import { EdgeConfig, Utils } from 'src/app/shared/shared';
-import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
-import { ModalComponent } from '../modal/modal';
+import { Component } from "@angular/core";
+import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { EdgeConfig, Utils } from "src/app/shared/shared";
+import { ModalComponent } from "../modal/modal";
 
 @Component({
-    selector: 'Common_Production',
-    templateUrl: './flat.html',
+    selector: "Common_Production",
+    templateUrl: "./flat.html",
 })
 export class FlatComponent extends AbstractFlatWidget {
 

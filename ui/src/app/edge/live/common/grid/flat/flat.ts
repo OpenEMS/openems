@@ -1,21 +1,21 @@
 // @ts-strict-ignore
-import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
-import { Converter } from 'src/app/shared/components/shared/converter';
-import { ChannelAddress, CurrentData, GridMode, Utils } from 'src/app/shared/shared';
-import { Icon } from 'src/app/shared/type/widget';
-import { GridSectionComponent } from '../../../energymonitor/chart/section/grid.component';
-import { ModalComponent } from '../modal/modal';
+import { Component } from "@angular/core";
+import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Converter } from "src/app/shared/components/shared/converter";
+import { ChannelAddress, CurrentData, GridMode, Utils } from "src/app/shared/shared";
+import { Icon } from "src/app/shared/type/widget";
+import { GridSectionComponent } from "../../../energymonitor/chart/section/grid.component";
+import { ModalComponent } from "../modal/modal";
 
 @Component({
-  selector: 'grid',
-  templateUrl: './flat.html',
+  selector: "grid",
+  templateUrl: "./flat.html",
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-  private static readonly RESTRICTION_MODE: ChannelAddress = new ChannelAddress('ctrlEssLimiter14a0', 'RestrictionMode');
-  private static readonly GRID_ACTIVE_POWER: ChannelAddress = new ChannelAddress('_sum', 'GridActivePower');
-  private static readonly GRID_MODE: ChannelAddress = new ChannelAddress('_sum', 'GridMode');
+  private static readonly RESTRICTION_MODE: ChannelAddress = new ChannelAddress("ctrlEssLimiter14a0", "RestrictionMode");
+  private static readonly GRID_ACTIVE_POWER: ChannelAddress = new ChannelAddress("_sum", "GridActivePower");
+  private static readonly GRID_MODE: ChannelAddress = new ChannelAddress("_sum", "GridMode");
 
   public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
   public readonly GridMode = GridMode;
@@ -43,9 +43,9 @@ export class FlatComponent extends AbstractFlatWidget {
       FlatComponent.GRID_ACTIVE_POWER, FlatComponent.GRID_MODE,
 
       // TODO should be moved to Modal
-      new ChannelAddress('_sum', 'GridActivePowerL1'),
-      new ChannelAddress('_sum', 'GridActivePowerL2'),
-      new ChannelAddress('_sum', 'GridActivePowerL3'),
+      new ChannelAddress("_sum", "GridActivePowerL1"),
+      new ChannelAddress("_sum", "GridActivePowerL2"),
+      new ChannelAddress("_sum", "GridActivePowerL3"),
     ];
 
     if (GridSectionComponent.isControllerEnabled(this.config, "Controller.Ess.Limiter14a")) {

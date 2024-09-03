@@ -13,21 +13,21 @@ export { Widget, WidgetFactory, WidgetNature, Widgets } from "./type/widget";
 
 import { AlertController, AlertOptions } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { addIcons } from 'ionicons';
+import { addIcons } from "ionicons";
 import { Edge } from "./components/edge/edge";
 import { User } from "./jsonrpc/shared";
 import { DefaultTypes } from "./service/defaulttypes";
 import { Role } from "./type/role";
 
 addIcons({
-  'oe-consumption': 'assets/img/icon/consumption.svg',
-  'oe-evcs': 'assets/img/icon/evcs.svg',
-  'oe-grid': 'assets/img/icon/grid.svg',
-  'oe-grid-storage': 'assets/img/icon/gridStorage.svg',
-  'oe-grid-restriction': 'assets/img/icon/gridRestriction.svg',
-  'oe-offgrid': 'assets/img/icon/offgrid.svg',
-  'oe-production': 'assets/img/icon/production.svg',
-  'oe-storage': 'assets/img/icon/storage.svg',
+  "oe-consumption": "assets/img/icon/consumption.svg",
+  "oe-evcs": "assets/img/icon/evcs.svg",
+  "oe-grid": "assets/img/icon/grid.svg",
+  "oe-grid-storage": "assets/img/icon/gridStorage.svg",
+  "oe-grid-restriction": "assets/img/icon/gridRestriction.svg",
+  "oe-offgrid": "assets/img/icon/offgrid.svg",
+  "oe-production": "assets/img/icon/production.svg",
+  "oe-storage": "assets/img/icon/storage.svg",
 });
 
 export class EdgePermission {
@@ -68,7 +68,7 @@ export class EdgePermission {
    * @returns true if the channels are included in the edgeconfig
    */
   public static hasChannelsInEdgeConfig(edge: Edge): boolean {
-    return !edge.isVersionAtLeast('2024.6.1');
+    return !edge.isVersionAtLeast("2024.6.1");
   }
 
   /**
@@ -81,9 +81,8 @@ export class EdgePermission {
    * @returns true if only the factories of the used components are in the edgeconfig
    */
   public static hasReducedFactories(edge: Edge): boolean {
-    return edge.isVersionAtLeast('2024.6.1');
+    return edge.isVersionAtLeast("2024.6.1");
   }
-
 }
 
 export class UserPermission {
@@ -114,7 +113,7 @@ export class UserPermission {
   * @returns true, if user is at least {@link Role.ADMIN} and edge version is at least 2024.2.2
   */
   public static isAllowedToSeeSystemRestart(user: User, edge: Edge) {
-    const isAllowed = edge?.isVersionAtLeast('2024.2.2');
+    const isAllowed = edge?.isVersionAtLeast("2024.2.2");
     return Role.isAtLeast(user?.globalRole, Role.OWNER) && isAllowed;
   }
 }
@@ -142,7 +141,7 @@ export namespace Currency {
    */
   export function getCurrencyLabelByCurrency(currency: string): Label {
     switch (currency) {
-      case 'SEK':
+      case "SEK":
         return Label.OERE_PER_KWH;
       default:
         return Label.CENT_PER_KWH;
@@ -152,6 +151,10 @@ export namespace Currency {
   export enum Label {
     OERE_PER_KWH = "Öre/kWh",
     CENT_PER_KWH = "Cent/kWh",
+  }
+
+  export enum Unit {
+    CENT = "Cent",
   }
 }
 
@@ -178,12 +181,12 @@ export async function presentAlert(alertController: AlertController, translate: 
   const alert = alertController.create({
     ...alertOptions,
     buttons: [{
-      text: translate.instant('General.cancel'),
-      role: 'cancel',
+      text: translate.instant("General.cancel"),
+      role: "cancel",
     },
     ...(alertOptions?.buttons ?? []),
     ],
-    cssClass: 'alertController',
+    cssClass: "alertController",
   });
   (await alert).present();
 }

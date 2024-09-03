@@ -52,6 +52,7 @@ OpenEMS is generally used in combination with external hardware and software com
 
 * Open up a [Live-Demo on Gitpod](https://gitpod.io/#https://github.com/OpenEMS/openems)
 * Follow the [Getting Started](https://openems.github.io/openems.io/openems/latest/gettingstarted.html) guide to setup OpenEMS on your own computer
+* Please checkout our [contribution guidelines](CONTRIBUTING.md) before submitting code
 
 ## Documentation
 

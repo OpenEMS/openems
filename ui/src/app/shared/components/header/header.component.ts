@@ -1,27 +1,27 @@
 // @ts-strict-ignore
-import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { MenuController, ModalController } from '@ionic/angular';
-import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
-import { environment } from 'src/environments';
+import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
+import { MenuController, ModalController } from "@ionic/angular";
+import { Subject } from "rxjs";
+import { filter, takeUntil } from "rxjs/operators";
+import { environment } from "src/environments";
 
-import { Edge, Service, Websocket } from '../../shared';
-import { PickDateComponent } from '../pickdate/pickdate.component';
-import { StatusSingleComponent } from '../status/single/status.component';
+import { Edge, Service, Websocket } from "../../shared";
+import { PickDateComponent } from "../pickdate/pickdate.component";
+import { StatusSingleComponent } from "../status/single/status.component";
 
 @Component({
-    selector: 'header',
-    templateUrl: './header.component.html',
+    selector: "header",
+    templateUrl: "./header.component.html",
 })
 export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     @ViewChild(PickDateComponent, { static: false }) public PickDateComponent: PickDateComponent;
 
     public environment = environment;
-    public backUrl: string | boolean = '/';
+    public backUrl: string | boolean = "/";
     public enableSideMenu: boolean;
-    public currentPage: 'EdgeSettings' | 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
+    public currentPage: "EdgeSettings" | "Other" | "IndexLive" | "IndexHistory" = "Other";
     public isSystemLogEnabled: boolean = false;
     private ngUnsubscribe: Subject<void> = new Subject<void>();
 
@@ -60,10 +60,10 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     updateEnableSideMenu(url: string) {
-        const urlArray = url.split('/');
+        const urlArray = url.split("/");
         const file = urlArray.pop();
 
-        if (file == 'user' || file == 'settings' || file == 'changelog' || file == 'login' || urlArray.length > 3) {
+        if (file == "user" || file == "settings" || file == "changelog" || file == "login" || urlArray.length > 3) {
             // disable side-menu; show back-button instead
             this.enableSideMenu = false;
         } else {
@@ -75,7 +75,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     updateBackUrl(url: string) {
 
         // disable backUrl & Segment Navigation on initial 'login' page
-        if (url === '/login' || url === '/overview') {
+        if (url === "/login" || url === "/overview") {
             this.backUrl = false;
             return;
         }
@@ -83,77 +83,77 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
         // set backUrl for user when an Edge had been selected before
         const currentEdge: Edge = this.service.currentEdge.value;
-        if (url === '/user' && currentEdge != null) {
-            this.backUrl = '/device/' + currentEdge.id + "/live";
+        if (url === "/user" && currentEdge != null) {
+            this.backUrl = "/device/" + currentEdge.id + "/live";
             return;
         }
 
         // set backUrl for user if no edge had been selected
-        if (url === '/user') {
-            this.backUrl = '/overview';
+        if (url === "/user") {
+            this.backUrl = "/overview";
             return;
         }
 
-        if (url === '/changelog' && currentEdge != null) {
+        if (url === "/changelog" && currentEdge != null) {
             // TODO this does not work if Changelog was opened from /user
-            this.backUrl = '/device/' + currentEdge.id + "/settings/profile";
+            this.backUrl = "/device/" + currentEdge.id + "/settings/profile";
             return;
         }
 
-        const urlArray = url.split('/');
-        let backUrl: string | boolean = '/';
+        const urlArray = url.split("/");
+        let backUrl: string | boolean = "/";
         const file = urlArray.pop();
 
         // disable backUrl for History & EdgeIndex Component ++ Enable Segment Navigation
-        if ((file == 'history' || file == 'live') && urlArray.length == 3) {
+        if ((file == "history" || file == "live") && urlArray.length == 3) {
             this.backUrl = false;
             return;
         }
 
         // disable backUrl to first 'index' page from Edge index if there is only one Edge in the system
-        if (file === 'live' && urlArray.length == 3 && this.environment.backend === "OpenEMS Edge") {
+        if (file === "live" && urlArray.length == 3 && this.environment.backend === "OpenEMS Edge") {
             this.backUrl = false;
             return;
         }
 
         // remove one part of the url for 'index'
-        if (file === 'live') {
+        if (file === "live") {
             urlArray.pop();
         }
 
         // fix url for App "settings/app/install" and "settings/app/update"
-        if (urlArray.slice(-3, -1).join('/') === "settings/app") {
+        if (urlArray.slice(-3, -1).join("/") === "settings/app") {
             urlArray.pop();
         }
 
         // re-join the url
-        backUrl = urlArray.join('/') || '/';
+        backUrl = urlArray.join("/") || "/";
 
         // correct path for '/device/[edgeId]/index'
-        if (backUrl === '/device') {
-            backUrl = '/';
+        if (backUrl === "/device") {
+            backUrl = "/";
         }
         this.backUrl = backUrl;
     }
 
     updateCurrentPage(url: string) {
-        const urlArray = url.split('/');
+        const urlArray = url.split("/");
         let file = urlArray.pop();
         if (urlArray.length >= 4) {
             file = urlArray[3];
         }
         // Enable Segment Navigation for Edge-Index-Page
-        if ((file == 'history' || file == 'live') && urlArray.length == 3) {
-            if (file == 'history') {
-                this.currentPage = 'IndexHistory';
+        if ((file == "history" || file == "live") && urlArray.length == 3) {
+            if (file == "history") {
+                this.currentPage = "IndexHistory";
             } else {
-                this.currentPage = 'IndexLive';
+                this.currentPage = "IndexLive";
             }
-        } else if (file == 'settings' && urlArray.length > 1) {
-            this.currentPage = 'EdgeSettings';
+        } else if (file == "settings" && urlArray.length > 1) {
+            this.currentPage = "EdgeSettings";
         }
         else {
-            this.currentPage = 'Other';
+            this.currentPage = "Other";
         }
     }
 
@@ -165,7 +165,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         if (event.detail.value == "IndexHistory") {
 
             /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed  */
-            this.router.navigate(['../history'], { relativeTo: this.route });
+            this.router.navigate(["../history"], { relativeTo: this.route });
             this.cdRef.detectChanges();
         }
     }

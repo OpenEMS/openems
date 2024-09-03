@@ -1,7 +1,6 @@
 = Real-Time Simulation
 :imagesdir: ../../assets/images
 :sectnumlevels: 0
-:toc:
 :toclevels: 0
 
 OpenEMS provides several virtual devices for testing and development. To set up the simulation-environment follow the setup guide in xref:gettingstarted.adoc[Getting Started]. The Apache Felix Web Console Configuration lists all OpenEMS component, but those which rely on external hardware can't be used for simulation. These are replaced by more generic components tagged with the "Simulator" prefix. Still, not all non-simulator devices rely on real hardware. Other components used in production, like Loggers, Controllers and Schedulers can be combined with the virtual devices to build a "living" system.

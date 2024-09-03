@@ -2,10 +2,10 @@
 
 NODE_MAJOR=20
 
-ANDROID_SDK_VERSION=9477386
+ANDROID_SDK_VERSION=11076708
 ANDROID_HOME="/opt/android-sdk"
-ANDROID_BUILD_TOOLS_VERSION=32.0.0
-ANDROID_PLATFORMS_VERSION=32
+ANDROID_BUILD_TOOLS_VERSION=34.0.0
+ANDROID_PLATFORMS_VERSION=34
 
 # Build/Update 'openems-android' Container for Drone/Woodpecker CI
 
@@ -13,6 +13,8 @@ docker pull node:${NODE_MAJOR}
 
 docker build -t openems-android:${NODE_MAJOR}.${ANDROID_PLATFORMS_VERSION} -f - . <<EOF
 FROM node:${NODE_MAJOR}
+
+SHELL ["/bin/bash", "-c"]
 
 RUN apt-get update  \
         && apt-get install --no-install-recommends -y git nodejs wget unzip android-sdk;

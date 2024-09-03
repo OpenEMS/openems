@@ -1,14 +1,14 @@
 // @ts-strict-ignore
-import { formatNumber } from '@angular/common';
-import { TranslateService } from '@ngx-translate/core';
-import { ChartDataset } from 'chart.js';
-import { saveAs } from 'file-saver-es';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { formatNumber } from "@angular/common";
+import { TranslateService } from "@ngx-translate/core";
+import { ChartDataset } from "chart.js";
+import { saveAs } from "file-saver-es";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 
-import { JsonrpcResponseSuccess } from '../jsonrpc/base';
-import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
-import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { ChannelAddress, Currency, EdgeConfig } from '../shared';
+import { JsonrpcResponseSuccess } from "../jsonrpc/base";
+import { Base64PayloadResponse } from "../jsonrpc/response/base64PayloadResponse";
+import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
+import { ChannelAddress, Currency, EdgeConfig } from "../shared";
 
 export class Utils {
 
@@ -111,7 +111,7 @@ export class Utils {
    * @param values the values
    * @returns a number, if at least one value is not null, else null
    */
-  public static subtractSafely(...values: (number | null)[]): number {
+  public static subtractSafely(...values: (number | null)[]): number | null {
     return values
       .filter(value => value !== null && value !== undefined)
       .reduce((sum, curr) => {
@@ -131,7 +131,7 @@ export class Utils {
    * @param v1
    * @param v2
    */
-  public static divideSafely(v1: number, v2: number): number | null {
+  public static divideSafely(v1: number | null, v2: number | null): number | null {
     if (v1 == null || v2 == null) {
       return null;
     } else if (v2 == 0) {
@@ -184,12 +184,27 @@ export class Utils {
    * Safely rounds a - possibly 'null' - value: Math.round(v)
    *
    * @param v
+   * @returns the rounded value, null if value is invalid
    */
-  public static roundSafely(v: number): number {
+  public static roundSafely(v: number | null): number | null {
     if (v == null) {
-      return v;
+      return null;
     } else {
       return Math.round(v);
+    }
+  }
+
+  /**
+   * Safely floors a - possibly 'null' - value: Math.floor(v)
+   *
+   * @param v
+   * @returns the floored value, null if value is invalid
+   */
+  public static floorSafely(v: number | null): number | null {
+    if (v == null) {
+      return null;
+    } else {
+      return Math.floor(v);
     }
   }
 
@@ -238,11 +253,11 @@ export class Utils {
    */
   public static CONVERT_TO_WATT = (value: number | null): string => {
     if (value == null) {
-      return '-';
+      return "-";
     } else if (value >= 0) {
-      return formatNumber(value, 'de', '1.0-0') + ' W';
+      return formatNumber(value, "de", "1.0-0") + " W";
     } else {
-      return '0 W';
+      return "0 W";
     }
   };
 
@@ -254,14 +269,14 @@ export class Utils {
    */
   public static CONVERT_WATT_TO_KILOWATT = (value: number | null): string => {
     if (value == null) {
-      return '-';
+      return "-";
     }
     const thisValue: number = (value / 1000);
 
     if (thisValue >= 0) {
-      return formatNumber(thisValue, 'de', '1.0-1') + ' kW';
+      return formatNumber(thisValue, "de", "1.0-1") + " kW";
     } else {
-      return '0 kW';
+      return "0 kW";
     }
   };
 
@@ -282,7 +297,7 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_TO_PERCENT = (value: any): string => {
-    return value + ' %';
+    return value + " %";
   };
 
   /**
@@ -292,7 +307,7 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_TO_WATTHOURS = (value: number): string => {
-    return formatNumber(value, 'de', '1.0-1') + ' Wh';
+    return formatNumber(value, "de", "1.0-1") + " Wh";
   };
 
   /**
@@ -302,7 +317,7 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_TO_KILO_WATTHOURS = (value: number): string => {
-    return formatNumber(Utils.divideSafely(value, 1000), 'de', '1.0-1') + ' kWh';
+    return formatNumber(Utils.divideSafely(value, 1000), "de", "1.0-1") + " kWh";
   };
 
   /**
@@ -313,12 +328,12 @@ export class Utils {
    */
   public static CONVERT_MANUAL_ON_OFF = (translate: TranslateService) => {
     return (value: DefaultTypes.ManualOnOff): string => {
-      if (value === 'MANUAL_ON') {
-        return translate.instant('General.on');
-      } else if (value === 'MANUAL_OFF') {
-        return translate.instant('General.off');
+      if (value === "MANUAL_ON") {
+        return translate.instant("General.on");
+      } else if (value === "MANUAL_OFF") {
+        return translate.instant("General.off");
       } else {
-        return '-';
+        return "-";
       }
     };
   };
@@ -332,9 +347,9 @@ export class Utils {
    */
   public static convertChargeDischargePower(translate: TranslateService, power: number): { name: string, value: number } {
     if (power >= 0) {
-      return { name: translate.instant('General.dischargePower'), value: power };
+      return { name: translate.instant("General.dischargePower"), value: power };
     } else {
-      return { name: translate.instant('General.chargePower'), value: power * -1 };
+      return { name: translate.instant("General.chargePower"), value: power * -1 };
     }
   }
 
@@ -347,14 +362,14 @@ export class Utils {
    */
   public static CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = (translate: TranslateService) => {
     return (value: any): string => {
-      if (value === 'MANUAL') {
-        return translate.instant('General.manually');
-      } else if (value === 'OFF') {
-        return translate.instant('General.off');
-      } else if (value === 'AUTOMATIC') {
-        return translate.instant('General.automatic');
+      if (value === "MANUAL") {
+        return translate.instant("General.manually");
+      } else if (value === "OFF") {
+        return translate.instant("General.off");
+      } else if (value === "AUTOMATIC") {
+        return translate.instant("General.automatic");
       } else {
-        return '-';
+        return "-";
       }
     };
   };
@@ -369,7 +384,7 @@ export class Utils {
       const date: Date = new Date();
       date.setHours(0, 0, 0, 0);
       date.setMinutes(value);
-      return date.toLocaleTimeString(translate.getBrowserCultureLang(), { hour: '2-digit', minute: '2-digit' });
+      return date.toLocaleTimeString(translate.getBrowserCultureLang(), { hour: "2-digit", minute: "2-digit" });
     };
   };
 
@@ -382,7 +397,7 @@ export class Utils {
    */
   public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
     return (value: number | null): string =>
-      (!value ? "-" : formatNumber(value / 10, 'de', '1.0-' + decimal)) + ' ' + label;
+      (!value ? "-" : formatNumber(value / 10, "de", "1.0-" + decimal)) + " " + label;
   };
 
   /**
@@ -395,11 +410,11 @@ export class Utils {
     return (value: any): string => {
       switch (Math.round(value)) {
         case 0:
-          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
+          return translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE");
         case 3:
-          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID');
+          return translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID");
         default: // Usually "1"
-          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING');
+          return translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING");
       }
     };
   };
@@ -412,17 +427,17 @@ export class Utils {
    */
   public static getStorageSocSegment(soc: number | null): string {
     if (!soc || soc < 10) {
-      return '0';
+      return "0";
     } else if (soc < 30) {
-      return '20';
+      return "20";
     } else if (soc < 50) {
-      return '40';
+      return "40";
     } else if (soc < 70) {
-      return '60';
+      return "60";
     } else if (soc < 90) {
-      return '80';
+      return "80";
     } else {
-      return '100';
+      return "100";
     }
   }
 
@@ -435,7 +450,7 @@ export class Utils {
   public static downloadXlsx(response: Base64PayloadResponse, filename: string) {
     // decode base64 string, remove space for IE compatibility
     // source: https://stackoverflow.com/questions/36036280/base64-representing-pdf-to-blob-javascript/45872086
-    const binary = atob(response.result.payload.replace(/\s/g, ''));
+    const binary = atob(response.result.payload.replace(/\s/g, ""));
     const len = binary.length;
     const buffer = new ArrayBuffer(len);
     const view = new Uint8Array(buffer);
@@ -443,10 +458,10 @@ export class Utils {
       view[i] = binary.charCodeAt(i);
     }
     const data: Blob = new Blob([view], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
     });
 
-    saveAs(data, filename + '.xlsx');
+    saveAs(data, filename + ".xlsx");
   }
 
   /*
@@ -538,7 +553,7 @@ export class Utils {
   }
 
   public static isDataEmpty(arg: JsonrpcResponseSuccess): boolean {
-    return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true);
+    return Object.values(arg.result["data"])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true);
   }
 
   /**
@@ -555,17 +570,17 @@ export class Utils {
     let totalEvcsConsumption: number = 0;
     let totalMeteredConsumption: number = 0;
     evcsComponents.forEach(component => {
-      totalEvcsConsumption = this.addSafely(totalEvcsConsumption, energyValues.result.data[component.id + '/ActiveConsumptionEnergy']);
+      totalEvcsConsumption = this.addSafely(totalEvcsConsumption, energyValues.result.data[component.id + "/ActiveConsumptionEnergy"]);
     });
 
     consumptionMeterComponents.forEach(meter => {
-      totalMeteredConsumption = this.addSafely(totalMeteredConsumption, energyValues.result.data[meter.id + '/ActiveProductionEnergy']);
+      totalMeteredConsumption = this.addSafely(totalMeteredConsumption, energyValues.result.data[meter.id + "/ActiveProductionEnergy"]);
     });
 
     return Utils.roundSlightlyNegativeValues(
       Utils.subtractSafely(
         Utils.subtractSafely(
-          energyValues.result.data['_sum/ConsumptionActiveEnergy'], totalEvcsConsumption),
+          energyValues.result.data["_sum/ConsumptionActiveEnergy"], totalEvcsConsumption),
         totalMeteredConsumption));
   }
 
@@ -585,18 +600,18 @@ export class Utils {
     const totalMeteredConsumption: number[] = [];
 
     evcsComponents.forEach(component => {
-      channelData[component.id + '/ChargePower']?.forEach((value, index) => {
+      channelData[component.id + "/ChargePower"]?.forEach((value, index) => {
         totalMeteredConsumption[index] = Utils.addSafely(totalMeteredConsumption[index], value);
       });
     });
 
     consumptionMeterComponents.forEach(meter => {
-      channelData[meter.id + '/ActivePower']?.forEach((value, index) => {
+      channelData[meter.id + "/ActivePower"]?.forEach((value, index) => {
         totalMeteredConsumption[index] = Utils.addSafely(totalMeteredConsumption[index], value);
       });
     });
 
-    return channelData['ConsumptionActivePower']?.map((value, index) => {
+    return channelData["ConsumptionActivePower"]?.map((value, index) => {
 
       if (value == null) {
         return null;
@@ -610,7 +625,7 @@ export class Utils {
   }
 }
 
-export enum YAxisTitle {
+export enum YAxisType {
   NONE,
   POWER,
   PERCENTAGE,
@@ -623,9 +638,9 @@ export enum YAxisTitle {
 }
 
 export enum ChartAxis {
-  LEFT = 'left',
-  RIGHT = 'right',
-  RIGHT_2 = 'right2',
+  LEFT = "left",
+  RIGHT = "right",
+  RIGHT_2 = "right2",
 }
 export namespace HistoryUtils {
 
@@ -671,7 +686,9 @@ export namespace HistoryUtils {
     noStrokeThroughLegendIfHidden?: boolean,
     /** color in rgb-Format */
     color: string,
-    /** the stack for barChart, if not provided datasets are not stacked but overlaying each other */
+    /**
+     * The stack/stacks for this dataset to be displayed, if not provided datasets are not stacked but overlaying each other
+     */
     stack?: number | number[],
     /** False per default */
     hideLabelInLegend?: boolean,
@@ -695,9 +712,9 @@ export namespace HistoryUtils {
   };
 
   export interface CustomOptions {
-    unit?: YAxisTitle,
+    unit?: YAxisType,
     /** overrides global charttype */
-    type?: 'line' | 'bar',
+    type?: "line" | "bar",
     /** overrides global formatNumber */
     formatNumber?: string,
   }
@@ -707,7 +724,7 @@ export namespace HistoryUtils {
   }
 
   export interface BoxCustomOptions extends PluginCustomOptions {
-    pluginType: 'box',
+    pluginType: "box",
     annotations: {
       /** Start date string in ISO-format */
       xMin: string | number,
@@ -718,6 +735,13 @@ export namespace HistoryUtils {
       yMin?: number,
       yScaleID: ChartAxis,
     }[];
+  }
+
+  export interface DataLabelsCustomOptions extends PluginCustomOptions {
+    pluginType: "datalabels",
+    datalabels: {
+      displayUnit: string,
+    },
   }
 
   /**
@@ -744,10 +768,11 @@ export namespace HistoryUtils {
 
   export type yAxes = {
     /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
-    unit: YAxisTitle,
-    customTitle?: string,
-    position: 'left' | 'right' | 'bottom' | 'top',
+    unit: YAxisType,
+    position: "left" | "right" | "bottom" | "top",
     yAxisId: ChartAxis,
+    /** YAxis title -> {@link https://www.chartjs.org/docs/latest/samples/scale-options/titles.html Chartjs Title} */
+    customTitle?: string
     /** Default: true */
     displayGrid?: boolean
   };
@@ -835,27 +860,27 @@ export namespace TimeOfUseTariffUtils {
       return;
     }
 
-    const socLabel = translate.instant('General.soc');
-    const dischargeLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
-    const chargeConsumptionLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID');
-    const balancingLabel = translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING');
-    const gridBuyLabel = translate.instant('General.gridBuy');
+    const socLabel = translate.instant("General.soc");
+    const dischargeLabel = translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE");
+    const chargeConsumptionLabel = translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID");
+    const balancingLabel = translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING");
+    const gridBuyLabel = translate.instant("General.gridBuy");
 
     // Switch case to handle different labels
     switch (label) {
       case socLabel:
-        return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+        return label + ": " + formatNumber(value, "de", "1.0-0") + " %";
 
       case dischargeLabel:
       case chargeConsumptionLabel:
       case balancingLabel:
         // Show floating point number for values between 0 and 1
-        return label + ": " + formatNumber(value, 'de', '1.0-4') + " " + currencyLabel;
+        return label + ": " + formatNumber(value, "de", "1.0-4") + " " + currencyLabel;
 
       default:
       case gridBuyLabel:
         // Power values
-        return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+        return label + ": " + formatNumber(value, "de", "1.0-2") + " kW";
     }
   }
 

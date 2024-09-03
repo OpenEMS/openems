@@ -1,15 +1,15 @@
 // @ts-strict-ignore
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { AlertController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { Edge, presentAlert, Service, Websocket } from 'src/app/shared/shared';
-import { environment } from 'src/environments';
-import { ExecuteSystemUpdate } from './executeSystemUpdate';
-import { SystemUpdateState } from './getSystemUpdateStateResponse';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { AlertController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { Edge, presentAlert, Service, Websocket } from "src/app/shared/shared";
+import { environment } from "src/environments";
+import { ExecuteSystemUpdate } from "./executeSystemUpdate";
+import { SystemUpdateState } from "./getSystemUpdateStateResponse";
 
 @Component({
   selector: OeSystemUpdateComponent.SELECTOR,
-  templateUrl: './oe-system-update.component.html',
+  templateUrl: "./oe-system-update.component.html",
 })
 export class OeSystemUpdateComponent implements OnInit, OnDestroy {
 
@@ -67,10 +67,10 @@ export class OeSystemUpdateComponent implements OnInit, OnDestroy {
   }
 
   protected confirmationAlert: () => void = () => presentAlert(this.alertCtrl, this.translate, {
-    message: this.translate.instant('SETTINGS.SYSTEM_UPDATE.WARNING', { system: environment.edgeShortName }),
-    subHeader: this.translate.instant('SETTINGS.SYSTEM_UPDATE.SUB_HEADER'),
+    message: this.translate.instant("SETTINGS.SYSTEM_UPDATE.WARNING", { system: environment.edgeShortName }),
+    subHeader: this.translate.instant("SETTINGS.SYSTEM_UPDATE.SUB_HEADER"),
     buttons: [{
-      text: this.translate.instant('SETTINGS.SYSTEM_UPDATE.UPDATE_EXECUTE'),
+      text: this.translate.instant("SETTINGS.SYSTEM_UPDATE.UPDATE_EXECUTE"),
       handler: () => this.executeSystemUpdate(),
     }],
   });

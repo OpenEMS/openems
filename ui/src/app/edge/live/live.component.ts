@@ -1,13 +1,13 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { RefresherCustomEvent } from '@ionic/angular';
-import { Subject } from 'rxjs';
-import { DataService } from 'src/app/shared/components/shared/dataservice';
-import { Edge, EdgeConfig, Service, Utils, Websocket, Widgets } from 'src/app/shared/shared';
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { RefresherCustomEvent } from "@ionic/angular";
+import { Subject } from "rxjs";
+import { DataService } from "src/app/shared/components/shared/dataservice";
+import { Edge, EdgeConfig, Service, Utils, Websocket, Widgets } from "src/app/shared/shared";
 
 @Component({
-  selector: 'live',
-  templateUrl: './live.component.html',
+  selector: "live",
+  templateUrl: "./live.component.html",
 })
 export class LiveComponent implements OnInit, OnDestroy {
 
@@ -25,7 +25,6 @@ export class LiveComponent implements OnInit, OnDestroy {
   ) { }
 
   public ngOnInit() {
-    this.service.setCurrentComponent('', this.route);
     this.service.currentEdge.subscribe((edge) => {
       this.edge = edge;
     });

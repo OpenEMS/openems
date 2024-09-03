@@ -1,15 +1,15 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { AbstractHistoryChart } from '../abstracthistorychart';
+import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../shared/shared";
+import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({
-    selector: 'storageESSChart',
-    templateUrl: '../abstracthistorychart.html',
+    selector: "storageESSChart",
+    templateUrl: "../abstracthistorychart.html",
 })
 export class StorageESSChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -34,7 +34,6 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
 
     ngOnInit() {
         this.startSpinner();
-        this.service.setCurrentComponent('', this.route);
         this.setLabel();
     }
 
@@ -78,33 +77,33 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                             } else {
                                 if (channelAddress.channelId == "ActivePower") {
                                     datasets.push({
-                                        label: this.translate.instant('General.chargeDischarge'),
+                                        label: this.translate.instant("General.chargeDischarge"),
                                         data: data,
                                         hidden: false,
                                     });
                                     this.colors.push({
-                                        backgroundColor: 'rgba(0,223,0,0.05)',
-                                        borderColor: 'rgba(0,223,0,1)',
+                                        backgroundColor: "rgba(0,223,0,0.05)",
+                                        borderColor: "rgba(0,223,0,1)",
                                     });
                                 }
-                                if (this.componentId + '/ActivePowerL1' && this.componentId + '/ActivePowerL2' && this.componentId + '/ActivePowerL3' in result.data && this.showPhases == true) {
-                                    if (channelAddress.channelId == 'ActivePowerL1') {
+                                if (this.componentId + "/ActivePowerL1" && this.componentId + "/ActivePowerL2" && this.componentId + "/ActivePowerL3" in result.data && this.showPhases == true) {
+                                    if (channelAddress.channelId == "ActivePowerL1") {
                                         datasets.push({
-                                            label: this.translate.instant('General.phase') + ' ' + 'L1',
+                                            label: this.translate.instant("General.phase") + " " + "L1",
                                             data: data,
                                         });
                                         this.colors.push(this.phase1Color);
                                     }
-                                    if (channelAddress.channelId == 'ActivePowerL2') {
+                                    if (channelAddress.channelId == "ActivePowerL2") {
                                         datasets.push({
-                                            label: this.translate.instant('General.phase') + ' ' + 'L2',
+                                            label: this.translate.instant("General.phase") + " " + "L2",
                                             data: data,
                                         });
                                         this.colors.push(this.phase2Color);
                                     }
-                                    if (channelAddress.channelId == 'ActivePowerL3') {
+                                    if (channelAddress.channelId == "ActivePowerL3") {
                                         datasets.push({
-                                            label: this.translate.instant('General.phase') + ' ' + 'L3',
+                                            label: this.translate.instant("General.phase") + " " + "L3",
                                             data: data,
                                         });
                                         this.colors.push(this.phase3Color);
@@ -143,13 +142,13 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
         const factory = config.factories[factoryID];
         return new Promise((resolve, reject) => {
             const result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ActivePower'),
+                new ChannelAddress(this.componentId, "ActivePower"),
             ];
             if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
                 result.push(
-                    new ChannelAddress(component.id, 'ActivePowerL1'),
-                    new ChannelAddress(component.id, 'ActivePowerL2'),
-                    new ChannelAddress(component.id, 'ActivePowerL3'),
+                    new ChannelAddress(component.id, "ActivePowerL1"),
+                    new ChannelAddress(component.id, "ActivePowerL2"),
+                    new ChannelAddress(component.id, "ActivePowerL3"),
                 );
             }
             resolve(result);
