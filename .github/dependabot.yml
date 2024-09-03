@@ -10,6 +10,10 @@ updates:
       influxdb:
         patterns:
           - "com.influxdb:*"
+      fastexcel:
+        patterns:
+          - "org.dhatim:fastexcel"
+          - "org.dhatim:fastexcel-reader"
 
   - package-ecosystem: npm
     directory: "/ui"
