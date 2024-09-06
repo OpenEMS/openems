@@ -129,7 +129,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 this.chartType = "line";
                 this.chartObject = this.getChartData();
 
-                const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, dataResponse);
+                const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, this.locale, dataResponse);
                 this.datasets = displayValues.datasets;
                 this.legendOptions = displayValues.legendOptions;
                 this.labels = displayValues.labels;
@@ -154,7 +154,7 @@ export class ChartComponent extends AbstractHistoryChart {
                     const label = item.dataset.label;
                     const value = item.dataset.data[item.dataIndex];
 
-                    return TimeOfUseTariffUtils.getLabel(value, label, this.translate, this.currencyLabel);
+                    return TimeOfUseTariffUtils.getLabel(value, label, this.translate, this.locale, this.currencyLabel);
                 };
 
                 this.options.scales[ChartAxis.LEFT]["title"].text = this.currencyLabel;

@@ -43,6 +43,6 @@ export class ModalComponent extends AbstractModal {
     protected override onCurrentData(currentData: CurrentData): void {
         const quarterlyPrice = currentData.allComponents[this.component.id + "/QuarterlyPrices"];
         const currencyLabel: string = Currency.getCurrencyLabelByEdgeId(this.edge?.id);
-        this.priceWithCurrency = this.Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(quarterlyPrice);
+        this.priceWithCurrency = this.Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel, this.locale)(quarterlyPrice);
     }
 }

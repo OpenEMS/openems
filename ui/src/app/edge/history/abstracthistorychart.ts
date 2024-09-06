@@ -155,7 +155,7 @@ export abstract class AbstractHistoryChart {
                     const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
 
                     const customUnit = tooltipItem.dataset.unit ?? null;
-                    return label.split(":")[0] + ": " + NewAbstractHistoryChart.getToolTipsSuffix("", value, formatNumber, customUnit ?? unit, "line", locale, translate, conf);
+                    return label.split(":")[0] + ": " + NewAbstractHistoryChart.getToolTipsSuffix("", value, formatNumber, customUnit ?? unit, "line", locale, translate, locale, conf);
                 };
 
                 options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {

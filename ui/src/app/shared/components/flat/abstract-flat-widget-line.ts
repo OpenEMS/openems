@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Directive, Inject, Input, OnChanges, OnDestroy } from "@angular/core";
+import { Directive, Inject, Input, OnChanges, OnDestroy, LOCALE_ID } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -46,6 +46,7 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     @Inject(Service) protected service: Service,
     @Inject(ModalController) protected modalCtrl: ModalController,
     @Inject(DataService) private dataService: DataService,
+    @Inject(LOCALE_ID) protected locale: string,
   ) { }
 
   /** Channel defines the channel, you need for this line */
@@ -61,10 +62,10 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   * @param value the value from CurrentData
   * @returns converter function
   */
-  @Input() public converter = (value: any): string => { return value; };
+  @Input() public converter = (value: any, locale: string): string => { return value; };
 
   public ngOnChanges() {
-    this.setValue(this.value);
+    this.setValue(this.value, this.locale);
   }
 
   public ngOnDestroy() {
@@ -78,8 +79,8 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     this.stopOnDestroy.complete();
   }
 
-  protected setValue(value: any) {
-    this.displayValue = this.converter(value);
+  protected setValue(value: any, locale: string) {
+    this.displayValue = this.converter(value, locale);
     if (this.filter) {
       this.show = this.filter(value);
     }
@@ -91,7 +92,7 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
 
       this.dataService.getValues([channelAddress], this.edge);
       this.dataService.currentValue.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
-        this.setValue(value.allComponents[channelAddress.toString()]);
+        this.setValue(value.allComponents[channelAddress.toString()], this.locale);
       });
     });
   }

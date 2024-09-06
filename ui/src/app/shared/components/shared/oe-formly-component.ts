@@ -74,7 +74,7 @@ export namespace OeFormlyField {
     type: "item",
     channel: string,
     filter?: (value: number | null) => boolean,
-    converter?: (value: number | null) => string
+    converter?: (value: number | null, locale: string) => string
   };
 
   export type ChildrenLine = {
@@ -89,7 +89,7 @@ export namespace OeFormlyField {
     name: /* actual name string */ string | /* name string derived from channel value */ Converter,
     channel: string,
     filter?: (value: number | null) => boolean,
-    converter?: (value: number | null) => string
+    converter?: (value: number | null, locale: string) => string
     indentation?: TextIndentation,
   };
 

@@ -59,7 +59,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
         // Round thisValue to Integer when decimal place equals 0
         if (thisValue > 0) {
-            return formatNumber(thisValue, "de", "1.0-1") + " kW"; // TODO get locale dynamically
+            return formatNumber(thisValue, this.locale, "1.0-1") + " kW";
 
         } else if (thisValue == 0 && isCharge) {
             // if thisValue is 0, then show only when charge and not discharge

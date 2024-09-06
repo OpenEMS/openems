@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, Inject } from "@angular/core";
+import { ChangeDetectorRef, Component, Inject, LOCALE_ID } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController, PopoverController } from "@ionic/angular";
@@ -47,10 +47,11 @@ export class ModalComponent extends AbstractModal {
     @Inject(PopoverController) public popoverctrl: PopoverController,
     @Inject(TranslateService) protected override translate: TranslateService,
     @Inject(FormBuilder) public override formBuilder: FormBuilder,
+    @Inject(LOCALE_ID) protected override locale: string,
     public override ref: ChangeDetectorRef) {
     super(
       websocket, route, service, modalController, translate,
-      formBuilder, ref);
+      formBuilder, locale, ref);
     ref.detach();
     setInterval(() => {
       this.ref.detectChanges(); // manually trigger change detection
@@ -125,9 +126,9 @@ export class ModalComponent extends AbstractModal {
     if (this.formGroup?.pristine) {
       this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
       this.chargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + "/ChargePower"]);
-      this.chargePowerLimit = Utils.CONVERT_TO_WATT(this.formatNumber(currentData.allComponents[this.component.id + "/SetChargePowerLimit"]));
+      this.chargePowerLimit = Utils.CONVERT_TO_WATT(this.formatNumber(currentData.allComponents[this.component.id + "/SetChargePowerLimit"]), this.locale);
       this.state = currentData.allComponents[this.component.id + "/Status"];
-      this.energySession = Utils.CONVERT_TO_WATTHOURS(currentData.allComponents[this.component.id + "/EnergySession"]);
+      this.energySession = Utils.CONVERT_TO_WATTHOURS(currentData.allComponents[this.component.id + "/EnergySession"], this.locale);
       this.minChargePower = this.formatNumber(currentData.allComponents[this.component.id + "/MinimumHardwarePower"]);
       this.maxChargePower = this.formatNumber(currentData.allComponents[this.component.id + "/MaximumHardwarePower"]);
       this.numberOfPhases = currentData.allComponents[this.component.id + "/Phases"] ? currentData.allComponents[this.component.id + "/Phases"] : 3;

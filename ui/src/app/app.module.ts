@@ -57,7 +57,7 @@ import { UserModule } from "./user/user.module";
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     CookieService,
     { provide: ErrorHandler, useClass: MyErrorHandler },
-    { provide: LOCALE_ID, useValue: Language.DEFAULT.key },
+    { provide: LOCALE_ID, useFactory: () => (Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language)).key },
     // Use factory for formly. This allows us to use translations in validationMessages.
     { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
     DeviceDetectorService,

@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Directive, Inject, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Directive, Inject, Input, OnChanges, OnDestroy, OnInit, LOCALE_ID } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -72,6 +72,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
         @Inject(Service) protected service: Service,
         @Inject(ModalController) protected modalCtrl: ModalController,
         @Inject(TranslateService) protected translate: TranslateService,
+        @Inject(LOCALE_ID) protected locale: string,
         @Inject(FormBuilder) public formBuilder: FormBuilder,
         private ref: ChangeDetectorRef,
     ) {
@@ -165,7 +166,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
         } else {
             this.displayName = this._name;
             if (this.converter) {
-                this.displayValue = this.converter(value);
+                this.displayValue = this.converter(value, this.locale);
             }
         }
     }

@@ -7,7 +7,7 @@ import { ModalComponent } from "./modal";
 
 export function expectView(config: EdgeConfig, viewContext: OeFormlyViewTester.Context, testContext: TestContext, view: OeFormlyViewTester.View): void {
 
-  const generatedView = OeFormlyViewTester.apply(ModalComponent.generateView(DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config), testContext.translate), viewContext);
+  const generatedView = OeFormlyViewTester.apply(ModalComponent.generateView(DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config), testContext.translate, "de"), viewContext);
 
   expect(generatedView).toEqual(view);
 }

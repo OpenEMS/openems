@@ -48,6 +48,6 @@ export class ModalPhasesComponent extends AbstractModalLine {
   protected CONVERT_TO_POSITIVE_WATT = (value: number | null): string => {
 
     value = Utils.absSafely(value) ?? 0;
-    return formatNumber(value, "de", "1.0-0") + " W";
+    return formatNumber(value, this.locale, "1.0-0") + " W";
   };
 }

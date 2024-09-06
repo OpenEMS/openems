@@ -4,7 +4,7 @@ import { CurrentData, EdgeConfig, GridMode, Utils } from "../../shared";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { Formatter } from "./formatter";
 
-export type Converter = (value: number | string | null) => string;
+export type Converter = (value: number | string | null, locale: string) => string;
 
 export namespace Converter {
 
@@ -46,37 +46,40 @@ export namespace Converter {
    * Converter for Grid-Buy-Power.
    *
    * @param value the ActivePower value (positive, negative or null)
+   * @param locale locale string
    * @returns formatted positive value; zero for negative; '-' for null
    */
-  export const GRID_BUY_POWER_OR_ZERO: Converter = (raw): string => {
+  export const GRID_BUY_POWER_OR_ZERO: Converter = (raw, locale: string): string => {
     return IF_NUMBER(raw, value =>
       value >= 0
-        ? Formatter.FORMAT_WATT(value)
-        : Formatter.FORMAT_WATT(0));
+        ? Formatter.FORMAT_WATT(value, locale)
+        : Formatter.FORMAT_WATT(0, locale));
   };
 
   /**
    * Converter for Grid-Sell-Power.
    *
    * @param value the ActivePower value (positive, negative or null)
+   * @param locale locale string
    * @returns formatted inverted negative value; zero for positive; '-' for null
    */
-  export const GRID_SELL_POWER_OR_ZERO: Converter = (raw): string => {
+  export const GRID_SELL_POWER_OR_ZERO: Converter = (raw, locale: string): string => {
     return IF_NUMBER(raw, value =>
       value <= 0
-        ? Formatter.FORMAT_WATT(Math.abs(value))
-        : Formatter.FORMAT_WATT(0));
+        ? Formatter.FORMAT_WATT(Math.abs(value), locale)
+        : Formatter.FORMAT_WATT(0, locale));
   };
 
   /**
    * Converter for ActivePower; always returns the formatted positive value.
    *
    * @param value the ActivePower value (positive, negative or null)
+   * @param locale locale string
    * @returns formatted absolute value; '-' for null
    */
-  export const POSITIVE_POWER: Converter = (raw): string => {
+  export const POSITIVE_POWER: Converter = (raw, locale: string): string => {
     return IF_NUMBER(raw, value =>
-      Formatter.FORMAT_WATT(Math.abs(value)));
+      Formatter.FORMAT_WATT(Math.abs(value), locale));
   };
 
   /**
@@ -86,21 +89,22 @@ export namespace Converter {
    * Value null -> "-".
    *
    * @param value the power value
+   * @param locale locale string
    * @returns formatted value; '-' for null
    */
-  export const POWER_IN_WATT: Converter = (raw) => {
+  export const POWER_IN_WATT: Converter = (raw, locale: string) => {
     return IF_NUMBER(raw, value =>
-      Formatter.FORMAT_WATT(value));
+      Formatter.FORMAT_WATT(value, locale));
   };
 
-  export const STATE_IN_PERCENT: Converter = (raw) => {
+  export const STATE_IN_PERCENT: Converter = (raw, locale: string) => {
     return IF_NUMBER(raw, value =>
-      Formatter.FORMAT_PERCENT(value));
+      Formatter.FORMAT_PERCENT(value, locale));
   };
 
-  export const TEMPERATURE_IN_DEGREES: Converter = (raw) => {
+  export const TEMPERATURE_IN_DEGREES: Converter = (raw, locale: string) => {
     return IF_NUMBER(raw, value =>
-      Formatter.FORMAT_CELSIUS(value));
+      Formatter.FORMAT_CELSIUS(value, locale));
   };
 
   /**
@@ -110,16 +114,17 @@ export namespace Converter {
    * Value null -> "-".
    *
    * @param value the voltage value
+   * @param locale locale string
    * @returns formatted value; '-' for null
    */
-  export const VOLTAGE_IN_MILLIVOLT_TO_VOLT: Converter = (raw) => {
+  export const VOLTAGE_IN_MILLIVOLT_TO_VOLT: Converter = (raw, locale: string) => {
     return IF_NUMBER(raw, value =>
-      Formatter.FORMAT_VOLT(value / 1000));
+      Formatter.FORMAT_VOLT(value / 1000, locale));
   };
 
-  export const VOLTAGE_TO_VOLT: Converter = (raw) => {
+  export const VOLTAGE_TO_VOLT: Converter = (raw, locale: string) => {
     return IF_NUMBER(raw, value =>
-      Formatter.FORMAT_VOLT(value));
+      Formatter.FORMAT_VOLT(value, locale));
   };
 
   /**
@@ -129,26 +134,27 @@ export namespace Converter {
    * Value null -> "-".
    *
    * @param value the current value
+   * @param locale locale string
    * @returns formatted value; '-' for null
    */
-  export const CURRENT_IN_MILLIAMPERE_TO_AMPERE: Converter = (raw) => {
+  export const CURRENT_IN_MILLIAMPERE_TO_AMPERE: Converter = (raw, locale: string) => {
     return IF_NUMBER(raw, value =>
-      Formatter.FORMAT_AMPERE(value / 1000));
+      Formatter.FORMAT_AMPERE(value / 1000, locale));
   };
 
-  export const ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO: Converter = (raw) => {
+  export const ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO: Converter = (raw, locale: string) => {
     return IF_NUMBER(raw, value =>
       value <= 0
-        ? Formatter.FORMAT_WATT(0)
-        : Formatter.FORMAT_WATT(value));
+        ? Formatter.FORMAT_WATT(0, locale)
+        : Formatter.FORMAT_WATT(value, locale));
   };
 
-  export const CURRENT_TO_AMPERE: Converter = (raw) => {
+  export const CURRENT_TO_AMPERE: Converter = (raw, locale: string) => {
     return IF_NUMBER(raw, value =>
-      Formatter.FORMAT_AMPERE(value));
+      Formatter.FORMAT_AMPERE(value, locale));
   };
 
-  export const CONVERT_TO_EXTERNAL_RECEIVER_LIMITATION: Converter = (raw) => {
+  export const CONVERT_TO_EXTERNAL_RECEIVER_LIMITATION: Converter = (raw, locale: string) => {
     return IF_NUMBER(raw, value => {
       const limitation = () => {
         switch (value) {
@@ -177,9 +183,10 @@ export namespace Converter {
    * Hides the actual value, always returns empty string.
    *
    * @param value the value
+   * @param locale locale string
    * @returns always ""
    */
-  export const HIDE_VALUE: Converter = (ignore): string => {
+  export const HIDE_VALUE: Converter = (ignore, locale: string): string => {
     return "";
   };
 

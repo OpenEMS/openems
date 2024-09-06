@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnChanges, OnDestroy, OnInit, LOCALE_ID, Inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -23,6 +23,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
         protected override service: Service,
         protected override translate: TranslateService,
         private route: ActivatedRoute,
+        @Inject(LOCALE_ID) private locale: string,
     ) {
         super("storage-total-chart", service, translate);
     }
@@ -245,6 +246,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
 
     private applyControllerSpecificChartOptions(options: Chart.ChartOptions) {
         const translate = this.translate;
+        const locale = this.locale;
 
         options.scales[ChartAxis.LEFT].min = null;
         options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
@@ -256,7 +258,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
             } else if (value > 0.005) {
                 label += " " + translate.instant("General.dischargePower");
             }
-            return label + ": " + formatNumber(value, "de", "1.0-2") + " kW";
+            return label + ": " + formatNumber(value, locale, "1.0-2") + " kW";
         };
     }
 }

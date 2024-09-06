@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Directive, Inject, Input, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Directive, Inject, Input, OnDestroy, OnInit, LOCALE_ID } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -45,6 +45,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
         @Inject(ModalController) public modalController: ModalController,
         @Inject(TranslateService) protected translate: TranslateService,
         @Inject(FormBuilder) public formBuilder: FormBuilder,
+        @Inject(LOCALE_ID) protected locale: string,
         public ref: ChangeDetectorRef,
     ) {
         ref.detach();

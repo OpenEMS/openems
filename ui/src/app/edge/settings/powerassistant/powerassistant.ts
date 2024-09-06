@@ -224,7 +224,7 @@ export namespace Converter {
       if (value == null) {
         return "-";
       } else if (value >= 0) {
-        return formatNumber(value, "de", "1.0-0") + " " + unit;
+        return formatNumber(value, this.locale, "1.0-0") + " " + unit;
       }
     };
   }

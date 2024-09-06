@@ -2,6 +2,7 @@
 import { ChartComponentLike, ChartDataset } from "chart.js";
 
 import { formatNumber } from "@angular/common";
+import { LOCALE_ID, inject} from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { HistoryUtils, Utils } from "../../service/utils";
@@ -41,7 +42,8 @@ export class ChartConstants {
     public static readonly BAR_CHART_DATALABELS = (unit: string, disable: boolean): any => ({
       ...ChartDataLabels,
       formatter: (value, ctx) => {
-        return formatNumber(value, "de", "1.0-0") + "\xa0" + unit ?? null;
+        const locale = inject(LOCALE_ID);
+        return formatNumber(value, locale, "1.0-0") + "\xa0" + unit ?? null;
       },
       ...{
         anchor: "end", offset: -18, align: "start", clip: false, clamp: true,

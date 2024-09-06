@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Directive, Inject, Input, OnDestroy, OnInit } from "@angular/core";
+import { Directive, Input, OnDestroy, OnInit, Inject, LOCALE_ID } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -41,6 +41,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
         @Inject(Service) protected service: Service,
         @Inject(ModalController) protected modalController: ModalController,
         @Inject(TranslateService) protected translate: TranslateService,
+        @Inject(LOCALE_ID) protected locale: string,
         protected dataService: DataService,
         protected formBuilder: FormBuilder,
         protected router: Router,
