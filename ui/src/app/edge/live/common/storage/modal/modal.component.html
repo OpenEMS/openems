@@ -24,8 +24,8 @@
                         <div style="padding-top: 5px;"></div>
                         <tr>
                             <td style="width:65%" translate>General.soc</td>
-                            <td style="width: 35%" class="align_right">
-                                {{ sum.soc | unitvalue:'%' }}
+                            <td style="width: 35%; white-space: nowrap;" class="align_right">
+                                {{ sum.soc | unitvalue:'%' }} ({{ totalCurrentSoc | unitvalue: 'kWh'}})
                             </td>
                         </tr>
                         <!-- Charge/Discharge -->
@@ -311,8 +311,8 @@
                         <div style="padding-top: 5px;"></div>
                         <tr>
                             <td style="width: 65%" translate>General.soc</td>
-                            <td style="width:35%" class="align_right">
-                                {{ sum.soc | unitvalue:'%' }}
+                            <td style="width:35%; white-space: nowrap;" class="align_right">
+                                {{ sum.soc | unitvalue:'%' }} ({{ totalCurrentSoc | unitvalue: 'kWh'}})
                             </td>
                         </tr>
                         <tr>
@@ -413,7 +413,7 @@
             </ion-card-content>
 
             <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
-                <ng-container *ngFor="let component of essComponents">
+                <ng-container *ngFor="let component of essComponents, let i = index">
                     <ng-container *ngIf="config.factories[component.factoryId] as factory">
                         <ion-card-content
                             [class.underline]="chargerComponents?.length > 0 || !isLastElement(component, essComponents)">
@@ -426,8 +426,8 @@
                                 <div style="padding-top: 5px;"></div>
                                 <tr>
                                     <td style="width: 65%" translate>General.soc</td>
-                                    <td style="width: 35%" class="align_right">
-                                        {{ currentData[component.id + '/Soc'] | unitvalue:'%' }}
+                                    <td style="width: 35%; white-space: nowrap;" class="align_right">
+                                        {{ currentData[component.id + '/Soc'] | unitvalue:'%' }} ({{ currentSocs[i] | unitvalue: 'kWh' }})
                                     </td>
                                 </tr>
                             </table>

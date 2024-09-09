@@ -28,6 +28,8 @@ export class StorageModalComponent implements OnInit, OnDestroy {
     protected isAtLeastInstaller: boolean;
     protected isTargetTimeInValid: Map<string, boolean> = new Map();
     protected controllerIsRequiredEdgeVersion: boolean = false;
+    private currentSocs: Array<number> = []
+    private totalCurrentSoc: number;
 
     constructor(
         public service: Service,
@@ -142,6 +144,18 @@ export class StorageModalComponent implements OnInit, OnDestroy {
 
                 if (!this.formGroup.dirty) {
                     this.formGroup = controls;
+                }
+
+                // Calculate state of charge in kWh for each storage component.
+                this.totalCurrentSoc = 0;
+                this.currentSocs = new Array<number>(Object.keys(components).length);
+                for (let i = 0; i < this.essComponents.length; i++) {
+                    const component = this.essComponents[i];
+                    const capacity = currentData.channel[component.alias + '/Capacity'];
+                    const socPercent = currentData.channel[component.alias + '/Soc'];
+                    const socWh = capacity * socPercent / 100;
+                    this.currentSocs[i] = socWh;
+                    this.totalCurrentSoc += socWh;
                 }
             });
     }

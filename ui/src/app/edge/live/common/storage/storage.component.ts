@@ -2,11 +2,18 @@
 import { formatNumber } from "@angular/common";
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
-import { CurrentData } from "src/app/shared/shared";
+import { CurrentData, Service, Websocket } from "src/app/shared/shared";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 
 import { ChannelAddress, EdgeConfig, Utils } from "../../../../shared/shared";
 import { StorageModalComponent } from "./modal/modal.component";
+import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
+import { ActivatedRoute, Router } from '@angular/router';
+import { ModalController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
+import { DataService } from "src/app/shared/components/shared/dataservice";
+import { FormBuilder } from "@angular/forms";
+
 
 @Component({
     selector: "storage",
@@ -20,9 +27,17 @@ export class StorageComponent extends AbstractFlatWidget {
     public isHybridEss: boolean[] = [];
     public emergencyReserveComponents: { [essId: string]: EdgeConfig.Component } = {};
     public currentSoc: number[] = [];
+    public currentSocs: string[] = [];
     public isEmergencyReserveEnabled: boolean[] = [];
     protected possibleBatteryExtensionMessage: Map<string, { color: string, text: string }> = new Map();
     private prepareBatteryExtensionCtrl: { [key: string]: EdgeConfig.Component };
+
+    private unitpipe: UnitvaluePipe;
+
+    constructor(unitvaluepipe:UnitvaluePipe, websocket: Websocket, route: ActivatedRoute, service: Service, modalController: ModalController, translate: TranslateService, dataService: DataService, formBuilder: FormBuilder, router: Router){
+        super(websocket, route, service, modalController, translate, dataService, formBuilder, router);
+        this.unitpipe = unitvaluepipe;
+    }
 
     /**
     * Use 'convertChargePower' to convert/map a value
@@ -204,6 +219,15 @@ export class StorageComponent extends AbstractFlatWidget {
             const controller = this.emergencyReserveComponents[essId];
             controller["currentReserveSoc"] = currentData.allComponents[controller.id + "/_PropertyReserveSoc"];
             this.isEmergencyReserveEnabled[essId] = currentData.allComponents[controller.id + "/_PropertyIsReserveSocEnabled"] == 1 ? true : false;
+        }
+
+        // Calculate state of charge in kWh for each storage component. Generates a string for each object that contains value and unit and respects the locale.
+        this.currentSocs = new Array<string>(this.essComponents.length);
+        for (let i = 0; i < this.essComponents.length; i++){
+            const component = this.essComponents[i];
+            const capacity = currentData.allComponents[component.alias + '/Capacity'];
+            const socPercent = currentData.allComponents[component.alias + '/Soc'];
+            this.currentSocs[i] = this.unitpipe.transform(capacity * socPercent / 100, "kWh");
         }
     }
 

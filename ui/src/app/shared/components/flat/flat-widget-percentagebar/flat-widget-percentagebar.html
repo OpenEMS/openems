@@ -5,6 +5,9 @@
     <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" style="font-weight: 500"
         ngClass="secondary-color">
         {{ displayValue | unitvalue: '%' }}
+        <ng-container *ngIf="secondaryValue">
+            ({{ secondaryValue }}) 
+        </ng-container>
     </text>
     <ng-content></ng-content>
 </svg>
