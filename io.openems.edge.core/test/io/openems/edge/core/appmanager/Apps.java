@@ -19,6 +19,7 @@ import io.openems.edge.app.api.RestJsonApiReadWrite;
 import io.openems.edge.app.api.TimedataInfluxDb;
 import io.openems.edge.app.ess.FixActivePower;
 import io.openems.edge.app.ess.FixStateOfCharge;
+import io.openems.edge.app.ess.Limiter14a;
 import io.openems.edge.app.ess.PowerPlantController;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
 import io.openems.edge.app.evcs.AlpitronicEvcs;
@@ -48,6 +49,13 @@ import io.openems.edge.app.meter.MicrocareSdm630Meter;
 import io.openems.edge.app.meter.PhoenixContactMeter;
 import io.openems.edge.app.meter.PqPlusMeter;
 import io.openems.edge.app.meter.SocomecMeter;
+import io.openems.edge.app.openemshardware.BeagleBoneBlack;
+import io.openems.edge.app.openemshardware.Compulab;
+import io.openems.edge.app.openemshardware.TechbaseCm3;
+import io.openems.edge.app.openemshardware.TechbaseCm4;
+import io.openems.edge.app.openemshardware.TechbaseCm4Max;
+import io.openems.edge.app.openemshardware.TechbaseCm4s;
+import io.openems.edge.app.openemshardware.TechbaseCm4sGen2;
 import io.openems.edge.app.peakshaving.PeakShaving;
 import io.openems.edge.app.peakshaving.PhaseAccuratePeakShaving;
 import io.openems.edge.app.pvinverter.FroniusPvInverter;
@@ -239,6 +247,76 @@ public final class Apps {
 	 */
 	public static final Tibber tibber(AppManagerTestBundle t) {
 		return app(t, Tibber::new, "App.TimeOfUseTariff.Tibber");
+	}
+
+	/**
+	 * Test method for creating a {@link BeagleBoneBlack}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final BeagleBoneBlack beagleBoneBlack(AppManagerTestBundle t) {
+		return app(t, BeagleBoneBlack::new, "App.OpenemsHardware.BeagleBoneBlack");
+	}
+
+	/**
+	 * Test method for creating a {@link Compulab}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final Compulab compulab(AppManagerTestBundle t) {
+		return app(t, Compulab::new, "App.OpenemsHardware.Compulab");
+	}
+
+	/**
+	 * Test method for creating a {@link TechbaseCm3}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TechbaseCm3 techbaseCm3(AppManagerTestBundle t) {
+		return app(t, TechbaseCm3::new, "App.OpenemsHardware.CM3");
+	}
+
+	/**
+	 * Test method for creating a {@link TechbaseCm4}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TechbaseCm4 techbaseCm4(AppManagerTestBundle t) {
+		return app(t, TechbaseCm4::new, "App.OpenemsHardware.CM4");
+	}
+
+	/**
+	 * Test method for creating a {@link TechbaseCm4Max}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TechbaseCm4Max techbaseCm4Max(AppManagerTestBundle t) {
+		return app(t, TechbaseCm4Max::new, "App.OpenemsHardware.CM4Max");
+	}
+
+	/**
+	 * Test method for creating a {@link TechbaseCm4s}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TechbaseCm4s techbaseCm4s(AppManagerTestBundle t) {
+		return app(t, TechbaseCm4s::new, "App.OpenemsHardware.CM4S");
+	}
+
+	/**
+	 * Test method for creating a {@link TechbaseCm4sGen2}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TechbaseCm4sGen2 techbaseCm4sGen2(AppManagerTestBundle t) {
+		return app(t, TechbaseCm4sGen2::new, "App.OpenemsHardware.CM4S.Gen2");
 	}
 
 	// Test
@@ -669,6 +747,16 @@ public final class Apps {
 	 */
 	public static final PowerPlantController powerPlantController(AppManagerTestBundle t) {
 		return app(t, PowerPlantController::new, "App.Ess.PowerPlantController");
+	}
+
+	/**
+	 * Test method for creating a {@link Limiter14a}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final Limiter14a limiter14a(AppManagerTestBundle t) {
+		return app(t, Limiter14a::new, "App.Ess.Limiter14a");
 	}
 
 	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructor<T> constructor, String appId) {

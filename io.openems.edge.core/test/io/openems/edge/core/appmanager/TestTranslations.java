@@ -59,6 +59,13 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.tibber(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ACCESS_TOKEN", "123456789") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.beagleBoneBlack(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.compulab(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.techbaseCm3(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.techbaseCm4(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.techbaseCm4Max(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.techbaseCm4s(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.techbaseCm4sGen2(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.modbusTcpApiReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.modbusTcpApiReadWrite(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("API_TIMEOUT", 60) //
@@ -79,14 +86,14 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.webastoNext(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.webastoUnite(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.evcsCluster(t), true, new JsonObject()));
-			this.apps.add(new TestTranslation(Apps.heatPump(t), false, JsonUtils.buildJsonObject() //
+			this.apps.add(new TestTranslation(Apps.heatPump(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("OUTPUT_CHANNEL_1", "io0/Relay1") //
 					.addProperty("OUTPUT_CHANNEL_2", "io0/Relay2") //
 					.build()));
-			this.apps.add(new TestTranslation(Apps.combinedHeatAndPower(t), false, JsonUtils.buildJsonObject() //
+			this.apps.add(new TestTranslation(Apps.combinedHeatAndPower(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("OUTPUT_CHANNEL", "io0/Relay1") //
 					.build()));
-			this.apps.add(new TestTranslation(Apps.heatingElement(t), false, JsonUtils.buildJsonObject() //
+			this.apps.add(new TestTranslation(Apps.heatingElement(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("OUTPUT_CHANNEL_PHASE_L1", "io0/Relay1") //
 					.addProperty("OUTPUT_CHANNEL_PHASE_L2", "io0/Relay2") //
 					.addProperty("OUTPUT_CHANNEL_PHASE_L3", "io0/Relay3") //
@@ -98,24 +105,24 @@ public class TestTranslations {
 					.addProperty("ESS_ID", "ess0") //
 					.addProperty("METER_ID", "meter0") //
 					.build()));
-			this.apps.add(new TestTranslation(Apps.manualRelayControl(t), false, JsonUtils.buildJsonObject() //
+			this.apps.add(new TestTranslation(Apps.manualRelayControl(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("OUTPUT_CHANNEL", "io0/Relay1") //
 					.build()));
-			this.apps.add(new TestTranslation(Apps.thresholdControl(t), false, JsonUtils.buildJsonObject() //
+			this.apps.add(new TestTranslation(Apps.thresholdControl(t), true, JsonUtils.buildJsonObject() //
 					.add("OUTPUT_CHANNELS", JsonUtils.buildJsonArray().add("io0/Relay1").build()) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.discovergyMeter(t), false, JsonUtils.buildJsonObject() //
 					.addProperty("EMAIL", "test@test.test") //
 					.addProperty("PASSWORD", "xxxx") //
 					.build()));
-			this.apps.add(new TestTranslation(Apps.socomecMeter(t), false, JsonUtils.buildJsonObject() //
+			this.apps.add(new TestTranslation(Apps.socomecMeter(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
 					.build()));
-			this.apps.add(new TestTranslation(Apps.carloGavazziMeter(t), false, JsonUtils.buildJsonObject() //
+			this.apps.add(new TestTranslation(Apps.carloGavazziMeter(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
 					.addProperty("MODBUS_UNIT_ID", 5) //
 					.build()));
-			this.apps.add(new TestTranslation(Apps.janitzaMeter(t), false, JsonUtils.buildJsonObject() //
+			this.apps.add(new TestTranslation(Apps.janitzaMeter(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.pqPlusMeter(t), false, new JsonObject()));
@@ -125,19 +132,19 @@ public class TestTranslations {
 					.addProperty("PORT", 502) //
 					.addProperty("MODBUS_UNIT_ID", 1) //
 					.build()));
-			this.apps.add(new TestTranslation(Apps.kacoPvInverter(t), false, JsonUtils.buildJsonObject() //
+			this.apps.add(new TestTranslation(Apps.kacoPvInverter(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
 					.addProperty("PORT", 502) //
 					.build()));
-			this.apps.add(new TestTranslation(Apps.kostalPvInverter(t), false, JsonUtils.buildJsonObject() //
+			this.apps.add(new TestTranslation(Apps.kostalPvInverter(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
 					.addProperty("PORT", 502) //
 					.addProperty("MODBUS_UNIT_ID", 1) //
 					.build()));
-			this.apps.add(new TestTranslation(Apps.smaPvInverter(t), false, JsonUtils.buildJsonObject() //
+			this.apps.add(new TestTranslation(Apps.smaPvInverter(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
 					.build()));
-			this.apps.add(new TestTranslation(Apps.solarEdgePvInverter(t), false, JsonUtils.buildJsonObject() //
+			this.apps.add(new TestTranslation(Apps.solarEdgePvInverter(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
 					.addProperty("PORT", 502) //
 					.build()));
@@ -157,6 +164,10 @@ public class TestTranslations {
 					.build()));
 			this.apps.add(new TestTranslation(Apps.powerPlantController(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.prepareBatteryExtension(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.limiter14a(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ESS_ID", "ess0") //
+					.addProperty("INPUT_CHANNEL_ADDRESS", "io0/Relay1") //
+					.build()));
 			return this.apps.stream().map(TestTranslation::app).toList();
 		});
 	}

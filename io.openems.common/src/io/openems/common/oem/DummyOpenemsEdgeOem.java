@@ -98,6 +98,13 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Meter.Janitza", "") //
 			.put("App.Meter.Discovergy", "")//
 			.put("App.Meter.PhoenixContact", "")//
+			.put("App.OpenemsHardware.BeagleBoneBlack", "") //
+			.put("App.OpenemsHardware.Compulab", "") //
+			.put("App.OpenemsHardware.CM3", "") //
+			.put("App.OpenemsHardware.CM4", "") //
+			.put("App.OpenemsHardware.CM4Max", "") //
+			.put("App.OpenemsHardware.CM4S", "") //
+			.put("App.OpenemsHardware.CM4S.Gen2", "") //
 			.put("App.PvInverter.Fronius", "") //
 			.put("App.PvInverter.Kaco", "") //
 			.put("App.PvInverter.Kostal", "") //
@@ -109,6 +116,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Ess.FixStateOfCharge", "") //
 			.put("App.Ess.PowerPlantController", "") //
 			.put("App.Ess.PrepareBatteryExtension", "") //
+			.put("App.Ess.Limiter14a", "") //
 			.build();
 
 	// NOTE: this will certainly get refactored in future, but it's a good start to
