@@ -97,6 +97,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Meter.PqPlus", "") //
 			.put("App.Meter.Janitza", "") //
 			.put("App.Meter.Discovergy", "")//
+			.put("App.Meter.PhoenixContact", "")//
 			.put("App.PvInverter.Fronius", "") //
 			.put("App.PvInverter.Kaco", "") //
 			.put("App.PvInverter.Kostal", "") //

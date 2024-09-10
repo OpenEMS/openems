@@ -45,6 +45,7 @@ import io.openems.edge.app.meter.CarloGavazziMeter;
 import io.openems.edge.app.meter.DiscovergyMeter;
 import io.openems.edge.app.meter.JanitzaMeter;
 import io.openems.edge.app.meter.MicrocareSdm630Meter;
+import io.openems.edge.app.meter.PhoenixContactMeter;
 import io.openems.edge.app.meter.PqPlusMeter;
 import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.app.peakshaving.PeakShaving;
@@ -542,6 +543,16 @@ public final class Apps {
 	 */
 	public static final MicrocareSdm630Meter microcareSdm630Meter(AppManagerTestBundle t) {
 		return app(t, MicrocareSdm630Meter::new, "App.Meter.Microcare.Sdm630");
+	}
+
+	/**
+	 * Test method for creating a {@link PhoenixContactMeter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final PhoenixContactMeter phoenixContactMeter(AppManagerTestBundle t) {
+		return app(t, PhoenixContactMeter::new, "App.Meter.PhoenixContact");
 	}
 
 	// PV-Inverter

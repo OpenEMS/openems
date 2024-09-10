@@ -119,6 +119,7 @@ public class TestTranslations {
 					.addProperty("MODBUS_ID", "modbus0") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.pqPlusMeter(t), false, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.phoenixContactMeter(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.froniusPvInverter(t), false, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
 					.addProperty("PORT", 502) //
