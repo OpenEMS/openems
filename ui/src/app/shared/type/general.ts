@@ -17,3 +17,8 @@ export enum WorkMode {
     TIME = "TIME",
     NONE = "NONE",
 }
+export enum OverrideStatus {
+    ACTIVE = 0,
+    INACTIVE = 1,
+    ERROR = 2,
+}

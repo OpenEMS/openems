@@ -3,7 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 import { RefresherCustomEvent } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { DataService } from "src/app/shared/components/shared/dataservice";
-import { Edge, EdgeConfig, Service, Utils, Websocket, Widgets } from "src/app/shared/shared";
+import { Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket, Widgets } from "src/app/shared/shared";
 
 @Component({
   selector: "live",
@@ -14,6 +14,7 @@ export class LiveComponent implements OnInit, OnDestroy {
   public edge: Edge | null = null;
   public config: EdgeConfig | null = null;
   public widgets: Widgets | null = null;
+  protected isModbusTcpWidgetAllowed: boolean = false;
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
   constructor(
@@ -27,6 +28,7 @@ export class LiveComponent implements OnInit, OnDestroy {
   public ngOnInit() {
     this.service.currentEdge.subscribe((edge) => {
       this.edge = edge;
+      this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
     });
     this.service.getConfig().then(config => {
       this.config = config;

@@ -20,6 +20,32 @@ public final class Checkables {
 	}
 
 	/**
+	 * Creates a {@link CheckableConfig} which checks if the installed system is a
+	 * Home.
+	 * 
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkCommercial92() {
+		return empty(CheckCommercial92.COMPONENT_NAME);
+	}
+
+	/**
+	 * Creates a {@link CheckableConfig} which checks if atleast one of the checks
+	 * are successful.
+	 * 
+	 * @param check1 the first check
+	 * @param check2 the second check
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkOr(CheckableConfig check1, CheckableConfig check2) {
+		return new ValidatorConfig.CheckableConfig(CheckOr.COMPONENT_NAME,
+				new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
+						.put("check1", check1) //
+						.put("check2", check2) //
+						.build());
+	}
+
+	/**
 	 * Creates a {@link CheckableConfig} which checks if the relay with the given
 	 * name has at least the given amount of ports available.
 	 * 

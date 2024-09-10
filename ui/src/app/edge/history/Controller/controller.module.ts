@@ -4,6 +4,7 @@ import { ControllerIo } from "./Io/Io.module";
 import { ChannelThreshold } from "./ChannelThreshold/channelThreshold.module";
 import { GridOptimizeCharge } from "./Ess/GridoptimizedCharge/gridOptimizeCharge.module";
 import { TimeOfUseTariff } from "./Ess/TimeOfUseTariff/timeOfUseTariff.module";
+import { ModbusTcpApi } from "./ModbusTcpApi/modbusTcpApi.module";
 
 @NgModule({
   imports: [
@@ -11,6 +12,7 @@ import { TimeOfUseTariff } from "./Ess/TimeOfUseTariff/timeOfUseTariff.module";
     ControllerIo,
     ChannelThreshold,
     TimeOfUseTariff,
+    ModbusTcpApi,
     GridOptimizeCharge,
   ],
   exports: [
@@ -18,6 +20,7 @@ import { TimeOfUseTariff } from "./Ess/TimeOfUseTariff/timeOfUseTariff.module";
     ControllerIo,
     ChannelThreshold,
     TimeOfUseTariff,
+    ModbusTcpApi,
     GridOptimizeCharge,
   ],
 })
