@@ -77,6 +77,11 @@
           </timeOfUseTariffWidget>
         </ion-col>
 
+          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'">
+            <modbusTcpApiWidget [componentId]="widget.componentId">
+            </modbusTcpApiWidget>
+          </ion-col>
+
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.IO.HeatingElement'">
           <heatingelementWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
           </heatingelementWidget>

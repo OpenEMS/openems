@@ -975,6 +975,24 @@
     "MORE_CHANNELS": "Add More Channels",
     "CHANNEL": "Channel"
   },
+  "MODBUS_TCP_API_READ_WRITE": {
+    "CURRENT_STATE": "Current state",
+    "CUMULATED_ACTIVE_TIME": "External commands considered",
+    "CUMULATED_INACTIVE_TIME": "No external commands present",
+    "NO_OVERRIDDEN_CHANNELS": "No channels have been overridden yet.",
+    "NOT_OVERRIDING": "No external commands present",
+    "OVERRIDING": "External command is being considered",
+    "LAST_COMMAND": "Last override",
+    "ACTIVE_POWER_LIMITATIONS": "Active power limitations",
+    "REGISTER": "Register",
+    "LIMITATION": "Limitation",
+    "ACTUAL_VALUE": "Actual value",
+    "INFO_TEXT": "Actual value may deviate from the specification. Negative values correspond to storage loading - positive storage discharging. A detailed explanation can be found in the instructions.",
+    "SET_ACTIVE_POWER_EQUALS": "Limitation charing/discharging power",
+    "SET_ACTIVE_POWER_GREATER_OR_EQUALS": "Minimum charging power",
+    "SET_ACTIVE_POWER_LESS_OR_EQUALS": "Maximum charging power",
+    "DOWNLOAD_PROTOCOL": "Download Protocol"
+  },
   "GRID_STATES": {
     "OFF_GRID": "Power outage",
     "NO_EXTERNAL_LIMITATION": "No external limitation",

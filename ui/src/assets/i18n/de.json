@@ -972,6 +972,24 @@
     "MORE_CHANNELS": "Weitere Kanäle hinzufügen",
     "CHANNEL": "Kanal"
   },
+  "MODBUS_TCP_API_READ_WRITE": {
+    "CURRENT_STATE": "Aktueller Status",
+    "CUMULATED_ACTIVE_TIME": "Externe Vorgaben berücksichtigt",
+    "CUMULATED_INACTIVE_TIME": "Keine externe Vorgabe vorhanden",
+    "NO_OVERRIDDEN_CHANNELS": "Es wurden noch keine Kanäle überschrieben.",
+    "NOT_OVERRIDING": "Keine externe Vorgabe vorhanden",
+    "OVERRIDING": "Externe Vorgabe wird berücksichtigt",
+    "LAST_COMMAND": "Letzter Schreibbefehl",
+    "ACTIVE_POWER_LIMITATIONS": "Wirkleistungsvorgabe",
+    "REGISTER": "Register",
+    "LIMITATION": "Vorgabe",
+    "ACTUAL_VALUE": "Tatsächlicher Wert",
+    "INFO_TEXT": "Tatsächlicher Wert kann von der Vorgabe abweichen. Negative Werte entsprechen Speicherbeladung - postive Speicherentladung. Eine detaillierte Erklärung finden Sie in der Anleitung.",
+    "SET_ACTIVE_POWER_EQUALS": "Vorgabe Be- bzw. Entladeleistung",
+    "SET_ACTIVE_POWER_GREATER_OR_EQUALS": "Minimale Beladeleistung",
+    "SET_ACTIVE_POWER_LESS_OR_EQUALS": "Maximale Beladeleistung",
+    "DOWNLOAD_PROTOCOL": "Protokoll Herunterladen"
+  },
   "GRID_STATES": {
     "OFF_GRID": "Netzausfall",
     "NO_EXTERNAL_LIMITATION": "keine externe Limitierung",
