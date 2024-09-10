@@ -356,5 +356,4 @@ public class AppManagerImplTest {
 		assertFalse(checkable.check());
 		assertNotNull(checkable.getErrorMessage(Language.DEFAULT));
 	}
-
 }
