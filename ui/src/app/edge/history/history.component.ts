@@ -5,7 +5,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { AppService } from "src/app/app.service";
 import { HeaderComponent } from "src/app/shared/components/header/header.component";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
-import { Edge, EdgeConfig, Service, Widgets } from "src/app/shared/shared";
+import { Edge, EdgeConfig, EdgePermission, Service, Widgets } from "src/app/shared/shared";
 import { environment } from "src/environments";
 
 @Component({
@@ -34,6 +34,7 @@ export class HistoryComponent implements OnInit {
 
   public config: EdgeConfig | null = null;
   protected errorResponse: JsonrpcResponseError | null = null;
+  protected isModbusTcpWidgetAllowed: boolean = false;
 
   constructor(
     public service: Service,
@@ -44,6 +45,7 @@ export class HistoryComponent implements OnInit {
   ngOnInit() {
     this.service.currentEdge.subscribe((edge) => {
       this.edge = edge;
+      this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
     });
     this.service.getConfig().then(config => {
       // gather ControllerIds of Channelthreshold Components
