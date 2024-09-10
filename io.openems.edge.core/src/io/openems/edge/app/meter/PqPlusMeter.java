@@ -1,7 +1,7 @@
 package io.openems.edge.app.meter;
 
-import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.core.appmanager.TranslationUtil.translate;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -19,8 +19,10 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.common.props.ComponentProps;
 import io.openems.edge.app.common.props.PropsUtil;
@@ -28,7 +30,7 @@ import io.openems.edge.app.enums.MeterType;
 import io.openems.edge.app.enums.ModbusType;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.TranslatableEnum;
-import io.openems.edge.app.meter.JanitzaMeter.Property;
+import io.openems.edge.app.meter.PqPlusMeter.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
@@ -43,6 +45,7 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
@@ -52,21 +55,19 @@ import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
- * Describes a App for a Janitza meter.
+ * Describes a App for a PQ-Plus meter.
  *
  * <pre>
   {
-    "appId":"App.Meter.Janitza",
-    "alias":"Janitza Zähler",
+    "appId":"App.Meter.PqPlus",
+    "alias":"PQ-Plus Meter",
     "instanceId": UUID,
     "image": base64,
     "properties":{
     	"METER_ID": "meter1",
-    	"MODBUS_ID": "modbus2",
     	"TYPE": "PRODUCTION",
-    	"MODEL": "Meter.Janitza.UMG96RME",
-    	"IP": "10.4.0.12",
-    	"MODBUS_UNIT_ID": 1
+    	"MODBUS_ID": "modbus1",
+    	"MODBUS_UNIT_ID": 6
     },
     "appDescriptor": {
     	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
@@ -74,23 +75,16 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
   }
  * </pre>
  */
-@Component(name = "App.Meter.Janitza")
-public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Property, Parameter.BundleParameter>
+@Component(name = "App.Meter.PqPlus")
+public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Property, Parameter.BundleParameter>
 		implements OpenemsApp, ComponentUtilSupplier, AppManagerUtilSupplier {
 
-	public enum Property implements Type<Property, JanitzaMeter, Parameter.BundleParameter> {
+	public enum Property implements Type<Property, PqPlusMeter, Parameter.BundleParameter> {
 		// Component-IDs
 		METER_ID(AppDef.componentId("meter1")), //
 		MODBUS_ID(AppDef.componentId("modbus2")), //
 		// Properties
-		ALIAS(alias()), //
-		MODEL(AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabelWithAppPrefix(".productModel") //
-				.setDefaultValue(JanitzaModel.UMG_96_RME.getValue()) //
-				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(JanitzaModel.class), l);
-				}))), //
+		ALIAS(CommonProps.alias()), //
 		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID), def -> def //
 				.setRequired(true))), //
 		INTEGRATION_TYPE(CommunicationProps.modbusType() //
@@ -118,33 +112,40 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 							.equal(Exp.staticValue(ModbusType.RTU)));
 				})) //
 				.setAutoGenerateField(false)), //
-		MODBUS_UNIT_ID(MeterProps.modbusUnitId() //
+		MODEL(AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabelWithAppPrefix(".productModel") //
+				.setDefaultValue(PqPlusModel.UMD_96.getValue()) //
 				.setRequired(true) //
-				.setDefaultValue(6) //
-				.setAutoGenerateField(false)), //
+				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> {
+					field.setOptions(OptionsFactory.of(PqPlusModel.class), l);
+				}))), //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def //
+				.setRequired(true) //
+				.setAutoGenerateField(false) //
+				.setDefaultValue(6))), //
 		MODBUS_GROUP(CommunicationProps.modbusGroup(//
 				SELECTED_MODBUS_ID, SELECTED_MODBUS_ID.def(), //
 				MODBUS_UNIT_ID, MODBUS_UNIT_ID.def(), INTEGRATION_TYPE)), //
 		;
 
-		private AppDef<? super JanitzaMeter, ? super Property, ? super BundleParameter> def;
+		private final AppDef<? super PqPlusMeter, ? super Property, ? super BundleParameter> def;
 
-		private Property(AppDef<? super JanitzaMeter, ? super Property, ? super BundleParameter> def) {
+		private Property(AppDef<? super PqPlusMeter, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
 		@Override
-		public Type<Property, JanitzaMeter, BundleParameter> self() {
+		public Type<Property, PqPlusMeter, BundleParameter> self() {
 			return this;
 		}
 
 		@Override
-		public AppDef<? super JanitzaMeter, ? super Property, ? super BundleParameter> def() {
+		public AppDef<? super PqPlusMeter, ? super Property, ? super BundleParameter> def() {
 			return this.def;
 		}
 
 		@Override
-		public Function<GetParameterValues<JanitzaMeter>, BundleParameter> getParamter() {
+		public Function<GetParameterValues<PqPlusMeter>, BundleParameter> getParamter() {
 			return Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
 		}
 	}
@@ -152,7 +153,7 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 	private final AppManagerUtil appManagerUtil;
 
 	@Activate
-	public JanitzaMeter(//
+	public PqPlusMeter(//
 			@Reference final ComponentManager componentManager, //
 			final ComponentContext componentContext, //
 			@Reference final ConfigurationAdmin cm, //
@@ -166,7 +167,7 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
-			final var meterId = this.getId(t, p, Property.METER_ID, "meter1");
+			final var meterId = this.getId(t, p, Property.METER_ID);
 
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var factoryId = this.getString(p, Property.MODEL);
@@ -195,12 +196,14 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 			}
 			};
 
-			components.add(new EdgeConfig.Component(meterId, alias, factoryId, //
-					JsonUtils.buildJsonObject() //
-							.addProperty("modbus.id", modbusId) //
-							.addProperty("modbusUnitId", modbusUnitId) //
-							.addProperty("type", type) //
-							.build()));
+			components.add(//
+					new EdgeConfig.Component(meterId, alias, factoryId, //
+							JsonUtils.buildJsonObject() //
+									.addProperty("modbus.id", modbusId) //
+									.addProperty("modbusUnitId", modbusUnitId) //
+									.addProperty("type", type) //
+									.build()) //
+			);
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
@@ -216,18 +219,8 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 	}
 
 	@Override
-	public OpenemsAppCardinality getCardinality() {
-		return OpenemsAppCardinality.MULTIPLE;
-	}
-
-	@Override
-	public OpenemsAppCategory[] getCategories() {
+	public final OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.METER };
-	}
-
-	@Override
-	protected JanitzaMeter getApp() {
-		return this;
 	}
 
 	@Override
@@ -235,23 +228,37 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 		return Property.values();
 	}
 
-	public enum JanitzaModel implements TranslatableEnum {
-		UMG_96_RME("Meter.Janitza.UMG96RME", "Janitza Netzanalysator UMG 96RM-E"), //
-		UMG_604("Meter.Janitza.UMG604", "Janitza Netzanalysator UMG 604-PRO"), //
-		UMG_511("Meter.Janitza.UMG511", "Janitza Netzqualitätsanalysator UMG 511"), //
+	@Override
+	public AppManagerUtil getAppManagerUtil() {
+		return this.appManagerUtil;
+	}
+
+	@Override
+	public OpenemsAppCardinality getCardinality() {
+		return OpenemsAppCardinality.MULTIPLE;
+	}
+
+	@Override
+	protected PqPlusMeter getApp() {
+		return this;
+	}
+
+	public enum PqPlusModel implements TranslatableEnum {
+		UMD_96("Meter.PqPlus.UMD96", "App.Meter.PqPlus.UMD96"), //
+		UMD_97("Meter.PqPlus.UMD97", "App.Meter.PqPlus.UMD97"), //
 		;
 
 		private final String value;
 		private final String translation;
 
-		private JanitzaModel(String value, String translation) {
+		private PqPlusModel(String value, String translation) {
 			this.value = value;
 			this.translation = translation;
 		}
 
 		@Override
 		public String getTranslation(Language language) {
-			return this.translation;
+			return translate(getTranslationBundle(language), this.translation);
 		}
 
 		@Override
@@ -262,8 +269,11 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 	}
 
 	@Override
-	public AppManagerUtil getAppManagerUtil() {
-		return this.appManagerUtil;
+	public OpenemsAppPermissions getAppPermissions() {
+		return OpenemsAppPermissions.create()//
+				.setCanSee(Role.ADMIN)//
+				.setCanDelete(Role.ADMIN) //
+				.build();
 	}
 
 }

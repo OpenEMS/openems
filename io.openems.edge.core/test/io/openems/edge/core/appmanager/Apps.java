@@ -45,6 +45,7 @@ import io.openems.edge.app.meter.CarloGavazziMeter;
 import io.openems.edge.app.meter.DiscovergyMeter;
 import io.openems.edge.app.meter.JanitzaMeter;
 import io.openems.edge.app.meter.MicrocareSdm630Meter;
+import io.openems.edge.app.meter.PqPlusMeter;
 import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.app.peakshaving.PeakShaving;
 import io.openems.edge.app.peakshaving.PhaseAccuratePeakShaving;
@@ -64,10 +65,9 @@ import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.app.timeofusetariff.Tibber;
 import io.openems.edge.common.component.ComponentManager;
 
-public class Apps {
+public final class Apps {
 
 	private Apps() {
-		super();
 	}
 
 	/**
@@ -522,6 +522,16 @@ public class Apps {
 	 */
 	public static final JanitzaMeter janitzaMeter(AppManagerTestBundle t) {
 		return app(t, JanitzaMeter::new, "App.Meter.Janitza");
+	}
+
+	/**
+	 * Test method for creating a {@link PqPlusMeter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final PqPlusMeter pqPlusMeter(AppManagerTestBundle t) {
+		return app(t, PqPlusMeter::new, "App.Meter.PqPlus");
 	}
 
 	/**

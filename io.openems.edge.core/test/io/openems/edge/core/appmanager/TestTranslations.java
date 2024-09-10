@@ -36,9 +36,12 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.feneconHome30(t), true, TestFeneconHome30.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconCommercial92(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.feneconIndustrialLIlk710(t), true, new JsonObject()));
-			this.apps.add(new TestTranslation(Apps.feneconIndustrialSIsk010(t), true, TestFeneconIndustrialS.fullSettings()));
-			this.apps.add(new TestTranslation(Apps.feneconIndustrialSIsk110(t), true, TestFeneconIndustrialS.fullSettings()));
-			this.apps.add(new TestTranslation(Apps.feneconIndustrialSIsk011(t), true, TestFeneconIndustrialS.fullSettings()));
+			this.apps.add(
+					new TestTranslation(Apps.feneconIndustrialSIsk010(t), true, TestFeneconIndustrialS.fullSettings()));
+			this.apps.add(
+					new TestTranslation(Apps.feneconIndustrialSIsk110(t), true, TestFeneconIndustrialS.fullSettings()));
+			this.apps.add(
+					new TestTranslation(Apps.feneconIndustrialSIsk011(t), true, TestFeneconIndustrialS.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.awattarHourly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.entsoE(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("BIDDING_ZONE", "GERMANY") //
@@ -115,6 +118,7 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.janitzaMeter(t), false, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.pqPlusMeter(t), false, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.froniusPvInverter(t), false, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
 					.addProperty("PORT", 502) //
