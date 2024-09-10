@@ -4,8 +4,9 @@ import localES from "@angular/common/locales/es";
 import localFR from "@angular/common/locales/fr";
 import localJA from "@angular/common/locales/ja";
 import localNL from "@angular/common/locales/nl";
-import { TranslateLoader } from "@ngx-translate/core";
+import { TranslateLoader, TranslateService } from "@ngx-translate/core";
 import { Observable, of } from "rxjs";
+import { filter, take } from "rxjs/operators";
 import cz from "src/assets/i18n/cz.json";
 import de from "src/assets/i18n/de.json";
 import en from "src/assets/i18n/en.json";
@@ -117,15 +118,16 @@ export class Language {
      * @param translationFile the translation file
      * @returns translations params
      */
-    public static setAdditionalTranslationFile(translationFile: any): { lang: string, translations: {}, shouldMerge?: boolean } {
-        let key = localStorage.LANGUAGE ?? Language.DEFAULT.key;
-        if (!(key in translationFile)) {
+    public static async setAdditionalTranslationFile(translationFile: any, translate: TranslateService): Promise<{ lang: string; translations: {}; shouldMerge?: boolean; }> {
+        const lang = (await translate.onLangChange.pipe(filter(lang => !!lang), take(1)).toPromise()).lang;
+        let translationKey: string = lang;
+        if (!(lang in translationFile)) {
 
             if (environment.debugMode) {
-                console.warn(`[Advert] No translation available for Language ${key}. Implemented languages are: ${Object.keys(translationFile)}`);
+                console.warn(`[Advert] No translation available for Language ${lang}. Implemented languages are: ${Object.keys(translationFile)}`);
             }
-            key = Language.DEFAULT.key;
+            translationKey = Language.EN.key;
         }
-        return { lang: key, translations: translationFile[key], shouldMerge: true };
+        return { lang: lang, translations: translationFile[translationKey], shouldMerge: true };
     }
 }
