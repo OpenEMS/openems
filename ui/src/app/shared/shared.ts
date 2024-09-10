@@ -59,7 +59,7 @@ export class EdgePermission {
   }
 
   public static isModbusTcpApiWidgetAllowed(edge: Edge): boolean {
-    return edge?.isVersionAtLeast("2024.7.2");
+    return edge?.isVersionAtLeast("2024.9.1");
   }
 
   /**

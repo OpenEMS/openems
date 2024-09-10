@@ -44,6 +44,10 @@
                 <consumption></consumption>
               </ion-col>
 
+              <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'" size="12" size-lg="6" class="ion-no-padding">
+                <Controller_Api_ModbusTcp [componentId]="widget.componentId"></Controller_Api_ModbusTcp>
+              </ion-col>
+
             </ng-container>
 
             <!-- Widgets depending on the configuration of the OpenEMS Edge -->
@@ -80,10 +84,6 @@
               <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="12" size-lg="6" class="ion-no-padding">
                 <Controller_Io_FixDigitalOutput [componentId]="widget.componentId"></Controller_Io_FixDigitalOutput>
               </ion-col>
-
-                <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'" size="12" size-lg="6" class="ion-no-padding">
-                  <Controller_Api_ModbusTcp [componentId]="widget.componentId"></Controller_Api_ModbusTcp>
-                </ion-col>
 
               <!-- Widgets that are likely to be configured seldomly -->
 

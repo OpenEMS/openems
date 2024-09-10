@@ -38,6 +38,14 @@
           <channelthresholdWidget>
           </channelthresholdWidget>
         </ion-col>
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller_Io_Digital_Outputs'">
+          <DigitalOutputWidget>
+          </DigitalOutputWidget>
+        </ion-col>
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'">
+          <modbusTcpApiWidget [componentId]="widget.componentId">
+          </modbusTcpApiWidget>
+        </ion-col>
       </ng-container>
 
       <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
@@ -76,11 +84,6 @@
           <timeOfUseTariffWidget [componentId]="widget.componentId">
           </timeOfUseTariffWidget>
         </ion-col>
-
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'">
-            <modbusTcpApiWidget [componentId]="widget.componentId">
-            </modbusTcpApiWidget>
-          </ion-col>
 
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.IO.HeatingElement'">
           <heatingelementWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
