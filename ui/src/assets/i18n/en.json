@@ -860,6 +860,13 @@
     },
     "CONFIGURATION_MPPT_SELECTION_NOTE": "Additional generators can then be configured via the App Center."
   },
+  "LOADING_SCREEN": {
+    "LOADING": "Loading",
+    "SERVER_NOT_ACCESSIBLE": "Server not accessible",
+    "SERVER_NOT_ACCESSIBLE_DESCRIPTION": "Online view of the storage system is currently not possible. The data is saved locally and will not be lost.",
+    "SERVER_NOT_ACCESSIBLE_TRY_RELOADING": "Please try reloading the browser in 10 minutes.",
+    "SERVER_NOT_ACCESSIBLE_ACCESS_LOCALLY": "Access locally"
+  },
   "Login": {
     "title": "Login",
     "preamble": "Please enter your password or submit the default value to login as a guest.",

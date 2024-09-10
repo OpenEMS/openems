@@ -858,6 +858,13 @@
     },
     "CONFIGURATION_MPPT_SELECTION_NOTE": "Weitere Erzeuger können im Anschluss über das App Center konfiguriert werden."
   },
+  "LOADING_SCREEN": {
+    "LOADING": "Wird geladen",
+    "SERVER_NOT_ACCESSIBLE": "Server nicht erreichbar",
+    "SERVER_NOT_ACCESSIBLE_TRY_RELOADING": "Probieren Sie bitte in 10 Minuten den Browser neu zu laden.",
+    "SERVER_NOT_ACCESSIBLE_ACCESS_LOCALLY": "Lokal zugreifen",
+    "SERVER_NOT_ACCESSIBLE_DESCRIPTION": "Der Onlinezugriff auf das Speichersystem ist aktuell nicht möglich. Die Daten werden lokal gespeichert und gehen nicht verloren."
+  },
   "Login": {
     "title": "Login",
     "preamble": "Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.",

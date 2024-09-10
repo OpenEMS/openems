@@ -4,6 +4,7 @@ import { Router } from "@angular/router";
 import { SubscribeEdgesRequest } from "../jsonrpc/request/subscribeEdgesRequest";
 import { ChannelAddress, Edge } from "../shared";
 import { Service } from "./service";
+import { States } from "../ngrx-store/states";
 
 @Directive()
 export class Pagination {
@@ -22,6 +23,7 @@ export class Pagination {
         this.edge = edge;
         this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edge.id] }));
       }).then(() => {
+        this.service.websocket.state.set(States.EDGE_SELECTED);
         this.edge.subscribeChannels(this.service.websocket, "", [
           new ChannelAddress("_sum", "State"),
         ]);

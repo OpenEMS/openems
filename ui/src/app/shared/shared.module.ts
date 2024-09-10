@@ -31,8 +31,10 @@ import { HistoryDataErrorModule } from "./components/history-data-error/history-
 import { PercentageBarComponent } from "./components/percentagebar/percentagebar.component";
 import { DirectiveModule } from "./directive/directive";
 import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.component";
+import { AppStateTracker } from "./ngrx-store/states";
 import { PipeModule } from "./pipe/pipe";
 import { Logger } from "./service/logger";
+import { PreviousRouteService } from "./service/previousRouteService";
 import { Service } from "./service/service";
 import { Utils } from "./service/utils";
 import { Websocket } from "./shared";
@@ -143,11 +145,13 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormlyFieldWithLoadingAnimationComponent,
   ],
   providers: [
+    AppStateTracker,
     appRoutingProviders,
+    Logger,
+    PreviousRouteService,
     Service,
     Utils,
     Websocket,
-    Logger,
   ],
 })
 
