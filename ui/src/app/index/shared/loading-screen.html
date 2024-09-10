@@ -10,7 +10,7 @@
     </ngx-spinner>
 
     <ng-container *ngSwitchCase="'failed'">
-      <ng-container *ngIf="environment.theme !== 'FENECON';else fenecon">
+      <ng-container>
         <header></header>
         <ion-grid style="align-content: center; height: 100%; vertical-align: middle;">
           <ion-row class="ion-justify-content-center">
@@ -25,27 +25,6 @@
         </ion-grid>
       </ng-container>
 
-      <ng-template #fenecon>
-        <ion-grid style="align-content: center; height: 100%;vertical-align: middle;">
-          <ion-row class="ion-justify-content-center ion-align-items-center ion-padding">
-            <ion-col size-lg="4" size-sm="10" size-md="8">
-              <ion-card>
-                <ion-item lines="none" class="ion-text-center">
-                  <ion-grid class="ion-justify-content-center">
-                    <ion-row class="ion-justify-content-center ion-no-padding">
-                      <ion-img style="height: 10vh;" src="assets/img/fenecon-logo.png" />
-                    </ion-row>
-                  </ion-grid>
-                </ion-item>
-
-                <ion-card-content class="ion-justify-content-center ion-text-center">
-                  <ng-container *ngTemplateOutlet="content"></ng-container>
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ng-template>
     </ng-container>
   </ng-container>
 </ion-content>
@@ -81,32 +60,4 @@
     </ion-col>
   </ion-row>
 
-  <ion-row class="ion-justify-content-center ion-align-items-center" *ngIf="environment.theme !== 'OpenEMS'">
-    <ion-col size="12" class="ion-text-center">
-      <ng-container [ngSwitch]="environment.theme">
-        <ion-button *ngSwitchCase="'Heckert'" size="small" fill="outline"
-          href="https://symphon-e.heckert-solar.com/docs/de/fems/ui/introduction.html#_offlinelokal" target="_blank"
-          translate>LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_ACCESS_LOCALLY</ion-button>
-        <ion-button *ngSwitchDefault size="small" fill="outline"
-          href="https://docs.fenecon.de/de/fems/ui/introduction.html#_offlinelokal" target="_blank"
-          translate>LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_ACCESS_LOCALLY</ion-button>
-      </ng-container>
-    </ion-col>
-  </ion-row>
-
-  <ion-row *ngIf="environment.theme === 'FENECON'">
-    <ion-item lines="none" class="ion-margin-top">
-      <ul style="font-size: smaller;">
-        <li><a href="https://fenecon.de/faq/" target="_blank">
-            FAQs
-          </a>
-        </li>
-        <li>
-          <a href="https://status.fenecon.de/" target="_blank">
-            FENECON Status
-          </a>
-        </li>
-      </ul>
-    </ion-item>
-  </ion-row>
 </ng-template>
