@@ -10,17 +10,17 @@ import io.openems.common.OpenemsConstants;
 import io.openems.common.session.Language;
 
 @Component(//
-		name = CheckHome.COMPONENT_NAME, //
+		name = CheckCommercial92.COMPONENT_NAME, //
 		scope = ServiceScope.PROTOTYPE //
 )
-public class CheckHome extends AbstractCheckable implements Checkable {
+public class CheckCommercial92 extends AbstractCheckable implements Checkable {
 
-	public static final String COMPONENT_NAME = "Validator.Checkable.CheckHome";
+	public static final String COMPONENT_NAME = "Validator.Checkable.CheckCommercial92";
 
 	private final Checkable checkAppsNotInstalled;
 
 	@Activate
-	public CheckHome(//
+	public CheckCommercial92(//
 			ComponentContext componentContext, //
 			@Reference(target = "(" + OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME + "="
 					+ CheckAppsNotInstalled.COMPONENT_NAME + ")") Checkable checkAppsNotInstalled //
@@ -32,9 +32,7 @@ public class CheckHome extends AbstractCheckable implements Checkable {
 	@Override
 	public boolean check() {
 		this.checkAppsNotInstalled.setProperties(Checkables.checkAppsNotInstalled(//
-				"App.FENECON.Home", //
-				"App.FENECON.Home.20", //
-				"App.FENECON.Home.30" //
+				"App.FENECON.Commercial.92" //
 		).properties());
 
 		return !this.checkAppsNotInstalled.check();
@@ -42,12 +40,12 @@ public class CheckHome extends AbstractCheckable implements Checkable {
 
 	@Override
 	public String getErrorMessage(Language language) {
-		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckHome.Message");
+		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckCommercial92.Message");
 	}
 
 	@Override
 	public String getInvertedErrorMessage(Language language) {
-		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckHome.Message.Inverted");
+		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckCommercial92.Message.Inverted");
 	}
 
 }
