@@ -76,16 +76,14 @@ public final class Utils {
 	 * @return execution limit in [s]
 	 */
 	public static long calculateExecutionLimitSeconds(Clock clock) {
-		return 20;
-		
-//		var now = ZonedDateTime.now(clock);
-//		var nextQuarter = roundDownToQuarter(now).plusMinutes(15).minusSeconds(EXECUTION_LIMIT_SECONDS_BUFFER);
-//		var duration = Duration.between(now, nextQuarter).getSeconds();
-//		if (duration >= EXECUTION_LIMIT_SECONDS_MINIMUM) {
-//			return duration;
-//		}
-//		// Otherwise add 15 more minutes
-//		return Duration.between(now, nextQuarter.plusMinutes(15)).getSeconds();
+		var now = ZonedDateTime.now(clock);
+		var nextQuarter = roundDownToQuarter(now).plusMinutes(15).minusSeconds(EXECUTION_LIMIT_SECONDS_BUFFER);
+		var duration = Duration.between(now, nextQuarter).getSeconds();
+		if (duration >= EXECUTION_LIMIT_SECONDS_MINIMUM) {
+			return duration;
+		}
+		// Otherwise add 15 more minutes
+		return Duration.between(now, nextQuarter.plusMinutes(15)).getSeconds();
 	}
 
 	/**
