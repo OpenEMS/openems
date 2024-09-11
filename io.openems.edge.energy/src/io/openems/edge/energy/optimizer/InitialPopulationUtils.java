@@ -1,25 +1,15 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
-import static io.openems.edge.energy.optimizer.Utils.findFirstPeakIndex;
-import static io.openems.edge.energy.optimizer.Utils.findFirstValleyIndex;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.math.Quantiles;
+import com.google.common.collect.ImmutableSortedMap;
 
 import io.jenetics.Genotype;
 import io.jenetics.IntegerChromosome;
 import io.jenetics.IntegerGene;
-import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
-import io.openems.edge.energy.optimizer.Params.OptimizePeriod;
+import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 
 public class InitialPopulationUtils {
 
@@ -30,93 +20,57 @@ public class InitialPopulationUtils {
 	 * Builds an initial population:
 	 * 
 	 * <ol>
-	 * <li>Schedule with all periods BALANCING
-	 * <li>Schedule from currently existing Schedule, i.e. the bestGenotype of last
-	 * optimization run
+	 * <li>Schedule with all periods default
+	 * <li>Schedule from lastSchedules, i.e. the result of last optimization run
 	 * </ol>
 	 * 
 	 * <p>
-	 * NOTE: providing an "all periods BALANCING" Schedule as first Genotype makes
+	 * NOTE: providing an "all periods default" Schedule as first Genotype makes
 	 * sure, that this one wins in case there are other results with same cost, e.g.
 	 * when battery never gets empty anyway.
 	 * 
-	 * @param p the {@link Params}
+	 * @param gsc            the {@link GlobalSimulationsContext} of the current run
+	 * @param previousResult the {@link SimulationResult} of the previous
+	 *                       optimization run
 	 * @return the {@link Genotype}
 	 */
-	public static ImmutableList<Genotype<IntegerGene>> buildInitialPopulation(Params p) {
-		var states = List.of(p.states());
-		if (!states.contains(BALANCING)) {
-			throw new IllegalArgumentException("State option BALANCING is always required!");
-		}
-
+	public static ImmutableList<Genotype<IntegerGene>> buildInitialPopulation(GlobalSimulationsContext gsc,
+			SimulationResult previousResult) {
 		var b = ImmutableList.<Genotype<IntegerGene>>builder(); //
 
-		// All BALANCING
-		b.add(Genotype.of(//
-				IntStream.range(0, p.optimizePeriods().size()) //
-						.map(i -> states.indexOf(BALANCING)) //
-						.mapToObj(state -> IntegerChromosome.of(IntegerGene.of(state, 0, p.states().length))) //
-						.toList()));
+		// All default
+		b.add(Genotype.of(gsc.handlers().stream() //
+				.filter(EnergyScheduleHandler.WithDifferentStates.class::isInstance) //
+				.map(EnergyScheduleHandler.WithDifferentStates.class::cast) //
+				.map(esh -> {
+					final var defaultState = esh.getDefaultStateIndex();
+					final var noOfStates = esh.getAvailableStates().length;
+					return IntegerChromosome.of(IntStream.range(0, gsc.periods().size()) //
+							.mapToObj(i -> IntegerGene.of(defaultState, 0, noOfStates)) //
+							.toList());
+				}) //
+				.toList()));
 
-		if (p.existingSchedule().values().stream() //
-				.anyMatch(s -> s != BALANCING)) {
-			// Existing Schedule if available
-			b.add(Genotype.of(//
-					p.optimizePeriods().stream() //
-							.map(op -> Optional.ofNullable(p.existingSchedule().get(op.time())).orElse(BALANCING))
-							.map(state -> IntegerChromosome.of(IntegerGene.of(//
-									toIndex(states, state), 0, p.states().length))) //
-							.toList()));
-		}
-
-		// Suggest different combinations of CHARGE_GRID and DELAY_CHARGE
-		{
-			var prices = p.optimizePeriods().stream() //
-					.mapToDouble(OptimizePeriod::price) //
-					.toArray();
-			var peakIndex = findFirstPeakIndex(findFirstValleyIndex(0, prices), prices);
-			var firstPrices = Arrays.stream(prices).limit(peakIndex).toArray();
-			final BiConsumer<Integer, Integer> addInitialGenotype = (chargeGridPercentile,
-					delayDischargePercentile) -> b.add(generateInitialGenotype(p.optimizePeriods().size(), firstPrices,
-							states, chargeGridPercentile, delayDischargePercentile));
-			if (firstPrices.length > 0 && states.contains(CHARGE_GRID) && states.contains(DELAY_DISCHARGE)) {
-				addInitialGenotype.accept(5, 50);
-				addInitialGenotype.accept(5, 75);
-				addInitialGenotype.accept(10, 50);
-				addInitialGenotype.accept(10, 75);
-			}
-		}
+		// Existing Schedule
+		b.add(Genotype.of(gsc.handlers().stream() //
+				.filter(EnergyScheduleHandler.WithDifferentStates.class::isInstance) //
+				.map(EnergyScheduleHandler.WithDifferentStates.class::cast) //
+				.map(esh -> {
+					final var previousSchedule = previousResult.schedules().getOrDefault(esh, ImmutableSortedMap.of());
+					final var defaultState = esh.getDefaultStateIndex();
+					final var noOfStates = esh.getAvailableStates().length;
+					return IntegerChromosome.of(gsc.periods().stream() //
+							.map(p -> {
+								var previousState = previousSchedule.get(p.time());
+								var state = previousState == null //
+										? defaultState //
+										: previousState.stateIndex();
+								return IntegerGene.of(state, 0, noOfStates);
+							}) //
+							.toList());
+				}) //
+				.toList()));
 
 		return b.build();
 	}
-
-	private static int toIndex(List<StateMachine> states, StateMachine state) {
-		var result = states.indexOf(state);
-		if (result != -1) {
-			return result;
-		}
-		return states.indexOf(BALANCING);
-	}
-
-	private static Genotype<IntegerGene> generateInitialGenotype(int numberOfPeriods, double[] prices,
-			List<StateMachine> states, int chargeGridPercentile, int delayDischargePercentile) {
-		var percentiles = Quantiles.percentiles().indexes(chargeGridPercentile, delayDischargePercentile)
-				.compute(prices);
-		return Genotype.of(//
-				IntStream.range(0, numberOfPeriods) //
-						.mapToObj(i -> {
-							if (i >= prices.length) {
-								return BALANCING;
-							}
-							var price = prices[i];
-							return price <= percentiles.get(chargeGridPercentile) //
-									? CHARGE_GRID //
-									: price <= percentiles.get(delayDischargePercentile) //
-											? DELAY_DISCHARGE //
-											: BALANCING;
-						}) //
-						.map(state -> IntegerChromosome.of(IntegerGene.of(toIndex(states, state), 0, states.size()))) //
-						.toList());
-	}
-
 }

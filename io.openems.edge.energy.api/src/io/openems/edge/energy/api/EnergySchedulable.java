@@ -2,12 +2,12 @@ package io.openems.edge.energy.api;
 
 import io.openems.edge.controller.api.Controller;
 
-public interface EnergySchedulable<STATE, CONTEXT> extends Controller {
+public interface EnergySchedulable extends Controller {
 
 	/**
 	 * Get the {@link EnergyScheduleHandler}.
 	 * 
 	 * @return {@link EnergyScheduleHandler}
 	 */
-	public EnergyScheduleHandler<STATE, CONTEXT> getEnergyScheduleHandler();
+	public EnergyScheduleHandler getEnergyScheduleHandler();
 }

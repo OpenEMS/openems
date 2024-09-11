@@ -1,17 +1,7 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
-import static io.openems.edge.energy.TestData.CONSUMPTION_888_20231106;
-import static io.openems.edge.energy.TestData.PRICES_888_20231106;
-import static io.openems.edge.energy.TestData.PRODUCTION_888_20231106;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.buildInitialPopulation;
-import static io.openems.edge.energy.optimizer.SimulatorTest.hourlyToQuarterly;
-import static io.openems.edge.energy.optimizer.Utils.interpolateArray;
-import static io.openems.edge.energy.optimizer.Utils.toEnergy;
-import static io.openems.edge.energy.optimizer.UtilsTest.prepareExistingSchedule;
-import static java.util.Arrays.stream;
+import static io.openems.edge.energy.optimizer.SimulatorTest.ESH_TIME_OF_USE_TARIFF_CTRL;
 import static org.junit.Assert.assertEquals;
 
 import java.time.ZoneId;
@@ -19,70 +9,40 @@ import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
-import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
+
+import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.EnergyScheduleHandler.WithDifferentStates.Period.Transition;
 
 public class InitialPopulationUtilsTest {
 
-	public static final ZonedDateTime TIME = ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
+	private static final ZonedDateTime TIME = ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
 
 	@Test
 	public void testBuildInitialPopulation() {
-		{
-			var lgt = buildInitialPopulation(Params.create() //
-					.setTime(TIME) //
-					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setPrices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.setStates(ControlMode.CHARGE_CONSUMPTION.states) //
-					.setExistingSchedule(prepareExistingSchedule(TIME)) //
-					.build());
-			assertEquals(5, lgt.size()); // No Schedule -> only pure BALANCING + CHARGE_GRID
+		final var gsc = SimulatorTest.DUMMY_GSC;
+		final var previousResult = new SimulationResult(0., ImmutableMap.of(), //
+				ImmutableMap.<EnergyScheduleHandler.WithDifferentStates<?, ?>, ImmutableSortedMap<ZonedDateTime, Transition>>builder() //
+						.put(ESH_TIME_OF_USE_TARIFF_CTRL, ImmutableSortedMap.<ZonedDateTime, Transition>naturalOrder() //
+								.put(TIME.plusHours(0).plusMinutes(00), state(2)) //
+								.build()) //
+						.build());
+
+		// Initialize EnergyScheduleHandlers
+		for (var esh : gsc.handlers()) {
+			esh.onBeforeSimulation(gsc);
 		}
-		{
-			var lgt = buildInitialPopulation(Params.create() //
-					.setTime(TIME) //
-					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setPrices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.setStates(ControlMode.CHARGE_CONSUMPTION.states) //
-					.setExistingSchedule(prepareExistingSchedule(TIME, BALANCING, BALANCING)) //
-					.build());
-			assertEquals(5, lgt.size()); // Existing Schedule is only BALANCING -> only pure BALANCING + CHARGE_GRID
-		}
-		{
-			var gt = buildInitialPopulation(Params.create() //
-					.setTime(TIME) //
-					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setPrices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.setStates(ControlMode.CHARGE_CONSUMPTION.states) //
-					.setExistingSchedule(prepareExistingSchedule(TIME, //
-							CHARGE_GRID, DELAY_DISCHARGE, CHARGE_GRID, DELAY_DISCHARGE, BALANCING)) //
-					.build()).get(1);
-			assertEquals(2 /* CHARGE_GRID */, gt.get(0).get(0).intValue());
-			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(1).get(0).intValue());
-			assertEquals(2 /* CHARGE_GRID */, gt.get(2).get(0).intValue());
-			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(3).get(0).intValue());
-			assertEquals(0 /* BALANCING */, gt.get(4).get(0).intValue());
-			assertEquals(0 /* BALANCING */, gt.get(5).get(0).intValue()); // default
-		}
-		{
-			var gt = buildInitialPopulation(Params.create() //
-					.setTime(TIME) //
-					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setPrices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.setStates(ControlMode.DELAY_DISCHARGE.states) //
-					.setExistingSchedule(prepareExistingSchedule(TIME, //
-							CHARGE_GRID, DELAY_DISCHARGE, CHARGE_GRID, DELAY_DISCHARGE, BALANCING)) //
-					.build()).get(1);
-			assertEquals(0 /* fallback to BALANCING */, gt.get(0).get(0).intValue());
-			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(1).get(0).intValue());
-			assertEquals(0 /* fallback to BALANCING */, gt.get(2).get(0).intValue());
-			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(3).get(0).intValue());
-			assertEquals(0 /* BALANCING */, gt.get(4).get(0).intValue());
-			assertEquals(0 /* BALANCING */, gt.get(5).get(0).intValue()); // default
-		}
+
+		var lgt = buildInitialPopulation(gsc, previousResult);
+		assertEquals(2, lgt.size());
+
+		// Last-Schedules
+		assertEquals(2, lgt.get(1).get(0).get(0).allele().intValue()); // from previousResult
+		assertEquals(0, lgt.get(1).get(0).get(1).allele().intValue()); // unknown before -> default
 	}
 
+	protected static Transition state(int state) {
+		return new Transition(state, 0., null, 0);
+	}
 }

@@ -1,32 +1,24 @@
 package io.openems.edge.energy.optimizer;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static com.google.common.collect.ImmutableSortedMap.toImmutableSortedMap;
-import static io.openems.edge.energy.optimizer.Simulator.simulate;
 import static io.openems.edge.energy.optimizer.Utils.calculateExecutionLimitSeconds;
-import static io.openems.edge.energy.optimizer.Utils.createSimulatorParams;
 import static io.openems.edge.energy.optimizer.Utils.initializeRandomRegistryForProduction;
-import static io.openems.edge.energy.optimizer.Utils.logSchedule;
-import static io.openems.edge.energy.optimizer.Utils.updateSchedule;
+import static io.openems.edge.energy.optimizer.Utils.logSimulationResult;
 import static java.lang.Thread.sleep;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.util.Map.Entry;
-import java.util.TreeMap;
+import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingSupplier;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.worker.AbstractImmediateWorker;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
-import io.openems.edge.energy.optimizer.Simulator.Period;
+import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 
 /**
  * This task is executed once in the beginning and afterwards every full 15
@@ -36,110 +28,136 @@ public class Optimizer extends AbstractImmediateWorker {
 
 	private final Logger log = LoggerFactory.getLogger(Optimizer.class);
 
-	private final ThrowingSupplier<GlobalContext, OpenemsException> globalContext;
-	private final TreeMap<ZonedDateTime, Period> schedule = new TreeMap<>();
+	private final BiConsumer<Logger, String> logInfo;
+	private final ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier;
+	private final Channel<Integer> simulationsPerQuarterChannel;
 
-	private Params params = null;
+	private GlobalSimulationsContext globalSimulationsContext = null;
+	private SimulationResult simulationResult = SimulationResult.EMPTY;
 
-	public Optimizer(ThrowingSupplier<GlobalContext, OpenemsException> globalContext) {
-		this.globalContext = globalContext;
+	public Optimizer(BiConsumer<Logger, String> logInfo,
+			ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier, //
+			Channel<Integer> simulationsPerQuarterChannel) {
+		this.logInfo = logInfo;
+		this.gscSupplier = gscSupplier;
+		this.simulationsPerQuarterChannel = simulationsPerQuarterChannel;
 		initializeRandomRegistryForProduction();
 
 		// Run Optimizer thread in LOW PRIORITY
 		this.setPriority(Thread.MIN_PRIORITY);
 	}
 
+	/**
+	 * Reset the Optimizer to release references to {@link EnergyScheduleHandler}s.
+	 * 
+	 * @param name name of parent Component.
+	 */
+	public void resetOptimizer(String name) {
+		this.deactivate();
+		this.simulationResult = SimulationResult.EMPTY;
+		super.activate(name);
+	}
+
 	@Override
 	public void forever() throws InterruptedException, OpenemsException {
-		this.log.info("# Start next run of Optimizer");
+		this.logInfo("Start next run of Optimizer");
 
-		this.createParams(); // this possibly takes forever
+		final var context = this.createGlobalSimulationsContext(); // this possibly takes forever
+		this.globalSimulationsContext = context;
 
-		final var globalContext = this.globalContext.get();
-		final var start = Instant.now(globalContext.clock());
-
-		long executionLimitSeconds;
-
-		// Calculate max execution time till next quarter (with buffer)
-		executionLimitSeconds = calculateExecutionLimitSeconds(globalContext.clock());
-
-		// Find best Schedule
-		var schedule = Simulator.getBestSchedule(this.params, executionLimitSeconds);
-
-		// Re-Simulate and keep best Schedule
-		var newSchedule = simulate(this.params, schedule);
-
-		// Debug Log best Schedule
-		logSchedule(this.params, newSchedule);
-
-		// Update Schedule from newly simulated Schedule
-		synchronized (this.schedule) {
-			updateSchedule(ZonedDateTime.now(globalContext.clock()), this.schedule, newSchedule);
+		// Initialize EnergyScheduleHandlers
+		for (var esh : context.handlers()) {
+			esh.onBeforeSimulation(context);
 		}
 
-		// Send Schedule to Controller
-		globalContext.energyScheduleHandler().setSchedule(this.schedule.entrySet().stream()//
-				.collect(toImmutableMap(//
-						Entry::getKey, //
-						e -> new EnergyScheduleHandler.Period<>(e.getValue().state(),
-								e.getValue().op().essChargeInChargeGrid()))));
+		// Calculate max execution time till next quarter (with buffer)
+		final var start = Instant.now(context.clock());
+		long executionLimitSeconds;
+		executionLimitSeconds = calculateExecutionLimitSeconds(context.clock());
+
+		// Find best Schedule
+		var simulationResult = Simulator.getBestSchedule(context, this.simulationResult, executionLimitSeconds);
+
+		// Calculate metric
+		this.simulationsPerQuarterChannel.setNextValue(this.globalSimulationsContext.simulationCounter().get());
+
+		// Apply simulation result to EnergyScheduleHandlers
+		this.applySimulationResult(simulationResult);
+
+		// Debug Log best Schedule
+		logSimulationResult(context, simulationResult);
 
 		// Sleep remaining time
-		if (!(globalContext.clock() instanceof TimeLeapClock)) {
+		if (!(context.clock() instanceof TimeLeapClock)) {
 			var remainingExecutionLimit = Duration
-					.between(Instant.now(globalContext.clock()), start.plusSeconds(executionLimitSeconds)).getSeconds();
+					.between(Instant.now(context.clock()), start.plusSeconds(executionLimitSeconds)).getSeconds();
 			if (remainingExecutionLimit > 0) {
-				this.log.info("Sleep [" + remainingExecutionLimit + "s] till next run of Optimizer");
+				this.logInfo("Sleep [" + remainingExecutionLimit + "s] till next run of Optimizer");
 				sleep(remainingExecutionLimit * 1000);
 			}
 		}
 	}
 
+	private void applySimulationResult(SimulationResult simulationResult) {
+		// Store result
+		this.simulationResult = simulationResult;
+
+		// Send Schedule to Controllers
+		simulationResult.schedules().forEach((esh, schedule) -> {
+			esh.applySchedule(schedule);
+		});
+	}
+
 	/**
-	 * Try forever till all data is available (e.g. ESS Capacity)
+	 * Try forever till all data is available.
 	 * 
+	 * @return the {@link GlobalSimulationsContext}
 	 * @throws InterruptedException during sleep
 	 */
-	private void createParams() throws InterruptedException {
+	private GlobalSimulationsContext createGlobalSimulationsContext() throws InterruptedException {
 		while (true) {
 			try {
-				synchronized (this.schedule) {
-					this.params = createSimulatorParams(this.globalContext.get(), //
-							this.schedule.entrySet().stream() //
-									.collect(toImmutableSortedMap(//
-											ZonedDateTime::compareTo, //
-											Entry::getKey, e -> e.getValue().state())));
-					return;
-				}
+				return this.gscSupplier.get();
 
-			} catch (OpenemsException e) {
-				this.log.info("# Stuck trying to get Params. " + e.getMessage());
-				this.params = null;
-				synchronized (this.schedule) {
-					this.schedule.clear();
-				}
+			} catch (OpenemsException | IllegalArgumentException e) {
+				this.logInfo("Stuck trying to get GlobalSimulationsContext. " + e.getMessage());
+				this.globalSimulationsContext = null;
+				this.applySimulationResult(SimulationResult.EMPTY);
 				sleep(30_000);
 			}
 		}
 	}
 
-	/**
-	 * Gets the current {@link Params} or null.
-	 * 
-	 * @return the {@link Params} or null
-	 */
-	public Params getParams() {
-		return this.params;
+	private void logInfo(String message) {
+		this.logInfo.accept(this.log, message);
 	}
 
 	/**
-	 * Gets a copy of the Schedule.
+	 * Gets the {@link SimulationResult}.
 	 * 
-	 * @return {@link ImmutableSortedMap}
+	 * @return {@link SimulationResult}
 	 */
-	public ImmutableSortedMap<ZonedDateTime, Period> getSchedule() {
-		synchronized (this.schedule) {
-			return ImmutableSortedMap.copyOf(this.schedule);
+	public SimulationResult getSimulationResult() {
+		return this.simulationResult;
+	}
+
+	/**
+	 * Output for Controller.Debug.Log.
+	 *
+	 * @return the debug log output
+	 */
+	public String debugLog() {
+		var b = new StringBuilder();
+		if (this.simulationResult.periods().isEmpty()) {
+			b.append("No Schedule available");
+		} else {
+			b.append("ScheduledPeriods:" + this.simulationResult.periods().size());
 		}
+		var gsc = this.globalSimulationsContext;
+		if (gsc != null) {
+			b.append("|SimulationCounter:" + gsc.simulationCounter().get());
+		}
+		b.append("|PerQuarter:" + this.simulationsPerQuarterChannel.value());
+		return b.toString();
 	}
 }

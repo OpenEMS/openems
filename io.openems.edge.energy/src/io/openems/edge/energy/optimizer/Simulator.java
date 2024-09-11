@@ -3,157 +3,169 @@ package io.openems.edge.energy.optimizer;
 import static io.jenetics.engine.EvolutionResult.toBestGenotype;
 import static io.jenetics.engine.Limits.byExecutionTime;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.buildInitialPopulation;
-import static io.openems.edge.energy.optimizer.Utils.paramsAreValid;
-import static io.openems.edge.energy.optimizer.Utils.postprocessSimulatorState;
-import static java.lang.Math.max;
 import static java.time.Duration.ofSeconds;
 
-import java.time.ZonedDateTime;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSortedMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.jenetics.Genotype;
 import io.jenetics.IntegerChromosome;
 import io.jenetics.IntegerGene;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionResult;
-import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
-import io.openems.edge.energy.optimizer.Params.Length;
-import io.openems.edge.energy.optimizer.Params.OptimizePeriod;
+import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.simulation.EnergyFlow;
+import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
+import io.openems.edge.energy.api.simulation.OneSimulationContext;
+import io.openems.edge.energy.optimizer.SimulationResult.Period;
 
 public class Simulator {
 
 	/** Used to incorporate charge/discharge efficiency. */
 	public static final double EFFICIENCY_FACTOR = 1.17;
 
-	public record Period(OptimizePeriod op, StateMachine state, int essInitial, EnergyFlow ef) {
+	private static final Logger LOG = LoggerFactory.getLogger(Simulator.class);
+
+	/**
+	 * Simulates a Schedule and calculates the cost.
+	 * 
+	 * @param gsc the {@link GlobalSimulationsContext}
+	 * @param gt  the Schedule as a {@link Genotype}
+	 * @return the cost, lower is better, always positive; {@link Double#NaN} on
+	 *         error
+	 */
+	protected static double calculateCost(GlobalSimulationsContext gsc, Genotype<IntegerGene> gt) {
+		return simulate(gsc, gt, null);
 	}
 
 	/**
 	 * Simulates a Schedule and calculates the cost.
 	 * 
-	 * @param p        the {@link Params}
-	 * @param schedule the {@link StateMachine} states of the Schedule
-	 * @return the cost, lower is better; always positive
+	 * @param gsc     the {@link GlobalSimulationsContext}
+	 * @param gt      the simulated {@link Genotype}
+	 * @param collect a {@link Consumer} collecting context of the final result
+	 * @return the cost, lower is better, always positive;
+	 *         {@link Double#POSITIVE_INFINITY} on error
 	 */
-	protected static double calculateCost(Params p, StateMachine[] schedule) {
-		final var nextEssInitial = new AtomicInteger(p.essInitialEnergy());
+	public static double simulate(GlobalSimulationsContext gsc, Genotype<IntegerGene> gt,
+			Consumer<SimulationResult.Period> collect) {
+		final var osc = OneSimulationContext.from(gsc);
+		final var noOfPeriods = gsc.periods().size();
+
 		var sum = 0.;
-		for (var i = 0; i < p.optimizePeriods().size(); i++) {
-			sum += simulatePeriod(p, p.optimizePeriods().get(i), schedule[i], nextEssInitial, null);
+		for (var period = 0; period < noOfPeriods; period++) {
+			sum += simulatePeriod(osc, gt, period, collect);
 		}
 		return sum;
 	}
 
 	/**
-	 * Simulates a Schedule in quarterly periods.
-	 * 
-	 * @param p        the {@link Params}
-	 * @param schedule the {@link StateMachine} states of the Schedule
-	 * @return a Map of {@link Period}s
-	 */
-	protected static ImmutableSortedMap<ZonedDateTime, Period> simulate(Params p, StateMachine[] schedule) {
-		final var nextEssInitial = new AtomicInteger(p.essInitialEnergy());
-		var result = ImmutableSortedMap.<ZonedDateTime, Period>naturalOrder();
-		for (var i = 0; i < p.optimizePeriods().size(); i++) {
-			var state = schedule[i];
-			var op = p.optimizePeriods().get(i);
-			var length = op.quarterPeriods().size() == 1 ? Length.QUARTER : Length.HOUR;
-			// Convert mixed OptimizePeriods to pure quarterly
-			for (var qp : op.quarterPeriods()) {
-				var quarterlyOp = new OptimizePeriod(qp.time(), length, qp.essMaxChargeEnergy(),
-						qp.essMaxDischargeEnergy(), qp.essChargeInChargeGrid(), qp.maxBuyFromGrid(), qp.production(),
-						qp.consumption(), qp.price(), ImmutableList.of(qp));
-				simulatePeriod(p, quarterlyOp, state, nextEssInitial, period -> result.put(period.op().time(), period));
-			}
-		}
-		return result.build();
-	}
-
-	/**
 	 * Calculates the cost of one Period under the given Schedule.
 	 * 
-	 * @param p              the {@link Params}
-	 * @param op             the current {@link OptimizePeriod}
-	 * @param state          the {@link StateMachine} of the current period
-	 * @param nextEssInitial the initial SoC-Energy; also used as return value
-	 * @param collect        a {@link Consumer} to collect the simulation results if
-	 *                       required. We are not always collecting results to
-	 *                       reduce workload during simulation.
-	 * @return the cost, lower is better; always positive
+	 * @param simulation  the {@link OneSimulationContext}
+	 * @param gt          the simulated {@link Genotype}
+	 * @param periodIndex the index of the simulated period
+	 * @param collect     a {@link Consumer} collecting context of the final result
+	 * @return the cost, lower is better, always positive;
+	 *         {@link Double#POSITIVE_INFINITY} on error
 	 */
-	protected static double simulatePeriod(Params p, OptimizePeriod op, StateMachine state,
-			final AtomicInteger nextEssInitial, Consumer<Period> collect) {
-		// Constants
-		final var essInitial = max(0, nextEssInitial.get()); // always at least '0'
+	public static double simulatePeriod(OneSimulationContext simulation, Genotype<IntegerGene> gt, int periodIndex,
+			Consumer<SimulationResult.Period> collect) {
+		final var period = simulation.global.periods().get(periodIndex);
+		final var handlers = simulation.global.handlers();
+		final var model = EnergyFlow.Model.from(simulation, period);
 
-		// Calculate Energy-Flow
-		final var ef = switch (state) {
-		case BALANCING -> EnergyFlow.withBalancing(p, op, essInitial);
-		case DELAY_DISCHARGE -> EnergyFlow.withDelayDischarge(p, op, essInitial);
-		case CHARGE_GRID -> EnergyFlow.withChargeGrid(p, op, essInitial);
-		};
+		var eshIndex = 0;
+		for (var esh : handlers) {
+			if (esh instanceof EnergyScheduleHandler.WithDifferentStates<?, ?> e) {
+				// Simulate with state given by Genotype
+				e.simulatePeriod(simulation, period, model, gt.get(eshIndex++).get(periodIndex).intValue());
+			} else if (esh instanceof EnergyScheduleHandler.WithOnlyOneState<?> e) {
+				e.simulatePeriod(simulation, period, model);
+			}
+		}
 
-		nextEssInitial.set(essInitial - ef.ess());
+		final EnergyFlow energyFlow = model.solve();
+
+		if (energyFlow == null) {
+			LOG.error("Error while simulating period [" + periodIndex + "]");
+			// TODO add configurable debug logging
+			// LOG.info(simulation.toString());
+			// model.logConstraints();
+			// model.logMinMaxValues();
+			return Double.POSITIVE_INFINITY;
+		}
 
 		// Calculate Cost
+		// TODO should be done also by ESH to enable this use-case:
+		// https://community.openems.io/t/limitierung-bei-negativen-preisen-und-lastgang-einkauf/2713/2
 		double cost;
-		if (ef.grid() > 0) {
+		if (energyFlow.getGrid() > 0) {
 			// Filter negative prices
-			var price = max(0, op.price());
+			var price = Math.max(0, period.price());
 
 			cost = // Cost for direct Consumption
-					ef.gridToConsumption() * price
+					energyFlow.getGridToCons() * price
 							// Cost for future Consumption after storage
-							+ ef.gridToEss() * price * EFFICIENCY_FACTOR;
+							+ energyFlow.getGridToEss() * price * EFFICIENCY_FACTOR;
 
 		} else {
 			// Sell-to-Grid
 			cost = 0.;
 		}
 		if (collect != null) {
-			var postprocessedState = postprocessSimulatorState(state, //
-					EnergyFlow.withBalancing(p, op, essInitial), //
-					EnergyFlow.withDelayDischarge(p, op, essInitial), //
-					EnergyFlow.withChargeGrid(p, op, essInitial));
-			collect.accept(new Period(op, postprocessedState, essInitial, ef));
+			// var postprocessedState = postprocessSimulatorState(state, ef);
+			collect.accept(Period.from(period, energyFlow, simulation.getEssInitial()));
 		}
+
+		// Prepare for next period
+		simulation.calculateEssInitial(energyFlow.getEss());
+
 		return cost;
 	}
 
 	/**
 	 * Runs the optimization with default settings.
 	 * 
-	 * @param p                     the {@link Params}
+	 * @param gsc                   the {@link GlobalSimulationsContext}
+	 * @param previousResult        the {@link SimulationResult} of the previous
+	 *                              optimization run
 	 * @param executionLimitSeconds limit.byExecutionTime.ofSeconds
-	 * @return the best schedule
+	 * @return the best Schedule
 	 */
-	protected static StateMachine[] getBestSchedule(Params p, long executionLimitSeconds) {
-		return getBestSchedule(p, executionLimitSeconds, null, null);
+	public static SimulationResult getBestSchedule(GlobalSimulationsContext gsc, SimulationResult previousResult,
+			long executionLimitSeconds) {
+		try {
+			return getBestSchedule(gsc, previousResult, executionLimitSeconds, null, null);
+		} catch (Throwable e) {
+			System.exit(0);
+			return SimulationResult.EMPTY;
+		}
 	}
 
-	protected static StateMachine[] getBestSchedule(Params p, long executionLimitSeconds, Integer populationSize,
-			Integer limit) {
-		// Return pure BALANCING Schedule if no predictions are available
-		if (!paramsAreValid(p)) {
-			return p.optimizePeriods().stream() //
-					.map(op -> StateMachine.BALANCING) //
-					.toArray(StateMachine[]::new);
+	protected static SimulationResult getBestSchedule(GlobalSimulationsContext gsc, SimulationResult previousResult,
+			long executionLimitSeconds, Integer populationSize, Integer limit) {
+		// Genotype:
+		// - Separate IntegerChromosome per EnergyScheduleHandler WithDifferentStates
+		// - Chromosome length = number of periods
+		// - Integer-Genes represent the state
+		final var chromosomes = gsc.handlers().stream() //
+				.filter(EnergyScheduleHandler.WithDifferentStates.class::isInstance) //
+				.map(EnergyScheduleHandler.WithDifferentStates.class::cast) //
+				.map(esh -> IntegerChromosome.of(0, esh.getAvailableStates().length, gsc.periods().size())) //
+				.toList();
+		if (chromosomes.isEmpty()) {
+			return SimulationResult.EMPTY;
 		}
+		final var gtf = Genotype.of(chromosomes);
 
-		var gtf = Genotype.of(IntegerChromosome.of(IntegerGene.of(0, p.states().length)), p.optimizePeriods().size()); //
 		var eval = (Function<Genotype<IntegerGene>, Double>) (gt) -> {
-			var modes = new StateMachine[p.optimizePeriods().size()];
-			for (var i = 0; i < modes.length; i++) {
-				modes[i] = p.states()[gt.get(i).get(0).intValue()];
-			}
-			return calculateCost(p, modes);
+			gsc.simulationCounter().incrementAndGet();
+			return calculateCost(gsc, gt);
 		};
 		var engine = Engine //
 				.builder(eval, gtf) //
@@ -163,15 +175,14 @@ public class Simulator {
 			engine.populationSize(populationSize); //
 		}
 		Stream<EvolutionResult<IntegerGene, Double>> stream = engine.build() //
-				.stream(buildInitialPopulation(p)) //
+				.stream(buildInitialPopulation(gsc, previousResult)) //
 				.limit(byExecutionTime(ofSeconds(executionLimitSeconds))); //
 		if (limit != null) {
 			stream = stream.limit(limit); // apply optional limit
 		}
 		var bestGt = stream //
 				.collect(toBestGenotype());
-		return IntStream.range(0, p.optimizePeriods().size()) //
-				.mapToObj(period -> p.states()[bestGt.get(period).get(0).intValue()]) //
-				.toArray(StateMachine[]::new);
+
+		return SimulationResult.fromQuarters(gsc, bestGt);
 	}
 }
