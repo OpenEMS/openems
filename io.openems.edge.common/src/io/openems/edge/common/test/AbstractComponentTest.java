@@ -725,6 +725,28 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	}
 
 	/**
+	 * Calls the 'modify()' method of the 'system-under-test'.
+	 *
+	 * @param config the configuration
+	 * @return itself, to use as a builder
+	 * @throws Exception on error
+	 */
+	public SELF modify(AbstractComponentConfig config) throws Exception {
+
+		// Add the configuration to ConfigurationAdmin
+		for (Object object : this.references) {
+			if (object instanceof DummyConfigurationAdmin) {
+				var cm = (DummyConfigurationAdmin) object;
+				cm.addConfig(config);
+			}
+		}
+
+		this.callModified(config);
+
+		return this.self();
+	}
+
+	/**
 	 * Calls the 'deactivate()' method of the 'system-under-test'.
 	 *
 	 * @return itself, to use as a builder
