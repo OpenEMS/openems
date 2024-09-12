@@ -2,7 +2,7 @@ package io.openems.edge.example.gruenstrom;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.StringReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public interface GruenStromReader extends OpenemsComponent {
@@ -10,8 +10,7 @@ public interface GruenStromReader extends OpenemsComponent {
 		/*
 		 * Report 1
 		 */
-		GREEN_LEVEL(Doc.of(OpenemsType.STRING) //
-				.text("Green Level at the current time")), //
+		GREEN_LEVEL(Doc.of(OpenemsType.INTEGER)), //
 		;
 		private final Doc doc;
 
@@ -30,7 +29,7 @@ public interface GruenStromReader extends OpenemsComponent {
 	 *
 	 * @return the Channel
 	 */
-	public default StringReadChannel getGreenLevelChannel() {
+	public default IntegerReadChannel getGreenLevelChannel() {
 		return this.channel(ChannelId.GREEN_LEVEL);
 	}
 	

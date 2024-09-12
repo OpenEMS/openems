@@ -9,7 +9,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -27,8 +26,7 @@ public class GruenStromReaderImpl extends AbstractOpenemsComponent implements Op
 	private BridgeHttp httpBridge;
 
 	public GruenStromReaderImpl() {
-		super(OpenemsComponent.ChannelId.values(), //
-				GruenStromReader.ChannelId.values() //
+		super(OpenemsComponent.ChannelId.values(), GruenStromReader.ChannelId.values() //
 		);
 	}
 
@@ -38,19 +36,17 @@ public class GruenStromReaderImpl extends AbstractOpenemsComponent implements Op
 		// Hard code channel value so we can read it in UI
 		this.getGreenLevelChannel().setNextValue(54);
 
-		
-		
 		// TODO: Implement api
 
-		//		this.httpBridge.subscribeCycle(30, new Endpoint(//
-		//				null,// Url
-		//				null, //
-		//				0, //
-		//				0, //
-		//				null,//
-		//				null //
-		//				), null, null);
-		//	
+		// this.httpBridge.subscribeCycle(30, new Endpoint(//
+		// null,// Url
+		// null, //
+		// 0, //
+		// 0, //
+		// null,//
+		// null //
+		// ), null, null);
+		//
 	}
 
 	@Override

@@ -3,7 +3,7 @@ package io.openems.edge.example.gruenstrom;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition(name = "GruenStrom Reader", //
+@ObjectClassDefinition(name = "GruenStrom.Reader", //
 		description = "Implements a reader that checks how green the elecricity of a given area is.")
 @interface Config {
 
@@ -19,8 +19,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;
 
-	@AttributeDefinition(name = "Postal Code", description = "The Postal Code of to be read.", required = true)
+	@AttributeDefinition(name = "Postal Code", description = "The Postal Code of the location to be read.", required = true)
 	String plz() default "94469";
 
-	String webconsole_configurationFactory_nameHint() default "GruenStrom Reader [{id}]";
+	String webconsole_configurationFactory_nameHint() default "GruenStrom.Reader [{id}]";
 }
