@@ -1,0 +1,159 @@
+= Tutorial 6: Add a JSON-RPC Request from UI to Edge
+In this tutorial, we will extend the OpenEMS UI to send a JSON-RPC request from the UI to the OpenEMS Edge. This will enable users to interact with Edge components directly from the UI. We will create a button on the UI to request the current Grünstromindex (GSI) value from the `GsiComponent` and display the response.
+
+== Objectives
+- Add a JSON-RPC request from the UI to Edge.
+- Create a new button in the UI to trigger the request.
+- Display the response from the Edge in the UI.
+
+== Prerequisites
+- Completion of <<tutorial-5, Tutorial 5: Implement a Grünstromindex App for OpenEMS AppCenter>>.
+- Familiarity with Angular, JSON-RPC, and OpenEMS Edge architecture.
+
+== Step 1: Update the OpenEMS UI to Send JSON-RPC Requests
+
+1. **Modify the Existing GSI App Component:**
+
+   Open the `GsiAppComponent` (created in Tutorial 5) and extend it to include a method for sending a JSON-RPC request to fetch the current GSI value from the Edge.
+
+   Update `gsi-app.component.ts` to add the new method:
+
+   ```typescript
+   import { Component } from '@angular/core';
+   import { JsonrpcService } from 'src/app/services/jsonrpc.service';
+
+   @Component({
+     selector: 'app-gsi-app',
+     templateUrl: './gsi-app.component.html',
+     styleUrls: ['./gsi-app.component.css']
+   })
+   export class GsiAppComponent {
+     zipCode: string = '';
+     currentGsi: number | null = null; // Holds the current GSI value
+
+     constructor(private jsonrpcService: JsonrpcService) {}
+
+     onSave() {
+       const params = {
+         component: 'io.openems.edge.gsi.GsiComponent',
+         config: {
+           zipCode: this.zipCode
+         }
+       };
+
+       this.jsonrpcService.call('component.setConfig', params).subscribe(response => {
+         if (response.success) {
+           alert('GSI zip code updated successfully.');
+         } else {
+           alert('Failed to update GSI zip code.');
+         }
+       });
+     }
+
+     onFetchGsiValue() {
+       const params = {
+         component: 'io.openems.edge.gsi.GsiComponent'
+       };
+
+       this.jsonrpcService.call('component.getGsiValue', params).subscribe(response => {
+         if (response.success) {
+           this.currentGsi = response.result.gsiValue;
+           alert('Current GSI value: ' + this.currentGsi);
+         } else {
+           alert('Failed to fetch GSI value.');
+         }
+       });
+     }
+   }
+
+    currentGsi Field: Added to store the fetched GSI value.
+    onFetchGsiValue() Method: Sends a JSON-RPC request to component.getGsiValue to fetch the current GSI value from the Edge.
+
+    Update the User Interface (gsi-app.component.html):
+
+    Modify gsi-app.component.html to add a button for fetching the current GSI value:
+
+    html
+
+    <div class="gsi-app-container">
+      <h2>Configure Grünstromindex (GSI)</h2>
+      <div class="form-group">
+        <label for="zip-code">Zip Code:</label>
+        <input type="text" id="zip-code" [(ngModel)]="zipCode" placeholder="Enter zip code" />
+      </div>
+      <button (click)="onSave()">Save</button>
+      <button (click)="onFetchGsiValue()">Fetch Current GSI Value</button>
+
+      <div *ngIf="currentGsi !== null">
+        <p>Current GSI Value: {{ currentGsi }}</p>
+      </div>
+    </div>
+
+        New Button: Added a button to call the onFetchGsiValue() method when clicked.
+        Display GSI Value: Shows the fetched GSI value if it is not null.
+
+== Step 2: Implement JSON-RPC Method in OpenEMS Edge
+
+    Add a Method to Return GSI Value in GsiComponent:
+
+    Open the GsiComponent class in io.openems.edge.gsi and add a method to return the current GSI value:
+
+    java
+
+@ComponentJsonrpcMethod
+public void getGsiValue(JsonrpcRequest request) throws OpenemsException {
+    JsonObject response = new JsonObject();
+    response.addProperty("gsiValue", gsiChannel.value().orElse(0)); // Return the current GSI value
+    request.sendResponse(response);
+}
+
+    getGsiValue() Method: Responds with the current GSI value from the gsiChannel.
+
+Ensure JSON-RPC Endpoint Registration:
+
+Confirm that the GsiComponent class is correctly registered to handle JSON-RPC requests:
+
+java
+
+    public class GsiComponent extends AbstractOpenemsComponent implements OpenemsComponent {
+        // Existing code...
+
+        @Override
+        protected void initialize() {
+            // Register JSON-RPC method
+            this.addJsonrpcMethod("getGsiValue", this::getGsiValue);
+            // Other initialization code...
+        }
+    }
+
+        initialize() Method: Registers the getGsiValue method with the JSON-RPC system.
+
+== Step 3: Test the JSON-RPC Request from UI to Edge
+
+    Run OpenEMS Edge and AppCenter:
+        Start OpenEMS Edge with the updated GsiComponent.
+        Run the OpenEMS AppCenter by executing ng serve in the AppCenter project directory.
+
+    Navigate to the GSI App:
+        Open a browser and navigate to the AppCenter (e.g., http://localhost:4200).
+        Click on the "Grünstromindex App" link in the sidebar menu.
+
+    Test Fetching the Current GSI Value:
+        Click on the "Fetch Current GSI Value" button.
+        Verify that the current GSI value is fetched and displayed in the UI.
+        Check the OpenEMS Edge logs to ensure the JSON-RPC request is being received and processed correctly.
+
+    Troubleshoot Potential Issues:
+        If the GSI value is not fetched, ensure that the JSON-RPC endpoint is correctly registered and the network connection is working.
+        Verify that the GSI component is properly initialized and the GSI value is available.
+
+== Conclusion
+
+In this tutorial, you successfully added a JSON-RPC request from the UI to the OpenEMS Edge, allowing users to fetch the current GSI value directly from the UI. This improves user interactivity and flexibility when working with OpenEMS.
+
+Proceed to the next tutorial: <<tutorial-7, Tutorial 7: Extend the UI Modal to Make Zip Code Configurable via JsonFormly>>.
+
+css
+
+
+This tutorial provides a comprehensive guide to implementing JSON-RPC communication between the OpenEMS UI and Edge, covering UI updates, JSON-RPC method implementation, and testing.

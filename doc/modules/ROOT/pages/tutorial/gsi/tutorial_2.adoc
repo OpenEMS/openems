@@ -1,0 +1,138 @@
+= Tutorial 2: Create a new Live Widget
+In this tutorial, we will create a new Live Widget for the Grünstromindex (GSI) in the OpenEMS UI. This widget will provide both Flat and Modal views to dynamically display the current GSI value in the user interface.
+
+== Objectives
+- Create a new Live Widget for GSI in OpenEMS UI.
+- Implement both Flat and Modal views for the widget to display live GSI data.
+
+== Prerequisites
+- Completion of xref:tutorial/gsi/tutorial_1.adoc[]
+- Familiarity with Vue.js and the structure of OpenEMS UI.
+- A working OpenEMS development environment.
+
+== Step 1: Create a New Live Widget Component for GSI
+
+1. **Define the Widget Structure:**
+
+   Start by creating a new folder for the widget under `src/widgets/live/` in the OpenEMS UI project. Name this folder `gsi`. Inside this folder, create two new files: `GsiLiveFlat.vue` for the Flat view and `GsiLiveModal.vue` for the Modal view.
+
+2. **Create the Flat View Component (`GsiLiveFlat.vue`):**
+
+   In `GsiLiveFlat.vue`, define the structure for the Flat view of the GSI widget:
+
+   ```vue
+   <template>
+     <div class="gsi-live-flat">
+       <oe-widget-title :title="'Grünstromindex (GSI)'" />
+       <div class="gsi-value">
+         {{ gsiValue }} %
+       </div>
+     </div>
+   </template>
+
+   <script>
+   export default {
+     computed: {
+       gsiValue() {
+         // Retrieve the GSI value from the Vuex store
+         return this.$store.getters['io.openems.edge.gsi.GsiComponent/GSI'];
+       }
+     }
+   };
+   </script>
+
+   <style scoped>
+   .gsi-live-flat {
+     text-align: center;
+     font-size: 1.5em;
+     color: #4caf50;
+   }
+   .gsi-value {
+     font-weight: bold;
+   }
+   </style>
+
+    Template: The Flat view displays the GSI value as a percentage.
+    Script: The gsiValue is a computed property that retrieves the GSI value from the Vuex store.
+    Style: Basic styling is provided to center the text and highlight the GSI value.
+
+    Create the Modal View Component (GsiLiveModal.vue):
+
+    In GsiLiveModal.vue, define the structure for the Modal view of the GSI widget:
+
+    vue
+
+<template>
+  <oe-modal>
+    <oe-modal-line
+      :label="'Grünstromindex (GSI)'"
+      :value="gsiValue"
+      :unit="'%'"
+    />
+  </oe-modal>
+</template>
+
+<script>
+export default {
+  computed: {
+    gsiValue() {
+      // Retrieve the GSI value from the Vuex store
+      return this.$store.getters['io.openems.edge.gsi.GsiComponent/GSI'];
+    }
+  }
+};
+</script>
+
+    Template: The Modal view uses oe-modal and oe-modal-line components to display the GSI value.
+    Script: Similar to the Flat view, gsiValue is computed from the Vuex store.
+
+Register the New Widget in WidgetConfig:
+
+To make the new GSI Live Widget available in OpenEMS UI, it needs to be registered in the WidgetConfig. Open the WidgetConfig.js file and add the following entry:
+
+javascript
+
+    {
+      path: 'live/gsi',
+      name: 'GsiLive',
+      components: {
+        flat: () => import('@/widgets/live/gsi/GsiLiveFlat.vue'),
+        modal: () => import('@/widgets/live/gsi/GsiLiveModal.vue')
+      }
+    }
+
+    This configuration ensures that both the Flat and Modal views are loaded when the GSI Live Widget is used.
+
+== Step 2: Integrate the GSI Live Widget into the Dashboard
+
+    Edit the Dashboard Configuration:
+
+    To add the new GSI Live Widget to the dashboard, open the DashboardConfig.js file and add a new widget entry:
+
+    javascript
+
+    {
+      widget: 'live/gsi',
+      gridItem: { x: 0, y: 0, w: 2, h: 1 },
+      title: 'Grünstromindex (GSI)'
+    }
+
+    This will place the GSI Live Widget at the specified grid position (x, y) on the dashboard.
+
+    Test the Integration:
+        Start the OpenEMS Edge with the GsiComponent running.
+        Start the OpenEMS UI and navigate to the dashboard.
+        Verify that the GSI Live Widget is displayed with the Flat view showing the GSI value.
+        Click on the widget to open the Modal view and verify that it displays the GSI value correctly.
+
+== Conclusion
+
+In this tutorial, you successfully created a new Live Widget for the Grünstromindex (GSI) in OpenEMS UI. The widget provides both Flat and Modal views for displaying live GSI data, enhancing the user experience with dynamic, real-time information.
+
+Proceed to the next tutorial: <<tutorial-3, Tutorial 3: Develop a History Widget for GSI>>.
+
+vbnet
+
+
+This tutorial provides a clear, step-by-step guide for creating a Live Widget in OpenEMS UI, including instructions for both Flat and Modal views, integrating the widget into the dashboard, and verifying the functionality.
+

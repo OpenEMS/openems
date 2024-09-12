@@ -1,0 +1,45 @@
+= Tutorial 1: Implement a static GSI Component and show value in UI
+In this first tutorial, we will implement a simple component for OpenEMS Edge that provides a channel for the Grünstromindex (GSI). The GSI value will be statically hardcoded. Additionally, we will extend the existing "Grid" widget in the OpenEMS UI by adding an `oe-modal-line` to display the GSI value.
+
+== Objectives
+- Implement a new component in OpenEMS Edge that provides a "GSI" channel with a static value.
+- Extend the existing "Grid" widget in OpenEMS UI to display the GSI value using an `oe-modal-line`.
+
+== Prerequisites
+- You should have finished the Getting Started guide and have Eclipse IDE and Visual Studio Code setup properly.
+
+== Step 1: Implement a static GSI Component in OpenEMS Edge
+
+To create a new component in OpenEMS Edge:
+
+1. **Create a New Java Class for the Component:**
+
+// TODO
+
+In this example, the GsiComponent class extends AbstractOpenemsComponent and initializes a new ReadChannel named gsiChannel with a hardcoded value of 50.
+
+
+== Step 2: Extend the existing UI Widget for "Grid"
+
+Now, let's extend the existing "Grid" widget in OpenEMS UI to display the GSI value using an oe-modal-line.
+
+    Locate the "Grid" Widget Component:
+
+    In the OpenEMS UI project, locate the existing "Grid" widget component under the src/widgets/grid/ directory.
+
+    Add a New oe-modal-line to Display the GSI Value:
+
+    Open the GridModal.vue file in your code editor. Add the following code snippet within the template section to include a new oe-modal-line:
+
+== Step 3: Test the implementation
+
+        Start OpenEMS Edge with the new GsiComponent configured.
+        Start OpenEMS UI. You should see the "Grid" Widget in Live and see your statically hardcoded value "50" as seen in the Screenshot:
+
+// TODO
+
+== Conclusion
+
+In this tutorial, you have successfully implemented a static GSI component for OpenEMS Edge and extended the existing "Grid" widget in OpenEMS UI to display the GSI value. This serves as the foundation for more dynamic and interactive features that we will implement in the subsequent tutorials.
+
+Proceed to the next tutorial: <<tutorial-2, Tutorial 2: Create a New Live Widget for GSI>>.

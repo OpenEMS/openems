@@ -1,0 +1,52 @@
+# "Grünstromindex" Tutorial Series
+:imagesdir: ../assets/images
+:sectnums:
+:sectnumlevels: 4
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+
+Welcome to the Grünstromindex tutorial series for OpenEMS! This series provides a step-by-step guide to implementing various functions in OpenEMS Edge and OpenEMS UI related to the Grünstromindex (GSI). The tutorials are structured to guide you from the basics of implementing a simple component to creating a fully configurable app for the OpenEMS AppCenter. 
+
+== Introduction
+
+The Grünstromindex (Green Electricity Index, GSI) represents the percentage of green electricity in the power grid at a given time and location. This tutorial series focuses on integrating the GSI into OpenEMS, touching topics like:
+
+- Implement an OpenEMS Edge component with a custom Channel that holds a value
+- Use the "HTTP Bridge" to receive a value from a webservice
+- Implement OpenEMS UI widgets for Live and History
+- Build an "App" to conveniently install your new component via the OpenEMS AppCenter
+- Add custom communication between OpenEMS UI and OpenEMS Edge (optionally via OpenEMS Backend) using JSON-RPC
+- Allow configuration via OpenEMS UI.
+
+Each tutorial builds on the previous one, providing a comprehensive guide to creating a robust and user-friendly integration of the GSI.
+
+== Tutorials Overview
+
+=== xref:tutorial/gsi/tutorial_1.adoc[]
+In this tutorial, you will learn how to implement a new component for OpenEMS Edge that provides a channel for the Grünstromindex (GSI). In the first variant the value of the GSI is statically hardcoded. Additionally, you will extend the existing "Grid" widget in the OpenEMS UI by adding a line to display the GSI.
+
+=== xref:tutorial/gsi/tutorial_2.adoc[]
+This tutorial guides you through the creation of a new Live Widget for the Grünstromindex in the OpenEMS UI. The widget includes both Flat and Modal views, providing a dynamic representation of live GSI data.
+
+=== xref:tutorial/gsi/tutorial_3.adoc[]
+Building on the Live Widget, this tutorial shows how to create a History Widget for the Grünstromindex. The widget includes Flat and Modal views, allowing users to visualize historical GSI data.
+
+=== xref:tutorial/gsi/tutorial_4.adoc[]
+Instead of using a hardcoded value for the GSI, this tutorial teaches you how to use the HTTP Bridge to fetch the GSI value from the webservice API every 15 minutes. You will also add a configuration option for a zip code, which is required by the Grünstromindex API.
+
+=== xref:tutorial/gsi/tutorial_5.adoc[]
+This tutorial focuses on developing a "OpenEMS Grünstromindex" App for the OpenEMS AppCenter. The app will include configurable options such as the zip code.
+
+=== xref:tutorial/gsi/tutorial_6.adoc[]
+In this tutorial, you will learn how to add a JSONRPC request from the OpenEMS UI to the OpenEMS Edge for custom communication of complex data models between the UI and Edge components, optionally routed via the OpenEMS Backend.
+
+=== xref:tutorial/gsi/tutorial_7.adoc[]
+The final tutorial demonstrates how to extend the UI Live Modal to make the zip code configurable using JsonFormly. This feature allows users to customize their experience directly from the UI, enhancing usability and flexibility.
+
+== Conclusion
+By the end of this tutorial series, you will have a comprehensive understanding of how to integrate the Grünstromindex into OpenEMS, from creating simple components to developing fully configurable applications. Each tutorial is designed to build on the knowledge gained in the previous ones, providing a complete learning path for developers.
+
+Continue to the first tutorial: <<tutorial-1, Implement a Static GSI Component>>.

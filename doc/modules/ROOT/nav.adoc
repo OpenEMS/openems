@@ -1,6 +1,8 @@
 * xref:introduction.adoc[Introduction]
 * xref:gettingstarted.adoc[Getting Started]
 * xref:coreconcepts.adoc[Core concepts & terminology]
+* Tutorials
+** xref:tutorial/gsi/index.adoc[Grünstromindex]
 * OpenEMS Edge
 ** xref:edge/architecture.adoc[Architecture]
 ** xref:edge/configuration.adoc[Configuration]

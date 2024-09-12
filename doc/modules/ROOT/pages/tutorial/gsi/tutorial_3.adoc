@@ -1,0 +1,158 @@
+= Tutorial 3: Develop a History Widget for GSI
+In this tutorial, we will develop a new History Widget for the Grünstromindex (GSI) in the OpenEMS UI. This widget will provide both Flat and Modal views, allowing users to visualize historical GSI data in a user-friendly way.
+
+== Objectives
+- Create a new History Widget for GSI in OpenEMS UI.
+- Implement both Flat and Modal views to display historical GSI data.
+- Integrate the widget into the dashboard.
+
+== Prerequisites
+- Completion of <<tutorial-2, Tutorial 2: Create a New Live Widget for GSI>>.
+- Familiarity with Vue.js, OpenEMS UI, and its widget structure.
+- Basic knowledge of handling historical data in OpenEMS.
+
+== Step 1: Create a New History Widget Component for GSI
+
+1. **Set Up the Widget Structure:**
+
+   Start by creating a new folder for the widget under `src/widgets/history/` in the OpenEMS UI project. Name this folder `gsi-history`. Inside this folder, create two new files: `GsiHistoryFlat.vue` for the Flat view and `GsiHistoryModal.vue` for the Modal view.
+
+2. **Create the Flat View Component (`GsiHistoryFlat.vue`):**
+
+   In `GsiHistoryFlat.vue`, define the structure for the Flat view of the GSI History widget:
+
+   ```vue
+   <template>
+     <div class="gsi-history-flat">
+       <oe-widget-title :title="'Grünstromindex History (GSI)'" />
+       <oe-line-chart :data="chartData" :options="chartOptions" />
+     </div>
+   </template>
+
+   <script>
+   import { mapGetters } from 'vuex';
+
+   export default {
+     data() {
+       return {
+         chartData: {
+           labels: this.historyTimestamps,
+           datasets: [{
+             label: 'GSI',
+             backgroundColor: '#4caf50',
+             borderColor: '#4caf50',
+             data: this.historyValues
+           }]
+         },
+         chartOptions: {
+           responsive: true,
+           maintainAspectRatio: false
+         }
+       };
+     },
+     computed: {
+       ...mapGetters({
+         historyTimestamps: 'io.openems.edge.gsi.GsiComponent/getHistoryTimestamps',
+         historyValues: 'io.openems.edge.gsi.GsiComponent/getHistoryValues'
+       })
+     }
+   };
+   </script>
+
+   <style scoped>
+   .gsi-history-flat {
+     text-align: center;
+   }
+   </style>
+
+    Template: The Flat view displays a line chart of historical GSI values using the oe-line-chart component.
+    Script: Uses Vuex mapGetters to get the GSI historical data (timestamps and values) from the store.
+    Style: Basic styling centers the widget content.
+
+    Create the Modal View Component (GsiHistoryModal.vue):
+
+    In GsiHistoryModal.vue, define the structure for the Modal view of the GSI History widget:
+
+    vue
+
+<template>
+  <oe-modal>
+    <oe-modal-line
+      v-for="(value, index) in historyData"
+      :key="index"
+      :label="historyTimestamps[index]"
+      :value="value"
+      :unit="'%'"
+    />
+  </oe-modal>
+</template>
+
+<script>
+import { mapGetters } from 'vuex';
+
+export default {
+  computed: {
+    ...mapGetters({
+      historyTimestamps: 'io.openems.edge.gsi.GsiComponent/getHistoryTimestamps',
+      historyData: 'io.openems.edge.gsi.GsiComponent/getHistoryValues'
+    })
+  }
+};
+</script>
+
+    Template: The Modal view displays historical GSI values in a list using oe-modal-line.
+    Script: Retrieves historical data from the Vuex store using mapGetters.
+
+Register the New Widget in WidgetConfig:
+
+Register the new GSI History Widget in the WidgetConfig.js file:
+
+javascript
+
+    {
+      path: 'history/gsi-history',
+      name: 'GsiHistory',
+      components: {
+        flat: () => import('@/widgets/history/gsi-history/GsiHistoryFlat.vue'),
+        modal: () => import('@/widgets/history/gsi-history/GsiHistoryModal.vue')
+      }
+    }
+
+    This ensures that both the Flat and Modal views for the GSI History Widget are properly loaded.
+
+== Step 2: Integrate the GSI History Widget into the Dashboard
+
+    Edit the Dashboard Configuration:
+
+    To add the new GSI History Widget to the dashboard, open the DashboardConfig.js file and add a new widget entry:
+
+    javascript
+
+    {
+      widget: 'history/gsi-history',
+      gridItem: { x: 2, y: 0, w: 2, h: 1 },
+      title: 'Grünstromindex History (GSI)'
+    }
+
+    This places the GSI History Widget at the specified grid position (x, y) on the dashboard.
+
+    Test the Integration:
+        Start the OpenEMS Edge with the GsiComponent running.
+        Start the OpenEMS UI and navigate to the dashboard.
+        Verify that the GSI History Widget is displayed with the Flat view showing the GSI history as a line chart.
+        Click on the widget to open the Modal view and verify that it displays historical GSI values correctly.
+
+== Step 3: Enhance the Widget Functionality
+
+To further improve the widget's functionality, consider adding features like dynamic date range selection, different types of charts (e.g., bar chart), or custom filters for the historical data. This can be done by enhancing the chartOptions and implementing additional UI components.
+
+== Conclusion
+
+In this tutorial, you successfully created a new History Widget for the Grünstromindex (GSI) in OpenEMS UI. The widget provides both Flat and Modal views to visualize historical GSI data, enriching the user's ability to analyze energy consumption trends based on green electricity availability.
+
+Proceed to the next tutorial: <<tutorial-4, Tutorial 4: Retrieve GSI Data via HTTP Bridge>>.
+
+vbnet
+
+
+This tutorial provides clear steps to create a new History Widget for GSI, including both Flat and Modal views, integrating the widget into the dashboard, and testing it to ensure it works as expected.
