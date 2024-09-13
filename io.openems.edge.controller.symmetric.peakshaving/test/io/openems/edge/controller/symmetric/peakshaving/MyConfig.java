@@ -11,6 +11,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String meterId;
 		private int peakShavingPower;
 		private int rechargePower;
+		private int minSocLimit;
+		private boolean enableMultipleEssConstraints;
+		private int socHysteresis;
 
 		private Builder() {
 		}
@@ -37,6 +40,21 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setRechargePower(int rechargePower) {
 			this.rechargePower = rechargePower;
+			return this;
+		}
+		
+		public Builder setMinSocLimit(int minSocLimit) {
+			this.minSocLimit = minSocLimit;
+			return this;
+		}
+
+		public Builder setEnableMultipleEssConstraints(boolean enableMultipleEssConstraints) {
+			this.enableMultipleEssConstraints = enableMultipleEssConstraints;
+			return this;
+		}
+
+		public Builder setSocHysteresis(int socHysteresis) {
+			this.socHysteresis = socHysteresis;
 			return this;
 		}
 
@@ -79,6 +97,21 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int rechargePower() {
 		return this.builder.rechargePower;
+	}
+
+	@Override
+	public int minSocLimit() {
+		return this.builder.minSocLimit;
+	}
+
+	@Override
+	public boolean enableMultipleEssConstraints() {
+		return this.builder.enableMultipleEssConstraints;
+	}
+
+	@Override
+	public int socHysteresis() {
+		return this.builder.socHysteresis;
 	}
 
 }

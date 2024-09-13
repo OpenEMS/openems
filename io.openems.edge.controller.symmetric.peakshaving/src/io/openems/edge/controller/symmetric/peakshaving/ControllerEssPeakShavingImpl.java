@@ -36,6 +36,8 @@ public class ControllerEssPeakShavingImpl extends AbstractOpenemsComponent
 
 	private Config config;
 
+	private BehaviourState previousBehaviour = BehaviourState.FIXED_LIMITATION;
+
 	public ControllerEssPeakShavingImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -76,6 +78,16 @@ public class ControllerEssPeakShavingImpl extends AbstractOpenemsComponent
 			return;
 		}
 
+		var soc = ess.getSoc().orElse(0);
+
+		var behaviour = BehaviourState.FIXED_LIMITATION;
+		if (this.config.enableMultipleEssConstraints()) {
+
+			behaviour = getSocSubstate(soc, this.config.minSocLimit(), this.config.socHysteresis(),
+					this.previousBehaviour);
+			this.previousBehaviour = behaviour;
+		}
+
 		// Calculate 'real' grid-power (without current ESS charge/discharge)
 		var gridPower = meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
 				+ ess.getActivePower().getOrError() /* current charge/discharge Ess */;
@@ -85,13 +97,13 @@ public class ControllerEssPeakShavingImpl extends AbstractOpenemsComponent
 			/*
 			 * Peak-Shaving
 			 */
-			calculatedPower = gridPower -= this.config.peakShavingPower();
+			calculatedPower = gridPower - this.config.peakShavingPower();
 
 		} else if (gridPower <= this.config.rechargePower()) {
 			/*
 			 * Recharge
 			 */
-			calculatedPower = gridPower -= this.config.rechargePower();
+			calculatedPower = gridPower - this.config.rechargePower();
 
 		} else {
 			/*
@@ -100,10 +112,44 @@ public class ControllerEssPeakShavingImpl extends AbstractOpenemsComponent
 			calculatedPower = 0;
 		}
 
-		/*
-		 * set result
-		 */
-		ess.setActivePowerEqualsWithPid(calculatedPower);
+		switch (behaviour) {
+		case FIXED_LIMITATION -> {
+
+			/*
+			 * set result
+			 */
+			ess.setActivePowerEqualsWithPid(calculatedPower);
+		}
+
+		case SOFT_LIMITATION -> {
+			ess.setActivePowerGreaterOrEquals(calculatedPower);
+		}
+		}
+
 		ess.setReactivePowerEquals(0);
+	}
+
+	protected static enum BehaviourState {
+		FIXED_LIMITATION, //
+		SOFT_LIMITATION;
+	}
+
+	protected static BehaviourState getSocSubstate(int soc, int minSoc, int socBuffer,
+			BehaviourState previousBehaviour) {
+
+		return switch (previousBehaviour) {
+		case FIXED_LIMITATION -> {
+			if (soc >= minSoc + socBuffer) {
+				yield BehaviourState.SOFT_LIMITATION;
+			}
+			yield BehaviourState.FIXED_LIMITATION;
+		}
+		case SOFT_LIMITATION -> {
+			if (soc <= minSoc) {
+				yield BehaviourState.FIXED_LIMITATION;
+			}
+			yield BehaviourState.SOFT_LIMITATION;
+		}
+		};
 	}
 }

@@ -28,6 +28,16 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Recharge power", description = "If grid purchase power is below this value battery is recharged.")
 	int rechargePower();
+	
+	@AttributeDefinition(name = "Enable multiple ess constraints", description = "A fixed capacity configured by the minSocLimit is used for peakshaving. Additional capacity could be used by other controllers.")
+	boolean enableMultipleEssConstraints() default false;
+
+	@AttributeDefinition(name = "Minimum SoC required for Peak Shaving", description = "The controller force charges with the available surpluss till this SOC limit")
+	int minSocLimit() default 70;
+
+	@AttributeDefinition(name = "SoC hysterersis", description = "SoC hysteresis to avoid switching between force and soft limitation")
+	int socHysteresis() default 2;
 
 	String webconsole_configurationFactory_nameHint() default "Controller Peak-Shaving Symmetric [{id}]";
+
 }
