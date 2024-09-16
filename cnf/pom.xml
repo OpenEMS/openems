@@ -149,7 +149,7 @@
 			<!-- Release notes: https://github.com/jenetics/jenetics/blob/master/RELEASE_NOTES.md -->
 			<groupId>io.jenetics</groupId>
 			<artifactId>jenetics</artifactId>
-			<version>7.2.0</version>
+			<version>8.1.0</version>
 		</dependency>
 		<!-- javax -->
 		<dependency>
