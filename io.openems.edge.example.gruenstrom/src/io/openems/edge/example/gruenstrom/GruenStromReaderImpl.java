@@ -37,12 +37,12 @@ public class GruenStromReaderImpl extends AbstractOpenemsComponent implements Op
 	private BridgeHttp httpBridge;
 
 	public GruenStromReaderImpl() {
-		super(OpenemsComponent.ChannelId.values(), GruenStromReader.ChannelId.values() //
-		);
+		super(OpenemsComponent.ChannelId.values(), GruenStromReader.ChannelId.values());
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.httpBridge = this.httpBridgeFactory.get();
 		// Hard code channel value so we can read it in UI
 		this.getGreenLevelChannel().setNextValue(54);
@@ -69,7 +69,7 @@ public class GruenStromReaderImpl extends AbstractOpenemsComponent implements Op
 					final var time = dataPoint.get("time").getAsLong();
 					if (time == currentTimestamp) {
 						final var co2 = JsonUtils.getAsInt(dataPoint.get("co2"));
-						this.getGreenLevelChannel().setNextValue(co2);
+						this.getGreenLevelChannel().setNextValue(54);
 					}
 				}
 
