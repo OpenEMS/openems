@@ -39,17 +39,7 @@ public class InitialPopulationUtils {
 		var b = ImmutableList.<Genotype<IntegerGene>>builder(); //
 
 		// All default
-		b.add(Genotype.of(gsc.handlers().stream() //
-				.filter(EnergyScheduleHandler.WithDifferentStates.class::isInstance) //
-				.map(EnergyScheduleHandler.WithDifferentStates.class::cast) //
-				.map(esh -> {
-					final var defaultState = esh.getDefaultStateIndex();
-					final var noOfStates = esh.getAvailableStates().length;
-					return IntegerChromosome.of(IntStream.range(0, gsc.periods().size()) //
-							.mapToObj(i -> IntegerGene.of(defaultState, 0, noOfStates)) //
-							.toList());
-				}) //
-				.toList()));
+		b.add(allStatesDefault(gsc));
 
 		// Existing Schedule
 		b.add(Genotype.of(gsc.handlers().stream() //
@@ -72,5 +62,19 @@ public class InitialPopulationUtils {
 				.toList()));
 
 		return b.build();
+	}
+
+	protected static Genotype<IntegerGene> allStatesDefault(GlobalSimulationsContext gsc) {
+		return Genotype.of(gsc.handlers().stream() //
+				.filter(EnergyScheduleHandler.WithDifferentStates.class::isInstance) //
+				.map(EnergyScheduleHandler.WithDifferentStates.class::cast) //
+				.map(esh -> {
+					final var defaultState = esh.getDefaultStateIndex();
+					final var noOfStates = esh.getAvailableStates().length;
+					return IntegerChromosome.of(IntStream.range(0, gsc.periods().size()) //
+							.mapToObj(i -> IntegerGene.of(defaultState, 0, noOfStates)) //
+							.toList());
+				}) //
+				.toList());
 	}
 }

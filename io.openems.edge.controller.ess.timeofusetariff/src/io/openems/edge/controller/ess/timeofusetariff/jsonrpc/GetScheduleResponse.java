@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSortedMap;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
@@ -103,18 +104,19 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 			Timedata timedata,
 			EnergyScheduleHandler.WithDifferentStates<StateMachine, EshContext> energyScheduleHandler) {
 		final var schedule = energyScheduleHandler.getSchedule();
-		final Stream<JsonObject> result;
+		final JsonArray result;
 		if (schedule.isEmpty()) {
-			result = empty(clock, energyScheduleHandler.getDefaultState());
+			result = new JsonArray();
 		} else {
 			final var historic = fromHistoricData(componentId, schedule.firstKey(), timedata);
 			final var future = fromSchedule(ess, schedule);
-			result = Stream.concat(historic, future);
+			result = Stream.concat(historic, future) //
+					.collect(toJsonArray());
 		}
 
 		return new GetScheduleResponse(requestId, //
 				buildJsonObject() //
-						.add("schedule", result.collect(toJsonArray())) //
+						.add("schedule", result) //
 						.build());
 	}
 

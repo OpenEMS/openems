@@ -35,7 +35,7 @@ public class Optimizer implements Runnable {
 	private final Channel<Integer> simulationsPerQuarterChannel;
 	private final AtomicBoolean interruptFlag = new AtomicBoolean(false);
 
-	private GlobalSimulationsContext globalSimulationsContext = null;
+	private GlobalSimulationsContext gsc = null;
 	private SimulationResult simulationResult = SimulationResult.EMPTY;
 
 	public Optimizer(Supplier<LogVerbosity> logVerbosity,
@@ -59,6 +59,14 @@ public class Optimizer implements Runnable {
 		try {
 			while (true) {
 				this.interruptFlag.set(false);
+
+				if (this.simulationResult == SimulationResult.EMPTY) {
+					// No Schedule available yet. Start with a default Schedule with all States
+					// set to default.
+					this.traceLog(() -> "No existing schedule available -> apply default");
+					this.applyDefaultSchedule();
+				}
+
 				var sim = this.runSimulation().get();
 				if (sim == null) {
 					this.traceLog(() -> "Simulation gave no result!");
@@ -89,37 +97,56 @@ public class Optimizer implements Runnable {
 		return CompletableFuture.supplyAsync(() -> {
 			this.traceLog(() -> "Executing async Simulation");
 
-			final var context = this.createGlobalSimulationsContext(); // this possibly takes forever
-			if (context == null) {
-				this.traceLog(() -> "Unable to create global simulations context -> abort");
+			final var gsc = this.initializeGlobalSimulationsContext();
+			if (gsc == null) {
 				return null;
-			}
-			this.globalSimulationsContext = context; // for debug log of simulation counter
-
-			// Initialize EnergyScheduleHandlers
-			for (var esh : context.handlers()) {
-				esh.onBeforeSimulation(context);
-			}
-
-			if (this.simulationResult == SimulationResult.EMPTY) {
-				this.traceLog(() -> "No existing schedule available");
 			}
 
 			final var executionLimit = Limits.byExecutionTime(Duration.ofSeconds(calculateExecutionLimitSeconds()));
 
 			// Find best Schedule
-			var bestSchedule = Simulator.getBestSchedule(context, this.simulationResult, null, //
+			var bestSchedule = Simulator.getBestSchedule(gsc, this.simulationResult, null, //
 					stream -> stream //
 							// Stop on interruptFlag
 							.limit(ignore -> !this.interruptFlag.get()) //
 							// Stop till next quarter
 							.limit(executionLimit));
 
-			return new Result(context, bestSchedule);
+			return new Result(gsc, bestSchedule);
 		});
 	}
 
 	private static record Result(GlobalSimulationsContext context, SimulationResult result) {
+	}
+
+	private synchronized GlobalSimulationsContext initializeGlobalSimulationsContext() {
+		this.updateGlobalSimulationsContext(); // this possibly takes forever
+		var gsc = this.gsc;
+		if (gsc == null) {
+			return null;
+		}
+
+		// Initialize EnergyScheduleHandlers
+		for (var esh : gsc.handlers()) {
+			esh.onBeforeSimulation(gsc);
+		}
+		return gsc;
+	}
+
+	/**
+	 * Create and apply a Schedule with all States set to Default.
+	 */
+	protected synchronized void applyDefaultSchedule() {
+		final var gsc = this.initializeGlobalSimulationsContext();
+		if (gsc == null) {
+			return;
+		}
+
+		var gt = InitialPopulationUtils.allStatesDefault(gsc);
+		var simulationResult = SimulationResult.fromQuarters(gsc, gt);
+
+		this.traceLog(() -> "Applying Default Schedule");
+		this.applySimulationResult(simulationResult);
 	}
 
 	/**
@@ -140,28 +167,33 @@ public class Optimizer implements Runnable {
 	}
 
 	/**
-	 * Try forever till all data is available.
+	 * Updates the {@link GlobalSimulationsContext}.
 	 * 
-	 * @return the {@link GlobalSimulationsContext}; or null on
-	 *         {@link InterruptedException} or if `interruptFlat` was set
+	 * <p>
+	 * This will possibly run forever and set the global `gsc` variable. In case of
+	 * error `gsc` is set to `null`.
 	 */
-	private GlobalSimulationsContext createGlobalSimulationsContext() {
+	private void updateGlobalSimulationsContext() {
 		while (!this.interruptFlag.get()) {
 			try {
-				return this.gscSupplier.get();
+				this.gsc = this.gscSupplier.get();
+				return;
 
 			} catch (OpenemsException | IllegalArgumentException e) {
 				this.traceLog(() -> "Stuck trying to get GlobalSimulationsContext. " + e.getMessage());
-				this.globalSimulationsContext = null;
+				this.gsc = null;
 				this.applySimulationResult(SimulationResult.EMPTY);
 				try {
 					sleep(10_000);
 				} catch (InterruptedException e1) {
-					return null;
+					this.traceLog(() -> "Unable to create global simulations context: " + e1.getMessage());
+					this.gsc = null;
+					return;
 				}
 			}
 		}
-		return null;
+		this.traceLog(() -> "Unable to create global simulations context -> abort");
+		this.gsc = null;
 	}
 
 	private void traceLog(Supplier<String> message) {
@@ -192,7 +224,7 @@ public class Optimizer implements Runnable {
 		} else {
 			b.append("ScheduledPeriods:" + this.simulationResult.periods().size());
 		}
-		var gsc = this.globalSimulationsContext;
+		var gsc = this.gsc;
 		if (gsc != null) {
 			b.append("|SimulationCounter:" + gsc.simulationCounter().get());
 		}
