@@ -35,6 +35,7 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.EnergyScheduler;
+import io.openems.edge.energy.api.Version;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 import io.openems.edge.energy.optimizer.Optimizer;
 import io.openems.edge.energy.v1.jsonrpc.GetScheduleResponse;
@@ -176,11 +177,8 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 
 	@Override
 	public String debugLog() {
-		if (this.optimizer instanceof Optimizer o) {
-			return switch (this.config.logVerbosity()) {
-			case NONE -> null;
-			case DEBUG_LOG, TRACE -> o.debugLog();
-			};
+		if (this.config != null && this.config.version() == Version.V2_ENERGY_SCHEDULABLE) {
+			return this.optimizer.debugLog();
 		}
 		return null;
 	}
