@@ -47,6 +47,9 @@ public class Optimizer implements Runnable {
 		initializeRandomRegistryForProduction();
 	}
 
+	/**
+	 * Reset and re-run the {@link Optimizer}.
+	 */
 	public void reset() {
 		this.interruptFlag.set(true);
 	}
@@ -119,6 +122,9 @@ public class Optimizer implements Runnable {
 	private static record Result(GlobalSimulationsContext context, SimulationResult result) {
 	}
 
+	/**
+	 * Deactivate the {@link Optimizer}.
+	 */
 	public synchronized void deactivate() {
 		this.interruptFlag.set(true);
 	}

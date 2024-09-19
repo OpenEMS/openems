@@ -20,9 +20,11 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedMap;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.UuidUtils;
+import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest;
 import io.openems.edge.controller.ess.timeofusetariff.Utils;
 import io.openems.edge.energy.api.EnergyScheduleHandler.WithDifferentStates.Period;
@@ -230,5 +232,11 @@ public class GetScheduleResponseTest {
 				    "soc": 70
 				  }
 				]""", JsonUtils.prettyToString(schedule));
+	}
+
+	@Test
+	public void testEmpty() throws OpenemsNamedException {
+		var response = GetScheduleResponse.empty(CLOCK, StateMachine.BALANCING).toList().get(0);
+		assertEquals(StateMachine.BALANCING.getValue(), JsonUtils.getAsInt(response, "state"));
 	}
 }

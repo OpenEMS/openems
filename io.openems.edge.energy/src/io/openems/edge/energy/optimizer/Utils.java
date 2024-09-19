@@ -1,7 +1,6 @@
 package io.openems.edge.energy.optimizer;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
-
 import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -72,10 +71,19 @@ public final class Utils {
 	/**
 	 * Calculates the ExecutionLimitSeconds for the {@link Optimizer}.
 	 * 
+	 * @return execution limit in [s]
+	 */
+	public static long calculateExecutionLimitSeconds() {
+		return calculateExecutionLimitSeconds(Clock.systemDefaultZone());
+	}
+
+	/**
+	 * Calculates the ExecutionLimitSeconds for the {@link Optimizer}.
+	 * 
 	 * @param clock a clock
 	 * @return execution limit in [s]
 	 */
-	public static long calculateExecutionLimitSeconds(Clock clock) {
+	protected static long calculateExecutionLimitSeconds(Clock clock) {
 		var now = ZonedDateTime.now(clock);
 		var nextQuarter = roundDownToQuarter(now).plusMinutes(15).minusSeconds(EXECUTION_LIMIT_SECONDS_BUFFER);
 		var duration = Duration.between(now, nextQuarter).getSeconds();

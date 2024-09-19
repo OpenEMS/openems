@@ -131,9 +131,13 @@ public class Simulator {
 	/**
 	 * Runs the optimization and returns the "best" simulation result.
 	 * 
-	 * @param gsc            the {@link GlobalSimulationsContext}
-	 * @param previousResult the {@link SimulationResult} of the previous
-	 *                       optimization run
+	 * @param gsc                        the {@link GlobalSimulationsContext}
+	 * @param previousResult             the {@link SimulationResult} of the
+	 *                                   previous optimization run
+	 * @param engineInterceptor          an interceptor for the
+	 *                                   {@link Engine.Builder}
+	 * @param evolutionStreamInterceptor an interceptor for the
+	 *                                   {@link EvolutionStream}
 	 * @return the best Schedule
 	 */
 	public static SimulationResult getBestSchedule(GlobalSimulationsContext gsc, SimulationResult previousResult,

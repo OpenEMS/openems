@@ -168,7 +168,7 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 		if (this.config == null) {
 			return; // Wait for @Activate
 		}
-		switch (config.version()) {
+		switch (this.config.version()) {
 		case V1_ESS_ONLY -> this.optimizerV1.activate(this.id());
 		case V2_ENERGY_SCHEDULABLE -> this.optimizer.reset();
 		}

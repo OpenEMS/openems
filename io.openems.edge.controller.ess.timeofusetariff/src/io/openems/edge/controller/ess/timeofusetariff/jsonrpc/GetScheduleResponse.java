@@ -22,13 +22,13 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSortedMap;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
@@ -103,19 +103,18 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 			Timedata timedata,
 			EnergyScheduleHandler.WithDifferentStates<StateMachine, EshContext> energyScheduleHandler) {
 		final var schedule = energyScheduleHandler.getSchedule();
-		final JsonArray result;
+		final Stream<JsonObject> result;
 		if (schedule.isEmpty()) {
-			result = new JsonArray();
+			result = empty(clock, energyScheduleHandler.getDefaultState());
 		} else {
 			final var historic = fromHistoricData(componentId, schedule.firstKey(), timedata);
 			final var future = fromSchedule(ess, schedule);
-			result = Stream.concat(historic, future) //
-					.collect(toJsonArray());
+			result = Stream.concat(historic, future);
 		}
 
 		return new GetScheduleResponse(requestId, //
 				buildJsonObject() //
-						.add("schedule", result) //
+						.add("schedule", result.collect(toJsonArray())) //
 						.build());
 	}
 
@@ -196,6 +195,32 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 							.addProperty("ess", toPower(p.energyFlow().getEss())) //
 							.addProperty("soc", round(fitWithin(0F, 100F, //
 									p.essInitialEnergy() * 100F / essTotalEnergy))) //
+							.build();
+				});
+	}
+
+	/**
+	 * Creates an empty default Schedule in case no Schedule is available.
+	 * 
+	 * @param clock        the {@link Clock}
+	 * @param defaultState the default {@link StateMachine}
+	 * @return {@link Stream} of {@link JsonObject}s
+	 */
+	protected static Stream<JsonObject> empty(Clock clock, StateMachine defaultState) {
+		final var now = ZonedDateTime.now(clock);
+		final var numberOfPeriods = 96;
+
+		return IntStream.range(0, numberOfPeriods) //
+				.mapToObj(i -> {
+					return buildJsonObject() //
+							.addProperty("timestamp", now.plusMinutes(i * 15)) //
+							.add("price", JsonNull.INSTANCE) //
+							.addProperty("state", defaultState.getValue()) //
+							.add("grid", JsonNull.INSTANCE) //
+							.add("production", JsonNull.INSTANCE) //
+							.add("consumption", JsonNull.INSTANCE) //
+							.add("ess", JsonNull.INSTANCE) //
+							.add("soc", JsonNull.INSTANCE) //
 							.build();
 				});
 	}
