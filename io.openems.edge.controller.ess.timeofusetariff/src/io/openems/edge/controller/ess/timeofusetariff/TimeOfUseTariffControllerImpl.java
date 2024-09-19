@@ -99,13 +99,13 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	@Reference(policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(&(enabled=true)(isReserveSocEnabled=true))")
-	private List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves = new CopyOnWriteArrayList<>();
+	private volatile List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves = new CopyOnWriteArrayList<>();
 
 	@Deprecated
 	@Reference(policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(enabled=true)")
-	private List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges = new CopyOnWriteArrayList<>();
+	private volatile List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges = new CopyOnWriteArrayList<>();
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;

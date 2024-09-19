@@ -8,6 +8,7 @@ import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.jenetics.engine.Limits;
 import io.jenetics.util.RandomRegistry;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl;
@@ -72,7 +73,7 @@ public class SimulatorTest {
 			esh.onBeforeSimulation(gsc);
 		}
 
-		return Simulator.getBestSchedule(gsc, SimulationResult.EMPTY, 10, 1, 1);
+		return Simulator.getBestSchedule(gsc, SimulationResult.EMPTY, Limits.byFixedGeneration(1), 1);
 	}
 
 	@Test

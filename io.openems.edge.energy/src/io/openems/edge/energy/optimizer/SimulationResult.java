@@ -104,6 +104,10 @@ public record SimulationResult(//
 	 * @return the {@link SimulationResult}
 	 */
 	public static SimulationResult fromQuarters(GlobalSimulationsContext gsc, Genotype<IntegerGene> gt) {
+		if (gsc == null || gt == null) {
+			return SimulationResult.EMPTY;
+		}
+
 		// Convert to Quarters
 		final GlobalSimulationsContext quarterGsc;
 		final Genotype<IntegerGene> quarterGt;

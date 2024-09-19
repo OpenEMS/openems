@@ -1,9 +1,11 @@
 package io.openems.edge.energy.optimizer.app;
 
+import java.time.Duration;
 import java.time.LocalTime;
 
 import com.google.common.collect.ImmutableList;
 
+import io.jenetics.engine.Limits;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserveImpl;
 import io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedChargeImpl;
 import io.openems.edge.controller.ess.gridoptimizedcharge.Mode;
@@ -69,7 +71,8 @@ public class RunOptimizerFromLogApp {
 			esh.onBeforeSimulation(context);
 		}
 
-		var simulationResult = Simulator.getBestSchedule(context, SimulationResult.EMPTY, EXECUTION_LIMIT_SECONDS);
+		var simulationResult = Simulator.getBestSchedule(context, SimulationResult.EMPTY,
+				Limits.byExecutionTime(Duration.ofSeconds(EXECUTION_LIMIT_SECONDS)));
 
 		Utils.logSimulationResult(context, simulationResult);
 	}

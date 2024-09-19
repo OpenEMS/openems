@@ -93,7 +93,7 @@ public class EnergySchedulerImplTest {
 	 * @throws Exception on error
 	 */
 	public static OptimizerV1 getOptimizer(EnergySchedulerImpl energyScheduler) throws Exception {
-		var field = EnergySchedulerImpl.class.getDeclaredField("optimizer");
+		var field = EnergySchedulerImpl.class.getDeclaredField("optimizerV1");
 		field.setAccessible(true);
 		return (OptimizerV1) field.get(energyScheduler);
 	}

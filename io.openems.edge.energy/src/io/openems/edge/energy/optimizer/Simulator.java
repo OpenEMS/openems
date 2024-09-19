@@ -1,12 +1,12 @@
 package io.openems.edge.energy.optimizer;
 
 import static io.jenetics.engine.EvolutionResult.toBestGenotype;
-import static io.jenetics.engine.Limits.byExecutionTime;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.buildInitialPopulation;
-import static java.time.Duration.ofSeconds;
 
+import java.util.concurrent.ForkJoinPool;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -131,16 +131,15 @@ public class Simulator {
 	/**
 	 * Runs the optimization with default settings.
 	 * 
-	 * @param gsc                   the {@link GlobalSimulationsContext}
-	 * @param previousResult        the {@link SimulationResult} of the previous
-	 *                              optimization run
-	 * @param executionLimitSeconds limit.byExecutionTime.ofSeconds
+	 * @param gsc            the {@link GlobalSimulationsContext}
+	 * @param previousResult the {@link SimulationResult} of the previous
+	 *                       optimization run
 	 * @return the best Schedule
 	 */
 	public static SimulationResult getBestSchedule(GlobalSimulationsContext gsc, SimulationResult previousResult,
-			long executionLimitSeconds) {
+			Predicate<Object> limit) {
 		try {
-			return getBestSchedule(gsc, previousResult, executionLimitSeconds, null, null);
+			return getBestSchedule(gsc, previousResult, limit, null);
 		} catch (Throwable e) {
 			System.exit(0);
 			return SimulationResult.EMPTY;
@@ -148,7 +147,7 @@ public class Simulator {
 	}
 
 	protected static SimulationResult getBestSchedule(GlobalSimulationsContext gsc, SimulationResult previousResult,
-			long executionLimitSeconds, Integer populationSize, Integer limit) {
+			Predicate<Object> limit, Integer populationSize) {
 		// Genotype:
 		// - Separate IntegerChromosome per EnergyScheduleHandler WithDifferentStates
 		// - Chromosome length = number of periods
@@ -167,19 +166,20 @@ public class Simulator {
 			gsc.simulationCounter().incrementAndGet();
 			return calculateCost(gsc, gt);
 		};
+
+		// Thread-Pool with CPU-Cores minus one
+		final var threadPool = new ForkJoinPool(Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
+
 		var engine = Engine //
 				.builder(eval, gtf) //
-				.executor(Runnable::run) // current thread
+				.executor(threadPool) // current thread
 				.minimizing();
 		if (populationSize != null) {
 			engine.populationSize(populationSize); //
 		}
 		Stream<EvolutionResult<IntegerGene, Double>> stream = engine.build() //
 				.stream(buildInitialPopulation(gsc, previousResult)) //
-				.limit(byExecutionTime(ofSeconds(executionLimitSeconds))); //
-		if (limit != null) {
-			stream = stream.limit(limit); // apply optional limit
-		}
+				.limit(limit);
 		var bestGt = stream //
 				.collect(toBestGenotype());
 
