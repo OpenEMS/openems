@@ -39,7 +39,10 @@ public class InitialPopulationUtils {
 		var b = ImmutableList.<Genotype<IntegerGene>>builder(); //
 
 		// All default
-		b.add(allStatesDefault(gsc));
+		var allStatesDefault = allStatesDefault(gsc);
+		if (allStatesDefault != null) {
+			b.add(allStatesDefault);
+		}
 
 		// Existing Schedule
 		b.add(Genotype.of(gsc.handlers().stream() //
@@ -64,8 +67,15 @@ public class InitialPopulationUtils {
 		return b.build();
 	}
 
+	/**
+	 * Builds a {@link Genotype} with all states default. `null` if no
+	 * {@link EnergyScheduleHandler}s match the criteria.
+	 * 
+	 * @param gsc the {@link GlobalSimulationsContext}
+	 * @return the {@link Genotype} or null
+	 */
 	protected static Genotype<IntegerGene> allStatesDefault(GlobalSimulationsContext gsc) {
-		return Genotype.of(gsc.handlers().stream() //
+		var gs = gsc.handlers().stream() //
 				.filter(EnergyScheduleHandler.WithDifferentStates.class::isInstance) //
 				.map(EnergyScheduleHandler.WithDifferentStates.class::cast) //
 				.map(esh -> {
@@ -75,6 +85,10 @@ public class InitialPopulationUtils {
 							.mapToObj(i -> IntegerGene.of(defaultState, 0, noOfStates)) //
 							.toList());
 				}) //
-				.toList());
+				.toList();
+		if (gs.isEmpty()) {
+			return null;
+		}
+		return Genotype.of(gs);
 	}
 }

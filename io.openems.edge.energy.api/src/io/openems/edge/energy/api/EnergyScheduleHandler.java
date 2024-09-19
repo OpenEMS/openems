@@ -58,11 +58,9 @@ public sealed interface EnergyScheduleHandler {
 	}
 
 	/**
-	 * This method is called internally before a Simulation is executed.
-	 * 
-	 * @param gsc the {@link GlobalSimulationsContext}
+	 * Triggers Rescheduling by the Energy Scheduler.
 	 */
-	public void onBeforeSimulation(GlobalSimulationsContext gsc);
+	public void triggerReschedule();
 
 	public abstract static sealed class AbstractEnergyScheduleHandler<CONTEXT> implements EnergyScheduleHandler {
 
@@ -70,15 +68,47 @@ public sealed interface EnergyScheduleHandler {
 
 		protected Clock clock;
 		protected CONTEXT context;
+		private Runnable onRescheduleCallback;
 
 		public AbstractEnergyScheduleHandler(Function<GlobalSimulationsContext, CONTEXT> contextFunction) {
 			this.contextFunction = contextFunction;
 		}
 
-		@Override
-		public void onBeforeSimulation(GlobalSimulationsContext asc) {
+		/**
+		 * Initialize the {@link EnergyScheduleHandler}.
+		 * 
+		 * <p>
+		 * This method is called internally before a Simulation is executed.
+		 * 
+		 * @param gsc the {@link GlobalSimulationsContext}
+		 */
+		public void initialize(GlobalSimulationsContext asc) {
 			this.clock = asc.clock();
 			this.context = this.contextFunction.apply(asc);
+		}
+
+		/**
+		 * This method sets the callback for events that require Rescheduling.
+		 * 
+		 * @param callback the {@link Runnable} callback
+		 */
+		public synchronized void setOnRescheduleCallback(Runnable callback) {
+			this.onRescheduleCallback = callback;
+		}
+
+		/**
+		 * This method removes the callback.
+		 */
+		public synchronized void removeOnRescheduleCallback() {
+			this.onRescheduleCallback = null;
+		}
+
+		@Override
+		public void triggerReschedule() {
+			var onRescheduleCallback = this.onRescheduleCallback;
+			if (onRescheduleCallback != null) {
+				onRescheduleCallback.run();
+			}
 		}
 
 		protected ZonedDateTime getNow() {
@@ -132,8 +162,8 @@ public sealed interface EnergyScheduleHandler {
 		}
 
 		@Override
-		public void onBeforeSimulation(GlobalSimulationsContext asc) {
-			super.onBeforeSimulation(asc);
+		public void initialize(GlobalSimulationsContext asc) {
+			super.initialize(asc);
 			this.availableStates = this.availableStatesSupplier.get();
 		}
 
@@ -265,18 +295,6 @@ public sealed interface EnergyScheduleHandler {
 		public ImmutableSortedMap<ZonedDateTime, Period<STATE, CONTEXT>> getSchedule() {
 			synchronized (this.schedule) {
 				return ImmutableSortedMap.copyOfSorted(this.schedule);
-			}
-		}
-
-		/**
-		 * Clears the Schedule, e.g. on configuration changes to avoid dangling
-		 * references.
-		 */
-		public void clearSchedule() {
-			// TODO the currently active CONTEXT is still in use by the
-			// EnergySchedulerComponent. Needs to be cleared/stopped as well.
-			synchronized (this.schedule) {
-				this.schedule.clear();
 			}
 		}
 

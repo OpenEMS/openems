@@ -27,6 +27,7 @@ import io.openems.common.utils.UuidUtils;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest;
 import io.openems.edge.controller.ess.timeofusetariff.Utils;
+import io.openems.edge.energy.api.EnergyScheduleHandler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.EnergyScheduleHandler.WithDifferentStates.Period;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
@@ -67,8 +68,9 @@ public class GetScheduleResponseTest {
 		// Simulate future Schedule
 		var ctrl = TimeOfUseTariffControllerImplTest.create(CLOCK, ess, timedata);
 		var esh = TimeOfUseTariffControllerImplTest.getEnergyScheduleHandler(ctrl);
-		esh.onBeforeSimulation(new GlobalSimulationsContext(CLOCK, new AtomicInteger(), null, null, null,
-				new GlobalSimulationsContext.Ess(0, 0, 0, 0), ImmutableList.of()));
+		((AbstractEnergyScheduleHandler<?> /* this is safe */) esh)
+				.initialize(new GlobalSimulationsContext(CLOCK, new AtomicInteger(), null, null, null,
+						new GlobalSimulationsContext.Ess(0, 0, 0, 0), ImmutableList.of()));
 		esh.applySchedule(ImmutableSortedMap.<ZonedDateTime, Period.Transition>naturalOrder() //
 				.put(now.plusMinutes(0), new Period.Transition(1, 0.1, energyFlow, 5000)) //
 				.put(now.plusMinutes(15), new Period.Transition(0, 0.2, energyFlow, 6000)) //

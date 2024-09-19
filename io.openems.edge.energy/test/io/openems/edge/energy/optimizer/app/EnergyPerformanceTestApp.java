@@ -30,11 +30,7 @@ public class EnergyPerformanceTestApp {
 
 	private static void simulatePeriod() {
 		final var gsc = SimulatorTest.DUMMY_GSC;
-
-		// Initialize EnergyScheduleHandlers
-		for (var esh : gsc.handlers()) {
-			esh.onBeforeSimulation(gsc);
-		}
+		gsc.initializeEnergyScheduleHandlers();
 
 		var osc = OneSimulationContext.from(gsc);
 		var gt = Genotype.of(//

@@ -64,17 +64,13 @@ public class RunOptimizerFromLogApp {
 	 * @throws Exception on error
 	 */
 	public static void main(String[] args) throws Exception {
-		var context = AppUtils.parseGlobalSimulationsContextFromLogString(LOG, ESHS);
+		var gsc = AppUtils.parseGlobalSimulationsContextFromLogString(LOG, ESHS);
+		gsc.initializeEnergyScheduleHandlers();
 
-		// Initialize EnergyScheduleHandlers
-		for (var esh : context.handlers()) {
-			esh.onBeforeSimulation(context);
-		}
-
-		var simulationResult = Simulator.getBestSchedule(context, SimulationResult.EMPTY, null, //
+		var simulationResult = Simulator.getBestSchedule(gsc, SimulationResult.EMPTY, null, //
 				stream -> stream //
 						.limit(Limits.byExecutionTime(Duration.ofSeconds(EXECUTION_LIMIT_SECONDS))));
 
-		Utils.logSimulationResult(context, simulationResult);
+		Utils.logSimulationResult(gsc, simulationResult);
 	}
 }

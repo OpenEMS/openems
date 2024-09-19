@@ -34,6 +34,7 @@ import io.openems.edge.common.jsonapi.Call;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
 import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.EnergyScheduleHandler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.EnergyScheduler;
 import io.openems.edge.energy.api.Version;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
@@ -85,12 +86,16 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 			target = "(enabled=true)")
 	private void addSchedulable(EnergySchedulable schedulable) {
 		this.schedulables.add(schedulable);
+		var esh = (AbstractEnergyScheduleHandler<?>) schedulable.getEnergyScheduleHandler(); // this is safe
+		esh.setOnRescheduleCallback(() -> this.optimizer.triggerReschedule());
 		this.resetOptimizer();
 	}
 
 	@SuppressWarnings("unused")
 	private void removeSchedulable(EnergySchedulable schedulable) {
 		this.schedulables.remove(schedulable);
+		var esh = (AbstractEnergyScheduleHandler<?>) schedulable.getEnergyScheduleHandler(); // this is safe
+		esh.removeOnRescheduleCallback();
 		this.resetOptimizer();
 	}
 
@@ -171,7 +176,7 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 		}
 		switch (this.config.version()) {
 		case V1_ESS_ONLY -> this.optimizerV1.activate(this.id());
-		case V2_ENERGY_SCHEDULABLE -> this.optimizer.reset();
+		case V2_ENERGY_SCHEDULABLE -> this.optimizer.triggerReschedule();
 		}
 	}
 

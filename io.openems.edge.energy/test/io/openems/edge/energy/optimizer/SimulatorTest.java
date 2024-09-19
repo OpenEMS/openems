@@ -67,11 +67,7 @@ public class SimulatorTest {
 	 */
 	public static SimulationResult generateDummySimulationResult() {
 		final var gsc = DUMMY_GSC;
-
-		// Initialize EnergyScheduleHandlers
-		for (var esh : gsc.handlers()) {
-			esh.onBeforeSimulation(gsc);
-		}
+		gsc.initializeEnergyScheduleHandlers();
 
 		return Simulator.getBestSchedule(gsc, SimulationResult.EMPTY, //
 				engine -> engine //

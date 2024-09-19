@@ -48,9 +48,10 @@ public class Optimizer implements Runnable {
 	}
 
 	/**
-	 * Reset and re-run the {@link Optimizer}.
+	 * Triggers Rescheduling.
 	 */
-	public void reset() {
+	public void triggerReschedule() {
+		this.traceLog(() -> "Trigger Reschedule");
 		this.interruptFlag.set(true);
 	}
 
@@ -127,9 +128,7 @@ public class Optimizer implements Runnable {
 		}
 
 		// Initialize EnergyScheduleHandlers
-		for (var esh : gsc.handlers()) {
-			esh.onBeforeSimulation(gsc);
-		}
+		gsc.initializeEnergyScheduleHandlers();
 		return gsc;
 	}
 
@@ -143,6 +142,9 @@ public class Optimizer implements Runnable {
 		}
 
 		var gt = InitialPopulationUtils.allStatesDefault(gsc);
+		if (gt == null) {
+			return;
+		}
 		var simulationResult = SimulationResult.fromQuarters(gsc, gt);
 
 		this.traceLog(() -> "Applying Default Schedule");

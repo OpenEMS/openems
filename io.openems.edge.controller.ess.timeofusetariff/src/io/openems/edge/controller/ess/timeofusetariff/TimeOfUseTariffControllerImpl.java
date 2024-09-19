@@ -151,7 +151,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	private synchronized void applyConfig(Config config) {
 		this.config = config;
 
-		this.energyScheduleHandler.clearSchedule();
+		this.energyScheduleHandler.triggerReschedule();
 
 		// update filter for 'ess'
 		OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id());

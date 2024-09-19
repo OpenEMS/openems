@@ -28,11 +28,7 @@ public class InitialPopulationUtilsTest {
 								.put(TIME.plusHours(0).plusMinutes(00), state(2)) //
 								.build()) //
 						.build());
-
-		// Initialize EnergyScheduleHandlers
-		for (var esh : gsc.handlers()) {
-			esh.onBeforeSimulation(gsc);
-		}
+		gsc.initializeEnergyScheduleHandlers();
 
 		var lgt = buildInitialPopulation(gsc, previousResult);
 		assertEquals(2, lgt.size());

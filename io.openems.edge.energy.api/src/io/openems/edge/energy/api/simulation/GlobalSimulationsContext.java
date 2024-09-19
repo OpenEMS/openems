@@ -27,6 +27,7 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.EnergyScheduleHandler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext.Period.Hour;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext.Period.Quarter;
 import io.openems.edge.predictor.api.manager.PredictorManager;
@@ -63,6 +64,20 @@ public record GlobalSimulationsContext(//
 				.append("handlers=").append(this.handlers) //
 				.append("]") //
 				.toString();
+	}
+
+	/**
+	 * Initialize the {@link EnergyScheduleHandler}s.
+	 * 
+	 * <p>
+	 * This method must be called before a Simulation is executed.
+	 * 
+	 * @param gsc the {@link GlobalSimulationsContext}
+	 */
+	public void initializeEnergyScheduleHandlers() {
+		for (var esh : this.handlers()) {
+			((AbstractEnergyScheduleHandler<?>) esh /* this is safe */).initialize(this);
+		}
 	}
 
 	public static record Ess(//

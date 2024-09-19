@@ -8,6 +8,7 @@ import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.junit.Test;
 
 import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.EnergyScheduleHandler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.Coefficient;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
@@ -22,7 +23,7 @@ public class EnergyScheduleHandlerTest {
 				() -> Mode.MANUAL, //
 				() -> LocalTime.of(10, 00));
 		var gsc = DummyGlobalSimulationsContext.fromHandlers(esh);
-		esh.onBeforeSimulation(gsc);
+		((AbstractEnergyScheduleHandler<?>) esh /* this is safe */).initialize(gsc);
 
 		assertEquals(3894, getEssMaxCharge(gsc, esh, 0));
 		assertEquals(1214, getEssMaxCharge(gsc, esh, 26));
