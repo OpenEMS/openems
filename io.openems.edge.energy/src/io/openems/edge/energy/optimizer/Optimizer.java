@@ -1,5 +1,6 @@
 package io.openems.edge.energy.optimizer;
 
+import static io.openems.edge.energy.optimizer.QuickSchedules.generateQuickSchedules;
 import static io.openems.edge.energy.optimizer.Utils.calculateExecutionLimitSeconds;
 import static io.openems.edge.energy.optimizer.Utils.initializeRandomRegistryForProduction;
 import static io.openems.edge.energy.optimizer.Utils.logSimulationResult;
@@ -14,6 +15,8 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.jenetics.Genotype;
+import io.jenetics.IntegerGene;
 import io.jenetics.engine.Limits;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingSupplier;
@@ -65,7 +68,7 @@ public class Optimizer implements Runnable {
 					// No Schedule available yet. Start with a default Schedule with all States
 					// set to default.
 					this.traceLog(() -> "No existing schedule available -> apply default");
-					this.applyDefaultSchedule();
+					this.applyBestQuickSchedule();
 				}
 
 				var sim = this.runSimulation().get();
@@ -133,21 +136,35 @@ public class Optimizer implements Runnable {
 	}
 
 	/**
-	 * Create and apply a Schedule with all States set to Default.
+	 * Create and apply the best quickly available Schedule.
 	 */
-	protected synchronized void applyDefaultSchedule() {
+	protected synchronized void applyBestQuickSchedule() {
+		this.traceLog(() -> "Trying to apply best quick Schedule");
 		final var gsc = this.initializeGlobalSimulationsContext();
 		if (gsc == null) {
 			return;
 		}
 
-		var gt = InitialPopulationUtils.allStatesDefault(gsc);
-		if (gt == null) {
+		// Collect Genotype with lowest cost
+		double lowestCost = 0.;
+		Genotype<IntegerGene> bestGt = null;
+		for (var gt : generateQuickSchedules(gsc, this.simulationResult)) {
+			if (gt == null) {
+				continue;
+			}
+			var cost = Simulator.calculateCost(gsc, gt);
+			if (bestGt == null || cost < lowestCost) {
+				bestGt = gt;
+				lowestCost = cost;
+			}
+		}
+
+		if (bestGt == null) {
 			return;
 		}
-		var simulationResult = SimulationResult.fromQuarters(gsc, gt);
+		var simulationResult = SimulationResult.fromQuarters(gsc, bestGt);
 
-		this.traceLog(() -> "Applying Default Schedule");
+		this.traceLog(() -> "Applying best quick Schedule");
 		this.applySimulationResult(simulationResult);
 	}
 

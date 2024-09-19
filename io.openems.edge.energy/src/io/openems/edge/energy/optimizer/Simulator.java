@@ -1,9 +1,9 @@
 package io.openems.edge.energy.optimizer;
 
 import static io.jenetics.engine.EvolutionResult.toBestGenotype;
-import static io.openems.edge.energy.optimizer.InitialPopulationUtils.buildInitialPopulation;
 import static java.lang.Thread.currentThread;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Consumer;
@@ -157,11 +157,13 @@ public class Simulator {
 		}
 		final var gtf = Genotype.of(chromosomes);
 
+		// Define the cost function
 		var eval = (Function<Genotype<IntegerGene>, Double>) (gt) -> {
 			gsc.simulationCounter().incrementAndGet();
 			return calculateCost(gsc, gt);
 		};
 
+		// Decide for single- or multi-threading
 		final Executor executor;
 		final var availableCores = Runtime.getRuntime().availableProcessors() - 1;
 		if (availableCores > 1) {
@@ -174,6 +176,7 @@ public class Simulator {
 			System.out.println("OPTIMIZER Executor runs on current thread");
 		}
 
+		// Build the Jenetics Engine
 		var engine = Engine //
 				.builder(eval, gtf) //
 				.executor(executor) //
@@ -181,12 +184,21 @@ public class Simulator {
 		if (engineInterceptor != null) {
 			engine = engineInterceptor.apply(engine);
 		}
-		EvolutionStream<IntegerGene, Double> stream = engine.build() //
-				.stream(buildInitialPopulation(gsc, previousResult)) //
-				.limit(result -> !currentThread().isInterrupted());
+
+		// Start with previous simulation result as initial population if available
+		var initialPopulation = QuickSchedules.fromExistingSimulationResult(gsc, previousResult);
+		EvolutionStream<IntegerGene, Double> stream;
+		if (previousResult != null) {
+			stream = engine.build().stream(List.of(initialPopulation));
+		} else {
+			stream = engine.build().stream();
+		}
+		stream = stream.limit(result -> !currentThread().isInterrupted());
 		if (evolutionStreamInterceptor != null) {
 			stream = evolutionStreamInterceptor.apply(stream);
 		}
+
+		// Start the evaluation
 		var bestGt = stream //
 				.collect(toBestGenotype());
 

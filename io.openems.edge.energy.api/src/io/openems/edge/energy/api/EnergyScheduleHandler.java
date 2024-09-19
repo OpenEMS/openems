@@ -80,7 +80,7 @@ public sealed interface EnergyScheduleHandler {
 		 * <p>
 		 * This method is called internally before a Simulation is executed.
 		 * 
-		 * @param gsc the {@link GlobalSimulationsContext}
+		 * @param asc the {@link GlobalSimulationsContext}
 		 */
 		public void initialize(GlobalSimulationsContext asc) {
 			this.clock = asc.clock();
@@ -185,7 +185,7 @@ public sealed interface EnergyScheduleHandler {
 			var states = this.availableStates;
 			if (states == null) {
 				throw new IllegalAccessError(
-						"EnergySchedulerHandler is uninitialized. onBeforeSimulation() must be called first.");
+						"EnergySchedulerHandler is uninitialized. `initialize()` must be called first.");
 			}
 			return IntStream.range(0, states.length) //
 					.filter(i -> states[i] == this.defaultState) //

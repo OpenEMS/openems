@@ -1,6 +1,5 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.openems.edge.energy.optimizer.InitialPopulationUtils.buildInitialPopulation;
 import static io.openems.edge.energy.optimizer.SimulatorTest.ESH_TIME_OF_USE_TARIFF_CTRL;
 import static org.junit.Assert.assertEquals;
 
@@ -15,12 +14,20 @@ import com.google.common.collect.ImmutableSortedMap;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.energy.api.EnergyScheduleHandler.WithDifferentStates.Period.Transition;
 
-public class InitialPopulationUtilsTest {
+public class QuickSchedulesTest {
 
 	private static final ZonedDateTime TIME = ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
 
 	@Test
-	public void testBuildInitialPopulation() {
+	public void testAllStatesDefault() {
+		final var gsc = SimulatorTest.DUMMY_GSC;
+		gsc.initializeEnergyScheduleHandlers();
+		var gt = QuickSchedules.allStatesDefault(gsc);
+		assertEquals(0, gt.get(0).get(1).allele().intValue());
+	}
+
+	@Test
+	public void testFromExistingSimulationResult() {
 		final var gsc = SimulatorTest.DUMMY_GSC;
 		final var previousResult = new SimulationResult(0., ImmutableMap.of(), //
 				ImmutableMap.<EnergyScheduleHandler.WithDifferentStates<?, ?>, ImmutableSortedMap<ZonedDateTime, Transition>>builder() //
@@ -29,13 +36,8 @@ public class InitialPopulationUtilsTest {
 								.build()) //
 						.build());
 		gsc.initializeEnergyScheduleHandlers();
-
-		var lgt = buildInitialPopulation(gsc, previousResult);
-		assertEquals(2, lgt.size());
-
-		// Last-Schedules
-		assertEquals(2, lgt.get(1).get(0).get(0).allele().intValue()); // from previousResult
-		assertEquals(0, lgt.get(1).get(0).get(1).allele().intValue()); // unknown before -> default
+		var gt = QuickSchedules.fromExistingSimulationResult(gsc, previousResult);
+		assertEquals(2, gt.get(0).get(0).allele().intValue());
 	}
 
 	protected static Transition state(int state) {

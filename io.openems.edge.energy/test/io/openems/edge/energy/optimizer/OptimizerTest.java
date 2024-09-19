@@ -15,7 +15,7 @@ public class OptimizerTest {
 	public void test() {
 		var gsc = SimulatorTest.DUMMY_GSC;
 		var o = new Optimizer(() -> LogVerbosity.NONE, () -> gsc, null);
-		o.applyDefaultSchedule();
+		o.applyBestQuickSchedule();
 
 		var schedule = ((EnergyScheduleHandler.WithDifferentStates<?, ?>) gsc.handlers().get(1)).getSchedule();
 
