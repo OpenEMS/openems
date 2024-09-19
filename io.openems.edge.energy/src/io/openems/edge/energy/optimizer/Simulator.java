@@ -2,12 +2,12 @@ package io.openems.edge.energy.optimizer;
 
 import static io.jenetics.engine.EvolutionResult.toBestGenotype;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.buildInitialPopulation;
+import static java.lang.Thread.currentThread;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +16,7 @@ import io.jenetics.Genotype;
 import io.jenetics.IntegerChromosome;
 import io.jenetics.IntegerGene;
 import io.jenetics.engine.Engine;
-import io.jenetics.engine.EvolutionResult;
+import io.jenetics.engine.EvolutionStream;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
@@ -129,7 +129,7 @@ public class Simulator {
 	}
 
 	/**
-	 * Runs the optimization with default settings.
+	 * Runs the optimization and returns the "best" simulation result.
 	 * 
 	 * @param gsc            the {@link GlobalSimulationsContext}
 	 * @param previousResult the {@link SimulationResult} of the previous
@@ -137,17 +137,8 @@ public class Simulator {
 	 * @return the best Schedule
 	 */
 	public static SimulationResult getBestSchedule(GlobalSimulationsContext gsc, SimulationResult previousResult,
-			Predicate<Object> limit) {
-		try {
-			return getBestSchedule(gsc, previousResult, limit, null);
-		} catch (Throwable e) {
-			System.exit(0);
-			return SimulationResult.EMPTY;
-		}
-	}
-
-	protected static SimulationResult getBestSchedule(GlobalSimulationsContext gsc, SimulationResult previousResult,
-			Predicate<Object> limit, Integer populationSize) {
+			Function<Engine.Builder<IntegerGene, Double>, Engine.Builder<IntegerGene, Double>> engineInterceptor,
+			Function<EvolutionStream<IntegerGene, Double>, EvolutionStream<IntegerGene, Double>> evolutionStreamInterceptor) {
 		// Genotype:
 		// - Separate IntegerChromosome per EnergyScheduleHandler WithDifferentStates
 		// - Chromosome length = number of periods
@@ -167,19 +158,31 @@ public class Simulator {
 			return calculateCost(gsc, gt);
 		};
 
-		// Thread-Pool with CPU-Cores minus one
-		final var threadPool = new ForkJoinPool(Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
+		final Executor executor;
+		final var availableCores = Runtime.getRuntime().availableProcessors() - 1;
+		if (availableCores > 1) {
+			// Executor is a Thread-Pool with CPU-Cores minus one
+			executor = new ForkJoinPool(availableCores);
+			System.out.println("OPTIMIZER Executor runs on " + availableCores + " cores");
+		} else {
+			// Executor is the current thread
+			executor = Runnable::run;
+			System.out.println("OPTIMIZER Executor runs on current thread");
+		}
 
 		var engine = Engine //
 				.builder(eval, gtf) //
-				.executor(threadPool) // current thread
+				.executor(executor) //
 				.minimizing();
-		if (populationSize != null) {
-			engine.populationSize(populationSize); //
+		if (engineInterceptor != null) {
+			engine = engineInterceptor.apply(engine);
 		}
-		Stream<EvolutionResult<IntegerGene, Double>> stream = engine.build() //
+		EvolutionStream<IntegerGene, Double> stream = engine.build() //
 				.stream(buildInitialPopulation(gsc, previousResult)) //
-				.limit(limit);
+				.limit(result -> !currentThread().isInterrupted());
+		if (evolutionStreamInterceptor != null) {
+			stream = evolutionStreamInterceptor.apply(stream);
+		}
 		var bestGt = stream //
 				.collect(toBestGenotype());
 

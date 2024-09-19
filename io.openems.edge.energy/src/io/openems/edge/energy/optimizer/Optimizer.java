@@ -6,96 +6,121 @@ import static io.openems.edge.energy.optimizer.Utils.logSimulationResult;
 import static java.lang.Thread.sleep;
 
 import java.time.Duration;
-import java.time.Instant;
-import java.util.function.BiConsumer;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.jenetics.engine.Limits;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingSupplier;
-import io.openems.common.test.TimeLeapClock;
-import io.openems.common.worker.AbstractImmediateWorker;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.LogVerbosity;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 
 /**
  * This task is executed once in the beginning and afterwards every full 15
  * minutes.
  */
-public class Optimizer extends AbstractImmediateWorker {
+public class Optimizer implements Runnable {
 
 	private final Logger log = LoggerFactory.getLogger(Optimizer.class);
 
-	private final BiConsumer<Logger, String> logInfo;
+	private final Supplier<LogVerbosity> logVerbosity;
 	private final ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier;
 	private final Channel<Integer> simulationsPerQuarterChannel;
+	private final AtomicBoolean interruptFlag = new AtomicBoolean(false);
 
 	private GlobalSimulationsContext globalSimulationsContext = null;
 	private SimulationResult simulationResult = SimulationResult.EMPTY;
 
-	public Optimizer(BiConsumer<Logger, String> logInfo,
+	public Optimizer(Supplier<LogVerbosity> logVerbosity,
 			ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier, //
 			Channel<Integer> simulationsPerQuarterChannel) {
-		this.logInfo = logInfo;
+		this.logVerbosity = logVerbosity;
 		this.gscSupplier = gscSupplier;
 		this.simulationsPerQuarterChannel = simulationsPerQuarterChannel;
 		initializeRandomRegistryForProduction();
-
-		// Run Optimizer thread in LOW PRIORITY
-		this.setPriority(Thread.MIN_PRIORITY);
 	}
 
-	/**
-	 * Reset the Optimizer to release references to {@link EnergyScheduleHandler}s.
-	 * 
-	 * @param name name of parent Component.
-	 */
-	public void resetOptimizer(String name) {
-		this.deactivate();
-		this.simulationResult = SimulationResult.EMPTY;
-		super.activate(name);
+	public void reset() {
+		this.interruptFlag.set(true);
 	}
 
 	@Override
-	public void forever() throws InterruptedException, OpenemsException {
-		this.logInfo("Start next run of Optimizer");
+	public void run() {
+		try {
+			while (true) {
+				this.interruptFlag.set(false);
+				var sim = this.runSimulation().get();
+				if (sim == null) {
+					this.traceLog(() -> "Simulation gave no result!");
+					this.simulationsPerQuarterChannel.setNextValue(null);
+					this.applySimulationResult(SimulationResult.EMPTY);
+					continue;
+				}
 
-		final var context = this.createGlobalSimulationsContext(); // this possibly takes forever
-		this.globalSimulationsContext = context;
+				// Calculate metric
+				this.simulationsPerQuarterChannel.setNextValue(sim.context.simulationCounter().get());
 
-		// Initialize EnergyScheduleHandlers
-		for (var esh : context.handlers()) {
-			esh.onBeforeSimulation(context);
-		}
+				// Apply simulation result to EnergyScheduleHandlers
+				this.applySimulationResult(sim.result);
 
-		// Calculate max execution time till next quarter (with buffer)
-		final var start = Instant.now(context.clock());
-		long executionLimitSeconds;
-		executionLimitSeconds = calculateExecutionLimitSeconds(context.clock());
-
-		// Find best Schedule
-		var simulationResult = Simulator.getBestSchedule(context, this.simulationResult, executionLimitSeconds);
-
-		// Calculate metric
-		this.simulationsPerQuarterChannel.setNextValue(this.globalSimulationsContext.simulationCounter().get());
-
-		// Apply simulation result to EnergyScheduleHandlers
-		this.applySimulationResult(simulationResult);
-
-		// Debug Log best Schedule
-		logSimulationResult(context, simulationResult);
-
-		// Sleep remaining time
-		if (!(context.clock() instanceof TimeLeapClock)) {
-			var remainingExecutionLimit = Duration
-					.between(Instant.now(context.clock()), start.plusSeconds(executionLimitSeconds)).getSeconds();
-			if (remainingExecutionLimit > 0) {
-				this.logInfo("Sleep [" + remainingExecutionLimit + "s] till next run of Optimizer");
-				sleep(remainingExecutionLimit * 1000);
+				// Debug Log best Schedule
+				logSimulationResult(sim.context, sim.result);
 			}
+		} catch (InterruptedException | ExecutionException e) {
+			// ignore
+		} catch (Exception e) {
+			this.log.error("OPTIMIZER execution failed: " + e.getMessage());
+			e.printStackTrace();
 		}
+	}
+
+	private CompletableFuture<Result> runSimulation() {
+		this.traceLog(() -> "Run next Simulation");
+		return CompletableFuture.supplyAsync(() -> {
+			this.traceLog(() -> "Executing async Simulation");
+
+			final var context = this.createGlobalSimulationsContext(); // this possibly takes forever
+			if (context == null) {
+				this.traceLog(() -> "Unable to create global simulations context -> abort");
+				return null;
+			}
+			this.globalSimulationsContext = context; // for debug log of simulation counter
+
+			// Initialize EnergyScheduleHandlers
+			for (var esh : context.handlers()) {
+				esh.onBeforeSimulation(context);
+			}
+
+			if (this.simulationResult == SimulationResult.EMPTY) {
+				this.traceLog(() -> "No existing schedule available");
+			}
+
+			final var executionLimit = Limits.byExecutionTime(Duration.ofSeconds(calculateExecutionLimitSeconds()));
+
+			// Find best Schedule
+			var bestSchedule = Simulator.getBestSchedule(context, this.simulationResult, null, //
+					stream -> stream //
+							// Stop on interruptFlag
+							.limit(ignore -> !this.interruptFlag.get()) //
+							// Stop till next quarter
+							.limit(executionLimit));
+
+			return new Result(context, bestSchedule);
+		});
+	}
+
+	private static record Result(GlobalSimulationsContext context, SimulationResult result) {
+	}
+
+	public synchronized void deactivate() {
+		this.interruptFlag.set(true);
 	}
 
 	private void applySimulationResult(SimulationResult simulationResult) {
@@ -111,25 +136,33 @@ public class Optimizer extends AbstractImmediateWorker {
 	/**
 	 * Try forever till all data is available.
 	 * 
-	 * @return the {@link GlobalSimulationsContext}
-	 * @throws InterruptedException during sleep
+	 * @return the {@link GlobalSimulationsContext}; or null on
+	 *         {@link InterruptedException} or if `interruptFlat` was set
 	 */
-	private GlobalSimulationsContext createGlobalSimulationsContext() throws InterruptedException {
-		while (true) {
+	private GlobalSimulationsContext createGlobalSimulationsContext() {
+		while (!this.interruptFlag.get()) {
 			try {
 				return this.gscSupplier.get();
 
 			} catch (OpenemsException | IllegalArgumentException e) {
-				this.logInfo("Stuck trying to get GlobalSimulationsContext. " + e.getMessage());
+				this.traceLog(() -> "Stuck trying to get GlobalSimulationsContext. " + e.getMessage());
 				this.globalSimulationsContext = null;
 				this.applySimulationResult(SimulationResult.EMPTY);
-				sleep(30_000);
+				try {
+					sleep(10_000);
+				} catch (InterruptedException e1) {
+					return null;
+				}
 			}
 		}
+		return null;
 	}
 
-	private void logInfo(String message) {
-		this.logInfo.accept(this.log, message);
+	private void traceLog(Supplier<String> message) {
+		switch (this.logVerbosity.get()) {
+		case NONE, DEBUG_LOG -> FunctionUtils.doNothing();
+		case TRACE -> this.log.info("OPTIMIZER " + message.get());
+		}
 	}
 
 	/**

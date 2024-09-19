@@ -71,8 +71,9 @@ public class RunOptimizerFromLogApp {
 			esh.onBeforeSimulation(context);
 		}
 
-		var simulationResult = Simulator.getBestSchedule(context, SimulationResult.EMPTY,
-				Limits.byExecutionTime(Duration.ofSeconds(EXECUTION_LIMIT_SECONDS)));
+		var simulationResult = Simulator.getBestSchedule(context, SimulationResult.EMPTY, null, //
+				stream -> stream //
+						.limit(Limits.byExecutionTime(Duration.ofSeconds(EXECUTION_LIMIT_SECONDS))));
 
 		Utils.logSimulationResult(context, simulationResult);
 	}

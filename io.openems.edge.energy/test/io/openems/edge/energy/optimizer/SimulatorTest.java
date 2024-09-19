@@ -73,7 +73,11 @@ public class SimulatorTest {
 			esh.onBeforeSimulation(gsc);
 		}
 
-		return Simulator.getBestSchedule(gsc, SimulationResult.EMPTY, Limits.byFixedGeneration(1), 1);
+		return Simulator.getBestSchedule(gsc, SimulationResult.EMPTY, //
+				engine -> engine //
+						.populationSize(1), //
+				stream -> stream //
+						.limit(Limits.byFixedGeneration(1)));
 	}
 
 	@Test

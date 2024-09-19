@@ -1,7 +1,6 @@
 package io.openems.edge.energy;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
 import static io.openems.edge.energy.optimizer.Utils.sortByScheduler;
 
@@ -109,29 +108,26 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 				EnergyScheduler.ChannelId.values() //
 		);
 
-		this.optimizerV1 = new OptimizerV1(() -> {
-			if (this.timeOfUseTariff == null) {
-				throw new OpenemsException("TimeOfUseTariff is not available");
-			}
-			if (this.timeOfUseTariffController == null) {
-				throw new OpenemsException("TimeOfUseTariffController is not available");
-			}
-			return GlobalContext.create() //
-					.setClock(this.componentManager.getClock()) //
-					.setEnergyScheduleHandler(this.timeOfUseTariffController.getEnergyScheduleHandlerV1()) //
-					.setSum(this.sum) //
-					.setPredictorManager(this.predictorManager) //
-					.setTimeOfUseTariff(this.timeOfUseTariff) //
-					.build();
-		});
+		this.optimizerV1 = new OptimizerV1(//
+				() -> this.config.logVerbosity(), //
+				() -> {
+					if (this.timeOfUseTariff == null) {
+						throw new OpenemsException("TimeOfUseTariff is not available");
+					}
+					if (this.timeOfUseTariffController == null) {
+						throw new OpenemsException("TimeOfUseTariffController is not available");
+					}
+					return GlobalContext.create() //
+							.setClock(this.componentManager.getClock()) //
+							.setEnergyScheduleHandler(this.timeOfUseTariffController.getEnergyScheduleHandlerV1()) //
+							.setSum(this.sum) //
+							.setPredictorManager(this.predictorManager) //
+							.setTimeOfUseTariff(this.timeOfUseTariff) //
+							.build();
+				});
 
 		this.optimizer = new Optimizer(//
-				(log, message) -> { // Log info
-					switch (this.config.logVerbosity()) {
-					case NONE, DEBUG_LOG -> doNothing();
-					case TRACE -> this.logInfo(log, message);
-					}
-				}, //
+				() -> this.config.logVerbosity(), //
 				() -> {
 					// Sort Schedulables by the order in the Scheduler
 					var schedulables = sortByScheduler(this.scheduler, this.schedulables);

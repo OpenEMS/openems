@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +24,10 @@ import com.google.common.collect.ImmutableSortedMap;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingSupplier;
 import io.openems.common.test.TimeLeapClock;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1;
+import io.openems.edge.energy.LogVerbosity;
 import io.openems.edge.energy.v1.optimizer.Simulator.Period;
 
 /**
@@ -35,12 +38,15 @@ public class OptimizerV1 extends AbstractImmediateWorker {
 
 	private final Logger log = LoggerFactory.getLogger(OptimizerV1.class);
 
+	private final Supplier<LogVerbosity> logVerbosity;
 	private final ThrowingSupplier<GlobalContext, OpenemsException> globalContext;
 	private final TreeMap<ZonedDateTime, Period> schedule = new TreeMap<>();
 
 	private Params params = null;
 
-	public OptimizerV1(ThrowingSupplier<GlobalContext, OpenemsException> globalContext) {
+	public OptimizerV1(Supplier<LogVerbosity> logVerbosity, //
+			ThrowingSupplier<GlobalContext, OpenemsException> globalContext) {
+		this.logVerbosity = logVerbosity;
 		this.globalContext = globalContext;
 		initializeRandomRegistryForProduction();
 
@@ -50,7 +56,7 @@ public class OptimizerV1 extends AbstractImmediateWorker {
 
 	@Override
 	public void forever() throws InterruptedException, OpenemsException {
-		this.log.info("# Start next run of Optimizer");
+		this.traceLog(() -> "Start next run of Optimizer");
 
 		this.createParams(); // this possibly takes forever
 
@@ -60,7 +66,7 @@ public class OptimizerV1 extends AbstractImmediateWorker {
 		long executionLimitSeconds;
 
 		// Calculate max execution time till next quarter (with buffer)
-		executionLimitSeconds = calculateExecutionLimitSeconds(globalContext.clock());
+		executionLimitSeconds = calculateExecutionLimitSeconds();
 
 		// Find best Schedule
 		var schedule = Simulator.getBestSchedule(this.params, executionLimitSeconds);
@@ -89,7 +95,7 @@ public class OptimizerV1 extends AbstractImmediateWorker {
 			var remainingExecutionLimit = Duration
 					.between(Instant.now(globalContext.clock()), start.plusSeconds(executionLimitSeconds)).getSeconds();
 			if (remainingExecutionLimit > 0) {
-				this.log.info("Sleep [" + remainingExecutionLimit + "s] till next run of Optimizer");
+				this.traceLog(() -> "Sleep [" + remainingExecutionLimit + "s] till next run of Optimizer");
 				sleep(remainingExecutionLimit * 1000);
 			}
 		}
@@ -113,7 +119,7 @@ public class OptimizerV1 extends AbstractImmediateWorker {
 				}
 
 			} catch (OpenemsException e) {
-				this.log.info("# Stuck trying to get Params. " + e.getMessage());
+				this.traceLog(() -> "Stuck trying to get Params. " + e.getMessage());
 				this.params = null;
 				synchronized (this.schedule) {
 					this.schedule.clear();
@@ -140,6 +146,13 @@ public class OptimizerV1 extends AbstractImmediateWorker {
 	public ImmutableSortedMap<ZonedDateTime, Period> getSchedule() {
 		synchronized (this.schedule) {
 			return ImmutableSortedMap.copyOf(this.schedule);
+		}
+	}
+
+	private void traceLog(Supplier<String> message) {
+		switch (this.logVerbosity.get()) {
+		case NONE, DEBUG_LOG -> FunctionUtils.doNothing();
+		case TRACE -> this.log.info("OPTIMIZER " + message.get());
 		}
 	}
 }

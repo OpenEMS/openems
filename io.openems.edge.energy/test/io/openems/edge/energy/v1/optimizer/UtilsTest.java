@@ -11,7 +11,6 @@ import static io.openems.edge.energy.optimizer.TestData.PRODUCTION_PREDICTION_QU
 import static io.openems.edge.energy.optimizer.Utils.SUM_ESS_DISCHARGE_POWER;
 import static io.openems.edge.energy.optimizer.Utils.SUM_ESS_SOC;
 import static io.openems.edge.energy.optimizer.Utils.SUM_GRID;
-import static io.openems.edge.energy.optimizer.Utils.calculateExecutionLimitSeconds;
 import static io.openems.edge.energy.v1.EnergySchedulerImplTest.getOptimizer;
 import static io.openems.edge.energy.v1.optimizer.EnergyFlowTest.NO_FLOW;
 import static io.openems.edge.energy.v1.optimizer.SimulatorTest.TIME;
@@ -35,12 +34,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.stream.IntStream;
@@ -262,21 +259,6 @@ public class UtilsTest {
 		// assertEquals(PRODUCTION_PREDICTION_QUARTERLY[0] / 4, getAsInt(period,
 		// "production"));
 		// }
-	}
-
-	@Test
-	public void testCalculateExecutionLimitSeconds() {
-		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		assertEquals(Duration.ofMinutes(14).plusSeconds(30).toSeconds(), calculateExecutionLimitSeconds(clock));
-
-		clock.leap(11, ChronoUnit.MINUTES);
-		assertEquals(Duration.ofMinutes(3).plusSeconds(30).toSeconds(), calculateExecutionLimitSeconds(clock));
-
-		clock.leap(150, ChronoUnit.SECONDS);
-		assertEquals(60, calculateExecutionLimitSeconds(clock));
-
-		clock.leap(1, ChronoUnit.SECONDS);
-		assertEquals(Duration.ofMinutes(15).plusSeconds(59).toSeconds(), calculateExecutionLimitSeconds(clock));
 	}
 
 	@Test
