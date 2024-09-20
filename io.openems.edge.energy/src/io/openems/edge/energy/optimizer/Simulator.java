@@ -1,6 +1,7 @@
 package io.openems.edge.energy.optimizer;
 
 import static io.jenetics.engine.EvolutionResult.toBestGenotype;
+import static io.openems.edge.energy.optimizer.QuickSchedules.fromExistingSimulationResult;
 import static java.lang.Thread.currentThread;
 
 import java.util.List;
@@ -186,7 +187,7 @@ public class Simulator {
 		}
 
 		// Start with previous simulation result as initial population if available
-		var initialPopulation = QuickSchedules.fromExistingSimulationResult(gsc, previousResult);
+		var initialPopulation = fromExistingSimulationResult(gsc, previousResult);
 		EvolutionStream<IntegerGene, Double> stream;
 		if (previousResult != null) {
 			stream = engine.build().stream(List.of(initialPopulation));

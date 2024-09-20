@@ -122,7 +122,7 @@ public sealed interface EnergyScheduleHandler {
 		protected void buildToString(StringBuilder b) {
 			var context = this.context;
 			if (context != null) {
-				b.append("context=").append(context);
+				b.append(", ").append("context=").append(context);
 			}
 		}
 	}
@@ -277,13 +277,9 @@ public sealed interface EnergyScheduleHandler {
 					System.err.println("States is empty!"); // TODO proper log
 					return;
 				}
-				schedule //
-						.tailMap(this.schedule.isEmpty() //
-								? thisQuarter // schedule is empty -> add also this quarter
-								: nextQuarter) // otherwise -> start with next quarter
-						.forEach((k, t) -> {
-							this.schedule.put(k, Period.fromTransitionRecord(t, this::getState, currentContext));
-						});
+				schedule.forEach((k, t) -> {
+					this.schedule.put(k, Period.fromTransitionRecord(t, this::getState, currentContext));
+				});
 			}
 		}
 
@@ -339,7 +335,7 @@ public sealed interface EnergyScheduleHandler {
 					.append("EnergyScheduleHandler.WithDifferentStates ["); //
 			var availableStates = this.availableStates;
 			if (availableStates != null) {
-				b.append("availableStates=").append(Arrays.toString(availableStates)).append(", ");
+				b.append("availableStates=").append(Arrays.toString(availableStates));
 			}
 			super.buildToString(b);
 			return b.append("]").toString();

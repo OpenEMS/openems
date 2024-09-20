@@ -1,12 +1,15 @@
 package io.openems.edge.energy.optimizer;
 
+import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.edge.energy.optimizer.QuickSchedules.generateQuickSchedules;
 import static io.openems.edge.energy.optimizer.Utils.calculateExecutionLimitSeconds;
 import static io.openems.edge.energy.optimizer.Utils.initializeRandomRegistryForProduction;
 import static io.openems.edge.energy.optimizer.Utils.logSimulationResult;
 import static java.lang.Thread.sleep;
 
+import java.time.Clock;
 import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,6 +26,7 @@ import io.openems.common.function.ThrowingSupplier;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.energy.LogVerbosity;
+import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 
 /**
@@ -75,7 +79,7 @@ public class Optimizer implements Runnable {
 				if (sim == null) {
 					this.traceLog(() -> "Simulation gave no result!");
 					this.simulationsPerQuarterChannel.setNextValue(null);
-					this.applySimulationResult(SimulationResult.EMPTY);
+					this.applySimulationResult(SimulationResult.EMPTY, Clock.systemDefaultZone(), true);
 					continue;
 				}
 
@@ -83,7 +87,7 @@ public class Optimizer implements Runnable {
 				this.simulationsPerQuarterChannel.setNextValue(sim.context.simulationCounter().get());
 
 				// Apply simulation result to EnergyScheduleHandlers
-				this.applySimulationResult(sim.result);
+				this.applySimulationResult(sim.result, sim.context.clock(), false);
 
 				// Debug Log best Schedule
 				logSimulationResult(sim.context, sim.result);
@@ -149,9 +153,6 @@ public class Optimizer implements Runnable {
 		double lowestCost = 0.;
 		Genotype<IntegerGene> bestGt = null;
 		for (var gt : generateQuickSchedules(gsc, this.simulationResult)) {
-			if (gt == null) {
-				continue;
-			}
 			var cost = Simulator.calculateCost(gsc, gt);
 			if (bestGt == null || cost < lowestCost) {
 				bestGt = gt;
@@ -165,7 +166,7 @@ public class Optimizer implements Runnable {
 		var simulationResult = SimulationResult.fromQuarters(gsc, bestGt);
 
 		this.traceLog(() -> "Applying best quick Schedule");
-		this.applySimulationResult(simulationResult);
+		this.applySimulationResult(simulationResult, gsc.clock(), true);
 	}
 
 	/**
@@ -175,13 +176,28 @@ public class Optimizer implements Runnable {
 		this.interruptFlag.set(true);
 	}
 
-	private void applySimulationResult(SimulationResult simulationResult) {
+	/**
+	 * Applies the Schedule to all {@link EnergyScheduleHandler}s and stores the
+	 * {@link SimulationResult} in `this.simulationResult`.
+	 *
+	 * @param clock               the {@link Clock}
+	 * @param simulationResult    the {@link SimulationResult}
+	 * @param updateActiveQuarter should the currently active quarter also get
+	 *                            updated
+	 */
+	private void applySimulationResult(SimulationResult simulationResult, Clock clock, boolean updateActiveQuarter) {
+		final var thisQuarter = roundDownToQuarter(ZonedDateTime.now(clock));
+		final var nextQuarter = thisQuarter.plusMinutes(15);
+
 		// Store result
 		this.simulationResult = simulationResult;
 
 		// Send Schedule to Controllers
 		simulationResult.schedules().forEach((esh, schedule) -> {
-			esh.applySchedule(schedule);
+			esh.applySchedule(schedule //
+					.tailMap(updateActiveQuarter //
+							? thisQuarter // update also current quarter
+							: nextQuarter)); // otherwise -> start with next quarter
 		});
 	}
 
@@ -201,7 +217,7 @@ public class Optimizer implements Runnable {
 			} catch (OpenemsException | IllegalArgumentException e) {
 				this.traceLog(() -> "Stuck trying to get GlobalSimulationsContext. " + e.getMessage());
 				this.gsc = null;
-				this.applySimulationResult(SimulationResult.EMPTY);
+				this.applySimulationResult(SimulationResult.EMPTY, Clock.systemDefaultZone(), true);
 				try {
 					sleep(10_000);
 				} catch (InterruptedException e1) {
