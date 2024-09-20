@@ -1,14 +1,34 @@
 = Tutorial 1: Implement a static GSI Component and show value in UI
+:imagesdir: ../assets/images
+:sectnums:
+:sectnumlevels: 4
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+
 In this first tutorial, we will implement a simple component for OpenEMS Edge that provides a channel for the Grünstromindex (GSI). The GSI value will be statically hardcoded. Additionally, we will extend the existing "Grid" widget in the OpenEMS UI by adding an `oe-modal-line` to display the GSI value.
 
-== Objectives
+*Objectives*
+
 - Implement a new component in OpenEMS Edge that provides a "GSI" channel with a static value.
 - Extend the existing "Grid" widget in OpenEMS UI to display the GSI value using an `oe-modal-line`.
 
-== Prerequisites
-- You should have finished the Getting Started guide and have Eclipse IDE and Visual Studio Code setup properly.
+*Prerequisites*
 
-== Step 1: Implement a static GSI Component in OpenEMS Edge
+- You should have finished the guides xref:gettingstarted.adoc[] and xref:edge/implement.adoc[]
+- You require Eclipse IDE and Visual Studio Code setup properly
+
+== Implement the OpenEMS Edge Component
+
+=== Create a new OSGi Bundle
+
+. In the menu choose btn:[File] -> btn:[New] -> btn:[Other]
+
+
+
+
 
 To create a new component in OpenEMS Edge:
 

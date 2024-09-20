@@ -1,4 +1,4 @@
-# "Grünstromindex" Tutorial Series
+# CO²-Footprint Tutorial Series
 :imagesdir: ../assets/images
 :sectnums:
 :sectnumlevels: 4
@@ -8,7 +8,7 @@
 :source-highlighter: highlight.js
 :icons: font
 
-Welcome to the Grünstromindex tutorial series for OpenEMS! This series provides a step-by-step guide to implementing various functions in OpenEMS Edge and OpenEMS UI related to the Grünstromindex (GSI). The tutorials are structured to guide you from the basics of implementing a simple component to creating a fully configurable app for the OpenEMS AppCenter. 
+Welcome to the CO²-Footprint tutorial series for OpenEMS! This series provides a step-by-step guide to implement a visualization of the local CO²-Footprint using the Grünstromindex in OpenEMS. And while doing so, touches various functions in OpenEMS Edge and OpenEMS UI. The tutorials are structured to guide you from the basics of implementing a simple component to creating a fully configurable app for the OpenEMS AppCenter. 
 
 == Introduction
 
