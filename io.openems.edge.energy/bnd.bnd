@@ -11,6 +11,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
 	io.openems.edge.controller.ess.emergencycapacityreserve,\
+	io.openems.edge.controller.ess.fixactivepower,\
 	io.openems.edge.controller.ess.limittotaldischarge,\
 	io.openems.edge.controller.ess.timeofusetariff,\
 	io.openems.edge.energy.api,\

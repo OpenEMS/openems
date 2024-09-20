@@ -7,16 +7,19 @@ import com.google.common.collect.ImmutableList;
 
 import io.jenetics.engine.Limits;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserveImpl;
+import io.openems.edge.controller.ess.fixactivepower.ControllerEssFixActivePowerImpl;
 import io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedChargeImpl;
 import io.openems.edge.controller.ess.gridoptimizedcharge.Mode;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischargeImpl;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.EnergyUtils;
 import io.openems.edge.energy.optimizer.SimulationResult;
 import io.openems.edge.energy.optimizer.Simulator;
 import io.openems.edge.energy.optimizer.Utils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
 /**
@@ -44,6 +47,10 @@ public class RunOptimizerFromLogApp {
 					() -> /* reserveSoc */ 0), //
 			ControllerEssLimitTotalDischargeImpl.buildEnergyScheduleHandler(//
 					() -> /* minSoc */ 0), //
+			ControllerEssFixActivePowerImpl.buildEnergyScheduleHandler(//
+					() -> new ControllerEssFixActivePowerImpl.EshContext(
+							io.openems.edge.controller.ess.fixactivepower.Mode.MANUAL_ON, //
+							EnergyUtils.toEnergy(-1000), Relationship.GREATER_OR_EQUALS)), //
 			ControllerEssGridOptimizedChargeImpl.buildEnergyScheduleHandler(//
 					() -> Mode.MANUAL, //
 					() -> LocalTime.of(10, 00)), //

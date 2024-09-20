@@ -291,6 +291,17 @@ public class EnergyFlow {
 		}
 
 		/**
+		 * Sets the {@link Coefficient#ESS} Charge/Discharge Energy to the given value,
+		 * while making sure the value fits in the active constraints.
+		 * 
+		 * @param value the value
+		 * @return true on success; false otherwise
+		 */
+		public boolean setEss(int value) {
+			return this.setFittingCoefficientValue(ESS, EQ, value);
+		}
+
+		/**
 		 * Limits the {@link Coefficient#ESS} Charge Energy to the given value, while
 		 * making sure the value fits in the active constraints.
 		 * 

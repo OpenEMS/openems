@@ -76,10 +76,10 @@ public class Optimizer implements Runnable {
 				}
 
 				var sim = this.runSimulation().get();
-				if (sim == null) {
-					this.traceLog(() -> "Simulation gave no result!");
+				if (sim == null /* simulation gave no result */ || this.interruptFlag.get() /* was interrupted */) {
+					this.traceLog(() -> "Simulation gave no result or was interrupted!");
 					this.simulationsPerQuarterChannel.setNextValue(null);
-					this.applySimulationResult(SimulationResult.EMPTY, Clock.systemDefaultZone(), true);
+					this.applyBestQuickSchedule();
 					continue;
 				}
 
@@ -87,10 +87,7 @@ public class Optimizer implements Runnable {
 				this.simulationsPerQuarterChannel.setNextValue(sim.context.simulationCounter().get());
 
 				// Apply simulation result to EnergyScheduleHandlers
-				this.applySimulationResult(sim.result, sim.context.clock(), false);
-
-				// Debug Log best Schedule
-				logSimulationResult(sim.context, sim.result);
+				this.applySimulationResult(sim.context, sim.result, false);
 			}
 		} catch (InterruptedException | ExecutionException e) {
 			// ignore
@@ -143,9 +140,10 @@ public class Optimizer implements Runnable {
 	 * Create and apply the best quickly available Schedule.
 	 */
 	protected synchronized void applyBestQuickSchedule() {
-		this.traceLog(() -> "Trying to apply best quick Schedule");
+		this.interruptFlag.set(false);
 		final var gsc = this.initializeGlobalSimulationsContext();
 		if (gsc == null) {
+			this.applyEmptySimulationResult();
 			return;
 		}
 
@@ -161,12 +159,13 @@ public class Optimizer implements Runnable {
 		}
 
 		if (bestGt == null) {
+			this.applyEmptySimulationResult();
 			return;
 		}
 		var simulationResult = SimulationResult.fromQuarters(gsc, bestGt);
 
 		this.traceLog(() -> "Applying best quick Schedule");
-		this.applySimulationResult(simulationResult, gsc.clock(), true);
+		this.applySimulationResult(gsc, simulationResult, true);
 	}
 
 	/**
@@ -176,16 +175,32 @@ public class Optimizer implements Runnable {
 		this.interruptFlag.set(true);
 	}
 
+	private void applyEmptySimulationResult() {
+		this.traceLog(() -> "Applying empty Schedule");
+		this.applySimulationResult(null, SimulationResult.EMPTY, true);
+	}
+
 	/**
 	 * Applies the Schedule to all {@link EnergyScheduleHandler}s and stores the
 	 * {@link SimulationResult} in `this.simulationResult`.
 	 *
-	 * @param clock               the {@link Clock}
+	 * @param gsc                 the {@link GlobalSimulationsContext}, possibly
+	 *                            null
 	 * @param simulationResult    the {@link SimulationResult}
 	 * @param updateActiveQuarter should the currently active quarter also get
 	 *                            updated
 	 */
-	private void applySimulationResult(SimulationResult simulationResult, Clock clock, boolean updateActiveQuarter) {
+	private void applySimulationResult(GlobalSimulationsContext gsc, SimulationResult simulationResult,
+			boolean updateActiveQuarter) {
+		final Clock clock;
+		if (gsc != null) {
+			// Debug Log best Schedule
+			logSimulationResult(gsc, simulationResult);
+			clock = gsc.clock();
+		} else {
+			clock = Clock.systemDefaultZone();
+		}
+
 		final var thisQuarter = roundDownToQuarter(ZonedDateTime.now(clock));
 		final var nextQuarter = thisQuarter.plusMinutes(15);
 
@@ -217,7 +232,7 @@ public class Optimizer implements Runnable {
 			} catch (OpenemsException | IllegalArgumentException e) {
 				this.traceLog(() -> "Stuck trying to get GlobalSimulationsContext. " + e.getMessage());
 				this.gsc = null;
-				this.applySimulationResult(SimulationResult.EMPTY, Clock.systemDefaultZone(), true);
+				this.applyEmptySimulationResult();
 				try {
 					sleep(10_000);
 				} catch (InterruptedException e1) {
