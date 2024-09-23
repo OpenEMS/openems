@@ -1,9 +1,0 @@
-Package: openems
-Version: 
-Section: misc
-Priority: extra
-Architecture: all
-Depends: systemd, java17-runtime-headless
-Maintainer: OpenEMS Association e.V. <office@openems.io>
-Homepage: https://openems.io
-Description: OpenEMS Edge

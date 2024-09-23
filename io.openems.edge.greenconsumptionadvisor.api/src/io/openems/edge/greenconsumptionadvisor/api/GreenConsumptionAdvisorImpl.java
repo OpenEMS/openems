@@ -44,7 +44,7 @@ public class GreenConsumptionAdvisorImpl extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(GreenConsumptionAdvisorImpl.class);
 
-	private static final String URL_API_RECOMMONDATION = "https://api.corrently.io/v2.0/gsi/advisor?zip=";
+	private static final String URL_API_RECOMMENDATION = "https://api.corrently.io/v2.0/gsi/advisor?zip=";
 	private String urlString;
 	private LocalDateTime timeNextActualization;
 	private GridEmissionInformation currentInformation;
@@ -63,7 +63,7 @@ public class GreenConsumptionAdvisorImpl extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// TODO validate zip code
-		this.urlString = URL_API_RECOMMONDATION + config.zip_code();
+		this.urlString = URL_API_RECOMMENDATION + config.zip_code();
 		this.timeNextActualization = LocalDateTime.now();
 	}
 
@@ -81,7 +81,7 @@ public class GreenConsumptionAdvisorImpl extends AbstractOpenemsComponent
 			this.timeNextActualization = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).plusHours(1);
 		}
 		this.evaluateDataBuffer();
-		this.writeRecommondationToChannel();
+		this.writeRecommendationToChannel();
 	}
 
 	private void evaluateDataBuffer() {
@@ -181,7 +181,7 @@ public class GreenConsumptionAdvisorImpl extends AbstractOpenemsComponent
 
 	}
 
-	private void writeRecommondationToChannel() {
+	private void writeRecommendationToChannel() {
 		if (this.currentInformation == null) {
 			this._setConsumptionAdvice(ConsumptionAdvice.UNDEFINED);
 		} else {
