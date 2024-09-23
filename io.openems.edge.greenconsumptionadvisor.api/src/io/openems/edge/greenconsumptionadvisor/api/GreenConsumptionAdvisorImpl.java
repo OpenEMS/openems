@@ -78,7 +78,6 @@ public class GreenConsumptionAdvisorImpl extends AbstractOpenemsComponent
 
 		if (this.timeNextActualization.isBefore(LocalDateTime.now())) {
 			this.updateDataBuffer();
-			this.timeNextActualization = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).plusHours(1);
 		}
 		this.evaluateDataBuffer();
 		this.writeRecommendationToChannel();
@@ -170,12 +169,15 @@ public class GreenConsumptionAdvisorImpl extends AbstractOpenemsComponent
 			// Parse the JSON response
 			JsonObject responseJson = JsonUtils.parseToJsonObject(response.toString());
 			predictionData = responseJson.getAsJsonArray("data");
-
+			// Next update after next full hour has passed
+			this.timeNextActualization = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).plusHours(1);
 		} catch (Exception e) {
 			e.printStackTrace();
 			this.log.error(
 					"Could not get latest data of CO2 emissions per kWh from dedicated API. Check correct zip-Code.");
 			predictionData = this.dataBuffer;
+			// Retry 5 minutes later
+			this.timeNextActualization = LocalDateTime.now().plusMinutes(5);
 		}
 		this.dataBuffer = predictionData;
 
