@@ -23,7 +23,7 @@ public record Params(//
 		int essTotalEnergy, //
 		/** ESS Energy below a configured Minimum-SoC [Wh] */
 		int essMinSocEnergy, //
-		/** ESS Energy below a configured Maximium-SoC [Wh] */
+		/** ESS Energy below a configured Maximum-SoC [Wh] */
 		int essMaxSocEnergy, //
 		/** ESS Initially Available Energy (SoC in [Wh]) */
 		int essInitialEnergy, //

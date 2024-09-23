@@ -7,16 +7,16 @@ import { TranslateService } from "@ngx-translate/core";
 import { Subject, Subscription } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 import { Role } from "../../type/role";
-import { TextIndentation } from "./modal-line/modal-line";
 import { Converter } from "../shared/converter";
+import { TextIndentation } from "./modal-line/modal-line";
 
 @Directive()
 export abstract class AbstractModal implements OnInit, OnDestroy {
 
-    @Input() public component: EdgeConfig.Component = null;
+    @Input() public component: EdgeConfig.Component | null = null;
 
     /** Enum for User Role */
     public readonly Role = Role;
@@ -28,7 +28,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     public readonly Converter = Converter;
 
     public isInitialized: boolean = false;
-    public edge: Edge = null;
+    public edge: Edge | null = null;
     public config: EdgeConfig = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
     public formGroup: FormGroup | null = null;
@@ -64,7 +64,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     }
 
     public ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.service.getConfig().then(config => {
 
                 // store important variables publically

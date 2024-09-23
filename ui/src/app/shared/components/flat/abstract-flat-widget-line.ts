@@ -5,7 +5,7 @@ import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 import { DataService } from "../shared/dataservice";
 import { Filter } from "../shared/filter";
@@ -38,7 +38,7 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   */
   private selector: string = uuidv4();
   private stopOnDestroy: Subject<void> = new Subject<void>();
-  private edge: Edge = null;
+  private edge: Edge | null = null;
 
   constructor(
     @Inject(Websocket) protected websocket: Websocket,
@@ -86,7 +86,7 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   }
 
   protected subscribe(channelAddress: ChannelAddress) {
-    this.service.setCurrentComponent('', this.route).then(edge => {
+    this.service.getCurrentEdge().then(edge => {
       this.edge = edge;
 
       this.dataService.getValues([channelAddress], this.edge);

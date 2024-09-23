@@ -163,7 +163,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * </ul>
 		 */
 		SET_REACTIVE_POWER_LESS_OR_EQUALS(new IntegerDoc() //
-				.unit(Unit.VOLT_AMPERE) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerLessOrEquals", Phase.ALL, Pwr.REACTIVE,
 						Relationship.LESS_OR_EQUALS))), //
@@ -178,7 +178,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * </ul>
 		 */
 		SET_REACTIVE_POWER_GREATER_OR_EQUALS(new IntegerDoc() //
-				.unit(Unit.WATT) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerGreaterOrEquals", Phase.ALL, Pwr.REACTIVE,
 						Relationship.GREATER_OR_EQUALS))), //
@@ -291,7 +291,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	}
 
 	/**
-	 * Gets the Allowed Charge Power in [W], range "&lt;= 0". See
+	 * Gets the Allowed Charge Power in [W], range "<= 0". See
 	 * {@link ChannelId#ALLOWED_CHARGE_POWER}.
 	 *
 	 * @return the Channel {@link Value}
@@ -330,7 +330,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	}
 
 	/**
-	 * Gets the Allowed Discharge Power in [W], range "&lt;= 0". See
+	 * Gets the Allowed Discharge Power in [W], range ">= 0". See
 	 * {@link ChannelId#ALLOWED_DISCHARGE_POWER}.
 	 *
 	 * @return the Channel {@link Value}

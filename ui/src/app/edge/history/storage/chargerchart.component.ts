@@ -1,22 +1,22 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { AbstractHistoryChart } from '../abstracthistorychart';
+import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../shared/shared";
+import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({
-    selector: 'storageChargerChart',
-    templateUrl: '../abstracthistorychart.html',
+    selector: "storageChargerChart",
+    templateUrl: "../abstracthistorychart.html",
 })
 export class StorageChargerChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public componentId!: string;
 
-    private moreThanOneProducer: boolean = null;
+    private moreThanOneProducer: boolean | null = null;
 
     constructor(
         protected override service: Service,
@@ -32,7 +32,6 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
 
     ngOnInit() {
         this.startSpinner();
-        this.service.setCurrentComponent('', this.route);
     }
 
     ngOnDestroy() {
@@ -71,13 +70,13 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
                 });
                 if (address.channelId == "ActualPower") {
                     datasets.push({
-                        label: this.translate.instant('General.chargePower'),
+                        label: this.translate.instant("General.chargePower"),
                         data: chargerData,
                         hidden: false,
                     });
                     this.colors.push({
-                        backgroundColor: 'rgba(0,223,0,0.05)',
-                        borderColor: 'rgba(0,223,0,1)',
+                        backgroundColor: "rgba(0,223,0,0.05)",
+                        borderColor: "rgba(0,223,0,1)",
                     });
                 }
             });
@@ -97,7 +96,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             const result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ActualPower'),
+                new ChannelAddress(this.componentId, "ActualPower"),
             ];
             resolve(result);
         });

@@ -3,8 +3,8 @@ import { AbstractModalLine } from "../abstract-modal-line";
 import { ButtonLabel } from "../modal-button/modal-button";
 
 @Component({
-    selector: 'oe-modal-line',
-    templateUrl: './modal-line.html',
+    selector: "oe-modal-line",
+    templateUrl: "./modal-line.html",
 })
 export class ModalLineComponent extends AbstractModalLine {
 
@@ -17,19 +17,19 @@ export class ModalLineComponent extends AbstractModalLine {
     @Input() protected button: ButtonLabel | null = null;
     /** ControlName for Toggle Button */
     @Input({ required: true }) protected control!:
-        { type: 'TOGGLE' } |
-        { type: 'INPUT', properties?: { unit: 'W' } } |
+        { type: "TOGGLE" } |
+        { type: "INPUT", properties?: { unit: "W" } } |
         /* the available select options*/
-        { type: 'SELECT', options: { value: string, name: string }[] } |
+        { type: "SELECT", options: { value: string, name: string }[] } |
         /* the properties for range slider*/
-        { type: 'RANGE', properties: { min: number, max: number, unit: 'H', step?: number } };
+        { type: "RANGE", properties: { min: number, max: number, unit: "H", step?: number } };
 
     /** Fixed indentation of the modal-line */
     @Input() protected textIndent: TextIndentation = TextIndentation.NONE;
 }
 
 export enum TextIndentation {
-    NONE = '0%',
-    SINGLE = '5%',
-    DOUBLE = '10%',
+    NONE = "0%",
+    SINGLE = "5%",
+    DOUBLE = "10%",
 }

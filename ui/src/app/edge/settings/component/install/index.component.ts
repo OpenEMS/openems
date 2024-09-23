@@ -1,9 +1,9 @@
 // @ts-strict-ignore
-import { CategorizedFactories } from 'src/app/shared/components/edge/edgeconfig';
-import { Component, OnInit } from '@angular/core';
-import { Service, Utils, EdgeConfig, Websocket, Edge, EdgePermission } from '../../../../shared/shared';
-import { JsonrpcRequest, JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
-import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
+import { Component, OnInit } from "@angular/core";
+import { CategorizedFactories } from "src/app/shared/components/edge/edgeconfig";
+import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
+import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket } from "../../../../shared/shared";
 
 interface MyCategorizedFactories extends CategorizedFactories {
   isClicked?: boolean,
@@ -12,7 +12,7 @@ interface MyCategorizedFactories extends CategorizedFactories {
 
 @Component({
   selector: IndexComponent.SELECTOR,
-  templateUrl: './index.component.html',
+  templateUrl: "./index.component.html",
 })
 export class IndexComponent implements OnInit {
 
@@ -41,7 +41,7 @@ export class IndexComponent implements OnInit {
 
   updateFilter(completeFilter: string) {
     // take each space-separated string as an individual and-combined filter
-    const filters = completeFilter.toLowerCase().split(' ');
+    const filters = completeFilter.toLowerCase().split(" ");
     let countFilteredEntries = 0;
     for (const entry of this.list) {
       entry.filteredFactories = entry.factories.filter(entry =>
@@ -65,7 +65,7 @@ export class IndexComponent implements OnInit {
   private async getCategorizedFactories(): Promise<MyCategorizedFactories[]> {
     if (EdgePermission.hasReducedFactories(this.edge)) {
       const response = await this.edge.sendRequest<GetAllComponentFactoriesResponse>(this.websocket, new ComponentJsonApiRequest({
-        componentId: '_componentManager',
+        componentId: "_componentManager",
         payload: new GetAllComponentFactoriesRequest(),
       }));
       for (const [factoryId, factory] of Object.entries(response.result.factories)) {

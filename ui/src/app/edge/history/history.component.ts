@@ -1,16 +1,16 @@
 // @ts-strict-ignore
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { AppService } from 'src/app/app.service';
-import { HeaderComponent } from 'src/app/shared/components/header/header.component';
-import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
-import { Edge, EdgeConfig, Service, Widgets } from 'src/app/shared/shared';
-import { environment } from 'src/environments';
+import { Component, OnInit, ViewChild } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { AppService } from "src/app/app.service";
+import { HeaderComponent } from "src/app/shared/components/header/header.component";
+import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
+import { Edge, EdgeConfig, EdgePermission, Service, Widgets } from "src/app/shared/shared";
+import { environment } from "src/environments";
 
 @Component({
-  selector: 'history',
-  templateUrl: './history.component.html',
+  selector: "history",
+  templateUrl: "./history.component.html",
 })
 export class HistoryComponent implements OnInit {
 
@@ -24,16 +24,17 @@ export class HistoryComponent implements OnInit {
   public energyChartHeight: string = "250px";
 
   // holds the Widgets
-  public widgets: Widgets = null;
+  public widgets: Widgets | null = null;
 
   // holds the current Edge
-  public edge: Edge = null;
+  public edge: Edge | null = null;
 
   // holds Channelthreshold Components to display effective active time in %
   // public channelthresholdComponents: string[] = [];
 
-  public config: EdgeConfig = null;
+  public config: EdgeConfig | null = null;
   protected errorResponse: JsonrpcResponseError | null = null;
+  protected isModbusTcpWidgetAllowed: boolean = false;
 
   constructor(
     public service: Service,
@@ -42,9 +43,9 @@ export class HistoryComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentComponent('', this.route);
     this.service.currentEdge.subscribe((edge) => {
       this.edge = edge;
+      this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
     });
     this.service.getConfig().then(config => {
       // gather ControllerIds of Channelthreshold Components
@@ -57,8 +58,8 @@ export class HistoryComponent implements OnInit {
       config.hasStorage();
       this.widgets = config.widgets;
       // Are we connected to OpenEMS Edge and is a timedata service available?
-      if (environment.backend == 'OpenEMS Edge'
-        && config.getComponentsImplementingNature('io.openems.edge.timedata.api.Timedata').filter(c => c.isEnabled).length == 0) {
+      if (environment.backend == "OpenEMS Edge"
+        && config.getComponentsImplementingNature("io.openems.edge.timedata.api.Timedata").filter(c => c.isEnabled).length == 0) {
         this.isTimedataAvailable = false;
       }
     });
@@ -75,11 +76,11 @@ export class HistoryComponent implements OnInit {
       /* handle grid breakpoints */(window.innerWidth < 768 ? window.innerWidth - 150 : window.innerWidth - 400));
     this.socChartHeight =
       /* minimum size */ Math.max(150,
-      /* maximium size */ Math.min(200, ref),
+      /* maximum size */ Math.min(200, ref),
     ) + "px";
     this.energyChartHeight =
       /* minimum size */ Math.max(300,
-      /* maximium size */ Math.min(600, ref),
+      /* maximum size */ Math.min(600, ref),
     ) + "px";
   }
 

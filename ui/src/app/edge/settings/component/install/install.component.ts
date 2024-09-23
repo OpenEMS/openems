@@ -1,25 +1,25 @@
 // @ts-strict-ignore
-import { ActivatedRoute } from '@angular/router';
-import { Component, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { FormlyFieldConfig } from '@ngx-formly/core';
-import { Service, Utils, Websocket, EdgeConfig, Edge } from '../../../../shared/shared';
+import { Component, OnInit } from "@angular/core";
+import { FormGroup } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
+import { FormlyFieldConfig } from "@ngx-formly/core";
+import { Edge, EdgeConfig, Service, Utils, Websocket } from "../../../../shared/shared";
 
 @Component({
   selector: ComponentInstallComponent.SELECTOR,
-  templateUrl: './install.component.html',
+  templateUrl: "./install.component.html",
 })
 export class ComponentInstallComponent implements OnInit {
 
   private static readonly SELECTOR = "componentInstall";
 
-  public edge: Edge = null;
-  public factory: EdgeConfig.Factory = null;
+  public edge: Edge | null = null;
+  public factory: EdgeConfig.Factory | null = null;
   public form = null;
   public model = null;
-  public fields: FormlyFieldConfig[] = null;
+  public fields: FormlyFieldConfig[] | null = null;
 
-  private factoryId: string = null;
+  private factoryId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -39,15 +39,15 @@ export class ComponentInstallComponent implements OnInit {
     const fields: FormlyFieldConfig[] = [];
     const model = {};
     for (const property of properties) {
-      const property_id = property.id.replace('.', '_');
+      const property_id = property.id.replace(".", "_");
       let defaultValue = property.defaultValue;
       // if the type is an array and there is no defaultValue then set the defaultValue to an empty array
-      if (property.schema["type"] === 'repeat' && defaultValue === null) {
+      if (property.schema["type"] === "repeat" && defaultValue === null) {
         defaultValue = [];
       }
       const field: FormlyFieldConfig = {
         key: property_id,
-        type: 'input',
+        type: "input",
         templateOptions: {
           label: property.name,
           required: defaultValue === null,
@@ -61,7 +61,7 @@ export class ComponentInstallComponent implements OnInit {
         model[property_id] = defaultValue;
 
         // Set the next free Component-ID as defaultValue
-        if (property_id == 'id' && property.schema["type"] !== 'repeat') {
+        if (property_id == "id" && property.schema["type"] !== "repeat") {
           const thisMatch = defaultValue.match(/^(.*)(\d+)$/);
           if (thisMatch) {
             const thisPrefix = thisMatch[1];
@@ -98,15 +98,15 @@ export class ComponentInstallComponent implements OnInit {
         // ignore 'null' values
         continue;
       }
-      const property_id = controlKey.replace('_', '.');
+      const property_id = controlKey.replace("_", ".");
       properties.push({ name: property_id, value: control.value });
     }
 
     this.edge.createComponentConfig(this.websocket, this.factoryId, properties).then(response => {
       this.form.markAsPristine();
-      this.service.toast("Successfully created in instance of " + this.factoryId + ".", 'success');
+      this.service.toast("Successfully created in instance of " + this.factoryId + ".", "success");
     }).catch(reason => {
-      this.service.toast("Error creating an instance of " + this.factoryId + ":" + reason.error.message, 'danger');
+      this.service.toast("Error creating an instance of " + this.factoryId + ":" + reason.error.message, "danger");
     });
   }
 

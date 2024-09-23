@@ -920,8 +920,8 @@ public class MyDraft6455 extends Draft {
 		} else if (curop == Opcode.BINARY) {
 			this.processFrameBinary(webSocketImpl, frame);
 		} else {
-			this.log.error("non control or continious frame expected");
-			throw new InvalidDataException(CloseFrame.PROTOCOL_ERROR, "non control or continious frame expected");
+			this.log.error("non control or continuous frame expected");
+			throw new InvalidDataException(CloseFrame.PROTOCOL_ERROR, "non control or continuous frame expected");
 		}
 	}
 

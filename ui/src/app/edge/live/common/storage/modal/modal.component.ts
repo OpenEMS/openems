@@ -1,15 +1,15 @@
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { isBefore } from 'date-fns';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from 'src/app/shared/shared';
-import { Role } from 'src/app/shared/type/role';
+import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
+import { ModalController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { isBefore } from "date-fns";
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
+import { Role } from "src/app/shared/type/role";
 
 @Component({
-    selector: 'storage-modal',
-    templateUrl: './modal.component.html',
+    selector: "storage-modal",
+    templateUrl: "./modal.component.html",
 })
 export class StorageModalComponent implements OnInit, OnDestroy {
 
@@ -19,7 +19,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
     @Input({ required: true }) protected config!: EdgeConfig;
     @Input() protected essComponents: EdgeConfig.Component[] | null = null;
     @Input({ required: true }) protected chargerComponents!: EdgeConfig.Component[];
-    @Input() protected singleComponent: EdgeConfig.Component = null;
+    @Input() protected singleComponent: EdgeConfig.Component | null = null;
 
     // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
@@ -40,13 +40,13 @@ export class StorageModalComponent implements OnInit, OnDestroy {
     ngOnInit() {
 
         // Future Work: Remove when all ems are at least at this version
-        this.controllerIsRequiredEdgeVersion = this.edge.isVersionAtLeast('2023.2.5');
+        this.controllerIsRequiredEdgeVersion = this.edge.isVersionAtLeast("2023.2.5");
 
         this.isAtLeastInstaller = this.edge.roleIsAtLeast(Role.INSTALLER);
-        const emergencyReserveCtrl = this.config.getComponentsByFactory('Controller.Ess.EmergencyCapacityReserve');
+        const emergencyReserveCtrl = this.config.getComponentsByFactory("Controller.Ess.EmergencyCapacityReserve");
         const prepareBatteryExtensionCtrl = this.config.getComponentsByFactory("Controller.Ess.PrepareBatteryExtension");
         const components = [...prepareBatteryExtensionCtrl, ...emergencyReserveCtrl].filter(component => component.isEnabled).reduce((result, component) => {
-            const essId = component.properties['ess.id'];
+            const essId = component.properties["ess.id"];
             if (result[essId] == null) {
                 result[essId] = [];
             }
@@ -78,18 +78,18 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                     const controllerFrmGrp: FormGroup = new FormGroup({});
                     for (const controller of (controllers as EdgeConfig.Component[])) {
 
-                        if (controller.factoryId == 'Controller.Ess.EmergencyCapacityReserve') {
+                        if (controller.factoryId == "Controller.Ess.EmergencyCapacityReserve") {
                             const reserveSoc = currentData.channel[controller.id + "/_PropertyReserveSoc"] ?? 20 /* default Reserve-Soc */;
                             const isReserveSocEnabled = currentData.channel[controller.id + "/_PropertyIsReserveSocEnabled"] == 1;
 
-                            controllerFrmGrp.addControl('emergencyReserveController',
+                            controllerFrmGrp.addControl("emergencyReserveController",
                                 this.formBuilder.group({
-                                    controllerId: new FormControl(controller['id']),
+                                    controllerId: new FormControl(controller["id"]),
                                     isReserveSocEnabled: new FormControl(isReserveSocEnabled),
                                     reserveSoc: new FormControl(reserveSoc),
                                 }),
                             );
-                        } else if (controller.factoryId == 'Controller.Ess.PrepareBatteryExtension') {
+                        } else if (controller.factoryId == "Controller.Ess.PrepareBatteryExtension") {
 
                             const isRunning = currentData.channel[controller.id + "/_PropertyIsRunning"] == 1;
 
@@ -124,7 +124,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                                 this.isTargetTimeInValid.set(essId, false);
                             }
 
-                            controllerFrmGrp.addControl('prepareBatteryExtensionController',
+                            controllerFrmGrp.addControl("prepareBatteryExtensionController",
                                 this.formBuilder.group({
                                     controllerId: new FormControl(controller.id),
                                     isRunning: new FormControl(isRunning),
@@ -155,26 +155,26 @@ export class StorageModalComponent implements OnInit, OnDestroy {
         for (const essId in this.formGroup.controls) {
             const essGroups = this.formGroup.controls[essId];
 
-            const emergencyReserveController = (essGroups.get('emergencyReserveController') as FormGroup)?.controls ?? {};
+            const emergencyReserveController = (essGroups.get("emergencyReserveController") as FormGroup)?.controls ?? {};
             for (const essGroup of Object.keys(emergencyReserveController)) {
                 if (emergencyReserveController[essGroup].dirty) {
-                    if (updateArray.get(emergencyReserveController['controllerId'].value)) {
-                        updateArray.get(emergencyReserveController['controllerId'].value).push(new Map().set(essGroup, emergencyReserveController[essGroup].value));
+                    if (updateArray.get(emergencyReserveController["controllerId"].value)) {
+                        updateArray.get(emergencyReserveController["controllerId"].value).push(new Map().set(essGroup, emergencyReserveController[essGroup].value));
                     } else {
-                        updateArray.set(emergencyReserveController['controllerId'].value, [new Map().set(essGroup, emergencyReserveController[essGroup].value)]);
+                        updateArray.set(emergencyReserveController["controllerId"].value, [new Map().set(essGroup, emergencyReserveController[essGroup].value)]);
                     }
                 }
 
             }
-            const prepareBatteryExtensionController = (essGroups.get('prepareBatteryExtensionController') as FormGroup)?.controls ?? {};
+            const prepareBatteryExtensionController = (essGroups.get("prepareBatteryExtensionController") as FormGroup)?.controls ?? {};
             for (const essGroup of Object.keys(prepareBatteryExtensionController)) {
                 if (prepareBatteryExtensionController[essGroup].dirty) {
 
                     // For simplicity, split targetTimeSpecified in 2 for template formControlName
-                    if (updateArray.get(prepareBatteryExtensionController['controllerId'].value)) {
-                        updateArray.get(prepareBatteryExtensionController['controllerId'].value).push(new Map().set(essGroup, prepareBatteryExtensionController[essGroup].value));
+                    if (updateArray.get(prepareBatteryExtensionController["controllerId"].value)) {
+                        updateArray.get(prepareBatteryExtensionController["controllerId"].value).push(new Map().set(essGroup, prepareBatteryExtensionController[essGroup].value));
                     } else {
-                        updateArray.set(prepareBatteryExtensionController['controllerId'].value, [new Map().set(essGroup, prepareBatteryExtensionController[essGroup].value)]);
+                        updateArray.set(prepareBatteryExtensionController["controllerId"].value, [new Map().set(essGroup, prepareBatteryExtensionController[essGroup].value)]);
                     }
                 }
             }
@@ -193,10 +193,10 @@ export class StorageModalComponent implements OnInit, OnDestroy {
             });
 
             this.edge.updateComponentConfig(this.websocket, controllerId, properties).then(() => {
-                this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+                this.service.toast(this.translate.instant("General.changeAccepted"), "success");
                 this.formGroup.markAsPristine();
             }).catch(reason => {
-                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+                this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason, "danger");
             });
         }
     }

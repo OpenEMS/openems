@@ -20,7 +20,7 @@
     "module": "es2020",
     "noImplicitOverride": true,
     "lib": [
-      "es2019",
+      "es2022",
       "dom"
     ],
     "resolveJsonModule": true,

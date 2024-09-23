@@ -1,10 +1,10 @@
 // @ts-strict-ignore
-import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
-import { GridMode, Service } from 'src/app/shared/shared';
-import { TranslateService } from '@ngx-translate/core';
-import * as d3 from 'd3';
+import { TranslateService } from "@ngx-translate/core";
+import * as d3 from "d3";
+import { GridMode, Service } from "src/app/shared/shared";
+import { DefaultTypes } from "../../../../../shared/service/defaulttypes";
 
-export type Ratio = 'Only Positive [0,1]' | 'Negative and Positive [-1,1]';
+export type Ratio = "Only Positive [0,1]" | "Negative and Positive [-1,1]";
 
 export class SectionValue {
     public absolute: number;
@@ -101,17 +101,17 @@ export class EnergyFlow {
     }
 
     public switchState() {
-        if (this.state == 'one') {
-            this.state = 'two';
-        } else if (this.state == 'two') {
-            this.state = 'one';
+        if (this.state == "one") {
+            this.state = "two";
+        } else if (this.state == "two") {
+            this.state = "one";
         } else {
-            this.state = 'one';
+            this.state = "one";
         }
     }
 
     public hide() {
-        this.state = 'three';
+        this.state = "three";
     }
 }
 
@@ -120,7 +120,7 @@ export abstract class AbstractSection {
     public fillRef: string = "";
     public valuePath: string = "";
     public outlinePath: string = "";
-    public energyFlow: EnergyFlow = null;
+    public energyFlow: EnergyFlow | null = null;
     public square: SvgSquare;
     public squarePosition: SvgSquarePosition;
     public name: string = "";
@@ -136,7 +136,7 @@ export abstract class AbstractSection {
     protected gridMode: GridMode;
     protected restrictionMode: number;
 
-    private lastCurrentData: DefaultTypes.Summary = null;
+    private lastCurrentData: DefaultTypes.Summary | null = null;
 
     constructor(
         translateName: string,

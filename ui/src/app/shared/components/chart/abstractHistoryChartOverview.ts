@@ -15,7 +15,7 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
    */
   public isInitialized: boolean = false;
   public config: EdgeConfig = null;
-  public component: EdgeConfig.Component = null;
+  public component: EdgeConfig.Component | null = null;
   public stopOnDestroy: Subject<void> = new Subject<void>();
   public edge: Edge | null = null;
   public period: DefaultTypes.HistoryPeriod;
@@ -30,7 +30,7 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
   ) { }
 
   public ngOnInit() {
-    this.service.setCurrentComponent('', this.route).then(edge => {
+    this.service.getCurrentEdge().then(edge => {
       this.service.getConfig().then(config => {
         // store important variables publically
         this.edge = edge;

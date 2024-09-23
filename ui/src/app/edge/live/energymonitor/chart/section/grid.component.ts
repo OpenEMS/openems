@@ -1,40 +1,40 @@
 // @ts-strict-ignore
-import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { Icon } from 'src/app/shared/type/widget';
-import { CurrentData, EdgeConfig, GridMode, Service, Utils } from '../../../../../shared/shared';
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
+import { animate, state, style, transition, trigger } from "@angular/animations";
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
+import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { Icon } from "src/app/shared/type/widget";
+import { CurrentData, EdgeConfig, GridMode, Service, Utils } from "../../../../../shared/shared";
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
 
 @Component({
-    selector: '[gridsection]',
-    templateUrl: './grid.component.html',
+    selector: "[gridsection]",
+    templateUrl: "./grid.component.html",
     animations: [
-        trigger('GridBuy', [
-            state('show', style({
+        trigger("GridBuy", [
+            state("show", style({
                 opacity: 0.4,
-                transform: 'translateX(0%)',
+                transform: "translateX(0%)",
             })),
-            state('hide', style({
+            state("hide", style({
                 opacity: 0.1,
-                transform: 'translateX(17%)',
+                transform: "translateX(17%)",
             })),
-            transition('show => hide', animate('650ms')),
-            transition('hide => show', animate('0ms')),
+            transition("show => hide", animate("650ms")),
+            transition("hide => show", animate("0ms")),
         ]),
-        trigger('GridSell', [
-            state('show', style({
+        trigger("GridSell", [
+            state("show", style({
                 opacity: 0.1,
-                transform: 'translateX(0%)',
+                transform: "translateX(0%)",
             })),
-            state('hide', style({
+            state("hide", style({
                 opacity: 0.4,
-                transform: 'translateX(-17%)',
+                transform: "translateX(-17%)",
             })),
-            transition('show => hide', animate('650ms ease-out')),
-            transition('hide => show', animate('0ms ease-in')),
+            transition("show => hide", animate("650ms ease-out")),
+            transition("hide => show", animate("0ms ease-in")),
         ]),
     ],
 })
@@ -54,39 +54,39 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         service: Service,
         unitpipe: UnitvaluePipe,
     ) {
-        super('General.grid', "left", "#1d1d1d", translate, service, "Grid");
+        super("General.grid", "left", "#1d1d1d", translate, service, "Grid");
         this.unitpipe = unitpipe;
     }
 
     get stateNameBuy() {
-        return this.showBuyAnimation ? 'show' : 'hide';
+        return this.showBuyAnimation ? "show" : "hide";
     }
 
     get stateNameSell() {
-        return this.showSellAnimation ? 'show' : 'hide';
+        return this.showSellAnimation ? "show" : "hide";
     }
 
     public static getCurrentGridIcon(currentData: CurrentData): Icon {
-        const gridMode = currentData.allComponents['_sum/GridMode'];
-        const restrictionMode = currentData.allComponents['ctrlEssLimiter14a0/RestrictionMode'];
+        const gridMode = currentData.allComponents["_sum/GridMode"];
+        const restrictionMode = currentData.allComponents["ctrlEssLimiter14a0/RestrictionMode"];
         if (gridMode === GridMode.OFF_GRID) {
             return {
-                color: 'dark',
-                name: 'oe-offgrid',
-                size: '',
+                color: "dark",
+                name: "oe-offgrid",
+                size: "",
             };
         }
         if (restrictionMode === 1) {
             return {
-                color: 'dark',
-                name: 'oe-grid-restriction',
-                size: '',
+                color: "dark",
+                name: "oe-grid-restriction",
+                size: "",
             };
         }
         return {
-            color: 'dark',
-            name: 'oe-grid',
-            size: '',
+            color: "dark",
+            name: "oe-grid",
+            size: "",
         };
     }
 
@@ -131,7 +131,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             } else {
                 arrowIndicate = 0;
             }
-            this.name = this.translate.instant('General.gridBuy');
+            this.name = this.translate.instant("General.gridBuy");
             super.updateSectionData(
                 sum.grid.buyActivePower,
                 sum.grid.powerRatio,
@@ -147,13 +147,13 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             } else {
                 arrowIndicate = 0;
             }
-            this.name = this.translate.instant('General.gridSell');
+            this.name = this.translate.instant("General.gridSell");
             super.updateSectionData(
                 sum.grid.sellActivePower,
                 sum.grid.powerRatio,
                 arrowIndicate);
         } else {
-            this.name = this.translate.instant('General.grid');
+            this.name = this.translate.instant("General.grid");
             super.updateSectionData(0, null, null);
         }
 
@@ -173,7 +173,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     }
 
     protected getRatioType(): Ratio {
-        return 'Negative and Positive [-1,1]';
+        return "Negative and Positive [-1,1]";
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
@@ -195,7 +195,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         if (value == null || Number.isNaN(value)) {
             return "";
         }
-        return this.unitpipe.transform(value, 'kW');
+        return this.unitpipe.transform(value, "kW");
     }
 
     protected initEnergyFlow(radius: number): EnergyFlow {

@@ -7,7 +7,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 import { Role } from "../../type/role";
 import { Converter } from "../shared/converter";
@@ -46,10 +46,10 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     /**
      * displayValue is the displayed @Input value in html
     */
-    public displayValue: string = null;
-    public displayName: string = null;
-    public edge: Edge = null;
-    public config: EdgeConfig = null;
+    public displayValue: string | null = null;
+    public displayName: string | null = null;
+    public edge: Edge | null = null;
+    public config: EdgeConfig | null = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
 
     /** Checks if any value of this line can be seen => hides line if false
@@ -83,7 +83,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
 
     /** Name for parameter, displayed on the left side*/
     @Input() set name(value: string | { channel: ChannelAddress, converter: (value: any) => string }) {
-        if (typeof value === 'object') {
+        if (typeof value === "object") {
             this.subscribe(value.channel);
             this._name = value.converter;
         } else {
@@ -104,7 +104,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.service.getConfig().then(config => {
                 // store important variables publically
                 this.edge = edge;
@@ -113,7 +113,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
                 // get the channel addresses that should be subscribed
                 const channelAddresses: ChannelAddress[] = [...this.getChannelAddresses()];
 
-                if (typeof this.name == 'object') {
+                if (typeof this.name == "object") {
                     channelAddresses.push(this.name.channel);
                 }
 
@@ -159,7 +159,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
             this.show = this.filter(value);
         }
 
-        if (typeof this._name == 'function') {
+        if (typeof this._name == "function") {
             this.displayName = this._name(value);
 
         } else {
@@ -172,7 +172,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
 
     /** Subscribe on HTML passed Channels */
     protected subscribe(channelAddress: ChannelAddress) {
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
 
             // Check if user is allowed to see these channel-values

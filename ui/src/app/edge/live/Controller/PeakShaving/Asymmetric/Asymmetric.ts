@@ -1,14 +1,14 @@
 // @ts-strict-ignore
-import { Component } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
+import { Component } from "@angular/core";
+import { BehaviorSubject } from "rxjs";
+import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
-import { ChannelAddress, CurrentData, Utils } from '../../../../../shared/shared';
-import { Controller_Asymmetric_PeakShavingModalComponent } from './modal/modal.component';
+import { ChannelAddress, CurrentData, Utils } from "../../../../../shared/shared";
+import { Controller_Asymmetric_PeakShavingModalComponent } from "./modal/modal.component";
 
 @Component({
-    selector: 'Controller_Asymmetric_PeakShaving',
-    templateUrl: './Asymmetric.html',
+    selector: "Controller_Asymmetric_PeakShaving",
+    templateUrl: "./Asymmetric.html",
 })
 export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidget {
 
@@ -31,24 +31,24 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
     }
 
     protected override getChannelAddresses() {
-        this.meterId = this.component.properties['meter.id'];
+        this.meterId = this.component.properties["meter.id"];
         return [
-            new ChannelAddress(this.meterId, 'ActivePower'),
-            new ChannelAddress(this.meterId, 'ActivePowerL1'),
-            new ChannelAddress(this.meterId, 'ActivePowerL2'),
-            new ChannelAddress(this.meterId, 'ActivePowerL3'),
+            new ChannelAddress(this.meterId, "ActivePower"),
+            new ChannelAddress(this.meterId, "ActivePowerL1"),
+            new ChannelAddress(this.meterId, "ActivePowerL2"),
+            new ChannelAddress(this.meterId, "ActivePowerL3"),
         ];
     }
 
     protected override onCurrentData(currentData: CurrentData) {
 
         const activePowerArray: number[] = [
-            currentData.allComponents[this.meterId + '/ActivePowerL1'],
-            currentData.allComponents[this.meterId + '/ActivePowerL2'],
-            currentData.allComponents[this.meterId + '/ActivePowerL3'],
+            currentData.allComponents[this.meterId + "/ActivePowerL1"],
+            currentData.allComponents[this.meterId + "/ActivePowerL2"],
+            currentData.allComponents[this.meterId + "/ActivePowerL3"],
         ];
 
-        const name: string[] = ['L1', 'L2', 'L3'];
+        const name: string[] = ["L1", "L2", "L3"];
 
         this.mostStressedPhase.next({
 
@@ -57,8 +57,8 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
             value: Math.max(...activePowerArray, 0),
         });
 
-        this.peakShavingPower = this.component.properties['peakShavingPower'];
-        this.rechargePower = this.component.properties['rechargePower'];
+        this.peakShavingPower = this.component.properties["peakShavingPower"];
+        this.rechargePower = this.component.properties["rechargePower"];
     }
 
 }

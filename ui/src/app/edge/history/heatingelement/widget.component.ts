@@ -1,15 +1,14 @@
-// @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
+import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../shared/shared";
+import { AbstractHistoryWidget } from "../abstracthistorywidget";
 
 @Component({
     selector: HeatingelementWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html',
+    templateUrl: "./widget.component.html",
 })
 export class HeatingelementWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
@@ -18,13 +17,13 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
     @Input({ required: true }) public componentId!: string;
 
 
-    public component: EdgeConfig.Component = null;
+    public component: EdgeConfig.Component | null = null;
 
     public activeTimeOverPeriodLevel1: number | null = null;
     public activeTimeOverPeriodLevel2: number | null = null;
     public activeTimeOverPeriodLevel3: number | null = null;
 
-    public edge: Edge = null;
+    public edge: Edge | null = null;
 
     constructor(
         public override service: Service,
@@ -34,7 +33,7 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
     }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
@@ -59,18 +58,18 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
 
     protected updateValues() {
         this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).then(response => {
-            this.activeTimeOverPeriodLevel1 = this.getCumulativeValue(this.componentId + '/Level1CumulatedTime', response);
-            this.activeTimeOverPeriodLevel2 = this.getCumulativeValue(this.componentId + '/Level2CumulatedTime', response);
-            this.activeTimeOverPeriodLevel3 = this.getCumulativeValue(this.componentId + '/Level3CumulatedTime', response);
+            this.activeTimeOverPeriodLevel1 = this.getCumulativeValue(this.componentId + "/Level1CumulatedTime", response);
+            this.activeTimeOverPeriodLevel2 = this.getCumulativeValue(this.componentId + "/Level2CumulatedTime", response);
+            this.activeTimeOverPeriodLevel3 = this.getCumulativeValue(this.componentId + "/Level3CumulatedTime", response);
         });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             const channeladdresses = [
-                new ChannelAddress(this.componentId, 'Level1CumulatedTime'),
-                new ChannelAddress(this.componentId, 'Level2CumulatedTime'),
-                new ChannelAddress(this.componentId, 'Level3CumulatedTime'),
+                new ChannelAddress(this.componentId, "Level1CumulatedTime"),
+                new ChannelAddress(this.componentId, "Level2CumulatedTime"),
+                new ChannelAddress(this.componentId, "Level3CumulatedTime"),
             ];
             resolve(channeladdresses);
         });

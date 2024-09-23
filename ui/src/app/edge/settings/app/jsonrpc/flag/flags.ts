@@ -3,7 +3,7 @@ import { FlagType } from "./flagType";
 
 export namespace Flags {
 
-    export const SHOW_AFTER_KEY_REDEEM: FlagType = { name: 'showAfterKeyRedeem' };
+    export const SHOW_AFTER_KEY_REDEEM: FlagType = { name: "showAfterKeyRedeem" };
 
     /**
      * Gets a flag by its type from an array of flags.

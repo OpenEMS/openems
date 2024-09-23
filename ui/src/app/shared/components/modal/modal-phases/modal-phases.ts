@@ -26,7 +26,7 @@ export class ModalPhasesComponent extends AbstractModalLine {
 
     for (const phase of this.phases) {
       channelAddresses.push(
-        ChannelAddress.fromString(this.component.id + '/ActivePower' + phase.key),
+        ChannelAddress.fromString(this.component.id + "/ActivePower" + phase.key),
       );
     }
     return channelAddresses;
@@ -34,8 +34,8 @@ export class ModalPhasesComponent extends AbstractModalLine {
 
   protected override onCurrentData(currentData: CurrentData): void {
     for (const phase of this.phases) {
-      const powerPerPhase = currentData.allComponents[this.component.id + '/ActivePower' + phase.key];
-      phase.name = this.translate.instant('General.phase') + " " + phase.key + this.setTranslatedName(powerPerPhase);
+      const powerPerPhase = currentData.allComponents[this.component.id + "/ActivePower" + phase.key];
+      phase.name = this.translate.instant("General.phase") + " " + phase.key + this.setTranslatedName(powerPerPhase);
     }
   }
 
@@ -48,6 +48,6 @@ export class ModalPhasesComponent extends AbstractModalLine {
   protected CONVERT_TO_POSITIVE_WATT = (value: number | null): string => {
 
     value = Utils.absSafely(value) ?? 0;
-    return formatNumber(value, 'de', '1.0-0') + ' W';
+    return formatNumber(value, "de", "1.0-0") + " W";
   };
 }

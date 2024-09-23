@@ -88,7 +88,18 @@
             }
           }
         ],
-        "@typescript-eslint/member-ordering": "error"
+        "@typescript-eslint/member-ordering": "error",
+        "no-multiple-empty-lines": "error",
+        "quotes": [
+          "error",
+          "double"
+        ],
+        "@typescript-eslint/switch-exhaustiveness-check": [
+          "error",
+          {
+            "allowDefaultCaseForExhaustiveSwitch": false
+          }
+        ]
       }
     },
     {

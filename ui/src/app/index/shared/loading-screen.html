@@ -1,5 +1,63 @@
 <ion-content>
-  <ngx-spinner [name]="spinnerId">
-    <p style="color: white"> Loading... </p>
-  </ngx-spinner>
+  <ng-container [ngSwitch]="backendState">
+
+    <ngx-spinner [name]="spinnerId" *ngSwitchCase="'loading'">
+      <p style="color: white" translate><span translate>
+          LOADING_SCREEN.LOADING
+        </span>
+        ...
+      </p>
+    </ngx-spinner>
+
+    <ng-container *ngSwitchCase="'failed'">
+      <ng-container>
+        <header></header>
+        <ion-grid style="align-content: center; height: 100%; vertical-align: middle;">
+          <ion-row class="ion-justify-content-center">
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-card>
+                <ion-card-content>
+                  <ng-container *ngTemplateOutlet="content"></ng-container>
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ng-container>
+
+    </ng-container>
+  </ng-container>
 </ion-content>
+
+
+<ng-template #content>
+  <ion-row class="ion-justify-content-center ion-align-items-center ion-no-padding">
+    <ion-col
+      style="display: flex; align-items: center; justify-content: center;border: 2px solid var(--ion-color-primary)">
+      <ion-icon name="cloud-offline-outline" color="danger" size="large" style="padding-right: 5%;"></ion-icon>
+      <ion-label color="primary" class="ion-text-wrap" style="font-size: larger;"
+        translate>LOADING_SCREEN.SERVER_NOT_ACCESSIBLE</ion-label>
+    </ion-col>
+  </ion-row>
+
+  <ion-row class="ion-justify-content-center ion-align-items-center">
+    <ion-col size="12">
+      <ion-item lines="none" class="ion-text-center">
+        <ion-label class="ion-text-wrap" translate>
+          LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_DESCRIPTION
+        </ion-label>
+      </ion-item>
+    </ion-col>
+  </ion-row>
+
+  <ion-row class="ion-justify-content-center ion-align-items-center ion-padding-top">
+    <ion-col size="12">
+      <ion-item lines="none" class="ion-text-center">
+        <ion-label class="ion-text-wrap" style="font-weight: bolder;" translate>
+          LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_TRY_RELOADING
+        </ion-label>
+      </ion-item>
+    </ion-col>
+  </ion-row>
+
+</ng-template>

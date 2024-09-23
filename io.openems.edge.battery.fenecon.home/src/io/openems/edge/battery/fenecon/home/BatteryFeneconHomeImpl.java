@@ -369,7 +369,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	/**
 	 * Get GoodWe hardware version from register value.
 	 * 
-	 * @param value Register value not formated with SCALE_FACTOR_MINUS_1
+	 * @param value Register value not formatted with SCALE_FACTOR_MINUS_1
 	 * @return type as {@link GoodweHardwareType} or null
 	 */
 	public static BatteryFeneconHomeHardwareType parseHardwareTypeFromRegisterValue(int value) {

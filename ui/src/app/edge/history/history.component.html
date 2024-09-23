@@ -1,7 +1,7 @@
 <header></header>
 <ion-content>
   <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh()">
-    <ion-refresher-content refreshingSpinner="crescent" class="ion-justify-content-center"></ion-refresher-content>
+    <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
   </ion-refresher>
   <oe-history-data-error [response]="errorResponse"></oe-history-data-error>
 
@@ -38,6 +38,10 @@
           <channelthresholdWidget>
           </channelthresholdWidget>
         </ion-col>
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller_Io_Digital_Outputs'">
+          <DigitalOutputWidget>
+          </DigitalOutputWidget>
+        </ion-col>
       </ng-container>
 
       <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
@@ -71,6 +75,13 @@
           <gridOptimizedChargeWidget [componentId]="widget.componentId">
           </gridOptimizedChargeWidget>
         </ion-col>
+
+        <ng-container *ngIf="isModbusTcpWidgetAllowed">
+          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'">
+            <modbusTcpApiWidget [componentId]="widget.componentId">
+            </modbusTcpApiWidget>
+          </ion-col>
+        </ng-container>
 
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.Time-Of-Use-Tariff'">
           <timeOfUseTariffWidget [componentId]="widget.componentId">

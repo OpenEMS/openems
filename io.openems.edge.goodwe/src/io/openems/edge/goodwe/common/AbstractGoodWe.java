@@ -287,7 +287,22 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				),
 
 				new FC3ReadRegistersTask(35250, Priority.LOW, //
-						m(new BitsWordElement(35250, this) //
+
+						/*
+						 * Table 8-30 Grid Detailed WARNING (35250 - 35253, U64)
+						 */
+						new DummyRegisterElement(35250, 35251), //
+						m(new BitsWordElement(35252, this) //
+								.bit(0, GoodWe.ChannelId.STATE_86) //
+								.bit(1, GoodWe.ChannelId.STATE_87) //
+								.bit(2, GoodWe.ChannelId.STATE_88) //
+								.bit(3, GoodWe.ChannelId.STATE_89) //
+								.bit(4, GoodWe.ChannelId.STATE_90) //
+								.bit(5, GoodWe.ChannelId.STATE_91) //
+								.bit(6, GoodWe.ChannelId.STATE_92) //
+								.bit(7, GoodWe.ChannelId.STATE_93) //
+						), //
+						m(new BitsWordElement(35253, this) //
 								.bit(0, GoodWe.ChannelId.STATE_70) //
 								.bit(1, GoodWe.ChannelId.STATE_71) //
 								.bit(2, GoodWe.ChannelId.STATE_72) //
@@ -304,18 +319,21 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								.bit(13, GoodWe.ChannelId.STATE_83) //
 								.bit(14, GoodWe.ChannelId.STATE_84) //
 								.bit(15, GoodWe.ChannelId.STATE_85)), //
-						m(new BitsWordElement(35251, this) //
-								.bit(0, GoodWe.ChannelId.STATE_86) //
-								.bit(1, GoodWe.ChannelId.STATE_87) //
-								.bit(2, GoodWe.ChannelId.STATE_88) //
-								.bit(3, GoodWe.ChannelId.STATE_89) //
-								.bit(4, GoodWe.ChannelId.STATE_90) //
-								.bit(5, GoodWe.ChannelId.STATE_91) //
-								.bit(6, GoodWe.ChannelId.STATE_92) //
-								.bit(7, GoodWe.ChannelId.STATE_93) //
+
+						/*
+						 * Table 8-31 Inverter detailed error (35254 - 35257, U64)
+						 */
+						new DummyRegisterElement(35254, 35255), //
+						m(new BitsWordElement(35256, this) //
+								.bit(0, GoodWe.ChannelId.STATE_110) //
+								.bit(1, GoodWe.ChannelId.STATE_111) //
+								.bit(2, GoodWe.ChannelId.STATE_112) //
+								.bit(3, GoodWe.ChannelId.STATE_113) //
+								.bit(4, GoodWe.ChannelId.STATE_114) //
+								.bit(5, GoodWe.ChannelId.STATE_115) //
+								.bit(6, GoodWe.ChannelId.STATE_116) //
 						), //
-						new DummyRegisterElement(35252, 35253), //
-						m(new BitsWordElement(35254, this) //
+						m(new BitsWordElement(35257, this) //
 								.bit(0, GoodWe.ChannelId.STATE_94) //
 								.bit(1, GoodWe.ChannelId.STATE_95) //
 								.bit(2, GoodWe.ChannelId.STATE_96) //
@@ -332,17 +350,19 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								.bit(13, GoodWe.ChannelId.STATE_107) //
 								.bit(14, GoodWe.ChannelId.STATE_108) //
 								.bit(15, GoodWe.ChannelId.STATE_109)), //
-						m(new BitsWordElement(35255, this) //
-								.bit(0, GoodWe.ChannelId.STATE_110) //
-								.bit(1, GoodWe.ChannelId.STATE_111) //
-								.bit(2, GoodWe.ChannelId.STATE_112) //
-								.bit(3, GoodWe.ChannelId.STATE_113) //
-								.bit(4, GoodWe.ChannelId.STATE_114) //
-								.bit(5, GoodWe.ChannelId.STATE_115) //
-								.bit(6, GoodWe.ChannelId.STATE_116) //
+
+						/*
+						 * Table 8-32 Inverter detailed status (35258 - 35261, U64)
+						 */
+						new DummyRegisterElement(35258, 35259), //
+						m(new BitsWordElement(35260, this) //
+								.bit(0, GoodWe.ChannelId.STATE_133) //
+								.bit(1, GoodWe.ChannelId.STATE_134) //
+								.bit(2, GoodWe.ChannelId.STATE_135) //
+								.bit(3, GoodWe.ChannelId.STATE_136) //
+								.bit(4, GoodWe.ChannelId.STATE_137) //
 						), //
-						new DummyRegisterElement(35256, 35257), //
-						m(new BitsWordElement(35258, this) //
+						m(new BitsWordElement(35261, this) //
 								.bit(0, GoodWe.ChannelId.STATE_117) //
 								.bit(1, GoodWe.ChannelId.STATE_118) //
 								.bit(2, GoodWe.ChannelId.STATE_119) //
@@ -359,14 +379,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								.bit(13, GoodWe.ChannelId.STATE_130) //
 								.bit(14, GoodWe.ChannelId.STATE_131) //
 								.bit(15, GoodWe.ChannelId.STATE_132)), //
-						m(new BitsWordElement(35259, this) //
-								.bit(0, GoodWe.ChannelId.STATE_133) //
-								.bit(1, GoodWe.ChannelId.STATE_134) //
-								.bit(2, GoodWe.ChannelId.STATE_135) //
-								.bit(3, GoodWe.ChannelId.STATE_136) //
-								.bit(4, GoodWe.ChannelId.STATE_137) //
-						), //
-						new DummyRegisterElement(35260, 35267), //
+						new DummyRegisterElement(35262, 35267), //
 						m(GoodWe.ChannelId.MAX_GRID_FREQ_WITHIN_1_MINUTE, new UnsignedWordElement(35268),
 								SCALE_FACTOR_MINUS_2), //
 						m(GoodWe.ChannelId.MIN_GRID_FREQ_WITHIN_1_MINUTE, new UnsignedWordElement(35269),

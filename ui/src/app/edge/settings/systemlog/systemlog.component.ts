@@ -1,28 +1,27 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
-import { filter, take, takeUntil } from 'rxjs/operators';
-import { Filter } from 'src/app/index/filter/filter.component';
-
-import { Service, Utils, Websocket } from '../../../shared/shared';
-import { Role } from 'src/app/shared/type/role';
-import { parse } from 'date-fns';
-import { SelectCustomEvent } from '@ionic/angular';
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { SelectCustomEvent } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { parse } from "date-fns";
+import { Subject } from "rxjs";
+import { filter, take, takeUntil } from "rxjs/operators";
+import { Filter } from "src/app/index/filter/filter.component";
+import { Role } from "src/app/shared/type/role";
+import { Service, Utils, Websocket } from "../../../shared/shared";
 
 export const LOG_LEVEL_FILTER = (translate: TranslateService): Filter => ({
   placeholder: translate.instant("Edge.Config.Log.level"),
   category: "level",
   options: [
     {
-      name: 'Debug',
+      name: "Debug",
       value: "DEBUG",
     },
     {
-      name: translate.instant('General.info'),
+      name: translate.instant("General.info"),
       value: "INFO",
     },
     {
-      name: translate.instant('General.warning'),
+      name: translate.instant("General.warning"),
       value: "WARN",
     },
     {
@@ -34,12 +33,12 @@ export const LOG_LEVEL_FILTER = (translate: TranslateService): Filter => ({
 
 @Component({
   selector: SystemLogComponent.SELECTOR,
-  templateUrl: './systemlog.component.html',
+  templateUrl: "./systemlog.component.html",
 })
 export class SystemLogComponent implements OnInit, OnDestroy {
 
   private static readonly SELECTOR = "systemLog";
-  private static readonly DEBUG_LOG_CONTROLLER_ID = 'ctrlDebugLog0';
+  private static readonly DEBUG_LOG_CONTROLLER_ID = "ctrlDebugLog0";
 
   public isSubscribed: boolean = false;
 
@@ -140,7 +139,7 @@ export class SystemLogComponent implements OnInit, OnDestroy {
   }
 
   public toggleSubscribe(event: CustomEvent) {
-    if (event.detail['checked']) {
+    if (event.detail["checked"]) {
       this.subscribe();
     } else {
       this.unsubscribe();
@@ -160,11 +159,11 @@ export class SystemLogComponent implements OnInit, OnDestroy {
     this.service.currentEdge.pipe(filter(edge => !!edge), take(1))
       .subscribe(edge =>
         edge.updateComponentConfig(this.websocket, SystemLogComponent.DEBUG_LOG_CONTROLLER_ID, [{
-          name: 'condensedOutput', value: event.detail['checked'],
+          name: "condensedOutput", value: event.detail["checked"],
         }]).then(() => {
-          this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+          this.service.toast(this.translate.instant("General.changeAccepted"), "success");
         }).catch((reason) => {
-          this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+          this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
         }));
   }
 
@@ -182,18 +181,16 @@ export class SystemLogComponent implements OnInit, OnDestroy {
     this.filterLogs();
   }
 
-  private getColor(level: 'INFO' | 'WARN' | 'DEBUG' | 'ERROR'): string {
+  private getColor(level: "INFO" | "WARN" | "DEBUG" | "ERROR"): string {
     switch (level) {
-      case 'INFO':
-        return 'green';
-      case 'WARN':
-        return 'orange';
-      case 'DEBUG':
-        return 'gray';
-      case 'ERROR':
-        return 'red';
-      default:
-        return 'black';
+      case "INFO":
+        return "green";
+      case "WARN":
+        return "orange";
+      case "DEBUG":
+        return "gray";
+      case "ERROR":
+        return "red";
     }
   }
 
@@ -217,7 +214,7 @@ export class SystemLogComponent implements OnInit, OnDestroy {
           return this._logLines;
         }
 
-        const message = el.message.split('</br>').filter(el => el.toLowerCase().includes(this.query!.toLowerCase())).join('</br>');
+        const message = el.message.split("</br>").filter(el => el.toLowerCase().includes(this.query!.toLowerCase())).join("</br>");
 
         if (message?.length > 0) {
           el.message = message;

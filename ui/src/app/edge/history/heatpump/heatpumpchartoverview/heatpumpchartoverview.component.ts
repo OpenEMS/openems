@@ -1,19 +1,18 @@
-// @ts-strict-ignore
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { ModalController } from "@ionic/angular";
+import { Edge, EdgeConfig, Service } from "../../../../shared/shared";
 
 @Component({
     selector: HeatPumpChartOverviewComponent.SELECTOR,
-    templateUrl: './heatpumpchartoverview.component.html',
+    templateUrl: "./heatpumpchartoverview.component.html",
 })
 export class HeatPumpChartOverviewComponent implements OnInit {
 
     private static readonly SELECTOR = "heatpump-chart-overview";
 
-    public edge: Edge = null;
-    public component: EdgeConfig.Component = null;
+    public edge: Edge | null = null;
+    public component: EdgeConfig.Component | null = null;
 
     constructor(
         public service: Service,
@@ -22,7 +21,7 @@ export class HeatPumpChartOverviewComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
                 this.service.getConfig().then(config => {
