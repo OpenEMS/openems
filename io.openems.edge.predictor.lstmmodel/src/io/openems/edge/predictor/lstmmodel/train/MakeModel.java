@@ -27,7 +27,6 @@ public class MakeModel {
 	 *                        trend model.
 	 * @return weightMatrix Trained models.
 	 */
-
 	public synchronized ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> trainTrend(ArrayList<Double> data,
 			ArrayList<OffsetDateTime> date, HyperParameters hyperParameters) {
 

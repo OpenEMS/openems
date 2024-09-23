@@ -1,7 +1,5 @@
 package io.openems.edge.predictor.lstmmodel.utilities;
 
-//import org.apache.commons.math3.analysis.function.Sigmoid;
-
 public class MathUtils {
 
 	/**

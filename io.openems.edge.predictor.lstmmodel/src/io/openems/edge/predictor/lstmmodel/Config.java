@@ -7,7 +7,9 @@ import io.openems.edge.predictor.api.prediction.LogVerbosity;
 
 @ObjectClassDefinition(//
 		name = "Predictor Lstm-Model", //
-		description = "Implements Lstm-Model")
+		description = "Implements Long Short-Term Memory (LSTM) model, which is a type of recurrent neural network (RNN) designed to capture long-range dependencies in sequential data, such as time series. "
+				+ "This makes LSTMs particularly effective for time series prediction, "
+				+ "as they can learn patterns and trends over time, handling long-term dependencies while filtering out irrelevant information.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -26,5 +28,4 @@ import io.openems.edge.predictor.api.prediction.LogVerbosity;
 	LogVerbosity logVerbosity() default LogVerbosity.NONE;
 
 	String webconsole_configurationFactory_nameHint() default "Predictor Lstm-Model [{id}]";
-
 }

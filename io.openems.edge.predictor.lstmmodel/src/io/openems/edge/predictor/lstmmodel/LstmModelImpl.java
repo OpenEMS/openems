@@ -114,7 +114,6 @@ public class LstmModelImpl extends AbstractPredictor
 				PERIOD, //
 				TimeUnit.MINUTES//
 		);
-
 	}
 
 	@Override
@@ -175,11 +174,8 @@ public class LstmModelImpl extends AbstractPredictor
 	 *         the key is the ChannelAddress and the value is the data point as a
 	 *         JsonElement. and null if error
 	 */
-	private SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(//
-			ZonedDateTime from, //
-			ZonedDateTime until, //
-			ChannelAddress channelAddress, //
-			HyperParameters hyperParameters) {
+	private SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(ZonedDateTime from,
+			ZonedDateTime until, ChannelAddress channelAddress, HyperParameters hyperParameters) {
 		try {
 			return this.timedata.queryHistoricData(null, from, until, Sets.newHashSet(channelAddress),
 					new Resolution(hyperParameters.getInterval(), ChronoUnit.MINUTES));
@@ -203,24 +199,19 @@ public class LstmModelImpl extends AbstractPredictor
 	 * @throws SomeException If there's any specific exception that might be thrown
 	 *                       during the process.
 	 */
-	public ArrayList<Double> predictTrend(//
-			ChannelAddress channelAddress, //
-			ZonedDateTime nowDate, //
+	public ArrayList<Double> predictTrend(ChannelAddress channelAddress, ZonedDateTime nowDate,
 			HyperParameters hyperParameters) {
 
 		var till = nowDate//
 				.withMinute(getMinute(nowDate, hyperParameters))//
 				.withSecond(0)//
 				.withNano(0);
-
 		var from = till.minusMinutes(hyperParameters.getInterval() * hyperParameters.getWindowSizeTrend());
-
 		var trendQueryResult = this.queryHistoricData(//
 				from, //
 				till, //
 				channelAddress, //
 				hyperParameters);
-
 		return LstmPredictor.predictTrend(//
 				getData(trendQueryResult), //
 				getDate(trendQueryResult), //
@@ -249,25 +240,19 @@ public class LstmModelImpl extends AbstractPredictor
 				.withMinute(getMinute(nowDate, hyperParameters))//
 				.withSecond(0)//
 				.withNano(0);
-
 		var temp = till.minusDays(hyperParameters.getWindowSizeSeasonality() - 1);
-
 		var from = temp//
 				.withMinute(getMinute(nowDate, hyperParameters))//
 				.withSecond(0)//
 				.withNano(0);
-
 		var targetFrom = till.plusMinutes(hyperParameters.getInterval());
-
 		var queryResult = this.queryHistoricData(from, till, channelAddress, hyperParameters);
 
-		var predicted = LstmPredictor.getArranged(
+		return LstmPredictor.getArranged(
 				LstmPredictor.getIndex(targetFrom.getHour(), targetFrom.getMinute(), hyperParameters), //
 				LstmPredictor.predictSeasonality(DataModification.removeNegatives(getData(queryResult)),
 						getDate(queryResult), //
 						hyperParameters));
-
-		return predicted;
 	}
 
 	@Override

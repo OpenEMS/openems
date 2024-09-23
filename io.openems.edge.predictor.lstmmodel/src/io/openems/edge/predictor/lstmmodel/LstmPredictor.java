@@ -32,33 +32,24 @@ public class LstmPredictor {
 			HyperParameters hyperParameters) {
 
 		var preprocessing = new PreprocessingPipeImpl(hyperParameters);
-
 		preprocessing.setData(to1DArray(data)).setDates(date);
-
 		var resized = to2DList((double[][][]) preprocessing.interpolate()//
 				.scale()//
 				.filterOutliers() //
 				.groupByHoursAndMinutes()//
 				.execute());
-
 		preprocessing.setData(resized);
-
 		var normalized = (double[][]) preprocessing//
 				.normalize()//
 				.execute();
-
 		var allModel = hyperParameters.getBestModelSeasonality();
-
 		var predicted = predictPre(to2DArrayList(normalized), allModel, hyperParameters);
-
 		preprocessing.setData(to1DArray(predicted))//
 				.setMean(DataStatistics.getMean(resized))
 				.setStandardDeviation(DataStatistics.getStandardDeviation(resized));
-
 		var seasonalityPrediction = (double[]) preprocessing.reverseNormalize()//
 				.reverseScale()//
 				.execute();
-
 		return to1DArrayList(seasonalityPrediction);
 	}
 
@@ -85,15 +76,12 @@ public class LstmPredictor {
 				.interpolate()//
 				.scale()//
 				.execute();
-
 		// normalize
 		var trendPrediction = new double[hyperParameters.getTrendPoint()];
 		var mean = DataStatistics.getMean(scaled);
 		var standerDev = DataStatistics.getStandardDeviation(scaled);
-
 		preprocessing.setData(scaled);
-
-		ArrayList<Double> normData = to1DArrayList((double[]) preprocessing//
+		var normData = to1DArrayList((double[]) preprocessing//
 				.normalize()//
 				.execute());
 
@@ -103,13 +91,15 @@ public class LstmPredictor {
 			var temp = predictionFor.plusMinutes(i * hyperParameters.getInterval());
 
 			var modlelindex = (int) decodeDateToColumnIndex(temp, hyperParameters);
-			double predTemp = LstmPredictor.predict(normData, val.get(modlelindex).get(0), val.get(modlelindex).get(1),
-					val.get(modlelindex).get(2), val.get(modlelindex).get(3), val.get(modlelindex).get(4),
-					val.get(modlelindex).get(5), val.get(modlelindex).get(7), val.get(modlelindex).get(6),
+			double predTemp = LstmPredictor.predict(//
+					normData, //
+					val.get(modlelindex).get(0), val.get(modlelindex).get(1), //
+					val.get(modlelindex).get(2), val.get(modlelindex).get(3), //
+					val.get(modlelindex).get(4), val.get(modlelindex).get(5), //
+					val.get(modlelindex).get(7), val.get(modlelindex).get(6), //
 					hyperParameters);
 			normData.add(predTemp);
 			normData.remove(0);
-
 			trendPrediction[i] = (predTemp);
 		}
 
@@ -133,9 +123,7 @@ public class LstmPredictor {
 	 *         24-hour period.
 	 */
 	public static double decodeDateToColumnIndex(ZonedDateTime predictionFor, HyperParameters hyperParameters) {
-
 		var hour = predictionFor.getHour();
-
 		var minute = predictionFor.getMinute();
 		var index = (Integer) hour * (60 / hyperParameters.getInterval()) + minute / hyperParameters.getInterval();
 		var modifiedIndex = index - hyperParameters.getWindowSizeTrend();
@@ -185,7 +173,6 @@ public class LstmPredictor {
 	 * @return The index representing the specified hour and minute combination.
 	 */
 	public static Integer getIndex(Integer hour, Integer minute, HyperParameters hyperParameters) {
-
 		var k = 0;
 		for (var i = 0; i < 24; i++) {
 			for (var j = 0; j < (int) 60 / hyperParameters.getInterval(); j++) {

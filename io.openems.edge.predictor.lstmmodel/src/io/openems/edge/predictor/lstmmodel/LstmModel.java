@@ -14,9 +14,9 @@ public interface LstmModel extends OpenemsComponent {
 		LAST_TRAINED_TIME(Doc.of(OpenemsType.STRING) //
 				.text("Last trained time in Unixstimestamp")), //
 		MODEL_ERROR(Doc.of(OpenemsType.DOUBLE) //
-				.text("Last trained time in Unixstimestamp")), //
+				.text("Error in the Model")), //
 		CANNOT_TRAIN_CONDITON(Doc.of(OpenemsType.BOOLEAN) //
-				.text("When the Data is empty, all null's, 50% of null"));
+				.text("When the data set is empty, entirely null, or contains 50% null values."));
 
 		private final Doc doc;
 

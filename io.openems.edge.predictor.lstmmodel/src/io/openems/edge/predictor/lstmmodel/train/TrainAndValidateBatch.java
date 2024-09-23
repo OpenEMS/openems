@@ -42,18 +42,22 @@ public class TrainAndValidateBatch {
 				var trainDateTemp = batchedDate.get(batch);
 
 				CompletableFuture<Void> firstTaskFuture = CompletableFuture
+
 						// Train the Seasonality model
 						.supplyAsync(() -> makeModels.trainSeasonality(trainDataTemp, trainDateTemp, hyperParameter))
+
 						// Validate this Seasonality model
 						.thenAccept(untestedSeasonalityMoadels -> new ValidationSeasonalityModel().validateSeasonality(
 								validateData, validateDate, untestedSeasonalityMoadels, hyperParameter));
 
 				CompletableFuture<Void> secondTaskFuture = CompletableFuture
+
 						// Train the trend model
 						.supplyAsync(() -> makeModels.trainTrend(trainDataTemp, trainDateTemp, hyperParameter))
+
 						// validate the trend model
-						.thenAccept(untestedSEasonalityMoadels -> new ValidationTrendModel().validateTrend(validateData,
-								validateDate, untestedSEasonalityMoadels, hyperParameter));
+						.thenAccept(untestedSeasonalityMoadels -> new ValidationTrendModel().validateTrend(validateData,
+								validateDate, untestedSeasonalityMoadels, hyperParameter));
 
 				k = k + 1;
 				try {
