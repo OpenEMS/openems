@@ -21,6 +21,7 @@ public class MeterSiemensPac1600ImplTest {
 						.setId(METER_ID) //
 						.setModbusId(MODBUS_ID) //
 						.setType(MeterType.GRID) //
+						.setInvert(false) //
 						.build()) //
 		;
 	}
