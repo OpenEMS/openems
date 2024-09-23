@@ -175,6 +175,19 @@ public class ElementToChannelConverter {
 		// CHECKSTYLE:ON
 		return chain(SCALE_FACTOR_MINUS_1, INVERT_IF_TRUE(invert));
 	}
+	
+	/**
+	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_MINUS_2} and
+	 * INVERT_IF_TRUE.
+	 * 
+	 * @param invert input value for {@link #INVERT_IF_TRUE(boolean)}
+	 * @return the {@link ElementToChannelConverter}
+	 */
+	// CHECKSTYLE:OFF
+	public static final ElementToChannelConverter SCALE_FACTOR_MINUS_2_AND_INVERT_IF_TRUE(boolean invert) {
+		// CHECKSTYLE:ON
+		return chain(SCALE_FACTOR_MINUS_2, INVERT_IF_TRUE(invert));
+	}
 
 	private final Function<Object, Object> elementToChannel;
 	private final Function<Object, Object> channelToElement;
