@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "Controller PV-Inverter Reverse Power Relay (Rundsteuerempf�nger)", //
+		name = "Controller PV-Inverter Reverse Power Relay (german: Rundsteuerempfänger)", //
 		description = "Defines a reverse power relay to limit PV inverter.")
 @interface Config {
 
@@ -16,6 +16,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+	
+	@AttributeDefinition(name = "Debug mode", description = "Enable debug mode")
+	boolean debugMode() default false;	
 
 	@AttributeDefinition(name = "PV-Inverter-ID", description = "ID of PV-Inverter device.")
 	String pvInverter_id();
@@ -32,11 +35,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Input Channel 100%", description = "Address of the input channel. If this channel is active the inverter is limited to 100%. i.e. 'myRelay/Input4")
 	String inputChannelAddress100Percent();
 
-	@AttributeDefinition(name = "Power Limit 30% step [W]", description = "")
-	int powerLimit30();
-
-	@AttributeDefinition(name = "Power Limit 60% step [W]", description = "")
-	int powerLimit60();
+	@AttributeDefinition(name = "Inverters max. apparent power limit (100%) step [W]", description = "")
+	int powerLimit100();
 
 	String webconsole_configurationFactory_nameHint() default "Controller PV-Inverter Reverse Power Relay Limitation [{id}]";
 }

@@ -1,5 +1,7 @@
 package io.openems.edge.controller.pvinverter.reversepowerrelay;
 
+import java.util.Optional;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -33,6 +35,8 @@ public class ReversePowerRelayImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
+	private Config config;
+
 	private String pvInverterId;
 
 	private int powerLimit30Percent = 0;
@@ -42,8 +46,6 @@ public class ReversePowerRelayImpl extends AbstractOpenemsComponent
 	private ChannelAddress inputChannelAddress30Percent = null;
 	private ChannelAddress inputChannelAddress60Percent = null;
 	private ChannelAddress inputChannelAddress100Percent = null;
-
-	private ManagedSymmetricPvInverter pvInverter;
 
 	public ReversePowerRelayImpl() {
 		super(//
@@ -57,9 +59,10 @@ public class ReversePowerRelayImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.pvInverterId = config.pvInverter_id();
+		this.config = config;
 
-		this.powerLimit30Percent = config.powerLimit30();
-		this.powerLimit60Percent = config.powerLimit60();
+		this.powerLimit30Percent = (int) Math.round(config.powerLimit100() * 0.3);
+		this.powerLimit60Percent = (int) Math.round(config.powerLimit100() * 0.6);
 
 		try {
 			this.inputChannelAddress0Percent = ChannelAddress.fromString(config.inputChannelAddress0Percent());
@@ -70,6 +73,16 @@ public class ReversePowerRelayImpl extends AbstractOpenemsComponent
 
 		} catch (OpenemsNamedException e) {
 			this.log.error("Error parsing channel addresses", e);
+		}
+	}
+
+	/**
+	 * Uses Info Log for further debug features.
+	 */
+	@Override
+	protected void logDebug(Logger log, String message) {
+		if (this.config.debugMode()) {
+			this.logInfo(this.log, message);
 		}
 	}
 
@@ -89,14 +102,17 @@ public class ReversePowerRelayImpl extends AbstractOpenemsComponent
 	private void setPvLimit(Integer powerLimit) {
 
 		try {
-			this.pvInverter = this.componentManager.getComponent(this.pvInverterId);
-			if (this.pvInverter != null) {
-				this.pvInverter.setActivePowerLimit(powerLimit);
+			ManagedSymmetricPvInverter pvInverter = this.componentManager.getComponent(this.pvInverterId);
+
+			if (pvInverter != null) {
+
 				if (powerLimit != null) {
 					this.log.warn("Setting PV limit: " + powerLimit + "W for " + this.pvInverterId);
 				} else {
 					this.log.info("No limit for " + this.pvInverterId);
 				}
+
+				pvInverter.setActivePowerLimit(powerLimit);
 
 			}
 		} catch (OpenemsNamedException e) {
@@ -105,65 +121,64 @@ public class ReversePowerRelayImpl extends AbstractOpenemsComponent
 
 	}
 
-	private Boolean getChannelValue(ChannelAddress address) throws OpenemsNamedException {
+	private Optional<Boolean> getChannelValue(ChannelAddress address) {
 		if (address == null) {
-			return null;
+			return Optional.empty();
 		}
 		try {
 			BooleanReadChannel channel = this.componentManager.getChannel(address);
-			return channel.value().orElse(null);
+			return channel.value().asOptional();
 		} catch (OpenemsNamedException e) {
 			this.log.error("Error reading channel value", e);
-			return null;
+			return Optional.empty();
 		}
 	}
 
 	@Override
 	public void run() throws OpenemsNamedException {
+		Optional<Boolean> value0PercentOpt = this.getChannelValue(this.inputChannelAddress0Percent);
+		Optional<Boolean> value30PercentOpt = this.getChannelValue(this.inputChannelAddress30Percent);
+		Optional<Boolean> value60PercentOpt = this.getChannelValue(this.inputChannelAddress60Percent);
+		Optional<Boolean> value100PercentOpt = this.getChannelValue(this.inputChannelAddress100Percent);
 
+		this.logDebug(this.log, "\nInput 0%->" + value0PercentOpt + "\nInput 30%->" + value30PercentOpt + "\nInput 60%->"
+				+ value60PercentOpt + "\nInput 100%->" + value100PercentOpt);
 		try {
-			Boolean value0Percent = this.getChannelValue(this.inputChannelAddress0Percent);
-			Boolean value30Percent = this.getChannelValue(this.inputChannelAddress30Percent);
-			Boolean value60Percent = this.getChannelValue(this.inputChannelAddress60Percent);
-			Boolean value100Percent = this.getChannelValue(this.inputChannelAddress100Percent);
 
-			if (value0Percent == null || value30Percent == null || value60Percent == null || value100Percent == null) {
-				this.log.warn("Skipping logic in run() due to null channel values");
-				this.setPvLimit(0);				
+			if (!value0PercentOpt.isPresent() || !value30PercentOpt.isPresent() || !value60PercentOpt.isPresent()
+					|| !value100PercentOpt.isPresent()) {
+				this.log.warn("Skipping logic in run() due to missing channel values");
+				this.setPvLimit(0);
 				return;
 			}
-			//
-			if (value0Percent == true) {
+			// Extract boolean values from Optional
+			Boolean value0Percent = value0PercentOpt.get();
+			Boolean value30Percent = value30PercentOpt.get();
+			Boolean value60Percent = value60PercentOpt.get();
+			Boolean value100Percent = value100PercentOpt.get();
+
+			// make decisions based on modbus inputs
+			if (value0Percent) {
 				this.setPvLimit(0);
-			} else if (value0Percent == false && value30Percent == true && value60Percent == false
-					&& value100Percent == false) {
+			} else if (value30Percent && !value60Percent && !value100Percent) {
 				this.setPvLimit(this.powerLimit30Percent);
-			} else if (value0Percent == false && value30Percent == false && value60Percent == true
-					&& value100Percent == false) {
+			} else if (value60Percent && !value30Percent && !value100Percent) {
 				this.setPvLimit(this.powerLimit60Percent);
-			} else if (value0Percent == false && value30Percent == false && value60Percent == false
-					&& value100Percent == true) {
+			} else if (value100Percent) {
 				this.setPvLimit(null);
 			} else {
 				this.setPvLimit(0);
 			}
 
-		} catch (OpenemsNamedException e) {
+		} catch (Exception e) {
 			this.log.error("No values from modbus channels yet", e);
 			return;
 		}
 
 	}
-	
-    public String getPvInverterId() {
-        return this.pvInverterId;
-    }
 
-    public int getPowerLimit30Percent() {
-        return this.powerLimit30Percent;
-    }
+	public String getPvInverterId() {
+		return this.pvInverterId;
+	}
 
-    public int getPowerLimit60Percent() {
-        return this.powerLimit60Percent;
-    }
 }

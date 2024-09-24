@@ -9,13 +9,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String alias = ""; // Default to empty string
 		private boolean enabled = true; // Default to true
+		private boolean debugMode = true; // Default to true
 		private String pvInverterId;
 		private String inputChannelAddress0Percent;
 		private String inputChannelAddress30Percent;
 		private String inputChannelAddress60Percent;
 		private String inputChannelAddress100Percent;
-		private int powerLimit30;
-		private int powerLimit60;
+		private int powerLimit100;
 
 		private Builder() {
 		}
@@ -34,6 +34,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.enabled = enabled;
 			return this;
 		}
+		
+		public Builder setDebugMode(boolean debugMode) {
+			this.debugMode = debugMode;
+			return this;
+		}		
 
 		public Builder setPvInverterId(String pvInverterId) {
 			this.pvInverterId = pvInverterId;
@@ -60,13 +65,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setPowerLimit30(int powerLimit30) {
-			this.powerLimit30 = powerLimit30;
-			return this;
-		}
-
-		public Builder setPowerLimit60(int powerLimit60) {
-			this.powerLimit60 = powerLimit60;
+		public Builder setPowerLimit100(int powerLimit100) {
+			this.powerLimit100 = powerLimit100;
 			return this;
 		}
 
@@ -105,7 +105,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public boolean enabled() {
 		return this.builder.enabled;
 	}
-
+	
+	@Override
+	public boolean debugMode() {
+		return this.builder.debugMode;
+	}	
+	
 	@Override
 	public String pvInverter_id() {
 		return this.builder.pvInverterId;
@@ -132,12 +137,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int powerLimit30() {
-		return this.builder.powerLimit30;
+	public int powerLimit100() {
+		return this.builder.powerLimit100;
 	}
 
-	@Override
-	public int powerLimit60() {
-		return this.builder.powerLimit60;
-	}
 }
