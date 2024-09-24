@@ -409,7 +409,7 @@
 	org.apache.felix.inventory;version='[2.0.0,2.0.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
 	org.apache.felix.scr;version='[2.2.12,2.2.13)',\
-	org.apache.felix.webconsole;version='[5.0.6,5.0.7)',\
+	org.apache.felix.webconsole;version='[5.0.8,5.0.9)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
 	org.eclipse.jetty.client;version='[9.4.28,9.4.29)',\
 	org.eclipse.jetty.http;version='[9.4.28,9.4.29)',\
