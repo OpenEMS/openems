@@ -5,7 +5,7 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import annotationPlugin from "chartjs-plugin-annotation";
-import { calculateResolution, ChronoUnit, DEFAULT_NUMBER_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, Resolution, setLabelVisible } from "src/app/edge/history/shared";
+import { ChronoUnit, DEFAULT_NUMBER_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS, Resolution, calculateResolution, isLabelVisible, setLabelVisible } from "src/app/edge/history/shared";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { v4 as uuidv4 } from "uuid";
@@ -311,6 +311,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return translate.instant("Edge.Index.Widgets.Channeltreshold.ACTIVE_TIME_OVER_PERIOD");
       case YAxisType.PERCENTAGE:
         return translate.instant("General.percentage");
+      case YAxisType.REACTIVE:
+        return "var";
       case YAxisType.ENERGY:
         if (chartType == "bar") {
           return "kWh";
@@ -556,6 +558,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         break;
       case YAxisType.POWER:
       case YAxisType.ENERGY:
+      case YAxisType.REACTIVE:
       case YAxisType.VOLTAGE:
       case YAxisType.CURRENT:
       case YAxisType.NONE:
@@ -645,6 +648,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           tooltipsLabel = "kW";
         }
         break;
+      case YAxisType.REACTIVE:
+        tooltipsLabel = "var";
+        break;
       default:
         tooltipsLabel = "";
         break;
@@ -724,6 +730,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return "V";
       case YAxisType.CURRENT:
         return "A";
+      case YAxisType.REACTIVE:
+        return "var";
       case YAxisType.ENERGY:
         if (chartType == "bar") {
           return "kWh";

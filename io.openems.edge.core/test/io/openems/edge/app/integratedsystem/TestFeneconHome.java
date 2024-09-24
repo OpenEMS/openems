@@ -2,9 +2,12 @@ package io.openems.edge.app.integratedsystem;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.gson.JsonObject;
@@ -31,7 +34,8 @@ public class TestFeneconHome {
 					Apps::gridOptimizedCharge, //
 					Apps::selfConsumptionOptimization, //
 					Apps::socomecMeter, //
-					Apps::prepareBatteryExtension //
+					Apps::prepareBatteryExtension, //
+					Apps::limiter14a //
 			);
 		}, null, new PseudoComponentManagerFactory());
 
@@ -46,52 +50,25 @@ public class TestFeneconHome {
 
 	@Test
 	public void testCreateAndUpdateHomeFullSettings() throws Exception {
-		var fullConfig = JsonUtils.buildJsonObject() //
-				.addProperty("SAFETY_COUNTRY", "GERMANY") //
-				.addProperty("RIPPLE_CONTROL_RECEIVER_ACTIV", false) //
-				.addProperty("MAX_FEED_IN_POWER", 1000) //
-				.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
-				.addProperty("HAS_AC_METER", true) //
-				.addProperty("HAS_DC_PV1", true) //
-				.addProperty("DC_PV1_ALIAS", "alias pv 1") //
-				.addProperty("HAS_DC_PV2", true) //
-				.addProperty("DC_PV2_ALIAS", "alias pv 2") //
-				.addProperty("HAS_EMERGENCY_RESERVE", true) //
-				.addProperty("EMERGENCY_RESERVE_ENABLED", true) //
-				.addProperty("EMERGENCY_RESERVE_SOC", 15) //
-				.addProperty("SHADOW_MANAGEMENT_DISABLED", false) //
-				.build();
 
 		var homeInstance = this.createFullHome();
 
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
-				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullConfig));
+				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullSettings()));
 		// expect the same as before
 		// make sure every dependency got installed
-		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 5);
+		assertEquals(5, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
-			int expectedDependencies;
-			switch (instance.appId) {
-			case "App.FENECON.Home":
-				expectedDependencies = 4;
-				break;
-			case "App.PvSelfConsumption.GridOptimizedCharge":
-				expectedDependencies = 0;
-				break;
-			case "App.PvSelfConsumption.SelfConsumptionOptimization":
-				expectedDependencies = 0;
-				break;
-			case "App.Meter.Socomec":
-				expectedDependencies = 0;
-				break;
-			case "App.Ess.PrepareBatteryExtension":
-				expectedDependencies = 0;
-				break;
-			default:
-				throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
-			}
+			final var expectedDependencies = switch (instance.appId) {
+			case "App.FENECON.Home" -> 4;
+			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
+			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
+			case "App.Meter.Socomec" -> 0;
+			case "App.Ess.PrepareBatteryExtension" -> 0;
+			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
+			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {
 				continue;
 			}
@@ -108,6 +85,7 @@ public class TestFeneconHome {
 				.addProperty("RIPPLE_CONTROL_RECEIVER_ACTIV", false) //
 				.addProperty("MAX_FEED_IN_POWER", 1000) //
 				.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
+				.addProperty("HAS_ESS_LIMITER_14A", false) //
 				.addProperty("HAS_AC_METER", false) //
 				.addProperty("HAS_DC_PV1", true) //
 				.addProperty("DC_PV1_ALIAS", "alias pv 1") //
@@ -123,27 +101,17 @@ public class TestFeneconHome {
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", configNoMeter));
 		// expect the same as before
 		// make sure every dependency got installed
-		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 4);
+		assertEquals(4, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
-			int expectedDependencies;
-			switch (instance.appId) {
-			case "App.FENECON.Home":
-				expectedDependencies = 3;
-				break;
-			case "App.PvSelfConsumption.GridOptimizedCharge":
-				expectedDependencies = 0;
-				break;
-			case "App.PvSelfConsumption.SelfConsumptionOptimization":
-				expectedDependencies = 0;
-				break;
-			case "App.Ess.PrepareBatteryExtension":
-				expectedDependencies = 0;
-				break;
-			default:
-				throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
-			}
+			final var expectedDependencies = switch (instance.appId) {
+			case "App.FENECON.Home" -> 3;
+			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
+			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
+			case "App.Ess.PrepareBatteryExtension" -> 0;
+			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
+			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {
 				continue;
 			}
@@ -194,6 +162,30 @@ public class TestFeneconHome {
 		assertEquals("DISABLE", batteryInverterProps.get("rcrEnable"));
 	}
 
+	@Test
+	@Ignore
+	public void testEnableLimiter14a() throws Exception {
+		final var createSettings = fullSettings();
+		createSettings.addProperty(FeneconHome.Property.HAS_ESS_LIMITER_14A.name(), false);
+
+		final var createResponse = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", createSettings));
+
+		assertEquals(4, createResponse.instance().dependencies.size());
+		assertFalse(this.appManagerTestBundle.sut.getInstantiatedApps().stream()
+				.anyMatch(a -> a.appId.equals("App.Ess.Limiter14a")));
+
+		final var updateSettings = fullSettings();
+		createSettings.addProperty(FeneconHome.Property.HAS_ESS_LIMITER_14A.name(), true);
+		final var updateResponse = this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
+				new UpdateAppInstance.Request(createResponse.instance().instanceId, "alias", updateSettings));
+
+		assertEquals(5, updateResponse.instance().dependencies.size());
+		assertTrue(this.appManagerTestBundle.sut.getInstantiatedApps().stream()
+				.anyMatch(a -> a.appId.equals("App.Ess.Limiter14a")));
+
+	}
+
 	private final OpenemsAppInstance createFullHome() throws Exception {
 		return createFullHome(this.appManagerTestBundle, DUMMY_ADMIN);
 	}
@@ -216,7 +208,7 @@ public class TestFeneconHome {
 		assertEquals(4, response.instance().dependencies.size());
 
 		// make sure every dependency got installed
-		assertEquals(appManagerTestBundle.sut.getInstantiatedApps().size(), 5);
+		assertEquals(5, appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : appManagerTestBundle.sut.getInstantiatedApps()) {
@@ -252,6 +244,7 @@ public class TestFeneconHome {
 				.addProperty("RIPPLE_CONTROL_RECEIVER_ACTIV", false) //
 				.addProperty("MAX_FEED_IN_POWER", 1000) //
 				.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
+				.addProperty("HAS_ESS_LIMITER_14A", false) //
 				.addProperty("HAS_AC_METER", true) //
 				.addProperty("HAS_DC_PV1", true) //
 				.addProperty("DC_PV1_ALIAS", "alias pv 1") //

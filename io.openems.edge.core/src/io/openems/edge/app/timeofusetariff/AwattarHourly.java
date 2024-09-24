@@ -2,6 +2,7 @@ package io.openems.edge.app.timeofusetariff;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
 
 import java.util.Map;
@@ -168,7 +169,7 @@ public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Pr
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkHome());
+				.setCompatibleCheckableConfigs(checkHome().or(checkCommercial92()));
 	}
 
 	@Override

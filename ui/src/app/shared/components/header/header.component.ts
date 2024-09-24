@@ -63,7 +63,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         const urlArray = url.split("/");
         const file = urlArray.pop();
 
-        if (file == "user" || file == "settings" || file == "changelog" || file == "login" || urlArray.length > 3) {
+        if (file == "user" || file == "settings" || file == "changelog" || file == "login" || file == "index" || urlArray.length > 3) {
             // disable side-menu; show back-button instead
             this.enableSideMenu = false;
         } else {
@@ -75,7 +75,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     updateBackUrl(url: string) {
 
         // disable backUrl & Segment Navigation on initial 'login' page
-        if (url === "/login" || url === "/overview") {
+        if (url === "/login" || url === "/overview" || url === "/index") {
             this.backUrl = false;
             return;
         }

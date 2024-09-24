@@ -93,6 +93,34 @@ export namespace Converter {
       Formatter.FORMAT_WATT(value));
   };
 
+  /**
+   * Formats a Energy value as Kilo watt hours [kWh].
+   *
+   * Value 1000 -> "1,00 kWh".
+   * Value null -> "-".
+   *
+   * @param value the power value
+   * @returns formatted value; '-' for null
+   */
+  export const WATT_HOURS_IN_KILO_WATT_HOURS: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_KILO_WATT_HOURS(value / 1000));
+  };
+
+  /**
+   * Formats a Energy value as Kilo watt hours [kWh].
+   *
+   * Value 1000 -> "1000 kWh".
+   * Value null -> "-".
+   *
+   * @param value the power value
+   * @returns formatted value; '-' for null
+   */
+  export const TO_KILO_WATT_HOURS: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_KILO_WATT_HOURS(value));
+  };
+
   export const STATE_IN_PERCENT: Converter = (raw) => {
     return IF_NUMBER(raw, value =>
       Formatter.FORMAT_PERCENT(value));

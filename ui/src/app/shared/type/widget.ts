@@ -1,6 +1,7 @@
 // @ts-strict-ignore
 import { Edge } from "../components/edge/edge";
 import { EdgeConfig } from "../components/edge/edgeconfig";
+import { EdgePermission } from "../shared";
 
 export enum WidgetClass {
     "Energymonitor",
@@ -21,6 +22,7 @@ export enum WidgetNature {
 }
 
 export enum WidgetFactory {
+    "Controller.Api.ModbusTcp.ReadWrite",
     "Controller.Asymmetric.PeakShaving",
     "Controller.ChannelThreshold",
     "Controller.CHP.SoC",
@@ -104,6 +106,8 @@ export class Widgets {
                         return config.getComponentIdsByFactory("Controller.ChannelThreshold")?.length > 0;
                     case "Controller_Io_Digital_Outputs":
                         return config.getComponentIdsByFactories("Controller.Io.FixDigitalOutput", "Controller.IO.ChannelSingleThreshold")?.length > 0;
+                    case "Controller.Api.ModbusTcp.ReadWrite":
+                        return EdgePermission.isModbusTcpApiWidgetAllowed(edge);
                     default:
                         return false;
                 }

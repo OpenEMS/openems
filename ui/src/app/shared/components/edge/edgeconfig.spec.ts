@@ -172,6 +172,18 @@ export namespace DummyConfig {
                 "io.openems.edge.evcs.api.Evcs",
             ],
         };
+
+        export const MODBUS_TCP_READWRITE = {
+            id: "Controller.Api.ModbusTcp.ReadWrite",
+            natureIds: [
+                "io.openems.edge.common.jsonapi.JsonApi",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.api.modbus.ModbusTcpApi",
+                "io.openems.edge.controller.api.modbus.readwrite.ControllerApiModbusTcpReadWrite",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
     }
 
     export namespace Component {
@@ -292,6 +304,21 @@ export namespace DummyConfig {
                 modbusUnitId: 5,
                 // TODO
                 type: "CONSUMPTION_METERED",
+            },
+            channels: {},
+        });
+
+        export const MODBUS_TCP_READWRITE = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.MODBUS_TCP_READWRITE,
+            properties: {
+                invert: false,
+                modbusUnitId: 5,
+                type: "PRODUCTION",
+                writeChannels: [
+                    "Ess0SetActivePowerEquals",
+                ],
             },
             channels: {},
         });
