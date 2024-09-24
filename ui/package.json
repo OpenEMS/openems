@@ -12,7 +12,7 @@
     "@angular/platform-browser-dynamic": "18.0.5",
     "@angular/router": "18.0.5",
     "@angular/service-worker": "18.0.5",
-    "@capacitor-community/file-opener": "^6.0.0",
+    "@capacitor-community/file-opener": "^6.0.1",
     "@capacitor/android": "^6.0.0",
     "@capacitor/app": "^6.0.0",
     "@capacitor/core": "^6.0.0",
