@@ -2,13 +2,6 @@ package io.openems.edge.controller.pvinverter.reversepowerrelay;
 
 import java.util.Optional;
 
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +13,15 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.common.channel.BooleanReadChannel;
+
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
+import org.osgi.service.metatype.annotations.Designate;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -129,7 +131,7 @@ public class ReversePowerRelayImpl extends AbstractOpenemsComponent
 			BooleanReadChannel channel = this.componentManager.getChannel(address);
 			return channel.value().asOptional();
 		} catch (OpenemsNamedException e) {
-			this.log.error("Error reading channel value", e);
+			this.log.error("Error reading channel value for address: " + address, e);
 			return Optional.empty();
 		}
 	}
@@ -172,6 +174,7 @@ public class ReversePowerRelayImpl extends AbstractOpenemsComponent
 
 		} catch (Exception e) {
 			this.log.error("No values from modbus channels yet", e);
+			this.setPvLimit(0);			
 			return;
 		}
 

@@ -13,6 +13,7 @@ import io.openems.edge.pvinverter.test.DummyManagedSymmetricPvInverter;
 
 import io.openems.edge.io.test.DummyInputOutput;
 
+
 public class ReversePowerRelayImplTest {
 
 	private static final String CTRL_ID = "ctrl0";
@@ -30,6 +31,8 @@ public class ReversePowerRelayImplTest {
 	private static final ChannelAddress IO_INPUT_OUTPUT1 = new ChannelAddress(IO_ID, "InputOutput1");
 	private static final ChannelAddress IO_INPUT_OUTPUT2 = new ChannelAddress(IO_ID, "InputOutput2");
 	private static final ChannelAddress IO_INPUT_OUTPUT3 = new ChannelAddress(IO_ID, "InputOutput3");
+	
+	private static final int powerLimit100 = 1500;
 
 	@Test
 	public void testReversePowerRelay() throws Exception {
@@ -48,6 +51,7 @@ public class ReversePowerRelayImplTest {
 						.setInputChannelAddress30Percent(IO_INPUT_OUTPUT1.toString()) //
 						.setInputChannelAddress60Percent(IO_INPUT_OUTPUT2.toString()) //
 						.setInputChannelAddress100Percent(IO_INPUT_OUTPUT3.toString()) //
+						.setPowerLimit100(powerLimit100)
 						.build())
 				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, -15000) //
@@ -61,7 +65,7 @@ public class ReversePowerRelayImplTest {
 						.input(IO_INPUT_OUTPUT1, true) //
 						.input(IO_INPUT_OUTPUT2, false) //
 						.input(IO_INPUT_OUTPUT3, false) //
-						.output(PV_INVERTER_SET_ACTIVE_POWER_EQUALS, 30)) //
+						.output(PV_INVERTER_SET_ACTIVE_POWER_EQUALS, 450)) //
 				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, -15000) //
 						.input(PV_INVERTER_ACTIVE_POWER, 8000) //
@@ -69,7 +73,7 @@ public class ReversePowerRelayImplTest {
 						.input(IO_INPUT_OUTPUT1, false) //
 						.input(IO_INPUT_OUTPUT2, true) //
 						.input(IO_INPUT_OUTPUT3, false) //
-						.output(PV_INVERTER_SET_ACTIVE_POWER_EQUALS, 60)) //
+						.output(PV_INVERTER_SET_ACTIVE_POWER_EQUALS, 900)) //
 				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, -13000) //
 						.input(PV_INVERTER_ACTIVE_POWER, 7000) //
