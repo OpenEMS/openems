@@ -1,5 +1,6 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.ESS_MAX_SOC;
@@ -279,6 +280,24 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 						applyChargeGrid(energyFlow, ctrlContext.essChargeInChargeGrid);
 					}
 					}
+				}, //
+				(energyFlow, state) -> {
+					if (state == CHARGE_GRID) {
+						// CHARGE_GRID,...
+						if (energyFlow.getGridToEss() <= 0) {
+							// but not actually charging Ess from Grid
+							state = DELAY_DISCHARGE;
+						}
+					}
+
+					if (state == DELAY_DISCHARGE) {
+						// DELAY_DISCHARGE,...
+						if (energyFlow.getEss() <= 0) {
+							// but actually charging Ess
+							state = BALANCING;
+						}
+					}
+					return state;
 				});
 	}
 

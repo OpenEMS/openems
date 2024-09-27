@@ -1,7 +1,10 @@
 package io.openems.edge.energy.optimizer;
 
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.function.BiConsumer;
 
@@ -17,12 +20,13 @@ import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext.Period.Hour;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext.Period.Quarter;
+import io.openems.edge.energy.optimizer.Simulator.EshToState;
 
 public record SimulationResult(//
 		double cost, //
 		ImmutableMap<ZonedDateTime, Period> periods, //
 		ImmutableMap<//
-				EnergyScheduleHandler.WithDifferentStates<?, ?>, //
+				? extends EnergyScheduleHandler.WithDifferentStates<?, ?>, //
 				ImmutableSortedMap<ZonedDateTime, EnergyScheduleHandler.WithDifferentStates.Period.Transition>> schedules) {
 
 	/**
@@ -63,33 +67,22 @@ public record SimulationResult(//
 	 * @return the {@link SimulationResult}
 	 */
 	private static SimulationResult from(GlobalSimulationsContext gsc, Genotype<IntegerGene> gt) {
-		// Re-Simulate and keep best Schedule
-		var collectedPeriodsBuilder = ImmutableMap.<ZonedDateTime, Period>builder();
-		var cost = Simulator.simulate(gsc, gt, p -> collectedPeriodsBuilder.put(p.context().time(), p));
-		var collectedPeriods = collectedPeriodsBuilder.build();
+		var allPeriods = ImmutableMap.<ZonedDateTime, Period>builder();
+		var allEshToStates = new ArrayList<EshToState>();
+		var cost = Simulator.simulate(gsc, gt, new Simulator.BestScheduleCollector(//
+				p -> allPeriods.put(p.context().time(), p), //
+				allEshToStates::add));
 
-		// Prepare individual Schedules for EnergyScheduleHandlers
-		var result = ImmutableMap.<//
-				EnergyScheduleHandler.WithDifferentStates<?, ?>, //
-				ImmutableSortedMap<ZonedDateTime, EnergyScheduleHandler.WithDifferentStates.Period.Transition>>builder();
-		var i = 0;
-		for (var esh : gsc.handlers()) {
-			if (esh instanceof EnergyScheduleHandler.WithDifferentStates<?, ?> e) {
-				var g = gt.get(i++);
-				var schedule = ImmutableSortedMap.<ZonedDateTime, EnergyScheduleHandler.WithDifferentStates.Period.Transition>naturalOrder();
-				var j = 0;
-				for (var period : gsc.periods()) {
-					var stateIndex = g.get(j++).intValue();
-					var collectedPeriod = collectedPeriods.get(period.time());
-					var context = collectedPeriod.context;
-					schedule.put(period.time(), new EnergyScheduleHandler.WithDifferentStates.Period.Transition(//
-							stateIndex, context.price(), collectedPeriod.energyFlow, collectedPeriod.essInitialEnergy));
-				}
-				result.put(e, schedule.build());
-			}
-		}
+		var schedules = allEshToStates.stream() //
+				.collect(toImmutableMap(EshToState::esh, //
+						eshToState -> ImmutableSortedMap.of(eshToState.period().context.time(),
+								new EnergyScheduleHandler.WithDifferentStates.Period.Transition(
+										eshToState.postProcessedStateIndex(), eshToState.period().context.price(),
+										eshToState.period().energyFlow, eshToState.period().essInitialEnergy)),
+						(a, b) -> ImmutableSortedMap.<ZonedDateTime, EnergyScheduleHandler.WithDifferentStates.Period.Transition>naturalOrder()
+								.putAll(a).putAll(b).build()));
 
-		return new SimulationResult(cost, collectedPeriods, result.build());
+		return new SimulationResult(cost, allPeriods.build(), schedules);
 	}
 
 	/**

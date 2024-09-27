@@ -1,14 +1,14 @@
 package io.openems.edge.energy.optimizer;
 
+import static io.jenetics.engine.Limits.byExecutionTime;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
-import static io.openems.edge.energy.optimizer.QuickSchedules.generateQuickSchedules;
 import static io.openems.edge.energy.optimizer.Utils.calculateExecutionLimitSeconds;
 import static io.openems.edge.energy.optimizer.Utils.initializeRandomRegistryForProduction;
 import static io.openems.edge.energy.optimizer.Utils.logSimulationResult;
 import static java.lang.Thread.sleep;
+import static java.time.Duration.ofSeconds;
 
 import java.time.Clock;
-import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -18,9 +18,6 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.jenetics.Genotype;
-import io.jenetics.IntegerGene;
-import io.jenetics.engine.Limits;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingSupplier;
 import io.openems.common.utils.FunctionUtils;
@@ -107,7 +104,7 @@ public class Optimizer implements Runnable {
 				return null;
 			}
 
-			final var executionLimit = Limits.byExecutionTime(Duration.ofSeconds(calculateExecutionLimitSeconds()));
+			final var executionLimit = byExecutionTime(ofSeconds(calculateExecutionLimitSeconds()));
 
 			// Find best Schedule
 			var bestSchedule = Simulator.getBestSchedule(gsc, this.simulationResult, null, //
@@ -147,17 +144,8 @@ public class Optimizer implements Runnable {
 			return;
 		}
 
-		// Collect Genotype with lowest cost
-		double lowestCost = 0.;
-		Genotype<IntegerGene> bestGt = null;
-		for (var gt : generateQuickSchedules(gsc, this.simulationResult)) {
-			var cost = Simulator.calculateCost(gsc, gt);
-			if (bestGt == null || cost < lowestCost) {
-				bestGt = gt;
-				lowestCost = cost;
-			}
-		}
-
+		// Find Genotype with lowest cost
+		var bestGt = QuickSchedules.findBestQuickSchedule(gsc, this.simulationResult);
 		if (bestGt == null) {
 			this.applyEmptySimulationResult();
 			return;

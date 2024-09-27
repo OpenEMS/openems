@@ -22,7 +22,6 @@ import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 import io.openems.edge.energy.api.simulation.OneSimulationContext;
-import io.openems.edge.energy.optimizer.SimulationResult.Period;
 
 public class Simulator {
 
@@ -46,20 +45,20 @@ public class Simulator {
 	/**
 	 * Simulates a Schedule and calculates the cost.
 	 * 
-	 * @param gsc     the {@link GlobalSimulationsContext}
-	 * @param gt      the simulated {@link Genotype}
-	 * @param collect a {@link Consumer} collecting context of the final result
+	 * @param gsc                   the {@link GlobalSimulationsContext}
+	 * @param gt                    the simulated {@link Genotype}
+	 * @param bestScheduleCollector the {@link BestScheduleCollector}; or null
 	 * @return the cost, lower is better, always positive;
 	 *         {@link Double#POSITIVE_INFINITY} on error
 	 */
 	public static double simulate(GlobalSimulationsContext gsc, Genotype<IntegerGene> gt,
-			Consumer<SimulationResult.Period> collect) {
+			BestScheduleCollector bestScheduleCollector) {
 		final var osc = OneSimulationContext.from(gsc);
 		final var noOfPeriods = gsc.periods().size();
 
 		var sum = 0.;
 		for (var period = 0; period < noOfPeriods; period++) {
-			sum += simulatePeriod(osc, gt, period, collect);
+			sum += simulatePeriod(osc, gt, period, bestScheduleCollector);
 		}
 		return sum;
 	}
@@ -67,15 +66,15 @@ public class Simulator {
 	/**
 	 * Calculates the cost of one Period under the given Schedule.
 	 * 
-	 * @param simulation  the {@link OneSimulationContext}
-	 * @param gt          the simulated {@link Genotype}
-	 * @param periodIndex the index of the simulated period
-	 * @param collect     a {@link Consumer} collecting context of the final result
+	 * @param simulation            the {@link OneSimulationContext}
+	 * @param gt                    the simulated {@link Genotype}
+	 * @param periodIndex           the index of the simulated period
+	 * @param bestScheduleCollector the {@link BestScheduleCollector}; or null
 	 * @return the cost, lower is better, always positive;
 	 *         {@link Double#POSITIVE_INFINITY} on error
 	 */
 	public static double simulatePeriod(OneSimulationContext simulation, Genotype<IntegerGene> gt, int periodIndex,
-			Consumer<SimulationResult.Period> collect) {
+			BestScheduleCollector bestScheduleCollector) {
 		final var period = simulation.global.periods().get(periodIndex);
 		final var handlers = simulation.global.handlers();
 		final var model = EnergyFlow.Model.from(simulation, period);
@@ -118,9 +117,17 @@ public class Simulator {
 			// Sell-to-Grid
 			cost = 0.;
 		}
-		if (collect != null) {
-			// var postprocessedState = postprocessSimulatorState(state, ef);
-			collect.accept(Period.from(period, energyFlow, simulation.getEssInitial()));
+		if (bestScheduleCollector != null) {
+			final var srp = SimulationResult.Period.from(period, energyFlow, simulation.getEssInitial());
+			bestScheduleCollector.allPeriods.accept(srp);
+			eshIndex = 0;
+			for (var esh : handlers) {
+				if (esh instanceof EnergyScheduleHandler.WithDifferentStates<?, ?> e) {
+					bestScheduleCollector.eshStates.accept(new EshToState(e, srp, //
+							e.postProcessPeriod(period, simulation, energyFlow,
+									gt.get(eshIndex++).get(periodIndex).intValue())));
+				}
+			}
 		}
 
 		// Prepare for next period
@@ -204,5 +211,16 @@ public class Simulator {
 				.collect(toBestGenotype());
 
 		return SimulationResult.fromQuarters(gsc, bestGt);
+	}
+
+	protected static record BestScheduleCollector(//
+			Consumer<SimulationResult.Period> allPeriods, //
+			Consumer<EshToState> eshStates) {
+	}
+
+	protected static record EshToState(//
+			EnergyScheduleHandler.WithDifferentStates<?, ?> esh, //
+			SimulationResult.Period period, //
+			int postProcessedStateIndex) {
 	}
 }

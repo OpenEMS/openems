@@ -74,7 +74,11 @@ public class RunOptimizerFromLogApp {
 		var gsc = AppUtils.parseGlobalSimulationsContextFromLogString(LOG, ESHS);
 		gsc.initializeEnergyScheduleHandlers();
 
-		var simulationResult = Simulator.getBestSchedule(gsc, SimulationResult.EMPTY, null, //
+		// Collect Genotype with lowest cost
+		var quickScheduleGt = QuickSchedules.findBestQuickSchedule(gsc, SimulationResult.EMPTY);
+		var quickSchedule = quickScheduleGt == null ? null : SimulationResult.fromQuarters(gsc, quickScheduleGt);
+
+		var simulationResult = Simulator.getBestSchedule(gsc, quickSchedule, null, //
 				stream -> stream //
 						.limit(Limits.byExecutionTime(Duration.ofSeconds(EXECUTION_LIMIT_SECONDS))));
 

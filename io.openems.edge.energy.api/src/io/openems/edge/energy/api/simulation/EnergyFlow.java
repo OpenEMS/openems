@@ -10,6 +10,7 @@ import static io.openems.edge.energy.api.simulation.Coefficient.PROD;
 import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_CONS;
 import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_ESS;
 import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_GRID;
+import static java.lang.Double.NaN;
 import static java.lang.Math.min;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.math3.optim.linear.Relationship.EQ;
@@ -295,9 +296,9 @@ public class EnergyFlow {
 		 * while making sure the value fits in the active constraints.
 		 * 
 		 * @param value the value
-		 * @return true on success; false otherwise
+		 * @return actually set value; {@link Double#NaN} on error
 		 */
-		public boolean setEss(int value) {
+		public double setEss(int value) {
 			return this.setFittingCoefficientValue(ESS, EQ, value);
 		}
 
@@ -306,9 +307,9 @@ public class EnergyFlow {
 		 * making sure the value fits in the active constraints.
 		 * 
 		 * @param value the value
-		 * @return true on success; false otherwise
+		 * @return actually set value; {@link Double#NaN} on error
 		 */
-		public boolean setEssMaxCharge(int value) {
+		public double setEssMaxCharge(int value) {
 			return this.setFittingCoefficientValue(ESS, GEQ, -value);
 		}
 
@@ -317,9 +318,9 @@ public class EnergyFlow {
 		 * making sure the value fits in the active constraints.
 		 * 
 		 * @param value the value
-		 * @return true on success; false otherwise
+		 * @return actually set value; {@link Double#NaN} on error
 		 */
-		public boolean setEssMaxDischarge(int value) {
+		public double setEssMaxDischarge(int value) {
 			return this.setFittingCoefficientValue(ESS, LEQ, value);
 		}
 
@@ -328,9 +329,9 @@ public class EnergyFlow {
 		 * making sure the value fits in the active constraints.
 		 * 
 		 * @param value the value
-		 * @return true on success; false otherwise
+		 * @return actually set value; {@link Double#NaN} on error
 		 */
-		public boolean setGridMaxBuy(int value) {
+		public double setGridMaxBuy(int value) {
 			return this.setFittingCoefficientValue(ESS, LEQ, value);
 		}
 
@@ -339,9 +340,9 @@ public class EnergyFlow {
 		 * making sure the value fits in the active constraints.
 		 * 
 		 * @param value the value
-		 * @return true on success; false otherwise
+		 * @return actually set value; {@link Double#NaN} on error
 		 */
-		public boolean setGridMaxSell(int value) {
+		public double setGridMaxSell(int value) {
 			return this.setFittingCoefficientValue(ESS, GEQ, -value);
 		}
 
@@ -427,12 +428,12 @@ public class EnergyFlow {
 			try {
 				result[0] = this.getExtremeCoefficientValue(coefficient, MINIMIZE);
 			} catch (MathIllegalStateException e) {
-				result[0] = Double.NaN;
+				result[0] = NaN;
 			}
 			try {
 				result[1] = this.getExtremeCoefficientValue(coefficient, MAXIMIZE);
 			} catch (MathIllegalStateException e) {
-				result[1] = Double.NaN;
+				result[1] = NaN;
 			}
 			return result;
 		}
@@ -484,21 +485,21 @@ public class EnergyFlow {
 		 * @param coefficient  the {@link Coefficient}
 		 * @param relationship the {@link Relationship}l
 		 * @param value        the value
-		 * @return true on success; false otherwise
+		 * @return actually set value; {@link Double#NaN} on error
 		 */
-		public boolean setFittingCoefficientValue(Coefficient coefficient, Relationship relationship, double value) {
+		public double setFittingCoefficientValue(Coefficient coefficient, Relationship relationship, double value) {
 			// Fit to MIN value
 			try {
 				var min = this.getExtremeCoefficientValue(coefficient, MINIMIZE);
 				if (value <= min) {
 					this.setCoefficientValue(coefficient, relationship, min);
-					return true;
+					return min;
 				}
 			} catch (MathIllegalStateException e) {
 				LOG.warn("[setFittingCoefficientValue] " //
 						+ "Unable to MINIMIZE " + coefficient + ": " + e.getMessage() + " " //
 						+ this.toString());
-				return false;
+				return NaN;
 			}
 
 			// Fit to MAX value
@@ -506,18 +507,18 @@ public class EnergyFlow {
 				var max = this.getExtremeCoefficientValue(coefficient, MAXIMIZE);
 				if (value > max) {
 					this.setCoefficientValue(coefficient, relationship, max);
-					return true;
+					return max;
 				}
 			} catch (MathIllegalStateException e) {
 				LOG.warn("[setFittingCoefficientValue] " //
 						+ "Unable to MAXIMIZE " + coefficient + ": " + e.getMessage() + " " //
 						+ this.toString());
-				return false;
+				return NaN;
 			}
 
 			// Apply coefficient value
 			this.setCoefficientValue(coefficient, relationship, value);
-			return true;
+			return value;
 		}
 
 		/**

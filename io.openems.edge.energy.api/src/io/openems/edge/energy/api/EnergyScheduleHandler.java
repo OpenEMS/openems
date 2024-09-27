@@ -15,6 +15,7 @@ import java.util.stream.IntStream;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.energy.api.EnergyScheduleHandler.WithDifferentStates.PostProcessor;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 import io.openems.edge.energy.api.simulation.OneSimulationContext;
@@ -39,7 +40,30 @@ public sealed interface EnergyScheduleHandler {
 			Function<GlobalSimulationsContext, CONTEXT> contextFunction, //
 			WithDifferentStates.Simulator<STATE, CONTEXT> simulator) {
 		return new EnergyScheduleHandler.WithDifferentStates<STATE, CONTEXT>(defaultState, statesSupplier,
-				contextFunction, simulator);
+				contextFunction, simulator, EnergyScheduleHandler.WithDifferentStates.PostProcessor.doNothing());
+	}
+
+	/**
+	 * Creates an {@link EnergyScheduleHandler} for a {@link Controller} with
+	 * different states that can be evaluated.
+	 * 
+	 * @param <STATE>         the type of the State
+	 * @param <CONTEXT>       the type of the Context
+	 * @param defaultState    the default State if no other is explicitly scheduled
+	 * @param statesSupplier  a {@link Supplier} for available States
+	 * @param contextFunction a {@link Function} to create a Context
+	 * @param simulator       a simulator that modifies a given {@link EnergyFlow}
+	 * @param postProcessor   a {@link PostProcessor}
+	 * @return an {@link EnergyScheduleHandler}
+	 */
+	public static <STATE, CONTEXT> EnergyScheduleHandler.WithDifferentStates<STATE, CONTEXT> of(//
+			STATE defaultState, //
+			Supplier<STATE[]> statesSupplier, //
+			Function<GlobalSimulationsContext, CONTEXT> contextFunction, //
+			WithDifferentStates.Simulator<STATE, CONTEXT> simulator, //
+			WithDifferentStates.PostProcessor<STATE> postProcessor) {
+		return new EnergyScheduleHandler.WithDifferentStates<STATE, CONTEXT>(defaultState, statesSupplier,
+				contextFunction, simulator, postProcessor);
 	}
 
 	/**
@@ -143,9 +167,37 @@ public sealed interface EnergyScheduleHandler {
 					EnergyFlow.Model model, CONTEXT context, STATE state);
 		}
 
+		public static interface PostProcessor<STATE> {
+
+			/**
+			 * A 'do-nothing' {@link PostProcessor}.
+			 * 
+			 * @param <STATE> the type of the State
+			 * @return the same State
+			 */
+			public static <STATE> PostProcessor<STATE> doNothing() {
+				return (energyFlow, state) -> state;
+			}
+
+			/**
+			 * Post-Process a state of a Period during Simulation, i.e. replace with
+			 * 'better' state with the equivalent behaviour.
+			 * 
+			 * <p>
+			 * NOTE: heavy computation is ok here, because this method is called only at the
+			 * end with the best Schedule.
+			 * 
+			 * @param energyFlow the {@link EnergyFlow}
+			 * @param state      the initial state
+			 * @return the new state
+			 */
+			public STATE postProcess(EnergyFlow energyFlow, STATE state);
+		}
+
 		private final STATE defaultState;
 		private final Supplier<STATE[]> availableStatesSupplier;
 		private final Simulator<STATE, CONTEXT> simulator;
+		private final WithDifferentStates.PostProcessor<STATE> postProcessor;
 		private final SortedMap<ZonedDateTime, Period<STATE, CONTEXT>> schedule = new TreeMap<>();
 
 		private STATE[] availableStates;
@@ -154,11 +206,13 @@ public sealed interface EnergyScheduleHandler {
 				STATE defaultState, //
 				Supplier<STATE[]> availableStatesSupplier, //
 				Function<GlobalSimulationsContext, CONTEXT> contextFunction, //
-				Simulator<STATE, CONTEXT> simulator) {
+				Simulator<STATE, CONTEXT> simulator, //
+				WithDifferentStates.PostProcessor<STATE> postProcessor) {
 			super(contextFunction);
 			this.defaultState = defaultState;
 			this.availableStatesSupplier = availableStatesSupplier;
 			this.simulator = simulator;
+			this.postProcessor = postProcessor;
 		}
 
 		@Override
@@ -215,15 +269,33 @@ public sealed interface EnergyScheduleHandler {
 			this.simulator.simulate(osc, period, model, this.context, this.availableStates[stateIndex]);
 		}
 
+		/**
+		 * Post-processes a Period of the best Schedule.
+		 * 
+		 * <p>
+		 * This method is called internally after the Simulations are executed with the
+		 * found best Schedule.
+		 * 
+		 * @param period     the {@link GlobalSimulationsContext.Period}
+		 * @param osc        the {@link OneSimulationContext}
+		 * @param energyFlow the {@link EnergyFlow}
+		 * @param stateIndex the index of the simulated state
+		 * @return the post-processed state index
+		 */
+		public int postProcessPeriod(GlobalSimulationsContext.Period period, OneSimulationContext osc,
+				EnergyFlow energyFlow, int stateIndex) {
+			return this.getStateIndex(this.postProcessor.postProcess(energyFlow, this.availableStates[stateIndex]));
+		}
+
 		public static record Period<STATE, CONTEXT>(
 				/** STATE of the Period */
 				STATE state,
 				/** Price [1/MWh] */
 				double price, //
 				/** EnergyScheduleHandler Context */
-				CONTEXT context,
+				CONTEXT context, //
 				/** Simulated EnergyFlow */
-				EnergyFlow energyFlow,
+				EnergyFlow energyFlow, //
 				/** the initial ESS energy in the beginning of the period in [Wh] */
 				int essInitialEnergy) {
 
@@ -327,6 +399,22 @@ public sealed interface EnergyScheduleHandler {
 			return stateIndex < states.length //
 					? states[stateIndex] //
 					: this.defaultState;
+		}
+
+		/**
+		 * Gets the stateIndex for the given STATE.
+		 * 
+		 * @param state the STATE
+		 * @return the stateIndex; or zero if not found
+		 */
+		private int getStateIndex(STATE state) {
+			var states = this.availableStates;
+			for (var i = 0; i < states.length; i++) {
+				if (states[i] == state) {
+					return i;
+				}
+			}
+			return 0;
 		}
 
 		@Override
