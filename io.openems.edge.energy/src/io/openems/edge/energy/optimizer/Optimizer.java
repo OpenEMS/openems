@@ -64,19 +64,20 @@ public class Optimizer implements Runnable {
 		try {
 			while (true) {
 				this.interruptFlag.set(false);
+				final var cache = new GenotypeCache();
 
 				if (this.simulationResult == SimulationResult.EMPTY) {
 					// No Schedule available yet. Start with a default Schedule with all States
 					// set to default.
 					this.traceLog(() -> "No existing schedule available -> apply default");
-					this.applyBestQuickSchedule();
+					this.applyBestQuickSchedule(cache);
 				}
 
-				var sim = this.runSimulation().get();
+				var sim = this.runSimulation(cache).get();
 				if (sim == null /* simulation gave no result */ || this.interruptFlag.get() /* was interrupted */) {
 					this.traceLog(() -> "Simulation gave no result or was interrupted!");
 					this.simulationsPerQuarterChannel.setNextValue(null);
-					this.applyBestQuickSchedule();
+					this.applyBestQuickSchedule(cache);
 					continue;
 				}
 
@@ -84,7 +85,7 @@ public class Optimizer implements Runnable {
 				this.simulationsPerQuarterChannel.setNextValue(sim.context.simulationCounter().get());
 
 				// Apply simulation result to EnergyScheduleHandlers
-				this.applySimulationResult(sim.context, sim.result, false);
+				this.applySimulationResult(cache, sim.context, sim.result, false);
 			}
 		} catch (InterruptedException | ExecutionException e) {
 			// ignore
@@ -94,7 +95,7 @@ public class Optimizer implements Runnable {
 		}
 	}
 
-	private CompletableFuture<Result> runSimulation() {
+	private CompletableFuture<Result> runSimulation(GenotypeCache cache) {
 		this.traceLog(() -> "Run next Simulation");
 		return CompletableFuture.supplyAsync(() -> {
 			this.traceLog(() -> "Executing async Simulation");
@@ -107,18 +108,18 @@ public class Optimizer implements Runnable {
 			final var executionLimit = byExecutionTime(ofSeconds(calculateExecutionLimitSeconds()));
 
 			// Find best Schedule
-			var bestSchedule = Simulator.getBestSchedule(gsc, this.simulationResult, null, //
+			var bestSchedule = Simulator.getBestSchedule(cache, gsc, this.simulationResult, null, //
 					stream -> stream //
 							// Stop on interruptFlag
 							.limit(ignore -> !this.interruptFlag.get()) //
 							// Stop till next quarter
 							.limit(executionLimit));
 
-			return new Result(gsc, bestSchedule);
+			return new Result(gsc, bestSchedule, cache.getCacheHits());
 		});
 	}
 
-	private static record Result(GlobalSimulationsContext context, SimulationResult result) {
+	private static record Result(GlobalSimulationsContext context, SimulationResult result, int cacheHits) {
 	}
 
 	private synchronized GlobalSimulationsContext initializeGlobalSimulationsContext() {
@@ -135,8 +136,10 @@ public class Optimizer implements Runnable {
 
 	/**
 	 * Create and apply the best quickly available Schedule.
+	 * 
+	 * @param cache the {@link GenotypeCache}
 	 */
-	protected synchronized void applyBestQuickSchedule() {
+	protected synchronized void applyBestQuickSchedule(GenotypeCache cache) {
 		this.interruptFlag.set(false);
 		final var gsc = this.initializeGlobalSimulationsContext();
 		if (gsc == null) {
@@ -145,7 +148,7 @@ public class Optimizer implements Runnable {
 		}
 
 		// Find Genotype with lowest cost
-		var bestGt = QuickSchedules.findBestQuickSchedule(gsc, this.simulationResult);
+		var bestGt = QuickSchedules.findBestQuickSchedule(cache, gsc, this.simulationResult);
 		if (bestGt == null) {
 			this.applyEmptySimulationResult();
 			return;
@@ -153,7 +156,7 @@ public class Optimizer implements Runnable {
 		var simulationResult = SimulationResult.fromQuarters(gsc, bestGt);
 
 		this.traceLog(() -> "Applying best quick Schedule");
-		this.applySimulationResult(gsc, simulationResult, true);
+		this.applySimulationResult(cache, gsc, simulationResult, true);
 	}
 
 	/**
@@ -165,25 +168,26 @@ public class Optimizer implements Runnable {
 
 	private void applyEmptySimulationResult() {
 		this.traceLog(() -> "Applying empty Schedule");
-		this.applySimulationResult(null, SimulationResult.EMPTY, true);
+		this.applySimulationResult(null, null, SimulationResult.EMPTY, true);
 	}
 
 	/**
 	 * Applies the Schedule to all {@link EnergyScheduleHandler}s and stores the
 	 * {@link SimulationResult} in `this.simulationResult`.
 	 *
+	 * @param cache               the {@link GenotypeCache}
 	 * @param gsc                 the {@link GlobalSimulationsContext}, possibly
 	 *                            null
 	 * @param simulationResult    the {@link SimulationResult}
 	 * @param updateActiveQuarter should the currently active quarter also get
 	 *                            updated
 	 */
-	private void applySimulationResult(GlobalSimulationsContext gsc, SimulationResult simulationResult,
-			boolean updateActiveQuarter) {
+	private void applySimulationResult(GenotypeCache cache, GlobalSimulationsContext gsc,
+			SimulationResult simulationResult, boolean updateActiveQuarter) {
 		final Clock clock;
 		if (gsc != null) {
 			// Debug Log best Schedule
-			logSimulationResult(gsc, simulationResult);
+			logSimulationResult(cache, gsc, simulationResult);
 			clock = gsc.clock();
 		} else {
 			clock = Clock.systemDefaultZone();

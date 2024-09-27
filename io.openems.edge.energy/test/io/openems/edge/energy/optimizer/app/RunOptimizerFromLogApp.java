@@ -71,17 +71,19 @@ public class RunOptimizerFromLogApp {
 	 * @throws Exception on error
 	 */
 	public static void main(String[] args) throws Exception {
-		var gsc = AppUtils.parseGlobalSimulationsContextFromLogString(LOG, ESHS);
+		var cache = new GenotypeCache();
+
+		var gsc = parseGlobalSimulationsContextFromLogString(LOG, ESHS);
 		gsc.initializeEnergyScheduleHandlers();
 
 		// Collect Genotype with lowest cost
-		var quickScheduleGt = QuickSchedules.findBestQuickSchedule(gsc, SimulationResult.EMPTY);
+		var quickScheduleGt = findBestQuickSchedule(cache, gsc, SimulationResult.EMPTY);
 		var quickSchedule = quickScheduleGt == null ? null : SimulationResult.fromQuarters(gsc, quickScheduleGt);
 
-		var simulationResult = Simulator.getBestSchedule(gsc, quickSchedule, null, //
+		var simulationResult = Simulator.getBestSchedule(cache, gsc, quickSchedule, null, //
 				stream -> stream //
-						.limit(Limits.byExecutionTime(Duration.ofSeconds(EXECUTION_LIMIT_SECONDS))));
+						.limit(byExecutionTime(ofSeconds(EXECUTION_LIMIT_SECONDS))));
 
-		Utils.logSimulationResult(gsc, simulationResult);
+		Utils.logSimulationResult(cache, gsc, simulationResult);
 	}
 }

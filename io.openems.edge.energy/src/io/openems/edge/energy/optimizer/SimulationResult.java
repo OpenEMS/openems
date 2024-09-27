@@ -62,8 +62,9 @@ public record SimulationResult(//
 	/**
 	 * Re-Simulate a {@link Genotype} to create a {@link SimulationResult}.
 	 * 
-	 * @param gsc the {@link GlobalSimulationsContext}
-	 * @param gt  the {@link Genotype}
+	 * @param cache the {@link GenotypeCache}
+	 * @param gsc   the {@link GlobalSimulationsContext}
+	 * @param gt    the {@link Genotype}
 	 * @return the {@link SimulationResult}
 	 */
 	private static SimulationResult from(GlobalSimulationsContext gsc, Genotype<IntegerGene> gt) {

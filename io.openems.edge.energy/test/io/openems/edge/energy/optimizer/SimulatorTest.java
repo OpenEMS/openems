@@ -66,10 +66,11 @@ public class SimulatorTest {
 	 * @return the {@link SimulationResult}
 	 */
 	public static SimulationResult generateDummySimulationResult() {
+		final var cache = new GenotypeCache();
 		final var gsc = DUMMY_GSC;
 		gsc.initializeEnergyScheduleHandlers();
 
-		return Simulator.getBestSchedule(gsc, SimulationResult.EMPTY, //
+		return Simulator.getBestSchedule(cache, gsc, SimulationResult.EMPTY, //
 				engine -> engine //
 						.populationSize(1), //
 				stream -> stream //

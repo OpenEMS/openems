@@ -1,6 +1,7 @@
 package io.openems.edge.energy.optimizer;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
+
 import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -101,13 +102,16 @@ public final class Utils {
 	 * NOTE: The output format is suitable as input for "RunOptimizerFromLogApp".
 	 * This is useful to re-run a simulation.
 	 * 
+	 * @param cache            the {@link GenotypeCache}
 	 * @param context          the {@link GlobalSimulationsContext}
 	 * @param simulationResult the {@link SimulationResult}
 	 */
-	public static void logSimulationResult(GlobalSimulationsContext context, SimulationResult simulationResult) {
+	public static void logSimulationResult(GenotypeCache cache, GlobalSimulationsContext context,
+			SimulationResult simulationResult) {
 		final var prefix = "OPTIMIZER";
 		System.out.println(prefix + " " + context.toString());
 		System.out.println(simulationResult.toLogString(prefix));
+		System.out.println(prefix + " TotalCost=" + simulationResult.cost() + ", CacheHits=" + cache.getCacheHits());
 	}
 
 	/**

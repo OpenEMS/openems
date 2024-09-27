@@ -27,16 +27,17 @@ public class QuickSchedules {
 	/**
 	 * Finds the best quick Schedule, i.e. the one with the lowest cost.
 	 * 
+	 * @param cache            the {@link GenotypeCache}
 	 * @param gsc              the {@link GlobalSimulationsContext}
 	 * @param simulationResult the existing {@link SimulationResult}, or null
 	 * @return the winner {@link Genotype}; or null
 	 */
-	public static Genotype<IntegerGene> findBestQuickSchedule(GlobalSimulationsContext gsc,
+	public static Genotype<IntegerGene> findBestQuickSchedule(GenotypeCache cache, GlobalSimulationsContext gsc,
 			SimulationResult simulationResult) {
 		double lowestCost = 0.;
 		Genotype<IntegerGene> bestGt = null;
 		for (var gt : generateQuickSchedules(gsc, simulationResult)) {
-			var cost = Simulator.calculateCost(gsc, gt);
+			var cost = Simulator.calculateCost(cache, gsc, gt);
 			if (bestGt == null || cost < lowestCost) {
 				bestGt = gt;
 				lowestCost = cost;

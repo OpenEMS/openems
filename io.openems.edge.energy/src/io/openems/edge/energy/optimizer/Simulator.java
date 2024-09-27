@@ -2,6 +2,7 @@ package io.openems.edge.energy.optimizer;
 
 import static io.jenetics.engine.EvolutionResult.toBestGenotype;
 import static io.openems.edge.energy.optimizer.QuickSchedules.fromExistingSimulationResult;
+import static java.lang.Double.isNaN;
 import static java.lang.Thread.currentThread;
 
 import java.util.List;
@@ -33,13 +34,22 @@ public class Simulator {
 	/**
 	 * Simulates a Schedule and calculates the cost.
 	 * 
-	 * @param gsc the {@link GlobalSimulationsContext}
-	 * @param gt  the Schedule as a {@link Genotype}
+	 * @param cache the {@link GenotypeCache}
+	 * @param gsc   the {@link GlobalSimulationsContext}
+	 * @param gt    the Schedule as a {@link Genotype}
 	 * @return the cost, lower is better, always positive; {@link Double#NaN} on
 	 *         error
 	 */
-	protected static double calculateCost(GlobalSimulationsContext gsc, Genotype<IntegerGene> gt) {
-		return simulate(gsc, gt, null);
+	protected static double calculateCost(GenotypeCache cache, GlobalSimulationsContext gsc, Genotype<IntegerGene> gt) {
+		var cost = cache.query(gt);
+		if (!isNaN(cost)) {
+			return cost;
+		}
+
+		// Not in cache
+		cost = simulate(gsc, gt, null);
+		cache.add(gt, cost);
+		return cost;
 	}
 
 	/**
@@ -139,6 +149,7 @@ public class Simulator {
 	/**
 	 * Runs the optimization and returns the "best" simulation result.
 	 * 
+	 * @param cache                      the {@link GenotypeCache}
 	 * @param gsc                        the {@link GlobalSimulationsContext}
 	 * @param previousResult             the {@link SimulationResult} of the
 	 *                                   previous optimization run
@@ -148,7 +159,8 @@ public class Simulator {
 	 *                                   {@link EvolutionStream}
 	 * @return the best Schedule
 	 */
-	public static SimulationResult getBestSchedule(GlobalSimulationsContext gsc, SimulationResult previousResult,
+	public static SimulationResult getBestSchedule(GenotypeCache cache, GlobalSimulationsContext gsc,
+			SimulationResult previousResult,
 			Function<Engine.Builder<IntegerGene, Double>, Engine.Builder<IntegerGene, Double>> engineInterceptor,
 			Function<EvolutionStream<IntegerGene, Double>, EvolutionStream<IntegerGene, Double>> evolutionStreamInterceptor) {
 		// Genotype:
@@ -168,7 +180,7 @@ public class Simulator {
 		// Define the cost function
 		var eval = (Function<Genotype<IntegerGene>, Double>) (gt) -> {
 			gsc.simulationCounter().incrementAndGet();
-			return calculateCost(gsc, gt);
+			return calculateCost(cache, gsc, gt);
 		};
 
 		// Decide for single- or multi-threading
