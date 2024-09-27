@@ -172,8 +172,7 @@ public class MeterSiemensPac1600Impl extends AbstractOpenemsModbusComponent
 							new UnsignedDoublewordElement(6751), ElementToChannelConverter.DIRECT_1_TO_1),
 					m(MeterSiemensPac1600.ChannelId.REACTIVE_PRODUCTION_ENERGY_L3,
 							new UnsignedDoublewordElement(6753), ElementToChannelConverter.DIRECT_1_TO_1)));
-		} 
-		else {
+		} else {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(6687, Priority.LOW,
 					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(6687),
 							ElementToChannelConverter.DIRECT_1_TO_1),
