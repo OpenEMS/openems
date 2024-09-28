@@ -1,11 +1,14 @@
 package io.openems.edge.energy.optimizer.app;
 
-import java.time.Duration;
+import static io.jenetics.engine.Limits.byExecutionTime;
+import static io.openems.edge.energy.optimizer.QuickSchedules.findBestQuickSchedule;
+import static io.openems.edge.energy.optimizer.app.AppUtils.parseGlobalSimulationsContextFromLogString;
+import static java.time.Duration.ofSeconds;
+
 import java.time.LocalTime;
 
 import com.google.common.collect.ImmutableList;
 
-import io.jenetics.engine.Limits;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserveImpl;
 import io.openems.edge.controller.ess.fixactivepower.ControllerEssFixActivePowerImpl;
 import io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedChargeImpl;
@@ -15,6 +18,7 @@ import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.energy.api.EnergyUtils;
+import io.openems.edge.energy.optimizer.GenotypeCache;
 import io.openems.edge.energy.optimizer.SimulationResult;
 import io.openems.edge.energy.optimizer.Simulator;
 import io.openems.edge.energy.optimizer.Utils;
