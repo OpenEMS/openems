@@ -1,5 +1,6 @@
 package io.openems.edge.predictor.lstmmodel;
 
+import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
 import static io.openems.edge.predictor.lstmmodel.utilities.DataUtility.combine;
 import static io.openems.edge.predictor.lstmmodel.utilities.DataUtility.getData;
 import static io.openems.edge.predictor.lstmmodel.utilities.DataUtility.getDate;
@@ -33,7 +34,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Role;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -100,16 +100,17 @@ public class LstmModelImpl extends AbstractPredictor
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), //
-				config.channelAddresses(), config.logVerbosity());
+				new String[] { config.channelAddress() }, config.logVerbosity());
 
-		this.channelForPrediction = ChannelAddress.fromString(config.channelAddresses());
+		var channelAddress = ChannelAddress.fromString(config.channelAddress());
+		this.channelForPrediction = channelAddress;
 
 		/*
 		 * Avoid training for the new FEMs due to lack of data. Set a fixed 45-day
 		 * period: 30 days for training and 15 days for validation.
 		 */
 		this.scheduler.scheduleAtFixedRate(//
-				new LstmTrain(this.timedata, config.channelAddresses(), this, DAYS_45), //
+				new LstmTrain(this.timedata, channelAddress, this, DAYS_45), //
 				0, //
 				PERIOD, //
 				TimeUnit.MINUTES//
@@ -119,22 +120,20 @@ public class LstmModelImpl extends AbstractPredictor
 	@Override
 	@Deactivate
 	protected void deactivate() {
-		this.scheduler.shutdown();
-		ThreadPoolUtils.shutdownAndAwaitTermination(this.scheduler, 0);
+		shutdownAndAwaitTermination(this.scheduler, 0);
 		super.deactivate();
 	}
 
 	@Override
 	protected Prediction createNewPrediction(ChannelAddress channelAddress) {
-
 		var hyperParameters = ReadAndSaveModels.read(channelAddress.getChannelId());
 		var nowDate = ZonedDateTime.now();
 
-		CompletableFuture<ArrayList<Double>> seasonalityPredictionFuture = CompletableFuture.supplyAsync(() -> {
+		var seasonalityPredictionFuture = CompletableFuture.supplyAsync(() -> {
 			return this.predictSeasonality(channelAddress, nowDate, hyperParameters);
 		});
 
-		CompletableFuture<ArrayList<Double>> trendPredictionFuture = CompletableFuture.supplyAsync(() -> {
+		var trendPredictionFuture = CompletableFuture.supplyAsync(() -> {
 			return this.predictTrend(channelAddress, nowDate, hyperParameters);
 		});
 

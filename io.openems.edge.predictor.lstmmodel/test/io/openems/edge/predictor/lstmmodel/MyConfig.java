@@ -8,7 +8,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String channelAddresses;
+		private String channelAddress;
 		private LogVerbosity logVerbosity;
 
 		private Builder() {
@@ -19,8 +19,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setChannelAddresses(String channelAddresses) {
-			this.channelAddresses = channelAddresses;
+		public Builder setChannelAddress(String channelAddress) {
+			this.channelAddress = channelAddress;
 			return this;
 		}
 
@@ -51,8 +51,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String channelAddresses() {
-		return this.builder.channelAddresses;
+	public String channelAddress() {
+		return this.builder.channelAddress;
 	}
 
 	@Override

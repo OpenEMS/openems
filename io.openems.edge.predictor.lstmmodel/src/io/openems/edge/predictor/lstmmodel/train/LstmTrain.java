@@ -33,12 +33,12 @@ public class LstmTrain implements Runnable {
 
 	private final Logger log = LoggerFactory.getLogger(LstmTrain.class);
 
-	private Timedata timedata;
-	private String channelAddress;
-	private LstmModel parent;
-	private long days;
+	private final Timedata timedata;
+	private final ChannelAddress channelAddress;
+	private final LstmModel parent;
+	private final long days;
 
-	public LstmTrain(Timedata timedata, String channelAddress, LstmModel parent, long days) {
+	public LstmTrain(Timedata timedata, ChannelAddress channelAddress, LstmModel parent, long days) {
 		this.timedata = timedata;
 		this.channelAddress = channelAddress;
 		this.parent = parent;
@@ -53,14 +53,13 @@ public class LstmTrain implements Runnable {
 		var fromDate = until.minusDays(this.days).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> querryResult = new TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>();
-		HyperParameters hyperParameters = ReadAndSaveModels.read(this.channelAddress.split("/")[1]);
+		HyperParameters hyperParameters = ReadAndSaveModels.read(this.channelAddress.getChannelId());
 
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> trainMap = new TreeMap<>();
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> validateMap = new TreeMap<>();
 
 		try {
-			querryResult = this.timedata.queryHistoricData(null, fromDate, until,
-					Sets.newHashSet(ChannelAddress.fromString(this.channelAddress)),
+			querryResult = this.timedata.queryHistoricData(null, fromDate, until, Sets.newHashSet(this.channelAddress),
 					new Resolution(hyperParameters.getInterval(), ChronoUnit.MINUTES));
 
 			int totalItems = querryResult.size();

@@ -40,7 +40,8 @@ public class MyControllerTest {
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
 						.setId(PREDICTOR_ID) //
-						.setLogVerbosity(LogVerbosity.NONE).setChannelAddresses(METER1_ACTIVE_POWER.toString())//
+						.setLogVerbosity(LogVerbosity.NONE) //
+						.setChannelAddress(METER1_ACTIVE_POWER.toString())//
 						.build());
 
 	}
