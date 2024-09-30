@@ -5,7 +5,7 @@ import { endOfMonth, endOfYear, format, getDay, getMonth, getYear, isSameDay, is
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Service } from "../shared";
 
-export module DefaultTypes {
+export namespace DefaultTypes {
 
   export type Backend = "OpenEMS Backend" | "OpenEMS Edge";
 
