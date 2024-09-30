@@ -13,8 +13,8 @@ export class FlatComponent extends AbstractFlatWidget {
   public evcss: EdgeConfig.Component[] | null = null;
   public consumptionMeters: EdgeConfig.Component[] | null = null;
   public sumActivePower: number = 0;
-  public evcsSumOfChargePower: number;
-  public otherPower: number;
+  public evcsSumOfChargePower: number = 0;
+  public otherPower: number = 0;
   public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
   async presentModal() {

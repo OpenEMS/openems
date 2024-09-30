@@ -12,7 +12,7 @@ import { environment } from "src/environments";
 import { ChartConstants } from "../components/chart/chart.constants";
 import { Edge } from "../components/edge/edge";
 import { EdgeConfig } from "../components/edge/edgeconfig";
-import { JsonrpcResponseError } from "../jsonrpc/base";
+import { JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { GetEdgeRequest } from "../jsonrpc/request/getEdgeRequest";
 import { GetEdgesRequest } from "../jsonrpc/request/getEdgesRequest";
 import { QueryHistoricTimeseriesEnergyRequest } from "../jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
@@ -56,12 +56,12 @@ export class Service extends AbstractService {
   public deviceWidth: number = 0;
   public isSmartphoneResolution: boolean = false;
   public isSmartphoneResolutionSubject: Subject<boolean> = new Subject<boolean>();
-  public activeQueryData: string;
+  public activeQueryData: string = "";
 
   /**
    * Holds the currenty selected Page Title.
    */
-  public currentPageTitle: string;
+  public currentPageTitle: string = "";
 
   /**
    * Holds reference to Websocket. This is set by Websocket in constructor.
@@ -70,14 +70,14 @@ export class Service extends AbstractService {
   /**
    * Holds the currently selected Edge.
    */
-  public readonly currentEdge: BehaviorSubject<Edge> = new BehaviorSubject<Edge>(null);
+public readonly currentEdge: BehaviorSubject<Edge | null> = new BehaviorSubject<Edge | null>(null);
 
   /**
    * Holds references of Edge-IDs (=key) to Edge objects (=value)
    */
   public readonly metadata: BehaviorSubject<{
     user: User, edges: { [edgeId: string]: Edge }
-  }> = new BehaviorSubject(null);
+  } | null> = new BehaviorSubject(null);
 
   public currentUser: User | null = null;
 
@@ -87,7 +87,7 @@ export class Service extends AbstractService {
   private currentActivatedRoute: ActivatedRoute | null = null;
 
   private queryEnergyQueue: {
-    fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
+    fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve: (value?: JsonrpcResponseSuccess) => void; reject: (reason: any) => void }[]
   }[] = [];
   private queryEnergyTimeout: any = null;
 
@@ -108,7 +108,9 @@ export class Service extends AbstractService {
 
     // React on Language Change and update language
     translate.onLangChange.subscribe((event: LangChangeEvent) => {
-      this.setLang(Language.getByKey(event.lang));
+      if (event.lang) {
+        this.setLang(Language.getByKey(event.lang));
+    }
     });
   }
 
@@ -197,8 +199,12 @@ export class Service extends AbstractService {
   }
 
   public onLogout() {
-    this.currentEdge.next(null);
-    this.metadata.next(null);
+    if (this.currentEdge) {
+      this.currentEdge.next(null);
+    }
+    if (this.metadata) {
+      this.metadata.next(null);
+    }
     this.websocket.state.set(States.NOT_AUTHENTICATED);
     this.router.navigate(["/login"]);
   }
@@ -233,7 +239,7 @@ export class Service extends AbstractService {
           fromDate: Date,
           toDate: Date,
           channels: ChannelAddress[],
-          promises: { resolve, reject }[];
+          promises: { resolve: (value: any) => void; reject: (reason: any) => void }[]
         }[] = [];
 
         let request;

@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Converter } from "src/app/shared/components/shared/converter";
@@ -20,11 +19,11 @@ export class FlatComponent extends AbstractFlatWidget {
   public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
   public readonly GridMode = GridMode;
 
-  public gridBuyPower: number;
-  public gridSellPower: number;
+  public gridBuyPower: number = 0;
+  public gridSellPower: number = 0;
 
-  protected gridMode: number;
-  protected gridState: string;
+  protected gridMode: number = 0;
+  protected gridState: string = "";
   protected icon: Icon | null = null;
   protected isActivated: boolean = false;
 

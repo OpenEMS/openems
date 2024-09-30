@@ -191,7 +191,9 @@ export class UserComponent implements OnInit {
   public enableAndDisableFormFields(): boolean {
 
     this.userInformationFields = this.userInformationFields.map(field => {
-      field.props.disabled = !field.props.disabled;
+      if (field.props) {
+        field.props.disabled = !field.props.disabled;
+      }
       return field;
     });
 

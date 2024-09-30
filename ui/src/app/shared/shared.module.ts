@@ -47,11 +47,11 @@ export function SubnetmaskValidator(control: FormControl): ValidationErrors {
   return /^(255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)/.test(control.value) ? null : { "subnetmask": true };
 }
 
-export function IpValidatorMessage(err, field: FormlyFieldConfig) {
+export function IpValidatorMessage(err: any, field: FormlyFieldConfig) {
   return `"${field.formControl.value}" is not a valid IP Address`;
 }
 
-export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
+export function SubnetmaskValidatorMessage(err: any, field: FormlyFieldConfig) {
   return `"${field.formControl.value}" is not a valid Subnetmask`;
 }
 

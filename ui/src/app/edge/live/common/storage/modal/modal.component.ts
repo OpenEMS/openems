@@ -25,7 +25,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
     public isLastElement = Utils.isLastElement;
 
     public formGroup: FormGroup = new FormGroup({});
-    protected isAtLeastInstaller: boolean;
+    protected isAtLeastInstaller: boolean = false;
     protected isTargetTimeInValid: Map<string, boolean> = new Map();
     protected controllerIsRequiredEdgeVersion: boolean = false;
 

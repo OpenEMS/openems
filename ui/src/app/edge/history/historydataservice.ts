@@ -16,7 +16,7 @@ export class HistoryDataService extends DataService {
 
   public queryChannelsTimeout: ReturnType<typeof setTimeout> | null = null;
   protected override timestamps: string[] = [];
-  private activeQueryData: string;
+  private activeQueryData: string = "";
   private channelAddresses: { [sourceId: string]: ChannelAddress } = {};
 
   constructor(
