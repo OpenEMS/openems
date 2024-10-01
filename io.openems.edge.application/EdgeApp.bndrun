@@ -105,6 +105,7 @@
 	bnd.identity;id='io.openems.edge.controller.symmetric.randompower',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.timeslotpeakshaving',\
 	bnd.identity;id='io.openems.edge.core',\
+	bnd.identity;id='io.openems.edge.core.ldap',\
 	bnd.identity;id='io.openems.edge.edge2edge',\
 	bnd.identity;id='io.openems.edge.energy',\
 	bnd.identity;id='io.openems.edge.ess.adstec.storaxe',\
@@ -276,6 +277,7 @@
 	io.openems.edge.controller.symmetric.randompower;version=snapshot,\
 	io.openems.edge.controller.symmetric.timeslotpeakshaving;version=snapshot,\
 	io.openems.edge.core;version=snapshot,\
+	io.openems.edge.core.ldap;version=snapshot,\
 	io.openems.edge.edge2edge;version=snapshot,\
 	io.openems.edge.energy;version=snapshot,\
 	io.openems.edge.energy.api;version=snapshot,\
