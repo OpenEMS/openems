@@ -632,6 +632,7 @@ export enum YAxisType {
   RELAY,
   ENERGY,
   VOLTAGE,
+  REACTIVE,
   CURRENT,
   TIME,
   CURRENCY,

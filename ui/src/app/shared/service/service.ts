@@ -20,6 +20,7 @@ import { GetEdgeResponse } from "../jsonrpc/response/getEdgeResponse";
 import { GetEdgesResponse } from "../jsonrpc/response/getEdgesResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { User } from "../jsonrpc/shared";
+import { States } from "../ngrx-store/states";
 import { ChannelAddress } from "../shared";
 import { Language } from "../type/language";
 import { Role } from "../type/role";
@@ -198,6 +199,7 @@ export class Service extends AbstractService {
   public onLogout() {
     this.currentEdge.next(null);
     this.metadata.next(null);
+    this.websocket.state.set(States.NOT_AUTHENTICATED);
     this.router.navigate(["/login"]);
   }
 

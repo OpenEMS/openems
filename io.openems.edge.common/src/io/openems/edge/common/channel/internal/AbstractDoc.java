@@ -1,9 +1,12 @@
 package io.openems.edge.common.channel.internal;
 
 import java.util.List;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
@@ -11,6 +14,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingBiConsumer;
 import io.openems.common.function.ThrowingConsumer;
+import io.openems.common.session.Language;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
@@ -25,6 +29,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 public abstract class AbstractDoc<T> implements Doc {
 
 	private final OpenemsType type;
+
+	private Function<Language, String> getTextFunction;
 
 	protected AbstractDoc(OpenemsType type) {
 		this.type = type;
@@ -118,20 +124,56 @@ public abstract class AbstractDoc<T> implements Doc {
 		return this.initialValue;
 	}
 
-	/*
-	 * Description
-	 */
-	private String text = "";
-
 	@Override
 	public AbstractDoc<T> text(String text) {
-		this.text = text;
+		this.getTextFunction = lang -> {
+			return text;
+		};
 		return this.self();
 	}
 
 	@Override
 	public String getText() {
-		return this.text;
+		return this.getText(Language.DEFAULT);
+	}
+
+	@Override
+	public String getText(Language lang) {
+		if (this.getTextFunction == null) {
+			return "";
+		}
+		return this.getTextFunction.apply(lang);
+	}
+
+	@Override
+	public AbstractDoc<T> translationKey(Class<?> clazz, String channelKey) {
+		this.getTextFunction = lang -> {
+			var bundle = AbstractDoc.getResourceBundle(lang, clazz);
+			if (bundle != null && bundle.containsKey(channelKey)) {
+				var textTranslated = bundle.getString(channelKey);
+				return textTranslated;
+			}
+			if (lang != Language.EN) {
+				// TODO: Use Language.DEFAULT for default language
+				bundle = AbstractDoc.getResourceBundle(Language.EN, clazz);
+				if (bundle != null && bundle.containsKey(channelKey)) {
+					var textTranslated = bundle.getString(channelKey);
+					return textTranslated;
+				}
+			}
+
+			return channelKey;
+		};
+		return this;
+	}
+
+	private static ResourceBundle getResourceBundle(Language lang, Class<?> clazz) {
+		try {
+			return ResourceBundle.getBundle(clazz.getPackageName() + ".translation", lang.getLocal(),
+					clazz.getModule());
+		} catch (MissingResourceException e) {
+			return null;
+		}
 	}
 
 	@Override

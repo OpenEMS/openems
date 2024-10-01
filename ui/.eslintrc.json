@@ -89,8 +89,8 @@
           }
         ],
         "@typescript-eslint/member-ordering": "error",
-        "no-multiple-empty-lines": "error",
-        "quotes": [
+        "@stylistic/no-multiple-empty-lines": "error",
+        "@stylistic/quotes": [
           "error",
           "double"
         ],

@@ -69,7 +69,7 @@ public final class BatteryData implements DataSet {
 	public final DspVar bms_u_cell_max_total;
 
 	/**
-	 * Battery mininum cell temperature [°C]
+	 * Battery minimum cell temperature [°C]
 	 */
 	public final DspVar bms_Tmin_total;
 

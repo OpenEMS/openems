@@ -1,8 +1,11 @@
 package io.openems.edge.controller.api.modbus;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -35,6 +38,9 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.ApiWorker;
+import io.openems.edge.controller.api.common.ApiWorker.WriteHandler;
+import io.openems.edge.controller.api.common.Status;
+import io.openems.edge.controller.api.common.WriteObject;
 import io.openems.edge.controller.api.common.WritePojo;
 import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolExportXlsxRequest;
 import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolExportXlsxResponse;
@@ -48,16 +54,15 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 	public static final int DEFAULT_PORT = 502;
 	public static final int DEFAULT_MAX_CONCURRENT_CONNECTIONS = 5;
 
-	protected final ApiWorker apiWorker = new ApiWorker(this);
-
-	private final Logger log = LoggerFactory.getLogger(AbstractModbusTcpApi.class);
-	private final MyProcessImage processImage;
-	private final String implementationName;
-
 	/**
 	 * Holds the link between Modbus address and ModbusRecord.
 	 */
 	protected final TreeMap<Integer, ModbusRecord> records = new TreeMap<>();
+	protected final ApiWorker apiWorker = new ApiWorker(this,
+			new WriteHandler(this.handleWrites(), this::setOverrideStatus, this.handleTimeouts()));
+	private final Logger log = LoggerFactory.getLogger(AbstractModbusTcpApi.class);
+	private final MyProcessImage processImage;
+	private final String implementationName;
 
 	/**
 	 * Holds the link between Modbus start address of a Component and the
@@ -66,10 +71,12 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 	private final TreeMap<Integer, String> components = new TreeMap<>();
 
 	private ConfigRecord config;
+	private List<OpenemsComponent> invalidComponents = new CopyOnWriteArrayList<>();
 
 	protected synchronized void addComponent(OpenemsComponent component) {
 		if (!(component instanceof ModbusSlave)) {
 			this.logError(this.log, "Component [" + component.id() + "] does not implement ModbusSlave");
+			this.invalidComponents.add(component);
 			this._setComponentNoModbusApiFault(true);
 			return;
 		}
@@ -77,8 +84,20 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 		this.updateComponents();
 	}
 
+	protected abstract Consumer<Entry<WriteChannel<?>, WriteObject>> handleWrites();
+
+	protected abstract void setOverrideStatus(Status status);
+	
+	protected abstract Runnable handleTimeouts();
+
 	protected synchronized void removeComponent(OpenemsComponent component) {
-		this._components.remove(component);
+		if (this.invalidComponents.remove(component)) {
+			if (this.invalidComponents.isEmpty()) {
+				this._setComponentNoModbusApiFault(false);
+			}
+			this._components.remove(component);
+			return;
+		}
 		this.updateComponents();
 	}
 
@@ -92,18 +111,38 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 		this.processImage = new MyProcessImage(this);
 	}
 
-	protected void activate(ComponentContext context, String id, String alias, boolean enabled, ConfigurationAdmin cm,
-			ConfigRecord config) throws OpenemsException {
-		super.activate(context, id, alias, enabled);
+	protected void activate(ComponentContext context, ConfigurationAdmin cm, ConfigRecord config)
+			throws OpenemsException {
+		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.handleActivate(config, cm, config.id());
+	}
 
+	protected void modified(ComponentContext context, ConfigurationAdmin cm, ConfigRecord config)
+			throws OpenemsException {
+		super.modified(context, config.id(), config.alias(), config.enabled());
+
+		// update filter for 'Components'; allow disable components
+		final var filter = ConfigUtils.generateReferenceTargetFilter(this.servicePid(), false, config.componentIds);
+		OpenemsComponent.updateReferenceFilterRaw(cm, this.servicePid(), "Component", filter);
+
+		// Config (relevant for API) was not modified
+		if (this.config.equals(config)) {
+			return;
+		}
+
+		ModbusSlaveFactory.close();
+
+		// Activate with new config
+		this.handleModified(config, cm, config.id());
+	}
+
+	private void handleActivate(ConfigRecord config, ConfigurationAdmin cm, String id) {
 		// configuration settings
 		this.config = config;
 
 		// update filter for 'Components'; allow disable components
 		final var filter = ConfigUtils.generateReferenceTargetFilter(this.servicePid(), false, config.componentIds);
-		if (OpenemsComponent.updateReferenceFilterRaw(cm, this.servicePid(), "Component", filter)) {
-			return;
-		}
+		OpenemsComponent.updateReferenceFilterRaw(cm, this.servicePid(), "Component", filter);
 
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout);
 
@@ -114,6 +153,24 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 
 		// Start Modbus-Server
 		this.startApiWorker.activate(id);
+
+		this.updateComponents();
+	}
+
+	private void handleModified(ConfigRecord config, ConfigurationAdmin cm, String id) {
+		// configuration settings
+		this.config = config;
+
+		this.apiWorker.setTimeoutSeconds(config.apiTimeout);
+
+		if (!this.isEnabled()) {
+			// abort if disabled
+			this.startApiWorker.deactivate();
+			return;
+		}
+
+		// Modify Modbus-Server
+		this.startApiWorker.modified(id);
 
 		this.updateComponents();
 	}
@@ -142,6 +199,7 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 
 	@Override
 	protected void deactivate() {
+
 		this.startApiWorker.deactivate();
 		ModbusSlaveFactory.close();
 		super.deactivate();
@@ -171,10 +229,11 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 					this.slave = ModbusSlaveFactory.createTCPSlave(port,
 							AbstractModbusTcpApi.this.config.maxConcurrentConnections);
 					this.slave.addProcessImage(UNIT_ID, AbstractModbusTcpApi.this.processImage);
-					this.slave.open();
-					AbstractModbusTcpApi.this.logInfo(this.log, AbstractModbusTcpApi.this.implementationName
+					if (isEnabled()) {
+						this.slave.open();
+						AbstractModbusTcpApi.this.logInfo(this.log, AbstractModbusTcpApi.this.implementationName
 							+ " started on port [" + port + "] with UnitId [" + AbstractModbusTcpApi.UNIT_ID + "].");
-
+					}
 				} catch (ModbusException e) {
 					ModbusSlaveFactory.close();
 					AbstractModbusTcpApi.this.logError(this.log,
@@ -431,21 +490,45 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 				.orElse(null);
 	}
 
-	protected static class ConfigRecord {
-		public final Meta metaComponent;
-		public final String[] componentIds;
-		public final int apiTimeout;
-		public final int port;
-		public final int maxConcurrentConnections;
-
-		public ConfigRecord(Meta metaComponent, String[] componentIds, int apiTimeout, int port,
-				int maxConcurrentConnections) {
-			super();
-			this.metaComponent = metaComponent;
-			this.componentIds = componentIds;
-			this.apiTimeout = apiTimeout;
-			this.port = port;
-			this.maxConcurrentConnections = maxConcurrentConnections;
+	public static record ConfigRecord(String id, String alias, boolean enabled, Meta metaComponent,
+			String[] componentIds, int apiTimeout, int port, int maxConcurrentConnections) {
+		
+		@Override
+		public boolean equals(Object other) {
+			
+		    if (this == other) {
+		        return true;
+		    }
+		    if (other == null) {
+		        return false;
+		    }   
+		    if (!(other instanceof ConfigRecord)) {
+		        return false;
+		    }
+			ConfigRecord config = (ConfigRecord) other;
+			
+			if (config.id.equals(this.id) && config.alias.equals(this.alias) //
+					&& config.enabled == this.enabled && config.metaComponent.equals(this.metaComponent) //
+					&& Arrays.equals(config.componentIds, this.componentIds) //
+					&& config.apiTimeout == this.apiTimeout && config.port == this.port //
+					&& config.maxConcurrentConnections == this.maxConcurrentConnections) {
+				return true;
+			}
+			
+			return false;
+			
 		}
+	}
+
+	;
+
+	/**
+	 * Format a given channelAddress to a ChannelId.
+	 * 
+	 * @param channel WriteChannel
+	 * @return component_channelId as String
+	 */
+	public static String formatChannelName(WriteChannel<?> channel) {
+		return channel.getComponent().alias() + "_" + channel.channelId().name();
 	}
 }

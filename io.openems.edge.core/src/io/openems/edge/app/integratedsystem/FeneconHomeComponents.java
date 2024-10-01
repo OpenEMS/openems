@@ -2,16 +2,22 @@ package io.openems.edge.app.integratedsystem;
 
 import java.util.ResourceBundle;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.FeedInType;
 import io.openems.edge.app.enums.Parity;
 import io.openems.edge.app.enums.SafetyCountry;
+import io.openems.edge.app.ess.Limiter14a;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
+import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
+import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 
@@ -478,6 +484,60 @@ public final class FeneconHomeComponents {
 								.addProperty(PrepareBatteryExtension.Property.TARGET_SOC.name(), 30) //
 								.build())
 						.build());
+	}
+
+	/**
+	 * Creates a default essLimiter14a dependency for a FENECON Home.
+	 * 
+	 * @param ioId the id of the input component
+	 * @return the {@link DependencyDeclaration}
+	 */
+	public static DependencyDeclaration essLimiter14a(//
+			final String ioId //
+	) {
+		return new DependencyDeclaration("ESS_LIMITER_14A", //
+				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
+				DependencyDeclaration.UpdatePolicy.NEVER, //
+				DependencyDeclaration.DeletePolicy.IF_MINE, //
+				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+				DependencyDeclaration.AppDependencyConfig.create() //
+						.setAppId("App.Ess.Limiter14a") //
+						.setProperties(JsonUtils.buildJsonObject() //
+								.addProperty(Limiter14a.Property.ESS_ID.name(), "ess0") //
+								.addProperty(Limiter14a.Property.INPUT_CHANNEL_ADDRESS.name(), ioId + "/DigitalInput1") //
+								.build()) //
+						.build());
+	}
+
+	/**
+	 * Creates a default essLimiter14a dependency for a FENECON Home which can be
+	 * different depending on the hardware type.
+	 * 
+	 * @param appManagerUtil the {@link AppManagerUtil} to get the hardware type
+	 * @return the {@link DependencyDeclaration} of the specific hardware or null if
+	 *         not specified for the current hardware
+	 * @throws OpenemsNamedException on error
+	 */
+	public static DependencyDeclaration essLimiter14aToHardware(AppManagerUtil appManagerUtil)
+			throws OpenemsNamedException {
+		final var deviceHardware = appManagerUtil
+				.getInstantiatedAppsByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
+		final var app = deviceHardware.stream().findAny().orElse(null);
+		switch (app == null ? "" : app.appId) {
+		case "App.OpenemsHardware.CM3", "App.OpenemsHardware.CM4S" -> {
+			for (var dependency : app.dependencies) {
+				if (!"IO_GPIO".equals(dependency.key)) {
+					continue;
+				}
+				final var instance = appManagerUtil.findInstanceByIdOrError(dependency.instanceId);
+				final var ioId = instance.properties.get(IoGpio.Property.IO_ID.name()).getAsString();
+				return essLimiter14a(ioId);
+			}
+		}
+		}
+		throw new OpenemsException(
+				"Hardware " + (app == null ? "UNDEFINED" : app.appId) + " not supported for ess limiter 14a.");
 	}
 
 	private FeneconHomeComponents() {

@@ -5,7 +5,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { AppService } from "src/app/app.service";
 import { HeaderComponent } from "src/app/shared/components/header/header.component";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
-import { Edge, EdgeConfig, Service, Widgets } from "src/app/shared/shared";
+import { Edge, EdgeConfig, EdgePermission, Service, Widgets } from "src/app/shared/shared";
 import { environment } from "src/environments";
 
 @Component({
@@ -34,6 +34,7 @@ export class HistoryComponent implements OnInit {
 
   public config: EdgeConfig | null = null;
   protected errorResponse: JsonrpcResponseError | null = null;
+  protected isModbusTcpWidgetAllowed: boolean = false;
 
   constructor(
     public service: Service,
@@ -44,6 +45,7 @@ export class HistoryComponent implements OnInit {
   ngOnInit() {
     this.service.currentEdge.subscribe((edge) => {
       this.edge = edge;
+      this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
     });
     this.service.getConfig().then(config => {
       // gather ControllerIds of Channelthreshold Components
@@ -74,11 +76,11 @@ export class HistoryComponent implements OnInit {
       /* handle grid breakpoints */(window.innerWidth < 768 ? window.innerWidth - 150 : window.innerWidth - 400));
     this.socChartHeight =
       /* minimum size */ Math.max(150,
-      /* maximium size */ Math.min(200, ref),
+      /* maximum size */ Math.min(200, ref),
     ) + "px";
     this.energyChartHeight =
       /* minimum size */ Math.max(300,
-      /* maximium size */ Math.min(600, ref),
+      /* maximum size */ Math.min(600, ref),
     ) + "px";
   }
 

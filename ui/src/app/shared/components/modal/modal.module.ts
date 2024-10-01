@@ -26,6 +26,7 @@ import { ModalHorizontalLineComponent } from "./model-horizontal-line/modal-hori
     PipeModule,
   ],
   declarations: [
+    HelpButtonComponent,
     ModalButtonsComponent,
     ModalInfoLineComponent,
     ModalLineComponent,
@@ -37,6 +38,7 @@ import { ModalHorizontalLineComponent } from "./model-horizontal-line/modal-hori
     HelpButtonComponent,
   ],
   exports: [
+    HelpButtonComponent,
     ModalButtonsComponent,
     ModalInfoLineComponent,
     ModalLineComponent,

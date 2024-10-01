@@ -1,38 +1,41 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, effect } from "@angular/core";
 import { Router } from "@angular/router";
 
+import { AppStateTracker } from "src/app/shared/ngrx-store/states";
+import { Environment, environment } from "src/environments";
 import { Service, Websocket } from "../../shared/shared";
 
 @Component({
   selector: "index",
   templateUrl: "./loading-screen.html",
 })
-export class LoadingScreenComponent implements OnInit {
+export class LoadingScreenComponent {
 
   protected readonly spinnerId: string = "IndexComponent";
+  protected readonly environment: Environment = environment;
+  protected backendState: "loading" | "failed" | "authenticated" = "loading";
 
   constructor(
     public service: Service,
     public websocket: Websocket,
     private router: Router,
-  ) { }
+    private appStateTracker: AppStateTracker,
+  ) {
 
-  ngOnInit() {
-
-    // TODO add websocket status observable
-    const interval = setInterval(() => {
-      this.service.startSpinner(this.spinnerId);
-      if (this.websocket.status === "online") {
-        this.service.stopSpinner(this.spinnerId);
-        this.router.navigate(["/overview"]);
-        clearInterval(interval);
+    effect(() => {
+      this.backendState = this.appStateTracker.loadingState();
+      switch (this.backendState) {
+        case "loading":
+          this.service.startSpinner(this.spinnerId);
+          break;
+        case "failed":
+          this.service.stopSpinner(this.spinnerId);
+          break;
+        case "authenticated":
+          this.appStateTracker.navigateAfterAuthentication();
+          break;
       }
-      if (this.websocket.status === "waiting for credentials") {
-        this.service.stopSpinner(this.spinnerId);
-        this.router.navigate(["/login"]);
-        clearInterval(interval);
-      }
-    }, 1000);
+    });
   }
 }

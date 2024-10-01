@@ -10,8 +10,6 @@ import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared"
     template: `
     <ion-content></ion-content>
          <ion-router-outlet id="content"></ion-router-outlet>
-         <oe-notification *ngIf="latestIncident" color="warning" [text]="latestIncident.message"
-    [id]="latestIncident.id"></oe-notification>
     `,
 })
 export class EdgeComponent implements OnInit, OnDestroy {

@@ -525,92 +525,92 @@ public interface GoodWe extends OpenemsComponent {
 		STATE_57(Doc.of(Level.INFO).text("Charging under voltage 3")), //
 
 		// Table 8-8 BMS Warning Code
-		STATE_58(Doc.of(Level.WARNING).text("Charging over voltage 1 ")), //
-		STATE_59(Doc.of(Level.WARNING).text("Discharging under voltage 1 ")), //
-		STATE_60(Doc.of(Level.WARNING).text("Cell high temperature 1 ")), //
-		STATE_61(Doc.of(Level.WARNING).text("Cell low temperature 1 ")), //
-		STATE_62(Doc.of(Level.WARNING).text("Charging over current 1 ")), //
-		STATE_63(Doc.of(Level.WARNING).text("Discharging over current 1 ")), //
-		STATE_64(Doc.of(Level.WARNING).text("Communication failure 1 ")), //
-		STATE_65(Doc.of(Level.WARNING).text("System reboot ")), //
-		STATE_66(Doc.of(Level.WARNING).text("Cell imbalance")), //
-		STATE_67(Doc.of(Level.WARNING).text("System low temperature 1 ")), //
-		STATE_68(Doc.of(Level.WARNING).text("System low temperature 1 ")), //
-		STATE_69(Doc.of(Level.WARNING).text("System high temperature")), //
+		STATE_58(Doc.of(OpenemsType.BOOLEAN).text("Charging over voltage 1 ")), //
+		STATE_59(Doc.of(OpenemsType.BOOLEAN).text("Discharging under voltage 1 ")), //
+		STATE_60(Doc.of(OpenemsType.BOOLEAN).text("Cell high temperature 1 ")), //
+		STATE_61(Doc.of(OpenemsType.BOOLEAN).text("Cell low temperature 1 ")), //
+		STATE_62(Doc.of(OpenemsType.BOOLEAN).text("Charging over current 1 ")), //
+		STATE_63(Doc.of(OpenemsType.BOOLEAN).text("Discharging over current 1 ")), //
+		STATE_64(Doc.of(OpenemsType.BOOLEAN).text("Communication failure 1 ")), //
+		STATE_65(Doc.of(OpenemsType.BOOLEAN).text("System reboot ")), //
+		STATE_66(Doc.of(OpenemsType.BOOLEAN).text("Cell imbalance")), //
+		STATE_67(Doc.of(OpenemsType.BOOLEAN).text("System low temperature 1 ")), //
+		STATE_68(Doc.of(OpenemsType.BOOLEAN).text("System low temperature 1 ")), //
+		STATE_69(Doc.of(OpenemsType.BOOLEAN).text("System high temperature")), //
 
-		// Table 8-30 Grid Detailed Fault
-		STATE_70(Doc.of(Level.FAULT).text("Power outage")), //
-		STATE_71(Doc.of(Level.FAULT).text("Grid undervoltage first level fault")), //
-		STATE_72(Doc.of(Level.FAULT).text("Grid undervoltage second level fault")), //
-		STATE_73(Doc.of(Level.FAULT).text("Grid undervoltage third level fault")), //
-		STATE_74(Doc.of(Level.FAULT).text("Grid overvoltage first level fault")), //
-		STATE_75(Doc.of(Level.FAULT).text("Grid overvoltage second level fault")), //
-		STATE_76(Doc.of(Level.FAULT).text("Grid overvoltage third level fault")), //
-		STATE_77(Doc.of(Level.FAULT).text("Grid average voltage high fault")), //
-		STATE_78(Doc.of(Level.FAULT).text("Grid underfrequency first level fault")), //
-		STATE_79(Doc.of(Level.FAULT).text("Grid underfrequency second level fault")), //
-		STATE_80(Doc.of(Level.FAULT).text("Islanding protection underfrequency fault")), //
-		STATE_81(Doc.of(Level.FAULT).text("Grid overfrequency first level fault")), //
-		STATE_82(Doc.of(Level.FAULT).text("Grid overfrequency second level fault")), //
-		STATE_83(Doc.of(Level.FAULT).text("Islanding protection overfrequency fault")), //
-		STATE_84(Doc.of(Level.FAULT).text("Grid frequency shift fault")), //
-		STATE_85(Doc.of(Level.FAULT).text("Grid waveform check fault")), //
-		STATE_86(Doc.of(Level.FAULT).text("Grid line voltage fault flag")), //
-		STATE_87(Doc.of(Level.FAULT).text("Grid low voltage ride-through flag")), //
-		STATE_88(Doc.of(Level.FAULT).text("Grid high voltage ride-through flag")), //
-		STATE_89(Doc.of(Level.FAULT).text("Grid voltage exceeds the upper sampling limit")), //
-		STATE_90(Doc.of(Level.FAULT).text("Grid connection voltage high")), //
-		STATE_91(Doc.of(Level.FAULT).text("Grid connection voltage low")), //
-		STATE_92(Doc.of(Level.FAULT).text("Grid connection frequency high")), //
-		STATE_93(Doc.of(Level.FAULT).text("Grid connection frequency low")), //
+		// Table 8-30 Grid Detailed WARNING
+		STATE_70(Doc.of(OpenemsType.BOOLEAN).text("Power outage")), //
+		STATE_71(Doc.of(OpenemsType.BOOLEAN).text("Grid undervoltage first level WARNING")), //
+		STATE_72(Doc.of(OpenemsType.BOOLEAN).text("Grid undervoltage second level WARNING")), //
+		STATE_73(Doc.of(OpenemsType.BOOLEAN).text("Grid undervoltage third level WARNING")), //
+		STATE_74(Doc.of(OpenemsType.BOOLEAN).text("Grid overvoltage first level WARNING")), //
+		STATE_75(Doc.of(OpenemsType.BOOLEAN).text("Grid overvoltage second level WARNING")), //
+		STATE_76(Doc.of(OpenemsType.BOOLEAN).text("Grid overvoltage third level WARNING")), //
+		STATE_77(Doc.of(OpenemsType.BOOLEAN).text("Grid average voltage high WARNING")), //
+		STATE_78(Doc.of(OpenemsType.BOOLEAN).text("Grid underfrequency first level WARNING")), //
+		STATE_79(Doc.of(OpenemsType.BOOLEAN).text("Grid underfrequency second level WARNING")), //
+		STATE_80(Doc.of(OpenemsType.BOOLEAN).text("Islanding protection underfrequency WARNING")), //
+		STATE_81(Doc.of(OpenemsType.BOOLEAN).text("Grid overfrequency first level WARNING")), //
+		STATE_82(Doc.of(OpenemsType.BOOLEAN).text("Grid overfrequency second level WARNING")), //
+		STATE_83(Doc.of(OpenemsType.BOOLEAN).text("Islanding protection overfrequency WARNING")), //
+		STATE_84(Doc.of(OpenemsType.BOOLEAN).text("Grid frequency shift WARNING")), //
+		STATE_85(Doc.of(OpenemsType.BOOLEAN).text("Grid waveform check WARNING")), //
+		STATE_86(Doc.of(OpenemsType.BOOLEAN).text("Grid line voltage WARNING flag")), //
+		STATE_87(Doc.of(OpenemsType.BOOLEAN).text("Grid low voltage ride-through flag")), //
+		STATE_88(Doc.of(OpenemsType.BOOLEAN).text("Grid high voltage ride-through flag")), //
+		STATE_89(Doc.of(OpenemsType.BOOLEAN).text("Grid voltage exceeds the upper sampling limit")), //
+		STATE_90(Doc.of(OpenemsType.BOOLEAN).text("Grid connection voltage high")), //
+		STATE_91(Doc.of(OpenemsType.BOOLEAN).text("Grid connection voltage low")), //
+		STATE_92(Doc.of(OpenemsType.BOOLEAN).text("Grid connection frequency high")), //
+		STATE_93(Doc.of(OpenemsType.BOOLEAN).text("Grid connection frequency low")), //
 
 		// Table 8-31 Inverter detailed error
-		STATE_94(Doc.of(Level.FAULT).text("LLC hardware over current")), //
-		STATE_95(Doc.of(Level.FAULT).text("Battery boost hardware over current")), //
-		STATE_96(Doc.of(Level.FAULT).text("Battery boost software over current")), //
-		STATE_97(Doc.of(Level.FAULT).text("Battery bms fault")), //
-		STATE_98(Doc.of(Level.FAULT).text("Battery bms discharge disable")), //
-		STATE_99(Doc.of(Level.FAULT).text("Battery current rms over current")), //
-		STATE_100(Doc.of(Level.FAULT).text("Off-grid mode exceeds bms current limit")), //
-		STATE_101(Doc.of(Level.FAULT).text("Bus voltage soft start failed")), //
-		STATE_102(Doc.of(Level.FAULT).text("Bus voltage is too low")), //
-		STATE_103(Doc.of(Level.FAULT).text("Bus voltage is too high")), //
-		STATE_104(Doc.of(Level.FAULT).text("Inverter hardware over current")), //
-		STATE_105(Doc.of(Level.FAULT).text("Inverter software over current")), //
-		STATE_106(Doc.of(Level.FAULT).text("Pv boost hardware over current")), //
-		STATE_107(Doc.of(Level.FAULT).text("Pv boost software over current")), //
-		STATE_108(Doc.of(Level.FAULT).text("Grid back flow")), //
-		STATE_109(Doc.of(Level.FAULT).text("Off-grid mode battery voltage is too low")), //
-		STATE_110(Doc.of(Level.FAULT).text("Off-grid mode AC voltage is too low")), //
-		STATE_111(Doc.of(Level.FAULT).text("Off-grid mode AC voltage is too high")), //
-		STATE_112(Doc.of(Level.FAULT).text("Backup over load")), //
-		STATE_113(Doc.of(Level.FAULT).text("Off-grid zero error")), //
-		STATE_114(Doc.of(Level.FAULT).text("Power fast retrack error")), //
-		STATE_115(Doc.of(Level.FAULT).text("Bypass relay switch error")), //
-		STATE_116(Doc.of(Level.FAULT).text("Backup load relay switch error")), //
+		STATE_94(Doc.of(OpenemsType.BOOLEAN).text("LLC hardware over current")), //
+		STATE_95(Doc.of(OpenemsType.BOOLEAN).text("Battery boost hardware over current")), //
+		STATE_96(Doc.of(OpenemsType.BOOLEAN).text("Battery boost software over current")), //
+		STATE_97(Doc.of(OpenemsType.BOOLEAN).text("Battery bms WARNING")), //
+		STATE_98(Doc.of(OpenemsType.BOOLEAN).text("Battery bms discharge disable")), //
+		STATE_99(Doc.of(OpenemsType.BOOLEAN).text("Battery current rms over current")), //
+		STATE_100(Doc.of(OpenemsType.BOOLEAN).text("Off-grid mode exceeds bms current limit")), //
+		STATE_101(Doc.of(OpenemsType.BOOLEAN).text("Bus voltage soft start failed")), //
+		STATE_102(Doc.of(OpenemsType.BOOLEAN).text("Bus voltage is too low")), //
+		STATE_103(Doc.of(OpenemsType.BOOLEAN).text("Bus voltage is too high")), //
+		STATE_104(Doc.of(OpenemsType.BOOLEAN).text("Inverter hardware over current")), //
+		STATE_105(Doc.of(OpenemsType.BOOLEAN).text("Inverter software over current")), //
+		STATE_106(Doc.of(OpenemsType.BOOLEAN).text("Pv boost hardware over current")), //
+		STATE_107(Doc.of(OpenemsType.BOOLEAN).text("Pv boost software over current")), //
+		STATE_108(Doc.of(OpenemsType.BOOLEAN).text("Grid back flow")), //
+		STATE_109(Doc.of(OpenemsType.BOOLEAN).text("Off-grid mode battery voltage is too low")), //
+		STATE_110(Doc.of(OpenemsType.BOOLEAN).text("Off-grid mode AC voltage is too low")), //
+		STATE_111(Doc.of(OpenemsType.BOOLEAN).text("Off-grid mode AC voltage is too high")), //
+		STATE_112(Doc.of(OpenemsType.BOOLEAN).text("Backup over load")), //
+		STATE_113(Doc.of(OpenemsType.BOOLEAN).text("Off-grid zero error")), //
+		STATE_114(Doc.of(OpenemsType.BOOLEAN).text("Power fast retrack error")), //
+		STATE_115(Doc.of(OpenemsType.BOOLEAN).text("Bypass relay switch error")), //
+		STATE_116(Doc.of(OpenemsType.BOOLEAN).text("Backup load relay switch error")), //
 
 		// Table 8-32 Inverter detailed status
-		STATE_117(Doc.of(Level.INFO).text("Over frequency curve running")), //
-		STATE_118(Doc.of(Level.INFO).text("Under frequency curve running")), //
-		STATE_119(Doc.of(Level.INFO).text("Frequency curve exiting recovery")), //
-		STATE_120(Doc.of(Level.INFO).text("PU over voltage curve running")), //
-		STATE_121(Doc.of(Level.INFO).text("PU under voltage curve running")), //
-		STATE_122(Doc.of(Level.INFO).text("QU curve running")), //
-		STATE_123(Doc.of(Level.INFO).text("PF curve running")), //
-		STATE_124(Doc.of(Level.INFO).text("Fixed PF is set")), //
-		STATE_125(Doc.of(Level.INFO).text("Fixed reactive power is set")), //
-		STATE_126(Doc.of(Level.INFO).text("Inverter over temp,derating curve operation")), //
-		STATE_127(Doc.of(Level.INFO).text("Australian DRED electricity sale status")), //
-		STATE_128(Doc.of(Level.INFO).text("Australian DRED purchase status")), //
-		STATE_129(Doc.of(Level.INFO).text("Active power limit set")), //
-		STATE_130(Doc.of(Level.INFO).text("70 percent derating (Germany) has been opened")), //
-		STATE_131(Doc.of(Level.INFO).text("CEI021 selftest running")), //
-		STATE_132(Doc.of(Level.INFO).text("Inverter first level over voltage derate")), //
-		STATE_133(Doc.of(Level.INFO).text("Force off grid flag")), //
-		STATE_134(Doc.of(Level.INFO).text("Force stop mode flag")), //
-		STATE_135(Doc.of(Level.INFO).text("Pv charge, off backup output flag")), //
-		STATE_136(Doc.of(Level.INFO).text("QU curve over voltage flag")), //
-		STATE_137(Doc.of(Level.INFO).text("QU curve under voltage flag")), //
+		STATE_117(Doc.of(OpenemsType.BOOLEAN).text("Over frequency curve running")), //
+		STATE_118(Doc.of(OpenemsType.BOOLEAN).text("Under frequency curve running")), //
+		STATE_119(Doc.of(OpenemsType.BOOLEAN).text("Frequency curve exiting recovery")), //
+		STATE_120(Doc.of(OpenemsType.BOOLEAN).text("PU over voltage curve running")), //
+		STATE_121(Doc.of(OpenemsType.BOOLEAN).text("PU under voltage curve running")), //
+		STATE_122(Doc.of(OpenemsType.BOOLEAN).text("QU curve running")), //
+		STATE_123(Doc.of(OpenemsType.BOOLEAN).text("PF curve running")), //
+		STATE_124(Doc.of(OpenemsType.BOOLEAN).text("Fixed PF is set")), //
+		STATE_125(Doc.of(OpenemsType.BOOLEAN).text("Fixed reactive power is set")), //
+		STATE_126(Doc.of(OpenemsType.BOOLEAN).text("Inverter over temp,derating curve operation")), //
+		STATE_127(Doc.of(OpenemsType.BOOLEAN).text("Australian DRED electricity sale status")), //
+		STATE_128(Doc.of(OpenemsType.BOOLEAN).text("Australian DRED purchase status")), //
+		STATE_129(Doc.of(OpenemsType.BOOLEAN).text("Active power limit set")), //
+		STATE_130(Doc.of(OpenemsType.BOOLEAN).text("70 percent derating (Germany) has been opened")), //
+		STATE_131(Doc.of(OpenemsType.BOOLEAN).text("CEI021 selftest running")), //
+		STATE_132(Doc.of(OpenemsType.BOOLEAN).text("Inverter first level over voltage derate")), //
+		STATE_133(Doc.of(OpenemsType.BOOLEAN).text("Force off grid flag")), //
+		STATE_134(Doc.of(OpenemsType.BOOLEAN).text("Force stop mode flag")), //
+		STATE_135(Doc.of(OpenemsType.BOOLEAN).text("Pv charge, off backup output flag")), //
+		STATE_136(Doc.of(OpenemsType.BOOLEAN).text("QU curve over voltage flag")), //
+		STATE_137(Doc.of(OpenemsType.BOOLEAN).text("QU curve under voltage flag")), //
 
 		// BMS Information
 		BATTERY_PROTOCOL(Doc.of(BatteryProtocol.values())), //
