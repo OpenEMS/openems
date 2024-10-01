@@ -43,19 +43,19 @@ public class InitializeEdgesWorker {
 	public synchronized void start() {
 		this.executor.execute(() -> {
 			try (var con = this.dataSource.getConnection()) {
-				// Erste Ausführung sofort
-				runCachingEdgesTask(con);
+				// First Execution Immediately
+				this.runCachingEdgesTask(con);
 
-				// Planen der die periodische Ausführung
-				scheduledExecutor.scheduleAtFixedRate(() -> {
+				// Plan the scheduled Execution
+				this.scheduledExecutor.scheduleAtFixedRate(() -> {
 					try (var newCon = this.dataSource.getConnection()) {
-						runCachingEdgesTask(newCon);
+						this.runCachingEdgesTask(newCon);
 					} catch (SQLException e) {
-						logError("Fehler beim erneuten Verbinden mit Postgres.", e);
+						this.logError("Fehler beim erneuten Verbinden mit Postgres.", e);
 					}
 				}, 20, 20, TimeUnit.MINUTES);
 			} catch (SQLException e) {
-				logError("Unable to connect do dataSource. ", e);
+				this.logError("Unable to connect do dataSource. ", e);
 			}
 			this.onFinished.run();
 		});
@@ -63,10 +63,10 @@ public class InitializeEdgesWorker {
 
 	private void runCachingEdgesTask(Connection con) {
 		this.parent.logInfo(this.log, "Caching Edges from Postgres [started]");
-		// Überprüfen, ob markAllEdgesAsOffline bereits aufgerufen wurde
-		if (!isMarkAllEdgesAsOfflineCalled) {
+		// Check if markAllEdgesAsOffline has already been called
+		if (!this.isMarkAllEdgesAsOfflineCalled) {
 			this.markAllEdgesAsOffline(con);
-			isMarkAllEdgesAsOfflineCalled = true;
+			this.isMarkAllEdgesAsOfflineCalled = true;
 		}
 		this.readAllEdgesFromPostgres(con);
 		this.parent.logInfo(this.log, "Caching Edges from Postgres [finished]");
