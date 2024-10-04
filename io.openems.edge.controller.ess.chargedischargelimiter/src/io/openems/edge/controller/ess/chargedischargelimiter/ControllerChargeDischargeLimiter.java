@@ -1,5 +1,8 @@
 package io.openems.edge.controller.ess.chargedischargelimiter;
 
+import static io.openems.common.channel.PersistencePriority.HIGH;
+import static io.openems.common.channel.PersistencePriority.LOW;
+
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
@@ -20,6 +23,14 @@ public interface ControllerChargeDischargeLimiter extends Controller, OpenemsCom
 		/**
 		 * Holds the minimum SoC value configured.
 		 */
+		FORCE_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT).persistencePriority(HIGH)),   // Priority high for testing
+		BALANCING_SOC(Doc.of(OpenemsType.INTEGER) //
+
+				.unit(Unit.PERCENT).persistencePriority(HIGH)), //
+		ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
+
+				.unit(Unit.KILOWATT_HOURS).persistencePriority(HIGH)), //		
 		MIN_SOC(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT)), //
 		MAX_SOC(Doc.of(OpenemsType.INTEGER) //
@@ -36,7 +47,7 @@ public interface ControllerChargeDischargeLimiter extends Controller, OpenemsCom
 			return this.doc;
 		}
 	}
-	
+
 	/**
 	 * Gets the Channel for {@link ChannelId#AWAITING_HYSTERESIS}.
 	 *
@@ -64,7 +75,7 @@ public interface ControllerChargeDischargeLimiter extends Controller, OpenemsCom
 	public default IntegerReadChannel getMinSocChannel() {
 		return this.channel(ChannelId.MIN_SOC);
 	}
-	
+
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_SOC}.
 	 *
@@ -73,6 +84,7 @@ public interface ControllerChargeDischargeLimiter extends Controller, OpenemsCom
 	public default IntegerReadChannel getMaxSocChannel() {
 		return this.channel(ChannelId.MAX_SOC);
 	}
+
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#MIN_SOC} Channel.
 	 *
@@ -90,6 +102,7 @@ public interface ControllerChargeDischargeLimiter extends Controller, OpenemsCom
 	public default Value<Integer> getMinSoc() {
 		return this.getMinSocChannel().value();
 	}
+
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_SOC} Channel.
 	 *

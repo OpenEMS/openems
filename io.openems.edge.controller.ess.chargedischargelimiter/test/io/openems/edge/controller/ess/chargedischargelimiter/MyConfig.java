@@ -1,7 +1,6 @@
 package io.openems.edge.controller.ess.chargedischargelimiter;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.test.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -42,6 +41,48 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	private MyConfig(Builder builder) {
 		super(Config.class, builder.id);
 		this.builder = builder;
+	}
+
+	@Override
+	public String ess_id() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int minSoc() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int forceChargeSoc() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int forceChargePower() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int maxSoc() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int forceDischargeSoc() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int forceDischargePower() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 //	@Override
