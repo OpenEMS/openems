@@ -1,3 +1,11 @@
 = io.openems.edge.controller.ess.chargedischargelimiter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.chargedischargelimiter[Source Code icon:github[]]
+
+
+
+Es geht um den "Charge Discharge Limiter" und das Benutzerinterface (UI). Die Anzeige soll ähnlich sein wie beim "Emergency Capacity Resurf Controller" mit einer MinMax-Anzeige.
+Wir benötigen einen Kanal, der die geladenen Kilowattstunden speichert, ähnlich wie die Berechnung der Energie aus der Leistung. 
+Dadurch vermeiden wir das Problem, dass nicht jedes Energiespeichersystem (ESS) einen eigenen, unendlichen Zähler für die DC-Ladeenergie hat.
+Frage 1: Speicher auch aus dem Netz beladen?
+Frage 2: Wie lange sollte der Speicher zwischen 95 % und 100 % gehalten werden? Konfigurierbar?
