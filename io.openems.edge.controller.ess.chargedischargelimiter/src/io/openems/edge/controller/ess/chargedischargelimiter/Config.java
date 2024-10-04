@@ -28,6 +28,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	
 	@AttributeDefinition(name = "Force-Charge SoC [%]", description = "Charging is forced while State of Charge is below Force-Charge-SoC.")
 	int forceChargeSoc() default 95;
+	
+	@AttributeDefinition(name = "Charge energy between balancing [kWh]", description = "Charged energy to the next balancing cycle")
+	int energyBetweenBalancingCycles() default 100;	
 
 	/*  good idea, we keep that in mind. for the first approach we use a default value 
 	@AttributeDefinition(name = "Force-Charge Power [W]", description = "The charge power during force-charging. If parameter is left empty," //
@@ -37,6 +40,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	
 	@AttributeDefinition(name = "Force-Charge Power [W]", description = "The charge power during force-charging.")
 	int forceChargePower() default 500;	
+	
+	@AttributeDefinition(name = "Balancing hysteresis [s]", description = "Time for balancing out battery cells. 1 hour as default")
+	int balancingHysteresis() default 3600;	// 1hour
 
 	/* what´s the use?
 	@AttributeDefinition(name = "Force-Discharge SoC [%]", description = "Discharging is forced while State of Charge is above Force-Discharge-SoC.")

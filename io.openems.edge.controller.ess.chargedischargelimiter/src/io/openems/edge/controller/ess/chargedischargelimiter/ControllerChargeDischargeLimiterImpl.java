@@ -45,19 +45,22 @@ public class ControllerChargeDischargeLimiterImpl extends AbstractOpenemsCompone
 			ControllerChargeDischargeLimiter.ChannelId.ACTIVE_CHARGE_ENERGY);
 
 	private Config config;
-	
+
 	/**
 	 * Length of hysteresis in minutes. States are not changed quicker than this.
+	 * 
 	 */
-	private static final int HYSTERESIS = 5;
+	private static final int HYSTERESIS = 10; // seconds
 	private Instant lastStateChange = Instant.MIN;
 
 	private String essId;
 	private int minSoc = 0;
 	private int maxSoc = 0;
 	private int forceChargeSoc = 0;
-	private int forceChargePower = 0;	
-	
+	private int forceChargePower = 0;
+	private int energyBetweenBalancingCycles = 0;
+	private int balancingHysteresis = 0;
+	private State state = State.UNDEFINED;
 
 	@Reference
 	private ComponentManager componentManager;
@@ -65,6 +68,7 @@ public class ControllerChargeDischargeLimiterImpl extends AbstractOpenemsCompone
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
+	private ManagedSymmetricEss ess;
 
 	public ControllerChargeDischargeLimiterImpl() {
 		super(//
@@ -81,26 +85,17 @@ public class ControllerChargeDischargeLimiterImpl extends AbstractOpenemsCompone
 		this.config = config;
 		try {
 			ManagedSymmetricEss ess = this.componentManager.getComponent(config.ess_id());
+			this.minSoc = this.config.minSoc(); // min SoC
+			this.maxSoc = this.config.minSoc();
+			this.forceChargeSoc = this.config.forceChargeSoc(); // if battery need balancing we charge to this value
+			this.forceChargePower = this.config.forceChargePower(); // if battery need balancing we charge to this value
+			this.energyBetweenBalancingCycles = this.config.energyBetweenBalancingCycles();
+			this.balancingHysteresis = this.config.balancingHysteresis();
 		} catch (OpenemsNamedException e) {
-			
+
 			e.printStackTrace();
-		} 
+		}
 	}
-	
-	
-	
-	/*
-	 * 
-	 * 
-	 * this.minSoc = config.minSoc(); // min SoC this.maxSoc = config.minSoc(); //
-	 * max. Soc this.forceChargeSoc = config.forceChargeSoc(); // if battery need
-	 * balancing we charge to this value this.forceChargePower =
-	 * config.forceChargePower(); // if battery need balancing we charge to this
-	 * value
-	 * 
-	 * ManagedSymmetricEss ess = this.componentManager.getComponent(this.essId);
-	 * 
-	 */
 
 	@Override
 	@Deactivate
@@ -111,6 +106,33 @@ public class ControllerChargeDischargeLimiterImpl extends AbstractOpenemsCompone
 	@Override
 	public void run() throws OpenemsNamedException {
 // method stub		
+		switch (this.state) {
+		case UNDEFINED:
+			// check if we can change to normal operation, i.e. if SOC and activePower values are available
+			if (ess.getSoc().get() != null && ess.getActivePower().get() != null) {
+				this.changeState(state.NORMAL);
+			}
+			break;
+		case NORMAL:
+			// check if SOC is in normal limits
+			// check if charge energy is below the next balancing cycle
+			if ()
+			calculateEnergy();
+		case ERROR:
+			// log errors
+		case BELOW_MIN_SOC:
+			// block discharging
+		case ABOVE_MAX_SOC:
+			// block charging
+		case FORCE_CHARGE_ACTIVE:
+			// force charge with forceChargePower
+		case BALANCING_WANTED:
+			// force charge with forceChargePower 
+		case BALANCING_ACTIVE:
+			// check hysteresis
+			// block discharging
+
+		}
 
 	}
 
@@ -145,17 +167,16 @@ public class ControllerChargeDischargeLimiterImpl extends AbstractOpenemsCompone
 	}
 
 	private void calculateEnergy() {
-	    // Calculate Energy
-	    var activePower = this.ess.getActivePower();
+		// Calculate Energy
+		Integer activePower = this.ess.getActivePower().get();
 
-	    if (activePower == null) {
-	        // Not available
-	        this.calculateChargeEnergy.update(null);
-	    } else if (activePower < 0) {
-	        this.calculateChargeEnergy.update(activePower * -1);
-	    } 
+		if (activePower == null) {
+			// Not available
+			this.calculateChargeEnergy.update(null);
+		} else if (activePower < 0) {
+			this.calculateChargeEnergy.update(activePower * -1);
+		}
 
 	}
-
 
 }
