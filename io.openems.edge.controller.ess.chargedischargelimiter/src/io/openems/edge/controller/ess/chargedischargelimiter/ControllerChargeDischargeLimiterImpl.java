@@ -43,15 +43,9 @@ public class ControllerChargeDischargeLimiterImpl extends AbstractOpenemsCompone
 
 	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
 			ControllerChargeDischargeLimiter.ChannelId.ACTIVE_CHARGE_ENERGY);
-	
+
 	private Config config;
-
-	@Reference
-	private ComponentManager componentManager;
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
-
+	
 	/**
 	 * Length of hysteresis in minutes. States are not changed quicker than this.
 	 */
@@ -62,11 +56,14 @@ public class ControllerChargeDischargeLimiterImpl extends AbstractOpenemsCompone
 	private int minSoc = 0;
 	private int maxSoc = 0;
 	private int forceChargeSoc = 0;
-	private int forceChargePower = 0;
+	private int forceChargePower = 0;	
 	
 
+	@Reference
+	private ComponentManager componentManager;
 
-
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 
 	public ControllerChargeDischargeLimiterImpl() {
@@ -80,33 +77,40 @@ public class ControllerChargeDischargeLimiterImpl extends AbstractOpenemsCompone
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		
-		this.config = config;		
 
+		this.config = config;
+		try {
+			ManagedSymmetricEss ess = this.componentManager.getComponent(config.ess_id());
+		} catch (OpenemsNamedException e) {
+			
+			e.printStackTrace();
+		} 
 	}
+	
+	
+	
+	/*
+	 * 
+	 * 
+	 * this.minSoc = config.minSoc(); // min SoC this.maxSoc = config.minSoc(); //
+	 * max. Soc this.forceChargeSoc = config.forceChargeSoc(); // if battery need
+	 * balancing we charge to this value this.forceChargePower =
+	 * config.forceChargePower(); // if battery need balancing we charge to this
+	 * value
+	 * 
+	 * ManagedSymmetricEss ess = this.componentManager.getComponent(this.essId);
+	 * 
+	 */
 
-	
-	this.essId = config.ess_id();
-	this.minSoc = config.minSoc(); // min SoC
-	this.maxSoc = config.minSoc(); // max. Soc
-	this.forceChargeSoc = config.forceChargeSoc(); // if battery need balancing we charge to this value
-	this.forceChargePower = config.forceChargePower(); // if battery need balancing we charge to this value
-	
-	ManagedSymmetricEss ess = this.componentManager.getComponent(this.essId);
-	
-	
-	
 	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
 	}
 
-	
-	
 	@Override
 	public void run() throws OpenemsNamedException {
-		
+// method stub		
 
 	}
 
@@ -140,22 +144,18 @@ public class ControllerChargeDischargeLimiterImpl extends AbstractOpenemsCompone
 		return this.timedata;
 	}
 
-	/**
-	 * Calculate the Energy values from ActivePower.
-	 */
 	private void calculateEnergy() {
-		// Calculate Energy
-		var activePower = this.ess.getActivePower();
-		if (activePower == null) {
-			// Not available
-			this.calculateChargeEnergy.update(null);
+	    // Calculate Energy
+	    var activePower = this.ess.getActivePower();
 
-		} else if (activePower > 0) {
-			// Buy-From-Grid
-			this.calculateChargeEnergy.update(0);
-		} else {
-			// Sell-To-Grid
-			this.calculateChargeEnergy.update(activePower * -1);
-		}
+	    if (activePower == null) {
+	        // Not available
+	        this.calculateChargeEnergy.update(null);
+	    } else if (activePower < 0) {
+	        this.calculateChargeEnergy.update(activePower * -1);
+	    } 
+
 	}
+
+
 }
