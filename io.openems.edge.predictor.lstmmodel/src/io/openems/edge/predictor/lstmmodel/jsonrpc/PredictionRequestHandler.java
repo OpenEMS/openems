@@ -2,9 +2,6 @@ package io.openems.edge.predictor.lstmmodel.jsonrpc;
 
 import java.util.UUID;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonPrimitive;
-
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 
@@ -15,16 +12,13 @@ public class PredictionRequestHandler {
 	 * 
 	 * @param requestId         the id
 	 * @param predictionManager the manager
-	 * @param consumption       the consumtpiotn
-	 * @return the new predition
+	 * @param channelAddress    the {@link ChannelAddress}
+	 * @return the new prediction
 	 */
 	public static GetPredictionResponse handlerGetPredictionRequest(UUID requestId, PredictorManager predictionManager,
-			ChannelAddress consumption) {
+			ChannelAddress channelAddress) {
 
-		var sortedMap = predictionManager.getPrediction(consumption).valuePerQuarter;
-
-		var predictionArray = new JsonArray();
-		sortedMap.values().forEach(value -> predictionArray.add(new JsonPrimitive(value)));
-		return new GetPredictionResponse(requestId, predictionArray);
+		var sortedMap = predictionManager.getPrediction(channelAddress).valuePerQuarter;
+		return new GetPredictionResponse(requestId, sortedMap);
 	}
 }
