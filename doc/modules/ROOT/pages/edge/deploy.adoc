@@ -144,34 +144,22 @@ Prerequisites:
 
 * A amd64 or arm64 device running Linux. You need the IP address and SSH access.
 * A working docker environment. To setup follow instruction from https://docs.docker.com/engine/install/[docs.docker.com].
-* Setup an SSH client to connect to the Linux console, e.g. http://www.9bis.net/kitty/[KiTTY]
 
-=== Connect via SSH
+=== Prepare system
 
-. Connect via SSH using KiTTY
-.. Open KiTTY and connect to the target device.
-+
-Make sure to select SSH with port 22 and enter the IP address of the target device. Press the btn:[Open] button.
-+
-.KiTTY Configuration
-image::deploy-kitty.png[KiTTY Configuration]
+==== Connect to the device
 
-.. Gain root permissions either by logging in as user *root* or by login in as a default user and executing *sudo -s*.
-+
-.KiTTY Configuration
-image::deploy-ssh-root.png[KiTTY Configuration]
-+
-NOTE: As an example, for the FENECON Energy Management System (FEMS) it is required to: +
-_login as:_ `fems` +
-_fems@192.168.178.38's password:_ `device specific password` +
-... +
-_fems@femsXXX:~$_ `sudo -s` +
-_[sudo] password for fems:_ `device specific password` +
-_root@femsXXX:/home/fems#_
+image::deploy-docker-ssh.png[SSH into device]
 
-=== Setup Docker
+==== Check docker installation
 
-If not done already, setup docker following the instuctions from https://docs.docker.com/engine/install/[docs.docker.com].
+image::deploy-docker-edge-check-version.png[Check docker installation]
+
+__if not already installed, follow <<Setup docker>>__
+
+==== Setup docker
+
+To setup docker follow the instuctions from https://docs.docker.com/engine/install/[docs.docker.com].
 
 === Start Container 
 
@@ -205,9 +193,15 @@ docker compose up -d
 
 ==== Check logs
 
-To check if the container is up and running, check it logs using:
+To check if the container is up and running, check `docker ps`:
+
+image::deploy-docker-edge.png[docker ps]
+
+or read its logs with:
 ----
 docker logs openems_edge
 ----
+
+---
 
 NOTE: If you want to start a UI instance as well, see: https://github.com/OpenEMS/openems/tree/develop/tools/docker/edge.

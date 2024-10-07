@@ -85,6 +85,22 @@ The command restarts the service (_systemctl restart openems-backend_) while not
 
 This chapter explains how OpenEMS Backend can be deployed using our official https://hub.docker.com/r/openems/backend[Docker image].
 
+=== Prepare system
+
+==== Connect to the server
+
+image::deploy-docker-ssh.png[SSH into device]
+
+==== Check docker installation
+
+image::deploy-docker-backend-check-version.png[Check docker installation]
+
+__if not already installed, follow <<Setup docker>>__
+
+==== Setup docker
+
+To setup docker follow the instuctions from https://docs.docker.com/engine/install/[docs.docker.com].
+
 === Create a Docker compose
 
 Paste content into a `docker-compose.yml`
@@ -133,7 +149,11 @@ docker compose up -d
 
 === Check logs
 
-To check if the container is up and running, check it logs using:
+To check if the container is up and running, check `docker ps`:
+
+image::deploy-docker-backend.png[docker ps]
+
+or read its logs with:
 ----
 docker logs openems_backend
 ----
