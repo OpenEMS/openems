@@ -10,8 +10,6 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.SortedMap;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -129,34 +127,17 @@ public class LstmModelImpl extends AbstractPredictor
 		var hyperParameters = ReadAndSaveModels.read(channelAddress.getChannelId());
 		var nowDate = ZonedDateTime.now();
 
-		var seasonalityPredictionFuture = CompletableFuture.supplyAsync(() -> {
-			return this.predictSeasonality(channelAddress, nowDate, hyperParameters);
-		});
+		var seasonalityPrediction = this.predictSeasonality(channelAddress, nowDate, hyperParameters);
+		var trendPrediction = this.predictTrend(channelAddress, nowDate, hyperParameters);
 
-		var trendPredictionFuture = CompletableFuture.supplyAsync(() -> {
-			return this.predictTrend(channelAddress, nowDate, hyperParameters);
-		});
-
-		/*
-		 * Combine predictions only after both seasonalityPredictionFuture and
-		 * trendPredictionFuture are complete
-		 */
-		var predicted = seasonalityPredictionFuture.thenCombine(trendPredictionFuture, (seasonality, trend) -> {
-			return combine(seasonality, trend);
-		});
-
+		var predicted = combine(trendPrediction, seasonalityPrediction);
 		var till = nowDate.withMinute(getMinute(nowDate, hyperParameters)).withSecond(0).withNano(0);
 
-		try {
-			return Prediction.from(//
-					Prediction.getValueRange(this.sum, channelAddress), //
-					Interval.DUODCIMUS, //
-					till, //
-					DOUBLELIST_TO_INTARRAY.apply(predicted.get()));
-		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
-			return null;
-		}
+		return Prediction.from(//
+				Prediction.getValueRange(this.sum, channelAddress), //
+				Interval.DUODCIMUS, //
+				till, //
+				DOUBLELIST_TO_INTARRAY.apply(predicted));
 	}
 
 	/**
