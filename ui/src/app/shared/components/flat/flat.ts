@@ -1,6 +1,6 @@
 // @ts-strict-ignore
-import { Component, Input } from '@angular/core';
-import { Icon, ImageIcon } from 'src/app/shared/type/widget';
+import { Component, Input } from "@angular/core";
+import { Icon, ImageIcon } from "src/app/shared/type/widget";
 
 @Component({
   selector: "oe-flat-widget",

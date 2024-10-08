@@ -17,9 +17,9 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
   public mode: string;
   public modeValue: string;
   public icon: Icon = {
-    name: '',
-    color: '',
-    size: 'large',
+    name: "",
+    color: "",
+    size: "large",
   };
   public dependendOn: string;
   public dependendOnValue: any;
