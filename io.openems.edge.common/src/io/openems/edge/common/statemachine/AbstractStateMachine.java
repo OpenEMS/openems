@@ -25,6 +25,7 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 
 	private STATE previousState;
 	private STATE state;
+	private boolean runOnce = true;
 
 	/**
 	 * Initialize the State-Machine and set an initial State.
@@ -42,6 +43,7 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 		for (STATE state : initialState.getStates()) {
 			this.stateHandlers.put(state, this.getStateHandler(state));
 		}
+		this.runOnce = true;
 	}
 
 	/**
@@ -116,6 +118,19 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 
 		OpenemsNamedException exception = null;
 
+		if (this.runOnce) {
+			this.runOnce = false;
+			// run very first onEntry()
+			try {
+				context.logInfo(this.log, "Changing StateMachine from [-] to [" + this.state + "]");
+				this.stateHandlers //
+						.get(this.state) //
+						.onEntry(context);
+			} catch (OpenemsNamedException e) {
+				exception = e;
+			}
+		}
+
 		// Evaluate the next State
 		STATE nextState;
 		if (this.forceNextState != null) {
@@ -130,6 +145,9 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 						.get(this.state) //
 						.runAndGetNextState(context);
 			} catch (OpenemsNamedException e) {
+				if (exception != null) {
+					e.addSuppressed(exception);
+				}
 				exception = e;
 				nextState = this.initialState; // set to initial state on error
 			}
