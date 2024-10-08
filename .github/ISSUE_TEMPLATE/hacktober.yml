@@ -1,0 +1,70 @@
+name: Hacktoberfest
+description: Perfect contribution for Hacktoberfest
+labels: ["hacktoberfest"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        1. Please speak English, this is the language all maintainers can speak and write.
+  - type: dropdown
+    id: type
+    attributes:
+      label: Contribution Type
+      description: Select the relevant Contribution type.
+      options:
+        - "Feature"
+        - "Bug Fix"
+        - "Documentation"
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Select the relevant component for this feature request.
+      options:
+        - "Edge"
+        - "UI"
+        - "Backend"
+    validations:
+      required: true
+  - type: dropdown
+    id: contributor-level
+    attributes:
+      label: Contributor Level
+      description: What OpenEMS knowledge level is required for the task?
+      options:
+        - "Newbie"
+        - "Casual"
+        - "Expert"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      placeholder: |
+        What purpose does the task serve?
+    validations:
+      required: true
+  - type: textarea
+    id: definition-of-done
+    attributes:
+      label: Definition of Done
+      placeholder: |
+        What result is expected?
+    validations:
+      required: true
+  - type: textarea
+    id: difficulties
+    attributes:
+      label: Difficulties
+      placeholder: |
+        What difficulties may occur?
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        - *For questions and suggestions please interact with the [community](https://community.openems.io/).*
+        - *Do you need help getting started? Then please read the documentation [documentation](https://openems.github.io/openems.io/openems/latest/introduction.html).*
+        - *Also read our [contribution guidelines](https://github.com/OpenEMS/openems/blob/develop/.github/CONTRIBUTING.md) before submitting code suggestions.*

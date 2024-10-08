@@ -13,6 +13,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.evcs.api,\
 	io.openems.edge.io.api,\
 	io.openems.edge.meter.api,\
+	io.openems.edge.predictor.api,\
 	io.openems.edge.pvinverter.api,\
 	io.openems.edge.thermometer.api,\
 	io.openems.edge.timedata.api,\

@@ -1,10 +1,10 @@
 // @ts-strict-ignore
-import { Component } from '@angular/core';
-import { AbstractModal } from 'src/app/shared/components/modal/abstractModal';
+import { Component } from "@angular/core";
+import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 
-type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER' | 'OFF';
+type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER" | "OFF";
 @Component({
-    templateUrl: './popover.html',
+    templateUrl: "./popover.html",
 })
 
 export class PopoverComponent extends AbstractModal {

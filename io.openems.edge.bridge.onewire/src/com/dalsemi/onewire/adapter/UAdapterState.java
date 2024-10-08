@@ -148,7 +148,7 @@ class UAdapterState {
 
 	/**
 	 * This is the current 'real' speed that the OneWire is operating at. This is
-	 * used to represent the actual mode that the DS2480 is operting in. For example
+	 * used to represent the actual mode that the DS2480 is operating in. For example
 	 * the logical speed might be USPEED_REGULAR but for RF emission reasons we may
 	 * put the actual DS2480 in SPEED_FLEX.
 	 * <p>

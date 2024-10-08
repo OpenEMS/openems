@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: OpenEMS.io
+    url: https://openems.io/
+    about: News and general information are posted here.
+  - name: OpenEMS Community
+    url: https://community.openems.io/
+    about: Please ask and answer questions here.

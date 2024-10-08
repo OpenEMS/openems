@@ -1,7 +1,6 @@
 = Deploy OpenEMS Backend
 :sectnums:
 :sectnumlevels: 4
-:toc:
 :toclevels: 4
 :experimental:
 :keywords: AsciiDoc
@@ -9,25 +8,27 @@
 :icons: font
 :imagesdir: ../../assets/images
 
+== Debian Linux
+
 This chapter explains how OpenEMS Backend can be deployed on a Debian Linux server. Similar techniques will work for other operating systems as well.
 
-== Prepare operating system environment
+=== Prepare operating system environment
 
 NOTE: It is recommended to run every service on a server with limited permissions. This example runs OpenEMS Backend with user "root" which is a bad idea for a production server!  
 
-=== Create an application directory
+==== Create an application directory
 
 Create the directory */opt/openems-backend*. This is going to be the place, where we put the JAR file.
 
 Execute `mkdir /opt/openems-backend`.
 
-=== Create a config directory
+==== Create a config directory
 
 Create the directory */opt/openems-backend/config.d*. This is going to be the place, where all the bundle configurations are held.
 
 Execute `mkdir /opt/openems-backend/config.d`.
 
-=== Create a systemd service definition
+==== Create a systemd service definition
 
 The systemd 'Service Manager' manages system processes in a Debian Linux. We will create a systemd service definition file, so that systemd takes care of managing (starting/restarting/...) the OpenEMS Backend service.
 
@@ -79,3 +80,82 @@ To update the OpenEMS JAR file at the target device, it is required to copy the 
 Execute `systemctl restart openems-backend --no-block; journalctl -lfu openems-backend`
 +
 The command restarts the service (_systemctl restart openems-backend_) while not waiting for the OpenEMS startup notification (_--no-block_). Then it directly prints the OpenEMS system log (_journalctl -lfu openems-backend_).
+
+== Docker
+
+This chapter explains how OpenEMS Backend can be deployed using our official https://hub.docker.com/r/openems/backend[Docker image].
+
+=== Prepare system
+
+==== Connect to the server
+
+image::deploy-docker-ssh.png[SSH into device]
+
+==== Check docker installation
+
+image::deploy-docker-backend-check-version.png[Check docker installation]
+
+__if not already installed, follow <<Setup docker>>__
+
+==== Setup docker
+
+To setup docker follow the instuctions from https://docs.docker.com/engine/install/[docs.docker.com].
+
+=== Create a Docker compose
+
+Paste content into a `docker-compose.yml`
+----
+services:
+  openems_backend:
+    image: openems/backend:latest
+    container_name: openems_backend
+    hostname: openems_backend
+    restart: unless-stopped
+    volumes:
+      - openems-backend-conf:/var/opt/openems/config:rw
+      - openems-backend-data:/var/opt/openems/data:rw
+    ports:
+      - 8079:8079 # Apache-Felix
+      - 8081:8081 # Edge-Websocket
+      - 8082:8082 # UI-Websocket
+
+  openems-ui:
+    image: openems/ui-backend:latest
+    container_name: openems_ui
+    hostname: openems_ui
+    restart: unless-stopped
+    volumes:
+      - openems-ui-conf:/etc/nginx:rw
+      - openems-ui-log:/var/log/nginx:rw
+    environment:
+      - UI_WEBSOCKET=ws://<hostname>:8082 # Change to your actual hostname or ip
+    ports:
+      - 80:80
+      - 443:443
+
+volumes:
+  openems-backend-conf:
+  openems-backend-data:
+  openems-ui-conf:
+  openems-ui-log:
+----
+
+=== Run compose file
+
+To start the previously created `docker-compose.yml` run the command:
+----
+docker compose up -d
+----
+
+=== Check logs
+
+To check if the container is up and running, check `docker ps`:
+
+image::deploy-docker-backend.png[docker ps]
+
+or read its logs with:
+----
+docker logs openems_backend
+----
+
+NOTE: If you want to run the backand with an InfluxDB instance as well, see: https://github.com/OpenEMS/openems/tree/develop/tools/docker/backend.

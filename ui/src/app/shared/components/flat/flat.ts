@@ -3,8 +3,8 @@ import { Component, Input } from '@angular/core';
 import { Icon, ImageIcon } from 'src/app/shared/type/widget';
 
 @Component({
-  selector: 'oe-flat-widget',
-  templateUrl: './flat.html',
+  selector: "oe-flat-widget",
+  templateUrl: "./flat.html",
 })
 export class FlatWidgetComponent {
 

@@ -1,19 +1,18 @@
 // @ts-strict-ignore
-import { Component, OnInit } from '@angular/core';
-import { FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { Changelog } from 'src/app/changelog/view/component/changelog.constants';
-
-import { FormlyFieldConfig } from '@ngx-formly/core';
-import { environment } from '../../environments';
-import { GetUserInformationRequest } from '../shared/jsonrpc/request/getUserInformationRequest';
-import { SetUserInformationRequest } from '../shared/jsonrpc/request/setUserInformationRequest';
-import { UpdateUserLanguageRequest } from '../shared/jsonrpc/request/updateUserLanguageRequest';
-import { GetUserInformationResponse } from '../shared/jsonrpc/response/getUserInformationResponse';
-import { Service, Websocket } from '../shared/shared';
-import { COUNTRY_OPTIONS } from '../shared/type/country';
-import { Language } from '../shared/type/language';
+import { Component, OnInit } from "@angular/core";
+import { FormGroup, Validators } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
+import { FormlyFieldConfig } from "@ngx-formly/core";
+import { TranslateService } from "@ngx-translate/core";
+import { Changelog } from "src/app/changelog/view/component/changelog.constants";
+import { environment } from "../../environments";
+import { GetUserInformationRequest } from "../shared/jsonrpc/request/getUserInformationRequest";
+import { SetUserInformationRequest } from "../shared/jsonrpc/request/setUserInformationRequest";
+import { UpdateUserLanguageRequest } from "../shared/jsonrpc/request/updateUserLanguageRequest";
+import { GetUserInformationResponse } from "../shared/jsonrpc/response/getUserInformationResponse";
+import { Service, Websocket } from "../shared/shared";
+import { COUNTRY_OPTIONS } from "../shared/type/country";
+import { Language } from "../shared/type/language";
 
 type CompanyUserInformation = UserInformation & { companyName: string };
 
@@ -29,7 +28,7 @@ type UserInformation = {
 };
 
 @Component({
-  templateUrl: './user.component.html',
+  templateUrl: "./user.component.html",
 })
 export class UserComponent implements OnInit {
 
@@ -68,7 +67,6 @@ export class UserComponent implements OnInit {
   ngOnInit() {
     // Set currentLanguage to
     this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
-    this.service.setCurrentComponent({ languageKey: 'Menu.user' }, this.route);
     this.getUserInformation().then((userInformation) => {
       this.form = {
         formGroup: new FormGroup({}),
@@ -128,13 +126,13 @@ export class UserComponent implements OnInit {
         },
       }];
 
-      if (Object.prototype.hasOwnProperty.call(userInformation, 'companyName')) {
+      if (Object.prototype.hasOwnProperty.call(userInformation, "companyName")) {
         this.companyInformationFields.push(
           {
             key: "companyName",
             type: "input",
             props: {
-              label: this.translate.instant('Register.Form.companyName'),
+              label: this.translate.instant("Register.Form.companyName"),
               disabled: true,
             },
           },
@@ -153,7 +151,7 @@ export class UserComponent implements OnInit {
 
   public applyChanges() {
 
-    const params: SetUserInformationRequest['params'] = {
+    const params: SetUserInformationRequest["params"] = {
       user: {
         lastname: this.form.model.lastname,
         firstname: this.form.model.firstname,
@@ -169,9 +167,9 @@ export class UserComponent implements OnInit {
     };
 
     this.service.websocket.sendRequest(new SetUserInformationRequest(params)).then(() => {
-      this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+      this.service.toast(this.translate.instant("General.changeAccepted"), "success");
     }).catch((reason) => {
-      this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+      this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
     });
     this.enableAndDisableFormFields();
     this.form.formGroup.markAsPristine();
@@ -204,7 +202,7 @@ export class UserComponent implements OnInit {
 
     return new Promise(resolve => {
       const interval = setInterval(() => {
-        if (this.websocket.status == 'online') {
+        if (this.websocket.status == "online") {
           this.service.websocket.sendRequest(new GetUserInformationRequest()).then((response: GetUserInformationResponse) => {
             const user = response.result.user;
 
@@ -247,8 +245,8 @@ export class UserComponent implements OnInit {
   }
 
   public toggleDebugMode(event: CustomEvent) {
-    localStorage.setItem("DEBUGMODE", event.detail['checked']);
-    this.environment.debugMode = event.detail['checked'];
+    localStorage.setItem("DEBUGMODE", event.detail["checked"]);
+    this.environment.debugMode = event.detail["checked"];
   }
 
   public setLanguage(language: Language): void {
@@ -257,9 +255,9 @@ export class UserComponent implements OnInit {
 
     this.service.setLang(language);
     this.websocket.sendRequest(new UpdateUserLanguageRequest({ language: language.key })).then(() => {
-      this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+      this.service.toast(this.translate.instant("General.changeAccepted"), "success");
     }).catch((reason) => {
-      this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+      this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
     });
 
     this.currentLanguage = language;

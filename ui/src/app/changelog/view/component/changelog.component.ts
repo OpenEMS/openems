@@ -1,14 +1,14 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { environment } from 'src/environments';
-import { Service } from '../../../shared/shared';
-import { Role } from '../../../shared/type/role';
-import { Changelog } from './changelog.constants';
+import { Component } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { environment } from "src/environments";
+import { Service } from "../../../shared/shared";
+import { Role } from "../../../shared/type/role";
+import { Changelog } from "./changelog.constants";
 
 @Component({
-  selector: 'changelog',
-  templateUrl: './changelog.component.html',
+  selector: "changelog",
+  templateUrl: "./changelog.component.html",
 })
 export class ChangelogComponent {
 
@@ -21,9 +21,9 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
-        version: 'x.y.z',
+        version: "x.y.z",
         changes: [
-          Changelog.link("OpenEMS Releases", 'https://github.com/OpenEMS/openems/releases'),
+          Changelog.link("OpenEMS Releases", "https://github.com/OpenEMS/openems/releases"),
         ],
       },
     ];

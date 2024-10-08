@@ -704,7 +704,7 @@ class MemoryBankEEPROMstatus implements MemoryBank {
 	}
 
 	/**
-	 * Copy all 8 bytes of the Sratch Pad to a certain address in memory.
+	 * Copy all 8 bytes of the Scratch Pad to a certain address in memory.
 	 *
 	 * @param addr the address to copy the data to
 	 * @param auth byte[] containing write authorization

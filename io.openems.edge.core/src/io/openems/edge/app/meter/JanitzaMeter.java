@@ -43,6 +43,7 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
@@ -168,7 +169,7 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 			final var meterId = this.getId(t, p, Property.METER_ID, "meter1");
 
 			final var alias = this.getString(p, l, Property.ALIAS);
-			final var factorieId = this.getString(p, Property.MODEL);
+			final var factoryId = this.getString(p, Property.MODEL);
 			final var type = this.getEnum(p, MeterType.class, Property.TYPE);
 			final var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
 			final var integrationType = this.getEnum(p, ModbusType.class, Property.INTEGRATION_TYPE);
@@ -182,7 +183,9 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 				final var port = this.getInt(p, Property.PORT);
 				final var tcpModbusId = this.getId(t, p, Property.MODBUS_ID);
 
-				components.add(new EdgeConfig.Component(tcpModbusId, "bridge", "Bridge.Modbus.Tcp", //
+				components.add(new EdgeConfig.Component(tcpModbusId,
+						TranslationUtil.translate(AbstractOpenemsApp.getTranslationBundle(l), "App.Meter.alias"),
+						"Bridge.Modbus.Tcp", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("ip", ip) //
 								.addProperty("port", port) //
@@ -192,7 +195,7 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 			}
 			};
 
-			components.add(new EdgeConfig.Component(meterId, alias, factorieId, //
+			components.add(new EdgeConfig.Component(meterId, alias, factoryId, //
 					JsonUtils.buildJsonObject() //
 							.addProperty("modbus.id", modbusId) //
 							.addProperty("modbusUnitId", modbusUnitId) //

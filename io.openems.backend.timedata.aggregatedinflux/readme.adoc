@@ -45,7 +45,7 @@ This list must be adopted to a concrete usecase. It strongly depends on
 * your strategy to select component-IDs.
 * the components you are using within OpenEMS.
 
-If you detect some widgets within your OpenEMS-UI which hava empty values,
+If you detect some widgets within your OpenEMS-UI which have empty values,
 it may have to do with an incorrect hardcoded list.
 
 ====
@@ -57,7 +57,7 @@ the following configuration may provide a good start setup:
 
 *Create database and set retention policy:*
 
-Before starting the OpenEMS backend and after intially setting up the influx servers,
+Before starting the OpenEMS backend and after initially setting up the influx servers,
 you need to create the databases `influx0` and `aggregated0`
 and some retention policies:
 

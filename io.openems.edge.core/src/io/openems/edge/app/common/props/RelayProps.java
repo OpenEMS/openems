@@ -21,6 +21,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppDef;
@@ -91,13 +92,19 @@ public final class RelayProps {
 			final List<PreferredRelay> preferredRelays //
 	) {
 		final var relayInfos = util.getAllRelayInfos(ComponentUtil.CORE_COMPONENT_IDS, //
-				component -> filter.stream().allMatch(t -> t.componentFilter().test(component)), //
+				component -> filter.stream() //
+						.map(RelayContactFilter::componentFilter) //
+						.filter(Objects::nonNull) //
+						.allMatch(t -> t.test(component)), //
 				component -> filter.stream() //
 						.map(RelayContactFilter::componentAliasMapper) //
 						.filter(Objects::nonNull) //
 						.map(t -> t.apply(component)) //
 						.findAny().orElse(component.alias()), //
-				(component, channel) -> filter.stream().allMatch(t -> t.channelFilter().test(component, channel)), //
+				(component, channel) -> filter.stream() //
+						.map(RelayContactFilter::channelFilter) //
+						.filter(Objects::nonNull) //
+						.allMatch(t -> t.test(component, channel)), //
 				(component, channel) -> filter.stream() //
 						.map(RelayContactFilter::channelAliasMapper) //
 						.filter(Objects::nonNull) //
@@ -105,6 +112,7 @@ public final class RelayProps {
 						.findAny().orElse(channel.address().toString()), //
 				(component, channel) -> filter.stream() //
 						.map(RelayContactFilter::disabledReasons) //
+						.filter(Objects::nonNull) //
 						.map(t -> t.apply(component, channel)) //
 						.flatMap(Collection::stream) //
 						.toList());
@@ -169,6 +177,15 @@ public final class RelayProps {
 					return emptyList();
 				} //
 		);
+	}
+
+	/**
+	 * Creates a {@link RelayContactFilter} for {@link IoGpio} components.
+	 * 
+	 * @return the {@link RelayContactFilter}
+	 */
+	public static RelayContactFilter gpioFilter() {
+		return new RelayContactFilter(t -> !t.serviceFactoryPid().equals("IO.Gpio"), null, null, null, null);
 	}
 
 	/**

@@ -2,7 +2,6 @@
 :imagesdir: ../assets/images
 :sectnums:
 :sectnumlevels: 4
-:toc:
 :toclevels: 4
 :experimental:
 :keywords: AsciiDoc
@@ -37,7 +36,7 @@ image::intellij-import-bnd.png[]
 +
 .build.gradle
 image::intellij-build-gradle.png[]
-.. or alternativly make an configuration "edit configuration"
+.. or alternatively make an configuration "edit configuration"
 +
 .build gradle over configuration
 image::intellij-add-configuration.png[]

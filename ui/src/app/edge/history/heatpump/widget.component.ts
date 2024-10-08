@@ -1,15 +1,15 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { ModalController } from "@ionic/angular";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
+import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../shared/shared";
+import { AbstractHistoryWidget } from "../abstracthistorywidget";
 
 @Component({
     selector: HeatpumpWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html',
+    templateUrl: "./widget.component.html",
 })
 export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
@@ -35,7 +35,7 @@ export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements On
     }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
@@ -56,17 +56,17 @@ export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements On
             this.getChannelAddresses(this.edge, config).then(channels => {
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
                     const result = response.result;
-                    if (this.componentId + '/ForceOnStateTime' in result.data) {
-                        this.activeTimeOverPeriodForceOn = result.data[this.componentId + '/ForceOnStateTime'];
+                    if (this.componentId + "/ForceOnStateTime" in result.data) {
+                        this.activeTimeOverPeriodForceOn = result.data[this.componentId + "/ForceOnStateTime"];
                     }
-                    if (this.componentId + '/RegularStateTime' in result.data) {
-                        this.activeTimeOverPeriodRegular = result.data[this.componentId + '/RegularStateTime'];
+                    if (this.componentId + "/RegularStateTime" in result.data) {
+                        this.activeTimeOverPeriodRegular = result.data[this.componentId + "/RegularStateTime"];
                     }
-                    if (this.componentId + '/RecommendationStateTime' in result.data) {
-                        this.activeTimeOverPeriodRecommendation = result.data[this.componentId + '/RecommendationStateTime'];
+                    if (this.componentId + "/RecommendationStateTime" in result.data) {
+                        this.activeTimeOverPeriodRecommendation = result.data[this.componentId + "/RecommendationStateTime"];
                     }
-                    if (this.componentId + '/LockStateTime' in result.data) {
-                        this.activeTimeOverPeriodLock = result.data[this.componentId + '/LockStateTime'];
+                    if (this.componentId + "/LockStateTime" in result.data) {
+                        this.activeTimeOverPeriodLock = result.data[this.componentId + "/LockStateTime"];
                     }
                 });
             });
@@ -76,10 +76,10 @@ export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements On
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             const channels: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ForceOnStateTime'),
-                new ChannelAddress(this.componentId, 'RegularStateTime'),
-                new ChannelAddress(this.componentId, 'RecommendationStateTime'),
-                new ChannelAddress(this.componentId, 'LockStateTime'),
+                new ChannelAddress(this.componentId, "ForceOnStateTime"),
+                new ChannelAddress(this.componentId, "RegularStateTime"),
+                new ChannelAddress(this.componentId, "RecommendationStateTime"),
+                new ChannelAddress(this.componentId, "LockStateTime"),
             ];
             resolve(channels);
         });

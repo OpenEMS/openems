@@ -3,8 +3,8 @@ import { Icon } from "src/app/shared/type/widget";
 import { AbstractModalLine } from "../abstract-modal-line";
 
 @Component({
-    selector: 'oe-modal-buttons',
-    templateUrl: './modal-button.html',
+    selector: "oe-modal-buttons",
+    templateUrl: "./modal-button.html",
 })
 export class ModalButtonsComponent extends AbstractModalLine {
 

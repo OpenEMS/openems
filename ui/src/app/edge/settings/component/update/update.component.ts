@@ -1,13 +1,13 @@
 // @ts-strict-ignore
-import { ActivatedRoute } from '@angular/router';
-import { Component, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { FormlyFieldConfig } from '@ngx-formly/core';
-import { Service, Utils, Websocket, EdgeConfig, Edge } from '../../../../shared/shared';
+import { Component, OnInit } from "@angular/core";
+import { FormGroup } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
+import { FormlyFieldConfig } from "@ngx-formly/core";
+import { Edge, EdgeConfig, Service, Utils, Websocket } from "../../../../shared/shared";
 
 @Component({
   selector: ComponentUpdateComponent.SELECTOR,
-  templateUrl: './update.component.html',
+  templateUrl: "./update.component.html",
 })
 export class ComponentUpdateComponent implements OnInit {
 
@@ -44,13 +44,13 @@ export class ComponentUpdateComponent implements OnInit {
     this.factory = factory;
 
     for (const property of properties) {
-      if (property.id === 'id') {
+      if (property.id === "id") {
         continue; // ignore Component-ID
       }
-      const property_id = property.id.replace('.', '_');
+      const property_id = property.id.replace(".", "_");
       const field: FormlyFieldConfig = {
         key: property_id,
-        type: 'input',
+        type: "input",
         templateOptions: {
           label: property.name,
           description: property.description,
@@ -63,7 +63,7 @@ export class ComponentUpdateComponent implements OnInit {
       if (component.properties[property.id]) {
 
         // filter arrays with nested objects
-        if (Array.isArray(component.properties[property.id]) && component.properties[property.id]?.length > 0 && component.properties[property.id]?.every(element => typeof element === 'object')) {
+        if (Array.isArray(component.properties[property.id]) && component.properties[property.id]?.length > 0 && component.properties[property.id]?.every(element => typeof element === "object")) {
 
           // Stringify json for objects nested inside an array
           model[property_id] = JSON.stringify(component.properties[property.id]);
@@ -82,24 +82,24 @@ export class ComponentUpdateComponent implements OnInit {
     for (const controlKey in this.form.controls) {
       const control = this.form.controls[controlKey];
       if (control.dirty) {
-        const property_id = controlKey.replace('_', '.');
+        const property_id = controlKey.replace("_", ".");
         properties.push({ name: property_id, value: control.value });
       }
     }
     this.edge.updateComponentConfig(this.websocket, this.componentId, properties).then(() => {
       this.form.markAsPristine();
-      this.service.toast("Successfully updated " + this.componentId + ".", 'success');
+      this.service.toast("Successfully updated " + this.componentId + ".", "success");
     }).catch(reason => {
-      this.service.toast("Error updating " + this.componentId + ":" + reason.error.message, 'danger');
+      this.service.toast("Error updating " + this.componentId + ":" + reason.error.message, "danger");
     });
   }
 
   public delete() {
     this.edge.deleteComponentConfig(this.websocket, this.componentId).then(() => {
       this.form.markAsPristine();
-      this.service.toast("Successfully deleted " + this.componentId + ".", 'success');
+      this.service.toast("Successfully deleted " + this.componentId + ".", "success");
     }).catch(reason => {
-      this.service.toast("Error deleting " + this.componentId + ":" + reason.error.message, 'danger');
+      this.service.toast("Error deleting " + this.componentId + ":" + reason.error.message, "danger");
     });
   }
 

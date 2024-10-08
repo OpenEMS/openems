@@ -1,28 +1,28 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { Router } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
-import { TranslateService } from '@ngx-translate/core';
-import { Edge, Service, Websocket } from 'src/app/shared/shared';
-import { environment } from 'src/environments';
-import { GetApps } from '../jsonrpc/getApps';
-import { AppCenter } from './appCenter';
-import { AppCenterAddRegisterKeyHistory } from './appCenterAddRegisterKeyHistory';
-import { AppCenterGetRegisteredKeys } from './appCenterGetRegisteredKeys';
-import { AppCenterIsKeyApplicable } from './appCenterIsKeyApplicable';
-import { Key } from './key';
-import { Flags } from '../jsonrpc/flag/flags';
-import { hasPredefinedKey } from '../permissions';
+import { Component, Input, OnInit } from "@angular/core";
+import { FormGroup } from "@angular/forms";
+import { Router } from "@angular/router";
+import { ModalController } from "@ionic/angular";
+import { FormlyFieldConfig, FormlyFormOptions } from "@ngx-formly/core";
+import { TranslateService } from "@ngx-translate/core";
+import { Edge, Service, Websocket } from "src/app/shared/shared";
+import { environment } from "src/environments";
+import { Flags } from "../jsonrpc/flag/flags";
+import { GetApps } from "../jsonrpc/getApps";
+import { hasPredefinedKey } from "../permissions";
+import { AppCenter } from "./appCenter";
+import { AppCenterAddRegisterKeyHistory } from "./appCenterAddRegisterKeyHistory";
+import { AppCenterGetRegisteredKeys } from "./appCenterGetRegisteredKeys";
+import { AppCenterIsKeyApplicable } from "./appCenterIsKeyApplicable";
+import { Key } from "./key";
 
 @Component({
     selector: KeyModalComponent.SELECTOR,
-    templateUrl: './modal.component.html',
+    templateUrl: "./modal.component.html",
 })
 export class KeyModalComponent implements OnInit {
 
-    private static readonly SELECTOR = 'key-modal';
+    private static readonly SELECTOR = "key-modal";
 
     @Input({ required: true }) public edge!: Edge;
     @Input() public appId: string | null = null;
@@ -63,7 +63,7 @@ export class KeyModalComponent implements OnInit {
  */
     private static transformInput(value: string): string {
         // remove spaces
-        let trimmed = value.replace(/\s+/g, '');
+        let trimmed = value.replace(/\s+/g, "");
 
         // trimm max length of input
         if (trimmed.length > 19) {
@@ -72,29 +72,29 @@ export class KeyModalComponent implements OnInit {
 
         // remove last dash
         const hasDashAsLastChar = trimmed.substring(trimmed.length - 1, trimmed.length) == "-";
-        trimmed = trimmed.replace(/-/g, '');
+        trimmed = trimmed.replace(/-/g, "");
 
         const numbers = [];
 
         // push single parts into array
         numbers.push(trimmed.substring(0, 4));
-        if (trimmed.substring(4, 8) !== '') {
+        if (trimmed.substring(4, 8) !== "") {
             numbers.push(trimmed.substring(4, 8));
         }
 
-        if (trimmed.substring(8, 12) != '') {
+        if (trimmed.substring(8, 12) != "") {
             numbers.push(trimmed.substring(8, 12));
         }
 
-        if (trimmed.substring(12, 16) != '') {
+        if (trimmed.substring(12, 16) != "") {
             numbers.push(trimmed.substring(12, 16));
         }
 
         // join parts so it matches 'XXXX-XXXX-XXXX-XXXX'
-        let modifiedValue = numbers.join('-');
+        let modifiedValue = numbers.join("-");
         // readd last
         if (hasDashAsLastChar) {
-            modifiedValue += '-';
+            modifiedValue += "-";
         }
 
         // if there was no change to the original value return null
@@ -113,8 +113,8 @@ export class KeyModalComponent implements OnInit {
         };
         this.model = {
             useRegisteredKeys: false,
-            registeredKey: '',
-            key: '',
+            registeredKey: "",
+            key: "",
         };
 
         if (this.behaviour === KeyValidationBehaviour.REGISTER) {
@@ -134,7 +134,7 @@ export class KeyModalComponent implements OnInit {
                 this.model.useRegisteredKeys = true;
                 this.model.registeredKey = this.registeredKeys[0].keyId;
             }
-            const selectRegisteredKey = this.fields.find(f => f.key === 'registeredKey');
+            const selectRegisteredKey = this.fields.find(f => f.key === "registeredKey");
             this.registeredKeys.forEach(key => {
                 const desc = this.getDescription(key);
                 (selectRegisteredKey.props.options as any[]).push({
@@ -145,7 +145,7 @@ export class KeyModalComponent implements OnInit {
             });
         }).catch(reason => {
             this.fields = this.getFields();
-            this.service.toast(this.translate.instant('Edge.Config.App.Key.failedLoadingRegisterKey'), 'danger');
+            this.service.toast(this.translate.instant("Edge.Config.App.Key.failedLoadingRegisterKey"), "danger");
         }).finally(() => {
             this.service.stopSpinner(this.spinnerId);
         });
@@ -169,7 +169,7 @@ export class KeyModalComponent implements OnInit {
                 this.service.startSpinner(this.spinnerId);
                 this.modalCtrl.dismiss({ key: this.getSelectedKey(), useMasterKey: this.model.useMasterKey });
                 // navigate to App install view and pass valid key
-                this.router.navigate(['device/' + (this.edge.id) + '/settings/app/install/' + this.appId]
+                this.router.navigate(["device/" + (this.edge.id) + "/settings/app/install/" + this.appId]
                     , { queryParams: { name: this.appName }, state: { appKey: this.getRawAppKey(), useMasterKey: this.model.useMasterKey } });
                 this.service.stopSpinner(this.spinnerId);
                 break;
@@ -178,9 +178,9 @@ export class KeyModalComponent implements OnInit {
                 // only register key for this app
                 this.registerKey().then(() => {
                     this.modalCtrl.dismiss({ key: this.getSelectedKey() });
-                    this.service.toast(this.translate.instant('Edge.Config.App.Key.successRegisterKey'), 'success');
+                    this.service.toast(this.translate.instant("Edge.Config.App.Key.successRegisterKey"), "success");
                 }).catch(() => {
-                    this.service.toast(this.translate.instant('Edge.Config.App.Key.failedRegisterKey'), 'danger');
+                    this.service.toast(this.translate.instant("Edge.Config.App.Key.failedRegisterKey"), "danger");
                 }).finally(() => {
                     this.service.stopSpinner(this.spinnerId);
                 });
@@ -219,28 +219,28 @@ export class KeyModalComponent implements OnInit {
                             return registration.edgeId !== this.edge.id;
                         });
                         if (differentEdge) {
-                            this.service.toast(this.translate.instant('Edge.Config.App.Key.alreadyRegisteredDifferentSystem'), 'warning');
+                            this.service.toast(this.translate.instant("Edge.Config.App.Key.alreadyRegisteredDifferentSystem"), "warning");
                             return;
                         }
                         const sameApp = result.additionalInfo.registrations.some(registration => {
                             return registration.appId === this.appId && registration.edgeId === this.edge.id;
                         });
                         if (!sameApp) {
-                            this.service.toast(this.translate.instant('Edge.Config.App.Key.alreadyRegisteredDifferentApp'), 'warning');
+                            this.service.toast(this.translate.instant("Edge.Config.App.Key.alreadyRegisteredDifferentApp"), "warning");
                             return;
                         }
                     }
 
-                    this.service.toast(this.translate.instant('Edge.Config.App.Key.valid'), 'success');
+                    this.service.toast(this.translate.instant("Edge.Config.App.Key.valid"), "success");
                 } else {
-                    this.service.toast(this.translate.instant('Edge.Config.App.Key.invalid'), 'danger');
+                    this.service.toast(this.translate.instant("Edge.Config.App.Key.invalid"), "danger");
                 }
             }).catch(reason => {
                 // this may happen if the key is not stored in the database
-                this.service.toast(this.translate.instant('Edge.Config.App.Key.invalid'), 'danger');
+                this.service.toast(this.translate.instant("Edge.Config.App.Key.invalid"), "danger");
                 this.options.formState.gotInvalidKeyResponse = true;
                 if (environment.debugMode) {
-                    console.log('Failed to validate Key', reason);
+                    console.log("Failed to validate Key", reason);
                 }
             }).finally(() => {
                 this.service.stopSpinner(this.spinnerId);
@@ -272,7 +272,7 @@ export class KeyModalComponent implements OnInit {
             return null;
         }
 
-        const appPrefix = environment.edgeShortName + ' App';
+        const appPrefix = environment.edgeShortName + " App";
         // map to multiple description fields
         const descriptionFields = [];
         for (const bundle of bundles) {
@@ -305,7 +305,7 @@ export class KeyModalComponent implements OnInit {
                 descriptionFields.push(app.name);
             }
         }
-        return descriptionFields.length === 0 ? null : descriptionFields.map(e => appPrefix + ' ' + e).join(", ");
+        return descriptionFields.length === 0 ? null : descriptionFields.map(e => appPrefix + " " + e).join(", ");
     }
 
     private getAppsByCategory(): { [key: string]: GetApps.App[]; } {
@@ -333,45 +333,45 @@ export class KeyModalComponent implements OnInit {
     private getFields(): FormlyFieldConfig[] {
         const fields: FormlyFieldConfig[] = [];
         fields.push({
-            key: 'useRegisteredKeys',
-            type: 'checkbox',
+            key: "useRegisteredKeys",
+            type: "checkbox",
             props: {
-                label: this.translate.instant('Edge.Config.App.Key.useRegisteredKey'),
+                label: this.translate.instant("Edge.Config.App.Key.useRegisteredKey"),
             },
             hide: this.registeredKeys.length === 0,
             expressions: {
-                'props.disabled': field => field.model.useMasterKey,
+                "props.disabled": field => field.model.useMasterKey,
             },
         });
 
         fields.push({
-            key: 'registeredKey',
-            type: 'select',
+            key: "registeredKey",
+            type: "select",
             props: {
-                label: this.translate.instant('Edge.Config.App.Key.registeredKey'),
+                label: this.translate.instant("Edge.Config.App.Key.registeredKey"),
                 required: true,
                 options: [],
             },
             expressions: {
-                'hide': () => this.registeredKeys.length === 0,
-                'props.disabled': field => !field.model.useRegisteredKeys || field.model.useMasterKey,
+                "hide": () => this.registeredKeys.length === 0,
+                "props.disabled": field => !field.model.useRegisteredKeys || field.model.useMasterKey,
             },
-            wrappers: ['formly-select-extended-wrapper'],
+            wrappers: ["formly-select-extended-wrapper"],
         });
 
         fields.push({
-            key: 'key',
-            type: 'input',
+            key: "key",
+            type: "input",
             props: {
-                label: this.translate.instant('Edge.Config.App.Key.key'),
+                label: this.translate.instant("Edge.Config.App.Key.key"),
                 required: true,
-                placeholder: 'XXXX-XXXX-XXXX-XXXX',
+                placeholder: "XXXX-XXXX-XXXX-XXXX",
             },
             expressions: {
-                'props.disabled': field => field.model.useRegisteredKeys || field.model.useMasterKey,
+                "props.disabled": field => field.model.useRegisteredKeys || field.model.useMasterKey,
             },
             validators: {
-                validation: ['key'],
+                validation: ["key"],
             },
             hooks: {
                 onInit: (field) => {
@@ -391,30 +391,30 @@ export class KeyModalComponent implements OnInit {
             this.model.useMasterKey = true;
             fields.push(
                 {
-                    key: 'useMasterKey',
-                    type: 'checkbox',
+                    key: "useMasterKey",
+                    type: "checkbox",
                     props: {
-                        label: this.translate.instant('Edge.Config.App.Key.useMasterKey'),
+                        label: this.translate.instant("Edge.Config.App.Key.useMasterKey"),
                     },
                 },
                 {
-                    type: 'text',
+                    type: "text",
                     props: {
-                        description: this.translate.instant('Edge.Config.App.Key.MASTER_KEY_HINT'),
+                        description: this.translate.instant("Edge.Config.App.Key.MASTER_KEY_HINT"),
                     },
                     expressions: {
-                        hide: '!model.useMasterKey',
+                        hide: "!model.useMasterKey",
                     },
                 },
             );
         }
 
         fields.push({
-            type: 'text',
+            type: "text",
             props: {
-                description: this.translate.instant('Edge.Config.App.Key.KEY_TYPO_MESSAGE_HINT'),
+                description: this.translate.instant("Edge.Config.App.Key.KEY_TYPO_MESSAGE_HINT"),
             },
-            hideExpression: '!formState.gotInvalidKeyResponse',
+            hideExpression: "!formState.gotInvalidKeyResponse",
         });
 
         return fields;

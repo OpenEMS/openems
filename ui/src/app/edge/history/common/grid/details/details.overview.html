@@ -1,0 +1,7 @@
+<oe-chart [title]="component.alias" [showPhases]="showPhases" [showTotal]="showTotal"
+  (setShowTotal)="setShowTotal($event)" (setShowPhases)="setShowPhases($event)" *ngIf="isInitialized && component"
+  [period]="service.historyPeriod.value">
+  <gridDetailsChart [isOnlyChart]="true"></gridDetailsChart>
+</oe-chart>
+<oe-footer-subnavigation *ngIf="isInitialized" [backButton]="true"
+  [navigationOptions]="navigationButtons"></oe-footer-subnavigation>

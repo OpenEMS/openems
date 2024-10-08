@@ -2305,7 +2305,7 @@ public class USerialAdapter extends DSPortAdapter {
 
 	/**
 	 * Do a master reset on the DS2480. This reduces the baud rate to 9600 and
-	 * peforms a break. A single timing byte is then sent.
+	 * performs a break. A single timing byte is then sent.
 	 */
 	private void uMasterReset() {
 		if (doDebugMessages) {

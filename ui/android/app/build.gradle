@@ -4,13 +4,41 @@ def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+def convertVersionStringToCode(versionString) {
+    def version = versionString.split('\\-')[0]
+    def parts = version.split('\\.')
+    def year = parts[0]
+    def month = parts[1].padLeft(2, '0')
+    def day = parts[2].padLeft(2, '0')
+    return "${year}${month}${day}00".toInteger()
+}
+
+def getVersion() {
+    def v = System.getenv("VERSION")
+    if(v == null) {
+      logger.warn('WARNING: environment VERSION not specified! using `SNAPHOT` instead.')
+      return [name: 'SNAPSHOT', code: 1]
+    }
+    def c = convertVersionStringToCode(v)
+    logger.info("OpenEMS-Version: ${v}(${c})")
+    return [name: v, code: c]
+}
+
+def version = getVersion();
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 20240900
-        versionName "2024.9.0-SNAPSHOT"
+        versionCode version.code
+        versionName version.name
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -19,7 +47,7 @@ android {
         }
         multiDexEnabled true //important
     }
-    
+
     flavorDimensions "version"
     productFlavors {
         // create("example") {

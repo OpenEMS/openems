@@ -54,6 +54,22 @@ public class DataContainer {
 	}
 
 	/**
+	 * Gets all values for the key. If no keys exist, get the value of all records.
+	 *
+	 * @param key the Channel-Id
+	 * @return the record values
+	 */
+	public List<Float> getValues(String key) {
+		var index = this.getIndex(key);
+		if (index == null) {
+			return List.of();
+		}
+		return this.records.stream() //
+				.map(a -> a[index]) //
+				.toList();
+	}
+
+	/**
 	 * Gets the value for the key from the current record. If no keys exist, get the
 	 * first value of the record.
 	 *
@@ -61,22 +77,31 @@ public class DataContainer {
 	 * @return the record value
 	 */
 	public Optional<Float> getValue(String key) {
-		Integer index;
-		if (this.keys.isEmpty()) {
-			// no keys -> first value
-			index = 0;
-		} else {
-			// find index of key
-			index = this.keys.get(key);
-			if (index == null) {
-				return Optional.empty();
-			}
+		var index = this.getIndex(key);
+		if (index == null) {
+			return Optional.empty();
 		}
 		var record = this.getCurrentRecord();
 		if (index < record.length) {
 			return Optional.ofNullable(record[index]);
 		}
 		return Optional.empty();
+	}
+
+	/**
+	 * Gets the index of the kex.
+	 * 
+	 * @param key the Channel-Id
+	 * @return the index; possibly null
+	 */
+	private Integer getIndex(String key) {
+		if (this.keys.isEmpty()) {
+			// no keys -> first value
+			return 0;
+		} else {
+			// find index of key
+			return this.keys.get(key);
+		}
 	}
 
 	/**

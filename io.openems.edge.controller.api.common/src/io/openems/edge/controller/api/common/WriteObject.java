@@ -118,6 +118,13 @@ public abstract class WriteObject {
 	 * @return the value as String
 	 */
 	public abstract String valueToString();
+	
+	/**
+	 * Gets the value of the current object.
+	 *
+	 * @return the value as the corresponding type
+	 */
+	public abstract Object value();
 
 	/**
 	 * Is there a defined value?.

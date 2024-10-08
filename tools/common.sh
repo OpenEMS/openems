@@ -8,11 +8,11 @@ common_initialize_environment() {
     SRC_PACKAGE_JSON="ui/package.json"
     SRC_PACKAGE_LOCK_JSON="ui/package-lock.json"
     SRC_CHANGELOG_CONSTANTS="ui/src/app/changelog/view/component/changelog.constants.ts"
-    SRC_ANDROID_GRADLE="ui/android/app/build.gradle"
 
     # Set environment variables
-    THEME="openems"
+    THEME="${THEME:-openems}"
     PACKAGE_NAME="openems-edge"
+
     VERSION_STRING=""
     VERSION="$(cd ui && node -p "require('./package.json').version" && cd ..)"
     local tmp_version=$(echo $VERSION | cut -d'-' -f1)
@@ -61,10 +61,6 @@ common_update_version_in_code() {
 
     echo "## Update $SRC_CHANGELOG_CONSTANTS"
     sed --in-place "s#\(UI_VERSION = \"\).*\(\";\)#\1$VERSION\2#" $SRC_CHANGELOG_CONSTANTS
-
-    echo "## Update $SRC_ANDROID_GRADLE"
-    sed --in-place "s#\(versionCode \).*\$#\1$(printf "%04d%02d%02d" $VERSION_MAJOR $VERSION_MINOR $VERSION_PATCH)#" $SRC_ANDROID_GRADLE
-    sed --in-place "s#\(versionName \).*\$#\1\"$VERSION\"#" $SRC_ANDROID_GRADLE
 }
 
 # Build OpenEMS Backend
@@ -118,6 +114,36 @@ common_build_ui() {
         echo "## Refresh node_modules cache"
         mv -f "ui/node_modules" "${NODE_MODULES_CACHE}"
     fi
+}
+
+common_build_android_app() {
+    echo "# Build OpenEMS Android APP"
+    if [ "${NODE_MODULES_CACHE}" != "" -a -d "$NODE_MODULES_CACHE" ]; then
+        echo "## Use cached node_modules"
+        mv -f "${NODE_MODULES_CACHE}" "ui/node_modules"
+    fi
+    cd ui
+
+    # Install dependencies from package.json
+    npm ci
+    if [ "${NG_CLI_CACHE_PATH}" != "" ]; then 
+        echo "## Angular Cache: $NG_CLI_CACHE_PATH"
+        node_modules/.bin/ng config cli.cache.path "$NG_CLI_CACHE_PATH"
+    fi
+
+    case "${THEME^^}" in
+        "FENECON") NODE_ENV="FENECON";;
+        "HECKERT") NODE_ENV="Heckert";;
+    esac
+
+    # Install depencencies for capacitor
+    NODE_ENV=${NODE_ENV} ionic cap build android -c "${THEME},${THEME}-backend-deploy-app"
+
+    # Build App
+    cd android
+    THEME=${THEME} ./gradlew buildThemeRelease
+
+    cd ../..
 }
 
 common_save_environment() {

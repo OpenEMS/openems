@@ -4,7 +4,7 @@ import { theme } from "./theme";
 export const environment: Environment = {
     ...theme, ...{
 
-        backend: 'OpenEMS Backend',
+        backend: "OpenEMS Backend",
         url: "ws://" + location.hostname + ":8082",
 
         production: false,

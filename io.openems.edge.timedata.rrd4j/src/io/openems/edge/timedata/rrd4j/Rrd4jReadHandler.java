@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -149,7 +150,7 @@ public class Rrd4jReadHandler {
 	 * @param rrdDbId             the id of the rrdb
 	 * @param notSendChannel      the channel with the timestamps where the data got
 	 *                            not send
-	 * @param lastResendTimestamp the timstamp of the last resend
+	 * @param lastResendTimestamp the timestamp of the last resend
 	 * @param debugMode           if debugMode is active
 	 * @return the {@link Timeranges}
 	 * @throws OpenemsNamedException on error
@@ -479,10 +480,10 @@ public class Rrd4jReadHandler {
 				}, (t, u) -> t, TreeMap::new));
 	}
 
-	private static record Range(ZonedDateTime from, ZonedDateTime to) {
+	protected static record Range(ZonedDateTime from, ZonedDateTime to) {
 	}
 
-	private static Stream<Range> streamRanges(//
+	protected static Stream<Range> streamRanges(//
 			final ZonedDateTime from, //
 			final ZonedDateTime to, //
 			final Resolution resolution //
@@ -493,7 +494,8 @@ public class Rrd4jReadHandler {
 		final var builder = Stream.<Range>builder();
 
 		var fromRange = from;
-		var toRange = increase(from, resolution);
+
+		var toRange = truncate(increase(from, resolution), resolution);
 		if (toRange.isAfter(to)) {
 			toRange = to;
 		}
@@ -501,13 +503,25 @@ public class Rrd4jReadHandler {
 		while (!fromRange.equals(toRange)) {
 			builder.accept(new Range(fromRange, toRange));
 			fromRange = toRange;
-			toRange = increase(toRange, resolution);
+			toRange = truncate(increase(fromRange, resolution), resolution);
 			if (toRange.isAfter(to)) {
 				toRange = to;
 			}
 		}
 
 		return builder.build();
+	}
+
+	private static ZonedDateTime truncate(ZonedDateTime date, Resolution resolution) {
+		return switch (resolution.getUnit()) {
+		case DAYS, HALF_DAYS, HOURS, SECONDS, MINUTES, MILLIS, NANOS, MICROS -> {
+			yield date.truncatedTo(resolution.getUnit());
+		}
+		case CENTURIES, DECADES, ERAS, FOREVER, MILLENNIA, YEARS, WEEKS -> {
+			throw new UnsupportedOperationException();
+		}
+		case MONTHS -> date.withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
+		};
 	}
 
 	private static ZonedDateTime increase(ZonedDateTime date, Resolution resolution) {

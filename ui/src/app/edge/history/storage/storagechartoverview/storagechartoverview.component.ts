@@ -1,11 +1,11 @@
 // @ts-strict-ignore
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { Edge, EdgeConfig, Service, Utils } from "../../../../shared/shared";
 
 @Component({
     selector: StorageChartOverviewComponent.SELECTOR,
-    templateUrl: './storagechartoverview.component.html',
+    templateUrl: "./storagechartoverview.component.html",
 })
 export class StorageChartOverviewComponent implements OnInit {
 
@@ -29,7 +29,7 @@ export class StorageChartOverviewComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.service.getConfig().then(config => {
                 this.edge = edge;
                 this.essComponents = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster"));

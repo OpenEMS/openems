@@ -1,6 +1,7 @@
 package io.openems.edge.app.timeofusetariff;
 
 import static io.openems.edge.core.appmanager.formly.enums.InputType.PASSWORD;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
 
 import java.util.Map;
@@ -177,7 +178,7 @@ public class RabotCharge extends AbstractOpenemsAppWithProps<RabotCharge, Proper
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkHome());
+				.setCompatibleCheckableConfigs(checkHome().or(checkCommercial92()));
 	}
 
 	@Override

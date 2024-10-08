@@ -15,6 +15,7 @@ $font-family: var(--ion-font-family);
   --ion-color-primary-contrast: #000000;
   --ion-color-primary-contrast-rgb: 0, 0, 0;
   --ion-color-primary-shade: #cc995d;
+  --ion-color-primary-shade-rgb: rgb(204, 153, 93);
   --ion-color-primary-tint: #eab679;
 
   /** secondary **/
@@ -106,9 +107,13 @@ $font-family: var(--ion-font-family);
   }
 
   --ion-color-production: #36aed1;
-  --ion-color-production-rgb: 54, 174, 209;
+  --ion-color-production-rgb: 54,
+  174,
+  209;
   --ion-color-production-contrast: #fff;
-  --ion-color-production-contrast-rgb: 255, 255, 255;
+  --ion-color-production-contrast-rgb: 255,
+  255,
+  255;
   --ion-color-production-shade: #226e84;
   --ion-color-production-tint: #41d4ff;
 

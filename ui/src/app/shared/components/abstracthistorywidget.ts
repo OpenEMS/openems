@@ -1,12 +1,12 @@
 // @ts-strict-ignore
-import { Directive, Inject, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
-import { v4 as uuidv4 } from 'uuid';
+import { Directive, Inject, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { ModalController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { Subject } from "rxjs";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { v4 as uuidv4 } from "uuid";
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 @Directive()
@@ -38,7 +38,7 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
   ) { }
 
   public ngOnInit() {
-    this.service.setCurrentComponent('', this.route).then(edge => {
+    this.service.getCurrentEdge().then(edge => {
       this.service.getConfig().then(config => {
         // store important variables publically
         this.edge = edge;

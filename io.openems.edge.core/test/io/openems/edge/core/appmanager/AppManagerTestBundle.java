@@ -8,10 +8,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentConstants;
@@ -21,11 +23,12 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
@@ -57,12 +60,12 @@ import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance.Request;
 import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
-import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
-import io.openems.edge.core.appmanager.validator.CheckHome;
+import io.openems.edge.core.appmanager.validator.CheckOr;
 import io.openems.edge.core.appmanager.validator.Checkable;
+import io.openems.edge.core.appmanager.validator.CheckableFactory;
 import io.openems.edge.core.appmanager.validator.Validator;
-import io.openems.edge.core.appmanager.validator.relaycount.CheckRelayCount;
+import io.openems.edge.core.appmanager.validator.ValidatorImpl;
 
 public class AppManagerTestBundle {
 
@@ -78,12 +81,16 @@ public class AppManagerTestBundle {
 
 	private final AppValidateWorker appValidateWorker;
 
-	public final CheckablesBundle checkablesBundle;
-
 	public final TestScheduler scheduler;
 
-	public AppManagerTestBundle(JsonObject initialComponentConfig, MyConfig initialAppManagerConfig,
-			Function<AppManagerTestBundle, List<OpenemsApp>> availableAppsSupplier) throws Exception {
+	private final CheckableFactory checkableFactory = new CheckableFactory();
+	private final CheckCardinality checkCardinality;
+
+	public AppManagerTestBundle(//
+			JsonObject initialComponentConfig, //
+			MyConfig initialAppManagerConfig, //
+			Function<AppManagerTestBundle, List<OpenemsApp>> availableAppsSupplier //
+	) throws Exception {
 		this(initialComponentConfig, initialAppManagerConfig, availableAppsSupplier, null,
 				new DefaultComponentManagerFactory());
 	}
@@ -94,6 +101,18 @@ public class AppManagerTestBundle {
 			Function<AppManagerTestBundle, List<OpenemsApp>> availableAppsSupplier, //
 			Consumer<JsonUtils.JsonObjectBuilder> additionalComponentConfig, //
 			ComponentManagerFactory<T> componentManagerFactory //
+	) throws Exception {
+		this(initialComponentConfig, initialAppManagerConfig, availableAppsSupplier, additionalComponentConfig,
+				componentManagerFactory, new AppManagerImplAutoUpdateOnConfigChange());
+	}
+
+	public <T extends ComponentManager> AppManagerTestBundle(//
+			JsonObject initialComponentConfig, //
+			MyConfig initialAppManagerConfig, //
+			Function<AppManagerTestBundle, List<OpenemsApp>> availableAppsSupplier, //
+			Consumer<JsonUtils.JsonObjectBuilder> additionalComponentConfig, //
+			ComponentManagerFactory<T> componentManagerFactory, //
+			AppManagerImpl impl //
 	) throws Exception {
 		if (initialComponentConfig == null) {
 			initialComponentConfig = JsonUtils.buildJsonObject() //
@@ -158,87 +177,20 @@ public class AppManagerTestBundle {
 
 		this.componentUtil = new ComponentUtilImpl(this.componentManger);
 
-		this.sut = new AppManagerImpl() {
+		this.sut = impl;
 
-			@Activate
-			@Override
-			protected void activate(ComponentContext componentContext, Config config) {
-				super.activate(componentContext, config);
-			}
-
-			@Modified
-			@Override
-			protected void modified(ComponentContext componentContext, Config config) throws OpenemsNamedException {
-				super.modified(componentContext, config);
-			}
-
-			@Deactivate
-			@Override
-			protected void deactivate() {
-				super.deactivate();
-			}
-
-			@Override
-			public AddAppInstance.Response handleAddAppInstanceRequest(User user, Request request,
-					boolean ignoreBackend) throws OpenemsNamedException {
-				final var response = super.handleAddAppInstanceRequest(user, request, ignoreBackend);
-				this.modifyWithCurrentConfig();
-				return response;
-			}
-
-			@Override
-			public DeleteAppInstance.Response handleDeleteAppInstanceRequest(User user,
-					DeleteAppInstance.Request request) throws OpenemsNamedException {
-				final var response = super.handleDeleteAppInstanceRequest(user, request);
-				this.modifyWithCurrentConfig();
-				return response;
-			}
-
-			@Override
-			public UpdateAppInstance.Response handleUpdateAppInstanceRequest(User user,
-					UpdateAppInstance.Request request) throws OpenemsNamedException {
-				final var response = super.handleUpdateAppInstanceRequest(user, request);
-				this.modifyWithCurrentConfig();
-				return response;
-			}
-
-			private final void modifyWithCurrentConfig() throws OpenemsNamedException {
-				final var config = MyConfig.create() //
-						.setApps(this.instantiatedApps.stream() //
-								.map(OpenemsAppInstance::toJsonObject) //
-								.collect(JsonUtils.toJsonArray()) //
-								.toString())
-						.setKey("0000-0000-0000-0000") //
-						.build();
-				DummyComponentContext context;
-				try {
-					context = DummyComponentContext.from(config);
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-					throw new OpenemsException(e);
-				}
-				this.modified(context, config);
-			}
-
-		};
 		componentManagerFactory.afterInit(this.sut, this.cm);
 		this.appManagerUtil = new AppManagerUtilImpl(this.componentManger);
 		this.appCenterBackendUtil = new DummyAppCenterBackendUtil();
 
 		ReflectionUtils.setAttribute(this.appManagerUtil.getClass(), this.appManagerUtil, "appManager", this.sut);
 
-		this.checkablesBundle = new CheckablesBundle(//
-				new TestCheckable(), //
-				new CheckCardinality(this.sut, this.appManagerUtil,
-						getComponentContext(CheckCardinality.COMPONENT_NAME)), //
-				new CheckRelayCount(this.componentUtil, getComponentContext(CheckRelayCount.COMPONENT_NAME), null), //
-				new CheckAppsNotInstalled(this.sut, getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME)), //
-				new CheckHome(this.componentManger, getComponentContext(CheckHome.COMPONENT_NAME),
-						new CheckAppsNotInstalled(this.sut, getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))) //
-		);
+		this.addCheckable(TestCheckable.COMPONENT_NAME, t -> new TestCheckable());
+		this.addCheckable(CheckOr.COMPONENT_NAME, t -> new CheckOr(t, this.checkableFactory));
+		this.checkCardinality = this.addCheckable(CheckCardinality.COMPONENT_NAME,
+				t -> new CheckCardinality(this.sut, this.appManagerUtil, t));
 
-		var dummyValidator = new DummyValidator();
-		dummyValidator.setCheckables(this.checkablesBundle.all());
-		this.validator = dummyValidator;
+		this.validator = new ValidatorImpl(this.checkableFactory);
 
 		this.appHelper = new DummyAppManagerAppHelper(this.componentManger, this.componentUtil, this.appManagerUtil);
 		final var csoAppManagerAppHelper = cso((AppManagerAppHelper) this.appHelper);
@@ -272,6 +224,27 @@ public class AppManagerTestBundle {
 				.activate(initialAppManagerConfig);
 
 		this.scheduler = new TestScheduler(this.componentManger);
+	}
+
+	/**
+	 * Adds a checkable to the current test bundle.
+	 * 
+	 * @param <T>              the type of the checkable to add
+	 * @param componentName    the component name of the checkable
+	 * @param checkableFactory the factory to get a instance of the checkable
+	 * @return the created checkable
+	 */
+	public <T extends Checkable> T addCheckable(//
+			final String componentName, //
+			final Function<ComponentContext, T> checkableFactory //
+	) {
+		final var checkable = checkableFactory.apply(getComponentContext(componentName));
+		this.checkableFactory.bindCso(cso(componentName, checkable));
+		return checkable;
+	}
+
+	public CheckCardinality getCheckCardinality() {
+		return this.checkCardinality;
 	}
 
 	/**
@@ -449,30 +422,6 @@ public class AppManagerTestBundle {
 		return persistencePredictorAggregateTaskImpl;
 	}
 
-	public record CheckablesBundle(//
-			DummyValidator.TestCheckable checkTest, //
-			CheckCardinality checkCardinality, //
-			CheckRelayCount checkRelayCount, //
-			CheckAppsNotInstalled checkAppsNotInstalled, //
-			CheckHome checkHome //
-	) {
-
-		/**
-		 * Gets all {@link Checkable}.
-		 * 
-		 * @return the {@link Checkable}
-		 */
-		public final List<Checkable> all() {
-			return Lists.newArrayList(//
-					this.checkTest(), //
-					this.checkCardinality(), //
-					this.checkRelayCount(), //
-					this.checkAppsNotInstalled(), //
-					this.checkHome() //
-			);
-		}
-	}
-
 	/**
 	 * Gets the {@link ComponentContext} for an {@link OpenemsApp} of the given
 	 * appId.
@@ -575,6 +524,65 @@ public class AppManagerTestBundle {
 	 * @return the {@link ComponentServiceObjects}
 	 */
 	public static <T> ComponentServiceObjects<T> cso(T service) {
+		return cso(null, service);
+	}
+
+	/**
+	 * Creates a {@link ComponentServiceObjects} of a service.
+	 * 
+	 * @param <T>           the type of the service
+	 * @param componentName the name of the component
+	 * @param service       the service
+	 * @return the {@link ComponentServiceObjects}
+	 */
+	public static <T> ComponentServiceObjects<T> cso(String componentName, T service) {
+		final var sr = new ServiceReference<T>() {
+
+			private final Map<String, Object> properties = ImmutableMap.<String, Object>builder() //
+					.put(OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME,
+							componentName != null ? componentName : service.getClass().getCanonicalName()) //
+					.build();
+
+			@Override
+			public Object getProperty(String key) {
+				return this.properties.get(key);
+			}
+
+			@Override
+			public String[] getPropertyKeys() {
+				return this.properties.keySet().toArray(String[]::new);
+			}
+
+			@Override
+			public Bundle getBundle() {
+				return null;
+			}
+
+			@Override
+			public Bundle[] getUsingBundles() {
+				return null;
+			}
+
+			@Override
+			public boolean isAssignableTo(Bundle bundle, String className) {
+				return false;
+			}
+
+			@Override
+			public int compareTo(Object reference) {
+				return 0;
+			}
+
+			@Override
+			public Dictionary<String, Object> getProperties() {
+				return null;
+			}
+
+			@Override
+			public <A> A adapt(Class<A> type) {
+				return null;
+			}
+		};
 		return new ComponentServiceObjects<T>() {
 
 			@Override
@@ -589,11 +597,79 @@ public class AppManagerTestBundle {
 
 			@Override
 			public ServiceReference<T> getServiceReference() {
-				// not needed for test
-				return null;
+				return sr;
 			}
 
 		};
+	}
+
+	/**
+	 * This implementation is used to automatically update the call the modified
+	 * method when a changes happens thru a app change.
+	 */
+	private static class AppManagerImplAutoUpdateOnConfigChange extends AppManagerImpl {
+
+		/**
+		 * activate, modified, deactivate need to be overwritten because of reflection
+		 * usage in tests.
+		 */
+
+		@Activate
+		@Override
+		protected void activate(ComponentContext componentContext, Config config) {
+			super.activate(componentContext, config);
+		}
+
+		@Modified
+		@Override
+		protected void modified(ComponentContext componentContext, Config config) throws OpenemsNamedException {
+			super.modified(componentContext, config);
+		}
+
+		@Deactivate
+		@Override
+		protected void deactivate() {
+			super.deactivate();
+		}
+
+		@Override
+		public AddAppInstance.Response handleAddAppInstanceRequest(User user, Request request, boolean ignoreBackend)
+				throws OpenemsNamedException {
+			final var response = super.handleAddAppInstanceRequest(user, request, ignoreBackend);
+			this.modifyWithCurrentConfig();
+			return response;
+		}
+
+		@Override
+		public DeleteAppInstance.Response handleDeleteAppInstanceRequest(User user, DeleteAppInstance.Request request)
+				throws OpenemsNamedException {
+			final var response = super.handleDeleteAppInstanceRequest(user, request);
+			this.modifyWithCurrentConfig();
+			return response;
+		}
+
+		@Override
+		public UpdateAppInstance.Response handleUpdateAppInstanceRequest(User user, UpdateAppInstance.Request request)
+				throws OpenemsNamedException {
+			final var response = super.handleUpdateAppInstanceRequest(user, request);
+			this.modifyWithCurrentConfig();
+			return response;
+		}
+
+		private final void modifyWithCurrentConfig() throws OpenemsNamedException {
+			final var config = MyConfig.create() //
+					.setApps(this.instantiatedApps.stream() //
+							.map(OpenemsAppInstance::toJsonObject) //
+							.collect(JsonUtils.toJsonArray()) //
+							.toString())
+					.setKey("0000-0000-0000-0000") //
+					.build();
+			try {
+				this.modified(DummyComponentContext.from(config), config);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				throw new OpenemsException(e);
+			}
+		}
 	}
 
 }
