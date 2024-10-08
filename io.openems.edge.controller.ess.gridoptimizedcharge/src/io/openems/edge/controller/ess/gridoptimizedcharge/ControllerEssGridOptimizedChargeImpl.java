@@ -1,11 +1,19 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
+import static java.util.stream.Collectors.groupingBy;
+
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.function.Supplier;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -22,6 +30,8 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSortedMap;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -33,6 +43,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.filter.RampFilter;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.predictor.api.manager.PredictorManager;
@@ -46,8 +58,9 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsComponent implements
-		ControllerEssGridOptimizedCharge, Controller, OpenemsComponent, TimedataProvider, ComponentManagerProvider {
+public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsComponent
+		implements ControllerEssGridOptimizedCharge, EnergySchedulable, Controller, OpenemsComponent, TimedataProvider,
+		ComponentManagerProvider {
 
 	/**
 	 * Buffer in watt taken into account in the calculation of the first and last
@@ -58,6 +71,7 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	protected final RampFilter rampFilter = new RampFilter();
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssGridOptimizedChargeImpl.class);
+	private final EnergyScheduleHandler energyScheduleHandler;
 
 	/*
 	 * Time counter for the important states
@@ -107,6 +121,9 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 				Controller.ChannelId.values(), //
 				ControllerEssGridOptimizedCharge.ChannelId.values() //
 		);
+		this.energyScheduleHandler = buildEnergyScheduleHandler(//
+				() -> this.config.mode(), //
+				() -> DelayCharge.parseTime(this.config.manualTargetTime()));
 	}
 
 	@Activate
@@ -435,4 +452,91 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 		return this.timedata;
 	}
 
+	/**
+	 * Builds the {@link EnergyScheduleHandler}.
+	 * 
+	 * <p>
+	 * This is public so that it can be used by the EnergyScheduler integration
+	 * test.
+	 * 
+	 * @param mode             a supplier for the configured {@link Mode}
+	 * @param manualTargetTime a supplier for the configured manualTargetTime
+	 * @return a {@link EnergyScheduleHandler}
+	 */
+	public static EnergyScheduleHandler buildEnergyScheduleHandler(Supplier<Mode> mode,
+			Supplier<LocalTime> manualTargetTime) {
+		return EnergyScheduleHandler.of(//
+				simContext -> {
+					// TODO try to reuse existing logic for parsing, calculating limits, etc.; for
+					// now this only works for current day and MANUAL mode
+					final var limits = ImmutableSortedMap.<ZonedDateTime, OptionalInt>naturalOrder();
+					final var periodsPerDay = simContext.periods().stream() //
+							.collect(groupingBy(p -> p.time().truncatedTo(ChronoUnit.DAYS)));
+					if (!periodsPerDay.isEmpty()) {
+						final var firstDayMignight = Collections.min(periodsPerDay.keySet());
+
+						for (var entry : periodsPerDay.entrySet()) {
+							// Find target time for this day
+							var midnight = entry.getKey(); // beginning of this day
+							var periods = entry.getValue(); // periods of this day
+							ZonedDateTime targetTime = switch (mode.get()) {
+							case OFF -> midnight; // Can not happen
+							case MANUAL -> midnight //
+									.withHour(manualTargetTime.get().getHour()) //
+									.withMinute(manualTargetTime.get().getMinute());
+							case AUTOMATIC -> midnight; // TODO
+							};
+							// Find first period with Production > Consumption
+							var firstExcessEnergyOpt = periods.stream() //
+									.filter(p -> p.production() > p.consumption()) //
+									.findFirst();
+							if (firstExcessEnergyOpt.isEmpty()
+									|| targetTime.isBefore(firstExcessEnergyOpt.get().time())) {
+								// Production exceeds Consumption never or too late on this day
+								// -> set no limit for this day
+								limits.put(midnight, OptionalInt.empty());
+								continue;
+							}
+							var firstExcessEnergy = firstExcessEnergyOpt.get().time();
+
+							// Set no limit for early hours of the day
+							if (firstExcessEnergy.isAfter(midnight)) {
+								limits.put(midnight, OptionalInt.empty());
+							}
+
+							// Calculate actual charge limit
+							var noOfQuarters = (int) Duration.between(firstExcessEnergy, targetTime).toMinutes() / 15;
+							final var totalEnergy = midnight == firstDayMignight //
+									? // use actual data for first day
+									simContext.ess().totalEnergy() - simContext.ess().currentEnergy()
+									: // assume full charge from second day
+									simContext.ess().totalEnergy();
+							limits.put(firstExcessEnergy, OptionalInt.of(totalEnergy / noOfQuarters));
+
+							// No limit after targetTime
+							limits.put(targetTime, OptionalInt.empty());
+						}
+					}
+
+					return new EshContext(limits.build());
+				}, //
+				(simContext, period, energyFlow, ctrlContext) -> {
+					var limitEntry = ctrlContext.limits.floorEntry(period.time());
+					if (limitEntry == null) {
+						return;
+					}
+					var limit = limitEntry.getValue();
+					if (limit.isPresent()) {
+						energyFlow.setEssMaxCharge(limit.getAsInt());
+					}
+				});
+	}
+
+	private static record EshContext(ImmutableSortedMap<ZonedDateTime, OptionalInt> limits) {
+	}
+
+	@Override
+	public EnergyScheduleHandler getEnergyScheduleHandler() {
+		return this.energyScheduleHandler;
+	}
 }

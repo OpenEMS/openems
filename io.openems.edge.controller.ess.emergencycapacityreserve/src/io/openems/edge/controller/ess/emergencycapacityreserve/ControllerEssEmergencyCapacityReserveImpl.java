@@ -1,6 +1,10 @@
 package io.openems.edge.controller.ess.emergencycapacityreserve;
 
+import static io.openems.edge.energy.api.EnergyUtils.socToEnergy;
+import static java.lang.Math.max;
+
 import java.util.OptionalInt;
+import java.util.function.Supplier;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -25,6 +29,8 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.Context;
 import io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.StateMachine;
 import io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.StateMachine.State;
+import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
@@ -34,7 +40,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsComponent
-		implements ControllerEssEmergencyCapacityReserve, Controller, OpenemsComponent {
+		implements ControllerEssEmergencyCapacityReserve, EnergySchedulable, Controller, OpenemsComponent {
 
 	/** Minimum reserve SoC value in [%]. */
 	private static final int reservSocMinValue = 5;
@@ -42,6 +48,7 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 	private static final int reservSocMaxValue = 100;
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssEmergencyCapacityReserveImpl.class);
+	private final EnergyScheduleHandler energyScheduleHandler;
 	private final StateMachine stateMachine = new StateMachine(State.NO_LIMIT);
 	private final RampFilter rampFilter = new RampFilter();
 
@@ -65,6 +72,10 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 				Controller.ChannelId.values(), //
 				ControllerEssEmergencyCapacityReserve.ChannelId.values() //
 		);
+		this.energyScheduleHandler = buildEnergyScheduleHandler(//
+				() -> this.config.isReserveSocEnabled() //
+						? this.config.reserveSoc() //
+						: null);
 	}
 
 	@Activate
@@ -190,5 +201,35 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 				.filter(Value::isDefined) //
 				.mapToInt(Value::get) //
 				.findFirst();
+	}
+
+	/**
+	 * Builds the {@link EnergyScheduleHandler}.
+	 * 
+	 * <p>
+	 * This is public so that it can be used by the EnergyScheduler integration
+	 * test.
+	 * 
+	 * @param minSoc supplier for the configured minSoc
+	 * @return a {@link EnergyScheduleHandler}
+	 */
+	public static EnergyScheduleHandler buildEnergyScheduleHandler(Supplier<Integer> minSoc) {
+		return EnergyScheduleHandler.of(//
+				simContext -> new EshContext(minSoc.get() == null //
+						? null //
+						: socToEnergy(simContext.ess().totalEnergy(), minSoc.get())), //
+				(simContext, period, energyFlow, ctrlContext) -> {
+					if (ctrlContext.minEnergy != null) {
+						energyFlow.setEssMaxDischarge(max(0, simContext.getEssInitial() - ctrlContext.minEnergy));
+					}
+				});
+	}
+
+	private static record EshContext(Integer minEnergy) {
+	}
+
+	@Override
+	public EnergyScheduleHandler getEnergyScheduleHandler() {
+		return this.energyScheduleHandler;
 	}
 }
