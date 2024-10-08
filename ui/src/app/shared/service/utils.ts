@@ -83,7 +83,7 @@ export class Utils {
    */
   public static absSafely(value: number | null): number | null {
     if (value == null) {
-      return value;
+      return null;
     } else {
       return Math.abs(value);
     }
@@ -95,7 +95,7 @@ export class Utils {
    * @param v1
    * @param v2
    */
-  public static addSafely(v1: number, v2: number): number {
+  public static addSafely(v1: number | null, v2: number | null): number | null {
     if (v1 == null) {
       return v2;
     } else if (v2 == null) {
@@ -115,6 +115,9 @@ export class Utils {
     return values
       .filter(value => value !== null && value !== undefined)
       .reduce((sum, curr) => {
+        if (curr == null) {
+          return sum;
+        }
         if (sum == null) {
           sum = curr;
         } else {
@@ -162,7 +165,7 @@ export class Utils {
    * @param v2
    * @returns
    */
-  public static compareArraysSafely<T>(v1: T[] | null, v2: T[] | null): boolean {
+  public static compareArraysSafely<T>(v1: T[] | null, v2: T[] | null): boolean | null {
     if (v1 == null || v2 == null) {
       return null;
     }
@@ -215,7 +218,7 @@ export class Utils {
    * @param orElse the default value
    * @returns      the value or the default value
    */
-  public static orElse(v: number, orElse: number): number {
+  public static orElse(v: number | null, orElse: number): number {
     if (v == null) {
       return orElse;
     } else {
@@ -553,7 +556,7 @@ export class Utils {
   }
 
   public static isDataEmpty(arg: JsonrpcResponseSuccess): boolean {
-    return Object.values(arg.result["data"])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true);
+    return Object.values(arg.result["data"] || {})?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true);
   }
 
   /**
@@ -594,7 +597,7 @@ export class Utils {
    * @param consumptionMeterComponents the consumptionMeterComponents
    * @returns the other consumption
    */
-  public static calculateOtherConsumption(channelData: HistoryUtils.ChannelData, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number[] {
+  public static calculateOtherConsumption(channelData: HistoryUtils.ChannelData, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number[] | null{
 
     const totalEvcsConsumption: number[] = [];
     const totalMeteredConsumption: number[] = [];
@@ -780,14 +783,14 @@ export namespace HistoryUtils {
 
   export namespace ValueConverter {
 
-    export const NEGATIVE_AS_ZERO = (value) => {
+    export const NEGATIVE_AS_ZERO = (value: number | null): number | null  => {
       if (value == null) {
         return null;
       }
       return Math.max(0, value);
     };
 
-    export const NON_NEGATIVE = (value) => {
+    export const NON_NEGATIVE = (value: number | null): number | null => {
       if (value >= 0) {
         return value;
       } else {
@@ -858,7 +861,7 @@ export namespace TimeOfUseTariffUtils {
 
     // Error handling: Return undefined if value is not valid
     if (value === undefined || value === null || Number.isNaN(Number.parseInt(value.toString()))) {
-      return;
+      return "";
     }
 
     const socLabel = translate.instant("General.soc");

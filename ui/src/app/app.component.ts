@@ -21,7 +21,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public environment = environment;
   public backUrl: string | boolean = "/";
-  public enableSideMenu: boolean;
+  public enableSideMenu: boolean = false;
   public isSystemLogEnabled: boolean = false;
 
   protected isUserAllowedToSeeOverview: boolean = false;

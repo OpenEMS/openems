@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
@@ -10,7 +9,7 @@ import { ModalComponent } from "../modal/modal";
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-  public percentageValue: number;
+  public percentageValue: number = 0;
 
   async presentModal() {
     const modal = await this.modalController.create({

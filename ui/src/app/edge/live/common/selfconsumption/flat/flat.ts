@@ -11,7 +11,7 @@ import { ModalComponent } from "../modal/modal";
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-    public calculatedSelfConsumption: number;
+    public calculatedSelfConsumption: number = 0;
 
     async presentModal() {
         const modal = await this.modalController.create({
