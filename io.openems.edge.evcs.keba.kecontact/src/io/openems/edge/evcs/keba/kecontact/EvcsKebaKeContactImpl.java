@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import org.osgi.service.component.ComponentContext;
@@ -24,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -34,6 +35,8 @@ import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.keba.kecontact.core.EvcsKebaKeContactCore;
+import io.openems.edge.evcs.keba.kecontact.state.PhaseSwitchHandler;
+import io.openems.edge.evcs.keba.kecontact.state.State;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -47,9 +50,13 @@ import io.openems.edge.evcs.keba.kecontact.core.EvcsKebaKeContactCore;
 public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		implements EvcsKebaKeContact, ManagedEvcs, Evcs, OpenemsComponent, EventHandler, ModbusSlave {
 
-	private final Logger log = LoggerFactory.getLogger(EvcsKebaKeContactImpl.class);
+	public final Logger log = LoggerFactory.getLogger(EvcsKebaKeContactImpl.class);
 	private final ReadWorker readWorker = new ReadWorker(this);
 	private final ReadHandler readHandler = new ReadHandler(this);
+	private PhaseSwitchHandler phaseSwitchHandler;
+
+	@Reference
+	private ComponentManager componentManager;
 
 	@Reference
 	private EvcsPower evcsPower;
@@ -82,6 +89,8 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		this._setChargingType(ChargingType.AC);
 		this._setFixedMinimumHardwarePower(this.getConfiguredMinimumHardwarePower());
 		this._setFixedMaximumHardwarePower(this.getConfiguredMaximumHardwarePower());
+
+		this.phaseSwitchHandler = new PhaseSwitchHandler(this);
 
 		/*
 		 * subscribe on replies to report queries
@@ -133,20 +142,25 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 	 * @param s Message to send
 	 * @return true if sent
 	 */
-	protected boolean send(String s) {
+	public boolean send(String s) {
+		if (s.startsWith("x2") && !this.isPhaseSwitchSourceSet()) {
+			this.log.warn("Phase switch source not set to UDP control. Setting now...");
+			if (!this.send("x2src 4")) {
+				this.log.error("Failed to set phase switch source to UDP control.");
+				return false;
+			}
+		}
+
 		var raw = s.getBytes();
 		var packet = new DatagramPacket(raw, raw.length, this.ip, EvcsKebaKeContactImpl.UDP_PORT);
 		try (DatagramSocket datagrammSocket = new DatagramSocket()) {
 			datagrammSocket.send(packet);
 			return true;
-		} catch (SocketException e) {
-			this.logError(this.log, "Unable to open UDP socket for sending [" + s + "] to [" + this.ip.getHostAddress()
-					+ "]: " + e.getMessage());
+
 		} catch (IOException e) {
-			this.logError(this.log,
-					"Unable to send [" + s + "] UDP message to [" + this.ip.getHostAddress() + "]: " + e.getMessage());
+			this.logError(this.log, "Failed to send UDP packet: " + e.getMessage());
+			return false;
 		}
-		return false;
 	}
 
 	/**
@@ -194,7 +208,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 
 	@Override
 	public EvcsPower getEvcsPower() {
-		return this.evcsPower;
+		return this.getEvcsPower();
 	}
 
 	@Override
@@ -202,22 +216,73 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		return this.config.debugMode();
 	}
 
+	/**
+	 * Checks whether the phase switch configuration is active. This method queries
+	 * the current configuration to determine if the phase switch has been enabled.
+	 * 
+	 * @return true if the phase switch is active, false otherwise.
+	 */
+	public boolean phaseSwitchActive() {
+		return this.config.phaseSwitchActive();
+	}
+
 	@Override
 	public boolean applyChargePowerLimit(int power) throws OpenemsException {
+		this.log.debug("Applying charge power limit: [Power: " + power + "W]");
 
-		var phases = this.getPhasesAsInt();
+		this.phaseSwitchHandler.applyPower(power); // Verwenden des PhaseSwitchHandlers
+
+		return true;
+	}
+
+	public int getMinHwCurrent() {
+		return this.config.minHwCurrent();
+	}
+
+	public PhaseSwitchHandler getPhaseSwitchHandler() {
+		return this.phaseSwitchHandler;
+	}
+
+	public State getSwitchToOnePhaseState() {
+		return this.phaseSwitchHandler.getSwitchToOnePhaseState();
+	}
+
+	public State getRunningOnePhaseState() {
+		return this.phaseSwitchHandler.getRunningOnePhaseState();
+	}
+
+	public State getRunningThreePhaseState() {
+		return this.phaseSwitchHandler.getRunningThreePhaseState();
+	}
+
+	public State getSwitchToThreePhaseState() {
+		return this.phaseSwitchHandler.getSwitchToThreePhaseState();
+	}
+
+	public int getMinPowerThreePhase() {
+		return this.config.minHwCurrent();
+	}
+
+	/**
+	 * Calculates the current based on the given power and number of phases.
+	 * 
+	 * @param power  the power in watts
+	 * @param phases the number of phases
+	 * @return the calculated current in milliamps
+	 */
+	public int calculateCurrent(int power, int phases) {
 		var current = Math.round((power * 1000) / phases / 230f);
 
-		/*
-		 * Limits the charging value because KEBA knows only values between 6000 and
-		 * 63000
-		 */
+		// Limit the charging value because KEBA knows only values between 6000 and
+		// 63000
 		current = Math.min(current, 63_000);
 
+		// Ensure the current is at least 6000 (KEBA minimum value)
 		if (current < 6000) {
 			current = 0;
 		}
-		return this.send("currtime " + current + " 1");
+
+		return current;
 	}
 
 	@Override
@@ -253,4 +318,16 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 		return Math.round(Evcs.DEFAULT_MAXIMUM_HARDWARE_CURRENT / 1000f) * Evcs.DEFAULT_VOLTAGE
 				* Phases.THREE_PHASE.getValue();
 	}
+
+	private boolean isPhaseSwitchSourceSet() {
+		IntegerReadChannel channel = getX2PhaseSwitchSourceChannel();
+
+		// Use the channel to read the value directly as an Integer.
+		// orElse(0) is safely used here because the method call is type-safe and
+		// expects an Integer.
+		Integer phaseSwitchSource = channel.value().orElse(0);
+
+		return phaseSwitchSource == 4;
+	}
+
 }

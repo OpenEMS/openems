@@ -42,6 +42,20 @@ public interface ManagedEvcs extends Evcs {
 	}
 
 	/**
+	 * Consider phase switching.
+	 * 
+	 * <p>
+	 * An EVCS can have the ability to switch between one and three supplied phases.
+	 * This is useful to have a wider range between minimum and maximum hardware
+	 * power, especially for charging with surplus power.
+	 * 
+	 * @return evcs is able to switch between phases and feature is activated
+	 */
+	public default boolean considerPhaseSwitching() {
+		return false;
+	}
+
+	/**
 	 * Minimum hardware limit in W given by the configuration.
 	 * 
 	 * <p>

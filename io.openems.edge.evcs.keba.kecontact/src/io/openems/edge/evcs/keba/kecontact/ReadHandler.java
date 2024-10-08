@@ -161,6 +161,9 @@ public class ReadHandler implements Consumer<String> {
 					this.setInt(EvcsKebaKeContact.ChannelId.MAX_CURR, jsonMessage, "Curr HW");
 					this.setInt(EvcsKebaKeContact.ChannelId.CURR_USER, jsonMessage, "Curr user");
 
+					this.setInt(EvcsKebaKeContact.ChannelId.X2_PHASE_SWITCH, jsonMessage, "X2 phaseSwitch");
+					this.setInt(EvcsKebaKeContact.ChannelId.X2_PHASE_SWITCH_SOURCE, jsonMessage, "X2 phaseSwitch source");
+
 				} else if (id.equals("3")) {
 					/*
 					 * Reply to report 3
