@@ -36,3 +36,8 @@
     ```
 
     *for UI Image see [ui/README.md](../ui/README.md)*
+
+   Info: If you get the following error while building the Docker image try closing the Eclipse IDE and running the build again.
+    ```
+    ERROR: failed to solve: error from sender: context canceled
+    ```
