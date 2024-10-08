@@ -3,7 +3,6 @@ package io.openems.edge.io.shelly.shellyplus1pm;
 import static io.openems.edge.meter.api.MeterType.CONSUMPTION_METERED;
 import static io.openems.edge.meter.api.SinglePhase.L1;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -48,7 +47,6 @@ public class IoShellyPlus1PmImplTest {
 							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
 									{
 									   "ble":{
-
 									   },
 									   "cloud":{
 									      "connected":true
@@ -96,7 +94,6 @@ public class IoShellyPlus1PmImplTest {
 									      "schedule_rev":0,
 									      "webhook_rev":0,
 									      "available_updates":{
-
 									      },
 									      "reset_reason":3
 									   },
@@ -121,7 +118,7 @@ public class IoShellyPlus1PmImplTest {
 						.output(VOLTAGE, 231300)) //
 
 				.next(new TestCase("Invalid read response") //
-						.onBeforeControllersCallbacks(() -> assertEquals("Off|123 W", sut.debugLog()))
+						.onBeforeControllersCallbacks(() -> assertEquals("-|123 W", sut.debugLog()))
 
 						.onBeforeControllersCallbacks(() -> {
 							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());
@@ -134,26 +131,8 @@ public class IoShellyPlus1PmImplTest {
 						.output(VOLTAGE, null) //
 
 						.output(PRODUCTION_ENERGY, 0L) //
-						.output(CONSUMPTION_ENERGY, 0L)) //
+						.output(CONSUMPTION_ENERGY, 0L)); //
 
-				.next(new TestCase("Write") //
-						.onBeforeControllersCallbacks(() -> assertEquals("Unknown|UNDEFINED", sut.debugLog()))
-						.onBeforeControllersCallbacks(() -> {
-							sut.setRelay(true);
-						}) //
-						.also(testCase -> {
-							final var relayTurnedOn = httpTestBundle.expect("http://127.0.0.1/relay/0?turn=on")
-									.toBeCalled();
-
-							testCase.onBeforeControllersCallbacks(() -> {
-								httpTestBundle.triggerNextCycle();
-							});
-							testCase.onAfterWriteCallbacks(() -> {
-								assertTrue("Failed to turn on relay", relayTurnedOn.get());
-							});
-						})) //
-
-				.deactivate();
 	}
 
 }

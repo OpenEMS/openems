@@ -1,6 +1,6 @@
 package io.openems.edge.io.shelly.shellyplug;
 
-import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
+import static io.openems.edge.io.api.ShellyUtils.generateDebugLog;
 
 import java.util.Objects;
 
@@ -102,7 +102,7 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return generateDebugLog(this.getRelayChannel(), this.getActivePowerChannel());
+		return generateDebugLog(this.digitalOutputChannels, this.getActivePowerChannel());
 	}
 
 	@Override
@@ -128,13 +128,13 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 			return;
 		}
 		try {
-			final var relays = JsonUtils.getAsJsonArray(result.data(), "relays");
-			final var relay1 = JsonUtils.getAsJsonObject(relays.get(0));
-			final var relayIson = JsonUtils.getAsBoolean(relay1, "ison");
-			final var meters = JsonUtils.getAsJsonArray(result.data(), "meters");
-			final var meter1 = JsonUtils.getAsJsonObject(meters.get(0));
-			final var power = Math.round(JsonUtils.getAsFloat(meter1, "power"));
-			final var energy = JsonUtils.getAsLong(meter1, "total") /* Unit: Wm */ / 60 /* Wh */;
+			var relays = JsonUtils.getAsJsonArray(result.data(), "relays");
+			var relay1 = JsonUtils.getAsJsonObject(relays.get(0));
+			var relayIson = JsonUtils.getAsBoolean(relay1, "ison");
+			var meters = JsonUtils.getAsJsonArray(result.data(), "meters");
+			var meter1 = JsonUtils.getAsJsonObject(meters.get(0));
+			var power = Math.round(JsonUtils.getAsFloat(meter1, "power"));
+			var energy = JsonUtils.getAsLong(meter1, "total") /* Unit: Wm */ / 60 /* Wh */;
 
 			this._setRelay(relayIson);
 			this._setActivePower(power);

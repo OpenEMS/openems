@@ -2,9 +2,7 @@ package io.openems.edge.io.shelly.shellypro3;
 
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
-import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
-
-import java.util.Objects;
+import static io.openems.edge.io.api.ShellyUtils.generateDebugLog;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -30,6 +28,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.io.api.ShellyUtils;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -106,7 +105,7 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-			-> this.eventExecuteWrite();
+			-> this.executeWrite();
 		}
 	}
 
@@ -137,31 +136,10 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 		}
 	}
 
-	/**
-	 * Execute on Cycle Event "Execute Write".
-	 */
-	private void eventExecuteWrite() {
+	private void executeWrite() {
 		for (int i = 0; i < this.digitalOutputChannels.length; i++) {
-			this.executeWrite(this.digitalOutputChannels[i], i);
+			ShellyUtils.executeWrite(this.digitalOutputChannels[i], this.baseUrl, this.httpBridge, i);
 		}
-	}
-
-	private void executeWrite(BooleanWriteChannel channel, int index) {
-		var readValue = channel.value().get();
-		var writeValue = channel.getNextWriteValueAndReset();
-		if (writeValue.isEmpty()) {
-			return;
-		}
-		if (Objects.equals(readValue, writeValue.get())) {
-			return;
-		}
-		final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
-		this.httpBridge.get(url).whenComplete((t, e) -> {
-			if (e != null) {
-				this.logError(this.log, "HTTP request failed: " + e.getMessage());
-				this._setSlaveCommunicationFailed(true);
-			}
-		});
 	}
 
 }
