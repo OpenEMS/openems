@@ -2,9 +2,9 @@
 import { Directive } from "@angular/core";
 import { Router } from "@angular/router";
 import { SubscribeEdgesRequest } from "../jsonrpc/request/subscribeEdgesRequest";
+import { States } from "../ngrx-store/states";
 import { ChannelAddress, Edge } from "../shared";
 import { Service } from "./service";
-import { States } from "../ngrx-store/states";
 
 @Directive()
 export class Pagination {

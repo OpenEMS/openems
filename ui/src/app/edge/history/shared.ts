@@ -1,7 +1,10 @@
 // @ts-strict-ignore
 import * as Chart from "chart.js";
+/* eslint-disable import/no-duplicates */
+// cf. https://github.com/import-js/eslint-plugin-import/issues/1479
 import { differenceInDays, differenceInMinutes, startOfDay } from "date-fns";
 import { de } from "date-fns/locale";
+/* eslint-enable import/no-duplicates */
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { ChannelAddress, Service } from "src/app/shared/shared";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";

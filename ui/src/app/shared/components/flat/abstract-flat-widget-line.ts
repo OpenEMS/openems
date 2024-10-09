@@ -4,8 +4,8 @@ import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from "uuid";
+import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
 
 import { DataService } from "../shared/dataservice";
 import { Filter } from "../shared/filter";

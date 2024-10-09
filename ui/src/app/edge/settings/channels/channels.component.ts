@@ -3,12 +3,12 @@ import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { PersistencePriority } from "src/app/shared/components/edge/edgeconfig";
-import { SetChannelValueRequest } from "src/app/shared/jsonrpc/request/setChannelValueRequest";
-import { environment } from "src/environments";
 
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { GetChannelsOfComponentRequest } from "src/app/shared/jsonrpc/request/getChannelsOfComponentRequest";
+import { SetChannelValueRequest } from "src/app/shared/jsonrpc/request/setChannelValueRequest";
 import { Channel, GetChannelsOfComponentResponse } from "src/app/shared/jsonrpc/response/getChannelsOfComponentResponse";
+import { environment } from "src/environments";
 import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Websocket } from "../../../shared/shared";
 
 @Component({
