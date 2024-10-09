@@ -131,4 +131,8 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 		return Cycle.DEFAULT_CYCLE_TIME;
 	}
 
+	public void triggerNextCycle() {
+		this.worker.triggerNextRun();
+	}
+
 }
