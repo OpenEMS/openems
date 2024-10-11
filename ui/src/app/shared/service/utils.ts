@@ -763,6 +763,8 @@ export namespace HistoryUtils {
       /** Format of Number displayed */
       formatNumber: string,
       afterTitle?: (stack: string) => string,
+      /** Defaults to true */
+      enabled?: boolean,
     },
     yAxes: yAxes[],
   };

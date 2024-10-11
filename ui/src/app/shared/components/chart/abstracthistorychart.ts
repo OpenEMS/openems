@@ -460,6 +460,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       return null;
     };
 
+    options.plugins.tooltip.enabled = chartObject.tooltip.enabled ?? true;
+
     // Remove duplicates from legend, if legendItem with two or more occurrences in legend, use one legendItem to trigger them both
     options.plugins.legend.onClick = function (event: Chart.ChartEvent, legendItem: Chart.LegendItem, legend) {
       const chart: Chart.Chart = this.chart;
