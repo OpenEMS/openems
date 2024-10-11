@@ -106,7 +106,8 @@ public enum KacoSunSpecModel implements SunSpecModel {
 		V_AR(new ScaledValuePoint("S64201_V_AR", "AC Reactive Power", "", //
 				ValuePoint.Type.INT16, true, AccessMode.READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "V_AR_SF")), //
 		HZ(new ScaledValuePoint("S64201_HZ", "Line Frequency", "", //
-				ValuePoint.Type.INT16, true, AccessMode.READ_ONLY, Unit.MILLIHERTZ, "mHZ_SF")), //
+				ValuePoint.Type.UINT16, true, AccessMode.READ_ONLY, Unit.HERTZ, "Hz_SF")
+		), //
 		RESERVED_36(new ReservedPoint("S64201_RESERVED_36")), //
 		RESERVED_37(new ReservedPoint("S64201_RESERVED_37")), //
 		RESERVED_38(new ReservedPoint("S64201_RESERVED_38")), //
