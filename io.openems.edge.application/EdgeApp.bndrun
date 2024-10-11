@@ -74,6 +74,7 @@
 	bnd.identity;id='io.openems.edge.controller.ess.delaycharge',\
 	bnd.identity;id='io.openems.edge.controller.ess.delayedselltogrid',\
 	bnd.identity;id='io.openems.edge.controller.ess.emergencycapacityreserve',\
+	bnd.identity;id='io.openems.edge.controller.ess.fastfrequencyreserve',\
 	bnd.identity;id='io.openems.edge.controller.ess.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.ess.fixstateofcharge',\
 	bnd.identity;id='io.openems.edge.controller.ess.gridoptimizedcharge',\
@@ -245,6 +246,7 @@
 	io.openems.edge.controller.ess.delaycharge;version=snapshot,\
 	io.openems.edge.controller.ess.delayedselltogrid;version=snapshot,\
 	io.openems.edge.controller.ess.emergencycapacityreserve;version=snapshot,\
+	io.openems.edge.controller.ess.fastfrequencyreserve;version=snapshot,\
 	io.openems.edge.controller.ess.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.ess.fixstateofcharge;version=snapshot,\
 	io.openems.edge.controller.ess.gridoptimizedcharge;version=snapshot,\
