@@ -12,26 +12,30 @@ describe("Login", () => {
     }).compileComponents();
   });
 
-  it("#trimCredentials should trim password and username", () => {
+  it("#preprocessCredentials should trim password and username and should lowerCase username", () => {
     {
       // Username and password - OpenEMS Backend
-      expect(LoginComponent.trimCredentials(password, username)).toEqual({ password: "password", username: "username" });
+      expect(LoginComponent.preprocessCredentials(password, username)).toEqual({ password: "password", username: "username" });
     }
     {
       // Only Password - OpenEMS Edge
-      expect(LoginComponent.trimCredentials(password)).toEqual({ password: "password" });
+      expect(LoginComponent.preprocessCredentials(password)).toEqual({ password: "password" });
     }
     {
       // Password is null
-      expect(LoginComponent.trimCredentials(null)).toEqual({ password: undefined });
+      expect(LoginComponent.preprocessCredentials(null)).toEqual({ password: undefined });
     }
     {
       // Username is null
-      expect(LoginComponent.trimCredentials(password, null)).toEqual({ password: "password" });
+      expect(LoginComponent.preprocessCredentials(password, null)).toEqual({ password: "password" });
     }
     {
       // Username and password are null
-      expect(LoginComponent.trimCredentials(null, null)).toEqual({ password: undefined });
+      expect(LoginComponent.preprocessCredentials(null, null)).toEqual({ password: undefined });
+    }
+    {
+      // Username in Upper case
+      expect(LoginComponent.preprocessCredentials(password, username.toUpperCase())).toEqual({ password: "password", username: "username" });
     }
   });
 });
