@@ -163,23 +163,23 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "app:build:openems,openems-edge-dev"
+            "buildTarget": "app:build:openems,openems-edge-dev"
           },
           "configurations": {
             "openems-backend-dev": {
-              "browserTarget": "app:build:openems,openems-backend-dev"
+              "buildTarget": "app:build:openems,openems-backend-dev"
             },
             "openems-edge-dev": {
-              "browserTarget": "app:build:openems,openems-edge-dev"
+              "buildTarget": "app:build:openems,openems-edge-dev"
             },
             "openems-backend-prod": {
-              "browserTarget": "app:build:openems,openems-backend-prod,prod"
+              "buildTarget": "app:build:openems,openems-backend-prod,prod"
             },
             "openems-edge-prod": {
-              "browserTarget": "app:build:openems,openems-edge-prod,prod"
+              "buildTarget": "app:build:openems,openems-edge-prod,prod"
             },
             "openems-gitpod": {
-              "browserTarget": "app:build:openems,openems-gitpod"
+              "buildTarget": "app:build:openems,openems-gitpod"
             }
           }
         },

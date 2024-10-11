@@ -6,23 +6,22 @@ import { DefaultOfflineComponent } from "./producttype/default";
 import { Home10OfflineComponent } from "./producttype/home_10";
 import { Home20_30OfflineComponent } from "./producttype/home_20_30";
 
-
 @NgModule({
     imports: [
         BrowserModule,
         IonicModule,
     ],
     declarations: [
-        OfflineComponent,
+        DefaultOfflineComponent,
         Home10OfflineComponent,
         Home20_30OfflineComponent,
-        DefaultOfflineComponent,
+        OfflineComponent,
     ],
     exports: [
-        OfflineComponent,
+        DefaultOfflineComponent,
         Home10OfflineComponent,
         Home20_30OfflineComponent,
-        DefaultOfflineComponent,
+        OfflineComponent,
     ],
 })
 export class EdgeOfflineModule { }
