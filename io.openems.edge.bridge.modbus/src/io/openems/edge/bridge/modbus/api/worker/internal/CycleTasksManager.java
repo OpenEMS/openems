@@ -1,12 +1,12 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.bridge.modbus.api.LogVerbosity;
+import io.openems.edge.bridge.modbus.api.Config.LogHandler;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.WaitTask;
 import io.openems.edge.bridge.modbus.api.worker.ModbusWorker;
@@ -26,7 +26,7 @@ public class CycleTasksManager {
 	private final TasksSupplier tasksSupplier;
 	private final DefectiveComponents defectiveComponents;
 	private final Consumer<Boolean> cycleTimeIsTooShortChannel;
-	private final AtomicReference<LogVerbosity> logVerbosity;
+	private final Supplier<LogHandler> logHandler;
 
 	private final WaitDelayHandler waitDelayHandler;
 	private final WaitTask.Mutex waitMutexTask = new WaitTask.Mutex();
@@ -35,22 +35,15 @@ public class CycleTasksManager {
 
 	public CycleTasksManager(TasksSupplier tasksSupplier, DefectiveComponents defectiveComponents,
 			Consumer<Boolean> cycleTimeIsTooShortChannel, Consumer<Long> cycleDelayChannel,
-			AtomicReference<LogVerbosity> logVerbosity) {
+			Supplier<LogHandler> logHandler) {
 		this.tasksSupplier = tasksSupplier;
 		this.defectiveComponents = defectiveComponents;
 		this.cycleTimeIsTooShortChannel = cycleTimeIsTooShortChannel;
-		this.logVerbosity = logVerbosity;
-
+		this.logHandler = logHandler;
 		this.waitDelayHandler = new WaitDelayHandler(() -> this.onWaitDelayTaskFinished(), cycleDelayChannel);
 	}
 
-	protected CycleTasksManager(TasksSupplier tasksSupplier, DefectiveComponents defectiveComponents,
-			Consumer<Boolean> cycleTimeIsTooShortChannel, Consumer<Long> cycleDelayChannel) {
-		this(tasksSupplier, defectiveComponents, cycleTimeIsTooShortChannel, cycleDelayChannel,
-				new AtomicReference<>(LogVerbosity.NONE));
-	}
-
-	private static enum StateMachine {
+	protected static enum StateMachine {
 		INITIAL_WAIT, //
 		READ_BEFORE_WRITE, //
 		WAIT_FOR_WRITE, //
@@ -63,23 +56,30 @@ public class CycleTasksManager {
 	private StateMachine state = StateMachine.FINISHED;
 
 	/**
+	 * Gets the current state.
+	 * 
+	 * @return the {@link StateMachine}
+	 */
+	protected StateMachine getState() {
+		return this.state;
+	}
+
+	/**
 	 * Called on BEFORE_PROCESS_IMAGE event.
 	 */
 	public synchronized void onBeforeProcessImage() {
 		// Calculate Delay
-		var waitDelayHandlerLog = this.waitDelayHandler.onBeforeProcessImage(this.isTraceLog());
+		final var waitDelayHandlerLog = this.waitDelayHandler.onBeforeProcessImage(this.logHandler.get().isTrace());
 
 		// Evaluate Cycle-Time-Is-Too-Short, invalidate time measurement and stop early
 		var cycleTimeIsTooShort = this.state != StateMachine.FINISHED;
 		this.cycleTimeIsTooShortChannel.accept(cycleTimeIsTooShort);
 		if (cycleTimeIsTooShort) {
 			this.waitDelayHandler.timeIsInvalid();
-			if (this.isTraceLog()) {
-				this.log.info("State: " + this.state + " unchanged" //
-						+ " (in onBeforeProcessImage)" //
-						+ " Delay [" + this.waitDelayHandler.getWaitDelayTask().initialDelay + "] " //
-						+ waitDelayHandlerLog);
-			}
+			this.traceLog(() -> "State: " + this.state + " unchanged" //
+					+ " (in onBeforeProcessImage)" //
+					+ " Delay [" + this.waitDelayHandler.getWaitDelayTask().initialDelay + "] " //
+					+ waitDelayHandlerLog);
 			return;
 		}
 
@@ -90,18 +90,19 @@ public class CycleTasksManager {
 		this.cycleTasks = this.tasksSupplier.getCycleTasks(this.defectiveComponents);
 
 		// On defectiveComponents invalidate time measurement
-		if (this.cycleTasks.containsDefectiveComponent(this.defectiveComponents)) {
+		final var containsDefectiveComponents = this.cycleTasks.containsDefectiveComponent(this.defectiveComponents);
+		if (containsDefectiveComponents) {
 			this.waitDelayHandler.timeIsInvalid();
-			waitDelayHandlerLog += " DEFECTIVE_COMPONENT";
 		}
 
 		// Initialize next Cycle
-		if (this.isTraceLog()) {
-			this.log.info("State: " + this.state + " -> " + StateMachine.INITIAL_WAIT //
-					+ " (in onBeforeProcessImage)" //
-					+ " Delay [" + this.waitDelayHandler.getWaitDelayTask().initialDelay + "] " //
-					+ waitDelayHandlerLog);
-		}
+		this.traceLog(() -> "State: " + this.state + " -> " + StateMachine.INITIAL_WAIT //
+				+ " (in onBeforeProcessImage)" //
+				+ " Delay [" + this.waitDelayHandler.getWaitDelayTask().initialDelay + "] " //
+				+ waitDelayHandlerLog //
+				+ (containsDefectiveComponents //
+						? " DEFECTIVE_COMPONENT"
+						: ""));
 		this.state = StateMachine.INITIAL_WAIT;
 
 		// Interrupt wait
@@ -112,9 +113,7 @@ public class CycleTasksManager {
 	 * Called on EXECUTE_WRITE event.
 	 */
 	public synchronized void onExecuteWrite() {
-		if (this.isTraceLog()) {
-			this.log.info("State: " + this.state + " -> " + StateMachine.WRITE + " (onExecuteWrite)");
-		}
+		this.traceLog(() -> "State: " + this.state + " -> " + StateMachine.WRITE + " (onExecuteWrite)");
 
 		this.state = StateMachine.WRITE;
 		this.waitMutexTask.release();
@@ -128,7 +127,8 @@ public class CycleTasksManager {
 	 */
 	public Task getNextTask() {
 		if (this.cycleTasks == null) {
-			return this.waitMutexTask;
+			// Fallback to avoid NPE on race condition
+			this.cycleTasks = this.tasksSupplier.getCycleTasks(this.defectiveComponents);
 		}
 
 		var previousState = this.state; // drop before release
@@ -187,8 +187,8 @@ public class CycleTasksManager {
 		}
 		};
 
-		if (this.state != previousState && this.isTraceLog()) {
-			this.log.info("State: " + previousState + " -> " + this.state + " (getNextTask)");
+		if (this.state != previousState) {
+			this.traceLog(() -> "State: " + previousState + " -> " + this.state + " (getNextTask)");
 		}
 		return nextTask;
 	}
@@ -207,16 +207,11 @@ public class CycleTasksManager {
 		};
 
 		if (this.state != previousState) {
-			if (this.isTraceLog()) {
-				this.log.info("State: " + previousState + " -> " + this.state + " (onWaitDelayTaskFinished)");
-			}
+			this.traceLog(() -> "State: " + previousState + " -> " + this.state + " (onWaitDelayTaskFinished)");
 		}
 	}
 
-	private boolean isTraceLog() {
-		return switch (this.logVerbosity.get()) {
-		case READS_AND_WRITES_DURATION_TRACE_EVENTS -> true;
-		case NONE, DEBUG_LOG, READS_AND_WRITES, READS_AND_WRITES_DURATION, READS_AND_WRITES_VERBOSE -> false;
-		};
+	private void traceLog(Supplier<String> message) {
+		this.logHandler.get().trace(this.log, message);
 	}
 }

@@ -24,6 +24,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusSerial;
+import io.openems.edge.bridge.modbus.api.Config;
 import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -86,15 +87,15 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 
 	@Activate
 	private void activate(ComponentContext context, ConfigSerial config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
-				config.invalidateElementsAfterReadErrors());
+		super.activate(context, new Config(config.id(), config.alias(), config.enabled(), config.logVerbosity(),
+				config.invalidateElementsAfterReadErrors()));
 		this.applyConfig(config);
 	}
 
 	@Modified
 	private void modified(ComponentContext context, ConfigSerial config) {
-		super.modified(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
-				config.invalidateElementsAfterReadErrors());
+		super.modified(context, new Config(config.id(), config.alias(), config.enabled(), config.logVerbosity(),
+				config.invalidateElementsAfterReadErrors()));
 		this.applyConfig(config);
 		this.closeModbusConnection();
 	}

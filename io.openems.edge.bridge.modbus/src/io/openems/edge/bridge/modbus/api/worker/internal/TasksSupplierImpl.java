@@ -6,8 +6,13 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.openems.edge.bridge.modbus.api.Config.LogHandler;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
@@ -21,6 +26,13 @@ import io.openems.edge.common.type.Tuple;
  * Supplies Tasks.
  */
 public class TasksSupplierImpl implements TasksSupplier {
+
+	private final Logger log = LoggerFactory.getLogger(TasksSupplierImpl.class);
+	private final Supplier<LogHandler> logHandler;
+
+	public TasksSupplierImpl(Supplier<LogHandler> logHandler) {
+		this.logHandler = logHandler;
+	}
 
 	/**
 	 * Source-ID -> TasksManager for {@link Task}s.
@@ -46,9 +58,11 @@ public class TasksSupplierImpl implements TasksSupplier {
 	 */
 	public synchronized void addProtocol(String sourceId, ModbusProtocol protocol,
 			Consumer<ModbusElement[]> invalidate) {
-		if (this.taskManagers.containsKey(sourceId)) {
-			this.removeProtocol(sourceId, invalidate);
-		}
+		this.removeProtocol(sourceId, invalidate); // remove if sourceId exists
+
+		this.traceLog(() -> "Add Protocol for " //
+				+ "[" + sourceId + "] with " //
+				+ "[" + protocol.getTaskManager().countTasks() + "] tasks");
 		this.taskManagers.put(sourceId, protocol.getTaskManager());
 	}
 
@@ -64,6 +78,10 @@ public class TasksSupplierImpl implements TasksSupplier {
 		if (taskManager == null) {
 			return;
 		}
+
+		this.traceLog(() -> "Remove Protocol for " //
+				+ "[" + sourceId + "] with " //
+				+ "[" + taskManager.countTasks() + "] tasks");
 		taskManager.getTasks() //
 				.forEach(t -> invalidate.accept(t.getElements()));
 		this.nextLowPriorityTasks.removeIf(t -> t.a() == sourceId);
@@ -103,7 +121,7 @@ public class TasksSupplierImpl implements TasksSupplier {
 				componentTasks.clear();
 			}
 		});
-		return new CycleTasks(//
+		var result = new CycleTasks(//
 				tasks.values().stream().flatMap(LinkedList::stream) //
 						.filter(ReadTask.class::isInstance).map(ReadTask.class::cast) //
 						// Sort HIGH priority to the end
@@ -112,6 +130,11 @@ public class TasksSupplierImpl implements TasksSupplier {
 				tasks.values().stream().flatMap(LinkedList::stream) //
 						.filter(WriteTask.class::isInstance).map(WriteTask.class::cast) //
 						.collect(Collectors.toCollection(LinkedList::new)));
+
+		this.traceLog(() -> "Getting " //
+				+ "[" + result.reads().size() + "] read and " //
+				+ "[" + result.writes().size() + "] write tasks for this Cycle");
+		return result;
 	}
 
 	/**
@@ -146,5 +169,9 @@ public class TasksSupplierImpl implements TasksSupplier {
 		return this.taskManagers.values().stream() //
 				.mapToInt(m -> m.countTasks()) //
 				.sum();
+	}
+
+	private void traceLog(Supplier<String> message) {
+		this.logHandler.get().trace(this.log, message);
 	}
 }

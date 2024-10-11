@@ -93,12 +93,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 
 	@Override
 	protected WsData createWsData(WebSocket ws) {
-		return new WsData(ws) {
-			@Override
-			public String toString() {
-				return "DummyWebsocketServer.WsData []";
-			}
-		};
+		return new WsData(ws);
 	}
 
 	@Override

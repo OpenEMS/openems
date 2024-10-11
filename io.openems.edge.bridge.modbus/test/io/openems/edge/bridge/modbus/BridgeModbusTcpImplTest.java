@@ -55,9 +55,7 @@ public class BridgeModbusTcpImplTest {
 			 * Instantiate Modbus-Bridge
 			 */
 			var sut = new BridgeModbusTcpImpl();
-			var device = new MyModbusComponent(DEVICE_ID, sut, UNIT_ID);
 			var test = new ComponentTest(sut) //
-					.addComponent(device) //
 					.activate(MyConfigTcp.create() //
 							.setId(MODBUS_ID) //
 							.setIp("127.0.0.1") //
@@ -65,6 +63,7 @@ public class BridgeModbusTcpImplTest {
 							.setInvalidateElementsAfterReadErrors(1) //
 							.setLogVerbosity(LogVerbosity.NONE) //
 							.build());
+			test.addComponent(new MyModbusComponent(DEVICE_ID, sut, UNIT_ID));
 
 			/*
 			 * Successfully read Register

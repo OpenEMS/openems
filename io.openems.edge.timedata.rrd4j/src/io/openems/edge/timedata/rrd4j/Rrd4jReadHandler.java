@@ -552,8 +552,7 @@ public class Rrd4jReadHandler {
 			try {
 				channel = this.componentManager.getChannel(channelAddress);
 			} catch (Exception e) {
-				// unable to get channel
-				this.log.warn("Unable to query RRD4j", e);
+				this.log.warn("Unable to query [" + channelAddress + "] from RRD4j: " + e.getMessage());
 				return Optional.empty();
 			}
 

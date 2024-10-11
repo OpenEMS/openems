@@ -1,6 +1,7 @@
 package io.openems.edge.energy;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
+import static io.openems.edge.energy.LogVerbosity.TRACE;
 import static io.openems.edge.energy.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.energy.TestData.HOURLY_PRICES_SUMMER;
 import static io.openems.edge.energy.TestData.PRODUCTION_PREDICTION_QUARTERLY;
@@ -74,10 +75,7 @@ public class EnergySchedulerImplTest {
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEnabled(false) //
-						.setEssId("ess0") //
-						.setEssMaxChargePower(5000) //
-						.setMaxChargePowerFromGrid(10000) //
-						.setLimitChargePowerFor14aEnWG(false) //
+						.setLogVerbosity(TRACE) //
 						.build()) //
 				.next(new TestCase());
 		return sut;

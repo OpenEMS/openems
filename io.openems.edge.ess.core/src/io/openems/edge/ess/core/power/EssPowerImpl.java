@@ -218,16 +218,16 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 	public void handleEvent(Event event) {
 		try {
 			switch (event.getTopic()) {
-			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE:
-				this.solver.solve(this.config.strategy());
-				break;
-			case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
-				this.data.initializeCycle();
-				break;
+			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE //
+				-> this.solver.solve(this.config.strategy());
+
+			case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
+				-> this.data.initializeCycle();
 			}
 
 		} catch (Exception e) {
-			this.logError(this.log, "Error during handlEvent(): " + e.getMessage());
+			this.logError(this.log,
+					"Error during handleEvent(). " + e.getClass().getSimpleName() + ": " + e.getMessage());
 			e.printStackTrace();
 		}
 	}

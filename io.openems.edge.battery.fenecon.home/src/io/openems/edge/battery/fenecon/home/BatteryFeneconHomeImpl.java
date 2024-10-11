@@ -117,17 +117,12 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 				BatteryProtection.ChannelId.values(), //
 				BatteryFeneconHome.ChannelId.values() //
 		);
-		this.updateHardwareType(BatteryFeneconHomeHardwareType.DEFAULT);
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
-
-		// Predefine BatteryProtection. Later adapted to the hardware type.
-		this.batteryProtection = BatteryProtection.create(this) //
-				.applyBatteryProtectionDefinition(new FeneconHomeBatteryProtection52(), this.componentManager) //
-				.build();
+		this.updateHardwareType(BatteryFeneconHomeHardwareType.DEFAULT); // initialize to default
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {

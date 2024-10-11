@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
+import static io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManagerTest.LOG_HANDLER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -37,8 +38,8 @@ public class TasksSupplierImplTest {
 	@Test
 	public void testFull() throws OpenemsException {
 		var clock = new TimeLeapClock();
-		var defectiveComponents = new DefectiveComponents(clock);
-		var sut = new TasksSupplierImpl();
+		var defectiveComponents = new DefectiveComponents(clock, LOG_HANDLER);
+		var sut = new TasksSupplierImpl(LOG_HANDLER);
 
 		var component = new DummyModbusComponent();
 		var protocol = component.getModbusProtocol();
@@ -89,8 +90,8 @@ public class TasksSupplierImplTest {
 	@Test
 	public void testHighOnly() throws OpenemsException {
 		var clock = new TimeLeapClock();
-		var defectiveComponents = new DefectiveComponents(clock);
-		var sut = new TasksSupplierImpl();
+		var defectiveComponents = new DefectiveComponents(clock, LOG_HANDLER);
+		var sut = new TasksSupplierImpl(LOG_HANDLER);
 
 		var component = new DummyModbusComponent();
 		var protocol = component.getModbusProtocol();
