@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
+import static io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManagerTest.LOG_HANDLER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -11,6 +12,7 @@ import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.TimeLeapClock;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.modbus.DummyModbusComponent;
 import io.openems.edge.bridge.modbus.api.worker.DummyReadTask;
 import io.openems.edge.bridge.modbus.api.worker.DummyWriteTask;
@@ -36,13 +38,13 @@ public class TasksSupplierImplTest {
 	@Test
 	public void testFull() throws OpenemsException {
 		var clock = new TimeLeapClock();
-		var defectiveComponents = new DefectiveComponents(clock);
-		var sut = new TasksSupplierImpl();
+		var defectiveComponents = new DefectiveComponents(clock, LOG_HANDLER);
+		var sut = new TasksSupplierImpl(LOG_HANDLER);
 
 		var component = new DummyModbusComponent();
 		var protocol = component.getModbusProtocol();
 		protocol.addTasks(RT_H_1, RT_H_2, RT_L_1, RT_L_2, WT_1);
-		sut.addProtocol(component.id(), protocol);
+		sut.addProtocol(component.id(), protocol, FunctionUtils::doNothing);
 
 		// 1st Cycle
 		var tasks = sut.getCycleTasks(defectiveComponents);
@@ -82,19 +84,19 @@ public class TasksSupplierImplTest {
 		assertEquals(4, tasks.reads().size() + tasks.writes().size());
 
 		// Finish
-		sut.removeProtocol(component.id());
+		sut.removeProtocol(component.id(), FunctionUtils::doNothing);
 	}
 
 	@Test
 	public void testHighOnly() throws OpenemsException {
 		var clock = new TimeLeapClock();
-		var defectiveComponents = new DefectiveComponents(clock);
-		var sut = new TasksSupplierImpl();
+		var defectiveComponents = new DefectiveComponents(clock, LOG_HANDLER);
+		var sut = new TasksSupplierImpl(LOG_HANDLER);
 
 		var component = new DummyModbusComponent();
 		var protocol = component.getModbusProtocol();
 		protocol.addTasks(RT_H_1, RT_H_2, WT_1);
-		sut.addProtocol(component.id(), protocol);
+		sut.addProtocol(component.id(), protocol, FunctionUtils::doNothing);
 
 		var tasks = sut.getCycleTasks(defectiveComponents);
 		assertEquals(3, tasks.reads().size() + tasks.writes().size());

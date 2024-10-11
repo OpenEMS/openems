@@ -105,23 +105,20 @@ public class EssGenericManagedSymmetricImpl
 	@Override
 	protected void handleStateMachine() {
 		// Store the current State
-		this.channel(EssGenericManagedSymmetric.ChannelId.STATE_MACHINE)
-				.setNextValue(this.stateMachine.getCurrentState());
+		this._setStateMachine(this.stateMachine.getCurrentState());
 
 		// Initialize 'Start-Stop' Channel
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		var context = new Context(this, this.getBattery(), this.getBatteryInverter());
+		var context = new Context(this, this.getBattery(), this.getBatteryInverter(), this.componentManager.getClock());
 
 		// Call the StateMachine
 		try {
 			this.stateMachine.run(context);
-
-			this.channel(EssGenericManagedSymmetric.ChannelId.RUN_FAILED).setNextValue(false);
-
+			this._setRunFailed(false);
 		} catch (OpenemsNamedException e) {
-			this.channel(EssGenericManagedSymmetric.ChannelId.RUN_FAILED).setNextValue(true);
+			this._setRunFailed(true);
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 		}
 	}
@@ -179,7 +176,6 @@ public class EssGenericManagedSymmetricImpl
 	@Override
 	public void setStartStop(StartStop value) {
 		if (this.startStopTarget.getAndSet(value) != value) {
-			// Set only if value changed
 			this.stateMachine.forceNextState(UNDEFINED);
 		}
 	}

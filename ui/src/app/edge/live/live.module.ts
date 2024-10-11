@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { EdgeOfflineModule } from "src/app/shared/components/edge/offline/offline.module";
 import { SharedModule } from "./../../shared/shared.module";
 import { Controller_ChannelthresholdComponent } from "./Controller/Channelthreshold/Channelthreshold";
 import { Controller_ChpSocComponent } from "./Controller/ChpSoc/ChpSoc";
@@ -41,27 +42,25 @@ import { DelayedSellToGridModalComponent } from "./delayedselltogrid/modal/modal
 import { EnergymonitorModule } from "./energymonitor/energymonitor.module";
 import { InfoComponent } from "./info/info.component";
 import { LiveComponent } from "./live.component";
-import { OfflineComponent } from "./offline/offline.component";
 
 @NgModule({
   imports: [
     BrowserAnimationsModule,
     BrowserModule,
-    // Common
     Common_Autarchy,
-    Common_Production,
-    Common_Selfconsumption,
     Common_Consumption,
     Common_Grid,
-    // Controller
+    Common_Production,
+    Common_Selfconsumption,
+    Controller_Api_ModbusTcp,
     Controller_Ess_FixActivePower,
     Controller_Ess_GridOptimizedCharge,
+    Controller_Ess_TimeOfUseTariff,
+    Controller_Evcs,
     Controller_Io_HeatingElement,
-    Controller_Api_ModbusTcp,
+    EdgeOfflineModule,
     EnergymonitorModule,
     SharedModule,
-    Controller_Evcs,
-    Controller_Ess_TimeOfUseTariff,
   ],
   declarations: [
     AdministrationComponent,
@@ -90,7 +89,6 @@ import { OfflineComponent } from "./offline/offline.component";
     Io_Api_DigitalInput_ModalComponent,
     Io_Api_DigitalInputComponent,
     LiveComponent,
-    OfflineComponent,
     StorageComponent,
     StorageModalComponent,
   ],

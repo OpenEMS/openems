@@ -115,7 +115,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	protected static record BatteryData(Integer chargeMaxCurrent, Integer voltage) {
 	}
 
-	private Config config;
+	private Config config = null;
 
 	public GoodWeBatteryInverterImpl() throws OpenemsNamedException {
 		super(//
@@ -167,7 +167,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	@Override
 	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
+		if (this.config == null || !this.isEnabled()) {
 			return;
 		}
 		super.handleEvent(event);

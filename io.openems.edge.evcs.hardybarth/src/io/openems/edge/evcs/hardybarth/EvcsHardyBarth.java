@@ -66,8 +66,8 @@ public interface EvcsHardyBarth {
 
 		RAW_METER_SERIALNUMBER(Doc.of(OpenemsType.STRING), "secc", "port0", "metering", "meter", "serialnumber"), //
 		RAW_METER_TYPE(Doc.of(OpenemsType.STRING), "secc", "port0", "metering", "meter", "type"), //
-		METER_NOT_AVAILABLE(Doc.of(Level.INFO) //
-				.text("No meter values available. The communication cable of the internal meter may be loose.")), //
+		METER_NOT_AVAILABLE(Doc.of(Level.WARNING) //
+				.translationKey(EvcsHardyBarth.class, "noMeterAvailable")), //
 		RAW_METER_AVAILABLE(new BooleanDoc()//
 				.onChannelSetNextValue((hardyBarth, value) -> {
 					var notAvailable = value.get() == null ? null : !value.get();

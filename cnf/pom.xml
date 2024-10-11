@@ -140,6 +140,34 @@
 		</dependency>
 		<!-- io -->
 		<dependency>
+			<!-- Miscellaneous JNA utilities for Linux  -->
+			<!-- Used by io.openems.edge.io.i2c -->
+			<groupId>io.helins</groupId>
+			<artifactId>linux-common</artifactId>
+			<version>0.1.4</version>
+		</dependency>
+		<dependency>
+			<!-- Use the standard Linux I2C API from JVM -->
+			<!-- Used by io.openems.edge.io.i2c -->
+			<groupId>io.helins</groupId>
+			<artifactId>linux-i2c</artifactId>
+			<version>1.0.2</version>
+		</dependency>
+		<dependency>
+			<!-- Basic Linux IO utilities for java through JNA -->
+			<!-- Used by io.openems.edge.io.i2c -->
+			<groupId>io.helins</groupId>
+			<artifactId>linux-io</artifactId>
+			<version>0.0.4</version>
+		</dependency>
+		<dependency>
+			<!-- Java utilities for errno -->
+			<!-- Used by io.openems.edge.io.i2c -->
+			<groupId>io.helins</groupId>
+			<artifactId>linux-errno</artifactId>
+			<version>1.0.2</version>
+		</dependency>
+		<dependency>
 			<groupId>io.reactivex.rxjava3</groupId>
 			<artifactId>rxjava</artifactId>
 			<version>3.1.9</version>
@@ -254,8 +282,8 @@
 		<dependency>
 			<!-- Bouncycastle for Eclipse Paho MQTTv5 Client -->
 			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcpkix-jdk15on</artifactId>
-			<version>1.70</version>
+			<artifactId>bcpkix-jdk15to18</artifactId>
+			<version>1.77</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>

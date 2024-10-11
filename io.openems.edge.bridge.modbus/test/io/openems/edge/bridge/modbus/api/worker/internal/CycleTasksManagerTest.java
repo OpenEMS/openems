@@ -1,15 +1,21 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
+import static io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManager.StateMachine.FINISHED;
+import static io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManager.StateMachine.WAIT_BEFORE_READ;
+import static io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManager.StateMachine.WRITE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.DummyModbusComponent;
+import io.openems.edge.bridge.modbus.api.Config;
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.task.WaitTask;
 import io.openems.edge.bridge.modbus.api.worker.DummyReadTask;
 import io.openems.edge.bridge.modbus.api.worker.DummyWriteTask;
@@ -21,6 +27,8 @@ public class CycleTasksManagerTest {
 	};
 	public static final Consumer<Long> CYCLE_DELAY = (cycleDelay) -> {
 	};
+	private static final Config CONFIG = new Config("foo", "bar", true, LogVerbosity.NONE, 1);
+	public static final Supplier<Config.LogHandler> LOG_HANDLER = () -> CONFIG.log;
 
 	private static DummyReadTask RT_H_1;
 	private static DummyReadTask RT_H_2;
@@ -48,9 +56,10 @@ public class CycleTasksManagerTest {
 				.writes(WT_1) //
 				.build();
 		var tasksSupplier = new DummyTasksSupplier(cycle1, cycle2);
-		var defectiveComponents = new DefectiveComponents();
+		var defectiveComponents = new DefectiveComponents(LOG_HANDLER);
 
-		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT, CYCLE_DELAY);
+		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, //
+				CYCLE_TIME_IS_TOO_SHORT, CYCLE_DELAY, LOG_HANDLER);
 
 		// Cycle 1
 		sut.onBeforeProcessImage();
@@ -118,6 +127,32 @@ public class CycleTasksManagerTest {
 	}
 
 	@Test
+	public void testExecuteWriteBeforeNextProcessImage() throws OpenemsException, InterruptedException {
+		var cycle1 = CycleTasks.create() //
+				.reads(RT_L_1, RT_H_1, RT_H_2) //
+				.writes(WT_1) //
+				.build();
+		var cycle2 = CycleTasks.create() //
+				.reads(RT_L_2, RT_H_1, RT_H_2) //
+				.writes(WT_1) //
+				.build();
+		var tasksSupplier = new DummyTasksSupplier(cycle1, cycle2);
+		var defectiveComponents = new DefectiveComponents(LOG_HANDLER);
+
+		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, //
+				CYCLE_TIME_IS_TOO_SHORT, CYCLE_DELAY, LOG_HANDLER);
+
+		sut.getNextTask();
+		assertEquals(FINISHED, sut.getState());
+		sut.onExecuteWrite();
+		sut.getNextTask();
+		assertEquals(WRITE, sut.getState());
+		sut.onBeforeProcessImage();
+		sut.getNextTask();
+		assertEquals(WAIT_BEFORE_READ, sut.getState());
+	}
+
+	@Test
 	public void testDefective() throws OpenemsException, InterruptedException {
 		var component = new DummyModbusComponent();
 		RT_L_1.setParent(component);
@@ -131,10 +166,11 @@ public class CycleTasksManagerTest {
 				.writes(WT_1) //
 				.build();
 		var tasksSupplier = new DummyTasksSupplier(cycle1, cycle2);
-		var defectiveComponents = new DefectiveComponents();
+		var defectiveComponents = new DefectiveComponents(LOG_HANDLER);
 		defectiveComponents.add(component.id());
 
-		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT, CYCLE_DELAY);
+		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, //
+				CYCLE_TIME_IS_TOO_SHORT, CYCLE_DELAY, LOG_HANDLER);
 
 		// Cycle 1
 		sut.onBeforeProcessImage();
@@ -162,9 +198,10 @@ public class CycleTasksManagerTest {
 		var cycle1 = CycleTasks.create() //
 				.build();
 		var tasksSupplier = new DummyTasksSupplier(cycle1);
-		var defectiveComponents = new DefectiveComponents();
+		var defectiveComponents = new DefectiveComponents(LOG_HANDLER);
 
-		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT, CYCLE_DELAY);
+		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, //
+				CYCLE_TIME_IS_TOO_SHORT, CYCLE_DELAY, LOG_HANDLER);
 
 		// Cycle 1
 		sut.onBeforeProcessImage();

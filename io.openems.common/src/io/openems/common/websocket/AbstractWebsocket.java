@@ -128,11 +128,17 @@ public abstract class AbstractWebsocket<T extends WsData> {
 	}
 
 	private void sendMessageFailedLog(WebSocket ws, JsonrpcMessage message) {
-		this.logWarn(this.log, new StringBuilder() //
-				.append("[").append(generateWsDataString(ws)) //
-				.append("] Unable to send message: Connection is closed. ") //
-				.append(toShortString(simplifyJsonrpcMessage(message), 100)) //
-				.toString());
+		final var b = new StringBuilder();
+
+		var wsDataString = generateWsDataString(ws);
+		if (!wsDataString.isEmpty()) {
+			b.append("[").append(generateWsDataString(ws)).append("] ");
+		}
+
+		this.logWarn(this.log, //
+				b.append("Unable to send message: Connection is closed. ") //
+						.append(toShortString(simplifyJsonrpcMessage(message), 200)) //
+						.toString());
 	}
 
 	/**

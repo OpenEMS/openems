@@ -73,35 +73,39 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 	@Reference(policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata;
 
+	private Config config;
+
 	public EnergySchedulerImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				EnergyScheduler.ChannelId.values() //
 		);
 		// Prepare Optimizer and Context
-		this.optimizer = new Optimizer(() -> {
-			if (this.timeOfUseTariff == null) {
-				throw new OpenemsException("TimeOfUseTariff is not available");
-			}
-			var ctrl = this.schedulables.stream() //
-					.filter(TimeOfUseTariffControllerImpl.class::isInstance) //
-					.map(TimeOfUseTariffControllerImpl.class::cast) //
-					.findFirst().orElse(null);
-			if (ctrl == null) {
-				throw new OpenemsException("TimeOfUseTariffController is not available");
-			}
-			var esh = ctrl.getEnergyScheduleHandler();
-			// NOTE: This is a workaround while we refactor TimeOfUseTariffController
-			// This code assumes that the `EnergySchedulable` is a
-			// `TimeOfUseTariffController`
-			return GlobalContext.create() //
-					.setClock(this.componentManager.getClock()) //
-					.setEnergyScheduleHandler(esh) //
-					.setSum(this.sum) //
-					.setPredictorManager(this.predictorManager) //
-					.setTimeOfUseTariff(this.timeOfUseTariff) //
-					.build();
-		});
+		this.optimizer = new Optimizer(//
+				() -> this.config.logVerbosity(), //
+				() -> {
+					if (this.timeOfUseTariff == null) {
+						throw new OpenemsException("TimeOfUseTariff is not available");
+					}
+					var ctrl = this.schedulables.stream() //
+							.filter(TimeOfUseTariffControllerImpl.class::isInstance) //
+							.map(TimeOfUseTariffControllerImpl.class::cast) //
+							.findFirst().orElse(null);
+					if (ctrl == null) {
+						throw new OpenemsException("TimeOfUseTariffController is not available");
+					}
+					var esh = ctrl.getEnergyScheduleHandler();
+					// NOTE: This is a workaround while we refactor TimeOfUseTariffController
+					// This code assumes that the `EnergySchedulable` is a
+					// `TimeOfUseTariffController`
+					return GlobalContext.create() //
+							.setClock(this.componentManager.getClock()) //
+							.setEnergyScheduleHandler(esh) //
+							.setSum(this.sum) //
+							.setPredictorManager(this.predictorManager) //
+							.setTimeOfUseTariff(this.timeOfUseTariff) //
+							.build();
+				});
 	}
 
 	@Activate
@@ -121,6 +125,7 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 	}
 
 	private synchronized boolean applyConfig(Config config) {
+		this.config = config;
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return false;
 		}
@@ -138,6 +143,15 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 	protected void deactivate() {
 		this.optimizer.deactivate();
 		super.deactivate();
+	}
+
+	@Override
+	public String debugLog() {
+		if (this.config == null || this.config.logVerbosity() == LogVerbosity.NONE) {
+			return null;
+		}
+		// TODO add debug log
+		return null;
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import { formatNumber } from "@angular/common";
 import { TranslateService } from "@ngx-translate/core";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { HistoryUtils, Utils } from "../../service/utils";
+import { Language } from "../../type/language";
 import { ArrayUtils } from "../../utils/array/array.utils";
 import { AbstractHistoryChart } from "./abstracthistorychart";
 
@@ -41,7 +42,8 @@ export class ChartConstants {
     public static readonly BAR_CHART_DATALABELS = (unit: string, disable: boolean): any => ({
       ...ChartDataLabels,
       formatter: (value, ctx) => {
-        return formatNumber(value, "de", "1.0-0") + "\xa0" + unit ?? null;
+        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+        return formatNumber(value, locale, "1.0-0") + "\xa0" + unit ?? null;
       },
       ...{
         anchor: "end", offset: -18, align: "start", clip: false, clamp: true,

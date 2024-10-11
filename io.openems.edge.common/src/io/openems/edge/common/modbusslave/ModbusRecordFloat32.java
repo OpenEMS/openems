@@ -20,7 +20,7 @@ public class ModbusRecordFloat32 extends ModbusRecordConstant {
 
 	@Override
 	public String toString() {
-		return "ModbusRecordFloat32 [value=" + this.value + ", type=" + this.getType() + "]";
+		return this.generateToString("ModbusRecordFloat32", this.value);
 	}
 
 	/**

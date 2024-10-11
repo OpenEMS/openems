@@ -184,6 +184,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, 0) //
 						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
@@ -233,6 +234,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, 0) //
 						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
@@ -290,6 +292,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.build()) //
 				.next(new TestCase() //
 						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, 0) //
 						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
@@ -305,6 +308,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2700)) //
 				.next(new TestCase() //
 						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(ESS_SOC, 21) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.ACTIVE_LIMIT) //
@@ -312,14 +316,17 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2666)) //
 				.next(new TestCase() //
 						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2677) //
 						.output(RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2666)) //
 				.next(new TestCase() //
 						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2675) //
 						.output(RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2666)) //
 				.next(new TestCase() //
 						.onAfterProcessImage(sleep) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2673) //
 						.output(RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2666)) //
 		;
@@ -360,6 +367,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, 0) //
 						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
@@ -373,6 +381,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						// Value increases steadily by 0.25% of max apparent power 10_000
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2025))
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
 						.input(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
@@ -383,6 +392,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT, 6650) //
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2050))
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(PREDICTED_TARGET_MINUTE, /* QuarterHour */ 68 * 15) //
 						.input(PREDICTED_TARGET_MINUTE_ADJUSTED, /* QuarterHour */ 68 * 15 - 120) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
@@ -421,6 +431,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, 0) //
 						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
@@ -459,6 +470,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -7500) //
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
@@ -472,6 +484,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 850) //
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -12000) //
 						.input(ESS_ACTIVE_POWER, -850) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
@@ -480,6 +493,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6200) //
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -7000) //
 						.input(ESS_ACTIVE_POWER, -6200) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
@@ -488,6 +502,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6550) //
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -5000) //
 						.input(ESS_ACTIVE_POWER, -6550) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
@@ -496,6 +511,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6050) //
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -8000) //
 						.input(ESS_ACTIVE_POWER, -6050) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
@@ -506,6 +522,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				.next(new TestCase() //
 						// Difference between last limit and current lower than the ramp - ramp is not
 						// applied
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -7000) //
 						.input(ESS_ACTIVE_POWER, -7400) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
@@ -514,6 +531,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 7750) //
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -6000) //
 						.input(ESS_ACTIVE_POWER, -7750) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
@@ -551,6 +569,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -7500) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 100) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
@@ -564,6 +583,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -12000) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(ESS_ACTIVE_POWER, -1000) //
 						.input(ESS_SOC, 100) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
@@ -573,6 +593,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -7000) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(ESS_ACTIVE_POWER, -6000) //
 						.input(ESS_SOC, 100) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
@@ -582,6 +603,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -5000) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(ESS_ACTIVE_POWER, -6000) //
 						.input(ESS_SOC, 100) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -5500) //
@@ -590,6 +612,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, -8000) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(ESS_ACTIVE_POWER, -5500) //
 						.input(ESS_SOC, 100) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6500) //
@@ -600,6 +623,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						// Difference between last limit and current lower than the ramp - ramp is not
 						// applied
 						.input(METER_ACTIVE_POWER, -7000) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(ESS_ACTIVE_POWER, -6300) //
 						.input(ESS_SOC, 100) //
 						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, -6300) //
@@ -607,6 +631,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6300) //
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -6000) //
 						.input(ESS_ACTIVE_POWER, -6000) //
 						.input(ESS_SOC, 100) //
@@ -643,6 +668,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -7500) //
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 20) //
@@ -656,6 +682,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 850) //
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -12000) //
 						.input(ESS_ACTIVE_POWER, -1000) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
@@ -664,6 +691,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6350) //
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -7000) //
 						.input(ESS_ACTIVE_POWER, -6000) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
@@ -672,6 +700,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6350) //
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -5000) //
 						.input(ESS_ACTIVE_POWER, -6000) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
@@ -680,6 +709,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 5850) //
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -8000) //
 						.input(ESS_ACTIVE_POWER, -5500) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
@@ -690,6 +720,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				.next(new TestCase() //
 						// Difference between last limit and current lower than the ramp - ramp is not
 						// applied
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -7000) //
 						.input(ESS_ACTIVE_POWER, -6300) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
@@ -698,6 +729,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT, 6650) //
 						.output(SELL_TO_GRID_LIMIT_STATE, SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT)) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -6000) //
 						.input(ESS_ACTIVE_POWER, -6000) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
@@ -749,6 +781,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.input(START_EPOCH_SECONDS, 1630566000) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000)) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(START_EPOCH_SECONDS, 1630566000) //
 						.output(TARGET_MINUTE, /* QuarterHour */ 1020) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.AVOID_LOW_CHARGING) //
@@ -792,6 +825,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setSellToGridLimitRampPercentage(5) //
 						.build()) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, 0) //
 						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
@@ -840,6 +874,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setSellToGridLimitRampPercentage(5) //
 						.build()) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, 0) //
 						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
@@ -890,6 +925,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, -7500) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.input(ESS_ACTIVE_POWER, 0) //
@@ -938,6 +974,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.build()) //
 				.next(new TestCase() //
 						.input(METER_ACTIVE_POWER, 0) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(ESS_ACTIVE_POWER, 0) //
 						.input(ESS_CAPACITY, 10_000) //
 						.input(ESS_SOC, 99) //

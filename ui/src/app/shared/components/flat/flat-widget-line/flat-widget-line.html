@@ -2,10 +2,10 @@
     <tr>
         <!-- Name of Parameter on the left side -->
         <td [style.width]="(leftColumnWidth ?? 65)  + '%'">
-            <ng-container *ngIf="name">{{ name }}</ng-container>
+            <ng-container *ngIf="displayName">{{ displayName }}</ng-container>
         </td>
         <!-- Value of Parameter on the right side -->
-        <td *ngIf="displayValue !== null" [style.width]="(leftColumnWidth ?? 35) +  '%'" class="align_right">
+        <td *ngIf="displayValue" [style.width]="(leftColumnWidth ?? 35) +  '%'" class="align_right">
             <ng-container>{{ displayValue }}</ng-container>
         </td>
 

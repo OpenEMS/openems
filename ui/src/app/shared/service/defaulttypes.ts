@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { TranslateService } from "@ngx-translate/core";
-import { endOfMonth, endOfYear, format, getDay, getMonth, getYear, isSameDay, isSameMonth, isSameYear, startOfMonth, startOfYear, subDays } from "date-fns";
+import { differenceInDays, endOfMonth, endOfYear, format, getDay, getMonth, getYear, isSameDay, isSameMonth, isSameYear, startOfMonth, startOfYear, subDays } from "date-fns";
 
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Service } from "../shared";
@@ -157,6 +157,7 @@ export namespace DefaultTypes {
       public to: Date = new Date(),
     ) { }
 
+
     /**
  * Returns a translated weekday name.
  *
@@ -235,6 +236,15 @@ export namespace DefaultTypes {
           value2: format(this.to, translate.instant("General.dateFormat")),
         });
       }
+    }
+
+    /**
+     * Checks if current period is week or day
+     *
+     * @returns true if period is week or day, false if not
+     */
+    public isWeekOrDay(): boolean {
+      return Math.abs(differenceInDays(this.to, this.from)) <= 6;
     }
   }
 }

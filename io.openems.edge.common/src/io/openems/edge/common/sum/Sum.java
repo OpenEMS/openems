@@ -629,6 +629,7 @@ public interface Sum extends OpenemsComponent {
 		CONSUMPTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+
 		/**
 		 * Is there any Component Info/Warning/Fault that is getting ignored/hidden
 		 * because of the 'ignoreStateComponents' configuration setting?.
@@ -716,6 +717,7 @@ public interface Sum extends OpenemsComponent {
 				.channel(113, ChannelId.ESS_DISCHARGE_POWER, ModbusType.FLOAT32) //
 				.channel(115, ChannelId.GRID_MODE, ModbusType.ENUM16) //
 				.channel(116, ChannelId.GRID_MODE_OFF_GRID_TIME, ModbusType.FLOAT32) //
+				.channel(118, ChannelId.ESS_CAPACITY, ModbusType.FLOAT32) //
 				.build();
 	}
 

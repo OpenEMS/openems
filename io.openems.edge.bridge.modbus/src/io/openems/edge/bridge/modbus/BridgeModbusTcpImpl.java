@@ -22,6 +22,7 @@ import io.openems.common.utils.InetAddressUtils;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
+import io.openems.edge.bridge.modbus.api.Config;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
@@ -56,15 +57,15 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 
 	@Activate
 	private void activate(ComponentContext context, ConfigTcp config) throws UnknownHostException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
-				config.invalidateElementsAfterReadErrors());
+		super.activate(context, new Config(config.id(), config.alias(), config.enabled(), config.logVerbosity(),
+				config.invalidateElementsAfterReadErrors()));
 		this.applyConfig(config);
 	}
 
 	@Modified
 	private void modified(ComponentContext context, ConfigTcp config) throws UnknownHostException {
-		super.modified(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
-				config.invalidateElementsAfterReadErrors());
+		super.modified(context, new Config(config.id(), config.alias(), config.enabled(), config.logVerbosity(),
+				config.invalidateElementsAfterReadErrors()));
 		this.applyConfig(config);
 		this.closeModbusConnection();
 	}

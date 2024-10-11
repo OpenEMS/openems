@@ -15,6 +15,7 @@ import { ComponentsModule } from "./components/components.module";
 import { MeterModule } from "./components/edge/meter/meter.module";
 import { FormlyCheckBoxHyperlinkWrapperComponent } from "./components/formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper";
 import { FormlyWrapperDefaultValueWithCasesComponent } from "./components/formly/form-field-default-cases.wrapper";
+import { FormlyFieldMultiStepComponent } from "./components/formly/form-field-multi-step/form-field-multi-step";
 import { FormlyWrapperFormFieldComponent } from "./components/formly/form-field.wrapper";
 import { FormlyFieldCheckboxWithImageComponent } from "./components/formly/formly-field-checkbox-image/formly-field-checkbox-with-image";
 import { FormlyFieldModalComponent } from "./components/formly/formly-field-modal/formlyfieldmodal";
@@ -84,6 +85,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
       types: [
         { name: "input", component: InputTypeComponent },
         { name: "repeat", component: RepeatTypeComponent },
+        { name: "multi-step", component: FormlyFieldMultiStepComponent },
       ],
       validators: [
         { name: "ip", validation: IpValidator },
@@ -119,6 +121,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     PanelWrapperComponent,
     FormlyFieldWithLoadingAnimationComponent,
     FormlyFieldCheckboxWithImageComponent,
+    FormlyFieldMultiStepComponent,
   ],
   exports: [
     // modules

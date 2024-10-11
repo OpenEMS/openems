@@ -1,4 +1,4 @@
-<oe-chart [title]="componentSome.displayName" *ngIf="isInitialized && component && componentSome"
+<oe-chart [title]="componentSome.displayName + '&nbsp;-&nbsp;' + ('Edge.History.PHASE_ACCURATE' | translate)" *ngIf="isInitialized && component && componentSome"
   [period]="service.historyPeriod.value">
 
   <ng-container [ngSwitch]="componentSome.type">

@@ -21,7 +21,7 @@ public class ModbusRecordFloat64 extends ModbusRecordConstant {
 
 	@Override
 	public String toString() {
-		return "ModbusRecordFloat64 [value=" + this.value + ", type=" + this.getType() + "]";
+		return this.generateToString("ModbusRecordFloat64", this.value);
 	}
 
 	/**

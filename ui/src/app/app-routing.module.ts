@@ -91,6 +91,7 @@ export const routes: Routes = [
           { path: ":componentId/gridOptimizedChargeChart", component: GridOptimizedChargeChartOverviewComponent },
           { path: ":componentId/heatingelementchart", component: HeatingelementChartOverviewComponent },
           { path: ":componentId/heatpumpchart", component: HeatPumpChartOverviewComponent },
+          { path: ":componentId/modbusTcpApi", component: ModbusTcpApiOverviewComponent },
           { path: ":componentId/scheduleChart", component: TimeOfUseTariffOverviewComponent },
           { path: ":componentId/symmetricpeakshavingchart", component: SymmetricPeakshavingChartOverviewComponent },
           { path: ":componentId/timeslotpeakshavingchart", component: TimeslotPeakshavingChartOverviewComponent },
@@ -101,7 +102,6 @@ export const routes: Routes = [
           { path: "gridchart", component: GridChartOverviewComponent },
           { path: "gridchart/:componentId", component: GridDetailsOverviewComponent },
           { path: "gridchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
-          { path: ":componentId/modbusTcpApi", component: ModbusTcpApiOverviewComponent },
           { path: "productionchart", component: ProductionChartOverviewComponent },
           { path: "productionchart/:componentId", component: DetailsOverviewComponent },
           { path: "productionchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
@@ -134,6 +134,7 @@ export const routes: Routes = [
       { path: "settings/alerting", component: EdgeSettingsAlerting, canActivate: [hasEdgeRole(Role.OWNER)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.alerting" } },
       { path: "settings/jsonrpctest", component: JsonrpcTestComponent, data: { navbarTitle: "Jsonrpc Test" } },
       { path: "settings/powerAssistant", component: PowerAssistantComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitle: "Power-Assistant" } },
+      { path: "settings/app", data: { navbarTitle: environment.edgeShortName + "Apps" }, component: EdgeSettingsAppIndex },
     ],
   },
 

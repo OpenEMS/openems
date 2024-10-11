@@ -673,7 +673,7 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.FAULT) //
+		RUN_FAILED(Doc.of(Level.WARNING) //
 				.text("Running the Logic failed")), //
 		LOW_MIN_VOLTAGE_WARNING(Doc.of(Level.WARNING) //
 				.text("Low min voltage warning "

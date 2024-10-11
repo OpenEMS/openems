@@ -8,23 +8,17 @@ public class StoppedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		var ess = context.getParent();
+		final var ess = context.getParent();
 
-		if (ess.hasFaults()) {
-			return State.UNDEFINED;
+		if (context.hasEssFaults()) {
+			return State.ERROR;
 		}
 
-		if (!context.battery.isStopped()) {
-			return State.UNDEFINED;
+		if (!context.isEssStopped()) {
+			return State.ERROR;
 		}
 
-		if (!context.batteryInverter.isStopped()) {
-			return State.UNDEFINED;
-		}
-
-		// Mark as stopped
 		ess._setStartStop(StartStop.STOP);
-
 		return State.STOPPED;
 	}
 
