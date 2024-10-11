@@ -316,7 +316,8 @@
       "activeDuration": "active duration",
       "CURRENT_AND_VOLTAGE": "Current & Voltage",
       "CURRENT": "Current",
-      "VOLTAGE": "Voltage"
+      "VOLTAGE": "Voltage",
+      "PHASE_ACCURATE": "Phasengenau"
     },
     "Config": {
       "Index": {

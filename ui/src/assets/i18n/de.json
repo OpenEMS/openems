@@ -273,6 +273,7 @@
       "SYSTEMUPDATE": "Systemupdate"
     },
     "History": {
+      "PHASE_ACCURATE": "Phasengenau",
       "CURRENT_AND_VOLTAGE": "Strom & Spannung",
       "beginDate": "Startdatum wählen",
       "day": "Tag",

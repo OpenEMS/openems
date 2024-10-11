@@ -233,6 +233,7 @@ export class OeChartTester {
       from: new Date(channelData.result.timestamps[0] ?? 0),
       to: new Date(channelData.result.timestamps.reverse()[0] ?? 0),
       getText: () => testContext.service.historyPeriod.value.getText(testContext.translate, testContext.service),
+      isWeekOrDay: () => testContext.service.historyPeriod.value.isWeekOrDay(),
     });
 
     // Fill Data
