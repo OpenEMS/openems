@@ -194,9 +194,9 @@
 
 -runbundles: \
 	Java-WebSocket;version='[1.5.4,1.5.5)',\
-	bcpkix;version='[1.70.0,1.70.1)',\
-	bcprov;version='[1.70.0,1.70.1)',\
-	bcutil;version='[1.70.0,1.70.1)',\
+	bcpkix;version='[1.77.0,1.77.1)',\
+	bcprov;version='[1.77.0,1.77.1)',\
+	bcutil;version='[1.77.0,1.77.1)',\
 	com.fasterxml.aalto-xml;version='[1.3.3,1.3.4)',\
 	com.fazecast.jSerialComm;version='[2.10.4,2.10.5)',\
 	com.ghgande.j2mod;version='[3.2.1,3.2.2)',\

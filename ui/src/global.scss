@@ -34,21 +34,6 @@ ion-refresher-content {
     }
 }
 
-ion-content.background {
-    --background: url('assets/img/fenecon-energy-journey.png') 40% 80% / cover no-repeat fixed;
-
-    ion-card {
-        border-radius: 1em;
-        opacity: 0.9;
-    }
-}
-
-@media (min-width: 768px) {
-    ion-content.background {
-        --background: url('assets/img/fenecon-energy-journey.png') center center / cover no-repeat fixed;
-    }
-}
-
 .custom-ion-popover {
 
     white-space: inherit;
