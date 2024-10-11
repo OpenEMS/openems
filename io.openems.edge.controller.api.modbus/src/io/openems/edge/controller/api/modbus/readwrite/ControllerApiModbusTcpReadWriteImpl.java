@@ -1,5 +1,8 @@
 package io.openems.edge.controller.api.modbus.readwrite;
 
+import static io.openems.edge.common.channel.ChannelId.channelIdCamelToUpper;
+import static io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,18 +32,22 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.Status;
 import io.openems.edge.controller.api.common.WriteObject;
 import io.openems.edge.controller.api.modbus.AbstractModbusTcpApi;
 import io.openems.edge.controller.api.modbus.ModbusTcpApi;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateActiveTime;
@@ -105,7 +112,6 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
 				new ConfigRecord(config.id(), config.alias(), config.enabled(), this.metaComponent,
 						config.component_ids(), config.apiTimeout(), config.port(), config.maxConcurrentConnections()));
 		this.applyConfig(config);
-		this.handleTimeDataChannels();
 	}
 
 	@Modified
@@ -114,7 +120,6 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
 				new ConfigRecord(config.id(), config.alias(), config.enabled(), this.metaComponent,
 						config.component_ids(), config.apiTimeout(), config.port(), config.maxConcurrentConnections()));
 		this.applyConfig(config);
-		this.handleTimeDataChannels();
 	}
 
 	private void applyConfig(Config config) {
@@ -166,7 +171,17 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
 			this.logError(this.log, "ERROR: " + e.getMessage());
 		}
 	}
-	
+
+	protected static String getChannelNameUpper(String componentId,
+			io.openems.edge.common.channel.ChannelId channelId) {
+		return channelIdCamelToUpper(componentId) + "_" + channelId.name();
+	}
+
+	protected static String getChannelNameCamel(String componentId,
+			io.openems.edge.common.channel.ChannelId channelId) {
+		return channelIdUpperToCamel(getChannelNameUpper(componentId, channelId));
+	}
+
 	@Override
 	protected Consumer<Entry<WriteChannel<?>, WriteObject>> handleWrites() {
 		return entry -> {
@@ -174,15 +189,19 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
 			WriteChannel<?> channel = entry.getKey();
 			var writeObject = entry.getValue();
 
-			String channelName = formatChannelName(channel);
-			var currentChannel = new ChannelIdImpl(channelName,
-					Doc.of(channel.getType()).persistencePriority(PersistencePriority.HIGH));
-			if (!channels().stream().anyMatch(p -> p.channelId().name().equals(currentChannel.name()))) {
-				addChannel(currentChannel).setNextValue(writeObject.value());
-			} else {
-				channel(currentChannel).setNextValue(writeObject.value());
+			var channelNameCamel = getChannelNameCamel(channel.getComponent().id(), channel.channelId());
+
+			@SuppressWarnings("deprecation")
+			var logChannel = this._channel(channelNameCamel);
+			if (logChannel == null) {
+				var channelNameUpper = getChannelNameUpper(channel.getComponent().id(), channel.channelId());
+				var currentChannel = new ChannelIdImpl(channelNameUpper,
+						Doc.of(channel.getType()).persistencePriority(PersistencePriority.HIGH));
+				addChannel(currentChannel);
+				logChannel = channel(currentChannel);
 			}
-			this.configUpdate("writeChannels", channel(currentChannel).channelId().id());
+			logChannel.setNextValue(writeObject.value());
+			this.configUpdate("writeChannels", logChannel.channelId().id());
 		};
 	}
 
@@ -205,23 +224,28 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
-	
-	/**
-	 * Checks, if timedata channels are already set.
-	 * If not, they will be created and added to current channels.
-	 */
-	protected void handleTimeDataChannels() {
-		var activeTimeChannel = new ChannelIdImpl("CUMULATED_ACTIVE_TIME", //
-				Doc.of(OpenemsType.DOUBLE).persistencePriority(PersistencePriority.HIGH));
-		var inactiveTimeChannel = new ChannelIdImpl("CUMULATED_INACTIVE_TIME", //
-				Doc.of(OpenemsType.DOUBLE).persistencePriority(PersistencePriority.HIGH));
 
-		List<ChannelIdImpl> timeChannels = Arrays.asList(activeTimeChannel, inactiveTimeChannel);
-		timeChannels.forEach(channel -> {
-		    if (channels().stream().noneMatch(ch -> ch.channelId().id().equals(channel.id()))) {
-		        addChannel(channel);
-		    }
-		});
+	protected Integer getChannelValue(String componentId, io.openems.edge.common.channel.ChannelId channelId) {
+		@SuppressWarnings("deprecation")
+		var channel = this._channel(getChannelNameCamel(componentId, channelId));
+		if (channel == null) {
+			return null;
+		}
+		return ((IntegerReadChannel) channel).value().get();
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(AccessMode.READ_ONLY),
+				ModbusSlaveNatureTable.of(ControllerApiModbusTcpReadWriteImpl.class, AccessMode.READ_ONLY, 300)
+						.cycleValue(0, this.id() + "/  Ess0ActivePowerLimit", Unit.WATT, "", ModbusType.FLOAT32,
+								t -> this.getChannelValue("ess0",
+										ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS))
+						.cycleValue(2, this.id() + "/Ess0ReactivePowerLimit", Unit.WATT, "", ModbusType.FLOAT32,
+								t -> this.getChannelValue("ess0",
+										ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_EQUALS))
+						.build());
 	}
 
 }

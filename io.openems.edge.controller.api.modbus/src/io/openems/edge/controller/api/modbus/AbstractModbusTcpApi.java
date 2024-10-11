@@ -529,6 +529,6 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 	 * @return component_channelId as String
 	 */
 	public static String formatChannelName(WriteChannel<?> channel) {
-		return channel.getComponent().alias() + "_" + channel.channelId().name();
+		return channel.getComponent().id() + "_" + channel.channelId().name();
 	}
 }
