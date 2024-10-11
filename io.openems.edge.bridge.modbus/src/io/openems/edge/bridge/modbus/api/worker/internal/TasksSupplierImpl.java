@@ -5,9 +5,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
@@ -41,12 +43,16 @@ public class TasksSupplierImpl implements TasksSupplier {
 	}
 
 	/**
-	 * Removes the protocol.
+	 * Removes the protocol and invalidates all {@link ModbusElement}s.
 	 *
-	 * @param sourceId Component-ID of the source
+	 * @param sourceId   Component-ID of the source
+	 * @param invalidate invalidates the given {@link ModbusElement}s after read
+	 *                   errors
 	 */
-	public synchronized void removeProtocol(String sourceId) {
-		this.taskManagers.remove(sourceId);
+	public synchronized void removeProtocol(String sourceId, Consumer<ModbusElement[]> invalidate) {
+		var taskManager = this.taskManagers.remove(sourceId);
+		taskManager.getTasks() //
+				.forEach(t -> invalidate.accept(t.getElements()));
 		this.nextLowPriorityTasks.removeIf(t -> t.a() == sourceId);
 	}
 

@@ -133,7 +133,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 * @param sourceId Component-ID of the source
 	 */
 	public void removeProtocol(String sourceId) {
-		this.tasksSupplier.removeProtocol(sourceId);
+		this.tasksSupplier.removeProtocol(sourceId, this.invalidate);
 		this.defectiveComponents.remove(sourceId); // Cleanup
 	}
 

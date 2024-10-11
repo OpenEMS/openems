@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.TimeLeapClock;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.modbus.DummyModbusComponent;
 import io.openems.edge.bridge.modbus.api.worker.DummyReadTask;
 import io.openems.edge.bridge.modbus.api.worker.DummyWriteTask;
@@ -82,7 +83,7 @@ public class TasksSupplierImplTest {
 		assertEquals(4, tasks.reads().size() + tasks.writes().size());
 
 		// Finish
-		sut.removeProtocol(component.id());
+		sut.removeProtocol(component.id(), FunctionUtils::doNothing);
 	}
 
 	@Test

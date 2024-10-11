@@ -1,6 +1,5 @@
 package io.openems.edge.bridge.modbus;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.ghgande.j2mod.modbus.procimg.Register;
@@ -35,7 +34,6 @@ public class BridgeModbusTcpImplTest {
 	private static final ChannelAddress MODBUS_COMMUNICATION_FAILED = new ChannelAddress(DEVICE_ID,
 			"ModbusCommunicationFailed");
 
-	@Ignore
 	@Test
 	public void test() throws Exception {
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(CYCLE_TIME);
@@ -80,30 +78,18 @@ public class BridgeModbusTcpImplTest {
 							.output(MODBUS_COMMUNICATION_FAILED, false)); //
 
 			/*
-			 * Reading Register fails after debounce of 10
+			 * Remove Protocol and unset channel values
 			 */
-			processImage.removeRegister(register100);
-			for (var i = 0; i < 9; i++) {
-				test.next(new TestCase() //
-						.onAfterProcessImage(sleep));
-			}
-			test //
-					.next(new TestCase() //
-							.onAfterProcessImage(sleep) //
-							.output(MODBUS_COMMUNICATION_FAILED, false)) //
-					.next(new TestCase() //
-							.onAfterProcessImage(sleep) //
-							.output(MODBUS_COMMUNICATION_FAILED, true));
+			sut.removeProtocol(DEVICE_ID);
 
-			/*
-			 * Successfully read Register
-			 */
-			processImage.addRegister(100, register100);
 			test //
 					.next(new TestCase() //
+							.onAfterProcessImage(sleep)) //
+					.next(new TestCase() //
 							.onAfterProcessImage(sleep) //
-							.output(REGISTER_100, 123) //
+							.output(REGISTER_100, null) //
 							.output(MODBUS_COMMUNICATION_FAILED, false)); //
+
 		} finally {
 			if (slave != null) {
 				slave.close();
