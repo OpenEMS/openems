@@ -522,7 +522,7 @@ export class Utils {
    *
    * @param value the value to convert
    */
-  public static roundSlightlyNegativeValues(value: number) {
+  public static roundSlightlyNegativeValues(value: number | null): number | null {
     return (value > -0.49 && value < 0) ? 0 : value;
   }
 
@@ -767,6 +767,8 @@ export namespace HistoryUtils {
       enabled?: boolean,
     },
     yAxes: yAxes[],
+    /** Rounds slightly negative values, defaults to false */
+    normalizeOutputData?: boolean,
   };
 
   export type yAxes = {
