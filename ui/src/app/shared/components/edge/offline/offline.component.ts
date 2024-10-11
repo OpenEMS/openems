@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { Edge, Service, Utils } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
+import { environment } from "src/environments";
 
 // TODO add translations when refactoring offline.component.html
 @Component({
@@ -18,6 +19,7 @@ export class OfflineComponent implements OnInit {
     protected edge: Edge | null = null;
     protected timeSinceOffline: string | null = null;
     protected isAtLeastInstaller: boolean = false;
+    protected readonly environment = environment;
 
     constructor(
         public service: Service,
