@@ -70,7 +70,8 @@
               },
               "styles": [
                 "src/themes/openems/scss/variables.scss",
-                "src/global.scss"
+                "src/global.scss",
+                "src/global-ion-custom.scss"
               ]
             },
             "openems-backend-dev": {

@@ -1,0 +1,60 @@
+<ion-card>
+    <ion-item lines="full" color="light">
+        <ion-icon slot="start" size="large" color="danger" name="cloud-offline-outline"></ion-icon>
+        <ion-label>FEMS ist offline <p>
+                <a href="https://fenecon.de/faq/#fems" target="_blank">mehr Infos</a>
+            </p>
+        </ion-label>
+    </ion-item>
+
+    <ng-container>
+        <ion-card-content>
+            <ion-grid class="full_width ion-padding" style="background-color: var(--ion-color-light)">
+                <div style="background-color: var(--ion-color-light);">
+                    <ion-row class="ion-text-center" *ngIf="isAtLeastInstaller && timeSinceOffline !== null">
+                        <ion-col>
+                            Das aufgerufene FEMS ist <b>seit {{timeSinceOffline}}
+                            </b> offline.
+                        </ion-col>
+                    </ion-row>
+                    <ion-row class="ion-text-center">
+                        <ion-col size="12" class="ion-font-weight-bolder ion-font-size-medium">
+                            Probieren Sie in 10 Minuten den Browser neu zu laden
+                        </ion-col>
+                        <ion-col size="12">
+                            <ion-label class="ion-text-wrap">
+                                Der Onlinezugriff auf das Speichersystem ist aktuell nicht möglich.<br>
+                                Die Daten werden lokal gespeichert und gehen nicht verloren.
+                            </ion-label>
+                        </ion-col>
+                    </ion-row>
+                </div>
+            </ion-grid>
+        </ion-card-content>
+    </ng-container>
+
+    <ion-card-content>
+        <ion-card>
+            <ion-accordion-group>
+                <ion-accordion value=" first">
+                    <ion-item slot="header" color="light">
+                        <ion-label class="ion-text-wrap ion-font-size-medium">
+                            Ihr System ist <b>länger als 10 Minuten offline?</b> Folgendes kann vor Ort
+                            geprüft werden:
+                        </ion-label>
+                    </ion-item>
+                    <div class="ion-padding" slot="content" *ngIf="edge">
+                        <ion-list class="ion-text-center">
+                            <ng-container [ngSwitch]="edge?.producttype">
+                                <oe-offline-home-10 [role]="edge?.role" *ngSwitchCase="'home'"></oe-offline-home-10>
+                                <oe-offline-home-20-30 [role]="edge?.role"
+                                    *ngSwitchCase="'Home 20 & 30'"></oe-offline-home-20-30>
+                                <oe-offline-default [role]="edge?.role" *ngSwitchDefault></oe-offline-default>
+                            </ng-container>
+                        </ion-list>
+                    </div>
+                </ion-accordion>
+            </ion-accordion-group>
+        </ion-card>
+    </ion-card-content>
+</ion-card>
