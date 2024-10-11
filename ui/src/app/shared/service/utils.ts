@@ -396,8 +396,8 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
-    return (value: number | null): string =>
-      (!value ? "-" : formatNumber(value / 10, "de", "1.0-" + decimal)) + " " + label;
+    return (value: number | null | undefined): string =>
+      (value == null ? "-" : formatNumber(value / 10, "de", "1.0-" + decimal)) + " " + label;
   };
 
   /**
