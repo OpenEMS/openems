@@ -61,6 +61,9 @@ public class TasksSupplierImpl implements TasksSupplier {
 	 */
 	public synchronized void removeProtocol(String sourceId, Consumer<ModbusElement[]> invalidate) {
 		var taskManager = this.taskManagers.remove(sourceId);
+		if (taskManager == null) {
+			return;
+		}
 		taskManager.getTasks() //
 				.forEach(t -> invalidate.accept(t.getElements()));
 		this.nextLowPriorityTasks.removeIf(t -> t.a() == sourceId);
