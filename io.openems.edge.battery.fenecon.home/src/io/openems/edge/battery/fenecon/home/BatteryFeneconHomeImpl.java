@@ -194,7 +194,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(500, Priority.LOW, //
+				new FC3ReadRegistersTask(500, Priority.HIGH, //
 						m(new BitsWordElement(500, this) //
 								.bit(0, BatteryFeneconHome.ChannelId.RACK_PRE_ALARM_CELL_OVER_VOLTAGE) //
 								.bit(1, BatteryFeneconHome.ChannelId.RACK_PRE_ALARM_CELL_UNDER_VOLTAGE) //
@@ -271,10 +271,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 								.bit(6, BatteryFeneconHome.ChannelId.FAULT_POSITION_BCU_7) //
 								.bit(7, BatteryFeneconHome.ChannelId.FAULT_POSITION_BCU_8) //
 								.bit(8, BatteryFeneconHome.ChannelId.FAULT_POSITION_BCU_9) //
-								.bit(9, BatteryFeneconHome.ChannelId.FAULT_POSITION_BCU_10))//
-				), //
-
-				new FC3ReadRegistersTask(506, Priority.LOW, //
+								.bit(9, BatteryFeneconHome.ChannelId.FAULT_POSITION_BCU_10)), //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(506), SCALE_FACTOR_MINUS_1), // [V]
 						m(Battery.ChannelId.CURRENT, new SignedWordElement(507), SCALE_FACTOR_MINUS_1), // [A]
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(508), SCALE_FACTOR_MINUS_1), // [%]
@@ -1066,7 +1063,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	}
 
 	@Override
-	public ModbusProtocol getDefinedModbusProtocol() throws OpenemsException {
+	public ModbusProtocol getDefinedModbusProtocol() {
 		return this.getModbusProtocol();
 	}
 

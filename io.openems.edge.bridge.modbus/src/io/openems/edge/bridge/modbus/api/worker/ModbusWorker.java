@@ -123,7 +123,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 * @param protocol the ModbusProtocol
 	 */
 	public void addProtocol(String sourceId, ModbusProtocol protocol) {
-		this.tasksSupplier.addProtocol(sourceId, protocol);
+		this.tasksSupplier.addProtocol(sourceId, protocol, this.invalidate);
 		this.defectiveComponents.remove(sourceId); // Cleanup
 	}
 

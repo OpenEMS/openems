@@ -33,12 +33,22 @@ public class TasksSupplierImpl implements TasksSupplier {
 	private final Queue<Tuple<String, ReadTask>> nextLowPriorityTasks = new LinkedList<>();
 
 	/**
-	 * Adds the protocol.
-	 *
-	 * @param sourceId Component-ID of the source
-	 * @param protocol the ModbusProtocol
+	 * Adds (or replaces) the protocol identified by its sourceId.
+	 * 
+	 * <p>
+	 * If a protocol with the same sourceId existed before,
+	 * {@link #removeProtocol(String, Consumer)} is called internally first.
+	 * 
+	 * @param sourceId   Component-ID of the source
+	 * @param protocol   the ModbusProtocol
+	 * @param invalidate invalidates the given {@link ModbusElement}s after read
+	 *                   errors
 	 */
-	public synchronized void addProtocol(String sourceId, ModbusProtocol protocol) {
+	public synchronized void addProtocol(String sourceId, ModbusProtocol protocol,
+			Consumer<ModbusElement[]> invalidate) {
+		if (this.taskManagers.containsKey(sourceId)) {
+			this.removeProtocol(sourceId, invalidate);
+		}
 		this.taskManagers.put(sourceId, protocol.getTaskManager());
 	}
 

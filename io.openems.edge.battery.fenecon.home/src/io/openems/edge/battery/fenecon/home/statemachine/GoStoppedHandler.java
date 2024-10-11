@@ -12,26 +12,25 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 	private static int TIMEOUT = 2100; // [35 minutes in seconds]
 	private Instant timeAtEntry = Instant.MIN;
-	private boolean didProtocolAdd = false;
+	private boolean isProtocolAdded = false;
 
 	@Override
-	protected void onEntry(Context context) throws OpenemsNamedException {
-		final var battery = context.getParent();
-		final var modbus = battery.getModbus();
-		modbus.removeProtocol(battery.id());
-		this.didProtocolAdd = false;
+	protected void onEntry(Context context) {
+		// Remove the protocol to trigger BMS timeout
+		this.removeProtocol(context);
+
 		this.timeAtEntry = Instant.now(context.clock);
 	}
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsException {
-		final var battery = context.getParent();
 		var now = Instant.now(context.clock);
-		if (Duration.between(this.timeAtEntry, now).getSeconds() > TIMEOUT && !this.didProtocolAdd) {
-			this.addAndRetryModbusProtocol(context);
+		if (Duration.between(this.timeAtEntry, now).getSeconds() > TIMEOUT && !this.isProtocolAdded) {
+			this.addProtocol(context);
 			return State.GO_STOPPED;
 		}
 
+		final var battery = context.getParent();
 		if (battery.getModbusCommunicationFailed()) {
 			return State.STOPPED;
 		}
@@ -40,12 +39,25 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 		return State.GO_STOPPED;
 	}
 
-	private void addAndRetryModbusProtocol(Context context) throws OpenemsException {
-		final var battery = context.getParent();
-		final var modbus = battery.getModbus();
-		modbus.addProtocol(battery.id(), battery.getDefinedModbusProtocol());
-		modbus.retryModbusCommunication(battery.id());
-		this.didProtocolAdd = true;
+	@Override
+	protected void onExit(Context context) throws OpenemsNamedException {
+		// Make sure to leave this GoStoppedHandler with added protocol
+		if (!this.isProtocolAdded) {
+			this.addProtocol(context);
+		}
 	}
 
+	private void addProtocol(Context context) {
+		final var battery = context.getParent();
+		final var modbus = battery.getModbus();
+		this.isProtocolAdded = true;
+		modbus.addProtocol(battery.id(), battery.getDefinedModbusProtocol());
+	}
+
+	private void removeProtocol(Context context) {
+		final var battery = context.getParent();
+		final var modbus = battery.getModbus();
+		this.isProtocolAdded = false;
+		modbus.removeProtocol(battery.id());
+	}
 }

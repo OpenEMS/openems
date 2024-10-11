@@ -43,7 +43,7 @@ public class TasksSupplierImplTest {
 		var component = new DummyModbusComponent();
 		var protocol = component.getModbusProtocol();
 		protocol.addTasks(RT_H_1, RT_H_2, RT_L_1, RT_L_2, WT_1);
-		sut.addProtocol(component.id(), protocol);
+		sut.addProtocol(component.id(), protocol, FunctionUtils::doNothing);
 
 		// 1st Cycle
 		var tasks = sut.getCycleTasks(defectiveComponents);
@@ -95,7 +95,7 @@ public class TasksSupplierImplTest {
 		var component = new DummyModbusComponent();
 		var protocol = component.getModbusProtocol();
 		protocol.addTasks(RT_H_1, RT_H_2, WT_1);
-		sut.addProtocol(component.id(), protocol);
+		sut.addProtocol(component.id(), protocol, FunctionUtils::doNothing);
 
 		var tasks = sut.getCycleTasks(defectiveComponents);
 		assertEquals(3, tasks.reads().size() + tasks.writes().size());
