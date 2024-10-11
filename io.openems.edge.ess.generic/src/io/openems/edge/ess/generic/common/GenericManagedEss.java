@@ -30,6 +30,11 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	public static int RETRY_COMMAND_MAX_ATTEMPTS = 30;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+
+		/*
+		 * Whenever one of these Level.FAULT states is true, the GenericEss will stop
+		 * the battery and the inverter.
+		 */
 		MAX_BATTERY_START_ATTEMPTS_FAULT(Doc.of(Level.FAULT) //
 				.text("The maximum number of Battery start attempts failed")), //
 		MAX_BATTERY_STOP_ATTEMPTS_FAULT(Doc.of(Level.FAULT) //

@@ -271,6 +271,7 @@ public enum KacoSunSpecModel implements SunSpecModel {
 			LINE_FAILURE_OVERVOLTAGE_3(46,
 					"Line failure overvoltage L3 The voltage of a grid phase is too low; the grid cannot be fed into. The phase experiencing failure is displayed."), //
 			GRID_FAILURE_PHASETOPHASE(47, "Grid failure phase-to-phase voltage"), //
+
 			LINE_FAILURE_UNDERFREQ(48,
 					"Line failure: underfreq. Grid frequency is too low. This fault may be gridrelated."), //
 			LINE_FAILURE_OVERFREQ(49,
