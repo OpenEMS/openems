@@ -145,11 +145,18 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 
 	@Override
 	public void run() throws OpenemsNamedException {
+
 		if (!this.ess.isManaged() && this.config.mode() != Mode.OFF) {
 			this._setConfiguredEssIsNotManaged(true);
 			return;
 		}
 		this._setConfiguredEssIsNotManaged(false);
+
+		if (!this.sum.getProductionActivePower().isDefined()) {
+			this._setNoValidProductionPredictionChannel(true);
+			return;
+		}
+		this._setNoValidProductionPredictionChannel(false);
 
 		// Updates the time channels.
 		this.calculateTime();
