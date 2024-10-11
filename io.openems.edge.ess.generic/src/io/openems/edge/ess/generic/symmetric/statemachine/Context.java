@@ -22,29 +22,40 @@ public class Context extends AbstractContext<GenericManagedEss> {
 	}
 
 	/**
-	 * Does Ess, Battery or BatteryInverter have any failure?.
+	 * Generic ess has faults.
+	 * 
+	 * <p>
+	 * Check for any faults in the generic ess and its dependent battery or battery
+	 * inverter.
 	 * 
 	 * @return true on any failure
 	 */
-	public boolean hasFaults() {
+	public boolean hasEssFaults() {
 		return this.getParent().hasFaults() || this.battery.hasFaults() || this.batteryInverter.hasFaults();
 	}
 
 	/**
-	 * Are Battery and BatteryInverter started?.
+	 * Is generic ess started.
 	 * 
-	 * @return true if battery and battery-inverter are started
+	 * <p>
+	 * Generic ess is started when battery and battery-inverter started.
+	 * 
+	 * @return true if battery and battery-inverter started
 	 */
-	public boolean isStarted() {
+	public boolean isEssStarted() {
 		return this.battery.isStarted() && this.batteryInverter.isStarted();
 	}
 
 	/**
-	 * Are Ess and Battery stopped.
+	 * Is generic ess stopped.
 	 * 
-	 * @return true if there is no DC voltage.
+	 * <p>
+	 * Generic ess is stopped when at least the battery stopped. In many cases the
+	 * BatteryInverter is not able to not stop.
+	 * 
+	 * @return true if the system stopped.
 	 */
-	public boolean isStopped() {
-		return this.getParent().isStopped() || this.battery.isStopped();
+	public boolean isEssStopped() {
+		return this.battery.isStopped();
 	}
 }

@@ -10,11 +10,11 @@ public class StartedHandler extends StateHandler<State, Context> {
 	public State runAndGetNextState(Context context) {
 		final var ess = context.getParent();
 
-		if (context.hasFaults()) {
+		if (context.hasEssFaults()) {
 			return State.ERROR;
 		}
 
-		if (!context.isStarted()) {
+		if (!context.isEssStarted()) {
 			return State.ERROR;
 		}
 

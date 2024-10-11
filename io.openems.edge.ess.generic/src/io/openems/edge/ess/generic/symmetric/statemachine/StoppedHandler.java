@@ -10,11 +10,11 @@ public class StoppedHandler extends StateHandler<State, Context> {
 	public State runAndGetNextState(Context context) {
 		final var ess = context.getParent();
 
-		if (context.hasFaults()) {
+		if (context.hasEssFaults()) {
 			return State.ERROR;
 		}
 
-		if (!context.isStopped()) {
+		if (!context.isEssStopped()) {
 			return State.ERROR;
 		}
 

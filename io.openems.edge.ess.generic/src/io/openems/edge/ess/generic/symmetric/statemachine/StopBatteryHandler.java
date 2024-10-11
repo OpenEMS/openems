@@ -20,7 +20,7 @@ public class StopBatteryHandler extends StateHandler<State, Context> {
 		final var ess = context.getParent();
 		final var battery = context.battery;
 
-		if (context.hasFaults()) {
+		if (context.hasEssFaults()) {
 			return State.ERROR;
 		}
 

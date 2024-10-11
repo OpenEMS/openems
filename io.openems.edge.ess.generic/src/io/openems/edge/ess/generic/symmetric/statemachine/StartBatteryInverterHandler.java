@@ -20,7 +20,7 @@ public class StartBatteryInverterHandler extends StateHandler<State, Context> {
 		final var ess = context.getParent();
 		final var inverter = context.batteryInverter;
 
-		if (context.hasFaults()) {
+		if (context.hasEssFaults()) {
 			return State.ERROR;
 		}
 
