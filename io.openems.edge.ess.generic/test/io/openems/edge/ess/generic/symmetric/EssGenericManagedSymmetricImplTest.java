@@ -133,4 +133,36 @@ public class EssGenericManagedSymmetricImplTest {
 		assertEquals("Started|SoC:60 %|L:0 W|Allowed:-56000;46550", sut.debugLog());
 	}
 
+	@Test
+	public void testTimeout() throws Exception {
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
+		new ComponentTest(new EssGenericManagedSymmetricImpl()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("batteryInverter", new DummyManagedSymmetricBatteryInverter(BATTERY_INVERTER_ID)) //
+				.addReference("battery", new DummyBattery(BATTERY_ID)) //
+				.activate(MyConfig.create() //
+						.setId(ESS_ID) //
+						.setStartStopConfig(StartStopConfig.START) //
+						.setBatteryInverterId(BATTERY_INVERTER_ID) //
+						.setBatteryId(BATTERY_ID) //
+						.build()) //
+				.next(new TestCase() //
+						.output(ESS_STATE_MACHINE, State.UNDEFINED)) //
+				.next(new TestCase() //
+						.output(ESS_STATE_MACHINE, State.START_BATTERY)) //
+				.next(new TestCase("Start the Battery") //
+						.input(BATTERY_START_STOP, StartStop.START)) //
+				.next(new TestCase() //
+						.output(ESS_STATE_MACHINE, State.START_BATTERY_INVERTER)) //
+				.next(new TestCase()//
+						.input(BATTERY_INVERTER_START_STOP, StartStop.STOP)//
+						.timeleap(clock, 350, ChronoUnit.SECONDS)//
+				)//
+				.next(new TestCase() //
+						.output(ESS_STATE_MACHINE, State.ERROR)) //
+				.next(new TestCase() //
+						.output(ESS_STATE_MACHINE, State.ERROR)) //
+		;
+	}
 }

@@ -29,13 +29,22 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	 */
 	public static int RETRY_COMMAND_MAX_ATTEMPTS = 30;
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+	/**
+	 * Retry set-command after x Seconds, e.g. for starting battery or
+	 * battery-inverter.
+	 */
+	public static int TIMEOUT = 300;
 
-		/*
-		 * Whenever one of these Level.FAULT states is true, the GenericEss will stop
-		 * the battery and the inverter.
-		 */
-		MAX_BATTERY_START_ATTEMPTS_FAULT(Doc.of(Level.FAULT) //
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		TIMEOUT_START_BATTERY(Doc.of(Level.FAULT) //
+				.text("Start battery timeout passed!")), //
+		TIMEOUT_START_BATTERY_INVERTER(Doc.of(Level.FAULT) //
+				.text("Start battery inverter timeout passed!")), //
+		TIMEOUT_STOP_BATTERY(Doc.of(Level.FAULT) //
+				.text("Stop battery timeout passed!")), //
+		TIMEOUT_STOP_BATTERY_INVERTER(Doc.of(Level.FAULT) //
+				.text("Stop battery inverter timeout passed!")), //
+		MAX_BATTERY_START_ATTEMPTS_FAULT(Doc.of(Level.WARNING) //
 				.text("The maximum number of Battery start attempts failed")), //
 		MAX_BATTERY_STOP_ATTEMPTS_FAULT(Doc.of(Level.FAULT) //
 				.text("The maximum number of Battery stop attempts failed")), //
@@ -73,7 +82,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	}
 
 	/**
-	 * Gets the {@link StateChannel} for
+	 * Gets the StateChannel value for
 	 * {@link ChannelId#MAX_BATTERY_START_ATTEMPTS_FAULT}.
 	 *
 	 * @return the Channel {@link Value}
@@ -102,7 +111,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	}
 
 	/**
-	 * Gets the {@link StateChannel} for
+	 * Gets the StateChannel value for
 	 * {@link ChannelId#MAX_BATTERY_STOP_ATTEMPTS_FAULT}.
 	 *
 	 * @return the Channel {@link Value}
@@ -132,7 +141,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	}
 
 	/**
-	 * Gets the {@link StateChannel} for
+	 * Gets the StateChannel value for
 	 * {@link ChannelId#MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT}.
 	 *
 	 * @return the Channel {@link Value}
@@ -162,7 +171,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	}
 
 	/**
-	 * Gets the {@link StateChannel} for
+	 * Gets the StateChannel value for
 	 * {@link ChannelId#MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT}.
 	 *
 	 * @return the Channel {@link Value}
@@ -179,6 +188,120 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	 */
 	public default void _setMaxBatteryInverterStopAttemptsFault(boolean value) {
 		this.getMaxBatteryInverterStopAttemptsFaultChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#TIMEOUT_START_BATTERY}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getTimeoutStartBatteryChannel() {
+		return this.channel(ChannelId.TIMEOUT_START_BATTERY);
+	}
+
+	/**
+	 * Gets the StateChannel value for {@link ChannelId#TIMEOUT_START_BATTERY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getTimeoutStartBattery() {
+		return this.getTimeoutStartBatteryChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#TIMEOUT_START_BATTERY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setTimeoutStartBattery(boolean value) {
+		this.getTimeoutStartBatteryChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#TIMEOUT_START_BATTERY_INVERTER}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getTimeoutStartBatteryInverterhannel() {
+		return this.channel(ChannelId.TIMEOUT_START_BATTERY_INVERTER);
+	}
+
+	/**
+	 * Gets the StateChannel value for
+	 * {@link ChannelId#TIMEOUT_START_BATTERY_INVERTER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getTimeoutStartBatteryInverter() {
+		return this.getTimeoutStartBatteryInverterhannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#TIMEOUT_START_BATTERY_INVERTER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setTimeoutStartBatteryInverter(boolean value) {
+		this.getTimeoutStartBatteryInverterhannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#TIMEOUT_STOP_BATTERY_INVERTER}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getTimeoutStopBatteryInverterChannel() {
+		return this.channel(ChannelId.TIMEOUT_STOP_BATTERY_INVERTER);
+	}
+
+	/**
+	 * Gets the StateChannel value for
+	 * {@link ChannelId#TIMEOUT_STOP_BATTERY_INVERTER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getTimeoutStopBatteryInverter() {
+		return this.getTimeoutStopBatteryInverterChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#TIMEOUT_STOP_BATTERY_INVERTER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setTimeoutStopBatteryInverter(boolean value) {
+		this.getTimeoutStopBatteryInverterChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#TIMEOUT_STOP_BATTERY}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getTimeoutStopBatteryChannel() {
+		return this.channel(ChannelId.TIMEOUT_STOP_BATTERY);
+	}
+
+	/**
+	 * Gets the StateChannel value for {@link ChannelId#TIMEOUT_STOP_BATTERY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getTimeoutStopBattery() {
+		return this.getTimeoutStopBatteryChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#TIMEOUT_STOP_BATTERY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setTimeoutStopBattery(boolean value) {
+		this.getTimeoutStopBatteryChannel().setNextValue(value);
 	}
 
 }
