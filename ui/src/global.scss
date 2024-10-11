@@ -34,6 +34,21 @@ ion-refresher-content {
     }
 }
 
+ion-content.background {
+    --background: url('assets/img/fenecon-energy-journey.png') 40% 80% / cover no-repeat fixed;
+
+    ion-card {
+        border-radius: 1em;
+        opacity: 0.9;
+    }
+}
+
+@media (min-width: 768px) {
+    ion-content.background {
+        --background: url('assets/img/fenecon-energy-journey.png') center center / cover no-repeat fixed;
+    }
+}
+
 .custom-ion-popover {
 
     white-space: inherit;
@@ -53,6 +68,13 @@ ion-refresher-content {
         display: none;
     }
 
+}
+
+.disabled {
+    color: gray;
+    pointer-events: none;
+    opacity: 0.5;
+    /* Makes it semi-transparent */
 }
 
 formly-wrapper-ion-form-field,
@@ -404,4 +426,8 @@ ion-modal.full-width {
     --storage-segment-2: block;
     --storage-segment-3: block;
     --storage-segment-4: block;
+}
+
+.card-with-primary-border {
+    border: 2px solid $primary-color;
 }

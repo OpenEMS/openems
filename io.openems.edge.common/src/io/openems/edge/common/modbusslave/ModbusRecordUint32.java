@@ -20,8 +20,7 @@ public class ModbusRecordUint32 extends ModbusRecordConstant {
 
 	@Override
 	public String toString() {
-		return "ModbusRecordUInt32 [value=" + this.value + "/0x" + Integer.toHexString(this.value) + ", type="
-				+ this.getType() + "]";
+		return generateToString("ModbusRecordUInt32", this.value, Integer::toHexString);
 	}
 
 	/**

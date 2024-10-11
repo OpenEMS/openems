@@ -46,11 +46,11 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 				.text("Stop battery inverter timeout passed!")), //
 		MAX_BATTERY_START_ATTEMPTS_FAULT(Doc.of(Level.WARNING) //
 				.text("The maximum number of Battery start attempts failed")), //
-		MAX_BATTERY_STOP_ATTEMPTS_FAULT(Doc.of(Level.FAULT) //
+		MAX_BATTERY_STOP_ATTEMPTS_FAULT(Doc.of(Level.WARNING) //
 				.text("The maximum number of Battery stop attempts failed")), //
-		MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT(Doc.of(Level.FAULT) //
+		MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT(Doc.of(Level.WARNING) //
 				.text("The maximum number of Battery-Inverter start attempts failed")), //
-		MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT(Doc.of(Level.FAULT) //
+		MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT(Doc.of(Level.WARNING) //
 				.text("The maximum number of Battery-Inverter stop attempts failed")); //
 
 		private final Doc doc;

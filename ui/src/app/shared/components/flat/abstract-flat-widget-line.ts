@@ -30,7 +30,10 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   */
   public displayValue: string | null = null;
 
+  protected displayName: string = null;
   protected show: boolean = true;
+
+  private _name: string | ((value: any) => string);
   private _channelAddress: ChannelAddress | null = null;
 
   /**
@@ -47,6 +50,15 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     @Inject(ModalController) protected modalCtrl: ModalController,
     @Inject(DataService) private dataService: DataService,
   ) { }
+
+  @Input() set name(value: string | { channel: ChannelAddress, converter: (value: any) => string }) {
+    if (typeof value === "object") {
+      this.subscribe(value.channel);
+      this._name = value.converter;
+    } else {
+      this._name = value;
+    }
+  }
 
   /** Channel defines the channel, you need for this line */
   @Input()
@@ -79,7 +91,14 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   }
 
   protected setValue(value: any) {
+    if (typeof this._name == "function") {
+      this.displayName = this._name(value);
+
+    } else {
+      this.displayName = this._name;
+    }
     this.displayValue = this.converter(value);
+
     if (this.filter) {
       this.show = this.filter(value);
     }

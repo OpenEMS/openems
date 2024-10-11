@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import { MenuController, ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -24,6 +24,8 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     public currentPage: "EdgeSettings" | "Other" | "IndexLive" | "IndexHistory" = "Other";
     public isSystemLogEnabled: boolean = false;
     private ngUnsubscribe: Subject<void> = new Subject<void>();
+    private _customBackUrl: string | null = null;
+
 
     constructor(
         private cdRef: ChangeDetectorRef,
@@ -34,6 +36,14 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         public websocket: Websocket,
         private route: ActivatedRoute,
     ) { }
+
+    @Input() public set customBackUrl(url: string | null) {
+        if (!url) {
+            return;
+        }
+        this._customBackUrl = url;
+        this.updateBackUrl(url);
+    }
 
     ngOnInit() {
         // set inital URL
@@ -73,6 +83,11 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     updateBackUrl(url: string) {
+
+        if (this._customBackUrl) {
+            this.backUrl = this._customBackUrl;
+            return;
+        }
 
         // disable backUrl & Segment Navigation on initial 'login' page
         if (url === "/login" || url === "/overview" || url === "/index") {

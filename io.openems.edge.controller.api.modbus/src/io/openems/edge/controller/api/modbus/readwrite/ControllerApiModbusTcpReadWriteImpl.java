@@ -30,10 +30,12 @@ import com.ghgande.j2mod.modbus.ModbusException;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
@@ -59,20 +61,23 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
-		implements ControllerApiModbusTcpReadWrite, ModbusTcpApi, Controller, OpenemsComponent, ComponentJsonApi, TimedataProvider {
+		implements ControllerApiModbusTcpReadWrite, ModbusTcpApi, Controller, OpenemsComponent, ComponentJsonApi,
+		TimedataProvider, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerApiModbusTcpReadWriteImpl.class);
-	
+
 	private final CalculateActiveTime calculateCumulatedActiveTime = new CalculateActiveTime(this,
 			ControllerApiModbusTcpReadWrite.ChannelId.CUMULATED_ACTIVE_TIME);
-	
+
 	private final CalculateActiveTime calculateCumulatedInactiveTime = new CalculateActiveTime(this,
 			ControllerApiModbusTcpReadWrite.ChannelId.CUMULATED_INACTIVE_TIME);
-	
+
 	private List<String> writeChannels;
-	
+
+	private List<OpenemsComponent> components = new ArrayList<>();
+
 	private boolean isActive = false;
-	
+
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
@@ -90,10 +95,12 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
 	)
 	protected void addComponent(OpenemsComponent component) {
 		super.addComponent(component);
+		this.components.add(component);
 	}
 
 	protected void removeComponent(OpenemsComponent component) {
 		super.removeComponent(component);
+		this.components.remove(component);
 	}
 
 	public ControllerApiModbusTcpReadWriteImpl() {
@@ -131,12 +138,12 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
 	protected void deactivate() {
 		super.deactivate();
 	}
-	
+
 	@Override
 	public void run() throws OpenemsNamedException {
 		this.isActive = false;
 		super.run();
-		
+
 		this.calculateCumulatedActiveTime.update(this.isActive);
 		this.calculateCumulatedInactiveTime.update(!this.isActive);
 	}

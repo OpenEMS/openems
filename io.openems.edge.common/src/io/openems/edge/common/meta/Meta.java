@@ -3,6 +3,7 @@ package io.openems.edge.common.meta;
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
+import io.openems.common.channel.Unit;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
@@ -12,6 +13,7 @@ import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 
 public interface Meta extends ModbusSlave {
 
@@ -29,7 +31,18 @@ public interface Meta extends ModbusSlave {
 		 */
 		VERSION(Doc.of(OpenemsType.STRING) //
 				.persistencePriority(PersistencePriority.HIGH)),
-
+		/**
+		 * System Time: seconds since 1st January 1970 00:00:00 UTC.
+		 *
+		 * <ul>
+		 * <li>Interface: Meta
+		 * <li>Type: Long
+		 * </ul>
+		 */
+		SYSTEM_TIME_UTC(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.SECONDS) //
+				.text("System Time: seconds since 1st January 1970 00:00:00 UTC") //
+				.persistencePriority(PersistencePriority.VERY_LOW)),
 		/**
 		 * Edge currency.
 		 * 

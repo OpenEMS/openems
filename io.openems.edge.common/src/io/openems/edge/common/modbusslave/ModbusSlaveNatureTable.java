@@ -63,22 +63,12 @@ public final class ModbusSlaveNatureTable {
 			} else {
 				// Channel did not pass filter -> show as Reserved
 				switch (type) {
-				case FLOAT32:
-					this.float32Reserved(offset);
-					break;
-				case FLOAT64:
-					this.float64Reserved(offset);
-					break;
-				case STRING16:
-					this.string16Reserved(offset);
-					break;
-				case ENUM16:
-				case UINT16:
-					this.uint16Reserved(offset);
-					break;
-				case UINT32:
-					this.uint32Reserved(offset);
-					break;
+				case FLOAT32 -> this.float32Reserved(offset);
+				case FLOAT64 -> this.float64Reserved(offset);
+				case STRING16 -> this.string16Reserved(offset);
+				case ENUM16, UINT16 -> this.uint16Reserved(offset);
+				case UINT32 -> this.uint32Reserved(offset);
+				case UINT64 -> this.uint64Reserved(offset);
 				}
 			}
 			return this;
@@ -155,6 +145,18 @@ public final class ModbusSlaveNatureTable {
 		 */
 		public Builder uint32Reserved(int offset) {
 			this.add(new ModbusRecordUint32Reserved(offset));
+			return this;
+		}
+
+		/**
+		 * Add a Unsigned Int 64 Reserved value to the {@link ModbusSlaveNatureTable}
+		 * {@link Builder}.
+		 * 
+		 * @param offset the address offset
+		 * @return myself
+		 */
+		public Builder uint64Reserved(int offset) {
+			this.add(new ModbusRecordUint64Reserved(offset));
 			return this;
 		}
 
