@@ -15,10 +15,9 @@
 
                 <!-- Shown if emergencyReserve is enabled for this ess -->
                 <ng-container *ngIf="isEmergencyReserveEnabled[component.id]">
-                    <svg>
-                        <rect y="2" rx="0" ry="0" width="1%"
-                            [attr.x]="'calc(' + (reserve['currentReserveSoc'] > 98 ? 98 : reserve['currentReserveSoc'])  + '% + 2px)'"
-                            height="18" style="fill:#0008;" />
+                    <svg *ngIf="reserve['currentReserveSoc'] as reserveSoc">
+                        <rect y="2" rx="0" ry="0" width="1%" height="18"
+                            [style]="'x: calc(' + (reserveSoc > 98 ? 98 : reserveSoc) + '% + 2px); fill: #0008;'" />
                     </svg>
                 </ng-container>
             </oe-flat-widget-percentagebar>
