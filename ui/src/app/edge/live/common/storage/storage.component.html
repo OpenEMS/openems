@@ -16,7 +16,7 @@
                 <!-- Shown if emergencyReserve is enabled for this ess -->
                 <ng-container *ngIf="isEmergencyReserveEnabled[component.id]">
                     <svg>
-                        <rect y="3" rx="0" ry="0" width="1%"
+                        <rect y="2" rx="0" ry="0" width="1%"
                             [attr.x]="'calc(' + (reserve['currentReserveSoc'] > 98 ? 98 : reserve['currentReserveSoc'])  + '% + 2px)'"
                             height="18" style="fill:#0008;" />
                     </svg>
