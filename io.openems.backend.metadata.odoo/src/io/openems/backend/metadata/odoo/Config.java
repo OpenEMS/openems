@@ -45,9 +45,9 @@ public @interface Config {
 
 	@AttributeDefinition(name = "Number of Threads", description = "Pool-Size: the maximum number of concurrent connections")
 	int pgConnectionPoolSize() default 40;
-	
-	@AttributeDefinition(name = "Refresh Time", description = "Time in minutes to refresh the edge caching - 0 means deactivate refreshing Logic.")
-	int refreshTime() default 20;
+
+	@AttributeDefinition(name = "Cache Refresh Interval", description = "Interval in minutes to refresh the Edges cache; 0 to disable refreshing")
+	int cacheRefreshInterval() default 20;
 
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	DebugMode debugMode() default DebugMode.OFF;
