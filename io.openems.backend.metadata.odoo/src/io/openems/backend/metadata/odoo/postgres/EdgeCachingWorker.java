@@ -17,9 +17,9 @@ import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.common.utils.ThreadPoolUtils;
 
-public class InitializeEdgesWorker {
+public class EdgeCachingWorker {
 
-	private final Logger log = LoggerFactory.getLogger(InitializeEdgesWorker.class);
+	private final Logger log = LoggerFactory.getLogger(EdgeCachingWorker.class);
 	protected final PostgresHandler parent;
 	private final HikariDataSource dataSource;
 	private final Runnable onFinished;
@@ -31,14 +31,14 @@ public class InitializeEdgesWorker {
 	 */
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-	public InitializeEdgesWorker(PostgresHandler parent, HikariDataSource dataSource, Runnable onFinished) {
+	public EdgeCachingWorker(PostgresHandler parent, HikariDataSource dataSource, Runnable onFinished) {
 		this.parent = parent;
 		this.dataSource = dataSource;
 		this.onFinished = onFinished;
 	}
 
 	/**
-	 * Starts the {@link InitializeEdgesWorker}.
+	 * Starts the {@link EdgeCachingWorker}.
 	 */
 	public synchronized void start() {
 		this.executor.execute(() -> {
@@ -80,7 +80,7 @@ public class InitializeEdgesWorker {
 	}
 
 	/**
-	 * Stops the {@link InitializeEdgesWorker}.
+	 * Stops the {@link EdgeCachingWorker}.
 	 */
 	public synchronized void stop() {
 		// Shutdown executor

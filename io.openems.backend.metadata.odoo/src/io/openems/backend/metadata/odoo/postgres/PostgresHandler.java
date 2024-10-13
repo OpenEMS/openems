@@ -24,7 +24,7 @@ public class PostgresHandler {
 	private final Config config;
 	private final MetadataOdoo parent;
 	private final HikariDataSource dataSource;
-	private final InitializeEdgesWorker initializeEdgesWorker;
+	private final EdgeCachingWorker initializeEdgesWorker;
 	private final PeriodicWriteWorker periodicWriteWorker;
 
 	public PostgresHandler(MetadataOdoo parent, EdgeCache edgeCache, Config config, Runnable onInitialized)
@@ -34,7 +34,7 @@ public class PostgresHandler {
 		this.dataSource = this.getDataSource(config);
 		this.edge = new PgEdgeHandler(this.dataSource);
 		this.config = config;
-		this.initializeEdgesWorker = new InitializeEdgesWorker(this, this.dataSource, () -> {
+		this.initializeEdgesWorker = new EdgeCachingWorker(this, this.dataSource, () -> {
 			onInitialized.run();
 		});
 		this.initializeEdgesWorker.start();
@@ -90,7 +90,7 @@ public class PostgresHandler {
 	}
 
 	public int getRefreshTime() {
-		return config.refreshTime();
+		return this.config.cacheRefreshInterval();
 	}
 
 	protected Connection getConnection() throws SQLException {
