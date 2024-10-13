@@ -1,8 +1,8 @@
 // @ts-strict-ignore
-import { ChartComponentLike, ChartDataset } from "chart.js";
 
 import { formatNumber } from "@angular/common";
 import { TranslateService } from "@ngx-translate/core";
+import { ChartComponentLike, ChartDataset } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { HistoryUtils, Utils } from "../../service/utils";
 import { Language } from "../../type/language";
