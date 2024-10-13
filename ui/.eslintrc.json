@@ -20,6 +20,7 @@
         "createDefaultProgram": true
       },
       "plugins": [
+        "import",
         "unused-imports",
         "@stylistic"
       ],
@@ -27,11 +28,19 @@
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@angular-eslint/recommended",
-        "plugin:@angular-eslint/template/process-inline-templates"
+        "plugin:@angular-eslint/template/process-inline-templates",
+        "plugin:import/recommended"
       ],
       "rules": {
         "curly": "error",
         "unused-imports/no-unused-imports": "error",
+        "import/order": [
+          "error",
+          {
+            "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
+            "alphabetize": { "order": "asc", "caseInsensitive": true }
+          }
+        ],
         "@typescript-eslint/explicit-member-accessibility": [
           "error",
           {
@@ -111,6 +120,11 @@
             "message": "Using 'xdescribe' is not allowed."
           }
         ]
+      },
+      "settings": {
+        "import/resolver": {
+          "typescript": {}
+        }
       }
     },
     {
