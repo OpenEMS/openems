@@ -132,6 +132,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		var fromDate = ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS);
 		var toDate = fromDate.plusDays(1);
 		var unableToUpdatePrices = false;
+		double exchangeRate = 1.0;
 
 		try {
 			final var result = EntsoeApi.query(token, areaCode, fromDate, toDate);
@@ -141,15 +142,27 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 				throw new OpenemsException("Global Currency is UNDEFINED. Please configure it in Core.Meta component");
 			}
 
-			final var exchangeRate = globalCurrency.name().equals(entsoeCurrency) //
+			exchangeRate = globalCurrency.name().equals(entsoeCurrency) //
 					? 1. // No need to fetch exchange rate from API.
 					: getExchangeRate(exchangerateAccesskey, entsoeCurrency, globalCurrency);
 			// Parse the response for the prices
 			this.prices.set(parsePrices(result, "PT60M", exchangeRate));
 
 		} catch (IOException | ParserConfigurationException | SAXException | OpenemsNamedException e) {
-			this.logWarn(this.log, "Unable to Update Entsoe Time-Of-Use Price: " + e.getMessage());
-			e.printStackTrace();
+			this.logWarn(this.log, "Unable to Update ENTSO-E Time-Of-Use Price for PT60M: " + e.getMessage());
+			this.log.error("Exception occurred during PT60M query", e);
+
+			try {
+				// Attempt to parse PT15M prices as a fallback
+				final var result = EntsoeApi.query(token, areaCode, fromDate, toDate);
+				this.prices.set(parsePrices(result, "PT15M", exchangeRate));
+			} catch (Exception fallbackException) {
+				this.logWarn(this.log,
+						"Unable to Update ENTSO-E Time-Of-Use Price for PT15M: " + fallbackException.getMessage());
+				this.log.error("Exception occurred during PT15M query", fallbackException);
+				this.prices.set(TimeOfUsePrices.EMPTY_PRICES); // Set to EMPTY_PRICES
+				unableToUpdatePrices = true;
+			}
 			unableToUpdatePrices = true;
 		}
 
