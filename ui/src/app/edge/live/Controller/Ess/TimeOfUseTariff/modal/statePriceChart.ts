@@ -4,13 +4,13 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { AbstractHistoryChart } from "src/app/edge/history/abstracthistorychart";
+import { calculateResolution } from "src/app/edge/history/shared";
 import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 
-import { calculateResolution } from "src/app/edge/history/shared";
-import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { GetScheduleRequest } from "../../../../../../shared/jsonrpc/request/getScheduleRequest";
 import { GetScheduleResponse } from "../../../../../../shared/jsonrpc/response/getScheduleResponse";
