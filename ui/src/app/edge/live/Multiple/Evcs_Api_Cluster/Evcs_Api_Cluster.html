@@ -1,5 +1,5 @@
 <oe-flat-widget button style="cursor: pointer;" (click)="presentModal()" *ngIf="isInitialized"
-  [icon]="{name: 'oe-evcs', color: 'environmental'}" [title]="alias | translate">
+  [icon]="{name: 'oe-evcs', color: 'environmental'}" [title]="component.alias">
 
   <ng-container *ngIf="isConnectionSuccessful, else noConnection">
     <oe-flat-widget-line [name]="'Edge.Index.Widgets.EVCS.amountOfChargingStations'| translate"
