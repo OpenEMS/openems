@@ -21,6 +21,7 @@ public class PostgresHandler {
 
 	protected final EdgeCache edgeCache;
 
+	private final Config config;
 	private final MetadataOdoo parent;
 	private final HikariDataSource dataSource;
 	private final InitializeEdgesWorker initializeEdgesWorker;
@@ -32,6 +33,7 @@ public class PostgresHandler {
 		this.edgeCache = edgeCache;
 		this.dataSource = this.getDataSource(config);
 		this.edge = new PgEdgeHandler(this.dataSource);
+		this.config = config;
 		this.initializeEdgesWorker = new InitializeEdgesWorker(this, this.dataSource, () -> {
 			onInitialized.run();
 		});
@@ -85,6 +87,10 @@ public class PostgresHandler {
 		result.setMaximumPoolSize(config.pgConnectionPoolSize());
 		result.setDataSource(pgds);
 		return result;
+	}
+
+	public int getRefreshTime() {
+		return config.refreshTime();
 	}
 
 	protected Connection getConnection() throws SQLException {

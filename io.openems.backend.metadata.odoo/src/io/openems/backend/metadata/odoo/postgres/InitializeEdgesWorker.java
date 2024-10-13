@@ -46,16 +46,23 @@ public class InitializeEdgesWorker {
 				// First Execution Immediately
 				this.runCachingEdgesTask(con);
 
-				// Plan the scheduled Execution
-				this.scheduledExecutor.scheduleAtFixedRate(() -> {
-					try (var newCon = this.dataSource.getConnection()) {
-						this.runCachingEdgesTask(newCon);
-					} catch (SQLException e) {
-						this.logError("Fehler beim erneuten Verbinden mit Postgres.", e);
-					}
-				}, 20, 20, TimeUnit.MINUTES);
+				// Configure Refresh-Time
+				int refreshTimeInMinutes = this.parent.getRefreshTime();
+
+				// Schedule Execution only if refreshTime is greater than 0
+				if (refreshTimeInMinutes > 0) {
+					this.scheduledExecutor.scheduleAtFixedRate(() -> {
+						try (var newCon = this.dataSource.getConnection()) {
+							this.runCachingEdgesTask(newCon);
+						} catch (SQLException e) {
+							this.logError("Error while re-connecting to Postgres dataSource.", e);
+						}
+					}, refreshTimeInMinutes, refreshTimeInMinutes, TimeUnit.MINUTES);
+				} else {
+					this.parent.logInfo(this.log, "Refresh time is set to 0. Caching logic is deactivated.");
+				}
 			} catch (SQLException e) {
-				this.logError("Unable to connect do dataSource. ", e);
+				this.logError("Unable to connect to dataSource.", e);
 			}
 			this.onFinished.run();
 		});
