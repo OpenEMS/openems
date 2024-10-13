@@ -154,14 +154,15 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	@Override
-	public String toString() {
-		String tokenString;
-		if (this.token.isPresent()) {
-			tokenString = this.token.get().toString();
-		} else {
-			tokenString = "UNKNOWN";
-		}
-		return "UiWebsocket.WsData [userId=" + this.userId.orElse("UNKNOWN") + ", token=" + tokenString + "]";
+	protected String toLogString() {
+		return new StringBuilder("UiWebsocket.WsData [userId=") //
+				.append(this.userId.orElse("UNKNOWN")) //
+				.append(", token=") //
+				.append(this.token.isPresent() //
+						? this.token.get().toString() //
+						: "UNKNOWN") //
+				.append("]") //
+				.toString();
 	}
 
 	/**

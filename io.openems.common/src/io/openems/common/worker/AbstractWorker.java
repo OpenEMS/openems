@@ -65,9 +65,7 @@ public abstract class AbstractWorker {
 	 *                                false
 	 */
 	public void modified(String name, boolean initiallyTriggerNextRun) {
-		if (!this.thread.isAlive() && !this.thread.isInterrupted() && !this.isStopped.get()) {
-			this.startWorker(name, initiallyTriggerNextRun);
-		}
+		this.startWorker(name, initiallyTriggerNextRun);
 	}
 
 	/**
@@ -79,12 +77,13 @@ public abstract class AbstractWorker {
 		this.modified(name, true);
 	}
 
-	private void startWorker(String name, boolean autoTriggerNextRun) {
+	private synchronized void startWorker(String name, boolean autoTriggerNextRun) {
 		if (name != null) {
 			this.thread.setName(name);
 		}
-		this.thread.start();
-
+		if (!this.thread.isAlive() && !this.thread.isInterrupted() && !this.isStopped.get()) {
+			this.thread.start();
+		}
 		if (autoTriggerNextRun) {
 			this.triggerNextRun();
 		}

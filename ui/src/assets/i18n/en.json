@@ -201,7 +201,9 @@
             "name": "Force charging",
             "shortName": "Manually"
           },
-          "Uncontrollable": "This charging station can not be controlled."
+          "Uncontrollable": "This charging station can not be controlled.",
+          "HYSTERESIS": "Minimum switching time of the charging station active",
+          "HYSTERESIS_INFO": "For preventing charging interruptions due to frequent starting/pausing of the charing process, the charging mode currently selected will continue for the next few minutes."
         },
         "Heatingelement": {
           "activeForced": "Active (Minimum runtime)",
@@ -314,7 +316,8 @@
       "activeDuration": "active duration",
       "CURRENT_AND_VOLTAGE": "Current & Voltage",
       "CURRENT": "Current",
-      "VOLTAGE": "Voltage"
+      "VOLTAGE": "Voltage",
+      "PHASE_ACCURATE": "Phasengenau"
     },
     "Config": {
       "Index": {

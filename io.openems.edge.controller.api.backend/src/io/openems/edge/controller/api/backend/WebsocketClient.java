@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.common.websocket.OnClose;
+import io.openems.common.websocket.WsData;
 
 public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 

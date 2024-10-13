@@ -108,6 +108,17 @@
           {
             "allowDefaultCaseForExhaustiveSwitch": false
           }
+        ],
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "CallExpression[callee.name='fdescribe']",
+            "message": "Using 'fdescribe' is not allowed."
+          },
+          {
+            "selector": "CallExpression[callee.name='xdescribe']",
+            "message": "Using 'xdescribe' is not allowed."
+          }
         ]
       },
       "settings": {

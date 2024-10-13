@@ -265,82 +265,82 @@ public interface BatterySoltaroClusterVersionC extends //
 		// Master BMS Alarm Registers
 		MASTER_EMS_COMMUNICATION_FAILURE(Doc.of(Level.WARNING) //
 				.text("Master EMS Communication Failure")),
-		MASTER_PCS_CONTROL_FAILURE(Doc.of(Level.FAULT) //
+		MASTER_PCS_CONTROL_FAILURE(Doc.of(Level.WARNING) //
 				.text("Master PCS Control Failure")),
-		MASTER_PCS_COMMUNICATION_FAILURE(Doc.of(Level.FAULT) //
+		MASTER_PCS_COMMUNICATION_FAILURE(Doc.of(Level.WARNING) //
 				.text("Master PCS Communication Failure")),
 		// Rack #1 cannot be paralleled to DC Bus reasons
-		RACK_1_LEVEL_2_ALARM(Doc.of(Level.FAULT) //
+		RACK_1_LEVEL_2_ALARM(Doc.of(Level.WARNING) //
 				.text("Rack 1 Level 2 Alarm")),
-		RACK_1_PCS_CONTROL_FAILURE(Doc.of(Level.FAULT) //
+		RACK_1_PCS_CONTROL_FAILURE(Doc.of(Level.WARNING) //
 				.text("Rack 1 PCS Control Failure")),
-		RACK_1_COMMUNICATION_TO_MASTER_FAILURE(Doc.of(Level.FAULT) //
+		RACK_1_COMMUNICATION_TO_MASTER_FAILURE(Doc.of(Level.WARNING) //
 				.text("Rack 1 Communication to Master BMS Failure")),
-		RACK_1_HARDWARE_FAILURE(Doc.of(Level.FAULT) //
+		RACK_1_HARDWARE_FAILURE(Doc.of(Level.WARNING) //
 				.text("Rack 1 Hardware Failure")),
-		RACK_1_OVER_CURRENT(Doc.of(Level.FAULT) //
+		RACK_1_OVER_CURRENT(Doc.of(Level.WARNING) //
 				.text("Rack 1 Too big circulating Current among clusters (>4A)")),
-		RACK_1_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
+		RACK_1_VOLTAGE_DIFFERENCE(Doc.of(Level.WARNING) //
 				.text("Rack 1 Too big boltage difference among clusters (>50V)")),
 		// Rack #2 cannot be paralleled to DC Bus reasons
-		RACK_2_LEVEL_2_ALARM(Doc.of(Level.FAULT) //
+		RACK_2_LEVEL_2_ALARM(Doc.of(Level.WARNING) //
 				.text("Rack 2 Level 2 Alarm")),
-		RACK_2_PCS_CONTROL_FAILURE(Doc.of(Level.FAULT) //
+		RACK_2_PCS_CONTROL_FAILURE(Doc.of(Level.WARNING) //
 				.text("Rack 2 PCS Control Failure")),
-		RACK_2_COMMUNICATION_TO_MASTER_FAILURE(Doc.of(Level.FAULT) //
+		RACK_2_COMMUNICATION_TO_MASTER_FAILURE(Doc.of(Level.WARNING) //
 				.text("Rack 2 Communication to Master BMS Failure")),
-		RACK_2_HARDWARE_FAILURE(Doc.of(Level.FAULT) //
+		RACK_2_HARDWARE_FAILURE(Doc.of(Level.WARNING) //
 				.text("Rack 2 Hardware Failure")),
-		RACK_2_OVER_CURRENT(Doc.of(Level.FAULT) //
+		RACK_2_OVER_CURRENT(Doc.of(Level.WARNING) //
 				.text("Rack 2 Too big circulating Current among clusters (>4A)")),
-		RACK_2_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
+		RACK_2_VOLTAGE_DIFFERENCE(Doc.of(Level.WARNING) //
 				.text("Rack 2 Too big boltage difference among clusters (>50V)")),
 		// Rack #3 cannot be paralleled to DC Bus reasons
-		RACK_3_LEVEL_2_ALARM(Doc.of(Level.FAULT) //
+		RACK_3_LEVEL_2_ALARM(Doc.of(Level.WARNING) //
 				.text("Rack 3 Level 2 Alarm")),
-		RACK_3_PCS_CONTROL_FAILURE(Doc.of(Level.FAULT) //
+		RACK_3_PCS_CONTROL_FAILURE(Doc.of(Level.WARNING) //
 				.text("Rack 3 PCS Control Failure")),
-		RACK_3_COMMUNICATION_TO_MASTER_FAILURE(Doc.of(Level.FAULT) //
+		RACK_3_COMMUNICATION_TO_MASTER_FAILURE(Doc.of(Level.WARNING) //
 				.text("Rack 3 Communication to Master BMS Failure")),
-		RACK_3_HARDWARE_FAILURE(Doc.of(Level.FAULT) //
+		RACK_3_HARDWARE_FAILURE(Doc.of(Level.WARNING) //
 				.text("Rack 3 Hardware Failure")),
-		RACK_3_OVER_CURRENT(Doc.of(Level.FAULT) //
+		RACK_3_OVER_CURRENT(Doc.of(Level.WARNING) //
 				.text("Rack 3 Too big circulating Current among clusters (>4A)")),
-		RACK_3_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
+		RACK_3_VOLTAGE_DIFFERENCE(Doc.of(Level.WARNING) //
 				.text("Rack 3 Too big boltage difference among clusters (>50V)")),
 		// Rack #4 cannot be paralleled to DC Bus reasons
-		RACK_4_LEVEL_2_ALARM(Doc.of(Level.FAULT) //
+		RACK_4_LEVEL_2_ALARM(Doc.of(Level.WARNING) //
 				.text("Rack 4 Level 2 Alarm")),
-		RACK_4_PCS_CONTROL_FAILURE(Doc.of(Level.FAULT) //
+		RACK_4_PCS_CONTROL_FAILURE(Doc.of(Level.WARNING) //
 				.text("Rack 4 PCS Control Failure")),
-		RACK_4_COMMUNICATION_TO_MASTER_FAILURE(Doc.of(Level.FAULT) //
+		RACK_4_COMMUNICATION_TO_MASTER_FAILURE(Doc.of(Level.WARNING) //
 				.text("Rack 4 Communication to Master BMS Failure")),
-		RACK_4_HARDWARE_FAILURE(Doc.of(Level.FAULT) //
+		RACK_4_HARDWARE_FAILURE(Doc.of(Level.WARNING) //
 				.text("Rack 4 Hardware Failure")),
-		RACK_4_OVER_CURRENT(Doc.of(Level.FAULT) //
+		RACK_4_OVER_CURRENT(Doc.of(Level.WARNING) //
 				.text("Rack 4 Too big circulating Current among clusters (>4A)")),
-		RACK_4_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
+		RACK_4_VOLTAGE_DIFFERENCE(Doc.of(Level.WARNING) //
 				.text("Rack 4 Too big boltage difference among clusters (>50V)")),
 		// Rack #5 cannot be paralleled to DC Bus reasons
-		RACK_5_LEVEL_2_ALARM(Doc.of(Level.FAULT) //
+		RACK_5_LEVEL_2_ALARM(Doc.of(Level.WARNING) //
 				.text("Rack 5 Level 2 Alarm")),
-		RACK_5_PCS_CONTROL_FAILURE(Doc.of(Level.FAULT) //
+		RACK_5_PCS_CONTROL_FAILURE(Doc.of(Level.WARNING) //
 				.text("Rack 5 PCS Control Failure")),
-		RACK_5_COMMUNICATION_TO_MASTER_FAILURE(Doc.of(Level.FAULT) //
+		RACK_5_COMMUNICATION_TO_MASTER_FAILURE(Doc.of(Level.WARNING) //
 				.text("Rack 5 Communication to Master BMS Failure")),
-		RACK_5_HARDWARE_FAILURE(Doc.of(Level.FAULT) //
+		RACK_5_HARDWARE_FAILURE(Doc.of(Level.WARNING) //
 				.text("Rack 5 Hardware Failure")),
-		RACK_5_OVER_CURRENT(Doc.of(Level.FAULT) //
+		RACK_5_OVER_CURRENT(Doc.of(Level.WARNING) //
 				.text("Rack 5 Too big circulating Current among clusters (>4A)")),
-		RACK_5_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
+		RACK_5_VOLTAGE_DIFFERENCE(Doc.of(Level.WARNING) //
 				.text("Rack 5 Too big boltage difference among clusters (>50V)")),
 
 		// OpenEMS Faults
-		RUN_FAILED(Doc.of(Level.FAULT) //
+		RUN_FAILED(Doc.of(Level.WARNING) //
 				.text("Running the Logic failed")), //
-		MAX_START_ATTEMPTS(Doc.of(Level.FAULT) //
+		MAX_START_ATTEMPTS(Doc.of(Level.WARNING) //
 				.text("The maximum number of start attempts failed")), //
-		MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
+		MAX_STOP_ATTEMPTS(Doc.of(Level.WARNING) //
 				.text("The maximum number of stop attempts failed")), //
 		NUMBER_OF_MODULES_PER_TOWER(Doc.of(OpenemsType.INTEGER) //
 				.persistencePriority(PersistencePriority.HIGH) //

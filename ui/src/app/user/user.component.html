@@ -139,11 +139,6 @@
             <p class="ion-padding">
               <span [innerHTML]="'About.contact' | translate:{value: 'info@openems.io'}"></span>
             </p>
-            <ion-item lines="none">
-              <ion-checkbox slot="end" (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode">
-              </ion-checkbox>
-              <ion-label translate>Debug-Mode</ion-label>
-            </ion-item>
           </ion-card-content>
         </ion-card>
         <ion-card>
@@ -166,6 +161,12 @@
                 The language can not be changed permanently in the local online-monitoring for technical
                 reasons.</small>
             </ion-note>
+
+            <ion-item lines="none" *ngIf="isAtLeastAdmin">
+              <ion-checkbox slot="end" (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode">
+              </ion-checkbox>
+              <ion-label translate>Debug-Mode</ion-label>
+            </ion-item>
           </ion-card-content>
         </ion-card>
       </ion-col>

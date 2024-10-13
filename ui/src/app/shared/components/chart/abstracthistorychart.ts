@@ -28,6 +28,7 @@ import { Converter } from "../shared/converter";
 import { ChartConstants, XAxisType } from "./chart.constants";
 
 import "chartjs-adapter-date-fns";
+import { JsonRpcUtils } from "../../jsonrpc/jsonrpcutils";
 
 Chart.Chart.register(annotationPlugin);
 
@@ -166,15 +167,20 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   public static fillData(element: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>, label: string, chartObject: HistoryUtils.ChartData, chartType: "line" | "bar", data: number[] | null): { datasets: Chart.ChartDataset[], legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean; }[]; } {
     const legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean; }[] = [];
     const datasets: Chart.ChartDataset[] = [];
+    let normalizedData: (number | null)[] = data;
+
+    if (chartObject.normalizeOutputData == true) {
+      normalizedData = JsonRpcUtils.normalizeQueryData(data);
+    }
 
     // Enable one dataset to be displayed in multiple stacks
     if (Array.isArray(element.stack)) {
       for (const stack of element.stack) {
-        datasets.push(AbstractHistoryChart.getDataSet(element, label, data, stack, chartObject, element.custom?.type ?? chartType));
+        datasets.push(AbstractHistoryChart.getDataSet(element, label, normalizedData, stack, chartObject, element.custom?.type ?? chartType));
         legendOptions.push(AbstractHistoryChart.getLegendOptions(label, element));
       }
     } else {
-      datasets.push(AbstractHistoryChart.getDataSet(element, label, data, element.stack, chartObject, element.custom?.type ?? chartType));
+      datasets.push(AbstractHistoryChart.getDataSet(element, label, normalizedData, element.stack, chartObject, element.custom?.type ?? chartType));
       legendOptions.push(AbstractHistoryChart.getLegendOptions(label, element));
     }
 
@@ -460,6 +466,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       return null;
     };
 
+    options.plugins.tooltip.enabled = chartObject.tooltip.enabled ?? true;
+
     // Remove duplicates from legend, if legendItem with two or more occurrences in legend, use one legendItem to trigger them both
     options.plugins.legend.onClick = function (event: Chart.ChartEvent, legendItem: Chart.LegendItem, legend) {
       const chart: Chart.Chart = this.chart;
@@ -556,11 +564,17 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           },
         };
         break;
+      case YAxisType.VOLTAGE:
+      case YAxisType.CURRENT:
+        options.scales[element.yAxisId] = {
+          ...baseConfig,
+          beginAtZero: false,
+        };
+        break;
+
       case YAxisType.POWER:
       case YAxisType.ENERGY:
       case YAxisType.REACTIVE:
-      case YAxisType.VOLTAGE:
-      case YAxisType.CURRENT:
       case YAxisType.NONE:
         options.scales[element.yAxisId] = baseConfig;
         break;
@@ -869,7 +883,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
       ])
         .then(([dataResponse, energyResponse]) => {
-
           dataResponse = DateTimeUtils.normalizeTimestamps(unit, dataResponse);
           this.chartType = "line";
           this.chartObject = this.getChartData();

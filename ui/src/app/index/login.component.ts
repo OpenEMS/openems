@@ -35,16 +35,16 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
   ) { }
 
   /**
- * Trims credentials
- *
- * @param password the password
- * @param username the username
- * @returns trimmed credentials
- */
-  public static trimCredentials(password: string, username?: string): { password: string, username?: string } {
+   * Preprocesses the credentials
+   *
+   * @param password the password
+   * @param username the username
+   * @returns trimmed credentials
+   */
+  public static preprocessCredentials(password: string, username?: string): { password: string, username?: string } {
     return {
       password: password?.trim(),
-      ...(username && { username: username?.trim() }),
+      ...(username && { username: username?.trim().toLowerCase() }),
     };
   }
 
@@ -95,7 +95,7 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
   public doLogin(param: { username?: string, password: string }) {
 
     this.websocket.state.set(States.AUTHENTICATION_WITH_CREDENTIALS);
-    param = LoginComponent.trimCredentials(param.password, param.username);
+    param = LoginComponent.preprocessCredentials(param.password, param.username);
 
     // Prevent that user submits via keyevent 'enter' multiple times
     if (this.formIsDisabled) {

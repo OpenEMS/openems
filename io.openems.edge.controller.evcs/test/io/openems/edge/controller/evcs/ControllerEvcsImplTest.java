@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
@@ -15,6 +16,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.evcs.api.ChargeMode;
+import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.test.DummyEvcsPower;
 import io.openems.edge.evcs.test.DummyManagedEvcs;
@@ -42,6 +44,9 @@ public class ControllerEvcsImplTest {
 	private static ChannelAddress evcs0SetPowerRequest = new ChannelAddress("evcs0", "SetChargePowerRequest");
 	private static ChannelAddress evcs0Status = new ChannelAddress("evcs0", "Status");
 	private static ChannelAddress evcs0MaximumHardwarePower = new ChannelAddress("evcs0", "MaximumHardwarePower");
+	private static ChannelAddress evcs0MinimumHardwarePower = new ChannelAddress("evcs0", "MinimumHardwarePower");
+	private static ChannelAddress evcsController0AwaitingHysteresis = new ChannelAddress("ctrlEvcs0",
+			"AwaitingHysteresis");
 
 	@Test
 	public void excessChargeTest1() throws Exception {
@@ -266,5 +271,83 @@ public class ControllerEvcsImplTest {
 						.output(evcs0SetChargePowerLimit, 0) //
 						.output(evcs0MaximumPower, null)) //
 		;
+	}
+
+	@Test
+	public void hysteresisTest() throws Exception {
+
+		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
+				ZoneOffset.UTC);
+
+		new ControllerTest(new ControllerEvcsImpl(clock)) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("sum", new DummySum()) //
+				.addReference("evcs", EVCS) //
+				.activate(MyConfig.create() //
+						.setId("ctrlEvcs0") //
+						.setEvcsId(EVCS_ID) //
+						.setEnableCharging(DEFAULT_ENABLE_CHARGING) //
+						.setChargeMode(DEFAULT_CHARGE_MODE) //
+						.setForceChargeMinPower(DEFAULT_FORCE_CHARGE_MIN_POWER) //
+						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
+						.setPriority(DEFAULT_PRIORITY) //
+						.setEnergySessionLimit(DEFAULT_ENERGY_SESSION_LIMIT) //
+						.setExcessChargeHystersis(120) //
+						.setExcessChargePauseHysteresis(30) //
+						.build()) //
+				.next(new TestCase() //
+						.input(sumEssDischargePower, 0) //
+						.input(evcs0IsClustered, false) //
+						.input(sumGridActivePower, -6_000) //
+						.input(evcs0ChargePower, 0) //
+						.output(evcs0SetChargePowerLimit, 6_000)) //
+				.next(new TestCase() //
+						.input(sumEssDischargePower, 0) //
+						.input(sumGridActivePower, -200) //
+						.input(evcs0ChargePower, 5800) //
+						.output(evcs0SetChargePowerLimit, 6_000)) //
+				.next(new TestCase() //
+						.input(sumEssDischargePower, 0) //
+						.input(sumGridActivePower, 500) //
+						.input(evcs0ChargePower, 5800) //
+						.input(evcs0MinimumHardwarePower, Evcs.DEFAULT_MINIMUM_HARDWARE_POWER)
+						.output(evcs0SetChargePowerLimit, 5300))
+
+				// Active hysteresis
+				.next(new TestCase() //
+						.input(sumEssDischargePower, 0) //
+						.input(sumGridActivePower, 1000) //
+						.input(evcs0ChargePower, 5000) //
+						.output(evcs0SetChargePowerLimit, 5_300) //
+						.output(evcsController0AwaitingHysteresis, true)) //
+				.next(new TestCase() //
+						.timeleap(clock, 6, ChronoUnit.MINUTES)) //
+
+				// Passed hysteresis
+				.next(new TestCase() //
+						.input(sumEssDischargePower, 0) //
+						.input(sumGridActivePower, 1000) //
+						.input(evcs0ChargePower, 5000) //
+						.output(evcs0SetChargePowerLimit, 0) //
+						.output(evcsController0AwaitingHysteresis, false)) //
+
+				// Active hysteresis
+				.next(new TestCase() //
+						.input(sumEssDischargePower, 0) //
+						.input(sumGridActivePower, -5000) //
+						.input(evcs0ChargePower, 0) //
+						.output(evcs0SetChargePowerLimit, 0) //
+						.output(evcsController0AwaitingHysteresis, true))
+
+				.next(new TestCase() //
+						.timeleap(clock, 1, ChronoUnit.MINUTES)) //
+
+				// New charge process starting after another 30 seconds
+				.next(new TestCase() //
+						.input(sumEssDischargePower, 0) //
+						.input(sumGridActivePower, -5000) //
+						.input(evcs0ChargePower, 0) //
+						.output(evcs0SetChargePowerLimit, 5000) //
+						.output(evcsController0AwaitingHysteresis, false)); //
 	}
 }

@@ -200,7 +200,9 @@
             "name": "Erzwungene Beladung",
             "shortName": "Manuell"
           },
-          "Uncontrollable": "Diese Ladesäule kann nicht gesteuert werden."
+          "Uncontrollable": "Diese Ladesäule kann nicht gesteuert werden.",
+          "HYSTERESIS": "Mindestumschaltzeit der Ladestation aktiv",
+          "HYSTERESIS_INFO": "Um Ladeabbrüche aufgrund zu häufigen Startens/Pausierens des Ladevorgangs zu verhindern, wird der aktuell eingestellte Lademodus für die nächsten Minuten fortgesetzt."
         },
         "Heatingelement": {
           "activeForced": "Aktiv (Mindestlaufzeit)",
@@ -271,6 +273,7 @@
       "SYSTEMUPDATE": "Systemupdate"
     },
     "History": {
+      "PHASE_ACCURATE": "Phasengenau",
       "CURRENT_AND_VOLTAGE": "Strom & Spannung",
       "beginDate": "Startdatum wählen",
       "day": "Tag",

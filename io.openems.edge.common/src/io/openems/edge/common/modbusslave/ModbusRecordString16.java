@@ -20,7 +20,7 @@ public class ModbusRecordString16 extends ModbusRecordConstant {
 
 	@Override
 	public String toString() {
-		return "ModbusRecordString16 [value=" + this.value + ", type=" + this.getType() + "]";
+		return this.generateToString("ModbusRecordString16", this.value);
 	}
 
 	/**
@@ -30,6 +30,9 @@ public class ModbusRecordString16 extends ModbusRecordConstant {
 	 * @return the byte array
 	 */
 	public static byte[] toByteArray(String value) {
+		if (value == null) {
+			return UNDEFINED_VALUE;
+		}
 		var result = new byte[BYTE_LENGTH];
 		var converted = value.getBytes(StandardCharsets.US_ASCII);
 		System.arraycopy(converted, 0, result, 0, Math.min(BYTE_LENGTH, converted.length));

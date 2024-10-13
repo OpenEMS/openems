@@ -2,6 +2,8 @@ package io.openems.edge.controller.evcs;
 
 import java.io.IOException;
 import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -25,6 +27,8 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.evcs.api.ChargeMode;
+import io.openems.edge.evcs.api.ChargeState;
 import io.openems.edge.evcs.api.ManagedEvcs;
 
 @Designate(ocd = Config.class, factory = true)
@@ -40,6 +44,16 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEvcsImpl.class);
 	private final ChargingLowerThanTargetHandler chargingLowerThanTargetHandler;
+	private final Clock clock;
+
+	// Time of last charge power change, used for the hysteresis
+	private Instant lastInitialCharge = Instant.MIN;
+
+	// Time of last charge pause, used for the hysteresis
+	private Instant lastChargePause = Instant.MIN;
+
+	// Last charge power, used for the hysteresis
+	private int lastChargePower = 0;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -62,6 +76,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 				Controller.ChannelId.values(), //
 				ControllerEvcs.ChannelId.values() //
 		);
+		this.clock = clock;
 		this.chargingLowerThanTargetHandler = new ChargingLowerThanTargetHandler(clock);
 	}
 
@@ -205,6 +220,11 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 			}
 		}
 
+		if (this.config.chargeMode().equals(ChargeMode.EXCESS_POWER)) {
+			// Apply hysteresis
+			nextChargePower = this.applyHysteresis(nextChargePower);
+		}
+
 		if (isClustered) {
 			this.evcs.setChargePowerRequest(nextChargePower);
 		} else {
@@ -273,6 +293,82 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 		result -= 200;
 
 		return result > 0 ? result : 0;
+	}
+
+	/**
+	 * Applies the hysteresis to avoid too quick changes between a charge process
+	 * and a pause.
+	 *
+	 * @param nextChargePower the next charge power limit
+	 * @return next charge power or the last power if hysteresis is active
+	 */
+	private int applyHysteresis(int nextChargePower) {
+		int targetChargePower = nextChargePower;
+		boolean showWarning = false;
+		var now = Instant.now(this.clock);
+
+		// Wait at least the EVCS-specific response time, required to increase and
+		// decrease the charging power
+		if (awaitLastChanges(this.evcs.getChargeState().asEnum())) {
+			// Still waiting for increasing, decreasing the power or undefined
+			return this.lastChargePower;
+		}
+		// TODO: Show info, test and check if bellow logic still needed or need to be
+		// different (Change only when we would change for xSeconds)
+
+		// New charge power limit
+		if (this.lastChargePower <= 0 && nextChargePower > 0) {
+			var hysteresis = Duration.ofSeconds(this.config.excessChargePauseHysteresis());
+			if (this.lastChargePause.plus(hysteresis).isBefore(now)) {
+
+				// Start charing
+				this.lastInitialCharge = now;
+			} else {
+				// Wait for hysteresis
+				showWarning = true;
+				targetChargePower = this.lastChargePower;
+			}
+		}
+
+		// Pause charging by limiting to zero
+		if (this.lastChargePower > 0 && nextChargePower <= 0) {
+			var hysteresis = Duration.ofSeconds(this.config.excessChargeHystersis());
+			if (this.lastInitialCharge.plus(hysteresis).isBefore(now)) {
+
+				// Pause charing
+				targetChargePower = 0;
+				this.lastChargePause = now;
+			} else {
+				// Wait for hysteresis
+				showWarning = true;
+				targetChargePower = this.lastChargePower;
+			}
+		}
+
+		// Apply results
+		this.lastChargePower = targetChargePower;
+		this.channel(ControllerEvcs.ChannelId.AWAITING_HYSTERESIS).setNextValue(showWarning);
+
+		return targetChargePower;
+	}
+
+	/**
+	 * Check if the evcs should wait for last changes.
+	 * 
+	 * <p>
+	 * Since the charging stations and each car have their own response time until
+	 * they charge at the set power, the controller waits until everything runs
+	 * normally.
+	 * 
+	 * @param chargeState current evcs charge state
+	 * @return The cvcs should await or not
+	 */
+	private static boolean awaitLastChanges(ChargeState chargeState) {
+		if (chargeState.equals(ChargeState.INCREASING) || chargeState.equals(ChargeState.INCREASING)) {
+			// Still waiting for increasing, decreasing the power
+			return true;
+		}
+		return false;
 	}
 
 	@Override

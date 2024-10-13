@@ -464,7 +464,6 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				highestLevel = Level.INFO;
 			}
 		}
-
 		this.getStateChannel().setNextValue(highestLevel);
 	}
 

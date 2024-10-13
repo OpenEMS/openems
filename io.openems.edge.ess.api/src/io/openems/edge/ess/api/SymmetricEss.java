@@ -215,6 +215,7 @@ public interface SymmetricEss extends OpenemsComponent {
 				.channel(8, ChannelId.MAX_CELL_VOLTAGE, ModbusType.FLOAT32) //
 				.channel(10, ChannelId.MIN_CELL_TEMPERATURE, ModbusType.FLOAT32) //
 				.channel(12, ChannelId.MAX_CELL_TEMPERATURE, ModbusType.FLOAT32) //
+				.channel(14, ChannelId.CAPACITY, ModbusType.FLOAT32) //
 				.build();
 	}
 

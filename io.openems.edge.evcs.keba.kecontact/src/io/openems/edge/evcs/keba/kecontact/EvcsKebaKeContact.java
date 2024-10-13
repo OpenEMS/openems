@@ -119,8 +119,7 @@ public interface EvcsKebaKeContact extends ManagedEvcs, Evcs, OpenemsComponent, 
 		DIP_SWITCH_ERROR_2_6_NOT_SET_FOR_STATIC_IP(Doc.of(Level.FAULT) //
 				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
 				.text("A static ip is configured. The Dip-Switch 2.6. must be on")), //
-		DIP_SWITCH_ERROR_2_6_SET_FOR_DYNAMIC_IP(Doc.of(Level.FAULT) //
-				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
+		DIP_SWITCH_ERROR_2_6_SET_FOR_DYNAMIC_IP(Doc.of(OpenemsType.BOOLEAN) //
 				.text("A dynamic ip is configured. Either the Dip-Switch 2.6. must be off or a static ip has to be configured")), //
 		DIP_SWITCH_INFO_2_5_SET_FOR_MASTER_SLAVE_COMM(Doc.of(Level.INFO) //
 				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //

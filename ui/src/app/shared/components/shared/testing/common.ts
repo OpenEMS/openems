@@ -26,7 +26,7 @@ export namespace OeTester {
       type: "option",
       options: {
         "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": {}, "line": {} }, "plugins": {
-          "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "index", "callbacks": {} }, "annotation": { "annotations": {} }, "datalabels": {
+          "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "index", "callbacks": {}, "enabled": true }, "annotation": { "annotations": {} }, "datalabels": {
             display: false,
           },
         }, "scales": {
@@ -46,7 +46,7 @@ export namespace OeTester {
       type: "option",
       options: {
         "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 1 }, "line": {} }, "plugins": {
-          "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {} }, "annotation": { "annotations": {} }, "datalabels": {
+          "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true }, "annotation": { "annotations": {} }, "datalabels": {
             display: false,
           },
         }, "scales": {
@@ -75,6 +75,7 @@ export namespace OeTester {
             "display": true, "position": "bottom", "labels": { "color": "" },
           }, "tooltip": {
             "intersect": false, "mode": "index", "callbacks": {},
+            "enabled": true,
           },
           "annotation": {
             "annotations": {},
@@ -112,7 +113,7 @@ export namespace OeTester {
       type: "option",
       options: {
         "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 1 }, "line": {} }, "plugins": {
-          "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {} }, "annotation": { "annotations": {} }, "datalabels": {
+          "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true }, "annotation": { "annotations": {} }, "datalabels": {
             display: false,
           },
         }, "scales": {

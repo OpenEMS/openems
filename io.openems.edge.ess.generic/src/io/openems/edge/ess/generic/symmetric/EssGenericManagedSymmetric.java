@@ -4,7 +4,9 @@ import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -38,6 +40,53 @@ public interface EssGenericManagedSymmetric extends GenericManagedEss, ManagedSy
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#STATE_MACHINE}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<State> getStateMachineChannel() {
+		return this.channel(ChannelId.STATE_MACHINE);
+	}
+
+	/**
+	 * Gets the StateMachine channel value for {@link ChannelId#STATE_MACHINE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<State> getStateMachine() {
+		return this.getStateMachineChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#STATE_MACHINE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setStateMachine(State value) {
+		this.getStateMachineChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#RUN_FAILED}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Boolean> getRunFailedChannel() {
+		return this.channel(ChannelId.RUN_FAILED);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#RUN_FAILED}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setRunFailed(boolean value) {
+		this.getRunFailedChannel().setNextValue(value);
 	}
 
 	@Override

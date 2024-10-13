@@ -46,10 +46,6 @@
 
       <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
 
-        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Io.FixDigitalOutput'">
-          <fixDigitalOutputWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
-          </fixDigitalOutputWidget>
-        </ion-col>
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Symmetric.PeakShaving'">
           <symmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
           </symmetricPeakshavingWidget>

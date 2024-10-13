@@ -6,7 +6,7 @@ import { ToastController } from "@ionic/angular";
 import { LangChangeEvent, TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerService } from "ngx-spinner";
 import { BehaviorSubject, Subject } from "rxjs";
-import { filter, first, take } from "rxjs/operators";
+import { filter, first, map, take } from "rxjs/operators";
 import { ChosenFilter } from "src/app/index/filter/filter.component";
 import { environment } from "src/environments";
 import { ChartConstants } from "../components/chart/chart.constants";
@@ -182,6 +182,24 @@ export class Service extends AbstractService {
       ).toPromise().then(resolve);
       if (this.currentEdge.value) {
         resolve(this.currentEdge.value);
+      }
+    });
+  }
+
+  /**
+   * Gets the current user
+   *
+   * @returns a Promise of the user
+   */
+  public getCurrentUser(): Promise<User> {
+    return new Promise<User>((resolve) => {
+      this.metadata.pipe(
+        filter(metadata => metadata != null && metadata.user != null),
+        map(metadata => metadata.user),
+        first(),
+      ).toPromise().then(resolve);
+      if (this.currentUser) {
+        resolve(this.currentUser);
       }
     });
   }

@@ -37,6 +37,7 @@ export class ModalComponent extends AbstractModal {
   protected isChargingEnabled: boolean = false;
   protected sessionLimit: number;
   protected helpKey: string;
+  protected awaitingHysteresis: boolean;
 
   constructor(
     @Inject(Websocket) protected override websocket: Websocket,
@@ -116,11 +117,13 @@ export class ModalComponent extends AbstractModal {
       new ChannelAddress(this.controller?.id, "_PropertyChargeMode"),
       new ChannelAddress(this.controller?.id, "_PropertyEnabledCharging"),
       new ChannelAddress(this.controller?.id, "_PropertyDefaultChargeMinPower"),
+      new ChannelAddress(this.controller?.id, "AwaitingHysteresis"),
     ];
   }
 
   protected override onCurrentData(currentData: CurrentData) {
     this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] !== 3 ? true : false;
+    this.awaitingHysteresis = currentData.allComponents[this.controller?.id + "/AwaitingHysteresis"];
     // Do not change values after touching formControls
     if (this.formGroup?.pristine) {
       this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);

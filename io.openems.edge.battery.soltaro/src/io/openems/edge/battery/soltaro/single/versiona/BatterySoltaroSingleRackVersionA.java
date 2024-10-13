@@ -681,29 +681,29 @@ public interface BatterySoltaroSingleRackVersionA
 				.text("Cluster 1 Total Voltage High Alarm Level 1")), //
 		ALARM_LEVEL_1_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 1 Cell Voltage High Alarm Level 1")), //
-		FAILURE_INITIALIZATION(Doc.of(Level.FAULT) //
+		FAILURE_INITIALIZATION(Doc.of(Level.WARNING) //
 				.text("Initialization failure")), //
-		FAILURE_EEPROM(Doc.of(Level.FAULT) //
+		FAILURE_EEPROM(Doc.of(Level.WARNING) //
 				.text("EEPROM fault")), //
-		FAILURE_INTRANET_COMMUNICATION(Doc.of(Level.FAULT) //
+		FAILURE_INTRANET_COMMUNICATION(Doc.of(Level.WARNING) //
 				.text("Intranet communication fault")), //
-		FAILURE_TEMP_SAMPLING_LINE(Doc.of(Level.FAULT) //
+		FAILURE_TEMP_SAMPLING_LINE(Doc.of(Level.WARNING) //
 				.text("Temperature sampling line fault")), //
-		FAILURE_BALANCING_MODULE(Doc.of(Level.FAULT) //
+		FAILURE_BALANCING_MODULE(Doc.of(Level.WARNING) //
 				.text("Balancing module fault")), //
-		FAILURE_TEMP_SENSOR(Doc.of(Level.FAULT) //
+		FAILURE_TEMP_SENSOR(Doc.of(Level.WARNING) //
 				.text("Temperature sensor fault")), //
-		FAILURE_TEMP_SAMPLING(Doc.of(Level.FAULT) //
+		FAILURE_TEMP_SAMPLING(Doc.of(Level.WARNING) //
 				.text("Temperature sampling fault")), //
-		FAILURE_VOLTAGE_SAMPLING(Doc.of(Level.FAULT) //
+		FAILURE_VOLTAGE_SAMPLING(Doc.of(Level.WARNING) //
 				.text("Voltage sampling fault")), //
-		FAILURE_LTC6803(Doc.of(Level.FAULT) //
+		FAILURE_LTC6803(Doc.of(Level.WARNING) //
 				.text("LTC6803 fault")), //
 		FAILURE_CONNECTOR_WIRE(Doc.of(Level.WARNING) //
 				.text("connector wire fault")), //
-		FAILURE_SAMPLING_WIRE(Doc.of(Level.FAULT) //
+		FAILURE_SAMPLING_WIRE(Doc.of(Level.WARNING) //
 				.text("sampling wire fault")), //
-		PRECHARGE_TAKING_TOO_LONG(Doc.of(Level.FAULT) //
+		PRECHARGE_TAKING_TOO_LONG(Doc.of(Level.WARNING) //
 				.text("precharge time was too long")), //
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
