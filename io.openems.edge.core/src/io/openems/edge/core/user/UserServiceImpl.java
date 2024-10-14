@@ -25,7 +25,7 @@ import io.openems.edge.common.user.UserService;
 @Component(//
 		name = "Core.User", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.OPTIONAL //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class UserServiceImpl implements UserService {
 
