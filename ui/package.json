@@ -5,7 +5,7 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "18.2.5",
-    "@angular/common": "18.2.5",
+    "@angular/common": "18.2.8",
     "@angular/core": "18.2.5",
     "@angular/forms": "18.2.5",
     "@angular/platform-browser": "18.2.5",
@@ -53,8 +53,8 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.2.8",
-    "@angular-devkit/core": "18.2.5",
-    "@angular-devkit/schematics": "18.2.5",
+    "@angular-devkit/core": "18.2.8",
+    "@angular-devkit/schematics": "18.2.8",
     "@angular-eslint/builder": "^18.3.1",
     "@angular-eslint/eslint-plugin": "^18.3.1",
     "@angular-eslint/eslint-plugin-template": "^18.3.1",
