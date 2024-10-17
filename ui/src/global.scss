@@ -416,3 +416,17 @@ ion-modal.full-width {
 .card-with-primary-border {
     border: 2px solid $primary-color;
 }
+
+.masonry {
+    column-count: 1;
+    column-gap: 0;
+
+    >div {
+        display: inline-block;
+        width: 100%;
+    }
+
+    @media (min-width: 1024px) {
+        column-count: 2;
+    }
+}
