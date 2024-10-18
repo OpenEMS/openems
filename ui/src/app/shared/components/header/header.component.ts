@@ -205,6 +205,11 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
         // Strip queryParams
         const cleanUrl = url.split("?")[0];
+
+        if (url.includes("/history/")) {
+            return false;
+        }
+
         switch (cleanUrl) {
             case "/login":
             case "/index":

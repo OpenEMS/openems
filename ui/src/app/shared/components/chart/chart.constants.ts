@@ -83,6 +83,7 @@ export class ChartConstants {
           size: 11,
         },
       },
+      stacked: chartType === "line" ? false : true,
       beginAtZero: beginAtZero,
       position: element.position,
       grid: {
@@ -115,14 +116,19 @@ export class ChartConstants {
   public static getScaleOptions(datasets: ChartDataset[], yAxis: HistoryUtils.yAxes, chartType: "line" | "bar"): { min: number; max: number; stepSize: number; } | null {
 
     const stackMap: { [index: string]: ChartDataset } = {};
-    datasets?.filter(el => el["yAxisID"] === yAxis.yAxisId).forEach(dataset => {
+    datasets?.filter(el => el["yAxisID"] === yAxis.yAxisId).forEach((dataset, index) => {
       const stackId = dataset.stack || "default"; // If no stack is defined, use "default"
 
-      if (chartType === "line") {
-        stackMap[stackId] = dataset;
+      if (dataset.hidden) {
         return;
       }
-      if (!stackMap[stackId]) {
+
+      if (chartType === "line") {
+        stackMap[index] = dataset;
+        return;
+      }
+
+      if (!(stackId in stackMap)) {
         // If the stack doesn"t exist yet, create an entry
         stackMap[stackId] = { ...dataset, data: [...dataset.data] };
       } else {
