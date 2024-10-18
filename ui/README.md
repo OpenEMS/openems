@@ -65,7 +65,9 @@ This project was generated with [angular-cli](https://github.com/angular/angular
 > [!IMPORTANT]  
 > Crucial information necessary for users to succeed. Only provide /resources/logo-dark.png and logo.png
 * Move the files from res(except values and xml) to ```/android/app/src/$theme/``` (```/main``` acts as default)
-* Build apps: `gradlew bundle{$theme}Release`
+* Build apps (execute in order):
+   - `NODE_ENV="{$theme}" ./node_modules/.bin/ionic cap build android -c "$theme,$theme-backend-deploy-app" --no-open;`
+   - `THEME="{$theme}" gradlew bundleThemeRelease`
 
 Important (if not generated, can be copied and adjusted from existing theme):
 - `ui\android\app\src\{$theme}\res\xml\file_paths.xml`
@@ -77,6 +79,7 @@ Use `gradlew install{$theme}Release to install it on any device`
 
 - Available Tasks: `gradlew tasks`
 - list available devices + emulators: `$npx native-run android --list --json`
+- use Android Studio for Debugging: `$ionic cap open android`
 
 ## i18n - internationalization
 
