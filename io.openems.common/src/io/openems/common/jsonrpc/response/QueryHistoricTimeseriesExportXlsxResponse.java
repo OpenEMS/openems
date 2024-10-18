@@ -430,9 +430,10 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 				SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data,
 				XlsxExportDetailData detailComponents, int righestColumn, ResourceBundle translationBundle)
 				throws OpenemsNamedException {
-			final var unit = "[" + detailComponents.currency().getUnderPart() + "]";
+			final var unit = "[" + detailComponents.currency().getUnderPart() + "/kWh]";
 			return XlsxUtils.addGenericData(ws, data, detailComponents, righestColumn, translationBundle,
-					XlsxExportCategory.TIME_OF_USE_TARIFF, "timeOfUse", (t, d) -> t.alias() + " " + unit, 1000f / detailComponents.currency().getRatio());
+					XlsxExportCategory.TIME_OF_USE_TARIFF, "timeOfUse", (t, d) -> t.alias() + " " + unit,
+					1000f / detailComponents.currency().getRatio());
 		}
 
 		protected static int addGenericData(//
@@ -462,7 +463,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 					final var channelAddress = item.channel();
 
 					if (XlsxUtils.isNotNull(values.get(channelAddress))) {
-						XlsxUtils.addFloatValue(ws, rowCount, righestColumn,
+						XlsxUtils.addFloatValueNotRounded(ws, rowCount, righestColumn,
 								JsonUtils.getAsFloat(values.get(channelAddress)) / ratio);
 					} else {
 						XlsxUtils.addStringValue(ws, rowCount, righestColumn, "-");
@@ -559,6 +560,19 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 		 */
 		protected static void addFloatValue(Worksheet ws, int row, int col, float value) {
 			ws.value(row, col, Math.round(value));
+		}
+
+		/**
+		 * Helper method to add the value to the excel sheet. The float value is
+		 * mathematically rounded.
+		 *
+		 * @param ws    the {@link Worksheet}
+		 * @param row   row number
+		 * @param col   column number
+		 * @param value actual value in the sheet
+		 */
+		protected static void addFloatValueNotRounded(Worksheet ws, int row, int col, float value) {
+			ws.value(row, col, value);
 		}
 
 		/**

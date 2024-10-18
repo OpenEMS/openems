@@ -52,7 +52,7 @@ public class CreateXlxsTest {
 		values.put(new ChannelAddress("meter1", "ActivePower"), new JsonPrimitive(412));
 		values.put(new ChannelAddress("evcs0", "ChargePower"), new JsonPrimitive(75));
 		values.put(new ChannelAddress("meter2", "ActivePower"), new JsonPrimitive(10));
-		values.put(new ChannelAddress("_sum", "GridBuyPower"), new JsonPrimitive(50));
+		values.put(new ChannelAddress("_sum", "GridBuyPower"), new JsonPrimitive(292.5));
 
 		return ImmutableSortedMap.<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>naturalOrder()
 				.put(ZonedDateTime.of(2020, 07, 01, 0, 15, 0, 0, ZoneId.systemDefault()).plusMinutes(15), values) //

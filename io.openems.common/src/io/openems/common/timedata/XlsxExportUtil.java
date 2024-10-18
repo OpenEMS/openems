@@ -75,11 +75,6 @@ public class XlsxExportUtil {
 									new ChannelAddress(component.getId(), "ActivePower"),
 									XlsxExportDataEntry.HistoricTimedataSaveType.POWER));
 				}
-				case Natures.EVCS -> {
-					consumption.add(new XlsxExportDataEntry(component.getAlias(),
-							new ChannelAddress(component.getId(), "ChargePower"),
-							XlsxExportDataEntry.HistoricTimedataSaveType.POWER));
-				}
 				case Natures.TIME_OF_USE_TARIFF -> {
 					tou.add(new XlsxExportDataEntry(component.getAlias(), new ChannelAddress("_sum", "GridBuyPrice"),
 							XlsxExportDataEntry.HistoricTimedataSaveType.POWER));
@@ -100,7 +95,6 @@ public class XlsxExportUtil {
 	}
 
 	private static final class Natures {
-		public static final String EVCS = "io.openems.edge.evcs.api.Evcs";
 		public static final String METER = "io.openems.edge.meter.api.ElectricityMeter";
 		public static final String TIME_OF_USE_TARIFF = "io.openems.edge.timeofusetariff.api.TimeOfUseTariff";
 		public static final Set<String> PRODUCTION_NATURES = Set.of("Simulator.PvInverter", "Fenecon.Dess.PvMeter",
@@ -110,7 +104,9 @@ public class XlsxExportUtil {
 				"SolarEdge.PV-Inverter");
 
 		public static final Set<String> CONSUMPTION_NATURES = Set.of("GoodWe.EmergencyPowerMeter",
-				"Simulator.NRCMeter.Acting");
+				"Simulator.NRCMeter.Acting", "Evcs.AlpitronicHypercharger", "Evcs.Dezony", "Evcs.Goe.ChargerHome",
+				"Evcs.HardyBarth", "Evcs.Keba.KeContact", "Evcs.Ocpp.Abl", "Evcs.Ocpp.IesKeywattSingle",
+				"Evcs.Spelsberg.SMART", "Evcs.Webasto.Next","Evcs.Webasto.Unite");
 	}
 
 }
