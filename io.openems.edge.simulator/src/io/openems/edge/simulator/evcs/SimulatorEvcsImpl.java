@@ -24,6 +24,7 @@ import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -36,7 +37,7 @@ import io.openems.edge.evcs.api.Status;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
 public class SimulatorEvcsImpl extends AbstractManagedEvcsComponent
-		implements SimulatorEvcs, ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
+		implements SimulatorEvcs, ManagedEvcs, Evcs, ElectricityMeter, OpenemsComponent, EventHandler {
 
 	@Reference
 	private EvcsPower evcsPower;
@@ -49,6 +50,7 @@ public class SimulatorEvcsImpl extends AbstractManagedEvcsComponent
 	public SimulatorEvcsImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				SimulatorEvcs.ChannelId.values() //
@@ -91,18 +93,18 @@ public class SimulatorEvcsImpl extends AbstractManagedEvcsComponent
 
 	private void updateChannels() {
 		int chargePowerLimit = this.getSetChargePowerLimit().orElse(0);
-		this._setChargePower(chargePowerLimit);
+		this._setActivePower(chargePowerLimit);
 
 		/*
 		 * Set Simulated "meter" Active Power
 		 */
-		this._setChargePower(chargePowerLimit);
+		this._setActivePower(chargePowerLimit);
 
 		/*
 		 * Set calculated energy
 		 */
 		var timeDiff = ChronoUnit.MILLIS.between(this.lastUpdate, LocalDateTime.now());
-		var energyTransfered = timeDiff / 1000.0 / 60.0 / 60.0 * this.getChargePower().orElse(0);
+		var energyTransfered = timeDiff / 1000.0 / 60.0 / 60.0 * this.getActivePower().orElse(0);
 
 		this.exactEnergySession = this.exactEnergySession + energyTransfered;
 		this._setEnergySession((int) this.exactEnergySession);
@@ -112,7 +114,7 @@ public class SimulatorEvcsImpl extends AbstractManagedEvcsComponent
 
 	@Override
 	public String debugLog() {
-		return this.getChargePower().asString();
+		return this.getActivePower().asString();
 	}
 
 	@Override
@@ -138,7 +140,7 @@ public class SimulatorEvcsImpl extends AbstractManagedEvcsComponent
 	@Override
 	public boolean applyChargePowerLimit(int power) throws OpenemsException {
 		this._setSetChargePowerLimit(power);
-		this._setChargePower(power);
+		this._setActivePower(power);
 		this._setStatus(power > 0 ? Status.CHARGING : Status.CHARGING_REJECTED);
 		return true;
 	}

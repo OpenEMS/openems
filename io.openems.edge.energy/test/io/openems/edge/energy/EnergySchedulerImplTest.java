@@ -37,8 +37,6 @@ public class EnergySchedulerImplTest {
 
 	public static final Clock CLOCK = new TimeLeapClock(Instant.parse("2020-03-04T14:19:00.00Z"), ZoneOffset.UTC);
 
-	private static final String CTRL_ID = "ctrl0";
-
 	@Test
 	public void test() throws Exception {
 		create(CLOCK);
@@ -73,7 +71,7 @@ public class EnergySchedulerImplTest {
 				.addReference("schedulables", List.of(ctrl)) //
 				.addReference("sum", sum) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
+						.setId("ctrl0") //
 						.setEnabled(false) //
 						.setLogVerbosity(TRACE) //
 						.build()) //

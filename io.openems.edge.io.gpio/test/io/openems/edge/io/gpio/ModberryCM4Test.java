@@ -1,5 +1,6 @@
 package io.openems.edge.io.gpio;
 
+import static io.openems.edge.io.gpio.hardware.HardwareType.MODBERRY_X500_M40804_W;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -27,13 +28,10 @@ import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.io.gpio.api.AbstractGpioChannel;
 import io.openems.edge.io.gpio.api.ReadChannelId;
 import io.openems.edge.io.gpio.api.WriteChannelId;
-import io.openems.edge.io.gpio.hardware.HardwareType;
 
 public class ModberryCM4Test {
 
 	private File root;
-
-	private static final String ID = "io0";
 
 	private static final List<AbstractGpioChannel> CHANNEL_IDS = List.of(//
 			new ReadChannelId(18, "DigitalInput1"), //
@@ -93,11 +91,11 @@ public class ModberryCM4Test {
 	@Test
 	public void testChannelIdsAreCorrect() throws Exception {
 		var config = MyConfig.create() //
-				.setId(ID) //
-				.setAlias(ID) //
+				.setId("io0") //
+				.setAlias("io0") //
 				.setEnabled(true) //
 				.setGpioPath(this.folder.getRoot().getAbsolutePath()) //
-				.setHardwareType(HardwareType.MODBERRY_X500_M40804_W) //
+				.setHardwareType(MODBERRY_X500_M40804_W) //
 				.build();
 		IoGpio modberryComponent = new IoGpioImpl();
 		new ComponentTest(modberryComponent).activate(config);
@@ -107,11 +105,11 @@ public class ModberryCM4Test {
 	@Test
 	public void testComponentLoadsSucesfully() throws Exception {
 		var config = MyConfig.create() //
-				.setId(ID) //
-				.setAlias(ID) //
+				.setId("io0") //
+				.setAlias("io0") //
 				.setEnabled(true) //
 				.setGpioPath(this.folder.getRoot().getAbsolutePath()) //
-				.setHardwareType(HardwareType.MODBERRY_X500_M40804_W) //
+				.setHardwareType(MODBERRY_X500_M40804_W) //
 				.build();
 		new ComponentTest(new IoGpioImpl()) //
 				.activate(config);
@@ -120,19 +118,19 @@ public class ModberryCM4Test {
 	@Test
 	public void testInputValuesAreDefault() throws Exception {
 		var config = MyConfig.create() //
-				.setId(ID) //
-				.setAlias(ID) //
+				.setId("io0") //
+				.setAlias("io0") //
 				.setEnabled(true) //
 				.setGpioPath(this.folder.getRoot().getAbsolutePath()) //
-				.setHardwareType(HardwareType.MODBERRY_X500_M40804_W) //
+				.setHardwareType(MODBERRY_X500_M40804_W) //
 				.build();
 		new ComponentTest(new IoGpioImpl()) //
 				.activate(config) //
 				.next(new TestCase("Default input values are false") //
-						.output(new ChannelAddress(ID, "DigitalInput1"), false) //
-						.output(new ChannelAddress(ID, "DigitalInput2"), false) //
-						.output(new ChannelAddress(ID, "DigitalInput3"), false) //
-						.output(new ChannelAddress(ID, "DigitalInput4"), false) //
+						.output(new ChannelAddress("io0", "DigitalInput1"), false) //
+						.output(new ChannelAddress("io0", "DigitalInput2"), false) //
+						.output(new ChannelAddress("io0", "DigitalInput3"), false) //
+						.output(new ChannelAddress("io0", "DigitalInput4"), false) //
 				);
 	}
 
@@ -143,19 +141,19 @@ public class ModberryCM4Test {
 		assertEquals(this.readGpioFile(this.root, 24), "0");
 		assertEquals(this.readGpioFile(this.root, 25), "0");
 		var config = MyConfig.create() //
-				.setId(ID) //
-				.setAlias(ID) //
+				.setId("io0") //
+				.setAlias("io0") //
 				.setEnabled(true) //
 				.setGpioPath(this.folder.getRoot().getAbsolutePath()) //
-				.setHardwareType(HardwareType.MODBERRY_X500_M40804_W) //
+				.setHardwareType(MODBERRY_X500_M40804_W) //
 				.build();
 		new ComponentTest(new IoGpioImpl()) //
 				.activate(config) //
 				.next(new TestCase("Write values are written to fs.") //
-						.input(new ChannelAddress(ID, "DigitalOutput1"), true) //
-						.input(new ChannelAddress(ID, "DigitalOutput2"), true) //
-						.input(new ChannelAddress(ID, "DigitalOutput3"), true) //
-						.input(new ChannelAddress(ID, "DigitalOutput4"), true) //
+						.input(new ChannelAddress("io0", "DigitalOutput1"), true) //
+						.input(new ChannelAddress("io0", "DigitalOutput2"), true) //
+						.input(new ChannelAddress("io0", "DigitalOutput3"), true) //
+						.input(new ChannelAddress("io0", "DigitalOutput4"), true) //
 				);
 		assertEquals(this.readGpioFile(this.root, 22), "1");
 		assertEquals(this.readGpioFile(this.root, 23), "1");
@@ -171,20 +169,20 @@ public class ModberryCM4Test {
 		assertEquals(this.readGpioFile(this.root, 21), "0");
 
 		var config = MyConfig.create() //
-				.setId(ID) //
-				.setAlias(ID) //
+				.setId("io0") //
+				.setAlias("io0") //
 				.setEnabled(true) //
 				.setGpioPath(this.folder.getRoot().getAbsolutePath()) //
-				.setHardwareType(HardwareType.MODBERRY_X500_M40804_W) //
+				.setHardwareType(MODBERRY_X500_M40804_W) //
 				.build();
 
 		new ComponentTest(new IoGpioImpl()) //
 				.activate(config) //
 				.next(new TestCase("Read values are detected by the component.") //
-						.output(new ChannelAddress(ID, "DigitalInput1"), false) //
-						.output(new ChannelAddress(ID, "DigitalInput2"), false) //
-						.output(new ChannelAddress(ID, "DigitalInput3"), false) //
-						.output(new ChannelAddress(ID, "DigitalInput4"), false) //
+						.output(new ChannelAddress("io0", "DigitalInput1"), false) //
+						.output(new ChannelAddress("io0", "DigitalInput2"), false) //
+						.output(new ChannelAddress("io0", "DigitalInput3"), false) //
+						.output(new ChannelAddress("io0", "DigitalInput4"), false) //
 				);
 
 		this.setGpioFile(this.root, 18, 1);
@@ -200,10 +198,10 @@ public class ModberryCM4Test {
 		new ComponentTest(new IoGpioImpl()) //
 				.activate(config) //
 				.next(new TestCase("Read values are detected by the component.") //
-						.output(new ChannelAddress(ID, "DigitalInput1"), true) //
-						.output(new ChannelAddress(ID, "DigitalInput2"), true) //
-						.output(new ChannelAddress(ID, "DigitalInput3"), true) //
-						.output(new ChannelAddress(ID, "DigitalInput4"), true) //
+						.output(new ChannelAddress("io0", "DigitalInput1"), true) //
+						.output(new ChannelAddress("io0", "DigitalInput2"), true) //
+						.output(new ChannelAddress("io0", "DigitalInput3"), true) //
+						.output(new ChannelAddress("io0", "DigitalInput4"), true) //
 				);
 	}
 
@@ -211,18 +209,19 @@ public class ModberryCM4Test {
 	public void testJavaApi() throws Exception {
 		this.setGpioFile(this.root, 22, 0);
 		var config = MyConfig.create() //
-				.setId(ID) //
-				.setAlias(ID) //
+				.setId("io0") //
+				.setAlias("io0") //
 				.setEnabled(true) //
 				.setGpioPath(this.folder.getRoot().getAbsolutePath()) //
-				.setHardwareType(HardwareType.MODBERRY_X500_M40804_W) //
+				.setHardwareType(MODBERRY_X500_M40804_W) //
 				.build();
 		var componentManager = new DummyComponentManager();
-		var componentTest = new ComponentTest(new IoGpioImpl()).activate(config);
+		var componentTest = new ComponentTest(new IoGpioImpl()) //
+				.activate(config);
 		componentManager.addComponent(componentTest.getSut());
 
 		// Get get component channel value as java reference
-		WriteChannel<Boolean> writeChannel = componentManager.getChannel(new ChannelAddress(ID, "DigitalOutput1"));
+		WriteChannel<Boolean> writeChannel = componentManager.getChannel(new ChannelAddress("io0", "DigitalOutput1"));
 		assertFalse(writeChannel.value().isDefined());
 		writeChannel.setNextValue(true);
 	}
@@ -231,11 +230,11 @@ public class ModberryCM4Test {
 	public void testInterfaceDigitalOutputChannels() throws Exception {
 		this.setGpioFile(this.root, 22, 0);
 		var config = MyConfig.create() //
-				.setId(ID) //
-				.setAlias(ID) //
+				.setId("io0") //
+				.setAlias("io0") //
 				.setEnabled(true) //
 				.setGpioPath(this.folder.getRoot().getAbsolutePath()) //
-				.setHardwareType(HardwareType.MODBERRY_X500_M40804_W) //
+				.setHardwareType(MODBERRY_X500_M40804_W) //
 				.build();
 		var componentManager = new DummyComponentManager();
 		var componentTest = new ComponentTest(new IoGpioImpl()) //
@@ -249,11 +248,11 @@ public class ModberryCM4Test {
 	public void testInterfaceDigitalInputChannels() throws Exception {
 		this.setGpioFile(this.root, 22, 0);
 		var config = MyConfig.create() //
-				.setId(ID) //
-				.setAlias(ID) //
+				.setId("io0") //
+				.setAlias("io0") //
 				.setEnabled(true) //
 				.setGpioPath(this.folder.getRoot().getAbsolutePath()) //
-				.setHardwareType(HardwareType.MODBERRY_X500_M40804_W) //
+				.setHardwareType(MODBERRY_X500_M40804_W) //
 				.build();
 		var componentManager = new DummyComponentManager();
 		var componentTest = new ComponentTest(new IoGpioImpl()) //

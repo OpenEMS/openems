@@ -3,6 +3,7 @@ import { AfterContentChecked, ChangeDetectorRef, Component, OnDestroy, OnInit } 
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Capacitor } from "@capacitor/core";
+import { ViewWillEnter } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { environment } from "src/environments";
 
@@ -15,7 +16,7 @@ import { Edge, Service, Utils, Websocket } from "../shared/shared";
   selector: "login",
   templateUrl: "./login.component.html",
 })
-export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
+export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDestroy, OnInit {
   public environment = environment;
   public form: FormGroup;
   protected formIsDisabled: boolean = false;
@@ -53,18 +54,16 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
   }
 
   ngOnInit() {
-
-    // TODO add websocket status observable
     const interval = setInterval(() => {
-      if (this.websocket.status === "online") {
+      if (this.websocket.status === "online" && !this.router.url.split("/").includes("live")) {
         this.router.navigate(["/overview"]);
         clearInterval(interval);
       }
     }, 1000);
   }
 
-  async ionViewWillEnter() {
 
+  async ionViewWillEnter() {
     // Execute Login-Request if url path matches 'demo'
     if (this.route.snapshot.routeConfig.path == "demo") {
 
@@ -107,7 +106,7 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
       .finally(() => {
 
         // Unclean
-        this.ngOnInit();
+        this.ionViewWillEnter();
         this.formIsDisabled = false;
       });
   }

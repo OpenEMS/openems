@@ -1,11 +1,14 @@
 package io.openems.edge.core.sum;
 
+import static io.openems.edge.common.sum.Sum.ChannelId.CONSUMPTION_MAX_ACTIVE_POWER;
+import static io.openems.edge.common.sum.Sum.ChannelId.GRID_MAX_ACTIVE_POWER;
+import static io.openems.edge.common.sum.Sum.ChannelId.GRID_MIN_ACTIVE_POWER;
+import static io.openems.edge.common.sum.Sum.ChannelId.PRODUCTION_MAX_ACTIVE_POWER;
 import static io.openems.edge.meter.api.MeterType.GRID;
 
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -14,13 +17,6 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.test.DummyElectricityMeter;
 
 public class SumImplTest {
-
-	private static final ChannelAddress GRID_MIN_ACTIVE_POWER = new ChannelAddress("_sum", "GridMinActivePower");
-	private static final ChannelAddress GRID_MAX_ACTIVE_POWER = new ChannelAddress("_sum", "GridMaxActivePower");
-	private static final ChannelAddress PRODUCTION_MAX_ACTIVE_POWER = new ChannelAddress("_sum",
-			"ProductionMaxActivePower");
-	private static final ChannelAddress CONSUMPTION_MAX_ACTIVE_POWER = new ChannelAddress("_sum",
-			"ConsumptionMaxActivePower");
 
 	@Test
 	public void test() throws OpenemsException, Exception {
