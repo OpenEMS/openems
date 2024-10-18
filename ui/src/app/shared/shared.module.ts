@@ -27,6 +27,7 @@ import { InputTypeComponent } from "./components/formly/input";
 import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from "./components/formly/input-serial-number-wrapper";
 import { PanelWrapperComponent } from "./components/formly/panel-wrapper.component";
 import { RepeatTypeComponent } from "./components/formly/repeat";
+import { AppHeaderComponent } from "./components/header/app-header";
 import { HeaderComponent } from "./components/header/header.component";
 import { HistoryDataErrorModule } from "./components/history-data-error/history-data-error.module";
 import { PercentageBarComponent } from "./components/percentagebar/percentagebar.component";
@@ -35,7 +36,7 @@ import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.compon
 import { AppStateTracker } from "./ngrx-store/states";
 import { PipeModule } from "./pipe/pipe";
 import { Logger } from "./service/logger";
-import { RouteService } from "./service/previousRouteService";
+import { PreviousRouteService } from "./service/previousRouteService";
 import { Service } from "./service/service";
 import { Utils } from "./service/utils";
 import { Websocket } from "./shared";
@@ -56,20 +57,12 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
   return `"${field.formControl.value}" is not a valid Subnetmask`;
 }
 
-
 @NgModule({
   imports: [
     BrowserAnimationsModule,
-    NgChartsModule,
     CommonModule,
+    ComponentsModule,
     DirectiveModule,
-    FormsModule,
-    IonicModule,
-    NgxSpinnerModule.forRoot({
-      type: "ball-clip-rotate-multiple",
-    }),
-    ReactiveFormsModule,
-    RouterModule,
     FormlyModule.forRoot({
       wrappers: [
         { name: "form-field", component: FormlyWrapperFormFieldComponent },
@@ -96,62 +89,67 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: "subnetmask", message: SubnetmaskValidatorMessage },
       ],
     }),
-    PipeModule,
-    ComponentsModule,
-    TranslateModule,
-    HistoryDataErrorModule,
-    MeterModule,
-  ],
-  declarations: [
-    // components
-    ChartOptionsComponent,
-    HeaderComponent,
-    PercentageBarComponent,
-    // formly
-    InputTypeComponent,
-    FormlyWrapperFormFieldComponent,
-    RepeatTypeComponent,
-    FormlyWrapperInputSerialNumber,
-    FormlySelectFieldExtendedWrapperComponent,
-    FormlySelectFieldModalComponent,
-    FormlyFieldRadioWithImageComponent,
-    FormlyCheckBoxHyperlinkWrapperComponent,
-    FormlyWrapperDefaultValueWithCasesComponent,
-    FormlyFieldModalComponent,
-    PanelWrapperComponent,
-    FormlyFieldWithLoadingAnimationComponent,
-    FormlyFieldCheckboxWithImageComponent,
-    FormlyFieldMultiStepComponent,
-  ],
-  exports: [
-    // modules
-    BrowserAnimationsModule,
-    NgChartsModule,
-    CommonModule,
-    DirectiveModule,
-    FormlyIonicModule,
-    FormlyModule,
     FormsModule,
+    HistoryDataErrorModule,
     IonicModule,
-    NgxSpinnerModule,
+    MeterModule,
+    NgChartsModule,
+    NgxSpinnerModule.forRoot({
+      type: "ball-clip-rotate-multiple",
+    }),
+    PipeModule,
     ReactiveFormsModule,
     RouterModule,
     TranslateModule,
-    PipeModule,
-    ComponentsModule,
-    MeterModule,
-    HistoryDataErrorModule,
-    // components
+  ],
+  declarations: [
+    AppHeaderComponent,
     ChartOptionsComponent,
-    HeaderComponent,
-    PercentageBarComponent,
+    FormlyCheckBoxHyperlinkWrapperComponent,
+    FormlyFieldCheckboxWithImageComponent,
+    FormlyFieldModalComponent,
+    FormlyFieldMultiStepComponent,
+    FormlyFieldRadioWithImageComponent,
     FormlyFieldWithLoadingAnimationComponent,
+    FormlySelectFieldExtendedWrapperComponent,
+    FormlySelectFieldModalComponent,
+    FormlyWrapperDefaultValueWithCasesComponent,
+    FormlyWrapperFormFieldComponent,
+    FormlyWrapperInputSerialNumber,
+    HeaderComponent,
+    InputTypeComponent,
+    PanelWrapperComponent,
+    PercentageBarComponent,
+    RepeatTypeComponent,
+  ],
+  exports: [
+    AppHeaderComponent,
+    BrowserAnimationsModule,
+    ChartOptionsComponent,
+    CommonModule,
+    ComponentsModule,
+    DirectiveModule,
+    FormlyFieldWithLoadingAnimationComponent,
+    FormlyIonicModule,
+    FormlyModule,
+    FormsModule,
+    HeaderComponent,
+    HistoryDataErrorModule,
+    IonicModule,
+    MeterModule,
+    NgChartsModule,
+    NgxSpinnerModule,
+    PercentageBarComponent,
+    PipeModule,
+    ReactiveFormsModule,
+    RouterModule,
+    TranslateModule,
   ],
   providers: [
     AppStateTracker,
     appRoutingProviders,
     Logger,
-    RouteService,
+    PreviousRouteService,
     Service,
     Utils,
     Websocket,

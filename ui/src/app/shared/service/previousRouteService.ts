@@ -1,10 +1,8 @@
 import { Injectable } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
-import { Service } from "../shared";
-import { ArrayUtils } from "../utils/array/array.utils";
 
 @Injectable()
-export class RouteService {
+export class PreviousRouteService {
 
     private previousUrl: string;
     private currentUrl: string;
@@ -20,21 +18,12 @@ export class RouteService {
         });
     }
 
-    public static async getRouteAfterAuthentication(service: Service, urlSegments: string[]): Promise<string[]> {
-        const user = await service.getCurrentUser();
-
-        if (ArrayUtils.containsStrings(["login", "index", "demo"], urlSegments)) {
-
-            // Initial navigation
-            if (!user.hasMultipleEdges) {
-                const edges = await service.getEdges(0);
-                const edgeId = edges[0]?.id;
-                return ["/device", edgeId];
-            }
-            return ["overview"];
-        }
-
-        // Previous navigation
-        return urlSegments;
+    /**
+     * Gets the previous url, active before this url
+     *
+     * @returns the previous url
+     */
+    public getPreviousUrl() {
+        return this.previousUrl;
     }
 }

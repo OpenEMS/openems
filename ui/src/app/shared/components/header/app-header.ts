@@ -11,10 +11,10 @@ import { PickDateComponent } from "../pickdate/pickdate.component";
 import { StatusSingleComponent } from "../status/single/status.component";
 
 @Component({
-    selector: "header",
+    selector: "app-header",
     templateUrl: "./header.component.html",
 })
-export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     @ViewChild(PickDateComponent, { static: false }) public PickDateComponent: PickDateComponent;
 
@@ -24,7 +24,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     public currentPage: "EdgeSettings" | "Other" | "IndexLive" | "IndexHistory" = "Other";
     public isSystemLogEnabled: boolean = false;
 
-    protected isHeaderAllowed: boolean = true;
+    protected isHeaderAllowed: boolean = false;
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;
@@ -69,6 +69,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.updateBackUrl(url);
         this.updateEnableSideMenu(url);
         this.updateCurrentPage(url);
+        this.isHeaderAllowed = this.isAllowedForView(url);
     }
 
     updateEnableSideMenu(url: string) {
@@ -198,5 +199,24 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     ngOnDestroy() {
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+
+    private isAllowedForView(url: string): boolean {
+
+        // Strip queryParams
+        const cleanUrl = url.split("?")[0];
+
+        if (url.includes("/history/")) {
+            return false;
+        }
+
+        switch (cleanUrl) {
+            case "/login":
+            case "/index":
+            case "/demo":
+                return false;
+            default:
+                return true;
+        }
     }
 }
