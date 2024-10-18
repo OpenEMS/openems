@@ -48,7 +48,7 @@ public class EvcsClusterPeakShavingImplTest {
 	private static final ChannelAddress EVCS_CLUSTER_STATUS = new ChannelAddress("evcsCluster0", "EvcsClusterStatus");
 
 	private static final ChannelAddress EVCS0_STATUS = new ChannelAddress("evcs0", "Status");
-	private static final ChannelAddress EVCS0_CHARGE_POWER = new ChannelAddress("evcs0", "ChargePower");
+	private static final ChannelAddress EVCS0_ACTIVE_POWER = new ChannelAddress("evcs0", "ActivePower");
 	private static final ChannelAddress EVCS0_MAXIMUM_POWER = new ChannelAddress("evcs0", "MaximumPower");
 	private static final ChannelAddress EVCS0_SET_POWER_REQUEST = new ChannelAddress("evcs0", "SetChargePowerRequest");
 	private static final ChannelAddress EVCS0_SET_CHARGE_POWER_LIMIT = new ChannelAddress("evcs0",
@@ -60,7 +60,7 @@ public class EvcsClusterPeakShavingImplTest {
 	private static final ChannelAddress EVCS0_CHARE_STATE = new ChannelAddress("evcs0", "ChargeState");
 
 	private static final ChannelAddress EVCS1_STATUS = new ChannelAddress("evcs1", "Status");
-	private static final ChannelAddress EVCS1_CHARGE_POWER = new ChannelAddress("evcs1", "ChargePower");
+	private static final ChannelAddress EVCS1_ACTIVE_POWER = new ChannelAddress("evcs1", "ActivePower");
 	private static final ChannelAddress EVCS1_MAXIMUM_POWER = new ChannelAddress("evcs1", "MaximumPower");
 	private static final ChannelAddress EVCS1_SET_POWER_REQUEST = new ChannelAddress("evcs1", "SetChargePowerRequest");
 	private static final ChannelAddress EVCS1_SET_CHARGE_POWER_LIMIT = new ChannelAddress("evcs1",
@@ -83,7 +83,7 @@ public class EvcsClusterPeakShavingImplTest {
 	private static final ChannelAddress EVCS4_SET_POWER_REQUEST = new ChannelAddress("evcs4", "SetChargePowerRequest");
 
 	private static final ChannelAddress EVCS5_STATUS = new ChannelAddress("evcs5", "Status");
-	private static final ChannelAddress EVCS5_CHARGE_POWER = new ChannelAddress("evcs5", "ChargePower");
+	private static final ChannelAddress EVCS5_ACTIVE_POWER = new ChannelAddress("evcs5", "ActivePower");
 	private static final ChannelAddress EVCS5_SET_POWER_REQUEST = new ChannelAddress("evcs5", "SetChargePowerRequest");
 	private static final ChannelAddress EVCS5_SET_CHARGE_POWER_LIMIT = new ChannelAddress("evcs5",
 			"SetChargePowerLimit");
@@ -403,8 +403,8 @@ public class EvcsClusterPeakShavingImplTest {
 						.input(EVCS1_MAXIMUM_POWER, null) //
 						.input(EVCS0_MAXIMUM_HARDWARE_POWER, 22000) //
 						.input(EVCS1_MAXIMUM_HARDWARE_POWER, 22000) //
-						.input(EVCS0_CHARGE_POWER, 0) //
-						.input(EVCS1_CHARGE_POWER, 0)) //
+						.input(EVCS0_ACTIVE_POWER, 0) //
+						.input(EVCS1_ACTIVE_POWER, 0)) //
 		;
 	}
 
@@ -441,8 +441,8 @@ public class EvcsClusterPeakShavingImplTest {
 						.input(EVCS1_SET_POWER_REQUEST, 15000) //
 						// TODO: The charge power of an EVCS has to be checked if it really charges
 						// this amount)
-						.input(EVCS0_CHARGE_POWER, 11000) //
-						.input(EVCS1_CHARGE_POWER, 22000) //
+						.input(EVCS0_ACTIVE_POWER, 11000) //
+						.input(EVCS1_ACTIVE_POWER, 22000) //
 						.input(EVCS0_MAXIMUM_POWER, 22000) //
 						.input(EVCS1_MAXIMUM_POWER, 22000) //
 						.input(EVCS0_MAXIMUM_HARDWARE_POWER, 22000) //
@@ -487,8 +487,8 @@ public class EvcsClusterPeakShavingImplTest {
 						.input(ESS_ALLOWED_DISCHARGE_POWER, 0) //
 						.input(EVCS0_SET_POWER_REQUEST, 15000) //
 						.input(EVCS1_SET_POWER_REQUEST, 15000) //
-						.input(EVCS0_CHARGE_POWER, 11000) //
-						.input(EVCS1_CHARGE_POWER, 0) //
+						.input(EVCS0_ACTIVE_POWER, 11000) //
+						.input(EVCS1_ACTIVE_POWER, 0) //
 						.input(EVCS0_MAXIMUM_POWER, null) //
 						.input(EVCS1_MAXIMUM_POWER, null) //
 						.input(EVCS0_MAXIMUM_HARDWARE_POWER, 11000) //
@@ -533,8 +533,8 @@ public class EvcsClusterPeakShavingImplTest {
 						.input(ESS_ALLOWED_DISCHARGE_POWER, 0) //
 						.input(EVCS0_SET_POWER_REQUEST, 15000) //
 						.input(EVCS1_SET_POWER_REQUEST, 15000) //
-						.input(EVCS0_CHARGE_POWER, 0) //
-						.input(EVCS1_CHARGE_POWER, 0) //
+						.input(EVCS0_ACTIVE_POWER, 0) //
+						.input(EVCS1_ACTIVE_POWER, 0) //
 						.input(EVCS0_MAXIMUM_POWER, 5000) //
 						.input(EVCS1_MAXIMUM_POWER, 9000) //
 						.input(EVCS0_MAXIMUM_HARDWARE_POWER, 22000) //
@@ -579,8 +579,8 @@ public class EvcsClusterPeakShavingImplTest {
 						.input(ESS_ALLOWED_DISCHARGE_POWER, 0) //
 						.input(EVCS0_SET_POWER_REQUEST, 15000) //
 						.input(EVCS1_SET_POWER_REQUEST, 15000) //
-						.input(EVCS0_CHARGE_POWER, 0) //
-						.input(EVCS1_CHARGE_POWER, 0) //
+						.input(EVCS0_ACTIVE_POWER, 0) //
+						.input(EVCS1_ACTIVE_POWER, 0) //
 						.input(EVCS0_MAXIMUM_POWER, 5000) //
 						.input(EVCS1_MAXIMUM_POWER, 9000) //
 						.input(EVCS0_MAXIMUM_HARDWARE_POWER, 22000) //
@@ -628,7 +628,7 @@ public class EvcsClusterPeakShavingImplTest {
 						.input(METER_GRID_ACTIVE_POWER_L3, 0) //
 						.input(ESS_ALLOWED_DISCHARGE_POWER, 0) //
 						.input(EVCS5_SET_POWER_REQUEST, 22000) //
-						.input(EVCS5_CHARGE_POWER, 0) //
+						.input(EVCS5_ACTIVE_POWER, 0) //
 						.input(EVCS5_CHARGE_STATE, ChargeState.NOT_CHARGING) //
 						.input(EVCS5_MAXIMUM_HARDWARE_POWER, 22080) //
 						.input(EVCS5_STATUS, Status.READY_FOR_CHARGING) //

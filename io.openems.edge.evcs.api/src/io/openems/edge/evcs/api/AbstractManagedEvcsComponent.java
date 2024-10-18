@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 /**
  * Abstract Managed EVCS Component.
@@ -39,7 +40,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
  * </pre>
  */
 public abstract class AbstractManagedEvcsComponent extends AbstractOpenemsComponent
-		implements Evcs, ManagedEvcs, EventHandler {
+		implements Evcs, ManagedEvcs, ElectricityMeter, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractManagedEvcsComponent.class);
 
@@ -62,10 +63,10 @@ public abstract class AbstractManagedEvcsComponent extends AbstractOpenemsCompon
 	@Override
 	@Deactivate
 	protected void deactivate() {
-		super.activate(null);
+		super.deactivate();
 		this.writeHandler.cancelChargePower();
 	}
-	
+
 	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled()) {

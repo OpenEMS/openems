@@ -3,15 +3,11 @@ package io.openems.edge.evcs.hardybarth;
 import static io.openems.common.channel.Level.WARNING;
 import static io.openems.common.channel.Unit.AMPERE;
 import static io.openems.common.channel.Unit.CUMULATED_WATT_HOURS;
-import static io.openems.common.channel.Unit.MILLIAMPERE;
-import static io.openems.common.channel.Unit.WATT;
 import static io.openems.common.types.OpenemsType.BOOLEAN;
 import static io.openems.common.types.OpenemsType.DOUBLE;
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.types.OpenemsType.LONG;
 import static io.openems.common.types.OpenemsType.STRING;
-import static io.openems.edge.common.type.TypeUtils.getAsType;
-import static io.openems.edge.common.type.TypeUtils.multiply;
 
 import java.util.function.Function;
 
@@ -20,7 +16,7 @@ import io.openems.edge.common.channel.Doc;
 
 public interface EvcsHardyBarth {
 
-	public static final double SCALE_FACTOR_MINUS_1 = 0.1;
+	public static final float SCALE_FACTOR_MINUS_1 = 0.1F;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
@@ -102,33 +98,6 @@ public interface EvcsHardyBarth {
 					hardyBarth.channel(EvcsHardyBarth.ChannelId.METER_NOT_AVAILABLE).setNextValue(notAvailable);
 				}), //
 				"secc", "port0", "metering", "meter", "available"), //
-
-		// METERING - POWER
-		RAW_ACTIVE_POWER_L1(Doc.of(LONG) //
-				.unit(WATT), //
-				value -> getAsType(LONG, multiply(getAsType(DOUBLE, value), SCALE_FACTOR_MINUS_1)), //
-				"secc", "port0", "metering", "power", "active", "ac", "l1", "actual"), //
-
-		RAW_ACTIVE_POWER_L2(Doc.of(LONG) //
-				.unit(WATT), //
-				value -> getAsType(LONG, multiply(getAsType(DOUBLE, value), SCALE_FACTOR_MINUS_1)), //
-				"secc", "port0", "metering", "power", "active", "ac", "l2", "actual"), //
-
-		RAW_ACTIVE_POWER_L3(Doc.of(LONG) //
-				.unit(WATT), //
-				value -> getAsType(LONG, multiply(getAsType(DOUBLE, value), SCALE_FACTOR_MINUS_1)), //
-				"secc", "port0", "metering", "power", "active", "ac", "l3", "actual"), //
-
-		// METERING - CURRENT
-		RAW_ACTIVE_CURRENT_L1(Doc.of(LONG) //
-				.unit(MILLIAMPERE), //
-				"secc", "port0", "metering", "current", "ac", "l1", "actual"), //
-		RAW_ACTIVE_CURRENT_L2(Doc.of(LONG) //
-				.unit(MILLIAMPERE), //
-				"secc", "port0", "metering", "current", "ac", "l2", "actual"), //
-		RAW_ACTIVE_CURRENT_L3(Doc.of(LONG) //
-				.unit(MILLIAMPERE), //
-				"secc", "port0", "metering", "current", "ac", "l3", "actual"), //
 
 		// METERING - ENERGY
 		RAW_ACTIVE_ENERGY_TOTAL(Doc.of(DOUBLE) //

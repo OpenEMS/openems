@@ -9,6 +9,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.bridge.http,\
 	io.openems.edge.common,\
 	io.openems.edge.evcs.api,\
+	io.openems.edge.meter.api,\
 
 -testpath: \
 	${testpath}

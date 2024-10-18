@@ -2,6 +2,7 @@ package io.openems.edge.evcs.hardybarth;
 
 import static io.openems.common.types.HttpStatus.OK;
 import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.ofDummyBridge;
+import static io.openems.edge.evcs.api.PhaseRotation.L2_L3_L1;
 import static io.openems.edge.evcs.api.Phases.THREE_PHASE;
 import static io.openems.edge.evcs.api.Status.CHARGING;
 
@@ -12,7 +13,9 @@ import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.evcs.api.DeprecatedEvcs;
 import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 public class EvcsHardyBarthImplTest {
 
@@ -20,6 +23,7 @@ public class EvcsHardyBarthImplTest {
 
 	@Test
 	public void test() throws Exception {
+		final var phaseRotation = L2_L3_L1;
 		var sut = new EvcsHardyBarthImpl();
 		var ru = sut.readUtils;
 		new ComponentTest(sut) //
@@ -29,11 +33,11 @@ public class EvcsHardyBarthImplTest {
 						.setIp("192.168.8.101") //
 						.setMaxHwCurrent(32_000) //
 						.setMinHwCurrent(6_000) //
-						.build())
+						.setPhaseRotation(phaseRotation).build())
 
 				.next(new TestCase() //
-						.onBeforeProcessImage(
-								() -> ru.handleGetApiCallResponse(new HttpResponse<String>(OK, API_RESPONSE))) //
+						.onBeforeProcessImage(() -> ru
+								.handleGetApiCallResponse(new HttpResponse<String>(OK, API_RESPONSE), phaseRotation)) //
 						.output(c(EvcsHardyBarth.ChannelId.RAW_EVSE_GRID_CURRENT_LIMIT), 16) //
 						.output(c(EvcsHardyBarth.ChannelId.RAW_PHASE_COUNT), 3) //
 						.output(c(EvcsHardyBarth.ChannelId.RAW_CHARGE_STATUS_PLUG), "locked") //
@@ -57,12 +61,6 @@ public class EvcsHardyBarthImplTest {
 						.output(c(EvcsHardyBarth.ChannelId.RAW_METER_TYPE), "klefr") //
 						.output(c(EvcsHardyBarth.ChannelId.RAW_METER_AVAILABLE), true) //
 						.output(c(EvcsHardyBarth.ChannelId.METER_NOT_AVAILABLE), false) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_ACTIVE_POWER_L1), 1075L) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_ACTIVE_POWER_L2), 1073L) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_ACTIVE_POWER_L3), 1044L) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_ACTIVE_CURRENT_L1), 5000L) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_ACTIVE_CURRENT_L2), 5000L) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_ACTIVE_CURRENT_L3), 4770L) //
 						.output(c(EvcsHardyBarth.ChannelId.RAW_ACTIVE_ENERGY_TOTAL), 4658050.0) //
 						.output(c(EvcsHardyBarth.ChannelId.RAW_ACTIVE_ENERGY_EXPORT), 0.0) //
 						.output(c(EvcsHardyBarth.ChannelId.RAW_EMERGENCY_SHUTDOWN), "0") //
@@ -93,10 +91,23 @@ public class EvcsHardyBarthImplTest {
 						.output(c(EvcsHardyBarth.ChannelId.RAW_DEVICE_UUID), "5491ad62-022a-4356-a32c-00018713102x") //
 
 						.output(c(Evcs.ChannelId.ENERGY_SESSION), 3460) //
-						.output(c(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY), 4658050L) //
+						.output(c(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY), 4658050L) //
+						.output(c(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY), 4658050L) //
 						.output(c(Evcs.ChannelId.PHASES), THREE_PHASE) //
-						.output(c(Evcs.ChannelId.CHARGE_POWER), 3192) //
 						.output(c(Evcs.ChannelId.STATUS), CHARGING) //
+						.output(c(DeprecatedEvcs.ChannelId.CHARGE_POWER), 3192) //
+						.output(c(ElectricityMeter.ChannelId.ACTIVE_POWER), 3192) //
+						.output(c(ElectricityMeter.ChannelId.ACTIVE_POWER_L1), 1044) //
+						.output(c(ElectricityMeter.ChannelId.ACTIVE_POWER_L2), 1075) //
+						.output(c(ElectricityMeter.ChannelId.ACTIVE_POWER_L3), 1073) //
+						.output(c(ElectricityMeter.ChannelId.CURRENT), 14_770) //
+						.output(c(ElectricityMeter.ChannelId.CURRENT_L1), 4_770) //
+						.output(c(ElectricityMeter.ChannelId.CURRENT_L2), 5_000) //
+						.output(c(ElectricityMeter.ChannelId.CURRENT_L3), 5_000) //
+						.output(c(ElectricityMeter.ChannelId.VOLTAGE), 216_156) //
+						.output(c(ElectricityMeter.ChannelId.VOLTAGE_L1), 218_868) //
+						.output(c(ElectricityMeter.ChannelId.VOLTAGE_L2), 215_000) //
+						.output(c(ElectricityMeter.ChannelId.VOLTAGE_L3), 214_600) //
 				);
 	}
 

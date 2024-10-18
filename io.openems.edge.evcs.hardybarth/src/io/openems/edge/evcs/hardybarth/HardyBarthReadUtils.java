@@ -1,7 +1,15 @@
 package io.openems.edge.evcs.hardybarth;
 
+import static io.openems.common.types.OpenemsType.FLOAT;
+import static io.openems.common.types.OpenemsType.INTEGER;
+import static io.openems.common.types.OpenemsType.LONG;
+import static io.openems.common.types.OpenemsType.STRING;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
+import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCount;
+import static io.openems.edge.evcs.hardybarth.EvcsHardyBarth.SCALE_FACTOR_MINUS_1;
+import static java.lang.Math.round;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 import com.google.gson.JsonElement;
@@ -10,9 +18,9 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.PhaseRotation;
+import io.openems.edge.evcs.api.PhaseRotation.RotatedPhases;
 import io.openems.edge.evcs.api.Status;
 
 public class HardyBarthReadUtils {
@@ -28,176 +36,171 @@ public class HardyBarthReadUtils {
 	/**
 	 * Set the value for every Evcs.ChannelId.
 	 *
-	 * @param json Given raw data in JSON
+	 * @param json          given raw data in JSON
+	 * @param phaseRotation the configured {@link PhaseRotation}
 	 */
-	public void setEvcsChannelIds(JsonElement json) {
+	protected void setEvcsChannelIds(JsonElement json, PhaseRotation phaseRotation) {
+		final var hb = this.parent;
 
-		// ENERGY_SESSION
-		var energy = HardyBarthReadUtils.getValueFromJson(Evcs.ChannelId.ENERGY_SESSION, OpenemsType.STRING, json,
+		// Energy
+		hb._setEnergySession(getValueFromJson(STRING, json, //
 				value -> {
 					if (value == null) {
 						return null;
 					}
-					Double rawEnergy = null;
-					String[] chargedata = value.toString().split("\\|");
+					var chargedata = TypeUtils.<String>getAsType(STRING, value).split("\\|");
 					if (chargedata.length == 3) {
-						Double doubleValue = TypeUtils.getAsType(OpenemsType.DOUBLE, chargedata[2]);
-						rawEnergy = doubleValue * 1000;
+						return round(TypeUtils.<Float>getAsType(FLOAT, chargedata[2]) * 1000);
 					}
-					return rawEnergy;
+					return null;
+				}, "secc", "port0", "salia", "chargedata"));
+		hb._setActiveProductionEnergy(getValueFromJson(LONG, json, //
+				value -> TypeUtils.<Long>getAsType(LONG, value), //
+				"secc", "port0", "metering", "energy", "active_import", "actual"));
 
-				}, "secc", "port0", "salia", "chargedata");
-		this.parent._setEnergySession(energy == null ? null : (int) Math.round(energy));
+		// Current
+		final var currentL1 = getAsIntOrElse(json, 0, "secc", "port0", "metering", "current", "ac", "l1", "actual");
+		final var currentL2 = getAsIntOrElse(json, 0, "secc", "port0", "metering", "current", "ac", "l2", "actual");
+		final var currentL3 = getAsIntOrElse(json, 0, "secc", "port0", "metering", "current", "ac", "l3", "actual");
 
-		// ACTIVE_CONSUMPTION_ENERGY
-		var activeConsumptionEnergy = (Long) HardyBarthReadUtils
-				.getValueFromJson(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null, json, value -> {
-					return TypeUtils.getAsType(OpenemsType.LONG, value);
-				}, "secc", "port0", "metering", "energy", "active_import", "actual"); //
-		this.parent._setActiveConsumptionEnergy(activeConsumptionEnergy);
+		// Power
+		final var activePowerL1 = getAsInteger(json, SCALE_FACTOR_MINUS_1, //
+				"secc", "port0", "metering", "power", "active", "ac", "l1", "actual");
+		final var activePowerL2 = getAsInteger(json, SCALE_FACTOR_MINUS_1, //
+				"secc", "port0", "metering", "power", "active", "ac", "l2", "actual");
+		final var activePowerL3 = getAsInteger(json, SCALE_FACTOR_MINUS_1, //
+				"secc", "port0", "metering", "power", "active", "ac", "l3", "actual");
 
-		// PHASES
-		var powerL1 = (Long) HardyBarthReadUtils.getValueForChannel(EvcsHardyBarth.ChannelId.RAW_ACTIVE_POWER_L1, json);
-		var powerL2 = (Long) HardyBarthReadUtils.getValueForChannel(EvcsHardyBarth.ChannelId.RAW_ACTIVE_POWER_L2, json);
-		var powerL3 = (Long) HardyBarthReadUtils.getValueForChannel(EvcsHardyBarth.ChannelId.RAW_ACTIVE_POWER_L3, json);
+		// Voltage
+		final var voltageL1 = activePowerL1 == null ? null : round(activePowerL1 * 1_000_000F / currentL1);
+		final var voltageL2 = activePowerL2 == null ? null : round(activePowerL2 * 1_000_000F / currentL2);
+		final var voltageL3 = activePowerL3 == null ? null : round(activePowerL3 * 1_000_000F / currentL3);
 
-		// TODO: Handle phases, having each phase value in the Nature
-		// Keep last value if no power value was given
-		var phases = this.parent.getPhasesAsInt();
-		if (powerL1 != null && powerL2 != null && powerL3 != null) {
+		var rp = RotatedPhases.from(phaseRotation, //
+				voltageL1, currentL1, activePowerL1, //
+				voltageL2, currentL2, activePowerL2, //
+				voltageL3, currentL3, activePowerL3);
+		hb._setVoltageL1(rp.voltageL1());
+		hb._setVoltageL2(rp.voltageL2());
+		hb._setVoltageL3(rp.voltageL3());
+		hb._setCurrentL1(rp.currentL1());
+		hb._setCurrentL2(rp.currentL2());
+		hb._setCurrentL3(rp.currentL3());
+		hb._setActivePowerL1(rp.activePowerL1());
+		hb._setActivePowerL2(rp.activePowerL2());
+		hb._setActivePowerL3(rp.activePowerL3());
 
-			var sum = powerL1 + powerL2 + powerL3;
-
-			if (sum > 300) {
-				phases = 0;
-
-				if (powerL1 >= 100) {
-					phases += 1;
-				}
-				if (powerL2 >= 100) {
-					phases += 1;
-				}
-				if (powerL3 >= 100) {
-					phases += 1;
-				}
-			}
+		// Phases: keep last value if no power value was given
+		var phases = evaluatePhaseCount(rp.activePowerL1(), rp.activePowerL2(), rp.activePowerL3());
+		if (phases != null) {
+			hb._setPhases(phases);
+			this.parent.debugLog("Used phases: " + phases);
 		}
-		this.parent._setPhases(phases);
-		this.parent.debugLog("Used phases: " + phases);
 
-		// CHARGE_POWER
-		var chargePowerLong = HardyBarthReadUtils.getValueFromJson(Evcs.ChannelId.CHARGE_POWER, null, json, value -> {
-			Integer integerValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
-			if (integerValue == null) {
-				return null;
-			}
-			long activePower = Math.round(integerValue * EvcsHardyBarth.SCALE_FACTOR_MINUS_1);
-
-			// Ignore the consumption of the charger itself
-			return activePower < 100 ? 0 : activePower;
-		}, "secc", "port0", "metering", "power", "active_total", "actual");
-
-		this.parent._setChargePower(chargePowerLong == null ? null : chargePowerLong.intValue());
+		// ACTIVE_POWER
+		final var activePower = Optional.ofNullable(getAsInteger(json, SCALE_FACTOR_MINUS_1, //
+				"secc", "port0", "metering", "power", "active_total", "actual")) //
+				.map(p -> p < 100 ? 0 : p) // Ignore the consumption of the charger itself
+				.orElse(null);
+		this.parent._setActivePower(activePower);
 
 		// STATUS
-		var status = HardyBarthReadUtils.getValueFromJson(EvcsHardyBarth.ChannelId.RAW_CHARGE_STATUS_CHARGEPOINT, null,
-				json, value -> {
+		var status = getValueFromJson(STRING, json, value -> {
+			var stringValue = TypeUtils.<String>getAsType(STRING, value);
+			if (stringValue == null) {
+				this.errorCounter++;
+				this.parent.debugLog("Hardy Barth RAW_STATUS would be null! Raw value: " + value);
+				if (this.errorCounter > 3) {
+					return Status.ERROR;
+				}
+				return this.parent.getStatus();
+			}
 
-					String stringValue = TypeUtils.getAsType(OpenemsType.STRING, value);
-					if (stringValue == null) {
-						this.errorCounter++;
-						this.parent.debugLog("Hardy Barth RAW_STATUS would be null! Raw value: " + value);
-						if (this.errorCounter > 3) {
-							return Status.ERROR;
-						}
-						return this.parent.getStatus();
+			Status rawStatus = switch (stringValue) {
+			case "A" -> Status.NOT_READY_FOR_CHARGING;
+			case "B" -> {
+				var tmpStatus = Status.READY_FOR_CHARGING;
+
+				// Detect if the car is full
+				if (this.parent.getSetChargePowerLimit().orElse(0) >= this.parent.getMinimumHardwarePower().orElse(0)
+						&& activePower <= 0) {
+
+					if (this.chargingFinishedCounter >= 90) {
+						tmpStatus = Status.CHARGING_FINISHED;
+					} else {
+						this.chargingFinishedCounter++;
 					}
+				} else {
+					this.chargingFinishedCounter = 0;
 
-					Status rawStatus = switch (stringValue) {
-					case "A" -> Status.NOT_READY_FOR_CHARGING;
-					case "B" -> {
-						var tmpStatus = Status.READY_FOR_CHARGING;
-
-						// Detect if the car is full
-						int chargePower = chargePowerLong == null ? 0 : chargePowerLong.intValue();
-						if (this.parent.getSetChargePowerLimit().orElse(0) >= this.parent.getMinimumHardwarePower()
-								.orElse(0) && chargePower <= 0) {
-
-							if (this.chargingFinishedCounter >= 90) {
-								tmpStatus = Status.CHARGING_FINISHED;
-							} else {
-								this.chargingFinishedCounter++;
-							}
-						} else {
-							this.chargingFinishedCounter = 0;
-
-							// Charging rejected because we are forcing to pause charging
-							if (this.parent.getSetChargePowerLimit().orElse(0) == 0) {
-								tmpStatus = Status.CHARGING_REJECTED;
-							}
-						}
-						yield tmpStatus;
+					// Charging rejected because we are forcing to pause charging
+					if (this.parent.getSetChargePowerLimit().orElse(0) == 0) {
+						tmpStatus = Status.CHARGING_REJECTED;
 					}
-					case "C", "D" -> Status.CHARGING;
-					case "E", "F" -> {
-						this.errorCounter++;
-						this.parent.debugLog("Hardy Barth RAW_STATUS would be an error! Raw value: " + stringValue
-								+ " - Error counter: " + this.errorCounter);
-						if (this.errorCounter > 3) {
-							yield Status.ERROR;
-						}
-						yield this.parent.getStatus();
-					}
-					default -> {
-						this.parent.debugLog("State " + stringValue + " is not a valid state");
-						yield Status.UNDEFINED;
-					}
-					};
+				}
+				yield tmpStatus;
+			}
+			case "C", "D" -> Status.CHARGING;
+			case "E", "F" -> {
+				this.errorCounter++;
+				this.parent.debugLog("Hardy Barth RAW_STATUS would be an error! Raw value: " + stringValue
+						+ " - Error counter: " + this.errorCounter);
+				if (this.errorCounter > 3) {
+					yield Status.ERROR;
+				}
+				yield this.parent.getStatus();
+			}
+			default -> {
+				this.parent.debugLog("State " + stringValue + " is not a valid state");
+				yield Status.UNDEFINED;
+			}
+			};
 
-					if (!stringValue.equals("B")) {
-						this.chargingFinishedCounter = 0;
-					}
-					if (!stringValue.equals("E") || !stringValue.equals("F")) {
-						this.errorCounter = 0;
-					}
+			if (!stringValue.equals("B")) {
+				this.chargingFinishedCounter = 0;
+			}
+			if (!stringValue.equals("E") || !stringValue.equals("F")) {
+				this.errorCounter = 0;
+			}
 
-					return rawStatus;
-				}, "secc", "port0", "ci", "charge", "cp", "status");
+			return rawStatus;
+		}, "secc", "port0", "ci", "charge", "cp", "status");
 
 		this.parent._setStatus(status);
 	}
 
-	/**
-	 * Call the getValueFromJson with the detailed information of the channel.
-	 *
-	 * @param channelId Channel that value will be detect.
-	 * @param json      Whole JSON path, where the JsonElement for the given channel
-	 *                  is located.
-	 * @return Value of the last JsonElement by running through the specified JSON
-	 *         path.
-	 */
-	private static Object getValueForChannel(EvcsHardyBarth.ChannelId channelId, JsonElement json) {
-		return getValueFromJson(channelId, null, json, channelId.converter, channelId.getJsonPaths());
+	private static Integer getAsInteger(JsonElement json, float scaleFactor, String... jsonPaths) {
+		return getValueFromJson(INTEGER, json, //
+				value -> value == null ? null //
+						: round(TypeUtils.<Integer>getAsType(INTEGER, value) * scaleFactor), //
+				jsonPaths);
+	}
+
+	private static int getAsIntOrElse(JsonElement json, int orElse, String... jsonPaths) {
+		var result = getValueFromJson(INTEGER, json, //
+				value -> TypeUtils.<Integer>getAsType(INTEGER, value), //
+				jsonPaths);
+		return result == null //
+				? orElse //
+				: result;
 	}
 
 	/**
 	 * Get the last JSON element and it's value, by running through the given
 	 * jsonPath.
 	 *
-	 * @param channelId              Channel that value will be detect.
-	 * @param divergentTypeInRawJson Divergent type of the value in the depending
-	 *                               JsonElement.
-	 * @param json                   Raw JsonElement.
-	 * @param converter              Converter, to convert the raw JSON value into a
-	 *                               proper Channel.
-	 * @param jsonPaths              Whole JSON path, where the JsonElement for the
-	 *                               given channel is located.
-	 * @param <T>                    return type
+	 * @param openemsType the {@link OpenemsType}s
+	 * @param json        Raw JsonElement.
+	 * @param converter   Converter, to convert the raw JSON value into a proper
+	 *                    Channel.
+	 * @param jsonPaths   Whole JSON path, where the JsonElement for the given
+	 *                    channel is located.
+	 * @param <T>         return type
 	 * @return Value of the last JsonElement by running through the specified JSON
 	 *         path.
 	 */
-	private static <T> T getValueFromJson(ChannelId channelId, OpenemsType divergentTypeInRawJson, JsonElement json,
-			Function<Object, T> converter, String... jsonPaths) {
+	private static <T> T getValueFromJson(OpenemsType openemsType, JsonElement json, Function<Object, T> converter,
+			String... jsonPaths) {
 
 		var currentJsonElement = json;
 		// Go through the whole jsonPath of the current channelId
@@ -205,10 +208,6 @@ public class HardyBarthReadUtils {
 			var currentPathMember = jsonPaths[i];
 			try {
 				if (i == jsonPaths.length - 1) {
-					//
-					var openemsType = divergentTypeInRawJson == null ? channelId.doc().getType()
-							: divergentTypeInRawJson;
-
 					// Last path element
 					var value = getJsonElementValue(currentJsonElement, openemsType, jsonPaths[i]);
 
@@ -227,14 +226,16 @@ public class HardyBarthReadUtils {
 	/**
 	 * Handles a Response froma http call for the endpoint /api GET.
 	 * 
-	 * @param response response to be handled
+	 * @param response      the {@link HttpResponse} to be handled
+	 * @param phaseRotation the configured {@link PhaseRotation}
 	 * @throws OpenemsNamedException when json can not be parsed
 	 */
-	public void handleGetApiCallResponse(HttpResponse<String> response) throws OpenemsNamedException {
+	public void handleGetApiCallResponse(HttpResponse<String> response, PhaseRotation phaseRotation)
+			throws OpenemsNamedException {
 		final var json = parseToJsonObject(response.data());
 		for (var channelId : EvcsHardyBarth.ChannelId.values()) {
 			var jsonPaths = channelId.getJsonPaths();
-			var value = getValueFromJson(channelId, null, json, channelId.converter, jsonPaths);
+			var value = getValueFromJson(channelId.doc().getType(), json, channelId.converter, jsonPaths);
 
 			// Set the channel-value
 			this.parent.channel(channelId).setNextValue(value);
@@ -244,7 +245,7 @@ public class HardyBarthReadUtils {
 			}
 
 		}
-		this.setEvcsChannelIds(json);
+		this.setEvcsChannelIds(json, phaseRotation);
 	}
 
 	/**
@@ -258,34 +259,14 @@ public class HardyBarthReadUtils {
 	 */
 	private static Object getJsonElementValue(JsonElement jsonElement, OpenemsType openemsType, String memberName)
 			throws OpenemsNamedException {
-		final Object value;
-
-		switch (openemsType) {
-		case BOOLEAN:
-			value = JsonUtils.getAsInt(jsonElement, memberName) == 1;
-			break;
-		case DOUBLE:
-			value = JsonUtils.getAsDouble(jsonElement, memberName);
-			break;
-		case FLOAT:
-			value = JsonUtils.getAsFloat(jsonElement, memberName);
-			break;
-		case INTEGER:
-			value = JsonUtils.getAsInt(jsonElement, memberName);
-			break;
-		case LONG:
-			value = JsonUtils.getAsLong(jsonElement, memberName);
-			break;
-		case SHORT:
-			value = JsonUtils.getAsShort(jsonElement, memberName);
-			break;
-		case STRING:
-			value = JsonUtils.getAsString(jsonElement, memberName);
-			break;
-		default:
-			value = JsonUtils.getAsString(jsonElement, memberName);
-			break;
-		}
-		return value;
+		return switch (openemsType) {
+		case BOOLEAN -> JsonUtils.getAsInt(jsonElement, memberName) == 1;
+		case DOUBLE -> JsonUtils.getAsDouble(jsonElement, memberName);
+		case FLOAT -> JsonUtils.getAsFloat(jsonElement, memberName);
+		case INTEGER -> JsonUtils.getAsInt(jsonElement, memberName);
+		case LONG -> JsonUtils.getAsLong(jsonElement, memberName);
+		case SHORT -> JsonUtils.getAsShort(jsonElement, memberName);
+		case STRING -> JsonUtils.getAsString(jsonElement, memberName);
+		};
 	}
 }

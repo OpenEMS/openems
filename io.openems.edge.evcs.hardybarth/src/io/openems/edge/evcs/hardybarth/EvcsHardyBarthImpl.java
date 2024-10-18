@@ -40,10 +40,12 @@ import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
+import io.openems.edge.evcs.api.DeprecatedEvcs;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.WriteHandler;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -55,11 +57,11 @@ import io.openems.edge.evcs.api.WriteHandler;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
 public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
-		implements OpenemsComponent, EventHandler, EvcsHardyBarth, Evcs, ManagedEvcs {
-
-	protected final HardyBarthReadUtils readUtils = new HardyBarthReadUtils(this);
+		implements OpenemsComponent, EventHandler, EvcsHardyBarth, Evcs, ManagedEvcs, DeprecatedEvcs, ElectricityMeter {
 
 	private final Logger log = LoggerFactory.getLogger(EvcsHardyBarthImpl.class);
+
+	protected final HardyBarthReadUtils readUtils = new HardyBarthReadUtils(this);
 
 	/**
 	 * Master EVCS is responsible for RFID authentication (Not implemented for now).
@@ -78,10 +80,15 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 	public EvcsHardyBarthImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
-				EvcsHardyBarth.ChannelId.values() //
+				EvcsHardyBarth.ChannelId.values(), //
+				DeprecatedEvcs.ChannelId.values() //
 		);
+		DeprecatedEvcs.copyToDeprecatedEvcsChannels(this);
+		ElectricityMeter.calculateSumCurrentFromPhases(this);
+		ElectricityMeter.calculateAverageVoltageFromPhases(this);
 	}
 
 	@Activate
@@ -110,7 +117,7 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 		this.httpBridge.subscribeCycle(1, //
 				this.createEndpoint(GET, "/api", null), //
 				t -> {
-					this.readUtils.handleGetApiCallResponse(t);
+					this.readUtils.handleGetApiCallResponse(t, config.phaseRotation());
 					this._setChargingstationCommunicationFailed(false);
 				}, //
 				t -> this._setChargingstationCommunicationFailed(true));

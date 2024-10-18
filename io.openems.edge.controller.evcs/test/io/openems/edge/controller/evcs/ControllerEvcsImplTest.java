@@ -37,7 +37,7 @@ public class ControllerEvcsImplTest {
 	private static ChannelAddress sumGridActivePower = new ChannelAddress("_sum", "GridActivePower");
 	private static ChannelAddress sumEssDischargePower = new ChannelAddress("_sum", "EssDischargePower");
 	private static ChannelAddress sumEssSoc = new ChannelAddress("_sum", "EssSoc");
-	private static ChannelAddress evcs0ChargePower = new ChannelAddress("evcs0", "ChargePower");
+	private static ChannelAddress evcs0ActivePower = new ChannelAddress("evcs0", "ActivePower");
 	private static ChannelAddress evcs0SetChargePowerLimit = new ChannelAddress("evcs0", "SetChargePowerLimit");
 	private static ChannelAddress evcs0MaximumPower = new ChannelAddress("evcs0", "MaximumPower");
 	private static ChannelAddress evcs0IsClustered = new ChannelAddress("evcs0", "IsClustered");
@@ -69,7 +69,7 @@ public class ControllerEvcsImplTest {
 						.input(sumEssDischargePower, -6000) //
 						.input(evcs0IsClustered, false) //
 						.input(sumGridActivePower, 0) //
-						.input(evcs0ChargePower, 0) //
+						.input(evcs0ActivePower, 0) //
 						.output(evcs0SetChargePowerLimit, 6000)) //
 		;
 	}
@@ -97,7 +97,7 @@ public class ControllerEvcsImplTest {
 				.input(sumEssDischargePower, -5000) //
 				.input(evcs0IsClustered, false) //
 				.input(sumGridActivePower, -40000) //
-				.input(evcs0ChargePower, 5000) //
+				.input(evcs0ActivePower, 5000) //
 				.input(evcs0MaximumHardwarePower, 22080) //
 				.output(evcs0SetChargePowerLimit, 44800));
 	}
@@ -123,7 +123,7 @@ public class ControllerEvcsImplTest {
 						.input(sumEssDischargePower, -5000) //
 						.input(evcs0IsClustered, false) //
 						.input(sumGridActivePower, -40000) //
-						.input(evcs0ChargePower, 5000) //
+						.input(evcs0ActivePower, 5000) //
 						.output(evcs0SetChargePowerLimit, 22080));
 	}
 
@@ -196,28 +196,28 @@ public class ControllerEvcsImplTest {
 						.input(sumEssDischargePower, -10000) //
 						.input(evcs0IsClustered, true) //
 						.input(sumGridActivePower, 0) //
-						.input(evcs0ChargePower, 0) //
+						.input(evcs0ActivePower, 0) //
 						.input(evcs0Status, Status.CHARGING) //
 						.output(evcs0SetPowerRequest, 10000))
 				.next(new TestCase() //
 						.input(sumEssDischargePower, -6000) //
 						.input(evcs0IsClustered, true) //
 						.input(sumGridActivePower, 0) //
-						.input(evcs0ChargePower, 0) //
+						.input(evcs0ActivePower, 0) //
 						.input(evcs0Status, Status.NOT_READY_FOR_CHARGING) //
 						.output(evcs0SetPowerRequest, 0)) //
 				.next(new TestCase() //
 						.input(sumEssDischargePower, -6000) //
 						.input(evcs0IsClustered, true) //
 						.input(sumGridActivePower, 0) //
-						.input(evcs0ChargePower, 0) //
+						.input(evcs0ActivePower, 0) //
 						.input(evcs0Status, null) //
 						.output(evcs0SetPowerRequest, 0)) //
 				.next(new TestCase() //
 						.input(sumEssDischargePower, -6000) //
 						.input(evcs0IsClustered, true) //
 						.input(sumGridActivePower, 0) //
-						.input(evcs0ChargePower, 0) //
+						.input(evcs0ActivePower, 0) //
 						.input(evcs0Status, Status.CHARGING_REJECTED) //
 						.output(evcs0SetPowerRequest, 6000) //
 						.output(evcs0MaximumPower, null)) //
@@ -245,28 +245,28 @@ public class ControllerEvcsImplTest {
 						.input(sumEssDischargePower, -10000) //
 						.input(evcs0IsClustered, true) //
 						.input(sumGridActivePower, 0) //
-						.input(evcs0ChargePower, 0) //
+						.input(evcs0ActivePower, 0) //
 						.input(evcs0Status, Status.CHARGING) //
 						.output(evcs0SetChargePowerLimit, 0))
 				.next(new TestCase() //
 						.input(sumEssDischargePower, -6000) //
 						.input(evcs0IsClustered, true) //
 						.input(sumGridActivePower, 0) //
-						.input(evcs0ChargePower, 0) //
+						.input(evcs0ActivePower, 0) //
 						.input(evcs0Status, Status.NOT_READY_FOR_CHARGING) //
 						.output(evcs0SetChargePowerLimit, 0)) //
 				.next(new TestCase() //
 						.input(sumEssDischargePower, -6000) //
 						.input(evcs0IsClustered, true) //
 						.input(sumGridActivePower, 0) //
-						.input(evcs0ChargePower, 0) //
+						.input(evcs0ActivePower, 0) //
 						.input(evcs0Status, null) //
 						.output(evcs0SetChargePowerLimit, 0)) //
 				.next(new TestCase() //
 						.input(sumEssDischargePower, -6000) //
 						.input(evcs0IsClustered, true) //
 						.input(sumGridActivePower, 0) //
-						.input(evcs0ChargePower, 0) //
+						.input(evcs0ActivePower, 0) //
 						.input(evcs0Status, Status.CHARGING_REJECTED) //
 						.output(evcs0SetChargePowerLimit, 0) //
 						.output(evcs0MaximumPower, null)) //
@@ -299,17 +299,17 @@ public class ControllerEvcsImplTest {
 						.input(sumEssDischargePower, 0) //
 						.input(evcs0IsClustered, false) //
 						.input(sumGridActivePower, -6_000) //
-						.input(evcs0ChargePower, 0) //
+						.input(evcs0ActivePower, 0) //
 						.output(evcs0SetChargePowerLimit, 6_000)) //
 				.next(new TestCase() //
 						.input(sumEssDischargePower, 0) //
 						.input(sumGridActivePower, -200) //
-						.input(evcs0ChargePower, 5800) //
+						.input(evcs0ActivePower, 5800) //
 						.output(evcs0SetChargePowerLimit, 6_000)) //
 				.next(new TestCase() //
 						.input(sumEssDischargePower, 0) //
 						.input(sumGridActivePower, 500) //
-						.input(evcs0ChargePower, 5800) //
+						.input(evcs0ActivePower, 5800) //
 						.input(evcs0MinimumHardwarePower, Evcs.DEFAULT_MINIMUM_HARDWARE_POWER)
 						.output(evcs0SetChargePowerLimit, 5300))
 
@@ -317,7 +317,7 @@ public class ControllerEvcsImplTest {
 				.next(new TestCase() //
 						.input(sumEssDischargePower, 0) //
 						.input(sumGridActivePower, 1000) //
-						.input(evcs0ChargePower, 5000) //
+						.input(evcs0ActivePower, 5000) //
 						.output(evcs0SetChargePowerLimit, 5_300) //
 						.output(evcsController0AwaitingHysteresis, true)) //
 				.next(new TestCase() //
@@ -327,7 +327,7 @@ public class ControllerEvcsImplTest {
 				.next(new TestCase() //
 						.input(sumEssDischargePower, 0) //
 						.input(sumGridActivePower, 1000) //
-						.input(evcs0ChargePower, 5000) //
+						.input(evcs0ActivePower, 5000) //
 						.output(evcs0SetChargePowerLimit, 0) //
 						.output(evcsController0AwaitingHysteresis, false)) //
 
@@ -335,7 +335,7 @@ public class ControllerEvcsImplTest {
 				.next(new TestCase() //
 						.input(sumEssDischargePower, 0) //
 						.input(sumGridActivePower, -5000) //
-						.input(evcs0ChargePower, 0) //
+						.input(evcs0ActivePower, 0) //
 						.output(evcs0SetChargePowerLimit, 0) //
 						.output(evcsController0AwaitingHysteresis, true))
 
@@ -346,7 +346,7 @@ public class ControllerEvcsImplTest {
 				.next(new TestCase() //
 						.input(sumEssDischargePower, 0) //
 						.input(sumGridActivePower, -5000) //
-						.input(evcs0ChargePower, 0) //
+						.input(evcs0ActivePower, 0) //
 						.output(evcs0SetChargePowerLimit, 5000) //
 						.output(evcsController0AwaitingHysteresis, false)); //
 	}

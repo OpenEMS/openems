@@ -75,7 +75,7 @@ public class WriteHandler implements Runnable {
 			this.parent._setStatus(Status.ENERGY_LIMIT_REACHED);
 
 			// Apply Charge Power
-			if (this.lastTarget != 0 || this.parent.getChargePower().orElse(0) != 0) {
+			if (this.lastTarget != 0 || this.parent.getActivePower().orElse(0) != 0) {
 				this.parent.getChargeStateHandler().applyNewChargeState(ChargeState.DECREASING);
 				this.applyChargePower(0);
 			}

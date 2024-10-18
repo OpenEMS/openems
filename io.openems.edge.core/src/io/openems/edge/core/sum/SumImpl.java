@@ -309,13 +309,14 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 			} else if (component instanceof Evcs evcs) {
 				/*
 				 * Electric Vehicle Charging Station
+				 * TODO replace with ElectricityMeter.isManagedConsumption()
 				 */
 				if (evcs instanceof MetaEvcs) {
 					// ignore this Evcs
 					continue;
 				}
 
-				managedConsumptionActivePower.addValue(evcs.getChargePowerChannel());
+				managedConsumptionActivePower.addValue(evcs.getActivePowerChannel());
 
 			} else if (component instanceof TimeOfUseTariff tou) {
 				/*
