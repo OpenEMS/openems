@@ -19,7 +19,6 @@
     </ion-title>
     <ng-container *ngIf="service.currentEdge | async as edge">
       <ng-container *ngIf="currentPage === 'IndexLive' || currentPage === 'IndexHistory'">
-        <ion-buttons>
           <ion-segment mode="md" (ionChange)="segmentChanged($event)" [(ngModel)]="currentPage"
             class="ion-justify-content-center">
             <ion-segment-button value="IndexLive">
@@ -29,7 +28,6 @@
               <ion-label translate>General.HISTORY</ion-label>
             </ion-segment-button>
           </ion-segment>
-        </ion-buttons>
       </ng-container>
     </ng-container>
     <!-- this title tag is for spacing purpose only -->
