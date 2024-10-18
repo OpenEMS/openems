@@ -128,7 +128,7 @@ public class WriteHandler implements Runnable {
 	 * 
 	 * @param power Power that should be applied
 	 */
-	private void applyChargePower(int power) {
+	protected void applyChargePower(int power) {
 		try {
 
 			boolean sent = false;
@@ -248,5 +248,12 @@ public class WriteHandler implements Runnable {
 		if (this.parent.getConfiguredDebugMode()) {
 			OpenemsComponent.logInfo(this.parent, this.log, message);
 		}
+	}
+
+	/**
+	 * Used for async applyChargePower calls.
+	 * 
+	 */
+	public void cancelChargePower() {
 	}
 }

@@ -1,6 +1,7 @@
 package io.openems.edge.evcs.api;
 
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
@@ -42,12 +43,13 @@ public abstract class AbstractManagedEvcsComponent extends AbstractOpenemsCompon
 
 	private final Logger log = LoggerFactory.getLogger(AbstractManagedEvcsComponent.class);
 
-	private final WriteHandler writeHandler = new WriteHandler(this);
+	protected final WriteHandler writeHandler;
 	private final ChargeStateHandler chargeStateHandler = new ChargeStateHandler(this);
 
 	protected AbstractManagedEvcsComponent(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
+		this.writeHandler = this.createWriteHandler();
 	}
 
 	@Override
@@ -57,6 +59,13 @@ public abstract class AbstractManagedEvcsComponent extends AbstractOpenemsCompon
 		Evcs.addCalculatePowerLimitListeners(this);
 	}
 
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		super.activate(null);
+		this.writeHandler.cancelChargePower();
+	}
+	
 	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled()) {
@@ -82,6 +91,10 @@ public abstract class AbstractManagedEvcsComponent extends AbstractOpenemsCompon
 	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
+	}
+
+	protected WriteHandler createWriteHandler() {
+		return new WriteHandler(this);
 	}
 
 	@Override

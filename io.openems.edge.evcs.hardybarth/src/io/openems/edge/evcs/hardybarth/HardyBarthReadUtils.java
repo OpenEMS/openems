@@ -1,5 +1,7 @@
 package io.openems.edge.evcs.hardybarth;
 
+import static io.openems.common.utils.JsonUtils.parseToJsonObject;
+
 import java.util.function.Function;
 
 import com.google.gson.JsonElement;
@@ -7,53 +9,20 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.worker.AbstractCycleWorker;
+import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Status;
 
-public class HardyBarthReadWorker extends AbstractCycleWorker {
-
+public class HardyBarthReadUtils {
 	private final EvcsHardyBarthImpl parent;
+
 	private int chargingFinishedCounter = 0;
 	private int errorCounter = 0;
 
-	public HardyBarthReadWorker(EvcsHardyBarthImpl parent) {
+	public HardyBarthReadUtils(EvcsHardyBarthImpl parent) {
 		this.parent = parent;
-	}
-
-	@Override
-	protected void forever() throws OpenemsNamedException {
-
-		// TODO: Read separate JSON files
-		// - separate configuration -> this.api.sendGetRequest("/saliaconf.json");
-		// e.g. min & max hardware power
-		// - customeredit values -> this.api.sendGetRequest("/customer.json");
-		// - rfidtags -> this.api.sendGetRequest("/rfidtags.json");
-		// - chargelogs -> this.api.sendGetRequest("/chargelogs.json");
-		// - Read separate saliaconf.json and set minimum and maximum dynamically
-
-		var json = this.parent.api.sendGetRequest("/api");
-		if (json == null) {
-			return;
-		}
-
-		// Set value for every HardyBarth.ChannelId
-		for (EvcsHardyBarth.ChannelId channelId : EvcsHardyBarth.ChannelId.values()) {
-			var jsonPaths = channelId.getJsonPaths();
-			var value = this.getValueFromJson(channelId, json, channelId.converter, jsonPaths);
-
-			// Set the channel-value
-			this.parent.channel(channelId).setNextValue(value);
-
-			if (channelId.equals(EvcsHardyBarth.ChannelId.RAW_SALIA_PUBLISH)) {
-				this.parent.masterEvcs = false;
-			}
-		}
-
-		// Set value for every Evcs.ChannelId
-		this.setEvcsChannelIds(json);
 	}
 
 	/**
@@ -61,37 +30,36 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 	 *
 	 * @param json Given raw data in JSON
 	 */
-	private void setEvcsChannelIds(JsonElement json) {
+	public void setEvcsChannelIds(JsonElement json) {
 
 		// ENERGY_SESSION
-		var energy = (Double) this.getValueFromJson(Evcs.ChannelId.ENERGY_SESSION, OpenemsType.STRING, json, value -> {
-			if (value == null) {
-				return null;
-			}
-			Double rawEnergy = null;
-			String[] chargedata = value.toString().split("\\|");
-			if (chargedata.length == 3) {
-				Double doubleValue = TypeUtils.getAsType(OpenemsType.DOUBLE, chargedata[2]);
-				rawEnergy = doubleValue * 1000;
-			}
-			return rawEnergy;
+		var energy = HardyBarthReadUtils.getValueFromJson(Evcs.ChannelId.ENERGY_SESSION, OpenemsType.STRING, json,
+				value -> {
+					if (value == null) {
+						return null;
+					}
+					Double rawEnergy = null;
+					String[] chargedata = value.toString().split("\\|");
+					if (chargedata.length == 3) {
+						Double doubleValue = TypeUtils.getAsType(OpenemsType.DOUBLE, chargedata[2]);
+						rawEnergy = doubleValue * 1000;
+					}
+					return rawEnergy;
 
-		}, "secc", "port0", "salia", "chargedata");
+				}, "secc", "port0", "salia", "chargedata");
 		this.parent._setEnergySession(energy == null ? null : (int) Math.round(energy));
 
 		// ACTIVE_CONSUMPTION_ENERGY
-		var activeConsumptionEnergy = (Long) this.getValueFromJson(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY, json,
-				value -> {
-					Double doubleValue = TypeUtils.getAsType(OpenemsType.DOUBLE, value);
-					return TypeUtils.getAsType(OpenemsType.LONG, doubleValue);
-
+		var activeConsumptionEnergy = (Long) HardyBarthReadUtils
+				.getValueFromJson(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null, json, value -> {
+					return TypeUtils.getAsType(OpenemsType.LONG, value);
 				}, "secc", "port0", "metering", "energy", "active_import", "actual"); //
 		this.parent._setActiveConsumptionEnergy(activeConsumptionEnergy);
 
 		// PHASES
-		var powerL1 = (Long) this.getValueForChannel(EvcsHardyBarth.ChannelId.RAW_ACTIVE_POWER_L1, json);
-		var powerL2 = (Long) this.getValueForChannel(EvcsHardyBarth.ChannelId.RAW_ACTIVE_POWER_L2, json);
-		var powerL3 = (Long) this.getValueForChannel(EvcsHardyBarth.ChannelId.RAW_ACTIVE_POWER_L3, json);
+		var powerL1 = (Long) HardyBarthReadUtils.getValueForChannel(EvcsHardyBarth.ChannelId.RAW_ACTIVE_POWER_L1, json);
+		var powerL2 = (Long) HardyBarthReadUtils.getValueForChannel(EvcsHardyBarth.ChannelId.RAW_ACTIVE_POWER_L2, json);
+		var powerL3 = (Long) HardyBarthReadUtils.getValueForChannel(EvcsHardyBarth.ChannelId.RAW_ACTIVE_POWER_L3, json);
 
 		// TODO: Handle phases, having each phase value in the Nature
 		// Keep last value if no power value was given
@@ -118,12 +86,11 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 		this.parent.debugLog("Used phases: " + phases);
 
 		// CHARGE_POWER
-		var chargePowerLong = (Long) this.getValueFromJson(Evcs.ChannelId.CHARGE_POWER, json, value -> {
+		var chargePowerLong = HardyBarthReadUtils.getValueFromJson(Evcs.ChannelId.CHARGE_POWER, null, json, value -> {
 			Integer integerValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
 			if (integerValue == null) {
 				return null;
 			}
-
 			long activePower = Math.round(integerValue * EvcsHardyBarth.SCALE_FACTOR_MINUS_1);
 
 			// Ignore the consumption of the charger itself
@@ -133,8 +100,8 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 		this.parent._setChargePower(chargePowerLong == null ? null : chargePowerLong.intValue());
 
 		// STATUS
-		var status = (Status) this.getValueFromJson(EvcsHardyBarth.ChannelId.RAW_CHARGE_STATUS_CHARGEPOINT, json,
-				value -> {
+		var status = HardyBarthReadUtils.getValueFromJson(EvcsHardyBarth.ChannelId.RAW_CHARGE_STATUS_CHARGEPOINT, null,
+				json, value -> {
 
 					String stringValue = TypeUtils.getAsType(OpenemsType.STRING, value);
 					if (stringValue == null) {
@@ -209,25 +176,8 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 	 * @return Value of the last JsonElement by running through the specified JSON
 	 *         path.
 	 */
-	private Object getValueForChannel(EvcsHardyBarth.ChannelId channelId, JsonElement json) {
-		return this.getValueFromJson(channelId, json, channelId.converter, channelId.getJsonPaths());
-	}
-
-	/**
-	 * Call the getValueFromJson without a divergent type in the raw json.
-	 *
-	 * @param channelId Channel that value will be detect.
-	 * @param json      Raw JsonElement.
-	 * @param converter Converter, to convert the raw JSON value into a proper
-	 *                  Channel.
-	 * @param jsonPaths Whole JSON path, where the JsonElement for the given channel
-	 *                  is located.
-	 * @return Value of the last JsonElement by running through the specified JSON
-	 *         path.
-	 */
-	private Object getValueFromJson(ChannelId channelId, JsonElement json, Function<Object, Object> converter,
-			String... jsonPaths) {
-		return this.getValueFromJson(channelId, null, json, converter, jsonPaths);
+	private static Object getValueForChannel(EvcsHardyBarth.ChannelId channelId, JsonElement json) {
+		return getValueFromJson(channelId, null, json, channelId.converter, channelId.getJsonPaths());
 	}
 
 	/**
@@ -242,17 +192,17 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 	 *                               proper Channel.
 	 * @param jsonPaths              Whole JSON path, where the JsonElement for the
 	 *                               given channel is located.
+	 * @param <T>                    return type
 	 * @return Value of the last JsonElement by running through the specified JSON
 	 *         path.
 	 */
-	private Object getValueFromJson(ChannelId channelId, OpenemsType divergentTypeInRawJson, JsonElement json,
-			Function<Object, Object> converter, String... jsonPaths) {
+	private static <T> T getValueFromJson(ChannelId channelId, OpenemsType divergentTypeInRawJson, JsonElement json,
+			Function<Object, T> converter, String... jsonPaths) {
 
 		var currentJsonElement = json;
 		// Go through the whole jsonPath of the current channelId
 		for (var i = 0; i < jsonPaths.length; i++) {
 			var currentPathMember = jsonPaths[i];
-			// System.out.println(currentPathMember);
 			try {
 				if (i == jsonPaths.length - 1) {
 					//
@@ -260,7 +210,7 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 							: divergentTypeInRawJson;
 
 					// Last path element
-					var value = this.getJsonElementValue(currentJsonElement, openemsType, jsonPaths[i]);
+					var value = getJsonElementValue(currentJsonElement, openemsType, jsonPaths[i]);
 
 					// Return the converted value
 					return converter.apply(value);
@@ -275,6 +225,29 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 	}
 
 	/**
+	 * Handles a Response froma http call for the endpoint /api GET.
+	 * 
+	 * @param response response to be handled
+	 * @throws OpenemsNamedException when json can not be parsed
+	 */
+	public void handleGetApiCallResponse(HttpResponse<String> response) throws OpenemsNamedException {
+		final var json = parseToJsonObject(response.data());
+		for (var channelId : EvcsHardyBarth.ChannelId.values()) {
+			var jsonPaths = channelId.getJsonPaths();
+			var value = getValueFromJson(channelId, null, json, channelId.converter, jsonPaths);
+
+			// Set the channel-value
+			this.parent.channel(channelId).setNextValue(value);
+
+			if (channelId.equals(EvcsHardyBarth.ChannelId.RAW_SALIA_PUBLISH)) {
+				this.parent.masterEvcs = false;
+			}
+
+		}
+		this.setEvcsChannelIds(json);
+	}
+
+	/**
 	 * Get Value of the given JsonElement in the required type.
 	 *
 	 * @param jsonElement Element as JSON.
@@ -283,7 +256,7 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 	 * @return Value in the required type.
 	 * @throws OpenemsNamedException Failed to get the value.
 	 */
-	private Object getJsonElementValue(JsonElement jsonElement, OpenemsType openemsType, String memberName)
+	private static Object getJsonElementValue(JsonElement jsonElement, OpenemsType openemsType, String memberName)
 			throws OpenemsNamedException {
 		final Object value;
 
