@@ -588,8 +588,7 @@ public class EdgeConfig {
 			var jPropertiesOpt = JsonUtils.getAsOptionalJsonObject(json, "properties");
 			if (jPropertiesOpt.isPresent()) {
 				for (Entry<String, JsonElement> entry : jPropertiesOpt.get().entrySet()) {
-					if (!ignorePropertyKey(entry.getKey())
-							&& !ignoreComponentPropertyKey(componentId, entry.getKey())) {
+					if (!ignorePropertyKey(entry.getKey())) {
 						properties.put(entry.getKey(), entry.getValue());
 					}
 				}
@@ -1461,27 +1460,6 @@ public class EdgeConfig {
 				OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME, OpenemsConstants.PROPERTY_FACTORY_PID,
 				OpenemsConstants.PROPERTY_PID, "webconsole.configurationFactory.nameHint", "event.topics" ->
 			true;
-
-		default -> false;
-		};
-	}
-
-	/**
-	 * Internal Method to decide whether a configuration property should be ignored.
-	 *
-	 * @param componentId the Component-ID
-	 * @param key         the property key
-	 * @return true if it should get ignored
-	 */
-	public static boolean ignoreComponentPropertyKey(String componentId, String key) {
-		return switch (componentId) {
-		// Filter for _sum component
-		case "_sum" -> switch (key) {
-		case "productionMaxActivePower", "consumptionMaxActivePower", "gridMinActivePower", "gridMaxActivePower" ->
-			true;
-
-		default -> false;
-		};
 
 		default -> false;
 		};

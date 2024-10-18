@@ -595,7 +595,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 			for (EdgeConfig.Factory.Property property : factory.getProperties()) {
 				var key = property.getId();
 
-				if (EdgeConfig.ignorePropertyKey(key) || EdgeConfig.ignoreComponentPropertyKey(componentId, key)) {
+				if (EdgeConfig.ignorePropertyKey(key)) {
 					// Ignore this Property
 					continue;
 				}
