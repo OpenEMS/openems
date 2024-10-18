@@ -1170,9 +1170,9 @@ public class EdgeConfig {
 			}
 
 			/**
-			 * Builds the {@link ActualEdgeConfig}.
+			 * Builds the ActualEdgeConfig.
 			 * 
-			 * @return {@link ActualEdgeConfig}
+			 * @return ActualEdgeConfig
 			 */
 			public ActualEdgeConfig build() {
 				return new ActualEdgeConfig(ImmutableSortedMap.copyOf(this.getComponents()),
@@ -1190,9 +1190,9 @@ public class EdgeConfig {
 		}
 
 		/**
-		 * Creates an empty {@link ActualEdgeConfig}.
+		 * Creates an empty ActualEdgeConfig.
 		 * 
-		 * @return {@link ActualEdgeConfig}
+		 * @return ActualEdgeConfig
 		 */
 		public static ActualEdgeConfig empty() {
 			return ActualEdgeConfig.create().build();
@@ -1247,9 +1247,9 @@ public class EdgeConfig {
 	private volatile JsonObject _json = null;
 
 	/**
-	 * Build from {@link ActualEdgeConfig}.
+	 * Build from ActualEdgeConfig.
 	 * 
-	 * @param actual the {@link ActualEdgeConfig}
+	 * @param actual the ActualEdgeConfig
 	 */
 	private EdgeConfig(ActualEdgeConfig actual) {
 		this._actual = actual;
@@ -1260,10 +1260,10 @@ public class EdgeConfig {
 	}
 
 	/**
-	 * Gets the {@link ActualEdgeConfig}. Either by parsing it from {@link #json} or
-	 * by returning from cache.
+	 * Gets the ActualEdgeConfig. Either by parsing it from {@link #json} or by
+	 * returning from cache.
 	 * 
-	 * @return {@link ActualEdgeConfig}; empty on JSON parse error
+	 * @return ActualEdgeConfig; empty on JSON parse error
 	 */
 	private synchronized ActualEdgeConfig getActual() {
 		if (this._actual != null) {

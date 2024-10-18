@@ -1,11 +1,15 @@
 package io.openems.edge.battery.fenecon.home;
 
+import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.BATTERY_HARDWARE_TYPE;
+import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER;
+import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION;
+import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION;
+import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.ChannelId;
@@ -17,19 +21,6 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class TowersAndModulesTest {
 
-	private static final String BATTERY_ID = "battery0";
-	private static final String MODBUS_ID = "modbus0";
-
-	private static final ChannelAddress NUMBER_OF_MODULES_PER_TOWER = new ChannelAddress(BATTERY_ID,
-			"NumberOfModulesPerTower");
-	private static final ChannelAddress TOWER_0_BMS_SOFTWARE_VERSION = new ChannelAddress(BATTERY_ID,
-			"Tower0BmsSoftwareVersion");
-	private static final ChannelAddress TOWER_1_BMS_SOFTWARE_VERSION = new ChannelAddress(BATTERY_ID,
-			"Tower1BmsSoftwareVersion");
-	private static final ChannelAddress TOWER_2_BMS_SOFTWARE_VERSION = new ChannelAddress(BATTERY_ID,
-			"Tower2BmsSoftwareVersion");
-	private static final ChannelAddress BATTERY_HARDWARE_TYPE = new ChannelAddress(BATTERY_ID, "BatteryHardwareType");
-
 	private static final int TOWERS = 1;
 	private static final int MODULES = 5;
 	private static final int CELLS = 14;
@@ -40,10 +31,10 @@ public class TowersAndModulesTest {
 		var componentTest = new ComponentTest(battery) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
-						.setId(BATTERY_ID) //
-						.setModbusId(MODBUS_ID) //
+						.setId("battery0") //
+						.setModbusId("modbus0") //
 						.setModbusUnitId(0) //
 						.setBatteryStartUpRelay("io0/Relay4") //
 						.setStartStop(StartStopConfig.AUTO) //

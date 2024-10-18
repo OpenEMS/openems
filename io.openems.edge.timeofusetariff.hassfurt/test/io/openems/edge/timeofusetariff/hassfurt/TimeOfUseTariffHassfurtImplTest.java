@@ -1,24 +1,20 @@
 package io.openems.edge.timeofusetariff.hassfurt;
 
+import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.timeofusetariff.hassfurt.TimeOfUseTariffHassfurtImpl.parsePrices;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
-
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 
 public class TimeOfUseTariffHassfurtImplTest {
 
-	private static final String CTRL_ID = "ctrl0";
 	private static final String STROM_FLEX_PRO_STRING = """
 				{
 				    "object": "list",
@@ -192,14 +188,12 @@ public class TimeOfUseTariffHassfurtImplTest {
 
 	@Test
 	public void test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
-		var hassfurt = new TimeOfUseTariffHassfurtImpl();
-		new ComponentTest(hassfurt) //
+		final var clock = createDummyClock();
+		new ComponentTest(new TimeOfUseTariffHassfurtImpl()) //
 				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
-				.addReference("componentManager", cm) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
+						.setId("ctrl0") //
 						.setTariffType(TariffType.STROM_FLEX) //
 						.build()) //
 		;

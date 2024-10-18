@@ -8,9 +8,7 @@ import static io.openems.edge.evcs.api.Status.CHARGING;
 
 import org.junit.Test;
 
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.evcs.api.DeprecatedEvcs;
@@ -18,8 +16,6 @@ import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 public class EvcsHardyBarthImplTest {
-
-	private static final String COMPONENT_ID = "evcs0";
 
 	@Test
 	public void test() throws Exception {
@@ -29,7 +25,7 @@ public class EvcsHardyBarthImplTest {
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", ofDummyBridge()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("evcs0") //
 						.setIp("192.168.8.101") //
 						.setMaxHwCurrent(32_000) //
 						.setMinHwCurrent(6_000) //
@@ -38,81 +34,77 @@ public class EvcsHardyBarthImplTest {
 				.next(new TestCase() //
 						.onBeforeProcessImage(() -> ru
 								.handleGetApiCallResponse(new HttpResponse<String>(OK, API_RESPONSE), phaseRotation)) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_EVSE_GRID_CURRENT_LIMIT), 16) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_PHASE_COUNT), 3) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_CHARGE_STATUS_PLUG), "locked") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_CHARGE_STATUS_CONTACTOR), "closed") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_CHARGE_STATUS_PWM), "10.00") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_CHARGE_STATUS_CHARGEPOINT), "C") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_SALIA_CHARGE_MODE), "manual") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_SALIA_CHANGE_METER), null) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_SALIA_AUTHMODE), "free") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_SALIA_FIRMWARESTATE), "idle") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_SALIA_FIRMWAREPROGRESS), "0") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_SALIA_PUBLISH), null) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_SESSION_STATUS_AUTHORIZATION), "") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_SESSION_SLAC_STARTED), null) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_SESSION_AUTHORIZATION_METHOD), null) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_CONTACTOR_HLC_TARGET), "0") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_CONTACTOR_ACTUAL), "1") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_CONTACTOR_TARGET), "1") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_CONTACTOR_ERROR), "0") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_METER_SERIALNUMBER), "21031835") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_METER_TYPE), "klefr") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_METER_AVAILABLE), true) //
-						.output(c(EvcsHardyBarth.ChannelId.METER_NOT_AVAILABLE), false) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_ACTIVE_ENERGY_TOTAL), 4658050.0) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_ACTIVE_ENERGY_EXPORT), 0.0) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_EMERGENCY_SHUTDOWN), "0") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_RCD_AVAILABLE), false) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_PLUG_LOCK_STATE_ACTUAL), "1") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_PLUG_LOCK_STATE_TARGET), "1") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_PLUG_LOCK_ERROR), "0") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_CP_STATE), "C") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_DIODE_PRESENT), "1") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_CABLE_CURRENT_LIMIT), "-1") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_VENTILATION_STATE_ACTUAL), "0") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_VENTILATION_STATE_TARGET), null) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_VENTILATION_AVAILABLE), false) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_EV_PRESENT), "1") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_CHARGING), "1") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_RFID_AUTHORIZEREQ), "") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_RFID_AVAILABLE), false) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_GRID_CURRENT_LIMIT), "6") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_SLAC_ERROR), null) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_DEVICE_PRODUCT), "2310007") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_DEVICE_MODELNAME), "Salia PLCC Slave") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_DEVICE_HARDWARE_VERSION), "1.0") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_DEVICE_SOFTWARE_VERSION), "1.50.0") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_DEVICE_VCS_VERSION), "V0R5e") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_DEVICE_HOSTNAME), "salia") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_DEVICE_MAC_ADDRESS), "00:01:87:13:12:34") //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_DEVICE_SERIAL), 101249323L) //
-						.output(c(EvcsHardyBarth.ChannelId.RAW_DEVICE_UUID), "5491ad62-022a-4356-a32c-00018713102x") //
+						.output(EvcsHardyBarth.ChannelId.RAW_EVSE_GRID_CURRENT_LIMIT, 16) //
+						.output(EvcsHardyBarth.ChannelId.RAW_PHASE_COUNT, 3) //
+						.output(EvcsHardyBarth.ChannelId.RAW_CHARGE_STATUS_PLUG, "locked") //
+						.output(EvcsHardyBarth.ChannelId.RAW_CHARGE_STATUS_CONTACTOR, "closed") //
+						.output(EvcsHardyBarth.ChannelId.RAW_CHARGE_STATUS_PWM, "10.00") //
+						.output(EvcsHardyBarth.ChannelId.RAW_CHARGE_STATUS_CHARGEPOINT, "C") //
+						.output(EvcsHardyBarth.ChannelId.RAW_SALIA_CHARGE_MODE, "manual") //
+						.output(EvcsHardyBarth.ChannelId.RAW_SALIA_CHANGE_METER, null) //
+						.output(EvcsHardyBarth.ChannelId.RAW_SALIA_AUTHMODE, "free") //
+						.output(EvcsHardyBarth.ChannelId.RAW_SALIA_FIRMWARESTATE, "idle") //
+						.output(EvcsHardyBarth.ChannelId.RAW_SALIA_FIRMWAREPROGRESS, "0") //
+						.output(EvcsHardyBarth.ChannelId.RAW_SALIA_PUBLISH, null) //
+						.output(EvcsHardyBarth.ChannelId.RAW_SESSION_STATUS_AUTHORIZATION, "") //
+						.output(EvcsHardyBarth.ChannelId.RAW_SESSION_SLAC_STARTED, null) //
+						.output(EvcsHardyBarth.ChannelId.RAW_SESSION_AUTHORIZATION_METHOD, null) //
+						.output(EvcsHardyBarth.ChannelId.RAW_CONTACTOR_HLC_TARGET, "0") //
+						.output(EvcsHardyBarth.ChannelId.RAW_CONTACTOR_ACTUAL, "1") //
+						.output(EvcsHardyBarth.ChannelId.RAW_CONTACTOR_TARGET, "1") //
+						.output(EvcsHardyBarth.ChannelId.RAW_CONTACTOR_ERROR, "0") //
+						.output(EvcsHardyBarth.ChannelId.RAW_METER_SERIALNUMBER, "21031835") //
+						.output(EvcsHardyBarth.ChannelId.RAW_METER_TYPE, "klefr") //
+						.output(EvcsHardyBarth.ChannelId.RAW_METER_AVAILABLE, true) //
+						.output(EvcsHardyBarth.ChannelId.METER_NOT_AVAILABLE, false) //
+						.output(EvcsHardyBarth.ChannelId.RAW_ACTIVE_ENERGY_TOTAL, 4658050.0) //
+						.output(EvcsHardyBarth.ChannelId.RAW_ACTIVE_ENERGY_EXPORT, 0.0) //
+						.output(EvcsHardyBarth.ChannelId.RAW_EMERGENCY_SHUTDOWN, "0") //
+						.output(EvcsHardyBarth.ChannelId.RAW_RCD_AVAILABLE, false) //
+						.output(EvcsHardyBarth.ChannelId.RAW_PLUG_LOCK_STATE_ACTUAL, "1") //
+						.output(EvcsHardyBarth.ChannelId.RAW_PLUG_LOCK_STATE_TARGET, "1") //
+						.output(EvcsHardyBarth.ChannelId.RAW_PLUG_LOCK_ERROR, "0") //
+						.output(EvcsHardyBarth.ChannelId.RAW_CP_STATE, "C") //
+						.output(EvcsHardyBarth.ChannelId.RAW_DIODE_PRESENT, "1") //
+						.output(EvcsHardyBarth.ChannelId.RAW_CABLE_CURRENT_LIMIT, "-1") //
+						.output(EvcsHardyBarth.ChannelId.RAW_VENTILATION_STATE_ACTUAL, "0") //
+						.output(EvcsHardyBarth.ChannelId.RAW_VENTILATION_STATE_TARGET, null) //
+						.output(EvcsHardyBarth.ChannelId.RAW_VENTILATION_AVAILABLE, false) //
+						.output(EvcsHardyBarth.ChannelId.RAW_EV_PRESENT, "1") //
+						.output(EvcsHardyBarth.ChannelId.RAW_CHARGING, "1") //
+						.output(EvcsHardyBarth.ChannelId.RAW_RFID_AUTHORIZEREQ, "") //
+						.output(EvcsHardyBarth.ChannelId.RAW_RFID_AVAILABLE, false) //
+						.output(EvcsHardyBarth.ChannelId.RAW_GRID_CURRENT_LIMIT, "6") //
+						.output(EvcsHardyBarth.ChannelId.RAW_SLAC_ERROR, null) //
+						.output(EvcsHardyBarth.ChannelId.RAW_DEVICE_PRODUCT, "2310007") //
+						.output(EvcsHardyBarth.ChannelId.RAW_DEVICE_MODELNAME, "Salia PLCC Slave") //
+						.output(EvcsHardyBarth.ChannelId.RAW_DEVICE_HARDWARE_VERSION, "1.0") //
+						.output(EvcsHardyBarth.ChannelId.RAW_DEVICE_SOFTWARE_VERSION, "1.50.0") //
+						.output(EvcsHardyBarth.ChannelId.RAW_DEVICE_VCS_VERSION, "V0R5e") //
+						.output(EvcsHardyBarth.ChannelId.RAW_DEVICE_HOSTNAME, "salia") //
+						.output(EvcsHardyBarth.ChannelId.RAW_DEVICE_MAC_ADDRESS, "00:01:87:13:12:34") //
+						.output(EvcsHardyBarth.ChannelId.RAW_DEVICE_SERIAL, 101249323L) //
+						.output(EvcsHardyBarth.ChannelId.RAW_DEVICE_UUID, "5491ad62-022a-4356-a32c-00018713102x") //
 
-						.output(c(Evcs.ChannelId.ENERGY_SESSION), 3460) //
-						.output(c(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY), 4658050L) //
-						.output(c(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY), 4658050L) //
-						.output(c(Evcs.ChannelId.PHASES), THREE_PHASE) //
-						.output(c(Evcs.ChannelId.STATUS), CHARGING) //
-						.output(c(DeprecatedEvcs.ChannelId.CHARGE_POWER), 3192) //
-						.output(c(ElectricityMeter.ChannelId.ACTIVE_POWER), 3192) //
-						.output(c(ElectricityMeter.ChannelId.ACTIVE_POWER_L1), 1044) //
-						.output(c(ElectricityMeter.ChannelId.ACTIVE_POWER_L2), 1075) //
-						.output(c(ElectricityMeter.ChannelId.ACTIVE_POWER_L3), 1073) //
-						.output(c(ElectricityMeter.ChannelId.CURRENT), 14_770) //
-						.output(c(ElectricityMeter.ChannelId.CURRENT_L1), 4_770) //
-						.output(c(ElectricityMeter.ChannelId.CURRENT_L2), 5_000) //
-						.output(c(ElectricityMeter.ChannelId.CURRENT_L3), 5_000) //
-						.output(c(ElectricityMeter.ChannelId.VOLTAGE), 216_156) //
-						.output(c(ElectricityMeter.ChannelId.VOLTAGE_L1), 218_868) //
-						.output(c(ElectricityMeter.ChannelId.VOLTAGE_L2), 215_000) //
-						.output(c(ElectricityMeter.ChannelId.VOLTAGE_L3), 214_600) //
+						.output(Evcs.ChannelId.ENERGY_SESSION, 3460) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 4658050L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 4658050L) //
+						.output(Evcs.ChannelId.PHASES, THREE_PHASE) //
+						.output(Evcs.ChannelId.STATUS, CHARGING) //
+						.output(DeprecatedEvcs.ChannelId.CHARGE_POWER, 3192) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 3192) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1044) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1075) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 1073) //
+						.output(ElectricityMeter.ChannelId.CURRENT, 14_770) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, 4_770) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L2, 5_000) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L3, 5_000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE, 216_156) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 218_868) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, 215_000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, 214_600) //
 				);
-	}
-
-	private static ChannelAddress c(ChannelId channelId) {
-		return new ChannelAddress(COMPONENT_ID, channelId.id());
 	}
 
 	private static final String API_RESPONSE = """

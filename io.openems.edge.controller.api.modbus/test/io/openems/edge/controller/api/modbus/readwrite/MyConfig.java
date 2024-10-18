@@ -1,12 +1,7 @@
 package io.openems.edge.controller.api.modbus.readwrite;
 
-import java.nio.channels.Channels;
-
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.types.EdgeConfig.Component.Channel;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

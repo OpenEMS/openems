@@ -12,8 +12,6 @@ import io.openems.edge.controller.test.ControllerTest;
 
 public class ControllerApiRestReadOnlyImplTest {
 
-	private static final String CTRL_ID = "ctrlApiRest0";
-
 	@Test
 	public void test() throws OpenemsException, Exception {
 		final var port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
@@ -23,11 +21,12 @@ public class ControllerApiRestReadOnlyImplTest {
 				.addReference("userService", new DummyUserService()) //
 				.addReference("restHandlerFactory", new DummyJsonRpcRestHandlerFactory(JsonRpcRestHandler::new)) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
+						.setId("ctrlApiRest0") //
 						.setEnabled(false) // do not actually start server
 						.setConnectionlimit(5) //
 						.setDebugMode(false) //
 						.setPort(port) //
-						.build());
+						.build()) //
+				.deactivate();
 	}
 }

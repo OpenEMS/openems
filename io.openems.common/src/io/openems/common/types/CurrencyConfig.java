@@ -1,5 +1,7 @@
 package io.openems.common.types;
 
+import java.util.Currency;
+
 /**
  * The {@link ChannelId#CURRENCY} mandates the selection of the 'currency'
  * configuration property of this specific type. Subsequently, this selected
