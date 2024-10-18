@@ -266,7 +266,7 @@ export class EdgeConfig {
         const result = [];
         const natures = EdgeConfig.getNaturesOfFactories(factories);
         const include = natures[includeNature];
-        const excludes = excludeNature != null ? natures[excludeNature].factoryIds : [];
+        const excludes = excludeNature != null && "excludeNature" in natures ? natures[excludeNature].factoryIds : [];
         if (include) {
             for (const factoryId of include.factoryIds) {
                 if (excludes.includes(factoryId)) {
