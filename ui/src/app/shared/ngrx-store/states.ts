@@ -4,8 +4,8 @@ import { Router } from "@angular/router";
 import { differenceInSeconds } from "date-fns";
 import { environment } from "src/environments";
 import { Pagination } from "../service/pagination";
-import { PreviousRouteService } from "../service/previousRouteService";
-import { Websocket } from "../shared";
+import { RouteService } from "../service/previousRouteService";
+import { Service, Websocket } from "../shared";
 
 export enum States {
     WEBSOCKET_CONNECTION_CLOSED,
@@ -35,7 +35,7 @@ export class AppStateTracker {
         protected router: Router,
         protected pagination: Pagination,
         private websocket: Websocket,
-        private previousRouteService: PreviousRouteService,
+        private service: Service,
     ) {
         if (!localStorage.getItem("AppState")) {
             console.log(`${AppStateTracker.LOG_PREFIX} Log deactivated`);
@@ -54,16 +54,11 @@ export class AppStateTracker {
     /**
      * Handles navigation after authentication
      */
-    public navigateAfterAuthentication() {
+    public async handleAuthenticated() {
         const segments = this.router.routerState.snapshot.url.split("/");
-        const previousUrl: string = this.previousRouteService.getPreviousUrl();
-
-        if ((previousUrl === segments[segments.length - 1]) || previousUrl === "/") {
-            this.router.navigate(["./overview"]);
-            return;
-        }
-
-        this.router.navigate(previousUrl.split("/"));
+        RouteService.getRouteAfterAuthentication(this.service, segments).then(val => {
+            this.router.navigate(val);
+        });
     }
 
     private startStateHandler(state: States): void {
@@ -84,6 +79,7 @@ export class AppStateTracker {
                 break;
             case States.AUTHENTICATED:
                 this.loadingState.set("authenticated");
+                this.handleAuthenticated();
                 break;
             default:
                 this.lastTimeStamp = null;

@@ -48,4 +48,15 @@ export namespace ArrayUtils {
       return aVal.localeCompare(bVal, undefined, { sensitivity: "accent" });
     });
   }
+
+  /**
+  * Checks if array contains at least one of the passed strings
+  *
+  * @param strings the strings
+  * @param arr the array
+  * @returns true if arr contains at least one of the strings
+  */
+  export function containsStrings(strings: (number | string | null)[], arr: (number | string | null)[]): boolean {
+    return arr.filter(el => strings.includes(el)).length > 0;
+  }
 }

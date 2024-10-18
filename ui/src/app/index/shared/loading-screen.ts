@@ -33,7 +33,7 @@ export class LoadingScreenComponent {
           this.service.stopSpinner(this.spinnerId);
           break;
         case "authenticated":
-          this.appStateTracker.navigateAfterAuthentication();
+          this.appStateTracker.handleAuthenticated();
           break;
       }
     });
