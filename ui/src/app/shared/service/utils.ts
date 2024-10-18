@@ -4,7 +4,6 @@ import { TranslateService } from "@ngx-translate/core";
 import { ChartDataset } from "chart.js";
 import { saveAs } from "file-saver-es";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-
 import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { Base64PayloadResponse } from "../jsonrpc/response/base64PayloadResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
@@ -626,16 +625,17 @@ export class Utils {
 }
 
 export enum YAxisType {
-  NONE,
-  POWER,
-  PERCENTAGE,
-  RELAY,
-  ENERGY,
-  VOLTAGE,
-  REACTIVE,
-  CURRENT,
-  TIME,
   CURRENCY,
+  CURRENT,
+  ENERGY,
+  LEVEL,
+  NONE,
+  PERCENTAGE,
+  POWER,
+  REACTIVE,
+  RELAY,
+  TIME,
+  VOLTAGE,
 }
 
 export enum ChartAxis {

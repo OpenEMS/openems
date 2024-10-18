@@ -1,9 +1,9 @@
 // @ts-strict-ignore
-
 import { formatNumber } from "@angular/common";
 import { TranslateService } from "@ngx-translate/core";
 import { ChartComponentLike, ChartDataset } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import { RGBColor } from "../../service/defaulttypes";
 import { HistoryUtils, Utils } from "../../service/utils";
 import { Language } from "../../type/language";
 import { ArrayUtils } from "../../utils/array/array.utils";
@@ -43,7 +43,7 @@ export class ChartConstants {
       ...ChartDataLabels,
       formatter: (value, ctx) => {
         const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
-        return formatNumber(value, locale, "1.0-0") + "\xa0" + unit ?? null;
+        return formatNumber(value, locale, "1.0-0") + "\xa0" + unit;
       },
       ...{
         anchor: "end", offset: -18, align: "start", clip: false, clamp: true,
@@ -51,6 +51,14 @@ export class ChartConstants {
       plugin: ChartDataLabels,
       display: disable,
     });
+  };
+
+  public static Colors = class {
+    public static RED: string = new RGBColor(200, 0, 0).toString();
+  };
+
+  public static readonly NumberFormat = class {
+    public static NO_DECIMALS: string = "1.0-0";
   };
 
   /**

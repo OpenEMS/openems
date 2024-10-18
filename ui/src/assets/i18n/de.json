@@ -315,6 +315,7 @@
       "nov": "Nov",
       "dec": "Dez",
       "activeDuration": "Einschaltdauer",
+      "ACTIVE_DURATION_WITH_LEVEL": "Einschaltdauer Level {{level}}",
       "CURRENT": "Strom",
       "VOLTAGE": "Spannung"
     },

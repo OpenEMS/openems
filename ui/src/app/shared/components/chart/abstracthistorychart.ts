@@ -562,6 +562,18 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           },
         };
         break;
+      case YAxisType.LEVEL:
+        options.scales[element.yAxisId] = {
+          ...baseConfig,
+          min: 0,
+          max: 3,
+          beginAtZero: true,
+          ticks: {
+            ...baseConfig.ticks,
+            stepSize: 1,
+          },
+        };
+        break;
       case YAxisType.VOLTAGE:
       case YAxisType.CURRENT:
         options.scales[element.yAxisId] = {
