@@ -19,10 +19,10 @@ export namespace ArrayUtils {
   /**
    * Finds the biggest number in a array.
    * null, undefined, NaN, +-Infinity are ignored in this method.
-   *
-   * @param arr the arr
-   * @returns a number if arr not empty, else null
-   */
+  *
+  * @param arr the arr
+  * @returns a number if arr not empty, else null
+  */
   export function findBiggestNumber(arr: (number | null | undefined)[]): number | null {
     const filteredArr = arr.filter((el): el is number => Number.isFinite(el));
     return filteredArr.length > 0 ? Math.max(...filteredArr) : null;

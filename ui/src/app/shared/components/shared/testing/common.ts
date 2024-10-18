@@ -22,7 +22,7 @@ export namespace OeTester {
   }
 
   export namespace ChartOptions {
-    export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number, beginAtZero?: boolean }, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
+    export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number, beginAtZero?: boolean }, ticks?: { stepSize: number; min?: number, max?: number }; }; }, title?: string): OeChartTester.Dataset.Option => ({
       type: "option",
       options: {
         "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": {}, "line": {} }, "plugins": {
@@ -52,8 +52,10 @@ export namespace OeTester {
         }, "scales": {
           "x": { "stacked": true, "offset": true, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } },
           "left": {
-            ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true, "title": { "text": "kWh", "display": false, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
+            ...options["left"]?.scale,
+            ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true, "title": { "text": "kWh", "display": false, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
             "ticks": {
+
               ...options["left"]?.ticks,
               "color": "",
               "padding": 5,
@@ -86,7 +88,7 @@ export namespace OeTester {
         }, "scales": {
           "x": { "stacked": true, "offset": false, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } }, "left": {
             ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true,
-            "title": { "text": "kW", "display": true, "padding": 5, "font": { "size": 11 } },
+            "title": { "text": "kW", "display": false, "padding": 5, "font": { "size": 11 } },
             "position": "left", "grid": { "display": true },
             "ticks": {
               ...options["left"]?.ticks,
@@ -97,7 +99,7 @@ export namespace OeTester {
           },
           "right": {
             ...options["right"]?.scale, ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true,
-            "title": { "text": "Zustand", "display": true, "padding": 5, "font": { "size": 11 } },
+            "title": { "text": "Zustand", "display": false, "padding": 5, "font": { "size": 11 } },
             "position": "right", "grid": { "display": false },
             "ticks": {
               ...options["right"]?.ticks,
@@ -119,7 +121,7 @@ export namespace OeTester {
         }, "scales": {
           "x": { "stacked": true, "offset": true, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } },
           "left": {
-            ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true, "title": { "text": "kWh", "display": true, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
+            ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true, "title": { "text": "kWh", "display": false, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
             "ticks": {
               ...options["left"]?.ticks,
               "color": "",
@@ -128,8 +130,8 @@ export namespace OeTester {
             },
           },
           "right": {
-            ...options["right"]?.scale, ...(chartType === "line" ? { stacked: false } : { min: 0 }), "beginAtZero": true,
-            "title": { "text": "Aktive Zeit", "display": true, "padding": 5, "font": { "size": 11 } },
+            ...options["right"]?.scale, ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true,
+            "title": { "text": "Aktive Zeit", "display": false, "padding": 5, "font": { "size": 11 } },
             "position": "right", "grid": { "display": false },
             "ticks": {
               "color": "",
