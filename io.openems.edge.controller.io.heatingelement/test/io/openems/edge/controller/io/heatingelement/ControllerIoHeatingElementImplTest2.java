@@ -1,13 +1,20 @@
 package io.openems.edge.controller.io.heatingelement;
 
+import static io.openems.edge.common.sum.Sum.ChannelId.GRID_ACTIVE_POWER;
+import static io.openems.edge.controller.io.heatingelement.ControllerIoHeatingElement.ChannelId.FORCE_START_AT_SECONDS_OF_DAY;
+import static io.openems.edge.controller.io.heatingelement.ControllerIoHeatingElement.ChannelId.STATUS;
+import static io.openems.edge.controller.io.heatingelement.ControllerIoHeatingElement.ChannelId.TOTAL_PHASE_TIME;
+import static io.openems.edge.io.test.DummyInputOutput.ChannelId.INPUT_OUTPUT0;
+import static io.openems.edge.io.test.DummyInputOutput.ChannelId.INPUT_OUTPUT1;
+import static io.openems.edge.io.test.DummyInputOutput.ChannelId.INPUT_OUTPUT2;
+import static java.time.temporal.ChronoUnit.MINUTES;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
 import io.openems.common.test.TimeLeapClock;
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -20,20 +27,6 @@ import io.openems.edge.io.test.DummyInputOutput;
 
 public class ControllerIoHeatingElementImplTest2 {
 
-	private static final String CTRL_ID = "ctrl0";
-	private static final String IO_ID = "io0";
-
-	private static final ChannelAddress SUM_GRID_ACTIVE_POWER = new ChannelAddress("_sum", "GridActivePower");
-
-	private static final ChannelAddress IO_OUTPUT1 = new ChannelAddress(IO_ID, "InputOutput1");
-	private static final ChannelAddress IO_OUTPUT2 = new ChannelAddress(IO_ID, "InputOutput2");
-	private static final ChannelAddress IO_OUTPUT3 = new ChannelAddress(IO_ID, "InputOutput3");
-
-	private static final ChannelAddress CTRL_FORCE_START_AT_SECONDS_OF_DAY = new ChannelAddress(CTRL_ID,
-			"ForceStartAtSecondsOfDay");
-	private static final ChannelAddress CTRL_TOTAL_PHASE_TIME = new ChannelAddress(CTRL_ID, "TotalPhaseTime");
-	private static final ChannelAddress CTRL_STATUS = new ChannelAddress(CTRL_ID, "Status");
-
 	@Test
 	public void minimumTime_lowerLevel_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
@@ -41,12 +34,12 @@ public class ControllerIoHeatingElementImplTest2 {
 		new ControllerTest(new ControllerIoHeatingElementImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("sum", new DummySum()) //
-				.addComponent(new DummyInputOutput(IO_ID)) //
+				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
-						.setOutputChannelPhaseL1(IO_OUTPUT1.toString()) //
-						.setOutputChannelPhaseL2(IO_OUTPUT2.toString()) //
-						.setOutputChannelPhaseL3(IO_OUTPUT3.toString()) //
+						.setId("ctrl0") //
+						.setOutputChannelPhaseL1("io0/InputOutput0") //
+						.setOutputChannelPhaseL2("io0/InputOutput1") //
+						.setOutputChannelPhaseL3("io0/InputOutput2") //
 						.setEndTime("15:45:00") //
 						.setPowerOfPhase(2000) //
 						.setMode(Mode.AUTOMATIC) //
@@ -56,20 +49,21 @@ public class ControllerIoHeatingElementImplTest2 {
 						.setMinimumSwitchingTime(60) //
 						.build()) //
 				.next(new TestCase() //
-						.input(SUM_GRID_ACTIVE_POWER, 0) //
-						.output(IO_OUTPUT1, false))//
+						.input(GRID_ACTIVE_POWER, 0) //
+						.output("io0", INPUT_OUTPUT0, false))//
 				.next(new TestCase() //
-						.timeleap(clock, 6, ChronoUnit.MINUTES)//
-						.input(SUM_GRID_ACTIVE_POWER, -2000) //
-						.output(IO_OUTPUT1, true) //
-						.output(CTRL_TOTAL_PHASE_TIME, 0) //
-						.output(CTRL_FORCE_START_AT_SECONDS_OF_DAY, 53_100 /* 14:45 */)) //
+						.timeleap(clock, 6, MINUTES)//
+						.input(GRID_ACTIVE_POWER, -2000) //
+						.output("io0", INPUT_OUTPUT0, true) //
+						.output(TOTAL_PHASE_TIME, 0) //
+						.output(FORCE_START_AT_SECONDS_OF_DAY, 53_100 /* 14:45 */)) //
 				.next(new TestCase() //
-						.timeleap(clock, 6, ChronoUnit.MINUTES)//
-						.input(SUM_GRID_ACTIVE_POWER, 0) //
-						.output(IO_OUTPUT1, true) //
-						.output(CTRL_TOTAL_PHASE_TIME, 360 /* 6 minutes, one phase */) //
-						.output(CTRL_FORCE_START_AT_SECONDS_OF_DAY, 53_220 /* 14:47 - two minutes later */)); //
+						.timeleap(clock, 6, MINUTES)//
+						.input(GRID_ACTIVE_POWER, 0) //
+						.output("io0", INPUT_OUTPUT0, true) //
+						.output(TOTAL_PHASE_TIME, 360 /* 6 minutes, one phase */) //
+						.output(FORCE_START_AT_SECONDS_OF_DAY, 53_220 /* 14:47 - two minutes later */)) //
+				.deactivate();
 	}
 
 	@Test
@@ -79,12 +73,12 @@ public class ControllerIoHeatingElementImplTest2 {
 		new ControllerTest(new ControllerIoHeatingElementImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("sum", new DummySum()) //
-				.addComponent(new DummyInputOutput(IO_ID)) //
+				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
-						.setOutputChannelPhaseL1(IO_OUTPUT1.toString()) //
-						.setOutputChannelPhaseL2(IO_OUTPUT2.toString()) //
-						.setOutputChannelPhaseL3(IO_OUTPUT3.toString()) //
+						.setId("ctrl0") //
+						.setOutputChannelPhaseL1("io0/InputOutput0") //
+						.setOutputChannelPhaseL2("io0/InputOutput1") //
+						.setOutputChannelPhaseL3("io0/InputOutput2") //
 						.setEndTime("15:45:00") //
 						.setPowerOfPhase(2000) //
 						.setMode(Mode.AUTOMATIC) //
@@ -94,24 +88,25 @@ public class ControllerIoHeatingElementImplTest2 {
 						.setMinimumSwitchingTime(60) //
 						.build()) //
 				.next(new TestCase() //
-						.input(SUM_GRID_ACTIVE_POWER, 0) //
-						.output(IO_OUTPUT1, false))//
+						.input(GRID_ACTIVE_POWER, 0) //
+						.output("io0", INPUT_OUTPUT0, false))//
 				.next(new TestCase() //
-						.timeleap(clock, 6, ChronoUnit.MINUTES)//
-						.input(SUM_GRID_ACTIVE_POWER, -6000) //
-						.output(IO_OUTPUT1, true) //
-						.output(IO_OUTPUT2, true) //
-						.output(IO_OUTPUT3, true) //
-						.output(CTRL_TOTAL_PHASE_TIME, 0) //
-						.output(CTRL_FORCE_START_AT_SECONDS_OF_DAY, 53_100 /* 14:45 */)) //
+						.timeleap(clock, 6, MINUTES)//
+						.input(GRID_ACTIVE_POWER, -6000) //
+						.output("io0", INPUT_OUTPUT0, true) //
+						.output("io0", INPUT_OUTPUT1, true) //
+						.output("io0", INPUT_OUTPUT2, true) //
+						.output(TOTAL_PHASE_TIME, 0) //
+						.output(FORCE_START_AT_SECONDS_OF_DAY, 53_100 /* 14:45 */)) //
 				.next(new TestCase() //
-						.timeleap(clock, 6, ChronoUnit.MINUTES)//
-						.input(SUM_GRID_ACTIVE_POWER, 0) //
-						.output(IO_OUTPUT1, true) //
-						.output(IO_OUTPUT2, true) //
-						.output(IO_OUTPUT3, true) //
-						.output(CTRL_TOTAL_PHASE_TIME, 1080 /* 6 minutes, all three phases */) //
-						.output(CTRL_FORCE_START_AT_SECONDS_OF_DAY, 53_460 /* 14:51 - six minutes later */)); //
+						.timeleap(clock, 6, MINUTES)//
+						.input(GRID_ACTIVE_POWER, 0) //
+						.output("io0", INPUT_OUTPUT0, true) //
+						.output("io0", INPUT_OUTPUT1, true) //
+						.output("io0", INPUT_OUTPUT2, true) //
+						.output(TOTAL_PHASE_TIME, 1080 /* 6 minutes, all three phases */) //
+						.output(FORCE_START_AT_SECONDS_OF_DAY, 53_460 /* 14:51 - six minutes later */)) //
+				.deactivate();
 	}
 
 	@Test
@@ -121,12 +116,12 @@ public class ControllerIoHeatingElementImplTest2 {
 		new ControllerTest(new ControllerIoHeatingElementImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("sum", new DummySum()) //
-				.addComponent(new DummyInputOutput(IO_ID)) //
+				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
-						.setOutputChannelPhaseL1(IO_OUTPUT1.toString()) //
-						.setOutputChannelPhaseL2(IO_OUTPUT2.toString()) //
-						.setOutputChannelPhaseL3(IO_OUTPUT3.toString()) //
+						.setId("ctrl0") //
+						.setOutputChannelPhaseL1("io0/InputOutput0") //
+						.setOutputChannelPhaseL2("io0/InputOutput1") //
+						.setOutputChannelPhaseL3("io0/InputOutput2") //
 						.setEndTime("16:00:00") //
 						.setPowerOfPhase(2000) //
 						.setMode(Mode.AUTOMATIC) //
@@ -136,35 +131,36 @@ public class ControllerIoHeatingElementImplTest2 {
 						.setMinimumSwitchingTime(60) //
 						.build()) //
 				.next(new TestCase() //
-						.input(SUM_GRID_ACTIVE_POWER, 0) //
-						.output(IO_OUTPUT1, false))//
+						.input(GRID_ACTIVE_POWER, 0) //
+						.output("io0", INPUT_OUTPUT0, false))//
 				.next(new TestCase() //
-						.timeleap(clock, 6, ChronoUnit.MINUTES)// /* 14:57 */
-						.input(SUM_GRID_ACTIVE_POWER, 0) //
-						.output(IO_OUTPUT1, false) //
-						.output(IO_OUTPUT2, false) //
-						.output(IO_OUTPUT3, false) //
-						.output(CTRL_TOTAL_PHASE_TIME, 0) //
-						.output(CTRL_FORCE_START_AT_SECONDS_OF_DAY, 54_000 /* 15:00 */)) //
+						.timeleap(clock, 6, MINUTES)// /* 14:57 */
+						.input(GRID_ACTIVE_POWER, 0) //
+						.output("io0", INPUT_OUTPUT0, false) //
+						.output("io0", INPUT_OUTPUT1, false) //
+						.output("io0", INPUT_OUTPUT2, false) //
+						.output(TOTAL_PHASE_TIME, 0) //
+						.output(FORCE_START_AT_SECONDS_OF_DAY, 54_000 /* 15:00 */)) //
 				.next(new TestCase() //
-						.timeleap(clock, 4, ChronoUnit.MINUTES)//
-						.input(SUM_GRID_ACTIVE_POWER, 0) //
-						.output(IO_OUTPUT1, true) //
-						.output(IO_OUTPUT2, true) //
-						.output(IO_OUTPUT3, true) //
-						.output(CTRL_FORCE_START_AT_SECONDS_OF_DAY, 54_000 /* current time */))
+						.timeleap(clock, 4, MINUTES)//
+						.input(GRID_ACTIVE_POWER, 0) //
+						.output("io0", INPUT_OUTPUT0, true) //
+						.output("io0", INPUT_OUTPUT1, true) //
+						.output("io0", INPUT_OUTPUT2, true) //
+						.output(FORCE_START_AT_SECONDS_OF_DAY, 54_000 /* current time */))
 				.next(new TestCase() //
-						.timeleap(clock, 3, ChronoUnit.MINUTES)// /* 15:03 */
-						.input(SUM_GRID_ACTIVE_POWER, 0) //
+						.timeleap(clock, 3, MINUTES)// /* 15:03 */
+						.input(GRID_ACTIVE_POWER, 0) //
 						// Previous duration of each phase cannot be set as input if you want to count
 						// already passed active time
 						// .input(CTRL_PHASE1TIME, 180) //
 						// .input(CTRL_PHASE2TIME, 180) //
 						// .input(CTRL_PHASE3TIME, 180) //
-						.output(IO_OUTPUT1, true) //
-						.output(IO_OUTPUT2, true) //
-						.output(IO_OUTPUT3, true) //
-						.output(CTRL_STATUS, Status.ACTIVE_FORCED) //
-						.output(CTRL_FORCE_START_AT_SECONDS_OF_DAY, 54_180 /* current time */)); //
+						.output("io0", INPUT_OUTPUT0, true) //
+						.output("io0", INPUT_OUTPUT1, true) //
+						.output("io0", INPUT_OUTPUT2, true) //
+						.output(STATUS, Status.ACTIVE_FORCED) //
+						.output(FORCE_START_AT_SECONDS_OF_DAY, 54_180 /* current time */)) //
+				.deactivate();
 	}
 }

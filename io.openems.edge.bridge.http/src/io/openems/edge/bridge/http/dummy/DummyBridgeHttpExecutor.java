@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.http.dummy;
 
+import static io.openems.edge.common.test.TestUtils.createDummyClock;
+
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -110,8 +112,16 @@ public class DummyBridgeHttpExecutor implements BridgeHttpExecutor {
 		this.taskExecutor = handleTasksImmediately ? new ImmediateTaskExecutor() : new DelayedTaskExecutor();
 	}
 
+	public DummyBridgeHttpExecutor(boolean handleTasksImmediately) {
+		this(createDummyClock(), handleTasksImmediately);
+	}
+
 	public DummyBridgeHttpExecutor(Clock clock) {
 		this(clock, false);
+	}
+
+	public DummyBridgeHttpExecutor() {
+		this(false);
 	}
 
 	@Override

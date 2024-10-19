@@ -73,6 +73,7 @@ import io.openems.edge.core.appmanager.formly.expression.StringExpression;
       "EVCS_ID": "evcs0",
       "CTRL_EVCS_ID": "ctrlEvcs0",
       "IP": "192.168.25.30",
+      "PHASE_ROTATION":"L1_L2_L3",
       "NUMBER_OF_CHARGING_STATIONS": 1,
       "EVCS_ID_CP_2": "evcs0",
       "CTRL_EVCS_ID_CP_2": "ctrlEvcs0",
@@ -144,6 +145,7 @@ public class HardyBarthEvcs extends
 											.collect(Exp.toArrayExpression()) //
 											.every(i -> Exp.currentModelValue(EVCS_ID).notEqual(i))));
 						}))), //
+		PHASE_ROTATION(AppDef.copyOfGeneric(EvcsProps.phaseRotation())), //
 		;
 
 		private final AppDef<? super HardyBarthEvcs, ? super PropertyParent, ? super BundleParameter> def;
@@ -317,6 +319,7 @@ public class HardyBarthEvcs extends
 			final var alias = this.getString(p, l, SubPropertyFirstChargepoint.ALIAS);
 			final var ip = this.getString(p, l, SubPropertyFirstChargepoint.IP);
 			final var evcsId = this.getId(t, p, Property.EVCS_ID);
+			final var phaseRotation = this.getString(p, l, Property.PHASE_ROTATION);
 			final var ctrlEvcsId = this.getId(t, p, Property.CTRL_EVCS_ID);
 			schedulerIds.add(new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId()));
 
@@ -324,6 +327,7 @@ public class HardyBarthEvcs extends
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(evcsId, alias, factorieId, JsonUtils.buildJsonObject() //
 							.addProperty("ip", ip) //
+							.addPropertyIfNotNull("phaseRotation", phaseRotation) //
 							.build()), //
 					new EdgeConfig.Component(ctrlEvcsId, controllerAlias, "Controller.Evcs", JsonUtils.buildJsonObject() //
 							.addProperty("evcs.id", evcsId) //
@@ -339,6 +343,7 @@ public class HardyBarthEvcs extends
 
 				components.add(new EdgeConfig.Component(evcsIdCp2, aliasCp2, factorieId, JsonUtils.buildJsonObject() //
 						.addProperty("ip", ipCp2) //
+						.addPropertyIfNotNull("phaseRotation", phaseRotation) //
 						.build()));
 				components.add(new EdgeConfig.Component(ctrlEvcsIdCp2, controllerAlias, "Controller.Evcs",
 						JsonUtils.buildJsonObject() //

@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus;
 
+import static io.openems.edge.bridge.modbus.api.ModbusComponent.ChannelId.MODBUS_COMMUNICATION_FAILED;
+
 import org.junit.Test;
 
 import com.ghgande.j2mod.modbus.procimg.Register;
@@ -10,7 +12,6 @@ import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingRunnable;
-import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
@@ -25,14 +26,8 @@ import io.openems.edge.common.test.TestUtils;
 
 public class BridgeModbusTcpImplTest {
 
-	private static final String MODBUS_ID = "modbus0";
-	private static final String DEVICE_ID = "device0";
 	private static final int UNIT_ID = 1;
 	private static final int CYCLE_TIME = 100;
-
-	private static final ChannelAddress REGISTER_100 = new ChannelAddress(DEVICE_ID, "Register100");
-	private static final ChannelAddress MODBUS_COMMUNICATION_FAILED = new ChannelAddress(DEVICE_ID,
-			"ModbusCommunicationFailed");
 
 	@Test
 	public void test() throws Exception {
@@ -57,13 +52,13 @@ public class BridgeModbusTcpImplTest {
 			var sut = new BridgeModbusTcpImpl();
 			var test = new ComponentTest(sut) //
 					.activate(MyConfigTcp.create() //
-							.setId(MODBUS_ID) //
+							.setId("modbus0") //
 							.setIp("127.0.0.1") //
 							.setPort(port) //
 							.setInvalidateElementsAfterReadErrors(1) //
 							.setLogVerbosity(LogVerbosity.NONE) //
 							.build());
-			test.addComponent(new MyModbusComponent(DEVICE_ID, sut, UNIT_ID));
+			test.addComponent(new MyModbusComponent("device0", sut, UNIT_ID));
 
 			/*
 			 * Successfully read Register
@@ -73,21 +68,21 @@ public class BridgeModbusTcpImplTest {
 							.onAfterProcessImage(sleep)) //
 					.next(new TestCase() //
 							.onAfterProcessImage(sleep) //
-							.output(REGISTER_100, 123) //
-							.output(MODBUS_COMMUNICATION_FAILED, false)); //
+							.output("device0", MyModbusComponent.ChannelId.REGISTER_100, 123) //
+							.output("device0", MODBUS_COMMUNICATION_FAILED, false)); //
 
 			/*
 			 * Remove Protocol and unset channel values
 			 */
-			sut.removeProtocol(DEVICE_ID);
+			sut.removeProtocol("device0");
 
 			test //
 					.next(new TestCase() //
 							.onAfterProcessImage(sleep)) //
 					.next(new TestCase() //
 							.onAfterProcessImage(sleep) //
-							.output(REGISTER_100, null) //
-							.output(MODBUS_COMMUNICATION_FAILED, false)); //
+							.output("device0", MyModbusComponent.ChannelId.REGISTER_100, null) //
+							.output("device0", MODBUS_COMMUNICATION_FAILED, false)); //
 
 		} finally {
 			if (slave != null) {

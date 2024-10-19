@@ -1,6 +1,7 @@
 package io.openems.edge.energy.optimizer;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
+import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.test.TestUtils.withValue;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
@@ -29,6 +30,8 @@ import static io.openems.edge.energy.optimizer.Utils.paramsAreValid;
 import static io.openems.edge.energy.optimizer.Utils.toEnergy;
 import static io.openems.edge.energy.optimizer.Utils.toPower;
 import static io.openems.edge.energy.optimizer.Utils.updateSchedule;
+import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -36,11 +39,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.stream.IntStream;
@@ -50,7 +50,6 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
@@ -240,7 +239,7 @@ public class UtilsTest {
 
 	@Test
 	public void testHandleScheduleRequest() throws Exception {
-		final var clock = new TimeLeapClock(Instant.parse("2020-03-04T14:19:00.00Z"), ZoneOffset.UTC);
+		final var clock = createDummyClock();
 		final var energyScheduler = EnergySchedulerImplTest.create(clock);
 
 		// Simulate historic data
@@ -282,16 +281,16 @@ public class UtilsTest {
 
 	@Test
 	public void testCalculateExecutionLimitSeconds() {
-		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var clock = createDummyClock();
 		assertEquals(Duration.ofMinutes(14).plusSeconds(30).toSeconds(), calculateExecutionLimitSeconds(clock));
 
-		clock.leap(11, ChronoUnit.MINUTES);
+		clock.leap(11, MINUTES);
 		assertEquals(Duration.ofMinutes(3).plusSeconds(30).toSeconds(), calculateExecutionLimitSeconds(clock));
 
-		clock.leap(150, ChronoUnit.SECONDS);
+		clock.leap(150, SECONDS);
 		assertEquals(60, calculateExecutionLimitSeconds(clock));
 
-		clock.leap(1, ChronoUnit.SECONDS);
+		clock.leap(1, SECONDS);
 		assertEquals(Duration.ofMinutes(15).plusSeconds(59).toSeconds(), calculateExecutionLimitSeconds(clock));
 	}
 

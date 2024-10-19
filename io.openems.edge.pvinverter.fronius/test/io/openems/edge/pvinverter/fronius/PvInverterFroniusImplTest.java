@@ -8,18 +8,15 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class PvInverterFroniusImplTest {
 
-	private static final String PV_INVERTER_ID = "pvInverter0";
-	private static final String MODBUS_ID = "modbus0";
-
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new PvInverterFroniusImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
-						.setId(PV_INVERTER_ID) //
+						.setId("pvInverter0") //
 						.setReadOnly(true) //
-						.setModbusId(MODBUS_ID) //
+						.setModbusId("modbus0") //
 						.setModbusUnitId(1) //
 						.build()) //
 		;

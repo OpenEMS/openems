@@ -193,7 +193,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 		 */
 		if (nextChargePower != 0) {
 
-			int chargePower = this.evcs.getChargePower().orElse(0);
+			int activePower = this.evcs.getActivePower().orElse(0);
 
 			/**
 			 * Check the difference of the current charge power and the previous charging
@@ -211,10 +211,10 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 				int currMax = this.evcs.getMaximumPower().orElse(0);
 
 				/**
-				 * If the charge power would increases again above the current maximum power, it
-				 * resets the maximum Power.
+				 * If the power would increases again above the current maximum power, it resets
+				 * the maximum Power.
 				 */
-				if (chargePower > currMax * (1 + DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT)) {
+				if (activePower > currMax * (1 + DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT)) {
 					this.evcs._setMaximumPower(null);
 				}
 			}
@@ -271,7 +271,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 	private static int calculateChargePowerFromExcessPower(Sum sum, ManagedEvcs evcs) throws OpenemsNamedException {
 		int buyFromGrid = sum.getGridActivePower().orElse(0);
 		int essDischarge = sum.getEssDischargePower().orElse(0);
-		int evcsCharge = evcs.getChargePower().orElse(0);
+		int evcsCharge = evcs.getActivePower().orElse(0);
 
 		return evcsCharge - buyFromGrid - essDischarge;
 	}
@@ -285,7 +285,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 	 */
 	private static int calculateExcessPowerAfterEss(Sum sum, ManagedEvcs evcs) {
 		int buyFromGrid = sum.getGridActivePower().orElse(0);
-		int evcsCharge = evcs.getChargePower().orElse(0);
+		int evcsCharge = evcs.getActivePower().orElse(0);
 
 		var result = evcsCharge - buyFromGrid;
 

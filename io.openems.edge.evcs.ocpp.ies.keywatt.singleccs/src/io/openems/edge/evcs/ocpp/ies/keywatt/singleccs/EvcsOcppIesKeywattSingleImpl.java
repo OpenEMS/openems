@@ -36,6 +36,7 @@ import io.openems.edge.evcs.ocpp.common.AbstractManagedOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.common.OcppInformations;
 import io.openems.edge.evcs.ocpp.common.OcppProfileType;
 import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -48,8 +49,8 @@ import io.openems.edge.timedata.api.Timedata;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class EvcsOcppIesKeywattSingleImpl extends AbstractManagedOcppEvcsComponent
-		implements EvcsOcppIesKeywattSingle, Evcs, ManagedEvcs, MeasuringEvcs, OpenemsComponent, EventHandler, SocEvcs {
+public class EvcsOcppIesKeywattSingleImpl extends AbstractManagedOcppEvcsComponent implements EvcsOcppIesKeywattSingle,
+		Evcs, ManagedEvcs, MeasuringEvcs, ElectricityMeter, OpenemsComponent, EventHandler, SocEvcs {
 
 	// Profiles that a Ies KeyWatt is supporting
 	private static final OcppProfileType[] PROFILE_TYPES = { //
@@ -76,8 +77,8 @@ public class EvcsOcppIesKeywattSingleImpl extends AbstractManagedOcppEvcsCompone
 		super(//
 				PROFILE_TYPES, //
 				OpenemsComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
-				AbstractManagedOcppEvcsComponent.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				MeasuringEvcs.ChannelId.values(), //
 				SocEvcs.ChannelId.values(), //
