@@ -67,7 +67,7 @@
     "@capacitor/cli": "6.1.2",
     "@ionic/angular-toolkit": "^11.0.1",
     "@ionic/cli": "^7.2.0",
-    "@stylistic/eslint-plugin": "^2.8.0",
+    "@stylistic/eslint-plugin": "^2.9.0",
     "@types/jasmine": "~4.3.6",
     "@types/jasminewd2": "~2.0.13",
     "@types/json-schema": "^7.0.15",
