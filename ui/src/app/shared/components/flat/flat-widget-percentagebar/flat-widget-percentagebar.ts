@@ -6,7 +6,10 @@ import { AbstractFlatWidgetLine } from "../abstract-flat-widget-line";
     templateUrl: "./flat-widget-percentagebar.html",
 })
 export class FlatWidgetPercentagebarComponent extends AbstractFlatWidgetLine {
-    protected get displayPercent(): number {
-        return Math.round(Number.parseFloat(this.displayValue));
+
+    protected get displayPercent(): number | null {
+        return this.displayValue === null
+            ? null
+            : Math.round(Number.parseFloat(this.displayValue));
     }
 }

@@ -1,5 +1,16 @@
 package io.openems.edge.evcs.dezony;
 
+import static io.openems.common.types.OpenemsType.DOUBLE;
+import static io.openems.common.types.OpenemsType.STRING;
+import static io.openems.common.utils.JsonUtils.getAsDouble;
+import static io.openems.common.utils.JsonUtils.getAsFloat;
+import static io.openems.common.utils.JsonUtils.getAsInt;
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsLong;
+import static io.openems.common.utils.JsonUtils.getAsShort;
+import static io.openems.common.utils.JsonUtils.getAsString;
+import static io.openems.edge.evcs.api.Phases.THREE_PHASE;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -13,7 +24,6 @@ import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
 
 public class DezonyReadWorker extends AbstractCycleWorker {
@@ -54,29 +64,28 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 	 * @param json Given raw data in JSON
 	 */
 	private void setEvcsChannelIds(JsonElement json) {
-		final var activeConsumptionEnergyArray = this.getArrayFromJson(json, "currDataPoint");
+		final var energyArray = getArrayFromJson(json, "currDataPoint");
 
-		this.parent._setActiveConsumptionEnergy(this.getValueByKey(activeConsumptionEnergyArray, "etotal"));
-		this.parent._setChargePower(this.getValueByKey(activeConsumptionEnergyArray, "ptotal"));
-		this.parent._setSetChargePowerLimit(this.getValueByKey(activeConsumptionEnergyArray, "curlhm")
-				* Phases.THREE_PHASE.getValue() * Evcs.DEFAULT_VOLTAGE);
-		this.parent._setPhases(this.calculatePhases(activeConsumptionEnergyArray));
+		this.parent._setActiveProductionEnergy(getValueByKey(energyArray, "etotal"));
+		this.parent._setActivePower(getValueByKey(energyArray, "ptotal"));
+		this.parent._setSetChargePowerLimit(
+				getValueByKey(energyArray, "curlhm") * THREE_PHASE.getValue() * Evcs.DEFAULT_VOLTAGE);
+		this.parent._setPhases(this.calculatePhases(energyArray));
 		this.parent._setStatus(this.getStatus(json));
 	}
 
 	private void setEnergySession(JsonElement json) {
-		final var energy = (Double) this.getValueFromJson(Evcs.ChannelId.ENERGY_SESSION, OpenemsType.DOUBLE, json,
-				value -> {
-					return value;
-				}, "metric", "energy");
+		final var energy = (Double) getValueFromJson(Evcs.ChannelId.ENERGY_SESSION, DOUBLE, json, value -> {
+			return value;
+		}, "metric", "energy");
 
 		this.parent._setEnergySession(energy == null ? null : (int) Math.round(energy));
 	}
 
 	private Status getStatus(JsonElement json) {
-		final var rawChargeStatus = (String) this.getValueFromJson(EvcsDezony.ChannelId.RAW_CHARGE_STATUS_CHARGEPOINT,
-				json, value -> {
-					final String state = TypeUtils.getAsType(OpenemsType.STRING, value);
+		final var rawChargeStatus = (String) getValueFromJson(EvcsDezony.ChannelId.RAW_CHARGE_STATUS_CHARGEPOINT, json,
+				value -> {
+					final String state = TypeUtils.getAsType(STRING, value);
 					return state == null ? "" : state;
 				}, "state");
 
@@ -104,10 +113,10 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 		return status;
 	}
 
-	private Integer calculatePhases(JsonArray activeConsumptionEnergyArray) {
-		final var powerL1 = this.getValueByKey(activeConsumptionEnergyArray, "currl1") * Evcs.DEFAULT_VOLTAGE;
-		final var powerL2 = this.getValueByKey(activeConsumptionEnergyArray, "currl2") * Evcs.DEFAULT_VOLTAGE;
-		final var powerL3 = this.getValueByKey(activeConsumptionEnergyArray, "currl3") * Evcs.DEFAULT_VOLTAGE;
+	private Integer calculatePhases(JsonArray energyArray) {
+		final var powerL1 = getValueByKey(energyArray, "currl1") * Evcs.DEFAULT_VOLTAGE;
+		final var powerL2 = getValueByKey(energyArray, "currl2") * Evcs.DEFAULT_VOLTAGE;
+		final var powerL3 = getValueByKey(energyArray, "currl3") * Evcs.DEFAULT_VOLTAGE;
 		final int maxPower = 900;
 		final int minPower = 300;
 
@@ -138,9 +147,9 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 		return phases;
 	}
 
-	private int getValueByKey(JsonArray activeConsumptionEnergyArray, String searchKey) {
-		for (var i = 0; i < activeConsumptionEnergyArray.size(); ++i) {
-			final var object = activeConsumptionEnergyArray.get(i).getAsJsonObject();
+	private static int getValueByKey(JsonArray energyArray, String searchKey) {
+		for (var i = 0; i < energyArray.size(); ++i) {
+			final var object = energyArray.get(i).getAsJsonObject();
 			final var key = object.get("short");
 
 			if (key.getAsString().equals(searchKey)) {
@@ -165,9 +174,9 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 	 * @return Value of the last JsonElement by running through the specified JSON
 	 *         path.
 	 */
-	private Object getValueFromJson(ChannelId channelId, JsonElement json, Function<Object, Object> converter,
+	private static Object getValueFromJson(ChannelId channelId, JsonElement json, Function<Object, Object> converter,
 			String... jsonPaths) {
-		return this.getValueFromJson(channelId, null, json, converter, jsonPaths);
+		return getValueFromJson(channelId, null, json, converter, jsonPaths);
 	}
 
 	/**
@@ -185,7 +194,7 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 	 * @return Value of the last JsonElement by running through the specified JSON
 	 *         path.
 	 */
-	private Object getValueFromJson(ChannelId channelId, OpenemsType divergentTypeInRawJson, JsonElement json,
+	private static Object getValueFromJson(ChannelId channelId, OpenemsType divergentTypeInRawJson, JsonElement json,
 			Function<Object, Object> converter, String... jsonPaths) {
 		var currentJsonElement = json;
 		// Go through the whole jsonPath of the current channelId
@@ -198,13 +207,13 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 							: divergentTypeInRawJson;
 
 					// Last path element
-					var value = this.getJsonElementValue(currentJsonElement, openemsType, jsonPaths[i]);
+					var value = getJsonElementValue(currentJsonElement, openemsType, jsonPaths[i]);
 
 					// Return the converted value
 					return converter.apply(value);
 				}
 				// Not last path element
-				currentJsonElement = JsonUtils.getAsJsonObject(currentJsonElement, currentPathMember);
+				currentJsonElement = getAsJsonObject(currentJsonElement, currentPathMember);
 			} catch (OpenemsNamedException e) {
 				return null;
 			}
@@ -212,7 +221,7 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 		return null;
 	}
 
-	private JsonArray getArrayFromJson(JsonElement json, String... jsonPaths) {
+	private static JsonArray getArrayFromJson(JsonElement json, String... jsonPaths) {
 		var currentJsonElement = json;
 		// Go through the whole jsonPath of the current channelId
 		for (var i = 0; i < jsonPaths.length; i++) {
@@ -222,7 +231,7 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 					return JsonUtils.getAsJsonArray(currentJsonElement, jsonPaths[i]);
 				}
 				// Not last path element
-				currentJsonElement = JsonUtils.getAsJsonObject(currentJsonElement, currentPathMember);
+				currentJsonElement = getAsJsonObject(currentJsonElement, currentPathMember);
 			} catch (OpenemsNamedException e) {
 				return null;
 			}
@@ -239,23 +248,17 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 	 * @return Value in the required type.
 	 * @throws OpenemsNamedException Failed to get the value.
 	 */
-	private Object getJsonElementValue(JsonElement jsonElement, OpenemsType openemsType, String memberName)
+	private static Object getJsonElementValue(JsonElement jsonElement, OpenemsType openemsType, String memberName)
 			throws OpenemsNamedException {
+		// NOTE: could have used JsonUtils.getAsType()
 		return switch (openemsType) {
-		case BOOLEAN:
-			yield JsonUtils.getAsInt(jsonElement, memberName) == 1;
-		case DOUBLE:
-			yield JsonUtils.getAsDouble(jsonElement, memberName);
-		case FLOAT:
-			yield JsonUtils.getAsFloat(jsonElement, memberName);
-		case INTEGER:
-			yield JsonUtils.getAsInt(jsonElement, memberName);
-		case LONG:
-			yield JsonUtils.getAsLong(jsonElement, memberName);
-		case SHORT:
-			yield JsonUtils.getAsShort(jsonElement, memberName);
-		case STRING:
-			yield JsonUtils.getAsString(jsonElement, memberName);
+		case BOOLEAN -> getAsInt(jsonElement, memberName) == 1;
+		case DOUBLE -> getAsDouble(jsonElement, memberName);
+		case FLOAT -> getAsFloat(jsonElement, memberName);
+		case INTEGER -> getAsInt(jsonElement, memberName);
+		case LONG -> getAsLong(jsonElement, memberName);
+		case SHORT -> getAsShort(jsonElement, memberName);
+		case STRING -> getAsString(jsonElement, memberName);
 		};
 	}
 }

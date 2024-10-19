@@ -1,16 +1,14 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
+import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.controller.ess.timeofusetariff.ControlMode.CHARGE_CONSUMPTION;
 import static io.openems.edge.controller.ess.timeofusetariff.Mode.AUTOMATIC;
 import static io.openems.edge.controller.ess.timeofusetariff.RiskLevel.MEDIUM;
 
 import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
 
 import org.junit.Test;
 
-import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -22,13 +20,11 @@ import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
 
 public class TimeOfUseTariffControllerImplTest {
 
-	public static final Clock CLOCK = new TimeLeapClock(Instant.parse("2020-03-04T14:19:00.00Z"), ZoneOffset.UTC);
-
-	private static final String CTRL_ID = "ctrl0";
-
 	@Test
 	public void test() throws Exception {
-		create(CLOCK);
+		final var clock = createDummyClock();
+		create(clock) //
+				.deactivate();
 	}
 
 	/**
@@ -54,7 +50,7 @@ public class TimeOfUseTariffControllerImplTest {
 						.withSoc(60) //
 						.withCapacity(10000)) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
+						.setId("ctrl0") //
 						.setEnabled(false) //
 						.setEssId("ess0") //
 						.setMode(AUTOMATIC) //

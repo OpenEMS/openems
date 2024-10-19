@@ -3,7 +3,7 @@ package io.openems.edge.core.meta;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.common.currency.CurrencyConfig;
+import io.openems.common.types.CurrencyConfig;
 
 @ObjectClassDefinition(//
 		name = "Core Meta", //

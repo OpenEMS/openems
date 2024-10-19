@@ -1,19 +1,17 @@
 package io.openems.edge.core.predictormanager;
 
+import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTION;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.ComponentTest;
@@ -60,7 +58,7 @@ public class PredictorManagerImplTest {
 
 	@Test
 	public void test() throws OpenemsException, Exception {
-		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var clock = createDummyClock();
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var midnight = ZonedDateTime.now(clock).truncatedTo(DAYS);
