@@ -1,8 +1,8 @@
 package io.openems.edge.energy.optimizer;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static io.jenetics.engine.EvolutionResult.toBestGenotype;
 import static io.openems.edge.energy.optimizer.QuickSchedules.fromExistingSimulationResult;
-import static java.lang.Double.isNaN;
 import static java.lang.Thread.currentThread;
 
 import java.util.List;
@@ -14,12 +14,17 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+
 import io.jenetics.Genotype;
 import io.jenetics.IntegerChromosome;
 import io.jenetics.IntegerGene;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionStream;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.EnergyScheduleHandler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 import io.openems.edge.energy.api.simulation.OneSimulationContext;
@@ -31,37 +36,69 @@ public class Simulator {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Simulator.class);
 
-	/**
-	 * Simulates a Schedule and calculates the cost.
-	 * 
-	 * @param cache the {@link GenotypeCache}
-	 * @param gsc   the {@link GlobalSimulationsContext}
-	 * @param gt    the Schedule as a {@link Genotype}
-	 * @return the cost, lower is better, always positive; {@link Double#NaN} on
-	 *         error
-	 */
-	protected static double calculateCost(GenotypeCache cache, GlobalSimulationsContext gsc, Genotype<IntegerGene> gt) {
-		var cost = cache.query(gt);
-		if (!isNaN(cost)) {
-			return cost;
-		}
+	public final GlobalSimulationsContext gsc;
 
-		// Not in cache
-		cost = simulate(gsc, gt, null);
-		cache.add(gt, cost);
-		return cost;
+	protected final LoadingCache<Genotype<IntegerGene>, Double> cache;
+
+	public Simulator(GlobalSimulationsContext gsc) {
+		this.gsc = gsc;
+		this.cache = CacheBuilder.newBuilder() //
+				.recordStats() //
+				.build(new CacheLoader<Genotype<IntegerGene>, Double>() {
+
+					@Override
+					/**
+					 * Simulates a Schedule and calculates the cost.
+					 * 
+					 * <p>
+					 * NOTE: do not throw an Exception here, because we use
+					 * {@link LoadingCache#getUnchecked(Object)} below.
+					 * 
+					 * @param gt the Schedule as a {@link Genotype}
+					 * @return the cost, lower is better, always positive; {@link Double#NaN} on
+					 *         error
+					 */
+					public Double load(final Genotype<IntegerGene> gt) {
+						return simulate(Simulator.this.gsc, gt, null);
+					}
+				});
+
+		// Initialize the EnergyScheduleHandlers.
+		for (var esh : gsc.handlers()) {
+			((AbstractEnergyScheduleHandler<?>) esh /* this is safe */).initialize(gsc);
+		}
 	}
 
 	/**
 	 * Simulates a Schedule and calculates the cost.
 	 * 
-	 * @param gsc                   the {@link GlobalSimulationsContext}
+	 * <p>
+	 * This method internally uses a Cache for {@link Genotype}s.
+	 * 
+	 * @param gt the Schedule as a {@link Genotype}
+	 * @return the cost, lower is better, always positive; {@link Double#NaN} on
+	 *         error
+	 */
+	public double calculateCost(Genotype<IntegerGene> gt) {
+		return this.cache.getUnchecked(gt);
+	}
+
+	/**
+	 * Simulates a Schedule and calculates the cost.
+	 * 
+	 * <p>
+	 * This method does not a Cache for {@link Genotype}s.
+	 * 
 	 * @param gt                    the simulated {@link Genotype}
-	 * @param bestScheduleCollector the {@link BestScheduleCollector}; or null
+	 * @param bestScheduleCollector the {@link BestScheduleCollector}
 	 * @return the cost, lower is better, always positive;
 	 *         {@link Double#POSITIVE_INFINITY} on error
 	 */
-	public static double simulate(GlobalSimulationsContext gsc, Genotype<IntegerGene> gt,
+	public double simulate(Genotype<IntegerGene> gt, BestScheduleCollector bestScheduleCollector) {
+		return simulate(this.gsc, gt, bestScheduleCollector);
+	}
+
+	protected static double simulate(GlobalSimulationsContext gsc, Genotype<IntegerGene> gt,
 			BestScheduleCollector bestScheduleCollector) {
 		final var osc = OneSimulationContext.from(gsc);
 		final var noOfPeriods = gsc.periods().size();
@@ -149,8 +186,6 @@ public class Simulator {
 	/**
 	 * Runs the optimization and returns the "best" simulation result.
 	 * 
-	 * @param cache                      the {@link GenotypeCache}
-	 * @param gsc                        the {@link GlobalSimulationsContext}
 	 * @param previousResult             the {@link SimulationResult} of the
 	 *                                   previous optimization run
 	 * @param engineInterceptor          an interceptor for the
@@ -159,29 +194,22 @@ public class Simulator {
 	 *                                   {@link EvolutionStream}
 	 * @return the best Schedule
 	 */
-	public static SimulationResult getBestSchedule(GenotypeCache cache, GlobalSimulationsContext gsc,
-			SimulationResult previousResult,
+	public SimulationResult getBestSchedule(SimulationResult previousResult,
 			Function<Engine.Builder<IntegerGene, Double>, Engine.Builder<IntegerGene, Double>> engineInterceptor,
 			Function<EvolutionStream<IntegerGene, Double>, EvolutionStream<IntegerGene, Double>> evolutionStreamInterceptor) {
 		// Genotype:
 		// - Separate IntegerChromosome per EnergyScheduleHandler WithDifferentStates
 		// - Chromosome length = number of periods
 		// - Integer-Genes represent the state
-		final var chromosomes = gsc.handlers().stream() //
+		final var chromosomes = this.gsc.handlers().stream() //
 				.filter(EnergyScheduleHandler.WithDifferentStates.class::isInstance) //
 				.map(EnergyScheduleHandler.WithDifferentStates.class::cast) //
-				.map(esh -> IntegerChromosome.of(0, esh.getAvailableStates().length, gsc.periods().size())) //
+				.map(esh -> IntegerChromosome.of(0, esh.getAvailableStates().length, this.gsc.periods().size())) //
 				.toList();
 		if (chromosomes.isEmpty()) {
 			return SimulationResult.EMPTY;
 		}
 		final var gtf = Genotype.of(chromosomes);
-
-		// Define the cost function
-		var eval = (Function<Genotype<IntegerGene>, Double>) (gt) -> {
-			gsc.simulationCounter().incrementAndGet();
-			return calculateCost(cache, gsc, gt);
-		};
 
 		// Decide for single- or multi-threading
 		final Executor executor;
@@ -198,7 +226,7 @@ public class Simulator {
 
 		// Build the Jenetics Engine
 		var engine = Engine //
-				.builder(eval, gtf) //
+				.builder(this.cache::getUnchecked, gtf) //
 				.executor(executor) //
 				.minimizing();
 		if (engineInterceptor != null) {
@@ -206,7 +234,7 @@ public class Simulator {
 		}
 
 		// Start with previous simulation result as initial population if available
-		var initialPopulation = fromExistingSimulationResult(gsc, previousResult);
+		var initialPopulation = fromExistingSimulationResult(this.gsc, previousResult);
 		EvolutionStream<IntegerGene, Double> stream;
 		if (previousResult != null) {
 			stream = engine.build().stream(List.of(initialPopulation));
@@ -222,7 +250,7 @@ public class Simulator {
 		var bestGt = stream //
 				.collect(toBestGenotype());
 
-		return SimulationResult.fromQuarters(gsc, bestGt);
+		return SimulationResult.fromQuarters(this.gsc, bestGt);
 	}
 
 	protected static record BestScheduleCollector(//
@@ -234,5 +262,18 @@ public class Simulator {
 			EnergyScheduleHandler.WithDifferentStates<?, ?> esh, //
 			SimulationResult.Period period, //
 			int postProcessedStateIndex) {
+	}
+
+	/**
+	 * Builds a log string of this {@link Simulator}.
+	 * 
+	 * @param prefix a line prefix
+	 * @return log string
+	 */
+	public String toLogString(String prefix) {
+		return prefix + toStringHelper(this) //
+				.addValue(this.gsc) //
+				.addValue(this.cache.stats()) //
+				.toString();
 	}
 }

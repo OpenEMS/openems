@@ -13,7 +13,6 @@ import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.PR
 import static org.junit.Assert.assertEquals;
 
 import java.time.ZonedDateTime;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 
@@ -68,9 +67,8 @@ public class GetScheduleResponseTest {
 		// Simulate future Schedule
 		var ctrl = TimeOfUseTariffControllerImplTest.create(CLOCK, ess, timedata);
 		var esh = TimeOfUseTariffControllerImplTest.getEnergyScheduleHandler(ctrl);
-		((AbstractEnergyScheduleHandler<?> /* this is safe */) esh)
-				.initialize(new GlobalSimulationsContext(CLOCK, new AtomicInteger(), null, null, null,
-						new GlobalSimulationsContext.Ess(0, 0, 0, 0), ImmutableList.of()));
+		((AbstractEnergyScheduleHandler<?> /* this is safe */) esh).initialize(new GlobalSimulationsContext(CLOCK, null,
+				null, null, new GlobalSimulationsContext.Ess(0, 0, 0, 0), ImmutableList.of()));
 		esh.applySchedule(ImmutableSortedMap.<ZonedDateTime, Period.Transition>naturalOrder() //
 				.put(now.plusMinutes(0), new Period.Transition(1, 0.1, energyFlow, 5000)) //
 				.put(now.plusMinutes(15), new Period.Transition(0, 0.2, energyFlow, 6000)) //

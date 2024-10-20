@@ -1,5 +1,6 @@
 package io.openems.edge.energy.api.simulation;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static io.openems.edge.energy.api.simulation.Coefficient.CONS;
 import static io.openems.edge.energy.api.simulation.Coefficient.ESS;
 import static io.openems.edge.energy.api.simulation.Coefficient.ESS_TO_CONS;
@@ -12,6 +13,7 @@ import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_ESS;
 import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_GRID;
 import static java.lang.Double.NaN;
 import static java.lang.Math.min;
+import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.math3.optim.linear.Relationship.EQ;
 import static org.apache.commons.math3.optim.linear.Relationship.GEQ;
@@ -157,15 +159,14 @@ public class EnergyFlow {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("EnergyFlow[") //
-				.append(Arrays.stream(Coefficient.values()) //
+		return toStringHelper(this) //
+				.addValue(stream(Coefficient.values()) //
 						.map(c -> new StringBuilder() //
 								.append(c.toCamelCase()) //
 								.append("=") //
 								.append(this.getValue(c)) //
 								.toString()) //
 						.collect(joining(", "))) //
-				.append("]") //
 				.toString();
 	}
 

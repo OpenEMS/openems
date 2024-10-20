@@ -66,7 +66,7 @@ public class OptimizerV1 extends AbstractImmediateWorker {
 		long executionLimitSeconds;
 
 		// Calculate max execution time till next quarter (with buffer)
-		executionLimitSeconds = calculateExecutionLimitSeconds();
+		executionLimitSeconds = calculateExecutionLimitSeconds(globalContext.clock());
 
 		// Find best Schedule
 		var schedule = Simulator.getBestSchedule(this.params, executionLimitSeconds);

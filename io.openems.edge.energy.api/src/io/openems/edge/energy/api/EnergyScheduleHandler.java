@@ -1,5 +1,6 @@
 package io.openems.edge.energy.api;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 
 import java.time.Clock;
@@ -12,6 +13,7 @@ import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.edge.controller.api.Controller;
@@ -143,10 +145,10 @@ public sealed interface EnergyScheduleHandler {
 			return ZonedDateTime.now();
 		}
 
-		protected void buildToString(StringBuilder b) {
+		protected void buildToString(MoreObjects.ToStringHelper toStringHelper) {
 			var context = this.context;
 			if (context != null) {
-				b.append(", ").append("context=").append(context);
+				toStringHelper.addValue(context);
 			}
 		}
 	}
@@ -419,14 +421,13 @@ public sealed interface EnergyScheduleHandler {
 
 		@Override
 		public String toString() {
-			StringBuilder b = new StringBuilder() //
-					.append("EnergyScheduleHandler.WithDifferentStates ["); //
+			var toStringHelper = toStringHelper("ESH.WithDifferentStates");
 			var availableStates = this.availableStates;
 			if (availableStates != null) {
-				b.append("availableStates=").append(Arrays.toString(availableStates));
+				toStringHelper.add("availableStates", Arrays.toString(availableStates));
 			}
-			super.buildToString(b);
-			return b.append("]").toString();
+			super.buildToString(toStringHelper);
+			return toStringHelper.toString();
 		}
 	}
 
@@ -468,10 +469,9 @@ public sealed interface EnergyScheduleHandler {
 
 		@Override
 		public String toString() {
-			StringBuilder b = new StringBuilder() //
-					.append("EnergyScheduleHandler.WithOnlyOneState ["); //
-			super.buildToString(b);
-			return b.append("]").toString();
+			var toStringHelper = toStringHelper("ESH.WithOnlyOneState");
+			super.buildToString(toStringHelper);
+			return toStringHelper.toString();
 		}
 	}
 }

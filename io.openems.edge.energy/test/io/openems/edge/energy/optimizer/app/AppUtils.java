@@ -8,7 +8,6 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,13 +71,13 @@ public class AppUtils {
 				}) //
 				.collect(toImmutableList());
 
-		return new GlobalSimulationsContext(clock, new AtomicInteger(), startDateTime, eshs, grid, ess, periods);
+		return new GlobalSimulationsContext(clock, startDateTime, eshs, grid, ess, periods);
 	}
 
 	private static Matcher applyPattern(Pattern pattern, String line) {
 		var matcher = pattern.matcher(line);
 		if (!matcher.find()) {
-			throw new IllegalArgumentException("Pattern does not match");
+			throw new IllegalArgumentException("Pattern [" + pattern + "] does not match line [" + line + "]");
 		}
 		return matcher;
 	}
@@ -87,8 +86,8 @@ public class AppUtils {
 
 	private static final Pattern HEADER_PATTERN = Pattern.compile("" //
 			+ "startTime=(?<startTime>\\S*), " //
-			+ "grid=(?<grid>.*), " //
-			+ "ess=(?<ess>.*)");
+			+ "Grid\\[(?<grid>.*)\\], " //
+			+ "Ess\\[(?<ess>.*)\\]");
 
 	private static final Pattern GRID_PATTERN = Pattern.compile("" //
 			+ "maxBuy=(?<maxBuy>\\d+), " //

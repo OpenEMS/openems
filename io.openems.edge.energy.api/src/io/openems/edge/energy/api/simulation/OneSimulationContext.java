@@ -1,5 +1,6 @@
 package io.openems.edge.energy.api.simulation;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.lang.Math.max;
 
 /**
@@ -25,8 +26,8 @@ public class OneSimulationContext {
 
 	private int essInitialEnergy;
 
-	private OneSimulationContext(GlobalSimulationsContext asc, int essInitialEnergy) {
-		this.global = asc;
+	private OneSimulationContext(GlobalSimulationsContext gsc, int essInitialEnergy) {
+		this.global = gsc;
 		this.essInitialEnergy = essInitialEnergy;
 	}
 
@@ -50,11 +51,9 @@ public class OneSimulationContext {
 
 	@Override
 	public String toString() {
-		return new StringBuilder() //
-				.append("OneSimulationContext [") //
-				.append("essInitialEnergy=").append(this.essInitialEnergy).append(", ") //
-				.append("global=").append(this.global) //
-				.append("]") //
+		return toStringHelper(this) //
+				.add("essInitialEnergy", this.essInitialEnergy) //
+				.addValue(this.global) //
 				.toString();
 	}
 }

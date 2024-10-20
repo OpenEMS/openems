@@ -1,18 +1,24 @@
 package io.openems.edge.energy.optimizer;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
+import static java.lang.Thread.sleep;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.random.RandomGeneratorFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 
 import io.jenetics.util.RandomRegistry;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.ThrowingSupplier;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
@@ -70,6 +76,53 @@ public final class Utils {
 	}
 
 	/**
+	 * Creates a {@link Simulator}.
+	 * 
+	 * <p>
+	 * This will possibly run forever and call the callbacks multiple times before
+	 * returning.
+	 * 
+	 * @param gscSupplier   a {@link Supplier} for {@link GlobalSimulationsContext}
+	 * @param interruptFlag a flag to interrupt the threads
+	 * @param simulator     a callback for a {@link Simulator}; possibly null
+	 * @param error         a callback for a error string
+	 */
+	public static synchronized void createSimulator(
+			ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier, AtomicBoolean interruptFlag,
+			Consumer<Simulator> simulator, Consumer<Supplier<String>> error) {
+		System.out.println("OPTIMIZER createSimulator.interruptFlag() BEFORE " + interruptFlag.get());
+		while (!interruptFlag.get()) {
+			System.out.println("OPTIMIZER createSimulator.interruptFlag() " + interruptFlag.get());
+			try {
+				simulator.accept(new Simulator(gscSupplier.get()));
+				System.out.println("OPTIMIZER gscSupplier.get() successful");
+				return;
+
+			} catch (OpenemsException | IllegalArgumentException e) {
+				System.out.println("OPTIMIZER gscSupplier.get() failed");
+				e.printStackTrace();
+
+				simulator.accept(null);
+				error.accept(() -> "Stuck trying to get GlobalSimulationsContext. " + e.getMessage());
+
+				try {
+					sleep(10_000);
+				} catch (InterruptedException e1) {
+					System.out.println("OPTIMIZER sleep failed");
+					e.printStackTrace();
+
+					simulator.accept(null);
+					error.accept(() -> "Unable to create global simulations context: " + e1.getMessage());
+				}
+			}
+		}
+		System.out.println("OPTIMIZER after while");
+
+		simulator.accept(null);
+		error.accept(() -> "Unable to create global simulations context -> abort");
+	}
+
+	/**
 	 * Calculates the ExecutionLimitSeconds for the {@link Optimizer}.
 	 * 
 	 * @return execution limit in [s]
@@ -84,7 +137,7 @@ public final class Utils {
 	 * @param clock a clock
 	 * @return execution limit in [s]
 	 */
-	protected static long calculateExecutionLimitSeconds(Clock clock) {
+	public static long calculateExecutionLimitSeconds(Clock clock) {
 		var now = ZonedDateTime.now(clock);
 		var nextQuarter = roundDownToQuarter(now).plusMinutes(15).minusSeconds(EXECUTION_LIMIT_SECONDS_BUFFER);
 		var duration = Duration.between(now, nextQuarter).getSeconds();
@@ -102,16 +155,13 @@ public final class Utils {
 	 * NOTE: The output format is suitable as input for "RunOptimizerFromLogApp".
 	 * This is useful to re-run a simulation.
 	 * 
-	 * @param cache            the {@link GenotypeCache}
-	 * @param context          the {@link GlobalSimulationsContext}
+	 * @param simulator        the {@link Simulator}
 	 * @param simulationResult the {@link SimulationResult}
 	 */
-	public static void logSimulationResult(GenotypeCache cache, GlobalSimulationsContext context,
-			SimulationResult simulationResult) {
-		final var prefix = "OPTIMIZER";
-		System.out.println(prefix + " " + context.toString());
+	public static void logSimulationResult(Simulator simulator, SimulationResult simulationResult) {
+		final var prefix = "OPTIMIZER ";
+		System.out.println(simulator.toLogString(prefix));
 		System.out.println(simulationResult.toLogString(prefix));
-		System.out.println(prefix + " TotalCost=" + simulationResult.cost() + ", CacheHits=" + cache.getCacheHits());
 	}
 
 	/**

@@ -428,6 +428,28 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely add Floats. If one of them is null it is considered '0'. If all of
+	 * them are null, 'null' is returned.
+	 *
+	 * @param values the {@link Float} values
+	 * @return the sum
+	 */
+	public static Float sum(Float... values) {
+		Float result = null;
+		for (Float value : values) {
+			if (value == null) {
+				continue;
+			}
+			if (result == null) {
+				result = value;
+			} else {
+				result += value;
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Safely add Longs. If one of them is null it is considered '0'. If all of them
 	 * are null, 'null' is returned.
 	 *

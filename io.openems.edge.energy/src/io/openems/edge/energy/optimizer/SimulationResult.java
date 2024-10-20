@@ -125,8 +125,8 @@ public record SimulationResult(//
 					}
 				}
 			}
-			quarterGsc = new GlobalSimulationsContext(gsc.clock(), gsc.simulationCounter(), gsc.startTime(),
-					gsc.handlers(), gsc.grid(), gsc.ess(), quarterPeriods.build());
+			quarterGsc = new GlobalSimulationsContext(gsc.clock(), gsc.startTime(), gsc.handlers(), gsc.grid(),
+					gsc.ess(), quarterPeriods.build());
 			quarterGt = Genotype.of(quarterGenes.stream() //
 					.map(gs -> IntegerChromosome.of(gs.build())) //
 					.toList());
@@ -147,13 +147,13 @@ public record SimulationResult(//
 	 */
 	public String toLogString(String prefix) {
 		var b = new StringBuilder(prefix) //
-				.append(" Time   Price Production Consumption   Ess   Grid ProdToCons ProdToGrid ProdToEss GridToCons GridToEss EssToCons EssInitial\n");
+				.append("Time   Price Production Consumption   Ess   Grid ProdToCons ProdToGrid ProdToEss GridToCons GridToEss EssToCons EssInitial\n");
 		this.periods.entrySet().forEach(e -> {
 			final var time = e.getKey();
 			final var p = e.getValue();
 			final var c = p.context;
 			final var ef = p.energyFlow;
-			log(b, "%s ", prefix);
+			log(b, "%s", prefix);
 			log(b, "%s ", time.format(TIME_FORMATTER));
 			log(b, "%6.2f ", c.price());
 			log(b, "%10d ", ef.getProd());

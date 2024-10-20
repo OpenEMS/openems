@@ -13,7 +13,6 @@ import io.jenetics.util.RandomRegistry;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
-import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 import io.openems.edge.energy.api.test.DummyGlobalSimulationsContext;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
@@ -50,8 +49,8 @@ public class SimulatorTest {
 			(simContext, period, energyFlow, ctrlContext, state) -> {
 			});
 
-	public static final GlobalSimulationsContext DUMMY_GSC = DummyGlobalSimulationsContext.fromHandlers(//
-			ESH0, ESH_TIME_OF_USE_TARIFF_CTRL, ESH2);
+	public static final Simulator DUMMY_SIMULATOR = new Simulator(//
+			DummyGlobalSimulationsContext.fromHandlers(ESH0, ESH_TIME_OF_USE_TARIFF_CTRL, ESH2));
 
 	@Before
 	public void before() {
@@ -66,11 +65,9 @@ public class SimulatorTest {
 	 * @return the {@link SimulationResult}
 	 */
 	public static SimulationResult generateDummySimulationResult() {
-		final var cache = new GenotypeCache();
-		final var gsc = DUMMY_GSC;
-		gsc.initializeEnergyScheduleHandlers();
+		final var simulator = DUMMY_SIMULATOR;
 
-		return Simulator.getBestSchedule(cache, gsc, SimulationResult.EMPTY, //
+		return simulator.getBestSchedule(SimulationResult.EMPTY, //
 				engine -> engine //
 						.populationSize(1), //
 				stream -> stream //

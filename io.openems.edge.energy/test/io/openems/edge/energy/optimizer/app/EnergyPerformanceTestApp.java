@@ -29,10 +29,9 @@ public class EnergyPerformanceTestApp {
 	}
 
 	private static void simulatePeriod() {
-		final var gsc = SimulatorTest.DUMMY_GSC;
-		gsc.initializeEnergyScheduleHandlers();
+		final var simulator = SimulatorTest.DUMMY_SIMULATOR;
 
-		var osc = OneSimulationContext.from(gsc);
+		var osc = OneSimulationContext.from(simulator.gsc);
 		var gt = Genotype.of(//
 				// ESH1 (BALANCING, DELAY_DISCHARGE, CHARGE_GRID)
 				integerChromosomeOf(1), //

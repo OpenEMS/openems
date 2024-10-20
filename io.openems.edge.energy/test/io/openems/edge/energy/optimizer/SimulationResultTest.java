@@ -15,10 +15,9 @@ public class SimulationResultTest {
 
 	@Test
 	public void test() {
-		final var gsc = SimulatorTest.DUMMY_GSC;
-		gsc.initializeEnergyScheduleHandlers();
+		final var simulator = SimulatorTest.DUMMY_SIMULATOR;
 
-		var result = SimulationResult.fromQuarters(gsc, Genotype.of(//
+		var result = SimulationResult.fromQuarters(simulator.gsc, Genotype.of(//
 				// ESH1 (BALANCING, DELAY_DISCHARGE, CHARGE_GRID)
 				integerChromosomeOf(//
 						0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //

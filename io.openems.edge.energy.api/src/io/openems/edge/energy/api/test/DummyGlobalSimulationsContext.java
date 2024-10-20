@@ -6,7 +6,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.common.collect.ImmutableList;
 
@@ -32,7 +31,7 @@ public class DummyGlobalSimulationsContext {
 	 */
 	public static GlobalSimulationsContext fromHandlers(EnergyScheduleHandler... handlers) {
 		return new GlobalSimulationsContext(//
-				CLOCK, new AtomicInteger(), TIME, //
+				CLOCK, TIME, //
 				Arrays.stream(handlers).collect(toImmutableList()), //
 				new GlobalSimulationsContext.Grid(4000, 20000), //
 				new GlobalSimulationsContext.Ess(5000, 22000, 4000, 4000), //

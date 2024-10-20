@@ -1,25 +1,22 @@
 package io.openems.edge.energy.api.simulation;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.edge.common.type.TypeUtils.assertNull;
-import static io.openems.edge.energy.api.EnergyConstants.SUM_CONSUMPTION;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_UNMANAGED_CONSUMPTION;
 import static io.openems.edge.energy.api.EnergyUtils.socToEnergy;
 import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
 import static java.lang.Math.abs;
 import static java.lang.Math.min;
-import static java.util.Arrays.stream;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Streams;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.DateUtils;
@@ -27,7 +24,6 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
-import io.openems.edge.energy.api.EnergyScheduleHandler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext.Period.Hour;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext.Period.Quarter;
 import io.openems.edge.predictor.api.manager.PredictorManager;
@@ -42,7 +38,6 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
  */
 public record GlobalSimulationsContext(//
 		Clock clock, //
-		AtomicInteger simulationCounter, //
 		/** Start-Timestamp */
 		ZonedDateTime startTime, //
 		ImmutableList<EnergyScheduleHandler> handlers, //
@@ -56,28 +51,12 @@ public record GlobalSimulationsContext(//
 
 	@Override
 	public String toString() {
-		return new StringBuilder() //
-				.append("GlobalSimulationsContext[") //
-				.append("startTime=").append(this.startTime).append(", ") //
-				.append("grid=").append(this.grid).append(", ") //
-				.append("ess=").append(this.ess).append(", ") //
-				.append("handlers=").append(this.handlers) //
-				.append("]") //
+		return toStringHelper(this) //
+				.add("startTime", this.startTime) //
+				.addValue(this.grid) //
+				.addValue(this.ess) //
+				.add("handlers", this.handlers) //
 				.toString();
-	}
-
-	/**
-	 * Initialize the {@link EnergyScheduleHandler}s.
-	 * 
-	 * <p>
-	 * This method must be called before a Simulation is executed.
-	 * 
-	 * @param gsc the {@link GlobalSimulationsContext}
-	 */
-	public void initializeEnergyScheduleHandlers() {
-		for (var esh : this.handlers()) {
-			((AbstractEnergyScheduleHandler<?>) esh /* this is safe */).initialize(this);
-		}
 	}
 
 	public static record Ess(//
@@ -226,9 +205,7 @@ public record GlobalSimulationsContext(//
 			final var startTime = DateUtils.roundDownToQuarter(ZonedDateTime.now(this.clock));
 
 			// Prediction values
-			final var consumptions = joinConsumptionPredictions(4, //
-					this.predictorManager.getPrediction(SUM_CONSUMPTION).asArray(), //
-					this.predictorManager.getPrediction(SUM_UNMANAGED_CONSUMPTION).asArray());
+			final var consumptions = this.predictorManager.getPrediction(SUM_UNMANAGED_CONSUMPTION).asArray();
 			final var productions = generateProductionPrediction(//
 					this.predictorManager.getPrediction(SUM_PRODUCTION).asArray(), //
 					consumptions.length);
@@ -295,8 +272,7 @@ public record GlobalSimulationsContext(//
 			}
 			final var grid = new Grid(40000 /* TODO */, 20000 /* TODO */);
 
-			return new GlobalSimulationsContext(this.clock, new AtomicInteger(), startTime, this.handlers, grid, ess,
-					periods.build());
+			return new GlobalSimulationsContext(this.clock, startTime, this.handlers, grid, ess, periods.build());
 		}
 	}
 
@@ -323,16 +299,6 @@ public record GlobalSimulationsContext(//
 		}
 		return IntStream.range(0, minLength) //
 				.mapToObj(i -> i > prediction.length - 1 ? 0 : prediction[i]) //
-				.toArray(Integer[]::new);
-	}
-
-	protected static Integer[] joinConsumptionPredictions(int splitAfterIndex, Integer[] totalConsumption,
-			Integer[] unmanagedConsumption) {
-		return Streams.concat(//
-				stream(totalConsumption) //
-						.limit(splitAfterIndex), //
-				stream(unmanagedConsumption) //
-						.skip(splitAfterIndex)) //
 				.toArray(Integer[]::new);
 	}
 

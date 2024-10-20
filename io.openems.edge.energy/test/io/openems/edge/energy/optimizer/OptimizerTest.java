@@ -13,12 +13,15 @@ public class OptimizerTest {
 
 	@Test
 	public void test() {
-		var gsc = SimulatorTest.DUMMY_GSC;
-		var o = new Optimizer(() -> LogVerbosity.NONE, () -> gsc, null);
-		var cache = new GenotypeCache();
-		o.applyBestQuickSchedule(cache);
+		var simulator = SimulatorTest.DUMMY_SIMULATOR;
+		var o = new Optimizer(//
+				() -> LogVerbosity.NONE, //
+				() -> simulator.gsc, //
+				null);
+		o.applyBestQuickSchedule(simulator);
 
-		var schedule = ((EnergyScheduleHandler.WithDifferentStates<?, ?>) gsc.handlers().get(1)).getSchedule();
+		var schedule = ((EnergyScheduleHandler.WithDifferentStates<?, ?>) simulator.gsc.handlers().get(1))
+				.getSchedule();
 
 		assertEquals(52, schedule.size());
 

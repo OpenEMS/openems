@@ -2,7 +2,6 @@ package io.openems.edge.energy.api.simulation;
 
 import static io.openems.edge.energy.api.simulation.GlobalSimulationsContext.calculatePeriodDurationHourFromIndex;
 import static io.openems.edge.energy.api.simulation.GlobalSimulationsContext.generateProductionPrediction;
-import static io.openems.edge.energy.api.simulation.GlobalSimulationsContext.joinConsumptionPredictions;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -47,14 +46,6 @@ public class GlobalSimulationsContextTest {
 								4004, 8004, 6004, 2004, 3004, 5004, 7004, 9004, //
 						}), EnergyConstants.SUM_UNMANAGED_CONSUMPTION),
 				new DummyPredictor("predictor1", cm, Prediction.from(sum, //
-						EnergyConstants.SUM_CONSUMPTION, now, new Integer[] { //
-								5000, 9000, 7000, 3000, 4000, 6000, 8000, 2000, //
-								5001, 9001, 7001, 3001, 4001, 6001, 8001, 2001, //
-								5002, 9002, 7002, 3002, 4002, 6002, 8002, 2002, //
-								5003, 9003, 7003, 3003, 4003, 6003, 8003, 2003, //
-								5004, 9004, 7004, 3004, 4004, 6004, 8004, 2004, //
-						}), EnergyConstants.SUM_CONSUMPTION), //
-				new DummyPredictor("predictor2", cm, Prediction.from(sum, //
 						EnergyConstants.SUM_PRODUCTION, now,
 						new Integer[] { 8000, 9000, 10000, 11000, 7000, 4000, 3000, 5000, //
 								8001, 9001, 10001, 11001, 7001, 4001, 3001, 5001, //
@@ -83,7 +74,7 @@ public class GlobalSimulationsContextTest {
 		assertEquals(28, gsc.periods().size());
 		var p0 = gsc.periods().get(0);
 		assertEquals(2000 /* Wh */, p0.production());
-		assertEquals(1250 /* Wh */, p0.consumption());
+		assertEquals(1000 /* Wh */, p0.consumption());
 	}
 
 	@Test
@@ -91,15 +82,6 @@ public class GlobalSimulationsContextTest {
 		final var arr = new Integer[] { 1, 2, 3 };
 		assertArrayEquals(arr, generateProductionPrediction(arr, 2));
 		assertArrayEquals(new Integer[] { 1, 2, 3, 0 }, generateProductionPrediction(arr, 4));
-	}
-
-	@Test
-	public void testJoinConsumptionPredictions() {
-		assertArrayEquals(//
-				new Integer[] { 1, 2, 3, 4, 55, 66, 77, 88, 99 }, //
-				joinConsumptionPredictions(4, //
-						new Integer[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, //
-						new Integer[] { 11, 22, 33, 44, 55, 66, 77, 88, 99 }));
 	}
 
 	@Test

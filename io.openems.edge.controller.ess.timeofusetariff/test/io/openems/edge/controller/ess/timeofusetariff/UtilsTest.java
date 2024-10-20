@@ -15,7 +15,6 @@ import static org.junit.Assert.assertEquals;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 
@@ -232,13 +231,13 @@ public class UtilsTest {
 	@Test
 	public void testCalculateChargeEnergyInChargeGrid() {
 		assertEquals(1375, calculateChargeEnergyInChargeGrid(//
-				new GlobalSimulationsContext(CLOCK, new AtomicInteger(), TIME, ImmutableList.of(), //
+				new GlobalSimulationsContext(CLOCK, TIME, ImmutableList.of(), //
 						new GlobalSimulationsContext.Grid(0, 20000), //
 						new GlobalSimulationsContext.Ess(0, 12223, 5000, 5000), //
 						ImmutableList.of())));
 
 		assertEquals(525, calculateChargeEnergyInChargeGrid(//
-				new GlobalSimulationsContext(CLOCK, new AtomicInteger(), TIME, ImmutableList.of(), //
+				new GlobalSimulationsContext(CLOCK, TIME, ImmutableList.of(), //
 						new GlobalSimulationsContext.Grid(0, 20000), //
 						new GlobalSimulationsContext.Ess(0, 12223, 5000, 5000), //
 						ImmutableList.of(//
@@ -248,7 +247,7 @@ public class UtilsTest {
 						))));
 
 		assertEquals(538, calculateChargeEnergyInChargeGrid(//
-				new GlobalSimulationsContext(CLOCK, new AtomicInteger(), TIME, ImmutableList.of(), //
+				new GlobalSimulationsContext(CLOCK, TIME, ImmutableList.of(), //
 						new GlobalSimulationsContext.Grid(0, 20000), //
 						new GlobalSimulationsContext.Ess(0, 12223, 5000, 5000), //
 						ImmutableList.of(//
@@ -263,7 +262,7 @@ public class UtilsTest {
 						))));
 
 		assertEquals(499, calculateChargeEnergyInChargeGrid(//
-				new GlobalSimulationsContext(CLOCK, new AtomicInteger(), TIME, ImmutableList.of(), //
+				new GlobalSimulationsContext(CLOCK, TIME, ImmutableList.of(), //
 						new GlobalSimulationsContext.Grid(0, 20000), //
 						new GlobalSimulationsContext.Ess(0, 12223, 5000, 5000), //
 						ImmutableList.of(//

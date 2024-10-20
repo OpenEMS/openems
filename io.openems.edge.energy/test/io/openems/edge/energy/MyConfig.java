@@ -1,14 +1,16 @@
 package io.openems.edge.energy;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.energy.api.Version;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
-	protected static class Builder {
+	public static class Builder {
 		private String id;
 		private boolean enabled;
 		private LogVerbosity logVerbosity;
+		private Version version;
 
 		private Builder() {
 		}
@@ -25,6 +27,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setLogVerbosity(LogVerbosity logVerbosity) {
 			this.logVerbosity = logVerbosity;
+			return this;
+		}
+
+		public Builder setVersion(Version version) {
+			this.version = version;
 			return this;
 		}
 
@@ -57,5 +64,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public LogVerbosity logVerbosity() {
 		return this.builder.logVerbosity;
+	}
+
+	@Override
+	public Version version() {
+		return this.builder.version;
 	}
 }

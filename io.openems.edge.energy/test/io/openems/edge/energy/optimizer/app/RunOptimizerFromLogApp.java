@@ -18,7 +18,6 @@ import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.energy.api.EnergyUtils;
-import io.openems.edge.energy.optimizer.GenotypeCache;
 import io.openems.edge.energy.optimizer.SimulationResult;
 import io.openems.edge.energy.optimizer.Simulator;
 import io.openems.edge.energy.optimizer.Utils;
@@ -75,19 +74,17 @@ public class RunOptimizerFromLogApp {
 	 * @throws Exception on error
 	 */
 	public static void main(String[] args) throws Exception {
-		var cache = new GenotypeCache();
-
-		var gsc = parseGlobalSimulationsContextFromLogString(LOG, ESHS);
-		gsc.initializeEnergyScheduleHandlers();
+		var simulator = new Simulator(parseGlobalSimulationsContextFromLogString(LOG, ESHS));
 
 		// Collect Genotype with lowest cost
-		var quickScheduleGt = findBestQuickSchedule(cache, gsc, SimulationResult.EMPTY);
-		var quickSchedule = quickScheduleGt == null ? null : SimulationResult.fromQuarters(gsc, quickScheduleGt);
+		var quickScheduleGt = findBestQuickSchedule(simulator, SimulationResult.EMPTY);
+		var quickSchedule = quickScheduleGt == null ? null
+				: SimulationResult.fromQuarters(simulator.gsc, quickScheduleGt);
 
-		var simulationResult = Simulator.getBestSchedule(cache, gsc, quickSchedule, null, //
+		var simulationResult = simulator.getBestSchedule(quickSchedule, null, //
 				stream -> stream //
 						.limit(byExecutionTime(ofSeconds(EXECUTION_LIMIT_SECONDS))));
 
-		Utils.logSimulationResult(cache, gsc, simulationResult);
+		Utils.logSimulationResult(simulator, simulationResult);
 	}
 }

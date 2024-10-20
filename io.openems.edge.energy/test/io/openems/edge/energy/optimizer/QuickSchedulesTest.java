@@ -23,9 +23,8 @@ public class QuickSchedulesTest {
 
 	@Test
 	public void testAllStatesDefault() {
-		final var gsc = SimulatorTest.DUMMY_GSC;
-		gsc.initializeEnergyScheduleHandlers();
-		var gts = variationsOfAllStatesDefault(gsc).toList();
+		final var simulator = SimulatorTest.DUMMY_SIMULATOR;
+		var gts = variationsOfAllStatesDefault(simulator.gsc).toList();
 		assertEquals(6, gts.size());
 		var gt = gts.get(0);
 		assertEquals(0, gt.get(0).get(1).allele().intValue());
@@ -33,21 +32,20 @@ public class QuickSchedulesTest {
 
 	@Test
 	public void testFromExistingSimulationResult() {
-		final var gsc = SimulatorTest.DUMMY_GSC;
+		final var simulator = SimulatorTest.DUMMY_SIMULATOR;
 		final var previousResult = new SimulationResult(0., ImmutableMap.of(), //
 				ImmutableMap.<EnergyScheduleHandler.WithDifferentStates<?, ?>, ImmutableSortedMap<ZonedDateTime, Transition>>builder() //
 						.put(ESH_TIME_OF_USE_TARIFF_CTRL, ImmutableSortedMap.<ZonedDateTime, Transition>naturalOrder() //
 								.put(TIME.plusHours(0).plusMinutes(00), state(2)) //
 								.build()) //
 						.build());
-		gsc.initializeEnergyScheduleHandlers();
-		var gt = fromExistingSimulationResult(gsc, previousResult);
+		var gt = fromExistingSimulationResult(simulator.gsc, previousResult);
 		assertEquals(2, gt.get(0).get(0).allele().intValue());
 	}
 
 	@Test
 	public void testVariationsFromExistingSimulationResult() {
-		final var gsc = SimulatorTest.DUMMY_GSC;
+		final var simulator = SimulatorTest.DUMMY_SIMULATOR;
 		final var previousResult = new SimulationResult(0., ImmutableMap.of(), //
 				ImmutableMap.<EnergyScheduleHandler.WithDifferentStates<?, ?>, ImmutableSortedMap<ZonedDateTime, Transition>>builder() //
 						.put(ESH_TIME_OF_USE_TARIFF_CTRL, ImmutableSortedMap.<ZonedDateTime, Transition>naturalOrder() //
@@ -55,8 +53,7 @@ public class QuickSchedulesTest {
 								.put(TIME.plusHours(0).plusMinutes(15), state(2)) //
 								.build()) //
 						.build());
-		gsc.initializeEnergyScheduleHandlers();
-		var gts = variationsFromExistingSimulationResult(gsc, previousResult).toList();
+		var gts = variationsFromExistingSimulationResult(simulator.gsc, previousResult).toList();
 		assertEquals(6, gts.size());
 		var gt = gts.get(0);
 		assertEquals(2, gt.get(0).get(1).allele().intValue());
