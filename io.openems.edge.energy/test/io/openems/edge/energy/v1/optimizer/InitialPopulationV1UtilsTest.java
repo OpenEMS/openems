@@ -5,12 +5,12 @@ import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.energy.api.EnergyUtils.interpolateArray;
 import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
-import static io.openems.edge.energy.v1.optimizer.InitialPopulationUtils.buildInitialPopulation;
-import static io.openems.edge.energy.v1.optimizer.SimulatorTest.hourlyToQuarterly;
-import static io.openems.edge.energy.v1.optimizer.TestData.CONSUMPTION_888_20231106;
-import static io.openems.edge.energy.v1.optimizer.TestData.PRICES_888_20231106;
-import static io.openems.edge.energy.v1.optimizer.TestData.PRODUCTION_888_20231106;
-import static io.openems.edge.energy.v1.optimizer.UtilsTest.prepareExistingSchedule;
+import static io.openems.edge.energy.v1.optimizer.InitialPopulationV1Utils.buildInitialPopulation;
+import static io.openems.edge.energy.v1.optimizer.SimulatorV1Test.hourlyToQuarterly;
+import static io.openems.edge.energy.v1.optimizer.TestDataV1.CONSUMPTION_888_20231106;
+import static io.openems.edge.energy.v1.optimizer.TestDataV1.PRICES_888_20231106;
+import static io.openems.edge.energy.v1.optimizer.TestDataV1.PRODUCTION_888_20231106;
+import static io.openems.edge.energy.v1.optimizer.UtilsV1Test.prepareExistingSchedule;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.interpolateDoubleArray;
 import static java.util.Arrays.stream;
 import static org.junit.Assert.assertEquals;
@@ -22,14 +22,15 @@ import org.junit.Test;
 
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 
-public class InitialPopulationUtilsTest {
+@SuppressWarnings("deprecation")
+public class InitialPopulationV1UtilsTest {
 
 	public static final ZonedDateTime TIME = ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
 
 	@Test
 	public void testBuildInitialPopulation() {
 		{
-			var lgt = buildInitialPopulation(Params.create() //
+			var lgt = buildInitialPopulation(ParamsV1.create() //
 					.setTime(TIME) //
 					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
@@ -40,7 +41,7 @@ public class InitialPopulationUtilsTest {
 			assertEquals(5, lgt.size()); // No Schedule -> only pure BALANCING + CHARGE_GRID
 		}
 		{
-			var lgt = buildInitialPopulation(Params.create() //
+			var lgt = buildInitialPopulation(ParamsV1.create() //
 					.setTime(TIME) //
 					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
@@ -51,7 +52,7 @@ public class InitialPopulationUtilsTest {
 			assertEquals(5, lgt.size()); // Existing Schedule is only BALANCING -> only pure BALANCING + CHARGE_GRID
 		}
 		{
-			var gt = buildInitialPopulation(Params.create() //
+			var gt = buildInitialPopulation(ParamsV1.create() //
 					.setTime(TIME) //
 					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
@@ -68,7 +69,7 @@ public class InitialPopulationUtilsTest {
 			assertEquals(0 /* BALANCING */, gt.get(5).get(0).intValue()); // default
 		}
 		{
-			var gt = buildInitialPopulation(Params.create() //
+			var gt = buildInitialPopulation(ParamsV1.create() //
 					.setTime(TIME) //
 					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //

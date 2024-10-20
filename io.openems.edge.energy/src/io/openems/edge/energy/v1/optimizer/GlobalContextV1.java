@@ -9,7 +9,8 @@ import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
-public record GlobalContext(//
+@Deprecated
+public record GlobalContextV1(//
 		Clock clock, //
 		EnergyScheduleHandlerV1 energyScheduleHandler, //
 		Sum sum, //
@@ -79,23 +80,23 @@ public record GlobalContext(//
 		}
 
 		/**
-		 * Builds the {@link GlobalContext}.
+		 * Builds the {@link GlobalContextV1}.
 		 * 
-		 * @return the {@link GlobalContext} record
+		 * @return the {@link GlobalContextV1} record
 		 */
-		public GlobalContext build() {
-			return new GlobalContext(this.clock, this.energyScheduleHandler, this.sum, this.predictorManager,
+		public GlobalContextV1 build() {
+			return new GlobalContextV1(this.clock, this.energyScheduleHandler, this.sum, this.predictorManager,
 					this.timeOfUseTariff);
 		}
 	}
 
 	/**
-	 * Create a {@link GlobalContext} {@link Builder}.
+	 * Create a {@link GlobalContextV1} {@link Builder}.
 	 * 
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
-		return new GlobalContext.Builder();
+		return new GlobalContextV1.Builder();
 	}
 
 }

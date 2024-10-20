@@ -2,14 +2,15 @@ package io.openems.edge.energy.v1.jsonrpc;
 
 import static io.openems.common.utils.JsonUtils.prettyToString;
 import static io.openems.common.utils.UuidUtils.getNilUuid;
-import static io.openems.edge.energy.v1.optimizer.ScheduleDatasTest.SCHEDULE_DATAS;
-import static io.openems.edge.energy.v1.optimizer.SimulatorTest.TIME;
+import static io.openems.edge.energy.v1.optimizer.ScheduleDatasV1Test.SCHEDULE_DATAS;
+import static io.openems.edge.energy.v1.optimizer.SimulatorV1Test.TIME;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
+@SuppressWarnings("deprecation")
 public class GetScheduleResponseTest {
 
 	@Test

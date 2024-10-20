@@ -28,7 +28,7 @@ import io.openems.edge.energy.EnergySchedulerImpl;
 import io.openems.edge.energy.LogVerbosity;
 import io.openems.edge.energy.MyConfig;
 import io.openems.edge.energy.api.Version;
-import io.openems.edge.energy.v1.optimizer.GlobalContext;
+import io.openems.edge.energy.v1.optimizer.GlobalContextV1;
 import io.openems.edge.energy.v1.optimizer.OptimizerV1;
 import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.api.test.DummyPredictor;
@@ -36,11 +36,10 @@ import io.openems.edge.predictor.api.test.DummyPredictorManager;
 import io.openems.edge.timedata.test.DummyTimedata;
 import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
 
+@SuppressWarnings("deprecation")
 public class EnergySchedulerImplTest {
 
 	public static final Clock CLOCK = new TimeLeapClock(Instant.parse("2020-03-04T14:19:00.00Z"), ZoneOffset.UTC);
-
-	private static final String CTRL_ID = "ctrl0";
 
 	@Test
 	public void test() throws Exception {
@@ -76,7 +75,7 @@ public class EnergySchedulerImplTest {
 				.addReference("schedulables", List.of(ctrl)) //
 				.addReference("sum", sum) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
+						.setId("ctrl0") //
 						.setEnabled(false) //
 						.setLogVerbosity(LogVerbosity.DEBUG_LOG) //
 						.setVersion(Version.V1_ESS_ONLY) //
@@ -112,17 +111,17 @@ public class EnergySchedulerImplTest {
 	}
 
 	/**
-	 * Gets the {@link GlobalContext} via Java Reflection.
+	 * Gets the {@link GlobalContextV1} via Java Reflection.
 	 * 
 	 * @param energyScheduler the {@link EnergySchedulerImpl}
 	 * @return the object
 	 * @throws Exception on error
 	 */
 	@SuppressWarnings("unchecked")
-	public static GlobalContext getGlobalContext(EnergySchedulerImpl energyScheduler) throws Exception {
+	public static GlobalContextV1 getGlobalContext(EnergySchedulerImpl energyScheduler) throws Exception {
 		var optimizer = getOptimizer(energyScheduler);
 		var field = OptimizerV1.class.getDeclaredField("globalContext");
 		field.setAccessible(true);
-		return ((Supplier<GlobalContext>) field.get(optimizer)).get();
+		return ((Supplier<GlobalContextV1>) field.get(optimizer)).get();
 	}
 }

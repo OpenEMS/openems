@@ -144,14 +144,14 @@ public final class Utils {
 	 * NOTE: heavy computation is ok here, because this method is called only at the
 	 * end with the best Schedule.
 	 * 
-	 * @param state the initial state
 	 * @param ef    the {@link EnergyFlow} for the state
+	 * @param state the initial state
 	 * @return the new state
 	 */
-	public static StateMachine postprocessSimulatorState(StateMachine state, EnergyFlow ef) {
+	public static StateMachine postprocessSimulatorState(EnergyFlow ef, StateMachine state) {
 		if (state == CHARGE_GRID) {
 			// CHARGE_GRID,...
-			if (ef.getGridToEss() == 0) {
+			if (ef.getGridToEss() <= 0) {
 				// but battery is not charged from grid
 				state = DELAY_DISCHARGE;
 			}

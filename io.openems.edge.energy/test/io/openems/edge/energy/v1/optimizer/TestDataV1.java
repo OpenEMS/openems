@@ -1,6 +1,6 @@
 package io.openems.edge.energy.v1.optimizer;
 
-public class TestData {
+public class TestDataV1 {
 
 	// Edge 888; 06.11.2023
 

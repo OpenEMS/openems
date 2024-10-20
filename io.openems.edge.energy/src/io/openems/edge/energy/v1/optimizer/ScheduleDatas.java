@@ -43,12 +43,13 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
-import io.openems.edge.energy.v1.optimizer.Params.Length;
-import io.openems.edge.energy.v1.optimizer.Simulator.Period;
+import io.openems.edge.energy.v1.optimizer.ParamsV1.Length;
+import io.openems.edge.energy.v1.optimizer.SimulatorV1.Period;
 
 /**
  * Data for JSONRPC-Response. Values are in [W].
  */
+@Deprecated
 public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entries) {
 
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm");

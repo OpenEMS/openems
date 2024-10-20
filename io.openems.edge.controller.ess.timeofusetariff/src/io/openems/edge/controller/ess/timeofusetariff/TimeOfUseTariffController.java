@@ -11,6 +11,7 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1;
 import io.openems.edge.energy.api.EnergySchedulable;
 
+@SuppressWarnings("deprecation")
 public interface TimeOfUseTariffController extends Controller, EnergySchedulable, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {

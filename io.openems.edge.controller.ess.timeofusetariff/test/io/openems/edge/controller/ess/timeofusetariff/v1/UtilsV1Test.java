@@ -12,7 +12,8 @@ import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.controller.ess.timeofusetariff.Utils.ApplyState;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
-public class UtilsTest {
+@SuppressWarnings("deprecation")
+public class UtilsV1Test {
 
 	@Test
 	public void testCalculateAutomaticMode() {

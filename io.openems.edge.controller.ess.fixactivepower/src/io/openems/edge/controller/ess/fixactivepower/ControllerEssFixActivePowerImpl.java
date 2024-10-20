@@ -62,12 +62,11 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 				Controller.ChannelId.values(), //
 				ControllerEssFixActivePower.ChannelId.values() //
 		);
-		this.energyScheduleHandler = buildEnergyScheduleHandler(() -> new EshContext(this.config.mode(), //
+		this.energyScheduleHandler = buildEnergyScheduleHandler(() -> new EshContext(//
+				this.config.mode(), //
 				toEnergy(switch (this.config.phase()) {
-				case ALL //
-					-> this.config.power();
-				case L1, L2, L3 //
-					-> this.config.power() * 3;
+				case ALL -> this.config.power();
+				case L1, L2, L3 -> this.config.power() * 3;
 				}), //
 				this.config.relationship()));
 	}

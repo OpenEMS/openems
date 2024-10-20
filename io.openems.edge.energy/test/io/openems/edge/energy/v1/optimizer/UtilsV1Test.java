@@ -12,12 +12,12 @@ import static io.openems.edge.energy.optimizer.Utils.SUM_ESS_DISCHARGE_POWER;
 import static io.openems.edge.energy.optimizer.Utils.SUM_ESS_SOC;
 import static io.openems.edge.energy.optimizer.Utils.SUM_GRID;
 import static io.openems.edge.energy.v1.EnergySchedulerImplTest.getOptimizer;
-import static io.openems.edge.energy.v1.optimizer.EnergyFlowTest.NO_FLOW;
-import static io.openems.edge.energy.v1.optimizer.SimulatorTest.TIME;
-import static io.openems.edge.energy.v1.optimizer.TestData.PAST_HOURLY_PRICES;
-import static io.openems.edge.energy.v1.optimizer.TestData.PAST_SOC;
-import static io.openems.edge.energy.v1.optimizer.TestData.PAST_STATES;
-import static io.openems.edge.energy.v1.optimizer.TestData.PRODUCTION_888_20231106;
+import static io.openems.edge.energy.v1.optimizer.EnergyFlowV1Test.NO_FLOW;
+import static io.openems.edge.energy.v1.optimizer.SimulatorV1Test.TIME;
+import static io.openems.edge.energy.v1.optimizer.TestDataV1.PAST_HOURLY_PRICES;
+import static io.openems.edge.energy.v1.optimizer.TestDataV1.PAST_SOC;
+import static io.openems.edge.energy.v1.optimizer.TestDataV1.PAST_STATES;
+import static io.openems.edge.energy.v1.optimizer.TestDataV1.PRODUCTION_888_20231106;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.SUM_CONSUMPTION;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.SUM_PRODUCTION;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.generateProductionPrediction;
@@ -54,12 +54,13 @@ import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
-import io.openems.edge.controller.ess.timeofusetariff.v1.ContextV1;
+import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1.ContextV1;
 import io.openems.edge.energy.v1.EnergySchedulerImplTest;
-import io.openems.edge.energy.v1.optimizer.Simulator.Period;
+import io.openems.edge.energy.v1.optimizer.SimulatorV1.Period;
 import io.openems.edge.timedata.test.DummyTimedata;
 
-public class UtilsTest {
+@SuppressWarnings("deprecation")
+public class UtilsV1Test {
 
 	protected static ImmutableSortedMap<ZonedDateTime, StateMachine> prepareExistingSchedule(ZonedDateTime fromDate,
 			StateMachine... existingSchedule) {
@@ -126,7 +127,7 @@ public class UtilsTest {
 
 	@Test
 	public void testParamsAreValid() throws Exception {
-		var builder = Params.create() //
+		var builder = ParamsV1.create() //
 				.setTime(TIME) //
 				.setEssInitialEnergy(0) //
 				.setEssTotalEnergy(22000) //

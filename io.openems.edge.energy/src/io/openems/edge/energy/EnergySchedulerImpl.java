@@ -40,7 +40,7 @@ import io.openems.edge.energy.api.Version;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 import io.openems.edge.energy.optimizer.Optimizer;
 import io.openems.edge.energy.v1.jsonrpc.GetScheduleResponse;
-import io.openems.edge.energy.v1.optimizer.GlobalContext;
+import io.openems.edge.energy.v1.optimizer.GlobalContextV1;
 import io.openems.edge.energy.v1.optimizer.OptimizerV1;
 import io.openems.edge.energy.v1.optimizer.UtilsV1;
 import io.openems.edge.predictor.api.manager.PredictorManager;
@@ -53,6 +53,7 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.OPTIONAL //
 )
+@SuppressWarnings("deprecation")
 public class EnergySchedulerImpl extends AbstractOpenemsComponent implements OpenemsComponent, EnergyScheduler {
 
 	/** The hard working Optimizer. */
@@ -123,7 +124,7 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 					if (this.timeOfUseTariffController == null) {
 						throw new OpenemsException("TimeOfUseTariffController is not available");
 					}
-					return GlobalContext.create() //
+					return GlobalContextV1.create() //
 							.setClock(this.componentManager.getClock()) //
 							.setEnergyScheduleHandler(this.timeOfUseTariffController.getEnergyScheduleHandlerV1()) //
 							.setSum(this.sum) //

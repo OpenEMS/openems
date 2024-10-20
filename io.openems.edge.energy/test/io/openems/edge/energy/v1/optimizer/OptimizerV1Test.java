@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import io.openems.edge.energy.v1.EnergySchedulerImplTest;
 
+@SuppressWarnings("deprecation")
 public class OptimizerV1Test {
 
 	@Test

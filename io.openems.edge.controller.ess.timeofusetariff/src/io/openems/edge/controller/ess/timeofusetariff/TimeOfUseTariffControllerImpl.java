@@ -1,6 +1,5 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.ESS_MAX_SOC;
@@ -48,8 +47,8 @@ import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTota
 import io.openems.edge.controller.ess.timeofusetariff.Utils.ApplyState;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleRequest;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleResponse;
-import io.openems.edge.controller.ess.timeofusetariff.v1.ContextV1;
 import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1;
+import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1.ContextV1;
 import io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
@@ -69,6 +68,7 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@SuppressWarnings("deprecation")
 public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent implements TimeOfUseTariffController,
 		EnergySchedulable, Controller, OpenemsComponent, TimedataProvider, ComponentJsonApi {
 
@@ -147,12 +147,11 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	private void modified(ComponentContext context, Config config) {
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		this.applyConfig(config);
+		this.energyScheduleHandler.triggerReschedule();
 	}
 
 	private synchronized void applyConfig(Config config) {
 		this.config = config;
-
-		this.energyScheduleHandler.triggerReschedule();
 
 		// update filter for 'ess'
 		OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id());
@@ -208,16 +207,14 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.handleRequest(GetScheduleRequest.METHOD, call -> {
-			return switch (this.config.version()) {
-			case V1_ESS_ONLY //
-				-> this.energyScheduler.handleGetScheduleRequestV1(call, this.id());
+		builder.handleRequest(GetScheduleRequest.METHOD, call -> //
+		switch (this.config.version()) {
+		case V1_ESS_ONLY //
+			-> this.energyScheduler.handleGetScheduleRequestV1(call, this.id());
 
-			case V2_ENERGY_SCHEDULABLE //
-				-> GetScheduleResponse.from(call.getRequest().getId(), //
-						this.id(), this.componentManager.getClock(), this.ess, this.timedata,
-						this.energyScheduleHandler);
-			};
+		case V2_ENERGY_SCHEDULABLE //
+			-> GetScheduleResponse.from(call.getRequest().getId(), //
+					this.id(), this.componentManager.getClock(), this.ess, this.timedata, this.energyScheduleHandler);
 		});
 	}
 
@@ -281,24 +278,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 					}
 					}
 				}, //
-				(energyFlow, state) -> {
-					if (state == CHARGE_GRID) {
-						// CHARGE_GRID,...
-						if (energyFlow.getGridToEss() <= 0) {
-							// but not actually charging Ess from Grid
-							state = DELAY_DISCHARGE;
-						}
-					}
-
-					if (state == DELAY_DISCHARGE) {
-						// DELAY_DISCHARGE,...
-						if (energyFlow.getEss() <= 0) {
-							// but actually charging Ess
-							state = BALANCING;
-						}
-					}
-					return state;
-				});
+				Utils::postprocessSimulatorState);
 	}
 
 	/**

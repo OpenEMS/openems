@@ -39,10 +39,10 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.Context;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
-import io.openems.edge.controller.ess.timeofusetariff.v1.ContextV1;
+import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1.ContextV1;
 import io.openems.edge.energy.v1.jsonrpc.GetScheduleResponse;
 import io.openems.edge.energy.v1.optimizer.ScheduleDatas.ScheduleData;
-import io.openems.edge.energy.v1.optimizer.Simulator.Period;
+import io.openems.edge.energy.v1.optimizer.SimulatorV1.Period;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
@@ -53,6 +53,7 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
  * <p>
  * All energy values are in [Wh] and positive, unless stated differently.
  */
+@Deprecated
 public final class UtilsV1 {
 
 	private UtilsV1() {
@@ -66,15 +67,15 @@ public final class UtilsV1 {
 	private static final Logger LOG = LoggerFactory.getLogger(UtilsV1.class);
 
 	/**
-	 * Create {@link Params} for {@link Simulator}.
+	 * Create {@link ParamsV1} for {@link SimulatorV1}.
 	 * 
-	 * @param globalContext    the {@link GlobalContext} object
+	 * @param globalContext    the {@link GlobalContextV1} object
 	 * @param existingSchedule the existing schedule, i.e. result of previous
 	 *                         optimization
-	 * @return {@link Params}
+	 * @return {@link ParamsV1}
 	 * @throws InvalidValueException on error
 	 */
-	public static Params createSimulatorParams(GlobalContext globalContext,
+	public static ParamsV1 createSimulatorParams(GlobalContextV1 globalContext,
 			ImmutableSortedMap<ZonedDateTime, StateMachine> existingSchedule) throws InvalidValueException {
 		final var time = roundDownToQuarter(ZonedDateTime.now());
 
@@ -90,7 +91,7 @@ public final class UtilsV1 {
 		final var prices = globalContext.timeOfUseTariff().getPrices();
 
 		// Ess information.
-		ContextV1 context = globalContext.energyScheduleHandler().getContext();
+		var context = globalContext.energyScheduleHandler().getContext();
 		final var essTotalEnergy = context.ess().getCapacity().getOrError();
 		final var essMinSocEnergy = getEssMinSocEnergy(context, essTotalEnergy);
 		final var essMaxSocEnergy = round(ESS_MAX_SOC / 100F * essTotalEnergy);
@@ -104,7 +105,7 @@ public final class UtilsV1 {
 			maxChargePower = max(ESS_LIMIT_14A_ENWG, maxChargePower); // Apply §14a EnWG limit
 		}
 
-		return Params.create() //
+		return ParamsV1.create() //
 				.setTime(time) //
 				.setEssTotalEnergy(essTotalEnergy) //
 				.setEssMinSocEnergy(essMinSocEnergy) //
@@ -148,7 +149,7 @@ public final class UtilsV1 {
 				.toArray(Integer[]::new);
 	}
 
-	protected static boolean paramsAreValid(Params p) {
+	protected static boolean paramsAreValid(ParamsV1 p) {
 		if (p.optimizePeriods().isEmpty()) {
 			// No periods are available
 			LOG.warn("No periods are available");
@@ -161,7 +162,7 @@ public final class UtilsV1 {
 			return false;
 		}
 		if (p.optimizePeriods().stream() //
-				.mapToDouble(Params.OptimizePeriod::price) //
+				.mapToDouble(ParamsV1.OptimizePeriod::price) //
 				.distinct() //
 				.count() <= 1) {
 			// Prices are all the same
@@ -290,16 +291,16 @@ public final class UtilsV1 {
 	 * end with the best Schedule.
 	 * 
 	 * @param state            the initial state
-	 * @param efBalancing      the {@link EnergyFlow} as it would be in
+	 * @param efBalancing      the {@link EnergyFlowV1} as it would be in
 	 *                         {@link StateMachine#BALANCING}
-	 * @param efDelayDischarge the {@link EnergyFlow} as it would be in
+	 * @param efDelayDischarge the {@link EnergyFlowV1} as it would be in
 	 *                         {@link StateMachine#DELAY_DISCHARGE}
-	 * @param efChargeGrid     the {@link EnergyFlow} as it would be in
+	 * @param efChargeGrid     the {@link EnergyFlowV1} as it would be in
 	 *                         {@link StateMachine#CHARGE_GRID}
 	 * @return the new state
 	 */
-	public static StateMachine postprocessSimulatorState(StateMachine state, EnergyFlow efBalancing,
-			EnergyFlow efDelayDischarge, EnergyFlow efChargeGrid) {
+	public static StateMachine postprocessSimulatorState(StateMachine state, EnergyFlowV1 efBalancing,
+			EnergyFlowV1 efDelayDischarge, EnergyFlowV1 efChargeGrid) {
 		if (state == CHARGE_GRID) {
 			// CHARGE_GRID,...
 			if (efChargeGrid.ess() >= efDelayDischarge.ess()) {
@@ -346,10 +347,10 @@ public final class UtilsV1 {
 	 * NOTE: The output format is suitable as input for "RunOptimizerFromLogApp".
 	 * This is useful to re-run a simulation.
 	 * 
-	 * @param params  the {@link Params}
+	 * @param params  the {@link ParamsV1}
 	 * @param periods the map of {@link Period}s
 	 */
-	protected static void logSchedule(Params params, ImmutableSortedMap<ZonedDateTime, Period> periods) {
+	protected static void logSchedule(ParamsV1 params, ImmutableSortedMap<ZonedDateTime, Period> periods) {
 		System.out.println("OPTIMIZER " + params.toLogString());
 		System.out.println(ScheduleDatas.fromSchedule(params.essTotalEnergy(), periods).toLogString("OPTIMIZER "));
 	}

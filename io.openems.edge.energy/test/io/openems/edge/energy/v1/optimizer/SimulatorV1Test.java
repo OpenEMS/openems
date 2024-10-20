@@ -5,11 +5,11 @@ import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.energy.api.EnergyUtils.interpolateArray;
 import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
-import static io.openems.edge.energy.v1.optimizer.Simulator.getBestSchedule;
-import static io.openems.edge.energy.v1.optimizer.Simulator.simulate;
-import static io.openems.edge.energy.v1.optimizer.TestData.CONSUMPTION_888_20231106;
-import static io.openems.edge.energy.v1.optimizer.TestData.PRICES_888_20231106;
-import static io.openems.edge.energy.v1.optimizer.TestData.PRODUCTION_888_20231106;
+import static io.openems.edge.energy.v1.optimizer.SimulatorV1.getBestSchedule;
+import static io.openems.edge.energy.v1.optimizer.SimulatorV1.simulate;
+import static io.openems.edge.energy.v1.optimizer.TestDataV1.CONSUMPTION_888_20231106;
+import static io.openems.edge.energy.v1.optimizer.TestDataV1.PRICES_888_20231106;
+import static io.openems.edge.energy.v1.optimizer.TestDataV1.PRODUCTION_888_20231106;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.interpolateDoubleArray;
 import static java.util.Arrays.stream;
 import static org.junit.Assert.assertArrayEquals;
@@ -31,9 +31,10 @@ import com.google.common.collect.ImmutableSortedMap;
 import io.jenetics.util.RandomRegistry;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
-import io.openems.edge.energy.v1.optimizer.Simulator.Period;
+import io.openems.edge.energy.v1.optimizer.SimulatorV1.Period;
 
-public class SimulatorTest {
+@SuppressWarnings("deprecation")
+public class SimulatorV1Test {
 
 	public static final ZonedDateTime TIME = ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
 
@@ -47,7 +48,7 @@ public class SimulatorTest {
 	private static Period simulatePeriod(StateMachine state, int production, int consumption, double price,
 			int essInitial) {
 		var result = new AtomicReference<Period>();
-		var params = Params.create() //
+		var params = ParamsV1.create() //
 				.setTime(TIME) //
 				.setEssTotalEnergy(22000) //
 				.setEssMinSocEnergy(0) //
@@ -62,7 +63,7 @@ public class SimulatorTest {
 				.setStates(new StateMachine[] { state }) //
 				.setExistingSchedule(ImmutableSortedMap.of()) //
 				.build();
-		Simulator.simulatePeriod(params, params.optimizePeriods().get(0), state, new AtomicInteger(essInitial),
+		SimulatorV1.simulatePeriod(params, params.optimizePeriods().get(0), state, new AtomicInteger(essInitial),
 				result::set);
 
 		return result.get();
@@ -144,7 +145,7 @@ public class SimulatorTest {
 	public void testGetFirstSchedule0() {
 		var existingSchedule = new StateMachine[] { CHARGE_GRID, DELAY_DISCHARGE, CHARGE_GRID, BALANCING };
 
-		var p = Params.create() //
+		var p = ParamsV1.create() //
 				.setTime(TIME) //
 				.setEssTotalEnergy(22000) //
 				.setEssMinSocEnergy(0) //
@@ -157,7 +158,7 @@ public class SimulatorTest {
 				.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 				.setPrices(hourlyToQuarterly(interpolateDoubleArray(PRICES_888_20231106))) //
 				.setStates(ControlMode.CHARGE_CONSUMPTION.states) //
-				.setExistingSchedule(UtilsTest.prepareExistingSchedule(TIME, existingSchedule)) //
+				.setExistingSchedule(UtilsV1Test.prepareExistingSchedule(TIME, existingSchedule)) //
 				.build();
 		var s = getBestSchedule(p, //
 				/* executionLimitSeconds */ 30, //
@@ -168,13 +169,13 @@ public class SimulatorTest {
 	}
 
 	/**
-	 * Creates dummy {@link Params}.
+	 * Creates dummy {@link ParamsV1}.
 	 * 
 	 * @param states the allowed states
-	 * @return {@link Params}
+	 * @return {@link ParamsV1}
 	 */
-	public static Params createParams888d20231106(StateMachine... states) {
-		return Params.create() //
+	public static ParamsV1 createParams888d20231106(StateMachine... states) {
+		return ParamsV1.create() //
 				.setTime(TIME) //
 				.setEssTotalEnergy(22000) //
 				.setEssMinSocEnergy(0) //
@@ -189,7 +190,7 @@ public class SimulatorTest {
 				.build();
 	}
 
-	protected static void logSchedule(Params p, StateMachine[] schedule) {
+	protected static void logSchedule(ParamsV1 p, StateMachine[] schedule) {
 		UtilsV1.logSchedule(p, simulate(p, schedule));
 	}
 

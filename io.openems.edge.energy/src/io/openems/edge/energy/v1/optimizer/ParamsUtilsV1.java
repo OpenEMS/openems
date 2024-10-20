@@ -16,11 +16,12 @@ import java.util.stream.IntStream;
 import com.google.common.primitives.ImmutableIntArray;
 
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
-import io.openems.edge.energy.v1.optimizer.Simulator.Period;
+import io.openems.edge.energy.v1.optimizer.SimulatorV1.Period;
 
-public class ParamsUtils {
+@Deprecated
+public class ParamsUtilsV1 {
 
-	private ParamsUtils() {
+	private ParamsUtilsV1() {
 	}
 
 	/**

@@ -34,12 +34,13 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.DateUtils;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.energy.v1.EnergySchedulerImplTest;
-import io.openems.edge.energy.v1.optimizer.Params.Length;
-import io.openems.edge.energy.v1.optimizer.Params.OptimizePeriod;
-import io.openems.edge.energy.v1.optimizer.Params.QuarterPeriod;
+import io.openems.edge.energy.v1.optimizer.ParamsV1.Length;
+import io.openems.edge.energy.v1.optimizer.ParamsV1.OptimizePeriod;
+import io.openems.edge.energy.v1.optimizer.ParamsV1.QuarterPeriod;
 import io.openems.edge.energy.v1.optimizer.ScheduleDatas.ScheduleData;
 
-public class ScheduleDatasTest {
+@SuppressWarnings("deprecation")
+public class ScheduleDatasV1Test {
 
 	protected static final ZonedDateTime TIME = ZonedDateTime.of(2000, 1, 1, 0, 15, 0, 0, ZoneId.of("UTC"));
 
@@ -116,11 +117,11 @@ public class ScheduleDatasTest {
 	public void testFromSchedule2() throws Exception {
 		var sds = ScheduleDatas.fromSchedule(22_000, ImmutableSortedMap.of(//
 				TIME, //
-				new Simulator.Period(//
+				new SimulatorV1.Period(//
 						new OptimizePeriod(TIME, Length.QUARTER, 1, 2, 3, 4, 5, 6, 7., ImmutableList.of(//
 								new QuarterPeriod(TIME, 1, 2, 3, 4, 5, 6, 7))),
 						StateMachine.BALANCING, 10_000,
-						new EnergyFlow(0, 0, 1000 /* ess */, 500 /* grid */, 0, 0, 0, 0, 0, 0)) //
+						new EnergyFlowV1(0, 0, 1000 /* ess */, 500 /* grid */, 0, 0, 0, 0, 0, 0)) //
 		));
 		assertEquals(
 				"""

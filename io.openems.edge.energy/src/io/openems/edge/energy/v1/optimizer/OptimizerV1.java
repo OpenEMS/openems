@@ -3,7 +3,7 @@ package io.openems.edge.energy.v1.optimizer;
 import static com.google.common.collect.ImmutableSortedMap.toImmutableSortedMap;
 import static io.openems.edge.energy.optimizer.Utils.calculateExecutionLimitSeconds;
 import static io.openems.edge.energy.optimizer.Utils.initializeRandomRegistryForProduction;
-import static io.openems.edge.energy.v1.optimizer.Simulator.simulate;
+import static io.openems.edge.energy.v1.optimizer.SimulatorV1.simulate;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.createSimulatorParams;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.logSchedule;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.updateSchedule;
@@ -28,24 +28,25 @@ import io.openems.common.utils.FunctionUtils;
 import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1;
 import io.openems.edge.energy.LogVerbosity;
-import io.openems.edge.energy.v1.optimizer.Simulator.Period;
+import io.openems.edge.energy.v1.optimizer.SimulatorV1.Period;
 
 /**
  * This task is executed once in the beginning and afterwards every full 15
  * minutes.
  */
+@Deprecated
 public class OptimizerV1 extends AbstractImmediateWorker {
 
 	private final Logger log = LoggerFactory.getLogger(OptimizerV1.class);
 
 	private final Supplier<LogVerbosity> logVerbosity;
-	private final ThrowingSupplier<GlobalContext, OpenemsException> globalContext;
+	private final ThrowingSupplier<GlobalContextV1, OpenemsException> globalContext;
 	private final TreeMap<ZonedDateTime, Period> schedule = new TreeMap<>();
 
-	private Params params = null;
+	private ParamsV1 params = null;
 
 	public OptimizerV1(Supplier<LogVerbosity> logVerbosity, //
-			ThrowingSupplier<GlobalContext, OpenemsException> globalContext) {
+			ThrowingSupplier<GlobalContextV1, OpenemsException> globalContext) {
 		this.logVerbosity = logVerbosity;
 		this.globalContext = globalContext;
 		initializeRandomRegistryForProduction();
@@ -69,7 +70,7 @@ public class OptimizerV1 extends AbstractImmediateWorker {
 		executionLimitSeconds = calculateExecutionLimitSeconds(globalContext.clock());
 
 		// Find best Schedule
-		var schedule = Simulator.getBestSchedule(this.params, executionLimitSeconds);
+		var schedule = SimulatorV1.getBestSchedule(this.params, executionLimitSeconds);
 
 		// Re-Simulate and keep best Schedule
 		var newSchedule = simulate(this.params, schedule);
@@ -130,11 +131,11 @@ public class OptimizerV1 extends AbstractImmediateWorker {
 	}
 
 	/**
-	 * Gets the current {@link Params} or null.
+	 * Gets the current {@link ParamsV1} or null.
 	 * 
-	 * @return the {@link Params} or null
+	 * @return the {@link ParamsV1} or null
 	 */
-	public Params getParams() {
+	public ParamsV1 getParams() {
 		return this.params;
 	}
 

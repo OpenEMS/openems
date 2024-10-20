@@ -15,14 +15,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.function.TriFunction;
-import io.openems.edge.energy.v1.optimizer.Params.OptimizePeriod;
+import io.openems.edge.energy.v1.optimizer.ParamsV1.OptimizePeriod;
 
-public class EnergyFlowTest {
+@SuppressWarnings("deprecation")
+public class EnergyFlowV1Test {
 
 	public static final ZonedDateTime TIME = ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
-	public static final EnergyFlow NO_FLOW = new EnergyFlow(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+	public static final EnergyFlowV1 NO_FLOW = new EnergyFlowV1(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
-	private static void assertEnergyFlow(EnergyFlow ef) {
+	private static void assertEnergyFlow(EnergyFlowV1 ef) {
 		assertTrue("Production is positive", ef.production() >= 0);
 		assertTrue("Consumption is positive", ef.consumption() >= 0);
 		assertTrue("ProductionToConsumption is positive", ef.productionToConsumption() >= 0);
@@ -40,11 +41,11 @@ public class EnergyFlowTest {
 		assertEquals("Overall Sum", 0, ef.grid() + ef.ess() + ef.production() - ef.consumption());
 	}
 
-	private static Params.Builder P;
+	private static ParamsV1.Builder P;
 
 	@Before
 	public void prepareParams() {
-		P = Params.create() //
+		P = ParamsV1.create() //
 				.setTime(TIME) //
 				.setEssMinSocEnergy(1000) //
 				.setEssTotalEnergy(22000) //
@@ -57,38 +58,38 @@ public class EnergyFlowTest {
 		// essChargeInChargeGrid = 2375
 	}
 
-	private static EnergyFlow execute(TriFunction<Params, OptimizePeriod, Integer, EnergyFlow> function, int essInitial,
-			Params.Builder pb) {
+	private static EnergyFlowV1 execute(TriFunction<ParamsV1, OptimizePeriod, Integer, EnergyFlowV1> function, int essInitial,
+			ParamsV1.Builder pb) {
 		var p = pb.build();
 		return function.apply(p, p.optimizePeriods().get(0), essInitial);
 	}
 
-	private static EnergyFlow charge(TriFunction<Params, OptimizePeriod, Integer, EnergyFlow> function) {
+	private static EnergyFlowV1 charge(TriFunction<ParamsV1, OptimizePeriod, Integer, EnergyFlowV1> function) {
 		return execute(function, 10000, P //
 				.setProductions(2500) //
 				.setConsumptions(500));
 	}
 
-	private static EnergyFlow chargeFull(TriFunction<Params, OptimizePeriod, Integer, EnergyFlow> function) {
+	private static EnergyFlowV1 chargeFull(TriFunction<ParamsV1, OptimizePeriod, Integer, EnergyFlowV1> function) {
 		return execute(function, 19_600, P //
 				.setProductions(3000) //
 				.setConsumptions(100));
 	}
 
-	private static EnergyFlow discharge(TriFunction<Params, OptimizePeriod, Integer, EnergyFlow> function) {
+	private static EnergyFlowV1 discharge(TriFunction<ParamsV1, OptimizePeriod, Integer, EnergyFlowV1> function) {
 		return execute(function, 10000, P //
 				.setProductions(500) //
 				.setConsumptions(2500));
 	}
 
-	private static EnergyFlow dischargeEmpty(TriFunction<Params, OptimizePeriod, Integer, EnergyFlow> function) {
+	private static EnergyFlowV1 dischargeEmpty(TriFunction<ParamsV1, OptimizePeriod, Integer, EnergyFlowV1> function) {
 		return execute(function, 2800, P //
 				.setProductions(500) //
 				.setConsumptions(4500));
 	}
 
-	private static EnergyFlow chargeMoreThanEssMaxEnergy(
-			TriFunction<Params, OptimizePeriod, Integer, EnergyFlow> function) {
+	private static EnergyFlowV1 chargeMoreThanEssMaxEnergy(
+			TriFunction<ParamsV1, OptimizePeriod, Integer, EnergyFlowV1> function) {
 		return execute(function, 10000, P //
 				.setProductions(2500) //
 				.setConsumptions(500) //
@@ -96,8 +97,8 @@ public class EnergyFlowTest {
 				.setEssMaxDischargeEnergy(900));
 	}
 
-	private static EnergyFlow dischargeMoreThanEssMaxEnergy(
-			TriFunction<Params, OptimizePeriod, Integer, EnergyFlow> function) {
+	private static EnergyFlowV1 dischargeMoreThanEssMaxEnergy(
+			TriFunction<ParamsV1, OptimizePeriod, Integer, EnergyFlowV1> function) {
 		return execute(function, 10000, P //
 				.setProductions(500) //
 				.setConsumptions(2500) //
@@ -105,7 +106,7 @@ public class EnergyFlowTest {
 				.setEssMaxDischargeEnergy(900));
 	}
 
-	private static void testBalancingCharge(TriFunction<Params, OptimizePeriod, Integer, EnergyFlow> function) {
+	private static void testBalancingCharge(TriFunction<ParamsV1, OptimizePeriod, Integer, EnergyFlowV1> function) {
 		var e = charge(function);
 		assertEnergyFlow(e);
 		assertEquals(-2000, e.ess());
@@ -114,7 +115,7 @@ public class EnergyFlowTest {
 		assertEquals(2000, e.productionToEss());
 	}
 
-	private static void testBalancingChargeFull(TriFunction<Params, OptimizePeriod, Integer, EnergyFlow> function) {
+	private static void testBalancingChargeFull(TriFunction<ParamsV1, OptimizePeriod, Integer, EnergyFlowV1> function) {
 		var e = chargeFull(function);
 		assertEnergyFlow(e);
 		assertEquals(-2400, e.ess()); // expect 2900, but limited by essTotalEnergy
@@ -130,17 +131,17 @@ public class EnergyFlowTest {
 
 	@Test
 	public void testBalancingAndCharge() {
-		testBalancingCharge(EnergyFlow::withBalancing);
+		testBalancingCharge(EnergyFlowV1::withBalancing);
 	}
 
 	@Test
 	public void testBalancingAndChargeFull() {
-		testBalancingChargeFull(EnergyFlow::withBalancing);
+		testBalancingChargeFull(EnergyFlowV1::withBalancing);
 	}
 
 	@Test
 	public void testBalancingAndDischarge() {
-		var e = discharge(EnergyFlow::withBalancing);
+		var e = discharge(EnergyFlowV1::withBalancing);
 		assertEnergyFlow(e);
 		assertEquals(2000, e.ess());
 		assertEquals(500, e.productionToConsumption());
@@ -149,7 +150,7 @@ public class EnergyFlowTest {
 
 	@Test
 	public void testBalancingAndDischargeEmpty() {
-		var e = dischargeEmpty(EnergyFlow::withBalancing);
+		var e = dischargeEmpty(EnergyFlowV1::withBalancing);
 		assertEnergyFlow(e);
 		assertEquals(1800, e.ess());
 		assertEquals(1800, e.essToConsumption());
@@ -160,7 +161,7 @@ public class EnergyFlowTest {
 
 	@Test
 	public void testBalancingAndChargeMoreThanEssMaxEnergy() {
-		var e = chargeMoreThanEssMaxEnergy(EnergyFlow::withBalancing);
+		var e = chargeMoreThanEssMaxEnergy(EnergyFlowV1::withBalancing);
 		assertEnergyFlow(e);
 		assertEquals(-900, e.ess());
 		assertEquals(-1100, e.grid());
@@ -171,7 +172,7 @@ public class EnergyFlowTest {
 
 	@Test
 	public void testBalancingAndDischargeAboveEssMaxEnergy() {
-		var e = dischargeMoreThanEssMaxEnergy(EnergyFlow::withBalancing);
+		var e = dischargeMoreThanEssMaxEnergy(EnergyFlowV1::withBalancing);
 		assertEnergyFlow(e);
 		assertEquals(900, e.ess());
 		assertEquals(1100, e.grid());
@@ -182,7 +183,7 @@ public class EnergyFlowTest {
 
 	@Test
 	public void testBalancingAndAboveGridMaxEnergy() {
-		var e = execute(EnergyFlow::withBalancing, 3000, P //
+		var e = execute(EnergyFlowV1::withBalancing, 3000, P //
 				.setProductions(1000) //
 				.setConsumptions(4900) //
 				.seMaxBuyFromGrid(1600));
@@ -200,17 +201,17 @@ public class EnergyFlowTest {
 
 	@Test
 	public void testDelayDischargeAndCharge() {
-		testBalancingCharge(EnergyFlow::withDelayDischarge);
+		testBalancingCharge(EnergyFlowV1::withDelayDischarge);
 	}
 
 	@Test
 	public void testDelayDischargeAndChargeFull() {
-		testBalancingChargeFull(EnergyFlow::withDelayDischarge);
+		testBalancingChargeFull(EnergyFlowV1::withDelayDischarge);
 	}
 
 	@Test
 	public void testDelayDischargeAndWouldDischarge() {
-		var e = discharge(EnergyFlow::withDelayDischarge);
+		var e = discharge(EnergyFlowV1::withDelayDischarge);
 		assertEnergyFlow(e);
 		assertEquals(2000, e.grid());
 		assertEquals(500, e.productionToConsumption());
@@ -223,7 +224,7 @@ public class EnergyFlowTest {
 
 	@Test
 	public void testChargeGridAndCharge() {
-		var e = charge(EnergyFlow::withChargeGrid);
+		var e = charge(EnergyFlowV1::withChargeGrid);
 		assertEnergyFlow(e);
 		assertEquals(-4375, e.ess());
 		assertEquals(2375, e.grid());
@@ -233,7 +234,7 @@ public class EnergyFlowTest {
 
 	@Test
 	public void testChargeGridAndChargeFull() {
-		var e = execute(EnergyFlow::withChargeGrid, 16_600, P //
+		var e = execute(EnergyFlowV1::withChargeGrid, 16_600, P //
 				.setProductions(3000) //
 				.setConsumptions(100));
 		assertEnergyFlow(e);
@@ -246,7 +247,7 @@ public class EnergyFlowTest {
 
 	@Test
 	public void testChargeGridAndAboveGridMaxEnergy() {
-		var e = execute(EnergyFlow::withChargeGrid, 10000, P //
+		var e = execute(EnergyFlowV1::withChargeGrid, 10000, P //
 				.setProductions(1000) //
 				.setConsumptions(2000) //
 				.seMaxBuyFromGrid(1600));
@@ -262,9 +263,9 @@ public class EnergyFlowTest {
 	 * DISCHARGE GRID - just for completeness
 	 */
 
-	private static EnergyFlow withDischargeGrid(Params p, OptimizePeriod op, int essInitial) {
+	private static EnergyFlowV1 withDischargeGrid(ParamsV1 p, OptimizePeriod op, int essInitial) {
 		// This is just for completeness; not actually used yet
-		return EnergyFlow.create(p, op, essInitial, //
+		return EnergyFlowV1.create(p, op, essInitial, //
 				p.essTotalEnergy(), // Does not matter here
 				// Same as Balancing + Discharge-To-Grid
 				max(0, op.consumption() - op.production()) + 3000 /* static for tests */);
@@ -272,7 +273,7 @@ public class EnergyFlowTest {
 
 	@Test
 	public void testDischargeGridAndCharge() {
-		var e = charge(EnergyFlowTest::withDischargeGrid);
+		var e = charge(EnergyFlowV1Test::withDischargeGrid);
 		assertEnergyFlow(e);
 		assertEquals(3000, e.ess());
 		assertEquals(-5000, e.grid());
@@ -293,14 +294,14 @@ public class EnergyFlowTest {
 
 		assertEquals("DELAY_DISCHARGE stays DELAY_DISCHARGE", //
 				DELAY_DISCHARGE, postprocessSimulatorState(DELAY_DISCHARGE, //
-						NO_FLOW, charge(EnergyFlow::withDelayDischarge), NO_FLOW));
+						NO_FLOW, charge(EnergyFlowV1::withDelayDischarge), NO_FLOW));
 		assertEquals("DELAY_DISCHARGE to BALANCING", //
 				BALANCING, postprocessSimulatorState(DELAY_DISCHARGE, //
 						NO_FLOW, NO_FLOW, NO_FLOW));
 
 		assertEquals("CHARGE_GRID stays CHARGE_GRID", //
 				CHARGE_GRID, postprocessSimulatorState(CHARGE_GRID, //
-						NO_FLOW, NO_FLOW, charge(EnergyFlow::withChargeGrid)));
+						NO_FLOW, NO_FLOW, charge(EnergyFlowV1::withChargeGrid)));
 		assertEquals("CHARGE_GRID to BALANCING", //
 				BALANCING, postprocessSimulatorState(CHARGE_GRID, //
 						NO_FLOW, NO_FLOW, NO_FLOW));

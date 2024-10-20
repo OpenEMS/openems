@@ -19,11 +19,12 @@ import io.jenetics.Genotype;
 import io.jenetics.IntegerChromosome;
 import io.jenetics.IntegerGene;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
-import io.openems.edge.energy.v1.optimizer.Params.OptimizePeriod;
+import io.openems.edge.energy.v1.optimizer.ParamsV1.OptimizePeriod;
 
-public class InitialPopulationUtils {
+@Deprecated
+public class InitialPopulationV1Utils {
 
-	private InitialPopulationUtils() {
+	private InitialPopulationV1Utils() {
 	}
 
 	/**
@@ -40,10 +41,10 @@ public class InitialPopulationUtils {
 	 * sure, that this one wins in case there are other results with same cost, e.g.
 	 * when battery never gets empty anyway.
 	 * 
-	 * @param p the {@link Params}
+	 * @param p the {@link ParamsV1}
 	 * @return the {@link Genotype}
 	 */
-	public static ImmutableList<Genotype<IntegerGene>> buildInitialPopulation(Params p) {
+	public static ImmutableList<Genotype<IntegerGene>> buildInitialPopulation(ParamsV1 p) {
 		var states = List.of(p.states());
 		if (!states.contains(BALANCING)) {
 			throw new IllegalArgumentException("State option BALANCING is always required!");

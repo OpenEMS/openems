@@ -43,7 +43,7 @@ public record SimulationResult(//
 		 * Constructor for {@link Period}.
 		 * 
 		 * @param context          the {@link GlobalSimulationsContext}
-		 * @param energyFlow       the {@link EnergyFlow.Solution}
+		 * @param energyFlow       the {@link EnergyFlowV1.Solution}
 		 * @param essInitialEnergy the initial ESS energy in the beginning of the period
 		 *                         in [Wh]
 		 * @return a {@link Period}

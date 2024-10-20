@@ -1,14 +1,15 @@
 package io.openems.edge.energy.v1.optimizer;
 
-import static io.openems.edge.energy.v1.optimizer.ParamsUtils.calculateChargeEnergyInChargeGrid;
-import static io.openems.edge.energy.v1.optimizer.ParamsUtils.calculatePeriodLengthHourFromIndex;
+import static io.openems.edge.energy.v1.optimizer.ParamsUtilsV1.calculateChargeEnergyInChargeGrid;
+import static io.openems.edge.energy.v1.optimizer.ParamsUtilsV1.calculatePeriodLengthHourFromIndex;
 import static org.junit.Assert.assertEquals;
 
 import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
-public class ParamsUtilsTest {
+@SuppressWarnings("deprecation")
+public class ParamsUtilsV1Test {
 
 	@Test
 	public void testCalculateParamsMaxChargeEnergyInChargeGrid() {

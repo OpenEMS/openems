@@ -2,10 +2,10 @@ package io.openems.edge.energy.v1.optimizer;
 
 import static io.openems.common.utils.DateUtils.parseZonedDateTimeOrError;
 import static io.openems.edge.energy.optimizer.Utils.initializeRandomRegistryForUnitTest;
-import static io.openems.edge.energy.v1.optimizer.Params.PARAMS_PATTERN;
-import static io.openems.edge.energy.v1.optimizer.Simulator.calculateCost;
-import static io.openems.edge.energy.v1.optimizer.Simulator.getBestSchedule;
-import static io.openems.edge.energy.v1.optimizer.SimulatorTest.logSchedule;
+import static io.openems.edge.energy.v1.optimizer.ParamsV1.PARAMS_PATTERN;
+import static io.openems.edge.energy.v1.optimizer.SimulatorV1Test.logSchedule;
+import static io.openems.edge.energy.v1.optimizer.SimulatorV1.calculateCost;
+import static io.openems.edge.energy.v1.optimizer.SimulatorV1.getBestSchedule;
 import static java.lang.Integer.parseInt;
 import static org.junit.Assert.assertEquals;
 
@@ -22,7 +22,8 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.energy.v1.optimizer.ScheduleDatas.ScheduleData;
 
-public class IntegrationTests {
+@SuppressWarnings("deprecation")
+public class IntegrationTestsV1 {
 
 	@Before
 	public void before() {
@@ -40,7 +41,7 @@ public class IntegrationTests {
 	public void test1() throws Exception {
 		var log = """
 				""";
-		var p = IntegrationTests.parseParams(log);
+		var p = IntegrationTestsV1.parseParams(log);
 		var schedule = getBestSchedule(p, 30);
 		logSchedule(p, schedule);
 
@@ -50,7 +51,7 @@ public class IntegrationTests {
 
 	public static final Pattern PERIOD_PATTERN = Pattern.compile("^.*(?<log>\\d{2}:\\d{2}\s+.*$)");
 
-	protected static Params parseParams(String log) throws IllegalArgumentException, OpenemsException {
+	protected static ParamsV1 parseParams(String log) throws IllegalArgumentException, OpenemsException {
 		var paramsMatcher = log.lines() //
 				.findFirst() //
 				.map(PARAMS_PATTERN::matcher) //
@@ -72,7 +73,7 @@ public class IntegrationTests {
 		}
 		var sd = sds.stream().findFirst().get();
 
-		return Params.create() //
+		return ParamsV1.create() //
 				.setTime(time) //
 				.setEssTotalEnergy(essTotalEnergy) //
 				.setEssMinSocEnergy(essMinSocEnergy) //

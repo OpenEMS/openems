@@ -6,7 +6,7 @@ import static java.lang.Math.max;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.function.IntSupplier;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -231,15 +231,12 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 	 * @param minSoc a supplier for the configured minSoc
 	 * @return a {@link EnergyScheduleHandler}
 	 */
-	public static EnergyScheduleHandler buildEnergyScheduleHandler(Supplier<Integer> minSoc) {
+	public static EnergyScheduleHandler buildEnergyScheduleHandler(IntSupplier minSoc) {
 		return EnergyScheduleHandler.of(//
-				simContext -> new EshContext(socToEnergy(simContext.ess().totalEnergy(), minSoc.get())), //
-				(simContext, period, energyFlow, ctrlContext) -> {
-					energyFlow.setEssMaxDischarge(max(0, simContext.getEssInitial() - ctrlContext.minEnergy));
+				simContext -> socToEnergy(simContext.ess().totalEnergy(), minSoc.getAsInt()), //
+				(simContext, period, energyFlow, minEnergy) -> {
+					energyFlow.setEssMaxDischarge(max(0, simContext.getEssInitial() - minEnergy));
 				});
-	}
-
-	private static record EshContext(Integer minEnergy) {
 	}
 
 	@Override

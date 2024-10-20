@@ -3,14 +3,25 @@ package io.openems.edge.controller.ess.timeofusetariff.v1;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableSortedMap;
 
+import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
+import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
+import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 
+@Deprecated
 public class EnergyScheduleHandlerV1 {
+
+	public static record ContextV1(List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves,
+			List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges, ManagedSymmetricEss ess,
+			ControlMode controlMode, int maxChargePowerFromGrid, boolean limitChargePowerFor14aEnWG) {
+	}
 
 	private final Supplier<StateMachine[]> availableStates;
 	private final Supplier<ContextV1> context;

@@ -49,7 +49,7 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.timedata.api.Timedata;
 
 /**
- * Represents a JSON-RPC Response for 'getMeters'.
+ * Represents a JSON-RPC Response for 'getSchedule'.
  *
  * <pre>
  * {

@@ -1,8 +1,8 @@
 package io.openems.edge.energy.v1.optimizer;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static io.openems.edge.energy.v1.optimizer.ParamsUtils.calculateChargeEnergyInChargeGrid;
-import static io.openems.edge.energy.v1.optimizer.ParamsUtils.calculatePeriodLengthHourFromIndex;
+import static io.openems.edge.energy.v1.optimizer.ParamsUtilsV1.calculateChargeEnergyInChargeGrid;
+import static io.openems.edge.energy.v1.optimizer.ParamsUtilsV1.calculatePeriodLengthHourFromIndex;
 import static java.lang.Math.min;
 
 import java.time.ZonedDateTime;
@@ -16,7 +16,8 @@ import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 
-public record Params(//
+@Deprecated
+public record ParamsV1(//
 		/** Start-Timestamp of the Schedule */
 		ZonedDateTime time,
 		/** ESS Total Energy (Capacity) [Wh] */
@@ -206,15 +207,15 @@ public record Params(//
 			return result.build();
 		}
 
-		public Params build() {
-			return new Params(this.time, this.essTotalEnergy, this.essMinSocEnergy, this.essMaxSocEnergy,
+		public ParamsV1 build() {
+			return new ParamsV1(this.time, this.essTotalEnergy, this.essMinSocEnergy, this.essMaxSocEnergy,
 					this.essInitialEnergy, this.states, //
 					this.existingSchedule, this.generatePeriods());
 		}
 	}
 
 	protected static Builder create() {
-		return new Params.Builder();
+		return new ParamsV1.Builder();
 	}
 
 	@Override

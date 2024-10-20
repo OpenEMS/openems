@@ -34,6 +34,7 @@ import io.openems.edge.energy.v1.optimizer.ScheduleDatas.ScheduleData;
  * }
  * </pre>
  */
+@Deprecated
 public class GetScheduleResponse extends JsonrpcResponseSuccess {
 
 	private final ZonedDateTime fromDate;

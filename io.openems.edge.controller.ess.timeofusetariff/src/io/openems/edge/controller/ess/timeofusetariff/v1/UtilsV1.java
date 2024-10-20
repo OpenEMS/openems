@@ -24,6 +24,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
  * <p>
  * All energy values are in [Wh] and positive, unless stated differently.
  */
+@Deprecated
 public final class UtilsV1 {
 
 	private UtilsV1() {
