@@ -1,5 +1,6 @@
 package io.openems.common.utils;
 
+import static io.openems.common.utils.DateUtils.roundDownToDuodecimus;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -25,6 +26,25 @@ public class DateUtilsTest {
 		assertEquals(//
 				ZonedDateTime.of(2023, 1, 2, 3, 15, 0, 0, ZoneId.of("UTC")), //
 				roundDownToQuarter(ZonedDateTime.of(2023, 1, 2, 3, 16, 17, 18, ZoneId.of("UTC"))));
+
+		assertEquals(//
+				ZonedDateTime.of(2023, 1, 2, 3, 15, 0, 0, ZoneId.of("UTC")), //
+				roundDownToQuarter(ZonedDateTime.of(2023, 1, 2, 3, 21, 22, 23, ZoneId.of("UTC"))));
+	}
+
+	@Test
+	public void testRoundDownToDuodecimus() throws Exception {
+		assertEquals(//
+				ZonedDateTime.of(2023, 1, 2, 3, 0, 0, 0, ZoneId.of("UTC")), //
+				roundDownToDuodecimus(ZonedDateTime.of(2023, 1, 2, 3, 4, 5, 6, ZoneId.of("UTC"))));
+
+		assertEquals(//
+				ZonedDateTime.of(2023, 1, 2, 3, 15, 0, 0, ZoneId.of("UTC")), //
+				roundDownToDuodecimus(ZonedDateTime.of(2023, 1, 2, 3, 16, 17, 18, ZoneId.of("UTC"))));
+
+		assertEquals(//
+				ZonedDateTime.of(2023, 1, 2, 3, 20, 0, 0, ZoneId.of("UTC")), //
+				roundDownToDuodecimus(ZonedDateTime.of(2023, 1, 2, 3, 21, 22, 23, ZoneId.of("UTC"))));
 	}
 
 	@Test
