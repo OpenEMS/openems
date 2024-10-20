@@ -1,0 +1,130 @@
+= Tutorial 4: Retrieve GSI Data via HTTP Bridge
+In this tutorial, we will extend the existing Grünstromindex (GSI) component to dynamically retrieve real-time GSI data from an external API using the HTTP Bridge in OpenEMS. Additionally, we will add a configuration option for specifying a "zip-code," which is required by the Grünstromindex API, and set up a periodic task to update the GSI value every 15 minutes.
+
+== Objectives
+- Modify the GSI component to fetch data from an external API using the HTTP Bridge.
+- Implement a configuration option for "zip-code" in the GSI component.
+- Set up a periodic task to update the GSI value every 15 minutes.
+
+== Prerequisites
+- Completion of <<tutorial-3, Tutorial 3: Develop a History Widget for GSI>>.
+- Familiarity with Java programming, HTTP requests, and OpenEMS framework.
+- Understanding of OpenEMS Edge components and their configuration.
+
+== Step 1: Modify the GSI Component to Use HTTP Bridge
+
+1. **Update the GSI Component Class:**
+
+   Open the `GsiComponent.java` class (created in Tutorial 1) in the `io.openems.edge.gsi` package and modify it to use the HTTP Bridge to fetch data from an external API.
+
+   ```java
+   package io.openems.edge.gsi;
+
+   import io.openems.edge.common.channel.IntegerReadChannel;
+   import io.openems.edge.common.component.AbstractOpenemsComponent;
+   import io.openems.edge.common.component.OpenemsComponent;
+   import io.openems.edge.common.task.ScheduledTask;
+   import io.openems.edge.common.jsonapi.HttpGetRequest;
+
+   import com.google.gson.JsonObject;
+
+   public class GsiComponent extends AbstractOpenemsComponent implements OpenemsComponent {
+
+       private final IntegerReadChannel gsiChannel;
+       private final String zipCode;
+
+       public GsiComponent(String zipCode) {
+           super();
+           this.zipCode = zipCode;
+
+           // Initialize the GSI Channel
+           gsiChannel = new IntegerReadChannel("GSI", this).initializeValue(0); // Default value (0%)
+
+           // Set up a scheduled task to fetch GSI value every 15 minutes
+           addTask(new ScheduledTask(15 * 60, this::fetchGsiValue));
+       }
+
+       private void fetchGsiValue() {
+           try {
+               String apiUrl = "https://api.corrently.io/v2.0/gsi?zip=" + this.zipCode;
+               HttpGetRequest httpRequest = new HttpGetRequest(apiUrl);
+               JsonObject response = httpRequest.execute().getAsJsonObject();
+               int gsiValue = response.get("gsi").getAsInt();
+               gsiChannel.updateValue(gsiValue);
+           } catch (Exception e) {
+               log.error("Error fetching GSI value", e);
+           }
+       }
+
+       @Override
+       public String getClassName() {
+           return GsiComponent.class.getSimpleName();
+       }
+   }
+
+    zipCode Field: Added as a field to hold the zip code for API requests.
+    Constructor Update: The constructor now accepts a zipCode parameter and initializes the GSI channel.
+    fetchGsiValue() Method: Uses HttpGetRequest to fetch data from the Grünstromindex API. The GSI value is updated every 15 minutes using ScheduledTask.
+
+    Add Configuration for Zip Code:
+
+    Update the component configuration to allow setting the zip code. Open the JSON configuration file for OpenEMS Edge (e.g., config.json) and add a configuration section for the GsiComponent:
+
+    json
+
+    {
+      "component": {
+        "io.openems.edge.gsi.GsiComponent": {
+          "zipCode": "10115" // Example zip code
+        }
+      }
+    }
+
+    This configuration sets the zip code for which the GSI data will be fetched. Users can modify this value to fetch data for different locations.
+
+== Step 2: Implement the Configuration Option for Zip Code
+
+    Modify the GsiComponent Class to Read Configuration:
+
+    Update the constructor of GsiComponent to read the zipCode from the configuration file:
+
+    java
+
+    public GsiComponent() {
+        super();
+        this.zipCode = getConfig().getString("zipCode", "10115"); // Default zip code
+        gsiChannel = new IntegerReadChannel("GSI", this).initializeValue(0);
+        addTask(new ScheduledTask(15 * 60, this::fetchGsiValue));
+    }
+
+        getConfig().getString() Method: Reads the zipCode configuration parameter. If not specified, it defaults to "10115".
+
+== Step 3: Test the Updated GSI Component
+
+    Start OpenEMS Edge with Updated Configuration:
+
+    Make sure OpenEMS Edge is running with the updated GsiComponent and configuration file. Start OpenEMS Edge using your IDE or from the terminal:
+
+    bash
+
+    mvn clean install -DskipTests
+    mvn exec:java -Dexec.mainClass="io.openems.edge.application.Main"
+
+    Verify Data Fetching:
+        Check the OpenEMS logs to ensure the fetchGsiValue() method is being called every 15 minutes.
+        Verify that the GSI value is updated correctly in the Edge logs and displayed on the OpenEMS UI Live Widget.
+
+    Troubleshoot Potential Issues:
+        If the GSI value is not updating, check if the API request is correctly formed and whether the network connection is available.
+        Verify that the zip code is correctly configured in the config.json file.
+
+== Conclusion
+
+In this tutorial, you successfully extended the GSI component to retrieve real-time GSI data from an external API using the HTTP Bridge in OpenEMS. You also implemented a configurable zip code and set up a periodic task to update the GSI value every 15 minutes.
+
+Proceed to the next tutorial: <<tutorial-5, Tutorial 5: Implement a Grünstromindex App for OpenEMS AppCenter>>.
+
+vbnet
+
+
+This page provides a step-by-step guide to modifying the GSI component to fetch data from an external API and configuring it for use in OpenEMS, covering component updates, configuration changes, and testing.

@@ -1,0 +1,202 @@
+= Tutorial 5: Implement a Grünstromindex App for OpenEMS AppCenter
+In this tutorial, we will develop a new Grünstromindex (GSI) App for the OpenEMS AppCenter. This app will allow users to configure the zip code directly from the AppCenter interface and dynamically update the GSI component configuration.
+
+== Objectives
+- Create a new App in OpenEMS AppCenter for configuring the Grünstromindex component.
+- Add a user interface in the App to input and save the zip code configuration.
+- Update the GSI component dynamically using the JSON-RPC mechanism.
+
+== Prerequisites
+- Completion of <<tutorial-4, Tutorial 4: Retrieve GSI Data via HTTP Bridge>>.
+- Familiarity with OpenEMS AppCenter and JSON-RPC requests.
+- Basic knowledge of Angular (used in OpenEMS AppCenter development).
+
+== Step 1: Create a New GSI App in OpenEMS AppCenter
+
+1. **Set Up the GSI App Structure:**
+
+   In the OpenEMS AppCenter project, create a new folder named `gsi-app` under `src/app/`. Inside this folder, generate the Angular components needed for the app:
+
+   ```bash
+   ng generate component GsiApp
+
+This command will create a new Angular component with the necessary files (gsi-app.component.ts, gsi-app.component.html, and gsi-app.component.css).
+
+    Define the GSI App Component (GsiAppComponent):
+
+    Open gsi-app.component.ts and implement the logic for configuring the GSI component:
+
+    typescript
+
+import { Component } from '@angular/core';
+import { JsonrpcService } from 'src/app/services/jsonrpc.service';
+
+@Component({
+  selector: 'app-gsi-app',
+  templateUrl: './gsi-app.component.html',
+  styleUrls: ['./gsi-app.component.css']
+})
+export class GsiAppComponent {
+  zipCode: string = '';
+
+  constructor(private jsonrpcService: JsonrpcService) {}
+
+  onSave() {
+    const params = {
+      component: 'io.openems.edge.gsi.GsiComponent',
+      config: {
+        zipCode: this.zipCode
+      }
+    };
+
+    this.jsonrpcService.call('component.setConfig', params).subscribe(response => {
+      if (response.success) {
+        alert('GSI zip code updated successfully.');
+      } else {
+        alert('Failed to update GSI zip code.');
+      }
+    });
+  }
+}
+
+    zipCode Field: A field bound to the zip code input in the UI.
+    onSave() Method: Sends a JSON-RPC request to component.setConfig to update the GSI component's configuration.
+
+Design the User Interface (gsi-app.component.html):
+
+Open gsi-app.component.html and define the HTML structure:
+
+html
+
+<div class="gsi-app-container">
+  <h2>Configure Grünstromindex (GSI)</h2>
+  <div class="form-group">
+    <label for="zip-code">Zip Code:</label>
+    <input type="text" id="zip-code" [(ngModel)]="zipCode" placeholder="Enter zip code" />
+  </div>
+  <button (click)="onSave()">Save</button>
+</div>
+
+    Input Field: Allows the user to enter a zip code.
+    Save Button: Calls the onSave() method to update the configuration.
+
+Style the Component (gsi-app.component.css):
+
+Customize the appearance of the GSI App component by adding styles in gsi-app.component.css:
+
+css
+
+    .gsi-app-container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+== Step 2: Register the GSI App in OpenEMS AppCenter
+
+    Add the App to the AppCenter Module:
+
+    Open app.module.ts and register the new GsiAppComponent:
+
+    typescript
+
+import { GsiAppComponent } from './gsi-app/gsi-app.component';
+
+@NgModule({
+  declarations: [
+    // Other components
+    GsiAppComponent
+  ],
+  imports: [
+    // Other modules
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+
+Add a Navigation Link for the GSI App:
+
+Open app-routing.module.ts to add a route for the new app:
+
+typescript
+
+const routes: Routes = [
+  // Other routes
+  { path: 'gsi-app', component: GsiAppComponent }
+];
+
+Then, add a navigation link in the sidebar menu (app.component.html):
+
+html
+
+    <li routerLink="/gsi-app">Grünstromindex App</li>
+
+== Step 3: Implement JSON-RPC Endpoint in OpenEMS Edge
+
+    Update the GSI Component to Handle Configuration Changes:
+
+    Ensure the GsiComponent class (from Tutorial 4) has a method to handle configuration updates:
+
+    java
+
+public void setConfig(JsonObject config) {
+    if (config.has("zipCode")) {
+        this.zipCode = config.get("zipCode").getAsString();
+        fetchGsiValue(); // Immediately fetch new GSI value based on new zip code
+    }
+}
+
+Implement JSON-RPC Endpoint in OpenEMS Edge:
+
+Ensure the component.setConfig endpoint is registered to handle incoming JSON-RPC requests:
+
+java
+
+    @ComponentJsonrpcMethod
+    public void setConfig(JsonrpcRequest request) throws OpenemsException {
+        JsonObject config = request.getParams().getAsJsonObject();
+        setConfig(config);
+        request.sendSuccessResponse();
+    }
+
+== Step 4: Test the GSI App in OpenEMS AppCenter
+
+    Run OpenEMS Edge and AppCenter:
+        Start OpenEMS Edge with the GsiComponent.
+        Start the OpenEMS AppCenter by running ng serve in the AppCenter project folder.
+
+    Navigate to the GSI App:
+        Open a browser and navigate to the AppCenter (e.g., http://localhost:4200).
+        Click on the "Grünstromindex App" link in the sidebar menu.
+
+    Configure and Test:
+        Enter a valid zip code and click "Save".
+        Check the OpenEMS Edge logs to verify that the GSI value is updated based on the new zip code configuration.
+
+== Conclusion
+
+In this tutorial, you successfully developed a new Grünstromindex (GSI) App for the OpenEMS AppCenter, allowing users to configure the zip code dynamically. The app utilizes JSON-RPC requests to update the GSI component's configuration in real-time, enhancing the flexibility and usability of OpenEMS.
+
+Proceed to the next tutorial: <<tutorial-6, Tutorial 6: Add a JSON-RPC Request from UI to Edge>>.
+
+csharp
+
+
+This tutorial guides you through creating a new App for the OpenEMS AppCenter, including setting up Angular components, handling configuration updates via JSON-RPC, and integrating the new app into the existing system.
+
