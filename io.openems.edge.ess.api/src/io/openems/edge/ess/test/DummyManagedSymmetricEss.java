@@ -1,5 +1,7 @@
 package io.openems.edge.ess.test;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
+
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -23,5 +25,12 @@ public class DummyManagedSymmetricEss extends AbstractDummyManagedSymmetricEss<D
 	@Override
 	protected final DummyManagedSymmetricEss self() {
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return toStringHelper(this) //
+				.add("id", this.id()) //
+				.toString();
 	}
 }

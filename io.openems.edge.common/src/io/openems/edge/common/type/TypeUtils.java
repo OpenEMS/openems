@@ -364,23 +364,15 @@ public class TypeUtils {
 			return JsonNull.INSTANCE;
 		}
 		var value = TypeUtils.getAsType(type, originalValue);
-		switch (type) {
-		case BOOLEAN:
-			return new JsonPrimitive((Boolean) value ? 1 : 0);
-		case SHORT:
-			return new JsonPrimitive((Short) value);
-		case INTEGER:
-			return new JsonPrimitive((Integer) value);
-		case LONG:
-			return new JsonPrimitive((Long) value);
-		case FLOAT:
-			return new JsonPrimitive((Float) value);
-		case DOUBLE:
-			return new JsonPrimitive((Double) value);
-		case STRING:
-			return new JsonPrimitive((String) value);
-		}
-		throw new IllegalArgumentException("Converter for value [" + value + "] to JSON is not implemented.");
+		return switch (type) {
+		case BOOLEAN -> new JsonPrimitive((Boolean) value ? 1 : 0);
+		case SHORT -> new JsonPrimitive((Short) value);
+		case INTEGER -> new JsonPrimitive((Integer) value);
+		case LONG -> new JsonPrimitive((Long) value);
+		case FLOAT -> new JsonPrimitive((Float) value);
+		case DOUBLE -> new JsonPrimitive((Double) value);
+		case STRING -> new JsonPrimitive((String) value);
+		};
 	}
 
 	/**
@@ -415,6 +407,28 @@ public class TypeUtils {
 	public static Integer sum(Integer... values) {
 		Integer result = null;
 		for (Integer value : values) {
+			if (value == null) {
+				continue;
+			}
+			if (result == null) {
+				result = value;
+			} else {
+				result += value;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Safely add Floats. If one of them is null it is considered '0'. If all of
+	 * them are null, 'null' is returned.
+	 *
+	 * @param values the {@link Float} values
+	 * @return the sum
+	 */
+	public static Float sum(Float... values) {
+		Float result = null;
+		for (Float value : values) {
 			if (value == null) {
 				continue;
 			}

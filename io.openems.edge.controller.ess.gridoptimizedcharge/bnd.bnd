@@ -8,10 +8,12 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
+	io.openems.edge.energy.api,\
 	io.openems.edge.ess.api,\
 	io.openems.edge.meter.api,\
 	io.openems.edge.predictor.api,\
 	io.openems.edge.timedata.api,\
 
 -testpath: \
-	${testpath}
+	${testpath},\
+	org.apache.commons.math3,\

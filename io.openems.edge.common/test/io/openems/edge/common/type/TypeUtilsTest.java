@@ -1,5 +1,15 @@
 package io.openems.edge.common.type;
 
+import static com.google.gson.JsonNull.INSTANCE;
+import static io.openems.common.types.OpenemsType.BOOLEAN;
+import static io.openems.common.types.OpenemsType.DOUBLE;
+import static io.openems.common.types.OpenemsType.FLOAT;
+import static io.openems.common.types.OpenemsType.INTEGER;
+import static io.openems.common.types.OpenemsType.LONG;
+import static io.openems.common.types.OpenemsType.SHORT;
+import static io.openems.common.types.OpenemsType.STRING;
+import static io.openems.edge.common.type.TypeUtils.getAsJson;
+import static io.openems.edge.common.type.TypeUtils.sum;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -7,8 +17,9 @@ import java.util.Optional;
 
 import org.junit.Test;
 
+import com.google.gson.JsonPrimitive;
+
 import io.openems.common.function.ThrowingRunnable;
-import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.value.Value;
 
@@ -81,8 +92,8 @@ public class TypeUtilsTest {
 
 	@Test
 	public void testSumDouble() {
-		assertNull(TypeUtils.sum((Double) null, null));
-		assertEquals(4.0, TypeUtils.sum(1.5, 2.5), 0.1);
+		assertNull(sum((Double) null, null));
+		assertEquals(4.0, sum(1.5, 2.5), 0.1);
 	}
 
 	@Test
@@ -269,6 +280,47 @@ public class TypeUtilsTest {
 		}
 	}
 
+	@Test
+	public void testGetAsJson() {
+		assertEquals(INSTANCE, getAsJson(INTEGER, null));
+		assertEquals(new JsonPrimitive(0), getAsJson(BOOLEAN, false));
+		assertEquals(new JsonPrimitive(1), getAsJson(BOOLEAN, true));
+		assertEquals(new JsonPrimitive(123), getAsJson(SHORT, 123));
+		assertEquals(new JsonPrimitive(234), getAsJson(INTEGER, 234));
+		assertEquals(new JsonPrimitive(345), getAsJson(LONG, 345));
+		assertEquals(new JsonPrimitive(45.6F), getAsJson(FLOAT, 45.6F));
+		assertEquals(new JsonPrimitive(56.7), getAsJson(DOUBLE, 56.7));
+		assertEquals(new JsonPrimitive("678"), getAsJson(STRING, "678"));
+	}
+
+	@Test
+	public void sumInteger() {
+		assertEquals(6, sum(1, 2, 3).intValue());
+		assertNull(sum((Integer) null));
+		assertEquals(6, sum(1, null, 2, 3).intValue());
+	}
+
+	@Test
+	public void sumFloat() {
+		assertEquals(6F, sum(1F, 2F, 3F).floatValue(), 0.001F);
+		assertNull(sum((Float) null));
+		assertEquals(6F, sum(1F, null, 2F, 3F).floatValue(), 0.001F);
+	}
+
+	@Test
+	public void sumLong() {
+		assertEquals(6L, sum(1L, 2L, 3L).longValue());
+		assertNull(sum((Long) null));
+		assertEquals(6L, sum(1L, null, 2L, 3L).longValue());
+	}
+
+	@Test
+	public void sumDouble() {
+		assertEquals(6., sum(1., 2., 3.).doubleValue(), 0.001);
+		assertNull(sum((Double) null));
+		assertEquals(6., sum(1., null, 2., 3.).doubleValue(), 0.001);
+	}
+
 	private static void assertException(ThrowingRunnable<Exception> runnable) {
 		try {
 			runnable.run();
@@ -279,31 +331,31 @@ public class TypeUtilsTest {
 	}
 
 	private static Boolean getAsBoolean(Object value) {
-		return TypeUtils.getAsType(OpenemsType.BOOLEAN, value);
+		return TypeUtils.getAsType(BOOLEAN, value);
 	}
 
 	private static Short getAsShort(Object value) {
-		return TypeUtils.getAsType(OpenemsType.SHORT, value);
+		return TypeUtils.getAsType(SHORT, value);
 	}
 
 	private static Integer getAsInteger(Object value) {
-		return TypeUtils.getAsType(OpenemsType.INTEGER, value);
+		return TypeUtils.getAsType(INTEGER, value);
 	}
 
 	private static Long getAsLong(Object value) {
-		return TypeUtils.getAsType(OpenemsType.LONG, value);
+		return TypeUtils.getAsType(LONG, value);
 	}
 
 	private static Float getAsFloat(Object value) {
-		return TypeUtils.getAsType(OpenemsType.FLOAT, value);
+		return TypeUtils.getAsType(FLOAT, value);
 	}
 
 	private static Double getAsDouble(Object value) {
-		return TypeUtils.getAsType(OpenemsType.DOUBLE, value);
+		return TypeUtils.getAsType(DOUBLE, value);
 	}
 
 	private static String getAsString(Object value) {
-		return TypeUtils.getAsType(OpenemsType.STRING, value);
+		return TypeUtils.getAsType(STRING, value);
 	}
 
 	private static enum MyOptionsEnum implements OptionsEnum {

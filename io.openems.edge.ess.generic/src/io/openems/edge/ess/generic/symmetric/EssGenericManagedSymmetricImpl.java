@@ -1,5 +1,6 @@
 package io.openems.edge.ess.generic.symmetric;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static io.openems.edge.common.cycle.Cycle.DEFAULT_CYCLE_TIME;
 import static io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State.UNDEFINED;
 
@@ -183,5 +184,12 @@ public class EssGenericManagedSymmetricImpl
 	@Override
 	public int getCycleTime() {
 		return this.cycle != null ? this.cycle.getCycleTime() : DEFAULT_CYCLE_TIME;
+	}
+
+	@Override
+	public String toString() {
+		return toStringHelper(this) //
+				.addValue(this.id()) //
+				.toString();
 	}
 }
