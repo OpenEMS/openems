@@ -5,8 +5,8 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	bcpkix;version='1.70',\
-	bcprov;version='1.70',\
+	bcpkix;version='1.77',\
+	bcprov;version='1.77',\
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\

@@ -6,6 +6,7 @@ import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/j
 import { HistoryUtils } from "src/app/shared/service/utils";
 import { CurrentData, EdgeConfig } from "src/app/shared/shared";
 
+import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
 import { AbstractHistoryChart } from "../../chart/abstracthistorychart";
 import { XAxisType } from "../../chart/chart.constants";
 import { TextIndentation } from "../../modal/modal-line/modal-line";
@@ -233,6 +234,7 @@ export class OeChartTester {
       from: new Date(channelData.result.timestamps[0] ?? 0),
       to: new Date(channelData.result.timestamps.reverse()[0] ?? 0),
       getText: () => testContext.service.historyPeriod.value.getText(testContext.translate, testContext.service),
+      isWeekOrDay: () => testContext.service.historyPeriod.value.isWeekOrDay(),
     });
 
     // Fill Data
@@ -306,9 +308,17 @@ export class OeChartTester {
       legendOptions.push(AbstractHistoryChart.getLegendOptions(label, displayValue));
     });
 
+    const options = AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, locale, config, datasets, xAxisType, labels);
+
+    chartData.yAxes.filter(axis => axis.unit != null).forEach(axis => {
+      // Remove custom scale calculations from unittest, seperate unittest existing
+      options.scales[axis.yAxisId] = ObjectUtils.excludeProperties(options.scales[axis.yAxisId], ["min", "max"]) as Chart.ScaleOptionsByType<"radialLinear" | keyof Chart.CartesianScaleTypeRegistry>;
+      options.scales[axis.yAxisId].ticks = ObjectUtils.excludeProperties(options.scales[axis.yAxisId].ticks as Chart.RadialTickOptions, ["stepSize"]);
+    });
+
     return {
       type: "option",
-      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, locale, config, datasets, xAxisType, labels),
+      options: options,
     };
   }
 

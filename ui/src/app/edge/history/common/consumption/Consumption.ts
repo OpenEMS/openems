@@ -1,9 +1,9 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
+import { CurrentVoltageModule } from "src/app/shared/components/edge/meter/currentVoltage/currentVoltageModule";
 import { FooterNavigationModule } from "src/app/shared/components/footer/subnavigation/footerNavigation.module";
 import { SharedModule } from "src/app/shared/shared.module";
 
-import { CurrentVoltageModule } from "src/app/shared/components/edge/meter/currentVoltage/currentVoltageModule";
 import { ChartComponent } from "./chart/chart";
 import { ConsumptionMeterChartDetailsComponent } from "./details/chart/consumptionMeter";
 import { EvcsChartDetailsComponent } from "./details/chart/evcs";

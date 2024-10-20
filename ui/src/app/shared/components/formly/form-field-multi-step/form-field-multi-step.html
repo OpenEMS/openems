@@ -1,0 +1,66 @@
+<ion-grid class="ion-no-padding">
+    <ion-card *ngFor="let step of steps; let i = index" [hidden]="i !== currentStep">
+        <ion-row>
+            <ion-col>
+                <ion-item [class.disabled]="props.disabled">
+                    <ion-label style="white-space:pre-wrap">{{props.label}}</ion-label>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+        <ion-row *ngIf="props.description">
+            <ion-col>
+                <ion-item [class.disabled]="props.disabled" lines="none">
+                    <ion-label style="white-space:pre-wrap">{{props.description}}</ion-label>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+
+        <ion-row *ngIf="props.attributes?.infoLine" class="ion-padding"
+            style="display: flex; align-items: center;line-height: 1.4; margin-top: 2%;">
+            <ion-col>
+                <ion-icon color="primary" name="information-outline" size="small">
+                </ion-icon>
+            </ion-col>
+            <ion-col size="11">
+                <div>
+                    {{props.attributes?.infoLine }}
+                </div>
+            </ion-col>
+        </ion-row>
+        <ion-row class="ion-no-padding">
+            <ion-col>
+                <ion-item lines="none">
+                    <ion-label style="white-space:pre-wrap">{{step.label}}</ion-label>
+                    <ion-checkbox slot="end" [checked]="formControl.value[i]" (ionChange)="onCheckboxChange($event, i)"
+                        [disabled]="props.disabled">
+                    </ion-checkbox>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+        <ng-container *ngIf="!props.disabled && ((i !== steps.length - 1) || !formControl.value[i])">
+            <ion-row *ngIf="step.description">
+                <ion-col>
+                    <ion-item lines="none" style="padding-top: 8px;">
+                        <ion-text style="white-space: pre-wrap;">{{step.description}}</ion-text>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+            <ion-row *ngFor="let url of step.url" class="ion-justify-content-center">
+                <ion-item lines="none" style="padding-top: 10px;">
+                    <img class="center" [src]="url">
+                </ion-item>
+            </ion-row>
+            <ion-row class="ion-justify-content-center ion-padding">
+                <div class="step-controls" *ngIf="i === currentStep && !props.disabled">
+                    <ion-button size="small" fill="outline" (click)="prevStep()" [disabled]="i === 0">
+                        <ion-icon name="arrow-back-outline"></ion-icon>
+                    </ion-button>
+                    <ion-button size="small" fill="outline" (click)="nextStep()"
+                        [disabled]="(i === steps.length - 1) || !formControl.value[i]">
+                        <ion-icon name="arrow-forward-outline"></ion-icon>
+                    </ion-button>
+                </div>
+            </ion-row>
+        </ng-container>
+    </ion-card>
+</ion-grid>

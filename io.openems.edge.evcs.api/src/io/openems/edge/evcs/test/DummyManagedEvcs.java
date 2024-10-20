@@ -12,9 +12,10 @@ import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 public class DummyManagedEvcs extends AbstractManagedEvcsComponent
-		implements Evcs, ManagedEvcs, OpenemsComponent, EventHandler {
+		implements Evcs, ManagedEvcs, ElectricityMeter, OpenemsComponent, EventHandler {
 
 	private final EvcsPower evcsPower;
 	private int minimumHardwarePower = Evcs.DEFAULT_MINIMUM_HARDWARE_POWER;
@@ -23,6 +24,7 @@ public class DummyManagedEvcs extends AbstractManagedEvcsComponent
 	public DummyManagedEvcs(String id, EvcsPower evcsPower) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				Evcs.ChannelId.values() //
 		);
@@ -85,14 +87,14 @@ public class DummyManagedEvcs extends AbstractManagedEvcsComponent
 
 	@Override
 	public boolean applyChargePowerLimit(int power) throws OpenemsException {
-		this._setChargePower(power);
+		this._setActivePower(power);
 		this._setStatus(Status.CHARGING);
 		return true;
 	}
 
 	@Override
 	public boolean pauseChargeProcess() throws OpenemsException {
-		this._setChargePower(0);
+		this._setActivePower(0);
 		return true;
 	}
 

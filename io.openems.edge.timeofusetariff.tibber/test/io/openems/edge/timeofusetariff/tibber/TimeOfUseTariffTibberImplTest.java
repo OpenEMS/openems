@@ -6,14 +6,11 @@ import io.openems.edge.common.test.ComponentTest;
 
 public class TimeOfUseTariffTibberImplTest {
 
-	private static final String CTRL_ID = "ctrl0";
-
 	@Test
 	public void test() throws Exception {
-		var tibber = new TimeOfUseTariffTibberImpl();
-		new ComponentTest(tibber) //
+		new ComponentTest(new TimeOfUseTariffTibberImpl()) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
+						.setId("ctrl0") //
 						.setAccessToken("foo-bar") //
 						.setFilter("") //
 						.build()) //

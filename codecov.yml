@@ -14,3 +14,32 @@ comment:
   require_base: false
   require_head: true
   hide_project_coverage: true
+
+component_management:
+  default_rules: 
+    statuses:
+      - type: project
+        target: auto
+        branches:
+          - "!main"
+  individual_components:
+    - component_id: openems_backend
+      name: "OpenEMS Backend"
+      paths:
+        - io.openems.backend.*/**
+        - io.openems.common/**
+        - io.openems.oem.*/**
+        - io.openems.shared.*/**
+        - io.openems.wrapper/**
+    - component_id: openems_edge
+      name: "OpenEMS Edge"
+      paths:
+        - io.openems.edge.*/**
+        - io.openems.common/**
+        - io.openems.oem.*/**
+        - io.openems.shared.*/**
+        - io.openems.wrapper/**
+    - component_id: openems_ui
+      name: "OpenEMS UI"
+      paths:
+        - ui/**

@@ -83,9 +83,9 @@ public abstract class AbstractWorker {
 		}
 		if (!this.thread.isAlive() && !this.thread.isInterrupted() && !this.isStopped.get()) {
 			this.thread.start();
-			if (autoTriggerNextRun) {
-				this.triggerNextRun();
-			}
+		}
+		if (autoTriggerNextRun) {
+			this.triggerNextRun();
 		}
 	}
 

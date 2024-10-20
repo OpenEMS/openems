@@ -1,4 +1,3 @@
-<header></header>
 <ion-content>
   <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh()">
     <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
@@ -46,10 +45,6 @@
 
       <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
 
-        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Io.FixDigitalOutput'">
-          <fixDigitalOutputWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
-          </fixDigitalOutputWidget>
-        </ion-col>
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Symmetric.PeakShaving'">
           <symmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
           </symmetricPeakshavingWidget>
@@ -89,8 +84,8 @@
         </ion-col>
 
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.IO.HeatingElement'">
-          <heatingelementWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
-          </heatingelementWidget>
+          <controller-io-heatingelement-widget [componentId]="widget.componentId">
+          </controller-io-heatingelement-widget>
         </ion-col>
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Io.HeatPump.SgReady'">
           <heatpumpWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">

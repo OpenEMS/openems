@@ -1,9 +1,11 @@
 package io.openems.edge.controller.api.rest.readwrite;
 
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static io.openems.edge.common.test.DummyUser.DUMMY_GUEST;
 import static io.openems.edge.common.test.DummyUser.DUMMY_INSTALLER;
 import static io.openems.edge.common.test.DummyUser.DUMMY_OWNER;
+import static io.openems.edge.controller.api.rest.readwrite.ControllerApiRestReadWrite.ChannelId.API_WORKER_LOG;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -27,7 +29,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
-import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Doc;
@@ -50,9 +51,6 @@ import io.openems.edge.controller.api.rest.handler.RootRequestHandler;
 import io.openems.edge.controller.test.ControllerTest;
 
 public class ControllerApiRestReadWriteImplTest {
-
-	private static final String CTRL_ID = "ctrlApiRest0";
-	private static final String DUMMY_ID = "dummy0";
 
 	@Test
 	public void test() throws OpenemsException, Exception {
@@ -81,10 +79,10 @@ public class ControllerApiRestReadWriteImplTest {
 				.addReference("userService", new DummyUserService(//
 						DUMMY_GUEST, DUMMY_OWNER, DUMMY_INSTALLER, DUMMY_ADMIN)) //
 				.addReference("restHandlerFactory", factory) //
-				.addComponent(new DummyComponent(DUMMY_ID) //
+				.addComponent(new DummyComponent("dummy0") //
 						.withReadChannel(1234)) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
+						.setId("ctrlApiRest0") //
 						.setApiTimeout(60) //
 						.setConnectionlimit(5) //
 						.setDebugMode(false) //
@@ -98,7 +96,7 @@ public class ControllerApiRestReadWriteImplTest {
 		var channelGet = sendGetRequest(port, DUMMY_GUEST.password, "/rest/channel/dummy0/ReadChannel");
 		assertEquals(JsonUtils.buildJsonObject() //
 				.addProperty("address", "dummy0/ReadChannel") //
-				.addProperty("type", "INTEGER") //
+				.addProperty("type", "INTEGER") // s
 				.addProperty("accessMode", "RO") //
 				.addProperty("text", "This is a Read-Channel") //
 				.addProperty("unit", "W") //
@@ -113,8 +111,8 @@ public class ControllerApiRestReadWriteImplTest {
 		assertEquals(new JsonObject(), channelPost);
 		test //
 				.next(new TestCase() //
-						.output(new ChannelAddress("dummy0", "WriteChannel"), 4321) //
-						.output(new ChannelAddress(CTRL_ID, "ApiWorkerLog"), "dummy0/WriteChannel:4321"));
+						.output("dummy0", DummyComponent.ChannelId.WRITE_CHANNEL, 4321) //
+						.output(API_WORKER_LOG, "dummy0/WriteChannel:4321"));
 
 		// POST fails as GUEST
 		try {
@@ -132,7 +130,7 @@ public class ControllerApiRestReadWriteImplTest {
 		// POST successful as OWNER
 		var request = new GetEdgeConfigRequest().toJsonObject();
 		JsonrpcResponseSuccess.from(//
-				JsonUtils.getAsJsonObject(//
+				getAsJsonObject(//
 						sendPostRequest(port, DUMMY_OWNER.password, "/jsonrpc", request)));
 
 		// POST fails as GUEST

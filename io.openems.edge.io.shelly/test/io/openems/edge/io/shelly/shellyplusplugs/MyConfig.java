@@ -1,7 +1,6 @@
 package io.openems.edge.io.shelly.shellyplusplugs;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.io.shelly.shellyplusplugs.Config;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
 

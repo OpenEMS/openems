@@ -69,7 +69,10 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 		if (oldConfig != null) {
 			var componentDiff = new ArrayList<>(oldConfig.components());
 			if (config != null) {
-				componentDiff.removeIf(t -> config.components().stream().anyMatch(c -> c.getId().equals(t.getId())));
+				componentDiff.removeIf(t -> config.components().stream().anyMatch(c -> {
+					return c.getId().equals(t.getId()) //
+							&& c.getFactoryId().equals(t.getFactoryId());
+				}));
 			}
 			this.components2Delete.addAll(componentDiff);
 		}
@@ -94,8 +97,24 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 			if (foundComponentWithSameId != null) {
 				// check if the found component has the same factory id
 				if (!foundComponentWithSameId.getFactoryId().equals(comp.getFactoryId())) {
-					errors.add("Configuration of component with id '" + foundComponentWithSameId.getId()
-							+ "' can not be rewritten. Because the component has a different factoryId.");
+					if (this.components2Delete.stream().anyMatch(t -> t.getId().equals(comp.getId()))) {
+						// if the component was intended to be deleted anyway delete it directly and
+						// create the new component directly afterwards
+						try {
+							this.deleteComponent(user, comp);
+							this.deletedComponents.add(comp.getId());
+							this.components2Delete.removeIf(t -> t.getId().equals(comp.getId()));
+							this.createComponent(user, comp);
+							this.createdComponents.add(comp);
+						} catch (OpenemsNamedException e) {
+							final var error = "Component[" + comp.getFactoryId() + "] cant be created!";
+							errors.add(error);
+							errors.add(e.getMessage());
+						}
+					} else {
+						errors.add("Configuration of component with id '" + foundComponentWithSameId.getId()
+								+ "' can not be rewritten. Because the component has a different factoryId.");
+					}
 					continue;
 				}
 
@@ -179,8 +198,7 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 			}
 
 			try {
-				this.componentManager.handleDeleteComponentConfigRequest(user,
-						new DeleteComponentConfigRequest(comp.getId()));
+				this.deleteComponent(user, comp);
 				this.deletedComponents.add(comp.getId());
 			} catch (OpenemsNamedException e) {
 				errors.add(e.toString());
@@ -233,6 +251,10 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 	private final boolean anyChanges() {
 		return !this.components.isEmpty() //
 				|| !this.components2Delete.isEmpty();
+	}
+
+	private void deleteComponent(User user, EdgeConfig.Component comp) throws OpenemsNamedException {
+		this.componentManager.handleDeleteComponentConfigRequest(user, new DeleteComponentConfigRequest(comp.getId()));
 	}
 
 	private void createComponent(User user, EdgeConfig.Component comp) throws OpenemsNamedException {

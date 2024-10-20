@@ -1,11 +1,17 @@
 package io.openems.edge.evcs.api;
 
+import static io.openems.edge.evcs.api.Evcs.ChannelId.ENERGY_SESSION;
+import static io.openems.edge.evcs.api.Evcs.ChannelId.STATUS;
+import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.CHARGE_STATE;
+import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT;
+import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT_WITH_FILTER;
+import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.SET_ENERGY_LIMIT;
+import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 import io.openems.common.function.ThrowingRunnable;
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.filter.DisabledRampFilter;
 import io.openems.edge.common.filter.RampFilter;
@@ -16,329 +22,272 @@ import io.openems.edge.evcs.test.DummyManagedEvcs;
 
 public class AbstractManagedEvcsTest {
 
+	/**
+	 * Sleep between every TestCase to make sure that the Channel Values are added
+	 * to the pastValues Map. This is required because the Channel Value timestamp
+	 * does not consider the mocked Clock.
+	 * 
+	 * <p>
+	 * Timeleap is not used, to avoid using a clock in the ChargeSatusHandler and
+	 * therefore a ClockProvider function in every EVCS (.timeleap(clock, 31,
+	 * ChronoUnit.SECONDS))
+	 */
+	private static final ThrowingRunnable<Exception> SLEEP = () -> Thread.sleep(1010);
+
 	private static final DummyEvcsPower EVCS_POWER = new DummyEvcsPower(new DisabledRampFilter());
 	private static final DummyEvcsPower EVCS_POWER_WITH_FILTER = new DummyEvcsPower(new RampFilter());
 	private static final DummyManagedEvcs EVCS0 = new DummyManagedEvcs("evcs0", EVCS_POWER);
 	private static final DummyManagedEvcs EVCS1 = new DummyManagedEvcs("evcs1", EVCS_POWER);
-	private static final DummyManagedEvcs evcs2 = new DummyManagedEvcs("evcs2", EVCS_POWER_WITH_FILTER);
+	private static final DummyManagedEvcs EVCS2 = new DummyManagedEvcs("evcs2", EVCS_POWER_WITH_FILTER);
 	private static final int MINIMUM = Evcs.DEFAULT_MINIMUM_HARDWARE_POWER;
 	private static final int MAXIMUM = Evcs.DEFAULT_MAXIMUM_HARDWARE_POWER;
-
-	// Channel Addresses EVCS0
-	private static ChannelAddress evcs0Status = new ChannelAddress("evcs0", "Status");
-	private static ChannelAddress evcs0ChargeState = new ChannelAddress("evcs0", "ChargeState");
-	private static ChannelAddress evcs0ChargePower = new ChannelAddress("evcs0", "ChargePower");
-	private static ChannelAddress evcs0SetChargePowerLimit = new ChannelAddress("evcs0", "SetChargePowerLimit");
-
-	// Channel Addresses EVCS1
-	private static ChannelAddress evcs1Status = new ChannelAddress("evcs1", "Status");
-	private static ChannelAddress evcs1ChargeState = new ChannelAddress("evcs1", "ChargeState");
-	private static ChannelAddress evcs1ChargePower = new ChannelAddress("evcs1", "ChargePower");
-	private static ChannelAddress evcs1SetChargePowerLimit = new ChannelAddress("evcs1", "SetChargePowerLimit");
-	private static ChannelAddress evcs1SetEnergyLimit = new ChannelAddress("evcs1", "SetEnergyLimit");
-	private static ChannelAddress evcs1EnergySession = new ChannelAddress("evcs1", "EnergySession");
-
-	// Channel Addresses EVCS 2
-	private static ChannelAddress evcs2Status = new ChannelAddress("evcs2", "Status");
-	private static ChannelAddress evcs2ChargeState = new ChannelAddress("evcs2", "ChargeState");
-	private static ChannelAddress evcs2ChargePower = new ChannelAddress("evcs2", "ChargePower");
-	private static ChannelAddress evcs2SetChargePowerLimitWithFilter = new ChannelAddress("evcs2",
-			"SetChargePowerLimitWithFilter");
 
 	/*
 	 * ATTENTION: The test could fail if you run it in Debug mode and e.g. the test
 	 * is expecting an output within the "getMinimumTimeTillCharingLimitTaken" time.
 	 */
-
 	@Test
 	public void abstractManagedEvcsTest() throws Exception {
-		// Sleep between every TestCase to make sure that the Channel Values are added
-		// to the pastValues Map. This is required because the Channel Value timestamp
-		// does not consider the mocked Clock.
-		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(1010);
+		var test = new ComponentTest(EVCS0) //
+				.addComponent(EVCS0) //
 
-		ComponentTest test = new ComponentTest(EVCS0).addComponent(EVCS0);
+				.next(new TestCase("Initial charge") //
+						.input(SET_CHARGE_POWER_LIMIT, 15000) //
+						.input(ACTIVE_POWER, 0) //
+						.input(STATUS, Status.READY_FOR_CHARGING) //
+						.output(ACTIVE_POWER, 15000) //
+						.output(CHARGE_STATE, ChargeState.INCREASING)); //
 
-		// Initial charge
-		test.next(new TestCase("Initial charge") //
-
-				.input(evcs0SetChargePowerLimit, 15000) //
-				.input(evcs0ChargePower, 0) //
-				.input(evcs0Status, Status.READY_FOR_CHARGING) //
-
-				.output(evcs0ChargePower, 15000) //
-				.output(evcs0ChargeState, ChargeState.INCREASING)); //
-
-		/*
-		 * Cannot check the nextValue of SetChargePowerLimit as output, because the test
-		 * validator checks the write value (.output(evcs0SetChargePowerLimit, 15000))
-		 */
-		// Check set charge limit
+		// Cannot check the nextValue of SetChargePowerLimit as output, because the test
+		// validator checks the write value
+		// (.output(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT, 15000))
 		assertEquals("Check next value of setChargePowerLimit", 15000, //
-				((IntegerReadChannel) EVCS0.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT)).getNextValue()
+				(EVCS0.<IntegerReadChannel>channel(SET_CHARGE_POWER_LIMIT)).getNextValue()
 						.orElse(0).intValue());
 
-		// Wait till charge limit is taken
-		test.next(new TestCase("Check ChargeState after 'getMinimumTimeTillCharingLimitTaken'") //
-				/*
-				 * Timeleap is not used, to avoid using a clock in the ChargeSatusHandler and
-				 * therefore a ClockProvider function in every EVCS (.timeleap(clock, 31,
-				 * ChronoUnit.SECONDS))
-				 */
-				.onAfterProcessImage(sleep) //
-				.input(evcs0ChargePower, 15000) //
-				.output(evcs0Status, Status.CHARGING) //
-				.output(evcs0ChargeState, ChargeState.CHARGING)); //
+		test //
+				.next(new TestCase("Check ChargeState after 'getMinimumTimeTillCharingLimitTaken'") //
+						.onAfterProcessImage(SLEEP) //
+						.input(ACTIVE_POWER, 15000) //
+						.output(STATUS, Status.CHARGING) //
+						.output(CHARGE_STATE, ChargeState.CHARGING))
 
-		// Decrease power
-		test.next(new TestCase("Decrease Power") //
-				.input(evcs0ChargePower, 15000) //
-				.input(evcs0SetChargePowerLimit, 8000) //
-				.output(evcs0ChargePower, 8000) //
-				.output(evcs0Status, Status.CHARGING) //
-				.output(evcs0ChargeState, ChargeState.DECREASING)); //
+				.next(new TestCase("Decrease Power") //
+						.input(ACTIVE_POWER, 15000) //
+						.input(SET_CHARGE_POWER_LIMIT, 8000) //
+						.output(ACTIVE_POWER, 8000) //
+						.output(STATUS, Status.CHARGING) //
+						.output(CHARGE_STATE, ChargeState.DECREASING))
 
-		// Enough power to increase, but 'MinimumTimeTillCharingLimitTaken' is not
-		// expired
-		test.next(new TestCase("Stay in decreasing charge state") //
-				.input(evcs0ChargePower, 8000) //
-				.input(evcs0SetChargePowerLimit, 20000) //
-				.output(evcs0ChargePower, 8000) //
-				.output(evcs0Status, Status.CHARGING) //
-				.output(evcs0ChargeState, ChargeState.DECREASING)); //
+				// Enough power to increase, but 'MinimumTimeTillCharingLimitTaken' is not
+				// expired
+				.next(new TestCase("Stay in decreasing charge state") //
+						.input(ACTIVE_POWER, 8000) //
+						.input(SET_CHARGE_POWER_LIMIT, 20000) //
+						.output(ACTIVE_POWER, 8000) //
+						.output(STATUS, Status.CHARGING) //
+						.output(CHARGE_STATE, ChargeState.DECREASING))
 
-		// MinimumTimeTillCharingLimitTaken passed
-		test.next(new TestCase("MinimumTimeTillCharginglimitTaken passed") //
-				.onAfterProcessImage(sleep) //
-				.input(evcs0ChargePower, 8000) //
-				.input(evcs0SetChargePowerLimit, 20000) //
-				.output(evcs0ChargePower, 20000) //
-				.output(evcs0Status, Status.CHARGING) //
-				.output(evcs0ChargeState, ChargeState.INCREASING)); //
+				.next(new TestCase("MinimumTimeTillCharginglimitTaken passed") //
+						.onAfterProcessImage(SLEEP) //
+						.input(ACTIVE_POWER, 8000) //
+						.input(SET_CHARGE_POWER_LIMIT, 20000) //
+						.output(ACTIVE_POWER, 20000) //
+						.output(STATUS, Status.CHARGING) //
+						.output(CHARGE_STATE, ChargeState.INCREASING))
 
-		// Charge power is increasing but decrease has higher priority than pause
-		test.next(new TestCase("Decrease has highest priority") //
-				.input(evcs0ChargePower, 20000) //
-				.input(evcs0SetChargePowerLimit, 0) //
-				.output(evcs0ChargePower, 0) //
-				.output(evcs0Status, Status.CHARGING_REJECTED) //
-				.output(evcs0ChargeState, ChargeState.DECREASING)); //
+				// Charge power is increasing but decrease has higher priority than pause
+				.next(new TestCase("Decrease has highest priority") //
+						.input(ACTIVE_POWER, 20000) //
+						.input(SET_CHARGE_POWER_LIMIT, 0) //
+						.output(ACTIVE_POWER, 0) //
+						.output(STATUS, Status.CHARGING_REJECTED) //
+						.output(CHARGE_STATE, ChargeState.DECREASING)); //
 	}
 
 	@Test
 	public void abstractManagedEvcsStateChangesTest() throws Exception {
-		// Sleep between every TestCase to make sure that the Channel Values are added
-		// to the pastValues Map. This is required because the Channel Value timestamp
-		// does not consider the mocked Clock.
-		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(1010);
+		new ComponentTest(EVCS1) //
+				.addComponent(EVCS1) //
 
-		ComponentTest test = new ComponentTest(EVCS1).addComponent(EVCS1);
+				.next(new TestCase("Initial charge") //
+						.input(SET_CHARGE_POWER_LIMIT, 15000) //
+						.input(ACTIVE_POWER, 0) //
+						.input(STATUS, Status.READY_FOR_CHARGING) //
+						.input(ENERGY_SESSION, 9999) //
+						.input(SET_ENERGY_LIMIT, 10000) //
+						.output(ACTIVE_POWER, 15000) //
+						.output(CHARGE_STATE, ChargeState.INCREASING))
 
-		// Initial charge
-		test.next(new TestCase("Initial charge") //
+				.next(new TestCase("Energy limit reached") //
+						.input(ACTIVE_POWER, 15000) //
+						.input(ENERGY_SESSION, 10000) //
+						.input(STATUS, Status.CHARGING) //
+						.output(CHARGE_STATE, ChargeState.DECREASING) //
+						.output(STATUS, Status.ENERGY_LIMIT_REACHED) //
+						.output(ACTIVE_POWER, 0))
 
-				.input(evcs1SetChargePowerLimit, 15000) //
-				.input(evcs1ChargePower, 0) //
-				.input(evcs1Status, Status.READY_FOR_CHARGING) //
-				.input(evcs1EnergySession, 9999) //
-				.input(evcs1SetEnergyLimit, 10000) //
-				.output(evcs1ChargePower, 15000) //
-				.output(evcs1ChargeState, ChargeState.INCREASING)); //
+				.next(new TestCase("Energy limit increased - still in pause") //
+						.input(ACTIVE_POWER, 0) //
+						.input(ENERGY_SESSION, 10000) //
+						.input(SET_ENERGY_LIMIT, 20000) //
+						.input(SET_CHARGE_POWER_LIMIT, 15000) //
+						.output(ACTIVE_POWER, 0) //
+						.output(CHARGE_STATE, ChargeState.DECREASING))
 
-		// EnergyLimit Reached
-		test.next(new TestCase("Energy limit reached") //
-				.input(evcs1ChargePower, 15000) //
-				.input(evcs1EnergySession, 10000) //
-				.input(evcs1Status, Status.CHARGING) //
-				.output(evcs1ChargeState, ChargeState.DECREASING) //
-				.output(evcs1Status, Status.ENERGY_LIMIT_REACHED) //
-				.output(evcs1ChargePower, 0)); //
+				.next(new TestCase("Energy limit increased - after pause") //
+						.onAfterProcessImage(SLEEP) //
+						.input(ACTIVE_POWER, 0) //
+						.input(ENERGY_SESSION, 10000) //
+						.input(SET_ENERGY_LIMIT, 20000) //
+						.input(SET_CHARGE_POWER_LIMIT, 15000) //
+						.output(ACTIVE_POWER, 15000) //
+						.output(CHARGE_STATE, ChargeState.INCREASING))
 
-		// EnergyLimit increased - still in pause
-		test.next(new TestCase("Energy limit increased - still in pause") //
-				.input(evcs1ChargePower, 0) //
-				.input(evcs1EnergySession, 10000) //
-				.input(evcs1SetEnergyLimit, 20000) //
-				.input(evcs1SetChargePowerLimit, 15000) //
-				.output(evcs1ChargePower, 0) //
-				.output(evcs1ChargeState, ChargeState.DECREASING)); //
+				.next(new TestCase("Decrease Power") //
+						.input(ACTIVE_POWER, 15000) //
+						.input(SET_CHARGE_POWER_LIMIT, 8000) //
+						.output(ACTIVE_POWER, 8000) //
+						.output(STATUS, Status.CHARGING) //
+						.output(CHARGE_STATE, ChargeState.DECREASING))
 
-		// EnergyLimit increased - after pause
-		test.next(new TestCase("Energy limit increased - after pause") //
-				.onAfterProcessImage(sleep) //
-				.input(evcs1ChargePower, 0) //
-				.input(evcs1EnergySession, 10000) //
-				.input(evcs1SetEnergyLimit, 20000) //
-				.input(evcs1SetChargePowerLimit, 15000) //
-				.output(evcs1ChargePower, 15000) //
-				.output(evcs1ChargeState, ChargeState.INCREASING)); //
+				.next(new TestCase("Stay in decreasing charge state; 'MinimumTimeTillCharingLimitTaken' is not expired") //
+						.input(ACTIVE_POWER, 8000) //
+						.input(SET_CHARGE_POWER_LIMIT, 20000) //
+						.output(ACTIVE_POWER, 8000) //
+						.output(STATUS, Status.CHARGING) //
+						.output(CHARGE_STATE, ChargeState.DECREASING))
 
-		// Decrease power
-		test.next(new TestCase("Decrease Power") //
-				.input(evcs1ChargePower, 15000) //
-				.input(evcs1SetChargePowerLimit, 8000) //
-				.output(evcs1ChargePower, 8000) //
-				.output(evcs1Status, Status.CHARGING) //
-				.output(evcs1ChargeState, ChargeState.DECREASING)); //
+				.next(new TestCase("MinimumTimeTillCharginglimitTaken passed") //
+						.onAfterProcessImage(SLEEP) //
+						.input(ACTIVE_POWER, 8000) //
+						.input(SET_CHARGE_POWER_LIMIT, 20000) //
+						.output(ACTIVE_POWER, 20000) //
+						.output(STATUS, Status.CHARGING) //
+						.output(CHARGE_STATE, ChargeState.INCREASING))
 
-		// Enough power to increase, but 'MinimumTimeTillCharingLimitTaken' is not
-		// expired
-		test.next(new TestCase("Stay in decreasing charge state") //
-				.input(evcs1ChargePower, 8000) //
-				.input(evcs1SetChargePowerLimit, 20000) //
-				.output(evcs1ChargePower, 8000) //
-				.output(evcs1Status, Status.CHARGING) //
-				.output(evcs1ChargeState, ChargeState.DECREASING)); //
-
-		// MinimumTimeTillCharingLimitTaken passed
-		test.next(new TestCase("MinimumTimeTillCharginglimitTaken passed") //
-				.onAfterProcessImage(sleep) //
-				.input(evcs1ChargePower, 8000) //
-				.input(evcs1SetChargePowerLimit, 20000) //
-				.output(evcs1ChargePower, 20000) //
-				.output(evcs1Status, Status.CHARGING) //
-				.output(evcs1ChargeState, ChargeState.INCREASING)); //
-
-		// Charge power is increasing but decrease has higher priority than pause
-		test.next(new TestCase("Decrease has highest priority") //
-				.input(evcs1ChargePower, 20000) //
-				.input(evcs1SetChargePowerLimit, 0) //
-				.output(evcs1ChargePower, 0) //
-				.output(evcs1Status, Status.CHARGING_REJECTED) //
-				.output(evcs1ChargeState, ChargeState.DECREASING)); //
+				.next(new TestCase("Charge power is increasing, but decrease has highest priority") //
+						.input(ACTIVE_POWER, 20000) //
+						.input(SET_CHARGE_POWER_LIMIT, 0) //
+						.output(ACTIVE_POWER, 0) //
+						.output(STATUS, Status.CHARGING_REJECTED) //
+						.output(CHARGE_STATE, ChargeState.DECREASING)); //
 	}
 
 	@Test
 	public void abstractManagedEvcsWithFilterTest() throws Exception {
-		// Sleep between every TestCase to make sure that the Channel Values are added
-		// to the pastValues Map. This is required because the Channel Value timestamp
-		// does not consider the mocked Clock.
-		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(1010);
-
-		ComponentTest test = new ComponentTest(evcs2).addComponent(evcs2);
+		ComponentTest test = new ComponentTest(EVCS2) //
+				.addComponent(EVCS2);
 
 		// Initial charge
-		int initialResult = (int) (MINIMUM + MAXIMUM * evcs2.getEvcsPower().getIncreaseRate()); // 5244
-		test.next(new TestCase("Initial charge") //
+		int initialResult = (int) (MINIMUM + MAXIMUM * EVCS2.getEvcsPower().getIncreaseRate()); // 5244
 
-				.input(evcs2SetChargePowerLimitWithFilter, 15000) //
-				.input(evcs2ChargePower, 0) //
-				.input(evcs2Status, Status.READY_FOR_CHARGING) //
-				.output(evcs2ChargePower, initialResult) //
-				.output(evcs2ChargeState, ChargeState.INCREASING)); //
+		test //
+				.next(new TestCase("Initial charge") //
+						.input(SET_CHARGE_POWER_LIMIT_WITH_FILTER, 15000) //
+						.input(ACTIVE_POWER, 0) //
+						.input(STATUS, Status.READY_FOR_CHARGING) //
+						.output(ACTIVE_POWER, initialResult) //
+						.output(CHARGE_STATE, ChargeState.INCREASING)); //
 
-		/*
-		 * Cannot check the nextValue of SetChargePowerLimit as output, because the test
-		 * validator checks the write value (.output(evcs0SetChargePowerLimit,
-		 * initialResult))
-		 */
-		// Check set charge limit
+		// Cannot check the nextValue of SetChargePowerLimit as output, because the test
+		// validator checks the write value
+		// (.output(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT,
+		// initialResult))
 		assertEquals("Check next value of setChargePowerLimit", initialResult, //
-				((IntegerReadChannel) evcs2.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT)).getNextValue()
+				(EVCS2.<IntegerReadChannel>channel(SET_CHARGE_POWER_LIMIT)).getNextValue()
 						.orElse(0).intValue());
 
-		// Further charge
-		int increasingValue = (int) (MAXIMUM * evcs2.getEvcsPower().getIncreaseRate());
-		test.next(new TestCase("Further charge") //
+		int increasingValue = (int) (MAXIMUM * EVCS2.getEvcsPower().getIncreaseRate());
+		test //
+				.next(new TestCase("Further charge") //
+						.input(SET_CHARGE_POWER_LIMIT_WITH_FILTER, 15000) //
+						.input(ACTIVE_POWER, 5244) //
+						.input(STATUS, Status.CHARGING) //
+						// 6348 W
+						.output(ACTIVE_POWER, (int) (initialResult + increasingValue))
+						.output(CHARGE_STATE, ChargeState.INCREASING))
 
-				.input(evcs2SetChargePowerLimitWithFilter, 15000) //
-				.input(evcs2ChargePower, 5244) //
-				.input(evcs2Status, Status.CHARGING) //
-				.output(evcs2ChargePower, (int) (initialResult + increasingValue)) // 6348 W
-				.output(evcs2ChargeState, ChargeState.INCREASING)); //
+				.next(new TestCase("Further charge") //
+						.input(SET_CHARGE_POWER_LIMIT_WITH_FILTER, 15000) //
+						.input(ACTIVE_POWER, 6348) //
+						.input(STATUS, Status.CHARGING) //
+						.output(ACTIVE_POWER, initialResult + increasingValue * 2) // 7452 W
+						.output(CHARGE_STATE, ChargeState.INCREASING))
 
-		// Further charge
-		test.next(new TestCase("Further charge") //
+				.next(new TestCase("Further charge") //
+						.input(SET_CHARGE_POWER_LIMIT_WITH_FILTER, 15000) //
+						.input(ACTIVE_POWER, 6348) //
+						.input(STATUS, Status.CHARGING) //
+						.output(ACTIVE_POWER, initialResult + increasingValue * 3) // 8556 W
+						.output(CHARGE_STATE, ChargeState.INCREASING))
 
-				.input(evcs2SetChargePowerLimitWithFilter, 15000) //
-				.input(evcs2ChargePower, 6348) //
-				.input(evcs2Status, Status.CHARGING) //
-				.output(evcs2ChargePower, initialResult + increasingValue * 2) // 7452 W
-				.output(evcs2ChargeState, ChargeState.INCREASING)); //
+				.next(new TestCase("Further charge") //
+						.input(SET_CHARGE_POWER_LIMIT_WITH_FILTER, 15000) //
+						.input(ACTIVE_POWER, 6348) //
+						.input(STATUS, Status.CHARGING) //
+						.output(ACTIVE_POWER, initialResult + increasingValue * 4) // 9660 W
+						.output(CHARGE_STATE, ChargeState.INCREASING))
 
-		// Further charge
-		test.next(new TestCase("Further charge") //
+				.next(new TestCase("Further charge - reached target") //
+						.input(SET_CHARGE_POWER_LIMIT_WITH_FILTER, 10000) //
+						.input(ACTIVE_POWER, 6348) //
+						.input(STATUS, Status.CHARGING) //
+						.output(ACTIVE_POWER, 10_000) // 10000 W
+						.output(CHARGE_STATE, ChargeState.INCREASING))
 
-				.input(evcs2SetChargePowerLimitWithFilter, 15000) //
-				.input(evcs2ChargePower, 6348) //
-				.input(evcs2Status, Status.CHARGING) //
-				.output(evcs2ChargePower, initialResult + increasingValue * 3) // 8556 W
-				.output(evcs2ChargeState, ChargeState.INCREASING)); //
+				.next(new TestCase(
+						"Wait till charge limit is taken. Check ChargeState after 'getMinimumTimeTillCharingLimitTaken'") //
+						.onAfterProcessImage(SLEEP) //
+						.input(ACTIVE_POWER, 10000) //
+						.output(STATUS, Status.CHARGING) //
+						.output(CHARGE_STATE, ChargeState.CHARGING))
 
-		// Further charge
-		test.next(new TestCase("Further charge") //
+				.next(new TestCase("Decrease Power") //
+						.input(ACTIVE_POWER, 10000) //
+						.input(SET_CHARGE_POWER_LIMIT_WITH_FILTER, 8000) //
+						.output(ACTIVE_POWER, 8000) //
+						.output(STATUS, Status.CHARGING) //
+						.output(CHARGE_STATE, ChargeState.DECREASING))
 
-				.input(evcs2SetChargePowerLimitWithFilter, 15000) //
-				.input(evcs2ChargePower, 6348) //
-				.input(evcs2Status, Status.CHARGING) //
-				.output(evcs2ChargePower, initialResult + increasingValue * 4) // 9660 W
-				.output(evcs2ChargeState, ChargeState.INCREASING)); //
+				// Enough power to increase, but 'MinimumTimeTillCharingLimitTaken' is not
+				// expired
+				.next(new TestCase("Stay in decreasing charge state") //
+						.input(ACTIVE_POWER, 8000) //
+						.input(SET_CHARGE_POWER_LIMIT_WITH_FILTER, 20000) //
+						.output(ACTIVE_POWER, 8000) //
+						.output(STATUS, Status.CHARGING) //
+						.output(CHARGE_STATE, ChargeState.DECREASING))
 
-		// Further charge - reached target
-		test.next(new TestCase("Further charge") //
+				.next(new TestCase("MinimumTimeTillCharginglimitTaken passed") //
+						.onAfterProcessImage(SLEEP) //
+						.input(ACTIVE_POWER, 8000) //
+						.input(SET_CHARGE_POWER_LIMIT_WITH_FILTER, 20000) //
+						.output(ACTIVE_POWER, 8000 + increasingValue) // 9104
+						.output(STATUS, Status.CHARGING) //
+						.output(CHARGE_STATE, ChargeState.INCREASING))
 
-				.input(evcs2SetChargePowerLimitWithFilter, 10000) //
-				.input(evcs2ChargePower, 6348) //
-				.input(evcs2Status, Status.CHARGING) //
-				.output(evcs2ChargePower, 10_000) // 10000 W
-				.output(evcs2ChargeState, ChargeState.INCREASING)); //
+				// Charge power is increasing but decrease has higher priority than pause
+				.next(new TestCase("Decrease has highest priority") //
+						.input(ACTIVE_POWER, 20000) //
+						.input(SET_CHARGE_POWER_LIMIT_WITH_FILTER, 0) //
+						.output(ACTIVE_POWER, 0) //
+						.output(STATUS, Status.CHARGING_REJECTED) //
+						.output(CHARGE_STATE, ChargeState.DECREASING))
 
-		// Wait till charge limit is taken
-		test.next(new TestCase("Check ChargeState after 'getMinimumTimeTillCharingLimitTaken'") //
-				.onAfterProcessImage(sleep) //
-				.input(evcs2ChargePower, 10000) //
-				.output(evcs2Status, Status.CHARGING) //
-				.output(evcs2ChargeState, ChargeState.CHARGING)); //
+				.next(new TestCase("Charging stopped - still in pause state") //
+						.input(ACTIVE_POWER, 0) //
+						.input(SET_CHARGE_POWER_LIMIT_WITH_FILTER, 0) //
+						.output(ACTIVE_POWER, 0) //
+						.output(STATUS, Status.CHARGING_REJECTED) //
+						.output(CHARGE_STATE, ChargeState.DECREASING))
 
-		// Decrease power
-		test.next(new TestCase("Decrease Power") //
-				.input(evcs2ChargePower, 10000) //
-				.input(evcs2SetChargePowerLimitWithFilter, 8000) //
-				.output(evcs2ChargePower, 8000) //
-				.output(evcs2Status, Status.CHARGING) //
-				.output(evcs2ChargeState, ChargeState.DECREASING)); //
-
-		// Enough power to increase, but 'MinimumTimeTillCharingLimitTaken' is not
-		// expired
-		test.next(new TestCase("Stay in decreasing charge state") //
-				.input(evcs2ChargePower, 8000) //
-				.input(evcs2SetChargePowerLimitWithFilter, 20000) //
-				.output(evcs2ChargePower, 8000) //
-				.output(evcs2Status, Status.CHARGING) //
-				.output(evcs2ChargeState, ChargeState.DECREASING)); //
-
-		// MinimumTimeTillCharingLimitTaken passed
-		test.next(new TestCase("MinimumTimeTillCharginglimitTaken passed") //
-				.onAfterProcessImage(sleep) //
-				.input(evcs2ChargePower, 8000) //
-				.input(evcs2SetChargePowerLimitWithFilter, 20000) //
-				.output(evcs2ChargePower, 8000 + increasingValue) // 9104
-				.output(evcs2Status, Status.CHARGING) //
-				.output(evcs2ChargeState, ChargeState.INCREASING)); //
-
-		// Charge power is increasing but decrease has higher priority than pause
-		test.next(new TestCase("Decrease has highest priority") //
-				.input(evcs2ChargePower, 20000) //
-				.input(evcs2SetChargePowerLimitWithFilter, 0) //
-				.output(evcs2ChargePower, 0) //
-				.output(evcs2Status, Status.CHARGING_REJECTED) //
-				.output(evcs2ChargeState, ChargeState.DECREASING)); //
-
-		// Charging stopped - still in pause state
-		test.next(new TestCase("Charging stopped - still in pause state") //
-				.input(evcs2ChargePower, 0) //
-				.input(evcs2SetChargePowerLimitWithFilter, 0) //
-				.output(evcs2ChargePower, 0) //
-				.output(evcs2Status, Status.CHARGING_REJECTED) //
-				.output(evcs2ChargeState, ChargeState.DECREASING)); //
-
-		// Charging stopped
-		test.next(new TestCase("Charging stopped") //
-				.onAfterProcessImage(sleep) //
-				.input(evcs2ChargePower, 0) //
-				.input(evcs2SetChargePowerLimitWithFilter, 0) //
-				.output(evcs2ChargePower, 0) //
-				.output(evcs2Status, Status.CHARGING_REJECTED) //
-				.output(evcs2ChargeState, ChargeState.NOT_CHARGING)); //
+				.next(new TestCase("Charging stopped") //
+						.onAfterProcessImage(SLEEP) //
+						.input(ACTIVE_POWER, 0) //
+						.input(SET_CHARGE_POWER_LIMIT_WITH_FILTER, 0) //
+						.output(ACTIVE_POWER, 0) //
+						.output(STATUS, Status.CHARGING_REJECTED) //
+						.output(CHARGE_STATE, ChargeState.NOT_CHARGING)); //
 	}
 }

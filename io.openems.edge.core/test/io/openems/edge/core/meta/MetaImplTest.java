@@ -1,6 +1,6 @@
 package io.openems.edge.core.meta;
 
-import static io.openems.edge.common.currency.CurrencyConfig.EUR;
+import static io.openems.common.types.CurrencyConfig.EUR;
 
 import org.junit.Test;
 

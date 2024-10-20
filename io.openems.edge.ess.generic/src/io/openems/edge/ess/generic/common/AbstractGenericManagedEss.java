@@ -211,22 +211,10 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss & Cycle
 
 	@Override
 	public StartStop getStartStopTarget() {
-		switch (this.startStopConfig) {
-		case AUTO:
-			// read StartStop-Channel
-			return this.startStopTarget.get();
-
-		case START:
-			// force START
-			return StartStop.START;
-
-		case STOP:
-			// force STOP
-			return StartStop.STOP;
-		}
-
-		assert false;
-		return StartStop.UNDEFINED; // can never happen
+		return switch (this.startStopConfig) {
+		case AUTO -> this.startStopTarget.get();
+		case START -> StartStop.START;
+		case STOP -> StartStop.STOP;
+		};
 	}
-
 }

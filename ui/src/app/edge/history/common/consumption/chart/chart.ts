@@ -26,9 +26,7 @@ export class ChartComponent extends AbstractHistoryChart {
         component.factoryId == "Evcs.Cluster.PeakShaving" ||
         component.factoryId == "Evcs.Cluster.SelfConsumption"));
 
-    const consumptionMeters: EdgeConfig.Component[] = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-      .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
-
+    // TODO Since 2024.11.0 EVCS implements EletricityMeter; use DeprecatedEvcs as filter
     evcsComponents.forEach(component => {
       inputChannel.push({
         name: component.id + "/ChargePower",
@@ -36,6 +34,10 @@ export class ChartComponent extends AbstractHistoryChart {
         energyChannel: ChannelAddress.fromString(component.id + "/ActiveConsumptionEnergy"),
       });
     });
+
+    const consumptionMeters: EdgeConfig.Component[] = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+      .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component)
+        && !config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.evcs.api.Evcs"));
 
     consumptionMeters.forEach(meter => {
       inputChannel.push({
