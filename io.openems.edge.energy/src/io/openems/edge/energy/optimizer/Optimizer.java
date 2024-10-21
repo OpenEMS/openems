@@ -2,6 +2,7 @@ package io.openems.edge.energy.optimizer;
 
 import static io.jenetics.engine.Limits.byExecutionTime;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
+import static io.openems.edge.energy.optimizer.QuickSchedules.findBestQuickSchedule;
 import static io.openems.edge.energy.optimizer.Utils.calculateExecutionLimitSeconds;
 import static io.openems.edge.energy.optimizer.Utils.createSimulator;
 import static io.openems.edge.energy.optimizer.Utils.initializeRandomRegistryForProduction;
@@ -86,41 +87,53 @@ public class Optimizer implements Runnable {
 					continue;
 				}
 
-				if (this.simulationResult == SimulationResult.EMPTY) {
-					// No Schedule available yet. Start with a default Schedule with all States
-					// set to default.
-					this.traceLog(() -> "No existing schedule available -> apply default");
-					this.applyBestQuickSchedule(simulator);
-				}
-
-				this.traceLog(() -> "Run Simulation...");
-
-				var simulationResult = this.runSimulation(simulator).get();
-				if (simulationResult == null/* no result */ || this.interruptFlag.get() /* was interrupted */) {
-					this.traceLog(() -> "Simulation gave no result or was interrupted!");
-					this.simulationsPerQuarterChannel.setNextValue(null);
-					this.applyBestQuickSchedule(simulator);
-					continue;
-				}
-
-				this.traceLog(() -> "Calculate metrics");
-				
-				// Calculate metrics
-				var stats = simulator.cache.stats();
-				this.simulationsPerQuarterChannel.setNextValue(stats.loadCount());
-
-				// Apply simulation result to EnergyScheduleHandlers
-				this.applySimulationResult(simulator, simulationResult, false);
+				this.runOnce(simulator);
 			}
 		} catch (InterruptedException | ExecutionException e) {
 			this.log.error("OPTIMIZER execution failed InterruptedException|ExecutionException: " + e.getMessage());
 			e.printStackTrace();
-			
+
 			// ignore
 		} catch (Exception e) {
 			this.log.error("OPTIMIZER execution failed: " + e.getMessage());
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Run the optimization once.
+	 * 
+	 * @param simulator2
+	 * 
+	 * @throws InterruptedException on error
+	 * @throws ExecutionException   on error
+	 */
+	public void runOnce(Simulator simulator) throws InterruptedException, ExecutionException {
+		if (this.simulationResult == SimulationResult.EMPTY) {
+			// No Schedule available yet. Start with a default Schedule with all States
+			// set to default.
+			this.traceLog(() -> "No existing schedule available -> apply default");
+			this.applyBestQuickSchedule(simulator);
+		}
+
+		this.traceLog(() -> "Run Simulation...");
+
+		var simulationResult = this.runSimulation(simulator).get();
+		if (simulationResult == null/* no result */ || this.interruptFlag.get() /* was interrupted */) {
+			this.traceLog(() -> "Simulation gave no result or was interrupted!");
+			this.simulationsPerQuarterChannel.setNextValue(null);
+			this.applyBestQuickSchedule(simulator);
+			return;
+		}
+
+		this.traceLog(() -> "Calculate metrics");
+
+		// Calculate metrics
+		var stats = simulator.cache.stats();
+		this.simulationsPerQuarterChannel.setNextValue(stats.loadCount());
+
+		// Apply simulation result to EnergyScheduleHandlers
+		this.applySimulationResult(simulator, simulationResult, false);
 	}
 
 	private CompletableFuture<SimulationResult> runSimulation(Simulator simulator) {
@@ -149,7 +162,7 @@ public class Optimizer implements Runnable {
 	 */
 	protected synchronized void applyBestQuickSchedule(Simulator simulator) {
 		// Find Genotype with lowest cost
-		var bestGt = QuickSchedules.findBestQuickSchedule(simulator, this.simulationResult);
+		var bestGt = findBestQuickSchedule(simulator, this.simulationResult);
 		if (bestGt == null) {
 			this.applyEmptySimulationResult();
 			return;
