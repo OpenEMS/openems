@@ -109,7 +109,7 @@ public class EnergySchedulerImplTest {
 										() -> /* limitChargePowerFor14aEnWG */ false)))
 				.addReference("sum", sum) //
 				.activate(MyConfig.create() //
-						.setId("ctrl0") //
+						.setId("_energy") //
 						.setEnabled(false) //
 						.setLogVerbosity(TRACE) //
 						.setVersion(V2_ENERGY_SCHEDULABLE) //

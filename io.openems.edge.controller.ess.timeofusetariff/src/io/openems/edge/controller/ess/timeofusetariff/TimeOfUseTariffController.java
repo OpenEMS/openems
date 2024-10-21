@@ -58,6 +58,7 @@ public interface TimeOfUseTariffController extends Controller, EnergySchedulable
 	 * 
 	 * @return {@link EnergyScheduleHandlerV1}
 	 */
+	@Deprecated
 	public EnergyScheduleHandlerV1 getEnergyScheduleHandlerV1();
 
 	/**

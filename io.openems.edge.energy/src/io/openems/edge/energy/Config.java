@@ -12,7 +12,7 @@ import io.openems.edge.energy.api.Version;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-	
+
 	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity")
 	LogVerbosity logVerbosity() default LogVerbosity.DEBUG_LOG;
 

@@ -90,16 +90,12 @@ public final class Utils {
 	public static synchronized void createSimulator(
 			ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier, AtomicBoolean interruptFlag,
 			Consumer<Simulator> simulator, Consumer<Supplier<String>> error) {
-		System.out.println("OPTIMIZER createSimulator.interruptFlag() BEFORE " + interruptFlag.get());
 		while (!interruptFlag.get()) {
-			System.out.println("OPTIMIZER createSimulator.interruptFlag() " + interruptFlag.get());
 			try {
 				simulator.accept(new Simulator(gscSupplier.get()));
-				System.out.println("OPTIMIZER gscSupplier.get() successful");
 				return;
 
 			} catch (OpenemsException | IllegalArgumentException e) {
-				System.out.println("OPTIMIZER gscSupplier.get() failed");
 				e.printStackTrace();
 
 				simulator.accept(null);
@@ -108,7 +104,6 @@ public final class Utils {
 				try {
 					sleep(10_000);
 				} catch (InterruptedException e1) {
-					System.out.println("OPTIMIZER sleep failed");
 					e.printStackTrace();
 
 					simulator.accept(null);
@@ -116,7 +111,6 @@ public final class Utils {
 				}
 			}
 		}
-		System.out.println("OPTIMIZER after while");
 
 		simulator.accept(null);
 		error.accept(() -> "Unable to create global simulations context -> abort");

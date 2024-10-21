@@ -33,12 +33,10 @@ public interface EnergyScheduler extends OpenemsComponent {
 	/**
 	 * Handles a GetScheduleRequest.
 	 * 
-	 * <p>
-	 * TODO remove after v1
-	 * 
 	 * @param call the JsonApi {@link Call}
 	 * @param id   the Component-ID of the Controller
 	 * @return the GetScheduleResponse
 	 */
+	@Deprecated
 	public JsonrpcResponse handleGetScheduleRequestV1(Call<JsonrpcRequest, JsonrpcResponse> call, String id);
 }

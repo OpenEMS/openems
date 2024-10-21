@@ -111,8 +111,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
 
-	// TODO remove after v1
 	@Reference
+	@Deprecated
 	private EnergyScheduler energyScheduler;
 
 	private Config config = null;

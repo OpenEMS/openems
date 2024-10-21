@@ -103,8 +103,7 @@ public class Optimizer implements Runnable {
 	/**
 	 * Run the optimization once.
 	 * 
-	 * @param simulator2
-	 * 
+	 * @param simulator the {@link Simulator}
 	 * @throws InterruptedException on error
 	 * @throws ExecutionException   on error
 	 */
