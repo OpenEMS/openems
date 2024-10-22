@@ -7,6 +7,7 @@ import * as Chart from "chart.js";
 import "chartjs-adapter-date-fns";
 import annotationPlugin from "chartjs-plugin-annotation";
 import { v4 as uuidv4 } from "uuid";
+
 import { ChronoUnit, DEFAULT_NUMBER_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS, Resolution, calculateResolution, isLabelVisible, setLabelVisible } from "src/app/edge/history/shared";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
@@ -314,7 +315,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       case YAxisType.TIME:
         return translate.instant("Edge.Index.Widgets.Channeltreshold.ACTIVE_TIME_OVER_PERIOD");
       case YAxisType.PERCENTAGE:
-        return translate.instant("General.percentage");
+        return "%";
       case YAxisType.REACTIVE:
         return "var";
       case YAxisType.ENERGY:
@@ -324,9 +325,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           return "kW";
         }
       case YAxisType.VOLTAGE:
-        return translate.instant("Edge.History.VOLTAGE");
+        return "V";
       case YAxisType.CURRENT:
-        return translate.instant("Edge.History.CURRENT");
+        return "A";
       case YAxisType.NONE:
         return "";
       default:
