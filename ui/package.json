@@ -32,7 +32,7 @@
     "capacitor-secure-storage-plugin": "^0.10.0",
     "chart.js": "^4.4.5",
     "chartjs-adapter-date-fns": "^3.0.0",
-    "chartjs-plugin-annotation": "^3.0.1",
+    "chartjs-plugin-annotation": "^3.1.0",
     "chartjs-plugin-datalabels": "^2.2.0",
     "chartjs-plugin-zoom": "^2.0.1",
     "classlist.js": "^1.1.20150312",
