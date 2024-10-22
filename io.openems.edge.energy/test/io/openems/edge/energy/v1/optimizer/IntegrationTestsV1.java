@@ -3,9 +3,9 @@ package io.openems.edge.energy.v1.optimizer;
 import static io.openems.common.utils.DateUtils.parseZonedDateTimeOrError;
 import static io.openems.edge.energy.optimizer.Utils.initializeRandomRegistryForUnitTest;
 import static io.openems.edge.energy.v1.optimizer.ParamsV1.PARAMS_PATTERN;
-import static io.openems.edge.energy.v1.optimizer.SimulatorV1Test.logSchedule;
 import static io.openems.edge.energy.v1.optimizer.SimulatorV1.calculateCost;
 import static io.openems.edge.energy.v1.optimizer.SimulatorV1.getBestSchedule;
+import static io.openems.edge.energy.v1.optimizer.SimulatorV1Test.logSchedule;
 import static java.lang.Integer.parseInt;
 import static org.junit.Assert.assertEquals;
 
