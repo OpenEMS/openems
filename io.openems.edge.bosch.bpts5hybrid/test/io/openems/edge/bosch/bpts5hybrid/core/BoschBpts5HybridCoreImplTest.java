@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 
 public class BoschBpts5HybridCoreImplTest {
 
@@ -21,6 +22,7 @@ public class BoschBpts5HybridCoreImplTest {
 						.setIpaddress("127.0.0.1") //
 						.setInterval(2) //
 						.build()) //
-		;
+				.next(new TestCase()) //
+				.deactivate();
 	}
 }

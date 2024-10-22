@@ -4,9 +4,10 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.junit.Test;
 
+import io.openems.common.types.MeterType;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.meter.api.MeterType;
 
 public class MeterAbbB23ImplTest {
 
@@ -23,7 +24,8 @@ public class MeterAbbB23ImplTest {
 						.setPrimaryAddress(10) //
 						.setType(MeterType.PRODUCTION) //
 						.build()) //
-		;
+				.next(new TestCase()) //
+				.deactivate();
 	}
 
 }

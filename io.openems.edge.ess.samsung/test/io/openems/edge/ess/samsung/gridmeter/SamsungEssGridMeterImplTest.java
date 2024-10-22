@@ -2,9 +2,10 @@ package io.openems.edge.ess.samsung.gridmeter;
 
 import org.junit.Test;
 
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.meter.api.MeterType;
 
 public class SamsungEssGridMeterImplTest {
 
@@ -19,7 +20,8 @@ public class SamsungEssGridMeterImplTest {
 						.setIp("127.0.0.1") //
 						.setType(MeterType.GRID) //
 						.build()) //
-		;
+				.next(new TestCase()) //
+				.deactivate();
 	}
 
 }

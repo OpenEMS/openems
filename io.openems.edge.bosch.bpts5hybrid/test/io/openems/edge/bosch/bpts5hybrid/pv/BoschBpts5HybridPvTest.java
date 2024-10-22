@@ -5,6 +5,7 @@ import org.junit.Test;
 import io.openems.edge.bosch.bpts5hybrid.core.BoschBpts5HybridCoreImpl;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 
 public class BoschBpts5HybridPvTest {
 
@@ -30,6 +31,7 @@ public class BoschBpts5HybridPvTest {
 						.setId(CHARGER_ID) //
 						.setCoreId(CORE_ID) //
 						.build()) //
-		;
+				.next(new TestCase()) //
+				.deactivate();
 	}
 }
