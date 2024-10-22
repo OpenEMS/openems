@@ -25,6 +25,7 @@ import eu.chargetime.ocpp.model.core.ChangeConfigurationRequest;
 import eu.chargetime.ocpp.model.core.DataTransferRequest;
 import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequest;
 import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequestType;
+import io.openems.common.types.MeterType;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -127,6 +128,11 @@ public class EvcsOcppAblImpl extends AbstractManagedOcppEvcsComponent
 	@Override
 	public void handleEvent(Event event) {
 		super.handleEvent(event);
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.MANAGED_CONSUMPTION_METERED;
 	}
 
 	@Override

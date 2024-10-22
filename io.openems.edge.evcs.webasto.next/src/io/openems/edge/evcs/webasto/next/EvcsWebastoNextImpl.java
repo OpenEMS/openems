@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -251,6 +252,11 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent implemen
 		this.getActivePowerL1Channel().onUpdate(setPhasesCallback);
 		this.getActivePowerL2Channel().onUpdate(setPhasesCallback);
 		this.getActivePowerL3Channel().onUpdate(setPhasesCallback);
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.MANAGED_CONSUMPTION_METERED;
 	}
 
 	@Override

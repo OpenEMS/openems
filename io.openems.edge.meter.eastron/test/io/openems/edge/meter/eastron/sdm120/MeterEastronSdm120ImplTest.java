@@ -1,6 +1,6 @@
 package io.openems.edge.meter.eastron.sdm120;
 
-import static io.openems.edge.meter.api.MeterType.GRID;
+import static io.openems.common.types.MeterType.GRID;
 import static io.openems.edge.meter.api.SinglePhase.L1;
 
 import org.junit.Test;

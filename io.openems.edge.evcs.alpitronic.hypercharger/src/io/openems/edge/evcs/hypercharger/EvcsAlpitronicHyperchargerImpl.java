@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -157,6 +158,11 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.MANAGED_CONSUMPTION_METERED;
 	}
 
 	@Override

@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -207,6 +208,11 @@ public class EvcsWebastoUniteImpl extends AbstractOpenemsModbusComponent
 				new FC6WriteRegisterTask(6000, //
 						m(EvcsWebastoUnite.ChannelId.ALIVE_REGISTER, new SignedWordElement(6000))));
 		return modbusProtocol;
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.MANAGED_CONSUMPTION_METERED;
 	}
 
 	@Override

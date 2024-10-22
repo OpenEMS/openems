@@ -1,7 +1,7 @@
 package io.openems.edge.io.shelly.shelly3em;
 
+import static io.openems.common.types.MeterType.CONSUMPTION_METERED;
 import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.ofDummyBridge;
-import static io.openems.edge.meter.api.MeterType.CONSUMPTION_METERED;
 
 import org.junit.Test;
 

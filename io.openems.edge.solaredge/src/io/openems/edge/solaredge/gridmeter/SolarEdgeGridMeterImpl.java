@@ -18,6 +18,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
@@ -26,7 +27,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.sunspec.AbstractSunSpecMeter;
 
 @Designate(ocd = Config.class, factory = true)

@@ -1,5 +1,6 @@
 package io.openems.edge.io.shelly.shellyplusplugs;
 
+import static io.openems.common.types.MeterType.PRODUCTION;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER_L1;
@@ -7,7 +8,6 @@ import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER_
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.CURRENT;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.VOLTAGE;
-import static io.openems.edge.meter.api.MeterType.PRODUCTION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

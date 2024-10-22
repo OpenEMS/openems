@@ -1,6 +1,6 @@
 package io.openems.edge.meter.ziehl.efr4001ip;
 
-import static io.openems.edge.meter.api.MeterType.GRID;
+import static io.openems.common.types.MeterType.GRID;
 
 import org.junit.Test;
 

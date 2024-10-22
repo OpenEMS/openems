@@ -1,6 +1,6 @@
 package io.openems.edge.meter.virtual.subtract;
 
-import static io.openems.edge.meter.api.MeterType.GRID;
+import static io.openems.common.types.MeterType.GRID;
 
 import java.util.List;
 

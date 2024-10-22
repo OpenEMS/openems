@@ -1,6 +1,6 @@
 package io.openems.edge.meter.plexlog;
 
-import static io.openems.edge.meter.api.MeterType.PRODUCTION;
+import static io.openems.common.types.MeterType.PRODUCTION;
 
 import org.junit.Test;
 
