@@ -17,6 +17,7 @@ import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
@@ -110,6 +111,11 @@ public class SimulatorEvcsImpl extends AbstractManagedEvcsComponent
 		this._setEnergySession((int) this.exactEnergySession);
 
 		this.lastUpdate = LocalDateTime.now();
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.MANAGED_CONSUMPTION_METERED;
 	}
 
 	@Override

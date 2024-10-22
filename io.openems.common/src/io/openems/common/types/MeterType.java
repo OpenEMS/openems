@@ -1,14 +1,17 @@
-package io.openems.edge.meter.api;
+package io.openems.common.types;
 
 /**
- * Defines the type of the Meter.
+ * Defines the type of an ElectricityMeter.
+ * 
+ * <p>
+ * See "io.openems.edge.meter.api" for details.
  */
 public enum MeterType {
 	/**
 	 * Defines a Grid-Meter, i.e. a meter that is measuring at the grid connection
 	 * point (German: "Netzanschlusspunkt")
 	 */
-	GRID, //
+	GRID,
 	/**
 	 * Defines a Production-Meter, i.e. a meter that is measuring an electric
 	 * producer like a photovoltaics installation
@@ -21,8 +24,12 @@ public enum MeterType {
 	 */
 	PRODUCTION_AND_CONSUMPTION,
 	/**
-	 * Defines a Consumption-Meter that is metered, i.e. a meter that is measuring
-	 * an electric consumer like a heating-element or electric car.
+	 * Defines a Consumption-Meter that metered, i.e. a meter that is measuring an
+	 * electric consumer like a heating-element or electric car.
+	 *
+	 * <p>
+	 * Select this {@link MeterType} if the device is not actively managed by
+	 * OpenEMS - see {@link #MANAGED_CONSUMPTION_METERED} otherwise.
 	 *
 	 * <p>
 	 * Note: Consumption is generally calculated using the data from Grid-Meter,
@@ -31,6 +38,11 @@ public enum MeterType {
 	 * expected to be already measured by the Grid-Meter.
 	 */
 	CONSUMPTION_METERED,
+	/**
+	 * Defines a Consumption-Meter that is actively managed by OpenEMS and metered
+	 * (See {@link #CONSUMPTION_METERED}).
+	 */
+	MANAGED_CONSUMPTION_METERED,
 	/**
 	 * Defines a Consumption-Meter that is NOT metered, i.e. a meter that is
 	 * measuring an electric consumer like a heating-element or electric car.

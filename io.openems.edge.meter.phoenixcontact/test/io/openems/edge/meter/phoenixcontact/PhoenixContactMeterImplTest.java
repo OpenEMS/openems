@@ -1,6 +1,6 @@
 package io.openems.edge.meter.phoenixcontact;
 
-import static io.openems.edge.meter.api.MeterType.PRODUCTION;
+import static io.openems.common.types.MeterType.PRODUCTION;
 
 import org.junit.Test;
 

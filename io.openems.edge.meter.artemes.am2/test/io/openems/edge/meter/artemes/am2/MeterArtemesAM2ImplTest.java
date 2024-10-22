@@ -1,6 +1,6 @@
 package io.openems.edge.meter.artemes.am2;
 
-import static io.openems.edge.meter.api.MeterType.GRID;
+import static io.openems.common.types.MeterType.GRID;
 
 import org.junit.Test;
 

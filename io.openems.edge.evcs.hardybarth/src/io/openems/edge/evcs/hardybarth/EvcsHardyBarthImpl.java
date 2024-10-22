@@ -31,6 +31,7 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.HttpStatus;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
@@ -129,6 +130,11 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 		super.deactivate();
 		this.httpBridgeFactory.unget(this.httpBridge);
 		this.httpBridge = null;
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.MANAGED_CONSUMPTION_METERED;
 	}
 
 	private Endpoint getTargetEndpoint(int target) {

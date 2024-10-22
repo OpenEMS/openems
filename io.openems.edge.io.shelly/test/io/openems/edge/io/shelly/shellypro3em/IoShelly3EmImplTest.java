@@ -2,9 +2,9 @@ package io.openems.edge.io.shelly.shellypro3em;
 
 import org.junit.Test;
 
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.meter.api.MeterType;
 
 public class IoShelly3EmImplTest {
 

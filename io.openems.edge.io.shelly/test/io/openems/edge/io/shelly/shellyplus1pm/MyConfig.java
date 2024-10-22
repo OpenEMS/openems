@@ -1,7 +1,7 @@
 package io.openems.edge.io.shelly.shellyplus1pm;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.meter.api.MeterType;
+import io.openems.common.types.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
 
 @SuppressWarnings("all")

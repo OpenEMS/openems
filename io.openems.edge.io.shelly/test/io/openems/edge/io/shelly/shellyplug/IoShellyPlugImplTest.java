@@ -1,7 +1,7 @@
 package io.openems.edge.io.shelly.shellyplug;
 
+import static io.openems.common.types.MeterType.PRODUCTION;
 import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.ofDummyBridge;
-import static io.openems.edge.meter.api.MeterType.PRODUCTION;
 
 import org.junit.Test;
 

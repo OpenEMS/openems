@@ -166,6 +166,7 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Pr
 						switch (meter.getMeterType()) {
 						case GRID:
 						case CONSUMPTION_METERED:
+						case MANAGED_CONSUMPTION_METERED:
 						case CONSUMPTION_NOT_METERED:
 							return false;
 						case PRODUCTION:
