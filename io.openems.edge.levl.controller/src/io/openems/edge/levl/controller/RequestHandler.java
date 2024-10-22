@@ -13,15 +13,15 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 
 public class RequestHandler {
 	
-	private List<JsonrpcRequest> requests;
+	private List<LevlControlRequest> requests;
 	
 	public RequestHandler() {
 		this.requests = new ArrayList<>();
 	}
-
+	
 	public JsonrpcResponse addRequest(JsonrpcRequest request) throws OpenemsNamedException {
 		var levlControlRequest = LevlControlRequest.from(request);
-		this.requests.add(request);
+		this.requests.add(levlControlRequest);
 		return JsonrpcResponseSuccess
 				.from(this.generateResponse(request.getId(), levlControlRequest.getLevlRequestId()));
 	}
@@ -35,8 +35,13 @@ public class RequestHandler {
 		return response;
 	}
 	
+	/**
+	 * Returns the active request.  
+	 * 
+	 * @return the active request. Null if no request is active.
+	 */
 	// TODO implement me
-	protected JsonrpcRequest getActiveRequest() {
+	protected LevlControlRequest getActiveRequest() {
 		return this.requests.get(0);
 	}
 
