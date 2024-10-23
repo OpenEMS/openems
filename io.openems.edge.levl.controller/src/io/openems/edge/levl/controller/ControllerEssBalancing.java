@@ -5,6 +5,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -13,7 +14,7 @@ import io.openems.edge.controller.api.Controller;
 public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-        REALIZED_DISCHARGE_POWER_W(Doc.of(OpenemsType.INTEGER) //
+        REALIZED_DISCHARGE_POWER_W(Doc.of(OpenemsType.LONG) //
                 .unit(Unit.WATT) //
                 .persistencePriority(PersistencePriority.HIGH)
                 .text("the cumulated amount of discharge power that was realized since the last discharge request (in W)")), //
@@ -37,7 +38,7 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
      * Returns the IntegerReadChannel for the realized power.
      * @return the IntegerReadChannel
      */
-    public default IntegerReadChannel getRealizedPowerWChannel() {
+    public default LongReadChannel getRealizedPowerWChannel() {
         return this.channel(ChannelId.REALIZED_DISCHARGE_POWER_W);
     }
 
@@ -45,7 +46,7 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
      * Returns the value of the realized power.
      * @return the value of the realized power
      */
-    public default Value<Integer> getRealizedPowerW() {
+    public default Value<Long> getRealizedPowerW() {
         return this.getRealizedPowerWChannel().value();
     }
 
@@ -53,7 +54,7 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
      * Sets the next value of the realized power.
      * @param value the next value
      */
-    public default void _setRealizedPowerW(Integer value) {
+    public default void _setRealizedPowerW(Long value) {
         this.getRealizedPowerWChannel().setNextValue(value);
     }
     

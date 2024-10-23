@@ -20,11 +20,11 @@ public class LevlControlRequest extends JsonrpcRequest {
     public long energyWs;
 	private LocalDateTime start;
 	private LocalDateTime deadline;
-    private int totalRealizedDischargeEnergyWh;
+    public int levlSocWh;
     public int socLowerBoundPercent;
     public int socUpperBoundPercent;
     public double efficiencyPercent;
-    private boolean influenceSellToGrid;
+    public boolean influenceSellToGrid;
     private final JsonObject params;
 
     /**
@@ -70,10 +70,11 @@ public class LevlControlRequest extends JsonrpcRequest {
      */
     private void parseFields(JsonObject params) {
         this.levlRequestId = params.get("levlRequestId").getAsString();
+        this.timestamp = params.get("levlRequestTimestamp").getAsString();
         this.energyWs = params.get("levlEnergyWs").getAsLong();
         this.start = LocalDateTime.now(this.clock).plusSeconds(params.get("levlChargeDelaySec").getAsInt());
         this.deadline = this.start.plusSeconds(params.get("levlChargeDurationSec").getAsInt());
-        this.totalRealizedDischargeEnergyWh = -params.get("levlSocWh").getAsInt();
+        this.levlSocWh = params.get("levlSocWh").getAsInt();
         this.socLowerBoundPercent = params.get("levlSocLowerBoundPercent").getAsInt();
         this.socUpperBoundPercent = params.get("levlSocUpperBoundPercent").getAsInt();
         this.sellToGridLimitW = params.get("sellToGridLimitW").getAsInt();
@@ -95,6 +96,10 @@ public class LevlControlRequest extends JsonrpcRequest {
     
     public String getLevlRequestId() {
     	return this.levlRequestId;
+    }
+    
+    public String getTimestamp() {
+        return this.timestamp;
     }
     
     protected LocalDateTime getStart() {
