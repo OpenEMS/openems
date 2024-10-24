@@ -18,8 +18,8 @@ public class LevlControlRequest extends JsonrpcRequest {
     private String levlRequestId;
     private String timestamp;
     public long energyWs;
-	private LocalDateTime start;
-	private LocalDateTime deadline;
+	public LocalDateTime start;
+	public LocalDateTime deadline;
     public int levlSocWh;
     public int socLowerBoundPercent;
     public int socUpperBoundPercent;
@@ -27,6 +27,7 @@ public class LevlControlRequest extends JsonrpcRequest {
     public boolean influenceSellToGrid;
     private final JsonObject params;
 
+    
     /**
      * Creates a new LevlControlRequest from a JsonrpcRequest.
      *
@@ -39,6 +40,11 @@ public class LevlControlRequest extends JsonrpcRequest {
         return new LevlControlRequest(params);
     }
 
+    public LevlControlRequest() {
+		super(LevlControlRequest.METHOD);
+		this.params = new JsonObject();
+    }
+    
     /**
      * Creates a new LevlControlRequest from a JsonObject.
      *

@@ -1,4 +1,4 @@
-package io.openems.edge.controller.ess.balancing;
+package io.openems.edge.levl.controller;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
@@ -65,11 +65,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String meter_id() {
 		return this.builder.meterId;
-	}
-
-	@Override
-	public int targetGridSetpoint() {
-		return this.builder.targetGridSetpoint;
 	}
 
 	@Override

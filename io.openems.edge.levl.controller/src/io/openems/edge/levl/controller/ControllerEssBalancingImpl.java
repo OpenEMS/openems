@@ -50,27 +50,26 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	private ConfigurationAdmin cm;
 
 	@Reference
-	private ManagedSymmetricEss ess;
+	protected ManagedSymmetricEss ess;
 
 	@Reference
-	private ElectricityMeter meter;
+	protected ElectricityMeter meter;
 
 	@Reference
-	private Cycle cycle;
+	protected Cycle cycle;
 
 	private Config config;
 
-	private static Clock clock = Clock.systemDefaultZone();
+	protected static Clock clock = Clock.systemDefaultZone();
 
-	private LevlControlRequest currentRequest;
-	private LevlControlRequest nextRequest;
+	protected LevlControlRequest currentRequest;
+	protected LevlControlRequest nextRequest;
 
-	private RequestHandler requestHandler;
-	private long levlSocWs;
-	private long realizedEnergyBatteryWs;
-	private long realizedEnergyGridWs;
-
-	private int pucBatteryPower;
+	//private RequestHandler requestHandler;
+	protected long levlSocWs;
+	protected int pucBatteryPower;
+	protected long realizedEnergyGridWs;
+	protected long realizedEnergyBatteryWs;
 
 	private static final String METHOD = "sendLevlControlRequest";
 
@@ -140,24 +139,29 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	 * @throws InvalidValueException
 	 */
 	protected int calculateRequiredPower() throws OpenemsNamedException {
-		double cycleTimeS = this.cycle.getCycleTime() / 1000;
+		double cycleTimeS = this.cycle.getCycleTime() / 1000.0;
 
 		// load physical values
 		int physicalSoc = this.ess.getSoc().getOrError();
 		int gridPower = this.meter.getActivePower().getOrError();
 		int essPower = this.ess.getActivePower().getOrError();
 		int essCapacity = this.ess.getCapacity().getOrError();
+		
+		//TODO: wäre das nicht der richtige Wert? G
+//		int minEssPower = this.ess.getAllowedChargePower().getOrError();
+//		int maxEssPower = this.ess.getAllowedDischargePower().getOrError();
+
 		int minEssPower = this.ess.getPower().getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
 		int maxEssPower = this.ess.getPower().getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE);
 
 		long essCapacityWs = essCapacity * 3600;
-		long physicalSocWs = physicalSoc / 100 * essCapacityWs;
+		long physicalSocWs = Math.round((physicalSoc / 100.0) * essCapacityWs);
 
 		// primary use case (puc) calculation
 		long pucSocWs = physicalSocWs - this.levlSocWs;
 		this.pucBatteryPower = calculatePucBatteryPower(cycleTimeS, gridPower, essPower,
 				essCapacityWs, pucSocWs, minEssPower, maxEssPower);
-		int pucGridPower = gridPower - essPower + this.pucBatteryPower;
+		int pucGridPower = gridPower + essPower - this.pucBatteryPower;
 		long nextPucSocWs = pucSocWs + Math.round(this.pucBatteryPower * cycleTimeS);
 
 		// levl calculation
@@ -181,7 +185,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	 * @param maxEssPower
 	 * @return
 	 */
-	private int calculatePucBatteryPower(double cycleTimeS, int gridPower, int essPower,
+	protected int calculatePucBatteryPower(double cycleTimeS, int gridPower, int essPower,
 			long essCapacityWs, long pucSocWs, int minEssPower, int maxEssPower) {
 		// calculate pucPower without any limits
 		int pucBatteryPower = gridPower + essPower;
@@ -204,7 +208,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	 * @param pucPower
 	 * @return the restricted pucPower
 	 */
-	private int applyPucSocBounds(double cycleTimeS, long essCapacityWs, long pucSocWs, int pucPower) {
+	protected int applyPucSocBounds(double cycleTimeS, long essCapacityWs, long pucSocWs, int pucPower) {
 		long dischargeEnergyLowerBoundWs = pucSocWs - essCapacityWs;
 		long dischargeEnergyUpperBoundWs = pucSocWs;
 
@@ -228,7 +232,40 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		return (int) levlPower;
 	}
 
-	private long applyInfluenceSellToGridConstraint(long levlPower, int pucGridPower) {
+	protected long applyBatteryPowerLimitsToLevlPower(long levlPower, int pucBatteryPower, int minEssPower,
+			int maxEssPower) {
+		int levlPowerLowerBound = minEssPower - pucBatteryPower;
+		int levlPowerUpperBound = maxEssPower - pucBatteryPower;
+		return Math.max(Math.min(levlPower, levlPowerUpperBound), levlPowerLowerBound);
+	}
+
+	protected long applySocBoundariesToLevlPower(long levlPower, long nextPucSocWs, long essCapacityWs,
+			double cycleTimeS) {
+		long levlSocLowerBoundWs = Math.round(this.currentRequest.socLowerBoundPercent / 100.0 * essCapacityWs) - nextPucSocWs;
+		long levlSocUpperBoundWs = Math.round(this.currentRequest.socUpperBoundPercent / 100.0 * essCapacityWs) - nextPucSocWs;
+		if (levlSocLowerBoundWs > 0)
+			levlSocLowerBoundWs = 0;
+		if (levlSocUpperBoundWs < 0)
+			levlSocUpperBoundWs = 0;
+
+		long levlDischargeEnergyLowerBoundWs = -(levlSocUpperBoundWs - this.levlSocWs);
+		long levlDischargeEnergyUpperBoundWs = -(levlSocLowerBoundWs - this.levlSocWs);
+
+		long levlPowerLowerBound = Efficiency.unapply(Math.round(levlDischargeEnergyLowerBoundWs / cycleTimeS),
+				this.currentRequest.efficiencyPercent);
+		long levlPowerUpperBound = Efficiency.unapply(Math.round(levlDischargeEnergyUpperBoundWs / cycleTimeS),
+				this.currentRequest.efficiencyPercent);
+
+		return Math.max(Math.min(levlPower, levlPowerUpperBound), levlPowerLowerBound);
+	}
+
+	protected long applyGridPowerLimitsToLevlPower(long levlPower, int pucGridPower) {
+		long levlPowerLowerBound = -(this.currentRequest.buyFromGridLimitW - pucGridPower);
+		long levlPowerUpperBound = -(this.currentRequest.sellToGridLimitW - pucGridPower);
+		return Math.max(Math.min(levlPower, levlPowerUpperBound), levlPowerLowerBound);
+	}
+
+	public long applyInfluenceSellToGridConstraint(long levlPower, int pucGridPower) {
 		if (!this.currentRequest.influenceSellToGrid) {
 			if (pucGridPower < 0) {
 				// if primary use case sells to grid, levl isn't allowed to do anything
@@ -240,40 +277,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		}
 		return levlPower;
 	}
-
-	private long applyBatteryPowerLimitsToLevlPower(long levlPower, int pucBatteryPower, int minEssPower,
-			int maxEssPower) {
-		int levlPowerLowerBound = minEssPower - pucBatteryPower;
-		int levlPowerUpperBound = maxEssPower - pucBatteryPower;
-		return Math.max(Math.min(levlPower, levlPowerUpperBound), levlPowerLowerBound);
-	}
-
-	private long applySocBoundariesToLevlPower(long levlPower, long nextPucSocWs, long essCapacityWs,
-			double cycleTimeS) {
-		long levlSocLowerBoundWs = this.currentRequest.socLowerBoundPercent / 100 * essCapacityWs - nextPucSocWs;
-		long levlSocUpperBoundWs = this.currentRequest.socUpperBoundPercent / 100 * essCapacityWs - nextPucSocWs;
-		if (levlSocLowerBoundWs > 0)
-			levlSocLowerBoundWs = 0;
-		if (levlSocUpperBoundWs < 0)
-			levlSocUpperBoundWs = 0;
-
-		long levlDischargeEnergyLowerBoundWs = -(levlSocUpperBoundWs - this.levlSocWs);
-		long levlDischargeEnergyUpperBoundWs = -(levlSocLowerBoundWs - this.levlSocWs);
-
-		long levlPowerLowerBound = Efficiency.apply(Math.round(levlDischargeEnergyLowerBoundWs / cycleTimeS),
-				this.currentRequest.efficiencyPercent);
-		long levlPowerUpperBound = Efficiency.apply(Math.round(levlDischargeEnergyUpperBoundWs / cycleTimeS),
-				this.currentRequest.efficiencyPercent);
-
-		return Math.max(Math.min(levlPower, levlPowerUpperBound), levlPowerLowerBound);
-	}
-
-	private long applyGridPowerLimitsToLevlPower(long levlPower, int pucGridPower) {
-		long levlPowerLowerBound = -(this.currentRequest.buyFromGridLimitW - pucGridPower);
-		long levlPowerUpperBound = -(this.currentRequest.sellToGridLimitW - pucGridPower);
-		return Math.max(Math.min(levlPower, levlPowerUpperBound), levlPowerLowerBound);
-	}
-
+	
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
 		builder.handleRequest(METHOD, call -> {
@@ -303,17 +307,13 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS -> {
-			// test cases:
-			// - currentRequest: aktiv; nextRequest: nicht aktiv
-			// - currentRequest: aktiv; nextRequest: null
-			// ...
 			if (isActive(this.nextRequest)) {
 				if (this.currentRequest != null) {
 					this.finishRequest();
 				}
 				this.currentRequest = this.nextRequest;
 				this.nextRequest = null;
-			} else if (!isActive(this.currentRequest)) {
+			} else if (currentRequest != null && !isActive(this.currentRequest)) {
 				this.finishRequest();
 			}
 		}
@@ -322,11 +322,11 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 			if (this.ess.getActivePower().isDefined()) {
 				levlPower = this.ess.getActivePower().get() - this.pucBatteryPower;
 			}
-			long levlDischargeEnergyWs = levlPower * this.cycle.getCycleTime() / 1000;
+			long levlDischargeEnergyWs = Math.round(levlPower * this.cycle.getCycleTime() / 1000.0);
 			this.realizedEnergyGridWs += levlDischargeEnergyWs;
-			this.realizedEnergyBatteryWs += Efficiency.apply(realizedEnergyGridWs,
+			this.realizedEnergyBatteryWs += Efficiency.apply(levlDischargeEnergyWs,
 					this.currentRequest.efficiencyPercent);
-			this.levlSocWs -= Efficiency.apply(realizedEnergyGridWs, this.currentRequest.efficiencyPercent);
+			this.levlSocWs -= Efficiency.apply(levlDischargeEnergyWs, this.currentRequest.efficiencyPercent);
 		}
 		}
 	}
