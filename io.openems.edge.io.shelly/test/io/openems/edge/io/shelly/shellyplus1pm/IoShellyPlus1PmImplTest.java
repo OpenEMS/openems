@@ -1,13 +1,19 @@
 package io.openems.edge.io.shelly.shellyplus1pm;
 
-import static io.openems.edge.meter.api.MeterType.CONSUMPTION_METERED;
+import static io.openems.common.types.MeterType.CONSUMPTION_METERED;
+import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
+import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER;
+import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER_L1;
+import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER_L2;
+import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
+import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.CURRENT;
+import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.VOLTAGE;
 import static io.openems.edge.meter.api.SinglePhase.L1;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
@@ -16,17 +22,6 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class IoShellyPlus1PmImplTest {
-
-	private static final String COMPONENT_ID = "io0";
-
-	private static final ChannelAddress ACTIVE_POWER = new ChannelAddress(COMPONENT_ID, "ActivePower");
-	private static final ChannelAddress ACTIVE_POWER_L1 = new ChannelAddress(COMPONENT_ID, "ActivePowerL1");
-	private static final ChannelAddress ACTIVE_POWER_L2 = new ChannelAddress(COMPONENT_ID, "ActivePowerL2");
-	private static final ChannelAddress CURRENT = new ChannelAddress(COMPONENT_ID, "Current");
-	private static final ChannelAddress VOLTAGE = new ChannelAddress(COMPONENT_ID, "Voltage");
-	private static final ChannelAddress PRODUCTION_ENERGY = new ChannelAddress(COMPONENT_ID, "ActiveProductionEnergy");
-	private static final ChannelAddress CONSUMPTION_ENERGY = new ChannelAddress(COMPONENT_ID,
-			"ActiveConsumptionEnergy");
 
 	@Test
 	public void test() throws Exception {
@@ -37,7 +32,7 @@ public class IoShellyPlus1PmImplTest {
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("io0") //
 						.setIp("127.0.0.1") //
 						.setType(CONSUMPTION_METERED) //
 						.setPhase(L1) //
@@ -122,7 +117,6 @@ public class IoShellyPlus1PmImplTest {
 
 				.next(new TestCase("Invalid read response") //
 						.onBeforeControllersCallbacks(() -> assertEquals("Off|123 W", sut.debugLog()))
-
 						.onBeforeControllersCallbacks(() -> {
 							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());
 							httpTestBundle.triggerNextCycle();
@@ -133,24 +127,19 @@ public class IoShellyPlus1PmImplTest {
 						.output(CURRENT, null) //
 						.output(VOLTAGE, null) //
 
-						.output(PRODUCTION_ENERGY, 0L) //
-						.output(CONSUMPTION_ENERGY, 0L)) //
+						.output(ACTIVE_PRODUCTION_ENERGY, 0L) //
+						.output(ACTIVE_CONSUMPTION_ENERGY, 0L)) //
 
 				.next(new TestCase("Write") //
 						.onBeforeControllersCallbacks(() -> assertEquals("Unknown|UNDEFINED", sut.debugLog()))
-						.onBeforeControllersCallbacks(() -> {
-							sut.setRelay(true);
-						}) //
+						.onBeforeControllersCallbacks(() -> sut.setRelay(true)) //
 						.also(testCase -> {
 							final var relayTurnedOn = httpTestBundle.expect("http://127.0.0.1/relay/0?turn=on")
 									.toBeCalled();
 
-							testCase.onBeforeControllersCallbacks(() -> {
-								httpTestBundle.triggerNextCycle();
-							});
-							testCase.onAfterWriteCallbacks(() -> {
-								assertTrue("Failed to turn on relay", relayTurnedOn.get());
-							});
+							testCase.onBeforeControllersCallbacks(() -> httpTestBundle.triggerNextCycle());
+							testCase.onAfterWriteCallbacks(
+									() -> assertTrue("Failed to turn on relay", relayTurnedOn.get()));
 						})) //
 
 				.deactivate();

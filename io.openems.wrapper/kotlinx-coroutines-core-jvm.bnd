@@ -2,10 +2,10 @@ Bundle-Name: kotlinx-coroutines-core-jvm
 Bundle-Description: The Java InfluxDB 2.0 Client Core
 Bundle-DocURL: https://github.com/influxdata/influxdb-client-client
 Bundle-License: https://opensource.org/licenses/MIT
-Bundle-Version: 1.8.1
+Bundle-Version: 1.9.0
 
 Include-Resource: \
-	@kotlinx-coroutines-core-jvm-1.8.1.jar,\
+	@kotlinx-coroutines-core-jvm-1.9.0.jar,\
 
 Export-Package: \
 	kotlinx.coroutines,\

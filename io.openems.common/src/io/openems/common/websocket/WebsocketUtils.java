@@ -53,11 +53,11 @@ public class WebsocketUtils {
 	}
 
 	/**
-	 * Gets the toString() content of the WsData attachment of the WebSocket; or
+	 * Gets the toLogString() content of the WsData attachment of the WebSocket; or
 	 * empty string if not available.
 	 *
 	 * @param ws the WebSocket
-	 * @return the {@link WsData#toString()} content
+	 * @return the {@link WsData#toLogString()} content
 	 */
 	public static String generateWsDataString(WebSocket ws) {
 		if (ws == null) {
@@ -67,6 +67,10 @@ public class WebsocketUtils {
 		if (wsData == null) {
 			return "";
 		}
-		return wsData.toString();
+		var logString = wsData.toLogString();
+		if (logString == null) {
+			return "";
+		}
+		return logString;
 	}
 }

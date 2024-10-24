@@ -8,10 +8,11 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1;
+import io.openems.edge.energy.api.EnergySchedulable;
 
-public interface TimeOfUseTariffController extends Controller, OpenemsComponent {
-
-	public static final int PERIODS_PER_HOUR = 4;
+@SuppressWarnings("deprecation")
+public interface TimeOfUseTariffController extends Controller, EnergySchedulable, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
@@ -51,6 +52,14 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 			return this.doc;
 		}
 	}
+
+	/**
+	 * Get the {@link EnergyScheduleHandlerV1}.
+	 * 
+	 * @return {@link EnergyScheduleHandlerV1}
+	 */
+	@Deprecated
+	public EnergyScheduleHandlerV1 getEnergyScheduleHandlerV1();
 
 	/**
 	 * Gets the Channel for {@link ChannelId#QUARTERLY_PRICES}.

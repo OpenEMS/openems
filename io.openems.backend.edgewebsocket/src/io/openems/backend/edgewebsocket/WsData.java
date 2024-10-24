@@ -76,10 +76,11 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	@Override
-	public String toString() {
-		return "EdgeWebsocket.WsData [" //
-				+ "edgeId=" + this.edgeId.orElse("UNKNOWN") //
-				+ "]";
+	protected String toLogString() {
+		return new StringBuilder("EdgeWebsocket.WsData [edgeId=") //
+				.append(this.edgeId.orElse("UNKNOWN")) //
+				.append("]") //
+				.toString();
 	}
 
 }

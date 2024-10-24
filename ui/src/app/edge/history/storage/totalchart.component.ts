@@ -1,4 +1,5 @@
 // @ts-strict-ignore
+import { formatNumber } from "@angular/common";
 import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -7,7 +8,6 @@ import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { ChartAxis, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 
-import { formatNumber } from "@angular/common";
 import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({

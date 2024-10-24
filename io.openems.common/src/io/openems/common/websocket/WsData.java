@@ -21,14 +21,14 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
  * Objects of this class are used to store additional data with websocket
  * connections of WebSocketClient and WebSocketServer.
  */
-public abstract class WsData {
+public class WsData {
 
 	/**
 	 * Holds the WebSocket.
 	 */
 	private final WebSocket websocket;
 
-	protected WsData(WebSocket ws) {
+	public WsData(WebSocket ws) {
 		this.websocket = ws;
 	}
 
@@ -138,10 +138,11 @@ public abstract class WsData {
 	}
 
 	/**
-	 * Provides a specific toString method.
+	 * Provides a specific log string.
 	 *
 	 * @return a specific string for this instance
 	 */
-	@Override
-	public abstract String toString();
+	protected String toLogString() {
+		return "";
+	}
 }

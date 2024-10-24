@@ -3,7 +3,7 @@ package io.openems.edge.meter.janitza.umg96rme;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.meter.api.MeterType;
+import io.openems.common.types.MeterType;
 
 @ObjectClassDefinition(//
 		name = "Meter Janitza UMG 96RM-E", //

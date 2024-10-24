@@ -1,15 +1,16 @@
 // @ts-strict-ignore
-import { ChartComponentLike, ChartDataset } from "chart.js";
-
 import { formatNumber } from "@angular/common";
 import { TranslateService } from "@ngx-translate/core";
+import { ChartComponentLike, ChartDataset } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import { RGBColor } from "../../service/defaulttypes";
 import { HistoryUtils, Utils } from "../../service/utils";
+import { Language } from "../../type/language";
 import { ArrayUtils } from "../../utils/array/array.utils";
 import { AbstractHistoryChart } from "./abstracthistorychart";
 
 export class ChartConstants {
-  public static readonly NUMBER_OF_Y_AXIS_TICKS: number = 6;
+  public static readonly NUMBER_OF_Y_AXIS_TICKS: number = 7;
   public static readonly EMPTY_DATASETS: ChartDataset[] = [];
   public static readonly REQUEST_TIMEOUT = 500;
 
@@ -41,7 +42,8 @@ export class ChartConstants {
     public static readonly BAR_CHART_DATALABELS = (unit: string, disable: boolean): any => ({
       ...ChartDataLabels,
       formatter: (value, ctx) => {
-        return formatNumber(value, "de", "1.0-0") + "\xa0" + unit ?? null;
+        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+        return formatNumber(value, locale, "1.0-0") + "\xa0" + unit;
       },
       ...{
         anchor: "end", offset: -18, align: "start", clip: false, clamp: true,
@@ -49,6 +51,14 @@ export class ChartConstants {
       plugin: ChartDataLabels,
       display: disable,
     });
+  };
+
+  public static Colors = class {
+    public static RED: string = new RGBColor(200, 0, 0).toString();
+  };
+
+  public static readonly NumberFormat = class {
+    public static NO_DECIMALS: string = "1.0-0";
   };
 
   /**
@@ -62,25 +72,36 @@ export class ChartConstants {
    */
   public static DEFAULT_Y_SCALE_OPTIONS = (element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", datasets: ChartDataset[], showYAxisTitle?: boolean) => {
     const beginAtZero: boolean = ChartConstants.isDataSeriesPositive(datasets);
+    const scaleOptions: ReturnType<typeof this.getScaleOptions> = this.getScaleOptions(datasets, element, chartType);
 
     return {
       title: {
         text: element.customTitle ?? AbstractHistoryChart.getYAxisType(element.unit, translate, chartType),
-        display: showYAxisTitle,
+        display: false,
         padding: 5,
         font: {
           size: 11,
         },
       },
+      stacked: chartType === "line" ? false : true,
       beginAtZero: beginAtZero,
       position: element.position,
       grid: {
         display: element.displayGrid ?? true,
       },
+      ...(scaleOptions?.min !== null && { min: scaleOptions.min }),
+      ...(scaleOptions?.max !== null && { max: scaleOptions.max }),
       ticks: {
         color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-text"),
         padding: 5,
         maxTicksLimit: ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
+        ...(scaleOptions?.stepSize && { stepSize: scaleOptions.stepSize }),
+        callback: function (value, index, ticks) {
+          if (index == (ticks.length - 1) && showYAxisTitle) {
+            return element.customTitle ?? AbstractHistoryChart.getYAxisType(element.unit, translate, chartType);
+          }
+          return value;
+        },
       },
     };
   };
@@ -92,10 +113,35 @@ export class ChartConstants {
    * @param yAxis the yAxis
    * @returns min, max and stepsize for datasets belonging to this yAxis
    */
-  public static getScaleOptions(datasets: ChartDataset[], yAxis: HistoryUtils.yAxes): { min: number; max: number; stepSize: number; } | null {
+  public static getScaleOptions(datasets: ChartDataset[], yAxis: HistoryUtils.yAxes, chartType: "line" | "bar"): { min: number; max: number; stepSize: number; } | null {
 
-    return datasets?.filter(el => el["yAxisID"] === yAxis.yAxisId)
-      .reduce((arr, dataset) => {
+    const stackMap: { [index: string]: ChartDataset } = {};
+    datasets?.filter(el => el["yAxisID"] === yAxis.yAxisId).forEach((dataset, index) => {
+      const stackId = dataset.stack || "default"; // If no stack is defined, use "default"
+
+      if (dataset.hidden) {
+        return;
+      }
+
+      if (chartType === "line") {
+        stackMap[index] = dataset;
+        return;
+      }
+
+      if (!(stackId in stackMap)) {
+        // If the stack doesn"t exist yet, create an entry
+        stackMap[stackId] = { ...dataset, data: [...dataset.data] };
+      } else {
+        // If the stack already exists, merge the data arrays
+        stackMap[stackId].data = stackMap[stackId].data.map((value, index) => {
+          return Utils.addSafely(value as number, (dataset.data[index] as number || 0)); // Sum data points or handle missing values
+        });
+      }
+    });
+
+    return Object.values(stackMap)
+      .reduce((arr: { min: number, max: number, stepSize: number }, dataset: ChartDataset) => {
+
         const min = Math.floor(Math.min(arr.min, ArrayUtils.findSmallestNumber(dataset.data as number[]))) ?? null;
         const max = Math.ceil(Math.max(arr.max, ArrayUtils.findBiggestNumber(dataset.data as number[]))) ?? null;
 
@@ -106,7 +152,7 @@ export class ChartConstants {
         arr = {
           min: min,
           max: max,
-          stepSize: Math.max(arr.stepSize, ChartConstants.calculateStepSize(min, max)),
+          stepSize: Math.max(arr?.stepSize ?? 0, ChartConstants.calculateStepSize(min, max)),
         };
 
         return arr;

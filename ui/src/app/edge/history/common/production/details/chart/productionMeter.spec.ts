@@ -52,13 +52,6 @@ describe("History Production Details - productionMeters", () => {
 });
 
 export function expectView(config: EdgeConfig, testContext: TestContext & { route: ActivatedRoute }, chartType: "line" | "bar", channels: OeTester.Types.Channels, view: OeChartTester.View): void {
-    sessionStorage.setItem("mapping to int", JSON.stringify(History.MONTH.energyPerPeriodChannelWithValues.result.data["meter0/ActiveProductionEnergy"].map(el => el != null ? Math.round(el) : null)));
-    sessionStorage.setItem("phase", JSON.stringify(OeChartTester
-        .apply(ProductionMeterChartDetailsComponent
-            .getChartData(
-                DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config), testContext.route,
-                testContext.translate), chartType, channels, testContext, config)));
-
     expect(removeFunctions(OeChartTester
         .apply(ProductionMeterChartDetailsComponent
             .getChartData(

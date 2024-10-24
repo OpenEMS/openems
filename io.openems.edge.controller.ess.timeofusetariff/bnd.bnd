@@ -3,6 +3,8 @@ Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
+# TODO remove emergencycapacityreserve and limittotaldischarge after v1
+
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
@@ -14,6 +16,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.ess.api,\
 	io.openems.edge.timedata.api,\
 	io.openems.edge.timeofusetariff.api,\
+	org.apache.commons.math3,\
 
 -testpath: \
 	${testpath},\
