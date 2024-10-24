@@ -10,7 +10,7 @@ import { calculateResolution } from "./shared";
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryWidget {
 
-    private activeQueryData: string;
+    private activeQueryData: string = "";
 
     //observable is used to fetch new widget data every 5 minutes
     // private refreshWidgetData = interval(600000);

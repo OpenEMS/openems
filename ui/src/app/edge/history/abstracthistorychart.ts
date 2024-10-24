@@ -57,6 +57,10 @@ export abstract class AbstractHistoryChart {
         borderColor: "rgba(128,128,0,1)",
     };
 
+
+    private activeQueryData: string = "";
+    private debounceTimeout: any | null = null;
+
     constructor(
         public readonly spinnerId: string,
         protected service: Service,
