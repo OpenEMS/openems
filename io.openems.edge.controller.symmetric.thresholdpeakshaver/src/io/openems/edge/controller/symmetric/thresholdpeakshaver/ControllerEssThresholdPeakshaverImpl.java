@@ -52,12 +52,17 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 
 	private Config config;
 
+	private int essCheckPowerHyteresesPercent = 20; // check if real ess power differs from target peakshaving power +
+													// hysteresis
+
 	private State state = State.UNDEFINED;
 	private PeakshavingState peakshavingState = PeakshavingState.UNDEFINED;
-	private static final int HYSTERESIS = 5; // seconds
+	private static final int HYSTERESIS_TIME = 5; // seconds
 	private Instant lastStateChangeTime = Instant.MIN;
 
 	private Instant peakshavingStartTime = Instant.MIN;
+
+	private int maxEssPower = 0;
 
 	public ControllerEssThresholdPeakshaverImpl() {
 		super(//
@@ -87,6 +92,9 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 		if (this.meter == null) {
 			this.logError(this.log, "Meter component is not available.");
 		}
+
+		this.maxEssPower = this.ess.getMaxApparentPower().get();
+
 	}
 
 	@Override
@@ -107,7 +115,7 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 
 		int calculatedPower;
 
-
+		Integer essRealPower = this.ess.getActivePower().get();
 
 		switch (this.state) {
 		case UNDEFINED:
@@ -137,6 +145,7 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 				// Remember: In peak shaving mode the battery can be charged
 				this.changeState(State.PEAKSHAVING_ACTIVE);
 			}
+			this.changePeakshavingState(PeakshavingState.DISABLED);			
 			break;
 		case PEAKSHAVING_ACTIVE:
 			if (this.checkEnvironment() == false) {
@@ -148,34 +157,59 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 				this.peakshavingStartTime = Instant.now(this.componentManager.getClock()); // Start timer
 			}
 
+			calculatedPower = gridPower -= this.config.peakShavingPower();
+
 			if (gridPower >= this.config.peakShavingPower()) {
 				/*
 				 * Peak-Shaving
 				 */
-				calculatedPower = gridPower -= this.config.peakShavingPower();
+
 				// if peakshaving is active, save "shaved" power
 				if (calculatedPower > 0) {
-					this._setPeakShavedGridPower(calculatedPower);
-				} 
-					
+					this._setPeakShavedGridPower(calculatedPower); // feed the channel
+				}
+
 				this.logDebug(this.log, "Peakshaver: Battery Discharging");
 
-				this.changePeakshavingState(PeakshavingState.ACTIVE);
+				if (essRealPower == 0 && calculatedPower > 0) { // assume ESS is 'empty'
+					this.changePeakshavingState(PeakshavingState.DISCHARGING_FAILS);
+					break;
+				}
+
+				if (calculatedPower > this.maxEssPower) {
+					this.changePeakshavingState(PeakshavingState.PEAKSHAVING_POWER_TOO_LOW); // target power is above
+																								// max. ESS power
+				} else {
+					if (calculatedPower > essRealPower * (1 + this.essCheckPowerHyteresesPercent / 100)) {
+						/*
+						 * target Power is more than 10% above current ess Power
+						 */
+						this.changePeakshavingState(PeakshavingState.PEAKSHAVING_TARGET_NOT_REACHED);
+					} else {
+						this.changePeakshavingState(PeakshavingState.ACTIVE); // 'normal' peak shaving state
+					}
+
+				}
 
 			} else if (gridPower <= this.config.rechargePower()) {
 				/*
 				 * Recharge
 				 */
-				calculatedPower = gridPower -= this.config.rechargePower();
-				this.logDebug(this.log, "Peakshaver: Battery Charging");
-				this.changePeakshavingState(PeakshavingState.CHARGING);
-				this._setPeakShavedGridPower(0);
+
+				this._setPeakShavedGridPower(0); // feed channel
+
+				if (calculatedPower < 0 && essRealPower == 0) {
+					this.changePeakshavingState(PeakshavingState.CHARGING_FINISHED); // Assume ESS is fully charged
+				} else {
+					this.logDebug(this.log, "Peakshaver: Battery Charging");
+					this.changePeakshavingState(PeakshavingState.CHARGING);
+				}
 
 			} else {
 				/*
 				 * Do nothing
 				 */
-				calculatedPower = 0;
+				calculatedPower = 0; // only 0 if gridPower is above limit or below recharge limit
 				this.changePeakshavingState(PeakshavingState.IDLE);
 				this._setPeakShavedGridPower(0);
 
@@ -188,6 +222,7 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 				// Peakshaving starts above threshold
 				// Remember: In peak shaving mode the battery can be charged
 				this.changeState(State.STANDBY);
+								
 			}
 			break;
 		default:
@@ -196,17 +231,17 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 
 		}
 		// save current state
-		
-		this.logDebug(this.log,
-				"\n PeakShaver Current State " + this.state.getName() +
+
+		this.logDebug(this.log, "\n PeakShaver Current State " + this.state.getName() + 
 				"\n PeakShaving State " + this.peakshavingState.getName() +
+				"\n max ESS power " + this.maxEssPower + "VA" +
 				"\n Current SoC " + this.ess.getSoc().get() + "%" +
-				"\n Current ESS ActivePower " + this.ess.getActivePower().get() + "W" +
-				"\n Grid power (without ESS) " + this.getGridPowerWithoutPeakShaving() + "W" +
+				"\n Current ESS ActivePower " + essRealPower + "W" + 
+				"\n Grid power (without ESS) " + this.getGridPowerWithoutPeakShaving() + "W" + 
 				"\n Balancing power " + this.getCalculatedPower() + "W" +
-				"\n Shaved power " + this.getPeakShavedGridPower() + "W" 
-		
-		);		
+				"\n Shaved power " + this.getPeakShavedGridPower() + "W"
+
+		);
 
 	}
 
@@ -276,7 +311,7 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 		if (Duration.between(//
 				this.lastStateChangeTime, //
 				Instant.now(this.componentManager.getClock()) //
-		).toSeconds() >= HYSTERESIS) {
+		).toSeconds() >= HYSTERESIS_TIME) {
 			this.state = nextState;
 			this.lastStateChangeTime = Instant.now(this.componentManager.getClock());
 			this._setStateMachine(this.state); // save to channel

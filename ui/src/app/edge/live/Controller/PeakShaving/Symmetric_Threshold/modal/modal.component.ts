@@ -105,20 +105,28 @@ export class Controller_Symmetric_Threshold_PeakShavingModalComponent implements
     getBackgroundClass(state: string): string {
 
         switch (state) {
-            case 'UNDEFINED':
+            case "UNDEFINED":
                 return "danger"; // Neutral or undefined state
-            case 'IDLE':
+            case "IDLE":
                 return "success"; // Green for idle or ready
-            case 'ERROR':
+            case "ERROR":
                 return "danger"; // Red for errors
-            case 'DISABLED':
+            case "DISABLED":
                 return "medium"; // Grey for disabled
-            case 'ACTIVE':
+            case "ACTIVE":
                 return "warning"; // Blue for active state
-            case 'CHARGING':
+            case "CHARGING":
                 return "warning"; // Orange for charging
-            case 'HYSTERESIS_ACTIVE':
+            case "HYSTERESIS_ACTIVE":
                 return "tertiary"; // Different color for hysteresis active
+            case "CHARGING_FINISHED":
+                return "success"; // Green to indicate charging is complete
+            case "DISCHARGING_FAILS":
+                return "danger"; // Red for discharging failure
+            case "PEAKSHAVING_POWER_TOO_LOW":
+                return "danger"; // Red to indicate a critical power issue
+            case "PEAKSHAVING_TARGET_NOT_REACHED":
+                return "warning"; // Yellow/orange to indicate a warning but not failure
             default:
                 return "default"; // Optional fallback if state doesn't match
         }
