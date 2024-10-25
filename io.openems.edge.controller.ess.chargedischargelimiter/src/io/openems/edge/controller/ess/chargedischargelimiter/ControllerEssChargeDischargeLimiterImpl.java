@@ -422,8 +422,10 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		if (this.ess instanceof HybridEss hss) {
 			// Ess Active Charge Energy directly from ESS (cumulative)
 			currentEssActiveChargeEnergy = hss.getDcChargeEnergy().get();
+			this.logDebug(this.log, "Instance of Hybrid ESS. Using charged DC energy");
 		} else {
 			currentEssActiveChargeEnergy = this.ess.getActiveChargeEnergy().get(); // Cumulative ESS charge energy
+			this.logDebug(this.log, "Instance of symmetric ESS. Using charged AC energy");
 		}
 
 		// Ess Active Charge Energy directly from ESS (cumulative)
