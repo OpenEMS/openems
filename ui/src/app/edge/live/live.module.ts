@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { NgxMasonryModule } from 'ngx-masonry';
+import { NgxMasonryModule } from "ngx-masonry";
 import { EdgeOfflineModule } from "src/app/shared/components/edge/offline/offline.module";
 import { SharedModule } from "./../../shared/shared.module";
 import { Common_Autarchy } from "./common/autarchy/Common_Autarchy";

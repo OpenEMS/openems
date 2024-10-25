@@ -12,20 +12,20 @@ import { Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket, Widgets } 
 })
 export class LiveComponent implements OnInit, OnDestroy {
 
+  @ViewChild(NgxMasonryComponent)
+  private masonry: NgxMasonryComponent;
+
   public edge: Edge | null = null;
   public config: EdgeConfig | null = null;
   public widgets: Widgets | null = null;
   protected isModbusTcpWidgetAllowed: boolean = false;
-  private stopOnDestroy: Subject<void> = new Subject<void>();
-
-  @ViewChild(NgxMasonryComponent) masonry: NgxMasonryComponent;
-
   protected masonryOptions = {
     itemSelector: ".masonry-item",
     columnWidth: ".masonry-sizer",
     gutter: 0,
     fitWidth: false,
   };
+  private stopOnDestroy: Subject<void> = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -57,5 +57,5 @@ export class LiveComponent implements OnInit, OnDestroy {
 
   protected handleRefresh: (ev: RefresherCustomEvent) => void = (ev: RefresherCustomEvent) => {
     this.dataService.refresh(ev);
-  }
+  };
 }
