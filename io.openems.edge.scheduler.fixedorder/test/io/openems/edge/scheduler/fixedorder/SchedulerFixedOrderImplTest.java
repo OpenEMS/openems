@@ -2,7 +2,6 @@ package io.openems.edge.scheduler.fixedorder;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,7 +39,7 @@ public class SchedulerFixedOrderImplTest {
 
 		test.next(new TestCase()); //
 		assertEquals(//
-				Arrays.asList(CTRL3_ID, CTRL1_ID), //
+				List.of(CTRL3_ID, CTRL1_ID), //
 				getControllerIds(sut));
 
 	}

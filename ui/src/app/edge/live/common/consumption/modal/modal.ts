@@ -16,8 +16,11 @@ export class ModalComponent extends AbstractFormlyComponent {
   public static generateView(config: EdgeConfig, translate: TranslateService): OeFormlyView {
 
     const evcss: EdgeConfig.Component[] | null = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
-      .filter(component => !(component.factoryId == "Evcs.Cluster.SelfConsumption") &&
-        !(component.factoryId == "Evcs.Cluster.PeakShaving") && !component.isEnabled == false);
+      .filter(component =>
+        !(component.factoryId == "Evcs.Cluster.SelfConsumption") &&
+        !(component.factoryId == "Evcs.Cluster.PeakShaving") &&
+        !(config.factories[component.factoryId].natureIds.includes("io.openems.edge.meter.api.ElectricityMeter")) &&
+        !component.isEnabled == false);
 
     const consumptionMeters: EdgeConfig.Component[] | null = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
       .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));

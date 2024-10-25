@@ -10,15 +10,13 @@ import io.openems.edge.evcs.test.DummyEvcsPower;
 
 public class SimulatorEvcsImplTest {
 
-	private static final String ESS_ID = "evcs0";
-
 	@Test
 	public void test() throws OpenemsException, Exception {
 		new ComponentTest(new SimulatorEvcsImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("evcsPower", new DummyEvcsPower()) //
 				.activate(MyConfig.create() //
-						.setId(ESS_ID) //
+						.setId("evcs0") //
 						.setMinHwPower(1000) //
 						.setMaxHwPower(10000) //
 						.build()) //

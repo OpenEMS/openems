@@ -16,9 +16,6 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class IoWagoImplTest {
 
-	private static final String IO_ID = "io0";
-	private static final String MODBUS_ID = "modbus0";
-
 	/**
 	 * This is an example "ea-config.xml" downloaded from a WAGO Fieldbus coupler.
 	 */
@@ -56,14 +53,14 @@ public class IoWagoImplTest {
 		var sut = new IoWagoImpl();
 		new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID).withIpAddress("127.0.0.1")) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0") //
+						.withIpAddress("127.0.0.1")) //
 				.activate(MyConfig.create() //
-						.setId(IO_ID) //
-						.setModbusId(MODBUS_ID) //
+						.setId("io0") //
+						.setModbusId("modbus0") //
 						.setUsername("foo") //
 						.setPassword("bar") //
-						.build()) //
-		;
+						.build());
 
 		InputStream dummyXml = new ByteArrayInputStream(EA_CONFIG.getBytes());
 		var doc = IoWagoImpl.parseXmlToDocument(dummyXml);

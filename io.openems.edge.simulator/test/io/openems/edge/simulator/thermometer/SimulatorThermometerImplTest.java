@@ -8,13 +8,11 @@ import io.openems.edge.common.test.ComponentTest;
 
 public class SimulatorThermometerImplTest {
 
-	private static final String COMPONENT_ID = "thermometer0";
-
 	@Test
 	public void test() throws OpenemsException, Exception {
 		new ComponentTest(new SimulatorThermometerImpl()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("thermometer0") //
 						.setTemperature(20) //
 						.build()) //
 				.next(new TestCase());

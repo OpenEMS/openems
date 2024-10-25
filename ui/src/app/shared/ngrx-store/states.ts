@@ -35,7 +35,7 @@ export class AppStateTracker {
         protected router: Router,
         protected pagination: Pagination,
         private websocket: Websocket,
-        private previousRouteService: PreviousRouteService,
+        private routeService: PreviousRouteService,
     ) {
         if (!localStorage.getItem("AppState")) {
             console.log(`${AppStateTracker.LOG_PREFIX} Log deactivated`);
@@ -55,15 +55,18 @@ export class AppStateTracker {
      * Handles navigation after authentication
      */
     public navigateAfterAuthentication() {
-        const segments = this.router.routerState.snapshot.url.split("/");
-        const previousUrl: string = this.previousRouteService.getPreviousUrl();
 
-        if ((previousUrl === segments[segments.length - 1]) || previousUrl === "/") {
-            this.router.navigate(["./overview"]);
-            return;
-        }
+        this.router.navigate(["overview"]);
+        return;
+        // const segments = this.router.routerState.snapshot.url.split("/");
+        // const previousUrl: string = this.routeService.getPreviousUrl();
 
-        this.router.navigate(previousUrl.split("/"));
+        // if ((previousUrl === segments[segments.length - 1]) || previousUrl === "/") {
+        //     this.router.navigate(["./overview"]);
+        //     return;
+        // }
+
+        // this.router.navigate(previousUrl.split("/"));
     }
 
     private startStateHandler(state: States): void {

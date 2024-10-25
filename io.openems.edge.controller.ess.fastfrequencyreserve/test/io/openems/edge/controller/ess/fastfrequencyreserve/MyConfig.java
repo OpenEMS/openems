@@ -2,9 +2,7 @@ package io.openems.edge.controller.ess.fastfrequencyreserve;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.controller.ess.fastfrequencyreserve.enums.ActivationTime;
 import io.openems.edge.controller.ess.fastfrequencyreserve.enums.ControlMode;
-import io.openems.edge.controller.ess.fastfrequencyreserve.enums.SupportDuration;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
