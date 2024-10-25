@@ -11,9 +11,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.osgi.service.event.Event;
 
+import com.google.gson.JsonObject;
+
 import io.openems.common.event.EventBuilderTest;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.base.AbstractJsonrpcRequestTest;
+import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
+import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.base.JsonrpcResponse;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.jsonapi.Call;
 import io.openems.edge.common.test.DummyCycle;
 import io.openems.edge.common.test.DummyEventAdmin;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
@@ -316,7 +325,7 @@ public class CalculateSocTest {
 				.withActivePower(-100);
 		this.underTest.cycle = new DummyCycle(1000);
 		LevlControlRequest currentRequest = new LevlControlRequest();
-		currentRequest.efficiencyPercent = 80;
+		currentRequest.efficiencyPercent = 80.0;
 		this.underTest.currentRequest = currentRequest;
 		this.underTest.pucBatteryPower = 10;
 		this.underTest.realizedEnergyGridWs = 20;
@@ -331,4 +340,32 @@ public class CalculateSocTest {
 		Assert.assertEquals(128, this.underTest.levlSocWs);
 	}
 
+	@Test
+	public void testHandleRequest() throws OpenemsNamedException {
+		JsonObject params = new JsonObject();
+        params.addProperty("levlRequestId", "id");
+        params.addProperty("levlRequestTimestamp", "2024-10-24T14:15:00Z");
+        params.addProperty("levlEnergyWs", 50000L);
+        params.addProperty("levlChargeDelaySec", 900); 
+        params.addProperty("levlChargeDurationSec", 900); 
+        params.addProperty("levlSocWh", 10000);
+        params.addProperty("levlSocLowerBoundPercent", 20);
+        params.addProperty("levlSocUpperBoundPercent", 80);
+        params.addProperty("sellToGridLimitW", 3000);
+        params.addProperty("buyFromGridLimitW", 4000);
+        params.addProperty("efficiencyPercent", 90);
+        params.addProperty("influenceSellToGrid", true);
+		JsonrpcRequest request = new GenericJsonrpcRequest("sendLevlControlRequest", params);
+		Call<JsonrpcRequest, JsonrpcResponse> call = new Call<JsonrpcRequest, JsonrpcResponse>(request);
+		
+		// 2024-10-24T14:00:00
+		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729778400), ZoneOffset.UTC);
+		LevlControlRequest.clock = clock;
+		LevlControlRequest expectedNextRequest = new LevlControlRequest(3000, 4000, "id", "2024-10-24T14:15:00Z", 50000L, LocalDateTime.of(2024, 10, 24, 14, 15, 0), LocalDateTime.of(2024, 10, 24, 14, 30, 0), 10000, 20, 80, 90, true);
+		
+		this.underTest.handleRequest(call);
+		
+		Assert.assertEquals(expectedNextRequest, this.underTest.nextRequest);
+		Assert.assertEquals(36000000, this.underTest.levlSocWs);
+	}
 }

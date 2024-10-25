@@ -22,11 +22,14 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.jsonapi.Call;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.controller.api.Controller;
@@ -281,12 +284,21 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
 		builder.handleRequest(METHOD, call -> {
-			var levlControlRequest = LevlControlRequest.from(call.getRequest());
-			this.nextRequest = levlControlRequest;
-			this.levlSocWs = levlControlRequest.levlSocWh * 3600 - this.realizedEnergyBatteryWs;
-			return JsonrpcResponseSuccess
-					.from(this.generateResponse(call.getRequest().getId(), levlControlRequest.getLevlRequestId()));
+			return handleRequest(call);
 		});
+	}
+
+	/**
+	 * @param call
+	 * @return
+	 * @throws OpenemsNamedException
+	 */
+	protected JsonrpcResponse handleRequest(Call<JsonrpcRequest, JsonrpcResponse> call) throws OpenemsNamedException {
+		var levlControlRequest = LevlControlRequest.from(call.getRequest());
+		this.nextRequest = levlControlRequest;
+		this.levlSocWs = levlControlRequest.levlSocWh * 3600 - this.realizedEnergyBatteryWs;
+		return JsonrpcResponseSuccess
+				.from(this.generateResponse(call.getRequest().getId(), levlControlRequest.levlRequestId));
 	}
 
 	private JsonObject generateResponse(UUID requestId, String levlRequestId) {
@@ -300,7 +312,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 
 	private static boolean isActive(LevlControlRequest request) {
 		LocalDateTime now = LocalDateTime.now(clock);
-		return !(request == null || now.isBefore(request.getStart()) || now.isAfter(request.getDeadline()));
+		return !(request == null || now.isBefore(request.start) || now.isAfter(request.deadline));
 	}
 
 	@Override
@@ -334,7 +346,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	private void finishRequest() {
 		// Channel realizedEnergy und requestTimestamp schreiben
 		this._setRealizedPowerW(this.realizedEnergyGridWs);
-		this._setLastControlRequestTimestamp(this.currentRequest.getTimestamp());
+		this._setLastControlRequestTimestamp(this.currentRequest.timestamp);
 		this.realizedEnergyGridWs = 0;
 		this.realizedEnergyBatteryWs = 0;
 		this.currentRequest = null;

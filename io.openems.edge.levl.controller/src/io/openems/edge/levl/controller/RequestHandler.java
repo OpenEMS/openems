@@ -23,7 +23,7 @@ public class RequestHandler {
 		var levlControlRequest = LevlControlRequest.from(request);
 		this.requests.add(levlControlRequest);
 		return JsonrpcResponseSuccess
-				.from(this.generateResponse(request.getId(), levlControlRequest.getLevlRequestId()));
+				.from(this.generateResponse(request.getId(), levlControlRequest.levlRequestId));
 	}
 
 	private JsonObject generateResponse(UUID requestId, String levlRequestId) {
