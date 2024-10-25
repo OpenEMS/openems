@@ -192,6 +192,7 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.rabotcharge',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.swisspower',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
+	bnd.identity;id='io.openems.edge.levl.controller',\
 
 -runbundles: \
 	Java-WebSocket;version='[1.5.4,1.5.5)',\
@@ -433,4 +434,6 @@
 	org.owasp.encoder;version='[1.3.1,1.3.2)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
 	rrd4j;version='[3.9.0,3.9.1)',\
-	stax2-api;version='[4.2.2,4.2.3)'
+	stax2-api;version='[4.2.2,4.2.3)',\
+	io.openems.edge.levl.controller;version=snapshot
+		
