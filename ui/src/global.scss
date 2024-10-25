@@ -417,25 +417,22 @@ ion-modal.full-width {
     border: 2px solid $primary-color;
 }
 
-.masonry-sizer {
-    width: 50%;
-}
-
 .masonry-grid {
-    display: block;
-    margin: 0 auto;
-    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-flow: dense;
+    grid-gap: 0;
 }
 
-.masonry-item {
-    width: 50%;
+.masonry-grid .masonry__item {
+    width: 100%;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
 @media (max-width: 992px) {
-    .masonry-item {
-        width: 100%;
+    .masonry-grid {
+        grid-template-columns: repeat(1, 1fr);
     }
 }
