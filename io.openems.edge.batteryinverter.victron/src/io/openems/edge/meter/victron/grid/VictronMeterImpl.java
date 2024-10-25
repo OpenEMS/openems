@@ -34,7 +34,7 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
+import io.openems.common.types.MeterType;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//

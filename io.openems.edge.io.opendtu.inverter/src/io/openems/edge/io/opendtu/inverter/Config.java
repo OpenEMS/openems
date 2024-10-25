@@ -3,7 +3,7 @@ package io.openems.edge.io.opendtu.inverter;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-import io.openems.edge.meter.api.MeterType;
+import io.openems.common.types.MeterType;
 
 @ObjectClassDefinition(name = "Hoymiles Inverter", description = "Configures Hoymiles Inverter via openDTU. If relative and absolute limits are -1 no limits are set via OpenEMS")
 @interface Config {
