@@ -26,7 +26,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
@@ -91,8 +91,6 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			target = "(enabled=true)")
 	private List<ControllerEssThresholdPeakshaver> ctrlEssThresholdPeakshavers = new CopyOnWriteArrayList<>();
 
-	private boolean hybridEss;
-
 	public ControllerEssChargeDischargeLimiterImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -121,11 +119,6 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
-
-		if (this.ess != null) {
-			this.isHybridEss(); // Check if controller´s connected to a hybrid system
-		}
-
 	}
 
 	@Override
@@ -416,37 +409,6 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		}
 	}
 
-	private void isHybridEss() {
-		try {
-			// Komponente basierend auf der ess_id abrufen
-			var component = this.componentManager.getComponent(config.ess_id().toString());
-
-			// Über die Vererbungskette iterieren, um zu prüfen, ob die Komponente
-			// ess.api.HybridEss implementiert
-			Class<?> clazz = component.getClass();
-			while (clazz != null) {
-				// Alle Interfaces der aktuellen Klasse durchsuchen
-				for (Class<?> iface : clazz.getInterfaces()) {
-					// Überprüfen, ob eines der Interfaces ess.api.HybridEss ist
-					if (iface.getName().equals("ess.api.HybridEss")) {
-						this.hybridEss = true;
-					}
-				}
-				// Zur Superklasse wechseln und weiter prüfen
-				clazz = clazz.getSuperclass();
-			}
-
-		} catch (OpenemsNamedException e) {
-			// Fehlerbehandlung: wenn die Komponente nicht gefunden wird oder eine Ausnahme
-			// auftritt
-			e.printStackTrace();
-		}
-
-		// Wenn die Schnittstelle nicht gefunden wurde, handelt es sich nicht um ein
-		// Hybrid ESS
-
-	}
-
 	/**
 	 * Positive values (discharging) are ignored.
 	 *
@@ -454,10 +416,17 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	 * @return whether the state was changed
 	 */
 	private void calculateChargedEnergy() {
+
+		Long currentEssActiveChargeEnergy = 0L;
 		// We have to check if there is an DC charge energy channel (hybrid ESS)
+		if (this.ess instanceof HybridEss hss) {
+			// Ess Active Charge Energy directly from ESS (cumulative)
+			currentEssActiveChargeEnergy = hss.getDcChargeEnergy().get();
+		} else {
+			currentEssActiveChargeEnergy = this.ess.getActiveChargeEnergy().get(); // Cumulative ESS charge energy
+		}
 
 		// Ess Active Charge Energy directly from ESS (cumulative)
-		Long currentEssActiveChargeEnergy = this.ess.getActiveChargeEnergy().get(); // Cumulative ESS charge energy
 		Integer storedChargedEnergy = this.getChargedEnergy().get(); // Stored charged energy from this controller's
 																		// channel
 
