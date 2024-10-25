@@ -10,8 +10,8 @@ import static io.openems.edge.energy.v1.optimizer.SimulatorV1Test.hourlyToQuarte
 import static io.openems.edge.energy.v1.optimizer.TestDataV1.CONSUMPTION_888_20231106;
 import static io.openems.edge.energy.v1.optimizer.TestDataV1.PRICES_888_20231106;
 import static io.openems.edge.energy.v1.optimizer.TestDataV1.PRODUCTION_888_20231106;
-import static io.openems.edge.energy.v1.optimizer.UtilsV1Test.prepareExistingSchedule;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.interpolateDoubleArray;
+import static io.openems.edge.energy.v1.optimizer.UtilsV1Test.prepareExistingSchedule;
 import static java.util.Arrays.stream;
 import static org.junit.Assert.assertEquals;
 

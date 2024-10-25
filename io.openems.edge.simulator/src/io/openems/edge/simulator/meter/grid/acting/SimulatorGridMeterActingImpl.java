@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.MeterType;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -36,7 +37,6 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;

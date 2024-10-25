@@ -1,7 +1,7 @@
 package io.openems.edge.ess.samsung.gridmeter;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.meter.api.MeterType;
+import io.openems.common.types.MeterType;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

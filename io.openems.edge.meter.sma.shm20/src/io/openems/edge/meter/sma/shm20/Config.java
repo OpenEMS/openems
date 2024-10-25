@@ -3,7 +3,7 @@ package io.openems.edge.meter.sma.shm20;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.meter.api.MeterType;
+import io.openems.common.types.MeterType;
 
 @ObjectClassDefinition(name = "Meter SMA Sunny Home Manager 2.0", //
 		description = "Implements the SMA Sunny Home Manager 2.0 integrated meter.")

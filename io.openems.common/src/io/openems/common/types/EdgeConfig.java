@@ -1199,7 +1199,7 @@ public class EdgeConfig {
 		}
 
 		/**
-		 * Create a {@link ActualEdgeConfig.Builder} builder.
+		 * Create a ActualEdgeConfig builder.
 		 * 
 		 * @return a {@link Builder}
 		 */

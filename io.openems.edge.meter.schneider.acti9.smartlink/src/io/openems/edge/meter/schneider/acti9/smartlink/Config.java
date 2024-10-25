@@ -3,7 +3,7 @@ package io.openems.edge.meter.schneider.acti9.smartlink;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.meter.api.MeterType;
+import io.openems.common.types.MeterType;
 
 @ObjectClassDefinition(//
 		name = "Meter Schneider Acti9 Smartlink", //

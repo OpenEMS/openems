@@ -1,10 +1,10 @@
 package io.openems.edge.meter.test;
 
+import io.openems.common.types.MeterType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 
 public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyElectricityMeter<?>>
 		extends AbstractOpenemsComponent implements ElectricityMeter {

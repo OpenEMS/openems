@@ -3,7 +3,7 @@ package io.openems.edge.edge2edge.meter;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.meter.api.MeterType;
+import io.openems.common.types.MeterType;
 
 @ObjectClassDefinition(//
 		name = "Edge-2-Edge Meter", //

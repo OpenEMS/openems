@@ -18,13 +18,13 @@ import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.MeterType;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;

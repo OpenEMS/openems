@@ -3,7 +3,7 @@ package io.openems.edge.meter.artemes.am2;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.meter.api.MeterType;
+import io.openems.common.types.MeterType;
 
 @ObjectClassDefinition(name = "Meter Artemes AM-2", description = "Implements the Artemes AM-2 meter.")
 @interface Config {

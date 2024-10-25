@@ -1,12 +1,12 @@
 package io.openems.edge.meter.virtual.add;
 
+import static io.openems.common.types.MeterType.GRID;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER_L1;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER_L2;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER_L3;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.FREQUENCY;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.VOLTAGE;
-import static io.openems.edge.meter.api.MeterType.GRID;
 
 import org.junit.Test;
 

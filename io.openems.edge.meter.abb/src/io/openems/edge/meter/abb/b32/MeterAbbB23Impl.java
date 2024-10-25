@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.mbus.api.AbstractOpenemsMbusComponent;
 import io.openems.edge.bridge.mbus.api.BridgeMbus;
 import io.openems.edge.bridge.mbus.api.ChannelRecord;
@@ -19,7 +20,6 @@ import io.openems.edge.bridge.mbus.api.ChannelRecord.DataType;
 import io.openems.edge.bridge.mbus.api.MbusTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//

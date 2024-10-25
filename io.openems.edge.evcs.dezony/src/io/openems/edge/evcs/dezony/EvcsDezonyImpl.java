@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
@@ -99,6 +100,11 @@ public class EvcsDezonyImpl extends AbstractManagedEvcsComponent
 
 			break;
 		}
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.MANAGED_CONSUMPTION_METERED;
 	}
 
 	/**

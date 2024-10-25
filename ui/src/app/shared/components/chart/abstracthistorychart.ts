@@ -7,6 +7,7 @@ import * as Chart from "chart.js";
 import "chartjs-adapter-date-fns";
 import annotationPlugin from "chartjs-plugin-annotation";
 import { v4 as uuidv4 } from "uuid";
+
 import { ChronoUnit, DEFAULT_NUMBER_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS, Resolution, calculateResolution, isLabelVisible, setLabelVisible } from "src/app/edge/history/shared";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";

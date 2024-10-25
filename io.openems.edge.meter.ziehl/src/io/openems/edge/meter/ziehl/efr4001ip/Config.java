@@ -3,7 +3,7 @@ package io.openems.edge.meter.ziehl.efr4001ip;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.meter.api.MeterType;
+import io.openems.common.types.MeterType;
 
 @ObjectClassDefinition(//
 		name = "Meter Ziehl EFR4001IP", //

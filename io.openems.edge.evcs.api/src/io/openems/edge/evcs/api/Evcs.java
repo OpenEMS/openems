@@ -17,7 +17,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 
 public interface Evcs extends ElectricityMeter, OpenemsComponent {
 
@@ -238,11 +237,6 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		public Doc doc() {
 			return this.doc;
 		}
-	}
-
-	@Override
-	public default MeterType getMeterType() {
-		return MeterType.CONSUMPTION_METERED;
 	}
 
 	/**

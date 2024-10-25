@@ -2,10 +2,11 @@ package io.openems.edge.meter.bgetech;
 
 import org.junit.Test;
 
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.meter.api.MeterType;
 
 public class MeterBgeTechDrt428M2ImplTest {
 
@@ -22,6 +23,7 @@ public class MeterBgeTechDrt428M2ImplTest {
 						.setModbusId(MODBUS_ID) //
 						.setType(MeterType.GRID) //
 						.build()) //
-		;
+				.next(new TestCase()) //
+				.deactivate();
 	}
 }

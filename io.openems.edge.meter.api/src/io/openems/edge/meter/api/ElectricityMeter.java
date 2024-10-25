@@ -7,6 +7,7 @@ import org.osgi.annotation.versioning.ProviderType;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
+import io.openems.common.types.MeterType;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;

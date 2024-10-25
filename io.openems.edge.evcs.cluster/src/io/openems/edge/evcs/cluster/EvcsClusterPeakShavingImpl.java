@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -164,6 +165,11 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 			evcs._setMaximumPower(null);
 		}
 		super.deactivate();
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.MANAGED_CONSUMPTION_METERED;
 	}
 
 	/**
