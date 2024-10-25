@@ -294,11 +294,13 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	 * @throws OpenemsNamedException
 	 */
 	protected JsonrpcResponse handleRequest(Call<JsonrpcRequest, JsonrpcResponse> call) throws OpenemsNamedException {
-		var levlControlRequest = LevlControlRequest.from(call.getRequest());
-		this.nextRequest = levlControlRequest;
-		this.levlSocWs = levlControlRequest.levlSocWh * 3600 - this.realizedEnergyBatteryWs;
+		var request = LevlControlRequest.from(call.getRequest());
+		this.log.info("Received new levl request: {}", request);
+		this.nextRequest = request;
+		this.levlSocWs = request.levlSocWh * 3600 - this.realizedEnergyBatteryWs;
+		this.log.info("Updated levl soc: {}", this.levlSocWs);
 		return JsonrpcResponseSuccess
-				.from(this.generateResponse(call.getRequest().getId(), levlControlRequest.levlRequestId));
+				.from(this.generateResponse(call.getRequest().getId(), request.levlRequestId));
 	}
 
 	private JsonObject generateResponse(UUID requestId, String levlRequestId) {
@@ -324,6 +326,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 					this.finishRequest();
 				}
 				this.currentRequest = this.nextRequest;
+				this.log.info("starting levl request: {}", this.currentRequest);
 				this.nextRequest = null;
 			} else if (currentRequest != null && !isActive(this.currentRequest)) {
 				this.finishRequest();
@@ -344,9 +347,11 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	}
 
 	private void finishRequest() {
-		// Channel realizedEnergy und requestTimestamp schreiben
+		this.log.info("finished levl request: {}", this.currentRequest);
 		this._setRealizedPowerW(this.realizedEnergyGridWs);
 		this._setLastControlRequestTimestamp(this.currentRequest.timestamp);
+		this.log.info("realized levl energy on grid: {}", this.realizedEnergyGridWs);
+		this.log.info("realized levl energy in battery: {}", this.realizedEnergyBatteryWs);
 		this.realizedEnergyGridWs = 0;
 		this.realizedEnergyBatteryWs = 0;
 		this.currentRequest = null;

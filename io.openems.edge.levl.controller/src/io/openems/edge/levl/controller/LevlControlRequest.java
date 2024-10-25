@@ -109,4 +109,13 @@ public class LevlControlRequest {
 				&& socUpperBoundPercent == other.socUpperBoundPercent && Objects.equals(start, other.start)
 				&& Objects.equals(timestamp, other.timestamp);
 	}
+
+	@Override
+	public String toString() {
+		return "LevlControlRequest [sellToGridLimitW=" + sellToGridLimitW + ", buyFromGridLimitW=" + buyFromGridLimitW
+				+ ", levlRequestId=" + levlRequestId + ", timestamp=" + timestamp + ", energyWs=" + energyWs
+				+ ", start=" + start + ", deadline=" + deadline + ", levlSocWh=" + levlSocWh + ", socLowerBoundPercent="
+				+ socLowerBoundPercent + ", socUpperBoundPercent=" + socUpperBoundPercent + ", efficiencyPercent="
+				+ efficiencyPercent + ", influenceSellToGrid=" + influenceSellToGrid + "]";
+	}
 }
