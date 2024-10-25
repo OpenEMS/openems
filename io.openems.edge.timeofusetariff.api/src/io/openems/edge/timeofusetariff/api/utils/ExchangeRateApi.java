@@ -7,6 +7,7 @@ import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import java.io.IOException;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.currency.Currency;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -34,12 +35,38 @@ public class ExchangeRateApi {
 	 * @param accessKey personal API access key.
 	 * @param source    the source currency (e.g. EUR)
 	 * @param target    the target currency (e.g. SEK)
+	 * @param orElse    the default value
+	 * @return the exchange rate.
+	 */
+	public static double getExchangeRateOrElse(String accessKey, String source, Currency target, double orElse) {
+		try {
+			return getExchangeRate(accessKey, source, target);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return orElse;
+		}
+	}
+
+	/**
+	 * Fetches the exchange rate from exchangerate.host.
+	 * 
+	 * @param accessKey personal API access key.
+	 * @param source    the source currency (e.g. EUR)
+	 * @param target    the target currency (e.g. SEK)
 	 * @return the exchange rate.
 	 * @throws IOException           on error.
 	 * @throws OpenemsNamedException on error
 	 */
 	public static double getExchangeRate(String accessKey, String source, Currency target)
 			throws IOException, OpenemsNamedException {
+		if (target == Currency.UNDEFINED) {
+			throw new OpenemsException("Global Currency is UNDEFINED. Please configure it in Core.Meta component");
+		}
+
+		if (target.name().equals(source)) {
+			return 1.; // No need to fetch exchange rate from API
+		}
+
 		var request = new Request.Builder() //
 				.url(String.format(BASE_URL, accessKey, source, target.name())) //
 				.build();
