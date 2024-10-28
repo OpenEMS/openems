@@ -659,6 +659,8 @@
       "ERROR": "Fehler",
       "BELOW_MIN_SOC": "Unterhalb des konfigurierten Minimum-SoC",
       "ABOVE_MAX_SOC": "Oberhalb des konfigurierten Maximum-SoC",
+      "MIN_SOC_REACHED": "Unteres SoC-Limit erreicht",
+      "MAX_SOC_REACHED": "Oberes SoC-Limit erreicht",
       "FORCE_CHARGE_ACTIVE": "Batterie lädt bis zum konfigurierten Ausgleichspunkt",
       "BALANCING_WANTED": "Kalibrierung erwünscht",
       "BALANCING_ACTIVE": "Kalibrierung aktiv",

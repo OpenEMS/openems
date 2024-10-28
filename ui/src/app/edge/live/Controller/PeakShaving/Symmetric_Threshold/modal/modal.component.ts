@@ -20,8 +20,6 @@ enum PeakShavingState {
     PEAKSHAVING_TARGET_NOT_REACHED = 9, // Peak shaving power target differs from real ESS power
 }
 
-
-
 @Component({
     selector: "thresholdpeakshaving-modal",
     templateUrl: "./modal.component.html",
