@@ -121,6 +121,16 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
+		
+	    // Ensure that ess is initialized before setting slow charge and discharge power
+	    if (this.ess != null && this.ess.getAllowedChargePower().isDefined()) {
+	        this.slowChargePower = this.ess.getAllowedChargePower().get() / 20;
+	        this.slowDisChargePower = this.ess.getAllowedDischargePower().get() / 20;
+	        this.logDebug(this.log, "Initialized slow charge and discharge power.");
+	    } else {
+	        this.logDebug(this.log, "Waiting for ESS initialization to set slow charge and discharge power.");
+	    }		
+		
 	}
 
 	@Override
@@ -175,8 +185,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		Integer currentSoc = ess.getSoc().get();
 		Integer currentActivePower = ess.getActivePower().get();
 
-		this.slowChargePower = this.ess.getAllowedChargePower().get() / 20; // avoid self-discharging
-		this.slowDisChargePower = this.ess.getAllowedChargePower().get() / 20;
+		//this.slowChargePower = this.ess.getAllowedChargePower().get() / 20; // avoid self-discharging
+		//this.slowDisChargePower = this.ess.getAllowedChargePower().get() / 20;
 
 		// this._setChargedEnergy(123);
 		// this.initializeChargedEnergyFromTimedata();
@@ -229,7 +239,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 				this.calculatedPower = this.slowChargePower; // avoid self-discharging
 			}
 
-			if (currentSoc >= this.minSoc) {
+			if (currentSoc >= (this.minSoc +1 )) {
 				this.changeState(State.NORMAL);
 			}
 			break;
@@ -237,7 +247,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			if (this.slowDisChargePower != null) {
 				this.calculatedPower = this.slowDisChargePower; // slowly discharge
 			}
-			if (currentSoc <= this.maxSoc) {
+			if (currentSoc <= (this.maxSoc -1)) {
 				this.changeState(State.NORMAL);
 			}
 			break;
