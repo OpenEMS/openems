@@ -285,7 +285,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			}
 
 			/* SOC is below desired value, reset Timer, start charging again */
-			if (ess.getSoc() != null && ess.getSoc().get() < (this.forceChargeSoc)) {
+			if (ess.getSoc() != null && (ess.getSoc().get() < (this.forceChargeSoc))) {
 
 				this.logDebug(this.log, "\nSoC is below " + this.forceChargeSoc + "%. Stop Balancing");
 				this.changeState(State.BALANCING_WANTED);
