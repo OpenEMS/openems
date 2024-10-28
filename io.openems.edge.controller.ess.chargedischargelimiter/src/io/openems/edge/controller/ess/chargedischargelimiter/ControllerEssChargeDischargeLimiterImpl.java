@@ -235,7 +235,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 				this.changeState(State.NORMAL);
 			}
 
-			if (ess.getSoc() != null && ess.getSoc().get() > this.forceChargeSoc) { // desired SOC reached, stop
+			if (ess.getSoc() != null && ess.getSoc().get() >= (this.forceChargeSoc )) { // desired SOC reached, stop
 																					// charging
 				this.changeState(State.BALANCING_ACTIVE);
 			} else {
@@ -279,13 +279,13 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 			// Keep battery SOC above desired level. Assume battery is self-discharging
 			// constantly
-			if (ess.getSoc() != null && ess.getSoc().get() < (this.forceChargeSoc) + 1) {
+			if (ess.getSoc() != null && (ess.getSoc().get() <= (this.forceChargeSoc + 1))) {
 				/* SOC is below desired value + 1%, start charging again */
 				this.calculatedPower = this.forceChargePower * -1; // Charging has a negative value
 			}
 
 			/* SOC is below desired value, reset Timer, start charging again */
-			if (ess.getSoc() != null && ess.getSoc().get() < (this.forceChargeSoc)) {
+			if (ess.getSoc() != null && (ess.getSoc().get() < (this.forceChargeSoc))) {
 
 				this.logDebug(this.log, "\nSoC is below " + this.forceChargeSoc + "%. Stop Balancing");
 				this.changeState(State.BALANCING_WANTED);
