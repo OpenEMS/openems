@@ -36,6 +36,24 @@ public final class FeneconHomeComponents {
 			final String batteryId, //
 			final String modbusIdInternal //
 	) {
+		return battery(bundle, batteryId, modbusIdInternal, "AUTO");
+	}
+
+	/**
+	 * Creates a default battery component for a FENECON Home.
+	 * 
+	 * @param bundle           the translation bundle
+	 * @param batteryId        the id of the battery
+	 * @param modbusIdInternal the id of the internal modbus bridge
+	 * @param batteryStartStop the startStop target of the bridge
+	 * @return the {@link Component}
+	 */
+	public static EdgeConfig.Component battery(//
+			final ResourceBundle bundle, //
+			final String batteryId, //
+			final String modbusIdInternal, //
+			final String batteryStartStop //
+	) {
 		return new EdgeConfig.Component(batteryId,
 				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.battery0.alias"), "Battery.Fenecon.Home", //
 				JsonUtils.buildJsonObject() //
@@ -43,7 +61,7 @@ public final class FeneconHomeComponents {
 						.addProperty("batteryStartUpRelay", "io0/Relay4") //
 						.addProperty("modbus.id", modbusIdInternal) //
 						.addProperty("modbusUnitId", 1) //
-						.addProperty("startStop", "AUTO") //
+						.addProperty("startStop", batteryStartStop) //
 						.build());
 	}
 
@@ -181,7 +199,8 @@ public final class FeneconHomeComponents {
 			final String modbusIdInternal //
 	) {
 		return new EdgeConfig.Component(modbusIdInternal,
-				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.modbus0.alias"), "Bridge.Modbus.Serial", //
+				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.modbusToBattery.alias"),
+				"Bridge.Modbus.Serial", //
 				JsonUtils.buildJsonObject() //
 						.addProperty("enabled", true) //
 						.addProperty("baudRate", 19200) //

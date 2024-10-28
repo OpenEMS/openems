@@ -8,9 +8,10 @@ import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.api.SocEvcs;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 public interface EvcsOcppIesKeywattSingle
-		extends Evcs, ManagedEvcs, MeasuringEvcs, OpenemsComponent, EventHandler, SocEvcs {
+		extends Evcs, ManagedEvcs, MeasuringEvcs, ElectricityMeter, OpenemsComponent, EventHandler, SocEvcs {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;

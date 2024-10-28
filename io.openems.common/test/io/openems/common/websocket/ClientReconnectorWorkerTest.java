@@ -9,28 +9,15 @@ import org.slf4j.Logger;
 
 public class ClientReconnectorWorkerTest {
 
-	private static class MyWsData extends WsData {
-
-		public MyWsData(WebSocket ws) {
-			super(ws);
-		}
-
-		@Override
-		public String toString() {
-			return "";
-		}
-
-	}
-
-	private static class MyWebsocketClient extends AbstractWebsocketClient<MyWsData> {
+	private static class MyWebsocketClient extends AbstractWebsocketClient<WsData> {
 
 		public MyWebsocketClient(String name, URI serverUri) {
 			super(name, serverUri);
 		}
 
 		@Override
-		protected MyWsData createWsData(WebSocket ws) {
-			return new MyWsData(ws);
+		protected WsData createWsData(WebSocket ws) {
+			return new WsData(ws);
 		}
 
 		@Override

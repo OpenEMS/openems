@@ -1,6 +1,7 @@
 package io.openems.edge.controller.channelthreshold;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.types.ChannelAddress;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -22,13 +23,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setInputChannelAddress(String inputChannelAddress) {
-			this.inputChannelAddress = inputChannelAddress;
+		public Builder setInputChannelAddress(ChannelAddress inputChannelAddress) {
+			this.inputChannelAddress = inputChannelAddress.toString();
 			return this;
 		}
 
-		public Builder setOutputChannelAddress(String outputChannelAddress) {
-			this.outputChannelAddress = outputChannelAddress;
+		public Builder setOutputChannelAddress(ChannelAddress outputChannelAddress) {
+			this.outputChannelAddress = outputChannelAddress.toString();
 			return this;
 		}
 

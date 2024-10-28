@@ -3,6 +3,8 @@ package io.openems.edge.evcs.keba.kecontact;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.evcs.api.PhaseRotation;
+
 @ObjectClassDefinition(name = "EVCS KEBA KeContact", //
 		description = "Implements the KEBA KeContact P20/P30 electric vehicle charging station.")
 @interface Config {
@@ -24,6 +26,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Minimum power", description = "Minimum current of the Charger in mA.", required = true)
 	int minHwCurrent() default 6000;
+
+	@AttributeDefinition(name = "Phase Rotation", description = "Apply standard or rotated wiring")
+	PhaseRotation phaseRotation() default PhaseRotation.L1_L2_L3;
 
 	@AttributeDefinition(name = "Use display?", description = "Activates the KEBA display to show the current power or states.", required = true)
 	boolean useDisplay() default true;

@@ -13,6 +13,7 @@ import { GetUserInformationResponse } from "../shared/jsonrpc/response/getUserIn
 import { Service, Websocket } from "../shared/shared";
 import { COUNTRY_OPTIONS } from "../shared/type/country";
 import { Language } from "../shared/type/language";
+import { Role } from "../shared/type/role";
 
 type CompanyUserInformation = UserInformation & { companyName: string };
 
@@ -57,6 +58,8 @@ export class UserComponent implements OnInit {
   }];
   protected readonly companyInformationFields: FormlyFieldConfig[] = [];
 
+  protected isAtLeastAdmin: boolean = false;
+
   constructor(
     public translate: TranslateService,
     public service: Service,
@@ -67,6 +70,11 @@ export class UserComponent implements OnInit {
   ngOnInit() {
     // Set currentLanguage to
     this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
+
+    this.service.getCurrentUser().then(user => {
+      this.isAtLeastAdmin = Role.isAtLeast(user.globalRole, Role.ADMIN);
+    });
+
     this.getUserInformation().then((userInformation) => {
       this.form = {
         formGroup: new FormGroup({}),

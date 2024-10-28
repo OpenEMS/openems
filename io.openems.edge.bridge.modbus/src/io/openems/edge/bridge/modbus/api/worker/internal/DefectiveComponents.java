@@ -4,12 +4,12 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.bridge.modbus.api.LogVerbosity;
+import io.openems.edge.bridge.modbus.api.Config.LogHandler;
 import io.openems.edge.common.type.TypeUtils;
 
 public class DefectiveComponents {
@@ -23,24 +23,16 @@ public class DefectiveComponents {
 	}
 
 	private final Clock clock;
-	private final AtomicReference<LogVerbosity> logVerbosity;
+	private final Supplier<LogHandler> logHandler;
 	private final Map<String, NextTry> nextTries = new HashMap<>();
 
-	public DefectiveComponents(AtomicReference<LogVerbosity> logVerbosity) {
-		this(Clock.systemDefaultZone(), logVerbosity);
+	public DefectiveComponents(Supplier<LogHandler> logHandler) {
+		this(Clock.systemDefaultZone(), logHandler);
 	}
 
-	protected DefectiveComponents() {
-		this(Clock.systemDefaultZone(), new AtomicReference<>(LogVerbosity.READS_AND_WRITES_DURATION_TRACE_EVENTS));
-	}
-
-	protected DefectiveComponents(Clock clock) {
-		this(clock, new AtomicReference<>(LogVerbosity.READS_AND_WRITES_DURATION_TRACE_EVENTS));
-	}
-
-	protected DefectiveComponents(Clock clock, AtomicReference<LogVerbosity> logVerbosity) {
+	protected DefectiveComponents(Clock clock, Supplier<LogHandler> logHandler) {
 		this.clock = clock;
-		this.logVerbosity = logVerbosity;
+		this.logHandler = logHandler;
 	}
 
 	/**
@@ -54,15 +46,11 @@ public class DefectiveComponents {
 		this.nextTries.compute(componentId, (k, v) -> {
 			var count = (v == null) ? 1 : v.count + 1;
 			var wait = Math.min(INCREASE_WAIT_SECONDS * count, MAX_WAIT_SECONDS);
-			if (this.isTraceLog()) {
-				final String log;
-				if (count == 1) {
-					log = "Add [" + componentId + "] to defective Components.";
-				} else {
-					log = "Increase wait for defective Component [" + componentId + "].";
-				}
-				this.log.info(log + " Wait [" + wait + "s]" + " Count [" + count + "]");
-			}
+			this.traceLog(() -> //
+			(count == 1 //
+					? "Add [" + componentId + "] to defective Components." //
+					: "Increase wait for defective Component [" + componentId + "].") + " Wait [" + wait + "s]"
+					+ " Count [" + count + "]");
 			return new NextTry(Instant.now(this.clock).plusSeconds(wait), count);
 		});
 	}
@@ -74,8 +62,8 @@ public class DefectiveComponents {
 	 */
 	public synchronized void remove(String componentId) {
 		TypeUtils.assertNull("DefectiveComponents remove() takes no null values", componentId);
-		if (this.nextTries.remove(componentId) != null && this.isTraceLog()) {
-			this.log.info("Remove [" + componentId + "] from defective Components.");
+		if (this.nextTries.remove(componentId) != null) {
+			this.traceLog(() -> "Remove [" + componentId + "] from defective Components.");
 		}
 	}
 
@@ -105,12 +93,7 @@ public class DefectiveComponents {
 		return now.isAfter(nextTry.timestamp);
 	}
 
-	private boolean isTraceLog() {
-		return switch (this.logVerbosity.get()) {
-		case READS_AND_WRITES, READS_AND_WRITES_DURATION, READS_AND_WRITES_VERBOSE,
-				READS_AND_WRITES_DURATION_TRACE_EVENTS ->
-			true;
-		case NONE, DEBUG_LOG -> false;
-		};
+	private void traceLog(Supplier<String> message) {
+		this.logHandler.get().trace(this.log, message);
 	}
 }

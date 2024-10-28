@@ -1,7 +1,7 @@
 package io.openems.edge.core.meta;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.common.currency.CurrencyConfig;
+import io.openems.common.types.CurrencyConfig;
 import io.openems.edge.common.meta.Meta;
 
 @SuppressWarnings("all")

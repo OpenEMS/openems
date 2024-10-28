@@ -200,6 +200,7 @@ export class ChartComponent extends AbstractHistoryChart {
           displayGrid: false,
         }),
       ],
+      normalizeOutputData: true,
     };
   }
 

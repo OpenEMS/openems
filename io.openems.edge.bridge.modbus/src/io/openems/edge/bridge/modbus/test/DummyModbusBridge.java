@@ -11,6 +11,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
+import io.openems.edge.bridge.modbus.api.Config;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.common.channel.Channel;
@@ -35,7 +36,7 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		super.activate(null, id, "", true, logVerbosity, 2);
+		super.activate(null, new Config(id, "", true, logVerbosity, 2));
 	}
 
 	/**

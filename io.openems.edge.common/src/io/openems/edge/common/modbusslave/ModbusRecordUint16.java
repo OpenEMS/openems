@@ -20,8 +20,7 @@ public class ModbusRecordUint16 extends ModbusRecordConstant {
 
 	@Override
 	public String toString() {
-		return "ModbusRecordUInt16 [value=" + this.value + "/0x" + Integer.toHexString(this.value) + ", type="
-				+ this.getType() + "]";
+		return generateToString("ModbusRecordUInt16", this.value, v -> Integer.toHexString(v));
 	}
 
 	/**

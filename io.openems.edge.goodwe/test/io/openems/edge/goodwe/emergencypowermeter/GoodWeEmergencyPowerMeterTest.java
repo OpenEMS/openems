@@ -8,18 +8,14 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class GoodWeEmergencyPowerMeterTest {
 
-	private static final String MODBUS_ID = "modbus0";
-
-	private static final String METER_ID = "meter2";
-
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new GoodWeEmergencyPowerMeterImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
-						.setId(METER_ID) //
-						.setModbusId(MODBUS_ID) //
+						.setId("meter2") //
+						.setModbusId("modbus0") //
 						.build());
 	}
 }

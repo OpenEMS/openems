@@ -4,6 +4,8 @@ import static io.openems.edge.timeofusetariff.entsoe.Utils.parseCurrency;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.parsePrices;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collections;
+
 import org.junit.Test;
 
 import io.openems.edge.common.currency.Currency;
@@ -540,19 +542,261 @@ public class ParserTest {
 			</Publication_MarketDocument>
 						""";
 
+	private static String MISSING_DATA_AND_MULTIPLE_PERIODS_XML = """
+			<?xml version="1.0" encoding="utf-8"?>
+			<Publication_MarketDocument xmlns="urn:iec62325.351:tc57wg16:451-3:publicationdocument:7:3">
+			  <mRID>b29cfa5b47e54691a8cc110df00a748b</mRID>
+			  <revisionNumber>1</revisionNumber>
+			  <type>A44</type>
+			  <sender_MarketParticipant.mRID codingScheme="A01">10X1001A1001A450</sender_MarketParticipant.mRID>
+			  <sender_MarketParticipant.marketRole.type>A32</sender_MarketParticipant.marketRole.type>
+			  <receiver_MarketParticipant.mRID codingScheme="A01">10X1001A1001A450</receiver_MarketParticipant.mRID>
+			  <receiver_MarketParticipant.marketRole.type>A33</receiver_MarketParticipant.marketRole.type>
+			  <createdDateTime>2024-10-23T12:43:41Z</createdDateTime>
+			  <period.timeInterval>
+			    <start>2024-10-22T22:00Z</start>
+			    <end>2024-10-24T22:00Z</end>
+			  </period.timeInterval>
+			      <TimeSeries>
+			        <mRID>1</mRID>
+			        <auction.type>A01</auction.type>
+			        <businessType>A62</businessType>
+			        <in_Domain.mRID codingScheme="A01">10Y1001A1001A46L</in_Domain.mRID>
+			        <out_Domain.mRID codingScheme="A01">10Y1001A1001A46L</out_Domain.mRID>
+			        <contract_MarketAgreement.type>A01</contract_MarketAgreement.type>
+			        <currency_Unit.name>EUR</currency_Unit.name>
+			        <price_Measure_Unit.name>MWH</price_Measure_Unit.name>
+			        <curveType>A03</curveType>
+			            <Period>
+			              <timeInterval>
+			                <start>2024-10-23T22:00Z</start>
+			                <end>2024-10-24T22:00Z</end>
+			              </timeInterval>
+			              <resolution>PT60M</resolution>
+			                  <Point>
+			                    <position>1</position>
+			                        <price.amount>-1</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>3</position>
+			                        <price.amount>-0.8</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>4</position>
+			                        <price.amount>-0.52</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>5</position>
+			                        <price.amount>0</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>6</position>
+			                        <price.amount>0.84</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>7</position>
+			                        <price.amount>15.47</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>8</position>
+			                        <price.amount>27.59</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>9</position>
+			                        <price.amount>31.86</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>10</position>
+			                        <price.amount>36.97</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>11</position>
+			                        <price.amount>32.96</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>12</position>
+			                        <price.amount>31.14</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>13</position>
+			                        <price.amount>29.92</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>14</position>
+			                        <price.amount>29.55</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>15</position>
+			                        <price.amount>29.71</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>16</position>
+			                        <price.amount>29.76</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>17</position>
+			                        <price.amount>29.98</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>18</position>
+			                        <price.amount>59.65</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>19</position>
+			                        <price.amount>79.41</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>20</position>
+			                        <price.amount>39.97</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>21</position>
+			                        <price.amount>29.93</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>22</position>
+			                        <price.amount>27.68</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>23</position>
+			                        <price.amount>24.95</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>24</position>
+			                        <price.amount>13.27</price.amount>
+			                  </Point>
+			            </Period>
+			      </TimeSeries>
+			      <TimeSeries>
+			        <mRID>2</mRID>
+			        <auction.type>A01</auction.type>
+			        <businessType>A62</businessType>
+			        <in_Domain.mRID codingScheme="A01">10Y1001A1001A46L</in_Domain.mRID>
+			        <out_Domain.mRID codingScheme="A01">10Y1001A1001A46L</out_Domain.mRID>
+			        <contract_MarketAgreement.type>A01</contract_MarketAgreement.type>
+			        <currency_Unit.name>EUR</currency_Unit.name>
+			        <price_Measure_Unit.name>MWH</price_Measure_Unit.name>
+			        <curveType>A03</curveType>
+			            <Period>
+			              <timeInterval>
+			                <start>2024-10-22T22:00Z</start>
+			                <end>2024-10-23T22:00Z</end>
+			              </timeInterval>
+			              <resolution>PT60M</resolution>
+			                  <Point>
+			                    <position>1</position>
+			                        <price.amount>0</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>2</position>
+			                        <price.amount>-0.04</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>3</position>
+			                        <price.amount>-0.54</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>4</position>
+			                        <price.amount>-0.8</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>5</position>
+			                        <price.amount>-0.58</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>6</position>
+			                        <price.amount>0</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>7</position>
+			                        <price.amount>0.48</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>8</position>
+			                        <price.amount>4.96</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>9</position>
+			                        <price.amount>4.9</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>10</position>
+			                        <price.amount>2.15</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>11</position>
+			                        <price.amount>0.92</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>12</position>
+			                        <price.amount>0.01</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>13</position>
+			                        <price.amount>-0.01</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>14</position>
+			                        <price.amount>-0.06</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>15</position>
+			                        <price.amount>-0.11</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>16</position>
+			                        <price.amount>-0.01</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>17</position>
+			                        <price.amount>0</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>18</position>
+			                        <price.amount>0.8</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>19</position>
+			                        <price.amount>0.96</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>20</position>
+			                        <price.amount>0.01</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>21</position>
+			                        <price.amount>0</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>23</position>
+			                        <price.amount>-0.09</price.amount>
+			                  </Point>
+			                  <Point>
+			                    <position>24</position>
+			                        <price.amount>-0.81</price.amount>
+			                  </Point>
+			            </Period>
+			      </TimeSeries>
+			</Publication_MarketDocument>
+						""";
+
 	@Test
 	public void testParsePrices() throws Exception {
 		var currencyExchangeValue = 1.0;
-		{
-			var prices = parsePrices(XML, "PT15M", currencyExchangeValue).asArray();
-			assertEquals(109.93, prices[0], 0.001);
-			assertEquals(65.07, prices[prices.length - 1], 0.001);
-		}
-		{
-			var prices = parsePrices(XML, "PT60M", currencyExchangeValue).asArray();
-			assertEquals(84.15, prices[0], 0.001);
-			assertEquals(86.53, prices[prices.length - 1], 0.001);
-		}
+		var prices = parsePrices(XML, currencyExchangeValue);
+		assertEquals(109.93, prices.getFirst(), 0.001);
+		var lastKey = Collections.max(prices.pricePerQuarter.keySet());
+		assertEquals(65.07, prices.pricePerQuarter.get(lastKey), 0.001);
+	}
+
+	@Test
+	public void testParsePrices2() throws Exception {
+		var currencyExchangeValue = 1.0;
+		var prices = parsePrices(MISSING_DATA_AND_MULTIPLE_PERIODS_XML, currencyExchangeValue);
+		assertEquals(192, prices.pricePerQuarter.size());
+		var array = prices.asArray();
+		assertEquals(array[96], array[97], 0.001); // Missing value check
+		assertEquals(array[0], 0, 0.001); // Making sure that Periods are sorted before prices are stored.
 	}
 
 	@Test

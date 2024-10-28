@@ -1,4 +1,46 @@
 <ion-app>
+  <app-header></app-header>
+  <ion-menu type="overlay" side="start" contentId="content">
+    <ion-header>
+      <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+          <ion-menu-button autoHide="false"></ion-menu-button>
+        </ion-buttons>
+        <ion-title translate>Menu.menu</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <ion-list>
+
+        <ion-item *ngIf="(service.metadata | async)?.user as user" routerLinkActive="active" routerLink="/user"
+          (click)="menu.close()">
+          <ion-icon style="margin-right: 5%" size="large" color="primary" slot="start" name="person-outline">
+          </ion-icon>
+          <ion-label class="ion-text-wrap" color="dark">
+            <p>{{ user.name }}</p>
+            <ion-text color="medium">
+              <p>{{ user.id }}</p>
+            </ion-text>
+          </ion-label>
+        </ion-item>
+
+        <!-- Show Link to Overview if more than one Edge is accessible or the globalRole is at least installer -->
+        <ng-container *ngIf="(service.metadata | async) as service">
+          <ng-container *ngIf="isUserAllowedToSeeOverview">
+            <ion-item lines="full" routerLinkActive="active" routerLink="/overview" (click)="menu.close()">
+              <ion-label translate>Menu.overview </ion-label>
+            </ion-item>
+          </ng-container>
+        </ng-container>
+
+        <nav *ngIf="(service.currentEdge | async) as edge">
+          <ion-item lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">
+            <ion-label translate>Menu.edgeSettings</ion-label>
+          </ion-item>
+        </nav>
+      </ion-list>
+    </ion-content>
+  </ion-menu>
   <ion-content>
     <ng-container *ngIf="websocket.status === 'connecting' || websocket.status === 'failed'">
       <ion-grid>
@@ -35,47 +77,7 @@
     <ion-router-outlet id="content"></ion-router-outlet>
 
     <!-- Side Menu  -->
-    <ion-menu type="overlay" side="start" contentId="content">
-      <ion-header>
-        <ion-toolbar color="primary">
-          <ion-buttons slot="start">
-            <ion-menu-button autoHide="false"></ion-menu-button>
-          </ion-buttons>
-          <ion-title translate>Menu.menu</ion-title>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content>
-        <ion-list>
 
-          <ion-item *ngIf="(service.metadata | async)?.user as user" routerLinkActive="active" routerLink="/user"
-            (click)="menu.close()">
-            <ion-icon style="margin-right: 5%" size="large" color="primary" slot="start" name="person-outline">
-            </ion-icon>
-            <ion-label class="ion-text-wrap" color="dark">
-              <p>{{ user.name }}</p>
-              <ion-text color="medium">
-                <p>{{ user.id }}</p>
-              </ion-text>
-            </ion-label>
-          </ion-item>
-
-          <!-- Show Link to Overview if more than one Edge is accessible or the globalRole is at least installer -->
-          <ng-container *ngIf="(service.metadata | async) as service">
-            <ng-container *ngIf="isUserAllowedToSeeOverview">
-              <ion-item lines="full" routerLinkActive="active" routerLink="/overview" (click)="menu.close()">
-                <ion-label translate>Menu.overview </ion-label>
-              </ion-item>
-            </ng-container>
-          </ng-container>
-
-          <nav *ngIf="(service.currentEdge | async) as edge">
-            <ion-item lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">
-              <ion-label translate>Menu.edgeSettings</ion-label>
-            </ion-item>
-          </nav>
-        </ion-list>
-      </ion-content>
-    </ion-menu>
   </ion-content>
 
   <oe-footer *ngIf="isUserAllowedToSeeFooter && !isHistoryDetailView"></oe-footer>
