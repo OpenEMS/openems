@@ -710,7 +710,7 @@ export namespace PersistencePriority {
     }
 }
 
-export module EdgeConfig {
+export namespace EdgeConfig {
     export class ComponentChannel {
         public readonly type!: "BOOLEAN" | "SHORT" | "INTEGER" | "LONG" | "FLOAT" | "DOUBLE" | "STRING";
         public readonly accessMode!: "RO" | "RW" | "WO";
