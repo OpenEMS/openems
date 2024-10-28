@@ -2,13 +2,17 @@ package io.openems.edge.controller.symmetric.thresholdpeakshaver;
 import io.openems.common.types.OptionsEnum;
 
 public enum PeakshavingState implements OptionsEnum {
-	UNDEFINED(-1, "Undefined"), //
-	IDLE(0, "Peakshaver is inactive and waiting"), // SoC in range between min and max
+	UNDEFINED(-1, "Undefined State"), //
+	IDLE(0, "Idle: Peak Shaver inactive, waiting"), // SoC within operational range
 	ERROR(1, "Error State"), //
-	DISABLED(2, "Peak Shaver not active"), //	
-	ACTIVE(3, "Active Peak Shaving"), //
-	CHARGING(4, "ESS charges"),
-	HYSTERESIS_ACTIVE(5, "Waiting. No Active Peak Shaving Since Hysteresis Start");
+	DISABLED(2, "Peak Shaver Disabled"), //	
+	ACTIVE(3, "Peak Shaving Active"), //
+	CHARGING(4, "ESS Charging"), //
+	HYSTERESIS_ACTIVE(5, "In Standby: Peak Shaving Paused due to Hysteresis"), //
+	CHARGING_FINISHED(6, "Charging Complete: ESS Fully Charged"), //
+	DISCHARGING_FAILS(7, "Discharging Failed: ESS Depleted"), //
+	PEAKSHAVING_POWER_TOO_LOW(8, "Insufficient ESS Power to Meet Peak Shaving Target"),
+	PEAKSHAVING_TARGET_NOT_REACHED(9, "Peak shaving power target differs from real ESS power");
 
 
 	private final int value;

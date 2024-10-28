@@ -89,7 +89,11 @@
             "DISABLED": "Deaktiviert",
             "ACTIVE": "Aktiv",
             "CHARGING": "Beladung",
-            "HYSTERESIS_ACTIVE": "Hyterese aktiv"
+            "HYSTERESIS_ACTIVE": "Hyterese aktiv",
+            "CHARGING_FINISHED": "Laden abgeschlossen",
+            "DISCHARGING_FAILS": "Entladung fehlgeschlagen. ESS leer?",
+            "PEAKSHAVING_POWER_TOO_LOW": "Zu wenig Leistung für Lastspitzenkappung",
+            "PEAKSHAVING_TARGET_NOT_REACHED": "Lastspitzenziel nicht erreicht"
           }
         },
         "GridOptimizedCharge": {
