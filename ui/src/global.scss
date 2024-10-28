@@ -416,3 +416,17 @@ ion-modal.full-width {
 .card-with-primary-border {
     border: 2px solid $primary-color;
 }
+
+ion-avatar.iconify {
+    margin-inline-end: 32px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    --border-radius: 0;
+    max-height: 24px;
+    max-width: 24px;
+}
+
+ion-avatar.iconify.icon-large {
+    max-height: 32px;
+    max-width: 32px;
+}
