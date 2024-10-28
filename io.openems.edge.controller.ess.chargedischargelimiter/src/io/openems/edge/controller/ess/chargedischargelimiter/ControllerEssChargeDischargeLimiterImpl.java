@@ -73,8 +73,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private Integer calculatedPower = null;
 
 	private boolean debugMode = false;
-	private Integer slowChargePower = null;
-	private Integer slowDisChargePower = null;
+	private Integer slowChargePower = 0;
+	private Integer slowDisChargePower = 0;
 
 	@Reference
 	private ComponentManager componentManager;
@@ -121,8 +121,10 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
-		slowChargePower =  this.ess.getAllowedChargePower().get() / 20; // avoid self-discharging
-		slowDisChargePower = this.ess.getAllowedChargePower().get() / 20;
+		if (this.ess != null) {
+		
+		}
+
 	}
 
 	@Override
@@ -169,8 +171,16 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	@Override
 	public void run() throws OpenemsNamedException {
 		
+		if (this.ess == null) {
+			this.logDebug(this.log, "ERROR. ESS " + config.ess_id() + " not available (yet) ");
+			return;
+		}
+			
 		Integer currentSoc = ess.getSoc().get();
 		Integer currentActivePower = ess.getActivePower().get();
+		
+		this.slowChargePower =  this.ess.getAllowedChargePower().get() / 20; // avoid self-discharging
+		this.slowDisChargePower = this.ess.getAllowedChargePower().get() / 20;			
 
 		// this._setChargedEnergy(123);
 		// this.initializeChargedEnergyFromTimedata();
