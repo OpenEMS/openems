@@ -37,8 +37,8 @@ export namespace Controller_Ess_TimeOfUseTariff {
     };
 
     export enum ControlMode {
-        CHARGE_CONSUMPTION = 'CHARGE_CONSUMPTION',
-        DELAY_DISCHARGE = 'DELAY_DISCHARGE',
+        CHARGE_CONSUMPTION = "CHARGE_CONSUMPTION",
+        DELAY_DISCHARGE = "DELAY_DISCHARGE",
     }
 
     /**
@@ -89,49 +89,49 @@ export namespace Controller_Ess_TimeOfUseTariff {
 
         // Set datasets
         datasets.push({
-            type: 'bar',
-            label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
+            type: "bar",
+            label: translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING"),
             data: barBalancing,
             order: 1,
         });
         colors.push({
             // Dark Green
-            backgroundColor: 'rgba(51,102,0,0.8)',
-            borderColor: 'rgba(51,102,0,1)',
+            backgroundColor: "rgba(51,102,0,0.8)",
+            borderColor: "rgba(51,102,0,1)",
         });
 
         // Set dataset for ChargeGrid.
         if (!barChargeGrid.every(v => v === null) || controlMode == Controller_Ess_TimeOfUseTariff.ControlMode.CHARGE_CONSUMPTION) {
             datasets.push({
-                type: 'bar',
-                label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID'),
+                type: "bar",
+                label: translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID"),
                 data: barChargeGrid,
                 order: 1,
             });
             colors.push({
                 // Sky blue
-                backgroundColor: 'rgba(0, 204, 204,0.5)',
-                borderColor: 'rgba(0, 204, 204,0.7)',
+                backgroundColor: "rgba(0, 204, 204,0.5)",
+                borderColor: "rgba(0, 204, 204,0.7)",
             });
         }
 
         // Set dataset for buy from grid
         datasets.push({
-            type: 'bar',
-            label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
+            type: "bar",
+            label: translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE"),
             data: barDelayDischarge,
             order: 1,
         });
         colors.push({
             // Black
-            backgroundColor: 'rgba(0,0,0,0.8)',
-            borderColor: 'rgba(0,0,0,0.9)',
+            backgroundColor: "rgba(0,0,0,0.8)",
+            borderColor: "rgba(0,0,0,0.9)",
         });
 
         // State of charge data
         datasets.push({
-            type: 'line',
-            label: translate.instant('General.soc'),
+            type: "line",
+            label: translate.instant("General.soc"),
             data: socArray,
             hidden: false,
             yAxisID: ChartAxis.RIGHT,
@@ -139,21 +139,21 @@ export namespace Controller_Ess_TimeOfUseTariff {
             order: 0,
         });
         colors.push({
-            backgroundColor: 'rgba(189, 195, 199,0.2)',
-            borderColor: 'rgba(189, 195, 199,1)',
+            backgroundColor: "rgba(189, 195, 199,0.2)",
+            borderColor: "rgba(189, 195, 199,1)",
         });
 
         datasets.push({
-            type: 'line',
-            label: translate.instant('General.gridBuy'),
+            type: "line",
+            label: translate.instant("General.gridBuy"),
             data: gridBuy.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
             hidden: true,
             yAxisID: ChartAxis.RIGHT_2,
             order: 2,
         });
         colors.push({
-            backgroundColor: 'rgba(0,0,0, 0.2)',
-            borderColor: 'rgba(0,0,0, 1)',
+            backgroundColor: "rgba(0,0,0, 0.2)",
+            borderColor: "rgba(0,0,0, 1)",
         });
 
         const scheduleChartData: Controller_Ess_TimeOfUseTariff.ScheduleChartData = {

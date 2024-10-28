@@ -1,17 +1,17 @@
 // @ts-strict-ignore
-import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, CurrentData, EdgeConfig, Utils } from 'src/app/shared/shared';
+import { Component } from "@angular/core";
+import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 
-import { ModalComponent } from '../modal/modal';
+import { ModalComponent } from "../modal/modal";
 
-type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER' | 'OFF';
+type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER" | "OFF";
 
 
 @Component({
-  selector: 'Controller_Evcs',
-  templateUrl: './flat.html',
+  selector: "Controller_Evcs",
+  templateUrl: "./flat.html",
 })
 export class FlatComponent extends AbstractFlatWidget {
 
@@ -29,7 +29,7 @@ export class FlatComponent extends AbstractFlatWidget {
   protected phases: number;
   protected maxChargingValue: number;
   protected energySessionLimit: number;
-  protected state: string = '';
+  protected state: string = "";
   protected minChargePower: number;
   protected maxChargePower: number;
   protected forceChargeMinPower: string;
@@ -61,16 +61,16 @@ export class FlatComponent extends AbstractFlatWidget {
 
   protected override getChannelAddresses(): ChannelAddress[] {
     const result = [
-      new ChannelAddress(this.component.id, 'ChargePower'),
-      new ChannelAddress(this.component.id, 'Phases'),
-      new ChannelAddress(this.component.id, 'Plug'),
-      new ChannelAddress(this.component.id, 'Status'),
-      new ChannelAddress(this.component.id, 'State'),
-      new ChannelAddress(this.component.id, 'EnergySession'),
+      new ChannelAddress(this.component.id, "ChargePower"),
+      new ChannelAddress(this.component.id, "Phases"),
+      new ChannelAddress(this.component.id, "Plug"),
+      new ChannelAddress(this.component.id, "Status"),
+      new ChannelAddress(this.component.id, "State"),
+      new ChannelAddress(this.component.id, "EnergySession"),
       // channels for modal component, subscribe here for better UX
-      new ChannelAddress(this.component.id, 'MinimumHardwarePower'),
-      new ChannelAddress(this.component.id, 'MaximumHardwarePower'),
-      new ChannelAddress(this.component.id, 'SetChargePowerLimit'),
+      new ChannelAddress(this.component.id, "MinimumHardwarePower"),
+      new ChannelAddress(this.component.id, "MaximumHardwarePower"),
+      new ChannelAddress(this.component.id, "SetChargePowerLimit"),
     ];
 
     const controllers = this.config.getComponentsByFactory("Controller.Evcs");
@@ -78,7 +78,7 @@ export class FlatComponent extends AbstractFlatWidget {
       const properties = controller.properties;
       if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
         this.controller = controller;
-        result.push(new ChannelAddress(controller.id, '_PropertyEnabledCharging'));
+        result.push(new ChannelAddress(controller.id, "_PropertyEnabledCharging"));
       }
     }
     return result;
@@ -87,20 +87,20 @@ export class FlatComponent extends AbstractFlatWidget {
   protected override onCurrentData(currentData: CurrentData) {
 
     this.evcsComponent = this.config.getComponent(this.component.id);
-    this.isConnectionSuccessful = currentData.allComponents[this.component.id + '/State'] != 3 ? true : false;
-    this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + '/_PropertyEnabledCharging'] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
+    this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] != 3 ? true : false;
+    this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
 
     // Check if Energy since beginning is allowed
-    if (currentData.allComponents[this.component.id + '/ChargePower'] > 0 || currentData.allComponents[this.component.id + '/Status'] == 2 || currentData.allComponents[this.component.id + '/Status'] == 7) {
+    if (currentData.allComponents[this.component.id + "/ChargePower"] > 0 || currentData.allComponents[this.component.id + "/Status"] == 2 || currentData.allComponents[this.component.id + "/Status"] == 7) {
       this.isEnergySinceBeginningAllowed = true;
     }
 
     // Mode
     if (this.isChargingEnabled) {
-      if (this.chargeMode == 'FORCE_CHARGE') {
-        this.mode = this.translate.instant('General.manually');
-      } else if (this.chargeMode == 'EXCESS_POWER') {
-        this.mode = this.translate.instant('Edge.Index.Widgets.EVCS.OptimizedChargeMode.shortName');
+      if (this.chargeMode == "FORCE_CHARGE") {
+        this.mode = this.translate.instant("General.manually");
+      } else if (this.chargeMode == "EXCESS_POWER") {
+        this.mode = this.translate.instant("Edge.Index.Widgets.EVCS.OptimizedChargeMode.shortName");
       }
     }
 
@@ -108,35 +108,35 @@ export class FlatComponent extends AbstractFlatWidget {
     if (this.controller) {
 
       // ChargeMode
-      this.chargeMode = this.controller.properties['chargeMode'];
+      this.chargeMode = this.controller.properties["chargeMode"];
       // Check if Charging is enabled
-      this.isChargingEnabled = currentData.allComponents[this.controller.id + '/_PropertyEnabledCharging'] === 1 ? true : false;
+      this.isChargingEnabled = currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 ? true : false;
       // DefaultChargeMinPower
-      this.defaultChargeMinPower = this.controller.properties['defaultChargeMinPower'];
+      this.defaultChargeMinPower = this.controller.properties["defaultChargeMinPower"];
       // Prioritization
       this.prioritization =
-        this.controller.properties['priority'] in Prioritization
-          ? 'Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.' + this.controller.properties['priority'].toLowerCase()
-          : '';
+        this.controller.properties["priority"] in Prioritization
+          ? "Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority." + this.controller.properties["priority"].toLowerCase()
+          : "";
       // MaxChargingValue
       if (this.phases) {
-        this.maxChargingValue = Utils.multiplySafely(this.controller.properties['forceChargeMinPower'], this.phases);
+        this.maxChargingValue = Utils.multiplySafely(this.controller.properties["forceChargeMinPower"], this.phases);
       } else {
-        this.maxChargingValue = Utils.multiplySafely(this.controller.properties['forceChargeMinPower'], 3);
+        this.maxChargingValue = Utils.multiplySafely(this.controller.properties["forceChargeMinPower"], 3);
       }
       // EnergySessionLimit
-      this.energySessionLimit = this.controller.properties['energySessionLimit'];
+      this.energySessionLimit = this.controller.properties["energySessionLimit"];
     }
 
     // Phases
-    this.phases = currentData.allComponents[this.componentId + '/Phases'];
+    this.phases = currentData.allComponents[this.componentId + "/Phases"];
 
     this.chargeDischargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + "/ChargePower"]);
     this.chargeTarget = Utils.CONVERT_TO_WATT(this.formatNumber(currentData.allComponents[this.component.id + "/SetChargePowerLimit"]));
     this.energySession = Utils.CONVERT_TO_WATT(currentData.allComponents[this.component.id + "/EnergySession"]);
 
-    this.minChargePower = this.formatNumber(currentData.allComponents[this.component.id + '/MinimumHardwarePower']);
-    this.maxChargePower = this.formatNumber(currentData.allComponents[this.component.id + '/MaximumHardwarePower']);
+    this.minChargePower = this.formatNumber(currentData.allComponents[this.component.id + "/MinimumHardwarePower"]);
+    this.maxChargePower = this.formatNumber(currentData.allComponents[this.component.id + "/MaximumHardwarePower"]);
     this.state = currentData.allComponents[this.component.id + "/Status"];
   }
 
@@ -149,34 +149,34 @@ export class FlatComponent extends AbstractFlatWidget {
   private getState(enabledCharging: boolean, state: number, plug: number): string {
 
     if (enabledCharging === false) {
-      return this.translate.instant('Edge.Index.Widgets.EVCS.chargingStationDeactivated');
+      return this.translate.instant("Edge.Index.Widgets.EVCS.chargingStationDeactivated");
     }
 
     if (plug == null) {
       if (state == null) {
-        return this.translate.instant('Edge.Index.Widgets.EVCS.notCharging');
+        return this.translate.instant("Edge.Index.Widgets.EVCS.notCharging");
       }
     } else if (plug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
-      return this.translate.instant('Edge.Index.Widgets.EVCS.cableNotConnected');
+      return this.translate.instant("Edge.Index.Widgets.EVCS.cableNotConnected");
     }
     switch (state) {
       case ChargeState.STARTING:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.starting');
+        return this.translate.instant("Edge.Index.Widgets.EVCS.starting");
       case ChargeState.UNDEFINED:
       case ChargeState.ERROR:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.error');
+        return this.translate.instant("Edge.Index.Widgets.EVCS.error");
       case ChargeState.READY_FOR_CHARGING:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.readyForCharging');
+        return this.translate.instant("Edge.Index.Widgets.EVCS.readyForCharging");
       case ChargeState.NOT_READY_FOR_CHARGING:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.notReadyForCharging');
+        return this.translate.instant("Edge.Index.Widgets.EVCS.notReadyForCharging");
       case ChargeState.AUTHORIZATION_REJECTED:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.notCharging');
+        return this.translate.instant("Edge.Index.Widgets.EVCS.notCharging");
       case ChargeState.CHARGING:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.charging');
+        return this.translate.instant("Edge.Index.Widgets.EVCS.charging");
       case ChargeState.ENERGY_LIMIT_REACHED:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.chargeLimitReached');
+        return this.translate.instant("Edge.Index.Widgets.EVCS.chargeLimitReached");
       case ChargeState.CHARGING_FINISHED:
-        return this.translate.instant('Edge.Index.Widgets.EVCS.carFull');
+        return this.translate.instant("Edge.Index.Widgets.EVCS.carFull");
     }
   }
 

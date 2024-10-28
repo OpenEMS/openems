@@ -1,14 +1,14 @@
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
-import { JsonrpcRequest, JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
-import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
-import { Channel } from 'src/app/shared/jsonrpc/response/getChannelsOfComponentResponse';
-import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Websocket } from '../../../../../shared/shared';
+import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { ModalController } from "@ionic/angular";
+import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
+import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { Channel } from "src/app/shared/jsonrpc/response/getChannelsOfComponentResponse";
+import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Websocket } from "../../../../../shared/shared";
 
 @Component({
-    selector: 'Io_Api_DigitalInputModal',
-    templateUrl: './modal.component.html',
+    selector: "Io_Api_DigitalInputModal",
+    templateUrl: "./modal.component.html",
 })
 export class Io_Api_DigitalInput_ModalComponent implements OnInit, OnDestroy {
     private static readonly SELECTOR = "Io_Api_DigitalInput_ModalComponent";
@@ -46,13 +46,13 @@ export class Io_Api_DigitalInput_ModalComponent implements OnInit, OnDestroy {
                     componentAlias: e.alias,
                     channels: Object.entries(e.channels)
                         .filter(([key, value]) => {
-                            if (value.accessMode !== 'RO') {
+                            if (value.accessMode !== "RO") {
                                 return false;
                             }
-                            if (value.type !== 'BOOLEAN') {
+                            if (value.type !== "BOOLEAN") {
                                 return false;
                             }
-                            if (key === '_PropertyEnabled') {
+                            if (key === "_PropertyEnabled") {
                                 return false;
                             }
                             return true;
@@ -65,7 +65,7 @@ export class Io_Api_DigitalInput_ModalComponent implements OnInit, OnDestroy {
         }
 
         const response = await this.edge.sendRequest<GetDigitalInputChannelsOfComponentsResponse>(this.websocket, new ComponentJsonApiRequest({
-            componentId: '_componentManager',
+            componentId: "_componentManager",
             payload: new GetDigitalInputChannelsOfComponentsRequest({ componentIds: this.ioComponents.map(e => e.id) }),
         }));
         return response.result.channelsPerComponent.map(e => {

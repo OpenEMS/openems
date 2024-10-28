@@ -52,6 +52,15 @@ public interface AppManagerUtil {
 	}
 
 	/**
+	 * Gets the installed apps which match any of the provided
+	 * {@link OpenemsAppCategory OpenemsAppCategories}.
+	 * 
+	 * @param categories the {@link OpenemsAppCategory} to be contained by the app
+	 * @return the found {@link OpenemsAppInstance OpenemsAppInstances}
+	 */
+	public List<OpenemsAppInstance> getInstantiatedAppsByCategories(OpenemsAppCategory... categories);
+
+	/**
 	 * Finds the {@link OpenemsApp} with the given id.
 	 * 
 	 * @param id the {@link OpenemsApp#getAppId()} of the app.

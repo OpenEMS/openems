@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { FieldWrapper } from '@ngx-formly/core';
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
+import { FieldWrapper } from "@ngx-formly/core";
 
 @Component({
-    selector: 'formly-field-radio-with-image',
-    templateUrl: './formly-field-radio-with-image.html',
+    selector: "formly-field-radio-with-image",
+    templateUrl: "./formly-field-radio-with-image.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormlyFieldRadioWithImageComponent extends FieldWrapper implements OnInit {

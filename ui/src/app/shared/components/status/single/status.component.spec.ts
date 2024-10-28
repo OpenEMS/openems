@@ -8,7 +8,7 @@ import { EdgeConfig, PersistencePriority } from "../../edge/edgeconfig";
 import { DummyModalController } from "../../shared/testing/DummyModalController";
 import { StatusSingleComponent } from "./status.component";
 
-describe('StatusComponent', () => {
+describe("StatusComponent", () => {
     const testComponent = new EdgeConfig.Component("test", {}, {
         "testChannel": {
             accessMode: "RO",
@@ -20,12 +20,12 @@ describe('StatusComponent', () => {
             text: "",
         },
     });
-    testComponent.id = 'test0';
+    testComponent.id = "test0";
 
     let statusComponent: StatusSingleComponent;
-    const serviceSpy = jasmine.createSpyObj('Service', ['getConfig'], ['currentEdge']);
-    const edgeSpy = jasmine.createSpyObj('Edge', ['subscribeChannels', 'isVersionAtLeast', 'unsubscribeChannels']);
-    const edgeConfigSpy = jasmine.createSpyObj('EdgeConfig', ['listActiveComponents'], ['components']);
+    const serviceSpy = jasmine.createSpyObj("Service", ["getConfig"], ["currentEdge"]);
+    const edgeSpy = jasmine.createSpyObj("Edge", ["subscribeChannels", "isVersionAtLeast", "unsubscribeChannels"]);
+    const edgeConfigSpy = jasmine.createSpyObj("EdgeConfig", ["listActiveComponents"], ["components"]);
     // initialize variables only in beforeEach, beforeAll
     beforeEach((() => {
         TestBed.configureTestingModule({
@@ -44,22 +44,22 @@ describe('StatusComponent', () => {
         valueEdgeSpy.unsubscribeChannels.and.callThrough();
 
         const valueServiceSpy = TestBed.inject(Service) as jasmine.SpyObj<Service>;
-        spyPropertyGetter(valueServiceSpy, 'currentEdge').and.returnValue(new BehaviorSubject(TestBed.inject(Edge)));
+        spyPropertyGetter(valueServiceSpy, "currentEdge").and.returnValue(new BehaviorSubject(TestBed.inject(Edge)));
 
         const valueEdgeConfigSpy = TestBed.inject(EdgeConfig) as jasmine.SpyObj<EdgeConfig>;
-        valueEdgeConfigSpy.listActiveComponents.and.returnValue([{ category: { icon: '', title: 'title' }, components: [testComponent] }]);
-        spyPropertyGetter(valueEdgeConfigSpy, 'components').and.returnValue({ [testComponent.id]: testComponent });
+        valueEdgeConfigSpy.listActiveComponents.and.returnValue([{ category: { icon: "", title: "title" }, components: [testComponent] }]);
+        spyPropertyGetter(valueEdgeConfigSpy, "components").and.returnValue({ [testComponent.id]: testComponent });
         valueServiceSpy.getConfig.and.resolveTo(TestBed.inject(EdgeConfig));
 
         statusComponent = TestBed.inject(StatusSingleComponent);
     }));
 
-    it('Test add Channels for subscription', async () => {
+    it("Test add Channels for subscription", async () => {
         await statusComponent.ngOnInit();
         await statusComponent.subscribeInfoChannels(testComponent);
         expect(statusComponent.subscribedInfoChannels).toHaveSize(2);
-        expect(statusComponent.subscribedInfoChannels).toContain(new ChannelAddress(testComponent.id, 'State'));
-        expect(statusComponent.subscribedInfoChannels).toContain(new ChannelAddress(testComponent.id, 'testChannel'));
+        expect(statusComponent.subscribedInfoChannels).toContain(new ChannelAddress(testComponent.id, "State"));
+        expect(statusComponent.subscribedInfoChannels).toContain(new ChannelAddress(testComponent.id, "testChannel"));
     });
 });
 

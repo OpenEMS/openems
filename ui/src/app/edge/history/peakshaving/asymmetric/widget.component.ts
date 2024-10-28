@@ -1,11 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { Edge, EdgeConfig, Service } from 'src/app/shared/shared';
+import { Component, Input, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { Edge, EdgeConfig, Service } from "src/app/shared/shared";
 
 @Component({
     selector: AsymmetricPeakshavingWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html',
+    templateUrl: "./widget.component.html",
 })
 export class AsymmetricPeakshavingWidgetComponent implements OnInit {
 
@@ -22,7 +22,7 @@ export class AsymmetricPeakshavingWidgetComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);

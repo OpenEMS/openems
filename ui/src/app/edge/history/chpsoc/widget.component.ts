@@ -1,15 +1,15 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
-import { calculateActiveTimeOverPeriod } from '../shared';
+import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../shared/shared";
+import { AbstractHistoryWidget } from "../abstracthistorywidget";
+import { calculateActiveTimeOverPeriod } from "../shared";
 
 @Component({
     selector: ChpSocWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html',
+    templateUrl: "./widget.component.html",
 })
 export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
@@ -29,8 +29,8 @@ export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnIn
     }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(response => {
-            this.edge = response;
+        this.service.getCurrentEdge().then(edge => {
+            this.edge = edge;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
             });
@@ -50,7 +50,7 @@ export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnIn
         this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).then(response => {
             this.service.getConfig().then(config => {
                 const result = (response as QueryHistoricTimeseriesDataResponse).result;
-                const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
+                const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)["outputChannelAddress"]);
                 this.activeSecondsOverPeriod = calculateActiveTimeOverPeriod(outputChannel, result);
             });
         });
@@ -58,7 +58,7 @@ export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnIn
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
+            const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)["outputChannelAddress"]);
             const channeladdresses = [outputChannel];
             resolve(channeladdresses);
         });

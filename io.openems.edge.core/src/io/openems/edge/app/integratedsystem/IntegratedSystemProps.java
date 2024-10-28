@@ -12,8 +12,10 @@ import io.openems.edge.app.enums.FeedInType;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.core.appmanager.AppDef;
+import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
+import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
@@ -268,6 +270,34 @@ public final class IntegratedSystemProps {
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(OptionsFactory.of(AcMeterType.values()), l) //
 							.onlyShowIf(Exp.currentModelValue(isAcMeterSelected).notNull());
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for selecting if the system has a ess limiter for
+	 * 14a.
+	 * 
+	 * @param <APP> the type of the app
+	 * @return the created {@link AppDef}
+	 */
+	public static final <APP extends OpenemsApp & AppManagerUtilSupplier> //
+	AppDef<APP, Nameable, BundleProvider> hasEssLimiter14a() {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.IntegratedSystem.hasEssLimiter14a.label") //
+				.setDefaultValue(false) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
+					final var hardwareTypes = app.getAppManagerUtil()
+							.getInstantiatedAppsByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
+
+					final var isSupported = hardwareTypes.stream()//
+							.anyMatch(t -> switch (t.appId) {
+							case "App.OpenemsHardware.CM3", "App.OpenemsHardware.CM4S" -> true;
+							default -> false;
+							});
+
+					if (!isSupported) {
+						field.disabled(true);
+					}
 				}));
 	}
 

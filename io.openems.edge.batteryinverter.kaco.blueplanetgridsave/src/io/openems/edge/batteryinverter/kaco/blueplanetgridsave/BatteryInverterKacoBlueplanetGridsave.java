@@ -33,29 +33,40 @@ public interface BatteryInverterKacoBlueplanetGridsave extends ManagedSymmetricB
 	public static final int WATCHDOG_TRIGGER_SECONDS = 10;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+
+		/*
+		 * Whenever one of these states would be Level.FAULT, the EssGeneric will stop
+		 * the battery and the inverter. If this is necessary, it must be specifically
+		 * mentioned and the state should have a proper description of the fault.
+		 */
+
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.FAULT) //
+		RUN_FAILED(Doc.of(Level.WARNING) //
 				.text("Running the Logic failed")), //
-		MAX_START_TIMEOUT(Doc.of(Level.FAULT) //
+		MAX_START_TIMEOUT(Doc.of(Level.WARNING) //
 				.text("Max start time is exceeded")), //
-		MAX_STOP_TIMEOUT(Doc.of(Level.FAULT) //
+		MAX_STOP_TIMEOUT(Doc.of(Level.WARNING) //
 				.text("Max stop time is exceeded")), //
-		INVERTER_CURRENT_STATE_FAULT(Doc.of(Level.FAULT) //
+
+		/**
+		 * Internal StateMachine from KACO.
+		 */
+		INVERTER_CURRENT_STATE_FAULT(Doc.of(Level.WARNING) //
 				.text("The 'CurrentState' is invalid")), //
-		GRID_DISCONNECTION(Doc.of(Level.FAULT) //
+		GRID_DISCONNECTION(Doc.of(Level.WARNING) //
 				.text("External grid protection disconnection (17)")), //
-		GRID_FAILURE_LINE_TO_LINE(Doc.of(Level.FAULT) //
+		GRID_FAILURE_LINE_TO_LINE(Doc.of(Level.WARNING) //
 				.text("Grid failure phase-to-phase voltage (47)")), //
-		LINE_FAILURE_UNDER_FREQ(Doc.of(Level.FAULT) //
+		LINE_FAILURE_UNDER_FREQ(Doc.of(Level.WARNING) //
 				.text("Line failure: Grid frequency is too low (48)")), //
-		LINE_FAILURE_OVER_FREQ(Doc.of(Level.FAULT) //
+		LINE_FAILURE_OVER_FREQ(Doc.of(Level.WARNING) //
 				.text("Line failure: Grid frequency is too high (49)")), //
-		PROTECTION_SHUTDOWN_LINE_1(Doc.of(Level.FAULT) //
+		PROTECTION_SHUTDOWN_LINE_1(Doc.of(Level.WARNING) //
 				.text("Grid Failure: grid voltage L1 protection (81)")), //
-		PROTECTION_SHUTDOWN_LINE_2(Doc.of(Level.FAULT) //
+		PROTECTION_SHUTDOWN_LINE_2(Doc.of(Level.WARNING) //
 				.text("Grid Failure: grid voltage L2 protection (82)")), //
-		PROTECTION_SHUTDOWN_LINE_3(Doc.of(Level.FAULT) //
+		PROTECTION_SHUTDOWN_LINE_3(Doc.of(Level.WARNING) //
 				.text("Grid Failure: grid voltage L3 protection (83)")), //
 
 		;

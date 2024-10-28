@@ -5,8 +5,8 @@ import { ChannelAddress, CurrentData } from "src/app/shared/shared";
 import { AbstractModalLine } from "../abstract-modal-line";
 
 @Component({
-  selector: 'oe-modal-value-line',
-  templateUrl: './modal-value-line.html',
+  selector: "oe-modal-value-line",
+  templateUrl: "./modal-value-line.html",
 })
 export class ModalValueLineComponent extends AbstractModalLine {
 
@@ -34,7 +34,7 @@ export class ModalValueLineComponent extends AbstractModalLine {
 }
 
 export enum TextIndentation {
-  NONE = '0%',
-  SINGLE = '5%',
-  DOUBLE = '10%',
+  NONE = "0%",
+  SINGLE = "5%",
+  DOUBLE = "10%",
 }

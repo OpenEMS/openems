@@ -1,13 +1,13 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
+import { Component, Input, OnInit } from "@angular/core";
+import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
+import { ModalController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { Edge, EdgeConfig, Service, Websocket } from "../../../../shared/shared";
 
 @Component({
     selector: DelayedSellToGridModalComponent.SELECTOR,
-    templateUrl: './modal.component.html',
+    templateUrl: "./modal.component.html",
 })
 export class DelayedSellToGridModalComponent implements OnInit {
 
@@ -30,11 +30,11 @@ export class DelayedSellToGridModalComponent implements OnInit {
     ngOnInit() {
         this.formGroup = this.formBuilder.group({
             continuousSellToGridPower: new FormControl(this.component.properties.continuousSellToGridPower, Validators.compose([
-                Validators.pattern('^(?:[1-9][0-9]*|0)$'),
+                Validators.pattern("^(?:[1-9][0-9]*|0)$"),
                 Validators.required,
             ])),
             sellToGridPowerLimit: new FormControl(this.component.properties.sellToGridPowerLimit, Validators.compose([
-                Validators.pattern('^(?:[1-9][0-9]*|0)$'),
+                Validators.pattern("^(?:[1-9][0-9]*|0)$"),
                 Validators.required,
             ])),
         });
@@ -42,9 +42,9 @@ export class DelayedSellToGridModalComponent implements OnInit {
 
     applyChanges() {
         if (this.edge != null) {
-            if (this.edge.roleIsAtLeast('owner')) {
-                const continuousSellToGridPower = this.formGroup.controls['continuousSellToGridPower'];
-                const sellToGridPowerLimit = this.formGroup.controls['sellToGridPowerLimit'];
+            if (this.edge.roleIsAtLeast("owner")) {
+                const continuousSellToGridPower = this.formGroup.controls["continuousSellToGridPower"];
+                const sellToGridPowerLimit = this.formGroup.controls["sellToGridPowerLimit"];
                 if (continuousSellToGridPower.valid && sellToGridPowerLimit.valid) {
                     if (sellToGridPowerLimit.value > continuousSellToGridPower.value) {
                         const updateComponentArray = [];
@@ -58,23 +58,23 @@ export class DelayedSellToGridModalComponent implements OnInit {
                             this.component.properties.continuousSellToGridPower = continuousSellToGridPower.value;
                             this.component.properties.sellToGridPowerLimit = sellToGridPowerLimit.value;
                             this.loading = false;
-                            this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+                            this.service.toast(this.translate.instant("General.changeAccepted"), "success");
                         }).catch(reason => {
                             continuousSellToGridPower.setValue(this.component.properties.continuousSellToGridPower);
                             sellToGridPowerLimit.setValue(this.component.properties.sellToGridPowerLimit);
                             this.loading = false;
-                            this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+                            this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
                             console.warn(reason);
                         });
                         this.formGroup.markAsPristine();
                     } else {
-                        this.service.toast(this.translate.instant('Edge.Index.Widgets.DelayedSellToGrid.relationError'), 'danger');
+                        this.service.toast(this.translate.instant("Edge.Index.Widgets.DelayedSellToGrid.relationError"), "danger");
                     }
                 } else {
-                    this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
+                    this.service.toast(this.translate.instant("General.inputNotValid"), "danger");
                 }
             } else {
-                this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
+                this.service.toast(this.translate.instant("General.insufficientRights"), "danger");
             }
         }
     }

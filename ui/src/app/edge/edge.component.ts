@@ -10,8 +10,6 @@ import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared"
     template: `
     <ion-content></ion-content>
          <ion-router-outlet id="content"></ion-router-outlet>
-         <oe-notification *ngIf="latestIncident" color="warning" [text]="latestIncident.message"
-    [id]="latestIncident.id"></oe-notification>
     `,
 })
 export class EdgeComponent implements OnInit, OnDestroy {
@@ -30,7 +28,7 @@ export class EdgeComponent implements OnInit, OnDestroy {
     public ngOnInit(): void {
         this.activatedRoute.params.subscribe((params) => {
             // Set CurrentEdge in Metadata
-            const edgeId = params['edgeId'];
+            const edgeId = params["edgeId"];
             this.service.updateCurrentEdge(edgeId).then((edge) => {
                 this.edge = edge;
 
@@ -39,12 +37,12 @@ export class EdgeComponent implements OnInit, OnDestroy {
                     .then(() => {
 
                         // Subscribe on these channels for the state in HeaderComponent
-                        edge.subscribeChannels(this.websocket, '', [
-                            new ChannelAddress('_sum', 'State'),
+                        edge.subscribeChannels(this.websocket, "", [
+                            new ChannelAddress("_sum", "State"),
                         ]);
                     });
             }).catch(() => {
-                this.router.navigate(['index']);
+                this.router.navigate(["index"]);
             });
         });
     }

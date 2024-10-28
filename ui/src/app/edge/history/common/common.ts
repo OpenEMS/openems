@@ -1,10 +1,10 @@
-import { NgModule } from '@angular/core';
-import { Common_Autarchy } from './autarchy/Autarchy';
-import { Common_Consumption } from './consumption/Consumption';
-import { CommonEnergyMonitor } from './energy/energy';
-import { Common_Grid } from './grid/grid';
-import { Common_Production } from './production/production';
-import { Common_Selfconsumption } from './selfconsumption/SelfConsumption';
+import { NgModule } from "@angular/core";
+import { Common_Autarchy } from "./autarchy/Autarchy";
+import { Common_Consumption } from "./consumption/Consumption";
+import { CommonEnergyMonitor } from "./energy/energy";
+import { Common_Grid } from "./grid/grid";
+import { Common_Production } from "./production/production";
+import { Common_Selfconsumption } from "./selfconsumption/SelfConsumption";
 
 @NgModule({
   imports: [

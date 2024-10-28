@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Edge, EdgeConfig, Service } from '../../../../../shared/shared';
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { Edge, EdgeConfig, Service } from "../../../../../shared/shared";
 
 @Component({
     selector: SymmetricPeakshavingChartOverviewComponent.SELECTOR,
-    templateUrl: './symmetricpeakshavingchartoverview.component.html',
+    templateUrl: "./symmetricpeakshavingchartoverview.component.html",
 })
 export class SymmetricPeakshavingChartOverviewComponent implements OnInit {
 
@@ -19,7 +19,7 @@ export class SymmetricPeakshavingChartOverviewComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.service.getConfig().then(config => {
                 this.edge = edge;
                 this.component = config.getComponent(this.route.snapshot.params.componentId);

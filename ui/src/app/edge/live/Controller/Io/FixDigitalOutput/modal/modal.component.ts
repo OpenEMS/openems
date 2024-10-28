@@ -1,12 +1,12 @@
-import { Component, Input } from '@angular/core';
-import { Router } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
+import { Component, Input } from "@angular/core";
+import { Router } from "@angular/router";
+import { ModalController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 
 @Component({
-  selector: 'fixdigitaloutput-modal',
-  templateUrl: './modal.component.html',
+  selector: "fixdigitaloutput-modal",
+  templateUrl: "./modal.component.html",
 })
 export class Controller_Io_FixDigitalOutputModalComponent {
 
@@ -32,16 +32,16 @@ export class Controller_Io_FixDigitalOutputModalComponent {
     // ion-segment button only supports string as type
     // https://ionicframework.com/docs/v4/api/segment-button
 
-    const newMode = (event.detail.value.toLowerCase() === 'true');
+    const newMode = (event.detail.value.toLowerCase() === "true");
 
     this.edge.updateComponentConfig(this.websocket, this.component.id, [
-      { name: 'isOn', value: newMode },
+      { name: "isOn", value: newMode },
     ]).then(() => {
       this.component.properties.isOn = newMode;
-      this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+      this.service.toast(this.translate.instant("General.changeAccepted"), "success");
     }).catch(reason => {
       this.component.properties.isOn = oldMode;
-      this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+      this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
       console.warn(reason);
     });
   }

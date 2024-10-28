@@ -4,8 +4,8 @@ import { FieldType, FieldTypeConfig, FormlyFieldConfig } from "@ngx-formly/core"
 import { Option, OptionGroup, OptionGroupConfig, getTitleFromOptionConfig } from "./optionGroupPickerConfiguration";
 
 @Component({
-    selector: 'formly-option-group-picker',
-    templateUrl: './formly-option-group-picker.component.html',
+    selector: "formly-option-group-picker",
+    templateUrl: "./formly-option-group-picker.component.html",
 })
 export class FormlyOptionGroupPickerComponent extends FieldType<FieldTypeConfig> implements OnInit {
 

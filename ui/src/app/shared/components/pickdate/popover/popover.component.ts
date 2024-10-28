@@ -1,18 +1,18 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { CalAnimation, IAngularMyDpOptions, IMyDate, IMyDateRangeModel } from '@nodro7/angular-mydatepicker';
-import { endOfMonth, startOfMonth } from 'date-fns';
-import { addDays, endOfWeek, endOfYear, getDate, getMonth, getYear, startOfWeek, startOfYear } from 'date-fns/esm';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { EdgePermission, Service, Utils } from 'src/app/shared/shared';
+import { Component, Input, OnInit } from "@angular/core";
+import { PopoverController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { CalAnimation, IAngularMyDpOptions, IMyDate, IMyDateRangeModel } from "@nodro7/angular-mydatepicker";
+import { endOfMonth, startOfMonth } from "date-fns";
+import { addDays, endOfWeek, endOfYear, getDate, getMonth, getYear, startOfWeek, startOfYear } from "date-fns/esm";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { EdgePermission, Service, Utils } from "src/app/shared/shared";
 
-import { Edge } from '../../edge/edge';
+import { Edge } from "../../edge/edge";
 
 @Component({
-    selector: 'pickdatepopover',
-    templateUrl: './popover.component.html',
+    selector: "pickdatepopover",
+    templateUrl: "./popover.component.html",
 })
 export class PickDatePopoverComponent implements OnInit {
 
@@ -20,14 +20,14 @@ export class PickDatePopoverComponent implements OnInit {
     @Input() public edge: Edge | null = null;
     @Input() public historyPeriods: DefaultTypes.PeriodStringValues[] = [];
 
-    public locale: string = 'de';
+    public locale: string = "de";
     public showCustomDate: boolean = false;
 
     protected periods: string[] = [];
     protected readonly TOMORROW = addDays(new Date(), 1);
     protected myDpOptions: IAngularMyDpOptions = {
         stylesData: {
-            selector: 'dp1',
+            selector: "dp1",
             styles: `
                .dp1 .myDpMarkCurrDay, 
                .dp1 .myDpMarkCurrMonth, 
@@ -38,13 +38,13 @@ export class PickDatePopoverComponent implements OnInit {
              `,
         },
         calendarAnimation: { in: CalAnimation.FlipDiagonal, out: CalAnimation.ScaleCenter },
-        dateFormat: 'dd.mm.yyyy',
+        dateFormat: "dd.mm.yyyy",
         dateRange: true,
         disableSince: this.toIMyDate(this.TOMORROW),
         disableUntil: { day: 1, month: 1, year: 2013 }, // TODO start with date since the edge is available
         inline: true,
-        selectorHeight: '225px',
-        selectorWidth: '251px',
+        selectorHeight: "225px",
+        selectorWidth: "251px",
         showWeekNumbers: true,
     };
     protected readonly DefaultTypes = DefaultTypes;
@@ -111,6 +111,8 @@ export class PickDatePopoverComponent implements OnInit {
                 this.popoverCtrl.dismiss();
                 break;
             }
+            default:
+                break;
         }
     }
 

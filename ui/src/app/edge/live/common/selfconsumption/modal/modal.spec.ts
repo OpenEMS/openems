@@ -13,11 +13,11 @@ export function expectView(testContext: TestContext, viewContext: OeFormlyViewTe
   expect(generatedView).toEqual(view);
 }
 
-describe('SelfConsumption - Modal', () => {
+describe("SelfConsumption - Modal", () => {
   let TEST_CONTEXT: TestContext;
   beforeEach(async () => TEST_CONTEXT = await sharedSetup());
 
-  it('generateView()', () => {
+  it("generateView()", () => {
     {
       expectView(TEST_CONTEXT, VIEW_CONTEXT, {
         title: "Eigenverbrauch",

@@ -10,6 +10,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEme
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEssSurplusFeedToGrid;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.emergencyMeter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ess;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridMeter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.io;
@@ -29,6 +30,7 @@ import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInT
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.gridMeterType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasAcMeter;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEmergencyReserve;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.shadowManagementDisabled;
@@ -66,6 +68,8 @@ import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.AppManagerUtil;
+import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -134,7 +138,7 @@ import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
  */
 @Component(name = "App.FENECON.Home.20")
 public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, PropertyParent, BundleParameter>
-		implements OpenemsApp {
+		implements OpenemsApp, AppManagerUtilSupplier {
 
 	public enum Property implements PropertyParent {
 		ALIAS(alias()), //
@@ -148,6 +152,8 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 
 		GRID_METER_CATEGORY(gridMeterType()), //
 		CT_RATIO_FIRST(ctRatioFirst(GRID_METER_CATEGORY)), //
+
+		HAS_ESS_LIMITER_14A(hasEssLimiter14a()), //
 
 		HAS_AC_METER(hasAcMeter()), //
 		AC_METER_TYPE(acMeterType(HAS_AC_METER)), //
@@ -194,15 +200,18 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 	private static final IntFunction<String> MPPT_ALIAS = value -> "ALIAS_MPPT_" + (value + 1);
 
 	private final Map<String, PropertyParent> pvDefs = new TreeMap<>();
+	private final AppManagerUtil appManagerUtil;
 
 	@Activate
 	public FeneconHome20(//
 			@Reference final ComponentManager componentManager, //
 			final ComponentContext componentContext, //
 			@Reference final ConfigurationAdmin cm, //
-			@Reference final ComponentUtil componentUtil //
+			@Reference final ComponentUtil componentUtil, //
+			@Reference final AppManagerUtil appManagerUtil //
 	) {
 		super(componentManager, componentContext, cm, componentUtil);
+		this.appManagerUtil = appManagerUtil;
 
 		BooleanExpression anyOldPvSelected = null;
 		for (int i = 0; i < MAX_NUMBER_OF_PV; i++) {
@@ -287,6 +296,7 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 			} else {
 				ctRatioFirst = null;
 			}
+			final var hasEssLimiter14a = this.getBoolean(p, Property.HAS_ESS_LIMITER_14A);
 
 			final var hasAcMeter = this.getBoolean(p, Property.HAS_AC_METER);
 			final var acType = this.getEnum(p, AcMeterType.class, Property.AC_METER_TYPE);
@@ -343,8 +353,13 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 					selfConsumptionOptimization(t, essId, gridMeterId), //
 					prepareBatteryExtension() //
 			);
+
 			if (hasAcMeter) {
 				dependencies.add(acType.getDependency(modbusIdExternal));
+			}
+
+			if (hasEssLimiter14a) {
+				dependencies.add(essLimiter14aToHardware(this.appManagerUtil));
 			}
 
 			final var schedulerComponents = new ArrayList<SchedulerComponent>();
@@ -419,6 +434,11 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 		builder.add(Property.SHADOW_MANAGEMENT_DISABLED);
 
 		return builder.build().toArray(PropertyParent[]::new);
+	}
+
+	@Override
+	public AppManagerUtil getAppManagerUtil() {
+		return this.appManagerUtil;
 	}
 
 	public static interface PropertyParent extends Type<PropertyParent, FeneconHome20, BundleParameter> {

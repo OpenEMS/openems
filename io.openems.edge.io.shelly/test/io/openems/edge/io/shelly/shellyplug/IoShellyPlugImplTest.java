@@ -1,25 +1,24 @@
 package io.openems.edge.io.shelly.shellyplug;
 
+import static io.openems.common.types.MeterType.PRODUCTION;
+import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.ofDummyBridge;
+
 import org.junit.Test;
 
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
 
 public class IoShellyPlugImplTest {
 
-	private static final String COMPONENT_ID = "io0";
-
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new IoShellyPlugImpl()) //
-				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
+				.addReference("httpBridgeFactory", ofDummyBridge()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("io0") //
 						.setPhase(SinglePhase.L1) //
 						.setIp("127.0.0.1") //
-						.setType(MeterType.PRODUCTION) //
+						.setType(PRODUCTION) //
 						.build()) //
 		;
 	}

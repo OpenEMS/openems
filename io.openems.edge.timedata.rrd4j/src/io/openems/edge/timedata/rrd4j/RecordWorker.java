@@ -202,8 +202,10 @@ public class RecordWorker extends AbstractImmediateWorker {
 	protected void forever() throws InterruptedException {
 		final var record = this.records.take();
 
-		if (this.config.readOnly() && this.config.debugMode()) {
-			this.log.info("Read-Only-Mode is activated. Not writing record: " + record.toString());
+		if (this.config.readOnly()) {
+			if (this.config.debugMode()) {
+				this.log.info("Read-Only-Mode is activated. Not writing record: " + record.toString());
+			}
 			return;
 		}
 

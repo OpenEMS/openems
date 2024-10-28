@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
+import { Component } from "@angular/core";
+import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
-import { ChannelAddress, EdgeConfig, Utils } from '../../../../../shared/shared';
+import { ChannelAddress, EdgeConfig, Utils } from "../../../../../shared/shared";
 
 @Component({
-  selector: 'productionWidget',
-  templateUrl: './flat.html',
+  selector: "productionWidget",
+  templateUrl: "./flat.html",
 })
 export class FlatComponent extends AbstractFlatWidget {
 

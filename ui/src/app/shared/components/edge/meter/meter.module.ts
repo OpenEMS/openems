@@ -21,7 +21,7 @@ import { EssChargerComponent } from "./esscharger/modal.component";
         NgChartsModule,
         CommonModule,
         NgxSpinnerModule.forRoot({
-            type: 'ball-clip-rotate-multiple',
+            type: "ball-clip-rotate-multiple",
         }),
         HistoryDataErrorModule,
         ModalModule,

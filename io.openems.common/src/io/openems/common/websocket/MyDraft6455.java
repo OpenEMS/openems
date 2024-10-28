@@ -23,6 +23,7 @@ import org.java_websocket.enums.HandshakeState;
 import org.java_websocket.enums.Opcode;
 import org.java_websocket.enums.ReadyState;
 import org.java_websocket.enums.Role;
+import org.java_websocket.exceptions.IncompleteException;
 import org.java_websocket.exceptions.InvalidDataException;
 import org.java_websocket.exceptions.InvalidFrameException;
 import org.java_websocket.exceptions.InvalidHandshakeException;
@@ -920,8 +921,8 @@ public class MyDraft6455 extends Draft {
 		} else if (curop == Opcode.BINARY) {
 			this.processFrameBinary(webSocketImpl, frame);
 		} else {
-			this.log.error("non control or continious frame expected");
-			throw new InvalidDataException(CloseFrame.PROTOCOL_ERROR, "non control or continious frame expected");
+			this.log.error("non control or continuous frame expected");
+			throw new InvalidDataException(CloseFrame.PROTOCOL_ERROR, "non control or continuous frame expected");
 		}
 	}
 

@@ -21,7 +21,7 @@ import { ChartComponent } from "./chart";
     NgChartsModule,
     CommonModule,
     NgxSpinnerModule.forRoot({
-      type: 'ball-clip-rotate-multiple',
+      type: "ball-clip-rotate-multiple",
     }),
     HistoryDataErrorModule,
     RouterModule,

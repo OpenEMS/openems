@@ -1,13 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { Role } from 'src/app/shared/type/role';
-import { environment } from 'src/environments';
-import { Edge, Service, Utils } from '../../shared/shared';
-import { JsonrpcTestPermission } from './jsonrpctest/jsonrpctest.permission';
+import { Component, OnInit } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
+import { Role } from "src/app/shared/type/role";
+import { environment } from "src/environments";
+import { Edge, Service, Utils } from "../../shared/shared";
+import { JsonrpcTestPermission } from "./jsonrpctest/jsonrpctest.permission";
 
 @Component({
-  selector: 'settings',
-  templateUrl: './settings.component.html',
+  selector: "settings",
+  templateUrl: "./settings.component.html",
 })
 export class SettingsComponent implements OnInit {
 
@@ -19,7 +19,7 @@ export class SettingsComponent implements OnInit {
   public isAtLeastAdmin: boolean = false;
   public canSeeJsonrpcTest: boolean = false;
 
-  protected isEdgeBackend: boolean = environment.backend === 'OpenEMS Edge';
+  protected isEdgeBackend: boolean = environment.backend === "OpenEMS Edge";
 
   constructor(
     protected utils: Utils,

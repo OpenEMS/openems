@@ -19,10 +19,10 @@ export namespace ArrayUtils {
   /**
    * Finds the biggest number in a array.
    * null, undefined, NaN, +-Infinity are ignored in this method.
-   *
-   * @param arr the arr
-   * @returns a number if arr not empty, else null
-   */
+  *
+  * @param arr the arr
+  * @returns a number if arr not empty, else null
+  */
   export function findBiggestNumber(arr: (number | null | undefined)[]): number | null {
     const filteredArr = arr.filter((el): el is number => Number.isFinite(el));
     return filteredArr.length > 0 ? Math.max(...filteredArr) : null;
@@ -45,7 +45,18 @@ export namespace ArrayUtils {
       } else if (!bVal) {
         return -1;
       }
-      return aVal.localeCompare(bVal, undefined, { sensitivity: 'accent' });
+      return aVal.localeCompare(bVal, undefined, { sensitivity: "accent" });
     });
+  }
+
+  /**
+  * Checks if array contains at least one of the passed strings
+  *
+  * @param strings the strings
+  * @param arr the array
+  * @returns true if arr contains at least one of the strings
+  */
+  export function containsStrings(strings: (number | string | null)[], arr: (number | string | null)[]): boolean {
+    return arr.filter(el => strings.includes(el)).length > 0;
   }
 }

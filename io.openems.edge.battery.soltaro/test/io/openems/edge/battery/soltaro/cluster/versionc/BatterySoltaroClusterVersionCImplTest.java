@@ -9,17 +9,14 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class BatterySoltaroClusterVersionCImplTest {
 
-	private static final String BATTERY_ID = "battery0";
-	private static final String MODBUS_ID = "modbus0";
-
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new BatterySoltaroClusterVersionCImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
-						.setId(BATTERY_ID) //
-						.setModbusId(MODBUS_ID) //
+						.setId("battery0") //
+						.setModbusId("modbus0") //
 						.setStartStop(StartStopConfig.AUTO) //
 						.build()) //
 		;

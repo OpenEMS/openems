@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
 import org.junit.Before;
@@ -25,11 +24,13 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.integratedsystem.TestFeneconHome;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
 import io.openems.edge.core.appmanager.Apps;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
+import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
+import io.openems.edge.core.appmanager.validator.CheckCommercial92;
+import io.openems.edge.core.appmanager.validator.CheckHome;
 
 public class TestTibber {
 
@@ -40,8 +41,7 @@ public class TestTibber {
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//
-					this.tibber = Apps.tibber(t), //
-					Apps.feneconHome(t) //
+					this.tibber = Apps.tibber(t) //
 			);
 		}, null, new PseudoComponentManagerFactory());
 
@@ -52,8 +52,6 @@ public class TestTibber {
 
 	@Test
 	public void testRemoveAccessToken() throws Exception {
-		this.installHome();
-
 		final var properties = JsonUtils.buildJsonObject() //
 				.addProperty("ACCESS_TOKEN", "g78aw9ht2n112nb453") //
 				.build();
@@ -83,7 +81,6 @@ public class TestTibber {
 	@Test
 	public void testAddChannelToPredictor() throws Exception {
 		this.createPredictor();
-		this.installHome();
 
 		final var properties = JsonUtils.buildJsonObject() //
 				.addProperty("ACCESS_TOKEN", "g78aw9ht2n112nb453") //
@@ -95,7 +92,14 @@ public class TestTibber {
 	}
 
 	@Test(expected = OpenemsNamedException.class)
-	public void testOnlyCompatibleWithHome() throws Exception {
+	public void testOnlyCompatibleWithHomeOrCommercial() throws Exception {
+		this.appManagerTestBundle.addCheckable(CheckHome.COMPONENT_NAME,
+				t -> new CheckHome(t, new CheckAppsNotInstalled(this.appManagerTestBundle.sut,
+						AppManagerTestBundle.getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))));
+		this.appManagerTestBundle.addCheckable(CheckCommercial92.COMPONENT_NAME,
+				t -> new CheckCommercial92(t, new CheckAppsNotInstalled(this.appManagerTestBundle.sut,
+						AppManagerTestBundle.getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))));
+
 		final var properties = JsonUtils.buildJsonObject() //
 				.addProperty("ACCESS_TOKEN", "g78aw9ht2n112nb453") //
 				.build();
@@ -105,7 +109,6 @@ public class TestTibber {
 
 	@Test
 	public void testSetTokenValue() throws Exception {
-		this.installHome();
 		final var properties = JsonUtils.buildJsonObject() //
 				.addProperty("ACCESS_TOKEN", "g78aw9ht2n112nb453") //
 				.build();
@@ -131,7 +134,6 @@ public class TestTibber {
 
 	@Test
 	public void testUnsetFilterValue() throws Exception {
-		this.installHome();
 		final var properties = JsonUtils.buildJsonObject() //
 				.addProperty(Tibber.Property.ACCESS_TOKEN.name(), "g78aw9ht2n112nb453") //
 				.addProperty(Tibber.Property.MULTIPLE_HOMES_CHECK.name(), true) //
@@ -168,11 +170,6 @@ public class TestTibber {
 						new UpdateComponentConfigRequest.Property("channelAddresses", JsonUtils.buildJsonArray()//
 								.build()) //
 				)));
-	}
-
-	private void installHome() throws InterruptedException, ExecutionException, OpenemsNamedException {
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", TestFeneconHome.minSettings()));
 	}
 
 	private void assertChannelsInPredictor(String... channels) throws OpenemsNamedException {

@@ -106,6 +106,6 @@ export namespace DateUtils {
     if (!fromDate || !toDate) {
       return null;
     }
-    return format(fromDate, translate.instant('General.dateFormat')) + " - " + format(toDate, translate.instant('General.dateFormat'));
+    return format(fromDate, translate.instant("General.dateFormat")) + " - " + format(toDate, translate.instant("General.dateFormat"));
   }
 }

@@ -9,12 +9,12 @@ import { DefaultTypes } from "../../service/defaulttypes";
 import { Edge, Service } from "../../shared";
 
 @Component({
-  selector: 'oe-chart',
-  templateUrl: './chart.html',
+  selector: "oe-chart",
+  templateUrl: "./chart.html",
 })
 export class ChartComponent implements OnInit, OnChanges {
 
-  @Input() public title: string = '';
+  @Input() public title: string = "";
   @Input() public showPhases: boolean | null = null;
   @Input() public showTotal: boolean | null = null;
   @Output() public setShowPhases: EventEmitter<boolean> = new EventEmitter();
@@ -37,7 +37,7 @@ export class ChartComponent implements OnInit, OnChanges {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentComponent('', this.route).then(edge => {
+    this.service.getCurrentEdge().then(edge => {
       this.edge = edge;
     });
 
@@ -61,8 +61,8 @@ export class ChartComponent implements OnInit, OnChanges {
 
     await popover.present();
     popover.onDidDismiss().then((data) => {
-      this.showPhases = data.role == 'Phases' ? data.data : this.showPhases;
-      this.showTotal = data.role == 'Total' ? data.data : this.showTotal;
+      this.showPhases = data.role == "Phases" ? data.data : this.showPhases;
+      this.showTotal = data.role == "Total" ? data.data : this.showTotal;
       this.setShowPhases.emit(this.showPhases);
       this.setShowTotal.emit(this.showTotal);
     });

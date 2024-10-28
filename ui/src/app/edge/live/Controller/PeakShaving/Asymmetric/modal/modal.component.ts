@@ -1,20 +1,20 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
-import { Edge, EdgeConfig, Service, Websocket } from '../../../../../../shared/shared';
+import { Component, Input, OnInit } from "@angular/core";
+import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
+import { ModalController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { Subject } from "rxjs";
+import { Edge, EdgeConfig, Service, Websocket } from "../../../../../../shared/shared";
 
 @Component({
-    selector: 'asymmetricpeakshaving-modal',
-    templateUrl: './modal.component.html',
+    selector: "asymmetricpeakshaving-modal",
+    templateUrl: "./modal.component.html",
 })
 export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
 
     @Input({ required: true }) protected component!: EdgeConfig.Component;
     @Input({ required: true }) protected edge!: Edge;
-    @Input({ required: true }) protected mostStressedPhase!: Subject<{ name: 'L1' | 'L2' | 'L3' | '', value: number }>;
+    @Input({ required: true }) protected mostStressedPhase!: Subject<{ name: "L1" | "L2" | "L3" | "", value: number }>;
 
     public formGroup: FormGroup;
     public loading: boolean = false;
@@ -30,11 +30,11 @@ export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
     ngOnInit() {
         this.formGroup = this.formBuilder.group({
             peakShavingPower: new FormControl(this.component.properties.peakShavingPower, Validators.compose([
-                Validators.pattern('^(?:[1-9][0-9]*|0)$'),
+                Validators.pattern("^(?:[1-9][0-9]*|0)$"),
                 Validators.required,
             ])),
             rechargePower: new FormControl(this.component.properties.rechargePower, Validators.compose([
-                Validators.pattern('^(?:[1-9][0-9]*|0)$'),
+                Validators.pattern("^(?:[1-9][0-9]*|0)$"),
                 Validators.required,
             ])),
         });
@@ -42,9 +42,9 @@ export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
 
     applyChanges() {
         if (this.edge != null) {
-            if (this.edge.roleIsAtLeast('owner')) {
-                if (this.formGroup.controls['peakShavingPower'].valid && this.formGroup.controls['rechargePower'].valid) {
-                    if (this.formGroup.controls['peakShavingPower'].value >= this.formGroup.controls['rechargePower'].value) {
+            if (this.edge.roleIsAtLeast("owner")) {
+                if (this.formGroup.controls["peakShavingPower"].valid && this.formGroup.controls["rechargePower"].valid) {
+                    if (this.formGroup.controls["peakShavingPower"].value >= this.formGroup.controls["rechargePower"].value) {
                         const updateComponentArray = [];
                         Object.keys(this.formGroup.controls).forEach((element, index) => {
                             if (this.formGroup.controls[element].dirty) {
@@ -56,23 +56,23 @@ export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
                             this.component.properties.peakShavingPower = this.formGroup.value.peakShavingPower;
                             this.component.properties.rechargePower = this.formGroup.value.rechargePower;
                             this.loading = false;
-                            this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+                            this.service.toast(this.translate.instant("General.changeAccepted"), "success");
                         }).catch(reason => {
-                            this.formGroup.controls['peakShavingPower'].setValue(this.component.properties.peakShavingPower);
-                            this.formGroup.controls['rechargePower'].setValue(this.component.properties.rechargePower);
+                            this.formGroup.controls["peakShavingPower"].setValue(this.component.properties.peakShavingPower);
+                            this.formGroup.controls["rechargePower"].setValue(this.component.properties.rechargePower);
                             this.loading = false;
-                            this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+                            this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
                             console.warn(reason);
                         });
                         this.formGroup.markAsPristine();
                     } else {
-                        this.service.toast(this.translate.instant('Edge.Index.Widgets.Peakshaving.relationError'), 'danger');
+                        this.service.toast(this.translate.instant("Edge.Index.Widgets.Peakshaving.relationError"), "danger");
                     }
                 } else {
-                    this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
+                    this.service.toast(this.translate.instant("General.inputNotValid"), "danger");
                 }
             } else {
-                this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
+                this.service.toast(this.translate.instant("General.insufficientRights"), "danger");
             }
         }
     }

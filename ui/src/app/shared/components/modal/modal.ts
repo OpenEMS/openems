@@ -14,8 +14,8 @@ export enum Status {
 }
 
 @Component({
-    selector: 'oe-modal',
-    templateUrl: './modal.html',
+    selector: "oe-modal",
+    templateUrl: "./modal.html",
     styles: [`
         :host {
             height: 100%;
@@ -53,7 +53,7 @@ export class ModalComponent {
     // Changes applied together
     public applyChanges() {
         const updateComponentArray: { name: string, value: any }[] = [];
-        this.service.startSpinner('spinner');
+        this.service.startSpinner("spinner");
         for (const key in this.formGroup.controls) {
             const control = this.formGroup.controls[key];
             this.formGroup.controls[key];
@@ -72,10 +72,10 @@ export class ModalComponent {
         if (this.edge) {
             this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray)
                 .then(() => {
-                    this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+                    this.service.toast(this.translate.instant("General.changeAccepted"), "success");
                 }).catch(reason => {
-                    this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-                }).finally(() => this.service.stopSpinner('spinner'));
+                    this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+                }).finally(() => this.service.stopSpinner("spinner"));
         }
         this.formGroup.markAsPristine();
     }

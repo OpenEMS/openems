@@ -19,6 +19,7 @@ import io.openems.edge.common.modbusslave.ModbusRecordFloat64;
 import io.openems.edge.common.modbusslave.ModbusRecordString16;
 import io.openems.edge.common.modbusslave.ModbusRecordUint16;
 import io.openems.edge.common.modbusslave.ModbusRecordUint32;
+import io.openems.edge.common.modbusslave.ModbusRecordUint64;
 import io.openems.edge.common.modbusslave.ModbusType;
 
 /**
@@ -148,25 +149,14 @@ public class GetModbusProtocolExportXlsxResponse extends Base64PayloadResponse {
 
 		var nextRow = 2;
 		for (ModbusType modbusType : ModbusType.values()) {
-			byte[] value = {};
-			switch (modbusType) {
-			case FLOAT32:
-				value = ModbusRecordFloat32.UNDEFINED_VALUE;
-				break;
-			case FLOAT64:
-				value = ModbusRecordFloat64.UNDEFINED_VALUE;
-				break;
-			case STRING16:
-				value = ModbusRecordString16.UNDEFINED_VALUE;
-				break;
-			case ENUM16:
-			case UINT16:
-				value = ModbusRecordUint16.UNDEFINED_VALUE;
-				break;
-			case UINT32:
-				value = ModbusRecordUint32.UNDEFINED_VALUE;
-				break;
-			}
+			byte[] value = switch (modbusType) {
+			case FLOAT32 -> ModbusRecordFloat32.UNDEFINED_VALUE;
+			case FLOAT64 -> ModbusRecordFloat64.UNDEFINED_VALUE;
+			case STRING16 -> ModbusRecordString16.UNDEFINED_VALUE;
+			case ENUM16, UINT16 -> ModbusRecordUint16.UNDEFINED_VALUE;
+			case UINT32 -> ModbusRecordUint32.UNDEFINED_VALUE;
+			case UINT64 -> ModbusRecordUint64.UNDEFINED_VALUE;
+			};
 			nextRow++;
 			ws.value(nextRow, 0, modbusType.toString());
 			ws.value(nextRow, 1, byteArrayToString(value));

@@ -1,4 +1,4 @@
-import { Theme } from 'src/environments';
+import { Theme } from "src/environments";
 
 export const theme = {
     theme: "OpenEMS" as Theme,

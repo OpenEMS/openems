@@ -995,11 +995,11 @@ public interface BatterySoltaroSingleRackVersionB extends Battery, OpenemsCompon
 				.text("precharge time was too long")),
 
 		// OpenEMS Faults
-		RUN_FAILED(Doc.of(Level.FAULT) //
+		RUN_FAILED(Doc.of(Level.WARNING) //
 				.text("Running the Logic failed")), //
-		MAX_START_ATTEMPTS(Doc.of(Level.FAULT) //
+		MAX_START_ATTEMPTS(Doc.of(Level.WARNING) //
 				.text("The maximum number of start attempts failed")), //
-		MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
+		MAX_STOP_ATTEMPTS(Doc.of(Level.WARNING) //
 				.text("The maximum number of stop attempts failed")), //
 
 		;

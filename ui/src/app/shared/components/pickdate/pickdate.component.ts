@@ -1,18 +1,18 @@
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { addMonths, addYears, differenceInDays, differenceInMilliseconds, endOfDay, endOfMonth, endOfYear, isAfter, isBefore, startOfDay, startOfMonth, startOfWeek, startOfYear, subMonths, subYears } from 'date-fns';
-import { addDays, addWeeks, endOfWeek, isFuture, subDays, subWeeks } from 'date-fns/esm';
+import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { PopoverController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { addMonths, addYears, differenceInDays, differenceInMilliseconds, endOfDay, endOfMonth, endOfYear, isAfter, isBefore, startOfDay, startOfMonth, startOfWeek, startOfYear, subMonths, subYears } from "date-fns";
+import { addDays, addWeeks, endOfWeek, isFuture, subDays, subWeeks } from "date-fns/esm";
 
-import { DefaultTypes } from '../../service/defaulttypes';
-import { Edge, Service } from '../../shared';
-import { DateUtils } from '../../utils/date/dateutils';
-import { PickDatePopoverComponent } from './popover/popover.component';
+import { DefaultTypes } from "../../service/defaulttypes";
+import { Edge, Service } from "../../shared";
+import { DateUtils } from "../../utils/date/dateutils";
+import { PickDatePopoverComponent } from "./popover/popover.component";
 
 @Component({
-    selector: 'pickdate',
-    templateUrl: './pickdate.component.html',
+    selector: "pickdate",
+    templateUrl: "./pickdate.component.html",
 })
 export class PickDateComponent implements OnInit, OnDestroy {
 
@@ -266,7 +266,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
             }
 
             case DefaultTypes.PeriodString.TOTAL: {
-                this.setDateRange(new DefaultTypes.HistoryPeriod(this.edge?.firstSetupProtocol ?? DateUtils.stringToDate('03.11.2022 16:04:37'), endOfYear(addYears(this.service.historyPeriod.value.to, 1))));
+                this.setDateRange(new DefaultTypes.HistoryPeriod(this.edge?.firstSetupProtocol ?? DateUtils.stringToDate("03.11.2022 16:04:37"), endOfYear(addYears(this.service.historyPeriod.value.to, 1))));
                 this.disableArrow = true;
                 break;
             }
@@ -329,6 +329,9 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(subDays(this.service.historyPeriod.value.from, dateDistance), subDays(this.service.historyPeriod.value.to, dateDistance)));
                 break;
             }
+            default:
+                break;
+
         }
     }
 
@@ -337,7 +340,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
             component: PickDatePopoverComponent,
             event: ev,
             translucent: false,
-            cssClass: 'pickdate-popover',
+            cssClass: "pickdate-popover",
             componentProps: {
                 setDateRange: this.setDateRange,
                 edge: this.edge,
@@ -399,7 +402,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
      * calculates the milliseconds until next period (Day|Week) will occour
      * is used to change date period
      */
-    private millisecondsUntilnextPeriod(): number {
+    private millisecondsUntilnextPeriod(): number | null {
         // + 1000 to reach the next day
         switch (this.service.periodString) {
             case DefaultTypes.PeriodString.DAY: {
@@ -422,6 +425,8 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 const endOfYearTime = endOfYear(currentDayTime);
                 return differenceInMilliseconds(endOfYearTime, currentDayTime) + 1000;
             }
+            default:
+                return null;
         }
     }
 

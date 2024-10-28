@@ -1,8 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input } from "@angular/core";
 
 @Component({
-    selector: 'percentagebar',
-    templateUrl: './percentagebar.component.html',
+    selector: "percentagebar",
+    templateUrl: "./percentagebar.component.html",
 })
 export class PercentageBarComponent {
 

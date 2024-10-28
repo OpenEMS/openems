@@ -10,7 +10,7 @@ import { Language, MyTranslateLoader } from "src/app/shared/type/language";
 import { PickdateModule } from "../pickdate.module";
 import { PickDatePopoverComponent } from "./popover.component";
 
-describe('PickdatePopover', () => {
+describe("PickdatePopover", () => {
 
     let fixture: ComponentFixture<PickDatePopoverComponent>;
     let component: PickDatePopoverComponent;
@@ -38,12 +38,12 @@ describe('PickdatePopover', () => {
         });
     });
 
-    it('is AngularMyDatePickerModule calendar opening on "other period" button', () => {
+    it("is AngularMyDatePickerModule calendar opening on \"other period\" button", () => {
         const { debugElement } = fixture;
-        const popoverBtn = debugElement.query(By.css('[testId="popover-button"]'));
-        popoverBtn.triggerEventHandler('click', null);
+        const popoverBtn = debugElement.query(By.css("[testId=\"popover-button\"]"));
+        popoverBtn.triggerEventHandler("click", null);
         fixture.detectChanges();
         expect(component).toBeDefined();
-        expect((debugElement?.nativeNode?.children as HTMLCollection)?.item(2)?.localName).toEqual('lib-angular-mydatepicker-calendar');
+        expect((debugElement?.nativeNode?.children as HTMLCollection)?.item(2)?.localName).toEqual("lib-angular-mydatepicker-calendar");
     });
 });

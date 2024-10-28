@@ -1,8 +1,8 @@
 // @ts-strict-ignore
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
-  name: 'classname',
+  name: "classname",
 })
 export class ClassnamePipe implements PipeTransform {
   transform(value, args: string[]): any {

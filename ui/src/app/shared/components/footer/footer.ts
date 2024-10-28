@@ -2,13 +2,13 @@ import { Component, HostBinding, OnInit } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { filter } from "rxjs/operators";
 
-import { environment } from '../../../../environments';
+import { environment } from "../../../../environments";
 import { User } from "../../jsonrpc/shared";
 import { Edge, Service } from "../../shared";
 import { Role } from "../../type/role";
 
 @Component({
-  selector: 'oe-footer',
+  selector: "oe-footer",
   styles: [`
 
     :host[data-isSmartPhone=true] {
@@ -31,11 +31,11 @@ import { Role } from "../../type/role";
       }
     }
   `],
-  templateUrl: 'footer.html',
+  templateUrl: "footer.html",
 })
 export class FooterComponent implements OnInit {
 
-  @HostBinding('attr.data-isSmartPhone')
+  @HostBinding("attr.data-isSmartPhone")
   public isSmartPhone: boolean = this.service.isSmartphoneResolution;
 
   protected user: User | null = null;

@@ -474,6 +474,12 @@ public class SimulatorAppImpl extends AbstractOpenemsComponent implements Simula
 	}
 
 	@Override
+	public <T> List<T> getValues(OpenemsType type, ChannelAddress channelAddress) {
+		// TODO Auto-generated method stub
+		return List.of();
+	}
+
+	@Override
 	public <T> T getValue(OpenemsType type, ChannelAddress channelAddress) {
 		if (this.currentSimulation == null) {
 			return null;

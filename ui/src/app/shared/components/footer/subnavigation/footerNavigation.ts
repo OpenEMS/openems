@@ -10,16 +10,16 @@ export type NavigationOption = {
 };
 
 @Component({
-  selector: 'oe-footer-subnavigation',
-  templateUrl: 'footerNavigation.html',
+  selector: "oe-footer-subnavigation",
+  templateUrl: "footerNavigation.html",
 })
 export class FooterNavigationComponent implements AfterViewInit {
 
   private static readonly INTERVAL: number = 1000;
 
-  @ViewChildren('subnavigationbuttons', { read: ElementRef })
+  @ViewChildren("subnavigationbuttons", { read: ElementRef })
   public subnavigationbuttons!: QueryList<ElementRef>;
-  @ViewChild('container', { read: ElementRef }) public container!: ElementRef;
+  @ViewChild("container", { read: ElementRef }) public container!: ElementRef;
   @Input() public backButton: boolean = false;
 
   protected areButtonsReadyToShow: boolean = false;
@@ -40,7 +40,7 @@ export class FooterNavigationComponent implements AfterViewInit {
     this._buttons = nodes;
     this.buttons = nodes;
   }
-  @HostListener('window:resize', ['$event.target.innerWidth'])
+  @HostListener("window:resize", ["$event.target.innerWidth"])
   private onResize(width: number) {
     this.initializeFooterSubnavigation();
   }
@@ -54,8 +54,6 @@ export class FooterNavigationComponent implements AfterViewInit {
     popoverbtn.callback();
     this.showPopover = false;
   }
-
-
 
   /**
    * Initializes sub-navigation

@@ -1,11 +1,11 @@
 // @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 import { Service } from "src/app/shared/shared";
-import { environment } from 'src/environments';
+import { environment } from "src/environments";
 
 @Component({
-    selector: 'oe-help-button',
-    templateUrl: './help-button.html',
+    selector: "oe-help-button",
+    templateUrl: "./help-button.html",
 })
 export class HelpButtonComponent {
 

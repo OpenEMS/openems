@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -42,11 +43,13 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.evcs.api.ChargeStateHandler;
+import io.openems.edge.evcs.api.DeprecatedEvcs;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -61,8 +64,9 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
-public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusComponent implements Evcs, ManagedEvcs,
-		OpenemsComponent, ModbusComponent, EventHandler, EvcsAlpitronicHypercharger, TimedataProvider {
+public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusComponent
+		implements Evcs, ManagedEvcs, DeprecatedEvcs, ElectricityMeter, OpenemsComponent, ModbusComponent, EventHandler,
+		EvcsAlpitronicHypercharger, TimedataProvider {
 
 	private final Logger log = LoggerFactory.getLogger(EvcsAlpitronicHyperchargerImpl.class);
 	/** Modbus offset for multiple connectors. */
@@ -91,7 +95,8 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	 * <p>
 	 * Accumulates the energy by calling this.calculateTotalEnergy.update(power);
 	 */
-	private CalculateEnergyFromPower calculateTotalEnergy;
+	private final CalculateEnergyFromPower calculateTotalEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	/** Handles charge states. */
 	private final ChargeStateHandler chargeStateHandler = new ChargeStateHandler(this);
@@ -103,9 +108,16 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
+				DeprecatedEvcs.ChannelId.values(), //
 				EvcsAlpitronicHypercharger.ChannelId.values());
+		DeprecatedEvcs.copyToDeprecatedEvcsChannels(this);
+
+		// Automatically calculate L1/l2/L3 values from sum
+		ElectricityMeter.calculatePhasesFromActivePower(this);
+		// TODO consider CURRENT and VOLTAGE also
 	}
 
 	@Activate
@@ -136,7 +148,6 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 
 	private void applyConfig(ComponentContext context, Config config) {
 		this.config = config;
-		this.calculateTotalEnergy = new CalculateEnergyFromPower(this, Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 		this._setFixedMinimumHardwarePower(config.minHwPower());
 		this._setFixedMaximumHardwarePower(config.maxHwPower());
 		this._setPowerPrecision(1);
@@ -150,6 +161,11 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	}
 
 	@Override
+	public MeterType getMeterType() {
+		return MeterType.MANAGED_CONSUMPTION_METERED;
+	}
+
+	@Override
 	public EvcsPower getEvcsPower() {
 		return this.evcsPower;
 	}
@@ -160,12 +176,10 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.calculateTotalEnergy.update(this.getChargePower().get());
-			break;
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			this.writeHandler.run();
-			break;
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+			-> this.calculateTotalEnergy.update(this.getActivePower().get());
+		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+			-> this.writeHandler.run();
 		}
 	}
 
@@ -186,8 +200,10 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 				new FC4ReadInputRegistersTask(this.offset.apply(0), Priority.LOW,
 						m(EvcsAlpitronicHypercharger.ChannelId.RAW_STATUS,
 								new UnsignedWordElement(this.offset.apply(0))),
+						// TODO consider ElectricityMeter VOLTAGE
 						m(EvcsAlpitronicHypercharger.ChannelId.CHARGING_VOLTAGE,
 								new UnsignedDoublewordElement(this.offset.apply(1)), SCALE_FACTOR_MINUS_2),
+						// TODO consider ElectricityMeter CURRENT
 						m(EvcsAlpitronicHypercharger.ChannelId.CHARGING_CURRENT,
 								new UnsignedWordElement(this.offset.apply(3)), SCALE_FACTOR_MINUS_2),
 						/*
@@ -268,7 +284,7 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 
 		// Calculate power from voltage and current
 		final Consumer<Value<Double>> calculatePower = ignore -> {
-			this._setChargePower(TypeUtils.getAsType(OpenemsType.INTEGER, TypeUtils.multiply(//
+			this._setActivePower(TypeUtils.getAsType(OpenemsType.INTEGER, TypeUtils.multiply(//
 					this.getChargingVoltageChannel().getNextValue().get(), //
 					this.getChargingCurrentChannel().getNextValue().get() //
 			)));
@@ -283,35 +299,22 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 			/**
 			 * Maps the raw state into a {@link Status}.
 			 */
-			switch (rawState) {
-			case AVAILABLE:
-				this._setStatus(Status.NOT_READY_FOR_CHARGING);
-				break;
-			case PREPARING_TAG_ID_READY:
-				this._setStatus(Status.READY_FOR_CHARGING);
-				break;
-			case CHARGING:
-			case PREPARING_EV_READY:
-				this._setStatus(Status.CHARGING);
-				break;
-			case RESERVED:
-			case SUSPENDED_EV:
-			case SUSPENDED_EV_SE:
-				this._setStatus(Status.CHARGING_REJECTED);
-				break;
-			case FINISHING:
-				this._setStatus(Status.CHARGING_FINISHED);
-				break;
-			case FAULTED:
-			case UNAVAILABLE:
-			case UNAVAILABLE_CONNECTION_OBJECT:
-				this._setStatus(Status.ERROR);
-				break;
-			case UNAVAILABLE_FW_UPDATE:
-			case UNDEFINED:
-			default:
-				this._setStatus(Status.UNDEFINED);
-			}
+			this._setStatus(switch (rawState) {
+			case AVAILABLE //
+				-> Status.NOT_READY_FOR_CHARGING;
+			case PREPARING_TAG_ID_READY //
+				-> Status.READY_FOR_CHARGING;
+			case CHARGING, PREPARING_EV_READY //
+				-> Status.CHARGING;
+			case RESERVED, SUSPENDED_EV, SUSPENDED_EV_SE //
+				-> Status.CHARGING_REJECTED;
+			case FINISHING //
+				-> Status.CHARGING_FINISHED;
+			case FAULTED, UNAVAILABLE, UNAVAILABLE_CONNECTION_OBJECT //
+				-> Status.ERROR;
+			case UNAVAILABLE_FW_UPDATE, UNDEFINED //
+				-> Status.UNDEFINED;
+			});
 		});
 	}
 

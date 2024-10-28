@@ -1,10 +1,10 @@
 // @ts-strict-ignore
-import { formatNumber } from '@angular/common';
-import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
-import { DataService } from 'src/app/shared/components/shared/dataservice';
-import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../shared/shared';
-import { LiveDataService } from '../../live/livedataservice';
+import { formatNumber } from "@angular/common";
+import { Component } from "@angular/core";
+import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { DataService } from "src/app/shared/components/shared/dataservice";
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "../../../shared/shared";
+import { LiveDataService } from "../../live/livedataservice";
 
 type Channel = {
   title: string,
@@ -28,8 +28,8 @@ type Entry = {
 };
 
 @Component({
-  selector: 'powerassistant',
-  templateUrl: './powerassistant.html',
+  selector: "powerassistant",
+  templateUrl: "./powerassistant.html",
   providers: [{
     useClass: LiveDataService,
     provide: DataService,
@@ -97,7 +97,7 @@ export class PowerAssistantComponent extends AbstractFlatWidget {
         if (ess.factoryId === "Ess.Generic.ManagedSymmetric") {
           // Create optional Battery Component
           const battery = this.config.components[ess.properties["battery.id"]];
-          result['battery'] = {
+          result["battery"] = {
             id: battery.id,
             alias: battery.alias,
             factoryId: battery.factoryId,
@@ -128,7 +128,7 @@ export class PowerAssistantComponent extends AbstractFlatWidget {
           };
           // Create optional Battery-Inverter Component
           const batteryInverter = this.config.components[ess.properties["batteryInverter.id"]];
-          result['batteryInverter'] = {
+          result["batteryInverter"] = {
             id: batteryInverter.id,
             alias: batteryInverter.alias,
             factoryId: batteryInverter.factoryId,
@@ -222,9 +222,9 @@ export namespace Converter {
   export function unit(unit: string): (value: any) => string {
     return function (value: any): string {
       if (value == null) {
-        return '-';
+        return "-";
       } else if (value >= 0) {
-        return formatNumber(value, 'de', '1.0-0') + ' ' + unit;
+        return formatNumber(value, "de", "1.0-0") + " " + unit;
       }
     };
   }
@@ -232,7 +232,7 @@ export namespace Converter {
   export function enabled(): (value: any) => string {
     return function (value: any): string {
       if (value == null) {
-        return '-';
+        return "-";
       } else if (value == 1) {
         return "Enabled";
       } else {

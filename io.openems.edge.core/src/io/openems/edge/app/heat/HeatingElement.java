@@ -156,7 +156,8 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 				return new HeatingElementParameter(//
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 3, //
-								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true)), //
+								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true),
+										RelayProps.gpioFilter()), //
 								List.of(RelayProps.feneconHome2030PreferredRelays(isHomeInstalled,
 										new int[] { 1, 2, 3 }), //
 										PreferredRelay.of(4, new int[] { 1, 2, 3 }), //

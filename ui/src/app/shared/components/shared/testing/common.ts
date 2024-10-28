@@ -22,19 +22,20 @@ export namespace OeTester {
   }
 
   export namespace ChartOptions {
-    export const LINE_CHART_OPTIONS = (period: string, chartType: 'line' | 'bar', options: { [key: string]: { scale: { min?: number, max?: number, beginAtZero?: boolean }, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
-      type: 'option',
+    export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number, beginAtZero?: boolean }, ticks?: { stepSize: number; min?: number, max?: number }; }; }, title?: string): OeChartTester.Dataset.Option => ({
+      type: "option",
       options: {
         "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": {}, "line": {} }, "plugins": {
-          "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": '' } }, "tooltip": { "intersect": false, "mode": "index", "callbacks": {} }, "annotation": { "annotations": {} }, "datalabels": {
+          "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "index", "callbacks": {}, "enabled": true }, "annotation": { "annotations": {} }, "datalabels": {
             display: false,
           },
         }, "scales": {
           "x": { "stacked": true, "offset": false, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } }, "left": {
-            "beginAtZero": false, ...options["left"]?.scale, ...(chartType === 'line' ? { stacked: false } : {}), "title": { "text": "kW", "display": false, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
+            "stacked": false,
+            "beginAtZero": false, ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}), "title": { "text": "kW", "display": false, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
             "ticks": {
               ...options["left"]?.ticks,
-              "color": '',
+              "color": "",
               "padding": 5,
               "maxTicksLimit": ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
             },
@@ -42,20 +43,22 @@ export namespace OeTester {
         },
       },
     });
-    export const BAR_CHART_OPTIONS = (period: string, chartType: 'line' | 'bar', options: { [key: string]: { scale: { min: number, max: number; }, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
-      type: 'option',
+    export const BAR_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number; }, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
+      type: "option",
       options: {
         "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 1 }, "line": {} }, "plugins": {
-          "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": '' } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {} }, "annotation": { "annotations": {} }, "datalabels": {
+          "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true }, "annotation": { "annotations": {} }, "datalabels": {
             display: false,
           },
         }, "scales": {
           "x": { "stacked": true, "offset": true, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } },
           "left": {
-            ...options["left"]?.scale, ...(chartType === 'line' ? { stacked: false } : {}), "beginAtZero": true, "title": { "text": "kWh", "display": false, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
+            "stacked": true,
+            ...options["left"]?.scale,
+            ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true, "title": { "text": "kWh", "display": false, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
             "ticks": {
               ...options["left"]?.ticks,
-              "color": '',
+              "color": "",
               "padding": 5,
               "maxTicksLimit": ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
             },
@@ -63,8 +66,8 @@ export namespace OeTester {
         },
       },
     });
-    export const MULTI_LINE_OPTIONS = (period: string, chartType: 'line' | 'bar', options: { [key: string]: { scale: { min: number, max: number; }, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
-      type: 'option',
+    export const MULTI_LINE_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number; }, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
+      type: "option",
       options: {
         "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": {}, "line": {} },
         "plugins": {
@@ -72,9 +75,10 @@ export namespace OeTester {
             "enabled": false,
           },
           "legend": {
-            "display": true, "position": "bottom", "labels": { "color": '' },
+            "display": true, "position": "bottom", "labels": { "color": "" },
           }, "tooltip": {
             "intersect": false, "mode": "index", "callbacks": {},
+            "enabled": true,
           },
           "annotation": {
             "annotations": {},
@@ -84,23 +88,25 @@ export namespace OeTester {
           },
         }, "scales": {
           "x": { "stacked": true, "offset": false, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } }, "left": {
-            ...options["left"]?.scale, ...(chartType === 'line' ? { stacked: false } : {}), "beginAtZero": true,
-            "title": { "text": "kW", "display": true, "padding": 5, "font": { "size": 11 } },
+            "stacked": false,
+            ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true,
+            "title": { "text": "kW", "display": false, "padding": 5, "font": { "size": 11 } },
             "position": "left", "grid": { "display": true },
             "ticks": {
               ...options["left"]?.ticks,
-              "color": '',
+              "color": "",
               "padding": 5,
               "maxTicksLimit": ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
             },
           },
           "right": {
-            ...options["right"]?.scale, ...(chartType === 'line' ? { stacked: false } : {}), "beginAtZero": true,
-            "title": { "text": "Zustand", "display": true, "padding": 5, "font": { "size": 11 } },
+            "stacked": false,
+            ...options["right"]?.scale, ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true,
+            "title": { "text": "Zustand", "display": false, "padding": 5, "font": { "size": 11 } },
             "position": "right", "grid": { "display": false },
             "ticks": {
               ...options["right"]?.ticks,
-              "color": '',
+              "color": "",
               "padding": 5,
               "maxTicksLimit": ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
             },
@@ -108,30 +114,32 @@ export namespace OeTester {
         },
       },
     });
-    export const MULTI_BAR_OPTIONS = (period: string, chartType: 'line' | 'bar', options: { [key: string]: { scale: { min?: number, max?: number; }, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
-      type: 'option',
+    export const MULTI_BAR_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number; }, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
+      type: "option",
       options: {
         "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 1 }, "line": {} }, "plugins": {
-          "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": '' } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {} }, "annotation": { "annotations": {} }, "datalabels": {
+          "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true }, "annotation": { "annotations": {} }, "datalabels": {
             display: false,
           },
         }, "scales": {
           "x": { "stacked": true, "offset": true, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } },
           "left": {
-            ...options["left"]?.scale, ...(chartType === 'line' ? { stacked: false } : {}), "beginAtZero": true, "title": { "text": "kWh", "display": true, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
+            "stacked": true,
+            ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true, "title": { "text": "kWh", "display": false, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
             "ticks": {
               ...options["left"]?.ticks,
-              "color": '',
+              "color": "",
               "padding": 5,
               "maxTicksLimit": ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
             },
           },
           "right": {
-            ...options["right"]?.scale, ...(chartType === 'line' ? { stacked: false } : { min: 0 }), "beginAtZero": true,
-            "title": { "text": "Aktive Zeit", "display": true, "padding": 5, "font": { "size": 11 } },
+            "stacked": true,
+            ...options["right"]?.scale, ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true,
+            "title": { "text": "Aktive Zeit", "display": false, "padding": 5, "font": { "size": 11 } },
             "position": "right", "grid": { "display": false },
             "ticks": {
-              "color": '',
+              "color": "",
               "padding": 5,
               "maxTicksLimit": ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
             },

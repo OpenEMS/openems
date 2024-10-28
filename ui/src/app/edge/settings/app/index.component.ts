@@ -1,52 +1,52 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, NavigationExtras, Router } from '@angular/router';
-import { IonPopover, ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
-import { filter, switchMap, takeUntil } from 'rxjs/operators';
-import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
-import { Role } from 'src/app/shared/type/role';
-import { Environment, environment } from 'src/environments';
-import { Edge, Service, Websocket } from '../../../shared/shared';
-import { ExecuteSystemUpdate } from '../system/executeSystemUpdate';
-import { InstallAppComponent } from './install.component';
-import { Flags } from './jsonrpc/flag/flags';
-import { GetApps } from './jsonrpc/getApps';
-import { App } from './keypopup/app';
-import { AppCenter } from './keypopup/appCenter';
-import { AppCenterGetPossibleApps } from './keypopup/appCenterGetPossibleApps';
-import { AppCenterGetRegisteredKeys } from './keypopup/appCenterGetRegisteredKeys';
-import { Key } from './keypopup/key';
-import { KeyModalComponent, KeyValidationBehaviour } from './keypopup/modal.component';
-import { canEnterKey } from './permissions';
+import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { ActivatedRoute, NavigationEnd, NavigationExtras, Router } from "@angular/router";
+import { IonPopover, ModalController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { Subject } from "rxjs";
+import { filter, switchMap, takeUntil } from "rxjs/operators";
+import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { Role } from "src/app/shared/type/role";
+import { Environment, environment } from "src/environments";
+import { Edge, Service, Websocket } from "../../../shared/shared";
+import { ExecuteSystemUpdate } from "../system/executeSystemUpdate";
+import { InstallAppComponent } from "./install.component";
+import { Flags } from "./jsonrpc/flag/flags";
+import { GetApps } from "./jsonrpc/getApps";
+import { App } from "./keypopup/app";
+import { AppCenter } from "./keypopup/appCenter";
+import { AppCenterGetPossibleApps } from "./keypopup/appCenterGetPossibleApps";
+import { AppCenterGetRegisteredKeys } from "./keypopup/appCenterGetRegisteredKeys";
+import { Key } from "./keypopup/key";
+import { KeyModalComponent, KeyValidationBehaviour } from "./keypopup/modal.component";
+import { canEnterKey } from "./permissions";
 
 @Component({
   selector: IndexComponent.SELECTOR,
-  templateUrl: './index.component.html',
+  templateUrl: "./index.component.html",
 })
 export class IndexComponent implements OnInit, OnDestroy {
 
-  private static readonly SELECTOR = 'app-index';
+  private static readonly SELECTOR = "app-index";
   /**
    * e. g. if more than 4 apps are in a list the apps are displayed in their categories
   */
   private static readonly MAX_APPS_IN_LIST: number = 4;
-  @ViewChild('hasKeyPopover') private hasKeyPopover: IonPopover;
+  @ViewChild("hasKeyPopover") private hasKeyPopover: IonPopover;
   public readonly spinnerId: string = IndexComponent.SELECTOR;
 
   public apps: GetApps.App[] = [];
 
   public installedApps: AppList = {
-    name: 'Edge.Config.App.installed', appCategories: []
+    name: "Edge.Config.App.installed", appCategories: []
     , shouldBeShown: () => this.key === null, // only show installed apps when the user is not currently selecting an app from a key
   };
   public availableApps: AppList = {
-    name: 'Edge.Config.App.available', appCategories: []
+    name: "Edge.Config.App.available", appCategories: []
     , shouldBeShown: () => true, // always show available apps
   };
   public incompatibleApps: AppList = {
-    name: 'Edge.Config.App.incompatible', appCategories: []
+    name: "Edge.Config.App.incompatible", appCategories: []
     , shouldBeShown: () => this.edge.roleIsAtLeast(Role.ADMIN), // only show incompatible apps for admins
   };
 
@@ -131,11 +131,11 @@ export class IndexComponent implements OnInit, OnDestroy {
     sortedApps.forEach(a => {
       if (a.instanceIds.length > 0) {
         this.pushIntoCategory(a, this.installedApps);
-        if (a.cardinality === 'MULTIPLE' && a.status.name !== 'INCOMPATIBLE') {
+        if (a.cardinality === "MULTIPLE" && a.status.name !== "INCOMPATIBLE") {
           this.pushIntoCategory(a, this.availableApps);
         }
       } else {
-        if (a.status.name === 'INCOMPATIBLE') {
+        if (a.status.name === "INCOMPATIBLE") {
           this.pushIntoCategory(a, this.incompatibleApps);
         } else {
           this.pushIntoCategory(a, this.availableApps);
@@ -163,7 +163,7 @@ export class IndexComponent implements OnInit, OnDestroy {
         behaviour: KeyValidationBehaviour.SELECT,
         knownApps: this.apps,
       },
-      cssClass: 'auto-height',
+      cssClass: "auto-height",
     });
     modal.onDidDismiss().then(data => {
       if (!data.data) {
@@ -211,10 +211,10 @@ export class IndexComponent implements OnInit, OnDestroy {
   protected onAppClicked(app: GetApps.App): void {
     // navigate
     if (this.key != null || this.useMasterKey) {
-      this.router.navigate(['device/' + (this.edge.id) + '/settings/app/single/' + app.appId]
+      this.router.navigate(["device/" + (this.edge.id) + "/settings/app/single/" + app.appId]
         , { queryParams: { name: app.name }, state: { app: app, appKey: this.key.keyId, useMasterKey: this.useMasterKey } });
     } else {
-      this.router.navigate(['device/' + (this.edge.id) + '/settings/app/single/' + app.appId], { queryParams: { name: app.name }, state: app });
+      this.router.navigate(["device/" + (this.edge.id) + "/settings/app/single/" + app.appId], { queryParams: { name: app.name }, state: app });
     }
     // reset keys
     this.key = null;
@@ -231,7 +231,7 @@ export class IndexComponent implements OnInit, OnDestroy {
         edge: this.edge,
         behaviour: KeyValidationBehaviour.REGISTER,
       },
-      cssClass: 'auto-height',
+      cssClass: "auto-height",
     });
 
     return await modal.present();
@@ -251,8 +251,8 @@ export class IndexComponent implements OnInit, OnDestroy {
     this.hasSeenPopover = true;
 
     this.hasKeyPopover.event = {
-      type: 'willPresent',
-      target: document.querySelector('#redeemKeyCard'),
+      type: "willPresent",
+      target: document.querySelector("#redeemKeyCard"),
     };
     this.showPopover = true;
   }
@@ -282,7 +282,7 @@ export class IndexComponent implements OnInit, OnDestroy {
     });
 
     this.service.setCurrentComponent({
-      languageKey: 'Edge.Config.App.NAME_WITH_EDGE_NAME',
+      languageKey: "Edge.Config.App.NAME_WITH_EDGE_NAME",
       interpolateParams: { edgeShortName: environment.edgeShortName },
     }, this.route).then(edge => {
       this.edge = edge;
@@ -295,7 +295,7 @@ export class IndexComponent implements OnInit, OnDestroy {
         });
       edge.sendRequest(this.websocket,
         new ComponentJsonApiRequest({
-          componentId: '_appManager',
+          componentId: "_appManager",
           payload: new GetApps.Request(),
         })).then(response => {
 
@@ -324,7 +324,7 @@ export class IndexComponent implements OnInit, OnDestroy {
             this.numberOfUnusedRegisteredKeys = result.keys.length;
             this.updateHasUnusedKeysPopover();
           }).catch(this.service.handleError);
-        }).catch(InstallAppComponent.errorToast(this.service, error => 'Error while receiving available apps: ' + error));
+        }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving available apps: " + error));
 
       const systemUpdate = new ExecuteSystemUpdate(edge, this.websocket);
       systemUpdate.systemUpdateStateChange = (updateState) => {

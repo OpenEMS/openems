@@ -1,7 +1,6 @@
-<header></header>
 <ion-content>
   <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
-    <ion-refresher-content refreshingSpinner="crescent" class="ion-justify-content-center"></ion-refresher-content>
+    <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
   </ion-refresher>
 
   <ion-grid [hidden]="!edge.subscribeChannelsSuccessful" *ngIf="edge && edge.isOnline">
@@ -80,6 +79,13 @@
               <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="12" size-lg="6" class="ion-no-padding">
                 <Controller_Io_FixDigitalOutput [componentId]="widget.componentId"></Controller_Io_FixDigitalOutput>
               </ion-col>
+
+              <ng-container *ngIf="isModbusTcpWidgetAllowed">
+                <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'" size="12" size-lg="6"
+                  class="ion-no-padding">
+                  <Controller_Api_ModbusTcp [componentId]="widget.componentId"></Controller_Api_ModbusTcp>
+                </ion-col>
+              </ng-container>
 
               <!-- Widgets that are likely to be configured seldomly -->
 

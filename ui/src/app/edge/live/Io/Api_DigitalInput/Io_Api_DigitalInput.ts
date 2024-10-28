@@ -1,12 +1,12 @@
-import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/components/flat/abstract-flat-widget';
-import { EdgeConfig } from 'src/app/shared/shared';
+import { Component } from "@angular/core";
+import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { EdgeConfig } from "src/app/shared/shared";
 
-import { Io_Api_DigitalInput_ModalComponent } from './modal/modal.component';
+import { Io_Api_DigitalInput_ModalComponent } from "./modal/modal.component";
 
 @Component({
-    selector: 'Io_Api_DigitalInput',
-    templateUrl: './Io_Api_DigitalInput.html',
+    selector: "Io_Api_DigitalInput",
+    templateUrl: "./Io_Api_DigitalInput.html",
 })
 
 export class Io_Api_DigitalInputComponent extends AbstractFlatWidget {

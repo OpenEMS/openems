@@ -1,7 +1,9 @@
 package io.openems.edge.app.evcs;
 
+import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -11,7 +13,6 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.appmanager.AppDef;
@@ -28,6 +29,7 @@ import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.builder.FieldGroupBuilder;
 import io.openems.edge.core.appmanager.formly.enums.DisplayType;
+import io.openems.edge.evcs.api.PhaseRotation;
 
 public final class EvcsProps {
 
@@ -45,7 +47,7 @@ public final class EvcsProps {
 	public static AppDef<OpenemsApp, Nameable, BundleProvider> numberOfChargePoints(//
 			final int maxValue //
 	) {
-		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.Evcs.numberOfChargingStations.label") //
 				.setDefaultValue(1) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> //
@@ -103,7 +105,7 @@ public final class EvcsProps {
 	 */
 	public static <T extends OpenemsApp & ComponentManagerSupplier> AppDef<T, Nameable, BundleProvider> clusterMaxHardwarePower(
 			Nameable acceptProperty) {
-		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.Evcs.Cluster.maxChargeFromGrid.label") //
 				.setAllowedToSave(false) //
 				.setIsAllowedToSee((app, property, l, parameter, user) -> {
@@ -182,4 +184,20 @@ public final class EvcsProps {
 		return false;
 	}
 
+	/**
+	 * Creates a {@link AppDef} for a {@link PhaseRotation}.
+	 * 
+	 * @return the {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> phaseRotation() {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.Evcs.phaseRotation.label") //
+				.setTranslatedDescription("App.Evcs.phaseRotation.description") //
+				.setDefaultValue(PhaseRotation.L1_L2_L3) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(Arrays.stream(PhaseRotation.values()) //
+							.map(PhaseRotation::name) //
+							.toList());
+				}));
+	}
 }
