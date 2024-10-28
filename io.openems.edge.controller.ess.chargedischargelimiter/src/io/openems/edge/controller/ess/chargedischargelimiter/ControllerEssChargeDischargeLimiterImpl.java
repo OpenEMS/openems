@@ -185,11 +185,6 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		Integer currentSoc = ess.getSoc().get();
 		Integer currentActivePower = ess.getActivePower().get();
 
-		//this.slowChargePower = this.ess.getAllowedChargePower().get() / 20; // avoid self-discharging
-		//this.slowDisChargePower = this.ess.getAllowedChargePower().get() / 20;
-
-		// this._setChargedEnergy(123);
-		// this.initializeChargedEnergyFromTimedata();
 		// Remember: Negative values for Charge; positive for Discharge
 		this.logDebug(this.log, "Number of Peakshaving controllers found: " + this.ctrlEssThresholdPeakshavers.size());
 
