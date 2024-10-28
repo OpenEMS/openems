@@ -76,6 +76,9 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private Integer slowChargePower = 0;
 	private Integer slowDisChargePower = 0;
 
+	private int taperStartSoc = 0;
+	private int fullChargePower = 0;
+
 	@Reference
 	private ComponentManager componentManager;
 
@@ -116,21 +119,25 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		this.balancingHysteresisTime = this.config.balancingHysteresis();
 		this.debugMode = this.config.debugMode();
 
+		this.taperStartSoc = this.config.maxSoc() - 3;
+
 		this.log.info("Number of Peakshaving controllers found: ");
 
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
-		
-	    // Ensure that ess is initialized before setting slow charge and discharge power
-	    if (this.ess != null && this.ess.getAllowedChargePower().isDefined()) {
-	        this.slowChargePower = this.ess.getAllowedChargePower().get() / 20;
-	        this.slowDisChargePower = this.ess.getAllowedDischargePower().get() / 20;
-	        this.logDebug(this.log, "Initialized slow charge and discharge power.");
-	    } else {
-	        this.logDebug(this.log, "Waiting for ESS initialization to set slow charge and discharge power.");
-	    }		
-		
+
+		// Ensure that ess is initialized before setting slow charge and discharge power
+		if (this.ess != null && this.ess.getAllowedChargePower().isDefined()) {
+			this.slowChargePower = this.ess.getAllowedChargePower().get() / 20;
+			this.slowDisChargePower = this.ess.getAllowedDischargePower().get() / 20;
+
+			this.fullChargePower = this.ess.getAllowedChargePower().get();
+			this.logDebug(this.log, "Initialized slow charge and discharge power.");
+		} else {
+			this.logDebug(this.log, "Waiting for ESS initialization to set slow charge and discharge power.");
+		}
+
 	}
 
 	@Override
@@ -219,11 +226,20 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 				break;
 			}
 			// check if SOC is in normal limits
-			if (currentSoc > this.maxSoc) {
+			if (currentSoc >= this.maxSoc) {
 				this.changeState(State.ABOVE_MAX_SOC);
 				break;
 			}
 
+			// Dynamic tapering logic for charging power
+			if (currentSoc < taperStartSoc) {
+				this.calculatedPower = fullChargePower; // Full power below taperStartSoc
+			} else {
+				// Apply dynamic tapering as SOC nears maxSoc
+				double taperFactor = (double) (maxSoc - currentSoc) / (maxSoc - taperStartSoc);
+				this.calculatedPower = (int) (fullChargePower * taperFactor);
+				this.logDebug(this.log, "Reducing charge power as SoC is above : " + taperStartSoc);
+			}
 			break;
 		case ERROR:
 			// log errors
@@ -234,7 +250,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 				this.calculatedPower = this.slowChargePower; // avoid self-discharging
 			}
 
-			if (currentSoc >= (this.minSoc +1 )) {
+			if (currentSoc >= (this.minSoc + 1)) {
 				this.changeState(State.NORMAL);
 			}
 			break;
@@ -242,7 +258,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			if (this.slowDisChargePower != null) {
 				this.calculatedPower = this.slowDisChargePower; // slowly discharge
 			}
-			if (currentSoc <= (this.maxSoc -1)) {
+			if (currentSoc <= (this.maxSoc - 1)) {
 				this.changeState(State.NORMAL);
 			}
 			break;
