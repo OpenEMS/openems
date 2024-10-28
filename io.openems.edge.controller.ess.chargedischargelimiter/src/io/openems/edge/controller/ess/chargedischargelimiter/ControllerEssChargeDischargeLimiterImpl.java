@@ -73,6 +73,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private Integer calculatedPower = null;
 
 	private boolean debugMode = false;
+	private Integer slowChargePower = null;
+	private Integer slowDisChargePower = null;
 
 	@Reference
 	private ComponentManager componentManager;
@@ -119,6 +121,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
+		slowChargePower =  this.ess.getAllowedChargePower().get() / 20; // avoid self-discharging
+		slowDisChargePower = this.ess.getAllowedChargePower().get() / 20;
 	}
 
 	@Override
@@ -164,6 +168,9 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 	@Override
 	public void run() throws OpenemsNamedException {
+		
+		Integer currentSoc = ess.getSoc().get();
+		Integer currentActivePower = ess.getActivePower().get();
 
 		// this._setChargedEnergy(123);
 		// this.initializeChargedEnergyFromTimedata();
@@ -183,7 +190,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			}
 			// check if we can change to normal operation, i.e. if SOC and activePower
 			// values are available
-			if (ess.getSoc().get() != null && ess.getActivePower().get() != null) {
+			if (currentSoc!= null && currentActivePower != null) {
 				this.changeState(State.NORMAL);
 			}
 			break;
@@ -196,12 +203,12 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 				this.changeState(State.BALANCING_WANTED);
 				break;
 			}
-			if (this.ess.getSoc().get() < this.minSoc) {
+			if (currentSoc < this.minSoc) {
 				this.changeState(State.BELOW_MIN_SOC);
 				break;
 			}
 			// check if SOC is in normal limits
-			if (this.ess.getSoc().get() > this.maxSoc) {
+			if (currentSoc > this.maxSoc) {
 				this.changeState(State.ABOVE_MAX_SOC);
 				break;
 			}
@@ -211,18 +218,21 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			// log errors
 			break;
 		case BELOW_MIN_SOC:
-			// block discharging
-			this.calculatedPower = 0; // block further discharging
+			// block discharging and slowly charge
+			if (this.slowChargePower != null) {
+				this.calculatedPower = this.slowChargePower; // avoid self-discharging
+			}
+			 
 
-			if (this.ess.getSoc().get() >= this.minSoc) {
+			if (currentSoc >= this.minSoc) {
 				this.changeState(State.NORMAL);
 			}
 			break;
 		case ABOVE_MAX_SOC:
-
-			// block charging
-			this.calculatedPower = 0; // block further charging
-			if (this.ess.getSoc().get() <= this.maxSoc) {
+			if (this.slowDisChargePower != null) {
+				this.calculatedPower = this.slowDisChargePower; // slowly discharge
+			}
+			if (currentSoc <= this.maxSoc) {
 				this.changeState(State.NORMAL);
 			}
 			break;
@@ -235,7 +245,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 				this.changeState(State.NORMAL);
 			}
 
-			if (ess.getSoc() != null && ess.getSoc().get() >= (this.forceChargeSoc )) { // desired SOC reached, stop
+			if (currentSoc >= (this.forceChargeSoc )) { // desired SOC reached, stop
 																					// charging
 				this.changeState(State.BALANCING_ACTIVE);
 			} else {
@@ -247,6 +257,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			this.changeState(State.FORCE_CHARGE_ACTIVE);
 			break;
 		case BALANCING_ACTIVE:
+			
+
 			// Start Timer
 			if (balancingStartTime.equals(Instant.MIN)) {
 				// Start the balancing timer
@@ -255,43 +267,38 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 				// ToDo: channel for balancing remaining time needed for UI modal
 			}
 
-			// calculate balancing time so far to seconds
-			this.balancingTime = Duration.between(balancingStartTime, Instant.now(this.componentManager.getClock()))
-					.getSeconds();
-
 			// Check if balancing duration has passed
-			if (this.balancingTime >= this.balancingHysteresisTime) {
+			if (isBalancingDurationExceeded() || this.shouldBalance() == false) {
 				// Balancing time is over, transition to NORMAL state
-				this.logDebug(this.log, "\nBalancing finished. Going back to normal operation  ");
 				this.changeState(State.NORMAL);
-				this.resetChargedEnergy = true;
-				; // Reset charged energy
-				balancingStartTime = Instant.MIN; // Reset the balancing start time
-				this.balancingRemainingTime = 0; // Reset remaining time
+				this.resetBalancingTimers();
 				break;
 			} else {
 				this.balancingRemainingTime = (int) (this.balancingHysteresisTime - this.balancingTime);
+				this.logDebug(this.log, "Balancing active since " + this.balancingStartTime + "|Remaining: "
+						+ this.balancingRemainingTime + "s \n");
 			}
-			this.logDebug(this.log, "Balancing active since " + this.balancingStartTime + "|Remaining: "
-					+ this.balancingRemainingTime + "s \n");
-			// Stores remaining seconds for balancing in channel
+
+			// Stores remaining seconds for balancing in channel - even if 0
 			this._setBalancingRemainingSeconds(this.balancingRemainingTime);
 
 			// Keep battery SOC above desired level. Assume battery is self-discharging
 			// constantly
-			if (ess.getSoc() != null && (ess.getSoc().get() <= (this.forceChargeSoc + 1))) {
-				/* SOC is below desired value + 1%, start charging again */
-				this.calculatedPower = this.forceChargePower * -1; // Charging has a negative value
+			if (currentSoc != null) {
+			    if (currentSoc < this.forceChargeSoc) {
+			        // SOC dropped below forceChargeSoc: reset balancing
+			        this.logDebug(this.log, "SOC dropped below " + this.forceChargeSoc + "%. Restarting balancing.");
+			        this.changeState(State.BALANCING_WANTED);
+			        this.resetBalancingTimers();
+			        break;
+			    } else if (currentSoc <= (this.forceChargeSoc + 1)) {
+			        // SOC slightly below target, maintain SOC with force charging
+			        this.calculatedPower = this.forceChargePower * -1; // Charging has a negative value
+			    } else {
+			        // SOC is sufficient, no charging or discharging needed
+			        this.calculatedPower = 0; // block further discharging if SOC is sufficient
+			    }
 			}
-
-			/* SOC is below desired value, reset Timer, start charging again */
-			if (ess.getSoc() != null && (ess.getSoc().get() < (this.forceChargeSoc))) {
-
-				this.logDebug(this.log, "\nSoC is below " + this.forceChargeSoc + "%. Stop Balancing");
-				this.changeState(State.BALANCING_WANTED);
-				break;
-			}
-			this.calculatedPower = 0; // block further discharging
 
 			break;
 
@@ -302,10 +309,28 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		this._setMaxSoc(this.maxSoc);
 		this._setMinSoc(this.minSoc);
 
-		// save current state
+		// save current state channel
 		this._setStateMachine(this.state);
 
 	}
+	
+	private void resetBalancingTimers() {
+		this.logDebug(this.log, "\nBalancing finished. Going back to normal operation. Resetting counters ");
+		this.balancingStartTime = Instant.MIN; // Reset balancing start time
+	    this.balancingRemainingTime = 0; // Reset remaining balancing time
+	    this.resetChargedEnergy = true; // Flag to reset charged energy
+	    this.cumulatedchargedEnergy = 0; // Optional: reset cumulative charge energy here
+	    
+	}	
+	
+	private boolean isBalancingDurationExceeded() {
+		// calculate balancing time so far to seconds
+		this.balancingTime = Duration.between(balancingStartTime, Instant.now(this.componentManager.getClock()))
+				.getSeconds();		
+		
+	    return this.balancingTime >= this.balancingHysteresisTime;
+	}	
+	
 
 	/**
 	 * Calculates if the battery needs too be balanced. This depends on charged
