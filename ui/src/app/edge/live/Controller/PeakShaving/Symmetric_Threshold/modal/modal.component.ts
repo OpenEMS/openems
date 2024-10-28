@@ -5,15 +5,21 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Edge, EdgeConfig, Service, Websocket } from "../../../../../../shared/shared";
 
+
 enum PeakShavingState {
-    UNDEFINED = -1,              // Undefined state
-    IDLE = 0,                    // Peakshaver is inactive and waiting
-    ERROR = 1,                   // Error State
-    DISABLED = 2,                // Peak Shaver not active
-    ACTIVE = 3,                  // Active Peak Shaving
-    CHARGING = 4,                // ESS charges
-    HYSTERESIS_ACTIVE = 5,        // Waiting. No Active Peak Shaving since hysteresis start
+    UNDEFINED = -1,                  // Undefined state
+    IDLE = 0,                        // Peakshaver is inactive and waiting
+    ERROR = 1,                       // Error State
+    DISABLED = 2,                    // Peak Shaver not active
+    ACTIVE = 3,                      // Active Peak Shaving
+    CHARGING = 4,                    // ESS charges
+    HYSTERESIS_ACTIVE = 5,           // Waiting. No Active Peak Shaving since hysteresis start
+    CHARGING_FINISHED = 6,           // Charging complete: ESS fully charged
+    DISCHARGING_FAILS = 7,           // Discharging failed: ESS depleted
+    PEAKSHAVING_POWER_TOO_LOW = 8,   // Insufficient ESS power to meet peak shaving target
+    PEAKSHAVING_TARGET_NOT_REACHED = 9, // Peak shaving power target differs from real ESS power
 }
+
 
 
 @Component({
