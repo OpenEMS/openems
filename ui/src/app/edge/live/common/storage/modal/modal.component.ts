@@ -194,12 +194,15 @@ export class StorageModalComponent implements OnInit, OnDestroy {
             case 0:  // NORMAL
                 return "success"; // Gr�n f�r normal
             case 2:  // BELOW_MIN_SOC
+                return "warning";
             case 3:  // ABOVE_MAX_SOC
+                return "warning";
             case 4:  // Min Soc reached
                 return "success"; // Blinkendes Orange f�r aktives Balancing
             case 5:  // Max Soc reached
                 return "success"; // Blinkendes Orange f�r aktives Balancing
             case 6:  // FORCE_CHARGE_ACTIVE
+                return "warning";
             case 7:  // BALANCING_WANTED
                 return "warning"; // Leichtes Orange f�r SOC-Warnungen
             case 8:  // BALANCING_ACTIVE
