@@ -53,7 +53,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	 * Length of hysteresis in minutes. States are not changed quicker than this.
 	 * 
 	 */
-	private static final int HYSTERESIS = 5; // seconds
+	private static final int HYSTERESIS = 3; // seconds
 	private Instant lastStateChangeTime = Instant.MIN;
 	private Instant balancingStartTime = Instant.MIN;
 	private long balancingTime = 0; // Time used for balancing so far
@@ -78,6 +78,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 	private int taperStartSoc = 0;
 	private int fullChargePower = 0;
+
+	private final int SOC_BUFFER = 1; // percent SOC buffer for smoother transitions
 
 	@Reference
 	private ComponentManager componentManager;
@@ -226,8 +228,19 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 				break;
 			}
 			// check if SOC is in normal limits
-			if (currentSoc >= this.maxSoc) {
+			if (currentSoc > this.maxSoc) {
 				this.changeState(State.ABOVE_MAX_SOC);
+				break;
+			}
+			// check if SOC is in normal limits
+			if (currentSoc == this.minSoc) {
+				this.changeState(State.MIN_SOC_REACHED);
+				break;
+			}
+
+			// check if SOC is in normal limits
+			if (currentSoc == this.maxSoc) {
+				this.changeState(State.MAX_SOC_REACHED);
 				break;
 			}
 
@@ -244,6 +257,14 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		case ERROR:
 			// log errors
 			break;
+		case MIN_SOC_REACHED:
+
+			this.calculatedPower = 0;
+			break;
+		case MAX_SOC_REACHED:
+
+			this.calculatedPower = 0;
+			break;
 		case BELOW_MIN_SOC:
 			// block discharging and slowly charge
 			if (this.slowChargePower != null) {
@@ -258,7 +279,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			if (this.slowDisChargePower != null) {
 				this.calculatedPower = this.slowDisChargePower; // slowly discharge
 			}
-			if (currentSoc <= (this.maxSoc - 1)) {
+			if (currentSoc <= (this.maxSoc - this.SOC_BUFFER)) {
 				this.changeState(State.NORMAL);
 			}
 			break;
@@ -412,8 +433,12 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			return;
 		}
 		try {
-			// adjust value so that it fits into Min/MaxActivePower
-			if (this.state == State.BELOW_MIN_SOC) { // block further discharging
+			// ToDo combine switches
+			if (this.state == State.MAX_SOC_REACHED) { // block further charging
+				ess.setActivePowerGreaterOrEquals(calculatedPower);
+			} else if (this.state == State.MIN_SOC_REACHED) { // block further discharging
+				ess.setActivePowerLessOrEquals(calculatedPower);
+			} else if (this.state == State.BELOW_MIN_SOC) { // block further discharging
 				ess.setActivePowerLessOrEquals(calculatedPower);
 			} else if (this.state == State.ABOVE_MAX_SOC) { // block further charging
 				ess.setActivePowerGreaterOrEquals(calculatedPower);
