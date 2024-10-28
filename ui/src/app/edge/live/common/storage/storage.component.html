@@ -29,7 +29,7 @@
                             [attr.x]="'calc(' + (limiter['minSoc'] > 98 ? 98 : limiter['minSoc']) + '% + 2px)'"
                             height="18" style="fill:#3c383888;" />
                         <!-- Condition based on state < 4 -->
-                        <ng-container *ngIf="limiter['state'] < 4; else forceBlock">
+                        <ng-container *ngIf="limiter['state'] < 6; else forceBlock">
                             <!-- Marker for Max SOC -->
                             <rect y="3" rx="0" ry="0" width="1%"
                                 [attr.x]="'calc(' + (limiter['maxSoc'] > 98 ? 98 : limiter['maxSoc']) + '% + 2px)'"

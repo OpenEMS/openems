@@ -97,11 +97,11 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                                 ERROR = 1,                  //
                                 BELOW_MIN_SOC = 2,          // ESS SoC is below configured minimum
                                 ABOVE_MAX_SOC = 3,           // Above configured Max-SoC")
-                                FORCE_CHARGE_ACTIVE = 4,    // ESS is charging to configured balancing point
-                                BALANCING_WANTED = 5,       // balancing procedure is desired
-                                BALANCING_ACTIVE = 6,       // balancing is active
-                                MIN_SOC_REACHED = 7,       // balancing procedure is desired
-                                MAX_SOC_REACHED = 8,       // balancing is active
+                                MIN_SOC_REACHED = 4,       // balancing procedure is desired
+                                MAX_SOC_REACHED = 5,       // balancing is active
+                                FORCE_CHARGE_ACTIVE = 6,    // ESS is charging to configured balancing point
+                                BALANCING_WANTED = 7,       // balancing procedure is desired
+                                BALANCING_ACTIVE = 8,       // balancing is active
                             }
                             const minSoc = currentData.channel[controller.id + "/_PropertyMinSoc"];
                             const maxSoc = currentData.channel[controller.id + "/_PropertyMaxSoc"];
@@ -195,15 +195,15 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                 return "success"; // Gr�n f�r normal
             case 2:  // BELOW_MIN_SOC
             case 3:  // ABOVE_MAX_SOC
-            case 4:  // FORCE_CHARGE_ACTIVE
-            case 5:  // BALANCING_WANTED
+            case 4:  // Min Soc reached
+                return "success"; // Blinkendes Orange f�r aktives Balancing
+            case 5:  // Max Soc reached
+                return "success"; // Blinkendes Orange f�r aktives Balancing
+            case 6:  // FORCE_CHARGE_ACTIVE
+            case 7:  // BALANCING_WANTED
                 return "warning"; // Leichtes Orange f�r SOC-Warnungen
-            case 6:  // BALANCING_ACTIVE
+            case 8:  // BALANCING_ACTIVE
                 return "primary"; // Blinkendes Orange f�r aktives Balancing
-            case 7:  // Min Soc reached
-                return "success"; // Blinkendes Orange f�r aktives Balancing
-            case 8:  // Max Soc reached
-                return "success"; // Blinkendes Orange f�r aktives Balancing
             default:
                 return ""; // Keine Farbe
         }
