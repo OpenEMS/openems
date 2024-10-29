@@ -70,7 +70,6 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private int energyBetweenBalancingCycles = 0;
 	private int balancingHysteresisTime = 0;
 	private State state = State.UNDEFINED;
-	
 
 	private boolean debugMode = false;
 	private Integer slowChargePower = 0;
@@ -78,8 +77,6 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 	private int taperStartSoc = 0;
 	private int fullChargePower = 0;
-
-
 
 	@Reference
 	private ComponentManager componentManager;
@@ -198,7 +195,6 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		// Remember: Negative values for Charge; positive for Discharge
 		this.logDebug(this.log, "Number of Peakshaving controllers found: " + this.ctrlEssThresholdPeakshavers.size());
 
-
 		switch (this.state) {
 		case UNDEFINED:
 			if (this.ess == null) {
@@ -219,64 +215,68 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			if (shouldBalance()) {
 				this.changeState(State.BALANCING_WANTED);
 				break;
-			}
-			if (currentSoc < this.minSoc) {
+			} else if (currentSoc < this.minSoc) {
 				this.changeState(State.BELOW_MIN_SOC);
 				break;
-			}
-			// check if SOC is in normal limits
-			if (currentSoc > this.maxSoc) {
+			} else if (currentSoc > this.maxSoc) {
 				this.changeState(State.ABOVE_MAX_SOC);
 				break;
-			}
-			// check if SOC is in normal limits
-			if (currentSoc == this.minSoc) {
+			} else if (currentSoc.equals(this.minSoc)) {
 				this.changeState(State.MIN_SOC_REACHED);
 				break;
-			}
-
-			// check if SOC is in normal limits
-			if (currentSoc == this.maxSoc) {
+			} else if (currentSoc.equals(this.maxSoc)) {
 				this.changeState(State.MAX_SOC_REACHED);
 				break;
 			}
 
-			// Dynamic tapering logic for charging power
-			if (currentSoc < taperStartSoc) {
-				calculatedPower = fullChargePower; // Full power below taperStartSoc
-			} else {
-				// Apply dynamic tapering as SOC nears maxSoc
-				double taperFactor = (double) (maxSoc - currentSoc) / (maxSoc - taperStartSoc);
-				calculatedPower = (int) (fullChargePower * taperFactor);
-				this.logDebug(this.log, "Reducing charge power as SoC is above : " + taperStartSoc);
-			}
+		    // Tapering logic: Gradual power reduction as we approach maxSoc
+		    if (currentSoc >= taperStartSoc && currentSoc < maxSoc) {
+		        // Calculate tapering factor to gradually reduce power as SOC approaches max
+		        double taperFactor = (double) (maxSoc - currentSoc) / (maxSoc - taperStartSoc);
+		        calculatedPower = (int) (fullChargePower * taperFactor);
+		        this.logDebug(this.log, "Reducing charge power as SOC approaches max: " + calculatedPower + "W");
+		    }
 			break;
 		case ERROR:
 			// log errors
 			break;
 		case MIN_SOC_REACHED:
-
+			if (currentSoc > this.minSoc) {
+				this.changeState(State.NORMAL);
+				break;
+			} else if (currentSoc < this.minSoc) {
+				this.changeState(State.BELOW_MIN_SOC);
+				break;
+			}
 			calculatedPower = 0;
 			break;
 		case MAX_SOC_REACHED:
+
+			if (currentSoc < this.maxSoc) {
+				this.changeState(State.NORMAL);
+				break;
+			} else if (currentSoc > this.maxSoc) {
+				this.changeState(State.ABOVE_MAX_SOC);
+				break;
+			}
 
 			calculatedPower = 0;
 			break;
 		case BELOW_MIN_SOC:
 			// block discharging and slowly charge
-			if (this.slowChargePower != null) {
-				calculatedPower = this.slowChargePower; // avoid self-discharging
-			}
-
-			if (currentSoc >= (this.minSoc)) {
+			calculatedPower = this.slowChargePower != null ? this.slowChargePower : calculatedPower;
+			if (currentSoc == this.minSoc) {
+				this.changeState(State.MIN_SOC_REACHED);
+			} else if (currentSoc > this.minSoc) {
 				this.changeState(State.NORMAL);
 			}
 			break;
 		case ABOVE_MAX_SOC:
-			if (this.slowDisChargePower != null) {
-				calculatedPower = this.slowDisChargePower; // slowly discharge
-			}
-			if (currentSoc <= (this.maxSoc)) {
+			calculatedPower = this.slowDisChargePower != null ? this.slowDisChargePower : calculatedPower;
+
+			if (currentSoc == this.maxSoc) {
+				this.changeState(State.MAX_SOC_REACHED);
+			} else if (currentSoc < this.maxSoc) {
 				this.changeState(State.NORMAL);
 			}
 			break;
@@ -284,16 +284,12 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			// force charge with forceChargePower
 			// Charge battery with desired power
 			// Check wether it has reached desired SOC
-
-			if (shouldBalance() == false) {
+			if (!shouldBalance()) {
 				this.changeState(State.NORMAL);
-			}
-
-			if (currentSoc >= (this.forceChargeSoc)) { // desired SOC reached, stop
-														// charging
+			} else if (currentSoc >= this.forceChargeSoc) {
 				this.changeState(State.BALANCING_ACTIVE);
 			} else {
-				calculatedPower = this.forceChargePower * -1; // Charging has a negative value
+				calculatedPower = this.forceChargePower * -1;
 			}
 			break;
 		case BALANCING_WANTED:
@@ -302,6 +298,10 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			break;
 		case BALANCING_ACTIVE:
 
+			if (currentSoc == null) {
+				this.logDebug(this.log, "SOC not available.");
+				break;
+			}
 			// Start Timer
 			if (balancingStartTime.equals(Instant.MIN)) {
 				// Start the balancing timer
@@ -311,23 +311,19 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			}
 
 			// Check if balancing duration has passed
-			if (isBalancingDurationExceeded() || this.shouldBalance() == false) {
+			if (isBalancingDurationExceeded() || !this.shouldBalance()) {
 				// Balancing time is over, transition to NORMAL state
 				this.changeState(State.NORMAL);
 				this.resetBalancingTimers();
-				break;
+
 			} else {
 				this.balancingRemainingTime = (int) (this.balancingHysteresisTime - this.balancingTime);
 				this.logDebug(this.log, "Balancing active since " + this.balancingStartTime + "|Remaining: "
 						+ this.balancingRemainingTime + "s \n");
-			}
 
-			// Stores remaining seconds for balancing in channel - even if 0
-			this._setBalancingRemainingSeconds(this.balancingRemainingTime);
+				//
+				this._setBalancingRemainingSeconds(this.balancingRemainingTime);
 
-			// Keep battery SOC above desired level. Assume battery is self-discharging
-			// constantly
-			if (currentSoc != null) {
 				if (currentSoc < this.forceChargeSoc) {
 					// SOC dropped below forceChargeSoc: reset balancing
 					this.logDebug(this.log, "SOC dropped below " + this.forceChargeSoc + "%. Restarting balancing.");
@@ -341,8 +337,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 					// SOC is sufficient, no charging or discharging needed
 					calculatedPower = 0; // block further discharging if SOC is sufficient
 				}
-			}
 
+			}
 			break;
 
 		}
@@ -354,13 +350,12 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 		// save current state channel
 		this._setStateMachine(this.state);
-		
 
 		this.logDebug(this.log,
 				"\nCurrent State " + this.state.getName() + "\n" + "Current SoC " + this.ess.getSoc().get() + "% \n"
-						+ "Current ActivePower " + this.ess.getActivePower().get() + "W \n"
-						+ "Calculated ActivePower " + calculatedPower + "W \n"
-						+ "Energy charged since last balancing " + this.getChargedEnergy().get() + "Wh \n");
+						+ "Current ActivePower " + this.ess.getActivePower().get() + "W \n" + "Calculated ActivePower "
+						+ calculatedPower + "W \n" + "Energy charged since last balancing "
+						+ this.getChargedEnergy().get() + "Wh \n");
 
 	}
 
@@ -428,36 +423,32 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	 */
 	void applyActivePower(Integer calculatedPower) {
 		if (calculatedPower == null) {
-			// early return if no constrains have to be set
-			return;
+			return; // No constraints to set
 		}
 
 		if (this.ess == null) {
 			this.logDebug(this.log, "ERROR. No Ess to apply constraints to");
 			return;
 		}
+
 		try {
-			// ToDo combine switches
-			if (this.state == State.MAX_SOC_REACHED) { // block further charging
+			switch (this.state) {
+			case MAX_SOC_REACHED, ABOVE_MAX_SOC -> // Block further charging
 				ess.setActivePowerGreaterOrEquals(calculatedPower);
-			} else if (this.state == State.MIN_SOC_REACHED) { // block further discharging
-				ess.setActivePowerLessOrEquals(calculatedPower);
-			} else if (this.state == State.BELOW_MIN_SOC) { // block further discharging
-				ess.setActivePowerLessOrEquals(calculatedPower);
-			} else if (this.state == State.ABOVE_MAX_SOC) { // block further charging
-				ess.setActivePowerGreaterOrEquals(calculatedPower);
-			} else if (this.state == State.FORCE_CHARGE_ACTIVE) { // force charging
-				calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
-						calculatedPower);
-				ess.setActivePowerLessOrEquals(calculatedPower);
-			} else if (this.state == State.BALANCING_ACTIVE) { //
-				calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
-						calculatedPower);
+
+			case MIN_SOC_REACHED, BELOW_MIN_SOC -> // Block further discharging
 				ess.setActivePowerLessOrEquals(calculatedPower);
 
+			case FORCE_CHARGE_ACTIVE, BALANCING_ACTIVE -> {
+				// Fit calculated power within min/max limits and apply
+				calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
+						calculatedPower);
+				ess.setActivePowerLessOrEquals(calculatedPower);
+			}
+			default -> throw new IllegalArgumentException("Unexpected State: " + this.state);
 			}
 		} catch (OpenemsNamedException e) {
-			// ToDo catch exception. Add logging
+			// ToDo: Handle exceptions, add logging
 			e.printStackTrace();
 		}
 	}
