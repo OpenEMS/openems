@@ -194,7 +194,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		}
 
 		Integer currentSoc = ess.getSoc().get();
-		Integer currentActivePower = this.getChargePower().get(); // no matter if AC or DC charging
+		Integer currentActivePower = this.getEssChargePower().get(); // no matter if AC or DC charging
 		Integer calculatedPower = 0; // No constraints
 
 		// Remember: Negative values for Charge; positive for Discharge
@@ -359,7 +359,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 		this.logDebug(this.log,
 				"\nCurrent State " + this.state.getName() + "\n" + "Current SoC " + this.ess.getSoc().get() + "% \n"
-						+ "Current ActivePower " + this.ess.getActivePower().get() + "W \n" + "Calculated ActivePower "
+						+ "Current ActivePower " + this.getEssChargePower().get() + "W \n" + "Calculated ActivePower "
 						+ calculatedPower + "W \n" + "Energy charged since last balancing "
 						+ this.getChargedEnergy().get() + "Wh \n");
 
@@ -573,7 +573,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		}
 	}
 
-	private Value<Integer> getChargePower() {
+	private Value<Integer> getEssChargePower() {
 		if (isHybridEss && this.ess instanceof HybridEss hss) {
 			return hss.getDcDischargePower(); // DC Power for hybrid systems. negative values for Charge; positive for
 												// Discharge
