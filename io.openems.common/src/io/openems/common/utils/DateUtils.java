@@ -49,16 +49,6 @@ public class DateUtils {
 	}
 
 	/**
-	 * Rounds a {@link ZonedDateTime} down to next duodecimus (5 minutes).
-	 *
-	 * @param d the {@link ZonedDateTime}
-	 * @return the rounded result
-	 */
-	public static ZonedDateTime roundDownToDuodecimus(ZonedDateTime d) {
-		return roundDownToMinutes(d, 5);
-	}
-
-	/**
 	 * Asserts that both dates are in the same timezone.
 	 *
 	 * @param date1 the first Date
