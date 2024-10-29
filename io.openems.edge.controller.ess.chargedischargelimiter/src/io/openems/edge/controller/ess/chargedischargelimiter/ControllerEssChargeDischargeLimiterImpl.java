@@ -229,13 +229,13 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 				break;
 			}
 
-		    // Tapering logic: Gradual power reduction as we approach maxSoc
-		    if (currentSoc >= taperStartSoc && currentSoc < maxSoc) {
-		        // Calculate tapering factor to gradually reduce power as SOC approaches max
-		        double taperFactor = (double) (maxSoc - currentSoc) / (maxSoc - taperStartSoc);
-		        calculatedPower = (int) (fullChargePower * taperFactor);
-		        this.logDebug(this.log, "Reducing charge power as SOC approaches max: " + calculatedPower + "W");
-		    }
+			// Tapering logic: Gradual power reduction as we approach maxSoc
+			if (currentSoc >= taperStartSoc && currentSoc < maxSoc) {
+				// Calculate tapering factor to gradually reduce power as SOC approaches max
+				double taperFactor = (double) (maxSoc - currentSoc) / (maxSoc - taperStartSoc);
+				calculatedPower = (int) (fullChargePower * taperFactor);
+				this.logDebug(this.log, "Reducing charge power as SOC approaches max: " + calculatedPower + "W");
+			}
 			break;
 		case ERROR:
 			// log errors
@@ -445,6 +445,12 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 						calculatedPower);
 				ess.setActivePowerLessOrEquals(calculatedPower);
 			}
+			case NORMAL -> {
+				if (calculatedPower < 0) { // ramp down charge power
+					ess.setActivePowerGreaterOrEquals(calculatedPower);
+				}
+			}
+
 			default -> throw new IllegalArgumentException("Unexpected State: " + this.state);
 			}
 		} catch (OpenemsNamedException e) {
