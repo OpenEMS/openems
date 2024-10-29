@@ -223,7 +223,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * failed.
 		 * </ul>
 		 */
-		APPLY_POWER_FAILED(Doc.of(Level.FAULT) //
+		APPLY_POWER_FAILED(Doc.of(Level.WARNING) //
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Applying the Active/Reactive Power failed"));
 

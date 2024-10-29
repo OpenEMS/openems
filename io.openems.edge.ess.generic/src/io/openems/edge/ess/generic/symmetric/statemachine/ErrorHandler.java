@@ -1,48 +1,44 @@
 package io.openems.edge.ess.generic.symmetric.statemachine;
 
-import java.time.Duration;
-import java.time.Instant;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 
 public class ErrorHandler extends StateHandler<State, Context> {
 
-	private static final int WAIT_TIME_IN_SECONDS = 120;
-
-	private Instant entryAt = Instant.MIN;
-	private int startAttemptCounter = 0;
-
 	@Override
 	protected void onEntry(Context context) throws OpenemsNamedException {
-		this.entryAt = Instant.now();
-		this.startAttemptCounter++;
-		// Try to stop systems
-		context.battery.setStartStop(StartStop.STOP);
-		context.batteryInverter.setStartStop(StartStop.STOP);
-	}
-
-	@Override
-	protected void onExit(Context context) throws OpenemsNamedException {
-		var ess = context.getParent();
-
-		ess._setMaxBatteryStartAttemptsFault(false);
-		ess._setMaxBatteryStopAttemptsFault(false);
-		ess._setMaxBatteryInverterStartAttemptsFault(false);
-		ess._setMaxBatteryInverterStopAttemptsFault(false);
+		context.batteryInverter.stop();
+		context.battery.stop();
 	}
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		if (Duration.between(this.entryAt, Instant.now()).getSeconds() > WAIT_TIME_IN_SECONDS
-				* Math.pow(16, this.startAttemptCounter)) {
-			// Try again
+		final var ess = context.getParent();
+		final var battery = context.battery;
+		final var batteryInverter = context.batteryInverter;
+		// TODO error handling
+
+		/*
+		 * Wait at least for stopping the battery and check for ess, battery,
+		 * battery-inverter faults
+		 * 
+		 * If ModbusCommunicationFault would be a FaultState, check it explicitly. The
+		 * battery could still have a communication fault while starting the battery.
+		 */
+		if (!ess.hasFaults() && !batteryInverter.hasFaults() && !battery.hasFaults() && context.battery.isStopped()) {
 			return State.UNDEFINED;
 		}
 
 		return State.ERROR;
 	}
 
+	@Override
+	protected void onExit(Context context) throws OpenemsNamedException {
+		final var ess = context.getParent();
+		ess._setTimeoutStartBattery(false);
+		ess._setTimeoutStopBattery(false);
+		ess._setTimeoutStartBatteryInverter(false);
+		ess._setTimeoutStopBatteryInverter(false);
+	}
 }

@@ -140,6 +140,34 @@
 		</dependency>
 		<!-- io -->
 		<dependency>
+			<!-- Miscellaneous JNA utilities for Linux  -->
+			<!-- Used by io.openems.edge.io.i2c -->
+			<groupId>io.helins</groupId>
+			<artifactId>linux-common</artifactId>
+			<version>0.1.4</version>
+		</dependency>
+		<dependency>
+			<!-- Use the standard Linux I2C API from JVM -->
+			<!-- Used by io.openems.edge.io.i2c -->
+			<groupId>io.helins</groupId>
+			<artifactId>linux-i2c</artifactId>
+			<version>1.0.2</version>
+		</dependency>
+		<dependency>
+			<!-- Basic Linux IO utilities for java through JNA -->
+			<!-- Used by io.openems.edge.io.i2c -->
+			<groupId>io.helins</groupId>
+			<artifactId>linux-io</artifactId>
+			<version>0.0.4</version>
+		</dependency>
+		<dependency>
+			<!-- Java utilities for errno -->
+			<!-- Used by io.openems.edge.io.i2c -->
+			<groupId>io.helins</groupId>
+			<artifactId>linux-errno</artifactId>
+			<version>1.0.2</version>
+		</dependency>
+		<dependency>
 			<groupId>io.reactivex.rxjava3</groupId>
 			<artifactId>rxjava</artifactId>
 			<version>3.1.9</version>
@@ -253,9 +281,17 @@
 		</dependency>
 		<dependency>
 			<!-- Bouncycastle for Eclipse Paho MQTTv5 Client -->
+			<!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on -->
 			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcpkix-jdk15on</artifactId>
-			<version>1.70</version>
+			<artifactId>bcpkix-jdk18on</artifactId>
+			<version>1.78.1</version>
+		</dependency>
+		<dependency>
+			<!-- Bouncycastle for Eclipse Paho MQTTv5 Client -->
+			<!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on -->
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk18on</artifactId>
+			<version>1.78.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
@@ -301,7 +337,7 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>2.0.20</version>
+			<version>2.0.21</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>

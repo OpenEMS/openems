@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { DummyConfig } from "../components/edge/edgeconfig.spec";
-import { EdgeConfig } from "../shared";
+import { Currency, EdgeConfig } from "../shared";
 import { HistoryUtils, Utils } from "./utils";
 
 describe("Utils", () => {
@@ -53,5 +53,13 @@ describe("Utils", () => {
   it("+calculateOtherConsumption - no evcs + no consumptionMeters", () => {
     const expectedResult4 = [null, null, null, 565, 560, 561, 573];
     expect(Utils.calculateOtherConsumption(channelData, [], [])).toEqual(expectedResult4);
+  });
+
+  it("+CONVERT_PRICE_TO_CENT_PER_KWH", () => {
+    const currencyLabel: string = Currency.getCurrencyLabelByEdgeId("0");
+    expect(Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(0)).toEqual("0 Cent/kWh");
+    expect(Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(null)).toEqual("- Cent/kWh");
+    expect(Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(undefined)).toEqual("- Cent/kWh");
+    expect(Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(1)).toEqual("0,1 Cent/kWh");
   });
 });

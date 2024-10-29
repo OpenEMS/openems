@@ -1,28 +1,36 @@
 package io.openems.edge.evcs.test;
 
+import static io.openems.common.types.MeterType.MANAGED_CONSUMPTION_METERED;
+
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
+import io.openems.edge.meter.api.ElectricityMeter;
 
+// TODO should extend AbstractDummyElectricityMeter<DummyManagedEvcs>
 public class DummyManagedEvcs extends AbstractManagedEvcsComponent
-		implements Evcs, ManagedEvcs, OpenemsComponent, EventHandler {
+		implements Evcs, ManagedEvcs, ElectricityMeter, OpenemsComponent, EventHandler {
 
 	private final EvcsPower evcsPower;
 	private int minimumHardwarePower = Evcs.DEFAULT_MINIMUM_HARDWARE_POWER;
 	private int maximumHardwarePower = Evcs.DEFAULT_MAXIMUM_HARDWARE_POWER;
+	private MeterType meterType = MANAGED_CONSUMPTION_METERED;
 
 	public DummyManagedEvcs(String id, EvcsPower evcsPower) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				Evcs.ChannelId.values() //
 		);
@@ -31,6 +39,28 @@ public class DummyManagedEvcs extends AbstractManagedEvcsComponent
 			channel.nextProcessImage();
 		}
 		super.activate(null, id, "", true);
+	}
+
+	/**
+	 * Set the {@link MeterType}.
+	 *
+	 * @param meterType the meterType
+	 * @return myself
+	 */
+	public DummyManagedEvcs withMeterType(MeterType meterType) {
+		this.meterType = meterType;
+		return this;
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_POWER}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummyManagedEvcs withActivePower(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.ACTIVE_POWER, value);
+		return this;
 	}
 
 	@Override
@@ -74,6 +104,11 @@ public class DummyManagedEvcs extends AbstractManagedEvcsComponent
 	}
 
 	@Override
+	public MeterType getMeterType() {
+		return this.meterType;
+	}
+
+	@Override
 	public EvcsPower getEvcsPower() {
 		return this.evcsPower;
 	}
@@ -85,14 +120,14 @@ public class DummyManagedEvcs extends AbstractManagedEvcsComponent
 
 	@Override
 	public boolean applyChargePowerLimit(int power) throws OpenemsException {
-		this._setChargePower(power);
+		this._setActivePower(power);
 		this._setStatus(Status.CHARGING);
 		return true;
 	}
 
 	@Override
 	public boolean pauseChargeProcess() throws OpenemsException {
-		this._setChargePower(0);
+		this._setActivePower(0);
 		return true;
 	}
 

@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header *ngIf="isHeaderAllowed">
   <ion-toolbar color="primary" mode="md">
     <ion-buttons *ngIf="backUrl" slot="start">
       <ion-button [routerLink]="backUrl" replaceUrl="true">
@@ -19,33 +19,32 @@
     </ion-title>
     <ng-container *ngIf="service.currentEdge | async as edge">
       <ng-container *ngIf="currentPage === 'IndexLive' || currentPage === 'IndexHistory'">
-        <ion-buttons>
-          <ion-segment mode="md" (ionChange)="segmentChanged($event)" [(ngModel)]="currentPage"
-            class="ion-justify-content-center">
-            <ion-segment-button value="IndexLive">
-              <ion-label translate>General.LIVE</ion-label>
-            </ion-segment-button>
-            <ion-segment-button value="IndexHistory">
-              <ion-label translate>General.HISTORY</ion-label>
-            </ion-segment-button>
-          </ion-segment>
-        </ion-buttons>
+        <ion-segment mode="md" (ionChange)="segmentChanged($event)" [(ngModel)]="currentPage"
+          class="ion-justify-content-center">
+          <ion-segment-button value="IndexLive">
+            <ion-label translate>General.LIVE</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="IndexHistory">
+            <ion-label translate>General.HISTORY</ion-label>
+          </ion-segment-button>
+        </ion-segment>
       </ng-container>
     </ng-container>
     <!-- this title tag is for spacing purpose only -->
     <ion-title class="ion-hide-md-down" slot="end">
     </ion-title>
     <ng-container *ngIf="service.currentEdge | async as edge">
-      <ion-buttons slot="end">
+      <ion-buttons slot="end" class="ion-padding-end">
         <ng-container *ngIf="edge.currentData | async as currentData">
           <ng-container *ngIf="currentData.summary.system as sum">
             <ion-button (click)="presentSingleStatusModal()"
-              *ngIf="currentPage === 'IndexLive' || currentPage === 'IndexHistory' || currentPage === 'EdgeSettings'"
+              *ngIf="(currentPage === 'IndexLive' || currentPage === 'IndexHistory' || currentPage === 'EdgeSettings') && sum.state !== null"
               color="light" fill="solid" shape="round">
               <ng-container [ngSwitch]="sum.state">
                 <ion-icon *ngSwitchCase="0" color="success" name="checkmark-circle-outline"></ion-icon>
                 <ion-icon *ngSwitchCase="1" color="success"
-                  [name]="edge.roleIsAtLeast('admin') ? 'information-outline' : 'checkmark-circle-outline'"></ion-icon>
+                  [name]="edge.roleIsAtLeast('admin') ? 'information-outline' : 'checkmark-circle-outline'"
+                  size="medium"></ion-icon>
                 <ion-icon *ngSwitchCase="2" color="warning" name="alert-outline"></ion-icon>
                 <ion-icon *ngSwitchCase="3" color="danger" name="alert-outline"></ion-icon>
               </ng-container>

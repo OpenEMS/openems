@@ -787,27 +787,27 @@ public interface BydBatteryBoxCommercialC130 extends Battery, OpenemsComponent, 
 		LEVEL1_CHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 2 Charge Current High Alarm Level 2")), //
 
-		LEVEL2_CELL_VOLTAGE_HIGH(Doc.of(Level.FAULT) //
+		LEVEL2_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Cell Voltage High Alarm Level 3")), //
-		LEVEL2_CELL_VOLTAGE_LOW(Doc.of(Level.FAULT) //
+		LEVEL2_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Cell Voltage Low Alarm Level 3")), //
-		LEVEL2_CELL_VOLTAGE_DIFF_TOO_BIG(Doc.of(Level.FAULT) //
+		LEVEL2_CELL_VOLTAGE_DIFF_TOO_BIG(Doc.of(Level.WARNING) //
 				.text("Alarm Level 3 Battery Cells Unbalanced")), //
-		LEVEL2_DISCHARGE_TEMP_HIGH(Doc.of(Level.FAULT) //
+		LEVEL2_DISCHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Cell Discharge Temperature High Alarm Level 3")), //
-		LEVEL2_DISCHARGE_TEMP_LOW(Doc.of(Level.FAULT) //
+		LEVEL2_DISCHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Cell Discharge Temperature Low Alarm Level 3")), //
-		LEVEL2_CHARGE_TEMP_HIGH(Doc.of(Level.FAULT) //
+		LEVEL2_CHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Cell Charge Temperature High Alarm Level 3")), //
-		LEVEL2_CHARGE_TEMP_LOW(Doc.of(Level.FAULT) //
+		LEVEL2_CHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Cell Charge Temperature Low Alarm Level 3")), //
-		LEVEL2_TEMP_DIFF_TOO_BIG(Doc.of(Level.FAULT) //
+		LEVEL2_TEMP_DIFF_TOO_BIG(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Cell Temperature Diff High Alarm Level 3")), //
-		LEVEL2_POWER_POLE_HIGH(Doc.of(Level.FAULT) //
+		LEVEL2_POWER_POLE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Cell Temperature High Alarm Level 3")), //
-		LEVEL2_DISCHARGE_CURRENT_HIGH(Doc.of(Level.FAULT) //
+		LEVEL2_DISCHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Discharge Current High Alarm Level 3")), //
-		LEVEL2_CHARGE_CURRENT_HIGH(Doc.of(Level.FAULT) //
+		LEVEL2_CHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 3 Charge Current High Alarm Level 3")), //
 
 		ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH(Doc.of(Level.WARNING) //
@@ -822,69 +822,69 @@ public interface BydBatteryBoxCommercialC130 extends Battery, OpenemsComponent, 
 				.text("Cluster 1 Total Voltage Low Alarm Level 1")), //
 		ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cluster 1 Total Voltage High Alarm Level 1")), //
-		ALARM_FUSE(Doc.of(Level.FAULT) //
+		ALARM_FUSE(Doc.of(Level.WARNING) //
 				.text(" Fuse Alarm")), //
 		SHIELDED_SWITCH_STATE(Doc.of(Level.WARNING) //
 				.text("Shielded switch state")), //
 		ALARM_BAU_COMMUNICATION(Doc.of(Level.WARNING) //
 				.text("BAU Communication Alarm")), //
-		ALARM_INSULATION_CHECK(Doc.of(Level.FAULT) //
+		ALARM_INSULATION_CHECK(Doc.of(Level.WARNING) //
 				.text("Inuslation Resistance Alarm")), //
 		ALARM_CURRENT_SENSOR(Doc.of(Level.WARNING) //
 				.text("Current Sensor Alarm")), //
 		ALARM_BCU_BMU_COMMUNICATION(Doc.of(Level.WARNING) //
 				.text("BCU BMU Communication Alarm")), //
-		ALARM_CONTACTOR_ADHESION(Doc.of(Level.FAULT)//
+		ALARM_CONTACTOR_ADHESION(Doc.of(Level.WARNING)//
 				.text("Contactor Adhesion Alarm ")), //
 		ALARM_BCU_NTC(Doc.of(Level.WARNING) //
 				.text("BCU NTC Alarm")), //
 		ALARM_SLAVE_CONTROL_SUMMARY(Doc.of(Level.WARNING) //
 				.text("Slave Control Summary Alarm")), //
-		FAILURE_INITIALIZATION(Doc.of(Level.FAULT) //
+		FAILURE_INITIALIZATION(Doc.of(Level.WARNING) //
 				.text("Initialization failure")), //
-		FAILURE_EEPROM(Doc.of(Level.FAULT) //
+		FAILURE_EEPROM(Doc.of(Level.WARNING) //
 				.text("EEPROM fault")), //
-		FAILURE_EEPROM2(Doc.of(Level.FAULT) //
+		FAILURE_EEPROM2(Doc.of(Level.WARNING) //
 				.text("EEPROM2 fault")), //
-		FAILURE_INTRANET_COMMUNICATION(Doc.of(Level.FAULT) //
+		FAILURE_INTRANET_COMMUNICATION(Doc.of(Level.WARNING) //
 				.text("Intranet communication fault")), //
-		FAILURE_TEMP_SAMPLING_LINE(Doc.of(Level.FAULT) //
+		FAILURE_TEMP_SAMPLING_LINE(Doc.of(Level.WARNING) //
 				.text("Temperature sampling line fault")), //
-		FAILURE_BALANCING_MODULE(Doc.of(Level.FAULT) //
+		FAILURE_BALANCING_MODULE(Doc.of(Level.WARNING) //
 				.text("Balancing module fault")), //
-		FAILURE_TEMP_SENSOR(Doc.of(Level.FAULT) //
+		FAILURE_TEMP_SENSOR(Doc.of(Level.WARNING) //
 				.text("Temperature sensor fault")), //
-		FAILURE_TEMP_SAMPLING(Doc.of(Level.FAULT) //
+		FAILURE_TEMP_SAMPLING(Doc.of(Level.WARNING) //
 				.text("Temperature sampling fault")), //
-		FAILURE_VOLTAGE_SAMPLING(Doc.of(Level.FAULT) //
+		FAILURE_VOLTAGE_SAMPLING(Doc.of(Level.WARNING) //
 				.text("Voltage sampling fault")), //
-		FAILURE_VOLTAGE_SAMPLING_LINE(Doc.of(Level.FAULT) //
+		FAILURE_VOLTAGE_SAMPLING_LINE(Doc.of(Level.WARNING) //
 				.text("Voltage sampling Line fault")), //
-		FAILURE_SLAVE_UNIT_INITIALIZATION(Doc.of(Level.FAULT) //
+		FAILURE_SLAVE_UNIT_INITIALIZATION(Doc.of(Level.WARNING) //
 				.text("Failure Slave Unit Initialization")),
-		FAILURE_CONNECTING_LINE(Doc.of(Level.FAULT) //
+		FAILURE_CONNECTING_LINE(Doc.of(Level.WARNING) //
 				.text("Connecting Line Failure")), //
-		FAILURE_SAMPLING_CHIP(Doc.of(Level.FAULT) //
+		FAILURE_SAMPLING_CHIP(Doc.of(Level.WARNING) //
 				.text("Sampling Chip Failure")), //
-		FAILURE_CONTACTOR(Doc.of(Level.FAULT) //
+		FAILURE_CONTACTOR(Doc.of(Level.WARNING) //
 				.text("Contactor Failure")), //
-		FAILURE_PASSIVE_BALANCE(Doc.of(Level.FAULT) //
+		FAILURE_PASSIVE_BALANCE(Doc.of(Level.WARNING) //
 				.text("Passive Balance Failure")), //
-		FAILURE_PASSIVE_BALANCE_TEMP(Doc.of(Level.FAULT) //
+		FAILURE_PASSIVE_BALANCE_TEMP(Doc.of(Level.WARNING) //
 				.text("Passive Balance Temp Failure")), //
-		FAILURE_ACTIVE_BALANCE(Doc.of(Level.FAULT) //
+		FAILURE_ACTIVE_BALANCE(Doc.of(Level.WARNING) //
 				.text("Active Balance Failure")), //
-		FAILURE_LTC6803(Doc.of(Level.FAULT) //
+		FAILURE_LTC6803(Doc.of(Level.WARNING) //
 				.text("LTC6803 sfault")), //
-		FAILURE_CONNECTOR_WIRE(Doc.of(Level.FAULT) //
+		FAILURE_CONNECTOR_WIRE(Doc.of(Level.WARNING) //
 				.text("connector wire fault")), //
-		FAILURE_SAMPLING_WIRE(Doc.of(Level.FAULT) //
+		FAILURE_SAMPLING_WIRE(Doc.of(Level.WARNING) //
 				.text("sampling wire fault")), //
-		PRECHARGE_TAKING_TOO_LONG(Doc.of(Level.FAULT) //
+		PRECHARGE_TAKING_TOO_LONG(Doc.of(Level.WARNING) //
 				.text("precharge time was too long")), //
 		NEED_CHARGE(Doc.of(Level.WARNING) //
 				.text("Battery Need Charge")), //
-		FAULT(Doc.of(Level.FAULT) //
+		FAULT(Doc.of(Level.WARNING) //
 				.text("battery fault state")), //
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
@@ -928,76 +928,76 @@ public interface BydBatteryBoxCommercialC130 extends Battery, OpenemsComponent, 
 				.text("ALARM LEVEL 2 SOH LOWER")), //
 		LEVEL1_PACK_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 2 PACK TEMP HIGH")), //
-		LEVEL2_SYSTEM_VOLTAGE_HIGH(Doc.of(Level.FAULT) //
+		LEVEL2_SYSTEM_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 SYSTEM VOLTAGE HIGH")), //
-		LEVEL2_SYSTEM_VOLTAGE_LOW(Doc.of(Level.FAULT) //
+		LEVEL2_SYSTEM_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 SYSTEM VOLTAGE LOW")), //
-		LEVEL2_SYSTEM_VOLTAGE_UNBALANCED(Doc.of(Level.FAULT) //
+		LEVEL2_SYSTEM_VOLTAGE_UNBALANCED(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 SYSTEM VOLTAGE UNBALANCED")), //
-		LEVEL2_INSULATION_RESISTANCE_LOWER(Doc.of(Level.FAULT) //
+		LEVEL2_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 INSULATION RESISTANCE LOWER")), //
-		LEVEL2_POS_INSULATION_RESISTANCE_LOWER(Doc.of(Level.FAULT) //
+		LEVEL2_POS_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 POS INSULATION RESISTANCE LOWER")), //
-		LEVEL2_NEG_INSULATION_RESISTANCE_LOWER(Doc.of(Level.FAULT) //
+		LEVEL2_NEG_INSULATION_RESISTANCE_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 NEG INSULATION RESISTANCE LOWER")), //
-		LEVEL2_SYSTEM_SOC_LOWER(Doc.of(Level.FAULT) //
+		LEVEL2_SYSTEM_SOC_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 SYSTEM SOC LOWER")), //
-		LEVEL2_SYSTEM_SOC_HIGH(Doc.of(Level.FAULT) //
+		LEVEL2_SYSTEM_SOC_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 SYSTEM SOC HIGH")), //
 		LEVEL2_SOH_LOWER(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 SOH LOWER")), //
-		LEVEL2_PACK_TEMP_HIGH(Doc.of(Level.FAULT) //
+		LEVEL2_PACK_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("ALARM LEVEL 3 PACK TEMP HIGH")), //
-		SLAVE_11_COMMUNICATION_ERROR(Doc.of(Level.FAULT)//
+		SLAVE_11_COMMUNICATION_ERROR(Doc.of(Level.WARNING)//
 				.text("Master control and Slave control Communication Fault 1 SLAVE_CTRL_11")), //
-		SLAVE_12_COMMUNICATION_ERROR(Doc.of(Level.FAULT)//
+		SLAVE_12_COMMUNICATION_ERROR(Doc.of(Level.WARNING)//
 				.text("Master control and Slave control Communication Fault 1 SLAVE_CTRL_12")), //
-		SLAVE_13_COMMUNICATION_ERROR(Doc.of(Level.FAULT)//
+		SLAVE_13_COMMUNICATION_ERROR(Doc.of(Level.WARNING)//
 				.text("Master control and Slave control Communication Fault 1 SLAVE_CTRL_13")), //
-		SLAVE_14_COMMUNICATION_ERROR(Doc.of(Level.FAULT)//
+		SLAVE_14_COMMUNICATION_ERROR(Doc.of(Level.WARNING)//
 				.text("Master control and Slave control Communication Fault 1 SLAVE_CTRL_14")), //
-		SLAVE_15_COMMUNICATION_ERROR(Doc.of(Level.FAULT)//
+		SLAVE_15_COMMUNICATION_ERROR(Doc.of(Level.WARNING)//
 				.text("Master control and Slave control Communication Fault 1 SLAVE_CTRL_15")), //
-		SLAVE_16_COMMUNICATION_ERROR(Doc.of(Level.FAULT)//
+		SLAVE_16_COMMUNICATION_ERROR(Doc.of(Level.WARNING)//
 				.text("Master control and Slave control Communication Fault 1 SLAVE_CTRL_16")), //
-		SLAVE_17_COMMUNICATION_ERROR(Doc.of(Level.FAULT)//
+		SLAVE_17_COMMUNICATION_ERROR(Doc.of(Level.WARNING)//
 				.text("Master control and Slave control Communication Fault 1 SLAVE_CTRL_17")), //
-		SLAVE_18_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_18_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_18")), //
-		SLAVE_19_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_19_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_19")), //
-		SLAVE_20_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_20_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_20")), //
-		SLAVE_21_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_21_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_21")), //
-		SLAVE_22_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_22_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_22")), //
-		SLAVE_23_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_23_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_23")), //
-		SLAVE_24_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_24_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_24")), //
-		SLAVE_25_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_25_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_25")), //
-		SLAVE_26_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_26_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_26")), //
-		SLAVE_27_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_27_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_27")), //
-		SLAVE_28_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_28_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_28")), //
-		SLAVE_29_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_29_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_29")), //
-		SLAVE_30_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_30_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_30")), //
-		SLAVE_31_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_31_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_31")), //
-		SLAVE_32_COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		SLAVE_32_COMMUNICATION_ERROR(Doc.of(Level.WARNING) //
 				.text("Master control and Slave control Communication Fault 2  SLAVE_CTRL_31")), //
 		// OpenEMS Faults
-		RUN_FAILED(Doc.of(Level.FAULT) //
+		RUN_FAILED(Doc.of(Level.WARNING) //
 				.text("Running the Logic failed")), //
-		MAX_START_ATTEMPTS(Doc.of(Level.FAULT) //
+		MAX_START_ATTEMPTS(Doc.of(Level.WARNING) //
 				.text("The maximum number of start attempts failed")), //
-		MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
+		MAX_STOP_ATTEMPTS(Doc.of(Level.WARNING) //
 				.text("The maximum number of stop attempts failed")), //
 		;
 

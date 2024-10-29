@@ -1,5 +1,8 @@
 package io.openems.edge.ess.core.power;
 
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
+import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL;
 import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,9 +15,6 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.ess.power.api.SolverStrategy;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyMetaEss;
 
@@ -55,7 +55,7 @@ public class PowerComponentTest2 {
 				.addReference("addEss", ess1) //
 
 				.activate(MyConfig.create() //
-						.setStrategy(SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL) //
+						.setStrategy(OPTIMIZE_BY_KEEPING_ALL_EQUAL) //
 						.setSymmetricMode(true) //
 						.setDebugMode(false) //
 						.setEnablePid(false) //
@@ -120,7 +120,7 @@ public class PowerComponentTest2 {
 				.addReference("addEss", ess3) //
 				.addReference("addEss", ess4) //
 				.activate(MyConfig.create() //
-						.setStrategy(SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL) //
+						.setStrategy(OPTIMIZE_BY_KEEPING_ALL_EQUAL) //
 						.setSymmetricMode(true) //
 						.setDebugMode(false) //
 						.setEnablePid(false) //
@@ -132,7 +132,7 @@ public class PowerComponentTest2 {
 		expect("#1.3", ess3, 2500, 0);
 		expect("#1.4", ess4, 2500, 0);
 
-		ess0.addPowerConstraint("SetActivePowerEquals1", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 10000);
+		ess0.addPowerConstraint("SetActivePowerEquals1", Phase.ALL, ACTIVE, EQUALS, 10000);
 		ess0.setActivePowerEquals(10000);
 		componentTest.next(new TestCase("#1"));
 
@@ -142,7 +142,7 @@ public class PowerComponentTest2 {
 		expect("#2.3", ess3, -2500, 0);
 		expect("#2.4", ess4, -2500, 0);
 
-		ess0.addPowerConstraint("SetActivePowerEquals2", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -10000);
+		ess0.addPowerConstraint("SetActivePowerEquals2", Phase.ALL, ACTIVE, EQUALS, -10000);
 		ess0.setActivePowerEquals(10000);
 		componentTest.next(new TestCase("#1"));
 
@@ -155,7 +155,7 @@ public class PowerComponentTest2 {
 		expect("#3.3", ess3, 2701, 0);
 		expect("#3.4", ess4, 1897, 0);
 
-		ess0.addPowerConstraint("SetActivePowerEquals3", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 10000);
+		ess0.addPowerConstraint("SetActivePowerEquals3", Phase.ALL, ACTIVE, EQUALS, 10000);
 		componentTest.next(new TestCase("#3"));
 
 		// #4 charging with lower allowed charge power
@@ -167,7 +167,7 @@ public class PowerComponentTest2 {
 		expect("#4.3", ess3, -2703, 0);
 		expect("#4.4", ess4, -1896, 0);
 
-		ess0.addPowerConstraint("SetActivePowerEquals4", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -10000);
+		ess0.addPowerConstraint("SetActivePowerEquals4", Phase.ALL, ACTIVE, EQUALS, -10000);
 		componentTest.next(new TestCase("#4"));
 
 		// #5 keeping zero
@@ -176,7 +176,7 @@ public class PowerComponentTest2 {
 		expect("#5.3", ess3, 0, 0);
 		expect("#5.4", ess4, 0, 0);
 
-		ess0.addPowerConstraint("SetActivePowerEquals5", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0);
+		ess0.addPowerConstraint("SetActivePowerEquals5", Phase.ALL, ACTIVE, EQUALS, 0);
 		componentTest.next(new TestCase("#5"));
 
 		ess4.withAllowedChargePower(1000);
@@ -187,7 +187,7 @@ public class PowerComponentTest2 {
 		expect("#5.3", ess3, 0, 0);
 		expect("#5.4", ess4, 0, 0);
 
-		ess0.addPowerConstraint("ctrl0", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0);
+		ess0.addPowerConstraint("ctrl0", Phase.ALL, ACTIVE, EQUALS, 0);
 		componentTest.next(new TestCase("#5"));
 
 	}
