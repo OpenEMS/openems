@@ -129,18 +129,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			return;
 		}
 
-		// Ensure that ess is initialized before setting slow charge and discharge power
-		if (this.ess != null && this.ess.getAllowedChargePower().isDefined()) {
-			this.isHybridEss = this.ess instanceof HybridEss; // Instance of hybrid System?
 
-			this.slowChargePower = this.ess.getAllowedChargePower().get() / 20;
-			this.slowDisChargePower = this.ess.getAllowedDischargePower().get() / 20;
-
-			this.fullChargePower = this.ess.getAllowedChargePower().get();
-			this.logDebug(this.log, "Initialized slow charge and discharge power.");
-		} else {
-			this.logDebug(this.log, "Waiting for ESS initialization to set slow charge and discharge power.");
-		}
+	    initializeEssProperties();
 
 	}
 
@@ -184,14 +174,31 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private Object getTimedata() {
 		return this.timedata;
 	}
+	
+	
+	private void initializeEssProperties() {
+	    // Überprüfen, ob ESS bereit und initialisiert ist
+	    if (this.ess != null && this.ess.getAllowedChargePower().isDefined()) {
+	        this.isHybridEss = this.ess instanceof HybridEss;
+
+	        this.slowChargePower = this.ess.getAllowedChargePower().get() / 20;
+	        this.slowDisChargePower = this.ess.getAllowedDischargePower().get() / 20;
+	        this.fullChargePower = this.ess.getAllowedChargePower().get();
+
+	        this.logDebug(this.log, "Initialized slow charge and discharge power.");
+	    } else {
+	        this.logDebug(this.log, "Waiting for ESS initialization to set slow charge and discharge power.");
+	    }
+	}	
 
 	@Override
 	public void run() throws OpenemsNamedException {
 
-		if (this.ess == null) {
-			this.logDebug(this.log, "ERROR. ESS " + config.ess_id() + " not available (yet) ");
-			return;
-		}
+
+	    if (this.ess == null || !this.ess.getAllowedChargePower().isDefined()) {
+	        initializeEssProperties();
+	        return;
+	    }		
 
 		Integer currentSoc = ess.getSoc().get();
 		Integer currentActivePower = this.getEssChargePower().get(); // no matter if AC or DC charging
@@ -456,6 +463,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 					ess.setActivePowerGreaterOrEquals(calculatedPower);
 				}
 			}
+			case BALANCING_WANTED -> //do nothing
+			{}
 
 			default -> throw new IllegalArgumentException("Unexpected State: " + this.state);
 			}
