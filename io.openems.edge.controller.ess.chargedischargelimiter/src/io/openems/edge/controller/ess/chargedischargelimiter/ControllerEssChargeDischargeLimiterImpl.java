@@ -76,6 +76,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private Integer slowDisChargePower = 0;
 
 	private int taperStartSoc = 0;
+	private int taperPercent = 3; // decrease charge power during the last X percent before hitting the max. Soc
 	private int fullChargePower = 0;
 
 	@Reference
@@ -118,7 +119,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		this.balancingHysteresisTime = this.config.balancingHysteresis();
 		this.debugMode = this.config.debugMode();
 
-		this.taperStartSoc = this.config.maxSoc() - 3;
+		this.taperStartSoc = this.config.maxSoc() - taperPercent;
 
 		this.log.info("Number of Peakshaving controllers found: ");
 
@@ -230,9 +231,9 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			}
 
 			// Tapering logic: Gradual power reduction as we approach maxSoc
-			if (currentSoc >= taperStartSoc && currentSoc < maxSoc) {
+			if (currentSoc >= taperStartSoc && currentSoc < maxSoc && currentActivePower < 0) {
 				// Calculate tapering factor to gradually reduce power as SOC approaches max
-				double taperFactor = (double) (maxSoc - currentSoc) / (maxSoc - taperStartSoc);
+				double taperFactor = Math.pow((double) (maxSoc - currentSoc) / (maxSoc - taperStartSoc), 2); // quadratic taper
 				calculatedPower = (int) (fullChargePower * taperFactor);
 				this.logDebug(this.log, "Reducing charge power as SOC approaches max: " + calculatedPower + "W");
 			}
