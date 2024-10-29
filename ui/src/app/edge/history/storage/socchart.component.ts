@@ -17,6 +17,8 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     private emergencyCapacityReserveComponents: EdgeConfig.Component[] = [];
 
+    private chargeDischargeLimiterComponents: EdgeConfig.Component[] = []; // New component list for ChargeDischargeLimiter
+
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
@@ -110,6 +112,31 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                         borderColor: "rgba(1, 1, 1,1)",
                                     });
                                 }
+                                // Add datasets for MinSoc and MaxSoc
+                                if (channelAddress.channelId === "MinSocLimit") {
+                                    datasets.push({
+                                        label: this.translate.instant("General.min_soc_limit"),
+                                        data: data,
+                                        borderDash: [5, 5],
+                                    });
+                                    this.colors.push({
+                                        backgroundColor: "rgba(0, 0, 255, 0.1)",
+                                        borderColor: "rgba(0, 0, 255, 1)",
+                                    });
+                                }
+                                if (channelAddress.channelId === "MaxSocLimit") {
+                                    datasets.push({
+                                        label: this.translate.instant("General.max_soc_limit"),
+                                        data: data,
+                                        borderDash: [5, 5],
+                                    });
+                                    this.colors.push({
+                                        backgroundColor: "rgba(255, 0, 0, 0.1)",
+                                        borderColor: "rgba(255, 0, 0, 1)",
+                                    });
+                                }
+
+
                             });
 
                             this.datasets = datasets;
@@ -152,6 +179,15 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                 .forEach(component =>
                     channeladdresses.push(new ChannelAddress(component.id, "ActualReserveSoc")),
                 );
+
+            // ChargeDischargeLimiter components for min and max SOC
+            this.chargeDischargeLimiterComponents = config.getComponentsByFactory("Controller.Ess.ChargeDischargeLimiter")
+                .filter(component => component.isEnabled);
+
+            this.chargeDischargeLimiterComponents.forEach(component => {
+                channeladdresses.push(new ChannelAddress(component.id, "MinSocLimit"));
+                channeladdresses.push(new ChannelAddress(component.id, "MaxSocLimit"));
+            });
 
             const ess = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss");
             if (ess.length > 1) {
