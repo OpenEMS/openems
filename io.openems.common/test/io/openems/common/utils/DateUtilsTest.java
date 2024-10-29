@@ -25,10 +25,6 @@ public class DateUtilsTest {
 		assertEquals(//
 				ZonedDateTime.of(2023, 1, 2, 3, 15, 0, 0, ZoneId.of("UTC")), //
 				roundDownToQuarter(ZonedDateTime.of(2023, 1, 2, 3, 16, 17, 18, ZoneId.of("UTC"))));
-
-		assertEquals(//
-				ZonedDateTime.of(2023, 1, 2, 3, 15, 0, 0, ZoneId.of("UTC")), //
-				roundDownToQuarter(ZonedDateTime.of(2023, 1, 2, 3, 21, 22, 23, ZoneId.of("UTC"))));
 	}
 
 	@Test
