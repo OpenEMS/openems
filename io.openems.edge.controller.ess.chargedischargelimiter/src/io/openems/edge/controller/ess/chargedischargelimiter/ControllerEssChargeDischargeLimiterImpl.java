@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -71,6 +72,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private int balancingHysteresisTime = 0;
 	private State state = State.UNDEFINED;
 
+	private boolean isHybridEss = false;
 	private boolean debugMode = false;
 	private Integer slowChargePower = 0;
 	private Integer slowDisChargePower = 0;
@@ -129,6 +131,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 		// Ensure that ess is initialized before setting slow charge and discharge power
 		if (this.ess != null && this.ess.getAllowedChargePower().isDefined()) {
+			this.isHybridEss = this.ess instanceof HybridEss; // Instance of hybrid System?
+
 			this.slowChargePower = this.ess.getAllowedChargePower().get() / 20;
 			this.slowDisChargePower = this.ess.getAllowedDischargePower().get() / 20;
 
@@ -190,7 +194,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		}
 
 		Integer currentSoc = ess.getSoc().get();
-		Integer currentActivePower = ess.getActivePower().get();
+		Integer currentActivePower = this.getChargePower().get(); // no matter if AC or DC charging
 		Integer calculatedPower = 0; // No constraints
 
 		// Remember: Negative values for Charge; positive for Discharge
@@ -233,7 +237,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			// Tapering logic: Gradual power reduction as we approach maxSoc
 			if (currentSoc >= taperStartSoc && currentSoc < maxSoc && currentActivePower < 0) {
 				// Calculate tapering factor to gradually reduce power as SOC approaches max
-				double taperFactor = Math.pow((double) (maxSoc - currentSoc) / (maxSoc - taperStartSoc), 2); // quadratic taper
+				double taperFactor = Math.pow((double) (maxSoc - currentSoc) / (maxSoc - taperStartSoc), 2); // quadratic
+																												// taper
 				calculatedPower = (int) (fullChargePower * taperFactor);
 				this.logDebug(this.log, "Reducing charge power as SOC approaches max: " + calculatedPower + "W");
 			}
@@ -494,15 +499,9 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private void calculateChargedEnergy() {
 
 		Long currentEssActiveChargeEnergy = 0L;
-		// We have to check if there is an DC charge energy channel (hybrid ESS)
-		if (this.ess instanceof HybridEss hss) {
-			// Ess Active Charge Energy directly from ESS (cumulative)
-			currentEssActiveChargeEnergy = hss.getDcChargeEnergy().get();
-			this.logDebug(this.log, "Instance of Hybrid ESS. Using charged DC energy");
-		} else {
-			currentEssActiveChargeEnergy = this.ess.getActiveChargeEnergy().get(); // Cumulative ESS charge energy
-			this.logDebug(this.log, "Instance of symmetric ESS. Using charged AC energy");
-		}
+
+		currentEssActiveChargeEnergy = this.getEssChargedEnergy().get(); // Cumulative counter of ESS device. No matter if DC
+																			// or AC coupled
 
 		// Ess Active Charge Energy directly from ESS (cumulative)
 		Integer storedChargedEnergy = this.getChargedEnergy().get(); // Stored charged energy from this controller's
@@ -563,6 +562,24 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		}
 
 		return false;
+	}
+
+	private Value<Long> getEssChargedEnergy() {
+		if (isHybridEss && this.ess instanceof HybridEss hss) {
+			return hss.getDcChargeEnergy(); // DC Power for hybrid systems. negative values for Charge; positive for
+											// Discharge
+		} else {
+			return this.ess.getActiveChargeEnergy();
+		}
+	}
+
+	private Value<Integer> getChargePower() {
+		if (isHybridEss && this.ess instanceof HybridEss hss) {
+			return hss.getDcDischargePower(); // DC Power for hybrid systems. negative values for Charge; positive for
+												// Discharge
+		} else {
+			return this.ess.getActivePower(); //
+		}
 	}
 
 }
