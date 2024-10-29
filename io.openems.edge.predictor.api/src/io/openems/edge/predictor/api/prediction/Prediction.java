@@ -279,7 +279,4 @@ public class Prediction {
 		return result;
 	}
 
-	public enum Interval {
-		QUARTER, DUODCIMUS
-	}
 }
