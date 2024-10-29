@@ -115,7 +115,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                 // Add datasets for MinSoc and MaxSoc
                                 if (channelAddress.channelId === "MinSocLimit") {
                                     datasets.push({
-                                        label: this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MIN_SOC"),
+                                        label: this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MIN_SOC_VALUE"),
                                         data: data,
                                         borderDash: [5, 5],
                                     });
@@ -126,7 +126,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                 }
                                 if (channelAddress.channelId === "MaxSocLimit") {
                                     datasets.push({
-                                        label: this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MAX_SOC"),
+                                        label: this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MAX_SOC_VALUE"),
                                         data: data,
                                         borderDash: [5, 5],
                                     });
@@ -135,7 +135,17 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                         borderColor: "rgba(255, 0, 0, 1)",
                                     });
                                 }
-
+                                if (channelAddress.channelId === "BalancingSoc") {
+                                    datasets.push({
+                                        label: this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.FORCE_SOC_VALUE"),
+                                        data: data,
+                                        borderDash: [5, 5],
+                                    });
+                                    this.colors.push({
+                                        backgroundColor: "rgba(255, 0, 0, 0.1)",
+                                        borderColor: "rgba(255, 0, 0, 1)",
+                                    });
+                                }
 
                             });
 
@@ -187,6 +197,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
             this.chargeDischargeLimiterComponents.forEach(component => {
                 channeladdresses.push(new ChannelAddress(component.id, "MinSocLimit"));
                 channeladdresses.push(new ChannelAddress(component.id, "MaxSocLimit"));
+                channeladdresses.push(new ChannelAddress(component.id, "BalancingSoc"));
             });
 
             const ess = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss");
