@@ -119,8 +119,10 @@ public class ControllerEssTimeframeImplTest {
 
         Integer acPower = ControllerEssTimeframeImpl.getAcPower(
                 ess,
+                null,
                 0,
                 50,
+                0,
                 0,
                 0,
                 this.getIso8601String(this.now()),

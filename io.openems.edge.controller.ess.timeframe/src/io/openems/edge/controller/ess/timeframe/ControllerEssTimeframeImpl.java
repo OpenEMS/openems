@@ -1,6 +1,7 @@
 package io.openems.edge.controller.ess.timeframe;
 
 import io.openems.common.exceptions.InvalidValueException;
+import io.openems.edge.meter.api.ElectricityMeter;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -50,6 +51,9 @@ public class ControllerEssTimeframeImpl extends AbstractOpenemsComponent
     @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
     private ManagedSymmetricEss ess;
 
+    @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+    private ElectricityMeter meter;
+
     private Config config;
 
     @Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
@@ -84,6 +88,7 @@ public class ControllerEssTimeframeImpl extends AbstractOpenemsComponent
 
     private boolean applyConfig(ComponentContext context, Config config) {
         this.config = config;
+        OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.grid_meter_id());
         return OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id());
     }
 
@@ -102,10 +107,12 @@ public class ControllerEssTimeframeImpl extends AbstractOpenemsComponent
                     // Apply Active-Power Set-Point
                     var acPower = getAcPower(
                             this.ess,
+                            this.meter,
                             this.config.ess_capacity(),
                             this.config.targetSoC(),
                             this.config.maxChargePower(),
                             this.config.maxDischargePower(),
+                            this.config.maxBuyFromGridPower(),
                             this.config.startTime(),
                             this.config.endTime()
                     );
@@ -133,20 +140,24 @@ public class ControllerEssTimeframeImpl extends AbstractOpenemsComponent
      * Gets the required AC power set-point for AC-ESS.
      *
      * @param ess                   the {@link ManagedSymmetricEss}
+     * @param meter                   the {@link ElectricityMeter}
      * @param fallback_ess_capacity capacity of the ess, used as fallback if automatic determination does not work
      * @param targetSoC             the target SoC
      * @param maxChargePower        max power to charge
      * @param maxDischargePower     max power to discharge
+     * @param maxBuyFromGridPower   max power to buy from grid
      * @param startTime             the start time of the timeframe
      * @param endTime               the end time of the timeframe
      * @return the AC power set-point
      */
     protected static Integer getAcPower(
             ManagedSymmetricEss ess,
+            ElectricityMeter meter,
             Integer fallback_ess_capacity,
             int targetSoC,
             int maxChargePower,
             int maxDischargePower,
+            int maxBuyFromGridPower,
             String startTime,
             String endTime
     ) throws InvalidValueException {
@@ -171,6 +182,12 @@ public class ControllerEssTimeframeImpl extends AbstractOpenemsComponent
             }
             if (maxDischargePower != 0) {
                 requestedPower = Math.min(requestedPower, maxDischargePower);
+            }
+
+            if (meter != null && maxBuyFromGridPower != 0) {
+                int gridPower = meter.getActivePower().getOrError();
+                int maxCharge = ess.getActivePower().get() + gridPower - maxBuyFromGridPower;
+                requestedPower = Math.max(requestedPower, maxCharge);
             }
 
             return requestedPower;
