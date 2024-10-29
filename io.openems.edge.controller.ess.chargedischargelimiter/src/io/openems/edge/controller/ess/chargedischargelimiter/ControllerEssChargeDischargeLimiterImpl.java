@@ -74,8 +74,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 	
 	private boolean debugMode = false;
-	private Integer slowChargePower = 0;
-	private Integer slowDisChargePower = 0;
+	private Integer slowChargePower = null;
+	private Integer slowDisChargePower = null;
 
 	private int taperStartSoc = 0;
 	private int taperPercent = 3; // decrease charge power during the last X percent before hitting the max. Soc
