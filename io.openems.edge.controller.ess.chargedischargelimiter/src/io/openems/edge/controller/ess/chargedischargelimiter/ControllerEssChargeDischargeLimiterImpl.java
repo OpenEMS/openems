@@ -72,7 +72,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private int balancingHysteresisTime = 0;
 	private State state = State.UNDEFINED;
 
-	private boolean isHybridEss = false;
+	
 	private boolean debugMode = false;
 	private Integer slowChargePower = 0;
 	private Integer slowDisChargePower = 0;
@@ -179,8 +179,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private void initializeEssProperties() {
 	    // Überprüfen, ob ESS bereit und initialisiert ist
 	    if (this.ess != null && this.ess.getAllowedChargePower().isDefined()) {
-	        this.isHybridEss = this.ess instanceof HybridEss;
-
+	        
 	        this.slowChargePower = this.ess.getAllowedChargePower().get() / 20;
 	        this.slowDisChargePower = this.ess.getAllowedDischargePower().get() / 20;
 	        this.fullChargePower = this.ess.getAllowedChargePower().get();
@@ -465,6 +464,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			}
 			case BALANCING_WANTED -> //do nothing
 			{}
+			case UNDEFINED -> //do nothing
+			{}
 
 			default -> throw new IllegalArgumentException("Unexpected State: " + this.state);
 			}
@@ -574,7 +575,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	}
 
 	private Value<Long> getEssChargedEnergy() {
-		if (isHybridEss && this.ess instanceof HybridEss hss) {
+		if (this.ess instanceof HybridEss hss) {
 			return hss.getDcChargeEnergy(); // DC Power for hybrid systems. negative values for Charge; positive for
 											// Discharge
 		} else {
@@ -583,7 +584,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	}
 
 	private Value<Integer> getEssChargePower() {
-		if (isHybridEss && this.ess instanceof HybridEss hss) {
+		if (this.ess instanceof HybridEss hss) {
 			return hss.getDcDischargePower(); // DC Power for hybrid systems. negative values for Charge; positive for
 												// Discharge
 		} else {
