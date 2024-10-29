@@ -20,8 +20,8 @@ public class LevlControlRequest {
     protected LocalDateTime start;
     protected LocalDateTime deadline;
     protected int levlSocWh;
-    protected int socLowerBoundPercent;
-    protected int socUpperBoundPercent;
+    protected double socLowerBoundPercent;
+    protected double socUpperBoundPercent;
     protected double efficiencyPercent;
     protected boolean influenceSellToGrid;
 
@@ -75,8 +75,8 @@ public class LevlControlRequest {
         this.start = LocalDateTime.now(LevlControlRequest.clock).plusSeconds(params.get("levlChargeDelaySec").getAsInt());
         this.deadline = this.start.plusSeconds(params.get("levlChargeDurationSec").getAsInt());
         this.levlSocWh = params.get("levlSocWh").getAsInt();
-        this.socLowerBoundPercent = params.get("levlSocLowerBoundPercent").getAsInt();
-        this.socUpperBoundPercent = params.get("levlSocUpperBoundPercent").getAsInt();
+        this.socLowerBoundPercent = params.get("levlSocLowerBoundPercent").getAsDouble();
+        this.socUpperBoundPercent = params.get("levlSocUpperBoundPercent").getAsDouble();
         this.sellToGridLimitW = params.get("sellToGridLimitW").getAsInt();
         this.buyFromGridLimitW = params.get("buyFromGridLimitW").getAsInt();
         this.efficiencyPercent = params.get("efficiencyPercent").getAsDouble();
