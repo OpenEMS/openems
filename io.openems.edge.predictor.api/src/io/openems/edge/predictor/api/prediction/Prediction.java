@@ -278,5 +278,4 @@ public class Prediction {
 
 		return result;
 	}
-
 }
