@@ -46,7 +46,5 @@ public class CubicalInterpolationTest {
 
 		ArrayList<Double> interpolatedData = inter.compute();
 		assertEquals(interpolatedData, expectedResult);
-
 	}
-
 }

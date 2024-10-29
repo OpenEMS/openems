@@ -2,6 +2,7 @@ package io.openems.edge.predictor.lstmmodel;
 
 import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
 import static io.openems.edge.predictor.lstmmodel.utilities.DataUtility.combine;
+import static io.openems.edge.predictor.lstmmodel.utilities.DataUtility.concatenateList;
 import static io.openems.edge.predictor.lstmmodel.utilities.DataUtility.getData;
 import static io.openems.edge.predictor.lstmmodel.utilities.DataUtility.getDate;
 import static io.openems.edge.predictor.lstmmodel.utilities.DataUtility.getMinute;
@@ -10,10 +11,11 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.SortedMap;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
+import java.util.stream.IntStream;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -43,7 +45,6 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.predictor.api.prediction.AbstractPredictor;
 import io.openems.edge.predictor.api.prediction.Prediction;
-import io.openems.edge.predictor.api.prediction.Prediction.Interval;
 import io.openems.edge.predictor.api.prediction.Predictor;
 import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
 import io.openems.edge.predictor.lstmmodel.common.ReadAndSaveModels;
@@ -51,7 +52,6 @@ import io.openems.edge.predictor.lstmmodel.jsonrpc.GetPredictionRequest;
 import io.openems.edge.predictor.lstmmodel.jsonrpc.PredictionRequestHandler;
 import io.openems.edge.predictor.lstmmodel.preprocessing.DataModification;
 import io.openems.edge.predictor.lstmmodel.train.LstmTrain;
-import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -63,9 +63,13 @@ import io.openems.edge.timedata.api.Timedata;
 public class LstmModelImpl extends AbstractPredictor
 		implements Predictor, OpenemsComponent, ComponentJsonApi, LstmModel {
 
-	private static final Function<ArrayList<Double>, Integer[]> DOUBLELIST_TO_INTARRAY = UtilityConversion::toInteger1DArray;
-	private static final long DAYS_45 = 45; /* 45 days */
-	private static final long PERIOD = DAYS_45 * 24 * 60; /* 45 days in minutes */
+	// private final Logger log = LoggerFactory.getLogger(LstmModelImpl.class);
+
+	/** 45 days. */
+	private static final long DAYS_45 = 45;
+
+	/** 45 days in minutes. */
+	private static final long PERIOD = DAYS_45 * 24 * 60;
 
 	@Reference
 	private Sum sum;
@@ -124,25 +128,77 @@ public class LstmModelImpl extends AbstractPredictor
 
 	@Override
 	protected Prediction createNewPrediction(ChannelAddress channelAddress) {
+
 		var hyperParameters = ReadAndSaveModels.read(channelAddress.getChannelId());
 		var nowDate = ZonedDateTime.now();
 
-		var seasonalityPrediction = this.predictSeasonality(channelAddress, nowDate, hyperParameters);
-		var trendPrediction = this.predictTrend(channelAddress, nowDate, hyperParameters);
+		var seasonalityFuture = CompletableFuture
+				.supplyAsync(() -> this.predictSeasonality(channelAddress, nowDate, hyperParameters));
 
-		var predicted = combine(trendPrediction, seasonalityPrediction);
-		var till = nowDate.withMinute(getMinute(nowDate, hyperParameters)).withSecond(0).withNano(0);
+		var trendFuture = CompletableFuture
+				.supplyAsync(() -> this.predictTrend(channelAddress, nowDate, hyperParameters));
 
-		return Prediction.from(//
-				Prediction.getValueRange(this.sum, channelAddress), //
-				Interval.DUODCIMUS, //
-				till, //
-				DOUBLELIST_TO_INTARRAY.apply(predicted));
+		var dayPlus1SeasonalityFuture = CompletableFuture
+				.supplyAsync(() -> this.predictSeasonality(channelAddress, nowDate.plusDays(1), hyperParameters));
+
+		var combinePrerequisites = CompletableFuture.allOf(seasonalityFuture, trendFuture);
+
+		try {
+			combinePrerequisites.get();
+
+			// Current day prediction
+			var currentDayPredicted = combine(trendFuture.get(), seasonalityFuture.get());
+
+			// Next Day prediction
+			var plus1DaySeasonalityPrediction = dayPlus1SeasonalityFuture.get();
+
+			// Concat current and Nextday
+			var actualPredicted = concatenateList(currentDayPredicted, plus1DaySeasonalityPrediction);
+
+			var baseTimeOfPrediction = nowDate.withMinute(getMinute(nowDate, hyperParameters)).withSecond(0)
+					.withNano(0);
+
+			return Prediction.from(//
+					Prediction.getValueRange(this.sum, channelAddress), //
+					baseTimeOfPrediction, //
+					averageInChunks(actualPredicted));
+		} catch (Exception e) {
+			throw new RuntimeException("Error in getting prediction execution", e);
+		}
+	}
+
+	/**
+	 * Averages the elements of an integer array in chunks of a specified size.
+	 *
+	 * <p>
+	 * This method takes an input array of integers and divides it into chunks of a
+	 * fixed size. For each chunk, it calculates the average of the integers and
+	 * stores the result in a new array. The size of the result array is determined
+	 * by the total number of elements in the input array divided by the chunk size.
+	 * </p>
+	 *
+	 * @param inputList an arrayList of Doubles to be processed. The array length
+	 *                  must be a multiple of the chunk size for correct processing.
+	 * @return an array of integers containing the averages of each chunk.
+	 * 
+	 */
+	private static Integer[] averageInChunks(ArrayList<Double> inputList) {
+		final int chunkSize = 3;
+		int resultSize = inputList.size() / chunkSize;
+		Integer[] result = new Integer[resultSize];
+
+		for (int i = 0; i < inputList.size(); i += chunkSize) {
+			double sum = IntStream.range(i, Math.min(i + chunkSize, inputList.size()))
+					.mapToDouble(j -> inputList.get(j))//
+					.sum();
+			result[i / chunkSize] = (int) (sum / chunkSize);
+		}
+		return result;
 	}
 
 	/**
 	 * Queries historic data for a specified time range and channel address with
-	 * given hyperparameters.
+	 * given {@link ChannelAddress}.
 	 *
 	 * @param from            the start of the time range
 	 * @param until           the end of the time range
@@ -182,16 +238,15 @@ public class LstmModelImpl extends AbstractPredictor
 	public ArrayList<Double> predictTrend(ChannelAddress channelAddress, ZonedDateTime nowDate,
 			HyperParameters hyperParameters) {
 
-		var till = nowDate//
-				.withMinute(getMinute(nowDate, hyperParameters))//
-				.withSecond(0)//
-				.withNano(0);
+		var till = nowDate.withMinute(getMinute(nowDate, hyperParameters)).withSecond(0).withNano(0);
 		var from = till.minusMinutes(hyperParameters.getInterval() * hyperParameters.getWindowSizeTrend());
+
 		var trendQueryResult = this.queryHistoricData(//
 				from, //
 				till, //
 				channelAddress, //
 				hyperParameters);
+
 		return LstmPredictor.predictTrend(//
 				getData(trendQueryResult), //
 				getDate(trendQueryResult), //
@@ -200,14 +255,14 @@ public class LstmModelImpl extends AbstractPredictor
 	}
 
 	/**
-	 * Predicts seasonality values for a specified channel at the current date using
+	 * Predicts Seasonality values for a specified channel at the current date using
 	 * LSTM models.
 	 *
 	 * @param channelAddress  The address of the channel for which seasonality
 	 *                        values are predicted.
 	 * @param nowDate         The current date and time for which seasonality values
 	 *                        are predicted.
-	 * @param hyperParameters The hyperparameters for the prediction model.
+	 * @param hyperParameters The {@link ChannelAddress} for the prediction model.
 	 * @return A list of predicted seasonality values for the specified channel at
 	 *         the current date.
 	 * @throws SomeException If there's any specific exception that might be thrown
@@ -216,15 +271,14 @@ public class LstmModelImpl extends AbstractPredictor
 	public ArrayList<Double> predictSeasonality(ChannelAddress channelAddress, ZonedDateTime nowDate,
 			HyperParameters hyperParameters) {
 
-		var till = nowDate//
-				.withMinute(getMinute(nowDate, hyperParameters))//
-				.withSecond(0)//
-				.withNano(0);
+		var till = nowDate.withMinute(getMinute(nowDate, hyperParameters)).withSecond(0).withNano(0);
 		var temp = till.minusDays(hyperParameters.getWindowSizeSeasonality() - 1);
+
 		var from = temp//
 				.withMinute(getMinute(nowDate, hyperParameters))//
 				.withSecond(0)//
 				.withNano(0);
+
 		var targetFrom = till.plusMinutes(hyperParameters.getInterval());
 		var queryResult = this.queryHistoricData(from, till, channelAddress, hyperParameters);
 
@@ -244,5 +298,4 @@ public class LstmModelImpl extends AbstractPredictor
 					this.channelForPrediction);
 		});
 	}
-
 }

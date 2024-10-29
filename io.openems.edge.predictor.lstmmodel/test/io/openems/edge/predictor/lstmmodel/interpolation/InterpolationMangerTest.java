@@ -20,11 +20,11 @@ public class InterpolationMangerTest {
 		assertEquals(Double.NaN, result, 0.0001);
 	}
 
-	// @Test
-	protected void calculateMean_shouldReturnMeanWithoutNaN() {
+	@Test
+	public void calculateMean_shouldReturnMeanWithoutNaN() {
 		ArrayList<Double> dataList = new ArrayList<>(Arrays.asList(1.0, 2.0, Double.NaN, 4.0, 5.0));
 		double result = InterpolationManager.calculateMean(dataList);
-		assertEquals(2.4, result, 0.0001);
+		assertEquals(3.0, result, 0.0001);
 	}
 
 	@Test
@@ -56,12 +56,7 @@ public class InterpolationMangerTest {
 
 	@Test
 	public void testInterpolationManagerCaseLinear() {
-		ArrayList<Double> data = new ArrayList<>();
-		data.add(1.0);
-		data.add(null);
-		data.add(3.0);
-		data.add(Double.NaN);
-		data.add(5.0);
+		ArrayList<Double> data = new ArrayList<>(Arrays.asList(1.0, null, 3.0, Double.NaN, 5.0));
 		ArrayList<Double> expectedData = new ArrayList<>(Arrays.asList(1.0, 2.0, 3.0, 4.0, 5.0));
 		InterpolationManager interpolationManager = new InterpolationManager(data, hyperParameters);
 		assertEquals(interpolationManager.getInterpolatedData(), expectedData);
@@ -69,20 +64,11 @@ public class InterpolationMangerTest {
 
 	@Test
 	public void testInterPolationManagerCaseCubical() {
-		ArrayList<Double> data = new ArrayList<>();
-		data.add(1.0);
-		data.add(null);
-		data.add(3.0);
-		data.add(Double.NaN);
-		data.add(5.0);
-		data.add(6.0);
-		data.add(null);
-		data.add(7.0);
-		data.add(8.0);
-		data.add(null);
-		data.add(Double.NaN);
-		data.add(9.0);
+		ArrayList<Double> data = new ArrayList<>(
+				Arrays.asList(1.0, null, 3.0, Double.NaN, 5.0, 6.0, null, 7.0, 8.0, null, Double.NaN, 9.0));
+		ArrayList<Double> expectedData = new ArrayList<>(Arrays.asList(1.0, 2.0092714608433737, 3.0, 3.9721856174698793,
+				5.0, 6.0, 6.485598644578313, 7.0, 8.0, 8.671770414993308, 8.937416331994646, 9.0));
 		InterpolationManager interpolationManager = new InterpolationManager(data, hyperParameters);
-		System.out.println(interpolationManager.getInterpolatedData());
+		assertEquals(interpolationManager.getInterpolatedData(), expectedData);
 	}
 }

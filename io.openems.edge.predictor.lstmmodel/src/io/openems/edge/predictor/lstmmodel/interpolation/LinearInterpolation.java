@@ -10,7 +10,6 @@ public class LinearInterpolation {
 	 * @param data The input data set with NaN values.
 	 * @return The data set with NaN values replaced by interpolated values.
 	 */
-
 	public static ArrayList<Double> interpolate(ArrayList<Double> data) {
 
 		ArrayList<ArrayList<Integer>> coordinate = determineInterpolatingPoints(data);
@@ -23,7 +22,6 @@ public class LinearInterpolation {
 
 		}
 		return data;
-
 	}
 
 	/**
@@ -34,7 +32,6 @@ public class LinearInterpolation {
 	 * @return A list of coordinate pairs representing the indices where NaN values
 	 *         are sandwiched.
 	 */
-
 	public static ArrayList<ArrayList<Integer>> determineInterpolatingPoints(ArrayList<Double> data) {
 
 		ArrayList<ArrayList<Integer>> coordinates = new ArrayList<>();
@@ -73,7 +70,6 @@ public class LinearInterpolation {
 	 * @param yValue2 The y-value corresponding to the second data point.
 	 * @return A list of interpolated y-values between xValue1 and xValue2.
 	 */
-
 	public static ArrayList<Double> computeInterpolation(int xValue1, int xValue2, double yValue1, double yValue2) {
 		var interPolatedResults = new ArrayList<Double>();
 		var xVal1 = (double) xValue1;
@@ -95,7 +91,6 @@ public class LinearInterpolation {
 	 * @param xValue2            The second index used for interpolation.
 	 * @return The combined data set with interpolated values.
 	 */
-
 	public static ArrayList<Double> combine(ArrayList<Double> orginalData, ArrayList<Double> interpolatedResult,
 			int xValue1, int xValue2) {
 

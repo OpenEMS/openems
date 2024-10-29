@@ -18,11 +18,20 @@ public class TrainAndValidateBatch {
 			ArrayList<Double> validateData, //
 			ArrayList<OffsetDateTime> validateDate, //
 			HyperParameters hyperParameter) {
+		
+		/*
+		 * var checkTrain = trainData.size() / hyperParameter.getBatchSize()
+		 * 
+		 * if ( checkTrain <= hyperParameter.getWindowSizeSeasonality() || checkTrain <=
+		 * hyperParameter.getWindowSizeTrend() ) { throw new Exception; }
+		 */
 
 		var batchedData = DataModification.getDataInBatch(//
 				trainData, hyperParameter.getBatchSize());
 		var batchedDate = DataModification.getDateInBatch(//
 				trainDate, hyperParameter.getBatchSize());
+		
+
 
 		for (int epoch = hyperParameter.getEpochTrack(); epoch < hyperParameter.getEpoch(); epoch++) {
 
@@ -38,7 +47,7 @@ public class TrainAndValidateBatch {
 
 				MakeModel makeModels = new MakeModel();
 
-				var trainDataTemp = batchedData.get(batch);
+				var trainDataTemp = batchedData.get(batch);				
 				var trainDateTemp = batchedDate.get(batch);
 
 				CompletableFuture<Void> firstTaskFuture = CompletableFuture

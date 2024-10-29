@@ -56,7 +56,6 @@ public class DataModificationTest {
 
 		assertNotNull(result);
 		assertEquals(5, result.size());
-
 	}
 
 	@Test
@@ -119,15 +118,11 @@ public class DataModificationTest {
 			for (double val : outerVal) {
 				assertEquals(val, data.get(i), 0.00001);
 				i++;
-
 			}
-
 		}
-
 	}
 
 	@Test
-
 	public void getDateInBatchTest() {
 
 		ArrayList<OffsetDateTime> dateList = new ArrayList<OffsetDateTime>();
@@ -149,24 +144,18 @@ public class DataModificationTest {
 			for (OffsetDateTime val : outerVal) {
 				assertEquals(val, dateList.get(j));
 				j++;
-
 			}
-
 		}
-
 	}
 
 	@Test
-
 	public void removeNegatives() {
 
 		ArrayList<Double> inputList = new ArrayList<>(Arrays.asList(5.0, -3.0, 2.0, -7.5));
 		ArrayList<Double> expectedList = new ArrayList<>(Arrays.asList(5.0, 0.0, 2.0, 0.0));
 
 		ArrayList<Double> resultList = DataModification.removeNegatives(inputList);
-
 		assertEquals(expectedList, resultList);
-
 	}
 
 	@Test
@@ -175,11 +164,7 @@ public class DataModificationTest {
 		ArrayList<Double> inputData = new ArrayList<>(Arrays.asList(1.0, 2.0, 3.0));
 		double scalingFactor = 2.0;
 		ArrayList<Double> expectedOutput = new ArrayList<>(Arrays.asList(2.0, 4.0, 6.0));
-
 		ArrayList<Double> actualOutput = DataModification.constantScaling(inputData, scalingFactor);
-
 		assertEquals(expectedOutput, actualOutput);
-
 	}
-
 }

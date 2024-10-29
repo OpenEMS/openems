@@ -29,12 +29,12 @@ public class DataStatistics {
 	}
 
 	/**
-	 * Computes the mean (average) of an array of double values.
-	 *
+	 * Computes the mean (average) of an array of double values. *
 	 * <p>
 	 * This method calculates the mean by summing all the elements in the input
 	 * array and dividing by the number of elements. If the array is empty, it
 	 * throws a NoSuchElementException.
+	 * </p>
 	 *
 	 * @param data the array of double values for which the mean is to be computed
 	 * @return the mean of the input array
@@ -93,6 +93,7 @@ public class DataStatistics {
 	 * Finally, it returns the square root of the variance as the standard
 	 * deviation. If the standard deviation is zero, a very small positive number
 	 * (1e-15) is returned to avoid returning zero.
+	 * </p>
 	 *
 	 * @param data the array of double values for which the standard deviation is to
 	 *             be computed

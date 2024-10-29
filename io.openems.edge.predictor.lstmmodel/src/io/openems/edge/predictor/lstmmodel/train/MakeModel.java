@@ -98,7 +98,6 @@ public class MakeModel {
 		preprocessing.setDates(date);//
 
 		var dataGroupedByMinute = (double[][][]) preprocessing//
-
 				.interpolate()//
 				.movingAverage()//
 				.scale()//
@@ -123,8 +122,8 @@ public class MakeModel {
 
 				preprocessing.setData(dataGroupedByMinute[i][j]);
 
-				var preProcessedSeason = (double[][][]) preprocessing
-						// .differencing()
+				var preProcessedSeason = (double[][][]) preprocessing//
+						//.differencing()//
 						.groupToWIndowSeasonality()//
 						.normalize()//
 						.shuffle()//

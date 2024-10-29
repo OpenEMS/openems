@@ -55,5 +55,4 @@ public class DataStatisticsTest {
 		double expectedRms = 0.1483239;
 		assertEquals(expectedRms, DataStatistics.computeRms(original, computed), 0.0001);
 	}
-
 }

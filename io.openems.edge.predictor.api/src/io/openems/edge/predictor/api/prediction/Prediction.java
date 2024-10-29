@@ -1,7 +1,6 @@
 package io.openems.edge.predictor.api.prediction;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
-import static io.openems.common.utils.DateUtils.roundDownToDuodecimus;
 import static io.openems.edge.common.type.TypeUtils.max;
 import static io.openems.edge.common.type.TypeUtils.min;
 import static java.util.Collections.emptySortedMap;
@@ -150,20 +149,6 @@ public class Prediction {
 	/**
 	 * Constructs a {@link Prediction} object.
 	 * 
-	 * @param valueRange the {@link ValueRange}
-	 * @param interval   the Interval
-	 * @param time       the base time of the prediction values, rounded down to 15
-	 *                   minutes
-	 * @param values     the quarterly prediction values.
-	 * @return a {@link Prediction} object
-	 */
-	public static Prediction from(ValueRange valueRange, Interval interval, ZonedDateTime time, Integer... values) {
-		return from(valueRange, buildMapDuoDecimus(time, values));
-	}
-
-	/**
-	 * Constructs a {@link Prediction} object.
-	 * 
 	 * <p>
 	 * Postprocessing is applied:
 	 * 
@@ -264,16 +249,6 @@ public class Prediction {
 		for (var value : values) {
 			result.put(time, value);
 			time = time.plusMinutes(15);
-		}
-		return result;
-	}
-
-	protected static SortedMap<ZonedDateTime, Integer> buildMapDuoDecimus(ZonedDateTime time, Integer... values) {
-		time = roundDownToDuodecimus(time);
-		var result = new TreeMap<ZonedDateTime, Integer>();
-		for (var value : values) {
-			result.put(time, value);
-			time = time.plusMinutes(5);
 		}
 		return result;
 	}

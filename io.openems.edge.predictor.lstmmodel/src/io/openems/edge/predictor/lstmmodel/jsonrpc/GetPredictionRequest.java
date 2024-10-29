@@ -10,15 +10,15 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
  * {
  *   "method": "componentJsonApi",
  *   "params": {
- *      "componentId": "predictor0",
- *      "payload": {
- *          "method": "getLstmPrediction",
- *          "params": {
- *             "id": "edge0"
- *         }
- *     }
- *   }
- * }
+  *      "componentId": "predictor0",
+  *      "payload": {
+  *          "method": "getLstmPrediction",
+  *          "params": {
+   *             "id": "edge0"
+   *         }
+   *     }
+   * }
+*}
  */
 public class GetPredictionRequest extends JsonrpcRequest {
 

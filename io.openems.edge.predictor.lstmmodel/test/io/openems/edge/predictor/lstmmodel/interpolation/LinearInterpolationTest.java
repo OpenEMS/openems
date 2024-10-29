@@ -8,6 +8,7 @@ import java.util.Arrays;
 import org.junit.Test;
 
 public class LinearInterpolationTest {
+
 	@Test
 	public void determineInterpolatingPointsTest() {
 
@@ -20,7 +21,6 @@ public class LinearInterpolationTest {
 
 		ArrayList<ArrayList<Integer>> result = LinearInterpolation.determineInterpolatingPoints(data);
 		assertEquals(result, expectedResults);
-
 	}
 
 	@Test
@@ -28,14 +28,10 @@ public class LinearInterpolationTest {
 
 		ArrayList<Double> data = new ArrayList<>(Arrays.asList(1.0, 2.0, 3.0, 4.0, Double.NaN, 6.0, 7.0, 8.0,
 				Double.NaN, Double.NaN, 11.0, 12.0, 13.0, Double.NaN, Double.NaN, Double.NaN, 17.0, Double.NaN, 19.0));
-
 		ArrayList<Double> expectedResult = new ArrayList<>(Arrays.asList(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0,
 				10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0));
 		ArrayList<Double> results = LinearInterpolation.interpolate(data);
-		// System.out.println(results);
-
 		assertEquals(results, expectedResult);
-
 	}
 
 	@Test
@@ -43,16 +39,11 @@ public class LinearInterpolationTest {
 
 		ArrayList<Double> data = new ArrayList<>(Arrays.asList(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0,
 				12.0, 13.0, Double.NaN, Double.NaN, Double.NaN, 17.0, 18.0, 19.0));
-
 		ArrayList<Double> interpoltedValue = new ArrayList<>(Arrays.asList(14.0, 15.0, 16.0));
-
 		ArrayList<Double> expectedResult = new ArrayList<>(Arrays.asList(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0,
 				10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0));
-
 		ArrayList<Double> result = LinearInterpolation.combine(data, interpoltedValue, 12, 16);
-		// System.out.println(result);
 		assertEquals(result, expectedResult);
-
 	}
 
 	@Test
@@ -62,11 +53,7 @@ public class LinearInterpolationTest {
 		double yvalue1 = 13;
 		double yvalue2 = 17;
 		ArrayList<Double> expectedResult = new ArrayList<>(Arrays.asList(14.0, 15.0, 16.0));
-
 		ArrayList<Double> result = LinearInterpolation.computeInterpolation(xval1, xValue2, yvalue1, yvalue2);
-
 		assertEquals(result, expectedResult);
-
 	}
-
 }

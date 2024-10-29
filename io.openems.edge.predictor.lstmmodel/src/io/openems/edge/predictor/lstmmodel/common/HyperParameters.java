@@ -126,6 +126,7 @@ public class HyperParameters implements Serializable {
 	 * 
 	 * <p>
 	 * Considerations for setting the batch size:
+	 * </p>
 	 * <ul>
 	 * <li>If the training data size is large, more batches should be created to
 	 * avoid excessive memory usage, which could lead to heap memory errors.</li>
@@ -179,6 +180,7 @@ public class HyperParameters implements Serializable {
 	 * balanced approach between training time and model performance. Adjusting the
 	 * number of epochs can be necessary based on the specific characteristics of
 	 * the dataset and the complexity of the model.
+	 * </p>
 	 */
 	private int epoch = 10;
 

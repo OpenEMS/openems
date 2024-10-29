@@ -49,7 +49,8 @@ public class LstmTrain implements Runnable {
 	public void run() {
 
 		var nowDate = ZonedDateTime.now();
-		var until = nowDate.withHour(23).withMinute(45).withSecond(0).withNano(0).minusDays(1);
+
+		var until = nowDate.minusDays(1).withHour(23).withMinute(45).withSecond(0).withNano(0);
 		var fromDate = until.minusDays(this.days).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> querryResult = new TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>();

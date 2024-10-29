@@ -1,4 +1,3 @@
-
 package io.openems.edge.predictor.lstmmodel.common;
 
 import static org.junit.Assert.assertEquals;
@@ -12,10 +11,17 @@ import java.nio.file.Paths;
 
 import io.openems.common.OpenemsConstants;
 
+/**
+ * This class contains test methods for saving and reading objects using Gson.
+ * Uncomment the @Test annotations to run the tests locally. These tests use the
+ * HyperParameters class and involve saving objects to JSON files and reading
+ * them back for validation.
+ */
 public class ReadAndSaveObjectTest {
 
 	/**
-	 * Save object and testing.
+	 * Test method for saving an object to a file using Gson serialization.
+	 * Uncomment the @Test annotation to run the test locally.
 	 */
 	// @Test
 	public void saveObjectGsonTest() {
@@ -25,11 +31,11 @@ public class ReadAndSaveObjectTest {
 		hyperParameters.setRmsErrorTrend(0.1234);
 		hyperParameters.setRmsErrorTrend(0.4567);
 		ReadAndSaveModels.save(hyperParameters);
-
 	}
 
 	/**
-	 * REading json object test.
+	 * Test method for reading a JSON object from a file. Uncomment the @Test
+	 * annotation to run the test locally.
 	 */
 	// @Test
 	public void readObjectGson() {
@@ -44,7 +50,6 @@ public class ReadAndSaveObjectTest {
 		try {
 			Files.delete(Paths.get(this.getModelPath(hyperParameters.getModelName() + "fenHp.fems")));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -58,10 +63,8 @@ public class ReadAndSaveObjectTest {
 	 * @param suffix The suffix to be appended to the model file path.
 	 * @return The absolute path for the model file.
 	 */
-
 	public String getModelPath(String suffix) {
 		File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
 		return file.getAbsolutePath() + File.separator + "models" + File.separator + suffix;
 	}
-
 }

@@ -1,48 +1,50 @@
 package io.openems.edge.predictor.lstmmodel;
 
-import static org.junit.Assert.assertEquals;
-
+import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.junit.Test;
 
-import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
-import io.openems.edge.predictor.lstmmodel.utilities.DataUtility;
+import io.openems.common.test.TimeLeapClock;
+import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.predictor.api.prediction.LogVerbosity;
+import io.openems.edge.timedata.test.DummyTimedata;
 
 public class LstmModelImplTest {
 
-	private static HyperParameters hyperParameters = new HyperParameters();
+	private static final String TIMEDATA_ID = "timedata0";
+	private static final String PREDICTOR_ID = "predictor0";
+
+	private static final ChannelAddress METER1_ACTIVE_POWER = new ChannelAddress("meter1", "ActivePower");
 
 	@Test
-	public void test() {
+	public void test() throws Exception {
+		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
+				ZoneOffset.UTC);
 
-		var dateTime1 = ZonedDateTime.of(2022, 1, 1, 12, 4, 0, 0, ZoneId.systemDefault());
-		var res = DataUtility.getMinute(dateTime1, hyperParameters).intValue();
-		assertEquals(0, res);
+		var values = Data.data;
+		var timedata = new DummyTimedata(TIMEDATA_ID);
+		var start = ZonedDateTime.of(2019, 12, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
 
-		var dateTime2 = ZonedDateTime.of(2022, 1, 1, 12, 8, 0, 0, ZoneId.systemDefault());
-		var res1 = DataUtility.getMinute(dateTime2, hyperParameters).intValue();
-		assertEquals(5, res1);
+		for (var i = 0; i < values.length; i++) {
+			timedata.add(start.plusMinutes(i * 15), METER1_ACTIVE_POWER, values[i]);
+		}
 
-		var dateTime3 = ZonedDateTime.of(2022, 1, 1, 12, 36, 0, 0, ZoneId.systemDefault());
-		var res2 = DataUtility.getMinute(dateTime3, hyperParameters).intValue();
+		var sut = new LstmModelImpl();
 
-		assertEquals(35, res2);
+		new ComponentTest(sut) //
+				.addReference("timedata", timedata) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.activate(MyConfig.create() //
+						.setId(PREDICTOR_ID) //
+						.setLogVerbosity(LogVerbosity.NONE) //
+						.setChannelAddress(METER1_ACTIVE_POWER.toString())//
+						.build());
 
-		var dateTime4 = ZonedDateTime.of(2022, 1, 1, 12, 50, 0, 0, ZoneId.systemDefault());
-		var res3 = DataUtility.getMinute(dateTime4, hyperParameters).intValue();
-		assertEquals(50, res3);
 	}
 
-	@Test
-	public void testCombine() {
-		var testData = new ArrayList<>(Arrays.asList(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0));
-		var testData1 = new ArrayList<>(Arrays.asList(100.0, 200.0, 300.0, 400.0));
-		var res = DataUtility.combine(testData1, testData);
-		var expectedResult = new ArrayList<>(Arrays.asList(100.0, 200.0, 300.0, 400.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0));
-		assertEquals(expectedResult, res);
-	}
 }

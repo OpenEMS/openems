@@ -73,6 +73,29 @@ public class DataUtility {
 	}
 
 	/**
+	 * Concatenates two lists of {@code Double} values into a single list.
+	 *
+	 *
+	 * @param list1 the first list of {@code Double} values, may be {@code null}
+	 * @param list2 the second list of {@code Double} values, may be {@code null}
+	 * @return a new {@link ArrayList} containing all elements from both input
+	 *         lists, or an empty list if both inputs are {@code null}
+	 */
+	public static ArrayList<Double> concatenateList(ArrayList<Double> list1, ArrayList<Double> list2) {
+		ArrayList<Double> result = new ArrayList<>();
+
+		if (list1 != null) {
+			result.addAll(list1);
+		}
+
+		if (list2 != null) {
+			result.addAll(list2);
+		}
+
+		return result;
+	}
+
+	/**
 	 * Extracts OffsetDateTime objects from the keys of a SortedMap containing
 	 * ZonedDateTime keys.
 	 *

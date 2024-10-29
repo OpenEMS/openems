@@ -17,7 +17,6 @@ public class PerformanceMatrix {
 		this.target = tar;
 		this.predicted = predict;
 		this.allowedError = allowedErr;
-
 	}
 
 	/**
@@ -43,7 +42,6 @@ public class PerformanceMatrix {
 		}
 
 		return sumError / predicted.size();
-
 	}
 
 	/**
@@ -255,17 +253,19 @@ public class PerformanceMatrix {
 		// Display various error metrics
 		System.out.println("Mean absolute error = " + meanAbsoluteError(this.target, this.predicted)
 				+ " (average absolute difference between predicted and actual values)");
+
 		System.out.println("RMS error = " + rmsError(this.target, this.predicted) + " (square root of the MSE)");
+
 		System.out.println("Mean squared error = " + meanSquaredError(this.target, this.predicted)
 				+ " (average of the squared differences between predicted and actual values)");
+
 		System.out.println("Mean absolute percentage error = " + meanAbslutePercentage(this.target, this.predicted)
 				+ " (measures the average percentage difference between predicted and actual values)");
 
 		// Display accuracy with the specified error margin
 		double accuracyPercentage = accuracy(this.target, this.predicted, this.allowedError) * 100;
-		System.out.println("Accuracy for " + this.allowedError * 100 + "% error margin = " + accuracyPercentage + "%");
 
-		// System.out.println("P-value = " + pvalue(target, predicted));
+		System.out.println("Accuracy for " + this.allowedError * 100 + "% error margin = " + accuracyPercentage + "%");
 
 		System.out.println("");
 	}
