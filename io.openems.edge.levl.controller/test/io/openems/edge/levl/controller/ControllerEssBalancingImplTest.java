@@ -133,9 +133,8 @@ public class CalculateSocTest {
 		//TODO: Efficiency prüfen
 		Assert.assertEquals("good case discharge /w efficiency", 30, this.underTest.applyPucSocBounds(1, 100, 50, 30));
 		Assert.assertEquals("good case charge /w efficiency", -30, this.underTest.applyPucSocBounds(1, 100, 50, -30));
-		Assert.assertEquals("minimum limit applies /w efficiency", 63, this.underTest.applyPucSocBounds(1, 100, 50, 70));
-		//TODO: Ergebnis prüfen. Ist doch falsch! Wenn ich 50 reinladen kann, dann kann ich mit WK doch nicht noch weniger reinladen
-//		Assert.assertEquals("maximum limit applies /w efficiency", 63, this.underTest.applyPucSocBounds(1, 100, 50, -70));		
+		Assert.assertEquals("minimum limit applies /w efficiency", 40, this.underTest.applyPucSocBounds(1, 100, 50, 70));
+		Assert.assertEquals("maximum limit applies /w efficiency", -62, this.underTest.applyPucSocBounds(1, 100, 50, -70));		
 	}
 
     @Test
@@ -345,7 +344,7 @@ public class CalculateSocTest {
 		JsonObject params = new JsonObject();
         params.addProperty("levlRequestId", "id");
         params.addProperty("levlRequestTimestamp", "2024-10-24T14:15:00Z");
-        params.addProperty("levlEnergyWs", 50000L);
+        params.addProperty("levlPowerW", 500);
         params.addProperty("levlChargeDelaySec", 900); 
         params.addProperty("levlChargeDurationSec", 900); 
         params.addProperty("levlSocWh", 10000);
@@ -361,7 +360,7 @@ public class CalculateSocTest {
 		// 2024-10-24T14:00:00
 		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729778400), ZoneOffset.UTC);
 		LevlControlRequest.clock = clock;
-		LevlControlRequest expectedNextRequest = new LevlControlRequest(3000, 4000, "id", "2024-10-24T14:15:00Z", 50000L, LocalDateTime.of(2024, 10, 24, 14, 15, 0), LocalDateTime.of(2024, 10, 24, 14, 30, 0), 10000, 20, 80, 90, true);
+		LevlControlRequest expectedNextRequest = new LevlControlRequest(3000, 4000, "id", "2024-10-24T14:15:00Z", 500*900, LocalDateTime.of(2024, 10, 24, 14, 15, 0), LocalDateTime.of(2024, 10, 24, 14, 30, 0), 10000, 20, 80, 90, true);
 		
 		this.underTest.handleRequest(call);
 		

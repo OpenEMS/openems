@@ -10,6 +10,7 @@ import java.util.Objects;
 
 public class LevlControlRequest {
     public static final String METHOD = "sendLevlControlRequest";
+    public static final int QUARTER_HOUR_SECONDS = 900;
     protected static Clock clock = Clock.systemDefaultZone();
     protected int sellToGridLimitW;
     protected int buyFromGridLimitW;
@@ -70,8 +71,8 @@ public class LevlControlRequest {
     private void parseFields(JsonObject params) {
         this.levlRequestId = params.get("levlRequestId").getAsString();
         this.timestamp = params.get("levlRequestTimestamp").getAsString();
-        this.energyWs = params.get("levlEnergyWs").getAsLong();
-        this.start = LocalDateTime.now(this.clock).plusSeconds(params.get("levlChargeDelaySec").getAsInt());
+        this.energyWs = params.get("levlPowerW").getAsLong() * QUARTER_HOUR_SECONDS;
+        this.start = LocalDateTime.now(LevlControlRequest.clock).plusSeconds(params.get("levlChargeDelaySec").getAsInt());
         this.deadline = this.start.plusSeconds(params.get("levlChargeDurationSec").getAsInt());
         this.levlSocWh = params.get("levlSocWh").getAsInt();
         this.socLowerBoundPercent = params.get("levlSocLowerBoundPercent").getAsInt();
