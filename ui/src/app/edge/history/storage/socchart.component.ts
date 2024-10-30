@@ -98,56 +98,56 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                             borderColor: "rgba(128,128,128,1)",
                                         });
                                     }
-                                }
-                                if (channelAddress.channelId === "ActualReserveSoc") {
-                                    datasets.push({
-                                        label:
-                                            this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.EMERGENCY_RESERVE"),
-                                        data: data,
-                                        borderDash: [3, 3],
 
-                                    });
-                                    this.colors.push({
-                                        backgroundColor: "rgba(1, 1, 1,0)",
-                                        borderColor: "rgba(1, 1, 1,1)",
-                                    });
-                                }
-                                // Add datasets for MinSoc and MaxSoc
-                                if (channelAddress.channelId === "MinSoc") {
-                                    datasets.push({
-                                        label:
-                                            this.chargeDischargeLimiterComponents.length > 1 ? component.alias : this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MIN_SOC_VALUE"),
-                                        data: data,
-                                        borderDash: [5, 5],
-                                    });
-                                    this.colors.push({
-                                        backgroundColor: "rgba(0, 0, 255, 0.1)",
-                                        borderColor: "rgba(0, 0, 255, 1)",
-                                    });
-                                }
-                                if (channelAddress.channelId === "MaxSoc") {
-                                    datasets.push({
-                                        label: this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MAX_SOC_VALUE"),
-                                        data: data,
-                                        borderDash: [5, 5],
-                                    });
-                                    this.colors.push({
-                                        backgroundColor: "rgba(255, 165, 0, 0.1)",
-                                        borderColor: "rgba(255, 165, 0, 1)",
-                                    });
-                                }
-                                if (channelAddress.channelId === "BalancingSoc") {
-                                    datasets.push({
-                                        label: this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.FORCE_SOC_VALUE"),
-                                        data: data,
-                                        borderDash: [5, 5],
-                                    });
-                                    this.colors.push({
-                                        backgroundColor: "rgba(255, 0, 0, 0.1)",
-                                        borderColor: "rgba(255, 0, 0, 1)",
-                                    });
-                                }
+                                    if (channelAddress.channelId === "ActualReserveSoc") {
+                                        datasets.push({
+                                            label:
+                                                this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.EMERGENCY_RESERVE"),
+                                            data: data,
+                                            borderDash: [3, 3],
 
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: "rgba(1, 1, 1,0)",
+                                            borderColor: "rgba(1, 1, 1,1)",
+                                        });
+                                    }
+                                    // Add datasets for MinSoc and MaxSoc
+                                    if (channelAddress.channelId === "MinSoc") {
+                                        datasets.push({
+                                            label:
+                                                this.chargeDischargeLimiterComponents.length > 1 ? component.alias : this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MIN_SOC_VALUE"),
+                                            data: data,
+                                            borderDash: [5, 5],
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: "rgba(0, 0, 255, 0.1)",
+                                            borderColor: "rgba(0, 0, 255, 1)",
+                                        });
+                                    }
+                                    if (channelAddress.channelId === "MaxSoc") {
+                                        datasets.push({
+                                            label: this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MAX_SOC_VALUE"),
+                                            data: data,
+                                            borderDash: [5, 5],
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: "rgba(255, 165, 0, 0.1)",
+                                            borderColor: "rgba(255, 165, 0, 1)",
+                                        });
+                                    }
+                                    if (channelAddress.channelId === "BalancingSoc") {
+                                        datasets.push({
+                                            label: this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.FORCE_SOC_VALUE"),
+                                            data: data,
+                                            borderDash: [5, 5],
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: "rgba(255, 0, 0, 0.1)",
+                                            borderColor: "rgba(255, 0, 0, 1)",
+                                        });
+                                    }
+                                }
                             });
 
                             this.datasets = datasets;
