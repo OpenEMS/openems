@@ -157,13 +157,13 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 				this.peakshavingStartTime = Instant.now(this.componentManager.getClock()); // Start timer
 			}
 
-			calculatedPower = gridPower -= this.config.peakShavingPower();
+			
 
 			if (gridPower >= this.config.peakShavingPower()) {
 				/*
 				 * Peak-Shaving
 				 */
-
+				calculatedPower = gridPower -= this.config.peakShavingPower();
 				// if peakshaving is active, save "shaved" power
 				if (calculatedPower > 0) {
 					this._setPeakShavedGridPower(calculatedPower); // feed the channel
@@ -195,7 +195,7 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 				/*
 				 * Recharge
 				 */
-
+				calculatedPower = gridPower -= this.config.rechargePower();
 				this._setPeakShavedGridPower(0); // feed channel
 
 				if (calculatedPower < 0 && essRealPower == 0) {
