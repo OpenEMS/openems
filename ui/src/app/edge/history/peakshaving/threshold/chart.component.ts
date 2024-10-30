@@ -51,12 +51,13 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
 
             this.service.getConfig().then(config => {
                 const meterIdActivePower = config.getComponent(this.componentId).properties["meter.id"] + "/ActivePower";
-                const peakshavingPower = this.componentId + "/_PropertyPeakShavingPower";
-                const rechargePower = this.componentId + "/_PropertyRechargePower";
+                const propertyPeakshavingPower = this.componentId + "/_PropertyPeakShavingPower";
+                const propertyRechargePower = this.componentId + "/_PropertyRechargePower";
                 const stateMachine = this.componentId + "/StateMachine";
+                const peakShavingPower = this.componentId + "/PeakShavedGridPower";
                 const result = response.result;
 
-console.log("Debug Result:", result); // <-- Hier wird das Resultat geloggt
+                console.log("Debug Result:", result); // <-- Hier wird das Resultat geloggt
 
                 Object.keys(result.data).forEach(key => {
                     if (key != stateMachine && key != meterIdActivePower) {
@@ -98,8 +99,8 @@ console.log("Debug Result:", result); // <-- Hier wird das Resultat geloggt
                         borderColor: "rgba(0,0,0,1)",
                     });
                 }
-                if (rechargePower in result.data) {
-                    const data = result.data[rechargePower].map(value => {
+                if (propertyRechargePower in result.data) {
+                    const data = result.data[propertyRechargePower].map(value => {
                         if (value == null) {
                             return null;
                         } else if (value == 0) {
@@ -119,8 +120,29 @@ console.log("Debug Result:", result); // <-- Hier wird das Resultat geloggt
                         borderColor: "rgba(0,223,0,1)",
                     });
                 }
-                if (peakshavingPower in result.data) {
-                    const data = result.data[peakshavingPower].map(value => {
+                if (propertyPeakshavingPower in result.data) {
+                    const data = result.data[propertyPeakshavingPower].map(value => {
+                        if (value == null) {
+                            return null;
+                        } else if (value == 0) {
+                            return 0;
+                        } else {
+                            return value / 1000; // convert to kW
+                        }
+                    });
+                    datasets.push({
+                        label: this.translate.instant("Edge.Index.Widgets.Peakshaving.peakshavingPower"),
+                        data: data,
+                        hidden: false,
+                        borderDash: [3, 3],
+                    });
+                    this.colors.push({
+                        backgroundColor: "rgba(0,0,0,0)",
+                        borderColor: "rgba(200,0,0,1)",
+                    });
+                }
+                if (peakShavingPower in result.data) {
+                    const data = result.data[peakShavingPower].map(value => {
                         if (value == null) {
                             return null;
                         } else if (value == 0) {
@@ -218,6 +240,7 @@ console.log("Debug Result:", result); // <-- Hier wird das Resultat geloggt
                 new ChannelAddress(this.componentId, "_PropertyRechargePower"),
                 new ChannelAddress(this.componentId, "_PropertyPeakShavingPower"),
                 new ChannelAddress(this.componentId, "StateMachine"),
+                new ChannelAddress(this.componentId, "PeakShavedGridPower"),
                 new ChannelAddress(config.getComponent(this.componentId).properties["meter.id"], "ActivePower"),
                 new ChannelAddress("_sum", "ProductionDcActualPower"),
                 new ChannelAddress("_sum", "EssActivePower"),
