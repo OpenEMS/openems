@@ -24,8 +24,10 @@ public interface ControllerEssThresholdPeakshaver extends Controller, OpenemsCom
 		
 		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),
-		PEAK_SHAVED_GRID_POWER(Doc.of(OpenemsType.INTEGER)//
+		PEAK_SHAVED_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT).persistencePriority(HIGH)),
+		PEAK_SHAVING_TARGET_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT).persistencePriority(HIGH)),		
 		GRID_POWER_WITHOUT_PEAK_SHAVING(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),;		
 		
@@ -143,37 +145,71 @@ public interface ControllerEssThresholdPeakshaver extends Controller, OpenemsCom
 	}
 
 	// ----------------------------------------
-	// PeakShavedGridPower Channel
+	// PeakShaving Target Power Channel
 	// ----------------------------------------
 
 	/**
-	 * Gets the Channel for {@link ChannelId#PEAK_SHAVED_GRID_POWER}.
+	 * Gets the Channel for {@link ChannelId#PEAK_SHAVED_POWER}.
 	 *
 	 * @return the Channel
 	 */
-	public default Channel<Integer> getPeakShavedGridPowerChannel() {
-		return this.channel(ChannelId.PEAK_SHAVED_GRID_POWER);
+	public default Channel<Integer> getPeakShavingTargetPowerChannel() {
+		return this.channel(ChannelId.PEAK_SHAVING_TARGET_POWER);
 	}
 
 	/**
-	 * Gets the current value of Peak Shaved Grid Power. See {@link ChannelId#PEAK_SHAVED_GRID_POWER}.
+	 * Gets the current value of Peak Shaved Grid Power. See {@link ChannelId#PEAK_SHAVED_POWER}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Integer getPeakShavedGridPower() {
-		return this.getPeakShavedGridPowerChannel().value().get();
+	public default Integer getPeakShavingTargetPower() {
+		return this.getPeakShavingTargetPowerChannel().value().get();
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#PEAK_SHAVED_GRID_POWER}
+	 * Internal method to set the 'nextValue' on {@link ChannelId#PEAK_SHAVED_POWER}
 	 * Channel.
 	 *
 	 * @param value the next value
 	 */
-	public default void _setPeakShavedGridPower(Integer value) {
-		this.getPeakShavedGridPowerChannel().setNextValue(value);
+	public default void _setPeakShavingTargetPower(Integer value) {
+		this.getPeakShavingTargetPowerChannel().setNextValue(value);
 	}
 
+	// ----------------------------------------
+	// PeakShavedPower Channel
+	// ----------------------------------------
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PEAK_SHAVED_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Integer> getPeakShavedPowerChannel() {
+		return this.channel(ChannelId.PEAK_SHAVED_POWER);
+	}
+
+	/**
+	 * Gets the current value of Peak Shaved Grid Power. See {@link ChannelId#PEAK_SHAVED_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Integer getPeakShavedPower() {
+		return this.getPeakShavedPowerChannel().value().get();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#PEAK_SHAVED_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setPeakShavedPower(Integer value) {
+		this.getPeakShavedPowerChannel().setNextValue(value);
+	}
+	
+	
+	
 	// ----------------------------------------
 	// GridPowerWithoutPeakShaving Channel
 	// ----------------------------------------
