@@ -131,8 +131,8 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                         borderDash: [5, 5],
                                     });
                                     this.colors.push({
-                                        backgroundColor: "rgba(255, 0, 0, 0.1)",
-                                        borderColor: "rgba(255, 0, 0, 1)",
+                                        backgroundColor: "rgba(255, 165, 0, 0.1)",
+                                        borderColor: "rgba(255, 165, 0, 1)",
                                     });
                                 }
                                 if (channelAddress.channelId === "BalancingSoc") {
