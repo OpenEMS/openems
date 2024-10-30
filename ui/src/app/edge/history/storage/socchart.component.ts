@@ -113,9 +113,10 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                     });
                                 }
                                 // Add datasets for MinSoc and MaxSoc
-                                if (channelAddress.channelId === "MinSocLimit") {
+                                if (channelAddress.channelId === "MinSoc") {
                                     datasets.push({
-                                        label: this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MIN_SOC_VALUE"),
+                                        label:
+                                            this.chargeDischargeLimiterComponents.length > 1 ? component.alias : this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MIN_SOC_VALUE"),
                                         data: data,
                                         borderDash: [5, 5],
                                     });
@@ -124,7 +125,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                         borderColor: "rgba(0, 0, 255, 1)",
                                     });
                                 }
-                                if (channelAddress.channelId === "MaxSocLimit") {
+                                if (channelAddress.channelId === "MaxSoc") {
                                     datasets.push({
                                         label: this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MAX_SOC_VALUE"),
                                         data: data,
