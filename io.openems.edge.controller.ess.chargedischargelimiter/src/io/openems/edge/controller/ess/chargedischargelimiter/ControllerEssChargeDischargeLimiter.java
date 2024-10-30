@@ -29,15 +29,16 @@ public interface ControllerEssChargeDischargeLimiter extends Controller, Openems
 		FORCE_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT).persistencePriority(HIGH).accessMode(AccessMode.READ_WRITE)), // ), // Priority high
 																								// for testing
-		BALANCING_SOC(Doc.of(OpenemsType.INTEGER) //
 
-				.unit(Unit.PERCENT).persistencePriority(HIGH)), //
 		BALANCING_REMAINING_SECONDS(Doc.of(OpenemsType.INTEGER) //
 
 				.unit(Unit.SECONDS).persistencePriority(HIGH)), //
 		CHARGED_ENERGY(Doc.of(OpenemsType.INTEGER) // change name
 				.unit(Unit.WATT_HOURS).persistencePriority(HIGH)),
-
+		
+		
+		BALANCING_SOC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT).persistencePriority(HIGH)), //
 		MIN_SOC(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT).persistencePriority(HIGH)), //
 		MAX_SOC(Doc.of(OpenemsType.INTEGER) //
@@ -221,36 +222,6 @@ public interface ControllerEssChargeDischargeLimiter extends Controller, Openems
 	 */
 	public default Value<Integer> getBalancingSoc() {
 		return this.getBalancingSocChannel().value();
-	}
-
-	// Copied from Emergency Controller too get a grip on UI visulization
-	/**
-	 * Gets the Channel for {@link ChannelId#ACTUAL_RESERVE_SOC}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getActualReserveSocChannel() {
-		return this.channel(ChannelId.MIN_SOC);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#ACTUAL_RESERVE_SOC} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setActualReserveSoc(Integer value) {
-		this.getActualReserveSocChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the SoC value if Reserve SoC is enabled and returns null otherwise. See
-	 * {@link ChannelId#ACTUAL_RESERVE_SOC}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getActualReserveSoc() {
-		return this.getActualReserveSocChannel().value();
 	}
 
 	/**

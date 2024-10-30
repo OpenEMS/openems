@@ -55,7 +55,8 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                 const propertyPeakshavingPower = this.componentId + "/_PropertyPeakShavingPower";
                 const propertyRechargePower = this.componentId + "/_PropertyRechargePower";
                 const stateMachine = this.componentId + "/StateMachine";
-                const peakShavedPower = this.componentId + "/PeakShavedPower";
+                //const peakShavedPower = this.componentId + "/PeakShavedPower";
+                const peakShavedPower = "ctrlPeakShaving0/PeakShavedPower";
                 const peakShavingTargetPower = this.componentId + "/PeakShavingTragetPower";
                 const result = response.result;
 
@@ -83,6 +84,10 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
 
                 // convert datasets
                 const datasets = [];
+
+                // Function to count non-null values in an array
+                const countNonNullValues = (array: any[]) => array.filter(value => value !== null).length;
+
 
                 if (meterIdActivePower in result.data) {
                     const data = result.data[meterIdActivePower].map(value => {
@@ -125,6 +130,28 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         borderColor: "rgba(200,0,0,1)",
                     });
                 }
+                // test
+                // Peak Shaved Power Dataset
+                if (peakShavedPower in result.data) {
+                    const data = result.data[peakShavedPower].map(value => value == null ? null : value / 1000);
+                    console.log(`Non-null values in PeakShavedPower: ${countNonNullValues(data)}`);
+                    if (countNonNullValues(data) > 0) {
+                        datasets.push({
+                            label: this.translate.instant("Edge.Index.Widgets.Peakshaving.peakshavingActive"),
+                            data,
+                            hidden: false,
+                        });
+                        this.colors.push({
+                            backgroundColor: "rgba(0,0,0,0)",
+                            borderColor: "rgba(200,0,0,1)",
+                        });
+                    }
+                }
+
+
+                // test ende
+
+
                 if (peakShavedPower in result.data) {
                     const data = result.data[peakShavedPower].map(value => {
                         if (value == null) {

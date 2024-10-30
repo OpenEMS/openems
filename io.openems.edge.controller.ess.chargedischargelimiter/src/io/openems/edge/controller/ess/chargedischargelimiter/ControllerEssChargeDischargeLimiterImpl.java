@@ -359,6 +359,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 		this._setMaxSoc(this.maxSoc);
 		this._setMinSoc(this.minSoc);
+		this._setBalancingSoc(this.forceChargeSoc);
 
 		// save current state channel
 		this._setStateMachine(this.state);

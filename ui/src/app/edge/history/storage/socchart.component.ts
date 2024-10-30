@@ -195,8 +195,8 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                 .filter(component => component.isEnabled);
 
             this.chargeDischargeLimiterComponents.forEach(component => {
-                channeladdresses.push(new ChannelAddress(component.id, "MinSocLimit"));
-                channeladdresses.push(new ChannelAddress(component.id, "MaxSocLimit"));
+                channeladdresses.push(new ChannelAddress(component.id, "MinSoc"));
+                channeladdresses.push(new ChannelAddress(component.id, "MaxSoc"));
                 channeladdresses.push(new ChannelAddress(component.id, "BalancingSoc"));
             });
 
