@@ -25,7 +25,7 @@ public interface ControllerEssThresholdPeakshaver extends Controller, OpenemsCom
 		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),
 		PEAK_SHAVED_GRID_POWER(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)),
+				.unit(Unit.WATT).persistencePriority(HIGH)),
 		GRID_POWER_WITHOUT_PEAK_SHAVING(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),;		
 		
