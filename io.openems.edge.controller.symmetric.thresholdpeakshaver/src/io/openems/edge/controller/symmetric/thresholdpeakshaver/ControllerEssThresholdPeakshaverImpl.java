@@ -163,11 +163,6 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 				 */
 				calculatedPower = gridPower -= this.config.peakShavingPower();
 				// if peakshaving is active, save "shaved" power
-				if (calculatedPower > 0) {
-
-					this._setPeakShavingTargetPower(calculatedPower); // feed the channel
-					this._setPeakShavedPower(Math.min(calculatedPower, essRealPower)); //
-				}
 
 				this.logDebug(this.log, "Peakshaver: Battery Discharging");
 
@@ -223,6 +218,15 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 				this.changeState(State.STANDBY);
 
 			}
+			if (calculatedPower > 0) {
+
+				this._setPeakShavingTargetPower(calculatedPower); // feed the channel
+				this._setPeakShavedPower(Math.min(calculatedPower, essRealPower)); //
+			} else {
+				this._setPeakShavingTargetPower(0); // feed the channel
+				this._setPeakShavedPower(0); //
+			}
+
 			break;
 		default:
 			// ToDo
@@ -231,7 +235,7 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 		}
 		// save current state
 
-		if (this.state != state.PEAKSHAVING_ACTIVE) {
+		if (this.state != State.PEAKSHAVING_ACTIVE) {
 			this._setPeakShavingTargetPower(0); // feed the channel
 			this._setPeakShavedPower(0); //
 		}
@@ -240,8 +244,9 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 				+ this.peakshavingState.getName() + "\n max ESS power " + this.maxEssPower + "VA" + "\n Current SoC "
 				+ this.ess.getSoc().get() + "%" + "\n Current ESS ActivePower " + essRealPower + "W"
 				+ "\n Grid power (without ESS) " + this.getGridPowerWithoutPeakShaving() + "W"
-				+ "\n Balancing Target power " + this.getPeakShavingTargetPower() + "W" + "\n Balancing power "
-				+ this.getCalculatedPower() + "W" + "\n Shaved power " + this.getPeakShavedPower() + "W"
+				+ "\n Balancing Target power " + this.getPeakShavingTargetPower() + "W"   
+				+ "\n Shaved power " + this.getPeakShavedPower() + "W"
+				
 
 		);
 

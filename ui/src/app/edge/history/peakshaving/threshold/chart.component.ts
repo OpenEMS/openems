@@ -51,13 +51,18 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
 
             this.service.getConfig().then(config => {
                 const meterIdActivePower = config.getComponent(this.componentId).properties["meter.id"] + "/ActivePower";
+                //const propertyPeakshavingThresholdPower = this.componentId + "/_PropertyPeakShavingThresholdPower";
                 const propertyPeakshavingPower = this.componentId + "/_PropertyPeakShavingPower";
                 const propertyRechargePower = this.componentId + "/_PropertyRechargePower";
                 const stateMachine = this.componentId + "/StateMachine";
-                const peakShavingPower = this.componentId + "/PeakShavedGridPower";
+                const peakShavedPower = this.componentId + "/PeakShavedPower";
+                const peakShavingTargetPower = this.componentId + "/PeakShavingTragetPower";
                 const result = response.result;
 
                 console.log("Debug Result:", result); // <-- Hier wird das Resultat geloggt
+                console.log("Keys in result.data:", Object.keys(result.data)); // Check if expected keys are present
+
+                console.log("Debug Result:", peakShavedPower); // <-- Hier wird das Resultat geloggt
 
                 Object.keys(result.data).forEach(key => {
                     if (key != stateMachine && key != meterIdActivePower) {
@@ -90,7 +95,7 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant("General.measuredValue"),
+                        label: this.translate.instant("Edge.Index.Widgets.Peakshaving.gridConsumption"),
                         data: data,
                         hidden: false,
                     });
@@ -99,8 +104,9 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         borderColor: "rgba(0,0,0,1)",
                     });
                 }
-                if (propertyRechargePower in result.data) {
-                    const data = result.data[propertyRechargePower].map(value => {
+
+                if (peakShavingTargetPower in result.data) {
+                    const data = result.data[peakShavingTargetPower].map(value => {
                         if (value == null) {
                             return null;
                         } else if (value == 0) {
@@ -110,14 +116,35 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant("Edge.Index.Widgets.Peakshaving.rechargePower"),
+                        label: this.translate.instant("Edge.Index.Widgets.Peakshaving.peakshavingTarget"),
+                        data: data,
+                        hidden: false,
+                    });
+                    this.colors.push({
+                        backgroundColor: "rgba(0,0,0,0)",
+                        borderColor: "rgba(200,0,0,1)",
+                    });
+                }
+                if (peakShavedPower in result.data) {
+                    const data = result.data[peakShavedPower].map(value => {
+                        if (value == null) {
+                            return null;
+                        } else if (value == 0) {
+                            return 0;
+                        } else {
+                            console.log("Value:", value);
+                            return value / 1000; // convert to kW
+                        }
+                    });
+                    datasets.push({
+                        label: this.translate.instant("Edge.Index.Widgets.Peakshaving.peakshavingActive"),
                         data: data,
                         hidden: false,
                         borderDash: [3, 3],
                     });
                     this.colors.push({
                         backgroundColor: "rgba(0,0,0,0)",
-                        borderColor: "rgba(0,223,0,1)",
+                        borderColor: "rgba(200,0,0,1)",
                     });
                 }
                 if (propertyPeakshavingPower in result.data) {
@@ -138,11 +165,11 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                     });
                     this.colors.push({
                         backgroundColor: "rgba(0,0,0,0)",
-                        borderColor: "rgba(200,0,0,1)",
+                        borderColor: "rgba(150,199,199,1)",
                     });
                 }
-                if (peakShavingPower in result.data) {
-                    const data = result.data[peakShavingPower].map(value => {
+                if (propertyRechargePower in result.data) {
+                    const data = result.data[propertyRechargePower].map(value => {
                         if (value == null) {
                             return null;
                         } else if (value == 0) {
@@ -152,14 +179,14 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant("Edge.Index.Widgets.Peakshaving.peakshavingPower"),
+                        label: this.translate.instant("Edge.Index.Widgets.Peakshaving.rechargePower"),
                         data: data,
                         hidden: false,
                         borderDash: [3, 3],
                     });
                     this.colors.push({
                         backgroundColor: "rgba(0,0,0,0)",
-                        borderColor: "rgba(200,0,0,1)",
+                        borderColor: "rgba(200,199,199,1)",
                     });
                 }
                 if ("_sum/EssActivePower" in result.data) {
@@ -240,7 +267,8 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                 new ChannelAddress(this.componentId, "_PropertyRechargePower"),
                 new ChannelAddress(this.componentId, "_PropertyPeakShavingPower"),
                 new ChannelAddress(this.componentId, "StateMachine"),
-                new ChannelAddress(this.componentId, "PeakShavedGridPower"),
+                new ChannelAddress(this.componentId, "PeakShavedPower"),
+                new ChannelAddress(this.componentId, "PeakShavingTargetPower"),
                 new ChannelAddress(config.getComponent(this.componentId).properties["meter.id"], "ActivePower"),
                 new ChannelAddress("_sum", "ProductionDcActualPower"),
                 new ChannelAddress("_sum", "EssActivePower"),

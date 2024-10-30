@@ -63,11 +63,29 @@
                 <table class="full_width">
                     <tr>
                         <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.peakshaving
+                            Edge.Index.Widgets.Peakshaving.peakshavingTarget
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ng-container
-                                *ngIf="(currentData['channel'][controllerId + '/PeakShavedGridPower'] || true) as value">
+                                *ngIf="(currentData['channel'][controllerId + '/PeakShavingTargetPower'] || true) as value">
+                                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
+                            </ng-container>
+                        </td>
+                    </tr>
+                </table>
+            </ng-container>
+        </ion-card-content>
+
+        <ion-card-content class="underline" *ngIf="(edge.currentData | async) as currentData">
+            <ng-container *ngIf="component.id as controllerId">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.Peakshaving.peakshavingActive
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            <ng-container
+                                *ngIf="(currentData['channel'][controllerId + '/PeakShavedPower'] || true) as value">
                                 {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
                             </ng-container>
                         </td>
@@ -85,7 +103,7 @@
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
-                                <ion-input class="regularFont" type="number" formControlName="peakShavingPower"
+                                <ion-input class="regularFont" type="number" formControlName="propertyPeakShavingPower"
                                     style="text-align: end;">
                                 </ion-input>
                                 <ion-label class="regularFont">&nbsp;W</ion-label>
@@ -100,7 +118,7 @@
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
-                                <ion-input class="regularFont" type="number" formControlName="rechargePower"
+                                <ion-input class="regularFont" type="number" formControlName="propertyRechargePower"
                                     style="text-align: end;">
                                 </ion-input>
                                 <ion-label class="regularFont">&nbsp;W</ion-label>
@@ -117,8 +135,8 @@
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
-                                <ion-input class="regularFont" type="number" formControlName="peakShavingThresholdPower"
-                                    style="text-align: end;">
+                                <ion-input class="regularFont" type="number"
+                                    formControlName="propertyPeakShavingThresholdPower" style="text-align: end;">
                                 </ion-input>
                                 <ion-label class="regularFont">&nbsp;W</ion-label>
                             </ion-item>

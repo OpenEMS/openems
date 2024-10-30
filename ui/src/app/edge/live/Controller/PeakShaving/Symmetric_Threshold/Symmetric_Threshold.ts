@@ -12,10 +12,12 @@ import { Controller_Symmetric_Threshold_PeakShavingModalComponent } from "./moda
 export class Controller_Symmetric_Threshold_PeakShavingComponent extends AbstractFlatWidget {
 
     public activePower: number;
-    public peakShavingPower: number;
-    public rechargePower: number;
-    public peakShavingThresholdPower: number;
-    public peakShavedGridPower: number;
+    public propertyPeakShavingPower: number;
+    public propertyRechargePower: number;
+    public propertyPeakShavingThresholdPower: number;
+
+    public peakShavingTargetPower: number;
+    public peakShavedPower: number;
     public gridPowerWithoutPeakShaving: number;
     public peakShavingStateMachine: number;
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
@@ -42,7 +44,8 @@ export class Controller_Symmetric_Threshold_PeakShavingComponent extends Abstrac
             new ChannelAddress(this.componentId, "_PropertyPeakShavingPower"),
             new ChannelAddress(this.componentId, "_PropertyRechargePower"),
             new ChannelAddress(this.componentId, "_PropertyPeakShavingThresholdPower"),
-            new ChannelAddress(this.componentId, "PeakShavedGridPower"),
+            new ChannelAddress(this.componentId, "PeakShavedPower"),
+            new ChannelAddress(this.componentId, "PeakShavingTargetPower"),
             new ChannelAddress(this.componentId, "GridPowerWithoutPeakShaving"),
             new ChannelAddress(this.componentId, "PeakShavingStateMachine"),
         ];
@@ -52,10 +55,12 @@ export class Controller_Symmetric_Threshold_PeakShavingComponent extends Abstrac
         // activePower is 0 for negative Values
         this.activePower = currentData.allComponents[this.component.properties["meter.id"] + "/ActivePower"] >= 0
             ? currentData.allComponents[this.component.properties["meter.id"] + "/ActivePower"] : 0;
-        this.peakShavingPower = this.component.properties["peakShavingPower"];
-        this.rechargePower = this.component.properties["rechargePower"];
-        this.peakShavingThresholdPower = this.component.properties["peakShavingThresholdPower"];
-        this.peakShavedGridPower = currentData.allComponents[this.componentId + "/PeakShavedGridPower"] > 0 ? currentData.allComponents[this.componentId + "/PeakShavedGridPower"] : 0;
+        this.propertyPeakShavingPower = this.component.properties["peakShavingPower"];
+        this.propertyRechargePower = this.component.properties["rechargePower"];
+        this.propertyPeakShavingThresholdPower = this.component.properties["peakShavingThresholdPower"];
+
+        this.peakShavedPower = currentData.allComponents[this.componentId + "/PeakShavedPower"] > 0 ? currentData.allComponents[this.componentId + "/PeakShavedPower"] : 0;
+        this.peakShavingTargetPower = currentData.allComponents[this.componentId + "/PeakShavingTargetPower"] > 0 ? currentData.allComponents[this.componentId + "/PeakShavingTargetPower"] : 0;
         this.gridPowerWithoutPeakShaving = currentData.allComponents[this.componentId + "/GridPowerWithoutPeakShaving"] >= 0 ? currentData.allComponents[this.componentId + "/GridPowerWithoutPeakShaving"] : 0;
         this.peakShavingStateMachine = currentData.allComponents[this.componentId + "/PeakShavingStateMachine"];
     }
