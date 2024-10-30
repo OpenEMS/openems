@@ -48,7 +48,7 @@ export class Controller_Symmetric_Threshold_PeakShavingModalComponent implements
     ) { }
 
     ngOnInit() {
-        console.log("Edge currentData (before subscription):", this.edge.currentData);
+        //console.log("Edge currentData (before subscription):", this.edge.currentData);
 
         this.formGroup = this.formBuilder.group({
             propertyPeakShavingPower: new FormControl(this.component.properties.peakShavingPower, Validators.compose([
@@ -69,7 +69,7 @@ export class Controller_Symmetric_Threshold_PeakShavingModalComponent implements
 
         this.edge.currentData.subscribe((currentData) => {
             this.setCurrentStateFromData(currentData);
-            console.log("Current Data:", currentData); // Check what data is coming in
+            //console.log("Current Data:", currentData); // Check what data is coming in
         });
     }
 

@@ -212,7 +212,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
         for (const essId in this.prepareBatteryExtensionCtrl) {
             const controller = this.prepareBatteryExtensionCtrl[essId];
-            console.log(`Checking Battery Extension for essId: ${essId}`, controller);
+            //console.log(`Checking Battery Extension for essId: ${essId}`, controller);
             this.possibleBatteryExtensionMessage.set(
                 essId,
                 this.getBatteryCapacityExtensionStatus(

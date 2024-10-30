@@ -19,12 +19,12 @@ import { AsymmetricPeakshavingWidgetComponent } from "./peakshaving/asymmetric/w
 import { SymmetricPeakshavingChartComponent } from "./peakshaving/symmetric/chart.component";
 import { SymmetricPeakshavingChartOverviewComponent } from "./peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component";
 import { SymmetricPeakshavingWidgetComponent } from "./peakshaving/symmetric/widget.component";
-import { TimeslotPeakshavingChartComponent } from "./peakshaving/timeslot/chart.component";
-import { TimeslotPeakshavingChartOverviewComponent } from "./peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component";
-import { TimeslotPeakshavingWidgetComponent } from "./peakshaving/timeslot/widget.component";
 import { ThresholdPeakshavingChartComponent } from "./peakshaving/threshold/chart.component";
 import { ThresholdPeakshavingChartOverviewComponent } from "./peakshaving/threshold/thresholdpeakshavingchartoverview/thresholdpeakshavingchartoverview.component";
 import { ThresholdPeakshavingWidgetComponent } from "./peakshaving/threshold/widget.component";
+import { TimeslotPeakshavingChartComponent } from "./peakshaving/timeslot/chart.component";
+import { TimeslotPeakshavingChartOverviewComponent } from "./peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component";
+import { TimeslotPeakshavingWidgetComponent } from "./peakshaving/timeslot/widget.component";
 import { StorageChargerChartComponent } from "./storage/chargerchart.component";
 import { StorageESSChartComponent } from "./storage/esschart.component";
 import { StorageSingleChartComponent } from "./storage/singlechart.component";
