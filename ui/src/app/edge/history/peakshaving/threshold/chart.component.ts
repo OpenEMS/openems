@@ -54,7 +54,7 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                 const propertyPeakshavingThresholdPower = this.componentId + "/_PropertyPeakShavingThresholdPower";
                 const propertyPeakshavingPower = this.componentId + "/_PropertyPeakShavingPower";
                 const propertyRechargePower = this.componentId + "/_PropertyRechargePower";
-                const stateMachine = this.componentId + "/StateMachine";
+                //const stateMachine = this.componentId + "/StateMachine";
                 const peakShavedPower = this.componentId + "/PeakShavedPower";
 
                 const peakShavingTargetPower = this.componentId + "/PeakShavingTargetPower";

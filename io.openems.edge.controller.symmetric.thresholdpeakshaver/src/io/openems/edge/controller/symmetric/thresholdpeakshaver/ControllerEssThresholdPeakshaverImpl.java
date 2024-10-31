@@ -168,6 +168,7 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 
 				if (essRealPower == 0 && calculatedPower > 0) { // assume ESS is 'empty'
 					this.changePeakshavingState(PeakshavingState.DISCHARGING_FAILS);
+					this._setPeakShavedPower(0); //
 					break;
 				}
 
@@ -185,7 +186,7 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 					}
 
 				}
-
+				
 			} else if (gridPower <= this.config.rechargePower()) {
 				/*
 				 * Recharge
