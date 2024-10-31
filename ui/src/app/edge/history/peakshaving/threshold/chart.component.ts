@@ -51,29 +51,19 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
 
             this.service.getConfig().then(config => {
                 const meterIdActivePower = config.getComponent(this.componentId).properties["meter.id"] + "/ActivePower";
-                //const propertyPeakshavingThresholdPower = this.componentId + "/_PropertyPeakShavingThresholdPower";
+                const propertyPeakshavingThresholdPower = this.componentId + "/_PropertyPeakShavingThresholdPower";
                 const propertyPeakshavingPower = this.componentId + "/_PropertyPeakShavingPower";
                 const propertyRechargePower = this.componentId + "/_PropertyRechargePower";
                 const stateMachine = this.componentId + "/StateMachine";
-                //const peakShavedPower = this.componentId + "/PeakShavedPower";
-                const peakShavedPower = "ctrlPeakShaving0/PeakShavedPower";
-                const peakShavingTargetPower = this.componentId + "/PeakShavingTragetPower";
+                const peakShavedPower = this.componentId + "/PeakShavedPower";
+
+                const peakShavingTargetPower = this.componentId + "/PeakShavingTargetPower";
                 const result = response.result;
 
                 console.log("Debug Result:", result); // <-- Hier wird das Resultat geloggt
                 console.log("Keys in result.data:", Object.keys(result.data)); // Check if expected keys are present
 
                 console.log("Debug Result:", peakShavedPower); // <-- Hier wird das Resultat geloggt
-
-                Object.keys(result.data).forEach(key => {
-                    if (key != stateMachine && key != meterIdActivePower) {
-                        result.data[stateMachine].forEach((value, stateIndex) => {
-                            if (value != 3) {
-                                result.data[key][stateIndex] = null;
-                            }
-                        });
-                    }
-                });
 
                 // convert labels
                 const labels: Date[] = [];
@@ -84,10 +74,6 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
 
                 // convert datasets
                 const datasets = [];
-
-                // Function to count non-null values in an array
-                const countNonNullValues = (array: any[]) => array.filter(value => value !== null).length;
-
 
                 if (meterIdActivePower in result.data) {
                     const data = result.data[meterIdActivePower].map(value => {
@@ -130,27 +116,6 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         borderColor: "rgba(200,0,0,1)",
                     });
                 }
-                // test
-                // Peak Shaved Power Dataset
-                if (peakShavedPower in result.data) {
-                    const data = result.data[peakShavedPower].map(value => value == null ? null : value / 1000);
-                    console.log(`Non-null values in PeakShavedPower: ${countNonNullValues(data)}`);
-                    if (countNonNullValues(data) > 0) {
-                        datasets.push({
-                            label: this.translate.instant("Edge.Index.Widgets.Peakshaving.peakshavingActive"),
-                            data,
-                            hidden: false,
-                        });
-                        this.colors.push({
-                            backgroundColor: "rgba(0,0,0,0)",
-                            borderColor: "rgba(200,0,0,1)",
-                        });
-                    }
-                }
-
-
-                // test ende
-
 
                 if (peakShavedPower in result.data) {
                     const data = result.data[peakShavedPower].map(value => {
@@ -172,6 +137,28 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                     this.colors.push({
                         backgroundColor: "rgba(0,0,0,0)",
                         borderColor: "rgba(200,0,0,1)",
+                    });
+                }
+
+                if (propertyPeakshavingThresholdPower in result.data) {
+                    const data = result.data[propertyPeakshavingThresholdPower].map(value => {
+                        if (value == null) {
+                            return null;
+                        } else if (value == 0) {
+                            return 0;
+                        } else {
+                            return value / 1000; // convert to kW
+                        }
+                    });
+                    datasets.push({
+                        label: this.translate.instant("Edge.Index.Widgets.Peakshaving.peakShavingThresholdPower"),
+                        data: data,
+                        hidden: false,
+                        borderDash: [3, 3],
+                    });
+                    this.colors.push({
+                        backgroundColor: "rgba(0,0,0,0)",
+                        borderColor: "rgba(50,199,199,1)",
                     });
                 }
                 if (propertyPeakshavingPower in result.data) {
@@ -292,12 +279,12 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
         return new Promise((resolve) => {
             const result: ChannelAddress[] = [
                 new ChannelAddress(this.componentId, "_PropertyRechargePower"),
+                new ChannelAddress(this.componentId, "_PropertyPeakShavingThresholdPower"),
                 new ChannelAddress(this.componentId, "_PropertyPeakShavingPower"),
                 new ChannelAddress(this.componentId, "StateMachine"),
                 new ChannelAddress(this.componentId, "PeakShavedPower"),
                 new ChannelAddress(this.componentId, "PeakShavingTargetPower"),
                 new ChannelAddress(config.getComponent(this.componentId).properties["meter.id"], "ActivePower"),
-                new ChannelAddress("_sum", "ProductionDcActualPower"),
                 new ChannelAddress("_sum", "EssActivePower"),
             ];
             resolve(result);
