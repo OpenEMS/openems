@@ -13,18 +13,13 @@ import org.osgi.service.event.Event;
 
 import com.google.gson.JsonObject;
 
-import io.openems.common.event.EventBuilderTest;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.AbstractJsonrpcRequestTest;
 import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
-import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.jsonapi.Call;
 import io.openems.edge.common.test.DummyCycle;
-import io.openems.edge.common.test.DummyEventAdmin;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.meter.test.DummyElectricityMeter;
@@ -97,15 +92,15 @@ public class CalculateSocTest {
 		this.underTest.meter = new DummyElectricityMeter("meter0").withActivePower(200);
 		
 		this.underTest.realizedEnergyGridWs = 100;
-		this.underTest.levlSocWs = 2000;
-		this.underTest.currentRequest = new LevlControlRequest();
-		this.underTest.currentRequest.energyWs = 200_000;
-		this.underTest.currentRequest.efficiencyPercent = 100;
-		this.underTest.currentRequest.socLowerBoundPercent = 20;
-		this.underTest.currentRequest.socUpperBoundPercent = 80;
-		this.underTest.currentRequest.buyFromGridLimitW = 1000;
-		this.underTest.currentRequest.sellToGridLimitW = -1000;
-		this.underTest.currentRequest.influenceSellToGrid = true;
+		this.underTest._setLevlSoc(2000L); //TODO: Channels lassen sich innerhalb dieses Unit-Tests nicht setzen. Ggf. nicht notwendig, da Prüfung via OpenEMS-Test
+//		this.underTest.currentRequest = new LevlControlRequest();
+//		this.underTest.currentRequest.energyWs = 200_000;
+		this.underTest._setEfficiency(100.0);
+		this.underTest._setSocLowerBoundLevl(20.0);
+		this.underTest._setSocUpperBoundLevl(80.0);
+		this.underTest._setBuyFromGridLimit(1000L);
+		this.underTest._setSellToGridLimit(-1000L);
+		this.underTest._setInfluenceSellToGrid(true);
 		
 		int result = this.underTest.calculateRequiredPower();
 		
@@ -116,38 +111,31 @@ public class CalculateSocTest {
 	
 	@Test
 	public void testApplyPucSocBounds() {
-		this.underTest.currentRequest = new LevlControlRequest();
-		this.underTest.currentRequest.efficiencyPercent = 100;
-		
-		Assert.assertEquals("good case discharge", 30, this.underTest.applyPucSocBounds(1, 100, 50, 30));
-		Assert.assertEquals("good case charge", -30, this.underTest.applyPucSocBounds(1, 100, 50, -30));
-		Assert.assertEquals("minimum limit applies", 50, this.underTest.applyPucSocBounds(1, 100, 50, 70));
-		Assert.assertEquals("minimum limit applies due to cycleTime", 25, this.underTest.applyPucSocBounds(2, 100, 50, 30));
-		Assert.assertEquals("maximum limit applies", -50, this.underTest.applyPucSocBounds(1, 100, 50, -70));
-		Assert.assertEquals("no charging allowed because soc is 100%", 0, this.underTest.applyPucSocBounds(1, 100, 100, -20));
-		Assert.assertEquals("no discharging allowed because soc is 0%", 0, this.underTest.applyPucSocBounds(1, 100, 0, 20));
-		Assert.assertEquals("discharging allowed with soc 100%", 20, this.underTest.applyPucSocBounds(1, 100, 100, 20));
-		Assert.assertEquals("charging allowed with soc 0%", -20, this.underTest.applyPucSocBounds(1, 100, 0, -20));
+		Assert.assertEquals("good case discharge", 30, this.underTest.applyPucSocBounds(1, 100, 50, 30, 100));
+		Assert.assertEquals("good case charge", -30, this.underTest.applyPucSocBounds(1, 100, 50, -30, 100));
+		Assert.assertEquals("minimum limit applies", 50, this.underTest.applyPucSocBounds(1, 100, 50, 70, 100));
+		Assert.assertEquals("minimum limit applies due to cycleTime", 25, this.underTest.applyPucSocBounds(2, 100, 50, 30, 100));
+		Assert.assertEquals("maximum limit applies", -50, this.underTest.applyPucSocBounds(1, 100, 50, -70, 100));
+		Assert.assertEquals("no charging allowed because soc is 100%", 0, this.underTest.applyPucSocBounds(1, 100, 100, -20, 100));
+		Assert.assertEquals("no discharging allowed because soc is 0%", 0, this.underTest.applyPucSocBounds(1, 100, 0, 20, 100));
+		Assert.assertEquals("discharging allowed with soc 100%", 20, this.underTest.applyPucSocBounds(1, 100, 100, 20, 100));
+		Assert.assertEquals("charging allowed with soc 0%", -20, this.underTest.applyPucSocBounds(1, 100, 0, -20, 100));
 	
-		this.underTest.currentRequest.efficiencyPercent = 80;
-		//TODO: Efficiency prüfen
-		Assert.assertEquals("good case discharge /w efficiency", 30, this.underTest.applyPucSocBounds(1, 100, 50, 30));
-		Assert.assertEquals("good case charge /w efficiency", -30, this.underTest.applyPucSocBounds(1, 100, 50, -30));
-		Assert.assertEquals("minimum limit applies /w efficiency", 40, this.underTest.applyPucSocBounds(1, 100, 50, 70));
-		Assert.assertEquals("maximum limit applies /w efficiency", -62, this.underTest.applyPucSocBounds(1, 100, 50, -70));		
+		// efficiency 80%
+		Assert.assertEquals("good case discharge /w efficiency", 30, this.underTest.applyPucSocBounds(1, 100, 50, 30, 80));
+		Assert.assertEquals("good case charge /w efficiency", -30, this.underTest.applyPucSocBounds(1, 100, 50, -30, 80));
+		Assert.assertEquals("minimum limit applies /w efficiency", 40, this.underTest.applyPucSocBounds(1, 100, 50, 70, 80));
+		Assert.assertEquals("maximum limit applies /w efficiency", -62, this.underTest.applyPucSocBounds(1, 100, 50, -70, 80));		
 	}
 
     @Test
     public void testCalculatePucBatteryPower() {
-		this.underTest.currentRequest = new LevlControlRequest();
-		this.underTest.currentRequest.efficiencyPercent = 100;
-
 		Assert.assertEquals("discharge within battery limit", 70, underTest.calculatePucBatteryPower(1, 50, 20, 
-                1000, 500, -150, 150));
+                1000, 500, -150, 150, 100));
 		Assert.assertEquals("discharge outside battery limit", 150, underTest.calculatePucBatteryPower(1, 200, 20, 
-                1000, 500, -150, 150));
+                1000, 500, -150, 150, 100));
 		Assert.assertEquals("charge outside battery limit", -150, underTest.calculatePucBatteryPower(1, -200, -20, 
-                1000, 500, -150, 150));
+                1000, 500, -150, 150, 100));
 }
     
     // Levl Power calculation
@@ -161,40 +149,27 @@ public class CalculateSocTest {
 
 	@Test
 	public void testApplySocBoundariesToLevlPower() {
-		this.underTest.currentRequest = new LevlControlRequest();
-		this.underTest.currentRequest.socLowerBoundPercent = 20;
-		this.underTest.currentRequest.socUpperBoundPercent = 80;
-		this.underTest.currentRequest.efficiencyPercent = 90;
-		
-		Assert.assertEquals(-22, this.underTest.applySocBoundariesToLevlPower(-100, 60, 100, 1));
-		Assert.assertEquals(-10, this.underTest.applySocBoundariesToLevlPower(-10, 60, 100, 1));
-		Assert.assertEquals(10, this.underTest.applySocBoundariesToLevlPower(10, 60, 100, 1));
-		Assert.assertEquals(36, this.underTest.applySocBoundariesToLevlPower(100, 60, 100, 1));
+		Assert.assertEquals(-22, this.underTest.applySocBoundariesToLevlPower(-100, 60, 0, 20, 80, 100, 90, 1));
+		Assert.assertEquals(-10, this.underTest.applySocBoundariesToLevlPower(-10, 60, 0, 20, 80, 100, 90, 1));
+		Assert.assertEquals(10, this.underTest.applySocBoundariesToLevlPower(10, 60, 0, 20, 80, 100, 90, 1));
+		Assert.assertEquals(36, this.underTest.applySocBoundariesToLevlPower(100, 60, 0, 20, 80, 100, 90, 1));
 	}
 	
 	@Test
 	public void testApplyGridPowerLimitsToLevlPower() {
-		this.underTest.currentRequest = new LevlControlRequest();
-		this.underTest.currentRequest.buyFromGridLimitW = 80;
-		this.underTest.currentRequest.sellToGridLimitW = -70;
-
-		Assert.assertEquals("levlPower within limits", 50, this.underTest.applyGridPowerLimitsToLevlPower(50, 0));
-		Assert.assertEquals("levlPower within limits balancing grid", 100, this.underTest.applyGridPowerLimitsToLevlPower(100, 40));
-		Assert.assertEquals("levlPower constraint by sellToGridLimit", 50, this.underTest.applyGridPowerLimitsToLevlPower(100, -20));
-		Assert.assertEquals("levlPower constraint by buyFromGridLimit", -60, this.underTest.applyGridPowerLimitsToLevlPower(-100, 20));
+		Assert.assertEquals("levlPower within limits", 50, this.underTest.applyGridPowerLimitsToLevlPower(50, 0, 80, -70));
+		Assert.assertEquals("levlPower within limits balancing grid", 100, this.underTest.applyGridPowerLimitsToLevlPower(100, 40, 80, -70));
+		Assert.assertEquals("levlPower constraint by sellToGridLimit", 50, this.underTest.applyGridPowerLimitsToLevlPower(100, -20, 80, -70));
+		Assert.assertEquals("levlPower constraint by buyFromGridLimit", -60, this.underTest.applyGridPowerLimitsToLevlPower(-100, 20, 80, -70));
 	}
 	
 	@Test
 	public void testInfluenceSellToGridConstraint() {
-		this.underTest.currentRequest = new LevlControlRequest();
-		this.underTest.currentRequest.influenceSellToGrid = true;
-
-		Assert.assertEquals("influence allowed", 50, this.underTest.applyInfluenceSellToGridConstraint(50, 0));
+		Assert.assertEquals("influence allowed", 50, this.underTest.applyInfluenceSellToGridConstraint(50, 0, true));
 		
-		this.underTest.currentRequest.influenceSellToGrid = false;
-		Assert.assertEquals("buy from grid is allowed", -50, this.underTest.applyInfluenceSellToGridConstraint(-50, 20));
-		Assert.assertEquals("switch gridPower /w buy from grid to sell to grid not allowed", 20, this.underTest.applyInfluenceSellToGridConstraint(50, 20));
-		Assert.assertEquals("do nothing because grid power sells to grid", 0, this.underTest.applyInfluenceSellToGridConstraint(-50, -20));
+		Assert.assertEquals("buy from grid is allowed", -50, this.underTest.applyInfluenceSellToGridConstraint(-50, 20, false));
+		Assert.assertEquals("switch gridPower /w buy from grid to sell to grid not allowed", 20, this.underTest.applyInfluenceSellToGridConstraint(50, 20, false));
+		Assert.assertEquals("do nothing because grid power sells to grid", 0, this.underTest.applyInfluenceSellToGridConstraint(-50, -20, false));
 	}
 	
 	@Test
@@ -323,20 +298,20 @@ public class CalculateSocTest {
 		this.underTest.ess = new DummyManagedSymmetricEss("ess0")
 				.withActivePower(-100);
 		this.underTest.cycle = new DummyCycle(1000);
+		this.underTest._setPucBatteryPower(10L); //TODO: Channels lassen sich innerhalb dieses Unit-Tests nicht setzen. Ggf. nicht notwendig, da Prüfung via OpenEMS-Test
+		this.underTest._setLevlSoc(40L);
 		LevlControlRequest currentRequest = new LevlControlRequest();
 		currentRequest.efficiencyPercent = 80.0;
 		this.underTest.currentRequest = currentRequest;
-		this.underTest.pucBatteryPower = 10;
 		this.underTest.realizedEnergyGridWs = 20;
 		this.underTest.realizedEnergyBatteryWs = 30;
-		this.underTest.levlSocWs = 40;
 			
 		this.underTest.handleEvent(event);
 		
 		//TODO: check efficiency
 		Assert.assertEquals(-90, this.underTest.realizedEnergyGridWs);
 		Assert.assertEquals(-58, this.underTest.realizedEnergyBatteryWs);
-		Assert.assertEquals(128, this.underTest.levlSocWs);
+		Assert.assertEquals(128, this.underTest.getLevlSoc().get().longValue());
 	}
 
 	@Test
@@ -365,6 +340,6 @@ public class CalculateSocTest {
 		this.underTest.handleRequest(call);
 		
 		Assert.assertEquals(expectedNextRequest, this.underTest.nextRequest);
-		Assert.assertEquals(36000000, this.underTest.levlSocWs);
+		Assert.assertEquals(36000000, this.underTest.getLevlSoc().get().longValue()); //TODO: Channels lassen sich innerhalb dieses Unit-Tests nicht abfragen. Kann auch NICHT durch OpenEMS-Test abgetestet werden!
 	}
 }

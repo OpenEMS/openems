@@ -5,7 +5,6 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.DoubleReadChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.StringReadChannel;
@@ -276,7 +275,7 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 	public default Value<Long> getPucBatteryPower() {
 	    return this.getPucBatteryPowerChannel().value();
 	}
-	
+		
 	/**
 	 * Sets the next value of the PUC battery power.
 	 * @param value the next value
